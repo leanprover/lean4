@@ -30,9 +30,9 @@ instance : CCPO Prop where
 
 @[partial_fixpoint_monotone] theorem monotone_exists
     {α} [PartialOrder α] {β} (f : α → β → Prop)
-    (h : forall_arg monotone f) :
+    (h : monotone f) :
     monotone (fun x => Exists (f x)) :=
-  fun x y hxy ⟨w, hw⟩ => ⟨w, h w x y hxy hw⟩
+  fun x y hxy ⟨w, hw⟩ => ⟨w, monotone_apply w f h x y hxy hw⟩
 
 @[partial_fixpoint_monotone] theorem monotone_and
     {α} [PartialOrder α] (f₁ : α → Prop) (f₂ : α → Prop)

@@ -224,12 +224,11 @@ theorem computeLfp'.eq_1.{u} : ∀ {α : Type u} [inst : DecidableEq α] (f : α
 -/
 #guard_msgs in #print equations computeLfp'
 
--- TODO: Switching to `(cfg := { synthAssignedInstances := false})` inlines `next`?
 /--
 error: Could not prove 'computeLfp'''' to be tailrecursive:
   Recursive call `computeLfp''' f next` is not a tail call.
   Enclosing tail-call position:
-    id (computeLfp''' f (f x))
+    id (computeLfp''' f next)
 -/
 #guard_msgs in
 def computeLfp''' {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=

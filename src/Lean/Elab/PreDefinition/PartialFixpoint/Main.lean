@@ -63,10 +63,10 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   -- mkAppM does not support the equivalent of (cfg := { synthAssignedInstances := false}),
   -- so this is a bit more pedestrian
   let_expr monotone _ inst _ inst₁ _ := (← inferType hmono₁)
-    | throwError "Unexpected type of{indentExpr hmono₁}"
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₁}"
   let_expr monotone _ _ _ inst₂ _ := (← inferType hmono₂)
-    | throwError "Unexpected type of{indentExpr hmono₂}"
-  mkAppOptM ``monotone_prod #[none, none, inst₁, inst₂, none, inst, none, none, hmono₁, hmono₂]
+    | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₂}"
+  mkAppOptM ``monotone_prod #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- For every function of type `∀ x y, r x y`, an CCPO instance

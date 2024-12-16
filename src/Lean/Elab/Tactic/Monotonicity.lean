@@ -51,8 +51,6 @@ Given expression `e` of the form `f xs`, possibly open, try to find monotonicity
 for f.
 -/
 def findMonoThms (e : Expr) : MetaM (Array Name) := do
-  -- The `letFun` theorem does not play well with the discrimination tree
-  if e.isLetFun then return #[``monotone_letFun]
   (monotoneExt.getState (← getEnv)).getMatch e
 
 private def defaultFailK (f : Expr) (monoThms : Array Name) : MetaM α :=
@@ -89,7 +87,7 @@ partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) :
     let some inst ← whnfUntil inst ``instPartialOrderPProd | throwError "solveMonoCall {e}: unexpected instance {inst}"
     let_expr instPartialOrderPProd β γ inst_β inst_γ ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
     let n := if e.projIdx! == 0 then ``monotone_fst else ``monotone_snd
-    return ← mkAppOptM n #[β, γ, inst_β, inst_γ, α, inst_α, none, hmono]
+    return ← mkAppOptM n #[β, γ, α, inst_β, inst_γ, inst_α, none, hmono]
 
   if e == .bvar 0 then
     let hmono ← mkAppOptM ``monotone_id #[α, inst_α]
@@ -107,18 +105,7 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     return [goal]
 
   match_expr type with
-  | forall_arg _α _β _γ _P f =>
-    let f ← instantiateMVars f
-    let f := headBetaUnderLambda f
-    if f.isLambda && f.bindingBody!.isLambda then
-      let name := f.bindingBody!.bindingName!
-      let (_, new_goal) ← goal.intro name
-      return [new_goal]
-    else
-      let (_, new_goal) ← goal.intro1
-      return [new_goal]
-
-  | monotone α inst_α _β _inst_β f =>
+  | monotone α inst_α β inst_β f =>
     -- Ensure f is not headed by a redex and headed by at least one lambda, and clean some
     -- redexes left by some of the lemmas we tend to apply
     let f ← instantiateMVars f
@@ -151,6 +138,26 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
         pure goal'
       return [goal'.mvarId!]
 
+    -- Float `letFun` to the environment.
+    -- `applyConst` tends to reduce the redex
+    match_expr e with
+    | letFun γ _ v b =>
+      if γ.hasLooseBVars || v.hasLooseBVars then
+        failK f #[]
+      let b' := f.updateLambdaE! f.bindingDomain! b
+      let p  ← mkAppOptM ``monotone_letFun #[α, β, γ, inst_α, inst_β, v, b']
+      let new_goals ← mapError (f := (m!"Could not apply {p}:{indentD ·}")) do
+        goal.apply p
+      let [new_goal] := new_goals
+          | throwError "Unexpected number of goals after {.ofConstName ``monotone_letFun}."
+      let (_, new_goal) ←
+        if b.isLambda then
+          new_goal.intro b.bindingName!
+        else
+          new_goal.intro1
+      return [new_goal]
+    | _ => pure ()
+
     -- Handle lambdas, preserving the name of the binder
     if e.isLambda then
       let [new_goal] ← applyConst goal ``monotone_of_monotone_apply
@@ -173,11 +180,11 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
     let monoThms ← withLocalDeclD `f f.bindingDomain! fun f =>
       -- The discrimination tree does not like open terms
       findMonoThms (e.instantiate1 f)
-    trace[Elab.Tactic.partial_monotonicity] "Found monoThms: {monoThms}"
+    trace[Elab.Tactic.partial_monotonicity] "Found monoThms: {monoThms.map MessageData.ofConstName}"
     for monoThm in monoThms do
       let new_goals? ← try
         let new_goals ← applyConst goal monoThm
-        trace[Elab.Tactic.partial_monotonicity] "Succeeded with {monoThm}"
+        trace[Elab.Tactic.partial_monotonicity] "Succeeded with {.ofConstName monoThm}"
         pure (some new_goals)
       catch e =>
         trace[Elab.Tactic.partial_monotonicity] "{e.toMessageData}"

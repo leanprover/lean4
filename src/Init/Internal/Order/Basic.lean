@@ -9,44 +9,11 @@ prelude
 import Init.ByCases
 import Init.RCases
 
+universe u v w
+
 namespace Lean.Order
 
-/--
-Auxillary definition to help with preserving user-visible names.
-
-The goal is that when solving a goal of, say
-```
-monotone (fun x => a >>= (fun y => k x y))
-```
-we end up with the goal
-```
-y ⊢ monotone (fun x => k x y)
-```
-where the name `y` matches the name that the user used in the lambda.
-
-If the lemma for `monotone_bind` would have an assumption
-```
-(h : ∃ z, monotone (fun x => k x y))
-```
-then the code that applies `monotone_bind` would have to be careful to `intro` with the name found
-in the lambda, if present. And the same logic would have to repeated whenever applying a lemma
-of this form.
-
-So instead we write the assumption as
-```
-(h : forall_arg monotone k)
-```
-and only once, when handling this predicate transformer, we have to the implement the logic of “if
-there is a lambda, use the name found there”.
-
-Can be nested (`forall_arg (forall_arg monotone)`).
--/
-def forall_arg (P : (α → β) → Prop) (f : α → γ → β) : Prop := ∀ y, P (fun x => f x y)
-
-
-universe u v
-
-class PartialOrder (α : Type u) where
+class PartialOrder (α : Sort u) where
   /-- The less-defined than relation -/
   rel : α → α → Prop
   rel_refl : ∀ {x}, rel x x
@@ -58,7 +25,7 @@ class PartialOrder (α : Type u) where
 
 section PartialOrder
 
-variable {α  : Type u} [PartialOrder α]
+variable {α  : Sort u} [PartialOrder α]
 
 theorem PartialOrder.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
 
@@ -66,7 +33,7 @@ def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y �
 
 end PartialOrder
 
-class CCPO (α : Type u) extends PartialOrder α where
+class CCPO (α : Sort u) extends PartialOrder α where
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
@@ -74,8 +41,8 @@ section CCPO
 
 section monotone
 
-variable {α : Type u} [PartialOrder α]
-variable {β : Type v} [PartialOrder β]
+variable {α : Sort u} [PartialOrder α]
+variable {β : Sort v} [PartialOrder β]
 
 def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
@@ -86,44 +53,17 @@ theorem monotone_id : monotone (fun (x : α) => x) :=
   fun _ _ hxy => hxy
 
 theorem monotone_compose
-    {γ : Type w} [PartialOrder γ]
+    {γ : Sort w} [PartialOrder γ]
     {f : α → β} {g : β → γ}
     (hf : monotone f) (hg : monotone g) :
    monotone (fun x => g (f x)) := fun _ _ hxy => hg _ _ (hf _ _ hxy)
 
-theorem monotone_letFun.{w} {γ : Sort w}
-  (v : γ)
-  (k : α → γ → β)
-  (hmono : forall_arg monotone k) :
-  monotone fun (x : α) => letFun v (k x) := hmono v
-
-theorem monotone_ite
-  (c : Prop) [Decidable c]
-  (k₁ : α → β)
-  (k₂ : α → β)
-  (hmono₁ : monotone k₁)
-  (hmono₂ : monotone k₂) :
-  monotone fun x => if c then k₁ x else k₂ x := by
-    split
-    · apply hmono₁
-    · apply hmono₂
-
-theorem monotone_dite
-  (c : Prop) [Decidable c]
-  (k₁ : α → c → β)
-  (k₂ : α → ¬ c → β)
-  (hmono₁ : forall_arg monotone k₁)
-  (hmono₂ : forall_arg monotone k₂) :
-  monotone fun x => dite c (k₁ x) (k₂ x) := by
-    split
-    · apply hmono₁
-    · apply hmono₂
 
 end monotone
 
 open PartialOrder CCPO
 
-variable {α  : Type u} [CCPO α]
+variable {α  : Sort u} [CCPO α]
 
 variable {c : α → Prop} (hchain : chain c)
 
@@ -226,8 +166,9 @@ section fun_order
 
 open PartialOrder
 
-variable {α : Type u}
-variable {β : α → Type v}
+variable {α : Sort u}
+variable {β : α → Sort v}
+variable {γ : Sort w}
 
 instance instOrderPi [∀ x, PartialOrder (β x)] : PartialOrder (∀ x, β x) where
   rel f g := ∀ x, f x ⊑ g x
@@ -246,7 +187,7 @@ theorem monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)] (a : α) (
 -- It seems this lemma can be used to decompose all kind of applications,
 -- but the `[Order β]` constraint comes out of no where, so not generally applicable.
 theorem monotone_apply_of_monotone -- can `f` be made dependent here?
-    {α : Type u} {β : Type v} {γ : Type w}
+    {α : Sort u} {β : Sort v} {γ : Sort w}
     [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f: γ → α → β}
     {g: γ → α}
@@ -260,7 +201,7 @@ theorem monotone_apply_of_monotone -- can `f` be made dependent here?
   apply hf2 y _ _ (hg _ _ hxy)
 
 theorem monotone_apply_of_monotone_arg
-    {α : Type u} {β : Type v} {γ : Type w}
+    {α : Sort u} {β : Sort v} {γ : Sort w}
     [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f: α → β}
     {g: γ → α}
@@ -308,12 +249,43 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
 
 end fun_order
 
+section monotone_lemmas
+
+theorem monotone_letFun
+    {α : Sort u} {β : Sort v} {γ : Sort w} [PartialOrder α] [PartialOrder β]
+    (v : γ) (k : α → γ → β)
+    (hmono : ∀ y, monotone (fun x => k x y)) :
+  monotone fun (x : α) => letFun v (k x) := hmono v
+
+theorem monotone_ite
+    {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
+    (c : Prop) [Decidable c]
+    (k₁ : α → β) (k₂ : α → β)
+    (hmono₁ : monotone k₁) (hmono₂ : monotone k₂) :
+  monotone fun x => if c then k₁ x else k₂ x := by
+    split
+    · apply hmono₁
+    · apply hmono₂
+
+theorem monotone_dite
+    {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
+    (c : Prop) [Decidable c]
+    (k₁ : α → c → β) (k₂ : α → ¬ c → β)
+    (hmono₁ : monotone k₁) (hmono₂ : monotone k₂) :
+  monotone fun x => dite c (k₁ x) (k₂ x) := by
+    split
+    · apply monotone_apply _ _ hmono₁
+    · apply monotone_apply _ _ hmono₂
+
+end monotone_lemmas
+
 section prod_order
 
 open PartialOrder
 
-variable {α : Type u}
-variable {β : Type v}
+variable {α : Sort u}
+variable {β : Sort v}
+variable {γ : Sort w}
 
 instance [PartialOrder α] [PartialOrder β] : PartialOrder (α ×' β) where
   rel a b := a.1 ⊑ b.1 ∧ a.2 ⊑ b.2
@@ -324,16 +296,16 @@ instance [PartialOrder α] [PartialOrder β] : PartialOrder (α ×' β) where
     dsimp at *
     rw [rel_antisymm ha.1 hb.1, rel_antisymm ha.2 hb.2]
 
-theorem monotone_prod [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
+theorem monotone_prod [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α} {g : γ → β} (hf : monotone f) (hg : monotone g) :
     monotone (fun x => PProd.mk (f x) (g x)) :=
   fun _ _ h12 => ⟨hf _ _ h12, hg _ _ h12⟩
 
-theorem monotone_fst [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
+theorem monotone_fst [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).1) :=
   fun _ _ h12 => (hf _ _ h12).1
 
-theorem monotone_snd [PartialOrder α] [PartialOrder β] {γ : Type w} [PartialOrder γ]
+theorem monotone_snd [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).2) :=
   fun _ _ h12 => (hf _ _ h12).2
 
@@ -380,17 +352,15 @@ instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
         intro b' ⟨a', hcab⟩
         apply (h _ hcab).2
 
-
-
 end prod_order
 
 section flat_order
 
-variable {α : Type u}
+variable {α : Sort u}
 variable [Nonempty α]
 
 set_option linter.unusedVariables false in
-def FlatOrder {α : Type u} (b : α) := α
+def FlatOrder {α : Sort u} (b : α) := α
 
 variable {b : α}
 
@@ -467,13 +437,12 @@ theorem monotone_bind
     {γ : Type w} [PartialOrder γ]
     (f : γ → m α) (g : γ → α → m β)
     (hmono₁ : monotone f)
-    (hmono₂ : forall_arg monotone g) :
+    (hmono₂ : monotone g) :
     monotone (fun (x : γ) => f x >>= g x) := by
   intro x₁ x₂ hx₁₂
   apply PartialOrder.rel_trans
   · apply MonoBind.bind_mono_left _ _ _ (hmono₁ _ _ hx₁₂)
-  · apply MonoBind.bind_mono_right _ _ _ (fun y => hmono₂ y _ _ hx₁₂)
-
+  · apply MonoBind.bind_mono_right _ _ _ (fun y => monotone_apply y _ hmono₂ _ _ hx₁₂)
 
 instance : PartialOrder (Option α) := inferInstanceAs (PartialOrder (FlatOrder none))
 noncomputable instance : CCPO (Option α) := inferInstanceAs (CCPO (FlatOrder none))

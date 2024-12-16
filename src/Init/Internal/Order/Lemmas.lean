@@ -18,22 +18,26 @@ theorem monotone_mapM
     {γ : Type w} [PartialOrder γ]
     (f : γ → α → m β)
     (xs : List α)
-    (hmono : forall_arg monotone f) :
+    (hmono : monotone f) :
     monotone (fun x => xs.mapM (f x)) := by
   cases xs with
   | nil => apply monotone_const
   | cons _ xs =>
     apply monotone_bind
-    · apply hmono
-    · intro y
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
       dsimp
       generalize [y] = ys
       induction xs generalizing ys with
       | nil => apply monotone_const
       | cons _ _ ih =>
         apply monotone_bind
-        · apply hmono
-        · intro z
+        · apply monotone_apply
+          apply hmono
+        · apply monotone_of_monotone_apply
+          intro y
           apply ih
 
 theorem monotone_mapFinIdxM
@@ -42,7 +46,7 @@ theorem monotone_mapFinIdxM
     {γ : Type w} [PartialOrder γ]
     (xs : Array α)
     (f : γ → Fin xs.size → α → m β)
-    (hmono : forall_arg (forall_arg monotone) f) :
+    (hmono : monotone f) :
     monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices
     ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (f x) i j h r) by
@@ -54,8 +58,11 @@ theorem monotone_mapFinIdxM
   case case2 ih =>
     apply monotone_bind
     · dsimp
+      apply monotone_apply
+      apply monotone_apply
       apply hmono
     · intro y
+      apply monotone_of_monotone_apply
       apply ih
 
 end Lean.Order

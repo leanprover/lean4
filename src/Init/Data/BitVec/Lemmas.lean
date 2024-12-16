@@ -2652,9 +2652,10 @@ private theorem Nat.div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
 theorem msb_udiv (x y : BitVec w) :
     (x / y).msb = (x.msb && y == 1#w) := by
   cases msb_x : x.msb
-  · simp [msb_eq_decide] at *
-    have : x.toNat / y.toNat ≤ x.toNat := Nat.div_le_self ..
-    omega
+  · suffices x.toNat / y.toNat < 2 ^ (w - 1) by simpa [msb_eq_decide]
+    calc
+      x.toNat / y.toNat ≤ x.toNat     := by apply Nat.div_le_self
+                      _ < 2 ^ (w - 1) := by simpa [msb_eq_decide] using msb_x
   . rcases w with _|w
     · contradiction
     · have : (y == 1#_) = decide (y.toNat = 1) := by

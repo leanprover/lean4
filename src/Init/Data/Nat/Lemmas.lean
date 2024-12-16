@@ -176,6 +176,9 @@ protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 
+theorem le_iff_lt_add_one : x ≤ y ↔ x < y + 1 := by
+  omega
+
 /-! ## sub -/
 
 protected theorem sub_one (n) : n - 1 = pred n := rfl
@@ -224,6 +227,9 @@ protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c
 
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
+
+theorem add_lt_iff_lt_sub_right {a b c : Nat} : a + b < c ↔ a < c - b := by
+  omega
 
 protected theorem add_le_of_le_sub' {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
   Nat.add_comm .. ▸ Nat.add_le_of_le_sub h

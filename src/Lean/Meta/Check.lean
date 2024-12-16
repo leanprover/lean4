@@ -209,6 +209,12 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
+def checkProj (structName : Name) (idx : Nat) (e : Expr) : MetaM Unit := do
+  let structType ← whnf (← inferType e)
+  let projType ← inferType (mkProj structName idx e)
+  if (← isProp structType) && !(← isProp projType) then
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
+
 private partial def checkAux (e : Expr) : MetaM Unit := do
   check e |>.run
 where
@@ -221,7 +227,7 @@ where
       | .const c lvls    => checkConstant c lvls
       | .app f a         => check f; check a; checkApp f a
       | .mdata _ e       => check e
-      | .proj _ _ e      => check e
+      | .proj s i e      => check e; checkProj s i e
       | _                => return ()
 
   checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=

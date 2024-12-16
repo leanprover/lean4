@@ -2745,7 +2745,12 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
 
 /-! # Rotate Left -/
 
-/-- rotateLeft is invariant under `mod` by the bitwidth. -/
+/--`rotateLeft` is defined in terms of left and right shifts. -/
+theorem rotateLeft_def {x : BitVec w} {r : Nat} :
+  x.rotateLeft r = (x <<< (r % w)) ||| (x >>> (w - r % w)) := by
+  simp only [rotateLeft, rotateLeftAux]
+
+/-- `rotateLeft` is invariant under `mod` by the bitwidth. -/
 @[simp]
 theorem rotateLeft_mod_eq_rotateLeft {x : BitVec w} {r : Nat} :
     x.rotateLeft (r % w) = x.rotateLeft r := by
@@ -2892,9 +2897,14 @@ theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :
 @[simp]
 theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
     (x.rotateLeft r).toNat = (x.toNat <<< (r % w)) % (2^w) ||| x.toNat >>> (w - r % w) := by
-  simp only [rotateLeft, rotateLeftAux, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
+  simp only [rotateLeft_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
 /-! ## Rotate Right -/
+
+/--`rotateRight` is defined in terms of left and right shifts. -/
+theorem rotateRight_def {x : BitVec w} {r : Nat} :
+  x.rotateRight r = (x >>> (r % w)) ||| (x <<< (w - r % w)) := by
+  simp only [rotateRight, rotateRightAux]
 
 /--
 Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
@@ -3034,7 +3044,7 @@ theorem msb_rotateRight {r w : Nat} {x : BitVec w} :
 @[simp]
 theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
     (x.rotateRight r).toNat = (x.toNat >>> (r % w)) ||| x.toNat <<< (w - r % w) % (2^w) := by
-  simp only [rotateRight, rotateRightAux, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
+  simp only [rotateRight_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
 /- ## twoPow -/
 

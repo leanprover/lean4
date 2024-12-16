@@ -1183,6 +1183,24 @@ static inline lean_object * lean_set_external_data(lean_object * o, void * data)
     }
 }
 
+/* Integer scalars */
+
+static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
+    else
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
+}
+
+static inline int lean_scalar_to_int(b_lean_obj_arg a) {
+    assert(lean_is_scalar(a));
+    if (sizeof(void*) == 8)
+        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
+    else
+        return ((int)((size_t)a)) >> 1; /* NOLINT */
+}
+
 /* Big numbers */
 
 LEAN_EXPORT lean_obj_res lean_mpz_of_usize(size_t a);
@@ -1195,6 +1213,20 @@ LEAN_EXPORT lean_obj_res lean_mpz_of_int32(uint32_t a);
 LEAN_EXPORT lean_obj_res lean_mpz_of_signed(int a);
 LEAN_EXPORT lean_obj_res lean_mpz_to_nat(lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_mpz_to_int(lean_obj_arg a);
+
+static inline lean_obj_res lean_mpz_of_nat(lean_obj_arg a) {
+    if (lean_is_scalar(a))
+        return lean_mpz_of_usize(lean_unbox(a));
+    else
+        return a;
+}
+
+static inline lean_obj_res lean_mpz_of_int(lean_obj_arg a) {
+    if (lean_is_scalar(a))
+        return lean_mpz_of_signed(lean_scalar_to_int(a));
+    else
+        return a;
+}
 
 LEAN_EXPORT bool lean_mpz_eq(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT bool lean_mpz_le(b_lean_obj_arg a1, b_lean_obj_arg a2);
@@ -1448,22 +1480,6 @@ static inline lean_obj_res lean_int64_to_int(int64_t n) {
         return lean_box((unsigned)((int)n)); /* NOLINT */
     else
         return lean_big_int64_to_int(n);
-}
-
-static inline int64_t lean_scalar_to_int64(b_lean_obj_arg a) {
-    assert(lean_is_scalar(a));
-    if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
-    else
-        return ((int)((size_t)a)) >> 1; /* NOLINT */
-}
-
-static inline int lean_scalar_to_int(b_lean_obj_arg a) {
-    assert(lean_is_scalar(a));
-    if (sizeof(void*) == 8)
-        return (int)((unsigned)lean_unbox(a)); /* NOLINT */
-    else
-        return ((int)((size_t)a)) >> 1; /* NOLINT */
 }
 
 static inline lean_obj_res lean_nat_to_int(lean_obj_arg a) {

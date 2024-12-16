@@ -591,7 +591,7 @@ def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM Inducti
           The above type neither is an inductive type nor has a registered theorem."
         if majorType.isProp then
           hint := m!"{hint}\n\n\
-            Consider using the 'by_cases' tactic, which enables true/false reasoning for propositions."
+            Consider using the 'by_cases' tactic, which does true/false reasoning for propositions."
         else if majorType.isType then
           hint := m!"{hint}\n\n\
             Type universes are not inductive types, and type-constructor-based reasoning is not possible. \

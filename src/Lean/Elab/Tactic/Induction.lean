@@ -586,19 +586,17 @@ def getInductiveValFromMajor (induction : Bool) (major : Expr) : TacticM Inducti
     matchConstInduct majorType.getAppFn
       (fun _ => do
         let tacticName := if induction then `induction else `cases
-        let mut hint := m!"\n\nExplanation: the '{tacticName}' tactic is for constructor-based reasoning, \
-          with cases exhausting every way in which a term could have been constructed."
+        let mut hint := m!"\n\nExplanation: the '{tacticName}' tactic is for constructor-based reasoning \
+          as well as for applying custom {tacticName} principles with a 'using' clause or a registered '@[{tacticName}_eliminator]' theorem. \
+          The above type neither is an inductive type nor has a registered theorem."
         if majorType.isProp then
-          hint := m!"{hint} \
-            The 'Prop' universe is not an inductive type however, so '{tacticName}' does not apply. \
-            Consider using the 'by_cases' tactic, which enables true/false reasoning."
+          hint := m!"{hint}\n\n\
+            Consider using the 'by_cases' tactic, which enables true/false reasoning for propositions."
         else if majorType.isType then
-          hint := m!"{hint} \
-            Type universes are not inductive types however, so such case-based reasoning is not possible. \
-            This is a strong limitation. According to Lean's underlying theory, the only distinguishing \
+          hint := m!"{hint}\n\n\
+            Type universes are not inductive types, and type-constructor-based reasoning is not possible. \
+            This is a strong limitation. According to Lean's underlying theory, the only provable distinguishing \
             feature of types is their cardinalities."
-        else
-          hint := m!"{hint} It can sometimes be helpful defining an equivalent auxiliary inductive type to apply '{tacticName}' to instead."
         Meta.throwTacticEx tacticName mvarId m!"major premise type is not an inductive type{indentExpr majorType}{hint}")
       (fun val _ => pure val)
 

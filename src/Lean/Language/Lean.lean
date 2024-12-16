@@ -292,6 +292,13 @@ If the option is defined in this library, use '-D{`weak ++ name}' to set it cond
 
   return opts
 
+private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
+  let mut stx := stx
+  if stx[0].isOfKind ``Command.declModifiers then
+    -- modifiers are morally before the actual declaration
+    stx := stx[1]
+  stx.getPos?
+
 /--
 Entry point of the Lean language processor.
 
@@ -540,15 +547,10 @@ where
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
       let reportPromise ← IO.Promise.new
-      -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
-      -- retract the progress bar to a previous position in case the command support incremental
-      -- reporting but has significant work after resolving its last incremental promise, such as
-      -- final type checking; if it does not support incrementality, `elabSnap` constructed in
-      -- `parseCmd` and containing the entire range of the command will determine the reported
-      -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
-      -- irrelevant in this case.
-      let endRange? := stx.getTailPos?.map fun pos => ⟨pos, pos⟩
-      let finishedSnap := { range? := endRange?, task := finishedPromise.result }
+      -- report terminal tasks on first line of decl such as not to hide incremental tactics'
+      -- progress
+      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
+      let finishedSnap := { range? := initRange?, task := finishedPromise.result }
       let tacticCache ← old?.map (·.tacticCache) |>.getDM (IO.mkRef {})
 
       let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
@@ -566,7 +568,7 @@ where
         diagnostics, finishedSnap, tacticCache, nextCmdSnap?
         stx := stx', parserState := parserState'
         elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-        reportSnap := { range? := endRange?, task := reportPromise.result }
+        reportSnap := { range? := initRange?, task := reportPromise.result }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
@@ -597,7 +599,7 @@ where
           pure <| .pure <| .mk { diagnostics := .empty } #[]
       reportPromise.resolve <|
         .mk { diagnostics := .empty } <|
-          cmdState.snapshotTasks.push { range? := endRange?, task := traceTask }
+          cmdState.snapshotTasks.push { range? := initRange?, task := traceTask }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) ctx

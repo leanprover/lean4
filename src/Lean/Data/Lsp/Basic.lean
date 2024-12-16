@@ -32,7 +32,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson
+  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson, Repr
 
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
@@ -43,7 +43,7 @@ instance : LE Position := leOfOrd
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
+  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord, Repr
 
 instance : LT Range := ltOfOrd
 instance : LE Range := leOfOrd

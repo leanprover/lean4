@@ -125,11 +125,6 @@ section Elab
     newInfoTrees : Array Elab.InfoTree := #[]
     /-- Whether we encountered any snapshot with `Snapshot.isFatal`. -/
     hasFatal := false
-    /--
-    Last `Snapshot.range?` encountered that was not `none`, if any. We use this as a fallback when
-    reporting progress as we should always report *some* range when waiting on a task.
-    -/
-    lastRange? : Option String.Range := none
   deriving Inhabited
 
   register_builtin_option server.reportDelayMs : Nat := {
@@ -172,34 +167,73 @@ This option can only be set on the command line, not in the lakefile or via `set
     See also section "Communication" in Lean/Server/README.md.
 
     Debouncing: we only report information
-    * after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
-    * when first blocking, i.e. not before skipping over any unchanged snapshots and such trivial
-      tasks
-    * afterwards, each time new information is found in a snapshot
-    * at the very end, if we never blocked (e.g. emptying a file should make
-      sure to empty diagnostics as well eventually) -/
+    1. after first waiting for `reportDelayMs`, to give trivial tasks a chance to finish
+    2. when first blocking, i.e. not before skipping over any unchanged snapshots and such trivial
+       tasks
+    3. afterwards, each time new information is found in a snapshot
+    4. at the very end, if we never blocked (e.g. emptying a file should make
+       sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
       (cancelTk : CancelToken) : BaseIO (Task Unit) := do
     let t ← BaseIO.asTask do
-      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32
+      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32  -- "Debouncing 1."
     BaseIO.bindTask t fun _ => do
-      BaseIO.bindTask (← go (toSnapshotTree doc.initSnap) {}) fun st => do
-        if (← cancelTk.isSet) then
-          return .pure ()
-
-        -- callback at the end of reporting
-        if st.hasFatal then
-          ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
-        else
-          ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
-        unless st.hasBlocked do
-          publishDiagnostics ctx doc
-        -- This will overwrite existing ilean info for the file, in case something
-        -- went wrong during the incremental updates.
-        ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+      let (_, st) ← handleTasks #[.pure <| toSnapshotTree doc.initSnap] |>.run {}
+      if (← cancelTk.isSet) then
         return .pure ()
+
+      -- callback at the end of reporting
+      if st.hasFatal then
+        ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
+      else
+        ctx.chanOut.send <| mkFileProgressDoneNotification doc.meta
+      unless st.hasBlocked do  -- "Debouncing 4."
+        publishDiagnostics ctx doc
+      -- This will overwrite existing ilean info for the file, in case something
+      -- went wrong during the incremental updates.
+      ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
+      return .pure ()
   where
-    go (node : SnapshotTree) (st : ReportSnapshotsState) : BaseIO (Task ReportSnapshotsState) := do
+    /--
+    Given an array of possibly-unfinished tasks, handles them, possibly after waiting for one of
+    them to finish.
+    -/
+    handleTasks (ts : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
+      let ts ← ts.flatMapM handleFinished
+      -- all `ts` are now (likely) in-progress, report them
+      sendFileProgress ts
+      -- check again whether this has changed before commiting to waiting
+      if (← ts.anyM (IO.hasFinished ·.task)) then
+        handleTasks ts
+      else if h : ts.size > 0 then
+        if !(← get).hasBlocked then  -- "Debouncing 2."
+          publishDiagnostics ctx doc
+          modify fun st => { st with hasBlocked := true }
+        -- wait for at least one task to finish; there is a race condition here where a task may
+        -- have finished between the previous check and this line but we accept the progress
+        -- notifications being temporarily out of date in this case
+        let _ ← IO.waitAny (ts.map (·.task) |>.toList)
+          (by simp only [Array.toList_map, List.length_map, Array.length_toList, gt_iff_lt, h])
+        handleTasks ts
+
+    /-- Recursively handles finished tasks and replaces them with their unfinished children. -/
+    handleFinished (t : SnapshotTask SnapshotTree) :
+        StateT ReportSnapshotsState BaseIO (Array (SnapshotTask SnapshotTree)) := do
+      if (← IO.hasFinished t.task) then
+        handleNode t.task.get
+        let ts ← t.task.get.children.flatMapM handleFinished
+        -- limit children's reported range to that of the parent, if any, to avoid strange
+        -- non-monotonic progress updates; replace missing children's ranges with parent's
+        return ts.map (fun t' => { t' with range? := match t.range?, t'.range? with
+          | some r, some r' =>
+            let (_, _) := (minOfLe (α := String.Pos), maxOfLe (α := String.Pos))
+            some { start := max r.start r'.start, stop := min r.stop r'.stop }
+          | r?, r?' => r?' <|> r? })
+      else
+        return #[t]
+
+    /-- Handles information of a single now-finished snapshot. -/
+    handleNode (node : SnapshotTree) : StateT ReportSnapshotsState BaseIO Unit := do
       if node.element.diagnostics.msgLog.hasUnreported then
         let diags ←
           if let some memorized ← node.element.diagnostics.interactiveDiagsRef?.bindM fun ref => do
@@ -212,35 +246,29 @@ This option can only be set on the command line, not in the lakefile or via `set
               cacheRef.set <| some <| .mk { diags : MemorizedInteractiveDiagnostics }
             pure diags
         doc.diagnosticsRef.modify (· ++ diags)
-        if st.hasBlocked then
+        if (← get).hasBlocked then
           publishDiagnostics ctx doc
 
-      let mut st := { st with hasFatal := st.hasFatal || node.element.isFatal }
+      modify fun st => { st with hasFatal := st.hasFatal || node.element.isFatal }
 
       if let some itree := node.element.infoTree? then
-        let mut newInfoTrees := st.newInfoTrees.push itree
-        if st.hasBlocked then
+        let mut newInfoTrees := (← get).newInfoTrees.push itree
+        if (← get).hasBlocked then
           ctx.chanOut.send (← mkIleanInfoUpdateNotification doc.meta newInfoTrees)
           newInfoTrees := #[]
-        st := { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
+        modify fun st => { st with newInfoTrees, allInfoTrees := st.allInfoTrees.push itree }
 
-      goSeq st node.children.toList
+    /-- Reports given tasks' ranges, merging overlapping ones. -/
+    sendFileProgress (tasks : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
+      let ranges := tasks.filterMap (·.range?)
+      let ranges := ranges.qsort (·.start < ·.start)
+      let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
+        | some last => if last.stop < r.start then rs.push r else rs.pop.push { last with stop := r.stop }
+        | none => rs.push r
+      let ranges := ranges.map (·.toLspRange doc.meta.text)
+      let notifs := ranges.map ({ range := ·, kind := .processing })
+      ctx.chanOut.send <| mkFileProgressNotification doc.meta notifs
 
-    goSeq (st : ReportSnapshotsState) :
-        List (SnapshotTask SnapshotTree) → BaseIO (Task ReportSnapshotsState)
-      | [] => return .pure st
-      | t::ts => do
-        let mut st := st
-        st := { st with lastRange? := t.range? <|> st.lastRange? }
-        unless (← IO.hasFinished t.task) do
-          -- report *some* recent range even if `t.range?` is `none`; see also `State.lastRange?`
-          if let some range := st.lastRange? then
-            ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta range.start
-          if !st.hasBlocked then
-            publishDiagnostics ctx doc
-            st := { st with hasBlocked := true }
-        BaseIO.bindTask t.task fun t => do
-          BaseIO.bindTask (← go t st) (goSeq · ts)
 end Elab
 
 -- Pending requests are tracked so they can be canceled

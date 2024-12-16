@@ -100,7 +100,7 @@ theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 /-- Prove nonequality of bitvectors in terms of nat operations. -/
-theorem neq_iff_toNat_neq {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
+theorem ne_iff_toNat_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
   constructor
   · rintro h rfl; apply h rfl
   · intro h h_eq; apply h <| eq_of_toNat_eq h_eq
@@ -2636,7 +2636,7 @@ theorem msb_umod {x y : BitVec w} :
         have y_le_x : y.toNat ≤ x.toNat := by
           simpa using x_lt_y
         replace hy : y.toNat ≠ 0 :=
-          neq_iff_toNat_neq.mpr hy
+          ne_iff_toNat_ne.mpr hy
         by_cases msb_y : y.toNat < 2 ^ (w - 1)
         · have : x.toNat % y.toNat < y.toNat := Nat.mod_lt _ (by omega)
           omega

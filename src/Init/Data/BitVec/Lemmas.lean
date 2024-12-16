@@ -2715,20 +2715,95 @@ theorem sdiv_self {x : BitVec w} :
       rcases x.msb with msb | msb <;> simp
     · rcases x.msb with msb | msb <;> simp [h]
 
+theorem msb_neg (x : BitVec w) :
+    (-x).msb = (!x.msb ^^ (x == 0#_ || x == intMin _)) := by
+  simp
+  sorry
+
+theorem sdiv_neg (x y : BitVec w) :
+    x.sdiv (-y) = -(x.sdiv y) := by
+  by_cases hy_zero : y = 0#_
+  · subst y; simp
+
+  by_cases hy_zero : y = intMin _
+  · subst y
+    sorry
+
+  simp [sdiv, msb_neg]
+  sorry
+
+theorem sdiv_negOne (x : BitVec w) :
+    x.sdiv (-1#_) = -x := by
+  sorry
+
+theorem neq_intMin_of_msb {w} {x : BitVec (w+1)} (h : x.msb = false) :
+    x ≠ intMin (w + 1) := by
+  rintro rfl
+  have : (intMin (w+1)).msb = true := by sorry -- we ought to have this lower down in the file
+  simp [this] at h
+
 theorem msb_sdiv (x y : BitVec w) :
-    (x.sdiv y).msb = (x.msb ^^ y.msb) /- || (x == intMin && y == -1#w) -/ := by
-  /- TODO: think about the exact edge case for sdiv -/
-  /- TODO: we likely want to yoink up the definition of `intMin`,
-           so that we can actually talk about it here -/
+    (x.sdiv y).msb
+    = ((x.msb ^^ y.msb)
+        || (x == intMin _ && y == -1#w && w > 0)) := by
+  rcases w with _|w
+  · simp [of_length_zero]
+
+  /- TODO: think about the exact edge cases
+           `intMin / -1 = intMin` is an edge-case unique to bitvectors, but,
+           remember that integer division also has rounding/truncating behaviour.
+           In particular, we *cannot* say that the result is negative iff
+           (exclusive) either operand is negative. Take, for example
+           `1 / -2 = 0`; exactly one operand is negative, yet, the result is 0.
+
+          We can probably express this in terms of a side-condition on the
+          (signed) modulus? Something like `x.smod y ≠ x`.
+          Alternatively, we could require that `x.sdiv y ≠ 0`.
+          Those conditions are *not* equivalent; both have different edge-cases
+          where the equality should in fact hold, but I don't have a more succinct
+          way of phrasing it.
+  -/
+  stop
+  unfold sdiv
+  simp only [udiv_eq, neg_eq, gt_iff_lt, Nat.zero_lt_succ, decide_true, Bool.and_true]
+  cases hx : x.msb
+  · cases hy : y.msb
+    · simp [msb_udiv, hx, neq_intMin_of_msb hx]
+    · have msb_div : (x / -y).msb = false := by
+        simp [msb_udiv, hx]
+      have : (x / -y == intMin (w + 1)) = false := by
+        simpa using neq_intMin_of_msb msb_div
+      simp [msb_neg, msb_div,
+        beq_false_of_ne <| neq_intMin_of_msb msb_div,
+        beq_false_of_ne <| neq_intMin_of_msb hx, ]
+      suffices x / -y = 0#_ ↔ x = 0#_ by sorry
+
+  sorry
+
+theorem zero_neq_negOne (w : Nat) : 0#(w+1) ≠ -1#(w+1) := by
   sorry
 
 theorem toInt_sdiv (x y : BitVec w) :
-    (x.sdiv y).toInt = x.toInt / y.toInt := by
+    (x.sdiv y).toInt
+      = if x = intMin _ ∧ y = -1#_ then
+          (intMin w).toInt -- TODO: simplify this?
+        else
+          x.toInt / y.toInt := by
+  rcases w with _|w
+  · simp [of_length_zero]
+
   -- TODO: figure out precises side-conditions, e.g.,
   --       what happens if either operand is intMin?
-  by_cases hy : y = 0#w
-  · subst hy; simp
-  · replace hy : 0#w < y := by
+  by_cases hy_zero : y = 0#_
+  · subst y; simp [zero_neq_negOne]
+
+  by_cases hy_negOne : y = -1#_
+  · clear hy_zero
+    subst y; simp only [and_true]
+
+
+
+  · replace hy : 0#_ < y := by
       show 0 < y.toNat
       have : y.toNat ≠ 0 := fun h => hy <| eq_of_toNat_eq h
       omega

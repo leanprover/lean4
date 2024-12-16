@@ -10,9 +10,11 @@ Error messages when not an inductive type.
 error: tactic 'cases' failed, major premise type is not an inductive type
   Prop
 
-Explanation: the 'cases' tactic is for constructor-based reasoning, with cases exhausting every way
-in which a term could have been constructed. The 'Prop' universe is not an inductive type however,
-so 'cases' does not apply. Consider using the 'by_cases' tactic, which enables true/false reasoning.
+Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom
+cases principles with a 'using' clause or a registered '@[cases_eliminator]' theorem. The above
+type neither is an inductive type nor has a registered theorem.
+
+Consider using the 'by_cases' tactic, which does true/false reasoning for propositions.
 p : Prop
 ⊢ True
 -/
@@ -24,10 +26,13 @@ example (p : Prop) : True := by
 error: tactic 'cases' failed, major premise type is not an inductive type
   Type
 
-Explanation: the 'cases' tactic is for constructor-based reasoning, with cases exhausting every way
-in which a term could have been constructed. Type universes are not inductive types however, so such
-case-based reasoning is not possible. This is a strong limitation. According to Lean's underlying
-theory, the only distinguishing feature of types is their cardinalities.
+Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom
+cases principles with a 'using' clause or a registered '@[cases_eliminator]' theorem. The above
+type neither is an inductive type nor has a registered theorem.
+
+Type universes are not inductive types, and type-constructor-based reasoning is not possible.
+This is a strong limitation. According to Lean's underlying theory, the only provable
+distinguishing feature of types is their cardinalities.
 α : Type
 ⊢ True
 -/
@@ -39,9 +44,9 @@ example (α : Type) : True := by
 error: tactic 'cases' failed, major premise type is not an inductive type
   Bool → Bool
 
-Explanation: the 'cases' tactic is for constructor-based reasoning, with cases exhausting every way
-in which a term could have been constructed. It can sometimes be helpful defining an equivalent
-auxiliary inductive type to apply 'cases' to instead.
+Explanation: the 'cases' tactic is for constructor-based reasoning as well as for applying custom
+cases principles with a 'using' clause or a registered '@[cases_eliminator]' theorem. The above
+type neither is an inductive type nor has a registered theorem.
 f : Bool → Bool
 ⊢ True
 -/

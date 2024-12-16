@@ -29,12 +29,12 @@ def ack : Nat → Nat → Nat
   | x+1, y+1 => ack x (ack (x+1) y)
 
 /--
-info: [simp] used theorems (max: 620, num: 3):
-  [simp] ack.eq_3 ↦ 620
-  [simp] Nat.reduceAdd (builtin simproc) ↦ 386
-  [simp] ack.eq_1 ↦ 383[simp] tried theorems (max: 1007, num: 2):
-  [simp] ack.eq_3 ↦ 1007, succeeded: 620
-  [simp] ack.eq_1 ↦ 383, succeeded: 383use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+info: [simp] used theorems (max: 1201, num: 3):
+  [simp] ack.eq_3 ↦ 1201
+  [simp] Nat.reduceAdd (builtin simproc) ↦ 771
+  [simp] ack.eq_1 ↦ 768[simp] tried theorems (max: 1973, num: 2):
+  [simp] ack.eq_3 ↦ 1973, succeeded: 1201
+  [simp] ack.eq_1 ↦ 768, succeeded: 768use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached

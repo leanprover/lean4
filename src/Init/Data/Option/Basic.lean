@@ -96,12 +96,12 @@ This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
   | some a, _ => some a
   | none,   b => b
 
-@[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
+@[inline] protected def lt (r : α → β → Prop) : Option α → Option β → Prop
   | none, some _     => True
   | some x,   some y => r x y
   | _, _             => False
 
-instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
+instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
   | none,   some _ => isTrue  trivial
   | some x, some y => s x y
   | some _, none   => isFalse not_false

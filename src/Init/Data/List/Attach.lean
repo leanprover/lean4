@@ -118,7 +118,6 @@ theorem attach_map_coe (l : List α) (f : α → β) :
 theorem attach_map_val (l : List α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
   attach_map_coe _ _
 
-@[simp]
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
   (attach_map_coe _ _).trans (List.map_id _)
 
@@ -130,7 +129,6 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : 
     ((l.attachWith p H).map fun i => f i.val) = l.map f :=
   attachWith_map_coe _ _ _
 
-@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
   (attachWith_map_coe _ _ _).trans (List.map_id _)
@@ -174,8 +172,8 @@ theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : Li
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by
   simp
 
-theorem pmap_eq_self {l : List α} {p : α → Prop} (hp : ∀ (a : α), a ∈ l → p a)
-    (f : (a : α) → p a → α) : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
+theorem pmap_eq_self {l : List α} {p : α → Prop} {hp : ∀ (a : α), a ∈ l → p a}
+    {f : (a : α) → p a → α} : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
   rw [pmap_eq_map_attach]
   conv => lhs; rhs; rw [← attach_map_subtype_val l]
   rw [map_inj_left]

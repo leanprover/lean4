@@ -51,12 +51,12 @@ If the `termArgs` map the packed argument `argType` to `β`, then this function 
 continuation a value of type `WellFoundedRelation argType` that is derived from the instance
 for `WellFoundedRelation β` using `invImage`.
 -/
-def elabWFRel (preDefs : Array PreDefinition) (unaryPreDefName : Name) (prefixArgs : Array Expr)
+def elabWFRel (declNames : Array Name) (unaryPreDefName : Name) (prefixArgs : Array Expr)
     (argsPacker : ArgsPacker) (argType : Expr) (termArgs : TerminationArguments)
     (k : Expr → TermElabM α) : TermElabM α := withDeclName unaryPreDefName do
   let α := argType
   let u ← getLevel α
-  let β ← checkCodomains (preDefs.map (·.declName)) prefixArgs argsPacker.arities termArgs
+  let β ← checkCodomains declNames prefixArgs argsPacker.arities termArgs
   let v ← getLevel β
   let packedF ← argsPacker.uncurryND (termArgs.map (·.fn.beta prefixArgs))
   let inst ← synthInstance (.app (.const ``WellFoundedRelation [v]) β)

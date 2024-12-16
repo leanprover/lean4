@@ -44,7 +44,7 @@ def mkReducibilityHintsRegularEx (h : UInt32) : ReducibilityHints :=
 @[export lean_reducibility_hints_get_height]
 def ReducibilityHints.getHeightEx (h : ReducibilityHints) : UInt32 :=
   match h with
-  | ReducibilityHints.regular h => h
+  | .regular h => h
   | _ => 0
 
 namespace ReducibilityHints
@@ -74,8 +74,8 @@ def isAbbrev : ReducibilityHints → Bool
   | _       => false
 
 def isRegular : ReducibilityHints → Bool
-  | regular .. => true
-  | _          => false
+  | .regular .. => true
+  | _           => false
 
 end ReducibilityHints
 
@@ -186,7 +186,7 @@ def mkInductiveDeclEs (lparams : List Name) (nparams : Nat) (types : List Induct
 
 @[export lean_is_unsafe_inductive_decl]
 def Declaration.isUnsafeInductiveDeclEx : Declaration → Bool
-  | Declaration.inductDecl _ _ _ isUnsafe => isUnsafe
+  | .inductDecl _ _ _ isUnsafe => isUnsafe
   | _ => false
 
 def Declaration.definitionVal! : Declaration → DefinitionVal
@@ -195,18 +195,16 @@ def Declaration.definitionVal! : Declaration → DefinitionVal
 
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with
-  | Declaration.quotDecl                                        => pure a
-  | Declaration.axiomDecl { type := type, .. }                  => f a type
-  | Declaration.defnDecl { type := type, value := value, .. }   => do let a ← f a type; f a value
-  | Declaration.opaqueDecl { type := type, value := value, .. } => do let a ← f a type; f a value
-  | Declaration.thmDecl { type := type, value := value, .. }    => do let a ← f a type; f a value
-  | Declaration.mutualDefnDecl vals                             => vals.foldlM (fun a v => do let a ← f a v.type; f a v.value) a
-  | Declaration.inductDecl _ _ inductTypes _                    =>
-    inductTypes.foldlM
-      (fun a inductType => do
-        let a ← f a inductType.type
-        inductType.ctors.foldlM (fun a ctor => f a ctor.type) a)
-      a
+  | .quotDecl                                        => pure a
+  | .axiomDecl { type := type, .. }                  => f a type
+  | .defnDecl { type := type, value := value, .. }   => do let a ← f a type; f a value
+  | .opaqueDecl { type := type, value := value, .. } => do let a ← f a type; f a value
+  | .thmDecl { type := type, value := value, .. }    => do let a ← f a type; f a value
+  | .mutualDefnDecl vals                             => vals.foldlM (fun a v => do let a ← f a v.type; f a v.value) a
+  | .inductDecl _ _ inductTypes _                    =>
+    inductTypes.foldlM (init := a) fun a inductType => do
+      let a ← f a inductType.type
+      inductType.ctors.foldlM (fun a ctor => f a ctor.type) a
 
 @[inline] def Declaration.forExprM {m : Type → Type} [Monad m] (d : Declaration) (f : Expr → m Unit) : m Unit :=
   d.foldExprM (fun _ a => f a) ()
@@ -302,14 +300,7 @@ structure ConstructorVal extends ConstantVal where
 
 @[export lean_mk_constructor_val]
 def mkConstructorValEx (name : Name) (levelParams : List Name) (type : Expr) (induct : Name) (cidx numParams numFields : Nat) (isUnsafe : Bool) : ConstructorVal := {
-  name := name,
-  levelParams := levelParams,
-  type := type,
-  induct := induct,
-  cidx := cidx,
-  numParams := numParams,
-  numFields := numFields,
-  isUnsafe := isUnsafe
+  name, levelParams, type, induct, cidx, numParams, numFields, isUnsafe
 }
 
 @[export lean_constructor_val_is_unsafe] def ConstructorVal.isUnsafeEx (v : ConstructorVal) : Bool := v.isUnsafe
@@ -353,8 +344,8 @@ structure RecursorVal extends ConstantVal where
 @[export lean_mk_recursor_val]
 def mkRecursorValEx (name : Name) (levelParams : List Name) (type : Expr) (all : List Name) (numParams numIndices numMotives numMinors : Nat)
     (rules : List RecursorRule) (k isUnsafe : Bool) : RecursorVal := {
-  name := name, levelParams := levelParams, type := type, all := all, numParams := numParams, numIndices := numIndices,
-  numMotives := numMotives, numMinors := numMinors, rules := rules, k := k, isUnsafe := isUnsafe
+  name, levelParams, type, all, numParams, numIndices,
+  numMotives, numMinors, rules, k, isUnsafe
 }
 
 @[export lean_recursor_k] def RecursorVal.kEx (v : RecursorVal) : Bool := v.k
@@ -410,27 +401,27 @@ inductive ConstantInfo where
 namespace ConstantInfo
 
 def toConstantVal : ConstantInfo → ConstantVal
-  | defnInfo     {toConstantVal := d, ..} => d
-  | axiomInfo    {toConstantVal := d, ..} => d
-  | thmInfo      {toConstantVal := d, ..} => d
-  | opaqueInfo   {toConstantVal := d, ..} => d
-  | quotInfo     {toConstantVal := d, ..} => d
-  | inductInfo   {toConstantVal := d, ..} => d
-  | ctorInfo     {toConstantVal := d, ..} => d
-  | recInfo      {toConstantVal := d, ..} => d
+  | .defnInfo     {toConstantVal := d, ..} => d
+  | .axiomInfo    {toConstantVal := d, ..} => d
+  | .thmInfo      {toConstantVal := d, ..} => d
+  | .opaqueInfo   {toConstantVal := d, ..} => d
+  | .quotInfo     {toConstantVal := d, ..} => d
+  | .inductInfo   {toConstantVal := d, ..} => d
+  | .ctorInfo     {toConstantVal := d, ..} => d
+  | .recInfo      {toConstantVal := d, ..} => d
 
 def isUnsafe : ConstantInfo → Bool
-  | defnInfo   v => v.safety == .unsafe
-  | axiomInfo  v => v.isUnsafe
-  | thmInfo    _ => false
-  | opaqueInfo v => v.isUnsafe
-  | quotInfo   _ => false
-  | inductInfo v => v.isUnsafe
-  | ctorInfo   v => v.isUnsafe
-  | recInfo    v => v.isUnsafe
+  | .defnInfo   v => v.safety == .unsafe
+  | .axiomInfo  v => v.isUnsafe
+  | .thmInfo    _ => false
+  | .opaqueInfo v => v.isUnsafe
+  | .quotInfo   _ => false
+  | .inductInfo v => v.isUnsafe
+  | .ctorInfo   v => v.isUnsafe
+  | .recInfo    v => v.isUnsafe
 
 def isPartial : ConstantInfo → Bool
-  | defnInfo v => v.safety == .partial
+  | .defnInfo v => v.safety == .partial
   | _ => false
 
 def name (d : ConstantInfo) : Name :=
@@ -445,36 +436,42 @@ def numLevelParams (d : ConstantInfo) : Nat :=
 def type (d : ConstantInfo) : Expr :=
   d.toConstantVal.type
 
-def value? : ConstantInfo → Option Expr
-  | defnInfo {value := r, ..} => some r
-  | thmInfo  {value := r, ..} => some r
-  | _                         => none
+def value? (info : ConstantInfo) (allowOpaque := false) : Option Expr :=
+  match info with
+  | .defnInfo {value, ..}   => some value
+  | .thmInfo  {value, ..}   => some value
+  | .opaqueInfo {value, ..} => if allowOpaque then some value else none
+  | _                       => none
 
-def hasValue : ConstantInfo → Bool
-  | defnInfo _ => true
-  | thmInfo  _ => true
-  | _                         => false
+def hasValue (info : ConstantInfo) (allowOpaque := false) : Bool :=
+  match info with
+  | .defnInfo _   => true
+  | .thmInfo  _   => true
+  | .opaqueInfo _ => allowOpaque
+  | _             => false
 
-def value! : ConstantInfo → Expr
-  | defnInfo {value := r, ..} => r
-  | thmInfo  {value := r, ..} => r
-  | _                         => panic! "declaration with value expected"
+def value! (info : ConstantInfo) (allowOpaque := false) : Expr :=
+  match info with
+  | .defnInfo {value, ..}   => value
+  | .thmInfo  {value, ..}   => value
+  | .opaqueInfo {value, ..} => if allowOpaque then value else panic! "declaration with value expected"
+  | _                       => panic! "declaration with value expected"
 
 def hints : ConstantInfo → ReducibilityHints
-  | defnInfo {hints := r, ..} => r
-  | _                         => ReducibilityHints.opaque
+  | .defnInfo {hints, ..} => hints
+  | _                     => .opaque
 
 def isCtor : ConstantInfo → Bool
-  | ctorInfo _ => true
-  | _          => false
+  | .ctorInfo _ => true
+  | _           => false
 
 def isInductive : ConstantInfo → Bool
-  | inductInfo _ => true
-  | _            => false
+  | .inductInfo _ => true
+  | _             => false
 
 def isTheorem : ConstantInfo → Bool
-  | thmInfo _ => true
-  | _         => false
+  | .thmInfo _ => true
+  | _          => false
 
 def inductiveVal! : ConstantInfo → InductiveVal
   | .inductInfo val => val
@@ -484,11 +481,11 @@ def inductiveVal! : ConstantInfo → InductiveVal
   List of all (including this one) declarations in the same mutual block.
 -/
 def all : ConstantInfo → List Name
-  | inductInfo val => val.all
-  | defnInfo val   => val.all
-  | thmInfo val    => val.all
-  | opaqueInfo val => val.all
-  | info           => [info.name]
+  | .inductInfo val => val.all
+  | .defnInfo val   => val.all
+  | .thmInfo val    => val.all
+  | .opaqueInfo val => val.all
+  | info            => [info.name]
 
 end ConstantInfo
 

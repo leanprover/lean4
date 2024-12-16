@@ -505,7 +505,7 @@ def State.addConst (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.constToCNF (.inr ⟨idx, h⟩) b
   have hinv := toCNF.State.Inv_constToCNF htip
   let ⟨cache, hcache⟩ := cache.addConst idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.atom` to the state.
@@ -517,7 +517,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)
   have hinv := toCNF.State.Inv_atomToCNF htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.gate` to the state.
@@ -537,7 +537,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
       rinv
   have hinv := toCNF.State.Inv_gateToCNF htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Evaluate the CNF contained within the state.

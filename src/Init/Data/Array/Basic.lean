@@ -79,7 +79,8 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+-- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
@@ -208,7 +209,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-@[simp] def isEmpty (a : Array α) : Bool :=
+def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 @[specialize]
@@ -662,9 +663,15 @@ def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
+/-- `as.contains a` is true if there is some element `b` in `as` such that `a == b`. -/
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any (· == a)
+  as.any (a == ·)
 
+/--
+Variant of `Array.contains` with arguments reversed.
+
+For verification purposes, we simplify this to `contains`.
+-/
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
@@ -814,7 +821,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction a, i, h using Array.eraseIdx.induct with
   | @case1 a i h h' a' ih =>
     unfold eraseIdx
-    simp [h', a', ih]
+    simp +zetaDelta [h', a', ih]
   | case2 a i h h' =>
     unfold eraseIdx
     simp [h']
@@ -936,6 +943,19 @@ def unzip (as : Array (α × β)) : Array α × Array β :=
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
+instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
+  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList < bs.toList
+
+instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
+  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList ≤ bs.toList
+
+-- See `Init.Data.Array.Lex` for the boolean valued lexicographic comparator.
 
 /-! ## Auxiliary functions used in metaprogramming.
 

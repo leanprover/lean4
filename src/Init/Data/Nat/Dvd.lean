@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 -/
 prelude
-import Init.Data.Nat.Div
+import Init.Data.Nat.Div.Basic
 import Init.Meta
 
 namespace Nat
@@ -77,7 +77,7 @@ theorem dvd_of_mod_eq_zero {m n : Nat} (H : n % m = 0) : m ∣ n := by
 theorem dvd_iff_mod_eq_zero {m n : Nat} : m ∣ n ↔ n % m = 0 :=
   ⟨mod_eq_zero_of_dvd, dvd_of_mod_eq_zero⟩
 
-instance decidable_dvd : @DecidableRel Nat (·∣·) :=
+instance decidable_dvd : @DecidableRel Nat Nat (·∣·) :=
   fun _ _ => decidable_of_decidable_of_iff dvd_iff_mod_eq_zero.symm
 
 theorem emod_pos_of_not_dvd {a b : Nat} (h : ¬ a ∣ b) : 0 < b % a := by

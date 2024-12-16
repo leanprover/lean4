@@ -56,7 +56,7 @@ def getCasesInfo? (declName : Name) : CoreM (Option CasesInfo) := do
   let arity        := numParams + 1 /- motive -/ + val.numIndices + 1 /- major -/ + val.numCtors
   let discrPos     := numParams + 1 /- motive -/ + val.numIndices
   -- We view indices as discriminants
-  let altsRange    := { start := discrPos + 1,  stop := arity }
+  let altsRange    := [discrPos + 1:arity]
   let altNumParams ← val.ctors.toArray.mapM fun ctor => do
     let .ctorInfo ctorVal ← getConstInfo ctor | unreachable!
     return ctorVal.numFields

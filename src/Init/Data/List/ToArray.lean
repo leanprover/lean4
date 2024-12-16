@@ -7,6 +7,7 @@ prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
+import Init.Data.Array.Lex
 
 /-! ### Lemmas about `List.toArray`.
 
@@ -38,7 +39,7 @@ theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
   simp
 
 @[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
-  cases l <;> simp
+  cases l <;> simp [Array.isEmpty]
 
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
 
@@ -362,5 +363,18 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
 @[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
     l.toArray.takeWhile p = (l.takeWhile p).toArray := by
   simp [Array.takeWhile, takeWhile_go_toArray]
+
+@[simp] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+    l.toArray.setIfInBounds i a  = (l.set i a).toArray := by
+  apply ext'
+  simp only [setIfInBounds]
+  split
+  · simp
+  · simp_all [List.set_eq_of_length_le]
+
+@[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
+
+@[deprecated toArray_replicate (since := "2024-12-13")]
+abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
 
 end List

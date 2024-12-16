@@ -5,8 +5,8 @@ example {x y z : BitVec w} :
     (x &&& y) ||| (x &&& z) ||| (y &&& z) ||| x ||| y ||| z
       =
     ~~~ ((~~~ x) &&& (~~~ y) &&& (~~~ z)) := by
-  ext
-  simp
+  ext i h
+  simp [h]
   bv_decide
 
 @[irreducible]

@@ -612,14 +612,14 @@ instance : MonadRuntimeException CoreM where
 
 /--
 Returns `true` if the given message kind has not been reported in the message log,
-and then mark it as reported. Otherwise, returns `false`.
-We use this API to ensure we don't report the same kind of warning multiple times.
+and then mark it as logged. Otherwise, returns `false`.
+We use this API to ensure we don't log the same kind of warning multiple times.
 -/
-def reportMessageKind (kind : Name) : CoreM Bool := do
-  if (← get).messages.reportedKinds.contains kind then
+def logMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.loggedKinds.contains kind then
     return false
   else
-    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
 
 end Lean

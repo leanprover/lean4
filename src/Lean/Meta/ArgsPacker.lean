@@ -509,7 +509,9 @@ projects to the `i`th function of type,
 -/
 def curryProj (argsPacker : ArgsPacker) (e : Expr) (i : Nat) : MetaM Expr := do
   let n := argsPacker.numFuncs
-  let t ← inferType e
+  let t ← whnf (← inferType e)
+  unless t.isForall do
+    panic! "curryProj: expected forall type, got {}"
   let packedDomain := t.bindingDomain!
   let unaryTypes ← Mutual.unpackType n packedDomain
   unless i < unaryTypes.length do

@@ -99,6 +99,12 @@ theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
 theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
+/-- Prove nonequality of bitvectors in terms of nat operations. -/
+theorem neq_iff_toNat_neq {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
+  constructor
+  · rintro h rfl; apply h rfl
+  · intro h h_eq; apply h <| eq_of_toNat_eq h_eq
+
 @[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
 
 @[bv_toNat] theorem toNat_eq {x y : BitVec n} : x = y ↔ x.toNat = y.toNat :=
@@ -2605,6 +2611,11 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
   rcases hx with rfl | rfl <;>
     rcases hy with rfl | rfl <;>
       rfl
+
+theorem umod_eq_of_lt {x y : BitVec w} (h : x < y) :
+    x % y = x := by
+  apply eq_of_toNat_eq
+  simp [Nat.mod_eq_of_lt h]
 
 @[simp]
 theorem msb_umod {x y : BitVec w} :

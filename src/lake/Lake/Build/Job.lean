@@ -331,11 +331,13 @@ def mapWithTrace (f : α → BuildTrace → β × BuildTrace) (self : BuildJob �
 
 @[inline, deprecated Job.mapM (since := "2024-12-06")]
 protected def bindSync
-  (self : BuildJob α) (f : α → BuildTrace → JobM β)
+  (self : BuildJob α) (f : α → BuildTrace → JobM (β × BuildTrace))
   (prio : Task.Priority := .default) (sync := false)
 : SpawnM (Job β) :=
   self.toJob.mapM (prio := prio) (sync := sync) fun a => do
-    f a (← getTrace)
+    let (b, trace) ← f a (← getTrace)
+    setTrace trace
+    return b
 
 @[inline, deprecated Job.bindM (since := "2024-12-06")]
 protected def bindAsync

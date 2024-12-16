@@ -10,6 +10,7 @@ import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Mod
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.Pow
 
@@ -2604,6 +2605,42 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
   rcases hx with rfl | rfl <;>
     rcases hy with rfl | rfl <;>
       rfl
+
+@[simp]
+theorem msb_umod {x y : BitVec w} :
+    (x % y).msb = (x.msb && (x < y || y == 0#w)) := by
+  rw [msb_eq_decide, toNat_umod]
+  cases msb_x : x.msb
+  · suffices x.toNat % y.toNat < 2 ^ (w - 1) by simpa
+    calc
+      x.toNat % y.toNat ≤ x.toNat     := by apply Nat.mod_le
+                      _ < 2 ^ (w - 1) := by simpa [msb_eq_decide] using msb_x
+  . by_cases hy : y = 0
+    · simp_all [msb_eq_decide]
+    · suffices 2 ^ (w - 1) ≤ x.toNat % y.toNat ↔ x < y by simp_all
+      by_cases x_lt_y : x < y
+      . simp_all [Nat.mod_eq_of_lt x_lt_y, msb_eq_decide]
+      · suffices x.toNat % y.toNat < 2 ^ (w - 1) by
+          simpa [x_lt_y]
+        have y_le_x : y.toNat ≤ x.toNat := by
+          simpa using x_lt_y
+        replace hy : y.toNat ≠ 0 :=
+          neq_iff_toNat_neq.mpr hy
+        by_cases msb_y : y.toNat < 2 ^ (w - 1)
+        · have : x.toNat % y.toNat < y.toNat := Nat.mod_lt _ (by omega)
+          omega
+        · rcases w with _|w
+          · contradiction
+          simp only [Nat.add_one_sub_one]
+          replace msb_y : 2 ^ w ≤ y.toNat := by
+            simpa using msb_y
+          have : y.toNat ≤ y.toNat * (x.toNat / y.toNat) := by
+              apply Nat.le_mul_of_pos_right
+              apply Nat.div_pos y_le_x
+              omega
+          have : x.toNat % y.toNat ≤ x.toNat - y.toNat := by
+            rw [Nat.mod_eq_sub]; omega
+          omega
 
 theorem toInt_umod_eq_bmod {x y : BitVec w} :
     (x % y).toInt = (x.toNat % y.toNat : Int).bmod (2 ^ w) := by

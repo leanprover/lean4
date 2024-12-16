@@ -99,7 +99,9 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
   let structType ← whnf structType
   let failed {α} : Unit → MetaM α := fun _ => do
     throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
-  matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal =>
+  matchConstStructure structType.getAppFn failed fun structVal structLvls ctorVal => do
+    unless structVal.name == structName do
+      failed ()
     let structTypeArgs := structType.getAppArgs
     if structVal.numParams + structVal.numIndices != structTypeArgs.size then
       failed ()
@@ -108,7 +110,7 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
       for i in [:idx] do
         ctorType ← whnf ctorType
         match ctorType with
-        | Expr.forallE _ _ body _ =>
+        | .forallE _ _ body _ =>
           if body.hasLooseBVars then
             ctorType := body.instantiate1 <| mkProj structName i e
           else
@@ -116,8 +118,8 @@ private def inferProjType (structName : Name) (idx : Nat) (e : Expr) : MetaM Exp
         | _ => failed ()
       ctorType ← whnf ctorType
       match ctorType with
-      | Expr.forallE _ d _ _ => return d.consumeTypeAnnotations
-      | _                    => failed ()
+      | .forallE _ d _ _ => return d.consumeTypeAnnotations
+      | _                => failed ()
 
 def throwTypeExcepted {α} (type : Expr) : MetaM α :=
   throwError "type expected{indentExpr type}"

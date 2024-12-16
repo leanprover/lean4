@@ -27,3 +27,23 @@ example : id2 (id1 b) ≠ a := by
   dsimp only [id2, id1]
   guard_target =ₛ  C1 b ≠ a
   sorry
+
+
+/-
+Here is another problematic example that has been fixed.
+-/
+
+
+def f : Nat → Nat
+  | 0 => 1
+  | x+1 => 2 * f x
+
+def fib : Nat → Nat
+  | 0 => 1
+  | 1 => 1
+  | x+2 => fib (x+1) + fib x
+
+example : 0 + f (fib 10000) = a := by
+  simp [f] -- should not trigger max rec depth
+  guard_target =ₛ  f (fib 10000) = a
+  sorry

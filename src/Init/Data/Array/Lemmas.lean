@@ -12,7 +12,8 @@ import Init.Data.List.Monadic
 import Init.Data.List.OfFn
 import Init.Data.Array.Mem
 import Init.Data.Array.DecidableEq
-import Init.Data.Array.Lex
+import Init.Data.Array.Lex.Basic
+import Init.Data.Range.Lemmas
 import Init.TacticsExtra
 import Init.Data.List.ToArray
 
@@ -925,7 +926,6 @@ theorem mem_or_eq_of_mem_setIfInBounds
 
 /-! ### BEq -/
 
-
 @[simp] theorem beq_empty_iff [BEq α] {xs : Array α} : (xs == #[]) = xs.isEmpty := by
   cases xs
   simp
@@ -989,7 +989,12 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
     · intro a
       apply Array.isEqv_self_beq
 
-/-! ### Lexicographic ordering -/
+/-! ### isEqv -/
+
+@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : Array α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
+  cases l₁
+  cases l₂
+  simp
 
 /-! Content below this point has not yet been aligned with `List`. -/
 
@@ -1752,9 +1757,8 @@ theorem getElem_append_left {as bs : Array α} {h : i < (as ++ bs).size} (hlt : 
   conv => rhs; rw [← List.getElem_append_left (bs := bs.toList) (h' := h')]
   apply List.get_of_eq; rw [toList_append]
 
-theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.size ≤ i)
-    (hlt : i - as.size < bs.size := Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) :
-    (as ++ bs)[i] = bs[i - as.size] := by
+theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.size ≤ i) :
+    (as ++ bs)[i] = bs[i - as.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
   simp only [← getElem_toList]
   have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, toList_append] at h
   conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
@@ -2097,8 +2101,7 @@ Our goal is to have `simp` "pull `List.toArray` outwards" as much as possible.
 theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by simp
 
 @[simp] theorem take_toArray (l : List α) (n : Nat) : l.toArray.take n = (l.take n).toArray := by
-  apply ext'
-  simp
+  apply Array.ext <;> simp
 
 @[simp] theorem mapM_toArray [Monad m] [LawfulMonad m] (f : α → m β) (l : List α) :
     l.toArray.mapM f = List.toArray <$> l.mapM f := by
@@ -2352,6 +2355,12 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
   rw [← List.foldl_hom (f := Prod.snd) (g₂ := fun bs x => bs.push x.2) (H := by simp), ← List.foldl_map]
   simp
 
+/-! ### take -/
+
+@[simp] theorem take_size (a : Array α) : a.take a.size = a := by
+  cases a
+  simp
+
 end Array
 
 namespace List
@@ -2389,7 +2398,6 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   | cons a as ih =>
     apply ext'
     simp [ih, flatMap_toArray_cons]
-
 
 end Array
 

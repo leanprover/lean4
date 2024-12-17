@@ -148,6 +148,7 @@ def Info.stx : Info → Syntax
   | ofFieldRedeclInfo i    => i.stx
   | ofDelabTermInfo i      => i.stx
   | ofChoiceInfo i         => i.stx
+  | ofInlayHintInfo _      => .missing
 
 def Info.lctx : Info → LocalContext
   | .ofTermInfo i           => i.lctx

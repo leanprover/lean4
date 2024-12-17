@@ -445,5 +445,82 @@ structure RenameParams extends TextDocumentPositionParams where
 structure PrepareRenameParams extends TextDocumentPositionParams
   deriving FromJson, ToJson
 
+structure InlayHintParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  range        : Range
+  deriving FromJson, ToJson
+
+inductive InlayHintTooltip
+  | plaintext (text : String)
+  | markdown (markup : MarkupContent)
+
+instance : FromJson InlayHintTooltip where
+  fromJson?
+    | .str s => .ok <| .plaintext s
+    | j@(.obj _) => do return .markdown (← fromJson? j)
+    | j => .error s!"invalid inlay hint tooltip {j}"
+
+instance : ToJson InlayHintTooltip where
+  toJson
+    | .plaintext text => toJson text
+    | .markdown markup => toJson markup
+
+structure InlayHintLabelPart where
+  value     : String
+  tooltip?  : Option InlayHintTooltip := none
+  location? : Option Location := none
+  command?  : Option Command := none
+  deriving FromJson, ToJson
+
+inductive InlayHintLabel
+  | name (n : String)
+  | parts (p : Array InlayHintLabelPart)
+
+instance : FromJson InlayHintLabel where
+  fromJson?
+    | .str s => .ok <| .name s
+    | j@(.arr _) => do return .parts (← fromJson? j)
+    | j => .error s!"invalid inlay hint label {j}"
+
+instance : ToJson InlayHintLabel where
+  toJson
+    | .name n => toJson n
+    | .parts p => toJson p
+
+inductive InlayHintKind where
+  | type
+  | parameter
+
+instance : FromJson InlayHintKind where
+  fromJson?
+    | 1 => .ok .type
+    | 2 => .ok .parameter
+    | j => .error s!"unknown inlay hint kind {j}"
+
+instance : ToJson InlayHintKind where
+  toJson
+    | .type => 1
+    | .parameter => 2
+
+structure InlayHint where
+  position      : Position
+  label         : InlayHintLabel
+  kind?         : Option InlayHintKind := none
+  textEdits?    : Option (Array TextEdit) := none
+  tooltip?      : Option (InlayHintTooltip) := none
+  paddingLeft?  : Option Bool := none
+  paddingRight? : Option Bool := none
+  data?         : Option Json := none
+  deriving FromJson, ToJson
+
+structure InlayHintClientCapabilities where
+  dynamicRegistration? : Option Bool := none
+  resolveSupport?      : Option ResolveSupport := none
+  deriving FromJson, ToJson
+
+structure InlayHintOptions extends WorkDoneProgressOptions where
+  resolveProvider? : Option Bool := none
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

@@ -192,6 +192,36 @@ the language server provide interactivity even when all overloaded elaborators f
 -/
 structure ChoiceInfo extends ElabInfo where
 
+structure InlayHintLinkLocation where
+  module : Name
+  range  : String.Range
+
+structure InlayHintLabelPart where
+  value     : String
+  tooltip?  : Option String := none
+  location? : Option InlayHintLinkLocation := none
+
+inductive InlayHintLabel
+  | name (n : String)
+  | parts (p : Array InlayHintLabelPart)
+
+inductive InlayHintKind where
+  | type
+  | parameter
+
+structure InlayHintTextEdit where
+  range   : String.Range
+  newText : String
+
+structure InlayHintInfo where
+  position     : String.Pos
+  label        : InlayHintLabel
+  kind?        : Option InlayHintKind := none
+  textEdits    : Array InlayHintTextEdit := #[]
+  tooltip?     : Option String := none
+  paddingLeft  : Bool := false
+  paddingRight : Bool := false
+
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
@@ -208,6 +238,7 @@ inductive Info where
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
   | ofDelabTermInfo (i : DelabTermInfo)
   | ofChoiceInfo (i : ChoiceInfo)
+  | ofInlayHintInfo (i : InlayHintInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

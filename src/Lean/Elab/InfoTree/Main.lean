@@ -202,6 +202,13 @@ def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"Choice @ {formatElabInfo ctx info.toElabInfo}"
 
+def InlayHintInfo.format (info : InlayHintInfo) : Format :=
+  let label :=
+    match info.label with
+    | .name s => s
+    | .parts p => p.map (fun (part : InlayHintLabelPart) => part.value) |>.toList |> String.join
+  f!"InlayHint @ {info.position} => {label}"
+
 def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
@@ -217,6 +224,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
   | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
+  | ofInlayHintInfo i      => pure <| i.format
 
 def Info.toElabInfo? : Info → Option ElabInfo
   | ofTacticInfo i         => some i.toElabInfo
@@ -233,6 +241,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofFieldRedeclInfo _    => none
   | ofDelabTermInfo i      => some i.toElabInfo
   | ofChoiceInfo i         => some i.toElabInfo
+  | ofInlayHintInfo _      => none
 
 /--
   Helper function for propagating the tactic metavariable context to its children nodes.

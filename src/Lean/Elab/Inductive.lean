@@ -194,7 +194,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             return type
         let type ← elabCtorType
         Term.synthesizeSyntheticMVarsNoPostponing
-        let ctorParams ← Term.addAutoBoundImplicits ctorParams
+        let ctorParams ← Term.addAutoBoundImplicits ctorParams (ctorView.declId.getTailPos? (canonicalOnly := true))
         let except (mvarId : MVarId) := ctorParams.any fun ctorParam => ctorParam.isMVar && ctorParam.mvarId! == mvarId
         /-
           We convert metavariables in the resulting type into extra parameters. Otherwise, we would not be able to elaborate

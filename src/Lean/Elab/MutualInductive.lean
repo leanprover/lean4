@@ -288,7 +288,9 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
           let typeStx ← view.type?.getDM `(Sort _)
           let type ← Term.elabType typeStx
           Term.synthesizeSyntheticMVarsNoPostponing
-          let indices ← Term.addAutoBoundImplicits #[]
+          let inlayHintPos? := view.binders.getTailPos? (canonicalOnly := true)
+            <|> view.declId.getTailPos? (canonicalOnly := true)
+          let indices ← Term.addAutoBoundImplicits #[] inlayHintPos?
           let type ← mkForallFVars indices type
           if view.allowIndices then
             unless (← isTypeFormerType type) do
@@ -297,7 +299,7 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
             unless (← whnfD type).isSort do
               throwErrorAt typeStx "invalid resulting type, expecting 'Type _' or 'Prop'"
           return (type, indices.size)
-        let params ← Term.addAutoBoundImplicits params
+        let params ← Term.addAutoBoundImplicits params (view.declId.getTailPos? (canonicalOnly := true))
         trace[Elab.inductive] "header params: {params}, type: {type}"
         let levelNames ← Term.getLevelNames
         return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }

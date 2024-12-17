@@ -37,8 +37,6 @@ class CCPO (α : Sort u) extends PartialOrder α where
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
-section CCPO
-
 section monotone
 
 variable {α : Sort u} [PartialOrder α]
@@ -58,8 +56,34 @@ theorem monotone_compose
     (hf : monotone f) (hg : monotone g) :
    monotone (fun x => g (f x)) := fun _ _ hxy => hg _ _ (hf _ _ hxy)
 
-
 end monotone
+
+section admissibility
+
+variable {α : Sort u} [CCPO α]
+
+open CCPO
+
+-- The isabelle definition quantifies over non-empty chains here. Is this needed?
+def admissible (P : α → Prop) :=
+  ∀ (c : α → Prop), chain c → (∀ x, c x → P x) → P (csup c)
+
+def admissible_const_true : admissible (fun (_ : α) => True) :=
+  fun _ _ _ => trivial
+
+def admissible_and (P Q : α → Prop)
+  (hadm₁ : admissible P) (hadm₂ : admissible Q) : admissible (fun x => P x ∧ Q x) :=
+    fun c hchain h =>
+    ⟨ hadm₁ c hchain fun x hx => (h x hx).1,
+      hadm₂ c hchain fun x hx => (h x hx).2⟩
+
+def admissible_pi (P : α → β → Prop)
+  (hadm₁ : ∀ y, admissible (fun x => P x y)) : admissible (fun x => ∀ y, P x y) :=
+    fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
+
+end admissibility
+
+section fix
 
 open PartialOrder CCPO
 
@@ -77,7 +101,7 @@ theorem le_csup {y} (hy : c y) : y ⊑ csup c :=
 
 inductive iterates (f : α → α) : α → Prop where
   | step : iterates f x → iterates f (f x)
-  | sup {c : α → Prop } (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
+  | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
 
 def bot : α := csup (fun _ => False)
 
@@ -160,7 +184,15 @@ theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
     intro y hy
     exact hy
 
-end CCPO
+theorem fix_induct {f : α → α} (P : α → Prop) (hf : monotone f) (hadm: admissible P)
+    (h : ∀ x, P x → P (f x)) : P (fix f hf) := by
+  apply hadm _ (chain_iterates hf)
+  intro x hiterates
+  induction hiterates with
+  | @step x hiter ih => apply h x ih
+  | @sup c hchain hiter ih => apply hadm c hchain ih
+
+end fix
 
 section fun_order
 
@@ -435,6 +467,8 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
     · apply h₁₂
 
 end mono_bind
+
+
 
 namespace Example
 

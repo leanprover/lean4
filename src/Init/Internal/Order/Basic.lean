@@ -33,9 +33,23 @@ def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y �
 
 end PartialOrder
 
+section CCPO
+
 class CCPO (α : Sort u) extends PartialOrder α where
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
+
+open PartialOrder CCPO
+
+variable {α  : Sort u} [CCPO α]
+
+theorem csup_le {c : α → Prop} (hchain : chain c) : (∀ y, c y → y ⊑ x) → csup c ⊑ x :=
+  (csup_spec hchain).mpr
+
+theorem le_csup {c : α → Prop} (hchain : chain c) {y} (hy : c y) : y ⊑ csup c :=
+  (csup_spec hchain).mp rel_refl y hy
+
+end CCPO
 
 section monotone
 
@@ -62,20 +76,72 @@ section admissibility
 
 variable {α : Sort u} [CCPO α]
 
-open CCPO
+open PartialOrder CCPO
 
 -- The isabelle definition quantifies over non-empty chains here. Is this needed?
 def admissible (P : α → Prop) :=
   ∀ (c : α → Prop), chain c → (∀ x, c x → P x) → P (csup c)
 
-def admissible_const_true : admissible (fun (_ : α) => True) :=
+theorem admissible_const_true : admissible (fun (_ : α) => True) :=
   fun _ _ _ => trivial
 
-def admissible_and (P Q : α → Prop)
+theorem admissible_and (P Q : α → Prop)
   (hadm₁ : admissible P) (hadm₂ : admissible Q) : admissible (fun x => P x ∧ Q x) :=
     fun c hchain h =>
     ⟨ hadm₁ c hchain fun x hx => (h x hx).1,
       hadm₂ c hchain fun x hx => (h x hx).2⟩
+
+theorem chain_conj (c P : α → Prop) (hchain : chain c) : chain (fun x => c x ∧ P x) := by
+  intro x y ⟨hcx, _⟩ ⟨hcy, _⟩
+  exact hchain x y hcx hcy
+
+theorem csup_conj (c P : α → Prop) (hchain : chain c) (h : ∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ P y) :
+    csup c = csup (fun x => c x ∧ P x) := by
+  apply rel_antisymm
+  · apply csup_le hchain
+    intro x hcx
+    obtain ⟨y, hcy, hxy, hPy⟩ := h x hcx
+    apply rel_trans hxy; clear x hcx hxy
+    apply le_csup (chain_conj _ _ hchain) ⟨hcy, hPy⟩
+  · apply csup_le (chain_conj _ _ hchain)
+    intro x ⟨hcx, hPx⟩
+    apply le_csup hchain hcx
+
+theorem admissible_or (P Q : α → Prop)
+  (hadm₁ : admissible P) (hadm₂ : admissible Q) : admissible (fun x => P x ∨ Q x) := by
+  intro c hchain h
+  have : (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ P y) ∨ (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ Q y) := by
+    open Classical in
+    apply Decidable.or_iff_not_imp_left.mpr
+    intro h'
+    simp only [not_forall, not_imp, not_exists, not_and] at h'
+    obtain ⟨x, hcx, hx⟩ := h'
+    intro y hcy
+    cases hchain x y hcx hcy  with
+    | inl hxy =>
+      refine ⟨y, hcy, rel_refl, ?_⟩
+      cases h y hcy with
+      | inl hPy => exfalso; apply hx y hcy hxy hPy
+      | inr hQy => assumption
+    | inr hyx =>
+      refine ⟨x, hcx, hyx , ?_⟩
+      cases h x hcx with
+      | inl hPx => exfalso; apply hx x hcx rel_refl hPx
+      | inr hQx => assumption
+  cases this with
+  | inl hP =>
+    left
+    rw [csup_conj (h := hP) (hchain := hchain)]
+    apply hadm₁ _ (chain_conj _ _ hchain)
+    intro x ⟨hcx, hPx⟩
+    exact hPx
+  | inr hQ =>
+    right
+    rw [csup_conj (h := hQ) (hchain := hchain)]
+    apply hadm₂ _ (chain_conj _ _ hchain)
+    intro x ⟨hcx, hQx⟩
+    exact hQx
+
 
 def admissible_pi (P : α → β → Prop)
   (hadm₁ : ∀ y, admissible (fun x => P x y)) : admissible (fun x => ∀ y, P x y) :=
@@ -91,13 +157,6 @@ variable {α  : Sort u} [CCPO α]
 
 variable {c : α → Prop} (hchain : chain c)
 
-include hchain in
-theorem csup_le : (∀ y, c y → y ⊑ x) → csup c ⊑ x :=
-  (csup_spec hchain).mpr
-
-include hchain in
-theorem le_csup {y} (hy : c y) : y ⊑ csup c :=
-  (csup_spec hchain).mp rel_refl y hy
 
 inductive iterates (f : α → α) : α → Prop where
   | step : iterates f x → iterates f (f x)

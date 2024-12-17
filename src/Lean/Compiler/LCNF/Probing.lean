@@ -170,6 +170,14 @@ def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
 @[inline]
 def head (n : Nat) : Probe α α := fun data => return data[:n]
 
+def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
+  let ext := getExt phase
+  let env ← getEnv
+  let decls ← declNames.mapM fun name => do
+    let some decl := getDeclCore? env ext name | throwError "decl `{name}` not found"
+    return decl
+  probe decls |>.run (phase := phase)
+
 def runOnModule (moduleName : Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase
   let env ← getEnv

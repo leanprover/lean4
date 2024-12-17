@@ -94,6 +94,7 @@ def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
+  unless i < n do panic! "PProdN.proj: {i} not less than {n}"
   let mut t := t
   let mut value := e
   for _ in [:i] do

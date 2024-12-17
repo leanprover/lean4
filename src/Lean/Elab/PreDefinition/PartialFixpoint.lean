@@ -6,3 +6,4 @@ Authors: Joachim Breitner
 prelude
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Lean.Elab.PreDefinition.PartialFixpoint.Main
+import Lean.Elab.PreDefinition.PartialFixpoint.Induction

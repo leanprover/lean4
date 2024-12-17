@@ -177,7 +177,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
     let preDefs ← Mutual.cleanPreDefs preDefs
-    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName
+    PartialFixpoint.registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize
     Mutual.addPreDefAttributes preDefs
 
 end Lean.Elab

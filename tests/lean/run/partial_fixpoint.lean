@@ -166,13 +166,6 @@ def dependent3 (b : Bool) (n : Nat) : cond b Nat Bool :=
   | false => dependent3 false (n + 2)
 partial_fixpoint
 
-
-local instance {α : Sort u} {β : Sort v} {γ : α → Sort uu} {δ : β → Sort uu} (t : α ⊕' β)
-  [inst1 : ∀ x, Nonempty (γ x)] [inst2 : ∀ x, Nonempty (δ x)] : Nonempty (t.casesOn γ δ) := by
-  cases t
-  · apply inst1
-  · apply inst2
-
 mutual
 def mutualUnary1 (n : Nat) : Unit := mutualUnary2 (n + 1)
 partial_fixpoint

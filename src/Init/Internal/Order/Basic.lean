@@ -91,6 +91,7 @@ theorem admissible_and (P Q : α → Prop)
     ⟨ hadm₁ c hchain fun x hx => (h x hx).1,
       hadm₂ c hchain fun x hx => (h x hx).2⟩
 
+
 theorem chain_conj (c P : α → Prop) (hchain : chain c) : chain (fun x => c x ∧ P x) := by
   intro x y ⟨hcx, _⟩ ⟨hcy, _⟩
   exact hchain x y hcx hcy
@@ -243,7 +244,8 @@ theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
     intro y hy
     exact hy
 
-theorem fix_induct {f : α → α} (motive : α → Prop) (hf : monotone f) (hadm: admissible motive)
+theorem fix_induct {f : α → α} (hf : monotone f)
+    (motive : α → Prop) (hadm: admissible motive)
     (h : ∀ x, motive x → motive (f x)) : motive (fix f hf) := by
   apply hadm _ (chain_iterates hf)
   intro x hiterates
@@ -414,6 +416,20 @@ instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
       · apply csup_le hchain.snd
         intro b' ⟨a', hcab⟩
         apply (h _ hcab).2
+
+theorem admissible_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : α → Prop)
+    (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.1) := by
+  intro c hchain h
+  apply hadm _ hchain.fst
+  intro x ⟨y, hxy⟩
+  apply h ⟨x,y⟩ hxy
+
+theorem admissible_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : β → Prop)
+    (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.2) := by
+  intro c hchain h
+  apply hadm _ hchain.snd
+  intro y ⟨x, hxy⟩
+  apply h ⟨x,y⟩ hxy
 
 end prod_order
 

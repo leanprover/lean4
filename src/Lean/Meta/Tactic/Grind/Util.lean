@@ -35,7 +35,7 @@ def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Exp
   return mvarNew.mvarId!
 
 /--
-Unfold all `reducible` declarations occurring in `e`.
+Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr :=
   let pre (e : Expr) : MetaM TransformStep := do
@@ -46,25 +46,25 @@ def unfoldReducible (e : Expr) : MetaM Expr :=
   Core.transform e (pre := pre)
 
 /--
-Unfold all `reducible` declarations occurring in the goal's target.
+Unfolds all `reducible` declarations occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget Grind.unfoldReducible
 
 /--
-Abstract nested proofs occurring in the goal's target.
+Abstracts nested proofs occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
   mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
 
 /--
-Beta-reduce the goal's target.
+Beta-reduces the goal's target.
 -/
 def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget (Core.betaReduce ·)
 
 /--
-If the target is not `False`, apply `byContradiction`.
+If the target is not `False`, applies `byContradiction`.
 -/
 def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   mvarId.checkNotAssigned `grind.by_contra
@@ -77,7 +77,7 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   return mvarNew.mvarId!
 
 /--
-Clear auxiliary decls used to encode recursive declarations.
+Clears auxiliary decls used to encode recursive declarations.
 `grind` eliminates them to ensure they are not accidentally used by its proof automation.
 -/
 def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do

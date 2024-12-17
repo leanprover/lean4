@@ -55,6 +55,7 @@ static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV
 static lean_object* l_Lake_PackageEntry_instFromJson___closed__1;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 static lean_object* l_Lake_instInhabitedPackageEntryV6___closed__1;
+uint8_t l_Ord_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_115____lambda__3___closed__12;
 static lean_object* l_Lake_Manifest_parse___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -74,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lake_Manifest_saveToFile___boxed(lean_object*, lean_o
 extern lean_object* l_Lean_instInhabitedJson;
 static lean_object* l___private_Lake_Load_Manifest_0__Lake_fromJsonPackageEntryV6____x40_Lake_Load_Manifest___hyg_115____closed__7;
 static lean_object* l_Lake_Manifest_toJson___closed__3;
-uint8_t l_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_ofV6___boxed(lean_object*);
 static lean_object* l_Lake_PackageEntry_fromJson_x3f___closed__20;
 LEAN_EXPORT lean_object* l_Lake_PackageEntry_setInherited(lean_object*);
@@ -7207,7 +7207,7 @@ lean_object* x_147; lean_object* x_148; uint8_t x_149;
 x_147 = l_Lake_instOrdStdVer;
 x_148 = l_Lake_Manifest_fromJson_x3f___lambda__2___closed__13;
 lean_inc(x_2);
-x_149 = l_instDecidableRelLt___rarg(x_147, x_2, x_148);
+x_149 = l_Ord_instDecidableRelLt___rarg(x_147, x_2, x_148);
 if (x_149 == 0)
 {
 lean_object* x_150; lean_object* x_151; 
@@ -7666,7 +7666,7 @@ block_102:
 lean_object* x_34; lean_object* x_46; lean_object* x_47; uint8_t x_48; 
 x_46 = l_Lake_instOrdStdVer;
 x_47 = l_Lake_Manifest_fromJson_x3f___lambda__2___closed__10;
-x_48 = l_instDecidableRelLt___rarg(x_46, x_2, x_47);
+x_48 = l_Ord_instDecidableRelLt___rarg(x_46, x_2, x_47);
 if (x_48 == 0)
 {
 lean_object* x_49; lean_object* x_50; 

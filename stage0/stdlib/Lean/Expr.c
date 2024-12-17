@@ -390,6 +390,7 @@ LEAN_EXPORT lean_object* l_Lean_Nat_mkInstMod;
 LEAN_EXPORT uint8_t l_Lean_Expr_isAppOfArity_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkAppRange(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_mkIff___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Expr_getNumHeadForalls(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Expr_fvarId_x21___spec__1(lean_object*);
@@ -1100,7 +1101,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_MVarIdMap_insert___spec__2(
 LEAN_EXPORT uint8_t l_Lean_Expr_isConst(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_getNumHeadLambdas___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_lam___override(lean_object*, lean_object*, lean_object*, uint8_t);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Expr_ctorName___closed__11;
 LEAN_EXPORT lean_object* l_Lean_Expr_beta(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_mkApp5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

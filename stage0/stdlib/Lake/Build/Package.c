@@ -221,6 +221,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacetConfig___elambda__1___
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_maybeFetchBuildCacheWithWarning___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_recComputeDeps___spec__8___closed__1;
 static lean_object* l_Lake_Package_getReleaseUrl___closed__6;
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Package_afterBuildCacheSync___spec__5(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_BuildJob_mix___rarg(lean_object*, lean_object*);
@@ -305,7 +306,6 @@ LEAN_EXPORT lean_object* l_Lake_Package_maybeFetchBuildCacheWithWarning___lambda
 static lean_object* l_Lake_Package_extraDepFacetConfig___closed__4;
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_maybeFetchBuildCacheWithWarning___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_gitHubReleaseFacetConfig;
 static lean_object* l_Lake_Package_getReleaseUrl___closed__4;
 LEAN_EXPORT lean_object* l_Lake_Package_recBuildExtraDepTargets___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11357,7 +11357,7 @@ x_152 = l_Lake_instOrdJobAction;
 x_153 = 1;
 x_154 = lean_box(x_151);
 x_155 = lean_box(x_153);
-x_156 = l_instDecidableRelLe___rarg(x_152, x_154, x_155);
+x_156 = l_Ord_instDecidableRelLe___rarg(x_152, x_154, x_155);
 if (x_156 == 0)
 {
 lean_object* x_157; 
@@ -11389,7 +11389,7 @@ x_161 = l_Lake_instOrdJobAction;
 x_162 = 1;
 x_163 = lean_box(x_160);
 x_164 = lean_box(x_162);
-x_165 = l_instDecidableRelLe___rarg(x_161, x_163, x_164);
+x_165 = l_Ord_instDecidableRelLe___rarg(x_161, x_163, x_164);
 if (x_165 == 0)
 {
 lean_object* x_166; lean_object* x_167; 
@@ -11694,7 +11694,7 @@ x_207 = l_Lake_instOrdJobAction;
 x_208 = 1;
 x_209 = lean_box(x_205);
 x_210 = lean_box(x_208);
-x_211 = l_instDecidableRelLe___rarg(x_207, x_209, x_210);
+x_211 = l_Ord_instDecidableRelLe___rarg(x_207, x_209, x_210);
 if (x_211 == 0)
 {
 lean_object* x_212; lean_object* x_213; lean_object* x_214; 
@@ -11928,7 +11928,7 @@ x_265 = l_Lake_instOrdJobAction;
 x_266 = 1;
 x_267 = lean_box(x_263);
 x_268 = lean_box(x_266);
-x_269 = l_instDecidableRelLe___rarg(x_265, x_267, x_268);
+x_269 = l_Ord_instDecidableRelLe___rarg(x_265, x_267, x_268);
 if (x_269 == 0)
 {
 lean_object* x_270; lean_object* x_271; lean_object* x_272; 
@@ -12237,7 +12237,7 @@ lean_dec(x_34);
 x_35 = l_Lake_instOrdJobAction;
 x_36 = lean_box(x_29);
 x_37 = lean_box(x_16);
-x_38 = l_instDecidableRelLe___rarg(x_35, x_36, x_37);
+x_38 = l_Ord_instDecidableRelLe___rarg(x_35, x_36, x_37);
 if (x_38 == 0)
 {
 uint8_t x_39; lean_object* x_40; lean_object* x_41; 
@@ -12600,7 +12600,7 @@ lean_dec(x_117);
 x_118 = l_Lake_instOrdJobAction;
 x_119 = lean_box(x_29);
 x_120 = lean_box(x_16);
-x_121 = l_instDecidableRelLe___rarg(x_118, x_119, x_120);
+x_121 = l_Ord_instDecidableRelLe___rarg(x_118, x_119, x_120);
 if (x_121 == 0)
 {
 uint8_t x_122; lean_object* x_123; lean_object* x_124; 
@@ -12874,7 +12874,7 @@ lean_dec(x_174);
 x_175 = l_Lake_instOrdJobAction;
 x_176 = lean_box(x_168);
 x_177 = lean_box(x_16);
-x_178 = l_instDecidableRelLe___rarg(x_175, x_176, x_177);
+x_178 = l_Ord_instDecidableRelLe___rarg(x_175, x_176, x_177);
 if (x_178 == 0)
 {
 uint8_t x_179; lean_object* x_180; lean_object* x_181; 
@@ -13172,7 +13172,7 @@ lean_dec(x_238);
 x_239 = l_Lake_instOrdJobAction;
 x_240 = lean_box(x_231);
 x_241 = lean_box(x_16);
-x_242 = l_instDecidableRelLe___rarg(x_239, x_240, x_241);
+x_242 = l_Ord_instDecidableRelLe___rarg(x_239, x_240, x_241);
 if (x_242 == 0)
 {
 uint8_t x_243; lean_object* x_244; lean_object* x_245; 
@@ -17561,7 +17561,7 @@ x_16 = l_Lake_instOrdJobAction;
 x_17 = 2;
 x_18 = lean_box(x_15);
 x_19 = lean_box(x_17);
-x_20 = l_instDecidableRelLe___rarg(x_16, x_18, x_19);
+x_20 = l_Ord_instDecidableRelLe___rarg(x_16, x_18, x_19);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -17597,7 +17597,7 @@ x_27 = l_Lake_instOrdJobAction;
 x_28 = 2;
 x_29 = lean_box(x_26);
 x_30 = lean_box(x_28);
-x_31 = l_instDecidableRelLe___rarg(x_27, x_29, x_30);
+x_31 = l_Ord_instDecidableRelLe___rarg(x_27, x_29, x_30);
 if (x_31 == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -17650,7 +17650,7 @@ x_42 = l_Lake_instOrdJobAction;
 x_43 = 2;
 x_44 = lean_box(x_40);
 x_45 = lean_box(x_43);
-x_46 = l_instDecidableRelLe___rarg(x_42, x_44, x_45);
+x_46 = l_Ord_instDecidableRelLe___rarg(x_42, x_44, x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; 
@@ -19425,7 +19425,7 @@ x_13 = l_Lake_instOrdJobAction;
 x_14 = 2;
 x_15 = lean_box(x_12);
 x_16 = lean_box(x_14);
-x_17 = l_instDecidableRelLe___rarg(x_13, x_15, x_16);
+x_17 = l_Ord_instDecidableRelLe___rarg(x_13, x_15, x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -19461,7 +19461,7 @@ x_24 = l_Lake_instOrdJobAction;
 x_25 = 2;
 x_26 = lean_box(x_23);
 x_27 = lean_box(x_25);
-x_28 = l_instDecidableRelLe___rarg(x_24, x_26, x_27);
+x_28 = l_Ord_instDecidableRelLe___rarg(x_24, x_26, x_27);
 if (x_28 == 0)
 {
 lean_object* x_29; lean_object* x_30; lean_object* x_31; 
@@ -19514,7 +19514,7 @@ x_39 = l_Lake_instOrdJobAction;
 x_40 = 2;
 x_41 = lean_box(x_37);
 x_42 = lean_box(x_40);
-x_43 = l_instDecidableRelLe___rarg(x_39, x_41, x_42);
+x_43 = l_Ord_instDecidableRelLe___rarg(x_39, x_41, x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; 
@@ -20459,7 +20459,7 @@ x_15 = l_Lake_instOrdJobAction;
 x_16 = 2;
 x_17 = lean_box(x_14);
 x_18 = lean_box(x_16);
-x_19 = l_instDecidableRelLe___rarg(x_15, x_17, x_18);
+x_19 = l_Ord_instDecidableRelLe___rarg(x_15, x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; 
@@ -20495,7 +20495,7 @@ x_26 = l_Lake_instOrdJobAction;
 x_27 = 2;
 x_28 = lean_box(x_25);
 x_29 = lean_box(x_27);
-x_30 = l_instDecidableRelLe___rarg(x_26, x_28, x_29);
+x_30 = l_Ord_instDecidableRelLe___rarg(x_26, x_28, x_29);
 if (x_30 == 0)
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; 
@@ -20548,7 +20548,7 @@ x_41 = l_Lake_instOrdJobAction;
 x_42 = 2;
 x_43 = lean_box(x_39);
 x_44 = lean_box(x_42);
-x_45 = l_instDecidableRelLe___rarg(x_41, x_43, x_44);
+x_45 = l_Ord_instDecidableRelLe___rarg(x_41, x_43, x_44);
 if (x_45 == 0)
 {
 lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 

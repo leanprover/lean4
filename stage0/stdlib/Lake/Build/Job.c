@@ -219,6 +219,7 @@ lean_object* l_IO_FS_Stream_ofBuffer(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_bindAsync___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instCoeOutJobTaskBundledJobTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaqueJobTask_instCoeBundledJobTask;
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_wait(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JobAction_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 extern lean_object* l_instMonadBaseIO;
@@ -314,7 +315,6 @@ LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_BuildJob_mixList___
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Job_bindSync___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_wait_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_Job_bindSync___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_BuildJob_collectList___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lake_BuildJob_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildJob_instFunctor;
@@ -1148,7 +1148,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdJobAction;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -1179,7 +1179,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdJobAction;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;
@@ -1210,7 +1210,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdJobAction;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;
@@ -1442,7 +1442,7 @@ lean_dec(x_6);
 x_9 = l_Lake_instOrdJobAction;
 x_10 = lean_box(x_4);
 x_11 = lean_box(x_7);
-x_12 = l_instDecidableRelLe___rarg(x_9, x_10, x_11);
+x_12 = l_Ord_instDecidableRelLe___rarg(x_9, x_10, x_11);
 if (x_12 == 0)
 {
 lean_ctor_set(x_2, 0, x_8);
@@ -1467,7 +1467,7 @@ lean_dec(x_13);
 x_16 = l_Lake_instOrdJobAction;
 x_17 = lean_box(x_4);
 x_18 = lean_box(x_14);
-x_19 = l_instDecidableRelLe___rarg(x_16, x_17, x_18);
+x_19 = l_Ord_instDecidableRelLe___rarg(x_16, x_17, x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; 
@@ -2584,7 +2584,7 @@ x_6 = lean_ctor_get_uint8(x_3, sizeof(void*)*1);
 x_7 = l_Lake_instOrdJobAction;
 x_8 = lean_box(x_6);
 x_9 = lean_box(x_1);
-x_10 = l_instDecidableRelLe___rarg(x_7, x_8, x_9);
+x_10 = l_Ord_instDecidableRelLe___rarg(x_7, x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -2621,7 +2621,7 @@ lean_dec(x_3);
 x_19 = l_Lake_instOrdJobAction;
 x_20 = lean_box(x_18);
 x_21 = lean_box(x_1);
-x_22 = l_instDecidableRelLe___rarg(x_19, x_20, x_21);
+x_22 = l_Ord_instDecidableRelLe___rarg(x_19, x_20, x_21);
 if (x_22 == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 

@@ -3381,7 +3381,7 @@ lean_object* x_10; lean_object* x_11; uint8_t x_12;
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
-x_11 = lean_ctor_get(x_4, 1);
+x_11 = lean_ctor_get(x_4, 2);
 lean_inc(x_11);
 lean_inc(x_11);
 x_12 = l_Lean_LocalContext_contains(x_11, x_3);
@@ -4307,7 +4307,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_tryClearMany_x27___lambda__1(lean_object*
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_8 = lean_ctor_get(x_3, 1);
+x_8 = lean_ctor_get(x_3, 2);
 lean_inc(x_8);
 x_9 = l_Lean_LocalContext_sortFVarsByContextOrder(x_8, x_1);
 x_10 = lean_array_get_size(x_9);

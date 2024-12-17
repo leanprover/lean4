@@ -333,7 +333,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
-x_8 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___spec__3___rarg(x_7, x_2);
+x_8 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___spec__3___rarg(x_2, x_7);
 lean_dec(x_7);
 if (x_8 == 0)
 {
@@ -595,7 +595,7 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
 x_7 = lean_array_uget(x_3, x_4);
-x_8 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___spec__9___rarg(x_7, x_2);
+x_8 = l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at_Std_Tactic_BVDecide_LRAT_Internal_intActionToDefaultClauseAction___spec__9___rarg(x_2, x_7);
 lean_dec(x_7);
 if (x_8 == 0)
 {

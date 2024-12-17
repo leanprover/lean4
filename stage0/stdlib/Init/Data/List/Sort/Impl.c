@@ -49,7 +49,6 @@ static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____close
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__48;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevInTwo(lean_object*);
-lean_object* l_List_splitInTwo___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitRevAt_go(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__8;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__24;
@@ -118,6 +117,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__41;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__22;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__20;
+lean_object* l_List_MergeSort_Internal_splitInTwo___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__16;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Impl___hyg_1129____closed__49;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_mergeTR_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -1193,7 +1193,7 @@ lean_dec(x_7);
 x_10 = lean_unsigned_to_nat(2u);
 x_11 = lean_nat_add(x_9, x_10);
 lean_dec(x_9);
-x_12 = l_List_splitInTwo___rarg(x_11, x_3);
+x_12 = l_List_MergeSort_Internal_splitInTwo___rarg(x_11, x_3);
 x_13 = lean_ctor_get(x_12, 0);
 lean_inc(x_13);
 x_14 = lean_ctor_get(x_12, 1);

@@ -103,7 +103,6 @@ lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Injective_0__Lean_Meta_solveEqOfCtorEq___closed__1;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_mkInjectiveTheorems___spec__7___lambda__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Subarray_forInUnsafe_loop___at___private_Lean_Meta_Injective_0__Lean_Meta_mkAnd_x3f___spec__1___closed__1;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Injective___hyg_1973____closed__7;
@@ -254,6 +253,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkInjectiveThe
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoInduct___at_Lean_Meta_mkInjectiveTheorems___spec__1___closed__1;
 static lean_object* l_Lean_getConstInfo___at_Lean_Meta_mkInjectiveTheorems___spec__4___closed__1;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Meta_mkInjectiveTheorems___spec__7(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_mkInjectiveTheorems___spec__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -752,7 +752,7 @@ x_23 = lean_ctor_get(x_19, 2);
 lean_inc(x_23);
 lean_dec(x_19);
 x_24 = lean_array_fget(x_3, x_6);
-x_25 = lean_ctor_get(x_10, 1);
+x_25 = lean_ctor_get(x_10, 2);
 lean_inc(x_25);
 lean_inc(x_24);
 x_26 = l_Lean_Meta_occursOrInType(x_25, x_24, x_4);
@@ -776,7 +776,7 @@ if (x_2 == 0)
 uint8_t x_29; uint8_t x_30; lean_object* x_31; 
 x_29 = 1;
 x_30 = 0;
-x_31 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_21, x_29, x_22, x_28, x_30, x_10, x_11, x_12, x_13, x_20);
+x_31 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_21, x_29, x_22, x_28, x_30, x_10, x_11, x_12, x_13, x_20);
 return x_31;
 }
 else
@@ -784,7 +784,7 @@ else
 uint8_t x_32; uint8_t x_33; lean_object* x_34; 
 x_32 = 0;
 x_33 = 0;
-x_34 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_21, x_32, x_22, x_28, x_33, x_10, x_11, x_12, x_13, x_20);
+x_34 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_21, x_32, x_22, x_28, x_33, x_10, x_11, x_12, x_13, x_20);
 return x_34;
 }
 }

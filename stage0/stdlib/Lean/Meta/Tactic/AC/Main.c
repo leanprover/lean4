@@ -135,7 +135,6 @@ lean_object* l_Lean_MVarId_getNondepPropHyps(lean_object*, lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_AC_buildNormProof_mkContext___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_mkContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_panic___rarg(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_abstractAtoms_go___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_norm___at_Lean_Meta_AC_buildNormProof___spec__3___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_rewriteUnnormalized___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -329,6 +328,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_instEvalInformationPreContextACExpr___la
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic__1___closed__6;
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange__1___closed__5;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_AC_buildNormProof_mkContext___spec__1___closed__8;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_rewriteUnnormalized___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_acRflTactic___boxed(lean_object*);
 static lean_object* l_Lean_Meta_AC_preContext___closed__8;
@@ -3685,7 +3685,7 @@ lean_closure_set(x_39, 12, x_9);
 x_40 = l_Lean_Meta_AC_abstractAtoms_go___lambda__2___closed__4;
 x_41 = 0;
 x_42 = 0;
-x_43 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_40, x_41, x_38, x_39, x_42, x_11, x_12, x_13, x_14, x_34);
+x_43 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_40, x_41, x_38, x_39, x_42, x_11, x_12, x_13, x_14, x_34);
 return x_43;
 }
 }
@@ -3883,7 +3883,7 @@ lean_closure_set(x_39, 8, x_5);
 x_40 = l_Lean_Meta_AC_abstractAtoms_go___closed__2;
 x_41 = 0;
 x_42 = 0;
-x_43 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_40, x_41, x_4, x_39, x_42, x_10, x_11, x_12, x_13, x_14);
+x_43 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_40, x_41, x_4, x_39, x_42, x_10, x_11, x_12, x_13, x_14);
 return x_43;
 }
 }
@@ -6688,7 +6688,7 @@ lean_inc(x_10);
 if (lean_obj_tag(x_10) == 5)
 {
 lean_object* x_11; 
-x_11 = lean_ctor_get(x_3, 5);
+x_11 = lean_ctor_get(x_3, 7);
 lean_inc(x_11);
 if (lean_obj_tag(x_11) == 0)
 {

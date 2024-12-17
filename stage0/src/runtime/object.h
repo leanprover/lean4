@@ -373,6 +373,7 @@ inline unsigned unbox_uint32(b_obj_arg o) { return lean_unbox_uint32(o); }
 inline obj_res box_uint64(unsigned long long v) { return lean_box_uint64(v); }
 inline unsigned long long unbox_uint64(b_obj_arg o) { return lean_unbox_uint64(o); }
 inline obj_res box_float(double v) { return lean_box_float(v); }
+inline obj_res box_float32(float v) { return lean_box_float32(v); }
 inline double unbox_float(b_obj_arg o) { return lean_unbox_float(o); }
 inline float unbox_float32(b_obj_arg o) { return lean_unbox_float32(o); }
 inline obj_res box_size_t(size_t v) { return lean_box_usize(v); }

@@ -833,7 +833,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_findLocalDeclWithType_x3f(lean_object* x_1,
 _start:
 {
 lean_object* x_7; lean_object* x_8; 
-x_7 = lean_ctor_get(x_2, 1);
+x_7 = lean_ctor_get(x_2, 2);
 lean_inc(x_7);
 x_8 = l_Lean_LocalContext_findDeclRevM_x3f___at_Lean_Meta_findLocalDeclWithType_x3f___spec__1(x_1, x_7, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_7);

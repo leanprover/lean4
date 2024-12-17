@@ -187,11 +187,7 @@ option_ref<decl> find_ir_decl(environment const & env, name const & n) {
 }
 
 extern "C" double lean_float_of_nat(lean_obj_arg a);
-
-// TODO: define in Lean like `lean_float_of_nat`
-float lean_float32_of_nat(lean_obj_arg a) {
-    return lean_float_of_nat(a);
-}
+extern "C" float lean_float32_of_nat(lean_obj_arg a);
 
 static string_ref * g_mangle_prefix = nullptr;
 static string_ref * g_boxed_suffix = nullptr;
@@ -257,7 +253,7 @@ union value {
 object * box_t(value v, type t) {
     switch (t) {
     case type::Float:   return box_float(v.m_float);
-    case type::Float32: return box_float(v.m_float32);
+    case type::Float32: return box_float32(v.m_float32);
     case type::UInt8:   return box(v.m_num);
     case type::UInt16:  return box(v.m_num);
     case type::UInt32:  return box_uint32(v.m_num);

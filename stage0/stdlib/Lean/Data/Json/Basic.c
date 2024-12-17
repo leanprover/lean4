@@ -57,7 +57,6 @@ static lean_object* l_Lean_JsonNumber_normalize___closed__5;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static uint64_t l___private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27___closed__3;
 static lean_object* l_Lean_Json_getArr_x3f___closed__1;
-lean_object* l_Std_Range_instForIn_x27NatInferInstanceMembership(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_setObjVal_x21___closed__2;
 lean_object* l_Lean_Syntax_decodeScientificLitVal_x3f(lean_object*);
@@ -93,6 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_instOfScientific(lean_object*, uint8_t, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT uint64_t l___private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27(lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_isNull___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_fromInt(lean_object*);
 extern lean_object* l_Nat_instMod;
@@ -122,6 +122,7 @@ static lean_object* l_Lean_JsonNumber_instRepr___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Json_getNum_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_normalize(lean_object*);
 lean_object* l_Int_repr(lean_object*);
+lean_object* l_Std_Range_forIn_x27(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_instRepr___closed__7;
 static lean_object* l_Lean_Json_getBool_x3f___closed__2;
 static lean_object* l_Lean_Json_getStr_x3f___closed__2;
@@ -230,7 +231,6 @@ lean_object* lean_int_neg(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 static lean_object* l_Lean_JsonNumber_fromFloat_x3f___closed__5;
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Json_getInt_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValD___boxed(lean_object*, lean_object*);
@@ -573,7 +573,7 @@ static lean_object* _init_l_Lean_JsonNumber_normalize___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Std_Range_instForIn_x27NatInferInstanceMembership), 2, 1);
+x_1 = lean_alloc_closure((void*)(l_Std_Range_forIn_x27), 2, 1);
 lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }

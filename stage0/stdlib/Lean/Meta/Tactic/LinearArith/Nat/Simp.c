@@ -59,7 +59,6 @@ uint8_t l_Nat_Linear_PolyCnstr_isUnsat(lean_object*);
 static lean_object* l_Lean_Meta_withLocalDecls___at_Lean_Meta_Linear_Nat_withAbstractAtoms___spec__4___rarg___closed__1;
 lean_object* l_Lean_Meta_Linear_Nat_ToLinear_run___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getRevArg_x21(lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__23;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__10;
@@ -132,6 +131,7 @@ static lean_object* l_Lean_Meta_Linear_Nat_simpExpr_x3f___closed__2;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__6;
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___lambda__1___closed__2;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_Linear_PolyCnstr_isValid(lean_object*);
 static lean_object* l_Lean_Meta_Linear_Nat_simpCnstr_x3f___closed__8;
 lean_object* lean_array_get_size(lean_object*);
@@ -388,7 +388,7 @@ lean_closure_set(x_22, 3, x_3);
 x_23 = 0;
 x_24 = lean_unbox(x_17);
 lean_dec(x_17);
-x_25 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__3___rarg(x_16, x_24, x_20, x_22, x_23, x_5, x_6, x_7, x_8, x_21);
+x_25 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_addPPExplicitToExposeDiff_visit___spec__4___rarg(x_16, x_24, x_20, x_22, x_23, x_5, x_6, x_7, x_8, x_21);
 return x_25;
 }
 else

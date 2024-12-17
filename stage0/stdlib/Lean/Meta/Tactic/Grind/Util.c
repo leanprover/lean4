@@ -4788,7 +4788,7 @@ x_9 = lean_ctor_get(x_8, 1);
 lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_box(0);
-x_11 = lean_ctor_get(x_3, 1);
+x_11 = lean_ctor_get(x_3, 2);
 lean_inc(x_11);
 x_12 = lean_ctor_get(x_11, 1);
 lean_inc(x_12);

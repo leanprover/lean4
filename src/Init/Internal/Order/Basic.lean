@@ -184,41 +184,6 @@ theorem monotone_apply [PartialOrder γ] [∀ x, PartialOrder (β x)] (a : α) (
     (h : monotone f) :
     monotone (fun x => f x a) := fun _ _ hfg => h _ _ hfg a
 
--- It seems this lemma can be used to decompose all kind of applications,
--- but the `[Order β]` constraint comes out of no where, so not generally applicable.
-theorem monotone_apply_of_monotone -- can `f` be made dependent here?
-    {α : Sort u} {β : Sort v} {γ : Sort w}
-    [PartialOrder α] [PartialOrder β] [PartialOrder γ]
-    {f: γ → α → β}
-    {g: γ → α}
-    (hf1 : monotone f)
-    (hf2 : ∀ x, monotone (f x))
-    (hg : monotone g) :
-    monotone (fun (x : γ) => f x (g x)) := by
-  intro x y hxy
-  apply rel_trans
-  apply hf1 _ _ hxy
-  apply hf2 y _ _ (hg _ _ hxy)
-
-theorem monotone_apply_of_monotone_arg
-    {α : Sort u} {β : Sort v} {γ : Sort w}
-    [PartialOrder α] [PartialOrder β] [PartialOrder γ]
-    {f: α → β}
-    {g: γ → α}
-    (hf : monotone f)
-    (hg : monotone g) :
-    monotone  (fun (x : γ) => f (g x)) := monotone_compose (hf := hg) (hg := hf)
-
--- This does not work well, because the instance requirements for the hypotheses
--- are stronger than what we need for the goal, where we just need `[Order (β z)]`
-theorem monotone_apply_of_monotone_fun
-    {α : Type u} {β : α → Type v} {γ : Type w}
-    [∀ x, PartialOrder (β x)] [PartialOrder γ]
-    (f : γ → (∀ x, β x)) (z : α)
-    (h : monotone f) :
-    monotone (fun x => f x z) :=
-  fun x y hxy => h x y hxy z
-
 theorem chain_apply [∀ x, PartialOrder (β x)] {c : (∀ x, β x) → Prop} (hc : chain c) (x : α) :
     chain (fun y => ∃ f, c f ∧ f x = y) := by
   intro _ _ ⟨f, hf, hfeq⟩ ⟨g, hg, hgeq⟩

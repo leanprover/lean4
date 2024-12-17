@@ -7,7 +7,6 @@ prelude
 import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.PassManager
 import Lean.Compiler.LCNF.PhaseExt
-import Lean.Compiler.LCNF.ForEachExpr
 
 namespace Lean.Compiler.LCNF
 
@@ -22,7 +21,7 @@ def map (f : α → CompilerM β) : Probe α β := fun data => data.mapM f
 def filter (f : α → CompilerM Bool) : Probe α α := fun data => data.filterM f
 
 @[inline]
-def sorted [Inhabited α] [inst : LT α] [DecidableRel inst.lt] : Probe α α := fun data => return data.qsort (· < ·)
+def sorted [Inhabited α] [LT α] [DecidableLT α] : Probe α α := fun data => return data.qsort (· < ·)
 
 @[inline]
 def sortedBySize : Probe Decl (Nat × Decl) := fun decls =>
@@ -170,6 +169,14 @@ def tail (n : Nat) : Probe α α := fun data => return data[data.size - n:]
 
 @[inline]
 def head (n : Nat) : Probe α α := fun data => return data[:n]
+
+def runOnDeclsNamed (declNames : Array Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
+  let ext := getExt phase
+  let env ← getEnv
+  let decls ← declNames.mapM fun name => do
+    let some decl := getDeclCore? env ext name | throwError "decl `{name}` not found"
+    return decl
+  probe decls |>.run (phase := phase)
 
 def runOnModule (moduleName : Name) (probe : Probe Decl β) (phase : Phase := Phase.base): CoreM (Array β) := do
   let ext := getExt phase

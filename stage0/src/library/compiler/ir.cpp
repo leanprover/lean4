@@ -123,6 +123,8 @@ static ir::type to_ir_type(expr const & e) {
             return ir::type::USize;
         } else if (const_name(e) == get_float_name()) {
             return ir::type::Float;
+        } else if (const_name(e) == get_float32_name()) {
+            return ir::type::Float32;
         }
      } else if (is_pi(e)) {
         return ir::type::Object;
@@ -350,6 +352,16 @@ class to_ir_fn {
         return ir::mk_sset(to_var_id(args[0]), n, offset, to_var_id(args[1]), ir::type::Float, b);
     }
 
+    ir::fn_body visit_f32set(local_decl const & decl, ir::fn_body const & b) {
+        expr val = *decl.get_value();
+        buffer<expr> args;
+        expr const & fn = get_app_args(val, args);
+        lean_assert(args.size() == 2);
+        unsigned n, offset;
+        lean_verify(is_llnf_f32set(fn, n, offset));
+        return ir::mk_sset(to_var_id(args[0]), n, offset, to_var_id(args[1]), ir::type::Float32, b);
+    }
+
     ir::fn_body visit_uset(local_decl const & decl, ir::fn_body const & b) {
         expr val = *decl.get_value();
         buffer<expr> args;
@@ -417,6 +429,8 @@ class to_ir_fn {
                 return visit_sset(decl, b);
             else if (is_llnf_fset(fn))
                 return visit_fset(decl, b);
+            else if (is_llnf_f32set(fn))
+                return visit_f32set(decl, b);
             else if (is_llnf_uset(fn))
                 return visit_uset(decl, b);
             else if (is_llnf_proj(fn))
@@ -449,7 +463,7 @@ class to_ir_fn {
                 expr new_fvar   = m_lctx.mk_local_decl(ngen(), n, type, val);
                 fvars.push_back(new_fvar);
                 expr const & op = get_app_fn(val);
-                if (is_llnf_sset(op) || is_llnf_fset(op) || is_llnf_uset(op)) {
+                if (is_llnf_sset(op) || is_llnf_fset(op) || is_llnf_f32set(op) || is_llnf_uset(op)) {
                     /* In the Lean IR, sset and uset are instructions that perform destructive updates. */
                     subst.push_back(app_arg(app_fn(val)));
                 } else {

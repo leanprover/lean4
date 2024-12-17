@@ -349,8 +349,10 @@ end
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
       let cfg ← getConfig
-      unless cfg.zetaDelta || decl.isImplementationDetail do return e
-      if cfg.trackZetaDelta then
+      if !decl.isImplementationDetail && !cfg.zetaDelta then
+        if !(← read).zetaDeltaSet.contains fvarId then
+          return e
+      if (← read).trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
       whnfEasyCases v k
   | .mvar mvarId   =>
@@ -572,7 +574,17 @@ where
             return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
-        if cfg.beta && f'.isLambda then
+        /-
+        If `f'` is a lambda, then we perform beta-reduction here IF
+        1- `cfg.beta` is enabled, OR
+        2- `f` was not a lambda expression. That is, `f` was reduced, and the beta-reduction step is part
+           of this step. This is similar to allowing beta-reduction while unfolding expressions even if `cfg.beta := false`.
+
+        We added case 2 because a failure at `norm_cast`. See test `6123_mod_cast.lean`.
+        Another possible fix to this test is to set `beta := true` at the `Simp.Config` value at
+        `NormCast.lean`.
+        -/
+        if f'.isLambda && (cfg.beta || !f.isLambda) then
           let revArgs := e.getAppRevArgs
           go <| f'.betaRev revArgs
         else if let some eNew ← whnfDelayedAssigned? f' e then

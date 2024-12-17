@@ -237,15 +237,15 @@ theorem getElem?_mapIdx_go : ∀ {l : List α} {arr : Array β} {i : Nat},
       if h : i < arr.size then some arr[i] else Option.map (f i) l[i - arr.size]?
   | [], arr, i => by
     simp only [mapIdx.go, Array.toListImpl_eq, getElem?_def, Array.length_toList,
-      Array.getElem_eq_getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none']
+      ← Array.getElem_toList, length_nil, Nat.not_lt_zero, ↓reduceDIte, Option.map_none']
   | a :: l, arr, i => by
     rw [mapIdx.go, getElem?_mapIdx_go]
     simp only [Array.size_push]
     split <;> split
     · simp only [Option.some.injEq]
-      rw [Array.getElem_eq_getElem_toList]
+      rw [← Array.getElem_toList]
       simp only [Array.push_toList]
-      rw [getElem_append_left, Array.getElem_eq_getElem_toList]
+      rw [getElem_append_left, ← Array.getElem_toList]
     · have : i = arr.size := by omega
       simp_all
     · omega

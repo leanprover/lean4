@@ -48,7 +48,7 @@ def ofOrdinal (ordinal : Day.Ordinal.OfYear leap) : ValidDate leap :=
         let bounded := Bounded.LE.mk ordinal.val (And.intro h h₁) |>.sub acc
         let bounded : Bounded.LE 1 monthDays.val := bounded.cast (by omega) (by omega)
         let days₁ : Day.Ordinal := ⟨bounded.val, And.intro bounded.property.left (Int.le_trans bounded.property.right monthDays.property.right)⟩
-        ⟨⟨idx, days₁⟩, Int.le_trans bounded.property.right (by simp)⟩
+        ⟨⟨idx, days₁⟩, Int.le_trans bounded.property.right (by simp +zetaDelta)⟩
       else by
         let h₂ := Int.not_le.mp h₁
 

@@ -13,7 +13,7 @@ let _x_21 := `Nat;
 let _x_22 := [];
 let _x_23 := Lean.Expr.const _x_21 _x_22;
 let _x_24 := `List.nil;
-let _x_25 := Lean.levelZero :: _x_22;
+let _x_25 := Lean.Level.zero :: _x_22;
 let _x_26 := Lean.Expr.const _x_24 _x_25;
 let _x_27 := _x_26.app _x_23;
 let _x_28 := `List.cons;
@@ -34,7 +34,7 @@ let _x_14 := Lean.Name.str._override Lean.Name.anonymous._impl "Nat";
 let _x_15 := List.nil _neutral;
 let _x_16 := Lean.Expr.const._override _x_14 _x_15;
 let _x_17 := `List.nil;
-let _x_18 := List.cons _neutral Lean.levelZero _x_15;
+let _x_18 := List.cons _neutral Lean.Level.zero._impl _x_15;
 let _x_19 := Lean.Expr.const._override _x_17 _x_18;
 let _x_20 := Lean.Expr.app._override _x_19 _x_16;
 let _x_21 := `List.cons;
@@ -54,7 +54,7 @@ let _x_1 := Lean.Name.str._override Lean.Name.anonymous._impl "Nat";
 let _x_2 := List.nil _neutral;
 let _x_3 := Lean.Expr.const._override _x_1 _x_2;
 let _x_4 := `List.nil;
-let _x_5 := List.cons _neutral Lean.levelZero _x_2;
+let _x_5 := List.cons _neutral Lean.Level.zero._impl _x_2;
 let _x_6 := Lean.Expr.const._override _x_4 _x_5;
 let _x_7 := Lean.Expr.app._override _x_6 _x_3;
 let _x_8 := `List.cons;
@@ -84,7 +84,7 @@ Lean.Expr.const._override _eval._closed_2 _x_1
 Lean.Name.mkStr2 _eval._closed_4 _eval._closed_5
 >> _eval._closed_7
 let _x_1 := List.nil _neutral;
-List.cons _neutral Lean.levelZero _x_1
+List.cons _neutral Lean.Level.zero._impl _x_1
 >> _eval._closed_8
 Lean.Expr.const._override _eval._closed_6 _eval._closed_7
 >> _eval._closed_9

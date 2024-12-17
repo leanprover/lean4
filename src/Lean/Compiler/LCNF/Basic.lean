@@ -7,6 +7,7 @@ prelude
 import Init.Data.List.BasicAux
 import Lean.Expr
 import Lean.Meta.Instances
+import Lean.Compiler.ExternAttr
 import Lean.Compiler.InlineAttrs
 import Lean.Compiler.Specialize
 import Lean.Compiler.LCNF.Types
@@ -472,6 +473,37 @@ where
     | .return .. => code
     | .unreach type => code.updateUnreach! (instExpr type)
 
+inductive DeclValue where
+  | code (code : Code)
+  | extern (externAttrData : ExternAttrData)
+  deriving Inhabited, BEq
+
+partial def DeclValue.size : DeclValue → Nat
+  | .code c => c.size
+  | .extern .. => 0
+
+def DeclValue.mapCode (f : Code → Code) : DeclValue → DeclValue :=
+  fun
+    | .code c => .code (f c)
+    | .extern e => .extern e
+
+def DeclValue.mapCodeM [Monad m] (f : Code → m Code) : DeclValue → m DeclValue :=
+  fun v => do
+    match v with
+    | .code c => return .code (← f c)
+    | .extern .. => return v
+
+def DeclValue.forCodeM [Monad m] (f : Code → m Unit) : DeclValue → m Unit :=
+  fun v => do
+    match v with
+    | .code c => f c
+    | .extern .. => return ()
+
+def DeclValue.isCodeAndM [Monad m] (v : DeclValue) (f : Code → m Bool) : m Bool :=
+  match v with
+  | .code c => f c
+  | .extern .. => pure false
+
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/
@@ -498,7 +530,7 @@ structure Decl where
   The body of the declaration, usually changes as it progresses
   through compiler passes.
   -/
-  value : Code
+  value : DeclValue
   /--
   We set this flag to true during LCNF conversion. When we receive
   a block of functions to be compiled, we set this flag to `true`
@@ -579,7 +611,9 @@ We use this function to decide whether we should inline a declaration tagged wit
 `[inline_if_reduce]` or not.
 -/
 def Decl.isCasesOnParam? (decl : Decl) : Option Nat :=
-  go decl.value
+  match decl.value with
+  | .code c => go c
+  | .extern .. => none
 where
   go (code : Code) : Option Nat :=
     match code with
@@ -693,7 +727,7 @@ where
       visit k
 
   go : StateM NameSet Unit :=
-    decls.forM fun decl => visit decl.value
+    decls.forM (·.value.forCodeM visit)
 
 def instantiateRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array Arg) : Expr :=
   if !e.hasLooseBVars then

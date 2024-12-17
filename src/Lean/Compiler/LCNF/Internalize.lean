@@ -108,7 +108,7 @@ where
   go (decl : Decl) : InternalizeM Decl := do
     let type ← normExpr decl.type
     let params ← decl.params.mapM internalizeParam
-    let value ← internalizeCode decl.value
+    let value ← decl.value.mapCodeM internalizeCode
     return { decl with type, params, value }
 
 /--

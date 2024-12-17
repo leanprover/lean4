@@ -243,8 +243,8 @@ theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
     intro y hy
     exact hy
 
-theorem fix_induct {f : α → α} (P : α → Prop) (hf : monotone f) (hadm: admissible P)
-    (h : ∀ x, P x → P (f x)) : P (fix f hf) := by
+theorem fix_induct {f : α → α} (motive : α → Prop) (hf : monotone f) (hadm: admissible motive)
+    (h : ∀ x, motive x → motive (f x)) : motive (fix f hf) := by
   apply hadm _ (chain_iterates hf)
   intro x hiterates
   induction hiterates with
@@ -302,6 +302,13 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
       intro y ⟨z, hz, hyz⟩
       subst y
       apply h z hz
+
+def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
+  (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
+  intro c hchain h
+  apply hadm _ (chain_apply hchain x)
+  rintro _ ⟨f, hcf, rfl⟩
+  apply h _ hcf
 
 end fun_order
 
@@ -520,8 +527,8 @@ noncomputable instance : MonoBind Option where
     · exact FlatOrder.rel.refl
     · exact h _
 
-theorem admissible_eq_some (P : α → Prop) :
-    admissible (fun (x : Option α) => ∀ y, x = some y → P y) := by
+theorem admissible_eq_some (P : α → Prop) (y : α) :
+    admissible (fun (x : Option α) => x = some y → P y) := by
   apply admissible_flatOrder; simp
 
 instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
@@ -549,16 +556,34 @@ def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :
   else
     rec (x + 1)
 
-noncomputable def find (P : Nat → Bool) : Nat → Option Nat := fix (α := _ → TailrecOrder _) (findF P) <| by
+noncomputable def find (P : Nat → Bool) : Nat → Option Nat := fix (findF P) <| by
   unfold findF
-  apply monotone_of_monotone_apply (β := fun _ => TailrecOrder _)
+  apply monotone_of_monotone_apply
   intro n
   split
   · apply monotone_const
   · apply monotone_apply
     apply monotone_id
 
-theorem find_eq : find P = findF P (find P) := fix_eq (α := _ → TailrecOrder _) ..
+theorem find_eq : find P = findF P (find P) := fix_eq ..
+
+theorem find_spec : ∀ n m, find P n = some m → n ≤ m ∧ P m := by
+  unfold find
+  refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hstep
+  case hadm =>
+    apply admissible_pi; intro n
+    apply admissible_pi; intro m
+    refine admissible_apply (P := fun _ x => x = some m → _) _ ?_
+    apply admissible_eq_some
+  case hstep =>
+    intro f ih n m heq
+    simp only [findF] at heq
+    split at heq
+    · simp_all
+    · obtain ⟨ih1, ih2⟩ := ih _ _ heq
+      constructor
+      · exact Nat.le_trans (Nat.le_add_right _ _ ) ih1
+      · exact ih2
 
 end Example
 

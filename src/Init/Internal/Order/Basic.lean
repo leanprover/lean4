@@ -413,7 +413,6 @@ end prod_order
 section flat_order
 
 variable {α : Sort u}
-variable [Nonempty α]
 
 set_option linter.unusedVariables false in
 def FlatOrder {α : Sort u} (b : α) := α
@@ -476,6 +475,15 @@ noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
         assumption
       · intro; exact rel.bot
 
+theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
+  intro c hchain h
+  by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
+  · simp [CCPO.csup, flat_csup, h']
+    apply Classical.some_spec₂ (q := (P ·))
+    intro x ⟨hcx, hneb⟩
+    apply h x hcx
+  · simp [CCPO.csup, flat_csup, h', hnot]
+
 noncomputable
 abbrev TailrecOrder α [Nonempty α] := FlatOrder (@Classical.ofNonempty α _)
 
@@ -511,6 +519,10 @@ noncomputable instance : MonoBind Option where
     cases a
     · exact FlatOrder.rel.refl
     · exact h _
+
+theorem admissible_eq_some (P : α → Prop) :
+    admissible (fun (x : Option α) => ∀ y, x = some y → P y) := by
+  apply admissible_flatOrder; simp
 
 instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
 instance [Monad m] [∀ α, PartialOrder (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _

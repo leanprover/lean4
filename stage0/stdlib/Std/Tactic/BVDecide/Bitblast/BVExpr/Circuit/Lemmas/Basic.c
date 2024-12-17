@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_getD(lean_object*, lean_object*);
+lean_object* l_Lean_RArray_getImpl___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment___boxed(lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(lean_object*, lean_object*);
@@ -22,16 +22,12 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
 x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
-x_4 = l_Std_Tactic_BVDecide_BVExpr_Assignment_getD(x_1, x_3);
+x_4 = l_Lean_RArray_getImpl___rarg(x_1, x_3);
 x_5 = lean_ctor_get(x_4, 1);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = lean_ctor_get(x_2, 2);
-lean_inc(x_6);
-lean_dec(x_2);
 x_7 = l_Nat_testBit(x_5, x_6);
-lean_dec(x_6);
 lean_dec(x_5);
 return x_7;
 }
@@ -41,6 +37,7 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Std_Tactic_BVDecide_BVExpr_Assignment_toAIGAssignment(x_1, x_2);
+lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Meta
 import Init.Data.Float
+import Init.Data.Float32
 import Init.Data.Nat.Log2
 
 /-- For decimal and scientific numbers (e.g., `1.23`, `3.12e10`).
@@ -56,3 +57,34 @@ instance : OfNat Float n   := ⟨Float.ofNat n⟩
 
 abbrev Nat.toFloat (n : Nat) : Float :=
   Float.ofNat n
+
+/-- Computes `m * 2^e`. -/
+def Float32.ofBinaryScientific (m : Nat) (e : Int) : Float32 :=
+  let s := m.log2 - 63
+  let m := (m >>> s).toUInt64
+  let e := e + s
+  m.toFloat32.scaleB e
+
+protected opaque Float32.ofScientific (m : Nat) (s : Bool) (e : Nat) : Float32 :=
+  if s then
+    let s := 64 - m.log2 -- ensure we have 64 bits of mantissa left after division
+    let m := (m <<< (3 * e + s)) / 5^e
+    Float32.ofBinaryScientific m (-4 * e - s)
+  else
+    Float32.ofBinaryScientific (m * 5^e) e
+
+instance : OfScientific Float32 where
+  ofScientific := Float32.ofScientific
+
+@[export lean_float32_of_nat]
+def Float32.ofNat (n : Nat) : Float32 :=
+  OfScientific.ofScientific n false 0
+
+def Float32.ofInt : Int → Float
+  | Int.ofNat n => Float.ofNat n
+  | Int.negSucc n => Float.neg (Float.ofNat (Nat.succ n))
+
+instance : OfNat Float32 n   := ⟨Float32.ofNat n⟩
+
+abbrev Nat.toFloat32 (n : Nat) : Float32 :=
+  Float32.ofNat n

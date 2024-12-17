@@ -94,10 +94,8 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
-theorem usize_size_gt_zero : USize.size > 0 := by
-  cases usize_size_eq with
-  | inl h => rw [h]; decide
-  | inr h => rw [h]; decide
+@[deprecated usize_size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
+  usize_size_pos
 
 def USize.val (x : USize) : Fin USize.size := x.toBitVec.toFin
 @[extern "lean_usize_of_nat"]

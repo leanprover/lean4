@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Error
 import Lake.Util.Cycle
 import Lake.Util.EquipT
@@ -92,10 +93,12 @@ def ensureJob (x : FetchM (Job α))
   let iniPos := log.endPos
   match (← (withLoggedIO x) fetch stack ctx log store) with
   | (.ok job log, store) =>
-    let (log, jobLog) := log.split iniPos
-    let job := if jobLog.isEmpty then job else job.mapResult (sync := true)
-      (·.modifyState (.modifyLog (jobLog ++  ·)))
-    return (.ok job log, store)
+    if iniPos < log.endPos then
+      let (log, jobLog) := log.split iniPos
+      let job := job.mapResult (sync := true) (·.prependLog jobLog)
+      return (.ok job log, store)
+    else
+      return (.ok job log, store)
   | (.error _ log, store) =>
     let (log, jobLog) := log.split iniPos
     return (.ok (.error jobLog) log, store)

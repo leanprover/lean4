@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.CLI.Translate.Lean
-// Imports: Init Lake.DSL Lake.Config.Package Lean.Parser.Module
+// Imports: Lake.DSL Lake.Config.Package Lean.Parser.Module
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -241,6 +241,7 @@ LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lake_CLI_Translat
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteArrayMkStr1__lake___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkSyntax___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_mkLeanConfig___closed__9;
+uint8_t l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_197_(lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__97;
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteLeanOptionValueMkStr1__lake___closed__1;
 static lean_object* l_Lake_LeanLibConfig_mkSyntax___closed__10;
@@ -399,7 +400,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanLibConfig_mkSyntax___closed__15;
 static lean_object* l_Lake_LeanConfig_addDeclFields___closed__35;
 LEAN_EXPORT lean_object* l_Lake_addDeclFieldD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1043_(lean_object*, lean_object*);
 static lean_object* l_Lake_LeanConfig_addDeclFields___closed__14;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_PackageConfig_mkSyntax___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__85;
@@ -438,6 +438,7 @@ static lean_object* l_Lake_LeanConfig_addDeclFields___closed__21;
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__69;
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__56;
 static lean_object* l_Lake_Dependency_mkSyntax___closed__2;
+uint8_t l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1045_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanConfig_addDeclFields___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__65;
 static lean_object* l_Lake_LeanVer_quote___closed__6;
@@ -448,7 +449,6 @@ static lean_object* l_Lake_PackageConfig_mkSyntax___closed__77;
 static lean_object* l_Lake_LeanExeConfig_mkSyntax___closed__2;
 static lean_object* l_Lake_PackageConfig_mkSyntax___closed__75;
 lean_object* l_Array_mkArray1___rarg(lean_object*);
-uint8_t l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_196_(lean_object*, lean_object*);
 static lean_object* l___private_Lake_CLI_Translate_Lean_0__Lake_instQuoteArrayMkStr1__lake___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_LeanLibConfig_mkSyntax___spec__3(size_t, size_t, lean_object*);
 static lean_object* l_Lean_RBNode_foldM___at_Lake_Dependency_mkSyntax___spec__1___closed__5;
@@ -5379,7 +5379,7 @@ x_66 = lean_string_dec_eq(x_3, x_25);
 x_67 = lean_array_get_size(x_17);
 x_68 = lean_nat_dec_eq(x_67, x_43);
 x_69 = l_Lake_PackageConfig_mkSyntax___closed__24;
-x_70 = l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1043_(x_16, x_69);
+x_70 = l___private_Lake_Util_Version_0__Lake_decEqStdVer____x40_Lake_Util_Version___hyg_1045_(x_16, x_69);
 x_71 = lean_string_dec_eq(x_13, x_25);
 x_72 = lean_array_get_size(x_12);
 x_73 = lean_nat_dec_eq(x_72, x_43);
@@ -7427,7 +7427,7 @@ x_10 = lean_nat_sub(x_5, x_9);
 lean_dec(x_5);
 x_11 = lean_array_fget(x_3, x_10);
 x_12 = lean_array_fget(x_4, x_10);
-x_13 = l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_196_(x_11, x_12);
+x_13 = l___private_Lake_Config_Glob_0__Lake_decEqGlob____x40_Lake_Config_Glob___hyg_197_(x_11, x_12);
 lean_dec(x_12);
 lean_dec(x_11);
 if (x_13 == 0)
@@ -11146,7 +11146,6 @@ lean_dec(x_1);
 return x_8;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_DSL(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Module(uint8_t builtin, lean_object*);
@@ -11155,9 +11154,6 @@ LEAN_EXPORT lean_object* initialize_Lake_CLI_Translate_Lean(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_DSL(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

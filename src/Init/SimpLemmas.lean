@@ -72,6 +72,21 @@ theorem let_body_congr {α : Sort u} {β : α → Sort v} {b b' : (a : α) → �
     (a : α) (h : ∀ x, b x = b' x) : (let x := a; b x) = (let x := a; b' x) :=
   (funext h : b = b') ▸ rfl
 
+theorem letFun_unused {α : Sort u} {β : Sort v} (a : α) {b b' : β} (h : b = b') : @letFun α (fun _ => β) a (fun _ => b) = b' :=
+  h
+
+theorem letFun_congr {α : Sort u} {β : Sort v}  {a a' : α} {f f' : α → β} (h₁ : a = a') (h₂ : ∀ x, f x = f' x)
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f' := by
+  rw [h₁, funext h₂]
+
+theorem letFun_body_congr {α : Sort u} {β : Sort v}  (a : α) {f f' : α → β} (h : ∀ x, f x = f' x)
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a f' := by
+  rw [funext h]
+
+theorem letFun_val_congr {α : Sort u} {β : Sort v} {a a' : α} {f : α → β} (h : a = a')
+    : @letFun α (fun _ => β) a f = @letFun α (fun _ => β) a' f := by
+  rw [h]
+
 @[congr]
 theorem ite_congr {x y u v : α} {s : Decidable b} [Decidable c]
     (h₁ : b = c) (h₂ : c → x = u) (h₃ : ¬ c → y = v) : ite b x y = ite c u v := by
@@ -138,6 +153,7 @@ instance : Std.LawfulIdentity Or False where
 @[simp] theorem false_implies (p : Prop) : (False → p) = True := eq_true False.elim
 @[simp] theorem forall_false (p : False → Prop) : (∀ h : False, p h) = True := eq_true (False.elim ·)
 @[simp] theorem implies_true (α : Sort u) : (α → True) = True := eq_true fun _ => trivial
+-- This is later proved by the simp lemma `forall_const`, but this is useful during bootstrapping.
 @[simp] theorem true_implies (p : Prop) : (True → p) = p := propext ⟨(· trivial), (fun _ => ·)⟩
 @[simp] theorem not_false_eq_true : (¬ False) = True := eq_true False.elim
 @[simp] theorem not_true_eq_false : (¬ True) = False := by decide

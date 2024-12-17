@@ -54,8 +54,6 @@ Author: Leonardo de Moura
 
 #ifdef LEAN_WINDOWS
 #include <windows.h>
-#else
-#include <dlfcn.h>
 #endif
 
 #ifdef _MSC_VER
@@ -225,6 +223,7 @@ static void display_help(std::ostream & out) {
     std::cout << "      --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
     std::cout << "      --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
     std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
+    std::cout << "  -E  --error=kind       report Lean messages of kind as errors\n";
     std::cout << "      --deps             just print dependencies of a Lean input\n";
     std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
@@ -270,6 +269,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"error",        required_argument, 0, 'E'},
     {"json",         no_argument,       &json_output, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
@@ -280,7 +280,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -323,34 +323,6 @@ options set_config_option(options const & opts, char const * in) {
     }
 }
 
-void load_plugin(std::string path) {
-    void * init;
-    // we never want to look up plugins using the system library search
-    path = lrealpath(path);
-    std::string pkg = stem(path);
-    std::string sym = "initialize_" + pkg;
-#ifdef LEAN_WINDOWS
-    HMODULE h = LoadLibrary(path.c_str());
-    if (!h) {
-        throw exception(sstream() << "error loading plugin " << path << ": " << GetLastError());
-    }
-    init = reinterpret_cast<void *>(GetProcAddress(h, sym.c_str()));
-#else
-    void *handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (!handle) {
-        throw exception(sstream() << "error loading plugin, " << dlerror());
-    }
-    init = dlsym(handle, sym.c_str());
-#endif
-    if (!init) {
-        throw exception(sstream() << "error, plugin " << path << " does not seem to contain a module '" << pkg << "'");
-    }
-    auto init_fn = reinterpret_cast<object *(*)(uint8_t, object *)>(init);
-    object *r = init_fn(1 /* builtin */, io_mk_world());
-    consume_io_result(r);
-    // NOTE: we never unload plugins
-}
-
 namespace lean {
 extern "C" object * lean_run_frontend(
     object * input,
@@ -360,6 +332,7 @@ extern "C" object * lean_run_frontend(
     uint32_t trust_level,
     object * ilean_filename,
     uint8_t  json_output,
+    object * error_kinds,
     object * w
 );
 pair_ref<environment, object_ref> run_new_frontend(
@@ -368,7 +341,8 @@ pair_ref<environment, object_ref> run_new_frontend(
     name const & main_module_name,
     uint32_t trust_level,
     optional<std::string> const & ilean_file_name,
-    uint8_t json_output
+    uint8_t json_output,
+    array_ref<name> const & error_kinds
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
@@ -382,6 +356,7 @@ pair_ref<environment, object_ref> run_new_frontend(
         trust_level,
         oilean_file_name,
         json_output,
+        error_kinds.to_obj_arg(),
         io_mk_world()
     ));
 }
@@ -505,6 +480,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     optional<std::string> llvm_output;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
+    buffer<name> error_kinds;
 
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -619,13 +595,17 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #endif
             case 'p':
                 check_optarg("p");
-                load_plugin(optarg);
+                lean::load_plugin(optarg);
                 forwarded_args.push_back(string_ref("--plugin=" + std::string(optarg)));
                 break;
             case 'l':
                 check_optarg("l");
                 lean::load_dynlib(optarg);
                 forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
+                break;
+            case 'E':
+                check_optarg("E");
+                error_kinds.push_back(string_to_name(std::string(optarg)));
                 break;
             default:
                 std::cerr << "Unknown command line option\n";
@@ -735,7 +715,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
+        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output, error_kinds);
         env = r.fst();
         bool ok = unbox(r.snd().raw());
 

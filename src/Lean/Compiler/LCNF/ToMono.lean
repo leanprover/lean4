@@ -50,6 +50,10 @@ partial def LetValue.toMono (e : LetValue) : ToMonoM LetValue := do
       return .const ``Bool.true [] #[]
     else if declName == ``Decidable.isFalse then
       return .const ``Bool.false [] #[]
+    else if declName == ``Decidable.decide then
+      -- Decidable.decide is the identity function since Decidable
+      -- and Bool have the same runtime representation.
+      return args[1]!.toLetValue
     else if let some e' ← isTrivialConstructorApp? declName args then
       e'.toMono
     else if let some (.ctorInfo ctorInfo) := (← getEnv).find? declName then

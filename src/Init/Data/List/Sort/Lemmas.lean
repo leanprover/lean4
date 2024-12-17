@@ -25,6 +25,8 @@ namespace List
 
 /-! ### splitInTwo -/
 
+namespace MergeSort.Internal
+
 @[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) :
     (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
@@ -81,6 +83,10 @@ theorem splitInTwo_fst_le_splitInTwo_snd {l : { l : List α // l.length = n }} (
   rw [splitInTwo_fst, splitInTwo_snd]
   intro a b ma mb
   exact h.rel_of_mem_take_of_mem_drop ma mb
+
+end MergeSort.Internal
+
+open MergeSort.Internal
 
 /-! ### enumLE -/
 
@@ -285,15 +291,13 @@ theorem sorted_mergeSort
   | [] => by simp [mergeSort]
   | [a] => by simp [mergeSort]
   | a :: b :: xs => by
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
     rw [mergeSort]
     apply sorted_merge @trans @total
     apply sorted_mergeSort trans total
     apply sorted_mergeSort trans total
 termination_by l => l.length
 
-@[deprecated (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
+@[deprecated sorted_mergeSort (since := "2024-09-02")] abbrev mergeSort_sorted := @sorted_mergeSort
 
 /--
 If the input list is already sorted, then `mergeSort` does not change the list.
@@ -429,7 +433,8 @@ theorem sublist_mergeSort
         ((fun w => Sublist.of_sublist_append_right w h') fun b m₁ m₃ =>
           (Bool.eq_not_self true).mp ((rel_of_pairwise_cons hc m₁).symm.trans (h₃ b m₃))))
 
-@[deprecated (since := "2024-09-02")] abbrev mergeSort_stable := @sublist_mergeSort
+@[deprecated sublist_mergeSort (since := "2024-09-02")]
+abbrev mergeSort_stable := @sublist_mergeSort
 
 /--
 Another statement of stability of merge sort.
@@ -442,7 +447,8 @@ theorem pair_sublist_mergeSort
     (hab : le a b) (h : [a, b] <+ l) : [a, b] <+ mergeSort l le :=
   sublist_mergeSort trans total (pairwise_pair.mpr hab) h
 
-@[deprecated (since := "2024-09-02")] abbrev mergeSort_stable_pair := @pair_sublist_mergeSort
+@[deprecated pair_sublist_mergeSort(since := "2024-09-02")]
+abbrev mergeSort_stable_pair := @pair_sublist_mergeSort
 
 theorem map_merge {f : α → β} {r : α → α → Bool} {s : β → β → Bool} {l l' : List α}
     (hl : ∀ a ∈ l, ∀ b ∈ l', r a b = s (f a) (f b)) :

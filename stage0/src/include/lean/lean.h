@@ -614,6 +614,11 @@ static inline double lean_ctor_get_float(b_lean_obj_arg o, unsigned offset) {
     return *((double*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
 }
 
+static inline float lean_ctor_get_float32(b_lean_obj_arg o, unsigned offset) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    return *((float*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset));
+}
+
 static inline void lean_ctor_set_usize(b_lean_obj_arg o, unsigned i, size_t v) {
     assert(i >= lean_ctor_num_objs(o));
     *((size_t*)(lean_ctor_obj_cptr(o) + i)) = v;
@@ -642,6 +647,11 @@ static inline void lean_ctor_set_uint64(b_lean_obj_arg o, unsigned offset, uint6
 static inline void lean_ctor_set_float(b_lean_obj_arg o, unsigned offset, double v) {
     assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
     *((double*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
+}
+
+static inline void lean_ctor_set_float32(b_lean_obj_arg o, unsigned offset, float v) {
+    assert(offset >= lean_ctor_num_objs(o) * sizeof(void*));
+    *((float*)((uint8_t*)(lean_ctor_obj_cptr(o)) + offset)) = v;
 }
 
 /* Closures */
@@ -1692,6 +1702,7 @@ static inline uint8_t lean_uint8_dec_le(uint8_t a1, uint8_t a2) { return a1 <= a
 static inline uint16_t lean_uint8_to_uint16(uint8_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_uint8_to_uint32(uint8_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint8_to_uint64(uint8_t a) { return ((uint64_t)a); }
+static inline size_t lean_uint8_to_usize(uint8_t a) { return ((size_t)a); }
 
 /* UInt16 */
 
@@ -1727,6 +1738,7 @@ static inline uint8_t lean_uint16_dec_le(uint16_t a1, uint16_t a2) { return a1 <
 static inline uint8_t lean_uint16_to_uint8(uint16_t a) { return ((uint8_t)a); }
 static inline uint32_t lean_uint16_to_uint32(uint16_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_uint16_to_uint64(uint16_t a) { return ((uint64_t)a); }
+static inline size_t lean_uint16_to_usize(uint16_t a) { return ((size_t)a); }
 
 /* UInt32 */
 
@@ -1762,7 +1774,7 @@ static inline uint8_t lean_uint32_dec_le(uint32_t a1, uint32_t a2) { return a1 <
 static inline uint8_t lean_uint32_to_uint8(uint32_t a) { return ((uint8_t)a); }
 static inline uint16_t lean_uint32_to_uint16(uint32_t a) { return ((uint16_t)a); }
 static inline uint64_t lean_uint32_to_uint64(uint32_t a) { return ((uint64_t)a); }
-static inline size_t lean_uint32_to_usize(uint32_t a) { return a; }
+static inline size_t lean_uint32_to_usize(uint32_t a) { return ((size_t)a); }
 
 
 /* UInt64 */
@@ -1834,6 +1846,8 @@ static inline uint8_t lean_usize_dec_le(size_t a1, size_t a2) { return a1 <= a2;
 
 
 /* usize -> other */
+static inline uint8_t lean_usize_to_uint8(size_t a) { return ((uint8_t)a); }
+static inline uint16_t lean_usize_to_uint16(size_t a) { return ((uint16_t)a); }
 static inline uint32_t lean_usize_to_uint32(size_t a) { return ((uint32_t)a); }
 static inline uint64_t lean_usize_to_uint64(size_t a) { return ((uint64_t)a); }
 
@@ -2557,6 +2571,15 @@ LEAN_EXPORT uint8_t lean_float_isfinite(double a);
 LEAN_EXPORT uint8_t lean_float_isinf(double a);
 LEAN_EXPORT lean_obj_res lean_float_frexp(double a);
 
+/* Float32 */
+
+LEAN_EXPORT lean_obj_res lean_float32_to_string(float a);
+LEAN_EXPORT float lean_float32_scaleb(float a, b_lean_obj_arg b);
+LEAN_EXPORT uint8_t lean_float32_isnan(float a);
+LEAN_EXPORT uint8_t lean_float32_isfinite(float a);
+LEAN_EXPORT uint8_t lean_float32_isinf(float a);
+LEAN_EXPORT lean_obj_res lean_float32_frexp(float a);
+
 /* Boxing primitives */
 
 static inline lean_obj_res lean_box_uint32(uint32_t v) {
@@ -2609,6 +2632,16 @@ static inline lean_obj_res lean_box_float(double v) {
 
 static inline double lean_unbox_float(b_lean_obj_arg o) {
     return lean_ctor_get_float(o, 0);
+}
+
+static inline lean_obj_res lean_box_float32(float v) {
+    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(float)); // NOLINT
+    lean_ctor_set_float32(r, 0, v);
+    return r;
+}
+
+static inline float lean_unbox_float32(b_lean_obj_arg o) {
+    return lean_ctor_get_float32(o, 0);
 }
 
 /* Debugging helper functions */
@@ -2725,6 +2758,40 @@ static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
 static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
 static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
 
+/* float32 primitives */
+static inline uint8_t lean_float32_to_uint8(float a) {
+    return 0. <= a ? (a < 256. ? (uint8_t)a : UINT8_MAX) : 0;
+}
+static inline uint16_t lean_float32_to_uint16(float a) {
+    return 0. <= a ? (a < 65536. ? (uint16_t)a : UINT16_MAX) : 0;
+}
+static inline uint32_t lean_float32_to_uint32(float a) {
+    return 0. <= a ? (a < 4294967296. ? (uint32_t)a : UINT32_MAX) : 0;
+}
+static inline uint64_t lean_float32_to_uint64(float a) {
+    return 0. <= a ? (a < 18446744073709551616. ? (uint64_t)a : UINT64_MAX) : 0;
+}
+static inline size_t lean_float32_to_usize(float a) {
+    if (sizeof(size_t) == sizeof(uint64_t)) // NOLINT
+        return (size_t) lean_float32_to_uint64(a); // NOLINT
+    else
+        return (size_t) lean_float32_to_uint32(a); // NOLINT
+}
+LEAN_EXPORT float lean_float32_of_bits(uint32_t u);
+LEAN_EXPORT uint32_t lean_float32_to_bits(float d);
+static inline float lean_float32_add(float a, float b) { return a + b; }
+static inline float lean_float32_sub(float a, float b) { return a - b; }
+static inline float lean_float32_mul(float a, float b) { return a * b; }
+static inline float lean_float32_div(float a, float b) { return a / b; }
+static inline float lean_float32_negate(float a) { return -a; }
+static inline uint8_t lean_float32_beq(float a, float b) { return a == b; }
+static inline uint8_t lean_float32_decLe(float a, float b) { return a <= b; }
+static inline uint8_t lean_float32_decLt(float a, float b) { return a < b; }
+static inline float lean_uint64_to_float32(uint64_t a) { return (float) a; }
+
+static inline float lean_float_to_float32(double a) { return (float)a; }
+static inline double lean_float32_to_float(float a) { return (double)a; }
+
 /* Efficient C implementations of defns used by the compiler */
 static inline size_t lean_hashmap_mk_idx(lean_obj_arg sz, uint64_t hash) {
     return (size_t)(hash & (lean_unbox(sz) - 1));
@@ -2799,16 +2866,6 @@ static inline uint8_t lean_internal_is_stage0(lean_obj_arg _unit) {
 
 static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
     return lean_nat_sub(n, lean_box(1));
-}
-
-static inline lean_obj_res lean_runtime_mark_multi_threaded(lean_obj_arg a) {
-    lean_mark_mt(a);
-    return a;
-}
-
-static inline lean_obj_res lean_runtime_mark_persistent(lean_obj_arg a) {
-    lean_mark_persistent(a);
-    return a;
 }
 
 #ifdef __cplusplus

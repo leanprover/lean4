@@ -1235,6 +1235,9 @@ def getRevArg!' : Expr → Nat → Expr
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Return `true` if `e` contains any loose bound variables.
+
+This is a constant time operation. -/
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
@@ -1247,6 +1250,11 @@ def isArrow (e : Expr) : Bool :=
   | forallE _ _ b _ => !b.hasLooseBVars
   | _ => false
 
+/--
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
+
+This operation traverses the expression tree.
+-/
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
@@ -1366,7 +1374,11 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 

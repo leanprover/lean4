@@ -1472,3 +1472,89 @@
      "position": {"line": 112, "character": 2}},
     "cPos": 0}}],
  "isIncomplete": true}
+{"textDocument": {"uri": "file:///completionTactics.lean"},
+ "position": {"line": 118, "character": 4}}
+{"items":
+ [{"sortText": "0",
+   "label": "exact",
+   "kind": 14,
+   "documentation": {"value": "Another docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "1",
+   "label": "Lean.Parser.Tactic.introMatch",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "The tactic\n```\nintro\n| pat1 => tac1\n| pat2 => tac2\n```\nis the same as:\n```\nintro x\nmatch x with\n| pat1 => tac1\n| pat2 => tac2\n```\nThat is, `intro` can be followed by match arms and it introduces the values while\ndoing a pattern match. This is equivalent to `fun` with match arms in term mode.\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "2",
+   "label": "Lean.Parser.Tactic.match",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "3",
+   "label": "Lean.Parser.Tactic.nestedTactic",
+   "kind": 14,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "4",
+   "label": "Lean.Parser.Tactic.open",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "5",
+   "label": "Lean.Parser.Tactic.set_option",
+   "kind": 14,
+   "documentation":
+   {"value":
+    "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "6",
+   "label": "Lean.Parser.Tactic.unknown",
+   "kind": 14,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}},
+  {"sortText": "7",
+   "label": "skip",
+   "kind": 14,
+   "documentation": {"value": "A docstring ", "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionTactics.lean"},
+     "position": {"line": 118, "character": 4}},
+    "cPos": 0}}],
+ "isIncomplete": true}

@@ -121,7 +121,7 @@ private def printStructure (id : Name) (levelParams : List Name) (numParams : Na
       -- Resolution order
       let resOrder ← getStructureResolutionOrder id
       if resOrder.size > 1 then
-        m := m ++ Format.line ++ "resolution order:"
+        m := m ++ Format.line ++ "field notation resolution order:"
           ++ indentD (MessageData.joinSep (resOrder.map (.ofConstName · (fullNames := true))).toList ", ")
       logInfo m
 

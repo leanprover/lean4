@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.Sorry
 
 /-!
 This is not the Kernel type checker, but an auxiliary method for checking
@@ -133,6 +134,12 @@ where
           if fn? == ``OfNat.ofNat && as.size ≥ 3 && firstImplicitDiff? == some 0 then
             -- Even if there is an explicit diff, it is better to see that the type is different.
             return (a.setPPNumericTypes true, b.setPPNumericTypes true)
+          if fn? == ``sorryAx then
+            -- If these are `sorry`s with differing source positions, make sure the delaborator shows the positions.
+            if let some { module? := moda? } := isLabeledSorry? a then
+              if let some { module? := modb? } := isLabeledSorry? b then
+                if moda? != modb? then
+                  return (a.setOption `pp.sorrySource true, b.setOption `pp.sorrySource true)
           -- General case
           if let some i := firstExplicitDiff? <|> firstImplicitDiff? then
             let (ai, bi) ← visit as[i]! bs[i]!
@@ -202,6 +209,12 @@ def checkApp (f a : Expr) : MetaM Unit := do
       throwAppTypeMismatch f a
   | _ => throwFunctionExpected (mkApp f a)
 
+def checkProj (structName : Name) (idx : Nat) (e : Expr) : MetaM Unit := do
+  let structType ← whnf (← inferType e)
+  let projType ← inferType (mkProj structName idx e)
+  if (← isProp structType) && !(← isProp projType) then
+    throwError "invalid projection{indentExpr (mkProj structName idx e)}\nfrom type{indentExpr structType}"
+
 private partial def checkAux (e : Expr) : MetaM Unit := do
   check e |>.run
 where
@@ -214,7 +227,7 @@ where
       | .const c lvls    => checkConstant c lvls
       | .app f a         => check f; check a; checkApp f a
       | .mdata _ e       => check e
-      | .proj _ _ e      => check e
+      | .proj s i e      => check e; checkProj s i e
       | _                => return ()
 
   checkLambdaLet (e : Expr) : MonadCacheT ExprStructEq Unit MetaM Unit :=

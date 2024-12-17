@@ -31,6 +31,19 @@ register_builtin_option maxHeartbeats : Nat := {
   descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
 }
 
+register_builtin_option Elab.async : Bool := {
+  defValue := false
+  descr := "perform elaboration using multiple threads where possible\
+    \n\
+    \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
+      `Lean.Language.Lean.process` as used by the cmdline driver and language server. \
+      Metaprogramming users driving elaboration directly via e.g. \
+      `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
+      this option but then are responsible for processing messages and other data not only in the \
+      resulting command state but also from async tasks in `Lean.Command.Context.snap?` and \
+      `Lean.Command.State.snapshotTasks`."
+}
+
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
 Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
@@ -351,9 +364,7 @@ Returns the current log and then resets its messages while adjusting `MessageLog
 for incremental reporting during elaboration of a single command.
 -/
 def getAndEmptyMessageLog : CoreM MessageLog :=
-  modifyGet fun s => (s.messages, { s with
-    messages.unreported := {}
-    messages.hadErrors  := s.messages.hasErrors })
+  modifyGet fun s => (s.messages, { s with messages := s.messages.markAllReported })
 
 instance : MonadLog CoreM where
   getRef      := getRef
@@ -412,7 +423,7 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify ({ · with messages := {}, traceState := { tid } })
+      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -601,14 +612,14 @@ instance : MonadRuntimeException CoreM where
 
 /--
 Returns `true` if the given message kind has not been reported in the message log,
-and then mark it as reported. Otherwise, returns `false`.
-We use this API to ensure we don't report the same kind of warning multiple times.
+and then mark it as logged. Otherwise, returns `false`.
+We use this API to ensure we don't log the same kind of warning multiple times.
 -/
-def reportMessageKind (kind : Name) : CoreM Bool := do
-  if (← get).messages.reportedKinds.contains kind then
+def logMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.loggedKinds.contains kind then
     return false
   else
-    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
 
 end Lean

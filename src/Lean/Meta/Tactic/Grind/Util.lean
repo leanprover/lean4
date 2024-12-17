@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 
@@ -95,5 +96,18 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     catch _ =>
       throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
   return mvarId
+
+/--
+In the `grind` tactic, during `Expr` internalization, we don't expect to find `Expr.mdata`.
+This function ensures `Expr.mdata` is not found during internalization.
+Recall that we do not internalize `Expr.forallE` and `Expr.lam` components.
+-/
+def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  let pre (e : Expr) := do
+    match e with
+    | .letE .. | .lam .. | .forallE .. => return .done e
+    | .mdata _ e => return .continue e
+    | _ => return .continue e
+  Core.transform e (pre := pre)
 
 end Lean.Meta.Grind

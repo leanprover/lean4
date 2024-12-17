@@ -68,8 +68,10 @@ def introNext (goal : Goal) : PreM IntroResult := do
       else
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
+        -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp goal p
         let p' := r.expr
+        let p' ← eraseIrrelevantMData p'
         let p' ← canon p'
         let p' ← shareCommon p'
         let fvarId ← mkFreshFVarId

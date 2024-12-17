@@ -235,7 +235,7 @@ where
     for param in decl.params[argMask.size:] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
-    let value := decl.instantiateValueLevelParams us
+    let value := decl.value.instantiateValueLevelParams decl.levelParams us
     let value ← internalizeCode value
     let value := attachCodeDecls decls value
     let type ← value.inferType

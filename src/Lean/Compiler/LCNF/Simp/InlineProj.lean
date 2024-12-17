@@ -71,7 +71,7 @@ where
         let some decl ← getDecl? declName | failure
         guard (decl.getArity == args.size)
         let params := decl.instantiateParamsLevelParams us
-        let code := decl.instantiateValueLevelParams us
+        let code := decl.value.instantiateValueLevelParams decl.levelParams us
         let code ← betaReduce params code args (mustInline := true)
         visitCode code projs
 

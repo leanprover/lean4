@@ -429,6 +429,49 @@ where
     | .cases c => c.alts.forM fun alt => go alt.getCode
     | .unreach .. | .return .. | .jmp .. => return ()
 
+partial def Code.instantiateValueLevelParams (code : Code) (levelParams : List Name) (us : List Level) : Code :=
+  instCode code
+where
+  instLevel (u : Level) :=
+    u.instantiateParams levelParams us
+
+  instExpr (e : Expr) :=
+    e.instantiateLevelParamsNoCache levelParams us
+
+  instParams (ps : Array Param) :=
+    ps.mapMono fun p => p.updateCore (instExpr p.type)
+
+  instAlt (alt : Alt) :=
+    match alt with
+    | .default k => alt.updateCode (instCode k)
+    | .alt _ ps k => alt.updateAlt! (instParams ps) (instCode k)
+
+  instArg (arg : Arg) : Arg :=
+    match arg with
+    | .type e => arg.updateType! (instExpr e)
+    | .fvar .. | .erased => arg
+
+  instLetValue (e : LetValue) : LetValue :=
+    match e with
+    | .const declName vs args => e.updateConst! declName (vs.mapMono instLevel) (args.mapMono instArg)
+    | .fvar fvarId args => e.updateFVar! fvarId (args.mapMono instArg)
+    | .proj .. | .value .. | .erased => e
+
+  instLetDecl (decl : LetDecl) :=
+    decl.updateCore (instExpr decl.type) (instLetValue decl.value)
+
+  instFunDecl (decl : FunDecl) :=
+    decl.updateCore (instExpr decl.type) (instParams decl.params) (instCode decl.value)
+
+  instCode (code : Code) :=
+    match code with
+    | .let decl k => code.updateLet! (instLetDecl decl) (instCode k)
+    | .jp decl k | .fun decl k => code.updateFun! (instFunDecl decl) (instCode k)
+    | .cases c => code.updateCases! (instExpr c.resultType) c.discr (c.alts.mapMono instAlt)
+    | .jmp fvarId args => code.updateJmp! fvarId (args.mapMono instArg)
+    | .return .. => code
+    | .unreach type => code.updateUnreach! (instExpr type)
+
 /--
 Declaration being processed by the Lean to Lean compiler passes.
 -/
@@ -549,49 +592,6 @@ def Decl.instantiateTypeLevelParams (decl : Decl) (us : List Level) : Expr :=
 
 def Decl.instantiateParamsLevelParams (decl : Decl) (us : List Level) : Array Param :=
   decl.params.mapMono fun param => param.updateCore (param.type.instantiateLevelParamsNoCache decl.levelParams us)
-
-partial def Decl.instantiateValueLevelParams (decl : Decl) (us : List Level) : Code :=
-  instCode decl.value
-where
-  instLevel (u : Level) :=
-    u.instantiateParams decl.levelParams us
-
-  instExpr (e : Expr) :=
-    e.instantiateLevelParamsNoCache decl.levelParams us
-
-  instParams (ps : Array Param) :=
-    ps.mapMono fun p => p.updateCore (instExpr p.type)
-
-  instAlt (alt : Alt) :=
-    match alt with
-    | .default k => alt.updateCode (instCode k)
-    | .alt _ ps k => alt.updateAlt! (instParams ps) (instCode k)
-
-  instArg (arg : Arg) : Arg :=
-    match arg with
-    | .type e => arg.updateType! (instExpr e)
-    | .fvar .. | .erased => arg
-
-  instLetValue (e : LetValue) : LetValue :=
-    match e with
-    | .const declName vs args => e.updateConst! declName (vs.mapMono instLevel) (args.mapMono instArg)
-    | .fvar fvarId args => e.updateFVar! fvarId (args.mapMono instArg)
-    | .proj .. | .value .. | .erased => e
-
-  instLetDecl (decl : LetDecl) :=
-    decl.updateCore (instExpr decl.type) (instLetValue decl.value)
-
-  instFunDecl (decl : FunDecl) :=
-    decl.updateCore (instExpr decl.type) (instParams decl.params) (instCode decl.value)
-
-  instCode (code : Code) :=
-    match code with
-    | .let decl k => code.updateLet! (instLetDecl decl) (instCode k)
-    | .jp decl k | .fun decl k => code.updateFun! (instFunDecl decl) (instCode k)
-    | .cases c => code.updateCases! (instExpr c.resultType) c.discr (c.alts.mapMono instAlt)
-    | .jmp fvarId args => code.updateJmp! fvarId (args.mapMono instArg)
-    | .return .. => code
-    | .unreach type => code.updateUnreach! (instExpr type)
 
 /--
 Return `true` if the arrow type contains an instance implicit argument.

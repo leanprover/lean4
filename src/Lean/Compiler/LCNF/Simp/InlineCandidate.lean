@@ -76,7 +76,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       let arg := args[paramIdx]!
       unless (← arg.isConstructorApp) do return none
     let params := decl.instantiateParamsLevelParams us
-    let value := decl.instantiateValueLevelParams us
+    let value := decl.value.instantiateValueLevelParams decl.levelParams us
     let type := decl.instantiateTypeLevelParams us
     incInline
     return some {

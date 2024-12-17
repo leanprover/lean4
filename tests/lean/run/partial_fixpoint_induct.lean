@@ -58,59 +58,61 @@ local instance (b : Bool) [Nonempty α] [Nonempty β] : Nonempty (if b then α e
 
 mutual
 def dependent2''a (m n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if _ : b then dependent2''a m (n + 1) b else dependent2''b m (n + m) b
+  if _ : b then dependent2''a m (n + 1) b else dependent2''b m m (n + m) b
 partial_fixpoint
-def dependent2''b (m n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if _ : b then dependent2''c m (n + 1) b else dependent2''b m (n + m) b
+def dependent2''b (m k n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if _ : b then dependent2''b m k n b else dependent2''c m (.last _) (n + m) b
 partial_fixpoint
-def dependent2''c (m n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if _ : b then dependent2''a m (n + 1) b else dependent2''b m (n + m) b
+def dependent2''c (m : Nat) (i : Fin (m+1)) (n : Nat) (b : Bool) : if b then Nat else Bool :=
+  if _ : b then dependent2''c m i n b else dependent2''a m i b
 partial_fixpoint
 end
 
 /--
-info: dependent2''a.fixpoint_induct (m : Nat)
-  (motive_1 motive_2 motive_3 : (Nat → (b : Bool) → if b = true then Nat else Bool) → Prop)
+info: dependent2''a.fixpoint_induct (m : Nat) (motive_1 : (Nat → (b : Bool) → if b = true then Nat else Bool) → Prop)
+  (motive_2 : (Nat → Nat → (b : Bool) → if b = true then Nat else Bool) → Prop)
+  (motive_3 : (Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool) → Prop)
   (adm_1 : Lean.Order.admissible motive_1) (adm_2 : Lean.Order.admissible motive_2)
   (adm_3 : Lean.Order.admissible motive_3)
   (h :
     ∀
       (x :
         (Nat → (b : Bool) → if b = true then Nat else Bool) ×'
-          (Nat → (b : Bool) → if b = true then Nat else Bool) ×' (Nat → (b : Bool) → if b = true then Nat else Bool)),
+          (Nat → Nat → (b : Bool) → if b = true then Nat else Bool) ×'
+            (Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool)),
       motive_1 x.1 ∧ motive_2 x.2.1 ∧ motive_3 x.2.2 →
         motive_1
-            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩.1 ∧
+            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+                if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+                if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.1 ∧
           motive_2
-              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                    if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                    if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩.2.1 ∧
+              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+                    if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+                    if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.2.1 ∧
             motive_3
-              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                    if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                    if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩.2.2) :
+              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+                    if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+                    if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.2.2) :
   motive_1
       (Lean.Order.fix
           (fun x =>
-            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-              if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-              if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩)
+            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+              if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+              if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
           ⋯).1 ∧
     motive_2
         (Lean.Order.fix
               (fun x =>
-                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                  if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                  if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩)
+                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+                  if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+                  if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
               ⋯).2.1 ∧
       motive_3
         (Lean.Order.fix
               (fun x =>
-                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                  if x_1 : b = true then x.2.2 (n + 1) b else x.2.1 (n + m) b, fun n b =>
-                  if x_1 : b = true then x.1 (n + 1) b else x.2.1 (n + m) b⟩)
+                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
+                  if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
+                  if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
               ⋯).2.2
 -/
 #guard_msgs in #check dependent2''a.fixpoint_induct

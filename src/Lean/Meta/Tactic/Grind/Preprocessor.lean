@@ -153,6 +153,7 @@ open Preprocessor
 
 partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
   mvarId.ensureProp
+  -- TODO: abstract metavars
   mvarId.ensureNoMVar
   let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll

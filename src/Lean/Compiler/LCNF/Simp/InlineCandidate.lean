@@ -63,9 +63,8 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
       if decl.inlineAttr || decl.inlineIfReduceAttr then return true
-      unless decl.noinlineAttr do
-        if (← isSmall decl.value) then return true
-      return false
+      if decl.noinlineAttr then return false
+      isSmall decl.value
     unless (← shouldInline) do return none
     /- check arity -/
     let arity := decl.getArity

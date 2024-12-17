@@ -38,10 +38,10 @@ instance : OfNat Timestamp n where
   ofNat := ⟨OfNat.ofNat n⟩
 
 instance : ToString Timestamp where
-  toString s := toString s.val.toMilliseconds
+  toString s := toString s.val.toSeconds
 
 instance : Repr Timestamp where
-  reprPrec s := reprPrec (toString s)
+  reprPrec s := reprPrec s.val.toSeconds
 
 namespace Timestamp
 

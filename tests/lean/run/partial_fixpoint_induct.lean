@@ -61,10 +61,10 @@ def dependent2''a (m n : Nat) (b : Bool) : if b then Nat else Bool :=
   if _ : b then dependent2''a m (n + 1) b else dependent2''b m m (n + m) b
 partial_fixpoint
 def dependent2''b (m k n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if _ : b then dependent2''b m k n b else dependent2''c m (.last _) (n + m) b
+  if b then dependent2''b m k n b else dependent2''c m (.last _) (n + m) b
 partial_fixpoint
 def dependent2''c (m : Nat) (i : Fin (m+1)) (n : Nat) (b : Bool) : if b then Nat else Bool :=
-  if _ : b then dependent2''c m i n b else dependent2''a m i b
+  if b then dependent2''c m i n b else dependent2''a m i b
 partial_fixpoint
 end
 
@@ -76,28 +76,21 @@ info: dependent2''a.fixpoint_induct (m : Nat) (motive_1 : (Nat → (b : Bool) �
   (adm_3 : Lean.Order.admissible motive_3)
   (h_1 :
     ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
-      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
-      (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
+      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool),
       motive_1 dependent2''a →
         motive_2 dependent2''b →
-          motive_3 dependent2''c →
-            motive_1 fun n b => if x : b = true then dependent2''a (n + 1) b else dependent2''b m (n + m) b)
+          motive_1 fun n b => if x : b = true then dependent2''a (n + 1) b else dependent2''b m (n + m) b)
   (h_2 :
-    ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
-      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
+    ∀ (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
       (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
-      motive_1 dependent2''a →
-        motive_2 dependent2''b →
-          motive_3 dependent2''c →
-            motive_2 fun k n b => if x : b = true then dependent2''b k n b else dependent2''c (Fin.last m) (n + m) b)
+      motive_2 dependent2''b →
+        motive_3 dependent2''c →
+          motive_2 fun k n b => if b = true then dependent2''b k n b else dependent2''c (Fin.last m) (n + m) b)
   (h_3 :
     ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
-      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
       (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
       motive_1 dependent2''a →
-        motive_2 dependent2''b →
-          motive_3 dependent2''c →
-            motive_3 fun i n b => if x : b = true then dependent2''c i n b else dependent2''a (↑i) b) :
+        motive_3 dependent2''c → motive_3 fun i n b => if b = true then dependent2''c i n b else dependent2''a (↑i) b) :
   motive_1 (dependent2''a m) ∧ motive_2 (dependent2''b m) ∧ motive_3 (dependent2''c m)
 -/
 #guard_msgs in #check dependent2''a.fixpoint_induct

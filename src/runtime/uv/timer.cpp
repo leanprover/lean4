@@ -55,7 +55,6 @@ void handle_timer_event(uv_timer_t* handle) {
         lean_dec(res);
 
         /// The loop does not owns the object anymore.
-        lean_dec(timer->m_promise);
         lean_dec(obj);
     }
 }
@@ -109,7 +108,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
         lean_inc(promise);
 
         // The event loop owns the timer again.
-        lean_inc(promise);
         lean_inc(timer);
 
         event_loop_lock(&global_ev);
@@ -140,7 +138,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg 
 
             // The event loop owns the promise and the
             // object.
-            lean_inc(promise);
             lean_inc(timer);
 
             return lean_io_result_mk_ok(promise);

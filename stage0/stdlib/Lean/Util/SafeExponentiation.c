@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_reportMessageKind(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__8;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__2;
 lean_object* l_Lean_log___at_Lean_Core_wrapAsyncAsSnapshot___spec__13(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
@@ -24,6 +23,7 @@ lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__8;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__7;
 static lean_object* l_Lean_initFn____x40_Lean_Util_SafeExponentiation___hyg_5____closed__5;
+lean_object* l_Lean_logMessageKind(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_logWarning___at_Lean_checkExponent___spec__1___closed__1;
 lean_object* l_Lean_Option_register___at_Lean_initFn____x40_Lean_Util_Profile___hyg_40____spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_checkExponent___closed__2;
@@ -308,7 +308,7 @@ else
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
 x_12 = l_Lean_checkExponent___closed__3;
-x_13 = l_Lean_reportMessageKind(x_12, x_2, x_3, x_4);
+x_13 = l_Lean_logMessageKind(x_12, x_2, x_3, x_4);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);

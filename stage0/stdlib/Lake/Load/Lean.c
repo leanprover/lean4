@@ -101,9 +101,12 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_loadLeanConfig(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; 
 lean_inc(x_1);
 x_4 = l_Lake_importConfigFile(x_1, x_2, x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
 x_5 = lean_ctor_get(x_4, 0);
 lean_inc(x_5);
 if (lean_obj_tag(x_5) == 0)
@@ -1097,6 +1100,30 @@ x_221 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_221, 0, x_220);
 lean_ctor_set(x_221, 1, x_216);
 return x_221;
+}
+}
+}
+else
+{
+uint8_t x_222; 
+lean_dec(x_1);
+x_222 = !lean_is_exclusive(x_4);
+if (x_222 == 0)
+{
+return x_4;
+}
+else
+{
+lean_object* x_223; lean_object* x_224; lean_object* x_225; 
+x_223 = lean_ctor_get(x_4, 0);
+x_224 = lean_ctor_get(x_4, 1);
+lean_inc(x_224);
+lean_inc(x_223);
+lean_dec(x_4);
+x_225 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_225, 0, x_223);
+lean_ctor_set(x_225, 1, x_224);
+return x_225;
 }
 }
 }

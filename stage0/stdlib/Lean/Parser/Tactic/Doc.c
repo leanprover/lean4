@@ -158,6 +158,7 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tact
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2553____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2553_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Parser_Tactic_Doc_allTagsWithInfo___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Parser_Tactic_Doc_aliases___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_822____lambda__3___closed__1;
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2553____closed__1;
@@ -435,7 +436,6 @@ LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_aliases___rarg___lambda__2(lea
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_252____lambda__4___boxed(lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_822____lambda__5___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_Doc_isTactic___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_822____lambda__5___closed__4;
 static lean_object* l_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_2553____closed__2;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Parser_Tactic_Doc_initFn____x40_Lean_Parser_Tactic_Doc___hyg_252____spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

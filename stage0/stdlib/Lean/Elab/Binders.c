@@ -18232,7 +18232,7 @@ x_11 = l_Array_isEmpty___rarg(x_1);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_12 = lean_ctor_get(x_6, 1);
+x_12 = lean_ctor_get(x_6, 2);
 lean_inc(x_12);
 x_13 = l_Lean_Meta_getLocalInstances(x_6, x_7, x_8, x_9, x_10);
 x_14 = lean_ctor_get(x_13, 0);

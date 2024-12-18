@@ -481,7 +481,7 @@ _start:
 {
 lean_object* x_7; lean_object* x_8; 
 x_7 = l_Lean_Meta_getConfig(x_2, x_3, x_4, x_5, x_6);
-x_8 = lean_ctor_get(x_2, 5);
+x_8 = lean_ctor_get(x_2, 6);
 lean_inc(x_8);
 lean_dec(x_2);
 if (lean_obj_tag(x_8) == 0)

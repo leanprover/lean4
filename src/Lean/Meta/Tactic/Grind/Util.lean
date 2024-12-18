@@ -110,4 +110,18 @@ def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
     | _ => return .continue e
   Core.transform e (pre := pre)
 
+/--
+Converts nested `Expr.proj`s into projection applications if possible.
+-/
+def foldProjs (e : Expr) : MetaM Expr := do
+  let post (e : Expr) := do
+    let .proj structName idx s := e | return .done e
+    let some info := getStructureInfo? (← getEnv) structName | return .done e
+    if h : idx < info.fieldNames.size then
+      let fieldName := info.fieldNames[idx]
+      return .done (← mkProjection s fieldName)
+    else
+      return .done e
+  Meta.transform e (post := post)
+
 end Lean.Meta.Grind

@@ -85,10 +85,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           let classicalWitness ← mkAppOptM ``Classical.ofNonempty #[none, instNonempty]
           mkAppOptM ``FlatOrder.instCCPO #[none, classicalWitness]
       mkLambdaFVars xs inst
-      -- let mut inst := inst
-      -- for x in xs.reverse do
-      --   inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
-      -- pure inst
 
   let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
   trace[Elab.definition.partialFixpoint] "fixed prefix size: {fixedPrefixSize}"

@@ -312,6 +312,13 @@ def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   rintro _ ⟨f, hcf, rfl⟩
   apply h _ hcf
 
+def admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, admissible (P x)) :
+    admissible (fun (f : ∀ x, β x) => ∀ x, P x (f x)) := by
+  apply admissible_pi
+  intro
+  apply admissible_apply
+  apply hadm
+
 end fun_order
 
 section monotone_lemmas
@@ -543,8 +550,8 @@ noncomputable instance : MonoBind Option where
     · exact FlatOrder.rel.refl
     · exact h _
 
-theorem admissible_eq_some (P : α → Prop) (y : α) :
-    admissible (fun (x : Option α) => x = some y → P y) := by
+theorem admissible_eq_some (P : Prop) (y : α) :
+    admissible (fun (x : Option α) => x = some y → P) := by
   apply admissible_flatOrder; simp
 
 instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
@@ -587,10 +594,8 @@ theorem find_spec : ∀ n m, find P n = some m → n ≤ m ∧ P m := by
   unfold find
   refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hstep
   case hadm =>
-    apply admissible_pi; intro n
-    apply admissible_pi; intro m
-    refine admissible_apply (P := fun _ x => x = some m → _) _ ?_
-    apply admissible_eq_some
+    -- apply admissible_pi_apply
+    exact admissible_pi_apply _ (fun n => admissible_pi _ (fun m => admissible_eq_some _ m))
   case hstep =>
     intro f ih n m heq
     simp only [findF] at heq

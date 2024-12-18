@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Subst
 import Lean.Meta.Injective -- for elimOptParam
 import Lean.Meta.ArgsPacker
 import Lean.Meta.PProdN
+import Lean.Meta.Tactic.Apply
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
@@ -192,6 +193,124 @@ builtin_initialize
       let .str p _ := name | return false
       MetaM.run' <| deriveInduction p
       return true
+    return false
+
+/--
+Returns true if `name` defined by `partial_fixpoint`, the first in its mutual group,
+and all functions are defined using the `CCPO` instance for `Option`.
+-/
+def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome do
+  let eqnInfo ← eqnInfoExt.find? env name
+  guard <| name == eqnInfo.declNames[0]!
+  let defnInfo ← env.find? eqnInfo.declNameNonRec
+  assert! defnInfo.hasValue
+  let mut value := defnInfo.value!
+  while value.isLambda do value := value.bindingBody!
+  let_expr Lean.Order.fix _ inst _ _ := value | panic! s!"isOptionFixpoint: unexpected value {value}"
+  let mut insts := #[inst]
+  while insts.size < eqnInfo.declNames.size do
+    let inst := insts.back!
+    let_expr Lean.Order.instCCPOPProd _ _ inst₁ inst₂ := inst
+      | panic! s!"isOptionFixpoint: unexpected CCPO instance {inst}"
+    insts := insts.pop
+    insts := insts.push inst₁
+    insts := insts.push inst₂
+  insts.forM fun inst => do
+    let mut inst := inst
+    while inst.isAppOfArity ``instCCPOPi 3 do
+      guard inst.appArg!.isLambda
+      inst := inst.appArg!.bindingBody!
+    guard <| inst.isAppOfArity ``instCCPOOption 1
+
+def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run do
+  let .str p s := name | return false
+  unless s == "partial_correctness" do return false
+  return isOptionFixpoint env p
+
+-- Given `motive : α → β → γ → {Prop`, construct a proof of
+-- admissible (fun f => ∀ x y r, f x y = r → motive x y r)
+def mkOptionAdm (motive : Expr) : MetaM Expr := do
+  let type ← inferType motive
+  forallTelescope type fun ysr _ => do
+    let P := mkAppN motive ysr
+    let ys := ysr.pop
+    let r := ysr.back!
+    let mut inst ← mkAppM ``admissible_eq_some #[P, r]
+    inst ← mkLambdaFVars #[r] inst
+    inst ← mkAppOptM ``admissible_pi #[none, none, none, none, inst]
+    for y in ys.reverse do
+      inst ← mkLambdaFVars #[y] inst
+      inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
+    pure inst
+
+def derivePartialCorrectness (name : Name) : MetaM Unit := do
+  let fixpointInductThm := name ++ `fixpoint_induct
+  unless (← getEnv).contains fixpointInductThm do
+    deriveInduction name
+
+  mapError (f := (m!"Cannot derive partial correctness theorem (please report this issue)\n{indentD ·}")) do
+    let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
+      throwError "{name} is not defined by partial_fixpoint"
+
+    let infos ← eqnInfo.declNames.mapM getConstInfoDefn
+    -- First open up the fixed parameters everywhere
+    let e' ← lambdaBoundedTelescope infos[0]!.value eqnInfo.fixedPrefixSize fun xs _ => do
+      let types ← infos.mapM (instantiateForall ·.type xs)
+
+      -- for `f : α → β → Option γ`, we expect a `motive : α → β → γ → Prop`
+      let motiveTypes ← types.mapM fun type =>
+        forallTelescopeReducing type fun ys type => do
+          let type ← whnf type
+          let_expr Option γ := type | throwError "Expected `Option`, got:{indentExpr type}"
+          withLocalDeclD (← mkFreshUserName `r) γ fun r =>
+            mkForallFVars (ys.push r) (.sort 0)
+      let motiveDecls ← motiveTypes.mapIdxM fun i motiveType => do
+        let n := if infos.size = 1 then .mkSimple "motive"
+                                   else .mkSimple s!"motive_{i+1}"
+        pure (n, fun _ => pure motiveType)
+      withLocalDeclsD motiveDecls fun motives => do
+        -- the motives, as expected by `f.fixpoint_induct`:
+        -- fun f => ∀ x y r, f x y = some r → motive x y r
+        let motives' ← motives.mapIdxM fun i motive => do
+          withLocalDeclD (← mkFreshUserName `f) types[i]! fun f => do
+            forallTelescope (← inferType motive) fun ysr _ => do
+              let ys := ysr.pop
+              let r := ysr.back!
+              let heq ← mkEq (mkAppN f ys) (← mkAppM ``some #[r])
+              let motive' ← mkArrow heq (mkAppN motive ysr)
+              let motive' ← mkForallFVars ysr motive'
+              mkLambdaFVars #[f] motive'
+
+        let e' ← mkAppOptM fixpointInductThm <| (xs ++ motives').map some
+        let adms ← motives.mapM mkOptionAdm
+        let e' := mkAppN e' adms
+        let e' ← mkLambdaFVars motives e'
+        let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+        let e' ← instantiateMVars e'
+        trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+        pure e'
+
+    let eTyp ← inferType e'
+    let eTyp ← elimOptParam eTyp
+    -- logInfo m!"eTyp: {eTyp}"
+    let params := (collectLevelParams {} eTyp).params
+    -- Prune unused level parameters, preserving the original order
+    let us := infos[0]!.levelParams.filter (params.contains ·)
+
+    let inductName := name ++ `partial_correctness
+    addDecl <| Declaration.thmDecl
+      { name := inductName, levelParams := us, type := eTyp, value := e' }
+
+
+
+builtin_initialize
+  registerReservedNamePredicate isPartialCorrectnessName
+
+  registerReservedNameAction fun name => do
+    let .str p s := name | return false
+    unless s == "partial_correctness" do return false
+    unless isOptionFixpoint (← getEnv) p do return false
+    MetaM.run' <| derivePartialCorrectness p
     return false
 
 end Lean.Elab.PartialFixpoint

@@ -13,8 +13,7 @@ partial_fixpoint
 
 /--
 info: loop.fixpoint_induct (motive : (Nat → Unit) → Prop) (adm : Lean.Order.admissible motive)
-  (h : ∀ (x : Nat → Unit), motive x → motive fun x_1 => x (x_1 + 1)) :
-  motive (Lean.Order.fix (fun f x => f (x + 1)) loop.proof_3)
+  (h : ∀ (loop : Nat → Unit), motive loop → motive fun x => loop (x + 1)) : motive loop
 -/
 #guard_msgs in #check loop.fixpoint_induct
 
@@ -28,8 +27,8 @@ partial_fixpoint
 
 /--
 info: find.fixpoint_induct (P : Nat → Bool) (motive : (Nat → Option Nat) → Prop) (adm : Lean.Order.admissible motive)
-  (h : ∀ (x : Nat → Option Nat), motive x → motive fun x_1 => if P x_1 = true then some x_1 else x (x_1 + 1)) :
-  motive (Lean.Order.fix (fun f x => if P x = true then some x else f (x + 1)) ⋯)
+  (h : ∀ (find : Nat → Option Nat), motive find → motive fun x => if P x = true then some x else find (x + 1)) :
+  motive (find P)
 -/
 #guard_msgs in #check find.fixpoint_induct
 
@@ -45,8 +44,9 @@ where
 
 /--
 info: fib.go.fixpoint_induct (n : Nat) (motive : (Nat → Nat → Nat → Nat) → Prop) (adm : Lean.Order.admissible motive)
-  (h : ∀ (x : Nat → Nat → Nat → Nat), motive x → motive fun i fip fi => if i = n then fi else x (i + 1) fi (fi + fip)) :
-  motive (Lean.Order.fix (fun f i fip fi => if i = n then fi else f (i + 1) fi (fi + fip)) ⋯)
+  (h :
+    ∀ (go : Nat → Nat → Nat → Nat), motive go → motive fun i fip fi => if i = n then fi else go (i + 1) fi (fi + fip)) :
+  motive (fib.go n)
 -/
 #guard_msgs in #check fib.go.fixpoint_induct
 
@@ -74,46 +74,31 @@ info: dependent2''a.fixpoint_induct (m : Nat) (motive_1 : (Nat → (b : Bool) �
   (motive_3 : (Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool) → Prop)
   (adm_1 : Lean.Order.admissible motive_1) (adm_2 : Lean.Order.admissible motive_2)
   (adm_3 : Lean.Order.admissible motive_3)
-  (h :
-    ∀
-      (x :
-        (Nat → (b : Bool) → if b = true then Nat else Bool) ×'
-          (Nat → Nat → (b : Bool) → if b = true then Nat else Bool) ×'
-            (Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool)),
-      motive_1 x.1 ∧ motive_2 x.2.1 ∧ motive_3 x.2.2 →
-        motive_1
-            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-                if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-                if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.1 ∧
-          motive_2
-              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-                    if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-                    if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.2.1 ∧
-            motive_3
-              ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-                    if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-                    if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩.2.2) :
-  motive_1
-      (Lean.Order.fix
-          (fun x =>
-            ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-              if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-              if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
-          ⋯).1 ∧
-    motive_2
-        (Lean.Order.fix
-              (fun x =>
-                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-                  if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-                  if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
-              ⋯).2.1 ∧
-      motive_3
-        (Lean.Order.fix
-              (fun x =>
-                ⟨fun n b => if x_1 : b = true then x.1 (n + 1) b else x.2.1 m (n + m) b, fun k n b =>
-                  if x_1 : b = true then x.2.1 k n b else x.2.2 (Fin.last m) (n + m) b, fun i n b =>
-                  if x_1 : b = true then x.2.2 i n b else x.1 (↑i) b⟩)
-              ⋯).2.2
+  (h_1 :
+    ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
+      motive_1 dependent2''a →
+        motive_2 dependent2''b →
+          motive_3 dependent2''c →
+            motive_1 fun n b => if x : b = true then dependent2''a (n + 1) b else dependent2''b m (n + m) b)
+  (h_2 :
+    ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
+      motive_1 dependent2''a →
+        motive_2 dependent2''b →
+          motive_3 dependent2''c →
+            motive_2 fun k n b => if x : b = true then dependent2''b k n b else dependent2''c (Fin.last m) (n + m) b)
+  (h_3 :
+    ∀ (dependent2''a : Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''b : Nat → Nat → (b : Bool) → if b = true then Nat else Bool)
+      (dependent2''c : Fin (m + 1) → Nat → (b : Bool) → if b = true then Nat else Bool),
+      motive_1 dependent2''a →
+        motive_2 dependent2''b →
+          motive_3 dependent2''c →
+            motive_3 fun i n b => if x : b = true then dependent2''c i n b else dependent2''a (↑i) b) :
+  motive_1 (dependent2''a m) ∧ motive_2 (dependent2''b m) ∧ motive_3 (dependent2''c m)
 -/
 #guard_msgs in #check dependent2''a.fixpoint_induct
 

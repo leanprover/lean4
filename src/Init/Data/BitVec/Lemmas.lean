@@ -2577,13 +2577,13 @@ theorem umod_def {x y : BitVec n} :
   have h : x.toNat % y.toNat < 2 ^ n := Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt
   simp [umod, bv_toNat, Nat.mod_eq_of_lt h]
 
-@[simp]
-theorem toFin_umod {x y : BitVec w} :
-    (x % y).toFin = x.toFin % y.toFin := rfl
-
 @[simp, bv_toNat]
 theorem toNat_umod {x y : BitVec n} :
     (x % y).toNat = x.toNat % y.toNat := rfl
+
+@[simp]
+theorem toFin_umod {x y : BitVec w} :
+    (x % y).toFin = x.toFin % y.toFin := rfl
 
 @[simp]
 theorem umod_zero {x : BitVec n} : x % 0#n = x := by

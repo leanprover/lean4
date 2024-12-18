@@ -242,7 +242,6 @@ static lean_object* l_Lean_Widget_instRpcEncodablePanelWidgetInstance_dec____x40
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_UserWidget___hyg_4203____closed__19;
-lean_object* l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_552____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_getWidgetSource___lambda__5(uint64_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
@@ -267,6 +266,7 @@ LEAN_EXPORT lean_object* l_Lean_Widget_addPanelWidgetLocal___rarg(lean_object*, 
 lean_object* l_Lean_ResolveName_resolveNamespace(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_182____spec__2___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_toArray___rarg(lean_object*);
+lean_object* l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_registerSimpleScopedEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__10;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
@@ -6596,7 +6596,7 @@ x_2 = 1;
 x_3 = 1;
 x_4 = 0;
 x_5 = 2;
-x_6 = lean_alloc_ctor(0, 0, 18);
+x_6 = lean_alloc_ctor(0, 0, 17);
 lean_ctor_set_uint8(x_6, 0, x_1);
 lean_ctor_set_uint8(x_6, 1, x_1);
 lean_ctor_set_uint8(x_6, 2, x_1);
@@ -6607,14 +6607,13 @@ lean_ctor_set_uint8(x_6, 6, x_2);
 lean_ctor_set_uint8(x_6, 7, x_1);
 lean_ctor_set_uint8(x_6, 8, x_2);
 lean_ctor_set_uint8(x_6, 9, x_3);
-lean_ctor_set_uint8(x_6, 10, x_1);
-lean_ctor_set_uint8(x_6, 11, x_4);
+lean_ctor_set_uint8(x_6, 10, x_4);
+lean_ctor_set_uint8(x_6, 11, x_2);
 lean_ctor_set_uint8(x_6, 12, x_2);
 lean_ctor_set_uint8(x_6, 13, x_2);
-lean_ctor_set_uint8(x_6, 14, x_2);
-lean_ctor_set_uint8(x_6, 15, x_5);
+lean_ctor_set_uint8(x_6, 14, x_5);
+lean_ctor_set_uint8(x_6, 15, x_2);
 lean_ctor_set_uint8(x_6, 16, x_2);
-lean_ctor_set_uint8(x_6, 17, x_2);
 return x_6;
 }
 }
@@ -6705,25 +6704,28 @@ return x_2;
 static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint64_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__1;
-x_3 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__2;
-x_4 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__8;
-x_5 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = 0;
-x_8 = lean_alloc_ctor(0, 6, 10);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_4);
-lean_ctor_set(x_8, 2, x_5);
-lean_ctor_set(x_8, 3, x_1);
-lean_ctor_set(x_8, 4, x_6);
-lean_ctor_set(x_8, 5, x_1);
-lean_ctor_set_uint64(x_8, sizeof(void*)*6, x_3);
-lean_ctor_set_uint8(x_8, sizeof(void*)*6 + 8, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*6 + 9, x_7);
-return x_8;
+x_2 = lean_box(0);
+x_3 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__1;
+x_4 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__2;
+x_5 = 0;
+x_6 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__8;
+x_7 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_alloc_ctor(0, 7, 11);
+lean_ctor_set(x_9, 0, x_3);
+lean_ctor_set(x_9, 1, x_1);
+lean_ctor_set(x_9, 2, x_6);
+lean_ctor_set(x_9, 3, x_7);
+lean_ctor_set(x_9, 4, x_2);
+lean_ctor_set(x_9, 5, x_8);
+lean_ctor_set(x_9, 6, x_2);
+lean_ctor_set_uint64(x_9, sizeof(void*)*7, x_4);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 8, x_5);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 9, x_5);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 10, x_5);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__11() {
@@ -6894,7 +6896,7 @@ lean_dec(x_1);
 x_29 = lean_box(0);
 x_30 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__10;
 lean_inc(x_13);
-x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__3(x_2, x_8, x_9, x_29, x_30, x_13, x_5, x_6, x_16);
+x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__3(x_2, x_9, x_8, x_29, x_30, x_13, x_5, x_6, x_16);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
@@ -7044,7 +7046,7 @@ lean_dec(x_1);
 x_64 = lean_box(0);
 x_65 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__10;
 lean_inc(x_47);
-x_66 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__3(x_2, x_8, x_9, x_64, x_65, x_47, x_5, x_6, x_50);
+x_66 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__3(x_2, x_9, x_8, x_64, x_65, x_47, x_5, x_6, x_50);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
@@ -7537,7 +7539,7 @@ lean_dec(x_1);
 x_29 = lean_box(0);
 x_30 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__10;
 lean_inc(x_13);
-x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__8(x_2, x_8, x_9, x_29, x_30, x_13, x_5, x_6, x_16);
+x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__8(x_2, x_9, x_8, x_29, x_30, x_13, x_5, x_6, x_16);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
@@ -7687,7 +7689,7 @@ lean_dec(x_1);
 x_64 = lean_box(0);
 x_65 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__10;
 lean_inc(x_47);
-x_66 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__8(x_2, x_8, x_9, x_64, x_65, x_47, x_5, x_6, x_50);
+x_66 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__8(x_2, x_9, x_8, x_64, x_65, x_47, x_5, x_6, x_50);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; 
@@ -19935,9 +19937,9 @@ x_16 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_9);
 x_17 = l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonRpcEncodablePacket____x40_Lean_Widget_UserWidget___hyg_4203____closed__25;
-x_18 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_552____spec__1(x_17, x_5);
+x_18 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_17, x_5);
 x_19 = l___private_Lean_Widget_UserWidget_0__Lean_Widget_toJsonUserWidgetDefinition____x40_Lean_Widget_UserWidget___hyg_3680____closed__1;
-x_20 = l_Lean_Json_opt___at___private_Lean_Widget_InteractiveCode_0__Lean_Widget_toJsonRpcEncodablePacket____x40_Lean_Widget_InteractiveCode___hyg_552____spec__1(x_19, x_6);
+x_20 = l_Lean_Json_opt___at_Lean_JsonRpc_instToJsonMessage___spec__2(x_19, x_6);
 x_21 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_9);

@@ -51,6 +51,7 @@ uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_rpad___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Date_0__Lake_reprDate____x40_Lake_Util_Date___hyg_372____closed__16;
 static lean_object* l_Lake_instReprDate___closed__1;
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Date_0__Lake_reprDate____x40_Lake_Util_Date___hyg_372_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Date_instMax(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Date_0__Lake_reprDate____x40_Lake_Util_Date___hyg_372____closed__13;
@@ -74,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lake_rpad(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lake_Util_Date_0__Lake_decEqDate____x40_Lake_Util_Date___hyg_91____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Date_0__Lake_reprDate____x40_Lake_Util_Date___hyg_372____closed__18;
 static lean_object* l___private_Lake_Util_Date_0__Lake_reprDate____x40_Lake_Util_Date___hyg_372____closed__14;
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lake_Util_Date_0__Lake_decEqDate____x40_Lake_Util_Date___hyg_91_(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Date_ofString_x3f(lean_object*);
@@ -881,7 +881,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lake_instOrdDate;
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_instDecidableRelLe___rarg(x_3, x_1, x_2);
+x_4 = l_Ord_instDecidableRelLe___rarg(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_dec(x_1);
@@ -901,7 +901,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lake_instOrdDate;
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_instDecidableRelLe___rarg(x_3, x_1, x_2);
+x_4 = l_Ord_instDecidableRelLe___rarg(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_dec(x_2);

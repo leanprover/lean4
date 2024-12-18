@@ -401,6 +401,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2649____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Child_wait___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadBaseIO;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -551,7 +552,6 @@ lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_io_exit(uint8_t, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termPrintln_x21_______closed__10;
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Prim_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unsafeIO(lean_object*);
 static lean_object* l_termPrintln_x21_______closed__2;
@@ -2626,7 +2626,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_IO_instOrdTaskState;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -2657,7 +2657,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_IO_instOrdTaskState;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;

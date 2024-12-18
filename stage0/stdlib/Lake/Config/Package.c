@@ -2949,7 +2949,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = lean_string_dec_eq(x_6, x_1);
+x_7 = lean_string_dec_eq(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {

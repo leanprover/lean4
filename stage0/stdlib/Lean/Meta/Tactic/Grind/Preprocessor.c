@@ -214,7 +214,7 @@ x_1 = 0;
 x_2 = 0;
 x_3 = 0;
 x_4 = 0;
-x_5 = lean_alloc_ctor(0, 0, 18);
+x_5 = lean_alloc_ctor(0, 0, 17);
 lean_ctor_set_uint8(x_5, 0, x_1);
 lean_ctor_set_uint8(x_5, 1, x_1);
 lean_ctor_set_uint8(x_5, 2, x_1);
@@ -225,14 +225,13 @@ lean_ctor_set_uint8(x_5, 6, x_1);
 lean_ctor_set_uint8(x_5, 7, x_1);
 lean_ctor_set_uint8(x_5, 8, x_1);
 lean_ctor_set_uint8(x_5, 9, x_2);
-lean_ctor_set_uint8(x_5, 10, x_1);
-lean_ctor_set_uint8(x_5, 11, x_3);
+lean_ctor_set_uint8(x_5, 10, x_3);
+lean_ctor_set_uint8(x_5, 11, x_1);
 lean_ctor_set_uint8(x_5, 12, x_1);
 lean_ctor_set_uint8(x_5, 13, x_1);
-lean_ctor_set_uint8(x_5, 14, x_1);
-lean_ctor_set_uint8(x_5, 15, x_4);
+lean_ctor_set_uint8(x_5, 14, x_4);
+lean_ctor_set_uint8(x_5, 15, x_1);
 lean_ctor_set_uint8(x_5, 16, x_1);
-lean_ctor_set_uint8(x_5, 17, x_1);
 return x_5;
 }
 }
@@ -342,27 +341,30 @@ return x_4;
 static lean_object* _init_l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__13() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; uint32_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint32_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__1;
-x_3 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__4;
-x_4 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__5;
-x_5 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__6;
-x_6 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__12;
-x_7 = lean_unsigned_to_nat(0u);
-x_8 = 0;
-x_9 = lean_alloc_ctor(0, 7, 9);
-lean_ctor_set(x_9, 0, x_2);
-lean_ctor_set(x_9, 1, x_3);
-lean_ctor_set(x_9, 2, x_3);
-lean_ctor_set(x_9, 3, x_5);
-lean_ctor_set(x_9, 4, x_6);
-lean_ctor_set(x_9, 5, x_1);
-lean_ctor_set(x_9, 6, x_7);
-lean_ctor_set_uint32(x_9, sizeof(void*)*7, x_4);
-lean_ctor_set_uint32(x_9, sizeof(void*)*7 + 4, x_4);
-lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 8, x_8);
-return x_9;
+x_2 = lean_box(0);
+x_3 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__1;
+x_4 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__4;
+x_5 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__5;
+x_6 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__6;
+x_7 = l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__12;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = 0;
+x_10 = lean_alloc_ctor(0, 9, 9);
+lean_ctor_set(x_10, 0, x_3);
+lean_ctor_set(x_10, 1, x_1);
+lean_ctor_set(x_10, 2, x_1);
+lean_ctor_set(x_10, 3, x_4);
+lean_ctor_set(x_10, 4, x_4);
+lean_ctor_set(x_10, 5, x_6);
+lean_ctor_set(x_10, 6, x_7);
+lean_ctor_set(x_10, 7, x_2);
+lean_ctor_set(x_10, 8, x_8);
+lean_ctor_set_uint32(x_10, sizeof(void*)*9, x_5);
+lean_ctor_set_uint32(x_10, sizeof(void*)*9 + 4, x_5);
+lean_ctor_set_uint8(x_10, sizeof(void*)*9 + 8, x_9);
+return x_10;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_Preprocessor_instInhabitedContext___closed__14() {
@@ -2260,7 +2262,7 @@ lean_inc(x_57);
 x_58 = lean_ctor_get(x_56, 1);
 lean_inc(x_58);
 lean_dec(x_56);
-x_59 = lean_ctor_get(x_14, 1);
+x_59 = lean_ctor_get(x_14, 2);
 lean_inc(x_59);
 x_60 = l_Lean_Expr_bindingName_x21(x_7);
 x_61 = l_Lean_Expr_bindingInfo_x21(x_7);

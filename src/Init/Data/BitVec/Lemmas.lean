@@ -2653,7 +2653,7 @@ theorem msb_umod {x y : BitVec w} :
             rw [Nat.mod_eq_sub]; omega
           omega
 
-theorem toInt_umod_eq_bmod {x y : BitVec w} :
+theorem toInt_umod {x y : BitVec w} :
     (x % y).toInt = (x.toNat % y.toNat : Int).bmod (2 ^ w) := by
   simp [toInt_eq_toNat_bmod]
 

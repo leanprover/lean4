@@ -55,6 +55,13 @@ def reducePProdProj (e : Expr) : MetaM Expr := do
     return .continue
   )
 
+/-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
+def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+  let mut ys := #[]
+  for b in mask, x in xs do
+    if b then ys := ys.push x
+  return ys
+
 def deriveInduction (name : Name) : MetaM Unit := do
   mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
     let some eqnInfo := eqnInfoExt.find? (← getEnv) name |
@@ -107,7 +114,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
           let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
           let packedAdm ← adms'.pop.foldrM (mkAdmAnd α instCCPOα) adms'.back!
 
-          let hDecls ← infos.mapIdxM fun i _info => do
+          let hDecls_hmask : Array ((Name × (Array Expr → MetaM Expr)) × Array Bool) ← infos.mapIdxM fun i _info => do
             let n := if infos.size = 1 then .mkSimple "h"
                                       else .mkSimple s!"h_{i+1}"
             let approxDecls ← types.mapIdxM fun j type => do
@@ -115,7 +122,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
                 | .str _ n => .mkSimple n
                 | _ => `f
               pure (n, fun _ => pure type)
-            let t ← withLocalDeclsD approxDecls fun approxs => do
+            withLocalDeclsD approxDecls fun approxs => do
               let ihDecls ← approxs.mapIdxM fun j approx => do
                 let n := `ih
                 pure (n, fun _ => pure (mkApp motives[j]! approx))
@@ -125,10 +132,11 @@ def deriveInduction (name : Name) : MetaM Unit := do
                 let Ffi := PProdN.proj motives.size i packedType Ff
                 let t := mkApp motives[i]! Ffi
                 let t ← reducePProdProj t
-                mkForallFVars (approxs ++ ihs) t
-            pure (n, fun _ => pure t)
+                let mask := approxs.map fun approx => t.containsFVar approx.fvarId!
+                let t ← mkForallFVars (maskArray mask approxs ++ maskArray mask ihs) t
+                pure ((n, fun _ => pure t), mask)
+          let (hDecls, masks) := hDecls_hmask.unzip
           withLocalDeclsD hDecls fun hs => do
-
             let packedH ←
               withLocalDeclD `approx packedType fun approx =>
                 let packedIHType := packedMotive.beta #[approx]
@@ -137,7 +145,9 @@ def deriveInduction (name : Name) : MetaM Unit := do
                     PProdN.proj motives.size i packedType approx
                   let ihs := Array.ofFn (n := motives.size) fun i =>
                     PProdN.proj motives.size i packedIHType ih
-                  let e ← PProdN.mk 0 <| hs.map fun h => mkAppN h (approxs ++ ihs)
+                  let e ← PProdN.mk 0 <| hs.mapIdx fun i h =>
+                    let mask := masks[i]!
+                    mkAppN h (maskArray mask approxs ++ maskArray mask ihs)
                   mkLambdaFVars #[approx, ih] e
             let e' ← mkAppOptM ``fix_induct #[α, instCCPOα, F, hmono, packedMotive, packedAdm, packedH]
             -- Should be the type of e', but with the function definitions folded

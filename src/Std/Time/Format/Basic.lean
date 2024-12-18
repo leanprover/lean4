@@ -736,12 +736,12 @@ private def toSigned (data : Int) : String :=
 
 private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bool) (colon : Bool) : String :=
   let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
-  let time := PlainTime.ofSeconds time
+  let time : PlainTime true := PlainTime.ofSeconds time
   let pad := leftPad 2 '0' ∘ toString
 
   let data := s!"{sign}{pad time.hour.val}"
   let data := if withMinutes then s!"{data}{if colon then ":" else ""}{pad time.minute.val}" else data
-  let data := if withSeconds ∧ time.second.snd.val ≠ 0 then s!"{data}{if colon then ":" else ""}{pad time.second.snd.val}" else data
+  let data := if withSeconds ∧ time.second.val ≠ 0 then s!"{data}{if colon then ":" else ""}{pad time.second.val}" else data
 
   data
 
@@ -913,11 +913,11 @@ private def dateFromModifier (date : DateTime tz) : TypeFormat modifier :=
   | .k _ => date.hour.shiftTo1BasedHour
   | .H _ => date.hour
   | .m _ => date.minute
-  | .s _ => date.date.get.time.second
+  | .s _ => Sigma.mk date.date.get.time.fst date.date.get.time.snd.second
   | .S _ => date.nanosecond
-  | .A _ => date.date.get.time.toMilliseconds
+  | .A _ => date.date.get.time.snd.toMilliseconds
   | .n _ => date.nanosecond
-  | .N _ => date.date.get.time.toNanoseconds
+  | .N _ => date.date.get.time.snd.toNanoseconds
   | .V => tz.name
   | .z .short => tz.abbreviation
   | .z .full => tz.name
@@ -1338,15 +1338,15 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
   let second := builder.s |>.getD ⟨false, 0⟩
   let nano := (builder.n <|> builder.S) |>.getD 0
 
-  let time : PlainTime
+  let time : PlainTime second.fst
     :=  PlainTime.ofNanoseconds <$> builder.N
     <|> PlainTime.ofMilliseconds <$> builder.A
-    |>.getD (PlainTime.mk hour minute second nano)
+    |>.getD (PlainTime.mk hour minute second.snd nano)
 
   let datetime : Option PlainDateTime :=
     if valid : year.Valid month day then
       let date : PlainDate := { year, month, day, valid }
-      some { date, time }
+      some { date, time := Sigma.mk second.fst time }
     else
       none
 

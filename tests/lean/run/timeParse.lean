@@ -21,8 +21,8 @@ def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 
 def date₁ := zoned("2014-06-16T03:03:03-03:00")
 
-def time₁ := time("14:11:01")
-def time₂ := time("03:11:01")
+def time₁ : PlainTime true := time("14:11:01")
+def time₂ : PlainTime true := time("03:11:01")
 
 /--
 info: "2014-06-16T03:03:03.000000100-03:00"

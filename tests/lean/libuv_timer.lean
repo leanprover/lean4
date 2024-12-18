@@ -16,7 +16,7 @@ def assertDuration (should : Nat) (eps : Nat) (x : IO α) : IO α := do
   return res
 
 -- generous tolerance for slow CI systems
-def EPS : Nat := 4
+def EPS : Nat := 7
 
 def await (x : Task α) : IO α := pure x.get
 

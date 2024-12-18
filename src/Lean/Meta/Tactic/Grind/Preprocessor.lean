@@ -72,6 +72,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
         let r ← simp goal p
         let p' := r.expr
         let p' ← eraseIrrelevantMData p'
+        let p' ← foldProjs p'
         let p' ← canon p'
         let p' ← shareCommon p'
         let fvarId ← mkFreshFVarId
@@ -135,8 +136,7 @@ partial def loop (goal : Goal) : PreM Unit := do
     else if let some goal ← applyInjection? goal fvarId then
       loop goal
     else
-      let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      loop { goal with clauses := goal.clauses.push clause }
+      loop (← GoalM.run' goal <| addHyp fvarId)
   | .newDepHyp goal =>
     loop goal
   | .newLocal fvarId goal =>

@@ -17,5 +17,7 @@ namespace Lean
 
 builtin_initialize registerTraceClass `grind
 builtin_initialize registerTraceClass `grind.eq
+builtin_initialize registerTraceClass `grind.issues
+builtin_initialize registerTraceClass `grind.add
 
 end Lean

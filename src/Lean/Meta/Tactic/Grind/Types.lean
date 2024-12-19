@@ -161,6 +161,7 @@ structure ENode where
   /-- Modification time -/
   mt : Nat := 0
   -- TODO: see Lean 3 implementation
+  deriving Inhabited, Repr
 
 structure NewEq where
   lhs   : Expr
@@ -198,6 +199,10 @@ Otherwise, returns `none`s.
 -/
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+
+def getENode! (e : Expr) : GoalM ENode := do
+  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
+  return n
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=

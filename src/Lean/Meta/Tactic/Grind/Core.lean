@@ -8,6 +8,77 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.LitValues
 
 namespace Lean.Meta.Grind
+/-- Returns the root element in the equivalence class of `e`. -/
+def getRoot (e : Expr) : GoalM Expr :=
+  return (← getENode! e).root
+
+/-- Returns the next element in the equivalence class of `e`. -/
+def getNext (e : Expr) : GoalM Expr :=
+  return (← getENode! e).next
+
+/-- Helper function for pretty printing the state for debugging purposes. -/
+def ppENodeRef (e : Expr) : GoalM Format := do
+  let some n ← getENode? e | return "_"
+  return f!"#{n.idx}"
+
+/-- Returns expressions in the given expression equivalence class. -/
+partial def getEqc (e : Expr) : GoalM (List Expr) :=
+  go e e []
+where
+  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
+    let next ← getNext e
+    let acc := e :: acc
+    if isSameExpr first next then
+      return acc
+    else
+      go first next acc
+
+/-- Returns all equivalence classes in the current goal. -/
+partial def getEqcs : GoalM (List (List Expr)) := do
+  let mut r := []
+  for (_, node) in (← get).enodes do
+    if isSameExpr node.root node.self then
+      r := (← getEqc node.self) :: r
+  return r
+
+/-- Helper function for pretty printing the state for debugging purposes. -/
+def ppENodeDeclValue (e : Expr) : GoalM Format := do
+  if e.isApp then
+    e.withApp fun f args => do
+      let r ← if f.isConst then
+        ppExpr f
+      else
+        ppENodeRef f
+      let mut r := r
+      for arg in args do
+        r := r ++ " " ++ (← ppENodeRef arg)
+      return r
+  else
+    ppExpr e
+
+/-- Helper function for pretty printing the state for debugging purposes. -/
+def ppENodeDecl (e : Expr) : GoalM Format := do
+  let mut r := f!"{← ppENodeRef e} := {← ppENodeDeclValue e}"
+  let n ← getENode! e
+  unless isSameExpr e n.root do
+    r := r ++ f!" ↦ {← ppENodeRef n.root}"
+  if n.interpreted then
+    r := r ++ ", [val]"
+  if n.ctor then
+    r := r ++ ", [ctor]"
+  return r
+
+/-- Pretty print goal state for debugging purposes. -/
+def ppState : GoalM Format := do
+  let mut r := f!"Goal:"
+  for (_, node) in (← get).enodes do
+    r := r ++ "\n" ++ (← ppENodeDecl node.self)
+  let eqcs ← getEqcs
+  for eqc in eqcs do
+    if eqc.length > 1 then
+      r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) " ,") ++  "}"
+  return r
+
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `LitValues` for supported literals.
@@ -25,20 +96,6 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
-
-/--
-Returns the root element in the equivalence class of `e`.
--/
-def getRoot (e : Expr) : GoalM Expr := do
-  let some n ← getENode? e | return e
-  return n.root
-
-/--
-Returns the next element in the equivalence class of `e`.
--/
-def getNext (e : Expr) : GoalM Expr := do
-  let some n ← getENode? e | return e
-  return n.next
 
 private def pushNewEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
@@ -99,7 +156,7 @@ private partial def invertTrans (e : Expr) : GoalM Unit := do
   go e false none none
 where
   go (e : Expr) (flippedNew : Bool) (targetNew? : Option Expr) (proofNew? : Option Expr) : GoalM Unit := do
-    let some node ← getENode? e | unreachable!
+    let node ← getENode! e
     if let some target := node.target? then
       go target (!node.flipped) (some e) node.proof?
     setENode e { node with
@@ -115,20 +172,25 @@ def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  trace[grind.eq] "{lhs} {if isHEq then "=" else "≡"} {rhs}"
-  let some lhsNode ← getENode? lhs | return () -- `lhs` has not been internalized yet
-  let some rhsNode ← getENode? rhs | return () -- `rhs` has not been internalized yet
-  if isSameExpr lhsNode.root rhsNode.root then return () -- `lhs` and `rhs` are already in the same equivalence class.
-  let some lhsRoot ← getENode? lhsNode.root | unreachable!
-  let some rhsRoot ← getENode? rhsNode.root | unreachable!
+  trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
+  let lhsNode ← getENode! lhs
+  let rhsNode ← getENode! rhs
+  if isSameExpr lhsNode.root rhsNode.root then
+    -- `lhs` and `rhs` are already in the same equivalence class.
+    trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
+    return ()
+  let lhsRoot ← getENode! lhsNode.root
+  let rhsRoot ← getENode! rhsNode.root
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
      || (lhsRoot.ctor && !rhsRoot.ctor)
      || (lhsRoot.size > rhsRoot.size && !rhsRoot.interpreted && !rhsRoot.ctor) then
     go rhs lhs rhsNode lhsNode rhsRoot lhsRoot true
   else
     go lhs rhs lhsNode rhsNode lhsRoot rhsRoot false
+  trace[grind.debug] "after addEqStep, {← ppState}"
 where
   go (lhs rhs : Expr) (lhsNode rhsNode lhsRoot rhsRoot : ENode) (flipped : Bool) : GoalM Unit := do
+    trace[grind.debug] "adding {← ppENodeRef lhs} ↦ {← ppENodeRef rhs}"
     let mut valueInconsistency := false
     if lhsRoot.interpreted && rhsRoot.interpreted then
       if lhsNode.root.isTrue || rhsNode.root.isTrue then
@@ -153,9 +215,11 @@ where
     -- TODO: Remove parents from congruence table
     -- TODO: set propagateBool
     updateRoots lhs rhsNode.root true -- TODO
+    trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     -- TODO: Reinsert parents into congruence table
     setENode lhsNode.root { lhsRoot with
       next := rhsRoot.next
+      root := rhsNode.root
     }
     setENode rhsNode.root { rhsRoot with
       next := lhsRoot.next
@@ -168,7 +232,7 @@ where
   updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
       -- TODO: propagateBool
-      let some n ← getENode? e | unreachable!
+      let n ← getENode! e
       setENode e { n with root := rootNew }
       if isSameExpr lhs n.next then return ()
       loop n.next
@@ -233,29 +297,5 @@ Adds a new hypothesis.
 -/
 def addHyp (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
-
-/--
-Returns expressions in the given expression equivalence class.
--/
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  go e e []
-where
-  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
-    let next ← getNext e
-    let acc := e :: acc
-    if isSameExpr e next then
-      return acc
-    else
-      go first next acc
-
-/--
-Returns all equivalence classes in the current goal.
--/
-partial def getEqcs : GoalM (List (List Expr)) := do
-  let mut r := []
-  for (_, node) in (← get).enodes do
-    if isSameExpr node.root node.self then
-      r := (← getEqc node.self) :: r
-  return r
 
 end Lean.Meta.Grind

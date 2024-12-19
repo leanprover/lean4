@@ -63,7 +63,9 @@ def ppENodeDecl (e : Expr) : GoalM Format := do
 /-- Pretty print goal state for debugging purposes. -/
 def ppState : GoalM Format := do
   let mut r := f!"Goal:"
-  for (_, node) in (← get).enodes do
+  let nodes := (← get).enodes.toArray.map (·.2)
+  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  for node in nodes do
     r := r ++ "\n" ++ (← ppENodeDecl node.self)
   let eqcs ← getEqcs
   for eqc in eqcs do

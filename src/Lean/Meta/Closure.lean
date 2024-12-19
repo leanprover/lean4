@@ -203,9 +203,21 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     let type ← collect type
     let newFVarId ← mkFreshFVarId
     let userName ← mkNextUserName
+    /-
+    If the metavariable is a delayed assignment, it would be an error to push it onto `exprMVarArgs` directly,
+    since the assumption is that delayed assignment metavariables are always fully applied (for example `instantiateMVars` assumes this).
+    The need to handle delayed assignment metavariables was uncovered in issue https://github.com/leanprover/lean4/issues/6354
+    -/
+    let e' ←
+      if let some { fvars, .. } ← getDelayedMVarAssignment? mvarId then
+        -- Eta expand `e` for the requisite number of arguments.
+        forallBoundedTelescope mvarDecl.type fvars.size fun args _ => do
+          mkLambdaFVars args <| mkAppN e args
+      else
+        pure e
     modify fun s => { s with
       newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
-      exprMVarArgs          := s.exprMVarArgs.push e
+      exprMVarArgs          := s.exprMVarArgs.push e'
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>

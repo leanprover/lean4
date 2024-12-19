@@ -68,8 +68,11 @@ def introNext (goal : Goal) : PreM IntroResult := do
       else
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
+        -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp goal p
         let p' := r.expr
+        let p' ← eraseIrrelevantMData p'
+        let p' ← foldProjs p'
         let p' ← canon p'
         let p' ← shareCommon p'
         let fvarId ← mkFreshFVarId
@@ -133,8 +136,7 @@ partial def loop (goal : Goal) : PreM Unit := do
     else if let some goal ← applyInjection? goal fvarId then
       loop goal
     else
-      let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      loop { goal with clauses := goal.clauses.push clause }
+      loop (← GoalM.run' goal <| addHyp fvarId)
   | .newDepHyp goal =>
     loop goal
   | .newLocal fvarId goal =>
@@ -153,6 +155,7 @@ open Preprocessor
 
 partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
   mvarId.ensureProp
+  -- TODO: abstract metavars
   mvarId.ensureNoMVar
   let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll

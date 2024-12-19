@@ -12,3 +12,12 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+
+namespace Lean
+
+builtin_initialize registerTraceClass `grind
+builtin_initialize registerTraceClass `grind.eq
+builtin_initialize registerTraceClass `grind.issues
+builtin_initialize registerTraceClass `grind.add
+
+end Lean

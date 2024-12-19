@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Char.Lemmas
+import Init.Data.List.Lex
 
 namespace String
 

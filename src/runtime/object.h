@@ -467,6 +467,11 @@ inline obj_res st_ref_set(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_re
 inline obj_res st_ref_reset(b_obj_arg r, obj_arg w) { return lean_st_ref_reset(r, w); }
 inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_ref_swap(r, v, w); }
 
+
+extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise);
+
 // =======================================
 // Module initialization/finalization
 void initialize_object();

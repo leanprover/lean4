@@ -145,8 +145,17 @@ partial def loop (goal : Goal) : PreM Unit := do
     else
       loop goal
 
+def ppGoals : PreM Format := do
+  let mut r := f!""
+  for goal in (← get).goals do
+    let (f, _) ← GoalM.run goal ppState
+    r := r ++ Format.line ++ f
+  return r
+
 def preprocess (mvarId : MVarId) : PreM State := do
   loop (← mkGoal mvarId)
+  if (← isTracingEnabledFor `grind.pre) then
+    trace[grind.pre] (← ppGoals)
   get
 
 end Preprocessor

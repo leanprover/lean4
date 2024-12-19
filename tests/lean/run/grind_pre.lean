@@ -108,3 +108,10 @@ theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x :=
   grind_pre
   trace_state
   sorry
+
+def h (a : α) := a
+
+set_option trace.grind.pre true
+example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c ∧ c = a → a = b ∧ b = a → a ≠ c := by
+  grind_pre
+  sorry

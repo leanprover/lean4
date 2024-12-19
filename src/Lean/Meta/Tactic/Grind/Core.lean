@@ -71,7 +71,8 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
     trace[grind.issues] "unexpected term during internalization{indentExpr e}"
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
   | .app .. => e.withApp fun f args => do
-    let congrThm ← mkHCongrWithArity f args.size
+    unless f.isConst do
+      internalize f generation
     let info ← getFunInfo f
     let shouldInternalize (i : Nat) : GoalM Bool := do
       if h : i < info.paramInfo.size then

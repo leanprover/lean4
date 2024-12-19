@@ -17,8 +17,8 @@ open Meta
 private def etaPProd (xs : Array Expr) (e : Expr) : MetaM Expr := do
   if xs.isEmpty then return e
   let r := mkAppN e xs
-  let r₁ ← mkLambdaFVars xs (← mkPProdFst r)
-  let r₂ ← mkLambdaFVars xs (← mkPProdSnd r)
+  let r₁ ← mkLambdaFVars xs (← mkPProdFstM r)
+  let r₂ ← mkLambdaFVars xs (← mkPProdSndM r)
   mkPProdMk r₁ r₂
 
 /--
@@ -328,7 +328,7 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
       val := mkAppN val indices
       val := mkApp val major
       -- project out first component
-      val ← mkPProdFst val
+      val ← mkPProdFstM val
 
       -- All parameters of `.rec` besides the `minors` become parameters of `.bRecOn`, and the `fs`
       let below_params := params ++ motives ++ indices ++ #[major] ++ fs

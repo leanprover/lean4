@@ -27,7 +27,7 @@ def buildImportsAndDeps (leanFile : FilePath) (imports : Array Module) : FetchM 
   else
     -- build local imports from list
     let modJob := Job.mixArray <| ← imports.mapM (·.olean.fetch)
-    let precompileImports ← computePrecompileImportsAux leanFile imports
+    let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
     let externLibJob := Job.collectArray <| ←
       pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))

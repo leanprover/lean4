@@ -287,12 +287,6 @@ no element of the index matches the given value.
 instance instLT [LT α] : LT (Vector α n) := ⟨fun v w => v.toArray < w.toArray⟩
 instance instLE [LT α] : LE (Vector α n) := ⟨fun v w => v.toArray ≤ w.toArray⟩
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Vector α n) :=
-  inferInstanceAs <| DecidableRel fun (v w : Vector α n) => v.toArray < w.toArray
-
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Vector α n) :=
-  inferInstanceAs <| DecidableRel fun (v w : Vector α n) => v.toArray ≤ w.toArray
-
 /--
 Lexicographic comparator for vectors.
 

@@ -35,7 +35,7 @@ partial def getEqcs : GoalM (List (List Expr)) := do
 
 /-- Helper function for pretty printing the state for debugging purposes. -/
 def ppENodeDeclValue (e : Expr) : GoalM Format := do
-  if e.isApp then
+  if e.isApp && !(← isLitValue e) then
     e.withApp fun f args => do
       let r ← if f.isConst then
         ppExpr f
@@ -68,7 +68,7 @@ def ppState : GoalM Format := do
   let eqcs ← getEqcs
   for eqc in eqcs do
     if eqc.length > 1 then
-      r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) " ,") ++  "}"
+      r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) ", ") ++  "}"
   return r
 
 /--
@@ -119,23 +119,27 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   | .proj .. =>
     trace[grind.issues] "unexpected term during internalization{indentExpr e}"
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
-  | .app .. => e.withApp fun f args => do
-    unless f.isConst do
-      internalize f generation
-    let info ← getFunInfo f
-    let shouldInternalize (i : Nat) : GoalM Bool := do
-      if h : i < info.paramInfo.size then
-        let pinfo := info.paramInfo[i]
-        if pinfo.binderInfo.isInstImplicit || pinfo.isProp then
-          return false
-      return true
-    for h : i in [: args.size] do
-      let arg := args[i]
-      if (← shouldInternalize i) then
-        unless (← isTypeFormer arg) do
-          internalize arg generation
-    mkENode e generation
-    addCongrTable e
+  | .app .. =>
+    if (← isLitValue e) then
+      -- We do not want to internalize the components of a literal value.
+      mkENode e generation
+    else e.withApp fun f args => do
+      unless f.isConst do
+        internalize f generation
+      let info ← getFunInfo f
+      let shouldInternalize (i : Nat) : GoalM Bool := do
+        if h : i < info.paramInfo.size then
+          let pinfo := info.paramInfo[i]
+          if pinfo.binderInfo.isInstImplicit || pinfo.isProp then
+            return false
+        return true
+      for h : i in [: args.size] do
+        let arg := args[i]
+        if (← shouldInternalize i) then
+          unless (← isTypeFormer arg) do
+            internalize arg generation
+      mkENode e generation
+      addCongrTable e
 
 /--
 The fields `target?` and `proof?` in `e`'s `ENode` are encoding a transitivity proof
@@ -273,7 +277,7 @@ where
       if isNeg then
         addEq p (← getFalseExpr) (← mkEqFalse proof)
       else
-        addEq p (← getFalseExpr) (← mkEqTrue proof)
+        addEq p (← getTrueExpr) (← mkEqTrue proof)
 
   goEq (p : Expr) (lhs rhs : Expr) (isNeg : Bool) (isHEq : Bool) : GoalM Unit := do
     if isNeg then

@@ -82,7 +82,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
     for h : i in [: args.size] do
       let arg := args[i]
       if (← shouldInternalize i) then
-        unless (← isTypeFormerType arg) do
+        unless (← isTypeFormer arg) do
           internalize arg generation
     mkENode e generation
     addCongrTable e

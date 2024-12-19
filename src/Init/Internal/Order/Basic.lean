@@ -54,6 +54,8 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 -/
 def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
+theorem chain_empty : chain (fun (_ : α) => False) := by intro _ _ _ ; contradiction
+
 end PartialOrder
 
 section CCPO
@@ -131,25 +133,24 @@ variable {α : Sort u} [CCPO α]
 open PartialOrder CCPO
 
 /--
-A predicate is admissable if it can be transferred from the elements of a chain to the chains least
-upper bound. Such predicates can be used in fixpoint induction.
-
-This definition implies `P ⊥`. Sometimes (e.g. in Isabelle) the empty chain is excluded
-from this definition, and `P ⊥` is a separate condition of the induction predicate.
+A predicate is admissable if it can be transferred from the elements of a (nonempty) chain to the
+chain's least upper bound. Such predicates can be used in fixpoint induction.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 def admissible (P : α → Prop) :=
-  ∀ (c : α → Prop), chain c → (∀ x, c x → P x) → P (csup c)
+  ∀ (c : α → Prop), chain c → Exists c → (∀ x, c x → P x) → P (csup c)
 
-theorem admissible_const_true : admissible (fun (_ : α) => True) :=
-  fun _ _ _ => trivial
+theorem admissible_const {P : Prop} : admissible (fun (_ : α) => P) := by
+  intro c hc ⟨w, hw⟩ h
+  apply h w hw
+
 
 theorem admissible_and (P Q : α → Prop)
   (hadm₁ : admissible P) (hadm₂ : admissible Q) : admissible (fun x => P x ∧ Q x) :=
-    fun c hchain h =>
-    ⟨ hadm₁ c hchain fun x hx => (h x hx).1,
-      hadm₂ c hchain fun x hx => (h x hx).2⟩
+    fun c hchain hex h =>
+    ⟨ hadm₁ c hchain hex fun x hx => (h x hx).1,
+      hadm₂ c hchain hex fun x hx => (h x hx).2⟩
 
 theorem chain_conj (c P : α → Prop) (hchain : chain c) : chain (fun x => c x ∧ P x) := by
   intro x y ⟨hcx, _⟩ ⟨hcy, _⟩
@@ -167,44 +168,54 @@ theorem csup_conj (c P : α → Prop) (hchain : chain c) (h : ∀ x, c x → ∃
     intro x ⟨hcx, hPx⟩
     apply le_csup hchain hcx
 
-theorem admissible_or (P Q : α → Prop)
-  (hadm₁ : admissible P) (hadm₂ : admissible Q) : admissible (fun x => P x ∨ Q x) := by
-  intro c hchain h
-  have : (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ P y) ∨ (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ Q y) := by
+theorem admissible_or (P Q : α → Prop) (hadm₁ : admissible P) (hadm₂ : admissible Q) :
+    admissible (fun x => P x ∨ Q x) := by
+  intro c hchain hex h
+  have : (∃ x, c x ∧ P x) ∧ (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ P y) ∨ (∃ x, c x ∧ Q x) ∧ (∀ x, c x → ∃ y, c y ∧ x ⊑ y ∧ Q y) := by
     open Classical in
     apply Decidable.or_iff_not_imp_left.mpr
     intro h'
-    simp only [not_forall, not_imp, not_exists, not_and] at h'
-    obtain ⟨x, hcx, hx⟩ := h'
-    intro y hcy
-    cases hchain x y hcx hcy  with
-    | inl hxy =>
-      refine ⟨y, hcy, rel_refl, ?_⟩
-      cases h y hcy with
-      | inl hPy => exfalso; apply hx y hcy hxy hPy
-      | inr hQy => assumption
-    | inr hyx =>
-      refine ⟨x, hcx, hyx , ?_⟩
+    have h'' : ∃ x, c x ∧ ∀ (y : α), c y → x ⊑ y → ¬P y := by
+      by_cases hwP : ∃ x, c x ∧ P x
+      · simpa [hwP] using h'
+      · simp only [not_exists, not_and] at hwP
+        obtain ⟨w, hcw⟩ := hex
+        refine ⟨w, hcw, ?_⟩
+        intro y hcy _
+        apply hwP y hcy
+    obtain ⟨x, hcx, hx⟩ := h''
+    constructor
+    · refine ⟨x, hcx, ?_⟩
       cases h x hcx with
       | inl hPx => exfalso; apply hx x hcx rel_refl hPx
       | inr hQx => assumption
-  cases this with
-  | inl hP =>
-    left
+    · intro y hcy
+      cases hchain x y hcx hcy  with
+      | inl hxy =>
+        refine ⟨y, hcy, rel_refl, ?_⟩
+        cases h y hcy with
+        | inl hPy => exfalso; apply hx y hcy hxy hPy
+        | inr hQy => assumption
+      | inr hyx =>
+        refine ⟨x, hcx, hyx , ?_⟩
+        cases h x hcx with
+        | inl hPx => exfalso; apply hx x hcx rel_refl hPx
+        | inr hQx => assumption
+  obtain ⟨hExP, hP⟩ | ⟨hExQ, hQ⟩ := this
+  · left
     rw [csup_conj (h := hP) (hchain := hchain)]
-    apply hadm₁ _ (chain_conj _ _ hchain)
+    apply hadm₁ _ (chain_conj _ _ hchain) hExP
     intro x ⟨hcx, hPx⟩
     exact hPx
-  | inr hQ =>
-    right
+  · right
     rw [csup_conj (h := hQ) (hchain := hchain)]
-    apply hadm₂ _ (chain_conj _ _ hchain)
+    apply hadm₂ _ (chain_conj _ _ hchain) hExQ
     intro x ⟨hcx, hQx⟩
     exact hQx
 
 def admissible_pi (P : α → β → Prop)
   (hadm₁ : ∀ y, admissible (fun x => P x y)) : admissible (fun x => ∀ y, P x y) :=
-    fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
+    fun c hchain hex h y => hadm₁ y c hchain hex fun x hx => h x hx y
 
 end admissibility
 
@@ -225,6 +236,12 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 inductive iterates (f : α → α) : α → Prop where
   | step : iterates f x → iterates f (f x)
   | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
+
+theorem exists_iterates {f : α → α} : Exists (iterates f) := by
+  exists ⊥
+  apply iterates.sup
+  apply chain_empty
+  intro y hy; contradiction
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
   intros x y hx hy
@@ -317,19 +334,23 @@ by the fixpoint's function.
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
 theorem fix_induct {f : α → α} (hf : monotone f)
-    (motive : α → Prop) (hadm: admissible motive)
+    (motive : α → Prop) (hadm: admissible motive) (hbot : motive ⊥)
     (h : ∀ x, motive x → motive (f x)) : motive (fix f hf) := by
-  apply hadm _ (chain_iterates hf)
+  apply hadm _ (chain_iterates hf) exists_iterates
   intro x hiterates
   induction hiterates with
   | @step x hiter ih => apply h x ih
-  | @sup c hchain hiter ih => apply hadm c hchain ih
+  | @sup c hchain hiter ih =>
+    by_cases hex : Exists c
+    · apply hadm c hchain hex ih
+    · have : c = fun _ => False := by apply funext; simpa using hex
+      simpa [this]
 
 end fix
 
 section fun_order
 
-open PartialOrder
+open PartialOrder CCPO
 
 variable {α : Sort u}
 variable {β : α → Sort v}
@@ -377,19 +398,27 @@ instance instCCPOPi [∀ x, CCPO (β x)] : CCPO (∀ x, β x) where
       subst y
       apply h z hz
 
-def admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
+theorem admissible_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (x : α)
   (hadm : admissible (P x)) : admissible (fun (f : ∀ x, β x) => P x (f x)) := by
-  intro c hchain h
-  apply hadm _ (chain_apply hchain x)
+  intro c hchain ⟨w, hcw⟩ h
+  apply hadm _ (chain_apply hchain x) ⟨w x, w, hcw, rfl⟩
   rintro _ ⟨f, hcf, rfl⟩
   apply h _ hcf
 
-def admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, admissible (P x)) :
+theorem admissible_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, admissible (P x)) :
     admissible (fun (f : ∀ x, β x) => ∀ x, P x (f x)) := by
   apply admissible_pi
   intro
   apply admissible_apply
   apply hadm
+
+@[simp]
+theorem fun_bot [∀ x, CCPO (β x)] : (⊥ : ∀ x, β x) x = (⊥ : β x) := by
+  simp [bot, csup, fun_csup]
+
+theorem hbot_pi_apply [∀ x, CCPO (β x)] (P : ∀ x, β x → Prop) (hadm : ∀ x, P x (⊥ : β x)) :
+    ∀ x, P x ((⊥ : ∀ x, β x) x) := by
+  simpa using hadm
 
 end fun_order
 
@@ -498,15 +527,15 @@ instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
 
 theorem admissible_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : α → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.1) := by
-  intro c hchain h
-  apply hadm _ hchain.fst
+  intro c hchain ⟨w, hcw⟩ h
+  apply hadm _ hchain.fst ⟨w.1, w.2, hcw⟩
   intro x ⟨y, hxy⟩
   apply h ⟨x,y⟩ hxy
 
 theorem admissible_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : β → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.2) := by
-  intro c hchain h
-  apply hadm _ hchain.snd
+  intro c hchain ⟨w, hcw⟩ h
+  apply hadm _ hchain.snd ⟨w.2, w.1, hcw⟩
   intro y ⟨x, hxy⟩
   apply h ⟨x,y⟩ hxy
 
@@ -578,13 +607,17 @@ noncomputable instance FlatOrder.instCCPO : CCPO (FlatOrder b) where
       · intro; exact rel.bot
 
 theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
-  intro c hchain h
+  intro c hchain hex h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · simp [CCPO.csup, flat_csup, h']
     apply Classical.some_spec₂ (q := (P ·))
     intro x ⟨hcx, hneb⟩
     apply h x hcx
   · simp [CCPO.csup, flat_csup, h', hnot]
+
+
+@[simp]
+theorem flat_bot : (⊥ : FlatOrder b) = b := by simp [bot, CCPO.csup, flat_csup]
 
 end flat_order
 
@@ -623,6 +656,11 @@ theorem admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
   apply admissible_flatOrder; simp
 
+@[simp]
+theorem option_bot : (⊥ : Option α) = none := flat_bot
+
+theorem hbot_eq_some (P : Prop) (y : α) : ⊥ = some y → P := by simp
+
 instance [Monad m] [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _
 instance [Monad m] [∀ α, PartialOrder (m α)] [inst : ∀ α, CCPO (m α)] : CCPO (ExceptT ε m α) := inst _
 instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind m] : MonoBind (ExceptT ε m) where
@@ -659,10 +697,11 @@ theorem find_eq : find P = findF P (find P) := fix_eq ..
 
 theorem find_spec : ∀ n m, find P n = some m → n ≤ m ∧ P m := by
   unfold find
-  refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hstep
+  refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hbot ?hstep
   case hadm =>
     -- apply admissible_pi_apply does not work well, hard to infer everything
     exact admissible_pi_apply _ (fun n => admissible_pi _ (fun m => admissible_eq_some _ m))
+  case hbot => simp
   case hstep =>
     intro f ih n m heq
     simp only [findF] at heq

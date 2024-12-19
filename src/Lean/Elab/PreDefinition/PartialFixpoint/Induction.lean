@@ -227,7 +227,7 @@ def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run 
   unless s == "partial_correctness" do return false
   return isOptionFixpoint env p
 
--- Given `motive : α → β → γ → {Prop`, construct a proof of
+-- Given `motive : α → β → γ → Prop`, construct a proof of
 -- admissible (fun f => ∀ x y r, f x y = r → motive x y r)
 def mkOptionAdm (motive : Expr) : MetaM Expr := do
   let type ← inferType motive
@@ -241,6 +241,24 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     for y in ys.reverse do
       inst ← mkLambdaFVars #[y] inst
       inst ← mkAppOptM ``admissible_pi_apply #[none, none, none, none, inst]
+    pure inst
+
+-- Given `motive : α → β → γ → Prop`, construct a proof of
+-- ∀ x y r, ⊥ x y = r → motive x y r
+-- If we did not exclude empty chains from `admissible` then `mkOptionAdm` would take care of
+-- that just fine. But we'll just use lemmas of the same shape.
+-- (We could consider a `sadmissible` predicate that bundles the two concepts where convenient.)
+def mkOptionBot (motive : Expr) : MetaM Expr := do
+  let type ← inferType motive
+  forallTelescope type fun ysr _ => do
+    let P := mkAppN motive ysr
+    let ys := ysr.pop
+    let r := ysr.back!
+    let mut inst ← mkAppM ``hbot_eq_some #[P, r]
+    inst ← mkLambdaFVars #[r] inst
+    for y in ys.reverse do
+      inst ← mkLambdaFVars #[y] inst
+      inst ← mkAppOptM ``hbot_pi_apply #[none, none, none, none, inst]
     pure inst
 
 def derivePartialCorrectness (name : Name) : MetaM Unit := do
@@ -282,8 +300,8 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
               mkLambdaFVars #[f] motive'
 
         let e' ← mkAppOptM fixpointInductThm <| (xs ++ motives').map some
-        let adms ← motives.mapM mkOptionAdm
-        let e' := mkAppN e' adms
+        let e' := mkAppN e' (← motives.mapM mkOptionAdm)
+        let e' := mkAppN e' (← motives.mapM mkOptionBot)
         let e' ← mkLambdaFVars motives e'
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
         let e' ← instantiateMVars e'

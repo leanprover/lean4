@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.AbstractNestedProofs
+import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
 
@@ -35,7 +36,7 @@ def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Exp
   return mvarNew.mvarId!
 
 /--
-Unfold all `reducible` declarations occurring in `e`.
+Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr :=
   let pre (e : Expr) : MetaM TransformStep := do
@@ -46,25 +47,25 @@ def unfoldReducible (e : Expr) : MetaM Expr :=
   Core.transform e (pre := pre)
 
 /--
-Unfold all `reducible` declarations occurring in the goal's target.
+Unfolds all `reducible` declarations occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.unfoldReducible (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget Grind.unfoldReducible
 
 /--
-Abstract nested proofs occurring in the goal's target.
+Abstracts nested proofs occurring in the goal's target.
 -/
 def _root_.Lean.MVarId.abstractNestedProofs (mvarId : MVarId) (mainDeclName : Name) : MetaM MVarId :=
   mvarId.transformTarget (Lean.Meta.abstractNestedProofs mainDeclName)
 
 /--
-Beta-reduce the goal's target.
+Beta-reduces the goal's target.
 -/
 def _root_.Lean.MVarId.betaReduce (mvarId : MVarId) : MetaM MVarId :=
   mvarId.transformTarget (Core.betaReduce ·)
 
 /--
-If the target is not `False`, apply `byContradiction`.
+If the target is not `False`, applies `byContradiction`.
 -/
 def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withContext do
   mvarId.checkNotAssigned `grind.by_contra
@@ -77,7 +78,7 @@ def _root_.Lean.MVarId.byContra? (mvarId : MVarId) : MetaM (Option MVarId) := mv
   return mvarNew.mvarId!
 
 /--
-Clear auxiliary decls used to encode recursive declarations.
+Clears auxiliary decls used to encode recursive declarations.
 `grind` eliminates them to ensure they are not accidentally used by its proof automation.
 -/
 def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
@@ -95,5 +96,32 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
     catch _ =>
       throwTacticEx `grind.clear_aux_decls mvarId "failed to clear local auxiliary declaration"
   return mvarId
+
+/--
+In the `grind` tactic, during `Expr` internalization, we don't expect to find `Expr.mdata`.
+This function ensures `Expr.mdata` is not found during internalization.
+Recall that we do not internalize `Expr.forallE` and `Expr.lam` components.
+-/
+def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
+  let pre (e : Expr) := do
+    match e with
+    | .letE .. | .lam .. | .forallE .. => return .done e
+    | .mdata _ e => return .continue e
+    | _ => return .continue e
+  Core.transform e (pre := pre)
+
+/--
+Converts nested `Expr.proj`s into projection applications if possible.
+-/
+def foldProjs (e : Expr) : MetaM Expr := do
+  let post (e : Expr) := do
+    let .proj structName idx s := e | return .done e
+    let some info := getStructureInfo? (← getEnv) structName | return .done e
+    if h : idx < info.fieldNames.size then
+      let fieldName := info.fieldNames[idx]
+      return .done (← mkProjection s fieldName)
+    else
+      return .done e
+  Meta.transform e (post := post)
 
 end Lean.Meta.Grind

@@ -34,6 +34,7 @@ structure LakeOptions where
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
   configOpts : NameMap String := {}
+  packageOverrides : Array PackageEntry := #[]
   subArgs : List String := []
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
@@ -79,6 +80,7 @@ def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
     lakeEnv := ← opts.computeEnv
     wsDir := opts.rootDir
     relConfigFile := opts.configFile
+    packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
@@ -196,6 +198,11 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with failLv})
 | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
 | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
+| "--packages"    => do
+  let file ← takeOptArg "--packages" "package overrides file"
+  let overrides ← Manifest.loadEntries file
+  modifyThe LakeOptions fun opts =>
+    {opts with packageOverrides := opts.packageOverrides ++ overrides}
 | "--dir"         => do
   let rootDir ← takeOptArg "--dir" "path"
   modifyThe LakeOptions ({· with rootDir})

@@ -1,0 +1,15 @@
+{"schemaVersion": "1.1.0",
+ "packages":
+ [{"type": "path",
+   "dir": "bar2",
+   "name": "bar",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "configFile": "lakefile.toml"},
+   {"type": "path",
+   "dir": "foo",
+   "scope": "leanprover",
+   "name": "foo",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "configFile": "lakefile.toml"}]}

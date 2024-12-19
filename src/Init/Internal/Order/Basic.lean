@@ -3,23 +3,41 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
-
 prelude
 
 import Init.ByCases
 import Init.RCases
 
+/-!
+This module contains some basic definitions and results from domain theory, intended to be used as
+the underlying construction of the `partial_fixpoint` feature. It is not meant to be used as a
+general purpose library for domain theory, but can be of interest to users who want to extend
+the `partial_fixpoint` machinery (e.g. mark more functions as monotone or register more monads).
+
+This follows the corresponding
+[Isabelle development](https://isabelle.in.tum.de/library/HOL/HOL/Partial_Function.html), as also
+described in [Alexander Krauss: Recursive Deﬁnitions of Monadic Functions](https://www21.in.tum.de/~krauss/papers/mrec.pdf).
+-/
+
 universe u v w
 
 namespace Lean.Order
 
+/--
+A partial order is a reflexive, transitive and antisymmetric relation.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 class PartialOrder (α : Sort u) where
-  /-- The less-defined than relation -/
+  /--
+  A “less-or-equal-to” or “approximates” relation.
+
+  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+  -/
   rel : α → α → Prop
   rel_refl : ∀ {x}, rel x x
   rel_trans : ∀ {x y z}, rel x y → rel y z → rel x z
   rel_antisymm : ∀ {x y}, rel x y → rel y x → x = y
-
 
 @[inherit_doc] scoped infix:50 " ⊑ " => PartialOrder.rel
 
@@ -29,13 +47,28 @@ variable {α  : Sort u} [PartialOrder α]
 
 theorem PartialOrder.rel_of_eq {x y : α} (h : x = y) : x ⊑ y := by cases h; apply rel_refl
 
+/--
+A chain is a totally ordered set (representing a set as a predicate).
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
 end PartialOrder
 
 section CCPO
 
+/--
+A chain-complete partial order (CCPO) is a partial order where every chain a least upper bound.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 class CCPO (α : Sort u) extends PartialOrder α where
+  /--
+  The least upper bound of a chain.
+
+  This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+  -/
   csup : (α → Prop) → α
   csup_spec {c : α → Prop} (hc : chain c) : csup c ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
@@ -46,8 +79,22 @@ variable {α  : Sort u} [CCPO α]
 theorem csup_le {c : α → Prop} (hchain : chain c) : (∀ y, c y → y ⊑ x) → csup c ⊑ x :=
   (csup_spec hchain).mpr
 
-theorem le_csup {c : α → Prop} (hchain : chain c) {y} (hy : c y) : y ⊑ csup c :=
+theorem le_csup {c : α → Prop} (hchain : chain c) {y : α} (hy : c y) : y ⊑ csup c :=
   (csup_spec hchain).mp rel_refl y hy
+
+/--
+The bottom element is the least upper bound of the empty chain.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
+def bot : α := csup (fun _ => False)
+
+scoped notation "⊥" => bot
+
+theorem bot_le (x : α) : ⊥ ⊑ x := by
+  apply csup_le
+  · intro x y hx hy; contradiction
+  · intro x hx; contradiction
 
 end CCPO
 
@@ -56,6 +103,11 @@ section monotone
 variable {α : Sort u} [PartialOrder α]
 variable {β : Sort v} [PartialOrder β]
 
+/--
+A function is monotone if if it maps related elements to releated elements.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 def monotone (f : α → β) : Prop := ∀ x y, x ⊑ y → f x ⊑ f y
 
 theorem monotone_const (c : β) : monotone (fun (_ : α) => c) :=
@@ -78,7 +130,15 @@ variable {α : Sort u} [CCPO α]
 
 open PartialOrder CCPO
 
--- The isabelle definition quantifies over non-empty chains here. Is this needed?
+/--
+A predicate is admissable if it can be transferred from the elements of a chain to the chains least
+upper bound. Such predicates can be used in fixpoint induction.
+
+This definition implies `P ⊥`. Sometimes (e.g. in Isabelle) the empty chain is excluded
+from this definition, and `P ⊥` is a separate condition of the induction predicate.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 def admissible (P : α → Prop) :=
   ∀ (c : α → Prop), chain c → (∀ x, c x → P x) → P (csup c)
 
@@ -90,7 +150,6 @@ theorem admissible_and (P Q : α → Prop)
     fun c hchain h =>
     ⟨ hadm₁ c hchain fun x hx => (h x hx).1,
       hadm₂ c hchain fun x hx => (h x hx).2⟩
-
 
 theorem chain_conj (c P : α → Prop) (hchain : chain c) : chain (fun x => c x ∧ P x) := by
   intro x y ⟨hcx, _⟩ ⟨hcy, _⟩
@@ -143,7 +202,6 @@ theorem admissible_or (P Q : α → Prop)
     intro x ⟨hcx, hQx⟩
     exact hQx
 
-
 def admissible_pi (P : α → β → Prop)
   (hadm₁ : ∀ y, admissible (fun x => P x y)) : admissible (fun x => ∀ y, P x y) :=
     fun c hchain h y => hadm₁ y c hchain fun x hx => h x hx y
@@ -158,19 +216,15 @@ variable {α  : Sort u} [CCPO α]
 
 variable {c : α → Prop} (hchain : chain c)
 
+/--
+The transfinite iteration of a function `f` is a set that is `⊥ ` and is closed under application
+of `f` and `csup`.
 
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 inductive iterates (f : α → α) : α → Prop where
   | step : iterates f x → iterates f (f x)
   | sup {c : α → Prop} (hc : chain c) (hi : ∀ x, c x → iterates f x) : iterates f (csup c)
-
-def bot : α := csup (fun _ => False)
-
-scoped notation "⊥" => bot
-
-theorem bot_le (x : α) : ⊥ ⊑ x := by
-  apply csup_le
-  · intro x y hx hy; contradiction
-  · intro x hx; contradiction
 
 theorem chain_iterates {f : α → α} (hf : monotone f) : chain (iterates f) := by
   intros x y hx hy
@@ -229,10 +283,22 @@ theorem rel_f_of_iterates {f : α → α} (hf : monotone f) {x : α} (hx : itera
     apply le_csup hchain hy
 
 set_option linter.unusedVariables false in
--- We include hmono as an assumption already on the definition so that
--- we always have it available when applying `fix_eq`
+/--
+The least fixpoint of a monotone function is the least upper bound of its transfinite iteration.
+
+The `monotone f` assumption is not strictly necessarily for the definition, but without this the
+definition is not very meaningful and it simplifies applying theorems like `fix_eq` if every use of
+`fix` already has the monotonicty requirement.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 def fix (f : α → α) (hmono : monotone f) := csup (iterates f)
 
+/--
+The main fixpoint theorem for fixedpoints of monotone functions in chain-complete partial orders.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
   apply rel_antisymm
   · apply rel_f_of_iterates hf
@@ -244,6 +310,12 @@ theorem fix_eq {f : α → α} (hf : monotone f) : fix f hf = f (fix f hf) := by
     intro y hy
     exact hy
 
+/--
+The fixpoint induction theme: An admissible predicate holds for a least fixpoint if it is preserved
+by the fixpoint's function.
+
+This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
+-/
 theorem fix_induct {f : α → α} (hf : monotone f)
     (motive : α → Prop) (hadm: admissible motive)
     (h : ∀ x, motive x → motive (f x)) : motive (fix f hf) := by
@@ -514,9 +586,6 @@ theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissibl
     apply h x hcx
   · simp [CCPO.csup, flat_csup, h', hnot]
 
-noncomputable
-abbrev TailrecOrder α [Nonempty α] := FlatOrder (@Classical.ofNonempty α _)
-
 end flat_order
 
 section mono_bind
@@ -569,8 +638,6 @@ instance [Monad m] [∀ α, PartialOrder (m α)] [∀ α, CCPO (m α)] [MonoBind
 
 end mono_bind
 
-
-
 namespace Example
 
 def findF (P : Nat → Bool) (rec : Nat → Option Nat) (x : Nat) : Option Nat :=
@@ -594,7 +661,7 @@ theorem find_spec : ∀ n m, find P n = some m → n ≤ m ∧ P m := by
   unfold find
   refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hstep
   case hadm =>
-    -- apply admissible_pi_apply
+    -- apply admissible_pi_apply does not work well, hard to infer everything
     exact admissible_pi_apply _ (fun n => admissible_pi _ (fun m => admissible_eq_some _ m))
   case hstep =>
     intro f ih n m heq

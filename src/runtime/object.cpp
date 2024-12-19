@@ -1114,7 +1114,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise) {
 }
 
 // =======================================
-// Natural numbers
+// Big numbers
 
 object * alloc_mpz(mpz const & m) {
     void * mem = lean_alloc_small_object(sizeof(mpz_object));
@@ -1133,6 +1133,55 @@ extern "C" LEAN_EXPORT void lean_extract_mpz_value(lean_object * o, mpz_t v) {
 }
 #endif
 
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_usize(usize n) {
+    return alloc_mpz(mpz::of_size_t(n));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_uint64(uint64 n) {
+    return alloc_mpz(mpz(n));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_uint32(uint32 n) {
+    static_assert(sizeof(uint32_t) <= sizeof(unsigned), "unsigned should be at least the size of a uint32");
+    return alloc_mpz(mpz(static_cast<unsigned>(n)));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_unsigned(unsigned n) {
+    return alloc_mpz(mpz(n));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_isize(size_t a) {
+    return alloc_mpz(mpz(static_cast<int64>(static_cast<ptrdiff_t>(a))));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_int64(uint64_t n) {
+    return alloc_mpz(mpz(static_cast<int64>(n)));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_int32(uint32_t n) {
+    static_assert(sizeof(uint32_t) <= sizeof(int), "int should be at least the size of a uint32");
+    return alloc_mpz(mpz(static_cast<int>(static_cast<int32_t>(n))));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_mpz_of_signed(int n) {
+    return alloc_mpz(mpz(n));
+}
+
+extern "C" LEAN_EXPORT bool lean_mpz_eq(b_obj_arg a1, b_obj_arg a2) {
+    return mpz_value(a1) == mpz_value(a2);
+}
+
+extern "C" LEAN_EXPORT bool lean_mpz_le(b_obj_arg a1, b_obj_arg a2) {
+    return mpz_value(a1) <= mpz_value(a2);
+}
+
+extern "C" LEAN_EXPORT bool lean_mpz_lt(b_obj_arg a1, b_obj_arg a2) {
+    return mpz_value(a1) < mpz_value(a2);
+}
+
+// =======================================
+// Natural numbers
+
 object * mpz_to_nat_core(mpz const & m) {
     lean_assert(!m.is_size_t() || m.get_size_t() > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);
@@ -1145,24 +1194,18 @@ static inline obj_res mpz_to_nat(mpz const & m) {
         return mpz_to_nat_core(m);
 }
 
+extern "C" LEAN_EXPORT obj_res lean_mpz_to_nat(obj_arg a) {
+    mpz m = mpz_value(a);
+    if (m.is_size_t() && m.get_size_t() <= LEAN_MAX_SMALL_NAT) {
+        lean_dec(a);
+        return lean_box(m.get_size_t());
+    } else {
+        return a;
+    }
+}
+
 extern "C" LEAN_EXPORT object * lean_cstr_to_nat(char const * n) {
     return mpz_to_nat(mpz(n));
-}
-
-extern "C" LEAN_EXPORT object * lean_big_usize_to_nat(size_t n) {
-    if (n <= LEAN_MAX_SMALL_NAT) {
-        return lean_box(n);
-    } else {
-        return mpz_to_nat_core(mpz::of_size_t(n));
-    }
-}
-
-extern "C" LEAN_EXPORT object * lean_big_uint64_to_nat(uint64_t n) {
-    if (LEAN_LIKELY(n <= LEAN_MAX_SMALL_NAT)) {
-        return lean_box(n);
-    } else {
-        return mpz_to_nat_core(mpz(n));
-    }
 }
 
 extern "C" LEAN_EXPORT object * lean_nat_big_succ(object * a) {
@@ -1400,31 +1443,18 @@ static object * mpz_to_int(mpz const & m) {
         return lean_box(static_cast<unsigned>(m.get_int()));
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_big_int_to_nat(lean_obj_arg a) {
-    lean_assert(!lean_is_scalar(a));
+extern "C" LEAN_EXPORT obj_res lean_mpz_to_int(obj_arg a) {
     mpz m = mpz_value(a);
-    lean_dec(a);
-    return mpz_to_nat(m);
+    if (m < LEAN_MIN_SMALL_INT || m > LEAN_MAX_SMALL_INT) {
+        return a;
+    } else {
+        lean_dec(a);
+        return lean_box(static_cast<unsigned>(m.get_int()));
+    }
 }
 
 extern "C" LEAN_EXPORT object * lean_cstr_to_int(char const * n) {
     return mpz_to_int(mpz(n));
-}
-
-extern "C" LEAN_EXPORT object * lean_big_int_to_int(int n) {
-    return alloc_mpz(mpz(n));
-}
-
-extern "C" LEAN_EXPORT object * lean_big_size_t_to_int(size_t n) {
-    return alloc_mpz(mpz::of_size_t(n));
-}
-
-extern "C" LEAN_EXPORT object * lean_big_int64_to_int(int64_t n) {
-    if (LEAN_LIKELY(LEAN_MIN_SMALL_INT <= n && n <= LEAN_MAX_SMALL_INT)) {
-        return lean_box(static_cast<unsigned>(static_cast<int>(n)));
-    } else {
-        return mpz_to_int_core(mpz(n));
-    }
 }
 
 extern "C" LEAN_EXPORT object * lean_int_big_neg(object * a) {

@@ -26,11 +26,11 @@ theorem div_le_iff_le_mul (h : 0 < k) : x / k ≤ y ↔ x ≤ y * k + k - 1 := b
   omega
 
 -- TODO: reprove `div_eq_of_lt_le` in terms of this:
-theorem div_eq_iff (h : 0 < k) : x / k = y ↔ x ≤ y * k + k - 1 ∧ y * k ≤ x := by
+protected theorem div_eq_iff (h : 0 < k) : x / k = y ↔ x ≤ y * k + k - 1 ∧ y * k ≤ x := by
   rw [Nat.eq_iff_le_and_ge, le_div_iff_mul_le h, Nat.div_le_iff_le_mul h]
 
 theorem lt_of_div_eq_zero (h : 0 < k) (h' : x / k = 0) : x < k := by
-  rw [div_eq_iff h] at h'
+  rw [Nat.div_eq_iff h] at h'
   omega
 
 theorem div_eq_zero_iff_lt (h : 0 < k) : x / k = 0 ↔ x < k :=

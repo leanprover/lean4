@@ -8,14 +8,6 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.LitValues
 
 namespace Lean.Meta.Grind
-/-- Returns the root element in the equivalence class of `e`. -/
-def getRoot (e : Expr) : GoalM Expr :=
-  return (← getENode! e).root
-
-/-- Returns the next element in the equivalence class of `e`. -/
-def getNext (e : Expr) : GoalM Expr :=
-  return (← getENode! e).next
-
 /-- Helper function for pretty printing the state for debugging purposes. -/
 def ppENodeRef (e : Expr) : GoalM Format := do
   let some n ← getENode? e | return "_"
@@ -59,7 +51,7 @@ def ppENodeDeclValue (e : Expr) : GoalM Format := do
 /-- Helper function for pretty printing the state for debugging purposes. -/
 def ppENodeDecl (e : Expr) : GoalM Format := do
   let mut r := f!"{← ppENodeRef e} := {← ppENodeDeclValue e}"
-  let n ← getENode! e
+  let n ← getENode e
   unless isSameExpr e n.root do
     r := r ++ f!" ↦ {← ppENodeRef n.root}"
   if n.interpreted then
@@ -156,7 +148,7 @@ private partial def invertTrans (e : Expr) : GoalM Unit := do
   go e false none none
 where
   go (e : Expr) (flippedNew : Bool) (targetNew? : Option Expr) (proofNew? : Option Expr) : GoalM Unit := do
-    let node ← getENode! e
+    let node ← getENode e
     if let some target := node.target? then
       go target (!node.flipped) (some e) node.proof?
     setENode e { node with
@@ -173,14 +165,14 @@ def isInconsistent : GoalM Bool :=
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
-  let lhsNode ← getENode! lhs
-  let rhsNode ← getENode! rhs
+  let lhsNode ← getENode lhs
+  let rhsNode ← getENode rhs
   if isSameExpr lhsNode.root rhsNode.root then
     -- `lhs` and `rhs` are already in the same equivalence class.
     trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
     return ()
-  let lhsRoot ← getENode! lhsNode.root
-  let rhsRoot ← getENode! rhsNode.root
+  let lhsRoot ← getENode lhsNode.root
+  let rhsRoot ← getENode rhsNode.root
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
      || (lhsRoot.ctor && !rhsRoot.ctor)
      || (lhsRoot.size > rhsRoot.size && !rhsRoot.interpreted && !rhsRoot.ctor) then
@@ -232,7 +224,7 @@ where
   updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
       -- TODO: propagateBool
-      let n ← getENode! e
+      let n ← getENode e
       setENode e { n with root := rootNew }
       if isSameExpr lhs n.next then return ()
       loop n.next

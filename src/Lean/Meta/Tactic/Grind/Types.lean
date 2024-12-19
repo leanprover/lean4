@@ -200,9 +200,18 @@ Otherwise, returns `none`s.
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).enodes.find? (unsafe ptrAddrUnsafe e)
 
-def getENode! (e : Expr) : GoalM ENode := do
+/-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
+def getENode (e : Expr) : GoalM ENode := do
   let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
   return n
+
+/-- Returns the root element in the equivalence class of `e`. -/
+def getRoot (e : Expr) : GoalM Expr :=
+  return (← getENode e).root
+
+/-- Returns the next element in the equivalence class of `e`. -/
+def getNext (e : Expr) : GoalM Expr :=
+  return (← getENode e).next
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=

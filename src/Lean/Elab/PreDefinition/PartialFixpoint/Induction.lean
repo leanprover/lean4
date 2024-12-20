@@ -38,6 +38,17 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
+def CCPOProdProjs (n : Nat) (inst : Expr) : Array Expr := Id.run do
+  let mut insts := #[inst]
+  while insts.size < n do
+    let inst := insts.back!
+    let_expr Lean.Order.instCCPOPProd _ _ inst₁ inst₂ := inst
+      | panic! s!"isOptionFixpoint: unexpected CCPO instance {inst}"
+    insts := insts.pop
+    insts := insts.push inst₁
+    insts := insts.push inst₂
+  return insts
+
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
 -- Worth having in the standard libray?
@@ -72,15 +83,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
       let_expr fix α instCCPOα F hmono := fixApp
         | throwError "Unexpected function body {body'}"
 
-      let mut instCCPOs := #[instCCPOα]
-      while instCCPOs.size < infos.size do
-        let inst := instCCPOs.back!
-        let_expr Lean.Order.instCCPOPProd _ _ inst₁ inst₂ := inst
-          | throwError "Unexpected CCPO instance {inst}"
-        instCCPOs := instCCPOs.pop
-        instCCPOs := instCCPOs.push inst₁
-        instCCPOs := instCCPOs.push inst₂
-
+      let instCCPOs := CCPOProdProjs infos.size instCCPOα
       let types ← infos.mapM (instantiateForall ·.type xs)
       let packedType ← PProdN.pack 0 types
       let motiveTypes ← types.mapM (mkArrow · (.sort 0))
@@ -184,14 +187,7 @@ def isOptionFixpoint (env : Environment) (name : Name) : Bool := Option.isSome d
   let mut value := defnInfo.value!
   while value.isLambda do value := value.bindingBody!
   let_expr Lean.Order.fix _ inst _ _ := value | panic! s!"isOptionFixpoint: unexpected value {value}"
-  let mut insts := #[inst]
-  while insts.size < eqnInfo.declNames.size do
-    let inst := insts.back!
-    let_expr Lean.Order.instCCPOPProd _ _ inst₁ inst₂ := inst
-      | panic! s!"isOptionFixpoint: unexpected CCPO instance {inst}"
-    insts := insts.pop
-    insts := insts.push inst₁
-    insts := insts.push inst₂
+  let insts := CCPOProdProjs eqnInfo.declNames.size inst
   insts.forM fun inst => do
     let mut inst := inst
     while inst.isAppOfArity ``instCCPOPi 3 do

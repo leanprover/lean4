@@ -8,6 +8,7 @@ import Lake.Util.Git
 import Lake.Util.Sugar
 import Lake.Build.Common
 import Lake.Build.Targets
+import Lake.Build.Topological
 import Lake.Reservoir
 
 /-! # Package Facet Builds
@@ -19,16 +20,17 @@ namespace Lake
 open Lean (Name)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
-def Package.recComputeDeps (self : Package) : FetchM (Array Package) := do
-  (·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
+def Package.recComputeDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
+  (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
     let some dep ← findPackage? cfg.name
       | error s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    return (← fetch <| dep.facet `deps).foldl (·.insert ·) deps |>.insert dep
+    let depDeps ← (← fetch <| dep.facet `deps).await
+    return depDeps.foldl (·.insert ·) deps |>.insert dep
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetConfig Package.recComputeDeps
+  mkFacetJobConfig recComputeDeps
 
 /--
 Tries to download and unpack the package's cached build archive

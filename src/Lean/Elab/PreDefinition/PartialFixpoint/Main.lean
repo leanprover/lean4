@@ -98,7 +98,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
           inst ← mkAppOptM ``instCCPOPi #[(← inferType x), none, (← mkLambdaFVars #[x] inst)]
         pure inst
     -- CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    let packedCCPOInst ← ccpoInsts'.pop.foldrM (mkInstCCPOPProd · ·) ccpoInsts'.back!
+    let packedCCPOInst ← PProdN.genMk mkInstCCPOPProd ccpoInsts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     -- ∀ (x : packedDomain): PartialOrder (t x). Derived from unaryCCPOInst to avoid diamond later on
     let packedPartialOrderInst ← mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
@@ -144,7 +144,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
 
     -- let F ← withLocalDeclD `f packedType fun f => do
       -- PProdN.mk 0 (Fs.map (·.beta #[f]))
-    let hmono ← hmonos.pop.foldrM (mkMonoPProd · ·) hmonos.back!
+    let hmono ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
     trace[Elab.definition.partialFixpoint] "finalValue: {packedValue}"

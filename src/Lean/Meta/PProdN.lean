@@ -77,21 +77,27 @@ def mkPProdSndM (e : Expr) : MetaM Expr := do
 
 namespace PProdN
 
+/--
+Essentially a form of `foldrM1`. Underlies `pack` and `mk`, and is useful to constuct proofs
+that should follow the structure of `pack` and `mk` (e.g. admissibility proofs)
+-/
+def genMk {α : Type _} [Inhabited α] (mk : α → α → MetaM α) (xs : Array α) : MetaM α :=
+  assert! !xs.isEmpty
+  xs.pop.foldrM mk xs.back!
+
 /-- Given types `tᵢ`, produces `t₁ ×' t₂ ×' t₃` -/
 def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True []
                          else return .const ``PUnit [lvl]
-  let xBack := xs.back!
-  xs.pop.foldrM mkPProd xBack
+  genMk mkPProd xs
 
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
 def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True.intro []
                          else return .const ``PUnit.unit [lvl]
-  let xBack := xs.back!
-  xs.pop.foldrM mkPProdMk xBack
+  genMk mkPProdMk xs
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do

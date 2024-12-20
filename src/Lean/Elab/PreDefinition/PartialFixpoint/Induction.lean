@@ -97,7 +97,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
         let admNames := numberNames admTypes.size "adm"
         withLocalDeclsDND (admNames.zip admTypes) fun adms => do
           let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
-          let packedAdm ← adms'.pop.foldrM (mkAdmAnd α instCCPOα) adms'.back!
+          let packedAdm ← PProdN.genMk (mkAdmAnd α instCCPOα) adms'
           let hNames := numberNames infos.size "h"
           let hTypes_hmask : Array (Expr × Array Bool) ← infos.mapIdxM fun i _info => do
             let approxNames := infos.map fun info =>

@@ -141,9 +141,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         solveMono failK hmono.mvarId!
       trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
       instantiateMVars hmono
-
-    -- let F ← withLocalDeclD `f packedType fun f => do
-      -- PProdN.mk 0 (Fs.map (·.beta #[f]))
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]

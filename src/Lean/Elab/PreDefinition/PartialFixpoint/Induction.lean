@@ -121,10 +121,8 @@ def deriveInduction (name : Name) : MetaM Unit := do
               withLocalDeclD `approx packedType fun approx =>
                 let packedIHType := packedMotive.beta #[approx]
                 withLocalDeclD `ih packedIHType fun ih => do
-                  let approxs := Array.ofFn (n := motives.size) fun i =>
-                    PProdN.proj motives.size i packedType approx
-                  let ihs := Array.ofFn (n := motives.size) fun i =>
-                    PProdN.proj motives.size i packedIHType ih
+                  let approxs := PProdN.projs motives.size packedType approx
+                  let ihs := PProdN.projs motives.size packedIHType ih
                   let e ← PProdN.mk 0 <| hs.mapIdx fun i h =>
                     let mask := masks[i]!
                     mkAppN h (maskArray mask approxs ++ maskArray mask ihs)

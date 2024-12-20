@@ -99,7 +99,7 @@ def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
                          else return .const ``PUnit.unit [lvl]
   genMk mkPProdMk xs
 
-/-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
+/-- Given a value `e` of type `t = t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
   unless i < n do panic! "PProdN.proj: {i} not less than {n}"
   let mut t := t
@@ -111,6 +111,10 @@ def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
     mkPProdFst t value
   else
     value
+
+/-- Given a value `e` of type `t = t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return the values of type `tᵢ` -/
+def projs (n : Nat) (t e : Expr) : Array Expr :=
+  Array.ofFn (n := n) fun i => PProdN.proj n i t e
 
 /-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
 def projM (n i : Nat) (e : Expr) : MetaM Expr := do

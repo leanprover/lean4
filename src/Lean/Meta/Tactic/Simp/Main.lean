@@ -47,8 +47,15 @@ def isOfScientificLit (e : Expr) : Bool :=
 def isCharLit (e : Expr) : Bool :=
   e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isRawNatLit
 
-/-- Unfold definition even if it is not marked as `@[reducible]` -/
-private def unfoldDefinitionAny? (e : Expr) : MetaM (Option Expr) :=
+/--
+Unfold definition even if it is not marked as `@[reducible]`.
+Remark: We never unfold irreducible definitions. Mathlib relies on that in the implementation of the
+command `irreducible_def`.
+-/
+private def unfoldDefinitionAny? (e : Expr) : MetaM (Option Expr) := do
+  if let .const declName _ := e.getAppFn then
+    if (← isIrreducible declName) then
+      return none
   unfoldDefinition? e (ignoreTransparency := true)
 
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do

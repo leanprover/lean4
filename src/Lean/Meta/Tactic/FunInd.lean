@@ -876,12 +876,6 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
   projectMutualInduct eqnInfo.declNames unpackedInductName
 
-def stripPProdProjs (e : Expr) : Expr :=
-  match e with
-  | .proj ``PProd _ e' => stripPProdProjs e'
-  | .proj ``And _ e' => stripPProdProjs e'
-  | e => e
-
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size
   go 0 #[]
@@ -910,11 +904,11 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc; ignore the
       -- projection here
       let f' := body.getAppFn
-      let body' := stripPProdProjs f'
+      let body' := PProdN.stripProjs f'
       let f := body'.getAppFn
       let args := body'.getAppArgs ++ body.getAppArgs
 
-      let body := stripPProdProjs body
+      let body := PProdN.stripProjs body
       let .const brecOnName us := f |
         throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
       unless isBRecOnRecursor (← getEnv) brecOnName do

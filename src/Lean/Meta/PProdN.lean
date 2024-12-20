@@ -164,6 +164,13 @@ def mkLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
     mkLambdaFVars xs packed
 
 
+/--  Strips topplevel `PProd` and `And` projections -/
+def stripProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripProjs e'
+  | .proj ``And _ e' => stripProjs e'
+  | e => e
+
 /--
 Reduces `⟨x,y⟩.1` redexes for `PProd` and `And`
 -/

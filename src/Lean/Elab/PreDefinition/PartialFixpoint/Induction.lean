@@ -23,13 +23,6 @@ open Lean Elab Meta
 
 open Lean.Order
 
--- TODO: Move to PProdN, remove from FunIn
-def stripPProdProjs (e : Expr) : Expr :=
-  match e with
-  | .proj ``PProd _ e' => stripPProdProjs e'
-  | .proj ``And _ e' => stripPProdProjs e'
-  | e => e
-
 def mkAdmAnd (α instα adm₁ adm₂ : Expr) : MetaM Expr :=
   mkAppOptM ``admissible_and #[α, instα, none, none, adm₁, adm₂]
 
@@ -73,7 +66,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
 
       -- The body should now be of the form of the form (fix … ).2.2.1
       -- We strip the projections (if present)
-      let body' := stripPProdProjs body
+      let body' := PProdN.stripProjs body
       let some fixApp ← whnfUntil body' ``fix
         | throwError "Unexpected function body {body}"
       let_expr fix α instCCPOα F hmono := fixApp

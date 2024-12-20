@@ -15,6 +15,9 @@ the initial and final state of running tactic `t`.
 scoped syntax (name := withAnnotateState)
   "with_annotate_state " rawStx ppSpace tactic : tactic
 
+/-- Denotes zero or more `_`s. -/
+syntax ellipsis := ".."
+
 /--
 Introduces one or more hypotheses, optionally naming and/or pattern-matching them.
 For each hypothesis to be introduced, the remaining main goal's target type must
@@ -484,6 +487,21 @@ syntax (name := change) "change " term (location)? : tactic
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
 syntax (name := changeWith) "change " term " with " term (location)? : tactic
+
+/--
+Extracts `let` and `let_fun` expressions from within the target or a local hypothesis,
+introducing new local definitions.
+
+- `extract_lets x y z` extracts up to three lets from the target and names the extracted declarations `x`, `y`, and `z`.
+  The names can be `_`, which causes the extracted declarations to use hygienic names.
+- `extract_lets x y z ..` extracts any number of lets from the goal.
+- `extract_lets` is the same as `extract_lets ..`
+- `extract_lets x y z at h` operates on the local hypothesis `h` instead of the target.
+
+For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
+introduces a new local definition `z := v` and changes `h` to be `h : b z`.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (ellipsis)? (location)? : tactic
 
 /--
 If `thm` is a theorem `a = b`, then as a rewrite rule,

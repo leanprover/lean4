@@ -153,26 +153,38 @@ def ppGoals : PreM Format := do
   return r
 
 def preprocess (mvarId : MVarId) : PreM State := do
-  loop (← mkGoal mvarId)
-  if (← isTracingEnabledFor `grind.pre) then
-    trace[grind.pre] (← ppGoals)
-  get
-
-end Preprocessor
-
-open Preprocessor
-
-partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
   mvarId.ensureProp
   -- TODO: abstract metavars
   mvarId.ensureNoMVar
   let mvarId ← mvarId.clearAuxDecls
   let mvarId ← mvarId.revertAll
   mvarId.ensureNoMVar
-  let mvarId ← mvarId.abstractNestedProofs mainDeclName
+  let mvarId ← mvarId.abstractNestedProofs (← getMainDeclName)
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
-  let s ← preprocess mvarId |>.run |>.run mainDeclName
+  loop (← mkGoal mvarId)
+  if (← isTracingEnabledFor `grind.pre) then
+    trace[grind.pre] (← ppGoals)
+  get
+
+def preprocessAndProbe (mvarId : MVarId) (p : GoalM Unit) : PreM Unit := do
+  let s ← preprocess mvarId
+  s.goals.forM fun goal =>
+    discard <| GoalM.run' goal p
+
+end Preprocessor
+
+open Preprocessor
+
+def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
+  withoutModifyingMCtx do
+    Preprocessor.preprocessAndProbe mvarId p |>.run |>.run mainDeclName
+
+def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.State :=
+  Preprocessor.preprocess mvarId |>.run |>.run mainDeclName
+
+def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
+  let s ← preprocess mvarId mainDeclName
   return s.goals.toList.map (·.mvarId)
 
 end Lean.Meta.Grind

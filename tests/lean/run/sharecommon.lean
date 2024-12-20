@@ -177,3 +177,14 @@ info: [[2, 3, 4]]
 -/
 #guard_msgs in
 #eval (tst6 2).run
+
+
+unsafe def tst7 (x : Nat) : ShareCommonT IO Unit := do
+let o0 := mkByteArray2 x
+let o1 ← shareCommonM o0
+let o2 ← shareCommonM o1
+let o3 ← shareCommonM o0
+check $ ptrAddrUnsafe o1 == ptrAddrUnsafe o2
+check $ ptrAddrUnsafe o1 == ptrAddrUnsafe o3
+
+#eval (tst7 3).run

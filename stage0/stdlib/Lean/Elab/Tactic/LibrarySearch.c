@@ -13,7 +13,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l_Lean_Meta_mkSorry(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_LibrarySearch_exact_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_evalApply(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -43,6 +42,7 @@ static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalApply_declRange__
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_evalExact__1___closed__1;
 static lean_object* l___regBuiltin_Lean_Elab_LibrarySearch_elabExact_x3fTerm__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_LibrarySearch_exact_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkLabeledSorry(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Lean_instantiateMVars___at_Lean_Elab_Term_MVarErrorInfo_logError___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2137,7 +2137,7 @@ _start:
 {
 uint8_t x_10; lean_object* x_11; 
 x_10 = 1;
-x_11 = l_Lean_Meta_mkSorry(x_1, x_10, x_5, x_6, x_7, x_8, x_9);
+x_11 = l_Lean_Meta_mkLabeledSorry(x_1, x_10, x_10, x_5, x_6, x_7, x_8, x_9);
 return x_11;
 }
 }
@@ -2304,7 +2304,7 @@ x_37 = lean_ctor_get(x_36, 1);
 lean_inc(x_37);
 lean_dec(x_36);
 x_38 = 1;
-x_39 = l_Lean_Meta_mkSorry(x_6, x_38, x_9, x_10, x_11, x_12, x_37);
+x_39 = l_Lean_Meta_mkLabeledSorry(x_6, x_38, x_38, x_9, x_10, x_11, x_12, x_37);
 return x_39;
 }
 else
@@ -2318,7 +2318,7 @@ x_43 = lean_ctor_get(x_42, 1);
 lean_inc(x_43);
 lean_dec(x_42);
 x_44 = 1;
-x_45 = l_Lean_Meta_mkSorry(x_6, x_44, x_9, x_10, x_11, x_12, x_43);
+x_45 = l_Lean_Meta_mkLabeledSorry(x_6, x_44, x_44, x_9, x_10, x_11, x_12, x_43);
 return x_45;
 }
 }

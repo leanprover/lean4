@@ -6,14 +6,35 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.ShareCommon
 import Lean.Meta.Basic
+import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Canonicalizer
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta.Grind
 
+@[inline] def isSameExpr (a b : Expr) : Bool :=
+  -- It is safe to use pointer equality because we hashcons all expressions
+  -- inserted into the E-graph
+  unsafe ptrEq a b
+
 structure Context where
   mainDeclName : Name
+
+/--
+Key for the congruence theorem cache.
+-/
+structure CongrTheoremCacheKey where
+  f       : Expr
+  numArgs : Nat
+
+-- We manually define `BEq` because we wannt to use pointer equality.
+instance : BEq CongrTheoremCacheKey where
+  beq a b := isSameExpr a.f b.f && a.numArgs == b.numArgs
+
+-- We manually define `Hashable` because we wannt to use pointer equality.
+instance : Hashable CongrTheoremCacheKey where
+  hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
 structure State where
   canon      : Canonicalizer.State := {}
@@ -21,23 +42,54 @@ structure State where
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
   /-- Next index for creating auxiliary theorems. -/
   nextThmIdx : Nat := 1
+  /--
+  Congruence theorems generated so far. Recall that for constant symbols
+  we rely on the reserved name feature (i.e., `mkHCongrWithArityForConst?`).
+  Remark: we currently do not reuse congruence theorems
+  -/
+  congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
+  trueExpr   : Expr
+  falseExpr  : Expr
 
 abbrev GrindM := ReaderT Context $ StateRefT State MetaM
 
-@[inline] def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α :=
-  x { mainDeclName } |>.run' {}
+def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
+  let scState := ShareCommon.State.mk _
+  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
+  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
+  x { mainDeclName } |>.run' { scState, trueExpr, falseExpr }
 
+def getTrueExpr : GrindM Expr := do
+  return (← get).trueExpr
+
+def getFalseExpr : GrindM Expr := do
+  return (← get).falseExpr
+
+/--
+Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
+-/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
   let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← read).mainDeclName } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 
+/--
+Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
+been hash-consing. We perform this step before we internalize expressions.
+-/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx } =>
+  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx })
+    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr })
 
+/--
+Applies the canonicalizer to all subterms of `e`.
+-/
+-- TODO: the current canonicalizer is not a good solution for `grind`.
+-- The problem is that two different applications `@f inst_1 a` and `@f inst_2 b`
+-- may still have syntaticaally different instances. Thus, if we learn that `a = b`,
+-- congruence closure will fail to see that the two applications are congruent.
 def canon (e : Expr) : GrindM Expr := do
   let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
   let (e, canonS) ← Canonicalizer.CanonM.run (canonRec e) (s := canonS)
@@ -53,10 +105,27 @@ where
     transform e post
 
 /--
+Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
+-/
+def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
+  let key := { f, numArgs }
+  if let some result := (← get).congrThms.find? key then
+    return result
+  if let .const declName us := f then
+    if let some result ← mkHCongrWithArityForConst? declName us numArgs then
+      modify fun s => { s with congrThms := s.congrThms.insert key result }
+      return result
+  let result ← Meta.mkHCongrWithArity f numArgs
+  modify fun s => { s with congrThms := s.congrThms.insert key result }
+  return result
+
+/--
 Stores information for a node in the egraph.
 Each internalized expression `e` has an `ENode` associated with it.
 -/
 structure ENode where
+  /-- Node represented by this ENode. -/
+  self : Expr
   /-- Next element in the equivalence class. -/
   next : Expr
   /-- Root (aka canonical representative) of the equivalence class -/
@@ -84,18 +153,15 @@ structure ENode where
   on heterogeneous equality.
   -/
   heqProofs : Bool := false
+  /--
+  Unique index used for pretty printing and debugging purposes.
+  -/
+  idx : Nat := 0
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
   -- TODO: see Lean 3 implementation
-
-structure Clause where
-  expr  : Expr
-  proof : Expr
-  deriving Inhabited
-
-def mkInputClause (fvarId : FVarId) : MetaM Clause :=
-  return { expr := (← fvarId.getType), proof := mkFVar fvarId }
+  deriving Inhabited, Repr
 
 structure NewEq where
   lhs   : Expr
@@ -105,13 +171,15 @@ structure NewEq where
 
 structure Goal where
   mvarId       : MVarId
-  clauses      : PArray Clause := {}
   enodes       : PHashMap USize ENode := {}
+  /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
   /-- Goal modification time. -/
   gmt          : Nat := 0
+  /-- Next unique index for creating ENodes -/
+  nextIdx      : Nat := 0
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -120,10 +188,10 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
-  StateRefT'.run x goal
+  goal.mvarId.withContext do StateRefT'.run x goal
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
-  StateRefT'.run' (x *> get) goal
+  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
 /--
 Returns `some n` if `e` has already been "internalized" into the
@@ -132,22 +200,43 @@ Otherwise, returns `none`s.
 def getENode? (e : Expr) : GoalM (Option ENode) :=
   return (← get).enodes.find? (unsafe ptrAddrUnsafe e)
 
+/-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
+def getENode (e : Expr) : GoalM ENode := do
+  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
+  return n
+
+/-- Returns the root element in the equivalence class of `e`. -/
+def getRoot (e : Expr) : GoalM Expr :=
+  return (← getENode e).root
+
+/-- Returns the next element in the equivalence class of `e`. -/
+def getNext (e : Expr) : GoalM Expr :=
+  return (← getENode e).next
+
+/-- Returns `true` if `e` has already been internalized. -/
+def alreadyInternalized (e : Expr) : GoalM Bool :=
+  return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
+
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with enodes := s.enodes.insert (unsafe ptrAddrUnsafe e) n }
 
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
   setENode e {
-    next := e, root := e, cgRoot := e, size := 1
+    self := e, next := e, root := e, cgRoot := e, size := 1
     flipped := false
     heqProofs := false
     hasLambdas := e.isLambda
     mt := (← get).gmt
+    idx := (← get).nextIdx
     interpreted, ctor, generation
   }
+  modify fun s => { s with nextIdx := s.nextIdx + 1 }
 
 def mkGoal (mvarId : MVarId) : GrindM Goal := do
+  let trueExpr ← getTrueExpr
+  let falseExpr ← getFalseExpr
   GoalM.run' { mvarId } do
-    mkENodeCore (← shareCommon (mkConst ``True)) (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore (← shareCommon (mkConst ``False)) (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
 end Lean.Meta.Grind

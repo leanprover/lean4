@@ -247,7 +247,7 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
 
-theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
+@[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
   cases v
   cases w
   simp

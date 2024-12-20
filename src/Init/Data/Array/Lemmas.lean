@@ -27,7 +27,7 @@ namespace Array
 
 /-! ### toList -/
 
-theorem toList_inj {a b : Array α} : a.toList = b.toList ↔ a = b := by
+@[simp] theorem toList_inj {a b : Array α} : a.toList = b.toList ↔ a = b := by
   cases a; cases b; simp
 
 @[simp] theorem toList_eq_nil_iff (l : Array α) : l.toList = [] ↔ l = #[] := by

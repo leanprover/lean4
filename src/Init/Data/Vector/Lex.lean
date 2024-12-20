@@ -57,6 +57,7 @@ protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] 
 instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irrefl (α := Vector α n) (· < ·) where
   irrefl := Vector.lt_irrefl
 
+@[simp] theorem not_lt_empty [LT α] (l : Vector α 0) : ¬ l < #v[] := Array.not_lt_empty l.toArray
 @[simp] theorem empty_le [LT α] (l : Vector α 0) : #v[] ≤ l := Array.empty_le l.toArray
 
 @[simp] theorem le_empty [LT α] (l : Vector α 0) : l ≤ #v[] ↔ l = #v[] := by
@@ -69,12 +70,12 @@ protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Pr
 instance [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Refl (· ≤ · : Vector α n → Vector α n → Prop) where
   refl := Vector.le_refl
 
-protected theorem lt_trans [LT α] [DecidableLT α]
+protected theorem lt_trans [LT α]
     [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
     {l₁ l₂ l₃ : Vector α n} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ :=
   Array.lt_trans h₁ h₂
 
-instance [LT α] [DecidableLT α]
+instance [LT α]
     [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
     Trans (· < · : Vector α n → Vector α n → Prop) (· < ·) (· < ·) where
   trans h₁ h₂ := Vector.lt_trans h₁ h₂
@@ -103,7 +104,7 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
     Trans (· ≤ · : Vector α n → Vector α n → Prop) (· ≤ ·) (· ≤ ·) where
   trans h₁ h₂ := Vector.le_trans h₁ h₂
 
-protected theorem lt_asymm [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem lt_asymm [LT α]
     [i : Std.Asymm (· < · : α → α → Prop)]
     {l₁ l₂ : Vector α n} (h : l₁ < l₂) : ¬ l₂ < l₁ := Array.lt_asymm h
 
@@ -113,13 +114,31 @@ instance [DecidableEq α] [LT α] [DecidableLT α]
   asymm _ _ := Vector.lt_asymm
 
 protected theorem le_total [DecidableEq α] [LT α] [DecidableLT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] {l₁ l₂ : Vector α n} : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  Array.le_total
+    [i : Std.Total (¬ · < · : α → α → Prop)] (l₁ l₂ : Vector α n) : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
+  Array.le_total _ _
 
 instance [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Total (¬ · < · : α → α → Prop)] :
     Std.Total (· ≤ · : Vector α n → Vector α n → Prop) where
-  total _ _ := Vector.le_total
+  total := Vector.le_total
+
+@[simp] protected theorem not_lt [LT α]
+    {l₁ l₂ : Vector α n} : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+
+@[simp] protected theorem not_le [DecidableEq α] [LT α] [DecidableLT α]
+    {l₁ l₂ : Vector α n} : ¬ l₂ ≤ l₁ ↔ l₁ < l₂ := Decidable.not_not
+
+protected theorem le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
+    [i : Std.Total (¬ · < · : α → α → Prop)]
+    {l₁ l₂ : Vector α n} (h : l₁ < l₂) : l₁ ≤ l₂ :=
+  Array.le_of_lt h
+
+theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
+    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Total (¬ · < · : α → α → Prop)]
+    {l₁ l₂ : Vector α n} : l₁ ≤ l₂ ↔ l₁ < l₂ ∨ l₁ = l₂ := by
+  simpa using Array.le_iff_lt_or_eq (l₁ := l₁.toArray) (l₂ := l₂.toArray)
 
 @[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : Vector α n} : lex l₁ l₂ = true ↔ l₁ < l₂ := by
@@ -198,5 +217,33 @@ theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
   rcases l₁ with ⟨l₁, rfl⟩
   rcases l₂ with ⟨l₂, n₂⟩
   simp [Array.le_iff_exists, ← n₂]
+
+theorem append_left_lt [LT α] {l₁ : Vector α n} {l₂ l₃ : Vector α m} (h : l₂ < l₃) :
+    l₁ ++ l₂ < l₁ ++ l₃ := by
+  simpa using Array.append_left_lt h
+
+theorem append_left_le [DecidableEq α] [LT α] [DecidableLT α]
+    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    {l₁ : Vector α n} {l₂ l₃ : Vector α m} (h : l₂ ≤ l₃) :
+    l₁ ++ l₂ ≤ l₁ ++ l₃ := by
+  simpa using Array.append_left_le h
+
+theorem map_lt [LT α] [LT β]
+    {l₁ l₂ : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ < l₂) :
+    map f l₁ < map f l₂ := by
+  simpa using Array.map_lt w h
+
+theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
+    [Std.Irrefl (· < · : α → α → Prop)]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Antisymm (¬ · < · : α → α → Prop)]
+    [Std.Irrefl (· < · : β → β → Prop)]
+    [Std.Asymm (· < · : β → β → Prop)]
+    [Std.Antisymm (¬ · < · : β → β → Prop)]
+    {l₁ l₂ : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ ≤ l₂) :
+    map f l₁ ≤ map f l₂ := by
+  simpa using Array.map_le w h
 
 end Vector

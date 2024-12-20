@@ -23,7 +23,7 @@ attribute [local instance] Char.notLTTrans Char.notLTAntisymm Char.notLTTotal
 
 protected theorem le_trans {a b c : String} : a ≤ b → b ≤ c → a ≤ c := List.le_trans
 protected theorem lt_trans {a b c : String} : a < b → b < c → a < c := List.lt_trans
-protected theorem le_total (a b : String) : a ≤ b ∨ b ≤ a := List.le_total
+protected theorem le_total (a b : String) : a ≤ b ∨ b ≤ a := List.le_total _ _
 protected theorem le_antisymm {a b : String} : a ≤ b → b ≤ a → a = b := fun h₁ h₂ => String.ext (List.le_antisymm (as := a.data) (bs := b.data) h₁ h₂)
 protected theorem lt_asymm {a b : String} (h : a < b) : ¬ b < a := List.lt_asymm h
 protected theorem ne_of_lt {a b : String} (h : a < b) : a ≠ b := by

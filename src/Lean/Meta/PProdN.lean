@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.Transform
 
 /-!
 This module provides functions to pack and unpack values using nested `PProd` or `And`,
@@ -162,6 +163,20 @@ def mkLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
     let packed ← PProdN.mk lvl es'
     mkLambdaFVars xs packed
 
+
+/--
+Reduces `⟨x,y⟩.1` redexes for `PProd` and `And`
+-/
+def reducePProdProj (e : Expr) : CoreM Expr := do
+  Core.transform e (post := fun e => do
+    if e.isProj then
+      if e.projExpr!.isAppOfArity ``PProd.mk 4 || e.projExpr!.isAppOfArity ``And.intro 2 then
+        if e.projIdx! == 0 then
+          return .continue e.projExpr!.appFn!.appArg!
+        else
+          return .continue e.projExpr!.appArg!
+    return .continue
+  )
 
 end PProdN
 

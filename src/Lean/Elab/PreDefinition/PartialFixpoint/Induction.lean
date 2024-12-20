@@ -45,23 +45,19 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
     assert! i == 0
     return e
 
-def reducePProdProj (e : Expr) : MetaM Expr := do
-  transform e (post := fun e => do
-    if e.isProj then
-      if e.projExpr!.isAppOfArity ``PProd.mk 4 || e.projExpr!.isAppOfArity ``And.intro 2 then
-        if e.projIdx! == 0 then
-          return .continue e.projExpr!.appFn!.appArg!
-        else
-          return .continue e.projExpr!.appArg!
-    return .continue
-  )
 
 /-- `maskArray mask xs` keeps those `x` where the corresponding entry in `mask` is `true` -/
-def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
+-- Worth having in the standard libray?
+private def maskArray {α} (mask : Array Bool) (xs : Array α) : Array α := Id.run do
   let mut ys := #[]
   for b in mask, x in xs do
     if b then ys := ys.push x
   return ys
+
+/-- Appends `_1` etc to `base` unless `n == 1` -/
+private def numberNames (n : Nat) (base : String) : Array Name :=
+  .ofFn (n := n) fun ⟨i, _⟩ =>
+    if n == 1 then .mkSimple base else .mkSimple s!"{base}_{i+1}"
 
 def deriveInduction (name : Name) : MetaM Unit := do
   mapError (f := (m!"Cannot derive fixpoint induction principle (please report this issue)\n{indentD ·}")) do
@@ -95,49 +91,39 @@ def deriveInduction (name : Name) : MetaM Unit := do
       let types ← infos.mapM (instantiateForall ·.type xs)
       let packedType ← PProdN.pack 0 types
       let motiveTypes ← types.mapM (mkArrow · (.sort 0))
-      let motiveDecls ← motiveTypes.mapIdxM fun i motiveType => do
-        let n := if infos.size = 1 then .mkSimple "motive"
-                                   else .mkSimple s!"motive_{i+1}"
-        pure (n, fun _ => pure motiveType)
-      withLocalDeclsD motiveDecls fun motives => do
+      let motiveNames := numberNames motiveTypes.size "motive"
+      withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
         let packedMotive ←
           withLocalDeclD (← mkFreshUserName `x) packedType fun x => do
             mkLambdaFVars #[x] <| ← PProdN.pack 0 <|
               motives.mapIdx fun idx motive =>
                 mkApp motive (PProdN.proj motives.size idx packedType x)
 
-        let admDecls ← motives.mapIdxM fun i motive => do
-          let n := if infos.size = 1 then .mkSimple "adm"
-                                     else .mkSimple s!"adm_{i+1}"
-          let t ← mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, some motive]
-          pure (n, fun _ => pure t)
-        withLocalDeclsD admDecls fun adms => do
+        let admTypes ← motives.mapIdxM fun i motive => do
+          mkAppOptM ``admissible #[types[i]!, instCCPOs[i]!, some motive]
+        let admNames := numberNames admTypes.size "adm"
+        withLocalDeclsDND (admNames.zip admTypes) fun adms => do
           let adms' ← adms.mapIdxM fun i adm => mkAdmProj instCCPOα i adm
           let packedAdm ← adms'.pop.foldrM (mkAdmAnd α instCCPOα) adms'.back!
-
-          let hDecls_hmask : Array ((Name × (Array Expr → MetaM Expr)) × Array Bool) ← infos.mapIdxM fun i _info => do
-            let n := if infos.size = 1 then .mkSimple "h"
-                                      else .mkSimple s!"h_{i+1}"
-            let approxDecls ← types.mapIdxM fun j type => do
-              let n := match infos[j]!.name with
+          let hNames := numberNames infos.size "h"
+          let hTypes_hmask : Array (Expr × Array Bool) ← infos.mapIdxM fun i _info => do
+            let approxNames := infos.map fun info =>
+              match info.name with
                 | .str _ n => .mkSimple n
                 | _ => `f
-              pure (n, fun _ => pure type)
-            withLocalDeclsD approxDecls fun approxs => do
-              let ihDecls ← approxs.mapIdxM fun j approx => do
-                let n := `ih
-                pure (n, fun _ => pure (mkApp motives[j]! approx))
-              withLocalDeclsD ihDecls fun ihs => do
+            withLocalDeclsDND (approxNames.zip types) fun approxs => do
+              let ihTypes := approxs.mapIdx fun j approx => mkApp motives[j]! approx
+              withLocalDeclsDND (ihTypes.map (⟨`ih, ·⟩)) fun ihs => do
                 let f ← PProdN.mk 0 approxs
                 let Ff := F.beta #[f]
                 let Ffi := PProdN.proj motives.size i packedType Ff
                 let t := mkApp motives[i]! Ffi
-                let t ← reducePProdProj t
+                let t ← PProdN.reducePProdProj t
                 let mask := approxs.map fun approx => t.containsFVar approx.fvarId!
                 let t ← mkForallFVars (maskArray mask approxs ++ maskArray mask ihs) t
-                pure ((n, fun _ => pure t), mask)
-          let (hDecls, masks) := hDecls_hmask.unzip
-          withLocalDeclsD hDecls fun hs => do
+                pure (t, mask)
+          let (hTypes, masks) := hTypes_hmask.unzip
+          withLocalDeclsDND (hNames.zip hTypes) fun hs => do
             let packedH ←
               withLocalDeclD `approx packedType fun approx =>
                 let packedIHType := packedMotive.beta #[approx]

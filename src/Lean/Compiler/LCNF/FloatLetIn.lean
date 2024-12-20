@@ -239,7 +239,7 @@ Iterate through `decl`, pushing local declarations that are only used in one
 control flow arm into said arm in order to avoid useless computations.
 -/
 partial def floatLetIn (decl : Decl) : CompilerM Decl := do
-  let newValue ← go decl.value |>.run {}
+  let newValue ← decl.value.mapCodeM go |>.run {}
   return { decl with value := newValue }
 where
   /--

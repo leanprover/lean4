@@ -17,8 +17,8 @@ namespace Array
 @[simp] theorem lt_toList [LT α] (l₁ l₂ : Array α) : l₁.toList < l₂.toList ↔ l₁ < l₂ := Iff.rfl
 @[simp] theorem le_toList [LT α] (l₁ l₂ : Array α) : l₁.toList ≤ l₂.toList ↔ l₁ ≤ l₂ := Iff.rfl
 
-theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+protected theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Decidable.not_not
 
@@ -135,7 +135,7 @@ protected theorem le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : Array α} (h : l₁ < l₂) : l₁ ≤ l₂ :=
   List.le_of_lt h
 
-theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Std.Total (¬ · < · : α → α → Prop)]
@@ -211,7 +211,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
   cases l₂
   simp_all [List.lex_eq_false_iff_exists]
 
-theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : Array α} :
+protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : Array α} :
     l₁ < l₂ ↔
       (l₁ = l₂.take l₁.size ∧ l₁.size < l₂.size) ∨
         (∃ (i : Nat) (h₁ : i < l₁.size) (h₂ : i < l₂.size),
@@ -221,7 +221,7 @@ theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : Arr
   cases l₂
   simp [List.lt_iff_exists]
 
-theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {l₁ l₂ : Array α} :
@@ -258,14 +258,14 @@ theorem le_append_left [LT α] [Std.Irrefl (· < · : α → α → Prop)]
   cases l₂
   simpa using List.le_append_left
 
-theorem map_lt [LT α] [LT β]
+protected theorem map_lt [LT α] [LT β]
     {l₁ l₂ : Array α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ < l₂) :
     map f l₁ < map f l₂ := by
   cases l₁
   cases l₂
   simpa using List.map_lt w h
 
-theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
+protected theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]

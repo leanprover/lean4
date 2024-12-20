@@ -73,6 +73,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
         let p' := r.expr
         let p' ← eraseIrrelevantMData p'
         let p' ← foldProjs p'
+        let p' ← normalizeLevels p'
         let p' ← canon p'
         let p' ← shareCommon p'
         let fvarId ← mkFreshFVarId

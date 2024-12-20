@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Parser.Module
-import Lean.Data.Json
+import Lean.Util.Paths
 
 namespace Lean.Elab
 
@@ -40,6 +40,14 @@ def printImports (input : String) (fileName : Option String) : IO Unit := do
   let (deps, _, _) ← parseImports input fileName
   for dep in deps do
     let fname ← findOLean dep.module
+    IO.println fname
+
+@[export lean_print_import_srcs]
+def printImportSrcs (input : String) (fileName : Option String) : IO Unit := do
+  let sp ← initSrcSearchPath
+  let (deps, _, _) ← parseImports input fileName
+  for dep in deps do
+    let fname ← findLean sp dep.module
     IO.println fname
 
 end Lean.Elab

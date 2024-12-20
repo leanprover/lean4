@@ -111,7 +111,7 @@ def deriveInduction (name : Name) : MetaM Unit := do
                 let Ff := F.beta #[f]
                 let Ffi := PProdN.proj motives.size i packedType Ff
                 let t := mkApp motives[i]! Ffi
-                let t ← PProdN.reducePProdProj t
+                let t ← PProdN.reduceProjs t
                 let mask := approxs.map fun approx => t.containsFVar approx.fvarId!
                 let t ← mkForallFVars (maskArray mask approxs ++ maskArray mask ihs) t
                 pure (t, mask)

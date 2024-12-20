@@ -651,9 +651,9 @@ def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : M
       let (_, mvar) ← mvar.revert fvarIds
       pure mvar
   trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
-  let decls := mvars.mapIdx fun i mvar =>
-    (.mkSimple s!"case{i+1}", (fun _ => mvar.getType))
-  Meta.withLocalDeclsD decls fun xs => do
+  let names := Array.ofFn (n := mvars.size) fun ⟨i,_⟩ => .mkSimple s!"case{i+1}"
+  let types ← mvars.mapM MVarId.getType
+  Meta.withLocalDeclsDND (names.zip types) fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
@@ -974,11 +974,9 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
             mkForallFVars ys (.sort levelZero)
         let motiveArities ← infos.mapM fun info => do
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
-        let motiveDecls ← motiveTypes.mapIdxM fun i motiveType => do
-          let n := if infos.size = 1 then .mkSimple "motive"
-                                     else .mkSimple s!"motive_{i+1}"
-          pure (n, fun _ => pure motiveType)
-        withLocalDeclsD motiveDecls fun motives => do
+        let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
+          if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
+        withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
 
           -- Prepare the `isRecCall` that recognizes recursive calls
           let fns := infos.map fun info =>

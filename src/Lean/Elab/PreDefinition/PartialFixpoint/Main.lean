@@ -39,20 +39,12 @@ private def unReplaceRecApps {α} (preDefs : Array PreDefinition) (fixedArgs : A
     let fns := preDefs.map fun d =>
       mkAppN (.const d.declName (d.levelParams.map mkLevelParam)) fixedArgs
     let packedFn ← PProdN.mk 0 fns
-    let e ← lambdaBoundedTelescope F 1 fun f e =>
+    let e ← lambdaBoundedTelescope F 1 fun f e => do
       let f := f[0]!
-      let e := e.replace fun e => do
-        -- Replace f with calls to the constants
-        if e == f then return packedFn else none
-      let e := e.replace fun e => do
-        -- Reduce PProd projections
-        if e.isProj then
-          if e.projExpr!.isAppOfArity ``PProd.mk 4 then
-            if e.projIdx! == 0 then
-              return e.projExpr!.appFn!.appArg!
-            else
-              return e.projExpr!.appArg!
-        none
+      -- Replace f with calls to the constants
+      let e := e.replace fun e => do if e == f then return packedFn else none
+      -- And reduce projection redexes
+      let e ← PProdN.reduceProjs e
       pure e
     k e
 

@@ -200,8 +200,10 @@ def isPartialCorrectnessName (env : Environment) (name : Name) : Bool := Id.run 
   unless s == "partial_correctness" do return false
   return isOptionFixpoint env p
 
--- Given `motive : α → β → γ → {Prop`, construct a proof of
--- admissible (fun f => ∀ x y r, f x y = r → motive x y r)
+/--
+Given `motive : α → β → γ → Prop`, construct a proof of
+`admissible (fun f => ∀ x y r, f x y = r → motive x y r)`
+-/
 def mkOptionAdm (motive : Expr) : MetaM Expr := do
   let type ← inferType motive
   forallTelescope type fun ysr _ => do
@@ -273,8 +275,6 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
     let inductName := name ++ `partial_correctness
     addDecl <| Declaration.thmDecl
       { name := inductName, levelParams := us, type := eTyp, value := e' }
-
-
 
 builtin_initialize
   registerReservedNamePredicate isPartialCorrectnessName

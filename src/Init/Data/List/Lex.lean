@@ -14,8 +14,8 @@ namespace List
 @[simp] theorem lex_lt [LT α] (l₁ l₂ : List α) : Lex (· < ·) l₁ l₂ ↔ l₁ < l₂ := Iff.rfl
 @[simp] theorem not_lex_lt [LT α] (l₁ l₂ : List α) : ¬ Lex (· < ·) l₁ l₂ ↔ l₂ ≤ l₁ := Iff.rfl
 
-theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
-theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+protected theorem not_lt_iff_ge [LT α] (l₁ l₂ : List α) : ¬ l₁ < l₂ ↔ l₂ ≤ l₁ := Iff.rfl
+protected theorem not_le_iff_gt [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
     ¬ l₁ ≤ l₂ ↔ l₂ < l₁ :=
   Decidable.not_not
 
@@ -260,7 +260,7 @@ protected theorem le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
   · exfalso
     exact h' h
 
-theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Std.Total (¬ · < · : α → α → Prop)]
@@ -435,7 +435,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
               simpa using w₁ (j + 1) (by simpa)
             · simpa using w₂
 
-theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
+protected theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : List α} :
     l₁ < l₂ ↔
       (l₁ = l₂.take l₁.length ∧ l₁.length < l₂.length) ∨
         (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
@@ -444,7 +444,7 @@ theorem lt_iff_exists [DecidableEq α] [LT α] [DecidableLT α] {l₁ l₂ : Lis
   rw [← lex_eq_true_iff_lt, lex_eq_true_iff_exists]
   simp
 
-theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
+protected theorem le_iff_exists [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} :
@@ -489,7 +489,7 @@ theorem IsPrefix.le [LT α] [Std.Irrefl (· < · : α → α → Prop)]
   rcases h with ⟨_, rfl⟩
   apply le_append_left
 
-theorem map_lt [LT α] [LT β]
+protected theorem map_lt [LT α] [LT β]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ < l₂) :
     map f l₁ < map f l₂ := by
   match l₁, l₂, h with
@@ -497,11 +497,11 @@ theorem map_lt [LT α] [LT β]
   | nil, cons b l₂, h => simp
   | cons a l₁, nil, h => simp at h
   | cons a l₁, cons _ l₂, .cons h =>
-    simp [cons_lt_cons_iff, map_lt w (by simpa using h)]
+    simp [cons_lt_cons_iff, List.map_lt w (by simpa using h)]
   | cons a l₁, cons b l₂, .rel h =>
     simp [cons_lt_cons_iff, w, h]
 
-theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
+protected theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β] [DecidableLT β]
     [Std.Irrefl (· < · : α → α → Prop)]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
@@ -510,7 +510,7 @@ theorem map_le [DecidableEq α] [LT α] [DecidableLT α] [DecidableEq β] [LT β
     [Std.Antisymm (¬ · < · : β → β → Prop)]
     {l₁ l₂ : List α} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : l₁ ≤ l₂) :
     map f l₁ ≤ map f l₂ := by
-  rw [le_iff_exists] at h ⊢
+  rw [List.le_iff_exists] at h ⊢
   obtain (h | ⟨i, h₁, h₂, w₁, w₂⟩) := h
   · left
     rw [h]

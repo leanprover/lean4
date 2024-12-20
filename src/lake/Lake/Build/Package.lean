@@ -198,9 +198,11 @@ abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 Perform a build job after first checking for an (optional) cached build
 for the package (e.g., from Reservoir or GitHub).
 -/
-def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
+def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).bindM fun _ => build
+    (← self.maybeFetchBuildCache).bindM fun _ => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     build
 
@@ -213,7 +215,9 @@ def Package.afterReleaseAsync := @afterBuildCacheAsync
 -/
 def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).mapM fun _  => build
+    (← self.maybeFetchBuildCache).mapM fun _  => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     Job.async build
 

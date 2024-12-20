@@ -1963,11 +1963,14 @@ where
     let sFn := s.getAppFn
     if !sFn.isMVar then
       return false
-    if (← isAssignable sFn) then
-      let ctorApp := mkApp (mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs) v
-      processAssignment' s ctorApp
-    else
+    if !(← isAssignable sFn) then
       return false
+    let ctor := mkAppN (mkConst ctorVal.name sTypeFn.constLevels!) sType.getAppArgs
+    let Expr.forallE _ ty _ _ ← whnf (← inferType ctor) | return false
+    unless ← isDefEq ty (← inferType v) do
+      return false
+    let ctorApp := mkApp ctor v
+    processAssignment' s ctorApp
 
 /--
   Given applications `t` and `s` that are in WHNF (modulo the current transparency setting),

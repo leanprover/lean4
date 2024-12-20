@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
+import Init.Internal.Order.Basic
 
 namespace Lean.Elab.WF
 open Meta
@@ -20,7 +21,6 @@ structure EqnInfo extends EqnInfoCore where
   declNameNonRec  : Name
   fixedPrefixSize : Nat
   argsPacker      : ArgsPacker
-  hasInduct       : Bool
   deriving Inhabited
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
@@ -28,13 +28,23 @@ private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.
   let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
   if lhs.isAppOf ``WellFounded.fix then
     return mvarId
+  else if lhs.isAppOf ``Order.fix then
+    return mvarId
   else
     deltaLHSUntilFix (← deltaLHS mvarId)
 
 private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
-  let h := mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+  let h ←
+    if lhs.isAppOf ``WellFounded.fix then
+      pure <| mkAppN (mkConst ``WellFounded.fix_eq lhs.getAppFn.constLevels!) lhs.getAppArgs
+    else if lhs.isAppOf ``Order.fix then
+      let x := lhs.getAppArgs.back!
+      let args := lhs.getAppArgs.pop
+      mkAppM ``congrFun #[mkAppN (mkConst ``Order.fix_eq lhs.getAppFn.constLevels!) args, x]
+    else
+      throwTacticEx `rwFixEq mvarId "expected fixed-point application"
   let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
   let targetNew ← mkEq lhsNew rhs
   let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
@@ -102,7 +112,7 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) (hasInduct : Bool) : MetaM Unit := do
+    (argsPacker : ArgsPacker) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
@@ -115,7 +125,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker, hasInduct }
+            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

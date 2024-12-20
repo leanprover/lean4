@@ -65,12 +65,15 @@ def getTrueExpr : GrindM Expr := do
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
+def getMainDeclName : GrindM Name :=
+  return (← read).mainDeclName
+
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
-  let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← read).mainDeclName } |>.run |>.run { nextIdx }
+  let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
   return e
 
@@ -238,5 +241,19 @@ def mkGoal (mvarId : MVarId) : GrindM Goal := do
   GoalM.run' { mvarId } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+
+def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
+  -- We must sort because we are using pointer addresses to hash
+  let nodes := (← get).enodes.toArray.map (·.2)
+  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  for n in nodes do
+    f n
+
+def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
+  let ref ← IO.mkRef #[]
+  forEachENode fun n => do
+    if (← p n) then
+      ref.modify (·.push n)
+  ref.get
 
 end Lean.Meta.Grind

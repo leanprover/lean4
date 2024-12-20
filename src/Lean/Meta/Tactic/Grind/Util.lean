@@ -124,4 +124,15 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
   Meta.transform e (post := post)
 
+/--
+Normalizes universe levels in constants and sorts.
+-/
+def normalizeLevels (e : Expr) : CoreM Expr := do
+  let pre (e : Expr) := do
+    match e with
+    | .sort u => return .done <| e.updateSort! u.normalize
+    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
+    | _ => return .continue
+  Core.transform e (pre := pre)
+
 end Lean.Meta.Grind

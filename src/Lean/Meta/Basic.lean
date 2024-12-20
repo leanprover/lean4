@@ -605,6 +605,9 @@ variable [MonadControlT MetaM n] [Monad n]
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
 
+def resetCache : MetaM Unit :=
+  modifyCache fun _ => {}
+
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
 
@@ -1777,9 +1780,9 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
-  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
-  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
-  different from the current ones. -/
+Executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
 
@@ -1789,12 +1792,24 @@ private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   try x finally setMCtx mctx'
 
 /--
-  `withMCtx mctx k` replaces the metavariable context and then executes `k`.
-  The metavariable context is restored after executing `k`.
+`withMCtx mctx k` replaces the metavariable context and then executes `k`.
+The metavariable context is restored after executing `k`.
 
-  This method is used to implement the type class resolution procedure. -/
+This method is used to implement the type class resolution procedure. -/
 def withMCtx (mctx : MetavarContext) : n α → n α :=
   mapMetaM <| withMCtxImp mctx
+
+/--
+`withoutModifyingMCtx k` executes `k` and then restores the metavariable context.
+-/
+def withoutModifyingMCtx : n α → n α :=
+  mapMetaM fun x => do
+    let mctx ← getMCtx
+    try
+      x
+    finally
+      resetCache
+      setMCtx mctx
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x

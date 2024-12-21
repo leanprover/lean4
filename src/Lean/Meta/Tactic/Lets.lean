@@ -44,6 +44,9 @@ structure State where
 
 abbrev M := ReaderT ExtractLetsConfig <| MonadCacheT ExprStructEq Expr <| StateRefT State MetaM
 
+def hasNextName : M Bool := do
+  return !(← read).onlyGivenNames || !(← get).givenNames.isEmpty
+
 /-- Gets the next name to use for extracted `let`s -/
 def nextName? : M (Option Name) := do
   let s ← get
@@ -52,24 +55,30 @@ def nextName? : M (Option Name) := do
   | []     , true   => return none
   | []     , false  => return `_
 
-def extractable (fvars : List Expr) (e : Expr) : Bool :=
-  !e.hasAnyFVar (fvars.contains <| .fvar ·)
-
 def nextNameForBinderName? (binderName : Name) : M (Option Name) := do
   if let some n ← nextName? then
     if n == `_ then
-      let binderName := if binderName.isAnonymous then `a else binderName
-      mkFreshUserName binderName
+      if binderName.isAnonymous then
+        -- Use a nicer binder name than `[anonymous]`, which can appear for example in `letFun x f` when `f` is not a lambda expression.
+        mkFreshUserName `a
+      else if (← read).preserveBinderNames then
+        return n
+      else
+        mkFreshUserName binderName
     else
       return n
   else
     return none
 
+def extractable (fvars : List Expr) (e : Expr) : Bool :=
+  !e.hasAnyFVar (fvars.contains <| .fvar ·)
+
 /--
-Returns
+Returns whether a let-like expression with the given type and value is extractable,
+given the list `fvars` of binders that inhibit extraction.
 -/
 def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Name) := do
-  if extractable fvars t && extractable fvars v then
+  if (← hasNextName) && extractable fvars t && extractable fvars v then
     if let some n ← nextNameForBinderName? n then
       return (true, n)
   -- In lift mode, we temporarily extract non-extractable lets, but we do not make use of the givenNames for them.
@@ -344,6 +353,13 @@ def extractLets [Monad m] [MonadControlT MetaM m] (es : Array Expr) (givenNames 
     m α :=
   map2MetaM (fun k => extractLetsImp es givenNames k config) k
 
+/--
+Lifts `let` and `letFun` expressions in the given expression as far out as possible.
+-/
+def liftLets (e : Expr) (config : LiftLetsConfig := {}) : MetaM Expr := do
+  let (es, st) ← ExtractLets.extract #[e] |>.run { config with } |>.run' {} |>.run { givenNames := [] }
+  ExtractLets.mkLetDecls st.decls es[0]!
+
 end Lean.Meta
 
 /--
@@ -361,7 +377,7 @@ def Lean.MVarId.extractLets (mvarId : MVarId) (givenNames : List Name) (config :
     Meta.extractLets #[ty] givenNames (config := config) fun fvarIds es => do
       let ty' := es[0]!
       if fvarIds.isEmpty && ty == ty' then
-        throwTacticEx `extract_lets mvarId m!"nothing to extract"
+        throwTacticEx `extract_lets mvarId m!"made no progress"
       let g ← mkFreshExprSyntheticOpaqueMVar ty' (← mvarId.getTag)
       mvarId.assign <| ← mkLetFVars (usedLetOnly := false) (fvarIds.map .fvar) g
       return (fvarIds, g.mvarId!)
@@ -383,13 +399,54 @@ def Lean.MVarId.extractLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (givenN
       Meta.extractLets #[t] givenNames (config := config) fun fvarIds es => do
         let t' := es[0]!
         if fvarIds.isEmpty && t == t' then
-          throwTacticEx `extract_lets mvarId m!"nothing to extract"
+          throwTacticEx `extract_lets mvarId m!"made no progress"
         finalize fvarIds (.forallE n t' b i)
     | .letE n t v b ndep =>
       Meta.extractLets #[t, v] givenNames (config := config) fun fvarIds es => do
         let t' := es[0]!
         let v' := es[1]!
         if fvarIds.isEmpty && t == t' && v == v' then
-          throwTacticEx `extract_lets mvarId m!"nothing to extract"
+          throwTacticEx `extract_lets mvarId m!"made no progress"
         finalize fvarIds (.letE n t' v' b ndep)
     | _ => throwTacticEx `extract_lets mvarId "unexpected auxiliary target"
+
+/--
+Lifts `let` and `letFun` expressions in target as far out as possible.
+Throws an exception if nothing is lifted.
+
+Like `Lean.MVarId.extractLets`, but top-level lets are not added to the local context.
+-/
+def Lean.MVarId.liftLets (mvarId : MVarId) (config : LiftLetsConfig := {}) : MetaM MVarId :=
+  mvarId.withContext do
+    mvarId.checkNotAssigned `lift_lets
+    let ty ← mvarId.getType
+    let ty' ← Meta.liftLets ty (config := config)
+    if ty == ty' then
+      throwTacticEx `lift_lets mvarId m!"made no progress"
+    mvarId.replaceTargetDefEq ty'
+
+/--
+Like `Lean.MVarId.liftLets` but lifts lets in a local declaration.
+If the local declaration has a value, then both its type and value are modified.
+-/
+def Lean.MVarId.liftLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (config : LiftLetsConfig := {}) : MetaM MVarId := do
+  mvarId.checkNotAssigned `lift_lets
+  -- Revert to make sure we don't introduce any fvars that come after `fvarId`
+  -- when `merge := true` and `useContext := true`.
+  let (_, mvarId) ← mvarId.withReverted #[fvarId] fun mvarId fvars => mvarId.withContext do
+    let finalize (targetNew : Expr) := do
+      return ((), fvars.map .some, ← mvarId.replaceTargetDefEq targetNew)
+    match ← mvarId.getType with
+    | .forallE n t b i =>
+      let t' ← Meta.liftLets t (config := config)
+      if t == t' then
+        throwTacticEx `lift_lets mvarId m!"made no progress"
+      finalize (.forallE n t' b i)
+    | .letE n t v b ndep =>
+      let t' ← Meta.liftLets t (config := config)
+      let v' ← Meta.liftLets v (config := config)
+      if t == t' && v == v' then
+        throwTacticEx `lift_lets mvarId m!"made no progress"
+      finalize (.letE n t' v' b ndep)
+    | _ => throwTacticEx `extract_lets mvarId "unexpected auxiliary target"
+  return mvarId

@@ -317,8 +317,15 @@ This is the conv mode version of the `extract_lets` tactic.
 - `extract_lets` is the same as `extract_lets ..`
 
 Limitation: the extracted local declarations do not persist outside of the `conv` goal.
+See also `lift_lets`, which does not extract lets as local declarations.
 -/
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (ellipsis)? : conv
+
+/--
+Lifts `let` and `let_fun` expressions within the target expression as far out as possible.
+This is the conv mode version of the `lift_lets` tactic.
+-/
+syntax (name := liftLets) "lift_lets " optConfig : conv
 
 /--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,

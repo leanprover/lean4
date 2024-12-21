@@ -43,6 +43,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
     unless (← read).config.inlineDefs do
       return none
     let some decl ← getDecl? declName | return none
+    let .code code := decl.value | return none
     let shouldInline : SimpM Bool := do
       if !decl.inlineIfReduceAttr && decl.recursive then return false
       if mustInline then return true
@@ -63,9 +64,8 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       if decl.alwaysInlineAttr then return true
       -- TODO: check inlining quota
       if decl.inlineAttr || decl.inlineIfReduceAttr then return true
-      unless decl.noinlineAttr do
-        if (← isSmall decl.value) then return true
-      return false
+      if decl.noinlineAttr then return false
+      isSmall code
     unless (← shouldInline) do return none
     /- check arity -/
     let arity := decl.getArity
@@ -77,7 +77,7 @@ def inlineCandidate? (e : LetValue) : SimpM (Option InlineCandidateInfo) := do
       let arg := args[paramIdx]!
       unless (← arg.isConstructorApp) do return none
     let params := decl.instantiateParamsLevelParams us
-    let value := decl.instantiateValueLevelParams us
+    let value := code.instantiateValueLevelParams decl.levelParams us
     let type := decl.instantiateTypeLevelParams us
     incInline
     return some {

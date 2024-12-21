@@ -40,7 +40,7 @@ lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean
 x_11 = lean_ctor_get(x_10, 1);
 lean_inc(x_11);
 lean_dec(x_10);
-x_12 = lean_ctor_get(x_5, 1);
+x_12 = lean_ctor_get(x_5, 2);
 lean_inc(x_12);
 x_13 = l_Lean_LocalContext_setUserName(x_12, x_3, x_4);
 x_14 = l_Lean_Meta_getLocalInstances(x_5, x_6, x_7, x_8, x_11);

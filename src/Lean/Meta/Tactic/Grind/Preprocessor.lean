@@ -68,8 +68,12 @@ def introNext (goal : Goal) : PreM IntroResult := do
       else
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
+        -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp goal p
         let p' := r.expr
+        let p' ← eraseIrrelevantMData p'
+        let p' ← foldProjs p'
+        let p' ← normalizeLevels p'
         let p' ← canon p'
         let p' ← shareCommon p'
         let fvarId ← mkFreshFVarId
@@ -133,8 +137,7 @@ partial def loop (goal : Goal) : PreM Unit := do
     else if let some goal ← applyInjection? goal fvarId then
       loop goal
     else
-      let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      loop { goal with clauses := goal.clauses.push clause }
+      loop (← GoalM.run' goal <| addHyp fvarId)
   | .newDepHyp goal =>
     loop goal
   | .newLocal fvarId goal =>
@@ -143,24 +146,46 @@ partial def loop (goal : Goal) : PreM Unit := do
     else
       loop goal
 
+def ppGoals : PreM Format := do
+  let mut r := f!""
+  for goal in (← get).goals do
+    let (f, _) ← GoalM.run goal ppState
+    r := r ++ Format.line ++ f
+  return r
+
 def preprocess (mvarId : MVarId) : PreM State := do
+  mvarId.ensureProp
+  -- TODO: abstract metavars
+  mvarId.ensureNoMVar
+  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.revertAll
+  mvarId.ensureNoMVar
+  let mvarId ← mvarId.abstractNestedProofs (← getMainDeclName)
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
   loop (← mkGoal mvarId)
+  if (← isTracingEnabledFor `grind.pre) then
+    trace[grind.pre] (← ppGoals)
   get
+
+def preprocessAndProbe (mvarId : MVarId) (p : GoalM Unit) : PreM Unit := do
+  let s ← preprocess mvarId
+  s.goals.forM fun goal =>
+    discard <| GoalM.run' goal p
 
 end Preprocessor
 
 open Preprocessor
 
-partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
-  mvarId.ensureProp
-  mvarId.ensureNoMVar
-  let mvarId ← mvarId.clearAuxDecls
-  let mvarId ← mvarId.revertAll
-  mvarId.ensureNoMVar
-  let mvarId ← mvarId.abstractNestedProofs mainDeclName
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
-  let s ← preprocess mvarId |>.run |>.run mainDeclName
+def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
+  withoutModifyingMCtx do
+    Preprocessor.preprocessAndProbe mvarId p |>.run |>.run mainDeclName
+
+def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.State :=
+  Preprocessor.preprocess mvarId |>.run |>.run mainDeclName
+
+def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
+  let s ← preprocess mvarId mainDeclName
   return s.goals.toList.map (·.mvarId)
 
 end Lean.Meta.Grind

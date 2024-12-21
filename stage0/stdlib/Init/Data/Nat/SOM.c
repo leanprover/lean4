@@ -14,11 +14,13 @@
 extern "C" {
 #endif
 uint8_t l_Nat_blt(lean_object*, lean_object*);
+static lean_object* l_Nat_SOM_Poly_add_go___closed__2;
 extern lean_object* l_Nat_Linear_hugeFuel;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_SOM_0__Nat_SOM_Poly_add_go_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 static lean_object* l_Nat_SOM_Poly_add_go___closed__1;
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon(lean_object*, lean_object*, lean_object*);
+uint8_t l_List_decidableLex___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_instInhabitedExpr;
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_SOM_0__Nat_SOM_Poly_add_go_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_add(lean_object*, lean_object*);
@@ -27,7 +29,6 @@ LEAN_EXPORT lean_object* l_Nat_SOM_Expr_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_denote(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon_go(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toPoly___boxed(lean_object*);
-uint8_t l_List_hasDecidableLt___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_mul_go(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Nat_SOM_instInhabitedExpr___closed__1;
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_denote(lean_object*, lean_object*);
@@ -43,11 +44,11 @@ LEAN_EXPORT lean_object* l_Nat_SOM_Expr_toPoly(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon_go___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-extern lean_object* l_instLTNat;
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_insertSorted(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_add_go(lean_object*, lean_object*, lean_object*);
+lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Mon_denote___boxed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_SOM_Poly_mulMon___boxed(lean_object*, lean_object*, lean_object*);
@@ -431,6 +432,14 @@ static lean_object* _init_l_Nat_SOM_Poly_add_go___closed__1() {
 _start:
 {
 lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_instDecidableEqNat___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_Nat_SOM_Poly_add_go___closed__2() {
+_start:
+{
+lean_object* x_1; 
 x_1 = lean_alloc_closure((void*)(l_Nat_decLt___boxed), 2, 0);
 return x_1;
 }
@@ -497,17 +506,17 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; uint8_t x_25; 
 x_21 = lean_ctor_get(x_13, 0);
 x_22 = lean_ctor_get(x_13, 1);
-x_23 = l_instLTNat;
-x_24 = l_Nat_SOM_Poly_add_go___closed__1;
+x_23 = l_Nat_SOM_Poly_add_go___closed__1;
+x_24 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_22);
 lean_inc(x_17);
-x_25 = l_List_hasDecidableLt___rarg(x_23, x_24, x_17, x_22);
+x_25 = l_List_decidableLex___rarg(x_23, lean_box(0), x_24, x_17, x_22);
 if (x_25 == 0)
 {
 uint8_t x_26; 
 lean_inc(x_17);
 lean_inc(x_22);
-x_26 = l_List_hasDecidableLt___rarg(x_23, x_24, x_22, x_17);
+x_26 = l_List_decidableLex___rarg(x_23, lean_box(0), x_24, x_22, x_17);
 if (x_26 == 0)
 {
 lean_object* x_27; uint8_t x_28; 
@@ -572,17 +581,17 @@ x_34 = lean_ctor_get(x_13, 1);
 lean_inc(x_34);
 lean_inc(x_33);
 lean_dec(x_13);
-x_35 = l_instLTNat;
-x_36 = l_Nat_SOM_Poly_add_go___closed__1;
+x_35 = l_Nat_SOM_Poly_add_go___closed__1;
+x_36 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_34);
 lean_inc(x_17);
-x_37 = l_List_hasDecidableLt___rarg(x_35, x_36, x_17, x_34);
+x_37 = l_List_decidableLex___rarg(x_35, lean_box(0), x_36, x_17, x_34);
 if (x_37 == 0)
 {
 uint8_t x_38; 
 lean_inc(x_17);
 lean_inc(x_34);
-x_38 = l_List_hasDecidableLt___rarg(x_35, x_36, x_34, x_17);
+x_38 = l_List_decidableLex___rarg(x_35, lean_box(0), x_36, x_34, x_17);
 if (x_38 == 0)
 {
 lean_object* x_39; uint8_t x_40; 
@@ -665,17 +674,17 @@ if (lean_is_exclusive(x_13)) {
  lean_dec_ref(x_13);
  x_53 = lean_box(0);
 }
-x_54 = l_instLTNat;
-x_55 = l_Nat_SOM_Poly_add_go___closed__1;
+x_54 = l_Nat_SOM_Poly_add_go___closed__1;
+x_55 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_52);
 lean_inc(x_49);
-x_56 = l_List_hasDecidableLt___rarg(x_54, x_55, x_49, x_52);
+x_56 = l_List_decidableLex___rarg(x_54, lean_box(0), x_55, x_49, x_52);
 if (x_56 == 0)
 {
 uint8_t x_57; 
 lean_inc(x_49);
 lean_inc(x_52);
-x_57 = l_List_hasDecidableLt___rarg(x_54, x_55, x_52, x_49);
+x_57 = l_List_decidableLex___rarg(x_54, lean_box(0), x_55, x_52, x_49);
 if (x_57 == 0)
 {
 lean_object* x_58; uint8_t x_59; 
@@ -784,17 +793,17 @@ if (lean_is_exclusive(x_13)) {
  lean_dec_ref(x_13);
  x_76 = lean_box(0);
 }
-x_77 = l_instLTNat;
-x_78 = l_Nat_SOM_Poly_add_go___closed__1;
+x_77 = l_Nat_SOM_Poly_add_go___closed__1;
+x_78 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_75);
 lean_inc(x_71);
-x_79 = l_List_hasDecidableLt___rarg(x_77, x_78, x_71, x_75);
+x_79 = l_List_decidableLex___rarg(x_77, lean_box(0), x_78, x_71, x_75);
 if (x_79 == 0)
 {
 uint8_t x_80; 
 lean_inc(x_71);
 lean_inc(x_75);
-x_80 = l_List_hasDecidableLt___rarg(x_77, x_78, x_75, x_71);
+x_80 = l_List_decidableLex___rarg(x_77, lean_box(0), x_78, x_75, x_71);
 if (x_80 == 0)
 {
 lean_object* x_81; uint8_t x_82; 
@@ -929,17 +938,17 @@ if (lean_is_exclusive(x_95)) {
  lean_dec_ref(x_95);
  x_103 = lean_box(0);
 }
-x_104 = l_instLTNat;
-x_105 = l_Nat_SOM_Poly_add_go___closed__1;
+x_104 = l_Nat_SOM_Poly_add_go___closed__1;
+x_105 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_102);
 lean_inc(x_97);
-x_106 = l_List_hasDecidableLt___rarg(x_104, x_105, x_97, x_102);
+x_106 = l_List_decidableLex___rarg(x_104, lean_box(0), x_105, x_97, x_102);
 if (x_106 == 0)
 {
 uint8_t x_107; 
 lean_inc(x_97);
 lean_inc(x_102);
-x_107 = l_List_hasDecidableLt___rarg(x_104, x_105, x_102, x_97);
+x_107 = l_List_decidableLex___rarg(x_104, lean_box(0), x_105, x_102, x_97);
 if (x_107 == 0)
 {
 lean_object* x_108; uint8_t x_109; 
@@ -1094,11 +1103,11 @@ lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean
 x_10 = lean_ctor_get(x_3, 1);
 x_11 = lean_ctor_get(x_8, 0);
 x_12 = lean_ctor_get(x_8, 1);
-x_13 = l_instLTNat;
-x_14 = l_Nat_SOM_Poly_add_go___closed__1;
+x_13 = l_Nat_SOM_Poly_add_go___closed__1;
+x_14 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_12);
 lean_inc(x_2);
-x_15 = l_List_hasDecidableLt___rarg(x_13, x_14, x_2, x_12);
+x_15 = l_List_decidableLex___rarg(x_13, lean_box(0), x_14, x_2, x_12);
 if (x_15 == 0)
 {
 lean_object* x_16; 
@@ -1130,11 +1139,11 @@ x_21 = lean_ctor_get(x_8, 1);
 lean_inc(x_21);
 lean_inc(x_20);
 lean_dec(x_8);
-x_22 = l_instLTNat;
-x_23 = l_Nat_SOM_Poly_add_go___closed__1;
+x_22 = l_Nat_SOM_Poly_add_go___closed__1;
+x_23 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_21);
 lean_inc(x_2);
-x_24 = l_List_hasDecidableLt___rarg(x_22, x_23, x_2, x_21);
+x_24 = l_List_decidableLex___rarg(x_22, lean_box(0), x_23, x_2, x_21);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 
@@ -1183,11 +1192,11 @@ if (lean_is_exclusive(x_30)) {
  lean_dec_ref(x_30);
  x_34 = lean_box(0);
 }
-x_35 = l_instLTNat;
-x_36 = l_Nat_SOM_Poly_add_go___closed__1;
+x_35 = l_Nat_SOM_Poly_add_go___closed__1;
+x_36 = l_Nat_SOM_Poly_add_go___closed__2;
 lean_inc(x_33);
 lean_inc(x_2);
-x_37 = l_List_hasDecidableLt___rarg(x_35, x_36, x_2, x_33);
+x_37 = l_List_decidableLex___rarg(x_35, lean_box(0), x_36, x_2, x_33);
 if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; 
@@ -1560,6 +1569,8 @@ l_Nat_SOM_instInhabitedExpr = _init_l_Nat_SOM_instInhabitedExpr();
 lean_mark_persistent(l_Nat_SOM_instInhabitedExpr);
 l_Nat_SOM_Poly_add_go___closed__1 = _init_l_Nat_SOM_Poly_add_go___closed__1();
 lean_mark_persistent(l_Nat_SOM_Poly_add_go___closed__1);
+l_Nat_SOM_Poly_add_go___closed__2 = _init_l_Nat_SOM_Poly_add_go___closed__2();
+lean_mark_persistent(l_Nat_SOM_Poly_add_go___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -108,7 +108,7 @@ partial def visit (code : Code) : FindUsedM Unit := do
 
 def collectUsedParams (decl : Decl) : CompilerM FVarIdSet := do
   let params := decl.params.foldl (init := {}) fun s p => s.insert p.fvarId
-  let (_, { used, .. }) ← visit decl.value |>.run { decl, params } |>.run {}
+  let (_, { used, .. }) ← decl.value.forCodeM visit |>.run { decl, params } |>.run {}
   return used
 
 end FindUsed
@@ -146,37 +146,40 @@ end ReduceArity
 open FindUsed ReduceArity Internalize
 
 def Decl.reduceArity (decl : Decl) : CompilerM (Array Decl) := do
-  let used ← collectUsedParams decl
-  if used.size == decl.params.size then
-    return #[decl] -- Declarations uses all parameters
-  else
-    trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
-    let mask   := decl.params.map fun param => used.contains param.fvarId
-    let auxName   := decl.name ++ `_redArg
-    let mkAuxDecl : CompilerM Decl := do
-      let params := decl.params.filter fun param => used.contains param.fvarId
-      let value  ← reduce decl.value |>.run { declName := decl.name, auxDeclName := auxName, paramMask := mask }
-      let type ← value.inferType
-      let type ← mkForallParams params type
-      let auxDecl := { decl with name := auxName, levelParams := [], type, params, value }
-      auxDecl.saveMono
-      return auxDecl
-    let updateDecl : InternalizeM Decl := do
-      let params ← decl.params.mapM internalizeParam
-      let mut args := #[]
-      for used in mask, param in params do
-        if used then
-          args := args.push param.toArg
-      let letDecl ← mkAuxLetDecl (.const auxName [] args)
-      let value := .let letDecl (.return letDecl.fvarId)
-      let decl := { decl with params, value, inlineAttr? := some .inline, recursive := false }
-      decl.saveMono
-      return decl
-    let unusedParams := decl.params.filter fun param => !used.contains param.fvarId
-    let auxDecl ← mkAuxDecl
-    let decl ← updateDecl |>.run' {}
-    eraseParams unusedParams
-    return #[auxDecl, decl]
+  match decl.value with
+  | .code code =>
+    let used ← collectUsedParams decl
+    if used.size == decl.params.size then
+      return #[decl] -- Declarations uses all parameters
+    else
+      trace[Compiler.reduceArity] "{decl.name}, used params: {used.toList.map mkFVar}"
+      let mask   := decl.params.map fun param => used.contains param.fvarId
+      let auxName   := decl.name ++ `_redArg
+      let mkAuxDecl : CompilerM Decl := do
+        let params := decl.params.filter fun param => used.contains param.fvarId
+        let value  ← decl.value.mapCodeM reduce |>.run { declName := decl.name, auxDeclName := auxName, paramMask := mask }
+        let type ← code.inferType
+        let type ← mkForallParams params type
+        let auxDecl := { decl with name := auxName, levelParams := [], type, params, value }
+        auxDecl.saveMono
+        return auxDecl
+      let updateDecl : InternalizeM Decl := do
+        let params ← decl.params.mapM internalizeParam
+        let mut args := #[]
+        for used in mask, param in params do
+          if used then
+            args := args.push param.toArg
+        let letDecl ← mkAuxLetDecl (.const auxName [] args)
+        let value := .code (.let letDecl (.return letDecl.fvarId))
+        let decl := { decl with params, value, inlineAttr? := some .inline, recursive := false }
+        decl.saveMono
+        return decl
+      let unusedParams := decl.params.filter fun param => !used.contains param.fvarId
+      let auxDecl ← mkAuxDecl
+      let decl ← updateDecl |>.run' {}
+      eraseParams unusedParams
+      return #[auxDecl, decl]
+  | .extern .. => return #[decl]
 
 def reduceArity : Pass where
   phase := .mono

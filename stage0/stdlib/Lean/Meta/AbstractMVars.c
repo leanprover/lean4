@@ -3293,7 +3293,7 @@ lean_dec(x_11);
 x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
-x_15 = lean_ctor_get(x_3, 1);
+x_15 = lean_ctor_get(x_3, 2);
 x_16 = lean_st_ref_get(x_6, x_13);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);

@@ -247,7 +247,7 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
 
-theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
+@[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
   cases v
   cases w
   simp
@@ -1016,6 +1016,13 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
       · rintro ⟨a, ha⟩
         simpa using Array.isEqv_self_beq ..
 
+/-! ### isEqv -/
+
+@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : Vector α n} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
+  cases l₁
+  cases l₂
+  simp
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
@@ -1094,6 +1101,12 @@ theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : 
     (hi : i < n) : (zipWith a b f)[i] = f a[i] b[i] := by
   cases a
   cases b
+  simp
+
+/-! ### take -/
+
+@[simp] theorem take_size (a : Vector α n) : a.take n = a.cast (by simp) := by
+  rcases a with ⟨a, rfl⟩
   simp
 
 /-! ### swap -/

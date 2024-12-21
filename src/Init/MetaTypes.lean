@@ -298,5 +298,7 @@ structure ExtractLetsConfig where
   useContext : Bool := true
   /-- If true (default: true), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
   onlyGivenNames : Bool := true
+  /-- If true (default: false), lift `let`s as far out as possible. -/
+  lift : Bool := false
 
 end Lean.Meta

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Lemmas
-// Imports: Init.Data.Nat.Lemmas Init.Data.List.Range Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Modify Init.Data.List.Monadic Init.Data.List.OfFn Init.Data.Array.Mem Init.Data.Array.DecidableEq Init.Data.Array.Lex Init.TacticsExtra Init.Data.List.ToArray
+// Imports: Init.Data.Nat.Lemmas Init.Data.List.Range Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Modify Init.Data.List.Monadic Init.Data.List.OfFn Init.Data.Array.Mem Init.Data.Array.DecidableEq Init.Data.Array.Lex.Basic Init.Data.Range.Lemmas Init.TacticsExtra Init.Data.List.ToArray
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -837,7 +837,8 @@ lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_OfFn(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_Mem(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Array_DecidableEq(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lex(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Range_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_TacticsExtra(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_ToArray(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -869,7 +870,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_DecidableEq(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lex(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Range_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_TacticsExtra(builtin, lean_io_mk_world());

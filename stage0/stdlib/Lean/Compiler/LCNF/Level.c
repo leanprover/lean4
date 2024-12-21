@@ -71,6 +71,7 @@ lean_object* l_Lean_Expr_letE___override(lean_object*, lean_object*, lean_object
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Compiler_LCNF_NormLevelParam_normLevel___spec__7(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitDeclValue(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_simpLevelIMax_x27(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_NormLevelParam_normLevel___closed__2;
@@ -2829,6 +2830,25 @@ lean_dec(x_1);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_CollectLevelParams_visitDeclValue(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_1, 0);
+lean_inc(x_3);
+lean_dec(x_1);
+x_4 = l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(x_3, x_2);
+return x_4;
+}
+else
+{
+lean_dec(x_1);
+return x_2;
+}
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_Decl_setLevelParams___closed__1() {
 _start:
 {
@@ -2860,7 +2880,7 @@ lean_inc(x_3);
 x_8 = l_Lean_CollectLevelParams_visitExpr(x_3, x_7);
 x_9 = l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(x_4, x_8);
 lean_inc(x_5);
-x_10 = l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(x_5, x_9);
+x_10 = l_Lean_Compiler_LCNF_CollectLevelParams_visitDeclValue(x_5, x_9);
 x_11 = lean_ctor_get(x_10, 2);
 lean_inc(x_11);
 lean_dec(x_10);
@@ -2889,7 +2909,7 @@ lean_inc(x_14);
 x_21 = l_Lean_CollectLevelParams_visitExpr(x_14, x_20);
 x_22 = l_Lean_Compiler_LCNF_CollectLevelParams_visitParams(x_15, x_21);
 lean_inc(x_16);
-x_23 = l_Lean_Compiler_LCNF_CollectLevelParams_visitCode(x_16, x_22);
+x_23 = l_Lean_Compiler_LCNF_CollectLevelParams_visitDeclValue(x_16, x_22);
 x_24 = lean_ctor_get(x_23, 2);
 lean_inc(x_24);
 lean_dec(x_23);

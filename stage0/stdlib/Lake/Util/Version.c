@@ -2110,7 +2110,7 @@ static lean_object* _init_l_Lake_StdVer_parse___closed__2() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("invalid Lean version: '-' suffix cannot be empty", 48, 48);
+x_1 = lean_mk_string_unchecked("invalid version: '-' suffix cannot be empty", 43, 43);
 return x_1;
 }
 }

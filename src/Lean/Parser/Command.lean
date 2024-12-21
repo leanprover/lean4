@@ -539,12 +539,44 @@ def eraseAttr := leading_parser
   "attribute " >> "[" >>
     withoutPosition (sepBy1 (eraseAttr <|> Term.attrInstance) ", ") >>
   "]" >> many1 (ppSpace >> ident)
-/-- Adds names from other namespaces to the current namespace.
+def exportHiding       := leading_parser
+  ppSpace >> atomic (ident >> " hiding") >> many1 (ppSpace >> checkColGt >> ident)
+def exportRenamingItem := leading_parser
+  ident >> unicodeSymbol " → " " -> " >> checkColGt >> ident
+def exportRenaming     := leading_parser
+  ppSpace >> atomic (ident >> " renaming ") >> sepBy1 exportRenamingItem ", "
+def exportOnly         := leading_parser
+  ppSpace >> atomic (ident >> " (") >> many1 ident >> ")"
+def exportNamespace    := leading_parser
+  many1 (ppSpace >> checkColGt >> ident)
+/-- `exportDecl` is the body of an `export` declaration (see `export`) -/
+@[builtin_doc] def exportDecl :=
+  withAntiquot (mkAntiquot "exportDecl" `Lean.Parser.Command.exportDecl (isPseudoKind := true)) <|
+    exportHiding <|> exportRenaming <|> exportOnly <|> exportNamespace
+/--
+Adds aliases into the current namespaces for names from other namespaces.
 
-The command `export Some.Namespace (name₁ name₂)` makes `name₁` and `name₂`:
+There are two kinds of aliases:
+* Name aliases make a name `aDecl` refer to another name `dDecl`.
+* Namespace aliases make all names in a namespace `ans` refer to names in another namespace `ns`.
 
-- visible in the current namespace without prefix `Some.Namespace`, like `open`, and
-- visible from outside the current namespace `N` as `N.name₁` and `N.name₂`.
+The `export` command be used in a few different ways:
+
+* `export NS₁ … NSₙ` makes the current namespace be an alias for the namespaces `NS₁`, …, `NSₙ`.
+  If the current namespace is `A` and `NSᵢ.x` exists, then this causes `A.x` to be an alias for `NSᵢ.x`.
+
+* `export NS hiding def₁ … defₙ` makes the current namespace be an alias for the namespace `NS`
+  like in `export NS`, but none of the `NS.defᵢ` names are aliased.
+
+* `export NS (def₁ … defₙ)` creates aliases for the names `NS.def₁`, …, `NS.defₙ` in the current namespace.
+  If the current namespace is `A`, then `A.defᵢ` refers to whatever `NS.defᵢ` resolves to.
+
+* `export NS renaming def₁ → def₁', …, defₙ → defₙ'` is like `export NS (def₁ … defₙ)` but it enables
+  naming the aliases; `A.defᵢ'` refers to whatever `NS.defᵢ` resolves to.
+
+Aliases make names visible in the current namespace without a prefix (like `open`).
+The only rule for `protected` declarations is that when resolving an atomic identifier,
+only non-`protected` declarations are considered.
 
 ## Examples
 
@@ -564,7 +596,7 @@ end Evening.Sky
 ```
 -/
 @[builtin_command_parser] def «export»       := leading_parser
-  "export " >> ident >> " (" >> many1 ident >> ")"
+  withPosition ("export " >> exportDecl)
 @[builtin_command_parser] def «import»       := leading_parser
   "import" -- not a real command, only for error messages
 def openHiding       := leading_parser

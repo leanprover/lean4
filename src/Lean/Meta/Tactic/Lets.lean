@@ -21,34 +21,6 @@ Extracting `let`s means to locate `let`/`letFun`s in a term and to extract them
 from the term, extending the local context with new declarations in the process.
 -/
 
-/--
-Configuration for the `extract_lets` tactic.
--/
-structure ExtractLetsConfig where
-  /-- If true (default: false), extract lets from subterms that are proofs.
-  Top-level lets are always extracted. -/
-  proofs : Bool := false
-  /-- If true (default: true), extract lets from subterms that are types.
-  Top-level lets are always extracted. -/
-  types : Bool := true
-  /-- If true (default: false), extract lets from subterms that are implicit arguments. -/
-  implicits : Bool := false
-  /-- If false (default: true), extracts only top-level lets, otherwise allows descending into subterms.
-  In this mode, `proofs` and `types` are ignored, and lets appearing in the types or values of the
-  top-level lets are not themeselves extracted. -/
-  descend : Bool := true
-  /-- If true (default: true), descend into forall/lambda/let bodies when extracting. Only relevant when `descend` is true. -/
-  underBinder : Bool := true
-  /-- If true (default: false), eliminate unused lets rather than extract them. -/
-  usedOnly : Bool := false
-  /-- If true (default: true), reuse local declarations that have syntactically equal values.
-  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
-  merge : Bool := true
-  /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
-  useContext : Bool := true
-  /-- If true (default: true), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
-  onlyGivenNames : Bool := true
-
 namespace ExtractLets
 
 def containsLet (e : Expr) : Bool :=
@@ -63,8 +35,7 @@ structure State where
   valueMap : ExprStructMap FVarId := {}
   deriving Inhabited
 
--- Cache key is `(topLevel, e)`
-abbrev M := ReaderT ExtractLetsConfig <| MonadCacheT (Bool × ExprStructEq) Expr <| StateRefT State MetaM
+abbrev M := ReaderT ExtractLetsConfig <| MonadCacheT ExprStructEq Expr <| StateRefT State MetaM
 
 /-- Gets the next name to use for extracted `let`s -/
 def nextName? : M (Option Name) := do
@@ -94,6 +65,16 @@ def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Na
   return (false, n)
 
 /--
+Adds the `decl` to the `decls` list. Assumes that `decl` is an ldecl.
+-/
+def addDecl (decl : LocalDecl) : M Unit := do
+  let cfg ← read
+  modify fun s => { s with
+    decls := s.decls.push decl
+    valueMap := if cfg.merge then s.valueMap.insert decl.value decl.fvarId else s.valueMap
+  }
+
+/--
 Ensures that the given `fvarId` is in context by adding `decls` from the state.
 Simplification: since we are not recording which decls depend on which, but we do know all dependencies
 come before a particular decl, we add all the decls up to and including `fvarId`.
@@ -112,17 +93,14 @@ def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
     k
 
 /--
-Initialize the `valueMap` with all the local definitions that aren't implementation details.
+Initializes the `valueMap` with all the local definitions that aren't implementation details.
 -/
 def initializeValueMap : M Unit := do
   let lctx ← getLCtx
-  modify fun s => { s with
-    valueMap := lctx.foldl (init := s.valueMap) fun valueMap decl =>
-      if decl.isLet && !decl.isImplementationDetail then
-        valueMap.insert decl.value decl.fvarId
-      else
-        valueMap
-  }
+  lctx.forM fun decl => do
+    if decl.isLet && !decl.isImplementationDetail then
+      let value ← instantiateMVars decl.value
+      modify fun s => { s with valueMap := s.valueMap.insert value decl.fvarId }
 
 /--
 Extracts lets from `e`.
@@ -133,20 +111,20 @@ Extracts lets from `e`.
   The body of an extracted top-level let is also top-level.
   This is part of the cache key since it affects what is extracted.
 
-Note: the return value depends on the `decls` from the state being in context.
+Note: the return value may refer to fvars that are not in the current local context, but they are in the `decls` list.
+
+Does not handle `descend := false`. See `Lean.Meta.ExtractLets.extractNoDescend`.
 -/
 partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false) : M Expr := do
   let cfg ← read
-  if !cfg.descend && !topLevel then
-    return e
-  else if e.isAtomic then
+  if e.isAtomic then
     return e
   else
-    checkCache (topLevel, (e : ExprStructEq)) fun _ => do
+    checkCache (e : ExprStructEq) fun _ => do
       if !containsLet e then
         return e
       -- Don't check for proofs or types for top-level lets, since it's confusing not having them be extracted.
-      if !topLevel then
+      if !(topLevel && (e.isLet || e.isLetFun || e.isMData)) then
         if !cfg.proofs then
           if ← isProof e then
             return e
@@ -155,7 +133,7 @@ partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false
             return e
       match e with
       | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. => unreachable!
-      | .mdata _ e'      => return e.updateMData! (← extractCore fvars e')
+      | .mdata _ e'      => return e.updateMData! (← extractCore fvars e' (topLevel := topLevel))
       | .proj _ _ s      => return e.updateProj! (← extractCore fvars s)
       | .app ..          => extractApp e
       | .letE n t v b _  => extractLetLike n t v b (fun t v b => pure <| e.updateLet! t v b) (topLevel := topLevel)
@@ -184,16 +162,9 @@ where
     if !extract && !cfg.underBinder then
       return ← mk t v b
     withLetDecl n t v fun x => do
-      let decl ← x.fvarId!.getDecl
       if extract then
-        modify fun s => { s with
-          decls := s.decls.push decl
-          valueMap := if cfg.merge then s.valueMap.insert v decl.fvarId else s.valueMap
-        }
+        addDecl (← x.fvarId!.getDecl)
         extractCore fvars (b.instantiate1 x) (topLevel := topLevel)
-      else if !cfg.descend then
-        -- Optimization: saves the `instantiate1` and `abstract` in the next case.
-        mk t v b
       else
         let b ← extractCore (x :: fvars) (b.instantiate1 x)
         mk t v (b.abstract #[x])
@@ -205,14 +176,15 @@ where
     -- The head of the application, post-extraction
     let f' ←
       if f.isConstOf ``letFun && 4 ≤ args.size then
-        let (n, t, v, b) := f.letFun?.get!
+        let letF := mkAppN f args[0:4]
+        let (n, t, v, b) := letF.letFun?.get!
         -- TODO: Can be more efficient than using `mkLetFun`
         let f' ← extractLetLike n t v b (topLevel := topLevel && args.size = 4)
           (fun t v b =>
             -- Strategy: construct letFun directly rather than use `mkLetFun`.
             -- We don't update the `β` argument.
             return mkApp4 f t args[1]! v (.lam n t b .default))
-        f := mkAppN f args[0:4]
+        f := letF
         args := args[4:]
         pure f'
       else
@@ -234,12 +206,52 @@ where
     return mkAppN f' args
 
 /--
+Extraction routine in the case `descend := false`.
+It is easier to reason about `extractCore` and `extractNoDescend` if they are separate like this.
+-/
+partial def extractNoDescend (e : Expr) : M Expr := do
+  -- We don't check for proofs or types for top-level lets, since it's confusing not having them be extracted.
+  match e with
+  | .mdata _ e'      => return e.updateMData! (← extractNoDescend e')
+  | .letE n t v b _  => extractLetLike e n t v b
+  | .app ..          =>
+    if let some (n, t, v, b) := e.letFun? then
+      extractLetLike e n t v b
+    else
+      return e
+  | e                => return e
+where
+  extractLetLike (e : Expr) (n : Name) (t v b : Expr) : M Expr := do
+    let cfg ← read
+    if cfg.usedOnly && !b.hasLooseBVars then
+      return ← extractNoDescend b
+    if cfg.merge then
+      if let some fvarId := (← get).valueMap.get? v then
+        return ← withDeclInContext fvarId <|
+          extractNoDescend (b.instantiate1 (.fvar fvarId))
+    if let some n ← nextNameForBinderName? n then
+      withLetDecl n t v fun x => do
+        addDecl (← x.fvarId!.getDecl)
+        extractNoDescend (b.instantiate1 x)
+    else
+      return e
+
+def extractTopLevel (e : Expr) : M Expr := do
+  let e ← instantiateMVars e
+  let cfg ← read
+  if cfg.descend then
+    extractCore [] e (topLevel := true)
+  else
+    extractNoDescend e
+
+/--
 Main entry point for extracting lets.
 -/
-def extract (e : Expr) : M Expr := do
-  if (← read).useContext then
+def extract (es : Array Expr) : M (Array Expr) := do
+  let cfg ← read
+  if cfg.merge && cfg.useContext then
     initializeValueMap
-  extractCore [] e
+  es.mapM extractTopLevel
 
 end ExtractLets
 
@@ -251,7 +263,7 @@ Implementation of the `extractLets` function.
 -/
 private def extractLetsImp (es : Array Expr) (givenNames : List Name) (k : Array FVarId → Array Expr → MetaM α) (config : ExtractLetsConfig) :
     MetaM α := do
-  let (es, st) ← es.mapM ExtractLets.extract |>.run config |>.run' {} |>.run { givenNames }
+  let (es, st) ← ExtractLets.extract es |>.run config |>.run' {} |>.run { givenNames }
   withExistingLocalDecls st.decls.toList (k (st.decls.map (·.fvarId)) es)
 
 /--
@@ -284,7 +296,7 @@ def Lean.MVarId.extractLets (mvarId : MVarId) (givenNames : List Name) (config :
       if fvarIds.isEmpty && ty == ty' then
         throwTacticEx `extract_lets mvarId m!"nothing to extract"
       let g ← mkFreshExprSyntheticOpaqueMVar ty' (← mvarId.getTag)
-      mvarId.assign g
+      mvarId.assign <| ← mkLetFVars (usedLetOnly := false) (fvarIds.map .fvar) g
       return (fvarIds, g.mvarId!)
 
 /--
@@ -296,7 +308,9 @@ def Lean.MVarId.extractLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (givenN
   mvarId.checkNotAssigned `extract_lets
   mvarId.withReverted #[fvarId] fun mvarId fvars => mvarId.withContext do
     let finalize (fvarIds : Array FVarId) (targetNew : Expr) := do
-      return (fvarIds, fvars.map .some, ← mvarId.replaceTargetDefEq targetNew)
+      let g ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
+      mvarId.assign <| ← mkLetFVars (usedLetOnly := false) (fvarIds.map .fvar) g
+      return (fvarIds, fvars.map .some, g.mvarId!)
     match ← mvarId.getType with
     | .forallE n t b i =>
       Meta.extractLets #[t] givenNames (config := config) fun fvarIds es => do

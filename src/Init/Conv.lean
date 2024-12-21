@@ -308,6 +308,19 @@ macro_rules
   | `(conv| repeat $seq) => `(conv| first | ($seq); repeat $seq | skip)
 
 /--
+Extracts `let` and `let_fun` expressions from within the target expression.
+This is the conv mode version of the `extract_lets` tactic.
+
+- `extract_lets x y z` extracts up to three lets from the target and names the extracted declarations `x`, `y`, and `z`.
+  The names can be `_`, which causes the extracted declarations to use hygienic names.
+- `extract_lets x y z ..` extracts any number of lets from the goal.
+- `extract_lets` is the same as `extract_lets ..`
+
+Limitation: the extracted local declarations do not persist outside of the `conv` goal.
+-/
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (ellipsis)? : conv
+
+/--
 `conv => ...` allows the user to perform targeted rewriting on a goal or hypothesis,
 by focusing on particular subexpressions.
 

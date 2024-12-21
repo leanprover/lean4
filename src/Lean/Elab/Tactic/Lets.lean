@@ -20,8 +20,8 @@ declare_config_elab elabExtractLetsConfig ExtractLetsConfig
 @[builtin_tactic extractLets] elab_rules : tactic
   | `(tactic| extract_lets $cfg:optConfig $ids* $[$ellipsis?:ellipsis]? $[$loc?:location]?) => do
     let mut config ← elabExtractLetsConfig cfg
-    if ellipsis?.isSome then
-      config := { config with onlyGivenNames := true }
+    if ellipsis?.isSome || ids.isEmpty then
+      config := { config with onlyGivenNames := false }
     let givenNames := (ids.map getNameOfIdent').toList
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => do

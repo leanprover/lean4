@@ -271,4 +271,32 @@ inductive Occurrences where
 
 instance : Coe (List Nat) Occurrences := ⟨.pos⟩
 
+/--
+Configuration for the `extract_lets` tactic.
+-/
+structure ExtractLetsConfig where
+  /-- If true (default: false), extract lets from subterms that are proofs.
+  Top-level lets are always extracted. -/
+  proofs : Bool := false
+  /-- If true (default: true), extract lets from subterms that are types.
+  Top-level lets are always extracted. -/
+  types : Bool := true
+  /-- If true (default: false), extract lets from subterms that are implicit arguments. -/
+  implicits : Bool := false
+  /-- If false (default: true), extracts only top-level lets, otherwise allows descending into subterms.
+  In this mode, `proofs` and `types` are ignored, and lets appearing in the types or values of the
+  top-level lets are not themeselves extracted. -/
+  descend : Bool := true
+  /-- If true (default: true), descend into forall/lambda/let bodies when extracting. Only relevant when `descend` is true. -/
+  underBinder : Bool := true
+  /-- If true (default: false), eliminate unused lets rather than extract them. -/
+  usedOnly : Bool := false
+  /-- If true (default: true), reuse local declarations that have syntactically equal values.
+  Note that even when false, the caching strategy for `extract_let`s may result in fewer extracted let bindings than expected. -/
+  merge : Bool := true
+  /-- When merging is enabled, if true (default: true), make use of pre-existing local definitions in the local context. -/
+  useContext : Bool := true
+  /-- If true (default: true), then once `givenNames` is exhausted, stop extracting lets. Otherwise continue extracting lets. -/
+  onlyGivenNames : Bool := true
+
 end Lean.Meta

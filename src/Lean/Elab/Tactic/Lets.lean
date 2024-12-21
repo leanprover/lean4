@@ -40,4 +40,14 @@ declare_config_elab elabExtractLetsConfig ExtractLetsConfig
             Term.addLocalVarInfo stx (.fvar fvar))
       (failed := fun _ => throwError "'extract_lets' tactic failed")
 
+declare_config_elab elabLiftLetsConfig LiftLetsConfig
+
+@[builtin_tactic liftLets] elab_rules : tactic
+  | `(tactic| lift_lets $cfg:optConfig $[$loc?:location]?) => do
+    let mut config ← elabLiftLetsConfig cfg
+    withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
+      (atLocal := fun h => liftMetaTactic1 fun mvarId => mvarId.liftLetsLocalDecl h config)
+      (atTarget := liftMetaTactic1 fun mvarId => mvarId.liftLets config)
+      (failed := fun _ => throwError "'lift_lets' tactic failed")
+
 end Lean.Elab.Tactic

@@ -954,13 +954,18 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
     rw [Bool.eq_iff_iff]
     simp +contextual
 
+private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a == b := by
+  intro h
+  have : isEqv #[a] #[b] BEq.beq = true := h
+  simp [isEqv, isEqvAux] at this
+  assumption
+
 @[simp] theorem reflBEq_iff [BEq α] : ReflBEq (Array α) ↔ ReflBEq α := by
   constructor
   · intro h
     constructor
     intro a
-    suffices (#[a] == #[a]) = true by
-      simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+    apply beq_of_beq_singleton
     simp
   · intro h
     constructor
@@ -973,11 +978,9 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
     · intro a b h
       apply singleton_inj.1
       apply eq_of_beq
-      simp only [instBEq, isEqv, isEqvAux]
-      simpa
+      simpa [instBEq, isEqv, isEqvAux]
     · intro a
-      suffices (#[a] == #[a]) = true by
-        simpa only [instBEq, isEqv, isEqvAux, Bool.and_true]
+      apply beq_of_beq_singleton
       simp
   · intro h
     constructor

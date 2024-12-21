@@ -333,7 +333,7 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp only [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
+      simp [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
       constructor
       · rintro (hab | ⟨hab, ⟨h₁, h₂⟩ | ⟨i, h₁, h₂, w₁, w₂⟩⟩)
         · exact .inr ⟨0, by simp [hab]⟩
@@ -397,7 +397,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp only [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
+      simp [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
         Bool.and_eq_true, length_cons]
       constructor
       · rintro ⟨hab, h⟩

@@ -49,6 +49,20 @@ example : (let x := 1; x) = (let y := 1; y) := by
   rfl
 
 /-!
+Not mergable, since they must match syntactically.
+-/
+/--
+info: ⊢ let x := 2;
+  let y := 1 + 1;
+  x = y
+-/
+#guard_msgs in
+example : (let x := 2; x) = (let y := 1 + 1; y) := by
+  lift_lets
+  trace_state
+  rfl
+
+/-!
 Merging with local context.
 -/
 /--
@@ -289,10 +303,41 @@ example : (id : (let ty := Nat; ty) → Nat) = @id Nat := by
   trace_state
   rfl
 
-example (h : )
+/-!
+Lifting at a local hypothesis.
+-/
+/--
+info: y : Nat
+h :
+  let x := 1;
+  x = y
+⊢ True
+-/
+#guard_msgs in
+example (h : (let x := 1; x) = y) : True := by
+  lift_lets at h
+  trace_state
+  trivial
 
 /-!
-Merges using local context, even the local declaration comes after.
+Lifting in both the type and value for local declarations.
+-/
+/--
+info: v : let ty := Nat;
+id ty :=
+  let x := 2;
+  id x
+⊢ True
+-/
+#guard_msgs in
+example : True := by
+  let v : id (let ty := Nat; ty) := id (let x : Nat := 2; x)
+  lift_lets at v
+  trace_state
+  trivial
+
+/-!
+Merges using local context, even if the local declaration comes after.
 -/
 /--
 info: y : Type := Nat
@@ -306,63 +351,73 @@ example (h : let x := Nat; x) : True := by
   trace_state
   trivial
 
-example : (x : let ty := Nat; ty) → let y := (1 : Nat); Fin (y + Nat.succ x) := by
-  lift_lets
-  guard_target =ₛ let ty := Nat; let y := 1; (x : ty) → Fin (y + Nat.succ x)
-  intro ty y x
-  rw [Nat.add_succ, Nat.succ_eq_add_one]
-  exact 0
-
-example : (x : Nat) → (y : Nat) → let z := x + 1; let w := 3; Fin (z + w) := by
-  lift_lets
-  guard_target =ₛ let w := 3; (x : Nat) → let z := x + 1; Nat → Fin (z + w)
-  intro w x z _y
-  simp [w, z]
-  exact 0
-
-example : (x : Nat) → let z := x + 1; (y : Nat) → let w := 3; Fin (z + w) := by
-  lift_lets
-  guard_target =ₛ let w := 3; (x : Nat) → let z := x + 1; Nat → Fin (z + w)
-  intro w x z _y
-  simp [w, z]
-  exact 0
-
-example : (let x := 1; x) = (let x := 1; x) := by
-  lift_lets
-  guard_target =ₛ let x := 1; x = x
-  rfl
-
-example : (let x := 2; x) = (let y := 1; y + 1) := by
-  lift_lets
-  guard_target =ₛ let x := 2; let y := 1; x = y + 1
-  rfl
-
+/-!
+A test to make sure `lift_lets` works after other tactics.
+-/
+/--
+info: y : Nat
+⊢ let x := 1;
+  x = y → True
+-/
+#guard_msgs in
 example (h : (let x := 1; x) = y) : True := by
-  lift_lets at h
-  guard_hyp h :ₛ let x := 1; x = y
-  trivial
-
-example (h : (let x := 1; x) = y) : True := by
+  refine ?_
   revert h
   lift_lets
-  intro x h
-  guard_hyp x : Nat := 1
-  guard_hyp h :ₛ x = y
+  trace_state
+  intros
   trivial
 
-example : let x := 1; ∀ n, let y := 1; x + n = y + n := by
-  lift_lets
-  guard_target =ₛ let x := 1; ∀ n, x + n = x + n
-  intros x n
-  rfl
-
+/-!
+Lifting `let`s in proofs in `+proof` mode.
+-/
 example (m : Nat) (h : ∃ n, n + 1 = m) (x : Fin m) (y : Fin _) :
     cast (let h' := h.choose_spec.symm; congrArg Fin h') x = y := by
-  lift_lets (config := {proofs := true})
-  intro h'
+  fail_if_success lift_lets -proofs
+  lift_lets +proofs
+  trace_state
   exact test_sorry
 
 
 /-!
 ### conv mode
 -/
+
+/-!
+Unlike `extract_lets`, the `lift_lets` conv tactic's modifications persist,
+since the local context remains the same.
+-/
+/--
+info: | let x := Nat;
+  x = Int
+---
+info: ⊢ let x := Nat;
+  x = Int
+-/
+#guard_msgs in
+example : (let x := Nat; x) = Int := by
+  conv =>
+    lift_lets
+    trace_state
+  trace_state
+  exact test_sorry
+
+/-!
+Merging with local context.
+-/
+/--
+info: y : Type := Nat
+| y
+---
+info: y : Type := Nat
+⊢ y = Int
+-/
+#guard_msgs in
+example : (let x := Nat; x) = Int := by
+  let y := Nat
+  conv =>
+    lhs
+    lift_lets
+    trace_state
+  trace_state
+  exact test_sorry

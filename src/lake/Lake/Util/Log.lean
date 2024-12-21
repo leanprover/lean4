@@ -137,22 +137,34 @@ protected def LogEntry.toString (self : LogEntry) (useAnsi := false) : String :=
 
 instance : ToString LogEntry := ⟨LogEntry.toString⟩
 
+@[inline] def LogEntry.trace (message : String) : LogEntry :=
+  {level := .trace, message}
+
+@[inline] def LogEntry.info (message : String) : LogEntry :=
+  {level := .info, message}
+
+@[inline] def LogEntry.warning (message : String) : LogEntry :=
+  {level := .warning, message}
+
+@[inline] def LogEntry.error (message : String) : LogEntry :=
+  {level := .error, message}
+
 class MonadLog (m : Type u → Type v) where
   logEntry (e : LogEntry) : m PUnit
 
 export MonadLog (logEntry)
 
 @[inline] def logVerbose [Monad m] [MonadLog m] (message : String) : m PUnit := do
-  logEntry {level := .trace, message}
+  logEntry (.trace message)
 
 @[inline] def logInfo [Monad m] [MonadLog m] (message : String) : m PUnit := do
-  logEntry {level := .info, message}
+  logEntry (.info message)
 
 @[inline] def logWarning [MonadLog m] (message : String) : m PUnit :=
-  logEntry {level := .warning, message}
+  logEntry (.warning message)
 
-@[inline] def logError  [MonadLog m] (message : String) : m PUnit :=
-  logEntry {level := .error, message}
+@[inline] def logError [MonadLog m] (message : String) : m PUnit :=
+  logEntry (.error message)
 
 @[specialize] def logSerialMessage (msg : SerialMessage) [MonadLog m] : m PUnit :=
   let str := if msg.caption.trim.isEmpty then

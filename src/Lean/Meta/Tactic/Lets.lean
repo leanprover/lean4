@@ -178,7 +178,6 @@ where
       if f.isConstOf ``letFun && 4 ≤ args.size then
         let letF := mkAppN f args[0:4]
         let (n, t, v, b) := letF.letFun?.get!
-        -- TODO: Can be more efficient than using `mkLetFun`
         let f' ← extractLetLike n t v b (topLevel := topLevel && args.size = 4)
           (fun t v b =>
             -- Strategy: construct letFun directly rather than use `mkLetFun`.

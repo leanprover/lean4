@@ -350,10 +350,10 @@ instance : HMul Int Duration Duration where
 instance : HMul Duration Int Duration where
   hMul d i := Duration.ofNanoseconds <| Nanosecond.Offset.ofInt (d.toNanoseconds.val * i)
 
-instance : HAdd PlainTime Duration PlainTime where
+instance : HAdd (PlainTime α) Duration (PlainTime α) where
    hAdd pt d := PlainTime.ofNanoseconds (d.toNanoseconds + pt.toNanoseconds)
 
-instance : HSub PlainTime Duration PlainTime where
+instance : HSub (PlainTime α) Duration (PlainTime α) where
    hSub pt d := PlainTime.ofNanoseconds (d.toNanoseconds - pt.toNanoseconds)
 
 end Duration

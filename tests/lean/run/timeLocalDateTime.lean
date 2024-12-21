@@ -5,7 +5,8 @@ open Std.Time
 def ShortDateTime : GenericFormat .any := datespec("dd/MM/uuuu HH:mm:ss")
 def ShortDate : GenericFormat .any := datespec("dd/MM/uuuu")
 
-def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.hour PlainDate.minute PlainDate.time.second
+def format (PlainDate : PlainDateTime) : String := ShortDateTime.formatBuilder PlainDate.day PlainDate.month PlainDate.year PlainDate.time.snd.hour PlainDate.minute ⟨PlainDate.time.fst, PlainDate.time.snd.second⟩
+
 def format₂ (PlainDate : PlainDate) : String := ShortDate.formatBuilder PlainDate.day PlainDate.month PlainDate.year
 
 def date₁ := datetime("1993-11-19T09:08:07")

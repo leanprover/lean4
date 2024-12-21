@@ -20,8 +20,8 @@ def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 
 def date₁ := zoned("2014-06-16T03:03:03-03:00")
 
-def time₁ := time("14:11:01")
-def time₂ := time("03:11:01")
+def time₁ : PlainTime true := time("14:11:01")
+def time₂ : PlainTime true := time("03:11:01")
 
 /--
 info: "Monday, June 16, 2014 03:03:03 -0300"
@@ -178,9 +178,9 @@ info: "Monday, June 16, 2014 03:03:03 -0300"
 info: "14:11:01"
 -/
 #guard_msgs in
-#eval Time24Hour.formatBuilder time₁.hour time₁.minute time₁.second
+#eval Time24Hour.formatBuilder time₁.hour time₁.minute ⟨true, time₁.second⟩
 
-def l := Time12Hour.formatBuilder time₁.hour.toRelative time₁.minute time₁.second (if time₁.hour.val > 12 then HourMarker.pm else HourMarker.am)
+def l := Time12Hour.formatBuilder time₁.hour.toRelative time₁.minute ⟨true, time₁.second⟩ (if time₁.hour.val > 12 then HourMarker.pm else HourMarker.am)
 
 /--
 info: "02:11:01 PM"
@@ -191,7 +191,7 @@ info: "02:11:01 PM"
 info: "03:11:01 AM"
 -/
 #guard_msgs in
-#eval Time12Hour.formatBuilder time₂.hour.toRelative time₂.minute time₂.second (if time₂.hour.val > 12 then HourMarker.pm else HourMarker.am)
+#eval Time12Hour.formatBuilder time₂.hour.toRelative time₂.minute ⟨true, time₂.second⟩ (if time₂.hour.val > 12 then HourMarker.pm else HourMarker.am)
 
 /--
 info: "06/16/2014"
@@ -245,7 +245,7 @@ info: date("2002-07-14")
 info: time("14:13:12.000000000")
 -/
 #guard_msgs in
-#eval time("14:13:12")
+#eval (time("14:13:12") : PlainTime true)
 
 /--
 info: zoned("2002-07-14T14:13:12.000000000Z")
@@ -275,9 +275,9 @@ info: "14-13-12"
 Format
 -/
 
-def time₄ := time("23:13:12.324354679")
+def time₄ := (time("23:13:12.324354679") : PlainTime true)
 def date₄ := date("2002-07-14")
-def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (PlainTime.mk 12 23 ⟨false, 12⟩ 0)
+def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (Sigma.mk true <| PlainTime.mk 12 23 12 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")
 def zoned₄ := zoned("2002-07-14T23:13:12.324354679+09:00")
 def zoned₅ := zoned("2002-07-14T23:13:12.324354679+00:00")
@@ -806,7 +806,7 @@ info: ("19343232432-01-04T01:04:03.000000000",
 -/
 #guard_msgs in
 #eval
-  let r := (PlainDateTime.mk (PlainDate.ofYearMonthDayClip 19343232432 1 4) (PlainTime.mk 25 64 ⟨true, 3⟩ 0))
+  let r := (PlainDateTime.mk (PlainDate.ofYearMonthDayClip 19343232432 1 4) (Sigma.mk true <| PlainTime.mk 25 64 3 0))
   let s := r.toLeanDateTimeString
   let r := PlainDateTime.parse s
   (s, r, datetime("1932-01-02T05:04:03.000000000"))

@@ -45,8 +45,9 @@ namespace PlainTime
 Get the current time.
 -/
 @[inline]
-def now : IO PlainTime :=
-  PlainDateTime.time <$> PlainDateTime.now
+def now : IO (Sigma PlainTime) := do
+  let res ← PlainDateTime.time <$> PlainDateTime.now
+  return res
 
 end PlainTime
 
@@ -70,8 +71,8 @@ def toPlainDate (dt : DateTime tz) : PlainDate :=
 Converts a `DateTime` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (dt : DateTime tz) : PlainTime :=
-  dt.date.get.time
+def toPlainTime (dt : DateTime tz) : PlainTime dt.date.get.time.fst :=
+  dt.date.get.time.snd
 
 end DateTime
 namespace DateTime
@@ -110,14 +111,14 @@ Converts a `PlainDate` to a `ZonedDateTime`.
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
-  ZonedDateTime.ofPlainDateTime (pd.atTime PlainTime.midnight) zr
+  ZonedDateTime.ofPlainDateTime (pd.atTime (α := true) PlainTime.midnight) zr
 
 /--
 Converts a `PlainDate` to a `ZonedDateTime` using `TimeZone`.
 -/
 @[inline]
 def ofPlainDateWithZone (pd : PlainDate) (zr : TimeZone) : ZonedDateTime :=
-  ZonedDateTime.ofPlainDateTime (pd.atTime PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
+  ZonedDateTime.ofPlainDateTime (pd.atTime (α := true) PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
 
 /--
 Converts a `ZonedDateTime` to a `PlainDate`
@@ -130,7 +131,7 @@ def toPlainDate (dt : ZonedDateTime) : PlainDate :=
 Converts a `ZonedDateTime` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (dt : ZonedDateTime) : PlainTime :=
+def toPlainTime (dt : ZonedDateTime) : Sigma PlainTime :=
   dt.toPlainDateTime.time
 
 /--

@@ -50,7 +50,7 @@ def toPlainDateAssumingUTC (timestamp : Timestamp) : PlainDate :=
 Converts a `Timestamp` to a `PlainTime`
 -/
 @[inline]
-def getTimeAssumingUTC (timestamp : Timestamp) : PlainTime :=
+def getTimeAssumingUTC (timestamp : Timestamp) : PlainTime α :=
   let nanos := timestamp.toNanosecondsSinceUnixEpoch
   PlainTime.ofNanoseconds nanos
 
@@ -75,7 +75,7 @@ Converts a `PlainDate` to a `Timestamp`
 -/
 @[inline]
 def ofPlainDate (date : PlainDate) : PlainDateTime :=
-  { date, time := PlainTime.midnight }
+  { date, time := Sigma.mk true (PlainTime.midnight) }
 
 /--
 Converts a `PlainDateTime` to a `PlainDate`
@@ -88,15 +88,15 @@ def toPlainDate (pdt : PlainDateTime) : PlainDate :=
 Converts a `PlainTime` to a `PlainDateTime`
 -/
 @[inline]
-def ofPlainTime (time : PlainTime) : PlainDateTime :=
-  { date := ⟨1, 1, 1, by decide⟩, time }
+def ofPlainTime (time : PlainTime α) : PlainDateTime :=
+  { date := ⟨1, 1, 1, by decide⟩, time := Sigma.mk α time }
 
 /--
 Converts a `PlainDateTime` to a `PlainTime`
 -/
 @[inline]
-def toPlainTime (pdt : PlainDateTime) : PlainTime :=
-  pdt.time
+def toPlainTime (pdt : PlainDateTime) : PlainTime pdt.time.fst :=
+  pdt.time.snd
 
 instance : HSub PlainDateTime PlainDateTime Duration where
   hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC

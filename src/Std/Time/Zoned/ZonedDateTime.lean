@@ -137,8 +137,8 @@ def toDateTime (dt : ZonedDateTime) : DateTime dt.timezone :=
 Getter for the `PlainTime` inside of a `ZonedDateTime`
 -/
 @[inline]
-def time (zdt : ZonedDateTime) : PlainTime :=
-  zdt.date.get.time
+def time (zdt : ZonedDateTime) : PlainTime zdt.date.get.time.fst :=
+  zdt.date.get.time.snd
 
 /--
 Getter for the `Year` inside of a `ZonedDateTime`
@@ -166,7 +166,7 @@ Getter for the `Hour` inside of a `ZonedDateTime`
 -/
 @[inline]
 def hour (zdt : ZonedDateTime) : Hour.Ordinal :=
-  zdt.date.get.time.hour
+  zdt.date.get.time.snd.hour
 
 /--
 Getter for the `Minute` inside of a `ZonedDateTime`
@@ -179,22 +179,22 @@ def minute (zdt : ZonedDateTime) : Minute.Ordinal :=
 Getter for the `Second` inside of a `ZonedDateTime`
 -/
 @[inline]
-def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.second.fst :=
-  zdt.date.get.time.second.snd
+def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.fst :=
+  zdt.date.get.time.snd.second
 
 /--
 Getter for the `Millisecond` inside of a `ZonedDateTime`.
 -/
 @[inline]
 def millisecond (dt : ZonedDateTime) : Millisecond.Ordinal :=
-  dt.date.get.time.millisecond
+  dt.date.get.time.snd.millisecond
 
 /--
 Getter for the `Nanosecond` inside of a `ZonedDateTime`
 -/
 @[inline]
 def nanosecond (zdt : ZonedDateTime) : Nanosecond.Ordinal :=
-  zdt.date.get.time.nanosecond
+  zdt.date.get.time.snd.nanosecond
 
 /--
 Getter for the `TimeZone.Offset` inside of a `ZonedDateTime`
@@ -493,7 +493,7 @@ Creates a new `ZonedDateTime` by adjusting the `second` component.
 @[inline]
 def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
   let date := dt.date.get
-  ZonedDateTime.ofPlainDateTime (date.withSeconds second) dt.rules
+  ZonedDateTime.ofPlainDateTime (date.withSeconds second.snd) dt.rules
 
 /--
 Creates a new `ZonedDateTime` by adjusting the `nano` component with a new `millis` that will set
@@ -528,7 +528,7 @@ def toDaysSinceUNIXEpoch (date : ZonedDateTime) : Day.Offset :=
 Converts a `ZonedDateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
-def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) (zt : TimeZone.ZoneRules) : ZonedDateTime :=
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime α) (zt : TimeZone.ZoneRules) : ZonedDateTime :=
   ZonedDateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) zt
 
 instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where

@@ -254,7 +254,7 @@ namespace PlainTime
 /--
 Formats a `PlainTime` using a specific format.
 -/
-def format (time : PlainTime) (format : String) : String :=
+def format (time : PlainTime α) (format : String) : String :=
   let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -264,7 +264,7 @@ def format (time : PlainTime) (format : String) : String :=
       | .k _ => some (time.hour.shiftTo1BasedHour)
       | .m _ => some time.minute
       | .n _ => some time.nanosecond
-      | .s _ => some time.second
+      | .s _ => some (Sigma.mk α time.second)
       | .a _ => some (HourMarker.ofOrdinal time.hour)
       | .h _ => some time.hour.toRelative
       | .K _ => some (time.hour.emod 12 (by decide))
@@ -279,55 +279,55 @@ def format (time : PlainTime) (format : String) : String :=
 /--
 Parses a time string in the 24-hour format (`HH:mm:ss`) and returns a `PlainTime`.
 -/
-def fromTime24Hour (input : String) : Except String PlainTime :=
-  Formats.time24Hour.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSeconds h m s.snd)) input
+def fromTime24Hour (input : String) : Except String (Sigma PlainTime) :=
+  Formats.time24Hour.parseBuilder (fun h m s => some (Sigma.mk s.fst (PlainTime.ofHourMinuteSeconds h m s.snd))) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss`).
 -/
-def toTime24Hour (input : PlainTime) : String :=
-  Formats.time24Hour.formatBuilder input.hour input.minute input.second
+def toTime24Hour (input : PlainTime α) : String :=
+  Formats.time24Hour.formatBuilder input.hour input.minute (Sigma.mk α input.second)
 
 /--
 Parses a time string in the lean 24-hour format (`HH:mm:ss.SSSSSSSSS` or `HH:mm:ss`) and returns a `PlainTime`.
 -/
-def fromLeanTime24Hour (input : String) : Except String PlainTime :=
-  Formats.leanTime24Hour.parseBuilder (fun h m s n => some (PlainTime.ofHourMinuteSecondsNano h m s.snd n)) input
-  <|> Formats.leanTime24HourNoNanos.parseBuilder (fun h m s => some (PlainTime.ofHourMinuteSecondsNano h m s.snd 0)) input
+def fromLeanTime24Hour (input : String) : Except String (Sigma PlainTime) :=
+  Formats.leanTime24Hour.parseBuilder (fun h m s n => some <| Sigma.mk s.fst (PlainTime.ofHourMinuteSecondsNano h m s.snd n)) input
+  <|> Formats.leanTime24HourNoNanos.parseBuilder (fun h m s => some <| Sigma.mk s.fst (PlainTime.ofHourMinuteSecondsNano h m s.snd 0)) input
 
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss.SSSSSSSSS`).
 -/
-def toLeanTime24Hour (input : PlainTime) : String :=
-  Formats.leanTime24Hour.formatBuilder input.hour input.minute input.second input.nanosecond
+def toLeanTime24Hour (input : PlainTime α) : String :=
+  Formats.leanTime24Hour.formatBuilder input.hour input.minute (Sigma.mk α input.second) input.nanosecond
 
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
 -/
-def fromTime12Hour (input : String) : Except String PlainTime := do
-  let builder h m s a : Option PlainTime := do
+def fromTime12Hour (input : String) : Except String (Sigma PlainTime) := do
+  let builder h m s a : Option (Sigma PlainTime) := do
     let value ← Internal.Bounded.ofInt? h.val
-    some <| PlainTime.ofHourMinuteSeconds (HourMarker.toAbsolute a value) m s.snd
+    some <| Sigma.mk s.fst <| PlainTime.ofHourMinuteSeconds (HourMarker.toAbsolute a value) m s.snd
 
   Formats.time12Hour.parseBuilder builder input
 
 /--
 Formats a `PlainTime` value into a 12-hour format string (`hh:mm:ss aa`).
 -/
-def toTime12Hour (input : PlainTime) : String :=
-  Formats.time12Hour.formatBuilder (input.hour.emod 12 (by decide) |>.add 1) input.minute input.second (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
+def toTime12Hour (input : PlainTime α) : String :=
+  Formats.time12Hour.formatBuilder (input.hour.emod 12 (by decide) |>.add 1) input.minute (Sigma.mk α input.second) (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
 Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.
 -/
-def parse (input : String) : Except String PlainTime :=
+def parse (input : String) : Except String (Sigma PlainTime) :=
   fromTime12Hour input
   <|> fromTime24Hour input
 
-instance : ToString PlainTime where
+instance : ToString (PlainTime α) where
   toString := toLeanTime24Hour
 
-instance : Repr PlainTime where
+instance : Repr (PlainTime α) where
   reprPrec data := Repr.addAppParen ("time(\"" ++ toLeanTime24Hour data ++ "\")")
 
 end PlainTime
@@ -409,12 +409,12 @@ def fromLeanDateTimeWithIdentifierString (input : String) : Except String ZonedD
 Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notation.
 -/
 def toLeanDateTimeWithZoneString (zdt : ZonedDateTime) : String :=
-  Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.date.get.time.second zdt.nanosecond zdt.offset
+  Formats.leanDateTimeWithZone.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute (Sigma.mk zdt.date.get.time.fst zdt.date.get.time.snd.second) zdt.nanosecond zdt.offset
 /--
 Formats a `DateTime` value into a simple date time with timezone string that can be parsed by the date% notation with the timezone identifier.
 -/
 def toLeanDateTimeWithIdentifierString (zdt : ZonedDateTime) : String :=
-  Formats.leanDateTimeWithIdentifierAndNanos.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute zdt.date.get.time.second zdt.nanosecond zdt.timezone.name
+  Formats.leanDateTimeWithIdentifierAndNanos.formatBuilder zdt.year zdt.month zdt.day zdt.hour zdt.minute (Sigma.mk zdt.date.get.time.fst zdt.date.get.time.snd.second) zdt.nanosecond zdt.timezone.name
 
 /--
 Parses a `String` in the `ISO8601`, `RFC822` or `RFC850` format and returns a `ZonedDateTime`.
@@ -461,13 +461,13 @@ def format (date : PlainDateTime) (format : String) : String :=
       | .k _ => some date.hour.shiftTo1BasedHour
       | .m _ => some date.minute
       | .n _ => some date.nanosecond
-      | .s _ => some date.time.second
+      | .s _ => some (Sigma.mk date.time.fst date.time.snd.second)
       | .a _ => some (HourMarker.ofOrdinal date.hour)
       | .h _ => some date.hour.toRelative
       | .K _ => some (date.hour.emod 12 (by decide))
       | .S _ => some date.nanosecond
-      | .A _ => some date.time.toMilliseconds
-      | .N _ => some date.time.toNanoseconds
+      | .A _ => some date.time.snd.toMilliseconds
+      | .N _ => some date.time.snd.toNanoseconds
       | _ => none
     match res with
     | some res => res
@@ -510,7 +510,7 @@ def fromDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.dateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute pdt.time.second pdt.nanosecond
+  Formats.dateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute (Sigma.mk pdt.time.fst pdt.time.snd.second) pdt.nanosecond
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.
@@ -523,7 +523,7 @@ def fromLeanDateTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a `DateTime` format string.
 -/
 def toLeanDateTimeString (pdt : PlainDateTime) : String :=
-  Formats.leanDateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute pdt.time.second pdt.nanosecond
+  Formats.leanDateTime24Hour.formatBuilder pdt.year pdt.month pdt.day pdt.hour pdt.minute (Sigma.mk pdt.time.fst pdt.time.snd.second) pdt.nanosecond
 
 /--
 Parses a `String` in the `AscTime` or `LongDate` format and returns a `PlainDateTime`.

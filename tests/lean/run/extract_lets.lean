@@ -611,6 +611,95 @@ example :
   rfl
 
 /-!
+### `+lift` mode
+-/
+
+/-!
+Lifts, does not make use of name generator.
+-/
+/--
+info: ⊢ ∀ (n : Nat),
+    let x := n;
+    n = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, n = (let x := n; x) := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+
+/-!
+Same example, but testing `letFun`.
+-/
+/--
+info: ⊢ ∀ (n : Nat),
+    let_fun x := n;
+    n = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, n = (have x := n; x) := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+
+/-!
+Merging of merely-lifted lets. Four cases to this test, depending on whether a `have` or `let` is seen first,
+and whether the second is a `have` or `let`.
+-/
+/--
+info: ⊢ ∀ (n : Nat),
+    let_fun x := n;
+    x = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, (have x := n; x) = (have x' := n; x') := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+/--
+info: ⊢ ∀ (n : Nat),
+    let x := n;
+    x = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, (let x := n; x) = (have x' := n; x') := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+/--
+info: ⊢ ∀ (n : Nat),
+    let x := n;
+    x = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, (have x := n; x) = (let x' := n; x') := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+/--
+info: ⊢ ∀ (n : Nat),
+    let x := n;
+    x = x
+-/
+#guard_msgs in
+example : ∀ n : Nat, (let x := n; x) = (let x' := n; x') := by
+  fail_if_success extract_lets
+  extract_lets +lift a
+  trace_state
+  intros
+  rfl
+
+/-!
 ### Conv mode
 -/
 

@@ -579,6 +579,38 @@ example : ∀ n : Nat, let x := n; let y := 2; x + y = x + y := by
   extract_lets -underBinder
 
 /-!
+Testing lots of `let`s
+-/
+set_option maxHeartbeats 300 in
+example :
+    let x := 2
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    let x := let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; let x := x; x
+    x = x := by
+  extract_lets
+  rename_i a
+  guard_target =ₛ a = a
+  rfl
+
+/-!
 ### Conv mode
 -/
 

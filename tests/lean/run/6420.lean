@@ -20,3 +20,33 @@ structure foo where
   let rhs := Expr.app (.const ``foo.bar []) m
   let defeq? ← Meta.isDefEq lhs rhs
   logInfo m!"unifiable? {defeq?}"
+
+/-!
+The following example used to have the following error on 'example' due to creating a type-incorrect term:
+```
+application type mismatch
+  { t := Type }
+argument has type
+  Type 1
+but function has type
+  Type v → S
+```
+-/
+
+structure S.{u} where
+  t : Type u
+
+-- this error is on the first 'exact'
+/--
+error: type mismatch
+  m
+has type
+  S.t ?m : Type v
+but is expected to have type
+  Type : Type 1
+-/
+#guard_msgs in
+example (α : Type v) : Type := by
+  have m : (?m : S.{v}).t := ?n
+  exact m -- 'assumption' worked too
+  exact Nat

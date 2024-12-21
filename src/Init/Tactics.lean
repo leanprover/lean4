@@ -504,6 +504,24 @@ introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (ellipsis)? (location)? : tactic
 
 /--
+Lifts `let` and `let_fun` expressions within a term as far out as possible.
+It is like `extract_lets +lift`, but the top-level lets at the end of the procedure
+are not extracted as local hypotheses.
+
+- `lift_lets` lifts let expressions in the target.
+- `lift_lets at h` lifts let expressions at the given local hypothesis.
+
+For example,
+```lean
+example : (let x := 1; x) = 1 := by
+  lift_lets
+  -- ⊢ let x := 1; x = 1
+  ...
+```
+-/
+syntax (name := liftLets) "lift_lets " optConfig (location)? : tactic
+
+/--
 If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.

@@ -27,7 +27,7 @@ namespace Lean.Elab.Tactic.Conv
       Meta.extractLets #[lhs] givenNames (config := config) fun fvarIds es => do
         let lhs' := es[0]!
         if fvarIds.isEmpty && lhs == lhs' then
-          throwTacticEx `extract_lets mvarId m!"nothing to extract"
+          throwTacticEx `extract_lets mvarId m!"made no progress"
         let (rhs', g) ← mkConvGoalFor lhs' (← mvarId.getTag)
         let fvars := fvarIds.map .fvar
         let assign (mvar : MVarId) (e : Expr) : MetaM Unit := do
@@ -42,5 +42,15 @@ namespace Lean.Elab.Tactic.Conv
     withMainContext do
       for stx in ids, fvar in fvars do
         Term.addLocalVarInfo stx (.fvar fvar)
+
+@[builtin_tactic Lean.Parser.Tactic.Conv.liftLets] elab_rules : tactic
+  | `(conv| lift_lets $cfg:optConfig) => do
+    let mut config ← elabLiftLetsConfig cfg
+    withMainContext do
+      let lhs ← getLhs
+      let lhs' ← Meta.liftLets lhs config
+      if lhs == lhs' then
+        throwTacticEx `lift_lets (← getMainGoal) m!"made no progress"
+      changeLhs lhs'
 
 end Lean.Elab.Tactic.Conv

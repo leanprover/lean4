@@ -700,6 +700,14 @@ example : ∀ n : Nat, (let x := n; x) = (let x' := n; x') := by
   rfl
 
 /-!
+Make sure `+lift` doesn't lift things that transitively depend on a binder.
+-/
+example : ∀ n : Nat, let x := n; let y := x; y = n := by
+  fail_if_success extract_lets +lift
+  intros
+  rfl
+
+/-!
 ### Conv mode
 -/
 

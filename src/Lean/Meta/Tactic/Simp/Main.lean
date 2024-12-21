@@ -47,6 +47,17 @@ def isOfScientificLit (e : Expr) : Bool :=
 def isCharLit (e : Expr) : Bool :=
   e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isRawNatLit
 
+/--
+Unfold definition even if it is not marked as `@[reducible]`.
+Remark: We never unfold irreducible definitions. Mathlib relies on that in the implementation of the
+command `irreducible_def`.
+-/
+private def unfoldDefinitionAny? (e : Expr) : MetaM (Option Expr) := do
+  if let .const declName _ := e.getAppFn then
+    if (← isIrreducible declName) then
+      return none
+  unfoldDefinition? e (ignoreTransparency := true)
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -83,7 +94,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           let major := e.getArg! projInfo.numParams
           unless (← isConstructorApp major) do
             return none
-          reduceProjCont? (← withDefault <| unfoldDefinition? e)
+          reduceProjCont? (← unfoldDefinitionAny? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
@@ -133,7 +144,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     if cfg.unfoldPartialApp -- If we are unfolding partial applications, ignore issue #2042
        -- When smart unfolding is enabled, and `f` supports it, we don't need to worry about issue #2042
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
     else
       -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
@@ -142,16 +153,16 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       let arity := value.getNumHeadLambdas
       -- Partially applied function, return `none`. See issue #2042
       if arity > e.getAppNumArgs then return none
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
   else if ctx.config.autoUnfold then
     if ctx.simpTheorems.isErased (.decl fName) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
     else if (← isMatchDef fName) then
-      let some value ← withDefault <| unfoldDefinition? e | return none
+      let some value ← unfoldDefinitionAny? e | return none
       let .reduced value ← withSimpMetaConfig <| reduceMatcher? value | return none
       return some value
     else

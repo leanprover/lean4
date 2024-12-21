@@ -8,7 +8,7 @@ import Lean.Util.ShareCommon
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Canonicalizer
+import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Util
 
 namespace Lean.Meta.Grind
@@ -37,7 +37,7 @@ instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
 structure State where
-  canon      : Canonicalizer.State := {}
+  canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
   /-- Next index for creating auxiliary theorems. -/
@@ -87,25 +87,13 @@ def shareCommon (e : Expr) : GrindM Expr := do
     (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr })
 
 /--
-Applies the canonicalizer to all subterms of `e`.
+Canonicalizes nested types, type formers, and instances in `e`.
 -/
--- TODO: the current canonicalizer is not a good solution for `grind`.
--- The problem is that two different applications `@f inst_1 a` and `@f inst_2 b`
--- may still have syntaticaally different instances. Thus, if we learn that `a = b`,
--- congruence closure will fail to see that the two applications are congruent.
 def canon (e : Expr) : GrindM Expr := do
   let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
-  let (e, canonS) ← Canonicalizer.CanonM.run (canonRec e) (s := canonS)
+  let (e, canonS) ← Canon.canon e |>.run canonS
   modify fun s => { s with canon := canonS }
   return e
-where
-  canonRec (e : Expr) : CanonM Expr := do
-    let post (e : Expr) : CanonM TransformStep := do
-      if e.isApp then
-        return .done (← Meta.canon e)
-      else
-        return .done e
-    transform e post
 
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.

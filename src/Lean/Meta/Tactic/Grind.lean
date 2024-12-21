@@ -12,6 +12,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean
 

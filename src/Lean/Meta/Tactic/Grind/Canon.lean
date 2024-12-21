@@ -8,6 +8,7 @@ import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
 import Lean.Util.PtrSet
+import Lean.Util.FVarSubset
 
 namespace Lean.Meta.Grind
 namespace Canon
@@ -53,10 +54,12 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
   let cs := s.argMap.find? key |>.getD []
   for c in cs do
     if (← isDefEq e c) then
-      modify fun s => { s with canon := s.canon.insert e c }
-      return c
+      if c.fvarsSubset e then
+        -- It is not in general safe to replace `e` with `c` if `c` has more free variables than `e`.
+        modify fun s => { s with canon := s.canon.insert e c }
+        return c
     if isInst then
-      if (← isDiagnosticsEnabled <&&> (withDefault <| isDefEq e c)) then
+      if (← isDiagnosticsEnabled <&&> pure (c.fvarsSubset e) <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.
         trace[grind.issues] "the following `grind` static elements are definitionally equal with `default` transparency, but not with `instances` transparency{indentExpr e}\nand{indentExpr c}"
   modify fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }

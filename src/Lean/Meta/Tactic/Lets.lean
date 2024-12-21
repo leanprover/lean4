@@ -78,14 +78,17 @@ def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Na
   return (false, n)
 
 /--
-Removes and reurns all local declarations that depend on `fvar`.
+Removes and returns all local declarations that (transitively) depend on `fvar`.
 -/
 def flushDecls (fvar : FVarId) : M (Array LocalDecl') := do
+  let mut fvarSet : FVarIdSet := {}
+  fvarSet := fvarSet.insert fvar
   let mut toSave := #[]
   let mut toFlush := #[]
   for ldecl in (← get).decls do
-    if ldecl.decl.type.containsFVar fvar || ldecl.decl.value.containsFVar fvar then
+    if ldecl.decl.type.hasAnyFVar (fvarSet.contains ·) || ldecl.decl.value.hasAnyFVar (fvarSet.contains ·) then
       toFlush := toFlush.push ldecl
+      fvarSet := fvarSet.insert ldecl.decl.fvarId
     else
       toSave := toSave.push ldecl
   modify fun s => { s with decls := toSave }

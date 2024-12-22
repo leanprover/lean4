@@ -273,7 +273,7 @@ where
     trace[grind.add] "isNeg: {isNeg}, {p}"
     match_expr p with
     | Eq _ lhs rhs => goEq p lhs rhs isNeg false
-    | HEq _ _ lhs rhs => goEq p lhs rhs isNeg true
+    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
     | _ =>
       internalize p generation
       if isNeg then

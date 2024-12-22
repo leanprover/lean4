@@ -18,10 +18,8 @@ A canonicalizer module for the `grind` tactic. The canonicalizer defined in `Met
 not suitable for the `grind` tactic. It was designed for tactics such as `omega`, where the goal is
 to detect when two structurally different atoms are definitionally equal.
 
-The `grind` tactic, on the other hand, uses congruence closure but disregards types, type formers, instances, and proofs.
-Proofs are ignored due to proof irrelevance. Types, type formers, and instances are considered supporting
-elements and are not factored into congruence detection. Instead, `grind` only checks whether
-elements are structurally equal, which, in the context of the `grind` tactic, is equivalent to pointer equality.
+The `grind` tactic, on the other hand, uses congruence closure. Moreover, types, type formers, proofs, and instances
+are considered supporting elements and are not factored into congruence detection.
 
 This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they instances,
 types, or type formers and are the `i`-th arguments of two different `f`-applications. This approach is
@@ -66,17 +64,15 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
   return e
 
 abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
+abbrev canonProof (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
 abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e true
 
 /--
 Return type for the `shouldCanon` function.
 -/
 private inductive ShouldCanonResult where
-  | /-
-    Nested proofs are ignored by the canonizer.
-    That is, they are not canonized or recursively visited.
-    -/
-    ignore
+  | /- Nested proofs are canonicalized. -/
+    canonProof
   | /- Nested types (and type formers) are canonicalized. -/
     canonType
   | /- Nested instances are canonicalized. -/
@@ -97,7 +93,7 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
     if pinfo.isInstImplicit then
       return .canonInst
     else if pinfo.isProp then
-      return .ignore
+      return .canonProof
   if (← isTypeFormer arg) then
     return .canonType
   else
@@ -128,10 +124,10 @@ where
         for i in [:args.size] do
           let arg := args[i]!
           let arg' ← match (← shouldCanon pinfos i arg) with
-          | .ignore    => pure arg
-          | .canonType => canonType f i arg
-          | .canonInst => canonInst f i arg
-          | .visit     => visit arg
+          | .canonProof => canonProof f i arg
+          | .canonType  => canonType f i arg
+          | .canonInst  => canonInst f i arg
+          | .visit      => visit arg
           unless ptrEq arg arg' do
             args := args.set! i arg'
             modified := true

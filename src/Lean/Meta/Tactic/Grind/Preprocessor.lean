@@ -97,7 +97,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
       let localDecl ← fvarId.getDecl
       if (← isProp localDecl.type) then
         -- Add a non-dependent copy
-        let mvarId ← mvarId.assert localDecl.userName localDecl.type (mkFVar fvarId)
+        let mvarId ← mvarId.assert (← mkFreshUserName localDecl.userName) localDecl.type (mkFVar fvarId)
         return .newDepHyp { goal with mvarId }
       else
         return .newLocal fvarId { goal with mvarId }

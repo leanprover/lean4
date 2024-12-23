@@ -710,6 +710,25 @@ example : ∀ n : Nat, let x := n; let y := x; y = n := by
   rfl
 
 /-!
+Extracting `let`s in proofs in `+proof` mode.
+-/
+/--
+info: m : Nat
+h : ∃ n, n + 1 = m
+x : Fin m
+y : Fin (h.choose + 1)
+he : m = h.choose + 1 := Eq.symm (Exists.choose_spec h)
+⊢ cast ⋯ x = y
+-/
+#guard_msgs in
+example (m : Nat) (h : ∃ n, n + 1 = m) (x : Fin m) (y : Fin _) :
+    cast (let h' := h.choose_spec.symm; congrArg Fin h') x = y := by
+  fail_if_success extract_lets -proofs
+  extract_lets +proofs he
+  trace_state
+  exact test_sorry
+
+/-!
 ### Conv mode
 -/
 

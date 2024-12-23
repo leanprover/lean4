@@ -371,6 +371,15 @@ example (h : (let x := 1; x) = y) : True := by
 /-!
 Lifting `let`s in proofs in `+proof` mode.
 -/
+/--
+info: m : Nat
+h : ∃ n, n + 1 = m
+x : Fin m
+y : Fin (h.choose + 1)
+⊢ let h' := ⋯;
+  cast ⋯ x = y
+-/
+#guard_msgs in
 example (m : Nat) (h : ∃ n, n + 1 = m) (x : Fin m) (y : Fin _) :
     cast (let h' := h.choose_spec.symm; congrArg Fin h') x = y := by
   fail_if_success lift_lets -proofs

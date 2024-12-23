@@ -331,13 +331,14 @@ end ExtractLets
 Implementation of the `extractLets` function.
 - `es` is an array of terms that are valid in the current local context.
 - `k` is a callback that is run in the updated local context with all relevant `let`s extracted
-  and with the post-extraction expressions.
+  and with the post-extraction expressions, and the remaining names from `givenNames`.
 -/
 private def extractLetsImp (es : Array Expr) (givenNames : List Name)
-    (k : Array FVarId → Array Expr → MetaM α) (config : ExtractLetsConfig) : MetaM α := do
+    (k : Array FVarId → Array Expr → List Name → MetaM α) (config : ExtractLetsConfig) : MetaM α := do
   let (es, st) ← ExtractLets.extract es |>.run config |>.run' {} |>.run { givenNames }
+  let givenNames' := st.givenNames
   let decls := st.decls.map (·.decl)
-  withExistingLocalDecls decls.toList (k (decls.map (·.fvarId)) es)
+  withExistingLocalDecls decls.toList <| k (decls.map (·.fvarId)) es givenNames'
 
 /--
 Extracts `let` and `letFun` expressions into local definitions,
@@ -347,14 +348,14 @@ evaluating `k` at the post-extracted expressions and the extracted fvarids, with
   based on the existing binder name.
 -/
 def extractLets [Monad m] [MonadControlT MetaM m] (es : Array Expr) (givenNames : List Name)
-    (k : Array FVarId → Array Expr → m α) (config : ExtractLetsConfig := {}) : m α :=
-  map2MetaM (fun k => extractLetsImp es givenNames k config) k
+    (k : Array FVarId → Array Expr → List Name → m α) (config : ExtractLetsConfig := {}) : m α :=
+  map3MetaM (fun k => extractLetsImp es givenNames k config) k
 
 /--
 Lifts `let` and `letFun` expressions in the given expression as far out as possible.
 -/
 def liftLets (e : Expr) (config : LiftLetsConfig := {}) : MetaM Expr := do
-  let (es, st) ← ExtractLets.extract #[e] |>.run { config with } |>.run' {} |>.run { givenNames := [] }
+  let (es, st) ← ExtractLets.extract #[e] |>.run { config with onlyGivenNames := true } |>.run' {} |>.run { givenNames := [] }
   ExtractLets.mkLetDecls st.decls es[0]!
 
 end Lean.Meta
@@ -370,44 +371,44 @@ returning `FVarId`s for the extracted let declarations along with the new goal.
   based on the existing binder name.
 -/
 def Lean.MVarId.extractLets (mvarId : MVarId) (givenNames : List Name) (config : ExtractLetsConfig := {}) :
-    MetaM (Array FVarId × MVarId) :=
+    MetaM ((Array FVarId × List Name) × MVarId) :=
   mvarId.withContext do
     mvarId.checkNotAssigned `extract_lets
     let ty ← mvarId.getType
-    Meta.extractLets #[ty] givenNames (config := config) fun fvarIds es => do
+    Meta.extractLets #[ty] givenNames (config := config) fun fvarIds es givenNames' => do
       let ty' := es[0]!
       if fvarIds.isEmpty && ty == ty' then
         throwMadeNoProgress `extract_lets mvarId
       let g ← mkFreshExprSyntheticOpaqueMVar ty' (← mvarId.getTag)
       mvarId.assign <| ← mkLetFVars (usedLetOnly := false) (fvarIds.map .fvar) g
-      return (fvarIds, g.mvarId!)
+      return ((fvarIds, givenNames'), g.mvarId!)
 
 /--
 Like `Lean.MVarId.extractLets` but extracts lets from a local declaration.
 If the local declaration has a value, then both its type and value are modified.
 -/
 def Lean.MVarId.extractLetsLocalDecl (mvarId : MVarId) (fvarId : FVarId) (givenNames : List Name) (config : ExtractLetsConfig := {}) :
-    MetaM (Array FVarId × MVarId) := do
+    MetaM ((Array FVarId × List Name) × MVarId) := do
   mvarId.checkNotAssigned `extract_lets
   mvarId.withReverted #[fvarId] fun mvarId fvars => mvarId.withContext do
-    let finalize (fvarIds : Array FVarId) (targetNew : Expr) := do
+    let finalize (fvarIds : Array FVarId) (givenNames' : List Name) (targetNew : Expr) := do
       let g ← mkFreshExprSyntheticOpaqueMVar targetNew (← mvarId.getTag)
       mvarId.assign <| ← mkLetFVars (usedLetOnly := false) (fvarIds.map .fvar) g
-      return (fvarIds, fvars.map .some, g.mvarId!)
+      return ((fvarIds, givenNames'), fvars.map .some, g.mvarId!)
     match ← mvarId.getType with
     | .forallE n t b i =>
-      Meta.extractLets #[t] givenNames (config := config) fun fvarIds es => do
+      Meta.extractLets #[t] givenNames (config := config) fun fvarIds es givenNames' => do
         let t' := es[0]!
         if fvarIds.isEmpty && t == t' then
           throwMadeNoProgress `extract_lets mvarId
-        finalize fvarIds (.forallE n t' b i)
+        finalize fvarIds givenNames' (.forallE n t' b i)
     | .letE n t v b ndep =>
-      Meta.extractLets #[t, v] givenNames (config := config) fun fvarIds es => do
+      Meta.extractLets #[t, v] givenNames (config := config) fun fvarIds es givenNames' => do
         let t' := es[0]!
         let v' := es[1]!
         if fvarIds.isEmpty && t == t' && v == v' then
           throwMadeNoProgress `extract_lets mvarId
-        finalize fvarIds (.letE n t' v' b ndep)
+        finalize fvarIds givenNames' (.letE n t' v' b ndep)
     | _ => throwTacticEx `extract_lets mvarId "unexpected auxiliary target"
 
 /--

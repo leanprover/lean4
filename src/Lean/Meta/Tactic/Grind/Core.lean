@@ -29,7 +29,8 @@ where
 /-- Returns all equivalence classes in the current goal. -/
 partial def getEqcs : GoalM (List (List Expr)) := do
   let mut r := []
-  for (_, node) in (← get).enodes do
+  let nodes ← getENodes
+  for node in nodes do
     if isSameExpr node.root node.self then
       r := (← getEqc node.self) :: r
   return r
@@ -64,8 +65,7 @@ def ppENodeDecl (e : Expr) : GoalM Format := do
 /-- Pretty print goal state for debugging purposes. -/
 def ppState : GoalM Format := do
   let mut r := f!"Goal:"
-  let nodes := (← get).enodes.toArray.map (·.2)
-  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  let nodes ← getENodes
   for node in nodes do
     r := r ++ "\n" ++ (← ppENodeDecl node.self)
   let eqcs ← getEqcs

@@ -287,10 +287,14 @@ def mkGoal (mvarId : MVarId) : GrindM Goal := do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
-def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
-  -- We must sort because we are using pointer addresses to hash
+/-- Returns all enodes in the goal -/
+def getENodes : GoalM (Array ENode) := do
+  -- We must sort because we are using pointer addresses as keys in `enodes`
   let nodes := (← get).enodes.toArray.map (·.2)
-  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  return nodes.qsort fun a b => a.idx < b.idx
+
+def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
+  let nodes ← getENodes
   for n in nodes do
     f n
 

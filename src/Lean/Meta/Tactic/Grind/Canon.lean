@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
@@ -72,15 +73,12 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
   return e
 
 abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
-abbrev canonProof (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
 abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e true
 
 /--
 Return type for the `shouldCanon` function.
 -/
 private inductive ShouldCanonResult where
-  | /- Nested proofs are canonicalized. -/
-    canonProof
   | /- Nested types (and type formers) are canonicalized. -/
     canonType
   | /- Nested instances are canonicalized. -/
@@ -101,7 +99,7 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
     if pinfo.isInstImplicit then
       return .canonInst
     else if pinfo.isProp then
-      return .canonProof
+      return .visit
   if (← isTypeFormer arg) then
     return .canonType
   else
@@ -126,20 +124,25 @@ where
       if let some r := (← get).find? e then
         return r
       e.withApp fun f args => do
-        let pinfos := (← getFunInfo f).paramInfo
-        let mut modified := false
-        let mut args := args
-        for i in [:args.size] do
-          let arg := args[i]!
-          let arg' ← match (← shouldCanon pinfos i arg) with
-          | .canonProof => canonProof f i arg
-          | .canonType  => canonType f i arg
-          | .canonInst  => canonInst f i arg
-          | .visit      => visit arg
-          unless ptrEq arg arg' do
-            args := args.set! i arg'
-            modified := true
-        let e' := if modified then mkAppN f args else e
+        let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+          -- We just canonize the proposition
+          let prop := args[0]!
+          let prop' ← visit prop
+          pure <| if ptrEq prop prop' then mkAppN f (args.set! 0 prop') else e
+        else
+          let pinfos := (← getFunInfo f).paramInfo
+          let mut modified := false
+          let mut args := args
+          for i in [:args.size] do
+            let arg := args[i]!
+            let arg' ← match (← shouldCanon pinfos i arg) with
+            | .canonType  => canonType f i arg
+            | .canonInst  => canonInst f i arg
+            | .visit      => visit arg
+            unless ptrEq arg arg' do
+              args := args.set! i arg'
+              modified := true
+          pure <| if modified then mkAppN f args else e
         modify fun s => s.insert e e'
         return e'
 

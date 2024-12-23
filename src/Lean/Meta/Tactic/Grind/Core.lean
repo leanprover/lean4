@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.LitValues
 
@@ -126,20 +127,16 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
-      unless f.isConst do
-        internalize f generation
-      let info ← getFunInfo f
-      let shouldInternalize (i : Nat) : GoalM Bool := do
-        if h : i < info.paramInfo.size then
-          let pinfo := info.paramInfo[i]
-          if pinfo.binderInfo.isInstImplicit || pinfo.isProp then
-            return false
-        return true
-      for h : i in [: args.size] do
-        let arg := args[i]
-        if (← shouldInternalize i) then
-          unless (← isTypeFormer arg) do
-            internalize arg generation
+      if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        -- We only internalize the proposition. We can skip the proof because of
+        -- proof irrelevance
+        internalize args[0]! generation
+      else
+        unless f.isConst do
+          internalize f generation
+        for h : i in [: args.size] do
+          let arg := args[i]
+          internalize arg generation
       mkENode e generation
       addCongrTable e
 

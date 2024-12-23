@@ -212,33 +212,38 @@ Extracts lets from `e`.
   This is part of the cache key since it affects what is extracted.
 
 Note: the return value may refer to fvars that are not in the current local context, but they are in the `decls` list.
-
-Does not handle `descend := false`. See `Lean.Meta.ExtractLets.extractNoDescend`.
 -/
 partial def extractCore (fvars : List Expr) (e : Expr) (topLevel : Bool := false) : M Expr := do
   let cfg ← read
   if e.isAtomic then
     return e
+  else if !cfg.descend && !topLevel then
+    return e
   else
     checkCache (topLevel, (e : ExprStructEq)) fun _ => do
       if !containsLet e then
         return e
-      -- Don't check for proofs or types for top-level lets, since it's confusing not having them be extracted.
-      if !(topLevel && (e.isLet || e.isLetFun || e.isMData)) then
+      -- Don't honor `proofs := false` or `types := false` for top-level lets, since it's confusing not having them be extracted.
+      unless topLevel && (e.isLet || e.isLetFun || e.isMData) do
         if !cfg.proofs then
           if ← isProof e then
             return e
         if !cfg.types then
           if ← isType e then
             return e
+      let whenDescend (k : M Expr) : M Expr := do if cfg.descend then k else pure e
       match e with
       | .bvar .. | .fvar .. | .mvar .. | .sort .. | .const .. | .lit .. => unreachable!
       | .mdata _ e'      => return e.updateMData! (← extractCore fvars e' (topLevel := topLevel))
-      | .proj _ _ s      => return e.updateProj! (← extractCore fvars s)
-      | .app ..          => extractApp e
       | .letE n t v b _  => extractLetLike true n t v b (fun t v b => pure <| e.updateLet! t v b) (topLevel := topLevel)
-      | .lam n t b i     => extractBinder n t b i (fun t b => e.updateLambda! i t b)
-      | .forallE n t b i => extractBinder n t b i (fun t b => e.updateForall! i t b)
+      | .app ..          =>
+        if e.isLetFun then
+          extractLetFun e (topLevel := topLevel)
+        else
+          whenDescend do extractApp e.getAppFn e.getAppArgs
+      | .proj _ _ s      => whenDescend do return e.updateProj! (← extractCore fvars s)
+      | .lam n t b i     => whenDescend do extractBinder n t b i (fun t b => e.updateLambda! i t b)
+      | .forallE n t b i => whenDescend do extractBinder n t b i (fun t b => e.updateForall! i t b)
 where
   extractBinder (n : Name) (t b : Expr) (i : BinderInfo) (mk : Expr → Expr → Expr) : M Expr := do
     let t ← extractCore fvars t
@@ -265,7 +270,7 @@ where
         return ← withDeclInContext fvarId <|
           extractCore fvars (b.instantiate1 (.fvar fvarId)) (topLevel := topLevel)
     let (extract, n) ← isExtractableLet fvars n t v
-    if !extract && !cfg.underBinder then
+    if !extract && (!cfg.underBinder || !cfg.descend) then
       return ← mk t v b
     withLetDecl n t v fun x => do
       if extract then
@@ -274,82 +279,42 @@ where
       else
         let b ← extractCore (x :: fvars) (b.instantiate1 x)
         mk t v (b.abstract #[x])
-  extractApp (e : Expr) : M Expr := do
+  /-- `e` is the letFun expression -/
+  extractLetFun (e : Expr) (topLevel : Bool) : M Expr := do
+    let letFunE := e.getAppFn
+    let β := e.getArg! 1
+    let (n, t, v, b) := e.letFun?.get!
+    extractLetLike false n t v b (topLevel := topLevel)
+      (fun t v b =>
+        -- Strategy: construct letFun directly rather than use `mkLetFun`.
+        -- We don't update the `β` argument.
+        return mkApp4 letFunE t β v (.lam n t b .default))
+  extractApp (f : Expr) (args : Array Expr) : M Expr := do
     let cfg ← read
-    -- The head and arguments of the application, pre-extraction
-    let mut f := e.getAppFn
-    let mut args := e.getAppArgs
-    -- The head of the application, post-extraction
-    let f' ←
-      if f.isConstOf ``letFun && 4 ≤ args.size then
-        let letF := mkAppN f args[0:4]
-        let (n, t, v, b) := letF.letFun?.get!
-        let f' ← extractLetLike false n t v b (topLevel := topLevel && args.size = 4)
-          (fun t v b =>
-            -- Strategy: construct letFun directly rather than use `mkLetFun`.
-            -- We don't update the `β` argument.
-            return mkApp4 f t args[1]! v (.lam n t b .default))
-        f := letF
-        args := args[4:]
-        pure f'
+    if f.isConstOf ``letFun && args.size ≥ 4 then
+      extractApp (mkAppN f args[0:4]) args[4:]
+    else
+      let f' ← extractCore fvars f
+      if cfg.implicits then
+        return mkAppN f' (← args.mapM (extractCore fvars))
       else
-        extractCore fvars f
-    if cfg.implicits then
-      args ← args.mapM (extractCore fvars)
-    else
-      let mut fty ← inferType f
-      let mut j := 0
-      for i in [0:args.size] do
-        unless fty.isForall do
-          fty ← withTransparency .all <| whnf (fty.instantiateRevRange j i args)
-          j := i
-        let .forallE _ _ fty' bi := fty
-          | throwError "Lean.Meta.ExtractLets.extractCore: expecting function, type is{indentD fty}"
-        fty := fty'
-        if bi.isExplicit then
-          args := args.set! i <| ← extractCore fvars (args[i]!)
-    return mkAppN f' args
-
-/--
-Extraction routine for `descend := false`.
-This is `extractCore` specialized to `topLevel := true` and then modified to not descend.
-The logic is simpler separating this out than if `extractCore` handled `descend := true` itself.
--/
-partial def extractNoDescend (e : Expr) : M Expr := do
-  -- We don't check for proofs or types for top-level lets, since it's confusing not having them be extracted.
-  match e with
-  | .mdata _ e'      => return e.updateMData! (← extractNoDescend e')
-  | .letE n t v b _  => extractLetLike true e n t v b
-  | .app ..          =>
-    if let some (n, t, v, b) := e.letFun? then
-      extractLetLike false e n t v b
-    else
-      return e
-  | e                => return e
-where
-  extractLetLike (isLet : Bool) (e : Expr) (n : Name) (t v b : Expr) : M Expr := do
-    let cfg ← read
-    if cfg.usedOnly && !b.hasLooseBVars then
-      return ← extractNoDescend b
-    if cfg.merge then
-      if let some fvarId := (← get).valueMap.get? v then
-        if isLet && cfg.lift then ensureIsLet fvarId
-        return ← withDeclInContext fvarId <|
-          extractNoDescend (b.instantiate1 (.fvar fvarId))
-    if let some n ← nextNameForBinderName? n then
-      withLetDecl n t v fun x => do
-        addDecl (← x.fvarId!.getDecl) isLet
-        extractNoDescend (b.instantiate1 x)
-    else
-      return e
+        let mut args := args
+        let mut fty ← inferType f
+        let mut j := 0
+        for i in [0:args.size] do
+          unless fty.isForall do
+            fty ← withTransparency .all <| whnf (fty.instantiateRevRange j i args)
+            j := i
+          let .forallE _ _ fty' bi := fty
+            | throwError "Lean.Meta.ExtractLets.extractCore: expecting function, type is{indentD fty}"
+          fty := fty'
+          if bi.isExplicit then
+            args := args.set! i (← extractCore fvars args[i]!)
+        return mkAppN f' args
 
 def extractTopLevel (e : Expr) : M Expr := do
   let e ← instantiateMVars e
-  let cfg ← read
-  if cfg.descend then
-    extractCore [] e (topLevel := true)
-  else
-    extractNoDescend e
+  extractCore [] e (topLevel := true)
 
 /--
 Main entry point for extracting lets.

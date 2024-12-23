@@ -29,6 +29,14 @@ To further optimize `isDefEq` checks, instances are compared using `Transparency
 the number of constants that need to be unfolded. If diagnostics are enabled, instances are compared using
 the default transparency mode too for sanity checking, and discrepancies are reported.
 Types and type formers are always checked using default transparency.
+
+Remark:
+The canonicalizer minimizes issues with non-canonical instances and structurally different but definitionally equal types,
+but it does not solve all problems. For example, consider a situation where we have `(a : BitVec n)`
+and `(b : BitVec m)`, along with instances `inst1 n : Add (BitVec n)` and `inst2 m : Add (BitVec m)` where `inst1`
+and `inst2` are structurally different. Now consider the terms `a + a` and `b + b`. After canonicalization, the two
+additions will still use structurally different (and definitionally different) instances: `inst1 n` and `inst2 m`.
+Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
 -/
 
 structure State where

@@ -599,6 +599,9 @@ export Core (instantiateTypeLevelParams instantiateValueLevelParams)
 @[inline] def map2MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → MetaM α) → MetaM α) {α} (k : β → γ → m α) : m α :=
   controlAt MetaM fun runInBase => f fun b c => runInBase <| k b c
 
+@[inline] def map3MetaM [MonadControlT MetaM m] [Monad m] (f : forall {α}, (β → γ → δ → MetaM α) → MetaM α) {α} (k : β → γ → δ → m α) : m α :=
+  controlAt MetaM fun runInBase => f fun b c d => runInBase <| k b c d
+
 section Methods
 variable [MonadControlT MetaM n] [Monad n]
 

@@ -15,16 +15,18 @@ open Lean Meta
 
 namespace Lean.Elab.Tactic.Conv
 
+/-!
+### `extract_lets`
+-/
+
 @[builtin_tactic Lean.Parser.Tactic.Conv.extractLets] elab_rules : tactic
-  | `(conv| extract_lets $cfg:optConfig $ids* $[$ellipsis?:ellipsis]?) => do
+  | `(conv| extract_lets $cfg:optConfig $ids*) => do
     let mut config ← elabExtractLetsConfig cfg
-    if ellipsis?.isSome || ids.isEmpty then
-      config := { config with onlyGivenNames := false }
     let givenNames := (ids.map getNameOfIdent').toList
     let (lhs, rhs) ← getLhsRhs
     let fvars ← liftMetaTacticAux fun mvarId => do
       mvarId.checkNotAssigned `extract_lets
-      Meta.extractLets #[lhs] givenNames (config := config) fun fvarIds es => do
+      Meta.extractLets #[lhs] givenNames (config := config) fun fvarIds es _ => do
         let lhs' := es[0]!
         if fvarIds.isEmpty && lhs == lhs' then
           throwTacticEx `extract_lets mvarId m!"made no progress"
@@ -39,9 +41,11 @@ namespace Lean.Elab.Tactic.Conv
         assign rhs'.mvarId! rhs
         assign mvarId g
         return (fvarIds, [g.mvarId!])
-    withMainContext do
-      for stx in ids, fvar in fvars do
-        Term.addLocalVarInfo stx (.fvar fvar)
+    extractLetsAddVarInfo ids fvars
+
+/-!
+### `lift_lets`
+-/
 
 @[builtin_tactic Lean.Parser.Tactic.Conv.liftLets] elab_rules : tactic
   | `(conv| lift_lets $cfg:optConfig) => do

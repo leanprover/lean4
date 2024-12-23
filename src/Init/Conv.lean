@@ -311,15 +311,14 @@ macro_rules
 Extracts `let` and `let_fun` expressions from within the target expression.
 This is the conv mode version of the `extract_lets` tactic.
 
-- `extract_lets x y z` extracts up to three lets from the target and names the extracted declarations `x`, `y`, and `z`.
-  The names can be `_`, which causes the extracted declarations to use hygienic names.
-- `extract_lets x y z ..` extracts any number of lets from the goal.
-- `extract_lets` is the same as `extract_lets ..`
+- `extract_lets` extracts all the lets from the target.
+- `extract_lets x y z` extracts all the lets from the target and names the first three `x`, `y`, and `z`.
+  Using `_` for a name leaves it unnamed.
 
 Limitation: the extracted local declarations do not persist outside of the `conv` goal.
 See also `lift_lets`, which does not extract lets as local declarations.
 -/
-syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (ellipsis)? : conv
+syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* : conv
 
 /--
 Lifts `let` and `let_fun` expressions within the target expression as far out as possible.

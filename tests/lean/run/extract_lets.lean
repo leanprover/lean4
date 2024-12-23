@@ -72,7 +72,38 @@ example : (let x := 2; x) = (let y := 1 + 1; y) := by
   rfl
 
 /-!
-Length of name list controls number of lets.
+Names extracted lets in order, but keeps extracting even after list is exhausted.
+-/
+/--
+info: z : Nat := 2
+y✝ : Nat := 1 + 1
+⊢ z = y✝
+-/
+#guard_msgs in
+example : (let x := 2; x) = (let y := 1 + 1; y) := by
+  extract_lets z
+  trace_state
+  rfl
+
+/-!
+Too many names, linter warning.
+-/
+/--
+warning: unused name
+note: this linter can be disabled with `set_option linter.tactic.unusedName false`
+---
+info: z : Nat := 2
+z' : Nat := 1 + 1
+⊢ z = z'
+-/
+#guard_msgs in
+example : (let x := 2; x) = (let y := 1 + 1; y) := by
+  extract_lets z z' z''
+  trace_state
+  rfl
+
+/-!
+Length of name list controls number of lets in `+onlyGivenNames` mode.
 -/
 /--
 info: z : Nat := 2
@@ -82,7 +113,7 @@ info: z : Nat := 2
 -/
 #guard_msgs in
 example : (let x := 2; x) = (let y := 1 + 1; y) := by
-  extract_lets z
+  extract_lets +onlyGivenNames z
   trace_state
   rfl
 /--
@@ -92,21 +123,7 @@ w : Nat := 1 + 1
 -/
 #guard_msgs in
 example : (let x := 2; x) = (let y := 1 + 1; y) := by
-  extract_lets z w
-  trace_state
-  rfl
-
-/-!
-Ellipsis
--/
-/--
-info: z : Nat := 2
-y✝ : Nat := 1 + 1
-⊢ z = y✝
--/
-#guard_msgs in
-example : (let x := 2; x) = (let y := 1 + 1; y) := by
-  extract_lets z ..
+  extract_lets +onlyGivenNames z w
   trace_state
   rfl
 
@@ -449,11 +466,11 @@ h : ok✝
 -/
 #guard_msgs in
 example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True := by
-  extract_lets _ at h
+  extract_lets +onlyGivenNames _ at h
   trace_state
-  extract_lets _
+  extract_lets +onlyGivenNames _
   trace_state
-  extract_lets _ at h
+  extract_lets +onlyGivenNames _ at h
   trace_state
   trivial
 
@@ -472,9 +489,9 @@ h : ok✝
 -/
 #guard_msgs in
 example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True := by
-  extract_lets +usedOnly _ at h
+  extract_lets +onlyGivenNames +usedOnly _ at h
   trace_state
-  extract_lets +usedOnly _
+  extract_lets +usedOnly
   trace_state
   trivial
 
@@ -493,9 +510,9 @@ h : ok✝
 -/
 #guard_msgs in
 example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True := by
-  extract_lets -descend +usedOnly _ at h
+  extract_lets -descend +onlyGivenNames +usedOnly _ at h
   trace_state
-  extract_lets -descend +usedOnly _
+  extract_lets -descend +usedOnly
   trace_state
   trivial
 
@@ -627,7 +644,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, n = (let x := n; x) := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl
@@ -643,7 +660,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, n = (have x := n; x) := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl
@@ -660,7 +677,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, (have x := n; x) = (have x' := n; x') := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl
@@ -672,7 +689,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, (let x := n; x) = (have x' := n; x') := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl
@@ -684,7 +701,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, (have x := n; x) = (let x' := n; x') := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl
@@ -696,7 +713,7 @@ info: ⊢ ∀ (n : Nat),
 #guard_msgs in
 example : ∀ n : Nat, (let x := n; x) = (let x' := n; x') := by
   fail_if_success extract_lets
-  extract_lets +lift a
+  extract_lets +lift
   trace_state
   intros
   rfl

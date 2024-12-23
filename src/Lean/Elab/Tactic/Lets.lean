@@ -15,30 +15,45 @@ open Lean Meta
 
 namespace Lean.Elab.Tactic
 
+register_builtin_option linter.tactic.unusedName : Bool := {
+  defValue := true,
+  descr := "enable the 'unused name' tactic linter"
+}
+
+/-!
+### `extract_lets`
+-/
+
+def extractLetsAddVarInfo (ids : Array Syntax) (fvars : Array FVarId) : TacticM Unit :=
+  withMainContext do
+    for h : i in [0:ids.size] do
+      if h' : i < fvars.size then
+        Term.addLocalVarInfo ids[i] (mkFVar fvars[i])
+      else
+        Linter.logLintIf linter.tactic.unusedName ids[i] m!"unused name"
+
 declare_config_elab elabExtractLetsConfig ExtractLetsConfig
 
 @[builtin_tactic extractLets] elab_rules : tactic
-  | `(tactic| extract_lets $cfg:optConfig $ids* $[$ellipsis?:ellipsis]? $[$loc?:location]?) => do
+  | `(tactic| extract_lets $cfg:optConfig $ids* $[$loc?:location]?) => do
     let mut config ← elabExtractLetsConfig cfg
-    if ellipsis?.isSome || ids.isEmpty then
-      config := { config with onlyGivenNames := false }
     let givenNames := (ids.map getNameOfIdent').toList
     withLocation (expandOptLocation (Lean.mkOptionalNode loc?))
       (atLocal := fun h => do
         let fvars ← liftMetaTacticAux fun mvarId => do
-          let (fvars, mvarId) ← mvarId.extractLetsLocalDecl h givenNames config
+          let ((fvars, _), mvarId) ← mvarId.extractLetsLocalDecl h givenNames config
           return (fvars, [mvarId])
-        withMainContext do
-          for stx in ids, fvar in fvars do
-            Term.addLocalVarInfo stx (.fvar fvar))
+        extractLetsAddVarInfo ids fvars)
       (atTarget := do
         let fvars ← liftMetaTacticAux fun mvarId => do
-          let (fvars, mvarId) ← mvarId.extractLets givenNames config
+          let ((fvars, _), mvarId) ← mvarId.extractLets givenNames config
           return (fvars, [mvarId])
-        withMainContext do
-          for stx in ids, fvar in fvars do
-            Term.addLocalVarInfo stx (.fvar fvar))
+        extractLetsAddVarInfo ids fvars)
       (failed := fun _ => throwError "'extract_lets' tactic failed")
+
+/-!
+### `lift_lets`
+-/
 
 declare_config_elab elabLiftLetsConfig LiftLetsConfig
 

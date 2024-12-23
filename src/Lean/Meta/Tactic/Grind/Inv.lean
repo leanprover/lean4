@@ -40,12 +40,27 @@ private def checkEqc (root : ENode) : GoalM Unit := do
   -- The size of the equivalence class is correct.
   assert! root.size == size
 
+private def checkParents (e : Expr) : GoalM Unit := do
+  if (← isRoot e) then
+    for parent in (← getParents e) do
+      let mut found := false
+      -- There is an argument `arg` s.t. root of `arg` is `e`.
+      for arg in parent.getAppArgs do
+        if isSameExpr (← getRoot arg) e then
+          found := true
+          break
+      assert! found
+  else
+    -- All the parents are stored in the root of the equivalence class.
+    assert! (← getParents e).isEmpty
+
 /--
 Check basic invariants if `grind.debug` is enabled.
 -/
 def checkInvariants : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     for (_, node) in (← get).enodes do
+      checkParents node.self
       if isSameExpr node.self node.root then
         checkEqc node
 

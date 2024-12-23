@@ -185,10 +185,10 @@ Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
-  let occs ← getParents root
-  for parent in occs do
+  let parents ← getParentsAndReset root
+  for parent in parents do
     modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
-  return occs
+  return parents
 
 /--
 Reinsert parents into the congruence table and detect new equalities.

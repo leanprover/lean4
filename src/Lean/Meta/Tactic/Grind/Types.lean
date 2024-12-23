@@ -302,10 +302,16 @@ Returns the set of expressions `e` is a child of, or an expression in
 The information is only up to date if `e` is the root (aka canonical representative) of the equivalence class.
 -/
 def getParents (e : Expr) : GoalM ParentSet := do
-  if let some occs := (← get).parents.find? (toENodeKey e) then
-    return occs
-  else
-    return {}
+  let some parents := (← get).parents.find? (toENodeKey e) | return {}
+  return parents
+
+/--
+Similar to `getParents`, but also removes the entry `e ↦ parents` from the parent map.
+-/
+def getParentsAndReset (e : Expr) : GoalM ParentSet := do
+  let parents ← getParents e
+  modify fun s => { s with parents := s.parents.erase (toENodeKey e) }
+  return parents
 
 /--
 Copy `parents` to the parents of `root`.

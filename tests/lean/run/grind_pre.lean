@@ -77,7 +77,6 @@ def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   grind_pre
-  guard_hyp h : j + 1 ≤ i
   next hn =>
   guard_hyp hn : ¬g (i + 1) j _ = i + j + 1
   simp_arith [g] at hn

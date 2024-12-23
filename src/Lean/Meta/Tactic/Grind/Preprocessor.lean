@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.MarkNestedProofs
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -71,6 +72,8 @@ def introNext (goal : Goal) : PreM IntroResult := do
         -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp goal p
         let p' := r.expr
+        let p' ← markNestedProofs p'
+        let p' ← unfoldReducible p'
         let p' ← eraseIrrelevantMData p'
         let p' ← foldProjs p'
         let p' ← normalizeLevels p'
@@ -97,7 +100,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
       let localDecl ← fvarId.getDecl
       if (← isProp localDecl.type) then
         -- Add a non-dependent copy
-        let mvarId ← mvarId.assert localDecl.userName localDecl.type (mkFVar fvarId)
+        let mvarId ← mvarId.assert (← mkFreshUserName localDecl.userName) localDecl.type (mkFVar fvarId)
         return .newDepHyp { goal with mvarId }
       else
         return .newLocal fvarId { goal with mvarId }

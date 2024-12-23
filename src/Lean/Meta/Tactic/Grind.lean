@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.MarkNestedProofs
 
 namespace Lean
 
@@ -22,5 +23,6 @@ builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.add
 builtin_initialize registerTraceClass `grind.pre
 builtin_initialize registerTraceClass `grind.debug
+builtin_initialize registerTraceClass `grind.congr
 
 end Lean

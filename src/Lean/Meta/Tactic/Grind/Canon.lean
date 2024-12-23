@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Basic
 import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
@@ -18,10 +19,8 @@ A canonicalizer module for the `grind` tactic. The canonicalizer defined in `Met
 not suitable for the `grind` tactic. It was designed for tactics such as `omega`, where the goal is
 to detect when two structurally different atoms are definitionally equal.
 
-The `grind` tactic, on the other hand, uses congruence closure but disregards types, type formers, instances, and proofs.
-Proofs are ignored due to proof irrelevance. Types, type formers, and instances are considered supporting
-elements and are not factored into congruence detection. Instead, `grind` only checks whether
-elements are structurally equal, which, in the context of the `grind` tactic, is equivalent to pointer equality.
+The `grind` tactic, on the other hand, uses congruence closure. Moreover, types, type formers, proofs, and instances
+are considered supporting elements and are not factored into congruence detection.
 
 This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they instances,
 types, or type formers and are the `i`-th arguments of two different `f`-applications. This approach is
@@ -31,6 +30,14 @@ To further optimize `isDefEq` checks, instances are compared using `Transparency
 the number of constants that need to be unfolded. If diagnostics are enabled, instances are compared using
 the default transparency mode too for sanity checking, and discrepancies are reported.
 Types and type formers are always checked using default transparency.
+
+Remark:
+The canonicalizer minimizes issues with non-canonical instances and structurally different but definitionally equal types,
+but it does not solve all problems. For example, consider a situation where we have `(a : BitVec n)`
+and `(b : BitVec m)`, along with instances `inst1 n : Add (BitVec n)` and `inst2 m : Add (BitVec m)` where `inst1`
+and `inst2` are structurally different. Now consider the terms `a + a` and `b + b`. After canonicalization, the two
+additions will still use structurally different (and definitionally different) instances: `inst1 n` and `inst2 m`.
+Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
 -/
 
 structure State where
@@ -72,11 +79,6 @@ abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <|
 Return type for the `shouldCanon` function.
 -/
 private inductive ShouldCanonResult where
-  | /-
-    Nested proofs are ignored by the canonizer.
-    That is, they are not canonized or recursively visited.
-    -/
-    ignore
   | /- Nested types (and type formers) are canonicalized. -/
     canonType
   | /- Nested instances are canonicalized. -/
@@ -97,7 +99,7 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
     if pinfo.isInstImplicit then
       return .canonInst
     else if pinfo.isProp then
-      return .ignore
+      return .visit
   if (← isTypeFormer arg) then
     return .canonType
   else
@@ -122,20 +124,25 @@ where
       if let some r := (← get).find? e then
         return r
       e.withApp fun f args => do
-        let pinfos := (← getFunInfo f).paramInfo
-        let mut modified := false
-        let mut args := args
-        for i in [:args.size] do
-          let arg := args[i]!
-          let arg' ← match (← shouldCanon pinfos i arg) with
-          | .ignore    => pure arg
-          | .canonType => canonType f i arg
-          | .canonInst => canonInst f i arg
-          | .visit     => visit arg
-          unless ptrEq arg arg' do
-            args := args.set! i arg'
-            modified := true
-        let e' := if modified then mkAppN f args else e
+        let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+          -- We just canonize the proposition
+          let prop := args[0]!
+          let prop' ← visit prop
+          pure <| if ptrEq prop prop' then mkAppN f (args.set! 0 prop') else e
+        else
+          let pinfos := (← getFunInfo f).paramInfo
+          let mut modified := false
+          let mut args := args
+          for i in [:args.size] do
+            let arg := args[i]!
+            let arg' ← match (← shouldCanon pinfos i arg) with
+            | .canonType  => canonType f i arg
+            | .canonInst  => canonInst f i arg
+            | .visit      => visit arg
+            unless ptrEq arg arg' do
+              args := args.set! i arg'
+              modified := true
+          pure <| if modified then mkAppN f args else e
         modify fun s => s.insert e e'
         return e'
 

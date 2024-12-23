@@ -11,6 +11,8 @@ elab "grind_test" : tactic => withMainContext do
     let eqc ← getEqc n.self
     logInfo eqc
 
+set_option grind.debug true
+
 /--
 info: [d, f b, c, f a]
 ---

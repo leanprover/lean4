@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.LitValues
 
 namespace Lean.Meta.Grind
@@ -60,6 +61,9 @@ def ppENodeDecl (e : Expr) : GoalM Format := do
     r := r ++ ", [val]"
   if n.ctor then
     r := r ++ ", [ctor]"
+  if grind.debug.get (← getOptions) then
+    if let some target ← getTarget? e then
+      r := r ++ f!" ↝ {← ppENodeRef target}"
   return r
 
 /-- Pretty print goal state for debugging purposes. -/
@@ -186,23 +190,24 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
     return ()
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
+  let mut valueInconsistency := false
+  if lhsRoot.interpreted && rhsRoot.interpreted then
+    if lhsNode.root.isTrue || rhsNode.root.isTrue then
+      markAsInconsistent
+    else
+      valueInconsistency := true
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
      || (lhsRoot.ctor && !rhsRoot.ctor)
      || (lhsRoot.size > rhsRoot.size && !rhsRoot.interpreted && !rhsRoot.ctor) then
     go rhs lhs rhsNode lhsNode rhsRoot lhsRoot true
   else
     go lhs rhs lhsNode rhsNode lhsRoot rhsRoot false
+  -- TODO: propagate value inconsistency
   trace[grind.debug] "after addEqStep, {← ppState}"
+  checkInvariants
 where
   go (lhs rhs : Expr) (lhsNode rhsNode lhsRoot rhsRoot : ENode) (flipped : Bool) : GoalM Unit := do
     trace[grind.debug] "adding {← ppENodeRef lhs} ↦ {← ppENodeRef rhs}"
-    let mut valueInconsistency := false
-    if lhsRoot.interpreted && rhsRoot.interpreted then
-      if lhsNode.root.isTrue || rhsNode.root.isTrue then
-        markAsInconsistent
-      else
-        valueInconsistency := true
-    -- TODO: process valueInconsistency := true
     /-
     We have the following `target?/proof?`
     `lhs -> ... -> lhsNode.root`
@@ -222,9 +227,8 @@ where
     updateRoots lhs rhsNode.root true -- TODO
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     -- TODO: Reinsert parents into congruence table
-    setENode lhsNode.root { lhsRoot with
+    setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
-      root := rhsNode.root
     }
     setENode rhsNode.root { rhsRoot with
       next := lhsRoot.next

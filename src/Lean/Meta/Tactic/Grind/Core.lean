@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.LitValues
 
@@ -28,7 +29,8 @@ where
 /-- Returns all equivalence classes in the current goal. -/
 partial def getEqcs : GoalM (List (List Expr)) := do
   let mut r := []
-  for (_, node) in (← get).enodes do
+  let nodes ← getENodes
+  for node in nodes do
     if isSameExpr node.root node.self then
       r := (← getEqc node.self) :: r
   return r
@@ -63,8 +65,7 @@ def ppENodeDecl (e : Expr) : GoalM Format := do
 /-- Pretty print goal state for debugging purposes. -/
 def ppState : GoalM Format := do
   let mut r := f!"Goal:"
-  let nodes := (← get).enodes.toArray.map (·.2)
-  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  let nodes ← getENodes
   for node in nodes do
     r := r ++ "\n" ++ (← ppENodeDecl node.self)
   let eqcs ← getEqcs
@@ -94,18 +95,24 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
 private def pushNewEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
-@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit :=
-  pushNewEqCore lhs rhs proof (isHEq := false)
+@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit := do
+  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
+    pushNewEqCore lhs rhs proof (isHEq := false)
+  else
+    pushNewEqCore lhs rhs proof (isHEq := true)
 
-@[inline] private def pushNewHEq (lhs rhs proof : Expr) : GoalM Unit :=
-  pushNewEqCore lhs rhs proof (isHEq := true)
+/-- We use this auxiliary constant to mark delayed congruence proofs. -/
+private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
-/--
-Adds `e` to congruence table.
--/
-def addCongrTable (_e : Expr) : GoalM Unit := do
-  -- TODO
-  return ()
+/-- Adds `e` to congruence table. -/
+def addCongrTable (e : Expr) : GoalM Unit := do
+  if let some { e := e' } := (← get).congrTable.find? { e } then
+    trace[grind.congr] "{e} = {e'}"
+    pushNewEq e e' congrPlaceholderProof
+    -- TODO: we must check whether the types of the functions are the same
+    -- TODO: update cgRoot for `e`
+  else
+    modify fun s => { s with congrTable := s.congrTable.insert { e } }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
@@ -126,20 +133,16 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
-      unless f.isConst do
-        internalize f generation
-      let info ← getFunInfo f
-      let shouldInternalize (i : Nat) : GoalM Bool := do
-        if h : i < info.paramInfo.size then
-          let pinfo := info.paramInfo[i]
-          if pinfo.binderInfo.isInstImplicit || pinfo.isProp then
-            return false
-        return true
-      for h : i in [: args.size] do
-        let arg := args[i]
-        if (← shouldInternalize i) then
-          unless (← isTypeFormer arg) do
-            internalize arg generation
+      if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+        -- We only internalize the proposition. We can skip the proof because of
+        -- proof irrelevance
+        internalize args[0]! generation
+      else
+        unless f.isConst do
+          internalize f generation
+        for h : i in [: args.size] do
+          let arg := args[i]
+          internalize arg generation
       mkENode e generation
       addCongrTable e
 
@@ -237,10 +240,17 @@ where
     loop lhs
 
 /-- Ensures collection of equations to be processed is empty. -/
-def resetNewEqs : GoalM Unit :=
+private def resetNewEqs : GoalM Unit :=
   modify fun s => { s with newEqs := #[] }
 
-partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+/-- Pops and returns the next equality to be processed. -/
+private def popNextEq? : GoalM (Option NewEq) := do
+  let r := (← get).newEqs.back?
+  if r.isSome then
+    modify fun s => { s with newEqs := s.newEqs.pop }
+  return r
+
+private partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
   processTodo
 where
@@ -248,7 +258,7 @@ where
     if (← isInconsistent) then
       resetNewEqs
       return ()
-    let some { lhs, rhs, proof, isHEq } := (← get).newEqs.back? | return ()
+    let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
     addEqStep lhs rhs proof isHEq
     processTodo
 
@@ -273,7 +283,7 @@ where
     trace[grind.add] "isNeg: {isNeg}, {p}"
     match_expr p with
     | Eq _ lhs rhs => goEq p lhs rhs isNeg false
-    | HEq _ _ lhs rhs => goEq p lhs rhs isNeg true
+    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
     | _ =>
       internalize p generation
       if isNeg then

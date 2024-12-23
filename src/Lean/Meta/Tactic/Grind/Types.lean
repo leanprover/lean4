@@ -160,9 +160,68 @@ structure NewEq where
   proof : Expr
   isHEq : Bool
 
+abbrev ENodes := PHashMap USize ENode
+
+structure CongrKey (enodes : ENodes) where
+  e : Expr
+
+private abbrev toENodeKey (e : Expr) : USize :=
+  unsafe ptrAddrUnsafe e
+
+private def hashRoot (enodes : ENodes) (e : Expr) : UInt64 :=
+  if let some node := enodes.find? (toENodeKey e) then
+    toENodeKey node.root |>.toUInt64
+  else
+    13
+
+private def hasSameRoot (enodes : ENodes) (a b : Expr) : Bool := Id.run do
+  let ka := toENodeKey a
+  let kb := toENodeKey b
+  if ka == kb then
+    return true
+  else
+    let some n1 := enodes.find? ka | return false
+    let some n2 := enodes.find? kb | return false
+    toENodeKey n1.root == toENodeKey n2.root
+
+def congrHash (enodes : ENodes) (e : Expr) : UInt64 :=
+  if e.isAppOfArity ``Lean.Grind.nestedProof 2 then
+    -- We only hash the proposition
+    hashRoot enodes (e.getArg! 0)
+  else
+    go e 17
+where
+  go (e : Expr) (r : UInt64) : UInt64 :=
+    match e with
+    | .app f a => go f (mixHash r (hashRoot enodes a))
+    | _ => mixHash r (hashRoot enodes e)
+
+partial def isCongruent (enodes : ENodes) (a b : Expr) : Bool :=
+  if a.isAppOfArity ``Lean.Grind.nestedProof 2 && b.isAppOfArity ``Lean.Grind.nestedProof 2 then
+    hasSameRoot enodes (a.getArg! 0) (b.getArg! 0)
+  else
+    go a b
+where
+  go (a b : Expr) : Bool :=
+    if a.isApp && b.isApp then
+      hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!
+    else
+      -- Remark: we do not check whether the types of the functions are equal here
+      -- because we are not in the `MetaM` monad.
+      hasSameRoot enodes a b
+
+instance : Hashable (CongrKey enodes) where
+  hash k := congrHash enodes k.e
+
+instance : BEq (CongrKey enodes) where
+  beq k1 k2 := isCongruent enodes k1.e k2.e
+
+abbrev CongrTable (enodes : ENodes) := PHashSet (CongrKey enodes)
+
 structure Goal where
   mvarId       : MVarId
-  enodes       : PHashMap USize ENode := {}
+  enodes       : ENodes := {}
+  congrTable   : CongrTable enodes := {}
   /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
@@ -209,7 +268,10 @@ def alreadyInternalized (e : Expr) : GoalM Bool :=
   return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
-  modify fun s => { s with enodes := s.enodes.insert (unsafe ptrAddrUnsafe e) n }
+  modify fun s => { s with
+    enodes := s.enodes.insert (unsafe ptrAddrUnsafe e) n
+    congrTable := unsafe unsafeCast s.congrTable
+  }
 
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
   setENode e {
@@ -230,10 +292,14 @@ def mkGoal (mvarId : MVarId) : GrindM Goal := do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
-def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
-  -- We must sort because we are using pointer addresses to hash
+/-- Returns all enodes in the goal -/
+def getENodes : GoalM (Array ENode) := do
+  -- We must sort because we are using pointer addresses as keys in `enodes`
   let nodes := (← get).enodes.toArray.map (·.2)
-  let nodes := nodes.qsort fun a b => a.idx < b.idx
+  return nodes.qsort fun a b => a.idx < b.idx
+
+def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
+  let nodes ← getENodes
   for n in nodes do
     f n
 

@@ -136,13 +136,17 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance
-        internalize args[0]! generation
+        let c := args[0]!
+        internalize c generation
+        addOccurrence e c
       else
         unless f.isConst do
           internalize f generation
+          addOccurrence e f
         for h : i in [: args.size] do
           let arg := args[i]
           internalize arg generation
+          addOccurrence e arg
       mkENode e generation
       addCongrTable e
 

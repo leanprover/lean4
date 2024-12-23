@@ -73,6 +73,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
         let r ← simp goal p
         let p' := r.expr
         let p' ← markNestedProofs p'
+        let p' ← unfoldReducible p'
         let p' ← eraseIrrelevantMData p'
         let p' ← foldProjs p'
         let p' ← normalizeLevels p'

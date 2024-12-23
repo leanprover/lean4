@@ -220,12 +220,12 @@ abbrev CongrTable (enodes : ENodes) := PHashSet (CongrKey enodes)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := RBTree Expr Expr.quickComp
-abbrev Occurrences := PHashMap USize ParentSet
+abbrev ParentMap := PHashMap USize ParentSet
 
 structure Goal where
   mvarId       : MVarId
   enodes       : ENodes := {}
-  occs         : Occurrences := {}
+  parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
   /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
@@ -260,6 +260,11 @@ def getENode (e : Expr) : GoalM ENode := do
   let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
   return n
 
+/-- Returns `true` is the root of its equivalence class. -/
+def isRoot (e : Expr) : GoalM Bool := do
+  let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
+  return isSameExpr n.root e
+
 /-- Returns the root element in the equivalence class of `e` IF `e` has been internalized. -/
 def getRoot? (e : Expr) : GoalM (Option Expr) := do
   let some n ← getENode? e | return none
@@ -285,22 +290,33 @@ def getTarget? (e : Expr) : GoalM (Option Expr) := do
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/
-def addOccurrence (parent : Expr) (child : Expr) : GoalM Unit := do
+def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
   let some childRoot ← getRoot? child | return ()
   let key := toENodeKey childRoot
-  let parents := if let some parents := (← get).occs.find? key then parents else {}
-  modify fun s => { s with occs := s.occs.insert key (parents.insert parent) }
+  let parents := if let some parents := (← get).parents.find? key then parents else {}
+  modify fun s => { s with parents := s.parents.insert key (parents.insert parent) }
 
 /--
 Returns the set of expressions `e` is a child of, or an expression in
 `e`s equivalence class is a child of.
 The information is only up to date if `e` is the root (aka canonical representative) of the equivalence class.
 -/
-def getOccurrences (e : Expr) : GoalM ParentSet := do
-  if let some occs := (← get).occs.find? (toENodeKey e) then
+def getParents (e : Expr) : GoalM ParentSet := do
+  if let some occs := (← get).parents.find? (toENodeKey e) then
     return occs
   else
     return {}
+
+/--
+Copy `parents` to the parents of `root`.
+`root` must be the root of its equivalence class.
+-/
+def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
+  let key := toENodeKey root
+  let mut curr := if let some parents := (← get).parents.find? key then parents else {}
+  for parent in parents do
+    curr := curr.insert parent
+  modify fun s => { s with parents := s.parents.insert key curr }
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with

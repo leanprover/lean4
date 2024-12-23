@@ -142,15 +142,15 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         -- proof irrelevance
         let c := args[0]!
         internalize c generation
-        addOccurrence e c
+        registerParent e c
       else
         unless f.isConst do
           internalize f generation
-          addOccurrence e f
+          registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
           internalize arg generation
-          addOccurrence e arg
+          registerParent e arg
       mkENode e generation
       addCongrTable e
 
@@ -179,6 +179,24 @@ private def markAsInconsistent : GoalM Unit :=
 
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
+
+/--
+Remove `root` parents from the congruence table.
+This is an auxiliary function performed while merging equivalence classes.
+-/
+private def removeParents (root : Expr) : GoalM ParentSet := do
+  let occs ← getParents root
+  for parent in occs do
+    modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
+  return occs
+
+/--
+Reinsert parents into the congruence table and detect new equalities.
+This is an auxiliary function performed while merging equivalence classes.
+-/
+private def reinsertParents (parents : ParentSet) : GoalM Unit := do
+  for parent in parents do
+    addCongrTable parent
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
@@ -222,11 +240,11 @@ where
       proof?  := proof
       flipped
     }
-    -- TODO: Remove parents from congruence table
+    let parents ← removeParents lhsRoot.self
     -- TODO: set propagateBool
     updateRoots lhs rhsNode.root true -- TODO
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
-    -- TODO: Reinsert parents into congruence table
+    reinsertParents parents
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
@@ -236,7 +254,7 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
-    -- TODO: copy parentst from lhsRoot parents to rhsRoot parents
+    copyParentsTo parents rhsNode.root
 
   updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do

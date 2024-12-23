@@ -18,7 +18,7 @@ register_builtin_option grind.debug : Bool := {
   descr    := "check invariants after updates"
 }
 
-def checkEqc (root : ENode) : GoalM Unit := do
+private def checkEqc (root : ENode) : GoalM Unit := do
   let mut size := 0
   let mut curr := root.self
   repeat

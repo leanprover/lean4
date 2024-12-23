@@ -277,6 +277,10 @@ def getNext (e : Expr) : GoalM Expr :=
 def alreadyInternalized (e : Expr) : GoalM Bool :=
   return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
 
+def getTarget? (e : Expr) : GoalM (Option Expr) := do
+  let some n ← getENode? e | return none
+  return n.target?
+
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.

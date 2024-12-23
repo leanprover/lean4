@@ -175,9 +175,14 @@ private def hashRoot (enodes : ENodes) (e : Expr) : UInt64 :=
     13
 
 private def hasSameRoot (enodes : ENodes) (a b : Expr) : Bool := Id.run do
-  let some n1 := enodes.find? (toENodeKey a) | false
-  let some n2 := enodes.find? (toENodeKey b) | false
-  toENodeKey n1.root == toENodeKey n2.root
+  let ka := toENodeKey a
+  let kb := toENodeKey b
+  if ka == kb then
+    return true
+  else
+    let some n1 := enodes.find? ka | return false
+    let some n2 := enodes.find? kb | return false
+    toENodeKey n1.root == toENodeKey n2.root
 
 def congrHash (enodes : ENodes) (e : Expr) : UInt64 :=
   if e.isAppOfArity ``Lean.Grind.nestedProof 2 then

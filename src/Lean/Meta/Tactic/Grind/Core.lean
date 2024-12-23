@@ -95,18 +95,24 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
 private def pushNewEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
-@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit :=
-  pushNewEqCore lhs rhs proof (isHEq := false)
+@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit := do
+  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
+    pushNewEqCore lhs rhs proof (isHEq := false)
+  else
+    pushNewEqCore lhs rhs proof (isHEq := true)
 
-@[inline] private def pushNewHEq (lhs rhs proof : Expr) : GoalM Unit :=
-  pushNewEqCore lhs rhs proof (isHEq := true)
+/-- We use this auxiliary constant to mark delayed congruence proofs. -/
+private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
-/--
-Adds `e` to congruence table.
--/
-def addCongrTable (_e : Expr) : GoalM Unit := do
-  -- TODO
-  return ()
+/-- Adds `e` to congruence table. -/
+def addCongrTable (e : Expr) : GoalM Unit := do
+  if let some { e := e' } := (← get).congrTable.find? { e } then
+    trace[grind.congr] "{e} = {e'}"
+    pushNewEq e e' congrPlaceholderProof
+    -- TODO: we must check whether the types of the functions are the same
+    -- TODO: update cgRoot for `e`
+  else
+    modify fun s => { s with congrTable := s.congrTable.insert { e } }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
@@ -234,10 +240,17 @@ where
     loop lhs
 
 /-- Ensures collection of equations to be processed is empty. -/
-def resetNewEqs : GoalM Unit :=
+private def resetNewEqs : GoalM Unit :=
   modify fun s => { s with newEqs := #[] }
 
-partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+/-- Pops and returns the next equality to be processed. -/
+private def popNextEq? : GoalM (Option NewEq) := do
+  let r := (← get).newEqs.back?
+  if r.isSome then
+    modify fun s => { s with newEqs := s.newEqs.pop }
+  return r
+
+private partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
   processTodo
 where
@@ -245,7 +258,7 @@ where
     if (← isInconsistent) then
       resetNewEqs
       return ()
-    let some { lhs, rhs, proof, isHEq } := (← get).newEqs.back? | return ()
+    let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
     addEqStep lhs rhs proof isHEq
     processTodo
 

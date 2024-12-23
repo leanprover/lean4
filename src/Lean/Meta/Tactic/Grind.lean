@@ -23,5 +23,6 @@ builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.add
 builtin_initialize registerTraceClass `grind.pre
 builtin_initialize registerTraceClass `grind.debug
+builtin_initialize registerTraceClass `grind.congr
 
 end Lean

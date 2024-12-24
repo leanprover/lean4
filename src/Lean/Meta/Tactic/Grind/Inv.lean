@@ -12,12 +12,6 @@ namespace Lean.Meta.Grind
 Debugging support code for checking basic invariants.
 -/
 
-register_builtin_option grind.debug : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "check invariants after updates"
-}
-
 private def checkEqc (root : ENode) : GoalM Unit := do
   let mut size := 0
   let mut curr := root.self

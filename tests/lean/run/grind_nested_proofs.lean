@@ -9,6 +9,8 @@ elab "grind_test" : tactic => withMainContext do
     let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
     logInfo (nodes.toList.map (·.self))
 
+set_option grind.debug true
+
 /--
 info: [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),
  Lean.Grind.nestedProof (j < a.toList.length) h1,

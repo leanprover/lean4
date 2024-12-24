@@ -218,9 +218,14 @@ instance : BEq (CongrKey enodes) where
 
 abbrev CongrTable (enodes : ENodes) := PHashSet (CongrKey enodes)
 
+-- Remark: we cannot use pointer addresses here because we have to traverse the tree.
+abbrev ParentSet := RBTree Expr Expr.quickComp
+abbrev ParentMap := PHashMap USize ParentSet
+
 structure Goal where
   mvarId       : MVarId
   enodes       : ENodes := {}
+  parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
   /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
@@ -255,6 +260,16 @@ def getENode (e : Expr) : GoalM ENode := do
   let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
   return n
 
+/-- Returns `true` is the root of its equivalence class. -/
+def isRoot (e : Expr) : GoalM Bool := do
+  let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
+  return isSameExpr n.root e
+
+/-- Returns the root element in the equivalence class of `e` IF `e` has been internalized. -/
+def getRoot? (e : Expr) : GoalM (Option Expr) := do
+  let some n ← getENode? e | return none
+  return some n.root
+
 /-- Returns the root element in the equivalence class of `e`. -/
 def getRoot (e : Expr) : GoalM Expr :=
   return (← getENode e).root
@@ -266,6 +281,48 @@ def getNext (e : Expr) : GoalM Expr :=
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
   return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
+
+def getTarget? (e : Expr) : GoalM (Option Expr) := do
+  let some n ← getENode? e | return none
+  return n.target?
+
+/--
+Records that `parent` is a parent of `child`. This function actually stores the
+information in the root (aka canonical representative) of `child`.
+-/
+def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
+  let some childRoot ← getRoot? child | return ()
+  let key := toENodeKey childRoot
+  let parents := if let some parents := (← get).parents.find? key then parents else {}
+  modify fun s => { s with parents := s.parents.insert key (parents.insert parent) }
+
+/--
+Returns the set of expressions `e` is a child of, or an expression in
+`e`s equivalence class is a child of.
+The information is only up to date if `e` is the root (aka canonical representative) of the equivalence class.
+-/
+def getParents (e : Expr) : GoalM ParentSet := do
+  let some parents := (← get).parents.find? (toENodeKey e) | return {}
+  return parents
+
+/--
+Similar to `getParents`, but also removes the entry `e ↦ parents` from the parent map.
+-/
+def getParentsAndReset (e : Expr) : GoalM ParentSet := do
+  let parents ← getParents e
+  modify fun s => { s with parents := s.parents.erase (toENodeKey e) }
+  return parents
+
+/--
+Copy `parents` to the parents of `root`.
+`root` must be the root of its equivalence class.
+-/
+def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
+  let key := toENodeKey root
+  let mut curr := if let some parents := (← get).parents.find? key then parents else {}
+  for parent in parents do
+    curr := curr.insert parent
+  modify fun s => { s with parents := s.parents.insert key curr }
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with

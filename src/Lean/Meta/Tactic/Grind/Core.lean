@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.LitValues
 
 namespace Lean.Meta.Grind
@@ -60,6 +61,9 @@ def ppENodeDecl (e : Expr) : GoalM Format := do
     r := r ++ ", [val]"
   if n.ctor then
     r := r ++ ", [ctor]"
+  if grind.debug.get (← getOptions) then
+    if let some target ← getTarget? e then
+      r := r ++ f!" ↝ {← ppENodeRef target}"
   return r
 
 /-- Pretty print goal state for debugging purposes. -/
@@ -136,13 +140,17 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance
-        internalize args[0]! generation
+        let c := args[0]!
+        internalize c generation
+        registerParent e c
       else
         unless f.isConst do
           internalize f generation
+          registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
           internalize arg generation
+          registerParent e arg
       mkENode e generation
       addCongrTable e
 
@@ -172,6 +180,24 @@ private def markAsInconsistent : GoalM Unit :=
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
+/--
+Remove `root` parents from the congruence table.
+This is an auxiliary function performed while merging equivalence classes.
+-/
+private def removeParents (root : Expr) : GoalM ParentSet := do
+  let parents ← getParentsAndReset root
+  for parent in parents do
+    modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
+  return parents
+
+/--
+Reinsert parents into the congruence table and detect new equalities.
+This is an auxiliary function performed while merging equivalence classes.
+-/
+private def reinsertParents (parents : ParentSet) : GoalM Unit := do
+  for parent in parents do
+    addCongrTable parent
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
@@ -182,23 +208,24 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
     return ()
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
+  let mut valueInconsistency := false
+  if lhsRoot.interpreted && rhsRoot.interpreted then
+    if lhsNode.root.isTrue || rhsNode.root.isTrue then
+      markAsInconsistent
+    else
+      valueInconsistency := true
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
      || (lhsRoot.ctor && !rhsRoot.ctor)
      || (lhsRoot.size > rhsRoot.size && !rhsRoot.interpreted && !rhsRoot.ctor) then
     go rhs lhs rhsNode lhsNode rhsRoot lhsRoot true
   else
     go lhs rhs lhsNode rhsNode lhsRoot rhsRoot false
+  -- TODO: propagate value inconsistency
   trace[grind.debug] "after addEqStep, {← ppState}"
+  checkInvariants
 where
   go (lhs rhs : Expr) (lhsNode rhsNode lhsRoot rhsRoot : ENode) (flipped : Bool) : GoalM Unit := do
     trace[grind.debug] "adding {← ppENodeRef lhs} ↦ {← ppENodeRef rhs}"
-    let mut valueInconsistency := false
-    if lhsRoot.interpreted && rhsRoot.interpreted then
-      if lhsNode.root.isTrue || rhsNode.root.isTrue then
-        markAsInconsistent
-      else
-        valueInconsistency := true
-    -- TODO: process valueInconsistency := true
     /-
     We have the following `target?/proof?`
     `lhs -> ... -> lhsNode.root`
@@ -213,14 +240,13 @@ where
       proof?  := proof
       flipped
     }
-    -- TODO: Remove parents from congruence table
+    let parents ← removeParents lhsRoot.self
     -- TODO: set propagateBool
     updateRoots lhs rhsNode.root true -- TODO
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
-    -- TODO: Reinsert parents into congruence table
-    setENode lhsNode.root { lhsRoot with
+    reinsertParents parents
+    setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
-      root := rhsNode.root
     }
     setENode rhsNode.root { rhsRoot with
       next := lhsRoot.next
@@ -228,7 +254,7 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
-    -- TODO: copy parentst from lhsRoot parents to rhsRoot parents
+    copyParentsTo parents rhsNode.root
 
   updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do

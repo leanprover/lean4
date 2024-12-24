@@ -8,6 +8,8 @@ elab "grind_pre" : tactic => do
 
 abbrev f (a : α) := a
 
+set_option grind.debug true
+
 /--
 warning: declaration uses 'sorry'
 ---

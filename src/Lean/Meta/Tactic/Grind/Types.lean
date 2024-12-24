@@ -18,6 +18,20 @@ namespace Lean.Meta.Grind
   -- inserted into the E-graph
   unsafe ptrEq a b
 
+/--
+Returns `true` if `e` is `True`, `False`, or a literal value.
+See `LitValues` for supported literals.
+-/
+def isInterpreted (e : Expr) : MetaM Bool := do
+  if e.isTrue || e.isFalse then return true
+  isLitValue e
+
+register_builtin_option grind.debug : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "check invariants after updates"
+}
+
 structure Context where
   mainDeclName : Name
 
@@ -248,6 +262,14 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getTrueExpr)
+
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getFalseExpr)
+
 /--
 Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
@@ -261,7 +283,17 @@ def getENode (e : Expr) : GoalM ENode := do
     | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
   return n
 
-/-- Returns `true` is the root of its equivalence class. -/
+/-- Returns `true` if `e` is in the equivalence class of `True`. -/
+def isEqTrue (e : Expr) : GoalM Bool := do
+  let n ← getENode e
+  return isSameExpr n.root (← getTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `False`. -/
+def isEqFalse (e : Expr) : GoalM Bool := do
+  let n ← getENode e
+  return isSameExpr n.root (← getFalseExpr)
+
+/-- Returns `true` if the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do
   let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
   return isSameExpr n.root e
@@ -286,6 +318,35 @@ def alreadyInternalized (e : Expr) : GoalM Bool :=
 def getTarget? (e : Expr) : GoalM (Option Expr) := do
   let some n ← getENode? e | return none
   return n.target?
+
+/--
+If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
+Otherwise, it pushes `HEq lhs rhs`.
+-/
+def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
+  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
+
+@[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
+  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
+    pushEqCore lhs rhs proof (isHEq := false)
+  else
+    pushEqCore lhs rhs proof (isHEq := true)
+
+/-- Pushes `lhs = rhs` with `proof` to `newEqs`. -/
+@[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
+  pushEqCore lhs rhs proof (isHEq := false)
+
+/-- Pushes `HEq lhs rhs` with `proof` to `newEqs`. -/
+@[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
+  pushEqCore lhs rhs proof (isHEq := true)
+
+/-- Pushes `a = True` with `proof` to `newEqs`. -/
+def pushEqTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getTrueExpr) proof
+
+/-- Pushes `a = False` with `proof` to `newEqs`. -/
+def pushEqFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getFalseExpr) proof
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the

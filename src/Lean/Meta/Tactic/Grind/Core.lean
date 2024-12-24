@@ -5,86 +5,13 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Util
+import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.LitValues
+import Lean.Meta.Tactic.Grind.Propagate
+import Lean.Meta.Tactic.Grind.PP
 
 namespace Lean.Meta.Grind
-/-- Helper function for pretty printing the state for debugging purposes. -/
-def ppENodeRef (e : Expr) : GoalM Format := do
-  let some n ← getENode? e | return "_"
-  return f!"#{n.idx}"
-
-/-- Returns expressions in the given expression equivalence class. -/
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  go e e []
-where
-  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
-    let next ← getNext e
-    let acc := e :: acc
-    if isSameExpr first next then
-      return acc
-    else
-      go first next acc
-
-/-- Returns all equivalence classes in the current goal. -/
-partial def getEqcs : GoalM (List (List Expr)) := do
-  let mut r := []
-  let nodes ← getENodes
-  for node in nodes do
-    if isSameExpr node.root node.self then
-      r := (← getEqc node.self) :: r
-  return r
-
-/-- Helper function for pretty printing the state for debugging purposes. -/
-def ppENodeDeclValue (e : Expr) : GoalM Format := do
-  if e.isApp && !(← isLitValue e) then
-    e.withApp fun f args => do
-      let r ← if f.isConst then
-        ppExpr f
-      else
-        ppENodeRef f
-      let mut r := r
-      for arg in args do
-        r := r ++ " " ++ (← ppENodeRef arg)
-      return r
-  else
-    ppExpr e
-
-/-- Helper function for pretty printing the state for debugging purposes. -/
-def ppENodeDecl (e : Expr) : GoalM Format := do
-  let mut r := f!"{← ppENodeRef e} := {← ppENodeDeclValue e}"
-  let n ← getENode e
-  unless isSameExpr e n.root do
-    r := r ++ f!" ↦ {← ppENodeRef n.root}"
-  if n.interpreted then
-    r := r ++ ", [val]"
-  if n.ctor then
-    r := r ++ ", [ctor]"
-  if grind.debug.get (← getOptions) then
-    if let some target ← getTarget? e then
-      r := r ++ f!" ↝ {← ppENodeRef target}"
-  return r
-
-/-- Pretty print goal state for debugging purposes. -/
-def ppState : GoalM Format := do
-  let mut r := f!"Goal:"
-  let nodes ← getENodes
-  for node in nodes do
-    r := r ++ "\n" ++ (← ppENodeDecl node.self)
-  let eqcs ← getEqcs
-  for eqc in eqcs do
-    if eqc.length > 1 then
-      r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) ", ") ++  "}"
-  return r
-
-/--
-Returns `true` if `e` is `True`, `False`, or a literal value.
-See `LitValues` for supported literals.
--/
-def isInterpreted (e : Expr) : MetaM Bool := do
-  if e.isTrue || e.isFalse then return true
-  isLitValue e
 
 /--
 Creates an `ENode` for `e` if one does not already exist.
@@ -96,15 +23,6 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
-private def pushNewEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
-  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
-
-@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
-    pushNewEqCore lhs rhs proof (isHEq := false)
-  else
-    pushNewEqCore lhs rhs proof (isHEq := true)
-
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
@@ -112,7 +30,7 @@ private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
     trace[grind.congr] "{e} = {e'}"
-    pushNewEq e e' congrPlaceholderProof
+    pushEqHEq e e' congrPlaceholderProof
     -- TODO: we must check whether the types of the functions are the same
     -- TODO: update cgRoot for `e`
   else
@@ -242,7 +160,8 @@ where
     }
     let parents ← removeParents lhsRoot.self
     -- TODO: set propagateBool
-    updateRoots lhs rhsNode.root true -- TODO
+    let isTrueOrFalse ← isTrueExpr rhsNode.root <||> isFalseExpr rhsNode.root
+    updateRoots lhs rhsNode.root (isTrueOrFalse && !(← isInconsistent))
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
@@ -255,12 +174,18 @@ where
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
     copyParentsTo parents rhsNode.root
+    unless (← isInconsistent) do
+      if isTrueOrFalse then
+        for parent in parents do
+          propagateConectivesUp parent
 
-  updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
+  updateRoots (lhs : Expr) (rootNew : Expr) (propagateTruth : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
       -- TODO: propagateBool
       let n ← getENode e
       setENode e { n with root := rootNew }
+      if propagateTruth then
+        propagateConnectivesDown e
       if isSameExpr lhs n.next then return ()
       loop n.next
     loop lhs

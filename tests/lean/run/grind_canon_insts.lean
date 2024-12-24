@@ -7,6 +7,8 @@ elab "grind_test" : tactic => withMainContext do
     let nodes ← filterENodes fun e => return e.self.isAppOf ``HMul.hMul
     logInfo (nodes.toList.map (·.self))
 
+set_option grind.debug true
+
 class Semigroup (α : Type u) extends Mul α where
   mul_assoc (a b c : α) : a * b * c = a * (b * c)
 

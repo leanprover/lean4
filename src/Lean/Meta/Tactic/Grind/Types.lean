@@ -257,7 +257,8 @@ def getENode? (e : Expr) : GoalM (Option ENode) :=
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
 def getENode (e : Expr) : GoalM ENode := do
-  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e) | unreachable!
+  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+    | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
   return n
 
 /-- Returns `true` is the root of its equivalence class. -/

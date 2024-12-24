@@ -769,6 +769,11 @@ opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
 
+def quickComp (a b : Expr) : Ordering :=
+  if quickLt a b then .lt
+  else if quickLt b a then .gt
+  else .eq
+
 /--
 Return true iff `a` and `b` are alpha equivalent.
 Binder annotations are ignored.

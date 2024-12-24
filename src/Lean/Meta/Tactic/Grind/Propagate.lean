@@ -116,10 +116,37 @@ private def propagateNotDown (e : Expr) : GoalM Unit := do
     let a := e.appArg!
     pushEqFalse a <| mkApp2 (mkConst ``Lean.Grind.eq_false_of_not_eq_true) a (← mkEqTrueProof e)
 
+/-- Propagates `Eq` upwards -/
+def propagateEqUp (e : Expr) : GoalM Unit := do
+  let a := e.appFn!.appArg!
+  let b := e.appArg!
+  if (← isEqTrue a) then
+    pushEq e b <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
+  else if (← isEqTrue b) then
+    pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+  else if (← isEqv a b) then
+    pushEqTrue e <| mkApp2 (mkConst ``of_eq_true) e (← mkEqProof a b)
+
+/-- Propagates `Eq` downwards -/
+def propagateEqDown (e : Expr) : GoalM Unit := do
+  if (← isEqTrue e) then
+    let a := e.appFn!.appArg!
+    let b := e.appArg!
+    pushEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+
+/-- Propagates `HEq` downwards -/
+def propagateHEqDown (e : Expr) : GoalM Unit := do
+  if (← isEqTrue e) then
+    let a := e.appFn!.appFn!.appArg!
+    let b := e.appArg!
+    pushHEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+
 /-- Propagates equalities upwards for logical connectives. -/
 def propagateConectivesUp (e : Expr) : GoalM Unit := do
   let .const declName _ := e.getAppFn | return ()
-  if declName == ``And && e.getAppNumArgs == 2 then
+  if declName == ``Eq && e.getAppNumArgs == 3 then
+    propagateEqUp e
+  else if declName == ``And && e.getAppNumArgs == 2 then
     propagateAndUp e
   else if declName == ``Or && e.getAppNumArgs == 2 then
     propagateOrUp e
@@ -130,7 +157,11 @@ def propagateConectivesUp (e : Expr) : GoalM Unit := do
 /-- Propagates equalities downwards for logical connectives. -/
 def propagateConnectivesDown (e : Expr) : GoalM Unit := do
   let .const declName _ := e.getAppFn | return ()
-  if declName == ``And && e.getAppNumArgs == 2 then
+  if declName == ``Eq && e.getAppNumArgs == 3 then
+    propagateEqDown e
+  else if declName == ``HEq && e.getAppNumArgs == 4 then
+    propagateHEqDown e
+  else if declName == ``And && e.getAppNumArgs == 2 then
     propagateAndDown e
   else if declName == ``Or && e.getAppNumArgs == 2 then
     propagateOrDown e

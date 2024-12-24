@@ -261,7 +261,17 @@ def getENode (e : Expr) : GoalM ENode := do
     | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
   return n
 
-/-- Returns `true` is the root of its equivalence class. -/
+/-- Returns `true` if `e` is in the equivalence class of `True`. -/
+def isEqTrue (e : Expr) : GoalM Bool := do
+  let n ← getENode e
+  return isSameExpr n.root (← getTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `False`. -/
+def isEqFalse (e : Expr) : GoalM Bool := do
+  let n ← getENode e
+  return isSameExpr n.root (← getFalseExpr)
+
+/-- Returns `true` if the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do
   let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
   return isSameExpr n.root e

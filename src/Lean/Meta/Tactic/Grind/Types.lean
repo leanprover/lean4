@@ -26,6 +26,12 @@ def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
   isLitValue e
 
+register_builtin_option grind.debug : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "check invariants after updates"
+}
+
 structure Context where
   mainDeclName : Name
 

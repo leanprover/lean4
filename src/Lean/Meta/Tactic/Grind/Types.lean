@@ -298,6 +298,35 @@ def getTarget? (e : Expr) : GoalM (Option Expr) := do
   return n.target?
 
 /--
+If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
+Otherwise, it pushes `HEq lhs rhs`.
+-/
+def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
+  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
+
+@[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
+  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
+    pushEqCore lhs rhs proof (isHEq := false)
+  else
+    pushEqCore lhs rhs proof (isHEq := true)
+
+/-- Pushes `lhs = rhs` with `proof` to `newEqs`. -/
+@[inline] def pushEq (lhs rhs proof : Expr) : GoalM Unit :=
+  pushEqCore lhs rhs proof (isHEq := false)
+
+/-- Pushes `HEq lhs rhs` with `proof` to `newEqs`. -/
+@[inline] def pushHEq (lhs rhs proof : Expr) : GoalM Unit :=
+  pushEqCore lhs rhs proof (isHEq := true)
+
+/-- Pushes `a = True` with `proof` to `newEqs`. -/
+def pushEqTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getTrueExpr) proof
+
+/-- Pushes `a = False` with `proof` to `newEqs`. -/
+def pushEqFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getFalseExpr) proof
+
+/--
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/

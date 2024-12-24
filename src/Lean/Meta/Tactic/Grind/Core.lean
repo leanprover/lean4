@@ -96,15 +96,6 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
-private def pushNewEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
-  modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
-
-@[inline] private def pushNewEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
-    pushNewEqCore lhs rhs proof (isHEq := false)
-  else
-    pushNewEqCore lhs rhs proof (isHEq := true)
-
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
@@ -112,7 +103,7 @@ private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
     trace[grind.congr] "{e} = {e'}"
-    pushNewEq e e' congrPlaceholderProof
+    pushEqHEq e e' congrPlaceholderProof
     -- TODO: we must check whether the types of the functions are the same
     -- TODO: update cgRoot for `e`
   else

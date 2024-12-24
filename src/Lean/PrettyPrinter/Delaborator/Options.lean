@@ -85,7 +85,7 @@ register_builtin_option pp.letVarTypes : Bool := {
   descr    := "(pretty printer) display types of let-bound variables"
 }
 register_builtin_option pp.natLit : Bool := {
-  defValue := false
+  defValue := true
   group    := "pp"
   descr    := "(pretty printer) display raw natural number literals with `nat_lit` prefix"
 }

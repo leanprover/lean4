@@ -262,6 +262,14 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getTrueExpr)
+
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getFalseExpr)
+
 /--
 Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.

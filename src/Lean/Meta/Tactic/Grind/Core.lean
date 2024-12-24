@@ -160,7 +160,8 @@ where
     }
     let parents ← removeParents lhsRoot.self
     -- TODO: set propagateBool
-    updateRoots lhs rhsNode.root true -- TODO
+    let isTrueOrFalse ← isTrueExpr rhsNode.root <||> isFalseExpr rhsNode.root
+    updateRoots lhs rhsNode.root (isTrueOrFalse && !(← isInconsistent))
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
@@ -173,12 +174,18 @@ where
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
     copyParentsTo parents rhsNode.root
+    unless (← isInconsistent) do
+      if isTrueOrFalse then
+        for parent in parents do
+          propagateConectivesUp parent
 
-  updateRoots (lhs : Expr) (rootNew : Expr) (_propagateBool : Bool) : GoalM Unit := do
+  updateRoots (lhs : Expr) (rootNew : Expr) (propagateTruth : Bool) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
       -- TODO: propagateBool
       let n ← getENode e
       setENode e { n with root := rootNew }
+      if propagateTruth then
+        propagateConnectivesDown e
       if isSameExpr lhs n.next then return ()
       loop n.next
     loop lhs

@@ -41,4 +41,9 @@ theorem not_eq_of_eq_false {a : Prop} (h : a = False) : (Not a) = True := by sim
 theorem eq_false_of_not_eq_true {a : Prop} (h : (Not a) = True) : a = False := by simp_all
 theorem eq_true_of_not_eq_false {a : Prop} (h : (Not a) = False) : a = True := by simp_all
 
+/-! Eq -/
+
+theorem eq_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a = b) = b := by simp [h]
+theorem eq_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a = b) = a := by simp [h]
+
 end Lean.Grind

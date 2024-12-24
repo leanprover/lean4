@@ -40,9 +40,10 @@ private def checkParents (e : Expr) : GoalM Unit := do
       let mut found := false
       -- There is an argument `arg` s.t. root of `arg` is `e`.
       for arg in parent.getAppArgs do
-        if isSameExpr (← getRoot arg) e then
-          found := true
-          break
+        if let some argRoot ← getRoot? arg then
+          if isSameExpr argRoot e then
+            found := true
+            break
       assert! found
   else
     -- All the parents are stored in the root of the equivalence class.

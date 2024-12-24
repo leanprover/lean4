@@ -59,3 +59,7 @@ warning: declaration uses 'sorry'
 example : ((p₁ ∧ p₂) ∨ q ∨ r) → ((p₂ ∧ p₁) ∨ ¬q) → p₂ = False → False := by
   grind_test
   sorry
+
+example (p q r : Prop) : p ∨ (q ↔ r) → p = False → False := by
+  grind_test
+  sorry

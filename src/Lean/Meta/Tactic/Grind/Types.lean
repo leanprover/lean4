@@ -293,6 +293,12 @@ def isEqFalse (e : Expr) : GoalM Bool := do
   let n ← getENode e
   return isSameExpr n.root (← getFalseExpr)
 
+/-- Returns `true` if `a` and `b` are in the same equivalence class. -/
+def isEqv (a b : Expr) : GoalM Bool := do
+  let na ← getENode a
+  let nb ← getENode b
+  return isSameExpr na.root nb.root
+
 /-- Returns `true` if the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do
   let some n ← getENode? e | return false -- `e` has not been internalized. Panic instead?
@@ -428,5 +434,11 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
     if (← p n) then
       ref.modify (·.push n)
   ref.get
+
+def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
+  let nodes ← getENodes
+  for n in nodes do
+    if isSameExpr n.self n.root then
+      f n
 
 end Lean.Meta.Grind

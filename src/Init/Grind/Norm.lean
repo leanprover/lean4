@@ -41,7 +41,7 @@ attribute [grind_norm] not_true
 attribute [grind_norm] not_false_eq_true
 
 -- Implication as a clause
-@[grind_norm] theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
+@[grind_norm↓] theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
 
 -- And

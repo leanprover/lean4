@@ -18,6 +18,14 @@ namespace Lean.Meta.Grind
   -- inserted into the E-graph
   unsafe ptrEq a b
 
+/--
+Returns `true` if `e` is `True`, `False`, or a literal value.
+See `LitValues` for supported literals.
+-/
+def isInterpreted (e : Expr) : MetaM Bool := do
+  if e.isTrue || e.isFalse then return true
+  isLitValue e
+
 structure Context where
   mainDeclName : Name
 

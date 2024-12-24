@@ -5,9 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Util
+import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.LitValues
+import Lean.Meta.Tactic.Grind.Propagate
 
 namespace Lean.Meta.Grind
 /-- Helper function for pretty printing the state for debugging purposes. -/
@@ -77,14 +78,6 @@ def ppState : GoalM Format := do
     if eqc.length > 1 then
       r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) ", ") ++  "}"
   return r
-
-/--
-Returns `true` if `e` is `True`, `False`, or a literal value.
-See `LitValues` for supported literals.
--/
-def isInterpreted (e : Expr) : MetaM Bool := do
-  if e.isTrue || e.isFalse then return true
-  isLitValue e
 
 /--
 Creates an `ENode` for `e` if one does not already exist.

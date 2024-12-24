@@ -15,6 +15,8 @@ import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.MarkNestedProofs
 import Lean.Meta.Tactic.Grind.Inv
+import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Propagate
 
 namespace Lean
 

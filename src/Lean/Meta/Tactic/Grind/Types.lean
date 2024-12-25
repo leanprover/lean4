@@ -70,19 +70,11 @@ structure State where
   trueExpr   : Expr
   falseExpr  : Expr
 
-abbrev GrindM := ReaderT Context $ StateRefT State MetaM
+private opaque MethodsRefPointed : NonemptyType.{0}
+private def MethodsRef : Type := MethodsRefPointed.type
+instance : Nonempty MethodsRef := MethodsRefPointed.property
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
-  let scState := ShareCommon.State.mk _
-  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
-  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp ← Simp.mkContext
-    (config := { arith := true })
-    (simpTheorems := #[thms])
-    (congrTheorems := (← getSimpCongrTheorems))
-  x { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
@@ -93,7 +85,7 @@ def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
 def getMainDeclName : GrindM Name :=
-  return (← read).mainDeclName
+  return (← readThe Context).mainDeclName
 
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
@@ -269,11 +261,7 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 
 abbrev GoalM := StateRefT Goal GrindM
 
-@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
-  goal.mvarId.withContext do StateRefT'.run x goal
-
-@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
-  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+abbrev Propagator := Expr → GoalM Unit
 
 /-- Return `true` if the goal is inconsistent. -/
 def isInconsistent : GoalM Bool :=
@@ -437,13 +425,6 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
-def mkGoal (mvarId : MVarId) : GrindM Goal := do
-  let trueExpr ← getTrueExpr
-  let falseExpr ← getFalseExpr
-  GoalM.run' { mvarId } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
-
 /-- Returns all enodes in the goal -/
 def getENodes : GoalM (Array ENode) := do
   -- We must sort because we are using pointer addresses as keys in `enodes`
@@ -467,5 +448,103 @@ def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
   for n in nodes do
     if isSameExpr n.self n.root then
       f n
+
+structure Methods where
+  propagateUp   : Propagator := fun _ => return ()
+  propagateDown : Propagator := fun _ => return ()
+  deriving Inhabited
+
+def Methods.toMethodsRef (m : Methods) : MethodsRef :=
+  unsafe unsafeCast m
+
+def MethodsRef.toMethods (m : MethodsRef) : Methods :=
+  unsafe unsafeCast m
+
+/-- Builtin propagators. -/
+structure BuiltinPropagators where
+  up   : Std.HashMap Name Propagator := {}
+  down : Std.HashMap Name Propagator := {}
+  deriving Inhabited
+
+builtin_initialize builtinPropagatorsRef : IO.Ref BuiltinPropagators ← IO.mkRef {}
+
+private def registerBuiltinPropagatorCore (declName : Name) (up : Bool) (proc : Propagator) : IO Unit := do
+  unless (← initializing) do
+    throw (IO.userError s!"invalid builtin `grind` propagator declaration, it can only be registered during initialization")
+  if up then
+    if (← builtinPropagatorsRef.get).up.contains declName then
+      throw (IO.userError s!"invalid builtin `grind` upward propagator `{declName}`, it has already been declared")
+    builtinPropagatorsRef.modify fun { up, down } => { up := up.insert declName proc, down }
+  else
+    if (← builtinPropagatorsRef.get).down.contains declName then
+      throw (IO.userError s!"invalid builtin `grind` downward propagator `{declName}`, it has already been declared")
+    builtinPropagatorsRef.modify fun { up, down } => { up, down := down.insert declName proc }
+
+def registerBuiltinUpwardPropagator (declName : Name) (proc : Propagator) : IO Unit :=
+  registerBuiltinPropagatorCore declName true proc
+
+def registerBuiltinDownwardPropagator (declName : Name) (proc : Propagator) : IO Unit :=
+  registerBuiltinPropagatorCore declName false proc
+
+private def addBuiltin (propagatorName : Name) (stx : Syntax) : AttrM Unit := do
+  let go : MetaM Unit := do
+    let up := stx[1].getKind == ``Lean.Parser.Tactic.simpPost
+    let addDeclName := if up then
+      ``registerBuiltinUpwardPropagator
+    else
+      ``registerBuiltinDownwardPropagator
+    let declName ← resolveGlobalConstNoOverload stx[2]
+    let val := mkAppN (mkConst addDeclName) #[toExpr declName, mkConst propagatorName]
+    let initDeclName ← mkFreshUserName (propagatorName ++ `declare)
+    declareBuiltin initDeclName val
+  go.run' {}
+
+builtin_initialize
+  registerBuiltinAttribute {
+    ref             := by exact decl_name%
+    name            := `grindPropagatorBuiltinAttr
+    descr           := "Builtin `grind` propagator procedure"
+    applicationTime := AttributeApplicationTime.afterCompilation
+    erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
+    add             := fun declName stx _ => addBuiltin declName stx
+  }
+
+def getMethods : CoreM Methods := do
+  let builtinPropagators ← builtinPropagatorsRef.get
+  return {
+    propagateUp := fun e => do
+     let .const declName _ := e.getAppFn | return ()
+     if let some prop := builtinPropagators.up[declName]? then
+       prop e
+    propagateDown := fun e => do
+     let .const declName _ := e.getAppFn | return ()
+     if let some prop := builtinPropagators.down[declName]? then
+       prop e
+  }
+
+def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
+  let scState := ShareCommon.State.mk _
+  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
+  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
+  let thms ← grindNormExt.getTheorems
+  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
+  let simp ← Simp.mkContext
+    (config := { arith := true })
+    (simpTheorems := #[thms])
+    (congrTheorems := (← getSimpCongrTheorems))
+  x (← getMethods).toMethodsRef { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+
+@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+  goal.mvarId.withContext do StateRefT'.run x goal
+
+@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
+  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
+def mkGoal (mvarId : MVarId) : GrindM Goal := do
+  let trueExpr ← getTrueExpr
+  let falseExpr ← getFalseExpr
+  GoalM.run' { mvarId } do
+    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
 end Lean.Meta.Grind

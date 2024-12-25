@@ -17,7 +17,7 @@ namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
 def simp (e : Expr) : GrindM Simp.Result := do
   let simpStats := (← get).simpStats
-  let (r, simpStats) ← Meta.simp e (← read).simp (← read).simprocs (stats := simpStats)
+  let (r, simpStats) ← Meta.simp e (← readThe Context).simp (← readThe Context).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
   return r
 
@@ -35,6 +35,7 @@ def pre (e : Expr) : GrindM Simp.Result := do
   let e' ← normalizeLevels e'
   let e' ← canon e'
   let e' ← shareCommon e'
+  trace[grind.simp] "{e}\n===>\n{e'}"
   return { r with expr := e' }
 
 end Lean.Meta.Grind

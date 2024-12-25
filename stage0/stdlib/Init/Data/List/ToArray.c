@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.ToArray
-// Imports: Init.Data.List.Impl Init.Data.List.Nat.Erase Init.Data.List.Monadic Init.Data.Array.Lex
+// Imports: Init.Data.List.Impl Init.Data.List.Nat.Erase Init.Data.List.Monadic Init.Data.Array.Lex.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -410,7 +410,7 @@ return x_5;
 lean_object* initialize_Init_Data_List_Impl(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Erase(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Monadic(uint8_t builtin, lean_object*);
-lean_object* initialize_Init_Data_Array_Lex(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Array_Lex_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_ToArray(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -425,7 +425,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Monadic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Array_Lex(builtin, lean_io_mk_world());
+res = initialize_Init_Data_Array_Lex_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

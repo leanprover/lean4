@@ -318,7 +318,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_ParserCompiler_com
 static lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___closed__7;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_compileParserExpr___rarg___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_unfoldDefinition_x3f(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_ParserCompiler_compileParserExpr___spec__19___at_Lean_ParserCompiler_compileParserExpr___spec__20___rarg(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_ParserCompiler_compileParserExpr___spec__29(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_ParserCompiler_compileParserExpr___spec__44___rarg___boxed(lean_object**);
@@ -31725,7 +31725,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_66 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_32);
+x_66 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_29, x_5, x_6, x_7, x_8, x_32);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_object* x_67; 
@@ -32234,7 +32234,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_175 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_141);
+x_175 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_138, x_5, x_6, x_7, x_8, x_141);
 if (lean_obj_tag(x_175) == 0)
 {
 lean_object* x_176; 
@@ -32715,7 +32715,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_280 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_246);
+x_280 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_243, x_5, x_6, x_7, x_8, x_246);
 if (lean_obj_tag(x_280) == 0)
 {
 lean_object* x_281; 
@@ -33196,7 +33196,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_385 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_351);
+x_385 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_348, x_5, x_6, x_7, x_8, x_351);
 if (lean_obj_tag(x_385) == 0)
 {
 lean_object* x_386; 
@@ -33677,7 +33677,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_490 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_456);
+x_490 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_453, x_5, x_6, x_7, x_8, x_456);
 if (lean_obj_tag(x_490) == 0)
 {
 lean_object* x_491; 
@@ -34174,7 +34174,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_601 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_567);
+x_601 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_564, x_5, x_6, x_7, x_8, x_567);
 if (lean_obj_tag(x_601) == 0)
 {
 lean_object* x_602; 
@@ -34655,7 +34655,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_706 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_672);
+x_706 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_669, x_5, x_6, x_7, x_8, x_672);
 if (lean_obj_tag(x_706) == 0)
 {
 lean_object* x_707; 
@@ -35136,7 +35136,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_811 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_777);
+x_811 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_774, x_5, x_6, x_7, x_8, x_777);
 if (lean_obj_tag(x_811) == 0)
 {
 lean_object* x_812; 
@@ -35617,7 +35617,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_916 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_882);
+x_916 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_879, x_5, x_6, x_7, x_8, x_882);
 if (lean_obj_tag(x_916) == 0)
 {
 lean_object* x_917; 
@@ -36098,7 +36098,7 @@ lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_11);
-x_1021 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_5, x_6, x_7, x_8, x_987);
+x_1021 = l_Lean_Meta_unfoldDefinition_x3f(x_11, x_984, x_5, x_6, x_7, x_8, x_987);
 if (lean_obj_tag(x_1021) == 0)
 {
 lean_object* x_1022; 

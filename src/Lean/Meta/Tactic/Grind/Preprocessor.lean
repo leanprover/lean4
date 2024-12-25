@@ -16,41 +16,19 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
 
--- TODO: use congruence closure and decision procedures during pre-processing
--- TODO: implement `simp` discharger using preprocessor state
-
-structure Context where
-  simp     : Simp.Context
-  simprocs : Array Simp.Simprocs
-  deriving Inhabited
-
 structure State where
-  simpStats : Simp.Stats := {}
   goals     : PArray Goal := {}
   deriving Inhabited
 
-abbrev PreM := ReaderT Context $ StateRefT State GrindM
+abbrev PreM := StateRefT State GrindM
 
 def PreM.run (x : PreM α) : GrindM α := do
-  let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp ← Simp.mkContext
-    (config := { arith := true })
-    (simpTheorems := #[thms])
-    (congrTheorems := (← getSimpCongrTheorems))
-  x { simp, simprocs } |>.run' {}
-
-def simp (_goal : Goal) (e : Expr) : PreM Simp.Result := do
-  -- TODO: use `goal` state in the simplifier
-  let simpStats := (← get).simpStats
-  let (r, simpStats) ← Meta.simp e (← read).simp (← read).simprocs (stats := simpStats)
-  modify fun s => { s with simpStats }
-  return r
+ x.run' {}
 
 inductive IntroResult where
   | done
@@ -70,24 +48,16 @@ def introNext (goal : Goal) : PreM IntroResult := do
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
         -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
-        let r ← simp goal p
-        let p' := r.expr
-        let p' ← markNestedProofs p'
-        let p' ← unfoldReducible p'
-        let p' ← eraseIrrelevantMData p'
-        let p' ← foldProjs p'
-        let p' ← normalizeLevels p'
-        let p' ← canon p'
-        let p' ← shareCommon p'
+        let r ← pre p
         let fvarId ← mkFreshFVarId
-        let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! p' target.bindingInfo!
+        let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! r.expr target.bindingInfo!
         let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
         let mvarIdNew := mvarNew.mvarId!
         mvarIdNew.withContext do
           let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
           match r.proof? with
           | some he =>
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, p', q, he, h]
+            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, r.expr, q, he, h]
             goal.mvarId.assign hNew
             return .newHyp fvarId { goal with mvarId := mvarIdNew }
           | none =>

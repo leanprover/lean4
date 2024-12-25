@@ -13,21 +13,11 @@ import Lean.Meta.Tactic.Grind.PP
 
 namespace Lean.Meta.Grind
 
-/--
-Creates an `ENode` for `e` if one does not already exist.
-This method assumes `e` has been hashconsed.
--/
-def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
-  if (← alreadyInternalized e) then return ()
-  let ctor := (← isConstructorAppCore? e).isSome
-  let interpreted ← isInterpreted e
-  mkENodeCore e interpreted ctor generation
-
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
 /-- Adds `e` to congruence table. -/
-def addCongrTable (e : Expr) : GoalM Unit := do
+private def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
     trace[grind.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
@@ -94,9 +84,6 @@ where
 
 private def markAsInconsistent : GoalM Unit :=
   modify fun s => { s with inconsistent := true }
-
-def isInconsistent : GoalM Bool :=
-  return (← get).inconsistent
 
 /--
 Remove `root` parents from the congruence table.

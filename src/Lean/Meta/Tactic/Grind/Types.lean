@@ -8,8 +8,10 @@ import Lean.Util.ShareCommon
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
-import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.Attr
 
 namespace Lean.Meta.Grind
 
@@ -32,12 +34,13 @@ register_builtin_option grind.debug : Bool := {
   descr    := "check invariants after updates"
 }
 
+/-- Context for `GrindM` monad. -/
 structure Context where
+  simp     : Simp.Context
+  simprocs : Array Simp.Simprocs
   mainDeclName : Name
 
-/--
-Key for the congruence theorem cache.
--/
+/-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
   f       : Expr
   numArgs : Nat
@@ -50,6 +53,7 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
+/-- State for the `GrindM` monad. -/
 structure State where
   canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
@@ -62,6 +66,7 @@ structure State where
   Remark: we currently do not reuse congruence theorems
   -/
   congrThms  : PHashMap CongrTheoremCacheKey CongrTheorem := {}
+  simpStats  : Simp.Stats := {}
   trueExpr   : Expr
   falseExpr  : Expr
 
@@ -71,11 +76,19 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  x { mainDeclName } |>.run' { scState, trueExpr, falseExpr }
+  let thms ← grindNormExt.getTheorems
+  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
+  let simp ← Simp.mkContext
+    (config := { arith := true })
+    (simpTheorems := #[thms])
+    (congrTheorems := (← getSimpCongrTheorems))
+  x { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
 
+/-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
   return (← get).trueExpr
 
+/-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
@@ -96,9 +109,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consing. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr } =>
+  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr })
+    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats })
 
 /--
 Canonicalizes nested types, type formers, and instances in `e`.
@@ -262,6 +275,10 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
+/-- Return `true` if the goal is inconsistent. -/
+def isInconsistent : GoalM Bool :=
+  return (← get).inconsistent
+
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)
@@ -409,6 +426,16 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     interpreted, ctor, generation
   }
   modify fun s => { s with nextIdx := s.nextIdx + 1 }
+
+/--
+Creates an `ENode` for `e` if one does not already exist.
+This method assumes `e` has been hashconsed.
+-/
+def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
+  if (← alreadyInternalized e) then return ()
+  let ctor := (← isConstructorAppCore? e).isSome
+  let interpreted ← isInterpreted e
+  mkENodeCore e interpreted ctor generation
 
 def mkGoal (mvarId : MVarId) : GrindM Goal := do
   let trueExpr ← getTrueExpr

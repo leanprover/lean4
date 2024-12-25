@@ -8,7 +8,6 @@ import Init.Grind.Util
 import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
-import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.PP
 
 namespace Lean.Meta.Grind
@@ -147,8 +146,7 @@ where
     }
     let parents ← removeParents lhsRoot.self
     -- TODO: set propagateBool
-    let isTrueOrFalse ← isTrueExpr rhsNode.root <||> isFalseExpr rhsNode.root
-    updateRoots lhs rhsNode.root (isTrueOrFalse && !(← isInconsistent))
+    updateRoots lhs rhsNode.root
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
@@ -162,17 +160,16 @@ where
     }
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
-      if isTrueOrFalse then
-        for parent in parents do
-          propagateConectivesUp parent
+      for parent in parents do
+        propagateUp parent
 
-  updateRoots (lhs : Expr) (rootNew : Expr) (propagateTruth : Bool) : GoalM Unit := do
+  updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
       -- TODO: propagateBool
       let n ← getENode e
       setENode e { n with root := rootNew }
-      if propagateTruth then
-        propagateConnectivesDown e
+      unless (← isInconsistent) do
+        propagateDown e
       if isSameExpr lhs n.next then return ()
       loop n.next
     loop lhs

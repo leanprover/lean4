@@ -87,6 +87,9 @@ def getFalseExpr : GrindM Expr := do
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
 
+@[inline] def getMethodsRef : GrindM MethodsRef :=
+  read
+
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
@@ -449,16 +452,25 @@ def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
     if isSameExpr n.self n.root then
       f n
 
-structure Methods where
+private structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
   deriving Inhabited
 
-def Methods.toMethodsRef (m : Methods) : MethodsRef :=
+private def Methods.toMethodsRef (m : Methods) : MethodsRef :=
   unsafe unsafeCast m
 
-def MethodsRef.toMethods (m : MethodsRef) : Methods :=
+private def MethodsRef.toMethods (m : MethodsRef) : Methods :=
   unsafe unsafeCast m
+
+@[inline] def getMethods : GrindM Methods :=
+  return (← getMethodsRef).toMethods
+
+def propagateUp (e : Expr) : GoalM Unit := do
+  (← getMethods).propagateUp e
+
+def propagateDown (e : Expr) : GoalM Unit := do
+  (← getMethods).propagateDown e
 
 /-- Builtin propagators. -/
 structure BuiltinPropagators where
@@ -509,7 +521,7 @@ builtin_initialize
     add             := fun declName stx _ => addBuiltin declName stx
   }
 
-def getMethods : CoreM Methods := do
+def mkMethods : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
   return {
     propagateUp := fun e => do
@@ -532,7 +544,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
     (config := { arith := true })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
-  x (← getMethods).toMethodsRef { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  x (← mkMethods).toMethodsRef { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
 
 @[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
   goal.mvarId.withContext do StateRefT'.run x goal

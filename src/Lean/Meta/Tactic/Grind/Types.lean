@@ -20,6 +20,9 @@ namespace Lean.Meta.Grind
   -- inserted into the E-graph
   unsafe ptrEq a b
 
+/-- We use this auxiliary constant to mark delayed congruence proofs. -/
+def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `LitValues` for supported literals.

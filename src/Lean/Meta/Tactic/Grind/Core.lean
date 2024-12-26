@@ -12,9 +12,6 @@ import Lean.Meta.Tactic.Grind.PP
 
 namespace Lean.Meta.Grind
 
-/-- We use this auxiliary constant to mark delayed congruence proofs. -/
-private def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
-
 /-- Adds `e` to congruence table. -/
 private def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then

@@ -91,7 +91,7 @@ where
     | .and => ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
     | .xor => ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
     | .beq => ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr
-    | .imp => ``Std.Tactic.BVDecide.Reflect.Bool.imp_congr
+    | .or => ``Std.Tactic.BVDecide.Reflect.Bool.or_congr
 
 /--
 Construct the reified version of `Bool.not subExpr`.
@@ -136,7 +136,7 @@ def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) 
         lhsEvalExpr lhsProof?
         rhsEvalExpr rhsProof? | return none
     return mkApp9
-      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.ite_congr)
+      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.cond_congr)
       discrExpr lhsExpr rhsExpr
       discrEvalExpr lhsEvalExpr rhsEvalExpr
       discrProof lhsProof rhsProof

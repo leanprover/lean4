@@ -127,8 +127,6 @@ builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) 
       else
         return .continue
 
-attribute [builtin_bv_normalize_proc↓] reduceIte
-
 /-- Return a number `k` such that `2^k = n`. -/
 private def Nat.log2Exact (n : Nat) : Option Nat := do
   guard <| n ≠ 0

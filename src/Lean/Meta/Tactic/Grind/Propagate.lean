@@ -120,7 +120,7 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   else if (← isEqTrue b) then
     pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
-    pushEqTrue e <| mkApp2 (mkConst ``of_eq_true) e (← mkEqProof a b)
+    pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkEqProof a b)
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
@@ -133,5 +133,11 @@ builtin_grind_propagator propagateHEqDown ↓HEq := fun e => do
   if (← isEqTrue e) then
     let_expr HEq _ a _ b := e | return ()
     pushHEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+
+/-- Propagates `HEq` upwards -/
+builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
+  let_expr HEq _ a _ b := e | return ()
+  if (← isEqv a b) then
+    pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkHEqProof a b)
 
 end Lean.Meta.Grind

@@ -57,6 +57,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
           registerParent e arg
       mkENode e generation
       addCongrTable e
+      propagateUp e
 
 /--
 The fields `target?` and `proof?` in `e`'s `ENode` are encoding a transitivity proof

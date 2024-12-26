@@ -9,16 +9,6 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
--- TODO: delete after done
-private def mkTodo (a b : Expr) (heq : Bool) : MetaM Expr := do
-  if heq then
-    mkSorry (← mkHEq a b) (synthetic := false)
-  else
-    mkSorry (← mkEq a b) (synthetic := false)
-
-private def isProtoProof (h : Expr) : Bool :=
-  isSameExpr h congrPlaceholderProof
-
 private def isEqProof (h : Expr) : MetaM Bool := do
   return (← whnfD (← inferType h)).isAppOf ``Eq
 
@@ -43,6 +33,13 @@ private def mkTrans (h₁ h₂ : Expr) (heq : Bool) : MetaM Expr :=
 private def mkTrans' (h₁ : Option Expr) (h₂ : Expr) (heq : Bool) : MetaM Expr := do
   let some h₁ := h₁ | return h₂
   mkTrans h₁ h₂ heq
+
+/--
+Given `h : HEq a b`, returns a proof `a = b` if `heq == false`.
+Otherwise, it returns `h`.
+-/
+private def mkEqOfHEqIfNeeded (h : Expr) (heq : Bool) : MetaM Expr := do
+  if heq then return h else mkEqOfHEq h
 
 /--
 Given `lhs` and `rhs` that are in the same equivalence class,
@@ -71,9 +68,49 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
   unreachable!
 
 mutual
+  private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let p  := lhs.appFn!.appArg!
+    let hp := lhs.appArg!
+    let q  := rhs.appFn!.appArg!
+    let hq := rhs.appArg!
+    let h  := mkApp5 (mkConst ``Lean.Grind.nestedProof_congr) p q (← mkEqProofCore p q false) hp hq
+    mkEqOfHEqIfNeeded h heq
+
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    -- TODO: implement
-    mkTodo lhs rhs heq
+    let f := lhs.getAppFn
+    let g := rhs.getAppFn
+    let numArgs := lhs.getAppNumArgs
+    assert! rhs.getAppNumArgs == numArgs
+    if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
+      mkNestedProofCongr lhs rhs heq
+    else
+      let thm ← mkHCongrWithArity f numArgs
+      assert! thm.argKinds.size == numArgs
+      let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
+        let i := i - 1
+        if lhs.isApp then
+          let proof ← loop lhs.appFn! rhs.appFn! i
+          let a₁  := lhs.appArg!
+          let a₂  := rhs.appArg!
+          let k   := thm.argKinds[i]!
+          return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
+        else
+          return thm.proof
+      let proof ← loop lhs rhs numArgs
+      if isSameExpr f g then
+        mkEqOfHEqIfNeeded proof heq
+      else
+        /-
+        `lhs` is of the form `f a_1 ... a_n`
+        `rhs` is of the form `g b_1 ... b_n`
+        `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
+        We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
+        -/
+        let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
+          mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
+        let fEq ← mkEqProofCore f g false
+        let proof ← mkEqNDRec motive proof fEq
+        mkEqOfHEqIfNeeded proof heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     let h ← if h == congrPlaceholderProof then
@@ -139,6 +176,9 @@ where
       else
         trace[grind.proof] "{a} ≡ {b}"
         mkEqProofCore a b (heq := true)
+
+def mkHEqProof (a b : Expr) : GoalM Expr :=
+  mkEqProofCore a b (heq := true)
 
 /--
 Returns a proof that `a = True`.

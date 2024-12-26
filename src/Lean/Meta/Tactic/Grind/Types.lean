@@ -20,6 +20,9 @@ namespace Lean.Meta.Grind
   -- inserted into the E-graph
   unsafe ptrEq a b
 
+/-- We use this auxiliary constant to mark delayed congruence proofs. -/
+def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
+
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
 See `LitValues` for supported literals.
@@ -32,6 +35,12 @@ register_builtin_option grind.debug : Bool := {
   defValue := false
   group    := "debug"
   descr    := "check invariants after updates"
+}
+
+register_builtin_option grind.debug.proofs : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "check proofs between the elements of all equivalence classes"
 }
 
 /-- Context for `GrindM` monad. -/
@@ -558,5 +567,26 @@ def mkGoal (mvarId : MVarId) : GrindM Goal := do
   GoalM.run' { mvarId } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+
+/-- Returns expressions in the given expression equivalence class. -/
+partial def getEqc (e : Expr) : GoalM (List Expr) :=
+  go e e []
+where
+  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
+    let next ← getNext e
+    let acc := e :: acc
+    if isSameExpr first next then
+      return acc
+    else
+      go first next acc
+
+/-- Returns all equivalence classes in the current goal. -/
+partial def getEqcs : GoalM (List (List Expr)) := do
+  let mut r := []
+  let nodes ← getENodes
+  for node in nodes do
+    if isSameExpr node.root node.self then
+      r := (← getEqc node.self) :: r
+  return r
 
 end Lean.Meta.Grind

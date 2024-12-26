@@ -14,27 +14,6 @@ def ppENodeRef (e : Expr) : GoalM Format := do
   let some n ← getENode? e | return "_"
   return f!"#{n.idx}"
 
-/-- Returns expressions in the given expression equivalence class. -/
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
-  go e e []
-where
-  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
-    let next ← getNext e
-    let acc := e :: acc
-    if isSameExpr first next then
-      return acc
-    else
-      go first next acc
-
-/-- Returns all equivalence classes in the current goal. -/
-partial def getEqcs : GoalM (List (List Expr)) := do
-  let mut r := []
-  let nodes ← getENodes
-  for node in nodes do
-    if isSameExpr node.root node.self then
-      r := (← getEqc node.self) :: r
-  return r
-
 /-- Helper function for pretty printing the state for debugging purposes. -/
 def ppENodeDeclValue (e : Expr) : GoalM Format := do
   if e.isApp && !(← isLitValue e) then

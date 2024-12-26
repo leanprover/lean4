@@ -13,6 +13,7 @@ elab "grind_test" : tactic => withMainContext do
     logInfo eqc
 
 set_option grind.debug true
+set_option grind.debug.proofs true
 
 /--
 info: [d, f b, c, f a]

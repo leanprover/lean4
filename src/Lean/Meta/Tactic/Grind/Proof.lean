@@ -71,9 +71,36 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
   unreachable!
 
 mutual
-  private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    -- TODO: implement
+  private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    -- TODO: nestedProof support
     mkTodo lhs rhs heq
+
+  private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let f := lhs.getAppFn
+    let g := rhs.getAppFn
+    let numArgs := lhs.getAppNumArgs
+    assert! rhs.getAppNumArgs == numArgs
+    if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
+      mkNestedProofCongr lhs rhs heq
+    else
+      let thm ← mkHCongrWithArity f numArgs
+      assert! thm.argKinds.size == numArgs
+      let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
+        let i := i - 1
+        if lhs.isApp then
+          let proof ← loop lhs.appFn! rhs.appFn! i
+          let a₁  := lhs.appArg!
+          let a₂  := rhs.appArg!
+          let k   := thm.argKinds[i]!
+          return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
+        else
+          return thm.proof
+      let proof ← loop lhs rhs numArgs
+      if isSameExpr f g then
+        if heq then return proof else mkEqOfHEq proof
+      else
+        -- TODO: use proof for f = g
+        mkTodo lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     let h ← if h == congrPlaceholderProof then

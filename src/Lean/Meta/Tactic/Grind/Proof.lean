@@ -124,7 +124,8 @@ Returns a proof that `a = b` (or `HEq a b`).
 It assumes `a` and `b` are in the same equivalence class.
 -/
 def mkEqProof (a b : Expr) : GoalM Expr := do
-  let n ← getENode a
+  let n ← getRootENode a
+  trace[grind.proof] "{a} {if n.heqProofs then "≡" else "="} {b}"
   if !n.heqProofs then
     mkEqProofCore a b (heq := false)
   else if (← withDefault <| isDefEq (← inferType a) (← inferType b)) then

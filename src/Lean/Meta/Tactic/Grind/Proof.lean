@@ -45,6 +45,13 @@ private def mkTrans' (h₁ : Option Expr) (h₂ : Expr) (heq : Bool) : MetaM Exp
   mkTrans h₁ h₂ heq
 
 /--
+Given `h : HEq a b`, returns a proof `a = b` if `heq == false`.
+Otherwise, it returns `h`.
+-/
+private def mkEqOfHEqIfNeeded (h : Expr) (heq : Bool) : MetaM Expr := do
+  if heq then return h else mkEqOfHEq h
+
+/--
 Given `lhs` and `rhs` that are in the same equivalence class,
 find the common expression that are in the paths from `lhs` and `rhs` to
 the root of their equivalence class.
@@ -72,8 +79,12 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
 
 mutual
   private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
-    -- TODO: nestedProof support
-    mkTodo lhs rhs heq
+    let p  := lhs.appFn!.appArg!
+    let hp := lhs.appArg!
+    let q  := rhs.appFn!.appArg!
+    let hq := rhs.appArg!
+    let h  := mkApp5 (mkConst ``Lean.Grind.nestedProof_congr) p q (← mkEqProofCore p q false) hp hq
+    mkEqOfHEqIfNeeded h heq
 
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let f := lhs.getAppFn
@@ -97,7 +108,7 @@ mutual
           return thm.proof
       let proof ← loop lhs rhs numArgs
       if isSameExpr f g then
-        if heq then return proof else mkEqOfHEq proof
+        mkEqOfHEqIfNeeded proof heq
       else
         -- TODO: use proof for f = g
         mkTodo lhs rhs heq

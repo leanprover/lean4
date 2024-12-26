@@ -11,4 +11,9 @@ namespace Lean.Grind
 /-- A helper gadget for annotating nested proofs in goals. -/
 def nestedProof (p : Prop) (h : p) : p := h
 
+set_option pp.proofs true
+
+theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (nestedProof p hp) (nestedProof q hq) := by
+  subst h; apply HEq.refl
+
 end Lean.Grind

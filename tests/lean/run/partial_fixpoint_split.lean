@@ -7,9 +7,8 @@ dead code, this would be accepted, despite a non-tailrecursive call there.
 -/
 
 /--
-error: Could not prove 'whileSome' to be tailrecursive:
-  Recursive call `whileSome some x'` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'whileSome' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `whileSome some x'` enclosed in
     id (whileSome some x'✝)
 -/
 #guard_msgs in

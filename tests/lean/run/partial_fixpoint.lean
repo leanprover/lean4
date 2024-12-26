@@ -86,9 +86,8 @@ end
 
 
 /--
-error: Could not prove 'notTailRec1' to be tailrecursive:
-  Recursive call `notTailRec1 (n + 1)` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'notTailRec1' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `notTailRec1 (n + 1)` enclosed in
     notTailRec1 (n + 1) - 1
 -/
 #guard_msgs in
@@ -96,9 +95,8 @@ def notTailRec1 (n : Nat) := notTailRec1 (n + 1) - 1
 partial_fixpoint
 
 /--
-error: Could not prove 'notTailRec2' to be tailrecursive:
-  Recursive call `notTailRec2 n (m + 1)` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'notTailRec2' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `notTailRec2 n (m + 1)` enclosed in
     notTailRec2 n (m + 1) - 1
 -/
 #guard_msgs in
@@ -106,9 +104,8 @@ def notTailRec2 (n m : Nat) := notTailRec2 n (m + 1) - 1
 partial_fixpoint
 
 /--
-error: Could not prove 'notTailRec3' to be tailrecursive:
-  Recursive call `notTailRec3 (m + 1) n` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'notTailRec3' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `notTailRec3 (m + 1) n` enclosed in
     notTailRec3 (m + 1) n - 1
 -/
 #guard_msgs in
@@ -116,9 +113,8 @@ def notTailRec3 (n m : Nat) := notTailRec3 (m + 1) n - 1
 partial_fixpoint
 
 /--
-error: Could not prove 'notTailRec4a' to be tailrecursive:
-  Recursive call `notTailRec4b (m + 1) n` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'notTailRec4a' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `notTailRec4b (m + 1) n` enclosed in
     notTailRec4b (m + 1) n - 1
 -/
 #guard_msgs in
@@ -218,9 +214,8 @@ theorem computeLfp'.eq_1.{u} : ∀ {α : Type u} [inst : DecidableEq α] (f : α
 #guard_msgs in #print equations computeLfp'
 
 /--
-error: Could not prove 'computeLfp'''' to be tailrecursive:
-  Recursive call `computeLfp''' f next` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'computeLfp'''' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `computeLfp''' f next` enclosed in
     id (computeLfp''' f next)
 -/
 #guard_msgs in
@@ -290,15 +285,14 @@ info: ack.eq_unfold :
 #guard_msgs in #check ack.eq_unfold
 
 /--
-error: Could not prove 'WrongMonad.ack' to be tailrecursive:
-  Recursive call `ack (x + 1) y` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'WrongMonad.ack' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `ack (x + 1) y` enclosed in
     do
       let __do_lift ← ack (x✝ + 1) y✝
       ack x✝ __do_lift
   Tried to apply 'Lean.Order.monotone_bind', but failed.
   Possible cause: A missing `Lean.Order.MonoBind` instance.
-  Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
+  Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.
 -/
 #guard_msgs in
 def WrongMonad.ack : (n m : Nat) → Id Nat
@@ -316,9 +310,8 @@ partial_fixpoint
 -- These tests check that the user's variable names are preserved in the goals
 
 /--
-error: Could not prove 'VarName.computeLfp' to be tailrecursive:
-  Recursive call `computeLfp f next` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'VarName.computeLfp' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `computeLfp f next` enclosed in
     id (computeLfp f next)
 -/
 #guard_msgs in
@@ -334,9 +327,8 @@ partial_fixpoint
 opaque mentionsH : ¬ b → α → α := fun _ x => x
 
 /--
-error: Could not prove 'VarName.dite' to be tailrecursive:
-  Recursive call `dite (n + 2) b` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'VarName.dite' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `dite (n + 2) b` enclosed in
     mentionsH this_is_my_h (dite (n + 2) b)
 -/
 #guard_msgs in
@@ -346,9 +338,8 @@ partial_fixpoint
 
 
 /--
-error: Could not prove 'Tree.rev'' to be tailrecursive:
-  Recursive call `Tree.rev' my_name` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'Tree.rev'' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `Tree.rev' my_name` enclosed in
     id my_name.rev'
 -/
 #guard_msgs in
@@ -357,9 +348,8 @@ def Tree.rev' (t : Tree) : Option Tree := do
 partial_fixpoint
 
 /--
-error: Could not prove 'Tree.rev''' to be tailrecursive:
-  Recursive call `Tree.rev'' my_name` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'Tree.rev''' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `Tree.rev'' my_name` enclosed in
     id (if ↑my_idx < 0 then some my_name else my_name.rev'')
 -/
 #guard_msgs in
@@ -369,9 +359,8 @@ def Tree.rev'' (t : Tree) : Option Tree := do
 partial_fixpoint
 
 /--
-error: Could not prove 'Tree.rev'''' to be tailrecursive:
-  Recursive call `Tree.rev''' my_tree.cs.toArray` is not a tail call.
-  Enclosing tail-call position:
+error: Could not prove 'Tree.rev'''' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `Tree.rev''' my_tree.cs.toArray` enclosed in
     ts.reverse.mapFinIdxM fun my_idx my_tree =>
       id
         (if ↑my_idx < 0 then my_tree
@@ -380,7 +369,7 @@ error: Could not prove 'Tree.rev'''' to be tailrecursive:
           { cs := ts.toList })
   Tried to apply 'Lean.Order.monotone_mapFinIdxM', but failed.
   Possible cause: A missing `Lean.Order.MonoBind` instance.
-  Use `set_option trace.Elab.definition.partialFixpoint true` to debug.
+  Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.
 -/
 #guard_msgs in
 def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do

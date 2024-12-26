@@ -84,13 +84,14 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   let declNames := preDefs.map (·.declName)
 
   forallBoundedTelescope preDefs[0]!.type fixedPrefixSize fun fixedArgs _ => do
+    -- ∀ x y, CCPO (rᵢ x y)
     let ccpoInsts := ccpoInsts.map (·.beta fixedArgs)
     let types ← preDefs.mapM (instantiateForall ·.type fixedArgs)
 
     -- (∀ x y, r₁ x y) ×' (∀ x y, r₂ x y)
     let packedType ← PProdN.pack 0 types
 
-    -- CCPO (∀ x y, r₁ x y)
+    -- CCPO (∀ x y, rᵢ x y)
     let ccpoInsts' ← ccpoInsts.mapM fun inst =>
       lambdaTelescope inst fun xs inst => do
         let mut inst := inst
@@ -100,7 +101,6 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
     -- CCPO ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
     let packedCCPOInst ← PProdN.genMk mkInstCCPOPProd ccpoInsts'
     -- Order ((∀ x y, r₁ x y) ×' (∀ x y, r₂ x y))
-    -- ∀ (x : packedDomain): PartialOrder (t x). Derived from unaryCCPOInst to avoid diamond later on
     let packedPartialOrderInst ← mkAppOptM ``CCPO.toPartialOrder #[none, packedCCPOInst]
 
     -- Error reporting hook, presenting monotonicity errors in terms of recursive functions
@@ -109,13 +109,13 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{.ofConstName ·}'"))}, but failed.\n\
              Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
-             Use `set_option trace.Elab.definition.partialFixpoint true` to debug."
+             Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug."
         if let some recApp := t.find? hasRecAppSyntax then
           let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
           withRef syn <|
-            throwError "Recursive call `{syn}` is not a tail call.\nEnclosing tail-call position:{indentExpr t}\n{extraMsg}"
+            throwError "Cannot eliminate recursive call `{syn}` enclosed in{indentExpr t}\n{extraMsg}"
         else
-          throwError "Recursive call in non-tail position:{indentExpr t}\n{extraMsg}"
+          throwError "Cannot eliminate recursive call in{indentExpr t}\n{extraMsg}"
 
     -- Adjust the body of each function to take the other functions as a
     -- (packed) parameter
@@ -137,19 +137,24 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let inst ← mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-      mapError (f := (m!"Could not prove '{preDef.declName}' to be tailrecursive:{indentD ·}")) do
+      mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do
         solveMono failK hmono.mvarId!
       trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
       instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]
-    trace[Elab.definition.partialFixpoint] "finalValue: {packedValue}"
+    trace[Elab.definition.partialFixpoint] "packedValue: {packedValue}"
 
+    let declName :=
+      if preDefs.size = 1 then
+        preDefs[0]!.declName
+      else
+        preDefs[0]!.declName ++ `mutual
     let packedType' ← mkForallFVars fixedArgs packedType
     let packedValue' ← mkLambdaFVars fixedArgs packedValue
     let preDefNonRec := { preDefs[0]! with
-      declName := if preDefs.size = 1 then preDefs[0]!.declName else preDefs[0]!.declName ++ `mutual
+      declName := declName
       type := packedType'
       value := packedValue'}
     let preDefsNonrec ← preDefs.mapIdxM fun fidx preDef => do

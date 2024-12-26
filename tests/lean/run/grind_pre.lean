@@ -118,8 +118,12 @@ example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c
   grind_pre
   sorry
 
-set_option trace.grind.proof.detail true in
-set_option trace.grind.proof true in
+set_option trace.grind.proof.detail true
+set_option trace.grind.proof true
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
+  grind_pre
+  sorry
+
+example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) → False := by
   grind_pre
   sorry

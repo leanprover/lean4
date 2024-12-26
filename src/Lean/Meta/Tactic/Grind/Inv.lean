@@ -54,7 +54,7 @@ private def checkPtrEqImpliesStructEq : GoalM Unit := do
   for h₁ : i in [: nodes.size] do
     let n₁ := nodes[i]
     for h₂ : j in [i+1 : nodes.size] do
-      let n₂ := nodes[i]
+      let n₂ := nodes[j]
       -- We don't have multiple nodes for the same expression
       assert! !isSameExpr n₁.self n₂.self
       -- and the two expressions must not be structurally equal

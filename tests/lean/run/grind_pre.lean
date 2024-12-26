@@ -9,6 +9,7 @@ elab "grind_pre" : tactic => do
 abbrev f (a : α) := a
 
 set_option grind.debug true
+set_option grind.debug.proofs true
 
 /--
 warning: declaration uses 'sorry'
@@ -112,7 +113,13 @@ theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x :=
 
 def h (a : α) := a
 
-set_option trace.grind.pre true
+set_option trace.grind.pre true in
 example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c ∧ c = a → a = b ∧ b = a → a ≠ c := by
+  grind_pre
+  sorry
+
+set_option trace.grind.proof.detail true in
+set_option trace.grind.proof true in
+example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
   grind_pre
   sorry

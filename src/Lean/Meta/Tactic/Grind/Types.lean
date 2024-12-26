@@ -559,4 +559,25 @@ def mkGoal (mvarId : MVarId) : GrindM Goal := do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
+/-- Returns expressions in the given expression equivalence class. -/
+partial def getEqc (e : Expr) : GoalM (List Expr) :=
+  go e e []
+where
+  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
+    let next ← getNext e
+    let acc := e :: acc
+    if isSameExpr first next then
+      return acc
+    else
+      go first next acc
+
+/-- Returns all equivalence classes in the current goal. -/
+partial def getEqcs : GoalM (List (List Expr)) := do
+  let mut r := []
+  let nodes ← getENodes
+  for node in nodes do
+    if isSameExpr node.root node.self then
+      r := (← getEqc node.self) :: r
+  return r
+
 end Lean.Meta.Grind

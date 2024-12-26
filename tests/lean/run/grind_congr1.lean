@@ -76,3 +76,16 @@ example (a₁ a₂ b₁ b₂ c d : Nat)
   grind_test
   sorry
 end Ex1
+
+namespace Ex2
+def f (α : Type) (a : α) : α := a
+
+example (a : α) (b : β) : (h₁ : α = β) → (h₂ : HEq a b) → HEq (f α a) (f β b) := by
+  grind_test
+  sorry
+
+end Ex2
+
+example (f g : (α : Type) → α → α) (a : α) (b : β) : (h₁ : α = β) → (h₂ : HEq a b) → (h₃ : f = g) → HEq (f α a) (g β b) := by
+  grind_test
+  sorry

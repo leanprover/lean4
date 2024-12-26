@@ -9,16 +9,6 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
--- TODO: delete after done
-private def mkTodo (a b : Expr) (heq : Bool) : MetaM Expr := do
-  if heq then
-    mkSorry (← mkHEq a b) (synthetic := false)
-  else
-    mkSorry (← mkEq a b) (synthetic := false)
-
-private def isProtoProof (h : Expr) : Bool :=
-  isSameExpr h congrPlaceholderProof
-
 private def isEqProof (h : Expr) : MetaM Bool := do
   return (← whnfD (← inferType h)).isAppOf ``Eq
 
@@ -110,8 +100,17 @@ mutual
       if isSameExpr f g then
         mkEqOfHEqIfNeeded proof heq
       else
-        -- TODO: use proof for f = g
-        mkTodo lhs rhs heq
+        /-
+        `lhs` is of the form `f a_1 ... a_n`
+        `rhs` is of the form `g b_1 ... b_n`
+        `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
+        We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
+        -/
+        let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
+          mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
+        let fEq ← mkEqProofCore f g false
+        let proof ← mkEqNDRec motive proof fEq
+        mkEqOfHEqIfNeeded proof heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     let h ← if h == congrPlaceholderProof then

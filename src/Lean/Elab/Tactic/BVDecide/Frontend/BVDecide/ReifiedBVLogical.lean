@@ -136,7 +136,7 @@ def mkIte (discr lhs rhs : ReifiedBVLogical) (discrExpr lhsExpr rhsExpr : Expr) 
         lhsEvalExpr lhsProof?
         rhsEvalExpr rhsProof? | return none
     return mkApp9
-      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.ite_congr)
+      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.cond_congr)
       discrExpr lhsExpr rhsExpr
       discrEvalExpr lhsEvalExpr rhsEvalExpr
       discrProof lhsProof rhsProof

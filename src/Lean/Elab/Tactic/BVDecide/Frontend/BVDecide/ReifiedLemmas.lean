@@ -22,32 +22,32 @@ This function adds the two lemmas:
 - `discrExpr = false → atomExpr = rhsExpr`
 It assumes that `discrExpr`, `lhsExpr` and `rhsExpr` are the expressions corresponding to `discr`,
 `lhs` and `rhs`. Furthermore it assumes that `atomExpr` is of the form
-`if discrExpr = true then lhsExpr else rhsExpr`.
+`bif discrExpr then lhsExpr else rhsExpr`.
 -/
-def addIfLemmas (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
+def addCondLemmas (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
     (discrExpr atomExpr lhsExpr rhsExpr : Expr) : LemmaM Unit := do
-  let some trueLemma ← mkIfTrueLemma discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr | return ()
+  let some trueLemma ← mkCondTrueLemma discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr | return ()
   LemmaM.addLemma trueLemma
-  let some falseLemma ← mkIfFalseLemma discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr | return ()
+  let some falseLemma ← mkCondFalseLemma discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr | return ()
   LemmaM.addLemma falseLemma
 where
-  mkIfTrueLemma (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
+  mkCondTrueLemma (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
       (discrExpr atomExpr lhsExpr rhsExpr : Expr) : M (Option SatAtBVLogical) :=
-    mkIfLemma true discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr
+    mkCondLemma true discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr
 
-  mkIfFalseLemma (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
+  mkCondFalseLemma (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
       (discrExpr atomExpr lhsExpr rhsExpr : Expr) : M (Option SatAtBVLogical) :=
-    mkIfLemma false discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr
+    mkCondLemma false discr atom lhs rhs discrExpr atomExpr lhsExpr rhsExpr
 
-  mkIfLemma (discrVal : Bool) (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
+  mkCondLemma (discrVal : Bool) (discr : ReifiedBVLogical) (atom lhs rhs : ReifiedBVExpr)
       (discrExpr atomExpr lhsExpr rhsExpr : Expr) : M (Option SatAtBVLogical) := do
     let resExpr := if discrVal then lhsExpr else rhsExpr
     let resValExpr := if discrVal then lhs else rhs
     let lemmaName :=
       if discrVal then
-        ``Std.Tactic.BVDecide.Reflect.BitVec.if_true
+        ``Std.Tactic.BVDecide.Reflect.BitVec.cond_true
       else
-        ``Std.Tactic.BVDecide.Reflect.BitVec.if_false
+        ``Std.Tactic.BVDecide.Reflect.BitVec.cond_false
     let discrValExpr := toExpr discrVal
     let discrVal ← ReifiedBVLogical.mkBoolConst discrVal
 

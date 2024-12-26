@@ -13,8 +13,6 @@ This module contains the `Prop` simplifying part of the `bv_normalize` simp set.
 namespace Std.Tactic.BVDecide
 namespace Frontend.Normalize
 
-attribute [bv_normalize] ite_true
-attribute [bv_normalize] ite_false
 attribute [bv_normalize] dite_true
 attribute [bv_normalize] dite_false
 attribute [bv_normalize] and_true

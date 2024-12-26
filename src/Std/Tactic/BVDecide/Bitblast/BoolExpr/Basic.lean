@@ -18,7 +18,7 @@ inductive Gate
   | and
   | xor
   | beq
-  | imp
+  | or
 
 namespace Gate
 
@@ -26,13 +26,13 @@ def toString : Gate → String
   | and => "&&"
   | xor => "^^"
   | beq => "=="
-  | imp => "->"
+  | or => "||"
 
 def eval : Gate → Bool → Bool → Bool
   | and => (· && ·)
   | xor => (· ^^ ·)
   | beq => (· == ·)
-  | imp => (· → ·)
+  | or => (· || ·)
 
 end Gate
 

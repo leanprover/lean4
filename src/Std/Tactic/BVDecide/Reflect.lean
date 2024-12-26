@@ -124,11 +124,11 @@ theorem umod_congr (lhs rhs lhs' rhs' : BitVec w) (h1 : lhs' = lhs) (h2 : rhs' =
   simp[*]
 
 theorem cond_true (discr : Bool) (lhs rhs : BitVec w) :
-    decide ((discr == true) = true → ((bif discr then lhs else rhs) == lhs) = true) = true := by
+    (!discr || ((bif discr then lhs else rhs) == lhs)) = true := by
   cases discr <;> simp
 
 theorem cond_false (discr : Bool) (lhs rhs : BitVec w) :
-    decide ((discr == false) = true → ((bif discr then lhs else rhs) == rhs) = true) = true := by
+    (discr || ((bif discr then lhs else rhs) == rhs)) = true := by
   cases discr <;> simp
 
 end BitVec
@@ -150,8 +150,8 @@ theorem beq_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs)
     (lhs' == rhs') = (lhs == rhs) := by
   simp[*]
 
-theorem imp_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
-    (decide (lhs' → rhs')) = (decide (lhs → rhs)) := by
+theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) :
+    (lhs' || rhs') = (lhs || rhs) := by
   simp[*]
 
 theorem cond_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)

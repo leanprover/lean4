@@ -91,7 +91,7 @@ where
     | .and => ``Std.Tactic.BVDecide.Reflect.Bool.and_congr
     | .xor => ``Std.Tactic.BVDecide.Reflect.Bool.xor_congr
     | .beq => ``Std.Tactic.BVDecide.Reflect.Bool.beq_congr
-    | .imp => ``Std.Tactic.BVDecide.Reflect.Bool.imp_congr
+    | .or => ``Std.Tactic.BVDecide.Reflect.Bool.or_congr
 
 /--
 Construct the reified version of `Bool.not subExpr`.

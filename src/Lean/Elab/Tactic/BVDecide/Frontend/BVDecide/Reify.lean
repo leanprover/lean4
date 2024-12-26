@@ -403,8 +403,7 @@ where
   goOrAtom (t : Expr) : LemmaM (Option ReifiedBVLogical) := do
     match ← go t with
     | some boolExpr => return some boolExpr
-    | none =>
-      ReifiedBVLogical.boolAtom t
+    | none => ReifiedBVLogical.boolAtom t
 
   gateReflection (lhsExpr rhsExpr : Expr) (gate : Gate) :
       LemmaM (Option ReifiedBVLogical) := do

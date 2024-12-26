@@ -178,6 +178,9 @@ where
         trace[grind.proof] "{a} ≡ {b}"
         mkEqProofCore a b (heq := true)
 
+def mkHEqProof (a b : Expr) : GoalM Expr :=
+  mkEqProofCore a b (heq := true)
+
 /--
 Returns a proof that `a = True`.
 It assumes `a` and `True` are in the same equivalence class.

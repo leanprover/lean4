@@ -120,7 +120,7 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   else if (← isEqTrue b) then
     pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
-    pushEqTrue e <| mkApp2 (mkConst ``of_eq_true) e (← mkEqProof a b)
+    pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkEqProof a b)
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do

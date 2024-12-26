@@ -330,6 +330,10 @@ def getRoot? (e : Expr) : GoalM (Option Expr) := do
 def getRoot (e : Expr) : GoalM Expr :=
   return (← getENode e).root
 
+/-- Returns the root enode in the equivalence class of `e`. -/
+def getRootENode (e : Expr) : GoalM ENode := do
+  getENode (← getRoot e)
+
 /-- Returns the next element in the equivalence class of `e`. -/
 def getNext (e : Expr) : GoalM Expr :=
   return (← getENode e).next
@@ -350,7 +354,7 @@ def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← isDefEq (← inferType lhs) (← inferType rhs)) then
+  if (← withDefault <| isDefEq (← inferType lhs) (← inferType rhs)) then
     pushEqCore lhs rhs proof (isHEq := false)
   else
     pushEqCore lhs rhs proof (isHEq := true)

@@ -49,14 +49,27 @@ private def checkParents (e : Expr) : GoalM Unit := do
     -- All the parents are stored in the root of the equivalence class.
     assert! (← getParents e).isEmpty
 
+private def checkPtrEqImpliesStructEq : GoalM Unit := do
+  let nodes ← getENodes
+  for h₁ : i in [: nodes.size] do
+    let n₁ := nodes[i]
+    for h₂ : j in [i+1 : nodes.size] do
+      let n₂ := nodes[i]
+      -- We don't have multiple nodes for the same expression
+      assert! !isSameExpr n₁.self n₂.self
+      -- and the two expressions must not be structurally equal
+      assert! !Expr.equal n₁.self n₂.self
+
 /--
-Check basic invariants if `grind.debug` is enabled.
+Checks basic invariants if `grind.debug` is enabled.
 -/
-def checkInvariants : GoalM Unit := do
+def checkInvariants (expensive := false) : GoalM Unit := do
   if grind.debug.get (← getOptions) then
     for (_, node) in (← get).enodes do
       checkParents node.self
       if isSameExpr node.self node.root then
         checkEqc node
+    if expensive then
+      checkPtrEqImpliesStructEq
 
 end Lean.Meta.Grind

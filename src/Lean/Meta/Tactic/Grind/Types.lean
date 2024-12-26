@@ -37,6 +37,12 @@ register_builtin_option grind.debug : Bool := {
   descr    := "check invariants after updates"
 }
 
+register_builtin_option grind.debug.proofs : Bool := {
+  defValue := false
+  group    := "debug"
+  descr    := "check proofs between the elements of all equivalence classes"
+}
+
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp     : Simp.Context

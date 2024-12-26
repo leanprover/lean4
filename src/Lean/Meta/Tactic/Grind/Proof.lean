@@ -81,6 +81,7 @@ mutual
     else
       flipProof h flipped heq
 
+  /-- Given `acc : lhs₀ = lhs`, returns a proof of `lhs₀ = common`. -/
   private partial def mkProofTo (lhs : Expr) (common : Expr) (acc : Option Expr) (heq : Bool) : GoalM (Option Expr) := do
     if isSameExpr lhs common then
       return acc
@@ -92,9 +93,7 @@ mutual
     let acc ← mkTrans' acc h heq
     mkProofTo target common (some acc) heq
 
-  /--
-  Given `lhsEqCommon : lhs = common`, returns a proof for `lhs = rhs`.
-  -/
+  /-- Given `lhsEqCommon : lhs = common`, returns a proof for `lhs = rhs`. -/
   private partial def mkProofFrom (rhs : Expr) (common : Expr) (lhsEqCommon? : Option Expr) (heq : Bool) : GoalM (Option Expr) := do
     if isSameExpr rhs common then
       return lhsEqCommon?
@@ -124,14 +123,22 @@ Returns a proof that `a = b` (or `HEq a b`).
 It assumes `a` and `b` are in the same equivalence class.
 -/
 def mkEqProof (a b : Expr) : GoalM Expr := do
-  let n ← getRootENode a
-  trace[grind.proof] "{a} {if n.heqProofs then "≡" else "="} {b}"
-  if !n.heqProofs then
-    mkEqProofCore a b (heq := false)
-  else if (← withDefault <| isDefEq (← inferType a) (← inferType b)) then
-    mkEqProofCore a b (heq := false)
-  else
-    mkEqProofCore a b (heq := true)
+  let p ← go
+  trace[grind.proof.detail] "{p}"
+  return p
+where
+  go : GoalM Expr := do
+    let n ← getRootENode a
+    if !n.heqProofs then
+      trace[grind.proof] "{a} = {b}"
+      mkEqProofCore a b (heq := false)
+    else
+      if (← withDefault <| isDefEq (← inferType a) (← inferType b)) then
+        trace[grind.proof] "{a} = {b}"
+        mkEqOfHEq (← mkEqProofCore a b (heq := true))
+      else
+        trace[grind.proof] "{a} ≡ {b}"
+        mkEqProofCore a b (heq := true)
 
 /--
 Returns a proof that `a = True`.

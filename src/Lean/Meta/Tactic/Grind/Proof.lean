@@ -67,7 +67,36 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
     it := target
   unreachable!
 
+/--
+Returns `true` if we can construct a congruence proof for `lhs = rhs` using `congrArg`, `congrFun`, and `congr`.
+`f` (`g`) is the function of the `lhs` (`rhs`) application. `numArgs` is the number of arguments.
+-/
+private partial def isCongrDefaultProofTarget (lhs rhs : Expr) (f g : Expr) (numArgs : Nat) : GoalM Bool := do
+  unless isSameExpr f g do return false
+  let info := (← getFunInfo f).paramInfo
+  let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Bool := do
+    if lhs.isApp then
+      let a₁ := lhs.appArg!
+      let a₂ := rhs.appArg!
+      let i  := i - 1
+      unless isSameExpr a₁ a₂ do
+        if h : i < info.size then
+          if info[i].hasFwdDeps then
+            -- Cannot use `congrArg` because there are forward dependencies
+            return false
+        else
+          return false -- Don't have information about argument
+      loop lhs.appFn! rhs.appFn! i
+    else
+      return true
+  loop lhs rhs numArgs
+
 mutual
+  /--
+  Given `lhs` and `rhs` proof terms of the form `nestedProof p hp` and `nestedProof q hq`,
+  constructs a congruence proof for `HEq (nestedProof p hp) (nestedProof q hq)`.
+  `p` and `q` are in the same equivalence class.
+  -/
   private partial def mkNestedProofCongr (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let p  := lhs.appFn!.appArg!
     let hp := lhs.appArg!
@@ -76,6 +105,30 @@ mutual
     let h  := mkApp5 (mkConst ``Lean.Grind.nestedProof_congr) p q (← mkEqProofCore p q false) hp hq
     mkEqOfHEqIfNeeded h heq
 
+  /--
+  Constructs a congruence proof for `lhs` and `rhs` using `congr`, `congrFun`, and `congrArg`.
+  This function assumes `isCongrDefaultProofTarget` returned `true`.
+  -/
+  private partial def mkCongrDefaultProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let rec loop (lhs rhs : Expr) : GoalM (Option Expr) := do
+      if lhs.isApp then
+        let a₁ := lhs.appArg!
+        let a₂ := rhs.appArg!
+        if let some proof ← loop lhs.appFn! rhs.appFn! then
+          if isSameExpr a₁ a₂ then
+            mkCongrFun proof a₁
+          else
+            mkCongr proof (← mkEqProofCore a₁ a₂ false)
+        else if isSameExpr a₁ a₂ then
+          return none -- refl case
+        else
+          mkCongrArg lhs.appFn! (← mkEqProofCore a₁ a₂ false)
+      else
+        return none
+    let r := (← loop lhs rhs).get!
+    if heq then mkHEqOfEq r else return r
+
+  /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let f := lhs.getAppFn
     let g := rhs.getAppFn
@@ -83,6 +136,8 @@ mutual
     assert! rhs.getAppNumArgs == numArgs
     if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
       mkNestedProofCongr lhs rhs heq
+    else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
+      mkCongrDefaultProof lhs rhs heq
     else
       let thm ← mkHCongrWithArity f numArgs
       assert! thm.argKinds.size == numArgs

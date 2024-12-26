@@ -312,9 +312,12 @@ def isEqFalse (e : Expr) : GoalM Bool := do
 
 /-- Returns `true` if `a` and `b` are in the same equivalence class. -/
 def isEqv (a b : Expr) : GoalM Bool := do
-  let na ← getENode a
-  let nb ← getENode b
-  return isSameExpr na.root nb.root
+  if isSameExpr a b then
+    return true
+  else
+    let na ← getENode a
+    let nb ← getENode b
+    return isSameExpr na.root nb.root
 
 /-- Returns `true` if the root of its equivalence class. -/
 def isRoot (e : Expr) : GoalM Bool := do

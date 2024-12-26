@@ -142,7 +142,6 @@ where
       flipped
     }
     let parents ← removeParents lhsRoot.self
-    -- TODO: set propagateBool
     updateRoots lhs rhsNode.root
     trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
@@ -162,7 +161,6 @@ where
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do
-      -- TODO: propagateBool
       let n ← getENode e
       setENode e { n with root := rootNew }
       unless (← isInconsistent) do

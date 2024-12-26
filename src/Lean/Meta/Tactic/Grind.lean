@@ -32,5 +32,6 @@ builtin_initialize registerTraceClass `grind.debug.proofs
 builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.congr
 builtin_initialize registerTraceClass `grind.proof
+builtin_initialize registerTraceClass `grind.proof.detail
 
 end Lean

@@ -262,7 +262,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
         let e' ← mkLambdaFVars motives e'
         let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
         let e' ← instantiateMVars e'
-        trace[Elab.definition.partialFixpoint.induction] "complete body of fixpoint induction principle:{indentExpr e'}"
+        trace[Elab.definition.partialFixpoint.induction] "complete body of partial correctness principle:{indentExpr e'}"
         pure e'
 
     let eTyp ← inferType e'

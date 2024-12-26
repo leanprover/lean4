@@ -123,6 +123,11 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
+/-- `@[app_delab c]` registers a declaration of type `Lean.PrettyPrinter.Delaborator.Delab` for applications
+of the constant `c` (including "nullary applications").
+
+It should be preferred over the otherwise-equivalent `@[delab app.c]`, as it first performs name-resolution
+on `c`. -/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
   | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"

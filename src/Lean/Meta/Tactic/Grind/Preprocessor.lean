@@ -139,6 +139,8 @@ def preprocess (mvarId : MVarId) : PreM State := do
   loop (← mkGoal mvarId)
   if (← isTracingEnabledFor `grind.pre) then
     trace[grind.pre] (← ppGoals)
+  for goal in (← get).goals do
+    discard <| GoalM.run' goal <| checkInvariants (expensive := true)
   get
 
 def preprocessAndProbe (mvarId : MVarId) (p : GoalM Unit) : PreM Unit := do

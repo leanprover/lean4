@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Proof
 
 namespace Lean.Meta.Grind
 
@@ -60,6 +61,17 @@ private def checkPtrEqImpliesStructEq : GoalM Unit := do
       -- and the two expressions must not be structurally equal
       assert! !Expr.equal n₁.self n₂.self
 
+private def checkProofs : GoalM Unit := do
+  let eqcs ← getEqcs
+  for eqc in eqcs do
+    for a in eqc do
+      for b in eqc do
+        unless isSameExpr a b do
+          let p ← mkEqProof a b
+          trace[grind.debug.proofs] "{a} = {b}"
+          check p
+          trace[grind.debug.proofs] "checked: {← inferType p}"
+
 /--
 Checks basic invariants if `grind.debug` is enabled.
 -/
@@ -71,5 +83,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
+  if expensive && grind.debug.proofs.get (← getOptions) then
+    checkProofs
 
 end Lean.Meta.Grind

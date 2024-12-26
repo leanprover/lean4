@@ -13,6 +13,8 @@ elab "grind_test" : tactic => withMainContext do
     logInfo (← getEqc n.self)
 
 set_option grind.debug true
+-- TODO: fix nested proof support
+-- set_option grind.debug.proofs true
 
 /-
 Recall that array access terms, such as `a[i]`, have nested proofs.

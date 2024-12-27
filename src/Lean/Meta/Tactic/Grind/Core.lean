@@ -79,7 +79,7 @@ where
       proof?  := proofNew?
     }
 
-private def markAsInconsistent : GoalM Unit :=
+private def markAsInconsistent : GoalM Unit := do
   modify fun s => { s with inconsistent := true }
 
 /--

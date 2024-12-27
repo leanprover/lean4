@@ -160,7 +160,12 @@ def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.Stat
   Preprocessor.preprocess mvarId |>.run |>.run mainDeclName
 
 def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
-  let s ← preprocess mvarId mainDeclName
-  return s.goals.toList.map (·.mvarId)
+  let go : GrindM (List MVarId) := do
+    let s ← Preprocessor.preprocess mvarId |>.run
+    let goals ← s.goals.toList.filterM fun goal => do
+      let (done, _) ← GoalM.run goal closeIfInconsistent
+      return !done
+    return goals.map (·.mvarId)
+  go.run mainDeclName
 
 end Lean.Meta.Grind

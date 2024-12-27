@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.PropagatorAttr
 
 namespace Lean.Meta.Grind
 

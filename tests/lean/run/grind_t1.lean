@@ -55,3 +55,23 @@ example (a b c : BitVec 32) : a = c → a = 1#32 → c = 2#32 → c = b → Fals
 
 example (a b c : UInt32) : a = c → a = 1 → c = 200 → c = b → False := by
   grind
+
+structure Boo (α : Type) where
+  a : α
+  b : α
+  c : α
+
+example (a b d : Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → b = a → False := by
+  grind
+
+def ex (a b c d : Nat) (f : Nat → Boo Nat) : (f d).2 ≠ a → f d = ⟨b, c, v₂⟩ → c = a → False := by
+  grind
+
+example (a b c : Nat) (f : Nat → Nat) : { a := f b, c, b := 4 : Boo Nat }.1 ≠ f a → f b = f c → a = c → False := by
+  grind
+
+example (a b c : Nat) (f : Nat → Nat) : p = { a := f b, c, b := 4 : Boo Nat } → p.1 ≠ f a → f b = f c → a = c → False := by
+  grind
+
+example (a b c : Nat) (f : Nat → Nat) : p.1 ≠ f a → p = { a := f b, c, b := 4 : Boo Nat } → f b = f c → a = c → False := by
+  grind

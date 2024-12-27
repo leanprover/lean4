@@ -249,4 +249,15 @@ It assumes `a` and `False` are in the same equivalence class.
 def mkEqFalseProof (a : Expr) : GoalM Expr := do
   mkEqProof a (← getFalseExpr)
 
+def closeIfInconsistent : GoalM Bool := do
+  if (← isInconsistent) then
+    let mvarId := (← get).mvarId
+    unless (← mvarId.isAssigned) do
+      let trueEqFalse ← mkEqFalseProof (← getTrueExpr)
+      let falseProof ← mkEqMP trueEqFalse (mkConst ``True.intro)
+      mvarId.assign falseProof
+    return true
+  else
+    return false
+
 end Lean.Meta.Grind

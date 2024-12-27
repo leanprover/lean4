@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Proj
 
 namespace Lean.Meta.Grind
 
@@ -15,6 +16,7 @@ def mkMethods : CoreM Methods := do
   return {
     propagateUp := fun e => do
      let .const declName _ := e.getAppFn | return ()
+     propagateProjEq e
      if let some prop := builtinPropagators.up[declName]? then
        prop e
     propagateDown := fun e => do

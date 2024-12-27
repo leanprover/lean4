@@ -1649,6 +1649,23 @@ def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
 
 /--
+`getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
+and performs pending beta reductions. It does **not** use whnf.
+Examples:
+- If `a` is `Nat`, `getForallArity a` returns `0`
+- If `a` is `Nat → Bool`, `getForallArity a` returns `1`
+-/
+partial def getForallArity : Expr → Nat
+  | .mdata _ b       => getForallArity b
+  | .forallE _ _ b _ => getForallArity b + 1
+  | e                =>
+    if e.isHeadBetaTarget then
+      getForallArity e.headBeta
+    else
+      let e' := e.cleanupAnnotations
+      if e != e' then getForallArity e' else 0
+
+/--
 Checks if an expression is a "natural number numeral in normal form",
 i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
 where `n` matches `.lit (.natVal n)` for some literal natural number `n`.

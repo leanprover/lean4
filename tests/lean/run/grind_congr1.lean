@@ -83,3 +83,18 @@ theorem ex1 (f : {α : Type} → α → Nat → Bool → Nat) (a b c : Nat) : f 
   grind
 
 #print ex1
+
+
+example (n1 n2 n3 : Nat) (v1 w1 : Vector Nat n1) (w1' : Vector Nat n3) (v2 w2 : Vector Nat n2) :
+        n1 = n3 → v1 = w1 → HEq w1 w1' → v2 = w2 → HEq (v1 ++ v2) (w1' ++ w2) := by
+  grind
+
+example (n1 n2 n3 : Nat) (v1 w1 : Vector Nat n1) (w1' : Vector Nat n3) (v2 w2 : Vector Nat n2) :
+        HEq n1 n3 → v1 = w1 → HEq w1 w1' → HEq v2 w2 → HEq (v1 ++ v2) (w1' ++ w2) := by
+  grind
+
+theorem ex2 (n1 n2 n3 : Nat) (v1 w1 v : Vector Nat n1) (w1' : Vector Nat n3) (v2 w2 w : Vector Nat n2) :
+        HEq n1 n3 → v1 = w1 → HEq w1 w1' → HEq v2 w2 → HEq (w1' ++ w2) (v ++ w) → HEq (v1 ++ v2) (v ++ w) := by
+  grind
+
+#print ex2

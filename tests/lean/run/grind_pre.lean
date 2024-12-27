@@ -24,37 +24,10 @@ error: `grind` failed
 a b c : Bool
 p q : Prop
 left✝ : a = true
-h✝ : b = true
-left : p
-right : q
-h : b = false
-⊢ False
-
-a b c : Bool
-p q : Prop
-left✝ : a = true
-h✝ : b = true
-left : p
-right : q
-h : a = false
-⊢ False
-
-a b c : Bool
-p q : Prop
-left✝ : a = true
 h✝ : c = true
 left : p
 right : q
 h : b = false
-⊢ False
-
-a b c : Bool
-p q : Prop
-left✝ : a = true
-h✝ : c = true
-left : p
-right : q
-h : a = false
 ⊢ False
 -/
 #guard_msgs (error) in

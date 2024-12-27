@@ -98,6 +98,8 @@ def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
     return none
 
 partial def loop (goal : Goal) : PreM Unit := do
+  if goal.inconsistent then
+    return ()
   match (← introNext goal) with
   | .done =>
     if let some mvarId ← goal.mvarId.byContra? then
@@ -162,9 +164,7 @@ def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.Stat
 def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
   let go : GrindM (List MVarId) := do
     let s ← Preprocessor.preprocess mvarId |>.run
-    let goals ← s.goals.toList.filterM fun goal => do
-      let (done, _) ← GoalM.run goal closeIfInconsistent
-      return !done
+    let goals := s.goals.toList.filter fun goal => !goal.inconsistent
     return goals.map (·.mvarId)
   go.run mainDeclName
 

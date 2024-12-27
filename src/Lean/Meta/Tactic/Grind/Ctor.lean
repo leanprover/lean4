@@ -8,6 +8,17 @@ import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 
+private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := do
+  match_expr eqs with
+  | And left right =>
+    propagateInjEqs left (.proj ``And 0 proof)
+    propagateInjEqs right (.proj ``And 1 proof)
+  | Eq _ lhs rhs    => pushEq lhs rhs proof
+  | HEq _ lhs _ rhs => pushHEq lhs rhs proof
+  | _ =>
+   trace[grind.issues] "unexpected injectivity theorem result type{indentExpr eqs}"
+   return ()
+
 /--
 Given constructors `a` and `b`, propagate equalities if they are the same,
 and close goal if they are different.
@@ -20,8 +31,15 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
   let ctor₁ := a.getAppFn
   let ctor₂ := b.getAppFn
   if ctor₁ == ctor₂ then
-    -- TODO
-    return ()
+    let .const ctorName _ := a.getAppFn | return ()
+    let injDeclName := Name.mkStr ctorName "inj"
+    unless (← getEnv).contains injDeclName do return ()
+    let info ← getConstInfo injDeclName
+    let n := info.type.getForallArity
+    let mask : Array (Option Expr) := mkArray n none
+    let mask := mask.set! (n-1) (some (← mkEqProof a b))
+    let injLemma ← mkAppOptM injDeclName mask
+    propagateInjEqs (← inferType injLemma) injLemma
   else
     let .const declName _ := aType.getAppFn | return ()
     let noConfusionDeclName := Name.mkStr declName "noConfusion"

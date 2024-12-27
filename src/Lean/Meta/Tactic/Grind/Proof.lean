@@ -214,7 +214,8 @@ end
 Returns a proof that `a = b` (or `HEq a b`).
 It assumes `a` and `b` are in the same equivalence class.
 -/
-def mkEqProof (a b : Expr) : GoalM Expr := do
+@[export lean_grind_mk_eq_proof]
+def mkEqProofImpl (a b : Expr) : GoalM Expr := do
   let p ← go
   trace[grind.proof.detail] "{p}"
   return p
@@ -234,30 +235,5 @@ where
 
 def mkHEqProof (a b : Expr) : GoalM Expr :=
   mkEqProofCore a b (heq := true)
-
-/--
-Returns a proof that `a = True`.
-It assumes `a` and `True` are in the same equivalence class.
--/
-def mkEqTrueProof (a : Expr) : GoalM Expr := do
-  mkEqProof a (← getTrueExpr)
-
-/--
-Returns a proof that `a = False`.
-It assumes `a` and `False` are in the same equivalence class.
--/
-def mkEqFalseProof (a : Expr) : GoalM Expr := do
-  mkEqProof a (← getFalseExpr)
-
-def closeIfInconsistent : GoalM Bool := do
-  if (← isInconsistent) then
-    let mvarId := (← get).mvarId
-    unless (← mvarId.isAssigned) do
-      let trueEqFalse ← mkEqFalseProof (← getTrueExpr)
-      let falseProof ← mkEqMP trueEqFalse (mkConst ``True.intro)
-      mvarId.assign falseProof
-    return true
-  else
-    return false
 
 end Lean.Meta.Grind

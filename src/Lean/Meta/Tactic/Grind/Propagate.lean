@@ -111,7 +111,7 @@ builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   else if (← isEqTrue e) then
     pushEqFalse a <| mkApp2 (mkConst ``Lean.Grind.eq_false_of_not_eq_true) a (← mkEqTrueProof e)
   else if (← isEqv e a) then
-    pushEqFalse (← getTrueExpr) <| mkApp2 (mkConst ``Lean.Grind.true_eq_false_of_not_eq_self) a (← mkEqProof e a)
+    closeGoal <| mkApp2 (mkConst ``Lean.Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do

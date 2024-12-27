@@ -42,7 +42,7 @@ theorem not_eq_of_eq_false {a : Prop} (h : a = False) : (Not a) = True := by sim
 theorem eq_false_of_not_eq_true {a : Prop} (h : (Not a) = True) : a = False := by simp_all
 theorem eq_true_of_not_eq_false {a : Prop} (h : (Not a) = False) : a = True := by simp_all
 
-theorem true_eq_false_of_not_eq_self {a : Prop} (h : (Not a) = a) : True = False := by
+theorem false_of_not_eq_self {a : Prop} (h : (Not a) = a) : False := by
   by_cases a <;> simp_all
 
 /-! Eq -/

@@ -79,9 +79,6 @@ where
       proof?  := proofNew?
     }
 
-private def markAsInconsistent : GoalM Unit := do
-  modify fun s => { s with inconsistent := true }
-
 /--
 Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
@@ -100,6 +97,14 @@ private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
     addCongrTable parent
 
+/-- Closes the goal when `True` and `False` are in the same equivalence class. -/
+private def closeGoalWithTrueEqFalse : GoalM Unit := do
+  let mvarId := (← get).mvarId
+  unless (← mvarId.isAssigned) do
+    let trueEqFalse ← mkEqFalseProof (← getTrueExpr)
+    let falseProof ← mkEqMP trueEqFalse (mkConst ``True.intro)
+    closeGoal falseProof
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
@@ -111,9 +116,11 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
   let mut valueInconsistency := false
+  let mut trueEqFalse := false
   if lhsRoot.interpreted && rhsRoot.interpreted then
+    markAsInconsistent
     if lhsNode.root.isTrue || rhsNode.root.isTrue then
-      markAsInconsistent
+      trueEqFalse := true
     else
       valueInconsistency := true
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
@@ -122,6 +129,8 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
     go rhs lhs rhsNode lhsNode rhsRoot lhsRoot true
   else
     go lhs rhs lhsNode rhsNode lhsRoot rhsRoot false
+  if trueEqFalse then
+    closeGoalWithTrueEqFalse
   -- TODO: propagate value inconsistency
   trace[grind.debug] "after addEqStep, {← ppState}"
   checkInvariants

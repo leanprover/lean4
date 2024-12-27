@@ -275,10 +275,6 @@ abbrev GoalM := StateRefT Goal GrindM
 
 abbrev Propagator := Expr → GoalM Unit
 
-/-- Return `true` if the goal is inconsistent. -/
-def isInconsistent : GoalM Bool :=
-  return (← get).inconsistent
-
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)
@@ -443,6 +439,46 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
+
+/-- Return `true` if the goal is inconsistent. -/
+def isInconsistent : GoalM Bool :=
+  return (← get).inconsistent
+
+/--
+Returns a proof that `a = b` (or `HEq a b`).
+It assumes `a` and `b` are in the same equivalence class.
+-/
+-- Forward definition
+@[extern "lean_grind_mk_eq_proof"]
+opaque mkEqProof (a b : Expr) : GoalM Expr
+
+/--
+Returns a proof that `a = True`.
+It assumes `a` and `True` are in the same equivalence class.
+-/
+def mkEqTrueProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getTrueExpr)
+
+/--
+Returns a proof that `a = False`.
+It assumes `a` and `False` are in the same equivalence class.
+-/
+def mkEqFalseProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getFalseExpr)
+
+/-- Marks current goal as inconsistent without assigning `mvarId`. -/
+def markAsInconsistent : GoalM Unit := do
+  modify fun s => { s with inconsistent := true }
+
+/--
+Closes the current goal using the given proof of `False` and
+marks it as inconsistent if it is not already marked so.
+-/
+def closeGoal (falseProof : Expr) : GoalM Unit := do
+  markAsInconsistent
+  let mvarId := (← get).mvarId
+  unless (← mvarId.isAssigned) do
+    mvarId.assign falseProof
 
 /-- Returns all enodes in the goal -/
 def getENodes : GoalM (Array ENode) := do

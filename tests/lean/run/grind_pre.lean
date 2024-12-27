@@ -124,3 +124,6 @@ example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h�
 
 example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) → False := by
   grind
+
+example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → q = r := by
+  grind

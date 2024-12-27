@@ -105,12 +105,13 @@ This function performs the following:
 - If `(Not a) = True`, propagates `a = False`.
 -/
 builtin_grind_propagator propagateNotDown ↓Not := fun e => do
+  let_expr Not a := e | return ()
   if (← isEqFalse e) then
-    let_expr Not a := e | return ()
     pushEqTrue a <| mkApp2 (mkConst ``Lean.Grind.eq_true_of_not_eq_false) a (← mkEqFalseProof e)
   else if (← isEqTrue e) then
-    let_expr Not a := e | return ()
     pushEqFalse a <| mkApp2 (mkConst ``Lean.Grind.eq_false_of_not_eq_true) a (← mkEqTrueProof e)
+  else if (← isEqv e a) then
+    pushEqFalse (← getTrueExpr) <| mkApp2 (mkConst ``Lean.Grind.true_eq_false_of_not_eq_self) a (← mkEqProof e a)
 
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do

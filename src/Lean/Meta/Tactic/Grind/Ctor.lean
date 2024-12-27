@@ -1,0 +1,32 @@
+/-
+Copyright (c) 2024 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import Lean.Meta.Tactic.Grind.Types
+
+namespace Lean.Meta.Grind
+
+/--
+Given constructors `a` and `b`, propagate equalities if they are the same,
+and close goal if they are different.
+-/
+def propagateCtor (a b : Expr) : GoalM Unit := do
+  let aType ← whnfD (← inferType a)
+  let bType ← whnfD (← inferType b)
+  unless (← withDefault <| isDefEq aType bType) do
+    return ()
+  let ctor₁ := a.getAppFn
+  let ctor₂ := b.getAppFn
+  if ctor₁ == ctor₂ then
+    -- TODO
+    return ()
+  else
+    let .const declName _ := aType.getAppFn | return ()
+    let noConfusionDeclName := Name.mkStr declName "noConfusion"
+    unless (← getEnv).contains noConfusionDeclName do return ()
+    let target ← (← get).mvarId.getType
+    closeGoal (← mkNoConfusion target (← mkEqProof a b))
+
+end Lean.Meta.Grind

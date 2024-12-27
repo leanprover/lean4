@@ -9,6 +9,7 @@ import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Ctor
 
 namespace Lean.Meta.Grind
 
@@ -131,6 +132,9 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
     go lhs rhs lhsNode rhsNode lhsRoot rhsRoot false
   if trueEqFalse then
     closeGoalWithTrueEqFalse
+  unless (← isInconsistent) do
+    if lhsRoot.ctor && rhsRoot.ctor then
+      propagateCtor lhsRoot.self rhsRoot.self
   -- TODO: propagate value inconsistency
   trace[grind.debug] "after addEqStep, {← ppState}"
   checkInvariants

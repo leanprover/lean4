@@ -19,6 +19,7 @@ import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.Propagate
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Ctor
 
 namespace Lean
 

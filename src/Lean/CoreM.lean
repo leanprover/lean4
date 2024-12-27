@@ -517,7 +517,7 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 def compileDecl (decl : Declaration) : CoreM Unit := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well
-  if (← get).snapshotTasks.any (·.get.element.diagnostics.msgLog.hasErrors) then
+  if !decl.getNames.all (← getEnv).toKernelEnv.constants.contains then
     return
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
@@ -536,7 +536,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
 def compileDecls (decls : List Name) : CoreM Unit := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well
-  if (← get).snapshotTasks.any (·.get.element.diagnostics.msgLog.hasErrors) then
+  if !decls.all (← getEnv).toKernelEnv.constants.contains then
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then

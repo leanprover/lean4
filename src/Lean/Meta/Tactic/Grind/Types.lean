@@ -508,12 +508,12 @@ def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
     if isSameExpr n.self n.root then
       f n
 
-private structure Methods where
+structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
   deriving Inhabited
 
-private def Methods.toMethodsRef (m : Methods) : MethodsRef :=
+def Methods.toMethodsRef (m : Methods) : MethodsRef :=
   unsafe unsafeCast m
 
 private def MethodsRef.toMethods (m : MethodsRef) : Methods :=
@@ -527,93 +527,6 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
-
-/-- Builtin propagators. -/
-structure BuiltinPropagators where
-  up   : Std.HashMap Name Propagator := {}
-  down : Std.HashMap Name Propagator := {}
-  deriving Inhabited
-
-builtin_initialize builtinPropagatorsRef : IO.Ref BuiltinPropagators ← IO.mkRef {}
-
-private def registerBuiltinPropagatorCore (declName : Name) (up : Bool) (proc : Propagator) : IO Unit := do
-  unless (← initializing) do
-    throw (IO.userError s!"invalid builtin `grind` propagator declaration, it can only be registered during initialization")
-  if up then
-    if (← builtinPropagatorsRef.get).up.contains declName then
-      throw (IO.userError s!"invalid builtin `grind` upward propagator `{declName}`, it has already been declared")
-    builtinPropagatorsRef.modify fun { up, down } => { up := up.insert declName proc, down }
-  else
-    if (← builtinPropagatorsRef.get).down.contains declName then
-      throw (IO.userError s!"invalid builtin `grind` downward propagator `{declName}`, it has already been declared")
-    builtinPropagatorsRef.modify fun { up, down } => { up, down := down.insert declName proc }
-
-def registerBuiltinUpwardPropagator (declName : Name) (proc : Propagator) : IO Unit :=
-  registerBuiltinPropagatorCore declName true proc
-
-def registerBuiltinDownwardPropagator (declName : Name) (proc : Propagator) : IO Unit :=
-  registerBuiltinPropagatorCore declName false proc
-
-private def addBuiltin (propagatorName : Name) (stx : Syntax) : AttrM Unit := do
-  let go : MetaM Unit := do
-    let up := stx[1].getKind == ``Lean.Parser.Tactic.simpPost
-    let addDeclName := if up then
-      ``registerBuiltinUpwardPropagator
-    else
-      ``registerBuiltinDownwardPropagator
-    let declName ← resolveGlobalConstNoOverload stx[2]
-    let val := mkAppN (mkConst addDeclName) #[toExpr declName, mkConst propagatorName]
-    let initDeclName ← mkFreshUserName (propagatorName ++ `declare)
-    declareBuiltin initDeclName val
-  go.run' {}
-
-builtin_initialize
-  registerBuiltinAttribute {
-    ref             := by exact decl_name%
-    name            := `grindPropagatorBuiltinAttr
-    descr           := "Builtin `grind` propagator procedure"
-    applicationTime := AttributeApplicationTime.afterCompilation
-    erase           := fun _ => throwError "Not implemented yet, [-builtin_simproc]"
-    add             := fun declName stx _ => addBuiltin declName stx
-  }
-
-def mkMethods : CoreM Methods := do
-  let builtinPropagators ← builtinPropagatorsRef.get
-  return {
-    propagateUp := fun e => do
-     let .const declName _ := e.getAppFn | return ()
-     if let some prop := builtinPropagators.up[declName]? then
-       prop e
-    propagateDown := fun e => do
-     let .const declName _ := e.getAppFn | return ()
-     if let some prop := builtinPropagators.down[declName]? then
-       prop e
-  }
-
-def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
-  let scState := ShareCommon.State.mk _
-  let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
-  let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp ← Simp.mkContext
-    (config := { arith := true })
-    (simpTheorems := #[thms])
-    (congrTheorems := (← getSimpCongrTheorems))
-  x (← mkMethods).toMethodsRef { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
-
-@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
-  goal.mvarId.withContext do StateRefT'.run x goal
-
-@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
-  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
-
-def mkGoal (mvarId : MVarId) : GrindM Goal := do
-  let trueExpr ← getTrueExpr
-  let falseExpr ← getFalseExpr
-  GoalM.run' { mvarId } do
-    mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
-    mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def getEqc (e : Expr) : GoalM (List Expr) :=

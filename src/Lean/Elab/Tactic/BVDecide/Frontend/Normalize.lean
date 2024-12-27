@@ -28,6 +28,18 @@ namespace Frontend.Normalize
 open Lean.Meta
 open Std.Tactic.BVDecide.Normalize
 
+builtin_simproc ↓ [bv_normalize] reduceCond (cond _ _ _) := fun e => do
+  let_expr f@cond α c tb eb := e | return .continue
+  let r ← Simp.simp c
+  if r.expr.cleanupAnnotations.isConstOf ``Bool.true then
+    let pr := mkApp (mkApp4 (mkConst ``Bool.cond_pos f.constLevels!) α c tb eb) (← r.getProof)
+    return .visit { expr := tb, proof? := pr }
+  else if r.expr.cleanupAnnotations.isConstOf ``Bool.false then
+    let pr := mkApp (mkApp4 (mkConst ``Bool.cond_neg f.constLevels!) α c tb eb) (← r.getProof)
+    return .visit { expr := eb, proof? := pr }
+  else
+    return .continue
+
 builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
   let_expr Eq _ lhs rhs := e | return .continue
   match_expr rhs with

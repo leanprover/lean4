@@ -44,7 +44,6 @@ def propagateCtor (a b : Expr) : GoalM Unit := do
     let .const declName _ := aType.getAppFn | return ()
     let noConfusionDeclName := Name.mkStr declName "noConfusion"
     unless (← getEnv).contains noConfusionDeclName do return ()
-    let target ← (← get).mvarId.getType
-    closeGoal (← mkNoConfusion target (← mkEqProof a b))
+    closeGoal (← mkNoConfusion (← getFalseExpr) (← mkEqProof a b))
 
 end Lean.Meta.Grind

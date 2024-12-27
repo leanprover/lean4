@@ -34,3 +34,24 @@ example (h : x = y) (h₁ : a :: b = x) (h₂ : c :: d = y) : b = d := by
 
 example (a b : Sum Nat Bool) : a = .inl x → b = .inl y → x ≠ y → a = b → False := by
   grind
+
+example (a b : Nat) : a = 1 → b = 2 → a = b → False := by
+  grind
+
+example (a b c : Int) : a = 1 → c = -2 → a = b → c = b → False := by
+  grind
+
+example (a b : Char) : a = 'h' → b = 'w' → a = b → False := by
+  grind
+
+example (a b : String) : a = "hello" → b = "world" → a = b → False := by
+  grind
+
+example (a b c : String) : a = c → a = "hello" → c = "world" → c = b → False := by
+  grind
+
+example (a b c : BitVec 32) : a = c → a = 1#32 → c = 2#32 → c = b → False := by
+  grind
+
+example (a b c : UInt32) : a = c → a = 1 → c = 200 → c = b → False := by
+  grind

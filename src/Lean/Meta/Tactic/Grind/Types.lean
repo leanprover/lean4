@@ -478,7 +478,11 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
   markAsInconsistent
   let mvarId := (← get).mvarId
   unless (← mvarId.isAssigned) do
-    mvarId.assign falseProof
+    let target ← mvarId.getType
+    if target.isFalse then
+      mvarId.assign falseProof
+    else
+      mvarId.assign (← mkFalseElim target falseProof)
 
 /-- Returns all enodes in the goal -/
 def getENodes : GoalM (Array ENode) := do

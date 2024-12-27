@@ -106,6 +106,15 @@ private def closeGoalWithTrueEqFalse : GoalM Unit := do
     let falseProof ← mkEqMP trueEqFalse (mkConst ``True.intro)
     closeGoal falseProof
 
+/-- Closes the goal when `lhs` and `rhs` are both literal values and belong to the same equivalence class. -/
+private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
+  let p ← mkEq lhs rhs
+  let hp ← mkEqProof lhs rhs
+  let d ← mkDecide p
+  let pEqFalse := mkApp3 (mkConst ``eq_false_of_decide) p d.appArg! (mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false))
+  let falseProof ← mkEqMP pEqFalse hp
+  closeGoal falseProof
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
@@ -119,8 +128,8 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
   let mut valueInconsistency := false
   let mut trueEqFalse := false
   if lhsRoot.interpreted && rhsRoot.interpreted then
-    markAsInconsistent
     if lhsNode.root.isTrue || rhsNode.root.isTrue then
+      markAsInconsistent
       trueEqFalse := true
     else
       valueInconsistency := true
@@ -135,7 +144,9 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
   unless (← isInconsistent) do
     if lhsRoot.ctor && rhsRoot.ctor then
       propagateCtor lhsRoot.self rhsRoot.self
-  -- TODO: propagate value inconsistency
+  unless (← isInconsistent) do
+    if valueInconsistency then
+      closeGoalWithValuesEq lhsRoot.self rhsRoot.self
   trace[grind.debug] "after addEqStep, {← ppState}"
   checkInvariants
 where

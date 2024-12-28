@@ -9,9 +9,10 @@ partial_fixpoint monotonicity sorry
 
 -- Check for metavariables
 
+set_option pp.mvars.anonymous false in
 /--
 error: monotonicity proof must not contain meta variables
-  ?m.201
+  ?_
 -/
 #guard_msgs in
 def nullarya (x : Nat) : Option Unit := nullarya (x + 1)

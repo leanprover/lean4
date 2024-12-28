@@ -8,3 +8,5 @@ import Init.Grind.Norm
 import Init.Grind.Tactics
 import Init.Grind.Lemmas
 import Init.Grind.Cases
+import Init.Grind.Propagator
+import Init.Grind.Util

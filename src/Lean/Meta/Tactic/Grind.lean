@@ -12,3 +12,27 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.Inv
+import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Propagate
+import Lean.Meta.Tactic.Grind.PP
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Ctor
+
+namespace Lean
+
+builtin_initialize registerTraceClass `grind
+builtin_initialize registerTraceClass `grind.eq
+builtin_initialize registerTraceClass `grind.issues
+builtin_initialize registerTraceClass `grind.add
+builtin_initialize registerTraceClass `grind.pre
+builtin_initialize registerTraceClass `grind.debug
+builtin_initialize registerTraceClass `grind.debug.proofs
+builtin_initialize registerTraceClass `grind.simp
+builtin_initialize registerTraceClass `grind.congr
+builtin_initialize registerTraceClass `grind.proof
+builtin_initialize registerTraceClass `grind.proof.detail
+
+end Lean

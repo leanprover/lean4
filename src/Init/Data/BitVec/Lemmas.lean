@@ -332,11 +332,11 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
   Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
 
-@[simp] theorem getElem_zero_ofNat_zero (i : Nat) (h : i < w) : (BitVec.ofNat w 0)[i] = false := by
-  simp [getElem_eq_testBit_toNat]
+theorem getElem_zero_ofNat_zero (i : Nat) (h : i < w) : (BitVec.ofNat w 0)[i] = false := by
+  simp
 
-@[simp] theorem getElem_zero_ofNat_one (h : 0 < w) : (BitVec.ofNat w 1)[0] = true := by
-  simp [getElem_eq_testBit_toNat, h]
+theorem getElem_zero_ofNat_one (h : 0 < w) : (BitVec.ofNat w 1)[0] = true := by
+  simp
 
 theorem getElem?_zero_ofNat_zero : (BitVec.ofNat (w+1) 0)[0]? = some false := by
   simp
@@ -362,12 +362,7 @@ theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) &&
   · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsbD_ofNat, Bool.and_true]
     by_cases hi : i = 0 <;> simp [hi] <;> omega
 
-@[simp]
-theorem getElem_ofBool {b : Bool} {i : Nat} : (ofBool b)[0] = b := by
-  rcases b with rfl | rfl
-  · simp [ofBool]
-  · simp only [ofBool]
-    by_cases hi : i = 0 <;> simp [hi] <;> omega
+theorem getElem_ofBool {b : Bool} : (ofBool b)[0] = b := by simp
 
 @[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
   cases b <;> simp [getMsbD]
@@ -538,7 +533,7 @@ theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
 A bitvector, when interpreted as an integer, is less than zero iff
 its most significant bit is true.
 -/
-theorem slt_zero_iff_msb_cond (x : BitVec w) : x.slt 0#w ↔ x.msb = true := by
+theorem slt_zero_iff_msb_cond {x : BitVec w} : x.slt 0#w ↔ x.msb = true := by
   have := toInt_eq_msb_cond x
   constructor
   · intros h
@@ -1120,12 +1115,8 @@ theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
     rw [h]
     simp
 
-@[simp] theorem getMsb_not {x : BitVec w} :
-    (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by
-  simp only [getMsbD]
-  by_cases h : i < w
-  · simp [h]; omega
-  · simp [h];
+theorem getMsb_not {x : BitVec w} :
+    (~~~x).getMsbD i = (decide (i < w) && !(x.getMsbD i)) := by simp
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
   simp [BitVec.msb]
@@ -1243,7 +1234,6 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
 
 @[simp] theorem getMsbD_shiftLeftZeroExtend (x : BitVec m) (n : Nat) :
     getMsbD (shiftLeftZeroExtend x n) i = getMsbD x i := by
-  have : n ≤ i + n := by omega
   simp_all [shiftLeftZeroExtend_eq]
 
 @[simp] theorem msb_shiftLeftZeroExtend (x : BitVec w) (i : Nat) :
@@ -1291,10 +1281,9 @@ theorem getLsbD_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} :
     (x <<< y).getLsbD i = (decide (i < w₁) && !decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by
   simp [shiftLeft_eq', getLsbD_shiftLeft]
 
-@[simp]
 theorem getElem_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} (h : i < w₁) :
     (x <<< y)[i] = (!decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by
-  simp [shiftLeft_eq', getLsbD_shiftLeft]
+  simp
 
 /-! ### ushiftRight -/
 
@@ -1597,39 +1586,25 @@ theorem getMsbD_sshiftRight {x : BitVec w} {i n : Nat} :
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
-@[simp]
-theorem getLsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
+-- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
+theorem getLsbD_sshiftRight' {x y : BitVec w} {i : Nat} :
     getLsbD (x.sshiftRight' y) i =
       (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
   simp only [BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
 
-@[simp]
+-- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getElem_sshiftRight' {x y : BitVec w} {i : Nat} (h : i < w) :
     (x.sshiftRight' y)[i] =
       (!decide (w ≤ i) && if y.toNat + i < w then x.getLsbD (y.toNat + i) else x.msb) := by
   simp only [← getLsbD_eq_getElem, BitVec.sshiftRight', BitVec.getLsbD_sshiftRight]
 
-@[simp]
 theorem getMsbD_sshiftRight' {x y: BitVec w} {i : Nat} :
-    (x.sshiftRight y.toNat).getMsbD i = (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by
-  simp only [BitVec.sshiftRight', getMsbD, BitVec.getLsbD_sshiftRight]
-  by_cases h : i < w
-  · simp only [h, decide_true, Bool.true_and]
-    by_cases h₁ : w ≤ w - 1 - i
-    · simp [h₁]
-      omega
-    · simp only [h₁, decide_false, Bool.not_false, Bool.true_and]
-      by_cases h₂ : i < y.toNat
-      · simp only [h₂, ↓reduceIte, ite_eq_right_iff]
-        omega
-      · simp only [show i - y.toNat < w by omega, h₂, ↓reduceIte, decide_true, Bool.true_and]
-        by_cases h₄ : y.toNat + (w - 1 - i) < w <;> (simp only [h₄, ↓reduceIte]; congr; omega)
-  · simp [h]
+    (x.sshiftRight y.toNat).getMsbD i =
+      (decide (i < w) && if i < y.toNat then x.msb else x.getMsbD (i - y.toNat)) := by
+  simp
 
-@[simp]
 theorem msb_sshiftRight' {x y: BitVec w} :
-    (x.sshiftRight' y).msb = x.msb := by
-  simp [BitVec.sshiftRight', BitVec.msb_sshiftRight]
+    (x.sshiftRight' y).msb = x.msb := by simp
 
 /-! ### signExtend -/
 
@@ -1883,7 +1858,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   · simp_all
   · simp_all only [Bool.iff_and_self, decide_eq_true_eq]
     intro h
-    have := BitVec.lt_of_getLsbD h
     omega
 
 @[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by
@@ -2091,8 +2065,9 @@ theorem getElem_concat (x : BitVec w) (b : Bool) (i : Nat) (h : i < w + 1) :
 @[simp] theorem getLsbD_concat_succ : (concat x b).getLsbD (i + 1) = x.getLsbD i := by
   simp [getLsbD_concat]
 
-@[simp] theorem getElem_concat_succ {x : BitVec w} {i : Nat} (h : i < w) :
+@[simp] theorem getElem_concat_succ {x : BitVec w} {i : Nat} (h : i + 1 < w + 1) :
     (concat x b)[i + 1] = x[i] := by
+  simp only [Nat.add_lt_add_iff_right] at h
   simp [getElem_concat, h, getLsbD_eq_getElem]
 
 @[simp]
@@ -2195,7 +2170,6 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
     (hk : k < w) (hx : x.toNat < 2 ^ k) :
     (x.shiftConcat b).toNat < 2 ^ (k + 1) := by
   rw [toNat_shiftConcat_eq_of_lt hk hx]
-  have : 2 ^ (k + 1) ≤ 2 ^ w := Nat.pow_le_pow_of_le_right (by decide) (by assumption)
   have := Bool.toNat_lt b
   omega
 
@@ -2704,7 +2678,7 @@ theorem smtSDiv_eq (x y : BitVec w) : smtSDiv x y =
 
 @[simp]
 theorem smtSDiv_zero {x : BitVec n} : x.smtSDiv 0#n = if x.slt 0#n then 1#n else (allOnes n) := by
-  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond x, hx, ← negOne_eq_allOnes]
+  rcases hx : x.msb <;> simp [smtSDiv, slt_zero_iff_msb_cond, hx, ← negOne_eq_allOnes]
 
 /-! ### srem -/
 
@@ -3024,10 +2998,10 @@ theorem getMsbD_rotateRightAux_of_ge {x : BitVec w} {r : Nat} {i : Nat} (hi : i 
   simp [rotateRightAux, show ¬ i < r by omega, show i + (w - r) ≥ w by omega]
 
 /-- When `m < w`, we give a formula for `(x.rotateLeft m).getMsbD i`. -/
-@[simp]
-theorem getMsbD_rotateRight_of_lt {w n m : Nat} {x : BitVec w} (hr : m < w):
+-- This should not be a simp lemma as `getMsbD_rotateRight` will apply first.
+theorem getMsbD_rotateRight_of_lt {w n m : Nat} {x : BitVec w} (hr : m < w) :
     (x.rotateRight m).getMsbD n = (decide (n < w) && (if (n < m % w)
-    then x.getMsbD ((w + n - m % w) % w) else x.getMsbD (n - m % w))):= by
+    then x.getMsbD ((w + n - m % w) % w) else x.getMsbD (n - m % w))) := by
   rcases w with rfl | w
   · simp
   · rw [rotateRight_eq_rotateRightAux_of_lt (by omega)]
@@ -3599,9 +3573,7 @@ Note, however, that for large numerals the decision procedure may be very slow.
 instance instDecidableExistsBitVec :
     ∀ (n : Nat) (P : BitVec n → Prop) [DecidablePred P], Decidable (∃ v, P v)
   | 0, _, _ => inferInstance
-  | n + 1, _, _ =>
-    have := instDecidableExistsBitVec n
-    inferInstance
+  | _ + 1, _, _ => inferInstance
 
 /-! ### Deprecations -/
 

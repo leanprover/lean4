@@ -20,7 +20,7 @@ theorem concatEq (xs : List α) (h : xs ≠ []) : concat (dropLast xs) (last xs 
   match xs, h with
   | [],  h        => contradiction
   | [x], h        => rfl
-  | x₁::x₂::xs, h => simp [concat, last, concatEq (x₂::xs) List.noConfusion]
+  | x₁::x₂::xs, h => simp [concat, dropLast, last, concatEq (x₂::xs) List.noConfusion]
 
 theorem lengthCons {α} (x : α) (xs : List α) : (x::xs).length = xs.length + 1 :=
   rfl

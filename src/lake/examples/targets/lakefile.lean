@@ -38,15 +38,13 @@ target bark_bark : Unit := do
 
 package_facet print_name pkg : Unit := Job.async do
   IO.println pkg.name
-  return ((), .nil)
 
 module_facet get_src mod : System.FilePath := do
   inputTextFile mod.leanFile
 
 module_facet print_src mod : Unit := do
-  (← fetch <| mod.facet `get_src).bindSync fun src trace => do
+  (← fetch <| mod.facet `get_src).mapM fun src => do
     IO.println src
-    return ((), trace)
 
 library_facet print_name lib : Unit := do
   IO.println lib.name

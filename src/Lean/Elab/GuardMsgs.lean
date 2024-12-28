@@ -26,7 +26,7 @@ namespace Lean.Elab.Tactic.GuardMsgs
 
 /-- Gives a string representation of a message without source position information.
 Ensures the message ends with a '\n'. -/
-private def messageToStringWithoutPos (msg : Message) : IO String := do
+private def messageToStringWithoutPos (msg : Message) : BaseIO String := do
   let mut str ← msg.data.toString
   unless msg.caption == "" do
     str := msg.caption ++ ":\n" ++ str

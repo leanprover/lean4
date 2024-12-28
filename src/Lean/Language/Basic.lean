@@ -263,30 +263,59 @@ instance : Inhabited DynamicSnapshot where
     children.forM (·.get.forM f)
 
 /--
+  Runs a tree of snapshots to conclusion,
+  folding the function `f` over each snapshot in tree preorder. -/
+@[specialize] partial def SnapshotTree.foldM [Monad m] (s : SnapshotTree)
+    (f : α → Snapshot → m α) (init : α) : m α := do
+  match s with
+  | mk element children =>
+    let a ← f init element
+    children.foldlM (fun a snap => snap.get.foldM f a) a
+
+/--
   Option for printing end position of each message in addition to start position. Used for testing
   message ranges in the test suite. -/
 register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
-/-- Reports messages on stdout. If `json` is true, prints messages as JSON (one per line). -/
-def reportMessages (msgLog : MessageLog) (opts : Options) (json := false) : IO Unit := do
-  if json then
-    msgLog.forM (·.toJson <&> (·.compress) >>= IO.println)
-  else
-    msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+/--
+Reports messages on stdout and returns whether an error was reported.
+If `json` is true, prints messages as JSON (one per line).
+If a message's kind is in `severityOverrides`, it will be reported with
+the specified severity.
+-/
+def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  let includeEndPos := printMessageEndPos.get opts
+  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+    let msg : Message :=
+      if let some severity := severityOverrides.find? msg.kind then
+        {msg with severity}
+      else
+        msg
+    if json then
+      let j ← msg.toJson
+      IO.println j.compress
+    else
+      let s ← msg.toString includeEndPos
+      IO.print s
+    return hasErrors || msg.severity matches .error
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
-  reported in tree preorder.
+  reported in tree preorder. Returns whether any errors were reported.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
-  s.forM (reportMessages ·.diagnostics.msgLog opts json)
+def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  s.foldM (init := false) fun e snap => do
+    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
+    return strictOr e e'
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
+  Id.run <| s.foldM (·.push ·) #[]
 
 /-- Returns a task that waits on all snapshots in the tree. -/
 def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)

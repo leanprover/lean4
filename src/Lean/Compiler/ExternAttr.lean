@@ -18,6 +18,7 @@ inductive ExternEntry where
   | inline   (backend : Name) (pattern : String)
   | standard (backend : Name) (fn : String)
   | foreign  (backend : Name) (fn : String)
+  deriving BEq, Hashable
 
 /--
 - `@[extern]`
@@ -36,7 +37,7 @@ inductive ExternEntry where
 structure ExternAttrData where
   arity?   : Option Nat := none
   entries  : List ExternEntry
-  deriving Inhabited
+  deriving Inhabited, BEq, Hashable
 
 -- def externEntry := leading_parser optional ident >> optional (nonReservedSymbol "inline ") >> strLit
 -- @[builtin_attr_parser] def extern     := leading_parser nonReservedSymbol "extern " >> optional numLit >> many externEntry

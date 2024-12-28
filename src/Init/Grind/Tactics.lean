@@ -19,7 +19,15 @@ structure Config where
   eager : Bool := false
   deriving Inhabited, BEq
 
+end Lean.Grind
+
+namespace Lean.Parser.Tactic
+
 /-!
 `grind` tactic and related tactics.
 -/
-end Lean.Grind
+
+-- TODO: configuration option, parameters
+syntax (name := grind) "grind" : tactic
+
+end Lean.Parser.Tactic

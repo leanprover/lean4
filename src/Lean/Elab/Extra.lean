@@ -581,7 +581,7 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.
-        mkSorry expectedType false
+        mkLabeledSorry expectedType false (unique := true)
 
 builtin_initialize
   registerTraceClass `Elab.binop

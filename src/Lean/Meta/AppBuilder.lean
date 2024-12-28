@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Structure
-import Lean.Util.Recognizers
 import Lean.Meta.SynthInstance
 import Lean.Meta.Check
 import Lean.Meta.DecLevel
@@ -176,6 +175,14 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
     return mkApp4 (mkConst ``eq_of_heq [u]) α a b h
   | _ =>
     throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
+
+/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+def mkHEqOfEq (h : Expr) : MetaM Expr := do
+  let hType ← infer h
+  let some (α, a, b) := hType.eq?
+    | throwAppBuilderException ``heq_of_eq m!"equality proof expected{indentExpr h}"
+  let u ← getLevel α
+  return mkApp4 (mkConst ``heq_of_eq [u]) α a b h
 
 /--
 If `e` is `@Eq.refl α a`, return `a`.
@@ -513,10 +520,6 @@ def mkSome (type value : Expr) : MetaM Expr := do
   let u ← getDecLevel type
   return mkApp2 (mkConst ``Option.some [u]) type value
 
-def mkSorry (type : Expr) (synthetic : Bool) : MetaM Expr := do
-  let u ← getLevel type
-  return mkApp2 (mkConst ``sorryAx [u]) type (toExpr synthetic)
-
 /-- Return `Decidable.decide p` -/
 def mkDecide (p : Expr) : MetaM Expr :=
   mkAppOptM ``Decidable.decide #[p, none]
@@ -544,10 +547,6 @@ def mkDefault (α : Expr) : MetaM Expr :=
 /-- Return `@Classical.ofNonempty α _` -/
 def mkOfNonempty (α : Expr) : MetaM Expr := do
   mkAppOptM ``Classical.ofNonempty #[α, none]
-
-/-- Return `sorryAx type` -/
-def mkSyntheticSorry (type : Expr) : MetaM Expr :=
-  return mkApp2 (mkConst ``sorryAx [← getLevel type]) type (mkConst ``Bool.true)
 
 /-- Return `funext h` -/
 def mkFunExt (h : Expr) : MetaM Expr :=

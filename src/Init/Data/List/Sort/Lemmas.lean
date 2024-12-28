@@ -25,6 +25,8 @@ namespace List
 
 /-! ### splitInTwo -/
 
+namespace MergeSort.Internal
+
 @[simp] theorem splitInTwo_fst (l : { l : List α // l.length = n }) :
     (splitInTwo l).1 = ⟨l.1.take ((n+1)/2), by simp [splitInTwo, splitAt_eq, l.2]; omega⟩ := by
   simp [splitInTwo, splitAt_eq]
@@ -81,6 +83,10 @@ theorem splitInTwo_fst_le_splitInTwo_snd {l : { l : List α // l.length = n }} (
   rw [splitInTwo_fst, splitInTwo_snd]
   intro a b ma mb
   exact h.rel_of_mem_take_of_mem_drop ma mb
+
+end MergeSort.Internal
+
+open MergeSort.Internal
 
 /-! ### enumLE -/
 
@@ -285,8 +291,6 @@ theorem sorted_mergeSort
   | [] => by simp [mergeSort]
   | [a] => by simp [mergeSort]
   | a :: b :: xs => by
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).1.1.length < xs.length + 1 + 1 := by simp [splitInTwo_fst]; omega
-    have : (splitInTwo ⟨a :: b :: xs, rfl⟩).2.1.length < xs.length + 1 + 1 := by simp [splitInTwo_snd]; omega
     rw [mergeSort]
     apply sorted_merge @trans @total
     apply sorted_mergeSort trans total

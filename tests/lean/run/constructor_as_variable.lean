@@ -101,6 +101,8 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
 Suggestions:
+  'List.Lex.below.cons',
+  'List.Lex.cons',
   'List.Pairwise.below.cons',
   'List.Pairwise.cons',
   'List.Perm.below.cons',
@@ -127,6 +129,8 @@ inductive StringList : Type where
 error: invalid pattern, constructor or constant marked with '[match_pattern]' expected
 
 Suggestions:
+  'List.Lex.below.cons',
+  'List.Lex.cons',
   'List.Pairwise.below.cons',
   'List.Pairwise.cons',
   'List.Perm.below.cons',

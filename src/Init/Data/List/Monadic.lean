@@ -124,7 +124,8 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
 
 /-! ### forM -/
 
--- We use `List.forM` as the simp normal form, rather that `ForM.forM`.
+-- We currently use `List.forM` as the simp normal form, rather that `ForM.forM`.
+-- (This should probably be revisited.)
 -- As such we need to replace `List.forM_nil` and `List.forM_cons`:
 
 @[simp] theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
@@ -136,6 +137,10 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
 @[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : List α) (f : α → m PUnit) :
     (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
   induction l₁ <;> simp [*]
+
+@[simp] theorem forM_map [Monad m] [LawfulMonad m] (l : List α) (g : α → β) (f : β → m PUnit) :
+    (l.map g).forM f = l.forM (fun a => f (g a)) := by
+  induction l <;> simp [*]
 
 /-! ### forIn' -/
 
@@ -259,6 +264,11 @@ theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   generalize l.attach = l'
   induction l' generalizing init <;> simp_all
 
+@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+    (l : List α) (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
+    forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem g h) y := by
+  induction l generalizing init <;> simp_all
+
 /--
 We can express a for loop over a list as a fold,
 in which whenever we reach `.done b` we keep that value through the rest of the fold.
@@ -305,6 +315,11 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     forIn (m := Id) l init (fun a b => .yield (f a b)) =
       l.foldl (fun b a => f a b) init := by
   simp only [forIn_eq_foldlM]
+  induction l generalizing init <;> simp_all
+
+@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+    (l : List α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
+    forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
   induction l generalizing init <;> simp_all
 
 /-! ### allM -/

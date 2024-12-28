@@ -22,7 +22,7 @@ private def checkEqc (root : ENode) : GoalM Unit := do
     assert! isSameExpr (← getRoot curr) root.self
     -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.
     unless root.heqProofs do
-      assert! (← withDefault <| isDefEq (← inferType curr) (← inferType root.self))
+      assert! (← hasSameType curr root.self)
     -- Starting at `curr`, following the `target?` field leads to `root`.
     let mut n := curr
     repeat

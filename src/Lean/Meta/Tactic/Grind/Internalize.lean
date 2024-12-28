@@ -28,6 +28,15 @@ def addCongrTable (e : Expr) : GoalM Unit := do
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 
+private def updateAppMap (e : Expr) : GoalM Unit := do
+  let key := e.toHeadIndex
+  modify fun s => { s with
+    appMap := if let some es := s.appMap.find? key then
+      s.appMap.insert key (e :: es)
+    else
+      s.appMap.insert key [e]
+  }
+
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   match e with
@@ -63,6 +72,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
           registerParent e arg
       mkENode e generation
       addCongrTable e
+      updateAppMap e
       propagateUp e
 
 end Lean.Meta.Grind

@@ -226,7 +226,7 @@ where
       trace[grind.proof] "{a} = {b}"
       mkEqProofCore a b (heq := false)
     else
-      if (← withDefault <| isDefEq (← inferType a) (← inferType b)) then
+      if (← hasSameType a b) then
         trace[grind.proof] "{a} = {b}"
         mkEqOfHEq (← mkEqProofCore a b (heq := true))
       else

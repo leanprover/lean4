@@ -1217,12 +1217,14 @@ theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   rw [Raw₀.Const.insertMany_nil]
 
 @[simp]
-theorem insertMany_list_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β}  :
     insertMany m [⟨k, v⟩] = m.insert k v := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_list_singleton]
 
-theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertMany_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List (α × β)}
+    {k : α} {v : β}  :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_cons]

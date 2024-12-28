@@ -926,7 +926,7 @@ theorem getD_insertMany_list_of_mem [LawfulBEq α] (h : m.1.WF)
 
 theorem getKey?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((a : α) × β a)} {k : α}
-    (h : (l.map Sigma.fst).contains k = false) :
+    (h' : (l.map Sigma.fst).contains k = false) :
     (m.insertMany l).1.getKey? k = m.getKey? k := by
   simp_to_model using getKey?_insertList_of_contains_eq_false
 
@@ -984,7 +984,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
   simp_to_model using getKeyD_insertList_of_mem
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
-    {l : List ((a : α) × β a)} {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
+    {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Sigma.fst).contains a = false) →
     (m.insertMany l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertList

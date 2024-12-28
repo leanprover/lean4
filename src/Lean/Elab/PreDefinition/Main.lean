@@ -177,8 +177,8 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
   for preDef in preDefs do
     if let .some termBy := preDef.termination.terminationBy? then
       if let .some partialFixpointStx := preDef.termination.partialFixpoint? then
-        throwErrorAt partialFixpointStx (m!"conflicting annotations: this function cannot be both " ++
-          m!"terminating and non-terminating")
+        throwErrorAt partialFixpointStx.ref m!"conflicting annotations: this function cannot \
+          be both terminating and a partial fixpoint"
 
       if !structural && !partialFixpoint && !preDefsWithout.isEmpty then
         let m := MessageData.andList (preDefsWithout.toList.map (m!"{·.declName}"))
@@ -214,7 +214,7 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
 
     if !partialFixpoint then
       if let some stx := preDef.termination.partialFixpoint? then
-      throwErrorAt stx (m!"Invalid `termination_by`; this function is mutually " ++
+      throwErrorAt stx.ref (m!"Invalid `termination_by`; this function is mutually " ++
        m!"recursive with {preDefWith.declName}, which is not also marked as " ++
         m!"`nontermination_partialFixpointursive`, so this one cannot be either.")
 

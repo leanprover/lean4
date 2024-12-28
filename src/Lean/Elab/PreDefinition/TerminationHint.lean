@@ -33,6 +33,12 @@ structure DecreasingBy where
   tactic    : TSyntax ``Lean.Parser.Tactic.tacticSeq
   deriving Inhabited
 
+/-- A single `partial_fixpoint` clause -/
+structure PartialFixpoint where
+  ref       : Syntax
+  term?     : Option Term
+  deriving Inhabited
+
 /--
 The termination annotations for a single function.
 For `decreasing_by`, we store the whole `decreasing_by tacticSeq` expression, as this
@@ -42,7 +48,7 @@ structure TerminationHints where
   ref : Syntax
   terminationBy?? : Option Syntax
   terminationBy? : Option TerminationBy
-  partialFixpoint? : Option Syntax
+  partialFixpoint? : Option PartialFixpoint
   decreasingBy?  : Option DecreasingBy
   /--
   Here we record the number of parameters past the `:`. It is set by
@@ -69,7 +75,7 @@ def TerminationHints.ensureNone (hints : TerminationHints) (reason : String) : C
   | .none, .some term_by, .none, .none =>
     logWarningAt term_by.ref m!"unused `termination_by`, function is {reason}"
   | .none, .none, .none, .some partialFixpoint =>
-    logWarningAt partialFixpoint m!"unused `partial_fixpoint`, function is {reason}"
+    logWarningAt partialFixpoint.ref m!"unused `partial_fixpoint`, function is {reason}"
   | _, _, _, _=>
     logWarningAt hints.ref m!"unused termination hints, function is {reason}"
 
@@ -120,13 +126,9 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy?|termination_by?) => pure (some t)
       | _ => pure none
       else pure none
-    let partialFixpoint? : Option Syntax ← if let some t := t? then match t with
-      | `(partialFixpoint|partial_fixpoint) => pure (some t)
-      | _ => pure none
-      else pure none
     let terminationBy? : Option TerminationBy ← if let some t := t? then match t with
       | `(terminationBy|termination_by partialFixpointursion) =>
-        pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩})
+        pure (some {ref := t, structural := false, vars := #[], body := ⟨.missing⟩ : TerminationBy})
       | `(terminationBy|termination_by $[structural%$s]? => $_body) =>
         throwErrorAt t "no extra parameters bounds, please omit the `=>`"
       | `(terminationBy|termination_by $[structural%$s]? $vars* => $body) =>
@@ -134,8 +136,12 @@ def elabTerminationHints {m} [Monad m] [MonadError m] (stx : TSyntax ``suffix) :
       | `(terminationBy|termination_by $[structural%$s]? $body:term) =>
         pure (some {ref := t, structural := s.isSome, vars := #[], body})
       | `(terminationBy?|termination_by?) => pure none
-      | `(partialFixpoint|partial_fixpoint) => pure none
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $_]?) => pure none
       | _ => throwErrorAt t "unexpected `termination_by` syntax"
+      else pure none
+    let partialFixpoint? : Option PartialFixpoint ← if let some t := t? then match t with
+      | `(partialFixpoint|partial_fixpoint $[monotonicity $term?]?) => pure (some {ref := t, term?})
+      | _ => pure none
       else pure none
     let decreasingBy? ← d?.mapM fun d => match d with
       | `(decreasingBy|decreasing_by $tactic) => pure {ref := d, tactic}

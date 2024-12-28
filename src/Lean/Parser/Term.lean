@@ -715,14 +715,24 @@ Defines a possibly non-terminating function as a fixed-point in a suitable parti
 Such a function is compiled as if it was marked `partial`, but its equations are provided as
 theorems, so that it can be verified.
 
-This handles two classes of functions:
+In general it accepts functions whose return type has a `Lean.Order.CCPO` instance and whose
+definition is `Lean.Order.monotone` with regard to its recursive calls.
+
+Common special cases are
+
 * Functions whose type is inhabited a-priori (as with `partial`), and where all recursive
   calls are in tail-call position.
-* Monadic functions using certain “monotone chain-complete monads” (in particular, `Option`), where
-  recursive calls are combined using the monad bind (and other supported monadic combinators).
+* Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
+  the bind operator and other supported monadic combinators.
+
+By default, the onotonicity proof is performed by the compositional `monotonicity` tactic. Using
+the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
 -/
 @[builtin_doc] def partialFixpoint := leading_parser
-  "partial_fixpoint"
+  withPosition (
+    "partial_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)

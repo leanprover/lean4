@@ -61,9 +61,12 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
   mkAppOptM ``monotone_prod #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
+  -- We expect all functions in the clique to have `partial_fixpoint` syntax
+  let hints := preDefs.filterMap (·.termination.partialFixpoint?)
+  assert! preDefs.size = hints.size
   -- For every function of type `∀ x y, r x y`, an CCPO instance
   -- ∀ x y, CCPO (r x y), but crucially constructed using `instCCPOPi`
-  let ccpoInsts ← preDefs.mapM fun preDef =>
+  let ccpoInsts ← preDefs.mapIdxM fun i preDef => withRef hints[i]!.ref do
     lambdaTelescope preDef.value fun xs _body => do
       let type ← instantiateForall preDef.type xs
       let inst ←
@@ -136,11 +139,14 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let F := Fs[i]!
       let inst ← mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
-      let hmono ← mkFreshExprSyntheticOpaqueMVar goal
-      mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do
-        solveMono failK hmono.mvarId!
-      trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
-      instantiateMVars hmono
+      if let some term := hints[i]!.term? then
+        Term.elabTermEnsuringType term goal
+      else
+        let hmono ← mkFreshExprSyntheticOpaqueMVar goal
+        mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do
+          solveMono failK hmono.mvarId!
+        trace[Elab.definition.partialFixpoint] "monotonicity proof for {preDef.declName}: {hmono}"
+        instantiateMVars hmono
     let hmono ← PProdN.genMk mkMonoPProd hmonos
 
     let packedValue ← mkAppOptM ``fix #[packedType, packedCCPOInst, none, hmono]

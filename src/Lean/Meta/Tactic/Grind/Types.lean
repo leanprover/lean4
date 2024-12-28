@@ -356,8 +356,12 @@ Otherwise, it pushes `HEq lhs rhs`.
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
+/-- Return `true` if `a` and `b` have the same type. -/
+def hasSameType (a b : Expr) : MetaM Bool :=
+  withDefault do isDefEq (← inferType a) (← inferType b)
+
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← withDefault <| isDefEq (← inferType lhs) (← inferType rhs)) then
+  if (← hasSameType lhs rhs) then
     pushEqCore lhs rhs proof (isHEq := false)
   else
     pushEqCore lhs rhs proof (isHEq := true)

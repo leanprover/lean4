@@ -20,9 +20,16 @@ private def checkEqc (root : ENode) : GoalM Unit := do
     size := size + 1
     -- The root of `curr` must be `root`
     assert! isSameExpr (← getRoot curr) root.self
+    -- Check congruence root
+    if curr.isApp then
+      if let some { e } := (← get).congrTable.find? { e := curr } then
+        if (← hasSameType e.getAppFn curr.getAppFn) then
+          assert! isSameExpr e (← getENode curr).cgRoot
+      else
+        assert! isSameExpr curr (← getENode curr).cgRoot
     -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.
     unless root.heqProofs do
-      assert! (← withDefault <| isDefEq (← inferType curr) (← inferType root.self))
+      assert! (← hasSameType curr root.self)
     -- Starting at `curr`, following the `target?` field leads to `root`.
     let mut n := curr
     repeat

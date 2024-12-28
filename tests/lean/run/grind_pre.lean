@@ -100,3 +100,21 @@ example (a b : Nat) (f : Nat → Nat) : (h₁ : a = b) → (h₂ : f a ≠ f b) 
 
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → q = r := by
   grind
+
+/--
+warning: declaration uses 'sorry'
+---
+info: [grind.issues] found congruence between
+      g b
+    and
+      f a
+    but functions have different types
+-/
+#guard_msgs in
+set_option trace.grind.issues true in
+set_option trace.grind.proof.detail false in
+set_option trace.grind.proof false in
+set_option trace.grind.pre false in
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+  fail_if_success grind
+  sorry

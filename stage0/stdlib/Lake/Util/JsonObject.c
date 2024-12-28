@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.JsonObject
-// Imports: Init Lean.Data.Json
+// Imports: Lean.Data.Json
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -29,6 +29,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_erase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_getD(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_get_x3f___rarg___boxed(lean_object*, lean_object*, lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_appendTrees___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_getD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_erase___boxed(lean_object*, lean_object*);
@@ -50,7 +51,6 @@ uint8_t l_Lean_RBNode_isBlack___rarg(lean_object*);
 static lean_object* l_Lake_JsonObject_instToJson___closed__1;
 LEAN_EXPORT lean_object* l_Lake_JsonObject_mk(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lake_JsonObject_instFromJson___closed__1;
 lean_object* l_Lean_RBNode_insert___at_Lean_Json_mkObj___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_JsonObject_get___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -831,16 +831,12 @@ lean_dec(x_2);
 return x_5;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Util_JsonObject(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Data_Json(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

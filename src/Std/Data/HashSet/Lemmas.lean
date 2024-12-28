@@ -122,13 +122,10 @@ theorem mem_of_mem_insert' [EquivBEq α] [LawfulHashable α] {k a : α} :
     a ∈ m.insert k → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=
   DHashMap.mem_of_mem_insertIfNew'
 
-@[simp]
-theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α}  : (m.insert k).contains k :=
-  HashMap.contains_insertIfNew_self
+theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.insert k).contains k := by
+  simp
 
-@[simp]
-theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k :=
-  HashMap.mem_insertIfNew_self
+theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} : k ∈ m.insert k := by simp
 
 @[simp]
 theorem size_empty {c} : (empty c : HashSet α).size = 0 :=
@@ -354,7 +351,7 @@ theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert 
   ext HashMap.containsThenInsertIfNew_snd
 
 @[simp]
-theorem length_toList [EquivBEq α] [LawfulHashable α] : 
+theorem length_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.length = m.size :=
   HashMap.length_keys
 
@@ -369,7 +366,7 @@ theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α}:
   HashMap.contains_keys
 
 @[simp]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α]  {k : α}:
+theorem mem_toList [LawfulBEq α] [LawfulHashable α] {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.mem_keys
 

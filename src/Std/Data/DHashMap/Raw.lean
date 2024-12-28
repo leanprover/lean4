@@ -333,6 +333,19 @@ map in some order.
 @[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
   Id.run (b.foldM f init)
 
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in the reverse order used by `foldM`.
+-/
+@[inline] def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+
+/--
+Folds the given function over the mappings in the hash map in the reverse order used
+by `foldM`. -/
+@[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldRevM f init)
+
 /-- Carries out a monadic action on each mapping in the hash map in some order. -/
 @[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
   b.buckets.forM (AssocList.forM f)
@@ -349,7 +362,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /-- Transforms the hash map into a list of mappings in some order. -/
 @[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
 
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
@@ -357,7 +370,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 @[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
     List (α × β) :=
-  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
@@ -369,7 +382,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
-  m.fold (fun acc _ v => v :: acc) []
+  m.foldRev (fun acc _ v => v :: acc) []
 
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
@@ -455,7 +468,7 @@ end Unverified
 
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=
-  m.fold (fun acc k _ => k :: acc) []
+  m.foldRev (fun acc k _ => k :: acc) []
 
 section WF
 

@@ -326,6 +326,10 @@ structure Context where
   `refine' (fun x => _)
   -/
   holesAsSyntheticOpaque : Bool := false
+  /--
+  If `checkDeprecated := true`, then `Linter.checkDeprecated` when creating constants.
+  -/
+  checkDeprecated : Bool := true
 
 abbrev TermElabM := ReaderT Context $ StateRefT State MetaM
 abbrev TermElab  := Syntax → Option Expr → TermElabM Expr
@@ -1154,7 +1158,7 @@ private def mkSyntheticSorryFor (expectedType? : Option Expr) : TermElabM Expr :
   let expectedType ← match expectedType? with
     | none              => mkFreshTypeMVar
     | some expectedType => pure expectedType
-  mkSyntheticSorry expectedType
+  mkLabeledSorry expectedType (synthetic := true) (unique := false)
 
 /--
   Log the given exception, and create a synthetic sorry for representing the failed
@@ -1260,7 +1264,7 @@ The `tacticCode` syntax is the full `by ..` syntax.
 -/
 def mkTacticMVar (type : Expr) (tacticCode : Syntax) (kind : TacticMVarKind) : TermElabM Expr := do
   if ← pure (debug.byAsSorry.get (← getOptions)) <&&> isProp type then
-    mkSorry type false
+    withRef tacticCode <| mkLabeledSorry type false (unique := true)
   else
     let mvar ← mkFreshExprMVar type MetavarKind.syntheticOpaque
     let mvarId := mvar.mvarId!
@@ -1851,7 +1855,7 @@ def elabTermEnsuringType (stx : Syntax) (expectedType? : Option Expr) (catchExPo
     withRef stx <| ensureHasType expectedType? e errorMsgHeader?
   catch ex =>
     if (← read).errToSorry && ex matches .error .. then
-      exceptionToSorry ex expectedType?
+      withRef stx <| exceptionToSorry ex expectedType?
     else
       throw ex
 
@@ -2026,6 +2030,10 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
+private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
+  if (← read).checkDeprecated then
+    Linter.checkDeprecated constName
+
 /--
   Create an `Expr.const` using the given name and explicit levels.
   Remark: fresh universe metavariables are created if the constant has more universe
@@ -2033,9 +2041,8 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
 
   If `checkDeprecated := true`, then `Linter.checkDeprecated` is invoked.
 -/
-def mkConst (constName : Name) (explicitLevels : List Level := []) (checkDeprecated := true) : TermElabM Expr := do
-  if checkDeprecated then
-    Linter.checkDeprecated constName
+def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
+  checkDeprecatedCore constName
   let cinfo ← getConstInfo constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
@@ -2046,7 +2053,10 @@ def mkConst (constName : Name) (explicitLevels : List Level := []) (checkDepreca
 
 def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
   if let .const declName _ := e.getAppFn then
-    withRef ref do Linter.checkDeprecated declName
+    withRef ref do checkDeprecatedCore declName
+
+@[inline] def withoutCheckDeprecated [MonadWithReaderOf Context m] : m α → m α :=
+  withTheReader Context (fun ctx => { ctx with checkDeprecated := false })
 
 private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
@@ -2058,7 +2068,7 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     At `elabAppFnId`, we perform the check when converting the list returned by `resolveName'` into a list of
     `TermElabResult`s.
     -/
-    let const ← mkConst declName explicitLevels (checkDeprecated := false)
+    let const ← withoutCheckDeprecated <| mkConst declName explicitLevels
     return (const, projs) :: result
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do

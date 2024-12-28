@@ -86,7 +86,7 @@ variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions 
 
 def printTraces : m Unit := do
   for {msg, ..} in (← getTraceState).traces do
-    IO.println (← msg.format)
+    IO.println (← msg.format.toIO)
 
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})

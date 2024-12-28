@@ -215,7 +215,23 @@ However, in case it is copied and pasted from the Infoview, `⋯` logs a warning
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
 def binderIdent : Parser  := ident <|> hole
-/-- A temporary placeholder for a missing proof or value. -/
+/--
+The `sorry` term is a temporary placeholder for a missing proof or value.
+
+The syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
+
+"Go to definition" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.
+
+Each `sorry` is guaranteed to be unique, so for example the following fails:
+```lean
+example : (sorry : Nat) = sorry := rfl -- fails
+```
+
+See also the `sorry` tactic, which is short for `exact sorry`.
+-/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
 /--

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Toml
-// Imports: Init Lake.Toml.Load Lake.Toml.Decode Lake.Config.Package Lake.Util.Log
+// Imports: Lake.Toml.Load Lake.Toml.Decode Lake.Config.Package Lake.Util.Log
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -22004,7 +22004,7 @@ LEAN_EXPORT lean_object* l_Lean_MessageLog_forM___at_Lake_loadTomlConfig___spec_
 _start:
 {
 lean_object* x_5; lean_object* x_6; 
-x_5 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
 x_6 = l_Lean_PersistentArray_forM___at_Lake_loadTomlConfig___spec__3(x_2, x_5, x_3, x_4);
 return x_6;
 }
@@ -22724,47 +22724,24 @@ return x_20;
 else
 {
 uint8_t x_21; 
+lean_dec(x_2);
 x_21 = !lean_is_exclusive(x_5);
 if (x_21 == 0)
 {
-lean_object* x_22; lean_object* x_23; uint8_t x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_22 = lean_ctor_get(x_5, 0);
-x_23 = lean_io_error_to_string(x_22);
-x_24 = 3;
-x_25 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_25, 0, x_23);
-lean_ctor_set_uint8(x_25, sizeof(void*)*1, x_24);
-x_26 = lean_array_get_size(x_2);
-x_27 = lean_array_push(x_2, x_25);
-x_28 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_28, 0, x_26);
-lean_ctor_set(x_28, 1, x_27);
-lean_ctor_set_tag(x_5, 0);
-lean_ctor_set(x_5, 0, x_28);
 return x_5;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
-x_29 = lean_ctor_get(x_5, 0);
-x_30 = lean_ctor_get(x_5, 1);
-lean_inc(x_30);
-lean_inc(x_29);
+lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_22 = lean_ctor_get(x_5, 0);
+x_23 = lean_ctor_get(x_5, 1);
+lean_inc(x_23);
+lean_inc(x_22);
 lean_dec(x_5);
-x_31 = lean_io_error_to_string(x_29);
-x_32 = 3;
-x_33 = lean_alloc_ctor(0, 1, 1);
-lean_ctor_set(x_33, 0, x_31);
-lean_ctor_set_uint8(x_33, sizeof(void*)*1, x_32);
-x_34 = lean_array_get_size(x_2);
-x_35 = lean_array_push(x_2, x_33);
-x_36 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_36, 0, x_34);
-lean_ctor_set(x_36, 1, x_35);
-x_37 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_37, 0, x_36);
-lean_ctor_set(x_37, 1, x_30);
-return x_37;
+x_24 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_24, 0, x_22);
+lean_ctor_set(x_24, 1, x_23);
+return x_24;
 }
 }
 }
@@ -23985,9 +23962,9 @@ lean_inc(x_93);
 x_94 = l_System_FilePath_join(x_92, x_93);
 x_95 = lean_ctor_get(x_79, 3);
 lean_inc(x_95);
-x_96 = lean_ctor_get(x_1, 7);
+x_96 = lean_ctor_get(x_1, 8);
 lean_inc(x_96);
-x_97 = lean_ctor_get(x_1, 8);
+x_97 = lean_ctor_get(x_1, 9);
 lean_inc(x_97);
 lean_dec(x_1);
 x_98 = lean_box(0);
@@ -25160,9 +25137,9 @@ lean_inc(x_442);
 x_443 = l_System_FilePath_join(x_441, x_442);
 x_444 = lean_ctor_get(x_428, 3);
 lean_inc(x_444);
-x_445 = lean_ctor_get(x_1, 7);
+x_445 = lean_ctor_get(x_1, 8);
 lean_inc(x_445);
-x_446 = lean_ctor_get(x_1, 8);
+x_446 = lean_ctor_get(x_1, 9);
 lean_inc(x_446);
 lean_dec(x_1);
 x_447 = lean_box(0);
@@ -25664,7 +25641,6 @@ lean_dec(x_1);
 return x_2;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Load(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Decode(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_object*);
@@ -25674,9 +25650,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Load_Toml(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_Load(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

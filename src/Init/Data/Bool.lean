@@ -225,7 +225,7 @@ theorem bne_not_self : ∀ (x : Bool), (x   != !x) = true := by decide
 Added for equivalence with `Bool.not_beq_self` and needed for confluence
 due to `beq_iff_eq`.
 -/
-@[simp] theorem not_eq_self : ∀(b : Bool), ((!b) = b) ↔ False := by decide
+theorem not_eq_self : ∀(b : Bool), ((!b) = b) ↔ False := by simp
 @[simp] theorem eq_not_self : ∀(b : Bool), (b = (!b)) ↔ False := by decide
 
 @[simp] theorem beq_self_left  : ∀(a b : Bool), (a == (a == b)) = b := by decide
@@ -384,6 +384,15 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 @[simp] theorem toNat_eq_one  {b : Bool} : b.toNat = 1 ↔ b = true := by
   cases b <;> simp
 
+/-! ## toInt -/
+
+/-- convert a `Bool` to an `Int`, `false -> 0`, `true -> 1` -/
+def toInt (b : Bool) : Int := cond b 1 0
+
+@[simp] theorem toInt_false : false.toInt = 0 := rfl
+
+@[simp] theorem toInt_true : true.toInt = 1 := rfl
+
 /-! ### ite -/
 
 @[simp] theorem if_true_left  (p : Prop) [h : Decidable p] (f : Bool) :
@@ -411,7 +420,7 @@ theorem toNat_lt (b : Bool) : b.toNat < 2 :=
 
 @[simp] theorem ite_eq_true_else_eq_false {q : Prop} :
     (if b = true then q else b = false) ↔ (b = true → q) := by
-  cases b <;> simp
+  cases b <;> simp [not_eq_self]
 
 /-
 `not_ite_eq_true_eq_true` and related theorems below are added for

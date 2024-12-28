@@ -118,7 +118,6 @@ theorem BitVec.srem_umod (x y : BitVec w) :
   rw [BitVec.srem_eq]
   cases x.msb <;> cases y.msb <;> simp
 
-attribute [bv_normalize] Bool.cond_eq_if
 attribute [bv_normalize] BitVec.abs_eq
 attribute [bv_normalize] BitVec.twoPow_eq
 
@@ -168,13 +167,13 @@ attribute [bv_normalize] BitVec.and_self
 
 @[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by

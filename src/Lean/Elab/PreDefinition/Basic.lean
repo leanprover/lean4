@@ -9,7 +9,6 @@ import Lean.Compiler.NoncomputableAttr
 import Lean.Util.CollectLevelParams
 import Lean.Util.NumObjs
 import Lean.Util.NumApps
-import Lean.PrettyPrinter
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.ForEachExpr
 import Lean.Meta.Eqns

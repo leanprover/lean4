@@ -162,46 +162,74 @@ theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv)
 
 /-! ## Lexicographic ordering -/
 
-/--
-The lexicographic order on lists.
-`[] < a::as`, and `a::as < b::bs` if `a < b` or if `a` and `b` are equivalent and `as < bs`.
--/
-inductive lt [LT α] : List α → List α → Prop where
+/-- Lexicographic ordering for lists. -/
+inductive Lex (r : α → α → Prop) : List α → List α → Prop
   /-- `[]` is the smallest element in the order. -/
-  | nil  (b : α) (bs : List α) : lt [] (b::bs)
+  | nil {a l} : Lex r [] (a :: l)
+  /-- If `a` is indistinguishable from `b` and `as < bs`, then `a::as < b::bs`. -/
+  | cons {a l₁ l₂} (h : Lex r l₁ l₂) : Lex r (a :: l₁) (a :: l₂)
   /-- If `a < b` then `a::as < b::bs`. -/
-  | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → lt (a::as) (b::bs)
-  /-- If `a` and `b` are equivalent and `as < bs`, then `a::as < b::bs`. -/
-  | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → lt as bs → lt (a::as) (b::bs)
+  | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex r (a₁ :: l₁) (a₂ :: l₂)
 
-instance [LT α] : LT (List α) := ⟨List.lt⟩
-
-instance hasDecidableLt [LT α] [h : DecidableRel (α := α) (· < ·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
-  | [],    []    => isFalse nofun
-  | [],    _::_  => isTrue (List.lt.nil _ _)
-  | _::_, []     => isFalse nofun
+instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRel r] :
+    (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂)
+  | [], [] => isFalse nofun
+  | [], _::_ => isTrue Lex.nil
+  | _::_, [] => isFalse nofun
   | a::as, b::bs =>
     match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
+    | isTrue h₁ => isTrue (Lex.rel h₁)
     | isFalse h₁ =>
-      match h b a with
-      | isTrue h₂  => isFalse (fun h => match h with
-         | List.lt.head _ _ h₁' => absurd h₁' h₁
-         | List.lt.tail _ h₂' _ => absurd h₂ h₂')
-      | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
+      if h₂ : a = b then
+        match decidableLex r as bs with
+        | isTrue h₃ => isTrue (h₂ ▸ Lex.cons h₃)
         | isFalse h₃ => isFalse (fun h => match h with
-           | List.lt.head _ _ h₁' => absurd h₁' h₁
-           | List.lt.tail _ _ h₃' => absurd h₃' h₃)
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₃' => absurd h₃' h₃)
+      else
+        isFalse (fun h => match h with
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₂' => h₂ rfl)
+
+@[inherit_doc Lex]
+protected abbrev lt [LT α] : List α → List α → Prop := Lex (· < ·)
+
+instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
+
+/-- Decidability of lexicographic ordering. -/
+instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+    Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
+
+@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
+abbrev hasDecidableLt := @decidableLT
 
 /-- The lexicographic order on lists. -/
 @[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
 
-instance [LT α] : LE (List α) := ⟨List.le⟩
+instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
-instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
-  fun _ _ => inferInstanceAs (Decidable (Not _))
+instance decidableLE [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+    Decidable (l₁ ≤ l₂) :=
+  inferInstanceAs (Decidable (Not _))
+
+/--
+Lexicographic comparator for lists.
+
+* `lex lt [] (b :: bs)` is true.
+* `lex lt as []` is false.
+* `lex lt (a :: as) (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
+-/
+def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  match l₁, l₂ with
+  | [],      _ :: _  => true
+  | _,      []       => false
+  | a :: as, b :: bs => lt a b || (a == b && lex as bs lt)
+
+@[simp] theorem lex_nil_nil [BEq α] : lex ([] : List α) [] lt = false := rfl
+@[simp] theorem lex_nil_cons [BEq α] {b} {bs : List α} : lex [] (b :: bs) lt = true := rfl
+@[simp] theorem lex_cons_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false := rfl
+@[simp] theorem lex_cons_cons [BEq α] {a b} {as bs : List α} :
+    lex (a :: as) (b :: bs) lt = (lt a b || (a == b && lex as bs lt)) := rfl
 
 /-! ## Alternative getters -/
 
@@ -666,10 +694,14 @@ def isEmpty : List α → Bool
 /-! ### elem -/
 
 /--
-`O(|l|)`. `elem a l` or `l.contains a` is true if there is an element in `l` equal to `a`.
+`O(|l|)`.
+`l.contains a` or `elem a l` is true if there is an element in `l` equal (according to `==`) to `a`.
 
-* `elem 3 [1, 4, 2, 3, 3, 7] = true`
-* `elem 5 [1, 4, 2, 3, 3, 7] = false`
+* `[1, 4, 2, 3, 3, 7].contains 3 = true`
+* `[1, 4, 2, 3, 3, 7].contains 5 = false`
+
+The preferred simp normal form is `l.contains a`, and when `LawfulBEq α` is available,
+`l.contains a = true ↔ a ∈ l` and `l.contains a = false ↔ a ∉ l`.
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false

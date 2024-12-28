@@ -11,7 +11,7 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArray
+import Init.Data.List.ToArrayImpl
 import Init.Data.Array.Set
 
 universe u v w
@@ -79,11 +79,14 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+-- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+@[simp] theorem getElem?_toList {a : Array α} {i : Nat} : a.toList[i]? = a[i]? := rfl
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -96,6 +99,9 @@ instance : Membership α (Array α) where
 
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
 
 @[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
   rw [Array.mem_def, ← getElem_toList]
@@ -203,7 +209,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-@[simp] def isEmpty (a : Array α) : Bool :=
+def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 @[specialize]
@@ -242,7 +248,7 @@ def singleton (v : α) : Array α :=
   mkArray 1 v
 
 def back! [Inhabited α] (a : Array α) : α :=
-  a.get! (a.size - 1)
+  a[a.size - 1]!
 
 @[deprecated back! (since := "2024-10-31")] abbrev back := @back!
 
@@ -474,6 +480,10 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
     | _      => pure ⟨⟩
   return none
 
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
 @[inline]
 def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
@@ -585,8 +595,12 @@ def zipWithIndex (arr : Array α) : Array (α × Nat) :=
   arr.mapIdx fun i a => (a, i)
 
 @[inline]
-def find? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findM? p
+def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
+  Id.run do
+    for a in as do
+      if p a then
+        return a
+    return none
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
@@ -649,9 +663,15 @@ def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
+/-- `as.contains a` is true if there is some element `b` in `as` such that `a == b`. -/
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any (· == a)
+  as.any (a == ·)
 
+/--
+Variant of `Array.contains` with arguments reversed.
+
+For verification purposes, we simplify this to `contains`.
+-/
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
@@ -801,7 +821,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction a, i, h using Array.eraseIdx.induct with
   | @case1 a i h h' a' ih =>
     unfold eraseIdx
-    simp [h', a', ih]
+    simp +zetaDelta [h', a', ih]
   | case2 a i h h' =>
     unfold eraseIdx
     simp [h']
@@ -923,6 +943,13 @@ def unzip (as : Array (α × β)) : Array α × Array β :=
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
+instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
+
+-- See `Init.Data.Array.Lex.Basic` for the boolean valued lexicographic comparator.
 
 /-! ## Auxiliary functions used in metaprogramming.
 

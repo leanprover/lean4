@@ -401,6 +401,7 @@ lean_object* l_Lean_Syntax_node2(lean_object*, lean_object*, lean_object*, lean_
 LEAN_EXPORT lean_object* l___private_Init_System_IO_0__IO_FS_reprFileType____x40_Init_System_IO___hyg_2649____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Child_wait___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadBaseIO;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -512,6 +513,7 @@ LEAN_EXPORT lean_object* l_IO_TaskState_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_createDirAll___lambda__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__2;
 LEAN_EXPORT lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1(lean_object*, lean_object*, lean_object*);
+lean_object* lean_runtime_forget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_System_IO___hyg_1713_;
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 extern lean_object* l_Task_Priority_dedicated;
@@ -550,7 +552,6 @@ lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_io_exit(uint8_t, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
 static lean_object* l_termPrintln_x21_______closed__10;
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Prim_setAccessRights___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_unsafeIO(lean_object*);
 static lean_object* l_termPrintln_x21_______closed__2;
@@ -717,6 +718,7 @@ static lean_object* l_IO_FS_Stream_ofBuffer___closed__2;
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___aux__Init__System__IO______macroRules__termPrintln_x21______1___closed__18;
 static lean_object* l___auto____x40_Init_System_IO___hyg_1713____closed__36;
+LEAN_EXPORT lean_object* l_Runtime_forget___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EIO_mapTask___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadFinallyEIO(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Process_Child_tryWait___boxed(lean_object*, lean_object*, lean_object*);
@@ -2624,7 +2626,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_IO_instOrdTaskState;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -2655,7 +2657,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_IO_instOrdTaskState;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;
@@ -11605,6 +11607,14 @@ _start:
 {
 lean_object* x_4; 
 x_4 = lean_runtime_mark_persistent(x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Runtime_forget___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_runtime_forget(x_2, x_3);
 return x_4;
 }
 }

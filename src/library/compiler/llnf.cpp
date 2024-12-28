@@ -34,6 +34,7 @@ static char const * g_cnstr = "_cnstr";
 static name * g_reuse       = nullptr;
 static name * g_reset       = nullptr;
 static name * g_fset        = nullptr;
+static name * g_f32set      = nullptr;
 static name * g_sset        = nullptr;
 static name * g_uset        = nullptr;
 static name * g_proj        = nullptr;
@@ -162,6 +163,9 @@ bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset
 expr mk_llnf_fset(unsigned n, unsigned offset) { return mk_constant(name(name(*g_fset, n), offset)); }
 bool is_llnf_fset(expr const & e, unsigned & n, unsigned & offset) { return is_llnf_binary_primitive(e, *g_fset, n, offset); }
 
+expr mk_llnf_f32set(unsigned n, unsigned offset) { return mk_constant(name(name(*g_f32set, n), offset)); }
+bool is_llnf_f32set(expr const & e, unsigned & n, unsigned & offset) { return is_llnf_binary_primitive(e, *g_f32set, n, offset); }
+
 /* The `_uset.<n>` instruction sets a `usize` value in a constructor object at offset `sizeof(void*)*n`. */
 expr mk_llnf_uset(unsigned n) { return mk_constant(name(*g_uset, n)); }
 bool is_llnf_uset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_uset, n); }
@@ -218,6 +222,7 @@ bool is_llnf_op(expr const & e) {
         is_llnf_reset(e)   ||
         is_llnf_sset(e)    ||
         is_llnf_fset(e)    ||
+        is_llnf_f32set(e)  ||
         is_llnf_uset(e)    ||
         is_llnf_proj(e)    ||
         is_llnf_sproj(e)   ||
@@ -520,6 +525,10 @@ class to_lambda_pure_fn {
         return mk_app(mk_llnf_fset(num, offset), major, v);
     }
 
+    expr mk_f32set(expr const & major, unsigned num, unsigned offset, expr const & v) {
+        return mk_app(mk_llnf_f32set(num, offset), major, v);
+    }
+
     expr mk_uset(expr const & major, unsigned idx, expr const & v) {
         return mk_app(mk_llnf_uset(idx), major, v);
     }
@@ -586,7 +595,7 @@ class to_lambda_pure_fn {
                         fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, info.m_idx)));
                         break;
                     case field_info::Scalar:
-                        if (info.is_float()) {
+                        if (info.is_float() || info.is_float32()) {
                             fields.push_back(mk_let_decl(info.get_type(), mk_fproj(major, info.m_idx, info.m_offset)));
                         } else {
                             fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, info.m_idx, info.m_offset)));
@@ -686,6 +695,8 @@ class to_lambda_pure_fn {
                 }
                 if (info.is_float()) {
                     r = mk_let_decl(mk_enf_object_type(), mk_fset(r, info.m_idx, info.m_offset, args[j]));
+                } else if (info.is_float32()) {
+                    r = mk_let_decl(mk_enf_object_type(), mk_f32set(r, info.m_idx, info.m_offset, args[j]));
                 } else {
                     r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, info.m_idx, info.m_offset, args[j]));
                 }
@@ -731,7 +742,7 @@ class to_lambda_pure_fn {
                 break;
             case field_info::Scalar:
                 if (proj_idx(e) == i) {
-                    if (info.is_float()) {
+                    if (info.is_float() || info.is_float32()) {
                         return mk_fproj(visit(proj_expr(e)), info.m_idx, info.m_offset);
                     } else {
                         return mk_sproj(visit(proj_expr(e)), info.m_size, info.m_idx, info.m_offset);
@@ -834,6 +845,8 @@ void initialize_llnf() {
     mark_persistent(g_sset->raw());
     g_fset      = new name("_fset");
     mark_persistent(g_fset->raw());
+    g_f32set      = new name("_f32set");
+    mark_persistent(g_f32set->raw());
     g_uset      = new name("_uset");
     mark_persistent(g_uset->raw());
     g_proj      = new name("_proj");
@@ -864,6 +877,7 @@ void finalize_llnf() {
     delete g_reset;
     delete g_sset;
     delete g_fset;
+    delete g_f32set;
     delete g_proj;
     delete g_sproj;
     delete g_fproj;

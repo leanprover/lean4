@@ -20,9 +20,10 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
     let all := preDefs.toList.map (·.declName)
     forallTelescope preDef.type fun xs type => do
       let value ← if useSorry then
-        mkLambdaFVars xs (← mkSorry type (synthetic := true))
+        mkLambdaFVars xs (← withRef preDef.ref <| mkLabeledSorry type (synthetic := true) (unique := true))
       else
-        liftM <| mkInhabitantFor preDef.declName xs type
+        let msg := m!"failed to compile 'partial' definition '{preDef.declName}'"
+        liftM <| mkInhabitantFor msg xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
         value
@@ -114,7 +115,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
-    let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
+    let preDef := { preDef with value := (← withRef preDef.ref <| mkLabeledSorry preDef.type (synthetic := true) (unique := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then
       return preDef
     else

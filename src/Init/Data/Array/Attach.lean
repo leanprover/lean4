@@ -150,7 +150,6 @@ theorem attach_map_coe (l : Array α) (f : α → β) :
 theorem attach_map_val (l : Array α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
   attach_map_coe _ _
 
-@[simp]
 theorem attach_map_subtype_val (l : Array α) : l.attach.map Subtype.val = l := by
   cases l; simp
 
@@ -162,7 +161,6 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Array α) (H :
     ((l.attachWith p H).map fun i => f i.val) = l.map f :=
   attachWith_map_coe _ _ _
 
-@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l := by
   cases l; simp
@@ -204,8 +202,8 @@ theorem pmap_ne_empty_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : 
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ #[] ↔ xs ≠ #[] := by
   cases xs; simp
 
-theorem pmap_eq_self {l : Array α} {p : α → Prop} (hp : ∀ (a : α), a ∈ l → p a)
-    (f : (a : α) → p a → α) : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
+theorem pmap_eq_self {l : Array α} {p : α → Prop} {hp : ∀ (a : α), a ∈ l → p a}
+    {f : (a : α) → p a → α} : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
   cases l; simp [List.pmap_eq_self]
 
 @[simp]
@@ -251,7 +249,7 @@ theorem getElem?_attach {xs : Array α} {i : Nat} :
 theorem getElem_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a}
     {i : Nat} (h : i < (xs.attachWith P H).size) :
     (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ :=
-  getElem_pmap ..
+  getElem_pmap _ _ h
 
 @[simp]
 theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :

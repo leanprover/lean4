@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherInfo
+import Lean.Compiler.ExternAttr
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.ToLCNF
 
@@ -96,31 +97,48 @@ The steps for this are roughly:
 def toDecl (declName : Name) : CompilerM Decl := do
   let declName := if let some name := isUnsafeRecName? declName then name else declName
   let some info ← getDeclInfo? declName | throwError "declaration `{declName}` not found"
-  let some value := info.value? | throwError "declaration `{declName}` does not have a value"
-  let (type, value) ← Meta.MetaM.run' do
-    let type  ← toLCNFType info.type
-    let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
-    let value ← replaceUnsafeRecNames value
-    let value ← macroInline value
-    /- Recall that some declarations tagged with `macro_inline` contain matchers. -/
-    let value ← inlineMatchers value
-    /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
-    let value ← macroInline value
-    /-
-    Remark: we have disabled the following transformation, we will perform it at phase 2, after code specialization.
-    It prevents many optimizations (e.g., "cases-of-ctor").
-    -/
-    -- let value ← applyCasesOnImplementedBy value
-    return (type, value)
-  let value ← toLCNF value
   let safe := !info.isPartial && !info.isUnsafe
   let inlineAttr? := getInlineAttribute? (← getEnv) declName
-  let decl ← if let .fun decl (.return _) := value then
-    eraseFunDecl decl (recursive := false)
-    pure { name := declName, params := decl.params, type, value := decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl }
+  if let some externAttrData := getExternAttrData? (← getEnv) declName then
+    let paramsFromTypeBinders (expr : Expr) : CompilerM (Array Param) := do
+      let mut params := #[]
+      let mut currentExpr := expr
+      repeat
+        match currentExpr with
+        | .forallE binderName type body _ =>
+          let borrow := isMarkedBorrowed type
+          params := params.push (← mkParam binderName type borrow)
+          currentExpr := body
+        | _ => break
+      return params
+
+    let type ← Meta.MetaM.run' (toLCNFType info.type)
+    let params ← paramsFromTypeBinders type
+    return { name := declName, params, type, value := .extern externAttrData, levelParams := info.levelParams, safe, inlineAttr? }
   else
-    pure { name := declName, params := #[], type, value, levelParams := info.levelParams, safe, inlineAttr? }
-  /- `toLCNF` may eta-reduce simple declarations. -/
-  decl.etaExpand
+    let some value := info.value? (allowOpaque := true) | throwError "declaration `{declName}` does not have a value"
+    let (type, value) ← Meta.MetaM.run' do
+      let type  ← toLCNFType info.type
+      let value ← Meta.lambdaTelescope value fun xs body => do Meta.mkLambdaFVars xs (← Meta.etaExpand body)
+      let value ← replaceUnsafeRecNames value
+      let value ← macroInline value
+      /- Recall that some declarations tagged with `macro_inline` contain matchers. -/
+      let value ← inlineMatchers value
+      /- Recall that `inlineMatchers` may have exposed `ite`s and `dite`s which are tagged as `[macro_inline]`. -/
+      let value ← macroInline value
+      /-
+      Remark: we have disabled the following transformatbion, we will perform it at phase 2, after code specialization.
+      It prevents many optimizations (e.g., "cases-of-ctor").
+      -/
+      -- let value ← applyCasesOnImplementedBy value
+      return (type, value)
+    let code ← toLCNF value
+    let decl ← if let .fun decl (.return _) := code then
+      eraseFunDecl decl (recursive := false)
+      pure { name := declName, params := decl.params, type, value := .code decl.value, levelParams := info.levelParams, safe, inlineAttr? : Decl }
+    else
+      pure { name := declName, params := #[], type, value := .code code, levelParams := info.levelParams, safe, inlineAttr? }
+    /- `toLCNF` may eta-reduce simple declarations. -/
+    decl.etaExpand
 
 end Lean.Compiler.LCNF

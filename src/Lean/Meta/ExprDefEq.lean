@@ -167,7 +167,7 @@ def isDefEqStringLit (s t : Expr) : MetaM LBool := do
   Remark: `n` may be 0. -/
 def isEtaUnassignedMVar (e : Expr) : MetaM Bool := do
   match e.etaExpanded? with
-  | some (Expr.mvar mvarId) =>
+  | some (.mvar mvarId) =>
     if (← mvarId.isReadOnlyOrSyntheticOpaque) then
       pure false
     else if (← mvarId.isAssigned) then
@@ -304,14 +304,14 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     if info.isInstImplicit then
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
-    unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+    unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
       return false
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     let info := finfo.paramInfo[i]!
     if info.isInstImplicit then
-      unless (← withAtLeastTransparency TransparencyMode.default <| Meta.isExprDefEqAux a₁ a₂) do
+      unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do
        return false
     else
       unless (← Meta.isExprDefEqAux a₁ a₂) do
@@ -361,9 +361,9 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
     let fvars  := fvars.push (mkFVar fvarId)
     isDefEqBindingAux lctx fvars b₁ b₂ (ds₂.push d₂)
   match e₁, e₂ with
-  | Expr.forallE n d₁ b₁ _, Expr.forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
-  | Expr.lam     n d₁ b₁ _, Expr.lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
-  | _,                      _                      =>
+  | .forallE n d₁ b₁ _, .forallE _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | .lam     n d₁ b₁ _, .lam     _ d₂ b₂ _ => process n d₁ d₂ b₁ b₂
+  | _,                  _                  =>
     withLCtx' lctx do
       isDefEqBindingDomain fvars ds₂ do
         Meta.isExprDefEqAux (e₁.instantiateRev fvars) (e₂.instantiateRev fvars)
@@ -380,12 +380,13 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
-      let vType ← inferType v
-      if (← withTransparency TransparencyMode.default <| Meta.isExprDefEqAux mvarType vType) then
-        mvar.mvarId!.assign v
-        pure true
-      else
-        pure false
+      withInferTypeConfig do
+        let vType ← inferType v
+        if (← Meta.isExprDefEqAux mvarType vType) then
+          mvar.mvarId!.assign v
+          pure true
+        else
+          pure false
 
 /--
 Auxiliary method for solving constraints of the form `?m xs := v`.
@@ -1036,13 +1037,13 @@ def checkedAssignImpl (mvarId : MVarId) (val : Expr) : MetaM Bool := do
 
 private def processAssignmentFOApproxAux (mvar : Expr) (args : Array Expr) (v : Expr) : MetaM Bool :=
   match v with
-  | .mdata _ e   => processAssignmentFOApproxAux mvar args e
-  | Expr.app f a =>
+  | .mdata _ e => processAssignmentFOApproxAux mvar args e
+  | .app f a   =>
     if args.isEmpty then
       pure false
     else
       Meta.isExprDefEqAux args.back! a <&&> Meta.isExprDefEqAux (mkAppRange mvar 0 (args.size - 1) args) f
-  | _            => pure false
+  | _ => pure false
 
 /--
   Auxiliary method for applying first-order unification. It is an approximation.
@@ -1176,7 +1177,7 @@ private partial def processAssignment (mvarApp : Expr) (v : Expr) : MetaM Bool :
         let arg ← simpAssignmentArg arg
         let args := args.set i arg
         match arg with
-        | Expr.fvar fvarId =>
+        | .fvar fvarId =>
           if args[0:i].any fun prevArg => prevArg == arg then
             useFOApprox args
           else if mvarDecl.lctx.contains fvarId && !cfg.quasiPatternApprox then
@@ -1232,7 +1233,7 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
 
 private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) := do
   match t.getAppFn with
-  | Expr.const c _ =>
+  | .const c _ =>
     match (← getUnfoldableConst? c) with
     | r@(some info) => if info.hasValue then return r else return none
     | _             => return none
@@ -1374,8 +1375,8 @@ private def unfoldBothDefEq (fn : Name) (t s : Expr) : MetaM LBool := do
 
 private def sameHeadSymbol (t s : Expr) : Bool :=
   match t.getAppFn, s.getAppFn with
-  | Expr.const c₁ _, Expr.const c₂ _ => c₁ == c₂
-  | _,               _               => false
+  | .const c₁ _, .const c₂ _ => c₁ == c₂
+  | _,           _           => false
 
 /--
   - If headSymbol (unfold t) == headSymbol s, then unfold t
@@ -1520,8 +1521,8 @@ private def isDefEqDelta (t s : Expr) : MetaM LBool := do
       unfoldNonProjFnDefEq tInfo sInfo t s
 
 private def isAssigned : Expr → MetaM Bool
-  | Expr.mvar mvarId => mvarId.isAssigned
-  | _                => pure false
+  | .mvar mvarId => mvarId.isAssigned
+  | _            => pure false
 
 private def expandDelayedAssigned? (t : Expr) : MetaM (Option Expr) := do
   let tFn := t.getAppFn
@@ -1582,7 +1583,7 @@ private def etaEq (t s : Expr) : Bool :=
   Then, we can enable the flag only when applying `simp` and `rw` theorems.
 -/
 private def withProofIrrelTransparency (k : MetaM α) : MetaM α :=
-  withAtLeastTransparency .default k
+  withInferTypeConfig k
 
 private def isDefEqProofIrrel (t s : Expr) : MetaM LBool := do
   if (← getConfig).proofIrrelevance then
@@ -1646,8 +1647,8 @@ private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
   | .sort u,       .sort v     => toLBoolM <| isLevelDefEqAux u v
   | .lam ..,       .lam ..     => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
   | .forallE ..,   .forallE .. => if t == s then pure LBool.true else toLBoolM <| isDefEqBinding t s
-  -- | Expr.mdata _ t _,    s                   => isDefEqQuick t s
-  -- | t,                   Expr.mdata _ s _    => isDefEqQuick t s
+  -- | .mdata _ t _, s               => isDefEqQuick t s
+  -- | t,            .mdata _ s _    => isDefEqQuick t s
   | .fvar fvarId₁, .fvar fvarId₂ => do
     if fvarId₁ == fvarId₂ then
       return .true

@@ -95,6 +95,6 @@ def Code.elimDead (code : Code) : CompilerM Code :=
   ElimDead.elimDead code |>.run' {}
 
 def Decl.elimDead (decl : Decl) : CompilerM Decl := do
-  return { decl with value := (← decl.value.elimDead) }
+  return { decl with value := (← decl.value.mapCodeM Code.elimDead) }
 
 end Lean.Compiler.LCNF

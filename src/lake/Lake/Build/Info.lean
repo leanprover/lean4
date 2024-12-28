@@ -137,7 +137,7 @@ module_data lean.precompileImports : Array Module
 
 /-- Shared library for `--load-dynlib`. -/
 abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : BuildJob Dynlib
+module_data dynlib : Job Dynlib
 
 /-- A Lean library's Lean modules. -/
 abbrev LeanLib.modulesFacet := `modules

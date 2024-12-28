@@ -133,7 +133,7 @@ this. This is because otherwise the calls to `myjp` in `f` and `g` would
 produce out of scope join point jumps.
 -/
 partial def find (decl : Decl) : CompilerM FindState := do
-  let (_, candidates) ← go decl.value |>.run none |>.run {} |>.run' {}
+  let (_, candidates) ← decl.value.forCodeM go |>.run none |>.run {} |>.run' {}
   return candidates
 where
   go : Code → FindM Unit
@@ -178,7 +178,7 @@ and all calls to them with `jmp`s.
 partial def replace (decl : Decl) (state : FindState) : CompilerM Decl := do
   let mapper := fun acc cname _ => do return acc.insert cname (← mkFreshJpName)
   let replaceCtx : ReplaceCtx ← state.candidates.foldM (init := .empty) mapper
-  let newValue ← go decl.value |>.run replaceCtx
+  let newValue ← decl.value.mapCodeM go |>.run replaceCtx
   return { decl with value := newValue }
 where
   go (code : Code) : ReplaceM Code := do
@@ -389,7 +389,7 @@ position within the code so we can pull them out as far as possible, hopefully
 enabling new inlining possibilities in the next simplifier run.
 -/
 partial def extend (decl : Decl) : CompilerM Decl := do
-  let newValue ← go decl.value |>.run {} |>.run' {} |>.run' {}
+  let newValue ← decl.value.mapCodeM go |>.run {} |>.run' {} |>.run' {}
   let decl := { decl with value := newValue }
   decl.pullFunDecls
 where
@@ -510,8 +510,8 @@ After we have performed all of these optimizations we can take away the
 code that has as little arguments as possible in the join points.
 -/
 partial def reduce (decl : Decl) : CompilerM Decl := do
-  let (_, analysis) ← goAnalyze decl.value |>.run {} |>.run {} |>.run' {}
-  let newValue ← goReduce decl.value |>.run analysis
+  let (_, analysis) ← decl.value.forCodeM goAnalyze |>.run {} |>.run {} |>.run' {}
+  let newValue ← decl.value.mapCodeM goReduce |>.run analysis
   return { decl with value := newValue }
 where
   goAnalyzeFunDecl (fn : FunDecl) : ReduceAnalysisM Unit := do

@@ -16,40 +16,20 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Run
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
 
--- TODO: use congruence closure and decision procedures during pre-processing
--- TODO: implement `simp` discharger using preprocessor state
-
-structure Context where
-  simp     : Simp.Context
-  simprocs : Array Simp.Simprocs
-  deriving Inhabited
-
 structure State where
-  simpStats : Simp.Stats := {}
   goals     : PArray Goal := {}
   deriving Inhabited
 
-abbrev PreM := ReaderT Context $ StateRefT State GrindM
+abbrev PreM := StateRefT State GrindM
 
 def PreM.run (x : PreM α) : GrindM α := do
-  let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp ← Simp.mkContext
-    (config := { arith := true })
-    (simpTheorems := #[thms])
-    (congrTheorems := (← getSimpCongrTheorems))
-  x { simp, simprocs } |>.run' {}
-
-def simp (_goal : Goal) (e : Expr) : PreM Simp.Result := do
-  -- TODO: use `goal` state in the simplifier
-  let simpStats := (← get).simpStats
-  let (r, simpStats) ← Meta.simp e (← read).simp (← read).simprocs (stats := simpStats)
-  modify fun s => { s with simpStats }
-  return r
+ x.run' {}
 
 inductive IntroResult where
   | done
@@ -68,19 +48,17 @@ def introNext (goal : Goal) : PreM IntroResult := do
       else
         let tag ← goal.mvarId.getTag
         let q := target.bindingBody!
-        let r ← simp goal p
-        let p' := r.expr
-        let p' ← canon p'
-        let p' ← shareCommon p'
+        -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
+        let r ← pre p
         let fvarId ← mkFreshFVarId
-        let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! p' target.bindingInfo!
+        let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! r.expr target.bindingInfo!
         let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
         let mvarIdNew := mvarNew.mvarId!
         mvarIdNew.withContext do
           let h ← mkLambdaFVars #[mkFVar fvarId] mvarNew
           match r.proof? with
           | some he =>
-            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, p', q, he, h]
+            let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, r.expr, q, he, h]
             goal.mvarId.assign hNew
             return .newHyp fvarId { goal with mvarId := mvarIdNew }
           | none =>
@@ -93,7 +71,7 @@ def introNext (goal : Goal) : PreM IntroResult := do
       let localDecl ← fvarId.getDecl
       if (← isProp localDecl.type) then
         -- Add a non-dependent copy
-        let mvarId ← mvarId.assert localDecl.userName localDecl.type (mkFVar fvarId)
+        let mvarId ← mvarId.assert (← mkFreshUserName localDecl.userName) localDecl.type (mkFVar fvarId)
         return .newDepHyp { goal with mvarId }
       else
         return .newLocal fvarId { goal with mvarId }
@@ -121,6 +99,8 @@ def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal) := do
     return none
 
 partial def loop (goal : Goal) : PreM Unit := do
+  if goal.inconsistent then
+    return ()
   match (← introNext goal) with
   | .done =>
     if let some mvarId ← goal.mvarId.byContra? then
@@ -133,8 +113,7 @@ partial def loop (goal : Goal) : PreM Unit := do
     else if let some goal ← applyInjection? goal fvarId then
       loop goal
     else
-      let clause ← goal.mvarId.withContext do mkInputClause fvarId
-      loop { goal with clauses := goal.clauses.push clause }
+      loop (← GoalM.run' goal <| addHyp fvarId)
   | .newDepHyp goal =>
     loop goal
   | .newLocal fvarId goal =>
@@ -143,24 +122,51 @@ partial def loop (goal : Goal) : PreM Unit := do
     else
       loop goal
 
+def ppGoals : PreM Format := do
+  let mut r := f!""
+  for goal in (← get).goals do
+    let (f, _) ← GoalM.run goal ppState
+    r := r ++ Format.line ++ f
+  return r
+
 def preprocess (mvarId : MVarId) : PreM State := do
+  mvarId.ensureProp
+  -- TODO: abstract metavars
+  mvarId.ensureNoMVar
+  let mvarId ← mvarId.clearAuxDecls
+  let mvarId ← mvarId.revertAll
+  mvarId.ensureNoMVar
+  let mvarId ← mvarId.abstractNestedProofs (← getMainDeclName)
+  let mvarId ← mvarId.unfoldReducible
+  let mvarId ← mvarId.betaReduce
   loop (← mkGoal mvarId)
+  if (← isTracingEnabledFor `grind.pre) then
+    trace[grind.pre] (← ppGoals)
+  for goal in (← get).goals do
+    discard <| GoalM.run' goal <| checkInvariants (expensive := true)
   get
+
+def preprocessAndProbe (mvarId : MVarId) (p : GoalM Unit) : PreM Unit := do
+  let s ← preprocess mvarId
+  s.goals.forM fun goal =>
+    discard <| GoalM.run' goal p
 
 end Preprocessor
 
 open Preprocessor
 
-partial def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
-  mvarId.ensureProp
-  mvarId.ensureNoMVar
-  let mvarId ← mvarId.clearAuxDecls
-  let mvarId ← mvarId.revertAll
-  mvarId.ensureNoMVar
-  let mvarId ← mvarId.abstractNestedProofs mainDeclName
-  let mvarId ← mvarId.unfoldReducible
-  let mvarId ← mvarId.betaReduce
-  let s ← preprocess mvarId |>.run |>.run mainDeclName
-  return s.goals.toList.map (·.mvarId)
+def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
+  withoutModifyingMCtx do
+    Preprocessor.preprocessAndProbe mvarId p |>.run |>.run mainDeclName
+
+def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.State :=
+  Preprocessor.preprocess mvarId |>.run |>.run mainDeclName
+
+def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
+  let go : GrindM (List MVarId) := do
+    let s ← Preprocessor.preprocess mvarId |>.run
+    let goals := s.goals.toList.filter fun goal => !goal.inconsistent
+    return goals.map (·.mvarId)
+  go.run mainDeclName
 
 end Lean.Meta.Grind

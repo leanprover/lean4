@@ -673,11 +673,11 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 
 /- We treat BitVec as lists of bools. -/
 
-def reverseAux {w : Nat} (x : BitVec w) :=
+def reverse {w : Nat} (x : BitVec w) :=
   if hw : w = 0
     then x
   else
     have h : w - 1 + 1 = w := by rw [Nat.sub_add_cancel (by omega)]
-    h ▸ BitVec.append (reverseAux (x.truncate (w - 1))) (BitVec.ofBool (x.getMsbD 0))
+    h ▸ BitVec.append (reverse (x.truncate (w - 1))) (BitVec.ofBool (x.getMsbD 0))
 
 end BitVec

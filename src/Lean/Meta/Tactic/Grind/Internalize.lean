@@ -13,10 +13,18 @@ namespace Lean.Meta.Grind
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
+    -- `f` and `g` must have the same type.
+    -- See paper: Congruence Closure in Intensional Type Theory
+    let f := e.getAppFn
+    let g := e'.getAppFn
+    unless isSameExpr f g do
+      unless (← hasSameType f g) do
+        trace[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        return ()
     trace[grind.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
-    -- TODO: we must check whether the types of the functions are the same
-    -- TODO: update cgRoot for `e`
+    let node ← getENode e
+    setENode e { node with cgRoot := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 

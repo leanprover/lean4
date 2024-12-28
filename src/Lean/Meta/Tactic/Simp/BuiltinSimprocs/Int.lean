@@ -49,17 +49,13 @@ If they do, they must disable the following `simprocs`.
 -/
 
 builtin_dsimproc [simp, seval] reduceNeg ((- _ : Int)) := fun e => do
-  unless e.isAppOfArity ``Neg.neg 3 do return .continue
-  let arg := e.appArg!
+  let_expr Neg.neg _ _ arg ← e | return .continue
   if arg.isAppOfArity ``OfNat.ofNat 3 then
     -- We return .done to ensure `Neg.neg` is not unfolded even when `ground := true`.
     return .done e
   else
     let some v ← fromExpr? arg | return .continue
-    if v < 0 then
-      return .done <| toExpr (- v)
-    else
-      return .done <| toExpr v
+    return .done <| toExpr (- v)
 
 /-- Return `.done` for positive Int values. We don't want to unfold in the symbolic evaluator. -/
 builtin_dsimproc [seval] isPosValue ((OfNat.ofNat _ : Int)) := fun e => do

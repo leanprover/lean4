@@ -140,7 +140,11 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       let inst ← mkAppOptM ``CCPO.toPartialOrder #[type, ccpoInsts'[i]!]
       let goal ← mkAppOptM ``monotone #[packedType, packedPartialOrderInst, type, inst, F]
       if let some term := hints[i]!.term? then
-        Term.elabTermEnsuringType term goal
+        let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal
+        let hmono ← instantiateMVars hmono
+        if hmono.hasMVar then
+          throwErrorAt term "monotonicity proof must not contain meta variables{indentExpr hmono}"
+        pure hmono
       else
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do

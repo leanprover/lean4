@@ -1046,7 +1046,7 @@ theorem getKey?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 
 theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} {k : α}
-    {h₁ : (l.map Prod.fst).contains k = false}
+    (h₁ : (l.map Prod.fst).contains k = false)
     {h'} :
     (insertMany m l).1.getKey k h' =
     m.getKey k (contains_of_contains_insertMany_list _ h h' h₁) := by
@@ -1091,7 +1091,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)}
-    {distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)} :
+    (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Prod.fst).contains a = false) →
     (insertMany m l).1.1.size = m.1.size + l.length := by
   simp_to_model using length_insertListConst
@@ -1220,7 +1220,7 @@ theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α
 theorem getKey_insertManyIfNewUnit_list_mem_of_contains_of_contains [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {l : List α} {k : α}
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (h' : l.contains k) {mem' : m.contains k} {h'} :
+    (h₁ : l.contains k) {mem' : m.contains k} {h'} :
     getKey (insertManyIfNewUnit m l).1 k h' = getKey m k mem' := by
   simp_to_model using getKey_insertListIfNewUnit_of_contains_of_contains
 
@@ -1253,7 +1253,7 @@ theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [Law
 theorem getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    {mem : k ∈ l } : m.contains k = false →
+    (mem : k ∈ l ) : m.contains k = false →
     getKeyD (insertManyIfNewUnit m l).1 k' fallback = k := by
   simp_to_model using getKeyD_insertListIfNewUnit_of_mem_of_contains_eq_false
 

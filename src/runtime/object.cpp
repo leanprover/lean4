@@ -2389,13 +2389,14 @@ extern "C" LEAN_EXPORT obj_res lean_copy_expand_array(obj_arg a, bool expand) {
 
 extern "C" LEAN_EXPORT object * lean_array_push(obj_arg a, obj_arg v) {
     object * r;
-    if (lean_is_exclusive(a)) {
-        if (lean_array_capacity(a) > lean_array_size(a))
+    bool capacity_enough = lean_array_capacity(a) > lean_array_size(a);
+    if (LEAN_LIKELY(lean_is_exclusive(a))) {
+        if (LEAN_LIKELY(capacity_enough))
             r = a;
         else
             r = lean_copy_expand_array(a, true);
     } else {
-        r = lean_copy_expand_array(a, lean_array_capacity(a) < lean_array_size(a) + 1);
+        r = lean_copy_expand_array(a, !capacity_enough);
     }
     lean_assert(lean_array_capacity(r) > lean_array_size(r));
     size_t & sz  = lean_to_array(r)->m_size;

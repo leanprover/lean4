@@ -39,10 +39,9 @@ def mkAppNTerm (f : Term) (args : Array Term) : MetaM Term :=
 
 /-- Fixes the output of `mkInductiveApp` to explicitly reference universe levels. -/
 def updateIndType (indVal : InductiveVal) (t : Term) : TermElabM Term :=
+  let levels := indVal.levelParams.toArray.map mkIdent
   match t with
-  | `(@$f $args*) =>
-    let levels := indVal.levelParams.toArray.map mkIdent
-    `(@$f.{$levels,*} $args*)
+  | `(@$f $args*) => `(@$f.{$levels,*} $args*)
   | _ => throwError "(internal error) expecting output of `mkInductiveApp`"
 
 /--
@@ -121,9 +120,7 @@ These are very simple fields, so avoiding the duplication is not worth it.
 def mkLocalInstanceLetDecls (ctx : Deriving.Context) (argNames : Array Name) (levelInsts : Array Term) :
     TermElabM (Array (TSyntax ``Parser.Term.letDecl)) := do
   let mut letDecls := #[]
-  for i in [:ctx.typeInfos.size] do
-    let indVal       := ctx.typeInfos[i]!
-    let auxFunName   := ctx.auxFunNames[i]!
+  for indVal in ctx.typeInfos, auxFunName in ctx.auxFunNames do
     let currArgNames ← mkInductArgNames indVal
     let numParams    := indVal.numParams
     let currIndices  := currArgNames[numParams:]
@@ -132,7 +129,7 @@ def mkLocalInstanceLetDecls (ctx : Deriving.Context) (argNames : Array Name) (le
     let indType      ← mkInductiveApp indVal argNamesNew
     let instName     ← mkFreshUserName `localinst
     let toTypeExpr   ← mkToTypeExpr indVal argNames
-    -- Recall that each type uses the same universe levels.
+    -- Recall that mutually inductive types all use the same universe levels.
     let letDecl      ← `(Parser.Term.letDecl| $(mkIdent instName):ident $binders:implicitBinder* : ToExpr $indType :=
                           { toExpr := $(mkIdent auxFunName) $levelInsts*, toTypeExpr := $toTypeExpr })
     letDecls := letDecls.push letDecl

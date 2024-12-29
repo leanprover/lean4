@@ -160,8 +160,9 @@ def main (patterns : List Expr) : MetaM (List Expr × List HeadIndex) := do
 end NormalizePattern
 
 def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
-  let cinfo ← getConstInfo declName
-  let us := cinfo.levelParams.map mkLevelParam
+  let .thmInfo info ← getConstInfo declName
+    | throwError "`{declName}` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic"
+  let us := info.levelParams.map mkLevelParam
   let proof := mkConst declName us
   let (patterns, symbols) ← NormalizePattern.main patterns
   trace[grind.pattern] "{declName}: {patterns.map ppPattern}"

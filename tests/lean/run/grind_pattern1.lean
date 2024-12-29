@@ -18,3 +18,11 @@ info: [grind.pattern] List.mem_concat_self: [@Membership.mem #2 ? ? (@HAppend.hA
 -/
 #guard_msgs in
 grind_pattern List.mem_concat_self => a ∈ xs ++ [a]
+
+def foo (x : Nat) := x + x
+
+/--
+error: `foo` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic
+-/
+#guard_msgs in
+grind_pattern foo => x + x

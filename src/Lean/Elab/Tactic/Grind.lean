@@ -6,10 +6,28 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Lean.Meta.Tactic.Grind
+import Lean.Elab.Command
 import Lean.Elab.Tactic.Basic
+
 
 namespace Lean.Elab.Tactic
 open Meta
+
+open Command Term in
+@[builtin_command_elab Lean.Parser.Command.grindPattern]
+def elabGrindPattern : CommandElab := fun stx => do
+  match stx with
+  | `(grind_pattern $thmName:ident => $terms,*) => do
+    liftTermElabM do
+      let declName ← resolveGlobalConstNoOverload thmName
+      let info ← getConstInfo declName
+      forallTelescope info.type fun xs _ => do
+        let patterns ← terms.getElems.mapM fun term => do
+          let pattern ← instantiateMVars (← elabTerm term none)
+          let pattern ← Grind.unfoldReducible pattern
+          return pattern.abstract xs
+        Grind.addTheoremPattern declName xs.size patterns.toList
+  | _ => throwUnsupportedSyntax
 
 def grind (mvarId : MVarId) (mainDeclName : Name) : MetaM Unit := do
   let mvarIds ← Grind.main mvarId mainDeclName

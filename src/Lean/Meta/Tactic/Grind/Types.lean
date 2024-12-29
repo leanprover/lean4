@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.ShareCommon
+import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
@@ -258,6 +259,12 @@ structure Goal where
   enodes       : ENodes := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
+  /--
+  A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
+  Recall that the `HeadIndex` for a constant is its constant name, and for a free variable,
+  it is its unique id.
+  -/
+  appMap       : PHashMap HeadIndex (List Expr) := {}
   /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/

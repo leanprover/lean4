@@ -21,6 +21,7 @@ import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Parser
+import Lean.Meta.Tactic.Grind.TheoremPatterns
 
 namespace Lean
 
@@ -35,5 +36,6 @@ builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.congr
 builtin_initialize registerTraceClass `grind.proof
 builtin_initialize registerTraceClass `grind.proof.detail
+builtin_initialize registerTraceClass `grind.pattern
 
 end Lean

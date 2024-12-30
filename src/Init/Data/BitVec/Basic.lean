@@ -675,6 +675,6 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 
 def reverse : (w : Nat) → BitVec w → BitVec w
   | 0, x => x
-  | w + 1, x => concat (reverse (w) (x.truncate w)) (x.msb)
+  | w + 1, x => concat (reverse w (x.truncate w)) (x.msb)
 
 end BitVec

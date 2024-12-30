@@ -510,4 +510,18 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     refine (IH₁ H).trans (IH₂ ((p₁.pairwise_iff ?_).1 H))
     exact fun h h₁ h₂ => h h₂ h₁
 
+theorem perm_insertIdx {α} (x : α) (l : List α) {n} (h : n ≤ l.length) :
+    insertIdx n x l ~ x :: l := by
+  induction l generalizing n with
+  | nil =>
+    cases n with
+    | zero => rfl
+    | succ => cases h
+  | cons _ _ ih =>
+    cases n with
+    | zero => simp [insertIdx]
+    | succ =>
+      simp only [insertIdx, modifyTailIdx]
+      refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
+
 end List

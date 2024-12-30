@@ -33,7 +33,7 @@ private def mkEqAndProof (lhs rhs : Expr) : MetaM (Expr × Expr) := do
   else
     pure (mkApp4 (mkConst ``HEq [u]) lhsType lhs rhsType rhs, mkApp2 (mkConst ``HEq.refl [u]) lhsType lhs)
 
-private partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
+partial def withNewEqs (targets targetsNew : Array Expr) (k : Array Expr → Array Expr → MetaM α) : MetaM α :=
   let rec loop (i : Nat) (newEqs : Array Expr) (newRefls : Array Expr) := do
     if i < targets.size then
       let (newEqType, newRefl) ← mkEqAndProof targets[i]! targetsNew[i]!
@@ -66,30 +66,31 @@ structure GeneralizeIndicesSubgoal where
   numEqs         : Nat
 
 /--
-  Similar to `generalizeTargets` but customized for the `casesOn` motive.
-  Given a metavariable `mvarId` representing the
-  ```
-  Ctx, h : I A j, D |- T
-  ```
-  where `fvarId` is `h`s id, and the type `I A j` is an inductive datatype where `A` are parameters,
-  and `j` the indices. Generate the goal
-  ```
-  Ctx, h : I A j, D, j' : J, h' : I A j' |- j == j' -> h == h' -> T
-  ```
-  Remark: `(j == j' -> h == h')` is a "telescopic" equality.
-  Remark: `j` is sequence of terms, and `j'` a sequence of free variables.
-  The result contains the fields
-  - `mvarId`: the new goal
-  - `indicesFVarIds`: `j'` ids
-  - `fvarId`: `h'` id
-  - `numEqs`: number of equations in the target -/
-def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndicesSubgoal :=
+Given a metavariable `mvarId` representing the goal
+```
+Ctx |- T
+```
+and an expression `e : I A j`, where `I A j` is an inductive datatype where `A` are parameters,
+and `j` the indices. Generate the goal
+```
+Ctx, j' : J, h' : I A j' |- j == j' -> e == h' -> T
+```
+Remark: `(j == j' -> e == h')` is a "telescopic" equality.
+Remark: `j` is sequence of terms, and `j'` a sequence of free variables.
+The result contains the fields
+- `mvarId`: the new goal
+- `indicesFVarIds`: `j'` ids
+- `fvarId`: `h'` id
+- `numEqs`: number of equations in the target
+
+If `varName?` is not none, it is used to name `h'`.
+-/
+def generalizeIndices' (mvarId : MVarId) (e : Expr) (varName? : Option Name := none) : MetaM GeneralizeIndicesSubgoal :=
   mvarId.withContext do
     let lctx       ← getLCtx
     let localInsts ← getLocalInstances
     mvarId.checkNotAssigned `generalizeIndices
-    let fvarDecl ← fvarId.getDecl
-    let type ← whnf fvarDecl.type
+    let type ← whnfD (← inferType e)
     type.withApp fun f args => matchConstInduct f (fun _ => throwTacticEx `generalizeIndices mvarId "inductive type expected") fun val _ => do
       unless val.numIndices > 0 do throwTacticEx `generalizeIndices mvarId "indexed inductive type expected"
       unless args.size == val.numIndices + val.numParams do throwTacticEx `generalizeIndices mvarId "ill-formed inductive datatype"
@@ -98,9 +99,10 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
       let IAType ← inferType IA
       forallTelescopeReducing IAType fun newIndices _ => do
       let newType := mkAppN IA newIndices
-      withLocalDeclD fvarDecl.userName newType fun h' =>
+      let varName ← if let some varName := varName? then pure varName else mkFreshUserName `x
+      withLocalDeclD varName newType fun h' =>
       withNewEqs indices newIndices fun newEqs newRefls => do
-      let (newEqType, newRefl) ← mkEqAndProof fvarDecl.toExpr h'
+      let (newEqType, newRefl) ← mkEqAndProof e h'
       let newRefls := newRefls.push newRefl
       withLocalDeclD `h newEqType fun newEq => do
       let newEqs := newEqs.push newEq
@@ -112,7 +114,7 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
       let auxType ← mkForallFVars newIndices auxType
       let newMVar ← mkFreshExprMVarAt lctx localInsts auxType MetavarKind.syntheticOpaque tag
       /- assign mvarId := newMVar indices h refls -/
-      mvarId.assign (mkAppN (mkApp (mkAppN newMVar indices) fvarDecl.toExpr) newRefls)
+      mvarId.assign (mkAppN (mkApp (mkAppN newMVar indices) e) newRefls)
       let (indicesFVarIds, newMVarId) ← newMVar.mvarId!.introNP newIndices.size
       let (fvarId, newMVarId) ← newMVarId.intro1P
       return {
@@ -121,6 +123,29 @@ def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndi
         fvarId         := fvarId,
         numEqs         := newEqs.size
       }
+
+/--
+Similar to `generalizeTargets` but customized for the `casesOn` motive.
+Given a metavariable `mvarId` representing the
+```
+Ctx, h : I A j, D |- T
+```
+where `fvarId` is `h`s id, and the type `I A j` is an inductive datatype where `A` are parameters,
+and `j` the indices. Generate the goal
+```
+Ctx, h : I A j, D, j' : J, h' : I A j' |- j == j' -> h == h' -> T
+```
+Remark: `(j == j' -> h == h')` is a "telescopic" equality.
+Remark: `j` is sequence of terms, and `j'` a sequence of free variables.
+The result contains the fields
+- `mvarId`: the new goal
+- `indicesFVarIds`: `j'` ids
+- `fvarId`: `h'` id
+- `numEqs`: number of equations in the target -/
+def generalizeIndices (mvarId : MVarId) (fvarId : FVarId) : MetaM GeneralizeIndicesSubgoal :=
+  mvarId.withContext do
+    let fvarDecl ← fvarId.getDecl
+    generalizeIndices' mvarId fvarDecl.toExpr fvarDecl.userName
 
 structure CasesSubgoal extends InductionSubgoal where
   ctorName : Name

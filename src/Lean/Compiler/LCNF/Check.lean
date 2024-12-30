@@ -261,7 +261,7 @@ def run (x : CheckM α) : CompilerM α :=
 end Check
 
 def Decl.check (decl : Decl) : CompilerM Unit := do
-  Check.run do Check.checkFunDeclCore decl.name decl.params decl.type decl.value
+  Check.run do decl.value.forCodeM (Check.checkFunDeclCore decl.name decl.params decl.type)
 
 /--
 Check whether every local declaration in the local context is used in one of given `decls`.
@@ -299,7 +299,7 @@ where
 
   visitDecl (decl : Decl) : StateM FVarIdHashSet Unit := do
     visitParams decl.params
-    visitCode decl.value
+    decl.value.forCodeM visitCode
 
   visitDecls (decls : Array Decl) : StateM FVarIdHashSet Unit :=
     decls.forM visitDecl

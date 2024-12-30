@@ -1035,7 +1035,7 @@ where
               values.mapM (instantiateMVarsProfiling ·)
             catch ex =>
               logException ex
-              headers.mapM fun header => mkSorry header.type (synthetic := true)
+              headers.mapM fun header => withRef header.declId <| mkLabeledSorry header.type (synthetic := true) (unique := true)
             if let #[value] := values then
               valPromise.resolve value
             let headers ← headers.mapM instantiateMVarsAtHeader
@@ -1060,7 +1060,7 @@ where
         let checkAndCompile := try
             processDeriving headers
             if let some async := async? then
-              async.checkAndCommitEnv (← getEnv) (← getOptions) (← readThe Core.Context).cancelTk?
+              async.commitCheckEnv (← getEnv)
           finally
             bodyPromises.forM (·.resolve default)
             tacPromises.forM (·.resolve default)

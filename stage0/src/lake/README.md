@@ -302,7 +302,7 @@ extern_lib «target-name» (pkg : NPackage _package.name) :=
   -- a build function that produces its static library
 ```
 
-The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `FetchM (BuildJob System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
+The declaration is essentially a wrapper around a `System.FilePath` [target](#custom-targets). Like such a target, the `pkg` parameter and its type specifier are optional and body should be a term of type `FetchM (Job System.FilePath)` function that builds the static library. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the external library is defined.
 
 ### Custom Targets
 
@@ -312,10 +312,10 @@ A arbitrary target that can be built via `lake build <target-name>`.
 
 ```lean
 target «target-name» (pkg : NPackage _package.name) : α :=
-  -- a build function that produces a `BuildJob α`
+  -- a build function that produces a `Job α`
 ```
 
-The `pkg` parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
+The `pkg` parameter and its type specifier are optional and the body should be a term of type `FetchM (Job α)`. The `pkg` parameter is of type `NPackage _package.name` to provably demonstrate that it is the package in which the target is defined.
 
 ## Defining New Facets
 
@@ -325,16 +325,16 @@ A Lake package can also define new *facets* for packages, modules, and libraries
 
 ```lean
 package_facet «facet-name» (pkg : Package) : α :=
-  -- a build function that produces a `BuildJob α`
+  -- a build function that produces a `Job α`
 
 module_facet «facet-name» (mod : Module) : α :=
-  -- a build function that produces a `BuildJob α`
+  -- a build function that produces a `Job α`
 
 library_facet «facet-name» (lib : LeanLib) : α :=
-  -- a build function that produces a `BuildJob α`
+  -- a build function that produces a `Job α`
 ```
 
-In all of these, the object parameter and its type specifier are optional and the body should be a term of type `FetchM (BuildJob α)`.
+In all of these, the object parameter and its type specifier are optional and the body should be a term of type `FetchM (Job α)`.
 
 ## Adding Dependencies
 

@@ -691,6 +691,9 @@ private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFiel
   let env ← getEnv
   let env ← ofExceptKernelException (mkProjections env r.view.declName projNames.toList r.view.isClass)
   setEnv env
+  for fieldInfo in fieldInfos do
+    if fieldInfo.isSubobject then
+      addDeclarationRangesFromSyntax fieldInfo.declName r.view.ref fieldInfo.ref
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do
@@ -775,14 +778,14 @@ private def setSourceInstImplicit (type : Expr) : Expr :=
 /--
 Creates a projection function to a non-subobject parent.
 -/
-private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (source : Expr) (parentStructName : Name) (parentType : Expr) : MetaM StructureParentInfo := do
+private partial def mkCoercionToCopiedParent (levelParams : List Name) (params : Array Expr) (view : StructView) (source : Expr) (parent : StructParentInfo) (parentType : Expr) : MetaM StructureParentInfo := do
   let isProp ← Meta.isProp parentType
   let env ← getEnv
   let structName := view.declName
   let sourceFieldNames := getStructureFieldsFlattened env structName
-  let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
+  let binfo := if view.isClass && isClass env parent.structName then BinderInfo.instImplicit else BinderInfo.default
   let mut declType ← instantiateMVars (← mkForallFVars params (← mkForallFVars #[source] parentType))
-  if view.isClass && isClass env parentStructName then
+  if view.isClass && isClass env parent.structName then
     declType := setSourceInstImplicit declType
   declType := declType.inferImplicit params.size true
   let rec copyFields (parentType : Expr) : MetaM Expr := do
@@ -823,7 +826,8 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   -- (Instances will get instance reducibility in `Lean.Elab.Command.addParentInstances`.)
   if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
     setReducibleAttribute declName
-  return { structName := parentStructName, subobject := false, projFn := declName }
+  addDeclarationRangesFromSyntax declName view.ref parent.ref
+  return { structName := parent.structName, subobject := false, projFn := declName }
 
 private def mkRemainingProjections (levelParams : List Name) (params : Array Expr) (view : StructView)
     (parents : Array StructParentInfo) (fieldInfos : Array StructFieldInfo) : TermElabM (Array StructureParentInfo) := do
@@ -844,7 +848,7 @@ private def mkRemainingProjections (levelParams : List Name) (params : Array Exp
           pure { structName := parent.structName, subobject := true, projFn := info.declName }
         else
           let parent_type := (← instantiateMVars parent.type).replace fun e => parentFVarToConst[e]?
-          mkCoercionToCopiedParent levelParams params view source parent.structName parent_type)
+          mkCoercionToCopiedParent levelParams params view source parent parent_type)
       parentInfos := parentInfos.push parentInfo
       if let some fvar := parent.fvar? then
         parentFVarToConst := parentFVarToConst.insert fvar <|

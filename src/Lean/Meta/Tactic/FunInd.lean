@@ -719,13 +719,11 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
           let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars #[motive] e'
 
-          -- We could pass (usedOnly := true) below, and get nicer induction principles that
-          -- do not mention odd unused parameters.
-          -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-          -- that derives them from an function application in the goal) is harder, as
-          -- one would have to infer or keep track of which parameters to pass.
-          -- So for now lets just keep them around.
-          let e' ← mkLambdaFVars (binderInfoForMVars := .default) fixedParams e'
+          -- We used to pass (usedOnly := false) below in the hope that the types of the
+          -- induction principle match the type of the function better.
+          -- But this leads to avoidable parameters that make functional induction strictly less
+          -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+          let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) fixedParams e'
           instantiateMVars e'
       | _ =>
         if funBody.isAppOf ``WellFounded.fix then
@@ -808,7 +806,8 @@ def cleanPackedArgs (eqnInfo : WF.EqnInfo) (value : Expr) : MetaM Expr := do
       let args := e.getAppArgs
       if eqnInfo.fixedPrefixSize + 1 ≤ args.size then
         let packedArg := args.back!
-          let (i, unpackedArgs) ← eqnInfo.argsPacker.unpack packedArg
+          let some (i, unpackedArgs) := eqnInfo.argsPacker.unpack packedArg
+            | throwError "Unexpected packedArg:{indentExpr packedArg}"
           let e' := .const eqnInfo.declNames[i]! e.getAppFn.constLevels!
           let e' := mkAppN e' args.pop
           let e' := mkAppN e' unpackedArgs
@@ -1057,13 +1056,11 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           let e' ← abstractIndependentMVars mvars (← motives.back!.fvarId!.getDecl).index e'
           let e' ← mkLambdaFVars motives e'
 
-          -- We could pass (usedOnly := true) below, and get nicer induction principles that
-          -- do not mention odd unused parameters.
-          -- But the downside is that automatic instantiation of the principle (e.g. in a tactic
-          -- that derives them from an function application in the goal) is harder, as
-          -- one would have to infer or keep track of which parameters to pass.
-          -- So for now lets just keep them around.
-          let e' ← mkLambdaFVars (binderInfoForMVars := .default) xs e'
+          -- We used to pass (usedOnly := false) below in the hope that the types of the
+          -- induction principle match the type of the function better.
+          -- But this leads to avoidable parameters that make functional induction strictly less
+          -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
+          let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
           pure e'
@@ -1109,11 +1106,16 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   let .str p s := name | return false
   match s with
   | "induct" =>
-    if (WF.eqnInfoExt.find? env p).isSome then return true
+    if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
+      return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
+      unless eqnInfo.hasInduct do
+        return false
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     if let some eqnInfo := Structural.eqnInfoExt.find? env p then

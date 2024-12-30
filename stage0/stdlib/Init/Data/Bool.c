@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Bool_instDecidableForallOfDecidablePred(lean_object*);
+LEAN_EXPORT lean_object* l_Bool_toInt___boxed(lean_object*);
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__4;
 static lean_object* l_Bool_term___x5e_x5e_____closed__10;
 LEAN_EXPORT uint8_t l_Bool_instMin(uint8_t, uint8_t);
@@ -32,9 +33,11 @@ static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term__
 static lean_object* l_Bool_term___x5e_x5e_____closed__5;
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__1;
 lean_object* l_Lean_SourceInfo_fromRef(lean_object*, uint8_t);
+lean_object* lean_nat_to_int(lean_object*);
 LEAN_EXPORT lean_object* l_boolRelToRel(lean_object*);
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__5;
 static lean_object* l_Bool_term___x5e_x5e_____closed__9;
+static lean_object* l_Bool_toInt___closed__2;
 LEAN_EXPORT lean_object* l_Bool_toNat___boxed(lean_object*);
 lean_object* l_Lean_Syntax_node3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instLT;
@@ -62,6 +65,7 @@ static lean_object* l_Bool_term___x5e_x5e_____closed__2;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__8;
 LEAN_EXPORT lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Bool_toInt(uint8_t);
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__6;
 static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term___x5e_x5e____1___closed__11;
 LEAN_EXPORT uint8_t l_Bool_instDecidableLe(uint8_t, uint8_t);
@@ -70,6 +74,7 @@ static lean_object* l_Bool___aux__Init__Data__Bool______macroRules__Bool__term__
 static lean_object* l_Bool___aux__Init__Data__Bool______unexpand__Bool__xor__1___closed__2;
 LEAN_EXPORT lean_object* l_Bool_instDecidableExistsOfDecidablePred___rarg(lean_object*);
 static lean_object* l_Bool___aux__Init__Data__Bool______unexpand__Bool__xor__1___closed__1;
+static lean_object* l_Bool_toInt___closed__1;
 static lean_object* l_Bool_term___x5e_x5e_____closed__11;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Bool_instMax___boxed(lean_object*, lean_object*);
@@ -760,6 +765,51 @@ x_3 = l_Bool_toNat(x_2);
 return x_3;
 }
 }
+static lean_object* _init_l_Bool_toInt___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Bool_toInt___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_unsigned_to_nat(1u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Bool_toInt(uint8_t x_1) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_2; 
+x_2 = l_Bool_toInt___closed__1;
+return x_2;
+}
+else
+{
+lean_object* x_3; 
+x_3 = l_Bool_toInt___closed__2;
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_toInt___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = lean_unbox(x_1);
+lean_dec(x_1);
+x_3 = l_Bool_toInt(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_boolPredToPred(lean_object* x_1) {
 _start:
 {
@@ -841,6 +891,10 @@ l_Bool_instLE = _init_l_Bool_instLE();
 lean_mark_persistent(l_Bool_instLE);
 l_Bool_instLT = _init_l_Bool_instLT();
 lean_mark_persistent(l_Bool_instLT);
+l_Bool_toInt___closed__1 = _init_l_Bool_toInt___closed__1();
+lean_mark_persistent(l_Bool_toInt___closed__1);
+l_Bool_toInt___closed__2 = _init_l_Bool_toInt___closed__2();
+lean_mark_persistent(l_Bool_toInt___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

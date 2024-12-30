@@ -43,13 +43,13 @@ def MatcherInfo.getFirstDiscrPos (info : MatcherInfo) : Nat :=
   info.numParams + 1
 
 def MatcherInfo.getDiscrRange (info : MatcherInfo) : Std.Range :=
-  { start := info.getFirstDiscrPos, stop := info.getFirstDiscrPos + info.numDiscrs }
+  [info.getFirstDiscrPos : info.getFirstDiscrPos + info.numDiscrs]
 
 def MatcherInfo.getFirstAltPos (info : MatcherInfo) : Nat :=
   info.numParams + 1 + info.numDiscrs
 
 def MatcherInfo.getAltRange (info : MatcherInfo) : Std.Range :=
-  { start := info.getFirstAltPos, stop := info.getFirstAltPos + info.numAlts }
+  [info.getFirstAltPos : info.getFirstAltPos + info.numAlts]
 
 def MatcherInfo.getMotivePos (info : MatcherInfo) : Nat :=
   info.numParams

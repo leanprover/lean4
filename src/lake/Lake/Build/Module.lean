@@ -19,9 +19,9 @@ namespace Lake
 
 /-- Compute library directories and build external library Jobs of the given packages. -/
 def recBuildExternDynlibs (pkgs : Array Package)
-: FetchM (Array (BuildJob Dynlib) × Array FilePath) := do
+: FetchM (Array (Job Dynlib) × Array FilePath) := do
   let mut libDirs := #[]
-  let mut jobs : Array (BuildJob Dynlib) := #[]
+  let mut jobs : Array (Job Dynlib) := #[]
   for pkg in pkgs do
     libDirs := libDirs.push pkg.nativeLibDir
     jobs := jobs.append <| ← pkg.externLibs.mapM (·.dynlib.fetch)
@@ -95,7 +95,7 @@ Recursively build a module's dependencies, including:
 * Shared libraries (e.g., `extern_lib` targets or precompiled modules)
 * `extraDepTargets` of its library
 -/
-def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array FilePath)) := ensureJob do
+def Module.recBuildDeps (mod : Module) : FetchM (Job (SearchPath × Array FilePath)) := ensureJob do
   let extraDepJob ← mod.lib.extraDep.fetch
 
   /-
@@ -104,7 +104,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
   will not kill this job before the direct imports are built.
   -/
   let directImports ← mod.imports.fetch
-  let importJob ← BuildJob.mixArray <| ← directImports.mapM fun imp => do
+  let importJob := Job.mixArray <| ← directImports.mapM fun imp => do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
@@ -114,19 +114,18 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
   let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
   let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
   let (externJobs, libDirs) ← recBuildExternDynlibs pkgs.toArray
-  let externDynlibsJob ← BuildJob.collectArray externJobs
-  let modDynlibsJob ← BuildJob.collectArray modLibJobs
+  let externDynlibsJob := Job.collectArray externJobs
+  let modDynlibsJob := Job.collectArray modLibJobs
 
-  extraDepJob.bindAsync fun _ extraDepTrace => do
-  importJob.bindAsync fun _ importTrace => do
-  modDynlibsJob.bindAsync fun modDynlibs modLibTrace => do
-  return externDynlibsJob.mapWithTrace fun externDynlibs externTrace =>
-    let depTrace := extraDepTrace.mix <| importTrace
-    let depTrace :=
-      match mod.platformIndependent with
-      | none => depTrace.mix <| modLibTrace.mix <| externTrace
-      | some false => depTrace.mix <| modLibTrace.mix <| externTrace.mix <| platformTrace
-      | some true => depTrace
+  extraDepJob.bindM fun _ => do
+  importJob.bindM fun _ => do
+  let depTrace ← takeTrace
+  modDynlibsJob.bindM fun modDynlibs => do
+  externDynlibsJob.mapM fun externDynlibs => do
+    match mod.platformIndependent with
+    | none => addTrace depTrace
+    | some false => addTrace depTrace; addPlatformTrace
+    | some true => setTrace depTrace
     /-
     Requirements:
     * Lean wants the external library symbols before module symbols.
@@ -137,7 +136,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (BuildJob (SearchPath × Array F
     -/
     let dynlibPath := libDirs ++ externDynlibs.filterMap (·.dir?) |>.toList
     let dynlibs := externDynlibs.map (·.path) ++ modDynlibs.map (·.path)
-    ((dynlibPath, dynlibs), depTrace)
+    return (dynlibPath, dynlibs)
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
@@ -164,19 +163,19 @@ Recursively build a Lean module.
 Fetch its dependencies and then elaborate the Lean source file, producing
 all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
-def Module.recBuildLean (mod : Module) : FetchM (BuildJob Unit) := do
+def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
   withRegisterJob mod.name.toString do
-  (← mod.deps.fetch).bindSync fun (dynlibPath, dynlibs) depTrace => do
-    let argTrace : BuildTrace := pureHash mod.leanArgs
-    let srcTrace : BuildTrace ← computeTrace { path := mod.leanFile : TextFilePath }
-    let modTrace := (← getLeanTrace).mix <| argTrace.mix <| srcTrace.mix depTrace
-    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod modTrace mod.traceFile do
+  (← mod.deps.fetch).mapM fun (dynlibPath, dynlibs) => do
+    addLeanTrace
+    addPureTrace mod.leanArgs
+    let srcTrace ← computeTrace (TextFilePath.mk mod.leanFile)
+    addTrace srcTrace
+    let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
       compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
         (← getLeanPath) mod.rootDir dynlibs dynlibPath (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
       mod.cacheOutputHashes
-    return ((), depTrace)
 
 /-- The `ModuleFacetConfig` for the builtin `leanArtsFacet`. -/
 def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
@@ -185,34 +184,48 @@ def Module.leanArtsFacetConfig : ModuleFacetConfig leanArtsFacet :=
 /-- The `ModuleFacetConfig` for the builtin `oleanFacet`. -/
 def Module.oleanFacetConfig : ModuleFacetConfig oleanFacet :=
   mkFacetJobConfig fun mod => do
-    (← mod.leanArts.fetch).bindSync fun _ depTrace =>
-      return (mod.oleanFile, mixTrace (← fetchFileTrace mod.oleanFile) depTrace)
+    (← mod.leanArts.fetch).mapM fun _ => do
+      addTrace (← fetchFileTrace mod.oleanFile)
+      return mod.oleanFile
 
 /-- The `ModuleFacetConfig` for the builtin `ileanFacet`. -/
 def Module.ileanFacetConfig : ModuleFacetConfig ileanFacet :=
   mkFacetJobConfig fun mod => do
-    (← mod.leanArts.fetch).bindSync fun _ depTrace =>
-      return (mod.ileanFile, mixTrace (← fetchFileTrace mod.ileanFile) depTrace)
+    (← mod.leanArts.fetch).mapM fun _ => do
+      addTrace (← fetchFileTrace mod.ileanFile)
+      return mod.ileanFile
 
 /-- The `ModuleFacetConfig` for the builtin `cFacet`. -/
 def Module.cFacetConfig : ModuleFacetConfig cFacet :=
   mkFacetJobConfig fun mod => do
-    (← mod.leanArts.fetch).bindSync fun _ _ =>
-      -- do content-aware hashing so that we avoid recompiling unchanged C files
-      return (mod.cFile, ← fetchFileTrace mod.cFile)
+    (← mod.leanArts.fetch).mapM fun _ => do
+      /-
+      Avoid recompiling unchanged C files
+      C files are assumed to only depend on their content
+      and not transitively on their inputs (e.g., module sources).
+      Lean also produces LF-only C files, so no line ending normalization.
+      -/
+      setTrace (← fetchFileTrace mod.cFile)
+      addLeanTrace -- Lean C files include `lean/lean.h`
+      return mod.cFile
 
 /-- The `ModuleFacetConfig` for the builtin `bcFacet`. -/
 def Module.bcFacetConfig : ModuleFacetConfig bcFacet :=
   mkFacetJobConfig fun mod => do
-    (← mod.leanArts.fetch).bindSync fun _ _ =>
-      -- do content-aware hashing so that we avoid recompiling unchanged bitcode files
-      return (mod.bcFile, ← fetchFileTrace mod.bcFile)
+    (← mod.leanArts.fetch).mapM fun _ => do
+      /-
+      Avoid recompiling unchanged bitcode files
+      Bitcode files are assumed to only depend on their content
+      and not transitively on their inputs (e.g., module sources)
+      -/
+      setTrace (← fetchFileTrace mod.bcFile)
+      return mod.bcFile
 
 /--
 Recursively build the module's object file from its C file produced by `lean`
 with `-DLEAN_EXPORTING` set, which exports Lean symbols defined within the C files.
 -/
-def Module.recBuildLeanCToOExport (self : Module) : FetchM (BuildJob FilePath) := do
+def Module.recBuildLeanCToOExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (with exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
@@ -227,7 +240,7 @@ def Module.coExportFacetConfig : ModuleFacetConfig coExportFacet :=
 Recursively build the module's object file from its C file produced by `lean`.
 This version does not export any Lean symbols.
 -/
-def Module.recBuildLeanCToONoExport (self : Module) : FetchM (BuildJob FilePath) := do
+def Module.recBuildLeanCToONoExport (self : Module) : FetchM (Job FilePath) := do
   let suffix := if (← getIsVerbose) then " (without exports)" else ""
   withRegisterJob s!"{self.name}:c.o{suffix}" do
   -- TODO: add option to pass a target triplet for cross compilation
@@ -243,7 +256,7 @@ def Module.coFacetConfig : ModuleFacetConfig coFacet :=
     if Platform.isWindows then mod.coNoExport.fetch else mod.coExport.fetch
 
 /-- Recursively build the module's object file from its bitcode file produced by `lean`. -/
-def Module.recBuildLeanBcToO (self : Module) : FetchM (BuildJob FilePath) := do
+def Module.recBuildLeanBcToO (self : Module) : FetchM (Job FilePath) := do
   withRegisterJob s!"{self.name}:bc.o" do
   -- TODO: add option to pass a target triplet for cross compilation
   buildLeanO self.bcoFile (← self.bc.fetch) self.weakLeancArgs self.leancArgs
@@ -273,9 +286,9 @@ def Module.oFacetConfig : ModuleFacetConfig oFacet :=
     | .default | .c => mod.co.fetch
     | .llvm => mod.bco.fetch
 
--- TODO: Return `BuildJob OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
+-- TODO: Return `Job OrdModuleSet × OrdPackageSet` or `OrdRBSet Dynlib`
 /-- Recursively build the shared library of a module (e.g., for `--load-dynlib`). -/
-def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) :=
+def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
 
   -- Compute dependencies
@@ -287,27 +300,27 @@ def Module.recBuildDynlib (mod : Module) : FetchM (BuildJob Dynlib) :=
   let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
 
   -- Collect Jobs
-  let linksJob ← BuildJob.collectArray linkJobs
-  let modDynlibsJob ← BuildJob.collectArray modJobs
-  let externDynlibsJob ← BuildJob.collectArray externJobs
+  let linksJob := Job.collectArray linkJobs
+  let modDynlibsJob := Job.collectArray modJobs
+  let externDynlibsJob := Job.collectArray externJobs
 
   -- Build dynlib
-  linksJob.bindAsync fun links linksTrace => do
-  modDynlibsJob.bindAsync fun modDynlibs modLibsTrace => do
-  externDynlibsJob.bindSync fun externDynlibs externLibsTrace => do
-    let libNames := modDynlibs.map (·.name) ++ externDynlibs.map (·.name)
-    let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
-    let depTrace :=
-      linksTrace.mix <| modLibsTrace.mix <| externLibsTrace.mix
-      <| (← getLeanTrace).mix <| (pureHash mod.linkArgs).mix <|
-      platformTrace
-    let trace ← buildFileUnlessUpToDate mod.dynlibFile depTrace do
+  linksJob.bindM fun links => do
+  modDynlibsJob.bindM fun modDynlibs => do
+  externDynlibsJob.mapM fun externDynlibs => do
+    addLeanTrace
+    addPlatformTrace -- shared libraries are platform-dependent artifacts
+    addPureTrace mod.linkArgs
+    buildFileUnlessUpToDate' mod.dynlibFile do
+      let lean ← getLeanInstall
+      let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
+      let libNames := modDynlibs.map (·.name) ++ externDynlibs.map (·.name)
       let args :=
         links.map toString ++
         libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
-        mod.weakLinkArgs ++ mod.linkArgs
-      compileSharedLib mod.dynlibFile args (← getLeanc)
-    return (⟨mod.dynlibFile, mod.dynlibName⟩, trace)
+        mod.weakLinkArgs ++ mod.linkArgs ++ lean.ccLinkSharedFlags
+      compileSharedLib mod.dynlibFile args lean.cc
+    return ⟨mod.dynlibFile, mod.dynlibName⟩
 
 /-- The `ModuleFacetConfig` for the builtin `dynlibFacet`. -/
 def Module.dynlibFacetConfig : ModuleFacetConfig dynlibFacet :=

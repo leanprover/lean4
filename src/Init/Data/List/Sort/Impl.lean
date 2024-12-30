@@ -147,23 +147,21 @@ where
     mergeTR (run' r) (run l) le
 
 theorem splitRevInTwo'_fst (l : { l : List α // l.length = n }) :
-    (splitRevInTwo' l).1 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).2.1, by have := l.2; simp; omega⟩ := by
+    (splitRevInTwo' l).1 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).2.1, by simp; omega⟩ := by
   simp only [splitRevInTwo', splitRevAt_eq, reverse_take, splitInTwo_snd]
   congr
-  have := l.2
   omega
 theorem splitRevInTwo'_snd (l : { l : List α // l.length = n }) :
-    (splitRevInTwo' l).2 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).1.1.reverse, by have := l.2; simp; omega⟩ := by
+    (splitRevInTwo' l).2 = ⟨(splitInTwo ⟨l.1.reverse, by simpa using l.2⟩).1.1.reverse, by simp; omega⟩ := by
   simp only [splitRevInTwo', splitRevAt_eq, reverse_take, splitInTwo_fst, reverse_reverse]
   congr 2
-  have := l.2
   simp
   omega
 theorem splitRevInTwo_fst (l : { l : List α // l.length = n }) :
-    (splitRevInTwo l).1 = ⟨(splitInTwo l).1.1.reverse, by have := l.2; simp; omega⟩ := by
+    (splitRevInTwo l).1 = ⟨(splitInTwo l).1.1.reverse, by simp; omega⟩ := by
   simp only [splitRevInTwo, splitRevAt_eq, reverse_take, splitInTwo_fst]
 theorem splitRevInTwo_snd (l : { l : List α // l.length = n }) :
-    (splitRevInTwo l).2 = ⟨(splitInTwo l).2.1, by have := l.2; simp; omega⟩ := by
+    (splitRevInTwo l).2 = ⟨(splitInTwo l).2.1, by simp; omega⟩ := by
   simp only [splitRevInTwo, splitRevAt_eq, reverse_take, splitInTwo_snd]
 
 theorem mergeSortTR_run_eq_mergeSort : {n : Nat} → (l : { l : List α // l.length = n }) → mergeSortTR.run le l = mergeSort l.1 le

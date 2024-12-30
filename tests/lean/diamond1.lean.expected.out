@@ -14,7 +14,7 @@ fields:
   Baz.d : Nat
 constructor:
   Foo.mk {α : Type} (toBar : Bar (α → α)) (c : Bool → α) (d : Nat) : Foo α
-resolution order:
+field notation resolution order:
   Foo, Bar, Baz
 def f : Nat → Foo Nat :=
 fun x => { a := fun y => x + y, b := fun x1 x2 => x1 + x2, c := fun x_1 => x, d := x }

@@ -233,7 +233,10 @@ public:
 
     obj_res operator()(obj_arg a) {
         if (push_child(a)) {
-            return m_state.pack(a);
+            object * r = m_children.back();
+            lean_inc(r);
+            lean_dec(a);
+            return m_state.pack(r);
         }
         while (!m_todo.empty()) {
             b_obj_arg curr = m_todo.back();

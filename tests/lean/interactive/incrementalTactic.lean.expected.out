@@ -12,11 +12,12 @@ t 2
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}},
+   {"start": {"line": 4, "character": 12}, "end": {"line": 4, "character": 13}},
    "message":
    "tactic 'introN' failed, insufficient number of binders\na n : Nat\n⊢ True",
    "fullRange":
-   {"start": {"line": 4, "character": 4}, "end": {"line": 4, "character": 13}}},
+   {"start": {"line": 4, "character": 12},
+    "end": {"line": 4, "character": 13}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":

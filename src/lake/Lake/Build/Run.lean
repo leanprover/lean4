@@ -101,7 +101,7 @@ def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.si
 def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, ..} ← get
   let {totalJobs, failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, ..} ← read
-  let {task, caption, optional} := job.toJob
+  let {task, caption, optional} := job
   let {log, action, ..} := task.get.state
   let maxLv := log.maxLv
   let failed := log.hasEntries ∧ maxLv ≥ failLv
@@ -249,7 +249,7 @@ def Workspace.runFetchM
 
 /-- Run a build function in the Workspace's context and await the result. -/
 @[inline] def Workspace.runBuild
-  (ws : Workspace) (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
+  (ws : Workspace) (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : IO α := do
   let job ← ws.runFetchM build cfg
   let some a ← job.wait? | error "build failed"
@@ -257,6 +257,6 @@ def Workspace.runFetchM
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
 @[inline] def runBuild
-  (build : FetchM (BuildJob α)) (cfg : BuildConfig := {})
+  (build : FetchM (Job α)) (cfg : BuildConfig := {})
 : LakeT IO α := do
   (← getWorkspace).runBuild build cfg

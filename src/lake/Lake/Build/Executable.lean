@@ -13,7 +13,7 @@ open System (FilePath)
 The build function definition for a Lean executable.
 -/
 
-def LeanExe.recBuildExe (self : LeanExe) : FetchM (BuildJob FilePath) :=
+def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   withRegisterJob s!"{self.name}" do
   /-
   Remark: We must build the root before we fetch the transitive imports

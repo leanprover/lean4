@@ -545,10 +545,8 @@ theorem natAdd_natAdd (m n : Nat) {p : Nat} (i : Fin p) :
     natAdd m (natAdd n i) = (natAdd (m + n) i).cast (Nat.add_assoc ..) :=
   Fin.ext <| (Nat.add_assoc ..).symm
 
-@[simp]
 theorem cast_natAdd_zero {n n' : Nat} (i : Fin n) (h : 0 + n = n') :
-    (natAdd 0 i).cast h = i.cast ((Nat.zero_add _).symm.trans h) :=
-  Fin.ext <| Nat.zero_add _
+    (natAdd 0 i).cast h = i.cast ((Nat.zero_add _).symm.trans h) := by simp
 
 @[simp]
 theorem cast_natAdd (n : Nat) {m : Nat} (i : Fin m) :

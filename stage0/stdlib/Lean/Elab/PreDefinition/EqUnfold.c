@@ -48,9 +48,7 @@ extern lean_object* l_Lean_maxRecDepth;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__8;
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
-lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 extern lean_object* l_Lean_Meta_smartUnfolding;
-uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_getConstUnfoldEqnFor_x3f___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -63,6 +61,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__3(lean_o
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__2___closed__2;
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_matchesInstance___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Lean_Kernel_Environment_isDiagnosticsEnabled(lean_object*);
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__2___closed__3;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__5;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
@@ -118,6 +117,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnf
 lean_object* l_Lean_Meta_mkFreshExprSyntheticOpaqueMVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l_Lean_Meta_getConstUnfoldEqnFor_x3f___lambda__2___closed__1;
+lean_object* l_Lean_Kernel_Environment_enableDiag(lean_object*, uint8_t);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__9;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -456,7 +456,7 @@ lean_dec(x_13);
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = l_Lean_Kernel_isDiagnosticsEnabled(x_16);
+x_17 = l_Lean_Kernel_Environment_isDiagnosticsEnabled(x_16);
 lean_dec(x_16);
 if (x_17 == 0)
 {
@@ -506,7 +506,7 @@ lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean
 x_23 = lean_ctor_get(x_20, 0);
 x_24 = lean_ctor_get(x_20, 4);
 lean_dec(x_24);
-x_25 = l_Lean_Kernel_enableDiag(x_23, x_12);
+x_25 = l_Lean_Kernel_Environment_enableDiag(x_23, x_12);
 x_26 = l_Lean_Meta_tryURefl___closed__5;
 lean_ctor_set(x_20, 4, x_26);
 lean_ctor_set(x_20, 0, x_25);
@@ -536,7 +536,7 @@ lean_inc(x_33);
 lean_inc(x_32);
 lean_inc(x_31);
 lean_dec(x_20);
-x_38 = l_Lean_Kernel_enableDiag(x_31, x_12);
+x_38 = l_Lean_Kernel_Environment_enableDiag(x_31, x_12);
 x_39 = l_Lean_Meta_tryURefl___closed__5;
 x_40 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_40, 0, x_38);
@@ -1900,7 +1900,7 @@ x_2 = 1;
 x_3 = 1;
 x_4 = 0;
 x_5 = 2;
-x_6 = lean_alloc_ctor(0, 0, 18);
+x_6 = lean_alloc_ctor(0, 0, 17);
 lean_ctor_set_uint8(x_6, 0, x_1);
 lean_ctor_set_uint8(x_6, 1, x_1);
 lean_ctor_set_uint8(x_6, 2, x_1);
@@ -1911,14 +1911,13 @@ lean_ctor_set_uint8(x_6, 6, x_2);
 lean_ctor_set_uint8(x_6, 7, x_1);
 lean_ctor_set_uint8(x_6, 8, x_2);
 lean_ctor_set_uint8(x_6, 9, x_3);
-lean_ctor_set_uint8(x_6, 10, x_1);
-lean_ctor_set_uint8(x_6, 11, x_4);
+lean_ctor_set_uint8(x_6, 10, x_4);
+lean_ctor_set_uint8(x_6, 11, x_2);
 lean_ctor_set_uint8(x_6, 12, x_2);
 lean_ctor_set_uint8(x_6, 13, x_2);
-lean_ctor_set_uint8(x_6, 14, x_2);
-lean_ctor_set_uint8(x_6, 15, x_5);
+lean_ctor_set_uint8(x_6, 14, x_5);
+lean_ctor_set_uint8(x_6, 15, x_2);
 lean_ctor_set_uint8(x_6, 16, x_2);
-lean_ctor_set_uint8(x_6, 17, x_2);
 return x_6;
 }
 }
@@ -1991,25 +1990,28 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__9() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; uint64_t x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; uint64_t x_4; uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
 x_1 = lean_box(0);
-x_2 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__2;
-x_3 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__3;
-x_4 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__7;
-x_5 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__8;
-x_6 = lean_unsigned_to_nat(0u);
-x_7 = 0;
-x_8 = lean_alloc_ctor(0, 6, 10);
-lean_ctor_set(x_8, 0, x_2);
-lean_ctor_set(x_8, 1, x_4);
-lean_ctor_set(x_8, 2, x_5);
-lean_ctor_set(x_8, 3, x_1);
-lean_ctor_set(x_8, 4, x_6);
-lean_ctor_set(x_8, 5, x_1);
-lean_ctor_set_uint64(x_8, sizeof(void*)*6, x_3);
-lean_ctor_set_uint8(x_8, sizeof(void*)*6 + 8, x_7);
-lean_ctor_set_uint8(x_8, sizeof(void*)*6 + 9, x_7);
-return x_8;
+x_2 = lean_box(0);
+x_3 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__2;
+x_4 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__3;
+x_5 = 0;
+x_6 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__7;
+x_7 = l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__8;
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_alloc_ctor(0, 7, 11);
+lean_ctor_set(x_9, 0, x_3);
+lean_ctor_set(x_9, 1, x_1);
+lean_ctor_set(x_9, 2, x_6);
+lean_ctor_set(x_9, 3, x_7);
+lean_ctor_set(x_9, 4, x_2);
+lean_ctor_set(x_9, 5, x_8);
+lean_ctor_set(x_9, 6, x_2);
+lean_ctor_set_uint64(x_9, sizeof(void*)*7, x_4);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 8, x_5);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 9, x_5);
+lean_ctor_set_uint8(x_9, sizeof(void*)*7 + 10, x_5);
+return x_9;
 }
 }
 static lean_object* _init_l_Lean_Meta_initFn____x40_Lean_Elab_PreDefinition_EqUnfold___hyg_669____lambda__2___closed__10() {
@@ -2220,7 +2222,6 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
-lean_inc(x_5);
 x_12 = l_Lean_Environment_isSafeDefinition(x_11, x_5);
 if (x_12 == 0)
 {
@@ -2255,7 +2256,6 @@ lean_dec(x_7);
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
-lean_inc(x_5);
 x_20 = l_Lean_Environment_isSafeDefinition(x_19, x_5);
 if (x_20 == 0)
 {

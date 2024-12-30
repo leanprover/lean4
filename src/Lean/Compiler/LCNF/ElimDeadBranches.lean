@@ -513,7 +513,7 @@ def inferStep : InterpM Bool := do
     let currentVal ← getFunVal idx
     withReader (fun ctx => { ctx with currFnIdx := idx }) do
       decl.params.forM fun p => updateVarAssignment p.fvarId .top
-      interpCode decl.value
+      decl.value.forCodeM interpCode
     let newVal ← getFunVal idx
     if currentVal != newVal then
       return true
@@ -538,7 +538,7 @@ Use the information produced by the abstract interpreter to:
 -/
 partial def elimDead (assignment : Assignment) (decl : Decl) : CompilerM Decl := do
   trace[Compiler.elimDeadBranches] s!"Eliminating {decl.name} with {repr (← assignment.toArray |>.mapM (fun (name, val) => do return (toString (← getBinderName name), val)))}"
-  return { decl with value := (← go decl.value) }
+  return { decl with value := (← decl.value.mapCodeM go) }
 where
   go (code : Code) : CompilerM Code := do
     match code with

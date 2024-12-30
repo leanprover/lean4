@@ -566,7 +566,6 @@ theorem not_of_lt_findIdx {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
     | inl e => simpa [e, Fin.zero_eta, get_cons_zero]
     | inr e =>
       have ipm := Nat.succ_pred_eq_of_pos e
-      have ilt := Nat.le_trans ho (findIdx_le_length p)
       simp +singlePass only [← ipm, getElem_cons_succ]
       rw [← ipm, Nat.succ_lt_succ_iff] at h
       simpa using ih h

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Marc Huisinga
 -/
 prelude
 import Lean.Server.Completion.CompletionCollectors
+import Std.Data.HashMap
 
 namespace Lean.Server.Completion
 open Lsp

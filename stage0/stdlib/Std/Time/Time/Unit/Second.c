@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLtOffset___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__4;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instReprOrdinal___rarg(lean_object*, lean_object*);
@@ -49,6 +50,7 @@ lean_object* l_Int_repr(lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__3;
 lean_object* l_Std_Time_Internal_UnitVal_add___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instOffsetToString___closed__1;
+LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLtOffset(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOffsetRepr;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLeOrdinal(uint8_t);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOffsetLT;
@@ -56,11 +58,13 @@ lean_object* l___private_Std_Time_Internal_UnitVal_0__Std_Time_Internal_beqUnitV
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_ofFin(uint8_t);
 static lean_object* l_Std_Time_Second_instOffsetBEq___closed__1;
 LEAN_EXPORT lean_object* l_Std_Time_Second_Offset_ofInt___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLeOffset___boxed(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_Ordinal_toOffset___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOfNatOrdinal(uint8_t, lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__1;
 lean_object* l_Std_Time_Internal_UnitVal_sub___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLeOffset(lean_object*, lean_object*);
 static lean_object* l_Std_Time_Second_instOfNatOrdinal___closed__2;
 LEAN_EXPORT lean_object* l_Std_Time_Second_instLEOrdinal___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOfNatOffset(lean_object*);
@@ -506,6 +510,44 @@ _start:
 lean_object* x_1; 
 x_1 = l_Std_Time_Second_instOffsetToString___closed__1;
 return x_1;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLeOffset(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_int_dec_le(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLeOffset___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_Second_instDecidableLeOffset(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l_Std_Time_Second_instDecidableLtOffset(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; 
+x_3 = lean_int_dec_lt(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Time_Second_instDecidableLtOffset___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Std_Time_Second_instDecidableLtOffset(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Std_Time_Second_instOfNatOffset(lean_object* x_1) {

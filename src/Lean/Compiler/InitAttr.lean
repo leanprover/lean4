@@ -146,11 +146,10 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
                                      safety := DefinitionSafety.safe }
   try
     addAndCompile decl
-  catch e =>
+  catch e => do
     -- TODO: pretty print error
     let msg ← e.toMessageData.toString
     throwError "failed to emit registration code for builtin '{forDecl}': {msg}"
-  let env ← getEnv
-  IO.ofExcept (setBuiltinInitAttr env name) >>= setEnv
+  IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
 
 end Lean

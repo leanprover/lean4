@@ -141,18 +141,6 @@ structure Config where
     Controls which definitions and theorems can be unfolded by `isDefEq` and `whnf`.
    -/
   transparency       : TransparencyMode := TransparencyMode.default
-  /--
-  When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
-  That is, suppose the local context contains
-  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaDeltaFVarIds`.
-  We use `trackZetaDelta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
-  When we find these declarations we set their `nonDep` flag with `true`.
-  To find these let-declarations in a given term `s`, we
-  1- Reset `State.zetaDeltaFVarIds`
-  2- Set `trackZetaDelta := true`
-  3- Type-check `s`.
-  -/
-  trackZetaDelta     : Bool := false
   /-- Eta for structures configuration mode. -/
   etaStruct          : EtaStructMode := .all
   /--
@@ -187,7 +175,7 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
-  deriving Inhabited
+  deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
@@ -419,7 +407,7 @@ structure Diagnostics where
 structure State where
   mctx             : MetavarContext := {}
   cache            : Cache := {}
-  /-- When `trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
+  /-- When `Context.trackZetaDelta == true`, then any let-decl free variable that is zetaDelta-expanded by `MetaM` is stored in `zetaDeltaFVarIds`. -/
   zetaDeltaFVarIds : FVarIdSet := {}
   /-- Array of postponed universe level constraints -/
   postponed        : PersistentArray PostponedEntry := {}
@@ -445,6 +433,28 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 structure Context where
   private config    : Config               := {}
   private configKey : UInt64               := config.toKey
+  /--
+  When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
+  That is, suppose the local context contains
+  the declaration `x : t := v`, and we reduce `x` to `v`, then we insert `x` into `State.zetaDeltaFVarIds`.
+  We use `trackZetaDelta` to discover which let-declarations `let x := v; e` can be represented as `(fun x => e) v`.
+  When we find these declarations we set their `nonDep` flag with `true`.
+  To find these let-declarations in a given term `s`, we
+  1- Reset `State.zetaDeltaFVarIds`
+  2- Set `trackZetaDelta := true`
+  3- Type-check `s`.
+
+  Note that, we do not include this field in the `Config` structure because this field is not
+  taken into account while caching results. See also field `zetaDeltaSet`.
+  -/
+  trackZetaDelta     : Bool := false
+  /--
+  If `config.zetaDelta := false`, we may select specific local declarations to be unfolded using
+  the field `zetaDeltaSet`. Note that, we do not include this field in the `Config` structure
+  because this field is not taken into account while caching results.
+  Moreover, we reset all caches whenever setting it.
+  -/
+  zetaDeltaSet : FVarIdSet := {}
   /-- Local context -/
   lctx              : LocalContext         := {}
   /-- Local instances in `lctx`. -/
@@ -594,6 +604,9 @@ variable [MonadControlT MetaM n] [Monad n]
 
 @[inline] def modifyCache (f : Cache → Cache) : MetaM Unit :=
   modify fun { mctx, cache, zetaDeltaFVarIds, postponed, diag } => { mctx, cache := f cache, zetaDeltaFVarIds, postponed, diag }
+
+def resetCache : MetaM Unit :=
+  modifyCache fun _ => {}
 
 @[inline] def modifyInferTypeCache (f : InferTypeCache → InferTypeCache) : MetaM Unit :=
   modifyCache fun ⟨ic, c1, c2, c3, c4, c5⟩ => ⟨f ic, c1, c2, c3, c4, c5⟩
@@ -1086,11 +1099,42 @@ def elimMVarDeps (xs : Array Expr) (e : Expr) (preserveOrder : Bool := false) : 
 @[inline] def withInTypeClassResolution : n α → n α :=
   mapMetaM <| withReader (fun ctx => { ctx with inTypeClassResolution := true })
 
+@[inline] def withFreshCache : n α → n α :=
+  mapMetaM fun x => do
+    let cacheSaved := (← get).cache
+    modify fun s => { s with cache := {} }
+    try
+      x
+    finally
+      modify fun s => { s with cache := cacheSaved }
+
 /--
 Executes `x` tracking zetaDelta reductions `Config.trackZetaDelta := true`
 -/
-@[inline] def withTrackingZetaDelta (x : n α) : n α :=
-  withConfig (fun cfg => { cfg with trackZetaDelta := true }) x
+@[inline] def withTrackingZetaDelta : n α → n α :=
+  mapMetaM fun x =>
+    withFreshCache <| withReader (fun ctx => { ctx with trackZetaDelta := true }) x
+
+/--
+`withZetaDeltaSet s x` executes `x` with `zetaDeltaSet := s`.
+The cache is reset while executing `x` if `s` is not empty.
+-/
+def withZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s }) x
+
+/--
+Similar to `withZetaDeltaSet`, but also enables `withTrackingZetaDelta` if `s` is not empty.
+-/
+def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
+  mapMetaM fun x =>
+    if s.isEmpty then
+      x
+    else
+      withFreshCache <| withReader (fun ctx => { ctx with zetaDeltaSet := s, trackZetaDelta := true }) x
 
 @[inline] def withoutProofIrrelevance (x : n α) : n α :=
   withConfig (fun cfg => { cfg with proofIrrelevance := false }) x
@@ -1736,9 +1780,9 @@ private def withMVarContextImp (mvarId : MVarId) (x : MetaM α) : MetaM α := do
   withLocalContextImp mvarDecl.lctx mvarDecl.localInstances x
 
 /--
-  Execute `x` using the given metavariable `LocalContext` and `LocalInstances`.
-  The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
-  different from the current ones. -/
+Executes `x` using the given metavariable `LocalContext` and `LocalInstances`.
+The type class resolution cache is flushed when executing `x` if its `LocalInstances` are
+different from the current ones. -/
 def _root_.Lean.MVarId.withContext (mvarId : MVarId) : n α → n α :=
   mapMetaM <| withMVarContextImp mvarId
 
@@ -1748,12 +1792,24 @@ private def withMCtxImp (mctx : MetavarContext) (x : MetaM α) : MetaM α := do
   try x finally setMCtx mctx'
 
 /--
-  `withMCtx mctx k` replaces the metavariable context and then executes `k`.
-  The metavariable context is restored after executing `k`.
+`withMCtx mctx k` replaces the metavariable context and then executes `k`.
+The metavariable context is restored after executing `k`.
 
-  This method is used to implement the type class resolution procedure. -/
+This method is used to implement the type class resolution procedure. -/
 def withMCtx (mctx : MetavarContext) : n α → n α :=
   mapMetaM <| withMCtxImp mctx
+
+/--
+`withoutModifyingMCtx k` executes `k` and then restores the metavariable context.
+-/
+def withoutModifyingMCtx : n α → n α :=
+  mapMetaM fun x => do
+    let mctx ← getMCtx
+    try
+      x
+    finally
+      resetCache
+      setMCtx mctx
 
 @[inline] private def approxDefEqImp (x : MetaM α) : MetaM α :=
   withConfig (fun config => { config with foApprox := true, ctxApprox := true, quasiPatternApprox := true}) x
@@ -1908,15 +1964,22 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 
 end Methods
 
+/--
+Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
+That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
+  match (← getEnv).find? declName with
+  | some (.inductInfo info) =>
+    forallTelescopeReducing info.type fun _ type => do
+      match (← whnfD type) with
+      | .sort u .. => if u == levelZero then return some info else return none
+      | _ => return none
+  | _ => return none
+
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
 def isInductivePredicate (declName : Name) : MetaM Bool := do
-  match (← getEnv).find? declName with
-  | some (.inductInfo { type := type, ..}) =>
-    forallTelescopeReducing type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => return u == levelZero
-      | _ => return false
-  | _ => return false
+  return (← isInductivePredicate? declName).isSome
 
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true

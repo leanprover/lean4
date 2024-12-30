@@ -84,10 +84,14 @@ theorem head?_range' (n : Nat) : (range' s n).head? = if n = 0 then none else so
 @[simp] theorem head_range' (n : Nat) (h) : (range' s n).head h = s := by
   repeat simp_all [head?_range', head_eq_iff_head?_eq_some]
 
-@[simp]
 theorem map_add_range' (a) : ∀ s n step, map (a + ·) (range' s n step) = range' (a + s) n step
   | _, 0, _ => rfl
   | s, n + 1, step => by simp [range', map_add_range' _ (s + step) n step, Nat.add_assoc]
+
+theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
+  apply ext_getElem
+  · simp
+  · simp [Nat.add_right_comm]
 
 theorem range'_append : ∀ s m n step : Nat,
     range' s m step ++ range' (s + step * m) n step = range' s (n + m) step

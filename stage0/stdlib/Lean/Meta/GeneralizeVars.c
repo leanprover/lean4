@@ -16518,7 +16518,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; 
 lean_dec(x_10);
-x_13 = lean_ctor_get(x_4, 1);
+x_13 = lean_ctor_get(x_4, 2);
 x_14 = lean_ctor_get(x_13, 1);
 x_15 = l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_getFVarSetToGeneralize___spec__2___at_Lean_Meta_getFVarSetToGeneralize___spec__10___closed__1;
 x_16 = l_Lean_Meta_getFVarSetToGeneralize___closed__1;
@@ -16554,7 +16554,7 @@ return x_24;
 else
 {
 lean_object* x_25; lean_object* x_26; uint8_t x_27; 
-x_25 = lean_ctor_get(x_4, 1);
+x_25 = lean_ctor_get(x_4, 2);
 x_26 = lean_ctor_get(x_25, 1);
 x_27 = lean_nat_dec_le(x_10, x_10);
 if (x_27 == 0)

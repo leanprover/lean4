@@ -16,7 +16,7 @@ open Meta
 def mkCasesOn (declName : Name) : MetaM Unit := do
   let name := mkCasesOnName declName
   -- can use unchecked as `addDecl` will check the result
-  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv).toKernelEnvUnchecked declName)
+  let decl ← ofExceptKernelException (mkCasesOnImp (← getEnv).toKernelEnv declName)
   addDecl decl
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name

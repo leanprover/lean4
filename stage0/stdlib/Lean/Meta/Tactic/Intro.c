@@ -1284,7 +1284,7 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = lean_ctor_get(x_6, 1);
+x_16 = lean_ctor_get(x_6, 2);
 lean_inc(x_16);
 x_17 = l___private_Lean_Meta_Tactic_Intro_0__Lean_Meta_introNImp___rarg___lambda__1___closed__1;
 x_18 = lean_unsigned_to_nat(0u);
@@ -1620,7 +1620,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshBinderNameForTactic(lean_object* x_1
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_2, 1);
+x_7 = lean_ctor_get(x_2, 2);
 x_8 = lean_ctor_get(x_4, 2);
 x_9 = l_Lean_Meta_mkFreshBinderNameForTactic___closed__1;
 x_10 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_8, x_9);

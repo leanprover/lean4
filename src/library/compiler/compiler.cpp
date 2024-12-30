@@ -52,7 +52,7 @@ static comp_decls to_comp_decls(elab_environment const & env, names const & cs) 
 }
 
 static expr eta_expand(elab_environment const & env, expr const & e) {
-    return type_checker(env.to_kernel_env_no_async()).eta_expand(e);
+    return type_checker(env.to_kernel_env()).eta_expand(e);
 }
 
 template<typename F>

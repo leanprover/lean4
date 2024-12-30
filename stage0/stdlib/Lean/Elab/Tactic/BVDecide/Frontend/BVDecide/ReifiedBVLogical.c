@@ -897,7 +897,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("imp_congr", 9, 9);
+x_1 = lean_mk_string_unchecked("or_congr", 8, 8);
 return x_1;
 }
 }
@@ -1422,7 +1422,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("imp", 3, 3);
+x_1 = lean_mk_string_unchecked("or", 2, 2);
 return x_1;
 }
 }
@@ -1932,7 +1932,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVLogical_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ite_congr", 9, 9);
+x_1 = lean_mk_string_unchecked("cond_congr", 10, 10);
 return x_1;
 }
 }

@@ -16,3 +16,4 @@ import Lean.Elab.Deriving.FromToJson
 import Lean.Elab.Deriving.SizeOf
 import Lean.Elab.Deriving.Hashable
 import Lean.Elab.Deriving.Ord
+import Lean.Elab.Deriving.ToExpr

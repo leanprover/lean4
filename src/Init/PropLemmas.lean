@@ -362,6 +362,10 @@ theorem exists_prop' {p : Prop} : (∃ _ : α, p) ↔ Nonempty α ∧ p :=
 @[simp] theorem exists_prop : (∃ _h : a, b) ↔ a ∧ b :=
   ⟨fun ⟨hp, hq⟩ => ⟨hp, hq⟩, fun ⟨hp, hq⟩ => ⟨hp, hq⟩⟩
 
+@[simp] theorem exists_idem {P : Prop} (f : P → P → Sort _) :
+    (∃ (p₁ : P), ∃ (p₂ : P), f p₁ p₂) ↔ ∃ (p : P), f p p :=
+  ⟨fun ⟨p, _, h⟩ => ⟨p, h⟩, fun ⟨p, h⟩ => ⟨p, p, h⟩⟩
+
 @[simp] theorem exists_apply_eq_apply (f : α → β) (a' : α) : ∃ a, f a = f a' := ⟨a', rfl⟩
 
 theorem forall_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (∀ h' : p, q h') ↔ q h :=
@@ -385,6 +389,15 @@ theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p 
 
 theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : p, q h') ↔ True :=
   iff_true_intro fun h => hn.elim h
+
+@[simp] theorem and_exists_self (P : Prop) (Q : P → Prop) : (P ∧ ∃ p, Q p) ↔ ∃ p, Q p :=
+  ⟨fun ⟨_, h⟩ => h, fun ⟨p, q⟩ => ⟨p, ⟨p, q⟩⟩⟩
+
+@[simp] theorem exists_and_self (P : Prop) (Q : P → Prop) : ((∃ p, Q p) ∧ P) ↔ ∃ p, Q p :=
+  ⟨fun ⟨h, _⟩ => h, fun ⟨p, q⟩ => ⟨⟨p, q⟩, p⟩⟩
+
+@[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
+  ⟨fun h p => h p p, fun h _ p => h p⟩
 
 end quantifiers
 

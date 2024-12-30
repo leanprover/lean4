@@ -220,15 +220,12 @@ where
         .rotateRight
         ``BVUnOp.rotateRight
         ``Std.Tactic.BVDecide.Reflect.BitVec.rotateRight_congr
-    | ite _ discrExpr _ lhsExpr rhsExpr =>
-      let_expr Eq α discrExpr val := discrExpr | return none
-      let_expr Bool := α | return none
-      let_expr Bool.true := val | return none
+    | cond _ discrExpr lhsExpr rhsExpr =>
       let some atom ← ReifiedBVExpr.bitVecAtom x true | return none
       let some discr ← ReifiedBVLogical.of discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none
-      addIfLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
+      addCondLemmas discr atom lhs rhs discrExpr x lhsExpr rhsExpr
       return some atom
     | _ => return none
 
@@ -392,10 +389,7 @@ where
       | Bool => gateReflection lhsExpr rhsExpr .beq
       | BitVec _ => goPred t
       | _ => return none
-    | ite _ discrExpr _ lhsExpr rhsExpr =>
-      let_expr Eq α discrExpr val := discrExpr | return none
-      let_expr Bool := α | return none
-      let_expr Bool.true := val | return none
+    | cond _ discrExpr lhsExpr rhsExpr =>
       let some discr ← goOrAtom discrExpr | return none
       let some lhs ← goOrAtom lhsExpr | return none
       let some rhs ← goOrAtom rhsExpr | return none

@@ -21,10 +21,10 @@ public:
     elab_environment & operator=(elab_environment && other) { object_ref::operator=(other); return *this; }
 
     /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
-    optional<constant_info> find(name const & n) const { return to_kernel_env_no_async().find(n); };
+    optional<constant_info> find(name const & n) const { return to_kernel_env().find(n); };
 
     /** \brief Return information for the constant with name \c n. Throws and exception if constant declaration does not exist in this environment. */
-    constant_info get(name const & n) const { return to_kernel_env_no_async().get(n); };
+    constant_info get(name const & n) const { return to_kernel_env().get(n); };
 
     /** \brief Extends the current environment with the given declaration */
     elab_environment add(declaration const & d, bool check = true) const;
@@ -36,10 +36,9 @@ public:
 
     void display_stats() const;
 
-    environment to_kernel_env_unchecked() const;
-    environment to_kernel_env_no_async() const;
+    environment to_kernel_env() const;
 
     // TODO: delete together with old compiler
-    operator environment() const { return to_kernel_env_no_async(); }
+    operator environment() const { return to_kernel_env(); }
 };
 }

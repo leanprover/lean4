@@ -110,7 +110,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
+    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
@@ -142,7 +142,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker (hasInduct := true)
   for preDef in preDefs do
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.MissingDocs
-// Imports: Lean.Meta.Tactic.Simp.RegisterCommand Lean.Elab.Command Lean.Elab.SetOption Lean.Linter.Util
+// Imports: Lean.Parser.Syntax Lean.Meta.Tactic.Simp.RegisterCommand Lean.Elab.Command Lean.Elab.SetOption Lean.Linter.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -102,7 +102,7 @@ static lean_object* l_Lean_Linter_MissingDocs_missingDocs___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_mkSimpleHandler___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_checkSyntax(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Linter_MissingDocs_checkDecl___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_logLint___at_Lean_Linter_MissingDocs_lint___spec__1___closed__2;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____lambda__2___closed__1;
 static lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____closed__14;
@@ -815,9 +815,8 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
 lean_dec(x_2);
-lean_inc(x_1);
 lean_inc(x_4);
-x_6 = lean_environment_find(x_4, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_4, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -8777,6 +8776,7 @@ x_4 = l_Lean_Linter_MissingDocs_addBuiltinHandler(x_2, x_3, x_1);
 return x_4;
 }
 }
+lean_object* initialize_Lean_Parser_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_RegisterCommand(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
@@ -8786,6 +8786,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_MissingDocs(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Parser_Syntax(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_RegisterCommand(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

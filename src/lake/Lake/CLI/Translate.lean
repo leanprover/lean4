@@ -9,7 +9,6 @@ import Lake.Config.Package
 import Lake.CLI.Translate.Toml
 import Lake.CLI.Translate.Lean
 import Lake.Load.Lean.Elab
-import Lean.PrettyPrinter
 
 namespace Lake
 open Toml Lean System PrettyPrinter

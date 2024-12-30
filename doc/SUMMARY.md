@@ -13,61 +13,13 @@
   - [The Well-Typed Interpreter](examples/interp.lean.md)
   - [Dependent de Bruijn Indices](examples/deBruijn.lean.md)
   - [Parametric Higher-Order Abstract Syntax](examples/phoas.lean.md)
-
-# Language Manual
-<!-- - [Using Lean](./using_lean.md) -->
-<!-- - [Lexical Structure](./lexical_structure.md) -->
-<!-- - [Expressions](./expressions.md) -->
-<!-- - [Declarations](./declarations.md) -->
-- [Organizational features](./organization.md)
-  - [Sections](./sections.md)
-  - [Namespaces](./namespaces.md)
-  - [Implicit Arguments](./implicit.md)
-  - [Auto Bound Implicit Arguments](./autobound.md)
-<!-- - [Dependent Types](./deptypes.md) -->
-<!--   - [Simple Type Theory](./simptypes.md) -->
-<!--   - [Types as objects](./typeobjs.md) -->
-<!--   - [Function Abstraction and Evaluation](./funabst.md) -->
-<!--   - [Introducing Definitions](./introdef.md) -->
-<!--   - [What makes dependent type theory dependent?](./dep.md) -->
-<!-- - [Tactics](./tactics.md) -->
-- [Syntax Extensions](./syntax.md)
-  - [The `do` Notation](./do.md)
-  - [String Interpolation](./stringinterp.md)
-  - [User-Defined Notation](./notation.md)
-  - [Macro Overview](./macro_overview.md)
-  - [Elaborators](./elaborators.md)
-  - [Examples](./syntax_examples.md)
+  - [Syntax Examples](./syntax_examples.md)
     - [Balanced Parentheses](./syntax_example.md)
     - [Arithmetic DSL](./metaprogramming-arith.md)
-- [Declaring New Types](./decltypes.md)
-  - [Enumerated Types](./enum.md)
-  - [Inductive Types](./inductive.md)
-  - [Structures](./struct.md)
-  - [Type classes](./typeclass.md)
-  - [Unification Hints](./unifhint.md)
-- [Builtin Types](./builtintypes.md)
-  - [Natural number](./nat.md)
-  - [Integer](./int.md)
-  - [Fixed precision unsigned integer](./uint.md)
-  - [Float](./float.md)
-  - [Array](./array.md)
-  - [List](./list.md)
-  - [Character](./char.md)
-  - [String](./string.md)
-  - [Option](./option.md)
-  - [Thunk](./thunk.md)
-  - [Task and Thread](./task.md)
-- [Functions](./functions.md)
-- [Monads](./monads/intro.md)
-  - [Functor](./monads/functors.lean.md)
-  - [Applicative](./monads/applicatives.lean.md)
-  - [Monad](./monads/monads.lean.md)
-  - [Reader](./monads/readers.lean.md)
-  - [State](./monads/states.lean.md)
-  - [Except](./monads/except.lean.md)
-  - [Transformers](./monads/transformers.lean.md)
-  - [Laws](./monads/laws.lean.md)
+
+# Language Manual
+
+- [The Lean Reference Manual](./reference.md)
 
 # Other
 

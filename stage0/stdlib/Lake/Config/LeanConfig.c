@@ -130,6 +130,7 @@ LEAN_EXPORT lean_object* l_Lake_Backend_noConfusion___rarg(uint8_t, uint8_t, lea
 static lean_object* l_Lake_BuildType_ofString_x3f___closed__3;
 LEAN_EXPORT lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1183_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Option_repr___at___private_Lake_Config_LeanConfig_0__Lake_reprLeanConfig____x40_Lake_Config_LeanConfig___hyg_1183____spec__2(lean_object*, lean_object*);
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_18____closed__14;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBuildType____x40_Lake_Config_LeanConfig___hyg_18____closed__17;
 static lean_object* l_Lake_BuildType_ofString_x3f___closed__6;
@@ -178,7 +179,6 @@ LEAN_EXPORT lean_object* l_Lake_instReprBackend;
 LEAN_EXPORT lean_object* l_Lake_BuildType_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprLeanOption____x40_Lake_Config_LeanConfig___hyg_923____closed__15;
 static lean_object* l___private_Lake_Config_LeanConfig_0__Lake_reprBackend____x40_Lake_Config_LeanConfig___hyg_411____closed__1;
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildType_ofNat___boxed(lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lake_Config_LeanConfig_0__Lake_ordBuildType____x40_Lake_Config_LeanConfig___hyg_265_(uint8_t, uint8_t);
@@ -981,7 +981,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdBuildType;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -1012,7 +1012,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdBuildType;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;

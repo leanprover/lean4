@@ -58,7 +58,7 @@ def mkToTypeExpr (indVal : InductiveVal) (argNames : Array Name) : TermElabM Ter
         args := args.push <| ← ``(toTypeExpr $a)
       else
         args := args.push <| ← ``(toExpr $a)
-    mkAppNTerm (← ``((Expr.const $(quote indVal.name) [$levels,*]))) args
+    mkAppNTerm (← ``(Expr.const $(quote indVal.name) [$levels,*])) args
 
 /--
 Creates the body of the `toExpr` function for the `ToExpr` instance, which is a `match` expression
@@ -129,9 +129,10 @@ def mkLocalInstanceLetDecls (ctx : Deriving.Context) (argNames : Array Name) (le
     let indType      ← mkInductiveApp indVal argNamesNew
     let instName     ← mkFreshUserName `localinst
     let toTypeExpr   ← mkToTypeExpr indVal argNames
-    -- Recall that mutually inductive types all use the same universe levels.
+    -- Recall that mutually inductive types all use the same universe levels, hence we pass the same ToLevel instances to each aux function.
     let letDecl      ← `(Parser.Term.letDecl| $(mkIdent instName):ident $binders:implicitBinder* : ToExpr $indType :=
-                          { toExpr := $(mkIdent auxFunName) $levelInsts*, toTypeExpr := $toTypeExpr })
+                          { toExpr     := $(mkIdent auxFunName) $levelInsts*,
+                            toTypeExpr := $toTypeExpr })
     letDecls := letDecls.push letDecl
   return letDecls
 
@@ -147,15 +148,20 @@ def mkAuxFunction (ctx : Deriving.Context) (i : Nat) : TermElabM Command := do
   let auxFunName := ctx.auxFunNames[i]!
   let indVal     := ctx.typeInfos[i]!
   let header     ← mkHeader ``ToExpr 1 indVal
+  /- We make the `ToLevel` instances be explicit here so that we can pass the instances from the instances to the
+     aux functions. This lets us ensure universe level variables are being lined up,
+     without needing to use `ident.{u₁,…,uₙ}` syntax, which could conditionally be incorrect
+     depending on the ambient CommandElabM scope state.
+     TODO(kmill): deriving handlers should run in a scope with no `universes` or `variables`. -/
   let (toLevelInsts, levelBinders) := Array.unzip <| ← indVal.levelParams.toArray.mapM fun u => do
     let inst := mkIdent (← mkFreshUserName `inst)
     return (inst, ← `(explicitBinderF| ($inst : ToLevel.{$(mkIdent u)})))
-  let mut body   ← mkToExprBody header indVal auxFunName toLevelInsts
+  let mut body ← mkToExprBody header indVal auxFunName toLevelInsts
   if ctx.usePartial then
     let letDecls ← mkLocalInstanceLetDecls ctx header.argNames toLevelInsts
     body ← mkLet letDecls body
-  -- We need to alter the last binder (the one for the "target") to have explicit universe levels
-  -- so that the `ToLevel` instance arguments can use them.
+  /- We need to alter the last binder (the one for the "target") to have explicit universe levels
+     so that the `ToLevel` instance arguments can use them. -/
   let addLevels binder :=
     match binder with
     | `(bracketedBinderF| ($a : $ty)) => do `(bracketedBinderF| ($a : $(← updateIndType indVal ty)))
@@ -217,7 +223,7 @@ The main entry point to the `ToExpr` deriving handler.
 def mkToExprInstanceHandler (declNames : Array Name) : CommandElabM Bool := do
   if (← declNames.allM isInductive) && declNames.size > 0 then
     let cmds ← withFreshMacroScope <| liftTermElabM <| mkToExprInstanceCmds declNames
-    -- Enable autoimplicits for universe levels.
+    -- Enable autoimplicits, used for universe levels.
     withScope (fun scope => { scope with opts := autoImplicit.set scope.opts true }) do
       elabCommand (mkNullNode cmds)
     return true

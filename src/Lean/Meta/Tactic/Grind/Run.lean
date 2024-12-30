@@ -46,7 +46,8 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
 def mkGoal (mvarId : MVarId) : GrindM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
-  GoalM.run' { mvarId } do
+  let thmMap ← getEMatchTheorems
+  GoalM.run' { mvarId, thmMap } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
 

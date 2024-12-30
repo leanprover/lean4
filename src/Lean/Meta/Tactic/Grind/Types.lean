@@ -465,6 +465,10 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
+/-- Returns `true` is `e` is the root of its congruence class. -/
+def isCongrRoot (e : Expr) : GoalM Bool := do
+  return isSameExpr e (← getENode e).cgRoot
+
 /-- Return `true` if the goal is inconsistent. -/
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent

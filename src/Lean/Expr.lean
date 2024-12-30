@@ -642,7 +642,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId
@@ -771,6 +771,11 @@ opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 /-- A total order for expressions that takes the structure into account (e.g., variable names). -/
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
+
+def quickComp (a b : Expr) : Ordering :=
+  if quickLt a b then .lt
+  else if quickLt b a then .gt
+  else .eq
 
 /--
 Return true iff `a` and `b` are alpha equivalent.
@@ -1238,6 +1243,9 @@ def getRevArg!' : Expr → Nat → Expr
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Return `true` if `e` contains any loose bound variables.
+
+This is a constant time operation. -/
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
@@ -1250,6 +1258,11 @@ def isArrow (e : Expr) : Bool :=
   | forallE _ _ b _ => !b.hasLooseBVars
   | _ => false
 
+/--
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
+
+This operation traverses the expression tree.
+-/
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
@@ -1637,6 +1650,23 @@ def isFalse (e : Expr) : Bool :=
 
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
+
+/--
+`getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
+and performs pending beta reductions. It does **not** use whnf.
+Examples:
+- If `a` is `Nat`, `getForallArity a` returns `0`
+- If `a` is `Nat → Bool`, `getForallArity a` returns `1`
+-/
+partial def getForallArity : Expr → Nat
+  | .mdata _ b       => getForallArity b
+  | .forallE _ _ b _ => getForallArity b + 1
+  | e                =>
+    if e.isHeadBetaTarget then
+      getForallArity e.headBeta
+    else
+      let e' := e.cleanupAnnotations
+      if e != e' then getForallArity e' else 0
 
 /--
 Checks if an expression is a "natural number numeral in normal form",

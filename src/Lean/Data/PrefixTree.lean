@@ -48,6 +48,7 @@ partial def find? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k :
       | some t => loop t ks
   loop t k
 
+/-- Returns the the value of the longest key in `t` that is a prefix of `k`, if any. -/
 @[specialize]
 partial def findLongestPrefix? (t : PrefixTreeNode α β) (cmp : α → α → Ordering) (k : List α) : Option β :=
   let rec loop acc?
@@ -102,7 +103,7 @@ def PrefixTree.insert (t : PrefixTree α β p) (k : List α) (v : β) : PrefixTr
 def PrefixTree.find? (t : PrefixTree α β p) (k : List α) : Option β :=
   t.val.find? p k
 
-@[inline]
+@[inline, inherit_doc PrefixTreeNode.findLongestPrefix?]
 def PrefixTree.findLongestPrefix? (t : PrefixTree α β p) (k : List α) : Option β :=
   t.val.findLongestPrefix? p k
 

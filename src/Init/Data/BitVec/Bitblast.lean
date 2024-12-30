@@ -462,7 +462,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
       case true =>
         apply hmin
         apply eq_of_getMsbD_eq
-        rintro ⟨i, hi⟩
+        intro i hi
         simp only [getMsbD_intMin, w_pos, decide_true, Bool.true_and]
         cases i
         case zero => exact hmsb
@@ -470,7 +470,7 @@ theorem msb_neg {w : Nat} {x : BitVec w} :
       case false =>
         apply hzero
         apply eq_of_getMsbD_eq
-        rintro ⟨i, hi⟩
+        intro i hi
         simp only [getMsbD_zero]
         cases i
         case zero => exact hmsb
@@ -573,11 +573,11 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) + (x &&& twoPow w i) := by
   rw [add_eq_or_of_and_eq_zero]
-  · ext k
-    simp only [getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
+  · ext k h
+    simp only [getLsbD_setWidth, h, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
     by_cases hik : i = k
     · subst hik
-      simp
+      simp [h]
     · simp only [getLsbD_twoPow, hik, decide_false, Bool.and_false, Bool.or_false]
       by_cases hik' : k < (i + 1)
       · have hik'' : k < i := by omega
@@ -626,6 +626,13 @@ abbrev mulRec_eq_mul_signExtend_truncate := @mulRec_eq_mul_signExtend_setWidth
 
 theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
     (x * y).getLsbD i = (mulRec x y w).getLsbD i := by
+  simp only [mulRec_eq_mul_signExtend_setWidth]
+  rw [setWidth_setWidth_of_le]
+  · simp
+  · omega
+
+theorem getMsbD_mul (x y : BitVec w) (i : Nat) :
+    (x * y).getMsbD i = (mulRec x y w).getMsbD i := by
   simp only [mulRec_eq_mul_signExtend_setWidth]
   rw [setWidth_setWidth_of_le]
   · simp
@@ -1083,6 +1090,21 @@ theorem divRec_succ' (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
       }
     divRec m args input := by
   simp [divRec_succ, divSubtractShift]
+
+theorem getElem_udiv (n d : BitVec w) (hy : 0#w < d) (i : Nat) (hi : i < w) :
+    (n / d)[i] = (divRec w {n, d} (DivModState.init w)).q[i] := by
+  rw [udiv_eq_divRec (by assumption)]
+
+theorem getLsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
+    (n / d).getLsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getLsbD i) := by
+  by_cases hi : i < w
+  · simp [udiv_eq_divRec (by assumption)]
+    omega
+  · simp_all
+
+theorem getMsbD_udiv (n d : BitVec w) (hd : 0#w < d)  (i : Nat) :
+    (n / d).getMsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getMsbD i) := by
+  simp [getMsbD_eq_getLsbD, getLsbD_udiv, udiv_eq_divRec (by assumption)]
 
 /- ### Arithmetic shift right (sshiftRight) recurrence -/
 

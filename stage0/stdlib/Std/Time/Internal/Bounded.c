@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Time.Internal.Bounded
-// Imports: Init.Data.Int
+// Imports: Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1938,13 +1938,13 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init_Data_Int(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Omega(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Time_Internal_Bounded(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Int(builtin, lean_io_mk_world());
+res = initialize_Init_Omega(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_Time_Internal_Bounded_instRepr___rarg___closed__1 = _init_l_Std_Time_Internal_Bounded_instRepr___rarg___closed__1();

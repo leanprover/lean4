@@ -12892,7 +12892,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_sorry_docString__1___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("A temporary placeholder for a missing proof or value. ", 54, 54);
+x_1 = lean_mk_string_unchecked("The `sorry` term is a temporary placeholder for a missing proof or value.\n\nThe syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.\nLean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,\nbut you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output\nof the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.\n\n\"Go to definition\" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.\n\nEach `sorry` is guaranteed to be unique, so for example the following fails:\n```lean\nexample : (sorry : Nat) = sorry := rfl -- fails\n```\n\nSee also the `sorry` tactic, which is short for `exact sorry`.\n", 827, 827);
 return x_1;
 }
 }

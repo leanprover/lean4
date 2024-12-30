@@ -124,9 +124,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
-  | Except.ok env   => setEnv env
-  | Except.error ex => throwError (ex.toMessageData (← getEnv) (← getOptions))
+  liftCoreM <| addDecl Declaration.quotDecl
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax
@@ -294,7 +292,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     modify fun s => { s with messages := {} };
     pure messages
   let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do
-    modify fun s => { s with messages := prevMessages ++ s.messages.errorsToWarnings }
+    modify fun s => { s with messages := prevMessages ++ s.messages.errorsToInfos }
   let prevMessages ← resetMessages
   let succeeded ← try
     x

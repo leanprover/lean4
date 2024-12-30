@@ -89,11 +89,11 @@ def ofExcept [Monad m] [MonadError m] [ToMessageData ε] (x : Except ε α) : m 
 /--
 Throw an error exception for the given kernel exception.
 -/
-def throwKernelException [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] (ex : Kernel.Exception) : m α := do
-  Lean.throwError <| ex.toMessageData (← getEnv) (← getOptions)
+def throwKernelException [Monad m] [MonadError m] [MonadOptions m] (ex : Kernel.Exception) : m α := do
+  Lean.throwError <| ex.toMessageData (← getOptions)
 
-/-- Lift from `Except Kernel.Exception` to `m` when `m` can throw kernel exceptions. -/
-def ofExceptKernelException [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] (x : Except Kernel.Exception α) : m α :=
+/-- Lift from `Except KernelException` to `m` when `m` can throw kernel exceptions. -/
+def ofExceptKernelException [Monad m] [MonadError m] [MonadOptions m] (x : Except Kernel.Exception α) : m α :=
   match x with
   | .ok a    => return a
   | .error e => throwKernelException e

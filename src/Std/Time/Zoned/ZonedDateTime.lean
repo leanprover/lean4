@@ -179,8 +179,8 @@ def minute (zdt : ZonedDateTime) : Minute.Ordinal :=
 Getter for the `Second` inside of a `ZonedDateTime`
 -/
 @[inline]
-def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.second.fst :=
-  zdt.date.get.time.second.snd
+def second (zdt : ZonedDateTime) : Second.Ordinal true :=
+  zdt.date.get.time.second
 
 /--
 Getter for the `Millisecond` inside of a `ZonedDateTime`.
@@ -491,7 +491,7 @@ def withMinutes (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :
 Creates a new `ZonedDateTime` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
+def withSeconds (dt : ZonedDateTime) (second : Second.Ordinal true) : ZonedDateTime :=
   let date := dt.date.get
   ZonedDateTime.ofPlainDateTime (date.withSeconds second) dt.rules
 

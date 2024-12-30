@@ -143,7 +143,7 @@ def interleaveWith {α β γ} (f : α → γ) (x : Array α) (g : β → γ) (y 
   let mut res := Array.mkEmpty (x.size + y.size)
   let n := min x.size y.size
   for h : i in [0:n] do
-    have p : i < min x.size y.size := h.2
+    have p : i < min x.size y.size := h.2.1
     have q : i < x.size := Nat.le_trans p (Nat.min_le_left ..)
     have r : i < y.size := Nat.le_trans p (Nat.min_le_right ..)
     res := res.push (f x[i])

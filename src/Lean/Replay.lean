@@ -51,11 +51,11 @@ def isTodo (name : Name) : M Bool := do
 
 /-- Use the current `Environment` to throw a `Kernel.Exception`. -/
 def throwKernelException (ex : Kernel.Exception) : M Unit := do
-  throw <| .userError <| (← ex.toMessageData (← get).env {} |>.toString)
+  throw <| .userError <| (← ex.toMessageData {} |>.toString)
 
 /-- Add a declaration, possibly throwing a `Kernel.Exception`. -/
 def addDecl (d : Declaration) : M Unit := do
-  match (← get).env.addDecl {} d with
+  match (← get).env.addDeclCore 0 d (cancelTk? := none) with
   | .ok env => modify fun s => { s with env := env }
   | .error ex => throwKernelException ex
 

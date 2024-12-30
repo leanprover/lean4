@@ -34,7 +34,7 @@ def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
 Tries to download and unpack the package's cached build archive
 (e.g., from Reservoir or GitHub).
 -/
-private def Package.fetchOptBuildCacheCore (self : Package) : FetchM (BuildJob Bool) := do
+private def Package.fetchOptBuildCacheCore (self : Package) : FetchM (Job Bool) := do
   if self.preferReleaseBuild then
     self.optGitHubRelease.fetch
   else
@@ -45,7 +45,7 @@ def Package.optBuildCacheFacetConfig : PackageFacetConfig optBuildCacheFacet :=
   mkFacetJobConfig (·.fetchOptBuildCacheCore)
 
 /-- Tries to download the package's build cache (if configured). -/
-def Package.maybeFetchBuildCache (self : Package) : FetchM (BuildJob Bool) := do
+def Package.maybeFetchBuildCache (self : Package) : FetchM (Job Bool) := do
   let shouldFetch :=
     (← getTryCache) &&
     !(← self.buildDir.pathExists) && -- do not automatically clobber prebuilt artifacts
@@ -70,7 +70,7 @@ Tries to download and unpack the package's cached build archive
 -/
 def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
   let job ← self.maybeFetchBuildCache
-  job.bindSync fun success t => do
+  job.mapM fun success => do
     unless success do
       if self.preferReleaseBuild then
         let details ← self.optFacetDetails optGitHubReleaseFacet
@@ -78,7 +78,6 @@ def Package.maybeFetchBuildCacheWithWarning (self : Package) := do
       else
         let details ← self.optFacetDetails optReservoirBarrelFacet
         logVerbose s!"building from source; failed to fetch Reservoir build{details}"
-    return ((), t)
 
 @[deprecated maybeFetchBuildCacheWithWarning (since := "2024-09-27")]
 def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
@@ -87,15 +86,15 @@ def Package.fetchOptRelease := @maybeFetchBuildCacheWithWarning
 Build the `extraDepTargets` for the package.
 Also, if the package is a dependency, maybe fetch its build cache.
 -/
-def Package.recBuildExtraDepTargets (self : Package) : FetchM (BuildJob Unit) :=
+def Package.recBuildExtraDepTargets (self : Package) : FetchM (Job Unit) :=
   withRegisterJob s!"{self.name}:extraDep" do
-  let mut job := BuildJob.nil
+  let mut job := Job.nil
   -- Fetch build cache if this package is a dependency
   if self.name ≠ (← getWorkspace).root.name then
-    job := job.add <| ← self.maybeFetchBuildCacheWithWarning
+    job := job.add (← self.maybeFetchBuildCacheWithWarning)
   -- Build this package's extra dep targets
   for target in self.extraDepTargets do
-    job := job.mix <| ← self.fetchTargetJob target
+    job := job.mix (← self.fetchTargetJob target)
   return job
 
 /-- The `PackageFacetConfig` for the builtin `dynlibFacet`. -/
@@ -146,29 +145,28 @@ def Package.fetchBuildArchive
 private def Package.mkOptBuildArchiveFacetConfig
   {facet : Name} (archiveFile : Package → FilePath)
   (getUrl : Package → JobM String) (headers : Array String := #[])
-  [FamilyDef PackageData facet (BuildJob Bool)]
+  [FamilyDef PackageData facet (Job Bool)]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
     let url ← getUrl pkg
     pkg.fetchBuildArchive url (archiveFile pkg) headers
-    return (true, .nil)
+    return true
   catch _ =>
     updateAction .fetch
-    return (false, .nil)
+    return false
 
 @[inline]
 private def Package.mkBuildArchiveFacetConfig
   {facet : Name} (optFacet : Name) (what : String)
-  [FamilyDef PackageData facet (BuildJob Unit)]
-  [FamilyDef PackageData optFacet (BuildJob Bool)]
+  [FamilyDef PackageData facet (Job Unit)]
+  [FamilyDef PackageData optFacet (Job Bool)]
 : PackageFacetConfig facet :=
   mkFacetJobConfig fun pkg =>
     withRegisterJob s!"{pkg.name}:{facet}" do
-      (← fetch <| pkg.facet optFacet).bindSync fun success t => do
+      (← fetch <| pkg.facet optFacet).mapM fun success => do
         unless success do
           error s!"failed to fetch {what}{← pkg.optFacetDetails optFacet}"
-        return ((), t)
 
 /-- The `PackageFacetConfig` for the builtin `buildCacheFacet`. -/
 def Package.buildCacheFacetConfig : PackageFacetConfig buildCacheFacet :=
@@ -200,9 +198,11 @@ abbrev Package.releaseFacetConfig := gitHubReleaseFacetConfig
 Perform a build job after first checking for an (optional) cached build
 for the package (e.g., from Reservoir or GitHub).
 -/
-def Package.afterBuildCacheAsync (self : Package) (build : SpawnM (Job α)) : FetchM (Job α) := do
+def Package.afterBuildCacheAsync (self : Package) (build : JobM (Job α)) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).bindAsync fun _ _ => build
+    (← self.maybeFetchBuildCache).bindM fun _ => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     build
 
@@ -215,7 +215,9 @@ def Package.afterReleaseAsync := @afterBuildCacheAsync
 -/
 def Package.afterBuildCacheSync (self : Package) (build : JobM α) : FetchM (Job α) := do
   if self.name ≠ (← getRootPackage).name then
-    (← self.maybeFetchBuildCache).bindSync fun _ _ => build
+    (← self.maybeFetchBuildCache).mapM fun _  => do
+      setTrace nilTrace -- ensure both branches start with the same trace
+      build
   else
     Job.async build
 

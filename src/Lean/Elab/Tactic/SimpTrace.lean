@@ -22,10 +22,10 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
   let stx := stx.unsetTrailing
   mkSimpOnly stx usedSimps
 
-@[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx =>
+@[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
   | `(tactic|
-      simp?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => withMainContext do withSimpDiagnostics do
+      simp?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) =>
     let stx ← if bang.isSome then
       `(tactic| simp!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
@@ -39,9 +39,9 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     return stats.diag
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx =>
+@[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
-  | `(tactic| simp_all?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?) => withSimpDiagnostics do
+  | `(tactic| simp_all?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?) =>
     let stx ← if bang.isSome then
       `(tactic| simp_all!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     else
@@ -79,9 +79,9 @@ where
     | some mvarId => replaceMainGoal [mvarId]
     pure stats
 
-@[builtin_tactic dsimpTrace] def evalDSimpTrace : Tactic := fun stx =>
+@[builtin_tactic dsimpTrace] def evalDSimpTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
-  | `(tactic| dsimp?%$tk $[!%$bang]? $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?) => withSimpDiagnostics do
+  | `(tactic| dsimp?%$tk $[!%$bang]? $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?) =>
     let stx ← if bang.isSome then
       `(tactic| dsimp!%$tk $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?)
     else

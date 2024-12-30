@@ -33,6 +33,16 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
 
+/--
+Converts an `original` or `synthetic (canonical := true)` `SourceInfo` to a
+`synthetic (canonical := false)` `SourceInfo`.
+This is sometimes useful when `SourceInfo` is being moved around between `Syntax`es.
+-/
+def SourceInfo.nonCanonicalSynthetic : SourceInfo → SourceInfo
+  | SourceInfo.original _ pos _ endPos => SourceInfo.synthetic pos endPos false
+  | SourceInfo.synthetic pos endPos _  => SourceInfo.synthetic pos endPos false
+  | SourceInfo.none                    => SourceInfo.none
+
 deriving instance BEq for SourceInfo
 
 /-! # Syntax AST -/

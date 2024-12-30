@@ -804,18 +804,45 @@ where
       else
         normalState num c s
 
-def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
-  let s     := takeWhileFn (fun c => c.isDigit) c s
+/--
+Parses a sequence of the form `many (many '_' >> many1 digit)`, but if `needDigit` is true the parsed result must be nonempty.
+
+Note: this does not report that it is expecting `_` if we reach EOI or an unexpected character.
+Rationale: this error happens if there is already a `_`, and while sequences of `_` are allowed, it's a bit perverse to suggest extending the sequence.
+-/
+partial def takeDigitsFn (isDigit : Char → Bool) (expecting : String) (needDigit : Bool) : ParserFn := fun c s =>
   let input := c.input
   let i     := s.pos
-  let curr  := input.get i
-  if curr == '.' || curr == 'e' || curr == 'E' then
+  if h : input.atEnd i then
+    if needDigit then
+      s.mkEOIError [expecting]
+    else
+      s
+  else
+    let curr := input.get' i h
+    if curr == '_' then takeDigitsFn isDigit expecting true c (s.next' c.input i h)
+    else if isDigit curr then takeDigitsFn isDigit expecting false c (s.next' c.input i h)
+    else if needDigit then s.mkUnexpectedError "unexpected character" (expected := [expecting])
+    else s
+
+def decimalNumberFn (startPos : String.Pos) (c : ParserContext) : ParserState → ParserState := fun s =>
+  let s     := takeDigitsFn (fun c => c.isDigit) "decimal number" false c s
+  let input := c.input
+  let i     := s.pos
+  if h : input.atEnd i then
+    mkNodeToken numLitKind startPos c s
+  else
+    let curr := input.get' i h
+    if curr == '.' || curr == 'e' || curr == 'E' then
+      parseScientific s
+    else
+      mkNodeToken numLitKind startPos c s
+where
+  parseScientific s :=
     let s := parseOptDot s
     let s := parseOptExp s
     mkNodeToken scientificLitKind startPos c s
-  else
-    mkNodeToken numLitKind startPos c s
-where
+
   parseOptDot s :=
     let input := c.input
     let i     := s.pos
@@ -824,7 +851,7 @@ where
       let i    := input.next i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.setPos i
     else
@@ -839,22 +866,22 @@ where
       let i    := if input.get i == '-' || input.get i == '+' then input.next i else i
       let curr := input.get i
       if curr.isDigit then
-        takeWhileFn (fun c => c.isDigit) c (s.setPos i)
+        takeDigitsFn (fun c => c.isDigit) "decimal number" false c (s.setPos i)
       else
         s.mkUnexpectedError "missing exponent digits in scientific literal"
     else
       s
 
 def binNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => c == '0' || c == '1') "binary number" c s
+  let s := takeDigitsFn (fun c => c == '0' || c == '1') "binary number" true c s
   mkNodeToken numLitKind startPos c s
 
 def octalNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => '0' ≤ c && c ≤ '7') "octal number" c s
+  let s := takeDigitsFn (fun c => '0' ≤ c && c ≤ '7') "octal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def hexNumberFn (startPos : String.Pos) : ParserFn := fun c s =>
-  let s := takeWhile1Fn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" c s
+  let s := takeDigitsFn (fun c => ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "hexadecimal number" true c s
   mkNodeToken numLitKind startPos c s
 
 def numberFnAux : ParserFn := fun c s =>
@@ -1556,8 +1583,8 @@ namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
-  | none    => .insert map k [v]
-  | some vs => .insert map k (v::vs)
+  | none    => RBMap.insert map k [v]
+  | some vs => RBMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
   default := RBMap.empty

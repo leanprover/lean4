@@ -74,14 +74,14 @@ theorem findSome?_append {l₁ l₂ : Array α} : (l₁ ++ l₂).findSome? f = (
 
 theorem getElem?_zero_flatten (L : Array (Array α)) :
     (flatten L)[0]? = L.findSome? fun l => l[0]? := by
-  cases L using array_array_induction
+  cases L using array₂_induction
   simp [← List.head?_eq_getElem?, List.head?_flatten, List.findSome?_map, Function.comp_def]
 
 theorem getElem_zero_flatten.proof {L : Array (Array α)} (h : 0 < L.flatten.size) :
     (L.findSome? fun l => l[0]?).isSome := by
-  cases L using array_array_induction
+  cases L using array₂_induction
   simp only [List.findSome?_toArray, List.findSome?_map, Function.comp_def, List.getElem?_toArray,
-    List.findSome?_isSome_iff, List.isSome_getElem?]
+    List.findSome?_isSome_iff, isSome_getElem?]
   simp only [flatten_toArray_map_toArray, size_toArray, List.length_flatten,
     Nat.sum_pos_iff_exists_pos, List.mem_map] at h
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
@@ -95,11 +95,11 @@ theorem getElem_zero_flatten {L : Array (Array α)} (h) :
 
 theorem back?_flatten {L : Array (Array α)} :
     (flatten L).back? = (L.findSomeRev? fun l => l.back?) := by
-  cases L using array_array_induction
+  cases L using array₂_induction
   simp [List.getLast?_flatten, ← List.map_reverse, List.findSome?_map, Function.comp_def]
 
 theorem findSome?_mkArray : findSome? f (mkArray n a) = if n = 0 then none else f a := by
-  simp [mkArray_eq_toArray_replicate, List.findSome?_replicate]
+  simp [← List.toArray_replicate, List.findSome?_replicate]
 
 @[simp] theorem findSome?_mkArray_of_pos (h : 0 < n) : findSome? f (mkArray n a) = f a := by
   simp [findSome?_mkArray, Nat.ne_of_gt h]
@@ -203,7 +203,7 @@ theorem get_find?_mem {xs : Array α} (h) : (xs.find? p).get h ∈ xs := by
 
 @[simp] theorem find?_flatten (xs : Array (Array α)) (p : α → Bool) :
     xs.flatten.find? p = xs.findSome? (·.find? p) := by
-  cases xs using array_array_induction
+  cases xs using array₂_induction
   simp [List.findSome?_map, Function.comp_def]
 
 theorem find?_flatten_eq_none {xs : Array (Array α)} {p : α → Bool} :
@@ -220,7 +220,7 @@ theorem find?_flatten_eq_some {xs : Array (Array α)} {p : α → Bool} {a : α}
       p a ∧ ∃ (as : Array (Array α)) (ys zs : Array α) (bs : Array (Array α)),
         xs = as.push (ys.push a ++ zs) ++ bs ∧
         (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
-  cases xs using array_array_induction
+  cases xs using array₂_induction
   simp only [flatten_toArray_map_toArray, List.find?_toArray, List.find?_flatten_eq_some]
   simp only [Bool.not_eq_eq_eq_not, Bool.not_true, exists_and_right, and_congr_right_iff]
   intro w
@@ -246,7 +246,7 @@ theorem find?_flatMap_eq_none {xs : Array α} {f : α → Array β} {p : β → 
 
 theorem find?_mkArray :
     find? p (mkArray n a) = if n = 0 then none else if p a then some a else none := by
-  simp [mkArray_eq_toArray_replicate, List.find?_replicate]
+  simp [← List.toArray_replicate, List.find?_replicate]
 
 @[simp] theorem find?_mkArray_of_length_pos (h : 0 < n) :
     find? p (mkArray n a) = if p a then some a else none := by
@@ -262,15 +262,15 @@ theorem find?_mkArray :
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
 theorem find?_mkArray_eq_none {n : Nat} {a : α} {p : α → Bool} :
     (mkArray n a).find? p = none ↔ n = 0 ∨ !p a := by
-  simp [mkArray_eq_toArray_replicate, List.find?_replicate_eq_none, Classical.or_iff_not_imp_left]
+  simp [← List.toArray_replicate, List.find?_replicate_eq_none, Classical.or_iff_not_imp_left]
 
 @[simp] theorem find?_mkArray_eq_some {n : Nat} {a b : α} {p : α → Bool} :
     (mkArray n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
-  simp [mkArray_eq_toArray_replicate]
+  simp [← List.toArray_replicate]
 
 @[simp] theorem get_find?_mkArray (n : Nat) (a : α) (p : α → Bool) (h) :
     ((mkArray n a).find? p).get h = a := by
-  simp [mkArray_eq_toArray_replicate]
+  simp [← List.toArray_replicate]
 
 theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
     (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :

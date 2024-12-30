@@ -40,6 +40,9 @@ theorem BEq.symm [BEq α] [PartialEquivBEq α] {a b : α} : a == b → b == a :=
 theorem BEq.comm [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = (b == a) :=
   Bool.eq_iff_iff.2 ⟨BEq.symm, BEq.symm⟩
 
+theorem bne_comm [BEq α] [PartialEquivBEq α] {a b : α} : (a != b) = (b != a) := by
+  rw [bne, BEq.comm, bne]
+
 theorem BEq.symm_false [BEq α] [PartialEquivBEq α] {a b : α} : (a == b) = false → (b == a) = false :=
   BEq.comm (α := α) ▸ id
 

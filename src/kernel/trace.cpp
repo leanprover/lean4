@@ -17,7 +17,7 @@ static name_set *            g_trace_classes = nullptr;
 static name_map<name_set>  * g_trace_aliases = nullptr;
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_enabled_trace_classes);
 MK_THREAD_LOCAL_GET_DEF(std::vector<name>, get_disabled_trace_classes);
-LEAN_THREAD_PTR(elab_environment,           g_env);
+LEAN_THREAD_PTR(elab_environment,      g_env);
 LEAN_THREAD_PTR(options,               g_opts);
 
 void register_trace_class(name const & n, name const & decl_name) {

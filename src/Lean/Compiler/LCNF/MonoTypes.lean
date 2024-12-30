@@ -72,23 +72,23 @@ The type contains only `→` and constants.
 -/
 partial def toMonoType (type : Expr) : CoreM Expr := do
   let type := type.headBeta
-  if type.isErased then
-    return erasedExpr
-  else if type.isErased then
-    return erasedExpr
-  else if isTypeFormerType type then
-    return erasedExpr
-  else match type with
-    | .const ..        => visitApp type #[]
-    | .app ..          => type.withApp visitApp
-    | .forallE _ d b _ => mkArrow (← toMonoType d) (← toMonoType (b.instantiate1 erasedExpr))
-    | _                => return erasedExpr
+  match type with
+  | .const .. => visitApp type #[]
+  | .app .. => type.withApp visitApp
+  | .forallE _ d b _ =>
+    let monoB ← toMonoType (b.instantiate1 anyExpr)
+    match monoB with
+    | .const ``lcErased _ => return erasedExpr
+    | _ => mkArrow (← toMonoType d) monoB
+  | .sort _ => return erasedExpr
+  | _ => return anyExpr
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
+    | .const ``lcErased _ => return erasedExpr
+    | .const ``lcAny _ => return anyExpr
+    | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>
-      if declName == ``Decidable then
-        return mkConst ``Bool
       if let some info ← hasTrivialStructure? declName then
         let ctorType ← getOtherDeclBaseType info.ctorName []
         toMonoType (getParamTypes (← instantiateForall ctorType args[:info.numParams]))[info.fieldIdx]!
@@ -98,15 +98,13 @@ where
         for arg in args do
           let .forallE _ d b _ := type.headBeta | unreachable!
           let arg := arg.headBeta
-          if arg.isErased then
-            result := mkApp result arg
-          else if d.isErased || d matches .sort _ then
+          if d matches .const ``lcErased _ | .sort _ then
             result := mkApp result (← toMonoType arg)
           else
             result := mkApp result erasedExpr
           type := b.instantiate1 arg
         return result
-    | _ => return erasedExpr
+    | _ => return anyExpr
 
 /--
 State for the environment extension used to save the LCNF mono phase type for declarations

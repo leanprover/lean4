@@ -116,7 +116,7 @@ static lean_object* l_Lean_PrettyPrinter_Formatter_parseToken___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_categoryFormatterCore___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_pushToken___lambda__5(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_Formatter_optionalNoAntiquot_formatter___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_formatterForKindUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Formatter_throwBacktrack(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_PrettyPrinter_Formatter_manyNoAntiquot_formatter___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1240,6 +1240,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 6);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_10, x_1);
 if (x_16 == 0)
 {
@@ -1327,6 +1328,7 @@ lean_dec(x_11);
 x_30 = lean_ctor_get(x_28, 6);
 lean_inc(x_30);
 lean_dec(x_28);
+lean_inc(x_1);
 x_31 = l_Lean_Environment_contains(x_10, x_1);
 if (x_31 == 0)
 {
@@ -1487,7 +1489,7 @@ else
 lean_object* x_31; 
 lean_inc(x_14);
 lean_inc(x_10);
-x_31 = lean_environment_find(x_10, x_14);
+x_31 = l_Lean_Environment_find_x3f(x_10, x_14);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 
@@ -1511,6 +1513,7 @@ block_29:
 {
 uint8_t x_16; 
 lean_dec(x_15);
+lean_inc(x_14);
 x_16 = l_Lean_Parser_isValidSyntaxNodeKind(x_10, x_14);
 if (x_16 == 0)
 {
@@ -12526,7 +12529,6 @@ x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
 lean_dec(x_9);
 x_13 = l_Lean_Parser_getTokenTable(x_12);
-lean_dec(x_12);
 lean_inc(x_7);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_7);

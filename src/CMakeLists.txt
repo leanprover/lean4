@@ -295,14 +295,15 @@ index 5e8e0166..f3b29134 100644
 	  PATCH_COMMAND git reset --hard HEAD && printf "${LIBUV_PATCH}" > patch.diff && git apply patch.diff
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
-  set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
-  set(LIBUV_LIBRARIES "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
+  set(LIBUV_INCLUDE_DIRS "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
+  set(LIBUV_LDFLAGS "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
 else()
   find_package(LibUV 1.0.0 REQUIRED)
 endif()
-include_directories(${LIBUV_INCLUDE_DIR})
+include_directories(${LIBUV_INCLUDE_DIRS})
 if(NOT LEAN_STANDALONE)
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+  string(JOIN " " LIBUV_LDFLAGS ${LIBUV_LDFLAGS})
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LDFLAGS}")
 endif()
 
 # Windows SDK (for ICU)
@@ -708,7 +709,7 @@ if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
-  add_custom_target(lake #ALL
+  add_custom_target(lake ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake

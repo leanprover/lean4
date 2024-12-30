@@ -22,13 +22,20 @@ section Reduce
 attribute [bv_normalize] BitVec.sub_toAdd
 
 @[bv_normalize]
-theorem BitVec.le_ult (x y : BitVec w) : (x ≤ y) = ¬(y < x) := by
-  simp only [(· ≤ ·), (· < ·)]
-  simp
+theorem BitVec.le_ult (x y : BitVec w) : (x ≤ y) ↔ ((!y.ult x) = true) := by
+  have : x ≤ y ↔ (x.ule y = true) := by
+    simp [BitVec.le_def, BitVec.ule]
+  rw [this, BitVec.ule_eq_not_ult]
+
 attribute [bv_normalize] BitVec.ule_eq_not_ult
 
-attribute [bv_normalize] gt_iff_lt
-attribute [bv_normalize] ge_iff_le
+@[bv_normalize]
+theorem BitVec.gt_ult (x y : BitVec w) : x > y ↔ (y.ult x = true) := by
+  simp [BitVec.lt_ult]
+
+@[bv_normalize]
+theorem BitVec.ge_ule (x y : BitVec w) : x ≥ y ↔ ((!x.ult y) = true) := by
+  simp [BitVec.le_ult]
 
 @[bv_normalize]
 theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExtend n := by
@@ -36,8 +43,16 @@ theorem BitVec.truncate_eq_zeroExtend (x : BitVec w) : x.truncate n = x.zeroExte
 
 attribute [bv_normalize] BitVec.extractLsb
 attribute [bv_normalize] BitVec.msb_eq_getLsbD_last
-attribute [bv_normalize] BitVec.slt_eq_ult
-attribute [bv_normalize] BitVec.sle_eq_not_slt
+
+@[bv_normalize]
+theorem BitVec.slt_eq_ult (x y : BitVec w) :
+    x.slt y = ((!x.getLsbD (w - 1) == y.getLsbD (w - 1)) ^^ x.ult y) := by
+  simp [_root_.BitVec.slt_eq_ult, BitVec.msb_eq_getLsbD_last, Bool.bne_to_beq]
+
+@[bv_normalize]
+theorem BitVec.sle_eq_ult (x y : BitVec w) :
+    x.sle y = !((!x.getLsbD (w - 1) == y.getLsbD (w - 1)) ^^ y.ult x) := by
+  rw [BitVec.sle_eq_not_slt, BitVec.slt_eq_ult, Bool.beq_comm]
 
 attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
@@ -46,42 +61,40 @@ theorem BitVec.ofNatLt_reduce (n : Nat) (h) : BitVec.ofNatLt n h = BitVec.ofNat 
   simp [BitVec.ofNatLt, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
-theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = if b then 1#1 else 0#1 := by
+theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
   revert b
   decide
 
 @[bv_normalize]
 theorem BitVec.sdiv_udiv (x y : BitVec w) :
     x.sdiv y =
-      if x.msb then
-        if y.msb then
+      bif x.getLsbD (w - 1) then
+        bif y.getLsbD (w - 1) then
           (-x) / (-y)
         else
           -((-x) / y)
       else
-        if y.msb then
+        bif y.getLsbD (w - 1) then
           -(x / (-y))
         else
           x / y := by
-  rw [BitVec.sdiv_eq]
+  rw [BitVec.sdiv_eq, ← BitVec.msb_eq_getLsbD_last, ← BitVec.msb_eq_getLsbD_last]
   cases x.msb <;> cases y.msb <;> simp
 
 @[bv_normalize]
 theorem BitVec.smod_umod (x y : BitVec w) :
     x.smod y =
-      if x.msb then
-        if y.msb then
-          - ((- x).umod (- y))
+      bif x.getLsbD (w - 1) then
+        bif y.getLsbD (w - 1) then
+          - ((- x) % (- y))
         else
-          let u := (- x).umod y
-          (if u = 0#w then u else y - u)
+          (bif (- x) % y == 0#w then (- x) % y else y - (- x) % y)
       else
-        if y.msb then
-          let u := x.umod (- y)
-          (if u = 0#w then u else u + y)
+        bif y.getLsbD (w - 1) then
+          (bif x % (- y) == 0#w then x % (- y) else x % (- y) + y)
         else
           x.umod y := by
-  rw [BitVec.smod_eq]
+  rw [BitVec.smod_eq, ← BitVec.msb_eq_getLsbD_last, ← BitVec.msb_eq_getLsbD_last]
   cases x.msb <;> cases y.msb <;> simp
 
 attribute [bv_normalize] BitVec.smtUDiv_eq
@@ -89,37 +102,39 @@ attribute [bv_normalize] BitVec.smtUDiv_eq
 @[bv_normalize]
 theorem BitVec.smtSDiv_smtUDiv (x y : BitVec w) :
     x.smtSDiv y =
-      if x.msb then
-        if y.msb then
+      bif x.getLsbD (w - 1) then
+        bif y.getLsbD (w - 1) then
           (-x).smtUDiv (-y)
         else
           -((-x).smtUDiv y)
       else
-        if y.msb then
+        bif y.getLsbD (w - 1) then
           -(x.smtUDiv (-y))
         else
           x.smtUDiv y := by
-  rw [BitVec.smtSDiv_eq]
+  rw [BitVec.smtSDiv_eq, ← BitVec.msb_eq_getLsbD_last, ← BitVec.msb_eq_getLsbD_last]
   cases x.msb <;> cases y.msb <;> simp
 
 @[bv_normalize]
 theorem BitVec.srem_umod (x y : BitVec w) :
     x.srem y =
-      if x.msb then
-        if y.msb then
+      bif x.getLsbD (w - 1) then
+        bif y.getLsbD (w - 1) then
           -((-x) % (-y))
         else
           -((-x) % y)
       else
-        if y.msb then
+        bif y.getLsbD (w - 1) then
           x % (-y)
         else
           x % y := by
-  rw [BitVec.srem_eq]
+  rw [BitVec.srem_eq, ← BitVec.msb_eq_getLsbD_last, ← BitVec.msb_eq_getLsbD_last]
   cases x.msb <;> cases y.msb <;> simp
 
-attribute [bv_normalize] Bool.cond_eq_if
-attribute [bv_normalize] BitVec.abs_eq
+@[bv_normalize]
+theorem BitVec.abs_eq (x : BitVec w) : x.abs = bif x.getLsbD (w - 1) then -x else x := by
+  simp [_root_.BitVec.abs_eq, BitVec.msb_eq_getLsbD_last]
+
 attribute [bv_normalize] BitVec.twoPow_eq
 
 @[bv_normalize]
@@ -168,13 +183,13 @@ attribute [bv_normalize] BitVec.and_self
 
 @[bv_normalize]
 theorem BitVec.and_contra (a : BitVec w) : a &&& ~~~a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.and_contra' (a : BitVec w) : ~~~a &&& a = 0#w := by
-  ext
-  simp
+  ext i h
+  simp [h]
 
 @[bv_normalize]
 theorem BitVec.add_not (a : BitVec w) : a + ~~~a = (-1#w) := by
@@ -269,7 +284,7 @@ theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (a ≠ 0#w) :
     omega
 
 @[bv_normalize]
-theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (a != 0#w) := by
+theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (!a == 0#w) := by
   have := BitVec.zero_lt_iff_zero_neq a
   rw [BitVec.lt_ult] at this
   match h:BitVec.ult 0#w a with
@@ -285,7 +300,7 @@ theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
     · omega
     · apply Nat.sub_one_lt_of_le (Nat.pow_pos (by omega)) (Nat.le_refl ..)
 
-@[bv_normalize]
+-- used in simproc because of -1#w normalisation
 theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
   have := BitVec.max_ult a
   rw [BitVec.lt_ult] at this

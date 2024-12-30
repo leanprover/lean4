@@ -352,7 +352,6 @@ static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvTrace(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__15___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_MVarId_elabFalseOrByContra___spec__1___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__6;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__29;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -494,6 +493,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Fro
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__6___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__8___closed__3;
+lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_evalBvTrace__1___closed__3;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__10___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__11(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -12510,7 +12510,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExp
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("imp", 3, 3);
+x_1 = lean_mk_string_unchecked("or", 2, 2);
 return x_1;
 }
 }
@@ -23975,7 +23975,7 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_13 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_MVarId_elabFalseOrByContra___spec__1___rarg(x_10);
+x_13 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_10);
 return x_13;
 }
 else
@@ -23999,7 +23999,7 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-x_18 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_MVarId_elabFalseOrByContra___spec__1___rarg(x_10);
+x_18 = l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(x_10);
 return x_18;
 }
 else

@@ -55,7 +55,7 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
   if let .anonymous := name then throwError message
   let env ← getEnv
   let mut candidates : Array Name := #[]
-  for (c, _) in env.toKernelEnvUnchecked.constants do
+  for (c, _) in env.constants do
     if isPrivateName c then continue
     if !(name.isSuffixOf c) then continue
     if env.isConstructor c || hasMatchPatternAttribute env c then
@@ -158,7 +158,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
   if h₁ : s₁.vars.size = s₂.vars.size then
     for h₂ : i in [startingAt:s₁.vars.size] do
-      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all) then return false
+      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all +zetaDelta) then return false
     true
   else
     false

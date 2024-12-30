@@ -777,7 +777,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5;
 x_3 = l_Lean_instInhabitedName;
 x_4 = l_Lean_getExportNameFor_x3f___closed__1;
 x_5 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_3, x_4, x_1, x_2);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -830,7 +829,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_isExport(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

@@ -26,12 +26,17 @@ register_builtin_option diagnostics.threshold : Nat := {
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
 }
 
+register_builtin_option maxHeartbeats : Nat := {
+  defValue := 200000
+  descr := "maximum amount of heartbeats per command. A heartbeat is number of (small) memory allocations (in thousands), 0 means no limit"
+}
+
 register_builtin_option Elab.async : Bool := {
   defValue := false
   descr := "perform elaboration using multiple threads where possible\
     \n\
     \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
-      `Lean.Language.Lean.process` as used by the cmdline driver and language server. \
+      the language server. \
       Metaprogramming users driving elaboration directly via e.g. \
       `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
       this option but then are responsible for processing messages and other data not only in the \
@@ -53,6 +58,9 @@ def useDiagnosticMsg : MessageData :=
 namespace Core
 
 builtin_initialize registerTraceClass `Kernel
+
+def getMaxHeartbeats (opts : Options) : Nat :=
+  maxHeartbeats.get opts * 1000
 
 abbrev InstantiateLevelCache := PersistentHashMap Name (List Level × Expr)
 
@@ -415,7 +423,11 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -506,6 +518,9 @@ register_builtin_option compiler.enableNew : Bool := {
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
+@[extern "lean_compile_decls"]
+opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
+
 partial def compileDecls (decls : List Name) : CoreM Unit := do
   if Elab.async.get (← getOptions) then
     let env ← getEnv
@@ -520,10 +535,13 @@ partial def compileDecls (decls : List Name) : CoreM Unit := do
     return
   doCompile
 where doCompile := do
+  -- don't compile if kernel errored
+  if !decls.all (← getEnv).constants.contains then
+    return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
-  match (← getEnv).compileDecls opts decls with
+  match compileDeclsOld (← getEnv) opts decls with
   | Except.ok env   => setEnv env
   | Except.error (.other msg) =>
     throwError msg
@@ -605,17 +623,14 @@ instance : MonadRuntimeException CoreM where
 
 /--
 Returns `true` if the given message kind has not been reported in the message log,
-and then mark it as reported. Otherwise, returns `false`.
-We use this API to ensure we don't report the same kind of warning multiple times.
+and then mark it as logged. Otherwise, returns `false`.
+We use this API to ensure we don't log the same kind of warning multiple times.
 -/
-def reportMessageKind (kind : Name) : CoreM Bool := do
-  if (← get).messages.reportedKinds.contains kind then
+def logMessageKind (kind : Name) : CoreM Bool := do
+  if (← get).messages.loggedKinds.contains kind then
     return false
   else
-    modify fun s => { s with messages.reportedKinds := s.messages.reportedKinds.insert kind }
+    modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
-
-builtin_initialize
-  registerTraceClass `Elab.block
 
 end Lean

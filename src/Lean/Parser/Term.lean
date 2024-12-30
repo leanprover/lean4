@@ -215,7 +215,23 @@ However, in case it is copied and pasted from the Infoview, `⋯` logs a warning
 @[builtin_term_parser] def omission := leading_parser
   "⋯"
 def binderIdent : Parser  := ident <|> hole
-/-- A temporary placeholder for a missing proof or value. -/
+/--
+The `sorry` term is a temporary placeholder for a missing proof or value.
+
+The syntax is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can double check if a declaration depends on `sorry` by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
+
+"Go to definition" on `sorry` in the Infoview will go to the source position where it was introduced, if such information is available.
+
+Each `sorry` is guaranteed to be unique, so for example the following fails:
+```lean
+example : (sorry : Nat) = sorry := rfl -- fails
+```
+
+See also the `sorry` tactic, which is short for `exact sorry`.
+-/
 @[builtin_term_parser] def «sorry» := leading_parser
   "sorry"
 /--
@@ -699,14 +715,40 @@ the inferrred termination argument will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser
-  "termination_by " >>
-  optional (nonReservedSymbol "structural ") >>
-  optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
-  termParser
+  "termination_by " >> (
+  (nonReservedSymbol "tailrecursion") <|>
+  (optional (nonReservedSymbol "structural ") >>
+   optional (atomic (many (ppSpace >> Term.binderIdent) >> " => ")) >>
+   termParser))
 
 @[inherit_doc terminationBy, builtin_doc]
 def terminationBy? := leading_parser
   "termination_by?"
+
+/--
+Defines a possibly non-terminating function as a fixed-point in a suitable partial order.
+
+Such a function is compiled as if it was marked `partial`, but its equations are provided as
+theorems, so that it can be verified.
+
+In general it accepts functions whose return type has a `Lean.Order.CCPO` instance and whose
+definition is `Lean.Order.monotone` with regard to its recursive calls.
+
+Common special cases are
+
+* Functions whose type is inhabited a-priori (as with `partial`), and where all recursive
+  calls are in tail-call position.
+* Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
+  the bind operator and other supported monadic combinators.
+
+By default, the onotonicity proof is performed by the compositional `monotonicity` tactic. Using
+the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
+-/
+@[builtin_doc] def partialFixpoint := leading_parser
+  withPosition (
+    "partial_fixpoint" >>
+    optional (checkColGt "indentation" >> nonReservedSymbol "monotonicity " >>
+              checkColGt "indented monotonicity proof" >> termParser))
 
 /--
 Manually prove that the termination argument (as specified with `termination_by` or inferred)
@@ -724,7 +766,7 @@ Forces the use of well-founded recursion and is hence incompatible with
 Termination hints are `termination_by` and `decreasing_by`, in that order.
 -/
 @[builtin_doc] def suffix := leading_parser
-  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy)) >> optional decreasingBy
+  optional (ppDedent ppLine >> (terminationBy? <|> terminationBy <|> partialFixpoint)) >> optional decreasingBy
 
 end Termination
 namespace Term

@@ -98,7 +98,7 @@ fields:
 constructor:
   Alternative.mk.{u, v} {f : Type u → Type v} [toApplicative : Applicative f] (failure : {α : Type u} → f α)
     (orElse : {α : Type u} → f α → (Unit → f α) → f α) : Alternative f
-resolution order:
+field notation resolution order:
   Alternative, Applicative, Functor, Pure, Seq, SeqLeft, SeqRight
 -/
 #guard_msgs in
@@ -124,7 +124,7 @@ fields:
 constructor:
   Applicative.mk.{u, v} {f : Type u → Type v} [toFunctor : Functor f] [toPure : Pure f] [toSeq : Seq f]
     [toSeqLeft : SeqLeft f] [toSeqRight : SeqRight f] : Applicative f
-resolution order:
+field notation resolution order:
   Applicative, Functor, Pure, Seq, SeqLeft, SeqRight
 -/
 #guard_msgs in

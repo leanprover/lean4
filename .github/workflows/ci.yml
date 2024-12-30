@@ -238,27 +238,27 @@ jobs:
                 "name": "Linux 32bit",
                 "os": "ubuntu-latest",
                 // Use 32bit on stage0 and stage1 to keep oleans compatible
-                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
+                "CMAKE_OPTIONS": "-DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_MMAP=OFF -DUSE_GMP=OFF -DLEAN_EXTRA_CXX_FLAGS='-m32' -DLEANC_OPTS='-m32' -DMMAP=OFF -DLEAN_INSTALL_SUFFIX=-linux_x86 -DCMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/ -DPKG_CONFIG_EXECUTABLE=/usr/bin/i386-linux-gnu-pkg-config",
                 "cmultilib": true,
                 "release": true,
                 "check-level": 2,
                 "cross": true,
                 "shell": "bash -euxo pipefail {0}"
-              },
-              {
-                "name": "Web Assembly",
-                "os": "ubuntu-latest",
-                // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
-                "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
-                "wasm": true,
-                "cmultilib": true,
-                "release": true,
-                "check-level": 2,
-                "cross": true,
-                "shell": "bash -euxo pipefail {0}",
-                // Just a few selected tests because wasm is slow
-                "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               }
+              // {
+              //   "name": "Web Assembly",
+              //   "os": "ubuntu-latest",
+              //   // Build a native 32bit binary in stage0 and use it to compile the oleans and the wasm build
+              //   "CMAKE_OPTIONS": "-DCMAKE_C_COMPILER_WORKS=1 -DSTAGE0_USE_GMP=OFF -DSTAGE0_LEAN_EXTRA_CXX_FLAGS='-m32' -DSTAGE0_LEANC_OPTS='-m32' -DSTAGE0_CMAKE_CXX_COMPILER=clang++ -DSTAGE0_CMAKE_C_COMPILER=clang -DSTAGE0_CMAKE_EXECUTABLE_SUFFIX=\"\" -DUSE_GMP=OFF -DMMAP=OFF -DSTAGE0_MMAP=OFF -DCMAKE_AR=../emsdk/emsdk-main/upstream/emscripten/emar -DCMAKE_TOOLCHAIN_FILE=../emsdk/emsdk-main/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake -DLEAN_INSTALL_SUFFIX=-linux_wasm32 -DSTAGE0_CMAKE_LIBRARY_PATH=/usr/lib/i386-linux-gnu/",
+              //   "wasm": true,
+              //   "cmultilib": true,
+              //   "release": true,
+              //   "check-level": 2,
+              //   "cross": true,
+              //   "shell": "bash -euxo pipefail {0}",
+              //   // Just a few selected tests because wasm is slow
+              //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
+              // }
             ];
             console.log(`matrix:\n${JSON.stringify(matrix, null, 2)}`)
             return matrix.filter((job) => level >= job["check-level"])
@@ -327,7 +327,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Cache
         uses: actions/cache@v4

@@ -30,7 +30,7 @@ def canUnfold (info : ConstantInfo) : MetaM Bool := do
 
 /--
 Look up a constant name, returning the `ConstantInfo`
-if it should be unfolded at the current reducibility settings,
+if it is a def/theorem that should be unfolded at the current reducibility settings,
 or `none` otherwise.
 
 This is part of the implementation of `whnf`.
@@ -46,10 +46,10 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
       return none
   | _ => match ainfo.toConstantInfo with
     | info@(.defnInfo _) => if (← canUnfold info) then return info else return none
-    | info@(.recInfo _)  => return some info
+    | info@(.recInfo _)  => return some _
     -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
     | info@(.quotInfo _) => return some info
-    | _                    => return none
+    | _                  => return none
 
 /--
 As with `getUnfoldableConst?` but return `none` instead of failing if the constant is not found.

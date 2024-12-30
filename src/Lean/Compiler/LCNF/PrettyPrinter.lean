@@ -81,7 +81,10 @@ def ppLetDecl (letDecl : LetDecl) : M Format := do
     return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
-  instantiateForall type (ps.map (mkFVar ·.fvarId))
+  if type.isErased then
+    pure type
+  else
+    instantiateForall type (ps.map (mkFVar ·.fvarId))
 
 mutual
   partial def ppFunDecl (funDecl : FunDecl) : M Format := do
@@ -105,6 +108,11 @@ mutual
         return f!"⊥ : {← ppExpr type}"
       else
         return "⊥"
+
+  partial def ppDeclValue (b : DeclValue) : M Format := do
+    match b with
+    | .code c => ppCode c
+    | .extern .. => return "extern"
 end
 
 def run (x : M α) : CompilerM α :=
@@ -121,7 +129,7 @@ def ppLetValue (e : LetValue) : CompilerM Format :=
 
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
-    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppCode decl.value)}"
+    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppDeclValue decl.value)}"
 
 def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do

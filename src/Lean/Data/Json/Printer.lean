@@ -11,6 +11,18 @@ import Init.Data.List.Impl
 namespace Lean
 namespace Json
 
+private def escapeTable : ByteArray :=
+  ByteArray.mk #[
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+  ]
+
 private def escapeAux (acc : String) (c : Char) : String :=
   -- escape ", \, \n and \r, keep all other characters ≥ 0x20 and render characters < 0x20 with \u
   if c = '"' then -- hack to prevent emacs from regarding the rest of the file as a string: "
@@ -39,8 +51,24 @@ private def escapeAux (acc : String) (c : Char) : String :=
     let d4 := Nat.digitChar (n % 16)
     acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
+private def needEscape (s : String) : Bool :=
+  go s 0
+where
+  go (s : String) (i : Nat) : Bool :=
+    if h : i < s.utf8ByteSize then
+      let byte := s.getUtf8Byte i h
+      if escapeTable.uget byte.toUSize sorry == 0 then
+        go s (i + 1)
+      else
+        true
+    else
+      false
+
 def escape (s : String) (acc : String := "") : String :=
-  s.foldl escapeAux acc
+  if needEscape s then
+    s.foldl escapeAux acc
+  else
+    acc ++ s
 
 def renderString (s : String) (acc : String := "") : String :=
   let acc := acc ++ "\""

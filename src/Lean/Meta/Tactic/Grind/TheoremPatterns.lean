@@ -25,6 +25,14 @@ inductive Origin where
   | other
   deriving Inhabited, Repr
 
+/-- A unique identifier corresponding to the origin. -/
+def Origin.key : Origin → Name
+  | .decl declName => declName
+  | .fvar fvarId   => fvarId.name
+  | .stx id _      => id
+  | .other         => `other
+
+-- TODO: find better name
 structure TheoremPattern where
   proof       : Expr
   numParams   : Nat
@@ -34,16 +42,21 @@ structure TheoremPattern where
   origin      : Origin
   deriving Inhabited
 
-abbrev TheoremPatterns := SMap Name (List TheoremPattern)
+-- TODO: find better name
+abbrev TheoremPatterns := PHashMap Name (List TheoremPattern)
+
+def TheoremPatterns.insertTheorem (s : TheoremPatterns) (thm : TheoremPattern) : TheoremPatterns := Id.run do
+  let .const declName :: syms := thm.symbols
+    | unreachable!
+  let thm := { thm with symbols := syms }
+  if let some thms := s.find? declName then
+    return s.insert declName (thm::thms)
+  else
+    return s.insert declName [thm]
 
 builtin_initialize theoremPatternsExt : SimpleScopedEnvExtension TheoremPattern TheoremPatterns ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun s t => Id.run do
-      let .const declName :: _ := t.symbols | unreachable!
-      if let some ts := s.find? declName then
-        s.insert declName (t::ts)
-      else
-        s.insert declName [t]
+    addEntry := TheoremPatterns.insertTheorem
     initial  := .empty
   }
 
@@ -297,5 +310,8 @@ def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr)
      proof, patterns, numParams, symbols
      origin := .decl declName
   }
+
+def getTheoremPatterns : CoreM TheoremPatterns :=
+  return theoremPatternsExt.getState (← getEnv)
 
 end Lean.Meta.Grind

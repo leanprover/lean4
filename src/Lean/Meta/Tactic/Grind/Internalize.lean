@@ -37,6 +37,21 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
+private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
+  if let some thms := (← get).thmMap.find? fName then
+    modify fun s => { s with thmMap := s.thmMap.erase fName }
+    let appMap := (← get).appMap
+    for thm in thms do
+      let symbols := thm.symbols.filter fun sym => !appMap.contains sym
+      let thm := { thm with symbols }
+      match symbols with
+      | [] =>
+        trace[grind.pattern] "activated `{thm.origin.key}`"
+        modify fun s => { s with newThms := s.newThms.push thm }
+      | _ =>
+        trace[grind.pattern] "reinsert `{thm.origin.key}`"
+        modify fun s => { s with thmMap := s.thmMap.insertTheorem thm }
+
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   match e with
@@ -63,7 +78,9 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         internalize c generation
         registerParent e c
       else
-        unless f.isConst do
+        if let .const fName _ := f then
+          activateTheoremPatterns fName
+        else
           internalize f generation
           registerParent e f
         for h : i in [: args.size] do

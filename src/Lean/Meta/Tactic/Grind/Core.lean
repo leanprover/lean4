@@ -82,13 +82,13 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  trace[grind.eqc] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
   if isSameExpr lhsNode.root rhsNode.root then
     -- `lhs` and `rhs` are already in the same equivalence class.
     trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
     return ()
+  trace[grind.eqc] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
   let mut valueInconsistency := false

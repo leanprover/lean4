@@ -15,8 +15,8 @@ extern "C" {
 #endif
 static lean_object* l_List_toString___at_instToStringFloatArray___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_419_;
 static lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__16;
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_423_;
 LEAN_EXPORT lean_object* l_FloatArray_get_x3f___boxed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_instInhabited;
@@ -112,7 +112,6 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe_fold___at_FloatArray_foldl___
 static lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__12;
 static lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__6;
 LEAN_EXPORT lean_object* l_List_foldl___at_instToStringFloatArray___spec__2(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_505_;
 size_t lean_usize_add(size_t, size_t);
 double lean_float_array_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_uset___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -120,6 +119,7 @@ LEAN_EXPORT lean_object* l_FloatArray_foldlMUnsafe(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_FloatArray_forIn_loop___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__3;
 LEAN_EXPORT uint8_t l_FloatArray_isEmpty(lean_object*);
+LEAN_EXPORT lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_509_;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__10;
 LEAN_EXPORT lean_object* l_FloatArray_toList(lean_object*);
@@ -565,7 +565,7 @@ x_6 = lean_box_float(x_5);
 return x_6;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_419_() {
+static lean_object* _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_423_() {
 _start:
 {
 lean_object* x_1; 
@@ -585,7 +585,7 @@ x_7 = lean_float_array_uset(x_1, x_5, x_6);
 return x_7;
 }
 }
-static lean_object* _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_505_() {
+static lean_object* _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_509_() {
 _start:
 {
 lean_object* x_1; 
@@ -1524,10 +1524,10 @@ l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__22 = _init_l___a
 lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_217____closed__22);
 l___auto____x40_Init_Data_FloatArray_Basic___hyg_217_ = _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_217_();
 lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_217_);
-l___auto____x40_Init_Data_FloatArray_Basic___hyg_419_ = _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_419_();
-lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_419_);
-l___auto____x40_Init_Data_FloatArray_Basic___hyg_505_ = _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_505_();
-lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_505_);
+l___auto____x40_Init_Data_FloatArray_Basic___hyg_423_ = _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_423_();
+lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_423_);
+l___auto____x40_Init_Data_FloatArray_Basic___hyg_509_ = _init_l___auto____x40_Init_Data_FloatArray_Basic___hyg_509_();
+lean_mark_persistent(l___auto____x40_Init_Data_FloatArray_Basic___hyg_509_);
 l_List_foldl___at_instToStringFloatArray___spec__2___closed__1 = _init_l_List_foldl___at_instToStringFloatArray___spec__2___closed__1();
 lean_mark_persistent(l_List_foldl___at_instToStringFloatArray___spec__2___closed__1);
 l_List_toString___at_instToStringFloatArray___spec__1___closed__1 = _init_l_List_toString___at_instToStringFloatArray___spec__1___closed__1();

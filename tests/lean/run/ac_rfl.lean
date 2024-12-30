@@ -14,14 +14,14 @@ example (x y : Nat) : (x + y = 42) = (y + x = 42) := by ac_rfl
 
 example (x y : Nat) (P : Prop) : (x + y = 42 → P) = (y + x = 42 → P) := by ac_rfl
 
-inductive Vector (α : Type u) : Nat → Type u where
-  | nil  : Vector α 0
-  | cons : α → Vector α n → Vector α (n+1)
+inductive Vector' (α : Type u) : Nat → Type u where
+  | nil  : Vector' α 0
+  | cons : α → Vector' α n → Vector' α (n+1)
 
-def f (n : Nat) (xs : Vector α n) := xs
+def f (n : Nat) (xs : Vector' α n) := xs
 
 -- Repro: Dependent types trigger incorrect proofs
-theorem ex₂ (n m : Nat) (xs : Vector α (n+m)) (ys : Vector α (m+n)) : (f (n+m) xs, f (m+n) ys, n+m) = (f (n+m) xs, f (m+n) ys, m+n) := by
+theorem ex₂ (n m : Nat) (xs : Vector' α (n+m)) (ys : Vector' α (m+n)) : (f (n+m) xs, f (m+n) ys, n+m) = (f (n+m) xs, f (m+n) ys, m+n) := by
   ac_rfl
 
 -- Repro: Binders also trigger invalid proofs

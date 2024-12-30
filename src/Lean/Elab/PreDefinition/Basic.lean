@@ -244,8 +244,8 @@ def checkCodomainsLevel (preDefs : Array PreDefinition) : MetaM Unit := do
     lambdaTelescope preDef.value fun xs _ => return xs.size
   forallBoundedTelescope preDefs[0]!.type arities[0]!  fun _ type₀ => do
     let u₀ ← getLevel type₀
-    for i in [1:preDefs.size] do
-      forallBoundedTelescope preDefs[i]!.type arities[i]! fun _ typeᵢ =>
+    for h : i in [1:preDefs.size] do
+      forallBoundedTelescope preDefs[i].type arities[i]! fun _ typeᵢ =>
       unless ← isLevelDefEq u₀ (← getLevel typeᵢ) do
         withOptions (fun o => pp.sanitizeNames.set o false) do
           throwError m!"invalid mutual definition, result types must be in the same universe " ++

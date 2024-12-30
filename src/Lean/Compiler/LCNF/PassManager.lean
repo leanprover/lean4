@@ -134,9 +134,9 @@ def withEachOccurrence (targetName : Name) (f : Nat → PassInstaller) : PassIns
 
 def installAfter (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0) : PassInstaller where
   install passes :=
-    if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
-      let passUnderTest := passes[idx]!
-      return passes.insertAt! (idx + 1) (p passUnderTest)
+    if let some idx := passes.findFinIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
+      let passUnderTest := passes[idx]
+      return passes.insertIdx (idx + 1) (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 
@@ -145,9 +145,9 @@ def installAfterEach (targetName : Name) (p : Pass → Pass) : PassInstaller :=
 
 def installBefore (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0): PassInstaller where
   install passes :=
-    if let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
-      let passUnderTest := passes[idx]!
-      return passes.insertAt! idx (p passUnderTest)
+    if let some idx := passes.findFinIdx? (fun p => p.name == targetName && p.occurrence == occurrence) then
+      let passUnderTest := passes[idx]
+      return passes.insertIdx idx (p passUnderTest)
     else
       throwError s!"Tried to insert pass after {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
 
@@ -157,9 +157,7 @@ def installBeforeEachOccurrence (targetName : Name) (p : Pass → Pass) : PassIn
 def replacePass (targetName : Name) (p : Pass → Pass) (occurrence : Nat := 0) : PassInstaller where
   install passes := do
     let some idx := passes.findIdx? (fun p => p.name == targetName && p.occurrence == occurrence) | throwError s!"Tried to replace {targetName}, occurrence {occurrence} but {targetName} is not in the pass list"
-    let target := passes[idx]!
-    let replacement := p target
-    return passes.set! idx replacement
+    return passes.modify idx p
 
 def replaceEachOccurrence (targetName : Name) (p : Pass → Pass) : PassInstaller :=
     withEachOccurrence targetName (replacePass targetName p ·)

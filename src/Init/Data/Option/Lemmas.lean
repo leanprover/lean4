@@ -629,4 +629,12 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     · rintro ⟨h, rfl⟩
       rfl
 
+/-! ### pelim -/
+
+@[simp] theorem pelim_none : pelim none b f = b := rfl
+@[simp] theorem pelim_some : pelim (some a) b f = f a rfl := rfl
+
+@[simp] theorem pelim_eq_elim : pelim o b (fun a _ => f a) = o.elim b f := by
+  cases o <;> simp
+
 end Option

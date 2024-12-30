@@ -21,7 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_deltaExpand___lambda__1___boxed(lean_object
 static lean_object* l_Lean_Meta_deltaExpand___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_deltaTarget___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_name(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 uint8_t l_Lean_ConstantInfo_hasValue(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_deltaExpand___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_deltaTarget___closed__2;
@@ -71,7 +71,8 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_environment_find(x_13, x_7);
+x_14 = l_Lean_Environment_find_x3f(x_13, x_7);
+lean_dec(x_7);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -356,7 +357,8 @@ lean_dec(x_9);
 x_83 = lean_ctor_get(x_81, 0);
 lean_inc(x_83);
 lean_dec(x_81);
-x_84 = lean_environment_find(x_83, x_7);
+x_84 = l_Lean_Environment_find_x3f(x_83, x_7);
+lean_dec(x_7);
 if (lean_obj_tag(x_84) == 0)
 {
 lean_object* x_85; lean_object* x_86; 

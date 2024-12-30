@@ -37,9 +37,8 @@ Register `e` as an atom of `width` that might potentially be `synthetic`.
 def mkAtom (e : Expr) (width : Nat) (synthetic : Bool) : M ReifiedBVExpr := do
   let ident ← M.lookup e width synthetic
   let expr := mkApp2 (mkConst ``BVExpr.var) (toExpr width) (toExpr ident)
-  let proof := do
-    let evalExpr ← mkEvalExpr width expr
-    return mkBVRefl width evalExpr
+  -- This is safe because this proof always holds definitionally.
+  let proof := pure none
   return ⟨width, .var ident, proof, expr⟩
 
 /--
@@ -70,9 +69,8 @@ Build a reified version of the constant `val`.
 def mkBVConst (val : BitVec w) : M ReifiedBVExpr := do
   let bvExpr : BVExpr w := .const val
   let expr := mkApp2 (mkConst ``BVExpr.const) (toExpr w) (toExpr val)
-  let proof := do
-    let evalExpr ← ReifiedBVExpr.mkEvalExpr w expr
-    return ReifiedBVExpr.mkBVRefl w evalExpr
+  -- This is safe because this proof always holds definitionally.
+  let proof := pure none
   return ⟨w, bvExpr, proof, expr⟩
 
 end ReifiedBVExpr

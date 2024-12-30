@@ -24,7 +24,7 @@ static lean_object* l___private_Lean_ProjFns_0__Lean_reprProjectionFunctionInfo_
 LEAN_EXPORT lean_object* l_Lean_getProjectionFnInfo_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instReprProjectionFunctionInfo;
 static lean_object* l___private_Lean_ProjFns_0__Lean_reprProjectionFunctionInfo____x40_Lean_ProjFns___hyg_52____closed__16;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ProjFns_0__Lean_reprProjectionFunctionInfo____x40_Lean_ProjFns___hyg_52____closed__12;
 uint8_t l_Lean_MapDeclarationExtension_contains___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ProjFns___hyg_193_(lean_object*);
@@ -734,7 +734,8 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_7, 0);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = lean_environment_find(x_1, x_8);
+x_9 = l_Lean_Environment_find_x3f(x_1, x_8);
+lean_dec(x_8);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; 

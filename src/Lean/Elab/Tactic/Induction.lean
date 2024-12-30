@@ -282,10 +282,11 @@ where
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
         withAlwaysResolvedPromise fun finished => do
           withAlwaysResolvedPromises altStxs.size fun altPromises => do
-            tacSnap.new.resolve <| .mk {
+            tacSnap.new.resolve {
               -- save all relevant syntax here for comparison with next document version
               stx := mkNullNode altStxs
               diagnostics := .empty
+              inner? := none
               finished := { range? := none, task := finished.result }
               next := altStxs.zipWith altPromises fun stx prom =>
                 { range? := stx.getRange?, task := prom.result }
@@ -298,7 +299,7 @@ where
                 let old := old.val.get
                 -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
                 -- version and picked apart in `applyAltStx`
-                return ⟨old.data.stx, (← old.data.next[i]?)⟩
+                return ⟨old.stx, (← old.next[i]?)⟩
               new := prom
             }
             finished.resolve { diagnostics := .empty, state? := (← saveState) }
@@ -340,9 +341,9 @@ where
     for h : altStxIdx in [0:altStxs.size] do
       let altStx := altStxs[altStxIdx]
       let altName := getAltName altStx
-      if let some i := alts.findIdx? (·.1 == altName) then
+      if let some i := alts.findFinIdx? (·.1 == altName) then
         -- cover named alternative
-        applyAltStx tacSnaps altStxIdx altStx alts[i]!
+        applyAltStx tacSnaps altStxIdx altStx alts[i]
         alts := alts.eraseIdx i
       else if !alts.isEmpty && isWildcard altStx then
         -- cover all alternatives

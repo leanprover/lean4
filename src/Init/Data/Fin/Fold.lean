@@ -13,17 +13,17 @@ namespace Fin
 /-- Folds over `Fin n` from the left: `foldl 3 f x = f (f (f x 0) 1) 2`. -/
 @[inline] def foldl (n) (f : α → Fin n → α) (init : α) : α := loop init 0 where
   /-- Inner loop for `Fin.foldl`. `Fin.foldl.loop n f x i = f (f (f x i) ...) (n-1)`  -/
-  loop (x : α) (i : Nat) : α :=
+  @[semireducible, specialize] loop (x : α) (i : Nat) : α :=
     if h : i < n then loop (f x ⟨i, h⟩) (i+1) else x
   termination_by n - i
-  decreasing_by decreasing_trivial_pre_omega
 
 /-- Folds over `Fin n` from the right: `foldr 3 f x = f 0 (f 1 (f 2 x))`. -/
-@[inline] def foldr (n) (f : Fin n → α → α) (init : α) : α := loop ⟨n, Nat.le_refl n⟩ init where
+@[inline] def foldr (n) (f : Fin n → α → α) (init : α) : α := loop n (Nat.le_refl n) init where
   /-- Inner loop for `Fin.foldr`. `Fin.foldr.loop n f i x = f 0 (f ... (f (i-1) x))`  -/
-  loop : {i // i ≤ n} → α → α
-  | ⟨0, _⟩, x => x
-  | ⟨i+1, h⟩, x => loop ⟨i, Nat.le_of_lt h⟩ (f ⟨i, h⟩ x)
+  @[specialize] loop : (i : _) → i ≤ n → α → α
+  | 0, _, x => x
+  | i+1, h, x => loop i (Nat.le_of_lt h) (f ⟨i, h⟩ x)
+  termination_by structural i => i
 
 /--
 Folds a monadic function over `Fin n` from left to right:
@@ -47,7 +47,7 @@ Fin.foldlM n f x₀ = do
     pure xₙ
   ```
   -/
-  loop (x : α) (i : Nat) : m α := do
+  @[semireducible, specialize] loop (x : α) (i : Nat) : m α := do
     if h : i < n then f x ⟨i, h⟩ >>= (loop · (i+1)) else pure x
   termination_by n - i
   decreasing_by decreasing_trivial_pre_omega
@@ -76,7 +76,7 @@ Fin.foldrM n f xₙ = do
     pure x₀
   ```
   -/
-  loop : {i // i ≤ n} → α → m α
+  @[semireducible, specialize] loop : {i // i ≤ n} → α → m α
   | ⟨0, _⟩, x => pure x
   | ⟨i+1, h⟩, x => f ⟨i, h⟩ x >>= loop ⟨i, Nat.le_of_lt h⟩
 
@@ -125,7 +125,7 @@ theorem foldrM_loop [Monad m] [LawfulMonad m] (f : Fin (n+1) → α → m α) (x
   | zero =>
     rw [foldrM_loop_zero, foldrM_loop_succ, pure_bind]
     conv => rhs; rw [←bind_pure (f 0 x)]
-    congr; funext; exact foldrM_loop_zero ..
+    congr; funext
   | succ i ih =>
     rw [foldrM_loop_succ, foldrM_loop_succ, bind_assoc]
     congr; funext; exact ih ..
@@ -176,17 +176,19 @@ theorem foldl_eq_foldlM (f : α → Fin n → α) (x) :
 /-! ### foldr -/
 
 theorem foldr_loop_zero (f : Fin n → α → α) (x) :
-    foldr.loop n f ⟨0, Nat.zero_le _⟩ x = x := by
+    foldr.loop n f 0 (Nat.zero_le _) x = x := by
   rw [foldr.loop]
 
 theorem foldr_loop_succ (f : Fin n → α → α) (x) (h : i < n) :
-    foldr.loop n f ⟨i+1, h⟩ x = foldr.loop n f ⟨i, Nat.le_of_lt h⟩ (f ⟨i, h⟩ x) := by
+    foldr.loop n f (i+1) h x = foldr.loop n f i (Nat.le_of_lt h) (f ⟨i, h⟩ x) := by
   rw [foldr.loop]
 
 theorem foldr_loop (f : Fin (n+1) → α → α) (x) (h : i+1 ≤ n+1) :
-    foldr.loop (n+1) f ⟨i+1, h⟩ x =
-      f 0 (foldr.loop n (fun j => f j.succ) ⟨i, Nat.le_of_succ_le_succ h⟩ x) := by
-  induction i generalizing x <;> simp [foldr_loop_zero, foldr_loop_succ, *]
+    foldr.loop (n+1) f (i+1) h x =
+      f 0 (foldr.loop n (fun j => f j.succ) i (Nat.le_of_succ_le_succ h) x) := by
+  induction i generalizing x with
+  | zero => simp [foldr_loop_succ, foldr_loop_zero]
+  | succ i ih => rw [foldr_loop_succ, ih]; rfl
 
 @[simp] theorem foldr_zero (f : Fin 0 → α → α) (x) : foldr 0 f x = x :=
   foldr_loop_zero ..

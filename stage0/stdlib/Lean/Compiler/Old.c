@@ -18,9 +18,8 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition___lambda__1___boxed(l
 lean_object* l_Lean_Name_toString(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Compiler_mkUnsafeRecName___closed__1;
 static lean_object* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_eager_lambda_lifting_name(lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Compiler_checkIsDefinition___lambda__1(lean_object*);
@@ -30,6 +29,7 @@ static lean_object* l_Lean_Compiler_isEagerLambdaLiftingName___closed__1;
 lean_object* lean_compile_decls(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Environment_compileDecls___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_Declaration_getNames___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__5;
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__4;
 LEAN_EXPORT lean_object* lean_is_unsafe_rec_name(lean_object*);
@@ -38,7 +38,6 @@ static lean_object* l_Lean_Compiler_checkIsDefinition___closed__2;
 uint8_t l_String_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_unsafe_rec_name(lean_object*);
-lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t lean_is_eager_lambda_lifting_name(lean_object*);
 static lean_object* l_Lean_Compiler_checkIsDefinition___closed__3;
@@ -126,62 +125,6 @@ x_3 = lean_box(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_3; 
-x_3 = l_List_reverse___rarg(x_2);
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_ctor_get(x_1, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-lean_dec(x_4);
-x_6 = !lean_is_exclusive(x_1);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_1, 1);
-x_8 = lean_ctor_get(x_1, 0);
-lean_dec(x_8);
-x_9 = lean_ctor_get(x_5, 0);
-lean_inc(x_9);
-lean_dec(x_5);
-lean_ctor_set(x_1, 1, x_2);
-lean_ctor_set(x_1, 0, x_9);
-{
-lean_object* _tmp_0 = x_7;
-lean_object* _tmp_1 = x_1;
-x_1 = _tmp_0;
-x_2 = _tmp_1;
-}
-goto _start;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_1, 1);
-lean_inc(x_11);
-lean_dec(x_1);
-x_12 = lean_ctor_get(x_5, 0);
-lean_inc(x_12);
-lean_dec(x_5);
-x_13 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_13, 0, x_12);
-lean_ctor_set(x_13, 1, x_2);
-x_1 = x_11;
-x_2 = x_13;
-goto _start;
-}
-}
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Compiler_getDeclNamesForCodeGen(lean_object* x_1) {
 _start:
 {
@@ -206,7 +149,7 @@ x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
 lean_dec(x_1);
 x_5 = lean_box(0);
-x_6 = l_List_mapTR_loop___at_Lean_Compiler_getDeclNamesForCodeGen___spec__1(x_4, x_5);
+x_6 = l_List_mapTR_loop___at_Lean_Declaration_getNames___spec__1(x_4, x_5);
 return x_6;
 }
 case 6:
@@ -291,8 +234,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; 
-lean_inc(x_2);
-x_3 = lean_environment_find(x_1, x_2);
+x_3 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 

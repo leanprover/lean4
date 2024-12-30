@@ -9,8 +9,6 @@ elab "grind_pre" : tactic => do
 abbrev f (a : α) := a
 
 /--
-warning: declaration uses 'sorry'
----
 info: a b c : Bool
 p q : Prop
 left✝ : a = true
@@ -19,6 +17,8 @@ left : p
 right : q
 x✝ : b = false ∨ a = false
 ⊢ False
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -28,8 +28,6 @@ theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
 
 open Lean.Grind.Eager in
 /--
-warning: declaration uses 'sorry'
----
 info: a b c : Bool
 p q : Prop
 left✝ : a = true
@@ -65,6 +63,8 @@ left : p
 right : q
 h : a = false
 ⊢ False
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -87,8 +87,6 @@ structure Point where
   y : Int
 
 /--
-warning: declaration uses 'sorry'
----
 info: a₁ : Point
 a₂ : Nat
 a₃ : Int
@@ -102,6 +100,8 @@ x_eq : a₂ = b₂
 y_eq : a₃ = b₃
 tail_eq : as = bs
 ⊢ False
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x := b₂, y := b₃} :: bs) : False := by

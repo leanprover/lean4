@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///863.lean"},
      "position": {"line": 9, "character": 12}},
-    "id": {"const": {"declName": "Lean.MonadRef.getRef"}}}},
+    "id": {"const": {"declName": "Lean.MonadRef.getRef"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "MonadRef.getRef",
    "kind": 5,
@@ -16,7 +17,8 @@
    {"params":
     {"textDocument": {"uri": "file:///863.lean"},
      "position": {"line": 9, "character": 12}},
-    "id": {"const": {"declName": "Lean.MonadRef.getRef"}}}}],
+    "id": {"const": {"declName": "Lean.MonadRef.getRef"}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///863.lean"},
  "position": {"line": 13, "character": 12}}
@@ -28,7 +30,8 @@
    {"params":
     {"textDocument": {"uri": "file:///863.lean"},
      "position": {"line": 13, "character": 12}},
-    "id": {"const": {"declName": "Lean.MonadRef.getRef"}}}},
+    "id": {"const": {"declName": "Lean.MonadRef.getRef"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "MonadRef.getRef",
    "kind": 5,
@@ -36,5 +39,6 @@
    {"params":
     {"textDocument": {"uri": "file:///863.lean"},
      "position": {"line": 13, "character": 12}},
-    "id": {"const": {"declName": "Lean.MonadRef.getRef"}}}}],
+    "id": {"const": {"declName": "Lean.MonadRef.getRef"}},
+    "cPos": 0}}],
  "isIncomplete": true}

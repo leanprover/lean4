@@ -26,13 +26,14 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
       if let some idx := arg.isNatLit? then
         if idx == 0 then throwErrorAt arg "invalid specialization argument index, index must be greater than 0"
         let idx := idx - 1
-        if idx >= argNames.size then
+        if h : idx >= argNames.size then
           throwErrorAt arg "invalid argument index, `{declName}` has #{argNames.size} arguments"
-        if result.contains idx then throwErrorAt arg "invalid specialization argument index, `{argNames[idx]!}` has already been specified as a specialization candidate"
-        result := result.push idx
+        else
+          if result.contains idx then throwErrorAt arg "invalid specialization argument index, `{argNames[idx]}` has already been specified as a specialization candidate"
+          result := result.push idx
       else
         let argName := arg.getId
-        if let some idx := argNames.getIdx? argName then
+        if let some idx := argNames.indexOf? argName then
           if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
           result := result.push idx
         else

@@ -398,16 +398,22 @@ Aliases are considered first.
 
 When `fullNames` is true, returns either `n₀` or `_root_.n₀`.
 
+When `allowHorizAliases` is false, then "horizontal aliases" (ones that are not put into a parent namespace) are filtered out.
+The assumption is that non-horizontal aliases are "API exports" (i.e., intentional exports that should be considered to be the new canonical name).
+"Non-API exports" arise from (1) using `export` to add names to a namespace for dot notation or (2) projects that want names to be conveniently and permanently accessible in their own namespaces.
+
 This function is meant to be used for pretty printing.
 If `n₀` is an accessible name, then the result will be an accessible name.
 -/
-def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) : m Name := do
+def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) (allowHorizAliases := false) : m Name := do
   if n₀.hasMacroScopes then return n₀
   if fullNames then
     match (← resolveGlobalName n₀) with
       | [(potentialMatch, _)] => if (privateToUserName? potentialMatch).getD potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
       | _ => return n₀ -- if can't resolve, return the original
   let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
+  unless allowHorizAliases do
+    initialNames := initialNames.filter fun n => n.getPrefix.isPrefixOf n₀.getPrefix
   initialNames := initialNames.push (rootNamespace ++ n₀)
   for initialName in initialNames do
     if let some n ← unresolveNameCore initialName then

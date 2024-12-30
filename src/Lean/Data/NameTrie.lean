@@ -54,6 +54,9 @@ instance : EmptyCollection (NameTrie β) where
 def NameTrie.find? (t : NameTrie β) (k : Name) : Option β :=
   PrefixTree.find? t (toKey k)
 
+def NameTrie.findLongestPrefix? (t : NameTrie β) (k : Name) : Option β :=
+  PrefixTree.findLongestPrefix? t (toKey k)
+
 @[inline]
 def NameTrie.foldMatchingM [Monad m] (t : NameTrie β) (k : Name) (init : σ) (f : β → σ → m σ) : m σ :=
   PrefixTree.foldMatchingM t (toKey k) init f

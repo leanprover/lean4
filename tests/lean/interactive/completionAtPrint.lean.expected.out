@@ -8,8 +8,27 @@
    {"params":
     {"textDocument": {"uri": "file:///completionAtPrint.lean"},
      "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.find?"}}}},
+    "id": {"const": {"declName": "Lean.Environment.find?"}},
+    "cPos": 0}},
   {"sortText": "1",
+   "label": "findAsync?",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
+     "position": {"line": 2, "character": 25}},
+    "id": {"const": {"declName": "Lean.Environment.findAsync?"}},
+    "cPos": 0}},
+  {"sortText": "2",
+   "label": "findConstVal?",
+   "kind": 3,
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
+     "position": {"line": 2, "character": 25}},
+    "id": {"const": {"declName": "Lean.Environment.findConstVal?"}},
+    "cPos": 0}},
+  {"sortText": "3",
    "label": "freeRegions",
    "kind": 3,
    "documentation":
@@ -20,5 +39,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionAtPrint.lean"},
      "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.freeRegions"}}}}],
+    "id": {"const": {"declName": "Lean.Environment.freeRegions"}},
+    "cPos": 0}}],
  "isIncomplete": true}

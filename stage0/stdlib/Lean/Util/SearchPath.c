@@ -34,7 +34,6 @@ static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile_
 LEAN_EXPORT lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___closed__2;
-extern lean_object* l_Lean_levelZero;
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2___closed__3;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at___aux__Lean__Util__SearchPath______elabRules__termCompile__time__search__path_x25__1___spec__2___closed__1;
@@ -286,7 +285,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = lean_box(0);
-x_2 = l_Lean_levelZero;
+x_2 = lean_box(0);
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_2);
 lean_ctor_set(x_3, 1, x_1);

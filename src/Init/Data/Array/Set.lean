@@ -25,8 +25,10 @@ Set an element in an array, or do nothing if the index is out of bounds.
 This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
-@[inline] def Array.setD (a : Array α) (i : Nat) (v : α) : Array α :=
+@[inline] def Array.setIfInBounds (a : Array α) (i : Nat) (v : α) : Array α :=
   dite (LT.lt i a.size) (fun h => a.set i v h) (fun _ => a)
+
+@[deprecated Array.setIfInBounds (since := "2024-11-24")] abbrev Array.setD := @Array.setIfInBounds
 
 /--
 Set an element in an array, or panic if the index is out of bounds.
@@ -36,4 +38,4 @@ count of 1 when called.
 -/
 @[extern "lean_array_set"]
 def Array.set! (a : Array α) (i : @& Nat) (v : α) : Array α :=
-  Array.setD a i v
+  Array.setIfInBounds a i v

@@ -229,7 +229,7 @@ structure ParamInfo where
   hasFwdDeps     : Bool       := false
   /-- `backDeps` contains the backwards dependencies. That is, the (0-indexed) position of previous parameters that this one depends on. -/
   backDeps       : Array Nat  := #[]
-  /-- `isProp` is true if the parameter is always a proposition. -/
+  /-- `isProp` is true if the parameter type is always a proposition. -/
   isProp         : Bool       := false
   /--
     `isDecInst` is true if the parameter's type is of the form `Decidable ...`.
@@ -825,7 +825,7 @@ def mkFreshExprMVarWithId (mvarId : MVarId) (type? : Option Expr := none) (kind 
     mkFreshExprMVarWithIdCore mvarId type kind userName
 
 def mkFreshLevelMVars (num : Nat) : MetaM (List Level) :=
-  num.foldM (init := []) fun _ us =>
+  num.foldM (init := []) fun _ _ us =>
     return (← mkFreshLevelMVar)::us
 
 def mkFreshLevelMVarsFor (info : ConstantInfo) : MetaM (List Level) :=

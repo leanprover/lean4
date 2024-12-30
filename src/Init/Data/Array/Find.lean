@@ -81,7 +81,7 @@ theorem getElem_zero_flatten.proof {L : Array (Array α)} (h : 0 < L.flatten.siz
     (L.findSome? fun l => l[0]?).isSome := by
   cases L using array_array_induction
   simp only [List.findSome?_toArray, List.findSome?_map, Function.comp_def, List.getElem?_toArray,
-    List.findSome?_isSome_iff, List.isSome_getElem?]
+    List.findSome?_isSome_iff, isSome_getElem?]
   simp only [flatten_toArray_map_toArray, size_toArray, List.length_flatten,
     Nat.sum_pos_iff_exists_pos, List.mem_map] at h
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
@@ -271,5 +271,11 @@ theorem find?_mkArray_eq_none {n : Nat} {a : α} {p : α → Bool} :
 @[simp] theorem get_find?_mkArray (n : Nat) (a : α) (p : α → Bool) (h) :
     ((mkArray n a).find? p).get h = a := by
   simp [mkArray_eq_toArray_replicate]
+
+theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
+    (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :
+    (xs.pmap f H).find? p = (xs.attach.find? (fun ⟨a, m⟩ => p (f a (H a m)))).map fun ⟨a, m⟩ => f a (H a m) := by
+  simp only [pmap_eq_map_attach, find?_map]
+  rfl
 
 end Array

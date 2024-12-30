@@ -250,8 +250,8 @@ theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by si
 
 /--
 info: n : Nat
-h : EvenOdd.isOdd (n + 1) = false
-⊢ EvenOdd.isEven n = true
+h : isOdd (n + 1) = false
+⊢ isEven n = true
 -/
 #guard_msgs in
 theorem ex1 (n : Nat) (h : isEven (n+2) = true) : isEven n = true := by
@@ -682,7 +682,7 @@ info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1
 #check EvenOdd.isEven.induct
 
 /--
-info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+info: WithTuple.Tree.map.induct {α : Type} (motive_1 : WithTuple.Tree α → Prop)
   (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
   (case1 :
     ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
@@ -693,8 +693,8 @@ info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithT
 #check WithTuple.Tree.map.induct
 
 /--
-info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
-  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+info: WithArray.Tree.map.induct {α : Type} (motive_1 : WithArray.Tree α → Prop) (motive_2 : Array (WithArray.Tree α) → Prop)
+  (motive_3 : List (WithArray.Tree α) → Prop)
   (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
   (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
   (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))

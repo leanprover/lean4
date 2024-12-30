@@ -57,7 +57,6 @@ LEAN_EXPORT lean_object* l_instInhabitedForallOfMonad(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Macro_mkMethodsImp(lean_object*);
 static size_t l_instInhabitedUSize___closed__1;
 LEAN_EXPORT lean_object* l_instMonadEvalTOfMonadEval(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_UInt64_toUSize___boxed(lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos(lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_ofNatLt(lean_object*);
@@ -109,7 +108,6 @@ LEAN_EXPORT lean_object* l_List_length___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqList___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableLtBitVec(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___rarg(lean_object*, lean_object*);
-size_t lean_uint64_to_usize(uint64_t);
 static lean_object* l_Lean_identKind___closed__2;
 LEAN_EXPORT lean_object* l_instDecidableLeBitVec(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_reservedMacroScope;
@@ -296,6 +294,7 @@ LEAN_EXPORT lean_object* l_instLEFin___boxed(lean_object*);
 static lean_object* l_Array_mkArray4___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Macro_throwError(lean_object*);
 LEAN_EXPORT lean_object* l_instDecidableEqUInt32___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailingTailPos_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_get___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadQuotationMacroM___lambda__1(lean_object*, lean_object*);
@@ -355,7 +354,6 @@ uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_instSubNat;
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Macro_instMonadRefMacroM___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_of_nat(lean_object*);
-uint64_t lean_usize_to_uint64(size_t);
 LEAN_EXPORT lean_object* l_Lean_Macro_instMonadRefMacroM___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_node6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_empty(lean_object*);
@@ -531,7 +529,6 @@ uint8_t lean_uint16_dec_eq(uint16_t, uint16_t);
 static uint16_t l_instInhabitedUInt16___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Macro_instInhabitedMethods___lambda__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfOfMonadFunctor(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_USize_toUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MacroScopesView_review(lean_object*);
 LEAN_EXPORT lean_object* l_namedPattern___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__4;
@@ -595,7 +592,6 @@ LEAN_EXPORT lean_object* l_instLTFin(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MonadRef_mkInfoFromRefPos___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___rarg(lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT uint8_t l_instDecidableEqUInt64(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Nat_ble___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_modifyGet(lean_object*, lean_object*, lean_object*);
@@ -647,6 +643,7 @@ LEAN_EXPORT lean_object* l_Array_mkArray8___rarg(lean_object*, lean_object*, lea
 LEAN_EXPORT lean_object* l_Eq_ndrec(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_interpolatedStrKind;
 LEAN_EXPORT lean_object* l_BitVec_ofNatLt___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailingTailPos_x3f(lean_object*, uint8_t);
 static lean_object* l_instInhabitedSubstring___closed__2;
 static lean_object* l_instHashableString___closed__1;
 LEAN_EXPORT lean_object* l_Lean_TSyntaxArray_mkImpl___boxed(lean_object*);
@@ -757,6 +754,7 @@ LEAN_EXPORT lean_object* l_instPowOfHomogeneousPow___rarg(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_EStateM_seqRight(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_EStateM_get___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedReaderT(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailing_x3f(lean_object*);
 static lean_object* l_EStateM_instMonadStateOf___closed__3;
 LEAN_EXPORT lean_object* l_EStateM_adaptExcept(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instLTPos;
@@ -772,6 +770,7 @@ LEAN_EXPORT lean_object* l_EStateM_map___rarg(lean_object*, lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_Macro_expandMacro_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_node8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instInhabitedForall(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailing_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_UInt16_decEq___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedName;
 LEAN_EXPORT lean_object* l_instMonadLiftT___rarg___boxed(lean_object*);
@@ -847,7 +846,6 @@ LEAN_EXPORT lean_object* l_Char_utf8Size(uint32_t);
 LEAN_EXPORT lean_object* l_letFun(lean_object*, lean_object*);
 static lean_object* l_Lean_Macro_instInhabitedMethods___closed__3;
 LEAN_EXPORT lean_object* l_Lean_hygieneInfoKind;
-LEAN_EXPORT lean_object* l_USize_ofNat32___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_pure___at_Lean_PrettyPrinter_instMonadQuotationUnexpandM___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_instHSub___rarg(lean_object*, lean_object*, lean_object*);
@@ -3345,16 +3343,6 @@ _start:
 size_t x_1; 
 x_1 = l_instInhabitedUSize___closed__1;
 return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_USize_ofNat32___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-size_t x_3; lean_object* x_4; 
-x_3 = lean_usize_of_nat(x_1);
-lean_dec(x_1);
-x_4 = lean_box_usize(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Char_ofNatAux___boxed(lean_object* x_1, lean_object* x_2) {
@@ -7251,28 +7239,6 @@ x_2 = l_EStateM_nonBacktrackable___closed__3;
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_UInt64_toUSize___boxed(lean_object* x_1) {
-_start:
-{
-uint64_t x_2; size_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_uint64(x_1);
-lean_dec(x_1);
-x_3 = lean_uint64_to_usize(x_2);
-x_4 = lean_box_usize(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_USize_toUInt64___boxed(lean_object* x_1) {
-_start:
-{
-size_t x_2; uint64_t x_3; lean_object* x_4; 
-x_2 = lean_unbox_usize(x_1);
-lean_dec(x_1);
-x_3 = lean_usize_to_uint64(x_2);
-x_4 = lean_box_uint64(x_3);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l_mixHash___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -7860,6 +7826,87 @@ uint8_t x_3; lean_object* x_4;
 x_3 = lean_unbox(x_2);
 lean_dec(x_2);
 x_4 = l_Lean_SourceInfo_getTailPos_x3f(x_1, x_3);
+lean_dec(x_1);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailing_x3f(lean_object* x_1) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailing_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_SourceInfo_getTrailing_x3f(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailingTailPos_x3f(lean_object* x_1, uint8_t x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_SourceInfo_getTrailing_x3f(x_1);
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; 
+x_4 = l_Lean_SourceInfo_getTailPos_x3f(x_1, x_2);
+return x_4;
+}
+else
+{
+uint8_t x_5; 
+x_5 = !lean_is_exclusive(x_3);
+if (x_5 == 0)
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_ctor_get(x_3, 0);
+x_7 = lean_ctor_get(x_6, 2);
+lean_inc(x_7);
+lean_dec(x_6);
+lean_ctor_set(x_3, 0, x_7);
+return x_3;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+lean_dec(x_3);
+x_9 = lean_ctor_get(x_8, 2);
+lean_inc(x_9);
+lean_dec(x_8);
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_9);
+return x_10;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_SourceInfo_getTrailingTailPos_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = lean_unbox(x_2);
+lean_dec(x_2);
+x_4 = l_Lean_SourceInfo_getTrailingTailPos_x3f(x_1, x_3);
 lean_dec(x_1);
 return x_4;
 }

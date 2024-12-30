@@ -85,6 +85,7 @@ example : (BitVec.twoPow 16 2) = 4#16 := by bv_normalize
 example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
 example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
+example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
 
 section
 

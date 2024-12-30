@@ -853,7 +853,7 @@ private partial def elabStructInstView (s : StructInstView) (expectedType? : Opt
               let stx ← `(by $tacticSyntax)
               -- See comment in `Lean.Elab.Term.ElabAppArgs.processExplicitArg` about `tacticSyntax`.
               -- We add info to get reliable positions for messages from evaluating the tactic script.
-              let info := field.ref.getHeadInfo
+              let info := field.ref.getHeadInfo.nonCanonicalSynthetic
               let stx := stx.raw.rewriteBottomUp (·.setInfo info)
               let type := (d.getArg! 0).consumeTypeAnnotations
               let mvar ← mkTacticMVar type stx (.fieldAutoParam fieldName s.structName)

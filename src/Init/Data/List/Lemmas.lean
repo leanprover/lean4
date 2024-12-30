@@ -154,6 +154,9 @@ theorem ne_nil_iff_exists_cons {l : List α} : l ≠ [] ↔ ∃ b L, l = b :: L 
 theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
   simp
 
+@[simp] theorem concat_ne_nil (a : α) (l : List α) : l ++ [a] ≠ [] := by
+  cases l <;> simp
+
 /-! ## L[i] and L[i]? -/
 
 /-! ### `get` and `get?`.
@@ -216,7 +219,9 @@ We simplify `l[i]!` to `(l[i]?).getD default`.
 @[simp] theorem getElem!_eq_getElem?_getD [Inhabited α] (l : List α) (i : Nat) :
     l[i]! = (l[i]?).getD (default : α) := by
   simp only [getElem!_def]
-  split <;> simp_all
+  match l[i]? with
+  | some _ => simp
+  | none => simp
 
 /-! ### getElem? and getElem -/
 
@@ -669,6 +674,42 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
 
 /-! ### BEq -/
 
+@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
+  cases l <;> rfl
+
+@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
+
+@[simp] theorem concat_beq_concat [BEq α] {a b : α} {l₁ l₂ : List α} :
+    (l₁ ++ [a] == l₂ ++ [b]) = (l₁ == l₂ && a == b) := by
+  induction l₁ generalizing l₂ with
+  | nil => cases l₂ <;> simp
+  | cons x l₁ ih =>
+    cases l₂ with
+    | nil => simp
+    | cons y l₂ => simp [ih, Bool.and_assoc]
+
+theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
+  match l₁, l₂ with
+  | [], [] => rfl
+  | [], _ :: _ => by simp [beq_nil_iff] at h
+  | _ :: _, [] => by simp [nil_beq_iff] at h
+  | a :: l₁, b :: l₂ => by
+    simp at h
+    simpa [Nat.add_one_inj] using length_eq_of_beq h.2
+
+@[simp] theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
+    (replicate n a == replicate n b) = (n == 0 || a == b) := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [replicate_succ, replicate_succ, cons_beq_cons, replicate_beq_replicate]
+    rw [Bool.eq_iff_iff]
+    simp +contextual
+
 @[simp] theorem reflBEq_iff [BEq α] : ReflBEq (List α) ↔ ReflBEq α := by
   constructor
   · intro h
@@ -706,66 +747,15 @@ theorem mem_or_eq_of_mem_set : ∀ {l : List α} {n : Nat} {a b : α}, a ∈ l.s
     · intro a
       simp
 
-@[simp] theorem beq_nil_iff [BEq α] {l : List α} : (l == []) = l.isEmpty := by
-  cases l <;> rfl
+/-! ### isEqv -/
 
-@[simp] theorem nil_beq_iff [BEq α] {l : List α} : ([] == l) = l.isEmpty := by
-  cases l <;> rfl
-
-@[simp] theorem cons_beq_cons [BEq α] {a b : α} {l₁ l₂ : List α} :
-    (a :: l₁ == b :: l₂) = (a == b && l₁ == l₂) := rfl
-
-theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l₁.length = l₂.length :=
-  match l₁, l₂ with
-  | [], [] => rfl
-  | [], _ :: _ => by simp [beq_nil_iff] at h
-  | _ :: _, [] => by simp [nil_beq_iff] at h
-  | a :: l₁, b :: l₂ => by
-    simp at h
-    simpa [Nat.add_one_inj]using length_eq_of_beq h.2
-
-/-! ### Lexicographic ordering -/
-
-protected theorem lt_irrefl [LT α] (lt_irrefl : ∀ x : α, ¬x < x) (l : List α) : ¬l < l := by
-  induction l with
-  | nil => nofun
-  | cons a l ih => intro
-    | .head _ _ h => exact lt_irrefl _ h
-    | .tail _ _ h => exact ih h
-
-protected theorem lt_trans [LT α] [DecidableRel (@LT.lt α _)]
-    (lt_trans : ∀ {x y z : α}, x < y → y < z → x < z)
-    (le_trans : ∀ {x y z : α}, ¬x < y → ¬y < z → ¬x < z)
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.lt.nil ..
-  | @head a l₁ b l₂ ab =>
-    match h₂ with
-    | .head l₂ l₃ bc => exact List.lt.head _ _ (lt_trans ab bc)
-    | .tail _ cb ih =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans · cb ab)
-  | @tail a l₁ b l₂ ab ba h₁ ih2 =>
-    match h₂ with
-    | .head l₂ l₃ bc =>
-      exact List.lt.head _ _ <| Decidable.by_contra (le_trans ba · bc)
-    | .tail bc cb ih =>
-      exact List.lt.tail (le_trans ab bc) (le_trans cb ba) (ih2 ih)
-
-protected theorem lt_antisymm [LT α]
-    (lt_antisymm : ∀ {x y : α}, ¬x < y → ¬y < x → x = y)
-    {l₁ l₂ : List α} (h₁ : ¬l₁ < l₂) (h₂ : ¬l₂ < l₁) : l₁ = l₂ := by
+@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
   induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => rfl
-    | cons b l₂ => cases h₁ (.nil ..)
+  | nil => cases l₂ <;> simp
   | cons a l₁ ih =>
     cases l₂ with
-    | nil => cases h₂ (.nil ..)
-    | cons b l₂ =>
-      have ab : ¬a < b := fun ab => h₁ (.head _ _ ab)
-      cases lt_antisymm ab (fun ba => h₂ (.head _ _ ba))
-      rw [ih (fun ll => h₁ (.tail ab ab ll)) (fun ll => h₂ (.tail ab ab ll))]
+    | nil => simp
+    | cons b l₂ => simp [isEqv, ih]
 
 /-! ### foldlM and foldrM -/
 
@@ -2072,8 +2062,6 @@ theorem concat_inj_right {l : List α} {a a' : α} : concat l a = concat l a' �
 
 @[deprecated concat_inj (since := "2024-09-05")] abbrev concat_eq_concat := @concat_inj
 
-theorem concat_ne_nil (a : α) (l : List α) : concat l a ≠ [] := by cases l <;> simp
-
 theorem concat_append (a : α) (l₁ l₂ : List α) : concat l₁ a ++ l₂ = l₁ ++ a :: l₂ := by simp
 
 theorem append_concat (a : α) (l₁ l₂ : List α) : l₁ ++ concat l₂ a = concat (l₁ ++ l₂) a := by simp
@@ -2325,6 +2313,10 @@ theorem flatMap_eq_foldl (f : α → List β) (l : List α) :
 /-! ### replicate -/
 
 @[simp] theorem replicate_one : replicate 1 a = [a] := rfl
+
+/-- Variant of `replicate_succ` that concatenates `a` to the end of the list. -/
+theorem replicate_succ' : replicate (n + 1) a = replicate n a ++ [a] := by
+  induction n <;> simp_all [replicate_succ, ← cons_append]
 
 @[simp] theorem mem_replicate {a b : α} : ∀ {n}, b ∈ replicate n a ↔ n ≠ 0 ∧ b = a
   | 0 => by simp

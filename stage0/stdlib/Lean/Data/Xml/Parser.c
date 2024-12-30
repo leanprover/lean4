@@ -128,6 +128,7 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Lean_Xml_Parser_Att
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_Lean_Xml_Parser_predefinedEntityToChar___closed__7;
 static lean_object* l_Lean_Xml_Parser_quote___rarg___closed__2;
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Std_Internal_Parsec_manyCore___at_Lean_Xml_Parser_CharRef___spec__1___closed__1;
 static lean_object* l_Lean_Xml_Parser_doctypedecl___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Xml_parse(lean_object*);
@@ -382,7 +383,6 @@ static lean_object* l_Lean_Xml_Parser_NameChar___closed__11;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_manyCore___at_Lean_Xml_Parser_EntityValue___spec__2(uint32_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_PITarget(lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_doctypedecl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_NameChar___boxed__const__1;
 LEAN_EXPORT lean_object* l_Lean_Xml_Parser_content(lean_object*);

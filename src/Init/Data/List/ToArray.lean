@@ -7,6 +7,7 @@ prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
+import Init.Data.Array.Lex.Basic
 
 /-! ### Lemmas about `List.toArray`.
 
@@ -28,6 +29,11 @@ theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
     (a.toArrayAux b).size = b.size + a.length := by
   simp [size]
 
+-- This is not a `@[simp]` lemma because it is pushing `toArray` inwards.
+theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArray := by
+  apply ext'
+  simp
+
 @[simp] theorem push_toArray (l : List α) (a : α) : l.toArray.push a = (l ++ [a]).toArray := by
   apply ext'
   simp
@@ -38,7 +44,7 @@ theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
   simp
 
 @[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
-  cases l <;> simp
+  cases l <;> simp [Array.isEmpty]
 
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
 
@@ -110,6 +116,18 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
     l.toArray.foldlM f init 0 stop = l.foldlM f init := by
   subst h
   rw [foldlM_toList]
+
+/-- Variant of `forM_toArray` with a side condition for the `stop` argument. -/
+@[simp] theorem forM_toArray' [Monad m] (l : List α) (f : α → m PUnit) (h : stop = l.toArray.size) :
+    (l.toArray.forM f 0 stop) = l.forM f := by
+  subst h
+  rw [Array.forM]
+  simp only [size_toArray, foldlM_toArray']
+  induction l <;> simp_all
+
+theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
+    (l.toArray.forM f) = l.forM f := by
+  simp
 
 /-- Variant of `foldr_toArray` with a side condition for the `start` argument. -/
 @[simp] theorem foldr_toArray' (f : α → β → β) (init : β) (l : List α)
@@ -370,5 +388,10 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
   split
   · simp
   · simp_all [List.set_eq_of_length_le]
+
+@[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
+
+@[deprecated toArray_replicate (since := "2024-12-13")]
+abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
 
 end List

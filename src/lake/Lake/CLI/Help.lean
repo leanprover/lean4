@@ -46,6 +46,7 @@ BASIC OPTIONS:
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update, -U          update dependencies on load (e.g., before a build)
+  --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --keep-toolchain      do not update toolchain on workspace update
   --no-build            exit immediately if a build target is not up-to-date

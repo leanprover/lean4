@@ -1042,7 +1042,7 @@ if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 x_15 = lean_ctor_get(x_12, 3);
-x_16 = lean_ctor_get(x_1, 3);
+x_16 = lean_ctor_get(x_1, 4);
 lean_inc(x_16);
 x_17 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_17, 0, x_2);
@@ -1089,7 +1089,7 @@ lean_inc(x_28);
 lean_inc(x_27);
 lean_inc(x_26);
 lean_dec(x_12);
-x_31 = lean_ctor_get(x_1, 3);
+x_31 = lean_ctor_get(x_1, 4);
 lean_inc(x_31);
 x_32 = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(x_32, 0, x_2);
@@ -1775,7 +1775,7 @@ default:
 {
 lean_object* x_69; uint8_t x_70; 
 x_69 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
+x_70 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 9);
 if (x_70 == 0)
 {
 lean_object* x_71; lean_object* x_72; 
@@ -2649,7 +2649,7 @@ else
 {
 lean_object* x_264; uint8_t x_265; 
 x_264 = l___private_Lean_Meta_LevelDefEq_0__Lean_Meta_solve___closed__1;
-x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*6 + 8);
+x_265 = lean_ctor_get_uint8(x_3, sizeof(void*)*7 + 9);
 if (x_265 == 0)
 {
 lean_object* x_266; lean_object* x_267; 

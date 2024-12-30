@@ -22,6 +22,7 @@ end Array
 
 namespace Vector
 
+
 /-! ### mk lemmas -/
 
 theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
@@ -38,12 +39,20 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
     a ∈ Vector.mk data size ↔ a ∈ data :=
   ⟨fun ⟨h⟩ => h, fun h => ⟨h⟩⟩
 
+@[simp] theorem contains_mk [BEq α] {data : Array α} {size : data.size = n} {a : α} :
+    (Vector.mk data size).contains a = data.contains a := by
+  simp [contains]
+
 @[simp] theorem push_mk {data : Array α} {size : data.size = n} {x : α} :
     (Vector.mk data size).push x =
       Vector.mk (data.push x) (by simp [size, Nat.succ_eq_add_one]) := rfl
 
 @[simp] theorem pop_mk {data : Array α} {size : data.size = n} :
     (Vector.mk data size).pop = Vector.mk data.pop (by simp [size]) := rfl
+
+@[simp] theorem mk_beq_mk [BEq α] {a b : Array α} {h : a.size = n} {h' : b.size = n} :
+    (Vector.mk a h == Vector.mk b h') = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, h, h']
 
 @[simp] theorem allDiff_mk [BEq α] (a : Array α) (h : a.size = n) :
     (Vector.mk a h).allDiff = a.allDiff := rfl
@@ -177,6 +186,10 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_push (a : Vector α n) (x) : (a.push x).toArray = a.toArray.push x := rfl
 
+@[simp] theorem toArray_beq_toArray [BEq α] (a : Vector α n) (b : Vector α n) :
+    (a.toArray == b.toArray) = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, a.2, b.2]
+
 @[simp] theorem toArray_range : (Vector.range n).toArray = Array.range n := rfl
 
 @[simp] theorem toArray_reverse (a : Vector α n) : a.reverse.toArray = a.toArray.reverse := rfl
@@ -212,8 +225,45 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
     (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
 
-theorem toArray_inj : ∀ {v w : Vector α n}, v.toArray = w.toArray → v = w
-  | {..}, {..}, rfl => rfl
+@[simp] theorem anyM_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.anyM p = v.anyM p := by
+  cases v
+  simp
+
+@[simp] theorem allM_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.allM p = v.allM p := by
+  cases v
+  simp
+
+@[simp] theorem any_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.any p = v.any p := by
+  cases v
+  simp
+
+@[simp] theorem all_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.all p = v.all p := by
+  cases v
+  simp
+
+@[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
+
+@[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
+  cases v
+  cases w
+  simp
+
+/--
+`Vector.ext` is an extensionality theorem.
+Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
+-/
+@[ext]
+protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i] = b[i]) : a = b := by
+  apply Vector.toArray_inj.1
+  apply Array.ext
+  · rw [a.size_toArray, b.size_toArray]
+  · intro i hi _
+    rw [a.size_toArray] at hi
+    exact h i hi
 
 @[simp] theorem toArray_eq_empty_iff (v : Vector α n) : v.toArray = #[] ↔ n = 0 := by
   rcases v with ⟨v, h⟩
@@ -269,6 +319,10 @@ theorem toList_pop (a : Vector α n) : a.pop.toList = a.toList.dropLast := rfl
 
 theorem toList_push (a : Vector α n) (x) : (a.push x).toList = a.toList ++ [x] := by simp
 
+@[simp] theorem toList_beq_toList [BEq α] (a : Vector α n) (b : Vector α n) :
+    (a.toList == b.toList) = (a == b) := by
+  simp [instBEq, isEqv, Array.instBEq, Array.isEqv, a.2, b.2]
+
 theorem toList_range : (Vector.range n).toList = List.range n := by simp
 
 theorem toList_reverse (a : Vector α n) : a.reverse.toList = a.toList.reverse := by simp
@@ -291,8 +345,32 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
 @[simp] theorem toList_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
     (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
 
-theorem toList_inj : ∀ {v w : Vector α n}, v.toList = w.toList → v = w
-  | {..}, {..}, rfl => rfl
+@[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toList.anyM p = v.anyM p := by
+  cases v
+  simp
+
+@[simp] theorem allM_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (v : Vector α n) :
+    v.toList.allM p = v.allM p := by
+  cases v
+  simp
+
+@[simp] theorem any_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.any p = v.any p := by
+  cases v
+  simp
+
+@[simp] theorem all_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.all p = v.all p := by
+  cases v
+  simp
+
+@[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
+
+theorem toList_inj {v w : Vector α n} : v.toList = w.toList ↔ v = w := by
+  cases v
+  cases w
+  simp [Array.toList_inj]
 
 @[simp] theorem toList_eq_empty_iff (v : Vector α n) : v.toList = [] ↔ n = 0 := by
   rcases v with ⟨v, h⟩
@@ -312,7 +390,7 @@ theorem length_toList {α n} (xs : Vector α n) : xs.toList.length = n := by sim
 
 /-- A vector of length `0` is the empty vector. -/
 protected theorem eq_empty (v : Vector α 0) : v = #v[] := by
-  apply Vector.toArray_inj
+  apply Vector.toArray_inj.1
   apply Array.eq_empty_of_size_eq_zero v.2
 
 
@@ -320,7 +398,7 @@ protected theorem eq_empty (v : Vector α 0) : v = #v[] := by
 
 theorem eq_empty_of_size_eq_zero (xs : Vector α n) (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
-  apply toArray_inj
+  apply toArray_inj.1
   simp only [List.length_eq_zero, Array.toList_eq_nil_iff] at h
   simp [h]
 
@@ -361,7 +439,20 @@ theorem exists_push {xs : Vector α (n + 1)} :
     ∃ (ys : Vector α n) (a : α), xs = ys.push a := by
   rcases xs with ⟨xs, w⟩
   obtain ⟨ys, a, h⟩ := Array.exists_push_of_size_eq_add_one w
-  exact ⟨⟨ys, by simp_all⟩, a, toArray_inj h⟩
+  exact ⟨⟨ys, by simp_all⟩, a, toArray_inj.1 h⟩
+
+theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
+  simp
+
+/-! ### mkVector -/
+
+@[simp] theorem mkVector_zero : mkVector 0 a = #v[] := rfl
+
+theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
+  simp [mkVector, Array.mkArray_succ]
+
+theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
+  simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
 
 /-! ## L[i] and L[i]? -/
 
@@ -598,6 +689,339 @@ instance {xs : Vector α n} {p : α → Prop} [DecidablePred p] :
     exact
       ⟨by rintro ⟨i, h, w⟩; exact ⟨_, ⟨i, h, rfl⟩, w⟩, fun ⟨_, ⟨i, h, rfl⟩, w⟩ => ⟨i, h, w⟩⟩)
 
+/-! ### any / all -/
+
+theorem any_iff_exists {p : α → Bool} {xs : Vector α n} :
+    xs.any p ↔ ∃ (i : Nat) (_ : i < n), p xs[i] := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.any_iff_exists]
+
+theorem all_iff_forall {p : α → Bool} {xs : Vector α n} :
+    xs.all p ↔ ∀ (i : Nat) (_ : i < n), p xs[i] := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.all_iff_forall]
+
+theorem any_eq_true {p : α → Bool} {xs : Vector α n} :
+    xs.any p = true ↔ ∃ (i : Nat) (_ : i < n), p xs[i] := by
+  simp [any_iff_exists]
+
+theorem any_eq_false {p : α → Bool} {xs : Vector α n} :
+    xs.any p = false ↔ ∀ (i : Nat) (_ : i < n), ¬p xs[i] := by
+  rw [Bool.eq_false_iff, Ne, any_eq_true]
+  simp
+
+theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] {p : α → m Bool} {xs : Vector α n} :
+    xs.allM p = (! ·) <$> xs.anyM ((! ·) <$> p ·) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.allM_eq_not_anyM_not]
+
+theorem all_eq_not_any_not {p : α → Bool} {xs : Vector α n} :
+    xs.all p = !(xs.any (!p ·)) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.all_eq_not_any_not]
+
+@[simp] theorem all_eq_true {p : α → Bool} {xs : Vector α n} :
+    xs.all p = true ↔ ∀ (i : Nat) (_ : i < n), p xs[i] := by
+  simp [all_iff_forall]
+
+@[simp] theorem all_eq_false {p : α → Bool} {xs : Vector α n} :
+    xs.all p = false ↔ ∃ (i : Nat) (_ : i < n), ¬p xs[i] := by
+  rw [Bool.eq_false_iff, Ne, all_eq_true]
+  simp
+
+theorem all_eq_true_iff_forall_mem {xs : Vector α n} : xs.all p ↔ ∀ x, x ∈ xs → p x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [all_mk, Array.all_eq_true_iff_forall_mem]
+  simp
+
+/-- Variant of `any_eq_true` in terms of membership rather than an array index. -/
+theorem any_eq_true' {p : α → Bool} {xs : Vector α n} :
+    xs.any p = true ↔ (∃ x, x ∈ xs ∧ p x) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [any_mk, Array.any_eq_true']
+  simp
+
+/-- Variant of `any_eq_false` in terms of membership rather than an array index. -/
+theorem any_eq_false' {p : α → Bool} {xs : Vector α n} :
+    xs.any p = false ↔ ∀ x, x ∈ xs → ¬p x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [any_mk, Array.any_eq_false']
+  simp
+
+/-- Variant of `all_eq_true` in terms of membership rather than an array index. -/
+theorem all_eq_true' {p : α → Bool} {xs : Vector α n} :
+    xs.all p = true ↔ ∀ x, x ∈ xs → p x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [all_mk, Array.all_eq_true']
+  simp
+
+/-- Variant of `all_eq_false` in terms of membership rather than an array index. -/
+theorem all_eq_false' {p : α → Bool} {xs : Vector α n} :
+    xs.all p = false ↔ ∃ x, x ∈ xs ∧ ¬p x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [all_mk, Array.all_eq_false']
+  simp
+
+theorem any_eq {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ i : Nat, ∃ h, p (xs[i]'h)) := by
+  by_cases h : xs.any p
+  · simp_all [any_eq_true]
+  · simp_all [any_eq_false]
+
+/-- Variant of `any_eq` in terms of membership rather than an array index. -/
+theorem any_eq' {xs : Vector α n} {p : α → Bool} : xs.any p = decide (∃ x, x ∈ xs ∧ p x) := by
+  by_cases h : xs.any p
+  · simp_all [any_eq_true']
+  · simp only [Bool.not_eq_true] at h
+    simp only [h]
+    simp only [any_eq_false'] at h
+    simpa using h
+
+theorem all_eq {xs : Vector α n} {p : α → Bool} : xs.all p = decide (∀ i, (_ : i < n) → p xs[i]) := by
+  by_cases h : xs.all p
+  · simp_all [all_eq_true]
+  · simp only [Bool.not_eq_true] at h
+    simp only [h]
+    simp only [all_eq_false] at h
+    simpa using h
+
+/-- Variant of `all_eq` in terms of membership rather than an array index. -/
+theorem all_eq' {xs : Vector α n} {p : α → Bool} : xs.all p = decide (∀ x, x ∈ xs → p x) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [all_mk, Array.all_eq']
+  simp
+
+theorem decide_exists_mem {xs : Vector α n} {p : α → Prop} [DecidablePred p] :
+    decide (∃ x, x ∈ xs ∧ p x) = xs.any p := by
+  simp [any_eq']
+
+theorem decide_forall_mem {xs : Vector α n} {p : α → Prop} [DecidablePred p] :
+    decide (∀ x, x ∈ xs → p x) = xs.all p := by
+  simp [all_eq']
+
+theorem any_beq [BEq α] {xs : Vector α n} {a : α} : (xs.any fun x => a == x) = xs.contains a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.any_beq]
+
+/-- Variant of `any_beq` with `==` reversed. -/
+theorem any_beq' [BEq α] [PartialEquivBEq α] {xs : Vector α n} :
+    (xs.any fun x => x == a) = xs.contains a := by
+  simp only [BEq.comm, any_beq]
+
+theorem all_bne [BEq α] {xs : Vector α n} : (xs.all fun x => a != x) = !xs.contains a := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.all_bne]
+
+/-- Variant of `all_bne` with `!=` reversed. -/
+theorem all_bne' [BEq α] [PartialEquivBEq α] {xs : Vector α n} :
+    (xs.all fun x => x != a) = !xs.contains a := by
+  simp only [bne_comm, all_bne]
+
+theorem mem_of_contains_eq_true [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
+    as.contains a = true → a ∈ as := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.mem_of_contains_eq_true]
+
+theorem contains_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} (h : a ∈ as) :
+    as.contains a = true := by
+  rcases as with ⟨as, rfl⟩
+  simp only [mem_mk] at h
+  simp [Array.contains_eq_true_of_mem, h]
+
+instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ as) :=
+  decidable_of_decidable_of_iff (Iff.intro mem_of_contains_eq_true contains_eq_true_of_mem)
+
+theorem contains_iff [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
+    as.contains a = true ↔ a ∈ as := ⟨mem_of_contains_eq_true, contains_eq_true_of_mem⟩
+
+@[simp] theorem contains_eq_mem [BEq α] [LawfulBEq α] {a : α} {as : Vector α n} :
+    as.contains a = decide (a ∈ as) := by
+  rw [Bool.eq_iff_iff, contains_iff, decide_eq_true_iff]
+
+@[simp] theorem any_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+    (as.push a).any p = (as.any p || p a) := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.any_push]
+
+@[simp] theorem all_push [BEq α] {as : Vector α n} {a : α} {p : α → Bool} :
+    (as.push a).all p = (as.all p && p a) := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.all_push]
+
+@[simp] theorem contains_push [BEq α] {l : Vector α n} {a : α} {b : α} :
+    (l.push a).contains b = (l.contains b || b == a) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.contains_push]
+
+/-! ### set -/
+
+theorem getElem_set (v : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat) (hj : j < n) :
+    (v.set i x hi)[j] = if i = j then x else v[j] := by
+  cases v
+  split <;> simp_all [Array.getElem_set]
+
+@[simp] theorem getElem_set_self (v : Vector α n) (i : Nat) (x : α) (hi : i < n) :
+    (v.set i x hi)[i] = x := by simp [getElem_set]
+
+@[deprecated getElem_set_self (since := "2024-12-12")]
+abbrev getElem_set_eq := @getElem_set_self
+
+@[simp] theorem getElem_set_ne (v : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat)
+    (hj : j < n) (h : i ≠ j) : (v.set i x hi)[j] = v[j] := by simp [getElem_set, h]
+
+theorem getElem?_set (v : Vector α n) (i : Nat) (hi : i < n) (x : α) (j : Nat) :
+    (v.set i x hi)[j]? = if i = j then some x else v[j]? := by
+  cases v
+  split <;> simp_all [getElem?_eq_getElem, getElem_set]
+
+@[simp] theorem getElem?_set_self (v : Vector α n) (i : Nat) (hi : i < n) (x : α) :
+    (v.set i x hi)[i]? = some x := by simp [getElem?_eq_getElem, hi]
+
+@[simp] theorem getElem?_set_ne (v : Vector α n) (i : Nat) (hi : i < n) (x : α) (j : Nat)
+    (h : i ≠ j) : (v.set i x hi)[j]? = v[j]? := by
+  simp [getElem?_set, h]
+
+@[simp] theorem set_getElem_self {v : Vector α n} {i : Nat} (hi : i < n) :
+    v.set i v[i] hi = v := by
+  cases v
+  simp
+
+theorem set_comm (a b : α) {i j : Nat} (v : Vector α n) {hi : i < n} {hj : j < n} (h : i ≠ j) :
+    (v.set i a hi).set j b hj = (v.set j b hj).set i a hi := by
+  cases v
+  simp [Array.set_comm, h]
+
+@[simp] theorem set_set (a b : α) (v : Vector α n) (i : Nat) (hi : i < n) :
+    (v.set i a hi).set i b hi = v.set i b hi := by
+  cases v
+  simp
+
+theorem mem_set (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
+    a ∈ v.set i a hi := by
+  simp [mem_iff_getElem]
+  exact ⟨i, (by simpa using hi), by simp⟩
+
+theorem mem_or_eq_of_mem_set {v : Vector α n} {i : Nat} {a b : α} {w : i < n} (h : a ∈ v.set i b) : a ∈ v ∨ a = b := by
+  cases v
+  simpa using Array.mem_or_eq_of_mem_set (by simpa using h)
+
+/-! ### setIfInBounds -/
+
+theorem getElem_setIfInBounds (a : Vector α n) (i : Nat) (x : α) (j : Nat)
+    (hj : j < n) : (a.setIfInBounds i x)[j] = if i = j then x else a[j] := by
+  cases a
+  split <;> simp_all [Array.getElem_setIfInBounds]
+
+@[simp] theorem getElem_setIfInBounds_self (v : Vector α n) (i : Nat) (x : α) (hi : i < n) :
+    (v.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds, hi]
+
+@[deprecated getElem_setIfInBounds_self (since := "2024-12-12")]
+abbrev getElem_setIfInBounds_eq := @getElem_setIfInBounds_self
+
+@[simp] theorem getElem_setIfInBounds_ne (v : Vector α n) (i : Nat) (x : α) (j : Nat)
+    (hj : j < n) (h : i ≠ j) : (v.setIfInBounds i x)[j] = v[j] := by simp [getElem_setIfInBounds, h]
+
+theorem getElem?_setIfInBounds (v : Vector α n) (i : Nat) (x : α) (j : Nat) :
+    (v.setIfInBounds i x)[j]? = if i = j then if i < n then some x else none else v[j]? := by
+  rcases v with ⟨v, rfl⟩
+  simp [Array.getElem?_setIfInBounds]
+
+theorem getElem?_setIfInBounds_self (v : Vector α n) (i : Nat) (x : α) :
+    (v.setIfInBounds i x)[i]? = if i < n then some x else none := by simp [getElem?_setIfInBounds]
+
+@[simp] theorem getElem?_setIfInBounds_self_of_lt (v : Vector α n) (i : Nat) (x : α) (h : i < n) :
+    (v.setIfInBounds i x)[i]? = some x := by simp [getElem?_setIfInBounds, h]
+
+@[simp] theorem getElem?_setIfInBounds_ne (a : Vector α n) (i : Nat) (x : α) (j : Nat)
+    (h : i ≠ j) : (a.setIfInBounds i x)[j]? = a[j]? := by simp [getElem?_setIfInBounds, h]
+
+theorem setIfInBounds_eq_of_size_le {l : Vector α n} {m : Nat} (h : l.size ≤ m) {a : α} :
+    l.setIfInBounds m a = l := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.setIfInBounds_eq_of_size_le (by simpa using h)]
+
+theorem setIfInBound_comm (a b : α) {i j : Nat} (v : Vector α n) (h : i ≠ j) :
+    (v.setIfInBounds i a).setIfInBounds j b = (v.setIfInBounds j b).setIfInBounds i a := by
+  rcases v with ⟨v, rfl⟩
+  simp only [setIfInBounds_mk, mk.injEq]
+  rw [Array.setIfInBounds_comm _ _ _ h]
+
+@[simp] theorem setIfInBounds_setIfInBounds (a b : α) (v : Vector α n) (i : Nat) :
+    (v.setIfInBounds i a).setIfInBounds i b = v.setIfInBounds i b := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
+    a ∈ v.setIfInBounds i a := by
+  simp [mem_iff_getElem]
+  exact ⟨i, (by simpa using hi), by simp⟩
+
+/-! ### BEq -/
+
+@[simp] theorem push_beq_push [BEq α] {a b : α} {n : Nat} {v : Vector α n} {w : Vector α n} :
+    (v.push a == w.push b) = (v == w && a == b) := by
+  cases v
+  cases w
+  simp
+
+@[simp] theorem mkVector_beq_mkVector [BEq α] {a b : α} {n : Nat} :
+    (mkVector n a == mkVector n b) = (n == 0 || a == b) := by
+  cases n with
+  | zero => simp
+  | succ n =>
+    rw [mkVector_succ, mkVector_succ, push_beq_push, mkVector_beq_mkVector]
+    rw [Bool.eq_iff_iff]
+    simp +contextual
+
+@[simp] theorem reflBEq_iff [BEq α] [NeZero n] : ReflBEq (Vector α n) ↔ ReflBEq α := by
+  match n, NeZero.ne n with
+  | n + 1, _ =>
+    constructor
+    · intro h
+      constructor
+      intro a
+      suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
+        rw [mkVector_succ, push_beq_push, Bool.and_eq_true] at this
+        exact this.2
+      simp
+    · intro h
+      constructor
+      rintro ⟨v, h⟩
+      simpa using Array.isEqv_self_beq ..
+
+@[simp] theorem lawfulBEq_iff [BEq α] [NeZero n] : LawfulBEq (Vector α n) ↔ LawfulBEq α := by
+  match n, NeZero.ne n with
+  | n + 1, _ =>
+    constructor
+    · intro h
+      constructor
+      · intro a b h
+        have := mkVector_inj (n := n+1) (a := a) (b := b)
+        simp only [Nat.add_one_ne_zero, false_or] at this
+        rw [← this]
+        apply eq_of_beq
+        rw [mkVector_beq_mkVector]
+        simpa
+      · intro a
+        suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
+          rw [mkVector_beq_mkVector] at this
+          simpa
+        simp
+    · intro h
+      constructor
+      · rintro ⟨a, ha⟩ ⟨b, hb⟩ h
+        simp at h
+        obtain ⟨hs, hi⟩ := Array.rel_of_isEqv h
+        ext i h
+        · simpa using hi _ (by omega)
+      · rintro ⟨a, ha⟩
+        simpa using Array.isEqv_self_beq ..
+
+/-! ### isEqv -/
+
+@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : Vector α n} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
+  cases l₁
+  cases l₂
+  simp
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
@@ -610,20 +1034,6 @@ instance {xs : Vector α n} {p : α → Prop} [DecidablePred p] :
 theorem map_empty (f : α → β) : map f #v[] = #v[] := by
   rw [map, mk.injEq]
   exact Array.map_empty f
-
-
-/--
-`Vector.ext` is an extensionality theorem.
-Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
--/
-@[ext]
-protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i] = b[i]) : a = b := by
-  apply Vector.toArray_inj
-  apply Array.ext
-  · rw [a.size_toArray, b.size_toArray]
-  · intro i hi _
-    rw [a.size_toArray] at hi
-    exact h i hi
 
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩
@@ -648,32 +1058,6 @@ defeq issues in the implicit size argument.
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
     simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
-
-/-! ### set -/
-
-theorem getElem_set (a : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat) (hj : j < n) :
-    (a.set i x hi)[j] = if i = j then x else a[j] := by
-  cases a
-  split <;> simp_all [Array.getElem_set]
-
-@[simp] theorem getElem_set_eq (a : Vector α n) (i : Nat) (x : α) (hi : i < n) :
-    (a.set i x hi)[i] = x := by simp [getElem_set]
-
-@[simp] theorem getElem_set_ne (a : Vector α n) (i : Nat) (x : α) (hi : i < n) (j : Nat)
-    (hj : j < n) (h : i ≠ j) : (a.set i x hi)[j] = a[j] := by simp [getElem_set, h]
-
-/-! ### setIfInBounds -/
-
-theorem getElem_setIfInBounds (a : Vector α n) (i : Nat) (x : α) (j : Nat)
-    (hj : j < n) : (a.setIfInBounds i x)[j] = if i = j then x else a[j] := by
-  cases a
-  split <;> simp_all [Array.getElem_setIfInBounds]
-
-@[simp] theorem getElem_setIfInBounds_eq (a : Vector α n) (i : Nat) (x : α) (hj : i < n) :
-    (a.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
-
-@[simp] theorem getElem_setIfInBounds_ne (a : Vector α n) (i : Nat) (x : α) (j : Nat)
-    (hj : j < n) (h : i ≠ j) : (a.setIfInBounds i x)[j] = a[j] := by simp [getElem_setIfInBounds, h]
 
 /-! ### append -/
 
@@ -717,6 +1101,12 @@ theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : 
     (hi : i < n) : (zipWith a b f)[i] = f a[i] b[i] := by
   cases a
   cases b
+  simp
+
+/-! ### take -/
+
+@[simp] theorem take_size (a : Vector α n) : a.take n = a.cast (by simp) := by
+  rcases a with ⟨a, rfl⟩
   simp
 
 /-! ### swap -/

@@ -9,7 +9,6 @@ import Lean.Meta.Tactic.Grind
 import Lean.Elab.Command
 import Lean.Elab.Tactic.Basic
 
-
 namespace Lean.Elab.Tactic
 open Meta
 
@@ -20,6 +19,7 @@ def elabGrindPattern : CommandElab := fun stx => do
   | `(grind_pattern $thmName:ident => $terms,*) => do
     liftTermElabM do
       let declName ← resolveGlobalConstNoOverload thmName
+      discard <| addTermInfo thmName (← mkConstWithLevelParams declName)
       let info ← getConstInfo declName
       forallTelescope info.type fun xs _ => do
         let patterns ← terms.getElems.mapM fun term => do

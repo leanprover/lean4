@@ -58,7 +58,7 @@ def mkMonoPProd (hmono₁ hmono₂ : Expr) : MetaM Expr := do
     | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₁}"
   let_expr monotone _ _ _ inst₂ _ := (← inferType hmono₂)
     | throwError "mkMonoPProd: unexpected type of{indentExpr hmono₂}"
-  mkAppOptM ``monotone_prod #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
+  mkAppOptM ``monotone_pprod #[none, none, none, inst₁, inst₂, inst, none, none, hmono₁, hmono₂]
 
 def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
   -- We expect all functions in the clique to have `partial_fixpoint` syntax

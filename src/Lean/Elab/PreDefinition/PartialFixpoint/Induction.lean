@@ -30,10 +30,10 @@ partial def mkAdmProj (packedInst : Expr) (i : Nat) (e : Expr) : MetaM Expr := d
   if let some inst ← whnfUntil packedInst ``instCCPOPProd then
     let_expr instCCPOPProd α β instα instβ := inst | throwError "mkAdmProj: unexpected instance {inst}"
     if i == 0 then
-      mkAppOptM ``admissible_fst #[α, β, instα, instβ, none, e]
+      mkAppOptM ``admissible_pprod_fst #[α, β, instα, instβ, none, e]
     else
       let e ← mkAdmProj instβ (i - 1) e
-      mkAppOptM ``admissible_snd #[α, β, instα, instβ, none, e]
+      mkAppOptM ``admissible_pprod_snd #[α, β, instα, instβ, none, e]
   else
     assert! i == 0
     return e

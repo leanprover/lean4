@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Util
 import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 
@@ -37,7 +38,19 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
-private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
+mutual
+/-- Internalizes the nested ground terms in the given pattern. -/
+private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
+  if pattern.isBVar || isPatternDontCare pattern then
+    return pattern
+  else if let some e := groundPattern? pattern then
+    let e ← shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+    internalize e generation
+    return mkGroundPattern e
+  else pattern.withApp fun f args => do
+    return mkAppN f (← args.mapM (internalizePattern · generation))
+
+private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
   if let some thms := (← get).thmMap.find? fName then
     modify fun s => { s with thmMap := s.thmMap.erase fName }
     let appMap := (← get).appMap
@@ -47,6 +60,7 @@ private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
       match symbols with
       | [] =>
         trace[grind.pattern] "activated `{thm.origin.key}`"
+        let thm := { thm with patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
         modify fun s => { s with newThms := s.newThms.push thm }
       | _ =>
         trace[grind.pattern] "reinsert `{thm.origin.key}`"
@@ -54,6 +68,7 @@ private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
+  trace[grind.internalize] "{e}"
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
@@ -79,7 +94,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         registerParent e c
       else
         if let .const fName _ := f then
-          activateTheoremPatterns fName
+          activateTheoremPatterns fName generation
         else
           internalize f generation
           registerParent e f
@@ -91,5 +106,6 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       addCongrTable e
       updateAppMap e
       propagateUp e
+end
 
 end Lean.Meta.Grind

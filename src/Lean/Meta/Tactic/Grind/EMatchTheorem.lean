@@ -67,22 +67,25 @@ private def isForbidden (declName : Name) := forbiddenDeclNames.contains declNam
 
 private def dontCare := mkConst (Name.mkSimple "[grind_dontcare]")
 
-private def mkGroundPattern (e : Expr) : Expr :=
+def mkGroundPattern (e : Expr) : Expr :=
   mkAnnotation `grind.ground_pat e
 
-private def groundPattern? (e : Expr) : Option Expr :=
+def groundPattern? (e : Expr) : Option Expr :=
   annotation? `grind.ground_pat e
 
 private def isGroundPattern (e : Expr) : Bool :=
   groundPattern? e |>.isSome
 
+def isPatternDontCare (e : Expr) : Bool :=
+  e == dontCare
+
 private def isAtomicPattern (e : Expr) : Bool :=
-  e.isBVar || e == dontCare || isGroundPattern e
+  e.isBVar || isPatternDontCare e || isGroundPattern e
 
 partial def ppPattern (pattern : Expr) : MessageData := Id.run do
   if let some e := groundPattern? pattern then
     return m!"`[{e}]"
-  else if pattern == dontCare then
+  else if isPatternDontCare pattern then
     return m!"?"
   else match pattern with
     | .bvar idx => return m!"#{idx}"

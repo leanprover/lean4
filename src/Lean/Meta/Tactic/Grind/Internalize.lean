@@ -50,7 +50,7 @@ private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
         modify fun s => { s with newThms := s.newThms.push thm }
       | _ =>
         trace[grind.pattern] "reinsert `{thm.origin.key}`"
-        modify fun s => { s with thmMap := s.thmMap.insertTheorem thm }
+        modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()

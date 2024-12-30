@@ -13,7 +13,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
-import Lean.Meta.Tactic.Grind.TheoremPatterns
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Grind
 
@@ -275,14 +275,14 @@ structure Goal where
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
   /-- Active theorems that we have performed ematching at least once. -/
-  thms         : PArray TheoremPattern := {}
+  thms         : PArray EMatchTheorem := {}
   /-- Active theorems that we have not performed any round of ematching yet. -/
-  newThms      : PArray TheoremPattern := {}
+  newThms      : PArray EMatchTheorem := {}
   /--
   Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
   Local theorem provided by users are added directly into `newThms`.
   -/
-  thmMap       : TheoremPatterns
+  thmMap       : EMatchTheorems
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

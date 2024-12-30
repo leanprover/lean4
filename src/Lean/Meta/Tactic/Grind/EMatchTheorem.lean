@@ -32,8 +32,8 @@ def Origin.key : Origin → Name
   | .stx id _      => id
   | .other         => `other
 
--- TODO: find better name
-structure TheoremPattern where
+/-- A theorem for heuristic instantiation based on E-matching. -/
+structure EMatchTheorem where
   proof       : Expr
   numParams   : Nat
   patterns    : List Expr
@@ -42,21 +42,21 @@ structure TheoremPattern where
   origin      : Origin
   deriving Inhabited
 
--- TODO: find better name
-abbrev TheoremPatterns := PHashMap Name (List TheoremPattern)
+/-- The key is a symbol from `EMatchTheorem.symbols`. -/
+abbrev EMatchTheorems := PHashMap Name (List EMatchTheorem)
 
-def TheoremPatterns.insertTheorem (s : TheoremPatterns) (thm : TheoremPattern) : TheoremPatterns := Id.run do
+def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchTheorems := Id.run do
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
   if let some thms := s.find? declName then
-    return s.insert declName (thm::thms)
+    return PersistentHashMap.insert s declName (thm::thms)
   else
-    return s.insert declName [thm]
+    return PersistentHashMap.insert s declName [thm]
 
-builtin_initialize theoremPatternsExt : SimpleScopedEnvExtension TheoremPattern TheoremPatterns ←
+private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
   registerSimpleScopedEnvExtension {
-    addEntry := TheoremPatterns.insertTheorem
+    addEntry := EMatchTheorems.insert
     initial  := .empty
   }
 
@@ -295,7 +295,7 @@ private def ppParamsAt (proof : Expr) (numParms : Nat) (paramPos : List Nat) : M
         msg := msg ++ m!"{x} : {← inferType x}"
     addMessageContextFull msg
 
-def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
   let .thmInfo info ← getConstInfo declName
     | throwError "`{declName}` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic"
   let us := info.levelParams.map mkLevelParam
@@ -306,12 +306,12 @@ def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr)
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
      throwError "invalid pattern(s) for `{declName}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
-  theoremPatternsExt.add {
+  ematchTheoremsExt.add {
      proof, patterns, numParams, symbols
      origin := .decl declName
   }
 
-def getTheoremPatterns : CoreM TheoremPatterns :=
-  return theoremPatternsExt.getState (← getEnv)
+def getEMatchTheorems : CoreM EMatchTheorems :=
+  return ematchTheoremsExt.getState (← getEnv)
 
 end Lean.Meta.Grind

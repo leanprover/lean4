@@ -288,6 +288,7 @@ def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr)
   let us := info.levelParams.map mkLevelParam
   let proof := mkConst declName us
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
+  assert! symbols.all fun s => s matches .const _
   trace[grind.pattern] "{declName}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"

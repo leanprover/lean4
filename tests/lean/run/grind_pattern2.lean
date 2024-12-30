@@ -13,12 +13,12 @@ grind_pattern contains_insert => contains (insertElem s a) a
 
 -- TheoremPattern activation test
 
-set_option trace.grind.pattern true
+set_option trace.grind.ematch true
 
 /--
 warning: declaration uses 'sorry'
 ---
-info: [grind.pattern] activated `contains_insert`
+info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem ? #2 #1 #0) #0]
 -/
 #guard_msgs in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
@@ -29,8 +29,8 @@ example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
 /--
 warning: declaration uses 'sorry'
 ---
-info: [grind.pattern] reinsert `contains_insert`
-[grind.pattern] activated `contains_insert`
+info: [grind.ematch] reinsert `contains_insert`
+[grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem ? #2 #1 #0) #0]
 -/
 #guard_msgs in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
@@ -44,9 +44,7 @@ def foo (x : List Nat) (y : List Nat) := x ++ y ++ x
 
 theorem fooThm : foo x [a, b] = x ++ [a, b] ++ x := rfl
 
-/--
-info: [grind.pattern] fooThm: [foo #0 `[[a, b]]]
--/
+/-- info: [grind.ematch] fooThm: [foo #0 `[[a, b]]] -/
 #guard_msgs in
 grind_pattern fooThm => foo x [a, b]
 
@@ -55,13 +53,13 @@ grind_pattern fooThm => foo x [a, b]
 warning: declaration uses 'sorry'
 ---
 info: [grind.internalize] foo x y
-[grind.pattern] activated `fooThm`
 [grind.internalize] [a, b]
 [grind.internalize] Nat
 [grind.internalize] a
 [grind.internalize] [b]
 [grind.internalize] b
 [grind.internalize] []
+[grind.ematch] activated `fooThm`, [foo #0 `[[a, b]]]
 [grind.internalize] x
 [grind.internalize] y
 [grind.internalize] z

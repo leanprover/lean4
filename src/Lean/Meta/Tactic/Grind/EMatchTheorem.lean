@@ -305,7 +305,7 @@ def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) 
   let proof := mkConst declName us
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
   assert! symbols.all fun s => s matches .const _
-  trace[grind.pattern] "{declName}: {patterns.map ppPattern}"
+  trace[grind.ematch] "{declName}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
      throwError "invalid pattern(s) for `{declName}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"

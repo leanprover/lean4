@@ -141,7 +141,7 @@ def preprocess (mvarId : MVarId) : PreM State := do
   let mvarId ← mvarId.betaReduce
   loop (← mkGoal mvarId)
   if (← isTracingEnabledFor `grind.pre) then
-    trace[grind.pre] (← ppGoals)
+    trace[grind.debug.pre] (← ppGoals)
   for goal in (← get).goals do
     discard <| GoalM.run' goal <| checkInvariants (expensive := true)
   get

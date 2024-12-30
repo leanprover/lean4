@@ -82,7 +82,7 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
+  trace[grind.eqc] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
   if isSameExpr lhsNode.root rhsNode.root then
@@ -195,7 +195,7 @@ def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
 Adds a new `fact` justified by the given proof and using the given generation.
 -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
-  trace[grind.add] "{proof} : {fact}"
+  trace[grind.assert] "{fact}"
   if (← isInconsistent) then return ()
   resetNewEqs
   let_expr Not p := fact
@@ -203,7 +203,6 @@ def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   go p true
 where
   go (p : Expr) (isNeg : Bool) : GoalM Unit := do
-    trace[grind.add] "isNeg: {isNeg}, {p}"
     match_expr p with
     | Eq _ lhs rhs => goEq p lhs rhs isNeg false
     | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true

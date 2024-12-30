@@ -26,7 +26,7 @@ def elabGrindPattern : CommandElab := fun stx => do
           let pattern ← instantiateMVars (← elabTerm term none)
           let pattern ← Grind.unfoldReducible pattern
           return pattern.abstract xs
-        Grind.addTheoremPattern declName xs.size patterns.toList
+        Grind.addEMatchTheorem declName xs.size patterns.toList
   | _ => throwUnsupportedSyntax
 
 def grind (mvarId : MVarId) (mainDeclName : Name) : MetaM Unit := do

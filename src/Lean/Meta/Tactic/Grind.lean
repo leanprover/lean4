@@ -21,7 +21,7 @@ import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Parser
-import Lean.Meta.Tactic.Grind.TheoremPatterns
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean
 

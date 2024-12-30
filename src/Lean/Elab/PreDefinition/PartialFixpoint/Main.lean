@@ -142,9 +142,12 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
       if let some term := hints[i]!.term? then
         let hmono ← Term.withSynthesize <| Term.elabTermEnsuringType term goal
         let hmono ← instantiateMVars hmono
-        if hmono.hasMVar then
-          throwErrorAt term "monotonicity proof must not contain meta variables{indentExpr hmono}"
-        pure hmono
+        let mvars ← getMVars hmono
+        if mvars.isEmpty then
+          pure hmono
+        else
+          discard <| Term.logUnassignedUsingErrorInfos mvars
+          mkSorry goal (synthetic := true)
       else
         let hmono ← mkFreshExprSyntheticOpaqueMVar goal
         mapError (f := (m!"Could not prove '{preDef.declName}' to be monotone in its recursive calls:{indentD ·}")) do

@@ -11,12 +11,13 @@ partial_fixpoint monotonicity sorry
 
 set_option pp.mvars.anonymous false in
 /--
-error: monotonicity proof must not contain meta variables
-  ?_
+error: don't know how to synthesize placeholder for argument 'a'
+context:
+⊢ Lean.Order.monotone fun f x => f (x + 1)
 -/
 #guard_msgs in
 def nullarya (x : Nat) : Option Unit := nullarya (x + 1)
-partial_fixpoint monotonicity _
+partial_fixpoint monotonicity id _
 
 def nullaryb (x : Nat) : Option Unit := nullaryb (x + 1)
 partial_fixpoint monotonicity fun _ _ a _ => a _

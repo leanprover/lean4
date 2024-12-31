@@ -3537,7 +3537,7 @@ theorem reverse_append {x : BitVec w} {y : BitVec v} (h : v + w = w + v) :
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show ¬ i < w by omega, getLsbD_reverse]
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show i < w by omega, getLsbD_reverse]
 
-theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n):
+theorem Nat.mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n):
     (w * n - 1 - i) % w = w - 1 - i % w := by
   induction n
   case zero => omega
@@ -3577,7 +3577,9 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
     · simp [show (w * (n + 1) - 1 - i < w * (n + 1)) by omega,
         show i % w < w by simp [Nat.mod_lt (x := i) (y := w) hw]]
       congr
-      rw [mod_sub_eq_sub_mod (n := n + 1)]
+      let m := (n + 1)
+      have  hn: 0 < n + 1 := by omega
+      rw [Nat.mod_sub_eq_sub_mod (n := n + 1) h hn]
       <;> omega
     · simp [show w = 0 by omega]
 

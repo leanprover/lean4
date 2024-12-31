@@ -51,3 +51,12 @@ info: [grind.ematch.instance] Rtrans: R c d → R d e → R c e
 example : R a b → R b c → R c d → R d e → R d n → False := by
   fail_if_success grind
   sorry
+
+/--
+info: [grind.ematch.instance] Rtrans: R c d → R d e → R c e
+[grind.ematch.instance] Rtrans: R c d → R d n → R c n
+-/
+#guard_msgs (info) in
+example : R a b → R b c → R c d → R d e → R d n → False := by
+  fail_if_success grind (instances := 2)
+  sorry

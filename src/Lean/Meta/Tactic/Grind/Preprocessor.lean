@@ -162,16 +162,16 @@ open Preprocessor
 
 def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
   withoutModifyingMCtx do
-    Preprocessor.preprocessAndProbe mvarId p |>.run |>.run mainDeclName
+    Preprocessor.preprocessAndProbe mvarId p |>.run |>.run mainDeclName {}
 
-def preprocess (mvarId : MVarId) (mainDeclName : Name) : MetaM Preprocessor.State :=
-  Preprocessor.preprocess mvarId |>.run |>.run mainDeclName
+def preprocess (mvarId : MVarId) (mainDeclName : Name) (config : Grind.Config) : MetaM Preprocessor.State :=
+  Preprocessor.preprocess mvarId |>.run |>.run mainDeclName config
 
-def main (mvarId : MVarId) (mainDeclName : Name) : MetaM (List MVarId) := do
+def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) : MetaM (List MVarId) := do
   let go : GrindM (List MVarId) := do
     let s ← Preprocessor.preprocess mvarId |>.run
     let goals := s.goals.toList.filter fun goal => !goal.inconsistent
     return goals.map (·.mvarId)
-  go.run mainDeclName
+  go.run mainDeclName config
 
 end Lean.Meta.Grind

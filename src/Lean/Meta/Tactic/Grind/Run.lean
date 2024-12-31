@@ -25,7 +25,7 @@ def mkMethods : CoreM Methods := do
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
+def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
@@ -35,7 +35,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) : MetaM α := do
     (config := { arith := true })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
-  x (← mkMethods).toMethodsRef { mainDeclName, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  x (← mkMethods).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
 
 @[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
   goal.mvarId.withContext do StateRefT'.run x goal

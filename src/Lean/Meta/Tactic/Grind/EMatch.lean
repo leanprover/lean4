@@ -53,8 +53,8 @@ structure Choice where
 
 /-- Theorem instances found so far. We only internalize them after we complete a full round of E-matching. -/
 structure TheoremInstance where
-  prop       : Expr
   proof      : Expr
+  prop       : Expr
   generation : Nat
   deriving Inhabited
 
@@ -163,10 +163,75 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         let c := { c with gen := Nat.max gen c.gen }
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
-private partial def instantiateTheorem (c : Choice) : M Unit := do
-  trace[grind.ematch.instance] "{(← read).thm.origin.key} : {assignmentToMessageData c.assignment}"
-  -- TODO
-  return ()
+/--
+Stores new theorem instance in the state.
+Recall that new instances are internalized later, after a full round of ematching.
+-/
+private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) : M Unit := do
+  let proof ← instantiateMVars proof
+  if grind.debug.proofs.get (← getOptions) then
+    check proof
+  let prop ← inferType proof
+  trace[grind.ematch.instance] "{← origin.pp}: {prop}"
+  modify fun s => { s with newInstances := s.newInstances.push { proof, prop, generation } }
+
+/--
+After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
+Missing parameters are synthesized using type inference and type class synthesis."
+-/
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
+  let thm := (← read).thm
+  trace[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
+  let proof ← thm.getProofWithFreshMVarLevels
+  let numParams := thm.numParams
+  assert! c.assignment.size == numParams
+  let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
+  if mvars.size != thm.numParams then
+    trace[grind.issues] "unexpected number of parameters at {← thm.origin.pp}"
+    return ()
+  -- Apply assignment
+  for h : i in [:mvars.size] do
+    let v := c.assignment[numParams - i - 1]!
+    unless isSameExpr v unassigned do
+      let mvarId := mvars[i].mvarId!
+      unless (← mvarId.checkedAssign v) do
+        trace[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}"
+        return ()
+  -- Synthesize instances
+  for mvar in mvars, bi in bis do
+    if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
+      let type ← inferType mvar
+      unless (← synthesizeInstance mvar type) do
+        trace[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+        return ()
+  if (← mvars.allM (·.mvarId!.isAssigned)) then
+    addNewInstance thm.origin (mkAppN proof mvars) c.gen
+  else
+    -- instance has hypothesis
+    mkImp mvars 0 proof #[]
+where
+  synthesizeInstance (x type : Expr) : MetaM Bool := do
+    let .some val ← trySynthInstance type | return false
+    isDefEq x val
+
+  mkImp (mvars : Array Expr) (i : Nat) (proof : Expr) (xs : Array Expr) : M Unit := do
+    if h : i < mvars.size then
+      let mvar := mvars[i]
+      if (← mvar.mvarId!.isAssigned) then
+        mkImp mvars (i+1) (mkApp proof mvar) xs
+      else
+        let mvarType ← instantiateMVars (← inferType mvar)
+        if mvarType.hasMVar then
+          let thm := (← read).thm
+          trace[grind.issues] "failed to create hypothesis for instance of {← thm.origin.pp} hypothesis type has metavars{indentExpr mvarType}"
+          return ()
+        withLocalDeclD (← mkFreshUserName `h) mvarType fun x => do
+          mkImp mvars (i+1) (mkApp proof x) (xs.push x)
+    else
+      let proof ← instantiateMVars proof
+      let proof ← mkLambdaFVars xs proof
+      let thm := (← read).thm
+      addNewInstance thm.origin proof c.gen
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private partial def processChoices : M Unit := do

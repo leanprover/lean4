@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.HeadIndex
+import Lean.PrettyPrinter
 import Lean.Util.FoldConsts
 import Lean.Util.CollectFVars
 import Lean.Meta.Basic
@@ -32,8 +33,21 @@ def Origin.key : Origin → Name
   | .stx id _      => id
   | .other         => `other
 
+def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
+  match o with
+  | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
+  | .fvar fvarId   => return mkFVar fvarId
+  | .stx _ ref     => return ref
+  | .other         => return "[unknown]"
+
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
+  /--
+  It stores universe parameter names for universe polymorphic proofs.
+  Recall that it is non-empty only when we elaborate an expression provided by the user.
+  When `proof` is just a constant, we can use the universe parameter names stored in the declaration.
+  -/
+  levelParams : Array Name
   proof       : Expr
   numParams   : Nat
   patterns    : List Expr
@@ -53,6 +67,20 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
     return PersistentHashMap.insert s declName (thm::thms)
   else
     return PersistentHashMap.insert s declName [thm]
+
+def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
+  if thm.proof.isConst && thm.levelParams.isEmpty then
+    let declName := thm.proof.constName!
+    let info ← getConstInfo declName
+    if info.levelParams.isEmpty then
+      return thm.proof
+    else
+      mkConstWithFreshMVarLevels declName
+  else if thm.levelParams.isEmpty then
+    return thm.proof
+  else
+    let us ← thm.levelParams.mapM fun _ => mkFreshLevelMVar
+    return thm.proof.instantiateLevelParamsArray thm.levelParams us
 
 private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
   registerSimpleScopedEnvExtension {
@@ -316,7 +344,8 @@ def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) 
      throwError "invalid pattern(s) for `{declName}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
   ematchTheoremsExt.add {
      proof, patterns, numParams, symbols
-     origin := .decl declName
+     levelParams := #[]
+     origin      := .decl declName
   }
 
 def getEMatchTheorems : CoreM EMatchTheorems :=

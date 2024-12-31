@@ -178,9 +178,9 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
     let n ← getENode app
     if (n.heqProofs || isSameExpr n.cgRoot app) &&
        (!useMT || n.mt == gmt) then
-      modify fun s => { s with choiceStack := [] }
-      processMatch { cnstrs, assignment, gen := n.generation } p app
-      processChoices
+      if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
+        modify fun s => { s with choiceStack := [c] }
+        processChoices
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   withReader (fun ctx => { ctx with thm }) do

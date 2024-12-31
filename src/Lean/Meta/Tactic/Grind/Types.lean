@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Util.ShareCommon
+import Lean.HeadIndex
 import Lean.Meta.Basic
 import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
@@ -12,6 +13,7 @@ import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Grind
 
@@ -258,6 +260,12 @@ structure Goal where
   enodes       : ENodes := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
+  /--
+  A mapping from each function application index (`HeadIndex`) to a list of applications with that index.
+  Recall that the `HeadIndex` for a constant is its constant name, and for a free variable,
+  it is its unique id.
+  -/
+  appMap       : PHashMap HeadIndex (List Expr) := {}
   /-- Equations to be processed. -/
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
@@ -266,6 +274,15 @@ structure Goal where
   gmt          : Nat := 0
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
+  /-- Active theorems that we have performed ematching at least once. -/
+  thms         : PArray EMatchTheorem := {}
+  /-- Active theorems that we have not performed any round of ematching yet. -/
+  newThms      : PArray EMatchTheorem := {}
+  /--
+  Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
+  Local theorem provided by users are added directly into `newThms`.
+  -/
+  thmMap       : EMatchTheorems
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -356,8 +373,12 @@ Otherwise, it pushes `HEq lhs rhs`.
 def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
+/-- Return `true` if `a` and `b` have the same type. -/
+def hasSameType (a b : Expr) : MetaM Bool :=
+  withDefault do isDefEq (← inferType a) (← inferType b)
+
 @[inline] def pushEqHEq (lhs rhs proof : Expr) : GoalM Unit := do
-  if (← withDefault <| isDefEq (← inferType lhs) (← inferType rhs)) then
+  if (← hasSameType lhs rhs) then
     pushEqCore lhs rhs proof (isHEq := false)
   else
     pushEqCore lhs rhs proof (isHEq := true)

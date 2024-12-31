@@ -13,12 +13,44 @@ namespace Lean.Meta.Grind
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
   if let some { e := e' } := (← get).congrTable.find? { e } then
+    -- `f` and `g` must have the same type.
+    -- See paper: Congruence Closure in Intensional Type Theory
+    let f := e.getAppFn
+    let g := e'.getAppFn
+    unless isSameExpr f g do
+      unless (← hasSameType f g) do
+        trace[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        return ()
     trace[grind.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
-    -- TODO: we must check whether the types of the functions are the same
-    -- TODO: update cgRoot for `e`
+    let node ← getENode e
+    setENode e { node with cgRoot := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
+
+private def updateAppMap (e : Expr) : GoalM Unit := do
+  let key := e.toHeadIndex
+  modify fun s => { s with
+    appMap := if let some es := s.appMap.find? key then
+      s.appMap.insert key (e :: es)
+    else
+      s.appMap.insert key [e]
+  }
+
+private def activateTheoremPatterns (fName : Name) : GoalM Unit := do
+  if let some thms := (← get).thmMap.find? fName then
+    modify fun s => { s with thmMap := s.thmMap.erase fName }
+    let appMap := (← get).appMap
+    for thm in thms do
+      let symbols := thm.symbols.filter fun sym => !appMap.contains sym
+      let thm := { thm with symbols }
+      match symbols with
+      | [] =>
+        trace[grind.pattern] "activated `{thm.origin.key}`"
+        modify fun s => { s with newThms := s.newThms.push thm }
+      | _ =>
+        trace[grind.pattern] "reinsert `{thm.origin.key}`"
+        modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
@@ -46,7 +78,9 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         internalize c generation
         registerParent e c
       else
-        unless f.isConst do
+        if let .const fName _ := f then
+          activateTheoremPatterns fName
+        else
           internalize f generation
           registerParent e f
         for h : i in [: args.size] do
@@ -55,6 +89,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
           registerParent e arg
       mkENode e generation
       addCongrTable e
+      updateAppMap e
       propagateUp e
 
 end Lean.Meta.Grind

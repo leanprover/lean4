@@ -69,6 +69,18 @@ private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let falseProof ← mkEqMP pEqFalse hp
   closeGoal falseProof
 
+/--
+Updates the modification time to `gmt` for the parents of `root`.
+The modification time is used to decide which terms are considered during e-matching.
+-/
+private partial def updateMT (root : Expr) : GoalM Unit := do
+  let gmt := (← get).gmt
+  for parent in (← getParents root) do
+    let node ← getENode parent
+    if node.mt < gmt then
+      setENode parent { node with mt := gmt }
+      updateMT parent
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
@@ -137,6 +149,8 @@ where
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
+    unless (← isInconsistent) do
+      updateMT rhsRoot.self
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     let rec loop (e : Expr) : GoalM Unit := do

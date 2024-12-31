@@ -167,6 +167,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let prop ← inferType proof
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
   modify fun s => { s with newInstances := s.newInstances.push { proof, prop, generation } }
+  modifyThe Goal fun s => { s with numInstances := s.numInstances + 1 }
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -231,6 +232,8 @@ where
 /-- Process choice stack until we don't have more choices to be processed. -/
 private partial def processChoices : M Unit := do
   unless (← get).choiceStack.isEmpty do
+    checkSystem "ematch"
+    if (← checkMaxInstancesExceeded) then return ()
     let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
     match c.cnstrs with
     | [] => instantiateTheorem c
@@ -246,6 +249,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   let useMT      := (← read).useMT
   let gmt        := (← getThe Goal).gmt
   for app in apps do
+    if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode app
     if (n.heqProofs || isSameExpr n.cgRoot app) &&
        (!useMT || n.mt == gmt) then
@@ -254,6 +258,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
         processChoices
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
+  if (← checkMaxInstancesExceeded) then return ()
   withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
@@ -298,7 +303,6 @@ def ematch : GoalM (Array EMatchTheoremInstance) := do
       thms         := s.thms ++ s.newThms
       newThms      := {}
       gmt          := s.gmt + 1
-      numInstances := s.numInstances + insts.size
     }
     return insts
 

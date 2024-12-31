@@ -125,15 +125,21 @@ private def getPatternFn? (pattern : Expr) : Option Expr :=
     | f@(.fvar _) => some f
     | _ => none
 
-private structure PatternFunInfo where
-  instImplicitMask : Array Bool
-  typeMask : Array Bool
+/--
+Returns a bit-mask `mask` s.t. `mask[i]` is true if the the corresponding argument is
+- a type or type former, or
+- a proof, or
+- an instance implicit argument
 
-private def getPatternFunInfo (f : Expr) (numArgs : Nat) : MetaM PatternFunInfo := do
+When `mask[i]`, we say the corresponding argument is a "support" argument.
+-/
+private def getPatternFunMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
   forallBoundedTelescope (← inferType f) numArgs fun xs _ => do
-    let typeMask ← xs.mapM fun x => isTypeFormer x
-    let instImplicitMask ← xs.mapM fun x => return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
-    return { typeMask, instImplicitMask }
+    xs.mapM fun x => do
+      if (← isTypeFormer x <||> isProof x) then
+        return true
+      else
+        return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
 
 private partial def go (pattern : Expr) (root := false) : M Expr := do
   if root && !pattern.hasLooseBVars then
@@ -143,11 +149,10 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
   assert! f.isConst || f.isFVar
   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs
-  let { instImplicitMask, typeMask }  ← getPatternFunInfo f args.size
+  let supportMask ← getPatternFunMask f args.size
   for i in [:args.size] do
     let arg := args[i]!
-    let isType := typeMask[i]?.getD false
-    let isInstImplicit := instImplicitMask[i]?.getD false
+    let isSupport := supportMask[i]?.getD false
     let arg ← if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
@@ -155,13 +160,13 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
         pure <| mkGroundPattern arg
     else match arg with
       | .bvar idx =>
-        if (isType || isInstImplicit) && (← foundBVar idx) then
+        if isSupport && (← foundBVar idx) then
           pure dontCare
         else
           saveBVar idx
           pure arg
       | _ =>
-        if isType || isInstImplicit then
+        if isSupport then
           pure dontCare
         else if let some _ := getPatternFn? arg then
           go arg

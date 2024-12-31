@@ -70,3 +70,12 @@ set_option trace.grind.internalize true in
 example : foo x y = z → False := by
   fail_if_success grind
   sorry
+
+theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[i]+as[j] = as[i] + as[i] := by sorry
+
+
+/--
+info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 ? ? ? (@getElem ? `[Nat] ? ? ? #2 #5 ?) (@getElem ? `[Nat] ? ? ? #2 #4 ?)]
+-/
+#guard_msgs in
+grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

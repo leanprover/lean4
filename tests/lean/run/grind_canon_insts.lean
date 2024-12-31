@@ -80,7 +80,7 @@ warning: declaration uses 'sorry'
 example (a b c d : Nat) : b * a = d * b → False := by
   rw [CommMonoid.mul_comm d b] -- Introduces a new (non-canonical) instance for `Mul Nat`
   -- See target here
-  guard_target =ₛ
+  guard_target =ₐ
     @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a
     =
     @HMul.hMul Nat Nat Nat (@instHMul Nat (@Semigroup.toMul Nat (@Monoid.toSemigroup Nat (@CommMonoid.toMonoid Nat instCommMonoidNat)))) b d

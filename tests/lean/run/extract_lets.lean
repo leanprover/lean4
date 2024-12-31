@@ -719,6 +719,23 @@ example : ∀ n : Nat, (let x := n; x) = (let x' := n; x') := by
   rfl
 
 /-!
+Without merging
+-/
+/--
+info: ⊢ ∀ (n : Nat),
+    let_fun x := n;
+    let_fun x' := n;
+    x = x'
+-/
+#guard_msgs in
+example : ∀ n : Nat, (have x := n; x) = (have x' := n; x') := by
+  fail_if_success extract_lets
+  extract_lets +lift -merge
+  trace_state
+  intros
+  rfl
+
+/-!
 Make sure `+lift` doesn't lift things that transitively depend on a binder.
 -/
 example : ∀ n : Nat, let x := n; let y := x; y = n := by

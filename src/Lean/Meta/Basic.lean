@@ -1896,6 +1896,76 @@ private partial def instantiateLambdaAux (ps : Array Expr) (i : Nat) (e : Expr) 
 def instantiateLambda (e : Expr) (ps : Array Expr) : MetaM Expr :=
   instantiateLambdaAux ps 0 e
 
+/--
+A simpler version of `ParamInfo` for information about the parameter of a forall or lambda.
+-/
+structure ExprParamInfo where
+  /-- The name of the parameter. -/
+  name : Name
+  /-- The type of the parameter. -/
+  type : Expr
+  /-- The binder annotation for the parameter. -/
+  binderInfo     : BinderInfo := BinderInfo.default
+  deriving Inhabited
+
+/--
+Given `e` of the form `∀ (p₁ : P₁) … (p₁ : P₁), B[p_1,…,p_n]` and `arg₁ : P₁, …, argₙ : Pₙ`, returns
+* the names `p₁, …, pₙ`,
+* the binder infos,
+* the binder types `P₁, P₂[arg₁], …, P[arg₁,…,argₙ₋₁]`, and
+* the type `B[arg₁,…,argₙ]`.
+
+It uses `whnf` to reduce `e` if it is not a forall.
+
+See also `Lean.Meta.instantiateForall`.
+-/
+def instantiateForallWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnotations : Bool := false) :
+    MetaM (Array ExprParamInfo × Expr) := do
+  let mut e := e
+  let mut res := Array.mkEmpty args.size
+  let mut j := 0
+  for i in [0:args.size] do
+    unless e.isForall do
+      e ← whnf (e.instantiateRevRange j i args)
+      j := i
+    match e with
+    | .forallE name type e' binderInfo =>
+      let type := type.instantiateRevRange j i args
+      let type := if cleanupAnnotations then type.cleanupAnnotations else type
+      res := res.push { name, type, binderInfo }
+      e := e'
+    | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
+  return (res, e)
+
+/--
+Given `e` of the form `fun (p₁ : P₁) … (p₁ : P₁) => t[p_1,…,p_n]` and `arg₁ : P₁, …, argₙ : Pₙ`, returns
+* the names `p₁, …, pₙ`,
+* the binder infos,
+* the binder types `P₁, P₂[arg₁], …, P[arg₁,…,argₙ₋₁]`, and
+* the term `t[arg₁,…,argₙ]`.
+
+It uses `whnf` to reduce `e` if it is not a lambda.
+
+See also `Lean.Meta.instantiateLambda`.
+-/
+def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnotations : Bool := false) :
+    MetaM (Array ExprParamInfo × Expr) := do
+  let mut e := e
+  let mut res := Array.mkEmpty args.size
+  let mut j := 0
+  for i in [0:args.size] do
+    unless e.isLambda do
+      e ← whnf (e.instantiateRevRange j i args)
+      j := i
+    match e with
+    | .forallE name type e' binderInfo =>
+      let type := type.instantiateRevRange j i args
+      let type := if cleanupAnnotations then type.cleanupAnnotations else type
+      res := res.push { name, type, binderInfo }
+      e := e'
+    | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
+  return (res, e)
+
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
   let ctxCore  ← readThe Core.Context

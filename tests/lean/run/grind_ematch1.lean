@@ -1,6 +1,6 @@
 set_option trace.grind.ematch.pattern true
 grind_pattern Array.get_set_eq  => a.set i v h
-grind_pattern Array.get_set_ne => (a.set i v)[j]
+grind_pattern Array.get_set_ne => (a.set i v hi)[j]
 
 -- Trace instances of the theorems above found using ematching
 
@@ -9,9 +9,9 @@ set_option trace.grind.ematch.instance true
 /--
 info: [grind.ematch.instance] Array.get_set_eq : [α, bs, j, w, Lean.Grind.nestedProof (j < bs.toList.length) h₂]
 [grind.ematch.instance] Array.get_set_eq : [α, as, i, v, Lean.Grind.nestedProof (i < as.toList.length) h₁]
-[grind.ematch.instance] Array.get_set_ne : [α, bs, j, _, i, w, _, _]
+[grind.ematch.instance] Array.get_set_ne : [α, bs, j, Lean.Grind.nestedProof (j < bs.toList.length) h₂, i, w, _, _]
 -/
--- #guard_msgs (info) in
+#guard_msgs (info) in
 example (as : Array α)
         (i : Nat)
         (h₁ : i < as.size)

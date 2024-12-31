@@ -24,3 +24,29 @@ example (as : Array α)
         : p ↔ (cs[i] = as[i]) := by
   fail_if_success grind
   sorry
+
+opaque R : Nat → Nat → Prop
+theorem Rtrans (a b c : Nat) : R a b → R b c → R a c := sorry
+
+grind_pattern Rtrans => R a b, R b c
+
+/--
+info: [grind.ematch.instance] Rtrans : [b, c, d, _, _]
+[grind.ematch.instance] Rtrans : [a, b, c, _, _]
+-/
+#guard_msgs (info) in
+example : R a b → R b c → R c d → False := by
+  fail_if_success grind
+  sorry
+
+-- In the following test we are performing one round of ematching only
+/--
+info: [grind.ematch.instance] Rtrans : [c, d, e, _, _]
+[grind.ematch.instance] Rtrans : [c, d, n, _, _]
+[grind.ematch.instance] Rtrans : [b, c, d, _, _]
+[grind.ematch.instance] Rtrans : [a, b, c, _, _]
+-/
+#guard_msgs (info) in
+example : R a b → R b c → R c d → R d e → R d n → False := by
+  fail_if_success grind
+  sorry

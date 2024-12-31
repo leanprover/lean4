@@ -34,6 +34,10 @@ This is a small hack to avoid one extra level of indirection by using `Option Ex
 -/
 private def unassigned : Expr := mkConst (Name.mkSimple "[grind_unassigned]")
 
+private def assignmentToMessageData (assignment : Array Expr) : Array MessageData :=
+  assignment.reverse.map fun e =>
+    if isSameExpr e unassigned then m!"_" else m!"{e}"
+
 /--
 Choice point for the backtracking search.
 The state of the procedure contains a stack of choices.
@@ -101,6 +105,26 @@ private def eqvFunctions (pFn eFn : Expr) : Bool :=
   || (pFn.isConst && eFn.isConstOf pFn.constName!)
 
 /--
+Matches arguments of pattern `p` with term `e`. Returns `some` if successful,
+and `none` otherwise. It may update `c`s assignment and list of contraints to be
+processed.
+-/
+private partial def matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT GoalM Choice := do
+  if !p.isApp then return c -- Done
+  let pArg := p.appArg!
+  let eArg := e.appArg!
+  let goFn c := matchArgs? c p.appFn! e.appFn!
+  if isPatternDontCare pArg then
+    goFn c
+  else if pArg.isBVar then
+    goFn (← assign? c pArg.bvarIdx! eArg)
+  else if let some pArg := groundPattern? pArg then
+    guard (← isEqv pArg eArg)
+    goFn c
+  else
+    goFn { c with cnstrs := .match pArg eArg :: c.cnstrs }
+
+/--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
 For each candidate application, we match the arguments and may update `c`s assignments and contraints.
@@ -124,33 +148,20 @@ private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := 
         modify fun s => { s with choiceStack := c :: s.choiceStack }
     curr ← getNext curr
     if isSameExpr curr e then break
-where
-  /--
-  Matches arguments of pattern `p` with term `e`. Returns `some` if successful,
-  and `none` otherwise. It may update `c`s assignment and list of contraints to be
-  processed.
-  -/
-  matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT GoalM Choice := do
-    if !p.isApp then return c -- Done
-    let pArg := p.appArg!
-    let eArg := e.appArg!
-    let goFn c := matchArgs? c p.appFn! e.appFn!
-    if isPatternDontCare pArg then
-      goFn c
-    else if pArg.isBVar then
-      goFn (← assign? c pArg.bvarIdx! eArg)
-    else if let some pArg := groundPattern? pArg then
-      guard (← isEqv pArg eArg)
-      goFn c
-    else
-      goFn { c with cnstrs := .match pArg eArg :: c.cnstrs }
 
-private def processContinue (_c : Choice) (_p : Expr) : M Unit := do
-  throwError "`processContinue` NIY"
-
-private def assignmentToMessageData (assignment : Array Expr) : Array MessageData :=
-  assignment.reverse.map fun e =>
-    if isSameExpr e unassigned then m!"_" else m!"{e}"
+/-- Processes `continue` contraint used to implement multi-patterns. -/
+private def processContinue (c : Choice) (p : Expr) : M Unit := do
+  let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
+    | return ()
+  let maxGeneration ← getMaxGeneration
+  for app in apps do
+    let n ← getENode app
+    if n.generation <= maxGeneration
+       && (n.heqProofs || isSameExpr n.cgRoot app) then
+      if let some c ← matchArgs? c p app |>.run then
+        let gen := n.generation
+        let c := { c with gen := Nat.max gen c.gen }
+        modify fun s => { s with choiceStack := c :: s.choiceStack }
 
 private partial def instantiateTheorem (c : Choice) : M Unit := do
   trace[grind.ematch.instance] "{(← read).thm.origin.key} : {assignmentToMessageData c.assignment}"

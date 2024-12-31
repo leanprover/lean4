@@ -22,7 +22,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       unless (← hasSameType f g) do
         trace[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
-    trace[grind.congr] "{e} = {e'}"
+    trace[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
     let node ← getENode e
     setENode e { node with cgRoot := e' }
@@ -59,11 +59,11 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
       let thm := { thm with symbols }
       match symbols with
       | [] =>
-        trace[grind.pattern] "activated `{thm.origin.key}`"
         let thm := { thm with patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
+        trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
         modify fun s => { s with newThms := s.newThms.push thm }
       | _ =>
-        trace[grind.pattern] "reinsert `{thm.origin.key}`"
+        trace[grind.ematch] "reinsert `{thm.origin.key}`"
         modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do

@@ -19,17 +19,21 @@ def propagateProjEq (parent : Expr) : GoalM Unit := do
   let .const declName _ := parent.getAppFn | return ()
   let some info ← getProjectionFnInfo? declName | return ()
   unless info.numParams + 1 == parent.getAppNumArgs do return ()
+  -- It is wasteful to add equation if `parent` is not the root of its congruence class
+  unless (← isCongrRoot parent) do return ()
   let arg := parent.appArg!
   let ctor ← getRoot arg
   unless ctor.isAppOf info.ctorName do return ()
-  if isSameExpr arg ctor then
-    let idx := info.numParams + info.i
-    unless idx < ctor.getAppNumArgs do return ()
-    let v := ctor.getArg! idx
-    pushEq parent v (← mkEqRefl v)
+  let parentNew ← if isSameExpr arg ctor then
+    pure parent
   else
-    let newProj := mkApp parent.appFn! ctor
-    let newProj ← shareCommon newProj
-    internalize newProj (← getGeneration parent)
+    let parentNew ← shareCommon (mkApp parent.appFn! ctor)
+    internalize parentNew (← getGeneration parent)
+    pure parentNew
+  trace[grind.debug.proj] "{parentNew}"
+  let idx := info.numParams + info.i
+  unless idx < ctor.getAppNumArgs do return ()
+  let v := ctor.getArg! idx
+  pushEq parentNew v (← mkEqRefl v)
 
 end Lean.Meta.Grind

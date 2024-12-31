@@ -217,20 +217,20 @@ It assumes `a` and `b` are in the same equivalence class.
 @[export lean_grind_mk_eq_proof]
 def mkEqProofImpl (a b : Expr) : GoalM Expr := do
   let p ← go
-  trace[grind.proof.detail] "{p}"
+  trace[grind.debug.proof] "{p}"
   return p
 where
   go : GoalM Expr := do
     let n ← getRootENode a
     if !n.heqProofs then
-      trace[grind.proof] "{a} = {b}"
+      trace[grind.debug.proof] "{a} = {b}"
       mkEqProofCore a b (heq := false)
     else
       if (← hasSameType a b) then
-        trace[grind.proof] "{a} = {b}"
+        trace[grind.debug.proof] "{a} = {b}"
         mkEqOfHEq (← mkEqProofCore a b (heq := true))
       else
-        trace[grind.proof] "{a} ≡ {b}"
+        trace[grind.debug.proof] "{a} ≡ {b}"
         mkEqProofCore a b (heq := true)
 
 def mkHEqProof (a b : Expr) : GoalM Expr :=

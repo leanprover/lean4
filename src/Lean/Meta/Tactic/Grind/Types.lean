@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Tactics
 import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
@@ -47,9 +48,10 @@ register_builtin_option grind.debug.proofs : Bool := {
 
 /-- Context for `GrindM` monad. -/
 structure Context where
-  simp     : Simp.Context
-  simprocs : Array Simp.Simprocs
+  simp         : Simp.Context
+  simprocs     : Array Simp.Simprocs
   mainDeclName : Name
+  config       : Grind.Config
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -87,6 +89,10 @@ instance : Nonempty MethodsRef := MethodsRefPointed.property
 
 abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
+/-- Returns the user-defined configuration options -/
+def getConfig : GrindM Grind.Config :=
+  return (← readThe Context).config
+
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
   return (← get).trueExpr
@@ -101,10 +107,9 @@ def getMainDeclName : GrindM Name :=
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
 
-/--
-Returns maximum term generation that is considered during ematching. -/
+/-- Returns maximum term generation that is considered during ematching. -/
 def getMaxGeneration : GrindM Nat := do
-  return 10000 -- TODO
+  return (← getConfig).gen
 
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
@@ -355,7 +360,7 @@ def markTheorenInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
-  return false -- TODO
+  return (← get).numInstances >= (← getConfig).instances
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=

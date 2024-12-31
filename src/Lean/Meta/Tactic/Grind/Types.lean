@@ -283,6 +283,8 @@ structure Goal where
   Local theorem provided by users are added directly into `newThms`.
   -/
   thmMap       : EMatchTheorems
+  /-- Number of theorem instances generated so far -/
+  numInstances : Nat := 0
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -464,6 +466,10 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
+
+/-- Returns `true` is `e` is the root of its congruence class. -/
+def isCongrRoot (e : Expr) : GoalM Bool := do
+  return isSameExpr e (← getENode e).cgRoot
 
 /-- Return `true` if the goal is inconsistent. -/
 def isInconsistent : GoalM Bool :=

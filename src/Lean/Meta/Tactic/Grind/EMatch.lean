@@ -13,38 +13,58 @@ namespace Lean.Meta.Grind
 private def getMaxGeneration : GoalM Nat := do
   return 10000 -- TODO
 
+/-- Returns `true` if the maximum number of instances has been reached. -/
 private def checkMaxInstancesExceeded : GoalM Bool := do
   return false -- TODO
 
 namespace EMatch
+/-! This module implements a simple E-matching procedure as a backtracking search. -/
 
+/-- We represent an `E-matching` problem as a list of constraints. -/
 inductive Cnstr where
-  | «continue» (pat : Expr)
-  | «match» (pat : Expr) (e : Expr)
+  | /-- Matches pattern `pat` with term `e` -/
+    «match» (pat : Expr) (e : Expr)
+  | /-- This constraint is used to encode multi-patterns. -/
+    «continue» (pat : Expr)
   deriving Inhabited
 
--- Internal "marker" for representing unassigned elemens in the `assignment` field.
--- This is a small hack to avoid one extra level of indirection by using `Option Expr` at `assignment`.
+/--
+Internal "marker" for representing unassigned elemens in the `assignment` field.
+This is a small hack to avoid one extra level of indirection by using `Option Expr` at `assignment`.
+-/
 private def unassigned : Expr := mkConst (Name.mkSimple "[grind_unassigned]")
 
+/--
+Choice point for the backtracking search.
+The state of the procedure contains a stack of choices.
+-/
 structure Choice where
+  /-- Contraints to be processed. -/
   cnstrs     : List Cnstr
+  /-- Maximum term generation found so far. -/
   gen        : Nat
+  /-- Partial assignment so far. Recall that pattern variables are encoded as de-Bruijn variables. -/
   assignment : Array Expr
   deriving Inhabited
 
+/-- Theorem instances found so far. We only internalize them after we complete a full round of E-matching. -/
 structure TheoremInstance where
   prop       : Expr
   proof      : Expr
   generation : Nat
   deriving Inhabited
 
+/-- Context for the E-matching monad. -/
 structure Context where
+  /-- `useMT` is `true` if we are using the mod-time optimization. It is always set to false for new `EMatchTheorem`s. -/
   useMT : Bool := true
+  /-- `EMatchTheorem` being processed. -/
   thm   : EMatchTheorem := default
   deriving Inhabited
 
+/-- State for the E-matching monad -/
 structure State where
+  /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
   newInstances : PArray TheoremInstance := {}
   deriving Inhabited
@@ -54,6 +74,12 @@ abbrev M := ReaderT Context $ StateRefT State GoalM
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
 
+/--
+Assigns `bidx := e` in `c`. If `bidx` is already assigned in `c`, we check whether
+`e` and `c.assignment[bidx]` are in the same equivalence class.
+This function assumes `bidx < c.assignment.size`.
+Recall that we initialize the assignment array with the number of theorem parameters.
+-/
 private def assign? (c : Choice) (bidx : Nat) (e : Expr) : OptionT GoalM Choice := do
   if h : bidx < c.assignment.size then
     let v := c.assignment[bidx]
@@ -74,6 +100,12 @@ private def eqvFunctions (pFn eFn : Expr) : Bool :=
   (pFn.isFVar && pFn == eFn)
   || (pFn.isConst && eFn.isConstOf pFn.constName!)
 
+/--
+Matches pattern `p` with term `e` with respect to choice `c`.
+We traverse the equivalence class of `e` looking for applications compatible with `p`.
+For each candidate application, we match the arguments and may update `c`s assignments and contraints.
+We add the updated choices to the choice stack.
+-/
 private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := do
   let maxGeneration ← getMaxGeneration
   let pFn := p.getAppFn
@@ -125,6 +157,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := do
   -- TODO
   return ()
 
+/-- Process choice stack until we don't have more choices to be processed. -/
 private partial def processChoices : M Unit := do
   unless (← get).choiceStack.isEmpty do
     let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
@@ -184,6 +217,7 @@ end EMatch
 
 open EMatch
 
+/-- Performs one round of E-matching, and internalizes new instances. -/
 def ematch : GoalM Unit := do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms

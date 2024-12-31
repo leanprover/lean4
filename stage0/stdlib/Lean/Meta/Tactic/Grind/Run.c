@@ -97,6 +97,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_GoalM_run_x27___lambda__2___boxed(lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_GoalM_run___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkMethods___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
+lean_object* l_Lean_Meta_Grind_getEMatchTheorems___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Meta_Grind_mkMethods___spec__1(lean_object* x_1, lean_object* x_2) {
 _start:
 {
@@ -1690,7 +1691,7 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkGoal(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; 
 x_10 = l_Lean_Meta_Grind_getTrueExpr___rarg(x_4, x_5, x_6, x_7, x_8, x_9);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
@@ -1703,36 +1704,47 @@ lean_inc(x_14);
 x_15 = lean_ctor_get(x_13, 1);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = l_Lean_Meta_Grind_GrindM_run___rarg___closed__13;
-x_17 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_mkGoal___spec__1;
-x_18 = l_Lean_Meta_Grind_mkGoal___closed__1;
-x_19 = 0;
-x_20 = lean_unsigned_to_nat(0u);
+x_16 = l_Lean_Meta_Grind_getEMatchTheorems___rarg(x_8, x_15);
+x_17 = lean_ctor_get(x_16, 0);
+lean_inc(x_17);
+x_18 = lean_ctor_get(x_16, 1);
+lean_inc(x_18);
+lean_dec(x_16);
+x_19 = l_Lean_Meta_Grind_GrindM_run___rarg___closed__13;
+x_20 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_mkGoal___spec__1;
+x_21 = l_Lean_Meta_Grind_mkGoal___closed__1;
+x_22 = 0;
+x_23 = lean_unsigned_to_nat(0u);
+x_24 = l_Lean_Meta_Grind_GrindM_run___rarg___closed__18;
 lean_inc(x_1);
-x_21 = lean_alloc_ctor(0, 8, 1);
-lean_ctor_set(x_21, 0, x_1);
-lean_ctor_set(x_21, 1, x_16);
-lean_ctor_set(x_21, 2, x_16);
-lean_ctor_set(x_21, 3, x_17);
-lean_ctor_set(x_21, 4, x_16);
-lean_ctor_set(x_21, 5, x_18);
-lean_ctor_set(x_21, 6, x_20);
-lean_ctor_set(x_21, 7, x_20);
-lean_ctor_set_uint8(x_21, sizeof(void*)*8, x_19);
-x_22 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_GoalM_run___rarg___lambda__1___boxed), 9, 1);
-lean_closure_set(x_22, 0, x_21);
-x_23 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkGoal___lambda__1___boxed), 11, 2);
-lean_closure_set(x_23, 0, x_14);
-lean_closure_set(x_23, 1, x_11);
-x_24 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Grind_GoalM_run___spec__1___rarg), 10, 2);
-lean_closure_set(x_24, 0, x_22);
-lean_closure_set(x_24, 1, x_23);
-x_25 = l_Lean_Meta_Grind_GoalM_run_x27___closed__1;
-x_26 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Grind_GoalM_run___spec__1___rarg), 10, 2);
-lean_closure_set(x_26, 0, x_24);
-lean_closure_set(x_26, 1, x_25);
-x_27 = l_Lean_MVarId_withContext___at_Lean_Meta_Grind_GoalM_run___spec__2___rarg(x_1, x_26, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_15);
-return x_27;
+x_25 = lean_alloc_ctor(0, 12, 1);
+lean_ctor_set(x_25, 0, x_1);
+lean_ctor_set(x_25, 1, x_19);
+lean_ctor_set(x_25, 2, x_19);
+lean_ctor_set(x_25, 3, x_20);
+lean_ctor_set(x_25, 4, x_19);
+lean_ctor_set(x_25, 5, x_21);
+lean_ctor_set(x_25, 6, x_23);
+lean_ctor_set(x_25, 7, x_23);
+lean_ctor_set(x_25, 8, x_24);
+lean_ctor_set(x_25, 9, x_24);
+lean_ctor_set(x_25, 10, x_17);
+lean_ctor_set(x_25, 11, x_23);
+lean_ctor_set_uint8(x_25, sizeof(void*)*12, x_22);
+x_26 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_GoalM_run___rarg___lambda__1___boxed), 9, 1);
+lean_closure_set(x_26, 0, x_25);
+x_27 = lean_alloc_closure((void*)(l_Lean_Meta_Grind_mkGoal___lambda__1___boxed), 11, 2);
+lean_closure_set(x_27, 0, x_14);
+lean_closure_set(x_27, 1, x_11);
+x_28 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Grind_GoalM_run___spec__1___rarg), 10, 2);
+lean_closure_set(x_28, 0, x_26);
+lean_closure_set(x_28, 1, x_27);
+x_29 = l_Lean_Meta_Grind_GoalM_run_x27___closed__1;
+x_30 = lean_alloc_closure((void*)(l_ReaderT_bind___at_Lean_Meta_Grind_GoalM_run___spec__1___rarg), 10, 2);
+lean_closure_set(x_30, 0, x_28);
+lean_closure_set(x_30, 1, x_29);
+x_31 = l_Lean_MVarId_withContext___at_Lean_Meta_Grind_GoalM_run___spec__2___rarg(x_1, x_30, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_18);
+return x_31;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkGoal___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {

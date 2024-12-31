@@ -2,6 +2,7 @@
 # Tests of the `extract_lets` tactic
 -/
 
+set_option linter.tactic.unusedName true
 set_option linter.unusedVariables false
 axiom test_sorry {α : Sort _} : α
 

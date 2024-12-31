@@ -14,10 +14,15 @@ namespace Lean
 /--
 We use the `ToExpr` type class to convert values of type `α` into
 expressions that denote these values in Lean.
-Example:
+
+Examples:
 ```
 toExpr true = .const ``Bool.true []
+
+toTypeExpr Bool = .const ``Bool []
 ```
+
+See also `ToLevel` for representing universe levels as `Level` expressions.
 -/
 class ToExpr (α : Type u) where
   /-- Convert a value `a : α` into an expression that denotes `a` -/

@@ -102,6 +102,11 @@ def getMainDeclName : GrindM Name :=
   read
 
 /--
+Returns maximum term generation that is considered during ematching. -/
+def getMaxGeneration : GrindM Nat := do
+  return 10000 -- TODO
+
+/--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
 def abstractNestedProofs (e : Expr) : GrindM Expr := do
@@ -293,6 +298,10 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 abbrev GoalM := StateRefT Goal GrindM
 
 abbrev Propagator := Expr → GoalM Unit
+
+/-- Returns `true` if the maximum number of instances has been reached. -/
+def checkMaxInstancesExceeded : GoalM Bool := do
+  return false -- TODO
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=

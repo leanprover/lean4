@@ -8,15 +8,6 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
-
-/-- Returns maximum term generation that is considered during ematching -/
-private def getMaxGeneration : GoalM Nat := do
-  return 10000 -- TODO
-
-/-- Returns `true` if the maximum number of instances has been reached. -/
-private def checkMaxInstancesExceeded : GoalM Bool := do
-  return false -- TODO
-
 /--
 Theorem instance found using E-matching.
 Recall that we only internalize new instances after we complete a full round of E-matching. -/

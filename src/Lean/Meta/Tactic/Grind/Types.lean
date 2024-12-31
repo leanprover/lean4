@@ -198,31 +198,44 @@ structure NewEq where
   proof : Expr
   isHEq : Bool
 
-abbrev ENodes := PHashMap USize ENode
+/--
+Key for the `ENodeMap` and `ParentMap` map.
+We use pointer addresses and rely on the fact all internalized expressions
+have been hash-consed, i.e., we have applied `shareCommon`.
+-/
+private structure ENodeKey where
+  expr : Expr
 
-structure CongrKey (enodes : ENodes) where
+instance : Hashable ENodeKey where
+  hash k := unsafe (ptrAddrUnsafe k.expr).toUInt64
+
+instance : BEq ENodeKey where
+  beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
+
+abbrev ENodeMap := PHashMap ENodeKey ENode
+
+/--
+Key for the congruence table.
+We need access to the `enodes` to be able to retrieve the equivalence class roots.
+-/
+structure CongrKey (enodes : ENodeMap) where
   e : Expr
 
-private abbrev toENodeKey (e : Expr) : USize :=
-  unsafe ptrAddrUnsafe e
-
-private def hashRoot (enodes : ENodes) (e : Expr) : UInt64 :=
-  if let some node := enodes.find? (toENodeKey e) then
-    toENodeKey node.root |>.toUInt64
+private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
+  if let some node := enodes.find? { expr := e } then
+    unsafe (ptrAddrUnsafe node.root).toUInt64
   else
     13
 
-private def hasSameRoot (enodes : ENodes) (a b : Expr) : Bool := Id.run do
-  let ka := toENodeKey a
-  let kb := toENodeKey b
-  if ka == kb then
+private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
+  if isSameExpr a b then
     return true
   else
-    let some n1 := enodes.find? ka | return false
-    let some n2 := enodes.find? kb | return false
-    toENodeKey n1.root == toENodeKey n2.root
+    let some n1 := enodes.find? { expr := a } | return false
+    let some n2 := enodes.find? { expr := b } | return false
+    isSameExpr n1.root n2.root
 
-def congrHash (enodes : ENodes) (e : Expr) : UInt64 :=
+def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
   if e.isAppOfArity ``Lean.Grind.nestedProof 2 then
     -- We only hash the proposition
     hashRoot enodes (e.getArg! 0)
@@ -234,7 +247,7 @@ where
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
-partial def isCongruent (enodes : ENodes) (a b : Expr) : Bool :=
+partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   if a.isAppOfArity ``Lean.Grind.nestedProof 2 && b.isAppOfArity ``Lean.Grind.nestedProof 2 then
     hasSameRoot enodes (a.getArg! 0) (b.getArg! 0)
   else
@@ -254,15 +267,15 @@ instance : Hashable (CongrKey enodes) where
 instance : BEq (CongrKey enodes) where
   beq k1 k2 := isCongruent enodes k1.e k2.e
 
-abbrev CongrTable (enodes : ENodes) := PHashSet (CongrKey enodes)
+abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := RBTree Expr Expr.quickComp
-abbrev ParentMap := PHashMap USize ParentSet
+abbrev ParentMap := PHashMap ENodeKey ParentSet
 
 structure Goal where
   mvarId       : MVarId
-  enodes       : ENodes := {}
+  enodes       : ENodeMap := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
   /--
@@ -316,11 +329,11 @@ Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
 -/
 def getENode? (e : Expr) : GoalM (Option ENode) :=
-  return (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+  return (← get).enodes.find? { expr := e }
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
 def getENode (e : Expr) : GoalM ENode := do
-  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+  let some n := (← get).enodes.find? { expr := e }
     | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
   return n
 
@@ -371,7 +384,7 @@ def getNext (e : Expr) : GoalM Expr :=
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
-  return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
+  return (← get).enodes.contains { expr := e }
 
 def getTarget? (e : Expr) : GoalM (Option Expr) := do
   let some n ← getENode? e | return none
@@ -416,9 +429,8 @@ information in the root (aka canonical representative) of `child`.
 -/
 def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
   let some childRoot ← getRoot? child | return ()
-  let key := toENodeKey childRoot
-  let parents := if let some parents := (← get).parents.find? key then parents else {}
-  modify fun s => { s with parents := s.parents.insert key (parents.insert parent) }
+  let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
+  modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
 
 /--
 Returns the set of expressions `e` is a child of, or an expression in
@@ -426,7 +438,7 @@ Returns the set of expressions `e` is a child of, or an expression in
 The information is only up to date if `e` is the root (aka canonical representative) of the equivalence class.
 -/
 def getParents (e : Expr) : GoalM ParentSet := do
-  let some parents := (← get).parents.find? (toENodeKey e) | return {}
+  let some parents := (← get).parents.find? { expr := e } | return {}
   return parents
 
 /--
@@ -434,7 +446,7 @@ Similar to `getParents`, but also removes the entry `e ↦ parents` from the par
 -/
 def getParentsAndReset (e : Expr) : GoalM ParentSet := do
   let parents ← getParents e
-  modify fun s => { s with parents := s.parents.erase (toENodeKey e) }
+  modify fun s => { s with parents := s.parents.erase { expr := e } }
   return parents
 
 /--
@@ -442,15 +454,14 @@ Copy `parents` to the parents of `root`.
 `root` must be the root of its equivalence class.
 -/
 def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
-  let key := toENodeKey root
-  let mut curr := if let some parents := (← get).parents.find? key then parents else {}
+  let mut curr := if let some parents := (← get).parents.find? { expr := root } then parents else {}
   for parent in parents do
     curr := curr.insert parent
-  modify fun s => { s with parents := s.parents.insert key curr }
+  modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with
-    enodes := s.enodes.insert (unsafe ptrAddrUnsafe e) n
+    enodes := s.enodes.insert { expr := e } n
     congrTable := unsafe unsafeCast s.congrTable
   }
 

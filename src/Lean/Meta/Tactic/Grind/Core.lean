@@ -181,6 +181,7 @@ where
     if (← isInconsistent) then
       resetNewEqs
       return ()
+    checkSystem "grind"
     let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
     addEqStep lhs rhs proof isHEq
     processTodo

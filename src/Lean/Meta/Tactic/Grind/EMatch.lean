@@ -231,6 +231,7 @@ where
 /-- Process choice stack until we don't have more choices to be processed. -/
 private partial def processChoices : M Unit := do
   unless (← get).choiceStack.isEmpty do
+    checkSystem "ematch"
     let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
     match c.cnstrs with
     | [] => instantiateTheorem c

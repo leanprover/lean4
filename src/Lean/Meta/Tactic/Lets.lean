@@ -19,6 +19,7 @@ namespace Lean.Meta
 
 Extracting `let`s means to locate `let`/`letFun`s in a term and to extract them
 from the term, extending the local context with new declarations in the process.
+A related process is lifting `lets`, which means to move `let`/`letFun`s toward the root of a term.
 -/
 
 namespace ExtractLets
@@ -40,7 +41,7 @@ structure State where
   valueMap : ExprStructMap FVarId := {}
   deriving Inhabited
 
--- The `Bool` is whether this is a top-level let.
+-- The `Bool` in the cache key is whether we are looking at a "top-level" expression.
 abbrev M := ReaderT ExtractLetsConfig <| MonadCacheT (Bool × ExprStructEq) Expr <| StateRefT State MetaM
 
 /-- Returns `true` if `nextName?` would return a name. -/
@@ -88,8 +89,7 @@ def isExtractableLet (fvars : List Expr) (n : Name) (t v : Expr) : M (Bool × Na
   if (← hasNextName) && extractable fvars t && extractable fvars v then
     if let some n ← nextNameForBinderName? n then
       return (true, n)
-  -- In lift mode, we temporarily extract non-extractable lets, but we do not make use of `givenNames` for them,
-  -- which would count against the number of extracted lets.
+  -- In lift mode, we temporarily extract non-extractable lets, but we do not make use of `givenNames` for them.
   -- These will be flushed as let/letFun expressions, and we wish to preserve the original binder name.
   if (← read).lift then
     return (true, n)
@@ -136,7 +136,7 @@ Does not require that any of the declarations are in context.
 Assumes that `e` contains no metavariables with local contexts that contain any of these metavariables
 (the extraction procedure creates no new metavariables, so this is the case).
 
-This should *not* be used when closing lets for new goals, since
+This should *not* be used when closing lets for new goal metavariables, since
 1. The goal contains the decls in its local context, violating the assumption.
 2. We need to use true `let`s in that case, since tactics may zeta-delta reduce these declarations.
 -/
@@ -146,16 +146,7 @@ def mkLetDecls (decls : Array LocalDecl') (e : Expr) : MetaM Expr := do
       if isLet then
         return .letE decl.userName decl.type decl.value (e.abstract #[decl.toExpr]) false
       else
-        let n := decl.userName
-        let x := decl.toExpr
-        let α := decl.type
-        let ety ← inferType e
-        let β := Expr.lam n α (ety.abstract #[x]) .default
-        let v := decl.value
-        let f := Expr.lam n α (e.abstract #[x]) .default
-        let u1 ← getLevel α
-        let u2 ← getLevel ety
-        return mkAppN (.const ``letFun [u1, u2]) #[α, β, v, f]
+        mkLetFun decl.toExpr decl.value e
 
 /--
 Makes sure the declaration for `fvarId` is marked with `isLet := true`.
@@ -177,7 +168,7 @@ Used for `merge` feature.
 def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
   let decls := (← get).decls
   if (← getLCtx).contains fvarId then
-    -- Either pre-existing or already added.
+    -- Is either pre-existing or already added.
     k
   else if let some idx := decls.findIdx? (·.decl.fvarId == fvarId) then
     withEnsuringDeclsInContext decls[0:idx+1] k
@@ -186,6 +177,7 @@ def withDeclInContext (fvarId : FVarId) (k : M α) : M α := do
 
 /--
 Initializes the `valueMap` with all the local definitions that aren't implementation details.
+Used for `merge` feature when `useContext` is enabled.
 -/
 def initializeValueMap : M Unit := do
   let lctx ← getLCtx
@@ -298,17 +290,10 @@ where
       if cfg.implicits then
         return mkAppN f' (← args.mapM (extractCore fvars))
       else
+        let (paramInfos, _) ← instantiateForallWithParamInfos (← inferType f) args
         let mut args := args
-        let mut fty ← inferType f
-        let mut j := 0
         for i in [0:args.size] do
-          unless fty.isForall do
-            fty ← withTransparency .all <| whnf (fty.instantiateRevRange j i args)
-            j := i
-          let .forallE _ _ fty' bi := fty
-            | throwError "Lean.Meta.ExtractLets.extractCore: expecting function, type is{indentD fty}"
-          fty := fty'
-          if bi.isExplicit then
+          if paramInfos[i]!.binderInfo.isExplicit then
             args := args.set! i (← extractCore fvars args[i]!)
         return mkAppN f' args
 

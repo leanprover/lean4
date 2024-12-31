@@ -174,6 +174,8 @@ Missing parameters are synthesized using type inference and type class synthesis
 -/
 private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
   let thm := (← read).thm
+  unless (← markTheorenInstance thm.proof c.assignment) do
+    return ()
   trace[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
   let proof ← thm.getProofWithFreshMVarLevels
   let numParams := thm.numParams

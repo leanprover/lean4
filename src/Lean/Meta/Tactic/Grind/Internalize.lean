@@ -59,7 +59,10 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
       let thm := { thm with symbols }
       match symbols with
       | [] =>
-        let thm := { thm with patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
+        -- Recall that we use the proof as part of the key for a set of instances found so far.
+        -- We don't want to use structural equality when comparing keys.
+        let proof ← shareCommon thm.proof
+        let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
         trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
         modify fun s => { s with newThms := s.newThms.push thm }
       | _ =>

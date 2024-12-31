@@ -273,6 +273,34 @@ abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
 abbrev ParentSet := RBTree Expr Expr.quickComp
 abbrev ParentMap := PHashMap ENodeKey ParentSet
 
+/--
+The E-matching module instantiates theorems using the `EMatchTheorem proof` and a (partial) assignment.
+We want to avoid instantiating the same theorem with the same assignment more than once.
+Therefore, we store the (pre-)instance information in set.
+Recall that the proofs of activated theorems have been hash-consed.
+The assignment contains internalized expressions, which have also been hash-consed.
+-/
+structure PreInstance where
+  proof      : Expr
+  assignment : Array Expr
+
+instance : Hashable PreInstance where
+  hash i := Id.run do
+    let mut r := unsafe (ptrAddrUnsafe i.proof >>> 3).toUInt64
+    for v in i.assignment do
+      r := mixHash r (unsafe (ptrAddrUnsafe v >>> 3).toUInt64)
+    return r
+
+instance : BEq PreInstance where
+  beq i₁ i₂ := Id.run do
+    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.assignment.size == i₂.assignment.size do return false
+    for v₁ in i₁.assignment, v₂ in i₂.assignment do
+      unless isSameExpr v₁ v₂ do return false
+    return true
+
+abbrev PreInstanceSet := PHashSet PreInstance
+
 structure Goal where
   mvarId       : MVarId
   enodes       : ENodeMap := {}
@@ -303,6 +331,8 @@ structure Goal where
   thmMap       : EMatchTheorems
   /-- Number of theorem instances generated so far -/
   numInstances : Nat := 0
+  /-- (pre-)instances found so far -/
+  instances    : PreInstanceSet := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -311,6 +341,17 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 abbrev GoalM := StateRefT Goal GrindM
 
 abbrev Propagator := Expr → GoalM Unit
+
+/--
+A helper function used to mark a theorem instance found by the E-matching module.
+It returns `true` if it is a new instance and `false` otherwise.
+-/
+def markTheorenInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
+  let k := { proof, assignment }
+  if (← get).instances.contains k then
+    return false
+  modify fun s => { s with instances := s.instances.insert k }
+  return true
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do

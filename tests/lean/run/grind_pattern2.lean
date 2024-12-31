@@ -14,6 +14,7 @@ grind_pattern contains_insert => contains (insertElem s a) a
 -- TheoremPattern activation test
 
 set_option trace.grind.ematch true
+set_option trace.grind.ematch.pattern true
 
 /--
 warning: declaration uses 'sorry'
@@ -44,7 +45,7 @@ def foo (x : List Nat) (y : List Nat) := x ++ y ++ x
 
 theorem fooThm : foo x [a, b] = x ++ [a, b] ++ x := rfl
 
-/-- info: [grind.ematch] fooThm: [foo #0 `[[a, b]]] -/
+/-- info: [grind.ematch.pattern] fooThm: [foo #0 `[[a, b]]] -/
 #guard_msgs in
 grind_pattern fooThm => foo x [a, b]
 

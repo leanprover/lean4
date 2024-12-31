@@ -31,6 +31,7 @@ builtin_initialize registerTraceClass `grind.assert
 builtin_initialize registerTraceClass `grind.eqc
 builtin_initialize registerTraceClass `grind.internalize
 builtin_initialize registerTraceClass `grind.ematch
+builtin_initialize registerTraceClass `grind.ematch.instance
 builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp
 

@@ -18,6 +18,7 @@ import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Run
+import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 namespace Preprocessor
@@ -122,13 +123,14 @@ partial def loop (goal : Goal) : PreM Unit := do
     else
       loop goal
 
-def ppGoals : PreM Format := do
+def ppGoals (goals : PArray Goal) : PreM Format := do
   let mut r := f!""
-  for goal in (← get).goals do
+  for goal in goals do
     let (f, _) ← GoalM.run goal ppState
     r := r ++ Format.line ++ f
   return r
 
+-- TODO: refactor this code
 def preprocess (mvarId : MVarId) : PreM State := do
   mvarId.ensureProp
   -- TODO: abstract metavars
@@ -140,9 +142,12 @@ def preprocess (mvarId : MVarId) : PreM State := do
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
   loop (← mkGoal mvarId)
+  let goals := (← get).goals
+  -- Testing `ematch` module here. We will rewrite this part later.
+  let goals ← goals.mapM fun goal => GoalM.run' goal ematch
   if (← isTracingEnabledFor `grind.pre) then
-    trace[grind.debug.pre] (← ppGoals)
-  for goal in (← get).goals do
+    trace[grind.debug.pre] (← ppGoals goals)
+  for goal in goals do
     discard <| GoalM.run' goal <| checkInvariants (expensive := true)
   get
 

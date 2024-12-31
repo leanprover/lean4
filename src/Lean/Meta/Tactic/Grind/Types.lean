@@ -283,6 +283,8 @@ structure Goal where
   Local theorem provided by users are added directly into `newThms`.
   -/
   thmMap       : EMatchTheorems
+  /-- Number of theorem instances generated so far -/
+  numInstances : Nat := 0
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

@@ -144,7 +144,7 @@ def preprocess (mvarId : MVarId) : PreM State := do
   loop (← mkGoal mvarId)
   let goals := (← get).goals
   -- Testing `ematch` module here. We will rewrite this part later.
-  let goals ← goals.mapM fun goal => GoalM.run' goal ematch
+  let goals ← goals.mapM fun goal => GoalM.run' goal (discard <| ematch)
   if (← isTracingEnabledFor `grind.pre) then
     trace[grind.debug.pre] (← ppGoals goals)
   for goal in goals do

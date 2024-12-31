@@ -8,14 +8,14 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
-
-/-- Returns maximum term generation that is considered during ematching -/
-private def getMaxGeneration : GoalM Nat := do
-  return 10000 -- TODO
-
-/-- Returns `true` if the maximum number of instances has been reached. -/
-private def checkMaxInstancesExceeded : GoalM Bool := do
-  return false -- TODO
+/--
+Theorem instance found using E-matching.
+Recall that we only internalize new instances after we complete a full round of E-matching. -/
+structure EMatchTheoremInstance where
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  deriving Inhabited
 
 namespace EMatch
 /-! This module implements a simple E-matching procedure as a backtracking search. -/
@@ -51,13 +51,6 @@ structure Choice where
   assignment : Array Expr
   deriving Inhabited
 
-/-- Theorem instances found so far. We only internalize them after we complete a full round of E-matching. -/
-structure TheoremInstance where
-  proof      : Expr
-  prop       : Expr
-  generation : Nat
-  deriving Inhabited
-
 /-- Context for the E-matching monad. -/
 structure Context where
   /-- `useMT` is `true` if we are using the mod-time optimization. It is always set to false for new `EMatchTheorem`s. -/
@@ -70,7 +63,7 @@ structure Context where
 structure State where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
-  newInstances : PArray TheoremInstance := {}
+  newInstances : Array EMatchTheoremInstance := #[]
   deriving Inhabited
 
 abbrev M := ReaderT Context $ StateRefT State GoalM
@@ -181,6 +174,8 @@ Missing parameters are synthesized using type inference and type class synthesis
 -/
 private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
   let thm := (← read).thm
+  unless (← markTheorenInstance thm.proof c.assignment) do
+    return ()
   trace[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
   let proof ← thm.getProofWithFreshMVarLevels
   let numParams := thm.numParams
@@ -285,22 +280,26 @@ where
 def ematchTheorems (thms : PArray EMatchTheorem) : M Unit := do
   thms.forM ematchTheorem
 
-def internalizeNewInstances : M Unit := do
-  -- TODO
-  return ()
-
 end EMatch
 
 open EMatch
 
-/-- Performs one round of E-matching, and internalizes new instances. -/
-def ematch : GoalM Unit := do
-  let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
+/-- Performs one round of E-matching, and returns new instances. -/
+def ematch : GoalM (Array EMatchTheoremInstance) := do
+  let go (thms newThms : PArray EMatchTheorem) : EMatch.M (Array EMatchTheoremInstance) := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
-    internalizeNewInstances
-  unless (← checkMaxInstancesExceeded) do
-    go (← get).thms (← get).newThms |>.run'
-    modify fun s => { s with thms := s.thms ++ s.newThms, newThms := {}, gmt := s.gmt + 1 }
+    return (← get).newInstances
+  if (← checkMaxInstancesExceeded) then
+    return #[]
+  else
+    let insts ← go (← get).thms (← get).newThms |>.run'
+    modify fun s => { s with
+      thms         := s.thms ++ s.newThms
+      newThms      := {}
+      gmt          := s.gmt + 1
+      numInstances := s.numInstances + insts.size
+    }
+    return insts
 
 end Lean.Meta.Grind

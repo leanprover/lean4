@@ -27,9 +27,9 @@ structure State where
   goals     : PArray Goal := {}
   deriving Inhabited
 
-abbrev PreM := StateRefT State GrindM
+abbrev PreM := StateRefT State GrindCoreM
 
-def PreM.run (x : PreM α) : GrindM α := do
+def PreM.run (x : PreM α) : GrindCoreM α := do
  x.run' {}
 
 inductive IntroResult where
@@ -168,7 +168,7 @@ def preprocess (mvarId : MVarId) (mainDeclName : Name) (config : Grind.Config) :
   Preprocessor.preprocess mvarId |>.run |>.run mainDeclName config
 
 def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) : MetaM (List MVarId) := do
-  let go : GrindM (List MVarId) := do
+  let go : GrindCoreM (List MVarId) := do
     let s ← Preprocessor.preprocess mvarId |>.run
     let goals := s.goals.toList.filter fun goal => !goal.inconsistent
     return goals.map (·.mvarId)

@@ -15,7 +15,7 @@ namespace Lean.Meta.Grind
 -- TODO: implement `simp` discharger using preprocessor state
 
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-def simp (e : Expr) : GrindM Simp.Result := do
+def simp (e : Expr) : GrindCoreM Simp.Result := do
   let simpStats := (← get).simpStats
   let (r, simpStats) ← Meta.simp e (← readThe Context).simp (← readThe Context).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
@@ -25,7 +25,7 @@ def simp (e : Expr) : GrindM Simp.Result := do
 Simplifies `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def pre (e : Expr) : GrindM Simp.Result := do
+def pre (e : Expr) : GrindCoreM Simp.Result := do
   let r ← simp e
   let e' := r.expr
   let e' ← markNestedProofs e'

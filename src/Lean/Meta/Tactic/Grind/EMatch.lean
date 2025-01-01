@@ -217,11 +217,12 @@ where
         mkImp mvars (i+1) (mkApp proof mvar) xs
       else
         let mvarType ← instantiateMVars (← inferType mvar)
-        if mvarType.hasMVar then
+        if mvarType.hasExprMVar then
           let thm := (← read).thm
-          trace[grind.issues] "failed to create hypothesis for instance of {← thm.origin.pp} hypothesis type has metavars{indentExpr mvarType}"
+          trace[grind.issues] "failed to create hypothesis for instance of {← thm.origin.pp} hypothesis type has metavar with typer{indentExpr mvarType}"
           return ()
         withLocalDeclD (← mkFreshUserName `h) mvarType fun x => do
+          mvar.mvarId!.assign x
           mkImp mvars (i+1) (mkApp proof x) (xs.push x)
     else
       let proof ← instantiateMVars proof

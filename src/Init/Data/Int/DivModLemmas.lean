@@ -1098,6 +1098,32 @@ theorem bmod_def (x : Int) (m : Nat) : bmod x m =
     (x % m) - m :=
   rfl
 
+theorem bdiv_add_bmod (x : Int) (m : Nat) : m * bdiv x m + bmod x m = x := by
+  unfold bdiv bmod
+  split
+  · simp_all only [Nat.cast_ofNat_Int, Int.mul_zero, emod_zero, Int.zero_add, Int.sub_zero,
+      ite_self]
+  · dsimp only
+    split
+    · exact ediv_add_emod x m
+    · rw [Int.mul_add, Int.mul_one, Int.add_assoc, Int.add_comm m, Int.sub_add_cancel]
+      exact ediv_add_emod x m
+
+theorem bmod_add_bdiv (x : Int) (m : Nat) : bmod x m + m * bdiv x m = x := by
+  rw [Int.add_comm]; exact bdiv_add_bmod x m
+
+theorem bdiv_add_bmod' (x : Int) (m : Nat) : bdiv x m * m + bmod x m = x := by
+  rw [Int.mul_comm]; exact bdiv_add_bmod x m
+
+theorem bmod_add_bdiv' (x : Int) (m : Nat) : bmod x m + bdiv x m * m = x := by
+  rw [Int.add_comm]; exact bdiv_add_bmod' x m
+
+theorem bmod_eq_self_sub_mul_bdiv (x : Int) (m : Nat) : bmod x m = x - m * bdiv x m := by
+  rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv]
+
+theorem bmod_eq_self_sub_bdiv_mul (x : Int) (m : Nat) : bmod x m = x - bdiv x m * m := by
+  rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv']
+
 theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod_def, p]
 

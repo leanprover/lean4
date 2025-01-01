@@ -8,15 +8,6 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
-/--
-Theorem instance found using E-matching.
-Recall that we only internalize new instances after we complete a full round of E-matching. -/
-structure EMatchTheoremInstance where
-  proof      : Expr
-  prop       : Expr
-  generation : Nat
-  deriving Inhabited
-
 namespace EMatch
 /-! This module implements a simple E-matching procedure as a backtracking search. -/
 
@@ -63,7 +54,6 @@ structure Context where
 structure State where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
-  newInstances : Array EMatchTheoremInstance := #[]
   deriving Inhabited
 
 abbrev M := ReaderT Context $ StateRefT State GoalM
@@ -166,8 +156,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
     check proof
   let prop ← inferType proof
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
-  modify fun s => { s with newInstances := s.newInstances.push { proof, prop, generation } }
-  modifyThe Goal fun s => { s with numInstances := s.numInstances + 1 }
+  addTheoremInstance proof prop generation
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -175,7 +164,7 @@ Missing parameters are synthesized using type inference and type class synthesis
 -/
 private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
   let thm := (← read).thm
-  unless (← markTheorenInstance thm.proof c.assignment) do
+  unless (← markTheoremInstance thm.proof c.assignment) do
     return ()
   trace[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
   let proof ← thm.getProofWithFreshMVarLevels
@@ -190,7 +179,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     let v := c.assignment[numParams - i - 1]!
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
-      unless (← mvarId.checkedAssign v) do
+      unless (← isDefEq (← mvarId.getType) (← inferType v) <&&> mvarId.checkedAssign v) do
         trace[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}"
         return ()
   -- Synthesize instances
@@ -275,20 +264,18 @@ end EMatch
 open EMatch
 
 /-- Performs one round of E-matching, and returns new instances. -/
-def ematch : GoalM (Array EMatchTheoremInstance) := do
-  let go (thms newThms : PArray EMatchTheorem) : EMatch.M (Array EMatchTheoremInstance) := do
+def ematch : GoalM Unit := do
+  let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
-    return (← get).newInstances
   if (← checkMaxInstancesExceeded) then
-    return #[]
+    return ()
   else
-    let insts ← go (← get).thms (← get).newThms |>.run'
+    go (← get).thms (← get).newThms |>.run'
     modify fun s => { s with
       thms         := s.thms ++ s.newThms
       newThms      := {}
       gmt          := s.gmt + 1
     }
-    return insts
 
 end Lean.Meta.Grind

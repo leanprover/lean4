@@ -346,8 +346,8 @@ structure Goal where
   thmMap       : EMatchTheorems
   /-- Number of theorem instances generated so far -/
   numInstances : Nat := 0
-  /-- (pre-)instances found so far -/
-  instances    : PreInstanceSet := {}
+  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
+  preInstances : PreInstanceSet := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -361,11 +361,11 @@ abbrev Propagator := Expr → GoalM Unit
 A helper function used to mark a theorem instance found by the E-matching module.
 It returns `true` if it is a new instance and `false` otherwise.
 -/
-def markTheorenInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
+def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
   let k := { proof, assignment }
-  if (← get).instances.contains k then
+  if (← get).preInstances.contains k then
     return false
-  modify fun s => { s with instances := s.instances.insert k }
+  modify fun s => { s with preInstances := s.preInstances.insert k }
   return true
 
 /-- Returns `true` if the maximum number of instances has been reached. -/

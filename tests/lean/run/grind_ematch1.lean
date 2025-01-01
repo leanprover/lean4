@@ -11,6 +11,7 @@ set_option grind.debug.proofs true
 /--
 info: [grind.ematch.instance] Array.get_set_eq: (bs.set j w ⋯)[j] = w
 [grind.ematch.instance] Array.get_set_eq: (as.set i v ⋯)[i] = v
+[grind.ematch.instance] Array.get_set_ne: ∀ (hj : i < bs.size), j ≠ i → (bs.set j w ⋯)[i] = bs[i]
 -/
 #guard_msgs (info) in
 example (as : Array α)

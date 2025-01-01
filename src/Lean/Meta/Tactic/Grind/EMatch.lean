@@ -173,7 +173,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
-private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
   let thm := (← read).thm
   unless (← markTheorenInstance thm.proof c.assignment) do
     return ()
@@ -203,31 +203,16 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
   if (← mvars.allM (·.mvarId!.isAssigned)) then
     addNewInstance thm.origin (mkAppN proof mvars) c.gen
   else
-    -- instance has hypothesis
-    mkImp mvars 0 proof #[]
+    let proof := mkAppN proof mvars
+    let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
+    if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
+      trace[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+    let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
+    addNewInstance thm.origin proof c.gen
 where
   synthesizeInstance (x type : Expr) : MetaM Bool := do
     let .some val ← trySynthInstance type | return false
     isDefEq x val
-
-  mkImp (mvars : Array Expr) (i : Nat) (proof : Expr) (xs : Array Expr) : M Unit := do
-    if h : i < mvars.size then
-      let mvar := mvars[i]
-      if (← mvar.mvarId!.isAssigned) then
-        mkImp mvars (i+1) (mkApp proof mvar) xs
-      else
-        let mvarType ← instantiateMVars (← inferType mvar)
-        if mvarType.hasMVar then
-          let thm := (← read).thm
-          trace[grind.issues] "failed to create hypothesis for instance of {← thm.origin.pp} hypothesis type has metavars{indentExpr mvarType}"
-          return ()
-        withLocalDeclD (← mkFreshUserName `h) mvarType fun x => do
-          mkImp mvars (i+1) (mkApp proof x) (xs.push x)
-    else
-      let proof ← instantiateMVars proof
-      let proof ← mkLambdaFVars xs proof
-      let thm := (← read).thm
-      addNewInstance thm.origin proof c.gen
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private partial def processChoices : M Unit := do

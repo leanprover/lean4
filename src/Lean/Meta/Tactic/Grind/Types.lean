@@ -46,7 +46,7 @@ register_builtin_option grind.debug.proofs : Bool := {
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
-/-- Context for `GrindM` monad. -/
+/-- Context for `GrindCoreM` monad. -/
 structure Context where
   simp         : Simp.Context
   simprocs     : Array Simp.Simprocs
@@ -66,8 +66,8 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
-/-- State for the `GrindM` monad. -/
-structure State where
+/-- State for the `GrindCoreM` monad. -/
+structure CoreState where
   canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
@@ -87,34 +87,34 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
-abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+abbrev GrindCoreM := ReaderT MethodsRef $ ReaderT Context $ StateRefT CoreState MetaM
 
 /-- Returns the user-defined configuration options -/
-def getConfig : GrindM Grind.Config :=
+def getConfig : GrindCoreM Grind.Config :=
   return (← readThe Context).config
 
 /-- Returns the internalized `True` constant.  -/
-def getTrueExpr : GrindM Expr := do
+def getTrueExpr : GrindCoreM Expr := do
   return (← get).trueExpr
 
 /-- Returns the internalized `False` constant.  -/
-def getFalseExpr : GrindM Expr := do
+def getFalseExpr : GrindCoreM Expr := do
   return (← get).falseExpr
 
-def getMainDeclName : GrindM Name :=
+def getMainDeclName : GrindCoreM Name :=
   return (← readThe Context).mainDeclName
 
-@[inline] def getMethodsRef : GrindM MethodsRef :=
+@[inline] def getMethodsRef : GrindCoreM MethodsRef :=
   read
 
 /-- Returns maximum term generation that is considered during ematching. -/
-def getMaxGeneration : GrindM Nat := do
+def getMaxGeneration : GrindCoreM Nat := do
   return (← getConfig).gen
 
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
-def abstractNestedProofs (e : Expr) : GrindM Expr := do
+def abstractNestedProofs (e : Expr) : GrindCoreM Expr := do
   let nextIdx := (← get).nextThmIdx
   let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
@@ -124,7 +124,7 @@ def abstractNestedProofs (e : Expr) : GrindM Expr := do
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consing. We perform this step before we internalize expressions.
 -/
-def shareCommon (e : Expr) : GrindM Expr := do
+def shareCommon (e : Expr) : GrindCoreM Expr := do
   modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
     (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats })
@@ -132,16 +132,24 @@ def shareCommon (e : Expr) : GrindM Expr := do
 /--
 Canonicalizes nested types, type formers, and instances in `e`.
 -/
-def canon (e : Expr) : GrindM Expr := do
+def canon (e : Expr) : GrindCoreM Expr := do
   let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
   let (e, canonS) ← Canon.canon e |>.run canonS
   modify fun s => { s with canon := canonS }
   return e
 
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : GrindCoreM Bool :=
+  return isSameExpr e (← getTrueExpr)
+
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : GrindCoreM Bool :=
+  return isSameExpr e (← getFalseExpr)
+
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
 -/
-def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
+def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindCoreM CongrTheorem := do
   let key := { f, numArgs }
   if let some result := (← get).congrThms.find? key then
     return result
@@ -197,6 +205,7 @@ structure ENode where
   -- TODO: see Lean 3 implementation
   deriving Inhabited, Repr
 
+/-- New equality to be processed. -/
 structure NewEq where
   lhs   : Expr
   rhs   : Expr
@@ -252,6 +261,7 @@ where
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
+/-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
 partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
   if a.isAppOfArity ``Lean.Grind.nestedProof 2 && b.isAppOfArity ``Lean.Grind.nestedProof 2 then
     hasSameRoot enodes (a.getArg! 0) (b.getArg! 0)
@@ -343,7 +353,7 @@ structure Goal where
 def Goal.admit (goal : Goal) : MetaM Unit :=
   goal.mvarId.admit
 
-abbrev GoalM := StateRefT Goal GrindM
+abbrev GoalM := StateRefT Goal GrindCoreM
 
 abbrev Propagator := Expr → GoalM Unit
 
@@ -361,14 +371,6 @@ def markTheorenInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).numInstances >= (← getConfig).instances
-
-/-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getTrueExpr)
-
-/-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getFalseExpr)
 
 /--
 Returns `some n` if `e` has already been "internalized" into the
@@ -616,7 +618,7 @@ def Methods.toMethodsRef (m : Methods) : MethodsRef :=
 private def MethodsRef.toMethods (m : MethodsRef) : Methods :=
   unsafe unsafeCast m
 
-@[inline] def getMethods : GrindM Methods :=
+@[inline] def getMethods : GrindCoreM Methods :=
   return (← getMethodsRef).toMethods
 
 def propagateUp (e : Expr) : GoalM Unit := do

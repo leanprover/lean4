@@ -25,7 +25,7 @@ def mkMethods : CoreM Methods := do
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : MetaM α := do
+def GrindCoreM.run (x : GrindCoreM α) (mainDeclName : Name) (config : Grind.Config) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
@@ -37,13 +37,13 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : M
     (congrTheorems := (← getSimpCongrTheorems))
   x (← mkMethods).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
 
-@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindCoreM (α × Goal) :=
   goal.mvarId.withContext do StateRefT'.run x goal
 
-@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
+@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindCoreM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
-def mkGoal (mvarId : MVarId) : GrindM Goal := do
+def mkGoal (mvarId : MVarId) : GrindCoreM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
   let thmMap ← getEMatchTheorems

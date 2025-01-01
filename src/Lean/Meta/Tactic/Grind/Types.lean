@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Tactics
+import Init.Data.Queue
 import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
@@ -316,6 +317,13 @@ instance : BEq PreInstance where
 
 abbrev PreInstanceSet := PHashSet PreInstance
 
+/-- New fact to be processed. -/
+structure NewFact where
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  deriving Inhabited
+
 structure Goal where
   mvarId       : MVarId
   enodes       : ENodeMap := {}
@@ -348,6 +356,8 @@ structure Goal where
   numInstances : Nat := 0
   /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
   preInstances : PreInstanceSet := {}
+  /-- new facts to be processed. -/
+  newFacts     : Std.Queue NewFact := ∅
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -367,6 +377,15 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
     return false
   modify fun s => { s with preInstances := s.preInstances.insert k }
   return true
+
+/-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
+def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
+
+/-- Adds a new theorem instance produced using E-matching. -/
+def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  addNewFact proof prop generation
+  modify fun s => { s with numInstances := s.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do

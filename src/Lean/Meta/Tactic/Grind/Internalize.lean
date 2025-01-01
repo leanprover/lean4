@@ -75,8 +75,14 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
-  | .fvar .. | .letE .. | .lam .. | .forallE .. =>
+  | .fvar .. | .letE .. | .lam .. =>
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+  | .forallE _ d _ _ =>
+    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    if (← isProp d <&&> isProp e) then
+      internalize d generation
+      registerParent e d
+      propagateUp e
   | .lit .. | .const .. =>
     mkENode e generation
   | .mvar ..

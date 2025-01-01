@@ -173,7 +173,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
 Missing parameters are synthesized using type inference and type class synthesis."
 -/
-private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do
+private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do withNewMCtxDepth do
   let thm := (← read).thm
   unless (← markTheorenInstance thm.proof c.assignment) do
     return ()

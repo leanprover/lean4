@@ -12,14 +12,33 @@ The configuration for `grind`.
 Passed to `grind` using, for example, the `grind (config := { eager := true })` syntax.
 -/
 structure Config where
-  /--
-  When `eager` is true (default: `false`), `grind` eagerly splits `if-then-else` and `match`
-  expressions.
-  -/
+  /-- When `eager` is true (default: `false`), `grind` eagerly splits `if-then-else` and `match` expressions during internalization. -/
   eager : Bool := false
+  /-- Maximum number of branches (i.e., case-splits) in the proof search tree. -/
+  splits : Nat := 100
+  /--
+  Maximum number of E-matching (aka heuristic theorem instantiation)
+  in a proof search tree branch.
+  -/
+  ematch : Nat := 5
+  /--
+  Maximum term generation.
+  The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
+  the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
+  gen : Nat := 5
+  /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
+  instances : Nat := 1000
   deriving Inhabited, BEq
+
+end Lean.Grind
+
+namespace Lean.Parser.Tactic
 
 /-!
 `grind` tactic and related tactics.
 -/
-end Lean.Grind
+
+-- TODO: parameters
+syntax (name := grind) "grind" optConfig : tactic
+
+end Lean.Parser.Tactic

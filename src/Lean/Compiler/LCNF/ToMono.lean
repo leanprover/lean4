@@ -143,7 +143,7 @@ where
   go : ToMonoM Decl := do
     let type ← toMonoType decl.type
     let params ← decl.params.mapM (·.toMono)
-    let value ← decl.value.toMono
+    let value ← decl.value.mapCodeM (·.toMono)
     let decl := { decl with type, params, value, levelParams := [] }
     decl.saveMono
     return decl

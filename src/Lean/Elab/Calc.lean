@@ -131,14 +131,18 @@ def throwCalcFailure (steps : Array CalcStepView) (expectedType result : Expr) :
     if ← isDefEqGuarded r er then
       let mut failed := false
       unless ← isDefEqGuarded lhs elhs do
+        let (lhs, elhs) ← addPPExplicitToExposeDiff lhs elhs
+        let (lhsTy, elhsTy) ← addPPExplicitToExposeDiff (← inferType lhs) (← inferType elhs)
         logErrorAt steps[0]!.term m!"\
-          invalid 'calc' step, left-hand side is{indentD m!"{lhs} : {← inferType lhs}"}\n\
-          but is expected to be{indentD m!"{elhs} : {← inferType elhs}"}"
+          invalid 'calc' step, left-hand side is{indentD m!"{lhs} : {lhsTy}"}\n\
+          but is expected to be{indentD m!"{elhs} : {elhsTy}"}"
         failed := true
       unless ← isDefEqGuarded rhs erhs do
+        let (rhs, erhs) ← addPPExplicitToExposeDiff rhs erhs
+        let (rhsTy, erhsTy) ← addPPExplicitToExposeDiff (← inferType rhs) (← inferType erhs)
         logErrorAt steps.back!.term m!"\
-          invalid 'calc' step, right-hand side is{indentD m!"{rhs} : {← inferType rhs}"}\n\
-          but is expected to be{indentD m!"{erhs} : {← inferType erhs}"}"
+          invalid 'calc' step, right-hand side is{indentD m!"{rhs} : {rhsTy}"}\n\
+          but is expected to be{indentD m!"{erhs} : {erhsTy}"}"
         failed := true
       if failed then
         throwAbortTerm

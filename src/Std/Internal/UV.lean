@@ -113,6 +113,7 @@ cleanup.
 opaque stop (timer : @& Timer) : IO Unit
 
 end Timer
+
 end UV
 end Internal
 end Std

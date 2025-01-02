@@ -3,7 +3,7 @@ authors = ["Leonardo de Moura", "Sebastian Ullrich"]
 language = "en"
 multilingual = false
 src = "."
-title = "Lean Manual"
+title = "Lean Documentation Overview"
 
 [build]
 build-dir = "out"

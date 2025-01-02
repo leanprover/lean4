@@ -259,7 +259,7 @@ theorem zip_map (f : α → γ) (g : β → δ) :
   | [], _ => rfl
   | _, [] => by simp only [map, zip_nil_right]
   | _ :: _, _ :: _ => by
-    simp only [map, zip_cons_cons, zip_map, Prod.map]; constructor
+    simp only [map, zip_cons_cons, zip_map, Prod.map]; try constructor -- TODO: remove try constructor after update stage0
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]

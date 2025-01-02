@@ -141,8 +141,9 @@ partial def evalApp (declName : Name) (args : Array Arg) : FixParamM Unit := do
       let key := (declName, values)
       unless (← get).visited.contains key do
         modify fun s => { s with visited := s.visited.insert key }
-        let assignment := mkAssignment decl values
-        withReader (fun ctx => { ctx with assignment }) <| evalCode decl.value
+        decl.value.forCodeM fun c =>
+          let assignment := mkAssignment decl values
+          withReader (fun ctx => { ctx with assignment }) <| evalCode c
 
 end
 
@@ -169,8 +170,12 @@ def mkFixedParamsMap (decls : Array Decl) : NameMap (Array Bool) := Id.run do
     let values := mkInitialValues decl.params.size
     let assignment := mkAssignment decl values
     let fixed := Array.mkArray decl.params.size true
-    match evalCode decl.value |>.run { main := decl, decls, assignment } |>.run { fixed } with
-    | .ok _ s | .error _ s => result := result.insert decl.name s.fixed
+    match decl.value with
+    | .code c =>
+      match evalCode c |>.run { main := decl, decls, assignment } |>.run { fixed } with
+      | .ok _ s | .error _ s => result := result.insert decl.name s.fixed
+    | .extern .. =>
+      result := result.insert decl.name fixed
   return result
 
 end Lean.Compiler.LCNF

@@ -123,6 +123,15 @@ unsafe def mkDelabAttribute : IO (KeyedDeclsAttribute Delab) :=
   } `Lean.PrettyPrinter.Delaborator.delabAttribute
 @[builtin_init mkDelabAttribute] opaque delabAttribute : KeyedDeclsAttribute Delab
 
+/--
+`@[app_delab c]` registers a delaborator for applications with head constant `c`.
+Such delaborators also apply to the constant `c` itself (known as a "nullary application").
+
+This attribute should be applied to definitions of type `Lean.PrettyPrinter.Delaborator.Delab`.
+
+When defining delaborators for constant applications, one should prefer this attribute over `@[delab app.c]`,
+as `@[app_delab c]` first performs name resolution on `c` in the current scope.
+-/
 macro "app_delab" id:ident : attr => do
   match ← Macro.resolveGlobalName id.getId with
   | [] => Macro.throwErrorAt id s!"unknown declaration '{id.getId}'"

@@ -55,3 +55,14 @@ example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
         (h₈ : j < as.size)
         : ds[j] = as[j] := by
   grind
+
+opaque f (a b : α) : α := a
+theorem fx : f x (f x x) = x := sorry
+grind_pattern fx => f x (f x x)
+
+/--
+info: [grind.ematch.instance] fx: f a (f a a) = a
+-/
+#guard_msgs (info) in
+example : a = b₁ → c = f b₁ b₂ → f a c ≠ a → a = b₂ → False := by
+  grind

@@ -5,3 +5,4 @@ Authors: Joachim Breitner
 -/
 prelude
 import Init.Internal.Order.Basic
+import Init.Internal.Order.Tactic

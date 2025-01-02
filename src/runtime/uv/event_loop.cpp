@@ -65,10 +65,10 @@ void event_loop_lock(event_loop_t * event_loop) {
 
 // Unlock event loop
 void event_loop_unlock(event_loop_t * event_loop) {
-    uv_mutex_unlock(&event_loop->mutex);
     if (event_loop->n_waiters == 0) {
         uv_cond_signal(&event_loop->cond_var);
     }
+    uv_mutex_unlock(&event_loop->mutex);
 }
 
 // Runs the loop and stops when it needs to register new requests.
@@ -76,13 +76,16 @@ void event_loop_run_loop(event_loop_t * event_loop) {
     while (uv_loop_alive(event_loop->loop)) {
         uv_mutex_lock(&event_loop->mutex);
 
-        if (event_loop->n_waiters != 0) {
+        while (event_loop->n_waiters != 0) {
             uv_cond_wait(&event_loop->cond_var, &event_loop->mutex);
         }
 
-        if (event_loop->n_waiters == 0) {
-            uv_run(event_loop->loop, UV_RUN_ONCE);
-        }
+        uv_run(event_loop->loop, UV_RUN_ONCE);
+        /*
+         * We leave `uv_run` only when `uv_stop` is called as there is always the `uv_async_t` so
+         * we can never run out of things to wait on. `uv_stop` is only called from `async_callback`
+         * when another thread wants to work with the event loop so we need to give up the mutex.
+         */
 
         uv_mutex_unlock(&event_loop->mutex);
     }

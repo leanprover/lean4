@@ -173,8 +173,12 @@ structure ENode where
   next : Expr
   /-- Root (aka canonical representative) of the equivalence class -/
   root : Expr
-  /-- Root of the congruence class. This is field is a don't care if `e` is not an application. -/
-  cgRoot : Expr
+  /--
+  `congr` is the term `self` is congruent to.
+  We say `self` is the congruence class root if `isSameExpr congr self`.
+  This field is initialized to `self` even if `e` is not an application.
+  -/
+  congr : Expr
   /--
   When `e` was added to this equivalence class because of an equality `h : e = target`,
   then we store `target` here, and `h` at `proof?`.
@@ -205,6 +209,9 @@ structure ENode where
   mt : Nat := 0
   -- TODO: see Lean 3 implementation
   deriving Inhabited, Repr
+
+def ENode.isCongrRoot (n : ENode) :=
+  isSameExpr n.self n.congr
 
 /-- New equality to be processed. -/
 structure NewEq where
@@ -540,7 +547,7 @@ def setENode (e : Expr) (n : ENode) : GoalM Unit :=
 
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
   setENode e {
-    self := e, next := e, root := e, cgRoot := e, size := 1
+    self := e, next := e, root := e, congr := e, size := 1
     flipped := false
     heqProofs := false
     hasLambdas := e.isLambda
@@ -562,7 +569,13 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
-  return isSameExpr e (← getENode e).cgRoot
+  return (← getENode e).isCongrRoot
+
+/-- Returns the root of the congruence class containing `e`. -/
+partial def getCongrRoot (e : Expr) : GoalM Expr := do
+  let n ← getENode e
+  if isSameExpr n.congr e then return e
+  getCongrRoot n.congr
 
 /-- Return `true` if the goal is inconsistent. -/
 def isInconsistent : GoalM Bool :=

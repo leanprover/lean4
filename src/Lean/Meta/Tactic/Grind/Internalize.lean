@@ -25,7 +25,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
     trace[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
     let node ← getENode e
-    setENode e { node with cgRoot := e' }
+    setENode e { node with congr := e' }
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 

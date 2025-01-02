@@ -12,9 +12,8 @@ elab "grind_test" : tactic => withMainContext do
     let [_, n, _] := nodes.toList | unreachable!
     logInfo (← getEqc n.self)
 
--- TODO: fix
--- set_option grind.debug true
--- set_option grind.debug.proofs true
+set_option grind.debug true
+set_option grind.debug.proofs true
 
 /-
 Recall that array access terms, such as `a[i]`, have nested proofs.

@@ -671,7 +671,7 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 
 /- ### reverse -/
 
-/-- Reverse of a Bitvec. We treat BitVec as lists of bools. -/
+/-- Reverse the bits in a bitvector. -/
 def reverse : (w : Nat) → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse w (x.truncate w)) (x.msb)

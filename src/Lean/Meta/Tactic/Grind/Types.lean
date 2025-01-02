@@ -47,7 +47,7 @@ register_builtin_option grind.debug.proofs : Bool := {
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
-/-- Context for `GrindCoreM` monad. -/
+/-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
   simprocs     : Array Simp.Simprocs
@@ -67,7 +67,7 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
-/-- State for the `GrindCoreM` monad. -/
+/-- State for the `GrindM` monad. -/
 structure CoreState where
   canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
@@ -88,34 +88,34 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
-abbrev GrindCoreM := ReaderT MethodsRef $ ReaderT Context $ StateRefT CoreState MetaM
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT CoreState MetaM
 
 /-- Returns the user-defined configuration options -/
-def getConfig : GrindCoreM Grind.Config :=
+def getConfig : GrindM Grind.Config :=
   return (← readThe Context).config
 
 /-- Returns the internalized `True` constant.  -/
-def getTrueExpr : GrindCoreM Expr := do
+def getTrueExpr : GrindM Expr := do
   return (← get).trueExpr
 
 /-- Returns the internalized `False` constant.  -/
-def getFalseExpr : GrindCoreM Expr := do
+def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
-def getMainDeclName : GrindCoreM Name :=
+def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
 
-@[inline] def getMethodsRef : GrindCoreM MethodsRef :=
+@[inline] def getMethodsRef : GrindM MethodsRef :=
   read
 
 /-- Returns maximum term generation that is considered during ematching. -/
-def getMaxGeneration : GrindCoreM Nat := do
+def getMaxGeneration : GrindM Nat := do
   return (← getConfig).gen
 
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
 -/
-def abstractNestedProofs (e : Expr) : GrindCoreM Expr := do
+def abstractNestedProofs (e : Expr) : GrindM Expr := do
   let nextIdx := (← get).nextThmIdx
   let (e, s') ← AbstractNestedProofs.visit e |>.run { baseName := (← getMainDeclName) } |>.run |>.run { nextIdx }
   modify fun s => { s with nextThmIdx := s'.nextIdx }
@@ -125,7 +125,7 @@ def abstractNestedProofs (e : Expr) : GrindCoreM Expr := do
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consing. We perform this step before we internalize expressions.
 -/
-def shareCommon (e : Expr) : GrindCoreM Expr := do
+def shareCommon (e : Expr) : GrindM Expr := do
   modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
     (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats })
@@ -133,24 +133,24 @@ def shareCommon (e : Expr) : GrindCoreM Expr := do
 /--
 Canonicalizes nested types, type formers, and instances in `e`.
 -/
-def canon (e : Expr) : GrindCoreM Expr := do
+def canon (e : Expr) : GrindM Expr := do
   let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
   let (e, canonS) ← Canon.canon e |>.run canonS
   modify fun s => { s with canon := canonS }
   return e
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindCoreM Bool :=
+def isTrueExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getTrueExpr)
 
 /-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindCoreM Bool :=
+def isFalseExpr (e : Expr) : GrindM Bool :=
   return isSameExpr e (← getFalseExpr)
 
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
 -/
-def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindCoreM CongrTheorem := do
+def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   let key := { f, numArgs }
   if let some result := (← get).congrThms.find? key then
     return result
@@ -363,7 +363,13 @@ structure Goal where
 def Goal.admit (goal : Goal) : MetaM Unit :=
   goal.mvarId.admit
 
-abbrev GoalM := StateRefT Goal GrindCoreM
+abbrev GoalM := StateRefT Goal GrindM
+
+@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+  goal.mvarId.withContext do StateRefT'.run x goal
+
+@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
+  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
 abbrev Propagator := Expr → GoalM Unit
 
@@ -655,7 +661,7 @@ def Methods.toMethodsRef (m : Methods) : MethodsRef :=
 private def MethodsRef.toMethods (m : MethodsRef) : Methods :=
   unsafe unsafeCast m
 
-@[inline] def getMethods : GrindCoreM Methods :=
+@[inline] def getMethods : GrindM Methods :=
   return (← getMethodsRef).toMethods
 
 def propagateUp (e : Expr) : GoalM Unit := do

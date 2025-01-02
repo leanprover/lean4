@@ -99,7 +99,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 
-def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindCoreM Unit :=
+def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
   discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

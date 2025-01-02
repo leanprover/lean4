@@ -17,7 +17,7 @@ import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-def simpCore (e : Expr) : GrindCoreM Simp.Result := do
+def simpCore (e : Expr) : GrindM Simp.Result := do
   let simpStats := (← get).simpStats
   let (r, simpStats) ← Meta.simp e (← readThe Context).simp (← readThe Context).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
@@ -27,7 +27,7 @@ def simpCore (e : Expr) : GrindCoreM Simp.Result := do
 Simplifies `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def simp (e : Expr) : GrindCoreM Simp.Result := do
+def simp (e : Expr) : GrindM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
@@ -49,7 +49,7 @@ private inductive IntroResult where
   | newLocal (fvarId : FVarId) (goal : Goal)
   deriving Inhabited
 
-private def introNext (goal : Goal) : GrindCoreM IntroResult := do
+private def introNext (goal : Goal) : GrindM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
     goal.mvarId.withContext do
@@ -108,8 +108,8 @@ private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal
     return none
 
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
-partial def intros (goal : Goal) (generation : Nat) : GrindCoreM (List Goal) := do
-  let rec go (goal : Goal) : StateRefT (Array Goal) GrindCoreM Unit := do
+partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
+  let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()
     match (← introNext goal) with
@@ -136,22 +136,22 @@ partial def intros (goal : Goal) (generation : Nat) : GrindCoreM (List Goal) := 
   return goals.toList
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : GrindCoreM (List Goal) := do
+def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : GrindM (List Goal) := do
   -- TODO: check whether `prop` may benefit from `intros` or not. If not, we should avoid the `assert`+`intros` step and use `Grind.add`
   let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
   let goal := { goal with mvarId }
   intros goal generation
 
 /-- Asserts next fact in the `goal` fact queue. -/
-def assertNext? (goal : Goal) : GrindCoreM (Option (List Goal)) := do
+def assertNext? (goal : Goal) : GrindM (Option (List Goal)) := do
   let some (fact, newFacts) := goal.newFacts.dequeue?
     | return none
   assertAt { goal with newFacts } fact.proof fact.prop fact.generation
 
-partial def iterate (goal : Goal) (f : Goal → GrindCoreM (Option (List Goal))) : GrindCoreM (List Goal) := do
+partial def iterate (goal : Goal) (f : Goal → GrindM (Option (List Goal))) : GrindM (List Goal) := do
   go [goal] []
 where
-  go (todo : List Goal) (result : List Goal) : GrindCoreM (List Goal) := do
+  go (todo : List Goal) (result : List Goal) : GrindM (List Goal) := do
     match todo with
     | [] => return result
     | goal :: todo =>
@@ -161,21 +161,21 @@ where
         go todo (goal :: result)
 
 /-- Asserts all facts in the `goal` fact queue. -/
-partial def assertAll (goal : Goal) : GrindCoreM (List Goal) := do
+partial def assertAll (goal : Goal) : GrindM (List Goal) := do
   iterate goal assertNext?
 
 /-- Performs one round of E-matching, and assert new instances. -/
-def ematchAndAssert? (goal : Goal) : GrindCoreM (Option (List Goal)) := do
+def ematchAndAssert? (goal : Goal) : GrindM (Option (List Goal)) := do
   let numInstances := goal.numInstances
   let goal ← GoalM.run' goal ematch
   if goal.numInstances == numInstances then
     return none
   assertAll goal
 
-def ematchStar (goal : Goal) : GrindCoreM (List Goal) := do
+def ematchStar (goal : Goal) : GrindM (List Goal) := do
   iterate goal ematchAndAssert?
 
-def all (goals : List Goal) (f : Goal → GrindCoreM (List Goal)) : GrindCoreM (List Goal) := do
+def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goal) := do
   goals.foldlM (init := []) fun acc goal => return acc ++ (← f goal)
 
 end Lean.Meta.Grind

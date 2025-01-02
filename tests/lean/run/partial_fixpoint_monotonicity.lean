@@ -1,13 +1,5 @@
 -- Tests the `monotonicity` tactic
 
--- These can move to Init after a stage0 update
-open Lean.Order in
-attribute [partial_fixpoint_monotone]
-  monotone_ite
-  monotone_dite
-  monotone_bind
-  monotone_list_forIn
-
 /-
 Should test that the tactic syntax is scoped, but cannot use #guard_msgs to catch “tactic not known”
 errors, it seems:

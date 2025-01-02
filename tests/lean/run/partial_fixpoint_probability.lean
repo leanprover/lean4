@@ -1,12 +1,3 @@
--- These can move to Init after a stage0 update
-open Lean.Order in
-attribute [partial_fixpoint_monotone]
-  monotone_ite
-  monotone_dite
-  monotone_bind
-  monotone_list_mapM
-  monotone_array_mapFinIdxM
-
 -- Since we do not have ENNReal in core, we just axiomatize it all for this test
 
 opaque ENNReal : Type

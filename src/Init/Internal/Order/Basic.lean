@@ -401,6 +401,7 @@ theorem monotone_letFun
     (hmono : ∀ y, monotone (fun x => k x y)) :
   monotone fun (x : α) => letFun v (k x) := hmono v
 
+@[partial_fixpoint_monotone]
 theorem monotone_ite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
     (c : Prop) [Decidable c]
@@ -411,6 +412,7 @@ theorem monotone_ite
     · apply hmono₁
     · apply hmono₂
 
+@[partial_fixpoint_monotone]
 theorem monotone_dite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
     (c : Prop) [Decidable c]
@@ -609,6 +611,7 @@ class MonoBind (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] wh
   bind_mono_left {a₁ a₂ : m α} {f : α → m b} (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
   bind_mono_right {a : m α} {f₁ f₂ : α → m b} (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
 
+@[partial_fixpoint_monotone]
 theorem monotone_bind
     (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}

@@ -18,6 +18,7 @@ variable {m : Type u → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBi
 variable {α β : Type u}
 variable {γ : Type w} [PartialOrder γ]
 
+@[partial_fixpoint_monotone]
 theorem monotone_option_bindM (f : γ → α → m (Option β)) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.bindM (f x)) := by
   cases xs with
@@ -28,6 +29,7 @@ theorem monotone_option_bindM (f : γ → α → m (Option β)) (xs : Option α)
       apply hmono
     · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_option_mapM (f : γ → α → m β) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.mapM (f x)) := by
   cases xs with
@@ -38,6 +40,7 @@ theorem monotone_option_mapM (f : γ → α → m β) (xs : Option α) (hmono : 
       apply hmono
     · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_option_elimM (a : γ → m (Option α)) (n : γ → m β) (s : γ → α → m β)
     (hmono₁ : monotone a) (hmono₂ : monotone n) (hmono₃ : monotone s) :
     monotone (fun x => Option.elimM (a x) (n x) (s x)) := by
@@ -53,12 +56,14 @@ theorem monotone_option_elimM (a : γ → m (Option α)) (n : γ → m β) (s : 
       apply hmono₃
 
 omit [MonoBind m] in
+@[partial_fixpoint_monotone]
 theorem monotone_option_getDM (o : Option α) (y : γ → m α) (hmono : monotone y) :
     monotone (fun x => o.getDM (y x)) := by
   cases o
   · apply hmono
   · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_mapM (f : γ → α → m β) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.mapM (f x)) := by
   cases xs with
@@ -81,6 +86,7 @@ theorem monotone_list_mapM (f : γ → α → m β) (xs : List α) (hmono : mono
           intro y
           apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_forM (f : γ → α → m PUnit) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.forM (f x)) := by
   induction xs with
@@ -93,6 +99,7 @@ theorem monotone_list_forM (f : γ → α → m PUnit) (xs : List α) (hmono : m
       intro y
       apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_filterAuxM
   {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
   (f : γ → α → m Bool) (xs acc : List α) (hmono : monotone f) :
@@ -107,6 +114,7 @@ theorem monotone_list_filterAuxM
       intro y
       apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_filterM
     {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
     (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
@@ -115,12 +123,14 @@ theorem monotone_list_filterM
   · exact monotone_list_filterAuxM f xs [] hmono
   · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_filterRevM
     {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
     (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.filterRevM (f x)) := by
   exact monotone_list_filterAuxM f xs.reverse [] hmono
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_foldlM
     (f : γ → β → α → m β) (init : β) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.foldlM (f x) (init := init)) := by
@@ -135,6 +145,7 @@ theorem monotone_list_foldlM
       intro y
       apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_foldrM
     (f : γ → α → β → m β) (init : β) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.foldrM (f x) (init := init)) := by
@@ -147,6 +158,7 @@ theorem monotone_list_foldrM
   apply monotone_apply (a := a)
   apply hmono
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_anyM
     {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
     (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
@@ -163,6 +175,7 @@ theorem monotone_list_anyM
       · apply ih
       · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_allM
     {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
     (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
@@ -179,6 +192,7 @@ theorem monotone_list_allM
       · apply monotone_const
       · apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_findM?
     {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
     (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
@@ -195,6 +209,7 @@ theorem monotone_list_findM?
       · apply ih
       · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_findSomeM?
     (f : γ → α → m (Option β)) (xs : List α) (hmono : monotone f) :
     monotone (fun x => xs.findSomeM? (f x)) := by
@@ -210,6 +225,7 @@ theorem monotone_list_findSomeM?
       · apply ih
       · apply monotone_const
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_forIn'_loop {α : Type uu}
     (as : List α) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (as' : List α) (b : β)
     (p : Exists (fun bs => bs ++ as' = as)) (hmono : monotone f) :
@@ -228,12 +244,14 @@ theorem monotone_list_forIn'_loop {α : Type uu}
       | done => apply monotone_const
       | yield => apply ih
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_forIn' {α : Type uu}
     (as : List α) (init : β) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (hmono : monotone f) :
     monotone (fun x => forIn' as init (f x)) := by
   apply monotone_list_forIn'_loop
   apply hmono
 
+@[partial_fixpoint_monotone]
 theorem monotone_list_forIn {α : Type uu}
     (as : List α) (init : β) (f : γ → (a : α) → β → m (ForInStep β)) (hmono : monotone f) :
     monotone (fun x => forIn as init (f x)) := by
@@ -245,6 +263,7 @@ theorem monotone_list_forIn {α : Type uu}
   apply monotone_apply (a := y)
   apply hmono
 
+@[partial_fixpoint_monotone]
 theorem monotone_array_mapFinIdxM (xs : Array α) (f : γ → Fin xs.size → α → m β) (hmono : monotone f) :
     monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices

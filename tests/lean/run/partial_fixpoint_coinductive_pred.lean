@@ -1,13 +1,3 @@
--- These can move to Init after a stage0 update
-open Lean.Order in
-attribute [partial_fixpoint_monotone]
-  monotone_ite
-  monotone_dite
-  monotone_bind
-  monotone_list_mapM
-  monotone_array_mapFinIdxM
-
-
 /-!
 Johannes Hölzl pointed out that the `partial_fixpoint` machinery can be applied to `Prop` to define
 inductive or (when using the dual order) coinductive predicates.

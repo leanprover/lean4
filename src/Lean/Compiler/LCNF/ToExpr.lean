@@ -110,7 +110,4 @@ def Code.toExpr (code : Code) (xs : Array FVarId := #[]) : Expr :=
 def FunDeclCore.toExpr (decl : FunDecl) (xs : Array FVarId := #[]) : Expr :=
   run' decl.toExprM xs
 
-def Decl.toExpr (decl : Decl) : Expr :=
-  run do withParams decl.params do mkLambdaM decl.params (← decl.value.toExprM)
-
 end Lean.Compiler.LCNF

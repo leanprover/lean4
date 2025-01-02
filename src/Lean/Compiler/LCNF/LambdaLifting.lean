@@ -108,9 +108,10 @@ def mkAuxDecl (closure : Array Param) (decl : FunDecl) : LiftM LetDecl := do
 where
   go (nameNew : Name) (safe : Bool) (inlineAttr? : Option InlineAttributeKind) : InternalizeM Decl := do
     let params := (← closure.mapM internalizeParam) ++ (← decl.params.mapM internalizeParam)
-    let value ← internalizeCode decl.value
-    let type ← value.inferType
+    let code ← internalizeCode decl.value
+    let type ← code.inferType
     let type ← mkForallParams params type
+    let value := .code code
     let decl := { name := nameNew, levelParams := [], params, type, value, safe, inlineAttr?, recursive := false : Decl }
     return decl.setLevelParams
 
@@ -149,7 +150,7 @@ mutual
 end
 
 def main (decl : Decl) : LiftM Decl := do
-  let value ← withParams decl.params <| visitCode decl.value
+  let value ← withParams decl.params <| decl.value.mapCodeM visitCode
   return { decl with value }
 
 end LambdaLifting

@@ -3109,11 +3109,11 @@ if (x_37 == 0)
 {
 lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; 
 x_38 = l_Lean_NameSet_empty;
-lean_inc(x_7);
-x_39 = lean_alloc_ctor(0, 2, 1);
+lean_inc_n(x_7, 2);
+x_39 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_39, 0, x_7);
-lean_ctor_set(x_39, 1, x_38);
-lean_ctor_set_uint8(x_39, sizeof(void*)*2, x_27);
+lean_ctor_set(x_39, 1, x_7);
+lean_ctor_set(x_39, 2, x_38);
 x_40 = l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_402____closed__4;
 x_41 = lean_box(0);
 lean_inc_n(x_9, 2);
@@ -5838,11 +5838,11 @@ lean_ctor_set(x_24, 11, x_4);
 lean_ctor_set_uint8(x_24, sizeof(void*)*12, x_23);
 lean_ctor_set_uint8(x_24, sizeof(void*)*12 + 1, x_23);
 x_25 = l_Lean_NameSet_empty;
-lean_inc(x_5);
-x_26 = lean_alloc_ctor(0, 2, 1);
+lean_inc_n(x_5, 2);
+x_26 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_26, 0, x_5);
-lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set_uint8(x_26, sizeof(void*)*2, x_23);
+lean_ctor_set(x_26, 1, x_5);
+lean_ctor_set(x_26, 2, x_25);
 x_27 = 1;
 x_28 = l_Lean_Language_Lean_process_doElab___closed__5;
 x_29 = lean_alloc_ctor(0, 2, 1);
@@ -7049,11 +7049,11 @@ lean_ctor_set(x_24, 11, x_4);
 lean_ctor_set_uint8(x_24, sizeof(void*)*12, x_23);
 lean_ctor_set_uint8(x_24, sizeof(void*)*12 + 1, x_23);
 x_25 = l_Lean_NameSet_empty;
-lean_inc(x_5);
-x_26 = lean_alloc_ctor(0, 2, 1);
+lean_inc_n(x_5, 2);
+x_26 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_26, 0, x_5);
-lean_ctor_set(x_26, 1, x_25);
-lean_ctor_set_uint8(x_26, sizeof(void*)*2, x_23);
+lean_ctor_set(x_26, 1, x_5);
+lean_ctor_set(x_26, 2, x_25);
 x_27 = 1;
 x_28 = l_Lean_Language_Lean_process_doElab___closed__5;
 x_29 = lean_alloc_ctor(0, 2, 1);
@@ -8948,15 +8948,14 @@ return x_5;
 static lean_object* _init_l_Lean_Language_Lean_process_parseCmd___lambda__12___closed__7() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = l_Lean_Language_Lean_process_parseCmd___lambda__12___closed__6;
-x_3 = l_Lean_NameSet_empty;
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Language_Lean_process_parseCmd___lambda__12___closed__6;
+x_2 = l_Lean_NameSet_empty;
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lean_Language_Lean_process_parseCmd___lambda__12___closed__8() {

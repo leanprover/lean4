@@ -16,7 +16,6 @@ extern "C" {
 lean_object* l_Std_Sat_AIG_mkNotCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkXorCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkBEqCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Std_Sat_AIG_mkImpCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_mkIfCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Circuit_0__Std_Tactic_BVDecide_ofBoolExprCached_go_match__3_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -25,6 +24,7 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BoolExpr_Circu
 lean_object* l_Std_Sat_AIG_mkConstCached___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached_go(lean_object*);
+lean_object* l_Std_Sat_AIG_mkOrCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached(lean_object*);
 lean_object* l_Std_Sat_AIG_mkAndCached___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_ofBoolExprCached_go___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {
@@ -117,7 +117,7 @@ return x_28;
 default: 
 {
 lean_object* x_29; 
-x_29 = l_Std_Sat_AIG_mkImpCached___rarg(x_1, x_2, x_25, x_23);
+x_29 = l_Std_Sat_AIG_mkOrCached___rarg(x_1, x_2, x_25, x_23);
 return x_29;
 }
 }
@@ -155,7 +155,7 @@ return x_35;
 default: 
 {
 lean_object* x_36; 
-x_36 = l_Std_Sat_AIG_mkImpCached___rarg(x_1, x_2, x_30, x_32);
+x_36 = l_Std_Sat_AIG_mkOrCached___rarg(x_1, x_2, x_30, x_32);
 return x_36;
 }
 }

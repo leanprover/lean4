@@ -12,7 +12,6 @@ namespace lean {
 using namespace std;
 
 // The finalizer of the `Timer`.
-// TODO: check if it can cause the promise to leak in some way.
 void lean_uv_timer_finalizer(void* ptr) {
     lean_uv_timer_object * timer_obj = (lean_uv_timer_object*) ptr;
 
@@ -83,6 +82,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     }
 
     lean_object * obj = lean_uv_timer_new(timer_obj);
+    lean_mark_mt(obj);
     timer_obj->m_uv_timer.data = obj;
 
     return lean_io_result_mk_ok(obj);
@@ -224,12 +224,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg 
 
         obj->m_state = TIMER_STATE_FINISHED;
 
-        // If the promise is in progress it means that it's owned by the event loop, so we need
-        // remove the ownership by reducing the reference count of the object.
-        if (lean_io_get_task_state_core(obj->m_promise) != 2) {
-            lean_dec(obj->m_promise);
-            lean_dec(timer);
-        }
+        // The loop does not need to keep the timer alive anymore.
+        lean_dec(timer);
 
         return lean_io_result_mk_ok(lean_box(0));
     } else {

@@ -32,7 +32,7 @@ typedef struct {
     bool            m_repeating;   // Flag indicating if the timer is repeating.
     uv_timer_state  m_state;       // The state of the timer. Beyond the API description on the Lean
                                    // side this state has the invariant:
-                                   // `m_state != TIMER_STATE_INITIAL` -> `m_promise != NULL`. 
+                                   // `m_state != TIMER_STATE_INITIAL` -> `m_promise != NULL`
 } lean_uv_timer_object;
 
 // =======================================

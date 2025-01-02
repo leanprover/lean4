@@ -25,3 +25,13 @@ example : monotone
   (fun (f : Nat → Option Unit) => do
     for x in [1,2,3] do f x) := by
   repeat' monotonicity
+
+example : monotone
+  (fun (f : Nat → Option Nat) => do
+    let mut acc := 0
+    for x in [1,2,3] do
+      acc := acc + (← f x)
+      if acc > 10 then
+        return 5
+    pure acc) := by
+  repeat' monotonicity

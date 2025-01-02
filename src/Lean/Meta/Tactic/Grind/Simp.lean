@@ -10,10 +10,6 @@ import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.MarkNestedProofs
-import Lean.Meta.Tactic.Grind.Cases
-import Lean.Meta.Tactic.Grind.Injection
-import Lean.Meta.Tactic.Grind.Core
-import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/

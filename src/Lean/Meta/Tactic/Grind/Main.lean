@@ -11,10 +11,9 @@ import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
 import Lean.Meta.Tactic.Grind.ForallProp
 import Lean.Meta.Tactic.Grind.Util
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 
@@ -64,17 +63,6 @@ private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   let goals ← intros (← mkGoal mvarId) (generation := 0)
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
-
-/-- Performs one round of E-matching, and assert new instances. -/
-def ematchAndAssert? (goal : Goal) : GrindM (Option (List Goal)) := do
-  let numInstances := goal.numInstances
-  let goal ← GoalM.run' goal ematch
-  if goal.numInstances == numInstances then
-    return none
-  assertAll goal
-
-def ematchStar (goal : Goal) : GrindM (List Goal) := do
-  iterate goal ematchAndAssert?
 
 def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goal) := do
   goals.foldlM (init := []) fun acc goal => return acc ++ (← f goal)

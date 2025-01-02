@@ -4,9 +4,7 @@ attribute [partial_fixpoint_monotone]
   monotone_ite
   monotone_dite
   monotone_bind
-  monotone_mapM
-  monotone_mapFinIdxM
-
+  monotone_list_mapM
 
 def loop (x : Nat) : Unit := loop (x + 1)
 partial_fixpoint

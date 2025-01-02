@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Intro
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -277,5 +277,16 @@ def ematch : GoalM Unit := do
       newThms      := {}
       gmt          := s.gmt + 1
     }
+
+/-- Performs one round of E-matching, and assert new instances. -/
+def ematchAndAssert? (goal : Goal) : GrindM (Option (List Goal)) := do
+  let numInstances := goal.numInstances
+  let goal ← GoalM.run' goal ematch
+  if goal.numInstances == numInstances then
+    return none
+  assertAll goal
+
+def ematchStar (goal : Goal) : GrindM (List Goal) := do
+  iterate goal ematchAndAssert?
 
 end Lean.Meta.Grind

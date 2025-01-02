@@ -1,6 +1,5 @@
 import Lean
 
-
 def g (s : Type) := s
 def f (a : α) := a
 

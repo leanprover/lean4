@@ -47,8 +47,7 @@ builtin_initialize registerBuiltinAttribute {
 }
 
 /--
-Given expression `e` of the form `f xs`, possibly open, try to find monotonicity theorems.
-for f.
+Finds tagged monotonicity theorems of the form `monotone (fun x => e)`.
 -/
 def findMonoThms (e : Expr) : MetaM (Array Name) := do
   (monotoneExt.getState (← getEnv)).getMatch e
@@ -98,7 +97,7 @@ partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) :
 
 def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaultFailK) (goal : MVarId) : MetaM (List MVarId) :=
   goal.withContext do
-  trace[Elab.Tactic.partial_monotonicity] "partial_monotonicity at\n{goal}"
+  trace[Elab.Tactic.monotonicity] "monotonicity at\n{goal}"
   let type ← goal.getType
   if type.isForall then
     let (_, goal) ← goal.intro1P
@@ -171,23 +170,23 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
 
     -- A recursive call
     if let some hmono ← solveMonoCall α inst_α e then
-      trace[Elab.Tactic.partial_monotonicity] "Found recursive call {e}:{indentExpr hmono}"
+      trace[Elab.Tactic.monotonicity] "Found recursive call {e}:{indentExpr hmono}"
       unless ← goal.checkedAssign hmono do
-        trace[Elab.Tactic.partial_monotonicity] "Failed to assign {hmono} : {← inferType hmono} to goal"
+        trace[Elab.Tactic.monotonicity] "Failed to assign {hmono} : {← inferType hmono} to goal"
         failK f #[]
       return []
 
     let monoThms ← withLocalDeclD `f f.bindingDomain! fun f =>
       -- The discrimination tree does not like open terms
       findMonoThms (e.instantiate1 f)
-    trace[Elab.Tactic.partial_monotonicity] "Found monoThms: {monoThms.map MessageData.ofConstName}"
+    trace[Elab.Tactic.monotonicity] "Found monoThms: {monoThms.map MessageData.ofConstName}"
     for monoThm in monoThms do
       let new_goals? ← try
         let new_goals ← applyConst goal monoThm
-        trace[Elab.Tactic.partial_monotonicity] "Succeeded with {.ofConstName monoThm}"
+        trace[Elab.Tactic.monotonicity] "Succeeded with {.ofConstName monoThm}"
         pure (some new_goals)
       catch e =>
-        trace[Elab.Tactic.partial_monotonicity] "{e.toMessageData}"
+        trace[Elab.Tactic.monotonicity] "{e.toMessageData}"
         pure none
       if let some new_goals := new_goals? then
         return new_goals
@@ -214,12 +213,11 @@ partial def solveMono (failK : ∀ {α}, Expr → Array Name → MetaM α := def
   let new_goals ← solveMonoStep failK goal
   new_goals.forM (solveMono failK)
 
+open Elab Tactic in
+@[builtin_tactic Lean.Order.monotonicity]
+def evalMonotonicity : Tactic := fun _stx =>
+  liftMetaTactic Lean.Meta.Monotonicity.solveMonoStep
+
 end Lean.Meta.Monotonicity
 
-
-open Lean Elab Tactic in
-@[builtin_tactic Lean.Order.monotonicity]
-def evalApplyRules : Tactic := fun _stx =>
-    liftMetaTactic Lean.Meta.Monotonicity.solveMonoStep
-
-builtin_initialize Lean.registerTraceClass `Elab.Tactic.partial_monotonicity
+builtin_initialize Lean.registerTraceClass `Elab.Tactic.monotonicity

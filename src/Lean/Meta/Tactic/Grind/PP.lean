@@ -56,4 +56,11 @@ def ppState : GoalM Format := do
       r := r ++ "\n" ++ "{" ++ (Format.joinSep (← eqc.mapM ppENodeRef) ", ") ++  "}"
   return r
 
+def ppGoals (goals : List Goal) : GrindCoreM Format := do
+  let mut r := f!""
+  for goal in goals do
+    let (f, _) ← GoalM.run goal ppState
+    r := r ++ Format.line ++ f
+  return r
+
 end Lean.Meta.Grind

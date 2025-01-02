@@ -365,6 +365,12 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 
 abbrev GoalM := StateRefT Goal GrindCoreM
 
+@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindCoreM (α × Goal) :=
+  goal.mvarId.withContext do StateRefT'.run x goal
+
+@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindCoreM Goal :=
+  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
 abbrev Propagator := Expr → GoalM Unit
 
 /--

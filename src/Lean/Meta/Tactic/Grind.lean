@@ -7,7 +7,6 @@ prelude
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Preprocessor
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
@@ -22,6 +21,9 @@ import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Parser
 import Lean.Meta.Tactic.Grind.EMatchTheorem
+import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Main
+
 
 namespace Lean
 
@@ -41,8 +43,8 @@ builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.debug
 builtin_initialize registerTraceClass `grind.debug.proofs
 builtin_initialize registerTraceClass `grind.debug.congr
-builtin_initialize registerTraceClass `grind.debug.pre
 builtin_initialize registerTraceClass `grind.debug.proof
 builtin_initialize registerTraceClass `grind.debug.proj
+builtin_initialize registerTraceClass `grind.debug.parent
 
 end Lean

@@ -20,7 +20,7 @@ def propagateForallProp (parent : Expr) : GoalM Unit := do
   unless (← isEqTrue p) do return ()
   let h₁ ← mkEqTrueProof p
   let qh₁ := q.instantiate1 (mkApp2 (mkConst ``of_eq_true) p h₁)
-  let r ← pre qh₁
+  let r ← simp qh₁
   let q := mkLambda n bi p q
   let q' := r.expr
   internalize q' (← getGeneration parent)

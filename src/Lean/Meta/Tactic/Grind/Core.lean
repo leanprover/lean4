@@ -88,7 +88,7 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
     -- `lhs` and `rhs` are already in the same equivalence class.
     trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
     return ()
-  trace[grind.eqc] "{lhs} {if isHEq then "≡" else "="} {rhs}"
+  trace[grind.eqc] "{← if isHEq then mkHEq lhs rhs else mkEq lhs rhs}"
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
   let mut valueInconsistency := false

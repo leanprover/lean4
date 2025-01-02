@@ -49,3 +49,8 @@ variable {_ : BEq α} {_ : Hashable α}
 
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (s : PersistentHashSet α) : β :=
   Id.run $ s.foldM f init
+
+def toList (s : PersistentHashSet α) : List α :=
+  s.set.toList.map (·.1)
+
+end PersistentHashSet

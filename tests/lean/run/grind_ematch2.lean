@@ -41,3 +41,17 @@ example (as bs cs : Array α) (v₁ v₂ : α)
         (h₆ : j < as.size)
         : cs[j] = as[j] := by
   grind
+
+example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
+        (i₁ i₂ i₃ j : Nat)
+        (h₁ : i₁ < as.size)
+        (h₂ : as.set i₁ v₁ = bs)
+        (h₃ : i₂ < bs.size)
+        (h₃ : bs.set i₂ v₂ = cs)
+        (h₄ : i₃ < cs.size)
+        (h₅ : ds = cs.set i₃ v₃)
+        (h₆ : j ≠ i₁ ∧ j ≠ i₂ ∧ i₃ ≠ j)
+        (h₇ : j < ds.size)
+        (h₈ : j < as.size)
+        : ds[j] = as[j] := by
+  grind

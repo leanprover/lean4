@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Sorry -- TODO: remove
+import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
@@ -128,6 +128,52 @@ mutual
     let r := (← loop lhs rhs).get!
     if heq then mkHEqOfEq r else return r
 
+  private partial def mkHCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let f := lhs.getAppFn
+    let g := rhs.getAppFn
+    let numArgs := lhs.getAppNumArgs
+    assert! rhs.getAppNumArgs == numArgs
+    let thm ← mkHCongrWithArity f numArgs
+    assert! thm.argKinds.size == numArgs
+    let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
+      let i := i - 1
+      if lhs.isApp then
+        let proof ← loop lhs.appFn! rhs.appFn! i
+        let a₁  := lhs.appArg!
+        let a₂  := rhs.appArg!
+        let k   := thm.argKinds[i]!
+        return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
+      else
+        return thm.proof
+    let proof ← loop lhs rhs numArgs
+    if isSameExpr f g then
+      mkEqOfHEqIfNeeded proof heq
+    else
+      /-
+      `lhs` is of the form `f a_1 ... a_n`
+      `rhs` is of the form `g b_1 ... b_n`
+      `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
+      We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
+      -/
+      let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
+        mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
+      let fEq ← mkEqProofCore f g false
+      let proof ← mkEqNDRec motive proof fEq
+      mkEqOfHEqIfNeeded proof heq
+
+  private partial def mkEqCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
+    let_expr f@Eq α₁ a₁ b₁ := lhs | unreachable!
+    let_expr Eq α₂ a₂ b₂ := rhs | unreachable!
+    let enodes := (← get).enodes
+    let us := f.constLevels!
+    if !isSameExpr α₁ α₂ then
+      mkHCongrProof lhs rhs heq
+    else if hasSameRoot enodes a₁ a₂ && hasSameRoot enodes b₁ b₂ then
+      return mkApp7 (mkConst ``Grind.eq_congr us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ a₂ false) (← mkEqProofCore b₁ b₂ false)
+    else
+      assert! hasSameRoot enodes a₁ b₂ && hasSameRoot enodes b₁ a₂
+      return mkApp7 (mkConst ``Grind.eq_congr' us) α₁ a₁ b₁ a₂ b₂ (← mkEqProofCore a₁ b₂ false) (← mkEqProofCore b₁ a₂ false)
+
   /-- Constructs a congruence proof for `lhs` and `rhs`. -/
   private partial def mkCongrProof (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     let f := lhs.getAppFn
@@ -136,36 +182,12 @@ mutual
     assert! rhs.getAppNumArgs == numArgs
     if f.isConstOf ``Lean.Grind.nestedProof && g.isConstOf ``Lean.Grind.nestedProof && numArgs == 2 then
       mkNestedProofCongr lhs rhs heq
+    else if f.isConstOf ``Eq && g.isConstOf ``Eq && numArgs == 3 then
+      mkEqCongrProof lhs rhs heq
     else if (← isCongrDefaultProofTarget lhs rhs f g numArgs) then
       mkCongrDefaultProof lhs rhs heq
     else
-      let thm ← mkHCongrWithArity f numArgs
-      assert! thm.argKinds.size == numArgs
-      let rec loop (lhs rhs : Expr) (i : Nat) : GoalM Expr := do
-        let i := i - 1
-        if lhs.isApp then
-          let proof ← loop lhs.appFn! rhs.appFn! i
-          let a₁  := lhs.appArg!
-          let a₂  := rhs.appArg!
-          let k   := thm.argKinds[i]!
-          return mkApp3 proof a₁ a₂ (← mkEqProofCore a₁ a₂ (k matches .heq))
-        else
-          return thm.proof
-      let proof ← loop lhs rhs numArgs
-      if isSameExpr f g then
-        mkEqOfHEqIfNeeded proof heq
-      else
-        /-
-        `lhs` is of the form `f a_1 ... a_n`
-        `rhs` is of the form `g b_1 ... b_n`
-        `proof : HEq (f a_1 ... a_n) (f b_1 ... b_n)`
-        We construct a proof for `HEq (f a_1 ... a_n) (g b_1 ... b_n)` using `Eq.ndrec`
-        -/
-        let motive ← withLocalDeclD (← mkFreshUserName `x) (← inferType f) fun x => do
-          mkLambdaFVars #[x] (← mkHEq lhs (mkAppN x rhs.getAppArgs))
-        let fEq ← mkEqProofCore f g false
-        let proof ← mkEqNDRec motive proof fEq
-        mkEqOfHEqIfNeeded proof heq
+      mkHCongrProof lhs rhs heq
 
   private partial def realizeEqProof (lhs rhs : Expr) (h : Expr) (flipped : Bool) (heq : Bool) : GoalM Expr := do
     let h ← if h == congrPlaceholderProof then
@@ -198,42 +220,41 @@ mutual
     -- `h' : lhs = target`
     mkTrans' h' h heq
 
+  /--
+  Returns a proof of `lhs = rhs` (`HEq lhs rhs`) if `heq = false` (`heq = true`).
+  If `heq = false`, this function assumes that `lhs` and `rhs` have the same type.
+  -/
   private partial def mkEqProofCore (lhs rhs : Expr) (heq : Bool) : GoalM Expr := do
     if isSameExpr lhs rhs then
       return (← mkRefl lhs heq)
+    -- The equivalence class contains `HEq` proofs. So, we build a proof using HEq. Otherwise, we use `Eq`.
+    let heqProofs := (← getRootENode lhs).heqProofs
     let n₁ ← getENode lhs
     let n₂ ← getENode rhs
     assert! isSameExpr n₁.root n₂.root
     let common ← findCommon lhs rhs
-    let lhsEqCommon? ← mkProofTo lhs common none heq
-    let some lhsEqRhs ← mkProofFrom rhs common lhsEqCommon? heq | unreachable!
-    return lhsEqRhs
+    let lhsEqCommon? ← mkProofTo lhs common none heqProofs
+    let some lhsEqRhs ← mkProofFrom rhs common lhsEqCommon? heqProofs | unreachable!
+    if heq == heqProofs then
+      return lhsEqRhs
+    else if heq then
+      mkHEqOfEq lhsEqRhs
+    else
+      mkEqOfHEq lhsEqRhs
+
 end
 
 /--
-Returns a proof that `a = b` (or `HEq a b`).
+Returns a proof that `a = b`.
 It assumes `a` and `b` are in the same equivalence class.
 -/
 @[export lean_grind_mk_eq_proof]
 def mkEqProofImpl (a b : Expr) : GoalM Expr := do
-  let p ← go
-  trace[grind.proof.detail] "{p}"
-  return p
-where
-  go : GoalM Expr := do
-    let n ← getRootENode a
-    if !n.heqProofs then
-      trace[grind.proof] "{a} = {b}"
-      mkEqProofCore a b (heq := false)
-    else
-      if (← hasSameType a b) then
-        trace[grind.proof] "{a} = {b}"
-        mkEqOfHEq (← mkEqProofCore a b (heq := true))
-      else
-        trace[grind.proof] "{a} ≡ {b}"
-        mkEqProofCore a b (heq := true)
+  assert! (← hasSameType a b)
+  mkEqProofCore a b (heq := false)
 
-def mkHEqProof (a b : Expr) : GoalM Expr :=
+@[export lean_grind_mk_heq_proof]
+def mkHEqProofImpl (a b : Expr) : GoalM Expr :=
   mkEqProofCore a b (heq := true)
 
 end Lean.Meta.Grind

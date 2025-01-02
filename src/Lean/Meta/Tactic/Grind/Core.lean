@@ -41,7 +41,9 @@ This is an auxiliary function performed while merging equivalence classes.
 private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParentsAndReset root
   for parent in parents do
-    modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
+    if (← isCongrRoot parent) then
+      trace[grind.debug.parent] "remove: {parent}"
+      modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
   return parents
 
 /--
@@ -50,7 +52,9 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
-    addCongrTable parent
+    if (← isCongrRoot parent) then
+      trace[grind.debug.parent] "reinsert: {parent}"
+      addCongrTable parent
 
 /-- Closes the goal when `True` and `False` are in the same equivalence class. -/
 private def closeGoalWithTrueEqFalse : GoalM Unit := do
@@ -82,13 +86,13 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
   if isSameExpr lhsNode.root rhsNode.root then
     -- `lhs` and `rhs` are already in the same equivalence class.
     trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
     return ()
+  trace[grind.eqc] "{← if isHEq then mkHEq lhs rhs else mkEq lhs rhs}"
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
   let mut valueInconsistency := false
@@ -181,6 +185,7 @@ where
     if (← isInconsistent) then
       resetNewEqs
       return ()
+    checkSystem "grind"
     let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
     addEqStep lhs rhs proof isHEq
     processTodo
@@ -195,7 +200,7 @@ def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
 Adds a new `fact` justified by the given proof and using the given generation.
 -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
-  trace[grind.add] "{proof} : {fact}"
+  trace[grind.assert] "{fact}"
   if (← isInconsistent) then return ()
   resetNewEqs
   let_expr Not p := fact
@@ -203,7 +208,6 @@ def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   go p true
 where
   go (p : Expr) (isNeg : Bool) : GoalM Unit := do
-    trace[grind.add] "isNeg: {isNeg}, {p}"
     match_expr p with
     | Eq _ lhs rhs => goEq p lhs rhs isNeg false
     | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
@@ -223,10 +227,8 @@ where
       internalize rhs generation
       addEqCore lhs rhs proof isHEq
 
-/--
-Adds a new hypothesis.
--/
-def addHyp (fvarId : FVarId) (generation := 0) : GoalM Unit := do
+/-- Adds a new hypothesis. -/
+def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
 
 end Lean.Meta.Grind

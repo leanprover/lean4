@@ -63,7 +63,7 @@ def isNumeral? (e : Expr) : Option (Expr × Nat) :=
   if e.isConstOf ``Nat.zero then
     (mkConst ``Nat, 0)
   else if let Expr.app (Expr.app (Expr.app (Expr.const ``OfNat.ofNat ..) α ..)
-      (Expr.lit (Literal.natVal n) ..) ..) .. := e then
+      (Expr.lit (Literal.natVal n) ..) ..) .. := e.consumeMData then
     some (α, n)
   else
     none

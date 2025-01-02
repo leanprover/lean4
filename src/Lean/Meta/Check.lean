@@ -17,14 +17,6 @@ namespace Lean.Meta
 private def ensureType (e : Expr) : MetaM Unit := do
   discard <| getLevel e
 
-def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
-  let lctx ← getLCtx
-  match lctx.find? fvarId with
-  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
-    let vType ← inferType v
-    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
-  | _ => unreachable!
-
 private def checkConstant (constName : Name) (us : List Level) : MetaM Unit := do
   let cinfo ← getConstInfo constName
   unless us.length == cinfo.levelParams.length do
@@ -176,6 +168,15 @@ where
       | _, _ => return (a, b)
     catch _ =>
       return (a, b)
+
+def throwLetTypeMismatchMessage {α} (fvarId : FVarId) : MetaM α := do
+  let lctx ← getLCtx
+  match lctx.find? fvarId with
+  | some (LocalDecl.ldecl _ _ _ t v _ _) => do
+    let vType ← inferType v
+    let (vType, t) ← addPPExplicitToExposeDiff vType t
+    throwError "invalid let declaration, term{indentExpr v}\nhas type{indentExpr vType}\nbut is expected to have type{indentExpr t}"
+  | _ => unreachable!
 
 /--
   Return error message "has type{givenType}\nbut is expected to have type{expectedType}"

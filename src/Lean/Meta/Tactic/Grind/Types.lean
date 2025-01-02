@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Tactics
+import Init.Data.Queue
 import Lean.Util.ShareCommon
 import Lean.HeadIndex
 import Lean.Meta.Basic
@@ -47,9 +49,10 @@ register_builtin_option grind.debug.proofs : Bool := {
 
 /-- Context for `GrindM` monad. -/
 structure Context where
-  simp     : Simp.Context
-  simprocs : Array Simp.Simprocs
+  simp         : Simp.Context
+  simprocs     : Array Simp.Simprocs
   mainDeclName : Name
+  config       : Grind.Config
 
 /-- Key for the congruence theorem cache. -/
 structure CongrTheoremCacheKey where
@@ -65,7 +68,7 @@ instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
 /-- State for the `GrindM` monad. -/
-structure State where
+structure CoreState where
   canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
@@ -85,7 +88,11 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
-abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT CoreState MetaM
+
+/-- Returns the user-defined configuration options -/
+def getConfig : GrindM Grind.Config :=
+  return (← readThe Context).config
 
 /-- Returns the internalized `True` constant.  -/
 def getTrueExpr : GrindM Expr := do
@@ -100,6 +107,10 @@ def getMainDeclName : GrindM Name :=
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
+
+/-- Returns maximum term generation that is considered during ematching. -/
+def getMaxGeneration : GrindM Nat := do
+  return (← getConfig).gen
 
 /--
 Abtracts nested proofs in `e`. This is a preprocessing step performed before internalization.
@@ -128,6 +139,14 @@ def canon (e : Expr) : GrindM Expr := do
   modify fun s => { s with canon := canonS }
   return e
 
+/-- Returns `true` if `e` is the internalized `True` expression.  -/
+def isTrueExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getTrueExpr)
+
+/-- Returns `true` if `e` is the internalized `False` expression.  -/
+def isFalseExpr (e : Expr) : GrindM Bool :=
+  return isSameExpr e (← getFalseExpr)
+
 /--
 Creates a congruence theorem for a `f`-applications with `numArgs` arguments.
 -/
@@ -154,8 +173,12 @@ structure ENode where
   next : Expr
   /-- Root (aka canonical representative) of the equivalence class -/
   root : Expr
-  /-- Root of the congruence class. This is field is a don't care if `e` is not an application. -/
-  cgRoot : Expr
+  /--
+  `congr` is the term `self` is congruent to.
+  We say `self` is the congruence class root if `isSameExpr congr self`.
+  This field is initialized to `self` even if `e` is not an application.
+  -/
+  congr : Expr
   /--
   When `e` was added to this equivalence class because of an equality `h : e = target`,
   then we store `target` here, and `h` at `proof?`.
@@ -187,54 +210,86 @@ structure ENode where
   -- TODO: see Lean 3 implementation
   deriving Inhabited, Repr
 
+def ENode.isCongrRoot (n : ENode) :=
+  isSameExpr n.self n.congr
+
+/-- New equality to be processed. -/
 structure NewEq where
   lhs   : Expr
   rhs   : Expr
   proof : Expr
   isHEq : Bool
 
-abbrev ENodes := PHashMap USize ENode
+/--
+Key for the `ENodeMap` and `ParentMap` map.
+We use pointer addresses and rely on the fact all internalized expressions
+have been hash-consed, i.e., we have applied `shareCommon`.
+-/
+private structure ENodeKey where
+  expr : Expr
 
-structure CongrKey (enodes : ENodes) where
+instance : Hashable ENodeKey where
+  hash k := unsafe (ptrAddrUnsafe k.expr).toUInt64
+
+instance : BEq ENodeKey where
+  beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
+
+abbrev ENodeMap := PHashMap ENodeKey ENode
+
+/--
+Key for the congruence table.
+We need access to the `enodes` to be able to retrieve the equivalence class roots.
+-/
+structure CongrKey (enodes : ENodeMap) where
   e : Expr
 
-private abbrev toENodeKey (e : Expr) : USize :=
-  unsafe ptrAddrUnsafe e
-
-private def hashRoot (enodes : ENodes) (e : Expr) : UInt64 :=
-  if let some node := enodes.find? (toENodeKey e) then
-    toENodeKey node.root |>.toUInt64
+private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
+  if let some node := enodes.find? { expr := e } then
+    unsafe (ptrAddrUnsafe node.root).toUInt64
   else
     13
 
-private def hasSameRoot (enodes : ENodes) (a b : Expr) : Bool := Id.run do
-  let ka := toENodeKey a
-  let kb := toENodeKey b
-  if ka == kb then
+def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
+  if isSameExpr a b then
     return true
   else
-    let some n1 := enodes.find? ka | return false
-    let some n2 := enodes.find? kb | return false
-    toENodeKey n1.root == toENodeKey n2.root
+    let some n1 := enodes.find? { expr := a } | return false
+    let some n2 := enodes.find? { expr := b } | return false
+    isSameExpr n1.root n2.root
 
-def congrHash (enodes : ENodes) (e : Expr) : UInt64 :=
-  if e.isAppOfArity ``Lean.Grind.nestedProof 2 then
-    -- We only hash the proposition
-    hashRoot enodes (e.getArg! 0)
-  else
-    go e 17
+def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
+  match_expr e with
+  | Grind.nestedProof p _ => hashRoot enodes p
+  | Eq _ lhs rhs => goEq lhs rhs
+  | _ => go e 17
 where
+  goEq (lhs rhs : Expr) : UInt64 :=
+    let h₁ := hashRoot enodes lhs
+    let h₂ := hashRoot enodes rhs
+    if h₁ > h₂ then mixHash h₂ h₁ else mixHash h₁ h₂
   go (e : Expr) (r : UInt64) : UInt64 :=
     match e with
     | .app f a => go f (mixHash r (hashRoot enodes a))
     | _ => mixHash r (hashRoot enodes e)
 
-partial def isCongruent (enodes : ENodes) (a b : Expr) : Bool :=
-  if a.isAppOfArity ``Lean.Grind.nestedProof 2 && b.isAppOfArity ``Lean.Grind.nestedProof 2 then
-    hasSameRoot enodes (a.getArg! 0) (b.getArg! 0)
-  else
-    go a b
+/-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
+partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
+  match_expr a with
+  | Grind.nestedProof p₁ _ =>
+    let_expr Grind.nestedProof p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq α₁ lhs₁ rhs₁ =>
+    let_expr Eq α₂ lhs₂ rhs₂ := b | false
+    if isSameExpr α₁ α₂ then
+      goEq lhs₁ rhs₁ lhs₂ rhs₂
+    else
+      go a b
+  | _ => go a b
 where
+  goEq (lhs₁ rhs₁ lhs₂ rhs₂ : Expr) : Bool :=
+    (hasSameRoot enodes lhs₁ lhs₂ && hasSameRoot enodes rhs₁ rhs₂)
+    ||
+    (hasSameRoot enodes lhs₁ rhs₂ && hasSameRoot enodes rhs₁ lhs₂)
   go (a b : Expr) : Bool :=
     if a.isApp && b.isApp then
       hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!
@@ -249,15 +304,50 @@ instance : Hashable (CongrKey enodes) where
 instance : BEq (CongrKey enodes) where
   beq k1 k2 := isCongruent enodes k1.e k2.e
 
-abbrev CongrTable (enodes : ENodes) := PHashSet (CongrKey enodes)
+abbrev CongrTable (enodes : ENodeMap) := PHashSet (CongrKey enodes)
 
 -- Remark: we cannot use pointer addresses here because we have to traverse the tree.
 abbrev ParentSet := RBTree Expr Expr.quickComp
-abbrev ParentMap := PHashMap USize ParentSet
+abbrev ParentMap := PHashMap ENodeKey ParentSet
+
+/--
+The E-matching module instantiates theorems using the `EMatchTheorem proof` and a (partial) assignment.
+We want to avoid instantiating the same theorem with the same assignment more than once.
+Therefore, we store the (pre-)instance information in set.
+Recall that the proofs of activated theorems have been hash-consed.
+The assignment contains internalized expressions, which have also been hash-consed.
+-/
+structure PreInstance where
+  proof      : Expr
+  assignment : Array Expr
+
+instance : Hashable PreInstance where
+  hash i := Id.run do
+    let mut r := unsafe (ptrAddrUnsafe i.proof >>> 3).toUInt64
+    for v in i.assignment do
+      r := mixHash r (unsafe (ptrAddrUnsafe v >>> 3).toUInt64)
+    return r
+
+instance : BEq PreInstance where
+  beq i₁ i₂ := Id.run do
+    unless isSameExpr i₁.proof i₂.proof do return false
+    unless i₁.assignment.size == i₂.assignment.size do return false
+    for v₁ in i₁.assignment, v₂ in i₂.assignment do
+      unless isSameExpr v₁ v₂ do return false
+    return true
+
+abbrev PreInstanceSet := PHashSet PreInstance
+
+/-- New fact to be processed. -/
+structure NewFact where
+  proof      : Expr
+  prop       : Expr
+  generation : Nat
+  deriving Inhabited
 
 structure Goal where
   mvarId       : MVarId
-  enodes       : ENodes := {}
+  enodes       : ENodeMap := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
   /--
@@ -283,6 +373,12 @@ structure Goal where
   Local theorem provided by users are added directly into `newThms`.
   -/
   thmMap       : EMatchTheorems
+  /-- Number of theorem instances generated so far -/
+  numInstances : Nat := 0
+  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
+  preInstances : PreInstanceSet := {}
+  /-- new facts to be processed. -/
+  newFacts     : Std.Queue NewFact := ∅
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -290,26 +386,48 @@ def Goal.admit (goal : Goal) : MetaM Unit :=
 
 abbrev GoalM := StateRefT Goal GrindM
 
+@[inline] def GoalM.run (goal : Goal) (x : GoalM α) : GrindM (α × Goal) :=
+  goal.mvarId.withContext do StateRefT'.run x goal
+
+@[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
+  goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
 abbrev Propagator := Expr → GoalM Unit
 
-/-- Returns `true` if `e` is the internalized `True` expression.  -/
-def isTrueExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getTrueExpr)
+/--
+A helper function used to mark a theorem instance found by the E-matching module.
+It returns `true` if it is a new instance and `false` otherwise.
+-/
+def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
+  let k := { proof, assignment }
+  if (← get).preInstances.contains k then
+    return false
+  modify fun s => { s with preInstances := s.preInstances.insert k }
+  return true
 
-/-- Returns `true` if `e` is the internalized `False` expression.  -/
-def isFalseExpr (e : Expr) : GrindM Bool :=
-  return isSameExpr e (← getFalseExpr)
+/-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
+def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
+
+/-- Adds a new theorem instance produced using E-matching. -/
+def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  addNewFact proof prop generation
+  modify fun s => { s with numInstances := s.numInstances + 1 }
+
+/-- Returns `true` if the maximum number of instances has been reached. -/
+def checkMaxInstancesExceeded : GoalM Bool := do
+  return (← get).numInstances >= (← getConfig).instances
 
 /--
 Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
 -/
 def getENode? (e : Expr) : GoalM (Option ENode) :=
-  return (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+  return (← get).enodes.find? { expr := e }
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
 def getENode (e : Expr) : GoalM ENode := do
-  let some n := (← get).enodes.find? (unsafe ptrAddrUnsafe e)
+  let some n := (← get).enodes.find? { expr := e }
     | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
   return n
 
@@ -360,7 +478,7 @@ def getNext (e : Expr) : GoalM Expr :=
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
-  return (← get).enodes.contains (unsafe ptrAddrUnsafe e)
+  return (← get).enodes.contains { expr := e }
 
 def getTarget? (e : Expr) : GoalM (Option Expr) := do
   let some n ← getENode? e | return none
@@ -405,9 +523,8 @@ information in the root (aka canonical representative) of `child`.
 -/
 def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
   let some childRoot ← getRoot? child | return ()
-  let key := toENodeKey childRoot
-  let parents := if let some parents := (← get).parents.find? key then parents else {}
-  modify fun s => { s with parents := s.parents.insert key (parents.insert parent) }
+  let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
+  modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
 
 /--
 Returns the set of expressions `e` is a child of, or an expression in
@@ -415,7 +532,7 @@ Returns the set of expressions `e` is a child of, or an expression in
 The information is only up to date if `e` is the root (aka canonical representative) of the equivalence class.
 -/
 def getParents (e : Expr) : GoalM ParentSet := do
-  let some parents := (← get).parents.find? (toENodeKey e) | return {}
+  let some parents := (← get).parents.find? { expr := e } | return {}
   return parents
 
 /--
@@ -423,7 +540,7 @@ Similar to `getParents`, but also removes the entry `e ↦ parents` from the par
 -/
 def getParentsAndReset (e : Expr) : GoalM ParentSet := do
   let parents ← getParents e
-  modify fun s => { s with parents := s.parents.erase (toENodeKey e) }
+  modify fun s => { s with parents := s.parents.erase { expr := e } }
   return parents
 
 /--
@@ -431,21 +548,20 @@ Copy `parents` to the parents of `root`.
 `root` must be the root of its equivalence class.
 -/
 def copyParentsTo (parents : ParentSet) (root : Expr) : GoalM Unit := do
-  let key := toENodeKey root
-  let mut curr := if let some parents := (← get).parents.find? key then parents else {}
+  let mut curr := if let some parents := (← get).parents.find? { expr := root } then parents else {}
   for parent in parents do
     curr := curr.insert parent
-  modify fun s => { s with parents := s.parents.insert key curr }
+  modify fun s => { s with parents := s.parents.insert { expr := root } curr }
 
 def setENode (e : Expr) (n : ENode) : GoalM Unit :=
   modify fun s => { s with
-    enodes := s.enodes.insert (unsafe ptrAddrUnsafe e) n
+    enodes := s.enodes.insert { expr := e } n
     congrTable := unsafe unsafeCast s.congrTable
   }
 
 def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM Unit := do
   setENode e {
-    self := e, next := e, root := e, cgRoot := e, size := 1
+    self := e, next := e, root := e, congr := e, size := 1
     flipped := false
     heqProofs := false
     hasLambdas := e.isLambda
@@ -465,17 +581,45 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
+/-- Returns `true` is `e` is the root of its congruence class. -/
+def isCongrRoot (e : Expr) : GoalM Bool := do
+  return (← getENode e).isCongrRoot
+
+/-- Returns the root of the congruence class containing `e`. -/
+partial def getCongrRoot (e : Expr) : GoalM Expr := do
+  let n ← getENode e
+  if isSameExpr n.congr e then return e
+  getCongrRoot n.congr
+
 /-- Return `true` if the goal is inconsistent. -/
 def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
 /--
-Returns a proof that `a = b` (or `HEq a b`).
-It assumes `a` and `b` are in the same equivalence class.
+Returns a proof that `a = b`.
+It assumes `a` and `b` are in the same equivalence class, and have the same type.
 -/
 -- Forward definition
 @[extern "lean_grind_mk_eq_proof"]
 opaque mkEqProof (a b : Expr) : GoalM Expr
+
+/--
+Returns a proof that `HEq a b`.
+It assumes `a` and `b` are in the same equivalence class.
+-/
+-- Forward definition
+@[extern "lean_grind_mk_heq_proof"]
+opaque mkHEqProof (a b : Expr) : GoalM Expr
+
+/--
+Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
+It assumes `a` and `b` are in the same equivalence class.
+-/
+def mkEqHEqProof (a b : Expr) : GoalM Expr := do
+  if (← hasSameType a b) then
+    mkEqProof a b
+  else
+    mkHEqProof a b
 
 /--
 Returns a proof that `a = True`.

@@ -21,7 +21,7 @@ The following test relies on `grind` `nestedProof` wrapper to
 detect equalities between array access terms.
 -/
 
-/--
+/-
 info: [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),
  Lean.Grind.nestedProof (j < a.toList.length) h1,
  Lean.Grind.nestedProof (j < b.toList.length) h]
@@ -30,11 +30,15 @@ info: [a[i], b[j], a[j]]
 ---
 warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+-- #guard_msgs in
+
+set_option trace.Meta.debug true
+
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → a = b → False := by
   grind_test
   sorry
 
+#exit
 
 /--
 info: [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),

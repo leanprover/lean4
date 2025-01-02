@@ -75,3 +75,11 @@ example (a b c : Nat) (f : Nat → Nat) : p = { a := f b, c, b := 4 : Boo Nat } 
 
 example (a b c : Nat) (f : Nat → Nat) : p.1 ≠ f a → p = { a := f b, c, b := 4 : Boo Nat } → f b = f c → a = c → False := by
   grind
+
+/--
+info: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
+-/
+#guard_msgs (info) in
+set_option trace.grind.debug.proj true in
+example (a b d e : Nat) (x y z : Boo Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → x.1 = e → y.1 = e → z.1 = e → f d = x → f d = y → f d = z → b = a → False := by
+  grind

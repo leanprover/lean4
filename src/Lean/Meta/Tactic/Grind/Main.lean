@@ -17,9 +17,10 @@ import Lean.Meta.Tactic.Grind.EMatch
 
 namespace Lean.Meta.Grind
 
-def mkMethods : CoreM Methods := do
+def mkMethods (fallback : Fallback) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
   return {
+    fallback
     propagateUp := fun e => do
      propagateForallProp e
      let .const declName _ := e.getAppFn | return ()
@@ -32,7 +33,7 @@ def mkMethods : CoreM Methods := do
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : MetaM α := do
+def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) (fallback : Fallback) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
@@ -42,7 +43,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : M
     (config := { arith := true })
     (simpTheorems := #[thms])
     (congrTheorems := (← getSimpCongrTheorems))
-  x (← mkMethods).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
 
 private def mkGoal (mvarId : MVarId) : GrindM Goal := do
   let trueExpr ← getTrueExpr
@@ -71,23 +72,18 @@ def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goa
 private def simple (goals : List Goal) : GrindM (List Goal) := do
   all goals ematchStar
 
-def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) : MetaM (List MVarId) := do
+def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List MVarId) := do
   let go : GrindM (List MVarId) := do
     let goals ← initCore mvarId
     let goals ← simple goals
+    let goals ← goals.filterMapM fun goal => do
+      if goal.inconsistent then return none
+      let goal ← GoalM.run' goal fallback
+      if goal.inconsistent then return none
+      if (← goal.mvarId.isAssigned) then return none
+      return some goal
     trace[grind.debug.final] "{← ppGoals goals}"
     return goals.map (·.mvarId)
-  go.run mainDeclName config
-
-/-- Helper function for debugging purposes -/
-def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
-  let go : GrindM Unit := do
-    let goals ← initCore mvarId
-    trace[grind.debug.final] "{← ppGoals goals}"
-    goals.forM fun goal =>
-      discard <| GoalM.run' goal p
-    return ()
-  withoutModifyingMCtx do
-    go.run mainDeclName {}
+  go.run mainDeclName config fallback
 
 end Lean.Meta.Grind

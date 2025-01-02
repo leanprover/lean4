@@ -1,11 +1,4 @@
-import Lean
-
-open Lean Meta Elab Tactic Grind in
-elab "grind_test" : tactic => withMainContext do
-  let declName := (← Term.getDeclName?).getD `_main
-  Meta.Grind.preprocessAndProbe (← getMainGoal) declName do
-    let nodes ← filterENodes fun e => return e.self.isAppOf ``HMul.hMul
-    logInfo (nodes.toList.map (·.self))
+import Lean.Meta.Tactic.Grind
 
 set_option grind.debug true
 
@@ -57,26 +50,27 @@ instance : CommMonoid Nat where
 theorem left_comm [CommMonoid α] (a b c : α) : a * (b * c) = b * (a * c) := by
   rw [← Semigroup.mul_assoc, CommMonoid.mul_comm a b, Semigroup.mul_assoc]
 
+open Lean Meta Elab Tactic Grind in
+def fallback : Fallback := do
+  let nodes ← filterENodes fun e => return e.self.isAppOf ``HMul.hMul
+  logInfo (nodes.toList.map (·.self))
+  (← get).mvarId.admit
+
 /--
 info: [b * c, a * (b * c), d * (b * c)]
----
-warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+#guard_msgs (info) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
   rw [left_comm] -- Introduces a new (non-canonical) instance for `Mul Nat`
-  grind_test -- State should have only 3 `*`-applications
-  sorry
+  grind on_failure fallback -- State should have only 3 `*`-applications
 
 
 set_option pp.notation false in
 set_option pp.explicit true in
 /--
 info: [@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a, @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
----
-warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+#guard_msgs (info) in
 example (a b c d : Nat) : b * a = d * b → False := by
   rw [CommMonoid.mul_comm d b] -- Introduces a new (non-canonical) instance for `Mul Nat`
   -- See target here
@@ -85,5 +79,4 @@ example (a b c d : Nat) : b * a = d * b → False := by
     =
     @HMul.hMul Nat Nat Nat (@instHMul Nat (@Semigroup.toMul Nat (@Monoid.toSemigroup Nat (@CommMonoid.toMonoid Nat instCommMonoidNat)))) b d
     → False
-  grind_test -- State should have only 2 `*`-applications, and they use the same instance
-  sorry
+  grind on_failure fallback -- State should have only 2 `*`-applications, and they use the same instance

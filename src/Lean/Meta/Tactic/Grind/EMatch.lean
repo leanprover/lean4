@@ -122,7 +122,7 @@ private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := 
     let n ← getENode curr
     if n.generation <= maxGeneration
        -- uses heterogeneous equality or is the root of its congruence class
-       && (n.heqProofs || isSameExpr curr n.cgRoot)
+       && (n.heqProofs || n.isCongrRoot)
        && eqvFunctions pFn curr.getAppFn
        && curr.getAppNumArgs == numArgs then
       if let some c ← matchArgs? c p curr |>.run then
@@ -140,7 +140,7 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
   for app in apps do
     let n ← getENode app
     if n.generation <= maxGeneration
-       && (n.heqProofs || isSameExpr n.cgRoot app) then
+       && (n.heqProofs || n.isCongrRoot) then
       if let some c ← matchArgs? c p app |>.run then
         let gen := n.generation
         let c := { c with gen := Nat.max gen c.gen }
@@ -225,7 +225,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   for app in apps do
     if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode app
-    if (n.heqProofs || isSameExpr n.cgRoot app) &&
+    if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
         modify fun s => { s with choiceStack := [c] }

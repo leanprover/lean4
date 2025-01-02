@@ -41,8 +41,9 @@ This is an auxiliary function performed while merging equivalence classes.
 private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParentsAndReset root
   for parent in parents do
-    trace[grind.debug.parent] "remove: {parent}"
-    modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
+    if (← isCongrRoot parent) then
+      trace[grind.debug.parent] "remove: {parent}"
+      modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
   return parents
 
 /--
@@ -51,8 +52,9 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
-    trace[grind.debug.parent] "reinsert: {parent}"
-    addCongrTable parent
+    if (← isCongrRoot parent) then
+      trace[grind.debug.parent] "reinsert: {parent}"
+      addCongrTable parent
 
 /-- Closes the goal when `True` and `False` are in the same equivalence class. -/
 private def closeGoalWithTrueEqFalse : GoalM Unit := do

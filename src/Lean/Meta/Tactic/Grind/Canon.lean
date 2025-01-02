@@ -41,8 +41,9 @@ Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even 
 -/
 
 structure State where
-  argMap : PHashMap (Expr × Nat) (List Expr) := {}
-  canon  : PHashMap Expr Expr := {}
+  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
+  canon      : PHashMap Expr Expr := {}
+  proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited
 
 /--
@@ -126,10 +127,14 @@ where
         return r
       e.withApp fun f args => do
         let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
-          -- We just canonize the proposition
           let prop := args[0]!
           let prop' ← visit prop
-          pure <| if ptrEq prop prop' then mkAppN f (args.set! 0 prop') else e
+          if let some r := (← getThe State).proofCanon.find? prop' then
+            pure r
+          else
+            let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
+            modifyThe State fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
+            pure e'
         else
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false

@@ -61,10 +61,11 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
   let cs := s.argMap.find? key |>.getD []
   for c in cs do
     if (← isDefEq e c) then
-      if c.fvarsSubset e then
-        -- It is not in general safe to replace `e` with `c` if `c` has more free variables than `e`.
-        modify fun s => { s with canon := s.canon.insert e c }
-        return c
+      -- We used to check `c.fvarsSubset e` because it is not
+      -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
+      -- However, we don't revert previously canonicalized elements in the `grind` tactic.
+      modify fun s => { s with canon := s.canon.insert e c }
+      return c
     if isInst then
       if (← isDiagnosticsEnabled <&&> pure (c.fvarsSubset e) <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.

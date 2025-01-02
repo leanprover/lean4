@@ -392,8 +392,6 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
-abbrev Propagator := Expr → GoalM Unit
-
 /--
 A helper function used to mark a theorem instance found by the E-matching module.
 It returns `true` if it is a new instance and `false` otherwise.
@@ -677,9 +675,13 @@ def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
     if isSameExpr n.self n.root then
       f n
 
+abbrev Propagator := Expr → GoalM Unit
+abbrev Fallback := GoalM Unit
+
 structure Methods where
   propagateUp   : Propagator := fun _ => return ()
   propagateDown : Propagator := fun _ => return ()
+  fallback      : Fallback := pure ()
   deriving Inhabited
 
 def Methods.toMethodsRef (m : Methods) : MethodsRef :=
@@ -696,6 +698,10 @@ def propagateUp (e : Expr) : GoalM Unit := do
 
 def propagateDown (e : Expr) : GoalM Unit := do
   (← getMethods).propagateDown e
+
+def applyFallback : GoalM Unit := do
+  let fallback : GoalM Unit := (← getMethods).fallback
+  fallback
 
 /-- Returns expressions in the given expression equivalence class. -/
 partial def getEqc (e : Expr) : GoalM (List Expr) :=

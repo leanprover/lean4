@@ -1,16 +1,15 @@
-import Lean
+import Lean.Meta.Tactic.Grind
 
 def f (α : Type) [Add α] (a : α) := a + a + a
 
-open Lean Meta Elab Tactic Grind in
-elab "grind_test" : tactic => withMainContext do
-  let declName := (← Term.getDeclName?).getD `_main
-  Meta.Grind.preprocessAndProbe (← getMainGoal) declName do
-    let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
-    logInfo (nodes.toList.map (·.self))
-    let nodes ← filterENodes fun e => return e.self.isAppOf ``GetElem.getElem
-    let [_, n, _] := nodes.toList | unreachable!
-    logInfo (← getEqc n.self)
+open Lean Meta Grind in
+def fallback : Fallback := do
+  let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
+  logInfo (nodes.toList.map (·.self))
+  let nodes ← filterENodes fun e => return e.self.isAppOf ``GetElem.getElem
+  let [_, n, _] := nodes.toList | unreachable!
+  logInfo (← getEqc n.self)
+  (← get).mvarId.admit
 
 set_option grind.debug true
 set_option grind.debug.proofs true
@@ -32,13 +31,8 @@ warning: declaration uses 'sorry'
 -/
 -- #guard_msgs in
 
-set_option trace.Meta.debug true
-
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → a = b → False := by
-  grind_test
-  sorry
-
-#exit
+  grind on_failure fallback
 
 /--
 info: [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),
@@ -46,10 +40,7 @@ info: [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1
  Lean.Grind.nestedProof (j < b.toList.length) h]
 ---
 info: [a[i], a[j]]
----
-warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+#guard_msgs (info) in
 example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i ≤ j) : a[i] < a[j] + b[j] → i = j → False := by
-  grind_test
-  sorry
+  grind on_failure fallback

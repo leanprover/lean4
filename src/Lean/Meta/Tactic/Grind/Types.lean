@@ -249,7 +249,7 @@ private def hashRoot (enodes : ENodeMap) (e : Expr) : UInt64 :=
   else
     13
 
-private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
+def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
   if isSameExpr a b then
     return true
   else
@@ -258,12 +258,15 @@ private def hasSameRoot (enodes : ENodeMap) (a b : Expr) : Bool := Id.run do
     isSameExpr n1.root n2.root
 
 def congrHash (enodes : ENodeMap) (e : Expr) : UInt64 :=
-  if e.isAppOfArity ``Lean.Grind.nestedProof 2 then
-    -- We only hash the proposition
-    hashRoot enodes (e.getArg! 0)
-  else
-    go e 17
+  match_expr e with
+  | Grind.nestedProof p _ => hashRoot enodes p
+  | Eq _ lhs rhs => goEq lhs rhs
+  | _ => go e 17
 where
+  goEq (lhs rhs : Expr) : UInt64 :=
+    let h₁ := hashRoot enodes lhs
+    let h₂ := hashRoot enodes rhs
+    if h₁ > h₂ then mixHash h₂ h₁ else mixHash h₁ h₂
   go (e : Expr) (r : UInt64) : UInt64 :=
     match e with
     | .app f a => go f (mixHash r (hashRoot enodes a))
@@ -271,11 +274,22 @@ where
 
 /-- Returns `true` if `a` and `b` are congruent modulo the equivalence classes in `enodes`. -/
 partial def isCongruent (enodes : ENodeMap) (a b : Expr) : Bool :=
-  if a.isAppOfArity ``Lean.Grind.nestedProof 2 && b.isAppOfArity ``Lean.Grind.nestedProof 2 then
-    hasSameRoot enodes (a.getArg! 0) (b.getArg! 0)
-  else
-    go a b
+  match_expr a with
+  | Grind.nestedProof p₁ _ =>
+    let_expr Grind.nestedProof p₂ _ := b | false
+    hasSameRoot enodes p₁ p₂
+  | Eq α₁ lhs₁ rhs₁ =>
+    let_expr Eq α₂ lhs₂ rhs₂ := b | false
+    if isSameExpr α₁ α₂ then
+      goEq lhs₁ rhs₁ lhs₂ rhs₂
+    else
+      go a b
+  | _ => go a b
 where
+  goEq (lhs₁ rhs₁ lhs₂ rhs₂ : Expr) : Bool :=
+    (hasSameRoot enodes lhs₁ lhs₂ && hasSameRoot enodes rhs₁ rhs₂)
+    ||
+    (hasSameRoot enodes lhs₁ rhs₂ && hasSameRoot enodes rhs₁ lhs₂)
   go (a b : Expr) : Bool :=
     if a.isApp && b.isApp then
       hasSameRoot enodes a.appArg! b.appArg! && go a.appFn! b.appFn!

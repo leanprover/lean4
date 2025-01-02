@@ -81,6 +81,135 @@ theorem monotone_list_mapM (f : γ → α → m β) (xs : List α) (hmono : mono
           intro y
           apply ih
 
+theorem monotone_list_forM (f : γ → α → m PUnit) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.forM (f x)) := by
+  induction xs with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      apply ih
+
+theorem monotone_list_filterAuxM
+  {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+  (f : γ → α → m Bool) (xs acc : List α) (hmono : monotone f) :
+    monotone (fun x => xs.filterAuxM (f x) acc) := by
+  induction xs generalizing acc with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      apply ih
+
+theorem monotone_list_filterM
+    {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+    (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.filterM (f x)) := by
+  apply monotone_bind
+  · exact monotone_list_filterAuxM f xs [] hmono
+  · apply monotone_const
+
+theorem monotone_list_filterRevM
+    {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+    (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.filterRevM (f x)) := by
+  exact monotone_list_filterAuxM f xs.reverse [] hmono
+
+theorem monotone_list_foldlM
+    (f : γ → β → α → m β) (init : β) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.foldlM (f x) (init := init)) := by
+  induction xs generalizing init with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      apply ih
+
+theorem monotone_list_foldrM
+    (f : γ → α → β → m β) (init : β) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.foldrM (f x) (init := init)) := by
+  apply monotone_list_foldlM
+  apply monotone_of_monotone_apply
+  intro s
+  apply monotone_of_monotone_apply
+  intro a
+  apply monotone_apply (a := s)
+  apply monotone_apply (a := a)
+  apply hmono
+
+theorem monotone_list_anyM
+    {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+    (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.anyM (f x)) := by
+  induction xs with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      cases y
+      · apply ih
+      · apply monotone_const
+
+theorem monotone_list_allM
+    {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+    (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.allM (f x)) := by
+  induction xs with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      cases y
+      · apply monotone_const
+      · apply ih
+
+theorem monotone_list_findM?
+    {m : Type → Type v} [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] {α : Type}
+    (f : γ → α → m Bool) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.findM? (f x)) := by
+  induction xs with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      cases y
+      · apply ih
+      · apply monotone_const
+
+theorem monotone_list_findSomeM?
+    (f : γ → α → m (Option β)) (xs : List α) (hmono : monotone f) :
+    monotone (fun x => xs.findSomeM? (f x)) := by
+  induction xs with
+  | nil => apply monotone_const
+  | cons _ _ ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      cases y
+      · apply ih
+      · apply monotone_const
+
 theorem monotone_array_mapFinIdxM (xs : Array α) (f : γ → Fin xs.size → α → m β) (hmono : monotone f) :
     monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices

@@ -78,7 +78,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
 
     if (result != 0) {
         free(timer);
-        return io_result_mk_error("failed to initialize uv_timer");
+        std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
+        return io_result_mk_error(err.c_str());
     }
 
     lean_object * obj = lean_uv_timer_new(timer);
@@ -125,7 +126,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
 
                     if (result != 0) {
                         lean_dec(obj);
-                        return io_result_mk_error("failed to start uv_timer");
+                        std::string err = std::string("failed to initialize timer: ");
+                        err += uv_strerror(result);
+                        return io_result_mk_error(err.c_str());
                     } else {
                         lean_inc(timer->m_promise);
                         return lean_io_result_mk_ok(timer->m_promise);
@@ -163,13 +166,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
 
             event_loop_lock(&global_ev);
 
-            int result = uv_timer_start(&timer->m_uv_timer, handle_timer_event, timer->m_timeout, 0);
+            int result = uv_timer_start(
+                &timer->m_uv_timer,
+                handle_timer_event,
+                timer->m_timeout,
+                0
+            );
 
             event_loop_unlock(&global_ev);
 
             if (result != 0) {
                 lean_dec(obj);
-                return io_result_mk_error("failed to start uv_timer");
+                std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
+                return io_result_mk_error(err.c_str());
             } else {
                 lean_inc(timer->m_promise);
                 return lean_io_result_mk_ok(timer->m_promise);
@@ -194,7 +203,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
 
         uv_timer_stop(&timer->m_uv_timer);
 
-        uv_timer_start(
+        int result = uv_timer_start(
             &timer->m_uv_timer,
             handle_timer_event,
             timer->m_timeout,
@@ -203,7 +212,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
 
         event_loop_unlock(&global_ev);
 
-        return lean_io_result_mk_ok(lean_box(0));
+        if (result != 0) {
+            return io_result_mk_error("failed to restart uv_timer");
+        } else {
+            return lean_io_result_mk_ok(lean_box(0));
+        }
     } else {
         return lean_io_result_mk_ok(lean_box(0));
     }

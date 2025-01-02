@@ -563,12 +563,30 @@ def isInconsistent : GoalM Bool :=
   return (← get).inconsistent
 
 /--
-Returns a proof that `a = b` (or `HEq a b`).
-It assumes `a` and `b` are in the same equivalence class.
+Returns a proof that `a = b`.
+It assumes `a` and `b` are in the same equivalence class, and have the same type.
 -/
 -- Forward definition
 @[extern "lean_grind_mk_eq_proof"]
 opaque mkEqProof (a b : Expr) : GoalM Expr
+
+/--
+Returns a proof that `HEq a b`.
+It assumes `a` and `b` are in the same equivalence class.
+-/
+-- Forward definition
+@[extern "lean_grind_mk_heq_proof"]
+opaque mkHEqProof (a b : Expr) : GoalM Expr
+
+/--
+Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
+It assumes `a` and `b` are in the same equivalence class.
+-/
+def mkEqHEqProof (a b : Expr) : GoalM Expr := do
+  if (← hasSameType a b) then
+    mkEqProof a b
+  else
+    mkHEqProof a b
 
 /--
 Returns a proof that `a = True`.

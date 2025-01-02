@@ -67,18 +67,15 @@ end Ex2
 example (f g : (α : Type) → α → α) (a : α) (b : β) : (h₁ : α = β) → (h₂ : HEq a b) → (h₃ : f = g) → HEq (f α a) (g β b) := by
   grind
 
-set_option trace.grind.proof true in
-set_option trace.grind.proof.detail true in
+set_option trace.grind.debug.proof true in
 example (f : {α : Type} → α → Nat → Bool → Nat) (a b : Nat) : f a 0 true = v₁ → f b 0 true = v₂ → a = b → v₁ = v₂ := by
   grind
 
-set_option trace.grind.proof true in
-set_option trace.grind.proof.detail true in
+set_option trace.grind.debug.proof true in
 example (f : {α : Type} → α → Nat → Bool → Nat) (a b : Nat) : f a b x = v₁ → f a b y = v₂ → x = y → v₁ = v₂ := by
   grind
 
-set_option trace.grind.proof true in
-set_option trace.grind.proof.detail true in
+set_option trace.grind.debug.proof true in
 theorem ex1 (f : {α : Type} → α → Nat → Bool → Nat) (a b c : Nat) : f a b x = v₁ → f c b y = v₂ → a = c → x = y → v₁ = v₂ := by
   grind
 

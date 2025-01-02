@@ -41,8 +41,9 @@ Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even 
 -/
 
 structure State where
-  argMap : PHashMap (Expr × Nat) (List Expr) := {}
-  canon  : PHashMap Expr Expr := {}
+  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
+  canon      : PHashMap Expr Expr := {}
+  proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited
 
 /--
@@ -61,10 +62,11 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
   let cs := s.argMap.find? key |>.getD []
   for c in cs do
     if (← isDefEq e c) then
-      if c.fvarsSubset e then
-        -- It is not in general safe to replace `e` with `c` if `c` has more free variables than `e`.
-        modify fun s => { s with canon := s.canon.insert e c }
-        return c
+      -- We used to check `c.fvarsSubset e` because it is not
+      -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
+      -- However, we don't revert previously canonicalized elements in the `grind` tactic.
+      modify fun s => { s with canon := s.canon.insert e c }
+      return c
     if isInst then
       if (← isDiagnosticsEnabled <&&> pure (c.fvarsSubset e) <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.
@@ -125,10 +127,14 @@ where
         return r
       e.withApp fun f args => do
         let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
-          -- We just canonize the proposition
           let prop := args[0]!
           let prop' ← visit prop
-          pure <| if ptrEq prop prop' then mkAppN f (args.set! 0 prop') else e
+          if let some r := (← getThe State).proofCanon.find? prop' then
+            pure r
+          else
+            let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
+            modifyThe State fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
+            pure e'
         else
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false

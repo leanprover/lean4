@@ -14,9 +14,13 @@ withLetDecl `x (mkConst `Nat) (mkNatLit 0) $ fun x => do {
   mvar.mvarId!.assign v;
   trace[Meta.debug] mvar;
   trace[Meta.debug] r;
+
   let mctx ← getMCtx;
-  mctx.decls.forM fun mvarId mvarDecl => do
-    trace[Meta.debug] m!"?{mvarId.name} : {mvarDecl.type}"
+  let sortedDecls := mctx.decls.toArray.qsort (fun ⟨v1, _⟩ ⟨v2, _⟩ => v1.name.lt v2.name);
+  let mut i : Nat := 0;
+  for ⟨_, mvarDecl⟩ in sortedDecls do
+    trace[Meta.debug] m!"?{i} : {mvarDecl.type}";
+    i := i + 1;
 }
 
 set_option pp.mvars false
@@ -31,8 +35,8 @@ info: [Meta.debug] ?_
 [Meta.debug] fun y =>
       let x := 0;
       x.add y
-[Meta.debug] ?_uniq.3037 : Nat
-[Meta.debug] ?_uniq.3038 : Nat → Nat → Nat
+[Meta.debug] ?0 : Nat
+[Meta.debug] ?1 : Nat → Nat → Nat
 -/
 #guard_msgs in
 #eval tst1

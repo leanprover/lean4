@@ -20,10 +20,10 @@ using namespace std;
 // Event loop structure for managing asynchronous events and synchronization across multiple threads.
 typedef struct {
     uv_loop_t  * loop;      // The libuv event loop.
-    uv_mutex_t   mutex;     // Mutex for protecting shared resources.
-    uv_cond_t    cond_var;  // Condition variable for thread synchronization.
-    uv_async_t   async;     // Async handle to notify the main event loop.
-    _Atomic(int) n_waiters; // Atomic counter for managing waiters.
+    uv_mutex_t   mutex;     // Mutex for protecting `loop`.
+    uv_cond_t    cond_var;  // Condition variable for signaling that `loop` is free.
+    uv_async_t   async;     // Async handle to interrupt `loop`.
+    _Atomic(int) n_waiters; // Atomic counter for managing waiters for `loop`.
 } event_loop_t;
 
 // The multithreaded event loop object for all tasks in the task manager.
@@ -35,7 +35,6 @@ void event_loop_init(event_loop_t *event_loop);
 void event_loop_cleanup(event_loop_t *event_loop);
 void event_loop_lock(event_loop_t *event_loop);
 void event_loop_unlock(event_loop_t *event_loop);
-void event_loop_wake(event_loop_t *event_loop);
 void event_loop_run_loop(event_loop_t *event_loop);
 
 #endif

@@ -39,6 +39,6 @@ namespace Lean.Parser.Tactic
 -/
 
 -- TODO: parameters
-syntax (name := grind) "grind" optConfig : tactic
+syntax (name := grind) "grind" optConfig ("on_failure " term)? : tactic
 
 end Lean.Parser.Tactic

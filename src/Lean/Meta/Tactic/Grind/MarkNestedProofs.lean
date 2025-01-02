@@ -28,9 +28,9 @@ where
       | .bvar .. => unreachable!
       -- See comments on `Canon.lean` for why we do not visit these cases.
       | .letE .. | .forallE .. | .lam ..
-      | .const .. | .lit .. | .mvar .. | .sort .. | .fvar ..
-      | .proj ..
-      | .mdata ..  => return e
+      | .const .. | .lit .. | .mvar .. | .sort .. | .fvar .. => return e
+      | .proj _ _ b => return e.updateProj! (← visit b)
+      | .mdata _ b  => return e.updateMData! (← visit b)
       -- We only visit applications
       | .app .. =>
         -- Check whether it is cached

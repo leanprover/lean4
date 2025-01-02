@@ -736,7 +736,7 @@ private def toSigned (data : Int) : String :=
 
 private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bool) (colon : Bool) : String :=
   let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
-  let time : PlainTime true := PlainTime.ofSeconds time
+  let time : LeapTime := PlainTime.ofSeconds time
   let pad := leftPad 2 '0' ∘ toString
 
   let data := s!"{sign}{pad time.hour.val}"

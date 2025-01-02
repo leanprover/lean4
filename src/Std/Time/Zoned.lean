@@ -111,14 +111,14 @@ Converts a `PlainDate` to a `ZonedDateTime`.
 -/
 @[inline]
 def ofPlainDate (pd : PlainDate) (zr : TimeZone.ZoneRules) : ZonedDateTime :=
-  ZonedDateTime.ofPlainDateTime (pd.atTime (α := true) PlainTime.midnight) zr
+  ZonedDateTime.ofPlainDateTime (pd.atTime (leap := true) PlainTime.midnight) zr
 
 /--
 Converts a `PlainDate` to a `ZonedDateTime` using `TimeZone`.
 -/
 @[inline]
 def ofPlainDateWithZone (pd : PlainDate) (zr : TimeZone) : ZonedDateTime :=
-  ZonedDateTime.ofPlainDateTime (pd.atTime (α := true) PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
+  ZonedDateTime.ofPlainDateTime (pd.atTime (leap := true) PlainTime.midnight) (TimeZone.ZoneRules.ofTimeZone zr)
 
 /--
 Converts a `ZonedDateTime` to a `PlainDate`

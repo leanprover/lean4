@@ -131,7 +131,7 @@ info: datetime("1999-01-20T03:02:01.000000000")
 #guard_msgs in
 #eval datetime.subYearsRollOver 1
 
-def time : PlainTime true := time("13:02:01")
+def time : LeapTime := time("13:02:01")
 
 /--
 info: time("14:02:01.000000000")

@@ -254,7 +254,7 @@ namespace PlainTime
 /--
 Formats a `PlainTime` using a specific format.
 -/
-def format (time : PlainTime α) (format : String) : String :=
+def format (time : PlainTime leap) (format : String) : String :=
   let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -264,7 +264,7 @@ def format (time : PlainTime α) (format : String) : String :=
       | .k _ => some (time.hour.shiftTo1BasedHour)
       | .m _ => some time.minute
       | .n _ => some time.nanosecond
-      | .s _ => some (Sigma.mk α time.second)
+      | .s _ => some (Sigma.mk leap time.second)
       | .a _ => some (HourMarker.ofOrdinal time.hour)
       | .h _ => some time.hour.toRelative
       | .K _ => some (time.hour.emod 12 (by decide))
@@ -285,8 +285,8 @@ def fromTime24Hour (input : String) : Except String (Sigma PlainTime) :=
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss`).
 -/
-def toTime24Hour (input : PlainTime α) : String :=
-  Formats.time24Hour.formatBuilder input.hour input.minute (Sigma.mk α input.second)
+def toTime24Hour (input : PlainTime leap) : String :=
+  Formats.time24Hour.formatBuilder input.hour input.minute (Sigma.mk leap input.second)
 
 /--
 Parses a time string in the lean 24-hour format (`HH:mm:ss.SSSSSSSSS` or `HH:mm:ss`) and returns a `PlainTime`.
@@ -298,8 +298,8 @@ def fromLeanTime24Hour (input : String) : Except String (Sigma PlainTime) :=
 /--
 Formats a `PlainTime` value into a 24-hour format string (`HH:mm:ss.SSSSSSSSS`).
 -/
-def toLeanTime24Hour (input : PlainTime α) : String :=
-  Formats.leanTime24Hour.formatBuilder input.hour input.minute (Sigma.mk α input.second) input.nanosecond
+def toLeanTime24Hour (input : PlainTime leap) : String :=
+  Formats.leanTime24Hour.formatBuilder input.hour input.minute (Sigma.mk leap input.second) input.nanosecond
 
 /--
 Parses a time string in the 12-hour format (`hh:mm:ss aa`) and returns a `PlainTime`.
@@ -314,8 +314,8 @@ def fromTime12Hour (input : String) : Except String (Sigma PlainTime) := do
 /--
 Formats a `PlainTime` value into a 12-hour format string (`hh:mm:ss aa`).
 -/
-def toTime12Hour (input : PlainTime α) : String :=
-  Formats.time12Hour.formatBuilder (input.hour.emod 12 (by decide) |>.add 1) input.minute (Sigma.mk α input.second) (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
+def toTime12Hour (input : PlainTime leap) : String :=
+  Formats.time12Hour.formatBuilder (input.hour.emod 12 (by decide) |>.add 1) input.minute (Sigma.mk leap input.second) (if input.hour.val ≥ 12 then HourMarker.pm else HourMarker.am)
 
 /--
 Parses a `String` in the `Time12Hour` or `Time24Hour` format and returns a `PlainTime`.
@@ -324,10 +324,10 @@ def parse (input : String) : Except String (Sigma PlainTime) :=
   fromTime12Hour input
   <|> fromTime24Hour input
 
-instance : ToString (PlainTime α) where
+instance : ToString (PlainTime leap) where
   toString := toLeanTime24Hour
 
-instance : Repr (PlainTime α) where
+instance : Repr (PlainTime leap) where
   reprPrec data := Repr.addAppParen ("time(\"" ++ toLeanTime24Hour data ++ "\")")
 
 end PlainTime

@@ -528,7 +528,7 @@ def toDaysSinceUNIXEpoch (date : ZonedDateTime) : Day.Offset :=
 Converts a `ZonedDateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
-def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime α) (zt : TimeZone.ZoneRules) : ZonedDateTime :=
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime leap) (zt : TimeZone.ZoneRules) : ZonedDateTime :=
   ZonedDateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) zt
 
 instance : HAdd ZonedDateTime Day.Offset ZonedDateTime where

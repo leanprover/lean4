@@ -456,7 +456,7 @@ def time (zdt : DateTime tz) : PlainTime zdt.date.get.time.fst :=
 Converts a `DateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
-def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime α) (tz : TimeZone) : DateTime tz :=
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime leap) (tz : TimeZone) : DateTime tz :=
   DateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) tz
 
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where

@@ -125,7 +125,7 @@ private def convertTimezone (tz : Std.Time.TimeZone) : MacroM (TSyntax `term) :=
 private def convertPlainDate (d : Std.Time.PlainDate) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDate.ofYearMonthDayClip $(← syntaxInt d.year) $(← syntaxBounded d.month.val) $(← syntaxBounded d.day.val))
 
-private def convertPlainTime (d : Std.Time.PlainTime α) : MacroM (TSyntax `term) := do
+private def convertPlainTime (d : Std.Time.PlainTime leap) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainTime.mk $(← syntaxBounded d.hour.val) $(← syntaxBounded d.minute.val) $(← syntaxBounded d.second.val) $(← syntaxBounded d.nanosecond.val))
 
 private def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do

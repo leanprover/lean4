@@ -20,8 +20,8 @@ def jpTZ : TimeZone := timezone("Asia/Tokyo +09:00")
 
 def date₁ := zoned("2014-06-16T03:03:03-03:00")
 
-def time₁ : PlainTime true := time("14:11:01")
-def time₂ : PlainTime true := time("03:11:01")
+def time₁ : LeapTime := time("14:11:01")
+def time₂ : LeapTime := time("03:11:01")
 
 /--
 info: "Monday, June 16, 2014 03:03:03 -0300"
@@ -245,7 +245,7 @@ info: date("2002-07-14")
 info: time("14:13:12.000000000")
 -/
 #guard_msgs in
-#eval (time("14:13:12") : PlainTime true)
+#eval (time("14:13:12") : LeapTime )
 
 /--
 info: zoned("2002-07-14T14:13:12.000000000Z")
@@ -275,7 +275,7 @@ info: "14-13-12"
 Format
 -/
 
-def time₄ := (time("23:13:12.324354679") : PlainTime true)
+def time₄ := (time("23:13:12.324354679") : LeapTime )
 def date₄ := date("2002-07-14")
 def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (Sigma.mk true <| PlainTime.mk 12 23 12 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")

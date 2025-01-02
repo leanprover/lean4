@@ -709,7 +709,7 @@ Std.Time.Weekday.tuesday
 
   println! plaindatetime.toDaysSinceUNIXEpoch
   println! plaindatetime.toTimestampAssumingUTC
-  println! PlainDateTime.ofDaysSinceUNIXEpoch (α := True) 1 PlainTime.midnight
+  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight
 
 /--
 info: 2024-09-13T02:01:02.000000000-03:00
@@ -783,7 +783,7 @@ Std.Time.Weekday.thursday
 
   println! zoned.toDaysSinceUNIXEpoch
   println! zoned.toTimestamp
-  println! DateTime.ofDaysSinceUNIXEpoch (α := True) 1 PlainTime.midnight .UTC
+  println! DateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
 
 /--
 info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
@@ -867,8 +867,8 @@ info: 2023-06-09T00:00:00.000000000
 #guard_msgs in
 #eval do
   println! PlainDateTime.ofPlainDate date("2023-06-09")
-  println! PlainDateTime.ofPlainTime (α := True) time("12:32:43")
-  println! PlainDateTime.ofDaysSinceUNIXEpoch (α := True) 23332 time("12:32:43")
+  println! PlainDateTime.ofPlainTime (leap := True) time("12:32:43")
+  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := True) 23332 time("12:32:43")
 
 /--
 info: 1970-01-02T00:00:00.000000000Z
@@ -880,7 +880,7 @@ info: 1970-01-02T00:00:00.000000000Z
 -/
 #guard_msgs in
 #eval do
-  println! DateTime.ofDaysSinceUNIXEpoch (α := true) 1 PlainTime.midnight .UTC
+  println! DateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
   println! DateTime.ofPlainDate date("1997-03-18") .UTC
   println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
   println! DateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
@@ -898,7 +898,7 @@ info: 1970-01-02T00:00:00.000000000[UTC]
 -/
 #guard_msgs in
 #eval do
-  println! ZonedDateTime.ofDaysSinceUNIXEpoch (α := True) 1 PlainTime.midnight .UTC
+  println! ZonedDateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
   println! ZonedDateTime.ofPlainDate date("1997-03-18") .UTC
   println! ZonedDateTime.ofPlainDateWithZone date("1997-03-18") .UTC
   println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC

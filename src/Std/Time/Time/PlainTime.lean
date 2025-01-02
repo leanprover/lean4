@@ -39,9 +39,9 @@ structure PlainTime (leap : Bool) where
   deriving Repr
 
 /--
-COMMENT
+Defines `LeapTime` as a shorthand for a `PlainTime` that can contain leap seconds.
 -/
-abbrev LeapTime := PlainTime True
+abbrev LeapTime := PlainTime true
 
 instance : Inhabited (PlainTime x) where
   default := ⟨0, 0, 0, 0, by decide⟩
@@ -55,27 +55,27 @@ namespace PlainTime
 /--
 Creates a `PlainTime` value representing midnight (00:00:00.000000000).
 -/
-def midnight : PlainTime α :=
+def midnight : PlainTime leap :=
   ⟨0, 0, 0, 0⟩
 
 /--
 Creates a `PlainTime` value from the provided hours, minutes, seconds and nanoseconds components.
 -/
 @[inline]
-def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal α) (nano : Nanosecond.Ordinal) : PlainTime α :=
+def ofHourMinuteSecondsNano (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) (nano : Nanosecond.Ordinal) : PlainTime leap :=
   ⟨hour, minute, second, nano⟩
 
 /--
 Creates a `PlainTime` value from the provided hours, minutes, and seconds.
 -/
 @[inline]
-def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal α) : PlainTime α :=
+def ofHourMinuteSeconds (hour : Hour.Ordinal) (minute : Minute.Ordinal) (second : Second.Ordinal leap) : PlainTime leap :=
   ofHourMinuteSecondsNano hour minute second 0
 
 /--
 Converts a `PlainTime` value to the total number of milliseconds.
 -/
-def toMilliseconds (time : PlainTime α) : Millisecond.Offset :=
+def toMilliseconds (time : PlainTime leap) : Millisecond.Offset :=
   time.hour.toOffset.toMilliseconds +
   time.minute.toOffset.toMilliseconds +
   time.second.toOffset.toMilliseconds +
@@ -84,7 +84,7 @@ def toMilliseconds (time : PlainTime α) : Millisecond.Offset :=
 /--
 Converts a `PlainTime` value to the total number of nanoseconds.
 -/
-def toNanoseconds (time : PlainTime α) : Nanosecond.Offset :=
+def toNanoseconds (time : PlainTime leap) : Nanosecond.Offset :=
   time.hour.toOffset.toNanoseconds +
   time.minute.toOffset.toNanoseconds +
   time.second.toOffset.toNanoseconds +
@@ -93,7 +93,7 @@ def toNanoseconds (time : PlainTime α) : Nanosecond.Offset :=
 /--
 Converts a `PlainTime` value to the total number of seconds.
 -/
-def toSeconds (time : PlainTime α) : Second.Offset :=
+def toSeconds (time : PlainTime leap) : Second.Offset :=
   time.hour.toOffset.toSeconds +
   time.minute.toOffset.toSeconds +
   time.second.toOffset
@@ -101,7 +101,7 @@ def toSeconds (time : PlainTime α) : Second.Offset :=
 /--
 Converts a `PlainTime` value to the total number of minutes.
 -/
-def toMinutes (time : PlainTime α) : Minute.Offset :=
+def toMinutes (time : PlainTime leap) : Minute.Offset :=
   time.hour.toOffset.toMinutes +
   time.minute.toOffset +
   time.second.toOffset.toMinutes
@@ -109,13 +109,13 @@ def toMinutes (time : PlainTime α) : Minute.Offset :=
 /--
 Converts a `PlainTime` value to the total number of hours.
 -/
-def toHours (time : PlainTime α) : Hour.Offset :=
+def toHours (time : PlainTime leap) : Hour.Offset :=
   time.hour.toOffset
 
 /--
 Creates a `PlainTime` value from a total number of nanoseconds.
 -/
-def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime α :=
+def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime leap :=
   have totalSeconds := nanos.ediv 1000000000
   have remainingNanos := Bounded.LE.byEmod nanos.val 1000000000 (by decide)
   have hours := Bounded.LE.byEmod (totalSeconds.val / 3600) 24 (by decide)
@@ -124,7 +124,7 @@ def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime α :=
   have seconds := Bounded.LE.byEmod totalSeconds.val 60 (by decide)
 
   have seconds :=
-    match α with
+    match leap with
     | true => seconds.expandTop (by decide)
     | false => seconds
 
@@ -135,35 +135,35 @@ def ofNanoseconds (nanos : Nanosecond.Offset) : PlainTime α :=
 Creates a `PlainTime` value from a total number of millisecond.
 -/
 @[inline]
-def ofMilliseconds (millis : Millisecond.Offset) : PlainTime α :=
+def ofMilliseconds (millis : Millisecond.Offset) : PlainTime leap :=
   ofNanoseconds millis.toNanoseconds
 
 /--
 Creates a `PlainTime` value from a total number of seconds.
 -/
 @[inline]
-def ofSeconds (secs : Second.Offset) : PlainTime α :=
+def ofSeconds (secs : Second.Offset) : PlainTime leap :=
   ofNanoseconds secs.toNanoseconds
 
 /--
 Creates a `PlainTime` value from a total number of minutes.
 -/
 @[inline]
-def ofMinutes (secs : Minute.Offset) : PlainTime α :=
+def ofMinutes (secs : Minute.Offset) : PlainTime leap :=
   ofNanoseconds secs.toNanoseconds
 
 /--
 Creates a `PlainTime` value from a total number of hours.
 -/
 @[inline]
-def ofHours (hour : Hour.Offset) : PlainTime α :=
+def ofHours (hour : Hour.Offset) : PlainTime leap :=
   ofNanoseconds hour.toNanoseconds
 
 /--
 Adds seconds to a `PlainTime`.
 -/
 @[inline]
-def addSeconds (time : PlainTime α) (secondsToAdd : Second.Offset) : PlainTime α :=
+def addSeconds (time : PlainTime leap) (secondsToAdd : Second.Offset) : PlainTime leap :=
   let totalSeconds := time.toNanoseconds + secondsToAdd.toNanoseconds
   ofNanoseconds totalSeconds
 
@@ -171,14 +171,14 @@ def addSeconds (time : PlainTime α) (secondsToAdd : Second.Offset) : PlainTime 
 Subtracts seconds from a `PlainTime`.
 -/
 @[inline]
-def subSeconds (time : PlainTime α) (secondsToSub : Second.Offset) : PlainTime α :=
+def subSeconds (time : PlainTime leap) (secondsToSub : Second.Offset) : PlainTime leap :=
   addSeconds time (-secondsToSub)
 
 /--
 Adds minutes to a `PlainTime`.
 -/
 @[inline]
-def addMinutes (time : PlainTime α) (minutesToAdd : Minute.Offset) : PlainTime α :=
+def addMinutes (time : PlainTime leap) (minutesToAdd : Minute.Offset) : PlainTime leap :=
   let total := time.toNanoseconds + minutesToAdd.toNanoseconds
   ofNanoseconds total
 
@@ -186,14 +186,14 @@ def addMinutes (time : PlainTime α) (minutesToAdd : Minute.Offset) : PlainTime 
 Subtracts minutes from a `PlainTime`.
 -/
 @[inline]
-def subMinutes (time : PlainTime α) (minutesToSub : Minute.Offset) : PlainTime α :=
+def subMinutes (time : PlainTime leap) (minutesToSub : Minute.Offset) : PlainTime leap :=
   addMinutes time (-minutesToSub)
 
 /--
 Adds hours to a `PlainTime`.
 -/
 @[inline]
-def addHours (time : PlainTime α) (hoursToAdd : Hour.Offset) : PlainTime α :=
+def addHours (time : PlainTime leap) (hoursToAdd : Hour.Offset) : PlainTime leap :=
   let total := time.toNanoseconds + hoursToAdd.toNanoseconds
   ofNanoseconds total
 
@@ -201,54 +201,54 @@ def addHours (time : PlainTime α) (hoursToAdd : Hour.Offset) : PlainTime α :=
 Subtracts hours from a `PlainTime`.
 -/
 @[inline]
-def subHours (time : PlainTime α) (hoursToSub : Hour.Offset) : PlainTime α :=
+def subHours (time : PlainTime leap) (hoursToSub : Hour.Offset) : PlainTime leap :=
   addHours time (-hoursToSub)
 
 /--
 Adds nanoseconds to a `PlainTime`.
 -/
-def addNanoseconds (time : PlainTime α) (nanosToAdd : Nanosecond.Offset) : PlainTime α :=
+def addNanoseconds (time : PlainTime leap) (nanosToAdd : Nanosecond.Offset) : PlainTime leap :=
   let total := time.toNanoseconds + nanosToAdd
   ofNanoseconds total
 
 /--
 Subtracts nanoseconds from a `PlainTime`.
 -/
-def subNanoseconds (time : PlainTime α) (nanosToSub : Nanosecond.Offset) : PlainTime α :=
+def subNanoseconds (time : PlainTime leap) (nanosToSub : Nanosecond.Offset) : PlainTime leap :=
   addNanoseconds time (-nanosToSub)
 
 /--
 Adds milliseconds to a `PlainTime`.
 -/
-def addMilliseconds (time : PlainTime α) (millisToAdd : Millisecond.Offset) : PlainTime α :=
+def addMilliseconds (time : PlainTime leap) (millisToAdd : Millisecond.Offset) : PlainTime leap :=
   let total := time.toMilliseconds + millisToAdd
   ofMilliseconds total
 
 /--
 Subtracts milliseconds from a `PlainTime`.
 -/
-def subMilliseconds (time : PlainTime α) (millisToSub : Millisecond.Offset) : PlainTime α :=
+def subMilliseconds (time : PlainTime leap) (millisToSub : Millisecond.Offset) : PlainTime leap :=
   addMilliseconds time (-millisToSub)
 
 /--
 Creates a new `PlainTime` by adjusting the `second` component to the given value.
 -/
 @[inline]
-def withSeconds (pt : PlainTime α) (second : Second.Ordinal α) : PlainTime α :=
+def withSeconds (pt : PlainTime leap) (second : Second.Ordinal leap) : PlainTime leap :=
   { pt with second := second }
 
 /--
 Creates a new `PlainTime` by adjusting the `minute` component to the given value.
 -/
 @[inline]
-def withMinutes (pt : PlainTime α) (minute : Minute.Ordinal) : PlainTime α :=
+def withMinutes (pt : PlainTime leap) (minute : Minute.Ordinal) : PlainTime leap :=
   { pt with minute := minute }
 
 /--
 Creates a new `PlainTime` by adjusting the milliseconds component inside the `nano` component of its `time` to the given value.
 -/
 @[inline]
-def withMilliseconds (pt : PlainTime α) (millis : Millisecond.Ordinal) : PlainTime α :=
+def withMilliseconds (pt : PlainTime leap) (millis : Millisecond.Ordinal) : PlainTime leap :=
   let minorPart := pt.nanosecond.emod 1000 (by decide)
   let majorPart := millis.mul_pos 1000000 (by decide) |>.addBounds minorPart
   { pt with nanosecond := majorPart |>.expandTop (by decide) }
@@ -257,51 +257,51 @@ def withMilliseconds (pt : PlainTime α) (millis : Millisecond.Ordinal) : PlainT
 Creates a new `PlainTime` by adjusting the `nano` component to the given value.
 -/
 @[inline]
-def withNanoseconds (pt : PlainTime α) (nano : Nanosecond.Ordinal) : PlainTime α :=
+def withNanoseconds (pt : PlainTime leap) (nano : Nanosecond.Ordinal) : PlainTime leap :=
   { pt with nanosecond := nano }
 
 /--
 Creates a new `PlainTime` by adjusting the `hour` component to the given value.
 -/
 @[inline]
-def withHours (pt : PlainTime α) (hour : Hour.Ordinal) : PlainTime α :=
+def withHours (pt : PlainTime leap) (hour : Hour.Ordinal) : PlainTime leap :=
   { pt with hour := hour }
 
 /--
 `Millisecond` component of the `PlainTime`
 -/
 @[inline]
-def millisecond (pt : PlainTime α) : Millisecond.Ordinal :=
+def millisecond (pt : PlainTime leap) : Millisecond.Ordinal :=
   pt.nanosecond.ediv 1000000 (by decide)
 
-instance : HAdd (PlainTime α) Nanosecond.Offset (PlainTime α) where
+instance : HAdd (PlainTime leap) Nanosecond.Offset (PlainTime leap) where
   hAdd := addNanoseconds
 
-instance : HSub (PlainTime α) Nanosecond.Offset (PlainTime α) where
+instance : HSub (PlainTime leap) Nanosecond.Offset (PlainTime leap) where
   hSub := subNanoseconds
 
-instance : HAdd (PlainTime α) Millisecond.Offset (PlainTime α) where
+instance : HAdd (PlainTime leap) Millisecond.Offset (PlainTime leap) where
   hAdd := addMilliseconds
 
-instance : HSub (PlainTime α) Millisecond.Offset (PlainTime α) where
+instance : HSub (PlainTime leap) Millisecond.Offset (PlainTime leap) where
   hSub := subMilliseconds
 
-instance : HAdd (PlainTime α) Second.Offset (PlainTime α) where
+instance : HAdd (PlainTime leap) Second.Offset (PlainTime leap) where
   hAdd := addSeconds
 
-instance : HSub (PlainTime α) Second.Offset (PlainTime α) where
+instance : HSub (PlainTime leap) Second.Offset (PlainTime leap) where
   hSub := subSeconds
 
-instance : HAdd (PlainTime α) Minute.Offset (PlainTime α) where
+instance : HAdd (PlainTime leap) Minute.Offset (PlainTime leap) where
   hAdd := addMinutes
 
-instance : HSub (PlainTime α) Minute.Offset (PlainTime α) where
+instance : HSub (PlainTime leap) Minute.Offset (PlainTime leap) where
   hSub := subMinutes
 
-instance : HAdd (PlainTime α) Hour.Offset (PlainTime α) where
+instance : HAdd (PlainTime leap) Hour.Offset (PlainTime leap) where
   hAdd := addHours
 
-instance : HSub (PlainTime α) Hour.Offset (PlainTime α) where
+instance : HSub (PlainTime leap) Hour.Offset (PlainTime leap) where
   hSub := subHours
 
 end PlainTime

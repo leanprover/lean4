@@ -65,7 +65,7 @@ info: datetime("2000-01-19T03:02:01.000000000")
 #guard_msgs in
 #eval datetime - (1 : Day.Offset)
 
-def time : PlainTime true := time("13:02:01")
+def time : LeapTime := time("13:02:01")
 
 /--
 info: time("14:02:01.000000000")

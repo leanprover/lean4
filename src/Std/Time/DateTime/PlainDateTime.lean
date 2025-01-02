@@ -144,8 +144,8 @@ def toDaysSinceUNIXEpoch (pdt : PlainDateTime) : Day.Offset :=
 Converts a `PlainDateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
-def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime α) : PlainDateTime :=
-  PlainDateTime.mk (PlainDate.ofDaysSinceUNIXEpoch days) (Sigma.mk α time)
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime leap) : PlainDateTime :=
+  PlainDateTime.mk (PlainDate.ofDaysSinceUNIXEpoch days) (Sigma.mk leap time)
 
 /--
 Sets the `PlainDateTime` to the specified `desiredWeekday`.
@@ -528,15 +528,15 @@ def quarter (date : PlainDateTime) : Bounded.LE 1 4 :=
 Combines a `PlainDate` and `PlainTime` into a `PlainDateTime`.
 -/
 @[inline]
-def atTime : PlainDate → PlainTime α → PlainDateTime :=
-  (PlainDateTime.mk · <| Sigma.mk α ·)
+def atTime : PlainDate → PlainTime leap → PlainDateTime :=
+  (PlainDateTime.mk · <| Sigma.mk leap ·)
 
 /--
 Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.
 -/
 @[inline]
-def atDate (time: PlainTime α) (date: PlainDate) : PlainDateTime :=
-  PlainDateTime.mk date (Sigma.mk α time)
+def atDate (time: PlainTime leap) (date: PlainDate) : PlainDateTime :=
+  PlainDateTime.mk date (Sigma.mk leap time)
 
 instance : HAdd PlainDateTime Day.Offset PlainDateTime where
   hAdd := addDays
@@ -590,8 +590,8 @@ namespace PlainDate
 Combines a `PlainDate` and `PlainTime` into a `PlainDateTime`.
 -/
 @[inline]
-def atTime : PlainDate → PlainTime α → PlainDateTime :=
-  (PlainDateTime.mk · <| Sigma.mk α ·)
+def atTime : PlainDate → PlainTime leap → PlainDateTime :=
+  (PlainDateTime.mk · <| Sigma.mk leap ·)
 
 end PlainDate
 namespace PlainTime
@@ -600,8 +600,8 @@ namespace PlainTime
 Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.
 -/
 @[inline]
-def atDate (time: PlainTime α) (date: PlainDate) : PlainDateTime :=
-  PlainDateTime.mk date (Sigma.mk α time)
+def atDate (time: PlainTime leap) (date: PlainDate) : PlainDateTime :=
+  PlainDateTime.mk date (Sigma.mk leap time)
 
 end PlainTime
 end Time

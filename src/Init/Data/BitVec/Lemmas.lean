@@ -3525,6 +3525,10 @@ theorem getMsbD_reverse {i : Nat} {x : BitVec w} :
     congr; omega
   · simp [hi, show i ≥ w by omega]
 
+theorem msb_reverse {x : BitVec w} :
+    (x.reverse).msb = x.getLsbD 0 :=
+  by rw [BitVec.msb, getMsbD_reverse]
+
 theorem reverse_append {x : BitVec w} {y : BitVec v} (h : v + w = w + v) :
     (x ++ y).reverse = (y.reverse ++ x.reverse).cast h := by
   ext i h

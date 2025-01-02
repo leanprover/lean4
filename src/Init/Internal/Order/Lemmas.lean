@@ -210,6 +210,41 @@ theorem monotone_list_findSomeM?
       · apply ih
       · apply monotone_const
 
+theorem monotone_list_forIn'_loop {α : Type uu}
+    (as : List α) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (as' : List α) (b : β)
+    (p : Exists (fun bs => bs ++ as' = as)) (hmono : monotone f) :
+    monotone (fun x => List.forIn'.loop as (f x) as' b p) := by
+  induction as' generalizing b with
+  | nil => apply monotone_const
+  | cons a as' ih =>
+    apply monotone_bind
+    · apply monotone_apply
+      apply monotone_apply
+      apply monotone_apply
+      apply hmono
+    · apply monotone_of_monotone_apply
+      intro y
+      cases y with
+      | done => apply monotone_const
+      | yield => apply ih
+
+theorem monotone_list_forIn' {α : Type uu}
+    (as : List α) (init : β) (f : γ → (a : α) → a ∈ as → β → m (ForInStep β)) (hmono : monotone f) :
+    monotone (fun x => forIn' as init (f x)) := by
+  apply monotone_list_forIn'_loop
+  apply hmono
+
+theorem monotone_list_forIn {α : Type uu}
+    (as : List α) (init : β) (f : γ → (a : α) → β → m (ForInStep β)) (hmono : monotone f) :
+    monotone (fun x => forIn as init (f x)) := by
+  apply monotone_list_forIn' as init _
+  apply monotone_of_monotone_apply
+  intro y
+  apply monotone_of_monotone_apply
+  intro p
+  apply monotone_apply (a := y)
+  apply hmono
+
 theorem monotone_array_mapFinIdxM (xs : Array α) (f : γ → Fin xs.size → α → m β) (hmono : monotone f) :
     monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices

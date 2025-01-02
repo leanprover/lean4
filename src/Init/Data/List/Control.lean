@@ -254,6 +254,7 @@ theorem findM?_eq_findSomeM? [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     | [], b, _    => pure b
     | a::as', b, h => do
       have : a ∈ as := by
+        clear f
         have ⟨bs, h⟩ := h
         subst h
         exact mem_append_right _ (Mem.head ..)

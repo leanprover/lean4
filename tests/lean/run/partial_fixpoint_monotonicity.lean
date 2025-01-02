@@ -6,6 +6,7 @@ attribute [partial_fixpoint_monotone]
   monotone_ite
   monotone_dite
   monotone_bind
+  monotone_list_forIn
 
 /-
 Should test that the tactic syntax is scoped, but cannot use #guard_msgs to catch “tactic not known”
@@ -27,3 +28,8 @@ example : monotone (fun (f : Nat → Option Unit) => do {do f 1; f 2; f 3}) := b
 
 example : monotone (fun (f : Option Unit) => do {do f; f; f}) := by
   repeat monotonicity
+
+example : monotone
+  (fun (f : Nat → Option Unit) => do
+    for x in [1,2,3] do f x) := by
+  repeat' monotonicity

@@ -89,6 +89,7 @@ namespace Sleep
 Set up a `Sleep` that waits for `duration` milliseconds.
 This function only initializes but does not yet start the underlying timer.
 -/
+@[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : IO Sleep := do
   let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 false
   return ofNative native
@@ -97,6 +98,7 @@ def mk (duration : Std.Time.Millisecond.Offset) : IO Sleep := do
 Start the underlying timer of `s` and return an `AsyncTask` that will resolve once the previously
 configured duration has run out. Running this function twice returns the same `AsyncTask`.
 -/
+@[inline]
 def wait (s : Sleep) : IO (AsyncTask Unit) := do
   let promise ← s.native.next
   return .ofPromise promise
@@ -107,6 +109,7 @@ If:
   the call of this function.
 - `Sleep.wait` was never called on `s` before this is a no-op.
 -/
+@[inline]
 def reset (s : Sleep) : IO Unit :=
   s.native.reset
 
@@ -134,6 +137,7 @@ namespace Interval
 Setup up an `Interval` that waits for `duration` milliseconds.
 This function only initializes but does not yet start the underlying timer.
 -/
+@[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : IO Interval := do
   let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 true
   return ofNative native
@@ -148,6 +152,7 @@ of `i`. In particular:
 - calling this function when the tick from the last call has finished returns a new `AsyncTask`
   that waits for the closest next tick from the time of calling this function.
 -/
+@[inline]
 def tick (i : Interval) : IO (AsyncTask Unit) := do
   let promise ← i.native.next
   return .ofPromise promise
@@ -158,6 +163,7 @@ If:
   the next tick happens in `duration`.
 - `Interval.tick` was never called on `i` before this is a no-op.
 -/
+@[inline]
 def reset (i : Interval) : IO Unit :=
   i.native.reset
 

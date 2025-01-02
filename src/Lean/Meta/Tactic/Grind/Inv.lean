@@ -24,9 +24,9 @@ private def checkEqc (root : ENode) : GoalM Unit := do
     if curr.isApp then
       if let some { e } := (← get).congrTable.find? { e := curr } then
         if (← hasSameType e.getAppFn curr.getAppFn) then
-          assert! isSameExpr e (← getENode curr).cgRoot
+          assert! isSameExpr e (← getCongrRoot curr)
       else
-        assert! isSameExpr curr (← getENode curr).cgRoot
+        assert! (← isCongrRoot curr)
     -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.
     unless root.heqProofs do
       assert! (← hasSameType curr root.self)

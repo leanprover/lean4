@@ -41,7 +41,7 @@ structure PlainTime (leap : Bool) where
 /--
 COMMENT
 -/
-def LeapTime := PlainTime True
+abbrev LeapTime := PlainTime True
 
 instance : Inhabited (PlainTime x) where
   default := ⟨0, 0, 0, 0, by decide⟩

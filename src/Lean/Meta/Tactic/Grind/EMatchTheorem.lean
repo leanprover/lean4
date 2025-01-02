@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.HeadIndex
+import Lean.PrettyPrinter
 import Lean.Util.FoldConsts
 import Lean.Util.CollectFVars
 import Lean.Meta.Basic
@@ -25,7 +26,28 @@ inductive Origin where
   | other
   deriving Inhabited, Repr
 
-structure TheoremPattern where
+/-- A unique identifier corresponding to the origin. -/
+def Origin.key : Origin → Name
+  | .decl declName => declName
+  | .fvar fvarId   => fvarId.name
+  | .stx id _      => id
+  | .other         => `other
+
+def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
+  match o with
+  | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
+  | .fvar fvarId   => return mkFVar fvarId
+  | .stx _ ref     => return ref
+  | .other         => return "[unknown]"
+
+/-- A theorem for heuristic instantiation based on E-matching. -/
+structure EMatchTheorem where
+  /--
+  It stores universe parameter names for universe polymorphic proofs.
+  Recall that it is non-empty only when we elaborate an expression provided by the user.
+  When `proof` is just a constant, we can use the universe parameter names stored in the declaration.
+  -/
+  levelParams : Array Name
   proof       : Expr
   numParams   : Nat
   patterns    : List Expr
@@ -34,16 +56,35 @@ structure TheoremPattern where
   origin      : Origin
   deriving Inhabited
 
-abbrev TheoremPatterns := SMap Name (List TheoremPattern)
+/-- The key is a symbol from `EMatchTheorem.symbols`. -/
+abbrev EMatchTheorems := PHashMap Name (List EMatchTheorem)
 
-builtin_initialize theoremPatternsExt : SimpleScopedEnvExtension TheoremPattern TheoremPatterns ←
+def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchTheorems := Id.run do
+  let .const declName :: syms := thm.symbols
+    | unreachable!
+  let thm := { thm with symbols := syms }
+  if let some thms := s.find? declName then
+    return PersistentHashMap.insert s declName (thm::thms)
+  else
+    return PersistentHashMap.insert s declName [thm]
+
+def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
+  if thm.proof.isConst && thm.levelParams.isEmpty then
+    let declName := thm.proof.constName!
+    let info ← getConstInfo declName
+    if info.levelParams.isEmpty then
+      return thm.proof
+    else
+      mkConstWithFreshMVarLevels declName
+  else if thm.levelParams.isEmpty then
+    return thm.proof
+  else
+    let us ← thm.levelParams.mapM fun _ => mkFreshLevelMVar
+    return thm.proof.instantiateLevelParamsArray thm.levelParams us
+
+private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
   registerSimpleScopedEnvExtension {
-    addEntry := fun s t => Id.run do
-      let .const declName :: _ := t.symbols | unreachable!
-      if let some ts := s.find? declName then
-        s.insert declName (t::ts)
-      else
-        s.insert declName [t]
+    addEntry := EMatchTheorems.insert
     initial  := .empty
   }
 
@@ -54,22 +95,25 @@ private def isForbidden (declName : Name) := forbiddenDeclNames.contains declNam
 
 private def dontCare := mkConst (Name.mkSimple "[grind_dontcare]")
 
-private def mkGroundPattern (e : Expr) : Expr :=
+def mkGroundPattern (e : Expr) : Expr :=
   mkAnnotation `grind.ground_pat e
 
-private def groundPattern? (e : Expr) : Option Expr :=
+def groundPattern? (e : Expr) : Option Expr :=
   annotation? `grind.ground_pat e
 
 private def isGroundPattern (e : Expr) : Bool :=
   groundPattern? e |>.isSome
 
+def isPatternDontCare (e : Expr) : Bool :=
+  e == dontCare
+
 private def isAtomicPattern (e : Expr) : Bool :=
-  e.isBVar || e == dontCare || isGroundPattern e
+  e.isBVar || isPatternDontCare e || isGroundPattern e
 
 partial def ppPattern (pattern : Expr) : MessageData := Id.run do
   if let some e := groundPattern? pattern then
     return m!"`[{e}]"
-  else if pattern == dontCare then
+  else if isPatternDontCare pattern then
     return m!"?"
   else match pattern with
     | .bvar idx => return m!"#{idx}"
@@ -109,15 +153,21 @@ private def getPatternFn? (pattern : Expr) : Option Expr :=
     | f@(.fvar _) => some f
     | _ => none
 
-private structure PatternFunInfo where
-  instImplicitMask : Array Bool
-  typeMask : Array Bool
+/--
+Returns a bit-mask `mask` s.t. `mask[i]` is true if the the corresponding argument is
+- a type or type former, or
+- a proof, or
+- an instance implicit argument
 
-private def getPatternFunInfo (f : Expr) (numArgs : Nat) : MetaM PatternFunInfo := do
+When `mask[i]`, we say the corresponding argument is a "support" argument.
+-/
+private def getPatternFunMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
   forallBoundedTelescope (← inferType f) numArgs fun xs _ => do
-    let typeMask ← xs.mapM fun x => isTypeFormer x
-    let instImplicitMask ← xs.mapM fun x => return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
-    return { typeMask, instImplicitMask }
+    xs.mapM fun x => do
+      if (← isTypeFormer x <||> isProof x) then
+        return true
+      else
+        return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
 
 private partial def go (pattern : Expr) (root := false) : M Expr := do
   if root && !pattern.hasLooseBVars then
@@ -127,11 +177,10 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
   assert! f.isConst || f.isFVar
   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs
-  let { instImplicitMask, typeMask }  ← getPatternFunInfo f args.size
+  let supportMask ← getPatternFunMask f args.size
   for i in [:args.size] do
     let arg := args[i]!
-    let isType := typeMask[i]?.getD false
-    let isInstImplicit := instImplicitMask[i]?.getD false
+    let isSupport := supportMask[i]?.getD false
     let arg ← if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
@@ -139,13 +188,13 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
         pure <| mkGroundPattern arg
     else match arg with
       | .bvar idx =>
-        if (isType || isInstImplicit) && (← foundBVar idx) then
+        if isSupport && (← foundBVar idx) then
           pure dontCare
         else
           saveBVar idx
           pure arg
       | _ =>
-        if isType || isInstImplicit then
+        if isSupport then
           pure dontCare
         else if let some _ := getPatternFn? arg then
           go arg
@@ -282,19 +331,24 @@ private def ppParamsAt (proof : Expr) (numParms : Nat) (paramPos : List Nat) : M
         msg := msg ++ m!"{x} : {← inferType x}"
     addMessageContextFull msg
 
-def addTheoremPattern (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
   let .thmInfo info ← getConstInfo declName
     | throwError "`{declName}` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic"
   let us := info.levelParams.map mkLevelParam
   let proof := mkConst declName us
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
-  trace[grind.pattern] "{declName}: {patterns.map ppPattern}"
+  assert! symbols.all fun s => s matches .const _
+  trace[grind.ematch.pattern] "{declName}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
      throwError "invalid pattern(s) for `{declName}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
-  theoremPatternsExt.add {
+  ematchTheoremsExt.add {
      proof, patterns, numParams, symbols
-     origin := .decl declName
+     levelParams := #[]
+     origin      := .decl declName
   }
+
+def getEMatchTheorems : CoreM EMatchTheorems :=
+  return ematchTheoremsExt.getState (← getEnv)
 
 end Lean.Meta.Grind

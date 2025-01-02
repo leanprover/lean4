@@ -74,13 +74,10 @@ theorem ex3 (h : a₁ :: { x := a₂, y := a₃ : Point } :: as = b₁ :: { x :=
 
 def h (a : α) := a
 
-set_option trace.grind.pre true in
 example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c ∧ c = a → a = b ∧ b = a → a = c := by
   grind
 
-set_option trace.grind.proof.detail true
-set_option trace.grind.proof true
-set_option trace.grind.pre true
+set_option trace.grind.debug.proof true
 /--
 error: `grind` failed
 α : Type
@@ -112,9 +109,7 @@ info: [grind.issues] found congruence between
 -/
 #guard_msgs in
 set_option trace.grind.issues true in
-set_option trace.grind.proof.detail false in
-set_option trace.grind.proof false in
-set_option trace.grind.pre false in
+set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
   fail_if_success grind
   sorry

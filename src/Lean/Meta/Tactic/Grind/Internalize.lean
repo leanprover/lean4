@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Util
 import Lean.Meta.LitValues
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
 
@@ -21,7 +22,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
       unless (← hasSameType f g) do
         trace[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
-    trace[grind.congr] "{e} = {e'}"
+    trace[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
     let node ← getENode e
     setENode e { node with cgRoot := e' }
@@ -37,13 +38,51 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
       s.appMap.insert key [e]
   }
 
+mutual
+/-- Internalizes the nested ground terms in the given pattern. -/
+private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
+  if pattern.isBVar || isPatternDontCare pattern then
+    return pattern
+  else if let some e := groundPattern? pattern then
+    let e ← shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+    internalize e generation
+    return mkGroundPattern e
+  else pattern.withApp fun f args => do
+    return mkAppN f (← args.mapM (internalizePattern · generation))
+
+private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
+  if let some thms := (← get).thmMap.find? fName then
+    modify fun s => { s with thmMap := s.thmMap.erase fName }
+    let appMap := (← get).appMap
+    for thm in thms do
+      let symbols := thm.symbols.filter fun sym => !appMap.contains sym
+      let thm := { thm with symbols }
+      match symbols with
+      | [] =>
+        -- Recall that we use the proof as part of the key for a set of instances found so far.
+        -- We don't want to use structural equality when comparing keys.
+        let proof ← shareCommon thm.proof
+        let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
+        trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
+        modify fun s => { s with newThms := s.newThms.push thm }
+      | _ =>
+        trace[grind.ematch] "reinsert `{thm.origin.key}`"
+        modify fun s => { s with thmMap := s.thmMap.insert thm }
+
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
+  trace[grind.internalize] "{e}"
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
-  | .fvar .. | .letE .. | .lam .. | .forallE .. =>
+  | .fvar .. | .letE .. | .lam .. =>
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+  | .forallE _ d _ _ =>
+    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    if (← isProp d <&&> isProp e) then
+      internalize d generation
+      registerParent e d
+      propagateUp e
   | .lit .. | .const .. =>
     mkENode e generation
   | .mvar ..
@@ -63,7 +102,9 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         internalize c generation
         registerParent e c
       else
-        unless f.isConst do
+        if let .const fName _ := f then
+          activateTheoremPatterns fName generation
+        else
           internalize f generation
           registerParent e f
         for h : i in [: args.size] do
@@ -74,5 +115,6 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       addCongrTable e
       updateAppMap e
       propagateUp e
+end
 
 end Lean.Meta.Grind

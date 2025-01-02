@@ -80,7 +80,7 @@ private def checkProofs : GoalM Unit := do
     for a in eqc do
       for b in eqc do
         unless isSameExpr a b do
-          let p ← mkEqProof a b
+          let p ← mkEqHEqProof a b
           trace[grind.debug.proofs] "{a} = {b}"
           check p
           trace[grind.debug.proofs] "checked: {← inferType p}"
@@ -98,5 +98,8 @@ def checkInvariants (expensive := false) : GoalM Unit := do
       checkPtrEqImpliesStructEq
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
+
+def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
+  discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

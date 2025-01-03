@@ -81,13 +81,11 @@ structure Sleep where
   private ofNative ::
     native : Internal.UV.Timer
 
--- TODO: provable constraints on duration after changes in Std.Time
-
 namespace Sleep
 
 /--
 Set up a `Sleep` that waits for `duration` milliseconds.
-This function only initializes but does not yet start the underlying timer.
+This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : IO Sleep := do
@@ -95,8 +93,10 @@ def mk (duration : Std.Time.Millisecond.Offset) : IO Sleep := do
   return ofNative native
 
 /--
-Start the underlying timer of `s` and return an `AsyncTask` that will resolve once the previously
-configured duration has run out. Running this function twice returns the same `AsyncTask`.
+If:
+- `s` is not yet running start it and return an `AsyncTask` that will resolve once the previously
+   configured `duration` has run out.
+- `s` is already or not anymore running return the same `AsyncTask` as the first call to `wait`.
 -/
 @[inline]
 def wait (s : Sleep) : IO (AsyncTask Unit) := do
@@ -105,13 +105,24 @@ def wait (s : Sleep) : IO (AsyncTask Unit) := do
 
 /--
 If:
-- `Sleep.wait` was previously called on `s` this makes the timer wait for `duration` counting from
-  the call of this function.
-- `Sleep.wait` was never called on `s` before this is a no-op.
+- `s` is still running this will delay the resolution of `AsyncTask`s created with `wait` by
+  `duration` milliseconds.
+- `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
 def reset (s : Sleep) : IO Unit :=
   s.native.reset
+
+/--
+If:
+- `s` is still running this stops `s` without resolving any remaing `AsyncTask` that were created
+  through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
+  forever without further intervention.
+- `s` is not yet or not anymore running this is a no-op.
+-/
+@[inline]
+def stop (s : Sleep) : IO Unit :=
+  s.native.stop
 
 end Sleep
 
@@ -135,7 +146,7 @@ namespace Interval
 
 /--
 Setup up an `Interval` that waits for `duration` milliseconds.
-This function only initializes but does not yet start the underlying timer.
+This function only initializes but does not yet start the timer.
 -/
 @[inline]
 def mk (duration : Std.Time.Millisecond.Offset) : IO Interval := do
@@ -143,14 +154,15 @@ def mk (duration : Std.Time.Millisecond.Offset) : IO Interval := do
   return ofNative native
 
 /--
-Start the underlying timer of `s` and return an `AsyncTask` that will resolve upon the next tick
-of `i`. In particular:
-- calling this function for the first time starts the underlying timer of `i` and returns an
-  `AsyncTask` that instantly resolves as the 0th multiple of `duration` has elapsed.
-- calling this function while the tick from the last call has not yet finished returns the same
-  `AsyncTask` as the last call.
-- calling this function when the tick from the last call has finished returns a new `AsyncTask`
-  that waits for the closest next tick from the time of calling this function.
+If:
+- `i` is not yet running start it and return an `AsyncTask` that resolves right away as the 0th
+  multiple of `duration` has elapsed.
+- `i` is already running and:
+  - the tick from the last call of `i` has not yet finished return the same `AsyncTask` as the last
+    call
+  - the tick frrom the last call of `i` has finished return a new `AsyncTask` that waits for the
+    closest next tick from the time of calling this function.
+- `i` is not running aymore this is a no-op.
 -/
 @[inline]
 def tick (i : Interval) : IO (AsyncTask Unit) := do
@@ -159,13 +171,24 @@ def tick (i : Interval) : IO (AsyncTask Unit) := do
 
 /--
 If:
-- `Interval.tick` was called on `i` before the next internal timer restarts counting from now and
-  the next tick happens in `duration`.
-- `Interval.tick` was never called on `i` before this is a no-op.
+- `Interval.tick` was called on `i` before the timer restarts counting from now and the next tick
+   happens in `duration`.
+- `i` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
 def reset (i : Interval) : IO Unit :=
   i.native.reset
+
+/--
+If:
+- `i` is still running this stops `i` without resolving any remaing `AsyncTask` that were created
+  through `tick`. Note that if another `AsyncTask` is binding on any of these it is going hang
+  forever without further intervention.
+- `i` is not yet or not anymore running this is a no-op.
+-/
+@[inline]
+def stop (i : Interval) : IO Unit :=
+  i.native.stop
 
 end Interval
 

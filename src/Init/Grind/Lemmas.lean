@@ -61,4 +61,9 @@ theorem forall_propagator (p : Prop) (q : p → Prop) (q' : Prop) (h₁ : p = Tr
   · intro h'; exact Eq.mp h₂ (h' (of_eq_true h₁))
   · intro h'; intros; exact Eq.mpr h₂ h'
 
+/-! dite -/
+
+theorem dite_cond_eq_true' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c → α} {b : ¬ c → α} {r : α} (h₁ : c = True) (h₂ : a (of_eq_true h₁) = r) : (dite c a b) = r := by simp [h₁, h₂]
+theorem dite_cond_eq_false' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c → α} {b : ¬ c → α} {r : α} (h₁ : c = False) (h₂ : b (of_eq_false h₁) = r) : (dite c a b) = r := by simp [h₁, h₂]
+
 end Lean.Grind

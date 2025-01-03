@@ -83,3 +83,31 @@ info: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
 set_option trace.grind.debug.proj true in
 example (a b d e : Nat) (x y z : Boo Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → x.1 = e → y.1 = e → z.1 = e → f d = x → f d = y → f d = z → b = a → False := by
   grind
+
+example (f : Nat → Nat) (a b c : Nat) : f (if a = b then x else y) = z → a = c → c = b → f x = z := by
+  grind
+
+example (f : Nat → Nat) (a b c : Nat) : f (if a = b then x else y) = z → a = c → b ≠ c → f y = z := by
+  grind
+
+namespace dite_propagator_test
+
+opaque R : Nat → Nat → Prop
+opaque f (a : Nat) (b : Nat) (_ : R a b) : Nat
+opaque g (a : Nat) (b : Nat) (_ : ¬ R a b) : Nat
+open Classical
+
+example (foo : Nat → Nat)
+        (_ : foo (if h : R a c then f a c h else g a c h) = x)
+        (_ : R a b)
+        (_ : c = b) : foo (f a c (by grind)) = x := by
+  grind
+
+example (foo : Nat → Nat)
+        (_ : foo (if h : R a c then f a c h else g a c h) = x)
+        (_ : ¬ R a b)
+        (_ : c = b)
+        : foo (g a c (by grind)) = x := by
+  grind
+
+end dite_propagator_test

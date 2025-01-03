@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
--- TODO: after PR is merged
---import Std.Internal.Async
+import Std.Internal.Async
 import Std.Internal.Parsec
 import Std.Internal.UV
 

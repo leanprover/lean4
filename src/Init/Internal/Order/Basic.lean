@@ -104,7 +104,7 @@ variable {α : Sort u} [PartialOrder α]
 variable {β : Sort v} [PartialOrder β]
 
 /--
-A function is monotone if if it maps related elements to releated elements.
+A function is monotone if it maps related elements to releated elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/

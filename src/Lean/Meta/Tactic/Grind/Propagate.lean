@@ -7,6 +7,8 @@ prelude
 import Init.Grind
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.PropagatorAttr
+import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
 
@@ -141,5 +143,33 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
   let_expr HEq _ a _ b := e | return ()
   if (← isEqv a b) then
     pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkHEqProof a b)
+
+/-- Propagates `ite` upwards -/
+builtin_grind_propagator propagateIte ↑ite := fun e => do
+  let_expr f@ite α c h a b := e | return ()
+  if (← isEqTrue c) then
+    pushEq e a <| mkApp6 (mkConst ``ite_cond_eq_true f.constLevels!) α c h a b (← mkEqTrueProof c)
+  else if (← isEqFalse c) then
+    pushEq e b <| mkApp6 (mkConst ``ite_cond_eq_false f.constLevels!) α c h a b (← mkEqFalseProof c)
+
+/-- Propagates `dite` upwards -/
+builtin_grind_propagator propagateDIte ↑dite := fun e => do
+  let_expr f@dite α c h a b := e | return ()
+  if (← isEqTrue c) then
+     let h₁ ← mkEqTrueProof c
+     let ah₁ := mkApp a (mkApp2 (mkConst ``of_eq_true) c h₁)
+     let p ← simp ah₁
+     let r := p.expr
+     let h₂ ← p.getProof
+     internalize r (← getGeneration e)
+     pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_true' f.constLevels!) α c h a b r h₁ h₂
+  else if (← isEqFalse c) then
+     let h₁ ← mkEqFalseProof c
+     let bh₁ := mkApp b (mkApp2 (mkConst ``of_eq_false) c h₁)
+     let p ← simp bh₁
+     let r := p.expr
+     let h₂ ← p.getProof
+     internalize r (← getGeneration e)
+     pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) α c h a b r h₁ h₂
 
 end Lean.Meta.Grind

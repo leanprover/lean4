@@ -348,6 +348,17 @@ def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) 
      origin      := .decl declName
   }
 
+/--
+Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
+add an E-matching pattern for it using `addEMatchTheorem n [lhs]`
+-/
+def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
+  let info ← getConstInfo declName
+  let (numParams, patterns) ← forallTelescopeReducing info.type fun xs type => do
+    let_expr Eq _ lhs _ := type | throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
+    return (xs.size, [lhs.abstract xs])
+  addEMatchTheorem declName numParams patterns
+
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 

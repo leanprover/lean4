@@ -534,6 +534,13 @@ theorem mul_emod (a b n : Int) : (a * b) % n = (a % n) * (b % n) % n := by
 @[simp] theorem emod_emod (a b : Int) : (a % b) % b = a % b := by
   conv => rhs; rw [← emod_add_ediv a b, add_mul_emod_self_left]
 
+@[simp] theorem emod_sub_emod (m n k : Int) : (m % n - k) % n = (m - k) % n :=
+  Int.emod_add_emod m n (-k)
+
+@[simp] theorem sub_emod_emod (m n k : Int) : (m - n % k) % k = (m - n) % k := by
+  apply (emod_add_cancel_right (n % k)).mp
+  rw [Int.sub_add_cancel, Int.add_emod_emod, Int.sub_add_cancel]
+
 theorem sub_emod (a b n : Int) : (a - b) % n = (a % n - b % n) % n := by
   apply (emod_add_cancel_right b).mp
   rw [Int.sub_add_cancel, ← Int.add_emod_emod, Int.sub_add_cancel, emod_emod]

@@ -21,7 +21,7 @@ void lean_uv_timer_finalizer(void* ptr) {
 
     event_loop_lock(&global_ev);
 
-    uv_close((uv_handle_t*) & timer->m_uv_timer, [](uv_handle_t* handle) {
+    uv_close((uv_handle_t*)timer->m_uv_timer, [](uv_handle_t* handle) {
         free(handle);
     });
 
@@ -55,7 +55,7 @@ void handle_timer_event(uv_timer_t* handle) {
         }
     } else {
         lean_assert(lean_io_get_task_state_core(timer->m_promise) != 2);
-        uv_timer_stop(&timer->m_uv_timer);
+        uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
 
         lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
@@ -74,19 +74,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     timer->m_state = TIMER_STATE_INITIAL;
     timer->m_promise = NULL;
 
+    uv_timer_t * uv_timer = (uv_timer_t*)malloc(sizeof(uv_timer_t));
+
     event_loop_lock(&global_ev);
-    int result = uv_timer_init(global_ev.loop, &timer->m_uv_timer);
+    int result = uv_timer_init(global_ev.loop, uv_timer);
     event_loop_unlock(&global_ev);
 
     if (result != 0) {
+        free(uv_timer);
         free(timer);
         std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
         return io_result_mk_error(err.c_str());
     }
 
+    timer->m_uv_timer = uv_timer;
+
     lean_object * obj = lean_uv_timer_new(timer);
     lean_mark_mt(obj);
-    timer->m_uv_timer.data = obj;
+    timer->m_uv_timer->data = obj;
 
     return lean_io_result_mk_ok(obj);
 }
@@ -118,7 +123,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                     event_loop_lock(&global_ev);
 
                     int result = uv_timer_start(
-                            &timer->m_uv_timer,
+                            timer->m_uv_timer,
                             handle_timer_event,
                             0,
                             timer->m_timeout
@@ -169,7 +174,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
             event_loop_lock(&global_ev);
 
             int result = uv_timer_start(
-                &timer->m_uv_timer,
+                timer->m_uv_timer,
                 handle_timer_event,
                 timer->m_timeout,
                 0
@@ -203,10 +208,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
 
         event_loop_lock(&global_ev);
 
-        uv_timer_stop(&timer->m_uv_timer);
+        uv_timer_stop(timer->m_uv_timer);
 
         int result = uv_timer_start(
-            &timer->m_uv_timer,
+            timer->m_uv_timer,
             handle_timer_event,
             timer->m_timeout,
             timer->m_repeating ? timer->m_timeout : 0
@@ -233,7 +238,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj, obj_arg /*
 
         event_loop_lock(&global_ev);
 
-        uv_timer_stop(&timer->m_uv_timer);
+        uv_timer_stop(timer->m_uv_timer);
 
         event_loop_unlock(&global_ev);
 

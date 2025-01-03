@@ -26,7 +26,7 @@ enum uv_timer_state {
 // Structure for managing a single UV timer object, including promise handling, timeout, and
 // repeating behavior.
 typedef struct {
-    uv_timer_t      m_uv_timer;    // LibUV timer handle.
+    uv_timer_t *    m_uv_timer;    // LibUV timer handle.
     lean_object *   m_promise;     // The associated promise for asynchronous results.
     uint64_t        m_timeout;     // Timeout duration in milliseconds.
     bool            m_repeating;   // Flag indicating if the timer is repeating.

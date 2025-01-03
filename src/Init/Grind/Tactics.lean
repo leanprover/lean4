@@ -28,6 +28,8 @@ structure Config where
   gen : Nat := 5
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
+  /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
+  matchEqs : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

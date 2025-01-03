@@ -6,10 +6,26 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.LitValues
+import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
+
+/--
+If `Config.matchEqs` is set to `true`, and `f` is `match`-auxiliary function,
+adds its equations to `newThms`.
+-/
+private def addMatchEqns (f : Expr) : GoalM Unit := do
+  if !(← getConfig).matchEqs then return ()
+  let .const declName _ := f | return ()
+  if !(← isMatcher declName) then return ()
+  if (← get).matchEqNames.contains declName then return ()
+  modify fun s => { s with matchEqNames := s.matchEqNames.insert declName }
+  for eqn in (← Match.getEquationsFor declName).eqnNames do
+    let thm ← mkEMatchEqTheorem eqn
+    modify fun s => { s with newThms := s.newThms.push thm }
 
 /-- Adds `e` to congruence table. -/
 def addCongrTable (e : Expr) : GoalM Unit := do
@@ -95,6 +111,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
+      addMatchEqns f
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance

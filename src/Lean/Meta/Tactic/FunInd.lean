@@ -355,8 +355,8 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
       pure <| .mdata m (← foldAndCollect oldIH newIH isRecCall b)
 
     -- These projections can be type changing (to And), so re-infer their type arguments
-    | .proj ``PProd 0 e => mkPProdFst (← foldAndCollect oldIH newIH isRecCall e)
-    | .proj ``PProd 1 e => mkPProdSnd (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 0 e => mkPProdFstM (← foldAndCollect oldIH newIH isRecCall e)
+    | .proj ``PProd 1 e => mkPProdSndM (← foldAndCollect oldIH newIH isRecCall e)
 
     | .proj t i e =>
       pure <| .proj t i (← foldAndCollect oldIH newIH isRecCall e)
@@ -651,9 +651,9 @@ def abstractIndependentMVars (mvars : Array MVarId) (index : Nat) (e : Expr) : M
       let (_, mvar) ← mvar.revert fvarIds
       pure mvar
   trace[Meta.FunInd] "abstractIndependentMVars, reverted mvars: {mvars}"
-  let decls := mvars.mapIdx fun i mvar =>
-    (.mkSimple s!"case{i+1}", (fun _ => mvar.getType))
-  Meta.withLocalDeclsD decls fun xs => do
+  let names := Array.ofFn (n := mvars.size) fun ⟨i,_⟩ => .mkSimple s!"case{i+1}"
+  let types ← mvars.mapM MVarId.getType
+  Meta.withLocalDeclsDND (names.zip types) fun xs => do
       for mvar in mvars, x in xs do
         mvar.assign x
       mkLambdaFVars xs (← instantiateMVars e)
@@ -760,7 +760,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
         let value := mkAppN value xs
-        let value ← PProdN.proj names.size idx value
+        let value ← PProdN.projM names.size idx value
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
@@ -876,12 +876,6 @@ def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): Met
   let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
   projectMutualInduct eqnInfo.declNames unpackedInductName
 
-def stripPProdProjs (e : Expr) : Expr :=
-  match e with
-  | .proj ``PProd _ e' => stripPProdProjs e'
-  | .proj ``And _ e' => stripPProdProjs e'
-  | e => e
-
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size
   go 0 #[]
@@ -910,11 +904,11 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       -- The body is of the form (brecOn … ).2.2.1 extra1 extra2 etc; ignore the
       -- projection here
       let f' := body.getAppFn
-      let body' := stripPProdProjs f'
+      let body' := PProdN.stripProjs f'
       let f := body'.getAppFn
       let args := body'.getAppArgs ++ body.getAppArgs
 
-      let body := stripPProdProjs body
+      let body := PProdN.stripProjs body
       let .const brecOnName us := f |
         throwError "{infos[0]!.name}: unexpected body:{indentExpr infos[0]!.value}"
       unless isBRecOnRecursor (← getEnv) brecOnName do
@@ -980,11 +974,9 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
             mkForallFVars ys (.sort levelZero)
         let motiveArities ← infos.mapM fun info => do
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
-        let motiveDecls ← motiveTypes.mapIdxM fun i motiveType => do
-          let n := if infos.size = 1 then .mkSimple "motive"
-                                     else .mkSimple s!"motive_{i+1}"
-          pure (n, fun _ => pure motiveType)
-        withLocalDeclsD motiveDecls fun motives => do
+        let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
+          if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
+        withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
 
           -- Prepare the `isRecCall` that recognizes recursive calls
           let fns := infos.map fun info =>
@@ -1051,7 +1043,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
                 let e := mkAppN e packedMotives
                 let e := mkAppN e indicesMajor
                 let e := mkAppN e minors'
-                let e ← PProdN.proj pos.size packIdx e
+                let e ← PProdN.projM pos.size packIdx e
                 let e := mkAppN e rest
                 let e ← mkLambdaFVars ys e
                 trace[Meta.FunInd] "assembled call for {info.name}: {e}"
@@ -1112,15 +1104,11 @@ def isFunInductName (env : Environment) (name : Name) : Bool := Id.run do
   match s with
   | "induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
-      unless eqnInfo.hasInduct do
-        return false
       return true
     if (Structural.eqnInfoExt.find? env p).isSome then return true
     return false
   | "mutual_induct" =>
     if let some eqnInfo := WF.eqnInfoExt.find? env p then
-      unless eqnInfo.hasInduct do
-        return false
       if h : eqnInfo.declNames.size > 1 then
         return eqnInfo.declNames[0] = p
     if let some eqnInfo := Structural.eqnInfoExt.find? env p then

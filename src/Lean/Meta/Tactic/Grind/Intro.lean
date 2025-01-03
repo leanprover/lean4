@@ -68,7 +68,7 @@ private def isCasesCandidate (type : Expr) : MetaM Bool := do
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
   if (← isCasesCandidate (← fvarId.getType)) then
-    let mvarIds ← cases goal.mvarId fvarId
+    let mvarIds ← cases goal.mvarId (mkFVar fvarId)
     return mvarIds.map fun mvarId => { goal with mvarId }
   else
     return none

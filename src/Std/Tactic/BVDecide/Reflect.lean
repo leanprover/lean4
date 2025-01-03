@@ -156,7 +156,7 @@ theorem or_congr (lhs rhs lhs' rhs' : Bool) (h1 : lhs' = lhs) (h2 : rhs' = rhs) 
 
 theorem cond_congr (discr lhs rhs discr' lhs' rhs' : Bool) (h1 : discr' = discr) (h2 : lhs' = lhs)
     (h3 : rhs' = rhs) :
-    (bif discr' = true then lhs' else rhs') = (bif discr = true then lhs else rhs) := by
+    (bif discr' then lhs' else rhs') = (bif discr then lhs else rhs) := by
   simp[*]
 
 theorem false_of_eq_true_of_eq_false (h₁ : x = true) (h₂ : x = false) : False := by

@@ -56,17 +56,47 @@ structure EMatchTheorem where
   origin      : Origin
   deriving Inhabited
 
-/-- The key is a symbol from `EMatchTheorem.symbols`. -/
-abbrev EMatchTheorems := PHashMap Name (List EMatchTheorem)
+/-- Set of E-matching theorems. -/
+structure EMatchTheorems where
+  /-- The key is a symbol from `EMatchTheorem.symbols`. -/
+  private map : PHashMap Name (List EMatchTheorem) := {}
+  /-- Set of theorem names that have been inserted using `insert`. -/
+  private thmNames : PHashSet Name := {}
+  deriving Inhabited
 
+/--
+Inserts a `thm` with symbols `[s_1, ..., s_n]` to `s`.
+We add `s_1 -> { thm with symbols := [s_2, ..., s_n] }`.
+When `grind` internalizes a term containing symbol `s`, we
+process all theorems `thm` associated with key `s`.
+If their `thm.symbols` is empty, we say they are activated.
+Otherwise, we reinsert into `map`.
+-/
 def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchTheorems := Id.run do
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  if let some thms := s.find? declName then
-    return PersistentHashMap.insert s declName (thm::thms)
+  let { map, thmNames } := s
+  let thmNames := thmNames.insert thm.origin.key
+  if let some thms := map.find? declName then
+    return { map := map.insert declName (thm::thms), thmNames }
   else
-    return PersistentHashMap.insert s declName [thm]
+    return { map := map.insert declName [thm], thmNames }
+
+/--
+Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
+The theorems are removed from `s`.
+-/
+@[inline]
+def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EMatchTheorem × EMatchTheorems) :=
+  if let some thms := s.map.find? sym then
+    some (thms, { s with map := s.map.erase sym })
+  else
+    none
+
+/-- Returns `true` if `declName` is the name of a theorem that was inserted using `insert`. -/
+def EMatchTheorems.containsTheoremName (s : EMatchTheorems) (declName : Name) : Bool :=
+  s.thmNames.contains declName
 
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
@@ -85,7 +115,7 @@ def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr
 private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
   registerSimpleScopedEnvExtension {
     addEntry := EMatchTheorems.insert
-    initial  := .empty
+    initial  := {}
   }
 
 -- TODO: create attribute?

@@ -51,8 +51,8 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
     return mkAppN f (← args.mapM (internalizePattern · generation))
 
 private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some thms := (← get).thmMap.find? fName then
-    modify fun s => { s with thmMap := s.thmMap.erase fName }
+  if let some (thms, thmMap) := (← get).thmMap.retrieve? fName then
+    modify fun s => { s with thmMap }
     let appMap := (← get).appMap
     for thm in thms do
       let symbols := thm.symbols.filter fun sym => !appMap.contains sym

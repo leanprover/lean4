@@ -199,9 +199,35 @@ theorem filter_val [BEq α] [Hashable α] {m : Raw₀ α β} {f : (a : α) → �
     m.val.filter f = m.filter f := by
   simp [Raw.filter, m.2]
 
+theorem insertMany_eq [BEq α] [Hashable α] {m : Raw α β} (h : m.WF) {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+    m.insertMany l = Raw₀.insertMany ⟨m, h.size_buckets_pos⟩ l := by
+  simp [Raw.insertMany, h.size_buckets_pos]
+
+theorem insertMany_val [BEq α][Hashable α] {m : Raw₀ α β} {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] {l : ρ} :
+    m.val.insertMany l = m.insertMany l := by
+  simp [Raw.insertMany, m.2]
+
 section
 
 variable {β : Type v}
+
+theorem Const.insertMany_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {ρ : Type w} [ForIn Id ρ (α × β)] {l : ρ} :
+    Raw.Const.insertMany m l = Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l := by
+  simp [Raw.Const.insertMany, h.size_buckets_pos]
+
+theorem Const.insertMany_val [BEq α][Hashable α] {m : Raw₀ α (fun _ => β)} {ρ : Type w} [ForIn Id ρ (α × β)] {l : ρ} :
+    Raw.Const.insertMany m.val l = Raw₀.Const.insertMany m l := by
+  simp [Raw.Const.insertMany, m.2]
+
+theorem Const.insertManyIfNewUnit_eq {ρ : Type w} [ForIn Id ρ α] [BEq α] [Hashable α]
+    {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF):
+    Raw.Const.insertManyIfNewUnit m l = Raw₀.Const.insertManyIfNewUnit ⟨m, h.size_buckets_pos⟩ l := by
+  simp [Raw.Const.insertManyIfNewUnit, h.size_buckets_pos]
+
+theorem Const.insertManyIfNewUnit_val {ρ : Type w} [ForIn Id ρ α] [BEq α] [Hashable α]
+    {m : Raw₀ α (fun _ => Unit)} {l : ρ} :
+    Raw.Const.insertManyIfNewUnit m.val l = Raw₀.Const.insertManyIfNewUnit m l := by
+  simp [Raw.Const.insertManyIfNewUnit, m.2]
 
 theorem Const.get?_eq [BEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {a : α} :
     Raw.Const.get? m a = Raw₀.Const.get? ⟨m, h.size_buckets_pos⟩ a := by

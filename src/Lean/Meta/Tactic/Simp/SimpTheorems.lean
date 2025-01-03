@@ -548,12 +548,12 @@ def SimpTheorems.add (s : SimpTheorems) (id : Origin) (levelParams : Array Name)
 
 abbrev SimpTheoremsArray := Array SimpTheorems
 
-def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (id : Origin) (h : Expr) (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheoremsArray :=
+def SimpTheoremsArray.addTheorem (thmsArray : SimpTheoremsArray) (id : Origin) (h : Expr) (prio : Nat := eval_prio default) (config : ConfigWithKey := simpGlobalConfig) : MetaM SimpTheoremsArray :=
   if thmsArray.isEmpty then
     let thms : SimpTheorems := {}
-    return #[ (← thms.add id #[] h (config := config)) ]
+    return #[ (← thms.add id #[] h (prio := prio) (config := config)) ]
   else
-    thmsArray.modifyM 0 fun thms => thms.add id #[] h (config := config)
+    thmsArray.modifyM 0 fun thms => thms.add id #[] h (prio := prio) (config := config)
 
 def SimpTheoremsArray.eraseTheorem (thmsArray : SimpTheoremsArray) (thmId : Origin) : SimpTheoremsArray :=
   thmsArray.map fun thms => thms.eraseCore thmId

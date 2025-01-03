@@ -222,6 +222,44 @@ def rewriteRulesPass (maxSteps : Nat) : Pass where
     return newGoal
 
 /--
+Responsible for applying short-circuit optimizations for `*`, e.g.,
+translating `x1 * y == x2 * y` to `!(!x1 == x2 && !x1 * y == x2 * y)`.
+-/
+def shortCircuitPass (maxSteps : Nat) : Pass where
+  name := `shortCircuitPass
+  run goal := do
+    let mut theorems : SimpTheoremsArray := #[]
+
+    let cl : Expr := mkConst ``mul_beq_mul_short_circuit_left
+    let ol : Lean.Meta.Origin := Lean.Meta.Origin.decl `mul_beq_mul_short_circuit_left
+    theorems ← theorems.addTheorem ol cl
+
+    let cr : Expr := mkConst ``mul_beq_mul_short_circuit_right
+    let or : Lean.Meta.Origin := Lean.Meta.Origin.decl `mul_beq_mul_short_circuit_right
+    theorems ← theorems.addTheorem or cr
+
+    let cr : Expr := mkConst ``mul_mul_beq_mul_mul_short_circuit_left
+    let or : Lean.Meta.Origin := Lean.Meta.Origin.decl `mul_mul_beq_mul_mul_short_circuit_left
+    theorems ← theorems.addTheorem or cr (eval_prio high)
+
+    let cr : Expr := mkConst ``mul_mul_beq_mul_mul_short_circuit_mid
+    let or : Lean.Meta.Origin := Lean.Meta.Origin.decl `mul_mul_beq_mul_mul_short_circuit_mid
+    theorems ← theorems.addTheorem or cr (eval_prio high)
+
+    let simpCtx ← Simp.mkContext
+      (config := { failIfUnchanged := false, zetaDelta := true, singlePass := true, maxSteps })
+      (simpTheorems := theorems)
+      (congrTheorems := (← getSimpCongrTheorems))
+
+    let hyps ← goal.getNondepPropHyps
+    let ⟨result?, _⟩ ← simpGoal goal
+      (ctx := simpCtx)
+      (simprocs := #[])
+      (fvarIdsToSimp := hyps)
+    let some (_, newGoal) := result? | return none
+    return newGoal
+
+/--
 Flatten out ands. That is look for hypotheses of the form `h : (x && y) = true` and replace them
 with `h.left : x = true` and `h.right : y = true`. This can enable more fine grained substitutions
 in embedded constraint substitution.
@@ -359,7 +397,8 @@ def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := d
     -- Contradiction proof
     let some g ← g.falseOrByContra | return none
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
-    Pass.fixpointPipeline (Pass.passPipeline cfg) g
+    let some g ← Pass.fixpointPipeline (Pass.passPipeline cfg) g | return none
+    (Pass.shortCircuitPass cfg.maxSteps).run g
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

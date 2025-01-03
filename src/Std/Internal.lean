@@ -5,6 +5,7 @@ Authors: Henrik Böving
 -/
 prelude
 import Std.Internal.Parsec
+import Std.Internal.UV
 
 /-!
 This directory is used for components of the standard library that are either considered

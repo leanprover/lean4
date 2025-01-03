@@ -142,4 +142,12 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
   if (← isEqv a b) then
     pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkHEqProof a b)
 
+/-- Propagates `ite` upwards -/
+builtin_grind_propagator propagateIte ↑ite := fun e => do
+  let_expr f@ite α c h a b := e | return ()
+  if (← isEqTrue c) then
+    pushEq e a <| mkApp6 (mkConst ``ite_cond_eq_true f.constLevels!) α c h a b (← mkEqTrueProof c)
+  else if (← isEqFalse c) then
+    pushEq e b <| mkApp6 (mkConst ``ite_cond_eq_false f.constLevels!) α c h a b (← mkEqFalseProof c)
+
 end Lean.Meta.Grind

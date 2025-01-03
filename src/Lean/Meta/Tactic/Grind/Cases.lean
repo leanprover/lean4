@@ -46,12 +46,16 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
       mvarIdsNew := mvarIdsNew.push mvarIdNew
     mvarId.assign recursor
     return mvarIdsNew.toList
-  if recursorInfo.numIndices > 0 || !e.isFVar then
+  if recursorInfo.numIndices > 0 then
     let s ← generalizeIndices' mvarId e
     s.mvarId.withContext do
       k s.mvarId s.fvarId s.indicesFVarIds
+  else if let .fvar fvarId := e then
+    k mvarId fvarId #[]
   else
-    k mvarId e.fvarId! #[]
+    let mvarId ← mvarId.assert (← mkFreshUserName `x) type e
+    let (fvarId, mvarId) ← mvarId.intro1
+    mvarId.withContext do k mvarId fvarId #[]
 where
   throwInductiveExpected {α} (type : Expr) : MetaM α := do
     throwTacticEx `grind.cases mvarId m!"(non-recursive) inductive type expected at {e}{indentExpr type}"

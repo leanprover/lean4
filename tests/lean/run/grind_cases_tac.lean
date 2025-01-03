@@ -30,3 +30,14 @@ example (v : Vec Nat n) (h : f v ≠ false) : False := by
   cases' (Vec.cons 10 v)
   next => trace_state; sorry
   next => trace_state; sorry
+
+/--
+info: ⊢ False → False
+---
+info: ⊢ True → False
+-/
+#guard_msgs (info) in
+example : False := by
+  cases' (Or.inr (a := False) True.intro)
+  next => trace_state; sorry
+  next => trace_state; sorry

@@ -338,13 +338,13 @@ partial_fixpoint
 
 
 /--
-error: Could not prove 'Tree.rev'' to be monotone in its recursive calls:
-  Cannot eliminate recursive call `Tree.rev' my_name` enclosed in
-    id my_name.rev'
+error: Could not prove 'Tree.rev_bad' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `Tree.rev_bad my_name` enclosed in
+    id my_name.rev_bad
 -/
 #guard_msgs in
-def Tree.rev' (t : Tree) : Option Tree := do
-  Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev' my_name)))
+def Tree.rev_bad (t : Tree) : Option Tree := do
+  Tree.mk (← t.cs.reverse.mapM (fun my_name => id (Tree.rev_bad my_name)))
 partial_fixpoint
 
 /--

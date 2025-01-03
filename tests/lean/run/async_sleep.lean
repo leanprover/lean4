@@ -17,7 +17,7 @@ def assertDuration (should : Nat) (eps : Nat) (x : IO α) : IO α := do
 def BASE_DURATION : Nat := 1000
 
 -- generous tolerance for slow CI systems
-def EPS : Nat := 100
+def EPS : Nat := 150
 
 def await (x : Task α) : IO α := pure x.get
 

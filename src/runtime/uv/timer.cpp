@@ -26,6 +26,8 @@ void lean_uv_timer_finalizer(void* ptr) {
     });
 
     event_loop_unlock(&global_ev);
+
+    free(timer);
 }
 
 void initialize_libuv_timer() {

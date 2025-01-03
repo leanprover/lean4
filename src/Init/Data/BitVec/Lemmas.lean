@@ -3217,6 +3217,88 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   by_cases h' : w = 0 <;> simp [h'] <;> omega
 
+@[simp]
+theorem replicate_append_replicate_eq {w n : Nat} {x : BitVec w} (h : w * (n + m) = w * n + w * m := by omega) :
+    x.replicate n ++ x.replicate m = (x.replicate (n + m)).cast h := by
+  apply BitVec.eq_of_getLsbD_eq
+  simp only [getLsbD_cast, getLsbD_replicate, getLsbD_append, getLsbD_replicate]
+  intros i
+  by_cases h₀ : i < w * m <;> by_cases h₁ : i < w * (n + m)
+  · simp only [h₀, decide_true, Bool.true_and, cond_true, h₁]
+  · rw [Nat.mul_add] at h₁
+    simp only [h₀, decide_true, Bool.true_and, cond_true, Bool.iff_and_self, decide_eq_true_eq]
+    omega
+  · have h₂ : i ≥ w * m := by omega
+    simp only [h₀, decide_false, Bool.false_and, show i - w * m < w * n by omega, decide_true,
+      Bool.true_and, cond_false, h₁]
+    congr 1
+    rw [Nat.sub_mul_mod (by omega)]
+  · simp only [h₀, decide_false, Bool.false_and, cond_false, h₁, Bool.and_eq_false_imp,
+    decide_eq_true_eq]
+    omega
+
+theorem mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n) :
+    (w * n - 1 - i) % w = w - 1 - i % w := by
+  induction n
+  case zero => omega
+  case succ n ih =>
+    simp_all only [Nat.mul_add, Nat.mul_one, Nat.zero_lt_succ]
+    by_cases h : i < w * n
+    · simp only [show w * n + w - 1 - i = w + (w * n - 1 - i) by omega, Nat.add_mod_left]
+      rw [ih (by omega)]
+      suffices ¬ n = 0 by omega
+      intros hcontra
+      subst hcontra
+      simp at h
+    · rw [Nat.mod_eq_of_lt]
+      · have := Nat.mod_add_div i w
+        have hiw : i / w = n := by
+          apply Nat.div_eq_of_lt_le
+          · rw [Nat.mul_comm]
+            omega
+          · rw [Nat.add_mul]
+            simp only [Nat.one_mul]
+            rw [Nat.mul_comm]
+            omega
+        rw [hiw] at this
+        conv =>
+          lhs
+          rw [← this]
+        omega
+      · omega
+
+@[simp]
+theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
+    (x.replicate n).getMsbD i
+    = (decide (i < w * n) && x.getMsbD (i % w)) := by
+  simp only [getMsbD_eq_getLsbD, getLsbD_replicate]
+  cases w
+  case zero => simp
+  case succ w =>
+  cases n
+  case zero => simp
+  case succ n =>
+  simp only [gt_iff_lt, show 0 < w + 1 by omega, Nat.mod_lt (x := i), decide_true,
+    Nat.add_one_sub_one, Bool.true_and]
+  by_cases hwn : i < (w + 1) * (n + 1)
+  · simp only [hwn, decide_true, show (w + 1) * (n + 1) - 1 - i < (w + 1) * (n + 1) by omega,
+    Bool.true_and]
+    congr 1
+    rw [mod_sub_eq_sub_mod (w := w + 1) (by omega) (by omega)]
+    simp [Nat.mod_eq_of_lt]
+  · simp [hwn]
+
+@[simp]
+theorem msb_replicate {n w : Nat} (x : BitVec w) :
+    (x.replicate n).msb =
+    (decide (0 < n) && x.msb) := by
+  simp [BitVec.msb, getMsbD_replicate]
+  by_cases hn : 0 < n <;> by_cases hw : 0 < w
+  · simp [hn, hw]
+  · simp [show w = 0 by omega]
+  · simp [hn, hw]
+  · simp [show w = 0 by omega, show n = 0 by omega]
+
 /-! ### intMin -/
 
 /-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/

@@ -62,12 +62,12 @@ private def introNext (goal : Goal) : GrindM IntroResult := do
   else
     return .done
 
-private def isCasesCandidate (fvarId : FVarId) : MetaM Bool := do
-  let .const declName _ := (← fvarId.getType).getAppFn | return false
+private def isCasesCandidate (type : Expr) : MetaM Bool := do
+  let .const declName _ := type.getAppFn | return false
   isGrindCasesTarget declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
-  if (← isCasesCandidate fvarId) then
+  if (← isCasesCandidate (← fvarId.getType)) then
     let mvarIds ← cases goal.mvarId fvarId
     return mvarIds.map fun mvarId => { goal with mvarId }
   else
@@ -109,10 +109,17 @@ partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
 def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : GrindM (List Goal) := do
-  -- TODO: check whether `prop` may benefit from `intros` or not. If not, we should avoid the `assert`+`intros` step and use `Grind.add`
-  let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
-  let goal := { goal with mvarId }
-  intros goal generation
+  if (← isCasesCandidate prop) then
+    let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
+    let goal := { goal with mvarId }
+    intros goal generation
+  else
+    let goal ← GoalM.run' goal do
+      let r ← simp prop
+      let prop' := r.expr
+      let proof' ← mkEqMP (← r.getProof) proof
+      add prop' proof' generation
+    if goal.inconsistent then return [] else return [goal]
 
 /-- Asserts next fact in the `goal` fact queue. -/
 def assertNext? (goal : Goal) : GrindM (Option (List Goal)) := do

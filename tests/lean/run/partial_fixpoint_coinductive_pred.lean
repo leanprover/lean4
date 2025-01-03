@@ -34,6 +34,13 @@ def univ (n : Nat) : Prop :=
   univ (n + 1)
 partial_fixpoint
 
+/-
+The following models a coinductive predicate defined as
+```
+coinductive infinite_chain step : α → Prop where
+| intro : ∀ y x, step x = some y → infinite_chain step y → infinite_chain step
+```
+-/
 def infinite_chain {α} (step : α → Option α) (x : α) : Prop :=
   ∃ y, step x = some y ∧ infinite_chain step y
 partial_fixpoint
@@ -42,4 +49,49 @@ theorem infinite_chain.intro {α} (step : α → Option α) (y x : α) :
     step x = some y → infinite_chain step y → infinite_chain step x := by
   intros; unfold infinite_chain; simp [*]
 
--- For a (co)-induction principle we'd need an induction from `partial_fixpoint`
+theorem infinite_chain.coinduct {α} (P : α → Prop) (step : α → Option α)
+  (h : ∀ (x : α), P x → ∃ y, step x = some y ∧ P y) :
+  ∀ x, P x → infinite_chain step x := by
+  apply infinite_chain.fixpoint_induct step
+    (motive := fun i => ∀ (x : α), P x → i x)
+  case adm =>
+    clear h step
+    apply admissible_pi
+    intro a
+    intro c hchain h hPa Q ⟨f, hcf, hfaQ⟩
+    subst Q
+    apply h f hcf hPa
+  case h =>
+    intro ic hPic x hPx
+    obtain ⟨y, hstepx, h⟩ := h x hPx
+    exact ⟨y, hstepx, hPic y h⟩
+
+/--
+Isabelle generates a stronger coinduction theorem from
+```
+coinductive infinite_chain :: "('a ⇒ 'a option) ⇒ 'a ⇒ bool" for step :: "'a ⇒ 'a option" where
+ intro: "infinite_chain step x" if "step x = Some y" and "infinite_chain step y"
+```
+Note the occurrence of `infinite_chain` in the step:
+```
+  Scratch.infinite_chain.coinduct:
+    ?X ?x ⟹
+    (⋀x. ?X x ⟹ ∃xa y. x = xa ∧ ?step xa = Some y ∧ (?X y ∨ infinite_chain ?step y)) ⟹
+    infinite_chain ?step ?x
+```
+We can prove that from the one above.
+-/
+theorem infinite_chain.coinduct_strong {α} (P : α → Prop) (step : α → Option α)
+  (h : ∀ (x : α), P x → ∃ y, step x = some y ∧ (P y ∨ infinite_chain step y)) :
+  ∀ x, P x → infinite_chain step x := by
+  suffices ∀ x, (P x ∨ infinite_chain step x) → infinite_chain step x by
+    intro x hPx
+    exact this x (.inl hPx)
+  apply infinite_chain.coinduct
+  intro x hor
+  cases hor
+  next hPx => exact h _ hPx
+  next hicx =>
+    unfold infinite_chain at hicx
+    obtain ⟨y, hstepx, h⟩ := hicx
+    exact ⟨y, hstepx, .inr h⟩

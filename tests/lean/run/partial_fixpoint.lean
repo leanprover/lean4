@@ -293,9 +293,18 @@ def WrongMonad.ack : (n m : Nat) → Id Nat
 partial_fixpoint
 
 structure Tree where cs : List Tree
+
 def Tree.rev (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.mapM (Tree.rev ·))
 partial_fixpoint
+
+def Tree.rev' (t : Tree) : Option Tree := do
+  let mut cs := []
+  for c in t.cs do
+    cs := (← c.rev') :: cs
+  return Tree.mk cs
+partial_fixpoint
+
 
 
 -- These tests check that the user's variable names are preserved in the goals

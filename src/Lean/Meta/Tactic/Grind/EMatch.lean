@@ -189,10 +189,10 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       unless (← synthesizeInstance mvar type) do
         trace[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
+  let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
-    addNewInstance thm.origin (mkAppN proof mvars) c.gen
+    addNewInstance thm.origin proof c.gen
   else
-    let proof := mkAppN proof mvars
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
       trace[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"

@@ -76,6 +76,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step
+    - [plausible](https://github.com/leanprover-community/plausible)
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
     - [Mathlib](https://github.com/leanprover-community/mathlib4)
       - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Batteries`, `doc-gen4`, `import-graph`
       - Toolchain bump PR notes:

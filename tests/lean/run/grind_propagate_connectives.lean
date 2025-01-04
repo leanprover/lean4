@@ -103,3 +103,6 @@ example (p q r : Prop) : p ∨ (q ↔ r) → ¬r → q → False := by
   grind on_failure do
     Lean.logInfo "hello world"
     fallback
+
+example (a b : Nat) : (a = b) = (b = a) := by
+  grind

@@ -99,6 +99,8 @@ builtin_grind_propagator propagateNotUp ↑Not := fun e => do
   else if (← isEqTrue a) then
     -- a = True → (Not a) = False
     pushEqFalse e <| mkApp2 (mkConst ``Lean.Grind.not_eq_of_eq_true) a (← mkEqTrueProof a)
+  else if (← isEqv e a) then
+    closeGoal <| mkApp2 (mkConst ``Lean.Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
 /--
 Propagates truth values downwards for a negation expression `Not a` based on the truth value of `Not a`.

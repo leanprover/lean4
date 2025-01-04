@@ -1,6 +1,6 @@
 We replace the inductive predicate `List.lt` with an upstreamed version of `List.Lex` from Mathlib.
 (Previously `Lex.lt` was defined in terms of `<`; now it is generalized to take an arbitrary relation.)
-This subtely changes the notion of ordering on `List α`.
+This subtly changes the notion of ordering on `List α`.
 
 `List.lt` was a weaker relation: in particular if `l₁ < l₂`, then
 `a :: l₁ < b :: l₂` may hold according to `List.lt` even if `a` and `b` are merely incomparable

@@ -510,7 +510,7 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     refine (IH₁ H).trans (IH₂ ((p₁.pairwise_iff ?_).1 H))
     exact fun h h₁ h₂ => h h₂ h₁
 
-theorem perm_insertIdx [DecidableEq α] {α} (x : α) (l : List α) {n} (h : n ≤ l.length) :
+theorem perm_insertIdx {α} (x : α) (l : List α) {n} (h : n ≤ l.length) :
     insertIdx n x l ~ x :: l := by
   induction l generalizing n with
   | nil =>

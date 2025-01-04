@@ -100,12 +100,14 @@ def _root_.Lean.MVarId.clearAuxDecls (mvarId : MVarId) : MetaM MVarId := mvarId.
 /--
 In the `grind` tactic, during `Expr` internalization, we don't expect to find `Expr.mdata`.
 This function ensures `Expr.mdata` is not found during internalization.
-Recall that we do not internalize `Expr.forallE` and `Expr.lam` components.
+Recall that we do not internalize `Expr.lam` children.
+Recall that we still have to process `Expr.forallE` because of `ForallProp.lean`.
+Moreover, we may not want to reduce `p → q` to `¬p ∨ q` when `(p q : Prop)`.
 -/
 def eraseIrrelevantMData (e : Expr) : CoreM Expr := do
   let pre (e : Expr) := do
     match e with
-    | .letE .. | .lam .. | .forallE .. => return .done e
+    | .letE .. | .lam .. => return .done e
     | .mdata _ e => return .continue e
     | _ => return .continue e
   Core.transform e (pre := pre)

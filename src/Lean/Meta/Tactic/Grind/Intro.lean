@@ -49,7 +49,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
             -- `p` and `p'` are definitionally equal
             goal.mvarId.assign h
             return .newHyp fvarId { goal with mvarId := mvarIdNew }
-  else if target.isLet || target.isForall then
+  else if target.isLet || target.isForall || target.isLetFun then
     let (fvarId, mvarId) ← goal.mvarId.intro1P
     mvarId.withContext do
       let localDecl ← fvarId.getDecl
@@ -59,8 +59,8 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
         return .newDepHyp { goal with mvarId }
       else
         let goal := { goal with mvarId }
-        if target.isLet then
-          let v := target.letValue!
+        if target.isLet || target.isLetFun then
+          let v := (← fvarId.getDecl).value
           let r ← simp v
           let x ← shareCommon (mkFVar fvarId)
           let goal ← GoalM.run' goal <| addNewEq x r.expr (← r.getProof) generation

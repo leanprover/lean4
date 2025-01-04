@@ -5,8 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.ShareCommon
-import Std.Data.HashSet
-import Std.Data.HashMap
+import Std.Data.HashSet.Basic
+import Std.Data.HashMap.Basic
 import Lean.Data.PersistentHashMap
 import Lean.Data.PersistentHashSet
 

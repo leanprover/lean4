@@ -111,22 +111,13 @@ unsafe def canonImpl (e : Expr) : StateT State MetaM Expr := do
   visit e |>.run' mkPtrMap
 where
   visit (e : Expr) : StateRefT (PtrMap Expr Expr) (StateT State MetaM) Expr := do
-    match e with
-    | .bvar .. => unreachable!
-    -- Recall that `grind` treats `let`, `forall`, and `lambda` as atomic terms.
-    | .letE .. | .forallE .. | .lam ..
-    | .const .. | .lit .. | .mvar .. | .sort .. | .fvar ..
-    -- Recall that the `grind` preprocessor uses the `foldProjs` preprocessing step.
-    | .proj ..
-    -- Recall that the `grind` preprocessor uses the `eraseIrrelevantMData` preprocessing step.
-    | .mdata ..  => return e
-    -- We only visit applications
-    | .app .. =>
-      -- Check whether it is cached
-      if let some r := (← get).find? e then
-        return r
-      e.withApp fun f args => do
-        let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+    unless e.isApp || e.isForall do return e
+    -- Check whether it is cached
+    if let some r := (← get).find? e then
+      return r
+    let e' ← match e with
+      | .app .. => e.withApp fun f args => do
+        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
           let prop := args[0]!
           let prop' ← visit prop
           if let some r := (← getThe State).proofCanon.find? prop' then
@@ -149,12 +140,17 @@ where
               args := args.set! i arg'
               modified := true
           pure <| if modified then mkAppN f args else e
-        modify fun s => s.insert e e'
-        return e'
+      | .forallE _ d b _ =>
+        -- Recall that we have `ForallProp.lean`.
+        let d' ← visit d
+        -- Remark: users may not want to convert `p → q` into `¬p ∨ q`
+        let b' ← if b.hasLooseBVars then pure b else visit b
+        pure <| e.updateForallE! d' b'
+      | _ => unreachable!
+    modify fun s => s.insert e e'
+    return e'
 
-/--
-Canonicalizes nested types, type formers, and instances in `e`.
--/
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
 def canon (e : Expr) : StateT State MetaM Expr :=
   unsafe canonImpl e
 

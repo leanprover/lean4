@@ -140,12 +140,12 @@ where
               args := args.set! i arg'
               modified := true
           pure <| if modified then mkAppN f args else e
-      | .forallE n d b bi =>
+      | .forallE _ d b _ =>
         -- Recall that we have `ForallProp.lean`.
         let d' ← visit d
         -- Remark: users may not want to convert `p → q` into `¬p ∨ q`
         let b' ← if b.hasLooseBVars then pure b else visit b
-        if ptrEq d d' && ptrEq b b' then pure e else pure <| mkForall n bi d b
+        pure <| e.updateForallE! d' b'
       | _ => unreachable!
     modify fun s => s.insert e e'
     return e'

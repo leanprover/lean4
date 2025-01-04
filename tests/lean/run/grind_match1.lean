@@ -25,6 +25,32 @@ info: [grind.assert] (match as, bs with
       []
 -/
 #guard_msgs (info) in
-theorem ex (f : Nat → List Nat) : g as bs = d → bs = [] → a₁ :: f 0 = as → f 0 = a₂ :: f 1 → d = [] := by
+example (f : Nat → List Nat) : g as bs = d → bs = [] → a₁ :: f 0 = as → f 0 = a₂ :: f 1 → d = [] := by
   unfold g
+  grind
+
+
+example : g as bs = d → as = [] → d = bs := by
+  unfold g
+  grind
+
+def f (x : List α) : Bool :=
+  match x with
+  | [] => true
+  | _::_ => false
+
+example : f a = b → a = [] → b = true := by
+  unfold f
+  grind
+
+def f' (x : List Nat) : Bool :=
+  match x with
+  | [] => true
+  | _::_ => false
+
+attribute [simp] f'
+#check f'.match_1.eq_1
+
+example : f' a = b → a = [] → b = true := by
+  unfold f'
   grind

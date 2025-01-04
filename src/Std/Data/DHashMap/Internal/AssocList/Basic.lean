@@ -170,6 +170,21 @@ def erase [BEq α] (a : α) : AssocList α β → AssocList α β
   | cons k v l => bif k == a then l else cons k v (l.erase a)
 
 /-- Internal implementation detail of the hash map -/
+def alter' [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a)) :
+    AssocList α β → AssocList α β × Bool
+  | .nil => match f none with
+    | none => (.nil, false)
+    | some b => (AssocList.cons a b .nil, true)
+  | .cons k v l => if h : k == a then
+      have h' : k = a := eq_of_beq h
+      match f (some (cast (congrArg β h') v)) with
+      | none => (l, False)
+      | some b => (.cons k (cast (congrArg β h'.symm) b) l, True)
+    else
+      let (tail, some?) := (alter' a f l)
+      (AssocList.cons k v tail, some?)
+
+/-- Internal implementation detail of the hash map -/
 @[inline] def filterMap (f : (a : α) → β a → Option (γ a)) :
     AssocList α β → AssocList α γ :=
   go .nil

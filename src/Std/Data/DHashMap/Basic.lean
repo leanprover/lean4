@@ -269,16 +269,8 @@ It is currently implemented in terms of `get?`, `erase`, and `insert`,
 but will later become a primitive operation.
 (It is provided already to help avoid non-linear code.)
 -/
-@[inline] def alter [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
-  match m.get? a with
-  | none =>
-    match f none with
-    | none => m
-    | some b => m.insert a b
-  | some b =>
-    match f (some b) with
-    | none => m.erase a
-    | some b => m.erase a |>.insert a b
+@[inline] def alter {α : Type} {β : α → Type} [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
+  ⟨Raw₀.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.alter₀ m.2⟩
 
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=

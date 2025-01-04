@@ -479,6 +479,10 @@ theorem wfImp_insert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   rw [insert_eq_insertₘ]
   exact wfImp_insertₘ h
 
+theorem wfImp_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
+    (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} : Raw.WFImp (m.alter a f).1 := by
+  sorry
+
 /-! # `containsThenInsert` -/
 
 theorem toListModel_containsThenInsert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
@@ -747,6 +751,7 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   · next h => exact Raw₀.wfImp_getThenInsertIfNew? (by apply h)
   · next h => exact Raw₀.wfImp_filter (by apply h)
   · next h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
+  · next h => exact Raw₀.wfImp_alter (by apply h)
 
 end Raw
 

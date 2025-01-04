@@ -21,7 +21,7 @@ private inductive IntroResult where
   | newLocal (fvarId : FVarId) (goal : Goal)
   deriving Inhabited
 
-private def introNext (goal : Goal) : GrindM IntroResult := do
+private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
     goal.mvarId.withContext do
@@ -58,7 +58,15 @@ private def introNext (goal : Goal) : GrindM IntroResult := do
         let mvarId ← mvarId.assert (← mkFreshUserName localDecl.userName) localDecl.type (mkFVar fvarId)
         return .newDepHyp { goal with mvarId }
       else
-        return .newLocal fvarId { goal with mvarId }
+        let goal := { goal with mvarId }
+        if target.isLet then
+          let v := target.letValue!
+          let r ← simp v
+          let x ← shareCommon (mkFVar fvarId)
+          let goal ← GoalM.run' goal <| addNewEq x r.expr (← r.getProof) generation
+          return .newLocal fvarId goal
+        else
+          return .newLocal fvarId goal
   else
     return .done
 
@@ -84,7 +92,7 @@ partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()
-    match (← introNext goal) with
+    match (← introNext goal generation) with
     | .done =>
       if let some mvarId ← goal.mvarId.byContra? then
         go { goal with mvarId }

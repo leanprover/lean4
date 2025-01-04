@@ -59,6 +59,12 @@ attribute [grind_norm] ite_true ite_false
 @[grind_norm↓] theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by
   by_cases p <;> simp [*]
 
+@[grind_norm] theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
+  by_cases p <;> simp
+
+@[grind_norm] theorem ite_false_true {_ : Decidable p} : (ite p False True) = ¬p := by
+  by_cases p <;> simp
+
 -- Forall
 @[grind_norm↓] theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
 attribute [grind_norm] forall_and

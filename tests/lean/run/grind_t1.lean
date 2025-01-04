@@ -111,3 +111,6 @@ example (foo : Nat → Nat)
   grind
 
 end dite_propagator_test
+
+example (a : Nat) : let x := a + a; y = x → y = a + a := by
+  grind

@@ -47,5 +47,6 @@ builtin_initialize registerTraceClass `grind.debug.proof
 builtin_initialize registerTraceClass `grind.debug.proj
 builtin_initialize registerTraceClass `grind.debug.parent
 builtin_initialize registerTraceClass `grind.debug.final
+builtin_initialize registerTraceClass `grind.debug.forallPropagator
 
 end Lean

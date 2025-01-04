@@ -41,7 +41,8 @@ This is an auxiliary function performed while merging equivalence classes.
 private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParentsAndReset root
   for parent in parents do
-    if (← isCongrRoot parent) then
+    -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
+    if (← pure parent.isApp <&&> isCongrRoot parent) then
       trace[grind.debug.parent] "remove: {parent}"
       modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
   return parents
@@ -52,7 +53,7 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
-    if (← isCongrRoot parent) then
+    if (← pure parent.isApp <&&> isCongrRoot parent) then
       trace[grind.debug.parent] "reinsert: {parent}"
       addCongrTable parent
 

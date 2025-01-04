@@ -108,37 +108,40 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
         return promise;
     };
 
+    auto setup_timer = [create_promise, obj, timer]() {
+        lean_assert(timer->m_promise == NULL);
+        timer->m_promise = create_promise();
+        timer->m_state = TIMER_STATE_RUNNING;
+
+        // The event loop must keep the timer alive for the duration of the run time.
+        lean_inc(obj);
+
+        event_loop_lock(&global_ev);
+
+        int result = uv_timer_start(
+            timer->m_uv_timer,
+            handle_timer_event,
+            timer->m_repeating ? 0 : timer->m_timeout,
+            timer->m_repeating ? timer->m_timeout : 0
+        );
+
+        event_loop_unlock(&global_ev);
+
+        if (result != 0) {
+            lean_dec(obj);
+            std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
+            return io_result_mk_error(err.c_str());
+        } else {
+            lean_inc(timer->m_promise);
+            return lean_io_result_mk_ok(timer->m_promise);
+        }
+    };
+
     if (timer->m_repeating) {
         switch (timer->m_state) {
             case TIMER_STATE_INITIAL:
                 {
-                    lean_assert(timer->m_promise == NULL);
-                    timer->m_promise = create_promise();
-                    timer->m_state = TIMER_STATE_RUNNING;
-
-                    // The event loop must keep the timer alive for the duration of the run time.
-                    lean_inc(obj);
-
-                    event_loop_lock(&global_ev);
-
-                    int result = uv_timer_start(
-                            timer->m_uv_timer,
-                            handle_timer_event,
-                            0,
-                            timer->m_timeout
-                    );
-
-                    event_loop_unlock(&global_ev);
-
-                    if (result != 0) {
-                        lean_dec(obj);
-                        std::string err = std::string("failed to initialize timer: ");
-                        err += uv_strerror(result);
-                        return io_result_mk_error(err.c_str());
-                    } else {
-                        lean_inc(timer->m_promise);
-                        return lean_io_result_mk_ok(timer->m_promise);
-                    }
+                    return setup_timer();
                 }
             case TIMER_STATE_RUNNING:
                 {
@@ -163,32 +166,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
         }
     } else {
         if (timer->m_state == TIMER_STATE_INITIAL) {
-            lean_assert(timer->m_promise == NULL);
-            timer->m_promise = create_promise();
-            timer->m_state = TIMER_STATE_RUNNING;
-
-            // The event loop must keep the timer alive for the duration of the run time.
-            lean_inc(obj);
-
-            event_loop_lock(&global_ev);
-
-            int result = uv_timer_start(
-                timer->m_uv_timer,
-                handle_timer_event,
-                timer->m_timeout,
-                0
-            );
-
-            event_loop_unlock(&global_ev);
-
-            if (result != 0) {
-                lean_dec(obj);
-                std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
-                return io_result_mk_error(err.c_str());
-            } else {
-                lean_inc(timer->m_promise);
-                return lean_io_result_mk_ok(timer->m_promise);
-            }
+            return setup_timer();
         } else {
             lean_assert(timer->m_promise != NULL);
 

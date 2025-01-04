@@ -190,15 +190,22 @@ where
     addEqStep lhs rhs proof isHEq
     processTodo
 
+/-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 def addEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof false
 
+
+/-- Adds a new heterogeneous equality `HEq lhs rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof true
 
-/--
-Adds a new `fact` justified by the given proof and using the given generation.
--/
+/-- Internalizes `lhs` and `rhs`, and then adds equality `lhs = rhs`. -/
+def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
+  internalize lhs generation
+  internalize rhs generation
+  addEq lhs rhs proof
+
+/-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   trace[grind.assert] "{fact}"
   if (← isInconsistent) then return ()

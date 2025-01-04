@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
+import Init.PropLemmas
 import Init.Classical
 import Init.ByCases
 
@@ -64,7 +65,7 @@ attribute [grind_norm] forall_and
 
 -- Exists
 @[grind_norm↓] theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
-attribute [grind_norm] exists_const exists_or
+attribute [grind_norm] exists_const exists_or exists_prop exists_and_left exists_and_right
 
 -- Bool cond
 @[grind_norm] theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = ite c a b := by

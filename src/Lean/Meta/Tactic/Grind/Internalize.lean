@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Util
 import Lean.Meta.LitValues
+import Lean.Meta.Match.MatcherInfo
+import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 
@@ -50,21 +52,36 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
   else pattern.withApp fun f args => do
     return mkAppN f (← args.mapM (internalizePattern · generation))
 
+private partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+  -- Recall that we use the proof as part of the key for a set of instances found so far.
+  -- We don't want to use structural equality when comparing keys.
+  let proof ← shareCommon thm.proof
+  let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
+  trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
+  modify fun s => { s with newThms := s.newThms.push thm }
+
+/--
+If `Config.matchEqs` is set to `true`, and `f` is `match`-auxiliary function,
+adds its equations to `newThms`.
+-/
+private partial def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
+  if !(← getConfig).matchEqs then return ()
+  let .const declName _ := f | return ()
+  if !(← isMatcher declName) then return ()
+  if (← get).matchEqNames.contains declName then return ()
+  modify fun s => { s with matchEqNames := s.matchEqNames.insert declName }
+  for eqn in (← Match.getEquationsFor declName).eqnNames do
+    activateTheorem (← mkEMatchEqTheorem eqn) generation
+
 private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some thms := (← get).thmMap.find? fName then
-    modify fun s => { s with thmMap := s.thmMap.erase fName }
+  if let some (thms, thmMap) := (← get).thmMap.retrieve? fName then
+    modify fun s => { s with thmMap }
     let appMap := (← get).appMap
     for thm in thms do
       let symbols := thm.symbols.filter fun sym => !appMap.contains sym
       let thm := { thm with symbols }
       match symbols with
-      | [] =>
-        -- Recall that we use the proof as part of the key for a set of instances found so far.
-        -- We don't want to use structural equality when comparing keys.
-        let proof ← shareCommon thm.proof
-        let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
-        trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
-        modify fun s => { s with newThms := s.newThms.push thm }
+      | [] => activateTheorem thm generation
       | _ =>
         trace[grind.ematch] "reinsert `{thm.origin.key}`"
         modify fun s => { s with thmMap := s.thmMap.insert thm }
@@ -95,6 +112,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
+      addMatchEqns f generation
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance

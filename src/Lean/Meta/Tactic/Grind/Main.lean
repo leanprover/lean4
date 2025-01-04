@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.DoNotSimp
 
 namespace Lean.Meta.Grind
 
@@ -38,7 +39,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) (fa
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
   let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
+  let simprocs := #[(← addDoNotSimp (← grindNormSimprocExt.getSimprocs))]
   let simp ← Simp.mkContext
     (config := { arith := true })
     (simpTheorems := #[thms])

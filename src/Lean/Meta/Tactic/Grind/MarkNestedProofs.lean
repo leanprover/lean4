@@ -24,30 +24,37 @@ where
       let e' := mkApp2 (mkConst ``Lean.Grind.nestedProof) prop e
       modify fun s => s.insert e e'
       return e'
-    else match e with
-      | .bvar .. => unreachable!
-      -- See comments on `Canon.lean` for why we do not visit these cases.
-      | .letE .. | .forallE .. | .lam ..
-      | .const .. | .lit .. | .mvar .. | .sort .. | .fvar .. => return e
-      | .proj _ _ b => return e.updateProj! (← visit b)
-      | .mdata _ b  => return e.updateMData! (← visit b)
-      -- We only visit applications
-      | .app .. =>
-        -- Check whether it is cached
-        if let some r := (← get).find? e then
-          return r
-        e.withApp fun f args => do
-          let mut modified := false
-          let mut args := args
-          for i in [:args.size] do
-            let arg := args[i]!
-            let arg' ← visit arg
-            unless ptrEq arg arg' do
-              args := args.set! i arg'
-              modified := true
-          let e' := if modified then mkAppN f args else e
-          modify fun s => s.insert e e'
-          return e'
+    -- Remark: we have to process `Expr.proj` since we only
+    -- fold projections later during term internalization
+    unless e.isApp || e.isForall || e.isProj do
+      return e
+    -- Check whether it is cached
+    if let some r := (← get).find? e then
+      return r
+    let e' ← match e with
+      | .app .. => e.withApp fun f args => do
+        let mut modified := false
+        let mut args := args
+        for i in [:args.size] do
+          let arg := args[i]!
+          let arg' ← visit arg
+          unless ptrEq arg arg' do
+            args := args.set! i arg'
+            modified := true
+        if modified then
+          pure <| mkAppN f args
+        else
+          pure e
+      | .proj _ _ b =>
+        pure <| e.updateProj! (← visit b)
+      | .forallE _ d b _ =>
+        -- Recall that we have `ForallProp.lean`.
+        let d' ← visit d
+        let b' ← if b.hasLooseBVars then pure b else visit b
+        pure <| e.updateForallE! d' b'
+      | _ => unreachable!
+    modify fun s => s.insert e e'
+    return e'
 
 /--
 Wrap nested proofs `e` with `Lean.Grind.nestedProof`-applications.

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
+import Lean.Meta.Tactic.Grind.DoNotSimp
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -146,6 +147,15 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         let c := { c with gen := Nat.max gen c.gen }
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
+/-- Helper function for marking parts of `match`-equation theorem as "do-not-simplify" -/
+private partial def annotateMatchEqnType (prop : Expr) : M Expr := do
+  if let .forallE n d b bi := prop then
+    withLocalDecl n bi (← markAsDoNotSimp d) fun x => do
+      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x))
+  else
+    let_expr f@Eq α lhs rhs := prop | return prop
+    return mkApp3 f α (← markAsDoNotSimp lhs) rhs
+
 /--
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
@@ -154,7 +164,9 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
-  let prop ← inferType proof
+  let mut prop ← inferType proof
+  if Match.isMatchEqnTheorem (← getEnv) origin.key then
+    prop ← annotateMatchEqnType prop
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop generation
 
@@ -189,10 +201,10 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       unless (← synthesizeInstance mvar type) do
         trace[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
+  let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
-    addNewInstance thm.origin (mkAppN proof mvars) c.gen
+    addNewInstance thm.origin proof c.gen
   else
-    let proof := mkAppN proof mvars
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
       trace[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"

@@ -56,17 +56,47 @@ structure EMatchTheorem where
   origin      : Origin
   deriving Inhabited
 
-/-- The key is a symbol from `EMatchTheorem.symbols`. -/
-abbrev EMatchTheorems := PHashMap Name (List EMatchTheorem)
+/-- Set of E-matching theorems. -/
+structure EMatchTheorems where
+  /-- The key is a symbol from `EMatchTheorem.symbols`. -/
+  private map : PHashMap Name (List EMatchTheorem) := {}
+  /-- Set of theorem names that have been inserted using `insert`. -/
+  private thmNames : PHashSet Name := {}
+  deriving Inhabited
 
+/--
+Inserts a `thm` with symbols `[s_1, ..., s_n]` to `s`.
+We add `s_1 -> { thm with symbols := [s_2, ..., s_n] }`.
+When `grind` internalizes a term containing symbol `s`, we
+process all theorems `thm` associated with key `s`.
+If their `thm.symbols` is empty, we say they are activated.
+Otherwise, we reinsert into `map`.
+-/
 def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchTheorems := Id.run do
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  if let some thms := s.find? declName then
-    return PersistentHashMap.insert s declName (thm::thms)
+  let { map, thmNames } := s
+  let thmNames := thmNames.insert thm.origin.key
+  if let some thms := map.find? declName then
+    return { map := map.insert declName (thm::thms), thmNames }
   else
-    return PersistentHashMap.insert s declName [thm]
+    return { map := map.insert declName [thm], thmNames }
+
+/--
+Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
+The theorems are removed from `s`.
+-/
+@[inline]
+def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EMatchTheorem × EMatchTheorems) :=
+  if let some thms := s.map.find? sym then
+    some (thms, { s with map := s.map.erase sym })
+  else
+    none
+
+/-- Returns `true` if `declName` is the name of a theorem that was inserted using `insert`. -/
+def EMatchTheorems.containsTheoremName (s : EMatchTheorems) (declName : Name) : Bool :=
+  s.thmNames.contains declName
 
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
@@ -85,7 +115,7 @@ def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr
 private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTheorem EMatchTheorems ←
   registerSimpleScopedEnvExtension {
     addEntry := EMatchTheorems.insert
-    initial  := .empty
+    initial  := {}
   }
 
 -- TODO: create attribute?
@@ -320,8 +350,8 @@ private def checkCoverage (thmProof : Expr) (numParams : Nat) (bvarsFound : Std.
 Given a theorem with proof `proof` and `numParams` parameters, returns a message
 containing the parameters at positions `paramPos`.
 -/
-private def ppParamsAt (proof : Expr) (numParms : Nat) (paramPos : List Nat) : MetaM MessageData := do
-  forallBoundedTelescope (← inferType proof) numParms fun xs _ => do
+private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : MetaM MessageData := do
+  forallBoundedTelescope (← inferType proof) numParams fun xs _ => do
     let mut msg := m!""
     let mut first := true
     for h : i in [:xs.size] do
@@ -331,23 +361,53 @@ private def ppParamsAt (proof : Expr) (numParms : Nat) (paramPos : List Nat) : M
         msg := msg ++ m!"{x} : {← inferType x}"
     addMessageContextFull msg
 
-def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
+/--
+Creates an E-matching theorem for `declName` with `numParams` parameters, and the given set of patterns.
+Pattern variables are represented using de Bruijn indices.
+-/
+def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM EMatchTheorem := do
   let .thmInfo info ← getConstInfo declName
     | throwError "`{declName}` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic"
   let us := info.levelParams.map mkLevelParam
   let proof := mkConst declName us
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
   assert! symbols.all fun s => s matches .const _
-  trace[grind.ematch.pattern] "{declName}: {patterns.map ppPattern}"
+  trace[grind.ematch.pattern] "{MessageData.ofConst proof}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
      throwError "invalid pattern(s) for `{declName}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
-  ematchTheoremsExt.add {
-     proof, patterns, numParams, symbols
-     levelParams := #[]
-     origin      := .decl declName
+  return {
+    proof, patterns, numParams, symbols
+    levelParams := #[]
+    origin      := .decl declName
   }
 
+/--
+Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
+creates an E-matching pattern for it using `addEMatchTheorem n [lhs]`
+-/
+def mkEMatchEqTheorem (declName : Name) : MetaM EMatchTheorem := do
+  let info ← getConstInfo declName
+  let (numParams, patterns) ← forallTelescopeReducing info.type fun xs type => do
+    let_expr Eq _ lhs _ := type | throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
+    return (xs.size, [lhs.abstract xs])
+  mkEMatchTheorem declName numParams patterns
+
+/--
+Adds an E-matching theorem to the environment.
+See `mkEMatchTheorem`.
+-/
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns)
+
+/--
+Adds an E-matching equality theorem to the environment.
+See `mkEMatchEqTheorem`.
+-/
+def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchEqTheorem declName)
+
+/-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 

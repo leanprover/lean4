@@ -379,6 +379,8 @@ structure Goal where
   preInstances : PreInstanceSet := {}
   /-- new facts to be processed. -/
   newFacts     : Std.Queue NewFact := ∅
+  /-- `match` auxiliary functions whose equations have already been created and activated. -/
+  matchEqNames : PHashSet Name := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

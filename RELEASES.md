@@ -107,6 +107,7 @@ For `Prop`, these tactics now suggest the `by_cases` tactic. Example:
 ```
 tactic 'cases' failed, major premise type is not an inductive type
   Prop
+```
 
 * [#6381](https://github.com/leanprover/lean4/pull/6381) fixes a bug in `withTrackingZetaDelta` and
 `withTrackingZetaDeltaSet`. The `MetaM` caches need to be reset. See new
@@ -783,6 +784,7 @@ full structure lvals. Examples of these for structure instance notation:
 structure PosFun where
   f : Nat → Nat
   pos : ∀ n, 0 < f n
+```
 
 - [#6168](https://github.com/leanprover/lean4/pull/6168) extends the "motive is not type correct" error message for the
 rewrite tactic to explain what it means. It also pretty prints the

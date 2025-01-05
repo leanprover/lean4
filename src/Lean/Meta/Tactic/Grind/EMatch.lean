@@ -137,7 +137,8 @@ private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := 
   let mut curr := e
   repeat
     let n ← getENode curr
-    if n.generation <= maxGeneration
+    -- Remark: we use `<` because the instance generation is the maximum term generation + 1
+    if n.generation < maxGeneration
        -- uses heterogeneous equality or is the root of its congruence class
        && (n.heqProofs || n.isCongrRoot)
        && eqvFunctions pFn curr.getAppFn
@@ -155,7 +156,7 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
   let mut curr := e
   repeat
     let n ← getENode curr
-    if n.generation <= maxGeneration then
+    if n.generation < maxGeneration then
       if let some (eArg, k') ← isOffset? curr |>.run then
         if k' < k then
           let c := c.updateGen n.generation
@@ -166,14 +167,14 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
         else if k' > k then
           let eArg' := mkNatAdd eArg (mkNatLit (k' - k))
           let eArg' ← shareCommon (← canon eArg')
-          internalize eArg' n.generation
+          internalize eArg' (n.generation+1)
           if let some c ← matchArg? c pArg eArg' |>.run then
             pushChoice (c.updateGen n.generation)
       else if let some k' ← evalNat curr |>.run then
         if k' >= k then
           let eArg' := mkNatLit (k' - k)
           let eArg' ← shareCommon (← canon eArg')
-          internalize eArg' n.generation
+          internalize eArg' (n.generation+1)
           if let some c ← matchArg? c pArg eArg' |>.run then
             pushChoice (c.updateGen n.generation)
     curr ← getNext curr
@@ -186,7 +187,7 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
   let maxGeneration ← getMaxGeneration
   for app in apps do
     let n ← getENode app
-    if n.generation <= maxGeneration
+    if n.generation < maxGeneration
        && (n.heqProofs || n.isCongrRoot) then
       if let some c ← matchArgs? c p app |>.run then
         let gen := n.generation
@@ -214,7 +215,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
     prop ← annotateMatchEqnType prop
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
-  addTheoremInstance proof prop generation
+  addTheoremInstance proof prop (generation+1)
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -262,17 +263,18 @@ where
     isDefEq x val
 
 /-- Process choice stack until we don't have more choices to be processed. -/
-private partial def processChoices : M Unit := do
-  unless (← get).choiceStack.isEmpty do
+private def processChoices : M Unit := do
+  let maxGeneration ← getMaxGeneration
+  while !(← get).choiceStack.isEmpty do
     checkSystem "ematch"
     if (← checkMaxInstancesExceeded) then return ()
     let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
-    match c.cnstrs with
-    | [] => instantiateTheorem c
-    | .match p e :: cnstrs => processMatch { c with cnstrs } p e
-    | .offset p k e :: cnstrs => processOffset { c with cnstrs } p k e
-    | .continue p :: cnstrs => processContinue { c with cnstrs } p
-    processChoices
+    if c.gen < maxGeneration then
+      match c.cnstrs with
+      | [] => instantiateTheorem c
+      | .match p e :: cnstrs => processMatch { c with cnstrs } p e
+      | .offset p k e :: cnstrs => processOffset { c with cnstrs } p k e
+      | .continue p :: cnstrs => processContinue { c with cnstrs } p
 
 private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   let some apps := (← getThe Goal).appMap.find? p.toHeadIndex
@@ -327,7 +329,7 @@ def ematch : GoalM Unit := do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
-  if (← checkMaxInstancesExceeded) then
+  if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
     return ()
   else
     go (← get).thms (← get).newThms |>.run'
@@ -335,6 +337,7 @@ def ematch : GoalM Unit := do
       thms         := s.thms ++ s.newThms
       newThms      := {}
       gmt          := s.gmt + 1
+      numEmatch    := s.numEmatch + 1
     }
 
 /-- Performs one round of E-matching, and assert new instances. -/

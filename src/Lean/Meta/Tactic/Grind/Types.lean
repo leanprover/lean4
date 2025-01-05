@@ -68,7 +68,7 @@ instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
 /-- State for the `GrindM` monad. -/
-structure CoreState where
+structure State where
   canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
@@ -88,7 +88,7 @@ private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
 instance : Nonempty MethodsRef := MethodsRefPointed.property
 
-abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT CoreState MetaM
+abbrev GrindM := ReaderT MethodsRef $ ReaderT Context $ StateRefT State MetaM
 
 /-- Returns the user-defined configuration options -/
 def getConfig : GrindM Grind.Config :=
@@ -207,7 +207,6 @@ structure ENode where
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
-  -- TODO: see Lean 3 implementation
   deriving Inhabited, Repr
 
 def ENode.isCongrRoot (n : ENode) :=
@@ -375,6 +374,9 @@ structure Goal where
   thmMap       : EMatchTheorems
   /-- Number of theorem instances generated so far -/
   numInstances : Nat := 0
+  /-- Number of E-matching rounds performed in this goal so far. -/
+  -- Remark: it is always equal to `gmt` in the current implementation.
+  numEmatch    : Nat := 0
   /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
   preInstances : PreInstanceSet := {}
   /-- new facts to be processed. -/
@@ -417,6 +419,10 @@ def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM U
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).numInstances >= (← getConfig).instances
+
+/-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
+def checkMaxEmatchExceeded : GoalM Bool := do
+  return (← get).numEmatch >= (← getConfig).ematch
 
 /--
 Returns `some n` if `e` has already been "internalized" into the

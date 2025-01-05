@@ -9,12 +9,16 @@ import Lean.Meta.Tactic.Grind.Types
 namespace Lean.Meta.Grind
 
 private partial def propagateInjEqs (eqs : Expr) (proof : Expr) : GoalM Unit := do
+  -- Remark: we must use `shareCommon` before using `pushEq` and `pushHEq`.
+  -- This is needed because the result type of the injection theorem may allocate
   match_expr eqs with
   | And left right =>
     propagateInjEqs left (.proj ``And 0 proof)
     propagateInjEqs right (.proj ``And 1 proof)
-  | Eq _ lhs rhs    => pushEq lhs rhs proof
-  | HEq _ lhs _ rhs => pushHEq lhs rhs proof
+  | Eq _ lhs rhs    =>
+    pushEq (← shareCommon lhs) (← shareCommon rhs) proof
+  | HEq _ lhs _ rhs =>
+    pushHEq (← shareCommon lhs) (← shareCommon rhs) proof
   | _ =>
    trace[grind.issues] "unexpected injectivity theorem result type{indentExpr eqs}"
    return ()

@@ -112,3 +112,10 @@ grind_pattern hThm1 => plus a c
 /-- info: [grind.ematch.pattern] hThm1: [plus #2 #1, plus #2 #3] -/
 #guard_msgs in
 grind_pattern hThm1 => plus a c, plus a b
+
+/--
+error: invalid pattern, (non-forbidden) application expected
+  #4 ∧ #3
+-/
+#guard_msgs in
+grind_pattern And.imp_left => a ∧ b

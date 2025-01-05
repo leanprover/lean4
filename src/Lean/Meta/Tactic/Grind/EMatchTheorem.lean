@@ -11,6 +11,7 @@ import Lean.Util.FoldConsts
 import Lean.Util.CollectFVars
 import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.Eqns
 import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
@@ -241,7 +242,7 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
     else
       return mkOffsetPattern e k
   let some f := getPatternFn? pattern
-    | throwError "invalid pattern, (non-forbidden) application expected"
+    | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs
@@ -432,7 +433,11 @@ pattern.
 def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) : MetaM EMatchTheorem := do
   let info ← getConstInfo declName
   let (numParams, patterns) ← forallTelescopeReducing info.type fun xs type => do
-    let_expr Eq _ lhs _ := type | throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
+    let lhs ← match_expr type with
+      | Eq _ lhs _ => pure lhs
+      | Iff lhs _ => pure lhs
+      | HEq _ lhs _ _ => pure lhs
+      | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let lhs ← preprocessPattern lhs normalizePattern
     return (xs.size, [lhs.abstract xs])
   mkEMatchTheorem declName numParams patterns
@@ -454,5 +459,29 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
+
+private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  if (← getConstInfo declName).isTheorem then
+    ematchTheoremsExt.add (← mkEMatchEqTheorem declName) attrKind
+  else if let some eqns ← getEqnsFor? declName then
+    for eqn in eqns do
+      ematchTheoremsExt.add (← mkEMatchEqTheorem eqn) attrKind
+  else
+    throwError "`[grind_eq]` attribute can only be applied to equational theorems or function definitions"
+
+builtin_initialize
+  registerBuiltinAttribute {
+    name := `grind_eq
+    descr :=
+      "The `[grind_eq]` attribute is used to annotate equational theorems and functions.\
+      When applied to an equational theorem, it marks the theorem for use in heuristic instantiations by the `grind` tactic.\
+      When applied to a function, it automatically annotates the equational theorems associated with that function.\
+      The `grind` tactic utilizes annotated theorems to add instances of matching patterns into the local context during proof search.\
+      For example, if a theorem `@[grind_eq] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
+      `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
+    applicationTime := .afterCompilation
+    add := fun declName _ attrKind =>
+      addGrindEqAttr declName attrKind |>.run' {}
+  }
 
 end Lean.Meta.Grind

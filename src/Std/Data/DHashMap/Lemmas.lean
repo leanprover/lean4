@@ -1240,7 +1240,7 @@ theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     get? (insertMany m l) k' = v :=
-  Raw₀.Const.get?_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq  mem  distinct
+  Raw₀.Const.get?_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq distinct mem
 
 theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -1253,7 +1253,7 @@ theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) {h'} :
     get (insertMany m l) k' h' = v :=
-  Raw₀.Const.get_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq  mem  distinct
+  Raw₀.Const.get_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq distinct mem
 
 theorem get!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited β]   {l : List (α × β)} {k : α}
@@ -1265,7 +1265,7 @@ theorem get!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} (mem : ⟨k, v⟩ ∈ l)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     get! (insertMany m l) k' = v :=
-  Raw₀.Const.get!_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq  mem  distinct
+  Raw₀.Const.get!_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq distinct mem
 
 theorem getD_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α} {fallback : β}
@@ -1277,7 +1277,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v fallback : β} (mem : ⟨k, v⟩ ∈ l)
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     getD (insertMany m l) k' fallback = v :=
-  Raw₀.Const.getD_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq  mem  distinct
+  Raw₀.Const.getD_insertMany_list_of_mem ⟨m.1, _⟩  m.2 k_beq  distinct mem
 
 variable (m : DHashMap α (fun _ => Unit))
 

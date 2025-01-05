@@ -66,3 +66,30 @@ info: [grind.ematch.instance] fx: f a (f a a) = a
 #guard_msgs (info) in
 example : a = b₁ → c = f b₁ b₂ → f a c ≠ a → a = b₂ → False := by
   grind
+
+
+namespace pattern_normalization
+opaque g : Nat → Nat
+@[grind_norm] theorem gthm : g x = x := sorry
+opaque f : Nat → Nat → Nat
+theorem fthm : f (g x) x = x := sorry
+-- The following pattern should be normalized by `grind`. Otherwise, we will not find any instance during E-matching.
+/--
+info: [grind.ematch.pattern] fthm: [f #0 #0]
+-/
+#guard_msgs (info) in
+grind_pattern fthm => f (g x) x
+
+/--
+info: [grind.assert] f x y = b
+[grind.assert] y = x
+[grind.assert] ¬b = x
+[grind.ematch.instance] fthm: f (g y) y = y
+[grind.assert] f y y = y
+-/
+#guard_msgs (info) in
+set_option trace.grind.assert true in
+example : f (g x) y = b → y = x → b = x := by
+  grind
+
+end pattern_normalization

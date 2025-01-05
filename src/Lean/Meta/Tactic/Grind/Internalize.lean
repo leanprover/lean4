@@ -71,7 +71,8 @@ private partial def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := d
   if (← get).matchEqNames.contains declName then return ()
   modify fun s => { s with matchEqNames := s.matchEqNames.insert declName }
   for eqn in (← Match.getEquationsFor declName).eqnNames do
-    activateTheorem (← mkEMatchEqTheorem eqn) generation
+    -- We disable pattern normalization to prevent the `match`-expression to be reduced.
+    activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
 private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
   if let some (thms, thmMap) := (← get).thmMap.retrieve? fName then

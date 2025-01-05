@@ -37,9 +37,10 @@ def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
   let .lit (.natVal k) := k | none
   return some (pat, k)
 
-def preprocessPattern (pat : Expr) : MetaM Expr := do
+def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← unfoldReducible pat
+  let pat ← if normalizePattern then normalize pat else pure pat
   let pat ← detectOffsets pat
   let pat ← foldProjs pat
   return pat
@@ -424,12 +425,15 @@ def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) :
 /--
 Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
 creates an E-matching pattern for it using `addEMatchTheorem n [lhs]`
+
+If `normalizePattern` is true, it applies the `grind` simplification theorems and simprocs to the
+pattern.
 -/
-def mkEMatchEqTheorem (declName : Name) : MetaM EMatchTheorem := do
+def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) : MetaM EMatchTheorem := do
   let info ← getConstInfo declName
   let (numParams, patterns) ← forallTelescopeReducing info.type fun xs type => do
     let_expr Eq _ lhs _ := type | throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
-    let lhs ← preprocessPattern lhs
+    let lhs ← preprocessPattern lhs normalizePattern
     return (xs.size, [lhs.abstract xs])
   mkEMatchTheorem declName numParams patterns
 

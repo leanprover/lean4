@@ -41,6 +41,7 @@ def preprocessPattern (pat : Expr) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← unfoldReducible pat
   let pat ← detectOffsets pat
+  let pat ← foldProjs pat
   return pat
 
 inductive Origin where

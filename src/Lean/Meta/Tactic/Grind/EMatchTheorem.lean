@@ -241,7 +241,7 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
     else
       return mkOffsetPattern e k
   let some f := getPatternFn? pattern
-    | throwError "invalid pattern, (non-forbidden) application expected"
+    | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs

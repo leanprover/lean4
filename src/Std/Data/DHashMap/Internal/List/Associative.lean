@@ -225,21 +225,6 @@ def containsKey [BEq α] (a : α) : List ((a : α) × β a) → Bool
 @[simp] theorem containsKey_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     containsKey a (⟨k, v⟩ :: l) = (k == a || containsKey a l) := rfl
 
-theorem containsKey_eq_false_iff [BEq α][PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α} :
-    containsKey a l = false ↔ ∀ (b : ((a : α) × β a)), b ∈ l → (a == b.fst) = false := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [containsKey, Bool.or_eq_false_iff, ih, List.mem_cons, forall_eq_or_imp,
-      and_congr_left_iff, Bool.coe_false_iff_false, Bool.not_eq_eq_eq_not, Bool.not_not]
-    intro _
-    rw [Bool.eq_iff_iff]
-    constructor
-    · intro h
-      apply PartialEquivBEq.symm h
-    · intro h
-      apply PartialEquivBEq.symm h
-
 theorem containsKey_cons_eq_false [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     (containsKey a (⟨k, v⟩ :: l) = false) ↔ ((k == a) = false) ∧ (containsKey a l = false) := by
   simp [containsKey_cons, not_or]
@@ -901,7 +886,7 @@ theorem DistinctKeys.nil [BEq α] : DistinctKeys ([] : List ((a : α) × β a)) 
 theorem DistinctKeys.def [BEq α] {l : List ((a : α) × β a)} :
     DistinctKeys l ↔ l.Pairwise (fun a b => (a.1 == b.1) = false) :=
   ⟨fun h => by simpa [keys_eq_map, List.pairwise_map] using h.distinct,
-  fun h => ⟨by simpa [keys_eq_map, List.pairwise_map] using h⟩⟩
+   fun h => ⟨by simpa [keys_eq_map, List.pairwise_map] using h⟩⟩
 
 open List
 
@@ -937,6 +922,10 @@ theorem containsKey_eq_false_iff_forall_mem_keys [BEq α] [PartialEquivBEq α]
     {l : List ((a : α) × β a)} {a : α} :
     (containsKey a l) = false ↔ ∀ a' ∈ keys l, (a == a') = false := by
   simp only [Bool.eq_false_iff, ne_eq, containsKey_iff_exists, not_exists, not_and]
+
+theorem containsKey_eq_false_iff [BEq α][PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α} :
+    containsKey a l = false ↔ ∀ (b : ((a : α) × β a)), b ∈ l → (a == b.fst) = false := by
+  simp [containsKey_eq_false_iff_forall_mem_keys, keys_eq_map]
 
 @[simp]
 theorem distinctKeys_cons_iff [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {k : α}
@@ -1003,7 +992,6 @@ theorem getEntry?_of_mem [BEq α] [PartialEquivBEq α]
     · rw [getEntry?_cons_of_true hk]
     · rw [getEntry?_cons_of_false, ih hl.tail hkv]
       exact BEq.neq_of_neq_of_beq (containsKey_eq_false_iff.1 hl.containsKey_eq_false _ hkv) hk
-
 
 /-- Internal implementation detail of the hash map -/
 def insertEntry [BEq α]  (k : α) (v : β k) (l : List ((a : α) × β a)) : List ((a : α) × β a) :=

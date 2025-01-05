@@ -359,6 +359,7 @@ def Const.insertListIfNewUnitₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => 
   match l with
   | .nil => m
   | .cons hd tl => insertListIfNewUnitₘ (m.insertIfNew hd ()) tl
+
 end
 
 /-! # Equivalence between model functions and real implementations -/

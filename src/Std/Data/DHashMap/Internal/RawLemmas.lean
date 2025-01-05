@@ -859,6 +859,7 @@ theorem insertMany_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
   | nil => simp [insertListₘ]
   | cons hd tl => simp [insertListₘ]
 
+@[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((a : α) × β a)} {k : α} :
     (m.insertMany l).1.contains k = (m.contains k || (l.map Sigma.fst).contains k) := by
@@ -994,6 +995,7 @@ theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     (m.insertMany l).1.1.size ≤ m.1.size + l.length := by
   simp_to_model using length_insertList_le
 
+@[simp]
 theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List ((a : α) × β a)} :
     (m.insertMany l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
@@ -1020,6 +1022,7 @@ theorem insertMany_cons {l : List (α × β)} {k : α} {v : β} :
   | nil => simp [insertListₘ]
   | cons hd tl => simp [insertListₘ]
 
+@[simp]
 theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} {k : α} :
     (Const.insertMany m l).1.contains k = (m.contains k || (l.map Prod.fst).contains k) := by
@@ -1101,6 +1104,7 @@ theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     (insertMany m l).1.1.size ≤ m.1.size + l.length := by
   simp_to_model using length_insertListConst_le
 
+@[simp]
 theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List (α × β)} :
     (insertMany m l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by
@@ -1174,6 +1178,7 @@ theorem insertManyIfNewUnit_cons {l : List α} {k : α} :
   | nil => simp [insertListIfNewUnitₘ]
   | cons hd tl => simp [insertListIfNewUnitₘ]
 
+@[simp]
 theorem contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List α} {k : α} :
     (insertManyIfNewUnit m l).1.contains k = (m.contains k || l.contains k) := by
@@ -1276,6 +1281,7 @@ theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : 
     (insertManyIfNewUnit m l).1.1.size ≤ m.1.size + l.length := by
   simp_to_model using length_insertListIfNewUnit_le
 
+@[simp]
 theorem isEmpty_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {l : List α} :
     (insertManyIfNewUnit m l).1.1.isEmpty = (m.1.isEmpty && l.isEmpty) := by

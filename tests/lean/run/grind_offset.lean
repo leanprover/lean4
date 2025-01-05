@@ -85,3 +85,49 @@ info: [grind.assert] foo (c + 1) = a
 example : foo (c + 1) = a → c = b + 1 → a = g (foo b) := by
   fail_if_success grind
   sorry
+
+set_option trace.grind.assert false
+
+/--
+info: [grind.ematch.instance] f.eq_2: f (x + 99).succ = g (f (x + 99))
+[grind.ematch.instance] f.eq_2: f (x + 98).succ = g (f (x + 98))
+-/
+#guard_msgs (info) in
+example : f (x + 100) = a → a = b := by
+  fail_if_success grind (ematch := 2)
+  sorry
+
+/--
+info: [grind.ematch.instance] f.eq_2: f (x + 99).succ = g (f (x + 99))
+[grind.ematch.instance] f.eq_2: f (x + 98).succ = g (f (x + 98))
+[grind.ematch.instance] f.eq_2: f (x + 97).succ = g (f (x + 97))
+[grind.ematch.instance] f.eq_2: f (x + 96).succ = g (f (x + 96))
+[grind.ematch.instance] f.eq_2: f (x + 95).succ = g (f (x + 95))
+-/
+#guard_msgs (info) in
+example : f (x + 100) = a → a = b := by
+  fail_if_success grind (ematch := 5)
+  sorry
+
+/--
+info: [grind.ematch.instance] f.eq_2: f (x + 99).succ = g (f (x + 99))
+[grind.ematch.instance] f.eq_2: f (x + 98).succ = g (f (x + 98))
+[grind.ematch.instance] f.eq_2: f (x + 97).succ = g (f (x + 97))
+[grind.ematch.instance] f.eq_2: f (x + 96).succ = g (f (x + 96))
+-/
+#guard_msgs (info) in
+example : f (x + 100) = a → a = b := by
+  fail_if_success grind (ematch := 100) (instances := 4)
+  sorry
+
+/--
+info: [grind.ematch.instance] f.eq_2: f (y + 9).succ = g (f (y + 9))
+[grind.ematch.instance] f.eq_2: f (x + 99).succ = g (f (x + 99))
+[grind.ematch.instance] f.eq_2: f (x + 98).succ = g (f (x + 98))
+[grind.ematch.instance] f.eq_2: f (y + 8).succ = g (f (y + 8))
+[grind.ematch.instance] f.eq_2: f (y + 7).succ = g (f (y + 7))
+-/
+#guard_msgs (info) in
+example : f (x + 100) = a → f (y + 10) = c → a = b := by
+  fail_if_success grind (ematch := 100) (instances := 5)
+  sorry

@@ -327,7 +327,7 @@ def ematch : GoalM Unit := do
   let go (thms newThms : PArray EMatchTheorem) : EMatch.M Unit := do
     withReader (fun ctx => { ctx with useMT := true }) <| ematchTheorems thms
     withReader (fun ctx => { ctx with useMT := false }) <| ematchTheorems newThms
-  if (← checkMaxInstancesExceeded) then
+  if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
     return ()
   else
     go (← get).thms (← get).newThms |>.run'
@@ -335,6 +335,7 @@ def ematch : GoalM Unit := do
       thms         := s.thms ++ s.newThms
       newThms      := {}
       gmt          := s.gmt + 1
+      numEmatch    := s.numEmatch + 1
     }
 
 /-- Performs one round of E-matching, and assert new instances. -/

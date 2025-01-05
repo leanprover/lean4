@@ -1670,7 +1670,7 @@ theorem getKeyD_insertManyIfNewUnit_empty_list_of_contains_eq_false [EquivBEq α
 theorem getKeyD_insertManyIfNewUnit_empty_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    {mem : k ∈ l } :
+    (mem : k ∈ l) :
     getKeyD (insertManyIfNewUnit (empty : Raw₀ α (fun _ => Unit)) l).1 k' fallback = k := by
   simp [getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false _ Raw.WF.empty₀ k_beq
     distinct mem contains_empty]

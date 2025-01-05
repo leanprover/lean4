@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
@@ -44,7 +45,7 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) (fa
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
   let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← getGrindSimprocs)]
+  let simprocs := #[(← getGrindSimprocs), (← Simp.getSEvalSimprocs)]
   let simp ← Simp.mkContext
     (config := { arith := true })
     (simpTheorems := #[thms])

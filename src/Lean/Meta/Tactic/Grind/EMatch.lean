@@ -16,6 +16,8 @@ namespace EMatch
 inductive Cnstr where
   | /-- Matches pattern `pat` with term `e` -/
     «match» (pat : Expr) (e : Expr)
+  | /-- Matches offset pattern `pat+k` with term `e` -/
+    offset (pat : Expr) (k : Nat) (e : Expr)
   | /-- This constraint is used to encode multi-patterns. -/
     «continue» (pat : Expr)
   deriving Inhabited
@@ -88,6 +90,28 @@ private def eqvFunctions (pFn eFn : Expr) : Bool :=
   (pFn.isFVar && pFn == eFn)
   || (pFn.isConst && eFn.isConstOf pFn.constName!)
 
+/-- Matches a pattern argument. See `matchArgs?`. -/
+private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM Choice := do
+  if isPatternDontCare pArg then
+    return c
+  else if pArg.isBVar then
+    assign? c pArg.bvarIdx! eArg
+  else if let some pArg := groundPattern? pArg then
+    guard (← isEqv pArg eArg)
+    return c
+  else if let some (pArg, k) := isOffsetPattern? pArg then
+    assert! Option.isNone <| isOffsetPattern? pArg
+    assert! !isPatternDontCare pArg
+    return { c with cnstrs := .offset pArg k eArg :: c.cnstrs }
+  else
+    return { c with cnstrs := .match pArg eArg :: c.cnstrs }
+
+private def Choice.updateGen (c : Choice) (gen : Nat) : Choice :=
+  { c with gen := Nat.max gen c.gen }
+
+private def pushChoice (c : Choice) : M Unit :=
+  modify fun s => { s with choiceStack := c :: s.choiceStack }
+
 /--
 Matches arguments of pattern `p` with term `e`. Returns `some` if successful,
 and `none` otherwise. It may update `c`s assignment and list of contraints to be
@@ -97,16 +121,8 @@ private partial def matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT Goal
   if !p.isApp then return c -- Done
   let pArg := p.appArg!
   let eArg := e.appArg!
-  let goFn c := matchArgs? c p.appFn! e.appFn!
-  if isPatternDontCare pArg then
-    goFn c
-  else if pArg.isBVar then
-    goFn (← assign? c pArg.bvarIdx! eArg)
-  else if let some pArg := groundPattern? pArg then
-    guard (← isEqv pArg eArg)
-    goFn c
-  else
-    goFn { c with cnstrs := .match pArg eArg :: c.cnstrs }
+  let c ← matchArg? c pArg eArg
+  matchArgs? c p.appFn! e.appFn!
 
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
@@ -127,9 +143,32 @@ private partial def processMatch (c : Choice) (p : Expr) (e : Expr) : M Unit := 
        && eqvFunctions pFn curr.getAppFn
        && curr.getAppNumArgs == numArgs then
       if let some c ← matchArgs? c p curr |>.run then
-        let gen := n.generation
-        let c := { c with gen := Nat.max gen c.gen }
-        modify fun s => { s with choiceStack := c :: s.choiceStack }
+        pushChoice (c.updateGen n.generation)
+    curr ← getNext curr
+    if isSameExpr curr e then break
+
+/--
+Matches offset pattern `pArg+k` with term `e` with respect to choice `c`.
+-/
+private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr) : M Unit := do
+  let maxGeneration ← getMaxGeneration
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    if n.generation <= maxGeneration then
+      if let some (eArg, k') ← isOffset? curr |>.run then
+        if k' < k && k' > 0 then
+          let c := c.updateGen n.generation
+          pushChoice { c with cnstrs := .offset pArg (k - k') eArg :: c.cnstrs }
+        else if k' == k then
+          if let some c ← matchArg? c pArg eArg |>.run then
+            pushChoice (c.updateGen n.generation)
+        else if k' > k then
+          let eArg' := mkNatAdd eArg (mkNatLit (k' - k))
+          let eArg' ← shareCommon (← canon eArg')
+          internalize eArg' n.generation
+          if let some c ← matchArg? c pArg eArg' |>.run then
+            pushChoice (c.updateGen n.generation)
     curr ← getNext curr
     if isSameExpr curr e then break
 
@@ -224,6 +263,7 @@ private partial def processChoices : M Unit := do
     match c.cnstrs with
     | [] => instantiateTheorem c
     | .match p e :: cnstrs => processMatch { c with cnstrs } p e
+    | .offset p k e :: cnstrs => processOffset { c with cnstrs } p k e
     | .continue p :: cnstrs => processContinue { c with cnstrs } p
     processChoices
 

@@ -42,7 +42,7 @@ If:
 @[inline]
 def wait (s : Sleep) : IO (AsyncTask Unit) := do
   let promise ← s.native.next
-  return .ofPromise promise
+  return .ofPurePromise promise
 
 /--
 If:
@@ -108,7 +108,7 @@ If:
 @[inline]
 def tick (i : Interval) : IO (AsyncTask Unit) := do
   let promise ← i.native.next
-  return .ofPromise promise
+  return .ofPurePromise promise
 
 /--
 If:

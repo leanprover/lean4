@@ -90,7 +90,14 @@ def block (x : AsyncTask α) : IO α := do
 Create an `AsyncTask` that resolves to the value of `x`.
 -/
 @[inline]
-def ofPromise (x : IO.Promise α) : AsyncTask α :=
+def ofPromise (x : IO.Promise (Except IO.Error α)) : AsyncTask α :=
+  x.result
+
+/--
+Create an `AsyncTask` that resolves to the value of `x`.
+-/
+@[inline]
+def ofPurePromise (x : IO.Promise α) : AsyncTask α :=
   x.result.map pure
 
 /--

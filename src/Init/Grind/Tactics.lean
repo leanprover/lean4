@@ -6,6 +6,16 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
+namespace Lean.Parser.Attr
+
+syntax grindEq  := "="
+syntax grindBwd := "←"
+syntax grindFwd := "→"
+
+syntax (name := grind) "grind" (grindEq <|> grindBwd <|> grindFwd)? : attr
+
+end Lean.Parser.Attr
+
 namespace Lean.Grind
 /--
 The configuration for `grind`.

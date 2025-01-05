@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Util
+import Init.Grind.Tactics
 import Lean.HeadIndex
 import Lean.PrettyPrinter
 import Lean.Util.FoldConsts
@@ -460,6 +461,19 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
+private inductive TheoremKind where
+  | eq | fwd | bwd | default
+
+private def getKind (stx : Syntax) : TheoremKind :=
+  if stx[1].isNone then
+    .default
+  else if stx[1][0].getKind == ``Parser.Attr.grindEq then
+    .eq
+  else if stx[1][0].getKind == ``Parser.Attr.grindFwd then
+    .fwd
+  else
+    .bwd
+
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName) attrKind
@@ -469,9 +483,21 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) : MetaM 
   else
     throwError "`[grind_eq]` attribute can only be applied to equational theorems or function definitions"
 
+private def addGrindFwdAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  throwError "not implemented yet"
+
+private def addGrindBwdAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  throwError "not implemented yet"
+
+private def addGrindAttr (declName : Name) (attrKind : AttributeKind) : MetaM Unit := do
+  if !(← getConstInfo declName).isTheorem then
+    addGrindEqAttr declName attrKind
+  else
+    throwError "not implemented yet"
+
 builtin_initialize
   registerBuiltinAttribute {
-    name := `grind_eq
+    name := `grind
     descr :=
       "The `[grind_eq]` attribute is used to annotate equational theorems and functions.\
       When applied to an equational theorem, it marks the theorem for use in heuristic instantiations by the `grind` tactic.\
@@ -480,8 +506,12 @@ builtin_initialize
       For example, if a theorem `@[grind_eq] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
-    add := fun declName _ attrKind =>
-      addGrindEqAttr declName attrKind |>.run' {}
+    add := fun declName stx attrKind => do
+      match getKind stx with
+      | .eq      => addGrindEqAttr declName attrKind |>.run' {}
+      | .fwd     => addGrindFwdAttr declName attrKind |>.run' {}
+      | .bwd     => addGrindBwdAttr declName attrKind |>.run' {}
+      | .default => addGrindAttr declName attrKind |>.run' {}
   }
 
 end Lean.Meta.Grind

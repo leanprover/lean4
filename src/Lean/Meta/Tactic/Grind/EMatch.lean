@@ -157,7 +157,7 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
     let n ← getENode curr
     if n.generation <= maxGeneration then
       if let some (eArg, k') ← isOffset? curr |>.run then
-        if k' < k && k' > 0 then
+        if k' < k then
           let c := c.updateGen n.generation
           pushChoice { c with cnstrs := .offset pArg (k - k') eArg :: c.cnstrs }
         else if k' == k then
@@ -165,6 +165,13 @@ private partial def processOffset (c : Choice) (pArg : Expr) (k : Nat) (e : Expr
             pushChoice (c.updateGen n.generation)
         else if k' > k then
           let eArg' := mkNatAdd eArg (mkNatLit (k' - k))
+          let eArg' ← shareCommon (← canon eArg')
+          internalize eArg' n.generation
+          if let some c ← matchArg? c pArg eArg' |>.run then
+            pushChoice (c.updateGen n.generation)
+      else if let some k' ← evalNat curr |>.run then
+        if k' >= k then
+          let eArg' := mkNatLit (k' - k)
           let eArg' ← shareCommon (← canon eArg')
           internalize eArg' n.generation
           if let some c ← matchArg? c pArg eArg' |>.run then

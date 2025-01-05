@@ -4,14 +4,44 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.HeadIndex
 import Lean.PrettyPrinter
 import Lean.Util.FoldConsts
 import Lean.Util.CollectFVars
 import Lean.Meta.Basic
 import Lean.Meta.InferType
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind
+
+def mkOffsetPattern (pat : Expr) (k : Nat) : Expr :=
+  mkApp2 (mkConst ``Grind.offset) pat (mkRawNatLit k)
+
+private def detectOffsets (pat : Expr) : MetaM Expr := do
+  let pre (e : Expr) := do
+    if e == pat then
+      -- We only consider nested offset patterns
+      return .continue e
+    else match e with
+      | .letE .. | .lam .. | .forallE .. => return .done e
+      | _ =>
+        let some (e, k) ← isOffset? e
+          | return .continue e
+        if k == 0 then return .continue e
+        return .continue <| mkOffsetPattern e k
+  Core.transform pat (pre := pre)
+
+def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
+  let_expr Grind.offset pat k := pat | none
+  let .lit (.natVal k) := k | none
+  return some (pat, k)
+
+def preprocessPattern (pat : Expr) : MetaM Expr := do
+  let pat ← instantiateMVars pat
+  let pat ← unfoldReducible pat
+  let pat ← detectOffsets pat
+  return pat
 
 inductive Origin where
   /-- A global declaration in the environment. -/
@@ -202,6 +232,12 @@ private def getPatternFunMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) :=
 private partial def go (pattern : Expr) (root := false) : M Expr := do
   if root && !pattern.hasLooseBVars then
     throwError "invalid pattern, it does not have pattern variables"
+  if let some (e, k) := isOffsetPattern? pattern then
+    let e ← goArg e (isSupport := false)
+    if e == dontCare then
+      return dontCare
+    else
+      return mkOffsetPattern e k
   let some f := getPatternFn? pattern
     | throwError "invalid pattern, (non-forbidden) application expected"
   assert! f.isConst || f.isFVar
@@ -211,7 +247,11 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
   for i in [:args.size] do
     let arg := args[i]!
     let isSupport := supportMask[i]?.getD false
-    let arg ← if !arg.hasLooseBVars then
+    args := args.set! i (← goArg arg isSupport)
+  return mkAppN f args
+where
+  goArg (arg : Expr) (isSupport : Bool) : M Expr := do
+    if !arg.hasLooseBVars then
       if arg.hasMVar then
         pure dontCare
       else
@@ -230,8 +270,6 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
           go arg
         else
           pure dontCare
-    args := args.set! i arg
-  return mkAppN f args
 
 def main (patterns : List Expr) : MetaM (List Expr × List HeadIndex × Std.HashSet Nat) := do
   let (patterns, s) ← patterns.mapM go |>.run {}
@@ -390,6 +428,7 @@ def mkEMatchEqTheorem (declName : Name) : MetaM EMatchTheorem := do
   let info ← getConstInfo declName
   let (numParams, patterns) ← forallTelescopeReducing info.type fun xs type => do
     let_expr Eq _ lhs _ := type | throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
+    let lhs ← preprocessPattern lhs
     return (xs.size, [lhs.abstract xs])
   mkEMatchTheorem declName numParams patterns
 

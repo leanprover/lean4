@@ -26,8 +26,10 @@ def elabGrindPattern : CommandElab := fun stx => do
       let info ← getConstInfo declName
       forallTelescope info.type fun xs _ => do
         let patterns ← terms.getElems.mapM fun term => do
-          let pattern ← instantiateMVars (← elabTerm term none)
-          let pattern ← Grind.unfoldReducible pattern
+          let pattern ← elabTerm term none
+          synthesizeSyntheticMVarsUsingDefault
+          let pattern ← instantiateMVars pattern
+          let pattern ← Grind.preprocessPattern pattern
           return pattern.abstract xs
         Grind.addEMatchTheorem declName xs.size patterns.toList
   | _ => throwUnsupportedSyntax

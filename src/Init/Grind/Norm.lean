@@ -114,4 +114,7 @@ attribute [grind_norm] Nat.le_zero_eq
 -- GT GE
 attribute [grind_norm] GT.gt GE.ge
 
+-- Succ
+attribute [grind_norm] Nat.succ_eq_add_one
+
 end Lean.Grind

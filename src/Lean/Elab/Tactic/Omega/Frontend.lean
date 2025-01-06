@@ -680,7 +680,7 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
-the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
+the tactic call `aesop (add 50% tactic Lean.Elab.Tactic.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]

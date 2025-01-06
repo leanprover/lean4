@@ -31,6 +31,10 @@ def addCongrTable (e : Expr) : GoalM Unit := do
   else
     modify fun s => { s with congrTable := s.congrTable.insert { e } }
 
+/--
+Given an application `e` of the form `f a_1 ... a_n`,
+adds entry `f ↦ e` to `appMap`. Recall that `appMap` is a multi-map.
+-/
 private def updateAppMap (e : Expr) : GoalM Unit := do
   let key := e.toHeadIndex
   modify fun s => { s with
@@ -39,6 +43,29 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
     else
       s.appMap.insert key [e]
   }
+
+/-- Inserts `e` into the list of case-split candidates. -/
+private def addSplitCandidate (e : Expr) : GoalM Unit := do
+  trace[grind.split.candidate] "{e}"
+  modify fun s => { s with splitCadidates := e :: s.splitCadidates }
+
+-- TODO: add attribute to make this extensible
+private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
+
+/-- Inserts `e` into the list of case-split candidates if applicable. -/
+private def checkAndaddSplitCandidate (e : Expr) : GoalM Unit := do
+  unless e.isApp do return ()
+  if e.isIte || e.isDIte then
+    addSplitCandidate e
+  else if (← isMatcherApp e) then
+    addSplitCandidate e
+  else
+    let .const declName _  := e.getAppFn | return ()
+    if forbiddenSplitTypes.contains declName then return ()
+    -- We should have a mechanism for letting users to select types to case-split.
+    -- Right now, we just consider inductive predicates that are not in the forbidden list
+    if (← isInductivePredicate declName) then
+      addSplitCandidate e
 
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
@@ -116,6 +143,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
+      checkAndaddSplitCandidate e
       addMatchEqns f generation
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of

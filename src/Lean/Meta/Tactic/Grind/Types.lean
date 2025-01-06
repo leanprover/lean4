@@ -374,8 +374,7 @@ structure Goal where
   thmMap       : EMatchTheorems
   /-- Number of theorem instances generated so far -/
   numInstances : Nat := 0
-  /-- Number of E-matching rounds performed in this goal so far. -/
-  -- Remark: it is always equal to `gmt` in the current implementation.
+  /-- Number of E-matching rounds performed in this goal since the last case-split. -/
   numEmatch    : Nat := 0
   /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
   preInstances : PreInstanceSet := {}
@@ -383,6 +382,12 @@ structure Goal where
   newFacts     : Std.Queue NewFact := ∅
   /-- `match` auxiliary functions whose equations have already been created and activated. -/
   matchEqNames : PHashSet Name := {}
+  /-- Case-split candidates. -/
+  splitCadidates : List Expr := []
+  /-- Number of splits performed to get to this goal. -/
+  numSplits : Nat := 0
+  /-- Case-splits that have already been performed or not needed anymore. -/
+  splitted : PHashSet ENodeKey := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -419,6 +424,10 @@ def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM U
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).numInstances >= (← getConfig).instances
+
+/-- Returns `true` if the maximum number of case-splits has been reached. -/
+def checkMaxCaseSplist : GoalM Bool := do
+  return (← get).numSplits >= (← getConfig).splits
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
 def checkMaxEmatchExceeded : GoalM Bool := do

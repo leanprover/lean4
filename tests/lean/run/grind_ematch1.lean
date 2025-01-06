@@ -1,5 +1,6 @@
 set_option trace.grind.ematch.pattern true
-grind_pattern Array.size_set => Array.set a i v h
+
+attribute [grind_eq] Array.size_set
 
 set_option grind.debug true
 
@@ -21,12 +22,10 @@ example (as bs : Array α) (v : α)
 
 set_option trace.grind.ematch.instance true
 
-grind_pattern Array.get_set_eq  => a.set i v h
-grind_pattern Array.get_set_ne => (a.set i v hi)[j]
+attribute [grind_eq] Array.get_set_ne
 
 /--
-info: [grind.ematch.instance] Array.get_set_eq: (as.set i v ⋯)[i] = v
-[grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
+info: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size
 [grind.ematch.instance] Array.get_set_ne: ∀ (hj : j < as.size), i ≠ j → (as.set i v ⋯)[j] = as[j]
 -/
 #guard_msgs (info) in

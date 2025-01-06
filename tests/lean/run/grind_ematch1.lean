@@ -214,3 +214,6 @@ info: [grind.ematch.pattern] fq: [f #0]
 theorem fq : f x = g x (g x x) := sorry
 
 end using_grind_lhs_rhs
+
+-- the following should still work
+#check _=_

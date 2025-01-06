@@ -20,7 +20,7 @@ grind_pattern List.mem_concat_self => a ∈ xs ++ [a]
 def foo (x : Nat) := x + x
 
 /--
-error: `foo` is not a theorem, you cannot assign patterns to non-theorems for the `grind` tactic
+error: `foo` is not a theorem
 -/
 #guard_msgs in
 grind_pattern foo => x + x

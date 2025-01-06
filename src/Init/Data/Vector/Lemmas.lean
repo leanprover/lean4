@@ -66,6 +66,18 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem back?_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).back? = a.back? := rfl
 
+@[simp] theorem foldlM_mk [Monad m] (f : β → α → m β) (b : β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).foldlM f b = a.foldlM f b := rfl
+
+@[simp] theorem foldrM_mk [Monad m] (f : α → β → m β) (b : β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).foldrM f b = a.foldrM f b := rfl
+
+@[simp] theorem foldl_mk (f : β → α → β) (b : β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).foldl f b = a.foldl f b := rfl
+
+@[simp] theorem foldr_mk (f : α → β → β) (b : β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).foldr f b = a.foldr f b := rfl
+
 @[simp] theorem drop_mk (a : Array α) (h : a.size = n) (m) :
     (Vector.mk a h).drop m = Vector.mk (a.extract m a.size) (by simp [h]) := rfl
 
@@ -1025,6 +1037,13 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
+/-! ### map -/
+
+@[simp] theorem getElem_map (f : α → β) (a : Vector α n) (i : Nat) (hi : i < n) :
+    (a.map f)[i] = f a[i] := by
+  cases a
+  simp
+
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]
@@ -1088,13 +1107,6 @@ theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : 
   cases a
   simp
 
-/-! ### map -/
-
-@[simp] theorem getElem_map (f : α → β) (a : Vector α n) (i : Nat) (hi : i < n) :
-    (a.map f)[i] = f a[i] := by
-  cases a
-  simp
-
 /-! ### zipWith -/
 
 @[simp] theorem getElem_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) (i : Nat)
@@ -1102,6 +1114,37 @@ theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : 
   cases a
   cases b
   simp
+
+/-! ### foldlM and foldrM -/
+
+@[simp] theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l : Vector α n) (l' : Vector α n') :
+    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
+  cases l
+  cases l'
+  simp
+
+@[simp] theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (l : Vector α n) (a : α) :
+    (l.push a).foldrM f init = f a init >>= l.foldrM f := by
+  cases l
+  simp
+
+theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Vector α n) :
+    l.foldl f b = l.foldlM (m := Id) f b := by
+  cases l
+  simp [Array.foldl_eq_foldlM]
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Vector α n) :
+    l.foldr f b = l.foldrM (m := Id) f b := by
+  cases l
+  simp [Array.foldr_eq_foldrM]
+
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Vector α n) :
+    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Vector α n) :
+    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+
+/-! ### foldl and foldr -/
 
 /-! ### take -/
 

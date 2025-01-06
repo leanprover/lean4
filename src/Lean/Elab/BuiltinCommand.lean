@@ -148,10 +148,11 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 
 open Lean.Parser.Term
 
-private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × Bool)
-  | `(bracketedBinderF|($ids*)) => some (ids, true)
-  | `(bracketedBinderF|{$ids*}) => some (ids, false)
-  | _                          => none
+private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × BinderInfo)
+  | `(bracketedBinderF|($ids*)) => some (ids, .default)
+  | `(bracketedBinderF|{$ids*}) => some (ids, .implicit)
+  | `(bracketedBinderF|⦃$ids*⦄)  => some (ids, .strictImplicit)
+  | _                           => none
 
 /--  If `id` is an identifier, return true if `ids` contains `id`. -/
 private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id : TSyntax [`ident, ``Parser.Term.hole]) : Bool :=
@@ -169,7 +170,7 @@ private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id 
   The second `variable` command updates the binder annotation for `α`, and returns "residue" `γ`.
 -/
 private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBinder) : CommandElabM (Array (TSyntax ``Parser.Term.bracketedBinder)) := do
-  let some (binderIds, explicit) := typelessBinder? binder | return #[binder]
+  let some (binderIds, binderInfo) := typelessBinder? binder | return #[binder]
   let varDecls := (← getScope).varDecls
   let mut varDeclsNew := #[]
   let mut binderIds := binderIds
@@ -177,23 +178,22 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
   let mut modifiedVarDecls := false
   -- Go through declarations in reverse to respect shadowing
   for varDecl in varDecls.reverse do
-    let (ids, ty?, explicit') ← match varDecl with
+    let (ids, ty?, binderInfo') ← match varDecl with
       | `(bracketedBinderF|($ids* $[: $ty?]? $(annot?)?)) =>
         if annot?.isSome then
           for binderId in binderIds do
             if containsId ids binderId then
               throwErrorAt binderId "cannot update binder annotation of variables with default values/tactics"
-        pure (ids, ty?, true)
+        pure (ids, ty?, .default)
       | `(bracketedBinderF|{$ids* $[: $ty?]?}) =>
-        pure (ids, ty?, false)
-      | `(bracketedBinderF|[$id : $_]) =>
-        for binderId in binderIds do
-          if binderId.raw.isIdent && binderId.raw.getId == id.getId then
-            throwErrorAt binderId "cannot change the binder annotation of the previously declared local instance `{id.getId}`"
-        varDeclsNew := varDeclsNew.push varDecl; continue
+        pure (ids, ty?, .implicit)
+      | `(bracketedBinderF|⦃$ids* $[: $ty?]?⦄) =>
+        pure (ids, ty?, .strictImplicit)
+      | `(bracketedBinderF|[$id : $ty]) =>
+        pure (#[⟨id⟩], some ty, .instImplicit)
       | _ =>
         varDeclsNew := varDeclsNew.push varDecl; continue
-    if explicit == explicit' then
+    if binderInfo == binderInfo' then
       -- no update, ensure we don't have redundant annotations.
       for binderId in binderIds do
         if containsId ids binderId then
@@ -203,26 +203,30 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
       -- `binderIds` and `ids` are disjoint
       varDeclsNew := varDeclsNew.push varDecl
     else
-      let mkBinder (id : TSyntax [`ident, ``Parser.Term.hole]) (explicit : Bool) : CommandElabM (TSyntax ``Parser.Term.bracketedBinder) :=
-        if explicit then
-          `(bracketedBinderF| ($id $[: $ty?]?))
-        else
-          `(bracketedBinderF| {$id $[: $ty?]?})
+      let mkBinder (id : TSyntax [`ident, ``Parser.Term.hole]) (binderInfo : BinderInfo) : CommandElabM (TSyntax ``Parser.Term.bracketedBinder) :=
+        match binderInfo with
+        | .default => `(bracketedBinderF| ($id $[: $ty?]?))
+        | .implicit => `(bracketedBinderF| {$id $[: $ty?]?})
+        | .strictImplicit => `(bracketedBinderF| {{$id $[: $ty?]?}})
+        | .instImplicit => do
+          let some ty := ty? | throwErrorAt id "instance-implicit binders must provide an explicit type"
+          `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
         if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
-          varDeclsNew := varDeclsNew.push (← mkBinder id explicit)
+          varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo)
         else
-          varDeclsNew := varDeclsNew.push (← mkBinder id explicit')
+          varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo')
   if modifiedVarDecls then
     modifyScope fun scope => { scope with varDecls := varDeclsNew.reverse }
   if binderIds.size != binderIdsIniSize then
     binderIds.mapM fun binderId =>
-      if explicit then
-        `(bracketedBinderF| ($binderId))
-      else
-        `(bracketedBinderF| {$binderId})
+      match binderInfo with
+        | .default => `(bracketedBinderF| ($binderId))
+        | .implicit => `(bracketedBinderF| {$binderId})
+        | .strictImplicit => `(bracketedBinderF| {{$binderId}})
+        | .instImplicit => throwErrorAt binderId "instance-implicit binders must provide an explicit type"
   else
     return #[binder]
 

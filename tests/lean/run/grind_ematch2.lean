@@ -1,4 +1,4 @@
-attribute [grind_eq] Array.size_set Array.get_set_eq Array.get_set_ne
+attribute [grind =] Array.size_set Array.get_set_eq Array.get_set_ne
 
 set_option grind.debug true
 set_option trace.grind.ematch.pattern true
@@ -55,7 +55,7 @@ example (as bs cs ds : Array α) (v₁ v₂ v₃ : α)
   grind
 
 opaque f (a b : α) : α := a
-@[grind_eq] theorem fx : f x (f x x) = x := sorry
+@[grind =] theorem fx : f x (f x x) = x := sorry
 
 /--
 info: [grind.ematch.instance] fx: f a (f a a) = a

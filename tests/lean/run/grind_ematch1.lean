@@ -1,6 +1,6 @@
 set_option trace.grind.ematch.pattern true
 
-attribute [grind_eq] Array.size_set
+attribute [grind =] Array.size_set
 
 set_option grind.debug true
 
@@ -22,7 +22,7 @@ example (as bs : Array α) (v : α)
 
 set_option trace.grind.ematch.instance true
 
-attribute [grind_eq] Array.get_set_ne
+attribute [grind =] Array.get_set_ne
 
 /--
 info: [grind.ematch.instance] Array.size_set: (as.set i v ⋯).size = as.size

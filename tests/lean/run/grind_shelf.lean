@@ -19,7 +19,7 @@ example {S} [UnitalShelf S] (x y : S) : (x ◃ y) ◃ x = x ◃ y := by
   have h : (x ◃ y) ◃ x = (x ◃ y) ◃ (x ◃ 1) := by rw [UnitalShelf.act_one]
   rw [h, ← Shelf.self_distrib, UnitalShelf.act_one]
 
-attribute [grind_eq] UnitalShelf.one_act UnitalShelf.act_one
+attribute [grind =] UnitalShelf.one_act UnitalShelf.act_one
 
 -- We actually want the reverse direction of `Shelf.self_distrib`, so don't use the `grind_eq` attribute.
 grind_pattern Shelf.self_distrib => self.act (self.act x y) (self.act x z)

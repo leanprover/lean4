@@ -7,6 +7,8 @@ def g (xs : List α) (ys : List α) :=
 attribute [simp] g
 
 set_option trace.grind.assert true
+set_option trace.grind.split.candidate true
+set_option trace.grind.split.disabled true
 
 /--
 info: [grind.assert] (match as, bs with
@@ -14,10 +16,18 @@ info: [grind.assert] (match as, bs with
       | head :: head_1 :: tail, [] => []
       | x :: xs, ys => x :: g xs ys) =
       d
+[grind.split.candidate] match as, bs with
+    | [], x => bs
+    | head :: head_1 :: tail, [] => []
+    | x :: xs, ys => x :: g xs ys
 [grind.assert] bs = []
 [grind.assert] a₁ :: f 0 = as
 [grind.assert] f 0 = a₂ :: f 1
 [grind.assert] ¬d = []
+[grind.split.disabled] match as, bs with
+    | [], x => bs
+    | head :: head_1 :: tail, [] => []
+    | x :: xs, ys => x :: g xs ys
 [grind.assert] (match a₁ :: a₂ :: f 1, [] with
       | [], x => bs
       | head :: head_1 :: tail, [] => []

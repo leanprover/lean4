@@ -51,6 +51,8 @@ structure Context where
   useMT : Bool := true
   /-- `EMatchTheorem` being processed. -/
   thm   : EMatchTheorem := default
+  /-- Initial application used to start E-matching -/
+  initApp : Expr := default
   deriving Inhabited
 
 /-- State for the E-matching monad -/
@@ -63,6 +65,9 @@ abbrev M := ReaderT Context $ StateRefT State GoalM
 
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
+
+@[inline] private abbrev withInitApp (e : Expr) (x : M α) : M α :=
+  withReader (fun ctx => { ctx with initApp := e }) x
 
 /--
 Assigns `bidx := e` in `c`. If `bidx` is already assigned in `c`, we check whether
@@ -213,6 +218,8 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
     check proof
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
+    -- `initApp` is a match-application that we don't need to split at anymore.
+    disableCaseSplit (← read).initApp
     prop ← annotateMatchEqnType prop
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
@@ -288,9 +295,10 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
     let n ← getENode app
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
-      if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
-        modify fun s => { s with choiceStack := [c] }
-        processChoices
+      withInitApp app do
+        if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
+          modify fun s => { s with choiceStack := [c] }
+          processChoices
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()

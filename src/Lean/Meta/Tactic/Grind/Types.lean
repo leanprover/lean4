@@ -386,8 +386,8 @@ structure Goal where
   splitCadidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
-  /-- Case-splits that have already been performed or not needed anymore. -/
-  splitted : PHashSet ENodeKey := {}
+  /-- Case-splits that do not have to be performed. -/
+  disabledSplits : PHashSet ENodeKey := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -740,5 +740,15 @@ partial def getEqcs : GoalM (List (List Expr)) := do
     if isSameExpr node.root node.self then
       r := (← getEqc node.self) :: r
   return r
+
+/--
+Mark `e` as a disabled case-split.
+We use this function to mark case-splits that do not need to be performed anymore.
+Remark: we currently use this feature to disable `match`-case-splits
+-/
+def disableCaseSplit (e : Expr) : GoalM Unit := do
+  unless (← get).disabledSplits.contains { expr := e } do
+    trace[grind.split.disabled] "{e}"
+    modify fun s => { s with disabledSplits := s.disabledSplits.insert { expr := e } }
 
 end Lean.Meta.Grind

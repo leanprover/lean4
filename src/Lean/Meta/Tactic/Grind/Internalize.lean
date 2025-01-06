@@ -58,7 +58,12 @@ private def checkAndaddSplitCandidate (e : Expr) : GoalM Unit := do
   if e.isIte || e.isDIte then
     addSplitCandidate e
   else if (← isMatcherApp e) then
-    addSplitCandidate e
+    if let .reduced _ ← reduceMatcher? e then
+      -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
+      -- and consequently don't need to be splitted.
+      return ()
+    else
+      addSplitCandidate e
   else
     let .const declName _  := e.getAppFn | return ()
     if forbiddenSplitTypes.contains declName then return ()

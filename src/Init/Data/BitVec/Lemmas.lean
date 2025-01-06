@@ -3581,9 +3581,7 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
     · simp [show (w * (n + 1) - 1 - i < w * (n + 1)) by omega,
         show i % w < w by simp [Nat.mod_lt (x := i) (y := w) hw]]
       congr
-      let m := (n + 1)
-      have  hn: 0 < n + 1 := by omega
-      rw [Nat.mod_sub_eq_sub_mod (n := n + 1) h hn]
+      rw [Nat.mod_sub_eq_sub_mod (n := n + 1) h (by omega)]
       <;> omega
     · simp [show w = 0 by omega]
 

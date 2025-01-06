@@ -8,11 +8,13 @@ import Init.Tactics
 
 namespace Lean.Parser.Attr
 
-syntax grindEq  := "="
-syntax grindBwd := "←"
-syntax grindFwd := "→"
+syntax grindEq     := "="
+syntax grindEqBoth := "_=_"
+syntax grindEqRhs  := "=_"
+syntax grindBwd    := "←"
+syntax grindFwd    := "→"
 
-syntax (name := grind) "grind" (grindEq <|> grindBwd <|> grindFwd)? : attr
+syntax (name := grind) "grind" (grindEq <|> grindBwd <|> grindFwd <|> grindEqBoth <|> grindEqRhs)? : attr
 
 end Lean.Parser.Attr
 

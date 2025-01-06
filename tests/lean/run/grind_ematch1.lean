@@ -184,3 +184,33 @@ example : P a b → Q a c := by
   grind
 
 end using_grind_mixed
+
+
+namespace using_grind_rhs
+
+opaque f : Nat → Nat
+opaque g : Nat → Nat → Nat
+
+/--
+info: [grind.ematch.pattern] fq: [g #0 (f #0)]
+-/
+#guard_msgs (info) in
+@[grind =_]
+theorem fq : f x = g x (f x) := sorry
+
+end using_grind_rhs
+
+namespace using_grind_lhs_rhs
+
+opaque f : Nat → Nat
+opaque g : Nat → Nat → Nat
+
+/--
+info: [grind.ematch.pattern] fq: [f #0]
+[grind.ematch.pattern] fq: [g #0 (g #0 #0)]
+-/
+#guard_msgs (info) in
+@[grind _=_]
+theorem fq : f x = g x (g x x) := sorry
+
+end using_grind_lhs_rhs

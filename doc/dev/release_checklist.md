@@ -97,6 +97,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
+- Run `scripts/release_checklist.py v4.6.0` to check that everything is in order.
 - The `v4.6.0` section of `RELEASES.md` is out of sync between
   `releases/v4.6.0` and `master`. This should be reconciled:
   - Replace the `v4.6.0` section on `master` with the `v4.6.0` section on `releases/v4.6.0`

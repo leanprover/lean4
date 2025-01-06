@@ -21,9 +21,10 @@ infixr:10 " ⟶ " => Category.Hom
 scoped notation "𝟙" => Category.id  -- type as \b1
 scoped infixr:80 " ≫ " => Category.comp
 
-attribute [simp, grind_eq] Category.id_comp Category.comp_id Category.assoc
+attribute [simp] Category.id_comp Category.comp_id Category.assoc
 
-grind_pattern Category.assoc => f ≫ g ≫ h
+attribute [grind =] Category.id_comp Category.comp_id
+attribute [grind _=_] Category.assoc
 
 structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂ where
   /-- The action of a functor on objects. -/
@@ -35,9 +36,10 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
   /-- A functor preserves composition. -/
   map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by cat_tac
 
-attribute [simp, grind_eq] Functor.map_id Functor.map_comp
+attribute [simp] Functor.map_id Functor.map_comp
 
-grind_pattern Functor.map_comp => self.map f ≫ self.map g
+attribute [grind =] Functor.map_id
+attribute [grind _=_] Functor.map_comp
 
 variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D] {E : Type u₃} [Category.{v₃} E]
 variable {F G H : Functor C D}
@@ -51,8 +53,8 @@ def comp (F : Functor C D) (G : Functor D E) : Functor C E where
 
 variable {X Y : C} {G : Functor D E}
 
-@[simp, grind_eq] theorem comp_obj : (F.comp G).obj X = G.obj (F.obj X) := rfl
-@[simp, grind_eq] theorem comp_map (f : X ⟶ Y) : (F.comp G).map f = G.map (F.map f) := rfl
+@[simp, grind =] theorem comp_obj : (F.comp G).obj X = G.obj (F.obj X) := rfl
+@[simp, grind =] theorem comp_map (f : X ⟶ Y) : (F.comp G).map f = G.map (F.map f) := rfl
 
 end Functor
 
@@ -63,7 +65,7 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The naturality square for a given morphism. -/
   naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by cat_tac
 
-attribute [simp, grind_eq] NatTrans.naturality
+attribute [simp, grind =] NatTrans.naturality
 
 namespace NatTrans
 
@@ -71,7 +73,7 @@ variable {X : C}
 
 protected def id (F : Functor C D) : NatTrans F F where app X := 𝟙 (F.obj X)
 
-@[simp, grind_eq] theorem id_app : (NatTrans.id F).app X = 𝟙 (F.obj X) := rfl
+@[simp, grind =] theorem id_app : (NatTrans.id F).app X = 𝟙 (F.obj X) := rfl
 
 protected def vcomp (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
   app X := α.app X ≫ β.app X
@@ -83,7 +85,7 @@ protected def vcomp (α : NatTrans F G) (β : NatTrans G H) : NatTrans F H where
   -- rw [β.naturality f]
   -- rw [← Category.assoc]
 
-@[simp, grind_eq] theorem vcomp_app (α : NatTrans F G) (β : NatTrans G H) (X : C) :
+@[simp, grind =] theorem vcomp_app (α : NatTrans F G) (β : NatTrans G H) (X : C) :
     (α.vcomp β).app X = α.app X ≫ β.app X := rfl
 
 end NatTrans
@@ -94,14 +96,12 @@ instance Functor.category : Category.{max u₁ v₂} (Functor C D) where
   comp α β := NatTrans.vcomp α β
   -- Here we're okay: all the proofs are handled by `cat_tac`.
 
-@[simp, grind_eq]
+@[simp, grind =]
 theorem id_app (F : Functor C D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
 
-@[simp, grind_eq]
+@[simp, grind _=_]
 theorem comp_app {F G H : Functor C D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
     (α ≫ β).app X = α.app X ≫ β.app X := rfl
-
-grind_pattern comp_app => α.app X ≫ β.app X
 
 theorem app_naturality {F G : Functor C (Functor D E)} (T : F ⟶ G) (X : C) {Y Z : D} (f : Y ⟶ Z) :
     (F.obj X).map f ≫ (T.app X).app Z = (T.app X).app Y ≫ (G.obj X).map f := by

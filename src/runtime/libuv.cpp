@@ -14,6 +14,7 @@ namespace lean {
 #include <uv.h>
 
 extern "C" void initialize_libuv() {
+    initialize_libuv_timer();
     initialize_libuv_loop();
 
     lthread([]() { event_loop_run_loop(&global_ev); });

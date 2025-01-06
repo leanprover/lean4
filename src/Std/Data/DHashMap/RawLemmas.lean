@@ -1542,8 +1542,8 @@ theorem ofList_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] :
   rw [Raw₀.insertMany_empty_list_singleton]
 
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {hd : (a : α) × (β a)} {tl : List ((a : α) × (β a))} :
-    ofList (hd::tl) = ((∅ : Raw α β).insert hd.1 hd.2).insertMany tl := by
+theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
+    ofList (⟨k, v⟩ :: tl) = ((∅ : Raw α β).insert k v).insertMany tl := by
   simp_to_raw
   rw [Raw₀.insertMany_empty_list_cons]
 
@@ -1682,8 +1682,8 @@ theorem ofList_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashable α] :
   simp_to_raw
   simp
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {hd : α × β} {tl : List (α × β)} :
-    ofList (hd::tl) = insertMany ((∅ : Raw α (fun _ => β)).insert hd.1 hd.2) tl := by
+theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :
+    ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : Raw α (fun _ => β)).insert k v) tl := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_empty_list_cons]
 
@@ -1820,7 +1820,7 @@ theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
   simp
 
 theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
-    unitOfList (hd::tl) = insertManyIfNewUnit ((∅ : Raw α (fun _ => Unit)).insertIfNew hd ()) tl := by
+    unitOfList (hd :: tl) = insertManyIfNewUnit ((∅ : Raw α (fun _ => Unit)).insertIfNew hd ()) tl := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_empty_list_cons]
 

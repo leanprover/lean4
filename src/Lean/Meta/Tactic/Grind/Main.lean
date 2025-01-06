@@ -23,12 +23,13 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
   return {
     fallback
     propagateUp := fun e => do
-     propagateForallProp e
+     propagateForallPropUp e
      let .const declName _ := e.getAppFn | return ()
      propagateProjEq e
      if let some prop := builtinPropagators.up[declName]? then
        prop e
     propagateDown := fun e => do
+     propagateImpliesDown e
      let .const declName _ := e.getAppFn | return ()
      if let some prop := builtinPropagators.down[declName]? then
        prop e

@@ -1,6 +1,8 @@
 opaque g : Nat → Nat
 
-@[grind_eq] def f (a : Nat) :=
+set_option trace.Meta.debug true
+
+@[grind] def f (a : Nat) :=
   match a with
   | 0 => 10
   | x+1 => g (f x)
@@ -21,7 +23,7 @@ info: [grind.assert] f (y + 1) = a
 example : f (y + 1) = a → a = g (f y):= by
   grind
 
-@[grind_eq] def app (xs ys : List α) :=
+@[grind] def app (xs ys : List α) :=
   match xs with
   | [] => ys
   | x::xs => x :: app xs ys
@@ -43,7 +45,7 @@ example : app [1, 2] ys = xs → xs = 1::2::ys := by
 opaque p : Nat → Nat → Prop
 opaque q : Nat → Prop
 
-@[grind_eq] theorem pq : p x x ↔ q x := by sorry
+@[grind =] theorem pq : p x x ↔ q x := by sorry
 
 /--
 info: [grind.assert] p a a
@@ -58,7 +60,7 @@ example : p a a → q a := by
 opaque appV (xs : Vector α n) (ys : Vector α m) : Vector α (n + m) :=
   Vector.append xs ys
 
-@[grind_eq]
+@[grind =]
 theorem appV_assoc (a : Vector α n) (b : Vector α m) (c : Vector α n') :
         HEq (appV a (appV b c)) (appV (appV a b) c) := sorry
 

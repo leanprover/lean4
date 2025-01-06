@@ -1100,13 +1100,6 @@ theorem map_inj : map f = map g ↔ f = g := by
 theorem eq_empty_of_map_eq_empty {f : α → β} {l : Array α} (h : map f l = #[]) : l = #[] :=
   map_eq_empty_iff.mp h
 
-theorem map_eq_push_iff {f : α → β} {l : Array α} {l₂ : Array β} {b : β} :
-    map f l = l₂.push b ↔ ∃ l₁ a, l = l₁.push a ∧ map f l₁ = l₂ ∧ f a = b := by
-  rcases l with ⟨l⟩
-  rcases l₂ with ⟨l₂⟩
-  simp [List.map_eq_append_iff]
-  sorry
-
 @[simp] theorem map_map {f : α → β} {g : β → γ} {as : Array α} :
     (as.map f).map g = as.map (g ∘ f) := by
   cases as; simp

@@ -524,10 +524,7 @@ where
     let e' ← erasePatternRefAnnotations e
     match e' with
     | Expr.fvar _ =>
-      if (← isExplicitPatternVar e') then
-        processVar e
-      else
-        return mkInaccessible e
+      return mkInaccessible e
     | _ =>
       if e'.getAppFn.isMVar then
         let eNew ← instantiateMVars e'

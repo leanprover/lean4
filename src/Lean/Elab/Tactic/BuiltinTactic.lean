@@ -362,9 +362,9 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (ref : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+  introStep (ref? : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
     let fvarId ← liftMetaTacticAux fun mvarId => do
-      let (fvarId, mvarId) ← mvarId.intro n
+      let (fvarId, mvarId) ← withRef? ref? <| mvarId.intro n
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
@@ -374,9 +374,9 @@ where
         unless (← isDefEqGuarded type fvarType) do
           throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
-    if let some stx := ref then
+    if let some ref := ref? then
       withMainContext do
-        Term.addLocalVarInfo stx (mkFVar fvarId)
+        Term.addLocalVarInfo ref (mkFVar fvarId)
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

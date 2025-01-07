@@ -25,6 +25,7 @@ attribute [-grind] fthm
 
 /--
 error: `grind` failed
+case grind
 a : Nat
 x✝ : ¬f (f (f a)) = f a
 ⊢ False
@@ -60,6 +61,7 @@ attribute [-grind] g
 
 /--
 error: `grind` failed
+case grind
 a b : Nat
 a✝¹ : g a = b
 a✝ : a = 0

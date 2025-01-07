@@ -57,22 +57,28 @@ inductive Origin where
   is the provided grind argument. The `id` is a unique identifier for the call.
   -/
   | stx (id : Name) (ref : Syntax)
-  | other
-  deriving Inhabited, Repr
+  | other (id : Name)
+  deriving Inhabited, Repr, BEq
 
 /-- A unique identifier corresponding to the origin. -/
 def Origin.key : Origin → Name
   | .decl declName => declName
   | .fvar fvarId   => fvarId.name
   | .stx id _      => id
-  | .other         => `other
+  | .other id      => id
 
 def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
   match o with
   | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
   | .fvar fvarId   => return mkFVar fvarId
   | .stx _ ref     => return ref
-  | .other         => return "[unknown]"
+  | .other id      => return id
+
+instance : BEq Origin where
+  beq a b := a.key == b.key
+
+instance : Hashable Origin where
+  hash a := hash a.key
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
@@ -94,8 +100,10 @@ structure EMatchTheorem where
 structure EMatchTheorems where
   /-- The key is a symbol from `EMatchTheorem.symbols`. -/
   private map : PHashMap Name (List EMatchTheorem) := {}
-  /-- Set of theorem names that have been inserted using `insert`. -/
-  private thmNames : PHashSet Name := {}
+  /-- Set of theorem ids that have been inserted using `insert`. -/
+  private origins : PHashSet Origin := {}
+  /-- Theorems that have been marked as erased -/
+  private erased  : PHashSet Origin := {}
   deriving Inhabited
 
 /--
@@ -110,12 +118,25 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  let { map, thmNames } := s
-  let thmNames := thmNames.insert thm.origin.key
+  let { map, origins, erased } := s
+  let origins := origins.insert thm.origin
+  let erased := erased.erase thm.origin
   if let some thms := map.find? declName then
-    return { map := map.insert declName (thm::thms), thmNames }
+    return { map := map.insert declName (thm::thms), origins, erased }
   else
-    return { map := map.insert declName [thm], thmNames }
+    return { map := map.insert declName [thm], origins, erased }
+
+/-- Returns `true` if `s` contains a theorem with the given origin. -/
+def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
+  s.origins.contains origin
+
+/-- Mark the theorm with the given origin as `erased` -/
+def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
+  { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
+
+/-- Returns true if the theorem has been marked as erased. -/
+def EMatchTheorems.isErased (s : EMatchTheorems) (origin : Origin) : Bool :=
+  s.erased.contains origin
 
 /--
 Retrieves theorems from `s` associated with the given symbol. See `EMatchTheorem.insert`.
@@ -127,10 +148,6 @@ def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EM
     some (thms, { s with map := s.map.erase sym })
   else
     none
-
-/-- Returns `true` if `declName` is the name of a theorem that was inserted using `insert`. -/
-def EMatchTheorems.containsTheoremName (s : EMatchTheorems) (declName : Name) : Bool :=
-  s.thmNames.contains declName
 
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
@@ -672,6 +689,36 @@ builtin_initialize
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => do
       addGrindAttr declName attrKind (getKind stx) |>.run' {}
+    erase := fun declName => MetaM.run' do
+      /-
+      Remark: consider the following example
+      ```
+      attribute [grind] foo  -- ok
+      attribute [-grind] foo.eqn_2  -- ok
+      attribute [-grind] foo  -- error
+      ```
+      One may argue that the correct behavior should be
+      ```
+      attribute [grind] foo  -- ok
+      attribute [-grind] foo.eqn_2  -- error
+      attribute [-grind] foo  -- ok
+      ```
+      -/
+      let throwErr := throwError "`{declName}` is not marked with the `[grind]` attribute"
+      let info ← getConstInfo declName
+      if !info.isTheorem then
+        if let some eqns ← getEqnsFor? declName then
+           let s := ematchTheoremsExt.getState (← getEnv)
+           unless eqns.all fun eqn => s.contains (.decl eqn) do
+             throwErr
+           modifyEnv fun env => ematchTheoremsExt.modifyState env fun s =>
+             eqns.foldl (init := s) fun s eqn => s.erase (.decl eqn)
+        else
+          throwErr
+      else
+        unless ematchTheoremsExt.getState (← getEnv) |>.contains (.decl declName) do
+          throwErr
+        modifyEnv fun env => ematchTheoremsExt.modifyState env fun s => s.erase (.decl declName)
   }
 
 end Lean.Meta.Grind

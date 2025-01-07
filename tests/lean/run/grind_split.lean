@@ -5,9 +5,28 @@ example (p q : Prop) : p ∨ q → p ∨ ¬q → ¬p ∨ q → ¬p ∨ ¬q → F
 
 opaque R : Nat → Prop
 
+/--
+info: [grind] working on goal `grind`
+[grind.eqc] (if p then a else b) = c
+[grind.eqc] R a = True
+[grind.eqc] R b = True
+[grind.eqc] R c = False
+[grind.split] if p then a else b, generation: 0
+[grind] working on goal `grind.1`
+[grind.eqc] p = True
+[grind.eqc] (if p then a else b) = a
+[grind.eqc] R a = R c
+[grind] closed `grind.1`
+[grind] working on goal `grind.2`
+[grind.eqc] p = False
+[grind.eqc] (if p then a else b) = b
+[grind.eqc] R b = R c
+[grind] closed `grind.2`
+-/
+#guard_msgs (info) in
+set_option trace.grind true in
 example (p : Prop) [Decidable p] (a b c : Nat) : (if p then a else b) = c → R a → R b → R c := by
   grind
-
 
 namespace grind_test_induct_pred
 
@@ -29,6 +48,7 @@ inductive HasType : Expr → Ty → Prop
   | bool : HasType (.bool v) .bool
   | and  : HasType a .bool → HasType b .bool → HasType (.and a b) .bool
 
+set_option trace.grind true
 theorem HasType.det (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
   grind
 

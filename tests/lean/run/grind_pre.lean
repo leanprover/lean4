@@ -5,6 +5,7 @@ set_option grind.debug.proofs true
 
 /--
 error: `grind` failed
+case grind.1.2
 a b c : Bool
 p q : Prop
 left✝ : a = true
@@ -23,6 +24,7 @@ theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
 open Lean.Grind.Eager in
 /--
 error: `grind` failed
+case grind.2.1
 a b c : Bool
 p q : Prop
 left✝ : a = true
@@ -40,6 +42,7 @@ def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 /--
 error: `grind` failed
+case grind
 i j : Nat
 h : j + 1 < i + 1
 h✝ : j + 1 ≤ i
@@ -56,6 +59,7 @@ structure Point where
 
 /--
 error: `grind` failed
+case grind
 a₁ : Point
 a₂ : Nat
 a₃ : Int
@@ -82,6 +86,7 @@ example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c
 set_option trace.grind.debug.proof true
 /--
 error: `grind` failed
+case grind
 α : Type
 a : α
 p q r : Prop

@@ -85,9 +85,9 @@ private def checkProofs : GoalM Unit := do
       for b in eqc do
         unless isSameExpr a b do
           let p ← mkEqHEqProof a b
-          trace[grind.debug.proofs] "{a} = {b}"
+          trace_goal[grind.debug.proofs] "{a} = {b}"
           check p
-          trace[grind.debug.proofs] "checked: {← inferType p}"
+          trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
 /--
 Checks basic invariants if `grind.debug` is enabled.

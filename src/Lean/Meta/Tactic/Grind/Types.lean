@@ -83,6 +83,11 @@ structure State where
   simpStats  : Simp.Stats := {}
   trueExpr   : Expr
   falseExpr  : Expr
+  /--
+  Used to generate trace messages of the for `[grind] working on <tag>`,
+  and implement the macro `trace_goal`.
+  -/
+  lastTag    : Name := .anonymous
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -126,9 +131,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats } =>
+  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats })
+    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag })
 
 /--
 Canonicalizes nested types, type formers, and instances in `e`.
@@ -401,6 +406,25 @@ abbrev GoalM := StateRefT Goal GrindM
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
 
+def updateLastTag : GoalM Unit := do
+  if (← isTracingEnabledFor `grind) then
+    let currTag ← (← get).mvarId.getTag
+    if currTag != (← getThe Grind.State).lastTag then
+      trace[grind] "working on goal `{currTag}`"
+      modifyThe Grind.State fun s => { s with lastTag := currTag }
+
+/--
+Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`
+if the tag has changed since the last trace message.
+-/
+macro "trace_goal[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    let cls := $(quote id.getId.eraseMacroScopes)
+    if (← Lean.isTracingEnabledFor cls) then
+      updateLastTag
+      Lean.addTrace cls $msg)
+
 /--
 A helper function used to mark a theorem instance found by the E-matching module.
 It returns `true` if it is a new instance and `false` otherwise.
@@ -652,7 +676,9 @@ def mkEqFalseProof (a : Expr) : GoalM Expr := do
 
 /-- Marks current goal as inconsistent without assigning `mvarId`. -/
 def markAsInconsistent : GoalM Unit := do
-  modify fun s => { s with inconsistent := true }
+  unless (← get).inconsistent do
+    trace[grind] "closed `{← (← get).mvarId.getTag}`"
+    modify fun s => { s with inconsistent := true }
 
 /--
 Closes the current goal using the given proof of `False` and
@@ -751,7 +777,7 @@ Remark: we currently use this feature to disable `match`-case-splits
 -/
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
-    trace[grind.split.resolved] "{e}"
+    trace_goal[grind.split.resolved] "{e}"
     modify fun s => { s with resolvedSplits := s.resolvedSplits.insert { expr := e } }
 
 end Lean.Meta.Grind

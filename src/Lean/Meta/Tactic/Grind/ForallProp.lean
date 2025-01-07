@@ -17,19 +17,19 @@ If so, internalize the term `proj_i (ctor ... a_i ...)` and add the equality `pr
 -/
 def propagateForallPropUp (e : Expr) : GoalM Unit := do
   let .forallE n p q bi := e | return ()
-  trace[grind.debug.forallPropagator] "{e}"
+  trace_goal[grind.debug.forallPropagator] "{e}"
   if !q.hasLooseBVars then
     propagateImpliesUp p q
   else
     unless (← isEqTrue p) do return
-    trace[grind.debug.forallPropagator] "isEqTrue, {e}"
+    trace_goal[grind.debug.forallPropagator] "isEqTrue, {e}"
     let h₁ ← mkEqTrueProof p
     let qh₁ := q.instantiate1 (mkApp2 (mkConst ``of_eq_true) p h₁)
     let r ← simp qh₁
     let q := mkLambda n bi p q
     let q' := r.expr
     internalize q' (← getGeneration e)
-    trace[grind.debug.forallPropagator] "q': {q'} for{indentExpr e}"
+    trace_goal[grind.debug.forallPropagator] "q': {q'} for{indentExpr e}"
     let h₂ ← r.getProof
     let h := mkApp5 (mkConst ``Lean.Grind.forall_propagator) p q q' h₁ h₂
     pushEq e q' h

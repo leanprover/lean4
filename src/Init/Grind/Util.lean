@@ -21,8 +21,6 @@ def doNotSimp {α : Sort u} (a : α) : α := a
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b
 
-set_option pp.proofs true
-
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (nestedProof p hp) (nestedProof q hq) := by
   subst h; apply HEq.refl
 

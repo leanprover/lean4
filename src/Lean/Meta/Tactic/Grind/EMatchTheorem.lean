@@ -218,7 +218,7 @@ private def getPatternFn? (pattern : Expr) : Option Expr :=
     | _ => none
 
 /--
-Returns a bit-mask `mask` s.t. `mask[i]` is true if the the corresponding argument is
+Returns a bit-mask `mask` s.t. `mask[i]` is true if the corresponding argument is
 - a type (that is not a proposition) or type former, or
 - a proof, or
 - an instance implicit argument
@@ -248,13 +248,13 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
     | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
   saveSymbol f.toHeadIndex
-  let mut args := pattern.getAppArgs
+  let mut args := pattern.getAppArgs.toVector
   let supportMask ← getPatternSupportMask f args.size
-  for i in [:args.size] do
-    let arg := args[i]!
+  for h : i in [:args.size] do
+    let arg := args[i]
     let isSupport := supportMask[i]?.getD false
-    args := args.set! i (← goArg arg isSupport)
-  return mkAppN f args
+    args := args.set i (← goArg arg isSupport)
+  return mkAppN f args.toArray
 where
   goArg (arg : Expr) (isSupport : Bool) : M Expr := do
     if !arg.hasLooseBVars then
@@ -556,8 +556,8 @@ private partial def collect (e : Expr) : CollectorM Unit := do
         -- restore state and continue search
         set saved
       catch _ =>
-        -- restore state and continue search
         trace[grind.ematch.pattern.search] "skip, exception during normalization"
+        -- restore state and continue search
         set saved
     let args := e.getAppArgs
     for arg in args, flag in (← NormalizePattern.getPatternSupportMask f args.size) do
@@ -592,7 +592,7 @@ private def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name
       | .fwd =>
         let ps ← getPropTypes xs
         if ps.isEmpty then
-          throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have proposional hypotheses"
+          throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
         pure ps
       | .bwd => pure #[type]
       | .default => pure <| #[type] ++ (← getPropTypes xs)
@@ -623,7 +623,7 @@ private def getKind (stx : Syntax) : TheoremKind :=
   else
     .bwd
 
-private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (useLhs := true) : MetaM Unit := do
+private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then
     ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
   else if let some eqns ← getEqnsFor? declName then
@@ -632,18 +632,18 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (useLhs 
     for eqn in eqns do
       ematchTheoremsExt.add (← mkEMatchEqTheorem eqn) attrKind
   else
-    throwError "`[grind_eq]` attribute can only be applied to equational theorems or function definitions"
+    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
 
 private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do
   if thmKind == .eqLhs then
-    addGrindEqAttr declName attrKind (useLhs := true)
+    addGrindEqAttr declName attrKind thmKind (useLhs := true)
   else if thmKind == .eqRhs then
-    addGrindEqAttr declName attrKind (useLhs := false)
+    addGrindEqAttr declName attrKind thmKind (useLhs := false)
   else if thmKind == .eqBoth then
-    addGrindEqAttr declName attrKind (useLhs := true)
-    addGrindEqAttr declName attrKind (useLhs := false)
+    addGrindEqAttr declName attrKind thmKind (useLhs := true)
+    addGrindEqAttr declName attrKind thmKind (useLhs := false)
   else if !(← getConstInfo declName).isTheorem then
-    addGrindEqAttr declName attrKind
+    addGrindEqAttr declName attrKind thmKind
   else
     let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
       | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
@@ -653,11 +653,21 @@ builtin_initialize
   registerBuiltinAttribute {
     name := `grind
     descr :=
-      "The `[grind_eq]` attribute is used to annotate equational theorems and functions.\
-      When applied to an equational theorem, it marks the theorem for use in heuristic instantiations by the `grind` tactic.\
-      When applied to a function, it automatically annotates the equational theorems associated with that function.\
+      "The `[grind]` attribute is used to annotate declarations.\
+      \
+      When applied to an equational theorem, `[grind =]`, `[grind =_]`, or `[grind _=_]`\
+      will mark the theorem for use in heuristic instantiations by the `grind` tactic,
+      using respectively the left-hand side, the right-hand side, or both sides of the theorem.\
+      When applied to a function, `[grind =]` automatically annotates the equational theorems associated with that function.\
+      When applied to a theorem `[grind ←]` will instantiate the theorem whenever it encounters the conclusion of the theorem
+      (that is, it will use the theorem for backwards reasoning).\
+      When applied to a theorem `[grind →]` will instantiate the theorem whenever it encounters sufficiently many of the propositional hypotheses
+      (that is, it will use the theorem for forwards reasoning).\
+      \
+      The attribute `[grind]` by itself will effectively try `[grind ←]` (if the conclusion is sufficient for instantiation) and then `[grind →]`.\
+      \
       The `grind` tactic utilizes annotated theorems to add instances of matching patterns into the local context during proof search.\
-      For example, if a theorem `@[grind_eq] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
+      For example, if a theorem `@[grind =] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => do

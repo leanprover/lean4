@@ -21,7 +21,7 @@ end Lean.Parser.Attr
 namespace Lean.Grind
 /--
 The configuration for `grind`.
-Passed to `grind` using, for example, the `grind (config := { eager := true })` syntax.
+Passed to `grind` using, for example, the `grind (config := { matchEqs := true })` syntax.
 -/
 structure Config where
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/

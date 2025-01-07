@@ -47,13 +47,13 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
 /-- Inserts `e` into the list of case-split candidates. -/
 private def addSplitCandidate (e : Expr) : GoalM Unit := do
   trace[grind.split.candidate] "{e}"
-  modify fun s => { s with splitCadidates := e :: s.splitCadidates }
+  modify fun s => { s with splitCandidates := e :: s.splitCandidates }
 
 -- TODO: add attribute to make this extensible
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
-private def checkAndaddSplitCandidate (e : Expr) : GoalM Unit := do
+private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   unless e.isApp do return ()
   if e.isIte || e.isDIte then
     addSplitCandidate e
@@ -148,7 +148,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
     else e.withApp fun f args => do
-      checkAndaddSplitCandidate e
+      checkAndAddSplitCandidate e
       addMatchEqns f generation
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of

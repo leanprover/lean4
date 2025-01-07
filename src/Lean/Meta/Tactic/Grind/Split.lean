@@ -52,23 +52,23 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
     if (← isResolvedCaseSplit e) then
       return .resolved
     if (← isMatcherApp e) then
-      return .notReady -- TODO: implement splittes for `match`
+      return .notReady -- TODO: implement splitters for `match`
       -- return .ready
     let .const declName .. := e.getAppFn | unreachable!
     if (← isInductivePredicate declName <&&> isEqTrue e) then
       return .ready
     return .notReady
 
-/-- Returns the next case-split to be peformed. It uses a very simple heuristic. -/
+/-- Returns the next case-split to be performed. It uses a very simple heuristic. -/
 private def selectNextSplit? : GoalM (Option Expr) := do
   if (← isInconsistent) then return none
   if (← checkMaxCaseSplit) then return none
-  go (← get).splitCadidates none []
+  go (← get).splitCandidates none []
 where
   go (cs : List Expr) (c? : Option Expr) (cs' : List Expr) : GoalM (Option Expr) := do
     match cs with
     | [] =>
-      modify fun s => { s with splitCadidates := cs'.reverse }
+      modify fun s => { s with splitCandidates := cs'.reverse }
       if c?.isSome then
         -- Remark: we reset `numEmatch` after each case split.
         -- We should consider other strategies in the future.

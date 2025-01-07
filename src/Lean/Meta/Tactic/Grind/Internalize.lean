@@ -111,13 +111,14 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
     modify fun s => { s with thmMap }
     let appMap := (← get).appMap
     for thm in thms do
-      let symbols := thm.symbols.filter fun sym => !appMap.contains sym
-      let thm := { thm with symbols }
-      match symbols with
-      | [] => activateTheorem thm generation
-      | _ =>
-        trace[grind.ematch] "reinsert `{thm.origin.key}`"
-        modify fun s => { s with thmMap := s.thmMap.insert thm }
+      unless (← get).thmMap.isErased thm.origin do
+        let symbols := thm.symbols.filter fun sym => !appMap.contains sym
+        let thm := { thm with symbols }
+        match symbols with
+        | [] => activateTheorem thm generation
+        | _ =>
+          trace[grind.ematch] "reinsert `{thm.origin.key}`"
+          modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()

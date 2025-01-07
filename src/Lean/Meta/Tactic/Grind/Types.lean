@@ -386,8 +386,8 @@ structure Goal where
   splitCadidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
-  /-- Case-splits that do not have to be performed. -/
-  disabledSplits : PHashSet ENodeKey := {}
+  /-- Case-splits that do not have to be performed anymore. -/
+  resolvedSplits : PHashSet ENodeKey := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -426,7 +426,7 @@ def checkMaxInstancesExceeded : GoalM Bool := do
   return (← get).numInstances >= (← getConfig).instances
 
 /-- Returns `true` if the maximum number of case-splits has been reached. -/
-def checkMaxCaseSplist : GoalM Bool := do
+def checkMaxCaseSplit : GoalM Bool := do
   return (← get).numSplits >= (← getConfig).splits
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
@@ -741,14 +741,17 @@ partial def getEqcs : GoalM (List (List Expr)) := do
       r := (← getEqc node.self) :: r
   return r
 
+/-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
+def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
+  return (← get).resolvedSplits.contains { expr := e }
+
 /--
-Mark `e` as a disabled case-split.
-We use this function to mark case-splits that do not need to be performed anymore.
+Mark `e` as a case-split that does not need to be performed anymore.
 Remark: we currently use this feature to disable `match`-case-splits
 -/
-def disableCaseSplit (e : Expr) : GoalM Unit := do
-  unless (← get).disabledSplits.contains { expr := e } do
-    trace[grind.split.disabled] "{e}"
-    modify fun s => { s with disabledSplits := s.disabledSplits.insert { expr := e } }
+def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
+  unless (← isResolvedCaseSplit e) do
+    trace[grind.split.resolved] "{e}"
+    modify fun s => { s with resolvedSplits := s.resolvedSplits.insert { expr := e } }
 
 end Lean.Meta.Grind

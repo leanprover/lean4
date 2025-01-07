@@ -219,7 +219,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
     -- `initApp` is a match-application that we don't need to split at anymore.
-    disableCaseSplit (← read).initApp
+    markCaseSplitAsResolved (← read).initApp
     prop ← annotateMatchEqnType prop
   trace[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
@@ -349,14 +349,14 @@ def ematch : GoalM Unit := do
     }
 
 /-- Performs one round of E-matching, and assert new instances. -/
-def ematchAndAssert? (goal : Goal) : GrindM (Option (List Goal)) := do
+def ematchAndAssert : GrindTactic := fun goal => do
   let numInstances := goal.numInstances
   let goal ← GoalM.run' goal ematch
   if goal.numInstances == numInstances then
     return none
   assertAll goal
 
-def ematchStar (goal : Goal) : GrindM (List Goal) := do
-  iterate goal ematchAndAssert?
+def ematchStar : GrindTactic :=
+  ematchAndAssert.iterate
 
 end Lean.Meta.Grind

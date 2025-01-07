@@ -8,7 +8,7 @@ attribute [simp] g
 
 set_option trace.grind.assert true
 set_option trace.grind.split.candidate true
-set_option trace.grind.split.disabled true
+set_option trace.grind.split.resolved true
 
 /--
 info: [grind.assert] (match as, bs with
@@ -24,7 +24,7 @@ info: [grind.assert] (match as, bs with
 [grind.assert] a₁ :: f 0 = as
 [grind.assert] f 0 = a₂ :: f 1
 [grind.assert] ¬d = []
-[grind.split.disabled] match as, bs with
+[grind.split.resolved] match as, bs with
     | [], x => bs
     | head :: head_1 :: tail, [] => []
     | x :: xs, ys => x :: g xs ys

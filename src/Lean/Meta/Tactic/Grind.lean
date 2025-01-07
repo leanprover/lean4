@@ -41,7 +41,7 @@ builtin_initialize registerTraceClass `grind.issues
 builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
-builtin_initialize registerTraceClass `grind.split.disabled
+builtin_initialize registerTraceClass `grind.split.resolved
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug

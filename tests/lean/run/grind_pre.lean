@@ -12,6 +12,8 @@ right✝ : b = true ∨ c = true
 left : p
 right : q
 x✝ : b = false ∨ a = false
+h✝ : b = false
+h : c = true
 ⊢ False
 -/
 #guard_msgs (error) in

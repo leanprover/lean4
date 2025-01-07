@@ -53,7 +53,7 @@ else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi
 echo -n " -DLEANC_INTERNAL_FLAGS='-nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"
-if [[ $(uname -a) == "x86_64" ]]; then
+if [[ "$(uname -p)" == "i386" ]]; then
   # `--ld-path` creates some platform_version troubles on macOS x64 but this is not a high-prio platform anymore and
   # its users are not that likely to have conflicting `lld`s in their `PATH`
   echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"

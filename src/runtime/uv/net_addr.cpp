@@ -21,11 +21,11 @@ void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out) {
 }
 
 void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out) {
-    uint16_t ipv6_addr_array[8];
     for (int i = 0; i < 8; i++) {
-        ipv6_addr_array[i] = htons((uint16_t)lean_unbox(array_uget(ipv6_addr, i)));
+        uint16_t segment = htons((uint16_t)lean_unbox(array_uget(ipv6_addr, i)));
+        out->s6_addr[2 * i] = (uint8_t)segment;
+        out->s6_addr[2 * i + 1] = (uint8_t)(segment >> 8);
     }
-    memcpy(&out->s6_addr, ipv6_addr_array, 16);
 }
 
 lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr) {

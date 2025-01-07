@@ -141,3 +141,35 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₄ : b₁ = b₂)
         : HEq a₂ b₂ := by
   grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : h₁ ▸ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.recOn h₁ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.ndrec (motive := id) a₁ h₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.rec (motive := fun x _ => x) a₁ h₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind

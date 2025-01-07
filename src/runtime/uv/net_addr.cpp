@@ -9,11 +9,6 @@ Author: Henrik Böving
 
 namespace lean {
 
-/*
- * TODO:
- * - implement conversions
- */
-
 #ifndef LEAN_EMSCRIPTEN
 
 void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out) {

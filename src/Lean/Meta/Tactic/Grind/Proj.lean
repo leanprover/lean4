@@ -30,7 +30,7 @@ def propagateProjEq (parent : Expr) : GoalM Unit := do
     let parentNew ← shareCommon (mkApp parent.appFn! ctor)
     internalize parentNew (← getGeneration parent)
     pure parentNew
-  trace[grind.debug.proj] "{parentNew}"
+  trace_goal[grind.debug.proj] "{parentNew}"
   let idx := info.numParams + info.i
   unless idx < ctor.getAppNumArgs do return ()
   let v := ctor.getArg! idx

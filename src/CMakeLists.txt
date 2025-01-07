@@ -389,7 +389,7 @@ endif()
 
 set(LEAN_CXX_STDLIB "-lstdc++" CACHE STRING "C++ stdlib linker flags")
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin" AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   set(LEAN_CXX_STDLIB "-lc++")
 endif()
 

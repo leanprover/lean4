@@ -5,6 +5,7 @@ set_option grind.debug.proofs true
 
 /--
 error: `grind` failed
+case 1.2
 a b c : Bool
 p q : Prop
 left✝ : a = true
@@ -23,6 +24,7 @@ theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
 open Lean.Grind.Eager in
 /--
 error: `grind` failed
+case 2.1
 a b c : Bool
 p q : Prop
 left✝ : a = true

@@ -60,6 +60,7 @@ private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
+  appendTagSuffix mvarId `grind
   let goals ← intros (← mkGoal mvarId) (generation := 0)
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent

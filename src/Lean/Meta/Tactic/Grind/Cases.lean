@@ -36,14 +36,17 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
     let mut recursor := mkApp (mkAppN recursor indicesExpr) (mkFVar fvarId)
     let mut recursorType ← inferType recursor
     let mut mvarIdsNew := #[]
+    let mut idx := 1
     for _ in [:recursorInfo.numMinors] do
       let .forallE _ targetNew recursorTypeNew _ ← whnf recursorType
         | throwTacticEx `grind.cases mvarId "unexpected recursor type"
       recursorType := recursorTypeNew
-      let mvar ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+      let tagNew := if recursorInfo.numMinors > 1 then Name.num tag idx else tag
+      let mvar ← mkFreshExprSyntheticOpaqueMVar targetNew tagNew
       recursor := mkApp recursor mvar
       let mvarIdNew ← mvar.mvarId!.tryClearMany (indices.push fvarId)
       mvarIdsNew := mvarIdsNew.push mvarIdNew
+      idx := idx + 1
     mvarId.assign recursor
     return mvarIdsNew.toList
   if recursorInfo.numIndices > 0 then

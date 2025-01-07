@@ -22,9 +22,9 @@ def addCongrTable (e : Expr) : GoalM Unit := do
     let g := e'.getAppFn
     unless isSameExpr f g do
       unless (← hasSameType f g) do
-        trace[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        trace_goal[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
-    trace[grind.debug.congr] "{e} = {e'}"
+    trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
     let node ← getENode e
     setENode e { node with congr := e' }
@@ -46,7 +46,7 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
 
 /-- Inserts `e` into the list of case-split candidates. -/
 private def addSplitCandidate (e : Expr) : GoalM Unit := do
-  trace[grind.split.candidate] "{e}"
+  trace_goal[grind.split.candidate] "{e}"
   modify fun s => { s with splitCandidates := e :: s.splitCandidates }
 
 -- TODO: add attribute to make this extensible
@@ -89,7 +89,7 @@ private partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : G
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof
   let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
-  trace[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
+  trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
   modify fun s => { s with newThms := s.newThms.push thm }
 
 /--
@@ -117,12 +117,12 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
         match symbols with
         | [] => activateTheorem thm generation
         | _ =>
-          trace[grind.ematch] "reinsert `{thm.origin.key}`"
+          trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
-  trace[grind.internalize] "{e}"
+  trace_goal[grind.internalize] "{e}"
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
@@ -142,7 +142,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   | .mvar ..
   | .mdata ..
   | .proj .. =>
-    trace[grind.issues] "unexpected term during internalization{indentExpr e}"
+    trace_goal[grind.issues] "unexpected term during internalization{indentExpr e}"
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
   | .app .. =>
     if (← isLitValue e) then

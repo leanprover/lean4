@@ -221,7 +221,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
     -- `initApp` is a match-application that we don't need to split at anymore.
     markCaseSplitAsResolved (← read).initApp
     prop ← annotateMatchEqnType prop
-  trace[grind.ematch.instance] "{← origin.pp}: {prop}"
+  trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
 
 /--
@@ -232,13 +232,13 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   let thm := (← read).thm
   unless (← markTheoremInstance thm.proof c.assignment) do
     return ()
-  trace[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
+  trace_goal[grind.ematch.instance.assignment] "{← thm.origin.pp}: {assignmentToMessageData c.assignment}"
   let proof ← thm.getProofWithFreshMVarLevels
   let numParams := thm.numParams
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    trace[grind.issues] "unexpected number of parameters at {← thm.origin.pp}"
+    trace_goal[grind.issues] "unexpected number of parameters at {← thm.origin.pp}"
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
@@ -246,14 +246,14 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
       unless (← isDefEq (← mvarId.getType) (← inferType v) <&&> mvarId.checkedAssign v) do
-        trace[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}"
+        trace_goal[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}"
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthesizeInstance mvar type) do
-        trace[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+        trace_goal[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
@@ -261,7 +261,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      trace[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      trace_goal[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm.origin proof c.gen
 where

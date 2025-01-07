@@ -59,6 +59,6 @@ if [[ $(uname -a) == "x86_64" ]]; then
   echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld'"
 else
   echo -n " -DLEANC_INTERNAL_LINKER_FLAGS='-L ROOT/lib -L ROOT/lib/libc -fuse-ld=lld --ld-path=ROOT/bin/ld64.lld'"
-endif
+fi
 # do not set `LEAN_CC` for tests
 echo -n " -DLEAN_TEST_VARS=''"

@@ -29,7 +29,7 @@ def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
 
 /--
 Returns `true` if `e` is `True`, `False`, or a literal value.
-See `LitValues` for supported literals.
+See `Lean.Meta.LitValues` for supported literals.
 -/
 def isInterpreted (e : Expr) : MetaM Bool := do
   if e.isTrue || e.isFalse then return true
@@ -59,11 +59,11 @@ structure CongrTheoremCacheKey where
   f       : Expr
   numArgs : Nat
 
--- We manually define `BEq` because we wannt to use pointer equality.
+-- We manually define `BEq` because we want to use pointer equality.
 instance : BEq CongrTheoremCacheKey where
   beq a b := isSameExpr a.f b.f && a.numArgs == b.numArgs
 
--- We manually define `Hashable` because we wannt to use pointer equality.
+-- We manually define `Hashable` because we want to use pointer equality.
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
@@ -123,7 +123,7 @@ def abstractNestedProofs (e : Expr) : GrindM Expr := do
 
 /--
 Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
-been hash-consing. We perform this step before we internalize expressions.
+been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
   modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats } =>
@@ -193,7 +193,7 @@ structure ENode where
   interpreted : Bool := false
   /-- `ctor := true` if the head symbol is a constructor application. -/
   ctor : Bool := false
-  /-- `hasLambdas := true` if equivalence class contains lambda expressions. -/
+  /-- `hasLambdas := true` if the equivalence class contains lambda expressions. -/
   hasLambdas : Bool := false
   /--
   If `heqProofs := true`, then some proofs in the equivalence class are based
@@ -383,7 +383,7 @@ structure Goal where
   /-- `match` auxiliary functions whose equations have already been created and activated. -/
   matchEqNames : PHashSet Name := {}
   /-- Case-split candidates. -/
-  splitCadidates : List Expr := []
+  splitCandidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
   /-- Case-splits that do not have to be performed anymore. -/

@@ -22,7 +22,7 @@ to detect when two structurally different atoms are definitionally equal.
 The `grind` tactic, on the other hand, uses congruence closure. Moreover, types, type formers, proofs, and instances
 are considered supporting elements and are not factored into congruence detection.
 
-This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they instances,
+This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they are instances,
 types, or type formers and are the `i`-th arguments of two different `f`-applications. This approach is
 sufficient for the congruence closure procedure used by the `grind` tactic.
 
@@ -129,17 +129,17 @@ where
         else
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
-          let mut args := args
-          for i in [:args.size] do
-            let arg := args[i]!
+          let mut args := args.toVector
+          for h : i in [:args.size] do
+            let arg := args[i]
             let arg' ← match (← shouldCanon pinfos i arg) with
             | .canonType  => canonType f i arg
             | .canonInst  => canonInst f i arg
             | .visit      => visit arg
             unless ptrEq arg arg' do
-              args := args.set! i arg'
+              args := args.set i arg'
               modified := true
-          pure <| if modified then mkAppN f args else e
+          pure <| if modified then mkAppN f args.toArray else e
       | .forallE _ d b _ =>
         -- Recall that we have `ForallProp.lean`.
         let d' ← visit d

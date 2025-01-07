@@ -14,9 +14,9 @@ namespace lean {
 #include <uv.h>
 
 void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out);
-void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv4_addr, struct in6_addr* out);
-lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* out);
-lean_obj_res lean_in6_addr_to_ipv6_addr(const struct in6_addr* out);
+void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out);
+lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr);
+lean_obj_res lean_in6_addr_to_ipv6_addr(const struct in6_addr* ipv6_addr);
 
 #endif
 

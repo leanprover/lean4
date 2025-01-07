@@ -109,14 +109,14 @@ def splitNext : GrindTactic := fun goal => do
   let (goals?, _) ← GoalM.run goal do
     let some c ← selectNextSplit?
       | return none
-    trace[grind.split] "{c}"
     let gen ← getGeneration c
+    trace[grind.split] "{c}, generation: {gen}"
     -- TODO: `match`
     let major ← mkCasesMajor c
     let mvarIds ← cases (← get).mvarId major
     let goal ← get
     let goals := mvarIds.map fun mvarId => { goal with mvarId }
-    let goals ← introNewHyp goals [] gen
+    let goals ← introNewHyp goals [] (gen+1)
     return some goals
   return goals?
 

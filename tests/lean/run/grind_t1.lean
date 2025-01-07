@@ -133,3 +133,11 @@ info: [grind.eqc] x = 2 * a
 set_option trace.grind.eqc true in
 example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
   grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : cast h₁ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind

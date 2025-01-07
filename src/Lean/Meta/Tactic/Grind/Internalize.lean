@@ -72,6 +72,15 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     if (← isInductivePredicate declName) then
       addSplitCandidate e
 
+/--
+If `e` is of the form `cast a`, add `HEq e a` to the to-do list.
+It could be an E-matching theorem, but we want to ensure it is always applied since
+we want to rely on the fact that `cast h a` and `a` are in the same equivalence class.
+-/
+private def pushHEqIfCast (e : Expr) : GoalM Unit := do
+  let_expr f@cast α β h a := e | return ()
+  pushHEq e a (mkApp4 (mkConst ``cast_heq f.constLevels!) α β h a)
+
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
@@ -150,6 +159,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       mkENode e generation
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
+      pushHEqIfCast e
       addMatchEqns f generation
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of

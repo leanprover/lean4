@@ -63,7 +63,7 @@ def oneSleep : IO Unit := do
   assert! (← task.block) == 37
 where
   go : IO (AsyncTask Nat) := do
-    let interval ← Interval.mk BASE_DURATION
+    let interval ← Interval.mk BASE_DURATION sorry
     (← interval.tick).mapIO fun _ => do
       interval.stop
       return 37
@@ -73,7 +73,7 @@ def doubleSleep : IO Unit := do
   assert! (← task.block) == 37
 where
   go : IO (AsyncTask Nat) := do
-    let interval ← Interval.mk BASE_DURATION
+    let interval ← Interval.mk BASE_DURATION sorry
     (← interval.tick).bindIO fun _ => do
     (← interval.tick).mapIO fun _ => do
       interval.stop
@@ -84,7 +84,7 @@ def resetSleep : IO Unit := do
   assert! (← task.block) == 37
 where
   go : IO (AsyncTask Nat) := do
-    let interval ← Interval.mk BASE_DURATION
+    let interval ← Interval.mk BASE_DURATION sorry
     (← interval.tick).bindIO fun _ => do
       let waiter ← interval.tick
       interval.reset

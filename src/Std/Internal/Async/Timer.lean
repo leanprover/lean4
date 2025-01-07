@@ -90,7 +90,7 @@ Setup up an `Interval` that waits for `duration` milliseconds.
 This function only initializes but does not yet start the timer.
 -/
 @[inline]
-def mk (duration : Std.Time.Millisecond.Offset) : IO Interval := do
+def mk (duration : Std.Time.Millisecond.Offset) (_ : 0 < duration := by decide) : IO Interval := do
   let native ← Internal.UV.Timer.mk duration.toInt.toNat.toUInt64 true
   return ofNative native
 

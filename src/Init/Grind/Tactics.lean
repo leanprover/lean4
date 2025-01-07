@@ -24,14 +24,9 @@ The configuration for `grind`.
 Passed to `grind` using, for example, the `grind (config := { eager := true })` syntax.
 -/
 structure Config where
-  /-- When `eager` is true (default: `false`), `grind` eagerly splits `if-then-else` and `match` expressions during internalization. -/
-  eager : Bool := false
-  /-- Maximum number of branches (i.e., case-splits) in the proof search tree. -/
-  splits : Nat := 100
-  /--
-  Maximum number of E-matching (aka heuristic theorem instantiation)
-  in a proof search tree branch.
-  -/
+  /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
+  splits : Nat := 5
+  /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
   /--
   Maximum term generation.

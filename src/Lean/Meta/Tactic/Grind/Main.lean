@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.SimpUtil
 
 namespace Lean.Meta.Grind
@@ -68,7 +69,7 @@ def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goa
 
 /-- A very simple strategy -/
 private def simple (goals : List Goal) : GrindM (List Goal) := do
-  all goals ematchStar
+  applyToAll (ematchStar >> (splitNext >> ematchStar).iterate) goals
 
 def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List MVarId) := do
   let go : GrindM (List MVarId) := do

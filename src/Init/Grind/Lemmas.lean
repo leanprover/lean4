@@ -25,6 +25,9 @@ theorem and_eq_of_eq_false_right {a b : Prop} (h : b = False) : (a ∧ b) = Fals
 theorem eq_true_of_and_eq_true_left {a b : Prop} (h : (a ∧ b) = True) : a = True := by simp_all
 theorem eq_true_of_and_eq_true_right {a b : Prop} (h : (a ∧ b) = True) : b = True := by simp_all
 
+theorem or_of_and_eq_false {a b : Prop} (h : (a ∧ b) = False) : (¬a ∨ ¬b) := by
+  by_cases a <;> by_cases b <;> simp_all
+
 /-! Or -/
 
 theorem or_eq_of_eq_true_left {a b : Prop} (h : a = True) : (a ∨ b) = True := by simp [h]

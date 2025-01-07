@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Combinators
 
 namespace Lean.Meta.Grind
 
@@ -88,7 +89,7 @@ private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal
     return none
 
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
-partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
+partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()
@@ -116,11 +117,11 @@ partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
   return goals.toList
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : GrindM (List Goal) := do
+def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := fun goal => do
   if (← isCasesCandidate prop) then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
     let goal := { goal with mvarId }
-    intros goal generation
+    intros generation goal
   else
     let goal ← GoalM.run' goal do
       let r ← simp prop
@@ -130,25 +131,13 @@ def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : Gri
     if goal.inconsistent then return [] else return [goal]
 
 /-- Asserts next fact in the `goal` fact queue. -/
-def assertNext? (goal : Goal) : GrindM (Option (List Goal)) := do
+def assertNext : GrindTactic := fun goal => do
   let some (fact, newFacts) := goal.newFacts.dequeue?
     | return none
-  assertAt { goal with newFacts } fact.proof fact.prop fact.generation
-
-partial def iterate (goal : Goal) (f : Goal → GrindM (Option (List Goal))) : GrindM (List Goal) := do
-  go [goal] []
-where
-  go (todo : List Goal) (result : List Goal) : GrindM (List Goal) := do
-    match todo with
-    | [] => return result
-    | goal :: todo =>
-      if let some goalsNew ← f goal then
-        go (goalsNew ++ todo) result
-      else
-        go todo (goal :: result)
+  assertAt fact.proof fact.prop fact.generation { goal with newFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
-partial def assertAll (goal : Goal) : GrindM (List Goal) := do
-  iterate goal assertNext?
+partial def assertAll : GrindTactic :=
+  assertNext.iterate
 
 end Lean.Meta.Grind

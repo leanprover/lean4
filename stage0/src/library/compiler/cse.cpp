@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include "runtime/flet.h"
 #include "util/name_generator.h"
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
@@ -21,7 +21,7 @@ namespace lean {
 static name * g_cse_fresh = nullptr;
 
 class cse_fn {
-    environment       m_env;
+    elab_environment  m_env;
     name_generator    m_ngen;
     bool              m_before_erasure;
     expr_map<expr>    m_map;
@@ -148,14 +148,14 @@ public:
     }
 
 public:
-    cse_fn(environment const & env, bool before_erasure):
+    cse_fn(elab_environment const & env, bool before_erasure):
         m_env(env), m_ngen(*g_cse_fresh), m_before_erasure(before_erasure) {
     }
 
     expr operator()(expr const & e) { return visit(e); }
 };
 
-expr cse_core(environment const & env, expr const & e, bool before_erasure) {
+expr cse_core(elab_environment const & env, expr const & e, bool before_erasure) {
     return cse_fn(env, before_erasure)(e);
 }
 
@@ -170,6 +170,7 @@ expr cse_core(environment const & env, expr const & e, bool before_erasure) {
    ```
    The "else"-branch is duplicated by the equation compiler for each constructor different from `expr.app`. */
 class cce_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
     buffer<expr>        m_fvars;
@@ -178,7 +179,7 @@ class cce_fn {
     name                m_j;
     unsigned            m_next_idx{1};
 public:
-    environment & env() { return m_st.env(); }
+    elab_environment & env() { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -394,8 +395,8 @@ public:
     }
 
 public:
-    cce_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx), m_j("_j") {
+    cce_fn(elab_environment const & env, local_ctx const & lctx):
+        m_env(env), m_st(env), m_lctx(lctx), m_j("_j") {
     }
 
     expr operator()(expr const & e) {
@@ -404,7 +405,7 @@ public:
     }
 };
 
-expr cce_core(environment const & env, local_ctx const & lctx, expr const & e) {
+expr cce_core(elab_environment const & env, local_ctx const & lctx, expr const & e) {
     return cce_fn(env, lctx)(e);
 }
 

@@ -10500,6 +10500,7 @@ else
 {
 uint8_t x_9; 
 x_9 = l_Lean_Environment_isSafeDefinition(x_1, x_3);
+lean_dec(x_3);
 return x_9;
 }
 }
@@ -10508,6 +10509,7 @@ else
 uint8_t x_10; 
 lean_dec(x_4);
 x_10 = l_Lean_Environment_isSafeDefinition(x_1, x_3);
+lean_dec(x_3);
 return x_10;
 }
 }
@@ -12335,7 +12337,6 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
-lean_inc(x_5);
 x_12 = l_Lean_Environment_isSafeDefinition(x_11, x_5);
 if (x_12 == 0)
 {
@@ -12370,7 +12371,6 @@ lean_dec(x_7);
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
-lean_inc(x_5);
 x_20 = l_Lean_Environment_isSafeDefinition(x_19, x_5);
 if (x_20 == 0)
 {

@@ -12367,6 +12367,7 @@ x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec(x_32);
 x_35 = l_Lean_mkPrivateName(x_34, x_23);
+lean_dec(x_34);
 x_36 = lean_box(0);
 x_37 = l_Lean_Elab_Command_elabInitialize___lambda__2(x_16, x_2, x_3, x_11, x_4, x_35, x_36, x_12, x_13, x_33);
 return x_37;

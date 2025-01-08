@@ -24,11 +24,8 @@ def classical [Monad m] [MonadEnv m] [MonadFinally m] [MonadLiftT MetaM m] (t : 
   finally
     modifyEnv Meta.instanceExtension.popScope
 
-@[builtin_tactic Lean.Parser.Tactic.classical]
-def evalClassical : Tactic := fun stx => do
-  match stx with
-  | `(tactic| classical $tacs:tacticSeq) =>
-     classical <| Elab.Tactic.evalTactic tacs
-  | _ => throwUnsupportedSyntax
+@[builtin_tactic Lean.Parser.Tactic.classical, builtin_incremental]
+def evalClassical : Tactic := fun stx =>
+  classical <| Term.withNarrowedArgTacticReuse (argIdx := 1) Elab.Tactic.evalTactic stx
 
 end Lean.Elab.Tactic

@@ -3230,33 +3230,19 @@ theorem replicate_append {x : BitVec w} :
   · simp only [hn, ↓reduceIte, decide_true, Bool.true_and, show i - w < w * n by omega]
     by_cases hw : i < w
     · simp [hw, Nat.mod_eq_of_lt hw]
-    · simp [hw, ↓reduceIte]
+    · simp only [hw, ↓reduceIte]
       congr 1
       rw [← Nat.mod_eq_sub_mod]
       omega
-  · simp only [hn, ↓reduceIte]
-    by_cases hw : i < w
-    · simp [hw]
-      congr
-      by_cases hn' : 0 < n
-      · simp at hn
-        have hwn' : w + w * n = w * (n + 1) := by
-          rw [Nat.mul_succ, Nat.add_comm]
-        by_cases hw' : 0 < w
-        · by_cases hi : 0 < i
-          · rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
-          · simp [show i = 0 by omega]
-        · simp [show w = 0 by omega]
-      · simp [show n = 0 by omega]
-    · simp [hw]
+  · by_cases hw : i < w
+    · simp only [hn, hw, ↓reduceIte]
+      congr 1
+      rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
+    · simp [hn, hw, ↓reduceIte]
       by_cases hw' : i - w < w * n
-      · simp [hw']
-        simp at hn hw
-        have hwn' : w + w * n = w * (n + 1) := by
-          rw [Nat.mul_succ, Nat.add_comm]
-        rw [hwn'] at h
+      · simp only [hw', decide_true, Bool.true_and]
         congr 1
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega), ← Nat.mod_eq_sub_mod]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_sub_mod]
         omega
       · simp [hw']
         omega

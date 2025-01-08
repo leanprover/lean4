@@ -1212,6 +1212,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
   simp_to_raw using Raw₀.isEmpty_insertMany_list
 
 namespace Const
+
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
 @[simp]
@@ -1527,7 +1528,9 @@ end Const
 end Raw
 
 namespace Raw
+
 variable [BEq α] [Hashable α]
+
 open Internal.Raw Internal.Raw₀
 @[simp]
 theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
@@ -1540,7 +1543,6 @@ theorem ofList_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] :
     ofList [⟨k, v⟩] = empty.insert k v := by
   simp_to_raw
   rw [Raw₀.insertMany_empty_list_singleton]
-
 
 theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : Raw α β).insert k v).insertMany tl := by

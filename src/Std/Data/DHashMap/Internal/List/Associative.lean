@@ -923,7 +923,7 @@ theorem containsKey_eq_false_iff_forall_mem_keys [BEq α] [PartialEquivBEq α]
     (containsKey a l) = false ↔ ∀ a' ∈ keys l, (a == a') = false := by
   simp only [Bool.eq_false_iff, ne_eq, containsKey_iff_exists, not_exists, not_and]
 
-theorem containsKey_eq_false_iff [BEq α][PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α} :
+theorem containsKey_eq_false_iff [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)} {a : α} :
     containsKey a l = false ↔ ∀ (b : ((a : α) × β a)), b ∈ l → (a == b.fst) = false := by
   simp [containsKey_eq_false_iff_forall_mem_keys, keys_eq_map]
 

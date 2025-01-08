@@ -543,6 +543,7 @@ theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable �
   | cons hd tl ih =>
     simp only [List.foldl_cons,insertListIfNewUnitₘ]
     apply ih
+
 end
 
 end Raw₀

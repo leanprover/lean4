@@ -51,7 +51,7 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   let .fvar fvarId := p | return none
   return some fvarId
 
-private def mkLocalEMatchTheorem (e : Expr) : GoalM (Option EMatchTheorem) := do
+private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← if let some fvarId := isEqTrueHyp? proof then
     pure <| .fvar fvarId
@@ -59,8 +59,18 @@ private def mkLocalEMatchTheorem (e : Expr) : GoalM (Option EMatchTheorem) := do
     let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
   let proof := mkApp2 (mkConst ``of_eq_true) e proof
+  let size := (← get).newThms.size
+  let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  mkEMatchTheoremWithKind? origin #[] proof .default
+  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .fwd then
+    activateTheorem thm gen
+  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .bwd then
+    activateTheorem thm gen
+  if (← get).newThms.size == size then
+    if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .default then
+      activateTheorem thm gen
+  if (← get).newThms.size == size then
+    trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()
@@ -80,9 +90,6 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
   else if (← isEqTrue e) then
     if b.hasLooseBVars then
-      let some thm ← mkLocalEMatchTheorem e
-        | trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"
-          return ()
-      modify fun s => { s with newThms := s.newThms.push thm }
+      addLocalEMatchTheorems e
 
 end Lean.Meta.Grind

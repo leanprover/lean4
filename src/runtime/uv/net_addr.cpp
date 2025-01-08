@@ -11,7 +11,7 @@ namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
 
-void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out) {
+void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, in_addr* out) {
     out->s_addr = 0;
     for (int i = 0; i < 4; i++) {
         uint32_t octet = (uint32_t)(uint8_t)lean_unbox(array_uget(ipv4_addr, i));
@@ -20,7 +20,7 @@ void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out) {
     out->s_addr = htonl(out->s_addr);
 }
 
-void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out) {
+void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     for (int i = 0; i < 8; i++) {
         uint16_t segment = htons((uint16_t)lean_unbox(array_uget(ipv6_addr, i)));
         out->s6_addr[2 * i] = (uint8_t)segment;
@@ -28,7 +28,7 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out) {
     }
 }
 
-lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr) {
+lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     obj_res ret = alloc_array(0, 4);
     uint32_t hostaddr = ntohl(ipv4_addr->s_addr);
 
@@ -41,7 +41,7 @@ lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr) {
     return ret;
 }
 
-lean_obj_res lean_in6_addr_to_ipv6_addr(const struct in6_addr* ipv6_addr) {
+lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     obj_res ret = alloc_array(0, 8);
 
     for (int i = 0; i < 16; i += 2) {
@@ -58,7 +58,7 @@ lean_obj_res lean_in6_addr_to_ipv6_addr(const struct in6_addr* ipv6_addr) {
 /* Std.Net.IPV4Addr.ofString (s : @&String) : Option IPV4Addr */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v4(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
-    struct in_addr internal;
+    in_addr internal;
     if (uv_inet_pton(AF_INET, str, &internal) == 0) {
         return mk_option_some(lean_in_addr_to_ipv4_addr(&internal));
     } else {
@@ -68,7 +68,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v4(b_obj_arg str_obj) {
 
 /* Std.Net.IPV4Addr.toString (addr : @&IPV4Addr) : String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
-    struct in_addr internal;
+    in_addr internal;
     lean_ipv4_addr_to_in_addr(ipv4_addr, &internal);
     char dst[INET_ADDRSTRLEN];
     int ret = uv_inet_ntop(AF_INET, &internal, dst, sizeof(dst));
@@ -79,7 +79,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
 /* Std.Net.IPV6Addr.ofString (s : @&String) : Option IPV6Addr */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
-    struct in6_addr internal;
+    in6_addr internal;
     if (uv_inet_pton(AF_INET6, str, &internal) == 0) {
         return mk_option_some(lean_in6_addr_to_ipv6_addr(&internal));
     } else {
@@ -89,7 +89,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
 
 /* Std.Net.IPV6Addr.toString (addr : @&IPV6Addr) : String */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v6(b_obj_arg ipv6_addr) {
-    struct in6_addr internal;
+    in6_addr internal;
     lean_ipv6_addr_to_in6_addr(ipv6_addr, &internal);
     char dst[INET6_ADDRSTRLEN];
     int ret = uv_inet_ntop(AF_INET6, &internal, dst, sizeof(dst));

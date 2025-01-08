@@ -8,17 +8,12 @@ import Init.Data.Vector.Basic
 
 /-!
 This module contains Lean representations of IP and socket addresses:
-- `IPV4Addr`: Representing IPv4 addresses,
-  equivalent to [`in_addr`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html).
-- `SockAddrV4`: Representing a pair of IPv4 address and port,
-  equivalent to [`sockaddr_in`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html).
-- `IPV6Addr`: Representing IPv6 addresses,
-  equivalent to [`in6_addr`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html)
-- `SockAddrV6`: Representing a pair of IPv6 address and port,
-  equivalent to [`sockaddr_in6`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html)
-- `IPAddr`: Can either be an `IPV4Addr` or an `IPV6Addr`.
-- `SockAddr`: Can either be a `SockAddrV4` or `SockAddrV6`,
-  equivalent to [`sockaddr`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html)
+- `IPv4Addr`: Representing IPv4 addresses.
+- `SocketAddressV4`: Representing a pair of IPv4 address and port.
+- `IPv6Addr`: Representing IPv6 addresses.
+- `SocketAddressV6`: Representing a pair of IPv6 address and port.
+- `IPAddr`: Can either be an `IPv4Addr` or an `IPv6Addr`.
+- `SocketAddress`: Can either be a `SocketAddressV4` or `SocketAddressV6`.
 -/
 
 namespace Std
@@ -27,7 +22,7 @@ namespace Net
 /--
 Representation of an IPv4 address.
 -/
-structure IPV4Addr where
+structure IPv4Addr where
   /--
   This structure represents the address: `octets[0].octets[1].octets[2].octets[3]`.
   -/
@@ -35,17 +30,17 @@ structure IPV4Addr where
   deriving Inhabited, DecidableEq
 
 /--
-The Lean equivalent of [`sockaddr_in`](https://man7.org/linux/man-pages/man3/sockaddr.3type.html).
+A pair of an `IPv4Addr` and a port.
 -/
-structure SockAddrV4 where
-  addr : IPV4Addr
+structure SocketAddressV4 where
+  addr : IPv4Addr
   port : UInt16
   deriving Inhabited, DecidableEq
 
 /--
 Representation of an IPv6 address.
 -/
-structure IPV6Addr where
+structure IPv6Addr where
   /--
   This structure represents the address: `segments[0]:segments[1]:...`.
   -/
@@ -53,10 +48,10 @@ structure IPV6Addr where
   deriving Inhabited, DecidableEq
 
 /--
-The Lean equivalent of [`sockaddr_in6`](https://man7.org/linux/man-pages/man3/sockaddr.3type.html).
+A pair of an `IPv6Addr` and a port.
 -/
-structure SockAddrV6 where
-  addr : IPV6Addr
+structure SocketAddressV6 where
+  addr : IPv6Addr
   port : UInt16
   deriving Inhabited, DecidableEq
 
@@ -64,103 +59,97 @@ structure SockAddrV6 where
 An IP address, either IPv4 or IPv6.
 -/
 inductive IPAddr where
-  | v4 (addr : IPV4Addr)
-  | v6 (addr : IPV6Addr)
+  | v4 (addr : IPv4Addr)
+  | v6 (addr : IPv6Addr)
   deriving Inhabited, DecidableEq
 
 /--
-The Lean equivalent of [`sockaddr`](https://man7.org/linux/man-pages/man3/sockaddr.3type.html),
-limited to only IPv4 or IPv6.
+Either a `SocketAddressV4` or `SocketAddressV6`.
 -/
-inductive SockAddr where
-  | v4 (addr : SockAddrV4)
-  | v6 (addr : SockAddrV6)
+inductive SocketAddress where
+  | v4 (addr : SocketAddressV4)
+  | v6 (addr : SocketAddressV6)
   deriving Inhabited, DecidableEq
 
 /--
-The Lean equivalent of [`sa_family_t`](https://man7.org/linux/man-pages/man3/sockaddr.3type.html),
-limited to only IPv4 or IPv6.
+The kinds of address families supported by Lean, currently only IP variants.
 -/
 inductive AddressFamily where
-  /--
-  The Lean equivalent of `AF_INET` for IPv4 addresses.
-  -/
-  | inet
-  /--
-  The Lean equivalent of `AF_INET6` for IPv6 addresses.
-  -/
-  | inet6
+  | ipv4
+  | ipv6
   deriving Inhabited, DecidableEq
 
-namespace IPV4Addr
+namespace IPv4Addr
 
 /--
 Build the IPv4 address `a.b.c.d`.
 -/
-def ofParts (a b c d : UInt8) : IPV4Addr :=
-  { octets := #v[a, b, c, d]}
+def ofParts (a b c d : UInt8) : IPv4Addr :=
+  { octets := #v[a, b, c, d] }
 
 /--
 Try to parse `s` as an IPv4 address, returning `none` on failure.
 -/
 @[extern "lean_uv_pton_v4"]
-opaque ofString (s : @&String) : Option IPV4Addr
+opaque ofString (s : @&String) : Option IPv4Addr
 
 /--
 Turn `addr` into a `String` in the usual IPv4 format.
 -/
 @[extern "lean_uv_ntop_v4"]
-opaque toString (addr : @&IPV4Addr) : String
+opaque toString (addr : @&IPv4Addr) : String
 
-instance : ToString IPV4Addr where
+instance : ToString IPv4Addr where
   toString := toString
 
-instance : Coe IPV4Addr IPAddr where
+instance : Coe IPv4Addr IPAddr where
   coe addr := .v4 addr
 
-end IPV4Addr
+end IPv4Addr
 
-namespace SockAddrV4
+namespace SocketAddressV4
 
-instance : Coe SockAddrV4 SockAddr where
+instance : Coe SocketAddressV4 SocketAddress where
   coe addr := .v4 addr
 
-end SockAddrV4
+end SocketAddressV4
 
-namespace IPV6Addr
+namespace IPv6Addr
 
 /--
 Build the IPv6 address `a:b:c:d:e:f:g:h`.
 -/
-def ofParts (a b c d e f g h : UInt16) : IPV6Addr :=
-  { segments := #v[a, b, c, d, e, f, g, h]}
+def ofParts (a b c d e f g h : UInt16) : IPv6Addr :=
+  { segments := #v[a, b, c, d, e, f, g, h] }
 
 /--
-Try to parse `s` as an IPv6 address, returning `none` on failure.
+Try to parse `s` as an IPv6 address according to
+[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373), returning `none` on failure.
 -/
 @[extern "lean_uv_pton_v6"]
-opaque ofString (s : @&String) : Option IPV6Addr
+opaque ofString (s : @&String) : Option IPv6Addr
 
 /--
-Turn `addr` into a `String` in the usual IPv6 format.
+Turn `addr` into a `String` in the IPv6 format described in
+[RFC 2373](https://datatracker.ietf.org/doc/html/rfc2373).
 -/
 @[extern "lean_uv_ntop_v6"]
-opaque toString (addr : @&IPV6Addr) : String
+opaque toString (addr : @&IPv6Addr) : String
 
-instance : ToString IPV6Addr where
+instance : ToString IPv6Addr where
   toString := toString
 
-instance : Coe IPV6Addr IPAddr where
+instance : Coe IPv6Addr IPAddr where
   coe addr := .v6 addr
 
-end IPV6Addr
+end IPv6Addr
 
-namespace SockAddrV6
+namespace SocketAddressV6
 
-instance : Coe SockAddrV6 SockAddr where
+instance : Coe SocketAddressV6 SocketAddress where
   coe addr := .v6 addr
 
-end SockAddrV6
+end SocketAddressV6
 
 namespace IPAddr
 
@@ -168,8 +157,8 @@ namespace IPAddr
 Obtain the `AddressFamily` associated with an `IPAddr`.
 -/
 def family : IPAddr → AddressFamily
-  | .v4 .. => .inet
-  | .v6 .. => .inet6
+  | .v4 .. => .ipv4
+  | .v6 .. => .ipv6
 
 def toString : IPAddr → String
   | .v4 addr => addr.toString
@@ -180,29 +169,29 @@ instance : ToString IPAddr where
 
 end IPAddr
 
-namespace SockAddr
+namespace SocketAddress
 
 /--
-Obtain the `AddressFamily` associated with a `SockAddr`.
+Obtain the `AddressFamily` associated with a `SocketAddress`.
 -/
-def family : SockAddr → AddressFamily
-  | .v4 .. => .inet
-  | .v6 .. => .inet6
+def family : SocketAddress → AddressFamily
+  | .v4 .. => .ipv4
+  | .v6 .. => .ipv6
 
 /--
-Obtain the `IPAddr` contained in a `SockAddr`.
+Obtain the `IPAddr` contained in a `SocketAddress`.
 -/
-def ipAddr : SockAddr → IPAddr
-  | .v4 sockaddr  => .v4 sockaddr.addr
-  | .v6 sockaddr  => .v6 sockaddr.addr
+def ipAddr : SocketAddress → IPAddr
+  | .v4 sa  => .v4 sa.addr
+  | .v6 sa  => .v6 sa.addr
 
 /--
-Obtain the port contained in a `SockAddr`.
+Obtain the port contained in a `SocketAddress`.
 -/
-def port : SockAddr → UInt16
-  | .v4 sockaddr | .v6 sockaddr => sockaddr.port
+def port : SocketAddress → UInt16
+  | .v4 sa | .v6 sa => sa.port
 
-end SockAddr
+end SocketAddress
 
 end Net
 end Std

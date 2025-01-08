@@ -3187,15 +3187,11 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
 theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
-@[deprecated replicate_zero (since := "2025-01-08")] abbrev replicate_zero_eq := @replicate_zero
-
 @[simp]
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
-
-@[deprecated replicate_succ (since := "2025-01-08")] abbrev replicate_succ_eq := @replicate_succ
 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
@@ -3802,5 +3798,11 @@ abbrev shiftLeft_zero_eq := @shiftLeft_zero
 
 @[deprecated ushiftRight_zero (since := "2024-10-27")]
 abbrev ushiftRight_zero_eq := @ushiftRight_zero
+
+@[deprecated replicate_zero (since := "2025-01-08")]
+abbrev replicate_zero_eq := @replicate_zero
+
+@[deprecated replicate_succ (since := "2025-01-08")]
+abbrev replicate_succ_eq := @replicate_succ
 
 end BitVec

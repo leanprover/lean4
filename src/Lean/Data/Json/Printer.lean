@@ -12,6 +12,9 @@ namespace Lean
 namespace Json
 
 set_option maxRecDepth 1024 in
+/--
+This table contains for each UTF-8 byte whether we need to escape a string that contains it.
+-/
 private def escapeTable : { xs : ByteArray // xs.size = 256 } :=
   ⟨ByteArray.mk #[
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
@@ -68,6 +71,7 @@ where
       false
 
 def escape (s : String) (acc : String := "") : String :=
+  -- If we don't have any characters that need to be escaped we can just append right away.
   if needEscape s then
     s.foldl escapeAux acc
   else

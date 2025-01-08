@@ -1097,8 +1097,7 @@ theorem get_insertMany_list_of_contains_eq_false [LawfulBEq α] (h : m.WF)
     {l : List ((a : α) × β a)} {k : α}
     (contains : (l.map Sigma.fst).contains k = false)
     {h'} :
-    (m.insertMany l).get k h' =
-    m.get k (contains_of_contains_insertMany_list h h' contains) := by
+    (m.insertMany l).get k h' = m.get k (contains_of_contains_insertMany_list h h' contains) := by
   simp_to_raw using Raw₀.get_insertMany_list_of_contains_eq_false
 
 theorem get_insertMany_list_of_mem [LawfulBEq α] (h : m.WF)
@@ -1153,8 +1152,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     {l : List ((a : α) × β a)} {k : α}
     (h₁ : (l.map Sigma.fst).contains k = false)
     {h'} :
-    (m.insertMany l).getKey k h' =
-    m.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
+    (m.insertMany l).getKey k h' = m.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_raw using Raw₀.getKey_insertMany_list_of_contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1197,7 +1195,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Sigma.fst).contains a = false) →
-    (m.insertMany l).size = m.size + l.length := by
+      (m.insertMany l).size = m.size + l.length := by
   simp_to_raw using Raw₀.size_insertMany_list
 
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1263,8 +1261,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     {l : List (α × β)} {k : α}
     {h₁ : (l.map Prod.fst).contains k = false}
     {h'} :
-    (insertMany m l).getKey k h' =
-    m.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
+    (insertMany m l).getKey k h' = m.getKey k (contains_of_contains_insertMany_list h h' h₁) := by
   simp_to_raw using Raw₀.Const.getKey_insertMany_list_of_contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1308,7 +1305,7 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
     (∀ (a : α), m.contains a → (l.map Prod.fst).contains a = false) →
-    (insertMany m l).size = m.size + l.length := by
+      (insertMany m l).size = m.size + l.length := by
   simp_to_raw using Raw₀.Const.size_insertMany_list
 
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1430,8 +1427,7 @@ theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α
     {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) {h'} :
-    m.contains k = false →
-    getKey (insertManyIfNewUnit m l) k' h' = k := by
+    m.contains k = false → getKey (insertManyIfNewUnit m l) k' h' = k := by
   simp_to_raw using Raw₀.Const.getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false
 
 theorem getKey_insertManyIfNewUnit_list_mem_of_contains_of_contains [EquivBEq α] [LawfulHashable α]
@@ -1450,15 +1446,15 @@ theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [Law
 theorem getKey!_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited α] (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (mem : k ∈ l) : contains m k = false →
-    getKey! (insertManyIfNewUnit m l) k' = k := by
+    (mem : k ∈ l) :
+    contains m k = false → getKey! (insertManyIfNewUnit m l) k' = k := by
   simp_to_raw using Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_mem_of_contains_eq_false
 
 theorem getKey!_insertManyIfNewUnit_list_mem_of_contains_of_contains [EquivBEq α] [LawfulHashable α]
     [Inhabited α] (h : m.WF) {l : List α} {k : α}
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (h' : l.contains k) : m.contains k →
-    getKey! (insertManyIfNewUnit m l) k = getKey! m k := by
+    (h' : l.contains k) :
+    m.contains k → getKey! (insertManyIfNewUnit m l) k = getKey! m k := by
   simp_to_raw using Raw₀.Const.getKey!_insertManyIfNewUnit_list_mem_of_contains_of_contains
 
 theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
@@ -1470,22 +1466,22 @@ theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [Law
 theorem getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (mem : k ∈ l) : m.contains k = false →
-    getKeyD (insertManyIfNewUnit m l) k' fallback = k := by
+    (mem : k ∈ l) :
+    m.contains k = false → getKeyD (insertManyIfNewUnit m l) k' fallback = k := by
   simp_to_raw using Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_mem_of_contains_eq_false
 
 theorem getKeyD_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k fallback : α}
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (h' : l.contains k) : m.contains k →
-    getKeyD (insertManyIfNewUnit m l) k fallback = getKeyD m k fallback := by
+    (h' : l.contains k) :
+    m.contains k → getKeyD (insertManyIfNewUnit m l) k fallback = getKeyD m k fallback := by
   simp_to_raw using Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_contains_of_contains
 
 theorem size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α}
     (distinct : l.Pairwise (fun a b => (a == b) = false)) :
     (∀ (a : α), m.contains a → l.contains a = false) →
-    (insertManyIfNewUnit m l).size = m.size + l.length := by
+      (insertManyIfNewUnit m l).size = m.size + l.length := by
   simp_to_raw using Raw₀.Const.size_insertManyIfNewUnit_list
 
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
@@ -1503,7 +1499,7 @@ theorem isEmpty_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : 
 theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} {k : α} :
     get? (insertManyIfNewUnit m l) k =
-    if m.contains k ∨ l.contains k then some () else none := by
+      if m.contains k ∨ l.contains k then some () else none := by
   simp_to_raw using Raw₀.Const.get?_insertManyIfNewUnit_list
 
 @[simp]
@@ -1525,6 +1521,7 @@ theorem getD_insertManyIfNewUnit_list
   simp
 
 end Const
+
 end Raw
 
 namespace Raw
@@ -1670,6 +1667,7 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.isEmpty_insertMany_empty_list
 
 namespace Const
+
 variable {β : Type v}
 
 @[simp]

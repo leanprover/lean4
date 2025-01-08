@@ -305,7 +305,7 @@ def withMinutes (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
 Creates a new `DateTime tz` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : DateTime tz) (second : Second.Ordinal α) : DateTime tz :=
+def withSeconds (dt : DateTime tz) (second : Second.Ordinal leap) : DateTime tz :=
   ofPlainDateTime (dt.date.get.withSeconds second) tz
 
 /--

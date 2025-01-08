@@ -11,8 +11,9 @@ import Init.Data.List.Impl
 namespace Lean
 namespace Json
 
-private def escapeTable : ByteArray :=
-  ByteArray.mk #[
+set_option maxRecDepth 1024 in
+private def escapeTable : { xs : ByteArray // xs.size = 256 } :=
+  ⟨ByteArray.mk #[
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
     0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
@@ -21,7 +22,7 @@ private def escapeTable : ByteArray :=
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
-  ]
+  ], by rfl⟩
 
 private def escapeAux (acc : String) (c : Char) : String :=
   -- escape ", \, \n and \r, keep all other characters ≥ 0x20 and render characters < 0x20 with \u
@@ -57,7 +58,9 @@ where
   go (s : String) (i : Nat) : Bool :=
     if h : i < s.utf8ByteSize then
       let byte := s.getUtf8Byte i h
-      if escapeTable.uget byte.toUSize sorry == 0 then
+      have h1 : byte.toNat < 256 := UInt8.toNat_lt_size byte
+      have h2 : escapeTable.val.size = 256 := escapeTable.property
+      if escapeTable.val.get byte.toNat (Nat.lt_of_lt_of_eq h1 h2.symm) == 0 then
         go s (i + 1)
       else
         true

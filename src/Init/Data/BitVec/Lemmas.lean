@@ -3197,10 +3197,6 @@ theorem replicate_succ {x : BitVec w} :
 
 @[deprecated replicate_succ (since := "2025-01-08")] abbrev replicate_succ_eq := @replicate_succ
 
-theorem replicate_succ' {x : BitVec w} :
-    x.replicate (n + 1) =
-    (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := sorry
-
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
@@ -3208,7 +3204,7 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
   induction n generalizing x
   case zero => simp
   case succ n ih =>
-    simp only [replicate_succ_eq, getLsbD_cast, getLsbD_append]
+    simp only [replicate_succ, getLsbD_cast, getLsbD_append]
     by_cases hi : i < w * (n + 1)
     · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
@@ -3224,6 +3220,51 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   by_cases h' : w = 0 <;> simp [h'] <;> omega
+
+theorem replicate_append {x : BitVec w} :
+    x ++ x.replicate n = (x.replicate n ++ x).cast (by rw [Nat.add_comm]) := by
+  apply BitVec.eq_of_getLsbD_eq
+  simp only [getLsbD_cast, getLsbD_replicate, getLsbD_append, getLsbD_replicate]
+  intros i h
+  by_cases hn : i < w * n
+  · simp only [hn, ↓reduceIte, decide_true, Bool.true_and, show i - w < w * n by omega]
+    by_cases hw : i < w
+    · simp [hw, Nat.mod_eq_of_lt hw]
+    · simp [hw, ↓reduceIte]
+      congr 1
+      rw [← Nat.mod_eq_sub_mod]
+      omega
+  · simp only [hn, ↓reduceIte]
+    by_cases hw : i < w
+    · simp [hw]
+      congr
+      by_cases hn' : 0 < n
+      · simp at hn
+        have hwn' : w + w * n = w * (n + 1) := by
+          rw [Nat.mul_succ, Nat.add_comm]
+        by_cases hw' : 0 < w
+        · by_cases hi : 0 < i
+          · rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
+          · simp [show i = 0 by omega]
+        · simp [show w = 0 by omega]
+      · simp [show n = 0 by omega]
+    · simp [hw]
+      by_cases hw' : i - w < w * n
+      · simp [hw']
+        simp at hn hw
+        have hwn' : w + w * n = w * (n + 1) := by
+          rw [Nat.mul_succ, Nat.add_comm]
+        rw [hwn'] at h
+        congr 1
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega), ← Nat.mod_eq_sub_mod]
+        omega
+      · simp [hw']
+        omega
+
+theorem replicate_succ' {x : BitVec w} :
+    x.replicate (n + 1) =
+    (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := by
+  simp [replicate_append]
 
 /-! ### intMin -/
 

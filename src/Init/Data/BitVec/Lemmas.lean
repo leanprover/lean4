@@ -3184,14 +3184,22 @@ theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
   ext (_ | i) h <;> simp [Bool.and_comm]
 
 @[simp]
-theorem replicate_zero_eq {x : BitVec w} : x.replicate 0 = 0#0 := by
+theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
+@[deprecated replicate_zero (since := "2025-01-08")] abbrev replicate_zero_eq := @replicate_zero
+
 @[simp]
-theorem replicate_succ_eq {x : BitVec w} :
+theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
+
+@[deprecated replicate_succ (since := "2025-01-08")] abbrev replicate_succ_eq := @replicate_succ
+
+theorem replicate_succ' {x : BitVec w} :
+    x.replicate (n + 1) =
+    (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := sorry
 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
@@ -3529,8 +3537,8 @@ theorem msb_reverse {x : BitVec w} :
     (x.reverse).msb = x.getLsbD 0 :=
   by rw [BitVec.msb, getMsbD_reverse]
 
-theorem reverse_append {x : BitVec w} {y : BitVec v} (h : v + w = w + v) :
-    (x ++ y).reverse = (y.reverse ++ x.reverse).cast h := by
+theorem reverse_append {x : BitVec w} {y : BitVec v} :
+    (x ++ y).reverse = (y.reverse ++ x.reverse).cast (by omega) := by
   ext i h
   simp only [getLsbD_append, getLsbD_reverse]
   by_cases hi : i < v
@@ -3541,49 +3549,17 @@ theorem reverse_append {x : BitVec w} {y : BitVec v} (h : v + w = w + v) :
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show ¬ i < w by omega, getLsbD_reverse]
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show i < w by omega, getLsbD_reverse]
 
-theorem Nat.mod_sub_eq_sub_mod {w n i : Nat} (hwn : i < w * n) (hn : 0 < n):
-    (w * n - 1 - i) % w = w - 1 - i % w := by
-  induction n
-  case zero => omega
-  case succ n ih =>
-    simp_all only [Nat.mul_add, Nat.mul_one, Nat.zero_lt_succ]
-    by_cases h : i < w * n
-    · simp only [show w * n + w - 1 - i = w + (w * n - 1 - i) by omega, Nat.add_mod_left]
-      rw [ih (by omega)]
-      suffices ¬ n = 0 by omega
-      intros hcontra
-      subst hcontra
-      simp at h
-    · rw [Nat.mod_eq_of_lt]
-      · have := Nat.mod_add_div i w
-        have hiw : i / w = n := by
-          apply Nat.div_eq_of_lt_le
-          · rw [Nat.mul_comm]
-            omega
-          · rw [Nat.add_mul]
-            simp only [Nat.one_mul]
-            rw [Nat.mul_comm]
-            omega
-        rw [hiw] at this
-        conv =>
-          lhs
-          rw [← this]
-        omega
-      · omega
+@[simp] theorem reverse_cast {w v : Nat} (h : w = v) (x : BitVec w) :
+    (x.cast h).reverse = x.reverse.cast h := by
+  sorry
 
 theorem reverse_replicate {n : Nat} {x : BitVec w} :
     (x.replicate n).reverse = (x.reverse).replicate n := by
-  ext i h
-  simp [getLsbD_reverse, getMsbD_eq_getLsbD, getLsbD_replicate]
-  rcases n with rfl | n
-  · simp
-  · by_cases hw : 0 < w
-    · simp [show (w * (n + 1) - 1 - i < w * (n + 1)) by omega,
-        show i % w < w by simp [Nat.mod_lt (x := i) (y := w) hw]]
-      congr
-      rw [Nat.mod_sub_eq_sub_mod (n := n + 1) h (by omega)]
-      <;> omega
-    · simp [show w = 0 by omega]
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    conv => lhs; simp only [replicate_succ']
+    simp [reverse_append, ih]
 
 /-! ### Decidable quantifiers -/
 

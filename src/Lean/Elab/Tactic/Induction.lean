@@ -258,11 +258,11 @@ private def saveAltVarsInfo (altMVarId : MVarId) (altStx : Syntax) (fvarIds : Ar
           i := i + 1
 
 open Language in
-def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs : Array Syntax)
+def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altStxs? : Option (Array Syntax))
     (initialInfo : Info)
     (numEqs : Nat := 0) (numGeneralized : Nat := 0) (toClear : Array FVarId := #[])
     (toTag : Array (Ident × FVarId) := #[]) : TacticM Unit := do
-  let hasAlts := altStxs.size > 0
+  let hasAlts := altStxs?.isSome
   if hasAlts then
     -- default to initial state outside of alts
     -- HACK: because this node has the same span as the original tactic,
@@ -274,9 +274,7 @@ def evalAlts (elimInfo : ElimInfo) (alts : Array Alt) (optPreTac : Syntax) (altS
 where
   -- continuation in the correct info context
   goWithInfo := do
-    let hasAlts := altStxs.size > 0
-
-    if hasAlts then
+    if let some altStxs := altStxs? then
       if let some tacSnap := (← readThe Term.Context).tacSnap? then
         -- incrementality: create a new promise for each alternative, resolve current snapshot to
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
@@ -309,7 +307,8 @@ where
 
   -- continuation in the correct incrementality context
   goWithIncremental (tacSnaps : Array (SnapshotBundle TacticParsedSnapshot)) := do
-    let hasAlts := altStxs.size > 0
+    let hasAlts := altStxs?.isSome
+    let altStxs := altStxs?.getD #[]
     let mut alts := alts
 
     -- initial sanity checks: named cases should be known, wildcards should be last
@@ -343,12 +342,12 @@ where
       let altName := getAltName altStx
       if let some i := alts.findFinIdx? (·.1 == altName) then
         -- cover named alternative
-        applyAltStx tacSnaps altStxIdx altStx alts[i]
+        applyAltStx tacSnaps altStxs altStxIdx altStx alts[i]
         alts := alts.eraseIdx i
       else if !alts.isEmpty && isWildcard altStx then
         -- cover all alternatives
         for alt in alts do
-          applyAltStx tacSnaps altStxIdx altStx alt
+          applyAltStx tacSnaps altStxs altStxIdx altStx alt
         alts := #[]
       else
         throwErrorAt altStx "unused alternative '{altName}'"
@@ -379,7 +378,7 @@ where
         altMVarIds.forM fun mvarId => admitGoal mvarId
 
   /-- Applies syntactic alternative to alternative goal. -/
-  applyAltStx tacSnaps altStxIdx altStx alt := withRef altStx do
+  applyAltStx tacSnaps altStxs altStxIdx altStx alt := withRef altStx do
     let { name := altName, info, mvarId := altMVarId } := alt
     -- also checks for unknown alternatives
     let numFields ← getAltNumFields elimInfo altName
@@ -476,7 +475,7 @@ private def generalizeVars (mvarId : MVarId) (stx : Syntax) (targets : Array Exp
 /--
 Given `inductionAlts` of the form
 ```
-syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
 Return an array containing its alternatives.
 -/
@@ -486,21 +485,30 @@ private def getAltsOfInductionAlts (inductionAlts : Syntax) : Array Syntax :=
 /--
 Given `inductionAlts` of the form
 ```
-syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
-runs `cont alts` where `alts` is an array containing all `inductionAlt`s while disabling incremental
-reuse if any other syntax changed.
+runs `cont (some alts)` where `alts` is an array containing all `inductionAlt`s while disabling incremental
+reuse if any other syntax changed. If there's no `with` clause, then runs `cont none`.
 -/
 private def withAltsOfOptInductionAlts (optInductionAlts : Syntax)
-    (cont : Array Syntax → TacticM α) : TacticM α :=
+    (cont : Option (Array Syntax) → TacticM α) : TacticM α :=
   Term.withNarrowedTacticReuse (stx := optInductionAlts) (fun optInductionAlts =>
     if optInductionAlts.isNone then
       -- if there are no alternatives, what to compare is irrelevant as there will be no reuse
       (mkNullNode #[], mkNullNode #[])
     else
+      -- if there are no alts, then use the `with` token for `inner` for a ref for messages
+      let altStxs := optInductionAlts[0].getArg 2
+      let inner := if altStxs.getNumArgs > 0 then altStxs else optInductionAlts[0][0]
       -- `with` and tactic applied to all branches must be unchanged for reuse
-      (mkNullNode optInductionAlts[0].getArgs[:2], optInductionAlts[0].getArg 2))
-    (fun alts => cont alts.getArgs)
+      (mkNullNode optInductionAlts[0].getArgs[:2], inner))
+    (fun alts? =>
+      if optInductionAlts.isNone then      -- no `with` clause
+        cont none
+      else if alts?.isOfKind nullKind then -- has alts
+        cont (some alts?.getArgs)
+      else                                 -- has `with` clause, but no alts
+        cont (some #[]))
 
 private def getOptPreTacOfOptInductionAlts (optInductionAlts : Syntax) : Syntax :=
   if optInductionAlts.isNone then mkNullNode else optInductionAlts[0][1]
@@ -518,7 +526,7 @@ private def expandMultiAlt? (alt : Syntax) : Option (Array Syntax) := Id.run do
 /--
 Given `inductionAlts` of the form
 ```
-syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)+)
+syntax inductionAlts := "with " (tactic)? withPosition( (colGe inductionAlt)*)
 ```
 Return `some inductionAlts'` if one of the alternatives have multiple LHSs, in the new `inductionAlts'`
 all alternatives have a single LHS.
@@ -700,10 +708,10 @@ def evalInduction : Tactic := fun stx =>
         -- unchanged
         -- everything up to the alternatives must be unchanged for reuse
         Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
-        withAltsOfOptInductionAlts optInductionAlts fun alts => do
+        withAltsOfOptInductionAlts optInductionAlts fun alts? => do
           let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
           mvarId.assign result.elimApp
-          ElimApp.evalAlts elimInfo result.alts optPreTac alts initInfo (numGeneralized := n) (toClear := targetFVarIds)
+          ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo (numGeneralized := n) (toClear := targetFVarIds)
           appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do

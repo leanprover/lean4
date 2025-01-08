@@ -1142,11 +1142,16 @@ theorem getMsb_not {x : BitVec w} :
 /-! ### shiftLeft -/
 
 @[simp, bv_toNat] theorem toNat_shiftLeft {x : BitVec v} :
-    BitVec.toNat (x <<< n) = BitVec.toNat x <<< n % 2^v :=
+    (x <<< n).toNat = x.toNat <<< n % 2^v :=
   BitVec.toNat_ofNat _ _
 
+@[simp] theorem toInt_shiftLeft {x : BitVec w} :
+    (x <<< n).toInt = (x.toNat <<< n : Int).bmod (2^w) := by
+  rw [toInt_eq_toNat_bmod, toNat_shiftLeft, Nat.shiftLeft_eq]
+  simp
+
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
-    BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
+    (x <<< n).toFin = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 
 @[simp]
 theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by

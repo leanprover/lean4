@@ -44,8 +44,12 @@ bool is_letter_like_unicode(unsigned u) {
 bool is_sub_script_alnum_unicode(unsigned u) {
     return
             (0x207f <= u && u <= 0x2089) || // n superscript and numeric subscripts
-            (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
-            (0x1d62 <= u && u <= 0x1d6a);   // letter-like subscripts
+            (0x2090 <= u && u <= 0x209c) || // letter-like subscripts; also contains schwa (upside down e)
+                                            // a e o x h k l m n p s t
+            (0x1d62 <= u && u <= 0x1d6a) || // letter-like subscripts
+                                            // i r u v
+            (0x006a == u);                  // j
+    // There are no subscripts for b, c, d, f, g
 }
 
 bool is_id_first(unsigned char const * begin, unsigned char const * end) {

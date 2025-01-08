@@ -588,9 +588,9 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       rw [containsₘ_eq_containsKey h] at hc
       have : (m.alter a f).containsₘ a ↔ _ := containsₘ_alter_iff h
       rw [containsₘ, bucket_alter h] at this
-      simp only [bucket_updateBucket, this, get?_eq_getValueCast? h, alterKey]
-      apply Eq.symm; split <;> { next hh =>
-        simp [length_insertEntry, length_eraseKey, hc, hh, h.size_eq] }
+      simp only [bucket_updateBucket, this, get?_eq_getValueCast? h, alterKey, ← get?_eq_get?ₘ]
+      apply Eq.symm; split <;> {
+        next hh => simp [length_insertEntry, length_eraseKey, hc, hh, h.size_eq] }
     · next hc =>
       simp only [containsₘ_eq_containsKey h, Bool.not_eq_true] at hc
       simp only [alterKey]

@@ -149,17 +149,24 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
 open Lean.Parser.Term
 
 private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.Parser.Term.hole]) × BinderInfo)
-  | `(bracketedBinderF|($ids*)) => some (ids, .default)
-  | `(bracketedBinderF|{$ids*}) => some (ids, .implicit)
-  | `(bracketedBinderF|⦃$ids*⦄)  => some (ids, .strictImplicit)
-  | _                           => none
+  | `(bracketedBinderF|($ids*))     => some (ids, .default)
+  | `(bracketedBinderF|{$ids*})     => some (ids, .implicit)
+  | `(bracketedBinderF|⦃$ids*⦄)     => some (ids, .strictImplicit)
+  | `(bracketedBinderF|[$id:ident]) => some (#[id], .instImplicit)
+  | _                               => none
 
 /--  If `id` is an identifier, return true if `ids` contains `id`. -/
 private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id : TSyntax [`ident, ``Parser.Term.hole]) : Bool :=
   id.raw.isIdent && ids.any fun id' => id'.raw.getId == id.raw.getId
 
+/-- Elaborates `binders` using `withSynthesize` and `withAutoBoundImplicit`. -/
+private def elabBindersSynthesizingAutoBound (binders : TSyntaxArray ``bracketedBinder) :=
+  runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
+    Term.elabBinders binders fun _ => pure ()
+
 /--
-  Auxiliary method for processing binder annotation update commands: `variable (α)` and `variable {α}`.
+  Auxiliary method for processing binder annotation update commands:
+  `variable (α)`, `variable {α}`, `variable ⦃α⦄`, and `variable [α]`.
   The argument `binder` is the binder of the `variable` command.
   The method returns an array containing the "residue", that is, variables that do not correspond to updates.
   Recall that a `bracketedBinder` can be of the form `(x y)`.
@@ -209,12 +216,22 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         | .implicit => `(bracketedBinderF| {$id $[: $ty?]?})
         | .strictImplicit => `(bracketedBinderF| {{$id $[: $ty?]?}})
         | .instImplicit => do
-          let some ty := ty? | throwErrorAt id "instance-implicit binders must provide an explicit type"
+          let some ty := ty?
+            | throwErrorAt binder "cannot update binder annotation of variable '{id}' to instance implicit:\n\
+                variable was originally declared without an explicit type"
           `(bracketedBinderF| [$(⟨id⟩) : $ty])
       for id in ids.reverse do
         if let some idx := binderIds.findFinIdx? fun binderId => binderId.raw.isIdent && binderId.raw.getId == id.raw.getId then
           binderIds := binderIds.eraseIdx idx
           modifiedVarDecls := true
+          let newBinder ← mkBinder id binderInfo
+          if binderInfo.isInstImplicit then
+            -- We elaborate the new binder to make sure it's valid as instance implicit
+            try
+              elabBindersSynthesizingAutoBound #[newBinder]
+            catch e =>
+              throwErrorAt binder m!"cannot update binder annotation of variable '{id}' to instance implicit:\n\
+                {e.toMessageData}"
           varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo)
         else
           varDeclsNew := varDeclsNew.push (← mkBinder id binderInfo')
@@ -226,7 +243,7 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
         | .default => `(bracketedBinderF| ($binderId))
         | .implicit => `(bracketedBinderF| {$binderId})
         | .strictImplicit => `(bracketedBinderF| {{$binderId}})
-        | .instImplicit => throwErrorAt binderId "instance-implicit binders must provide an explicit type"
+        | .instImplicit => throwUnsupportedSyntax
   else
     return #[binder]
 

@@ -393,6 +393,8 @@ structure Goal where
   numSplits : Nat := 0
   /-- Case-splits that do not have to be performed anymore. -/
   resolvedSplits : PHashSet ENodeKey := {}
+  /-- Next local E-match theorem idx. -/
+  nextThmIdx : Nat := 0
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

@@ -173,3 +173,18 @@ example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
         (h₄ : b₁ = b₂)
         : HEq a₂ b₂ := by
   grind
+
+/--
+info: [grind.assert] ∀ (a : α), a ∈ b → p a
+[grind.ematch.pattern] h₁: [p #1]
+[grind.assert] w ∈ b
+[grind.assert] ¬p w
+[grind.ematch.instance] h₁: w ∈ b → p w
+[grind.assert] w ∈ b → p w
+-/
+#guard_msgs (info) in
+set_option trace.grind.ematch.pattern true in
+set_option trace.grind.ematch.instance true in
+set_option trace.grind.assert true in
+example (b : List α) (p : α → Prop) (h₁ : ∀ a ∈ b, p a) (h₂ : ∃ a ∈ b, ¬p a) : False := by
+  grind

@@ -47,8 +47,9 @@ where
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
 def propagateImpliesDown (e : Expr) : GoalM Unit := do
+  let .forallE _ a b _ := e | return ()
+  if b.hasLooseBVars then return ()
   if (← isEqFalse e) then
-    let .forallE _ a b _ := e | return ()
     let h ← mkEqFalseProof e
     pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
     pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h

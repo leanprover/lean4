@@ -56,22 +56,25 @@ private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   unless e.isApp do return ()
-  if e.isIte || e.isDIte then
+  if (← getConfig).splitIte && (e.isIte || e.isDIte) then
     addSplitCandidate e
-  else if (← isMatcherApp e) then
-    if let .reduced _ ← reduceMatcher? e then
-      -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
-      -- and consequently don't need to be splitted.
-      return ()
-    else
-      addSplitCandidate e
-  else
-    let .const declName _  := e.getAppFn | return ()
+    return ()
+  if (← getConfig).splitMatch then
+    if (← isMatcherApp e) then
+      if let .reduced _ ← reduceMatcher? e then
+        -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
+        -- and consequently don't need to be splitted.
+        return ()
+      else
+        addSplitCandidate e
+        return ()
+  let .const declName _  := e.getAppFn | return ()
     if forbiddenSplitTypes.contains declName then return ()
     -- We should have a mechanism for letting users to select types to case-split.
     -- Right now, we just consider inductive predicates that are not in the forbidden list
-    if (← isInductivePredicate declName) then
-      addSplitCandidate e
+    if (← getConfig).splitIndPred then
+      if (← isInductivePredicate declName) then
+        addSplitCandidate e
 
 /--
 If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
@@ -98,7 +101,7 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
   else pattern.withApp fun f args => do
     return mkAppN f (← args.mapM (internalizePattern · generation))
 
-private partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
+partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
   -- We don't want to use structural equality when comparing keys.
   let proof ← shareCommon thm.proof

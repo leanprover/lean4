@@ -46,11 +46,50 @@ where
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
-def propagateImpliesDown (e : Expr) : GoalM Unit := do
+private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
+  let_expr eq_true _ p := proof | return none
+  let .fvar fvarId := p | return none
+  return some fvarId
+
+private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
+  let proof ← mkEqTrueProof e
+  let origin ← if let some fvarId := isEqTrueHyp? proof then
+    pure <| .fvar fvarId
+  else
+    let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
+    pure <| .local ((`local).appendIndexAfter idx)
+  let proof := mkApp2 (mkConst ``of_eq_true) e proof
+  let size := (← get).newThms.size
+  let gen ← getGeneration e
+  -- TODO: we should have a flag for collecting all unary patterns in a local theorem
+  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .fwd then
+    activateTheorem thm gen
+  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .bwd then
+    activateTheorem thm gen
+  if (← get).newThms.size == size then
+    if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .default then
+      activateTheorem thm gen
+  if (← get).newThms.size == size then
+    trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"
+
+def propagateForallPropDown (e : Expr) : GoalM Unit := do
+  let .forallE n a b bi := e | return ()
   if (← isEqFalse e) then
-    let .forallE _ a b _ := e | return ()
-    let h ← mkEqFalseProof e
-    pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
-    pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
+    if b.hasLooseBVars then
+      let α := a
+      let p := b
+      -- `e` is of the form `∀ x : α, p x`
+      -- Add fact `∃ x : α, ¬ p x`
+      let u ← getLevel α
+      let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
+      let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
+      addNewFact proof prop (← getGeneration e)
+    else
+      let h ← mkEqFalseProof e
+      pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
+      pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
+  else if (← isEqTrue e) then
+    if b.hasLooseBVars then
+      addLocalEMatchTheorems e
 
 end Lean.Meta.Grind

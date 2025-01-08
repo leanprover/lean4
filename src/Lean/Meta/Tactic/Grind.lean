@@ -23,7 +23,7 @@ import Lean.Meta.Tactic.Grind.Parser
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Main
-
+import Lean.Meta.Tactic.Grind.CasesMatch
 
 namespace Lean
 
@@ -52,5 +52,6 @@ builtin_initialize registerTraceClass `grind.debug.proj
 builtin_initialize registerTraceClass `grind.debug.parent
 builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
+builtin_initialize registerTraceClass `grind.debug.split
 
 end Lean

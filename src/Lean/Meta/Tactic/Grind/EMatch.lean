@@ -199,14 +199,18 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         let c := { c with gen := Nat.max gen c.gen }
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
-/-- Helper function for marking parts of `match`-equation theorem as "do-not-simplify" -/
-private partial def annotateMatchEqnType (prop : Expr) : M Expr := do
+/--
+Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
+`initApp` is the match-expression used to instantiate the `match`-equation.
+-/
+private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
   if let .forallE n d b bi := prop then
     withLocalDecl n bi (← markAsDoNotSimp d) fun x => do
-      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x))
+      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
   else
     let_expr f@Eq α lhs rhs := prop | return prop
-    return mkApp3 f α (← markAsDoNotSimp lhs) rhs
+    -- See comment at `Grind.EqMatch`
+    return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α (← markAsDoNotSimp lhs) rhs initApp
 
 /--
 Stores new theorem instance in the state.
@@ -218,9 +222,7 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
     check proof
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
-    -- `initApp` is a match-application that we don't need to split at anymore.
-    markCaseSplitAsResolved (← read).initApp
-    prop ← annotateMatchEqnType prop
+    prop ← annotateMatchEqnType prop (← read).initApp
   trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
 

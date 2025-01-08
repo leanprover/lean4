@@ -134,6 +134,13 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     let_expr Eq _ a b := e | return ()
     pushEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
 
+/-- Propagates `EqMatch` downwards -/
+builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do
+  if (← isEqTrue e) then
+    let_expr Grind.EqMatch _ a b origin := e | return ()
+    markCaseSplitAsResolved origin
+    pushEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+
 /-- Propagates `HEq` downwards -/
 builtin_grind_propagator propagateHEqDown ↓HEq := fun e => do
   if (← isEqTrue e) then

@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.CasesMatch
 
 namespace Lean.Meta.Grind
 
@@ -50,10 +51,10 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
       return .ready
   | _ =>
     if (← isResolvedCaseSplit e) then
+      trace[grind.debug.split] "split resolved: {e}"
       return .resolved
     if (← isMatcherApp e) then
-      return .notReady -- TODO: implement splitters for `match`
-      -- return .ready
+      return .ready
     let .const declName .. := e.getAppFn | unreachable!
     if (← isInductivePredicate declName <&&> isEqTrue e) then
       return .ready
@@ -111,9 +112,11 @@ def splitNext : GrindTactic := fun goal => do
       | return none
     let gen ← getGeneration c
     trace_goal[grind.split] "{c}, generation: {gen}"
-    -- TODO: `match`
-    let major ← mkCasesMajor c
-    let mvarIds ← cases (← get).mvarId major
+    let mvarIds ← if (← isMatcherApp c) then
+      casesMatch (← get).mvarId c
+    else
+      let major ← mkCasesMajor c
+      cases (← get).mvarId major
     let goal ← get
     let goals := mvarIds.map fun mvarId => { goal with mvarId }
     let goals ← introNewHyp goals [] (gen+1)

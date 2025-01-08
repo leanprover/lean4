@@ -709,7 +709,7 @@ Std.Time.Weekday.tuesday
 
   println! plaindatetime.toDaysSinceUNIXEpoch
   println! plaindatetime.toTimestampAssumingUTC
-  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight
+  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := true) 1 PlainTime.midnight
 
 /--
 info: 2024-09-13T02:01:02.000000000-03:00

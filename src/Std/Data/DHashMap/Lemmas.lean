@@ -1428,6 +1428,7 @@ theorem getD_insertManyIfNewUnit_list
   simp
 
 end Const
+
 end DHashMap
 
 namespace DHashMap
@@ -1812,4 +1813,5 @@ theorem getD_unitOfList
   simp
 
 end Const
+
 end Std.DHashMap

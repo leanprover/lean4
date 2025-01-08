@@ -734,7 +734,8 @@ theorem wfImp_filter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
 
 theorem toListModel_insertListₘ [BEq α] [Hashable α] [EquivBEq α][LawfulHashable α]
     {m : Raw₀ α β} {l : List ((a : α) × β a)} (h : Raw.WFImp m.1) :
-    Perm (toListModel (insertListₘ m l).1.buckets) (List.insertList (toListModel m.1.buckets) l) := by
+    Perm (toListModel (insertListₘ m l).1.buckets)
+      (List.insertList (toListModel m.1.buckets) l) := by
   induction l generalizing m with
   | nil =>
     simp [insertListₘ, List.insertList]
@@ -774,7 +775,8 @@ theorem wfImp_insertMany [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α
 
 theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α β} {l : List ((a : α) × (β a))} (h : Raw.WFImp m.1) :
-    Perm (toListModel (insertMany m l).1.1.buckets) (List.insertList (toListModel m.1.buckets) l) := by
+    Perm (toListModel (insertMany m l).1.1.buckets)
+      (List.insertList (toListModel m.1.buckets) l) := by
   rw [insertMany_eq_insertListₘ]
   apply toListModel_insertListₘ
   exact h
@@ -783,7 +785,8 @@ theorem toListModel_insertMany_list [BEq α] [Hashable α] [EquivBEq α] [Lawful
 
 theorem Const.toListModel_insertListₘ {β : Type v} [BEq α] [Hashable α] [EquivBEq α]
     [LawfulHashable α] {m : Raw₀ α (fun _ => β)} {l : List (α × β)} (h : Raw.WFImp m.1) :
-    Perm (toListModel (Const.insertListₘ m l).1.buckets) (insertListConst (toListModel m.1.buckets) l) := by
+    Perm (toListModel (Const.insertListₘ m l).1.buckets)
+      (insertListConst (toListModel m.1.buckets) l) := by
   induction l generalizing m with
   | nil => simp [Const.insertListₘ, insertListConst, insertList]
   | cons hd tl ih =>
@@ -796,7 +799,8 @@ theorem Const.toListModel_insertListₘ {β : Type v} [BEq α] [Hashable α] [Eq
 
 theorem Const.toListModel_insertMany_list {β : Type v} [BEq α] [Hashable α] [EquivBEq α]
     [LawfulHashable α] {m : Raw₀ α (fun _ => β)} {l : List (α × β)} (h : Raw.WFImp m.1) :
-    Perm (toListModel (Const.insertMany m l).1.1.buckets) (insertListConst (toListModel m.1.buckets) l) := by
+    Perm (toListModel (Const.insertMany m l).1.1.buckets)
+      (insertListConst (toListModel m.1.buckets) l) := by
   rw [Const.insertMany_eq_insertListₘ]
   apply toListModel_insertListₘ h
 
@@ -810,7 +814,7 @@ theorem Const.wfImp_insertMany {β : Type v} [BEq α] [Hashable α] [EquivBEq α
 theorem Const.toListModel_insertListIfNewUnitₘ [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α (fun _ => Unit)} {l : List α} (h : Raw.WFImp m.1) :
     Perm (toListModel (Const.insertListIfNewUnitₘ m l).1.buckets)
-    (List.insertListIfNewUnit (toListModel m.1.buckets) l) := by
+      (List.insertListIfNewUnit (toListModel m.1.buckets) l) := by
   induction l generalizing m with
   | nil => simp [insertListIfNewUnitₘ, List.insertListIfNewUnit]
   | cons hd tl ih =>
@@ -824,7 +828,7 @@ theorem Const.toListModel_insertListIfNewUnitₘ [BEq α] [Hashable α] [EquivBE
 theorem Const.toListModel_insertManyIfNewUnit_list [BEq α] [Hashable α] [EquivBEq α]
     [LawfulHashable α] {m : Raw₀ α (fun _ => Unit)} {l : List α} (h : Raw.WFImp m.1) :
     Perm (toListModel (Const.insertManyIfNewUnit m l).1.1.buckets)
-    (List.insertListIfNewUnit (toListModel m.1.buckets) l) := by
+      (List.insertListIfNewUnit (toListModel m.1.buckets) l) := by
   rw [Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ]
   apply toListModel_insertListIfNewUnitₘ h
 

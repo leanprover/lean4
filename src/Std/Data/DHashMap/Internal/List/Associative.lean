@@ -2219,6 +2219,7 @@ theorem isEmpty_insertList [BEq α]
     simp
 
 section
+
 variable {β : Type v}
 
 /-- Internal implementation detail of the hash map -/
@@ -2875,4 +2876,5 @@ theorem getValueD_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
   rw [getValueD_list_unit]
 
 end
+
 end List

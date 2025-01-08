@@ -349,13 +349,15 @@ def Const.get!ₘ [BEq α] [Hashable α] [Inhabited β] (m : Raw₀ α (fun _ =>
   (Const.get?ₘ m a).get!
 
 /-- Internal implementation detail of the hash map -/
-def Const.insertListₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => β)) (l: List (α × β)): Raw₀ α (fun _ => β) :=
+def Const.insertListₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => β)) (l: List (α × β)) :
+    Raw₀ α (fun _ => β) :=
   match l with
   | .nil => m
   | .cons hd tl => insertListₘ (m.insert hd.1 hd.2) tl
 
 /-- Internal implementation detail of the hash map -/
-def Const.insertListIfNewUnitₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => Unit)) (l: List α): Raw₀ α (fun _ => Unit) :=
+def Const.insertListIfNewUnitₘ [BEq α] [Hashable α](m : Raw₀ α (fun _ => Unit)) (l: List α) :
+    Raw₀ α (fun _ => Unit) :=
   match l with
   | .nil => m
   | .cons hd tl => insertListIfNewUnitₘ (m.insertIfNew hd ()) tl

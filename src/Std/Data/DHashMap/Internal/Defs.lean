@@ -227,6 +227,19 @@ where
     expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
 /-- Internal implementation detail of the hash map -/
+@[inline] def modify [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (f : β a → β a) : Raw₀ α β :=
+  let ⟨⟨size, buckets⟩, hm⟩ := m
+  let size' := size
+  let ⟨i, hi⟩ := mkIdx buckets.size hm (hash a)
+  let bucket := buckets[i]
+  if bucket.contains a then
+    let buckets := buckets.uset i .nil hi
+    let bucket := bucket.modify a f
+    ⟨⟨size, buckets.uset i bucket (by simpa [buckets])⟩, (by simpa [buckets])⟩
+  else
+    m
+
+/-- Internal implementation detail of the hash map -/
 @[inline] def alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) : Raw₀ α β :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
@@ -234,8 +247,8 @@ where
   let bkt := buckets[i]
   if bkt.contains a then
     let buckets' := buckets.uset i .nil h
-    let (bkt', some?) := bkt.alter' a f
-    let size' := if some? then size else size - 1
+    let bkt' := bkt.alter a f
+    let size' := if bkt'.contains a then size else size - 1
     ⟨⟨size', buckets'.uset i bkt' (by simpa [buckets'])⟩, by simpa [buckets']⟩
   else
     match f none with
@@ -244,24 +257,6 @@ where
       let size'    := size + 1
       let buckets' := buckets.uset i (.cons a b bkt) h
       expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
-
-def alterAux [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-  (f : Option (β a) → Option (β a)) : Raw₀ α β :=
-let ⟨⟨size, buckets⟩, hm⟩ := m
-let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
-let bkt := buckets[i]
-if bkt.contains a then
-  let buckets' := buckets.uset i .nil h
-  let (bkt', some?) := bkt.alter' a f
-  let size' := if some? then size else size - 1
-  ⟨⟨size', buckets'.uset i bkt' (by simpa [buckets'])⟩, by simpa [buckets']⟩
-else
-  match f none with
-  | none => m
-  | some b =>
-    let size'    := size + 1
-    let buckets' := buckets.uset i (.cons a b bkt) h
-    expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
 
 /-- Internal implementation detail of the hash map -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :

@@ -849,10 +849,10 @@ theorem isEmpty_eraseKey [BEq α] {l : List ((a : α) × β a)} {k : α} :
 theorem keys_eq_map (l : List ((a : α) × β a)) : keys l = l.map (·.1) := by
   induction l using assoc_induction <;> simp_all
 
-theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by 
+theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by
   induction l using assoc_induction <;> simp_all
 
-theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by 
+theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by
   induction l using assoc_induction <;> simp_all
 
 theorem containsKey_eq_keys_contains [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}
@@ -1826,5 +1826,37 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
     cases k' == k
     · rw [cond_false, cond_false, ih, List.cons_append]
     · rw [cond_true, cond_true]
+
+/-- Internal implementation detail of the hash map -/
+def alterKey [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β k))
+    (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
+  match f (getValueCast? k l) with
+  | none => eraseKey k l
+  | some v => insertEntry k v l
+  -- if h : containsKey k l then
+  --   match f (some (getValueCast k l h)) with
+  --   | none => eraseKey k l
+  --   | some v => replaceEntry k v l
+  -- else
+  --   match f none with
+  --   | none => l
+  --   | some v => ⟨k, v⟩ :: l
+
+theorem alterKey_of_perm [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l l' : List ((a : α) × β a)} (hl : DistinctKeys l) (hp : Perm l l') :
+    Perm (alterKey a f l) (alterKey a f l') := sorry
+
+theorem alterKey_append_of_containsKey_right_eq_false [BEq α] [LawfulBEq α] {a : α}
+    {f : Option (β a) → Option (β a)} {l l' : List ((a : α) × β a)}
+    (hc : containsKey a l' = false) :
+    alterKey a f (l ++ l') = alterKey a f l ++ l' := sorry
+
+theorem containsKey_alterKey_iff [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    containsKey a (alterKey a f l) ↔ (f (getValueCast? a l)).isSome := sorry
+
+theorem distinctKeys_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    DistinctKeys (alterKey a f l) := sorry
 
 end List

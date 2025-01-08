@@ -310,22 +310,19 @@ def eraseₘaux [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α �
 def eraseₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Raw₀ α β :=
   if m.containsₘ a then m.eraseₘaux a else m
 
+/-- Internal implementation detail of the hash map -/
 def alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) :
     Raw₀ α β :=
   if h : m.containsₘ a then
-    let b := m.get a h
-    match f (some b) with
-    | none => m.eraseₘ a
-    | some b' => m.replaceₘ a b'
+    let buckets' := updateBucket m.1.buckets m.2 a (fun l => l.alter a f)
+    let size' := if (bucket buckets' (by simpa [buckets'] using m.2) a).contains a then
+      m.1.size else m.1.size - 1
+    ⟨⟨size', buckets'⟩, by simpa [buckets'] using m.2⟩
   else
     match f none with
     | none => m
-    | some b' => m.insertₘ a b'
-  -- let v := m.get?ₘ a
-  -- match f v with
-  -- | none => m.eraseₘ a
-  -- | some b => m.insertₘ a b
+    | some b => Raw₀.expandIfNecessary (m.consₘ a b)
 
 /-- Internal implementation detail of the hash map -/
 def filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) : Raw₀ α δ :=
@@ -408,135 +405,29 @@ theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (
     simp only [Array.uset, Array.ugetElem_eq_getElem]
   · rfl
 
-def alterAux [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-    (f : Option (β a) → Option (β a)) : Raw₀ α β :=
-  let ⟨⟨size, buckets⟩, hm⟩ := m
-  let ⟨i, h⟩ := mkIdx buckets.size hm (hash a)
-  let bkt := buckets[i]
-  if m.containsₘ a then
-    let buckets' := buckets.uset i .nil h
-    let (bkt', some?) := bkt.alter' a f
-    let size' := if some? then size else size - 1
-    ⟨⟨size', buckets'.uset i bkt' (by simpa [buckets'])⟩, by simpa [buckets']⟩
-  else
-    match f none with
-    | none => m
-    | some b =>
-      let size'    := size + 1
-      let buckets' := buckets.uset i (.cons a b bkt) h
-      expandIfNecessary ⟨⟨size', buckets'⟩, by simpa [buckets']⟩
+theorem bucket_eq {α : Type u} {β : α → Type v} [Hashable α] (self : Array (AssocList α β))
+  (h : 0 < self.size) (k : α) :
+    bucket self h k =
+      haveI := mkIdx self.size h (hash k) |>.2
+      self[mkIdx self.size h (hash k) |>.1] := rfl
 
-theorem alter_eq_alterAux [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-    (f : Option (β a) → Option (β a)) :
-    m.alter a f = alterAux m a f := by
-  rfl
-
-theorem alter_eq_eraseₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-    (f : Option (β a) → Option (β a)) (h₁ : m.containsₘ a) (h₂ : f (m.get?ₘ a) = none) :
-    m.alter a f = m.eraseₘ a := by
-  rw [alter_eq_alterAux]
-  unfold alterAux
-  simp only [h₁, reduceIte, Array.ugetElem_eq_getElem, Array.uset, Array.set_set]
-  congr
-  · split
-    · next hh =>
-      simp only [AssocList.alter'_snd, AssocList.getCast?_eq] at hh
-      simp only [get?ₘ, bucket, Array.ugetElem_eq_getElem, AssocList.getCast?_eq] at h₂
-      rw [h₂] at hh
-      contradiction
-    · rw [h₁]
-      dsimp [instDecidableEqBool, Bool.decEq, eraseₘaux]
-  · rw [h₁]
-    dsimp [instDecidableEqBool, Bool.decEq, eraseₘaux, updateBucket]
-    rw [AssocList.alter'_eq_of_contains]
-    split
-    · rfl
-    · next heq =>
-      dsimp [get?ₘ, bucket] at h₂
-      rw [AssocList.getCast?_eq] at h₂
-      rw [AssocList.getCast_eq] at heq
-      rw [← getValueCast?_eq_some_getValueCast] at heq
-      rw [h₂] at heq
-      contradiction
-      exact h₁
-
-theorem alter_eq_insertₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-    (f : Option (β a) → Option (β a)) (h₁ : ¬(m.containsₘ a)) (h₂ : (f (m.get?ₘ a)).isSome) :
-    m.alter a f = m.insertₘ a ((f (m.get?ₘ a)).get h₂) := by
-  rw [alter_eq_alterAux]
-  dsimp [alterAux, insertₘ]
-  dsimp [Option.isSome, get?ₘ] at h₂
-  unfold AssocList.getCast? at h₂
-  dsimp [containsₘ] at h₁
-  unfold AssocList.contains at h₁
-  simp only [ite_cond_eq_false _ _ (by simp only [eq_iff_iff, iff_false]; exact h₁)] at *
-  sorry
+@[simp]
+theorem bucket_updateBucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α)
+    (f : AssocList α β → AssocList α β):
+    bucket (updateBucket self h k f) (by simpa using h) k = f (bucket self h k) := by
+  unfold bucket updateBucket mkIdx
+  simp
 
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) :
     m.alter a f = m.alterₘ a f := by
-  rw [alter, alterₘ]
-  dsimp
-  apply Eq.symm
+  dsimp only [alter, alterₘ]
+  simp only [← bucket_eq, ← containsₘ.eq_1]
   split
-  · next h =>
-    have h' := h
-    dsimp [containsₘ, bucket] at h'
-    simp only [h', if_true]
-    rw [AssocList.alter'_snd]
-    simp only [Raw₀.get]
-    split
-    · next hnone =>
-      unfold eraseₘ eraseₘaux
-      simp [h]
-      apply And.intro
-      · rw [getValueCast?_eq_some_getValueCast]
-        simp only [Array.ugetElem_eq_getElem, AssocList.getCast_eq] at hnone
-        rw [hnone]
-        rfl
-      · unfold updateBucket
-        dsimp
-        unfold AssocList.alter'
-
-    · done
-  · next h =>
-    done
-  unfold containsₘ bucket
-  dsimp only [Array.ugetElem_eq_getElem, Array.uset]
-  split
-  · match f (some (m.get a _)) with
-    | .none =>
-      dsimp
-      split
-      · next h =>
-        unfold AssocList.alter' at h
-        split at h
-        · split at h
-          · contradiction
-          · simp only [Array.set_set]
-
-        · split at h
-          · dsimp at h
-            split at h
-            · contradiction
-            · done
-          · split at h
-            · done
-            · done
-      · congr
-        · done
-        · done
-    | .some _ => done
-    -- ext ; dsimp only
-    -- congr
-    -- · unfold AssocList.alter'
-    --   done
-    -- rw [AssocList.alter'_eq_of_contains]
-    -- unfold Raw₀.get
-    -- dsimp
-    -- simp
-  · done
-
+  · simp only [AssocList.contains_eq, Array.uset, Array.set_set, bucket_updateBucket,
+      Subtype.mk.injEq, Raw.mk.injEq, true_and]
+    rfl
+  · congr
 
 theorem containsThenInsert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     (m.containsThenInsert a b).2 = m.insertₘ a b := by

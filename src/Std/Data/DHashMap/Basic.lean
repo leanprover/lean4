@@ -256,18 +256,13 @@ but will later become a primitive operation.
 (It is provided already to help avoid non-linear code.)
 -/
 @[inline] def modify [LawfulBEq α] (m : DHashMap α β) (a : α) (f : β a → β a) : DHashMap α β :=
-  match m.get? a with
-  | none => m
-  | some b => m.erase a |>.insert a (f b)
+  ⟨Raw₀.modify (α := α) ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.modify₀ m.2⟩
 
 /--
 Modifies in place the value associated with a given key,
 allowing creating new values and deleting values via an `Option` valued replacement function.
 
 This function ensures that the value is used linearly.
-It is currently implemented in terms of `get?`, `erase`, and `insert`,
-but will later become a primitive operation.
-(It is provided already to help avoid non-linear code.)
 -/
 @[inline] def alter {α : Type} {β : α → Type} [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
   ⟨Raw₀.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.alter₀ m.2⟩

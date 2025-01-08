@@ -146,49 +146,6 @@ theorem toList_replace [BEq α] {l : AssocList α β} {a : α} {b : β a} :
   · next k v t ih => cases h : k == a <;> simp_all [replace, List.replaceEntry_cons]
 
 @[simp]
-theorem alter'_eq_of_contains [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α}
-    {f : Option (β a) → Option (β a)} (h : l.contains a) :
-    l.alter' a f = match f (l.getCast a h) with
-    | none => (l.erase a, false)
-    | some b => (l.replace a b, true) := by
-  generalize l = l, h = h
-  induction l
-  · contradiction
-  · next a' x xs ih =>
-      unfold contains at h
-      if heq : a' == a then
-        cases eq_of_beq heq
-        simp [alter', replace, erase, getValueCast]
-        rfl
-      else
-        unfold alter'
-        rw [Bool.not_eq_true] at heq
-        simp only [heq, Bool.false_eq_true, reduceDIte, getCast_eq, toList_cons, beq_iff_eq,
-          getValueCast, Option.some_get]
-        unfold getValueCast? erase replace
-        simp only [heq, Bool.false_eq_true, reduceDIte, cond_false]
-        simp only [Bool.or_eq_true, beq_iff_eq, beq_eq_false_iff_ne, ne_eq] at h heq
-        cases h <;> try contradiction
-        rw [ih (by assumption), getCast_eq, getValueCast, Option.some_get]
-        cases f (getValueCast? a xs.toList) <;> simp
-
-theorem alter'_snd [BEq α] [LawfulBEq α] {l : AssocList α β} {a : α}
-    {f : Option (β a) → Option (β a)} :
-    (l.alter' a f).snd = (f (l.getCast? a)).isSome := by
-  induction l
-  · unfold alter'
-    simp only [decide_false, decide_true, getCast?_eq, toList_nil, getValueCast?_nil]
-    cases f none <;> rfl
-  · next k v l ih =>
-    unfold alter'
-    simp only [beq_iff_eq, decide_false, decide_true, getCast?_eq, toList_cons]
-    unfold getValueCast?
-    split
-    · split <;> { next h => rw [h] ; rfl }
-    · rw [ih]
-      simp
-
-@[simp]
 theorem toList_erase [BEq α] {l : AssocList α β} {a : α} :
     (l.erase a).toList = eraseKey a l.toList := by
   induction l
@@ -241,6 +198,13 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     split
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
+
+theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)} {l : AssocList α β } :
+    (l.alter a f).toList = alterKey a f l.toList := sorry
+
+-- theorem containsKey_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+--     (l : AssocList α β ) : containsKey a (alter a f l)
+
 
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =

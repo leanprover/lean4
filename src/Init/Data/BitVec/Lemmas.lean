@@ -3224,7 +3224,7 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
 theorem replicate_append {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by rw [Nat.add_comm]) := by
   apply BitVec.eq_of_getLsbD_eq
-  simp only [getLsbD_cast, getLsbD_replicate, getLsbD_append, getLsbD_replicate]
+  simp only [getLsbD_append, getLsbD_replicate, getLsbD_cast]
   intros i h
   by_cases hn : i < w * n
   · simp only [hn, ↓reduceIte, decide_true, Bool.true_and, show i - w < w * n by omega]
@@ -3235,7 +3235,7 @@ theorem replicate_append {x : BitVec w} :
       rw [← Nat.mod_eq_sub_mod]
       omega
   · by_cases hw : i < w
-    · simp only [hn, hw, ↓reduceIte]
+    · simp only [hn, ↓reduceIte, hw]
       congr 1
       rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
     · simp only [hn, ↓reduceIte, hw]

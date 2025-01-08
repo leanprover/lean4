@@ -78,4 +78,21 @@ theorem forall_propagator (p : Prop) (q : p → Prop) (q' : Prop) (h₁ : p = Tr
 theorem dite_cond_eq_true' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c → α} {b : ¬ c → α} {r : α} (h₁ : c = True) (h₂ : a (of_eq_true h₁) = r) : (dite c a b) = r := by simp [h₁, h₂]
 theorem dite_cond_eq_false' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c → α} {b : ¬ c → α} {r : α} (h₁ : c = False) (h₂ : b (of_eq_false h₁) = r) : (dite c a b) = r := by simp [h₁, h₂]
 
+/-! Casts -/
+
+theorem eqRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
+        {motive : (x : α) → a = x → Sort u_1} (v : motive a (Eq.refl a)) {b : α} (h : a = b)
+        : HEq (@Eq.rec α a motive v b h) v := by
+ subst h; rfl
+
+theorem eqRecOn_heq.{u_1, u_2} {α : Sort u_2} {a : α}
+        {motive : (x : α) → a = x → Sort u_1} {b : α} (h : a = b) (v : motive a (Eq.refl a))
+        : HEq (@Eq.recOn α a motive b h v) v := by
+ subst h; rfl
+
+theorem eqNDRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
+        {motive : α → Sort u_1} (v : motive a) {b : α} (h : a = b)
+        : HEq (@Eq.ndrec α a motive v b h) v := by
+ subst h; rfl
+
 end Lean.Grind

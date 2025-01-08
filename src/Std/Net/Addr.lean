@@ -14,7 +14,7 @@ This module contains Lean representations of IP and socket addresses:
   equivalent to [`sockaddr_in`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html).
 - `IPV6Addr`: Representing IPv6 addresses,
   equivalent to [`in6_addr`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html)
-- `SockAddrV6`: Represeting a pair of IPv6 address and port,
+- `SockAddrV6`: Representing a pair of IPv6 address and port,
   equivalent to [`sockaddr_in6`](https://www.man7.org/linux/man-pages/man3/sockaddr.3type.html)
 - `IPAddr`: Can either be an `IPV4Addr` or an `IPV6Addr`.
 - `SockAddr`: Can either be a `SockAddrV4` or `SockAddrV6`,

@@ -37,7 +37,7 @@ bool is_letter_like_unicode(unsigned u) {
                 && u != 0x3a0               // and Pi
                 && u != 0x3a3) ||           // and Sigma
             (0x1f00 <= u && u <= 0x1ffe) || // Greek Extended
-            (0x2100 <= u && u <= 0x214f) || // Lettelike Symbols
+            (0x2100 <= u && u <= 0x214f) || // Letterike Symbols
             (0x1d400 <= u && u <= 0x1d7ff); // Mathematical Alphanumeric Symbols
 }
 bool is_sub_script_alnum_unicode(unsigned u) {

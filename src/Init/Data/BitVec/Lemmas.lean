@@ -3549,9 +3549,10 @@ theorem reverse_append {x : BitVec w} {y : BitVec v} :
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show ¬ i < w by omega, getLsbD_reverse]
     · simp [getMsbD_append, getLsbD_cast, getLsbD_append, hw, show i < w by omega, getLsbD_reverse]
 
-@[simp] theorem reverse_cast {w v : Nat} (h : w = v) (x : BitVec w) :
+@[simp]
+theorem reverse_cast {w v : Nat} (h : w = v) (x : BitVec w) :
     (x.cast h).reverse = x.reverse.cast h := by
-  sorry
+  subst h; simp
 
 theorem reverse_replicate {n : Nat} {x : BitVec w} :
     (x.replicate n).reverse = (x.reverse).replicate n := by

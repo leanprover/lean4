@@ -73,6 +73,8 @@ theorem forall_propagator (p : Prop) (q : p → Prop) (q' : Prop) (h₁ : p = Tr
   · intro h'; exact Eq.mp h₂ (h' (of_eq_true h₁))
   · intro h'; intros; exact Eq.mpr h₂ h'
 
+theorem of_forall_eq_false (α : Sort u) (p : α → Prop) (h : (∀ x : α, p x) = False) : ∃ x : α, ¬ p x := by simp_all
+
 /-! dite -/
 
 theorem dite_cond_eq_true' {α : Sort u} {c : Prop} {_ : Decidable c} {a : c → α} {b : ¬ c → α} {r : α} (h₁ : c = True) (h₂ : a (of_eq_true h₁) = r) : (dite c a b) = r := by simp [h₁, h₂]

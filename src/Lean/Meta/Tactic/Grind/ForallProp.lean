@@ -46,12 +46,21 @@ where
       -- b = True → (a → b) = True
       pushEqTrue e <| mkApp3 (mkConst ``Grind.imp_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
-def propagateImpliesDown (e : Expr) : GoalM Unit := do
-  let .forallE _ a b _ := e | return ()
-  if b.hasLooseBVars then return ()
+def propagateForallPropDown (e : Expr) : GoalM Unit := do
+  let .forallE n a b bi := e | return ()
   if (← isEqFalse e) then
-    let h ← mkEqFalseProof e
-    pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
-    pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
+    if b.hasLooseBVars then
+      let α := a
+      let p := b
+      -- `e` is of the form `∀ x : α, p x`
+      -- Add fact `∃ x : α, ¬ p x`
+      let u ← getLevel α
+      let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
+      let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
+      addNewFact proof prop (← getGeneration e)
+    else
+      let h ← mkEqFalseProof e
+      pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
+      pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
 
 end Lean.Meta.Grind

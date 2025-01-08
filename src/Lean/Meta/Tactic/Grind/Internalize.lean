@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Util
+import Init.Grind.Lemmas
 import Lean.Meta.LitValues
 import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
@@ -71,6 +72,19 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
     -- Right now, we just consider inductive predicates that are not in the forbidden list
     if (← isInductivePredicate declName) then
       addSplitCandidate e
+
+/--
+If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
+It could be an E-matching theorem, but we want to ensure it is always applied since
+we want to rely on the fact that `cast h a` and `a` are in the same equivalence class.
+-/
+private def pushCastHEqs (e : Expr) : GoalM Unit := do
+  match_expr e with
+  | f@cast α β h a => pushHEq e a (mkApp4 (mkConst ``cast_heq f.constLevels!) α β h a)
+  | f@Eq.rec α a motive v b h => pushHEq e v (mkApp6 (mkConst ``Grind.eqRec_heq f.constLevels!) α a motive v b h)
+  | f@Eq.ndrec α a motive v b h => pushHEq e v (mkApp6 (mkConst ``Grind.eqNDRec_heq f.constLevels!) α a motive v b h)
+  | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
+  | _ => return ()
 
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
@@ -150,6 +164,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       mkENode e generation
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
+      pushCastHEqs e
       addMatchEqns f generation
       if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
         -- We only internalize the proposition. We can skip the proof because of

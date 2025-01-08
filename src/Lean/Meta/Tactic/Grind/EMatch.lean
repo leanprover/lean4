@@ -245,8 +245,10 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     let v := c.assignment[numParams - i - 1]!
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
-      unless (← isDefEq (← mvarId.getType) (← inferType v) <&&> mvarId.checkedAssign v) do
-        trace_goal[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}"
+      let mvarIdType ← mvarId.getType
+      let vType ← inferType v
+      unless (← isDefEq mvarIdType vType <&&> mvarId.checkedAssign v) do
+        trace_goal[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do

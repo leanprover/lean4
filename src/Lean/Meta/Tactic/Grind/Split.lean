@@ -51,6 +51,7 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
       return .ready
   | _ =>
     if (← isResolvedCaseSplit e) then
+      trace[grind.debug.split] "split resolved: {e}"
       return .resolved
     if (← isMatcherApp e) then
       return .ready

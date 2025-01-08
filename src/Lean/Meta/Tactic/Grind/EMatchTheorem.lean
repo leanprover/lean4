@@ -57,7 +57,8 @@ inductive Origin where
   is the provided grind argument. The `id` is a unique identifier for the call.
   -/
   | stx (id : Name) (ref : Syntax)
-  | other (id : Name)
+  /-- It is local, but we don't have a local hypothesis for it. -/
+  | local (id : Name)
   deriving Inhabited, Repr, BEq
 
 /-- A unique identifier corresponding to the origin. -/
@@ -65,14 +66,14 @@ def Origin.key : Origin → Name
   | .decl declName => declName
   | .fvar fvarId   => fvarId.name
   | .stx id _      => id
-  | .other id      => id
+  | .local id      => id
 
 def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
   match o with
   | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
   | .fvar fvarId   => return mkFVar fvarId
   | .stx _ ref     => return ref
-  | .other id      => return id
+  | .local id      => return id
 
 instance : BEq Origin where
   beq a b := a.key == b.key
@@ -598,7 +599,7 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
     | return none
   return some (ps, s.symbols.toList)
 
-private def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := true))
   else if kind == .eqRhs then

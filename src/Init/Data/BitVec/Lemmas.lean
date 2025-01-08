@@ -3238,7 +3238,7 @@ theorem replicate_append {x : BitVec w} :
     · simp only [hn, hw, ↓reduceIte]
       congr 1
       rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
-    · simp [hn, hw, ↓reduceIte]
+    · simp only [hn, ↓reduceIte, hw]
       by_cases hw' : i - w < w * n
       · simp only [hw', decide_true, Bool.true_and]
         congr 1

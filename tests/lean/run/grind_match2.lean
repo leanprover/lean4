@@ -26,3 +26,8 @@ set_option trace.grind true in
 example : h as ≠ 0 := by
   unfold h
   grind
+
+example : h as ≠ 0 := by
+  unfold h
+  fail_if_success grind (splitMatch := false)
+  sorry

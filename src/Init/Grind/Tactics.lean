@@ -37,6 +37,14 @@ structure Config where
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
   matchEqs : Bool := true
+  /-- If `splitMatch` is `true`, `grind` performs case-splitting on `match`-expressions during the search. -/
+  splitMatch : Bool := true
+  /-- If `splitIte` is `true`, `grind` performs case-splitting on `if-then-else` expressions during the search. -/
+  splitIte : Bool := true
+  /--
+  If `splitIndPred` is `true`, `grind` performs case-splitting on inductive predicates.
+  Otherwise, it performs case-splitting only on types marked with `[grind_split]` attribute. -/
+  splitIndPred : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

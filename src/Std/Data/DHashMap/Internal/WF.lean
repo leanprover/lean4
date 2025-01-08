@@ -491,39 +491,10 @@ theorem isHashSelf_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α
   split
   · apply h.buckets_hash_self.updateBucket (fun l p hp => ?_)
     rw [AssocList.toList_alter] at hp
-    induction l
-    · simp only [AssocList.alter] at hp
-      split at hp <;> try contradiction
-      simp only [AssocList.toList_cons, AssocList.toList_nil, mem_singleton] at hp
-      simp only [hp, AssocList.toList_nil, containsKey_nil, Bool.false_eq_true, or_true]
-    · next ih =>
-      simp only [AssocList.alter, beq_iff_eq] at hp
-      split at hp
-      · split at hp
-        · simp only [AssocList.toList_cons, containsKey_cons, Bool.or_eq_true, beq_iff_eq]
-          exact Or.inl <| Or.inr <| containsKey_of_mem hp
-        · simp only [AssocList.toList_cons, mem_cons] at hp
-          cases hp
-          · next h =>
-            simp only [h, AssocList.toList_cons, containsKey_cons, beq_self_eq_true, Bool.true_or,
-              true_or]
-          · next h =>
-            simp only [AssocList.toList_cons, containsKey_cons, Bool.or_eq_true, beq_iff_eq]
-            exact Or.inl <| Or.inr <| containsKey_of_mem h
-      · simp only [AssocList.toList_cons, mem_cons] at hp
-        cases hp
-        · next h =>
-          simp only [h, AssocList.toList_cons, containsKey_cons, beq_self_eq_true, Bool.true_or,
-            true_or]
-        · next h =>
-          simp only [AssocList.toList_cons, containsKey_cons, Bool.or_eq_true, beq_iff_eq]
-          cases ih h
-          · exact Or.inl <| Or.inr <| by assumption
-          · exact Or.inr <| by assumption
-  · split
-    · exact h.buckets_hash_self
-    · refine (wfImp_expandIfNecessary _ ?_).buckets_hash_self
-      apply wfImp_consₘ <;> { simp only [Bool.not_eq_true] at *; assumption }
+    by_cases h : p.fst = a
+    · exact .inr <| congrArg hash h
+    · rw [mem_alterKey_of_key_ne _ h] at hp
+      exact .inl <| containsKey_of_mem hp
 
 theorem toListModel_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
     {f : Option (β a) → Option (β a)} :
@@ -585,6 +556,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
     rw [alterₘ]
     split
     · next hc =>
+      dsimp only
       rw [containsₘ_eq_containsKey h] at hc
       have : (m.alter a f).containsₘ a ↔ _ := containsₘ_alter_iff h
       rw [containsₘ, bucket_alter h] at this

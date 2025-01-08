@@ -1859,4 +1859,62 @@ theorem distinctKeys_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     DistinctKeys (alterKey a f l) := sorry
 
+theorem mem_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (p : (a : α) × β a) :
+    p ∈ alterKey a f l ↔ if h : p.1 == a then f (getValueCast? a l) = (eq_of_beq h) ▸ (some p.2) else p ∈ l := by
+  sorry
+
+theorem mem_replaceEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
+    {l : List ((a : α) × β a)} (p : (a : α) × β a)
+    (hne : p.1 ≠ a) : p ∈ replaceEntry a b l ↔ p ∈ l
+    := by
+  induction l
+  · simp only [replaceEntry_nil, List.not_mem_nil]
+  · next ih =>
+    simp only [replaceEntry, cond_eq_if, beq_iff_eq, List.mem_cons]
+    split
+    · next h =>
+      simp only [beq_iff_eq] at h
+      simp only [List.mem_cons, Sigma.ext_iff, h]
+      apply Iff.intro <;> exact fun
+      | Or.inr y => Or.inr y
+      | Or.inl y => by exfalso; exact hne y.1
+    · simp only [List.mem_cons, ih]
+
+theorem mem_insertEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
+    {l : List ((a : α) × β a)} (p : (a : α) × β a)
+    (hne : p.1 ≠ a) : p ∈ insertEntry a b l ↔ p ∈ l
+    := by
+  simp only [List.mem_cons, insertEntry, cond_eq_if]
+  split
+  · exact mem_replaceEntry_of_key_ne p hne
+  · simp only [List.mem_cons, or_iff_right_iff_imp, Sigma.ext_iff]
+    exact fun x => by exfalso; exact hne x.1
+
+theorem mem_eraseKey_of_key_ne [BEq α] [LawfulBEq α] {a : α}
+    {l : List ((a : α) × β a)} (p : (a : α) × β a)
+    (hne : p.1 ≠ a) : p ∈ eraseKey a l ↔ p ∈ l
+    := by
+  induction l
+  · simp only [eraseKey_nil, List.not_mem_nil]
+  · next ih =>
+    simp only [eraseKey, List.mem_cons]
+    rw [cond_eq_if]
+    split
+    · next h =>
+      simp only [beq_iff_eq] at h
+      rw [← h] at hne
+      simp only [iff_or_self, and_imp]
+      rw [Sigma.ext_iff]
+      exact fun x => by exfalso; exact (hne x.1)
+    · next h =>
+      simp only [List.mem_cons, ih]
+
+theorem mem_alterKey_of_key_ne [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : List ((a : α) × β a)} (p : (a : α) × β a)
+    (hne : p.1 ≠ a) : p ∈ alterKey a f l ↔ p ∈ l
+    := by
+  rw [alterKey]
+  split <;> simp only [mem_eraseKey_of_key_ne p hne, mem_insertEntry_of_key_ne p hne]
+
 end List

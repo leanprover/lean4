@@ -1,3 +1,4 @@
+import Lean.Meta.Tactic.Grind
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory
@@ -36,6 +37,8 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
   /-- A functor preserves composition. -/
   map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by cat_tac
 
+infixr:26 " ⥤ " => Functor
+
 attribute [simp] Functor.map_id Functor.map_comp
 
 attribute [grind =] Functor.map_id
@@ -50,6 +53,8 @@ def comp (F : Functor C D) (G : Functor D E) : Functor C E where
   obj X := G.obj (F.obj X)
   map f := G.map (F.map f)
   -- Note `map_id` and `map_comp` are handled by `cat_tac`.
+
+infixr:80 " ⋙ " => Functor.comp
 
 variable {X Y : C} {G : Functor D E}
 
@@ -121,5 +126,82 @@ def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.com
   -- `grind` can now handle `naturality`, while Mathlib does this manually:
   -- rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
   --   map_comp, assoc]
+
+
+variable {C : Type u₁} [Category.{v₁} C] {D : Type u₂} [Category.{v₂} D]
+
+-- Perhaps in the future we could redefine `Functor` in terms of this, but that isn't the
+-- immediate plan.
+/-- An unbundled functor. -/
+class Functorial (F : C → D) : Type max v₁ v₂ u₁ u₂ where
+  /-- A functorial map extends to an action on morphisms. -/
+  map' : ∀ {X Y : C}, (X ⟶ Y) → (F X ⟶ F Y)
+  /-- A functorial map preserves identities. -/
+  map_id' : ∀ X : C, map' (𝟙 X) = 𝟙 (F X) := by cat_tac
+  /-- A functorial map preserves composition of morphisms. -/
+  map_comp' : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map' (f ≫ g) = map' f ≫ map' g := by
+    cat_tac
+
+def map (F : C → D) [Functorial.{v₁, v₂} F] {X Y : C} (f : X ⟶ Y) : F X ⟶ F Y :=
+  Functorial.map'.{v₁, v₂} f
+
+@[simp, grind =]
+theorem map'_as_map {F : C → D} [Functorial.{v₁, v₂} F] {X Y : C} {f : X ⟶ Y} :
+    Functorial.map'.{v₁, v₂} f = map F f :=
+  rfl
+
+@[simp, grind =]
+theorem Functorial.map_id {F : C → D} [Functorial.{v₁, v₂} F] {X : C} : map F (𝟙 X) = 𝟙 (F X) :=
+  Functorial.map_id' X
+
+@[simp, grind =]
+theorem Functorial.map_comp {F : C → D} [Functorial.{v₁, v₂} F] {X Y Z : C} {f : X ⟶ Y}
+    {g : Y ⟶ Z} : map F (f ≫ g) = map F f ≫ map F g :=
+  Functorial.map_comp' f g
+
+namespace Functor
+
+/-- Bundle a functorial function as a functor.
+-/
+def of (F : C → D) [I : Functorial.{v₁, v₂} F] : C ⥤ D :=
+  { I with
+    obj := F
+    map := CategoryTheory.map F }
+
+end Functor
+
+instance (F : C ⥤ D) : Functorial.{v₁, v₂} F.obj :=
+  { F with map' := F.map }
+
+@[simp, grind =]
+theorem map_functorial_obj (F : C ⥤ D) {X Y : C} (f : X ⟶ Y) : map F.obj f = F.map f :=
+  rfl
+
+attribute [grind] _root_.id
+
+instance functorial_id : Functorial.{v₁, v₁} (id : C → C) where map' f := f
+
+section
+
+variable {E : Type u₃} [Category.{v₃} E]
+
+open Lean Meta Grind in
+def fallback : Fallback := do
+  let nodes ← filterENodes fun _ => pure true
+  let data : List (Expr × Expr) := nodes.toList.map fun n => (n.self, n.root)
+  logInfo m!"{data}"
+  (← get).mvarId.admit
+
+set_option trace.grind.ematch true in
+
+def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
+    Functorial.{v₁, v₃} (G ∘ F) :=
+  { Functor.of F ⋙ Functor.of G with
+    map' := fun f => map G (map F f)
+    map_id' := sorry
+    map_comp' := by grind on_failure fallback -- this should work, by two instantiations of `Functorial.map_comp`
+  }
+
+end
 
 end CategoryTheory

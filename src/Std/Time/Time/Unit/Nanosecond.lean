@@ -45,9 +45,6 @@ instance { x y : Offset } : Decidable (x ≤ y) :=
 instance { x y : Offset } : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
-instance { x y : Offset } : Decidable (x ≤ y) :=
-  inferInstanceAs (Decidable (x.val ≤ y.val))
-
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩
 

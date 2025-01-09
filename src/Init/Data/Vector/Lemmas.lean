@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Shreyas Srinivas. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Shreyas Srinivas, Francois Dorais
+Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 -/
 prelude
 import Init.Data.Vector.Basic
@@ -152,6 +152,14 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem all_mk (p : α → Bool) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).all p = a.all p := rfl
+
+@[simp] theorem eq_mk : v = Vector.mk a h ↔ v.toArray = a := by
+  cases v
+  simp
+
+@[simp] theorem mk_eq : Vector.mk a h = v ↔ a = v.toArray := by
+  cases v
+  simp
 
 /-! ### toArray lemmas -/
 
@@ -1035,8 +1043,6 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
   cases l₂
   simp
 
-/-! Content below this point has not yet been aligned with `List` and `Array`. -/
-
 /-! ### map -/
 
 @[simp] theorem getElem_map (f : α → β) (a : Vector α n) (i : Nat) (hi : i < n) :
@@ -1044,15 +1050,128 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
   cases a
   simp
 
-@[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
-    (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
-  simp [ofFn]
-
 /-- The empty vector maps to the empty vector. -/
 @[simp]
 theorem map_empty (f : α → β) : map f #v[] = #v[] := by
   rw [map, mk.injEq]
   exact Array.map_empty f
+
+@[simp] theorem map_push {f : α → β} {as : Vector α n} {x : α} :
+    (as.push x).map f = (as.map f).push (f x) := by
+  cases as
+  simp
+
+@[simp] theorem map_id_fun : map (n := n) (id : α → α) = id := by
+  funext l
+  induction l <;> simp_all
+
+/-- `map_id_fun'` differs from `map_id_fun` by representing the identity function as a lambda, rather than `id`. -/
+@[simp] theorem map_id_fun' : map (n := n) (fun (a : α) => a) = id := map_id_fun
+
+-- This is not a `@[simp]` lemma because `map_id_fun` will apply.
+theorem map_id (l : Vector α n) : map (id : α → α) l = l := by
+  cases l <;> simp_all
+
+/-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
+-- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
+theorem map_id' (l : Vector α n) : map (fun (a : α) => a) l = l := map_id l
+
+/-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : Vector α n) : map f l = l := by
+  simp [show f = id from funext h]
+
+theorem map_singleton (f : α → β) (a : α) : map f #v[a] = #v[f a] := rfl
+
+@[simp] theorem mem_map {f : α → β} {l : Vector α n} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
+  cases l
+  simp
+
+theorem exists_of_mem_map (h : b ∈ map f l) : ∃ a, a ∈ l ∧ f a = b := mem_map.1 h
+
+theorem mem_map_of_mem (f : α → β) (h : a ∈ l) : f a ∈ map f l := mem_map.2 ⟨_, h, rfl⟩
+
+theorem forall_mem_map {f : α → β} {l : Vector α n} {P : β → Prop} :
+    (∀ (i) (_ : i ∈ l.map f), P i) ↔ ∀ (j) (_ : j ∈ l), P (f j) := by
+  simp
+
+@[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
+  cases l <;> simp_all
+
+theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
+  map_inj_left.2 h
+
+theorem map_inj [NeZero n] : map (n := n) f = map g ↔ f = g := by
+  constructor
+  · intro h
+    ext a
+    replace h := congrFun h (mkVector n a)
+    simp only [mkVector, map_mk, mk.injEq, Array.map_inj_left, Array.mem_mkArray,  and_imp,
+      forall_eq_apply_imp_iff] at h
+    exact h (NeZero.ne n)
+  · intro h; subst h; rfl
+
+theorem map_eq_push_iff {f : α → β} {l : Vector α (n + 1)} {l₂ : Vector β n} {b : β} :
+    map f l = l₂.push b ↔ ∃ l₁ a, l = l₁.push a ∧ map f l₁ = l₂ ∧ f a = b := by
+  rcases l with ⟨l, h⟩
+  rcases l₂ with ⟨l₂, rfl⟩
+  simp only [map_mk, push_mk, mk.injEq, Array.map_eq_push_iff]
+  constructor
+  · rintro ⟨l₁, a, rfl, rfl, rfl⟩
+    refine ⟨⟨l₁, by simp⟩, a, by simp⟩
+  · rintro ⟨l₁, a, h₁, h₂, rfl⟩
+    refine ⟨l₁.toArray, a, by simp_all⟩
+
+@[simp] theorem map_eq_singleton_iff {f : α → β} {l : Vector α 1} {b : β} :
+    map f l = #v[b] ↔ ∃ a, l = #v[a] ∧ f a = b := by
+  cases l
+  simp
+
+theorem map_eq_map_iff {f g : α → β} {l : Vector α n} :
+    map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
+  cases l <;> simp_all
+
+theorem map_eq_iff {f : α → β} {l : Vector α n} {l' : Vector β n} :
+    map f l = l' ↔ ∀ i (h : i < n), l'[i] = f l[i] := by
+  rcases l with ⟨l, rfl⟩
+  rcases l' with ⟨l', h'⟩
+  simp only [map_mk, eq_mk, Array.map_eq_iff, getElem_mk]
+  constructor
+  · intro w i h
+    simpa [h, h'] using w i
+  · intro w i
+    if h : i < l.size then
+      simpa [h, h'] using w i h
+    else
+      rw [getElem?_neg, getElem?_neg, Option.map_none'] <;> omega
+
+@[simp] theorem map_set {f : α → β} {l : Vector α n} {i : Nat} {h : i < n} {a : α} :
+    (l.set i a).map f = (l.map f).set i (f a) (by simpa using h) := by
+  cases l
+  simp
+
+@[simp] theorem map_setIfInBounds {f : α → β} {l : Vector α n} {i : Nat} {a : α} :
+    (l.setIfInBounds i a).map f = (l.map f).setIfInBounds i (f a) := by
+  cases l
+  simp
+
+@[simp] theorem map_pop {f : α → β} {l : Vector α n} : l.pop.map f = (l.map f).pop := by
+  cases l
+  simp
+
+@[simp] theorem back?_map {f : α → β} {l : Vector α n} : (l.map f).back? = l.back?.map f := by
+  cases l
+  simp
+
+@[simp] theorem map_map {f : α → β} {g : β → γ} {as : Vector α n} :
+    (as.map f).map g = as.map (g ∘ f) := by
+  cases as
+  simp
+
+/-! Content below this point has not yet been aligned with `List` and `Array`. -/
+
+@[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
+    (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
+  simp [ofFn]
 
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩

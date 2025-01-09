@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2022 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Mario Carneiro
+Authors: Mario Carneiro, Kim Morrison
 -/
 prelude
 import Init.Data.Nat.Lemmas
@@ -1001,8 +1001,6 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
   cases l₂
   simp
 
-/-! Content below this point has not yet been aligned with `List`. -/
-
 /-! ### map -/
 
 theorem mapM_eq_foldlM [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
@@ -1036,11 +1034,6 @@ where
   simp only [← length_toList]
   simp
 
-@[simp] theorem mapM_empty [Monad m] (f : α → m β) : mapM f #[] = pure #[] := by
-  rw [mapM, mapM.map]; rfl
-
-@[simp] theorem map_empty (f : α → β) : map f #[] = #[] := mapM_empty f
-
 @[simp] theorem getElem_map (f : α → β) (a : Array α) (i : Nat) (hi : i < (a.map f).size) :
     (a.map f)[i] = f (a[i]'(by simpa using hi)) := by
   cases a
@@ -1049,6 +1042,18 @@ where
 @[simp] theorem getElem?_map (f : α → β) (as : Array α) (i : Nat) :
     (as.map f)[i]? = as[i]?.map f := by
   simp [getElem?_def]
+
+@[simp] theorem mapM_empty [Monad m] (f : α → m β) : mapM f #[] = pure #[] := by
+  rw [mapM, mapM.map]; rfl
+
+@[simp] theorem map_empty (f : α → β) : map f #[] = #[] := mapM_empty f
+
+@[simp] theorem map_push {f : α → β} {as : Array α} {x : α} :
+    (as.push x).map f = (as.map f).push (f x) := by
+  ext
+  · simp
+  · simp only [getElem_map, getElem_push, size_map]
+    split <;> rfl
 
 @[simp] theorem map_id_fun : map (id : α → α) = id := by
   funext l
@@ -1100,16 +1105,58 @@ theorem map_inj : map f = map g ↔ f = g := by
 theorem eq_empty_of_map_eq_empty {f : α → β} {l : Array α} (h : map f l = #[]) : l = #[] :=
   map_eq_empty_iff.mp h
 
+theorem map_eq_push_iff {f : α → β} {l : Array α} {l₂ : Array β} {b : β} :
+    map f l = l₂.push b ↔ ∃ l₁ a, l = l₁.push a ∧ map f l₁ = l₂ ∧ f a = b := by
+  rcases l with ⟨l⟩
+  rcases l₂ with ⟨l₂⟩
+  simp only [List.map_toArray, List.push_toArray, mk.injEq, List.map_eq_append_iff]
+  constructor
+  · rintro ⟨l₁, l₂, rfl, rfl, h⟩
+    simp only [List.map_eq_singleton_iff] at h
+    obtain ⟨a, rfl, rfl⟩ := h
+    refine ⟨l₁.toArray, a, by simp⟩
+  · rintro ⟨⟨l₁⟩, a, h₁, h₂, rfl⟩
+    refine ⟨l₁, [a], by simp_all⟩
+
+@[simp] theorem map_eq_singleton_iff {f : α → β} {l : Array α} {b : β} :
+    map f l = #[b] ↔ ∃ a, l = #[a] ∧ f a = b := by
+  cases l
+  simp
+
+theorem map_eq_map_iff {f g : α → β} {l : Array α} :
+    map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
+  cases l <;> simp_all
+
+theorem map_eq_iff : map f l = l' ↔ ∀ i : Nat, l'[i]? = l[i]?.map f := by
+  cases l
+  cases l'
+  simp [List.map_eq_iff]
+
+theorem map_eq_foldl (f : α → β) (l : Array α) :
+    map f l = foldl (fun bs a => bs.push (f a)) #[] l := by
+  simpa using mapM_eq_foldlM (m := Id) f l
+
+@[simp] theorem map_set {f : α → β} {l : Array α} {i : Nat} {h : i < l.size} {a : α} :
+    (l.set i a).map f = (l.map f).set i (f a) (by simpa using h) := by
+  cases l
+  simp
+
+@[simp] theorem map_setIfInBounds {f : α → β} {l : Array α} {i : Nat} {a : α} :
+    (l.setIfInBounds i a).map f = (l.map f).setIfInBounds i (f a) := by
+  cases l
+  simp
+
+@[simp] theorem map_pop {f : α → β} {l : Array α} : l.pop.map f = (l.map f).pop := by
+  cases l
+  simp
+
+@[simp] theorem back?_map {f : α → β} {l : Array α} : (l.map f).back? = l.back?.map f := by
+  cases l
+  simp
+
 @[simp] theorem map_map {f : α → β} {g : β → γ} {as : Array α} :
     (as.map f).map g = as.map (g ∘ f) := by
   cases as; simp
-
-@[simp] theorem map_push {f : α → β} {as : Array α} {x : α} :
-    (as.push x).map f = (as.map f).push (f x) := by
-  ext
-  · simp
-  · simp only [getElem_map, getElem_push, size_map]
-    split <;> rfl
 
 theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : Array α) :
     arr.mapM f = List.toArray <$> (arr.toList.mapM f) := by
@@ -1123,6 +1170,7 @@ theorem mapM_eq_mapM_toList [Monad m] [LawfulMonad m] (f : α → m β) (arr : A
     toList <$> arr.mapM f = arr.toList.mapM f := by
   simp [mapM_eq_mapM_toList]
 
+@[deprecated "Use `mapM_eq_foldlM` instead" (since := "2025-01-08")]
 theorem mapM_map_eq_foldl (as : Array α) (f : α → β) (i) :
     mapM.map (m := Id) f as i b = as.foldl (start := i) (fun r a => r.push (f a)) b := by
   unfold mapM.map
@@ -1139,9 +1187,7 @@ theorem mapM_map_eq_foldl (as : Array α) (f : α → β) (i) :
     rfl
 termination_by as.size - i
 
-theorem map_eq_foldl (as : Array α) (f : α → β) :
-    as.map f = as.foldl (fun r a => r.push (f a)) #[] :=
-  mapM_map_eq_foldl _ _ _
+/-! Content below this point has not yet been aligned with `List`. -/
 
 theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
 
@@ -1686,12 +1732,6 @@ theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : 
   rw [List.foldr_hom _ _ _ _ _ H]
 
 /-! ### map -/
-
-@[simp] theorem map_pop {f : α → β} {as : Array α} :
-    as.pop.map f = (as.map f).pop := by
-  ext
-  · simp
-  · simp only [getElem_map, getElem_pop, size_map]
 
 @[deprecated "Use `toList_map` or `List.map_toArray` to characterize `Array.map`." (since := "2025-01-06")]
 theorem map_induction (as : Array α) (f : α → β) (motive : Nat → Prop) (h0 : motive 0)
@@ -2367,6 +2407,12 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
   induction xss generalizing as with
   | nil => simp
   | cons xs xss ih => simp [ih]
+
+/-! ### mkArray -/
+
+@[simp] theorem mem_mkArray (a : α) (n : Nat) : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
+  rw [mkArray, mem_toArray]
+  simp
 
 /-! ### reverse -/
 

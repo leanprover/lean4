@@ -1,7 +1,8 @@
 /-
 Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
+  Kim Morrison
 -/
 prelude
 import Init.Data.Bool
@@ -1113,6 +1114,10 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
   induction l <;> simp_all
 
 @[deprecated map_eq_cons' (since := "2024-09-05")] abbrev map_eq_cons' := @map_eq_cons_iff'
+
+@[simp] theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
+    map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
+  simp [map_eq_cons_iff]
 
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l <;> simp

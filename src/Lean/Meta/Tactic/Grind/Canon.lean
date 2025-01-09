@@ -46,15 +46,35 @@ structure State where
   proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited
 
+inductive CanonElemKind where
+  | /--
+    Type class instances are canonicalized using `TransparencyMode.instances`.
+    -/
+    instance
+  | /--
+    Types and Type formers are canonicalized usind `TransparencyMode.default`.
+    Remark: propositions are just visited. We do not invoke `canonElemCore` for them.
+    -/
+    type
+  | /--
+    Implicit arguments that are not types, type formers, or instaces, are canonicalized
+    using `TransparencyMode.reducible`
+    -/
+    implicit
+  deriving BEq
+
+def CanonElemKind.explain : CanonElemKind → String
+  | .instance => "type class instances"
+  | .type => "types (or type formers)"
+  | .implicit => "implicit arguments (which are not type class instances or types)"
+
 /--
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
-`isInst` is true if `e` is an type class instance.
 
-Recall that we use `TransparencyMode.instances` for checking whether two instances are definitionally equal or not.
-Thus, if diagnostics are enabled, we also check them using `TransparencyMode.default`. If the result is different
+Thus, if diagnostics are enabled, we also re-check them using `TransparencyMode.default`. If the result is different
 we report to the user.
 -/
-def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State MetaM Expr := do
+def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : StateT State MetaM Expr := do
   let s ← get
   if let some c := s.canon.find? e then
     return c
@@ -68,16 +88,17 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
       modify fun s => { s with canon := s.canon.insert e c }
       trace[grind.debug.canon] "found {e} ===> {c}"
       return c
-    if isInst then
-      if (← isDiagnosticsEnabled <&&> (withDefault <| isDefEq e c)) then
+    if kind != .type then
+      if (← isTracingEnabledFor `grind.issues <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.
-        trace[grind.issues] "the following `grind` static elements are definitionally equal with `default` transparency, but not with `instances` transparency{indentExpr e}\nand{indentExpr c}"
+        trace[grind.issues] "the following {kind.explain} are definitionally equal with `default` transparency but not with a more restrictive transparency{indentExpr e}\nand{indentExpr c}"
   trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
   modify fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
-abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
-abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e true
+abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e .type
+abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e .instance
+abbrev canonImplicit (f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore f i e .implicit
 
 /--
 Return type for the `shouldCanon` function.
@@ -87,6 +108,8 @@ private inductive ShouldCanonResult where
     canonType
   | /- Nested instances are canonicalized. -/
     canonInst
+  | /- Implicit argument that is not an instance nor a type. -/
+    canonImplicit
   | /-
     Term is not a proof, type (former), nor an instance.
     Thus, it must be recursively visited by the canonizer.
@@ -98,6 +121,7 @@ instance : Repr ShouldCanonResult where
   reprPrec r _ := match r with
     | .canonType => "canonType"
     | .canonInst => "canonInst"
+    | .canonImplicit => "canonImplicit"
     | .visit => "visit"
 
 /--
@@ -110,6 +134,11 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
       return .canonInst
     else if pinfo.isProp then
       return .visit
+    else if pinfo.isImplicit then
+      if (← isTypeFormer arg) then
+        return .canonType
+      else
+        return .canonImplicit
   if (← isProp arg) then
     return .visit
   else if (← isTypeFormer arg) then
@@ -142,9 +171,11 @@ where
           let mut args := args.toVector
           for h : i in [:args.size] do
             let arg := args[i]
+            trace[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
             | .canonType  => canonType f i arg
             | .canonInst  => canonInst f i arg
+            | .canonImplicit => canonImplicit f i (← visit arg)
             | .visit      => visit arg
             unless ptrEq arg arg' do
               args := args.set i arg'

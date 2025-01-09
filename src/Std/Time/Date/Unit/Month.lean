@@ -48,12 +48,8 @@ instance {x y : Offset} : Decidable (x < y) :=
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
 
-def a : Offset := 2
-def b : Offset := 3
-def c : a < b := by decide
-
 /--
-`Quarter` represents aue between 1 and 4, inclusive, corresponding to the four quarters of a year.
+`Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
 def Quarter := Bounded.LE 1 4
 

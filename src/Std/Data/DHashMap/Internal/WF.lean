@@ -240,6 +240,11 @@ theorem toListModel_expandIfNecessary [BEq α] [Hashable α] [PartialEquivBEq α
   · dsimp
     exact toListModel_expand
 
+@[simp]
+theorem size_expandIfNecessary [BEq α] [Hashable α] {m : Raw₀ α β} :
+    (expandIfNecessary m).val.size = m.val.size := by
+  rw [expandIfNecessary]; split <;> rfl
+
 theorem wfImp_expandIfNecessary [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] (m : Raw₀ α β)
     (h : Raw.WFImp m.1) : Raw.WFImp (expandIfNecessary m).1 := by
   rw [Raw₀.expandIfNecessary]
@@ -479,15 +484,11 @@ theorem wfImp_insert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
   rw [insert_eq_insertₘ]
   exact wfImp_insertₘ h
 
-theorem wfImp_modify [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
-    (h : Raw.WFImp m.1) {a : α} {f : β a → β a} : Raw.WFImp (m.modify a f).1 := by
-  sorry
-
 /-! # `alter` -/
 
 theorem isHashSelf_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
     (h : Raw.WFImp m.1) (a : α) (f : Option (β a) → Option (β a)) : IsHashSelf (m.alterₘ a f).1.buckets := by
-  dsimp only [alterₘ]
+  dsimp only [alterₘ, withComputedSize]
   split
   · apply h.buckets_hash_self.updateBucket (fun l p hp => ?_)
     rw [AssocList.toList_alter] at hp
@@ -495,6 +496,12 @@ theorem isHashSelf_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α
     · exact .inr <| congrArg hash h
     · rw [mem_alterKey_of_key_ne _ h] at hp
       exact .inl <| containsKey_of_mem hp
+  · next hc =>
+    split
+    · exact h.buckets_hash_self
+    · refine (wfImp_expandIfNecessary _ ?_).buckets_hash_self
+      apply wfImp_consₘ _ h
+      simpa only [Bool.not_eq_true] using hc
 
 theorem toListModel_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
     {f : Option (β a) → Option (β a)} :
@@ -521,30 +528,32 @@ theorem toListModel_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ �
       rw [insertEntry_of_containsKey_eq_false]
       simpa only [← containsₘ_eq_containsKey h] using hc
 
-theorem containsₘ_alter_iff [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1)
-    {a : α} {f : Option (β a) → Option (β a)} :
-    (m.alter a f).containsₘ a ↔ (f (m.get?ₘ a)).isSome := by
-  simp only [alter_eq_alterₘ, alterₘ, Array.uset, Array.set_set]
-  if hc : m.containsₘ a then
-    have hc₁ := containsₘ_eq_containsKey h ▸ hc
-    -- rw [get?_eq_getValueCast?, getValueCast?_eq_some_getValueCast hc₁]
-    have hc₂ := hc
-    simp only [hc₂, reduceIte, AssocList.contains_eq]
-    simp only [containsₘ, reduceDIte, bucket_updateBucket, AssocList.contains_eq]
-    simp only [AssocList.toList_alter]
-    rw [containsKey_alterKey_iff]
-    -- rw [get?_eq_getValueCast?, getValueCast?_eq_some_getValueCast]
-    rw [get?ₘ]
-    simp?
-    · have := h.distinct
-      rw [toListModel] at this
-    done
-  else
-    done
+theorem toListModel_updateBucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
+    {f : Option (β a) → Option (β a)} :
+    Perm (toListModel (updateBucket m.1.buckets m.2 a (AssocList.alter a f))) (alterKey a f (toListModel m.1.buckets)) := by
+  apply toListModel_updateBucket h
+  · exact AssocList.toList_alter
+  · exact List.alterKey_of_perm
+  · exact List.alterKey_append_of_containsKey_right_eq_false
 
-theorem bucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1)
-    {a : α} {f : Option (β a) → Option (β a)} :
-    bucket (m.alter a f).1.buckets (m.alter a f).2 a = (bucket m.1.buckets m.2 a).alter a f := sorry
+theorem wfImp_updateBucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
+    {f : Option (β a) → Option (β a)} :
+    Raw.WFImp (withComputedSize <| updateBucket m.1.buckets m.2 a (AssocList.alter a f)) where
+  buckets_hash_self := by
+    -- TODO: deduplicate with isHashSelf_alterₘ
+    apply h.buckets_hash_self.updateBucket (fun l p hp => ?_)
+    rw [AssocList.toList_alter] at hp
+    by_cases h : p.fst = a
+    · exact .inr <| congrArg hash h
+    · rw [mem_alterKey_of_key_ne _ h] at hp
+      exact .inl <| containsKey_of_mem hp
+  size_eq := by
+    rw [size_withComputedSize, computeSize_eq]
+    rfl
+  distinct := by
+    apply DistinctKeys.perm <| toListModel_updateBucket_alter h
+    apply distinctKeys_alterKey
+    exact h.distinct
 
 /-- Internal implementation detail of the hash map -/
 theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h : Raw.WFImp m.1) {a : α}
@@ -554,28 +563,27 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
   size_eq := by
     refine Eq.trans ?_ (Perm.length_eq (toListModel_alterₘ h).symm)
     rw [alterₘ]
+    dsimp
     split
-    · next hc =>
-      dsimp only
-      rw [containsₘ_eq_containsKey h] at hc
-      have : (m.alter a f).containsₘ a ↔ _ := containsₘ_alter_iff h
-      rw [containsₘ, bucket_alter h] at this
-      simp only [bucket_updateBucket, this, get?_eq_getValueCast? h, alterKey, ← get?_eq_get?ₘ]
-      apply Eq.symm; split <;> {
-        next hh => simp [length_insertEntry, length_eraseKey, hc, hh, h.size_eq] }
-    · next hc =>
-      simp only [containsₘ_eq_containsKey h, Bool.not_eq_true] at hc
-      simp only [alterKey]
-      rw [getValueCast?_eq_none hc]
+    · next h₁ =>
+      dsimp
+      rw [containsₘ_eq_containsKey h] at h₁
+      simp only [length_alterKey, h.size_eq, dif_pos h₁]
+      rw [containsₘ_eq_containsKey (by apply wfImp_updateBucket_alter h)]
+      simp only [buckets_withComputedSize]
+      simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
+      rw [← getValueCast?_eq_some_getValueCast h₁]
+      conv => lhs; congr; rw [containsKey_alterKey_iff (a := a) (f := f) h.distinct];
+    · next h₁ =>
+      rw [containsₘ_eq_containsKey h] at h₁
+      rw [alterKey]
+      rw [getValueCast?_eq_none <| Bool.not_eq_true _ ▸ h₁]
       split
       · next heq =>
-        simp only [h.size_eq, heq, length_eraseKey, hc, Bool.false_eq_true, reduceIte]
+        rw [heq, h.size_eq, length_eraseKey, if_neg <| Bool.not_eq_true _ ▸ h₁]
       · next heq =>
-        simp only [heq, length_insertEntry, hc, Bool.false_eq_true, reduceIte]
-        rw [(wfImp_expandIfNecessary _
-          (wfImp_consₘ _ h _ _ (by simpa [containsₘ_eq_containsKey h] using hc))).size_eq]
-        rw [(toListModel_expandIfNecessary _).length_eq, (toListModel_consₘ _ h _ _).length_eq,
-          length_cons]
+        rw [heq, size_expandIfNecessary, consₘ, length_insertEntry,
+          if_neg <| Bool.not_eq_true _ ▸ h₁, h.size_eq]
   distinct := by
     apply DistinctKeys.perm <| toListModel_alterₘ h
     apply distinctKeys_alterKey
@@ -584,6 +592,16 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
 theorem wfImp_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} : Raw.WFImp (m.alter a f).1 := by
   rw [alter_eq_alterₘ]
+  exact wfImp_alterₘ h
+
+/-! # `modify` -/
+
+theorem wfImp_modifyₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
+    (h : Raw.WFImp m.1) {a : α} {f : β a → β a} : Raw.WFImp (m.modifyₘ a f).1 := wfImp_alterₘ h
+
+theorem wfImp_modify [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
+    (h : Raw.WFImp m.1) {a : α} {f : β a → β a} : Raw.WFImp (m.modify a f).1 := by
+  rw [modify_eq_modifyₘ]
   exact wfImp_alterₘ h
 
 /-! # `containsThenInsert` -/

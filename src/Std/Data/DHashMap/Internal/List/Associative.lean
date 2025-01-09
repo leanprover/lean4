@@ -775,6 +775,7 @@ def eraseKey [BEq α] (k : α) : List ((a : α) × β a) → List ((a : α) × �
   | ⟨k', v'⟩ :: l => bif k' == k then l else ⟨k', v'⟩ :: eraseKey k l
 
 @[simp] theorem eraseKey_nil [BEq α] {k : α} : eraseKey k ([] : List ((a : α) × β a)) = [] := rfl
+
 theorem eraseKey_cons [BEq α] {l : List ((a : α) × β a)} {k k' : α} {v' : β k'} :
     eraseKey k (⟨k', v'⟩ :: l) = bif k' == k then l else ⟨k', v'⟩ :: eraseKey k l := rfl
 
@@ -970,6 +971,15 @@ def insertEntry [BEq α]  (k : α) (v : β k) (l : List ((a : α) × β a)) : Li
 theorem insertEntry_nil [BEq α] {k : α} {v : β k} :
     insertEntry k v ([] : List ((a : α) × β a)) = [⟨k, v⟩] := by
   simp [insertEntry]
+
+theorem insertEntry_cons_of_beq [BEq α] {l : List ((a : α) × β a)} {k k' : α} {v : β k} {v' : β k'}
+    (h : k' == k) : insertEntry k v (⟨k', v'⟩ :: l) = ⟨k, v⟩ :: l := by
+  simp_all only [insertEntry, containsKey_cons, Bool.true_or, cond_true, replaceEntry_cons_of_true]
+
+@[simp]
+theorem insertEntry_cons_self [BEq α] [ReflBEq α] {l : List ((a : α) × β a)} {k : α} {v : β k} :
+    insertEntry k v (⟨k, v⟩ :: l) = ⟨k, v⟩ :: l :=
+  insertEntry_cons_of_beq BEq.refl
 
 theorem insertEntry_of_containsKey [BEq α] {l : List ((a : α) × β a)} {k : α} {v : β k}
     (h : containsKey k l) : insertEntry k v l = replaceEntry k v l := by
@@ -1842,27 +1852,100 @@ def alterKey [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β 
   --   | none => l
   --   | some v => ⟨k, v⟩ :: l
 
+theorem length_alterKey [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    {l : List ((a : α) × β a)} :
+    (alterKey k f l).length = if h : containsKey k l then if f (getValueCast k l h) |>.isSome then l.length else l.length - 1 else if f none |>.isSome then l.length + 1 else l.length := by
+  rw [alterKey]
+  cases h : getValueCast? k l with
+  | none =>
+      simp [containsKey_eq_isSome_getValueCast?, h]
+      split <;> simp_all [length_eraseKey, length_insertEntry, containsKey_eq_isSome_getValueCast?, h]
+  | some v =>
+      simp [containsKey_eq_isSome_getValueCast?, h]
+      split <;> simp_all [length_eraseKey, length_insertEntry, containsKey_eq_isSome_getValueCast?, h, ← getValueCast?_eq_some_getValueCast]
+
 theorem alterKey_of_perm [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l l' : List ((a : α) × β a)} (hl : DistinctKeys l) (hp : Perm l l') :
-    Perm (alterKey a f l) (alterKey a f l') := sorry
+    Perm (alterKey a f l) (alterKey a f l') := by
+  simp only [alterKey, getValueCast?_of_perm hl hp]
+  split
+  · exact eraseKey_of_perm hl hp
+  · exact insertEntry_of_perm hl hp
 
 theorem alterKey_append_of_containsKey_right_eq_false [BEq α] [LawfulBEq α] {a : α}
     {f : Option (β a) → Option (β a)} {l l' : List ((a : α) × β a)}
     (hc : containsKey a l' = false) :
-    alterKey a f (l ++ l') = alterKey a f l ++ l' := sorry
+    alterKey a f (l ++ l') = alterKey a f l ++ l' := by
+  simp only [alterKey, getValueCast?_append_of_containsKey_eq_false hc,
+    eraseKey_append_of_containsKey_right_eq_false hc, insertEntry_append_of_not_contains_right hc]
+  split <;> rfl
+
+@[simp]
+theorem alterKey_nil [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)} :
+    alterKey a f [] = match f none with
+    | none => []
+    | some b => [⟨a, b⟩] := by
+  rfl
 
 theorem containsKey_alterKey_iff [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    containsKey a (alterKey a f l) ↔ (f (getValueCast? a l)).isSome := sorry
+    containsKey a (alterKey a f l) ↔ (f (getValueCast? a l)).isSome := by
+  -- todo: don't use induction
+  induction l
+  · simp only [getValueCast?_nil, Bool.coe_iff_coe, alterKey_nil]
+    split <;> { rename_i heq; simp [heq] }
+  · simp only [alterKey, Bool.coe_iff_coe]
+    split
+    · next heq =>
+      rw [heq]
+      simp only [Option.isSome_none]
+      rw [containsKey_eraseKey_self]
+      exact hl
+    · next heq =>
+      rw [heq]
+      simp only [containsKey_insertEntry, beq_self_eq_true, Bool.true_or, Option.isSome_some]
 
 theorem distinctKeys_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    DistinctKeys (alterKey a f l) := sorry
+    DistinctKeys (alterKey a f l) := by
+  dsimp only [alterKey]
+  split
+  · exact DistinctKeys.eraseKey hl
+  · exact DistinctKeys.insertEntry hl
 
-theorem mem_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
-    {l : List ((a : α) × β a)} (hl : DistinctKeys l) (p : (a : α) × β a) :
-    p ∈ alterKey a f l ↔ if h : p.1 == a then f (getValueCast? a l) = (eq_of_beq h) ▸ (some p.2) else p ∈ l := by
-  sorry
+/-- Internal implementation detail of the hash map -/
+def modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
+  match getValueCast? k l with
+  | none => l
+  | some v => replaceEntry k (f v) l
+
+theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : modifyKey k f l = alterKey k (·.map f) l := by
+  rw [modifyKey, alterKey, Option.map.eq_def]
+  split
+  · next h =>
+    simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
+  · next h =>
+    simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, Option.isSome_some, cond_true]
+
+theorem length_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : (modifyKey k f l).length = l.length := by
+  induction l
+  · rfl
+  · next ih =>
+    simp only [modifyKey, List.length_cons]
+    split <;> next h =>
+      simp [length_eraseKey, length_insertEntry, containsKey_eq_isSome_getValueCast?, h]
+
+theorem containsKey_modifyKey_iff [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : containsKey k (modifyKey k f l) ↔ containsKey k l := by
+  induction l
+  · simp only [modifyKey, getValueCast?_nil, eraseKey_nil, containsKey_nil, Bool.false_eq_true]
+  · simp only [modifyKey, Bool.coe_iff_coe]
+    split
+    · rfl
+    · rw [containsKey_replaceEntry]
 
 theorem mem_replaceEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
     {l : List ((a : α) × β a)} (p : (a : α) × β a)

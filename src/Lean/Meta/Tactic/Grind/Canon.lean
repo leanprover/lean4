@@ -66,11 +66,13 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
       -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
       -- However, we don't revert previously canonicalized elements in the `grind` tactic.
       modify fun s => { s with canon := s.canon.insert e c }
+      trace[grind.debug.canon] "found {e} ===> {c}"
       return c
     if isInst then
-      if (← isDiagnosticsEnabled <&&> pure (c.fvarsSubset e) <&&> (withDefault <| isDefEq e c)) then
+      if (← isDiagnosticsEnabled <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.
         trace[grind.issues] "the following `grind` static elements are definitionally equal with `default` transparency, but not with `instances` transparency{indentExpr e}\nand{indentExpr c}"
+  trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
   modify fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
@@ -92,6 +94,12 @@ private inductive ShouldCanonResult where
     visit
   deriving Inhabited
 
+instance : Repr ShouldCanonResult where
+  reprPrec r _ := match r with
+    | .canonType => "canonType"
+    | .canonInst => "canonInst"
+    | .visit => "visit"
+
 /--
 See comments at `ShouldCanonResult`.
 -/
@@ -102,7 +110,9 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
       return .canonInst
     else if pinfo.isProp then
       return .visit
-  if (← isTypeFormer arg) then
+  if (← isProp arg) then
+    return .visit
+  else if (← isTypeFormer arg) then
     return .canonType
   else
     return .visit
@@ -151,7 +161,8 @@ where
     return e'
 
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : StateT State MetaM Expr :=
+def canon (e : Expr) : StateT State MetaM Expr := do
+  trace[grind.debug.canon] "{e}"
   unsafe canonImpl e
 
 end Canon

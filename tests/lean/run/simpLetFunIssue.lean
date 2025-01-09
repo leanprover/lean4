@@ -4,7 +4,7 @@ example : (λ x => x)
              let_fun foo := λ y => id (id y)
              foo (0 + x)) := by
   simp -zeta only [id]
-  guard_target =ₛ
+  guard_target =ₐ
            (λ x => x)
            =
            (λ x : Nat =>

@@ -19,7 +19,7 @@ have to be to pass the tactic.
 This inductive gives the different specifiers that can be selected.
 -/
 inductive MatchKind
-/-- A syntactic match means that the `Expr`s are `==` after stripping `MData` -/
+/-- A syntactic match means that the `Expr`s are `=` after stripping `MData` -/
 | syntactic
 /-- A defeq match `isDefEqGuarded` returns true. (Note that unification is allowed here.) -/
 | defEq (red : TransparencyMode := .reducible)
@@ -54,7 +54,7 @@ def equal.toMatchKind : TSyntax ``equal → Option MatchKind
 
 /-- Applies the selected matching rule to two expressions. -/
 def MatchKind.isEq (a b : Expr) : MatchKind → MetaM Bool
-  | .syntactic => return a.consumeMData == b.consumeMData
+  | .syntactic => return a.consumeMData.equal b.consumeMData
   | .alphaEq => return a.eqv b
   | .defEq red => withoutModifyingState <| withTransparency red <| Lean.Meta.isDefEqGuarded a b
 

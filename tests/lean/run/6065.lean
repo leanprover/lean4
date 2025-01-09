@@ -11,7 +11,7 @@ def foo (r : Nat) : Nat :=
 
 example {r : Nat} : foo r = 0 := by
   simp only [foo.eq_def]
-  guard_target =ₛ
+  guard_target =ₐ
     (match r with
         | Nat.zero => 0
         | l@h:(Nat.succ n) =>

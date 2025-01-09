@@ -13,7 +13,7 @@ elab "ensure_no_mvar" : tactic => do
 example {α : Type u} [Inhabited α] (a : α) (f : α → α) (h : f a = default) : default = f a := by
   revert_all
   ensure_no_mvar
-  guard_target =ₛ∀ {α : Type u} [inst : Inhabited α] (a : α) (f : α → α), f a = default → default = f a
+  guard_target =ₐ ∀ {α : Type u} [inst : Inhabited α] (a : α) (f : α → α), f a = default → default = f a
   intro α inst a f h
   exact h.symm
 

@@ -1399,7 +1399,7 @@ theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k 
   rw [Raw₀.Const.insertManyIfNewUnit_list_singleton]
 
 theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
-    (insertManyIfNewUnit m (k :: l)) = (insertManyIfNewUnit (m.insertIfNew k ()) l) := by
+    insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_cons]
 

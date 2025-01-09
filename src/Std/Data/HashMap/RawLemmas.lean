@@ -878,7 +878,7 @@ theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] (h 
   ext (DHashMap.Raw.Const.insertManyIfNewUnit_list_singleton h.out)
 
 theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
-    (insertManyIfNewUnit m (k :: l)) = (insertManyIfNewUnit (m.insertIfNew k ()) l) :=
+    insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l :=
   ext (DHashMap.Raw.Const.insertManyIfNewUnit_cons h.out)
 
 @[simp]
@@ -947,7 +947,7 @@ theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [Law
   DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false h.out contains_eq_false
 
 theorem getKey!_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
-    [Inhabited α]  (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
+    [Inhabited α] (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) :
     contains m k = false → getKey! (insertManyIfNewUnit m l) k' = k :=

@@ -124,6 +124,8 @@ theorem push_eq_push {a b : α} {xs ys : Array α} : xs.push a = ys.push b ↔ a
   · rintro ⟨rfl, rfl⟩
     rfl
 
+theorem push_eq_append_singleton (as : Array α) (x) : as.push x = as ++ #[x] := rfl
+
 theorem exists_push_of_ne_empty {xs : Array α} (h : xs ≠ #[]) :
     ∃ (ys : Array α) (a : α), xs = ys.push a := by
   rcases xs with ⟨xs⟩
@@ -1187,6 +1189,321 @@ theorem mapM_map_eq_foldl (as : Array α) (f : α → β) (i) :
     rfl
 termination_by as.size - i
 
+/-! ### filter -/
+
+@[congr]
+theorem filter_congr {as bs : Array α} (h : as = bs)
+    {f : α → Bool} {g : α → Bool} (h' : f = g) {start stop start' stop' : Nat}
+    (h₁ : start = start') (h₂ : stop = stop') :
+    filter f as start stop = filter g bs start' stop' := by
+  congr
+
+@[simp] theorem toList_filter' (p : α → Bool) (l : Array α) (h : stop = l.size) :
+    (l.filter p 0 stop).toList = l.toList.filter p := by
+  subst h
+  dsimp only [filter]
+  rw [← foldl_toList]
+  generalize l.toList = l
+  suffices ∀ a, (List.foldl (fun r a => if p a = true then push r a else r) a l).toList =
+      a.toList ++ List.filter p l by
+    simpa using this #[]
+  induction l with simp
+  | cons => split <;> simp [*]
+
+theorem toList_filter (p : α → Bool) (l : Array α) :
+    (l.filter p).toList = l.toList.filter p := by
+  simp
+
+@[simp] theorem _root_.List.filter_toArray' (p : α → Bool) (l : List α) (h : stop = l.length) :
+    l.toArray.filter p 0 stop = (l.filter p).toArray := by
+  apply ext'
+  simp [h]
+
+theorem _root_.List.filter_toArray (p : α → Bool) (l : List α) :
+    l.toArray.filter p = (l.filter p).toArray := by
+  simp
+
+@[simp] theorem filter_push_of_pos {p : α → Bool} {a : α} {l : Array α}
+    (h : p a) (w : stop = l.size + 1):
+    (l.push a).filter p 0 stop = (l.filter p).push a := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [h]
+
+@[simp] theorem filter_push_of_neg {p : α → Bool} {a : α} {l : Array α}
+    (h : ¬p a) (w : stop = l.size + 1) :
+    (l.push a).filter p 0 stop = l.filter p := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [h]
+
+theorem filter_push {p : α → Bool} {a : α} {l : Array α} :
+    (l.push a).filter p = if p a then (l.filter p).push a else l.filter p := by
+  split <;> simp [*]
+
+theorem size_filter_le (p : α → Bool) (l : Array α) :
+    (l.filter p).size ≤ l.size := by
+  rcases l with ⟨l⟩
+  simpa using List.length_filter_le p l
+
+@[simp] theorem filter_eq_self {p : α → Bool} {l : Array α} :
+    filter p l = l ↔ ∀ a ∈ l, p a := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem filter_size_eq_size {p : α → Bool} {l : Array α} :
+    (filter p l).size = l.size ↔ ∀ a ∈ l, p a := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem mem_filter {p : α → Bool} {l : Array α} {a : α} :
+    a ∈ filter p l ↔ a ∈ l ∧ p a := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem filter_eq_empty_iff {p : α → Bool} {l : Array α} :
+    filter p l = #[] ↔ ∀ a, a ∈ l → ¬p a := by
+  rcases l with ⟨l⟩
+  simp
+
+theorem forall_mem_filter {p : α → Bool} {l : Array α} {P : α → Prop} :
+    (∀ (i) (_ : i ∈ l.filter p), P i) ↔ ∀ (j) (_ : j ∈ l), p j → P j := by
+  simp
+
+@[simp] theorem filter_filter (q) (l : Array α) :
+    filter p (filter q l) = filter (fun a => p a && q a) l := by
+  apply ext'
+  simp only [toList_filter, List.filter_filter]
+
+theorem foldl_filter (p : α → Bool) (f : β → α → β) (l : Array α) (init : β) :
+    (l.filter p).foldl f init = l.foldl (fun x y => if p y then f x y else x) init := by
+  rcases l with ⟨l⟩
+  rw [List.filter_toArray]
+  simp [List.foldl_filter]
+
+theorem foldr_filter (p : α → Bool) (f : α → β → β) (l : Array α) (init : β) :
+    (l.filter p).foldr f init = l.foldr (fun x y => if p x then f x y else y) init := by
+  rcases l with ⟨l⟩
+  rw [List.filter_toArray]
+  simp [List.foldr_filter]
+
+theorem filter_map (f : β → α) (l : Array β) : filter p (map f l) = map f (filter (p ∘ f) l) := by
+  rcases l with ⟨l⟩
+  simp [List.filter_map]
+
+theorem map_filter_eq_foldl (f : α → β) (p : α → Bool) (l : Array α) :
+    map f (filter p l) = foldl (fun y x => bif p x then y.push (f x) else y) #[] l := by
+  rcases l with ⟨l⟩
+  apply ext'
+  simp only [size_toArray, List.filter_toArray', List.map_toArray, List.foldl_toArray']
+  rw [← List.reverse_reverse l]
+  generalize l.reverse = l
+  simp only [List.filter_reverse, List.map_reverse, List.foldl_reverse]
+  induction l with
+  | nil => rfl
+  | cons x l ih =>
+    simp only [List.filter_cons, List.foldr_cons]
+    split <;> simp_all
+
+@[simp] theorem filter_append {p : α → Bool} (l₁ l₂ : Array α) :
+    filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂ := by
+  rcases l₁ with ⟨l₁⟩
+  rcases l₂ with ⟨l₂⟩
+  simp [List.filter_append]
+
+theorem filter_eq_append_iff {p : α → Bool} :
+    filter p l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filter p l₁ = L₁ ∧ filter p l₂ = L₂ := by
+  rcases l with ⟨l⟩
+  rcases L₁ with ⟨L₁⟩
+  rcases L₂ with ⟨L₂⟩
+  simp only [size_toArray, List.filter_toArray', List.append_toArray, mk.injEq,
+    List.filter_eq_append_iff]
+  constructor
+  · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
+    refine ⟨l₁.toArray, l₂.toArray, by simp⟩
+  · rintro ⟨⟨l₁⟩, ⟨l₂⟩, h₁, h₂, h₃⟩
+    refine ⟨l₁, l₂, by simp_all⟩
+
+theorem filter_eq_push_iff {p : α → Bool} {l l' : Array α} {a : α} :
+    filter p l = l'.push a ↔
+      ∃ l₁ l₂, l = l₁.push a ++ l₂ ∧ filter p l₁ = l' ∧ p a ∧ (∀ x, x ∈ l₂ → ¬p x) := by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  simp only [size_toArray, List.filter_toArray', List.push_toArray, mk.injEq, Bool.not_eq_true]
+  rw [← List.reverse_inj]
+  simp only [← List.filter_reverse]
+  simp only [List.reverse_append, List.reverse_cons, List.reverse_nil, List.nil_append,
+    List.singleton_append]
+  rw [List.filter_eq_cons_iff]
+  constructor
+  · rintro ⟨l₁, l₂, h₁, h₂, h₃, h₄⟩
+    refine ⟨l₂.reverse.toArray, l₁.reverse.toArray, by simp_all⟩
+  · rintro ⟨⟨l₁⟩, ⟨l₂⟩, h₁, h₂, h₃, h₄⟩
+    refine ⟨l₂.reverse, l₁.reverse, by simp_all⟩
+
+@[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
+
+theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
+  (mem_filter.mp h).1
+
+/-! ### filterMap -/
+
+@[congr]
+theorem filterMap_congr {as bs : Array α} (h : as = bs)
+    {f : α → Option β} {g : α → Option β} (h' : f = g) {start stop start' stop' : Nat}
+    (h₁ : start = start') (h₂ : stop = stop') :
+    filterMap f as start stop = filterMap g bs start' stop' := by
+  congr
+
+@[simp] theorem toList_filterMap' (f : α → Option β) (l : Array α) (w : stop = l.size) :
+    (l.filterMap f 0 stop).toList = l.toList.filterMap f := by
+  subst w
+  dsimp only [filterMap, filterMapM]
+  rw [← foldlM_toList]
+  generalize l.toList = l
+  have this : ∀ a : Array β, (Id.run (List.foldlM (m := Id) ?_ a l)).toList =
+    a.toList ++ List.filterMap f l := ?_
+  exact this #[]
+  induction l
+  · simp_all [Id.run]
+  · simp_all [Id.run, List.filterMap_cons]
+    split <;> simp_all
+
+theorem toList_filterMap (f : α → Option β) (l : Array α) :
+    (l.filterMap f).toList = l.toList.filterMap f := by
+  simp [toList_filterMap']
+
+
+@[simp] theorem _root_.List.filterMap_toArray' (f : α → Option β) (l : List α) (h : stop = l.length) :
+    l.toArray.filterMap f 0 stop = (l.filterMap f).toArray := by
+  apply ext'
+  simp [h]
+
+theorem _root_.List.filterMap_toArray (f : α → Option β) (l : List α) :
+    l.toArray.filterMap f = (l.filterMap f).toArray := by
+  simp
+
+@[simp] theorem filterMap_push_none {f : α → Option β} {a : α} {l : Array α}
+    (h : f a = none) (w : stop = l.size + 1) :
+    filterMap f (l.push a) 0 stop = filterMap f l := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [h]
+
+@[simp] theorem filterMap_push_some {f : α → Option β} {a : α} {l : Array α} {b : β}
+    (h : f a = some b) (w : stop = l.size + 1) :
+    filterMap f (l.push a) 0 stop = (filterMap f l).push b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [h]
+
+@[simp] theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
+  funext l
+  cases l
+  simp
+
+theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
+  funext l
+  cases l
+  simp
+
+@[simp] theorem filterMap_some (l : Array α) : filterMap some l = l := by
+  cases l
+  simp
+
+theorem map_filterMap_some_eq_filterMap_isSome (f : α → Option β) (l : Array α) :
+    (l.filterMap f).map some = (l.map f).filter fun b => b.isSome := by
+  cases l
+  simp [List.map_filterMap_some_eq_filter_map_isSome]
+
+theorem size_filterMap_le (f : α → Option β) (l : Array α) :
+    (filterMap f l).size ≤ l.size := by
+  cases l
+  simp [List.length_filterMap_le]
+
+@[simp] theorem filterMap_size_eq_size {l} :
+    (filterMap f l).size = l.size ↔ ∀ a, a ∈ l → (f a).isSome := by
+  cases l
+  simp [List.filterMap_length_eq_length]
+
+@[simp]
+theorem filterMap_eq_filter (p : α → Bool) :
+    filterMap (Option.guard (p ·)) = filter p := by
+  funext l
+  cases l
+  simp
+
+theorem filterMap_filterMap (f : α → Option β) (g : β → Option γ) (l : Array α) :
+    filterMap g (filterMap f l) = filterMap (fun x => (f x).bind g) l := by
+  cases l
+  simp [List.filterMap_filterMap]
+
+theorem map_filterMap (f : α → Option β) (g : β → γ) (l : Array α) :
+    map g (filterMap f l) = filterMap (fun x => (f x).map g) l := by
+  cases l
+  simp [List.map_filterMap]
+
+@[simp] theorem filterMap_map (f : α → β) (g : β → Option γ) (l : Array α) :
+    filterMap g (map f l) = filterMap (g ∘ f) l := by
+  cases l
+  simp [List.filterMap_map]
+
+theorem filter_filterMap (f : α → Option β) (p : β → Bool) (l : Array α) :
+    filter p (filterMap f l) = filterMap (fun x => (f x).filter p) l := by
+  cases l
+  simp [List.filter_filterMap]
+
+theorem filterMap_filter (p : α → Bool) (f : α → Option β) (l : Array α) :
+    filterMap f (filter p l) = filterMap (fun x => if p x then f x else none) l := by
+  cases l
+  simp [List.filterMap_filter]
+
+@[simp] theorem mem_filterMap {f : α → Option β} {l : Array α} {b : β} :
+    b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
+  simp only [mem_def, toList_filterMap, List.mem_filterMap]
+
+theorem forall_mem_filterMap {f : α → Option β} {l : Array α} {P : β → Prop} :
+    (∀ (i) (_ : i ∈ filterMap f l), P i) ↔ ∀ (j) (_ : j ∈ l) (b), f j = some b → P b := by
+  simp only [mem_filterMap, forall_exists_index, and_imp]
+  rw [forall_comm]
+  apply forall_congr'
+  intro a
+  rw [forall_comm]
+
+@[simp] theorem filterMap_append {α β : Type _} (l l' : Array α) (f : α → Option β) :
+    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
+  cases l
+  cases l'
+  simp
+
+theorem map_filterMap_of_inv (f : α → Option β) (g : β → α) (H : ∀ x : α, (f x).map g = some x)
+    (l : Array α) : map g (filterMap f l) = l := by simp only [map_filterMap, H, filterMap_some, id]
+
+theorem forall_none_of_filterMap_eq_empty (h : filterMap f xs = #[]) : ∀ x ∈ xs, f x = none := by
+  cases xs
+  simpa using h
+
+@[simp] theorem filterMap_eq_nil_iff {l} : filterMap f l = #[] ↔ ∀ a, a ∈ l → f a = none := by
+  cases l
+  simp
+
+theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array β} {b : β} :
+    filterMap f l = l'.push b ↔ ∃ l₁ a l₂,
+      l = l₁.push a ++ l₂ ∧ filterMap f l₁ = l' ∧ f a = some b ∧ (∀ x, x ∈ l₂ → f x = none) := by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  simp only [size_toArray, List.filterMap_toArray', List.push_toArray, mk.injEq]
+  rw [← List.reverse_inj]
+  simp only [← List.filterMap_reverse]
+  simp only [List.reverse_append, List.reverse_cons, List.reverse_nil, List.nil_append,
+    List.singleton_append]
+  rw [List.filterMap_eq_cons_iff]
+  constructor
+  · rintro ⟨l₁, a, l₂, h₁, h₂, h₃, h₄⟩
+    refine ⟨l₂.reverse.toArray, a, l₁.reverse.toArray, by simp_all⟩
+  · rintro ⟨⟨l₁⟩, a, ⟨l₂⟩, h₁, h₂, h₃, h₄⟩
+    refine ⟨l₂.reverse, a, l₁.reverse, by simp_all⟩
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
@@ -1801,70 +2118,11 @@ theorem getElem?_modify {as : Array α} {i : Nat} {f : α → α} {j : Nat} :
   simp only [getElem?_def, size_modify, getElem_modify, Option.map_dif]
   split <;> split <;> rfl
 
-/-! ### filter -/
-
-@[simp] theorem toList_filter (p : α → Bool) (l : Array α) :
-    (l.filter p).toList = l.toList.filter p := by
-  dsimp only [filter]
-  rw [← foldl_toList]
-  generalize l.toList = l
-  suffices ∀ a, (List.foldl (fun r a => if p a = true then push r a else r) a l).toList =
-      a.toList ++ List.filter p l by
-    simpa using this #[]
-  induction l with simp
-  | cons => split <;> simp [*]
-
-@[simp] theorem filter_filter (q) (l : Array α) :
-    filter p (filter q l) = filter (fun a => p a && q a) l := by
-  apply ext'
-  simp only [toList_filter, List.filter_filter]
-
-@[simp] theorem mem_filter : x ∈ filter p as ↔ x ∈ as ∧ p x := by
-  simp only [mem_def, toList_filter, List.mem_filter]
-
-theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
-  (mem_filter.mp h).1
-
-@[congr]
-theorem filter_congr {as bs : Array α} (h : as = bs)
-    {f : α → Bool} {g : α → Bool} (h' : f = g) {start stop start' stop' : Nat}
-    (h₁ : start = start') (h₂ : stop = stop') :
-    filter f as start stop = filter g bs start' stop' := by
-  congr
-
-/-! ### filterMap -/
-
-@[simp] theorem toList_filterMap (f : α → Option β) (l : Array α) :
-    (l.filterMap f).toList = l.toList.filterMap f := by
-  dsimp only [filterMap, filterMapM]
-  rw [← foldlM_toList]
-  generalize l.toList = l
-  have this : ∀ a : Array β, (Id.run (List.foldlM (m := Id) ?_ a l)).toList =
-    a.toList ++ List.filterMap f l := ?_
-  exact this #[]
-  induction l
-  · simp_all [Id.run]
-  · simp_all [Id.run, List.filterMap_cons]
-    split <;> simp_all
-
-@[simp] theorem mem_filterMap {f : α → Option β} {l : Array α} {b : β} :
-    b ∈ filterMap f l ↔ ∃ a, a ∈ l ∧ f a = some b := by
-  simp only [mem_def, toList_filterMap, List.mem_filterMap]
-
-@[congr]
-theorem filterMap_congr {as bs : Array α} (h : as = bs)
-    {f : α → Option β} {g : α → Option β} (h' : f = g) {start stop start' stop' : Nat}
-    (h₁ : start = start') (h₂ : stop = stop') :
-    filterMap f as start stop = filterMap g bs start' stop' := by
-  congr
-
 /-! ### empty -/
 
 theorem size_empty : (#[] : Array α).size = 0 := rfl
 
 /-! ### append -/
-
-theorem push_eq_append_singleton (as : Array α) (x) : as.push x = as ++ #[x] := rfl
 
 @[simp] theorem mem_append {a : α} {s t : Array α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
   simp only [mem_def, toList_append, List.mem_append]
@@ -2265,26 +2523,6 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
 @[simp] theorem modify_toArray (f : α → α) (l : List α) :
     l.toArray.modify i f = (l.modify f i).toArray := by
   apply ext'
-  simp
-
-@[simp] theorem filter_toArray' (p : α → Bool) (l : List α) (h : stop = l.toArray.size) :
-    l.toArray.filter p 0 stop = (l.filter p).toArray := by
-  subst h
-  apply ext'
-  rw [toList_filter]
-
-@[simp] theorem filterMap_toArray' (f : α → Option β) (l : List α) (h : stop = l.toArray.size) :
-    l.toArray.filterMap f 0 stop = (l.filterMap f).toArray := by
-  subst h
-  apply ext'
-  rw [toList_filterMap]
-
-theorem filter_toArray (p : α → Bool) (l : List α) :
-    l.toArray.filter p = (l.filter p).toArray := by
-  simp
-
-theorem filterMap_toArray (f : α → Option β) (l : List α) :
-    l.toArray.filterMap f = (l.filterMap f).toArray := by
   simp
 
 @[simp] theorem flatten_toArray (l : List (List α)) :

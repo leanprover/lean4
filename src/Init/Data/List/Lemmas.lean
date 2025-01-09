@@ -1285,7 +1285,7 @@ theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂
   | [], _ => rfl
-  | a :: l₁, l₂ => by simp [filter]; split <;> simp [filter_append l₁]
+  | a :: l₁, l₂ => by simp only [cons_append, filter]; split <;> simp [filter_append l₁]
 
 theorem filter_eq_cons_iff {l} {a} {as} :
     filter p l = a :: as ↔

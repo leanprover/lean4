@@ -40,7 +40,13 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 or differences in hours.
 -/
 def Offset : Type := UnitVal 3600
-  deriving Repr, BEq, Inhabited, Add, Sub, Neg, ToString
+  deriving Repr, BEq, Inhabited, Add, Sub, Neg, ToString, LT, LE
+
+instance { x y : Offset } : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance { x y : Offset } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩

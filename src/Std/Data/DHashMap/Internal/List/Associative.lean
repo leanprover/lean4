@@ -972,6 +972,14 @@ theorem insertEntry_nil [BEq α] {k : α} {v : β k} :
     insertEntry k v ([] : List ((a : α) × β a)) = [⟨k, v⟩] := by
   simp [insertEntry]
 
+theorem insertEntry_cons_of_false [BEq α] {l : List ((a : α) × β a)} {k k' : α} {v : β k} {v' : β k'}
+    (h : (k' == k) = false) :
+    Perm (insertEntry k v (⟨k', v'⟩ :: l)) (⟨k', v'⟩ :: insertEntry k v l) := by
+  simp only [insertEntry, containsKey_cons, h, Bool.false_or, cond_eq_if]
+  split
+  · rw [replaceEntry_cons_of_false h]
+  · apply Perm.swap
+
 theorem insertEntry_cons_of_beq [BEq α] {l : List ((a : α) × β a)} {k k' : α} {v : β k} {v' : β k'}
     (h : k' == k) : insertEntry k v (⟨k', v'⟩ :: l) = ⟨k, v⟩ :: l := by
   simp_all only [insertEntry, containsKey_cons, Bool.true_or, cond_true, replaceEntry_cons_of_true]
@@ -1838,11 +1846,23 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
     · rw [cond_true, cond_true]
 
 /-- Internal implementation detail of the hash map -/
-def alterKey [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β k))
-    (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
-  match f (getValueCast? k l) with
+def alterKey [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β k)) :
+    List ((a : α) × β a) → List ((a : α) × β a) :=
+-- | [] => match f none with
+--   | none => []
+--   | some v => ⟨k, v⟩ :: []
+-- | ⟨k', v'⟩ :: tail =>
+--   if h : k' == k then
+--     match f (some (cast (congrArg β <| eq_of_beq h) v')) with
+--     | none => tail
+--     | some v => ⟨k, v⟩ :: tail
+--   else
+--     ⟨k', v'⟩ :: alterKey k f tail
+
+  fun l => match f (getValueCast? k l) with
   | none => eraseKey k l
   | some v => insertEntry k v l
+
   -- if h : containsKey k l then
   --   match f (some (getValueCast k l h)) with
   --   | none => eraseKey k l

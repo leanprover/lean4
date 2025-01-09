@@ -200,26 +200,29 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact ih _
 
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)} {l : AssocList α β } :
-    (l.alter a f).toList = alterKey a f l.toList := by
+    Perm (l.alter a f).toList (alterKey a f l.toList) := by
   rw [alterKey]
   split
   · next heq =>
     induction l
     · simp only [toList_nil, getValueCast?_nil] at heq
       simp only [alter, heq, toList_nil, eraseKey_nil]
+      exact .nil
     · next ih =>
       simp only [toList_cons, getValueCast?_cons, beq_iff_eq] at heq
       split at heq
       · next heq₂ =>
         simp only [alter, dif_pos heq₂, heq, toList_cons, eraseKey_cons_of_beq heq₂]
+        exact Perm.rfl
       · next heq₂ =>
         simp only [alter, beq_iff_eq, dif_neg heq₂, toList_cons]
-        simp only [eraseKey_cons_of_false (Bool.not_eq_true _ ▸ heq₂), List.cons.injEq, true_and]
-        exact ih heq
+        simp only [eraseKey_cons_of_false (Bool.not_eq_true _ ▸ heq₂), true_and]
+        exact Perm.cons _ <| ih heq
   · next heq =>
     induction l
     · rw [toList_nil, getValueCast?_nil] at heq
       simp only [alter, heq, toList_cons, toList_nil, insertEntry_nil]
+      exact Perm.rfl
     · next ih =>
       simp only [toList_cons, getValueCast?_cons, beq_iff_eq] at heq
       split at heq
@@ -229,18 +232,14 @@ theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Opt
         cases eq_of_beq heq₂; rfl
       · next heq₂ =>
         simp only [alter, beq_iff_eq, dif_neg heq₂, toList_cons]
-        -- oh no, this does not work: alter inserts at the end, while alterKey inserts at the front
-        done
-
-
--- theorem containsKey_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
---     (l : AssocList α β ) : containsKey a (alter a f l)
-
-theorem toList_modify [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β } :
-    (l.modify a f).toList = modifyKey a f l.toList := sorry
+        refine insertEntry_cons_of_false (Bool.not_eq_true _ ▸ heq₂) |>.symm |> Perm.trans ?_
+        exact Perm.cons _ <| ih heq
 
 theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β } :
-    modify a f l = alter a (·.map f) l := sorry:
+    modify a f l = alter a (·.map f) l := by
+  induction l
+  · rfl
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
 
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =

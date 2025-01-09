@@ -165,13 +165,14 @@ theorem apply_bucket_with_proof {γ : α → Type w} [BEq α] [Hashable α] [Par
 /-- This is the general theorem to show that modification operations are correct. -/
 theorem toListModel_updateBucket [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
     {m : Raw₀ α β} (hm : Raw.WFImp m.1) {a : α} {f : AssocList α β → AssocList α β}
-    {g : List ((a : α) × β a) → List ((a : α) × β a)} (hfg : ∀ {l}, (f l).toList = g l.toList)
+    {g : List ((a : α) × β a) → List ((a : α) × β a)} (hfg : ∀ {l}, Perm (f l).toList (g l.toList))
     (hg₁ : ∀ {l l'}, DistinctKeys l → Perm l l' → Perm (g l) (g l'))
     (hg₂ : ∀ {l l'}, containsKey a l' = false → g (l ++ l') = g l ++ l') :
     Perm (toListModel (updateBucket m.1.buckets m.2 a f)) (g (toListModel m.1.2)) := by
   obtain ⟨l, h₁, h₂, h₃⟩ := exists_bucket_of_update m.1.buckets m.2 a f
   refine h₂.trans (Perm.trans ?_ (hg₁ hm.distinct h₁).symm)
-  rw [hfg, hg₂]
+  refine Perm.append_right l hfg |>.trans ?_
+  rw [hg₂]
   exact h₃ hm.buckets_hash_self _ rfl
 
 /-- This is the general theorem to show that mapping operations (like `map` and `filter`) are
@@ -445,7 +446,8 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
     · next h =>
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.modify_eq_alter, Array.set_set, AssocList.contains_eq,
-        AssocList.toList_alter, ← modifyKey_eq_alterKey, containsKey_modifyKey_iff, h, ↓reduceIte]
+        containsKey_of_perm AssocList.toList_alter, ← modifyKey_eq_alterKey,
+        containsKey_modifyKey_iff, h, ↓reduceIte]
     · rfl
 
 theorem modify_eq_modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)

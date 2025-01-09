@@ -52,7 +52,7 @@ inductive CanonElemKind where
     -/
     instance
   | /--
-    Types and Type formers are canonicalized usind `TransparencyMode.default`.
+    Types and Type formers are canonicalized using `TransparencyMode.default`.
     Remark: propositions are just visited. We do not invoke `canonElemCore` for them.
     -/
     type

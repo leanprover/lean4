@@ -2747,7 +2747,7 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
 
 /--`rotateLeft` is defined in terms of left and right shifts. -/
 theorem rotateLeft_def {x : BitVec w} {r : Nat} :
-  x.rotateLeft r = (x <<< (r % w)) ||| (x >>> (w - r % w)) := by
+    x.rotateLeft r = (x <<< (r % w)) ||| (x >>> (w - r % w)) := by
   simp only [rotateLeft, rotateLeftAux]
 
 /-- `rotateLeft` is invariant under `mod` by the bitwidth. -/

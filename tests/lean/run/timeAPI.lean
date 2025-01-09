@@ -493,7 +493,7 @@ example : Week.Offset.ofNat 1 = (1 : Week.Offset) := rfl
 example := Nanosecond.Ordinal.ofInt 1 (by decide)
 example := Millisecond.Ordinal.ofInt 1 (by decide)
 example := Second.Ordinal.ofInt (leap := false) 59 (by decide)
-example := Second.Ordinal.ofInt (leap := True) 60 (by decide)
+example := Second.Ordinal.ofInt (leap := true) 60 (by decide)
 example := Minute.Ordinal.ofInt 1 (by decide)
 example := Hour.Ordinal.ofInt 1 (by decide)
 example := Day.Ordinal.ofInt 1 (by decide)
@@ -502,7 +502,7 @@ example := Week.Ordinal.ofInt 1 (by decide)
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
 example := Second.Ordinal.ofFin (leap := false) 37
-example := Second.Ordinal.ofFin (leap := True) 37
+example := Second.Ordinal.ofFin (leap := true) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1
@@ -511,7 +511,7 @@ example := Week.Ordinal.ofFin 1
 example := Nanosecond.Ordinal.ofNat 1
 example := Millisecond.Ordinal.ofNat 1
 example := Second.Ordinal.ofNat (leap := false) 1
-example := Second.Ordinal.ofNat (leap := True) 1
+example := Second.Ordinal.ofNat (leap := true) 1
 example := Minute.Ordinal.ofNat 1
 example := Hour.Ordinal.ofNat 1
 example := Day.Ordinal.ofNat 1
@@ -520,7 +520,7 @@ example := Week.Ordinal.ofNat 1
 example := Nanosecond.Ordinal.toOffset 1
 example := Millisecond.Ordinal.toOffset 1
 example := Second.Ordinal.toOffset (leap := false) 1
-example := Second.Ordinal.toOffset (leap := True) 1
+example := Second.Ordinal.toOffset (leap := true) 1
 example := Minute.Ordinal.toOffset 1
 example := Hour.Ordinal.toOffset 1
 example := Day.Ordinal.toOffset 1

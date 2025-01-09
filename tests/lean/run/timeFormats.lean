@@ -275,7 +275,7 @@ info: "14-13-12"
 Format
 -/
 
-def time₄ := (time("23:13:12.324354679") : PlainTime )
+def time₄ := time("23:13:12.324354679")
 def date₄ := date("2002-07-14")
 def datetime₅ := PlainDateTime.mk (PlainDate.ofYearMonthDayClip (-2000) 3 4) (PlainTime.mk 12 23 12 0)
 def datetime₄ := datetime("2002-07-14T23:13:12.324354679")

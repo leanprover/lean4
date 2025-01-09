@@ -7,7 +7,7 @@ prelude
 import Init.Core
 import Init.Omega
 
-namespace Lean.Grind
+namespace Lean.Grind.Offset
 
 abbrev Var := Nat
 abbrev Context := Lean.RArray Nat
@@ -22,7 +22,7 @@ structure Cnstr where
   y : Var
   k : Nat  := 0
   l : Bool := true
-  deriving Repr, BEq, Inhabited
+  deriving Repr, DecidableEq, Inhabited
 
 def Cnstr.denote (c : Cnstr) (ctx : Context) : Prop :=
   if c.l then
@@ -82,51 +82,84 @@ def Cnstr.isFalse (c : Cnstr) : Bool := c.x == c.y && c.k != 0 && c.l == true
 theorem Cnstr.of_isFalse (ctx : Context) {c : Cnstr} : c.isFalse = true → ¬c.denote ctx := by
   cases c; simp [isFalse]; intros; simp [*, denote]; omega
 
-def Certificate := List Cnstr
+def Cnstrs := List Cnstr
 
-def Certificate.denote' (ctx : Context) (c₁ : Cnstr) (c₂ : Certificate) : Prop :=
+def Cnstrs.denoteAnd' (ctx : Context) (c₁ : Cnstr) (c₂ : Cnstrs) : Prop :=
   match c₂ with
   | [] => c₁.denote ctx
-  | c::cs => c₁.denote ctx ∧ Certificate.denote' ctx c cs
+  | c::cs => c₁.denote ctx ∧ Cnstrs.denoteAnd' ctx c cs
 
-theorem Certificate.denote'_trans (ctx : Context) (c₁ c : Cnstr) (cs : Certificate) : c₁.denote ctx → denote' ctx c cs → denote' ctx (c₁.trans c) cs := by
+theorem Cnstrs.denote'_trans (ctx : Context) (c₁ c : Cnstr) (cs : Cnstrs) : c₁.denote ctx → denoteAnd' ctx c cs → denoteAnd' ctx (c₁.trans c) cs := by
   induction cs
-  next => simp [denote', *]; apply Cnstr.denote_trans
-  next c cs ih => simp [denote']; intros; simp [*]
+  next => simp [denoteAnd', *]; apply Cnstr.denote_trans
+  next c cs ih => simp [denoteAnd']; intros; simp [*]
 
-def Certificate.trans' (c₁ : Cnstr) (c₂ : Certificate) : Cnstr :=
+def Cnstrs.trans' (c₁ : Cnstr) (c₂ : Cnstrs) : Cnstr :=
   match c₂ with
   | [] => c₁
   | c::c₂ => trans' (c₁.trans c) c₂
 
-@[simp] theorem Certificate.denote'_trans' (ctx : Context) (c₁ : Cnstr) (c₂ : Certificate) : denote' ctx c₁ c₂ → (trans' c₁ c₂).denote ctx := by
+@[simp] theorem Cnstrs.denote'_trans' (ctx : Context) (c₁ : Cnstr) (c₂ : Cnstrs) : denoteAnd' ctx c₁ c₂ → (trans' c₁ c₂).denote ctx := by
   induction c₂ generalizing c₁
-  next => intros; simp_all [trans', denote']
-  next c cs ih => simp [denote']; intros; simp [trans']; apply ih; apply denote'_trans <;> assumption
+  next => intros; simp_all [trans', denoteAnd']
+  next c cs ih => simp [denoteAnd']; intros; simp [trans']; apply ih; apply denote'_trans <;> assumption
 
-def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
+def Cnstrs.denoteAnd (ctx : Context) (c : Cnstrs) : Prop :=
   match c with
   | [] => True
-  | c::cs => denote' ctx c cs
+  | c::cs => denoteAnd' ctx c cs
 
-def Certificate.trans (c : Certificate) : Cnstr :=
+def Cnstrs.trans (c : Cnstrs) : Cnstr :=
   match c with
   | []    => trivialCnstr
   | c::cs => trans' c cs
 
-theorem Certificate.denote_trans {ctx : Context} {c : Certificate} : c.denote ctx → c.trans.denote ctx := by
-  cases c <;> simp [*, trans, Certificate.denote] <;> intros <;> simp [*]
+theorem Cnstrs.of_denoteAnd_trans {ctx : Context} {c : Cnstrs} : c.denoteAnd ctx → c.trans.denote ctx := by
+  cases c <;> simp [*, trans, denoteAnd] <;> intros <;> simp [*]
 
-def Certificate.isFalse (c : Certificate) : Bool :=
+def Cnstrs.isFalse (c : Cnstrs) : Bool :=
   c.trans.isFalse
 
-theorem Certificate.unsat (ctx : Context) (c : Certificate) : c.isFalse = true → ¬ c.denote ctx := by
+theorem Cnstrs.unsat' (ctx : Context) (c : Cnstrs) : c.isFalse = true → ¬ c.denoteAnd ctx := by
   simp [isFalse]; intro h₁ h₂
-  have := Certificate.denote_trans h₂
+  have := of_denoteAnd_trans h₂
   have := Cnstr.of_isFalse ctx h₁
   contradiction
 
-theorem Certificate.imp (ctx : Context) (c : Certificate) : c.denote ctx → c.trans.denote ctx := by
-  apply denote_trans
+/-- `denote ctx [c_1, ..., c_n] C` is `c_1.denote ctx → ... → c_n.denote ctx → C` -/
+def Cnstrs.denote (ctx : Context) (cs : Cnstrs) (C : Prop) : Prop :=
+  match cs with
+  | [] => C
+  | c::cs => c.denote ctx → denote ctx cs C
 
-end Lean.Grind
+theorem Cnstrs.not_denoteAnd'_eq (ctx : Context) (c : Cnstr) (cs : Cnstrs) (C : Prop) : (denoteAnd' ctx c cs → C) = denote ctx (c::cs) C := by
+  simp [denote]
+  induction cs generalizing c
+  next => simp [denoteAnd', denote]
+  next c' cs ih =>
+    simp [denoteAnd', denote, *]
+
+theorem Cnstrs.not_denoteAnd_eq (ctx : Context) (cs : Cnstrs) (C : Prop) : (denoteAnd ctx cs → C) = denote ctx cs C := by
+  cases cs
+  next => simp [denoteAnd, denote]
+  next c cs => apply not_denoteAnd'_eq
+
+def Cnstr.isImpliedBy (cs : Cnstrs) (c : Cnstr) : Bool :=
+  cs.trans == c
+
+/-! Main theorems used by `grind`. -/
+
+/-- Auxiliary theorem used by `grind` to prove that a system of offset inequalities is unsatisfiable. -/
+theorem Cnstrs.unsat (ctx : Context) (cs : Cnstrs) : cs.isFalse = true → cs.denote ctx False := by
+  intro h
+  rw [← not_denoteAnd_eq]
+  apply unsat'
+  assumption
+
+/-- Auxiliary theorem used by `grind` to prove an implied offset inequality. -/
+theorem Cnstrs.imp (ctx : Context) (cs : Cnstrs) (c : Cnstr) (h : c.isImpliedBy cs = true)  : cs.denote ctx (c.denote ctx) := by
+  rw [← eq_of_beq h]
+  rw [← not_denoteAnd_eq]
+  apply of_denoteAnd_trans
+
+end Lean.Grind.Offset

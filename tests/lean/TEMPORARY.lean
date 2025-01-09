@@ -56,6 +56,7 @@ theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun i => f i.val) = o.map f :=
   attach_map_coe _ _
 
+@[simp]
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
   (attach_map_coe _ _).trans (congrFun Option.map_id _)
@@ -68,11 +69,12 @@ theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H 
     ((o.attachWith p H).map fun i => f i.val) = o.map f :=
   attachWith_map_coe _ _ _
 
+@[simp]
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
   (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
 
-theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
+@[simp] theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h
   | some a, ⟨x, h⟩ => by simpa using h
 
@@ -90,14 +92,14 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
     (o.attachWith p H).isSome = o.isSome := by
   cases o <;> simp
 
-@[simp] theorem attach_eq_none_iff {o : Option α} : o.attach = none ↔ o = none := by
+@[simp] theorem attach_eq_none_iff (o : Option α) : o.attach = none ↔ o = none := by
   cases o <;> simp
 
 @[simp] theorem attach_eq_some_iff {o : Option α} {x : {x // x ∈ o}} :
     o.attach = some x ↔ o = some x.val := by
   cases o <;> cases x <;> simp
 
-@[simp] theorem attachWith_eq_none_iff {p : α → Prop} {o : Option α} (H : ∀ a ∈ o, p a) :
+@[simp] theorem attachWith_eq_none_iff {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     o.attachWith p H = none ↔ o = none := by
   cases o <;> simp
 
@@ -117,12 +119,8 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   · simp at h
   · simp [get_some]
 
-theorem toList_attach (o : Option α) :
+@[simp] theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
-  cases o <;> simp
-
-@[simp] theorem attach_toList (o : Option α) :
-    o.toList.attach = (o.attach.map fun ⟨a, h⟩ => ⟨a, by simpa using h⟩).toList := by
   cases o <;> simp
 
 theorem attach_map {o : Option α} (f : α → β) :

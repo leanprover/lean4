@@ -493,7 +493,7 @@ example : Week.Offset.ofNat 1 = (1 : Week.Offset) := rfl
 example := Nanosecond.Ordinal.ofInt 1 (by decide)
 example := Millisecond.Ordinal.ofInt 1 (by decide)
 example := Second.Ordinal.ofInt (leap := false) 59 (by decide)
-example := Second.Ordinal.ofInt (leap := true) 60 (by decide)
+example := Second.Ordinal.ofInt (leap := True) 60 (by decide)
 example := Minute.Ordinal.ofInt 1 (by decide)
 example := Hour.Ordinal.ofInt 1 (by decide)
 example := Day.Ordinal.ofInt 1 (by decide)
@@ -502,7 +502,7 @@ example := Week.Ordinal.ofInt 1 (by decide)
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
 example := Second.Ordinal.ofFin (leap := false) 37
-example := Second.Ordinal.ofFin (leap := true) 37
+example := Second.Ordinal.ofFin (leap := True) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1
@@ -511,7 +511,7 @@ example := Week.Ordinal.ofFin 1
 example := Nanosecond.Ordinal.ofNat 1
 example := Millisecond.Ordinal.ofNat 1
 example := Second.Ordinal.ofNat (leap := false) 1
-example := Second.Ordinal.ofNat (leap := true) 1
+example := Second.Ordinal.ofNat (leap := True) 1
 example := Minute.Ordinal.ofNat 1
 example := Hour.Ordinal.ofNat 1
 example := Day.Ordinal.ofNat 1
@@ -520,7 +520,7 @@ example := Week.Ordinal.ofNat 1
 example := Nanosecond.Ordinal.toOffset 1
 example := Millisecond.Ordinal.toOffset 1
 example := Second.Ordinal.toOffset (leap := false) 1
-example := Second.Ordinal.toOffset (leap := true) 1
+example := Second.Ordinal.toOffset (leap := True) 1
 example := Minute.Ordinal.toOffset 1
 example := Hour.Ordinal.toOffset 1
 example := Day.Ordinal.toOffset 1
@@ -709,7 +709,7 @@ Std.Time.Weekday.tuesday
 
   println! plaindatetime.toDaysSinceUNIXEpoch
   println! plaindatetime.toTimestampAssumingUTC
-  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight
+  println! PlainDateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight
 
 /--
 info: 2024-09-13T02:01:02.000000000-03:00
@@ -783,7 +783,7 @@ Std.Time.Weekday.thursday
 
   println! zoned.toDaysSinceUNIXEpoch
   println! zoned.toTimestamp
-  println! DateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
+  println! DateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
 
 /--
 info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
@@ -867,8 +867,8 @@ info: 2023-06-09T00:00:00.000000000
 #guard_msgs in
 #eval do
   println! PlainDateTime.ofPlainDate date("2023-06-09")
-  println! PlainDateTime.ofPlainTime (leap := True) time("12:32:43")
-  println! PlainDateTime.ofDaysSinceUNIXEpoch (leap := True) 23332 time("12:32:43")
+  println! PlainDateTime.ofPlainTime time("12:32:43")
+  println! PlainDateTime.ofDaysSinceUNIXEpoch 23332 time("12:32:43")
 
 /--
 info: 1970-01-02T00:00:00.000000000Z
@@ -880,7 +880,7 @@ info: 1970-01-02T00:00:00.000000000Z
 -/
 #guard_msgs in
 #eval do
-  println! DateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
+  println! DateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
   println! DateTime.ofPlainDate date("1997-03-18") .UTC
   println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
   println! DateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
@@ -898,7 +898,7 @@ info: 1970-01-02T00:00:00.000000000[UTC]
 -/
 #guard_msgs in
 #eval do
-  println! ZonedDateTime.ofDaysSinceUNIXEpoch (leap := True) 1 PlainTime.midnight .UTC
+  println! ZonedDateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
   println! ZonedDateTime.ofPlainDate date("1997-03-18") .UTC
   println! ZonedDateTime.ofPlainDateWithZone date("1997-03-18") .UTC
   println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC

@@ -305,7 +305,7 @@ def withMinutes (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
 Creates a new `DateTime tz` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : DateTime tz) (second : Second.Ordinal α) : DateTime tz :=
+def withSeconds (dt : DateTime tz) (second : Second.Ordinal true) : DateTime tz :=
   ofPlainDateTime (dt.date.get.withSeconds second) tz
 
 /--
@@ -368,7 +368,7 @@ def minute (dt : DateTime tz) : Minute.Ordinal :=
 Getter for the `Second` inside of a `DateTime`
 -/
 @[inline]
-def second (dt : DateTime tz) : Second.Ordinal dt.date.get.time.fst :=
+def second (dt : DateTime tz) : Second.Ordinal true :=
   dt.date.get.second
 
 /--
@@ -376,14 +376,14 @@ Getter for the `Milliseconds` inside of a `DateTime`
 -/
 @[inline]
 def millisecond (dt : DateTime tz) : Millisecond.Ordinal :=
-  dt.date.get.time.snd.nanosecond.emod 1000 (by decide)
+  dt.date.get.time.nanosecond.emod 1000 (by decide)
 
 /--
 Getter for the `Nanosecond` inside of a `DateTime`
 -/
 @[inline]
 def nanosecond (dt : DateTime tz) : Nanosecond.Ordinal :=
-  dt.date.get.time.snd.nanosecond
+  dt.date.get.time.nanosecond
 
 /--
 Gets the `Weekday` of a DateTime.
@@ -449,14 +449,14 @@ def quarter (date : DateTime tz) : Bounded.LE 1 4 :=
 Getter for the `PlainTime` inside of a `DateTime`
 -/
 @[inline]
-def time (zdt : DateTime tz) : PlainTime zdt.date.get.time.fst :=
-  zdt.date.get.time.snd
+def time (zdt : DateTime tz) : PlainTime :=
+  zdt.date.get.time
 
 /--
 Converts a `DateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
-def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime leap) (tz : TimeZone) : DateTime tz :=
+def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) (tz : TimeZone) : DateTime tz :=
   DateTime.ofPlainDateTime (PlainDateTime.ofDaysSinceUNIXEpoch days time) tz
 
 instance : HAdd (DateTime tz) (Day.Offset) (DateTime tz) where

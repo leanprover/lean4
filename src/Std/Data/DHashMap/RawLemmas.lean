@@ -1273,7 +1273,7 @@ theorem getKey?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.
 
 theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} {k : α}
-    {contains_eq_false : (l.map Prod.fst).contains k = false}
+    (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h'} :
     (insertMany m l).getKey k h' =
       m.getKey k (contains_of_contains_insertMany_list h h' contains_eq_false) := by
@@ -1455,8 +1455,8 @@ theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α
 theorem getKey_insertManyIfNewUnit_list_mem_of_contains_of_contains [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α}
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (h' : l.contains k) {mem' : m.contains k} {h'} :
-    getKey (insertManyIfNewUnit m l) k h' = getKey m k mem' := by
+    (h₁ : l.contains k) (h₂ : m.contains k) {h₃} :
+    getKey (insertManyIfNewUnit m l) k h₃ = getKey m k h₂ := by
   simp_to_raw using Raw₀.Const.getKey_insertManyIfNewUnit_list_mem_of_contains_of_contains
 
 theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
@@ -1911,7 +1911,7 @@ theorem getKeyD_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α
 theorem getKeyD_unitOfList_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
     (distinct : l.Pairwise (fun a b => (a == b) = false))
-    {mem : k ∈ l } :
+    (mem : k ∈ l ) :
     getKeyD (unitOfList l) k' fallback = k := by
   simp_to_raw using Raw₀.Const.getKeyD_insertManyIfNewUnit_empty_list_of_mem
 

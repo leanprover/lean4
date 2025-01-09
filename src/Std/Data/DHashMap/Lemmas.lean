@@ -1128,7 +1128,7 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α]
 
 namespace Const
 
-variable {β : Type v} (m : DHashMap α (fun _ => β))
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
 @[simp]
 theorem insertMany_nil :
@@ -1182,7 +1182,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
     (insertMany m l).getKey k h =
-      m.getKey k (contains_of_contains_insertMany_list _ h contains_eq_false) :=
+      m.getKey k (contains_of_contains_insertMany_list h contains_eq_false) :=
   Raw₀.Const.getKey_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -1256,7 +1256,7 @@ theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable �
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
-    get (insertMany m l) k h = get m k (contains_of_contains_insertMany_list _ h contains_eq_false) :=
+    get (insertMany m l) k h = get m k (contains_of_contains_insertMany_list h contains_eq_false) :=
   Raw₀.Const.get_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -1289,7 +1289,7 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     getD (insertMany m l) k' fallback = v :=
   Raw₀.Const.getD_insertMany_list_of_mem ⟨m.1, _⟩ m.2 k_beq distinct mem
 
-variable (m : DHashMap α (fun _ => Unit))
+variable {m : DHashMap α (fun _ => Unit)}
 
 @[simp]
 theorem insertManyIfNewUnit_nil :
@@ -1349,7 +1349,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) {h} :
     getKey (insertManyIfNewUnit m l) k h =
-      getKey m k (contains_of_contains_insertManyIfNewUnit_list m contains_eq_false h) :=
+      getKey m k (contains_of_contains_insertManyIfNewUnit_list contains_eq_false h) :=
   Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]

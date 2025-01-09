@@ -144,7 +144,7 @@ Converts a `PlainDateTime` to the number of days since the UNIX epoch.
 -/
 @[inline]
 def ofDaysSinceUNIXEpoch (days : Day.Offset) (time : PlainTime) : PlainDateTime :=
-  PlainDateTime.mk (PlainDate.ofDaysSinceUNIXEpoch days) (time)
+  PlainDateTime.mk (PlainDate.ofDaysSinceUNIXEpoch days) time
 
 /--
 Sets the `PlainDateTime` to the specified `desiredWeekday`.
@@ -226,14 +226,14 @@ Creates a new `PlainDateTime` by adjusting the milliseconds component inside the
 -/
 @[inline]
 def withMilliseconds (dt : PlainDateTime) (millis : Millisecond.Ordinal) : PlainDateTime :=
-  { dt with time := (dt.time.withMilliseconds millis) }
+  { dt with time := dt.time.withMilliseconds millis }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `nano` component of its `time` to the given value.
 -/
 @[inline]
 def withNanoseconds (dt : PlainDateTime) (nano : Nanosecond.Ordinal) : PlainDateTime :=
-  { dt with time := (dt.time.withNanoseconds nano) }
+  { dt with time := dt.time.withNanoseconds nano }
 
 /--
 Adds a `Day.Offset` to a `PlainDateTime`.
@@ -528,7 +528,7 @@ Combines a `PlainDate` and `PlainTime` into a `PlainDateTime`.
 -/
 @[inline]
 def atTime : PlainDate → PlainTime → PlainDateTime :=
-  (PlainDateTime.mk · <| ·)
+  PlainDateTime.mk
 
 /--
 Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.

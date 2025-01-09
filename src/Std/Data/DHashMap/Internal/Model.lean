@@ -485,7 +485,7 @@ theorem insertMany_eq_insertListₘ [BEq α] [Hashable α](m : Raw₀ α β) (l 
   induction l generalizing m with
   | nil => simp [insertListₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons,insertListₘ]
+    simp only [List.foldl_cons, insertListₘ]
     apply ih
 
 section
@@ -530,7 +530,7 @@ theorem Const.insertMany_eq_insertListₘ [BEq α] [Hashable α] (m : Raw₀ α 
   induction l generalizing m with
   | nil => simp [insertListₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons,insertListₘ]
+    simp only [List.foldl_cons, insertListₘ]
     apply ih
 
 theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable α]
@@ -545,7 +545,7 @@ theorem Const.insertManyIfNewUnit_eq_insertListIfNewUnitₘ [BEq α] [Hashable �
   induction l generalizing m with
   | nil => simp [insertListIfNewUnitₘ]
   | cons hd tl ih =>
-    simp only [List.foldl_cons,insertListIfNewUnitₘ]
+    simp only [List.foldl_cons, insertListIfNewUnitₘ]
     apply ih
 
 end

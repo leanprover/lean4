@@ -991,7 +991,7 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
 
 theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List ((a : α) × β a)} {k : α}  (contains : (m.insertMany l).contains k)
-    (contains_eq_false: (l.map Sigma.fst).contains k = false) :
+    (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     m.contains k :=
   Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 contains contains_eq_false
 
@@ -1476,6 +1476,12 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     (ofList l).contains k = (l.map Sigma.fst).contains k :=
   Raw₀.contains_insertMany_empty_list
 
+@[simp]
+theorem mem_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {k : α} :
+    k ∈ ofList l ↔ (l.map Sigma.fst).contains k := by
+  simp [mem_iff_contains]
+
 theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
@@ -1614,6 +1620,12 @@ theorem contains_ofList [EquivBEq α] [LawfulHashable α]
     (ofList l).contains k = (l.map Prod.fst).contains k :=
   Raw₀.Const.contains_insertMany_empty_list
 
+@[simp]
+theorem mem_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α} :
+    k ∈ ofList l ↔ (l.map Prod.fst).contains k := by
+  simp [mem_iff_contains]
+
 theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
@@ -1748,6 +1760,12 @@ theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (unitOfList l).contains k = l.contains k :=
   Raw₀.Const.contains_insertManyIfNewUnit_empty_list
+
+@[simp]
+theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    k ∈ unitOfList l ↔ l.contains k := by
+  simp [mem_iff_contains]
 
 theorem getKey?_unitOfList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :

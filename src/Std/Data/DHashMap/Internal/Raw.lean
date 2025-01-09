@@ -207,7 +207,7 @@ theorem insertMany_val [BEq α][Hashable α] {m : Raw₀ α β} {ρ : Type w} [F
     m.val.insertMany l = m.insertMany l := by
   simp [Raw.insertMany, m.2]
 
-theorem ofList_eq [BEq α] [Hashable α] {l: List ((a : α) × β a)} :
+theorem ofList_eq [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
     Raw.ofList l = Raw₀.insertMany Raw₀.empty l := by
   simp only [Raw.ofList, Raw.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
@@ -224,7 +224,7 @@ theorem Const.insertMany_val [BEq α][Hashable α] {m : Raw₀ α (fun _ => β)}
     Raw.Const.insertMany m.val l = Raw₀.Const.insertMany m l := by
   simp [Raw.Const.insertMany, m.2]
 
-theorem Const.ofList_eq [BEq α] [Hashable α] {l: List (α × β)} :
+theorem Const.ofList_eq [BEq α] [Hashable α] {l : List (α × β)} :
     Raw.Const.ofList l = Raw₀.Const.insertMany Raw₀.empty l := by
   simp only [Raw.Const.ofList, Raw.Const.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
@@ -239,7 +239,7 @@ theorem Const.insertManyIfNewUnit_val {ρ : Type w} [ForIn Id ρ α] [BEq α] [H
     Raw.Const.insertManyIfNewUnit m.val l = Raw₀.Const.insertManyIfNewUnit m l := by
   simp [Raw.Const.insertManyIfNewUnit, m.2]
 
-theorem Const.unitOfList_eq [BEq α] [Hashable α] {l: List α} :
+theorem Const.unitOfList_eq [BEq α] [Hashable α] {l : List α} :
     Raw.Const.unitOfList l = Raw₀.Const.insertManyIfNewUnit Raw₀.empty l := by
   simp only [Raw.Const.unitOfList, Raw.Const.insertManyIfNewUnit, (Raw.WF.empty).size_buckets_pos ∅,
     ↓reduceDIte]

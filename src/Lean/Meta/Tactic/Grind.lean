@@ -53,5 +53,5 @@ builtin_initialize registerTraceClass `grind.debug.parent
 builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
-
+builtin_initialize registerTraceClass `grind.debug.canon
 end Lean

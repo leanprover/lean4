@@ -2903,7 +2903,7 @@ theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
 
 /-- `rotateRight` is defined in terms of left and right shifts. -/
 theorem rotateRight_def {x : BitVec w} {r : Nat} :
-  x.rotateRight r = (x >>> (r % w)) ||| (x <<< (w - r % w)) := by
+    x.rotateRight r = (x >>> (r % w)) ||| (x <<< (w - r % w)) := by
   simp only [rotateRight, rotateRightAux]
 
 /--

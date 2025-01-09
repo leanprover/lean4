@@ -57,7 +57,7 @@ inductive CanonElemKind where
     -/
     type
   | /--
-    Implicit arguments that are not types, type formers, or instaces, are canonicalized
+    Implicit arguments that are not types, type formers, or instances, are canonicalized
     using `TransparencyMode.reducible`
     -/
     implicit

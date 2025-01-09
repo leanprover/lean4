@@ -39,11 +39,21 @@ instance {x y : Ordinal} : Decidable (x < y) :=
 def Offset : Type := Int
   deriving Repr, BEq, Inhabited, Add, Sub, Mul, Div, Neg, ToString, LT, LE, DecidableEq
 
+instance {x y : Offset} : Decidable (x ≤ y) :=
+  Int.decLe x y
+
+instance {x y : Offset} : Decidable (x < y) :=
+  Int.decLt x y
+
 instance : OfNat Offset n :=
   ⟨Int.ofNat n⟩
 
+def a : Offset := 2
+def b : Offset := 3
+def c : a < b := by decide
+
 /--
-`Quarter` represents a value between 1 and 4, inclusive, corresponding to the four quarters of a year.
+`Quarter` represents aue between 1 and 4, inclusive, corresponding to the four quarters of a year.
 -/
 def Quarter := Bounded.LE 1 4
 

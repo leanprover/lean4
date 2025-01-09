@@ -126,7 +126,7 @@ theorem Cnstrs.unsat' (ctx : Context) (c : Cnstrs) : c.isFalse = true → ¬ c.d
   have := Cnstr.of_isFalse ctx h₁
   contradiction
 
-/-- Returns `c_1 → ... → c_n → C -/
+/-- `denote ctx [c_1, ..., c_n] C` is `c_1.denote ctx → ... → c_n.denote ctx → C` -/
 def Cnstrs.denote (ctx : Context) (cs : Cnstrs) (C : Prop) : Prop :=
   match cs with
   | [] => C

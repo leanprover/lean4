@@ -510,8 +510,8 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
   /-- Internal implementation detail of the hash map -/
-  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
-      {f : β a → β a} : WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
+  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
+      WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
   | alter₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
       {f : Option (β a) → Option (β a)} : WF m → WF (Raw₀.alter ⟨m, h⟩ a f).1

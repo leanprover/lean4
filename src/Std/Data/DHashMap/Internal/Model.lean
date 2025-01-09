@@ -41,6 +41,11 @@ def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
   self[i]
 
+theorem bucket_eq {α : Type u} {β : α → Type v} [Hashable α] (self : Array (AssocList α β))
+  (h : 0 < self.size) (k : α) : bucket self h k =
+    haveI := mkIdx self.size h (hash k) |>.2
+    self[mkIdx self.size h (hash k) |>.1] := rfl
+
 /-- Internal implementation detail of the hash map -/
 def updateBucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α)
     (f : AssocList α β → AssocList α β) : Array (AssocList α β) :=
@@ -78,6 +83,13 @@ theorem size_withComputedSize {self : Array (AssocList α β)} :
 @[simp]
 theorem buckets_withComputedSize {self : Array (AssocList α β)} :
     (withComputedSize self).buckets = self := rfl
+
+@[simp]
+theorem bucket_updateBucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α)
+    (f : AssocList α β → AssocList α β) :
+    bucket (updateBucket self h k f) (by simpa using h) k = f (bucket self h k) := by
+  unfold bucket updateBucket mkIdx
+  simp
 
 theorem exists_bucket_of_uset [BEq α] [Hashable α]
   (self : Array (AssocList α β)) (i : USize) (hi : i.toNat < self.size) (d : AssocList α β) :
@@ -326,8 +338,7 @@ def alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     | some b => Raw₀.expandIfNecessary (m.consₘ a b)
 
 /-- Internal implementation detail of the hash map -/
-def modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
-    (f : β a → β a) : Raw₀ α β :=
+def modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (f : β a → β a) : Raw₀ α β :=
   m.alterₘ a (fun option => option.map f)
 
 /-- Internal implementation detail of the hash map -/
@@ -411,23 +422,6 @@ theorem insert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (
     simp only [Array.uset, Array.ugetElem_eq_getElem]
   · rfl
 
-theorem bucket_eq {α : Type u} {β : α → Type v} [Hashable α] (self : Array (AssocList α β))
-  (h : 0 < self.size) (k : α) :
-    bucket self h k =
-      haveI := mkIdx self.size h (hash k) |>.2
-      self[mkIdx self.size h (hash k) |>.1] := rfl
-
-@[simp]
-theorem bucket_updateBucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α)
-    (f : AssocList α β → AssocList α β):
-    bucket (updateBucket self h k f) (by simpa using h) k = f (bucket self h k) := by
-  unfold bucket updateBucket mkIdx
-  simp
-
-theorem mkIdx_congr {sz sz' : Nat} (hsz : sz = sz') {h h'} {hash : UInt64} :
-    (mkIdx sz h hash).val = (mkIdx sz' h' hash).val := by
-  cases hsz; rfl
-
 theorem alter_eq_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : Option (β a) → Option (β a)) : m.alter a f = m.alterₘ a f := by
     dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
@@ -452,8 +446,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
 
 theorem modify_eq_modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : β a → β a) : m.modify a f = m.modifyₘ a f := by
-  rw [modify_eq_alter, alter_eq_alterₘ]
-  rfl
+  rw [modify_eq_alter, alter_eq_alterₘ, modifyₘ]
 
 theorem containsThenInsert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     (m.containsThenInsert a b).2 = m.insertₘ a b := by

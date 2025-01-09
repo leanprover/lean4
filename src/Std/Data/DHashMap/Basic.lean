@@ -264,7 +264,8 @@ allowing creating new values and deleting values via an `Option` valued replacem
 
 This function ensures that the value is used linearly.
 -/
-@[inline] def alter {α : Type} {β : α → Type} [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
+@[inline] def alter {α : Type} {β : α → Type} [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β)
+    (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
   ⟨Raw₀.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.alter₀ m.2⟩
 
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}

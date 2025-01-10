@@ -126,15 +126,6 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {
     (m.insert k v).1.isEmpty = false := by
   simp_to_model using List.isEmpty_insertEntry
 
-@[simp]
-theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} :
-    (m.modify k f).1.isEmpty ↔ m.1.isEmpty := by
-  simp_to_model using List.isEmpty_modifyKey
-
-theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).1.isEmpty ↔ (m.erase k).1.isEmpty ∧ f (m.get? k) = none := by
-  simp_to_model using List.isEmpty_alterKey
-
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b := by
   simp_to_model using List.containsKey_congr hab

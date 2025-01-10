@@ -199,7 +199,8 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
-theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)} {l : AssocList α β } :
+theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : AssocList α β } :
     Perm (l.alter a f).toList (alterKey a f l.toList) := by
   rw [alterKey]
   split
@@ -245,8 +246,8 @@ namespace Const
 
 variable {β : Type v}
 
-theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β} {l : AssocList α (fun _ => β) } :
-    Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
+theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
+    {l : AssocList α (fun _ => β) } : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   rw [Const.alterKey]
   split
   · next heq =>

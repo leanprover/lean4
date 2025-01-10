@@ -245,10 +245,12 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     Array β :=
   m.inner.valuesArray
 
-@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) : HashMap α β :=
+@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
+    HashMap α β :=
   ⟨DHashMap.Const.modify m.inner a f⟩
 
-@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α) (f : Option β → Option β) : HashMap α β :=
+@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
+    (f : Option β → Option β) : HashMap α β :=
   ⟨DHashMap.Const.alter m.inner a f⟩
 
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}

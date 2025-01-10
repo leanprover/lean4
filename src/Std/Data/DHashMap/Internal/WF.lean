@@ -590,8 +590,8 @@ theorem toListModel_updateBucket_alter [BEq α] [Hashable α] [EquivBEq α] [Law
   exact toListModel_updateBucket h AssocList.Const.toList_alter List.Const.alterKey_of_perm
     List.Const.alterKey_append_of_containsKey_right_eq_false
 
-theorem isHashSelf_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
-    (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
+theorem isHashSelf_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
     IsHashSelf (updateBucket m.1.buckets m.2 a (AssocList.Const.alter a f)) := by
   apply h.buckets_hash_self.updateBucket (fun l p hp => ?_)
   rw [AssocList.Const.toList_alter.mem_iff] at hp
@@ -600,15 +600,16 @@ theorem isHashSelf_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [Lawf
   · rw [Const.mem_alterKey_of_key_not_beq _ h] at hp
     exact .inl <| containsKey_of_mem hp
 
-theorem wfImp_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
-    (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
+theorem wfImp_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
     Raw.WFImp (withComputedSize <| updateBucket m.1.buckets m.2 a (AssocList.Const.alter a f)) where
   buckets_hash_self := isHashSelf_updateBucket_alter h
   size_eq := by rw [size_withComputedSize, computeSize_eq]; rfl
   distinct := DistinctKeys.perm (toListModel_updateBucket_alter h) h.distinct.constAlterKey
 
-theorem isHashSelf_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (m : Raw₀ α (fun _ => β)) (h : Raw.WFImp m.1)
-    (a : α) (f : Option β → Option β) : IsHashSelf (Const.alterₘ m a f).1.buckets := by
+theorem isHashSelf_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    (m : Raw₀ α (fun _ => β)) (h : Raw.WFImp m.1) (a : α) (f : Option β → Option β) :
+  IsHashSelf (Const.alterₘ m a f).1.buckets := by
   dsimp only [alterₘ, withComputedSize]
   split
   · exact isHashSelf_updateBucket_alter h
@@ -618,8 +619,8 @@ theorem isHashSelf_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable
     · refine (wfImp_expandIfNecessary _ (wfImp_consₘ _ h _ _ ?_)).buckets_hash_self
       exact Bool.not_eq_true _ ▸ hc
 
-theorem toListModel_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1)
-    {a : α} {f : Option β → Option β} :
+theorem toListModel_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
     Perm (toListModel (Const.alterₘ m a f).1.2) (Const.alterKey a f (toListModel m.1.2)) := by
   rw [Const.alterₘ]
   split
@@ -639,8 +640,8 @@ theorem toListModel_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashabl
       rw [insertEntry_of_containsKey_eq_false]
       exact hc
 
-theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α}
-    {f : Option β → Option β} : Raw.WFImp (Const.alterₘ m a f).1 where
+theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
+    (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} : Raw.WFImp (Const.alterₘ m a f).1 where
   buckets_hash_self := isHashSelf_alterₘ m h a f
   distinct := DistinctKeys.perm (toListModel_alterₘ h) h.distinct.constAlterKey
   size_eq := by
@@ -692,10 +693,11 @@ namespace Const
 variable {β : Type v}
 
 theorem wfImp_modifyₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
-    (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modifyₘ m a f).1 := Const.wfImp_alterₘ h
+    (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modifyₘ m a f).1 :=
+  Const.wfImp_alterₘ h
 
-theorem wfImp_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α}
-    {f : β → β} : Raw.WFImp (Const.modify m a f).1 := by
+theorem wfImp_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
+    (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modify m a f).1 := by
   rw [Const.modify_eq_modifyₘ]
   exact wfImp_alterₘ h
 
@@ -989,8 +991,8 @@ theorem Const.wfImp_insertMany {β : Type v} [BEq α] [Hashable α] [EquivBEq α
     {l : ρ} (h : Raw.WFImp m.1) : Raw.WFImp (Const.insertMany m l).1.1 :=
   Raw.WF.out ((Const.insertMany m l).2 _ Raw.WF.insert₀ (.wf m.2 h))
 
-theorem Const.wfImp_insertManyIfNewUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {ρ : Type w}
-    [ForIn Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
+theorem Const.wfImp_insertManyIfNewUnit [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
+    {ρ : Type w} [ForIn Id ρ α] {m : Raw₀ α (fun _ => Unit)} {l : ρ} (h : Raw.WFImp m.1) :
     Raw.WFImp (Const.insertManyIfNewUnit m l).1.1 :=
   Raw.WF.out ((Const.insertManyIfNewUnit m l).2 _ Raw.WF.insertIfNew₀ (.wf m.2 h))
 

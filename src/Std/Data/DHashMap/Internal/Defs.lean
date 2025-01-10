@@ -241,8 +241,8 @@ where
     m
 
 /-- Internal implementation detail of the hash map -/
-@[inline] def Const.modify [BEq α] {β : Type v} [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (f : β → β) :
-    Raw₀ α (fun _ => β) :=
+@[inline] def Const.modify [BEq α] {β : Type v} [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : β → β) : Raw₀ α (fun _ => β) :=
   let ⟨⟨size, buckets⟩, hm⟩ := m
   let size' := size
   let ⟨i, hi⟩ := mkIdx buckets.size hm (hash a)

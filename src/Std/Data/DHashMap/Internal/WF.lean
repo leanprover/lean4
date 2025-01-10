@@ -490,7 +490,7 @@ theorem wfImp_insert [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α] {m
 theorem toListModel_updateBucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β}
     (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} :
     Perm (toListModel (updateBucket m.1.buckets m.2 a (AssocList.alter a f)))
-    (alterKey a f (toListModel m.1.buckets)) := by
+      (alterKey a f (toListModel m.1.buckets)) := by
   exact toListModel_updateBucket h AssocList.toList_alter List.alterKey_of_perm
     List.alterKey_append_of_containsKey_right_eq_false
 
@@ -508,7 +508,7 @@ theorem wfImp_updateBucket_alter [BEq α] [Hashable α] [LawfulBEq α] {m : Raw�
     (h : Raw.WFImp m.1) {a : α} {f : Option (β a) → Option (β a)} :
     Raw.WFImp (withComputedSize <| updateBucket m.1.buckets m.2 a (AssocList.alter a f)) where
   buckets_hash_self := isHashSelf_updateBucket_alter h
-  size_eq := by rw [size_withComputedSize, computeSize_eq]; rfl
+  size_eq := by rw [size_withComputedSize, computeSize_eq, buckets_withComputedSize]
   distinct := DistinctKeys.perm (toListModel_updateBucket_alter h) h.distinct.alterKey
 
 theorem isHashSelf_alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (h : Raw.WFImp m.1)
@@ -597,7 +597,8 @@ theorem isHashSelf_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [Lawf
   rw [AssocList.Const.toList_alter.mem_iff] at hp
   by_cases h : p.fst == a
   · exact .inr <| hash_eq h
-  · rw [Const.mem_alterKey_of_key_not_beq _ h] at hp
+  · rw [Bool.not_eq_true] at h
+    rw [Const.mem_alterKey_of_key_not_beq _ h] at hp
     exact .inl <| containsKey_of_mem hp
 
 theorem wfImp_updateBucket_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
@@ -973,7 +974,6 @@ theorem WF.out [BEq α] [Hashable α] [i₁ : EquivBEq α] [i₂ : LawfulHashabl
   · next h => exact Raw₀.Const.wfImp_getThenInsertIfNew? (by apply h)
   · next h => exact Raw₀.wfImp_modify (by apply h)
   · next h => exact Raw₀.Const.wfImp_modify (by apply h)
-    done
   · next h => exact Raw₀.wfImp_alter (by apply h)
   · next h => exact Raw₀.Const.wfImp_alter (by apply h)
 

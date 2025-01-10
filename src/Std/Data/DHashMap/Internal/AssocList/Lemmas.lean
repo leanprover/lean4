@@ -200,43 +200,17 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact ih _
 
 theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
-    {l : AssocList α β } :
+    {l : AssocList α β} :
     Perm (l.alter a f).toList (alterKey a f l.toList) := by
-  rw [alterKey]
-  split
-  · next heq =>
-    induction l
-    · simp only [toList_nil, getValueCast?_nil] at heq
-      simp only [alter, heq, toList_nil, eraseKey_nil]
-      exact .nil
-    · next ih =>
-      simp only [toList_cons, getValueCast?_cons, beq_iff_eq] at heq
-      split at heq
-      · next heq₂ =>
-        simp only [alter, dif_pos heq₂, heq, toList_cons, eraseKey_cons_of_beq heq₂]
-        exact Perm.rfl
-      · next heq₂ =>
-        simp only [alter, beq_iff_eq, dif_neg heq₂, toList_cons]
-        simp only [eraseKey_cons_of_false (Bool.not_eq_true _ ▸ heq₂), true_and]
-        exact Perm.cons _ <| ih heq
-  · next heq =>
-    induction l
-    · rw [toList_nil, getValueCast?_nil] at heq
-      simp only [alter, heq, toList_cons, toList_nil, insertEntry_nil]
-      exact Perm.rfl
-    · next ih =>
-      simp only [toList_cons, getValueCast?_cons, beq_iff_eq] at heq
-      split at heq
-      · next heq₂ =>
-        simp only [alter, beq_iff_eq, heq, dif_pos heq₂, toList_cons, insertEntry_cons_of_beq heq₂,
-          List.cons.injEq, and_true]
-        cases eq_of_beq heq₂; rfl
-      · next heq₂ =>
-        simp only [alter, beq_iff_eq, dif_neg heq₂, toList_cons]
-        refine insertEntry_cons_of_false (Bool.not_eq_true _ ▸ heq₂) |>.symm |> Perm.trans ?_
-        exact Perm.cons _ <| ih heq
+  induction l
+  · simp only [alter, toList_nil, alterKey_nil]
+    split <;> simp_all
+  · rw [toList]
+    refine Perm.trans ?_ alterKey_cons_perm.symm
+    rw [alter]
+    split <;> (try split) <;> simp_all
 
-theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β } :
+theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β} :
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl

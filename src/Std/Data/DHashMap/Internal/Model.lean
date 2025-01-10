@@ -339,7 +339,7 @@ def alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
 
 /-- Internal implementation detail of the hash map -/
 def modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (f : β a → β a) : Raw₀ α β :=
-  m.alterₘ a (fun option => option.map f)
+  m.alterₘ a (·.map f)
 
 namespace Const
 
@@ -496,7 +496,7 @@ theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun
       simp only [AssocList.contains_eq] at h
       simp only [AssocList.Const.modify_eq_alter, Array.set_set, AssocList.contains_eq,
         containsKey_of_perm AssocList.Const.toList_alter, ← Const.modifyKey_eq_alterKey,
-        Const.containsKey_modifyKey_iff, h, ↓reduceIte]
+        Const.containsKey_modifyKey_self, h, ↓reduceIte]
     · rfl
 
 theorem modify_eq_modifyₘ [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)

@@ -265,11 +265,11 @@ allowing creating new values and deleting values via an `Option` valued replacem
 
 This function ensures that the value is used linearly.
 -/
-@[inline] def alter [BEq α] [Hashable α] [LawfulBEq α] (m : DHashMap α β)
+@[inline] def alter [LawfulBEq α] (m : DHashMap α β)
     (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
   ⟨Raw₀.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.alter₀ m.2⟩
 
-@[inline, inherit_doc DHashMap.alter] def Const.alter [BEq α] [Hashable α] {β : Type v}
+@[inline, inherit_doc DHashMap.alter] def Const.alter {β : Type v}
     (m : DHashMap α (fun _ => β)) (a : α) (f : Option β → Option β) : DHashMap α (fun _ => β) :=
   ⟨Raw₀.Const.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constAlter₀ m.2⟩
 

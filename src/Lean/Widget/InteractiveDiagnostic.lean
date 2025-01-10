@@ -207,7 +207,9 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
         | .widget wi alt =>
           return .tag (.widget wi (← fmtToTT alt col)) default
         | .trace cls msg collapsed children => do
-          let col := col + tt.stripTags.length - 2
+          -- absolute column = request-level indentation (e.g. from nested lazy trace request) +
+          -- offset inside `fmt`
+          let col := indent + col
           let children ←
             match children with
               | .lazy children => pure <| .lazy ⟨{indent := col+2, children := children.map .mk}⟩

@@ -44,7 +44,6 @@ LEAN_EXPORT lean_object* l_Lake_Log_toString___boxed(lean_object*);
 lean_object* l_Lake_EResult_toProd_x3f___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Log_replay___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2884____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprLogLevel____x40_Lake_Util_Log___hyg_509____closed__22;
 LEAN_EXPORT uint8_t l_Lake_instOrdPos(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_reprVerbosity____x40_Lake_Util_Log___hyg_10____closed__9;
@@ -336,6 +335,7 @@ LEAN_EXPORT lean_object* l_Lake_ELog_failure___rarg(lean_object*, lean_object*, 
 LEAN_EXPORT uint8_t l___private_Lake_Util_Log_0__Lake_ordLogLevel____x40_Lake_Util_Log___hyg_756_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lake_Util_Log_0__Lake_fromJsonLogEntry____x40_Lake_Util_Log___hyg_1454____spec__1(lean_object*, lean_object*);
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_LogIO_toBaseIO_replay___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instMonadLiftIOLogIO___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -460,7 +460,6 @@ LEAN_EXPORT uint8_t l_Lake_Log_any(lean_object*, lean_object*);
 static lean_object* l___private_Lake_Util_Log_0__Lake_fromJsonLogLevel____x40_Lake_Util_Log___hyg_921____lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lake_instLEVerbosity;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog_x3f___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Ansi_chalk___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_ELogT_replayLog_x3f___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
@@ -582,6 +581,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LogLevel_ofString_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_instOfMonadLift___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
+lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2877____spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Verbosity_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_ELog_orElse(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_MonadLog_instInhabitedOfPure___rarg___boxed(lean_object*, lean_object*);
@@ -1203,7 +1203,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdVerbosity;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -1234,7 +1234,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdVerbosity;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;
@@ -2621,7 +2621,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdLogLevel;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_2;
@@ -2652,7 +2652,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lake_instOrdLogLevel;
 x_4 = lean_box(x_1);
 x_5 = lean_box(x_2);
-x_6 = l_instDecidableRelLe___rarg(x_3, x_4, x_5);
+x_6 = l_Ord_instDecidableRelLe___rarg(x_3, x_4, x_5);
 if (x_6 == 0)
 {
 return x_1;
@@ -3412,7 +3412,7 @@ x_12 = lean_ctor_get(x_3, 0);
 lean_inc(x_12);
 lean_dec(x_3);
 x_13 = l___private_Lake_Util_Log_0__Lake_toJsonLogEntry____x40_Lake_Util_Log___hyg_1402____closed__2;
-x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2884____spec__1(x_1, x_13);
+x_14 = l_Lean_Json_getObjValAs_x3f___at___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_2877____spec__1(x_1, x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 uint8_t x_15; 
@@ -3819,7 +3819,7 @@ x_6 = l_Lake_instOrdLogLevel;
 x_7 = 0;
 x_8 = lean_box(x_7);
 x_9 = lean_box(x_2);
-x_10 = l_instDecidableRelLe___rarg(x_6, x_8, x_9);
+x_10 = l_Ord_instDecidableRelLe___rarg(x_6, x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -3899,7 +3899,7 @@ x_30 = l_Lake_instOrdLogLevel;
 x_31 = 1;
 x_32 = lean_box(x_31);
 x_33 = lean_box(x_2);
-x_34 = l_instDecidableRelLe___rarg(x_30, x_32, x_33);
+x_34 = l_Ord_instDecidableRelLe___rarg(x_30, x_32, x_33);
 if (x_34 == 0)
 {
 lean_object* x_35; lean_object* x_36; 
@@ -4051,7 +4051,7 @@ x_6 = lean_ctor_get_uint8(x_1, sizeof(void*)*1);
 x_7 = l_Lake_instOrdLogLevel;
 x_8 = lean_box(x_3);
 x_9 = lean_box(x_6);
-x_10 = l_instDecidableRelLe___rarg(x_7, x_8, x_9);
+x_10 = l_Ord_instDecidableRelLe___rarg(x_7, x_8, x_9);
 if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -5921,7 +5921,7 @@ lean_dec(x_6);
 x_8 = l_Lake_instOrdLogLevel;
 x_9 = lean_box(x_4);
 x_10 = lean_box(x_7);
-x_11 = l_instDecidableRelLe___rarg(x_8, x_9, x_10);
+x_11 = l_Ord_instDecidableRelLe___rarg(x_8, x_9, x_10);
 x_12 = 1;
 x_13 = lean_usize_add(x_2, x_12);
 if (x_11 == 0)

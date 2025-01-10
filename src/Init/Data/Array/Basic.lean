@@ -949,13 +949,7 @@ def split (as : Array α) (p : α → Bool) : Array α × Array α :=
 instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
 instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
 
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLT (Array α) :=
-  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList < bs.toList
-
-instance [DecidableEq α] [LT α] [DecidableLT α] : DecidableLE (Array α) :=
-  inferInstanceAs <| DecidableRel fun (as bs : Array α) => as.toList ≤ bs.toList
-
--- See `Init.Data.Array.Lex` for the boolean valued lexicographic comparator.
+-- See `Init.Data.Array.Lex.Basic` for the boolean valued lexicographic comparator.
 
 /-! ## Auxiliary functions used in metaprogramming.
 

@@ -64,10 +64,38 @@ def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   return isAuxRecursor env constName || isNoConfusion env constName
 
-@[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α := do
-  let .const name lvls := e
+/--
+Retrieves `ConstInfo` for `declName`.
+Remark: if `ignoreTransparency = false`, then `getUnfoldableConst?` is used.
+For example, if `ignoreTransparency = false` and `transparencyMode = .reducible` and `declName` is not reducible,
+then the result is `none`.
+-/
+private def getConstInfo? (declName : Name) (ignoreTransparency : Bool) : MetaM (Option ConstantInfo) := do
+  if ignoreTransparency then
+    return (← getEnv).find? declName
+  else
+    getUnfoldableConst? declName
+
+/--
+Similar to `getConstInfo?` but using `getUnfoldableConstNoEx?`.
+-/
+private def getConstInfoNoEx? (declName : Name) (ignoreTransparency : Bool) : MetaM (Option ConstantInfo) := do
+  if ignoreTransparency then
+    return (← getEnv).find? declName
+  else
+    getUnfoldableConstNoEx? declName
+
+/--
+If `e` is of the form `Expr.const declName us`, executes `k info us` if
+- `declName` is in the `Environment` and (is unfoldable or `ignoreTransparency = true`)
+- `info` is the `ConstantInfo` associated with `declName`.
+
+Otherwise executes `failK`.
+-/
+@[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) (ignoreTransparency := false) : MetaM α := do
+  let .const declName lvls := e
     | failK ()
-  let (some cinfo) ← getUnfoldableConst? name
+  let some cinfo ← getConstInfo? declName ignoreTransparency
     | failK ()
   k cinfo lvls
 
@@ -713,11 +741,14 @@ mutual
     else
       unfoldProjInst? e
 
-  /-- Unfold definition using "smart unfolding" if possible. -/
-  partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
+  /--
+  Unfold definition using "smart unfolding" if possible.
+  If `ignoreTransparency = true`, then the definition is unfolded even if the transparency setting does not allow it.
+  -/
+  partial def unfoldDefinition? (e : Expr) (ignoreTransparency := false) : MetaM (Option Expr) :=
     match e with
     | .app f _ =>
-      matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
+      matchConstAux (ignoreTransparency := ignoreTransparency) f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
@@ -756,7 +787,8 @@ mutual
 
                   Remark 2: the match expression reduces reduces to `cons a xs` when the discriminants are `⟨0, h⟩` and `xs`.
 
-                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue                        fixed by this extra check. Here is another example that triggers the issue fixed by this check.
+                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue
+                  fixed by this extra check. Here is another example that triggers the issue fixed by this check.
                   ```
                   def f : Nat → Nat → Nat
                     | 0,   y   => y
@@ -788,7 +820,7 @@ mutual
           else
             unfoldDefault ()
     | .const declName lvls => do
-      let some cinfo ← getUnfoldableConstNoEx? declName | pure none
+      let some cinfo ← getConstInfoNoEx? declName ignoreTransparency | pure none
       -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
       -- significant chance of not existing and `Environment.contains` misses are more costly
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then

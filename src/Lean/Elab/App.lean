@@ -628,7 +628,7 @@ mutual
           (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
           Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
           -/
-          let info := (← getRef).getHeadInfo
+          let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
           let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
           -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.

@@ -74,6 +74,10 @@ namespace Workspace
 @[inline] def manifestFile (self : Workspace) : FilePath :=
   self.root.manifestFile
 
+/-- The path to the workspace file used to configure automatic package overloads. -/
+@[inline] def packageOverridesFile (self : Workspace) : FilePath :=
+  self.lakeDir / "package-overrides.json"
+
 /-- Add a package to the workspace. -/
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.name pkg}

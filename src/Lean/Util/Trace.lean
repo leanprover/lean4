@@ -293,12 +293,15 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
-  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
+
+macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandTraceMacro id s.raw
 
 def bombEmoji := "💥️"
 def checkEmoji := "✅️"

@@ -176,6 +176,14 @@ def mkEqOfHEq (h : Expr) : MetaM Expr := do
   | _ =>
     throwAppBuilderException ``eq_of_heq m!"heterogeneous equality proof expected{indentExpr h}"
 
+/-- Given `h : Eq a b`, returns a proof of `HEq a b`. -/
+def mkHEqOfEq (h : Expr) : MetaM Expr := do
+  let hType ← infer h
+  let some (α, a, b) := hType.eq?
+    | throwAppBuilderException ``heq_of_eq m!"equality proof expected{indentExpr h}"
+  let u ← getLevel α
+  return mkApp4 (mkConst ``heq_of_eq [u]) α a b h
+
 /--
 If `e` is `@Eq.refl α a`, return `a`.
 -/

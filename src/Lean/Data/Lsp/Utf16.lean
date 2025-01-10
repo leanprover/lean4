@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.Data.String
-import Init.Data.Array
 import Lean.Data.Lsp.Basic
 import Lean.Data.Position
 import Lean.DeclarationRange

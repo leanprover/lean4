@@ -1,7 +1,8 @@
 /-
 Copyright (c) 2014 Parikshit Khanna. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro
+Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
+  Kim Morrison
 -/
 prelude
 import Init.Data.Bool
@@ -747,598 +748,15 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
     · intro a
       simp
 
-/-! ### Lexicographic ordering -/
+/-! ### isEqv -/
 
-
-theorem lex_irrefl {r : α → α → Prop} (irrefl : ∀ x, ¬r x x) (l : List α) : ¬Lex r l l := by
-  induction l with
-  | nil => nofun
-  | cons a l ih => intro
-    | .rel h => exact irrefl _ h
-    | .cons h => exact ih h
-
-protected theorem lt_irrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] (l : List α) : ¬ l < l :=
-  lex_irrefl Std.Irrefl.irrefl l
-
-instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irrefl (α := List α) (· < ·) where
-  irrefl := List.lt_irrefl
-
-@[simp] theorem not_lex_nil : ¬Lex r l [] := fun h => nomatch h
-
-@[simp] theorem nil_le [LT α] (l : List α) : [] ≤ l := fun h => nomatch h
-
-@[simp] theorem not_nil_lex_iff : ¬Lex r [] l ↔ l = [] := by
-  constructor
-  · rintro h
-    match l, h with
-    | [], h => rfl
-    | a :: _, h => exact False.elim (h Lex.nil)
-  · rintro rfl
-    exact not_lex_nil
-
-@[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
-
-@[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
-
-@[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
-
-theorem cons_lex_cons_iff : Lex r (a :: l₁) (b :: l₂) ↔ r a b ∨ a = b ∧ Lex r l₁ l₂ :=
-  ⟨fun | .rel h => .inl h | .cons h => .inr ⟨rfl, h⟩,
-    fun | .inl h => Lex.rel h | .inr ⟨rfl, h⟩ => Lex.cons h⟩
-
-theorem cons_lt_cons_iff [LT α] {a b} {l₁ l₂ : List α} :
-    (a :: l₁) < (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ < l₂ := by
-  dsimp only [instLT, List.lt]
-  simp [cons_lex_cons_iff]
-
-theorem not_cons_lex_cons_iff [DecidableEq α] [DecidableRel r] {a b} {l₁ l₂ : List α} :
-    ¬ Lex r (a :: l₁) (b :: l₂) ↔ (¬ r a b ∧ a ≠ b) ∨ (¬ r a b ∧ ¬ Lex r l₁ l₂) := by
-  rw [cons_lex_cons_iff, not_or, Decidable.not_and_iff_or_not, and_or_left]
-
-theorem cons_le_cons_iff [DecidableEq α] [LT α] [DecidableLT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    {a b} {l₁ l₂ : List α} :
-    (a :: l₁) ≤ (b :: l₂) ↔ a < b ∨ a = b ∧ l₁ ≤ l₂ := by
-  dsimp only [instLE, instLT, List.le, List.lt]
-  simp [not_cons_lex_cons_iff]
-  constructor
-  · rintro (⟨h₁, h₂⟩ | ⟨h₁, h₂⟩)
-    · left
-      apply Decidable.byContradiction
-      intro h₃
-      apply h₂
-      exact i₂.antisymm _ _ h₁ h₃
-    · if h₃ : a < b then
-        exact .inl h₃
-      else
-        right
-        exact ⟨i₂.antisymm _ _ h₃ h₁, h₂⟩
-  · rintro (h | ⟨h₁, h₂⟩)
-    · left
-      exact ⟨i₁.asymm _ _ h, fun w => i₀.irrefl _ (w ▸ h)⟩
-    · right
-      exact ⟨fun w => i₀.irrefl _ (h₁ ▸ w), h₂⟩
-
-theorem not_lt_of_cons_le_cons [DecidableEq α] [LT α] [DecidableLT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    {a b : α} {l₁ l₂ : List α} (h : a :: l₁ ≤ b :: l₂) : ¬ b < a := by
-  rw [cons_le_cons_iff] at h
-  rcases h with h | ⟨rfl, h⟩
-  · exact i₁.asymm _ _ h
-  · exact i₀.irrefl _
-
-theorem le_of_cons_le_cons [DecidableEq α] [LT α] [DecidableLT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    {a} {l₁ l₂ : List α} (h : a :: l₁ ≤ a :: l₂) : l₁ ≤ l₂ := by
-  rw [cons_le_cons_iff] at h
-  rcases h with h | ⟨_, h⟩
-  · exact False.elim (i₀.irrefl _ h)
-  · exact h
-
-protected theorem le_refl [LT α] [i₀ : Std.Irrefl (· < · : α → α → Prop)] (l : List α) : l ≤ l := by
-  induction l with
-  | nil => simp
-  | cons a l ih =>
-    intro
-    | .rel h => exact i₀.irrefl _ h
-    | .cons h₃ => exact ih h₃
-
-instance [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Refl (· ≤ · : List α → List α → Prop) where
-  refl := List.le_refl
-
-theorem lex_trans {r : α → α → Prop} [DecidableRel r]
-    (lt_trans : ∀ {x y z : α}, r x y → r y z → r x z)
-    (h₁ : Lex r l₁ l₂) (h₂ : Lex r l₂ l₃) : Lex r l₁ l₃ := by
-  induction h₁ generalizing l₃ with
-  | nil => let _::_ := l₃; exact List.Lex.nil ..
-  | @rel a l₁ b l₂ ab =>
-    match h₂ with
-    | .rel bc => exact List.Lex.rel (lt_trans ab bc)
-    | .cons ih =>
-      exact List.Lex.rel ab
-  | @cons a l₁ l₂ h₁ ih2 =>
-    match h₂ with
-    | .rel bc =>
-      exact List.Lex.rel bc
-    | .cons ih =>
-      exact List.Lex.cons (ih2 ih)
-
-protected theorem lt_trans [LT α] [DecidableLT α]
-    [i₁ : Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ < l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  simp only [instLT, List.lt] at h₁ h₂ ⊢
-  exact lex_trans (fun h₁ h₂ => i₁.trans h₁ h₂) h₁ h₂
-
-instance [LT α] [DecidableLT α]
-    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)] :
-    Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
-  trans h₁ h₂ := List.lt_trans h₁ h₂
-
-instance [LT α] [DecidableLT α]
-    [Trans (· < · : α → α → Prop) (· < ·) (· < ·)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)] :
-    Trans (· < · : List α → List α → Prop) (· < ·) (· < ·) where
-  trans h₁ h₂ := List.lt_trans h₁ h₂
-
-@[deprecated List.le_antisymm (since := "2024-12-13")]
-protected abbrev lt_antisymm := @List.le_antisymm
-
-protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
-    [i₀ : Std.Irrefl (· < · : α → α → Prop)]
-    [i₁ : Std.Asymm (· < · : α → α → Prop)]
-    [i₂ : Std.Antisymm (¬ · < · : α → α → Prop)]
-    [i₃ : Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ < l₃) : l₁ < l₃ := by
-  induction h₂ generalizing l₁ with
-  | nil => simp_all
-  | rel hab =>
-    rename_i a b
-    cases l₁ with
-    | nil => simp_all
-    | cons c l₁ =>
-      apply Lex.rel
-      replace h₁ := not_lt_of_cons_le_cons h₁
-      apply Decidable.byContradiction
-      intro h₂
-      have := i₃.trans h₁ h₂
-      contradiction
-  | cons w₃ ih =>
-    rename_i a as bs
-    cases l₁ with
-    | nil => simp_all
-    | cons c l₁ =>
-      have w₄ := not_lt_of_cons_le_cons h₁
-      by_cases w₅ : a = c
-      · subst w₅
-        exact Lex.cons (ih (le_of_cons_le_cons h₁))
-      · exact Lex.rel (Decidable.byContradiction fun w₆ => w₅ (i₂.antisymm _ _ w₄ w₆))
-
-protected theorem le_trans [DecidableEq α] [LT α] [DecidableLT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)]
-    {l₁ l₂ l₃ : List α} (h₁ : l₁ ≤ l₂) (h₂ : l₂ ≤ l₃) : l₁ ≤ l₃ :=
-  fun h₃ => h₁ (List.lt_of_le_of_lt h₂ h₃)
-
-instance [DecidableEq α] [LT α] [DecidableLT α]
-    [Std.Irrefl (· < · : α → α → Prop)]
-    [Std.Asymm (· < · : α → α → Prop)]
-    [Std.Antisymm (¬ · < · : α → α → Prop)]
-    [Trans (¬ · < · : α → α → Prop) (¬ · < ·) (¬ · < ·)] :
-    Trans (· ≤ · : List α → List α → Prop) (· ≤ ·) (· ≤ ·) where
-  trans h₁ h₂ := List.le_trans h₁ h₂
-
-theorem lex_asymm {r : α → α → Prop} [DecidableRel r]
-    (h : ∀ {x y : α}, r x y → ¬ r y x) : ∀ {l₁ l₂ : List α}, Lex r l₁ l₂ → ¬ Lex r l₂ l₁
-  | nil, _, .nil => by simp
-  | x :: l₁, y :: l₂, .rel h₁ =>
-    fun
-    | .rel h₂ => h h₁ h₂
-    | .cons h₂ => h h₁ h₁
-  | x :: l₁, _ :: l₂, .cons h₁ =>
-    fun
-    | .rel h₂ => h h₂ h₂
-    | .cons h₂ => lex_asymm h h₁ h₂
-
-protected theorem lt_asymm [DecidableEq α] [LT α] [DecidableLT α]
-    [i : Std.Asymm (· < · : α → α → Prop)]
-    {l₁ l₂ : List α} (h : l₁ < l₂) : ¬ l₂ < l₁ := lex_asymm (i.asymm _ _) h
-
-instance [DecidableEq α] [LT α] [DecidableLT α]
-    [Std.Asymm (· < · : α → α → Prop)] :
-    Std.Asymm (· < · : List α → List α → Prop) where
-  asymm _ _ := List.lt_asymm
-
-theorem not_lex_total [DecidableEq α] {r : α → α → Prop} [DecidableRel r]
-    (h : ∀ x y : α, ¬ r x y ∨ ¬ r y x) (l₁ l₂ : List α) : ¬ Lex r l₁ l₂ ∨ ¬ Lex r l₂ l₁ := by
-  rw [Decidable.or_iff_not_imp_left, Decidable.not_not]
-  intro w₁ w₂
-  match l₁, l₂, w₁, w₂ with
-  | nil, _ :: _, .nil, w₂ => simp at w₂
-  | x :: _, y :: _, .rel _, .rel _ =>
-    obtain (_ | _) := h x y <;> contradiction
-  | x :: _, _ :: _, .rel _, .cons _ =>
-    obtain (_ | _) := h x x <;> contradiction
-  | x :: _, _ :: _, .cons  _, .rel _ =>
-    obtain (_ | _) := h x x <;> contradiction
-  | _ :: l₁, _ :: l₂, .cons _, .cons _ =>
-    obtain (_ | _) := not_lex_total h l₁ l₂ <;> contradiction
-
-protected theorem le_total [DecidableEq α] [LT α] [DecidableLT α]
-    [i : Std.Total (¬ · < · : α → α → Prop)] {l₁ l₂ : List α} : l₁ ≤ l₂ ∨ l₂ ≤ l₁ :=
-  not_lex_total i.total l₂ l₁
-
-instance [DecidableEq α] [LT α] [DecidableLT α]
-    [Std.Total (¬ · < · : α → α → Prop)] :
-    Std.Total (· ≤ · : List α → List α → Prop) where
-  total _ _ := List.le_total
-
-theorem lex_eq_decide_lex [DecidableEq α] (lt : α → α → Bool) :
-    lex l₁ l₂ lt = decide (Lex (fun x y => lt x y) l₁ l₂) := by
+@[simp] theorem isEqv_eq [DecidableEq α] {l₁ l₂ : List α} : l₁.isEqv l₂ (· == ·) = (l₁ = l₂) := by
   induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => simp [lex]
-    | cons b bs => simp [lex]
+  | nil => cases l₂ <;> simp
   | cons a l₁ ih =>
     cases l₂ with
-    | nil => simp [lex]
-    | cons b bs =>
-      simp [lex, ih, cons_lex_cons_iff, Bool.beq_eq_decide_eq]
-
-/-- Variant of `lex_eq_true_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_true_iff_lex [DecidableEq α] (lt : α → α → Bool) :
-    lex l₁ l₂ lt = true ↔ Lex (fun x y => lt x y) l₁ l₂ := by
-  simp [lex_eq_decide_lex]
-
-/-- Variant of `lex_eq_false_iff` using an arbitrary comparator. -/
-@[simp] theorem lex_eq_false_iff_not_lex [DecidableEq α] (lt : α → α → Bool) :
-    lex l₁ l₂ lt = false ↔ ¬ Lex (fun x y => lt x y) l₁ l₂ := by
-  simp [Bool.eq_false_iff, lex_eq_true_iff_lex]
-
-@[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
-    {l₁ l₂ : List α} : lex l₁ l₂ = true ↔ l₁ < l₂ := by
-  simp only [lex_eq_true_iff_lex, decide_eq_true_eq]
-  exact Iff.rfl
-
-@[simp] theorem lex_eq_false_iff_ge [DecidableEq α] [LT α] [DecidableLT α]
-    {l₁ l₂ : List α} : lex l₁ l₂ = false ↔ l₂ ≤ l₁ := by
-  simp only [lex_eq_false_iff_not_lex, decide_eq_true_eq]
-  exact Iff.rfl
-
-attribute [local simp] Nat.add_one_lt_add_one_iff in
-/--
-`l₁` is lexicographically less than `l₂` if either
-- `l₁` is pairwise equivalent under `· == ·` to `l₂.take l₁.length`,
-  and `l₁` is shorter than `l₂` or
-- there exists an index `i` such that
-  - for all `j < i`, `l₁[j] == l₂[j]` and
-  - `l₁[i] < l₂[i]`
--/
-theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
-    lex l₁ l₂ lt = true ↔
-      (l₁.isEqv (l₂.take l₁.length) (· == ·) ∧ l₁.length < l₂.length) ∨
-        (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
-          (∀ j, (hj : j < i) →
-            l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₁[i] l₂[i]) := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => simp [lex]
-    | cons b bs => simp [lex]
-  | cons a l₁ ih =>
-    cases l₂ with
-    | nil => simp [lex]
-    | cons b l₂ =>
-      simp only [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
-      constructor
-      · rintro (hab | ⟨hab, ⟨h₁, h₂⟩ | ⟨i, h₁, h₂, w₁, w₂⟩⟩)
-        · exact .inr ⟨0, by simp [hab]⟩
-        · exact .inl ⟨⟨hab, h₁⟩, by simpa using h₂⟩
-        · refine .inr ⟨i + 1, by simp [h₁],
-            by simp [h₂], ?_, ?_⟩
-          · intro j hj
-            cases j with
-            | zero => simp [hab]
-            | succ j =>
-              simp only [getElem_cons_succ]
-              rw [w₁]
-              simpa using hj
-          · simpa using w₂
-      · rintro (⟨⟨h₁, h₂⟩, h₃⟩ | ⟨i, h₁, h₂, w₁, w₂⟩)
-        · exact .inr ⟨h₁, .inl ⟨h₂, by simpa using h₃⟩⟩
-        · cases i with
-          | zero =>
-            left
-            simpa using w₂
-          | succ i =>
-            right
-            refine ⟨by simpa using w₁ 0 (by simp), ?_⟩
-            right
-            refine ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
-            · intro j hj
-              simpa using w₁ (j + 1) (by simpa)
-            · simpa using w₂
-
-attribute [local simp] Nat.add_one_lt_add_one_iff in
-/--
-`l₁` is *not* lexicographically less than `l₂`
-(which you might think of as "`l₂` is lexicographically greater than or equal to `l₁`"") if either
-- `l₁` is pairwise equivalent under `· == ·` to `l₂.take l₁.length` or
-- there exists an index `i` such that
-  - for all `j < i`, `l₁[j] == l₂[j]` and
-  - `l₂[i] < l₁[i]`
-
-This formulation requires that `==` and `lt` are compatible in the following senses:
-- `==` is symmetric
-  (we unnecessarily further assume it is transitive, to make use of the existing typeclasses)
-- `lt` is irreflexive with respect to `==` (i.e. if `x == y` then `lt x y = false`
-- `lt` is asymmmetric  (i.e. `lt x y = true → lt y x = false`)
-- `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
--/
-theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
-    (lt_irrefl : ∀ x y, x == y → lt x y = false)
-    (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
-    (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y) :
-    lex l₁ l₂ lt = false ↔
-      (l₂.isEqv (l₁.take l₂.length) (· == ·)) ∨
-        (∃ (i : Nat) (h₁ : i < l₁.length) (h₂ : i < l₂.length),
-          (∀ j, (hj : j < i) →
-            l₁[j]'(Nat.lt_trans hj h₁) == l₂[j]'(Nat.lt_trans hj h₂)) ∧ lt l₂[i] l₁[i]) := by
-  induction l₁ generalizing l₂ with
-  | nil =>
-    cases l₂ with
-    | nil => simp [lex]
-    | cons b bs => simp [lex]
-  | cons a l₁ ih =>
-    cases l₂ with
-    | nil => simp [lex]
-    | cons b l₂ =>
-      simp only [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
-        Bool.and_eq_true, length_cons]
-      constructor
-      · rintro ⟨hab, h⟩
-        if eq : b == a then
-          specialize h (BEq.symm eq)
-          obtain (h | ⟨i, h₁, h₂, w₁, w₂⟩) := h
-          · exact .inl ⟨eq, h⟩
-          · refine .inr ⟨i + 1, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
-            · intro j hj
-              cases j with
-              | zero => simpa using BEq.symm eq
-              | succ j =>
-                simp only [getElem_cons_succ]
-                rw [w₁]
-                simpa using hj
-            · simpa using w₂
-        else
-          right
-          have hba : lt b a :=
-            Decidable.byContradiction fun hba => eq (lt_antisymm _ _ (by simpa using hba) hab)
-          exact ⟨0, by simp, by simp, by simpa⟩
-      · rintro (⟨eq, h⟩ | ⟨i, h₁, h₂, w₁, w₂⟩)
-        · exact ⟨lt_irrefl _ _ (BEq.symm eq), fun _ => .inl h⟩
-        · cases i with
-          | zero =>
-            simp at w₂
-            refine ⟨lt_asymm _ _ w₂, ?_⟩
-            intro eq
-            exfalso
-            simp [lt_irrefl _ _ (BEq.symm eq)] at w₂
-          | succ i =>
-            refine ⟨lt_irrefl _ _ (by simpa using w₁ 0 (by simp)), ?_⟩
-            refine fun _ => .inr ⟨i, by simpa using h₁, by simpa using h₂, ?_, ?_⟩
-            · intro j hj
-              simpa using w₁ (j + 1) (by simpa)
-            · simpa using w₂
-
-/-! ### foldlM and foldrM -/
-
-@[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :
-    l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := rfl
-
-@[simp] theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : List α) :
-    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
-  induction l generalizing b <;> simp [*]
-
-@[simp] theorem foldrM_cons [Monad m] [LawfulMonad m] (a : α) (l) (f : α → β → m β) (b) :
-    (a :: l).foldrM f b = l.foldrM f b >>= f a := by
-  simp only [foldrM]
-  induction l <;> simp_all
-
-theorem foldl_eq_foldlM (f : β → α → β) (b) (l : List α) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  induction l generalizing b <;> simp [*, foldl]
-
-theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  induction l <;> simp [*, foldr]
-
-@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
-
-@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : List α) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
-
-/-! ### foldl and foldr -/
-
-@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
-  induction l <;> simp [*]
-
-@[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
-
-@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
-  induction l generalizing l' <;> simp [*]
-
-theorem foldr_cons_nil (l : List α) : l.foldr cons [] = l := by simp
-
-@[deprecated foldr_cons_nil (since := "2024-09-04")] abbrev foldr_self := @foldr_cons_nil
-
-theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β₁) (init : α) :
-    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
-  induction l generalizing init <;> simp [*]
-
-theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
-    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  induction l generalizing init <;> simp [*]
-
-theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : List α) (init : γ) :
-    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldl_cons]
-    cases f a <;> simp [ih]
-
-theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List α) (init : γ) :
-    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldr_cons]
-    cases f a <;> simp [ih]
-
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
-
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
-
-theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldl_cons, ha.assoc]
-    rw [foldl_assoc]
-
-theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldr_cons, ha.assoc]
-    rw [foldr_assoc]
-
-theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : List β) (init : α₁)
-    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
-
-theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : List α) (init : β₁)
-    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
-
-/--
-Prove a proposition about the result of `List.foldl`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
-
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
--/
-def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → β) (b : β) (_ : motive b)
-    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
-  | [], _, _, hb, _ => hb
-  | hd :: tl, op, b, hb, hl =>
-    foldlRecOn tl op (op b hd) (hl b hb hd (mem_cons_self hd tl))
-      fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
-
-@[simp] theorem foldlRecOn_nil {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op b a)) :
-    foldlRecOn [] op b hb hl = hb := rfl
-
-@[simp] theorem foldlRecOn_cons {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op b a)) :
-    foldlRecOn (x :: l) op b hb hl =
-      foldlRecOn l op (op b x) (hl b hb x (mem_cons_self x l))
-        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
-  rfl
-
-/--
-Prove a proposition about the result of `List.foldr`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
-
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
--/
-def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) (b : β) (_ : motive b)
-    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
-  | nil, _, _, hb, _ => hb
-  | x :: l, op, b, hb, hl =>
-    hl (foldr op b l)
-      (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x (mem_cons_self x l)
-
-@[simp] theorem foldrRecOn_nil {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op a b)) :
-    foldrRecOn [] op b hb hl = hb := rfl
-
-@[simp] theorem foldrRecOn_cons {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op a b)) :
-    foldrRecOn (x :: l) op b hb hl =
-      hl _ (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m))
-        x (mem_cons_self x l) :=
-  rfl
-
-/--
-We can prove that two folds over the same list are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the list,
-preserves the relation.
--/
-theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
-    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
-    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldl_cons]
-    apply ih
-    · simp_all
-    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
-
-/--
-We can prove that two folds over the same list are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the list,
-preserves the relation.
--/
-theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
-    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
-    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldr_cons]
-    apply h'
-    · simp
-    · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
-
-@[simp] theorem foldl_add_const (l : List α) (a b : Nat) :
-    l.foldl (fun x _ => x + a) b = b + a * l.length := by
-  induction l generalizing b with
-  | nil => simp
-  | cons y l ih =>
-    simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
-      Nat.add_comm a]
-
-@[simp] theorem foldr_add_const (l : List α) (a b : Nat) :
-    l.foldr (fun _ x => x + a) b = b + a * l.length := by
-  induction l generalizing b with
-  | nil => simp
-  | cons y l ih =>
-    simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
+    | nil => simp
+    | cons b l₂ => simp [isEqv, ih]
 
 /-! ### getLast -/
 
@@ -1598,27 +1016,6 @@ theorem getLast?_tail (l : List α) : (tail l).getLast? = if l.length = 1 then n
 
 /-! ### map -/
 
-@[simp] theorem map_id_fun : map (id : α → α) = id := by
-  funext l
-  induction l <;> simp_all
-
-/-- `map_id_fun'` differs from `map_id_fun` by representing the identity function as a lambda, rather than `id`. -/
-@[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
-
--- This is not a `@[simp]` lemma because `map_id_fun` will apply.
-theorem map_id (l : List α) : map (id : α → α) l = l := by
-  induction l <;> simp_all
-
-/-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
--- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
-theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
-
-/-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
-theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
-  simp [show f = id from funext h]
-
-theorem map_singleton (f : α → β) (a : α) : map f [a] = [f a] := rfl
-
 @[simp] theorem length_map (as : List α) (f : α → β) : (as.map f).length = as.length := by
   induction as with
   | nil => simp [List.map]
@@ -1643,6 +1040,27 @@ theorem get?_map (f : α → β) : ∀ l i, (map f l).get? i = (l.get? i).map f
 theorem get_map (f : α → β) {l i} :
     get (map f l) i = f (get l ⟨i, length_map l f ▸ i.2⟩) := by
   simp
+
+@[simp] theorem map_id_fun : map (id : α → α) = id := by
+  funext l
+  induction l <;> simp_all
+
+/-- `map_id_fun'` differs from `map_id_fun` by representing the identity function as a lambda, rather than `id`. -/
+@[simp] theorem map_id_fun' : map (fun (a : α) => a) = id := map_id_fun
+
+-- This is not a `@[simp]` lemma because `map_id_fun` will apply.
+theorem map_id (l : List α) : map (id : α → α) l = l := by
+  induction l <;> simp_all
+
+/-- `map_id'` differs from `map_id` by representing the identity function as a lambda, rather than `id`. -/
+-- This is not a `@[simp]` lemma because `map_id_fun'` will apply.
+theorem map_id' (l : List α) : map (fun (a : α) => a) l = l := map_id l
+
+/-- Variant of `map_id`, with a side condition that the function is pointwise the identity. -/
+theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = l := by
+  simp [show f = id from funext h]
+
+theorem map_singleton (f : α → β) (a : α) : map f [a] = [f a] := rfl
 
 @[simp] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
@@ -1696,6 +1114,10 @@ theorem map_eq_cons_iff' {f : α → β} {l : List α} :
   induction l <;> simp_all
 
 @[deprecated map_eq_cons' (since := "2024-09-05")] abbrev map_eq_cons' := @map_eq_cons_iff'
+
+@[simp] theorem map_eq_singleton_iff {f : α → β} {l : List α} {b : β} :
+    map f l = [b] ↔ ∃ a, l = [a] ∧ f a = b := by
+  simp [map_eq_cons_iff]
 
 theorem map_eq_map_iff : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l <;> simp
@@ -1863,7 +1285,7 @@ theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
 @[simp] theorem filter_append {p : α → Bool} :
     ∀ (l₁ l₂ : List α), filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂
   | [], _ => rfl
-  | a :: l₁, l₂ => by simp [filter]; split <;> simp [filter_append l₁]
+  | a :: l₁, l₂ => by simp only [cons_append, filter]; split <;> simp [filter_append l₁]
 
 theorem filter_eq_cons_iff {l} {a} {as} :
     filter p l = a :: as ↔
@@ -2343,16 +1765,6 @@ theorem set_append {s t : List α} :
     (s ++ t).set i x = s ++ t.set (i - s.length) x := by
   rw [set_append, if_neg (by simp_all)]
 
-@[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : List α) :
-    (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
-  induction l <;> simp [*]
-
-@[simp] theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : List α) :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
-
-@[simp] theorem foldr_append (f : α → β → β) (b) (l l' : List α) :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
-
 theorem filterMap_eq_append_iff {f : α → Option β} :
     filterMap f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
   constructor
@@ -2500,14 +1912,6 @@ theorem head?_flatten {L : List (List α)} : (flatten L).head? = L.findSome? fun
 
 -- `getLast?_flatten` is proved later, after the `reverse` section.
 -- `head_flatten` and `getLast_flatten` are proved in `Init.Data.List.Find`.
-
-theorem foldl_flatten (f : β → α → β) (b : β) (L : List (List α)) :
-    (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
-  induction L generalizing b <;> simp_all
-
-theorem foldr_flatten (f : α → β → β) (b : β) (L : List (List α)) :
-    (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
-  induction L <;> simp_all
 
 @[simp] theorem map_flatten (f : α → β) (L : List (List α)) : map f (flatten L) = flatten (map (map f) L) := by
   induction L <;> simp_all
@@ -3081,9 +2485,113 @@ theorem flatMap_reverse {β} (l : List α) (f : α → List β) : (l.reverse.fla
 @[simp] theorem reverseAux_eq (as bs : List α) : reverseAux as bs = reverse as ++ bs :=
   reverseAux_eq_append ..
 
+@[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
+  eq_replicate_iff.2
+    ⟨by rw [length_reverse, length_replicate],
+     fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
+
+
+/-! ### foldlM and foldrM -/
+
+@[simp] theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : List α) :
+    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
+  induction l generalizing b <;> simp [*]
+
+@[simp] theorem foldrM_cons [Monad m] [LawfulMonad m] (a : α) (l) (f : α → β → m β) (b) :
+    (a :: l).foldrM f b = l.foldrM f b >>= f a := by
+  simp only [foldrM]
+  induction l <;> simp_all
+
+theorem foldl_eq_foldlM (f : β → α → β) (b) (l : List α) :
+    l.foldl f b = l.foldlM (m := Id) f b := by
+  induction l generalizing b <;> simp [*, foldl]
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
+    l.foldr f b = l.foldrM (m := Id) f b := by
+  induction l <;> simp [*, foldr]
+
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : List α) :
+    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : List α) :
+    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+
+@[simp] theorem foldlM_reverse [Monad m] (l : List α) (f : β → α → m β) (b) :
+    l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := rfl
+
 @[simp] theorem foldrM_reverse [Monad m] (l : List α) (f : α → β → m β) (b) :
     l.reverse.foldrM f b = l.foldlM (fun x y => f y x) b :=
   (foldlM_reverse ..).symm.trans <| by simp
+
+/-! ### foldl and foldr -/
+
+@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
+  induction l <;> simp [*]
+
+@[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
+
+@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+theorem foldr_cons_nil (l : List α) : l.foldr cons [] = l := by simp
+
+@[deprecated foldr_cons_nil (since := "2024-09-04")] abbrev foldr_self := @foldr_cons_nil
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β₁) (init : α) :
+    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
+  induction l generalizing init <;> simp [*]
+
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
+    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
+  induction l generalizing init <;> simp [*]
+
+theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldl_cons]
+    cases f a <;> simp [ih]
+
+theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List α) (init : γ) :
+    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  induction l generalizing init with
+  | nil => rfl
+  | cons a l ih =>
+    simp only [filterMap_cons, foldr_cons]
+    cases f a <;> simp [ih]
+
+theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
+  induction l generalizing a
+  · simp
+  · simp [*, h]
+
+theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
+  induction l generalizing a
+  · simp
+  · simp [*, h]
+
+@[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : List α) :
+    (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
+  induction l <;> simp [*]
+
+@[simp] theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : List α) :
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+
+@[simp] theorem foldr_append (f : α → β → β) (b) (l l' : List α) :
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+
+theorem foldl_flatten (f : β → α → β) (b : β) (L : List (List α)) :
+    (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
+  induction L generalizing b <;> simp_all
+
+theorem foldr_flatten (f : α → β → β) (b : β) (L : List (List α)) :
+    (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
+  induction L <;> simp_all
 
 @[simp] theorem foldl_reverse (l : List α) (f : β → α → β) (b) :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
@@ -3098,10 +2606,127 @@ theorem foldl_eq_foldr_reverse (l : List α) (f : β → α → β) (b) :
 theorem foldr_eq_foldl_reverse (l : List α) (f : α → β → β) (b) :
     l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
 
-@[simp] theorem reverse_replicate (n) (a : α) : reverse (replicate n a) = replicate n a :=
-  eq_replicate_iff.2
-    ⟨by rw [length_reverse, length_replicate],
-     fun _ h => eq_of_mem_replicate (mem_reverse.1 h)⟩
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
+    ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)
+  | [], a₁, a₂ => rfl
+  | a :: l, a₁, a₂ => by
+    simp only [foldl_cons, ha.assoc]
+    rw [foldl_assoc]
+
+theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
+    ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
+  | [], a₁, a₂ => rfl
+  | a :: l, a₁, a₂ => by
+    simp only [foldr_cons, ha.assoc]
+    rw [foldr_assoc]
+
+theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : List β) (init : α₁)
+    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
+  induction l generalizing init <;> simp [*, H]
+
+theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : List α) (init : β₁)
+    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
+  induction l <;> simp [*, H]
+
+/--
+Prove a proposition about the result of `List.foldl`,
+by proving it for the initial data,
+and the implication that the operation applied to any element of the list preserves the property.
+
+The motive can take values in `Sort _`, so this may be used to construct data,
+as well as to prove propositions.
+-/
+def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → β) (b : β) (_ : motive b)
+    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
+  | [], _, _, hb, _ => hb
+  | hd :: tl, op, b, hb, hl =>
+    foldlRecOn tl op (op b hd) (hl b hb hd (mem_cons_self hd tl))
+      fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
+
+@[simp] theorem foldlRecOn_nil {motive : β → Sort _} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op b a)) :
+    foldlRecOn [] op b hb hl = hb := rfl
+
+@[simp] theorem foldlRecOn_cons {motive : β → Sort _} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op b a)) :
+    foldlRecOn (x :: l) op b hb hl =
+      foldlRecOn l op (op b x) (hl b hb x (mem_cons_self x l))
+        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
+  rfl
+
+/--
+Prove a proposition about the result of `List.foldr`,
+by proving it for the initial data,
+and the implication that the operation applied to any element of the list preserves the property.
+
+The motive can take values in `Sort _`, so this may be used to construct data,
+as well as to prove propositions.
+-/
+def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) (b : β) (_ : motive b)
+    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
+  | nil, _, _, hb, _ => hb
+  | x :: l, op, b, hb, hl =>
+    hl (foldr op b l)
+      (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x (mem_cons_self x l)
+
+@[simp] theorem foldrRecOn_nil {motive : β → Sort _} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op a b)) :
+    foldrRecOn [] op b hb hl = hb := rfl
+
+@[simp] theorem foldrRecOn_cons {motive : β → Sort _} (hb : motive b)
+    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op a b)) :
+    foldrRecOn (x :: l) op b hb hl =
+      hl _ (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m))
+        x (mem_cons_self x l) :=
+  rfl
+
+/--
+We can prove that two folds over the same list are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the list,
+preserves the relation.
+-/
+theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
+  induction l generalizing a b with
+  | nil => simp_all
+  | cons a l ih =>
+    simp only [foldl_cons]
+    apply ih
+    · simp_all
+    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
+
+/--
+We can prove that two folds over the same list are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the list,
+preserves the relation.
+-/
+theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
+  induction l generalizing a b with
+  | nil => simp_all
+  | cons a l ih =>
+    simp only [foldr_cons]
+    apply h'
+    · simp
+    · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
+
+@[simp] theorem foldl_add_const (l : List α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
+      Nat.add_comm a]
+
+@[simp] theorem foldr_add_const (l : List α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.length := by
+  induction l generalizing b with
+  | nil => simp
+  | cons y l ih =>
+    simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
+
 
 /-! #### Further results about `getLast` and `getLast?` -/
 

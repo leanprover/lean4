@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Lean.Data.Json
-import Lean.Data.JsonRpc
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -18,10 +17,6 @@ namespace Lean
 namespace Lsp
 
 open Json
-
-structure CancelParams where
-  id : JsonRpc.RequestID
-  deriving Inhabited, BEq, ToJson, FromJson
 
 abbrev DocumentUri := String
 

@@ -9,6 +9,7 @@ import Init.Data.Bool
 import Init.Data.BitVec.Basic
 import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Mod
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
@@ -449,6 +450,10 @@ theorem toInt_eq_toNat_cond (x : BitVec n) :
         (x.toNat : Int) - (2^n : Nat) :=
   rfl
 
+theorem toInt_eq_toNat_of_lt {x : BitVec n} (h : 2 * x.toNat < 2^n) :
+    x.toInt = x.toNat := by
+  simp [toInt_eq_toNat_cond, h]
+
 theorem msb_eq_false_iff_two_mul_lt {x : BitVec w} : x.msb = false ↔ 2 * x.toNat < 2^w := by
   cases w <;> simp [Nat.pow_succ, Nat.mul_comm _ 2, msb_eq_decide, toNat_of_zero_length]
 
@@ -461,6 +466,9 @@ theorem toInt_eq_msb_cond (x : BitVec w) :
   simp only [BitVec.toInt, ← msb_eq_false_iff_two_mul_lt]
   cases x.msb <;> rfl
 
+theorem toInt_eq_toNat_of_msb {x : BitVec w} (h : x.msb = false) :
+    x.toInt = x.toNat := by
+  simp [toInt_eq_msb_cond, h]
 
 theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) := by
   simp only [toInt_eq_toNat_cond]
@@ -790,6 +798,19 @@ theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h 
 
 @[simp] theorem toNat_allOnes : (allOnes v).toNat = 2^v - 1 := by
   unfold allOnes
+  simp
+
+@[simp] theorem toInt_allOnes : (allOnes w).toInt = if 0 < w then -1 else 0 := by
+  norm_cast
+  by_cases h : w = 0
+  · subst h
+    simp
+  · have : 1 < 2 ^ w := by simp [h]
+    simp [BitVec.toInt]
+    omega
+
+@[simp] theorem toFin_allOnes : (allOnes w).toFin = Fin.ofNat' (2^w) (2^w - 1) := by
+  ext
   simp
 
 @[simp] theorem getLsbD_allOnes : (allOnes v).getLsbD i = decide (i < v) := by
@@ -1149,11 +1170,16 @@ theorem getMsb_not {x : BitVec w} :
 /-! ### shiftLeft -/
 
 @[simp, bv_toNat] theorem toNat_shiftLeft {x : BitVec v} :
-    BitVec.toNat (x <<< n) = BitVec.toNat x <<< n % 2^v :=
+    (x <<< n).toNat = x.toNat <<< n % 2^v :=
   BitVec.toNat_ofNat _ _
 
+@[simp] theorem toInt_shiftLeft {x : BitVec w} :
+    (x <<< n).toInt = (x.toNat <<< n : Int).bmod (2^w) := by
+  rw [toInt_eq_toNat_bmod, toNat_shiftLeft, Nat.shiftLeft_eq]
+  simp
+
 @[simp] theorem toFin_shiftLeft {n : Nat} (x : BitVec w) :
-    BitVec.toFin (x <<< n) = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
+    (x <<< n).toFin = Fin.ofNat' (2^w) (x.toNat <<< n) := rfl
 
 @[simp]
 theorem shiftLeft_zero (x : BitVec w) : x <<< 0 = x := by
@@ -2289,6 +2315,12 @@ theorem ofNat_sub_ofNat {n} (x y : Nat) : BitVec.ofNat n x - BitVec.ofNat n y = 
 @[simp, bv_toNat] theorem toNat_neg (x : BitVec n) : (- x).toNat = (2^n - x.toNat) % 2^n := by
   simp [Neg.neg, BitVec.neg]
 
+theorem toNat_neg_of_pos {x : BitVec n} (h : 0#n < x) :
+    (- x).toNat = 2^n - x.toNat := by
+  change 0 < x.toNat at h
+  rw [toNat_neg, Nat.mod_eq_of_lt]
+  omega
+
 theorem toInt_neg {x : BitVec w} :
     (-x).toInt = (-x.toInt).bmod (2 ^ w) := by
   rw [← BitVec.zero_sub, toInt_sub]
@@ -2383,6 +2415,54 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
+
+/-! ### fill -/
+
+@[simp]
+theorem getLsbD_fill {w i : Nat} {v : Bool} :
+    (fill w v).getLsbD i = (v && decide (i < w)) := by
+  by_cases h : v
+  <;> simp [h, BitVec.fill, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem getMsbD_fill {w i : Nat} {v : Bool} :
+    (fill w v).getMsbD i = (v && decide (i < w)) := by
+  by_cases h : v
+  <;> simp [h, BitVec.fill, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem getElem_fill {w i : Nat} {v : Bool} (h : i < w) :
+    (fill w v)[i] = v := by
+  by_cases h : v
+  <;> simp [h, BitVec.fill, BitVec.negOne_eq_allOnes]
+
+@[simp]
+theorem msb_fill {w : Nat} {v : Bool} :
+    (fill w v).msb = (v && decide (0 < w)) := by
+  simp [BitVec.msb]
+
+theorem fill_eq {w : Nat} {v : Bool} : fill w v = if v = true then allOnes w else 0#w := by
+  by_cases h : v <;> (simp only [h] ; ext ; simp)
+
+@[simp]
+theorem fill_true {w : Nat} : fill w true = allOnes w := by
+  simp [fill_eq]
+
+@[simp]
+theorem fill_false {w : Nat} : fill w false = 0#w := by
+  simp [fill_eq]
+
+@[simp] theorem fill_toNat {w : Nat} {v : Bool} :
+    (fill w v).toNat = if v = true then 2^w - 1 else 0 := by
+  by_cases h : v <;> simp [h]
+
+@[simp] theorem fill_toInt {w : Nat} {v : Bool} :
+    (fill w v).toInt = if v = true && 0 < w then -1 else 0 := by
+  by_cases h : v <;> simp [h]
+
+@[simp] theorem fill_toFin {w : Nat} {v : Bool} :
+    (fill w v).toFin = if v = true then (allOnes w).toFin else Fin.ofNat' (2 ^ w) 0 := by
+  by_cases h : v <;> simp [h]
 
 /-! ### mul -/
 
@@ -2527,13 +2607,13 @@ theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) :
   rw [← udiv_eq]
   simp [udiv, bv_toNat, h, Nat.mod_eq_of_lt]
 
+@[simp]
+theorem toFin_udiv {x y : BitVec n} : (x / y).toFin = x.toFin / y.toFin := by
+  rfl
+
 @[simp, bv_toNat]
 theorem toNat_udiv {x y : BitVec n} : (x / y).toNat = x.toNat / y.toNat := by
-  rw [udiv_def]
-  by_cases h : y = 0
-  · simp [h]
-  · rw [toNat_ofNat, Nat.mod_eq_of_lt]
-    exact Nat.lt_of_le_of_lt (Nat.div_le_self ..) (by omega)
+  rfl
 
 @[simp]
 theorem zero_udiv {x : BitVec w} : (0#w) / x = 0#w := by
@@ -2568,6 +2648,45 @@ theorem udiv_self {x : BitVec w} :
     simp only [udiv_eq, beq_iff_eq, toNat_eq, toNat_ofNat, Nat.zero_mod, h,
       ↓reduceIte, toNat_udiv]
     rw [Nat.div_self (by omega), Nat.mod_eq_of_lt (by omega)]
+
+theorem msb_udiv (x y : BitVec w) :
+    (x / y).msb = (x.msb && y == 1#w) := by
+  cases msb_x : x.msb
+  · suffices x.toNat / y.toNat < 2 ^ (w - 1) by simpa [msb_eq_decide]
+    calc
+      x.toNat / y.toNat ≤ x.toNat     := by apply Nat.div_le_self
+                      _ < 2 ^ (w - 1) := by simpa [msb_eq_decide] using msb_x
+  . rcases w with _|w
+    · contradiction
+    · have : (y == 1#_) = decide (y.toNat = 1) := by
+        simp [(· == ·), toNat_eq]
+      simp only [this, Bool.true_and]
+      match hy : y.toNat with
+      | 0 =>
+        obtain rfl : y = 0#_ := eq_of_toNat_eq hy
+        simp
+      | 1 =>
+        obtain rfl : y = 1#_ := eq_of_toNat_eq (by simp [hy])
+        simpa using msb_x
+      | y + 2 =>
+        suffices x.toNat / (y + 2) < 2 ^ w by
+          simp_all [msb_eq_decide, hy]
+        calc
+          x.toNat / (y + 2)
+            ≤ x.toNat / 2 := by apply Nat.div_add_le_right (by omega)
+          _ < 2 ^ w       := by omega
+
+theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
+    (x / y).msb = false := by
+  simp [msb_udiv, h]
+
+/--
+If `x` is nonnegative (i.e., does not have its msb set),
+then `x / y` is nonnegative, thus `toInt` and `toNat` coincide.
+-/
+theorem toInt_udiv_of_msb {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
+    (x / y).toInt = x.toNat / y.toNat := by
+  simp [toInt_eq_msb_cond, msb_udiv_eq_false_of h]
 
 /-! ### umod -/
 
@@ -2817,7 +2936,12 @@ theorem smod_zero {x : BitVec n} : x.smod 0#n = x := by
 
 /-! # Rotate Left -/
 
-/-- rotateLeft is invariant under `mod` by the bitwidth. -/
+/--`rotateLeft` is defined in terms of left and right shifts. -/
+theorem rotateLeft_def {x : BitVec w} {r : Nat} :
+    x.rotateLeft r = (x <<< (r % w)) ||| (x >>> (w - r % w)) := by
+  simp only [rotateLeft, rotateLeftAux]
+
+/-- `rotateLeft` is invariant under `mod` by the bitwidth. -/
 @[simp]
 theorem rotateLeft_mod_eq_rotateLeft {x : BitVec w} {r : Nat} :
     x.rotateLeft (r % w) = x.rotateLeft r := by
@@ -2961,7 +3085,17 @@ theorem msb_rotateLeft {m w : Nat} {x : BitVec w} :
   · simp
     omega
 
+@[simp]
+theorem toNat_rotateLeft {x : BitVec w} {r : Nat} :
+    (x.rotateLeft r).toNat = (x.toNat <<< (r % w)) % (2^w) ||| x.toNat >>> (w - r % w) := by
+  simp only [rotateLeft_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
+
 /-! ## Rotate Right -/
+
+/-- `rotateRight` is defined in terms of left and right shifts. -/
+theorem rotateRight_def {x : BitVec w} {r : Nat} :
+    x.rotateRight r = (x >>> (r % w)) ||| (x <<< (w - r % w)) := by
+  simp only [rotateRight, rotateRightAux]
 
 /--
 Accessing bits in `x.rotateRight r` the range `[0, w-r)` is equal to
@@ -3097,6 +3231,11 @@ theorem msb_rotateRight {r w : Nat} {x : BitVec w} :
     intro h₁
     simp [h₁]
   · simp [show w = 0 by omega]
+
+@[simp]
+theorem toNat_rotateRight {x : BitVec w} {r : Nat} :
+    (x.rotateRight r).toNat = (x.toNat >>> (r % w)) ||| x.toNat <<< (w - r % w) % (2^w) := by
+  simp only [rotateRight_def, toNat_shiftLeft, toNat_ushiftRight, toNat_or]
 
 /- ## twoPow -/
 

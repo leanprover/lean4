@@ -29,9 +29,7 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-
   deriving Inhabited, BEq, Repr
-
 
 namespace PlainDateTime
 

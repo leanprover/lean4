@@ -30,7 +30,8 @@ structure PlainDateTime where
   -/
   time : PlainTime
 
-  deriving Repr, Inhabited
+  deriving Inhabited, BEq, Repr
+
 
 namespace PlainDateTime
 

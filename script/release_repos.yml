@@ -27,6 +27,13 @@ repositories:
     branch: main
     dependencies: []
 
+  - name: Cli
+    url: https://github.com/leanprover/cli
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
   - name: ProofWidgets4
     url: https://github.com/leanprover-community/ProofWidgets4
     toolchain-tag: false

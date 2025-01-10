@@ -41,16 +41,6 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).isEmpty = false :=
   Raw₀.isEmpty_insert _ m.2
 
-@[simp]
-theorem isEmpty_modify [LawfulBEq α] {k : α} {f : β k → β k} :
-    (m.modify k f).isEmpty ↔ m.isEmpty :=
-  Raw₀.isEmpty_modify _ m.2
-
-@[simp]
-theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (m.get? k) = none :=
-  Raw₀.isEmpty_alter _ m.2
-
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
 
@@ -107,10 +97,6 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
   Raw₀.contains_insert ⟨m.1, _⟩ m.2
-
--- @[simp]
--- theorem contains_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
---     (m.alter k f)
 
 @[simp]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
@@ -977,5 +963,65 @@ theorem mem_keys [LawfulBEq α] {k : α} :
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
+
+@[simp]
+theorem alter_of_none [LawfulBEq α] {k : α} {f g : Option (β k) → Option (β k)}
+    (h : f (m.get? k) = none) : m.alter k f = m.erase k :=
+  sorry
+
+@[simp]
+theorem alter_of_some [LawfulBEq α] {k : α} {f g : Option (β k) → Option (β k)} {v : β k}
+    (h : f (m.get? k) = some v) : m.alter k f = m.insert k v :=
+  sorry
+
+@[simp]
+theorem alter_comp [LawfulBEq α] {k : α} {f g : Option (β k) → Option (β k)} :
+    m.alter k (g ∘ f) = (m.alter k f).alter k g :=
+  sorry
+
+@[simp]
+theorem alter_empty_of_none [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : f none = none) : empty.alter k f = empty :=
+  sorry -- will follow straightforwardly from alter_of_none, get?_empty and erase_empty
+
+@[simp]
+theorem alter_empty_of_some [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} {v : β k}
+    (h : f none = some v) : empty.alter k f = empty.insert k v :=
+  sorry
+
+@[simp]
+theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (m.get? k) = none :=
+  Raw₀.isEmpty_alter _ m.2
+
+@[simp]
+theorem modify_comp [LawfulBEq α] {k : α} {f g : β k → β k} :
+    m.modify k (g ∘ f) = (m.modify k f).modify k f :=
+  sorry
+
+@[simp]
+theorem modify_empty [LawfulBEq α] {k : α} {f : β k → β k} : empty.modify k f = empty :=
+  sorry
+
+@[simp]
+theorem isEmpty_modify [LawfulBEq α] {k : α} {f : β k → β k} :
+    (m.modify k f).isEmpty ↔ m.isEmpty :=
+  Raw₀.isEmpty_modify _ m.2
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+@[simp]
+theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (Const.get? m k) = none :=
+  Raw₀.Const.isEmpty_alter _ m.2
+
+@[simp]
+theorem isEmpty_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :
+    (Const.modify m k f).isEmpty ↔ m.isEmpty :=
+  Raw₀.Const.isEmpty_modify _ m.2
+
+end Const
 
 end Std.DHashMap

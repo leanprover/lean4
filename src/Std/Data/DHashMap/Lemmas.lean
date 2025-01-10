@@ -41,6 +41,16 @@ theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} :
     (m.insert k v).isEmpty = false :=
   Raw₀.isEmpty_insert _ m.2
 
+@[simp]
+theorem isEmpty_modify [LawfulBEq α] {k : α} {f : β k → β k} :
+    (m.modify k f).isEmpty ↔ m.isEmpty :=
+  Raw₀.isEmpty_modify _ m.2
+
+@[simp]
+theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (m.get? k) = none :=
+  Raw₀.isEmpty_alter _ m.2
+
 theorem mem_iff_contains {a : α} : a ∈ m ↔ m.contains a :=
   Iff.rfl
 
@@ -97,6 +107,10 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
   Raw₀.contains_insert ⟨m.1, _⟩ m.2
+
+-- @[simp]
+-- theorem contains_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+--     (m.alter k f)
 
 @[simp]
 theorem mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β k} :

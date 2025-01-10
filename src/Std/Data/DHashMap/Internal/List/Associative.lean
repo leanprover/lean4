@@ -1882,6 +1882,18 @@ theorem alterKey_cons_perm [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) �
     · rfl
     · simp [insertEntry_cons_of_false hk']
 
+theorem isEmpty_alterKey [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    {l : List ((a : α) × β a)} :
+    (alterKey k f l).isEmpty ↔ (eraseKey k l).isEmpty ∧ f (getValueCast? k l) = none := by
+  simp only [alterKey, List.isEmpty_eq_true]
+  split
+  · next heq =>
+    simp only [iff_self_and, heq];
+    intros; trivial
+  · next heq =>
+    rw [heq, ← List.isEmpty_iff, isEmpty_insertEntry]
+    simp
+
 theorem alterKey_of_perm [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l l' : List ((a : α) × β a)} (hl : DistinctKeys l) (hp : Perm l l') :
     Perm (alterKey a f l) (alterKey a f l') := by
@@ -1937,6 +1949,14 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   rw [modifyKey, alterKey, Option.map.eq_def]
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
+
+theorem isEmpty_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
+  match l with
+  | [] => simp [modifyKey]
+  | a :: as =>
+    simp only [modifyKey, replaceEntry, cond_eq_if]
+    repeat' split <;> simp
 
 theorem mem_replaceEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
     {l : List ((a : α) × β a)} (p : (a : α) × β a) (hne : p.1 ≠ a) :

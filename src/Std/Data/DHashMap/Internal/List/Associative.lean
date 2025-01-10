@@ -1861,6 +1861,18 @@ theorem length_alterKey [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) → 
   cases h : getValueCast? k l <;> split <;> simp_all [length_eraseKey, length_insertEntry,
     containsKey_eq_isSome_getValueCast?, ← getValueCast?_eq_some_getValueCast]
 
+theorem isEmpty_alterKey [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    {l : List ((a : α) × β a)} :
+    (alterKey k f l).isEmpty ↔ (eraseKey k l).isEmpty ∧ f (getValueCast? k l) = none := by
+  simp only [alterKey, List.isEmpty_eq_true]
+  split
+  · next heq =>
+    simp only [iff_self_and, heq];
+    intros; trivial
+  · next heq =>
+    rw [heq, ← List.isEmpty_iff, isEmpty_insertEntry]
+    simp
+
 theorem alterKey_of_perm [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l l' : List ((a : α) × β a)} (hl : DistinctKeys l) (hp : Perm l l') :
     Perm (alterKey a f l) (alterKey a f l') := by
@@ -1917,6 +1929,14 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
+theorem isEmpty_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
+  match l with
+  | [] => simp [modifyKey]
+  | a :: as =>
+    simp only [modifyKey, replaceEntry, cond_eq_if]
+    repeat' split <;> simp
+
 theorem mem_replaceEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
     {l : List ((a : α) × β a)} (p : (a : α) × β a) (hne : p.1 ≠ a) :
     p ∈ replaceEntry a b l ↔ p ∈ l := by
@@ -1961,6 +1981,23 @@ theorem mem_alterKey_of_key_ne [BEq α] [LawfulBEq α] {a : α} {f : Option (β 
     p ∈ alterKey a f l ↔ p ∈ l := by
   rw [alterKey]
   split <;> simp only [mem_eraseKey_of_key_ne p hne, mem_insertEntry_of_key_ne p hne]
+
+theorem length_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : (modifyKey k f l).length = l.length := by
+  induction l
+  · rfl
+  · next ih =>
+    simp only [modifyKey]
+    split <;> next h => simp only [length_replaceEntry, List.length_cons]
+
+theorem containsKey_modifyKey_iff [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : containsKey k (modifyKey k f l) ↔ containsKey k l := by
+  induction l
+  · simp only [modifyKey, getValueCast?_nil, eraseKey_nil, containsKey_nil, Bool.false_eq_true]
+  · simp only [modifyKey, Bool.coe_iff_coe]
+    split
+    · rfl
+    · rw [containsKey_replaceEntry]
 
 namespace Const
 
@@ -2019,15 +2056,8 @@ theorem containsKey_alterKey_iff [BEq α] [EquivBEq α] {a : α} {f : Option (β
     · next heq =>
       simp only [containsKey_insertEntry, BEq.refl, Bool.true_or, heq, Option.isSome_some]
 
-theorem DistinctKeys.alterKey [BEq α] [EquivBEq α] {a : α} {f : Option (β) → Option (β)}
-    {l : List ((_ : α) × β)} (hl : DistinctKeys l) : DistinctKeys (alterKey a f l) := by
-  dsimp only [List.Const.alterKey]
-  split
-  · exact DistinctKeys.eraseKey hl
-  · exact DistinctKeys.insertEntry hl
-
 theorem mem_replaceEntry_of_key_not_beq [BEq α] [EquivBEq α] {a : α} {b : β}
-    {l : List ((a : α) × β)} (p : (a : α) × β) (hne : ¬(p.1 == a)) :
+    {l : List ((_ : α) × β)} (p : (_ : α) × β) (hne : ¬(p.1 == a)) :
     p ∈ replaceEntry a b l ↔ p ∈ l := by
   induction l
   · simp only [replaceEntry_nil]
@@ -2038,24 +2068,20 @@ theorem mem_replaceEntry_of_key_not_beq [BEq α] [EquivBEq α] {a : α} {b : β}
       simp only [List.mem_cons, Sigma.ext_iff]
       apply Iff.intro <;> exact fun
       | Or.inr y => Or.inr y
-      | Or.inl y => by
-        -- hne (beq_of_eq y.1) |> False.elim
-        have blob := beq_of_eq y.1
-        exact hne blob |> False.elim
-        done
+      | Or.inl y => by simp_all only [BEq.refl, not_true_eq_false]
     · simp only [List.mem_cons, ih]
 
 theorem mem_insertEntry_of_key_ne [BEq α] [EquivBEq α] {a : α} {b : β}
-    {l : List ((a : α) × β)} (p : (a : α) × β)
+    {l : List ((_ : α) × β)} (p : (_ : α) × β)
     (hne : ¬(p.1 == a)) : p ∈ insertEntry a b l ↔ p ∈ l := by
   simp only [insertEntry, cond_eq_if]
   split
-  · exact mem_replaceEntry_of_key_ne p hne
+  · exact mem_replaceEntry_of_key_not_beq p hne
   · simp only [List.mem_cons, or_iff_right_iff_imp, Sigma.ext_iff]
-    exact fun x => hne x.1 |> False.elim
+    exact fun x => hne (beq_of_eq x.1) |> False.elim
 
 theorem mem_eraseKey_of_key_ne [BEq α] [EquivBEq α] {a : α}
-    {l : List ((a : α) × β)} (p : (a : α) × β) (hne : ¬(p.1 == a)) : p ∈ eraseKey a l ↔ p ∈ l := by
+    {l : List ((_ : α) × β)} (p : (_ : α) × β) (hne : ¬(p.1 == a)) : p ∈ eraseKey a l ↔ p ∈ l := by
   induction l
   · simp only [eraseKey_nil]
   · next ih =>
@@ -2064,15 +2090,11 @@ theorem mem_eraseKey_of_key_ne [BEq α] [EquivBEq α] {a : α}
     split
     · next h =>
       rw [iff_or_self, Sigma.ext_iff]
-      exact fun x => (beq_iff_eq.mp h ▸ hne) x.1 |> False.elim
+      intro ⟨h₁, h₂⟩
+      rw [h₁, h] at hne
+      contradiction
     · next h =>
       simp only [List.mem_cons, ih]
-
-theorem mem_alterKey_of_key_ne [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
-    {l : List ((a : α) × β)} (p : (a : α) × β) (hne : ¬(p.1 == a)) :
-    p ∈ alterKey a f l ↔ p ∈ l := by
-  rw [alterKey]
-  split <;> simp only [mem_eraseKey_of_key_ne p hne, mem_insertEntry_of_key_ne p hne]
 
 theorem mem_alterKey_of_key_not_beq {β : Type v} [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} (p : (_ : α) × β) (hne : ¬(p.1 == a)) :
@@ -2080,23 +2102,43 @@ theorem mem_alterKey_of_key_not_beq {β : Type v} [BEq α] [EquivBEq α] {a : α
   rw [alterKey]
   split <;> simp only [mem_eraseKey_of_key_ne p hne, mem_insertEntry_of_key_ne p hne]
 
-end Const
+/-- Internal implementation detail of the hash map -/
+def modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
+    (l : List ((_ : α) × β)) : List ((_ : α) × β) :=
+  match getValue? k l with
+  | none => l
+  | some v => replaceEntry k (f v) l
 
-theorem length_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
-    (l : List ((a : α) × β a)) : (modifyKey k f l).length = l.length := by
+theorem modifyKey_eq_alterKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
+    (l : List ((_ : α) × β)) : modifyKey k f l = alterKey k (·.map f) l := by
+  rw [modifyKey, alterKey, Option.map.eq_def]
+  split <;> next h =>
+    simp [h, insertEntry, containsKey_eq_isSome_getValue?, eraseKey_of_containsKey_eq_false]
+
+theorem length_modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
+    (l : List ((_ : α) × β)) : (modifyKey k f l).length = l.length := by
   induction l
   · rfl
   · next ih =>
     simp only [modifyKey]
     split <;> next h => simp only [length_replaceEntry, List.length_cons]
 
-theorem containsKey_modifyKey_iff [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
-    (l : List ((a : α) × β a)) : containsKey k (modifyKey k f l) ↔ containsKey k l := by
+theorem containsKey_modifyKey_iff [BEq α] [EquivBEq α] (k : α) (f : β → β)
+    (l : List ((_ : α) × β)) : containsKey k (modifyKey k f l) ↔ containsKey k l := by
   induction l
-  · simp only [modifyKey, getValueCast?_nil, eraseKey_nil, containsKey_nil, Bool.false_eq_true]
+  · simp only [modifyKey, getValue?_nil, eraseKey_nil, containsKey_nil, Bool.false_eq_true]
   · simp only [modifyKey, Bool.coe_iff_coe]
     split
     · rfl
     · rw [containsKey_replaceEntry]
+
+end Const
+
+theorem DistinctKeys.constAlterKey {β : Type v} [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
+    {l : List ((_ : α) × β)} (hl : DistinctKeys l) : DistinctKeys (List.Const.alterKey a f l) := by
+  dsimp only [List.Const.alterKey]
+  split
+  · exact DistinctKeys.eraseKey hl
+  · exact DistinctKeys.insertEntry hl
 
 end List

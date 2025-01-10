@@ -341,6 +341,30 @@ def alterₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
 def modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α) (f : β a → β a) : Raw₀ α β :=
   m.alterₘ a (fun option => option.map f)
 
+namespace Const
+
+variable {β : Type v}
+
+/-- Internal implementation detail of the hash map -/
+def alterₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : Option β → Option β) : Raw₀ α (fun _ => β) :=
+  if h : m.containsₘ a then
+    let buckets' := updateBucket m.1.buckets m.2 a (fun l => AssocList.Const.alter a f l)
+    let size' :=
+      if Raw₀.containsₘ ⟨withComputedSize buckets', by simpa [buckets'] using m.2⟩ a
+      then m.1.size else m.1.size - 1
+    ⟨⟨size', buckets'⟩, by simpa [buckets'] using m.2⟩
+  else
+    match f none with
+    | none => m
+    | some b => Raw₀.expandIfNecessary (m.consₘ a b)
+
+/-- Internal implementation detail of the hash map -/
+def modifyₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (f : β → β) : Raw₀ α (fun _ => β) :=
+  alterₘ m a (fun option => option.map f)
+
+end Const
+
 /-- Internal implementation detail of the hash map -/
 def filterMapₘ (m : Raw₀ α β) (f : (a : α) → β a → Option (δ a)) : Raw₀ α δ :=
   ⟨withComputedSize (updateAllBuckets m.1.buckets fun l => l.filterMap f), by simpa using m.2⟩
@@ -447,6 +471,38 @@ theorem modify_eq_alter [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β)
 theorem modify_eq_modifyₘ [BEq α] [Hashable α] [LawfulBEq α] (m : Raw₀ α β) (a : α)
     (f : β a → β a) : m.modify a f = m.modifyₘ a f := by
   rw [modify_eq_alter, alter_eq_alterₘ, modifyₘ]
+
+namespace Const
+
+variable {β : Type v}
+
+theorem alter_eq_alterₘ [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : Option β → Option β) : Const.alter m a f = Const.alterₘ m a f := by
+    dsimp only [alter, alterₘ, containsₘ, ← bucket_eq]
+    split
+    · congr 2
+      · simp only [withComputedSize, bucket_updateBucket]
+      · simp only [Array.uset, bucket, Array.ugetElem_eq_getElem, Array.set_set, updateBucket]
+    · congr
+
+theorem modify_eq_alter [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : β → β) : Const.modify m a f = Const.alter m a (·.map f) := by
+  rw [modify, alter]
+  split
+  · dsimp
+    split
+    · next h =>
+      simp only [AssocList.contains_eq] at h
+      simp only [AssocList.Const.modify_eq_alter, Array.set_set, AssocList.contains_eq,
+        containsKey_of_perm AssocList.Const.toList_alter, ← Const.modifyKey_eq_alterKey,
+        Const.containsKey_modifyKey_iff, h, ↓reduceIte]
+    · rfl
+
+theorem modify_eq_modifyₘ [BEq α] [Hashable α] [EquivBEq α] (m : Raw₀ α (fun _ => β)) (a : α)
+    (f : β → β) : Const.modify m a f = Const.modifyₘ m a f := by
+  rw [modify_eq_alter, alter_eq_alterₘ, modifyₘ]
+
+end Const
 
 theorem containsThenInsert_eq_insertₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) (b : β a) :
     (m.containsThenInsert a b).2 = m.insertₘ a b := by

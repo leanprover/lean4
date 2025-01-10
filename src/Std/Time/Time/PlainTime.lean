@@ -38,11 +38,6 @@ structure PlainTime where
   nanosecond : Nanosecond.Ordinal
   deriving Repr
 
-/--
-Defines `LeapTime` as a shorthand for a `PlainTime` that can contain leap seconds.
--/
-abbrev LeapTime := PlainTime
-
 instance : Inhabited PlainTime where
   default := ⟨0, 0, 0, 0, by decide⟩
 

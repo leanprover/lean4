@@ -45,9 +45,8 @@ namespace PlainTime
 Get the current time.
 -/
 @[inline]
-def now : IO PlainTime := do
-  let res ← PlainDateTime.time <$> PlainDateTime.now
-  return res
+def now : IO PlainTime :=
+  PlainDateTime.time <$> PlainDateTime.now
 
 end PlainTime
 

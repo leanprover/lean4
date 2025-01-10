@@ -30,13 +30,7 @@ structure PlainDateTime where
   -/
   time : PlainTime
 
-  deriving Repr
-
-instance : Inhabited PlainDateTime where
-  default := {
-    date := Inhabited.default,
-    time := Inhabited.default
-  }
+  deriving Repr, Inhabited
 
 namespace PlainDateTime
 
@@ -535,7 +529,7 @@ Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.
 -/
 @[inline]
 def atDate (time: PlainTime) (date: PlainDate) : PlainDateTime :=
-  PlainDateTime.mk date (time)
+  PlainDateTime.mk date time
 
 instance : HAdd PlainDateTime Day.Offset PlainDateTime where
   hAdd := addDays

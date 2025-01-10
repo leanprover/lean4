@@ -1944,12 +1944,6 @@ def modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
   | none => l
   | some v => replaceEntry k (f v) l
 
-theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
-    (l : List ((a : α) × β a)) : modifyKey k f l = alterKey k (·.map f) l := by
-  rw [modifyKey, alterKey, Option.map.eq_def]
-  split <;> next h =>
-    simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
-
 theorem isEmpty_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
     (l : List ((a : α) × β a)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
   match l with
@@ -1957,6 +1951,12 @@ theorem isEmpty_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
   | a :: as =>
     simp only [modifyKey, replaceEntry, cond_eq_if]
     repeat' split <;> simp
+
+theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : modifyKey k f l = alterKey k (·.map f) l := by
+  rw [modifyKey, alterKey, Option.map.eq_def]
+  split <;> next h =>
+    simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
 theorem mem_replaceEntry_of_key_ne [BEq α] [LawfulBEq α] {a : α} {b : β a}
     {l : List ((a : α) × β a)} (p : (a : α) × β a) (hne : p.1 ≠ a) :
@@ -2061,6 +2061,18 @@ theorem alterKey_cons_perm [BEq α] [EquivBEq α] {k : α} {f : Option β → Op
     · rfl
     · simp [insertEntry_cons_of_false hk']
 
+theorem isEmpty_alterKey [BEq α] [EquivBEq α] {k : α} {f : Option β → Option β}
+    {l : List ((_ : α) × β)} :
+    (alterKey k f l).isEmpty ↔ (eraseKey k l).isEmpty ∧ f (getValue? k l) = none := by
+  simp only [alterKey, List.isEmpty_eq_true]
+  split
+  · next heq =>
+    simp only [iff_self_and, heq];
+    intros; trivial
+  · next heq =>
+    rw [heq, ← List.isEmpty_iff, isEmpty_insertEntry]
+    simp
+
 theorem alterKey_of_perm [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hp : Perm l l') :
     Perm (alterKey a f l) (alterKey a f l') := by
@@ -2151,6 +2163,14 @@ def modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
   match getValue? k l with
   | none => l
   | some v => replaceEntry k (f v) l
+
+theorem isEmpty_modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
+    (l : List ((_ : α) × β)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
+  match l with
+  | [] => simp [modifyKey]
+  | a :: as =>
+    simp only [modifyKey, replaceEntry, cond_eq_if]
+    repeat' split <;> simp
 
 theorem modifyKey_eq_alterKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
     (l : List ((_ : α) × β)) : modifyKey k f l = alterKey k (·.map f) l := by

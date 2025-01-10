@@ -72,6 +72,7 @@ scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_erase
     | apply Raw₀.wfImp_alter | apply Raw₀.wfImp_modify
+    | apply Raw₀.Const.wfImp_alter | apply Raw₀.Const.wfImp_modify
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
@@ -92,7 +93,7 @@ private def queryNames : Array Name :=
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew, ``toListModel_alter,
-    ``toListModel_modify]
+    ``toListModel_modify, ``Const.toListModel_alter, ``Const.toListModel_modify]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -125,15 +126,6 @@ theorem isEmpty_empty {c} : (empty c : Raw₀ α β).1.isEmpty := by
 theorem isEmpty_insert [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} {v : β k} :
     (m.insert k v).1.isEmpty = false := by
   simp_to_model using List.isEmpty_insertEntry
-
-@[simp]
-theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} :
-    (m.modify k f).1.isEmpty ↔ m.1.isEmpty := by
-  simp_to_model using List.isEmpty_modifyKey
-
-theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).1.isEmpty ↔ (m.erase k).1.isEmpty ∧ f (m.get? k) = none := by
-  simp_to_model using List.isEmpty_alterKey
 
 theorem contains_congr [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a b : α} (hab : a == b) :
     m.contains a = m.contains b := by
@@ -849,6 +841,32 @@ theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
+
+@[simp]
+theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} :
+    (m.modify k f).1.isEmpty ↔ m.1.isEmpty := by
+  simp_to_model using List.isEmpty_modifyKey
+
+@[simp]
+theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).1.isEmpty ↔ (m.erase k).1.isEmpty ∧ f (m.get? k) = none := by
+  simp_to_model using List.isEmpty_alterKey
+
+namespace Const
+
+variable {β : Type v} [EquivBEq α] [LawfulHashable α]
+
+@[simp]
+theorem isEmpty_modify (m : Raw₀ α (fun _ => β)) (h : m.1.WF) {k : α} {f : β → β} :
+    (Const.modify m k f).1.isEmpty ↔ m.1.isEmpty := by
+  simp_to_model using List.Const.isEmpty_modifyKey
+
+@[simp]
+theorem isEmpty_alter (m : Raw₀ α (fun _ => β)) (h : m.1.WF)  {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.isEmpty ↔ (m.erase k).1.isEmpty ∧ f (Const.get? m k) = none := by
+  simp_to_model using List.Const.isEmpty_alterKey
+
+end Const
 
 end Raw₀
 

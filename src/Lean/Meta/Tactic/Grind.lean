@@ -24,6 +24,7 @@ import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.CasesMatch
+import Lean.Meta.Tactic.Grind.Arith
 
 namespace Lean
 

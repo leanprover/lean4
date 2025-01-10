@@ -253,11 +253,11 @@ Modifies in place the value associated with a given key.
 This function ensures that the value is used linearly.
 -/
 @[inline] def modify [LawfulBEq α] (m : DHashMap α β) (a : α) (f : β a → β a) : DHashMap α β :=
-  ⟨Raw₀.modify (α := α) ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.modify₀ m.2⟩
+  ⟨Raw₀.modify ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.modify₀ m.2⟩
 
 @[inline, inherit_doc DHashMap.modify] def Const.modify {β : Type v} (m : DHashMap α (fun _ => β))
     (a : α) (f : β → β) : DHashMap α (fun _ => β) :=
-  ⟨Raw₀.Const.modify (α := α) ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constModify₀ m.2⟩
+  ⟨Raw₀.Const.modify ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constModify₀ m.2⟩
 
 /--
 Modifies in place the value associated with a given key,

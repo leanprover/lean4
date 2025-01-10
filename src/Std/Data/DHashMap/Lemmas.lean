@@ -989,11 +989,11 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     k ∈ m.insertMany l ↔ k ∈ m ∨ (l.map Sigma.fst).contains k := by
   simp [mem_iff_contains]
 
-theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List ((a : α) × β a)} {k : α}  (contains : (m.insertMany l).contains k)
+theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List ((a : α) × β a)} {k : α}  (mem : k ∈ (m.insertMany l))
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
-    m.contains k :=
-  Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 contains contains_eq_false
+    k ∈ m :=
+  Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
 
 theorem get?_insertMany_list_of_contains_eq_false [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α}
@@ -1013,7 +1013,7 @@ theorem get_insertMany_list_of_contains_eq_false [LawfulBEq α]
     (contains_eq_false : (l.map Sigma.fst).contains k = false)
     {h} :
     (m.insertMany l).get k h =
-      m.get k (contains_of_contains_insertMany_list h contains_eq_false) :=
+      m.get k (mem_of_mem_insertMany_list h contains_eq_false) :=
   Raw₀.get_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem get_insertMany_list_of_mem [LawfulBEq α]
@@ -1069,7 +1069,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     (contains_eq_false : (l.map Sigma.fst).contains k = false)
     {h} :
     (m.insertMany l).getKey k h =
-      m.getKey k (contains_of_contains_insertMany_list h contains_eq_false) :=
+      m.getKey k (mem_of_mem_insertMany_list h contains_eq_false) :=
   Raw₀.getKey_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -1157,11 +1157,11 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     k ∈ insertMany m l ↔ k ∈ m ∨ (l.map Prod.fst).contains k := by
   simp [mem_iff_contains]
 
-theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List ( α × β )} {k : α} (contains : (insertMany m l).contains k)
+theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List ( α × β )} {k : α} (mem : k ∈ (insertMany m l))
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
-    m.contains k :=
-  Raw₀.Const.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 contains contains_eq_false
+    k ∈ m :=
+  Raw₀.Const.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
 
 theorem getKey?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
@@ -1182,7 +1182,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
     (insertMany m l).getKey k h =
-      m.getKey k (contains_of_contains_insertMany_list h contains_eq_false) :=
+      m.getKey k (mem_of_mem_insertMany_list h contains_eq_false) :=
   Raw₀.Const.getKey_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -1256,7 +1256,7 @@ theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable �
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
-    get (insertMany m l) k h = get m k (contains_of_contains_insertMany_list h contains_eq_false) :=
+    get (insertMany m l) k h = get m k (mem_of_mem_insertMany_list h contains_eq_false) :=
   Raw₀.Const.get_insertMany_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -1320,9 +1320,9 @@ theorem mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     k ∈ insertManyIfNewUnit m l ↔ k ∈ m ∨ l.contains k := by
   simp [mem_iff_contains]
 
-theorem contains_of_contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
+theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
-    (insertManyIfNewUnit m l).contains k → m.contains k :=
+    k ∈ (insertManyIfNewUnit m l) → k ∈ m :=
   Raw₀.Const.contains_of_contains_insertManyIfNewUnit_list ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
@@ -1349,7 +1349,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) {h} :
     getKey (insertManyIfNewUnit m l) k h =
-      getKey m k (contains_of_contains_insertManyIfNewUnit_list contains_eq_false h) :=
+      getKey m k (mem_of_mem_insertManyIfNewUnit_list contains_eq_false h) :=
   Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false ⟨m.1, _⟩ m.2 contains_eq_false
 
 theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]

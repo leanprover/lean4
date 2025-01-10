@@ -724,44 +724,44 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
     k ∈ insertMany m l ↔ k ∈ m ∨ (l.map Prod.fst).contains k :=
   DHashMap.Const.mem_insertMany_list
 
-theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List ( α × β )} {k : α} (contains : (insertMany m l).contains k)
+theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List (α × β)} {k : α} (mem : k ∈ (insertMany m l))
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
-    m.contains k :=
-  DHashMap.Const.contains_of_contains_insertMany_list contains contains_eq_false
+    k ∈ m :=
+  DHashMap.Const.mem_of_mem_insertMany_list mem contains_eq_false
 
-theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+theorem getElem?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (insertMany m l)[k]? = m[k]? :=
   DHashMap.Const.get?_insertMany_list_of_contains_eq_false contains_eq_false
 
-theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getElem?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
     (insertMany m l)[k']? = some v :=
   DHashMap.Const.get?_insertMany_list_of_mem k_beq distinct mem
 
-theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+theorem getElem_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
-    (insertMany m l)[k] = m[k]'(contains_of_contains_insertMany_list h contains_eq_false) :=
+    (insertMany m l)[k] = m[k]'(mem_of_mem_insertMany_list h contains_eq_false) :=
   DHashMap.Const.get_insertMany_list_of_contains_eq_false contains_eq_false
 
-theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getElem_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) {h} :
     (insertMany m l)[k'] = v :=
   DHashMap.Const.get_insertMany_list_of_mem k_beq distinct mem
 
-theorem get!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+theorem getElem!_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     [Inhabited β] {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (insertMany m l)[k]! = m[k]! :=
   DHashMap.Const.get!_insertMany_list_of_contains_eq_false contains_eq_false
 
-theorem get!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited β]
+theorem getElem!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] [Inhabited β]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) (mem : ⟨k, v⟩ ∈ l) :
     (insertMany m l)[k']! = v :=
@@ -798,7 +798,7 @@ theorem getKey_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashabl
     (contains_eq_false : (l.map Prod.fst).contains k = false)
     {h} :
     (insertMany m l).getKey k h =
-      m.getKey k (contains_of_contains_insertMany_list h contains_eq_false) :=
+      m.getKey k (mem_of_mem_insertMany_list h contains_eq_false) :=
   DHashMap.Const.getKey_insertMany_list_of_contains_eq_false contains_eq_false
 
 theorem getKey_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
@@ -884,23 +884,23 @@ theorem mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     k ∈ insertManyIfNewUnit m l ↔ k ∈ m ∨ l.contains k :=
   DHashMap.Const.mem_insertManyIfNewUnit_list
 
-theorem contains_of_contains_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
+theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
-    (insertManyIfNewUnit m l).contains k → m.contains k :=
-  DHashMap.Const.contains_of_contains_insertManyIfNewUnit_list contains_eq_false
+    k ∈ (insertManyIfNewUnit m l) → k ∈ m :=
+  DHashMap.Const.mem_of_mem_insertManyIfNewUnit_list contains_eq_false
 
-theorem get?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
+theorem getElem?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (insertManyIfNewUnit m l)[k]? =
       if m.contains k ∨ l.contains k then some () else none :=
   DHashMap.Const.get?_insertManyIfNewUnit_list
 
-theorem get_insertManyIfNewUnit_list
+theorem getElem_insertManyIfNewUnit_list
     {l : List α} {k : α} {h} :
     (insertManyIfNewUnit m l)[k] = () :=
   DHashMap.Const.get_insertManyIfNewUnit_list
 
-theorem get!_insertManyIfNewUnit_list
+theorem getElem!_insertManyIfNewUnit_list
     {l : List α} {k : α} :
     (insertManyIfNewUnit m l)[k]! = () :=
   DHashMap.Const.get!_insertManyIfNewUnit_list
@@ -933,7 +933,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains_of_contains [EquivBEq α] [
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) {h} :
     getKey (insertManyIfNewUnit m l) k h =
-      getKey m k (contains_of_contains_insertManyIfNewUnit_list contains_eq_false h) :=
+      getKey m k (mem_of_mem_insertManyIfNewUnit_list contains_eq_false h) :=
   DHashMap.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false contains_eq_false
 
 theorem getKey_insertManyIfNewUnit_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
@@ -1040,20 +1040,20 @@ theorem mem_ofList [EquivBEq α] [LawfulHashable α]
     k ∈ ofList l ↔ (l.map Prod.fst).contains k :=
   DHashMap.Const.mem_ofList
 
-theorem get?_ofList_of_contains_eq_false [LawfulBEq α]
+theorem getElem?_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α}
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (ofList l)[k]? = none :=
   DHashMap.Const.get?_ofList_of_contains_eq_false contains_eq_false
 
-theorem get?_ofList_of_mem [LawfulBEq α]
+theorem getElem?_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
     (ofList l)[k']? = some v :=
   DHashMap.Const.get?_ofList_of_mem k_beq distinct mem
 
-theorem get_ofList_of_mem [LawfulBEq α]
+theorem getElem_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l)
@@ -1061,13 +1061,13 @@ theorem get_ofList_of_mem [LawfulBEq α]
     (ofList l)[k'] = v :=
   DHashMap.Const.get_ofList_of_mem k_beq distinct mem
 
-theorem get!_ofList_of_contains_eq_false [LawfulBEq α]
+theorem getElem!_ofList_of_contains_eq_false [LawfulBEq α]
     {l : List (α × β)} {k : α} [Inhabited β]
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     (ofList l)[k]! = (default : β) :=
   DHashMap.Const.get!_ofList_of_contains_eq_false contains_eq_false
 
-theorem get!_ofList_of_mem [LawfulBEq α]
+theorem getElem!_ofList_of_mem [LawfulBEq α]
     {l : List (α × β)} {k k' : α} (k_beq : k == k') {v : β} [Inhabited β]
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false))
     (mem : ⟨k, v⟩ ∈ l) :
@@ -1182,20 +1182,20 @@ theorem mem_unitOfList [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.mem_unitOfList
 
 @[simp]
-theorem get?_unitOfList [EquivBEq α] [LawfulHashable α]
+theorem getElem?_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (unitOfList l)[k]? =
     if l.contains k then some () else none :=
   DHashMap.Const.get?_unitOfList
 
 @[simp]
-theorem get_unitOfList
+theorem getElem_unitOfList
     {l : List α} {k : α} {h} :
     (unitOfList l)[k] = () :=
   DHashMap.Const.get_unitOfList
 
 @[simp]
-theorem get!_unitOfList
+theorem getElem!_unitOfList
     {l : List α} {k : α} :
     (unitOfList l)[k]! = () :=
   DHashMap.Const.get!_unitOfList

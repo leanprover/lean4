@@ -416,10 +416,10 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     k ∈ insertMany m l ↔ k ∈ m ∨ l.contains k :=
   HashMap.Raw.mem_insertManyIfNewUnit_list h.1
 
-theorem contains_of_contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
-    (insertMany m l).contains k → m.contains k :=
-  HashMap.Raw.contains_of_contains_insertManyIfNewUnit_list h.1 contains_eq_false
+    k ∈ (insertMany m l) → k ∈ m :=
+  HashMap.Raw.mem_of_mem_insertManyIfNewUnit_list h.1 contains_eq_false
 
 theorem get?_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
@@ -442,7 +442,7 @@ theorem get?_insertMany_list_of_contains_of_contains [EquivBEq α] [LawfulHashab
 theorem get_insertMany_list_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α} (contains_eq_false : l.contains k = false) {h'} :
     get (insertMany m l) k h' =
-      get m k (contains_of_contains_insertMany_list h contains_eq_false h') :=
+      get m k (mem_of_mem_insertMany_list h contains_eq_false h') :=
   HashMap.Raw.getKey_insertManyIfNewUnit_list_of_contains_eq_false h.1 contains_eq_false
 
 theorem get_insertMany_list_of_mem_of_contains_eq_false [EquivBEq α] [LawfulHashable α]

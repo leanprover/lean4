@@ -100,7 +100,7 @@ theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 /-- Prove nonequality of bitvectors in terms of nat operations. -/
-theorem ne_iff_toNat_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
+theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
   constructor
   · rintro h rfl; apply h rfl
   · intro h h_eq; apply h <| eq_of_toNat_eq h_eq

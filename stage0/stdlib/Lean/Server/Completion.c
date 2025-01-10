@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Completion
-// Imports: Lean.Server.Completion.CompletionCollectors
+// Imports: Lean.Server.Completion.CompletionCollectors Std.Data.HashMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -42,7 +42,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Server_Co
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___lambda__1___boxed(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__20;
-uint64_t l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__2;
@@ -130,6 +129,7 @@ static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__16___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__17(size_t, size_t, lean_object*);
 static uint64_t l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__1;
+uint64_t l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(lean_object*);
 extern lean_object* l_Lean_Lsp_instHashableCompletionItemKind;
 static lean_object* l_Array_groupByKey___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__1___closed__27;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Server_Completion_find_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -843,7 +843,7 @@ x_40 = lean_ctor_get(x_34, 0);
 lean_inc(x_40);
 lean_dec(x_34);
 x_41 = 11;
-x_42 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_40);
+x_42 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_40);
 lean_dec(x_40);
 x_43 = 13;
 x_44 = lean_uint64_mix_hash(x_42, x_43);
@@ -888,7 +888,7 @@ lean_object* x_61; uint64_t x_62; uint64_t x_63; uint64_t x_64; uint64_t x_65; u
 x_61 = lean_ctor_get(x_34, 0);
 lean_inc(x_61);
 lean_dec(x_34);
-x_62 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_61);
+x_62 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_61);
 lean_dec(x_61);
 x_63 = lean_uint64_mix_hash(x_62, x_55);
 x_64 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__2;
@@ -926,7 +926,7 @@ lean_object* x_76; uint64_t x_77; uint64_t x_78; uint64_t x_79; uint64_t x_80; u
 x_76 = lean_ctor_get(x_34, 0);
 lean_inc(x_76);
 lean_dec(x_34);
-x_77 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_76);
+x_77 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_76);
 lean_dec(x_76);
 x_78 = lean_uint64_mix_hash(x_77, x_55);
 x_79 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__2;
@@ -966,7 +966,7 @@ lean_object* x_95; uint64_t x_96; uint64_t x_97; uint64_t x_98; uint64_t x_99; u
 x_95 = lean_ctor_get(x_34, 0);
 lean_inc(x_95);
 lean_dec(x_34);
-x_96 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_95);
+x_96 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_95);
 lean_dec(x_95);
 x_97 = lean_uint64_mix_hash(x_96, x_55);
 x_98 = lean_uint64_mix_hash(x_88, x_97);
@@ -2193,7 +2193,7 @@ x_146 = lean_ctor_get(x_140, 0);
 lean_inc(x_146);
 lean_dec(x_140);
 x_147 = 11;
-x_148 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_146);
+x_148 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_146);
 lean_dec(x_146);
 x_149 = 13;
 x_150 = lean_uint64_mix_hash(x_148, x_149);
@@ -2238,7 +2238,7 @@ lean_object* x_167; uint64_t x_168; uint64_t x_169; uint64_t x_170; uint64_t x_1
 x_167 = lean_ctor_get(x_140, 0);
 lean_inc(x_167);
 lean_dec(x_140);
-x_168 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_167);
+x_168 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_167);
 lean_dec(x_167);
 x_169 = lean_uint64_mix_hash(x_168, x_161);
 x_170 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__2;
@@ -2276,7 +2276,7 @@ lean_object* x_182; uint64_t x_183; uint64_t x_184; uint64_t x_185; uint64_t x_1
 x_182 = lean_ctor_get(x_140, 0);
 lean_inc(x_182);
 lean_dec(x_140);
-x_183 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_182);
+x_183 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_182);
 lean_dec(x_182);
 x_184 = lean_uint64_mix_hash(x_183, x_161);
 x_185 = l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__2;
@@ -2316,7 +2316,7 @@ lean_object* x_201; uint64_t x_202; uint64_t x_203; uint64_t x_204; uint64_t x_2
 x_201 = lean_ctor_get(x_140, 0);
 lean_inc(x_201);
 lean_dec(x_140);
-x_202 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6462_(x_201);
+x_202 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_hashMarkupContent____x40_Lean_Data_Lsp_Basic___hyg_6277_(x_201);
 lean_dec(x_201);
 x_203 = lean_uint64_mix_hash(x_202, x_161);
 x_204 = lean_uint64_mix_hash(x_194, x_203);
@@ -4566,12 +4566,16 @@ return x_13;
 }
 }
 lean_object* initialize_Lean_Server_Completion_CompletionCollectors(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Data_HashMap(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Completion(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Server_Completion_CompletionCollectors(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Data_HashMap(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__1 = _init_l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__7___at___private_Lean_Server_Completion_0__Lean_Server_Completion_filterDuplicateCompletionItems___spec__8___closed__1();

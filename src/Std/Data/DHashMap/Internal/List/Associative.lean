@@ -969,7 +969,8 @@ def insertEntry [BEq α]  (k : α) (v : β k) (l : List ((a : α) × β a)) : Li
 
 @[simp]
 theorem insertEntry_nil [BEq α] {k : α} {v : β k} :
-    insertEntry k v ([] : List ((a : α) × β a)) = [⟨k, v⟩] := by simp [insertEntry]
+    insertEntry k v ([] : List ((a : α) × β a)) = [⟨k, v⟩] :=
+  by simp [insertEntry]
 
 theorem insertEntry_cons_of_false [BEq α] {l : List ((a : α) × β a)} {k k' : α} {v : β k}
     {v' : β k'} (h : (k' == k) = false) :
@@ -1902,9 +1903,9 @@ theorem alterKey_nil [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Opt
     | none => []
     | some b => [⟨a, b⟩] := rfl
 
-theorem containsKey_alterKey_iff [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+theorem containsKey_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
-    containsKey a (alterKey a f l) ↔ (f (getValueCast? a l)).isSome := by
+    containsKey a (alterKey a f l) = (f (getValueCast? a l)).isSome := by
   match l with
   | [] =>
     simp only [getValueCast?_nil, Bool.coe_iff_coe, alterKey_nil]
@@ -2012,10 +2013,10 @@ def alterKey [BEq α] (k : α) (f : Option β → Option β)
 
 theorem length_alterKey [BEq α] [EquivBEq α] {k : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} : (alterKey k f l).length =
-    if h : containsKey k l then
-      if f (some (getValue k l h)) |>.isSome then l.length else l.length - 1
-    else
-      if f none |>.isSome then l.length + 1 else l.length := by
+      if h : containsKey k l then
+        if f (some (getValue k l h)) |>.isSome then l.length else l.length - 1
+      else
+        if f none |>.isSome then l.length + 1 else l.length := by
   rw [alterKey]
   cases h : getValue? k l <;> split <;> simp_all [length_eraseKey, length_insertEntry,
     containsKey_eq_isSome_getValue?, ← getValue?_eq_some_getValue, -getValue?_eq_none]
@@ -2082,8 +2083,8 @@ theorem mem_insertEntry_of_key_ne [BEq α] [EquivBEq α] {a : α} {b : β}
     exact fun x => hne (beq_of_eq x.1) |> False.elim
 
 theorem mem_eraseKey_of_key_ne [BEq α] [EquivBEq α] {a : α}
-    {l : List ((_ : α) × β)} (p : (_ : α) × β) (hne : (p.1 == a) = false)
-    : p ∈ eraseKey a l ↔ p ∈ l := by
+    {l : List ((_ : α) × β)} (p : (_ : α) × β) (hne : (p.1 == a) = false) :
+    p ∈ eraseKey a l ↔ p ∈ l := by
   induction l
   · simp only [eraseKey_nil]
   · next ih =>

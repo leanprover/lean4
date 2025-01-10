@@ -221,7 +221,7 @@ namespace Const
 variable {β : Type v}
 
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
-    {l : AssocList α (fun _ => β) } : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
+    {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
   rw [Const.alterKey]
   split
   · next heq =>
@@ -256,7 +256,7 @@ theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option �
         refine insertEntry_cons_of_false (Bool.not_eq_true _ ▸ heq₂) |>.symm |> Perm.trans ?_
         exact Perm.cons _ <| ih heq
 
-theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : AssocList α (fun _ => β) } :
+theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : AssocList α (fun _ => β)} :
     modify a f l = alter a (·.map f) l := by
   induction l
   · rfl

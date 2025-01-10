@@ -563,7 +563,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
       rw [← getValueCast?_eq_some_getValueCast h₁]
-      conv => lhs; congr; rw [containsKey_alterKey_iff (a := a) (f := f) h.distinct];
+      conv => lhs; congr; rw [containsKey_alterKey h.distinct];
     · next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
       rw [alterKey]
@@ -586,7 +586,7 @@ variable {β : Type v}
 theorem toListModel_updateBucket_alter [BEq α] [Hashable α] [EquivBEq α] [LawfulHashable α]
     {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
     Perm (toListModel (updateBucket m.1.buckets m.2 a (AssocList.Const.alter a f)))
-    (Const.alterKey a f (toListModel m.1.buckets)) := by
+      (Const.alterKey a f (toListModel m.1.buckets)) := by
   exact toListModel_updateBucket h AssocList.Const.toList_alter List.Const.alterKey_of_perm
     List.Const.alterKey_append_of_containsKey_right_eq_false
 

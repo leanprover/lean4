@@ -41,7 +41,7 @@ instance : ToString Timestamp where
   toString s := toString s.val.toSeconds
 
 instance : Repr Timestamp where
-  reprPrec s := reprPrec s.val.toSeconds
+  reprPrec s := Repr.addAppParen ("Timestamp.ofNanosecondsSinceUnixEpoch " ++ repr s.val.toNanoseconds)
 
 namespace Timestamp
 

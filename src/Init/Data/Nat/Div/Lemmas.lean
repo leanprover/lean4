@@ -49,6 +49,11 @@ theorem lt_div_mul_self (h : 0 < k) (w : k ≤ x) : x - k < x / k * k := by
   have : x % k < k := mod_lt x h
   omega
 
+theorem div_pos (hba : b ≤ a) (hb : 0 < b) : 0 < a / b := by
+  cases b
+  · contradiction
+  · simp [Nat.pos_iff_ne_zero, div_eq_zero_iff_lt, hba]
+
 theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
   (Nat.le_div_iff_mul_le hc).2 <|
     Nat.le_trans (Nat.mul_le_mul_left _ hcb) (Nat.div_mul_le_self a b)

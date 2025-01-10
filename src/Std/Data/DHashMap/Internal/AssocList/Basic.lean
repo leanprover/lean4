@@ -173,7 +173,8 @@ def erase [BEq α] (a : α) : AssocList α β → AssocList α β
 def modify [BEq α] [LawfulBEq α] (a : α) (f : β a → β a) :
     AssocList α β → AssocList α β
   | nil => nil
-  | cons k v l => if h : k == a then
+  | cons k v l =>
+    if h : k == a then
       have h' : k = a := eq_of_beq h
       let b := f (cast (congrArg β h') v)
       cons a b l
@@ -186,7 +187,8 @@ def alter [BEq α] [LawfulBEq α] (a : α) (f : Option (β a) → Option (β a))
   | nil => match f none with
     | none => nil
     | some b => cons a b nil
-  | cons k v l => if h : k == a then
+  | cons k v l =>
+    if h : k == a then
       have h' : k = a := eq_of_beq h
       match f (some (cast (congrArg β h') v)) with
       | none => l
@@ -201,7 +203,8 @@ namespace Const
 def modify [BEq α] {β : Type v} (a : α) (f : β → β) :
     AssocList α (fun _ => β) → AssocList α (fun _ => β)
   | nil => nil
-  | cons k v l => if k == a then
+  | cons k v l =>
+    if k == a then
       cons a (f v) l
     else
       cons k v (modify a f l)
@@ -212,7 +215,8 @@ def alter [BEq α] {β : Type v} (a : α) (f : Option β → Option β) :
   | nil => match f none with
     | none => nil
     | some b => AssocList.cons a b nil
-  | cons k v l => if k == a then
+  | cons k v l =>
+    if k == a then
       match f v with
       | none => l
       | some b => cons a b l

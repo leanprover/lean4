@@ -360,7 +360,8 @@ def alterₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α)
     | some b => Raw₀.expandIfNecessary (m.consₘ a b)
 
 /-- Internal implementation detail of the hash map -/
-def modifyₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (f : β → β) : Raw₀ α (fun _ => β) :=
+def modifyₘ [BEq α] [Hashable α] (m : Raw₀ α (fun _ => β)) (a : α) (f : β → β) :
+    Raw₀ α (fun _ => β) :=
   alterₘ m a (fun option => option.map f)
 
 end Const

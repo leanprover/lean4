@@ -3219,7 +3219,56 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
 
 theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
     (x₁ ++ x₂)++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
-  sorry
+  ext i
+  simp [BitVec.getLsbD_append]
+  by_cases hi₁ : i < w₁ <;> by_cases hi₂ : i < w₂ <;> by_cases hi₃ : i < w₃
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']
+    · omega
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']; intro; omega
+    · omega
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']
+    · omega
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']; intro; omega
+    · simp [hi']
+      by_cases hi'' : i - w₃ < w₂
+      · simp [hi'']; omega
+      · simp [hi'', Nat.sub_add_eq, show i - w₃ - w₂ = i - w₂ - w₃ by omega]
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']
+    · simp [hi']; omega
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']; intro; omega
+    · simp [hi']
+      by_cases hi'' : i - w₃ < w₂
+      · simp [hi'']; omega
+      · simp [hi'', Nat.sub_add_eq, show i - w₃ - w₂ = i - w₂ - w₃ by omega]
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']
+    · simp [hi']; omega
+  · simp [hi₁, hi₂, hi₃]
+    by_cases hi' : i < w₂ + w₃
+    · simp [hi']; intro; omega
+    · simp [hi']
+      by_cases hi'' : i - w₃ < w₂
+      · simp [hi'']; omega
+      · simp [hi'', Nat.sub_add_eq, show i - w₃ - w₂ = i - w₂ - w₃ by omega]
+  -- induction w₁
+  -- case zero => simp
+  -- case succ n ih =>
+  --   rw [← cons_msb_setWidth x₁]
+  --   rw [cons_]
+  --   sorry
 
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by

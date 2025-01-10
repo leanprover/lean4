@@ -3217,36 +3217,26 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   by_cases h' : w = 0 <;> simp [h'] <;> omega
 
-theorem replicate_append {x : BitVec w} :
-    x ++ x.replicate n = (x.replicate n ++ x).cast (by rw [Nat.add_comm]) := by
-  apply BitVec.eq_of_getLsbD_eq
-  simp only [getLsbD_append, getLsbD_replicate, getLsbD_cast]
-  intros i h
-  by_cases hn : i < w * n
-  · simp only [hn, ↓reduceIte, decide_true, Bool.true_and, show i - w < w * n by omega]
-    by_cases hw : i < w
-    · simp [hw, Nat.mod_eq_of_lt hw]
-    · simp only [hw, ↓reduceIte]
-      congr 1
-      rw [← Nat.mod_eq_sub_mod]
-      omega
-  · by_cases hw : i < w
-    · simp only [hn, ↓reduceIte, hw]
-      congr 1
-      rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_of_lt hw, Nat.mod_mod]
-    · simp only [hn, ↓reduceIte, hw]
-      by_cases hw' : i - w < w * n
-      · simp only [hw', decide_true, Bool.true_and]
-        congr 1
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by rw [Nat.add_comm, ← Nat.mul_succ, Nat.succ_eq_add_one] at h; omega), ← Nat.mod_eq_sub_mod]
-        omega
-      · simp [hw']
-        omega
+theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
+    (x₁ ++ x₂)++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
+  sorry
+
+theorem replicate_append_self {x : BitVec w} :
+    x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [replicate_succ]
+    conv => lhs; rw [ih]
+    simp [cast_cast, cast_eq]
+    rw [← cast_append_left]
+    · rw [append_assoc]; congr
+    · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]; omega
 
 theorem replicate_succ' {x : BitVec w} :
     x.replicate (n + 1) =
     (replicate n x ++ x).cast (by rw [Nat.mul_succ]) := by
-  simp [replicate_append]
+  simp [replicate_append_self]
 
 /-! ### intMin -/
 

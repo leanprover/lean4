@@ -5,15 +5,41 @@ Author: Sofia Rodrigues
 */
 #pragma once
 #include <lean/lean.h>
+#include "runtime/uv/event_loop.h"
 #include "runtime/object.h"
 
 namespace lean {
 
+static lean_external_class * g_uv_tcp_socket_external_class = NULL;
+void initialize_libuv_tcp_socket();
+
 #ifndef LEAN_EMSCRIPTEN
 #include <uv.h>
 
+enum uv_tcp_socket_state {
+    TCP_STATE_INITIAL,
+    TCP_STATE_CONNECTING,
+    TCP_STATE_CONNECTED,
+    TCP_STATE_CLOSING,
+    TCP_STATE_CLOSED
+} uv_tcp_state;
+
+// Structure for managing a single TCP socket object, including promise handling,
+// connection state, and read/write buffers.
+typedef struct {
+    uv_tcp_t *      m_uv_tcp;         // LibUV TCP handle.
+    lean_object *   m_promise_accept; // The associated promise for asynchronous results for accepting new sockets.
+    lean_object *   m_promise_read;   // The associated promise for asynchronous results for reading from the socket.
+} lean_uv_tcp_socket_object;
+
+// =======================================
+// Tcp socket object manipulation functions.
+static inline lean_object* lean_uv_tcp_socket_new(lean_uv_tcp_socket_object * s) { return lean_alloc_external(g_uv_tcp_socket_external_class, s); }
+static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object * o) { return (lean_uv_tcp_socket_object*)(lean_get_external_data(o)); }
+
 #endif
 
+// =======================================
 // TCP Socket Operations
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_arg addr);
@@ -23,6 +49,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t backlog);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket);
 
+// =======================================
 // TCP Socket Utility Functions
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket);

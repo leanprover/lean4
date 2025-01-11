@@ -28,7 +28,7 @@ repositories:
     dependencies: []
 
   - name: Cli
-    url: https://github.com/leanprover/cli
+    url: https://github.com/leanprover/lean4-cli
     toolchain-tag: true
     stable-branch: false
     branch: main

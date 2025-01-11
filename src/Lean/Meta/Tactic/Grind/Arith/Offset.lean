@@ -21,7 +21,7 @@ where `k` is a numeral.
 Each constraint is represented as an edge in a weighted graph.
 The constraint `x ≤ y + k` is represented as a negative edge.
 The shortest path between two nodes in the graph corresponds to an implied inequality.
-nWhen adding a new edge, the state is considered unsatisfiable if the new edge creates a negative cycle.
+When adding a new edge, the state is considered unsatisfiable if the new edge creates a negative cycle.
 An incremental Floyd-Warshall algorithm is used to find the shortest paths between all nodes.
 This module can also handle offset equalities of the form `x + k = y` by representing them with two edges:
 ```

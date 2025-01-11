@@ -160,3 +160,10 @@ example (a1 a2 a3 : Nat) :
         a1 ≤ a2 + 5 → a2 ≤ a3 + 2 → False := by
   fail_if_success grind
   sorry
+
+
+set_option trace.grind.debug.offset.proof true in
+example (a1 a2 a3 : Nat) :
+        a1 ≤ a2 + 5 → a2 ≤ a3 + 2 → False := by
+  fail_if_success grind
+  sorry

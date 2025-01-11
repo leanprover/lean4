@@ -19,7 +19,8 @@ def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := OffsetM.run do
     a := (← mkNode c.a)
     b := (← mkNode c.b)
   }
-  modify fun s => {
+  trace[grind.offset.internalize] "{e} ↦ {c}"
+  modify fun s => { s with
     cnstrs := s.cnstrs.insert { expr := e } c
   }
 

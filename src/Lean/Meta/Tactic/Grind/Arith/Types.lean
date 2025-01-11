@@ -14,6 +14,9 @@ namespace Offset
 
 abbrev NodeId := Nat
 
+instance : ToMessageData (Offset.Cnstr NodeId) where
+  toMessageData c := Offset.toMessageData (α := NodeId) (inst := { toMessageData n := m!"#{n}" }) c
+
 /-- Auxiliary structure used for proof extraction.  -/
 structure ProofInfo where
   w     : NodeId

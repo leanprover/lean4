@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Expr
+import Lean.Message
 
 namespace Lean.Meta.Grind.Arith
 
@@ -51,6 +52,18 @@ structure Offset.Cnstr (α : Type) where
   k  : Int := 0
   le : Bool := true
   deriving Inhabited
+
+def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
+  match c.k, c.le with
+  | .ofNat 0,   true  => m!"{c.a} ≤ {c.b}"
+  | .ofNat 0,   false => m!"{c.a} = {c.b}"
+  | .ofNat k,   true  => m!"{c.a} + {k} ≤ {c.b}"
+  | .ofNat k,   false => m!"{c.a} + {k} = {c.b}"
+  | .negSucc k, true  => m!"{c.a} ≤ {c.b} + {k + 1}"
+  | .negSucc k, false => m!"{c.a} = {c.b} + {k + 1}"
+
+instance : ToMessageData (Offset.Cnstr Expr) where
+  toMessageData c := Offset.toMessageData c
 
 /-- Returns `some cnstr` if `e` is offset constraint. -/
 def isNatOffsetCnstr? (e : Expr) : Option (Offset.Cnstr Expr) :=

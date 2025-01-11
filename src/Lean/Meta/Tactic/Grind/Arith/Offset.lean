@@ -90,12 +90,15 @@ abbrev OffsetM := StateRefT State GoalM
 
 def OffsetM.run (x : OffsetM α) : GoalM α := do
   let os ← modifyGet fun s => (s.arith.offset, { s with arith.offset := {} })
-  let (a, os) ← StateRefT'.run x os
-  modify fun s => { s with arith.offset := os }
+  let (a, os') ← StateRefT'.run x os
+  modify fun s => { s with arith.offset := os' }
   return a
 
 def mkNode (expr : Expr) : OffsetM NodeId := do
-  let nodeId := (← get).nodes.size
+  if let some nodeId := (← get).nodeMap.find? { expr } then
+    return nodeId
+  let nodeId : NodeId := (← get).nodes.size
+  trace[grind.offset.internalize] "{expr} ↦ #{nodeId}"
   modify fun s => { s with
     nodes   := s.nodes.push expr
     nodeMap := s.nodeMap.insert { expr } nodeId
@@ -124,8 +127,7 @@ where
       let p' := (← getProof? u p.w).get!
       go (mkTrans (← get).nodes p' p v)
 
-private def setUnsat (u v : NodeId) (k : Int) (p : Expr) : OffsetM Unit := do
-
+private def setUnsat (_u _v : NodeId) (_k : Int) (p : Expr) : OffsetM Unit := do
   modify fun s => { s with
     unsat := p -- TODO
   }

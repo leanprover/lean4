@@ -13,16 +13,12 @@ import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Grind
-
-@[inline] def isSameExpr (a b : Expr) : Bool :=
-  -- It is safe to use pointer equality because we hashcons all expressions
-  -- inserted into the E-graph
-  unsafe ptrEq a b
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
@@ -223,20 +219,6 @@ structure NewEq where
   rhs   : Expr
   proof : Expr
   isHEq : Bool
-
-/--
-Key for the `ENodeMap` and `ParentMap` map.
-We use pointer addresses and rely on the fact all internalized expressions
-have been hash-consed, i.e., we have applied `shareCommon`.
--/
-private structure ENodeKey where
-  expr : Expr
-
-instance : Hashable ENodeKey where
-  hash k := unsafe (ptrAddrUnsafe k.expr).toUInt64
-
-instance : BEq ENodeKey where
-  beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
 
 abbrev ENodeMap := PHashMap ENodeKey ENode
 

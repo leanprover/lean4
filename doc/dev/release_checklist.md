@@ -58,7 +58,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step
-    - [Cli](https://github.com/leanprover/cli)
+    - [Cli](https://github.com/leanprover/lean4-cli)
       - No dependencies
       - Toolchain bump PR
       - Create and push the tag

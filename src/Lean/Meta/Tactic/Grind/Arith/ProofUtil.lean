@@ -44,18 +44,15 @@ def mkTrans (nodes : PArray Expr) (pi₁ : ProofInfo) (pi₂ : ProofInfo) (v : N
     if k₂ == 0 then
       mkApp6 (mkConst ``Nat.lo_le) u w v (toExpr k₁.toNat) p₁ p₂
     else if k₂ > 0 then
-      if k₁ > k₂ then
-        mkApp7 (mkConst ``Nat.lo_lo_1) u w v (toExpr k₁.toNat) (toExpr k₂.toNat) p₁ p₂
-      else
-        mkApp7 (mkConst ``Nat.lo_lo_2) u w v (toExpr k₁.toNat) (toExpr k₂.toNat) p₁ p₂
+      mkApp7 (mkConst ``Nat.lo_lo) u w v (toExpr k₁.toNat) (toExpr k₂.toNat) p₁ p₂
     else
-     let k₂ := -k₂
-     let ke₁ := toExpr k₁.toNat
-     let ke₂ := toExpr k₂.toNat
-     if k₁ > k₂ then
-       mkApp8 (mkConst ``Nat.lo_ro_1) u w v ke₁ ke₂ rfl_true p₁ p₂
-     else
-       mkApp7 (mkConst ``Nat.lo_ro_2) u w v ke₁ ke₂ p₁ p₂
+      let k₂ := -k₂
+      let ke₁ := toExpr k₁.toNat
+      let ke₂ := toExpr k₂.toNat
+      if k₁ > k₂ then
+        mkApp8 (mkConst ``Nat.lo_ro_1) u w v ke₁ ke₂ rfl_true p₁ p₂
+      else
+        mkApp7 (mkConst ``Nat.lo_ro_2) u w v ke₁ ke₂ p₁ p₂
   else
     let k₁ := -k₁
     let ke₁ := toExpr k₁.toNat

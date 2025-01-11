@@ -16,9 +16,7 @@ theorem Nat.le_lo (u w v k : Nat) : u ≤ w → w + k ≤ v → u + k ≤ v := b
   omega
 theorem Nat.lo_le (u w v k : Nat) : u + k ≤ w → w ≤ v → u + k ≤ v := by
   omega
-theorem Nat.lo_lo_1 (u w v k₁ k₂ : Nat) : u + k₁ ≤ w → w + k₂ ≤ v → u + (k₁ - k₂) ≤ v := by
-  omega
-theorem Nat.lo_lo_2 (u w v k₁ k₂ : Nat) : u + k₁ ≤ w → w + k₂ ≤ v → u + (k₂ - k₁) ≤ v := by
+theorem Nat.lo_lo (u w v k₁ k₂ : Nat) : u + k₁ ≤ w → w + k₂ ≤ v → u + (k₁ + k₂) ≤ v := by
   omega
 theorem Nat.lo_ro_1 (u w v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k₁ ≤ w → w ≤ v + k₂ → u + (k₁ - k₂) ≤ v := by
   simp [isLt]

@@ -132,7 +132,31 @@ where
 def traceDists : OffsetM Unit := do
   let s ← get
   for u in [:s.targets.size], es in s.targets.toArray do
-    for (v, d) in es do
-      trace[grind.offset.dist] "#{u} -({d})-> #{v}"
+    for (v, k) in es do
+      trace[grind.offset.dist] "#{u} -({k})-> #{v}"
+
+def Cnstr.toExpr (c : Cnstr NodeId) : OffsetM Expr := do
+  let a := (← get).nodes[c.a]!
+  let b := (← get).nodes[c.b]!
+  let mk := if c.le then mkNatLE else mkNatEq
+  if c.k == 0 then
+    return mk a b
+  else if c.k > 0 then
+    return mk (mkNatAdd a (Lean.toExpr (c.k.toNat))) b
+  else
+    return mk a (mkNatAdd b (Lean.toExpr (- c.k).toNat))
+
+def checkInvariants : GoalM Unit := OffsetM.run do
+  let s ← get
+  for u in [:s.targets.size], es in s.targets.toArray do
+    for (v, k) in es do
+      let c : Cnstr NodeId := { a := u, b := v, k }
+      trace[grind.debug.offset] "{c}"
+      let p ← extractProof u v
+      trace[grind.debug.offset.proof] "{p} : {← inferType p}"
+      check p
+      unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
+        trace[grind.debug.offset.proof] "failed: {← inferType p} =?= {← Cnstr.toExpr c}"
+        unreachable!
 
 end Lean.Meta.Grind.Arith.Offset

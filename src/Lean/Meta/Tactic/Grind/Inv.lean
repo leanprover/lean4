@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Arith.Inv
 
 namespace Lean.Meta.Grind
 
@@ -103,6 +104,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
+    Arith.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 

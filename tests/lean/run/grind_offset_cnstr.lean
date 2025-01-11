@@ -1,3 +1,5 @@
+set_option grind.debug true
+
 /--
 info: [grind.offset.internalize.term] a1 ↦ #0
 [grind.offset.internalize.term] a2 ↦ #1
@@ -29,6 +31,7 @@ example (a1 a2 a3 : Nat) :
         a1 + 1 ≤ a2 → a2 ≤ a3 → False := by
   fail_if_success grind
   sorry
+
 
 /--
 info: [grind.offset.internalize.term] a1 ↦ #0

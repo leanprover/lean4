@@ -1,0 +1,56 @@
+/-
+Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Leonardo de Moura
+-/
+prelude
+import Lean.Data.PersistentArray
+import Lean.Meta.Tactic.Grind.ENodeKey
+import Lean.Meta.Tactic.Grind.Arith.Util
+
+namespace Lean.Meta.Grind.Arith
+
+namespace Offset
+
+abbrev NodeId := Nat
+
+/-- Auxiliary structure used for proof extraction.  -/
+structure ProofInfo where
+  w     : NodeId
+  k     : Int
+  proof : Expr
+  deriving Inhabited
+
+/-- State of the constraint offset procedure. -/
+structure State where
+  nodes   : PArray Expr := {}
+  nodeMap : PHashMap ENodeKey NodeId := {}
+  cnstrs  : PHashMap ENodeKey (Cnstr NodeId) := {}
+  /--
+  For each node with id `u`, `sources[u]` contains
+  pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
+  -/
+  sources : PArray (AssocList NodeId Int) := {}
+  /--
+  For each node with id `u`, `targets[u]` contains
+  pairs `(v, k)` s.t. there is a path from `u` to `v` with weight `k`.
+  -/
+  targets : PArray (AssocList NodeId Int) := {}
+  /--
+  Proof reconstruction information. For each node with id `u`, `proofs[u]` contains
+  pairs `(v, { w, proof })` s.t. there is a path from `u` to `v`, and
+  `w` is the penultimate node in the path, and `proof` is the justification for
+  the last edge.
+  -/
+  proofs  : PArray (AssocList NodeId ProofInfo) := {}
+  unsat   : Option Expr := none
+  deriving Inhabited
+
+end Offset
+
+/-- State for the arithmetic procedures. -/
+structure State where
+  offset : Offset.State := {}
+  deriving Inhabited
+
+end Lean.Meta.Grind.Arith

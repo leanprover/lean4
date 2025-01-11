@@ -16,6 +16,7 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
+import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Grind
@@ -350,6 +351,8 @@ structure Goal where
   gmt          : Nat := 0
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
+  /-- State of arithmetic procedures -/
+  arith        : Arith.State := {}
   /-- Active theorems that we have performed ematching at least once. -/
   thms         : PArray EMatchTheorem := {}
   /-- Active theorems that we have not performed any round of ematching yet. -/

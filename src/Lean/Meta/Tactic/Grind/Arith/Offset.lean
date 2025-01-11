@@ -5,12 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Offset
-import Lean.Data.PersistentArray
-import Lean.CoreM
-import Lean.Expr
-import Lean.Data.RArray
+import Lean.Meta.Tactic.Grind.Types
 
-namespace Lean.Meta.Grind.Offset
+namespace Lean.Meta.Grind.Arith.Offset
 /-!
 This module implements a decision procedure for offset constraints of the form:
 ```
@@ -32,23 +29,8 @@ The main advantage of this module over a full linear integer arithmetic procedur
 its ability to efficiently detect all implied equalities and inequalities.
 -/
 
-abbrev NodeId := Nat
-
-structure Edge where
-  source : NodeId
-  target : NodeId
-  k      : Int := 0
-  proof  : Expr
-
-/-- Auxiliary structure used for proof extraction.  -/
-structure ProofInfo where
-  w     : NodeId
-  k     : Int
-  proof : Expr
-  deriving Inhabited
-
+/-- `Eq.refl true` -/
 def rfl_true : Expr := mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
-
 
 open Lean.Grind in
 /--
@@ -104,34 +86,19 @@ private def mkTrans (nodes : PArray Expr) (pi₁ : ProofInfo) (pi₂ : ProofInfo
       mkApp7 (mkConst ``Nat.ro_ro) u w v ke₁ ke₂ p₁ p₂
   { w := pi₁.w, k := k₁+k₂, proof := p }
 
-structure State where
-  nodes   : PArray Expr := {}
-  /--
-  For each node with id `u`, `sources[u]` contains
-  pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
-  -/
-  sources : PArray (AssocList NodeId Int) := {}
-  /--
-  For each node with id `u`, `targets[u]` contains
-  pairs `(v, k)` s.t. there is a path from `u` to `v` with weight `k`.
-  -/
-  targets : PArray (AssocList NodeId Int) := {}
-  /--
-  Proof reconstruction information. For each node with id `u`, `proofs[u]` contains
-  pairs `(v, { w, proof })` s.t. there is a path from `u` to `v`, and
-  `w` is the penultimate node in the path, and `proof` is the justification for
-  the last edge.
-  -/
-  proofs  : PArray (AssocList NodeId ProofInfo) := {}
-  unsat   : Option Expr := none
+abbrev OffsetM := StateRefT State GoalM
 
-abbrev OffsetM := StateT State CoreM
+def OffsetM.run (x : OffsetM α) : GoalM α := do
+  let os ← modifyGet fun s => (s.arith.offset, { s with arith.offset := {} })
+  let (a, os) ← StateRefT'.run x os
+  modify fun s => { s with arith.offset := os }
+  return a
 
--- TODO: remove default
-def mkNode (expr : Expr := default) : OffsetM NodeId := do
+def mkNode (expr : Expr) : OffsetM NodeId := do
   let nodeId := (← get).nodes.size
   modify fun s => { s with
     nodes   := s.nodes.push expr
+    nodeMap := s.nodeMap.insert { expr } nodeId
     sources := s.sources.push {}
     targets := s.targets.push {}
     proofs  := s.proofs.push {}
@@ -158,6 +125,7 @@ where
       go (mkTrans (← get).nodes p' p v)
 
 private def setUnsat (u v : NodeId) (k : Int) (p : Expr) : OffsetM Unit := do
+
   modify fun s => { s with
     unsat := p -- TODO
   }
@@ -193,8 +161,7 @@ private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : OffsetM Unit
     setDist u v k
     setProof u v (← getProof? w v).get!
 
--- TODO: remove default
-def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr := default) : OffsetM Unit := do
+def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : OffsetM Unit := do
   if (← isUnsat) then return ()
   if let some k' ← getDist? v u then
     if k'+k < 0 then
@@ -222,4 +189,4 @@ def traceDists : OffsetM Unit := do
     for (v, d) in es do
       trace[grind.offset.dist] "#{u} -({d})-> #{v}"
 
-end Lean.Meta.Grind.Offset
+end Lean.Meta.Grind.Arith.Offset

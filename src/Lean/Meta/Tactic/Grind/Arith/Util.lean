@@ -53,6 +53,9 @@ structure Offset.Cnstr (α : Type) where
   le : Bool := true
   deriving Inhabited
 
+def Offset.Cnstr.neg : Cnstr α → Cnstr α
+  | { a, b, k, le } => { b, a, le, k := k + 1 }
+
 def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
   match c.k, c.le with
   | .ofNat 0,   true  => m!"{c.a} ≤ {c.b}"

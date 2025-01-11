@@ -72,6 +72,19 @@ def mkTrans (nodes : PArray Expr) (pi₁ : ProofInfo) (pi₂ : ProofInfo) (v : N
       mkApp7 (mkConst ``Nat.ro_ro) u w v ke₁ ke₂ p₁ p₂
   { w := pi₁.w, k := k₁+k₂, proof := p }
 
+open Lean.Grind in
+def mkOfNegEqFalse (nodes : PArray Expr) (c : Cnstr NodeId) (h : Expr) : Expr :=
+  let u := nodes[c.a]!
+  let v := nodes[c.b]!
+  if c.k == 0 then
+    mkApp3 (mkConst ``Nat.of_le_eq_false) u v h
+  else if c.k == 1 && c.le then
+    mkApp3 (mkConst ``Nat.of_lo_eq_false_1) u v h
+  else if c.k > 0 then
+    mkApp4 (mkConst ``Nat.of_lo_eq_false) u v (toExpr c.k.toNat) h
+  else
+    mkApp4 (mkConst ``Nat.of_ro_eq_false) u v (toExpr (-c.k).toNat) h
+
 end Offset
 
 end Lean.Meta.Grind.Arith

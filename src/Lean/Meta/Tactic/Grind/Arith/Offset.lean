@@ -30,11 +30,11 @@ The main advantage of this module over a full linear integer arithmetic procedur
 its ability to efficiently detect all implied equalities and inequalities.
 -/
 
-abbrev OffsetM := StateRefT State GoalM
+abbrev OffsetM := StateT State GoalM
 
 def OffsetM.run (x : OffsetM α) : GoalM α := do
   let os ← modifyGet fun s => (s.arith.offset, { s with arith.offset := {} })
-  let (a, os') ← StateRefT'.run x os
+  let (a, os') ← StateT.run x os
   modify fun s => { s with arith.offset := os' }
   return a
 
@@ -42,7 +42,7 @@ def mkNode (expr : Expr) : OffsetM NodeId := do
   if let some nodeId := (← get).nodeMap.find? { expr } then
     return nodeId
   let nodeId : NodeId := (← get).nodes.size
-  trace[grind.offset.internalize] "{expr} ↦ #{nodeId}"
+  trace[grind.offset.internalize.term] "{expr} ↦ #{nodeId}"
   modify fun s => { s with
     nodes   := s.nodes.push expr
     nodeMap := s.nodeMap.insert { expr } nodeId
@@ -77,7 +77,7 @@ private def setUnsat (_u _v : NodeId) (_k : Int) (p : Expr) : OffsetM Unit := do
   }
 
 private def setDist (u v : NodeId) (k : Int) : OffsetM Unit := do
-  trace[grind.offset] "#{u} -- {k} --> #{v}"
+  trace[grind.offset.dist] "{({ a := u, b := v, k : Cnstr NodeId})}"
   modify fun s => { s with
     targets := s.targets.modify u fun es => es.insert v k
     sources := s.sources.modify v fun es => es.insert u k

@@ -51,6 +51,13 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   let .fvar fvarId := p | return none
   return some fvarId
 
+/-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
+private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+  try
+    mkEMatchTheoremWithKind? origin #[] proof kind
+  catch _ =>
+    return none
+
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← if let some fvarId := isEqTrueHyp? proof then
@@ -62,12 +69,12 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let size := (← get).newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .fwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .fwd then
     activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .bwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .bwd then
     activateTheorem thm gen
   if (← get).newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .default then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
   if (← get).newThms.size == size then
     trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"

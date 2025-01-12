@@ -43,8 +43,8 @@ attribute [grind_norm] not_false_eq_true
 
 -- Remark: we disabled the following normalization rule because we want this information when implementing splitting heuristics
 -- Implication as a clause
--- @[grind_norm↓] theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
---  by_cases p <;> by_cases q <;> simp [*]
+theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
+  by_cases p <;> by_cases q <;> simp [*]
 
 -- And
 @[grind_norm↓] theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by

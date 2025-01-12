@@ -182,3 +182,63 @@ set_option trace.grind.offset.dist true in
 example (a1 a2 a3 : Nat) : a1 ≤ a2 + 2 → a2 + 3 ≤ a3 → False := by
   fail_if_success grind
   sorry
+
+/--
+info: [grind.offset.internalize.term] a2 ↦ #0
+[grind.offset.internalize.term] a1 ↦ #1
+[grind.offset.dist] #1 + 3 ≤ #0
+[grind.offset.internalize.term] a3 ↦ #2
+[grind.offset.dist] #0 + 3 ≤ #2
+[grind.offset.dist] #1 + 6 ≤ #2
+-/
+#guard_msgs (info) in
+set_option trace.grind.offset.internalize.term true in
+set_option trace.grind.offset.dist true in
+example (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 ≤ a1 + 2) → ¬p → a2 + 3 ≤ a3 → False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.offset.internalize.term] a2 ↦ #0
+[grind.offset.internalize.term] a1 ↦ #1
+[grind.offset.dist] #1 ≤ #0 + 1
+[grind.offset.internalize.term] a3 ↦ #2
+[grind.offset.dist] #0 + 3 ≤ #2
+[grind.offset.dist] #1 + 2 ≤ #2
+-/
+#guard_msgs (info) in
+set_option trace.grind.offset.internalize.term true in
+set_option trace.grind.offset.dist true in
+example (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 + 2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.offset.internalize.term] a2 ↦ #0
+[grind.offset.internalize.term] a1 ↦ #1
+[grind.offset.dist] #1 + 1 ≤ #0
+[grind.offset.internalize.term] a3 ↦ #2
+[grind.offset.dist] #0 + 3 ≤ #2
+[grind.offset.dist] #1 + 4 ≤ #2
+-/
+#guard_msgs (info) in
+set_option trace.grind.offset.internalize.term true in
+set_option trace.grind.offset.dist true in
+example (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.offset.internalize.term] a2 ↦ #0
+[grind.offset.internalize.term] a1 ↦ #1
+[grind.offset.dist] #1 ≤ #0
+[grind.offset.internalize.term] a3 ↦ #2
+[grind.offset.dist] #0 + 3 ≤ #2
+[grind.offset.dist] #1 + 3 ≤ #2
+-/
+#guard_msgs (info) in
+set_option trace.grind.offset.internalize.term true in
+set_option trace.grind.offset.dist true in
+example (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 + 1 ≤ a1) → ¬p → a2 + 3 ≤ a3 → False := by
+  fail_if_success grind
+  sorry

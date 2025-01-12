@@ -54,7 +54,10 @@ structure Offset.Cnstr (α : Type) where
   deriving Inhabited
 
 def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { a, b, k, le } => { b, a, le, k := k + 1 }
+  | { a, b, k, le } => { a := b, b := a, le, k := -k + 1 }
+
+example (c : Offset.Cnstr α) : c.neg.neg = c := by
+  cases c; simp [Offset.Cnstr.neg]; omega
 
 def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
   match c.k, c.le with

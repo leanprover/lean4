@@ -17,43 +17,70 @@ inductive CaseSplitStatus where
   | ready (numCases : Nat) (isRec := false)
   deriving Inhabited, BEq
 
+/-- Given `c`, the condition of an `if-then-else`, check whether we need to case-split on the `if-then-else` or not -/
+private def checkIteCondStatus (c : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue c <||> isEqFalse c) then
+    return .resolved
+  else
+    return .ready 2
+
+/--
+Given `e` of the form `a ∨ b`, check whether we are ready to case-split on `e`.
+That is, `e` is `True`, but neither `a` nor `b` is `True`."
+-/
+private def checkDisjunctStatus (e a b : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue e) then
+    if (← isEqTrue a <||> isEqTrue b) then
+      return .resolved
+    else
+      return .ready 2
+  else if (← isEqFalse e) then
+    return .resolved
+  else
+    return .notReady
+
+/--
+Given `e` of the form `a ∧ b`, check whether we are ready to case-split on `e`.
+That is, `e` is `False`, but neither `a` nor `b` is `False`.
+ -/
+private def checkConjunctStatus (e a b : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue e) then
+    return .resolved
+  else if (← isEqFalse e) then
+    if (← isEqFalse a <||> isEqFalse b) then
+      return .resolved
+    else
+      return .ready 2
+  else
+    return .notReady
+
+/--
+Given `e` of the form `@Eq Prop a b`, check whether we are ready to case-split on `e`.
+There are two cases:
+1- `e` is `True`, but neither both `a` and `b` are `True`, nor both `a` and `b` are `False`.
+2- `e` is `False`, but neither `a` is `True` and `b` is `False`, nor `a` is `False` and `b` is `True`.
+-/
+private def checkIffStatus (e a b : Expr) : GoalM CaseSplitStatus := do
+  if (← isEqTrue e) then
+    if (← (isEqTrue a <&&> isEqTrue b) <||> (isEqFalse a <&&> isEqFalse b)) then
+      return .resolved
+    else
+      return .ready 2
+  else if (← isEqFalse e) then
+    if (← (isEqTrue a <&&> isEqFalse b) <||> (isEqFalse a <&&> isEqTrue b)) then
+      return .resolved
+    else
+      return .ready 2
+  else
+    return .notReady
+
 private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   match_expr e with
-  | Or a b =>
-    if (← isEqTrue e) then
-      if (← isEqTrue a <||> isEqTrue b) then
-        return .resolved
-      else
-        return .ready 2
-    else if (← isEqFalse e) then
-      return .resolved
-    else
-      return .notReady
-  | And a b =>
-    if (← isEqTrue e) then
-      return .resolved
-    else if (← isEqFalse e) then
-      if (← isEqFalse a <||> isEqFalse b) then
-        return .resolved
-      else
-        return .ready 2
-    else
-      return .notReady
-  | Eq _ _ _ =>
-    if (← isEqTrue e <||> isEqFalse e) then
-      return .ready 2
-    else
-      return .notReady
-  | ite _ c _ _ _ =>
-    if (← isEqTrue c <||> isEqFalse c) then
-      return .resolved
-    else
-      return .ready 2
-  | dite _ c _ _ _ =>
-    if (← isEqTrue c <||> isEqFalse c) then
-      return .resolved
-    else
-      return .ready 2
+  | Or a b => checkDisjunctStatus e a b
+  | And a b => checkConjunctStatus e a b
+  | Eq _ a b => checkIffStatus e a b
+  | ite _ c _ _ _ => checkIteCondStatus c
+  | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
     if (← isResolvedCaseSplit e) then
       trace[grind.debug.split] "split resolved: {e}"

@@ -714,7 +714,7 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
       ref.modify (·.push n)
   ref.get
 
-def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
+def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes
   for n in nodes do
     if isSameExpr n.self n.root then

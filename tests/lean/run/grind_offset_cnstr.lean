@@ -242,3 +242,17 @@ set_option trace.grind.offset.dist true in
 example (p : Prop) (a1 a2 a3 : Nat) : (p ↔ a2 + 1 ≤ a1) → ¬p → a2 + 3 ≤ a3 → False := by
   fail_if_success grind
   sorry
+
+
+example (a b : Nat) : a ≤ b → b + 2 ≤ c → a + 1 ≤ c := by
+  grind
+example (a b : Nat) : a ≤ b → b ≤ c → a ≤ c := by
+  grind
+example (a b : Nat) : a + 1 ≤ b → b + 1 ≤ c → a + 2 ≤ c := by
+  grind
+example (a b : Nat) : a + 1 ≤ b → b + 1 ≤ c → a + 1 ≤ c := by
+  grind
+example (a b : Nat) : a + 1 ≤ b → b ≤ c + 2 → a ≤ c + 1 := by
+  grind
+example (a b : Nat) : a + 2 ≤ b → b ≤ c + 2 → a ≤ c := by
+  grind

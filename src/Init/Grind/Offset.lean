@@ -19,8 +19,7 @@ theorem Nat.lo_le (u w v k : Nat) : u + k ≤ w → w ≤ v → u + k ≤ v := b
 theorem Nat.lo_lo (u w v k₁ k₂ : Nat) : u + k₁ ≤ w → w + k₂ ≤ v → u + (k₁ + k₂) ≤ v := by
   omega
 theorem Nat.lo_ro_1 (u w v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k₁ ≤ w → w ≤ v + k₂ → u + (k₁ - k₂) ≤ v := by
-  simp [isLt]
-  omega
+  simp [isLt]; omega
 theorem Nat.lo_ro_2 (u w v k₁ k₂ : Nat) : u + k₁ ≤ w → w ≤ v + k₂ → u ≤ v + (k₂ - k₁) := by
   omega
 theorem Nat.ro_le (u w v k : Nat) : u ≤ w + k → w ≤ v → u ≤ v + k := by
@@ -28,8 +27,7 @@ theorem Nat.ro_le (u w v k : Nat) : u ≤ w + k → w ≤ v → u ≤ v + k := b
 theorem Nat.ro_lo_1 (u w v k₁ k₂ : Nat) : u ≤ w + k₁ → w + k₂ ≤ v → u ≤ v + (k₁ - k₂) := by
   omega
 theorem Nat.ro_lo_2 (u w v k₁ k₂ : Nat) : isLt k₁ k₂ = true → u ≤ w + k₁ → w + k₂ ≤ v → u + (k₂ - k₁) ≤ v := by
-  simp [isLt]
-  omega
+  simp [isLt]; omega
 theorem Nat.ro_ro (u w v k₁ k₂ : Nat) : u ≤ w + k₁ → w ≤ v + k₂ → u ≤ v + (k₁ + k₂) := by
   omega
 
@@ -41,5 +39,12 @@ theorem Nat.of_lo_eq_false (u v k : Nat) : ((u + k ≤ v) = False) → v ≤ u +
   simp; omega
 theorem Nat.of_ro_eq_false (u v k : Nat) : ((u ≤ v + k) = False) → v + (k+1) ≤ u := by
   simp; omega
+
+theorem Nat.unsat_le_lo (u v k : Nat) : isLt 0 k = true → u ≤ v → v + k ≤ u → False := by
+  simp [isLt]; omega
+theorem Nat.unsat_lo_lo (u v k₁ k₂ : Nat) : isLt 0 (k₁+k₂) = true → u + k₁ ≤ v → v + k₂ ≤ u → False := by
+  simp [isLt]; omega
+theorem Nat.unsat_lo_ro (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k₁ ≤ v → v ≤ u + k₂ → False := by
+  simp [isLt]; omega
 
 end Lean.Grind

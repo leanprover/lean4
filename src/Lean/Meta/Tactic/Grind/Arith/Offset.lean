@@ -50,9 +50,6 @@ def mkNode (expr : Expr) : GoalM NodeId := do
   }
   return nodeId
 
-def isUnsat : GoalM Bool :=
-  return (← get').unsat.isSome
-
 private def getDist? (u v : NodeId) : GoalM (Option Int) := do
   return (← get').targets[u]!.find? v
 
@@ -69,11 +66,26 @@ where
       let p' := (← getProof? u p.w).get!
       go (mkTrans (← get').nodes p' p v)
 
-private def setUnsat (u v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
-  trace[Meta.debug] "unsat #{u}-({k})->#{v}"
-  modify' fun s => { s with
-    unsat := p -- TODO
-  }
+private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM Unit := do
+  assert! kuv + kvu < 0
+  let hvu ← extractProof v u
+  let u := (← get').nodes[u]!
+  let v := (← get').nodes[v]!
+  if kuv == 0 then
+    assert! kvu < 0
+    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) u v (toExpr (-kvu).toNat) rfl_true huv hvu)
+  else if kvu == 0 then
+    assert! kuv < 0
+    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) v u (toExpr (-kuv).toNat) rfl_true hvu huv)
+  else if kuv < 0 then
+    if kvu > 0 then
+      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) u v (toExpr (-kuv).toNat) (toExpr kvu.toNat) rfl_true huv hvu)
+    else
+      assert! kvu < 0
+      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_lo) u v (toExpr (-kuv).toNat) (toExpr (-kvu).toNat) rfl_true huv hvu)
+  else
+    assert! kuv > 0 && kvu < 0
+    closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) v u (toExpr (-kvu).toNat) (toExpr kuv.toNat) rfl_true hvu huv)
 
 private def setDist (u v : NodeId) (k : Int) : GoalM Unit := do
   trace[grind.offset.dist] "{({ a := u, b := v, k : Cnstr NodeId})}"
@@ -107,10 +119,10 @@ private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : GoalM Unit :
     setProof u v (← getProof? w v).get!
 
 def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
-  if (← isUnsat) then return ()
+  if (← isInconsistent) then return ()
   if let some k' ← getDist? v u then
     if k'+k < 0 then
-      setUnsat u v k p
+      setUnsat u v k p k'
       return ()
   if (← isShorter u v k) then
     setDist u v k

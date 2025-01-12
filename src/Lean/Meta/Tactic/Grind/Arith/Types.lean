@@ -46,7 +46,6 @@ structure State where
   the last edge.
   -/
   proofs  : PArray (AssocList NodeId ProofInfo) := {}
-  unsat   : Option Expr := none
   deriving Inhabited
 
 end Offset

@@ -217,14 +217,22 @@ def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
 where
   go (p : Expr) (isNeg : Bool) : GoalM Unit := do
     match_expr p with
-    | Eq _ lhs rhs => goEq p lhs rhs isNeg false
-    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
-    | _ =>
-      internalize p generation
-      if isNeg then
-        addEq p (← getFalseExpr) (← mkEqFalse proof)
+    | Eq α lhs rhs =>
+      if α.isProp then
+        -- It is morally an iff.
+        -- We do not use the `goEq` optimization because we want to register `p` as a case-split
+        goFact p isNeg
       else
-        addEq p (← getTrueExpr) (← mkEqTrue proof)
+        goEq p lhs rhs isNeg false
+    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
+    | _ => goFact p isNeg
+
+  goFact (p : Expr) (isNeg : Bool) : GoalM Unit := do
+    internalize p generation
+    if isNeg then
+      addEq p (← getFalseExpr) (← mkEqFalse proof)
+    else
+      addEq p (← getTrueExpr) (← mkEqTrue proof)
 
   goEq (p : Expr) (lhs rhs : Expr) (isNeg : Bool) (isHEq : Bool) : GoalM Unit := do
     if isNeg then

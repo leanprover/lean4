@@ -237,3 +237,29 @@ example {α} (a b c : α) [LE α] :
 
 example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true) := by
   grind
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = q
+a✝ : p
+⊢ False
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = ¬q
+a✝ : p
+⊢ False
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : ¬(p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)

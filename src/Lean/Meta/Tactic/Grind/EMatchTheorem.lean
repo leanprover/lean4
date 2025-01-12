@@ -170,10 +170,42 @@ private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTh
     initial  := {}
   }
 
+/--
+Symbols with built-in support in `grind` are unsuitable as pattern candidates for E-matching.
+This is because `grind` performs normalization operations and uses specialized data structures
+to implement these symbols, which may interfere with E-matching behavior.
+-/
 -- TODO: create attribute?
 private def forbiddenDeclNames := #[``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
 
 private def isForbidden (declName : Name) := forbiddenDeclNames.contains declName
+
+/--
+Auxiliary function to expand a pattern containing forbidden application symbols
+into a multi-pattern.
+
+This function enhances the usability of the `[grind =]` attribute by automatically handling
+forbidden pattern symbols. For example, consider the following theorem tagged with this attribute:
+```
+getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a]
+```
+Here, the selected pattern is `xs.getLast? = some a`, but `Eq` is a forbidden pattern symbol.
+Instead of producing an error, this function converts the pattern into a multi-pattern,
+allowing the attribute to be used conveniently.
+
+The function recursively expands patterns with forbidden symbols by splitting them
+into their sub-components. If the pattern does not contain forbidden symbols,
+it is returned as-is.
+-/
+partial def splitWhileForbidden (pat : Expr) : List Expr :=
+  match_expr pat with
+  | Not p => splitWhileForbidden p
+  | And p₁ p₂ => splitWhileForbidden p₁ ++ splitWhileForbidden p₂
+  | Or p₁ p₂ => splitWhileForbidden p₁ ++ splitWhileForbidden p₂
+  | Eq _ lhs rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | Iff lhs rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | HEq _ lhs _ rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | _ => [pat]
 
 private def dontCare := mkConst (Name.mkSimple "[grind_dontcare]")
 
@@ -468,7 +500,8 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
     let pat ← preprocessPattern pat normalizePattern
-    return (xs.size, [pat.abstract xs])
+    let pats := splitWhileForbidden (pat.abstract xs)
+    return (xs.size, pats)
   mkEMatchTheoremCore origin levelParams numParams proof patterns
 
 /--

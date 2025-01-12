@@ -1583,8 +1583,8 @@ namespace TokenMap
 
 def insert (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
   match map.find? k with
-  | none    => .insert map k [v]
-  | some vs => .insert map k (v::vs)
+  | none    => RBMap.insert map k [v]
+  | some vs => RBMap.insert map k (v::vs)
 
 instance : Inhabited (TokenMap α) where
   default := RBMap.empty

@@ -244,8 +244,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
-def singleton (v : α) : Array α :=
-  mkArray 1 v
+@[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=
   a[a.size - 1]!

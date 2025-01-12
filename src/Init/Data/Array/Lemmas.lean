@@ -1506,9 +1506,99 @@ theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array 
 
 /-! Content below this point has not yet been aligned with `List`. -/
 
-theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
+/-! ### singleton -/
 
 @[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
+
+/-! ### append -/
+
+@[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
+    xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
+  cases as
+  cases bs
+  simp
+
+@[simp] theorem append_eq_toArray_iff {as bs : Array α} {xs : List α} :
+    as ++ bs = xs.toArray ↔ as.toList ++ bs.toList = xs := by
+  cases as
+  cases bs
+  simp
+
+theorem singleton_eq_toArray_singleton (a : α) : #[a] = [a].toArray := rfl
+
+@[simp] theorem empty_append_fun : ((#[] : Array α) ++ ·) = id := by
+  funext ⟨l⟩
+  simp
+
+@[simp] theorem mem_append {a : α} {s t : Array α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
+  simp only [mem_def, toList_append, List.mem_append]
+
+theorem mem_append_left {a : α} {l₁ : Array α} (l₂ : Array α) (h : a ∈ l₁) : a ∈ l₁ ++ l₂ :=
+  mem_append.2 (Or.inl h)
+
+theorem mem_append_right {a : α} (l₁ : Array α) {l₂ : Array α} (h : a ∈ l₂) : a ∈ l₁ ++ l₂ :=
+  mem_append.2 (Or.inr h)
+
+@[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
+  simp only [size, toList_append, List.length_append]
+
+theorem empty_append (as : Array α) : #[] ++ as = as := by simp
+
+theorem append_empty (as : Array α) : as ++ #[] = as := by simp
+
+theorem getElem_append {as bs : Array α} (h : i < (as ++ bs).size) :
+    (as ++ bs)[i] = if h' : i < as.size then as[i] else bs[i - as.size]'(by simp at h; omega) := by
+  cases as; cases bs
+  simp [List.getElem_append]
+
+theorem getElem_append_left {as bs : Array α} {h : i < (as ++ bs).size} (hlt : i < as.size) :
+    (as ++ bs)[i] = as[i] := by
+  simp only [← getElem_toList]
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, toList_append] at h
+  conv => rhs; rw [← List.getElem_append_left (bs := bs.toList) (h' := h')]
+  apply List.get_of_eq; rw [toList_append]
+
+theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.size ≤ i) :
+    (as ++ bs)[i] = bs[i - as.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
+  simp only [← getElem_toList]
+  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, toList_append] at h
+  conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
+  apply List.get_of_eq; rw [toList_append]
+
+theorem getElem?_append_left {as bs : Array α} {i : Nat} (hn : i < as.size) :
+    (as ++ bs)[i]? = as[i]? := by
+  have hn' : i < (as ++ bs).size := Nat.lt_of_lt_of_le hn <|
+    size_append .. ▸ Nat.le_add_right ..
+  simp_all [getElem?_eq_getElem, getElem_append]
+
+theorem getElem?_append_right {as bs : Array α} {i : Nat} (h : as.size ≤ i) :
+    (as ++ bs)[i]? = bs[i - as.size]? := by
+  cases as
+  cases bs
+  simp at h
+  simp [List.getElem?_append_right, h]
+
+theorem getElem?_append {as bs : Array α} {i : Nat} :
+    (as ++ bs)[i]? = if i < as.size then as[i]? else bs[i - as.size]? := by
+  split <;> rename_i h
+  · exact getElem?_append_left h
+  · exact getElem?_append_right (by simpa using h)
+
+/-- Variant of `getElem_append_left` useful for rewriting from the small array to the big array. -/
+theorem getElem_append_left' (l₂ : Array α) {l₁ : Array α} {i : Nat} (hi : i < l₁.size) :
+    l₁[i] = (l₁ ++ l₂)[i]'(by simpa using Nat.lt_add_right l₂.size hi) := by
+  rw [getElem_append_left] <;> simp
+
+/-- Variant of `getElem_append_right` useful for rewriting from the small array to the big array. -/
+theorem getElem_append_right' (l₁ : Array α) {l₂ : Array α} {i : Nat} (hi : i < l₂.size) :
+    l₂[i] = (l₁ ++ l₂)[i + l₁.size]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hi _) := by
+  rw [getElem_append_right] <;> simp [*, Nat.le_add_left]
+
+theorem getElem_of_append {l l₁ l₂ : Array α} (eq : l = l₁.push a ++ l₂) (h : l₁.size = i) :
+    l[i]'(eq ▸ h ▸ by simp_arith) = a := Option.some.inj <| by
+  rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
+  simp
+
 
 -- This is a duplicate of `List.toArray_toList`.
 -- It's confusing to guess which namespace this theorem should live in,
@@ -2121,74 +2211,6 @@ theorem getElem?_modify {as : Array α} {i : Nat} {f : α → α} {j : Nat} :
 /-! ### empty -/
 
 theorem size_empty : (#[] : Array α).size = 0 := rfl
-
-/-! ### append -/
-
-@[simp] theorem mem_append {a : α} {s t : Array α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
-  simp only [mem_def, toList_append, List.mem_append]
-
-theorem mem_append_left {a : α} {l₁ : Array α} (l₂ : Array α) (h : a ∈ l₁) : a ∈ l₁ ++ l₂ :=
-  mem_append.2 (Or.inl h)
-
-theorem mem_append_right {a : α} (l₁ : Array α) {l₂ : Array α} (h : a ∈ l₂) : a ∈ l₁ ++ l₂ :=
-  mem_append.2 (Or.inr h)
-
-@[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
-  simp only [size, toList_append, List.length_append]
-
-theorem empty_append (as : Array α) : #[] ++ as = as := by simp
-
-theorem append_empty (as : Array α) : as ++ #[] = as := by simp
-
-theorem getElem_append {as bs : Array α} (h : i < (as ++ bs).size) :
-    (as ++ bs)[i] = if h' : i < as.size then as[i] else bs[i - as.size]'(by simp at h; omega) := by
-  cases as; cases bs
-  simp [List.getElem_append]
-
-theorem getElem_append_left {as bs : Array α} {h : i < (as ++ bs).size} (hlt : i < as.size) :
-    (as ++ bs)[i] = as[i] := by
-  simp only [← getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, toList_append] at h
-  conv => rhs; rw [← List.getElem_append_left (bs := bs.toList) (h' := h')]
-  apply List.get_of_eq; rw [toList_append]
-
-theorem getElem_append_right {as bs : Array α} {h : i < (as ++ bs).size} (hle : as.size ≤ i) :
-    (as ++ bs)[i] = bs[i - as.size]'(Nat.sub_lt_left_of_lt_add hle (size_append .. ▸ h)) := by
-  simp only [← getElem_toList]
-  have h' : i < (as.toList ++ bs.toList).length := by rwa [← length_toList, toList_append] at h
-  conv => rhs; rw [← List.getElem_append_right (h₁ := hle) (h₂ := h')]
-  apply List.get_of_eq; rw [toList_append]
-
-theorem getElem?_append_left {as bs : Array α} {i : Nat} (hn : i < as.size) :
-    (as ++ bs)[i]? = as[i]? := by
-  have hn' : i < (as ++ bs).size := Nat.lt_of_lt_of_le hn <|
-    size_append .. ▸ Nat.le_add_right ..
-  simp_all [getElem?_eq_getElem, getElem_append]
-
-theorem getElem?_append_right {as bs : Array α} {i : Nat} (h : as.size ≤ i) :
-    (as ++ bs)[i]? = bs[i - as.size]? := by
-  cases as
-  cases bs
-  simp at h
-  simp [List.getElem?_append_right, h]
-
-theorem getElem?_append {as bs : Array α} {i : Nat} :
-    (as ++ bs)[i]? = if i < as.size then as[i]? else bs[i - as.size]? := by
-  split <;> rename_i h
-  · exact getElem?_append_left h
-  · exact getElem?_append_right (by simpa using h)
-
-@[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
-    xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
-  cases as
-  cases bs
-  simp
-
-@[simp] theorem append_eq_toArray_iff {as bs : Array α} {xs : List α} :
-    as ++ bs = xs.toArray ↔ as.toList ++ bs.toList = xs := by
-  cases as
-  cases bs
-  simp
 
 /-! ### flatten -/
 

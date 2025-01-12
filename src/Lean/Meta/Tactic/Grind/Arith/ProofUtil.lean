@@ -61,9 +61,9 @@ def mkTrans (nodes : PArray Expr) (pi₁ : ProofInfo) (pi₂ : ProofInfo) (v : N
     else if k₂ > 0 then
       let ke₂ := toExpr k₂.toNat
        if k₂ > k₁ then
-         mkApp7 (mkConst ``Nat.ro_lo_1) u w v ke₁ ke₂ p₁ p₂
-       else
          mkApp8 (mkConst ``Nat.ro_lo_2) u w v ke₁ ke₂ rfl_true p₁ p₂
+       else
+         mkApp7 (mkConst ``Nat.ro_lo_1) u w v ke₁ ke₂ p₁ p₂
     else
       let ke₂ := toExpr (-k₂).toNat
       mkApp7 (mkConst ``Nat.ro_ro) u w v ke₁ ke₂ p₁ p₂

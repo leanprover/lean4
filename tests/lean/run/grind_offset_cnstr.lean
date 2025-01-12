@@ -167,3 +167,18 @@ example (a1 a2 a3 : Nat) :
         a1 ≤ a2 + 5 → a2 ≤ a3 + 2 → False := by
   fail_if_success grind
   sorry
+
+/--
+info: [grind.offset.internalize.term] a1 ↦ #0
+[grind.offset.internalize.term] a2 ↦ #1
+[grind.offset.dist] #0 ≤ #1 + 2
+[grind.offset.internalize.term] a3 ↦ #2
+[grind.offset.dist] #1 + 3 ≤ #2
+[grind.offset.dist] #0 + 1 ≤ #2
+-/
+#guard_msgs (info) in
+set_option trace.grind.offset.internalize.term true in
+set_option trace.grind.offset.dist true in
+example (a1 a2 a3 : Nat) : a1 ≤ a2 + 2 → a2 + 3 ≤ a3 → False := by
+  fail_if_success grind
+  sorry

@@ -58,9 +58,12 @@ private def checkParents (e : Expr) : GoalM Unit := do
           found := true
           break
       -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
-      if let .forallE _ d _ _ := parent then
+      if let .forallE _ d b _ := parent then
         if (← checkChild d) then
           found := true
+        unless b.hasLooseBVars do
+          if (← checkChild b) then
+            found := true
       unless found do
         assert! (← checkChild parent.getAppFn)
   else

@@ -569,12 +569,16 @@ def mkLetBodyCongr (a h : Expr) : MetaM Expr :=
   mkAppM ``let_body_congr #[a, h]
 
 /-- Return `of_eq_true h` -/
-def mkOfEqTrue (h : Expr) : MetaM Expr :=
-  mkAppM ``of_eq_true #[h]
+def mkOfEqTrue (h : Expr) : MetaM Expr := do
+  match_expr h with
+  | eq_true _ h => return h
+  | _ => mkAppM ``of_eq_true #[h]
 
 /-- Return `eq_true h` -/
-def mkEqTrue (h : Expr) : MetaM Expr :=
-  mkAppM ``eq_true #[h]
+def mkEqTrue (h : Expr) : MetaM Expr := do
+  match_expr h with
+  | of_eq_true _ h => return h
+  | _ => return mkApp2 (mkConst ``eq_true) (← inferType h) h
 
 /--
   Return `eq_false h`

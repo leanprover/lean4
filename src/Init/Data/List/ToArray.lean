@@ -46,7 +46,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
   cases l <;> simp [Array.isEmpty]
 
-@[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
+@[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = Array.singleton a := rfl
 
 @[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
   simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]

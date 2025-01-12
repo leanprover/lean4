@@ -86,13 +86,28 @@ example (p : Prop) (a b c : Nat) : p → a = 0 → a = b → h a = h c → a = c
 set_option trace.grind.debug.proof true
 /--
 error: `grind` failed
-case grind
+case grind.1
 α : Type
 a : α
 p q r : Prop
 h₁ : HEq p a
 h₂ : HEq q a
 h₃ : p = r
+left : ¬p ∨ r
+right : ¬r ∨ p
+h : ¬r
+⊢ False
+
+case grind.2
+α : Type
+a : α
+p q r : Prop
+h₁ : HEq p a
+h₂ : HEq q a
+h₃ : p = r
+left : ¬p ∨ r
+right : ¬r ∨ p
+h : p
 ⊢ False
 -/
 #guard_msgs (error) in

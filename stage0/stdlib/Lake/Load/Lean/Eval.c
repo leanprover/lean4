@@ -60,7 +60,7 @@ static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec_
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_loadFromEnv___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___lambda__1___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__1___closed__1;
 LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck_throwUnexpectedType(lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__21___closed__1;
@@ -338,9 +338,8 @@ LEAN_EXPORT lean_object* l_Lake_unsafeEvalConstCheck(lean_object* x_1, lean_obje
 _start:
 {
 lean_object* x_6; 
-lean_inc(x_5);
 lean_inc(x_1);
-x_6 = lean_environment_find(x_1, x_5);
+x_6 = l_Lean_Environment_find_x3f(x_1, x_5);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; 

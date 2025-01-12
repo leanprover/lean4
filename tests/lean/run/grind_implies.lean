@@ -28,10 +28,13 @@ example (p q : Prop) : (p → q) → ¬q → ¬p := by
   grind
 
 /--
-info: [grind.internalize] p → q
+info: [grind.internalize] (p → q) = r
+[grind.internalize] Prop
+[grind.internalize] p → q
 [grind.internalize] p
 [grind.internalize] q
 [grind.internalize] r
+[grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] p = False
 [grind.eqc] (p → q) = True
@@ -43,10 +46,13 @@ example (p q : Prop) : (p → q) = r → ¬p → r := by
 
 
 /--
-info: [grind.internalize] p → q
+info: [grind.internalize] (p → q) = r
+[grind.internalize] Prop
+[grind.internalize] p → q
 [grind.internalize] p
 [grind.internalize] q
 [grind.internalize] r
+[grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = True
 [grind.eqc] (p → q) = True
@@ -57,10 +63,13 @@ example (p q : Prop) : (p → q) = r → q → r := by
   grind
 
 /--
-info: [grind.internalize] p → q
+info: [grind.internalize] (p → q) = r
+[grind.internalize] Prop
+[grind.internalize] p → q
 [grind.internalize] p
 [grind.internalize] q
 [grind.internalize] r
+[grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = False
 [grind.eqc] r = True
@@ -72,10 +81,13 @@ example (p q : Prop) : (p → q) = r → ¬q → r → ¬p := by
   grind
 
 /--
-info: [grind.internalize] p → q
+info: [grind.internalize] (p → q) = r
+[grind.internalize] Prop
+[grind.internalize] p → q
 [grind.internalize] p
 [grind.internalize] q
 [grind.internalize] r
+[grind.eqc] ((p → q) = r) = True
 [grind.eqc] (p → q) = r
 [grind.eqc] q = False
 [grind.eqc] r = False

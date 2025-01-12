@@ -57,7 +57,8 @@ inductive Origin where
   is the provided grind argument. The `id` is a unique identifier for the call.
   -/
   | stx (id : Name) (ref : Syntax)
-  | other (id : Name)
+  /-- It is local, but we don't have a local hypothesis for it. -/
+  | local (id : Name)
   deriving Inhabited, Repr, BEq
 
 /-- A unique identifier corresponding to the origin. -/
@@ -65,14 +66,14 @@ def Origin.key : Origin → Name
   | .decl declName => declName
   | .fvar fvarId   => fvarId.name
   | .stx id _      => id
-  | .other id      => id
+  | .local id      => id
 
 def Origin.pp [Monad m] [MonadEnv m] [MonadError m] (o : Origin) : m MessageData := do
   match o with
   | .decl declName => return MessageData.ofConst (← mkConstWithLevelParams declName)
   | .fvar fvarId   => return mkFVar fvarId
   | .stx _ ref     => return ref
-  | .other id      => return id
+  | .local id      => return id
 
 instance : BEq Origin where
   beq a b := a.key == b.key
@@ -169,10 +170,42 @@ private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTh
     initial  := {}
   }
 
+/--
+Symbols with built-in support in `grind` are unsuitable as pattern candidates for E-matching.
+This is because `grind` performs normalization operations and uses specialized data structures
+to implement these symbols, which may interfere with E-matching behavior.
+-/
 -- TODO: create attribute?
 private def forbiddenDeclNames := #[``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
 
 private def isForbidden (declName : Name) := forbiddenDeclNames.contains declName
+
+/--
+Auxiliary function to expand a pattern containing forbidden application symbols
+into a multi-pattern.
+
+This function enhances the usability of the `[grind =]` attribute by automatically handling
+forbidden pattern symbols. For example, consider the following theorem tagged with this attribute:
+```
+getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a]
+```
+Here, the selected pattern is `xs.getLast? = some a`, but `Eq` is a forbidden pattern symbol.
+Instead of producing an error, this function converts the pattern into a multi-pattern,
+allowing the attribute to be used conveniently.
+
+The function recursively expands patterns with forbidden symbols by splitting them
+into their sub-components. If the pattern does not contain forbidden symbols,
+it is returned as-is.
+-/
+partial def splitWhileForbidden (pat : Expr) : List Expr :=
+  match_expr pat with
+  | Not p => splitWhileForbidden p
+  | And p₁ p₂ => splitWhileForbidden p₁ ++ splitWhileForbidden p₂
+  | Or p₁ p₂ => splitWhileForbidden p₁ ++ splitWhileForbidden p₂
+  | Eq _ lhs rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | Iff lhs rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | HEq _ lhs _ rhs => splitWhileForbidden lhs ++ splitWhileForbidden rhs
+  | _ => [pat]
 
 private def dontCare := mkConst (Name.mkSimple "[grind_dontcare]")
 
@@ -467,7 +500,8 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
     let pat ← preprocessPattern pat normalizePattern
-    return (xs.size, [pat.abstract xs])
+    let pats := splitWhileForbidden (pat.abstract xs)
+    return (xs.size, pats)
   mkEMatchTheoremCore origin levelParams numParams proof patterns
 
 /--
@@ -498,7 +532,7 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
-private inductive TheoremKind where
+inductive TheoremKind where
   | eqLhs | eqRhs | eqBoth | fwd | bwd | default
   deriving Inhabited, BEq
 
@@ -598,7 +632,7 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
     | return none
   return some (ps, s.symbols.toList)
 
-private def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := true))
   else if kind == .eqRhs then

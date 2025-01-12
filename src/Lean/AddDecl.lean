@@ -14,15 +14,23 @@ register_builtin_option debug.skipKernelTC : Bool := {
   descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
 }
 
+/-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
+def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
+    (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
+  if debug.skipKernelTC.get opts then
+    addDeclWithoutChecking env decl
+  else
+    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+
 def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment :=
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   if debug.skipKernelTC.get opts then
     addDeclWithoutChecking env decl
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
 def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment := do
+    (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment := do
   let env ← addDecl env opts decl cancelTk?
   compileDecl env opts decl
 

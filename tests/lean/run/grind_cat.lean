@@ -122,4 +122,61 @@ def hcomp {H I : Functor D E} (α : F ⟶ G) (β : H ⟶ I) : F.comp H ⟶ G.com
   -- rw [Functor.comp_map, Functor.comp_map, ← assoc, naturality, assoc, ← I.map_comp, naturality,
   --   map_comp, assoc]
 
+structure Iso {C : Type u} [Category.{v} C] (X Y : C) where
+  hom : X ⟶ Y
+  inv : Y ⟶ X
+  hom_inv_id : hom ≫ inv = 𝟙 X := by cat_tac
+  inv_hom_id : inv ≫ hom = 𝟙 Y := by cat_tac
+
+attribute [grind =] Iso.hom_inv_id Iso.inv_hom_id
+
+/-- Notation for an isomorphism in a category. -/
+infixr:10 " ≅ " => Iso -- type as \cong or \iso
+
+variable {C : Type u} [Category.{v} C] {X Y Z : C}
+
+namespace Iso
+
+@[ext]
+theorem ext ⦃α β : X ≅ Y⦄ (w : α.hom = β.hom) : α = β :=
+  suffices α.inv = β.inv by
+    cases α
+    cases β
+    cases w
+    cases this
+    rfl
+  calc
+    α.inv = α.inv ≫ β.hom ≫ β.inv   := by grind
+    _     = β.inv                    := by grind
+
+
+/-- `LeftInverse g f` means that g is a left inverse to f. That is, `g ∘ f = id`. -/
+def Function.LeftInverse (g : β → α) (f : α → β) : Prop :=
+  ∀ x, g (f x) = x
+
+/-- `RightInverse g f` means that g is a right inverse to f. That is, `f ∘ g = id`. -/
+def Function.RightInverse (g : β → α) (f : α → β) : Prop :=
+  LeftInverse f g
+
+open Function
+
+/-- `α ≃ β` is the type of functions from `α → β` with a two-sided inverse. -/
+structure Equiv (α : Sort _) (β : Sort _) where
+  protected toFun : α → β
+  protected invFun : β → α
+  protected left_inv : LeftInverse invFun toFun
+  protected right_inv : RightInverse invFun toFun
+
+@[inherit_doc]
+infixl:25 " ≃ " => Equiv
+
+attribute [local grind] Function.LeftInverse in
+/-- The bijection `(Z ⟶ X) ≃ (Z ⟶ Y)` induced by `α : X ≅ Y`. -/
+def homToEquiv (α : X ≅ Y) {Z : C} : (Z ⟶ X) ≃ (Z ⟶ Y) where
+  toFun f := f ≫ α.hom
+  invFun g := g ≫ α.inv
+  left_inv := by cat_tac
+  right_inv := sorry
+
+end Iso
 end CategoryTheory

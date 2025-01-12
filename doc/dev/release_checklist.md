@@ -37,16 +37,32 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - Create the tag `v4.6.0` from `master`/`main` and push it.
     - Merge the tag `v4.6.0` into the `stable` branch and push it.
   - We do this for the repositories:
-    - [lean4checker](https://github.com/leanprover/lean4checker)
-      - No dependencies
-      - Toolchain bump PR
-      - Create and push the tag
-      - Merge the tag into `stable`
     - [Batteries](https://github.com/leanprover-community/batteries)
       - No dependencies
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`
+    - [lean4checker](https://github.com/leanprover/lean4checker)
+      - No dependencies
+      - Toolchain bump PR
+      - Create and push the tag
+      - Merge the tag into `stable`
+    - [doc-gen4](https://github.com/leanprover/doc-gen4)
+      - Dependencies: exist, but they're not part of the release workflow
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [Verso](https://github.com/leanprover/verso)
+      - Dependencies: exist, but they're not part of the release workflow
+      - The `SubVerso` dependency should be compatible with _every_ Lean release simultaneously, rather than following this workflow
+      - Toolchain bump PR including updated Lake manifest
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
+    - [Cli](https://github.com/leanprover/lean4-cli)
+      - No dependencies
+      - Toolchain bump PR
+      - Create and push the tag
+      - There is no `stable` branch; skip this step
     - [ProofWidgets4](https://github.com/leanprover-community/ProofWidgets4)
       - Dependencies: `Batteries`
       - Note on versions and branches:
@@ -61,17 +77,6 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
-    - [doc-gen4](https://github.com/leanprover/doc-gen4)
-      - Dependencies: exist, but they're not part of the release workflow
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - There is no `stable` branch; skip this step
-    - [Verso](https://github.com/leanprover/verso)
-      - Dependencies: exist, but they're not part of the release workflow
-      - The `SubVerso` dependency should be compatible with _every_ Lean release simultaneously, rather than following this workflow
-      - Toolchain bump PR including updated Lake manifest
-      - Create and push the tag
-      - There is no `stable` branch; skip this step
     - [import-graph](https://github.com/leanprover-community/import-graph)
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag

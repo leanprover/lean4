@@ -523,7 +523,7 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     return (← getEnv).compileDecl opts decl
   match res with
   | Except.ok env => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg
   | Except.error ex =>
@@ -535,7 +535,7 @@ def compileDecls (decls : List Name) : CoreM Unit := do
     compileDeclsNew decls
   match (← getEnv).compileDecls opts decls with
   | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     throwError msg
   | Except.error ex =>
     throwKernelException ex

@@ -150,6 +150,10 @@ See the `simp` tactic for more information. -/
 syntax (name := simp) "simp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*) "]")? : conv
 
+/-- `simp?` takes the same arguments as `simp`, but reports an equivalent call to `simp only`
+that would be sufficient to close the goal. See the `simp?` tactic for more information. -/
+syntax (name := simpTrace) "simp?" optConfig (discharger)? (&" only")? (simpArgs)? : conv
+
 /--
 `dsimp` is the definitional simplifier in `conv`-mode. It differs from `simp` in that it only
 applies theorems that hold by reflexivity.
@@ -166,6 +170,9 @@ example (a : Nat): (0 + 0) = a - a := by
 -/
 syntax (name := dsimp) "dsimp" optConfig (discharger)? (&" only")?
   (" [" withoutPosition((simpErase <|> simpLemma),*) "]")? : conv
+
+@[inherit_doc simpTrace]
+syntax (name := dsimpTrace) "dsimp?" optConfig (&" only")? (dsimpArgs)? : conv
 
 /-- `simp_match` simplifies match expressions. For example,
 ```

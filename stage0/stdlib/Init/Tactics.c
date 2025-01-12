@@ -16374,7 +16374,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_inductionAlts___closed__7() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Parser_Tactic_revert___closed__5;
+x_1 = l_Lean_Parser_Tactic_intro___closed__11;
 x_2 = l_Lean_Parser_Tactic_inductionAlts___closed__6;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);

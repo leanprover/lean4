@@ -24,6 +24,7 @@ import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.CasesMatch
+import Lean.Meta.Tactic.Grind.Arith
 
 namespace Lean
 
@@ -42,6 +43,10 @@ builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
+builtin_initialize registerTraceClass `grind.offset
+builtin_initialize registerTraceClass `grind.offset.dist
+builtin_initialize registerTraceClass `grind.offset.internalize
+builtin_initialize registerTraceClass `grind.offset.internalize.term (inherited := true)
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -54,4 +59,6 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
+builtin_initialize registerTraceClass `grind.debug.offset
+builtin_initialize registerTraceClass `grind.debug.offset.proof
 end Lean

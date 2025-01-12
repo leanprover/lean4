@@ -17,7 +17,7 @@ x ≤ y + k
 ```
 where `k` is a numeral.
 Each constraint is represented as an edge in a weighted graph.
-The constraint `x ≤ y + k` is represented as a negative edge.
+The constraint `x + k ≤ y` is represented as a negative edge.
 The shortest path between two nodes in the graph corresponds to an implied inequality.
 When adding a new edge, the state is considered unsatisfiable if the new edge creates a negative cycle.
 An incremental Floyd-Warshall algorithm is used to find the shortest paths between all nodes.
@@ -141,10 +141,10 @@ def Cnstr.toExpr (c : Cnstr NodeId) : OffsetM Expr := do
   let mk := if c.le then mkNatLE else mkNatEq
   if c.k == 0 then
     return mk a b
-  else if c.k > 0 then
-    return mk (mkNatAdd a (Lean.toExpr (c.k.toNat))) b
+  else if c.k < 0 then
+    return mk (mkNatAdd a (Lean.toExpr ((-c.k).toNat))) b
   else
-    return mk a (mkNatAdd b (Lean.toExpr (- c.k).toNat))
+    return mk a (mkNatAdd b (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := OffsetM.run do
   let s ← get

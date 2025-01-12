@@ -54,7 +54,7 @@ structure Offset.Cnstr (α : Type) where
   deriving Inhabited
 
 def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { a, b, k, le } => { a := b, b := a, le, k := -k + 1 }
+  | { a, b, k, le } => { a := b, b := a, le, k := -k - 1 }
 
 example (c : Offset.Cnstr α) : c.neg.neg = c := by
   cases c; simp [Offset.Cnstr.neg]; omega
@@ -63,10 +63,10 @@ def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : Messa
   match c.k, c.le with
   | .ofNat 0,   true  => m!"{c.a} ≤ {c.b}"
   | .ofNat 0,   false => m!"{c.a} = {c.b}"
-  | .ofNat k,   true  => m!"{c.a} + {k} ≤ {c.b}"
-  | .ofNat k,   false => m!"{c.a} + {k} = {c.b}"
-  | .negSucc k, true  => m!"{c.a} ≤ {c.b} + {k + 1}"
-  | .negSucc k, false => m!"{c.a} = {c.b} + {k + 1}"
+  | .ofNat k,   true  => m!"{c.a} ≤ {c.b} + {k}"
+  | .ofNat k,   false => m!"{c.a} = {c.b} + {k}"
+  | .negSucc k, true  => m!"{c.a} + {k + 1} ≤ {c.b}"
+  | .negSucc k, false => m!"{c.a} + {k + 1} = {c.b}"
 
 instance : ToMessageData (Offset.Cnstr Expr) where
   toMessageData c := Offset.toMessageData c
@@ -80,9 +80,9 @@ def isNatOffsetCnstr? (e : Expr) : Option (Offset.Cnstr Expr) :=
 where
   go (a b : Expr) (le : Bool) :=
     if let some (a, k) := isNatOffset? a then
-      some { a, k, b, le }
+      some { a, k := - k, b, le }
     else if let some (b, k) := isNatOffset? b then
-      some { a, b, k := - k, le }
+      some { a, b, k := k, le }
     else
       some { a, b, le }
 

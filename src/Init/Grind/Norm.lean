@@ -46,6 +46,11 @@ attribute [grind_norm] not_false_eq_true
 theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
 
+@[grind_norm] theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
+@[grind_norm] theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
+@[grind_norm] theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
+@[grind_norm] theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
+
 -- And
 @[grind_norm↓] theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by
   by_cases p <;> by_cases q <;> simp [*]

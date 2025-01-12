@@ -73,7 +73,7 @@ Creates an `Offset` from a natural number.
 -/
 @[inline]
 def ofNat (data : Nat) : Offset :=
-  .ofNat data
+  Int.ofNat data
 
 /--
 Creates an `Offset` from an integer.

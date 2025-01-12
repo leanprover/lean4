@@ -702,6 +702,15 @@ def getENodes : GoalM (Array ENode) := do
   let nodes := (← get).enodes.toArray.map (·.2)
   return nodes.qsort fun a b => a.idx < b.idx
 
+/-- Executes `f` to each term in the equivalence class containing `e` -/
+@[inline] def traverseEqc (e : Expr) (f : ENode → GoalM Unit) : GoalM Unit := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    f n
+    if isSameExpr n.next e then return ()
+    curr := n.next
+
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes
   for n in nodes do

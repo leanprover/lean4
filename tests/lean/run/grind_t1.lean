@@ -210,3 +210,6 @@ set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
 example (P Q R : α → Prop) (h₁ : ∀ x, Q x → P x) (h₂ : ∀ x, R x → False = (P x)) : Q a → R a → False := by
   grind
+
+example (w : Nat → Type) (h : ∀ n, Subsingleton (w n)) : True := by
+  grind

@@ -499,7 +499,7 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
-private inductive TheoremKind where
+inductive TheoremKind where
   | eqLhs | eqRhs | eqBoth | fwd | bwd | default
   deriving Inhabited, BEq
 

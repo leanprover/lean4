@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Grind.Offset
+import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind.Arith
@@ -15,8 +16,8 @@ Helper functions for constructing proof terms in the arithmetic procedures.
 
 namespace Offset
 
-/-- `Eq.refl true` -/
-def rfl_true : Expr := mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+/-- Returns a proof for `true = true` -/
+def rfl_true : Expr := mkConst ``Grind.rfl_true
 
 open Lean.Grind in
 /--

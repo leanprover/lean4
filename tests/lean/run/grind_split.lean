@@ -28,6 +28,10 @@ set_option trace.grind true in
 example (p : Prop) [Decidable p] (a b c : Nat) : (if p then a else b) = c → R a → R b → R c := by
   grind
 
+example (p : Prop) [Decidable p] (a b c : Nat) : (if p then a else b) = c → R a → R b → R c := by
+  fail_if_success grind (splitIte := false)
+  sorry
+
 namespace grind_test_induct_pred
 
 inductive Expr where
@@ -51,5 +55,9 @@ inductive HasType : Expr → Ty → Prop
 set_option trace.grind true
 theorem HasType.det (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
   grind
+
+theorem HasType.det' (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
+  fail_if_success grind (splitIndPred := false)
+  sorry
 
 end grind_test_induct_pred

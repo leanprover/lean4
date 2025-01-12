@@ -129,7 +129,7 @@ static lean_object* l_Lean_PrettyPrinter_Parenthesizer_maybeParenthesize___lambd
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkColGt_parenthesizer(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___closed__10;
 static lean_object* l_Lean_PrettyPrinter_mkParenthesizerAttribute___closed__8;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Nat_forM_loop___at_Lean_PrettyPrinter_Parenthesizer_manyNoAntiquot_parenthesizer___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Parenthesizer_checkKind___closed__7;
@@ -1512,9 +1512,8 @@ goto block_29;
 else
 {
 lean_object* x_31; 
-lean_inc(x_14);
 lean_inc(x_10);
-x_31 = lean_environment_find(x_10, x_14);
+x_31 = l_Lean_Environment_find_x3f(x_10, x_14);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; 

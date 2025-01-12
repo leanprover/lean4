@@ -89,7 +89,7 @@ static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_Unr
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_UnreachableBranches_interpFnBody___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 lean_object* l_Std_Format_join(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_List_repr___at___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_43____spec__4___closed__7;
 static lean_object* l___private_Lean_Compiler_IR_ElimDeadBranches_0__Lean_IR_UnreachableBranches_reprValue____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_43____closed__12;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -3478,9 +3478,8 @@ x_14 = l_Lean_NameSet_contains(x_3, x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; 
-lean_inc(x_13);
 lean_inc(x_1);
-x_15 = lean_environment_find(x_1, x_13);
+x_15 = l_Lean_Environment_find_x3f(x_1, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 size_t x_16; size_t x_17; lean_object* x_18; 
@@ -3648,9 +3647,8 @@ x_56 = l_Lean_NameSet_contains(x_3, x_55);
 if (x_56 == 0)
 {
 lean_object* x_57; 
-lean_inc(x_55);
 lean_inc(x_1);
-x_57 = lean_environment_find(x_1, x_55);
+x_57 = l_Lean_Environment_find_x3f(x_1, x_55);
 if (lean_obj_tag(x_57) == 0)
 {
 size_t x_58; size_t x_59; lean_object* x_60; lean_object* x_61; 

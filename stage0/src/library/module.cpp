@@ -245,7 +245,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
 def writeModule (env : Environment) (fname : String) : IO Unit := */
 extern "C" object * lean_write_module(object * env, object * fname, object *);
 
-void write_module(environment const & env, std::string const & olean_fn) {
+void write_module(elab_environment const & env, std::string const & olean_fn) {
     consume_io_result(lean_write_module(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
 }
 }

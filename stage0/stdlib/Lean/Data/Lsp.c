@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.Lsp
-// Imports: Lean.Data.Lsp.Basic Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Client Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.Internal Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc Lean.Data.Lsp.CodeActions
+// Imports: Lean.Data.Lsp.Basic Lean.Data.Lsp.CancelParams Lean.Data.Lsp.Capabilities Lean.Data.Lsp.Client Lean.Data.Lsp.Communication Lean.Data.Lsp.Diagnostics Lean.Data.Lsp.Extra Lean.Data.Lsp.InitShutdown Lean.Data.Lsp.Internal Lean.Data.Lsp.LanguageFeatures Lean.Data.Lsp.TextSync Lean.Data.Lsp.Utf16 Lean.Data.Lsp.Workspace Lean.Data.Lsp.Ipc Lean.Data.Lsp.CodeActions
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* initialize_Lean_Data_Lsp_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_Lsp_CancelParams(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Capabilities(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Client(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp_Communication(uint8_t builtin, lean_object*);
@@ -33,6 +34,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Data_Lsp_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_Lsp_CancelParams(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Capabilities(builtin, lean_io_mk_world());

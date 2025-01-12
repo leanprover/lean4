@@ -6,7 +6,7 @@ def fallback : Fallback := do
   let falseExprs := (← filterENodes fun e => return e.self.isFVar && (← isEqFalse e.self)).toList.map (·.self)
   logInfo m!"true:  {trueExprs}"
   logInfo m!"false: {falseExprs}"
-  forEachEqc fun n => do
+  forEachEqcRoot fun n => do
     unless (← isProp n.self) || (← isType n.self) || n.size == 1 do
       let eqc ← getEqc n.self
       logInfo eqc

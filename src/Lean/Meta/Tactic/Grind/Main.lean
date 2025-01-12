@@ -30,7 +30,7 @@ def mkMethods (fallback : Fallback) : CoreM Methods := do
      if let some prop := builtinPropagators.up[declName]? then
        prop e
     propagateDown := fun e => do
-     propagateImpliesDown e
+     propagateForallPropDown e
      let .const declName _ := e.getAppFn | return ()
      if let some prop := builtinPropagators.down[declName]? then
        prop e
@@ -70,7 +70,7 @@ def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goa
 
 /-- A very simple strategy -/
 private def simple (goals : List Goal) : GrindM (List Goal) := do
-  applyToAll (ematchStar >> (splitNext >> ematchStar).iterate) goals
+  applyToAll (assertAll >> ematchStar >> (splitNext >> assertAll >> ematchStar).iterate) goals
 
 def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List MVarId) := do
   let go : GrindM (List MVarId) := do

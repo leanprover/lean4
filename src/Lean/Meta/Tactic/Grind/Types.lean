@@ -13,16 +13,13 @@ import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
+import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Grind
-
-@[inline] def isSameExpr (a b : Expr) : Bool :=
-  -- It is safe to use pointer equality because we hashcons all expressions
-  -- inserted into the E-graph
-  unsafe ptrEq a b
 
 /-- We use this auxiliary constant to mark delayed congruence proofs. -/
 def congrPlaceholderProof := mkConst (Name.mkSimple "[congruence]")
@@ -224,20 +221,6 @@ structure NewEq where
   proof : Expr
   isHEq : Bool
 
-/--
-Key for the `ENodeMap` and `ParentMap` map.
-We use pointer addresses and rely on the fact all internalized expressions
-have been hash-consed, i.e., we have applied `shareCommon`.
--/
-private structure ENodeKey where
-  expr : Expr
-
-instance : Hashable ENodeKey where
-  hash k := unsafe (ptrAddrUnsafe k.expr).toUInt64
-
-instance : BEq ENodeKey where
-  beq k₁ k₂ := isSameExpr k₁.expr k₂.expr
-
 abbrev ENodeMap := PHashMap ENodeKey ENode
 
 /--
@@ -368,6 +351,8 @@ structure Goal where
   gmt          : Nat := 0
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
+  /-- State of arithmetic procedures -/
+  arith        : Arith.State := {}
   /-- Active theorems that we have performed ematching at least once. -/
   thms         : PArray EMatchTheorem := {}
   /-- Active theorems that we have not performed any round of ematching yet. -/
@@ -393,6 +378,8 @@ structure Goal where
   numSplits : Nat := 0
   /-- Case-splits that do not have to be performed anymore. -/
   resolvedSplits : PHashSet ENodeKey := {}
+  /-- Next local E-match theorem idx. -/
+  nextThmIdx : Nat := 0
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -700,6 +687,15 @@ def getENodes : GoalM (Array ENode) := do
   let nodes := (← get).enodes.toArray.map (·.2)
   return nodes.qsort fun a b => a.idx < b.idx
 
+/-- Executes `f` to each term in the equivalence class containing `e` -/
+@[inline] def traverseEqc (e : Expr) (f : ENode → GoalM Unit) : GoalM Unit := do
+  let mut curr := e
+  repeat
+    let n ← getENode curr
+    f n
+    if isSameExpr n.next e then return ()
+    curr := n.next
+
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes
   for n in nodes do
@@ -712,7 +708,7 @@ def filterENodes (p : ENode → GoalM Bool) : GoalM (Array ENode) := do
       ref.modify (·.push n)
   ref.get
 
-def forEachEqc (f : ENode → GoalM Unit) : GoalM Unit := do
+def forEachEqcRoot (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes
   for n in nodes do
     if isSameExpr n.self n.root then

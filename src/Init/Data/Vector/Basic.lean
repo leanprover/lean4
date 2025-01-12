@@ -103,7 +103,7 @@ of bounds.
 @[inline] def head [NeZero n] (v : Vector α n) := v[0]'(Nat.pos_of_neZero n)
 
 /-- Push an element `x` to the end of a vector. -/
-@[inline] def push (x : α) (v : Vector α n)  : Vector α (n + 1) :=
+@[inline] def push (v : Vector α n) (x : α) : Vector α (n + 1) :=
   ⟨v.toArray.push x, by simp⟩
 
 /-- Remove the last element of a vector. -/

@@ -6,11 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "library/util.h"
+#include "library/elab_environment.h"
 namespace lean {
 /** \brief Return true iff \c c was declared with \c add_class. */
-bool is_class(environment const & env, name const & c);
+bool is_class(elab_environment const & env, name const & c);
 /** \brief Return true iff \c i was declared with \c add_instance. */
-bool is_instance(environment const & env, name const & i);
+bool is_instance(elab_environment const & env, name const & i);
 
 name const & get_anonymous_instance_prefix();
 name mk_anonymous_inst_name(unsigned idx);
@@ -20,7 +21,7 @@ bool is_anonymous_inst_name(name const & n);
 bool is_class_out_param(expr const & e);
 
 /** \brief Return true iff c is a type class that contains an `outParam` */
-bool has_class_out_params(environment const & env, name const & c);
+bool has_class_out_params(elab_environment const & env, name const & c);
 
 void initialize_class();
 void finalize_class();

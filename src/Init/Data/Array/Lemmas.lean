@@ -1508,7 +1508,7 @@ theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array 
 
 /-! ### singleton -/
 
-@[simp] theorem singleton_def (v : α) : singleton v = #[v] := rfl
+@[simp] theorem singleton_def (v : α) : Array.singleton v = #[v] := rfl
 
 /-! ### append -/
 

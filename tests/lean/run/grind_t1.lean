@@ -234,3 +234,6 @@ example {α} (a b c : α) [LE α] :
 example {α} (a b c : α) [LE α] :
   ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
   grind
+
+example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true) := by
+  grind

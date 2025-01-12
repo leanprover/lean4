@@ -141,6 +141,7 @@ where
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
+    propagateEqcDown lhs
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
@@ -158,14 +159,13 @@ where
       updateMT rhsRoot.self
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
-    let rec loop (e : Expr) : GoalM Unit := do
-      let n ← getENode e
-      setENode e { n with root := rootNew }
+    traverseEqc lhs fun n =>
+      setENode n.self { n with root := rootNew }
+
+  propagateEqcDown (lhs : Expr) : GoalM Unit := do
+    traverseEqc lhs fun n =>
       unless (← isInconsistent) do
-        propagateDown e
-      if isSameExpr lhs n.next then return ()
-      loop n.next
-    loop lhs
+        propagateDown n.self
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewEqs : GoalM Unit :=

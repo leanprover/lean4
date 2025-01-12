@@ -126,32 +126,32 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   else if (← isEqTrue b) then
     pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
-    pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkEqProof a b)
+    pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
   if (← isEqTrue e) then
     let_expr Eq _ a b := e | return ()
-    pushEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+    pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
 
 /-- Propagates `EqMatch` downwards -/
 builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do
   if (← isEqTrue e) then
     let_expr Grind.EqMatch _ a b origin := e | return ()
     markCaseSplitAsResolved origin
-    pushEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+    pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
 
 /-- Propagates `HEq` downwards -/
 builtin_grind_propagator propagateHEqDown ↓HEq := fun e => do
   if (← isEqTrue e) then
     let_expr HEq _ a _ b := e | return ()
-    pushHEq a b <| mkApp2 (mkConst ``of_eq_true) e (← mkEqTrueProof e)
+    pushHEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
 
 /-- Propagates `HEq` upwards -/
 builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
   let_expr HEq _ a _ b := e | return ()
   if (← isEqv a b) then
-    pushEqTrue e <| mkApp2 (mkConst ``eq_true) e (← mkHEqProof a b)
+    pushEqTrue e <| mkEqTrueCore e (← mkHEqProof a b)
 
 /-- Propagates `ite` upwards -/
 builtin_grind_propagator propagateIte ↑ite := fun e => do
@@ -166,7 +166,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
   let_expr f@dite α c h a b := e | return ()
   if (← isEqTrue c) then
      let h₁ ← mkEqTrueProof c
-     let ah₁ := mkApp a (mkApp2 (mkConst ``of_eq_true) c h₁)
+     let ah₁ := mkApp a (mkOfEqTrueCore c h₁)
      let p ← simp ah₁
      let r := p.expr
      let h₂ ← p.getProof

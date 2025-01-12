@@ -145,7 +145,7 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)
     else
       return mkApp3 (mkConst ``Grind.of_eq_eq_false) a b (← mkEqFalseProof c)
-  | _ => return mkApp2 (mkConst ``of_eq_true) c (← mkEqTrueProof c)
+  | _ => return mkOfEqTrueCore c (← mkEqTrueProof c)
 
 /-- Introduces new hypotheses in each goal. -/
 private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do

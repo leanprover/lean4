@@ -14,20 +14,20 @@ def internalizeTerm (_e : Expr) (_a : Expr) (_k : Nat) : GoalM Unit := do
   -- TODO
   return ()
 
-def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := OffsetM.run do
+def internalizeCnstr (e : Expr) : GoalM Unit := do
+  let some c := isNatOffsetCnstr? e | return ()
   let c := { c with
     a := (← mkNode c.a)
     b := (← mkNode c.b)
   }
   trace[grind.offset.internalize] "{e} ↦ {c}"
-  modify fun s => { s with
+  modify' fun s => { s with
     cnstrs := s.cnstrs.insert { expr := e } c
   }
 
 end Offset
 
 def internalize (e : Expr) : GoalM Unit := do
-  if let some c := isNatOffsetCnstr? e then
-    Offset.internalizeCnstr e c
+  Offset.internalizeCnstr e
 
 end Lean.Meta.Grind.Arith

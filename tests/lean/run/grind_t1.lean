@@ -222,3 +222,6 @@ example {P U V W : Prop} (h : P ↔ (V ↔ W)) (w : ¬ U ↔ V) : ¬ P ↔ (U �
 
 example {P Q : Prop} (q : Q) (w : P = (P = ¬ Q)) : False := by
   grind
+
+example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
+  grind

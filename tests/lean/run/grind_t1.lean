@@ -218,7 +218,7 @@ example {P1 P2 : Prop} : (P1 ∧ P2) ↔ (P2 ∧ P1) := by
   grind
 
 example {P U V W : Prop} (h : P ↔ (V ↔ W)) (w : ¬ U ↔ V) : ¬ P ↔ (U ↔ W) := by
-  grind (splits := 6)
+  grind
 
 example {P Q : Prop} (q : Q) (w : P = (P = ¬ Q)) : False := by
   grind

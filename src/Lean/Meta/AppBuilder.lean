@@ -583,6 +583,12 @@ def mkOfEqTrue (h : Expr) : MetaM Expr := do
   | _ => mkAppM ``of_eq_true #[h]
 
 /-- Returns `eq_true h` -/
+def mkEqTrueCore (p : Expr) (h : Expr) : Expr :=
+  match_expr h with
+  | of_eq_true _ h => h
+  | _ => mkApp2 (mkConst ``eq_true) p h
+
+/-- Returns `eq_true h` -/
 def mkEqTrue (h : Expr) : MetaM Expr := do
   match_expr h with
   | of_eq_true _ h => return h

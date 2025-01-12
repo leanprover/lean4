@@ -24,7 +24,7 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
     unless (← isEqTrue p) do return
     trace_goal[grind.debug.forallPropagator] "isEqTrue, {e}"
     let h₁ ← mkEqTrueProof p
-    let qh₁ := q.instantiate1 (mkApp2 (mkConst ``of_eq_true) p h₁)
+    let qh₁ := q.instantiate1 (mkOfEqTrueCore p h₁)
     let r ← simp qh₁
     let q := mkLambda n bi p q
     let q' := r.expr
@@ -65,7 +65,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   else
     let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
-  let proof := mkApp2 (mkConst ``of_eq_true) e proof
+  let proof := mkOfEqTrueCore e proof
   let size := (← get).newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem

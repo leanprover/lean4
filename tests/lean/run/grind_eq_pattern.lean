@@ -13,8 +13,8 @@ info: [grind.assert] xs.getLast? = b?
 [grind.assert] xs = []
 [grind.assert] (xs.getLast? = some 10) = ∃ ys, xs = ys ++ [10]
 [grind.assert] xs = w ++ [10]
-[grind.assert] ¬w = [] → w ++ [10] = [] → False
-[grind.assert] w ++ [10] = [] → False
+[grind.assert] ¬w = [] → ¬w ++ [10] = []
+[grind.assert] ¬w ++ [10] = []
 -/
 #guard_msgs (info) in
 set_option trace.grind.assert true in

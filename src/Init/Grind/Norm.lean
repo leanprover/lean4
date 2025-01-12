@@ -49,6 +49,7 @@ theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
 @[grind_norm] theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
 @[grind_norm] theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
 @[grind_norm] theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
+@[grind_norm] theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
 @[grind_norm] theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
 -- And

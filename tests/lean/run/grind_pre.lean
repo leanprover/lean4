@@ -9,10 +9,8 @@ case grind.1.2
 a b c : Bool
 p q : Prop
 left✝ : a = true
-right✝ : b = true ∨ c = true
 left : p
 right : q
-x✝ : b = false ∨ a = false
 h✝ : b = false
 h : c = true
 ⊢ False
@@ -94,7 +92,6 @@ h₁ : HEq p a
 h₂ : HEq q a
 h₃ : p = r
 left : ¬p ∨ r
-right : ¬r ∨ p
 h : ¬r
 ⊢ False
 
@@ -106,7 +103,6 @@ h₁ : HEq p a
 h₂ : HEq q a
 h₃ : p = r
 left : ¬p ∨ r
-right : ¬r ∨ p
 h : p
 ⊢ False
 -/

@@ -39,6 +39,11 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
         return .ready
     else
       return .notReady
+  | Eq _ _ _ =>
+    if (← isEqTrue e <||> isEqFalse e) then
+      return .ready
+    else
+      return .notReady
   | ite _ c _ _ _ =>
     if (← isEqTrue c <||> isEqFalse c) then
       return .resolved
@@ -94,6 +99,11 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
   | And a b => return mkApp3 (mkConst ``Grind.or_of_and_eq_false) a b (← mkEqFalseProof c)
   | ite _ c _ _ _ => return mkEM c
   | dite _ c _ _ _ => return mkEM c
+  | Eq _ a b =>
+    if (← isEqTrue c) then
+      return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)
+    else
+      return mkApp3 (mkConst ``Grind.of_eq_eq_false) a b (← mkEqFalseProof c)
   | _ => return mkApp2 (mkConst ``of_eq_true) c (← mkEqTrueProof c)
 
 /-- Introduces new hypotheses in each goal. -/

@@ -53,10 +53,18 @@ private def addSplitCandidate (e : Expr) : GoalM Unit := do
 -- TODO: add attribute to make this extensible
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
+/-- Returns `true` if `e` is of the form `@Eq Prop a b` -/
+def isMorallyIff (e : Expr) : Bool :=
+  let_expr Eq α _ _ := e | false
+  α.isProp
+
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
   unless e.isApp do return ()
   if (← getConfig).splitIte && (e.isIte || e.isDIte) then
+    addSplitCandidate e
+    return ()
+  if isMorallyIff e then
     addSplitCandidate e
     return ()
   if (← getConfig).splitMatch then

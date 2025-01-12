@@ -11,6 +11,7 @@ import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
 
@@ -196,6 +197,7 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
       mkENode e generation
       addCongrTable e
       updateAppMap e
+      Arith.internalize e
       propagateUp e
 end
 

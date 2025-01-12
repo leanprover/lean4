@@ -225,3 +225,12 @@ example {P Q : Prop} (q : Q) (w : P = (P = ¬ Q)) : False := by
 
 example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
   grind
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  simp_arith -- should not fail
+  sorry
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  grind

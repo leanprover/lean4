@@ -25,7 +25,7 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 -/
 structure Config where
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
-  splits : Nat := 5
+  splits : Nat := 8
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
   ematch : Nat := 5
   /--

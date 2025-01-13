@@ -1884,8 +1884,9 @@ theorem alterKey_cons_perm [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) �
 
 theorem isEmpty_alterKey [BEq α] [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     {l : List ((a : α) × β a)} :
-    (alterKey k f l).isEmpty ↔ (eraseKey k l).isEmpty ∧ f (getValueCast? k l) = none := by
-  simp only [alterKey, List.isEmpty_eq_true]
+    (alterKey k f l).isEmpty = ((eraseKey k l).isEmpty && (f (getValueCast? k l)).isNone) := by
+  rw [Bool.eq_iff_iff]
+  simp only [alterKey, List.isEmpty_eq_true, Bool.and_eq_true_iff]
   split
   · next heq =>
     simp only [iff_self_and, heq];
@@ -1929,6 +1930,26 @@ theorem containsKey_alterKey_self [BEq α] [LawfulBEq α] {a : α} {f : Option (
       simp only [hl, heq, Option.isSome_none, containsKey_eraseKey_self]
     · next heq =>
       simp only [containsKey_insertEntry, heq, beq_self_eq_true, Bool.true_or, Option.isSome_some]
+
+theorem containsKey_alterKey [BEq α] [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+    {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
+    containsKey k' (alterKey k f l) =
+    if heq : k == k' then
+      f (getValueCast? k l) |>.isSome
+    else
+      containsKey k' l := by
+  split
+  · next h =>
+    rw [← containsKey_congr h]
+    exact containsKey_alterKey_self hl
+  · next h =>
+    rw [alterKey]
+    split
+    · next heq =>
+      simp only [containsKey_eraseKey_of_false (Bool.not_eq_true _ ▸ h)]
+    · next heq =>
+      simp_all only [beq_iff_eq, containsKey_insertEntry, Bool.or_iff_right_iff_imp, false_implies]
+    done
 
 theorem DistinctKeys.alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) : DistinctKeys (alterKey a f l) := by

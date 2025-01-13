@@ -985,7 +985,7 @@ theorem alter_empty_of_some [LawfulBEq α] {k : α} {f : Option (β k) → Optio
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     -- should we use = or ↔? LHS is Bool, RHS is Prop.
     -- mem_iff_contains suggests ↔.
-    (m.alter k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (m.get? k) = none :=
+    (m.alter k f).isEmpty = (m.erase k).isEmpty && (f (m.get? k)).isNone :=
   Raw₀.isEmpty_alter _ m.2
 
 theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
@@ -993,7 +993,7 @@ theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (
   sorry
 
 theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
-    k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome else m.contains k' := by
+    k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome else k' ∈ m := by
     rw [mem_iff_contains, contains_alter]
 
 @[simp]

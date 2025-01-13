@@ -16,13 +16,15 @@ def internalizeTerm (_e : Expr) (_a : Expr) (_k : Nat) : GoalM Unit := do
 
 def internalizeCnstr (e : Expr) : GoalM Unit := do
   let some c := isNatOffsetCnstr? e | return ()
-  let c := { c with
-    a := (← mkNode c.a)
-    b := (← mkNode c.b)
-  }
+  let u ← mkNode c.u
+  let v ← mkNode c.v
+  let c := { c with u, v }
   trace[grind.offset.internalize] "{e} ↦ {c}"
   modify' fun s => { s with
-    cnstrs := s.cnstrs.insert { expr := e } c
+    cnstrs   := s.cnstrs.insert { expr := e } c
+    cnstrsOf :=
+      let cs := if let some cs := s.cnstrsOf.find? (u, v) then (c, e) :: cs else [(c, e)]
+      s.cnstrsOf.insert (u, v) cs
   }
 
 end Offset

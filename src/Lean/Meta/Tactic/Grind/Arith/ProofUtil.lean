@@ -74,8 +74,8 @@ def mkTrans (nodes : PArray Expr) (pi₁ : ProofInfo) (pi₂ : ProofInfo) (v : N
 
 open Lean.Grind in
 def mkOfNegEqFalse (nodes : PArray Expr) (c : Cnstr NodeId) (h : Expr) : Expr :=
-  let u := nodes[c.a]!
-  let v := nodes[c.b]!
+  let u := nodes[c.u]!
+  let v := nodes[c.v]!
   if c.k == 0 then
     mkApp3 (mkConst ``Nat.of_le_eq_false) u v h
   else if c.k == -1 && c.le then

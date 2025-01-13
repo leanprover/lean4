@@ -56,6 +56,10 @@ private def getDist? (u v : NodeId) : GoalM (Option Int) := do
 private def getProof? (u v : NodeId) : GoalM (Option ProofInfo) := do
   return (← get').proofs[u]!.find? v
 
+/--
+Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
+shortest path between `u` and `v`.
+-/
 partial def extractProof (u v : NodeId) : GoalM Expr := do
   go (← getProof? u v).get!
 where
@@ -66,6 +70,11 @@ where
       let p' := (← getProof? u p.w).get!
       go (mkTrans (← get').nodes p' p v)
 
+/--
+Given a new edge edge `u --(kuv)--> v` justified by proof `huv` s.t.
+it creates a negative cycle with the existing path `v --{kvu}-->* u`, i.e., `kuv + kvu < 0`,
+this function closes the current goal by constructing a proof of `False`.
+-/
 private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM Unit := do
   assert! kuv + kvu < 0
   let hvu ← extractProof v u
@@ -87,8 +96,9 @@ private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM
     assert! kuv > 0 && kvu < 0
     closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) v u (toExpr (-kvu).toNat) (toExpr kuv.toNat) rfl_true hvu huv)
 
+/-- Sets the new shortest distance `k` between nodes `u` and `v`. -/
 private def setDist (u v : NodeId) (k : Int) : GoalM Unit := do
-  trace[grind.offset.dist] "{({ a := u, b := v, k : Cnstr NodeId})}"
+  trace[grind.offset.dist] "{({ u, v, k : Cnstr NodeId})}"
   modify' fun s => { s with
     targets := s.targets.modify u fun es => es.insert v k
     sources := s.sources.modify v fun es => es.insert u k
@@ -107,17 +117,27 @@ private def forEachSourceOf (u : NodeId) (f : NodeId → Int → GoalM Unit) : G
 private def forEachTargetOf (u : NodeId) (f : NodeId → Int → GoalM Unit) : GoalM Unit := do
   (← get').targets[u]!.forM f
 
+/-- Returns `true` if `k` is smaller than the shortest distance between `u` and `v` -/
 private def isShorter (u v : NodeId) (k : Int) : GoalM Bool := do
   if let some k' ← getDist? u v then
     return k < k'
   else
     return true
 
+/--
+If `isShorter u v k`, updates the shortest distance between `u` and `v`.
+`w` is the penultimate node in the path from `u` to `v`.
+-/
 private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
     setProof u v (← getProof? w v).get!
 
+/--
+Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
+if no negative cycle was created, updates the shortest distance of affected
+node pairs.
+-/
 def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
   if (← isInconsistent) then return ()
   if let some k' ← getDist? v u then
@@ -147,21 +167,21 @@ def traceDists : GoalM Unit := do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
 
 def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
-  let a := (← get').nodes[c.a]!
-  let b := (← get').nodes[c.b]!
+  let u := (← get').nodes[c.u]!
+  let v := (← get').nodes[c.v]!
   let mk := if c.le then mkNatLE else mkNatEq
   if c.k == 0 then
-    return mk a b
+    return mk u v
   else if c.k < 0 then
-    return mk (mkNatAdd a (Lean.toExpr ((-c.k).toNat))) b
+    return mk (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
   else
-    return mk a (mkNatAdd b (Lean.toExpr c.k.toNat))
+    return mk u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
-      let c : Cnstr NodeId := { a := u, b := v, k }
+      let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
       let p ← extractProof u v
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"

@@ -1822,8 +1822,6 @@ theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
 
-/-! Content below this point has not yet been aligned with `List`. -/
-
 /-! ### flatten -/
 
 @[simp] theorem flatten_empty : (#[] : Array (Array α)).flatten = #[] := by simp [flatten]; rfl
@@ -1956,10 +1954,7 @@ theorem flatten_eq_push_iff {xs : Array (Array α)} {ys : Array α} {y : α} :
   induction xs using array₂_induction with
   | of xs =>
     rcases ys with ⟨ys⟩
-    rw [flatten_toArray_map]
-    rw [List.push_toArray]
-    rw [mk.injEq]
-    rw [List.flatten_eq_append_iff]
+    rw [flatten_toArray_map, List.push_toArray, mk.injEq, List.flatten_eq_append_iff]
     constructor
     · rintro (⟨as, bs, rfl, rfl, h⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, h⟩)
       · rw [List.singleton_eq_flatten_iff] at h
@@ -1972,25 +1967,34 @@ theorem flatten_eq_push_iff {xs : Array (Array α)} {ys : Array α} {y : α} :
         · simp at h₁ h₂
           obtain ⟨rfl, rfl⟩ := h₁
           exact ⟨(as.map List.toArray).toArray, bs.toArray, (ds.map List.toArray).toArray, by simpa⟩
-    · sorry
+    · rintro ⟨as, bs, cs, h₁, h₂, h₃⟩
+      replace h₁ := congrArg (List.map Array.toList) (congrArg Array.toList h₁)
+      simp [Function.comp_def] at h₁
+      subst h₁
+      replace h₃ := congrArg Array.toList h₃
+      simp at h₃
+      subst h₃
+      right
+      exact ⟨(as.map Array.toList).toList, bs.toList, y, [], (cs.map Array.toList).toList, by simpa⟩
 
-theorem flatten_eq_append_iff {xs : Array (Array α)} {ys zs : Array α} :
-    xs.flatten = ys ++ zs ↔
-      (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
-        ∃ (as : Array (Array α)) (bs : Array α) (c : α) (cs : Array α) (ds : Array (Array α)),
-          xs = as.push ((bs.push c ++ cs)) ++ ds ∧ ys = as.flatten ++ bs.push c ∧
-          zs = cs ++ ds.flatten := by
-  induction xs using array₂_induction with
-  | of xs =>
-    rcases ys with ⟨ys⟩
-    rcases zs with ⟨zs⟩
-    rw [flatten_toArray_map, List.append_toArray, mk.injEq, List.flatten_eq_append_iff]
-    constructor
-    · sorry
-    · sorry
+theorem push_eq_flatten_iff {xs : Array (Array α)} {ys : Array α} {y : α} :
+    ys.push y = xs.flatten ↔
+      ∃ (as : Array (Array α)) (bs : Array α) (cs : Array (Array α)),
+        xs = as.push (bs.push y) ++ cs ∧ (∀ l, l ∈ cs → l = #[]) ∧ ys = as.flatten ++ bs := by
+  rw [eq_comm, flatten_eq_push_iff]
 
-/-- Two lists of sublists are equal iff their flattens coincide, as well as the lengths of the
-sublists. -/
+-- For now we omit `flatten_eq_append_iff`,
+-- because it is not easily obtainable from `List.flatten_eq_append_iff`.
+-- theorem flatten_eq_append_iff {xs : Array (Array α)} {ys zs : Array α} :
+--     xs.flatten = ys ++ zs ↔
+--       (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
+--         ∃ (as : Array (Array α)) (bs : Array α) (c : α) (cs : Array α) (ds : Array (Array α)),
+--           xs = as.push ((bs.push c ++ cs)) ++ ds ∧ ys = as.flatten ++ bs.push c ∧
+--           zs = cs ++ ds.flatten := by sorry
+
+
+/-- Two arrays of subarrays are equal iff their flattens coincide, as well as the sizes of the
+subarrays. -/
 theorem eq_iff_flatten_eq {L L' : Array (Array α)} :
     L = L' ↔ L.flatten = L'.flatten ∧ map size L = map size L' := by
   cases L using array₂_induction with
@@ -2000,6 +2004,8 @@ theorem eq_iff_flatten_eq {L L' : Array (Array α)} :
       simp [Function.comp_def, ← List.eq_iff_flatten_eq]
       rw [List.map_inj_right]
       simp +contextual
+
+/-! Content below this point has not yet been aligned with `List`. -/
 
 -- This is a duplicate of `List.toArray_toList`.
 -- It's confusing to guess which namespace this theorem should live in,
@@ -3042,9 +3048,39 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
 
 /-! ### mkArray -/
 
+theorem eq_mkArray_of_mem {a : α} :
+    ∀ {l : Array α}, (∀ (b) (_ : b ∈ l), b = a) → l = mkArray l.size a
+  | [], _ => rfl
+  | b :: l, H => by
+    let ⟨rfl, H₂⟩ := forall_mem_cons (l := l).1 H
+    rw [length_cons, replicate, ← eq_replicate_of_mem H₂]
+
+theorem eq_mkArray_iff {a : α} {n} {l : List α} :
+    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a :=
+  ⟨fun h => h ▸ ⟨size_mkArray .., fun _ => eq_of_mem_replicate⟩,
+   fun ⟨e, al⟩ => e ▸ eq_mkArray_of_mem al⟩
+
+@[deprecated eq_replicate_iff (since := "2024-09-05")] abbrev eq_replicate := @eq_replicate_iff
+
+theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
+    l.map f = replicate l.length b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_replicate_iff]
+
 @[simp] theorem mem_mkArray (a : α) (n : Nat) : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
   rw [mkArray, mem_toArray]
   simp
+
+@[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = mkArray l.size b :=
+  map_eq_replicate_iff.mpr fun _ _ => rfl
+
+@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
+  funext l
+  simp
+
+/-- Variant of `map_const` using a lambda rather than `Function.const`. -/
+-- This can not be a `@[simp]` lemma because it would fire on every `Array.map`.
+theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = mkArray l.size b :=
+  map_const l b
 
 /-! ### reverse -/
 

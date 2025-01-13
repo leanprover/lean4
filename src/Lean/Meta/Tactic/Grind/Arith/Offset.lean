@@ -127,8 +127,6 @@ private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr)
     return true
   return false
 
-example (x y : Nat) : x + 2 ≤ y → ¬ (y ≤ x + 1) := by omega
-
 /--
 Tries to assign `e` to `False`, which is represented by constraint `c` (from `v` to `u`), using the
 path `u --(k)--> v`.

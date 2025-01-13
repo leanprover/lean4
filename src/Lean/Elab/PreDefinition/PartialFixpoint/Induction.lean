@@ -267,6 +267,7 @@ def derivePartialCorrectness (name : Name) : MetaM Unit := do
 
     let eTyp ← inferType e'
     let eTyp ← elimOptParam eTyp
+    let eTyp ← Core.betaReduce eTyp
     -- logInfo m!"eTyp: {eTyp}"
     let params := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order

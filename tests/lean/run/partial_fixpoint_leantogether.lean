@@ -49,7 +49,6 @@ partial_fixpoint
 theorem whileSome'_correct : whileSome' f x = some r → f r = none := by
   apply whileSome'.partial_correctness
   intros whileSome ih x r hyp
-  simp only at hyp
   split at hyp
   · simp_all
   · apply ih _ _ hyp

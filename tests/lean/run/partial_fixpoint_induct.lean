@@ -31,7 +31,7 @@ info: find.partial_correctness (P : Nat → Bool) (motive : Nat → Nat → Prop
   (h :
     ∀ (find : Nat → Option Nat),
       (∀ (x r : Nat), find x = some r → motive x r) →
-        ∀ (x r : Nat), (fun x => if P x = true then some x else find (x + 1)) x = some r → motive x r)
+        ∀ (x r : Nat), (if P x = true then some x else find (x + 1)) = some r → motive x r)
   (x r✝ : Nat) : find P x = some r✝ → motive x r✝
 -/
 #guard_msgs in #check find.partial_correctness
@@ -125,8 +125,7 @@ info: dependent3''a.partial_correctness (m : Nat) (motive_1 : Nat → (b : Bool)
         (∀ (k n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
             dependent3''b k n b = some r → motive_2 k n b r) →
           ∀ (n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
-            (fun n b => if x : b = true then dependent3''a (n + 1) b else dependent3''b m (n + m) b) n b = some r →
-              motive_1 n b r)
+            (if x : b = true then dependent3''a (n + 1) b else dependent3''b m (n + m) b) = some r → motive_1 n b r)
   (h_2 :
     ∀ (dependent3''b : Nat → Nat → (b : Bool) → Option (if b = true then Nat else Bool))
       (dependent3''c : Fin (m + 1) → Nat → (b : Bool) → Option (if b = true then Nat else Bool)),
@@ -134,8 +133,7 @@ info: dependent3''a.partial_correctness (m : Nat) (motive_1 : Nat → (b : Bool)
         (∀ (i : Fin (m + 1)) (n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
             dependent3''c i n b = some r → motive_3 i n b r) →
           ∀ (k n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
-            (fun k n b => if b = true then dependent3''b k n b else dependent3''c (Fin.last m) (n + m) b) k n b =
-                some r →
+            (if b = true then dependent3''b k n b else dependent3''c (Fin.last m) (n + m) b) = some r →
               motive_2 k n b r)
   (h_3 :
     ∀ (dependent3''a : Nat → (b : Bool) → Option (if b = true then Nat else Bool))
@@ -144,8 +142,7 @@ info: dependent3''a.partial_correctness (m : Nat) (motive_1 : Nat → (b : Bool)
         (∀ (i : Fin (m + 1)) (n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
             dependent3''c i n b = some r → motive_3 i n b r) →
           ∀ (i : Fin (m + 1)) (n : Nat) (b : Bool) (r : if b = true then Nat else Bool),
-            (fun i n b => if b = true then dependent3''c i n b else dependent3''a (↑i) b) i n b = some r →
-              motive_3 i n b r) :
+            (if b = true then dependent3''c i n b else dependent3''a (↑i) b) = some r → motive_3 i n b r) :
   (∀ (n : Nat) (b : Bool) (r : if b = true then Nat else Bool), dependent3''a m n b = some r → motive_1 n b r) ∧
     (∀ (k n : Nat) (b : Bool) (r : if b = true then Nat else Bool), dependent3''b m k n b = some r → motive_2 k n b r) ∧
       ∀ (i : Fin (m + 1)) (n : Nat) (b : Bool) (r : if b = true then Nat else Bool),

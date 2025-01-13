@@ -275,3 +275,10 @@ fun {a4} p a1 a2 a3 =>
 #guard_msgs (info) in
 open Lean Grind in
 #print ex1
+
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p : Prop) (a b : Nat) : a ≤ b → b + 2 ≤ c → (a + 1 ≤ c ↔ p) → (a ≤ c ↔ q) → p ∧ q := by
+  grind (splits := 0)

@@ -1070,10 +1070,10 @@ theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β
     (m.alter k f).get k h = (f (m.get? k)).get h' :=
   sorry
 
-theorem get!_alter [LawfulBEq α] {k k' : α} [Inhabited (β k')] {f : Option (β k) → Option (β k)} :
+theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : Option (β k) → Option (β k)} :
     (m.alter k f).get! k' =
     if heq : k == k' then
-      haveI : Inhabited (β k) := by rwa [eq_of_beq heq]
+      haveI : Inhabited (β k) := cast (by rw [eq_of_beq heq]) hi
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
     else
       m.get! k' :=
@@ -1399,10 +1399,10 @@ theorem get_modify_self [LawfulBEq α] {k : α} {f : β k → β k} {h : k ∈ m
     (m.modify k f).get k h = f (m.get k h') :=
   sorry
 
-theorem get!_modify [LawfulBEq α] {k k' : α} [Inhabited (β k')] {f : β k → β k} :
+theorem get!_modify [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
     (m.modify k f).get! k' =
     if heq : k == k' then
-      haveI : Inhabited (β k) := by rwa [eq_of_beq heq]
+      haveI : Inhabited (β k) := cast (by rw [eq_of_beq heq]) hi
       -- not correct if f does not preserve default: ... f (m.get! k)
       -- possible alternative: write ... (m.getD k (cast ⋯ default))
       m.get? k |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!

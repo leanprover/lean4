@@ -2022,7 +2022,7 @@ theorem length_alterKey [BEq α] [EquivBEq α] {k : α} {f : Option β → Optio
     containsKey_eq_isSome_getValue?, ← getValue?_eq_some_getValue, -getValue?_eq_none]
 
 theorem alterKey_cons_perm [BEq α] [EquivBEq α] {k : α} {f : Option β → Option β}
-    {k' : α} {v' : β} {l : List ((a : α) × β)} :
+    {k' : α} {v' : β} {l : List ((_ : α) × β)} :
       Perm (alterKey k f (⟨k', v'⟩ :: l)) (if k' == k then
         match f (some v') with
           | none => l

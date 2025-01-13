@@ -998,7 +998,7 @@ theorem getElem?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h :
   DHashMap.Raw.Const.get?_insertManyIfNewUnit_list h.out
 
 @[simp]
-theorem ggetElem_insertManyIfNewUnit_list
+theorem getElem_insertManyIfNewUnit_list
     {l : List α} {k : α} {h} :
     (insertManyIfNewUnit m l)[k] = () :=
   DHashMap.Raw.Const.get_insertManyIfNewUnit_list (h:=h)

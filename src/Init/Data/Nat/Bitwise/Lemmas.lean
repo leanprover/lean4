@@ -115,8 +115,12 @@ theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i :=
     rw [← Nat.add_assoc, testBit_add_one, ih (x / 2),
       Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
 
-theorem testBit_mul_two_pow (x i n : Nat) : testBit (x * 2 ^ n) (i + n) = testBit x i := by
+theorem testBit_mul_two_pow (x i n : Nat) (h : n ≤ i) : testBit (x * 2 ^ n) i = testBit x (i - n) := by
   have h2 : 0 < 2 := by omega
+  let j := i - n
+  have hj : testBit (x * 2 ^ n) i = testBit (x * 2 ^ n) (j + n) := by simp [j]; rw [Nat.sub_add_cancel h]
+  have hj' : testBit x (i - n) = testBit x j := by simp [j]
+  rw [hj, hj']
   rw [testBit_add, Nat.mul_div_cancel]
   simp [Nat.pow_pos h2 (n := n)]
 
@@ -460,12 +464,16 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
 theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
-  simp [testBit_bitwise of_false_false, testBit_div_two_pow]
+  simp [testBit_bitwise of_false_false, testBit_mul_two_pow (by sorry)]
+
+
+  sorry
 
 theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) / 2 ^ n = bitwise f (x / 2 ^ n) (y / 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
-  simp [testBit_bitwise of_false_false, testBit_div_two_pow]
+  simp [testBit_bitwise of_false_false]
+  simp [testBit_div_two_pow]
 
 /-! ### and -/
 

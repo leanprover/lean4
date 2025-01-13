@@ -104,16 +104,6 @@ def incr (t : Tree Nat) : Result (Tree Nat) :=
       .ok (.node tl)
 partial_fixpoint
 
--- In contrast to aeneas, we do *not* inline lets
-/--
-error: Could not prove 'id3' to be monotone in its recursive calls:
-  Cannot eliminate recursive call `id3` enclosed in
-    let f := id3;
-    do
-    let tl ← List.mapM f tl✝
-    Result.ok (Tree.node tl)
--/
-#guard_msgs in
 def id3 (t : Tree Nat) : Result (Tree Nat) :=
   match t with
   | .leaf x => .ok (.leaf (x + 1))
@@ -124,22 +114,36 @@ def id3 (t : Tree Nat) : Result (Tree Nat) :=
       .ok (.node tl)
 partial_fixpoint
 
-
--- Like aeneas, we cannot handle the following
-/--
-error: Could not prove 'id4' to be monotone in its recursive calls:
-  Cannot eliminate recursive call `id4` enclosed in
-    Result.ok id4
--/
-#guard_msgs in
 def id4 (t : Tree Nat) : Result (Tree Nat) :=
   match t with
   | .leaf x => .ok (.leaf (x + 1))
   | .node tl =>
     do
-      let f ← .ok id4
+      let f x := do
+        let x1 ← id4 x
+        id4 x1
       let tl ← List.mapM f tl
       .ok (.node tl)
 partial_fixpoint
+
+
+-- Like aeneas, we cannot handle the following
+
+/--
+error: Could not prove 'id5' to be monotone in its recursive calls:
+  Cannot eliminate recursive call `id5` enclosed in
+    Result.ok id5
+-/
+#guard_msgs in
+def id5 (t : Tree Nat) : Result (Tree Nat) :=
+  match t with
+  | .leaf x => .ok (.leaf (x + 1))
+  | .node tl =>
+    do
+      let f ← .ok id5
+      let tl ← List.mapM f tl
+      .ok (.node tl)
+partial_fixpoint
+
 
 end HigherOrder

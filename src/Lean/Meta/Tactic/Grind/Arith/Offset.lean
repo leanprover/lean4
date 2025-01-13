@@ -50,6 +50,9 @@ def mkNode (expr : Expr) : GoalM NodeId := do
   }
   return nodeId
 
+private def getExpr (u : NodeId) : GoalM Expr := do
+  return (← get').nodes[u]!
+
 private def getDist? (u v : NodeId) : GoalM (Option Int) := do
   return (← get').targets[u]!.find? v
 
@@ -78,8 +81,8 @@ this function closes the current goal by constructing a proof of `False`.
 private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM Unit := do
   assert! kuv + kvu < 0
   let hvu ← extractProof v u
-  let u := (← get').nodes[u]!
-  let v := (← get').nodes[v]!
+  let u ← getExpr u
+  let v ← getExpr v
   closeGoal (mkUnsatProof u v kuv huv kvu hvu)
 
 /-- Sets the new shortest distance `k` between nodes `u` and `v`. -/
@@ -111,6 +114,55 @@ private def isShorter (u v : NodeId) (k : Int) : GoalM Bool := do
     return true
 
 /--
+Tries to assign `e` to `True`, which is represented by constraint `c` (from `u` to `v`), using the
+path `u --(k)--> v`.
+-/
+private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+  if k ≤ c.k then
+    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = True"
+    let kuv ← extractProof u v
+    let u ← getExpr u
+    let v ← getExpr v
+    pushEqTrue e <| mkPropagateEqTrueProof u v k kuv c.k
+    return true
+  return false
+
+example (x y : Nat) : x + 2 ≤ y → ¬ (y ≤ x + 1) := by omega
+
+/--
+Tries to assign `e` to `False`, which is represented by constraint `c` (from `v` to `u`), using the
+path `u --(k)--> v`.
+-/
+private def propagateFalse (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+  if k + c.k < 0 then
+    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = False"
+    return true
+  return false
+
+/--
+Auxiliary function for implementing `propagateAll`.
+Traverses the constraints `c` (representing an expression `e`) s.t.
+`c.u = u` and `c.v = v`, it removes `c` from the list of constraints
+associated with `(u, v)` IF
+- `e` is already assigned, or
+- `f c e` returns true
+-/
+@[inline]
+private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → GoalM Bool) : GoalM Unit := do
+  if let some cs := (← get').cnstrsOf.find? (u, v) then
+    let cs' ← cs.filterM fun (c, e) => do
+      if (← isEqTrue e <||> isEqFalse e) then
+        return false -- constraint was already assigned
+      else
+        return !(← f c e)
+    modify' fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
+
+/-- Performs constraint propagation. -/
+private def propagateAll (u v : NodeId) (k : Int) : GoalM Unit := do
+  updateCnstrsOf u v fun c e => return !(← propagateTrue u v k c e)
+  updateCnstrsOf v u fun c e => return !(← propagateFalse u v k c e)
+
+/--
 If `isShorter u v k`, updates the shortest distance between `u` and `v`.
 `w` is the penultimate node in the path from `u` to `v`.
 -/
@@ -118,6 +170,7 @@ private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : GoalM Unit :
   if (← isShorter u v k) then
     setDist u v k
     setProof u v (← getProof? w v).get!
+    propagateAll u v k
 
 /--
 Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
@@ -133,6 +186,7 @@ def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
     setProof u v { w := u, k, proof := p }
+    propagateAll u v k
     update
 where
   update : GoalM Unit := do
@@ -145,6 +199,26 @@ where
       forEachTargetOf v fun j k₂ => do
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
+
+def internalizeCnstr (e : Expr) : GoalM Unit := do
+  let some c := isNatOffsetCnstr? e | return ()
+  let u ← mkNode c.u
+  let v ← mkNode c.v
+  let c := { c with u, v }
+  if let some k ← getDist? u v then
+    if (← propagateTrue u v k c e) then
+      return ()
+  if let some k ← getDist? v u then
+    if (← propagateFalse v u k c e) then
+      -- TODO: constraint was assigned `False`, we don't need to register it
+      pure ()
+  trace[grind.offset.internalize] "{e} ↦ {c}"
+  modify' fun s => { s with
+    cnstrs   := s.cnstrs.insert { expr := e } c
+    cnstrsOf :=
+      let cs := if let some cs := s.cnstrsOf.find? (u, v) then (c, e) :: cs else [(c, e)]
+      s.cnstrsOf.insert (u, v) cs
+  }
 
 def traceDists : GoalM Unit := do
   let s ← get'

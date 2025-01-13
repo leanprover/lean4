@@ -85,6 +85,27 @@ def mkOfNegEqFalse (nodes : PArray Expr) (c : Cnstr NodeId) (h : Expr) : Expr :=
   else
     mkApp4 (mkConst ``Nat.of_ro_eq_false) u v (toExpr c.k.toNat) h
 
+/--
+Returns a proof of `False` using a negative cycle composed of
+- `u --(kuv)--> v` with proof `huv`
+- `v --(kvu)--> u` with proof `hvu`
+-/
+def mkUnsatProof (u v : Expr) (kuv : Int) (huv : Expr) (kvu : Int) (hvu : Expr) : Expr :=
+  if kuv == 0 then
+    assert! kvu < 0
+    mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) u v (toExpr (-kvu).toNat) rfl_true huv hvu
+  else if kvu == 0 then
+    mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) v u (toExpr (-kuv).toNat) rfl_true hvu huv
+  else if kuv < 0 then
+    if kvu > 0 then
+      mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) u v (toExpr (-kuv).toNat) (toExpr kvu.toNat) rfl_true huv hvu
+    else
+      assert! kvu < 0
+      mkApp7 (mkConst ``Grind.Nat.unsat_lo_lo) u v (toExpr (-kuv).toNat) (toExpr (-kvu).toNat) rfl_true huv hvu
+  else
+    assert! kuv > 0 && kvu < 0
+    mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) v u (toExpr (-kvu).toNat) (toExpr kuv.toNat) rfl_true hvu huv
+
 end Offset
 
 end Lean.Meta.Grind.Arith

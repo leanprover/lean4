@@ -80,21 +80,7 @@ private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM
   let hvu ← extractProof v u
   let u := (← get').nodes[u]!
   let v := (← get').nodes[v]!
-  if kuv == 0 then
-    assert! kvu < 0
-    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) u v (toExpr (-kvu).toNat) rfl_true huv hvu)
-  else if kvu == 0 then
-    assert! kuv < 0
-    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) v u (toExpr (-kuv).toNat) rfl_true hvu huv)
-  else if kuv < 0 then
-    if kvu > 0 then
-      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) u v (toExpr (-kuv).toNat) (toExpr kvu.toNat) rfl_true huv hvu)
-    else
-      assert! kvu < 0
-      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_lo) u v (toExpr (-kuv).toNat) (toExpr (-kvu).toNat) rfl_true huv hvu)
-  else
-    assert! kuv > 0 && kvu < 0
-    closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) v u (toExpr (-kvu).toNat) (toExpr kuv.toNat) rfl_true hvu huv)
+  closeGoal (mkUnsatProof u v kuv huv kvu hvu)
 
 /-- Sets the new shortest distance `k` between nodes `u` and `v`. -/
 private def setDist (u v : NodeId) (k : Int) : GoalM Unit := do

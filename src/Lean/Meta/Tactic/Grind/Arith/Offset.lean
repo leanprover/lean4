@@ -213,8 +213,7 @@ def internalizeCnstr (e : Expr) : GoalM Unit := do
       return ()
   if let some k ← getDist? v u then
     if (← propagateFalse v u k c e) then
-      -- TODO: constraint was assigned `False`, we don't need to register it
-      pure ()
+      return ()
   trace[grind.offset.internalize] "{e} ↦ {c}"
   modify' fun s => { s with
     cnstrs   := s.cnstrs.insert { expr := e } c

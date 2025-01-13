@@ -1156,7 +1156,8 @@ theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β 
   Raw₀.Const.isEmpty_alter _ m.2
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
-    (Const.alter m k f).contains k' = if k == k' then (f (Const.get? m k)).isSome else m.contains k' :=
+    (Const.alter m k f).contains k' =
+    if k == k' then (f (Const.get? m k)).isSome else m.contains k' :=
   sorry
 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
@@ -1220,8 +1221,8 @@ theorem get_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β
     Const.get (Const.alter m k f) k h = (f (Const.get? m k)).get h' :=
   sorry
 
-theorem get!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β] {f : Option β → Option β} :
-    Const.get! (Const.alter m k f) k' =
+theorem get!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β]
+    {f : Option β → Option β} : Const.get! (Const.alter m k f) k' =
     if heq : k == k' then
       f (Const.get? m k) |>.get!
     else
@@ -1229,8 +1230,8 @@ theorem get!_alter [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β] 
   sorry
 
 @[simp]
-theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β] {f : Option β → Option β} :
-    Const.get! (Const.alter m k f) k = (f (Const.get? m k)).get! :=
+theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β]
+    {f : Option β → Option β} : Const.get! (Const.alter m k f) k = (f (Const.get? m k)).get! :=
   sorry
 
 theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
@@ -1259,8 +1260,8 @@ theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Optio
     (Const.alter m k f).getKey? k = (f (Const.get? m k)).map (fun _ => k) :=
   sorry
 
-theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : Option β → Option β} :
-    (Const.alter m k f).getKey! k' =
+theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
+    {f : Option β → Option β} : (Const.alter m k f).getKey! k' =
     if k == k' then
       (f (Const.get? m k)).map (fun _ => k) |>.get!
     else
@@ -1268,12 +1269,13 @@ theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : �
   sorry
 
 @[simp]
-theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : Option β → Option β} :
+theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
+    {f : Option β → Option β} :
     (Const.alter m k f).getKey! k = ((f (Const.get? m k)).map (fun _ => k)).get! :=
   sorry
 
-theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : Option β → Option β}
-    (h : k' ∈ Const.alter m k f) :
+theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
+    {f : Option β → Option β} (h : k' ∈ Const.alter m k f) :
     (Const.alter m k f).getKey k' h =
     if heq : k == k' then
       k
@@ -1283,8 +1285,8 @@ theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α
   sorry
 
 @[simp]
-theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : Option β → Option β}
-    (h : k ∈ Const.alter m k f) :
+theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
+    {f : Option β → Option β} (h : k ∈ Const.alter m k f) :
     (Const.alter m k f).getKey k h = k :=
   sorry
 
@@ -1297,7 +1299,8 @@ theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option 
   sorry
 
 @[simp]
-theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : Option β → Option β} :
+theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
+    {f : Option β → Option β} :
     (Const.alter m k f).getKeyD k = ((f (Const.get? m k)).map (fun _ => k)).getD :=
   sorry
 
@@ -1316,7 +1319,8 @@ section Modify
 theorem modify_empty [LawfulBEq α] {k : α} {f : β k → β k} : empty.modify k f = empty :=
   sorry
 
-theorem modify_of_not_mem [LawfulBEq α] {k : α} {f g : β k → β k} (h : k ∉ m) : m.modify k f = m :=
+theorem modify_of_not_mem [LawfulBEq α] {k : α} {f g : β k → β k} (h : k ∉ m) :
+    m.modify k f = m :=
   sorry
 
 @[simp]
@@ -1485,11 +1489,13 @@ theorem contains_modify [EquivBEq α] [LawfulHashable α] {k k': α} {f : β →
   sorry
 
 @[simp]
-theorem mem_modify [EquivBEq α] [LawfulHashable α] {k k': α} {f : β → β} : k' ∈ Const.modify m k f ↔ k' ∈ m := by
+theorem mem_modify [EquivBEq α] [LawfulHashable α] {k k': α} {f : β → β} :
+    k' ∈ Const.modify m k f ↔ k' ∈ m := by
   simp only [mem_iff_contains, contains_modify]
 
 @[simp]
-theorem size_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} : (Const.modify m k f).size = m.size :=
+theorem size_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :
+    (Const.modify m k f).size = m.size :=
   sorry
 
 theorem get?_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
@@ -1516,7 +1522,8 @@ theorem get_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β}
   sorry
 
 @[simp]
-theorem get_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} {h : k ∈ Const.modify m k f} :
+theorem get_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β}
+    {h : k ∈ Const.modify m k f} :
     haveI h' : k ∈ m := by rwa [mem_modify] at h
     Const.get (Const.modify m k f) k h = f (Const.get m k h') :=
   sorry

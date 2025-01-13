@@ -1264,7 +1264,7 @@ private def fvarsSizeLtMaxFVars (fvars : Array Expr) (maxFVars? : Option Nat) : 
 
 mutual
   /--
-    `withNewLocalInstances isClassExpensive fvars j k` updates the vector or local instances
+    `withNewLocalInstances isClassExpensive fvars j k` updates the vector of local instances
     using free variables `fvars[j] ... fvars.back`, and execute `k`.
 
     - `isClassExpensive` is defined later.

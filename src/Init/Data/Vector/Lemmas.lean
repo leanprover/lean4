@@ -693,6 +693,24 @@ theorem forall_getElem {l : Vector α n} {p : α → Prop} :
   rcases l with ⟨l, rfl⟩
   simp [Array.forall_getElem]
 
+
+/-! ### cast -/
+
+@[simp] theorem getElem_cast (a : Vector α n) (h : n = m) (i : Nat) (hi : i < m) :
+    (a.cast h)[i] = a[i] := by
+  cases a
+  simp
+
+@[simp] theorem getElem?_cast {l : Vector α n} {m : Nat} {w : n = m} {i : Nat} :
+    (l.cast w)[i]? = l[i]? := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem mem_cast {a : α} {l : Vector α n} {m : Nat} {w : n = m} :
+    a ∈ l.cast w ↔ a ∈ l := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
 /-! ### Decidability of bounded quantifiers -/
 
 instance {xs : Vector α n} {p : α → Prop} [DecidablePred p] :
@@ -1167,6 +1185,227 @@ theorem map_eq_iff {f : α → β} {l : Vector α n} {l' : Vector β n} :
   cases as
   simp
 
+/-! ### singleton -/
+
+@[simp] theorem singleton_def (v : α) : Vector.singleton v = #v[v] := rfl
+
+/-! ### append -/
+
+@[simp] theorem append_push {as : Vector α n} {bs : Vector α m} {a : α} :
+    as ++ bs.push a = (as ++ bs).push a := by
+  cases as
+  cases bs
+  simp
+
+theorem singleton_eq_toVector_singleton (a : α) : #v[a] = #[a].toVector := rfl
+
+@[simp] theorem mem_append {a : α} {s : Vector α n} {t : Vector α m} :
+    a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
+  cases s
+  cases t
+  simp
+
+theorem mem_append_left {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ s) : a ∈ s ++ t :=
+  mem_append.2 (Or.inl h)
+
+theorem mem_append_right {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ t) : a ∈ s ++ t :=
+  mem_append.2 (Or.inr h)
+
+theorem not_mem_append {a : α} {s : Vector α n} {t : Vector α m} (h₁ : a ∉ s) (h₂ : a ∉ t) :
+    a ∉ s ++ t :=
+  mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
+
+/--
+See also `eq_push_append_of_mem`, which proves a stronger version
+in which the initial array must not contain the element.
+-/
+theorem append_of_mem {a : α} {l : Vector α n} (h : a ∈ l) :
+    ∃ (m k : Nat) (w : m + 1 + k = n) (s : Vector α m) (t : Vector α k),
+      l = (s.push a ++ t).cast w := by
+  rcases l with ⟨l, rfl⟩
+  obtain ⟨s, t, rfl⟩ := Array.append_of_mem (by simpa using h)
+  refine ⟨_, _, by simp, s.toVector, t.toVector, by simp_all⟩
+
+theorem mem_iff_append {a : α} {l : Vector α n} :
+    a ∈ l ↔ ∃ (m k : Nat) (w : m + 1 + k = n) (s : Vector α m) (t : Vector α k),
+      l = (s.push a ++ t).cast w :=
+  ⟨append_of_mem, by rintro ⟨m, k, rfl, s, t, rfl⟩; simp⟩
+
+theorem forall_mem_append {p : α → Prop} {l₁ : Vector α n} {l₂ : Vector α m} :
+    (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
+  simp only [mem_append, or_imp, forall_and]
+
+theorem empty_append (as : Vector α n) : (#v[] : Vector α 0) ++ as = as.cast (by omega) := by
+  rcases as with ⟨as, rfl⟩
+  simp
+
+theorem append_empty (as : Vector α n) : as ++ (#v[] : Vector α 0) = as := by
+  rw [← toArray_inj, toArray_append, Array.append_nil]
+
+theorem getElem_append (a : Vector α n) (b : Vector α m) (i : Nat) (hi : i < n + m) :
+    (a ++ b)[i] = if h : i < n then a[i] else b[i - n] := by
+  rcases a with ⟨a, rfl⟩
+  rcases b with ⟨b, rfl⟩
+  simp [Array.getElem_append, hi]
+
+theorem getElem_append_left {a : Vector α n} {b : Vector α m} {i : Nat} (hi : i < n) :
+    (a ++ b)[i] = a[i] := by simp [getElem_append, hi]
+
+theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : i < n + m) (hi : n ≤ i) :
+    (a ++ b)[i] = b[i - n] := by
+  rw [getElem_append, dif_neg (by omega)]
+
+theorem getElem?_append_left {as : Vector α n} {bs : Vector α m} {i : Nat} (hn : i < n) :
+    (as ++ bs)[i]? = as[i]? := by
+  have hn' : i < n + m := by omega
+  simp_all [getElem?_eq_getElem, getElem_append]
+
+theorem getElem?_append_right {as : Vector α n} {bs : Vector α m} {i : Nat} (h : n ≤ i) :
+    (as ++ bs)[i]? = bs[i - n]? := by
+  rcases as with ⟨as, rfl⟩
+  rcases bs with ⟨bs, rfl⟩
+  simp [Array.getElem?_append_right, h]
+
+theorem getElem?_append {as : Vector α n} {bs : Vector α m} {i : Nat} :
+    (as ++ bs)[i]? = if i < n then as[i]? else bs[i - n]? := by
+  split <;> rename_i h
+  · exact getElem?_append_left h
+  · exact getElem?_append_right (by simpa using h)
+
+/-- Variant of `getElem_append_left` useful for rewriting from the small array to the big array. -/
+theorem getElem_append_left' (l₁ : Vector α m) {l₂ : Vector α n} {i : Nat} (hi : i < m) :
+    l₁[i] = (l₁ ++ l₂)[i] := by
+  rw [getElem_append_left] <;> simp
+
+/-- Variant of `getElem_append_right` useful for rewriting from the small array to the big array. -/
+theorem getElem_append_right' (l₁ : Vector α m) {l₂ : Vector α n} {i : Nat} (hi : i < n) :
+    l₂[i] = (l₁ ++ l₂)[i + m] := by
+  rw [getElem_append_right] <;> simp [*, Nat.le_add_left]
+
+theorem getElem_of_append {l : Vector α n} {l₁ : Vector α m} {l₂ : Vector α k}
+    (w : m + 1 + k = n) (eq : l = (l₁.push a ++ l₂).cast w) :
+    l[m] = a := Option.some.inj <| by
+  rw [← getElem?_eq_getElem, eq, getElem?_cast, getElem?_append_left (by simp)]
+  simp
+
+@[simp 1100] theorem append_singleton {a : α} {as : Vector α n} : as ++ #v[a] = as.push a := by
+  cases as
+  simp
+
+theorem append_inj {s₁ s₂ : Vector α n} {t₁ t₂ : Vector α m} (h : s₁ ++ t₁ = s₂ ++ t₂) :
+    s₁ = s₂ ∧ t₁ = t₂ := by
+  rcases s₁ with ⟨s₁, rfl⟩
+  rcases s₂ with ⟨s₂, hs⟩
+  rcases t₁ with ⟨t₁, rfl⟩
+  rcases t₂ with ⟨t₂, ht⟩
+  simpa using Array.append_inj (by simpa using h) (by omega)
+
+theorem append_inj_right {s₁ s₂ : Vector α n} {t₁ t₂ : Vector α m}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) : t₁ = t₂ :=
+  (append_inj h).right
+
+theorem append_inj_left {s₁ s₂ : Vector α n} {t₁ t₂ : Vector α m}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) : s₁ = s₂ :=
+  (append_inj h).left
+
+theorem append_right_inj {t₁ t₂ : Vector α m} (s : Vector α n) : s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ :=
+  ⟨fun h => append_inj_right h, congrArg _⟩
+
+theorem append_left_inj {s₁ s₂ : Vector α n} (t : Vector α m) : s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ :=
+  ⟨fun h => append_inj_left h, congrArg (· ++ _)⟩
+
+theorem append_eq_append_iff {a : Vector α n} {b : Vector α m} {c : Vector α k} {d : Vector α l}
+    (w : k + l = n + m) :
+    a ++ b = (c ++ d).cast w ↔
+      if h : n ≤ k then
+        ∃ a' : Vector α (k - n), c = (a ++ a').cast (by omega) ∧ b = (a' ++ d).cast (by omega)
+      else
+        ∃ c' : Vector α (n - k), a = (c ++ c').cast (by omega) ∧ d = (c' ++ b).cast (by omega) := by
+  rcases a with ⟨a, rfl⟩
+  rcases b with ⟨b, rfl⟩
+  rcases c with ⟨c, rfl⟩
+  rcases d with ⟨d, rfl⟩
+  simp only [mk_append_mk, Array.append_eq_append_iff, mk_eq, toArray_cast]
+  constructor
+  · rintro (⟨a', rfl, rfl⟩ | ⟨c', rfl, rfl⟩)
+    · rw [dif_pos (by simp)]
+      exact ⟨a'.toVector.cast (by simp; omega), by simp⟩
+    · split <;> rename_i h
+      · have hc : c'.size = 0 := by simp at h; omega
+        simp at hc
+        exact ⟨#v[].cast (by simp; omega), by simp_all⟩
+      · exact ⟨c'.toVector.cast (by simp; omega), by simp⟩
+  · split <;> rename_i h
+    · rintro ⟨a', hc, rfl⟩
+      left
+      refine ⟨a'.toArray, hc, rfl⟩
+    · rintro ⟨c', ha, rfl⟩
+      right
+      refine ⟨c'.toArray, ha, rfl⟩
+
+theorem set_append {s : Vector α n} {t : Vector α m} {i : Nat} {x : α} (h : i < n + m) :
+    (s ++ t).set i x =
+      if h' : i < n then
+        s.set i x ++ t
+      else
+        s ++ t.set (i - n) x := by
+  rcases s with ⟨s, rfl⟩
+  rcases t with ⟨t, rfl⟩
+  simp only [mk_append_mk, set_mk, Array.set_append]
+  split <;> simp
+
+@[simp] theorem set_append_left {s : Vector α n} {t : Vector α m} {i : Nat} {x : α} (h : i < n) :
+    (s ++ t).set i x = s.set i x ++ t := by
+  simp [set_append, h]
+
+@[simp] theorem set_append_right {s : Vector α n} {t : Vector α m} {i : Nat} {x : α}
+    (h' : i < n + m) (h : n ≤ i) :
+    (s ++ t).set i x = s ++ t.set (i - n) x := by
+  rw [set_append, dif_neg (by omega)]
+
+theorem setIfInBounds_append {s : Vector α n} {t : Vector α m} {i : Nat} {x : α} :
+    (s ++ t).setIfInBounds i x =
+      if i < n then
+        s.setIfInBounds i x ++ t
+      else
+        s ++ t.setIfInBounds (i - n) x := by
+  rcases s with ⟨s, rfl⟩
+  rcases t with ⟨t, rfl⟩
+  simp only [mk_append_mk, setIfInBounds_mk, Array.setIfInBounds_append]
+  split <;> simp
+
+@[simp] theorem setIfInBounds_append_left {s : Vector α n} {t : Vector α m} {i : Nat} {x : α} (h : i < n) :
+    (s ++ t).setIfInBounds i x = s.setIfInBounds i x ++ t := by
+  simp [setIfInBounds_append, h]
+
+@[simp] theorem setIfInBounds_append_right {s : Vector α n} {t : Vector α m} {i : Nat} {x : α}
+    (h : n ≤ i) :
+    (s ++ t).setIfInBounds i x = s ++ t.setIfInBounds (i - n) x := by
+  rw [setIfInBounds_append, if_neg (by omega)]
+
+@[simp] theorem map_append (f : α → β) (l₁ : Vector α n) (l₂ : Vector α m) :
+    map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
+  rcases l₁ with ⟨l₁, rfl⟩
+  rcases l₂ with ⟨l₂, rfl⟩
+  simp
+
+theorem map_eq_append_iff {f : α → β} :
+    map f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
+  rcases l with ⟨l, h⟩
+  rcases L₁ with ⟨L₁, rfl⟩
+  rcases L₂ with ⟨L₂, rfl⟩
+  simp only [map_mk, mk_append_mk, eq_mk, Array.map_eq_append_iff, mk_eq, toArray_append,
+    toArray_map]
+  constructor
+  · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
+    exact ⟨l₁.toVector.cast (by simp), l₂.toVector.cast (by simp), by simp⟩
+  · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
+    exact ⟨l₁, l₂, by simp_all⟩
+
+theorem append_eq_map_iff {f : α → β} :
+    L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
+  rw [eq_comm, map_eq_append_iff]
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
@@ -1196,28 +1435,6 @@ defeq issues in the implicit size argument.
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
     simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
-
-/-! ### append -/
-
-theorem getElem_append (a : Vector α n) (b : Vector α m) (i : Nat) (hi : i < n + m) :
-    (a ++ b)[i] = if h : i < n then a[i] else b[i - n] := by
-  rcases a with ⟨a, rfl⟩
-  rcases b with ⟨b, rfl⟩
-  simp [Array.getElem_append, hi]
-
-theorem getElem_append_left {a : Vector α n} {b : Vector α m} {i : Nat} (hi : i < n) :
-    (a ++ b)[i] = a[i] := by simp [getElem_append, hi]
-
-theorem getElem_append_right {a : Vector α n} {b : Vector α m} {i : Nat} (h : i < n + m) (hi : n ≤ i) :
-    (a ++ b)[i] = b[i - n] := by
-  rw [getElem_append, dif_neg (by omega)]
-
-/-! ### cast -/
-
-@[simp] theorem getElem_cast (a : Vector α n) (h : n = m) (i : Nat) (hi : i < m) :
-    (a.cast h)[i] = a[i] := by
-  cases a
-  simp
 
 /-! ### extract -/
 

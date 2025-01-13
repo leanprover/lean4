@@ -276,6 +276,8 @@ fun {a4} p a1 a2 a3 =>
 open Lean Grind in
 #print ex1
 
+/-! Propagate `cnstr = False` tests -/
+
 -- The following example is solved by `grind` using constraint propagation and 0 case-splits.
 #guard_msgs (info) in
 set_option trace.grind.split true in
@@ -292,4 +294,61 @@ example (p q : Prop) (a b : Nat) : a ≤ b → b ≤ c → (a ≤ c ↔ p) → (
 #guard_msgs (info) in
 set_option trace.grind.split true in
 example (p q : Prop) (a b : Nat) : a ≤ b → b ≤ c + 1 → (a ≤ c + 1 ↔ p) → (a ≤ c + 2 ↔ q) → p ∧ q := by
+  grind (splits := 0)
+
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r s : Prop) (a b : Nat) : a ≤ b → b + 2 ≤ c → (c ≤ a ↔ p) → (c ≤ a + 1 ↔ s) → (c + 1 ≤ a ↔ r) → ¬p ∧ ¬r ∧ ¬s := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r : Prop) (a b : Nat) : a ≤ b → b ≤ c → (c + 1 ≤ a ↔ p) → (c + 2 ≤ a + 1 ↔ r) → ¬p ∧ ¬r := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r : Prop) (a b : Nat) : a  ≤ b → b ≤ c + 3 → (c + 5 ≤ a ↔ p) → (c + 4 ≤ a ↔ r) → ¬p ∧ ¬r := by
+  grind (splits := 0)
+
+/-! Propagate `cnstr = False` tests, but with different internalization order -/
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p q r s : Prop) (a b : Nat) : (a + 1 ≤ c ↔ p) → (a + 2 ≤ c ↔ s) → (a ≤ c ↔ q) → (a ≤ c + 4 ↔ r) → a ≤ b → b + 2 ≤ c → p ∧ q ∧ r ∧ s := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p q : Prop) (a b : Nat) : (a ≤ c ↔ p) → (a ≤ c + 1 ↔ q) → a ≤ b → b ≤ c → p ∧ q := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p q : Prop) (a b : Nat) : (a ≤ c + 1 ↔ p) → (a ≤ c + 2 ↔ q) → a ≤ b → b ≤ c + 1 → p ∧ q := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r s : Prop) (a b : Nat) : (c ≤ a ↔ p) → (c ≤ a + 1 ↔ s) → (c + 1 ≤ a ↔ r) → a ≤ b → b + 2 ≤ c → ¬p ∧ ¬r ∧ ¬s := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r : Prop) (a b : Nat) : (c + 1 ≤ a ↔ p) → (c + 2 ≤ a + 1 ↔ r) → a ≤ b → b ≤ c → ¬p ∧ ¬r := by
+  grind (splits := 0)
+
+-- The following example is solved by `grind` using constraint propagation and 0 case-splits.
+#guard_msgs (info) in
+set_option trace.grind.split true in
+example (p r : Prop) (a b : Nat) : (c + 5 ≤ a ↔ p) → (c + 4 ≤ a ↔ r) → a ≤ b → b ≤ c + 3 → ¬p ∧ ¬r := by
   grind (splits := 0)

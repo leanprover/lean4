@@ -188,13 +188,11 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp]
   theorem toBitVec_shiftLeft {l r : $typeName} :
-      (l <<< r).toBitVec = l.toBitVec <<< (r.toBitVec % $bits) := by
-    rfl
+      (l <<< r).toBitVec = l.toBitVec <<< (r.toBitVec % $bits) := rfl
 
   @[simp]
   theorem toBitVec_shiftRight {l r : $typeName} :
-      (l >>> r).toBitVec = l.toBitVec >>> (r.toBitVec % $bits) := by
-    rfl
+      (l >>> r).toBitVec = l.toBitVec >>> (r.toBitVec % $bits) := rfl
 
   @[simp]
   theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := rfl

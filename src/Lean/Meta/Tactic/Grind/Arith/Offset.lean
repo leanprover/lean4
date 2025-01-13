@@ -50,13 +50,20 @@ def mkNode (expr : Expr) : GoalM NodeId := do
   }
   return nodeId
 
+private def getExpr (u : NodeId) : GoalM Expr := do
+  return (← get').nodes[u]!
+
 private def getDist? (u v : NodeId) : GoalM (Option Int) := do
   return (← get').targets[u]!.find? v
 
 private def getProof? (u v : NodeId) : GoalM (Option ProofInfo) := do
   return (← get').proofs[u]!.find? v
 
-partial def extractProof (u v : NodeId) : GoalM Expr := do
+/--
+Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
+shortest path between `u` and `v`.
+-/
+private partial def mkProofForPath (u v : NodeId) : GoalM Expr := do
   go (← getProof? u v).get!
 where
   go (p : ProofInfo) : GoalM Expr := do
@@ -66,29 +73,21 @@ where
       let p' := (← getProof? u p.w).get!
       go (mkTrans (← get').nodes p' p v)
 
+/--
+Given a new edge edge `u --(kuv)--> v` justified by proof `huv` s.t.
+it creates a negative cycle with the existing path `v --{kvu}-->* u`, i.e., `kuv + kvu < 0`,
+this function closes the current goal by constructing a proof of `False`.
+-/
 private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM Unit := do
   assert! kuv + kvu < 0
-  let hvu ← extractProof v u
-  let u := (← get').nodes[u]!
-  let v := (← get').nodes[v]!
-  if kuv == 0 then
-    assert! kvu < 0
-    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) u v (toExpr (-kvu).toNat) rfl_true huv hvu)
-  else if kvu == 0 then
-    assert! kuv < 0
-    closeGoal (mkApp6 (mkConst ``Grind.Nat.unsat_le_lo) v u (toExpr (-kuv).toNat) rfl_true hvu huv)
-  else if kuv < 0 then
-    if kvu > 0 then
-      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) u v (toExpr (-kuv).toNat) (toExpr kvu.toNat) rfl_true huv hvu)
-    else
-      assert! kvu < 0
-      closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_lo) u v (toExpr (-kuv).toNat) (toExpr (-kvu).toNat) rfl_true huv hvu)
-  else
-    assert! kuv > 0 && kvu < 0
-    closeGoal (mkApp7 (mkConst ``Grind.Nat.unsat_lo_ro) v u (toExpr (-kvu).toNat) (toExpr kuv.toNat) rfl_true hvu huv)
+  let hvu ← mkProofForPath v u
+  let u ← getExpr u
+  let v ← getExpr v
+  closeGoal (mkUnsatProof u v kuv huv kvu hvu)
 
+/-- Sets the new shortest distance `k` between nodes `u` and `v`. -/
 private def setDist (u v : NodeId) (k : Int) : GoalM Unit := do
-  trace[grind.offset.dist] "{({ a := u, b := v, k : Cnstr NodeId})}"
+  trace[grind.offset.dist] "{({ u, v, k : Cnstr NodeId})}"
   modify' fun s => { s with
     targets := s.targets.modify u fun es => es.insert v k
     sources := s.sources.modify v fun es => es.insert u k
@@ -107,17 +106,80 @@ private def forEachSourceOf (u : NodeId) (f : NodeId → Int → GoalM Unit) : G
 private def forEachTargetOf (u : NodeId) (f : NodeId → Int → GoalM Unit) : GoalM Unit := do
   (← get').targets[u]!.forM f
 
+/-- Returns `true` if `k` is smaller than the shortest distance between `u` and `v` -/
 private def isShorter (u v : NodeId) (k : Int) : GoalM Bool := do
   if let some k' ← getDist? u v then
     return k < k'
   else
     return true
 
+/--
+Tries to assign `e` to `True`, which is represented by constraint `c` (from `u` to `v`), using the
+path `u --(k)--> v`.
+-/
+private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+  if k ≤ c.k then
+    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = True"
+    let kuv ← mkProofForPath u v
+    let u ← getExpr u
+    let v ← getExpr v
+    pushEqTrue e <| mkPropagateEqTrueProof u v k kuv c.k
+    return true
+  return false
+
+example (x y : Nat) : x + 2 ≤ y → ¬ (y ≤ x + 1) := by omega
+
+/--
+Tries to assign `e` to `False`, which is represented by constraint `c` (from `v` to `u`), using the
+path `u --(k)--> v`.
+-/
+private def propagateFalse (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+  if k + c.k < 0 then
+    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = False"
+    let kuv ← mkProofForPath u v
+    let u ← getExpr u
+    let v ← getExpr v
+    pushEqFalse e <| mkPropagateEqFalseProof u v k kuv c.k
+  return false
+
+/--
+Auxiliary function for implementing `propagateAll`.
+Traverses the constraints `c` (representing an expression `e`) s.t.
+`c.u = u` and `c.v = v`, it removes `c` from the list of constraints
+associated with `(u, v)` IF
+- `e` is already assigned, or
+- `f c e` returns true
+-/
+@[inline]
+private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → GoalM Bool) : GoalM Unit := do
+  if let some cs := (← get').cnstrsOf.find? (u, v) then
+    let cs' ← cs.filterM fun (c, e) => do
+      if (← isEqTrue e <||> isEqFalse e) then
+        return false -- constraint was already assigned
+      else
+        return !(← f c e)
+    modify' fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
+
+/-- Performs constraint propagation. -/
+private def propagateAll (u v : NodeId) (k : Int) : GoalM Unit := do
+  updateCnstrsOf u v fun c e => return !(← propagateTrue u v k c e)
+  updateCnstrsOf v u fun c e => return !(← propagateFalse u v k c e)
+
+/--
+If `isShorter u v k`, updates the shortest distance between `u` and `v`.
+`w` is the penultimate node in the path from `u` to `v`.
+-/
 private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
     setProof u v (← getProof? w v).get!
+    propagateAll u v k
 
+/--
+Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
+if no negative cycle was created, updates the shortest distance of affected
+node pairs.
+-/
 def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
   if (← isInconsistent) then return ()
   if let some k' ← getDist? v u then
@@ -127,6 +189,7 @@ def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
     setProof u v { w := u, k, proof := p }
+    propagateAll u v k
     update
 where
   update : GoalM Unit := do
@@ -140,6 +203,25 @@ where
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
+def internalizeCnstr (e : Expr) : GoalM Unit := do
+  let some c := isNatOffsetCnstr? e | return ()
+  let u ← mkNode c.u
+  let v ← mkNode c.v
+  let c := { c with u, v }
+  if let some k ← getDist? u v then
+    if (← propagateTrue u v k c e) then
+      return ()
+  if let some k ← getDist? v u then
+    if (← propagateFalse v u k c e) then
+      return ()
+  trace[grind.offset.internalize] "{e} ↦ {c}"
+  modify' fun s => { s with
+    cnstrs   := s.cnstrs.insert { expr := e } c
+    cnstrsOf :=
+      let cs := if let some cs := s.cnstrsOf.find? (u, v) then (c, e) :: cs else [(c, e)]
+      s.cnstrsOf.insert (u, v) cs
+  }
+
 def traceDists : GoalM Unit := do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
@@ -147,23 +229,23 @@ def traceDists : GoalM Unit := do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
 
 def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
-  let a := (← get').nodes[c.a]!
-  let b := (← get').nodes[c.b]!
+  let u := (← get').nodes[c.u]!
+  let v := (← get').nodes[c.v]!
   let mk := if c.le then mkNatLE else mkNatEq
   if c.k == 0 then
-    return mk a b
+    return mk u v
   else if c.k < 0 then
-    return mk (mkNatAdd a (Lean.toExpr ((-c.k).toNat))) b
+    return mk (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
   else
-    return mk a (mkNatAdd b (Lean.toExpr c.k.toNat))
+    return mk u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
-      let c : Cnstr NodeId := { a := u, b := v, k }
+      let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
-      let p ← extractProof u v
+      let p ← mkProofForPath u v
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
       unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do

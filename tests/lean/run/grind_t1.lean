@@ -263,3 +263,9 @@ a✝ : p
 set_option trace.grind.split true in
 example (p q : Prop) : ¬(p ↔ q) → p → False := by
   grind -- should not split on (p ↔ q)
+
+example {a b : Nat} (h : a < b) : ¬ b < a := by
+  grind
+
+example {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m := by
+  grind

@@ -976,12 +976,6 @@ theorem shiftLeft_succ : ∀(m n), m <<< (n + 1) = 2 * (m <<< n)
   rw [shiftLeft_succ_inside _ (k+1)]
   rw [shiftLeft_succ _ k, shiftLeft_succ_inside]
 
-theorem shiftLeft_prec_inside (m n : Nat) : (m * 2) <<< n = m <<< (n + 1) := by
-  induction n
-  case zero => omega
-  case succ n ih =>
-    simp [shiftLeft_eq, Nat.pow_add, Nat.mul_comm, Nat.mul_assoc]
-
 /-- Shiftright on successor with division moved inside. -/
 theorem shiftRight_succ_inside : ∀m n, m >>> (n+1) = (m/2) >>> n
 | _, 0 => rfl

@@ -122,30 +122,25 @@ theorem testBit_mul_two_pow (x i n : Nat) :
   · simp only [hni, decide_true, Bool.true_and]
     congr 2
     let j := i - n
-    have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp [j]; rw [Nat.sub_add_cancel]; omega
-    have hj' : x >>> (i - n) = x >>> j :=  by simp [j]
+    have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp only [j]; rw [Nat.sub_add_cancel]; omega
+    have hj' : x >>> (i - n) = x >>> j :=  by simp only [j]
     rw [hj, hj', ← shiftLeft_eq, Nat.add_comm, shiftRight_add, shiftLeft_shiftRight]
   · simp only [hni, decide_false, Bool.false_and, beq_eq_false_iff_ne, ne_eq]
-    simp at hni
+    simp only [Nat.not_le] at hni
     rw [← shiftLeft_eq]
     let k := n - i
-    have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp [k]; rw [Nat.sub_add_cancel]; omega
-    rw [hk]
-    rw [Nat.shiftLeft_add]
-    rw [Nat.shiftLeft_shiftRight]
-    rw [shiftLeft_eq]
+    have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel]; omega
+    rw [hk, Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
     have hk' : 0 < k := by omega
     have hx : 2 * (x * 2 ^ k / 2) = x * 2 ^ k := by
       rw [Nat.mul_comm, Nat.div_mul_cancel]
-
       suffices hs : 2 * (x * 2 ^ (k - 1)) = x * 2 ^ k by
         exact ⟨_, hs.symm⟩
-
       let j := k - 1
-      have hj : 2 ^ (k - 1) = 2 ^ j := by simp [j]
-      have hj' : 2 ^ k = 2 ^ (j + 1) := by simp [j]; rw [Nat.sub_add_cancel]; omega
+      have hj : 2 ^ (k - 1) = 2 ^ j := by simp only [j]
+      have hj' : 2 ^ k = 2 ^ (j + 1) := by simp only [j]; rw [Nat.sub_add_cancel]; omega
       rw [hj, hj']
-      simp [Nat.pow_add]
+      simp only [Nat.pow_add, Nat.pow_one, j, k]
       rw [Nat.mul_comm, Nat.mul_assoc]
     omega
 

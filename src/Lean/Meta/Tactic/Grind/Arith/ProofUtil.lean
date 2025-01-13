@@ -135,6 +135,30 @@ def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr
     assert! k' > 0
     mkApp6 (mkConst ``Grind.Nat.ro_eq_true_of_ro) u v (toExprN k) (toExprN k') rfl_true huv
 
+/--
+Given a path `u --(kuv)--> v` justified by proof `huv`,
+construct a proof of `e = False` where `e` is a term corresponding to the edgen `v --(k') --> u`
+s.t. `k+k' < 0`
+-/
+def mkPropagateEqFalseProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr :=
+  if k == 0 then
+    assert! k' < 0
+    mkApp5 (mkConst ``Grind.Nat.lo_eq_false_of_le) u v (toExprN k') rfl_true huv
+  else if k < 0 then
+    let k := -k
+    if k' == 0 then
+      mkApp5 (mkConst ``Grind.Nat.le_eq_false_of_lo) u v (toExprN k) rfl_true huv
+    else if k' < 0 then
+      let k' := -k'
+      mkApp6 (mkConst ``Grind.Nat.lo_eq_false_of_lo) u v (toExprN k) (toExprN k') rfl_true huv
+    else
+      assert! k' > 0
+      mkApp6 (mkConst ``Grind.Nat.ro_eq_true_of_lo) u v (toExprN k) (toExprN k') rfl_true huv
+  else
+    assert! k > 0
+    assert! k' < 0
+    mkApp6 (mkConst ``Grind.Nat.lo_eq_false_of_ro) u v (toExprN k) (toExprN k') rfl_true huv
+
 end Offset
 
 end Lean.Meta.Grind.Arith

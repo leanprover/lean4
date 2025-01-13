@@ -63,7 +63,7 @@ private def getProof? (u v : NodeId) : GoalM (Option ProofInfo) := do
 Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
 shortest path between `u` and `v`.
 -/
-partial def extractProof (u v : NodeId) : GoalM Expr := do
+private partial def mkProofForPath (u v : NodeId) : GoalM Expr := do
   go (← getProof? u v).get!
 where
   go (p : ProofInfo) : GoalM Expr := do
@@ -80,7 +80,7 @@ this function closes the current goal by constructing a proof of `False`.
 -/
 private def setUnsat (u v : NodeId) (kuv : Int) (huv : Expr) (kvu : Int) : GoalM Unit := do
   assert! kuv + kvu < 0
-  let hvu ← extractProof v u
+  let hvu ← mkProofForPath v u
   let u ← getExpr u
   let v ← getExpr v
   closeGoal (mkUnsatProof u v kuv huv kvu hvu)
@@ -120,7 +120,7 @@ path `u --(k)--> v`.
 private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
   if k ≤ c.k then
     trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = True"
-    let kuv ← extractProof u v
+    let kuv ← mkProofForPath u v
     let u ← getExpr u
     let v ← getExpr v
     pushEqTrue e <| mkPropagateEqTrueProof u v k kuv c.k
@@ -136,7 +136,10 @@ path `u --(k)--> v`.
 private def propagateFalse (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
   if k + c.k < 0 then
     trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = False"
-    return true
+    let kuv ← mkProofForPath u v
+    let u ← getExpr u
+    let v ← getExpr v
+    pushEqFalse e <| mkPropagateEqFalseProof u v k kuv c.k
   return false
 
 /--
@@ -243,7 +246,7 @@ def checkInvariants : GoalM Unit := do
     for (v, k) in es do
       let c : Cnstr NodeId := { u, v, k }
       trace[grind.debug.offset] "{c}"
-      let p ← extractProof u v
+      let p ← mkProofForPath u v
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
       unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do

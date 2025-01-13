@@ -753,7 +753,13 @@ theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = 
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
   simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
 
+theorem shiftLeft_and_distrib {a b : Nat} : (a &&& b) <<< i = a <<< i &&& b <<< i :=
+  shiftLeft_bitwise_distrib
+
 theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
+  shiftLeft_bitwise_distrib
+
+theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
   shiftLeft_bitwise_distrib
 
 @[simp] theorem decide_shiftRight_mod_two_eq_one :

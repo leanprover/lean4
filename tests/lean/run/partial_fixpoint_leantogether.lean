@@ -2,6 +2,8 @@
 Example for the lean together demo
 -/
 
+#exit
+
 variable (f : α → Option α)
 
 partial def whileSome (x : α) : α :=

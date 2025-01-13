@@ -1504,13 +1504,19 @@ theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array 
   · rintro ⟨⟨l₁⟩, a, ⟨l₂⟩, h₁, h₂, h₃, h₄⟩
     refine ⟨l₂.reverse, a, l₁.reverse, by simp_all⟩
 
-/-! Content below this point has not yet been aligned with `List`. -/
-
 /-! ### singleton -/
 
 @[simp] theorem singleton_def (v : α) : Array.singleton v = #[v] := rfl
 
 /-! ### append -/
+
+@[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
+  simp only [size, toList_append, List.length_append]
+
+@[simp] theorem append_push {as bs : Array α} {a : α} : as ++ bs.push a = (as ++ bs).push a := by
+  cases as
+  cases bs
+  simp
 
 @[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
     xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
@@ -1539,8 +1545,24 @@ theorem mem_append_left {a : α} {l₁ : Array α} (l₂ : Array α) (h : a ∈ 
 theorem mem_append_right {a : α} (l₁ : Array α) {l₂ : Array α} (h : a ∈ l₂) : a ∈ l₁ ++ l₂ :=
   mem_append.2 (Or.inr h)
 
-@[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
-  simp only [size, toList_append, List.length_append]
+theorem not_mem_append {a : α} {s t : Array α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
+  mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
+
+/--
+See also `eq_push_append_of_mem`, which proves a stronger version
+in which the initial array must not contain the element.
+-/
+theorem append_of_mem {a : α} {l : Array α} (h : a ∈ l) : ∃ s t : Array α, l = s.push a ++ t := by
+  obtain ⟨s, t, w⟩ := List.append_of_mem (l := l.toList) (by simpa using h)
+  replace w := congrArg List.toArray w
+  refine ⟨s.toArray, t.toArray, by simp_all⟩
+
+theorem mem_iff_append {a : α} {l : Array α} : a ∈ l ↔ ∃ s t : Array α, l = s.push a ++ t :=
+  ⟨append_of_mem, fun ⟨s, t, e⟩ => e ▸ by simp⟩
+
+theorem forall_mem_append {p : α → Prop} {l₁ l₂ : Array α} :
+    (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
+  simp only [mem_append, or_imp, forall_and]
 
 theorem empty_append (as : Array α) : #[] ++ as = as := by simp
 
@@ -1599,6 +1621,194 @@ theorem getElem_of_append {l l₁ l₂ : Array α} (eq : l = l₁.push a ++ l₂
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
   simp
 
+@[simp 1100] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := by
+  cases as
+  simp
+
+theorem append_inj {s₁ s₂ t₁ t₂ : Array α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : s₁.size = s₂.size) :
+    s₁ = s₂ ∧ t₁ = t₂ := by
+  rcases s₁ with ⟨s₁⟩
+  rcases s₂ with ⟨s₂⟩
+  rcases t₁ with ⟨t₁⟩
+  rcases t₂ with ⟨t₂⟩
+  simpa using List.append_inj (by simpa using h) (by simpa using hl)
+
+theorem append_inj_right {s₁ s₂ t₁ t₂ : Array α}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : s₁.size = s₂.size) : t₁ = t₂ :=
+  (append_inj h hl).right
+
+theorem append_inj_left {s₁ s₂ t₁ t₂ : Array α}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : s₁.size = s₂.size) : s₁ = s₂ :=
+  (append_inj h hl).left
+
+/-- Variant of `append_inj` instead requiring equality of the sizes of the second arrays. -/
+theorem append_inj' {s₁ s₂ t₁ t₂ : Array α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : t₁.size = t₂.size) :
+    s₁ = s₂ ∧ t₁ = t₂ :=
+  append_inj h <| @Nat.add_right_cancel _ t₁.size _ <| by
+    let hap := congrArg size h; simp only [size_append, ← hl] at hap; exact hap
+
+/-- Variant of `append_inj_right` instead requiring equality of the sizes of the second arrays. -/
+theorem append_inj_right' {s₁ s₂ t₁ t₂ : Array α}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : t₁.size = t₂.size) : t₁ = t₂ :=
+  (append_inj' h hl).right
+
+/-- Variant of `append_inj_left` instead requiring equality of the sizes of the second arrays. -/
+theorem append_inj_left' {s₁ s₂ t₁ t₂ : Array α}
+    (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : t₁.size = t₂.size) : s₁ = s₂ :=
+  (append_inj' h hl).left
+
+theorem append_right_inj {t₁ t₂ : Array α} (s) : s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ :=
+  ⟨fun h => append_inj_right h rfl, congrArg _⟩
+
+theorem append_left_inj {s₁ s₂ : Array α} (t) : s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ :=
+  ⟨fun h => append_inj_left' h rfl, congrArg (· ++ _)⟩
+
+@[simp] theorem append_left_eq_self {x y : Array α} : x ++ y = y ↔ x = #[] := by
+  rw [← append_left_inj (s₁ := x), nil_append]
+
+@[simp] theorem self_eq_append_left {x y : Array α} : y = x ++ y ↔ x = #[] := by
+  rw [eq_comm, append_left_eq_self]
+
+@[simp] theorem append_right_eq_self {x y : Array α} : x ++ y = x ↔ y = #[] := by
+  rw [← append_right_inj (t₁ := y), append_nil]
+
+@[simp] theorem self_eq_append_right {x y : Array α} : x = x ++ y ↔ y = #[] := by
+  rw [eq_comm, append_right_eq_self]
+
+@[simp] theorem append_eq_empty_iff : p ++ q = #[] ↔ p = #[] ∧ q = #[] := by
+  cases p <;> simp
+
+@[simp] theorem empty_eq_append_iff : #[] = a ++ b ↔ a = #[] ∧ b = #[] := by
+  rw [eq_comm, append_eq_empty_iff]
+
+theorem append_ne_empty_of_left_ne_empty {s : Array α} (h : s ≠ #[]) (t : Array α) :
+    s ++ t ≠ #[] := by
+  simp_all
+
+theorem append_ne_empty_of_right_ne_empty (s : Array α) : t ≠ #[] → s ++ t ≠ #[] := by
+  simp_all
+
+theorem append_eq_push_iff {a b c : Array α} {x : α} :
+    a ++ b = c.push x ↔ (b = #[] ∧ a = c.push x) ∨ (∃ b', b = b'.push x ∧ c = a ++ b') := by
+  rcases a with ⟨a⟩
+  rcases b with ⟨b⟩
+  rcases c with ⟨c⟩
+  simp only [List.append_toArray, List.push_toArray, mk.injEq, List.append_eq_append_iff,
+    toArray_eq_append_iff]
+  constructor
+  · rintro (⟨a', rfl, rfl⟩ | ⟨b', rfl, h⟩)
+    · right; exact ⟨⟨a'⟩, by simp⟩
+    · rw [List.singleton_eq_append_iff] at h
+      obtain (⟨rfl, rfl⟩ | ⟨rfl, rfl⟩) := h
+      · right; exact ⟨#[], by simp⟩
+      · left; simp
+  · rintro (⟨rfl, rfl⟩ | ⟨b', h, rfl⟩)
+    · right; exact ⟨[x], by simp⟩
+    · left; refine ⟨b'.toList, ?_⟩
+      replace h := congrArg Array.toList h
+      simp_all
+
+theorem push_eq_append_iff {a b c : Array α} {x : α} :
+    c.push x = a ++ b ↔ (b = #[] ∧ a = c.push x) ∨ (∃ b', b = b'.push x ∧ c = a ++ b') := by
+  rw [eq_comm, append_eq_push_iff]
+
+theorem append_eq_singleton_iff {a b : Array α} {x : α} :
+    a ++ b = #[x] ↔ (a = #[] ∧ b = #[x]) ∨ (a = #[x] ∧ b = #[]) := by
+  rcases a with ⟨a⟩
+  rcases b with ⟨b⟩
+  simp only [List.append_toArray, mk.injEq, List.append_eq_singleton_iff, toArray_eq_append_iff]
+
+theorem singleton_eq_append_iff {a b : Array α} {x : α} :
+    #[x] = a ++ b ↔ (a = #[] ∧ b = #[x]) ∨ (a = #[x] ∧ b = #[]) := by
+  rw [eq_comm, append_eq_singleton_iff]
+
+theorem append_eq_append_iff {a b c d : Array α} :
+    a ++ b = c ++ d ↔ (∃ a', c = a ++ a' ∧ b = a' ++ d) ∨ ∃ c', a = c ++ c' ∧ d = c' ++ b := by
+  rcases a with ⟨a⟩
+  rcases b with ⟨b⟩
+  rcases c with ⟨c⟩
+  rcases d with ⟨d⟩
+  simp only [List.append_toArray, mk.injEq, List.append_eq_append_iff, toArray_eq_append_iff]
+  constructor
+  · rintro (⟨a', rfl, rfl⟩ | ⟨c', rfl, rfl⟩)
+    · left; exact ⟨⟨a'⟩, by simp⟩
+    · right; exact ⟨⟨c'⟩, by simp⟩
+  · rintro (⟨a', rfl, rfl⟩ | ⟨c', rfl, rfl⟩)
+    · left; exact ⟨a'.toList, by simp⟩
+    · right; exact ⟨c'.toList, by simp⟩
+
+theorem set_append {s t : Array α} {i : Nat} {x : α} (h : i < (s ++ t).size) :
+    (s ++ t).set i x =
+      if h' : i < s.size then
+        s.set i x ++ t
+      else
+        s ++ t.set (i - s.size) x (by simp at h; omega) := by
+  rcases s with ⟨s⟩
+  rcases t with ⟨t⟩
+  simp only [List.append_toArray, List.set_toArray, List.set_append]
+  split <;> simp
+
+@[simp] theorem set_append_left {s t : Array α} {i : Nat} {x : α} (h : i < s.size) :
+    (s ++ t).set i x (by simp; omega) = s.set i x ++ t := by
+  simp [set_append, h]
+
+@[simp] theorem set_append_right {s t : Array α} {i : Nat} {x : α}
+    (h' : i < (s ++ t).size) (h : s.size ≤ i) :
+    (s ++ t).set i x = s ++ t.set (i - s.size) x (by simp at h'; omega) := by
+  rw [set_append, dif_neg (by omega)]
+
+theorem setIfInBounds_append {s t : Array α} {i : Nat} {x : α} :
+    (s ++ t).setIfInBounds i x =
+      if i < s.size then
+        s.setIfInBounds i x ++ t
+      else
+        s ++ t.setIfInBounds (i - s.size) x := by
+  rcases s with ⟨s⟩
+  rcases t with ⟨t⟩
+  simp only [List.append_toArray, List.setIfInBounds_toArray, List.set_append]
+  split <;> simp
+
+@[simp] theorem setIfInBounds_append_left {s t : Array α} {i : Nat} {x : α} (h : i < s.size) :
+    (s ++ t).setIfInBounds i x = s.setIfInBounds i x ++ t := by
+  simp [setIfInBounds_append, h]
+
+@[simp] theorem setIfInBounds_append_right {s t : Array α} {i : Nat} {x : α} (h : s.size ≤ i) :
+    (s ++ t).setIfInBounds i x = s ++ t.setIfInBounds (i - s.size) x := by
+  rw [setIfInBounds_append, if_neg (by omega)]
+
+theorem filterMap_eq_append_iff {f : α → Option β} :
+    filterMap f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
+  rcases l with ⟨l⟩
+  rcases L₁ with ⟨L₁⟩
+  rcases L₂ with ⟨L₂⟩
+  simp only [size_toArray, List.filterMap_toArray', List.append_toArray, mk.injEq,
+    List.filterMap_eq_append_iff, toArray_eq_append_iff]
+  constructor
+  · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
+    exact ⟨⟨l₁⟩, ⟨l₂⟩, by simp⟩
+  · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
+    exact ⟨l₁, l₂, by simp_all⟩
+
+theorem append_eq_filterMap_iff {f : α → Option β} :
+    L₁ ++ L₂ = filterMap f l ↔
+      ∃ l₁ l₂, l = l₁ ++ l₂ ∧ filterMap f l₁ = L₁ ∧ filterMap f l₂ = L₂ := by
+  rw [eq_comm, filterMap_eq_append_iff]
+
+@[simp] theorem map_append (f : α → β) (l₁ l₂ : Array α) :
+    map f (l₁ ++ l₂) = map f l₁ ++ map f l₂ := by
+  cases l₁
+  cases l₂
+  simp
+
+theorem map_eq_append_iff {f : α → β} :
+    map f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
+  rw [← filterMap_eq_map, filterMap_eq_append_iff]
+
+theorem append_eq_map_iff {f : α → β} :
+    L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
+  rw [eq_comm, map_eq_append_iff]
+
+/-! Content below this point has not yet been aligned with `List`. -/
 
 -- This is a duplicate of `List.toArray_toList`.
 -- It's confusing to guess which namespace this theorem should live in,

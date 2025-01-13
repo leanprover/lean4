@@ -203,11 +203,11 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
     cases l₂ with
     | nil =>
       constructor
-      · simp only [zipWith_nil_right, nil_eq, append_eq_nil, exists_and_left, and_imp]
+      · simp only [zipWith_nil_right, nil_eq, append_eq_nil_iff, exists_and_left, and_imp]
         rintro rfl  rfl
         exact ⟨[], x₁ :: l₁, [], by simp⟩
       · rintro ⟨w, x, y, z, h₁, _, h₃, rfl, rfl⟩
-        simp only [nil_eq, append_eq_nil] at h₃
+        simp only [nil_eq, append_eq_nil_iff] at h₃
         obtain ⟨rfl, rfl⟩ := h₃
         simp
     | cons x₂ l₂ =>

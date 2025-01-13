@@ -133,7 +133,7 @@ def mkPropagateEqTrueProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Expr
   else
     assert! k > 0
     assert! k' > 0
-    mkApp6 (mkConst ``Grind.Nat.ro_eq_true_of_ro) u v (toExprN k) (toExprN k) rfl_true huv
+    mkApp6 (mkConst ``Grind.Nat.ro_eq_true_of_ro) u v (toExprN k) (toExprN k') rfl_true huv
 
 end Offset
 

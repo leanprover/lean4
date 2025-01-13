@@ -8,7 +8,8 @@ import Init.Core
 import Init.Omega
 
 namespace Lean.Grind
-def isLt (x y : Nat) : Bool := x < y
+abbrev isLt (x y : Nat) : Bool := x < y
+abbrev isLE (x y : Nat) : Bool := x ≤ y
 
 /-! Theorems for transitivity. -/
 theorem Nat.le_ro (u w v k : Nat) : u ≤ w → w ≤ v + k → u ≤ v + k := by
@@ -51,7 +52,7 @@ theorem Nat.unsat_lo_ro (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k�
   simp [isLt]; omega
 
 /-! Theorems for propagating constraints to `True` -/
-theorem Nat.lo_eq_true_of_lo (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k₁ ≤ v → (u + k₂ ≤ v) = True :=
+theorem Nat.lo_eq_true_of_lo (u v k₁ k₂ : Nat) : isLE k₂ k₁ = true → u + k₁ ≤ v → (u + k₂ ≤ v) = True :=
   by simp [isLt]; omega
 theorem Nat.le_eq_true_of_lo (u v k : Nat) : u + k ≤ v → (u ≤ v) = True :=
   by simp; omega
@@ -61,7 +62,19 @@ theorem Nat.ro_eq_true_of_lo (u v k₁ k₂ : Nat) : u + k₁ ≤ v → (u ≤ v
   by simp; omega
 theorem Nat.ro_eq_true_of_le (u v k : Nat) : u ≤ v → (u ≤ v + k) = True :=
   by simp; omega
-theorem Nat.ro_eq_true_of_ro (u v k₁ k₂ : Nat) : isLt k₁ k₂ = true → u ≤ v + k₁ → (u ≤ v + k₂) = True :=
-  by simp [isLt]; omega
+theorem Nat.ro_eq_true_of_ro (u v k₁ k₂ : Nat) : isLE k₁ k₂ = true → u ≤ v + k₁ → (u ≤ v + k₂) = True :=
+  by simp [isLE]; omega
+
+/-!
+Theorems for propagating constraints to `False`.
+They are variants of the theorems for closing a goal.
+-/
+-- theorem Nat.lo_eq_false_of_le (u v k : Nat) : isLt 0 k = true → u ≤ v → (v + k ≤ u) = False := by
+--  simp [isLt]; omega
+-- theorem Nat.lounsat_lo_lo (u v k₁ k₂ : Nat) : isLt 0 (k₁+k₂) = true → u + k₁ ≤ v → v + k₂ ≤ u → False := by
+--  simp [isLt]; omega
+-- theorem Nat.unsat_lo_ro (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → u + k₁ ≤ v → v ≤ u + k₂ → False := by
+--  simp [isLt]; omega
+
 
 end Lean.Grind

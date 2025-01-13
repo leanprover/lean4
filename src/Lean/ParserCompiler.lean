@@ -103,11 +103,8 @@ partial def compileParserExpr (e : Expr) : MetaM Expr := do
           name := c', levelParams := []
           type := ty, value := value, hints := ReducibilityHints.opaque, safety := DefinitionSafety.safe
         }
-        let env ← getEnv
-        let env ← match env.addAndCompile {} decl with
-          | Except.ok    env => pure env
-          | Except.error kex => do throwError (← (kex.toMessageData {}).toString)
-        setEnv <| ctx.combinatorAttr.setDeclFor env c c'
+        addAndCompile decl
+        modifyEnv (ctx.combinatorAttr.setDeclFor · c c')
         if cinfo.type.isConst then
           if let some kind ← parserNodeKind? cinfo.value! then
             -- If the parser is parameter-less and produces a node of kind `kind`,

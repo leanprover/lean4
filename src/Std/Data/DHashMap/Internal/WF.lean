@@ -563,7 +563,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
       rw [← getValueCast?_eq_some_getValueCast h₁]
-      conv => lhs; congr; rw [containsKey_alterKey_self h.distinct];
+      conv => lhs; congr; rw [containsKey_alterKey_self h.distinct]
     · next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
       rw [alterKey]

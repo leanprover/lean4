@@ -140,8 +140,6 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " -Wl,--stack,${LEAN_WIN_STACK_SIZE}")
     set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} -lpsapi)
   endif()
-  # Link against winsock2
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -lws2_32")
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_WINDOWS -D LEAN_WIN_STACK_SIZE=${LEAN_WIN_STACK_SIZE}")
   # do not import the world from windows.h using appropriately named flag
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D WIN32_LEAN_AND_MEAN")
@@ -298,13 +296,13 @@ index 5e8e0166..f3b29134 100644
     BUILD_IN_SOURCE ON
     INSTALL_COMMAND "")
   set(LIBUV_INCLUDE_DIR "${CMAKE_BINARY_DIR}/libuv/src/libuv/include")
-  set(LIBUV_LIBRARIES "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
+  set(LIBUV_LDFLAGS "${CMAKE_BINARY_DIR}/libuv/src/libuv/libuv.a")
 else()
   find_package(LibUV 1.0.0 REQUIRED)
 endif()
 include_directories(${LIBUV_INCLUDE_DIR})
 if(NOT LEAN_STANDALONE)
-  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
+  string(JOIN " " LEAN_EXTRA_LINKER_FLAGS ${LIBUV_LDFLAGS})
 endif()
 
 # Windows SDK (for ICU)

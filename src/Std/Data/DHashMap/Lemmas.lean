@@ -6,6 +6,7 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Internal.Raw
 import Std.Data.DHashMap.Internal.RawLemmas
+import Std.Data.DHashMap.Internal.MyRawLemmas
 
 /-!
 # Dependent hash map lemmas
@@ -985,16 +986,16 @@ theorem alter_empty_of_some [LawfulBEq α] {k : α} {f : Option (β k) → Optio
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     -- should we use = or ↔? LHS is Bool, RHS is Prop.
     -- mem_iff_contains suggests ↔.
-    (m.alter k f).isEmpty = (m.erase k).isEmpty && (f (m.get? k)).isNone :=
+    (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) :=
   Raw₀.isEmpty_alter _ m.2
 
 theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' :=
-  sorry
+  Raw₀.contains_alter ⟨_, _⟩ m.2
 
 theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
-    k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome else k' ∈ m := by
-    rw [mem_iff_contains, contains_alter]
+    k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
+  simp only [mem_iff_contains, contains_alter, beq_iff_eq, Bool.ite_eq_true_distrib]
 
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -1006,18 +1007,37 @@ theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β
     k ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
   rw [mem_iff_contains, contains_alter_self]
 
-theorem contains_alter_not_beq [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+theorem contains_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : (k == k') = false) : (m.alter k f).contains k' = m.contains k' := by
   simp only [contains_alter, h, Bool.false_eq_true, reduceIte]
 
-theorem mem_alter_not_beq [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : (k == k') = false) : k' ∈ m.alter k f ↔ k' ∈ m := by
-  simp only [mem_iff_contains, contains_alter_not_beq, h]
+  simp only [mem_iff_contains, contains_alter_of_beq_eq_false, h]
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).size = match f (m.get? k) with
-      | none => (m.erase k).size
-      | some v => (m.insert k v).size :=
+    (m.alter k f).size =
+    if m.contains k && (f (m.get? k)).isNone then
+      m.size - 1
+    else if m.contains k = false && (f (m.get? k)).isNone then
+      m.size + 1
+    else
+      m.size :=
+  sorry
+
+theorem size_alter' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).size =
+    m.size
+      - (if m.contains k then 1 else 0)
+      + (if (f (m.get? k)).isNone then 0 else 1) :=
+  sorry
+
+theorem size_alter_le [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).size ≤ m.size + 1 :=
+  sorry
+
+theorem le_size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    m.size - 1 ≤ (m.alter k f).size :=
   sorry
 
 theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
@@ -1025,6 +1045,7 @@ theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β 
       (cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (m.get? k)))
     else m.get? k' :=
   sorry
+
 
 @[simp]
 theorem get?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -1161,8 +1182,8 @@ theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option 
   sorry
 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
-    k' ∈ Const.alter m k f ↔ if  k == k' then (f (Const.get? m k)).isSome else m.contains k' := by
-    rw [mem_iff_contains, contains_alter]
+    k' ∈ Const.alter m k f ↔ if  k == k' then (f (Const.get? m k)).isSome = true else k' ∈ m := by
+    simp only [mem_iff_contains, contains_alter, Bool.ite_eq_true_distrib]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
@@ -1174,13 +1195,13 @@ theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β
     k ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
   rw [mem_iff_contains, contains_alter_self]
 
-theorem contains_alter_not_beq [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
+theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
     (h : (k == k') = false) : (Const.alter m k f).contains k' = m.contains k' := by
   simp only [contains_alter, h, Bool.false_eq_true, reduceIte]
 
-theorem mem_alter_not_beq [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
+theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
     (h : (k == k') = false) : k' ∈ Const.alter m k f ↔ k' ∈ m := by
-  simp only [mem_iff_contains, contains_alter_not_beq, h]
+  simp only [mem_iff_contains, contains_alter_of_beq_eq_false, h]
 
 -- Not very nice. The only other idea I have is to essentially rewrite with size_insert and
 -- size_erase.
@@ -1188,6 +1209,14 @@ theorem size_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β →
     (Const.alter m k f).size = match f (Const.get? m k) with
       | none => (m.erase k).size
       | some v => (m.insert k v).size :=
+  sorry
+
+theorem size_alter_le [LawfulBEq α] {k : α} {f : Option β → Option β} :
+    (m.alter k f).size ≤ m.size + 1 :=
+  sorry
+
+theorem le_size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
+    m.size - 1 ≤ (m.alter k f).size :=
   sorry
 
 -- Is this ugly statement worth it?

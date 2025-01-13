@@ -125,7 +125,8 @@ theorem testBit_mul_two_pow_le {x i n : Nat} (h : n ≤ i) :
 
 theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     testBit (x * 2 ^ n) i = false := by
-  simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero, beq_eq_false_iff_ne, ne_eq, ← shiftLeft_eq]
+  simp only [testBit, ← shiftLeft_eq, one_and_eq_mod_two, mod_two_bne_zero, beq_eq_false_iff_ne,
+    ne_eq]
   let k := n - i
   have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel]; omega
   rw [hk, Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
@@ -133,8 +134,7 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     rw [Nat.mul_comm, Nat.div_mul_cancel]
     suffices hs : 2 * (x * 2 ^ (k - 1)) = x * 2 ^ k by
       exact ⟨_, hs.symm⟩
-    rw [Nat.mul_comm, Nat.mul_assoc, ← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.sub_add_cancel]
-    omega
+    rw [Nat.mul_comm, Nat.mul_assoc, ← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.sub_add_cancel (by omega)]
   omega
 
 theorem testBit_mul_two_pow (x i n : Nat) :

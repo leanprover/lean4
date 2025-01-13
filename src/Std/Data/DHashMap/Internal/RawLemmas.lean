@@ -842,6 +842,23 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
 
+
+theorem alter_empty [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
+    (empty.alter k f).1 = (match f none with
+    | none => empty
+    | some v => empty.insert k v).1 := by
+  split
+  · next heq => simp [alter, heq]
+  · next heq =>
+    rw [alter_eq_alterₘ, alterₘ]
+    simp [insert_eq_insertₘ, insertₘ]
+    split
+    · rw [replac]
+      rfl
+    · rfl
+    rw [← contains_eq_containsₘ, contains_empty]
+    simp only [Bool.false_eq_true, reduceDIte, heq]
+
 @[simp]
 theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} :
     (m.modify k f).1.isEmpty ↔ m.1.isEmpty := by
@@ -849,8 +866,14 @@ theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} 
 
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).1.isEmpty ↔ (m.erase k).1.isEmpty ∧ f (m.get? k) = none := by
+    (m.alter k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (m.get? k)).isNone) := by
   simp_to_model using List.isEmpty_alterKey
+
+theorem contains_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
+  simp_to_model using List.containsKey_alterKey
+
+#exit
 
 namespace Const
 

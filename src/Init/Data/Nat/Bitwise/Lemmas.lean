@@ -133,10 +133,8 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     rw [Nat.mul_comm, Nat.div_mul_cancel]
     suffices hs : 2 * (x * 2 ^ (k - 1)) = x * 2 ^ k by
       exact ⟨_, hs.symm⟩
-    let j := k - 1
-    have hj : 2 ^ (k - 1) = 2 ^ j := by simp only [j]
-    have hj' : 2 ^ k = 2 ^ (j + 1) := by simp only [j]; rw [Nat.sub_add_cancel]; omega
-    rw [hj, hj', Nat.pow_add, Nat.pow_one, Nat.mul_comm, Nat.mul_assoc]
+    rw [Nat.mul_comm, Nat.mul_assoc, ← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.sub_add_cancel]
+    omega
   omega
 
 theorem testBit_mul_two_pow (x i n : Nat) :

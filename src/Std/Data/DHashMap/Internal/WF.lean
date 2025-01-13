@@ -563,7 +563,7 @@ theorem wfImp_alterₘ [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} 
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
       rw [← getValueCast?_eq_some_getValueCast h₁]
-      conv => lhs; congr; rw [containsKey_alterKey h.distinct];
+      conv => lhs; congr; rw [containsKey_alterKey_self h.distinct];
     · next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
       rw [alterKey]
@@ -655,7 +655,7 @@ theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] 
       simp only [buckets_withComputedSize]
       simp only [containsKey_of_perm <| toListModel_updateBucket_alter h]
       rw [← getValue?_eq_some_getValue h₁]
-      conv => lhs; congr; rw [Const.containsKey_alterKey_iff (a := a) (f := f) h.distinct];
+      conv => lhs; congr; rw [Const.containsKey_alterKey_self h.distinct]
     · next h₁ =>
       rw [containsₘ_eq_containsKey h] at h₁
       rw [Const.alterKey]

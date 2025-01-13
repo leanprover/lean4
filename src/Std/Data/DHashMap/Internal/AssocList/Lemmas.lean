@@ -222,39 +222,13 @@ variable {β : Type v}
 
 theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
-  rw [Const.alterKey]
-  split
-  · next heq =>
-    induction l
-    · simp only [toList_nil, getValue?_nil] at heq
-      simp only [alter, heq, toList_nil, eraseKey_nil]
-      exact .nil
-    · next ih =>
-      simp only [toList_cons, getValue?_cons, cond_eq_if] at heq
-      split at heq
-      · next heq₂ =>
-        simp only [alter, if_pos heq₂, heq, toList_cons, eraseKey_cons_of_beq heq₂]
-        exact Perm.rfl
-      · next heq₂ =>
-        simp only [alter, if_neg heq₂, toList_cons]
-        simp only [eraseKey_cons_of_false (Bool.not_eq_true _ ▸ heq₂), true_and]
-        exact Perm.cons _ <| ih heq
-  · next heq =>
-    induction l
-    · rw [toList_nil, getValue?_nil] at heq
-      simp only [alter, heq, toList_cons, toList_nil, insertEntry_nil]
-      exact Perm.rfl
-    · next ih =>
-      simp only [toList_cons, getValue?_cons, cond_eq_if] at heq
-      split at heq
-      · next heq₂ =>
-        simp only [alter, heq, if_pos heq₂, toList_cons, insertEntry_cons_of_beq heq₂,
-          List.cons.injEq, and_true]
-        rfl
-      · next heq₂ =>
-        simp only [alter, if_neg heq₂, toList_cons]
-        refine insertEntry_cons_of_false (Bool.not_eq_true _ ▸ heq₂) |>.symm |> Perm.trans ?_
-        exact Perm.cons _ <| ih heq
+  induction l
+  · simp only [alter, toList_nil, alterKey_nil]
+    split <;> simp_all
+  · rw [toList]
+    refine Perm.trans ?_ Const.alterKey_cons_perm.symm
+    rw [alter]
+    split <;> (try split) <;> simp_all
 
 theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : AssocList α (fun _ => β)} :
     modify a f l = alter a (·.map f) l := by

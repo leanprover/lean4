@@ -1903,7 +1903,7 @@ theorem alterKey_nil [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Opt
     | none => []
     | some b => [⟨a, b⟩] := rfl
 
-theorem containsKey_alterKey [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+theorem containsKey_alterKey_self [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     containsKey a (alterKey a f l) = (f (getValueCast? a l)).isSome := by
   match l with
@@ -1991,8 +1991,8 @@ theorem length_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
     simp only [modifyKey]
     split <;> next h => simp only [length_replaceEntry, List.length_cons]
 
-theorem containsKey_modifyKey_iff [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
-    (l : List ((a : α) × β a)) : containsKey k (modifyKey k f l) ↔ containsKey k l := by
+theorem containsKey_modifyKey_self [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
+    (l : List ((a : α) × β a)) : containsKey k (modifyKey k f l) = containsKey k l := by
   induction l
   · simp only [modifyKey, getValueCast?_nil, eraseKey_nil, containsKey_nil, Bool.false_eq_true]
   · simp only [modifyKey, Bool.coe_iff_coe]
@@ -2021,6 +2021,26 @@ theorem length_alterKey [BEq α] [EquivBEq α] {k : α} {f : Option β → Optio
   cases h : getValue? k l <;> split <;> simp_all [length_eraseKey, length_insertEntry,
     containsKey_eq_isSome_getValue?, ← getValue?_eq_some_getValue, -getValue?_eq_none]
 
+theorem alterKey_cons_perm [BEq α] [EquivBEq α] {k : α} {f : Option β → Option β}
+    {k' : α} {v' : β} {l : List ((a : α) × β)} :
+      Perm (alterKey k f (⟨k', v'⟩ :: l)) (if k' == k then
+        match f (some v') with
+          | none => l
+          | some v => ⟨k, v⟩ :: l
+        else
+          ⟨k', v'⟩ :: alterKey k f l) := by
+  rw [alterKey]
+  by_cases hk' : k' == k
+  · simp only [hk', ↓reduceDIte]
+    rw [getValue?_cons_of_true hk', eraseKey_cons_of_beq hk']
+    simp [insertEntry_cons_of_beq hk']
+  · simp only [hk', Bool.false_eq_true, ↓reduceDIte]
+    rw [Bool.not_eq_true] at hk'
+    rw [getValue?_cons_of_false hk', eraseKey_cons_of_false hk', alterKey]
+    split
+    · rfl
+    · simp [insertEntry_cons_of_false hk']
+
 theorem alterKey_of_perm [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l l' : List ((_ : α) × β)} (hl : DistinctKeys l) (hp : Perm l l') :
     Perm (alterKey a f l) (alterKey a f l') := by
@@ -2042,7 +2062,7 @@ theorem alterKey_nil [BEq α] [EquivBEq α] {a : α} {f : Option β → Option �
     | none => []
     | some b => [⟨a, b⟩] := rfl
 
-theorem containsKey_alterKey_iff [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
+theorem containsKey_alterKey_self [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
     containsKey a (alterKey a f l) ↔ (f (getValue? a l)).isSome := by
   match l with

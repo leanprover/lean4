@@ -46,8 +46,8 @@ def wait (s : Sleep) : IO (AsyncTask Unit) := do
 
 /--
 If:
-- `s` is still running this will delay the resolution of `AsyncTask`s created with `wait` by
-  `duration` milliseconds.
+- `s` is still running the timer restarts counting from now and finishes after `duration`
+  milliseconds.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]

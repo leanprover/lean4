@@ -115,6 +115,11 @@ theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i :=
     rw [← Nat.add_assoc, testBit_add_one, ih (x / 2),
       Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
 
+theorem testBit_mul_two_pow (x i n : Nat) : testBit (x * 2 ^ n) (i + n) = testBit x i := by
+  have h2 : 0 < 2 := by omega
+  rw [testBit_add, Nat.mul_div_cancel]
+  simp [Nat.pow_pos h2 (n := n)]
+
 theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := by
   simp
 
@@ -452,6 +457,11 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
       case neg =>
         apply Nat.add_lt_add <;> exact hyp1
 
+theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
+  (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp [testBit_bitwise of_false_false, testBit_div_two_pow]
+
 theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) / 2 ^ n = bitwise f (x / 2 ^ n) (y / 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
@@ -710,6 +720,15 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 @[simp] theorem shiftLeft_mod_two_eq_one : x <<< i % 2 = 1 ↔ i = 0 ∧ x % 2 = 1 := by
   rw [mod_two_eq_one_iff_testBit_zero, testBit_shiftLeft]
   simp
+
+theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
+    (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
+  rw [shiftLeft_eq]
+  sorry
+  simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]
+
+theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
+  shiftLeft_bitwise_distrib
 
 @[simp] theorem decide_shiftRight_mod_two_eq_one :
     decide (x >>> i % 2 = 1) = x.testBit i := by

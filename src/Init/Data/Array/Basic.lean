@@ -576,6 +576,12 @@ def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : A
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
   Id.run <| as.foldrM f init start stop
 
+/-- Sum of an array.
+
+`Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : Array α → α :=
+  foldr (· + ·) 0
+
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f

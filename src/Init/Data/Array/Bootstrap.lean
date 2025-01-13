@@ -81,11 +81,17 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] (f : α → β → m β) (init
 
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
-@[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
+@[simp] theorem append_empty (as : Array α) : as ++ #[] = as := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]
 
-@[simp] theorem nil_append (as : Array α) : #[] ++ as = as := by
+@[deprecated append_empty (since := "2025-01-13")]
+abbrev append_nil := @append_empty
+
+@[simp] theorem empty_append (as : Array α) : #[] ++ as = as := by
   apply ext'; simp only [toList_append, toList_empty, List.nil_append]
+
+@[deprecated empty_append (since := "2025-01-13")]
+abbrev nil_append := @empty_append
 
 @[simp] theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
   apply ext'; simp only [toList_append, List.append_assoc]

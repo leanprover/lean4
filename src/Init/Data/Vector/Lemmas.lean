@@ -1115,6 +1115,11 @@ theorem forall_mem_map {f : α → β} {l : Vector α n} {P : β → Prop} :
 @[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   cases l <;> simp_all
 
+theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f l = map f l' ↔ l = l' := by
+  cases l
+  cases l'
+  simp [Array.map_inj_right w]
+
 theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
   map_inj_left.2 h
 

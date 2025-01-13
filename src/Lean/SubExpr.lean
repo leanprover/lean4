@@ -105,7 +105,7 @@ def pushNaryFn (numArgs : Nat) (p : Pos) : Pos :=
   p.asNat * (maxChildren ^ numArgs)
 
 def pushNaryArg (numArgs argIdx : Nat) (p : Pos) : Pos :=
-  show Nat from p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
+  p.asNat * (maxChildren ^ (numArgs - argIdx)) + 1
 
 def pushNthBindingDomain : (binderIdx : Nat) → Pos → Pos
   | 0, p => p.pushBindingDomain

@@ -1029,7 +1029,7 @@ theorem size_alter' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)
     (m.alter k f).size =
     m.size
       - (if m.contains k then 1 else 0)
-      + (if (f (m.get? k)).isNone then 0 else 1) :=
+      + (if (f (m.get? k)).isSome then 1 else 0) :=
   sorry
 
 theorem size_alter_le [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :

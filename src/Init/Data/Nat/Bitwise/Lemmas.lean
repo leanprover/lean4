@@ -115,14 +115,39 @@ theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i :=
     rw [← Nat.add_assoc, testBit_add_one, ih (x / 2),
       Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
 
-theorem testBit_mul_two_pow (x i n : Nat) (h : n ≤ i) : testBit (x * 2 ^ n) i = testBit x (i - n) := by
-  have h2 : 0 < 2 := by omega
-  let j := i - n
-  have hj : testBit (x * 2 ^ n) i = testBit (x * 2 ^ n) (j + n) := by simp [j]; rw [Nat.sub_add_cancel h]
-  have hj' : testBit x (i - n) = testBit x j := by simp [j]
-  rw [hj, hj']
-  rw [testBit_add, Nat.mul_div_cancel]
-  simp [Nat.pow_pos h2 (n := n)]
+theorem testBit_mul_two_pow (x i n : Nat) :
+    testBit (x * 2 ^ n) i = if n ≤ i then testBit x (i - n) else false := by
+  simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero, Bool.if_false_right]
+  by_cases hni : n ≤ i
+  · simp only [hni, decide_true, Bool.true_and]
+    congr 2
+    let j := i - n
+    have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp [j]; rw [Nat.sub_add_cancel]; omega
+    have hj' : x >>> (i - n) = x >>> j :=  by simp [j]
+    rw [hj, hj', ← shiftLeft_eq, Nat.add_comm, shiftRight_add, shiftLeft_shiftRight]
+  · simp only [hni, decide_false, Bool.false_and, beq_eq_false_iff_ne, ne_eq]
+    simp at hni
+    rw [← shiftLeft_eq]
+    let k := n - i
+    have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp [k]; rw [Nat.sub_add_cancel]; omega
+    rw [hk]
+    rw [Nat.shiftLeft_add]
+    rw [Nat.shiftLeft_shiftRight]
+    rw [shiftLeft_eq]
+    have hk' : 0 < k := by omega
+    have hx : 2 * (x * 2 ^ k / 2) = x * 2 ^ k := by
+      rw [Nat.mul_comm, Nat.div_mul_cancel]
+
+      suffices hs : 2 * (x * 2 ^ (k - 1)) = x * 2 ^ k by
+        exact ⟨_, hs.symm⟩
+
+      let j := k - 1
+      have hj : 2 ^ (k - 1) = 2 ^ j := by simp [j]
+      have hj' : 2 ^ k = 2 ^ (j + 1) := by simp [j]; rw [Nat.sub_add_cancel]; omega
+      rw [hj, hj']
+      simp [Nat.pow_add]
+      rw [Nat.mul_comm, Nat.mul_assoc]
+    omega
 
 theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := by
   simp
@@ -464,16 +489,16 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
 theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
-  simp [testBit_bitwise of_false_false, testBit_mul_two_pow (by sorry)]
-
-
-  sorry
+  simp only [testBit_mul_two_pow, testBit_bitwise of_false_false, Bool.if_false_right]
+  intro i
+  by_cases hn : n ≤ i
+  · simp [hn]
+  · simp [hn, of_false_false]
 
 theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) / 2 ^ n = bitwise f (x / 2 ^ n) (y / 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
-  simp [testBit_bitwise of_false_false]
-  simp [testBit_div_two_pow]
+  simp [testBit_bitwise of_false_false, testBit_div_two_pow]
 
 /-! ### and -/
 
@@ -731,9 +756,7 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 
 theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
-  rw [shiftLeft_eq]
-  sorry
-  simp [shiftRight_eq_div_pow, bitwise_div_two_pow of_false_false]
+  simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
 
 theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
   shiftLeft_bitwise_distrib

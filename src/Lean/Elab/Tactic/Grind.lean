@@ -35,9 +35,9 @@ def elabGrindPattern : CommandElab := fun stx => do
   | _ => throwUnsupportedSyntax
 
 def grind (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Unit := do
-  let mvarIds ← Grind.main mvarId config mainDeclName fallback
-  unless mvarIds.isEmpty do
-    throwError "`grind` failed\n{goalsToMessageData mvarIds}"
+  let goals ← Grind.main mvarId config mainDeclName fallback
+  unless goals.isEmpty do
+    throwError "`grind` failed\n{goalsToMessageData (goals.map (·.mvarId))}"
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())

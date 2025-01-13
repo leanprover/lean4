@@ -72,8 +72,8 @@ def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goa
 private def simple (goals : List Goal) : GrindM (List Goal) := do
   applyToAll (assertAll >> ematchStar >> (splitNext >> assertAll >> ematchStar).iterate) goals
 
-def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List MVarId) := do
-  let go : GrindM (List MVarId) := do
+def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
+  let go : GrindM (List Goal) := do
     let goals ← initCore mvarId
     let goals ← simple goals
     let goals ← goals.filterMapM fun goal => do
@@ -83,7 +83,7 @@ def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallba
       if (← goal.mvarId.isAssigned) then return none
       return some goal
     trace[grind.debug.final] "{← ppGoals goals}"
-    return goals.map (·.mvarId)
+    return goals
   go.run mainDeclName config fallback
 
 end Lean.Meta.Grind

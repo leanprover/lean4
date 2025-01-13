@@ -163,41 +163,6 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := rfl
 
   @[simp]
-  theorem toBitVec_add {a b : $typeName} : (a + b).toBitVec = a.toBitVec + b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_sub {a b : $typeName} : (a - b).toBitVec = a.toBitVec - b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_mul {a b : $typeName} : (a * b).toBitVec = a.toBitVec * b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_div {a b : $typeName} : (a / b).toBitVec = a.toBitVec / b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_mod {a b : $typeName} : (a % b).toBitVec = a.toBitVec % b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_land {a b : $typeName} : (a &&& b).toBitVec = a.toBitVec &&& b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_lor {a b : $typeName} : (a ||| b).toBitVec = a.toBitVec ||| b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_xor {a b : $typeName} : (a ^^^ b).toBitVec = a.toBitVec ^^^ b.toBitVec := rfl
-
-  @[simp]
-  theorem toBitVec_shiftLeft {l r : $typeName} :
-      (l <<< r).toBitVec = l.toBitVec <<< (r.toBitVec % $bits) := rfl
-
-  @[simp]
-  theorem toBitVec_shiftRight {l r : $typeName} :
-      (l >>> r).toBitVec = l.toBitVec >>> (r.toBitVec % $bits) := rfl
-
-  @[simp]
-  theorem toBitVec_not {a : $typeName} : (~~~a).toBitVec = ~~~a.toBitVec := rfl
-
-  @[simp]
   theorem mk_ofNat (n : Nat) : mk (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
 
   )
@@ -234,34 +199,6 @@ declare_uint_theorems UInt16 16
 declare_uint_theorems UInt32 32
 declare_uint_theorems UInt64 64
 declare_uint_theorems USize System.Platform.numBits
-
-@[simp]
-theorem Bool.toBitVec_toUInt8 {b : Bool} :
-    b.toUInt8.toBitVec = (BitVec.ofBool b).setWidth 8 := by
-  cases b <;> simp [toUInt8]
-
-@[simp]
-theorem Bool.toBitVec_toUInt16 {b : Bool} :
-    b.toUInt16.toBitVec = (BitVec.ofBool b).setWidth 16 := by
-  cases b <;> simp [toUInt16]
-
-@[simp]
-theorem Bool.toBitVec_toUInt32 {b : Bool} :
-    b.toUInt32.toBitVec = (BitVec.ofBool b).setWidth 32 := by
-  cases b <;> simp [toUInt32]
-
-@[simp]
-theorem Bool.toBitVec_toUInt64 {b : Bool} :
-    b.toUInt64.toBitVec = (BitVec.ofBool b).setWidth 64 := by
-  cases b <;> simp [toUInt64]
-
-@[simp]
-theorem Bool.toBitVec_toUSize {b : Bool} :
-    b.toUSize.toBitVec = (BitVec.ofBool b).setWidth System.Platform.numBits := by
-  cases b
-  · simp [toUSize]
-  · apply BitVec.eq_of_toNat_eq
-    simp [toUSize]
 
 @[simp] theorem USize.toNat_ofNat32 {n : Nat} {h : n < 4294967296} : (ofNat32 n h).toNat = n := rfl
 

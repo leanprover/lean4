@@ -669,4 +669,24 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 
+/-- Overflow predicate for 2's complement unary minus -/
+
+def not_overflow {w : Nat} (x : BitVec w) : Bool := x.toInt == - (2 ^ (w - 1))
+
+/-- Overflow predicate for unsigned addition modulo 2^m -/
+
+def uadd_overflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed addition on m-bit 2's complement -/
+
+def sadd_overflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
+/-- Overflow predicate for unsigned multiplication modulo 2^m -/
+
+def umul_overflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed multiplication on m-bit 2's complement -/
+
+def smul_overflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
 end BitVec

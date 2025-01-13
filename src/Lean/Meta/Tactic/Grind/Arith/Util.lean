@@ -47,26 +47,26 @@ def isNatOffset? (e : Expr) : Option (Expr × Nat) := Id.run do
 
 /-- An offset constraint. -/
 structure Offset.Cnstr (α : Type) where
-  a  : α
-  b  : α
+  u  : α
+  v  : α
   k  : Int := 0
   le : Bool := true
   deriving Inhabited
 
 def Offset.Cnstr.neg : Cnstr α → Cnstr α
-  | { a, b, k, le } => { a := b, b := a, le, k := -k - 1 }
+  | { u, v, k, le } => { u := v, v := u, le, k := -k - 1 }
 
 example (c : Offset.Cnstr α) : c.neg.neg = c := by
   cases c; simp [Offset.Cnstr.neg]; omega
 
 def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
   match c.k, c.le with
-  | .ofNat 0,   true  => m!"{c.a} ≤ {c.b}"
-  | .ofNat 0,   false => m!"{c.a} = {c.b}"
-  | .ofNat k,   true  => m!"{c.a} ≤ {c.b} + {k}"
-  | .ofNat k,   false => m!"{c.a} = {c.b} + {k}"
-  | .negSucc k, true  => m!"{c.a} + {k + 1} ≤ {c.b}"
-  | .negSucc k, false => m!"{c.a} + {k + 1} = {c.b}"
+  | .ofNat 0,   true  => m!"{c.u} ≤ {c.v}"
+  | .ofNat 0,   false => m!"{c.u} = {c.v}"
+  | .ofNat k,   true  => m!"{c.u} ≤ {c.v} + {k}"
+  | .ofNat k,   false => m!"{c.u} = {c.v} + {k}"
+  | .negSucc k, true  => m!"{c.u} + {k + 1} ≤ {c.v}"
+  | .negSucc k, false => m!"{c.u} + {k + 1} = {c.v}"
 
 instance : ToMessageData (Offset.Cnstr Expr) where
   toMessageData c := Offset.toMessageData c
@@ -78,12 +78,12 @@ def isNatOffsetCnstr? (e : Expr) : Option (Offset.Cnstr Expr) :=
   | Eq α a b => if isNatType α then go a b false else none
   | _ => none
 where
-  go (a b : Expr) (le : Bool) :=
-    if let some (a, k) := isNatOffset? a then
-      some { a, k := - k, b, le }
-    else if let some (b, k) := isNatOffset? b then
-      some { a, b, k := k, le }
+  go (u v : Expr) (le : Bool) :=
+    if let some (u, k) := isNatOffset? u then
+      some { u, k := - k, v, le }
+    else if let some (v, k) := isNatOffset? v then
+      some { u, v, k := k, le }
     else
-      some { a, b, le }
+      some { u, v, le }
 
 end Lean.Meta.Grind.Arith

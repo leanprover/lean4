@@ -26,26 +26,34 @@ structure ProofInfo where
 
 /-- State of the constraint offset procedure. -/
 structure State where
-  nodes   : PArray Expr := {}
-  nodeMap : PHashMap ENodeKey NodeId := {}
-  cnstrs  : PHashMap ENodeKey (Cnstr NodeId) := {}
+  /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
+  nodes    : PArray Expr := {}
+  /-- Mapping from `Expr` to a node representing it. -/
+  nodeMap  : PHashMap ENodeKey NodeId := {}
+  /-- Mapping from `Expr` representing inequalites to constraints. -/
+  cnstrs   : PHashMap ENodeKey (Cnstr NodeId) := {}
+  /--
+  Mapping from pairs `(u, v)` to a list of offset constraints on `u` and `v`.
+  We use this mapping to implement exhaustive constraint propagation.
+  -/
+  cnstrsOf : PHashMap (NodeId × NodeId) (List (Cnstr NodeId × Expr)) := {}
   /--
   For each node with id `u`, `sources[u]` contains
   pairs `(v, k)` s.t. there is a path from `v` to `u` with weight `k`.
   -/
-  sources : PArray (AssocList NodeId Int) := {}
+  sources  : PArray (AssocList NodeId Int) := {}
   /--
   For each node with id `u`, `targets[u]` contains
   pairs `(v, k)` s.t. there is a path from `u` to `v` with weight `k`.
   -/
-  targets : PArray (AssocList NodeId Int) := {}
+  targets  : PArray (AssocList NodeId Int) := {}
   /--
   Proof reconstruction information. For each node with id `u`, `proofs[u]` contains
   pairs `(v, { w, proof })` s.t. there is a path from `u` to `v`, and
   `w` is the penultimate node in the path, and `proof` is the justification for
   the last edge.
   -/
-  proofs  : PArray (AssocList NodeId ProofInfo) := {}
+  proofs   : PArray (AssocList NodeId ProofInfo) := {}
   deriving Inhabited
 
 end Offset

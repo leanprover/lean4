@@ -14,12 +14,12 @@ def isCnstr? (e : Expr) : GoalM (Option (Cnstr NodeId)) :=
   return (← get).arith.offset.cnstrs.find? { expr := e }
 
 def assertTrue (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
-  addEdge c.a c.b c.k (← mkOfEqTrue p)
+  addEdge c.u c.v c.k (← mkOfEqTrue p)
 
 def assertFalse (c : Cnstr NodeId) (p : Expr) : GoalM Unit := do
   let p := mkOfNegEqFalse (← get').nodes c p
   let c := c.neg
-  addEdge c.a c.b c.k p
+  addEdge c.u c.v c.k p
 
 end Offset
 

@@ -32,7 +32,7 @@ instance : Pure AsyncTask where
 /--
 Create a new `AsyncTask` that will run after `x` has finished.
 If `x`:
-- errors, return an `AsyncTask` that reolves to the error.
+- errors, return an `AsyncTask` that resolves to the error.
 - succeeds, run `f` on the result of `x` and return the `AsyncTask` produced by `f`.
 -/
 @[inline]

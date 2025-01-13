@@ -56,7 +56,7 @@ def reset (s : Sleep) : IO Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without resolving any remaing `AsyncTask` that were created
+- `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
   through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
   forever without further intervention.
 - `s` is not yet or not anymore running this is a no-op.

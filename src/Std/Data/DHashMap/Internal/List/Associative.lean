@@ -1934,7 +1934,7 @@ theorem containsKey_alterKey_self [BEq α] [LawfulBEq α] {a : α} {f : Option (
 theorem containsKey_alterKey [BEq α] [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     containsKey k' (alterKey k f l) =
-    if heq : k == k' then
+    if k == k' then
       f (getValueCast? k l) |>.isSome
     else
       containsKey k' l := by

@@ -482,7 +482,7 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
         apply Nat.add_lt_add <;> exact hyp1
 
 theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
-  (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
+    (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
   simp only [testBit_mul_two_pow, testBit_bitwise of_false_false, Bool.if_false_right]
   intro i

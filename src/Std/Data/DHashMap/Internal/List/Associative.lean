@@ -2695,6 +2695,7 @@ theorem getValue?_insertListIfNewUnit [BEq α] [PartialEquivBEq α]
 
 end
 
+/-- Internal implementation detail of the hash map -/
 def alterKey [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β k))
     (l : List ((a : α) × β a)) : List ((a : α) × β a) :=
   match f (getValueCast? k l) with

@@ -1084,17 +1084,17 @@ theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (
     (m.alter k f).get! k = (f (m.get? k)).get! :=
   sorry
 
-theorem getD_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getD k' =
+theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getD k' v =
     if heq : k == k' then
-      f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD
+      f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
     else
-      m.getD k' :=
+      m.getD k' v :=
   sorry
 
 @[simp]
-theorem getD_alter_self [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getD k = (f (m.get? k)).getD :=
+theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getD k v = (f (m.get? k)).getD v :=
   sorry
 
 theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
@@ -1139,17 +1139,17 @@ theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β
     (m.alter k f).getKey k h = k :=
   sorry
 
-theorem getKeyD_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKeyD k' =
+theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getKeyD k' d =
     if k == k' then
-      (f (m.get? k)).map (fun _ => k) |>.getD
+      (f (m.get? k)).map (fun _ => k) |>.getD d
     else
-      m.getKeyD k' :=
+      m.getKeyD k' d :=
   sorry
 
 @[simp]
-theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKeyD k = ((f (m.get? k)).map (fun _ => k)).getD :=
+theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getKeyD k d = ((f (m.get? k)).map (fun _ => k)).getD d :=
   sorry
 
 namespace Const
@@ -1263,17 +1263,17 @@ theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β
     {f : Option β → Option β} : Const.get! (Const.alter m k f) k = (f (Const.get? m k)).get! :=
   sorry
 
-theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
-    Const.getD (Const.alter m k f) k' =
+theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} {f : Option β → Option β} :
+    Const.getD (Const.alter m k f) k' v =
     if heq : k == k' then
-      f (Const.get? m k) |>.getD
+      f (Const.get? m k) |>.getD v
     else
-      Const.getD m k' :=
+      Const.getD m k' v :=
   sorry
 
 @[simp]
-theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
-    Const.getD (Const.alter m k f) k = (f (Const.get? m k)).getD :=
+theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f : Option β → Option β} :
+    Const.getD (Const.alter m k f) k v = (f (Const.get? m k)).getD v :=
   sorry
 
 theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
@@ -1319,18 +1319,18 @@ theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : 
     (Const.alter m k f).getKey k h = k :=
   sorry
 
-theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
-    (Const.alter m k f).getKeyD k' =
+theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : Option β → Option β} :
+    (Const.alter m k f).getKeyD k' d =
     if k == k' then
-      (f (Const.get? m k)).map (fun _ => k) |>.getD
+      (f (Const.get? m k)).map (fun _ => k) |>.getD d
     else
-      m.getKeyD k' :=
+      m.getKeyD k' d :=
   sorry
 
 @[simp]
-theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
+theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α}
     {f : Option β → Option β} :
-    (Const.alter m k f).getKeyD k = ((f (Const.get? m k)).map (fun _ => k)).getD :=
+    (Const.alter m k f).getKeyD k d = ((f (Const.get? m k)).map (fun _ => k)).getD d :=
   sorry
 
 end Const
@@ -1415,17 +1415,17 @@ theorem get!_modify_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : β k �
     (m.modify k f).get! k = ((m.get? k).map f).get! :=
   sorry
 
-theorem getD_modify [LawfulBEq α] {k k' : α} {f : β k → β k} :
-    (m.modify k f).getD k' =
+theorem getD_modify [LawfulBEq α] {k k' : α} {v : β k'} {f : β k → β k} :
+    (m.modify k f).getD k' v =
     if heq : k == k' then
-      m.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD
+      m.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
     else
-      m.getD k' :=
+      m.getD k' v :=
   sorry
 
 @[simp]
-theorem getD_modify_self [LawfulBEq α] {k k' : α} {f : β k → β k} :
-    (m.modify k f).getD k = ((m.get? k).map f).getD :=
+theorem getD_modify_self [LawfulBEq α] {k : α} {v : β k} {f : β k → β k} :
+    (m.modify k f).getD k v = ((m.get? k).map f).getD v :=
   sorry
 
 theorem getKey?_modify [LawfulBEq α] {k k' : α} {f : β k → β k} :
@@ -1472,18 +1472,18 @@ theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → 
     (h : k ∈ m.modify k f) : (m.modify k f).getKey k h = k :=
   sorry
 
-theorem getKeyD_modify [LawfulBEq α] {k k' : α} {f : β k → β k} :
-    (m.modify k f).getKeyD k' =
+theorem getKeyD_modify [LawfulBEq α] {k k' d : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k' d =
     if k == k' then
-      if k ∈ m then (fun _ => k) else (·)
+      if k ∈ m then k else d
     else
-      m.getKeyD k' :=
+      m.getKeyD k' d :=
   sorry
 
 -- if is sufficiently simple that simp might be okay
 @[simp]
-theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} :
-    (m.modify k f).getKeyD k = if k ∈ m then (fun _ => k) else (·) :=
+theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k d = if k ∈ m then k else d :=
   sorry
 
 theorem modify_eq_alter [LawfulBEq α] {k : α} {f : β k → β k} :
@@ -1570,17 +1570,17 @@ theorem get!_modify_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited �
     Const.get! (Const.modify m k f) k = ((Const.get? m k).map f).get! :=
   sorry
 
-theorem getD_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
-    Const.getD (Const.modify m k f) k' =
+theorem getD_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} {f : β → β} :
+    Const.getD (Const.modify m k f) k' v =
     if heq : k == k' then
-      Const.get? m k |>.map f |>.getD
+      Const.get? m k |>.map f |>.getD v
     else
-      Const.getD m k' :=
+      Const.getD m k' v :=
   sorry
 
 @[simp]
-theorem getD_modify_self [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
-    Const.getD (Const.modify m k f) k = ((Const.get? m k).map f).getD :=
+theorem getD_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f : β → β} :
+    Const.getD (Const.modify m k f) k v = ((Const.get? m k).map f).getD v :=
   sorry
 
 theorem getKey?_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
@@ -1627,17 +1627,17 @@ theorem getKey_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
     (h : k ∈ Const.modify m k f) : (Const.modify m k f).getKey k h = k :=
   sorry
 
-theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
-    (Const.modify m k f).getKeyD k' =
+theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k' d =
     if k == k' then
-      if k ∈ m then (fun _ => k) else (·)
+      if k ∈ m then k else d
     else
-      m.getKeyD k' :=
+      m.getKeyD k' d :=
   sorry
 
 @[simp]
-theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : β → β} :
-    (Const.modify m k f).getKeyD k = if k ∈ m then (fun _ => k) else (·) :=
+theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k d = if k ∈ m then k else d :=
   sorry
 
 theorem modify_eq_alter [LawfulBEq α] {k : α} {f : β → β} :

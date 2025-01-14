@@ -422,7 +422,6 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
@@ -458,7 +457,6 @@ end Unverified
 occurrence takes precedence. -/
 @[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
   insertMany ∅ l
-
 
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=

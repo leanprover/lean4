@@ -725,7 +725,7 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.mem_insertMany_list
 
 theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List (α × β)} {k : α} (mem : k ∈ (insertMany m l))
+    {l : List (α × β)} {k : α} (mem : k ∈ insertMany m l)
     (contains_eq_false : (l.map Prod.fst).contains k = false) :
     k ∈ m :=
   DHashMap.Const.mem_of_mem_insertMany_list mem contains_eq_false
@@ -841,7 +841,7 @@ theorem getKeyD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
 theorem size_insertMany_list [EquivBEq α] [LawfulHashable α]
     {l : List (α × β)}
     (distinct : l.Pairwise (fun a b => (a.1 == b.1) = false)) :
-    (∀ (a : α), m.contains a → (l.map Prod.fst).contains a = false) →
+    (∀ (a : α), a ∈ m → (l.map Prod.fst).contains a = false) →
       (insertMany m l).size = m.size + l.length :=
   DHashMap.Const.size_insertMany_list distinct
 
@@ -886,13 +886,13 @@ theorem mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
 
 theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
-    k ∈ (insertManyIfNewUnit m l) → k ∈ m :=
+    k ∈ insertManyIfNewUnit m l → k ∈ m :=
   DHashMap.Const.mem_of_mem_insertManyIfNewUnit_list contains_eq_false
 
 theorem getElem?_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
     (insertManyIfNewUnit m l)[k]? =
-      if m.contains k ∨ l.contains k then some () else none :=
+      if k ∈ m ∨ l.contains k then some () else none :=
   DHashMap.Const.get?_insertManyIfNewUnit_list
 
 theorem getElem_insertManyIfNewUnit_list
@@ -918,11 +918,11 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_fal
     contains_eq_false contains_eq_false'
 
 theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
-    {l : List α} {k k' : α} (k_beq : k == k') (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (contains_eq_false : m.contains k = false) (mem : k ∈ l) :
+    {l : List α} {k k' : α} (k_beq : k == k') (contains_eq_false : m.contains k = false)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey? (insertManyIfNewUnit m l) k' = some k :=
   DHashMap.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    k_beq distinct contains_eq_false mem
+    k_beq contains_eq_false distinct mem
 
 theorem getKey?_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (mem : k ∈ m) :
@@ -930,13 +930,13 @@ theorem getKey?_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α
   DHashMap.Const.getKey?_insertManyIfNewUnit_list_of_mem mem
 
 theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
-    {l : List α} {k k' : α} (k_beq : k == k') (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (contains_eq_false : m.contains k = false) (mem : k ∈ l) {h} :
+    {l : List α} {k k' : α} (k_beq : k == k') (contains_eq_false : m.contains k = false)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) {h} :
     getKey (insertManyIfNewUnit m l) k' h = k :=
   DHashMap.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    k_beq distinct contains_eq_false mem
+    k_beq contains_eq_false distinct mem
 
-theorem getKey_insertManyIfNewUnit_list_mem_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (mem : k ∈ m) {h} :
     getKey (insertManyIfNewUnit m l) k h = getKey m k mem :=
   DHashMap.Const.getKey_insertManyIfNewUnit_list_of_mem mem
@@ -950,14 +950,14 @@ theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_fal
 
 theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
-    (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (contains_eq_false : m.contains k = false) (mem : k ∈ l) :
+    (contains_eq_false : m.contains k = false)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey! (insertManyIfNewUnit m l) k' = k :=
   DHashMap.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    k_beq distinct contains_eq_false mem
+    k_beq contains_eq_false distinct mem
 
-theorem getKey!_insertManyIfNewUnit_list_mem_of_mem [EquivBEq α] [LawfulHashable α]
-    [Inhabited α] {l : List α} {k : α} (mem : k ∈ m):
+theorem getKey!_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] {l : List α} {k : α} (mem : k ∈ m) :
     getKey! (insertManyIfNewUnit m l) k = getKey! m k :=
   DHashMap.Const.getKey!_insertManyIfNewUnit_list_of_mem mem
 
@@ -970,21 +970,21 @@ theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_fal
 
 theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
-    (distinct : l.Pairwise (fun a b => (a == b) = false))
-    (contains_eq_false : m.contains k = false) (mem : k ∈ l ) :
+    (contains_eq_false : m.contains k = false)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l ) :
     getKeyD (insertManyIfNewUnit m l) k' fallback = k :=
   DHashMap.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    k_beq distinct contains_eq_false mem
+    k_beq contains_eq_false distinct mem
 
 theorem getKeyD_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
-    {l : List α} {k fallback : α} (mem : k ∈ m):
+    {l : List α} {k fallback : α} (mem : k ∈ m) :
     getKeyD (insertManyIfNewUnit m l) k fallback = getKeyD m k fallback :=
   DHashMap.Const.getKeyD_insertManyIfNewUnit_list_of_mem mem
 
 theorem size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     {l : List α}
     (distinct : l.Pairwise (fun a b => (a == b) = false)) :
-    (∀ (a : α), m.contains a → l.contains a = false) →
+    (∀ (a : α), a ∈ m → l.contains a = false) →
       (insertManyIfNewUnit m l).size = m.size + l.length :=
   DHashMap.Const.size_insertManyIfNewUnit_list distinct
 

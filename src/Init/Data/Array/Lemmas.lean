@@ -38,6 +38,14 @@ namespace Array
 
 @[simp] theorem length_toList {l : Array α} : l.toList.length = l.size := rfl
 
+theorem eq_toArray : v = List.toArray a ↔ v.toList = a := by
+  cases v
+  simp
+
+theorem toArray_eq : List.toArray a = v ↔ a = v.toList := by
+  cases v
+  simp
+
 /-! ### empty -/
 
 @[simp] theorem empty_eq {xs : Array α} : #[] = xs ↔ xs = #[] := by
@@ -255,6 +263,11 @@ theorem getElem?_push {a : Array α} {x} : (a.push x)[i]? = if i = a.size then s
 
 theorem getElem?_singleton (a : α) (i : Nat) : #[a][i]? = if i = 0 then some a else none := by
   simp [List.getElem?_singleton]
+
+theorem ext_getElem? {l₁ l₂ : Array α} (h : ∀ i : Nat, l₁[i]? = l₂[i]?) : l₁ = l₂ := by
+  rcases l₁ with ⟨l₁⟩
+  rcases l₂ with ⟨l₂⟩
+  simpa using List.ext_getElem? (by simpa using h)
 
 /-! ### mem -/
 
@@ -1194,6 +1207,11 @@ theorem mapM_map_eq_foldl (as : Array α) (f : α → β) (i) :
     rfl
 termination_by as.size - i
 
+/--
+Use this as `induction ass using array₂_induction` on a hypothesis of the form `ass : Array (Array α)`.
+The hypothesis `ass` will be replaced with a hypothesis `ass : List (List α)`,
+and former appearances of `ass` in the goal will be replaced with `(ass.map List.toArray).toArray`.
+-/
 -- We can't use `@[cases_eliminator]` here as
 -- `Lean.Meta.getCustomEliminator?` only looks at the top-level constant.
 theorem array₂_induction (P : Array (Array α) → Prop) (of : ∀ (xss : List (List α)), P (xss.map List.toArray).toArray)
@@ -1201,6 +1219,12 @@ theorem array₂_induction (P : Array (Array α) → Prop) (of : ∀ (xss : List
   specialize of (ass.toList.map toList)
   simpa [← toList_map, Function.comp_def, map_id] using of
 
+/--
+Use this as `induction ass using array₃_induction` on a hypothesis of the form `ass : Array (Array (Array α))`.
+The hypothesis `ass` will be replaced with a hypothesis `ass : List (List (List α))`,
+and former appearances of `ass` in the goal will be replaced with
+`((ass.map (fun xs => xs.map List.toArray)).map List.toArray).toArray`.
+-/
 theorem array₃_induction (P : Array (Array (Array α)) → Prop)
     (of : ∀ (xss : List (List (List α))), P ((xss.map (fun xs => xs.map List.toArray)).map List.toArray).toArray)
     (ass : Array (Array (Array α))) : P ass := by
@@ -1851,7 +1875,7 @@ theorem append_eq_map_iff {f : α → β} :
   cases L using array₂_induction
   simp [Function.comp_def]
 
-theorem flatten_singleton (l : Array α) : #[l].flatten = l := by simp [flatten]; rfl
+@[simp] theorem flatten_singleton (l : Array α) : #[l].flatten = l := by simp [flatten]; rfl
 
 theorem mem_flatten : ∀ {L : Array (Array α)}, a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l := by
   simp only [mem_def, toList_flatten, List.mem_flatten, List.mem_map]
@@ -3046,32 +3070,35 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
   | nil => simp
   | cons xs xss ih => simp [ih]
 
+/-! ### sum -/
+
+theorem sum_eq_sum_toList [Add α] [Zero α] (as : Array α) : as.sum = as.toList.sum := by
+  cases as
+  simp [Array.sum, List.sum]
+
 /-! ### mkArray -/
 
-theorem eq_mkArray_of_mem {a : α} :
-    ∀ {l : Array α}, (∀ (b) (_ : b ∈ l), b = a) → l = mkArray l.size a
-  | [], _ => rfl
-  | b :: l, H => by
-    let ⟨rfl, H₂⟩ := forall_mem_cons (l := l).1 H
-    rw [length_cons, replicate, ← eq_replicate_of_mem H₂]
+theorem eq_mkArray_of_mem {a : α} {l : Array α} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkArray l.size a := by
+  rcases l with ⟨l⟩
+  have := List.eq_replicate_of_mem (by simpa using h)
+  rw [this]
+  simp
 
-theorem eq_mkArray_iff {a : α} {n} {l : List α} :
-    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a :=
-  ⟨fun h => h ▸ ⟨size_mkArray .., fun _ => eq_of_mem_replicate⟩,
-   fun ⟨e, al⟩ => e ▸ eq_mkArray_of_mem al⟩
+theorem eq_mkArray_iff {a : α} {n} {l : Array α} :
+    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a := by
+  rcases l with ⟨l⟩
+  simp [← List.eq_replicate_iff, toArray_eq]
 
-@[deprecated eq_replicate_iff (since := "2024-09-05")] abbrev eq_replicate := @eq_replicate_iff
-
-theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
-    l.map f = replicate l.length b ↔ ∀ x ∈ l, f x = b := by
-  simp [eq_replicate_iff]
+theorem map_eq_mkArray_iff {l : Array α} {f : α → β} {b : β} :
+    l.map f = mkArray l.size b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_mkArray_iff]
 
 @[simp] theorem mem_mkArray (a : α) (n : Nat) : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
   rw [mkArray, mem_toArray]
   simp
 
 @[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = mkArray l.size b :=
-  map_eq_replicate_iff.mpr fun _ _ => rfl
+  map_eq_mkArray_iff.mpr fun _ _ => rfl
 
 @[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
   funext l
@@ -3081,6 +3108,9 @@ theorem map_eq_replicate_iff {l : List α} {f : α → β} {b : β} :
 -- This can not be a `@[simp]` lemma because it would fire on every `Array.map`.
 theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = mkArray l.size b :=
   map_const l b
+
+@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
+  simp [sum_eq_sum_toList, List.sum_replicate_nat]
 
 /-! ### reverse -/
 

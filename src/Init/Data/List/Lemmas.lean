@@ -2395,6 +2395,9 @@ theorem replicateRecOn {α : Type _} {p : List α → Prop} (m : List α)
     exact hi _ _ _ _ h hn (replicateRecOn (b :: l') h0 hr hi)
 termination_by m.length
 
+@[simp] theorem sum_replicate_nat (n : Nat) (a : Nat) : (replicate n a).sum = n * a := by
+  induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
+
 /-! ### reverse -/
 
 @[simp] theorem length_reverse (as : List α) : (as.reverse).length = as.length := by

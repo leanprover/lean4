@@ -50,18 +50,24 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
     let mut eNew?   := none
     let mut thmName := Name.anonymous
-    if arg.isAppOfArity ``LE.le 4 then
-      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
-      thmName := ``Nat.not_le_eq
-    else if arg.isAppOfArity ``GE.ge 4 then
-      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
-      thmName := ``Nat.not_ge_eq
-    else if arg.isAppOfArity ``LT.lt 4 then
-      eNew?   := some (← mkLE (arg.getArg! 3) (arg.getArg! 2))
-      thmName := ``Nat.not_lt_eq
-    else if arg.isAppOfArity ``GT.gt 4 then
-      eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
-      thmName := ``Nat.not_gt_eq
+    match_expr arg with
+    | LE.le α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (← mkAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
+        thmName := ``Nat.not_le_eq
+    | GE.ge α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (← mkAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
+        thmName := ``Nat.not_ge_eq
+    | LT.lt α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (arg.getArg! 3) (arg.getArg! 2))
+        thmName := ``Nat.not_lt_eq
+    | GT.gt α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
+        thmName := ``Nat.not_gt_eq
+    | _ => pure ()
     if let some eNew := eNew? then
       let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
       if let some (eNew', h₂) ← simpCnstrPos? eNew then

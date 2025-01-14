@@ -103,7 +103,7 @@ of bounds.
 @[inline] def head [NeZero n] (v : Vector α n) := v[0]'(Nat.pos_of_neZero n)
 
 /-- Push an element `x` to the end of a vector. -/
-@[inline] def push (x : α) (v : Vector α n)  : Vector α (n + 1) :=
+@[inline] def push (v : Vector α n) (x : α) : Vector α (n + 1) :=
   ⟨v.toArray.push x, by simp⟩
 
 /-- Remove the last element of a vector. -/
@@ -135,6 +135,18 @@ This will perform the update destructively provided that the vector has a refere
 -/
 @[inline] def set! (v : Vector α n) (i : Nat) (x : α) : Vector α n :=
   ⟨v.toArray.set! i x, by simp⟩
+
+@[inline] def foldlM [Monad m] (f : β → α → m β) (b : β) (v : Vector α n) : m β :=
+  v.toArray.foldlM f b
+
+@[inline] def foldrM [Monad m] (f : α → β → m β) (b : β) (v : Vector α n) : m β :=
+  v.toArray.foldrM f b
+
+@[inline] def foldl (f : β → α → β) (b : β) (v : Vector α n) : β :=
+  v.toArray.foldl f b
+
+@[inline] def foldr (f : α → β → β) (b : β) (v : Vector α n) : β :=
+  v.toArray.foldr f b
 
 /-- Append two vectors. -/
 @[inline] def append (v : Vector α n) (w : Vector α m) : Vector α (n + m) :=

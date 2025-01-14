@@ -253,6 +253,10 @@ theorem merge_perm_append : ∀ {xs ys : List α}, merge xs ys le ~ xs ++ ys
     · exact (merge_perm_append.cons y).trans
         ((Perm.swap x y _).trans (perm_middle.symm.cons x))
 
+theorem Perm.merge (s₁ s₂ : α → α → Bool) (hl : l₁ ~ l₂) (hr : r₁ ~ r₂) :
+    merge l₁ r₁ s₁ ~ merge l₂ r₂ s₂ :=
+  Perm.trans (merge_perm_append ..) <| Perm.trans (Perm.append hl hr) <| Perm.symm (merge_perm_append ..)
+
 /-! ### mergeSort -/
 
 @[simp] theorem mergeSort_nil : [].mergeSort r = [] := by rw [List.mergeSort]

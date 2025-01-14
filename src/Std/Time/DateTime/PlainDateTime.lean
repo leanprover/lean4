@@ -29,7 +29,6 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-
   deriving Inhabited, BEq, Repr
 
 namespace PlainDateTime
@@ -123,7 +122,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
 
   return {
     date := PlainDate.ofYearMonthDayClip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
-    time := PlainTime.ofHourMinuteSecondsNano (leap := false) (hour.expandTop (by decide)) minute second nano
+    time := PlainTime.ofHourMinuteSecondsNano (hour.expandTop (by decide)) minute (second.expandTop (by decide)) nano
   }
 
 /--
@@ -199,7 +198,7 @@ Creates a new `PlainDateTime` by adjusting the `hour` component of its `time` to
 -/
 @[inline]
 def withHours (dt : PlainDateTime) (hour : Hour.Ordinal) : PlainDateTime :=
-  { dt with time := { dt.time with hour := hour } }
+  { dt with time := { dt.time with hour } }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `minute` component of its `time` to the given value.
@@ -212,7 +211,7 @@ def withMinutes (dt : PlainDateTime) (minute : Minute.Ordinal) : PlainDateTime :
 Creates a new `PlainDateTime` by adjusting the `second` component of its `time` to the given value.
 -/
 @[inline]
-def withSeconds (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDateTime :=
+def withSeconds (dt : PlainDateTime) (second : Second.Ordinal true) : PlainDateTime :=
   { dt with time := { dt.time with second := second } }
 
 /--
@@ -457,8 +456,8 @@ def millisecond (dt : PlainDateTime) : Millisecond.Ordinal :=
 Getter for the `Second` inside of a `PlainDateTime`.
 -/
 @[inline]
-def second (dt : PlainDateTime) : Second.Ordinal dt.time.second.fst :=
-  dt.time.second.snd
+def second (dt : PlainDateTime) : Second.Ordinal true :=
+  dt.time.second
 
 /--
 Getter for the `Nanosecond.Ordinal` inside of a `PlainDateTime`.

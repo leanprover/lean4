@@ -83,3 +83,200 @@ info: [grind.debug.proj] { a := b, b := v₁, c := v₂ }.a
 set_option trace.grind.debug.proj true in
 example (a b d e : Nat) (x y z : Boo Nat) (f : Nat → Boo Nat) : (f d).1 ≠ a → f d = ⟨b, v₁, v₂⟩ → x.1 = e → y.1 = e → z.1 = e → f d = x → f d = y → f d = z → b = a → False := by
   grind
+
+example (f : Nat → Nat) (a b c : Nat) : f (if a = b then x else y) = z → a = c → c = b → f x = z := by
+  grind
+
+example (f : Nat → Nat) (a b c : Nat) : f (if a = b then x else y) = z → a = c → b ≠ c → f y = z := by
+  grind
+
+namespace dite_propagator_test
+
+opaque R : Nat → Nat → Prop
+opaque f (a : Nat) (b : Nat) (_ : R a b) : Nat
+opaque g (a : Nat) (b : Nat) (_ : ¬ R a b) : Nat
+open Classical
+
+example (foo : Nat → Nat)
+        (_ : foo (if h : R a c then f a c h else g a c h) = x)
+        (_ : R a b)
+        (_ : c = b) : foo (f a c (by grind)) = x := by
+  grind
+
+example (foo : Nat → Nat)
+        (_ : foo (if h : R a c then f a c h else g a c h) = x)
+        (_ : ¬ R a b)
+        (_ : c = b)
+        : foo (g a c (by grind)) = x := by
+  grind
+
+end dite_propagator_test
+
+/--
+info: [grind.eqc] x = 2 * a
+[grind.eqc] y = x
+[grind.eqc] (y = 2 * a) = False
+[grind.eqc] (y = 2 * a) = True
+-/
+#guard_msgs (info) in
+set_option trace.grind.eqc true in
+example (a : Nat) : let x := a + a; y = x → y = a + a := by
+  grind
+
+/--
+info: [grind.eqc] x = 2 * a
+[grind.eqc] y = x
+[grind.eqc] (y = 2 * a) = False
+[grind.eqc] (y = 2 * a) = True
+-/
+#guard_msgs (info) in
+set_option trace.grind.eqc true in
+example (a : Nat) : let_fun x := a + a; y = x → y = a + a := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : cast h₁ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : h₁ ▸ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.recOn h₁ a₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.ndrec (motive := id) a₁ h₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+        (h₁ : α = β)
+        (h₂ : Eq.rec (motive := fun x _ => x) a₁ h₁ = b₁)
+        (h₃ : a₁ = a₂)
+        (h₄ : b₁ = b₂)
+        : HEq a₂ b₂ := by
+  grind
+
+/--
+info: [grind.assert] ∀ (a : α), a ∈ b → p a
+[grind.ematch.pattern] h₁: [@Membership.mem `[α] `[List α] `[List.instMembership] `[b] #1]
+[grind.ematch.pattern] h₁: [p #1]
+[grind.assert] w ∈ b
+[grind.assert] ¬p w
+[grind.ematch.instance] h₁: w ∈ b → p w
+[grind.assert] w ∈ b → p w
+-/
+#guard_msgs (info) in
+set_option trace.grind.ematch.pattern true in
+set_option trace.grind.ematch.instance true in
+set_option trace.grind.assert true in
+example (b : List α) (p : α → Prop) (h₁ : ∀ a ∈ b, p a) (h₂ : ∃ a ∈ b, ¬p a) : False := by
+  grind
+
+/--
+info: [grind.assert] ∀ (x : α), Q x → P x
+[grind.ematch.pattern] h₁: [Q #1]
+[grind.ematch.pattern] h₁: [P #1]
+[grind.assert] ∀ (x : α), R x → False = P x
+[grind.ematch.pattern] h₂: [R #1]
+[grind.ematch.pattern] h₂: [P #1]
+[grind.assert] Q a
+[grind.assert] R a
+[grind.ematch.instance] h₁: Q a → P a
+[grind.ematch.instance] h₂: R a → False = P a
+[grind.assert] Q a → P a
+[grind.assert] R a → False = P a
+-/
+#guard_msgs (info) in
+set_option trace.grind.ematch.pattern true in
+set_option trace.grind.ematch.instance true in
+set_option trace.grind.assert true in
+example (P Q R : α → Prop) (h₁ : ∀ x, Q x → P x) (h₂ : ∀ x, R x → False = (P x)) : Q a → R a → False := by
+  grind
+
+example (w : Nat → Type) (h : ∀ n, Subsingleton (w n)) : True := by
+  grind
+
+example {P1 P2 : Prop} : (P1 ∧ P2) ↔ (P2 ∧ P1) := by
+  grind
+
+example {P U V W : Prop} (h : P ↔ (V ↔ W)) (w : ¬ U ↔ V) : ¬ P ↔ (U ↔ W) := by
+  grind
+
+example {P Q : Prop} (q : Q) (w : P = (P = ¬ Q)) : False := by
+  grind
+
+example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
+  grind
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  simp_arith -- should not fail
+  sorry
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  grind
+
+example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true) := by
+  grind
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = q
+a✝ : p
+⊢ False[facts] Asserted facts
+  [prop] p = q
+  [prop] p[eqc] True propositions
+  [prop] p = q
+  [prop] q
+  [prop] p
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = ¬q
+a✝ : p
+⊢ False[facts] Asserted facts
+  [prop] p = ¬q
+  [prop] p[eqc] True propositions
+  [prop] p = ¬q
+  [prop] ¬q
+  [prop] p[eqc] False propositions
+  [prop] q
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : ¬(p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)
+
+example {a b : Nat} (h : a < b) : ¬ b < a := by
+  grind
+
+example {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m := by
+  grind

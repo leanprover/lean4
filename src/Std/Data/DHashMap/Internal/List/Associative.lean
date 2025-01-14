@@ -1966,7 +1966,7 @@ def modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
   | some v => replaceEntry k (f v) l
 
 theorem isEmpty_modifyKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β k)
-    (l : List ((a : α) × β a)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
+    (l : List ((a : α) × β a)) : (modifyKey k f l).isEmpty = l.isEmpty := by
   match l with
   | [] => simp [modifyKey]
   | a :: as =>
@@ -2186,7 +2186,7 @@ def modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
   | some v => replaceEntry k (f v) l
 
 theorem isEmpty_modifyKey [BEq α] [EquivBEq α] (k : α) (f : β → β)
-    (l : List ((_ : α) × β)) : (modifyKey k f l).isEmpty ↔ l.isEmpty := by
+    (l : List ((_ : α) × β)) : (modifyKey k f l).isEmpty = l.isEmpty := by
   match l with
   | [] => simp [modifyKey]
   | a :: as =>

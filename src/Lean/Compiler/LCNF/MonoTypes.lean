@@ -74,8 +74,6 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
   let type := type.headBeta
   if type.isErased then
     return erasedExpr
-  else if type.isErased then
-    return erasedExpr
   else if isTypeFormerType type then
     return erasedExpr
   else match type with

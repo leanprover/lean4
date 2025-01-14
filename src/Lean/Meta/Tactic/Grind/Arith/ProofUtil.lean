@@ -82,7 +82,7 @@ def mkOfNegEqFalse (nodes : PArray Expr) (c : Cnstr NodeId) (h : Expr) : Expr :=
   let v := nodes[c.v]!
   if c.k == 0 then
     mkApp3 (mkConst ``Nat.of_le_eq_false) u v h
-  else if c.k == -1 && c.le then
+  else if c.k == -1 then
     mkApp3 (mkConst ``Nat.of_lo_eq_false_1) u v h
   else if c.k < 0 then
     mkApp4 (mkConst ``Nat.of_lo_eq_false) u v (toExprN (-c.k)) h

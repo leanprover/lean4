@@ -226,7 +226,7 @@ def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
   if let some c := isNatOffsetCnstr? e then
     internalizeCnstr e c
   else if let some (b, k) := isNatOffset? e then
-    if isNatOffsetCnstr? parent |>.isSome then return ()
+    if parent.isEq || (isNatOffsetCnstr? parent).isSome then return ()
     -- `e` is of the form `b + k`
     let u ← mkNode e
     let v ← mkNode b
@@ -250,13 +250,12 @@ def traceDists : GoalM Unit := do
 def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
   let u := (← get').nodes[c.u]!
   let v := (← get').nodes[c.v]!
-  let mk := if c.le then mkNatLE else mkNatEq
   if c.k == 0 then
-    return mk u v
+    return mkNatLE u v
   else if c.k < 0 then
-    return mk (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
+    return mkNatLE (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
   else
-    return mk u (mkNatAdd v (Lean.toExpr c.k.toNat))
+    return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
   let s ← get'

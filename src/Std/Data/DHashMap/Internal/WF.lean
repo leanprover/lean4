@@ -641,6 +641,12 @@ theorem toListModel_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashabl
       rw [insertEntry_of_containsKey_eq_false]
       exact hc
 
+theorem toListModel_alter [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
+    {m : Raw₀ α (fun _ => β)} (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} :
+    Perm (toListModel (Const.alter m a f).1.2) (Const.alterKey a f (toListModel m.1.2)) := by
+  rw [alter_eq_alterₘ]
+  exact toListModel_alterₘ h
+
 theorem wfImp_alterₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
     (h : Raw.WFImp m.1) {a : α} {f : Option β → Option β} : Raw.WFImp (Const.alterₘ m a f).1 where
   buckets_hash_self := isHashSelf_alterₘ m h a f
@@ -691,7 +697,13 @@ theorem wfImp_modify [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (h
 
 namespace Const
 
-variable {β : Type v}
+variable {β : Type v} {m : Raw₀ α (fun _ => β)}
+
+theorem toListModel_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] (h : Raw.WFImp m.1)
+    {a : α} {f : β → β} :
+    Perm (toListModel (Const.modify m a f).1.2) (Const.modifyKey a f (toListModel m.1.2)) := by
+  rw [Const.modify_eq_alter, Const.modifyKey_eq_alterKey]
+  exact Const.toListModel_alter h
 
 theorem wfImp_modifyₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
     (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modifyₘ m a f).1 :=

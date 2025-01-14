@@ -71,6 +71,8 @@ variable [BEq α] [Hashable α]
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_erase
+    | apply Raw₀.wfImp_alter | apply Raw₀.wfImp_modify
+    | apply Raw₀.Const.wfImp_alter | apply Raw₀.Const.wfImp_modify
     | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty | apply Raw.WFImp.distinct
     | apply Raw.WF.empty₀))
 
@@ -90,7 +92,8 @@ private def queryNames : Array Name :=
     ``Raw.pairwise_keys_iff_pairwise_keys]
 
 private def modifyNames : Array Name :=
-  #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew]
+  #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew, ``toListModel_alter,
+    ``toListModel_modify, ``Const.toListModel_alter, ``Const.toListModel_modify]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),

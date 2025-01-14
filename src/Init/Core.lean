@@ -2303,7 +2303,7 @@ and its representation in compiled code is identical to that of `α`.
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Sort u) := Quotient trueSetoid
+def Squash (α : Sort u) := @Quotient α trueSetoid
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.

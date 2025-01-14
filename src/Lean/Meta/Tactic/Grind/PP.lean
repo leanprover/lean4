@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Util
 import Init.Grind.PP
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Arith.Model
 
 namespace Lean.Meta.Grind
 
@@ -111,11 +112,22 @@ private def ppActiveTheorems (goal : Goal) : MetaM MessageData := do
   else
     return .trace { cls := `ematch } "E-matching" m
 
+def ppOffset (goal : Goal) : MetaM MessageData := do
+  let s := goal.arith.offset
+  let nodes := s.nodes
+  if nodes.isEmpty then return ""
+  let model ← Arith.Offset.mkModel goal
+  let mut ms := #[]
+  for (e, val) in model do
+    ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
+  return .trace { cls := `offset } "Assignment satisfying offset contraints" ms
+
 def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withContext do
   let mut m : Array MessageData := #[.ofGoal goal.mvarId]
   m := m.push <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
   m := m ++ (← ppEqcs goal)
   m := m.push (← ppActiveTheorems goal)
+  m := m.push (← ppOffset goal)
   addMessageContextFull <| MessageData.joinSep m.toList ""
 
 def goalsToMessageData (goals : List Goal) : MetaM MessageData :=

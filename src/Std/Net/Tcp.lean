@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
+import Init.Data.SInt
 import Std.Net.Addr
 import Init.System
 
-namespace Std.Net
+namespace Std
+namespace Net
 
 private opaque TcpSocketImpl : NonemptyType.{0}
 
@@ -30,7 +32,7 @@ opaque new : IO TcpSocket
 Connect a TCP socket to the specified address.
 -/
 @[extern "lean_uv_tcp_connect"]
-opaque connect (socket : TcpSocket) (addr : SockAddr) : IO (IO.Promise (Except IO.Error Unit))
+opaque connect (socket : TcpSocket) (addr : SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Send data through a TCP socket.
@@ -48,7 +50,7 @@ opaque recv (socket : TcpSocket) : IO (IO.Promise (Except IO.Error ByteArray))
 Bind a TCP socket to a specific address.
 -/
 @[extern "lean_uv_tcp_bind"]
-opaque bind (socket : TcpSocket) (addr : SockAddr) : IO Unit
+opaque bind (socket : TcpSocket) (addr : SocketAddress) : IO Unit
 
 /--
 Start listening for incoming connections on a TCP socket.

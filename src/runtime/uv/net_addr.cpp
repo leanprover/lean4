@@ -28,6 +28,22 @@ void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, in6_addr* out) {
     }
 }
 
+extern "C" void lean_socket_addr_to_sockaddr(b_obj_arg ip_addr, struct sockaddr_in* out) {
+    lean_object * socket_addr_obj = lean_ctor_get(ip_addr, 0);
+    lean_object * ip_addr_obj = lean_ctor_get(socket_addr_obj, 0);
+    uint16_t port_obj = lean_ctor_get_uint16(socket_addr_obj, sizeof(void*)*1);
+
+    if (lean_ptr_tag(ip_addr) == 0) {
+        lean_ipv4_addr_to_in_addr(ip_addr_obj, &out->sin_addr);
+        out->sin_family = AF_INET;
+    } else {
+        lean_ipv6_addr_to_in6_addr(ip_addr_obj, (in6_addr*)&out->sin_addr);
+        out->sin_family = AF_INET6;
+    }
+
+    out->sin_port = htons(port_obj);
+}
+
 lean_obj_res lean_in_addr_to_ipv4_addr(const in_addr* ipv4_addr) {
     obj_res ret = alloc_array(0, 4);
     uint32_t hostaddr = ntohl(ipv4_addr->s_addr);
@@ -80,6 +96,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
     in6_addr internal;
+
     if (uv_inet_pton(AF_INET6, str, &internal) == 0) {
         return mk_option_some(lean_in6_addr_to_ipv6_addr(&internal));
     } else {

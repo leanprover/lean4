@@ -7,7 +7,6 @@ Author: Henrik Böving
 #include <lean/lean.h>
 #include "runtime/object.h"
 
-
 namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN
@@ -15,6 +14,8 @@ namespace lean {
 
 void lean_ipv4_addr_to_in_addr(b_obj_arg ipv4_addr, struct in_addr* out);
 void lean_ipv6_addr_to_in6_addr(b_obj_arg ipv6_addr, struct in6_addr* out);
+extern "C" void lean_socket_addr_to_sockaddr(b_obj_arg ip_addr, struct sockaddr_in* out);
+
 lean_obj_res lean_in_addr_to_ipv4_addr(const struct in_addr* ipv4_addr);
 lean_obj_res lean_in6_addr_to_ipv6_addr(const struct in6_addr* ipv6_addr);
 

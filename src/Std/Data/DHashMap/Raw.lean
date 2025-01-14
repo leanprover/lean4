@@ -509,6 +509,18 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
+  /-- Internal implementation detail of the hash map -/
+  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
+      WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constModify₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a} {f : β → β} :
+      WF m → WF (Raw₀.Const.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | alter₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
+      {f : Option (β a) → Option (β a)} : WF m → WF (Raw₀.alter ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
+      {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
 
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
@@ -522,6 +534,10 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
   | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
+  | modify₀ _ => (Raw₀.modify _ _ _).2
+  | constModify₀ _ => (Raw₀.Const.modify _ _ _).2
+  | alter₀ _ => (Raw₀.alter _ _ _).2
+  | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
 
 @[simp] theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
   .empty₀

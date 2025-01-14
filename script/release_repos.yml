@@ -1,0 +1,86 @@
+repositories:
+  - name: Batteries
+    url: https://github.com/leanprover-community/batteries
+    toolchain-tag: true
+    stable-branch: true
+    branch: main
+    dependencies: []
+
+  - name: lean4checker
+    url: https://github.com/leanprover/lean4checker
+    toolchain-tag: true
+    stable-branch: true
+    branch: master
+    dependencies: []
+
+  - name: doc-gen4
+    url: https://github.com/leanprover/doc-gen4
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: Verso
+    url: https://github.com/leanprover/verso
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: Cli
+    url: https://github.com/leanprover/lean4-cli
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: ProofWidgets4
+    url: https://github.com/leanprover-community/ProofWidgets4
+    toolchain-tag: false
+    stable-branch: false
+    branch: main
+    dependencies:
+      - Batteries
+
+  - name: Aesop
+    url: https://github.com/leanprover-community/aesop
+    toolchain-tag: true
+    stable-branch: true
+    branch: master
+    dependencies:
+      - Batteries
+
+  - name: import-graph
+    url: https://github.com/leanprover-community/import-graph
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: plausible
+    url: https://github.com/leanprover-community/plausible
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies: []
+
+  - name: Mathlib
+    url: https://github.com/leanprover-community/mathlib4
+    toolchain-tag: true
+    stable-branch: true
+    branch: master
+    dependencies:
+      - Aesop
+      - ProofWidgets4
+      - lean4checker
+      - Batteries
+      - doc-gen4
+      - import-graph
+
+  - name: REPL
+    url: https://github.com/leanprover-community/repl
+    toolchain-tag: true
+    stable-branch: true
+    branch: master
+    dependencies:
+      - Mathlib

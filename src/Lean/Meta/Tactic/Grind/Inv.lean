@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Arith.Inv
 
 namespace Lean.Meta.Grind
 
@@ -20,9 +21,16 @@ private def checkEqc (root : ENode) : GoalM Unit := do
     size := size + 1
     -- The root of `curr` must be `root`
     assert! isSameExpr (← getRoot curr) root.self
+    -- Check congruence root
+    if curr.isApp then
+      if let some { e } := (← get).congrTable.find? { e := curr } then
+        if (← hasSameType e.getAppFn curr.getAppFn) then
+          assert! isSameExpr e (← getCongrRoot curr)
+      else
+        assert! (← isCongrRoot curr)
     -- If the equivalence class does not have HEq proofs, then the types must be definitionally equal.
     unless root.heqProofs do
-      assert! (← withDefault <| isDefEq (← inferType curr) (← inferType root.self))
+      assert! (← hasSameType curr root.self)
     -- Starting at `curr`, following the `target?` field leads to `root`.
     let mut n := curr
     repeat
@@ -50,6 +58,13 @@ private def checkParents (e : Expr) : GoalM Unit := do
         if (← checkChild arg) then
           found := true
           break
+      -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
+      if let .forallE _ d b _ := parent then
+        if (← checkChild d) then
+          found := true
+        unless b.hasLooseBVars do
+          if (← checkChild b) then
+            found := true
       unless found do
         assert! (← checkChild parent.getAppFn)
   else
@@ -73,10 +88,10 @@ private def checkProofs : GoalM Unit := do
     for a in eqc do
       for b in eqc do
         unless isSameExpr a b do
-          let p ← mkEqProof a b
-          trace[grind.debug.proofs] "{a} = {b}"
+          let p ← mkEqHEqProof a b
+          trace_goal[grind.debug.proofs] "{a} = {b}"
           check p
-          trace[grind.debug.proofs] "checked: {← inferType p}"
+          trace_goal[grind.debug.proofs] "checked: {← inferType p}"
 
 /--
 Checks basic invariants if `grind.debug` is enabled.
@@ -89,7 +104,11 @@ def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
+    Arith.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
+
+def Goal.checkInvariants (goal : Goal) (expensive := false) : GrindM Unit :=
+  discard <| GoalM.run' goal <| Grind.checkInvariants expensive
 
 end Lean.Meta.Grind

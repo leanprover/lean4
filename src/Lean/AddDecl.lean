@@ -21,11 +21,6 @@ def Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration
   else
     addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
 
-def Environment.addAndCompile (env : Environment) (opts : Options) (decl : Declaration)
-    (cancelTk? : Option IO.CancelToken := none) : Except KernelException Environment := do
-  let env ← addDecl env opts decl cancelTk?
-  compileDecl env opts decl
-
 def addDecl (decl : Declaration) : CoreM Unit := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do

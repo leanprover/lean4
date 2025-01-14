@@ -159,6 +159,8 @@ def UInt32.xor (a b : UInt32) : UInt32 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.toBitVec <<< (mod b 32).toBitVec⟩
 @[extern "lean_uint32_shift_right"]
 def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (mod b 32).toBitVec⟩
+def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -169,6 +171,8 @@ set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 
 instance : Div UInt32       := ⟨UInt32.div⟩
+instance : LT UInt32        := ⟨UInt32.lt⟩
+instance : LE UInt32        := ⟨UInt32.le⟩
 
 @[extern "lean_uint32_complement"]
 def UInt32.complement (a : UInt32) : UInt32 := ⟨~~~a.toBitVec⟩

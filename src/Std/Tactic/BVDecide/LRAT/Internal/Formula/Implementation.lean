@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Josh Clune
 -/
 prelude
-import Init.Data.Array
 import Std.Tactic.BVDecide.LRAT.Internal.Formula.Class
 import Std.Tactic.BVDecide.LRAT.Internal.Assignment
 import Std.Sat.CNF.Basic

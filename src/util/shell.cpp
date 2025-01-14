@@ -225,6 +225,7 @@ static void display_help(std::ostream & out) {
     std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
     std::cout << "  -E  --error=kind       report Lean messages of kind as errors\n";
     std::cout << "      --deps             just print dependencies of a Lean input\n";
+    std::cout << "      --src-deps         just print dependency sources of a Lean input\n";
     std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
     std::cout << "      --profile          display elaboration/type checking time for each definition/theorem\n";
@@ -235,6 +236,7 @@ static void display_help(std::ostream & out) {
     std::cout << "      -D name=value      set a configuration option (see set_option command)\n";
 }
 
+static int only_src_deps = 0;
 static int print_prefix = 0;
 static int print_libdir = 0;
 static int json_output = 0;
@@ -255,6 +257,7 @@ static struct option g_long_options[] = {
     {"stats",        no_argument,       0, 'a'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+    {"src-deps",     no_argument,       &only_src_deps, 1},
     {"deps-json",    no_argument,       0, 'J'},
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
@@ -397,6 +400,12 @@ optional<name> module_name_of_file(std::string const & fname, optional<std::stri
 extern "C" object* lean_print_imports(object* input, object* file_name, object* w);
 void print_imports(std::string const & input, std::string const & fname) {
     consume_io_result(lean_print_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
+}
+
+/* def printImportSrcs (input : String) (fileName : Option String := none) : IO Unit */
+extern "C" object* lean_print_import_srcs(object* input, object* file_name, object* w);
+void print_import_srcs(std::string const & input, std::string const & fname) {
+    consume_io_result(lean_print_import_srcs(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
 }
 
 /* def printImportsJson (fileNames : Array String) : IO Unit */
@@ -694,6 +703,11 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (only_deps) {
             print_imports(contents, mod_fn);
+            return 0;
+        }
+
+        if (only_src_deps) {
+            print_import_srcs(contents, mod_fn);
             return 0;
         }
 

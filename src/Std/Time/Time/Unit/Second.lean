@@ -30,7 +30,7 @@ instance : LE (Ordinal leap) where
 instance : LT (Ordinal leap) where
   lt x y := LT.lt x.val y.val
 
-instance : Repr (Ordinal l) where
+instance : Repr (Ordinal leap) where
   reprPrec r := reprPrec r.val
 
 instance : OfNat (Ordinal leap) n := by
@@ -39,10 +39,10 @@ instance : OfNat (Ordinal leap) n := by
   · exact inst
   · exact ⟨inst.ofNat.expandTop (by decide)⟩
 
-instance {x y : Ordinal l} : Decidable (x ≤ y) :=
+instance {x y : Ordinal leap} : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
 
-instance {x y : Ordinal l} : Decidable (x < y) :=
+instance {x y : Ordinal leap} : Decidable (x < y) :=
   inferInstanceAs (Decidable (x.val < y.val))
 
 /--
@@ -50,6 +50,12 @@ instance {x y : Ordinal l} : Decidable (x < y) :=
 -/
 def Offset : Type := UnitVal 1
   deriving Repr, BEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
+
+instance { x y : Offset } : Decidable (x ≤ y) :=
+  inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance { x y : Offset } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩

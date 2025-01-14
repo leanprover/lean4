@@ -41,7 +41,10 @@ This is an auxiliary function performed while merging equivalence classes.
 private def removeParents (root : Expr) : GoalM ParentSet := do
   let parents ← getParentsAndReset root
   for parent in parents do
-    modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
+    -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
+    if (← pure parent.isApp <&&> isCongrRoot parent) then
+      trace_goal[grind.debug.parent] "remove: {parent}"
+      modify fun s => { s with congrTable := s.congrTable.erase { e := parent } }
   return parents
 
 /--
@@ -50,7 +53,9 @@ This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
   for parent in parents do
-    addCongrTable parent
+    if (← pure parent.isApp <&&> isCongrRoot parent) then
+      trace_goal[grind.debug.parent] "reinsert: {parent}"
+      addCongrTable parent
 
 /-- Closes the goal when `True` and `False` are in the same equivalence class. -/
 private def closeGoalWithTrueEqFalse : GoalM Unit := do
@@ -69,14 +74,26 @@ private def closeGoalWithValuesEq (lhs rhs : Expr) : GoalM Unit := do
   let falseProof ← mkEqMP pEqFalse hp
   closeGoal falseProof
 
+/--
+Updates the modification time to `gmt` for the parents of `root`.
+The modification time is used to decide which terms are considered during e-matching.
+-/
+private partial def updateMT (root : Expr) : GoalM Unit := do
+  let gmt := (← get).gmt
+  for parent in (← getParents root) do
+    let node ← getENode parent
+    if node.mt < gmt then
+      setENode parent { node with mt := gmt }
+      updateMT parent
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  trace[grind.eq] "{lhs} {if isHEq then "≡" else "="} {rhs}"
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
   if isSameExpr lhsNode.root rhsNode.root then
     -- `lhs` and `rhs` are already in the same equivalence class.
-    trace[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
+    trace_goal[grind.debug] "{← ppENodeRef lhs} and {← ppENodeRef rhs} are already in the same equivalence class"
     return ()
+  trace_goal[grind.eqc] "{← if isHEq then mkHEq lhs rhs else mkEq lhs rhs}"
   let lhsRoot ← getENode lhsNode.root
   let rhsRoot ← getENode rhsNode.root
   let mut valueInconsistency := false
@@ -101,11 +118,11 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
   unless (← isInconsistent) do
     if valueInconsistency then
       closeGoalWithValuesEq lhsRoot.self rhsRoot.self
-  trace[grind.debug] "after addEqStep, {← ppState}"
+  trace_goal[grind.debug] "after addEqStep, {← (← get).ppState}"
   checkInvariants
 where
   go (lhs rhs : Expr) (lhsNode rhsNode lhsRoot rhsRoot : ENode) (flipped : Bool) : GoalM Unit := do
-    trace[grind.debug] "adding {← ppENodeRef lhs} ↦ {← ppENodeRef rhs}"
+    trace_goal[grind.debug] "adding {← ppENodeRef lhs} ↦ {← ppENodeRef rhs}"
     /-
     We have the following `target?/proof?`
     `lhs -> ... -> lhsNode.root`
@@ -122,8 +139,9 @@ where
     }
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
-    trace[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
+    trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
     reinsertParents parents
+    propagateEqcDown lhs
     setENode lhsNode.root { (← getENode lhsRoot.self) with -- We must retrieve `lhsRoot` since it was updated.
       next := rhsRoot.next
     }
@@ -137,16 +155,17 @@ where
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
+    unless (← isInconsistent) do
+      updateMT rhsRoot.self
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
-    let rec loop (e : Expr) : GoalM Unit := do
-      let n ← getENode e
-      setENode e { n with root := rootNew }
+    traverseEqc lhs fun n =>
+      setENode n.self { n with root := rootNew }
+
+  propagateEqcDown (lhs : Expr) : GoalM Unit := do
+    traverseEqc lhs fun n =>
       unless (← isInconsistent) do
-        propagateDown e
-      if isSameExpr lhs n.next then return ()
-      loop n.next
-    loop lhs
+        propagateDown n.self
 
 /-- Ensures collection of equations to be processed is empty. -/
 private def resetNewEqs : GoalM Unit :=
@@ -167,21 +186,34 @@ where
     if (← isInconsistent) then
       resetNewEqs
       return ()
+    checkSystem "grind"
     let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
     addEqStep lhs rhs proof isHEq
     processTodo
 
-def addEq (lhs rhs proof : Expr) : GoalM Unit := do
+/-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
+private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof false
 
-def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
+/-- Adds a new heterogeneous equality `HEq lhs rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
+private def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof true
 
-/--
-Adds a new `fact` justified by the given proof and using the given generation.
--/
+/-- Save asserted facts for pretty printing goal. -/
+private def storeFact (fact : Expr) : GoalM Unit := do
+  modify fun s => { s with facts := s.facts.push fact }
+
+/-- Internalizes `lhs` and `rhs`, and then adds equality `lhs = rhs`. -/
+def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
+  storeFact (← mkEq lhs rhs)
+  internalize lhs generation
+  internalize rhs generation
+  addEq lhs rhs proof
+
+/-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
-  trace[grind.add] "{proof} : {fact}"
+  storeFact fact
+  trace_goal[grind.assert] "{fact}"
   if (← isInconsistent) then return ()
   resetNewEqs
   let_expr Not p := fact
@@ -189,16 +221,23 @@ def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
   go p true
 where
   go (p : Expr) (isNeg : Bool) : GoalM Unit := do
-    trace[grind.add] "isNeg: {isNeg}, {p}"
     match_expr p with
-    | Eq _ lhs rhs => goEq p lhs rhs isNeg false
-    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
-    | _ =>
-      internalize p generation
-      if isNeg then
-        addEq p (← getFalseExpr) (← mkEqFalse proof)
+    | Eq α lhs rhs =>
+      if α.isProp then
+        -- It is morally an iff.
+        -- We do not use the `goEq` optimization because we want to register `p` as a case-split
+        goFact p isNeg
       else
-        addEq p (← getTrueExpr) (← mkEqTrue proof)
+        goEq p lhs rhs isNeg false
+    | HEq _ lhs _ rhs => goEq p lhs rhs isNeg true
+    | _ => goFact p isNeg
+
+  goFact (p : Expr) (isNeg : Bool) : GoalM Unit := do
+    internalize p generation
+    if isNeg then
+      addEq p (← getFalseExpr) (← mkEqFalse proof)
+    else
+      addEq p (← getTrueExpr) (← mkEqTrue proof)
 
   goEq (p : Expr) (lhs rhs : Expr) (isNeg : Bool) (isHEq : Bool) : GoalM Unit := do
     if isNeg then
@@ -209,10 +248,8 @@ where
       internalize rhs generation
       addEqCore lhs rhs proof isHEq
 
-/--
-Adds a new hypothesis.
--/
-def addHyp (fvarId : FVarId) (generation := 0) : GoalM Unit := do
+/-- Adds a new hypothesis. -/
+def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
 
 end Lean.Meta.Grind

@@ -119,9 +119,10 @@ theorem testBit_mul_two_pow_le {x i n : Nat} (h : n ≤ i) :
     testBit (x * 2 ^ n) i = testBit x (i - n) := by
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   let j := i - n
-  have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp only [j]; rw [Nat.sub_add_cancel (by omega)]
-  have hj' : x >>> (i - n) = x >>> j :=  by simp only [j]
-  rw [hj, hj', ← shiftLeft_eq, Nat.add_comm, shiftRight_add, shiftLeft_shiftRight]
+  congr 2
+  calc (x * 2 ^ n) >>> i
+    _ = (x * 2 ^ n) >>> (n + j) :=  by simp [Nat.shiftRight_add, Nat.shiftRight_eq_div_pow, Nat.pow_add, Nat.mul_div_cancel, show i = n + j by omega]
+    _ = x >>> j :=  by rw [Nat.shiftRight_add, shiftRight_eq_div_pow (n := n), Nat.mul_div_cancel]; simp [Nat.pow_pos (a := 2) (n := n) (by omega)];
 
 theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     testBit (x * 2 ^ n) i = false := by

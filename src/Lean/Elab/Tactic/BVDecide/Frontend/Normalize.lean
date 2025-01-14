@@ -40,7 +40,7 @@ def passPipeline : PreProcessM (List Pass) := do
 
 def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := do
   withTraceNode `bv (fun _ => return "Preprocessing goal") do
-    (go g).run cfg
+    (go g).run cfg g
 where
   go (g : MVarId) : PreProcessM (Option MVarId) := do
     let some g ← g.falseOrByContra | return none

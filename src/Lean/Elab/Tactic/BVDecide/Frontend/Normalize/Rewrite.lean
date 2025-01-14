@@ -35,13 +35,27 @@ def rewriteRulesPass : Pass where
       (simpTheorems := #[bvThms, sevalThms])
       (congrTheorems := (← getSimpCongrTheorems))
 
-    let hyps ← goal.getNondepPropHyps
-    let ⟨result?, _⟩ ← simpGoal goal
-      (ctx := simpCtx)
-      (simprocs := #[bvSimprocs, sevalSimprocs])
-      (fvarIdsToSimp := hyps)
-    let some (_, newGoal) := result? | return none
-    return newGoal
+    let hyps ← getHyps goal
+    if hyps.isEmpty then
+      return goal
+    else
+      let ⟨result?, _⟩ ← simpGoal goal
+        (ctx := simpCtx)
+        (simprocs := #[bvSimprocs, sevalSimprocs])
+        (fvarIdsToSimp := hyps)
+
+      let some (_, newGoal) := result? | return none
+      newGoal.withContext do
+        (← newGoal.getNondepPropHyps).forM PreProcessM.rewriteFinished
+      return newGoal
+where
+  getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
+    goal.withContext do
+      let mut hyps ← goal.getNondepPropHyps
+      let filter hyp := do
+        return !(← PreProcessM.checkRewritten hyp)
+      hyps.filterM filter
+
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

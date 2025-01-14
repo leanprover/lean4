@@ -137,10 +137,9 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
 
 theorem testBit_mul_two_pow (x i n : Nat) :
     testBit (x * 2 ^ n) i = if n ≤ i then testBit x (i - n) else false := by
-  by_cases hni : n ≤ i
-  · simp [hni, testBit_mul_two_pow_le hni]
-  · have : i < n := by omega
-    simp [hni, testBit_mul_two_pow_gt this]
+  split
+  · simpa [*] using testBit_mul_two_pow_le (by assumption)
+  · simpa [*] using testBit_mul_two_pow_gt (by omega)
 
 theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := by
   simp

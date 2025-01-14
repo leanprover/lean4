@@ -44,6 +44,14 @@ def release_page_exists(repo_url, tag_name, github_token):
     response = requests.get(api_url, headers=headers)
     return response.status_code == 200
 
+def get_release_notes(repo_url, tag_name, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("body", "").strip()
+    return None
+
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -98,6 +106,29 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
 def is_release_candidate(version):
     return "-rc" in version
 
+def check_cmake_version(repo_url, branch, version_major, version_minor, github_token):
+    """Verify the CMake version settings in src/CMakeLists.txt."""
+    cmake_file_path = "src/CMakeLists.txt"
+    content = get_branch_content(repo_url, branch, cmake_file_path, github_token)
+    if content is None:
+        print(f"  ❌ Could not retrieve {cmake_file_path} from {branch}")
+        return False
+
+    expected_lines = [
+        f"set(LEAN_VERSION_MAJOR {version_major})",
+        f"set(LEAN_VERSION_MINOR {version_minor})",
+        f"set(LEAN_VERSION_PATCH 0)",
+        f"set(LEAN_VERSION_IS_RELEASE 1)"
+    ]
+
+    for line in expected_lines:
+        if not any(l.strip().startswith(line) for l in content.splitlines()):
+            print(f"  ❌ Missing or incorrect line in {cmake_file_path}: {line}")
+            return False
+
+    print(f"  ✅ CMake version settings are correct in {cmake_file_path}")
+    return True
+
 def main():
     github_token = get_github_token()
 
@@ -117,6 +148,9 @@ def main():
     branch_name = f"releases/v{version_major}.{version_minor}.0"
     if branch_exists(lean_repo_url, branch_name, github_token):
         print(f"  ✅ Branch {branch_name} exists")
+
+        # Check CMake version settings
+        check_cmake_version(lean_repo_url, branch_name, version_major, version_minor, github_token)
     else:
         print(f"  ❌ Branch {branch_name} does not exist")
 
@@ -124,11 +158,21 @@ def main():
     if tag_exists(lean_repo_url, toolchain, github_token):
         print(f"  ✅ Tag {toolchain} exists")
     else:
-        print(f"  ❌ Tag {toolchain} does not exist")
+        print(f"  ❌ Tag {toolchain} does not exist.")
 
     # Check for release page
     if release_page_exists(lean_repo_url, toolchain, github_token):
         print(f"  ✅ Release page for {toolchain} exists")
+
+        # Check the first line of the release notes
+        release_notes = get_release_notes(lean_repo_url, toolchain, github_token)
+        if release_notes and release_notes.splitlines()[0].strip() == toolchain:
+            print(f"  ✅ Release notes look good.")
+        else:
+            previous_minor_version = version_minor - 1
+            previous_stable_branch = f"releases/v{version_major}.{previous_minor_version}.0"
+            previous_release = f"v{version_major}.{previous_minor_version}.0"
+            print(f"  ❌ Release notes not published. Please run `script/release_notes.py {previous_release}` on branch `{previous_stable_branch}`.")
     else:
         print(f"  ❌ Release page for {toolchain} does not exist")
 
@@ -162,7 +206,8 @@ def main():
         # Only check for tag if toolchain-tag is true
         if check_tag:
             if not tag_exists(url, toolchain, github_token):
-                print(f"  ❌ Tag {toolchain} does not exist")
+                plausible_branch = "master" if "master" in branch else "main"
+                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {url} {branch_name} {toolchain}`.")
                 continue
             print(f"  ✅ Tag {toolchain} exists")
 

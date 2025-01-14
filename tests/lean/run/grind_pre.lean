@@ -74,7 +74,11 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
   [prop] j + 1 ≤ i
   [prop] ¬g (i + 1) j ⋯ = i + j + 1[eqc] True propositions
   [prop] j + 1 ≤ i[eqc] False propositions
-  [prop] g (i + 1) j ⋯ = i + j + 1
+  [prop] g (i + 1) j ⋯ = i + j + 1[offset] Assignment satisfying offset contraints
+  [assign] j := 0
+  [assign] i := 1
+  [assign] g (i + 1) j ⋯ := 0
+  [assign] i + j := 0
 -/
 #guard_msgs (error) in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by

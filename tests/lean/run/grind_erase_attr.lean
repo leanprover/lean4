@@ -28,7 +28,9 @@ error: `grind` failed
 case grind
 a : Nat
 x✝ : ¬f (f (f a)) = f a
-⊢ False
+⊢ False[facts] asserted facts
+  [prop] ¬f (f (f a)) = f a[eqc] False propositions
+  [prop] f (f (f a)) = f a
 ---
 info: [grind.assert] ¬f (f (f a)) = f a
 -/
@@ -66,7 +68,13 @@ a b : Nat
 a✝¹ : g a = b
 a✝ : a = 0
 x✝ : ¬b = 1
-⊢ False
+⊢ False[facts] asserted facts
+  [prop] g a = b
+  [prop] a = 0
+  [prop] ¬b = 1[eqc] False propositions
+  [prop] b = 1[eqc] equivalence classes
+  [eqc] {a, 0}
+  [eqc] {g a, b}
 ---
 info: [grind.assert] g a = b
 [grind.assert] a = 0

@@ -1019,18 +1019,36 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     (m.alter k f).size =
     if m.contains k && (f (m.get? k)).isNone then
       m.size - 1
-    else if m.contains k = false && (f (m.get? k)).isNone then
+    else if m.contains k = false && (f (m.get? k)).isSome then
       m.size + 1
     else
       m.size :=
   sorry
 
-theorem size_alter' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).size =
-    m.size
-      - (if m.contains k then 1 else 0)
-      + (if (f (m.get? k)).isSome then 1 else 0) :=
-  sorry
+theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.contains k = false) (h': (f (m.get? k)).isSome) :
+    (m.alter k f).size = m.size + 1 := by
+  simp only [size_alter, h, Bool.false_and, Bool.false_eq_true, ↓reduceIte, decide_true, h',
+    Bool.and_self]
+
+theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.contains k) (h': (f (m.get? k)).isNone) :
+    (m.alter k f).size = m.size - 1 := by
+  simp only [size_alter, h, h', Bool.and_self, ↓reduceIte]
+
+theorem size_alter_eq_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.contains k = false) (h': (f (m.get? k)).isNone) :
+    (m.alter k f).size = m.size := by
+  simp only [size_alter, h, h', Bool.and_true, Bool.false_eq_true, ↓reduceIte, decide_true,
+    Bool.true_and, ite_eq_right_iff, Nat.add_right_eq_self, Nat.add_one_ne_zero, imp_false,
+    Bool.not_eq_true, Option.not_isSome]
+
+theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.contains k) (h': (f (m.get? k)).isSome) :
+    (m.alter k f).size = m.size := by
+  simp only [Option.isSome_iff_ne_none, ne_eq] at h'
+  simp only [size_alter, h, Bool.true_and, Option.isNone_iff_eq_none, h', ↓reduceIte,
+    Bool.true_eq_false, decide_false, Bool.false_and, Bool.false_eq_true]
 
 theorem size_alter_le [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).size ≤ m.size + 1 :=
@@ -1203,20 +1221,47 @@ theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α} 
     (h : (k == k') = false) : k' ∈ Const.alter m k f ↔ k' ∈ m := by
   simp only [mem_iff_contains, contains_alter_of_beq_eq_false, h]
 
--- Not very nice. The only other idea I have is to essentially rewrite with size_insert and
--- size_erase.
-theorem size_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
-    (Const.alter m k f).size = match f (Const.get? m k) with
-      | none => (m.erase k).size
-      | some v => (m.insert k v).size :=
+theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).size =
+    if m.contains k && (f (Const.get? m k)).isNone then
+      m.size - 1
+    else if m.contains k = false && (f (Const.get? m k)).isSome then
+      m.size + 1
+    else
+      m.size :=
   sorry
 
+theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
+    (h : m.contains k = false) (h': (f (Const.get? m k)).isSome) :
+    (Const.alter m k f).size = m.size + 1 := by
+  simp only [size_alter, h, Bool.false_and, Bool.false_eq_true, ↓reduceIte, decide_true, h',
+    Bool.and_self]
+
+theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option β}
+    (h : m.contains k) (h': (f (Const.get? m k)).isNone) :
+    (Const.alter m k f).size = m.size - 1 := by
+  simp only [size_alter, h, h', Bool.and_self, ↓reduceIte]
+
+theorem size_alter_eq_self [LawfulBEq α] {k : α} {f : Option β → Option β}
+    (h : m.contains k = false) (h': (f (Const.get? m k)).isNone) :
+    (Const.alter m k f).size = m.size := by
+  simp only [size_alter, h, h', Bool.and_true, Bool.false_eq_true, ↓reduceIte, decide_true,
+    Bool.true_and, ite_eq_right_iff, Nat.add_right_eq_self, Nat.add_one_ne_zero, imp_false,
+    Bool.not_eq_true, Option.not_isSome]
+
+theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option β → Option β}
+    (h : m.contains k) (h': (f (Const.get? m k)).isSome) :
+    (Const.alter m k f).size = m.size := by
+  simp only [Option.isSome_iff_ne_none, ne_eq] at h'
+  simp only [size_alter, h, Bool.true_and, Option.isNone_iff_eq_none, h', ↓reduceIte,
+    Bool.true_eq_false, decide_false, Bool.false_and, Bool.false_eq_true]
+
 theorem size_alter_le [LawfulBEq α] {k : α} {f : Option β → Option β} :
-    (m.alter k f).size ≤ m.size + 1 :=
+    (Const.alter m k f).size ≤ m.size + 1 :=
   sorry
 
 theorem le_size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
-    m.size - 1 ≤ (m.alter k f).size :=
+    m.size - 1 ≤ (Const.alter m k f).size :=
   sorry
 
 -- Is this ugly statement worth it?

@@ -984,8 +984,6 @@ theorem alter_empty_of_some [LawfulBEq α] {k : α} {f : Option (β k) → Optio
 
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    -- should we use = or ↔? LHS is Bool, RHS is Prop.
-    -- mem_iff_contains suggests ↔.
     (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) :=
   Raw₀.isEmpty_alter _ m.2
 
@@ -994,7 +992,7 @@ theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (
   Raw₀.contains_alter ⟨_, _⟩ m.2
 
 theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
-    k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
+    k' ∈ m.alter k f ↔ if k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
   simp only [mem_iff_contains, contains_alter, beq_iff_eq, Bool.ite_eq_true_distrib]
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : k == k') :
@@ -1201,7 +1199,7 @@ theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option 
   sorry
 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
-    k' ∈ Const.alter m k f ↔ if  k == k' then (f (Const.get? m k)).isSome = true else k' ∈ m := by
+    k' ∈ Const.alter m k f ↔ if k == k' then (f (Const.get? m k)).isSome = true else k' ∈ m := by
     simp only [mem_iff_contains, contains_alter, Bool.ite_eq_true_distrib]
 
 @[simp]
@@ -1396,7 +1394,7 @@ theorem modify_of_not_mem [LawfulBEq α] {k : α} {f g : β k → β k} (h : k �
 
 @[simp]
 theorem isEmpty_modify [LawfulBEq α] {k : α} {f : β k → β k} :
-    (m.modify k f).isEmpty ↔ m.isEmpty :=
+    (m.modify k f).isEmpty = m.isEmpty :=
   Raw₀.isEmpty_modify _ m.2
 
 @[simp]
@@ -1544,7 +1542,7 @@ theorem modify_of_not_mem [EquivBEq α] [LawfulHashable α] {k : α} {f g : β �
 
 @[simp]
 theorem isEmpty_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :
-    (Const.modify m k f).isEmpty ↔ m.isEmpty :=
+    (Const.modify m k f).isEmpty = m.isEmpty :=
   Raw₀.Const.isEmpty_modify _ m.2
 
 @[simp]

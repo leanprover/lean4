@@ -32,7 +32,7 @@ open Lean
 
 @[simp]
 theorem isEmpty_modify [LawfulBEq α] (h : m.1.WF) {k : α} {f : β k → β k} :
-    (m.modify k f).1.isEmpty ↔ m.1.isEmpty := by
+    (m.modify k f).1.isEmpty = m.1.isEmpty := by
   simp_to_model using List.isEmpty_modifyKey
 
 @[simp]
@@ -50,7 +50,7 @@ variable {β : Type v} [EquivBEq α] [LawfulHashable α]
 
 @[simp]
 theorem isEmpty_modify (m : Raw₀ α (fun _ => β)) (h : m.1.WF) {k : α} {f : β → β} :
-    (Const.modify m k f).1.isEmpty ↔ m.1.isEmpty := by
+    (Const.modify m k f).1.isEmpty = m.1.isEmpty := by
   simp_to_model using List.Const.isEmpty_modifyKey
 
 @[simp]

@@ -2042,7 +2042,7 @@ theorem containsKey_modifyKey_self [BEq α] [LawfulBEq α] (k : α) (f : β k �
     · rw [containsKey_replaceEntry]
 
 theorem getValueCast?_alterKey [BEq α] [LawfulBEq α] (k k' : α) (f : Option (β k) → Option (β k))
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l): getValueCast? k' (alterKey k f l) =
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) : getValueCast? k' (alterKey k f l) =
     if h : k == k' then
       cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (getValueCast? k l))
     else
@@ -2065,6 +2065,16 @@ theorem getValueCast?_alterKey [BEq α] [LawfulBEq α] (k k' : α) (f : Option (
         reduceIte]
     · next hsome =>
       simp only [beq_iff_eq, getValueCast?_insertEntry, dite_false, heq, Bool.false_eq_true]
+
+theorem getKey?_alterKey [BEq α] [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+    getKey? k' (alterKey k f l) =
+    if k == k' then
+      if (f (getValueCast? k l)).isSome then some k else none
+    else
+      getKey? k' l := by
+  rw [alterKey]
+  split <;> next heq => simp [hl, heq, getKey?_eraseKey, getKey?_insertEntry]
 
 namespace Const
 

@@ -310,7 +310,7 @@ theorem get_erase [LawfulBEq α] (h : m.1.WF) {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (contains_of_contains_erase _ h h') := by
   simp_to_model using List.getValueCast_eraseKey
 
-theorem get?_eq_some_get [LawfulBEq α] (h : m.1.WF) {a : α} {h} : m.get? a = some (m.get a h) := by
+theorem get?_eq_some_get [LawfulBEq α] (h : m.1.WF) {a : α} {h'} : m.get? a = some (m.get a h') := by
   simp_to_model using List.getValueCast?_eq_some_getValueCast
 
 namespace Const
@@ -592,8 +592,8 @@ theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {
     (m.erase k).getKey a h' = m.getKey a (contains_of_contains_erase _ h h') := by
   simp_to_model using List.getKey_eraseKey
 
-theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {h} :
-    m.getKey? a = some (m.getKey a h) := by
+theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {h'} :
+    m.getKey? a = some (m.getKey a h') := by
   simp_to_model using List.getKey?_eq_some_getKey
 
 theorem getKey!_empty {a : α} [Inhabited α] {c} :

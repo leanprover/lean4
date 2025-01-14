@@ -352,3 +352,9 @@ example (p r : Prop) (a b : Nat) : (c + 1 ≤ a ↔ p) → (c + 2 ≤ a + 1 ↔ 
 set_option trace.grind.split true in
 example (p r : Prop) (a b : Nat) : (c + 5 ≤ a ↔ p) → (c + 4 ≤ a ↔ r) → a ≤ b → b ≤ c + 3 → ¬p ∧ ¬r := by
   grind (splits := 0)
+
+example (a b c d: Nat) : a ≤ b → b + 2 = c → c < d → a + 2 < d := by
+  grind
+
+example (a b c : Nat) : a + 2 = b → b + 3 = c → a + 5 ≤ c := by
+  grind

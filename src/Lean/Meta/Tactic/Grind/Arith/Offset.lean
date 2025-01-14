@@ -39,7 +39,6 @@ def get' : GoalM State := do
 def mkNode (expr : Expr) : GoalM NodeId := do
   if let some nodeId := (← get').nodeMap.find? { expr } then
     return nodeId
-  markAsOffsetTerm expr
   let nodeId : NodeId := (← get').nodes.size
   trace[grind.offset.internalize.term] "{expr} ↦ #{nodeId}"
   modify' fun s => { s with
@@ -49,6 +48,7 @@ def mkNode (expr : Expr) : GoalM NodeId := do
     targets := s.targets.push {}
     proofs  := s.proofs.push {}
   }
+  markAsOffsetTerm expr
   return nodeId
 
 private def getExpr (u : NodeId) : GoalM Expr := do
@@ -59,6 +59,11 @@ private def getDist? (u v : NodeId) : GoalM (Option Int) := do
 
 private def getProof? (u v : NodeId) : GoalM (Option ProofInfo) := do
   return (← get').proofs[u]!.find? v
+
+private def getNodeId (e : Expr) : GoalM NodeId := do
+  let some nodeId := (← get').nodeMap.find? { expr := e }
+    | throwError "internal `grind` error, term has not been internalized by offset module{indentExpr e}"
+  return nodeId
 
 /--
 Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
@@ -234,12 +239,16 @@ def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
     let h := mkApp (mkConst ``Nat.le_refl) e
     addEdge u v k h
     addEdge v u (-k) h
-    markAsOffsetTerm e
 
 @[export lean_process_new_offset_eq]
 def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
-  trace[grind.offset.eq] "{a}, {b}"
-  -- TODO
+  unless isSameExpr a b do
+    trace[grind.offset.eq] "{a}, {b}"
+    let u ← getNodeId a
+    let v ← getNodeId b
+    let h ← mkEqProof a b
+    addEdge u v 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
+    addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 def traceDists : GoalM Unit := do
   let s ← get'

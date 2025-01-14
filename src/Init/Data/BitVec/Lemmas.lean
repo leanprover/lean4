@@ -3539,7 +3539,7 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 /-! ### Non-overflow theorems -/
 
-/-- If `x.toNat +  y.toNat < 2^w`, then the addition `(x + y)` does not overflow. -/
+/-- If `x.toNat + y.toNat < 2^w`, then the addition `(x + y)` does not overflow. -/
 theorem toNat_add_of_lt {w} {x y : BitVec w} (h : x.toNat + y.toNat < 2^w) :
     (x + y).toNat = x.toNat + y.toNat := by
   rw [BitVec.toNat_add, Nat.mod_eq_of_lt h]

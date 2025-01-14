@@ -136,9 +136,7 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
       omega
     · suffices hs : 2 * (2 ^ (k - 1)) = 2 ^ k by
         exact ⟨_, hs.symm⟩
-      rw [← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.pow_one]
-      congr 1
-      omega
+      rw [← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.pow_one, ← Nat.add_sub_assoc (by omega), Nat.add_comm, Nat.add_sub_cancel]
   omega
 
 theorem testBit_mul_two_pow (x i n : Nat) :

@@ -99,10 +99,23 @@ private def ppEqcs (goal : Goal) : MetaM (Array MessageData) := do
      result := result.push <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
    return result
 
+private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
+  let m := m!"{← thm.origin.pp}\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
+  return .trace { cls := `thm } m #[]
+
+private def ppActiveTheorems (goal : Goal) : MetaM MessageData := do
+  let m ← goal.thms.toArray.mapM ppEMatchTheorem
+  let m := m ++ (← goal.newThms.toArray.mapM ppEMatchTheorem)
+  if m.isEmpty then
+    return ""
+  else
+    return .trace { cls := `ematch } "E-matching" m
+
 def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withContext do
   let mut m : Array MessageData := #[.ofGoal goal.mvarId]
   m := m.push <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
   m := m ++ (← ppEqcs goal)
+  m := m.push (← ppActiveTheorems goal)
   addMessageContextFull <| MessageData.joinSep m.toList ""
 
 def goalsToMessageData (goals : List Goal) : MetaM MessageData :=

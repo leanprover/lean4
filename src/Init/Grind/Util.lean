@@ -9,7 +9,7 @@ import Init.Core
 namespace Lean.Grind
 
 /-- A helper gadget for annotating nested proofs in goals. -/
-def nestedProof (p : Prop) (h : p) : p := h
+def nestedProof (p : Prop) {h : p} : p := h
 
 /--
 Gadget for marking terms that should not be normalized by `grind`s simplifier.
@@ -28,7 +28,7 @@ When `EqMatch a b origin` is `True`, we mark `origin` as a resolved case-split.
 -/
 def EqMatch (a b : α) {_origin : α} : Prop := a = b
 
-theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (nestedProof p hp) (nestedProof q hq) := by
+theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
   subst h; apply HEq.refl
 
 end Lean.Grind

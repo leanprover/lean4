@@ -358,3 +358,18 @@ example (a b c d: Nat) : a ≤ b → b + 2 = c → c < d → a + 2 < d := by
 
 example (a b c : Nat) : a + 2 = b → b + 3 = c → a + 5 ≤ c := by
   grind
+
+example (a b c : Nat) : a + 2 = b → c ≤ a + 2 → a + 2 ≤ c → c = b := by
+  grind
+
+example (a b c : Nat) : a + 2 = b → b + 3 = c → a + 5 = c := by
+  grind
+
+example (f : Nat → Nat) (a b c d e : Nat) :
+        f (a + 3) = b →
+        f (c + 1) = d →
+        c ≤ a + 2 →
+        a + 1 ≤ e →
+        e < c →
+        b = d := by
+  grind

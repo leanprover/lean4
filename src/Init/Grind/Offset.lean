@@ -86,5 +86,6 @@ Helper theorems for equality propagation
 
 theorem Nat.le_of_eq_1 (u v : Nat) : u = v → u ≤ v := by omega
 theorem Nat.le_of_eq_2 (u v : Nat) : u = v → v ≤ u := by omega
+theorem Nat.eq_of_le_of_le (u v : Nat) : u ≤ v → v ≤ u → u = v := by omega
 
 end Lean.Grind

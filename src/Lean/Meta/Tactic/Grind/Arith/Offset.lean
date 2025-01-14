@@ -166,10 +166,24 @@ private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → GoalM B
         return !(← f c e)
     modify' fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
 
+/-- Equality propagation. -/
+private def propagateEq (u v : NodeId) (k : Int) : GoalM Unit := do
+  if k != 0 then return ()
+  let some k' ← getDist? v u | return ()
+  if k' != 0 then return ()
+  let ue ← getExpr u
+  let ve ← getExpr v
+  if (← isEqv ue ve) then return ()
+  let huv ← mkProofForPath u v
+  let hvu ← mkProofForPath v u
+  trace[grind.offset.eq.from] "{ue}, {ve}"
+  pushEq ue ve <| mkApp4 (mkConst ``Grind.Nat.eq_of_le_of_le) ue ve huv hvu
+
 /-- Performs constraint propagation. -/
 private def propagateAll (u v : NodeId) (k : Int) : GoalM Unit := do
   updateCnstrsOf u v fun c e => return !(← propagateTrue u v k c e)
   updateCnstrsOf v u fun c e => return !(← propagateFalse u v k c e)
+  propagateEq u v k
 
 /--
 If `isShorter u v k`, updates the shortest distance between `u` and `v`.
@@ -231,7 +245,7 @@ def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
   if let some c := isNatOffsetCnstr? e then
     internalizeCnstr e c
   else if let some (b, k) := isNatOffset? e then
-    if parent.isEq || (isNatOffsetCnstr? parent).isSome then return ()
+    if (isNatOffsetCnstr? parent).isSome then return ()
     -- `e` is of the form `b + k`
     let u ← mkNode e
     let v ← mkNode b
@@ -243,7 +257,7 @@ def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
 @[export lean_process_new_offset_eq]
 def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
-    trace[grind.offset.eq] "{a}, {b}"
+    trace[grind.offset.eq.to] "{a}, {b}"
     let u ← getNodeId a
     let v ← getNodeId b
     let h ← mkEqProof a b

@@ -98,6 +98,8 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
+def noParent := mkBVar 0
+
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
@@ -146,7 +148,7 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
-partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
+partial def internalize (e : Expr) (generation : Nat) (parent : Expr := noParent) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   trace_goal[grind.internalize] "{e}"
   match e with
@@ -157,10 +159,10 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
   | .forallE _ d b _ =>
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
     if (← isProp d <&&> isProp e) then
-      internalize d generation
+      internalize d generation e
       registerParent e d
       unless b.hasLooseBVars do
-        internalize b generation
+        internalize b generation e
         registerParent e b
       propagateUp e
   | .lit .. | .const .. =>
@@ -182,22 +184,22 @@ partial def internalize (e : Expr) (generation : Nat) : GoalM Unit := do
         -- We only internalize the proposition. We can skip the proof because of
         -- proof irrelevance
         let c := args[0]!
-        internalize c generation
+        internalize c generation e
         registerParent e c
       else
         if let .const fName _ := f then
           activateTheoremPatterns fName generation
         else
-          internalize f generation
+          internalize f generation e
           registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
-          internalize arg generation
+          internalize arg generation e
           registerParent e arg
       mkENode e generation
       addCongrTable e
       updateAppMap e
-      Arith.internalize e
+      Arith.internalize e parent
       propagateUp e
 end
 

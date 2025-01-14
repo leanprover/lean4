@@ -48,6 +48,7 @@ builtin_initialize registerTraceClass `grind.offset.dist
 builtin_initialize registerTraceClass `grind.offset.internalize
 builtin_initialize registerTraceClass `grind.offset.internalize.term (inherited := true)
 builtin_initialize registerTraceClass `grind.offset.propagate
+builtin_initialize registerTraceClass `grind.offset.eq
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug

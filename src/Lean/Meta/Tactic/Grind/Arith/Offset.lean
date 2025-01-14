@@ -39,6 +39,7 @@ def get' : GoalM State := do
 def mkNode (expr : Expr) : GoalM NodeId := do
   if let some nodeId := (← get').nodeMap.find? { expr } then
     return nodeId
+  markAsOffsetTerm expr
   let nodeId : NodeId := (← get').nodes.size
   trace[grind.offset.internalize.term] "{expr} ↦ #{nodeId}"
   modify' fun s => { s with
@@ -203,8 +204,7 @@ where
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
-def internalizeCnstr (e : Expr) : GoalM Unit := do
-  let some c := isNatOffsetCnstr? e | return ()
+private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
   let u ← mkNode c.u
   let v ← mkNode c.v
   let c := { c with u, v }
@@ -221,6 +221,25 @@ def internalizeCnstr (e : Expr) : GoalM Unit := do
       let cs := if let some cs := s.cnstrsOf.find? (u, v) then (c, e) :: cs else [(c, e)]
       s.cnstrsOf.insert (u, v) cs
   }
+
+def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
+  if let some c := isNatOffsetCnstr? e then
+    internalizeCnstr e c
+  else if let some (b, k) := isNatOffset? e then
+    if isNatOffsetCnstr? parent |>.isSome then return ()
+    -- `e` is of the form `b + k`
+    let u ← mkNode e
+    let v ← mkNode b
+    -- `u = v + k`. So, we add edges for `u ≤ v + k` and `v + k ≤ u`.
+    let h := mkApp (mkConst ``Nat.le_refl) e
+    addEdge u v k h
+    addEdge v u (-k) h
+    markAsOffsetTerm e
+
+@[export lean_process_new_offset_eq]
+def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.offset.eq] "{a}, {b}"
+  -- TODO
 
 def traceDists : GoalM Unit := do
   let s ← get'

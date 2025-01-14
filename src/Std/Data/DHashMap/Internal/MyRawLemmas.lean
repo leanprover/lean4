@@ -44,6 +44,13 @@ theorem contains_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k
     (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
   simp_to_model using List.containsKey_alterKey
 
+theorem get?_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).get? k' = if h : k == k' then
+      cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (m.get? k))
+    else
+      m.get? k' := by
+  simp_to_model using List.getValueCast?_alterKey
+
 namespace Const
 
 variable {β : Type v} [EquivBEq α] [LawfulHashable α]

@@ -1053,24 +1053,27 @@ theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option (β k) → Optio
     Bool.true_eq_false, decide_false, Bool.false_and, Bool.false_eq_true]
 
 theorem size_alter_le [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).size ≤ m.size + 1 :=
-  sorry
+    (m.alter k f).size ≤ m.size + 1 := by
+  rw [size_alter]
+  split <;> try split
+  all_goals omega
 
 theorem le_size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    m.size - 1 ≤ (m.alter k f).size :=
-  sorry
+    m.size - 1 ≤ (m.alter k f).size := by
+  rw [size_alter]
+  split <;> try split
+  all_goals omega
 
 theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).get? k' = if h : k == k' then
       (cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (m.get? k)))
     else m.get? k' :=
-  sorry
-
+  Raw₀.get?_alter ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem get?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).get? k = f (m.get? k) :=
-  sorry
+    (m.alter k f).get? k = f (m.get? k) := by
+  simp only [get?_alter, beq_self_eq_true, ↓reduceDIte, Function.comp_apply, cast_eq]
 
 theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : k' ∈ m.alter k f) :
@@ -1080,15 +1083,28 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
     else
       haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
-      m.get k' h' :=
-  sorry
+      m.get k' h' := by
+  have := get?_alter (m := m) (k' := k') (f := f)
+  rw [get?_eq_some_get (h := h)] at this
+  split
+  · next heq =>
+    cases eq_of_beq heq
+    apply Option.some_inj.mp
+    simp_all
+  · next heq =>
+    apply Option.some_inj.mp
+    simp_all only [Bool.false_eq_true, Function.comp_apply, dite_false]
+    rw [get?_eq_some_get]
 
 @[simp]
 theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} :
     haveI h' : (f (m.get? k)).isSome := by rwa [mem_alter_self] at h
-    (m.alter k f).get k h = (f (m.get? k)).get h' :=
-  sorry
+    (m.alter k f).get k h = (f (m.get? k)).get h' := by
+  rw [get_alter]
+  simp only [beq_self_eq_true, reduceDIte, cast_eq]
+
+theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 
 theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : Option (β k) → Option (β k)} :
     (m.alter k f).get! k' =
@@ -1096,26 +1112,36 @@ theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : Opti
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
     else
-      m.get! k' :=
-  sorry
+      m.get! k' := by
+  simp only [get!_eq_get!_get?, get?_alter, beq_iff_eq, Function.comp_apply]
+  split
+  · next heq =>
+    cases eq_of_beq heq
+    simp only [cast_eq]
+  · rfl
 
 @[simp]
 theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (β k) → Option (β k)} :
-    (m.alter k f).get! k = (f (m.get? k)).get! :=
-  sorry
+    (m.alter k f).get! k = (f (m.get? k)).get! := by
+  simp only [get!_alter, beq_self_eq_true, reduceDIte, cast_eq]
 
 theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getD k' v =
     if heq : k == k' then
       f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
     else
-      m.getD k' v :=
-  sorry
+      m.getD k' v := by
+  simp only [getD_eq_getD_get?, get?_alter, beq_iff_eq, Function.comp_apply]
+  split
+  · next heq =>
+    cases eq_of_beq heq
+    simp only [cast_eq_id, Option.map_id_fun, id_eq]
+  · rfl
 
 @[simp]
 theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getD k v = (f (m.get? k)).getD v :=
-  sorry
+    (m.alter k f).getD k v = (f (m.get? k)).getD v := by
+  simp only [getD_alter, beq_self_eq_true, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
 
 theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey? k' =

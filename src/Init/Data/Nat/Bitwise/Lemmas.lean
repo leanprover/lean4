@@ -121,8 +121,8 @@ theorem testBit_mul_two_pow_le {x i n : Nat} (h : n ≤ i) :
   let j := i - n
   congr 2
   calc (x * 2 ^ n) >>> i
-    _ = (x * 2 ^ n) >>> (n + j) :=  by simp [Nat.shiftRight_add, Nat.shiftRight_eq_div_pow, Nat.pow_add, Nat.mul_div_cancel, show i = n + j by omega]
-    _ = x >>> j :=  by rw [Nat.shiftRight_add, shiftRight_eq_div_pow (n := n), Nat.mul_div_cancel]; simp [Nat.pow_pos (a := 2) (n := n) (by omega)];
+    _ = (x * 2 ^ n) >>> (n + j) :=  by simp [show i = n + j by omega, shiftRight_eq_div_pow, Nat.pow_add]
+    _ = x >>> j :=  by simp [Nat.shiftRight_add, shiftRight_eq_div_pow (n := n), Nat.mul_div_cancel, Nat.pow_pos (a := 2) (n := n) (by omega)];
 
 theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     testBit (x * 2 ^ n) i = false := by

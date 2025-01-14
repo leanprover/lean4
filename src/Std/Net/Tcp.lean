@@ -32,7 +32,7 @@ opaque new : IO TcpSocket
 Connect a TCP socket to the specified address.
 -/
 @[extern "lean_uv_tcp_connect"]
-opaque connect (socket : TcpSocket) (addr : SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque connect (socket : TcpSocket) (addr : SocketAddress) : IO (IO.Promise (Except String Unit))
 
 /--
 Send data through a TCP socket.

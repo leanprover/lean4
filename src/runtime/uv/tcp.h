@@ -7,7 +7,7 @@ Author: Sofia Rodrigues
 #include <lean/lean.h>
 #include "runtime/uv/event_loop.h"
 #include "runtime/uv/net_addr.h"
-#include "runtime/object.h"
+#include "runtime/object_ref.h"
 
 namespace lean {
 
@@ -20,10 +20,10 @@ void initialize_libuv_tcp_socket();
 // Structure for managing a single TCP socket object, including promise handling,
 // connection state, and read/write buffers.
 typedef struct {
-    uv_tcp_t *      m_uv_tcp;         // LibUV TCP handle.
-    lean_object *   m_promise_accept; // The associated promise for asynchronous results for accepting new sockets.
-    lean_object *   m_promise_read;   // The associated promise for asynchronous results for reading from the socket.
-    lean_object *   m_byte_array;     // The data stored.
+    uv_tcp_t *      m_uv_tcp;          // LibUV TCP handle.
+    lean_object *   m_promise_accept;  // The associated promise for asynchronous results for accepting new sockets.
+    lean_object *   m_promise_read;    // The associated promise for asynchronous results for reading from the socket.
+    lean_object *   m_byte_array;      // The data stored.
 } lean_uv_tcp_socket_object;
 
 // =======================================

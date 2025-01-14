@@ -127,13 +127,14 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
     testBit (x * 2 ^ n) i = false := by
   simp only [testBit, ← shiftLeft_eq, one_and_eq_mod_two, mod_two_bne_zero, beq_eq_false_iff_ne,
     ne_eq]
+  suffices ∃ y, x <<< n >>> i = 2 * y by omega
   let k := n - i
-  have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel (by omega)]
-  rw [hk, Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
-  have hx : 2 * (x * 2 ^ k / 2 ^ 1) = x * 2 ^ k := by
-    rw [Nat.mul_div_assoc, Nat.pow_div (by omega) (by omega), Nat.mul_comm, Nat.mul_assoc, ← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.sub_add_cancel (by omega)]
-    simp only [Nat.pow_one, Nat.pow_dvd_pow (m := 1) (n := k) (a := 2) (by omega), k]
-  omega
+  refine ⟨x * 2 ^ (k - 1), ?_⟩
+  calc  x <<< n >>> i
+    _ = x <<< (k + i) >>> i := by rw [Nat.sub_add_cancel (by omega)]
+    _ = x * 2 ^ k           := by rw [Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
+    _ = x * 2 ^ (k - 1 + 1) := by rw [Nat.sub_add_cancel (by omega)]
+    _ = 2 * _               := by rw [Nat.pow_succ, ← Nat.mul_assoc, Nat.mul_comm]
 
 theorem testBit_mul_two_pow (x i n : Nat) :
     testBit (x * 2 ^ n) i = if n ≤ i then testBit x (i - n) else false := by

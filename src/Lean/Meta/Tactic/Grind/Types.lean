@@ -202,13 +202,19 @@ structure ENode where
   on heterogeneous equality.
   -/
   heqProofs : Bool := false
-  /--
-  Unique index used for pretty printing and debugging purposes.
-  -/
+  /-- Unique index used for pretty printing and debugging purposes. -/
   idx : Nat := 0
+  /-- The generation in which this enode was created. -/
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
+  /--
+  The `offset?` field is used to propagate equalities from the `grind` congruence closure module
+  to the offset constraints module. When `grind` merges two equivalence classes, and both have
+  an associated `offset?` set to `some e`, the equality is propagated. This field is
+  assigned during the internalization of offset terms.
+  -/
+  offset? : Option Expr := none
   deriving Inhabited, Repr
 
 def ENode.isCongrRoot (n : ENode) :=
@@ -642,6 +648,21 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let ctor := (← isConstructorAppCore? e).isSome
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
+
+@[extern "lean_process_new_offset_eq"] -- forward definition
+opaque processNewOffsetEq (a b : Expr) : GoalM Unit
+
+/--
+Marks `e` as a term of interest to the offset constraint module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the offset module.
+-/
+def markAsOffsetTerm (e : Expr) : GoalM Unit := do
+  let n ← getRootENode e
+  if let some e' := n.offset? then
+    processNewOffsetEq e e'
+  else
+    setENode n.self { n with offset? := some e }
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

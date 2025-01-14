@@ -119,7 +119,7 @@ theorem testBit_mul_two_pow_le {x i n : Nat} (h : n ≤ i) :
     testBit (x * 2 ^ n) i = testBit x (i - n) := by
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
   let j := i - n
-  have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp only [j]; rw [Nat.sub_add_cancel]; omega
+  have hj : (x * 2 ^ n) >>> i = (x * 2 ^ n) >>> (j + n) :=  by simp only [j]; rw [Nat.sub_add_cancel (by omega)]
   have hj' : x >>> (i - n) = x >>> j :=  by simp only [j]
   rw [hj, hj', ← shiftLeft_eq, Nat.add_comm, shiftRight_add, shiftLeft_shiftRight]
 
@@ -128,15 +128,17 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
   simp only [testBit, ← shiftLeft_eq, one_and_eq_mod_two, mod_two_bne_zero, beq_eq_false_iff_ne,
     ne_eq]
   let k := n - i
-  have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel]; omega
+  have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel (by omega)]
   rw [hk, Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
   have hx : 2 * (x * 2 ^ k / 2) = x * 2 ^ k := by
     rw [Nat.mul_comm, Nat.mul_div_assoc, ← Nat.pow_one (a := 2), Nat.pow_div (by omega) (by omega)]
-    · rw [Nat.mul_assoc, ← Nat.pow_add, Nat.sub_add_cancel]
-      omega
+    · rw [Nat.mul_assoc, ← Nat.pow_add, Nat.sub_add_cancel (by omega)]
     · suffices hs : 2 * (2 ^ (k - 1)) = 2 ^ k by
         exact ⟨_, hs.symm⟩
-      rw [← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.pow_one, ← Nat.add_sub_assoc (by omega), Nat.add_comm, Nat.add_sub_cancel]
+      let j := k - 1
+      have hj : 2 * 2 ^ (k - 1) = 2 * 2 ^ j := by simp only [j, k]
+      have hj' : 2 ^ k = 2 ^ (j + 1) := by simp only [j]; rw [Nat.sub_add_cancel (by omega)]
+      rw [hj, hj', Nat.pow_succ, Nat.mul_comm]
   omega
 
 theorem testBit_mul_two_pow (x i n : Nat) :

@@ -129,6 +129,12 @@ def check_cmake_version(repo_url, branch, version_major, version_minor, github_t
     print(f"  ✅ CMake version settings are correct in {cmake_file_path}")
     return True
 
+def extract_org_repo_from_url(repo_url):
+    """Extract the 'org/repo' part from a GitHub URL."""
+    if repo_url.startswith("https://github.com/"):
+        return repo_url.replace("https://github.com/", "").rstrip("/")
+    return repo_url
+
 def main():
     github_token = get_github_token()
 
@@ -206,8 +212,7 @@ def main():
         # Only check for tag if toolchain-tag is true
         if check_tag:
             if not tag_exists(url, toolchain, github_token):
-                plausible_branch = "master" if "master" in branch else "main"
-                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {url} {branch_name} {toolchain}`.")
+                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
                 continue
             print(f"  ✅ Tag {toolchain} exists")
 

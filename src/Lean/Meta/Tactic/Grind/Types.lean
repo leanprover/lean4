@@ -380,6 +380,8 @@ structure Goal where
   resolvedSplits : PHashSet ENodeKey := {}
   /-- Next local E-match theorem idx. -/
   nextThmIdx : Nat := 0
+  /-- Asserted facts -/
+  facts      : PArray Expr := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -448,14 +450,25 @@ def checkMaxEmatchExceeded : GoalM Bool := do
 Returns `some n` if `e` has already been "internalized" into the
 Otherwise, returns `none`s.
 -/
+def Goal.getENode? (goal : Goal) (e : Expr) : Option ENode :=
+  goal.enodes.find? { expr := e }
+
+@[inline, inherit_doc Goal.getENode?]
 def getENode? (e : Expr) : GoalM (Option ENode) :=
-  return (← get).enodes.find? { expr := e }
+  return (← get).getENode? e
+
+def throwNonInternalizedExpr (e : Expr) : CoreM α :=
+  throwError "internal `grind` error, term has not been internalized{indentExpr e}"
 
 /-- Returns node associated with `e`. It assumes `e` has already been internalized. -/
-def getENode (e : Expr) : GoalM ENode := do
-  let some n := (← get).enodes.find? { expr := e }
-    | throwError "internal `grind` error, term has not been internalized{indentExpr e}"
+def Goal.getENode (goal : Goal) (e : Expr) : CoreM ENode := do
+  let some n := goal.enodes.find? { expr := e }
+    | throwNonInternalizedExpr e
   return n
+
+@[inline, inherit_doc Goal.getENode]
+def getENode (e : Expr) : GoalM ENode := do
+  (← get).getENode e
 
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
 def getGeneration (e : Expr) : GoalM Nat :=
@@ -486,29 +499,52 @@ def isRoot (e : Expr) : GoalM Bool := do
   return isSameExpr n.root e
 
 /-- Returns the root element in the equivalence class of `e` IF `e` has been internalized. -/
-def getRoot? (e : Expr) : GoalM (Option Expr) := do
-  let some n ← getENode? e | return none
+def Goal.getRoot? (goal : Goal) (e : Expr) : Option Expr := Id.run do
+  let some n ← goal.getENode? e | return none
   return some n.root
 
+@[inline, inherit_doc Goal.getRoot?]
+def getRoot? (e : Expr) : GoalM (Option Expr) := do
+  return (← get).getRoot? e
+
 /-- Returns the root element in the equivalence class of `e`. -/
-def getRoot (e : Expr) : GoalM Expr :=
-  return (← getENode e).root
+def Goal.getRoot (goal : Goal) (e : Expr) : CoreM Expr :=
+  return (← goal.getENode e).root
+
+@[inline, inherit_doc Goal.getRoot]
+def getRoot (e : Expr) : GoalM Expr := do
+  (← get).getRoot e
 
 /-- Returns the root enode in the equivalence class of `e`. -/
 def getRootENode (e : Expr) : GoalM ENode := do
   getENode (← getRoot e)
 
+/--
+Returns the next element in the equivalence class of `e`
+if `e` has been internalized in the given goal.
+-/
+def Goal.getNext? (goal : Goal) (e : Expr) : Option Expr := Id.run do
+  let some n ← goal.getENode? e | return none
+  return some n.next
+
 /-- Returns the next element in the equivalence class of `e`. -/
-def getNext (e : Expr) : GoalM Expr :=
-  return (← getENode e).next
+def Goal.getNext (goal : Goal) (e : Expr) : CoreM Expr :=
+  return (← goal.getENode e).next
+
+@[inline, inherit_doc Goal.getRoot]
+def getNext (e : Expr) : GoalM Expr := do
+  (← get).getNext e
 
 /-- Returns `true` if `e` has already been internalized. -/
 def alreadyInternalized (e : Expr) : GoalM Bool :=
   return (← get).enodes.contains { expr := e }
 
-def getTarget? (e : Expr) : GoalM (Option Expr) := do
-  let some n ← getENode? e | return none
+def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
+  let some n ← goal.getENode? e | return none
   return n.target?
+
+@[inline] def getTarget? (e : Expr) : GoalM (Option Expr) := do
+  return (← get).getTarget? e
 
 /--
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
@@ -681,11 +717,14 @@ def closeGoal (falseProof : Expr) : GoalM Unit := do
     else
       mvarId.assign (← mkFalseElim target falseProof)
 
+def Goal.getENodes (goal : Goal) : Array ENode :=
+  -- We must sort because we are using pointer addresses as keys in `enodes`
+  let nodes := goal.enodes.toArray.map (·.2)
+  nodes.qsort fun a b => a.idx < b.idx
+
 /-- Returns all enodes in the goal -/
 def getENodes : GoalM (Array ENode) := do
-  -- We must sort because we are using pointer addresses as keys in `enodes`
-  let nodes := (← get).enodes.toArray.map (·.2)
-  return nodes.qsort fun a b => a.idx < b.idx
+  return (← get).getENodes
 
 /-- Executes `f` to each term in the equivalence class containing `e` -/
 @[inline] def traverseEqc (e : Expr) (f : ENode → GoalM Unit) : GoalM Unit := do
@@ -743,25 +782,33 @@ def applyFallback : GoalM Unit := do
   fallback
 
 /-- Returns expressions in the given expression equivalence class. -/
-partial def getEqc (e : Expr) : GoalM (List Expr) :=
+partial def Goal.getEqc (goal : Goal) (e : Expr) : List Expr :=
   go e e []
 where
-  go (first : Expr) (e : Expr) (acc : List Expr) : GoalM (List Expr) := do
-    let next ← getNext e
+  go (first : Expr) (e : Expr) (acc : List Expr) : List Expr := Id.run do
+    let some next ← goal.getNext? e | acc
     let acc := e :: acc
     if isSameExpr first next then
       return acc
     else
       go first next acc
 
+@[inline, inherit_doc Goal.getEqc]
+partial def getEqc (e : Expr) : GoalM (List Expr) :=
+  return (← get).getEqc e
+
 /-- Returns all equivalence classes in the current goal. -/
-partial def getEqcs : GoalM (List (List Expr)) := do
-  let mut r := []
-  let nodes ← getENodes
+partial def Goal.getEqcs (goal : Goal) : List (List Expr) := Id.run do
+  let mut r : List (List Expr) := []
+  let nodes ← goal.getENodes
   for node in nodes do
     if isSameExpr node.root node.self then
-      r := (← getEqc node.self) :: r
+      r := goal.getEqc node.self :: r
   return r
+
+@[inline, inherit_doc Goal.getEqcs]
+def getEqcs : GoalM (List (List Expr)) :=
+  return (← get).getEqcs
 
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=

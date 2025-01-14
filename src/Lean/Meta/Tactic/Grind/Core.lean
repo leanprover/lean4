@@ -86,6 +86,18 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       setENode parent { node with mt := gmt }
       updateMT parent
 
+/--
+Helper function for combining `ENode.offset?` fields and propagating an equality
+to the offset constraint module.
+-/
+private def propagateOffsetEq (root : Expr) (roofOffset? otherOffset? : Option Expr) : GoalM Unit := do
+  let some otherOffset := otherOffset? | return ()
+  if let some rootOffset := roofOffset? then
+    processNewOffsetEq rootOffset otherOffset
+  else
+    let n ← getENode root
+    setENode root { n with offset? := otherOffset? }
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -146,17 +158,18 @@ where
       next := rhsRoot.next
     }
     setENode rhsNode.root { rhsRoot with
-      next := lhsRoot.next
-      size := rhsRoot.size + lhsRoot.size
+      next       := lhsRoot.next
+      size       := rhsRoot.size + lhsRoot.size
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
+      updateMT rhsRoot.self
+    propagateOffsetEq rhsNode.root rhsRoot.offset? lhsRoot.offset?
+    unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
-    unless (← isInconsistent) do
-      updateMT rhsRoot.self
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>

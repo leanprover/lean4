@@ -997,6 +997,10 @@ theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)
     k' ∈ m.alter k f ↔ if  k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
   simp only [mem_iff_contains, contains_alter, beq_iff_eq, Bool.ite_eq_true_distrib]
 
+theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : k == k') :
+    k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
+  rw [mem_alter, if_pos h]
+
 @[simp]
 theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).contains k = (f (m.get? k)).isSome := by
@@ -1074,8 +1078,8 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
     (h : k' ∈ m.alter k f) :
     (m.alter k f).get k' h =
     if heq : k == k' then
-      haveI h' : (f (m.get? k)).isSome := by rwa [mem_alter, if_pos heq] at h
-      cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get h'
+      haveI h' : (f (m.get? k)).isSome := mem_alter_of_beq heq |>.mp h
+      cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
     else
       haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
       m.get k' h' :=
@@ -1118,27 +1122,25 @@ theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} {f : Option (β k) �
 theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey? k' =
     if k == k' then
-      (f (m.get? k)).map (fun _ => k)
+      if (f (m.get? k)).isSome then some k else none
     else
       m.getKey? k' :=
   sorry
 
-@[simp]
 theorem getKey?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKey? k = (f (m.get? k)).map (fun _ => k) :=
+    (m.alter k f).getKey? k = if (f (m.get? k)).isSome then some k else none :=
   sorry
 
 theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey! k' =
     if k == k' then
-      (f (m.get? k)).map (fun _ => k) |>.get!
+      if (f (m.get? k)).isSome then some k else none
     else
       m.getKey! k' :=
   sorry
 
-@[simp]
 theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKey! k = ((f (m.get? k)).map (fun _ => k)).get! :=
+    (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else panic "" :=
   sorry
 
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
@@ -1153,21 +1155,20 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
 
 @[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∈ m.alter k f) :
-    (m.alter k f).getKey k h = k :=
+    (h : k ∈ m.alter k f) : (m.alter k f).getKey k h = k :=
   sorry
 
 theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKeyD k' d =
     if k == k' then
-      (f (m.get? k)).map (fun _ => k) |>.getD d
+      if (f (m.get? k)).isSome then k else d
     else
       m.getKeyD k' d :=
   sorry
 
 @[simp]
 theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKeyD k d = ((f (m.get? k)).map (fun _ => k)).getD d :=
+    (m.alter k f).getKeyD k d = if (f (m.get? k)).isSome then k else d :=
   sorry
 
 namespace Const
@@ -1264,7 +1265,6 @@ theorem le_size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
     m.size - 1 ≤ (Const.alter m k f).size :=
   sorry
 
--- Is this ugly statement worth it?
 theorem get?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
     Const.get? (Const.alter m k f) k' = if h : k == k' then
       (f (Const.get? m k))
@@ -1324,28 +1324,26 @@ theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f :
 theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
     (Const.alter m k f).getKey? k' =
     if k == k' then
-      (f (Const.get? m k)).map (fun _ => k)
+      if (f (Const.get? m k)).isSome then some k else none
     else
       m.getKey? k' :=
   sorry
 
-@[simp]
 theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
-    (Const.alter m k f).getKey? k = (f (Const.get? m k)).map (fun _ => k) :=
+    (Const.alter m k f).getKey? k = if (f (Const.get? m k)).isSome then some k else none :=
   sorry
 
 theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} : (Const.alter m k f).getKey! k' =
     if k == k' then
-      (f (Const.get? m k)).map (fun _ => k) |>.get!
+      if (f (Const.get? m k)).isSome then k else panic ""
     else
       m.getKey! k' :=
   sorry
 
-@[simp]
 theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
     {f : Option β → Option β} :
-    (Const.alter m k f).getKey! k = ((f (Const.get? m k)).map (fun _ => k)).get! :=
+    (Const.alter m k f).getKey! k = if (f (Const.get? m k)).isSome then k else panic "" :=
   sorry
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
@@ -1367,15 +1365,14 @@ theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : 
 theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : Option β → Option β} :
     (Const.alter m k f).getKeyD k' d =
     if k == k' then
-      (f (Const.get? m k)).map (fun _ => k) |>.getD d
+      if (f (Const.get? m k)).isSome then k else d
     else
       m.getKeyD k' d :=
   sorry
 
-@[simp]
 theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α}
     {f : Option β → Option β} :
-    (Const.alter m k f).getKeyD k d = ((f (Const.get? m k)).map (fun _ => k)).getD d :=
+    (Const.alter m k f).getKeyD k d = if (f (Const.get? m k)).isSome then k else d :=
   sorry
 
 end Const
@@ -1476,30 +1473,25 @@ theorem getD_modify_self [LawfulBEq α] {k : α} {v : β k} {f : β k → β k} 
 theorem getKey?_modify [LawfulBEq α] {k k' : α} {f : β k → β k} :
     (m.modify k f).getKey? k' =
     if k == k' then
-      Option.guard (fun _ => k ∈ m) k
+      if k ∈ m then some k else none
     else
       m.getKey? k' :=
   sorry
 
-@[simp]
 theorem getKey?_modify_self [LawfulBEq α] {k : α} {f : β k → β k} :
-    (m.modify k f).getKey? k = Option.guard (fun _ => k ∈ m) k :=
+    (m.modify k f).getKey? k = if k ∈ m then some k else none :=
   sorry
 
 theorem getKey!_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k} :
     (m.modify k f).getKey! k' =
     if k == k' then
-      -- possible alternative (here and at other places): if k ∈ m then k else default
-      -- although correct, I'm not sure about the tradeoffs of replacing get! with
-      -- something that does not panic
-      Option.guard (fun _ => k ∈ m) k |>.get!
+      if k ∈ m then k else panic ""
     else
       m.getKey! k' :=
   sorry
 
-@[simp]
 theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} :
-    (m.modify k f).getKey! k = (Option.guard (fun _ => k ∈ m) k).get! :=
+    (m.modify k f).getKey! k = if k ∈ m then k else panic "" :=
   sorry
 
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
@@ -1525,8 +1517,6 @@ theorem getKeyD_modify [LawfulBEq α] {k k' d : α} {f : β k → β k} :
       m.getKeyD k' d :=
   sorry
 
--- if is sufficiently simple that simp might be okay
-@[simp]
 theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k} :
     (m.modify k f).getKeyD k d = if k ∈ m then k else d :=
   sorry
@@ -1631,30 +1621,25 @@ theorem getD_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f 
 theorem getKey?_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} :
     (Const.modify m k f).getKey? k' =
     if k == k' then
-      Option.guard (fun _ => k ∈ m) k
+      if k ∈ m then some k else none
     else
       m.getKey? k' :=
   sorry
 
-@[simp]
 theorem getKey?_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :
-    (Const.modify m k f).getKey? k = Option.guard (fun _ => k ∈ m) k :=
+    (Const.modify m k f).getKey? k = if k ∈ m then some k else none :=
   sorry
 
 theorem getKey!_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β} :
     (Const.modify m k f).getKey! k' =
     if k == k' then
-      -- possible alternative (here and at other places): if k ∈ m then k else default
-      -- although correct, I'm not sure about the tradeoffs of replacing get! with
-      -- something that does not panic
-      Option.guard (fun _ => k ∈ m) k |>.get!
+      if k ∈ m then k else panic ""
     else
       m.getKey! k' :=
   sorry
 
-@[simp]
 theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : β → β} :
-    (Const.modify m k f).getKey! k = (Option.guard (fun _ => k ∈ m) k).get! :=
+    (Const.modify m k f).getKey! k = if k ∈ m then k else panic "" :=
   sorry
 
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
@@ -1680,7 +1665,6 @@ theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : β �
       m.getKeyD k' d :=
   sorry
 
-@[simp]
 theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α} {f : β → β} :
     (Const.modify m k f).getKeyD k d = if k ∈ m then k else d :=
   sorry

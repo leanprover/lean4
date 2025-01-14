@@ -2282,6 +2282,13 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 
 /-! # Squash -/
 
+theorem true_equivalence : @Equivalence α fun _ _ ↦ True :=
+  ⟨fun _ ↦ trivial, fun _ ↦ trivial, fun _ _ ↦ trivial⟩
+
+/-- Always-true relation as a `Setoid`. -/
+def trueSetoid : Setoid α :=
+  ⟨_, true_equivalence⟩
+
 /--
 The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
 of them are equal and cannot be distinguished.
@@ -2296,7 +2303,7 @@ and its representation in compiled code is identical to that of `α`.
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quotient trueSetoid
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.

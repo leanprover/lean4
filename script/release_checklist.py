@@ -22,6 +22,36 @@ def get_github_token():
         print("Warning: 'gh' CLI not found. Some API calls may be rate-limited.")
     return None
 
+def strip_rc_suffix(toolchain):
+    """Remove -rcX suffix from the toolchain."""
+    return toolchain.split("-")[0]
+
+def branch_exists(repo_url, branch, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/branches/{branch}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+    return response.status_code == 200
+
+def tag_exists(repo_url, tag_name, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/git/refs/tags/{tag_name}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+    return response.status_code == 200
+
+def release_page_exists(repo_url, tag_name, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+    return response.status_code == 200
+
+def get_release_notes(repo_url, tag_name, github_token):
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"
+    headers = {'Authorization': f'token {github_token}'} if github_token else {}
+    response = requests.get(api_url, headers=headers)
+    if response.status_code == 200:
+        return response.json().get("body", "").strip()
+    return None
+
 def get_branch_content(repo_url, branch, file_path, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/contents/{file_path}?ref={branch}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
@@ -35,11 +65,20 @@ def get_branch_content(repo_url, branch, file_path, github_token):
             return None
     return None
 
-def tag_exists(repo_url, tag_name, github_token):
-    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/git/refs/tags/{tag_name}"
-    headers = {'Authorization': f'token {github_token}'} if github_token else {}
-    response = requests.get(api_url, headers=headers)
-    return response.status_code == 200
+def parse_version(version_str):
+    # Remove 'v' prefix and extract version and release candidate suffix
+    if ':' in version_str:
+        version_str = version_str.split(':')[1]
+    version = version_str.lstrip('v')
+    parts = version.split('-')
+    base_version = tuple(map(int, parts[0].split('.')))
+    rc_part = parts[1] if len(parts) > 1 and parts[1].startswith('rc') else None
+    rc_number = int(rc_part[2:]) if rc_part else float('inf')  # Treat non-rc as higher than rc
+    return base_version + (rc_number,)
+
+def is_version_gte(version1, version2):
+    """Check if version1 >= version2, including proper handling of release candidates."""
+    return parse_version(version1) >= parse_version(version2)
 
 def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     # First get the commit SHA for the tag
@@ -64,22 +103,37 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     stable_commits = [commit['sha'] for commit in commits_response.json()]
     return tag_sha in stable_commits
 
-def parse_version(version_str):
-    # Remove 'v' prefix and split into components
-    # Handle Lean toolchain format (leanprover/lean4:v4.x.y)
-    if ':' in version_str:
-        version_str = version_str.split(':')[1]
-    version = version_str.lstrip('v')
-    # Handle release candidates by removing -rc part for comparison
-    version = version.split('-')[0]
-    return tuple(map(int, version.split('.')))
-
-def is_version_gte(version1, version2):
-    """Check if version1 >= version2"""
-    return parse_version(version1) >= parse_version(version2)
-
 def is_release_candidate(version):
     return "-rc" in version
+
+def check_cmake_version(repo_url, branch, version_major, version_minor, github_token):
+    """Verify the CMake version settings in src/CMakeLists.txt."""
+    cmake_file_path = "src/CMakeLists.txt"
+    content = get_branch_content(repo_url, branch, cmake_file_path, github_token)
+    if content is None:
+        print(f"  ❌ Could not retrieve {cmake_file_path} from {branch}")
+        return False
+
+    expected_lines = [
+        f"set(LEAN_VERSION_MAJOR {version_major})",
+        f"set(LEAN_VERSION_MINOR {version_minor})",
+        f"set(LEAN_VERSION_PATCH 0)",
+        f"set(LEAN_VERSION_IS_RELEASE 1)"
+    ]
+
+    for line in expected_lines:
+        if not any(l.strip().startswith(line) for l in content.splitlines()):
+            print(f"  ❌ Missing or incorrect line in {cmake_file_path}: {line}")
+            return False
+
+    print(f"  ✅ CMake version settings are correct in {cmake_file_path}")
+    return True
+
+def extract_org_repo_from_url(repo_url):
+    """Extract the 'org/repo' part from a GitHub URL."""
+    if repo_url.startswith("https://github.com/"):
+        return repo_url.replace("https://github.com/", "").rstrip("/")
+    return repo_url
 
 def main():
     github_token = get_github_token()
@@ -89,6 +143,47 @@ def main():
         sys.exit(1)
 
     toolchain = sys.argv[1]
+    stripped_toolchain = strip_rc_suffix(toolchain)
+    lean_repo_url = "https://github.com/leanprover/lean4"
+
+    # Preliminary checks
+    print("\nPerforming preliminary checks...")
+
+    # Check for branch releases/v4.Y.0
+    version_major, version_minor, _ = map(int, stripped_toolchain.lstrip('v').split('.'))
+    branch_name = f"releases/v{version_major}.{version_minor}.0"
+    if branch_exists(lean_repo_url, branch_name, github_token):
+        print(f"  ✅ Branch {branch_name} exists")
+
+        # Check CMake version settings
+        check_cmake_version(lean_repo_url, branch_name, version_major, version_minor, github_token)
+    else:
+        print(f"  ❌ Branch {branch_name} does not exist")
+
+    # Check for tag v4.X.Y(-rcZ)
+    if tag_exists(lean_repo_url, toolchain, github_token):
+        print(f"  ✅ Tag {toolchain} exists")
+    else:
+        print(f"  ❌ Tag {toolchain} does not exist.")
+
+    # Check for release page
+    if release_page_exists(lean_repo_url, toolchain, github_token):
+        print(f"  ✅ Release page for {toolchain} exists")
+
+        # Check the first line of the release notes
+        release_notes = get_release_notes(lean_repo_url, toolchain, github_token)
+        if release_notes and release_notes.splitlines()[0].strip() == toolchain:
+            print(f"  ✅ Release notes look good.")
+        else:
+            previous_minor_version = version_minor - 1
+            previous_stable_branch = f"releases/v{version_major}.{previous_minor_version}.0"
+            previous_release = f"v{version_major}.{previous_minor_version}.0"
+            print(f"  ❌ Release notes not published. Please run `script/release_notes.py {previous_release}` on branch `{previous_stable_branch}`.")
+    else:
+        print(f"  ❌ Release page for {toolchain} does not exist")
+
+    # Load repositories and perform further checks
+    print("\nChecking repositories...")
 
     with open(os.path.join(os.path.dirname(__file__), "release_repos.yml")) as f:
         repos = yaml.safe_load(f)["repositories"]
@@ -117,7 +212,7 @@ def main():
         # Only check for tag if toolchain-tag is true
         if check_tag:
             if not tag_exists(url, toolchain, github_token):
-                print(f"  ❌ Tag {toolchain} does not exist")
+                print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
                 continue
             print(f"  ✅ Tag {toolchain} exists")
 

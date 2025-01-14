@@ -131,10 +131,14 @@ theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
   have hk : x <<< n >>> i = x <<< (k + i) >>> i := by simp only [k]; rw [Nat.sub_add_cancel]; omega
   rw [hk, Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
   have hx : 2 * (x * 2 ^ k / 2) = x * 2 ^ k := by
-    rw [Nat.mul_comm, Nat.div_mul_cancel]
-    suffices hs : 2 * (x * 2 ^ (k - 1)) = x * 2 ^ k by
-      exact ⟨_, hs.symm⟩
-    rw [Nat.mul_comm, Nat.mul_assoc, ← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.sub_add_cancel (by omega)]
+    rw [Nat.mul_comm, Nat.mul_div_assoc, ← Nat.pow_one (a := 2), Nat.pow_div (by omega) (by omega)]
+    · rw [Nat.mul_assoc, ← Nat.pow_add, Nat.sub_add_cancel]
+      omega
+    · suffices hs : 2 * (2 ^ (k - 1)) = 2 ^ k by
+        exact ⟨_, hs.symm⟩
+      rw [← Nat.pow_one (a := 2), ← Nat.pow_add, Nat.pow_one]
+      congr 1
+      omega
   omega
 
 theorem testBit_mul_two_pow (x i n : Nat) :

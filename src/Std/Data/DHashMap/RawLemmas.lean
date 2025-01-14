@@ -1208,6 +1208,11 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_insertMany_list
 
+theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List ((a : α) × β a)} :
+    m.size ≤ (m.insertMany l).size := by
+  simp_to_raw using Raw₀.size_le_size_insertMany_list ⟨m, _⟩
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List ((a : α) × β a)} :
     (m.insertMany l).size ≤ m.size + l.length := by
@@ -1326,6 +1331,11 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
       (insertMany m l).size = m.size + l.length := by
   simp [mem_iff_contains]
   simp_to_raw using Raw₀.Const.size_insertMany_list
+
+theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List (α × β)} :
+    m.size ≤ (insertMany m l).size := by
+  simp_to_raw using Raw₀.Const.size_le_size_insertMany_list ⟨m, _⟩
 
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List (α × β)} :
@@ -1499,6 +1509,11 @@ theorem size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.W
       (insertManyIfNewUnit m l).size = m.size + l.length := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.size_insertManyIfNewUnit_list
+
+theorem size_le_size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} :
+    m.size ≤ (insertManyIfNewUnit m l).size := by
+  simp_to_raw using Raw₀.Const.size_le_size_insertManyIfNewUnit_list ⟨m, _⟩
 
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} :

@@ -2172,6 +2172,13 @@ theorem length_insertList [BEq α] [EquivBEq α]
     (insertList l toInsert).length = l.length + toInsert.length := by
   simpa using (perm_insertList distinct_l distinct_toInsert distinct_both).length_eq
 
+theorem length_le_length_insertList [BEq α]
+    {l toInsert : List ((a : α) × β a)} :
+    l.length ≤ (insertList l toInsert).length := by
+  induction toInsert generalizing l with
+  | nil => apply Nat.le_refl
+  | cons hd tl ih => exact Nat.le_trans length_le_length_insertEntry ih
+
 theorem length_insertList_le [BEq α]
     {l toInsert : List ((a : α) × β a)} :
     (insertList l toInsert).length ≤ l.length + toInsert.length := by
@@ -2311,6 +2318,13 @@ theorem length_insertListConst [BEq α] [EquivBEq α]
   · simp
   · simpa [List.pairwise_map]
   · simpa using distinct_both
+
+theorem length_le_length_insertListConst [BEq α]
+    {l : List ((_ : α) × β)} {toInsert : List (α × β)} :
+    l.length ≤ (insertListConst l toInsert).length := by
+  induction toInsert generalizing l with
+  | nil => apply Nat.le_refl
+  | cons hd tl ih => exact Nat.le_trans length_le_length_insertEntry ih
 
 theorem length_insertListConst_le [BEq α]
     {l : List ((_ : α) × β)} {toInsert : List (α × β)} :
@@ -2655,6 +2669,13 @@ theorem length_insertListIfNewUnit [BEq α] [EquivBEq α]
         specialize distinct_both a h
         rw [Bool.or_eq_false_iff] at distinct_both
         apply And.right distinct_both
+
+theorem length_le_length_insertListIfNewUnit [BEq α] [EquivBEq α]
+    {l : List ((_ : α) × Unit)} {toInsert : List α}:
+    l.length ≤ (insertListIfNewUnit l toInsert).length := by
+  induction toInsert generalizing l with
+  | nil => apply Nat.le_refl
+  | cons hd tl ih => exact Nat.le_trans length_le_length_insertEntryIfNew ih
 
 theorem length_insertListIfNewUnit_le [BEq α] [EquivBEq α]
     {l : List ((_ : α) × Unit)} {toInsert : List α}:

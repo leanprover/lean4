@@ -804,6 +804,11 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α]
       (insertMany m l).size = m.size + l.length :=
   DHashMap.Raw.Const.size_insertMany_list h.out distinct
 
+theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List (α × β)} :
+    m.size ≤ (insertMany m l).size :=
+  DHashMap.Raw.Const.size_le_size_insertMany_list h.out
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List (α × β)} :
     (insertMany m l).size ≤ m.size + l.length :=
@@ -978,6 +983,11 @@ theorem size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.W
     (∀ (a : α), a ∈ m → l.contains a = false) →
       (insertManyIfNewUnit m l).size = m.size + l.length :=
   DHashMap.Raw.Const.size_insertManyIfNewUnit_list h.out distinct
+
+theorem size_le_size_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} :
+    m.size ≤ (insertManyIfNewUnit m l).size :=
+  DHashMap.Raw.Const.size_le_size_insertManyIfNewUnit_list h.out
 
 theorem size_insertManyIfNewUnit_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
     {l : List α} :

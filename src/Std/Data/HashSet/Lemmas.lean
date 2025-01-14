@@ -486,6 +486,11 @@ theorem size_insertMany_list [EquivBEq α] [LawfulHashable α]
       (insertMany m l).size = m.size + l.length :=
   HashMap.size_insertManyIfNewUnit_list distinct
 
+theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α]
+    {l : List α} :
+    m.size ≤ (insertMany m l).size :=
+  HashMap.size_le_size_insertManyIfNewUnit_list
+
 theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α]
     {l : List α} :
     (insertMany m l).size ≤ m.size + l.length :=

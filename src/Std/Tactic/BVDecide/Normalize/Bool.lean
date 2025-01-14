@@ -20,9 +20,10 @@ attribute [bv_normalize] Bool.and_true
 attribute [bv_normalize] Bool.true_and
 attribute [bv_normalize] Bool.and_false
 attribute [bv_normalize] Bool.false_and
-attribute [bv_normalize] beq_self_eq_true'
 attribute [bv_normalize] Bool.true_beq
+attribute [bv_normalize] beq_true
 attribute [bv_normalize] Bool.false_beq
+attribute [bv_normalize] beq_false
 attribute [bv_normalize] Bool.beq_not_self
 attribute [bv_normalize] Bool.not_beq_self
 attribute [bv_normalize] Bool.beq_self_left
@@ -40,10 +41,7 @@ attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.and_self_left
 attribute [bv_normalize] Bool.and_self_right
-attribute [bv_normalize] eq_self
 attribute [bv_normalize] Bool.cond_self
-attribute [bv_normalize] cond_false
-attribute [bv_normalize] cond_true
 attribute [bv_normalize] Bool.cond_not
 
 @[bv_normalize]

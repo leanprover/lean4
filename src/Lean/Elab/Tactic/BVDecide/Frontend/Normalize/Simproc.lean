@@ -1,0 +1,164 @@
+/-
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Henrik Böving
+-/
+prelude
+import Std.Tactic.BVDecide.Normalize
+import Std.Tactic.BVDecide.Syntax
+import Lean.Elab.Tactic.Simp
+import Lean.Elab.Tactic.BVDecide.Frontend.Attr
+
+/-!
+This module contains implementations of simprocs used in the `bv_normalize` simp set.
+-/
+
+namespace Lean.Elab.Tactic.BVDecide
+namespace Frontend.Normalize
+
+open Lean.Meta
+open Std.Tactic.BVDecide.Normalize
+
+builtin_simproc ↓ [bv_normalize] reduceCond (cond _ _ _) := fun e => do
+  let_expr f@cond α c tb eb := e | return .continue
+  let r ← Simp.simp c
+  if r.expr.cleanupAnnotations.isConstOf ``Bool.true then
+    let pr := mkApp (mkApp4 (mkConst ``Bool.cond_pos f.constLevels!) α c tb eb) (← r.getProof)
+    return .visit { expr := tb, proof? := pr }
+  else if r.expr.cleanupAnnotations.isConstOf ``Bool.false then
+    let pr := mkApp (mkApp4 (mkConst ``Bool.cond_neg f.constLevels!) α c tb eb) (← r.getProof)
+    return .visit { expr := eb, proof? := pr }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] eqToBEq (((_ : Bool) = (_ : Bool))) := fun e => do
+  let_expr Eq _ lhs rhs := e | return .continue
+  match_expr rhs with
+  | Bool.true => return .continue
+  | _ =>
+    let beqApp ← mkAppM ``BEq.beq #[lhs, rhs]
+    let new := mkApp3 (mkConst ``Eq [1]) (mkConst ``Bool) beqApp (mkConst ``Bool.true)
+    let proof := mkApp2 (mkConst ``Bool.eq_to_beq) lhs rhs
+    return .done { expr := new, proof? := some proof }
+
+builtin_simproc [bv_normalize] andOnes ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, rhsValue⟩ ← getBitVecValue? rhs | return .continue
+  if rhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.and_ones) (toExpr w) lhs
+    return .visit { expr := lhs, proof? := some proof }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] onesAnd ((_ : BitVec _) &&& (_ : BitVec _)) := fun e => do
+  let_expr HAnd.hAnd _ _ _ _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.ones_and) (toExpr w) rhs
+    return .visit { expr := rhs, proof? := some proof }
+  else
+    return .continue
+
+builtin_simproc [bv_normalize] maxUlt (BitVec.ult (_ : BitVec _) (_ : BitVec _)) := fun e => do
+  let_expr BitVec.ult _ lhs rhs := e | return .continue
+  let some ⟨w, lhsValue⟩ ← getBitVecValue? lhs | return .continue
+  if lhsValue == -1#w then
+    let proof := mkApp2 (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.max_ult') (toExpr w) rhs
+    return .visit { expr := toExpr Bool.false, proof? := some proof }
+  else
+    return .continue
+
+-- A specialised version of BitVec.neg_eq_not_add so it doesn't trigger on -constant
+builtin_simproc [bv_normalize] neg_eq_not_add (-(_ : BitVec _)) := fun e => do
+  let_expr Neg.neg typ _ val := e | return .continue
+  let_expr BitVec widthExpr := typ | return .continue
+  let some w ← getNatValue? widthExpr | return .continue
+  match ← getBitVecValue? val with
+  | some _ => return .continue
+  | none =>
+    let proof := mkApp2 (mkConst ``BitVec.neg_eq_not_add) (toExpr w) val
+    let expr ← mkAppM ``HAdd.hAdd #[← mkAppM ``Complement.complement #[val], (toExpr 1#w)]
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_add_const ((_ : BitVec _) + ((_ : BitVec _) + (_ : BitVec _))) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ exp1 rhs := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp2 exp3 := rhs | return .continue
+    let some ⟨w, exp1Val⟩ ←  getBitVecValue? exp1 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp2 with
+    | some ⟨w', exp2Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp3]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp3Val⟩ ← getBitVecValue? exp3 | return .continue
+      if h : w = w' then
+        let newLhs := exp1Val + h ▸ exp3Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
+builtin_simproc [bv_normalize] bv_add_const' (((_ : BitVec _) + (_ : BitVec _)) + (_ : BitVec _)) :=
+  fun e => do
+    let_expr HAdd.hAdd _ _ _ _ lhs exp3 := e | return .continue
+    let_expr HAdd.hAdd _ _ _ _ exp1 exp2 := lhs | return .continue
+    let some ⟨w, exp3Val⟩ ←  getBitVecValue? exp3 | return .continue
+    let proofBuilder thm := mkApp4 (mkConst thm) (toExpr w) exp1 exp2 exp3
+    match ← getBitVecValue? exp1 with
+    | some ⟨w', exp1Val⟩ =>
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp1Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp2]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_left'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+    | none =>
+      let some ⟨w', exp2Val⟩ ← getBitVecValue? exp2 | return .continue
+      if h : w = w' then
+        let newLhs := exp3Val + h ▸ exp2Val
+        let expr ← mkAppM ``HAdd.hAdd #[toExpr newLhs, exp1]
+        let proof := proofBuilder ``Std.Tactic.BVDecide.Normalize.BitVec.add_const_right'
+        return .visit { expr := expr, proof? := some proof }
+      else
+        return .continue
+
+/-- Return a number `k` such that `2^k = n`. -/
+private def Nat.log2Exact (n : Nat) : Option Nat := do
+  guard <| n ≠ 0
+  let k := n.log2
+  guard <| Nat.pow 2 k == n
+  return k
+
+-- Build an expression for `x ^ y`.
+def mkPow (x y : Expr) : MetaM Expr := mkAppM ``HPow.hPow #[x, y]
+
+builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofNat _ _) : BitVec _)) := fun e => do
+  let_expr HDiv.hDiv _α _β _γ _self x y := e | return .continue
+  let some ⟨w, yVal⟩ ← getBitVecValue? y | return .continue
+  let n := yVal.toNat
+  -- BitVec.ofNat w n, where n =def= 2^k
+  let some k := Nat.log2Exact n | return .continue
+  -- check that k < w.
+  if k ≥ w then return .continue
+  let rhs ← mkAppM ``HShiftRight.hShiftRight #[x, mkNatLit k]
+  -- 2^k = n
+  let hk ← mkDecideProof (← mkEq (← mkPow (mkNatLit 2) (mkNatLit k)) (mkNatLit n))
+  -- k < w
+  let hlt ← mkDecideProof (← mkLt (mkNatLit k) (mkNatLit w))
+  let proof := mkAppN (mkConst ``Std.Tactic.BVDecide.Normalize.BitVec.udiv_ofNat_eq_of_lt)
+    #[mkNatLit w, x, mkNatLit n, mkNatLit k, hk, hlt]
+  return .done {
+      expr :=  rhs
+      proof? := some proof
+  }
+
+end Frontend.Normalize
+end Lean.Elab.Tactic.BVDecide

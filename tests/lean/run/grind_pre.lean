@@ -13,7 +13,7 @@ left : p
 right : q
 h✝ : b = false
 h : c = true
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] a = true
   [prop] b = true ∨ c = true
   [prop] p
@@ -26,7 +26,7 @@ h : c = true
   [prop] q
   [prop] b = false ∨ a = false
   [prop] b = false
-  [prop] c = true[eqc] equivalence classes
+  [prop] c = true[eqc] Equivalence classes
   [eqc] {b = true, a = false}
   [eqc] {b, false}
   [eqc] {a, c, true}
@@ -46,14 +46,14 @@ h✝ : c = true
 left : p
 right : q
 h : b = false
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] a = true
   [prop] c = true
   [prop] p
   [prop] q
   [prop] b = false[eqc] True propositions
   [prop] p
-  [prop] q[eqc] equivalence classes
+  [prop] q[eqc] Equivalence classes
   [eqc] {b, false}
   [eqc] {a, c, true}
 -/
@@ -70,7 +70,7 @@ i j : Nat
 h : j + 1 < i + 1
 h✝ : j + 1 ≤ i
 x✝ : ¬g (i + 1) j ⋯ = i + j + 1
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] j + 1 ≤ i
   [prop] ¬g (i + 1) j ⋯ = i + j + 1[eqc] True propositions
   [prop] j + 1 ≤ i[eqc] False propositions
@@ -99,11 +99,11 @@ head_eq : a₁ = b₁
 x_eq : a₂ = b₂
 y_eq : a₃ = b₃
 tail_eq : as = bs
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] a₁ = b₁
   [prop] a₂ = b₂
   [prop] a₃ = b₃
-  [prop] as = bs[eqc] equivalence classes
+  [prop] as = bs[eqc] Equivalence classes
   [eqc] {as, bs}
   [eqc] {a₃, b₃}
   [eqc] {a₂, b₂}
@@ -130,7 +130,7 @@ h₂ : HEq q a
 h₃ : p = r
 left : ¬p ∨ r
 h : ¬r
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] HEq p a
   [prop] HEq q a
   [prop] p = r
@@ -155,7 +155,7 @@ h₂ : HEq q a
 h₃ : p = r
 left : ¬p ∨ r
 h : p
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] HEq p a
   [prop] HEq q a
   [prop] p = r

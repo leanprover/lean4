@@ -24,19 +24,15 @@ example : f (f (f a)) = f a := by
 attribute [-grind] fthm
 
 /--
-error: `grind` failed
-case grind
+error: unsolved goals
 a : Nat
-x✝ : ¬f (f (f a)) = f a
-⊢ False[facts] asserted facts
-  [prop] ¬f (f (f a)) = f a[eqc] False propositions
-  [prop] f (f (f a)) = f a
+⊢ f (f (f a)) = f a
 ---
 info: [grind.assert] ¬f (f (f a)) = f a
 -/
 #guard_msgs (info, error) in
 example : f (f (f a)) = f a := by
-  grind
+  fail_if_success grind
 
 /--
 error: `fthm` is not marked with the `[grind]` attribute
@@ -62,19 +58,9 @@ example : g a = b → a = 0 → b = 1 := by
 attribute [-grind] g
 
 /--
-error: `grind` failed
-case grind
+error: unsolved goals
 a b : Nat
-a✝¹ : g a = b
-a✝ : a = 0
-x✝ : ¬b = 1
-⊢ False[facts] asserted facts
-  [prop] g a = b
-  [prop] a = 0
-  [prop] ¬b = 1[eqc] False propositions
-  [prop] b = 1[eqc] equivalence classes
-  [eqc] {a, 0}
-  [eqc] {g a, b}
+⊢ g a = b → a = 0 → b = 1
 ---
 info: [grind.assert] g a = b
 [grind.assert] a = 0
@@ -82,7 +68,7 @@ info: [grind.assert] g a = b
 -/
 #guard_msgs (info, error) in
 example : g a = b → a = 0 → b = 1 := by
-  grind
+  fail_if_success grind
 
 /--
 error: `g` is not marked with the `[grind]` attribute

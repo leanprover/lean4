@@ -96,12 +96,12 @@ private def ppEqcs (goal : Goal) : MetaM (Array MessageData) := do
    if let some trueEqc := trueEqc? then result := result.push trueEqc
    if let some falseEqc := falseEqc? then result := result.push falseEqc
    unless otherEqcs.isEmpty do
-     result := result.push <| .trace { cls := `eqc } "equivalence classes" otherEqcs
+     result := result.push <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
    return result
 
 def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withContext do
   let mut m : Array MessageData := #[.ofGoal goal.mvarId]
-  m := m.push <| ppExprArray `facts "asserted facts" goal.facts.toArray `prop
+  m := m.push <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
   m := m ++ (← ppEqcs goal)
   addMessageContextFull <| MessageData.joinSep m.toList ""
 

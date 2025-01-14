@@ -244,7 +244,7 @@ case grind
 p q : Prop
 a✝¹ : p = q
 a✝ : p
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] p = q
   [prop] p[eqc] True propositions
   [prop] p = q
@@ -262,7 +262,7 @@ case grind
 p q : Prop
 a✝¹ : p = ¬q
 a✝ : p
-⊢ False[facts] asserted facts
+⊢ False[facts] Asserted facts
   [prop] p = ¬q
   [prop] p[eqc] True propositions
   [prop] p = ¬q

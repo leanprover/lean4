@@ -903,74 +903,74 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α] (h
     k ∈ insertManyIfNewUnit m l → k ∈ m :=
   DHashMap.Raw.Const.mem_of_mem_insertManyIfNewUnit_list h.out contains_eq_false
 
-theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false': l.contains k = false) :
+    (not_mem : ¬ k ∈ m) (contains_eq_false: l.contains k = false) :
     getKey? (insertManyIfNewUnit m l) k = none :=
-  DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    h.out contains_eq_false contains_eq_false'
+  DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.out not_mem contains_eq_false
 
-theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey? (insertManyIfNewUnit m l) k' = some k :=
-  DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    h.out k_beq contains_eq_false distinct mem
+  DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.out k_beq not_mem distinct mem
 
 theorem getKey?_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α} (mem : k ∈ m) :
     getKey? (insertManyIfNewUnit m l) k = getKey? m k :=
   DHashMap.Raw.Const.getKey?_insertManyIfNewUnit_list_of_mem h.out mem
 
-theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α}
     {k k' : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) {h'} :
     getKey (insertManyIfNewUnit m l) k' h' = k :=
-  DHashMap.Raw.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    h.out k_beq contains_eq_false distinct mem
+  DHashMap.Raw.Const.getKey_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.out k_beq not_mem distinct mem
 
 theorem getKey_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k : α} (mem: k ∈ m) {h₃} :
     getKey (insertManyIfNewUnit m l) k h₃ = getKey m k mem :=
   DHashMap.Raw.Const.getKey_insertManyIfNewUnit_list_of_mem h.out mem
 
-theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {l : List α} {k : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false' : l.contains k = false) :
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
     getKey! (insertManyIfNewUnit m l) k = default :=
-  DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    h.out contains_eq_false contains_eq_false'
+  DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.out not_mem contains_eq_false
 
-theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKey! (insertManyIfNewUnit m l) k' = k :=
-  DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    h.out k_beq contains_eq_false distinct mem
+  DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.out k_beq not_mem distinct mem
 
 theorem getKey!_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] (h : m.WF) {l : List α} {k : α} (mem : k ∈ m) :
     getKey! (insertManyIfNewUnit m l) k = getKey! m k :=
   DHashMap.Raw.Const.getKey!_insertManyIfNewUnit_list_of_mem h.out mem
 
-theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k fallback : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false' : l.contains k = false) :
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
     getKeyD (insertManyIfNewUnit m l) k fallback = fallback :=
-  DHashMap.Raw.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    h.out contains_eq_false contains_eq_false'
+  DHashMap.Raw.Const.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.out not_mem contains_eq_false
 
-theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k k' fallback : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
     getKeyD (insertManyIfNewUnit m l) k' fallback = k :=
-  DHashMap.Raw.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem
-    h.out k_beq contains_eq_false distinct mem
+  DHashMap.Raw.Const.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.out k_beq not_mem distinct mem
 
 theorem getKeyD_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {l : List α} {k fallback : α} (mem : k ∈ m) :

@@ -990,7 +990,7 @@ theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α]
   simp [mem_iff_contains]
 
 theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α]
-    {l : List ((a : α) × β a)} {k : α}  (mem : k ∈ (m.insertMany l))
+    {l : List ((a : α) × β a)} {k : α}  (mem : k ∈ m.insertMany l)
     (contains_eq_false : (l.map Sigma.fst).contains k = false) :
     k ∈ m :=
   Raw₀.contains_of_contains_insertMany_list ⟨m.1, _⟩ m.2 mem contains_eq_false
@@ -1335,74 +1335,81 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
     k ∈ insertManyIfNewUnit m l → k ∈ m :=
   Raw₀.Const.contains_of_contains_insertManyIfNewUnit_list ⟨m.1, _⟩ m.2 contains_eq_false
 
-theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] {l : List α} {k : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false' : l.contains k = false) :
-    getKey? (insertManyIfNewUnit m l) k = none :=
-  Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    ⟨m.1, _⟩ m.2 contains_eq_false contains_eq_false'
+    (not_mem : ¬ k ∈ m) (contains_eq_false' : l.contains k = false) :
+    getKey? (insertManyIfNewUnit m l) k = none := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+    ⟨m.1, _⟩ m.2 not_mem contains_eq_false'
 
-theorem getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
-    getKey? (insertManyIfNewUnit m l) k' = some k :=
-  Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩
-    m.2 k_beq contains_eq_false distinct mem
+    getKey? (insertManyIfNewUnit m l) k' = some k := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩
+    m.2 k_beq not_mem distinct mem
 
 theorem getKey?_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (h' : k ∈ m) :
     getKey? (insertManyIfNewUnit m l) k = getKey? m k :=
   Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains ⟨m.1, _⟩ m.2 h'
 
-theorem getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α}
     {k k' : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false) (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (not_mem : ¬ k ∈ m) (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) {h} :
-    getKey (insertManyIfNewUnit m l) k' h = k :=
-  Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
-    contains_eq_false distinct mem
+    getKey (insertManyIfNewUnit m l) k' h = k := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
+    not_mem distinct mem
 
 theorem getKey_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} (mem : k ∈ m) {h} :
     getKey (insertManyIfNewUnit m l) k h = getKey m k mem :=
   Raw₀.Const.getKey_insertManyIfNewUnit_list_of_contains ⟨m.1, _⟩ m.2 _
 
-theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] [Inhabited α] {l : List α} {k : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false' : l.contains k = false) :
-    getKey! (insertManyIfNewUnit m l) k = default :=
-  Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    ⟨m.1, _⟩ m.2 contains_eq_false contains_eq_false'
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
+    getKey! (insertManyIfNewUnit m l) k = default := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+    ⟨m.1, _⟩ m.2 not_mem contains_eq_false
 
-theorem getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
-    (contains_eq_false: m.contains k = false) (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (not_mem : ¬ k ∈ m) (distinct : l.Pairwise (fun a b => (a == b) = false))
     (mem : k ∈ l) :
-    getKey! (insertManyIfNewUnit m l) k' = k :=
-  Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
-    contains_eq_false distinct mem
+    getKey! (insertManyIfNewUnit m l) k' = k := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
+    not_mem distinct mem
 
 theorem getKey!_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     [Inhabited α] {l : List α} {k : α} (mem : k ∈ m) :
     getKey! (insertManyIfNewUnit m l) k = getKey! m k :=
   Raw₀.Const.getKey!_insertManyIfNewUnit_list_of_contains ⟨m.1, _⟩ m.2 mem
 
-theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] {l : List α} {k fallback : α}
-    (contains_eq_false : m.contains k = false) (contains_eq_false' : l.contains k = false) :
-    getKeyD (insertManyIfNewUnit m l) k fallback = fallback :=
-  Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    ⟨m.1, _⟩ m.2 contains_eq_false contains_eq_false'
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
+    getKeyD (insertManyIfNewUnit m l) k fallback = fallback := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
+    ⟨m.1, _⟩ m.2 not_mem contains_eq_false
 
-theorem getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem [EquivBEq α] [LawfulHashable α]
+theorem getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' fallback : α} (k_beq : k == k')
-    (contains_eq_false : m.contains k = false)
+    (not_mem : ¬ k ∈ m)
     (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
-    getKeyD (insertManyIfNewUnit m l) k' fallback = k :=
-  Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
-    contains_eq_false distinct mem
+    getKeyD (insertManyIfNewUnit m l) k' fallback = k := by
+  simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
+  exact Raw₀.Const.getKeyD_insertManyIfNewUnit_list_of_contains_eq_false_of_mem ⟨m.1, _⟩ m.2 k_beq
+    not_mem distinct mem
 
 theorem getKeyD_insertManyIfNewUnit_list_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k fallback : α} (mem : k ∈ m) :

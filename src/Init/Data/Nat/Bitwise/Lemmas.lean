@@ -115,34 +115,6 @@ theorem testBit_add (x i n : Nat) : testBit x (i + n) = testBit (x / 2 ^ n) i :=
     rw [← Nat.add_assoc, testBit_add_one, ih (x / 2),
       Nat.pow_succ, Nat.div_div_eq_div_mul, Nat.mul_comm]
 
-theorem testBit_mul_two_pow_le {x i n : Nat} (h : n ≤ i) :
-    testBit (x * 2 ^ n) i = testBit x (i - n) := by
-  simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]
-  let j := i - n
-  congr 2
-  calc (x * 2 ^ n) >>> i
-    _ = (x * 2 ^ n) >>> (n + j) :=  by simp [show i = n + j by omega, shiftRight_eq_div_pow, Nat.pow_add]
-    _ = x >>> j :=  by simp [Nat.shiftRight_add, shiftRight_eq_div_pow (n := n), Nat.mul_div_cancel, Nat.pow_pos (a := 2) (n := n) (by omega)];
-
-theorem testBit_mul_two_pow_gt {x i n : Nat} (h : i < n) :
-    testBit (x * 2 ^ n) i = false := by
-  simp only [testBit, ← shiftLeft_eq, one_and_eq_mod_two, mod_two_bne_zero, beq_eq_false_iff_ne,
-    ne_eq]
-  suffices ∃ y, x <<< n >>> i = 2 * y by omega
-  let k := n - i
-  refine ⟨x * 2 ^ (k - 1), ?_⟩
-  calc  x <<< n >>> i
-    _ = x <<< (k + i) >>> i := by rw [Nat.sub_add_cancel (by omega)]
-    _ = x * 2 ^ k           := by rw [Nat.shiftLeft_add, Nat.shiftLeft_shiftRight, shiftLeft_eq]
-    _ = x * 2 ^ (k - 1 + 1) := by rw [Nat.sub_add_cancel (by omega)]
-    _ = 2 * _               := by rw [Nat.pow_succ, ← Nat.mul_assoc, Nat.mul_comm]
-
-theorem testBit_mul_two_pow (x i n : Nat) :
-    testBit (x * 2 ^ n) i = if n ≤ i then testBit x (i - n) else false := by
-  split
-  · simpa [*] using testBit_mul_two_pow_le (by assumption)
-  · simpa [*] using testBit_mul_two_pow_gt (by omega)
-
 theorem testBit_div_two (x i : Nat) : testBit (x / 2) i = testBit x (i + 1) := by
   simp
 
@@ -748,6 +720,10 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
   rw [mod_two_eq_one_iff_testBit_zero, testBit_shiftLeft]
   simp
 
+theorem testBit_mul_two_pow (x i n : Nat) :
+    (x * 2 ^ n).testBit i = (decide (n ≤ i) && x.testBit (i - n)) := by
+  rw [← testBit_shiftLeft, shiftLeft_eq]
+
 theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
   simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
@@ -760,6 +736,7 @@ theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i
 
 theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
   shiftLeft_bitwise_distrib
+
 
 @[simp] theorem decide_shiftRight_mod_two_eq_one :
     decide (x >>> i % 2 = 1) = x.testBit i := by

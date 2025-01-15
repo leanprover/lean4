@@ -378,7 +378,7 @@ structure Goal where
   splitCandidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
-  /-- Case-splits that do not have to be performed anymore. -/
+  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolvedSplits : PHashSet ENodeKey := {}
   /-- Next local E-match theorem idx. -/
   nextThmIdx : Nat := 0

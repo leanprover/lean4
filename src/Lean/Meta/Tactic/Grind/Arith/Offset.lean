@@ -242,10 +242,11 @@ private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
   }
 
 def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
-  if let some c := isNatOffsetCnstr? e then
+  let z ← getNatZeroExpr
+  if let some c := isNatOffsetCnstr? e z then
     internalizeCnstr e c
   else if let some (b, k) := isNatOffset? e then
-    if (isNatOffsetCnstr? parent).isSome then return ()
+    if (isNatOffsetCnstr? parent z).isSome then return ()
     -- `e` is of the form `b + k`
     let u ← mkNode e
     let v ← mkNode b

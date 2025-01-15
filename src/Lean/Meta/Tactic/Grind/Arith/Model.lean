@@ -39,7 +39,7 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     We should not include the assignment for auxiliary offset terms since
     they do not provide any additional information.
     -/
-    unless isNatOffset? e |>.isSome do
+    if (isNatOffset? e).isNone && isNatNum? e != some 0 then
       r := r.push (e, val)
   return r
 

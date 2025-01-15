@@ -98,8 +98,6 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
-def noParent := mkBVar 0
-
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
@@ -107,7 +105,7 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
     return pattern
   else if let some e := groundPattern? pattern then
     let e ← shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
-    internalize e generation
+    internalize e generation none
     return mkGroundPattern e
   else pattern.withApp fun f args => do
     return mkAppN f (← args.mapM (internalizePattern · generation))
@@ -148,7 +146,7 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
-partial def internalize (e : Expr) (generation : Nat) (parent : Expr := noParent) : GoalM Unit := do
+partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
   if (← alreadyInternalized e) then return ()
   trace_goal[grind.internalize] "{e}"
   match e with
@@ -176,7 +174,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent : Expr := noParent
     if (← isLitValue e) then
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
-      Arith.internalize e parent
+      Arith.internalize e parent?
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
       pushCastHEqs e
@@ -200,7 +198,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent : Expr := noParent
       mkENode e generation
       addCongrTable e
       updateAppMap e
-      Arith.internalize e parent
+      Arith.internalize e parent?
       propagateUp e
 end
 

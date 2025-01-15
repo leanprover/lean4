@@ -94,9 +94,7 @@ where
         for arg in args do
           let .forallE _ d b _ := type.headBeta | unreachable!
           let arg := arg.headBeta
-          if arg.isErased then
-            result := mkApp result arg
-          else if d.isErased || d matches .sort _ then
+          if d matches .const ``lcErased _ | .sort _ then
             result := mkApp result (← toMonoType arg)
           else
             result := mkApp result erasedExpr

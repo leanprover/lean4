@@ -40,17 +40,20 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) (fa
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
+  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
   let simprocs ← Grind.getSimprocs
   let simp ← Grind.getSimpContext
-  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr, natZExpr }
 
 private def mkGoal (mvarId : MVarId) : GrindM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
+  let natZeroExpr ← getNatZeroExpr
   let thmMap ← getEMatchTheorems
   GoalM.run' { mvarId, thmMap } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
 
 private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   mvarId.ensureProp

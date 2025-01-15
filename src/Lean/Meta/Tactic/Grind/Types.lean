@@ -80,6 +80,7 @@ structure State where
   simpStats  : Simp.Stats := {}
   trueExpr   : Expr
   falseExpr  : Expr
+  natZExpr   : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -103,6 +104,10 @@ def getTrueExpr : GrindM Expr := do
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
+
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : GrindM Expr := do
+  return (← get).natZExpr
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
@@ -128,9 +133,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag } =>
+  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag })
+    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
 
 /--
 Canonicalizes nested types, type formers, and instances in `e`.
@@ -649,8 +654,26 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
+/--
+Notify the offset constraint module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
 @[extern "lean_process_new_offset_eq"] -- forward definition
-opaque processNewOffsetEq (a b : Expr) : GoalM Unit
+opaque Arith.processNewOffsetEq (a b : Expr) : GoalM Unit
+
+/--
+Notify the offset constraint module that `a = k` where
+`a` is term that has been internalized by this module,
+and `k` is a numeral.
+-/
+@[extern "lean_process_new_offset_eq_lit"] -- forward definition
+opaque Arith.processNewOffsetEqLit (a k : Expr) : GoalM Unit
+
+/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
+def isNatNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNatNat _ := inst | false
+  true
 
 /--
 Marks `e` as a term of interest to the offset constraint module.
@@ -658,11 +681,13 @@ If the root of `e`s equivalence class has already a term of interest,
 a new equality is propagated to the offset module.
 -/
 def markAsOffsetTerm (e : Expr) : GoalM Unit := do
-  let n ← getRootENode e
-  if let some e' := n.offset? then
-    processNewOffsetEq e e'
+  let root ← getRootENode e
+  if let some e' := root.offset? then
+    Arith.processNewOffsetEq e e'
+  else if isNatNum root.self && !isSameExpr e root.self then
+    Arith.processNewOffsetEqLit e root.self
   else
-    setENode n.self { n with offset? := some e }
+    setENode root.self { root with offset? := some e }
 
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do

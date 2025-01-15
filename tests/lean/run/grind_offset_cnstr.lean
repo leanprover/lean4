@@ -373,3 +373,32 @@ example (f : Nat → Nat) (a b c d e : Nat) :
         e < c →
         b = d := by
   grind
+
+example (a : Nat) : a < 2 → a < 5 := by
+  grind
+
+example (a b : Nat) : 2 < a → a ≤ b → 2 < b := by
+  grind
+
+example (a b : Nat) : 2 < a → a ≤ b → 0 < b := by
+  grind
+
+example (f : Nat → Nat) : f 1 = a → b ≤ 1 → b ≥ 1 → f b = a := by
+  grind
+
+example (f : Nat → Nat) : f 2 = a → b ≤ 1 → b ≥ 1 → c = b + 1 → f c = a := by
+  grind
+
+example (a : Nat) : a < 2 → a = 5 → False := by
+  grind
+
+example (a : Nat) : a < 2 → a = b → b = c → c = 5 → False := by
+  grind
+
+#guard_msgs (info) in -- none of the numerals should be internalized by the offset module
+set_option trace.grind.offset.internalize true in
+example (a b c d e : Nat) : a = 1 → b = 2 → c = 3 → d = 4 → e = 5 → a ≠ e := by
+  grind
+
+example (a b : Nat) : a + 1 = b → b = 0 → False := by
+  grind

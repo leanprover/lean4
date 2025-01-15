@@ -86,6 +86,18 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       setENode parent { node with mt := gmt }
       updateMT parent
 
+/--
+Helper function for combining `ENode.offset?` fields and propagating an equality
+to the offset constraint module.
+-/
+private def propagateOffsetEq (root : Expr) (roofOffset? otherOffset? : Option Expr) : GoalM Unit := do
+  let some otherOffset := otherOffset? | return ()
+  if let some rootOffset := roofOffset? then
+    processNewOffsetEq rootOffset otherOffset
+  else
+    let n ← getENode root
+    setENode root { n with offset? := otherOffset? }
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -118,7 +130,7 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
   unless (← isInconsistent) do
     if valueInconsistency then
       closeGoalWithValuesEq lhsRoot.self rhsRoot.self
-  trace_goal[grind.debug] "after addEqStep, {← ppState}"
+  trace_goal[grind.debug] "after addEqStep, {← (← get).ppState}"
   checkInvariants
 where
   go (lhs rhs : Expr) (lhsNode rhsNode lhsRoot rhsRoot : ENode) (flipped : Bool) : GoalM Unit := do
@@ -146,17 +158,18 @@ where
       next := rhsRoot.next
     }
     setENode rhsNode.root { rhsRoot with
-      next := lhsRoot.next
-      size := rhsRoot.size + lhsRoot.size
+      next       := lhsRoot.next
+      size       := rhsRoot.size + lhsRoot.size
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
+      updateMT rhsRoot.self
+    propagateOffsetEq rhsNode.root rhsRoot.offset? lhsRoot.offset?
+    unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
-    unless (← isInconsistent) do
-      updateMT rhsRoot.self
 
   updateRoots (lhs : Expr) (rootNew : Expr) : GoalM Unit := do
     traverseEqc lhs fun n =>
@@ -192,22 +205,27 @@ where
     processTodo
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
-def addEq (lhs rhs proof : Expr) : GoalM Unit := do
+private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof false
 
-
 /-- Adds a new heterogeneous equality `HEq lhs rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
-def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
+private def addHEq (lhs rhs proof : Expr) : GoalM Unit := do
   addEqCore lhs rhs proof true
+
+/-- Save asserted facts for pretty printing goal. -/
+private def storeFact (fact : Expr) : GoalM Unit := do
+  modify fun s => { s with facts := s.facts.push fact }
 
 /-- Internalizes `lhs` and `rhs`, and then adds equality `lhs = rhs`. -/
 def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
+  storeFact (← mkEq lhs rhs)
   internalize lhs generation
   internalize rhs generation
   addEq lhs rhs proof
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  storeFact fact
   trace_goal[grind.assert] "{fact}"
   if (← isInconsistent) then return ()
   resetNewEqs

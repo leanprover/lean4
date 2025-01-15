@@ -60,6 +60,7 @@ example : 0#16 >>> (n : Nat) = 0 := by bv_normalize
 example {x : BitVec 16} : x >>> 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x >>> 0 = x := by bv_normalize
 example {x : BitVec 16} : 0 < x ↔ (x != 0) := by bv_normalize
+example {x : BitVec 16} : ¬(65535#16 < x) := by bv_normalize
 example {x : BitVec 16} : ¬(-1#16 < x) := by bv_normalize
 example {x : BitVec 16} : BitVec.replicate 0 x = 0 := by bv_normalize
 example : BitVec.ofBool true = 1 := by bv_normalize

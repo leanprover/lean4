@@ -1754,7 +1754,7 @@ instance decidableBallLT (n : Nat) (P : ∀ k, k < n → Prop) [H : ∀ n h, Dec
         | isFalse p => isFalse (p <| · _ h1 hn)
         | isTrue p =>
           inner n1 (Nat.le_of_succ_le h1) n2 hn fun n hn2 hn1 =>
-            (Nat.le_iff_lt_or_eq.1 hn1).elim (h2 n hn2) (· ▸ p)
+            (Nat.le_iff_lt_or_eq.mp hn1).elim (h2 n hn2) (· ▸ p)
   let step := 128
   let rec outer : ∀ n1, n1 * step ≤ n → (∀ n h, n1 * step ≤ n → P n h) → Decidable (∀ n h, P n h)
   | 0, _, h2 => isTrue (h2 · · (Nat.zero_le _))

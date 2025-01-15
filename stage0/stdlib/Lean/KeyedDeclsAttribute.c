@@ -5783,6 +5783,8 @@ x_43 = lean_array_mk(x_42);
 x_44 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__10;
 x_45 = l_Lean_mkAppN(x_44, x_43);
 lean_dec(x_43);
+lean_inc(x_9);
+lean_inc(x_8);
 lean_inc(x_3);
 x_46 = l_Lean_declareBuiltin(x_3, x_45, x_8, x_9, x_18);
 if (lean_obj_tag(x_46) == 0)

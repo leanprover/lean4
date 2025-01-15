@@ -75,7 +75,7 @@ mutual
         f fixed (n+1) (m+1) (n+1),
         h fixed (n+1) (m-1),
         h fixed (n)   (m+1) ].sum'
-    | _, _ => 0'
+    | _, _ => 0
 end
 end Mutual
 

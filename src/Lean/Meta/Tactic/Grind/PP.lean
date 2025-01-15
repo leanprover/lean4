@@ -128,6 +128,8 @@ def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withConte
   m := m ++ (← ppEqcs goal)
   m := m ++ (← ppActiveTheorems goal)
   m := m ++ (← ppOffset goal)
+  unless goal.issues.isEmpty do
+    m := m.push <| .trace { cls := `issues } "Issues" goal.issues.reverse.toArray
   let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
   let r := m!"{.ofGoal goal.mvarId}\n{gm}"
   addMessageContextFull r

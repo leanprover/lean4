@@ -384,6 +384,11 @@ structure Goal where
   nextThmIdx : Nat := 0
   /-- Asserted facts -/
   facts      : PArray Expr := {}
+  /--
+  Issues found during the proof search in this goal. This issues are reported to
+  users when `grind` fails.
+  -/
+  issues     : List MessageData := []
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -410,6 +415,15 @@ def updateLastTag : GoalM Unit := do
     if currTag != (← getThe Grind.State).lastTag then
       trace[grind] "working on goal `{currTag}`"
       modifyThe Grind.State fun s => { s with lastTag := currTag }
+
+def reportIssue (msg : MessageData) : GoalM Unit := do
+  let msg ← addMessageContext msg
+  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
+  /-
+  We also add a trace message because we may want to know when
+  an issue happened relative to other trace messages.
+  -/
+  trace[grind.issues] msg
 
 /--
 Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`

@@ -87,7 +87,6 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
     [prop] j + 1 ≤ i
   [eqc] False propositions
     [prop] g (i + 1) j ⋯ = i + j + 1
-  ⏎
   [offset] Assignment satisfying offset contraints
     [assign] j := 0
     [assign] i := 1
@@ -170,8 +169,6 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
-  ⏎
-  ⏎
 case grind.2
 α : Type
 a : α
@@ -227,3 +224,31 @@ set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
   fail_if_success grind
   sorry
+
+/--
+error: `grind` failed
+case grind
+f : Nat → Bool
+g : Int → Bool
+a : Nat
+b : Int
+a✝¹ : HEq f g
+a✝ : HEq a b
+x✝ : ¬f a = g b
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] HEq f g
+    [prop] HEq a b
+    [prop] ¬f a = g b
+  [eqc] False propositions
+    [prop] f a = g b
+  [eqc] Equivalence classes
+    [eqc] {a, b}
+    [eqc] {f, g}
+  [issues] Issues
+    [issue] found congruence between g b and f a but functions have different types
+-/
+#guard_msgs (error) in
+example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
+  grind

@@ -104,31 +104,33 @@ private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
   let m := m!"{← thm.origin.pp}:\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
-private def ppActiveTheorems (goal : Goal) : MetaM MessageData := do
+private def ppActiveTheorems (goal : Goal) : MetaM (Array MessageData) := do
   let m ← goal.thms.toArray.mapM ppEMatchTheorem
   let m := m ++ (← goal.newThms.toArray.mapM ppEMatchTheorem)
   if m.isEmpty then
-    return ""
+    return #[]
   else
-    return .trace { cls := `ematch } "E-matching" m
+    return #[.trace { cls := `ematch } "E-matching" m]
 
-def ppOffset (goal : Goal) : MetaM MessageData := do
+def ppOffset (goal : Goal) : MetaM (Array MessageData) := do
   let s := goal.arith.offset
   let nodes := s.nodes
-  if nodes.isEmpty then return ""
+  if nodes.isEmpty then return #[]
   let model ← Arith.Offset.mkModel goal
   let mut ms := #[]
   for (e, val) in model do
     ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
-  return .trace { cls := `offset } "Assignment satisfying offset contraints" ms
+  return #[.trace { cls := `offset } "Assignment satisfying offset contraints" ms]
 
 def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withContext do
-  let mut m : Array MessageData := #[.ofGoal goal.mvarId]
+  let mut m : Array MessageData := #[]
   m := m.push <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
   m := m ++ (← ppEqcs goal)
-  m := m.push (← ppActiveTheorems goal)
-  m := m.push (← ppOffset goal)
-  addMessageContextFull <| MessageData.joinSep m.toList ""
+  m := m ++ (← ppActiveTheorems goal)
+  m := m ++ (← ppOffset goal)
+  let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
+  let r := m!"{.ofGoal goal.mvarId}\n{gm}"
+  addMessageContextFull r
 
 def goalsToMessageData (goals : List Goal) : MetaM MessageData :=
   return MessageData.joinSep (← goals.mapM goalToMessageData) m!"\n"

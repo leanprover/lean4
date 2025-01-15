@@ -24,7 +24,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
     let g := e'.getAppFn
     unless isSameExpr f g do
       unless (← hasSameType f g) do
-        trace_goal[grind.issues] "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        reportIssue m!"found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
@@ -168,7 +168,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
   | .mvar ..
   | .mdata ..
   | .proj .. =>
-    trace_goal[grind.issues] "unexpected term during internalization{indentExpr e}"
+    reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
     mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
   | .app .. =>
     if (← isLitValue e) then

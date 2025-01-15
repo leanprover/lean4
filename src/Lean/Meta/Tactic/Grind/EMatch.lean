@@ -129,6 +129,16 @@ private partial def matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT Goal
   let c ← matchArg? c pArg eArg
   matchArgs? c p.appFn! e.appFn!
 
+/-- Similar to `matchArgs?` but if `p` has fewer arguments than `e`, we match `p` with a prefix of `e`. -/
+private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : OptionT GoalM Choice := do
+  let pn := p.getAppNumArgs
+  let en := e.getAppNumArgs
+  guard (pn <= en)
+  if pn == en then
+    matchArgs? c p e
+  else
+    matchArgs? c p (e.getAppPrefix pn)
+
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
@@ -194,7 +204,7 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
     let n ← getENode app
     if n.generation < maxGeneration
        && (n.heqProofs || n.isCongrRoot) then
-      if let some c ← matchArgs? c p app |>.run then
+      if let some c ← matchArgsPrefix? c p app |>.run then
         let gen := n.generation
         let c := { c with gen := Nat.max gen c.gen }
         modify fun s => { s with choiceStack := c :: s.choiceStack }
@@ -300,7 +310,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       withInitApp app do
-        if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
+        if let some c ← matchArgsPrefix? { cnstrs, assignment, gen := n.generation } p app |>.run then
           modify fun s => { s with choiceStack := [c] }
           processChoices
 

@@ -5,6 +5,7 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 -/
 prelude
 import Init.Data.Vector.Basic
+import Init.Data.Array.Attach
 
 /-!
 ## Vectors
@@ -26,6 +27,9 @@ namespace Vector
 /-! ### mk lemmas -/
 
 theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
+
+@[simp] theorem mk_toArray (v : Vector α n) : mk v.toArray v.2 = v := by
+  rfl
 
 @[simp] theorem getElem_mk {data : Array α} {size : data.size = n} {i : Nat} (h : i < n) :
     (Vector.mk data size)[i] = data[i] := rfl
@@ -1115,6 +1119,11 @@ theorem forall_mem_map {f : α → β} {l : Vector α n} {P : β → Prop} :
 @[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   cases l <;> simp_all
 
+theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f l = map f l' ↔ l = l' := by
+  cases l
+  cases l'
+  simp [Array.map_inj_right w]
+
 theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
   map_inj_left.2 h
 
@@ -1185,6 +1194,40 @@ theorem map_eq_iff {f : α → β} {l : Vector α n} {l' : Vector β n} :
   cases as
   simp
 
+/--
+Use this as `induction ass using vector₂_induction` on a hypothesis of the form `ass : Vector (Vector α n) m`.
+The hypothesis `ass` will be replaced with a hypothesis `ass : Array (Array α)`
+along with additional hypotheses `h₁ : ass.size = m` and `h₂ : ∀ xs ∈ ass, xs.size = n`.
+Appearances of the original `ass` in the goal will be replaced with
+`Vector.mk (xss.attach.map (fun ⟨xs, m⟩ => Vector.mk xs ⋯)) ⋯`.
+-/
+-- We can't use `@[cases_eliminator]` here as
+-- `Lean.Meta.getCustomEliminator?` only looks at the top-level constant.
+theorem vector₂_induction (P : Vector (Vector α n) m → Prop)
+    (of : ∀ (xss : Array (Array α)) (h₁ : xss.size = m) (h₂ : ∀ xs ∈ xss, xs.size = n),
+      P (mk (xss.attach.map (fun ⟨xs, m⟩ => mk xs (h₂ xs m))) (by simpa using h₁)))
+    (ass : Vector (Vector α n) m) : P ass := by
+  specialize of (ass.map toArray).toArray (by simp) (by simp)
+  simpa [Array.map_attach, Array.pmap_map] using of
+
+/--
+Use this as `induction ass using vector₃_induction` on a hypothesis of the form `ass : Vector (Vector (Vector α n) m) k`.
+The hypothesis `ass` will be replaced with a hypothesis `ass : Array (Array (Array α))`
+along with additional hypotheses `h₁ : ass.size = k`, `h₂ : ∀ xs ∈ ass, xs.size = m`,
+and `h₃ : ∀ xs ∈ ass, ∀ x ∈ xs, x.size = n`.
+Appearances of the original `ass` in the goal will be replaced with
+`Vector.mk (xss.attach.map (fun ⟨xs, m⟩ => Vector.mk (xs.attach.map (fun ⟨x, m'⟩ => Vector.mk x ⋯)) ⋯)) ⋯`.
+-/
+theorem vector₃_induction (P : Vector (Vector (Vector α n) m) k → Prop)
+    (of : ∀ (xss : Array (Array (Array α))) (h₁ : xss.size = k) (h₂ : ∀ xs ∈ xss, xs.size = m)
+      (h₃ : ∀ xs ∈ xss, ∀ x ∈ xs, x.size = n),
+      P (mk (xss.attach.map (fun ⟨xs, m⟩ =>
+        mk (xs.attach.map (fun ⟨x, m'⟩ =>
+          mk x (h₃ xs m x m'))) (by simpa using h₂ xs m))) (by simpa using h₁)))
+    (ass : Vector (Vector (Vector α n) m) k) : P ass := by
+  specialize of (ass.map (fun as => (as.map toArray).toArray)).toArray (by simp) (by simp) (by simp)
+  simpa [Array.map_attach, Array.pmap_map] using of
+
 /-! ### singleton -/
 
 @[simp] theorem singleton_def (v : α) : Vector.singleton v = #v[v] := rfl
@@ -1240,7 +1283,7 @@ theorem empty_append (as : Vector α n) : (#v[] : Vector α 0) ++ as = as.cast (
   simp
 
 theorem append_empty (as : Vector α n) : as ++ (#v[] : Vector α 0) = as := by
-  rw [← toArray_inj, toArray_append, Array.append_nil]
+  rw [← toArray_inj, toArray_append, Array.append_empty]
 
 theorem getElem_append (a : Vector α n) (b : Vector α m) (i : Nat) (hi : i < n + m) :
     (a ++ b)[i] = if h : i < n then a[i] else b[i - n] := by
@@ -1405,6 +1448,82 @@ theorem map_eq_append_iff {f : α → β} :
 theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
   rw [eq_comm, map_eq_append_iff]
+
+/-! ### flatten -/
+
+@[simp] theorem flatten_mk (L : Array (Vector α n)) (h : L.size = m) :
+    (mk L h).flatten =
+      mk (L.map toArray).flatten (by simp [Function.comp_def, Array.map_const', h]) := by
+  simp [flatten]
+
+@[simp] theorem flatten_singleton (l : Vector α n) : #v[l].flatten = l.cast (by simp) := by
+  simp [flatten]
+
+theorem mem_flatten {L : Vector (Vector α n) m} : a ∈ L.flatten ↔ ∃ l, l ∈ L ∧ a ∈ l := by
+  rcases L with ⟨L, rfl⟩
+  simp [Array.mem_flatten]
+  constructor
+  · rintro ⟨_, ⟨l, h₁, rfl⟩, h₂⟩
+    exact ⟨l, h₁, by simpa using h₂⟩
+  · rintro ⟨l, h₁, h₂⟩
+    exact ⟨l.toArray, ⟨l, h₁, rfl⟩, by simpa using h₂⟩
+
+theorem exists_of_mem_flatten : a ∈ flatten L → ∃ l, l ∈ L ∧ a ∈ l := mem_flatten.1
+
+theorem mem_flatten_of_mem (lL : l ∈ L) (al : a ∈ l) : a ∈ flatten L := mem_flatten.2 ⟨l, lL, al⟩
+
+theorem forall_mem_flatten {p : α → Prop} {L : Vector (Vector α n) m} :
+    (∀ (x) (_ : x ∈ flatten L), p x) ↔ ∀ (l) (_ : l ∈ L) (x) (_ : x ∈ l), p x := by
+  simp only [mem_flatten, forall_exists_index, and_imp]
+  constructor <;> (intros; solve_by_elim)
+
+@[simp] theorem map_flatten (f : α → β) (L : Vector (Vector α n) m) :
+    (flatten L).map f = (map (map f) L).flatten := by
+  induction L using vector₂_induction with
+  | of xss h₁ h₂ => simp
+
+@[simp] theorem flatten_append (L₁ : Vector (Vector α n) m₁) (L₂ : Vector (Vector α n) m₂) :
+    flatten (L₁ ++ L₂) = (flatten L₁ ++ flatten L₂).cast (by simp [Nat.add_mul]) := by
+  induction L₁ using vector₂_induction
+  induction L₂ using vector₂_induction
+  simp
+
+theorem flatten_push (L : Vector (Vector α n) m) (l : Vector α n) :
+    flatten (L.push l) = (flatten L ++ l).cast (by simp [Nat.add_mul]) := by
+  induction L using vector₂_induction
+  rcases l with ⟨l⟩
+  simp [Array.flatten_push]
+
+theorem flatten_flatten {L : Vector (Vector (Vector α n) m) k} :
+    flatten (flatten L) = (flatten (map flatten L)).cast (by simp [Nat.mul_assoc]) := by
+  induction L using vector₃_induction with
+  | of xss h₁ h₂ h₃ =>
+    -- simp [Array.flatten_flatten] -- FIXME: `simp` produces a bad proof here!
+    simp [Array.map_attach, Array.flatten_flatten, Array.map_pmap]
+
+/-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
+theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :
+    L = L' ↔ L.flatten = L'.flatten := by
+  induction L using vector₂_induction with | of L h₁ h₂ =>
+  induction L' using vector₂_induction with | of L' h₁' h₂' =>
+  simp only [eq_mk, flatten_mk, Array.map_map, Function.comp_apply, Array.map_subtype,
+    Array.unattach_attach, Array.map_id_fun', id_eq]
+  constructor
+  · intro h
+    suffices L = L' by simp_all
+    apply Array.ext_getElem?
+    intro i
+    replace h := congrArg (fun x => x[i]?.map (fun x => x.toArray)) h
+    simpa [Option.map_pmap] using h
+  · intro h
+    have w : L.map Array.size = L'.map Array.size := by
+      ext i h h'
+      · simp_all
+      · simp only [Array.getElem_map]
+        rw [h₂ _ (by simp), h₂' _ (by simp)]
+    have := Array.eq_iff_flatten_eq.mpr ⟨h, w⟩
+    subst this
+    rfl
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

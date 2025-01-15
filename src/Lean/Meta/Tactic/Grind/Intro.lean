@@ -25,7 +25,7 @@ private inductive IntroResult where
 private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
-    goal.mvarId.withContext do
+    let (r, _) ← GoalM.run goal do
       let p := target.bindingDomain!
       if !(← isProp p) then
         let (fvarId, mvarId) ← goal.mvarId.intro1P
@@ -50,6 +50,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
             -- `p` and `p'` are definitionally equal
             goal.mvarId.assign h
             return .newHyp fvarId { goal with mvarId := mvarIdNew }
+    return r
   else if target.isLet || target.isForall || target.isLetFun then
     let (fvarId, mvarId) ← goal.mvarId.intro1P
     mvarId.withContext do
@@ -61,10 +62,11 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
       else
         let goal := { goal with mvarId }
         if target.isLet || target.isLetFun then
-          let v := (← fvarId.getDecl).value
-          let r ← simp v
-          let x ← shareCommon (mkFVar fvarId)
-          let goal ← GoalM.run' goal <| addNewEq x r.expr (← r.getProof) generation
+          let goal ← GoalM.run' goal do
+            let v := (← fvarId.getDecl).value
+            let r ← simp v
+            let x ← shareCommon (mkFVar fvarId)
+            addNewEq x r.expr (← r.getProof) generation
           return .newLocal fvarId goal
         else
           return .newLocal fvarId goal

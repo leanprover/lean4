@@ -24,7 +24,7 @@ def simpCore (e : Expr) : GrindM Simp.Result := do
 Simplifies `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def simp (e : Expr) : GrindM Simp.Result := do
+def simp (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr

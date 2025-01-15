@@ -176,6 +176,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent : Expr := noParent
     if (← isLitValue e) then
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
+      Arith.internalize e parent
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
       pushCastHEqs e

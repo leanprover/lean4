@@ -241,19 +241,28 @@ private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
       s.cnstrsOf.insert (u, v) cs
   }
 
+/-- Internalize `e` of the form `b + k` -/
+def internalizeTerm (e : Expr) (b : Expr) (k : Nat) : GoalM Unit := do
+  -- `e` is of the form `b + k`
+  let u ← mkNode e
+  let v ← mkNode b
+  -- `u = v + k`. So, we add edges for `u ≤ v + k` and `v + k ≤ u`.
+  let h := mkApp (mkConst ``Nat.le_refl) e
+  addEdge u v k h
+  addEdge v u (-k) h
+
 def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
   let z ← getNatZeroExpr
   if let some c := isNatOffsetCnstr? e z then
     internalizeCnstr e c
+  else if (isNatOffsetCnstr? parent z).isSome then
+    return ()
+  else if isNatAdd parent then
+    return ()
   else if let some (b, k) := isNatOffset? e then
-    if (isNatOffsetCnstr? parent z).isSome then return ()
-    -- `e` is of the form `b + k`
-    let u ← mkNode e
-    let v ← mkNode b
-    -- `u = v + k`. So, we add edges for `u ≤ v + k` and `v + k ≤ u`.
-    let h := mkApp (mkConst ``Nat.le_refl) e
-    addEdge u v k h
-    addEdge v u (-k) h
+    internalizeTerm e b k
+  else if let some k := isNatNum? e then
+    internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
 def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do

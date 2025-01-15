@@ -379,3 +379,18 @@ example (a : Nat) : a < 2 → a < 5 := by
 
 example (a b : Nat) : 2 < a → a ≤ b → 2 < b := by
   grind
+
+example (a b : Nat) : 2 < a → a ≤ b → 0 < b := by
+  grind
+
+example (f : Nat → Nat) : f 1 = a → b ≤ 1 → b ≥ 1 → f b = a := by
+  grind
+
+example (f : Nat → Nat) : f 2 = a → b ≤ 1 → b ≥ 1 → c = b + 1 → f c = a := by
+  grind
+
+example (a : Nat) : a < 2 → a = 5 → False := by
+  grind
+
+example (a : Nat) : a < 2 → a = b → b = c → c = 5 → False := by
+  grind

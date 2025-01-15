@@ -124,9 +124,7 @@ private partial def elabChoiceAux (cmds : Array Syntax) (i : Nat) : CommandElabM
   n[1].forArgsM addUnivLevel
 
 @[builtin_command_elab «init_quot»] def elabInitQuot : CommandElab := fun _ => do
-  match (← getEnv).addDecl (← getOptions) Declaration.quotDecl with
-  | Except.ok env   => setEnv env
-  | Except.error ex => throwError (ex.toMessageData (← getOptions))
+  liftCoreM <| addDecl Declaration.quotDecl
 
 @[builtin_command_elab «export»] def elabExport : CommandElab := fun stx => do
   let `(export $ns ($ids*)) := stx | throwUnsupportedSyntax

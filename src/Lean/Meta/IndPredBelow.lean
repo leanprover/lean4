@@ -594,7 +594,9 @@ def mkBelow (declName : Name) : MetaM Unit := do
       for i in [:ctx.typeInfos.size] do
         try
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
-          addDecl decl
+          -- disable async TC so we can catch its exceptions
+          withOptions (Elab.async.set · false) do
+            addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
     else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"

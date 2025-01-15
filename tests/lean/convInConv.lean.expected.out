@@ -6,7 +6,6 @@ x : Nat
 | x
 x : Nat
 | id (twice x)
-convInConv.lean:15:8-15:12: warning: declaration uses 'sorry'
 y : Nat
 | (fun x => x + y = 0) = fun x => False
 y : Nat
@@ -18,3 +17,4 @@ y : Nat
 | (fun x => y + x = 0) = fun x => False
 y : Nat
 ⊢ (fun x => y + x = 0) = fun x => False
+convInConv.lean:15:8-15:12: warning: declaration uses 'sorry'

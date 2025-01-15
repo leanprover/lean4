@@ -280,3 +280,6 @@ example {a b : Nat} (h : a < b) : ¬ b < a := by
 
 example {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m := by
   grind
+
+example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (f a) := by
+  grind

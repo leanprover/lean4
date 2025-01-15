@@ -32,18 +32,25 @@ constexpr char const * anonymous_str = "[anonymous]";
 bool is_greek_unicode(unsigned u) { return 0x391 <= u && u <= 0x3DD; }
 bool is_letter_like_unicode(unsigned u) {
     return
-            (0x3b1  <= u && u <= 0x3c9 && u != 0x3bb) || // Lower greek, but lambda
-            (0x391  <= u && u <= 0x3A9 && u != 0x3A0 && u != 0x3A3) || // Upper greek, but Pi and Sigma
-            (0x3ca  <= u && u <= 0x3fb) ||               // Coptic letters
-            (0x1f00 <= u && u <= 0x1ffe) ||              // Polytonic Greek Extended Character Set
-            (0x2100 <= u && u <= 0x214f) ||              // Letter like block
-            (0x1d49c <= u && u <= 0x1d59f);              // Latin letters, Script, Double-struck, Fractur
+            (0x3b1  <= u && u <= 0x3c9          // Lower Greek
+                && u != 0x3bb)               || // except lambda
+            (0x391  <= u && u <= 0x3A9          // Upper Greek
+                && u != 0x3A0 && u != 0x3A3) || // except Pi and Sigma
+            (0x3ca  <= u && u <= 0x3fb)      || // Coptic
+            (0x1f00 <= u && u <= 0x1ffe)     || // Greek Extended
+            (0x2100 <= u && u <= 0x214f)     || // Letterike Symbols
+            (0x1d400 <= u && u <= 0x1d7cb);     // Mathematical Alphanumeric Symbols
+                                                // (excluding numeric symbols)
 }
 bool is_sub_script_alnum_unicode(unsigned u) {
     return
-            (0x207f <= u && u <= 0x2089) || // n superscript and numeric subscripts
-            (0x2090 <= u && u <= 0x209c) || // letter-like subscripts
-            (0x1d62 <= u && u <= 0x1d6a);   // letter-like subscripts
+            (0x2080 <= u && u <= 0x2089) || // numeric subscripts
+            (0x2090 <= u && u <= 0x209c) || // letter-like subscripts; also contains schwa (upside down e)
+                                            // a e o x h k l m n p s t
+            (0x1d62 <= u && u <= 0x1d6a) || // letter-like subscripts
+                                            // i r u v
+            (0x006a == u);                  // j
+    // There are no subscripts for b, c, d, f, g
 }
 
 bool is_id_first(unsigned char const * begin, unsigned char const * end) {

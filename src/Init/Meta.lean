@@ -80,20 +80,24 @@ opaque Internal.hasLLVMBackend (u : Unit) : Bool
   0x391 ≤ c.val && c.val ≤ 0x3dd
 
 def isLetterLike (c : Char) : Bool :=
-  (0x3b1  ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||                  -- Lower greek, but lambda
-  (0x391  ≤ c.val && c.val ≤ 0x3A9 && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) || -- Upper greek, but Pi and Sigma
-  (0x3ca  ≤ c.val && c.val ≤ 0x3fb) ||                                   -- Coptic letters
-  (0x1f00 ≤ c.val && c.val ≤ 0x1ffe) ||                                  -- Polytonic Greek Extended Character Set
-  (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
-  (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
-
-@[inline] def isNumericSubscript (c : Char) : Bool :=
-  0x2080 ≤ c.val && c.val ≤ 0x2089
+  (0x3b1  ≤ c.val && c.val ≤ 0x3c9        -- Lower Greek
+    && c.val ≠ 0x3bb)                  || -- except λ
+  (0x391  ≤ c.val && c.val ≤ 0x3A9        -- Upper Greek
+    && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) || -- except Π and Σ
+  (0x3ca  ≤ c.val && c.val ≤ 0x3fb)    || -- Coptic letters
+  (0x1f00 ≤ c.val && c.val ≤ 0x1ffe)   || -- Greek Extended 
+  (0x2100 ≤ c.val && c.val ≤ 0x214f)   || -- Letterlike Symbols
+  (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)    -- Mathematical Alphanumeric Symbols
+                                          -- (excluding numeric symbols)
 
 def isSubScriptAlnum (c : Char) : Bool :=
-  isNumericSubscript c ||
-  (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
-  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
+  (0x2080 ≤ c.val && c.val ≤ 0x2089) || -- numeric subscripts
+  (0x2090 ≤ c.val && c.val ≤ 0x209c) || -- letter-like subscripts; also contains schwa (upside down e)
+                                        -- ₐ ₑ ₒ ₓ ₕ ₖ ₗ ₘ ₙ ₚ ₛ ₜ
+  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a) || -- letter-like subscripts
+                                        -- ᵢ ᵣ ᵤ ᵥ
+  (0x06aa = c.val)                      -- ⱼ
+  -- There are no subscripts for b, c, d, f, g.
 
 @[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c

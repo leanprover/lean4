@@ -95,6 +95,10 @@ structure ExtractMonadResult where
   returnType   : Expr
   expectedType : Expr
 
+private def getIdString : Syntax → Substring
+  | Syntax.ident _ rawVal _ _ => rawVal
+  | _ => unreachable!
+
 private def mkUnknownMonadResult : MetaM ExtractMonadResult := do
   let u ← mkFreshLevelMVar
   let v ← mkFreshLevelMVar
@@ -1513,11 +1517,11 @@ mutual
      `doFor` is of the form
      ```
      def doForDecl := leading_parser termParser >> " in " >> withForbidden "do" termParser
-     def doFor := leading_parser "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+     def doFor := leading_parser "for" >> optional (atomic ("@" >> ident)) >> ppSpace >> sepBy1 doForDecl ", " >> "do " >> doSeq
      ```
   -/
   partial def doForToCode (doFor : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let doForDecls := doFor[1].getSepArgs
+    let doForDecls := doFor[2].getSepArgs
     if h : doForDecls.size > 1 then
       /-
         Expand
@@ -1543,7 +1547,8 @@ mutual
       let y  := doForDecl[1]
       let ys := doForDecl[3]
       let doForDecls := doForDecls.eraseIdx 1
-      let body := doFor[3]
+      let lbl? := doFor[2] -- TODO: handle zipWith
+      let body := doFor[4]
       withFreshMacroScope do
         /- Recall that `@` (explicit) disables `coeAtOutParam`.
            We used `@` at `Stream` functions to make sure `resultIsOutParamSupport` is not used. -/
@@ -1562,7 +1567,8 @@ mutual
       let x         := doForDecls[0]![1]
       withRef x <| checkNotShadowingMutable (← getPatternVarsEx x)
       let xs        := doForDecls[0]![3]
-      let forElems  := getDoSeqElems doFor[3]
+      let lbl?      := doFor[2].getOptional?
+      let forElems  := getDoSeqElems doFor[4]
       let forInBodyCodeBlock ← withFor (doSeqToCode forElems)
       let ⟨uvars, forInBody⟩ ← mkForInBody x forInBodyCodeBlock
       let ctx ← read
@@ -1571,6 +1577,7 @@ mutual
       -- server to identify them as conceptually identical variables
       let uvars := uvars.map fun v => ctx.mutableVars.findD v.getId v
       let uvarsTuple ← liftMacroM do mkTuple uvars
+      let wrap_lbl? syn := if let some lbl := lbl? then `(label $(quote lbl[1].getId) $syn) else Pure.pure syn
       if hasReturn forInBodyCodeBlock.code then
         let forInBody ← liftMacroM <| destructTuple uvars (← `(r)) forInBody
         let optType ← `(Option $((← read).returnType))

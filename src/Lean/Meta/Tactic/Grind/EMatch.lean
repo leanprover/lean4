@@ -370,7 +370,4 @@ def ematchAndAssert : GrindTactic := fun goal => do
     return none
   assertAll goal
 
-def ematchStar : GrindTactic :=
-  ematchAndAssert.iterate
-
 end Lean.Meta.Grind

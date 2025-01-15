@@ -669,4 +669,41 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 
+/-! ## Overflow -/
+
+/-- Overflow predicate for 2's complement unary minus.
+
+  SMT-Lib name: `bvnego`.
+-/
+
+def notOverflow {w : Nat} (x : BitVec w) : Bool := x.toInt == - (2 ^ (w - 1))
+
+/-- Overflow predicate for unsigned addition modulo 2^w.
+
+  SMT-Lib name: `bvuaddo`.
+-/
+
+def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed addition on w-bit 2's complement.
+
+  SMT-Lib name: `bvsaddo`.
+-/
+
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
+/-- Overflow predicate for unsigned multiplication modulo 2^w.
+
+  SMT-Lib name: `bvumulo`.
+-/
+
+def umulOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed multiplication on w-bit 2's complement.
+
+  SMT-Lib name: `bvsmulo`.
+-/
+
+def smulOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
 end BitVec

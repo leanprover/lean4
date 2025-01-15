@@ -452,15 +452,6 @@ theorem bitwise_lt_two_pow (left : x < 2^n) (right : y < 2^n) : (Nat.bitwise f x
       case neg =>
         apply Nat.add_lt_add <;> exact hyp1
 
-theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
-    (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
-  apply Nat.eq_of_testBit_eq
-  simp only [testBit_mul_two_pow, testBit_bitwise of_false_false, Bool.if_false_right]
-  intro i
-  by_cases hn : n ≤ i
-  · simp [hn]
-  · simp [hn, of_false_false]
-
 theorem bitwise_div_two_pow (of_false_false : f false false = false := by rfl) :
   (bitwise f x y) / 2 ^ n = bitwise f (x / 2 ^ n) (y / 2 ^ n) := by
   apply Nat.eq_of_testBit_eq
@@ -723,6 +714,15 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
 theorem testBit_mul_two_pow (x i n : Nat) :
     (x * 2 ^ n).testBit i = (decide (n ≤ i) && x.testBit (i - n)) := by
   rw [← testBit_shiftLeft, shiftLeft_eq]
+
+theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
+    (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mul_two_pow, testBit_bitwise of_false_false, Bool.if_false_right]
+  intro i
+  by_cases hn : n ≤ i
+  · simp [hn]
+  · simp [hn, of_false_false]
 
 theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
     (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by

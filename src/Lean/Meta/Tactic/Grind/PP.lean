@@ -76,10 +76,16 @@ private def ppExprArray (cls : Name) (header : String) (es : Array Expr) (clsEle
   let es := es.map fun e => .trace { cls := clsElem} m!"{e}" #[]
   .trace { cls } header es
 
-private def ppEqcs (goal : Goal) : MetaM (Array MessageData) := do
+private abbrev M := ReaderT Goal (StateT (Array MessageData) MetaM)
+
+private def pushMsg (m : MessageData) : M Unit :=
+  modify fun s => s.push m
+
+private def ppEqcs : M Unit := do
    let mut trueEqc?  : Option MessageData := none
    let mut falseEqc? : Option MessageData := none
    let mut otherEqcs : Array MessageData := #[]
+   let goal ← read
    for eqc in goal.getEqcs do
      if Option.isSome <| eqc.find? (·.isTrue) then
        let eqc := eqc.filter fun e => !e.isTrue
@@ -93,46 +99,50 @@ private def ppEqcs (goal : Goal) : MetaM (Array MessageData) := do
        -- We may want to add a flag to pretty print equivalence classes of nested proofs
        unless (← isProof e) do
          otherEqcs := otherEqcs.push <| .trace { cls := `eqc } (.group ("{" ++ (MessageData.joinSep (eqc.map toMessageData) ("," ++ Format.line)) ++  "}")) #[]
-   let mut result := #[]
-   if let some trueEqc := trueEqc? then result := result.push trueEqc
-   if let some falseEqc := falseEqc? then result := result.push falseEqc
+   if let some trueEqc := trueEqc? then pushMsg trueEqc
+   if let some falseEqc := falseEqc? then pushMsg falseEqc
    unless otherEqcs.isEmpty do
-     result := result.push <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
-   return result
+     pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
   let m := m!"{← thm.origin.pp}:\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
-private def ppActiveTheorems (goal : Goal) : MetaM (Array MessageData) := do
-  let m ← goal.thms.toArray.mapM ppEMatchTheorem
-  let m := m ++ (← goal.newThms.toArray.mapM ppEMatchTheorem)
-  if m.isEmpty then
-    return #[]
-  else
-    return #[.trace { cls := `ematch } "E-matching" m]
+private def ppActiveTheorems : M Unit := do
+  let goal ← read
+  let m ← goal.thms.toArray.mapM fun thm => ppEMatchTheorem thm
+  let m := m ++ (← goal.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
+  unless m.isEmpty do
+    pushMsg <| .trace { cls := `ematch } "E-matching" m
 
-def ppOffset (goal : Goal) : MetaM (Array MessageData) := do
+private def ppOffset : M Unit := do
+  let goal ← read
   let s := goal.arith.offset
   let nodes := s.nodes
-  if nodes.isEmpty then return #[]
+  if nodes.isEmpty then return ()
   let model ← Arith.Offset.mkModel goal
   let mut ms := #[]
   for (e, val) in model do
     ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
-  return #[.trace { cls := `offset } "Assignment satisfying offset contraints" ms]
+  pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
+
+private def ppIssues : M Unit := do
+  let issues := (← read).issues
+  unless issues.isEmpty do
+    pushMsg <| .trace { cls := `issues } "Issues" issues.reverse.toArray
 
 def goalToMessageData (goal : Goal) : MetaM MessageData := goal.mvarId.withContext do
-  let mut m : Array MessageData := #[]
-  m := m.push <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
-  m := m ++ (← ppEqcs goal)
-  m := m ++ (← ppActiveTheorems goal)
-  m := m ++ (← ppOffset goal)
-  unless goal.issues.isEmpty do
-    m := m.push <| .trace { cls := `issues } "Issues" goal.issues.reverse.toArray
+  let (_, m) ← go goal |>.run #[]
   let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
   let r := m!"{.ofGoal goal.mvarId}\n{gm}"
   addMessageContextFull r
+where
+  go : M Unit := do
+    pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
+    ppEqcs
+    ppActiveTheorems
+    ppOffset
+    ppIssues
 
 def goalsToMessageData (goals : List Goal) : MetaM MessageData :=
   return MessageData.joinSep (← goals.mapM goalToMessageData) m!"\n"

@@ -1742,16 +1742,30 @@ theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
 
 /-! ### Decidability of predicates -/
 
-instance decidableBallLT :
-  ∀ (n : Nat) (P : ∀ k, k < n → Prop) [∀ n h, Decidable (P n h)], Decidable (∀ n h, P n h)
-| 0, _, _ => isTrue fun _ => (by cases ·)
-| n + 1, P, H =>
-  match decidableBallLT n (P · <| lt_succ_of_lt ·) with
-  | isFalse h => isFalse (h fun _ _ => · _ _)
-  | isTrue h =>
-    match H n Nat.le.refl with
-    | isFalse p => isFalse (p <| · _ _)
-    | isTrue p => isTrue fun _ h' => (Nat.lt_succ_iff_lt_or_eq.1 h').elim (h _) fun hn => hn ▸ p
+instance decidableBallLT (n : Nat) (P : ∀ k, k < n → Prop) [H : ∀ n h, Decidable (P n h)] :
+    Decidable (∀ n h, P n h) :=
+  let rec inner : ∀ n1 ≤ n, ∀ n2 ≤ n1, (∀ n h, n1 ≤ n → P n h) → Decidable (∀ n h, n2 ≤ n → P n h)
+    | 0, _, _, _, h2 => isTrue fun n' hn' _ => h2 n' hn' (Nat.zero_le _)
+    | n1 + 1, h1, n2, hn2, h2 =>
+      if hn : n1 + 1 ≤ n2 then isTrue (h2 · · <| Nat.le_trans hn ·)
+      else have hn : n2 ≤ n1 := Nat.le_of_not_lt hn
+        match H n1 h1 with
+        | isFalse p => isFalse (p <| · _ h1 hn)
+        | isTrue p =>
+          inner n1 (Nat.le_of_succ_le h1) n2 hn fun n hn2 hn1 =>
+            (Nat.le_iff_lt_or_eq.1 hn1).elim (h2 n hn2) (· ▸ p)
+  let step := 128
+  let rec outer : ∀ n1, n1 * step ≤ n → (∀ n h, n1 * step ≤ n → P n h) → Decidable (∀ n h, P n h)
+  | 0, _, h2 => isTrue (h2 · · (Nat.zero_le _))
+  | n1 + 1, h1, h2 =>
+    have : n1 * step ≤ (n1 + 1) * step := Nat.mul_le_mul_right _ (Nat.le_add_right n1 1)
+    match inner _ h1 (n1 * step) this h2 with
+    | isFalse p => isFalse (p fun n' hn' _ => · n' hn')
+    | isTrue p => outer n1 (Nat.le_trans this h1) p
+  match inner n (Nat.le_refl n) (n / step * step) (Nat.div_mul_le_self n _)
+    fun _ => (Nat.not_le_of_gt · · |>.elim) with
+  | isFalse p => isFalse (p fun n' hn' _ => · n' hn')
+  | isTrue p => outer (n / step) (Nat.div_mul_le_self n _) p
 
 instance decidableForallFin (P : Fin n → Prop) [DecidablePred P] : Decidable (∀ i, P i) :=
   decidable_of_iff (∀ k h, P ⟨k, h⟩) ⟨fun m ⟨k, h⟩ => m k h, fun m k h => m ⟨k, h⟩⟩

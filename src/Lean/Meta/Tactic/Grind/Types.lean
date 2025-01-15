@@ -66,7 +66,6 @@ instance : Hashable CongrTheoremCacheKey where
 
 /-- State for the `GrindM` monad. -/
 structure State where
-  canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
   /-- Next index for creating auxiliary theorems. -/
@@ -133,18 +132,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
+  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
-
-/--
-Canonicalizes nested types, type formers, and instances in `e`.
--/
-def canon (e : Expr) : GrindM Expr := do
-  let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
-  let (e, canonS) ← Canon.canon e |>.run canonS
-  modify fun s => { s with canon := canonS }
-  return e
+    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -345,6 +335,7 @@ structure NewFact where
 
 structure Goal where
   mvarId       : MVarId
+  canon        : Canon.State := {}
   enodes       : ENodeMap := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
@@ -405,6 +396,13 @@ abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+def canon (e : Expr) : GoalM Expr := do
+  let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
+  let (e, canonS) ← Canon.canon e |>.run canonS
+  modify fun s => { s with canon := canonS }
+  return e
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then

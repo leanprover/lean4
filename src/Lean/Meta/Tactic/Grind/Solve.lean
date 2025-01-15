@@ -35,28 +35,7 @@ def pushFailure (goal : Goal) : M Unit := do
   if (← get).failures.length ≥ (← getConfig).failures then
     modify fun s => { s with stop := true }
 
-@[inline] def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
-  let some goals ← x goal | return false
-  pushGoals goals
-  return true
-
-def tryAssert : Goal → M Bool := applyTac assertAll
-
-def tryEmatch (goal : Goal) : M Bool := do
-  let numInstances := goal.numInstances
-  let goal ← GoalM.run' goal ematch
-  if goal.numInstances == numInstances then
-    return false
-  pushGoal goal
-  return true
-
-def trySplit : Goal → M Bool :=
-  applyTac splitNext
-
-def maxNumFailuresReached : M Bool := do
-  return (← get).failures.length ≥ (← getConfig).failures
-
-def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
+@[inline] def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
   try
     x goal
   catch ex =>
@@ -67,20 +46,37 @@ def stepGuard (x : Goal → M Bool) (goal : Goal) : M Bool := do
     else
       throw ex
 
+def applyTac (x : GrindTactic) (goal : Goal) : M Bool := do
+  let go (goal : Goal) : M Bool := do
+    let some goals ← x goal | return false
+    pushGoals goals
+    return true
+  stepGuard go goal
+
+def tryAssertNext : Goal → M Bool := applyTac assertNext
+
+def tryEmatch : Goal → M Bool := applyTac ematchAndAssert
+
+def trySplit : Goal → M Bool := applyTac splitNext
+
+def maxNumFailuresReached : M Bool := do
+  return (← get).failures.length ≥ (← getConfig).failures
+
 partial def main : M Unit := do
   repeat do
     if (← get).stop then
       return ()
     let some goal ← getNext? |
       return ()
-    if (← stepGuard tryAssert goal) then
-      pure ()
-    else if (← stepGuard tryEmatch goal) then
-      pure ()
-    else if (← stepGuard trySplit goal) then
-      pure ()
-    else
-      pushFailure goal
+    if goal.inconsistent then
+      continue
+    if (← tryAssertNext goal) then
+      continue
+    if (← tryEmatch goal) then
+      continue
+    if (← trySplit goal) then
+      continue
+    pushFailure goal
 
 end Solve
 
@@ -90,7 +86,7 @@ Try to solve/close the given goals, and returns the ones that could not be solve
 def solve (goals : List Goal) : GrindM (List Goal) := do
   let (_, s) ← Solve.main.run { todo := goals }
   let todo ← s.todo.mapM fun goal => do
-    goal.reportIssue m!"this goal was not fully processed due to previous failures, threshold: `(failures := {(← getConfig).failures})"
+    goal.reportIssue m!"this goal was not fully processed due to previous failures, threshold: `(failures := {(← getConfig).failures})`"
   return s.failures.reverse ++ todo
 
 end Lean.Meta.Grind

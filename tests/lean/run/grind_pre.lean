@@ -198,6 +198,8 @@ h : p
   [eqc] False propositions
     [prop] ¬p
     [prop] ¬r
+  [issues] Issues
+    [issue] this goal was not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by

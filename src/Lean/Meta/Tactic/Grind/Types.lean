@@ -879,7 +879,8 @@ def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
 
 /--
 Mark `e` as a case-split that does not need to be performed anymore.
-Remark: we currently use this feature to disable `match`-case-splits
+Remark: we currently use this feature to disable `match`-case-splits.
+Remark: we also use this feature to record the case-splits that have already been performed.
 -/
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do

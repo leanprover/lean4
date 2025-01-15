@@ -16,14 +16,33 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
-abbrev PreProcessM : Type → Type := ReaderT BVDecideConfig MetaM
+structure PreProcessState where
+  /--
+  Contains `FVarId` that we already know are in `bv_normalize` simp normal form and thus don't
+  need to be processed again when we visit the next time.
+  -/
+  rewriteCache : Std.HashSet FVarId := {}
+
+abbrev PreProcessM : Type → Type := ReaderT BVDecideConfig <| StateRefT PreProcessState MetaM
 
 namespace PreProcessM
 
 def getConfig : PreProcessM BVDecideConfig := read
 
-def run (cfg : BVDecideConfig) (x : PreProcessM α) : MetaM α :=
-  ReaderT.run x cfg
+@[inline]
+def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
+  let val := (← get).rewriteCache.contains fvar
+  trace[Meta.Tactic.bv] m!"{mkFVar fvar} was already rewritten? {val}"
+  return val
+
+@[inline]
+def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do
+  trace[Meta.Tactic.bv] m!"Adding {mkFVar fvar} to the rewritten set"
+  modify (fun s => { s with rewriteCache := s.rewriteCache.insert fvar })
+
+def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
+  let hyps ← goal.getNondepPropHyps
+  ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
 
 end PreProcessM
 

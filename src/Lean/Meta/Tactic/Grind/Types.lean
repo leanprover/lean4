@@ -80,6 +80,7 @@ structure State where
   simpStats  : Simp.Stats := {}
   trueExpr   : Expr
   falseExpr  : Expr
+  natZExpr   : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -103,6 +104,10 @@ def getTrueExpr : GrindM Expr := do
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
+
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : GrindM Expr := do
+  return (← get).natZExpr
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
@@ -128,9 +133,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag } =>
+  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag })
+    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
 
 /--
 Canonicalizes nested types, type formers, and instances in `e`.

@@ -33,26 +33,26 @@ def embeddedConstraintPass : Pass where
       let mut duplicates : Array FVarId := #[]
       for hyp in hyps do
         let typ ← hyp.getType
-        let_expr Eq α lhs rhs := typ | continue
+        let_expr Eq _ lhs rhs := typ | continue
         let_expr Bool.true := rhs | continue
-        let_expr Bool := α | continue
         if seen.contains lhs then
-          -- collect and later remove duplicates on the fly
           duplicates := duplicates.push hyp
         else
           seen := seen.insert lhs
           let localDecl ← hyp.getDecl
-          let proof  := localDecl.toExpr
+          let proof := localDecl.toExpr
           relevantHyps ← relevantHyps.addTheorem (.fvar hyp) proof
 
       let goal ← goal.tryClearMany duplicates
-      let cfg ← PreProcessM.getConfig
 
+      if relevantHyps.isEmpty then
+        return goal
+
+      let cfg ← PreProcessM.getConfig
       let simpCtx ← Simp.mkContext
         (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))
-
       let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← goal.getNondepPropHyps)
       let some (_, newGoal) := result? | return none
       return newGoal

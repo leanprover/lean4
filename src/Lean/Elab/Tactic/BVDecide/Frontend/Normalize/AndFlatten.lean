@@ -33,7 +33,7 @@ partial def andFlatteningPass : Pass where
   name := `andFlattening
   run' goal := do
     let (_, { hypsToDelete, hypsToAdd, .. }) ← processGoal goal |>.run {}
-    if hypsToAdd.size == 0 then
+    if hypsToAdd.isEmpty then
       return goal
     else
       let (_, goal) ← goal.assertHypotheses hypsToAdd

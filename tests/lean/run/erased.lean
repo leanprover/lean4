@@ -25,7 +25,7 @@ info: [Compiler.result] size: 1
       let _x.1 : PSigma lcErased lcErased := PSigma.mk lcErased ◾ ◾ ◾;
       return _x.1
 [Compiler.result] size: 1
-    def Erased.mk (α : lcErased) (a : lcErased) : PSigma lcErased lcErased :=
+    def Erased.mk (α : lcErased) (a : lcAny) : PSigma lcErased lcErased :=
       let _x.1 : PSigma lcErased lcErased := PSigma.mk lcErased ◾ ◾ ◾;
       return _x.1
 -/

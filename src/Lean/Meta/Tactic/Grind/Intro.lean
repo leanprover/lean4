@@ -26,12 +26,13 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
   let target ← goal.mvarId.getType
   if target.isArrow then
     let (r, _) ← GoalM.run goal do
+      let mvarId := (← get).mvarId
       let p := target.bindingDomain!
       if !(← isProp p) then
-        let (fvarId, mvarId) ← goal.mvarId.intro1P
-        return .newLocal fvarId { goal with mvarId }
+        let (fvarId, mvarId) ← mvarId.intro1P
+        return .newLocal fvarId { (← get) with mvarId }
       else
-        let tag ← goal.mvarId.getTag
+        let tag ← mvarId.getTag
         let q := target.bindingBody!
         -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp p
@@ -44,12 +45,12 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
           match r.proof? with
           | some he =>
             let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, r.expr, q, he, h]
-            goal.mvarId.assign hNew
-            return .newHyp fvarId { goal with mvarId := mvarIdNew }
+            mvarId.assign hNew
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
           | none =>
             -- `p` and `p'` are definitionally equal
-            goal.mvarId.assign h
-            return .newHyp fvarId { goal with mvarId := mvarIdNew }
+            mvarId.assign h
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
     return r
   else if target.isLet || target.isForall || target.isLetFun then
     let (fvarId, mvarId) ← goal.mvarId.intro1P

@@ -85,6 +85,8 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : State
       -- We used to check `c.fvarsSubset e` because it is not
       -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
       -- However, we don't revert previously canonicalized elements in the `grind` tactic.
+      -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
+      -- and different locals are added in different branches.
       modify fun s => { s with canon := s.canon.insert e c }
       trace[grind.debug.canon] "found {e} ===> {c}"
       return c

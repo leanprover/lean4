@@ -2282,12 +2282,12 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 
 /-! # Squash -/
 
-theorem true_equivalence (α : Sort u) : Equivalence fun _ _ : α ↦ True :=
+theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α ↦ True :=
   ⟨fun _ ↦ trivial, fun _ ↦ trivial, fun _ _ ↦ trivial⟩
 
 /-- Always-true relation as a `Setoid`. -/
-def trueSetoid (α : Sort u) : Setoid α :=
-  ⟨_, true_equivalence α⟩
+def Setoid.trivial (α : Sort u) : Setoid α :=
+  ⟨_, equivalence_true α⟩
 
 /--
 The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
@@ -2296,14 +2296,14 @@ of them are equal and cannot be distinguished.
 `Squash α` is a `Subsingleton`: it is empty if `α` is empty, otherwise it has just one element. It
 is the “universal `Subsingleton`” mapped from `α`.
 
-`Nonempty α` also has these properties. It is a proposition, which means that its elements (i.e.
-proofs) are erased from compiled code and represented by a dummy value. `Squash α` is a `Type u`,
-and its representation in compiled code is identical to that of `α`.
+`Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
+while `Nonempty.rec` can only do the same when `β` is a proposition.
 
-Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
-`Nonempty.rec` can only do the same when `β` is a proposition.
+We define `Squash` in terms of `Quotient` rather than just `Quot`. This means that
+`Squash` can be used when a `Quotient` argument is expected, and the setoid will be
+automatically inferred.
 -/
-def Squash (α : Sort u) := Quotient (trueSetoid α)
+def Squash (α : Sort u) := Quotient (Setoid.trivial α)
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.

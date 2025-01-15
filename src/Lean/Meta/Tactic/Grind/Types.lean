@@ -416,14 +416,19 @@ def updateLastTag : GoalM Unit := do
       trace[grind] "working on goal `{currTag}`"
       modifyThe Grind.State fun s => { s with lastTag := currTag }
 
-def reportIssue (msg : MessageData) : GoalM Unit := do
+def Goal.reportIssue (goal : Goal) (msg : MessageData) : MetaM Goal := do
   let msg ← addMessageContext msg
-  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
+  let goal := { goal with issues := .trace { cls := `issue } msg #[] :: goal.issues }
   /-
   We also add a trace message because we may want to know when
   an issue happened relative to other trace messages.
   -/
   trace[grind.issues] msg
+  return goal
+
+def reportIssue (msg : MessageData) : GoalM Unit := do
+  let goal ← (← get).reportIssue msg
+  set goal
 
 /--
 Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`

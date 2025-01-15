@@ -21,7 +21,6 @@ partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
       f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
   return f
 
-
 /-- Environment extensions for monotonicity lemmas -/
 builtin_initialize monotoneExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
@@ -126,19 +125,25 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       goal.assign goal'
       return [goal'.mvarId!]
 
-    -- Float letE to the environment
+    -- Handle let
     if let .letE n t v b _nonDep := e then
       if t.hasLooseBVars || v.hasLooseBVars then
-        failK f #[]
-      let goal' ← withLetDecl n t v fun x => do
-        let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+        -- We cannot float the let to the context, so just zeta-reduce.
+        let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 v)
         let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
-        goal.assign (← mkLetFVars #[x] goal')
-        pure goal'
-      return [goal'.mvarId!]
+        goal.assign goal'
+        return [goal'.mvarId!]
+      else
+        -- No recursive call in t or v, so float out
+        let goal' ← withLetDecl n t v fun x => do
+          let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+          let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
+          goal.assign (← mkLetFVars #[x] goal')
+          pure goal'
+        return [goal'.mvarId!]
 
     -- Float `letFun` to the environment.
-    -- `applyConst` tends to reduce the redex
+    -- (cannot use `applyConst`, it tends to reduce the let redex)
     match_expr e with
     | letFun γ _ v b =>
       if γ.hasLooseBVars || v.hasLooseBVars then

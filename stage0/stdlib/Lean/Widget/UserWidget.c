@@ -67,7 +67,6 @@ static lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_fromJsonRp
 lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean_Data_Lsp_Basic___hyg_557_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
-lean_object* l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__3;
 extern lean_object* l_Lean_maxRecDepthErrorMessage;
@@ -459,6 +458,7 @@ static lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Widget_elabShowPanel
 LEAN_EXPORT lean_object* l___private_Lean_Widget_UserWidget_0__Lean_Widget_evalModuleUnsafe(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_showPanelWidgetsCmd___closed__2;
 lean_object* l_MonadExcept_ofExcept___at_Lean_Widget_instRpcEncodableInteractiveHypothesisBundle_dec____x40_Lean_Widget_InteractiveGoal___hyg_5____spec__1(lean_object*, lean_object*);
+lean_object* l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____spec__3___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_widgetInstanceSpec___closed__16;
 static lean_object* l_Lean_Widget_elabWidgetInstanceSpecAux___closed__4;
@@ -6370,7 +6370,6 @@ if (lean_obj_tag(x_17) == 0)
 lean_object* x_18; lean_object* x_19; 
 x_18 = lean_box(0);
 x_19 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__1(x_1, x_2, x_3, x_18, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_10);
 return x_19;
 }
 else
@@ -6404,7 +6403,6 @@ x_31 = lean_ctor_get(x_29, 1);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__1(x_1, x_2, x_3, x_30, x_8, x_9, x_10, x_11, x_31);
-lean_dec(x_10);
 lean_dec(x_30);
 return x_32;
 }
@@ -6432,7 +6430,6 @@ x_42 = lean_ctor_get(x_40, 1);
 lean_inc(x_42);
 lean_dec(x_40);
 x_43 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__1(x_1, x_2, x_3, x_41, x_8, x_9, x_10, x_11, x_42);
-lean_dec(x_10);
 lean_dec(x_41);
 return x_43;
 }
@@ -6518,7 +6515,6 @@ lean_inc(x_23);
 lean_dec(x_21);
 x_24 = lean_box(0);
 x_25 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2(x_2, x_1, x_10, x_3, x_23, x_18, x_24, x_5, x_6, x_7, x_8, x_22);
-lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_23);
@@ -8055,8 +8051,6 @@ _start:
 {
 lean_object* x_10; 
 x_10 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
@@ -8068,7 +8062,6 @@ _start:
 {
 lean_object* x_13; 
 x_13 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
-lean_dec(x_11);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
@@ -8201,7 +8194,7 @@ x_15 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_15, 0, x_8);
 lean_ctor_set(x_15, 1, x_14);
 x_16 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_17 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_15, x_16);
+x_17 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_15, x_16);
 x_18 = l_Lean_Json_mkObj(x_17);
 return x_18;
 }
@@ -8536,7 +8529,7 @@ x_7 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
 lean_ctor_set(x_7, 1, x_5);
 x_8 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_9 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_7, x_8);
+x_9 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_7, x_8);
 x_10 = l_Lean_Json_mkObj(x_9);
 return x_10;
 }
@@ -18894,7 +18887,7 @@ x_14 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_14, 0, x_8);
 lean_ctor_set(x_14, 1, x_13);
 x_15 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_16 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_14, x_15);
+x_16 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_14, x_15);
 x_17 = l_Lean_Json_mkObj(x_16);
 return x_17;
 }
@@ -18932,7 +18925,7 @@ x_30 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_30, 0, x_24);
 lean_ctor_set(x_30, 1, x_29);
 x_31 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_32 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_30, x_31);
+x_32 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_30, x_31);
 x_33 = l_Lean_Json_mkObj(x_32);
 return x_33;
 }
@@ -19956,7 +19949,7 @@ x_25 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_25, 0, x_10);
 lean_ctor_set(x_25, 1, x_24);
 x_26 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_27 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_25, x_26);
+x_27 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_25, x_26);
 x_28 = l_Lean_Json_mkObj(x_27);
 return x_28;
 }
@@ -21627,7 +21620,7 @@ x_6 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_6, 0, x_5);
 lean_ctor_set(x_6, 1, x_4);
 x_7 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
-x_8 = l_List_flatMapTR_go___at___private_Lean_Data_Lsp_CancelParams_0__Lean_Lsp_toJsonCancelParams____x40_Lean_Data_Lsp_CancelParams___hyg_86____spec__1(x_6, x_7);
+x_8 = l_List_flatMapTR_go___at___private_Lean_Util_Paths_0__Lean_toJsonLeanPaths____x40_Lean_Util_Paths___hyg_40____spec__2(x_6, x_7);
 x_9 = l_Lean_Json_mkObj(x_8);
 return x_9;
 }

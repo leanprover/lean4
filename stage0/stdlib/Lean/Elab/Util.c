@@ -2341,6 +2341,8 @@ _start:
 if (x_1 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
+lean_dec(x_4);
+lean_dec(x_3);
 lean_dec(x_2);
 x_6 = lean_box(0);
 x_7 = lean_alloc_ctor(0, 2, 0);
@@ -2429,8 +2431,6 @@ uint8_t x_6; lean_object* x_7;
 x_6 = lean_unbox(x_1);
 lean_dec(x_1);
 x_7 = l_Lean_Elab_mkElabAttribute___rarg___lambda__3(x_6, x_2, x_3, x_4, x_5);
-lean_dec(x_4);
-lean_dec(x_3);
 return x_7;
 }
 }

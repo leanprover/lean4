@@ -3000,8 +3000,6 @@ x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
 x_35 = l_Lean_declareBuiltin(x_33, x_29, x_3, x_4, x_34);
-lean_dec(x_4);
-lean_dec(x_3);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 

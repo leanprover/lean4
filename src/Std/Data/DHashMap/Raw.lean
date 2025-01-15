@@ -94,7 +94,7 @@ Checks whether a key is present in a map, and unconditionally inserts a value fo
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
-    Bool × Raw α β:=
+    Bool × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩
@@ -422,28 +422,11 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
-occurrence takes precedence. -/
-@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
-  insertMany ∅ l
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
-
-@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
-    (l : List (α × β)) : Raw α (fun _ => β) :=
-  Const.insertMany ∅ l
-
-/-- Creates a hash map from a list of keys, associating the value `()` with each key.
-
-This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
-`HashSet` or `HashSet.Raw` might be a better fit for you. -/
-@[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
-    Raw α (fun _ => Unit) :=
-  Const.insertManyIfNewUnit ∅ l
 
 /-- Creates a hash map from an array of keys, associating the value `()` with each key.
 
@@ -469,6 +452,23 @@ end Unverified
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=
   m.foldRev (fun acc k _ => k :: acc) []
+
+/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
+
+@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
+    (l : List (α × β)) : Raw α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+/-- Creates a hash map from a list of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyIfNewUnit ∅ l
 
 section WF
 

@@ -173,6 +173,14 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
 @[inline, inherit_doc DHashMap.Raw.keys] def keys (m : Raw α β) : List α :=
   m.inner.keys
 
+@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α]
+    (l : List (α × β)) : Raw α β :=
+  ⟨DHashMap.Raw.Const.ofList l⟩
+
+@[inline, inherit_doc DHashMap.Raw.Const.unitOfList] def unitOfList [BEq α] [Hashable α]
+    (l : List α) : Raw α Unit :=
+  ⟨DHashMap.Raw.Const.unitOfList l⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -233,19 +241,11 @@ m.inner.values
     [Hashable α] {ρ : Type w} [ForIn Id ρ α] (m : Raw α Unit) (l : ρ) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.insertManyIfNewUnit m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Raw.Const.ofList] def ofList [BEq α] [Hashable α]
-    (l : List (α × β)) : Raw α β :=
-  ⟨DHashMap.Raw.Const.ofList l⟩
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
-
-@[inline, inherit_doc DHashMap.Raw.Const.unitOfList] def unitOfList [BEq α] [Hashable α]
-    (l : List α) : Raw α Unit :=
-  ⟨DHashMap.Raw.Const.unitOfList l⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α]
     (l : Array α) : Raw α Unit :=

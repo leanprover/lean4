@@ -165,6 +165,14 @@ for all `a`.
 @[inline] def toList (m : Raw α) : List α :=
   m.inner.keys
 
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
+  ⟨HashMap.Raw.unitOfList l⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -230,14 +238,6 @@ appearance.
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
     Raw α :=
   ⟨m.inner.insertManyIfNewUnit l⟩
-
-/--
-Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
--/
-@[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
-  ⟨HashMap.Raw.unitOfList l⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

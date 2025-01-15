@@ -290,23 +290,11 @@ This function ensures that the value is used linearly.
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
-@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
-    DHashMap α β :=
-  insertMany ∅ l
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
-
-@[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
-    (l : List (α × β)) : DHashMap α (fun _ => β) :=
-  Const.insertMany ∅ l
-
-@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
-    DHashMap α (fun _ => Unit) :=
-  Const.insertManyIfNewUnit ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
@@ -320,5 +308,17 @@ instance [BEq α] [Hashable α] [Repr α] [(a : α) → Repr (β a)] : Repr (DHa
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.ofList " ++ reprArg m.toList) prec
 
 end Unverified
+
+@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
+    DHashMap α β :=
+  insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
+    (l : List (α × β)) : DHashMap α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyIfNewUnit ∅ l
 
 end Std.DHashMap

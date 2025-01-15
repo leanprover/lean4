@@ -41,9 +41,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem toNat_ofNat_of_lt {n : Nat} (h : n < size) : (ofNat n).toNat = n := by
     rw [toNat, toBitVec_eq_of_lt h]
 
-  theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
+  @[int_toBitVec] theorem le_def {a b : $typeName} : a ≤ b ↔ a.toBitVec ≤ b.toBitVec := .rfl
 
-  theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
+  @[int_toBitVec] theorem lt_def {a b : $typeName} : a < b ↔ a.toBitVec < b.toBitVec := .rfl
 
   theorem le_iff_toNat_le {a b : $typeName} : a ≤ b ↔ a.toNat ≤ b.toNat := .rfl
 
@@ -74,6 +74,11 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem toBitVec_inj {a b : $typeName} : a.toBitVec = b.toBitVec ↔ a = b :=
     Iff.intro eq_of_toBitVec_eq toBitVec_eq_of_eq
 
+  open $typeName (eq_of_toBitVec_eq toBitVec_eq_of_eq) in
+  @[int_toBitVec]
+  protected theorem eq_iff_toBitVec_eq {a b : $typeName} : a = b ↔ a.toBitVec = b.toBitVec :=
+    Iff.intro toBitVec_eq_of_eq eq_of_toBitVec_eq
+
   open $typeName (eq_of_toBitVec_eq) in
   protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by
     rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [val]
@@ -82,9 +87,18 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem val_inj {a b : $typeName} : a.val = b.val ↔ a = b :=
     Iff.intro eq_of_val_eq (congrArg val)
 
+  open $typeName (eq_of_toBitVec_eq) in
+  protected theorem toBitVec_ne_of_ne {a b : $typeName} (h : a ≠ b) : a.toBitVec ≠ b.toBitVec :=
+    fun h' => h (eq_of_toBitVec_eq h')
+
   open $typeName (toBitVec_eq_of_eq) in
   protected theorem ne_of_toBitVec_ne {a b : $typeName} (h : a.toBitVec ≠ b.toBitVec) : a ≠ b :=
     fun h' => absurd (toBitVec_eq_of_eq h') h
+
+  open $typeName (ne_of_toBitVec_ne toBitVec_ne_of_ne) in
+  @[int_toBitVec]
+  protected theorem ne_iff_toBitVec_ne {a b : $typeName} : a ≠ b ↔ a.toBitVec ≠ b.toBitVec :=
+    Iff.intro toBitVec_ne_of_ne ne_of_toBitVec_ne
 
   open $typeName (ne_of_toBitVec_ne) in
   protected theorem ne_of_lt {a b : $typeName} (h : a < b) : a ≠ b := by
@@ -159,7 +173,7 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   @[simp]
   theorem val_ofNat (n : Nat) : val (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
 
-  @[simp]
+  @[simp, int_toBitVec]
   theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := rfl
 
   @[simp]

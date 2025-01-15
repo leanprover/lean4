@@ -101,7 +101,7 @@ private def ppEqcs (goal : Goal) : MetaM (Array MessageData) := do
    return result
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
+  let m := m!"{← thm.origin.pp}:\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
 private def ppActiveTheorems (goal : Goal) : MetaM MessageData := do

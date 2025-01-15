@@ -10,6 +10,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
+import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
@@ -90,13 +91,21 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
 Helper function for combining `ENode.offset?` fields and propagating an equality
 to the offset constraint module.
 -/
-private def propagateOffsetEq (root : Expr) (roofOffset? otherOffset? : Option Expr) : GoalM Unit := do
-  let some otherOffset := otherOffset? | return ()
-  if let some rootOffset := roofOffset? then
-    processNewOffsetEq rootOffset otherOffset
-  else
-    let n ← getENode root
-    setENode root { n with offset? := otherOffset? }
+private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
+  match lhsRoot.offset? with
+  | some lhsOffset =>
+    if let some rhsOffset := rhsRoot.offset? then
+      Arith.processNewOffsetEq lhsOffset rhsOffset
+    else if isNatNum rhsRoot.self then
+      Arith.processNewOffsetEqLit lhsOffset rhsRoot.self
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with offset? := lhsOffset }
+  | none =>
+    if isNatNum lhsRoot.self then
+    if let some rhsOffset := rhsRoot.offset? then
+      Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
 
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
@@ -166,7 +175,7 @@ where
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
-    propagateOffsetEq rhsNode.root rhsRoot.offset? lhsRoot.offset?
+    propagateOffsetEq rhsRoot lhsRoot
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent
@@ -218,9 +227,10 @@ private def storeFact (fact : Expr) : GoalM Unit := do
 
 /-- Internalizes `lhs` and `rhs`, and then adds equality `lhs = rhs`. -/
 def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
-  storeFact (← mkEq lhs rhs)
-  internalize lhs generation
-  internalize rhs generation
+  let eq ← mkEq lhs rhs
+  storeFact eq
+  internalize lhs generation eq
+  internalize rhs generation eq
   addEq lhs rhs proof
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
@@ -257,8 +267,8 @@ where
       internalize p generation
       addEq p (← getFalseExpr) (← mkEqFalse proof)
     else
-      internalize lhs generation
-      internalize rhs generation
+      internalize lhs generation p
+      internalize rhs generation p
       addEqCore lhs rhs proof isHEq
 
 /-- Adds a new hypothesis. -/

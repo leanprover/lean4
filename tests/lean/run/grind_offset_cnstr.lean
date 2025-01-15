@@ -373,3 +373,9 @@ example (f : Nat → Nat) (a b c d e : Nat) :
         e < c →
         b = d := by
   grind
+
+example (a : Nat) : a < 2 → a < 5 := by
+  grind
+
+example (a b : Nat) : 2 < a → a ≤ b → 2 < b := by
+  grind

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.ReifiedBVLogical
+import Lean.Elab.Tactic.BVDecide.Frontend.BVDecide.Reify
 
 /-!
 This module is the main entry point for reifying `BitVec` problems with boolean substructure.
@@ -19,29 +19,12 @@ namespace Frontend
 open Lean.Meta
 open Std.Tactic.BVDecide
 
-/--
-A reified version of an `Expr` representing a `BVLogicalExpr` that we know to be true.
--/
-structure SatAtBVLogical where
-  /--
-  The reified expression.
-  -/
-  bvExpr : BVLogicalExpr
-  /--
-  A proof that `bvExpr.eval atomsAssignment = true`.
-  -/
-  satAtAtoms : M Expr
-  /--
-  A cache for `toExpr bvExpr`
-  -/
-  expr : Expr
-
 namespace SatAtBVLogical
 
 /--
 Reify an `Expr` that is a proof of some boolean structure on top of predicates about `BitVec`s.
 -/
-partial def of (h : Expr) : M (Option SatAtBVLogical) := do
+partial def of (h : Expr) : LemmaM (Option SatAtBVLogical) := do
   let t ← instantiateMVars (← whnfR (← inferType h))
   match_expr t with
   | Eq α lhsExpr rhsExpr =>
@@ -54,7 +37,7 @@ partial def of (h : Expr) : M (Option SatAtBVLogical) := do
     let proof := do
       let evalLogic ← ReifiedBVLogical.mkEvalExpr bvLogical.expr
       -- this is evalLogic = lhsExpr
-      let evalProof ← bvLogical.evalsAtAtoms
+      let evalProof := (← bvLogical.evalsAtAtoms).getD (ReifiedBVLogical.mkRefl evalLogic)
       -- h is lhsExpr = true
       -- we prove evalLogic = true by evalLogic = lhsExpr = true
       return ReifiedBVLogical.mkTrans evalLogic lhsExpr (mkConst ``Bool.true) evalProof h
@@ -78,13 +61,16 @@ def and (x y : SatAtBVLogical) : SatAtBVLogical where
 
 /-- Given a proof that `x.expr.Unsat`, produce a proof of `False`. -/
 def proveFalse (x : SatAtBVLogical) (h : Expr) : M Expr := do
-  let atomsList ← M.atomsAssignment
-  let evalExpr := mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
-  return mkApp3
-    (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)
-    evalExpr
-    (← x.satAtAtoms)
-    (.app h atomsList)
+  if (← get).atoms.isEmpty then
+    throwError "Unable to identify any relevant atoms."
+  else
+    let atomsList ← M.atomsAssignment
+    let evalExpr := mkApp2 (mkConst ``BVLogicalExpr.eval) atomsList x.expr
+    return mkApp3
+      (mkConst ``Std.Tactic.BVDecide.Reflect.Bool.false_of_eq_true_of_eq_false)
+      evalExpr
+      (← x.satAtAtoms)
+      (.app h atomsList)
 
 
 end SatAtBVLogical

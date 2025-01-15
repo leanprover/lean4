@@ -10,13 +10,15 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4)
-set(LEAN_VERSION_MINOR 12)
+set(LEAN_VERSION_MINOR 16)
 set(LEAN_VERSION_PATCH 0)
 set(LEAN_VERSION_IS_RELEASE 0)  # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
 set(LEAN_VERSION_STRING "${LEAN_VERSION_MAJOR}.${LEAN_VERSION_MINOR}.${LEAN_VERSION_PATCH}")
 if (LEAN_SPECIAL_VERSION_DESC)
   string(APPEND LEAN_VERSION_STRING "-${LEAN_SPECIAL_VERSION_DESC}")
+elseif (NOT LEAN_VERSION_IS_RELEASE)
+  string(APPEND LEAN_VERSION_STRING "-pre")
 endif()
 
 set(LEAN_PLATFORM_TARGET "" CACHE STRING "LLVM triple of the target platform")
@@ -49,6 +51,8 @@ option(LLVM               "LLVM"               OFF)
 option(USE_GITHASH        "GIT_HASH"           ON)
 # When ON we install LICENSE files to CMAKE_INSTALL_PREFIX
 option(INSTALL_LICENSE "INSTALL_LICENSE" ON)
+# When ON we install a copy of cadical
+option(INSTALL_CADICAL "Install a copy of cadical" ON)
 # When ON thread storage is automatically finalized, it assumes platform support pthreads.
 # This option is important when using Lean as library that is invoked from a different programming language (e.g., Haskell).
 option(AUTO_THREAD_FINALIZATION "AUTO_THREAD_FINALIZATION" ON)
@@ -118,7 +122,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
     # From https://emscripten.org/docs/compiling/WebAssembly.html#backends:
     # > The simple and safe thing is to pass all -s flags at both compile and link time.
     set(EMSCRIPTEN_SETTINGS "-s ALLOW_MEMORY_GROWTH=1 -fwasm-exceptions -pthread -flto")
-    string(APPEND LEANC_EXTRA_FLAGS " -pthread")
+    string(APPEND LEANC_EXTRA_CC_FLAGS " -pthread")
     string(APPEND LEAN_EXTRA_CXX_FLAGS " -D LEAN_EMSCRIPTEN ${EMSCRIPTEN_SETTINGS}")
     string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${EMSCRIPTEN_SETTINGS}")
 endif()
@@ -153,7 +157,11 @@ if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
 endif ()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
-string(APPEND LEANC_EXTRA_FLAGS " -fstack-clash-protection")
+string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
+
+# This makes signed integer overflow guaranteed to match 2's complement.
+string(APPEND CMAKE_CXX_FLAGS " -fwrapv")
+string(APPEND LEANC_EXTRA_CC_FLAGS " -fwrapv")
 
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
@@ -297,6 +305,23 @@ if(NOT LEAN_STANDALONE)
   string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${LIBUV_LIBRARIES}")
 endif()
 
+# Windows SDK (for ICU)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  # Pass 'tools' to skip MSVC version check (as MSVC/Visual Studio is not necessarily installed)
+  find_package(WindowsSDK REQUIRED COMPONENTS tools)
+
+  # This will give a semicolon-separated list of include directories
+  get_windowssdk_include_dirs(${WINDOWSSDK_LATEST_DIR} WINDOWSSDK_INCLUDE_DIRS)
+
+  # To successfully build against Windows SDK headers, the Windows SDK headers must have lower
+  # priority than other system headers, so use `-idirafter`. Unfortunately, CMake does not
+  # support this using `include_directories`.
+  string(REPLACE ";" "\" -idirafter \"" WINDOWSSDK_INCLUDE_DIRS "${WINDOWSSDK_INCLUDE_DIRS}")
+  string(APPEND CMAKE_CXX_FLAGS " -idirafter \"${WINDOWSSDK_INCLUDE_DIRS}\"")
+
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " -licu")
+endif()
+
 # ccache
 if(CCACHE AND NOT CMAKE_CXX_COMPILER_LAUNCHER AND NOT CMAKE_C_COMPILER_LAUNCHER)
   find_program(CCACHE_PATH ccache)
@@ -426,7 +451,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-Bsymbolic")
   endif()
   string(APPEND CMAKE_CXX_FLAGS " -fPIC -ftls-model=initial-exec")
-  string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
   string(APPEND TOOLCHAIN_SHARED_LINKER_FLAGS " -Wl,-rpath=\\$$ORIGIN/..:\\$$ORIGIN")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath=\\\$ORIGIN/../lib:\\\$ORIGIN/../lib/lean")
@@ -439,7 +464,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -Wl,-rpath,@executable_path/../lib -Wl,-rpath,@executable_path/../lib/lean")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
   string(APPEND CMAKE_CXX_FLAGS " -fPIC")
-  string(APPEND LEANC_EXTRA_FLAGS " -fPIC")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fPIC")
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   string(APPEND LAKESHARED_LINKER_FLAGS " -Wl,--out-implib,${CMAKE_BINARY_DIR}/lib/lean/libLake_shared.dll.a -Wl,--whole-archive ${CMAKE_BINARY_DIR}/lib/temp/libLake.a.export -Wl,--no-whole-archive")
 endif()
@@ -454,7 +479,7 @@ if(NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND NOT(${CMAKE_SYSTEM_NAME} MATC
   string(APPEND CMAKE_EXE_LINKER_FLAGS " -rdynamic")
   # hide all other symbols
   string(APPEND CMAKE_CXX_FLAGS " -fvisibility=hidden -fvisibility-inlines-hidden")
-  string(APPEND LEANC_EXTRA_FLAGS " -fvisibility=hidden")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " -fvisibility=hidden")
 endif()
 
 # On Windows, add bcrypt for random number generation
@@ -480,7 +505,7 @@ endif()
 # Git HASH
 if(USE_GITHASH)
   include(GetGitRevisionDescription)
-  get_git_head_revision(GIT_REFSPEC GIT_SHA1)
+  get_git_head_revision(GIT_REFSPEC GIT_SHA1 ALLOW_LOOKING_ABOVE_CMAKE_SOURCE_DIR)
   if(${GIT_SHA1} MATCHES "GITDIR-NOTFOUND")
     message(STATUS "Failed to read git_sha1")
     set(GIT_SHA1 "")
@@ -519,9 +544,10 @@ include_directories(${CMAKE_BINARY_DIR}/include)  # config.h etc., "public" head
 string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
 string(APPEND LEANC_OPTS " ${CMAKE_CXX_FLAGS_${uppercase_CMAKE_BUILD_TYPE}}")
 
-# Do embed flag for finding system libraries in dev builds
+# Do embed flag for finding system headers and libraries in dev builds
 if(CMAKE_OSX_SYSROOT AND NOT LEAN_STANDALONE)
-  string(APPEND LEANC_EXTRA_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEANC_EXTRA_CC_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
+  string(APPEND LEAN_EXTRA_LINKER_FLAGS " ${CMAKE_CXX_SYSROOT_FLAG}${CMAKE_OSX_SYSROOT}")
 endif()
 
 add_subdirectory(initialize)
@@ -593,7 +619,7 @@ else()
     OUTPUT_NAME leancpp)
 endif()
 
-if((${STAGE} GREATER 0) AND CADICAL)
+if((${STAGE} GREATER 0) AND CADICAL AND INSTALL_CADICAL)
   add_custom_target(copy-cadical
     COMMAND cmake -E copy_if_different "${CADICAL}" "${CMAKE_BINARY_DIR}/bin/cadical${CMAKE_EXECUTABLE_SUFFIX}")
   add_dependencies(leancpp copy-cadical)
@@ -672,17 +698,17 @@ else()
 endif()
 
 if(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-  add_custom_target(lake_lib ALL
+  add_custom_target(lake_lib
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS leanshared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make Lake
     VERBATIM)
-  add_custom_target(lake_shared ALL
+  add_custom_target(lake_shared
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_lib
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make libLake_shared
     VERBATIM)
-  add_custom_target(lake ALL
+  add_custom_target(lake #ALL
     WORKING_DIRECTORY ${LEAN_SOURCE_DIR}
     DEPENDS lake_shared
     COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make lake
@@ -715,7 +741,7 @@ file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
-if (${STAGE} GREATER 0 AND CADICAL)
+if (${STAGE} GREATER 0 AND CADICAL AND INSTALL_CADICAL)
   install(PROGRAMS "${CADICAL}" DESTINATION bin)
 endif()
 

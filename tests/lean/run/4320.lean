@@ -7,8 +7,8 @@ def many_map {α β : Type} (f : α → β) : Many α → Many β
   | .more x xs => Many.more (f x) (fun () => many_map f <| xs ())
 
 /--
-info: many_map.induct {α β : Type} (f : α → β) (motive : Many α → Prop) (case1 : motive Many.none)
-  (case2 : ∀ (x : α) (xs : Unit → Many α), motive (xs ()) → motive (Many.more x xs)) : ∀ (a : Many α), motive a
+info: many_map.induct {α : Type} (motive : Many α → Prop) (case1 : motive Many.none)
+  (case2 : ∀ (x : α) (xs : Unit → Many α), motive (xs ()) → motive (Many.more x xs)) (a✝ : Many α) : motive a✝
 -/
 #guard_msgs in
 #check many_map.induct

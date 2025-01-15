@@ -3,6 +3,7 @@ Copyright (c) 2023 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Data.RBMap
 
 namespace Lake
@@ -63,7 +64,7 @@ def insert (self : RBArray α β cmp) (a : α) (b : β) : RBArray α β cmp :=
   self.toArray.forM f
 
 @[inline] protected def forIn [Monad m] (self : RBArray α β cmp) (init : σ) (f : β → σ → m (ForInStep σ)) : m σ :=
-  self.toArray.forIn init f
+  ForIn.forIn self.toArray init f
 
 instance : ForIn m (RBArray α β cmp) β := ⟨RBArray.forIn⟩
 

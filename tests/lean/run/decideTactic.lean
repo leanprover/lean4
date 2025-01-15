@@ -52,7 +52,7 @@ example : unknownProp := by decide
 Reporting unfolded instances and give hint about Eq.rec.
 From discussion with Heather Macbeth on Zulip
 -/
-structure Nice (n : Nat) : Prop :=
+structure Nice (n : Nat) : Prop where
   (large : 100 ≤ n)
 
 theorem nice_iff (n : Nat) : Nice n ↔ 100 ≤ n := ⟨Nice.rec id, Nice.mk⟩
@@ -102,3 +102,28 @@ defined using tactics such as 'rw' or 'simp'. To avoid tactics, make use of func
 -/
 #guard_msgs in
 example : ¬ Nice 102 := by decide
+
+
+/-!
+Reverting free variables.
+-/
+
+/--
+error: expected type must not contain free variables
+  x + 1 ≤ 5
+Use the '+revert' option to automatically cleanup and revert free variables.
+-/
+#guard_msgs in
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide
+
+example (x : Nat) (h : x < 5) : x + 1 ≤ 5 := by decide +revert
+
+
+/--
+Can handle universe levels.
+-/
+
+instance (p : PUnit.{u} → Prop) [Decidable (p PUnit.unit)] : Decidable (∀ x : PUnit.{u}, p x) :=
+  decidable_of_iff (p PUnit.unit) (by constructor; rintro _ ⟨⟩; assumption; intro h; apply h)
+
+example : ∀ (x : PUnit.{u}), x = PUnit.unit := by decide

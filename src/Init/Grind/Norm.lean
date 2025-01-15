@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.SimpLemmas
+import Init.PropLemmas
 import Init.Classical
 import Init.ByCases
 
@@ -40,9 +41,16 @@ attribute [grind_norm] not_true
 -- False
 attribute [grind_norm] not_false_eq_true
 
+-- Remark: we disabled the following normalization rule because we want this information when implementing splitting heuristics
 -- Implication as a clause
-@[grind_norm] theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
+theorem imp_eq (p q : Prop) : (p → q) = (¬ p ∨ q) := by
   by_cases p <;> by_cases q <;> simp [*]
+
+@[grind_norm] theorem true_imp_eq (p : Prop) : (True → p) = p := by simp
+@[grind_norm] theorem false_imp_eq (p : Prop) : (False → p) = True := by simp
+@[grind_norm] theorem imp_true_eq (p : Prop) : (p → True) = True := by simp
+@[grind_norm] theorem imp_false_eq (p : Prop) : (p → False) = ¬p := by simp
+@[grind_norm] theorem imp_self_eq (p : Prop) : (p → p) = True := by simp
 
 -- And
 @[grind_norm↓] theorem not_and (p q : Prop) : (¬(p ∧ q)) = (¬p ∨ ¬q) := by
@@ -58,13 +66,19 @@ attribute [grind_norm] ite_true ite_false
 @[grind_norm↓] theorem not_ite {_ : Decidable p} (q r : Prop) : (¬ite p q r) = ite p (¬q) (¬r) := by
   by_cases p <;> simp [*]
 
+@[grind_norm] theorem ite_true_false {_ : Decidable p} : (ite p True False) = p := by
+  by_cases p <;> simp
+
+@[grind_norm] theorem ite_false_true {_ : Decidable p} : (ite p False True) = ¬p := by
+  by_cases p <;> simp
+
 -- Forall
 @[grind_norm↓] theorem not_forall (p : α → Prop) : (¬∀ x, p x) = ∃ x, ¬p x := by simp
 attribute [grind_norm] forall_and
 
 -- Exists
 @[grind_norm↓] theorem not_exists (p : α → Prop) : (¬∃ x, p x) = ∀ x, ¬p x := by simp
-attribute [grind_norm] exists_const exists_or
+attribute [grind_norm] exists_const exists_or exists_prop exists_and_left exists_and_right
 
 -- Bool cond
 @[grind_norm] theorem cond_eq_ite (c : Bool) (a b : α) : cond c a b = ite c a b := by
@@ -106,5 +120,8 @@ attribute [grind_norm] Nat.le_zero_eq
 
 -- GT GE
 attribute [grind_norm] GT.gt GE.ge
+
+-- Succ
+attribute [grind_norm] Nat.succ_eq_add_one
 
 end Lean.Grind

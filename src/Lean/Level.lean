@@ -320,7 +320,7 @@ private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
  -/
 private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev : Level) (prevK : Nat) (result : Level) : Level :=
   if h : i < lvls.size then
-    let lvl   := lvls.get ⟨i, h⟩
+    let lvl   := lvls[i]
     let curr  := lvl.getLevelOffset
     let currK := lvl.getOffset
     if curr == prev then
@@ -335,7 +335,7 @@ private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev
   It finds the first position that is not an explicit universe. -/
 private partial def skipExplicit (lvls : Array Level) (i : Nat) : Nat :=
   if h : i < lvls.size then
-    let lvl := lvls.get ⟨i, h⟩
+    let lvl := lvls[i]
     if lvl.getLevelOffset.isZero then skipExplicit lvls (i+1) else i
   else
     i
@@ -349,7 +349,7 @@ It assumes `lvls` has been sorted using `normLt`.
 -/
 private partial def isExplicitSubsumedAux (lvls : Array Level) (maxExplicit : Nat) (i : Nat) : Bool :=
   if h : i < lvls.size then
-    let lvl := lvls.get ⟨i, h⟩
+    let lvl := lvls[i]
     if lvl.getOffset ≥ maxExplicit then true
     else isExplicitSubsumedAux lvls maxExplicit (i+1)
   else
@@ -599,17 +599,20 @@ def geq (u v : Level) : Bool :=
 where
   go (u v : Level) : Bool :=
     u == v ||
+    let k := fun () =>
+      match v with
+      | imax v₁ v₂ => go u v₁ && go u v₂
+      | _          =>
+        let v' := v.getLevelOffset
+        (u.getLevelOffset == v' || v'.isZero)
+        && u.getOffset ≥ v.getOffset
     match u, v with
-    | _,          zero       => true
-    | u,          max v₁ v₂  => go u v₁ && go u v₂
-    | max u₁ u₂,  v          => go u₁ v || go u₂ v
-    | u,          imax v₁ v₂ => go u v₁ && go u v₂
-    | imax _  u₂, v          => go u₂ v
-    | succ u,     succ v     => go u v
-    | _, _ =>
-      let v' := v.getLevelOffset
-      (u.getLevelOffset == v' || v'.isZero)
-      && u.getOffset ≥ v.getOffset
+    | _,          zero      => true
+    | u,          max v₁ v₂ => go u v₁ && go u v₂
+    | max u₁ u₂,  v         => go u₁ v || go u₂ v || k ()
+    | imax _  u₂, v         => go u₂ v
+    | succ u,     succ v    => go u v
+    | _,          _         => k ()
   termination_by (u, v)
 
 end Level

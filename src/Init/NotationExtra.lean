@@ -22,28 +22,28 @@ syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unb
 
 open TSyntax.Compat in
 def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
-  let rec loop (i : Nat) (acc : Syntax) := do
+  let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
     match i with
     | 0   => pure acc
-    | i+1 =>
-      let ident := idents[i]![0]
+    | i + 1 =>
+      let ident := idents[i][0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
         | true,  some type => `($combinator fun $ident : $type => $acc)
         | false, none      => `($combinator fun _ => $acc)
         | false, some type => `($combinator fun _ : $type => $acc)
-      loop i acc
-  loop idents.size body
+      loop i (Nat.le_of_succ_le h) acc
+  loop idents.size (by simp) body
 
 def expandBrackedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
-  let rec loop (i : Nat) (acc : Syntax) := do
+  let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
     match i with
     | 0   => pure acc
     | i+1 =>
-      let idents := binders[i]![1].getArgs
-      let type   := binders[i]![3]
-      loop i (← expandExplicitBindersAux combinator idents (some type) acc)
-  loop binders.size body
+      let idents := binders[i][1].getArgs
+      let type   := binders[i][3]
+      loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)
+  loop binders.size (by simp) body
 
 def expandExplicitBinders (combinatorDeclName : Name) (explicitBinders : Syntax) (body : Syntax) : MacroM Syntax := do
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
@@ -167,11 +167,6 @@ end Lean
 @[app_unexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
   | `($(_) $c $t $e) => `(if $c then $t else $e)
   | _                => throw ()
-
-@[app_unexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
-  | `($(_) $_)    => `(sorry)
-  | `($(_) $_ $_) => `(sorry)
-  | _             => throw ()
 
 @[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)

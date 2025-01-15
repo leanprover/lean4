@@ -37,7 +37,7 @@ def InternalExceptionId.getName (id : InternalExceptionId) : IO Name :=  do
   let exs ← internalExceptionsRef.get
   let i := id.idx;
   if h : i < exs.size then
-    return exs.get ⟨i, h⟩
+    return exs[i]
   else
     throw <| IO.userError "invalid internal exception id"
 

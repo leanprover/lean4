@@ -31,17 +31,17 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let c₂ := c₁.norm
     if c₂.isUnsat then
       let r := mkConst ``False
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (← toContextExpr ctx) (toExpr c) reflTrue
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_false_of_isUnsat) (toContextExpr ctx) (toExpr c) reflTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else if c₂.isValid then
       let r := mkConst ``True
-      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (← toContextExpr ctx) (toExpr c) reflTrue
+      let p := mkApp3 (mkConst ``Nat.Linear.ExprCnstr.eq_true_of_isValid) (toContextExpr ctx) (toExpr c) reflTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else
       let c₂ : LinearCnstr := c₂.toExpr
       let r ← c₂.toArith ctx
       if r != lhs then
-        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
+        let p := mkApp4 (mkConst ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c₂) reflTrue
         return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
       else
         return none
@@ -50,18 +50,24 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if let some arg := e.not? then
     let mut eNew?   := none
     let mut thmName := Name.anonymous
-    if arg.isAppOfArity ``LE.le 4 then
-      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
-      thmName := ``Nat.not_le_eq
-    else if arg.isAppOfArity ``GE.ge 4 then
-      eNew?   := some (← mkLE (← mkAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
-      thmName := ``Nat.not_ge_eq
-    else if arg.isAppOfArity ``LT.lt 4 then
-      eNew?   := some (← mkLE (arg.getArg! 3) (arg.getArg! 2))
-      thmName := ``Nat.not_lt_eq
-    else if arg.isAppOfArity ``GT.gt 4 then
-      eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
-      thmName := ``Nat.not_gt_eq
+    match_expr arg with
+    | LE.le α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (← mkAdd (arg.getArg! 3) (mkNatLit 1)) (arg.getArg! 2))
+        thmName := ``Nat.not_le_eq
+    | GE.ge α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (← mkAdd (arg.getArg! 2) (mkNatLit 1)) (arg.getArg! 3))
+        thmName := ``Nat.not_ge_eq
+    | LT.lt α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (arg.getArg! 3) (arg.getArg! 2))
+        thmName := ``Nat.not_lt_eq
+    | GT.gt α _ _ _ =>
+      if α.isConstOf ``Nat then
+        eNew?   := some (← mkLE (arg.getArg! 2) (arg.getArg! 3))
+        thmName := ``Nat.not_gt_eq
+    | _ => pure ()
     if let some eNew := eNew? then
       let h₁ := mkApp2 (mkConst thmName) (arg.getArg! 2) (arg.getArg! 3)
       if let some (eNew', h₂) ← simpCnstrPos? eNew then
@@ -81,7 +87,7 @@ def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   if p'.length < p.length then
     -- We only return some if monomials were fused
     let e' : LinearExpr := p'.toExpr
-    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (← toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
+    let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflTrue
     let r ← e'.toArith ctx
     return some (r, p)
   else

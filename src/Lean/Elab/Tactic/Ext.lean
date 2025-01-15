@@ -126,7 +126,7 @@ def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandEl
         addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext' theorem for '{MessageData.ofConstName structName}': {e.toMessageData}"
+        Failed to generate an 'ext' theorem for '{.ofConstName structName}': {e.toMessageData}"
   return extName
 
 /--
@@ -164,7 +164,7 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
         addDeclarationRangesFromSyntax extName (← getRef)
     catch e =>
       throwError m!"\
-        Failed to generate an 'ext_iff' theorem from '{MessageData.ofConstName extName}': {e.toMessageData}\n\
+        Failed to generate an 'ext_iff' theorem from '{.ofConstName extName}': {e.toMessageData}\n\
         \n\
         Try '@[ext (iff := false)]' to prevent generating an 'ext_iff' theorem."
   return extIffName
@@ -195,9 +195,6 @@ structure ExtTheorems where
   erased  : PHashSet Name := {}
   deriving Inhabited
 
-/-- Discrimation tree settings for the `ext` extension. -/
-def extExt.config : WhnfCoreConfig := {}
-
 /-- The environment extension to track `@[ext]` theorems. -/
 builtin_initialize extExtension :
     SimpleScopedEnvExtension ExtTheorem ExtTheorems ←
@@ -211,7 +208,7 @@ builtin_initialize extExtension :
 ordered from high priority to low. -/
 @[inline] def getExtTheorems (ty : Expr) : MetaM (Array ExtTheorem) := do
   let extTheorems := extExtension.getState (← getEnv)
-  let arr ← extTheorems.tree.getMatch ty extExt.config
+  let arr ← extTheorems.tree.getMatch ty
   let erasedArr := arr.filter fun thm => !extTheorems.erased.contains thm.declName
   -- Using insertion sort because it is stable and the list of matches should be mostly sorted.
   -- Most ext theorems have default priority.
@@ -258,7 +255,7 @@ builtin_initialize registerBuiltinAttribute {
       but this theorem proves{indentD declTy}"
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq
-    let keys ← withReducible <| DiscrTree.mkPath ty extExt.config
+    let keys ← withReducible <| DiscrTree.mkPath ty
     let priority ← liftCommandElabM <| Elab.liftMacroM do evalPrio (prio.getD (← `(prio| default)))
     extExtension.add {declName, keys, priority} kind
     -- Realize iff theorem

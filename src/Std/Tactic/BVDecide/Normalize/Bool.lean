@@ -40,6 +40,15 @@ attribute [bv_normalize] Bool.xor_not_self
 attribute [bv_normalize] Bool.not_not
 attribute [bv_normalize] Bool.and_self_left
 attribute [bv_normalize] Bool.and_self_right
+attribute [bv_normalize] eq_self
+attribute [bv_normalize] Bool.cond_self
+attribute [bv_normalize] cond_false
+attribute [bv_normalize] cond_true
+attribute [bv_normalize] Bool.cond_not
+
+@[bv_normalize]
+theorem if_eq_cond {b : Bool} {x y : α} : (if b = true then x else y) = (bif b then x else y) := by
+  rw [cond_eq_if]
 
 @[bv_normalize]
 theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
@@ -47,5 +56,14 @@ theorem Bool.not_xor : ∀ (a b : Bool), !(a ^^ b) = (a == b) := by decide
 @[bv_normalize]
 theorem Bool.or_elim : ∀ (a b : Bool), (a || b) = !(!a && !b) := by decide
 
+theorem Bool.and_left (lhs rhs : Bool) (h : (lhs && rhs) = true) : lhs = true := by
+  revert lhs rhs
+  decide
+
+theorem Bool.and_right (lhs rhs : Bool) (h : (lhs && rhs) = true) : rhs = true := by
+  revert lhs rhs
+  decide
+
 end Normalize
 end Std.Tactic.BVDecide
+

@@ -118,12 +118,16 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
-theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {h : valid c i}
-    (h' : c = d) : c[i] = d[i]'(h' ▸ h) := by
-  cases h'; rfl
+theorem getElem_congr [GetElem coll idx elem valid] {c d : coll} (h : c = d)
+    {i j : idx} (h' : i = j) (w : valid c i) : c[i] = d[j]'(h' ▸ h ▸ w) := by
+  cases h; cases h'; rfl
 
-theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
-    (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
+theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {w : valid c i}
+    (h : c = d) : c[i] = d[i]'(h ▸ w) := by
+  cases h; rfl
+
+theorem getElem_congr_idx [GetElem coll idx elem valid] {c : coll} {i j : idx} {w : valid c i}
+    (h' : i = j) : c[i] = c[j]'(h' ▸ w) := by
   cases h'; rfl
 
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
@@ -166,6 +170,25 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   have : Decidable (dom c i) := .isFalse h
   simp [getElem!_def, getElem?_def, h]
 
+@[simp] theorem get_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] (h) :
+    c[i]?.get h = c[i]'(by simp only [getElem?_def] at h; split at h <;> simp_all) := by
+  simp only [getElem?_def] at h ⊢
+  split <;> simp_all
+
+@[simp] theorem getElem?_eq_none [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]? = none ↔ ¬dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
+@[deprecated getElem?_eq_none (since := "2024-12-11")]
+abbrev isNone_getElem? := @getElem?_eq_none
+
+@[simp] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
 namespace Fin
 
 instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
@@ -200,28 +223,34 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
-
 @[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
-
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 @[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
   | _ :: _, 0, _ => .head ..
   | _ :: l, _+1, _ => .tail _ (getElem_mem (l := l) ..)
 
-theorem get_drop_eq_drop (as : List α) (i : Nat) (h : i < as.length) : as[i] :: as.drop (i+1) = as.drop i :=
+theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.length) :
+    as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl
-  | _::_, i+1 => get_drop_eq_drop _ i _
+  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
+
+@[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
+abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
 
 end List
 
 namespace Array
 
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
-  getElem xs i h := xs.get ⟨i, h⟩
+  getElem xs i h := xs.get i h
+
+@[simp] theorem get_eq_getElem (a : Array α) (i : Nat) (h) : a.get i h = a[i] := rfl
+
+@[simp] theorem get!_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) : a.get! i = a[i]! := by
+  simp only [get!, getD, get_eq_getElem, getElem!_def]
+  split <;> simp_all [getElem?_pos, getElem?_neg]
 
 end Array
 

@@ -327,15 +327,18 @@ private def toExprCore (t : Tree) : TermElabM Expr := do
   | .term _ trees e =>
     modifyInfoState (fun s => { s with trees := s.trees ++ trees }); return e
   | .binop ref kind f lhs rhs =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkBinOp (kind == .lazy) f (← toExprCore lhs) (← toExprCore rhs)
   | .unop ref f arg =>
-    withRef ref <| withInfoContext' ref (mkInfo := mkTermInfo .anonymous ref) do
-      mkUnOp f (← toExprCore arg)
+    withRef ref <|
+      withTermInfoContext' .anonymous ref do
+        mkUnOp f (← toExprCore arg)
   | .macroExpansion macroName stx stx' nested =>
-    withRef stx <| withInfoContext' stx (mkInfo := mkTermInfo macroName stx) do
-      withMacroExpansion stx stx' do
-        toExprCore nested
+    withRef stx <|
+      withTermInfoContext' macroName stx <|
+        withMacroExpansion stx stx' <|
+          toExprCore nested
 
 /--
   Auxiliary function to decide whether we should coerce `f`'s argument to `maxType` or not.
@@ -578,7 +581,7 @@ def elabDefaultOrNonempty : TermElab :=  fun stx expectedType? => do
       else
         -- It is in the context of an `unsafe` constant. We can use sorry instead.
         -- Another option is to make a recursive application since it is unsafe.
-        mkSorry expectedType false
+        mkLabeledSorry expectedType false (unique := true)
 
 builtin_initialize
   registerTraceClass `Elab.binop

@@ -10,9 +10,8 @@ Authors: Sebastian Ullrich
 
 prelude
 import Init.System.Promise
-import Lean.Message
 import Lean.Parser.Types
-import Lean.Elab.InfoTree
+import Lean.Util.Trace
 
 set_option linter.missingDocs true
 
@@ -55,6 +54,11 @@ structure Snapshot where
   diagnostics : Snapshot.Diagnostics
   /-- General elaboration metadata produced by this step. -/
   infoTree? : Option Elab.InfoTree := none
+  /--
+  Trace data produced by this step. Currently used only by `trace.profiler.output`, otherwise we
+  depend on the elaborator adding traces to `diagnostics` eventually.
+  -/
+  traces : TraceState := {}
   /--
   Whether it should be indicated to the user that a fatal error (which should be part of
   `diagnostics`) occurred that prevents processing of the remainder of the file.
@@ -134,6 +138,10 @@ structure SyntaxGuarded (α : Type) where
   /-- Potentially reusable value. -/
   val : α
 
+/-- Applies `f` to `s.val`. -/
+def SyntaxGuarded.mapVal (s : SyntaxGuarded α) (f : α → β) : SyntaxGuarded β :=
+  { s with val := f s.val }
+
 /--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then
@@ -189,35 +197,46 @@ def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] 
       p.resolve default
 
 /--
+Runs `act` with a newly created promise and resolves it to `default` if `act` is interrupted by an
+exception.
+
+This is a weaker variant of `withAlwaysResolvedPromise` that is necessary when the promise is
+resolved on another thread that may terminate after `act`. Care must be taken that all control flow
+does eventually lead to resolution of the promise in this case.
+-/
+def withPromiseResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : MonadAlwaysExcept ε m]
+    [Inhabited α] (act : IO.Promise α → m β) : m β := do
+  let p ← IO.Promise.new
+  let _ := always.except
+  try
+    act p
+  catch e =>
+    p.resolve default
+    throw e
+
+/-- Variant of `withPromiseResolvedOnException` that generates a given number of promises. -/
+def withPromisesResolvedOnException [Monad m] [MonadLiftT BaseIO m] [always : MonadAlwaysExcept ε m]
+    [Inhabited α] (count : Nat) (act : Array (IO.Promise α) → m β) : m β := do
+  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  let _ := always.except
+  try
+    act ps
+  catch e =>
+    for p in ps do
+      p.resolve default
+    throw e
+
+/--
   Tree of snapshots where each snapshot comes with an array of asynchronous further subtrees. Used
   for asynchronously collecting information about the entirety of snapshots in the language server.
   The involved tasks may form a DAG on the `Task` dependency level but this is not captured by this
   data structure. -/
-inductive SnapshotTree where
-  /-- Creates a snapshot tree node. -/
-  | mk (element : Snapshot) (children : Array (SnapshotTask SnapshotTree))
+structure SnapshotTree where
+  /-- The immediately available element of the snapshot tree node. -/
+  element : Snapshot
+  /-- The asynchronously available children of the snapshot tree node. -/
+  children : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
-
-/-- The immediately available element of the snapshot tree node. -/
-abbrev SnapshotTree.element : SnapshotTree → Snapshot
-  | mk s _ => s
-/-- The asynchronously available children of the snapshot tree node. -/
-abbrev SnapshotTree.children : SnapshotTree → Array (SnapshotTask SnapshotTree)
-  | mk _ children => children
-
-/-- Produces trace of given snapshot tree, synchronously waiting on all children. -/
-partial def SnapshotTree.trace (s : SnapshotTree) : CoreM Unit :=
-  go none s
-where go range? s := do
-  let file ← getFileMap
-  let mut desc := f!"{s.element.desc}"
-  if let some range := range? then
-    desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
-  desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
-  if let some t := s.element.infoTree? then
-    trace[Elab.info] (← t.format)
-  withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
-    s.children.toList.forM fun c => go c.range? c.get
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous
@@ -278,30 +297,67 @@ instance : Inhabited DynamicSnapshot where
     children.forM (·.get.forM f)
 
 /--
+  Runs a tree of snapshots to conclusion,
+  folding the function `f` over each snapshot in tree preorder. -/
+@[specialize] partial def SnapshotTree.foldM [Monad m] (s : SnapshotTree)
+    (f : α → Snapshot → m α) (init : α) : m α := do
+  match s with
+  | mk element children =>
+    let a ← f init element
+    children.foldlM (fun a snap => snap.get.foldM f a) a
+
+/--
   Option for printing end position of each message in addition to start position. Used for testing
   message ranges in the test suite. -/
 register_builtin_option printMessageEndPos : Bool := {
   defValue := false, descr := "print end position of each message in addition to start position"
 }
 
-/-- Reports messages on stdout. If `json` is true, prints messages as JSON (one per line). -/
-def reportMessages (msgLog : MessageLog) (opts : Options) (json := false) : IO Unit := do
-  if json then
-    msgLog.forM (·.toJson <&> (·.compress) >>= IO.println)
-  else
-    msgLog.forM (·.toString (includeEndPos := printMessageEndPos.get opts) >>= IO.print)
+/--
+Reports messages on stdout and returns whether an error was reported.
+If `json` is true, prints messages as JSON (one per line).
+If a message's kind is in `severityOverrides`, it will be reported with
+the specified severity.
+-/
+def reportMessages (msgLog : MessageLog) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  let includeEndPos := printMessageEndPos.get opts
+  msgLog.unreported.foldlM (init := false) fun hasErrors msg => do
+    let msg : Message :=
+      if let some severity := severityOverrides.find? msg.kind then
+        {msg with severity}
+      else
+        msg
+    if json then
+      let j ← msg.toJson
+      IO.println j.compress
+    else
+      let s ← msg.toString includeEndPos
+      IO.print s
+    return hasErrors || msg.severity matches .error
 
 /--
   Runs a tree of snapshots to conclusion and incrementally report messages on stdout. Messages are
-  reported in tree preorder.
+  reported in tree preorder. Returns whether any errors were reported.
   This function is used by the cmdline driver; see `Lean.Server.FileWorker.reportSnapshots` for how
   the language server reports snapshots asynchronously.  -/
-def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options) (json := false) : IO Unit := do
-  s.forM (reportMessages ·.diagnostics.msgLog opts json)
+def SnapshotTree.runAndReport (s : SnapshotTree) (opts : Options)
+    (json := false) (severityOverrides : NameMap MessageSeverity := {}) : IO Bool := do
+  s.foldM (init := false) fun e snap => do
+    let e' ← reportMessages snap.diagnostics.msgLog opts json severityOverrides
+    return strictOr e e'
 
 /-- Waits on and returns all snapshots in the tree. -/
 def SnapshotTree.getAll (s : SnapshotTree) : Array Snapshot :=
-  s.forM (m := StateM _) (fun s => modify (·.push s)) |>.run #[] |>.2
+  Id.run <| s.foldM (·.push ·) #[]
+
+/-- Returns a task that waits on all snapshots in the tree. -/
+def SnapshotTree.waitAll : SnapshotTree → BaseIO (Task Unit)
+  | mk _ children => go children.toList
+where
+  go : List (SnapshotTask SnapshotTree) → BaseIO (Task Unit)
+    | [] => return .pure ()
+    | t::ts => BaseIO.bindTask t.task fun _ => go ts
 
 /-- Context of an input processing invocation. -/
 structure ProcessingContext extends Parser.InputContext

@@ -3,7 +3,8 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
-import Lake.Build.Index
+prelude
+import Lake.Config.Monad
 import Lake.CLI.Error
 
 namespace Lake
@@ -13,32 +14,32 @@ open Lean (Name)
 
 structure BuildSpec where
   info : BuildInfo
-  getBuildJob : BuildData info.key → BuildJob Unit
+  getBuildJob : BuildData info.key → OpaqueJob
 
-@[inline] def BuildData.toBuildJob
-  [FamilyOut BuildData k (BuildJob α)] (data : BuildData k)
-: BuildJob Unit :=
-  discard <| ofFamily data
+@[inline] def BuildData.toJob
+  [FamilyOut BuildData k (Job α)] (data : BuildData k)
+: OpaqueJob :=
+  ofFamily data |>.toOpaque
 
 @[inline] def mkBuildSpec
-  (info : BuildInfo) [FamilyOut BuildData info.key (BuildJob α)]
+  (info : BuildInfo) [FamilyOut BuildData info.key (Job α)]
 : BuildSpec :=
-  {info, getBuildJob := BuildData.toBuildJob}
+  {info, getBuildJob := BuildData.toJob}
 
 @[inline] def mkConfigBuildSpec
   (facetType : String) (info : BuildInfo)
   (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
 : Except CliError BuildSpec := do
-  let some getJob := config.getJob?
+  let some getBuildJob := config.getJob?
     | throw <| CliError.nonCliFacet facetType facet
-  return {info, getBuildJob := h ▸ getJob}
+  return {info, getBuildJob := h ▸ getBuildJob}
 
-@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM (BuildJob Unit) := do
+@[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM OpaqueJob := do
   maybeRegisterJob (self.info.key.toSimpleString) <| ← do
     self.getBuildJob <$> self.info.fetch
 
-def buildSpecs (specs : Array BuildSpec) : FetchM (BuildJob Unit) := do
-  BuildJob.mixArray (← specs.mapM (·.fetch))
+def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
+  return .mixArray (← specs.mapM (·.fetch))
 
 /-! ## Parsing CLI Build Target Specifiers -/
 

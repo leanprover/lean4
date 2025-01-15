@@ -38,14 +38,14 @@ The operations are organized as follow:
 * Sublists: `take`, `drop`, `takeWhile`, `dropWhile`, `partition`, `dropLast`,
   `isPrefixOf`, `isPrefixOf?`, `isSuffixOf`, `isSuffixOf?`, `Subset`, `Sublist`,
   `rotateLeft` and `rotateRight`.
-* Manipulating elements: `replace`, `insert`, `modify`, `erase`, `eraseP`, `eraseIdx`.
+* Manipulating elements: `replace`, `modify`, `insert`, `insertIdx`, `erase`, `eraseP`, `eraseIdx`.
 * Finding elements: `find?`, `findSome?`, `findIdx`, `indexOf`, `findIdx?`, `indexOf?`,
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
 * Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
 * Minima and maxima: `min?` and `max?`.
-* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `groupBy`,
+* Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`
   (currently these functions are mostly only used in meta code,
   and do not have API suitable for verification).
@@ -162,46 +162,74 @@ theorem isEqv_cons₂ : isEqv (a::as) (b::bs) eqv = (eqv a b && isEqv as bs eqv)
 
 /-! ## Lexicographic ordering -/
 
-/--
-The lexicographic order on lists.
-`[] < a::as`, and `a::as < b::bs` if `a < b` or if `a` and `b` are equivalent and `as < bs`.
--/
-inductive lt [LT α] : List α → List α → Prop where
+/-- Lexicographic ordering for lists. -/
+inductive Lex (r : α → α → Prop) : List α → List α → Prop
   /-- `[]` is the smallest element in the order. -/
-  | nil  (b : α) (bs : List α) : lt [] (b::bs)
+  | nil {a l} : Lex r [] (a :: l)
+  /-- If `a` is indistinguishable from `b` and `as < bs`, then `a::as < b::bs`. -/
+  | cons {a l₁ l₂} (h : Lex r l₁ l₂) : Lex r (a :: l₁) (a :: l₂)
   /-- If `a < b` then `a::as < b::bs`. -/
-  | head {a : α} (as : List α) {b : α} (bs : List α) : a < b → lt (a::as) (b::bs)
-  /-- If `a` and `b` are equivalent and `as < bs`, then `a::as < b::bs`. -/
-  | tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → lt as bs → lt (a::as) (b::bs)
+  | rel {a₁ l₁ a₂ l₂} (h : r a₁ a₂) : Lex r (a₁ :: l₁) (a₂ :: l₂)
 
-instance [LT α] : LT (List α) := ⟨List.lt⟩
-
-instance hasDecidableLt [LT α] [h : DecidableRel (α := α) (· < ·)] : (l₁ l₂ : List α) → Decidable (l₁ < l₂)
-  | [],    []    => isFalse nofun
-  | [],    _::_  => isTrue (List.lt.nil _ _)
-  | _::_, []     => isFalse nofun
+instance decidableLex [DecidableEq α] (r : α → α → Prop) [h : DecidableRel r] :
+    (l₁ l₂ : List α) → Decidable (Lex r l₁ l₂)
+  | [], [] => isFalse nofun
+  | [], _::_ => isTrue Lex.nil
+  | _::_, [] => isFalse nofun
   | a::as, b::bs =>
     match h a b with
-    | isTrue h₁  => isTrue (List.lt.head _ _ h₁)
+    | isTrue h₁ => isTrue (Lex.rel h₁)
     | isFalse h₁ =>
-      match h b a with
-      | isTrue h₂  => isFalse (fun h => match h with
-         | List.lt.head _ _ h₁' => absurd h₁' h₁
-         | List.lt.tail _ h₂' _ => absurd h₂ h₂')
-      | isFalse h₂ =>
-        match hasDecidableLt as bs with
-        | isTrue h₃  => isTrue (List.lt.tail h₁ h₂ h₃)
+      if h₂ : a = b then
+        match decidableLex r as bs with
+        | isTrue h₃ => isTrue (h₂ ▸ Lex.cons h₃)
         | isFalse h₃ => isFalse (fun h => match h with
-           | List.lt.head _ _ h₁' => absurd h₁' h₁
-           | List.lt.tail _ _ h₃' => absurd h₃' h₃)
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₃' => absurd h₃' h₃)
+      else
+        isFalse (fun h => match h with
+          | Lex.rel h₁' => absurd h₁' h₁
+          | Lex.cons h₂' => h₂ rfl)
+
+@[inherit_doc Lex]
+protected abbrev lt [LT α] : List α → List α → Prop := Lex (· < ·)
+
+instance instLT [LT α] : LT (List α) := ⟨List.lt⟩
+
+/-- Decidability of lexicographic ordering. -/
+instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+    Decidable (l₁ < l₂) := decidableLex (· < ·) l₁ l₂
+
+@[deprecated decidableLT (since := "2024-12-13"), inherit_doc decidableLT]
+abbrev hasDecidableLt := @decidableLT
 
 /-- The lexicographic order on lists. -/
 @[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
 
-instance [LT α] : LE (List α) := ⟨List.le⟩
+instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
-instance [LT α] [DecidableRel ((· < ·) : α → α → Prop)] : (l₁ l₂ : List α) → Decidable (l₁ ≤ l₂) :=
-  fun _ _ => inferInstanceAs (Decidable (Not _))
+instance decidableLE [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List α) :
+    Decidable (l₁ ≤ l₂) :=
+  inferInstanceAs (Decidable (Not _))
+
+/--
+Lexicographic comparator for lists.
+
+* `lex lt [] (b :: bs)` is true.
+* `lex lt as []` is false.
+* `lex lt (a :: as) (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
+-/
+def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
+  match l₁, l₂ with
+  | [],      _ :: _  => true
+  | _,      []       => false
+  | a :: as, b :: bs => lt a b || (a == b && lex as bs lt)
+
+@[simp] theorem lex_nil_nil [BEq α] : lex ([] : List α) [] lt = false := rfl
+@[simp] theorem lex_nil_cons [BEq α] {b} {bs : List α} : lex [] (b :: bs) lt = true := rfl
+@[simp] theorem lex_cons_nil [BEq α] {a} {as : List α} : lex (a :: as) [] lt = false := rfl
+@[simp] theorem lex_cons_cons [BEq α] {a b} {as bs : List α} :
+    lex (a :: as) (b :: bs) lt = (lt a b || (a == b && lex as bs lt)) := rfl
 
 /-! ## Alternative getters -/
 
@@ -231,7 +259,7 @@ theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n)
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
 /-- Deprecated alias for `ext_get?`. The preferred extensionality theorem is now `ext_getElem?`. -/
-@[deprecated (since := "2024-06-07")] abbrev ext := @ext_get?
+@[deprecated ext_get? (since := "2024-06-07")] abbrev ext := @ext_get?
 
 /-! ### getD -/
 
@@ -551,7 +579,7 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
 /-! ### flatten -/
 
 /--
-`O(|flatten L|)`. `join L` concatenates all the lists in `L` into one list.
+`O(|flatten L|)`. `flatten L` concatenates all the lists in `L` into one list.
 * `flatten [[a], [], [b, c], [d, e, f]] = [a, b, c, d, e, f]`
 -/
 def flatten : List (List α) → List α
@@ -666,10 +694,14 @@ def isEmpty : List α → Bool
 /-! ### elem -/
 
 /--
-`O(|l|)`. `elem a l` or `l.contains a` is true if there is an element in `l` equal to `a`.
+`O(|l|)`.
+`l.contains a` or `elem a l` is true if there is an element in `l` equal (according to `==`) to `a`.
 
-* `elem 3 [1, 4, 2, 3, 3, 7] = true`
-* `elem 5 [1, 4, 2, 3, 3, 7] = false`
+* `[1, 4, 2, 3, 3, 7].contains 3 = true`
+* `[1, 4, 2, 3, 3, 7].contains 5 = false`
+
+The preferred simp normal form is `l.contains a`, and when `LawfulBEq α` is available,
+`l.contains a = true ↔ a ∈ l` and `l.contains a = false ↔ a ∉ l`.
 -/
 def elem [BEq α] (a : α) : List α → Bool
   | []    => false
@@ -682,7 +714,7 @@ theorem elem_cons [BEq α] {a : α} :
     (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
 
 /-- `notElem a l` is `!(elem a l)`. -/
-@[deprecated (since := "2024-06-15")]
+@[deprecated "Use `!(elem a l)` instead."(since := "2024-06-15")]
 def notElem [BEq α] (a : α) (as : List α) : Bool :=
   !(as.elem a)
 
@@ -726,13 +758,13 @@ theorem elem_eq_true_of_mem [BEq α] [LawfulBEq α] {a : α} {as : List α} (h :
 instance [BEq α] [LawfulBEq α] (a : α) (as : List α) : Decidable (a ∈ as) :=
   decidable_of_decidable_of_iff (Iff.intro mem_of_elem_eq_true elem_eq_true_of_mem)
 
-theorem mem_append_of_mem_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
+theorem mem_append_left {a : α} {as : List α} (bs : List α) : a ∈ as → a ∈ as ++ bs := by
   intro h
   induction h with
   | head => apply Mem.head
   | tail => apply Mem.tail; assumption
 
-theorem mem_append_of_mem_right {b : α} {bs : List α} (as : List α) : b ∈ bs → b ∈ as ++ bs := by
+theorem mem_append_right {b : α} {bs : List α} (as : List α) : b ∈ bs → b ∈ as ++ bs := by
   intro h
   induction as with
   | nil  => simp [h]
@@ -1113,12 +1145,6 @@ theorem replace_cons [BEq α] {a : α} :
     (a::as).replace b c = match b == a with | true => c::as | false => a :: replace as b c :=
   rfl
 
-/-! ### insert -/
-
-/-- Inserts an element into a list without duplication. -/
-@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
-  if l.elem a then l else a :: l
-
 /-! ### modify -/
 
 /--
@@ -1147,6 +1173,21 @@ Apply `f` to the nth element of the list, if it exists, replacing that element w
 -/
 def modify (f : α → α) : Nat → List α → List α :=
   modifyTailIdx (modifyHead f)
+
+/-! ### insert -/
+
+/-- Inserts an element into a list without duplication. -/
+@[inline] protected def insert [BEq α] (a : α) (l : List α) : List α :=
+  if l.elem a then l else a :: l
+
+/--
+`insertIdx n a l` inserts `a` into the list `l` after the first `n` elements of `l`
+```
+insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
+```
+-/
+def insertIdx (n : Nat) (a : α) : List α → List α :=
+  modifyTailIdx (cons a) n
 
 /-! ### erase -/
 
@@ -1418,10 +1459,10 @@ def zipWithAll (f : Option α → Option β → γ) : List α → List β → Li
   | a :: as, [] => (a :: as).map fun a => f (some a) none
   | a :: as, b :: bs => f a b :: zipWithAll f as bs
 
-@[simp] theorem zipWithAll_nil_right :
+@[simp] theorem zipWithAll_nil :
     zipWithAll f as [] = as.map fun a => f (some a) none := by
   cases as <;> rfl
-@[simp] theorem zipWithAll_nil_left :
+@[simp] theorem nil_zipWithAll :
     zipWithAll f [] bs = bs.map fun b => f none (some b) := rfl
 @[simp] theorem zipWithAll_cons_cons :
     zipWithAll f (a :: as) (b :: bs) = f (some a) (some b) :: zipWithAll f as bs := rfl
@@ -1639,23 +1680,23 @@ where
     | true  => loop as (a::rs)
     | false => (rs.reverse, a::as)
 
-/-! ### groupBy -/
+/-! ### splitBy -/
 
 /--
-`O(|l|)`. `groupBy R l` splits `l` into chains of elements
+`O(|l|)`. `splitBy R l` splits `l` into chains of elements
 such that adjacent elements are related by `R`.
 
-* `groupBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
-* `groupBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
+* `splitBy (·==·) [1, 1, 2, 2, 2, 3, 2] = [[1, 1], [2, 2, 2], [3], [2]]`
+* `splitBy (·<·) [1, 2, 5, 4, 5, 1, 4] = [[1, 2, 5], [4, 5], [1, 4]]`
 -/
-@[specialize] def groupBy (R : α → α → Bool) : List α → List (List α)
+@[specialize] def splitBy (R : α → α → Bool) : List α → List (List α)
   | []    => []
   | a::as => loop as a [] []
 where
   /--
-  The arguments of `groupBy.loop l ag g gs` represent the following:
+  The arguments of `splitBy.loop l ag g gs` represent the following:
 
-  - `l : List α` are the elements which we still need to group.
+  - `l : List α` are the elements which we still need to split.
   - `ag : α` is the previous element for which a comparison was performed.
   - `g : List α` is the group currently being assembled, in **reverse order**.
   - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
@@ -1665,6 +1706,8 @@ where
     | true  => loop as a (ag::g) gs
     | false => loop as a [] ((ag::g).reverse::gs)
   | [], ag, g, gs => ((ag::g).reverse::gs).reverse
+
+@[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
 /-! ### removeAll -/
 

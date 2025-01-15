@@ -243,7 +243,7 @@ def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
     recArgInfoss := recArgInfoss.push recArgInfos
   -- Put non-indices first
   recArgInfoss := recArgInfoss.map nonIndicesFirst
-  trace[Elab.definition.structural] "recArgInfoss: {recArgInfoss.map (·.map (·.recArgPos))}"
+  trace[Elab.definition.structural] "recArgInfos:{indentD (.joinSep (recArgInfoss.flatten.toList.map (repr ·)) Format.line)}"
   -- Inductive groups to consider
   let groups ← inductiveGroups recArgInfoss.flatten
   trace[Elab.definition.structural] "inductive groups: {groups}"

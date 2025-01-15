@@ -119,14 +119,11 @@ theorem mem_of_mem_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} 
     a ∈ m.insert k v → (k == a) = false → a ∈ m :=
   DHashMap.mem_of_mem_insert
 
-@[simp]
 theorem contains_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
-    (m.insert k v).contains k :=
-  DHashMap.contains_insert_self
+    (m.insert k v).contains k := by simp
 
-@[simp]
-theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} : k ∈ m.insert k v :=
-  DHashMap.mem_insert_self
+theorem mem_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} : k ∈ m.insert k v := by
+  simp
 
 @[simp]
 theorem size_empty {c} : (empty c : HashMap α β).size = 0 :=
@@ -676,6 +673,30 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
   getElem!_def m a := by
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
+
+@[simp]
+theorem length_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.length = m.size :=
+  DHashMap.length_keys
+
+@[simp]
+theorem isEmpty_keys [EquivBEq α] [LawfulHashable α]:
+    m.keys.isEmpty = m.isEmpty :=
+  DHashMap.isEmpty_keys
+
+@[simp]
+theorem contains_keys [EquivBEq α] [LawfulHashable α] {k : α} :
+    m.keys.contains k = m.contains k :=
+  DHashMap.contains_keys
+
+@[simp]
+theorem mem_keys [LawfulBEq α] [LawfulHashable α] {k : α} :
+    k ∈ m.keys ↔ k ∈ m :=
+  DHashMap.mem_keys
+
+theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
+    m.keys.Pairwise (fun a b => (a == b) = false) :=
+  DHashMap.distinct_keys
 
 end
 

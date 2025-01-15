@@ -25,10 +25,11 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return some name
   else
     return none
@@ -50,7 +51,9 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
         go mvarId
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         go mvarId
-      else match (← simpTargetStar mvarId { config.dsimp := false } (simprocs := {})).1 with
+      else
+        let ctx ← Simp.mkContext (config := { dsimp := false })
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
         | TacticResultCNM.closed => return ()
         | TacticResultCNM.modified mvarId => go mvarId
         | TacticResultCNM.noChange =>
@@ -82,12 +85,13 @@ def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
+    realizeConst declName name .thm do
+      let value ← mkProof declName type
+      let (type, value) ← removeUnusedEqnHypotheses type value
+      return .thmInfo {
+        name, type, value
+        levelParams := info.levelParams
+      }
   return thmNames
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do

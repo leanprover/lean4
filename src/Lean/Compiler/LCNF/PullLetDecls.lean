@@ -96,8 +96,8 @@ open PullLetDecls
 def Decl.pullLetDecls (decl : Decl) (isCandidateFn : LetDecl → FVarIdSet → CompilerM Bool) : CompilerM Decl := do
   PullM.run (isCandidateFn := isCandidateFn) do
     withParams decl.params do
-      let value ← pullDecls decl.value
-      let value ← attachToPull value
+      let value ← decl.value.mapCodeM pullDecls
+      let value ← value.mapCodeM attachToPull
       return { decl with value }
 
 def Decl.pullInstances (decl : Decl) : CompilerM Decl :=

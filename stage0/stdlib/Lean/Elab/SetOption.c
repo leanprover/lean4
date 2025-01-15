@@ -655,7 +655,7 @@ x_13 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_13, 0, x_1);
 lean_ctor_set(x_13, 1, x_2);
 lean_ctor_set(x_13, 2, x_12);
-x_14 = lean_alloc_ctor(4, 1, 0);
+x_14 = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_inc(x_3);
 x_15 = l_Lean_Elab_pushInfoLeaf___rarg(x_3, x_4, x_14);

@@ -165,7 +165,7 @@ namespace TagAttribute
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getState env).contains decl
+  | none        => (attr.ext.getStateNoAsync env).contains decl
 
 end TagAttribute
 
@@ -212,13 +212,13 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
 
 namespace ParametricAttribute
 
-def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) (allowAsync := false) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.getState (allowAsync := allowAsync) env).find? decl
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
@@ -279,12 +279,12 @@ def getValue [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState env).find? decl
+  | none        => (attr.ext.findStateAsync env decl).find? decl
 
 def setValue (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
     Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
-  else if ((attrs.ext.getState env).find? decl).isSome then
+  else if ((attrs.ext.findStateAsync env decl).find? decl).isSome then
     Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
   else
     Except.ok (attrs.ext.addEntry env (decl, val))
@@ -353,6 +353,7 @@ private def AttributeExtension.addImported (es : Array (Array AttributeExtension
 private def addAttrEntry (s : AttributeExtensionState) (e : AttributeExtensionOLeanEntry × AttributeImpl) : AttributeExtensionState :=
   { s with map := s.map.insert e.2.name e.2, newEntries := e.1 :: s.newEntries }
 
+-- asynchrony: updated only during environment creation and commond-level `declare_syntax_cat`
 builtin_initialize attributeExtension : AttributeExtension ←
   registerPersistentEnvExtension {
     mkInitial       := AttributeExtension.mkInitial
@@ -383,14 +384,14 @@ def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime 
   pure attr.applicationTime
 
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
-  (attributeExtension.getState env).map.contains attrName
+  (attributeExtension.getStateNoAsync env).map.contains attrName
 
 def getAttributeNames (env : Environment) : List Name :=
-  let m := (attributeExtension.getState env).map
+  let m := (attributeExtension.getStateNoAsync env).map
   m.fold (fun r n _ => n::r) []
 
 def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
-  let m := (attributeExtension.getState env).map
+  let m := (attributeExtension.getStateNoAsync env).map
   match m[attrName]? with
   | some attr => pure attr
   | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")

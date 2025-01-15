@@ -1,12 +1,12 @@
 1081.lean:7:2-7:5: error: type mismatch
   rfl
 has type
-  f 0 y = f 0 y : Prop
+  ?m = ?m : Prop
 but is expected to have type
   f 0 y = y : Prop
 1081.lean:23:4-23:7: error: type mismatch
   rfl
 has type
-  insert a ⟨0, ⋯⟩ v = insert a ⟨0, ⋯⟩ v : Prop
+  ?m = ?m : Prop
 but is expected to have type
   insert a ⟨0, ⋯⟩ v = cons a v : Prop

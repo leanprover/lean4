@@ -13,8 +13,8 @@ def ensureHasDefault (alts : Array Alt) : Array Alt :=
   if alts.any Alt.isDefault then alts
   else if alts.size < 2 then alts
   else
-    let last := alts.back;
-    let alts := alts.pop;
+    let last := alts.back!
+    let alts := alts.pop
     alts.push (Alt.default last.body)
 
 private def getOccsOf (alts : Array Alt) (i : Nat) : Nat := Id.run do

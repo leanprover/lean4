@@ -43,9 +43,9 @@ def instantiateLevelParamsNoCache (e : Expr) (paramNames : List Name) (lvls : Li
 
 private partial def getParamSubstArray (ps : Array Name) (us : Array Level) (p' : Name) (i : Nat) : Option Level :=
   if h : i < ps.size then
-    let p := ps.get ⟨i, h⟩
+    let p := ps[i]
     if h : i < us.size then
-      let u := us.get ⟨i, h⟩
+      let u := us[i]
       if p == p' then some u else getParamSubstArray ps us p' (i+1)
     else none
   else none

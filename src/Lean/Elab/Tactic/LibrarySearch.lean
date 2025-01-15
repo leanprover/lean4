@@ -40,7 +40,7 @@ def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireCl
     | some suggestions =>
       if requireClose then throwError
         "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
-      reportOutOfHeartbeats `library_search ref
+      reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
           addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)
@@ -70,7 +70,7 @@ def elabExact?Term : TermElab := fun stx expectedType? => do
       if let some suggestions ← librarySearch introdGoal then
         if suggestions.isEmpty then logError "`exact?%` didn't find any relevant lemmas"
         else logError "`exact?%` could not close the goal. Try `by apply` to see partial suggestions."
-        mkSorry expectedType (synthetic := true)
+        mkLabeledSorry expectedType (synthetic := true) (unique := true)
       else
         addTermSuggestion stx (← instantiateMVars goal).headBeta
         instantiateMVars goal

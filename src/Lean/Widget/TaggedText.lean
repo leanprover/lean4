@@ -28,7 +28,7 @@ namespace TaggedText
 
 def appendText (s₀ : String) : TaggedText α → TaggedText α
   | text s    => text (s ++ s₀)
-  | append as => match as.back with
+  | append as => match as.back! with
     | text s => append <| as.set! (as.size - 1) <| text (s ++ s₀)
     | _      => append <| as.push (text s₀)
   | a         => append #[a, text s₀]
@@ -95,7 +95,7 @@ partial def stripTags (tt : TaggedText α) : String :=
   go "" #[tt]
 where go (acc : String) : Array (TaggedText α) → String
   | #[] => acc
-  | ts  => match ts.back with
+  | ts  => match ts.back! with
     | text s    => go (acc ++ s) ts.pop
     | append as => go acc (ts.pop ++ as.reverse)
     | tag _ a   => go acc (ts.set! (ts.size - 1) a)

@@ -272,6 +272,9 @@ public:
     uint64 mod64() const;
 
     int8 smod8() const;
+    int16 smod16() const;
+    int32 smod32() const;
+    int64 smod64() const;
 
     /**
        \brief Return the position of the most significant bit.

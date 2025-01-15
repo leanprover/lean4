@@ -44,6 +44,7 @@ structure SimprocDeclExtState where
 def SimprocDecl.lt (decl₁ decl₂ : SimprocDecl) : Bool :=
   Name.quickLt decl₁.declName decl₂.declName
 
+-- asynchrony: only set by command-level `simproc_pattern%`
 builtin_initialize simprocDeclExt : PersistentEnvExtension SimprocDecl SimprocDecl SimprocDeclExtState ←
   registerPersistentEnvExtension {
     mkInitial       := return { builtin := (← builtinSimprocDeclsRef.get).keys }
@@ -61,14 +62,14 @@ def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)
       let some decl := (simprocDeclExt.getModuleEntries env modIdx).binSearch { declName, keys := #[] } SimprocDecl.lt
         | pure none
       pure (some decl.keys)
-    | none        => pure ((simprocDeclExt.getState env).newEntries.find? declName)
+    | none        => pure ((simprocDeclExt.getStateNoAsync env).newEntries.find? declName)
   if let some keys := keys? then
     return some keys
   else
-    return (simprocDeclExt.getState env).builtin[declName]?
+    return (simprocDeclExt.getStateNoAsync env).builtin[declName]?
 
 def isBuiltinSimproc (declName : Name) : CoreM Bool := do
-  let s := simprocDeclExt.getState (← getEnv)
+  let s := simprocDeclExt.getStateNoAsync (← getEnv)
   return s.builtin.contains declName
 
 def isSimproc (declName : Name) : CoreM Bool :=
@@ -213,7 +214,7 @@ def SimprocEntry.tryD (s : SimprocEntry) (numExtraArgs : Nat) (e : Expr) : SimpM
   | .inr proc => return (← proc e).addExtraArgs extraArgs
 
 def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM Step := do
-  let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+  let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
@@ -250,7 +251,7 @@ def simprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Ex
       return .continue
 
 def dsimprocCore (post : Bool) (s : SimprocTree) (erased : PHashSet Name) (e : Expr) : SimpM DStep := do
-  let candidates ← s.getMatchWithExtra e (getDtConfig (← getConfig))
+  let candidates ← withSimpIndexConfig <| s.getMatchWithExtra e
   if candidates.isEmpty then
     let tag := if post then "post" else "pre"
     trace[Debug.Meta.Tactic.simp] "no {tag}-simprocs found for {e}"
@@ -432,10 +433,10 @@ builtin_initialize
   }
 
 def getSimprocs : CoreM Simprocs :=
-  return simprocExtension.getState (← getEnv)
+  return simprocExtension.getStateNoAsync (← getEnv)
 
 def getSEvalSimprocs : CoreM Simprocs :=
-  return simprocSEvalExtension.getState (← getEnv)
+  return simprocSEvalExtension.getStateNoAsync (← getEnv)
 
 def getSimprocExtensionCore? (attrName : Name) : IO (Option SimprocExtension) :=
   return (← simprocExtensionMapRef.get)[attrName]?

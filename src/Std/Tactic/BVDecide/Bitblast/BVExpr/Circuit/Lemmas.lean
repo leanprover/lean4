@@ -27,6 +27,12 @@ theorem bitblast.go_eval_eq_eval (expr : BVLogicalExpr) (aig : AIG BVBit) (assig
   | literal => simp [ofBoolExprCached.go]
   | not expr ih => simp [ofBoolExprCached.go, ih]
   | gate g lhs rhs lih rih => cases g <;> simp [ofBoolExprCached.go, Gate.eval, lih, rih]
+  | ite discr lhs rhs dih lih rih =>
+    simp only [ofBoolExprCached.go, Ref.cast_eq, denote_mkIfCached,
+      ofBoolExprCached.go_denote_entry, eval_ite]
+    rw [ofBoolExprCached.go_denote_mem_prefix, ofBoolExprCached.go_denote_mem_prefix]
+    · simp [dih, lih, rih]
+    · simp [Ref.hgate]
 
 theorem denote_bitblast (expr : BVLogicalExpr) (assign : BVExpr.Assignment) :
     ⟦bitblast expr, assign.toAIGAssignment⟧ = expr.eval assign := by

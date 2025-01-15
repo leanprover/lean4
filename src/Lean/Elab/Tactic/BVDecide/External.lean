@@ -170,8 +170,8 @@ def satQuery (solverPath : System.FilePath) (problemPath : System.FilePath) (pro
   match out? with
   | .timeout =>
     let mut err := "The SAT solver timed out while solving the problem.\n"
-    err := err ++ "Consider increasing the timeout with `set_option sat.timeout <sec>`.\n"
-    err := err ++ "If solving your problem relies inherently on using associativity or commutativity, consider enabling the `bv.ac_nf` option."
+    err := err ++ "Consider increasing the timeout with the `timeout` config option.\n"
+    err := err ++ "If solving your problem relies inherently on using associativity or commutativity, consider enabling the `acNf` config option."
     throwError err
   | .success { exitCode := exitCode, stdout := stdout, stderr := stderr} =>
     if exitCode == 255 then

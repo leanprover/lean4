@@ -19,11 +19,11 @@ namespace lean {
 extern "C" uint8 lean_has_specialize_attribute(object* env, object* n);
 extern "C" uint8 lean_has_nospecialize_attribute(object* env, object* n);
 
-bool has_specialize_attribute(environment const & env, name const & n) {
+bool has_specialize_attribute(elab_environment const & env, name const & n) {
     return lean_has_specialize_attribute(env.to_obj_arg(), n.to_obj_arg());
 }
 
-bool has_nospecialize_attribute(environment const & env, name const & n) {
+bool has_nospecialize_attribute(elab_environment const & env, name const & n) {
     return lean_has_nospecialize_attribute(env.to_obj_arg(), n.to_obj_arg());
 }
 
@@ -103,11 +103,11 @@ public:
 extern "C" object* lean_add_specialization_info(object* env, object* fn, object* info);
 extern "C" object* lean_get_specialization_info(object* env, object* fn);
 
-static environment save_specialization_info(environment const & env, name const & fn, spec_info const & si) {
-    return environment(lean_add_specialization_info(env.to_obj_arg(), fn.to_obj_arg(), si.to_obj_arg()));
+static elab_environment save_specialization_info(elab_environment const & env, name const & fn, spec_info const & si) {
+    return elab_environment(lean_add_specialization_info(env.to_obj_arg(), fn.to_obj_arg(), si.to_obj_arg()));
 }
 
-static optional<spec_info> get_specialization_info(environment const & env, name const & fn) {
+static optional<spec_info> get_specialization_info(elab_environment const & env, name const & fn) {
     return to_optional<spec_info>(lean_get_specialization_info(env.to_obj_arg(), fn.to_obj_arg()));
 }
 
@@ -119,7 +119,7 @@ typedef buffer<pair<name, buffer<spec_arg_kind>>> spec_info_buffer;
 
    Remark: we only create free variables for the header of each declaration. Then, we assume an argument of a
    recursive call is fixed iff it is a free variable (see `update_spec_info`). */
-static void update_info_buffer(environment const & env, expr e, name_set const & S, spec_info_buffer & info_buffer) {
+static void update_info_buffer(elab_environment const & env, expr e, name_set const & S, spec_info_buffer & info_buffer) {
     while (true) {
         switch (e.kind()) {
         case expr_kind::Lambda:
@@ -162,7 +162,7 @@ static void update_info_buffer(environment const & env, expr e, name_set const &
     }
 }
 
-bool is_class(environment const & env, expr type) {
+bool is_class(elab_environment const & env, expr type) {
     // This is a temporary hack. We do not unfold `type` here, but we should. We will fix it when we reimplement the compiler in Lean.
     while (is_pi(type)) {
         type = binding_body(type);
@@ -171,7 +171,7 @@ bool is_class(environment const & env, expr type) {
     return is_constant(type) && is_class(env, const_name(type));
 }
 
-environment update_spec_info(environment const & env, comp_decls const & ds) {
+elab_environment update_spec_info(elab_environment const & env, comp_decls const & ds) {
     name_set S;
     spec_info_buffer d_infos;
     name_generator ngen;
@@ -237,7 +237,7 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
         update_info_buffer(env, code, S, d_infos);
     }
     /* Update extension */
-    environment new_env = env;
+    elab_environment new_env = env;
     names mutual_decls  = map2<name>(ds, [&](comp_decl const & d) { return d.fst(); });
     for (pair<name, buffer<spec_arg_kind>> const & info : d_infos) {
         name const & n = info.first;
@@ -255,15 +255,16 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
 extern "C" object* lean_cache_specialization(object* env, object* e, object* fn);
 extern "C" object* lean_get_cached_specialization(object* env, object* e);
 
-static environment cache_specialization(environment const & env, expr const & k, name const & fn) {
-    return environment(lean_cache_specialization(env.to_obj_arg(), k.to_obj_arg(), fn.to_obj_arg()));
+static elab_environment cache_specialization(elab_environment const & env, expr const & k, name const & fn) {
+    return elab_environment(lean_cache_specialization(env.to_obj_arg(), k.to_obj_arg(), fn.to_obj_arg()));
 }
 
-static optional<name> get_cached_specialization(environment const & env, expr const & e) {
+static optional<name> get_cached_specialization(elab_environment const & env, expr const & e) {
     return to_optional<name>(lean_get_cached_specialization(env.to_obj_arg(), e.to_obj_arg()));
 }
 
 class specialize_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     csimp_cfg           m_cfg;
     local_ctx           m_lctx;
@@ -274,7 +275,7 @@ class specialize_fn {
     unsigned            m_next_idx{1};
     name_set            m_to_respecialize;
 
-    environment const & env() { return m_st.env(); }
+    elab_environment const & env() { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -969,7 +970,8 @@ class specialize_fn {
         try {
             expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
             declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
-            m_st.env() = env().add(aux_ax, false);
+            m_env = m_env.add(aux_ax, false);
+            m_st.env() = m_env;
         } catch (exception &) {
             /* We may fail to infer the type of code, since it may be recursive
                This is a workaround. When we re-implement the compiler in Lean,
@@ -1149,7 +1151,7 @@ class specialize_fn {
                 for (comp_decl const & new_decl : new_decls) {
                     m_to_respecialize.insert(new_decl.fst());
                 }
-                m_st.env() = update_spec_info(env(), new_decls);
+                m_env = update_spec_info(env(), new_decls);
             }
 
             /* It is only safe to cache when `m_params.size == 0`. See comment above. */
@@ -1162,7 +1164,7 @@ class specialize_fn {
                                i++;
                            }
                            tout()  << ">> key: " << trace_pp_expr(key) << "\n";);
-                m_st.env() = cache_specialization(env(), key, *new_fn_name);
+                m_env = cache_specialization(env(), key, *new_fn_name);
             }
         }
         expr r = mk_constant(*new_fn_name);
@@ -1213,10 +1215,10 @@ class specialize_fn {
     }
 
 public:
-    specialize_fn(environment const & env, csimp_cfg const & cfg):
-        m_st(env), m_cfg(cfg), m_at("_at"), m_spec("_spec") {}
+    specialize_fn(elab_environment const & env, csimp_cfg const & cfg):
+        m_env(env), m_st(env), m_cfg(cfg), m_at("_at"), m_spec("_spec") {}
 
-    pair<environment, comp_decls> operator()(comp_decl const & d) {
+    pair<elab_environment, comp_decls> operator()(comp_decl const & d) {
         m_base_name = d.fst();
         lean_trace(name({"compiler", "specialize"}), tout() << "INPUT: " << d.fst() << "\n" << trace_pp_expr(d.snd()) << "\n";);
         expr new_v = visit(d.snd());
@@ -1225,11 +1227,11 @@ public:
     }
 };
 
-pair<environment, comp_decls> specialize_core(environment const & env, comp_decl const & d, csimp_cfg const & cfg) {
+pair<elab_environment, comp_decls> specialize_core(elab_environment const & env, comp_decl const & d, csimp_cfg const & cfg) {
     return specialize_fn(env, cfg)(d);
 }
 
-pair<environment, comp_decls> specialize(environment env, comp_decls const & ds, csimp_cfg const & cfg) {
+pair<elab_environment, comp_decls> specialize(elab_environment env, comp_decls const & ds, csimp_cfg const & cfg) {
     env = update_spec_info(env, ds);
     comp_decls r;
     for (comp_decl const & d : ds) {

@@ -25,7 +25,7 @@ def elabSimprocPattern (stx : Syntax) : MetaM Expr := do
 
 def elabSimprocKeys (stx : Syntax) : MetaM (Array Meta.SimpTheoremKey) := do
   let pattern ← elabSimprocPattern stx
-  DiscrTree.mkPath pattern simpDtConfig
+  withSimpGlobalConfig <| DiscrTree.mkPath pattern
 
 def checkSimprocType (declName : Name) : CoreM Bool := do
   let decl ← getConstInfo declName

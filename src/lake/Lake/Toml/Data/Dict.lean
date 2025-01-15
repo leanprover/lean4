@@ -3,7 +3,9 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Data.NameMap
+import Init.Data.Nat.Fold
 
 /-! # Red-Black Dictionary
 
@@ -33,11 +35,10 @@ instance : EmptyCollection (RBDict α β cmp) := ⟨RBDict.empty⟩
 def mkEmpty (capacity : Nat) : RBDict α β cmp :=
   {items := .mkEmpty capacity, indices := {}}
 
-def ofArray (items : Array (α × β)) : RBDict α β cmp := Id.run do
-  let mut indices := mkRBMap α Nat cmp
-  for h : i in [0:items.size] do
-    indices := indices.insert (items[i]'h.upper).1 i
-  return {items, indices}
+def ofArray (items : Array (α × β)) : RBDict α β cmp :=
+  let indices := items.size.fold (init := mkRBMap α Nat cmp) fun i _ indices =>
+    indices.insert items[i].1 i
+  {items, indices}
 
 protected def beq [BEq (α × β)] (self other : RBDict α β cmp) : Bool :=
   self.items == other.items
@@ -80,7 +81,7 @@ def push (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
 def insert (k : α) (v : β) (t : RBDict α β cmp) : RBDict α β cmp :=
   if let some i := t.findIdx? k then
     if h : i < t.items.size then
-      {t with items := t.items.set ⟨i,h⟩ (k,v)}
+      {t with items := t.items.set i (k,v)}
     else
       t.push k v
   else

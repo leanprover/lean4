@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Wojciech Nawrocki, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import Lean.Data.Position
+import Lean.Data.DeclarationRange
 import Lean.Data.OpenDecl
 import Lean.MetavarContext
 import Lean.Environment
@@ -70,6 +70,18 @@ structure TermInfo extends ElabInfo where
   isBinder : Bool := false
   deriving Inhabited
 
+/--
+Used instead of `TermInfo` when a term couldn't successfully be elaborated,
+and so there is no complete expression available.
+
+The main purpose of `PartialTermInfo` is to ensure that the sub-`InfoTree`s of a failed elaborator
+are retained so that they can still be used in the language server.
+-/
+structure PartialTermInfo extends ElabInfo where
+  lctx : LocalContext -- The local context when the term was elaborated.
+  expectedType? : Option Expr
+  deriving Inhabited
+
 structure CommandInfo extends ElabInfo where
   deriving Inhabited
 
@@ -79,7 +91,7 @@ inductive CompletionInfo where
   | dot (termInfo : TermInfo) (expectedType? : Option Expr)
   | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (expectedType? : Option Expr)
   | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
-  | fieldId (stx : Syntax) (id : Name) (lctx : LocalContext) (structName : Name)
+  | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | endSection (stx : Syntax) (scopeNames : List String)
@@ -156,19 +168,35 @@ structure FieldRedeclInfo where
   stx : Syntax
 
 /--
-Denotes information for the term `⋯` that is emitted by the delaborator when omitting a term
-due to `pp.deepTerms false` or `pp.proofs false`. Omission needs to be treated differently from regular terms because
+Denotes TermInfo with additional configurations to control interactions with delaborated terms.
+
+For example, the omission term `⋯` that is emitted by the delaborator when omitting a term
+due to `pp.deepTerms false` or `pp.proofs false` uses this.
+Omission needs to be treated differently from regular terms because
 it has to be delaborated differently in `Lean.Widget.InteractiveDiagnostics.infoToInteractive`:
 Regular terms are delaborated explicitly, whereas omitted terms are simply to be expanded with
-regular delaboration settings.
+regular delaboration settings. Additionally, omissions come with a reason for omission.
 -/
-structure OmissionInfo extends TermInfo where
-  reason : String
+structure DelabTermInfo extends TermInfo where
+  /-- A source position to use for "go to definition", to override the default. -/
+  location? : Option DeclarationLocation := none
+  /-- Text to use to override the docstring. -/
+  docString? : Option String := none
+  /-- Whether to use explicit mode when pretty printing the term on hover. -/
+  explicit : Bool := true
+
+/--
+Indicates that all overloaded elaborators failed. The subtrees of a `ChoiceInfo` node are the
+partial `InfoTree`s of those failed elaborators. Retaining these partial `InfoTree`s helps
+the language server provide interactivity even when all overloaded elaborators failed.
+-/
+structure ChoiceInfo extends ElabInfo where
 
 /-- Header information for a node in `InfoTree`. -/
 inductive Info where
   | ofTacticInfo (i : TacticInfo)
   | ofTermInfo (i : TermInfo)
+  | ofPartialTermInfo (i : PartialTermInfo)
   | ofCommandInfo (i : CommandInfo)
   | ofMacroExpansionInfo (i : MacroExpansionInfo)
   | ofOptionInfo (i : OptionInfo)
@@ -178,7 +206,8 @@ inductive Info where
   | ofCustomInfo (i : CustomInfo)
   | ofFVarAliasInfo (i : FVarAliasInfo)
   | ofFieldRedeclInfo (i : FieldRedeclInfo)
-  | ofOmissionInfo (i : OmissionInfo)
+  | ofDelabTermInfo (i : DelabTermInfo)
+  | ofChoiceInfo (i : ChoiceInfo)
   deriving Inhabited
 
 /-- The InfoTree is a structure that is generated during elaboration and used

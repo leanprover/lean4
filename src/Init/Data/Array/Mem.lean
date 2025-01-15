@@ -14,12 +14,12 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a <
   cases as with | _ as =>
   exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp_arith)
 
-theorem sizeOf_get [SizeOf α] (as : Array α) (i : Fin as.size) : sizeOf (as.get i) < sizeOf as := by
+theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf (as.get i h) < sizeOf as := by
   cases as with | _ as =>
-  exact Nat.lt_trans (List.sizeOf_get ..) (by simp_arith)
+  simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp_arith)
 
 @[simp] theorem sizeOf_getElem [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) :
-  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _
+  sizeOf (as[i]'h) < sizeOf as := sizeOf_get _ _ h
 
 /-- This tactic, added to the `decreasing_trivial` toolbox, proves that
 `sizeOf arr[i] < sizeOf arr`, which is useful for well founded recursions

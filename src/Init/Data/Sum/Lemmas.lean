@@ -17,11 +17,11 @@ open Function
 
 namespace Sum
 
-@[simp] protected theorem «forall» {p : α ⊕ β → Prop} :
+protected theorem «forall» {p : α ⊕ β → Prop} :
     (∀ x, p x) ↔ (∀ a, p (inl a)) ∧ ∀ b, p (inr b) :=
   ⟨fun h => ⟨fun _ => h _, fun _ => h _⟩, fun ⟨h₁, h₂⟩ => Sum.rec h₁ h₂⟩
 
-@[simp] protected theorem «exists» {p : α ⊕ β → Prop} :
+protected theorem «exists» {p : α ⊕ β → Prop} :
     (∃ x, p x) ↔ (∃ a, p (inl a)) ∨ ∃ b, p (inr b) :=
   ⟨ fun
     | ⟨inl a, h⟩ => Or.inl ⟨a, h⟩
@@ -30,7 +30,7 @@ namespace Sum
     | Or.inl ⟨a, h⟩ => ⟨inl a, h⟩
     | Or.inr ⟨b, h⟩ => ⟨inr b, h⟩⟩
 
-theorem forall_sum {γ : α ⊕ β → Sort _} (p : (∀ ab, γ ab) → Prop) :
+theorem forall_sum {γ : α ⊕ β → Sort _} {p : (∀ ab, γ ab) → Prop} :
     (∀ fab, p fab) ↔ (∀ fa fb, p (Sum.rec fa fb)) := by
   refine ⟨fun h fa fb => h _, fun h fab => ?_⟩
   have h1 : fab = Sum.rec (fun a => fab (Sum.inl a)) (fun b => fab (Sum.inr b)) := by
@@ -116,7 +116,7 @@ theorem comp_elim (f : γ → δ) (g : α → γ) (h : β → γ) :
 
 theorem elim_eq_iff {u u' : α → γ} {v v' : β → γ} :
     Sum.elim u v = Sum.elim u' v' ↔ u = u' ∧ v = v' := by
-  simp [funext_iff]
+  simp [funext_iff, Sum.forall]
 
 /-! ### `Sum.map` -/
 

@@ -50,20 +50,20 @@ private partial def mkInhabitantForAux? (xs insts : Array Expr) (type : Expr) (u
       return none
 
 /- TODO: add a global IO.Ref to let users customize/extend this procedure -/
-def mkInhabitantFor (declName : Name) (xs : Array Expr) (type : Expr) : MetaM Expr :=
+def mkInhabitantFor (failedToMessage : MessageData) (xs : Array Expr) (type : Expr) : MetaM Expr :=
   withInhabitedInstances xs fun insts => do
     if let some val ← mkInhabitantForAux? xs insts type false <||> mkInhabitantForAux? xs insts type true then
       return val
     else
       throwError "\
-        failed to compile 'partial' definition '{declName}', could not prove that the type\
+        {failedToMessage}, could not prove that the type\
         {indentExpr (← mkForallFVars xs type)}\n\
         is nonempty.\n\
         \n\
         This process uses multiple strategies:\n\
         - It looks for a parameter that matches the return type.\n\
-        - It tries synthesizing '{MessageData.ofConstName ``Inhabited}' and '{MessageData.ofConstName ``Nonempty}' \
-          instances for the return type, while making every parameter into a local '{MessageData.ofConstName ``Inhabited}' instance.\n\
+        - It tries synthesizing '{.ofConstName ``Inhabited}' and '{.ofConstName ``Nonempty}' \
+          instances for the return type, while making every parameter into a local '{.ofConstName ``Inhabited}' instance.\n\
         - It tries unfolding the return type.\n\
         \n\
         If the return type is defined using the 'structure' or 'inductive' command, \

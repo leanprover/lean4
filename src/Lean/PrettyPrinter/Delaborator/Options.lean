@@ -24,6 +24,11 @@ register_builtin_option pp.notation : Bool := {
   group    := "pp"
   descr    := "(pretty printer) disable/enable notation (infix, mixfix, postfix operators and unicode characters)"
 }
+register_builtin_option pp.parens : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if set to true, notation is wrapped in parentheses regardless of precedence"
+}
 register_builtin_option pp.unicode.fun : Bool := {
   defValue := false
   group    := "pp"
@@ -34,10 +39,20 @@ register_builtin_option pp.match : Bool := {
   group    := "pp"
   descr    := "(pretty printer) disable/enable 'match' notation"
 }
+register_builtin_option pp.sorrySource : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) if true, pretty print 'sorry' with its originating source position, if available"
+}
 register_builtin_option pp.coercions : Bool := {
   defValue := true
   group    := "pp"
   descr    := "(pretty printer) hide coercion applications"
+}
+register_builtin_option pp.coercions.types : Bool := {
+  defValue := false
+  group    := "pp"
+  descr    := "(pretty printer) display coercion applications with a type ascription"
 }
 register_builtin_option pp.universes : Bool := {
   defValue := false
@@ -246,10 +261,13 @@ def getPPLetVarTypes (o : Options) : Bool := o.get pp.letVarTypes.name (getPPAll
 def getPPNumericTypes (o : Options) : Bool := o.get pp.numericTypes.name pp.numericTypes.defValue
 def getPPNatLit (o : Options) : Bool := o.get pp.natLit.name (getPPNumericTypes o && !getPPAll o)
 def getPPCoercions (o : Options) : Bool := o.get pp.coercions.name (!getPPAll o)
+def getPPCoercionsTypes (o : Options) : Bool := o.get pp.coercions.types.name pp.coercions.types.defValue
 def getPPExplicit (o : Options) : Bool := o.get pp.explicit.name (getPPAll o)
 def getPPNotation (o : Options) : Bool := o.get pp.notation.name (!getPPAll o)
+def getPPParens (o : Options) : Bool := o.get pp.parens.name pp.parens.defValue
 def getPPUnicodeFun (o : Options) : Bool := o.get pp.unicode.fun.name false
 def getPPMatch (o : Options) : Bool := o.get pp.match.name (!getPPAll o)
+def getPPSorrySource (o : Options) : Bool := o.get pp.sorrySource.name pp.sorrySource.defValue
 def getPPFieldNotation (o : Options) : Bool := o.get pp.fieldNotation.name (!getPPAll o)
 def getPPFieldNotationGeneralized (o : Options) : Bool := o.get pp.fieldNotation.generalized.name pp.fieldNotation.generalized.defValue
 def getPPStructureInstances (o : Options) : Bool := o.get pp.structureInstances.name (!getPPAll o)

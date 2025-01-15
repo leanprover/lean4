@@ -65,7 +65,7 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
     intro
     apply And.intro
     · intro i
-      have := Fin.size_pos i
+      have := Fin.pos i
       contradiction
     · rfl
   case step =>

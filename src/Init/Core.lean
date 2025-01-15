@@ -861,15 +861,20 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-! # Decidable -/
 
-theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
+@[simp] theorem decide_true (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
-theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
+@[simp] theorem decide_false (h : Decidable False) : @decide False h = false :=
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
+
+set_option linter.missingDocs false in
+@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
@@ -1917,12 +1922,12 @@ represents an element of `Squash α` the same as `α` itself
 `Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
 while `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
 /-- The canonical quotient map into `Squash α`. -/
-def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
+def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
-theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
+theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
 /-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/
@@ -2111,14 +2116,35 @@ instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
 
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
+/-- `Refl r` means the binary relation `r` is reflexive, that is, `r x x` always holds. -/
+class Refl (r : α → α → Prop) : Prop where
+  /-- A reflexive relation satisfies `r a a`. -/
+  refl : ∀ a, r a a
+
+/-- `Antisymm r` says that `r` is antisymmetric, that is, `r a b → r b a → a = b`. -/
 class Antisymm (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
+  /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
+  antisymm (a b : α) : r a b → r b a → a = b
 
 @[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
 abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
+
+/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+`r a b → ¬ r b a`. -/
+class Asymm (r : α → α → Prop) : Prop where
+  /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
+  asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
+`x y : X` we have `r x y` or `r y x`. -/
+class Total (r : α → α → Prop) : Prop where
+  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  total : ∀ a b, r a b ∨ r b a
+
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
+holds. -/
+class Irrefl (r : α → α → Prop) : Prop where
+  /-- An irreflexive relation satisfies `¬ r a a`. -/
+  irrefl : ∀ a, ¬r a a
 
 end Std

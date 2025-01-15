@@ -20,9 +20,10 @@ private def addAndCompilePartial (preDefs : Array PreDefinition) (useSorry := fa
     let all := preDefs.toList.map (·.declName)
     forallTelescope preDef.type fun xs type => do
       let value ← if useSorry then
-        mkLambdaFVars xs (← mkSorry type (synthetic := true))
+        mkLambdaFVars xs (← withRef preDef.ref <| mkLabeledSorry type (synthetic := true) (unique := true))
       else
-        liftM <| mkInhabitantFor preDef.declName xs type
+        let msg := m!"failed to compile 'partial' definition '{preDef.declName}'"
+        liftM <| mkInhabitantFor msg xs type
       addNonRec { preDef with
         kind  := DefKind.«opaque»
         value
@@ -114,7 +115,7 @@ private partial def ensureNoUnassignedLevelMVarsAtPreDef (preDef : PreDefinition
 private def ensureNoUnassignedMVarsAtPreDef (preDef : PreDefinition) : TermElabM PreDefinition := do
   let pendingMVarIds ← getMVarsAtPreDef preDef
   if (← logUnassignedUsingErrorInfos pendingMVarIds) then
-    let preDef := { preDef with value := (← mkSorry preDef.type (synthetic := true)) }
+    let preDef := { preDef with value := (← withRef preDef.ref <| mkLabeledSorry preDef.type (synthetic := true) (unique := true)) }
     if (← getMVarsAtPreDef preDef).isEmpty then
       return preDef
     else
@@ -137,13 +138,13 @@ private def betaReduceLetRecApps (preDefs : Array PreDefinition) : MetaM (Array 
     else
       return preDef
 
-private def addAsAxioms (preDefs : Array PreDefinition) : TermElabM Unit := do
+private def addSorried (preDefs : Array PreDefinition) : TermElabM Unit := do
   for preDef in preDefs do
-    let decl := Declaration.axiomDecl {
+    let decl := Declaration.thmDecl {
       name        := preDef.declName,
       levelParams := preDef.levelParams,
       type        := preDef.type,
-      isUnsafe    := preDef.modifiers.isUnsafe
+      value       := (← mkSorry (synthetic := true) preDef.type)
     }
     addDecl decl
     withSaveInfoContext do  -- save new env
@@ -231,10 +232,10 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           -/
           let preDef ← eraseRecAppSyntax preDefs[0]!
           ensureEqnReservedNamesAvailable preDef.declName
-          if preDef.modifiers.isNoncomputable then
-            addNonRec preDef
-          else
-            addAndCompileNonRec preDef
+            if preDef.modifiers.isNoncomputable then
+              addNonRec preDef
+            else
+              addAndCompileNonRec preDef
           preDef.termination.ensureNone "not recursive"
         else if preDefs.any (·.modifiers.isUnsafe) then
           addAndCompileUnsafe preDefs
@@ -267,16 +268,16 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             logException ex
             let s ← saveState
             try
-              if preDefs.all fun preDef => preDef.kind == DefKind.def || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
+              if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
                 try
                   addAndCompilePartial preDefs (useSorry := true)
                 catch _ =>
                   -- Compilation failed try again just as axiom
                   s.restore
-                  addAsAxioms preDefs
+                  addSorried preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
-                addAsAxioms preDefs
+                addSorried preDefs
             catch _ => s.restore
 
 builtin_initialize

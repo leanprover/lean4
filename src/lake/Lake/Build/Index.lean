@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Build.Executable
 import Lake.Build.Topological
 
@@ -24,20 +25,20 @@ Converts a conveniently-typed target facet build function into its
 dynamically-typed equivalent.
 -/
 @[macro_inline] def mkTargetFacetBuild
-  (facet : Name) (build : FetchM (BuildJob α))
-  [h : FamilyOut TargetData facet (BuildJob α)]
+  (facet : Name) (build : FetchM (Job α))
+  [h : FamilyOut TargetData facet (Job α)]
 : FetchM (TargetData facet) :=
   cast (by rw [← h.family_key_eq_type]) build
 
-def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (BuildJob FilePath) :=
+def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:static" do
   lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
 
-def ExternLib.recBuildShared (lib : ExternLib) : FetchM (BuildJob FilePath) :=
+def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
   buildLeanSharedLibOfStatic (← lib.static.fetch) lib.linkArgs
 
-def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (BuildJob Dynlib) := do
+def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
   withRegisterJob s!"{lib.staticTargetName.toString}:dynlib" do
   computeDynlibOfShared (← lib.shared.fetch)
 

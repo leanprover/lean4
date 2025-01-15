@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
 prelude
+import Lean.Parser.Syntax
 import Lean.Meta.Tactic.Simp.RegisterCommand
 import Lean.Elab.Command
 import Lean.Elab.SetOption
@@ -47,6 +48,7 @@ opaque mkHandler (constName : Name) : ImportM Handler
 
 builtin_initialize builtinHandlersRef : IO.Ref (NameMap Handler) ← IO.mkRef {}
 
+-- asynchrony: only set by the command-level `@[missing_docs_handler]`
 builtin_initialize missingDocsExt :
   PersistentEnvExtension (Name × Name) (Name × Name × Handler) (List (Name × Name) × NameMap Handler) ←
   registerPersistentEnvExtension {
@@ -62,7 +64,7 @@ builtin_initialize missingDocsExt :
 def addHandler (env : Environment) (declName key : Name) (h : Handler) : Environment :=
   missingDocsExt.addEntry env (declName, key, h)
 
-def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getState env).2
+def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getStateNoAsync env).2
 
 partial def missingDocs : Linter where
   run stx := do

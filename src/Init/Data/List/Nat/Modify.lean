@@ -68,8 +68,8 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {n} :
     (l.modifyHead f).drop n = l.drop n := by
   cases l <;> cases n <;> simp_all
 
-@[simp] theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
-    (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by cases l <;> simp
+theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
+    (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by simp
 
 @[simp] theorem eraseIdx_modifyHead_of_pos {f : α → α} {l : List α} {n} (h : 0 < n) :
     (l.modifyHead f).eraseIdx n = (l.eraseIdx n).modifyHead f := by cases l <;> cases n <;> simp_all
@@ -110,6 +110,25 @@ theorem exists_of_modifyTailIdx (f : List α → List α) {n} {l : List α} (h :
     ⟨_, _, (take_append_drop n l).symm, length_take_of_le h⟩
   ⟨_, _, eq, hl, hl ▸ eq ▸ modifyTailIdx_add (n := 0) ..⟩
 
+theorem modifyTailIdx_modifyTailIdx {f g : List α → List α} (m : Nat) :
+    ∀ (n) (l : List α),
+      (l.modifyTailIdx f n).modifyTailIdx g (m + n) =
+        l.modifyTailIdx (fun l => (f l).modifyTailIdx g m) n
+  | 0, _ => rfl
+  | _ + 1, [] => rfl
+  | n + 1, a :: l => congrArg (List.cons a) (modifyTailIdx_modifyTailIdx m n l)
+
+theorem modifyTailIdx_modifyTailIdx_le {f g : List α → List α} (m n : Nat) (l : List α)
+    (h : n ≤ m) :
+    (l.modifyTailIdx f n).modifyTailIdx g m =
+      l.modifyTailIdx (fun l => (f l).modifyTailIdx g (m - n)) n := by
+  rcases Nat.exists_eq_add_of_le h with ⟨m, rfl⟩
+  rw [Nat.add_comm, modifyTailIdx_modifyTailIdx, Nat.add_sub_cancel]
+
+theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (n : Nat) (l : List α) :
+    (l.modifyTailIdx f n).modifyTailIdx g n = l.modifyTailIdx (g ∘ f) n := by
+  rw [modifyTailIdx_modifyTailIdx_le n n l (Nat.le_refl n), Nat.sub_self]; rfl
+
 /-! ### modify -/
 
 @[simp] theorem modify_nil (f : α → α) (n) : [].modify f n = [] := by cases n <;> rfl
@@ -123,7 +142,7 @@ theorem exists_of_modifyTailIdx (f : List α → List α) {n} {l : List α} (h :
 theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     l.modifyHead f = l.modify f 0 := by cases l <;> simp
 
-@[simp] theorem modify_eq_nil_iff (f : α → α) (n) (l : List α) :
+@[simp] theorem modify_eq_nil_iff {f : α → α} {n} {l : List α} :
     l.modify f n = [] ↔ l = [] := by cases l <;> cases n <;> simp
 
 theorem getElem?_modify (f : α → α) :

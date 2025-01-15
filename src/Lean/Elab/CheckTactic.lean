@@ -38,6 +38,7 @@ def elabCheckTactic : CommandElab := fun stx => do
       | [next] => do
         let (val, _, _) ← matchCheckGoalType stx (←next.getType)
         if !(← Meta.withReducible <| isDefEq val expTerm) then
+          let (val, expTerm) ← addPPExplicitToExposeDiff val expTerm
           throwErrorAt stx
             m!"Term reduces to{indentExpr val}\nbut is expected to reduce to {indentExpr expTerm}"
       | _ => do

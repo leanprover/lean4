@@ -23,7 +23,7 @@ private def addRecParams (mvarId : MVarId) (majorTypeArgs : Array Expr) : List (
   | [], recursor => pure recursor
   | some pos :: rest, recursor =>
     if h : pos < majorTypeArgs.size then
-      addRecParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs.get ⟨pos, h⟩))
+      addRecParams mvarId majorTypeArgs rest (mkApp recursor (majorTypeArgs[pos]))
     else
       throwTacticEx `induction mvarId "ill-formed recursor"
   | none :: rest, recursor => do
@@ -97,7 +97,7 @@ private partial def finalize
             if arity < initialArity then throwTacticEx `induction mvarId "ill-formed recursor"
             let nparams := arity - initialArity -- number of fields due to minor premise
             let nextra  := reverted.size - indices.size - 1 -- extra dependencies that have been reverted
-            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames.get ⟨minorIdx, h⟩ else {}
+            let minorGivenNames := if h : minorIdx < givenNames.size then givenNames[minorIdx] else {}
             let mvar ← mkFreshExprSyntheticOpaqueMVar d (tag ++ n)
             let recursor := mkApp recursor mvar
             let recursorType ← getTypeBody mvarId recursorType mvar
@@ -105,10 +105,10 @@ private partial def finalize
             let mvarId' ← mvar.mvarId!.tryClear major.fvarId!
             let (fields, mvarId') ←  mvarId'.introN nparams minorGivenNames.varNames (useNamesForExplicitOnly := !minorGivenNames.explicit)
             let (extra,  mvarId') ← mvarId'.introNP nextra
-            let subst := reverted.size.fold (init := baseSubst) fun i (subst : FVarSubst) =>
+            let subst := reverted.size.fold (init := baseSubst) fun i _ (subst : FVarSubst) =>
               if i < indices.size + 1 then subst
               else
-                let revertedFVarId := reverted[i]!
+                let revertedFVarId := reverted[i]
                 let newFVarId      := extra[i - indices.size - 1]!
                 subst.insert revertedFVarId (mkFVar newFVarId)
             let fields := fields.map mkFVar
@@ -134,8 +134,8 @@ def getMajorTypeIndices (mvarId : MVarId) (tacticName : Name) (recursorInfo : Re
     if idxPos ≥ majorTypeArgs.size then throwTacticEx tacticName mvarId m!"major premise type is ill-formed{indentExpr majorType}"
     let idx := majorTypeArgs.get! idxPos
     unless idx.isFVar do throwTacticEx tacticName mvarId m!"major premise type index {idx} is not a variable{indentExpr majorType}"
-    majorTypeArgs.size.forM fun i => do
-      let arg := majorTypeArgs[i]!
+    majorTypeArgs.size.forM fun i _ => do
+      let arg := majorTypeArgs[i]
       if i != idxPos && arg == idx then
         throwTacticEx tacticName mvarId m!"'{idx}' is an index in major premise, but it occurs more than once{indentExpr majorType}"
       if i < idxPos then

@@ -1,18 +1,32 @@
 {"textDocument": {"uri": "file:///completionDocString.lean"},
- "position": {"line": 0, "character": 20}}
+ "position": {"line": 0, "character": 21}}
 {"items":
  [{"sortText": "0",
-   "label": "insertAt",
+   "label": "insertIdx",
    "kind": 3,
    "documentation":
    {"value": "Insert element `a` at position `i`. ", "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDocString.lean"},
-     "position": {"line": 0, "character": 20}},
-    "id": {"const": {"declName": "Array.insertAt"}}}},
+     "position": {"line": 0, "character": 21}},
+    "id": {"const": {"declName": "Array.insertIdx"}},
+    "cPos": 0}},
   {"sortText": "1",
-   "label": "insertAt!",
+   "label": "insertIdxIfInBounds",
+   "kind": 3,
+   "documentation":
+   {"value":
+    "Insert element `a` at position `i`, or do nothing if `as.size < i`. ",
+    "kind": "markdown"},
+   "data":
+   {"params":
+    {"textDocument": {"uri": "file:///completionDocString.lean"},
+     "position": {"line": 0, "character": 21}},
+    "id": {"const": {"declName": "Array.insertIdxIfInBounds"}},
+    "cPos": 0}},
+  {"sortText": "2",
+   "label": "insertIdx!",
    "kind": 3,
    "documentation":
    {"value":
@@ -21,6 +35,7 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDocString.lean"},
-     "position": {"line": 0, "character": 20}},
-    "id": {"const": {"declName": "Array.insertAt!"}}}}],
+     "position": {"line": 0, "character": 21}},
+    "id": {"const": {"declName": "Array.insertIdx!"}},
+    "cPos": 0}}],
  "isIncomplete": true}

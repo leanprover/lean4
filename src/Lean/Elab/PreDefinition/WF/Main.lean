@@ -21,8 +21,8 @@ open Meta
 private partial def addNonRecPreDefs (fixedPrefixSize : Nat) (argsPacker : ArgsPacker) (preDefs : Array PreDefinition) (preDefNonRec : PreDefinition)  : TermElabM Unit := do
   let us := preDefNonRec.levelParams.map mkLevelParam
   let all := preDefs.toList.map (·.declName)
-  for fidx in [:preDefs.size] do
-    let preDef := preDefs[fidx]!
+  for h : fidx in [:preDefs.size] do
+    let preDef := preDefs[fidx]
     let value ← forallBoundedTelescope preDef.type (some fixedPrefixSize) fun xs _ => do
       let value := mkAppN (mkConst preDefNonRec.declName us) xs
       let value ← argsPacker.curryProj value fidx
@@ -87,7 +87,7 @@ def varyingVarNames (fixedPrefixSize : Nat) (preDef : PreDefinition) : MetaM (Ar
     xs.mapM (·.fvarId!.getUserName)
 
 def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
-  let termArgs? := termArg?s.sequenceMap id -- Either all or none, checked by `elabTerminationByHints`
+  let termArgs? := termArg?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
@@ -110,7 +110,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
     unless type.isForall do
       throwError "wfRecursion: expected unary function type: {type}"
     let packedArgType := type.bindingDomain!
-    elabWFRel preDefs unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
+    elabWFRel (preDefs.map (·.declName)) unaryPreDef.declName prefixArgs argsPacker packedArgType wf fun wfRel => do
       trace[Elab.definition.wf] "wfRel: {wfRel}"
       let (value, envNew) ← withoutModifyingEnv' do
         addAsAxiom unaryPreDef
@@ -142,7 +142,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option Termi
   -- Reason: the nested proofs may be referring to the _unsafe_rec.
   addAndCompilePartialRec preDefs
   let preDefs ← preDefs.mapM (abstractNestedProofs ·)
-  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker (hasInduct := true)
   for preDef in preDefs do
     markAsRecursive preDef.declName
     generateEagerEqns preDef.declName

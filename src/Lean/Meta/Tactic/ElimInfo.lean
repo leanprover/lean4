@@ -148,13 +148,13 @@ def mkCustomEliminator (elimName : Name) (induction : Bool) : MetaM CustomElimin
   let info ← getConstInfo elimName
   forallTelescopeReducing info.type fun xs _ => do
     let mut typeNames := #[]
-    for i in [:elimInfo.targetsPos.size] do
-      let targetPos := elimInfo.targetsPos[i]!
+    for hi : i in [:elimInfo.targetsPos.size] do
+      let targetPos := elimInfo.targetsPos[i]
       let x := xs[targetPos]!
       /- Return true if there is another target that depends on `x`. -/
       let isImplicitTarget : MetaM Bool := do
-        for j in [i+1:elimInfo.targetsPos.size] do
-          let y := xs[elimInfo.targetsPos[j]!]!
+        for hj : j in [i+1:elimInfo.targetsPos.size] do
+          let y := xs[elimInfo.targetsPos[j]]!
           let yType ← inferType y
           if (← dependsOn yType x.fvarId!) then
             return true
@@ -205,6 +205,6 @@ def getCustomEliminator? (targets : Array Expr) (induction : Bool) : MetaM (Opti
     let targetType := (← instantiateMVars (← inferType target)).headBeta
     let .const declName .. := targetType.getAppFn | return none
     key := key.push declName
-  return customEliminatorExt.getState (← getEnv) |>.map.find? (induction, key)
+  return customEliminatorExt.getStateNoAsync (← getEnv) |>.map.find? (induction, key)
 
 end Lean.Meta

@@ -47,7 +47,7 @@ def findEntryAux : Nat → Node → M nodeData
 | i+1, n =>
   do let s ← read;
      if h : n < s.size then
-       do { let e := s.get ⟨n, h⟩;
+       do { let e := s[n];
             if e.find = n then pure e
             else do let e₁ ← findEntryAux i e.find;
                     updt (fun s => s.set! n e₁);

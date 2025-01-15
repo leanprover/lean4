@@ -14,7 +14,7 @@ open Meta
 def admitGoal (mvarId : MVarId) : MetaM Unit :=
   mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    mvarId.assign (← mkSorry mvarType (synthetic := true))
+    mvarId.assign (← mkLabeledSorry mvarType (synthetic := true) (unique := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"
@@ -218,7 +218,7 @@ where
                     let old ← snap.old?
                     -- If the kind is equal, we can assume the old version was a macro as well
                     guard <| old.stx.isOfKind stx.getKind
-                    let state ← old.val.get.data.finished.get.state?
+                    let state ← old.val.get.finished.get.state?
                     guard <| state.term.meta.core.nextMacroScope == nextMacroScope
                     -- check absence of traces; see Note [Incremental Macros]
                     guard <| state.term.meta.core.traceState.traces.size == 0
@@ -226,9 +226,10 @@ where
                     return old.val.get
                   Language.withAlwaysResolvedPromise fun promise => do
                     -- Store new unfolding in the snapshot tree
-                    snap.new.resolve <| .mk {
+                    snap.new.resolve {
                       stx := stx'
                       diagnostics := .empty
+                      inner? := none
                       finished := .pure {
                         diagnostics := .empty
                         state? := (← Tactic.saveState)
@@ -240,7 +241,7 @@ where
                       new := promise
                       old? := do
                         let old ← old?
-                        return ⟨old.data.stx, (← old.data.next.get? 0)⟩
+                        return ⟨old.stx, (← old.next.get? 0)⟩
                     } }) do
                       evalTactic stx'
                   return

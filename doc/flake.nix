@@ -83,7 +83,6 @@
         src = ./.;
         roots = [
           { mod = "examples"; glob = "submodules"; }
-          { mod = "monads"; glob = "submodules"; }
         ];
       };
       inked = renderPackage literate;

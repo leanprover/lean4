@@ -1,2 +1,2 @@
-4452.lean:17:4-17:6: warning: `hi` has been deprecated
-4452.lean:28:4-28:7: warning: `hi'` has been deprecated
+4452.lean:17:4-17:6: warning: `hi` has been deprecated: Don't use `hi`.
+4452.lean:28:4-28:7: warning: `hi'` has been deprecated: Don't use `hi'`, either.

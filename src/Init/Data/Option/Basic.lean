@@ -16,21 +16,21 @@ def getM [Alternative m] : Option α → m α
   | none     => failure
   | some a   => pure a
 
-@[deprecated getM (since := "2024-04-17")]
--- `[Monad m]` is not needed here.
-def toMonad [Monad m] [Alternative m] : Option α → m α := getM
-
 /-- Returns `true` on `some x` and `false` on `none`. -/
 @[inline] def isSome : Option α → Bool
   | some _ => true
   | none   => false
 
-@[deprecated isSome (since := "2024-04-17"), inline] def toBool : Option α → Bool := isSome
+@[simp] theorem isSome_none : @isSome α none = false := rfl
+@[simp] theorem isSome_some : isSome (some a) = true := rfl
 
 /-- Returns `true` on `none` and `false` on `some x`. -/
 @[inline] def isNone : Option α → Bool
   | some _ => false
   | none   => true
+
+@[simp] theorem isNone_none : @isNone α none = true := rfl
+@[simp] theorem isNone_some : isNone (some a) = false := rfl
 
 /--
 `x?.isEqSome y` is equivalent to `x? == some y`, but avoids an allocation.
@@ -96,12 +96,12 @@ This is similar to `<|>`/`orElse`, but it is strict in the second argument. -/
   | some a, _ => some a
   | none,   b => b
 
-@[inline] protected def lt (r : α → α → Prop) : Option α → Option α → Prop
+@[inline] protected def lt (r : α → β → Prop) : Option α → Option β → Prop
   | none, some _     => True
   | some x,   some y => r x y
   | _, _             => False
 
-instance (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
+instance (r : α → β → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
   | none,   some _ => isTrue  trivial
   | some x, some y => s x y
   | some _, none   => isFalse not_false
@@ -133,6 +133,10 @@ def merge (fn : α → α → α) : Option α → Option α → Option α
 /-- Extracts the value `a` from an option that is known to be `some a` for some `a`. -/
 @[inline] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
+
+@[simp] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x
+| some _, _ => rfl
+@[simp] theorem get_some (x : α) (h : isSome (some x)) : (some x).get h = x := rfl
 
 /-- `guard p a` returns `some a` if `p a` holds, otherwise `none`. -/
 @[inline] def guard (p : α → Prop) [DecidablePred p] (a : α) : Option α :=

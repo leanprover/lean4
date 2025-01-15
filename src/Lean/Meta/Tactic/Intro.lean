@@ -17,7 +17,7 @@ namespace Lean.Meta
     match i, type with
     | 0, type =>
       let type := type.instantiateRevRange j fvars.size fvars
-      withReader (fun ctx => { ctx with lctx := lctx }) do
+      withLCtx' lctx do
         withNewLocalInstances fvars j do
           let tag     ← mvarId.getTag
           let type := type.headBeta
@@ -57,7 +57,7 @@ namespace Lean.Meta
         loop i lctx fvars j s body
       else
         let type := type.instantiateRevRange j fvars.size fvars
-        withReader (fun ctx => { ctx with lctx := lctx }) do
+        withLCtx' lctx do
           withNewLocalInstances fvars j do
             /- We used to use just `whnf`, but it produces counterintuitive behavior if
               - `type` is a metavariable `?m` such that `?m := let x := v; b`, or

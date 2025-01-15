@@ -27,7 +27,7 @@ constituents.
 structure IndGroupInfo where
   all       : Array Name
   numNested : Nat
-deriving BEq, Inhabited
+deriving BEq, Inhabited, Repr
 
 def IndGroupInfo.ofInductiveVal (indInfo : InductiveVal) : IndGroupInfo where
   all       := indInfo.all.toArray
@@ -56,7 +56,7 @@ mutual structural recursion on such incompatible types.
 structure IndGroupInst extends IndGroupInfo where
   levels    : List Level
   params    : Array Expr
-deriving Inhabited
+deriving Inhabited, Repr
 
 def IndGroupInst.toMessageData (igi : IndGroupInst) : MessageData :=
   mkAppN (.const igi.all[0]! igi.levels) igi.params
@@ -105,6 +105,6 @@ def IndGroupInst.nestedTypeFormers (igi : IndGroupInst) : MetaM (Array Expr) := 
   auxMotives.mapM fun motive =>
     forallTelescopeReducing motive fun xs _ => do
       assert! xs.size > 0
-      mkForallFVars xs.pop (← inferType xs.back)
+      mkForallFVars xs.pop (← inferType xs.back!)
 
 end Lean.Elab.Structural

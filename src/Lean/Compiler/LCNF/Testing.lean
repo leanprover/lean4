@@ -235,12 +235,17 @@ Assert that the pass under test produces `Decl`s that do not contain
 `Expr.const constName` in their `Code.let` values anymore.
 -/
 def assertDoesNotContainConstAfter (constName : Name) (msg : String) : TestInstaller :=
-  assertForEachDeclAfterEachOccurrence (fun _ decl => !decl.value.containsConst constName) msg
+  assertForEachDeclAfterEachOccurrence
+    fun _ decl =>
+      match decl.value with
+      | .code c => !c.containsConst constName
+      | .extern .. => true
+    msg
 
 def assertNoFun : TestInstaller :=
   assertAfter do
     for decl in (← getDecls) do
-      decl.value.forM fun
+      decl.value.forCodeM fun
         | .fun .. => throwError "declaration `{decl.name}` contains a local function declaration"
         | _ => return ()
 

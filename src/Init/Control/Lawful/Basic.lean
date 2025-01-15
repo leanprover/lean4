@@ -106,7 +106,7 @@ theorem seq_eq_bind_map {α β : Type u} [Monad m] [LawfulMonad m] (f : m (α �
 theorem bind_congr [Bind m] {x : m α} {f g : α → m β} (h : ∀ a, f a = g a) : x >>= f = x >>= g := by
   simp [funext h]
 
-@[simp] theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
+theorem bind_pure_unit [Monad m] [LawfulMonad m] {x : m PUnit} : (x >>= fun _ => pure ⟨⟩) = x := by
   rw [bind_pure]
 
 theorem map_congr [Functor m] {x : m α} {f g : α → β} (h : ∀ a, f a = g a) : (f <$> x : m β) = g <$> x := by
@@ -133,7 +133,7 @@ theorem seqLeft_eq_bind [Monad m] [LawfulMonad m] (x : m α) (y : m β) : x <* y
   rw [← bind_pure_comp]
   simp only [bind_assoc, pure_bind]
 
-@[simp] theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
+theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUnit.unit) <$> a = a := by
   simp [map]
 
 /--

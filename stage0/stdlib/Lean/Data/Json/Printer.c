@@ -13,89 +13,3713 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111;
 lean_object* lean_format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141;
 LEAN_EXPORT lean_object* l_Lean_Json_compress(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94;
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181;
+lean_object* lean_byte_array_mk(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114;
 static lean_object* l_Lean_Json_compress_go___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137;
 lean_object* l_Lean_JsonNumber_toString(lean_object*);
+uint8_t lean_byte_array_fget(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183;
 lean_object* lean_uint32_to_nat(uint32_t);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Json_compress_go___spec__3(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__3;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62;
 static lean_object* l_Lean_Json_render___closed__9;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168;
 static lean_object* l_Lean_Json_render___closed__19;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27;
 static lean_object* l_Lean_Json_renderString___closed__1;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103;
 static lean_object* l_Lean_Json_render___closed__12;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 static lean_object* l_Lean_Json_render___closed__20;
 static lean_object* l_Lean_RBNode_fold___at_Lean_Json_render___spec__2___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101;
 static lean_object* l_Lean_Json_render___closed__6;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78;
+LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158;
 lean_object* l_List_appendTR___rarg(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105;
 size_t lean_usize_of_nat(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167;
 static lean_object* l_Lean_Json_render___closed__14;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204;
 LEAN_EXPORT lean_object* l_Lean_Json_escape(lean_object*, lean_object*);
 uint32_t l_Nat_digitChar(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Json_compress_go___spec__2(lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163;
 lean_object* lean_nat_div(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234;
 static lean_object* l_Lean_Json_render___closed__17;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238;
 static lean_object* l_Lean_Json_render___closed__4;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113;
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_Json_compress_go___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42;
 static lean_object* l_Lean_Json_render___closed__11;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79;
 lean_object* lean_array_to_list(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_compress_go___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_Lean_Json_render___closed__16;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133;
 static lean_object* l_Lean_Json_render___closed__13;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131;
 LEAN_EXPORT lean_object* l_Lean_Json_renderString___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71;
 static lean_object* l_Lean_Json_instToFormat___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__5;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_render___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81;
 static lean_object* l_Lean_Json_render___closed__5;
 static lean_object* l_Lean_Json_render___closed__7;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148;
 static lean_object* l_Lean_Json_render___closed__15;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92;
 static lean_object* l_Lean_Json_render___closed__3;
 static lean_object* l_Lean_Json_render___closed__10;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70;
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lean_Json_escape___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237;
 static lean_object* l_Lean_Json_render___closed__1;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape___boxed(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76;
 lean_object* lean_string_length(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_compress_go___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122;
 lean_object* lean_nat_mod(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Json_instToString(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Json_render___spec__1(size_t, size_t, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Json_compress_go___spec__3___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54;
 lean_object* l_Std_Format_joinSep___at_Prod_repr___spec__1(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91;
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lean_Json_escape___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_renderString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_compress_go(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232;
 static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__4;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129;
 size_t lean_usize_sub(size_t, size_t);
+lean_object* lean_array_mk(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164;
+lean_object* lean_uint8_to_nat(uint8_t);
 size_t lean_usize_add(size_t, size_t);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104;
 static lean_object* l_Lean_Json_render___closed__18;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220;
 lean_object* lean_array_uget(lean_object*, size_t);
 size_t lean_array_size(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32;
 LEAN_EXPORT lean_object* l_Lean_Json_escape___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165;
 static lean_object* l_Lean_Json_render___closed__8;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5;
 lean_object* lean_string_append(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241;
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_render(lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60;
 static lean_object* l_Lean_Json_render___closed__2;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29;
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_RBNode_fold___at_Lean_Json_render___spec__2___closed__2;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go___boxed(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143;
+lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Json_render___closed__21;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75;
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_Json_render___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_instToFormat;
 LEAN_EXPORT lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16;
+uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(lean_object*, uint32_t);
 static lean_object* l_Lean_RBNode_fold___at_Lean_Json_render___spec__2___closed__3;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255;
+LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210;
+static lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127;
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = lean_box(0);
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128;
+x_2 = 0;
+x_3 = lean_box(x_2);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_1);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 0;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = 1;
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255;
+x_3 = lean_box(x_1);
+x_4 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_4, 0, x_3);
+lean_ctor_set(x_4, 1, x_2);
+return x_4;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256;
+x_2 = lean_array_mk(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257;
+x_2 = lean_byte_array_mk(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258;
+return x_1;
+}
+}
 static lean_object* _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1() {
 _start:
 {
@@ -265,6 +3889,79 @@ x_4 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux(x_1, x_3);
 return x_4;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_string_utf8_byte_size(x_1);
+x_4 = lean_nat_dec_lt(x_2, x_3);
+lean_dec(x_3);
+if (x_4 == 0)
+{
+uint8_t x_5; 
+lean_dec(x_2);
+x_5 = 0;
+return x_5;
+}
+else
+{
+uint8_t x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; uint8_t x_10; uint8_t x_11; 
+lean_inc(x_2);
+x_6 = lean_string_get_byte_fast(x_1, x_2);
+x_7 = lean_uint8_to_nat(x_6);
+x_8 = l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable;
+x_9 = lean_byte_array_fget(x_8, x_7);
+lean_dec(x_7);
+x_10 = 0;
+x_11 = lean_uint8_dec_eq(x_9, x_10);
+if (x_11 == 0)
+{
+uint8_t x_12; 
+lean_dec(x_2);
+x_12 = 1;
+return x_12;
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = lean_nat_add(x_2, x_13);
+lean_dec(x_2);
+x_2 = x_14;
+goto _start;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go(x_1, x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT uint8_t l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; uint8_t x_3; 
+x_2 = lean_unsigned_to_nat(0u);
+x_3 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go(x_1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape___boxed(lean_object* x_1) {
+_start:
+{
+uint8_t x_2; lean_object* x_3; 
+x_2 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape(x_1);
+lean_dec(x_1);
+x_3 = lean_box(x_2);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lean_Json_escape___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -291,12 +3988,23 @@ goto _start;
 LEAN_EXPORT lean_object* l_Lean_Json_escape(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_string_utf8_byte_size(x_1);
-x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_String_foldlAux___at_Lean_Json_escape___spec__1(x_1, x_3, x_4, x_2);
-lean_dec(x_3);
+lean_object* x_3; uint8_t x_4; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l___private_Lean_Data_Json_Printer_0__Lean_Json_needEscape_go(x_1, x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; 
+x_5 = lean_string_append(x_2, x_1);
 return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_string_utf8_byte_size(x_1);
+x_7 = l_String_foldlAux___at_Lean_Json_escape___spec__1(x_1, x_6, x_3, x_2);
+lean_dec(x_6);
+return x_7;
+}
 }
 }
 LEAN_EXPORT lean_object* l_String_foldlAux___at_Lean_Json_escape___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -2030,6 +5738,524 @@ lean_dec_ref(res);
 res = initialize_Init_Data_List_Impl(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__1);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__2);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__3);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__4);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__5);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__6);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__7);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__8);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__9);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__10);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__11);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__12);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__13);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__14);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__15);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__16);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__17);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__18);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__19);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__20);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__21);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__22);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__23);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__24);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__25);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__26);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__27);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__28);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__29);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__30);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__31);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__32);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__33);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__34);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__35);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__36);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__37);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__38);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__39);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__40);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__41);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__42);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__43);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__44);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__45);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__46);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__47);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__48);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__49);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__50);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__51);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__52);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__53);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__54);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__55);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__56);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__57);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__58);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__59);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__60);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__61);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__62);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__63);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__64);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__65);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__66);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__67);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__68);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__69);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__70);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__71);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__72);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__73);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__74);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__75);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__76);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__77);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__78);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__79);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__80);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__81);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__82);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__83);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__84);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__85);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__86);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__87);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__88);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__89);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__90);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__91);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__92);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__93);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__94);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__95);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__96);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__97);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__98);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__99);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__100);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__101);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__102);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__103);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__104);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__105);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__106);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__107);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__108);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__109);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__110);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__111);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__112);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__113);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__114);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__115);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__116);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__117);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__118);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__119);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__120);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__121);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__122);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__123);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__124);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__125);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__126);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__127);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__128);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__129);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__130);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__131);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__132);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__133);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__134);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__135);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__136);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__137);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__138);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__139);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__140);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__141);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__142);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__143);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__144);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__145);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__146);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__147);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__148);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__149);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__150);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__151);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__152);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__153);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__154);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__155);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__156);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__157);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__158);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__159);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__160);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__161);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__162);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__163);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__164);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__165);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__166);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__167);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__168);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__169);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__170);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__171);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__172);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__173);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__174);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__175);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__176);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__177);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__178);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__179);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__180);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__181);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__182);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__183);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__184);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__185);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__186);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__187);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__188);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__189);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__190);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__191);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__192);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__193);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__194);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__195);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__196);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__197);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__198);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__199);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__200);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__201);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__202);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__203);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__204);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__205);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__206);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__207);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__208);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__209);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__210);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__211);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__212);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__213);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__214);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__215);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__216);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__217);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__218);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__219);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__220);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__221);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__222);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__223);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__224);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__225);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__226);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__227);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__228);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__229);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__230);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__231);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__232);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__233);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__234);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__235);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__236);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__237);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__238);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__239);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__240);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__241);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__242);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__243);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__244);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__245);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__246);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__247);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__248);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__249);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__250);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__251);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__252);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__253);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__254);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__255);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__256);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__257);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable___closed__258);
+l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable();
+lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeTable);
 l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1();
 lean_mark_persistent(l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__1);
 l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2 = _init_l___private_Lean_Data_Json_Printer_0__Lean_Json_escapeAux___closed__2();

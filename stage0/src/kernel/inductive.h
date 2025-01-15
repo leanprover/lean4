@@ -33,7 +33,7 @@ inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, 
     lean_assert(rval.is_k());
     expr app_type    = whnf(infer_type(e));
     expr const & app_type_I = get_app_fn(app_type);
-    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_induct()) return e; // type incorrect
+    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_major_induct()) return e; // type incorrect
     if (has_expr_mvar(app_type)) {
         buffer<expr> app_type_args;
         get_app_args(app_type, app_type_args);
@@ -94,7 +94,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     else if (is_string_lit(major))
         major = string_lit_to_constructor(major);
     else
-        major = to_cnstr_when_structure(env, rec_val.get_induct(), major, whnf, infer_type);
+        major = to_cnstr_when_structure(env, rec_val.get_major_induct(), major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

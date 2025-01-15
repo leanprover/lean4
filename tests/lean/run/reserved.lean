@@ -40,12 +40,11 @@ def nonrecfun : Bool → Nat
   | true => 0
 
 /--
-info: nonrecfun.eq_def :
-  ∀ (x : Bool),
-    nonrecfun x =
-      match x with
-      | false => 0
-      | true => 0
+info: nonrecfun.eq_def (x✝ : Bool) :
+  nonrecfun x✝ =
+    match x✝ with
+    | false => 0
+    | true => 0
 -/
 #guard_msgs in
 #check nonrecfun.eq_def
@@ -63,12 +62,11 @@ def fact : Nat → Nat
   | n+1 => (n+1) * fact n
 
 /--
-info: fact.eq_def :
-  ∀ (x : Nat),
-    fact x =
-      match x with
-      | 0 => 1
-      | n.succ => (n + 1) * fact n
+info: fact.eq_def (x✝ : Nat) :
+  fact x✝ =
+    match x✝ with
+    | 0 => 1
+    | n.succ => (n + 1) * fact n
 -/
 #guard_msgs in
 #check fact.eq_def

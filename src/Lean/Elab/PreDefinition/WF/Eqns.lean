@@ -20,6 +20,7 @@ structure EqnInfo extends EqnInfoCore where
   declNameNonRec  : Name
   fixedPrefixSize : Nat
   argsPacker      : ArgsPacker
+  hasInduct       : Bool
   deriving Inhabited
 
 private partial def deltaLHSUntilFix (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
@@ -57,7 +58,9 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
         go mvarId
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         go mvarId
-      else match (← simpTargetStar mvarId { config.dsimp := false } (simprocs := {})).1 with
+      else
+        let ctx ← Simp.mkContext (config := { dsimp := false })
+        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
         | TacticResultCNM.closed => return ()
         | TacticResultCNM.modified mvarId => go mvarId
         | TacticResultCNM.noChange =>
@@ -88,18 +91,19 @@ def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
     trace[Elab.definition.wf.eqns] "{eqnTypes[i]}"
     let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
+    realizeConst declName name .thm do
+      let value ← mkProof declName type
+      let (type, value) ← removeUnusedEqnHypotheses type value
+      return .thmInfo {
+        name, type, value
+        levelParams := info.levelParams
+      }
   return thmNames
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
 def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
-    (argsPacker : ArgsPacker) : MetaM Unit := do
+    (argsPacker : ArgsPacker) (hasInduct : Bool) : MetaM Unit := do
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.
@@ -112,7 +116,7 @@ def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fi
       modifyEnv fun env =>
         preDefs.foldl (init := env) fun env preDef =>
           eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize, argsPacker }
+            declNames, declNameNonRec, fixedPrefixSize, argsPacker, hasInduct }
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if let some info := eqnInfoExt.find? (← getEnv) declName then

@@ -346,7 +346,7 @@ builtin_initialize parserExtension : ParserExtension ←
   }
 
 def isParserCategory (env : Environment) (catName : Name) : Bool :=
-  (parserExtension.getState env).categories.contains catName
+  (parserExtension.getStateNoAsync env).categories.contains catName
 
 def addParserCategory (env : Environment) (catName declName : Name) (behavior : LeadingIdentBehavior) : Except String Environment := do
   if isParserCategory env catName then
@@ -355,12 +355,12 @@ def addParserCategory (env : Environment) (catName declName : Name) (behavior : 
     return parserExtension.addEntry env <| ParserExtension.Entry.category catName declName behavior
 
 def leadingIdentBehavior (env : Environment) (catName : Name) : LeadingIdentBehavior :=
-  match getCategory (parserExtension.getState env).categories catName with
+  match getCategory (parserExtension.getStateNoAsync env).categories catName with
   | none     => LeadingIdentBehavior.default
   | some cat => cat.behavior
 
 unsafe def evalParserConstUnsafe (declName : Name) : ParserFn := fun ctx s => unsafeBaseIO do
-  let categories := (parserExtension.getState ctx.env).categories
+  let categories := (parserExtension.getStateNoAsync ctx.env).categories
   match (← (mkParserOfConstant categories declName { env := ctx.env, opts := ctx.options }).toBaseIO) with
   | .ok (_, p) =>
     -- We should manually register `p`'s tokens before invoking it as it might not be part of any syntax category (yet)
@@ -406,7 +406,7 @@ def mkCategoryAntiquotParser (kind : Name) : Parser :=
 
 def categoryParserFnImpl (catName : Name) : ParserFn := fun ctx s =>
   let catName := if catName == `syntax then `stx else catName -- temporary Hack
-  let categories := (parserExtension.getState ctx.env).categories
+  let categories := (parserExtension.getStateNoAsync ctx.env).categories
   match getCategory categories catName with
   | some cat =>
     prattParser catName cat.tables cat.behavior (mkCategoryAntiquotParserFn catName) ctx s
@@ -418,24 +418,24 @@ builtin_initialize
 def addToken (tk : Token) (kind : AttributeKind) : AttrM Unit := do
   -- Recall that `ParserExtension.addEntry` is pure, and assumes `addTokenConfig` does not fail.
   -- So, we must run it here to handle exception.
-  discard <| ofExcept <| addTokenConfig (parserExtension.getState (← getEnv)).tokens tk
+  discard <| ofExcept <| addTokenConfig (parserExtension.getStateNoAsync (← getEnv)).tokens tk
   parserExtension.add (ParserExtension.Entry.token tk) kind
 
 def addSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Environment :=
   parserExtension.addEntry env <| ParserExtension.Entry.kind k
 
 def isValidSyntaxNodeKind (env : Environment) (k : SyntaxNodeKind) : Bool :=
-  let kinds := (parserExtension.getState env).kinds
+  let kinds := (parserExtension.getStateNoAsync env).kinds
   -- accept any constant in stage 1 (i.e. when compiled by stage 0) so that
   -- we can add a built-in parser and its elaborator in the same stage
   kinds.contains k || (Internal.isStage0 () && env.contains k)
 
 def getSyntaxNodeKinds (env : Environment) : List SyntaxNodeKind :=
-  let kinds := (parserExtension.getState env).kinds
+  let kinds := (parserExtension.getStateNoAsync env).kinds
   kinds.foldl (fun ks k _ => k::ks) []
 
 def getTokenTable (env : Environment) : TokenTable :=
-  (parserExtension.getState env).tokens
+  (parserExtension.getStateNoAsync env).tokens
 
 -- Note: `crlfToLf` preserves logical line and column numbers for each character.
 def mkInputContext (input : String) (fileName : String) (normalizeLineEndings := true) : InputContext :=
@@ -511,7 +511,7 @@ def registerBuiltinParserAttribute (attrName declName : Name)
 private def ParserAttribute.add (_attrName : Name) (catName : Name) (declName : Name) (stx : Syntax) (attrKind : AttributeKind) : AttrM Unit := do
   let prio ← Attribute.Builtin.getPrio stx
   let env ← getEnv
-  let categories := (parserExtension.getState env).categories
+  let categories := (parserExtension.getStateNoAsync env).categories
   let p ← mkParserOfConstant categories declName
   let leading    := p.1
   let parser     := p.2
@@ -574,7 +574,7 @@ private def withNamespaces (ids : Array Name) (addOpenSimple : Bool) : ParserFn 
       let env := parserExtension.activateScoped env ns
       (env, openDecls)
     { c with env, openDecls }
-  let tokens := parserExtension.getState c.env |>.tokens
+  let tokens := parserExtension.getStateNoAsync c.env |>.tokens
   { c with tokens }
 
 def withOpenDeclFnCore (openDeclStx : Syntax) (p : ParserFn) : ParserFn := fun c s =>

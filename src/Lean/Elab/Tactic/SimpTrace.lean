@@ -22,14 +22,14 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
   let stx := stx.unsetTrailing
   mkSimpOnly stx usedSimps
 
-@[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx =>
+@[builtin_tactic simpTrace] def evalSimpTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
   | `(tactic|
-      simp?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) => withMainContext do withSimpDiagnostics do
+      simp?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?) =>
     let stx ← if bang.isSome then
-      `(tactic| simp!%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
+      `(tactic| simp!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
     else
-      `(tactic| simp%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]? $(loc)?)
+      `(tactic| simp%$tk $cfg:optConfig $[$discharger]? $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, dischargeWrapper } ← mkSimpContext stx (eraseLocal := false)
     let stats ← dischargeWrapper.with fun discharge? =>
       simpLocation ctx (simprocs := simprocs) discharge? <|
@@ -39,13 +39,13 @@ def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tacti
     return stats.diag
   | _ => throwUnsupportedSyntax
 
-@[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx =>
+@[builtin_tactic simpAllTrace] def evalSimpAllTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
-  | `(tactic| simp_all?%$tk $[!%$bang]? $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?) => withSimpDiagnostics do
+  | `(tactic| simp_all?%$tk $[!%$bang]? $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?) =>
     let stx ← if bang.isSome then
-      `(tactic| simp_all!%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?)
+      `(tactic| simp_all!%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     else
-      `(tactic| simp_all%$tk $(config)? $(discharger)? $[only%$o]? $[[$args,*]]?)
+      `(tactic| simp_all%$tk $cfg:optConfig $(discharger)? $[only%$o]? $[[$args,*]]?)
     let { ctx, .. } ← mkSimpContext stx (eraseLocal := true)
       (kind := .simpAll) (ignoreStarArg := true)
     let (result?, stats) ← simpAll (← getMainGoal) ctx
@@ -79,13 +79,13 @@ where
     | some mvarId => replaceMainGoal [mvarId]
     pure stats
 
-@[builtin_tactic dsimpTrace] def evalDSimpTrace : Tactic := fun stx =>
+@[builtin_tactic dsimpTrace] def evalDSimpTrace : Tactic := fun stx => withMainContext do withSimpDiagnostics do
   match stx with
-  | `(tactic| dsimp?%$tk $[!%$bang]? $(config)? $[only%$o]? $[[$args,*]]? $(loc)?) => withSimpDiagnostics do
+  | `(tactic| dsimp?%$tk $[!%$bang]? $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?) =>
     let stx ← if bang.isSome then
-      `(tactic| dsimp!%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
+      `(tactic| dsimp!%$tk $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?)
     else
-      `(tactic| dsimp%$tk $(config)? $[only%$o]? $[[$args,*]]? $(loc)?)
+      `(tactic| dsimp%$tk $cfg:optConfig $[only%$o]? $[[$args,*]]? $(loc)?)
     let { ctx, simprocs, .. } ←
       withMainContext <| mkSimpContext stx (eraseLocal := false) (kind := .dsimp)
     let stats ← dsimpLocation' ctx simprocs <| (loc.map expandLocation).getD (.targets #[] true)

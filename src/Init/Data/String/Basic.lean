@@ -21,8 +21,10 @@ instance : LT String :=
   ⟨fun s₁ s₂ => s₁.data < s₂.data⟩
 
 @[extern "lean_string_dec_lt"]
-instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
-  List.hasDecidableLt s₁.data s₂.data
+instance decidableLT (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
+  List.decidableLT s₁.data s₂.data
+
+@[deprecated decidableLT (since := "2024-12-13")] abbrev decLt := @decidableLT
 
 @[reducible] protected def le (a b : String) : Prop := ¬ b < a
 
@@ -513,9 +515,6 @@ The default separator is `" "`. The separators are not included in the returned 
 instance : Inhabited String := ⟨""⟩
 
 instance : Append String := ⟨String.append⟩
-
-@[deprecated push (since := "2024-04-06")]
-def str : String → Char → String := push
 
 @[inline] def pushn (s : String) (c : Char) (n : Nat) : String :=
   n.repeat (fun s => s.push c) s

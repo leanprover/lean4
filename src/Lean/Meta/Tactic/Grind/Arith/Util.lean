@@ -32,6 +32,16 @@ def isNatAdd? (e : Expr) : Option (Expr × Expr) :=
   let_expr HAdd.hAdd _ _ _ i a b := e | none
   if isInstAddNat i then some (a, b) else none
 
+/--
+Returns `true` if `e` is of the form
+```
+@HAdd.hAdd Nat Nat Nat (instHAdd Nat instAddNat) _ _
+```
+-/
+def isNatAdd (e : Expr) : Bool :=
+  let_expr HAdd.hAdd _ _ _ i _ _ := e | false
+  isInstAddNat i
+
 /-- Returns `some k` if `e` `@OfNat.ofNat Nat _ (instOfNatNat k)` -/
 def isNatNum? (e : Expr) : Option Nat := Id.run do
   let_expr OfNat.ofNat _ _ inst := e | none

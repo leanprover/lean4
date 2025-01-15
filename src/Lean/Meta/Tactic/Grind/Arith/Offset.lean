@@ -241,8 +241,11 @@ private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
       s.cnstrsOf.insert (u, v) cs
   }
 
+private def getZeroNode : GoalM NodeId := do
+  mkNode (← getNatZeroExpr)
+
 /-- Internalize `e` of the form `b + k` -/
-def internalizeTerm (e : Expr) (b : Expr) (k : Nat) : GoalM Unit := do
+private def internalizeTerm (e : Expr) (b : Expr) (k : Nat) : GoalM Unit := do
   -- `e` is of the form `b + k`
   let u ← mkNode e
   let v ← mkNode b
@@ -250,19 +253,36 @@ def internalizeTerm (e : Expr) (b : Expr) (k : Nat) : GoalM Unit := do
   let h := mkApp (mkConst ``Nat.le_refl) e
   addEdge u v k h
   addEdge v u (-k) h
+  -- `0 + k ≤ u`
+  let z ← getZeroNode
+  addEdge z u (-k) <| mkApp2 (mkConst ``Grind.Nat.le_offset) b (toExpr k)
 
-def internalize (e : Expr) (parent : Expr) : GoalM Unit := do
+/--
+Returns `true`, if `parent?` is relevant for internalization.
+For example, we do not want to internalize an offset term that
+is the child of an addition. This kind of term will be processed by the
+more general linear arithmetic module.
+-/
+private def isRelevantParent (parent? : Option Expr) : GoalM Bool := do
+  let some parent := parent? | return false
+  let z ← getNatZeroExpr
+  return !isNatAdd parent && (isNatOffsetCnstr? parent z).isNone
+
+private def isEqParent (parent? : Option Expr) : Bool := Id.run do
+  let some parent := parent? | return false
+  return parent.isEq
+
+def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   let z ← getNatZeroExpr
   if let some c := isNatOffsetCnstr? e z then
     internalizeCnstr e c
-  else if (isNatOffsetCnstr? parent z).isSome then
-    return ()
-  else if isNatAdd parent then
-    return ()
-  else if let some (b, k) := isNatOffset? e then
-    internalizeTerm e b k
-  else if let some k := isNatNum? e then
-    internalizeTerm e z k
+  else if (← isRelevantParent parent?) then
+    if let some (b, k) := isNatOffset? e then
+      internalizeTerm e b k
+    else if let some k := isNatNum? e then
+      -- core module has support for detecting equality between literals
+      unless isEqParent parent? do
+        internalizeTerm e z k
 
 @[export lean_process_new_offset_eq]
 def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
@@ -273,6 +293,17 @@ def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
     let h ← mkEqProof a b
     addEdge u v 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
     addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
+
+@[export lean_process_new_offset_eq_lit]
+def processNewOffsetEqLitImpl (a b : Expr) : GoalM Unit := do
+  unless isSameExpr a b do
+    trace[grind.offset.eq.to] "{a}, {b}"
+    let some k := isNatNum? b | unreachable!
+    let u ← getNodeId a
+    let z ← mkNode (← getNatZeroExpr)
+    let h ← mkEqProof a b
+    addEdge u z k <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
+    addEdge z u (-k) <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
 
 def traceDists : GoalM Unit := do
   let s ← get'

@@ -2559,8 +2559,6 @@ x_39 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__20;
 x_40 = l_Lean_mkAppN(x_39, x_32);
 lean_dec(x_32);
 x_41 = l_Lean_declareBuiltin(x_37, x_40, x_7, x_8, x_38);
-lean_dec(x_8);
-lean_dec(x_7);
 return x_41;
 }
 else
@@ -2575,8 +2573,6 @@ x_44 = l_Lean_Elab_Command_elabSimprocPatternBuiltin___lambda__1___closed__23;
 x_45 = l_Lean_mkAppN(x_44, x_32);
 lean_dec(x_32);
 x_46 = l_Lean_declareBuiltin(x_42, x_45, x_7, x_8, x_43);
-lean_dec(x_8);
-lean_dec(x_7);
 return x_46;
 }
 }

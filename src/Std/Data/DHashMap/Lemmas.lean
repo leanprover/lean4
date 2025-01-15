@@ -1308,7 +1308,7 @@ theorem insertManyIfNewUnit_nil :
     (Raw₀.Const.insertManyIfNewUnit_nil ⟨m.1, m.2.size_buckets_pos⟩) :)
 
 @[simp]
-theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem insertManyIfNewUnit_list_singleton {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () :=
   Subtype.eq (congrArg Subtype.val
     (Raw₀.Const.insertManyIfNewUnit_list_singleton ⟨m.1, m.2.size_buckets_pos⟩) :)
@@ -1337,11 +1337,11 @@ theorem mem_of_mem_insertManyIfNewUnit_list [EquivBEq α] [LawfulHashable α]
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
     [EquivBEq α] [LawfulHashable α] {l : List α} {k : α}
-    (not_mem : ¬ k ∈ m) (contains_eq_false' : l.contains k = false) :
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
     getKey? (insertManyIfNewUnit m l) k = none := by
   simp only [mem_iff_contains, Bool.not_eq_true] at not_mem
   exact Raw₀.Const.getKey?_insertManyIfNewUnit_list_of_contains_eq_false_of_contains_eq_false
-    ⟨m.1, _⟩ m.2 not_mem contains_eq_false'
+    ⟨m.1, _⟩ m.2 not_mem contains_eq_false
 
 theorem getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
     {l : List α} {k k' : α} (k_beq : k == k')
@@ -1467,16 +1467,16 @@ end DHashMap
 namespace DHashMap
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_nil (α := α)) :)
 
 @[simp]
-theorem ofList_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] :
+theorem ofList_singleton {k : α} {v : β k} :
     ofList [⟨k, v⟩] = (∅: DHashMap α β).insert k v :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_singleton (α := α)) :)
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
+theorem ofList_cons {k : α} {v : β k} {tl : List ((a : α) × (β a))} :
     ofList (⟨k, v⟩ :: tl) = ((∅ : DHashMap α β).insert k v).insertMany tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.insertMany_empty_list_cons (α := α)) :)
 
@@ -1611,16 +1611,16 @@ namespace Const
 variable {β : Type v}
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_nil (α:= α)) :)
 
 @[simp]
-theorem ofList_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashable α] :
+theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : DHashMap α (fun _ => β)).insert k v :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_singleton (α:= α)) :)
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :
+theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : DHashMap α (fun _ => β)).insert k v) tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertMany_empty_list_cons (α:= α)) :)
 
@@ -1751,16 +1751,16 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   Raw₀.Const.isEmpty_insertMany_empty_list
 
 @[simp]
-theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
+theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_nil (α := α)) :)
 
 @[simp]
-theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : DHashMap α (fun _ => Unit)).insertIfNew k () :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_singleton (α := α)) :)
 
-theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
+theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) =
       insertManyIfNewUnit ((∅ : DHashMap α (fun _ => Unit)).insertIfNew hd ()) tl :=
   Subtype.eq (congrArg Subtype.val (Raw₀.Const.insertManyIfNewUnit_empty_list_cons (α := α)) :)

@@ -706,17 +706,17 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.distinct_keys h.out
 
 @[simp]
-theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertMany_nil (h : m.WF) :
     insertMany m [] = m :=
   ext (DHashMap.Raw.Const.insertMany_nil h.out)
 
 @[simp]
-theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] (h : m.WF)
+theorem insertMany_list_singleton (h : m.WF)
     {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v :=
   ext (DHashMap.Raw.Const.insertMany_list_singleton h.out)
 
-theorem insertMany_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List (α × β)}
+theorem insertMany_cons (h : m.WF) {l : List (α × β)}
     {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l :=
   ext (DHashMap.Raw.Const.insertMany_cons h.out)
@@ -873,16 +873,16 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
 variable {m : Raw α Unit}
 
 @[simp]
-theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertManyIfNewUnit_nil (h : m.WF) :
     insertManyIfNewUnit m [] = m :=
   ext (DHashMap.Raw.Const.insertManyIfNewUnit_nil h.out)
 
 @[simp]
-theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem insertManyIfNewUnit_list_singleton (h : m.WF) {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () :=
   ext (DHashMap.Raw.Const.insertManyIfNewUnit_list_singleton h.out)
 
-theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
+theorem insertManyIfNewUnit_cons (h : m.WF) {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l :=
   ext (DHashMap.Raw.Const.insertManyIfNewUnit_cons h.out)
 
@@ -1032,16 +1032,16 @@ namespace Raw
 variable [BEq α] [Hashable α]
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ :=
   ext DHashMap.Raw.Const.ofList_nil
 
 @[simp]
-theorem ofList_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : Raw α β).insert k v :=
   ext DHashMap.Raw.Const.ofList_singleton
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :
+theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : Raw α β).insert k v) tl :=
   ext DHashMap.Raw.Const.ofList_cons
 
@@ -1172,16 +1172,16 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   DHashMap.Raw.Const.isEmpty_ofList
 
 @[simp]
-theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
+theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ :=
   ext DHashMap.Raw.Const.unitOfList_nil
 
 @[simp]
-theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : Raw α Unit).insertIfNew k () :=
   ext DHashMap.Raw.Const.unitOfList_singleton
 
-theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
+theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) = insertManyIfNewUnit ((∅ : Raw α Unit).insertIfNew hd ()) tl :=
   ext DHashMap.Raw.Const.unitOfList_cons
 

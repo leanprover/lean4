@@ -869,7 +869,7 @@ theorem insertManyIfNewUnit_nil :
   ext DHashMap.Const.insertManyIfNewUnit_nil
 
 @[simp]
-theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem insertManyIfNewUnit_list_singleton {k : α} :
     insertManyIfNewUnit m [k] = m.insertIfNew k () :=
   ext DHashMap.Const.insertManyIfNewUnit_list_singleton
 
@@ -1014,16 +1014,16 @@ end
 section
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ :=
   ext DHashMap.Const.ofList_nil
 
 @[simp]
-theorem ofList_singleton {k : α} {v : β} [EquivBEq α] [LawfulHashable α] :
+theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : HashMap α β).insert k v :=
   ext DHashMap.Const.ofList_singleton
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :
+theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : HashMap α β).insert k v) tl :=
   ext DHashMap.Const.ofList_cons
 
@@ -1154,16 +1154,16 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.isEmpty_ofList
 
 @[simp]
-theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
+theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ :=
   ext DHashMap.Const.unitOfList_nil
 
 @[simp]
-theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : HashMap α Unit).insertIfNew k () :=
   ext DHashMap.Const.unitOfList_singleton
 
-theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
+theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) =
       insertManyIfNewUnit ((∅ : HashMap α Unit).insertIfNew hd ()) tl :=
   ext DHashMap.Const.unitOfList_cons

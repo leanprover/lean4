@@ -1229,19 +1229,19 @@ namespace Const
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
 @[simp]
-theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertMany_nil (h : m.WF) :
     insertMany m [] = m := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_nil]
 
 @[simp]
-theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] (h : m.WF)
+theorem insertMany_list_singleton (h : m.WF)
     {k : α} {v : β} :
     insertMany m [⟨k, v⟩] = m.insert k v := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_list_singleton]
 
-theorem insertMany_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List (α × β)}
+theorem insertMany_cons (h : m.WF) {l : List (α × β)}
     {k : α} {v : β} :
     insertMany m (⟨k, v⟩ :: l) = insertMany (m.insert k v) l := by
   simp_to_raw
@@ -1401,18 +1401,18 @@ theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α] (h : m.WF)
 variable {m : Raw α (fun _ => Unit)}
 
 @[simp]
-theorem insertManyIfNewUnit_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertManyIfNewUnit_nil (h : m.WF) :
     insertManyIfNewUnit m [] = m := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_nil]
 
 @[simp]
-theorem insertManyIfNewUnit_list_singleton [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF) :
+theorem insertManyIfNewUnit_list_singleton {k : α} (h : m.WF) :
     insertManyIfNewUnit m [k] = m.insertIfNew k () := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_list_singleton]
 
-theorem insertManyIfNewUnit_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
+theorem insertManyIfNewUnit_cons (h : m.WF) {l : List α} {k : α} :
     insertManyIfNewUnit m (k :: l) = insertManyIfNewUnit (m.insertIfNew k ()) l := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_cons]
@@ -1570,13 +1570,13 @@ variable [BEq α] [Hashable α]
 open Internal.Raw Internal.Raw₀
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List ((a : α) × (β a))) = ∅ := by
   simp_to_raw
   rw [Raw₀.insertMany_empty_list_nil]
 
 @[simp]
-theorem ofList_singleton {k : α} {v : β k} [EquivBEq α] [LawfulHashable α] :
+theorem ofList_singleton {k : α} {v : β k} :
     ofList [⟨k, v⟩] = (∅ : Raw α β).insert k v := by
   simp_to_raw
   rw [Raw₀.insertMany_empty_list_singleton]
@@ -1717,18 +1717,18 @@ namespace Const
 variable {β : Type v}
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List (α × β)) = ∅ := by
   simp_to_raw
   simp
 
 @[simp]
-theorem ofList_singleton [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
+theorem ofList_singleton {k : α} {v : β} :
     ofList [⟨k, v⟩] = (∅ : Raw α (fun _ => β)).insert k v := by
   simp_to_raw
   simp
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {tl : List (α × β)} :
+theorem ofList_cons {k : α} {v : β} {tl : List (α × β)} :
     ofList (⟨k, v⟩ :: tl) = insertMany ((∅ : Raw α (fun _ => β)).insert k v) tl := by
   simp_to_raw
   rw [Raw₀.Const.insertMany_empty_list_cons]
@@ -1860,18 +1860,18 @@ theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
   simp_to_raw using Raw₀.Const.isEmpty_insertMany_empty_list
 
 @[simp]
-theorem unitOfList_nil [EquivBEq α] [LawfulHashable α] :
+theorem unitOfList_nil :
     unitOfList ([] : List α) = ∅ := by
   simp_to_raw
   simp
 
 @[simp]
-theorem unitOfList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem unitOfList_singleton {k : α} :
     unitOfList [k] = (∅ : Raw α (fun _ => Unit)).insertIfNew k () := by
   simp_to_raw
   simp
 
-theorem unitOfList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
+theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) = insertManyIfNewUnit ((∅ : Raw α (fun _ => Unit)).insertIfNew hd ()) tl := by
   simp_to_raw
   rw [Raw₀.Const.insertManyIfNewUnit_empty_list_cons]

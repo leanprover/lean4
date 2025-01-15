@@ -391,16 +391,16 @@ theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   HashMap.Raw.distinct_keys h.1
 
 @[simp]
-theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+theorem insertMany_nil (h : m.WF) :
     insertMany m [] = m :=
   ext (HashMap.Raw.insertManyIfNewUnit_nil h.1)
 
 @[simp]
-theorem insertMany_list_singleton [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
+theorem insertMany_list_singleton (h : m.WF) {k : α} :
     insertMany m [k] = m.insert k :=
   ext (HashMap.Raw.insertManyIfNewUnit_list_singleton h.1)
 
-theorem insertMany_cons [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α} :
+theorem insertMany_cons (h : m.WF) {l : List α} {k : α} :
     insertMany m (k :: l) = insertMany (m.insert k) l :=
   ext (HashMap.Raw.insertManyIfNewUnit_cons h.1)
 
@@ -519,16 +519,16 @@ theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
   HashMap.Raw.isEmpty_insertManyIfNewUnit_list h.1
 
 @[simp]
-theorem ofList_nil [EquivBEq α] [LawfulHashable α] :
+theorem ofList_nil :
     ofList ([] : List α) = ∅ :=
   ext HashMap.Raw.unitOfList_nil
 
 @[simp]
-theorem ofList_singleton [EquivBEq α] [LawfulHashable α] {k : α} :
+theorem ofList_singleton {k : α} :
     ofList [k] = (∅ : Raw α).insert k :=
   ext HashMap.Raw.unitOfList_singleton
 
-theorem ofList_cons [EquivBEq α] [LawfulHashable α] {hd : α} {tl : List α} :
+theorem ofList_cons {hd : α} {tl : List α} :
     ofList (hd :: tl) = insertMany ((∅ : Raw α).insert hd) tl :=
   ext HashMap.Raw.unitOfList_cons
 

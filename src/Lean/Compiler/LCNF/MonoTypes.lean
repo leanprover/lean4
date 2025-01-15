@@ -72,9 +72,7 @@ The type contains only `→` and constants.
 -/
 partial def toMonoType (type : Expr) : CoreM Expr := do
   let type := type.headBeta
-  if type.isErased then
-    return erasedExpr
-  else if isTypeFormerType type then
+  if isTypeFormerType type then
     return erasedExpr
   else match type with
     | .const ..        => visitApp type #[]
@@ -84,6 +82,7 @@ partial def toMonoType (type : Expr) : CoreM Expr := do
 where
   visitApp (f : Expr) (args : Array Expr) : CoreM Expr := do
     match f with
+    | .const ``lcErased _ => return erasedExpr
     | .const ``Decidable _ => return mkConst ``Bool
     | .const declName us =>
       if let some info ← hasTrivialStructure? declName then

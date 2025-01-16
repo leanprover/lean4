@@ -199,6 +199,45 @@ theorem toList_filter {f : (a : α) → β a → Bool} {l : AssocList α β} :
     · exact (ih _).trans (by simpa using perm_middle.symm)
     · exact ih _
 
+theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
+    {l : AssocList α β} :
+    Perm (l.alter a f).toList (alterKey a f l.toList) := by
+  induction l
+  · simp only [alter, toList_nil, alterKey_nil]
+    split <;> simp_all
+  · rw [toList]
+    refine Perm.trans ?_ alterKey_cons_perm.symm
+    rw [alter]
+    split <;> (try split) <;> simp_all
+
+theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β} :
+    modify a f l = alter a (·.map f) l := by
+  induction l
+  · rfl
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+
+namespace Const
+
+variable {β : Type v}
+
+theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option β}
+    {l : AssocList α (fun _ => β)} : Perm (alter a f l).toList (Const.alterKey a f l.toList) := by
+  induction l
+  · simp only [alter, toList_nil, alterKey_nil]
+    split <;> simp_all
+  · rw [toList]
+    refine Perm.trans ?_ Const.alterKey_cons_perm.symm
+    rw [alter]
+    split <;> (try split) <;> simp_all
+
+theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : AssocList α (fun _ => β)} :
+    modify a f l = alter a (·.map f) l := by
+  induction l
+  · rfl
+  · next ih => simp only [modify, beq_iff_eq, alter, Option.map_some', ih]
+
+end Const
+
 theorem foldl_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a → δ) :
     l.foldl (fun acc k v => f k v :: acc) acc =
       (l.toList.map (fun p => f p.1 p.2)).reverse ++ acc := by

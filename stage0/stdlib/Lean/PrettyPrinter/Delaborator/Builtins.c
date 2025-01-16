@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.PrettyPrinter.Delaborator.Builtins
-// Imports: Lean.Parser Lean.PrettyPrinter.Delaborator.Attributes Lean.PrettyPrinter.Delaborator.Basic Lean.PrettyPrinter.Delaborator.SubExpr Lean.PrettyPrinter.Delaborator.TopDownAnalyze Lean.Meta.CoeAttr
+// Imports: Lean.PrettyPrinter.Delaborator.Attributes Lean.PrettyPrinter.Delaborator.Basic Lean.PrettyPrinter.Delaborator.SubExpr Lean.PrettyPrinter.Delaborator.TopDownAnalyze Lean.Meta.CoeAttr
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2390,7 +2390,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__2;
-x_3 = lean_unsigned_to_nat(40u);
+x_3 = lean_unsigned_to_nat(39u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2756,7 +2756,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabBVar___closed__2;
-x_3 = lean_unsigned_to_nat(51u);
+x_3 = lean_unsigned_to_nat(50u);
 x_4 = lean_unsigned_to_nat(32u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3427,7 +3427,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabMVar___closed__1;
-x_3 = lean_unsigned_to_nat(71u);
+x_3 = lean_unsigned_to_nat(70u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3539,7 +3539,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabSort___closed__1;
-x_3 = lean_unsigned_to_nat(76u);
+x_3 = lean_unsigned_to_nat(75u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5850,7 +5850,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabConst___closed__1;
-x_3 = lean_unsigned_to_nat(93u);
+x_3 = lean_unsigned_to_nat(92u);
 x_4 = lean_unsigned_to_nat(35u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -17262,7 +17262,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabAppImplicitCore_tryAppUnexpanders___closed__1;
-x_3 = lean_unsigned_to_nat(479u);
+x_3 = lean_unsigned_to_nat(478u);
 x_4 = lean_unsigned_to_nat(58u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -26039,7 +26039,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__3___closed__2;
-x_3 = lean_unsigned_to_nat(710u);
+x_3 = lean_unsigned_to_nat(709u);
 x_4 = lean_unsigned_to_nat(10u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabAppMatch___lambda__3___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -35371,7 +35371,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabLetE___closed__1;
-x_3 = lean_unsigned_to_nat(960u);
+x_3 = lean_unsigned_to_nat(959u);
 x_4 = lean_unsigned_to_nat(38u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -36247,7 +36247,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabLit___closed__1;
-x_3 = lean_unsigned_to_nat(980u);
+x_3 = lean_unsigned_to_nat(979u);
 x_4 = lean_unsigned_to_nat(29u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -39387,7 +39387,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabProj___closed__1;
-x_3 = lean_unsigned_to_nat(1088u);
+x_3 = lean_unsigned_to_nat(1087u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -44529,7 +44529,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabDoElems___closed__4;
-x_3 = lean_unsigned_to_nat(1224u);
+x_3 = lean_unsigned_to_nat(1223u);
 x_4 = lean_unsigned_to_nat(40u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -53423,7 +53423,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__1;
 x_2 = l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature_delabParamsAux___closed__1;
-x_3 = lean_unsigned_to_nat(1378u);
+x_3 = lean_unsigned_to_nat(1377u);
 x_4 = lean_unsigned_to_nat(42u);
 x_5 = l_Lean_PrettyPrinter_Delaborator_delabFVar___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -54414,7 +54414,6 @@ x_10 = l_Lean_PrettyPrinter_Delaborator_delabConstWithSignature(x_9, x_2, x_3, x
 return x_10;
 }
 }
-lean_object* initialize_Lean_Parser(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Attributes(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_PrettyPrinter_Delaborator_SubExpr(uint8_t builtin, lean_object*);
@@ -54425,9 +54424,6 @@ LEAN_EXPORT lean_object* initialize_Lean_PrettyPrinter_Delaborator_Builtins(uint
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Parser(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_PrettyPrinter_Delaborator_Attributes(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

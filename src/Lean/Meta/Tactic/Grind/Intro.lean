@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
+import Lean.Meta.Tactic.Grind.Combinators
 
 namespace Lean.Meta.Grind
 
@@ -21,16 +22,17 @@ private inductive IntroResult where
   | newLocal (fvarId : FVarId) (goal : Goal)
   deriving Inhabited
 
-private def introNext (goal : Goal) : GrindM IntroResult := do
+private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
-    goal.mvarId.withContext do
+    let (r, _) ← GoalM.run goal do
+      let mvarId := (← get).mvarId
       let p := target.bindingDomain!
       if !(← isProp p) then
-        let (fvarId, mvarId) ← goal.mvarId.intro1P
-        return .newLocal fvarId { goal with mvarId }
+        let (fvarId, mvarId) ← mvarId.intro1P
+        return .newLocal fvarId { (← get) with mvarId }
       else
-        let tag ← goal.mvarId.getTag
+        let tag ← mvarId.getTag
         let q := target.bindingBody!
         -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
         let r ← simp p
@@ -43,13 +45,14 @@ private def introNext (goal : Goal) : GrindM IntroResult := do
           match r.proof? with
           | some he =>
             let hNew := mkAppN (mkConst ``Lean.Grind.intro_with_eq) #[p, r.expr, q, he, h]
-            goal.mvarId.assign hNew
-            return .newHyp fvarId { goal with mvarId := mvarIdNew }
+            mvarId.assign hNew
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
           | none =>
             -- `p` and `p'` are definitionally equal
-            goal.mvarId.assign h
-            return .newHyp fvarId { goal with mvarId := mvarIdNew }
-  else if target.isLet || target.isForall then
+            mvarId.assign h
+            return .newHyp fvarId { (← get) with mvarId := mvarIdNew }
+    return r
+  else if target.isLet || target.isForall || target.isLetFun then
     let (fvarId, mvarId) ← goal.mvarId.intro1P
     mvarId.withContext do
       let localDecl ← fvarId.getDecl
@@ -58,17 +61,26 @@ private def introNext (goal : Goal) : GrindM IntroResult := do
         let mvarId ← mvarId.assert (← mkFreshUserName localDecl.userName) localDecl.type (mkFVar fvarId)
         return .newDepHyp { goal with mvarId }
       else
-        return .newLocal fvarId { goal with mvarId }
+        let goal := { goal with mvarId }
+        if target.isLet || target.isLetFun then
+          let goal ← GoalM.run' goal do
+            let v := (← fvarId.getDecl).value
+            let r ← simp v
+            let x ← shareCommon (mkFVar fvarId)
+            addNewEq x r.expr (← r.getProof) generation
+          return .newLocal fvarId goal
+        else
+          return .newLocal fvarId goal
   else
     return .done
 
-private def isCasesCandidate (fvarId : FVarId) : MetaM Bool := do
-  let .const declName _ := (← fvarId.getType).getAppFn | return false
+private def isCasesCandidate (type : Expr) : MetaM Bool := do
+  let .const declName _ := type.getAppFn | return false
   isGrindCasesTarget declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
-  if (← isCasesCandidate fvarId) then
-    let mvarIds ← cases goal.mvarId fvarId
+  if (← isCasesCandidate (← fvarId.getType)) then
+    let mvarIds ← cases goal.mvarId (mkFVar fvarId)
     return mvarIds.map fun mvarId => { goal with mvarId }
   else
     return none
@@ -80,11 +92,11 @@ private def applyInjection? (goal : Goal) (fvarId : FVarId) : MetaM (Option Goal
     return none
 
 /-- Introduce new hypotheses (and apply `by_contra`) until goal is of the form `... ⊢ False` -/
-partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
+partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
   let rec go (goal : Goal) : StateRefT (Array Goal) GrindM Unit := do
     if goal.inconsistent then
       return ()
-    match (← introNext goal) with
+    match (← introNext goal generation) with
     | .done =>
       if let some mvarId ← goal.mvarId.byContra? then
         go { goal with mvarId }
@@ -108,32 +120,27 @@ partial def intros (goal : Goal) (generation : Nat) : GrindM (List Goal) := do
   return goals.toList
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
-def assertAt (goal : Goal) (proof : Expr) (prop : Expr) (generation : Nat) : GrindM (List Goal) := do
-  -- TODO: check whether `prop` may benefit from `intros` or not. If not, we should avoid the `assert`+`intros` step and use `Grind.add`
-  let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
-  let goal := { goal with mvarId }
-  intros goal generation
+def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := fun goal => do
+  if (← isCasesCandidate prop) then
+    let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
+    let goal := { goal with mvarId }
+    intros generation goal
+  else
+    let goal ← GoalM.run' goal do
+      let r ← simp prop
+      let prop' := r.expr
+      let proof' ← mkEqMP (← r.getProof) proof
+      add prop' proof' generation
+    if goal.inconsistent then return [] else return [goal]
 
 /-- Asserts next fact in the `goal` fact queue. -/
-def assertNext? (goal : Goal) : GrindM (Option (List Goal)) := do
+def assertNext : GrindTactic := fun goal => do
   let some (fact, newFacts) := goal.newFacts.dequeue?
     | return none
-  assertAt { goal with newFacts } fact.proof fact.prop fact.generation
-
-partial def iterate (goal : Goal) (f : Goal → GrindM (Option (List Goal))) : GrindM (List Goal) := do
-  go [goal] []
-where
-  go (todo : List Goal) (result : List Goal) : GrindM (List Goal) := do
-    match todo with
-    | [] => return result
-    | goal :: todo =>
-      if let some goalsNew ← f goal then
-        go (goalsNew ++ todo) result
-      else
-        go todo (goal :: result)
+  assertAt fact.proof fact.prop fact.generation { goal with newFacts }
 
 /-- Asserts all facts in the `goal` fact queue. -/
-partial def assertAll (goal : Goal) : GrindM (List Goal) := do
-  iterate goal assertNext?
+partial def assertAll : GrindTactic :=
+  assertNext.iterate
 
 end Lean.Meta.Grind

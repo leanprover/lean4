@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.MissingDocs
-// Imports: Lean.Meta.Tactic.Simp.RegisterCommand Lean.Elab.Command Lean.Elab.SetOption Lean.Linter.Util
+// Imports: Lean.Parser.Syntax Lean.Meta.Tactic.Simp.RegisterCommand Lean.Elab.Command Lean.Elab.SetOption Lean.Linter.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2982,8 +2982,6 @@ else
 lean_object* x_44; lean_object* x_45; 
 x_44 = lean_box(0);
 x_45 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____lambda__1(x_8, x_15, x_1, x_44, x_4, x_5, x_16);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_8);
 return x_45;
 }
@@ -2994,8 +2992,6 @@ lean_object* x_46; lean_object* x_47;
 lean_dec(x_29);
 x_46 = lean_box(0);
 x_47 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____lambda__1(x_8, x_15, x_1, x_46, x_4, x_5, x_16);
-lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_8);
 return x_47;
 }
@@ -4091,8 +4087,6 @@ _start:
 {
 lean_object* x_8; 
 x_8 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
-lean_dec(x_6);
-lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_1);
 return x_8;
@@ -8777,6 +8771,7 @@ x_4 = l_Lean_Linter_MissingDocs_addBuiltinHandler(x_2, x_3, x_1);
 return x_4;
 }
 }
+lean_object* initialize_Lean_Parser_Syntax(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_RegisterCommand(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SetOption(uint8_t builtin, lean_object*);
@@ -8786,6 +8781,9 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_MissingDocs(uint8_t builtin, lea
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Parser_Syntax(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Simp_RegisterCommand(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

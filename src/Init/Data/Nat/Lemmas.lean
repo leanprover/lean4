@@ -1755,7 +1755,9 @@ instance decidableBallLT (n : Nat) (P : ∀ k, k < n → Prop) [H : ∀ n h, Dec
         | isTrue p =>
           inner n1 (Nat.le_of_succ_le h1) n2 hn fun n hn2 hn1 =>
             (Nat.le_iff_lt_or_eq.mp hn1).elim (h2 n hn2) (· ▸ p)
-  let step := 128
+  -- assuming we get `Lean.defaultMaxRecDepth / 2` stack frames,
+  -- this maximizes the number of inner * outer iterations
+  let step := Lean.defaultMaxRecDepth / 4
   let rec outer : ∀ n1, n1 * step ≤ n → (∀ n h, n1 * step ≤ n → P n h) → Decidable (∀ n h, P n h)
   | 0, _, h2 => isTrue (h2 · · (Nat.zero_le _))
   | n1 + 1, h1, h2 =>

@@ -1091,6 +1091,21 @@ theorem divRec_succ' (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
     divRec m args input := by
   simp [divRec_succ, divSubtractShift]
 
+theorem getElem_udiv (n d : BitVec w) (hy : 0#w < d) (i : Nat) (hi : i < w) :
+    (n / d)[i] = (divRec w {n, d} (DivModState.init w)).q[i] := by
+  rw [udiv_eq_divRec (by assumption)]
+
+theorem getLsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
+    (n / d).getLsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getLsbD i) := by
+  by_cases hi : i < w
+  · simp only [udiv_eq_divRec (by assumption), Bool.iff_and_self, decide_eq_true_eq]
+    omega
+  · simp_all
+
+theorem getMsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
+    (n / d).getMsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getMsbD i) := by
+  simp [getMsbD_eq_getLsbD, getLsbD_udiv, udiv_eq_divRec (by assumption)]
+
 /- ### Arithmetic shift right (sshiftRight) recurrence -/
 
 /--

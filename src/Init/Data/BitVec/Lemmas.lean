@@ -2680,27 +2680,6 @@ theorem msb_udiv_eq_false_of {x : BitVec w} (h : x.msb = false) (y : BitVec w) :
     (x / y).msb = false := by
   simp [msb_udiv, h]
 
-theorem getElem_udiv (x y : BitVec w) (i : Nat) :
-    (x / y).getElem i = _ := by sorry
-  -- simp only [mulRec_eq_mul_signExtend_setWidth]
-  -- rw [setWidth_setWidth_of_le]
-  -- · simp
-  -- · omega
-
-theorem getLsbD_udiv (x y : BitVec w) (i : Nat) :
-    (x / y).getLsbD i = _ := by sorry
-  -- simp only [mulRec_eq_mul_signExtend_setWidth]
-  -- rw [setWidth_setWidth_of_le]
-  -- · simp
-  -- · omega
-
-theorem getMsbD_udiv (x y : BitVec w) (i : Nat) :
-    (x / y).getMsbD i = _ := by sorry
-  -- simp only [mulRec_eq_mul_signExtend_setWidth]
-  -- rw [setWidth_setWidth_of_le]
-  -- · simp
-  -- · omega
-
 /--
 If `x` is nonnegative (i.e., does not have its msb set),
 then `x / y` is nonnegative, thus `toInt` and `toNat` coincide.

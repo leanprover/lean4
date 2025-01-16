@@ -1525,6 +1525,75 @@ theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :
     subst this
     rfl
 
+
+/-! ### flatMap -/
+
+@[simp] theorem flatMap_mk (l : Array α) (h : l.size = m) (f : α → Vector β n) :
+    (mk l h).flatMap f =
+      mk (l.flatMap (fun a => (f a).toArray)) (by simp [Array.map_const', h]) := by
+  simp [flatMap]
+
+@[simp] theorem flatMap_toArray (l : Vector α n) (f : α → Vector β m) :
+    l.toArray.flatMap (fun a => (f a).toArray) = (l.flatMap f).toArray := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+theorem flatMap_def (l : Vector α n) (f : α → Vector β m) : l.flatMap f = flatten (map f l) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.flatMap_def, Function.comp_def]
+
+@[simp] theorem flatMap_id (l : Vector (Vector α m) n) : l.flatMap id = l.flatten := by simp [flatMap_def]
+
+@[simp] theorem flatMap_id' (l : Vector (Vector α m) n) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
+
+@[simp] theorem mem_flatMap {f : α → Vector β m} {b} {l : Vector α n} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
+  simp [flatMap_def, mem_flatten]
+  exact ⟨fun ⟨_, ⟨a, h₁, rfl⟩, h₂⟩ => ⟨a, h₁, h₂⟩, fun ⟨a, h₁, h₂⟩ => ⟨_, ⟨a, h₁, rfl⟩, h₂⟩⟩
+
+theorem exists_of_mem_flatMap {b : β} {l : Vector α n} {f : α → Vector β m} :
+    b ∈ l.flatMap f → ∃ a, a ∈ l ∧ b ∈ f a := mem_flatMap.1
+
+theorem mem_flatMap_of_mem {b : β} {l : Vector α n} {f : α → Vector β m} {a} (al : a ∈ l) (h : b ∈ f a) :
+    b ∈ l.flatMap f := mem_flatMap.2 ⟨a, al, h⟩
+
+theorem forall_mem_flatMap {p : β → Prop} {l : Vector α n} {f : α → Vector β m} :
+    (∀ (x) (_ : x ∈ l.flatMap f), p x) ↔ ∀ (a) (_ : a ∈ l) (b) (_ : b ∈ f a), p b := by
+  simp only [mem_flatMap, forall_exists_index, and_imp]
+  constructor <;> (intros; solve_by_elim)
+
+theorem flatMap_singleton (f : α → Vector β m) (x : α) : #v[x].flatMap f = (f x).cast (by simp) := by
+  simp [flatMap_def]
+
+@[simp] theorem flatMap_singleton' (l : Vector α n) : (l.flatMap fun x => #v[x]) = l.cast (by simp) := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem flatMap_append (xs ys : Vector α n) (f : α → Vector β m) :
+    (xs ++ ys).flatMap f = (xs.flatMap f ++ ys.flatMap f).cast (by simp [Nat.add_mul]) := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp [flatMap_def, flatten_append]
+
+theorem flatMap_assoc {α β} (l : Vector α n) (f : α → Vector β m) (g : β → Vector γ k) :
+    (l.flatMap f).flatMap g = (l.flatMap fun x => (f x).flatMap g).cast (by simp [Nat.mul_assoc]) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.flatMap_assoc]
+
+theorem map_flatMap (f : β → γ) (g : α → Vector β m) (l : Vector α n) :
+     (l.flatMap g).map f = l.flatMap fun a => (g a).map f := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.map_flatMap]
+
+theorem flatMap_map (f : α → β) (g : β → Vector γ k) (l : Vector α n) :
+     (map f l).flatMap g = l.flatMap (fun a => g (f a)) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.flatMap_map]
+
+theorem map_eq_flatMap {α β} (f : α → β) (l : Vector α n) :
+    map f l = (l.flatMap fun x => #v[f x]).cast (by simp) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.map_eq_flatMap]
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :

@@ -606,11 +606,11 @@ set_option linter.missingDocs false in
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] def flatMap {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
+@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (a : List α) : List β := flatten (map b a)
 
-@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap [] f = [] := by simp [flatten, List.flatMap]
+@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
 @[simp] theorem flatMap_cons x xs (f : α → List β) :
-  List.flatMap (x :: xs) f = f x ++ List.flatMap xs f := by simp [flatten, List.flatMap]
+  List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
 
 set_option linter.missingDocs false in
 @[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap

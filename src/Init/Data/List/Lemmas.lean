@@ -2070,14 +2070,14 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 theorem flatMap_def (l : List α) (f : α → List β) : l.flatMap f = flatten (map f l) := by rfl
 
-@[simp] theorem flatMap_id (l : List (List α)) : List.flatMap l id = l.flatten := by simp [flatMap_def]
+@[simp] theorem flatMap_id (l : List (List α)) : l.flatMap id = l.flatten := by simp [flatMap_def]
 
-@[simp] theorem flatMap_id' (l : List (List α)) : List.flatMap l (fun a => a) = l.flatten := by simp [flatMap_def]
+@[simp] theorem flatMap_id' (l : List (List α)) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
 
 @[simp]
 theorem length_flatMap (l : List α) (f : α → List β) :
-    length (l.flatMap f) = sum (map (length ∘ f) l) := by
-  rw [List.flatMap, length_flatten, map_map]
+    length (l.flatMap f) = sum (map (fun a => (f a).length) l) := by
+  rw [List.flatMap, length_flatten, map_map, Function.comp_def]
 
 @[simp] theorem mem_flatMap {f : α → List β} {b} {l : List α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [flatMap_def, mem_flatten]
@@ -2090,7 +2090,7 @@ theorem mem_flatMap_of_mem {b : β} {l : List α} {f : α → List β} {a} (al :
     b ∈ l.flatMap f := mem_flatMap.2 ⟨a, al, h⟩
 
 @[simp]
-theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : List.flatMap l f = [] ↔ ∀ x ∈ l, f x = [] :=
+theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : l.flatMap f = [] ↔ ∀ x ∈ l, f x = [] :=
   flatten_eq_nil_iff.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 

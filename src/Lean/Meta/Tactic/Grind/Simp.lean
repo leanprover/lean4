@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.DoNotSimp
 import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/

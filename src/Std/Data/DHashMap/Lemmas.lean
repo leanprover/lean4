@@ -1084,8 +1084,8 @@ theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β
     (m.alter k f).get k h = (f (m.get? k)).get h' :=
   Raw₀.get_alter_self ⟨m.1, _⟩ m.2
 
-theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : Option (β k) → Option (β k)} :
-    (m.alter k f).get! k' =
+theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
+    {f : Option (β k) → Option (β k)} : (m.alter k f).get! k' =
     if heq : k == k' then
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
@@ -1165,7 +1165,8 @@ theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option
   Raw₀.getKeyD_alter ⟨m.1, _⟩ m.2
 
 @[simp]
-theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α} {f : Option (β k) → Option (β k)} :
+theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α}
+    {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKeyD k d = if (f (m.get? k)).isSome then k else d := by
   simp [getKeyD_alter]
 
@@ -1212,12 +1213,13 @@ theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β
     k ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
   rw [mem_iff_contains, contains_alter_self]
 
-theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
-    (h : (k == k') = false) : (Const.alter m k f).contains k' = m.contains k' := by
+theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
+    {f : Option β → Option β} (h : (k == k') = false) :
+    (Const.alter m k f).contains k' = m.contains k' := by
   simp only [contains_alter, h, Bool.false_eq_true, reduceIte]
 
-theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
-    (h : (k == k') = false) : k' ∈ Const.alter m k f ↔ k' ∈ m := by
+theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
+    {f : Option β → Option β} (h : (k == k') = false) : k' ∈ Const.alter m k f ↔ k' ∈ m := by
   simp only [mem_iff_contains, contains_alter_of_beq_eq_false, h]
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :

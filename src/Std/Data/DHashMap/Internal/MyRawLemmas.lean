@@ -123,7 +123,8 @@ theorem get_alter_self [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) �
     (m.alter k f).get k hc = (f (m.get? k)).get h' := by
   simp_to_model using List.getValueCast_alterKey_self
 
-theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')] {f : Option (β k) → Option (β k)} :
+theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')]
+    {f : Option (β k) → Option (β k)} :
     (m.alter k f).get! k' =
     if heq : k == k' then
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
@@ -132,7 +133,8 @@ theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')] {
       m.get! k' := by
   simp_to_model using List.getValueCast!_alterKey
 
-theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} (h : m.1.WF) {f : Option (β k) → Option (β k)} :
+theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
     (m.alter k f).getD k' v =
     if heq : k == k' then
       f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
@@ -140,7 +142,8 @@ theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} (h : m.1.WF) {f : Opti
       m.getD k' v := by
   simp_to_model using List.getValueCastD_alterKey
 
-theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} (h : m.1.WF) {f : Option (β k) → Option (β k)} :
+theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
     (m.alter k f).getD k v = (f (m.get? k)).getD v := by
   simp only [getD_alter, h, beq_self_eq_true, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
 
@@ -152,16 +155,16 @@ theorem getKey?_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k)
       m.getKey? k' := by
   simp_to_model using List.getKey?_alterKey
 
-theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKey! k' =
+theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} : (m.alter k f).getKey! k' =
     if k == k' then
       if (f (m.get? k)).isSome then k else panic ""
     else
       m.getKey! k' := by
   simp_to_model using List.getKey!_alterKey
 
-theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option (β k) → Option (β k)}
-    (hc : (m.alter k f).contains k') :
+theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} (hc : (m.alter k f).contains k') :
     (m.alter k f).getKey k' hc =
     if heq : k == k' then
       k
@@ -210,7 +213,11 @@ theorem isEmpty_alter (h : m.1.WF)  {k : α} {f : Option β → Option β} :
   simp_to_model using List.Const.isEmpty_alterKey
 
 theorem contains_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
-    (Const.alter m k f).contains k' = if k == k' then (f (Const.get? m k)).isSome else m.contains k' := by
+    (Const.alter m k f).contains k' =
+    if k == k' then
+      (f (Const.get? m k)).isSome
+    else
+      m.contains k' := by
   simp_to_model using List.Const.containsKey_alterKey
 
 theorem size_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :

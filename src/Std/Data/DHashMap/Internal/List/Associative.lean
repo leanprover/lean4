@@ -2030,6 +2030,13 @@ theorem mem_eraseKey_of_key_ne [BEq α] [LawfulBEq α] {a : α}
     · next h =>
       simp only [List.mem_cons, ih]
 
+section Alter
+
+-- TODO: Would it make sense to put these lemmas into Core, next to cast_eq and comp_id?
+protected theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
+protected theorem function_id_comp {α : Type u} {β : Type v} {f : α → β} :
+  id ∘ f = f := rfl
+
 theorem mem_alterKey_of_key_ne [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Option (β a)}
     {l : List ((a : α) × β a)} (p : (a : α) × β a) (hne : p.1 ≠ a) :
     p ∈ alterKey a f l ↔ p ∈ l := by
@@ -2084,40 +2091,41 @@ theorem getValueCast_alterKey [BEq α] [LawfulBEq α] (k k' : α) (f : Option (�
 
 theorem getValueCast_alterKey_self [BEq α] [LawfulBEq α] (k : α) (f : Option (β k) → Option (β k))
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (hc : containsKey k (alterKey k f l)) :
-    haveI hc' : (f (getValueCast? k l)).isSome := by rwa [containsKey_alterKey hl, beq_self_eq_true] at hc
+    haveI hc' : (f (getValueCast? k l)).isSome := by
+      rwa [containsKey_alterKey hl, beq_self_eq_true] at hc
     getValueCast k (alterKey k f l) hc = (f (getValueCast? k l)).get hc' := by
   rw [getValueCast_alterKey _ _ _ _ hl]
   simp
 
-theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
-
-theorem getValueCast!_alterKey [BEq α] [LawfulBEq α] {k k' : α} [Inhabited (β k')] {f : Option (β k) → Option (β k)}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCast!_alterKey [BEq α] [LawfulBEq α] {k k' : α} [Inhabited (β k')]
+    {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k' (alterKey k f l) =
     if heq : k == k' then
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
       cast (congrArg β (eq_of_beq heq)) <| (f (getValueCast? k l)).get!
     else
       getValueCast! k' l := by
-  simp only [hl, getValueCast!_eq_getValueCast?, getValueCast?_alterKey, beq_iff_eq, Function.comp_apply]
+  simp only [hl, getValueCast!_eq_getValueCast?, getValueCast?_alterKey, beq_iff_eq,
+    Function.comp_apply]
   split
   · next heq =>
     cases eq_of_beq heq
     simp only [cast_eq]
   · rfl
 
-theorem getValueCastD_alterKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'} {f : Option (β k) → Option (β k)}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCastD_alterKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'}
+    {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCastD k' (alterKey k f l) v =
     if heq : k == k' then
       f (getValueCast? k l) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
     else
       getValueCastD k' l v := by
-  simp only [hl, getValueCastD_eq_getValueCast?, getValueCast?_alterKey, beq_iff_eq, Function.comp_apply]
+  simp only [getValueCastD_eq_getValueCast?, hl, getValueCast?_alterKey, beq_iff_eq,
+    Function.comp_apply]
   split
   · next heq =>
     cases eq_of_beq heq
-    simp only [cast_eq_id, Option.map_id]
+    simp only [List.cast_eq_id, Option.map_id]
   · rfl
 
 theorem getKey?_alterKey [BEq α] [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
@@ -2130,8 +2138,8 @@ theorem getKey?_alterKey [BEq α] [LawfulBEq α] {k k' : α} {f : Option (β k) 
   rw [alterKey]
   split <;> next heq => simp [hl, heq, getKey?_eraseKey, getKey?_insertEntry]
 
-theorem getKey!_alterKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKey!_alterKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α}
+    {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey! k' (alterKey k f l) =
     if k == k' then
       if (f (getValueCast? k l)).isSome then k else panic ""
@@ -2145,8 +2153,8 @@ theorem getKey!_alterKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f :
   · next heq =>
     rfl
 
-theorem getKey_alter [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
-    (l : List ((a : α) × β a)) (hl : DistinctKeys l)
+theorem getKey_alter [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α}
+    {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l)
     (hc : containsKey k' (alterKey k f l)) :
     getKey k' (alterKey k f l) hc =
     if heq : k == k' then
@@ -2505,8 +2513,8 @@ theorem getKeyD_alterKey [BEq α] [EquivBEq α] {k k' d : α} {f : Option β →
 
 end Const
 
-theorem constAlterKey_eq_alterKey {β : Type v} [BEq α] [LawfulBEq α] {k : α} {f : Option β → Option β}
-    {l : List ((_ : α) × β)} :
+theorem constAlterKey_eq_alterKey {β : Type v} [BEq α] [LawfulBEq α] {k : α}
+    {f : Option β → Option β} {l : List ((_ : α) × β)} :
     Const.alterKey k f l = alterKey k f l := by
   rw [alterKey, Const.alterKey, getValue?_eq_getValueCast?]
   cases f (getValueCast? k l) <;> rfl
@@ -2518,6 +2526,8 @@ theorem DistinctKeys.constAlterKey {β : Type v} [BEq α] [EquivBEq α] {a : α}
   split
   · exact DistinctKeys.eraseKey hl
   · exact DistinctKeys.insertEntry hl
+
+end Alter
 
 section Modify
 
@@ -2559,7 +2569,8 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
   split <;> next h =>
     simp [h, insertEntry, containsKey_eq_isSome_getValueCast?, eraseKey_of_containsKey_eq_false]
 
-theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l):
+theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l):
     getValueCast? k' (modifyKey k f l)  = if h : k == k' then
       (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((getValueCast? k l).map f))
     else
@@ -2567,12 +2578,13 @@ theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k �
   simp [modifyKey_eq_alterKey, getValueCast?_alterKey, hl]
 
 @[simp]
-theorem getValueCast?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCast?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast? k (modifyKey k f l) = (getValueCast? k l).map f := by
   simp [getValueCast?_modifyKey, hl]
 
-theorem getValueCast_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l)
-    (h : containsKey k' (modifyKey k f l)) :
+theorem getValueCast_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getValueCast k' (modifyKey k f l) h =
     if heq : k == k' then
       haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← eq_of_beq heq] at h
@@ -2580,7 +2592,7 @@ theorem getValueCast_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k →
     else
       haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
       getValueCast k' l h' := by
-  simp [modifyKey_eq_alterKey, getValueCast_alterKey, hl]
+  simp only [modifyKey_eq_alterKey, getValueCast_alterKey, hl]
   split
   · next heq =>
     cases eq_of_beq heq
@@ -2589,33 +2601,35 @@ theorem getValueCast_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k →
   · rfl
 
 @[simp]
-theorem getValueCast_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) {h : containsKey k (modifyKey k f l)} :
+theorem getValueCast_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) {h : containsKey k (modifyKey k f l)} :
     haveI h' : containsKey k l := by rwa [containsKey_modifyKey] at h
     getValueCast k (modifyKey k f l) h = f (getValueCast k l h') := by
   simp [getValueCast_modifyKey, hl]
 
-theorem getValueCast!_modifyKey [BEq α] [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCast!_modifyKey [BEq α] [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
+    {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k' (modifyKey k f l) =
     if heq : k == k' then
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
       getValueCast? k l |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
     else
       getValueCast! k' l := by
-  simp [modifyKey_eq_alterKey, getValueCast!_alterKey, hl]
+  simp only [modifyKey_eq_alterKey, getValueCast!_alterKey, hl]
   split
   · next heq =>
     cases eq_of_beq heq
-    simp [getValueCast?_eq_some_getValueCast]
-    simp [Option.map]
+    simp [getValueCast?_eq_some_getValueCast, List.cast_eq_id, List.function_id_comp]
   · rfl
 
 @[simp]
-theorem getValueCast!_modifyKey_self [BEq α] [LawfulBEq α] {k : α} [Inhabited (β k)] {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCast!_modifyKey_self [BEq α] [LawfulBEq α] {k : α} [Inhabited (β k)]
+    {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k (modifyKey k f l) = ((getValueCast? k l).map f).get! := by
-  simp [getValueCast!_modifyKey, hl]
-  simp [Option.map]
+  simp [getValueCast!_modifyKey, hl, List.cast_eq_id, List.function_id_comp]
 
-theorem getValueCastD_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCastD_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCastD k' (modifyKey k f l) v =
     if heq : k == k' then
       getValueCast? k l |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
@@ -2624,12 +2638,13 @@ theorem getValueCastD_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'} 
   simp [modifyKey_eq_alterKey, getValueCastD_alterKey, hl]
 
 @[simp]
-theorem getValueCastD_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {v : β k} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getValueCastD_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {v : β k} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCastD k (modifyKey k f l) v = ((getValueCast? k l).map f).getD v := by
-  simp [getValueCastD_modifyKey, hl]
-  simp [Option.map]
+  simp [getValueCastD_modifyKey, hl, List.cast_eq_id, List.function_id_comp]
 
-theorem getKey?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKey?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey? k' (modifyKey k f l) =
     if k == k' then
       if containsKey k l then some k else none
@@ -2637,11 +2652,13 @@ theorem getKey?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k
       getKey? k' l := by
   simp [modifyKey_eq_alterKey, getKey?_alterKey, containsKey_eq_isSome_getValueCast?, hl]
 
-theorem getKey?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKey?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey? k (modifyKey k f l) = if containsKey k l then some k else none := by
   simp [getKey?_modifyKey, hl]
 
-theorem getKey!_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKey!_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey! k' (modifyKey k f l) =
     if k == k' then
       if containsKey k l then k else panic ""
@@ -2649,27 +2666,29 @@ theorem getKey!_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f 
       getKey! k' l := by
   simp [modifyKey_eq_alterKey, getKey!_alterKey, containsKey_eq_isSome_getValueCast?, hl]
 
-theorem getKey!_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKey!_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey! k (modifyKey k f l) = if containsKey k l then k else panic "" := by
   simp [getKey!_modifyKey, hl]
 
-theorem getKey_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l)
-    (h : containsKey k' (modifyKey k f l)) :
+theorem getKey_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
     if k == k' then
       k
     else
       haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
       getKey k' l h' := by
-  simp [modifyKey_eq_alterKey, getKey_alter, hl]
-  rfl
+  simp [modifyKey_eq_alterKey, getKey_alter, hl, ← dite_eq_ite]
 
 @[simp]
-theorem getKey_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l)
-    (h : containsKey k (modifyKey k f l)) : getKey k (modifyKey k f l) h = k := by
+theorem getKey_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k (modifyKey k f l)) :
+    getKey k (modifyKey k f l) h = k := by
   simp [getKey_modifyKey, hl]
 
-theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' d : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' d : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKeyD k' (modifyKey k f l) d =
     if k == k' then
       if containsKey k l then k else d
@@ -2677,7 +2696,8 @@ theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' d : α} {f : β k → β
       getKeyD k' l d := by
   simp [modifyKey_eq_alterKey, getKeyD_alter, containsKey_eq_isSome_getValueCast?, hl]
 
-theorem getKeyD_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
+theorem getKeyD_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k}
+    (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKeyD k (modifyKey k f l) d = if containsKey k l then k else d := by
   simp [getKeyD_modifyKey, hl]
 
@@ -2734,8 +2754,8 @@ theorem getValue?_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × 
   simp [modifyKey_eq_alterKey, getValue?_alterKey, hl]
 
 @[simp]
-theorem getValue?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getValue? k (modifyKey k f l) = (getValue? k l).map f := by
+theorem getValue?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getValue? k (modifyKey k f l) = (getValue? k l).map f := by
   simp [getValue?_modifyKey, hl]
 
 theorem getValue_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l)
@@ -2747,7 +2767,7 @@ theorem getValue_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × �
     else
       haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
       getValue k' l h' := by
-  simp [modifyKey_eq_alterKey, getValue_alterKey, hl]
+  simp only [modifyKey_eq_alterKey, getValue_alterKey, hl]
   split
   · next heq =>
     haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← containsKey_congr heq] at h
@@ -2755,13 +2775,14 @@ theorem getValue_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × �
   · rfl
 
 @[simp]
-theorem getValue_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) {h : containsKey k (modifyKey k f l)} :
+theorem getValue_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l)
+    {h : containsKey k (modifyKey k f l)} :
     haveI h' : containsKey k l := by rwa [containsKey_modifyKey] at h
     getValue k (modifyKey k f l) h = f (getValue k l h') := by
   simp [getValue_modifyKey, hl]
 
-theorem getValue!_modifyKey  {k k' : α} [hi : Inhabited β] {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getValue! k' (modifyKey k f l) =
+theorem getValue!_modifyKey  {k k' : α} [hi : Inhabited β] {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getValue! k' (modifyKey k f l) =
     if k == k' then
       getValue? k l |>.map f |>.get!
     else
@@ -2769,12 +2790,12 @@ theorem getValue!_modifyKey  {k k' : α} [hi : Inhabited β] {f : β → β} (l 
   simp [modifyKey_eq_alterKey, getValue!_alterKey, hl]
 
 @[simp]
-theorem getValue!_modifyKey_self  {k : α} [Inhabited (β)] {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getValue! k (modifyKey k f l) = ((getValue? k l).map f).get! := by
+theorem getValue!_modifyKey_self  {k : α} [Inhabited (β)] {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getValue! k (modifyKey k f l) = ((getValue? k l).map f).get! := by
   simp [getValue!_modifyKey, hl]
 
-theorem getValueD_modifyKey  {k k' : α} {v : β} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getValueD k' (modifyKey k f l) v =
+theorem getValueD_modifyKey  {k k' : α} {v : β} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getValueD k' (modifyKey k f l) v =
     if k == k' then
       getValue? k l |>.map f |>.getD v
     else
@@ -2782,7 +2803,8 @@ theorem getValueD_modifyKey  {k k' : α} {v : β} {f : β → β} (l : List ((_ 
   simp [modifyKey_eq_alterKey, getValueD_alterKey, hl]
 
 @[simp]
-theorem getValueD_modifyKey_self  {k : α} {v : β} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
+theorem getValueD_modifyKey_self  {k : α} {v : β} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) :
     getValueD k (modifyKey k f l) v = ((getValue? k l).map f).getD v := by
   simp [getValueD_modifyKey, hl]
 
@@ -2798,20 +2820,21 @@ theorem getKey?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × 
     getKey? k (modifyKey k f l) = if containsKey k l then some k else none := by
   simp [getKey?_modifyKey, hl]
 
-theorem getKey!_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getKey! k' (modifyKey k f l) =
+theorem getKey!_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getKey! k' (modifyKey k f l) =
     if k == k' then
       if containsKey k l then k else panic ""
     else
       getKey! k' l := by
   simp [modifyKey_eq_alterKey, getKey!_alterKey, containsKey_eq_isSome_getValue?, hl]
 
-theorem getKey!_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
+theorem getKey!_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) :
     getKey! k (modifyKey k f l) = if containsKey k l then k else panic "" := by
   simp [getKey!_modifyKey, hl]
 
-theorem getKey_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l)
-    (h : containsKey k' (modifyKey k f l)) :
+theorem getKey_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
     if k == k' then
       k
@@ -2822,8 +2845,9 @@ theorem getKey_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List (
   rfl
 
 @[simp]
-theorem getKey_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l)
-    (h : containsKey k (modifyKey k f l)) : getKey k (modifyKey k f l) h = k := by
+theorem getKey_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) (h : containsKey k (modifyKey k f l)) :
+    getKey k (modifyKey k f l) h = k := by
   simp [getKey_modifyKey, hl]
 
 theorem getKeyD_modifyKey  {k k' d : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
@@ -2834,10 +2858,9 @@ theorem getKeyD_modifyKey  {k k' d : α} {f : β → β} (l : List ((_ : α) × 
       getKeyD k' l d := by
   simp [modifyKey_eq_alterKey, getKeyD_alterKey, containsKey_eq_isSome_getValue?, hl]
 
-theorem getKeyD_modifyKey_self  [Inhabited α] {k d : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
-    getKeyD k (modifyKey k f l) d = if containsKey k l then k else d := by
+theorem getKeyD_modifyKey_self  [Inhabited α] {k d : α} {f : β → β} (l : List ((_ : α) × β))
+    (hl : DistinctKeys l) : getKeyD k (modifyKey k f l) d = if containsKey k l then k else d := by
   simp [getKeyD_modifyKey, hl]
-
 
 end Const
 

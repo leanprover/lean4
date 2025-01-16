@@ -403,8 +403,6 @@ theorem get!_modify (h : m.1.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k 
     (m.modify k f).get! k' =
     if heq : k == k' then
       haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-      -- not correct if f does not preserve default: ... f (m.get! k)
-      -- possible alternative: write ... (m.getD k (cast ⋯ default))
       m.get? k |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
     else
       m.get! k' := by

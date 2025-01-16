@@ -296,6 +296,45 @@ to get anything out of the hash map.
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
+/--
+Modifies in place the value associated with a given key.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def modify [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) (f : β a → β a) :
+    Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.modify] def Const.modify [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : β → β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+/--
+Modifies in place the value associated with a given key,
+allowing creating new values and deleting values via an `Option` valued replacement function.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def alter [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β)
+    (a : α) (f : Option (β a) → Option (β a)) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.alter ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.alter] def Const.alter [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : Option β → Option β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.alter ⟨m, h⟩ a f
+  else
+    ∅
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

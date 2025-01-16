@@ -275,3 +275,9 @@ error: apply? didn't find any relevant lemmas
 -/
 #guard_msgs in
 example {α : Sort u} (x y : α) : Eq x y := by apply?
+
+-- If this lemmas is added later to the library, please update this `#guard_msgs`.
+-- The point of this test is to ensure that `Lean.Grind.not_eq_prop` is not reported to users.
+/-- error: `exact?` could not close the goal. Try `apply?` to see partial suggestions. -/
+#guard_msgs in
+example (p q : Prop) : (¬ p = q) = (p = ¬ q) := by exact?

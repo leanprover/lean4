@@ -320,25 +320,33 @@ x✝ : ¬map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
           F Y
         is definitionally equal to
           F Z
-        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+        while canonicalizing
+          map G (map F f)
+        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
     [issue] failed to show that
           G (F X)
         is definitionally equal to
           (G ∘ F) X
-        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+        while canonicalizing
+          map G (map F f) ≫ map G (map F g)
+        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
     [issue] failed to show that
           G (F Y)
         is definitionally equal to
           (G ∘ F) Y
-        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+        while canonicalizing
+          map G (map F f) ≫ map G (map F g)
+        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
     [issue] failed to show that
           G (F Z)
         is definitionally equal to
           (G ∘ F) Z
-        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+        while canonicalizing
+          map G (map F f) ≫ map G (map F g)
+        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
 -/
 #guard_msgs (error) in
-def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
+def functorial_comp' (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
     Functorial.{v₁, v₃} (G ∘ F) :=
   { Functor.of F ⋙ Functor.of G with
     map' := fun f => map G (map F f)

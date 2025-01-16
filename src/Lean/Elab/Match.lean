@@ -1201,18 +1201,17 @@ private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermEla
   elabMatchAux gen? discrStxs altViews matchOptMotive expectedType
 
 private def isPatternVar (stx : Syntax) : TermElabM Bool := do
+  if !stx.isIdent || !stx.getId.eraseMacroScopes.isAtomic then
+    return false
   match (← resolveId? stx "pattern") with
-  | none   => return isAtomicIdent stx
+  | none   => return true
   | some f => match f with
     | Expr.const fName _ =>
       match (← getEnv).find? fName with
       | some (ConstantInfo.ctorInfo _) => return false
       | some _                         => return !hasMatchPatternAttribute (← getEnv) fName
-      | _                              => return isAtomicIdent stx
-    | _ => return isAtomicIdent stx
-where
-  isAtomicIdent (stx : Syntax) : Bool :=
-    stx.isIdent && stx.getId.eraseMacroScopes.isAtomic
+      | _                              => return true
+    | _ => return true
 
 @[builtin_term_elab «match»] def elabMatch : TermElab := fun stx expectedType? => do
   match stx with

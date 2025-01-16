@@ -41,28 +41,6 @@ additions will still use structurally different (and definitionally different) i
 Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
 -/
 
-inductive CanonElemKind where
-  | /--
-    Type class instances are canonicalized using `TransparencyMode.instances`.
-    -/
-    instance
-  | /--
-    Types and Type formers are canonicalized using `TransparencyMode.default`.
-    Remark: propositions are just visited. We do not invoke `canonElemCore` for them.
-    -/
-    type
-  | /--
-    Implicit arguments that are not types, type formers, or instances, are canonicalized
-    using `TransparencyMode.reducible`
-    -/
-    implicit
-  deriving BEq
-
-def CanonElemKind.explain : CanonElemKind → String
-  | .instance => "type class instances"
-  | .type => "types (or type formers)"
-  | .implicit => "implicit arguments (which are not type class instances or types)"
-
 @[inline] private def get' : GoalM State :=
   return (← get).canon
 
@@ -70,12 +48,28 @@ def CanonElemKind.explain : CanonElemKind → String
   modify fun s => { s with canon := f s.canon }
 
 /--
-Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
-
-Thus, if diagnostics are enabled, we also re-check them using `TransparencyMode.default`. If the result is different
-we report to the user.
+Helper function for `canonElemCore`. It tries `isDefEq` with default transparency, but using
+at most `canonHeartbeats` heartbeats. It reports an issue if the threshold is reached.
 -/
-def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : GoalM Expr := do
+private def isDefEqBounded (a b : Expr) : GoalM Bool := do
+  withCurrHeartbeats do
+  let config ← getConfig
+  tryCatchRuntimeEx
+    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := config.canonHeartbeats }) do
+      withDefault <| isDefEq a b)
+    fun ex => do
+      if ex.isRuntime then
+        let curr := (← getConfig).canonHeartbeats
+        reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nin the canonicalizer using `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
+        return false
+      else
+        throw ex
+
+/--
+Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
+If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false
+-/
+def canonElemCore (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
   let s ← get'
   if let some c := s.canon.find? e then
     return c
@@ -91,17 +85,18 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : GoalM
       modify' fun s => { s with canon := s.canon.insert e c }
       trace[grind.debugn.canon] "found {e} ===> {c}"
       return c
-    if kind != .type then
-      if (← isTracingEnabledFor `grind.issues <&&> (withDefault <| isDefEq e c)) then
-        -- TODO: consider storing this information in some structure that can be browsed later.
-        reportIssue m!"the following {kind.explain} are definitionally equal with `default` transparency but not with a more restrictive transparency{indentExpr e}\nand{indentExpr c}"
+    if useIsDefEqBounded then
+      if (← isDefEqBounded e c) then
+        modify' fun s => { s with canon := s.canon.insert e c }
+        trace[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+        return c
   trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
   modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
-abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e .type
-abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e .instance
-abbrev canonImplicit (f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore f i e .implicit
+abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e (useIsDefEqBounded := false)
+abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e (useIsDefEqBounded := true)
+abbrev canonImplicit (f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore f i e (useIsDefEqBounded := true)
 
 /--
 Return type for the `shouldCanon` function.

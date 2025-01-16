@@ -244,68 +244,109 @@ instance functorial_id : Functorial.{v₁, v₁} (id : C → C) where map' f := 
 namespace Ex1
 variable {E : Type u₃} [Category.{v₃} E]
 
-/--
-info: [grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F X)
-    and
-      (G ∘ F) X
-[grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F Y)
-    and
-      (G ∘ F) Y
-[grind.issues] the following implicit arguments (which are not type class instances or types) are definitionally equal with `default` transparency but not with a more restrictive transparency
-      G (F Z)
-    and
-      (G ∘ F) Z
--/
-#guard_msgs (info) in
 def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
     Functorial.{v₁, v₃} (G ∘ F) :=
   { Functor.of F ⋙ Functor.of G with
     map' := fun f => map G (map F f)
     map_id' := sorry
-    map_comp' := by
-      set_option trace.grind.issues true in
-      fail_if_success grind
-      sorry
+    map_comp' := by grind
   }
 end Ex1
 
 namespace Ex2
 variable {E : Type u₃} [Category.{v₃} E]
 
--- Since in the trace above, `Function.comp` generated problems because it is not `reducible`,
--- we can fix the issue by instructing `grind` to unfold it.
-attribute [local grind] Function.comp
+/-
+In this example, we restrict the number of heartbeats used by the canonicalizer.
+The idea is to test the issue tracker.
+-/
 
-
+/--
+error: `grind` failed
+case grind
+C✝¹ : Type u₁
+inst✝⁸ : Category C✝¹
+D✝ : Type u₂
+inst✝⁷ : Category D✝
+E✝ : Type u₃
+inst✝⁶ : Category E✝
+F✝ G✝ H : C✝¹ ⥤ D✝
+C✝ : Type u
+inst✝⁵ : Category C✝
+X✝ Y✝ Z✝ : C✝
+C : Type u₁
+inst✝⁴ : Category C
+D : Type u₂
+inst✝³ : Category D
+E : Type u₃
+inst✝² : Category E
+F : C → D
+inst✝¹ : Functorial F
+G : D → E
+inst✝ : Functorial G
+__src✝ : C ⥤ E := of F ⋙ of G
+X Y Z : C
+f : X ⟶ Y
+g : Y ⟶ Z
+x✝ : ¬map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] __src✝ = of F ⋙ of G
+    [prop] ¬map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
+    [prop] map F (f ≫ g) = map F f ≫ map F g
+    [prop] map G (map F f ≫ map F g) = map G (map F f) ≫ map G (map F g)
+  [eqc] False propositions
+    [prop] map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
+  [eqc] Equivalence classes
+    [eqc] {map G (map F f ≫ map F g), map G (map F (f ≫ g)), map G (map F f) ≫ map G (map F g)}
+    [eqc] {map F (f ≫ g), map F f ≫ map F g}
+    [eqc] {__src✝, of F ⋙ of G}
+  [ematch] E-matching
+    [thm] Functorial.map_comp:
+        ∀ {C : Type u₁} [inst : Category C] {D : Type u₂} [inst_1 : Category D] {F : C → D} [inst_2 : Functorial F]
+          {X Y Z : C} {f : X ⟶ Y} {g : Y ⟶ Z}, map F (f ≫ g) = map F f ≫ map F g
+        patterns: [@map #10 #9 #8 #7 #6 #5 #4 #2 (@Category.comp ? ? #4 #3 #2 #1 #0)]
+    [thm] assoc:
+        ∀ {obj : Type u} [self : Category obj] {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z),
+          (f ≫ g) ≫ h = f ≫ g ≫ h
+        patterns: [@Category.comp #8 #7 #6 #5 #3 #2 (@Category.comp ? ? #5 #4 #3 #1 #0)]
+    [thm] assoc:
+        ∀ {obj : Type u} [self : Category obj] {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z),
+          (f ≫ g) ≫ h = f ≫ g ≫ h
+        patterns: [@Category.comp #8 #7 #6 #4 #3 (@Category.comp ? ? #6 #5 #4 #2 #1) #0]
+  [issues] Issues
+    [issue] failed to show that
+          F Y
+        is definitionally equal to
+          F Z
+        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+    [issue] failed to show that
+          G (F X)
+        is definitionally equal to
+          (G ∘ F) X
+        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+    [issue] failed to show that
+          G (F Y)
+        is definitionally equal to
+          (G ∘ F) Y
+        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+    [issue] failed to show that
+          G (F Z)
+        is definitionally equal to
+          (G ∘ F) Z
+        in the canonicalizer using `100*1000` heartbeats, `(canonHeartbeats := 100)`
+-/
+#guard_msgs (error) in
 def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
     Functorial.{v₁, v₃} (G ∘ F) :=
   { Functor.of F ⋙ Functor.of G with
     map' := fun f => map G (map F f)
     map_id' := sorry
-    map_comp' := by grind
+    map_comp' := by grind (canonHeartbeats := 100)
   }
 
 end Ex2
-
-namespace Ex3
-variable {E : Type u₃} [Category.{v₃} E]
-
--- Since in the trace above, `Function.comp` generated problems because it is not `reducible`,
--- we set it to reducible.
-set_option allowUnsafeReducibility true
-attribute [reducible] Function.comp
-
-def functorial_comp (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
-    Functorial.{v₁, v₃} (G ∘ F) :=
-  { Functor.of F ⋙ Functor.of G with
-    map' := fun f => map G (map F f)
-    map_id' := sorry
-    map_comp' := by grind
-  }
-
-end Ex3
 
 
 end CategoryTheory

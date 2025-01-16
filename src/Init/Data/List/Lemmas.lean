@@ -2274,13 +2274,16 @@ theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.len
   · intro i h₁ h₂
     simp [getElem_set]
 
-@[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
+@[simp] theorem replicate_append_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate_iff]
   constructor
   · simp
   · intro b
     simp only [mem_append, mem_replicate, ne_eq]
     rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
+
+@[deprecated replicate_append_replicate (since := "2025-01-16")]
+abbrev append_replicate_replicate := @replicate_append_replicate
 
 theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
     l₁ ++ l₂ = replicate n a ↔
@@ -2291,6 +2294,11 @@ theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
       mpr := fun h b x => Or.casesOn x (fun m => h.left b m) fun m => h.right b m }
 
 @[deprecated append_eq_replicate_iff (since := "2024-09-05")] abbrev append_eq_replicate := @append_eq_replicate_iff
+
+theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
+    replicate n a = l₁ ++ l₂ ↔
+      l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
+  rw [eq_comm, append_eq_replicate_iff]
 
 @[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
   ext1 n
@@ -2343,7 +2351,7 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, flatten_cons, ih, append_replicate_replicate, replicate_inj, or_true,
+    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate, replicate_inj, or_true,
       and_true, add_one_mul, Nat.add_comm]
 
 theorem flatMap_replicate {β} (f : α → List β) : (replicate n a).flatMap f = (replicate n (f a)).flatten := by

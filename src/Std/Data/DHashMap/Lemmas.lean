@@ -1911,7 +1911,7 @@ theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Optio
 @[simp]
 theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     k ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
-  rw [Std.DHashMap.mem_iff_contains, contains_alter_self]
+  rw [mem_iff_contains, contains_alter_self]
 
 theorem contains_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : (k == k') = false) : (m.alter k f).contains k' = m.contains k' := by

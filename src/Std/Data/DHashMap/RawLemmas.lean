@@ -6,6 +6,7 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Internal.Raw
 import Std.Data.DHashMap.Internal.RawLemmas
+import Std.Data.DHashMap.Internal.MyRawLemmas
 
 /-!
 # Dependent hash map lemmas
@@ -62,7 +63,8 @@ private def baseNames : Array Name :=
     ``insertMany_eq, ``insertMany_val,
     ``Const.insertMany_eq, ``Const.insertMany_val,
     ``Const.insertManyIfNewUnit_eq, ``Const.insertManyIfNewUnit_val,
-    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq]
+    ``ofList_eq, ``Const.ofList_eq, ``Const.unitOfList_eq,
+    ``alter_eq, ``Const.alter_eq, ``modify_eq, ``Const.modify_eq]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_raw" ("using" term)? : tactic
@@ -1976,6 +1978,231 @@ theorem getD_unitOfList
   simp
 
 end Const
+end Raw
+
+namespace Raw
+
+variable [BEq α] [Hashable α] {m : Raw α β}
+
+open Internal.Raw Internal.Raw₀
+
+section Alter
+
+-- Is there a way to declare h with `variable` so that simp_to_raw still finds it?
+@[simp]
+theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) := by
+  simp_to_raw using Raw₀.isEmpty_alter
+
+theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
+  simp_to_raw using Raw₀.contains_alter
+
+theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    k' ∈ m.alter k f ↔ if k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
+    simp [mem_iff_contains, contains_alter h]
+
+theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
+    (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
+  rw [mem_alter h, if_pos he]
+
+@[simp]
+theorem contains_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).contains k = (f (m.get? k)).isSome := by
+  simp only [contains_alter h, beq_self_eq_true, reduceIte]
+
+@[simp]
+theorem mem_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    k ∈ m.alter k f ↔ (f (m.get? k)).isSome := by
+  rw [mem_iff_contains, contains_alter_self h]
+
+theorem contains_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (he : (k == k') = false) : (m.alter k f).contains k' = m.contains k' := by
+  simp only [contains_alter h, he, Bool.false_eq_true, reduceIte]
+
+theorem mem_alter_of_beq_eq_false [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (he : (k == k') = false) : k' ∈ m.alter k f ↔ k' ∈ m := by
+  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h, he]
+
+theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).size =
+    if m.contains k && (f (m.get? k)).isNone then
+      m.size - 1
+    else if !m.contains k && (f (m.get? k)).isSome then
+      m.size + 1
+    else
+      m.size := by
+  simp_to_raw using Raw₀.size_alter
+
+theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isSome) :
+    (m.alter k f).size = m.size + 1 := by
+  revert h₁ h₂
+  simp_to_raw using Raw₀.size_alter_eq_add_one
+
+theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isNone)  :
+    (m.alter k f).size = m.size - 1 := by
+  revert h₁ h₂
+  simp_to_raw using Raw₀.size_alter_eq_sub_one
+
+theorem size_alter_eq_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone)  :
+    (m.alter k f).size = m.size := by
+  revert h₁ h₂
+  simp_to_raw using Raw₀.size_alter_eq_self
+
+theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome)  :
+    (m.alter k f).size = m.size := by
+  revert h₁ h₂
+  simp_to_raw using Raw₀.size_alter_eq_self'
+
+theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).size ≤ m.size + 1 := by
+  simp_to_raw using Raw₀.size_alter_le_size
+
+theorem size_le_size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    m.size - 1 ≤ (m.alter k f).size := by
+  -- does not work without the argument for some reason...
+  simp_to_raw using Raw₀.size_le_size_alter ⟨m, h.size_buckets_pos⟩
+
+theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).get? k' = if h : k == k' then
+      (cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (m.get? k)))
+    else m.get? k' := by
+  simp_to_raw using Raw₀.get?_alter
+
+@[simp]
+theorem get?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).get? k = f (m.get? k) := by
+  simp [get?_alter h]
+
+theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (hc : k' ∈ m.alter k f) :
+    (m.alter k f).get k' hc =
+    if heq : k == k' then
+      haveI h' : (f (m.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
+      cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
+    else
+      -- TODO: explicit term, also in Lemmas
+      haveI h' : k' ∈ m := by rwa [mem_alter h, if_neg heq] at hc
+      m.get k' h' := by
+  simp only [mem_iff_contains] at hc
+  revert hc
+  simp_to_raw using Raw₀.get_alter
+
+@[simp]
+theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) {hc : k ∈ m.alter k f} :
+    -- TODO explicit
+    haveI h' : (f (m.get? k)).isSome := by rwa [mem_alter_self h] at hc
+    (m.alter k f).get k hc = (f (m.get? k)).get h' := by
+  simp only [mem_iff_contains] at hc
+  revert hc
+  simp_to_raw using Raw₀.get_alter_self
+
+theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
+    {f : Option (β k) → Option (β k)} (h : m.WF) : (m.alter k f).get! k' =
+    if heq : k == k' then
+      haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
+      cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
+    else
+      m.get! k' := by
+  simp_to_raw using Raw₀.get!_alter
+
+@[simp]
+theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).get! k = (f (m.get? k)).get! := by
+  simp [get!_alter h]
+
+theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getD k' v =
+    if heq : k == k' then
+      f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
+    else
+      m.getD k' v := by
+  simp_to_raw using Raw₀.getD_alter
+
+@[simp]
+theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getD k v = (f (m.get? k)).getD v := by
+  simp_to_raw using Raw₀.getD_alter_self
+
+theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKey? k' =
+    if k == k' then
+      if (f (m.get? k)).isSome then some k else none
+    else
+      m.getKey? k' := by
+  simp_to_raw using Raw₀.getKey?_alter
+
+theorem getKey?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKey? k = if (f (m.get? k)).isSome then some k else none := by
+  simp [getKey?_alter h]
+
+theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKey! k' =
+    if k == k' then
+      if (f (m.get? k)).isSome then k else panic ""
+    else
+      m.getKey! k' := by
+  simp_to_raw using Raw₀.getKey!_alter
+
+theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else panic "" := by
+  simp [getKey!_alter h]
+
+theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (hc : k' ∈ m.alter k f) :
+    (m.alter k f).getKey k' hc =
+    if heq : k == k' then
+      k
+    else
+      -- TODO explicit
+      haveI h' : k' ∈ m := by rwa [mem_alter h, if_neg heq] at hc
+      m.getKey k' h' := by
+  simp only [mem_iff_contains] at hc
+  revert hc
+  simp_to_raw using Raw₀.getKey_alter
+
+@[simp]
+theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) (hc : k ∈ m.alter k f) : (m.alter k f).getKey k hc = k := by
+  simp [getKey_alter h]
+
+theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKeyD k' d =
+    if k == k' then
+      if (f (m.get? k)).isSome then k else d
+    else
+      m.getKeyD k' d := by
+  simp_to_raw using Raw₀.getKeyD_alter
+
+@[simp]
+theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α}
+    {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKeyD k d = if (f (m.get? k)).isSome then k else d := by
+  simp [getKeyD_alter h]
+
+namespace Const
+
+variable {β : Type v} {m : Raw α (fun _ => β)}
+
+end Const
+
+end Alter
+
+section Modify
+
+namespace Const
+
+variable {β : Type v} {m : Raw α (fun _ => β)}
+
+end Const
+
+end Modify
+
 end Raw
 
 end Std.DHashMap

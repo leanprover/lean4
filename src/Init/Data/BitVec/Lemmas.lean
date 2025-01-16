@@ -3459,7 +3459,7 @@ theorem replicate_append_self {x : BitVec w} :
   | succ n ih =>
     rw [replicate_succ]
     conv => lhs; rw [ih]
-    simp [cast_cast, cast_eq]
+    simp only [cast_cast, cast_eq]
     rw [← cast_append_left]
     · rw [append_assoc]; congr
     · rw [Nat.add_comm, Nat.mul_add, Nat.mul_one]; omega

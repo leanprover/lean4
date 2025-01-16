@@ -174,6 +174,9 @@ result is empty. If `stop` is greater than the size of the vector, the size is u
   ⟨(v.toArray.map Vector.toArray).flatten,
     by rcases v; simp_all [Function.comp_def, Array.map_const']⟩
 
+@[inline] def flatMap (v : Vector α n) (f : α → Vector β m) : Vector β (n * m) :=
+  ⟨v.toArray.flatMap fun a => (f a).toArray, by simp [Array.map_const']⟩
+
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
 @[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=
   ⟨Array.zipWith a.toArray b.toArray f, by simp⟩

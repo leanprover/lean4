@@ -1560,6 +1560,11 @@ theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array 
   cases bs
   simp
 
+theorem toArray_append {xs : List α} {ys : Array α} :
+    xs.toArray ++ ys = (xs ++ ys.toList).toArray := by
+  rcases ys with ⟨ys⟩
+  simp
+
 @[simp] theorem toArray_eq_append_iff {xs : List α} {as bs : Array α} :
     xs.toArray = as ++ bs ↔ xs = as.toList ++ bs.toList := by
   cases as
@@ -1871,6 +1876,11 @@ theorem append_eq_map_iff {f : α → β} :
   rw [← flatten_map_toArray]
   simp
 
+theorem flatten_toArray (l : List (Array α)) :
+    l.toArray.flatten = (l.map Array.toList).flatten.toArray := by
+  apply ext'
+  simp
+
 @[simp] theorem size_flatten (L : Array (Array α)) : L.flatten.size = (L.map size).sum := by
   cases L using array₂_induction
   simp [Function.comp_def]
@@ -1886,14 +1896,14 @@ theorem mem_flatten : ∀ {L : Array (Array α)}, a ∈ L.flatten ↔ ∃ l, l �
   · rintro ⟨s, h₁, h₂⟩
     refine ⟨s.toList, ⟨⟨s, h₁, rfl⟩, h₂⟩⟩
 
-@[simp] theorem flatten_eq_nil_iff {L : Array (Array α)} : L.flatten = #[] ↔ ∀ l ∈ L, l = #[] := by
+@[simp] theorem flatten_eq_empty_iff {L : Array (Array α)} : L.flatten = #[] ↔ ∀ l ∈ L, l = #[] := by
   induction L using array₂_induction
   simp
 
-@[simp] theorem nil_eq_flatten_iff {L : Array (Array α)} : #[] = L.flatten ↔ ∀ l ∈ L, l = #[] := by
-  rw [eq_comm, flatten_eq_nil_iff]
+@[simp] theorem empty_eq_flatten_iff {L : Array (Array α)} : #[] = L.flatten ↔ ∀ l ∈ L, l = #[] := by
+  rw [eq_comm, flatten_eq_empty_iff]
 
-theorem flatten_ne_nil_iff {xs : Array (Array α)} : xs.flatten ≠ #[] ↔ ∃ x, x ∈ xs ∧ x ≠ #[] := by
+theorem flatten_ne_empty_iff {xs : Array (Array α)} : xs.flatten ≠ #[] ↔ ∃ x, x ∈ xs ∧ x ≠ #[] := by
   simp
 
 theorem exists_of_mem_flatten : a ∈ flatten L → ∃ l, l ∈ L ∧ a ∈ l := mem_flatten.1
@@ -2028,6 +2038,102 @@ theorem eq_iff_flatten_eq {L L' : Array (Array α)} :
       simp [Function.comp_def, ← List.eq_iff_flatten_eq]
       rw [List.map_inj_right]
       simp +contextual
+
+/-! ### flatMap -/
+
+theorem flatMap_def (l : Array α) (f : α → Array β) : l.flatMap f = flatten (map f l) := by
+  rcases l with ⟨l⟩
+  simp [flatten_toArray, Function.comp_def, List.flatMap_def]
+
+theorem flatMap_toList (l : Array α) (f : α → List β) :
+    l.toList.flatMap f = (l.flatMap (fun a => (f a).toArray)).toList := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem flatMap_id (l : Array (Array α)) : l.flatMap id = l.flatten := by simp [flatMap_def]
+
+@[simp] theorem flatMap_id' (l : Array (Array α)) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
+
+@[simp]
+theorem size_flatMap (l : Array α) (f : α → Array β) :
+    (l.flatMap f).size = sum (map (fun a => (f a).size) l) := by
+  rcases l with ⟨l⟩
+  simp [Function.comp_def]
+
+@[simp] theorem mem_flatMap {f : α → Array β} {b} {l : Array α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
+  simp [flatMap_def, mem_flatten]
+  exact ⟨fun ⟨_, ⟨a, h₁, rfl⟩, h₂⟩ => ⟨a, h₁, h₂⟩, fun ⟨a, h₁, h₂⟩ => ⟨_, ⟨a, h₁, rfl⟩, h₂⟩⟩
+
+theorem exists_of_mem_flatMap {b : β} {l : Array α} {f : α → Array β} :
+    b ∈ l.flatMap f → ∃ a, a ∈ l ∧ b ∈ f a := mem_flatMap.1
+
+theorem mem_flatMap_of_mem {b : β} {l : Array α} {f : α → Array β} {a} (al : a ∈ l) (h : b ∈ f a) :
+    b ∈ l.flatMap f := mem_flatMap.2 ⟨a, al, h⟩
+
+@[simp]
+theorem flatMap_eq_empty_iff {l : Array α} {f : α → Array β} : l.flatMap f = #[] ↔ ∀ x ∈ l, f x = #[] := by
+  rw [flatMap_def, flatten_eq_empty_iff]
+  simp
+
+theorem forall_mem_flatMap {p : β → Prop} {l : Array α} {f : α → Array β} :
+    (∀ (x) (_ : x ∈ l.flatMap f), p x) ↔ ∀ (a) (_ : a ∈ l) (b) (_ : b ∈ f a), p b := by
+  simp only [mem_flatMap, forall_exists_index, and_imp]
+  constructor <;> (intros; solve_by_elim)
+
+theorem flatMap_singleton (f : α → Array β) (x : α) : #[x].flatMap f = f x := by
+  simp
+
+@[simp] theorem flatMap_singleton' (l : Array α) : (l.flatMap fun x => #[x]) = l := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem flatMap_append (xs ys : Array α) (f : α → Array β) :
+    (xs ++ ys).flatMap f = xs.flatMap f ++ ys.flatMap f := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp
+
+theorem flatMap_assoc {α β} (l : Array α) (f : α → Array β) (g : β → Array γ) :
+    (l.flatMap f).flatMap g = l.flatMap fun x => (f x).flatMap g := by
+  rcases l with ⟨l⟩
+  simp [List.flatMap_assoc, flatMap_toList]
+
+theorem map_flatMap (f : β → γ) (g : α → Array β) (l : Array α) :
+     (l.flatMap g).map f = l.flatMap fun a => (g a).map f := by
+  rcases l with ⟨l⟩
+  simp [List.map_flatMap]
+
+theorem flatMap_map (f : α → β) (g : β → Array γ) (l : Array α) :
+    (map f l).flatMap g = l.flatMap (fun a => g (f a)) := by
+  rcases l with ⟨l⟩
+  simp [List.flatMap_map]
+
+theorem map_eq_flatMap {α β} (f : α → β) (l : Array α) : map f l = l.flatMap fun x => #[f x] := by
+  simp only [← map_singleton]
+  rw [← flatMap_singleton' l, map_flatMap, flatMap_singleton']
+
+theorem filterMap_flatMap {β γ} (l : Array α) (g : α → Array β) (f : β → Option γ) :
+    (l.flatMap g).filterMap f = l.flatMap fun a => (g a).filterMap f := by
+  rcases l with ⟨l⟩
+  simp [List.filterMap_flatMap]
+
+theorem filter_flatMap (l : Array α) (g : α → Array β) (f : β → Bool) :
+    (l.flatMap g).filter f = l.flatMap fun a => (g a).filter f := by
+  rcases l with ⟨l⟩
+  simp [List.filter_flatMap]
+
+theorem flatMap_eq_foldl (f : α → Array β) (l : Array α) :
+    l.flatMap f = l.foldl (fun acc a => acc ++ f a) #[] := by
+  rcases l with ⟨l⟩
+  simp only [List.flatMap_toArray, List.flatMap_eq_foldl, size_toArray, List.foldl_toArray']
+  suffices ∀ l', (List.foldl (fun acc a => acc ++ (f a).toList) l' l).toArray =
+      List.foldl (fun acc a => acc ++ f a) l'.toArray l by
+    simpa using this []
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    intro l'
+    simp [ih ((l' ++ (f a).toList)), toArray_append]
 
 /-! Content below this point has not yet been aligned with `List`. -/
 

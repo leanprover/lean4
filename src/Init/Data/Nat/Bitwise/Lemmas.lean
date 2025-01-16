@@ -711,6 +711,32 @@ theorem mul_add_lt_is_or {b : Nat} (b_lt : b < 2^i) (a : Nat) : 2^i * a + b = 2^
   rw [mod_two_eq_one_iff_testBit_zero, testBit_shiftLeft]
   simp
 
+theorem testBit_mul_two_pow (x i n : Nat) :
+    (x * 2 ^ n).testBit i = (decide (n ≤ i) && x.testBit (i - n)) := by
+  rw [← testBit_shiftLeft, shiftLeft_eq]
+
+theorem bitwise_mul_two_pow (of_false_false : f false false = false := by rfl) :
+    (bitwise f x y) * 2 ^ n = bitwise f (x * 2 ^ n) (y * 2 ^ n) := by
+  apply Nat.eq_of_testBit_eq
+  simp only [testBit_mul_two_pow, testBit_bitwise of_false_false, Bool.if_false_right]
+  intro i
+  by_cases hn : n ≤ i
+  · simp [hn]
+  · simp [hn, of_false_false]
+
+theorem shiftLeft_bitwise_distrib {a b : Nat} (of_false_false : f false false = false := by rfl) :
+    (bitwise f a b) <<< i = bitwise f (a <<< i) (b <<< i) := by
+  simp [shiftLeft_eq, bitwise_mul_two_pow of_false_false]
+
+theorem shiftLeft_and_distrib {a b : Nat} : (a &&& b) <<< i = a <<< i &&& b <<< i :=
+  shiftLeft_bitwise_distrib
+
+theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i :=
+  shiftLeft_bitwise_distrib
+
+theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
+  shiftLeft_bitwise_distrib
+
 @[simp] theorem decide_shiftRight_mod_two_eq_one :
     decide (x >>> i % 2 = 1) = x.testBit i := by
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]

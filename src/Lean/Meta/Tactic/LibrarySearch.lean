@@ -71,9 +71,8 @@ open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
-  -- Don't report lemmas from `Lean.*` or `*.Tactic.*` to users.
-  let nc := name.components
-  if nc.head? = `Lean ∨ `Tactic ∈ nc then return #[] else
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
     let a := #[e]

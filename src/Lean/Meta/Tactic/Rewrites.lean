@@ -47,9 +47,8 @@ private def addImport (name : Name) (constInfo : ConstantInfo) :
   match name with
   | .str _ n => if n = "injEq" ∨ n = "sizeOf_spec" ∨ n.endsWith "_inj" ∨ n.endsWith "_inj'" then return #[]
   | _ => pure ()
-  -- Don't report lemmas from `Lean.*` or `*.Tactic.*` to users.
-  let nc := name.components
-  if nc.head? = `Lean ∨ `Tactic ∈ nc then return #[]
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[]
   withNewMCtxDepth do withReducible do
     forallTelescopeReducing constInfo.type fun _ type => do
       match type.getAppFnArgs with

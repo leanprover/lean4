@@ -11,6 +11,7 @@ import Lean.Meta.Match.MatcherInfo
 import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
@@ -98,13 +99,16 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | f@Eq.recOn α a motive b h v => pushHEq e v (mkApp6 (mkConst ``Grind.eqRecOn_heq f.constLevels!) α a motive b h v)
   | _ => return ()
 
+private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
+  shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
   if pattern.isBVar || isPatternDontCare pattern then
     return pattern
   else if let some e := groundPattern? pattern then
-    let e ← shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+    let e ← preprocessGroundPattern e
     internalize e generation none
     return mkGroundPattern e
   else pattern.withApp fun f args => do

@@ -48,10 +48,11 @@ Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even 
   modify fun s => { s with canon := f s.canon }
 
 /--
-Helper function for `canonElemCore`. It tries `isDefEq` with default transparency, but using
+Helper function for `canonElemCore`. It tries `isDefEq a b` with default transparency, but using
 at most `canonHeartbeats` heartbeats. It reports an issue if the threshold is reached.
+Remark: `parent` is use only to report an issue
 -/
-private def isDefEqBounded (a b : Expr) : GoalM Bool := do
+private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
   withCurrHeartbeats do
   let config ← getConfig
   tryCatchRuntimeEx
@@ -60,7 +61,7 @@ private def isDefEqBounded (a b : Expr) : GoalM Bool := do
     fun ex => do
       if ex.isRuntime then
         let curr := (← getConfig).canonHeartbeats
-        reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nin the canonicalizer using `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
+        reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
         return false
       else
         throw ex
@@ -69,7 +70,7 @@ private def isDefEqBounded (a b : Expr) : GoalM Bool := do
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
 If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false
 -/
-def canonElemCore (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
+def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
   let s ← get'
   if let some c := s.canon.find? e then
     return c
@@ -86,7 +87,7 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : G
       trace[grind.debugn.canon] "found {e} ===> {c}"
       return c
     if useIsDefEqBounded then
-      if (← isDefEqBounded e c) then
+      if (← isDefEqBounded e c parent) then
         modify' fun s => { s with canon := s.canon.insert e c }
         trace[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
         return c
@@ -94,9 +95,9 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : G
   modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
-abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e (useIsDefEqBounded := false)
-abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e (useIsDefEqBounded := true)
-abbrev canonImplicit (f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore f i e (useIsDefEqBounded := true)
+abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
+abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true)
+abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
 
 /--
 Return type for the `shouldCanon` function.
@@ -171,9 +172,9 @@ where
             let arg := args[i]
             trace[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-            | .canonType  => canonType f i arg
-            | .canonInst  => canonInst f i arg
-            | .canonImplicit => canonImplicit f i (← visit arg)
+            | .canonType  => canonType e f i arg
+            | .canonInst  => canonInst e f i arg
+            | .canonImplicit => canonImplicit e f i (← visit arg)
             | .visit      => visit arg
             unless ptrEq arg arg' do
               args := args.set i arg'

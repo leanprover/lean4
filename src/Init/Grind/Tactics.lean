@@ -47,7 +47,7 @@ structure Config where
   splitIndPred : Bool := true
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
   failures : Nat := 1
-  /-- Maximum number of heartbeats (in thounsands) the canonicalizer can spend per definitional equality test. -/
+  /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
   deriving Inhabited, BEq
 

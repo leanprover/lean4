@@ -1542,6 +1542,34 @@ theorem flatMap_def (l : Vector α n) (f : α → Vector β m) : l.flatMap f = f
   rcases l with ⟨l, rfl⟩
   simp [Array.flatMap_def, Function.comp_def]
 
+theorem getElem_flatMap (l : Vector α n) (f : α → Vector β m) (i : Nat) (hi : i < n * m) :
+    (l.flatMap f)[i] =
+      haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+      haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
+      (f (l[i / m]))[i % m] := by
+  rcases l with ⟨⟨l⟩, rfl⟩
+  simp only [flatMap_mk, List.flatMap_toArray, getElem_mk, List.getElem_toArray]
+  induction l generalizing i with
+  | nil => simp at hi
+  | cons a l ih =>
+    simp only [List.flatMap_cons]
+    by_cases h : i < m
+    · rw [List.getElem_append_left (by simpa)]
+      have h₁ : i / m = 0 := Nat.div_eq_of_lt h
+      have h₂ : i % m = i := Nat.mod_eq_of_lt h
+      simp [h₁, h₂]
+    · have h₁ : (f a).toList.length ≤ i := by simp; omega
+      rw [List.getElem_append_right h₁]
+      simp only [Array.length_toList, size_toArray]
+      specialize ih (i - m) (by simp_all [Nat.add_one_mul]; omega)
+      have h₂ : i / m = (i - m) / m + 1 := by
+        conv => lhs; rw [show i = i - m + m by omega]
+        rw [Nat.add_div_right]
+        exact Nat.pos_of_lt_mul_left hi
+      simp only [Array.length_toList, size_toArray] at h₁
+      have h₃ : (i - m) % m = i % m := (Nat.mod_eq_sub_mod h₁).symm
+      simp_all
+
 @[simp] theorem flatMap_id (l : Vector (Vector α m) n) : l.flatMap id = l.flatten := by simp [flatMap_def]
 
 @[simp] theorem flatMap_id' (l : Vector (Vector α m) n) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]

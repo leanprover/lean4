@@ -74,6 +74,14 @@ private def checkIffStatus (e a b : Expr) : GoalM CaseSplitStatus := do
   else
     return .notReady
 
+/-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
+private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
+  (← get).resolvedSplits.foldM (init := false) fun flag { expr := c' } => do
+    if flag then
+      return true
+    else
+      return isCongruent (← get).enodes c c'
+
 private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   match_expr e with
   | Or a b => checkDisjunctStatus e a b
@@ -84,6 +92,8 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   | _ =>
     if (← isResolvedCaseSplit e) then
       trace[grind.debug.split] "split resolved: {e}"
+      return .resolved
+    if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
       return .ready info.numAlts
@@ -163,6 +173,7 @@ def splitNext : GrindTactic := fun goal => do
       | return none
     let gen ← getGeneration c
     let genNew := if numCases > 1 || isRec then gen+1 else gen
+    markCaseSplitAsResolved c
     trace_goal[grind.split] "{c}, generation: {gen}"
     let mvarIds ← if (← isMatcherApp c) then
       casesMatch (← get).mvarId c

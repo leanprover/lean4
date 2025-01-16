@@ -376,3 +376,12 @@ def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do
   ts.reverse.mapFinIdxM
     (fun my_idx my_tree => id (if my_idx.val < 0 then my_tree else (Tree.rev''' my_tree.cs.toArray) >>= (fun ts => ⟨ts.toList⟩)))
 partial_fixpoint
+
+def List.findIndex (xs : List α) (p : α → Bool) : Option Nat := match xs with
+  | [] => none
+  | x::ys =>
+    if p x then
+      some 0
+    else
+      (· + 1) <$> List.findIndex ys p
+partial_fixpoint

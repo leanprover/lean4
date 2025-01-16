@@ -39,6 +39,13 @@ variable {α β : Type u}
 variable {γ : Type w} [PartialOrder γ]
 
 @[partial_fixpoint_monotone]
+theorem monotone_map [LawfulMonad m] (f : γ → m α) (g : α → β) (hmono : monotone f) :
+    monotone (fun x => g <$> f x) := by
+  simp only [← LawfulMonad.bind_pure_comp ]
+  apply monotone_bind _ _ _ hmono
+  apply monotone_const
+
+@[partial_fixpoint_monotone]
 theorem monotone_option_bindM (f : γ → α → m (Option β)) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.bindM (f x)) := by
   cases xs with

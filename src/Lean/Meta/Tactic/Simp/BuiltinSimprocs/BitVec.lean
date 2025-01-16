@@ -322,7 +322,7 @@ builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => d
 /-- Canonicalize all bitvectors of length 0 to `0#0` -/
 builtin_simproc reduceOfLengthZero ((_ : BitVec 0)) := fun e => do
   let typ ← inferType e
-  unless ←isDefEqGuarded typ ((mkConst ``BitVec).app (mkNatLit 0)) do
+  unless ← isDefEqGuarded typ ((mkConst ``BitVec).app (mkNatLit 0)) do
     return .continue
 
   return .done {  -- By returning `done`, we stop `simp` from trying to simplify

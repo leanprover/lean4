@@ -10,5 +10,7 @@ set_option maxHeartbeats 5000
 example : ∀ a < 600, a ^ 2 ≠ 7 := by decide
 example : ∀ a ≤ 600, a ^ 2 ≠ 7 := by decide
 example : ∀ a : Fin 600, (a : Nat) ^ 2 ≠ 7 := by decide
-example : ∃ a < 600, a^2 = 90000 := by decide
-example : ∃ a ≤ 600, a^2 = 90000 := by decide
+example : ∃ a < 600, a ^ 2 = 90000 := by decide
+example : ∃ a ≤ 600, a ^ 2 = 90000 := by decide
+example : ∃ a, ∃ h : a < 599, (⟨a, h⟩ : Fin 599) * 2 = 1 := by decide
+example : ∃ a, ∃ h : a ≤ 600, (⟨a, Nat.lt_add_one_of_le h⟩ : Fin 601) * 2 = 1 := by decide

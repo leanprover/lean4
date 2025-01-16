@@ -1776,11 +1776,10 @@ instance decidableBallLE (n : Nat) (P : ∀ k, k ≤ n → Prop) [∀ n h, Decid
   decidable_of_iff (∀ (k) (h : k < succ n), P k (le_of_lt_succ h))
     ⟨fun m k h => m k (lt_succ_of_le h), fun m k _ => m k _⟩
 
-instance decidableExistsLT [DecidablePred p] :
-    DecidablePred fun n => ∃ m : Nat, m < n ∧ p m :=
-  fun n => match Nat.decidableBallLT n (fun (m : Nat) (_ : m < n) => ¬p m) with
-  | isTrue h => isFalse (by simpa using h)
-  | isFalse h => isTrue (by simpa using h)
+instance decidableExistsLT [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
+  | n => match Nat.decidableBallLT n (fun (m : Nat) (_ : m < n) => ¬p m) with
+    | isTrue h => isFalse (by simpa using h)
+    | isFalse h => isTrue (by simpa using h)
 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)

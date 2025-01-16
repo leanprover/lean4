@@ -1542,7 +1542,7 @@ theorem flatMap_def (l : Vector α n) (f : α → Vector β m) : l.flatMap f = f
   rcases l with ⟨l, rfl⟩
   simp [Array.flatMap_def, Function.comp_def]
 
-theorem getElem_flatMap (l : Vector α n) (f : α → Vector β m) (i : Nat) (hi : i < n * m) :
+@[simp] theorem getElem_flatMap (l : Vector α n) (f : α → Vector β m) (i : Nat) (hi : i < n * m) :
     (l.flatMap f)[i] =
       haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
       haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
@@ -1569,6 +1569,16 @@ theorem getElem_flatMap (l : Vector α n) (f : α → Vector β m) (i : Nat) (hi
       simp only [Array.length_toList, size_toArray] at h₁
       have h₃ : (i - m) % m = i % m := (Nat.mod_eq_sub_mod h₁).symm
       simp_all
+
+theorem getElem?_flatMap (l : Vector α n) (f : α → Vector β m) (i : Nat) :
+    (l.flatMap f)[i]? =
+      if hi : i < n * m then
+        haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+        haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
+        some ((f (l[i / m]))[i % m])
+      else
+        none := by
+  simp [getElem?_def]
 
 @[simp] theorem flatMap_id (l : Vector (Vector α m) n) : l.flatMap id = l.flatten := by simp [flatMap_def]
 

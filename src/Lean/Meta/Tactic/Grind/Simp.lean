@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.DoNotSimp
 import Lean.Meta.Tactic.Grind.MarkNestedProofs
+import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
@@ -28,9 +29,9 @@ def simp (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr
+  let e' ← unfoldReducible e'
   let e' ← abstractNestedProofs e'
   let e' ← markNestedProofs e'
-  let e' ← unfoldReducible e'
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'

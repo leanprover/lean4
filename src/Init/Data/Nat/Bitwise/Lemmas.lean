@@ -737,7 +737,6 @@ theorem shiftLeft_or_distrib {a b : Nat} : (a ||| b) <<< i = a <<< i ||| b <<< i
 theorem shiftLeft_xor_distrib {a b : Nat} : (a ^^^ b) <<< i = a <<< i ^^^ b <<< i :=
   shiftLeft_bitwise_distrib
 
-
 @[simp] theorem decide_shiftRight_mod_two_eq_one :
     decide (x >>> i % 2 = 1) = x.testBit i := by
   simp only [testBit, one_and_eq_mod_two, mod_two_bne_zero]

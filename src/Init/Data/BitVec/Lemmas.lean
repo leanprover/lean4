@@ -2066,16 +2066,9 @@ theorem eq_msb_cons_setWidth (x : BitVec (w+1)) : x = (cons x.msb (x.setWidth w)
 
 theorem cons_append (x : BitVec w₁) (y : BitVec w₂) (a : Bool) :
     (cons a x) ++ y = (cons a (x ++ y)).cast (by omega) := by
-  ext i h
-  simp only [cons, getLsbD_append, getLsbD_cast, getLsbD_ofBool, cast_cast]
-  by_cases h₀ : i < w₁ + w₂
-  · simp [h₀]
-    by_cases h₁ : i < w₂
-    · simp [h₁]
-    · simp [h₁, show i - w₂ - w₁ = 0 by omega]
-      omega
-  · simp [show ¬i < w₂ by omega, show i - w₂ - w₁ = 0 by omega, h₀, show i - (w₁ + w₂) = 0 by omega]
-    omega
+  apply eq_of_toNat_eq
+  simp only [toNat_append, toNat_cons, toNat_cast]
+  rw [Nat.shiftLeft_add, Nat.shiftLeft_or_distrib, Nat.or_assoc]
 
 theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃) (a : Bool) :
     (cons a x) ++ y ++ z = (cons a (x ++ y ++ z)).cast (by omega) := by
@@ -3450,7 +3443,7 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
   by_cases h' : w = 0 <;> simp [h'] <;> omega
 
 theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
-    (x₁ ++ x₂)++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
+    (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
   induction w₁ generalizing x₂ x₃
   case zero => simp
   case succ n ih =>

@@ -631,6 +631,13 @@ theorem getLsbD_mul (x y : BitVec w) (i : Nat) :
   · simp
   · omega
 
+theorem getMsbD_mul (x y : BitVec w) (i : Nat) :
+    (x * y).getMsbD i = (mulRec x y w).getMsbD i := by
+  simp only [mulRec_eq_mul_signExtend_setWidth]
+  rw [setWidth_setWidth_of_le]
+  · simp
+  · omega
+
 theorem getElem_mul {x y : BitVec w} {i : Nat} (h : i < w) :
     (x * y)[i] = (mulRec x y w)[i] := by
   simp [mulRec_eq_mul_signExtend_setWidth]

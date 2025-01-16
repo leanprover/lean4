@@ -33,10 +33,6 @@ theorem Bool.bne_to_beq (a b : Bool) : (a != b) = (!(a == b)) := by
   simp [bne]
 
 @[bv_normalize]
-theorem Bool.eq_false_to_beq (a : Bool) : (a = false) = ((!a) = true) := by
-  simp
-
-@[bv_normalize]
 theorem Bool.neg_to_not (a : Bool) : (¬a) = ((!a) = true) := by
   simp
 
@@ -72,8 +68,8 @@ theorem Bool.decide_eq_true (a : Bool) : (decide (a = true)) = a := by
   simp
 
 @[bv_normalize]
-theorem Bool.eq_true_eq_true_eq (x y : Bool) : ((x = true) = (y = true)) = (x = y) :=
-  by simp
+theorem Bool.eq_true_eq_true_eq (x y : Bool) : ((x = true) = (y = true)) ↔ ((x == y) = true) := by
+  simp
 
 attribute [bv_normalize] BitVec.getLsbD_cast
 attribute [bv_normalize] BitVec.testBit_toNat

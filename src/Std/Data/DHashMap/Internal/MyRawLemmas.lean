@@ -142,6 +142,9 @@ theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} (h : m.1.WF)
       m.getD k' v := by
   simp_to_model using List.getValueCastD_alterKey
 
+-- TODO where to put this?
+theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
+
 theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} (h : m.1.WF)
     {f : Option (β k) → Option (β k)} :
     (m.alter k f).getD k v = (f (m.get? k)).getD v := by
@@ -285,8 +288,6 @@ theorem get_alter_self (h : m.1.WF) {k : α} {f : Option β → Option β}
     haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, BEq.refl] at hc
     Const.get (Const.alter m k f) k hc = (f (Const.get? m k)).get h' := by
   simp_to_model using List.Const.getValue_alterKey_self
-
-theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 
 theorem get!_alter {k k' : α} (h : m.1.WF) [Inhabited β] {f : Option β → Option β} :
     Const.get! (Const.alter m k f) k' =

@@ -14,7 +14,6 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.ENodeKey
-import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
@@ -66,7 +65,6 @@ instance : Hashable CongrTheoremCacheKey where
 
 /-- State for the `GrindM` monad. -/
 structure State where
-  canon      : Canon.State := {}
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
   scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
   /-- Next index for creating auxiliary theorems. -/
@@ -80,6 +78,7 @@ structure State where
   simpStats  : Simp.Stats := {}
   trueExpr   : Expr
   falseExpr  : Expr
+  natZExpr   : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -103,6 +102,10 @@ def getTrueExpr : GrindM Expr := do
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
+
+/-- Returns the internalized `0 : Nat` numeral.  -/
+def getNatZeroExpr : GrindM Expr := do
+  return (← get).natZExpr
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
@@ -128,18 +131,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag } =>
+  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { canon, scState, nextThmIdx, congrThms, trueExpr, falseExpr, simpStats, lastTag })
-
-/--
-Canonicalizes nested types, type formers, and instances in `e`.
--/
-def canon (e : Expr) : GrindM Expr := do
-  let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
-  let (e, canonS) ← Canon.canon e |>.run canonS
-  modify fun s => { s with canon := canonS }
-  return e
+    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -202,13 +196,19 @@ structure ENode where
   on heterogeneous equality.
   -/
   heqProofs : Bool := false
-  /--
-  Unique index used for pretty printing and debugging purposes.
-  -/
+  /-- Unique index used for pretty printing and debugging purposes. -/
   idx : Nat := 0
+  /-- The generation in which this enode was created. -/
   generation : Nat := 0
   /-- Modification time -/
   mt : Nat := 0
+  /--
+  The `offset?` field is used to propagate equalities from the `grind` congruence closure module
+  to the offset constraints module. When `grind` merges two equivalence classes, and both have
+  an associated `offset?` set to `some e`, the equality is propagated. This field is
+  assigned during the internalization of offset terms.
+  -/
+  offset? : Option Expr := none
   deriving Inhabited, Repr
 
 def ENode.isCongrRoot (n : ENode) :=
@@ -332,8 +332,16 @@ structure NewFact where
   generation : Nat
   deriving Inhabited
 
+/-- Canonicalizer state. See `Canon.lean` for additional details. -/
+structure Canon.State where
+  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
+  canon      : PHashMap Expr Expr := {}
+  proofCanon : PHashMap Expr Expr := {}
+  deriving Inhabited
+
 structure Goal where
   mvarId       : MVarId
+  canon        : Canon.State := {}
   enodes       : ENodeMap := {}
   parents      : ParentMap := {}
   congrTable   : CongrTable enodes := {}
@@ -376,12 +384,17 @@ structure Goal where
   splitCandidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
-  /-- Case-splits that do not have to be performed anymore. -/
+  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolvedSplits : PHashSet ENodeKey := {}
   /-- Next local E-match theorem idx. -/
   nextThmIdx : Nat := 0
   /-- Asserted facts -/
   facts      : PArray Expr := {}
+  /--
+  Issues found during the proof search in this goal. This issues are reported to
+  users when `grind` fails.
+  -/
+  issues     : List MessageData := []
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -401,6 +414,20 @@ def updateLastTag : GoalM Unit := do
     if currTag != (← getThe Grind.State).lastTag then
       trace[grind] "working on goal `{currTag}`"
       modifyThe Grind.State fun s => { s with lastTag := currTag }
+
+def Goal.reportIssue (goal : Goal) (msg : MessageData) : MetaM Goal := do
+  let msg ← addMessageContext msg
+  let goal := { goal with issues := .trace { cls := `issue } msg #[] :: goal.issues }
+  /-
+  We also add a trace message because we may want to know when
+  an issue happened relative to other trace messages.
+  -/
+  trace[grind.issues] msg
+  return goal
+
+def reportIssue (msg : MessageData) : GoalM Unit := do
+  let goal ← (← get).reportIssue msg
+  set goal
 
 /--
 Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`
@@ -643,6 +670,41 @@ def mkENode (e : Expr) (generation : Nat) : GoalM Unit := do
   let interpreted ← isInterpreted e
   mkENodeCore e interpreted ctor generation
 
+/--
+Notify the offset constraint module that `a = b` where
+`a` and `b` are terms that have been internalized by this module.
+-/
+@[extern "lean_process_new_offset_eq"] -- forward definition
+opaque Arith.processNewOffsetEq (a b : Expr) : GoalM Unit
+
+/--
+Notify the offset constraint module that `a = k` where
+`a` is term that has been internalized by this module,
+and `k` is a numeral.
+-/
+@[extern "lean_process_new_offset_eq_lit"] -- forward definition
+opaque Arith.processNewOffsetEqLit (a k : Expr) : GoalM Unit
+
+/-- Returns `true` if `e` is a numeral and has type `Nat`. -/
+def isNatNum (e : Expr) : Bool := Id.run do
+  let_expr OfNat.ofNat _ _ inst := e | false
+  let_expr instOfNatNat _ := inst | false
+  true
+
+/--
+Marks `e` as a term of interest to the offset constraint module.
+If the root of `e`s equivalence class has already a term of interest,
+a new equality is propagated to the offset module.
+-/
+def markAsOffsetTerm (e : Expr) : GoalM Unit := do
+  let root ← getRootENode e
+  if let some e' := root.offset? then
+    Arith.processNewOffsetEq e e'
+  else if isNatNum root.self && !isSameExpr e root.self then
+    Arith.processNewOffsetEqLit e root.self
+  else
+    setENode root.self { root with offset? := some e }
+
 /-- Returns `true` is `e` is the root of its congruence class. -/
 def isCongrRoot (e : Expr) : GoalM Bool := do
   return (← getENode e).isCongrRoot
@@ -816,7 +878,8 @@ def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
 
 /--
 Mark `e` as a case-split that does not need to be performed anymore.
-Remark: we currently use this feature to disable `match`-case-splits
+Remark: we currently use this feature to disable `match`-case-splits.
+Remark: we also use this feature to record the case-splits that have already been performed.
 -/
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do

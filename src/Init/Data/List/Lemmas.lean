@@ -1076,8 +1076,30 @@ theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
 
 @[deprecated forall_mem_map (since := "2024-07-25")] abbrev forall_mem_map_iff := @forall_mem_map
 
+@[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
+  constructor <;> exact fun _ => match l with | [] => rfl
+
+@[deprecated map_eq_nil_iff (since := "2024-09-05")] abbrev map_eq_nil := @map_eq_nil_iff
+
+theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
+  map_eq_nil_iff.mp h
+
 @[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l <;> simp_all
+
+theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f l = map f l' ↔ l = l' := by
+  induction l generalizing l' with
+  | nil => simp
+  | cons a l ih =>
+    simp only [map_cons]
+    cases l' with
+    | nil => simp
+    | cons a' l' =>
+      simp only [map_cons, cons.injEq, ih, and_congr_left_iff]
+      intro h
+      constructor
+      · apply w
+      · simp +contextual
 
 theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
   map_inj_left.2 h
@@ -1086,14 +1108,6 @@ theorem map_inj : map f = map g ↔ f = g := by
   constructor
   · intro h; ext a; replace h := congrFun h [a]; simpa using h
   · intro h; subst h; rfl
-
-@[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
-  constructor <;> exact fun _ => match l with | [] => rfl
-
-@[deprecated map_eq_nil_iff (since := "2024-09-05")] abbrev map_eq_nil := @map_eq_nil_iff
-
-theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
-  map_eq_nil_iff.mp h
 
 theorem map_eq_cons_iff {f : α → β} {l : List α} :
     map f l = b :: l₂ ↔ ∃ a l₁, l = a :: l₁ ∧ f a = b ∧ map f l₁ = l₂ := by
@@ -1884,7 +1898,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
 
 /-! ### flatten -/
 
-@[simp] theorem length_flatten (L : List (List α)) : (flatten L).length = (L.map length).sum := by
+@[simp] theorem length_flatten (L : List (List α)) : L.flatten.length = (L.map length).sum := by
   induction L with
   | nil => rfl
   | cons =>
@@ -1898,6 +1912,9 @@ theorem flatten_singleton (l : List α) : [l].flatten = l := by simp
 
 @[simp] theorem flatten_eq_nil_iff {L : List (List α)} : L.flatten = [] ↔ ∀ l ∈ L, l = [] := by
   induction L <;> simp_all
+
+@[simp] theorem nil_eq_flatten_iff {L : List (List α)} : [] = L.flatten ↔ ∀ l ∈ L, l = [] := by
+  rw [eq_comm, flatten_eq_nil_iff]
 
 theorem flatten_ne_nil_iff {xs : List (List α)} : xs.flatten ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
   simp
@@ -1924,7 +1941,8 @@ theorem head?_flatten {L : List (List α)} : (flatten L).head? = L.findSome? fun
 -- `getLast?_flatten` is proved later, after the `reverse` section.
 -- `head_flatten` and `getLast_flatten` are proved in `Init.Data.List.Find`.
 
-@[simp] theorem map_flatten (f : α → β) (L : List (List α)) : map f (flatten L) = flatten (map (map f) L) := by
+@[simp] theorem map_flatten (f : α → β) (L : List (List α)) :
+    (flatten L).map f = (map (map f) L).flatten := by
   induction L <;> simp_all
 
 @[simp] theorem filterMap_flatten (f : α → Option β) (L : List (List α)) :
@@ -1977,6 +1995,26 @@ theorem flatten_eq_cons_iff {xs : List (List α)} {y : α} {ys : List α} :
   · rintro ⟨as, bs, cs, rfl, h₁, rfl⟩
     simp [flatten_eq_nil_iff.mpr h₁]
 
+theorem cons_eq_flatten_iff {xs : List (List α)} {y : α} {ys : List α} :
+    y :: ys = xs.flatten ↔
+      ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.flatten := by
+  rw [eq_comm, flatten_eq_cons_iff]
+
+theorem flatten_eq_singleton_iff {xs : List (List α)} {y : α} :
+    xs.flatten = [y] ↔ ∃ as bs, xs = as ++ [y] :: bs ∧ (∀ l, l ∈ as → l = []) ∧ (∀ l, l ∈ bs → l = []) := by
+  rw [flatten_eq_cons_iff]
+  constructor
+  · rintro ⟨as, bs, cs, rfl, h₁, h₂⟩
+    simp at h₂
+    obtain ⟨rfl, h₂⟩ := h₂
+    exact ⟨as, cs, by simp, h₁, h₂⟩
+  · rintro ⟨as, bs, rfl, h₁, h₂⟩
+    exact ⟨as, [], bs, rfl, h₁, by simpa⟩
+
+theorem singleton_eq_flatten_iff {xs : List (List α)} {y : α} :
+    [y] = xs.flatten ↔ ∃ as bs, xs = as ++ [y] :: bs ∧ (∀ l, l ∈ as → l = []) ∧ (∀ l, l ∈ bs → l = []) := by
+  rw [eq_comm, flatten_eq_singleton_iff]
+
 theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
     xs.flatten = ys ++ zs ↔
       (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
@@ -2005,6 +2043,13 @@ theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
     · simp
     · simp
 
+theorem append_eq_flatten_iff {xs : List (List α)} {ys zs : List α} :
+    ys ++ zs = xs.flatten ↔
+      (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
+        ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.flatten ++ bs ∧
+          zs = c :: cs ++ ds.flatten := by
+  rw [eq_comm, flatten_eq_append_iff]
+
 /-- Two lists of sublists are equal iff their flattens coincide, as well as the lengths of the
 sublists. -/
 theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
@@ -2025,12 +2070,14 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 theorem flatMap_def (l : List α) (f : α → List β) : l.flatMap f = flatten (map f l) := by rfl
 
-@[simp] theorem flatMap_id (l : List (List α)) : List.flatMap l id = l.flatten := by simp [flatMap_def]
+@[simp] theorem flatMap_id (l : List (List α)) : l.flatMap id = l.flatten := by simp [flatMap_def]
+
+@[simp] theorem flatMap_id' (l : List (List α)) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
 
 @[simp]
 theorem length_flatMap (l : List α) (f : α → List β) :
-    length (l.flatMap f) = sum (map (length ∘ f) l) := by
-  rw [List.flatMap, length_flatten, map_map]
+    length (l.flatMap f) = sum (map (fun a => (f a).length) l) := by
+  rw [List.flatMap, length_flatten, map_map, Function.comp_def]
 
 @[simp] theorem mem_flatMap {f : α → List β} {b} {l : List α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [flatMap_def, mem_flatten]
@@ -2043,7 +2090,7 @@ theorem mem_flatMap_of_mem {b : β} {l : List α} {f : α → List β} {a} (al :
     b ∈ l.flatMap f := mem_flatMap.2 ⟨a, al, h⟩
 
 @[simp]
-theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : List.flatMap l f = [] ↔ ∀ x ∈ l, f x = [] :=
+theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : l.flatMap f = [] ↔ ∀ x ∈ l, f x = [] :=
   flatten_eq_nil_iff.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 
@@ -2227,13 +2274,16 @@ theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.len
   · intro i h₁ h₂
     simp [getElem_set]
 
-@[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
+@[simp] theorem replicate_append_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate_iff]
   constructor
   · simp
   · intro b
     simp only [mem_append, mem_replicate, ne_eq]
     rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
+
+@[deprecated replicate_append_replicate (since := "2025-01-16")]
+abbrev append_replicate_replicate := @replicate_append_replicate
 
 theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
     l₁ ++ l₂ = replicate n a ↔
@@ -2244,6 +2294,11 @@ theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
       mpr := fun h b x => Or.casesOn x (fun m => h.left b m) fun m => h.right b m }
 
 @[deprecated append_eq_replicate_iff (since := "2024-09-05")] abbrev append_eq_replicate := @append_eq_replicate_iff
+
+theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
+    replicate n a = l₁ ++ l₂ ↔
+      l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
+  rw [eq_comm, append_eq_replicate_iff]
 
 @[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
   ext1 n
@@ -2296,7 +2351,7 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, flatten_cons, ih, append_replicate_replicate, replicate_inj, or_true,
+    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate, replicate_inj, or_true,
       and_true, add_one_mul, Nat.add_comm]
 
 theorem flatMap_replicate {β} (f : α → List β) : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
@@ -2347,6 +2402,9 @@ theorem replicateRecOn {α : Type _} {p : List α → Prop} (m : List α)
     subst w
     exact hi _ _ _ _ h hn (replicateRecOn (b :: l') h0 hr hi)
 termination_by m.length
+
+@[simp] theorem sum_replicate_nat (n : Nat) (a : Nat) : (replicate n a).sum = n * a := by
+  induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
 
 /-! ### reverse -/
 

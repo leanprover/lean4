@@ -48,6 +48,7 @@ def mkNode (expr : Expr) : GoalM NodeId := do
     targets := s.targets.push {}
     proofs  := s.proofs.push {}
   }
+  markAsOffsetTerm expr
   return nodeId
 
 private def getExpr (u : NodeId) : GoalM Expr := do
@@ -58,6 +59,11 @@ private def getDist? (u v : NodeId) : GoalM (Option Int) := do
 
 private def getProof? (u v : NodeId) : GoalM (Option ProofInfo) := do
   return (← get').proofs[u]!.find? v
+
+private def getNodeId (e : Expr) : GoalM NodeId := do
+  let some nodeId := (← get').nodeMap.find? { expr := e }
+    | throwError "internal `grind` error, term has not been internalized by offset module{indentExpr e}"
+  return nodeId
 
 /--
 Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
@@ -127,8 +133,6 @@ private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr)
     return true
   return false
 
-example (x y : Nat) : x + 2 ≤ y → ¬ (y ≤ x + 1) := by omega
-
 /--
 Tries to assign `e` to `False`, which is represented by constraint `c` (from `v` to `u`), using the
 path `u --(k)--> v`.
@@ -160,10 +164,24 @@ private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → GoalM B
         return !(← f c e)
     modify' fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
 
+/-- Equality propagation. -/
+private def propagateEq (u v : NodeId) (k : Int) : GoalM Unit := do
+  if k != 0 then return ()
+  let some k' ← getDist? v u | return ()
+  if k' != 0 then return ()
+  let ue ← getExpr u
+  let ve ← getExpr v
+  if (← isEqv ue ve) then return ()
+  let huv ← mkProofForPath u v
+  let hvu ← mkProofForPath v u
+  trace[grind.offset.eq.from] "{ue}, {ve}"
+  pushEq ue ve <| mkApp4 (mkConst ``Grind.Nat.eq_of_le_of_le) ue ve huv hvu
+
 /-- Performs constraint propagation. -/
 private def propagateAll (u v : NodeId) (k : Int) : GoalM Unit := do
   updateCnstrsOf u v fun c e => return !(← propagateTrue u v k c e)
   updateCnstrsOf v u fun c e => return !(← propagateFalse u v k c e)
+  propagateEq u v k
 
 /--
 If `isShorter u v k`, updates the shortest distance between `u` and `v`.
@@ -203,8 +221,7 @@ where
         /- Check whether new path: `i -(k₁)-> u -(k)-> v -(k₂) -> j` is shorter -/
         updateIfShorter i j (k₁+k+k₂) v
 
-def internalizeCnstr (e : Expr) : GoalM Unit := do
-  let some c := isNatOffsetCnstr? e | return ()
+private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
   let u ← mkNode c.u
   let v ← mkNode c.v
   let c := { c with u, v }
@@ -222,6 +239,70 @@ def internalizeCnstr (e : Expr) : GoalM Unit := do
       s.cnstrsOf.insert (u, v) cs
   }
 
+private def getZeroNode : GoalM NodeId := do
+  mkNode (← getNatZeroExpr)
+
+/-- Internalize `e` of the form `b + k` -/
+private def internalizeTerm (e : Expr) (b : Expr) (k : Nat) : GoalM Unit := do
+  -- `e` is of the form `b + k`
+  let u ← mkNode e
+  let v ← mkNode b
+  -- `u = v + k`. So, we add edges for `u ≤ v + k` and `v + k ≤ u`.
+  let h := mkApp (mkConst ``Nat.le_refl) e
+  addEdge u v k h
+  addEdge v u (-k) h
+  -- `0 + k ≤ u`
+  let z ← getZeroNode
+  addEdge z u (-k) <| mkApp2 (mkConst ``Grind.Nat.le_offset) b (toExpr k)
+
+/--
+Returns `true`, if `parent?` is relevant for internalization.
+For example, we do not want to internalize an offset term that
+is the child of an addition. This kind of term will be processed by the
+more general linear arithmetic module.
+-/
+private def isRelevantParent (parent? : Option Expr) : GoalM Bool := do
+  let some parent := parent? | return false
+  let z ← getNatZeroExpr
+  return !isNatAdd parent && (isNatOffsetCnstr? parent z).isNone
+
+private def isEqParent (parent? : Option Expr) : Bool := Id.run do
+  let some parent := parent? | return false
+  return parent.isEq
+
+def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  let z ← getNatZeroExpr
+  if let some c := isNatOffsetCnstr? e z then
+    internalizeCnstr e c
+  else if (← isRelevantParent parent?) then
+    if let some (b, k) := isNatOffset? e then
+      internalizeTerm e b k
+    else if let some k := isNatNum? e then
+      -- core module has support for detecting equality between literals
+      unless isEqParent parent? do
+        internalizeTerm e z k
+
+@[export lean_process_new_offset_eq]
+def processNewOffsetEqImpl (a b : Expr) : GoalM Unit := do
+  unless isSameExpr a b do
+    trace[grind.offset.eq.to] "{a}, {b}"
+    let u ← getNodeId a
+    let v ← getNodeId b
+    let h ← mkEqProof a b
+    addEdge u v 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
+    addEdge v u 0 <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
+
+@[export lean_process_new_offset_eq_lit]
+def processNewOffsetEqLitImpl (a b : Expr) : GoalM Unit := do
+  unless isSameExpr a b do
+    trace[grind.offset.eq.to] "{a}, {b}"
+    let some k := isNatNum? b | unreachable!
+    let u ← getNodeId a
+    let z ← mkNode (← getNatZeroExpr)
+    let h ← mkEqProof a b
+    addEdge u z k <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_1) a b h
+    addEdge z u (-k) <| mkApp3 (mkConst ``Grind.Nat.le_of_eq_2) a b h
+
 def traceDists : GoalM Unit := do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
@@ -231,13 +312,12 @@ def traceDists : GoalM Unit := do
 def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
   let u := (← get').nodes[c.u]!
   let v := (← get').nodes[c.v]!
-  let mk := if c.le then mkNatLE else mkNatEq
   if c.k == 0 then
-    return mk u v
+    return mkNatLE u v
   else if c.k < 0 then
-    return mk (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
+    return mkNatLE (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
   else
-    return mk u (mkNatAdd v (Lean.toExpr c.k.toNat))
+    return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
   let s ← get'

@@ -15,6 +15,7 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
 
 namespace Lean.Meta.Grind
@@ -40,17 +41,20 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) (fa
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
+  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
   let simprocs ← Grind.getSimprocs
   let simp ← Grind.getSimpContext
-  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr, natZExpr }
 
 private def mkGoal (mvarId : MVarId) : GrindM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
+  let natZeroExpr ← getNatZeroExpr
   let thmMap ← getEMatchTheorems
   GoalM.run' { mvarId, thmMap } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
 
 private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   mvarId.ensureProp
@@ -65,17 +69,10 @@ private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
 
-def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goal) := do
-  goals.foldlM (init := []) fun acc goal => return acc ++ (← f goal)
-
-/-- A very simple strategy -/
-private def simple (goals : List Goal) : GrindM (List Goal) := do
-  applyToAll (assertAll >> ematchStar >> (splitNext >> assertAll >> ematchStar).iterate) goals
-
 def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
   let go : GrindM (List Goal) := do
     let goals ← initCore mvarId
-    let goals ← simple goals
+    let goals ← solve goals
     let goals ← goals.filterMapM fun goal => do
       if goal.inconsistent then return none
       let goal ← GoalM.run' goal fallback

@@ -244,12 +244,15 @@ case grind
 p q : Prop
 a✝¹ : p = q
 a✝ : p
-⊢ False[facts] Asserted facts
-  [prop] p = q
-  [prop] p[eqc] True propositions
-  [prop] p = q
-  [prop] q
-  [prop] p
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] p = q
+    [prop] p
+  [eqc] True propositions
+    [prop] p = q
+    [prop] q
+    [prop] p
 -/
 #guard_msgs (error) in
 set_option trace.grind.split true in
@@ -262,13 +265,17 @@ case grind
 p q : Prop
 a✝¹ : p = ¬q
 a✝ : p
-⊢ False[facts] Asserted facts
-  [prop] p = ¬q
-  [prop] p[eqc] True propositions
-  [prop] p = ¬q
-  [prop] ¬q
-  [prop] p[eqc] False propositions
-  [prop] q
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] p = ¬q
+    [prop] p
+  [eqc] True propositions
+    [prop] p = ¬q
+    [prop] ¬q
+    [prop] p
+  [eqc] False propositions
+    [prop] q
 -/
 #guard_msgs (error) in
 set_option trace.grind.split true in
@@ -279,4 +286,7 @@ example {a b : Nat} (h : a < b) : ¬ b < a := by
   grind
 
 example {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m := by
+  grind
+
+example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (f a) := by
   grind

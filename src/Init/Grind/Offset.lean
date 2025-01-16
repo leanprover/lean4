@@ -80,4 +80,13 @@ theorem Nat.ro_eq_false_of_lo (u v k₁ k₂ : Nat) : isLt k₂ k₁ = true → 
 theorem Nat.lo_eq_false_of_ro (u v k₁ k₂ : Nat) : isLt k₁ k₂ = true → u ≤ v + k₁ → (v + k₂ ≤ u) = False := by
   simp [isLt]; omega
 
+/-!
+Helper theorems for equality propagation
+-/
+
+theorem Nat.le_of_eq_1 (u v : Nat) : u = v → u ≤ v := by omega
+theorem Nat.le_of_eq_2 (u v : Nat) : u = v → v ≤ u := by omega
+theorem Nat.eq_of_le_of_le (u v : Nat) : u ≤ v → v ≤ u → u = v := by omega
+theorem Nat.le_offset (a k : Nat) : k ≤ a + k := by omega
+
 end Lean.Grind

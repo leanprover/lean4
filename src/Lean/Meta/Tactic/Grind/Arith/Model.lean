@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Basic
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-- Construct a model that statisfies all offset constraints -/
@@ -33,7 +34,13 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   for u in [:nodes.size] do
     let some val := pre[u]! | unreachable!
     let val := (val - min).toNat
-    r := r.push (nodes[u]!, val)
+    let e := nodes[u]!
+    /-
+    We should not include the assignment for auxiliary offset terms since
+    they do not provide any additional information.
+    -/
+    if (isNatOffset? e).isNone && isNatNum? e != some 0 then
+      r := r.push (e, val)
   return r
 
 end Lean.Meta.Grind.Arith.Offset

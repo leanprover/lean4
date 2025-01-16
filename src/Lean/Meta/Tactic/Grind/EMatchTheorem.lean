@@ -269,19 +269,36 @@ private def getPatternFn? (pattern : Expr) : Option Expr :=
 
 /--
 Returns a bit-mask `mask` s.t. `mask[i]` is true if the corresponding argument is
-- a type (that is not a proposition) or type former, or
+- a type (that is not a proposition) or type former (which has forward dependencies) or
 - a proof, or
 - an instance implicit argument
 
 When `mask[i]`, we say the corresponding argument is a "support" argument.
 -/
 def getPatternSupportMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
+  let pinfos := (← getFunInfoNArgs f numArgs).paramInfo
   forallBoundedTelescope (← inferType f) numArgs fun xs _ => do
-    xs.mapM fun x => do
+    xs.mapIdxM fun idx x => do
       if (← isProp x) then
         return false
-      else if (← isTypeFormer x <||> isProof x) then
+      else if (← isProof x) then
         return true
+      else if (← isTypeFormer x) then
+        if h : idx < pinfos.size then
+          /-
+          We originally wanted to ignore types and type formers in `grind` and treat them as supporting elements.
+          Thus, we would always return `true`. However, we changed our heuristic because of the following example:
+          ```
+          example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (f a) := by
+            grind
+          ```
+          In this example, we are reasoning about types. Therefore, we adjusted the heuristic as follows:
+          a type or type former is considered a supporting element only if it has forward dependencies.
+          Note that this is not the case for `Nonempty`.
+          -/
+          return pinfos[idx].hasFwdDeps
+        else
+          return true
       else
         return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
 

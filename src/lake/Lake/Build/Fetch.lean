@@ -22,7 +22,7 @@ namespace Lake
 
 /-- A recursive build of a Lake build store that may encounter a cycle. -/
 abbrev RecBuildM :=
-  CallStackT BuildKey <| BuildT <| ELogT <| StateT BuildStore <| BaseIO
+  CallStackT BuildKey <| BuildT <| ELogT <| StateRefT BuildStore BaseIO
 
 instance : MonadLift LogIO RecBuildM := ⟨ELogT.takeAndRun⟩
 
@@ -32,10 +32,10 @@ Run a `JobM` action in `RecBuildM` (and thus `FetchM`).
 Generally, this should not be done, and instead a job action
 should be run asynchronously in a Job (e.g., via `Job.async`).
 -/
-@[inline] def RecBuildM.runJobM (x : JobM α) : RecBuildM α := fun _ ctx log store => do
+@[inline] def RecBuildM.runJobM (x : JobM α) : RecBuildM α := fun _ ctx log => do
   match (← x ctx {log}) with
-  | .ok a s => return (.ok a s.log, store)
-  | .error e s => return (.error e s.log, store)
+  | .ok a s => return .ok a s.log
+  | .error e s => return .error e s.log
 
 instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
 
@@ -43,7 +43,7 @@ instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
 @[inline] def RecBuildM.run
   (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
 : CoreBuildM (α × BuildStore) := fun ctx log => do
-  match (← build stack ctx log store) with
+  match (← (build stack ctx log).run store) with
   | (.ok a log, store) => return .ok (a, store) log
   | (.error e log, _) => return .error e log
 
@@ -92,16 +92,16 @@ def ensureJob (x : FetchM (Job α))
 : FetchM (Job α) := fun fetch stack ctx log store => do
   let iniPos := log.endPos
   match (← (withLoggedIO x) fetch stack ctx log store) with
-  | (.ok job log, store) =>
+  | .ok job log =>
     if iniPos < log.endPos then
       let (log, jobLog) := log.split iniPos
       let job := job.mapResult (sync := true) (·.prependLog jobLog)
-      return (.ok job log, store)
+      return .ok job log
     else
-      return (.ok job log, store)
-  | (.error _ log, store) =>
+      return .ok job log
+  | .error _ log =>
     let (log, jobLog) := log.split iniPos
-    return (.ok (.error jobLog) log, store)
+    return .ok (.error jobLog) log
 
 /--
 Registers the job for the top-level build monitor,

@@ -14,7 +14,6 @@ import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.ENodeKey
-import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.Arith.Types
 import Lean.Meta.Tactic.Grind.EMatchTheorem
@@ -333,6 +332,13 @@ structure NewFact where
   generation : Nat
   deriving Inhabited
 
+/-- Canonicalizer state. See `Canon.lean` for additional details. -/
+structure Canon.State where
+  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
+  canon      : PHashMap Expr Expr := {}
+  proofCanon : PHashMap Expr Expr := {}
+  deriving Inhabited
+
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
@@ -401,13 +407,6 @@ abbrev GoalM := StateRefT Goal GrindM
 
 @[inline] def GoalM.run' (goal : Goal) (x : GoalM Unit) : GrindM Goal :=
   goal.mvarId.withContext do StateRefT'.run' (x *> get) goal
-
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : GoalM Expr := do
-  let canonS ← modifyGet fun s => (s.canon, { s with canon := {} })
-  let (e, canonS) ← Canon.canon e |>.run canonS
-  modify fun s => { s with canon := canonS }
-  return e
 
 def updateLastTag : GoalM Unit := do
   if (← isTracingEnabledFor `grind) then

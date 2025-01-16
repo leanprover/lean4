@@ -10,6 +10,7 @@ import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
 import Lean.Util.PtrSet
 import Lean.Util.FVarSubset
+import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 namespace Canon
@@ -40,12 +41,6 @@ additions will still use structurally different (and definitionally different) i
 Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
 -/
 
-structure State where
-  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
-  canon      : PHashMap Expr Expr := {}
-  proofCanon : PHashMap Expr Expr := {}
-  deriving Inhabited
-
 inductive CanonElemKind where
   | /--
     Type class instances are canonicalized using `TransparencyMode.instances`.
@@ -68,14 +63,20 @@ def CanonElemKind.explain : CanonElemKind → String
   | .type => "types (or type formers)"
   | .implicit => "implicit arguments (which are not type class instances or types)"
 
+@[inline] private def get' : GoalM State :=
+  return (← get).canon
+
+@[inline] private def modify' (f : State → State) : GoalM Unit :=
+  modify fun s => { s with canon := f s.canon }
+
 /--
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
 
 Thus, if diagnostics are enabled, we also re-check them using `TransparencyMode.default`. If the result is different
 we report to the user.
 -/
-def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : StateT State MetaM Expr := do
-  let s ← get
+def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : GoalM Expr := do
+  let s ← get'
   if let some c := s.canon.find? e then
     return c
   let key := (f, i)
@@ -87,15 +88,15 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (kind : CanonElemKind) : State
       -- However, we don't revert previously canonicalized elements in the `grind` tactic.
       -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
       -- and different locals are added in different branches.
-      modify fun s => { s with canon := s.canon.insert e c }
-      trace[grind.debug.canon] "found {e} ===> {c}"
+      modify' fun s => { s with canon := s.canon.insert e c }
+      trace[grind.debugn.canon] "found {e} ===> {c}"
       return c
     if kind != .type then
       if (← isTracingEnabledFor `grind.issues <&&> (withDefault <| isDefEq e c)) then
         -- TODO: consider storing this information in some structure that can be browsed later.
-        trace[grind.issues] "the following {kind.explain} are definitionally equal with `default` transparency but not with a more restrictive transparency{indentExpr e}\nand{indentExpr c}"
+        reportIssue m!"the following {kind.explain} are definitionally equal with `default` transparency but not with a more restrictive transparency{indentExpr e}\nand{indentExpr c}"
   trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
-  modify fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
+  modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
 abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e .type
@@ -148,10 +149,10 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
   else
     return .visit
 
-unsafe def canonImpl (e : Expr) : StateT State MetaM Expr := do
+unsafe def canonImpl (e : Expr) : GoalM Expr := do
   visit e |>.run' mkPtrMap
 where
-  visit (e : Expr) : StateRefT (PtrMap Expr Expr) (StateT State MetaM) Expr := do
+  visit (e : Expr) : StateRefT (PtrMap Expr Expr) GoalM Expr := do
     unless e.isApp || e.isForall do return e
     -- Check whether it is cached
     if let some r := (← get).find? e then
@@ -161,11 +162,11 @@ where
         if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
           let prop := args[0]!
           let prop' ← visit prop
-          if let some r := (← getThe State).proofCanon.find? prop' then
+          if let some r := (← get').proofCanon.find? prop' then
             pure r
           else
             let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
-            modifyThe State fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
+            modify' fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
             pure e'
         else
           let pinfos := (← getFunInfo f).paramInfo
@@ -193,11 +194,11 @@ where
     modify fun s => s.insert e e'
     return e'
 
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-def canon (e : Expr) : StateT State MetaM Expr := do
-  trace[grind.debug.canon] "{e}"
-  unsafe canonImpl e
-
 end Canon
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+def canon (e : Expr) : GoalM Expr := do
+  trace[grind.debug.canon] "{e}"
+  unsafe Canon.canonImpl e
 
 end Lean.Meta.Grind

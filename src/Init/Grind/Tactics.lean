@@ -61,12 +61,13 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
-syntax grindErase := "-" term:max
-syntax grindLemma := (Attr.grindThmMod)? term
+syntax grindErase := "-" ident
+syntax grindLemma := (Attr.grindThmMod)? ident
+syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)
   "grind" optConfig (&" only")?
-  (" [" withoutPosition((grindErase <|> grindLemma),*,?) "]")?
+  (" [" withoutPosition(grindParam,*) "]")?
   ("on_failure " term)? : tactic
 
 end Lean.Parser.Tactic

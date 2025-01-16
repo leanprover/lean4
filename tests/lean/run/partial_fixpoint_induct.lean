@@ -149,3 +149,47 @@ info: dependent3''a.partial_correctness (m : Nat) (motive_1 : Nat → (b : Bool)
         dependent3''c m i n b = some r → motive_3 i n b r
 -/
 #guard_msgs in #check dependent3''a.partial_correctness
+
+-- The following example appears in the manual; having it here alerts us early of breakage
+
+def List.findIndex (xs : List α) (p : α → Bool) : Option Nat := match xs with
+  | [] => none
+  | x::ys =>
+    if p x then
+      some 0
+    else
+      (· + 1) <$> List.findIndex ys p
+partial_fixpoint
+
+/--
+info: List.findIndex.partial_correctness.{u_1} {α : Type u_1} (motive : List α → (α → Bool) → Nat → Prop)
+  (h :
+    ∀ (findIndex : List α → (α → Bool) → Option Nat),
+      (∀ (xs : List α) (p : α → Bool) (r : Nat), findIndex xs p = some r → motive xs p r) →
+        ∀ (xs : List α) (p : α → Bool) (r : Nat),
+          (match xs with
+              | [] => none
+              | x :: ys => if p x = true then some 0 else (fun x => x + 1) <$> findIndex ys p) =
+              some r →
+            motive xs p r)
+  (xs : List α) (p : α → Bool) (r✝ : Nat) : xs.findIndex p = some r✝ → motive xs p r✝
+-/
+#guard_msgs in
+#check List.findIndex.partial_correctness
+
+theorem List.findIndex_implies_pred (xs : List α) (p : α → Bool) :
+    xs.findIndex p = some i → xs[i]?.any p := by
+  apply List.findIndex.partial_correctness (motive := fun xs p i => xs[i]?.any p)
+  intro findIndex ih xs p r hsome
+  split at hsome
+  next => contradiction
+  next x ys =>
+    split at hsome
+    next =>
+      have : r = 0 := by simp_all
+      simp_all
+    next =>
+      simp only [Option.map_eq_map, Option.map_eq_some'] at hsome
+      obtain ⟨r', hr, rfl⟩ := hsome
+      specialize ih _ _ _ hr
+      simpa

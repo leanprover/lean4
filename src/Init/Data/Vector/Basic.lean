@@ -52,13 +52,15 @@ def elimAsList {motive : Vector α n → Sort u}
 @[inline] def mkEmpty (capacity : Nat) : Vector α 0 := ⟨.mkEmpty capacity, rfl⟩
 
 /-- Makes a vector of size `n` with all cells containing `v`. -/
-@[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
+@[inline] def replicate (n) (v : α) : Vector α n := ⟨Array.replicate n v, by simp⟩
+
+@[deprecated replicate (since := "2025-01-16")] abbrev mkVector := @replicate
 
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 
 instance [Inhabited α] : Inhabited (Vector α n) where
-  default := mkVector n default
+  default := replicate n default
 
 /-- Get an element of a vector using a `Fin` index. -/
 @[inline] def get (v : Vector α n) (i : Fin n) : α :=

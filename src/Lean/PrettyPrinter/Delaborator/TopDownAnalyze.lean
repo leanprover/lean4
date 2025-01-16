@@ -419,10 +419,10 @@ mutual
         || (getPPAnalyzeTrustSubtypeMk (← getOptions) && (← getExpr).isAppOfArity ``Subtype.mk 4)
 
       analyzeAppStagedCore { f, fType, args, mvars, bInfos, forceRegularApp } |>.run' {
-        bottomUps    := mkArray args.size false,
-        higherOrders := mkArray args.size false,
-        provideds    := mkArray args.size false,
-        funBinders   := mkArray args.size false
+        bottomUps    := Array.replicate args.size false,
+        higherOrders := Array.replicate args.size false,
+        provideds    := Array.replicate args.size false,
+        funBinders   := Array.replicate args.size false
       }
 
       if !rest.isEmpty then

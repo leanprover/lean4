@@ -162,7 +162,7 @@ structure Cache.Inv (cnf : CNF (CNFVar aig)) (marks : Array Bool) (hmarks : mark
 /--
 The `Cache` invariant always holds for an empty CNF when all nodes are unmarked.
 -/
-theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (mkArray aig.decls.size false) (by simp) where
+theorem Cache.Inv_init : Inv ([] : CNF (CNFVar aig)) (Array.replicate aig.decls.size false) (by simp) where
   hmark := by
     intro lhs rhs linv rinv idx hbound hmarked heq
     simp at hmarked
@@ -254,7 +254,7 @@ theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cn
 A cache with no entries is valid for an empty CNF.
 -/
 def Cache.init (aig : AIG Nat) : Cache aig [] where
-  marks := mkArray aig.decls.size false
+  marks := Array.replicate aig.decls.size false
   hmarks := by simp
   inv := Inv_init
 

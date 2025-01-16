@@ -99,11 +99,11 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
   between the substrings pattern[:i+1] and word[:j+1] assuming that pattern[i] misses at word[j] (k = 0, i.e.
   it was matched earlier), or matches at word[j] (k = 1). A value of `none` corresponds to a score of -∞, and is used
   where no such match/miss is possible or for unneeded parts of the table. -/
-  let mut result : Array (Option Int) := Array.mkArray (pattern.length * word.length * 2) none
-  let mut runLengths : Array Int := Array.mkArray (pattern.length * word.length) 0
+  let mut result : Array (Option Int) := Array.replicate (pattern.length * word.length * 2) none
+  let mut runLengths : Array Int := Array.replicate (pattern.length * word.length) 0
 
   -- penalty for starting a consecutive run at each index
-  let mut startPenalties : Array Int := Array.mkArray word.length 0
+  let mut startPenalties : Array Int := Array.replicate word.length 0
 
   let mut lastSepIdx := 0
   let mut penaltyNs : Int := 0
@@ -124,8 +124,8 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
    `word.length - pattern.length` at each index (because at the very end, we can only consider fuzzy matches
     of `pattern` with a longer substring of `word`). -/
     for wordIdx in [patternIdx:word.length-(pattern.length - patternIdx - 1)] do
-      let missScore? := 
-        if wordIdx >= 1 then 
+      let missScore? :=
+        if wordIdx >= 1 then
           selectBest
             (getMiss result patternIdx (wordIdx - 1))
             (getMatch result patternIdx (wordIdx - 1))
@@ -134,7 +134,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       let mut matchScore? := none
 
       if allowMatch (pattern.get ⟨patternIdx⟩) (word.get ⟨wordIdx⟩) (patternRoles.get! patternIdx) (wordRoles.get! wordIdx) then
-        if patternIdx >= 1 then 
+        if patternIdx >= 1 then
           let runLength := runLengths.get! (getIdx (patternIdx - 1) (wordIdx - 1)) + 1
           runLengths := runLengths.set! (getIdx patternIdx wordIdx) runLength
 
@@ -213,7 +213,7 @@ private def fuzzyMatchCore (pattern word : String) (patternRoles wordRoles : Arr
       /- Consecutive character match. -/
       if let some bonus := consecutive then
         /- consecutive run bonus -/
-        score := score + bonus 
+        score := score + bonus
       return score
 
 /-- Match the given pattern with the given word using a fuzzy matching

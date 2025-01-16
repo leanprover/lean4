@@ -160,30 +160,37 @@ theorem exists_push_of_size_eq_add_one {xs : Array α} (h : xs.size = n + 1) :
 theorem singleton_inj : #[a] = #[b] ↔ a = b := by
   simp
 
-/-! ### mkArray -/
+/-! ### replicate -/
 
-@[simp] theorem size_mkArray (n : Nat) (v : α) : (mkArray n v).size = n :=
+@[simp] theorem size_replicate (n : Nat) (v : α) : (replicate n v).size = n :=
   List.length_replicate ..
 
-@[simp] theorem toList_mkArray : (mkArray n a).toList = List.replicate n a := by
-  simp only [mkArray]
+@[simp] theorem toList_replicate : (replicate n a).toList = List.replicate n a := by
+  simp only [replicate]
 
-@[simp] theorem mkArray_zero : mkArray 0 a = #[] := rfl
+@[simp] theorem replicate_zero : replicate 0 a = #[] := rfl
 
-theorem mkArray_succ : mkArray (n + 1) a = (mkArray n a).push a := by
+theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
   apply toList_inj.1
   simp [List.replicate_succ']
 
-theorem mkArray_inj : mkArray n a = mkArray m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
+theorem replicate_inj : replicate n a = replicate m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
   rw [← List.replicate_inj, ← toList_inj]
   simp
 
-@[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
-    (mkArray n v)[i] = v := by simp [← getElem_toList]
+@[simp] theorem getElem_replicate (n : Nat) (v : α) (h : i < (replicate n v).size) :
+    (replicate n v)[i] = v := by simp [← getElem_toList]
 
-theorem getElem?_mkArray (n : Nat) (v : α) (i : Nat) :
-    (mkArray n v)[i]? = if i < n then some v else none := by
+theorem getElem?_replicate (n : Nat) (v : α) (i : Nat) :
+    (replicate n v)[i]? = if i < n then some v else none := by
   simp [getElem?_def]
+
+@[deprecated size_replicate (since := "2025-01-16")] abbrev size_mkArray := @size_replicate
+@[deprecated replicate_zero (since := "2025-01-16")] abbrev replicate_mkArray_zero := @replicate_zero
+@[deprecated replicate_succ (since := "2025-01-16")] abbrev replicate_mkArray_succ := @replicate_succ
+@[deprecated replicate_inj (since := "2025-01-16")] abbrev replicate_mkArray_inj := @replicate_inj
+@[deprecated getElem_replicate (since := "2025-01-16")] abbrev getElem_mkArray := @getElem_replicate
+@[deprecated getElem?_replicate (since := "2025-01-16")] abbrev getElem?_mkArray := @getElem?_replicate
 
 /-! ## L[i] and L[i]? -/
 
@@ -962,14 +969,16 @@ theorem size_eq_of_beq [BEq α] {xs ys : Array α} (h : xs == ys) : xs.size = ys
   cases ys
   simp [List.length_eq_of_beq (by simpa using h)]
 
-@[simp] theorem mkArray_beq_mkArray [BEq α] {a b : α} {n : Nat} :
-    (mkArray n a == mkArray n b) = (n == 0 || a == b) := by
+@[simp] theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
+    (replicate n a == replicate n b) = (n == 0 || a == b) := by
   cases n with
   | zero => simp
   | succ n =>
-    rw [mkArray_succ, mkArray_succ, push_beq_push, mkArray_beq_mkArray]
+    rw [replicate_succ, replicate_succ, push_beq_push, replicate_beq_replicate]
     rw [Bool.eq_iff_iff]
     simp +contextual
+
+@[deprecated replicate_beq_replicate (since := "2025-01-16")] abbrev mkArray_beq_mkArray := @replicate_beq_replicate
 
 private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a == b := by
   intro h
@@ -3182,41 +3191,47 @@ theorem sum_eq_sum_toList [Add α] [Zero α] (as : Array α) : as.sum = as.toLis
   cases as
   simp [Array.sum, List.sum]
 
-/-! ### mkArray -/
+/-! ### replicate -/
 
-theorem eq_mkArray_of_mem {a : α} {l : Array α} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkArray l.size a := by
+theorem eq_replicate_of_mem {a : α} {l : Array α} (h : ∀ (b) (_ : b ∈ l), b = a) : l = replicate l.size a := by
   rcases l with ⟨l⟩
   have := List.eq_replicate_of_mem (by simpa using h)
   rw [this]
   simp
 
-theorem eq_mkArray_iff {a : α} {n} {l : Array α} :
-    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a := by
+theorem eq_replicate_iff {a : α} {n} {l : Array α} :
+    l = replicate n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a := by
   rcases l with ⟨l⟩
   simp [← List.eq_replicate_iff, toArray_eq]
 
-theorem map_eq_mkArray_iff {l : Array α} {f : α → β} {b : β} :
-    l.map f = mkArray l.size b ↔ ∀ x ∈ l, f x = b := by
-  simp [eq_mkArray_iff]
+theorem map_eq_replicate_iff {l : Array α} {f : α → β} {b : β} :
+    l.map f = replicate l.size b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_replicate_iff]
 
-@[simp] theorem mem_mkArray (a : α) (n : Nat) : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
-  rw [mkArray, mem_toArray]
+@[simp] theorem mem_replicate (a : α) (n : Nat) : b ∈ replicate n a ↔ n ≠ 0 ∧ b = a := by
+  rw [replicate, mem_toArray]
   simp
 
-@[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = mkArray l.size b :=
-  map_eq_mkArray_iff.mpr fun _ _ => rfl
+@[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = replicate l.size b :=
+  map_eq_replicate_iff.mpr fun _ _ => rfl
 
-@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
+@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (replicate ·.size x) := by
   funext l
   simp
 
 /-- Variant of `map_const` using a lambda rather than `Function.const`. -/
 -- This can not be a `@[simp]` lemma because it would fire on every `Array.map`.
-theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = mkArray l.size b :=
+theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = replicate l.size b :=
   map_const l b
 
-@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
+@[simp] theorem sum_replicate_nat (n : Nat) (a : Nat) : (replicate n a).sum = n * a := by
   simp [sum_eq_sum_toList, List.sum_replicate_nat]
+
+@[deprecated eq_replicate_of_mem (since := "2025-01-16")] abbrev eq_mkArray_of_mem := @eq_replicate_of_mem
+@[deprecated eq_replicate_iff (since := "2025-01-16")] abbrev eq_mkArray_iff := @eq_replicate_iff
+@[deprecated map_eq_replicate_iff (since := "2025-01-16")] abbrev map_eq_mkArray_iff := @map_eq_replicate_iff
+@[deprecated mem_replicate (since := "2025-01-16")] abbrev mem_mkArray := @mem_replicate
+@[deprecated sum_replicate_nat (since := "2025-01-16")] abbrev sum_mkArray_nat := @sum_replicate_nat
 
 /-! ### reverse -/
 

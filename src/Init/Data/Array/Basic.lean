@@ -161,7 +161,10 @@ def pop (a : Array α) : Array α where
   | ⟨[]⟩ => rfl
   | ⟨a::as⟩ => simp [pop, Nat.succ_sub_succ_eq_sub, size]
 
-@[extern "lean_mk_array"]
+def replicate {α : Type u} (n : Nat) (v : α) : Array α where
+  toList := List.replicate n v
+
+@[extern "lean_mk_array", deprecated replicate (since := "2025-01-16")]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α where
   toList := List.replicate n v
 

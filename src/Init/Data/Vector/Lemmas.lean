@@ -269,7 +269,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
   cases v
   simp
 
-@[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
+@[simp] theorem toArray_replicate : (replicate n a).toArray = Array.replicate n a := rfl
+
+@[deprecated toArray_replicate (since := "2025-01-16")] abbrev toArray_mkVector := @toArray_replicate
 
 @[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
   cases v
@@ -389,7 +391,9 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
   cases v
   simp
 
-@[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
+@[simp] theorem toList_replicate : (replicate n a).toList = List.replicate n a := rfl
+
+@[deprecated toList_replicate (since := "2025-01-16")] abbrev toList_mkVector := @toList_replicate
 
 theorem toList_inj {v w : Vector α n} : v.toList = w.toList ↔ v = w := by
   cases v
@@ -468,15 +472,19 @@ theorem exists_push {xs : Vector α (n + 1)} :
 theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
   simp
 
-/-! ### mkVector -/
+/-! ### replicate -/
 
-@[simp] theorem mkVector_zero : mkVector 0 a = #v[] := rfl
+@[simp] theorem replicate_zero : replicate 0 a = #v[] := rfl
 
-theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
-  simp [mkVector, Array.mkArray_succ]
+theorem replicate_succ : replicate (n + 1) a = (replicate n a).push a := by
+  simp [replicate, Array.replicate_succ]
 
-theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
-  simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
+theorem replicate_inj : replicate n a = replicate n b ↔ n = 0 ∨ a = b := by
+  simp [← toArray_inj, toArray_replicate, Array.replicate_inj]
+
+@[deprecated replicate_zero (since := "2025-01-16")] abbrev mkVector_zero := @replicate_zero
+@[deprecated replicate_succ (since := "2025-01-16")] abbrev mkVector_succ := @replicate_succ
+@[deprecated replicate_inj (since := "2025-01-16")] abbrev mkVector_inj := @replicate_inj
 
 /-! ## L[i] and L[i]? -/
 
@@ -1005,14 +1013,16 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
   cases w
   simp
 
-@[simp] theorem mkVector_beq_mkVector [BEq α] {a b : α} {n : Nat} :
-    (mkVector n a == mkVector n b) = (n == 0 || a == b) := by
+@[simp] theorem replicate_beq_replicate [BEq α] {a b : α} {n : Nat} :
+    (replicate n a == replicate n b) = (n == 0 || a == b) := by
   cases n with
   | zero => simp
   | succ n =>
-    rw [mkVector_succ, mkVector_succ, push_beq_push, mkVector_beq_mkVector]
+    rw [replicate_succ, replicate_succ, push_beq_push, replicate_beq_replicate]
     rw [Bool.eq_iff_iff]
     simp +contextual
+
+@[deprecated replicate_beq_replicate (since := "2025-01-16")] abbrev mkVector_beq_mkVector := @replicate_beq_replicate
 
 @[simp] theorem reflBEq_iff [BEq α] [NeZero n] : ReflBEq (Vector α n) ↔ ReflBEq α := by
   match n, NeZero.ne n with
@@ -1021,8 +1031,8 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
     · intro h
       constructor
       intro a
-      suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
-        rw [mkVector_succ, push_beq_push, Bool.and_eq_true] at this
+      suffices (replicate (n + 1) a == replicate (n + 1) a) = true by
+        rw [replicate_succ, push_beq_push, Bool.and_eq_true] at this
         exact this.2
       simp
     · intro h
@@ -1037,15 +1047,15 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
     · intro h
       constructor
       · intro a b h
-        have := mkVector_inj (n := n+1) (a := a) (b := b)
+        have := replicate_inj (n := n+1) (a := a) (b := b)
         simp only [Nat.add_one_ne_zero, false_or] at this
         rw [← this]
         apply eq_of_beq
-        rw [mkVector_beq_mkVector]
+        rw [replicate_beq_replicate]
         simpa
       · intro a
-        suffices (mkVector (n + 1) a == mkVector (n + 1) a) = true by
-          rw [mkVector_beq_mkVector] at this
+        suffices (replicate (n + 1) a == replicate (n + 1) a) = true by
+          rw [replicate_beq_replicate] at this
           simpa
         simp
     · intro h
@@ -1131,8 +1141,8 @@ theorem map_inj [NeZero n] : map (n := n) f = map g ↔ f = g := by
   constructor
   · intro h
     ext a
-    replace h := congrFun h (mkVector n a)
-    simp only [mkVector, map_mk, mk.injEq, Array.map_inj_left, Array.mem_mkArray,  and_imp,
+    replace h := congrFun h (replicate n a)
+    simp only [replicate, map_mk, mk.injEq, Array.map_inj_left, Array.mem_replicate, and_imp,
       forall_eq_apply_imp_iff] at h
     exact h (NeZero.ne n)
   · intro h; subst h; rfl

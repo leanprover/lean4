@@ -67,7 +67,7 @@ can appear in the formula (hence why the parameter `n` is called `numVarsSucc` b
 namespace DefaultFormula
 
 instance {n : Nat} : Inhabited (DefaultFormula n) where
-  default := ⟨#[], #[], #[], Array.mkArray n unassigned⟩
+  default := ⟨#[], #[], #[], Array.replicate n unassigned⟩
 
 /-- Note: This function is only for reasoning about semantics. Its efficiency doesn't actually matter -/
 def toList {n : Nat} (f : DefaultFormula n) : List (DefaultClause n) :=
@@ -88,7 +88,7 @@ Note: This function assumes that the provided `clauses` Array is indexed accordi
 field invariant described in the DefaultFormula doc comment.
 -/
 def ofArray {n : Nat} (clauses : Array (Option (DefaultClause n))) : DefaultFormula n :=
-  let assignments := clauses.foldl ofArray_fold_fn (Array.mkArray n unassigned)
+  let assignments := clauses.foldl ofArray_fold_fn (Array.replicate n unassigned)
   ⟨clauses, #[], #[], assignments⟩
 
 def insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) : DefaultFormula n :=

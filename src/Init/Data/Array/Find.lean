@@ -98,21 +98,26 @@ theorem back?_flatten {L : Array (Array α)} :
   cases L using array₂_induction
   simp [List.getLast?_flatten, ← List.map_reverse, List.findSome?_map, Function.comp_def]
 
-theorem findSome?_mkArray : findSome? f (mkArray n a) = if n = 0 then none else f a := by
+theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   simp [← List.toArray_replicate, List.findSome?_replicate]
 
-@[simp] theorem findSome?_mkArray_of_pos (h : 0 < n) : findSome? f (mkArray n a) = f a := by
-  simp [findSome?_mkArray, Nat.ne_of_gt h]
+@[simp] theorem findSome?_replicate_of_pos (h : 0 < n) : findSome? f (replicate n a) = f a := by
+  simp [findSome?_replicate, Nat.ne_of_gt h]
 
 -- Argument is unused, but used to decide whether `simp` should unfold.
-@[simp] theorem findSome?_mkArray_of_isSome (_ : (f a).isSome) :
-   findSome? f (mkArray n a) = if n = 0 then none else f a := by
-  simp [findSome?_mkArray]
+@[simp] theorem findSome?_replicate_of_isSome (_ : (f a).isSome) :
+   findSome? f (replicate n a) = if n = 0 then none else f a := by
+  simp [findSome?_replicate]
 
-@[simp] theorem findSome?_mkArray_of_isNone (h : (f a).isNone) :
-    findSome? f (mkArray n a) = none := by
+@[simp] theorem findSome?_replicate_of_isNone (h : (f a).isNone) :
+    findSome? f (replicate n a) = none := by
   rw [Option.isNone_iff_eq_none] at h
-  simp [findSome?_mkArray, h]
+  simp [findSome?_replicate, h]
+
+@[deprecated findSome?_replicate (since := "2025-01-16")] abbrev findSome?_mkArray := @findSome?_replicate
+@[deprecated findSome?_replicate_of_pos (since := "2025-01-16")] abbrev findSome?_mkArray_of_pos := @findSome?_replicate_of_pos
+@[deprecated findSome?_replicate_of_isSome (since := "2025-01-16")] abbrev findSome?_mkArray_of_isSome := @findSome?_replicate_of_isSome
+@[deprecated findSome?_replicate_of_isNone (since := "2025-01-16")] abbrev findSome?_mkArray_of_isNone := @findSome?_replicate_of_isNone
 
 /-! ### find? -/
 
@@ -244,33 +249,41 @@ theorem find?_flatMap_eq_none {xs : Array α} {f : α → Array β} {p : β → 
     (xs.flatMap f).find? p = none ↔ ∀ x ∈ xs, ∀ y ∈ f x, !p y := by
   simp
 
-theorem find?_mkArray :
-    find? p (mkArray n a) = if n = 0 then none else if p a then some a else none := by
+theorem find?_replicate :
+    find? p (replicate n a) = if n = 0 then none else if p a then some a else none := by
   simp [← List.toArray_replicate, List.find?_replicate]
 
-@[simp] theorem find?_mkArray_of_length_pos (h : 0 < n) :
-    find? p (mkArray n a) = if p a then some a else none := by
-  simp [find?_mkArray, Nat.ne_of_gt h]
+@[simp] theorem find?_replicate_of_length_pos (h : 0 < n) :
+    find? p (replicate n a) = if p a then some a else none := by
+  simp [find?_replicate, Nat.ne_of_gt h]
 
-@[simp] theorem find?_mkArray_of_pos (h : p a) :
-    find? p (mkArray n a) = if n = 0 then none else some a := by
-  simp [find?_mkArray, h]
+@[simp] theorem find?_replicate_of_pos (h : p a) :
+    find? p (replicate n a) = if n = 0 then none else some a := by
+  simp [find?_replicate, h]
 
-@[simp] theorem find?_mkArray_of_neg (h : ¬ p a) : find? p (mkArray n a) = none := by
-  simp [find?_mkArray, h]
+@[simp] theorem find?_replicate_of_neg (h : ¬ p a) : find? p (replicate n a) = none := by
+  simp [find?_replicate, h]
 
 -- This isn't a `@[simp]` lemma since there is already a lemma for `l.find? p = none` for any `l`.
-theorem find?_mkArray_eq_none {n : Nat} {a : α} {p : α → Bool} :
-    (mkArray n a).find? p = none ↔ n = 0 ∨ !p a := by
+theorem find?_replicate_eq_none {n : Nat} {a : α} {p : α → Bool} :
+    (replicate n a).find? p = none ↔ n = 0 ∨ !p a := by
   simp [← List.toArray_replicate, List.find?_replicate_eq_none, Classical.or_iff_not_imp_left]
 
-@[simp] theorem find?_mkArray_eq_some {n : Nat} {a b : α} {p : α → Bool} :
-    (mkArray n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
+@[simp] theorem find?_replicate_eq_some {n : Nat} {a b : α} {p : α → Bool} :
+    (replicate n a).find? p = some b ↔ n ≠ 0 ∧ p a ∧ a = b := by
   simp [← List.toArray_replicate]
 
-@[simp] theorem get_find?_mkArray (n : Nat) (a : α) (p : α → Bool) (h) :
-    ((mkArray n a).find? p).get h = a := by
+@[simp] theorem get_find?_replicate (n : Nat) (a : α) (p : α → Bool) (h) :
+    ((replicate n a).find? p).get h = a := by
   simp [← List.toArray_replicate]
+
+@[deprecated find?_replicate (since := "2025-01-16")] abbrev find?_mkArray := @find?_replicate
+@[deprecated find?_replicate_of_length_pos (since := "2025-01-16")] abbrev find?_mkArray_of_length_pos := @find?_replicate_of_length_pos
+@[deprecated find?_replicate_of_pos (since := "2025-01-16")] abbrev find?_mkArray_of_pos := @find?_replicate_of_pos
+@[deprecated find?_replicate_of_neg (since := "2025-01-16")] abbrev find?_mkArray_of_neg := @find?_replicate_of_neg
+@[deprecated find?_replicate_eq_none (since := "2025-01-16")] abbrev find?_mkArray_eq_none := @find?_replicate_eq_none
+@[deprecated find?_replicate_eq_some (since := "2025-01-16")] abbrev find?_mkArray_eq_some := @find?_replicate_eq_some
+@[deprecated get_find?_mkArray (since := "2025-01-16")] abbrev get_find?_mkArray := @get_find?_replicate
 
 theorem find?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Array α)
     (H : ∀ (a : α), a ∈ xs → P a) (p : β → Bool) :

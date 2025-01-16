@@ -378,7 +378,7 @@ structure Goal where
   splitCandidates : List Expr := []
   /-- Number of splits performed to get to this goal. -/
   numSplits : Nat := 0
-  /-- Case-splits that do not have to be performed anymore. -/
+  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
   resolvedSplits : PHashSet ENodeKey := {}
   /-- Next local E-match theorem idx. -/
   nextThmIdx : Nat := 0
@@ -879,7 +879,8 @@ def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
 
 /--
 Mark `e` as a case-split that does not need to be performed anymore.
-Remark: we currently use this feature to disable `match`-case-splits
+Remark: we currently use this feature to disable `match`-case-splits.
+Remark: we also use this feature to record the case-splits that have already been performed.
 -/
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do

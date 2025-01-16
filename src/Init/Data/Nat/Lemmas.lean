@@ -622,6 +622,14 @@ protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
     0 < a * b ↔ 0 < a :=
   ⟨Nat.pos_of_mul_pos_right, fun w => Nat.mul_pos w h⟩
 
+protected theorem pos_of_lt_mul_left {a b c : Nat} (h : a < b * c) : 0 < c := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_left h
+
+protected theorem pos_of_lt_mul_right {a b c : Nat} (h : a < b * c) : 0 < b := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_right h
+
 /-! ### div/mod -/
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=

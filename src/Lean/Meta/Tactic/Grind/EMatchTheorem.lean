@@ -677,19 +677,21 @@ where
       levelParams, origin
     }
 
-private def getKind (stx : Syntax) : TheoremKind :=
+def getTheoremKind (stx : Syntax) : TheoremKind :=
   if stx[1].isNone then
     .default
-  else if stx[1][0].getKind == ``Parser.Attr.grindEq then
-    .eqLhs
-  else if stx[1][0].getKind == ``Parser.Attr.grindFwd then
-    .fwd
-  else if stx[1][0].getKind == ``Parser.Attr.grindEqRhs then
-    .eqRhs
-  else if stx[1][0].getKind == ``Parser.Attr.grindEqBoth then
-    .eqBoth
   else
-    .bwd
+    let stx := stx[1][0][0]
+    if stx.getKind == ``Parser.Attr.grindEq then
+      .eqLhs
+    else if stx.getKind == ``Parser.Attr.grindFwd then
+      .fwd
+    else if stx.getKind == ``Parser.Attr.grindEqRhs then
+      .eqRhs
+    else if stx.getKind == ``Parser.Attr.grindEqBoth then
+      .eqBoth
+    else
+      .bwd
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then
@@ -739,7 +741,7 @@ builtin_initialize
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => do
-      addGrindAttr declName attrKind (getKind stx) |>.run' {}
+      addGrindAttr declName attrKind (getTheoremKind stx) |>.run' {}
     erase := fun declName => MetaM.run' do
       /-
       Remark: consider the following example

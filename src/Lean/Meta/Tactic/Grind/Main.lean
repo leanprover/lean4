@@ -69,7 +69,20 @@ private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
 
-def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
+structure Params where
+  config    : Grind.Config
+  ematch    : EMatchTheorems := {}
+  extra     : PArray EMatchTheorem := {}
+  norm      : Simp.Context
+  normProcs : Array Simprocs
+  -- TODO: inductives to split
+
+def mkParams (config : Grind.Config) : MetaM Params := do
+  let norm ← Grind.getSimpContext
+  let normProcs ← Grind.getSimprocs
+  return { config, norm, normProcs }
+
+def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
   let go : GrindM (List Goal) := do
     let goals ← initCore mvarId
     let goals ← solve goals
@@ -81,6 +94,6 @@ def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) (fallba
       return some goal
     trace[grind.debug.final] "{← ppGoals goals}"
     return goals
-  go.run mainDeclName config fallback
+  go.run mainDeclName params.config fallback
 
 end Lean.Meta.Grind

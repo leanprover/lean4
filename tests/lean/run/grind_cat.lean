@@ -254,14 +254,7 @@ protected def flip (F : C ⥤ D ⥤ E) : D ⥤ C ⥤ E where
     { obj := fun j => (F.obj j).obj k,
       map := fun f => (F.map f).app k, }
   map f := { app := fun j => (F.obj j).map f }
-  map_id k := by
-    set_option trace.grind.issues true in
-    set_option diagnostics true in
-    set_option pp.maxSteps 1000000 in
-    set_option pp.explicit true in
-    set_option pp.proofs false in
-    set_option pp.notation false in
-    cat_tac
+  map_id k := by cat_tac
   map_comp f g := sorry
 
 @[simp] theorem flip_obj_obj (F : C ⥤ D ⥤ E) (k : D) : (F.flip.obj k).obj = fun j => (F.obj j).obj k := rfl

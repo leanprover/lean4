@@ -385,3 +385,17 @@ def List.findIndex (xs : List α) (p : α → Bool) : Option Nat := match xs wit
     else
       (· + 1) <$> List.findIndex ys p
 partial_fixpoint
+
+
+-- Applicative operator idioms
+
+def app (n m : Nat) : Option Nat := (· + ·) <$> app (n - 1) m <*> app n (m - 1)
+partial_fixpoint
+
+def app' (n m : Nat) : Option Nat := pure (· + ·) <*> app' (n - 1) m <*> app' n (m - 1)
+partial_fixpoint
+
+def app'' {α} (n : Nat) : Option (α → α) := do
+  let _n ← app'' (n+1) <*> pure 5
+  pure id
+partial_fixpoint

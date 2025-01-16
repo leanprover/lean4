@@ -46,6 +46,42 @@ theorem monotone_map [LawfulMonad m] (f : γ → m α) (g : α → β) (hmono : 
   apply monotone_const
 
 @[partial_fixpoint_monotone]
+theorem monotone_seq [LawfulMonad m] (f : γ → m α) (g : γ → m (α → β))
+  (hmono₁ : monotone g) (hmono₂ : monotone f) :
+    monotone (fun x => g x <*> f x) := by
+  simp only [← LawfulMonad.bind_map ]
+  apply monotone_bind
+  · assumption
+  · apply monotone_of_monotone_apply
+    intro y
+    apply monotone_map
+    assumption
+
+@[partial_fixpoint_monotone]
+theorem monotone_seqLeft [LawfulMonad m] (f : γ → m α) (g : γ → m β)
+  (hmono₁ : monotone g) (hmono₂ : monotone f) :
+    monotone (fun x => g x <* f x) := by
+  simp only [seqLeft_eq_bind]
+  apply monotone_bind
+  · assumption
+  · apply monotone_of_monotone_apply
+    intro y
+    apply monotone_bind
+    · assumption
+    · apply monotone_const
+
+@[partial_fixpoint_monotone]
+theorem monotone_seqRight [LawfulMonad m] (f : γ → m α) (g : γ → m β)
+  (hmono₁ : monotone g) (hmono₂ : monotone f) :
+    monotone (fun x => g x *> f x) := by
+  simp only [seqRight_eq_bind]
+  apply monotone_bind
+  · assumption
+  · apply monotone_of_monotone_apply
+    intro y
+    assumption
+
+@[partial_fixpoint_monotone]
 theorem monotone_option_bindM (f : γ → α → m (Option β)) (xs : Option α) (hmono : monotone f) :
     monotone (fun x => xs.bindM (f x)) := by
   cases xs with

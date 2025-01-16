@@ -475,7 +475,7 @@ theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
 theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
   simp [mkVector, Array.mkArray_succ]
 
-theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
+@[simp] theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
   simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
 
 /-! ## L[i] and L[i]? -/
@@ -1648,6 +1648,103 @@ theorem map_eq_flatMap {α β} (f : α → β) (l : Vector α n) :
     map f l = (l.flatMap fun x => #v[f x]).cast (by simp) := by
   rcases l with ⟨l, rfl⟩
   simp [Array.map_eq_flatMap]
+
+/-! ### mkVector -/
+
+@[simp] theorem mkVector_one : mkVector 1 a = #v[a] := rfl
+
+/-- Variant of `mkVector_succ` that prepends `a` at the beginning of the vector. -/
+theorem mkVector_succ' : mkVector (n + 1) a = (#v[a] ++ mkVector n a).cast (by omega) := by
+  rw [← toArray_inj]
+  simp [Array.mkArray_succ']
+
+@[simp] theorem mem_mkVector {a b : α} {n} : b ∈ mkVector n a ↔ n ≠ 0 ∧ b = a := by
+  unfold mkVector
+  simp
+
+theorem eq_of_mem_mkVector {a b : α} {n} (h : b ∈ mkVector n a) : b = a := (mem_mkVector.1 h).2
+
+theorem forall_mem_mkVector {p : α → Prop} {a : α} {n} :
+    (∀ b, b ∈ mkVector n a → p b) ↔ n = 0 ∨ p a := by
+  cases n <;> simp [mem_mkVector]
+
+@[simp] theorem getElem_mkVector (a : α) (n i : Nat) (h : i < n) : (mkVector n a)[i] = a := by
+  simp [mkVector]
+
+theorem getElem?_mkVector (a : α) (n i : Nat) : (mkVector n a)[i]? = if i < n then some a else none := by
+  simp [getElem?_def]
+
+@[simp] theorem getElem?_mkVector_of_lt {n : Nat} {m : Nat} (h : m < n) : (mkVector n a)[m]? = some a := by
+  simp [getElem?_mkVector, h]
+
+theorem eq_mkVector_of_mem {a : α} {l : Vector α n} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkVector n a := by
+  rw [← toArray_inj]
+  simpa using Array.eq_mkArray_of_mem (l := l.toArray) (by simpa using h)
+
+theorem eq_mkVector_iff {a : α} {n} {l : Vector α n} :
+    l = mkVector n a ↔ ∀ (b) (_ : b ∈ l), b = a := by
+  rw [← toArray_inj]
+  simpa using Array.eq_mkArray_iff (l := l.toArray) (n := n)
+
+theorem map_eq_mkVector_iff {l : Vector α n} {f : α → β} {b : β} :
+    l.map f = mkVector n b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_mkVector_iff]
+
+@[simp] theorem map_const (l : Vector α n) (b : β) : map (Function.const α b) l = mkVector n b :=
+  map_eq_mkVector_iff.mpr fun _ _ => rfl
+
+@[simp] theorem map_const_fun (x : β) : map (n := n) (Function.const α x) = fun _ => mkVector n x := by
+  funext l
+  simp
+
+/-- Variant of `map_const` using a lambda rather than `Function.const`. -/
+-- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
+theorem map_const' (l : Vector α n) (b : β) : map (fun _ => b) l = mkVector n b :=
+  map_const l b
+
+@[simp] theorem set_mkVector_self : (mkVector n a).set i a h = mkVector n a := by
+  rw [← toArray_inj]
+  simp
+
+@[simp] theorem setIfInBounds_mkVector_self : (mkVector n a).setIfInBounds i a = mkVector n a := by
+  rw [← toArray_inj]
+  simp
+
+@[simp] theorem mkVector_append_mkVector : mkVector n a ++ mkVector m a = mkVector (n + m) a := by
+  rw [← toArray_inj]
+  simp
+
+theorem append_eq_mkVector_iff {l₁ : Vector α n} {l₂ : Vector α m} {a : α} :
+    l₁ ++ l₂ = mkVector (n + m) a ↔ l₁ = mkVector n a ∧ l₂ = mkVector m a := by
+  simp [← toArray_inj, Array.append_eq_mkArray_iff]
+
+theorem mkVector_eq_append_iff {l₁ : Vector α n} {l₂ : Vector α m} {a : α} :
+    mkVector (n + m) a = l₁ ++ l₂ ↔ l₁ = mkVector n a ∧ l₂ = mkVector m a := by
+  rw [eq_comm, append_eq_mkVector_iff]
+
+@[simp] theorem map_mkVector : (mkVector n a).map f = mkVector n (f a) := by
+  rw [← toArray_inj]
+  simp
+
+
+@[simp] theorem flatten_mkVector_empty : (mkVector n (#v[] : Vector α 0)).flatten = #v[] := by
+  rw [← toArray_inj]
+  simp
+
+@[simp] theorem flatten_mkVector_singleton : (mkVector n #v[a]).flatten = (mkVector n a).cast (by simp) := by
+  ext i h
+  simp [h]
+
+@[simp] theorem flatten_mkVector_mkVector : (mkVector n (mkVector m a)).flatten = mkVector (n * m) a := by
+  ext i h
+  simp [h]
+
+theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f = (mkVector n (f a)).flatten := by
+  ext i h
+  simp [h]
+
+@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkVector n a).sum = n * a := by
+  simp [toArray_mkVector]
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

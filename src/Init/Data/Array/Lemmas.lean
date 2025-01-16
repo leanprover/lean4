@@ -93,7 +93,7 @@ theorem size_eq_one {l : Array α} : l.size = 1 ↔ ∃ a, l = #[a] := by
 
 /-! ### push -/
 
-theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
+@[simp] theorem push_ne_empty {a : α} {xs : Array α} : xs.push a ≠ #[] := by
   cases xs
   simp
 
@@ -173,10 +173,6 @@ theorem singleton_inj : #[a] = #[b] ↔ a = b := by
 theorem mkArray_succ : mkArray (n + 1) a = (mkArray n a).push a := by
   apply toList_inj.1
   simp [List.replicate_succ']
-
-theorem mkArray_inj : mkArray n a = mkArray m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
-  rw [← List.replicate_inj, ← toList_inj]
-  simp
 
 @[simp] theorem getElem_mkArray (n : Nat) (v : α) (h : i < (mkArray n v).size) :
     (mkArray n v)[i] = v := by simp [← getElem_toList]
@@ -2050,6 +2046,11 @@ theorem flatMap_toList (l : Array α) (f : α → List β) :
   rcases l with ⟨l⟩
   simp
 
+@[simp] theorem toList_flatMap (l : Array α) (f : α → Array β) :
+    (l.flatMap f).toList = l.toList.flatMap fun a => (f a).toList := by
+  rcases l with ⟨l⟩
+  simp
+
 @[simp] theorem flatMap_id (l : Array (Array α)) : l.flatMap id = l.flatten := by simp [flatMap_def]
 
 @[simp] theorem flatMap_id' (l : Array (Array α)) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
@@ -2096,7 +2097,7 @@ theorem flatMap_singleton (f : α → Array β) (x : α) : #[x].flatMap f = f x 
 theorem flatMap_assoc {α β} (l : Array α) (f : α → Array β) (g : β → Array γ) :
     (l.flatMap f).flatMap g = l.flatMap fun x => (f x).flatMap g := by
   rcases l with ⟨l⟩
-  simp [List.flatMap_assoc, flatMap_toList]
+  simp [List.flatMap_assoc, ← toList_flatMap]
 
 theorem map_flatMap (f : β → γ) (g : α → Array β) (l : Array α) :
      (l.flatMap g).map f = l.flatMap fun a => (g a).map f := by
@@ -2135,7 +2136,154 @@ theorem flatMap_eq_foldl (f : α → Array β) (l : Array α) :
     intro l'
     simp [ih ((l' ++ (f a).toList)), toArray_append]
 
+/-! ### mkArray -/
+
+@[simp] theorem mkArray_one : mkArray 1 a = #[a] := rfl
+
+/-- Variant of `mkArray_succ` that prepends `a` at the beginning of the array. -/
+theorem mkArray_succ' : mkArray (n + 1) a = #[a] ++ mkArray n a := by
+  apply Array.ext'
+  simp [List.replicate_succ]
+
+@[simp] theorem mem_mkArray {a b : α} {n} : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
+  unfold mkArray
+  simp only [mem_toArray, List.mem_replicate]
+
+theorem eq_of_mem_mkArray {a b : α} {n} (h : b ∈ mkArray n a) : b = a := (mem_mkArray.1 h).2
+
+theorem forall_mem_mkArray {p : α → Prop} {a : α} {n} :
+    (∀ b, b ∈ mkArray n a → p b) ↔ n = 0 ∨ p a := by
+  cases n <;> simp [mem_mkArray]
+
+@[simp] theorem mkArray_succ_ne_empty (n : Nat) (a : α) : mkArray (n+1) a ≠ #[] := by
+  simp [mkArray_succ]
+
+@[simp] theorem mkArray_eq_empty_iff {n : Nat} (a : α) : mkArray n a = #[] ↔ n = 0 := by
+  cases n <;> simp
+
+@[simp] theorem getElem?_mkArray_of_lt {n : Nat} {m : Nat} (h : m < n) : (mkArray n a)[m]? = some a := by
+  simp [getElem?_mkArray, h]
+
+@[simp] theorem mkArray_inj : mkArray n a = mkArray m b ↔ n = m ∧ (n = 0 ∨ a = b) := by
+  rw [← toList_inj]
+  simp
+
+theorem eq_mkArray_of_mem {a : α} {l : Array α} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkArray l.size a := by
+  rw [← toList_inj]
+  simpa using List.eq_replicate_of_mem (by simpa using h)
+
+theorem eq_mkArray_iff {a : α} {n} {l : Array α} :
+    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a := by
+  rw [← toList_inj]
+  simpa using List.eq_replicate_iff (l := l.toList)
+
+theorem map_eq_mkArray_iff {l : Array α} {f : α → β} {b : β} :
+    l.map f = mkArray l.size b ↔ ∀ x ∈ l, f x = b := by
+  simp [eq_mkArray_iff]
+
+@[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = mkArray l.size b :=
+  map_eq_mkArray_iff.mpr fun _ _ => rfl
+
+@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
+  funext l
+  simp
+
+/-- Variant of `map_const` using a lambda rather than `Function.const`. -/
+-- This can not be a `@[simp]` lemma because it would fire on every `List.map`.
+theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = mkArray l.size b :=
+  map_const l b
+
+@[simp] theorem set_mkArray_self : (mkArray n a).set i a h = mkArray n a := by
+  apply Array.ext'
+  simp
+
+@[simp] theorem setIfInBounds_mkArray_self : (mkArray n a).setIfInBounds i a = mkArray n a := by
+  apply Array.ext'
+  simp
+
+@[simp] theorem mkArray_append_mkArray : mkArray n a ++ mkArray m a = mkArray (n + m) a := by
+  apply Array.ext'
+  simp
+
+theorem append_eq_mkArray_iff {l₁ l₂ : Array α} {a : α} :
+    l₁ ++ l₂ = mkArray n a ↔
+      l₁.size + l₂.size = n ∧ l₁ = mkArray l₁.size a ∧ l₂ = mkArray l₂.size a := by
+  simp [← toList_inj, List.append_eq_replicate_iff]
+
+theorem mkArray_eq_append_iff {l₁ l₂ : Array α} {a : α} :
+    mkArray n a = l₁ ++ l₂ ↔
+      l₁.size + l₂.size = n ∧ l₁ = mkArray l₁.size a ∧ l₂ = mkArray l₂.size a := by
+  rw [eq_comm, append_eq_mkArray_iff]
+
+@[simp] theorem map_mkArray : (mkArray n a).map f = mkArray n (f a) := by
+  apply Array.ext'
+  simp
+
+theorem filter_mkArray (w : stop = n) :
+    (mkArray n a).filter p 0 stop = if p a then mkArray n a else #[] := by
+  apply Array.ext'
+  simp only [w, toList_filter', toList_mkArray, List.filter_replicate]
+  split <;> simp_all
+
+@[simp] theorem filter_mkArray_of_pos (w : stop = n) (h : p a) :
+    (mkArray n a).filter p 0 stop = mkArray n a := by
+  simp [filter_mkArray, h, w]
+
+@[simp] theorem filter_mkArray_of_neg (w : stop = n) (h : ¬ p a) :
+    (mkArray n a).filter p 0 stop = #[] := by
+  simp [filter_mkArray, h, w]
+
+theorem filterMap_mkArray {f : α → Option β} (w : stop = n := by simp) :
+    (mkArray n a).filterMap f 0 stop = match f a with | none => #[] | .some b => mkArray n b := by
+  apply Array.ext'
+  simp only [w, size_mkArray, toList_filterMap', toList_mkArray, List.filterMap_replicate]
+  split <;> simp_all
+
+-- This is not a useful `simp` lemma because `b` is unknown.
+theorem filterMap_mkArray_of_some {f : α → Option β} (h : f a = some b) :
+    (mkArray n a).filterMap f = mkArray n b := by
+  simp [filterMap_mkArray, h]
+
+@[simp] theorem filterMap_mkArray_of_isSome {f : α → Option β} (h : (f a).isSome) :
+    (mkArray n a).filterMap f = mkArray n (Option.get _ h) := by
+  match w : f a, h with
+  | some b, _ => simp [filterMap_mkArray, h, w]
+
+@[simp] theorem filterMap_mkArray_of_none {f : α → Option β} (h : f a = none) :
+    (mkArray n a).filterMap f = #[] := by
+  simp [filterMap_mkArray, h]
+
+@[simp] theorem flatten_mkArray_empty : (mkArray n (#[] : Array α)).flatten = #[] := by
+  rw [← toList_inj]
+  simp
+
+@[simp] theorem flatten_mkArray_singleton : (mkArray n #[a]).flatten = mkArray n a := by
+  rw [← toList_inj]
+  simp
+
+@[simp] theorem flatten_mkArray_mkArray : (mkArray n (mkArray m a)).flatten = mkArray (n * m) a := by
+  rw [← toList_inj]
+  simp
+
+theorem flatMap_mkArray {β} (f : α → Array β) : (mkArray n a).flatMap f = (mkArray n (f a)).flatten := by
+  rw [← toList_inj]
+  simp [flatMap_toList, List.flatMap_replicate]
+
+@[simp] theorem isEmpty_replicate : (mkArray n a).isEmpty = decide (n = 0) := by
+  rw [← List.toArray_replicate, List.isEmpty_toArray]
+  simp
+
+@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
+  rw [← List.toArray_replicate, List.sum_toArray]
+  simp
+
 /-! Content below this point has not yet been aligned with `List`. -/
+
+/-! ### sum -/
+
+theorem sum_eq_sum_toList [Add α] [Zero α] (as : Array α) : as.toList.sum = as.sum := by
+  cases as
+  simp [Array.sum, List.sum]
 
 -- This is a duplicate of `List.toArray_toList`.
 -- It's confusing to guess which namespace this theorem should live in,
@@ -3175,48 +3323,6 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
   induction xss generalizing as with
   | nil => simp
   | cons xs xss ih => simp [ih]
-
-/-! ### sum -/
-
-theorem sum_eq_sum_toList [Add α] [Zero α] (as : Array α) : as.sum = as.toList.sum := by
-  cases as
-  simp [Array.sum, List.sum]
-
-/-! ### mkArray -/
-
-theorem eq_mkArray_of_mem {a : α} {l : Array α} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkArray l.size a := by
-  rcases l with ⟨l⟩
-  have := List.eq_replicate_of_mem (by simpa using h)
-  rw [this]
-  simp
-
-theorem eq_mkArray_iff {a : α} {n} {l : Array α} :
-    l = mkArray n a ↔ l.size = n ∧ ∀ (b) (_ : b ∈ l), b = a := by
-  rcases l with ⟨l⟩
-  simp [← List.eq_replicate_iff, toArray_eq]
-
-theorem map_eq_mkArray_iff {l : Array α} {f : α → β} {b : β} :
-    l.map f = mkArray l.size b ↔ ∀ x ∈ l, f x = b := by
-  simp [eq_mkArray_iff]
-
-@[simp] theorem mem_mkArray (a : α) (n : Nat) : b ∈ mkArray n a ↔ n ≠ 0 ∧ b = a := by
-  rw [mkArray, mem_toArray]
-  simp
-
-@[simp] theorem map_const (l : Array α) (b : β) : map (Function.const α b) l = mkArray l.size b :=
-  map_eq_mkArray_iff.mpr fun _ _ => rfl
-
-@[simp] theorem map_const_fun (x : β) : map (Function.const α x) = (mkArray ·.size x) := by
-  funext l
-  simp
-
-/-- Variant of `map_const` using a lambda rather than `Function.const`. -/
--- This can not be a `@[simp]` lemma because it would fire on every `Array.map`.
-theorem map_const' (l : Array α) (b : β) : map (fun _ => b) l = mkArray l.size b :=
-  map_const l b
-
-@[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
-  simp [sum_eq_sum_toList, List.sum_replicate_nat]
 
 /-! ### reverse -/
 

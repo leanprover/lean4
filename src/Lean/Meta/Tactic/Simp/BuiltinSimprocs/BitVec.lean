@@ -319,6 +319,19 @@ builtin_dsimproc [simp, seval] reduceBitVecToFin (BitVec.toFin _)  := fun e => d
   let some ⟨_, v⟩ ← getBitVecValue? v | return .continue
   return .done <| toExpr v.toFin
 
+/-- Canonicalize all bitvectors of length 0 to `0#0` -/
+builtin_simproc reduceOfLengthZero ((_ : BitVec 0)) := fun e => do
+  let typ ← inferType e
+  unless ←isDefEqGuarded typ ((mkConst ``BitVec).app (mkNatLit 0)) do
+    return .continue
+
+  return .done {  -- By returning `done`, we stop `simp` from trying to simplify
+    expr :=       -- the returned expression, preventing an infinite loop
+      let zero := mkNatLit 0
+      mkApp2 (mkConst ``BitVec.ofNat) zero zero
+    proof? := some <| (mkConst ``BitVec.of_length_zero).app e
+  }
+
 /--
 Helper function for reducing `(x <<< i) <<< j` (and `(x >>> i) >>> j`) where `i` and `j` are
 natural number literals.

@@ -141,3 +141,5 @@ example (h : False) : 1#2 = 2#2 := by
   simp; guard_target =ₛ False; exact h
 example : 1#2 ≠ 2#2 := by
   simp
+example (x y : BitVec 0) : x = y := by
+  simp

@@ -6,4 +6,4 @@
 
 set_option maxRecDepth 512 in
 set_option maxHeartbeats 5000 in
-example : ∀ a < 500, a ^ 2 ≠ 7 := by decide
+example : ∀ a < 600, a ^ 2 ≠ 7 := by decide

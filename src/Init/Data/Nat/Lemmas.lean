@@ -1776,28 +1776,22 @@ instance decidableBallLE (n : Nat) (P : ∀ k, k ≤ n → Prop) [∀ n h, Decid
   decidable_of_iff (∀ (k) (h : k < succ n), P k (le_of_lt_succ h))
     ⟨fun m k h => m k (lt_succ_of_le h), fun m k _ => m k _⟩
 
-instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m < n ∧ p m
-  | 0 => isFalse (by simp only [not_lt_zero, false_and, exists_const, not_false_eq_true])
-  | n + 1 =>
-    @decidable_of_decidable_of_iff _ _ (@instDecidableOr _ _ (decidableExistsLT (p := p) n) (h n))
-      (by simp only [Nat.lt_succ_iff_lt_or_eq, or_and_right, exists_or, exists_eq_left])
+instance decidableExistsLT [DecidablePred p] :
+    DecidablePred fun n => ∃ m : Nat, m < n ∧ p m :=
+  fun n => match Nat.decidableBallLT n (fun (m : Nat) (_ : m < n) => ¬p m) with
+  | isTrue h => isFalse (by simpa using h)
+  | isFalse h => isTrue (by simpa using h)
 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
 
 /-- Dependent version of `decidableExistsLT`. -/
-instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [∀ m h, Decidable (p m h)] :
     Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
-  match k, p, I with
-  | 0, _, _ => isFalse (by simp)
-  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
-      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
-        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
-          by obtain rfl := (by omega : m = k); exact .inr w⟩
-      (@instDecidableOr _ _
-        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
-        inferInstance)
+  match Nat.decidableBallLT k (fun (m : Nat) (h : m < k) => ¬p m h) with
+  | isTrue h => isFalse (by simpa using h)
+  | isFalse h => isTrue (by simpa using h)
 
 /-- Dependent version of `decidableExistsLE`. -/
 instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :

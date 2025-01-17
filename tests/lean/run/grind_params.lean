@@ -66,6 +66,13 @@ example : bla (bla (bla (bla x))) = bla x := by
   fail_if_success grind [-blathm]
   sorry
 
+example : bla (bla (bla (bla x))) = bla x := by
+  grind only [blathm]
+
+example : bla (bla (bla (bla x))) = bla x := by
+  fail_if_success grind only
+  sorry
+
 /--
 error: `pq` is not marked with the `[grind]` attribute
 -/

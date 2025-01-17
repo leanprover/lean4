@@ -14,7 +14,9 @@ syntax grindEqRhs  := atomic("=" "_")
 syntax grindBwd    := "←"
 syntax grindFwd    := "→"
 
-syntax (name := grind) "grind" (grindEqBoth <|> grindEqRhs <|> grindEq <|> grindBwd <|> grindFwd)? : attr
+syntax grindThmMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindBwd <|> grindFwd
+
+syntax (name := grind) "grind" (grindThmMod)? : attr
 
 end Lean.Parser.Attr
 
@@ -59,7 +61,13 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
--- TODO: parameters
-syntax (name := grind) "grind" optConfig ("on_failure " term)? : tactic
+syntax grindErase := "-" ident
+syntax grindLemma := (Attr.grindThmMod)? ident
+syntax grindParam := grindErase <|> grindLemma
+
+syntax (name := grind)
+  "grind" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  ("on_failure " term)? : tactic
 
 end Lean.Parser.Tactic

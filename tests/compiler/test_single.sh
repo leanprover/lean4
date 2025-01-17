@@ -5,7 +5,7 @@ source ../common.sh
 echo "running C program..."
 rm "./$f.out" || true
 compile_lean_c_backend
-exec_check "./$f.out"
+exec_check "./$f.out" $(cat 2>/dev/null "$f.args")
 diff_produced
 
 # Then check the LLVM version
@@ -13,6 +13,6 @@ if lean_has_llvm_support; then
     echo "running LLVM program..."
     rm "./$f.out" || true
     compile_lean_llvm_backend
-    exec_check "./$f.out"
+    exec_check "./$f.out" $(cat 2>/dev/null "$f.args")
     diff_produced
 fi

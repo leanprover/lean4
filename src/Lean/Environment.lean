@@ -1215,19 +1215,23 @@ def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
   return result
 
 private def setImportedEntries (env : Environment) (mods : Array ModuleData) (startingAt : Nat := 0) : IO Environment := do
-  let mut env := env
+  -- We work directly on the states array instead of `env` as `Environment.modifyState` introduces
+  -- significant overhead on such frequent calls
+  let mut states := env.checkedWithoutAsync.extensions
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt:] do
-    env := extDescr.toEnvExtension.modifyState env fun s => { s with importedEntries := mkArray mods.size #[] }
+    states := EnvExtensionInterfaceImp.modifyState extDescr.toEnvExtension states fun s =>
+      { s with importedEntries := mkArray mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
   for h : modIdx in [:mods.size] do
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
-        env := extDescrs[entryIdx]!.toEnvExtension.modifyState env fun s => { s with importedEntries := s.importedEntries.set! modIdx entries }
-  return env
+        states := EnvExtensionInterfaceImp.modifyState extDescrs[entryIdx]!.toEnvExtension states fun s =>
+          { s with importedEntries := s.importedEntries.set! modIdx entries }
+  return env.setCheckedSync { env.checkedWithoutAsync with extensions := states }
 
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.

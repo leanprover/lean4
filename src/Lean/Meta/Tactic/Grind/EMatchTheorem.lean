@@ -692,7 +692,7 @@ def getTheoremKindFromOpt (stx : Syntax) : CoreM TheoremKind := do
   if stx[1].isNone then
     return .default
   else
-    getTheoremKindCore stx[1]
+    getTheoremKindCore stx[1][0]
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then

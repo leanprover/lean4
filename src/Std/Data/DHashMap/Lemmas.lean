@@ -2546,7 +2546,7 @@ theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
   Raw₀.Const.getKey!_modify_self ⟨m.1, _⟩ m.2
 
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
-    (h : k' ∈ Const.modify m k f) :
+    {h : k' ∈ Const.modify m k f} :
     (Const.modify m k f).getKey k' h =
     if k == k' then
       k
@@ -2557,7 +2557,7 @@ theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : �
 
 @[simp]
 theorem getKey_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : β → β}
-    (h : k ∈ Const.modify m k f) : (Const.modify m k f).getKey k h = k :=
+    {h : k ∈ Const.modify m k f} : (Const.modify m k f).getKey k h = k :=
   Raw₀.Const.getKey_modify_self ⟨m.1, _⟩ m.2 h
 
 theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : β → β} :
@@ -2572,11 +2572,11 @@ theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
     (Const.modify m k f).getKeyD k d = if k ∈ m then k else d :=
   Raw₀.Const.getKeyD_modify_self ⟨m.1, _⟩ m.2
 
-theorem modify_eq_alter [LawfulBEq α] {k : α} {f : β → β} :
-    Const.modify m k f = Const.alter m k (·.map f) := by
-  rw [modify, alter]
-  congr
-  exact Raw₀.Const.modify_eq_alter ⟨m.1, m.2.size_buckets_pos⟩ k f
+-- theorem modify_eq_alter [LawfulBEq α] {k : α} {f : β → β} :
+--     Const.modify m k f = Const.alter m k (·.map f) := by
+--   rw [modify, alter]
+--   congr
+--   exact Raw₀.Const.modify_eq_alter ⟨m.1, m.2.size_buckets_pos⟩ k f
 
 end Const
 

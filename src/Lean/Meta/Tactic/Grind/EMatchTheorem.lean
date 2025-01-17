@@ -551,7 +551,7 @@ def getEMatchTheorems : CoreM EMatchTheorems :=
 
 inductive TheoremKind where
   | eqLhs | eqRhs | eqBoth | fwd | bwd | default
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 private def TheoremKind.toAttribute : TheoremKind → String
   | .eqLhs   => "[grind =]"
@@ -677,19 +677,22 @@ where
       levelParams, origin
     }
 
-private def getKind (stx : Syntax) : TheoremKind :=
+/-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
+def getTheoremKindCore (stx : Syntax) : CoreM TheoremKind := do
+  match stx with
+  | `(Parser.Attr.grindThmMod| =) => return .eqLhs
+  | `(Parser.Attr.grindThmMod| →) => return .fwd
+  | `(Parser.Attr.grindThmMod| ←) => return .bwd
+  | `(Parser.Attr.grindThmMod| =_) => return .eqRhs
+  | `(Parser.Attr.grindThmMod| _=_) => return .eqBoth
+  | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
+
+/-- Return theorem kind for `stx` of the form `(Attr.grindThmMod)?` -/
+def getTheoremKindFromOpt (stx : Syntax) : CoreM TheoremKind := do
   if stx[1].isNone then
-    .default
-  else if stx[1][0].getKind == ``Parser.Attr.grindEq then
-    .eqLhs
-  else if stx[1][0].getKind == ``Parser.Attr.grindFwd then
-    .fwd
-  else if stx[1][0].getKind == ``Parser.Attr.grindEqRhs then
-    .eqRhs
-  else if stx[1][0].getKind == ``Parser.Attr.grindEqBoth then
-    .eqBoth
+    return .default
   else
-    .bwd
+    getTheoremKindCore stx[1][0]
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then
@@ -702,6 +705,11 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
   else
     throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
 
+def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMatchTheorem := do
+  let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
+    | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
+  return thm
+
 private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do
   if thmKind == .eqLhs then
     addGrindEqAttr declName attrKind thmKind (useLhs := true)
@@ -713,9 +721,25 @@ private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind :
   else if !(← getConstInfo declName).isTheorem then
     addGrindEqAttr declName attrKind thmKind
   else
-    let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
-      | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
+    let thm ← mkEMatchTheoremForDecl declName thmKind
     ematchTheoremsExt.add thm attrKind
+
+def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
+  let throwErr {α} : MetaM α :=
+    throwError "`{declName}` is not marked with the `[grind]` attribute"
+  let info ← getConstInfo declName
+  if !info.isTheorem then
+    if let some eqns ← getEqnsFor? declName then
+       let s := ematchTheoremsExt.getState (← getEnv)
+       unless eqns.all fun eqn => s.contains (.decl eqn) do
+         throwErr
+       return eqns.foldl (init := s) fun s eqn => s.erase (.decl eqn)
+    else
+      throwErr
+  else
+    unless ematchTheoremsExt.getState (← getEnv) |>.contains (.decl declName) do
+      throwErr
+    return s.erase <| .decl declName
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -739,7 +763,7 @@ builtin_initialize
       `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => do
-      addGrindAttr declName attrKind (getKind stx) |>.run' {}
+      addGrindAttr declName attrKind (← getTheoremKindFromOpt stx) |>.run' {}
     erase := fun declName => MetaM.run' do
       /-
       Remark: consider the following example
@@ -755,21 +779,9 @@ builtin_initialize
       attribute [-grind] foo  -- ok
       ```
       -/
-      let throwErr := throwError "`{declName}` is not marked with the `[grind]` attribute"
-      let info ← getConstInfo declName
-      if !info.isTheorem then
-        if let some eqns ← getEqnsFor? declName then
-           let s := ematchTheoremsExt.getState (← getEnv)
-           unless eqns.all fun eqn => s.contains (.decl eqn) do
-             throwErr
-           modifyEnv fun env => ematchTheoremsExt.modifyState env fun s =>
-             eqns.foldl (init := s) fun s eqn => s.erase (.decl eqn)
-        else
-          throwErr
-      else
-        unless ematchTheoremsExt.getState (← getEnv) |>.contains (.decl declName) do
-          throwErr
-        modifyEnv fun env => ematchTheoremsExt.modifyState env fun s => s.erase (.decl declName)
+      let s := ematchTheoremsExt.getState (← getEnv)
+      let s ← s.eraseDecl declName
+      modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => s
   }
 
 end Lean.Meta.Grind

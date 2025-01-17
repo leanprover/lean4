@@ -2161,12 +2161,12 @@ theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option β → Option β
   Raw₀.Const.size_alter_eq_self' ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} :
-    (m.alter k f).size ≤ m.size + 1 :=
-  Raw₀.size_alter_le_size ⟨m.1, _⟩ m.2
+    (Const.alter m k f).size ≤ m.size + 1 :=
+  Raw₀.Const.size_alter_le_size ⟨m.1, _⟩ m.2
 
 theorem size_le_size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
-    m.size - 1 ≤ (m.alter k f).size :=
-  Raw₀.size_le_size_alter ⟨m.1, _⟩ m.2
+    m.size - 1 ≤ (Const.alter m k f).size :=
+  Raw₀.Const.size_le_size_alter ⟨m.1, _⟩ m.2
 
 theorem get?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} :
     Const.get? (Const.alter m k f) k' = if k == k' then
@@ -2181,7 +2181,7 @@ theorem get?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option �
   simp [get?_alter]
 
 theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
-    (h : k' ∈ Const.alter m k f) :
+    {h : k' ∈ Const.alter m k f} :
     Const.get (Const.alter m k f) k' h =
     if heq : k == k' then
       haveI h' : (f (Const.get? m k)).isSome := mem_alter_of_beq heq |>.mp h
@@ -2250,7 +2250,7 @@ theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
   simp [getKey!_alter]
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
-    {f : Option β → Option β} (h : k' ∈ Const.alter m k f) :
+    {f : Option β → Option β} {h : k' ∈ Const.alter m k f} :
     (Const.alter m k f).getKey k' h =
     if heq : k == k' then
       k
@@ -2261,7 +2261,7 @@ theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α
 
 @[simp]
 theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
-    {f : Option β → Option β} (h : k ∈ Const.alter m k f) :
+    {f : Option β → Option β} {h : k ∈ Const.alter m k f} :
     (Const.alter m k f).getKey k h = k := by
   simp [getKey_alter]
 

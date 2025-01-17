@@ -2258,12 +2258,12 @@ theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option β → Option β
   simp_to_raw using Raw₀.Const.size_alter_eq_self'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (m.alter k f).size ≤ m.size + 1 := by
-  simp_to_raw using Raw₀.size_alter_le_size
+    (Const.alter m k f).size ≤ m.size + 1 := by
+  simp_to_raw using Raw₀.Const.size_alter_le_size
 
 theorem size_le_size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    m.size - 1 ≤ (m.alter k f).size := by
-  simp_to_raw using Raw₀.size_le_size_alter ⟨m, h.size_buckets_pos⟩
+    m.size - 1 ≤ (Const.alter m k f).size := by
+  simp_to_raw using Raw₀.Const.size_le_size_alter ⟨m, h.size_buckets_pos⟩
 
 theorem get?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} (h : m.WF) :
     Const.get? (Const.alter m k f) k' = if k == k' then

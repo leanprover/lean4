@@ -266,7 +266,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstance mvar type) do
+      unless (← synthesizeInstanceAndAssign mvar type) do
         reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
@@ -278,10 +278,6 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm.origin proof c.gen
-where
-  synthesizeInstance (x type : Expr) : MetaM Bool := do
-    let .some val ← trySynthInstance type | return false
-    isDefEq x val
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do

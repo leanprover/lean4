@@ -13,6 +13,7 @@ import Lean.Meta.CongrTheorems
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Tactic.Simp.Types
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Ext
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Attr
 import Lean.Meta.Tactic.Grind.Arith.Types
@@ -395,6 +396,8 @@ structure Goal where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
+  /-- Cached extensionality theorems for types. -/
+  extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -885,5 +888,26 @@ def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
     trace_goal[grind.split.resolved] "{e}"
     modify fun s => { s with resolvedSplits := s.resolvedSplits.insert { expr := e } }
+
+/--
+Returns extensionality theorems for the given type if available.
+If `Config.ext` is `false`, the result is `#[]`.
+-/
+def getExtTheorems (type : Expr) : GoalM (Array Ext.ExtTheorem) := do
+  unless (← getConfig).ext do return #[]
+  if let some thms := (← get).extThms.find? { expr := type } then
+    return thms
+  else
+    let thms ← Ext.getExtTheorems type
+    modify fun s => { s with extThms := s.extThms.insert { expr := type } thms }
+    return thms
+
+/--
+Helper function for instantiating a type class `type`, and
+then using the result to perform `isDefEq x val`.
+-/
+def synthesizeInstanceAndAssign (x type : Expr) : MetaM Bool := do
+  let .some val ← trySynthInstance type | return false
+  isDefEq x val
 
 end Lean.Meta.Grind

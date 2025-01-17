@@ -293,3 +293,24 @@ example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (
 
 example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
   grind
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  -- Should fail since extensionality is disabled
+  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  sorry
+
+@[ext] structure S where
+  a : Nat
+  b : Bool
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  grind
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  fail_if_success grind -ext
+  sorry

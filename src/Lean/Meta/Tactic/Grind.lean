@@ -25,6 +25,7 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Main
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Arith
+import Lean.Meta.Tactic.Grind.Ext
 
 namespace Lean
 

@@ -1977,14 +1977,14 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
       haveI h' : (f (m.get? k)).isSome := mem_alter_of_beq heq |>.mp h
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
     else
-      haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
       m.get k' h' :=
   Raw₀.get_alter ⟨m.1, _⟩ m.2 h
 
 @[simp]
 theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} :
-    haveI h' : (f (m.get? k)).isSome := by rwa [mem_alter_self] at h
+    haveI h' : (f (m.get? k)).isSome := mem_alter_self |>.mp h
     (m.alter k f).get k h = (f (m.get? k)).get h' :=
   Raw₀.get_alter_self ⟨m.1, _⟩ m.2
 
@@ -2051,7 +2051,7 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
     if heq : k == k' then
       k
     else
-      haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
       m.getKey k' h' :=
   Raw₀.getKey_alter ⟨m.1, _⟩ m.2 h
 
@@ -2106,6 +2106,10 @@ theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
     k' ∈ Const.alter m k f ↔ if k == k' then (f (Const.get? m k)).isSome = true else k' ∈ m := by
     simp only [mem_iff_contains, contains_alter, Bool.ite_eq_true_distrib]
+
+theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
+    (h : k == k') : k' ∈ Const.alter m k f ↔ (f (Const.get? m k)).isSome := by
+  rw [mem_alter, if_pos h]
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
@@ -2180,17 +2184,17 @@ theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β �
     (h : k' ∈ Const.alter m k f) :
     Const.get (Const.alter m k f) k' h =
     if heq : k == k' then
-      haveI h' : (f (Const.get? m k)).isSome := by rwa [mem_alter, if_pos heq] at h
+      haveI h' : (f (Const.get? m k)).isSome := mem_alter_of_beq heq |>.mp h
       f (Const.get? m k) |>.get h'
     else
-      haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
       Const.get m k' h' :=
   Raw₀.Const.get_alter ⟨m.1, _⟩ m.2 h
 
 @[simp]
 theorem get_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     {h : k ∈ Const.alter m k f} :
-    haveI h' : (f (Const.get? m k)).isSome := by rwa [mem_alter_self] at h
+    haveI h' : (f (Const.get? m k)).isSome := mem_alter_self |>.mp h
     Const.get (Const.alter m k f) k h = (f (Const.get? m k)).get h' := by
   simp [get_alter]
 
@@ -2251,7 +2255,7 @@ theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α
     if heq : k == k' then
       k
     else
-      haveI h' : k' ∈ m := by rwa [mem_alter, if_neg heq] at h
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false (Bool.not_eq_true _ ▸ heq) |>.mp h
       m.getKey k' h' :=
   Raw₀.Const.getKey_alter ⟨m.1, _⟩ m.2 h
 
@@ -2327,16 +2331,16 @@ theorem get_modify [LawfulBEq α] {k k' : α} {f : β k → β k}
     (h : k' ∈ m.modify k f) :
     (m.modify k f).get k' h =
     if heq : k == k' then
-      haveI h' : k ∈ m := by rwa [mem_modify, ← eq_of_beq heq] at h
+      haveI h' : k ∈ m := mem_congr heq |>.mpr <| mem_modify.mp h
       cast (congrArg β (eq_of_beq heq)) <| f (m.get k h')
     else
-      haveI h' : k' ∈ m := by rwa [mem_modify] at h
+      haveI h' : k' ∈ m := mem_modify.mp h
       m.get k' h' :=
   Raw₀.get_modify ⟨m.1, _⟩ m.2 h
 
 @[simp]
 theorem get_modify_self [LawfulBEq α] {k : α} {f : β k → β k} {h : k ∈ m.modify k f} :
-    haveI h' : k ∈ m := by rwa [mem_modify] at h
+    haveI h' : k ∈ m := mem_modify.mp h
     (m.modify k f).get k h = f (m.get k h') :=
   Raw₀.get_modify_self ⟨m.1, _⟩ m.2
 
@@ -2396,10 +2400,10 @@ theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k →
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     (h : k' ∈ m.modify k f) :
     (m.modify k f).getKey k' h =
-    if heq : k == k' then
+    if k == k' then
       k
     else
-      haveI h' : k' ∈ m := by rwa [mem_modify] at h
+      haveI h' : k' ∈ m := mem_modify.mp h
       m.getKey k' h' :=
   Raw₀.getKey_modify ⟨m.1, _⟩ m.2 h
 
@@ -2477,17 +2481,17 @@ theorem get_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β}
     (h : k' ∈ Const.modify m k f) :
     Const.get (Const.modify m k f) k' h =
     if heq : k == k' then
-      haveI h' : k ∈ m := by rwa [mem_modify, ← mem_congr heq] at h
+      haveI h' : k ∈ m := mem_congr heq |>.mpr <| mem_modify.mp h
       f (Const.get m k h')
     else
-      haveI h' : k' ∈ m := by rwa [mem_modify] at h
+      haveI h' : k' ∈ m := mem_modify.mp h
       Const.get m k' h' :=
   Raw₀.Const.get_modify ⟨m.1, _⟩ m.2 h
 
 @[simp]
 theorem get_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β}
     {h : k ∈ Const.modify m k f} :
-    haveI h' : k ∈ m := by rwa [mem_modify] at h
+    haveI h' : k ∈ m := mem_modify.mp h
     Const.get (Const.modify m k f) k h = f (Const.get m k h') :=
   Raw₀.Const.get_modify_self ⟨m.1, _⟩ m.2
 
@@ -2544,10 +2548,10 @@ theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k 
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
     (h : k' ∈ Const.modify m k f) :
     (Const.modify m k f).getKey k' h =
-    if heq : k == k' then
+    if k == k' then
       k
     else
-      haveI h' : k' ∈ m := by rwa [mem_modify] at h
+      haveI h' : k' ∈ m := mem_modify.mp h
       m.getKey k' h' :=
   Raw₀.Const.getKey_modify ⟨m.1, _⟩ m.2 h
 

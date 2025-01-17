@@ -2085,8 +2085,7 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
       haveI h' : (f (m.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
       cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
     else
-      -- TODO: explicit term, also in Lemmas
-      haveI h' : k' ∈ m := by rwa [mem_alter h, if_neg heq] at hc
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false h (Bool.not_eq_true _ ▸ heq) |>.mp hc
       m.get k' h' := by
   simp only [mem_iff_contains] at hc
   revert hc
@@ -2095,8 +2094,7 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
 @[simp]
 theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) {hc : k ∈ m.alter k f} :
-    -- TODO explicit
-    haveI h' : (f (m.get? k)).isSome := by rwa [mem_alter_self h] at hc
+    haveI h' : (f (m.get? k)).isSome := mem_alter_self h |>.mp hc
     (m.alter k f).get k hc = (f (m.get? k)).get h' := by
   simp only [mem_iff_contains] at hc
   revert hc
@@ -2159,8 +2157,7 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
     if heq : k == k' then
       k
     else
-      -- TODO explicit
-      haveI h' : k' ∈ m := by rwa [mem_alter h, if_neg heq] at hc
+      haveI h' : k' ∈ m := mem_alter_of_beq_eq_false h (Bool.not_eq_true _ ▸ heq) |>.mp hc
       m.getKey k' h' := by
   simp only [mem_iff_contains] at hc
   revert hc

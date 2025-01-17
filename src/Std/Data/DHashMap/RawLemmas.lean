@@ -2000,7 +2000,7 @@ theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (
 
 theorem mem_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     k' ∈ m.alter k f ↔ if k == k' then (f (m.get? k)).isSome = true else k' ∈ m := by
-    simp [mem_iff_contains, contains_alter h]
+  simp [mem_iff_contains, contains_alter h]
 
 theorem mem_alter_of_beq [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF)
     (he : k == k') : k' ∈ m.alter k f ↔ (f (m.get? k)).isSome := by

@@ -1303,31 +1303,31 @@ theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option 
   DHashMap.Raw.Const.contains_alter h.out
 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} (h : m.WF) :
-    k' ∈ alter m k f ↔ if k == k' then (f (get? m k)).isSome = true else k' ∈ m := by
-    simp only [mem_iff_contains, contains_alter h, Bool.ite_eq_true_distrib]
+    k' ∈ alter m k f ↔ if k == k' then (f (get? m k)).isSome = true else k' ∈ m :=
+  DHashMap.Raw.Const.mem_alter h.out
 
 theorem mem_alter_of_beq [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
-    (h : m.WF) (he : k == k') : k' ∈ alter m k f ↔ (f (get? m k)).isSome := by
-  rw [mem_alter h, if_pos he]
+    (h : m.WF) (he : k == k') : k' ∈ alter m k f ↔ (f (get? m k)).isSome :=
+  DHashMap.Raw.Const.mem_alter_of_beq h.out he
 
 @[simp]
 theorem contains_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).contains k = (f (get? m k)).isSome := by
-  simp only [contains_alter h, BEq.refl, reduceIte]
+    (alter m k f).contains k = (f (get? m k)).isSome :=
+  DHashMap.Raw.Const.contains_alter_self h.out
 
 @[simp]
 theorem mem_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    k ∈ alter m k f ↔ (f (get? m k)).isSome := by
-  rw [mem_iff_contains, contains_alter_self h]
+    k ∈ alter m k f ↔ (f (get? m k)).isSome :=
+  DHashMap.Raw.Const.mem_alter_self h.out
 
 theorem contains_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) (he : (k == k') = false) :
-    (alter m k f).contains k' = m.contains k' := by
-  simp only [contains_alter h, he, Bool.false_eq_true, reduceIte]
+    (alter m k f).contains k' = m.contains k' :=
+  DHashMap.Raw.Const.contains_alter_of_beq_eq_false h.out he
 
 theorem mem_alter_of_beq_eq_false [EquivBEq α] [LawfulHashable α] {k k' : α}
-    {f : Option β → Option β} (h : m.WF) (he : (k == k') = false) : k' ∈ alter m k f ↔ k' ∈ m := by
-  simp only [mem_iff_contains, contains_alter_of_beq_eq_false h, he]
+    {f : Option β → Option β} (h : m.WF) (he : (k == k') = false) : k' ∈ alter m k f ↔ k' ∈ m :=
+  DHashMap.Raw.Const.mem_alter_of_beq_eq_false h.out he
 
 theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :
     (alter m k f).size =
@@ -1420,8 +1420,8 @@ theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} {f : O
 
 @[simp]
 theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f : Option β → Option β} (h : m.WF) :
-    getD (alter m k f) k v = (f (get? m k)).getD v := by
-  simp [getD_alter h]
+    getD (alter m k f) k v = (f (get? m k)).getD v :=
+  DHashMap.Raw.Const.getD_alter_self h.out
 
 theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β} (h : m.WF) :
     (alter m k f).getKey? k' =
@@ -1432,8 +1432,8 @@ theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option 
   DHashMap.Raw.Const.getKey?_alter h.out
 
 theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).getKey? k = if (f (get? m k)).isSome then some k else none := by
-  simp [getKey?_alter h]
+    (alter m k f).getKey? k = if (f (get? m k)).isSome then some k else none :=
+  DHashMap.Raw.Const.getKey?_alter_self h.out
 
 theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) : (alter m k f).getKey! k' =
@@ -1445,8 +1445,8 @@ theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : �
 
 theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
     {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).getKey! k = if (f (get? m k)).isSome then k else panic "" := by
-  simp [getKey!_alter h]
+    (alter m k f).getKey! k = if (f (get? m k)).isSome then k else panic "" :=
+  DHashMap.Raw.Const.getKey!_alter_self h.out
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) {hc : k' ∈ alter m k f} :
@@ -1461,8 +1461,8 @@ theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α
 @[simp]
 theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
     {f : Option β → Option β} (h : m.WF) {hc : k ∈ alter m k f} :
-    (alter m k f).getKey k hc = k := by
-  simp [getKey_alter h]
+    (alter m k f).getKey k hc = k :=
+  DHashMap.Raw.Const.getKey_alter_self h.out
 
 theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : Option β → Option β} (h : m.WF) :
     (alter m k f).getKeyD k' d =
@@ -1474,8 +1474,8 @@ theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : Optio
 
 theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α}
     {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).getKeyD k d = if (f (get? m k)).isSome then k else d := by
-  simp [getKeyD_alter h]
+    (alter m k f).getKeyD k d = if (f (get? m k)).isSome then k else d :=
+  DHashMap.Raw.Const.getKeyD_alter_self h.out
 
 end Alter
 
@@ -1493,8 +1493,8 @@ theorem contains_modify [EquivBEq α] [LawfulHashable α] {k k': α} {f : β →
 
 @[simp]
 theorem mem_modify [EquivBEq α] [LawfulHashable α] {k k': α} {f : β → β} (h : m.WF) :
-    k' ∈ modify m k f ↔ k' ∈ m := by
-  simp only [mem_iff_contains, contains_modify h]
+    k' ∈ modify m k f ↔ k' ∈ m :=
+  DHashMap.Raw.Const.mem_modify h.out
 
 @[simp]
 theorem size_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} (h : m.WF) :

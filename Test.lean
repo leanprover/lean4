@@ -6,54 +6,192 @@ open Lean.Elab
 open Lean.Elab.Tactic
 open Lean.Meta
 open Lean.SubExpr
+--open Std.Range
 
-def SatisfiesM {m : Type u → Type v} {α} [Functor m] (p : α → Prop) (x : m α) : Prop :=
-  ∃ x' : m {a // p a}, Subtype.val <$> x' = x
 
--- this is actually the fwd direction of SatisfiesM_Id_eq. Good!
-theorem Id.run_satisfies2 : SatisfiesM P x → P (Id.run x) := by
-  rintro ⟨y, eq⟩
-  exact (eq ▸ y.property)
+def SatisfiesM {m : Type u → Type v} {α} [Monad m] (p : α → Prop) (x : m α) : Prop :=
+  ∀ {β} {f g : α → m β}, (∀ a, p a → f a = g a) → x >>= f = x >>= g
 
-/-- `SatisfiesM` distributes over `pure`, general version / weakest precondition version. -/
-protected theorem SatisfiesM.pure [Applicative m] [LawfulApplicative m]
-    (h : p a) : SatisfiesM (m := m) p (pure a) := ⟨pure ⟨_, h⟩, by simp⟩
+theorem SatisfiesM.pure [Monad m] [LawfulMonad m]
+    (h : p a) : SatisfiesM (m := m) p (pure a) := by
+  simp_all only [SatisfiesM, pure_bind, implies_true]
 
-/-- `SatisfiesM` distributes over `>>=`, general version. -/
-protected theorem SatisfiesM.bind [Monad m] [LawfulMonad m] {f : α → m β}
+theorem SatisfiesM.bind [Monad m] [LawfulMonad m] {f : α → m β}
     (hx : SatisfiesM p x) (hf : ∀ a, p a → SatisfiesM q (f a)) :
     SatisfiesM q (x >>= f) := by
-  match x, hx with | _, ⟨x, rfl⟩ => ?_
-  have g a ha := Classical.indefiniteDescription _ (hf a ha)
-  refine ⟨x >>= fun ⟨a, h⟩ => g a h, ?_⟩
-  simp [← bind_pure_comp]; congr; funext ⟨a, h⟩; simp [← (g a h).2, ← bind_pure_comp]
+  intros γ f g hfg
+  simp only [bind_assoc]
+  exact hx fun a hpa => hf a hpa hfg
 
 /-- `SatisfiesM` distributes over `>>=`, weakest precondition version. -/
-protected theorem SatisfiesM.bind_pre [Monad m] [LawfulMonad m] {f : α → m β}
+theorem SatisfiesM.bind_pre [Monad m] [LawfulMonad m] {f : α → m β}
     (hx : SatisfiesM (fun a => SatisfiesM q (f a)) x) :
     SatisfiesM q (x >>= f) := hx.bind fun _ h => h
 
-/-- `SatisfiesM` distributes over `>>=`, weakest precondition version. -/
-protected theorem SatisfiesM.bind_pre2 [Monad m] [LawfulMonad m] {f : α → m β}
-    (hx : SatisfiesM (fun a => SatisfiesM q (f a)) x) :
-    SatisfiesM q (x >>= f) := hx.bind fun _ h => h
+theorem SatisfiesM.subst [Monad m] [LawfulMonad m] {x : m α}
+  (hp : SatisfiesM p x) (hf : ∀ a, p a → f a = g a) :
+  x >>= f = x >>= g := hp hf
 
-elab "wlp" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainContext <| do
+theorem SatisfiesM.subst_pre [Monad m] [LawfulMonad m] {x : m α} (hp : SatisfiesM (fun r => f r = g r) x) :
+  x >>= f = x >>= g := by apply hp; simp
+
+theorem SatisfiesM.conj [Monad m] [LawfulMonad m] {x : m α}
+    (hp : SatisfiesM p x) (hq : SatisfiesM q x) : SatisfiesM (fun r => p r ∧ q r) x := by
+  intros β f g hfg
+  dsimp at hfg
+  open Classical in
+  calc x >>= f
+    _ = x >>= (fun r => if p r ∧ q r then f r else f r) := by simp
+    _ = x >>= (fun r => if p r ∧ q r then g r else f r) := by simp +contextual [hfg]
+    _ = x >>= (fun r => if q r then g r else f r) := hp (by simp +contextual)
+    _ = x >>= g := hq (by simp +contextual)
+
+def KimsSatisfiesM {m : Type u → Type v} {α} [Functor m] (p : α → Prop) (x : m α) : Prop :=
+  (fun r => (r, p r)) <$> x = (fun r => (r, True)) <$> x
+
+def KimsSatisfiesM_of_SatisfiesM {m : Type u → Type v} {α} [Monad m] [LawfulMonad m] (p : α → Prop) (x : m α)
+  (h : SatisfiesM p x) : KimsSatisfiesM p x := by
+  unfold KimsSatisfiesM
+  simp [← LawfulMonad.bind_pure_comp]
+  apply h
+  intros
+  simp [*]
+
+-- this is actually the fwd direction of SatisfiesM_Id_eq. Good!
+theorem SatisfiesM_Id_eq : SatisfiesM P x → P (Id.run x) := by
+  intro h
+  replace h := KimsSatisfiesM_of_SatisfiesM P x h
+  simp [KimsSatisfiesM] at h
+  injection h
+  simp[*, Id.run]
+
+theorem SatisfiesM.imp [Monad m] [LawfulMonad m] {p : Prop} {f : α → m β} :
+    SatisfiesM (fun r => p → q r) (f a) ↔ (p → SatisfiesM q (f a)) := by
+  if hp : p
+  then simp_all
+  else simp_all[SatisfiesM]; intro _ _ _ h; simp[funext h]
+
+theorem SatisfiesM.mono [Monad m] [LawfulMonad m] {x : m a}
+    (h : SatisfiesM p x) (H : ∀ {a}, p a → q a) : SatisfiesM q x := by
+    intro _ _ _ hfg
+    apply h
+    simp_all only [implies_true]
+
+/-
+Verification conditions for imperative While lang:
+
+  c ::= skip | x := a | c1; c2 | if (b) then c1 else c2 | while (b) {I} do c
+
+pre(skip, P) := P
+pre(x := a, P) := P[x↦a]
+pre(c1; c2, P) := pre(c1, pre(c2, P))
+pre(if (b) then c1 else c2, P) := (b → pre(c1, P)) ∧ (¬b → pre(c2, P))
+pre(while (b) {I} do c, P) := I
+
+To prove {pre(c,P)} c {P}, we need to show the following additional verification conditions:
+
+vc(skip, P) := true
+vc(x := a, P) := true
+vc(c1; c2, P) := vc(c1, pre(c2, P)) ∧ vc(c2, P)
+vc(if (b) then c1 else c2, P) := vc(c1, P) ∧ vc(c2, P)
+vc(while (b) {I} do c, P) := (b ∧ I → pre(c, I)) ∧ (¬b ∧ I → P) ∧ vc(c, I)
+
+We collect verification conditions as we descent into the program.
+At the end of the day, it's just a list of all the conjuncts.
+Notably, the only non-trivial conjunct is the one for while loops,
+because that's where transitivity needs to be established for the invariant.
+-/
+
+theorem SatisfiesM.split_step [Monad m] [LawfulMonad m] {x : m (ForInStep β)}
+    {done : β → Prop} {yield : β → Prop}
+    (hyield : SatisfiesM (∀ b', · = .yield b' → yield b') x)
+    (hdone :  SatisfiesM (∀ b', · = .done b'  → done b') x) :
+    SatisfiesM (fun | .yield b' => yield b' | .done b' => done b') x := by
+  apply SatisfiesM.mono (SatisfiesM.conj hyield hdone)
+  rintro a ⟨hyield, hdone⟩
+  split <;> solve_by_elim
+
+theorem SatisfiesM.forIn_list
+  [Monad m] [LawfulMonad m]
+  {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
+  (inv : List α → β → Prop)                     -- user-supplied loop invariant
+  (hpre : inv xs init)                          -- pre⟦for {inv} xs init f⟧(p)
+  (hweaken : ∀ b, inv [] b → p b)               -- vc₁: weaken invariant to postcondition after loop exit
+  (hdone : ∀ {hd tl b}, inv (hd::tl) b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
+          SatisfiesM (∀ b', · = .done b'  → inv [] b') (f hd b))
+  (hyield : ∀ {hd tl b}, inv (hd::tl) b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
+          SatisfiesM (∀ b', · = .yield b' → inv tl b') (f hd b)) :
+  SatisfiesM p (forIn xs init f) := by
+    induction xs generalizing init
+    case nil => simp only [List.forIn_nil]; apply SatisfiesM.pure; apply hweaken; exact hpre
+    case cons hd tl h =>
+      simp only [List.forIn_cons]
+      apply SatisfiesM.bind_pre
+      have : SatisfiesM (fun | .yield b' => inv tl b' | .done b' => inv [] b') (f hd init) :=
+        SatisfiesM.split_step (hyield hpre) (hdone hpre)
+      apply SatisfiesM.mono this
+      intro r hres
+      match r with
+      | .done b => apply SatisfiesM.pure; apply hweaken; assumption
+      | .yield b => simp; simp at hres; exact @h b hres
+
+#check Std.Range.forIn'.eq_def
+#check Loop.forIn.eq_def
+theorem SatisfiesM.forIn_range
+  [Monad m] [LawfulMonad m]
+  {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
+  (inv : List Nat → β → Prop := fun _ => p)     -- user-supplied loop invariant
+  (hpre : inv (List.range' xs.start xs.size xs.step) init)                          -- pre⟦for {inv} xs init f⟧(p)
+  (hweaken : ∀ b, inv [] b → p b)               -- vc1: weaken invariant to postcondition after loop exit
+  (hdone : ∀ {hd tl b}, inv (hd::tl) b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
+          SatisfiesM (∀ b', · = .done b'  → inv [] b') (f hd b))
+  (hyield : ∀ {hd tl b}, inv (hd::tl) b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
+          SatisfiesM (∀ b', · = .yield b' → inv tl b') (f hd b)) :
+  SatisfiesM p (forIn xs init f) := by
+    rw [Std.Range.forIn_eq_forIn_range']
+    exact SatisfiesM.forIn_list inv hpre hweaken hdone hyield
+
+theorem SatisfiesM.forIn_loop
+  [Monad m] [LawfulMonad m]
+  {xs : Loop} {init : β} {f : Unit → β → m (ForInStep β)}
+  (inv : Bool → β → Prop := fun _ => p)     -- user-supplied loop invariant
+  (hpre : inv true init)                          -- pre⟦for {inv} xs init f⟧(p)
+  (hweaken : ∀ b, inv false b → p b)               -- vc1: weaken invariant to postcondition after loop exit
+  (hdone : ∀ {b}, inv true b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
+          SatisfiesM (∀ b', · = .done b'  → inv false b') (f () b))
+  (hyield : ∀ {b}, inv true b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
+          SatisfiesM (∀ b', · = .yield b' → inv true b') (f () b)) :
+  SatisfiesM p (forIn Loop.mk init f) := by
+    rw[Loop.forIn.eq_def]
+    unfold Loop.forIn
+    rw [Std.Range.forIn_eq_forIn_range']
+    exact SatisfiesM.forIn_list inv hpre hweaken hdone hyield
+
+elab "vcgen" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainContext <| do
+  let goal ← getMainGoal
+  let ctx ← mkSimpContext Syntax.missing (eraseLocal := false)
+  let goal := match ← dsimpGoal goal ctx.ctx with
+  | (some goal, _) => goal
+  | _              => goal
+  replaceMainGoal [goal]
+
   let mut verification_conds := #[]
   while true do
     let goal :: goals ← getGoals | break
     if ← goal.isAssigned then setGoals goals; continue
+    let (_xs, goal) ← goal.intros
     let ty ← instantiateMVars (← goal.getType)
-    -- ty = @SatisfiesM α m [Functor m] (post : α → Prop) (prog : m α)
+    -- ty = @SatisfiesM m α [Functor m] post prog
     if ¬(ty.isAppOfArity `SatisfiesM 5) then
       logInfo m!"give up on {ty}"
       verification_conds := verification_conds.push goal
       setGoals goals
       continue
     let prog := ty.appArg!
+    let m := ty.appFn!.appFn!.appFn!.appFn!.appArg!
 
     -- Convention: ⟦P⟧(x) for SatisfiesM P x
-    if prog.isAppOfArity `Pure.pure 4 then
+    if prog.isAppOfArity ``Pure.pure 4 then
       -- prog = @pure m [Pure m] α (x : α)
       -- ⟦P⟧(pure x)
       -- <=={Satisfies.pure}
@@ -61,12 +199,29 @@ elab "wlp" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainCon
       let [goal] ← goal.applyConst ``SatisfiesM.pure | throwError "argh"
       replaceMainGoal [goal]
       continue
-    else if prog.isAppOfArity `Bind.bind 6 then
+    else if prog.isAppOfArity ``Bind.bind 6 then
       -- prog = @bind m [Bind m] α β e f
       -- ⟦P⟧(bind e f)
       -- <=={Satisfies.bind_pre}
       -- P⟦fun r => ⟦P⟧(f r)⟧(e)
       let [goal] ← goal.applyConst ``SatisfiesM.bind_pre | throwError "argh"
+      replaceMainGoal [goal]
+      continue
+    else if prog.isAppOfArity ``ForIn.forIn 9 then
+      -- prog = @forIn {m} {ρ} {α} [ForIn m ρ α] {β} [Monad m] xs init f
+      -- ⟦P⟧(forIn xs init f)
+      -- <=={SatisfiesM.forIn_*} (depending on ρ)
+      -- ... a bunch of sub-goals, including the invariant
+      let ρ := prog.appFn!.appFn!.appFn!.appFn!.appFn!.appFn!.appFn!.appArg!;
+      if ρ.isConstOf ``Std.Range then
+        let goals ← goal.applyConst ``SatisfiesM.forIn_range
+        replaceMainGoal goals
+        continue
+      else if ρ.isConstOf ``List then
+        let goals ← goal.applyConst ``SatisfiesM.forIn_range
+        replaceMainGoal goals
+        continue
+      -- let name := match
       replaceMainGoal [goal]
       continue
     else if prog.isLet then
@@ -95,29 +250,55 @@ elab "wlp" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainCon
         replaceMainGoal [goal]
         continue
       catch _ => pure ()
+    else if m.isConstOf ``Id then
+      -- Id x is definitionally equal to x, and we can apply SatisfiesM.pure in that case
+      -- prog = @pure m [Pure m] α (x : α)
+      -- ⟦P⟧(pure x)
+      -- <=={Satisfies.pure}
+      -- P x
+      let [goal] ← goal.applyConst ``SatisfiesM.pure | throwError "argh"
+      replaceMainGoal [goal]
+      continue
 
-    logInfo m!"give up on {prog}"
+    logInfo m!"give up on {repr prog}"
     verification_conds := verification_conds.push goal
     setGoals goals
     continue
 
   setGoals verification_conds.toList
 
+theorem test_5 : SatisfiesM (m:=Id) (fun r => r ≤ 25) (do let mut x := 0; for i in [1:5] do { x := x + i } return x) := by
+  vcgen
+  case inv => exact (fun xs r => (∀ x, x ∈ xs → x ≤ 5) ∧ r + xs.length * 5 ≤ 25)
+  set_option trace.grind.debug true in
+  case hpre => simp_all; grind; omega
+  case hweaken => simp_all
+  case hdone => simp_all
+  case hyield h => injection h; simp_all; omega
+
+theorem test_6 : SatisfiesM (m:=Id) (fun r => r ≤ 1) (do let mut x := 0; let mut i := 0; while i < 4 do { x := x + i; i := i + 1 } return x) := by
+  dsimp
+  vcgen
+  case inv => exact (fun xs r => (∀ x, x ∈ xs → x ≤ 5) ∧ r + xs.length * 5 ≤ 25)
+  case hpre => simp; omega
+  case hweaken => simp
+  case hdone => intros; apply SatisfiesM.pure; simp;
+  case hyield => intros; apply SatisfiesM.pure; simp_all; intro _ h; injection h; omega
 
 theorem test_1 : SatisfiesM (m:=Id) (fun r => r = 3) (do return 3) := by
-  wlp
+  vcgen
   trivial
 
 theorem test_2 : SatisfiesM (m:=Id) (fun r => r = id 3) (do let mut id := 5; id := 3; return id) := by
-  wlp
+  vcgen
   trivial
 
-theorem test_3 (h : SatisfiesM (fun _ => SatisfiesM (m:=Id) P (do e₂; e₃)) e₁) : SatisfiesM (m:=Id) P (do e₁; e₂; e₃) := by
-  wlp
+theorem test_3 [Monad m] [LawfulMonad m] (h : SatisfiesM (fun _ => SatisfiesM (m:=m) P (do e₂; e₃)) e₁) : SatisfiesM (m:=m) P (do e₁; e₂; e₃) := by
+  vcgen
   trivial
 
 theorem test_4 : SatisfiesM (m:=Id) (fun r => r ≤ 1) (do let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x) := by
-  wlp
+  vcgen
   omega
   simp [gt_iff_lt, Nat.le_of_not_gt] at *
   assumption

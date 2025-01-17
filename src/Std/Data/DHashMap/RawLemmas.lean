@@ -6,7 +6,6 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Internal.Raw
 import Std.Data.DHashMap.Internal.RawLemmas
-import Std.Data.DHashMap.Internal.MyRawLemmas
 
 /-!
 # Dependent hash map lemmas

@@ -666,24 +666,6 @@ class task_manager {
             m_queue_cv.notify_one();
     }
 
-    void deactivate_task_core(unique_lock<mutex> & lock, lean_task_object * t) {
-        object * c              = t->m_imp->m_closure;
-        lean_task_object * it   = t->m_imp->m_head_dep;
-        t->m_imp->m_closure     = nullptr;
-        t->m_imp->m_head_dep    = nullptr;
-        t->m_imp->m_canceled    = true;
-        t->m_imp->m_deleted     = true;
-        lock.unlock();
-        while (it) {
-            lean_assert(it->m_imp->m_deleted);
-            lean_task_object * next_it = it->m_imp->m_next_dep;
-            free_task(it);
-            it = next_it;
-        }
-        if (c) dec_ref(c);
-        lock.lock();
-    }
-
     void spawn_worker() {
         if (m_shutting_down)
             return;
@@ -874,17 +856,23 @@ public:
     }
 
     void deactivate_task(lean_task_object * t) {
+        lean_assert(t->m_imp);
         unique_lock<mutex> lock(m_mutex);
-        if (object * v = t->m_value) {
-            lean_assert(t->m_imp == nullptr);
-            lock.unlock();
-            lean_dec(v);
-            free_task(t);
-            return;
-        } else {
-            lean_assert(t->m_imp);
-            deactivate_task_core(lock, t);
+        object * c              = t->m_imp->m_closure;
+        lean_task_object * it   = t->m_imp->m_head_dep;
+        t->m_imp->m_closure     = nullptr;
+        t->m_imp->m_head_dep    = nullptr;
+        t->m_imp->m_canceled    = true;
+        t->m_imp->m_deleted     = true;
+        lock.unlock();
+        while (it) {
+            lean_assert(it->m_imp->m_deleted);
+            lean_task_object * next_it = it->m_imp->m_next_dep;
+            free_task(it);
+            it = next_it;
         }
+        if (c) dec_ref(c);
+        lock.lock();
     }
 
     void cancel(lean_task_object * t) {
@@ -946,12 +934,12 @@ scoped_task_manager::~scoped_task_manager() {
 }
 
 void deactivate_task(lean_task_object * t) {
-    if (g_task_manager) {
-        g_task_manager->deactivate_task(t);
-    } else {
-        lean_assert(t->m_value != nullptr);
+    if (t->m_value) {
         lean_dec(t->m_value);
         free_task(t);
+    } else {
+        lean_assert(g_task_manager);
+        g_task_manager->deactivate_task(t);
     }
 }
 

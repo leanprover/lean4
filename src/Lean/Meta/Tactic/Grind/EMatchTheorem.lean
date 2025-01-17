@@ -708,7 +708,6 @@ private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
     | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
-  trace[Meta.debug] "{declName} {repr thmKind}"
   return thm
 
 private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do

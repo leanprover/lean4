@@ -1102,7 +1102,7 @@ theorem getLsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
     omega
   · simp_all
 
-theorem getMsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
+theorem getMsbD_udiv (n d : BitVec w) (hd : 0#w < d)  (i : Nat) :
     (n / d).getMsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getMsbD i) := by
   simp [getMsbD_eq_getLsbD, getLsbD_udiv, udiv_eq_divRec (by assumption)]
 

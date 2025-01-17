@@ -136,11 +136,15 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
   else if (← isEqFalse e) then
     let_expr Eq α lhs rhs := e | return ()
-    /-
-    Heuristic: If `lhs` or `rhs` are contructors we do not apply extensionality theorems.
-    For example, we don't want to apply the extensionality theorem to things like `xs ≠ []`.
-    -/
-    unless (← getRootENode lhs).ctor || (← getRootENode rhs).ctor do
+    let thms ← getExtTheorems α
+    if !thms.isEmpty then
+      /-
+      Heuristic for lists: If `lhs` or `rhs` are contructors we do not apply extensionality theorems.
+      For example, we don't want to apply the extensionality theorem to things like `xs ≠ []`.
+      TODO: polish this hackish heuristic later.
+      -/
+      if α.isAppOf ``List && ((← getRootENode lhs).ctor || (← getRootENode rhs).ctor) then
+        return ()
       for thm in (← getExtTheorems α) do
         instantiateExtTheorem thm e
 

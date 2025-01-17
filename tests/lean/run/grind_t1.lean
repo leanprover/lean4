@@ -314,3 +314,6 @@ example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
 example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
   fail_if_success grind -ext
   sorry
+
+example (x : S) : x.a = 10 → false ≠ x.b → x = { a := 10, b := true } := by
+  grind

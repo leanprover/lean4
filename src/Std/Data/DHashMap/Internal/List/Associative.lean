@@ -2790,10 +2790,10 @@ def alterKey (k : α) (f : Option (β k) → Option (β k))
 
 theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)}
     {l : List ((a : α) × β a)} : (alterKey k f l).length =
-    if h : containsKey k l then
-      if f (getValueCast k l h) |>.isSome then l.length else l.length - 1
-    else
-      if f none |>.isSome then l.length + 1 else l.length := by
+      if h : containsKey k l then
+        if f (getValueCast k l h) |>.isSome then l.length else l.length - 1
+      else
+        if f none |>.isSome then l.length + 1 else l.length := by
   rw [alterKey]
   cases h : getValueCast? k l <;> split <;> simp_all [length_eraseKey, length_insertEntry,
     containsKey_eq_isSome_getValueCast?, ← getValueCast?_eq_some_getValueCast]
@@ -2801,23 +2801,24 @@ theorem length_alterKey {k : α} {f : Option (β k) → Option (β k)}
 theorem length_alterKey' {k : α} {f : Option (β k) → Option (β k)}
     {l : List ((a : α) × β a)} :
     (alterKey k f l).length =
-    if containsKey k l && (f (getValueCast? k l)).isNone then
-      l.length - 1
-    else if !containsKey k l && (f (getValueCast? k l)).isSome then
-      l.length + 1
-    else
-      l.length := by
+      if containsKey k l && (f (getValueCast? k l)).isNone then
+        l.length - 1
+      else if !containsKey k l && (f (getValueCast? k l)).isSome then
+        l.length + 1
+      else
+        l.length := by
   rw [alterKey]
   cases h : containsKey k l <;> split <;> split <;> simp_all [length_eraseKey, length_insertEntry]
 
 theorem alterKey_cons_perm {k : α} {f : Option (β k) → Option (β k)}
     {k' : α} {v' : β k'} {l : List ((a : α) × β a)} :
-      Perm (alterKey k f (⟨k', v'⟩ :: l)) (if hk : k' == k then
-        match f (some (cast (congrArg β (eq_of_beq hk)) v')) with
-          | none => l
-          | some v => ⟨k, v⟩ :: l
-        else
-          ⟨k', v'⟩ :: alterKey k f l) := by
+      Perm (alterKey k f (⟨k', v'⟩ :: l))
+        (if hk : k' == k then
+          match f (some (cast (congrArg β (eq_of_beq hk)) v')) with
+            | none => l
+            | some v => ⟨k, v⟩ :: l
+          else
+            ⟨k', v'⟩ :: alterKey k f l) := by
   rw [alterKey]
   by_cases hk' : k' == k
   · simp only [hk', ↓reduceDIte]
@@ -2874,10 +2875,10 @@ theorem containsKey_alterKey_self {a : α} {f : Option (β a) → Option (β a)}
 theorem containsKey_alterKey {k k' : α} {f : Option (β k) → Option (β k)}
     {l : List ((a : α) × β a)} (hl : DistinctKeys l) :
     containsKey k' (alterKey k f l) =
-    if k == k' then
-      f (getValueCast? k l) |>.isSome
-    else
-      containsKey k' l := by
+      if k == k' then
+        f (getValueCast? k l) |>.isSome
+      else
+        containsKey k' l := by
   split
   · next h =>
     rw [← containsKey_congr h, containsKey_alterKey_self hl]
@@ -2902,10 +2903,10 @@ theorem mem_alterKey_of_key_ne {a : α} {f : Option (β a) → Option (β a)}
 
 theorem getValueCast?_alterKey (k k' : α) (f : Option (β k) → Option (β k))
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) : getValueCast? k' (alterKey k f l) =
-    if h : k == k' then
-      cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (getValueCast? k l))
-    else
-      getValueCast? k' l := by
+      if h : k == k' then
+        cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (getValueCast? k l))
+      else
+        getValueCast? k' l := by
   split
   · next heq =>
     cases eq_of_beq heq
@@ -2928,12 +2929,12 @@ theorem getValueCast?_alterKey (k k' : α) (f : Option (β k) → Option (β k))
 theorem getValueCast_alterKey (k k' : α) (f : Option (β k) → Option (β k))
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (hc : containsKey k' (alterKey k f l)) :
     getValueCast k' (alterKey k f l) hc =
-    if h : k == k' then
-      haveI hc' : (f (getValueCast? k l)).isSome := by rwa [containsKey_alterKey hl, if_pos h] at hc
-      cast (congrArg β (eq_of_beq h)) <| (f (getValueCast? k l)).get hc'
-    else
-      haveI hc' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg h] at hc
-      getValueCast k' l hc' := by
+      if h : k == k' then
+        haveI hc' : (f (getValueCast? k l)).isSome := by rwa [containsKey_alterKey hl, if_pos h] at hc
+        cast (congrArg β (eq_of_beq h)) <| (f (getValueCast? k l)).get hc'
+      else
+        haveI hc' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg h] at hc
+        getValueCast k' l hc' := by
   have := getValueCast?_alterKey  k k' f l hl
   rw [getValueCast?_eq_some_getValueCast hc] at this
   split
@@ -2957,11 +2958,11 @@ theorem getValueCast_alterKey_self (k : α) (f : Option (β k) → Option (β k)
 theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k' (alterKey k f l) =
-    if heq : k == k' then
-      haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-      cast (congrArg β (eq_of_beq heq)) <| (f (getValueCast? k l)).get!
-    else
-      getValueCast! k' l := by
+      if heq : k == k' then
+        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
+        cast (congrArg β (eq_of_beq heq)) <| (f (getValueCast? k l)).get!
+      else
+        getValueCast! k' l := by
   simp only [hl, getValueCast!_eq_getValueCast?, getValueCast?_alterKey, beq_iff_eq,
     Function.comp_apply]
   split
@@ -2973,10 +2974,10 @@ theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')]
 theorem getValueCastD_alterKey {k k' : α} {v : β k'}
     {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCastD k' (alterKey k f l) v =
-    if heq : k == k' then
-      f (getValueCast? k l) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
-    else
-      getValueCastD k' l v := by
+      if heq : k == k' then
+        f (getValueCast? k l) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
+      else
+        getValueCastD k' l v := by
   simp only [getValueCastD_eq_getValueCast?, hl, getValueCast?_alterKey, beq_iff_eq,
     Function.comp_apply]
   split
@@ -2988,20 +2989,20 @@ theorem getValueCastD_alterKey {k k' : α} {v : β k'}
 theorem getKey?_alterKey {k k' : α} {f : Option (β k) → Option (β k)}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey? k' (alterKey k f l) =
-    if k == k' then
-      if (f (getValueCast? k l)).isSome then some k else none
-    else
-      getKey? k' l := by
+      if k == k' then
+        if (f (getValueCast? k l)).isSome then some k else none
+      else
+        getKey? k' l := by
   rw [alterKey]
   split <;> next heq => simp [hl, heq, getKey?_eraseKey, getKey?_insertEntry]
 
 theorem getKey!_alterKey [Inhabited α] {k k' : α}
     {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey! k' (alterKey k f l) =
-    if k == k' then
-      if (f (getValueCast? k l)).isSome then k else panic ""
-    else
-      getKey! k' l := by
+      if k == k' then
+        if (f (getValueCast? k l)).isSome then k else panic ""
+      else
+        getKey! k' l := by
   simp only [getKey!_eq_getKey?, hl, getKey?_alterKey, beq_iff_eq]
   split
   · next heq =>
@@ -3014,11 +3015,11 @@ theorem getKey_alter [Inhabited α] {k k' : α}
     {f : Option (β k) → Option (β k)} (l : List ((a : α) × β a)) (hl : DistinctKeys l)
     (hc : containsKey k' (alterKey k f l)) :
     getKey k' (alterKey k f l) hc =
-    if heq : k == k' then
-      k
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg heq] at hc
-      getKey k' l h' := by
+      if heq : k == k' then
+        k
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg heq] at hc
+        getKey k' l h' := by
   have := getKey?_alterKey (f := f) (k' := k') _ hl
   rw [getKey?_eq_some_getKey hc] at this
   split
@@ -3034,10 +3035,10 @@ theorem getKey_alter [Inhabited α] {k k' : α}
 theorem getKeyD_alter {k k' d : α} {f : Option (β k) → Option (β k)}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKeyD k' (alterKey k f l) d =
-    if k == k' then
-      if (f (getValueCast? k l)).isSome then k else d
-    else
-      getKeyD k' l d := by
+      if k == k' then
+        if (f (getValueCast? k l)).isSome then k else d
+      else
+        getKeyD k' l d := by
   simp only [hl, getKeyD_eq_getKey?, getKey?_alterKey, beq_iff_eq, Function.comp_apply]
   split
   · next heq =>
@@ -3074,12 +3075,12 @@ omit [EquivBEq α] in
 theorem length_alterKey' {k : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} :
     (alterKey k f l).length =
-    if containsKey k l && (f (getValue? k l)).isNone then
-      l.length - 1
-    else if !containsKey k l && (f (getValue? k l)).isSome then
-      l.length + 1
-    else
-      l.length := by
+      if containsKey k l && (f (getValue? k l)).isNone then
+        l.length - 1
+      else if !containsKey k l && (f (getValue? k l)).isSome then
+        l.length + 1
+      else
+        l.length := by
   rw [alterKey]
   cases h : containsKey k l <;> split <;> split <;> simp_all [length_eraseKey, length_insertEntry]
 
@@ -3110,12 +3111,13 @@ theorem length_alterKey_eq_self' {k : α} {f : Option β → Option β}
 omit [EquivBEq α] in
 theorem alterKey_cons_perm {k : α} {f : Option β → Option β}
     {k' : α} {v' : β} {l : List ((_ : α) × β)} :
-      Perm (alterKey k f (⟨k', v'⟩ :: l)) (if k' == k then
-        match f (some v') with
-          | none => l
-          | some v => ⟨k, v⟩ :: l
-        else
-          ⟨k', v'⟩ :: alterKey k f l) := by
+      Perm (alterKey k f (⟨k', v'⟩ :: l))
+        (if k' == k then
+          match f (some v') with
+            | none => l
+            | some v => ⟨k, v⟩ :: l
+          else
+            ⟨k', v'⟩ :: alterKey k f l) := by
   rw [alterKey]
   by_cases hk' : k' == k
   · simp only [hk', ↓reduceDIte]
@@ -3189,10 +3191,10 @@ theorem mem_alterKey_of_key_not_beq {β : Type v} {a : α}
 theorem containsKey_alterKey {k k' : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} (hl : DistinctKeys l) :
     containsKey k' (alterKey k f l) =
-    if k == k' then
-      f (getValue? k l) |>.isSome
-    else
-      containsKey k' l := by
+      if k == k' then
+        f (getValue? k l) |>.isSome
+      else
+        containsKey k' l := by
   split
   · next h =>
     rw [← containsKey_congr h]
@@ -3207,10 +3209,10 @@ theorem containsKey_alterKey {k k' : α} {f : Option β → Option β}
 
 theorem getValue?_alterKey (k k' : α) (f : Option β → Option β)
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) : getValue? k' (alterKey k f l) =
-    if k == k' then
-      f (getValue? k l)
-    else
-      getValue? k' l := by
+      if k == k' then
+        f (getValue? k l)
+      else
+        getValue? k' l := by
   split
   · next heq =>
     rw [alterKey]
@@ -3231,12 +3233,12 @@ theorem getValue?_alterKey (k k' : α) (f : Option β → Option β)
 theorem getValue_alterKey (k k' : α) (f : Option β → Option β)
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) (hc : containsKey k' (alterKey k f l)) :
     getValue k' (alterKey k f l) hc =
-    if h : k == k' then
-      haveI hc' : (f (getValue? k l)).isSome := by rwa [containsKey_alterKey hl, if_pos h] at hc
-      (f (getValue? k l)).get hc'
-    else
-      haveI hc' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg h] at hc
-      getValue k' l hc' := by
+      if h : k == k' then
+        haveI hc' : (f (getValue? k l)).isSome := by rwa [containsKey_alterKey hl, if_pos h] at hc
+        (f (getValue? k l)).get hc'
+      else
+        haveI hc' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg h] at hc
+        getValue k' l hc' := by
   have := getValue?_alterKey  k k' f l hl
   rw [getValue?_eq_some_getValue hc] at this
   split
@@ -3260,10 +3262,10 @@ theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 theorem getValue!_alterKey {k k' : α} [Inhabited β] {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getValue! k' (alterKey k f l) =
-    if k == k' then
-      (f (getValue? k l)).get!
-    else
-      getValue! k' l := by
+      if k == k' then
+        (f (getValue? k l)).get!
+      else
+        getValue! k' l := by
   simp only [hl, getValue!_eq_getValue?, getValue?_alterKey, beq_iff_eq, Function.comp_apply]
   split
   · next heq =>
@@ -3273,10 +3275,10 @@ theorem getValue!_alterKey {k k' : α} [Inhabited β] {f : Option β → Option 
 theorem getValueD_alterKey {k k' : α} {v : β} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getValueD k' (alterKey k f l) v =
-    if k == k' then
-      f (getValue? k l) |>.getD v
-    else
-      getValueD k' l v := by
+      if k == k' then
+        f (getValue? k l) |>.getD v
+      else
+        getValueD k' l v := by
   simp only [hl, getValueD_eq_getValue?, getValue?_alterKey, beq_iff_eq, Function.comp_apply]
   split
   · next heq =>
@@ -3286,20 +3288,20 @@ theorem getValueD_alterKey {k k' : α} {v : β} {f : Option β → Option β}
 theorem getKey?_alterKey {k k' : α} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKey? k' (alterKey k f l) =
-    if k == k' then
-      if (f (getValue? k l)).isSome then some k else none
-    else
-      getKey? k' l := by
+      if k == k' then
+        if (f (getValue? k l)).isSome then some k else none
+      else
+        getKey? k' l := by
   rw [alterKey]
   split <;> next heq => simp [hl, heq, getKey?_eraseKey, getKey?_insertEntry]
 
 theorem getKey!_alterKey [Inhabited α] {k k' : α} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKey! k' (alterKey k f l) =
-    if k == k' then
-      if (f (getValue? k l)).isSome then k else panic ""
-    else
-      getKey! k' l := by
+      if k == k' then
+        if (f (getValue? k l)).isSome then k else panic ""
+      else
+        getKey! k' l := by
   simp only [getKey!_eq_getKey?, hl, getKey?_alterKey, beq_iff_eq]
   split
   · next heq =>
@@ -3311,11 +3313,11 @@ theorem getKey_alterKey [Inhabited α] {k k' : α} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l)
     (hc : containsKey k' (alterKey k f l)) :
     getKey k' (alterKey k f l) hc =
-    if heq : k == k' then
-      k
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg heq] at hc
-      getKey k' l h' := by
+      if heq : k == k' then
+        k
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_alterKey hl, if_neg heq] at hc
+        getKey k' l h' := by
   have := getKey?_alterKey (f := f) (k := k) (k' := k') _ hl
   rw [getKey?_eq_some_getKey hc] at this
   split
@@ -3330,10 +3332,10 @@ theorem getKey_alterKey [Inhabited α] {k k' : α} {f : Option β → Option β}
 theorem getKeyD_alterKey {k k' d : α} {f : Option β → Option β}
     (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKeyD k' (alterKey k f l) d =
-    if k == k' then
-      if (f (getValue? k l)).isSome then k else d
-    else
-      getKeyD k' l d := by
+      if k == k' then
+        if (f (getValue? k l)).isSome then k else d
+      else
+        getKeyD k' l d := by
   simp only [hl, getKeyD_eq_getKey?, getKey?_alterKey, beq_iff_eq, Function.comp_apply]
   split
   · next heq =>
@@ -3401,10 +3403,11 @@ theorem modifyKey_eq_alterKey [BEq α] [LawfulBEq α] (k : α) (f : β k → β 
 
 theorem getValueCast?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l):
-    getValueCast? k' (modifyKey k f l)  = if h : k == k' then
-      (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((getValueCast? k l).map f))
-    else
-      getValueCast? k' l := by
+    getValueCast? k' (modifyKey k f l) =
+      if h : k == k' then
+        (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((getValueCast? k l).map f))
+      else
+        getValueCast? k' l := by
   simp [modifyKey_eq_alterKey, getValueCast?_alterKey, hl]
 
 @[simp]
@@ -3416,12 +3419,12 @@ theorem getValueCast?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k 
 theorem getValueCast_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getValueCast k' (modifyKey k f l) h =
-    if heq : k == k' then
-      haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← eq_of_beq heq] at h
-      cast (congrArg β (eq_of_beq heq)) <| f (getValueCast k l h')
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
-      getValueCast k' l h' := by
+      if heq : k == k' then
+        haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← eq_of_beq heq] at h
+        cast (congrArg β (eq_of_beq heq)) <| f (getValueCast k l h')
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
+        getValueCast k' l h' := by
   simp only [modifyKey_eq_alterKey, getValueCast_alterKey, hl]
   split
   · next heq =>
@@ -3440,11 +3443,11 @@ theorem getValueCast_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k �
 theorem getValueCast!_modifyKey [BEq α] [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
     {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k' (modifyKey k f l) =
-    if heq : k == k' then
-      haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-      getValueCast? k l |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
-    else
-      getValueCast! k' l := by
+      if heq : k == k' then
+        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
+        getValueCast? k l |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
+      else
+        getValueCast! k' l := by
   simp only [modifyKey_eq_alterKey, getValueCast!_alterKey, hl]
   split
   · next heq =>
@@ -3461,10 +3464,10 @@ theorem getValueCast!_modifyKey_self [BEq α] [LawfulBEq α] {k : α} [Inhabited
 theorem getValueCastD_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {v : β k'} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCastD k' (modifyKey k f l) v =
-    if heq : k == k' then
-      getValueCast? k l |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
-    else
-      getValueCastD k' l v := by
+      if heq : k == k' then
+        getValueCast? k l |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
+      else
+        getValueCastD k' l v := by
   simp [modifyKey_eq_alterKey, getValueCastD_alterKey, hl]
 
 @[simp]
@@ -3476,10 +3479,10 @@ theorem getValueCastD_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {v : β k}
 theorem getKey?_modifyKey [BEq α] [LawfulBEq α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey? k' (modifyKey k f l) =
-    if k == k' then
-      if containsKey k l then some k else none
-    else
-      getKey? k' l := by
+      if k == k' then
+        if containsKey k l then some k else none
+      else
+        getKey? k' l := by
   simp [modifyKey_eq_alterKey, getKey?_alterKey, containsKey_eq_isSome_getValueCast?, hl]
 
 theorem getKey?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β k}
@@ -3490,10 +3493,10 @@ theorem getKey?_modifyKey_self [BEq α] [LawfulBEq α] {k : α} {f : β k → β
 theorem getKey!_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKey! k' (modifyKey k f l) =
-    if k == k' then
-      if containsKey k l then k else panic ""
-    else
-      getKey! k' l := by
+      if k == k' then
+        if containsKey k l then k else panic ""
+      else
+        getKey! k' l := by
   simp [modifyKey_eq_alterKey, getKey!_alterKey, containsKey_eq_isSome_getValueCast?, hl]
 
 theorem getKey!_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k}
@@ -3504,11 +3507,11 @@ theorem getKey!_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {
 theorem getKey_modifyKey [BEq α] [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
-    if k == k' then
-      k
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
-      getKey k' l h' := by
+      if k == k' then
+        k
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
+        getKey k' l h' := by
   simp [modifyKey_eq_alterKey, getKey_alter, hl, ← dite_eq_ite]
 
 @[simp]
@@ -3520,10 +3523,10 @@ theorem getKey_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k : α} {f
 theorem getKeyD_modifyKey [BEq α] [LawfulBEq α] {k k' d : α} {f : β k → β k}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getKeyD k' (modifyKey k f l) d =
-    if k == k' then
-      if containsKey k l then k else d
-    else
-      getKeyD k' l d := by
+      if k == k' then
+        if containsKey k l then k else d
+      else
+        getKeyD k' l d := by
   simp [modifyKey_eq_alterKey, getKeyD_alter, containsKey_eq_isSome_getValueCast?, hl]
 
 theorem getKeyD_modifyKey_self [BEq α] [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k}
@@ -3577,10 +3580,11 @@ theorem containsKey_modifyKey (k k': α) (f : β → β)
     · rw [containsKey_replaceEntry]
 
 theorem getValue?_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l):
-    getValue? k' (modifyKey k f l)  = if k == k' then
-      (getValue? k l).map f
-    else
-      getValue? k' l := by
+    getValue? k' (modifyKey k f l)  =
+      if k == k' then
+        (getValue? k l).map f
+      else
+        getValue? k' l := by
   simp [modifyKey_eq_alterKey, getValue?_alterKey, hl]
 
 @[simp]
@@ -3591,12 +3595,12 @@ theorem getValue?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) �
 theorem getValue_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l)
     (h : containsKey k' (modifyKey k f l)) :
     getValue k' (modifyKey k f l) h =
-    if heq : k == k' then
-      haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← containsKey_congr heq] at h
-       f (getValue k l h')
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
-      getValue k' l h' := by
+      if heq : k == k' then
+        haveI h' : containsKey k l := by rwa [containsKey_modifyKey, ← containsKey_congr heq] at h
+         f (getValue k l h')
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
+        getValue k' l h' := by
   simp only [modifyKey_eq_alterKey, getValue_alterKey, hl]
   split
   · next heq =>
@@ -3613,10 +3617,10 @@ theorem getValue_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) ×
 
 theorem getValue!_modifyKey  {k k' : α} [hi : Inhabited β] {f : β → β} (l : List ((_ : α) × β))
     (hl : DistinctKeys l) : getValue! k' (modifyKey k f l) =
-    if k == k' then
-      getValue? k l |>.map f |>.get!
-    else
-      getValue! k' l := by
+      if k == k' then
+        getValue? k l |>.map f |>.get!
+      else
+        getValue! k' l := by
   simp [modifyKey_eq_alterKey, getValue!_alterKey, hl]
 
 @[simp]
@@ -3626,10 +3630,10 @@ theorem getValue!_modifyKey_self  {k : α} [Inhabited (β)] {f : β → β} (l :
 
 theorem getValueD_modifyKey  {k k' : α} {v : β} {f : β → β} (l : List ((_ : α) × β))
     (hl : DistinctKeys l) : getValueD k' (modifyKey k f l) v =
-    if k == k' then
-      getValue? k l |>.map f |>.getD v
-    else
-      getValueD k' l v := by
+      if k == k' then
+        getValue? k l |>.map f |>.getD v
+      else
+        getValueD k' l v := by
   simp [modifyKey_eq_alterKey, getValueD_alterKey, hl]
 
 @[simp]
@@ -3640,10 +3644,10 @@ theorem getValueD_modifyKey_self  {k : α} {v : β} {f : β → β} (l : List ((
 
 theorem getKey?_modifyKey  {k k' : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKey? k' (modifyKey k f l) =
-    if k == k' then
-      if containsKey k l then some k else none
-    else
-      getKey? k' l := by
+      if k == k' then
+        if containsKey k l then some k else none
+      else
+        getKey? k' l := by
   simp [modifyKey_eq_alterKey, getKey?_alterKey, containsKey_eq_isSome_getValue?, hl]
 
 theorem getKey?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
@@ -3652,10 +3656,10 @@ theorem getKey?_modifyKey_self  {k : α} {f : β → β} (l : List ((_ : α) × 
 
 theorem getKey!_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
     (hl : DistinctKeys l) : getKey! k' (modifyKey k f l) =
-    if k == k' then
-      if containsKey k l then k else panic ""
-    else
-      getKey! k' l := by
+      if k == k' then
+        if containsKey k l then k else panic ""
+      else
+        getKey! k' l := by
   simp [modifyKey_eq_alterKey, getKey!_alterKey, containsKey_eq_isSome_getValue?, hl]
 
 theorem getKey!_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List ((_ : α) × β))
@@ -3666,11 +3670,11 @@ theorem getKey!_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : Lis
 theorem getKey_modifyKey  [Inhabited α] {k k' : α} {f : β → β} (l : List ((_ : α) × β))
     (hl : DistinctKeys l) (h : containsKey k' (modifyKey k f l)) :
     getKey k' (modifyKey k f l) h =
-    if k == k' then
-      k
-    else
-      haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
-      getKey k' l h' := by
+      if k == k' then
+        k
+      else
+        haveI h' : containsKey k' l := by rwa [containsKey_modifyKey] at h
+        getKey k' l h' := by
   simp [modifyKey_eq_alterKey, getKey_alterKey, hl]
   rfl
 
@@ -3682,10 +3686,10 @@ theorem getKey_modifyKey_self  [Inhabited α] {k : α} {f : β → β} (l : List
 
 theorem getKeyD_modifyKey  {k k' d : α} {f : β → β} (l : List ((_ : α) × β)) (hl : DistinctKeys l) :
     getKeyD k' (modifyKey k f l) d =
-    if k == k' then
-      if containsKey k l then k else d
-    else
-      getKeyD k' l d := by
+      if k == k' then
+        if containsKey k l then k else d
+      else
+        getKeyD k' l d := by
   simp [modifyKey_eq_alterKey, getKeyD_alterKey, containsKey_eq_isSome_getValue?, hl]
 
 theorem getKeyD_modifyKey_self  [Inhabited α] {k d : α} {f : β → β} (l : List ((_ : α) × β))

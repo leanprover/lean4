@@ -2709,7 +2709,7 @@ LEAN_EXPORT lean_object* l_List_flatMap___rarg(lean_object* x_1, lean_object* x_
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_map___rarg(x_2, x_1);
+x_3 = l_List_map___rarg(x_1, x_2);
 x_4 = l_List_flatten___rarg(x_3);
 return x_4;
 }
@@ -2765,7 +2765,7 @@ LEAN_EXPORT lean_object* l_List_bind___rarg(lean_object* x_1, lean_object* x_2) 
 _start:
 {
 lean_object* x_3; lean_object* x_4; 
-x_3 = l_List_map___rarg(x_2, x_1);
+x_3 = l_List_map___rarg(x_1, x_2);
 x_4 = l_List_flatten___rarg(x_3);
 return x_4;
 }

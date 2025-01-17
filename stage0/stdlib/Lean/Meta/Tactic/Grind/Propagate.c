@@ -6740,7 +6740,10 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
 x_37 = l_Lean_Meta_Grind_simp(x_36, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_33);
 if (lean_obj_tag(x_37) == 0)
 {
@@ -7074,7 +7077,10 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_13);
 lean_inc(x_12);
+lean_inc(x_11);
 lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
 x_86 = l_Lean_Meta_Grind_simp(x_85, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_83);
 if (lean_obj_tag(x_86) == 0)
 {

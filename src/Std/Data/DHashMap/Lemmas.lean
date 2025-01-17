@@ -2064,21 +2064,6 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
--- theorem alter_empty [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
---     Const.alter empty k f =
---     match f none with
---     | none => empty
---     | some v => empty.insert k v :=
---   sorry
-
--- theorem alter_empty_of_none [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
---     (h : f none = none) : Const.alter empty k f = empty := by
---   rw [alter_empty, h]
-
--- theorem alter_empty_of_some [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
---     {v : β} (h : f none = some v) : Const.alter empty k f = empty.insert k v := by
---   rw [alter_empty, h]
-
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
     (Const.alter m k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (Const.get? m k) = none :=
@@ -2267,22 +2252,9 @@ theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d
 
 end Const
 
--- variable {β : Type v} {m : DHashMap α (fun _ => β)} in
--- theorem constAlter_eq_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
---     Const.alter m k f = m.alter k f :=
---   Raw₀. ⟨m.1, _⟩ m.2
-
 end Alter
 
 section Modify
-
--- @[simp]
--- theorem modify_empty [LawfulBEq α] {k : α} {f : β k → β k} : empty.modify k f = empty :=
---   Raw₀.fff ⟨m.1, _⟩ m.2
-
--- theorem modify_of_not_mem [LawfulBEq α] {k : α} {f g : β k → β k} (h : k ∉ m) :
---     m.modify k f = m :=
---   Raw₀.fff ⟨m.1, _⟩ m.2
 
 @[simp]
 theorem isEmpty_modify [LawfulBEq α] {k : α} {f : β k → β k} :
@@ -2409,26 +2381,9 @@ theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k d : α} {f : β k �
     (m.modify k f).getKeyD k d = if k ∈ m then k else d :=
   Raw₀.getKeyD_modify_self ⟨m.1, _⟩ m.2
 
--- theorem modify_eq_alter [LawfulBEq α] {k : α} {f : β k → β k} :
---     m.modify k f = m.alter k (·.map f) := sorry
-
--- variable {β : Type v} {m : DHashMap α (fun _ => β)} in
--- theorem modify_eq_constAlter [LawfulBEq α] {k : α} {f : β → β} :
---     m.modify k f = Const.alter m k (·.map f) := by
---   rw [modify_eq_alter, ← constAlter_eq_alter]
-
 namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
-
--- @[simp]
--- theorem modify_empty [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :
---     Const.modify empty k f = empty :=
---   sorry
-
--- theorem modify_of_not_mem [EquivBEq α] [LawfulHashable α] {k : α} {f g : β → β} (h : k ∉ m) :
---     Const.modify m k f = m :=
---   sorry
 
 @[simp]
 theorem isEmpty_modify [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} :

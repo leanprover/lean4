@@ -2810,28 +2810,6 @@ theorem length_alterKey' {k : α} {f : Option (β k) → Option (β k)}
   rw [alterKey]
   cases h : containsKey k l <;> split <;> split <;> simp_all [length_eraseKey, length_insertEntry]
 
--- probably unused. I encountered some issues deriving RawLemmas from these and decided that
--- it's not worth the trouble when the lemmas are one-liners
--- theorem length_alterKey_eq_add_one {k : α} {f : Option (β k) → Option (β k)}
---     {l : List ((a : α) × β a)} (h : containsKey k l = false) (h' : (f (getValueCast? k l)).isSome) :
---     (alterKey k f l).length = l.length + 1 := by
---   simp [length_alterKey', h, h']
-
--- theorem length_alterKey_eq_sub_one {k : α} {f : Option (β k) → Option (β k)}
---     {l : List ((a : α) × β a)} (h : containsKey k l) (h' : (f (getValueCast? k l)).isNone) :
---     (alterKey k f l).length = l.length - 1 := by
---   simp [length_alterKey', h, h']
-
--- theorem length_alterKey_eq_self {k : α} {f : Option (β k) → Option (β k)}
---     {l : List ((a : α) × β a)} (h : containsKey k l) (h' : (f (getValueCast? k l)).isSome) :
---     (alterKey k f l).length = l.length := by
---   simp [length_alterKey', h, Option.isSome_iff_ne_none.mp h']
-
--- theorem length_alterKey_eq_self' {k : α} {f : Option (β k) → Option (β k)}
---     {l : List ((a : α) × β a)} (h : containsKey k l = false) (h' : (f (getValueCast? k l)).isNone) :
---     (alterKey k f l).length = l.length := by
---   simp [length_alterKey', h, h']
-
 theorem alterKey_cons_perm {k : α} {f : Option (β k) → Option (β k)}
     {k' : α} {v' : β k'} {l : List ((a : α) × β a)} :
       Perm (alterKey k f (⟨k', v'⟩ :: l)) (if hk : k' == k then

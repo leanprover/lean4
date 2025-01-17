@@ -705,11 +705,11 @@ theorem toListModel_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable 
   rw [Const.modify_eq_alter, Const.modifyKey_eq_alterKey]
   exact Const.toListModel_alter h
 
-theorem wfImp_modifyₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
+theorem wfImp_modifyₘ [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modifyₘ m a f).1 :=
   Const.wfImp_alterₘ h
 
-theorem wfImp_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α] {m : Raw₀ α (fun _ => β)}
+theorem wfImp_modify [BEq α] [EquivBEq α] [Hashable α] [LawfulHashable α]
     (h : Raw.WFImp m.1) {a : α} {f : β → β} : Raw.WFImp (Const.modify m a f).1 := by
   rw [Const.modify_eq_modifyₘ]
   exact wfImp_alterₘ h

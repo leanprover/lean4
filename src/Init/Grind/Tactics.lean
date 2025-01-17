@@ -51,6 +51,8 @@ structure Config where
   failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
   canonHeartbeats : Nat := 1000
+  /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
+  ext : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

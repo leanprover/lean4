@@ -8,6 +8,7 @@ import Init.Grind
 import Lean.Meta.Tactic.Grind.Proof
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
@@ -133,6 +134,19 @@ builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
   if (← isEqTrue e) then
     let_expr Eq _ a b := e | return ()
     pushEq a b <| mkOfEqTrueCore e (← mkEqTrueProof e)
+  else if (← isEqFalse e) then
+    let_expr Eq α lhs rhs := e | return ()
+    let thms ← getExtTheorems α
+    if !thms.isEmpty then
+      /-
+      Heuristic for lists: If `lhs` or `rhs` are contructors we do not apply extensionality theorems.
+      For example, we don't want to apply the extensionality theorem to things like `xs ≠ []`.
+      TODO: polish this hackish heuristic later.
+      -/
+      if α.isAppOf ``List && ((← getRootENode lhs).ctor || (← getRootENode rhs).ctor) then
+        return ()
+      for thm in (← getExtTheorems α) do
+        instantiateExtTheorem thm e
 
 /-- Propagates `EqMatch` downwards -/
 builtin_grind_propagator propagateEqMatchDown ↓Grind.EqMatch := fun e => do

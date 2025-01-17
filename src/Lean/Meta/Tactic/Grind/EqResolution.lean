@@ -7,9 +7,7 @@ prelude
 import Lean.Meta.AppBuilder
 
 namespace Lean.Meta.Grind
-/-!
-A basic "equality resolution" procedure to make Kim happy.
--/
+/-! A basic "equality resolution" procedure. -/
 
 private def eqResCore (prop proof : Expr) : MetaM (Option (Expr × Expr)) := withNewMCtxDepth do
   let (ms, _, type) ← forallMetaTelescopeReducing prop

@@ -5,6 +5,7 @@ Authors: Gabriel Ebner, Mario Carneiro
 -/
 prelude
 import Init.Ext
+import Lean.Meta.Tactic.Ext
 import Lean.Elab.DeclarationRange
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Tactic.Repeat
@@ -174,65 +175,8 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
 ### Attribute
 -/
 
-/-- Information about an extensionality theorem, stored in the environment extension. -/
-structure ExtTheorem where
-  /-- Declaration name of the extensionality theorem. -/
-  declName : Name
-  /-- Priority of the extensionality theorem. -/
-  priority : Nat
-  /--
-  Key in the discrimination tree,
-  for the type in which the extensionality theorem holds.
-  -/
-  keys : Array DiscrTree.Key
-  deriving Inhabited, Repr, BEq, Hashable
-
-/-- The state of the `ext` extension environment -/
-structure ExtTheorems where
-  /-- The tree of `ext` extensions. -/
-  tree   : DiscrTree ExtTheorem := {}
-  /-- Erased `ext`s via `attribute [-ext]`. -/
-  erased  : PHashSet Name := {}
-  deriving Inhabited
-
-/-- The environment extension to track `@[ext]` theorems. -/
-builtin_initialize extExtension :
-    SimpleScopedEnvExtension ExtTheorem ExtTheorems ←
-  registerSimpleScopedEnvExtension {
-    addEntry := fun { tree, erased } thm =>
-      { tree := tree.insertCore thm.keys thm, erased := erased.erase thm.declName }
-    initial := {}
-  }
-
-/-- Gets the list of `@[ext]` theorems corresponding to the key `ty`,
-ordered from high priority to low. -/
-@[inline] def getExtTheorems (ty : Expr) : MetaM (Array ExtTheorem) := do
-  let extTheorems := extExtension.getState (← getEnv)
-  let arr ← extTheorems.tree.getMatch ty
-  let erasedArr := arr.filter fun thm => !extTheorems.erased.contains thm.declName
-  -- Using insertion sort because it is stable and the list of matches should be mostly sorted.
-  -- Most ext theorems have default priority.
-  return erasedArr.insertionSort (·.priority < ·.priority) |>.reverse
-
-/--
-Erases a name marked `ext` by adding it to the state's `erased` field and
-removing it from the state's list of `Entry`s.
-
-This is triggered by `attribute [-ext] name`.
--/
-def ExtTheorems.eraseCore (d : ExtTheorems) (declName : Name) : ExtTheorems :=
- { d with erased := d.erased.insert declName }
-
-/--
-Erases a name marked as a `ext` attribute.
-Check that it does in fact have the `ext` attribute by making sure it names a `ExtTheorem`
-found somewhere in the state's tree, and is not erased.
--/
-def ExtTheorems.erase [Monad m] [MonadError m] (d : ExtTheorems) (declName : Name) :
-    m ExtTheorems := do
-  unless d.tree.containsValueP (·.declName == declName) && !d.erased.contains declName do
-    throwError "'{declName}' does not have [ext] attribute"
-  return d.eraseCore declName
+abbrev extExtension := Meta.Ext.extExtension
+abbrev getExtTheorems := Meta.Ext.getExtTheorems
 
 builtin_initialize registerBuiltinAttribute {
   name := `ext

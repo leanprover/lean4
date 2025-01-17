@@ -210,3 +210,86 @@ set_option trace.grind.ematch.instance true in
 set_option trace.grind.assert true in
 example (P Q R : α → Prop) (h₁ : ∀ x, Q x → P x) (h₂ : ∀ x, R x → False = (P x)) : Q a → R a → False := by
   grind
+
+example (w : Nat → Type) (h : ∀ n, Subsingleton (w n)) : True := by
+  grind
+
+example {P1 P2 : Prop} : (P1 ∧ P2) ↔ (P2 ∧ P1) := by
+  grind
+
+example {P U V W : Prop} (h : P ↔ (V ↔ W)) (w : ¬ U ↔ V) : ¬ P ↔ (U ↔ W) := by
+  grind
+
+example {P Q : Prop} (q : Q) (w : P = (P = ¬ Q)) : False := by
+  grind
+
+example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
+  grind
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  simp_arith -- should not fail
+  sorry
+
+example {α} (a b c : α) [LE α] :
+  ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
+  grind
+
+example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true) := by
+  grind
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = q
+a✝ : p
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] p = q
+    [prop] p
+  [eqc] True propositions
+    [prop] p = q
+    [prop] q
+    [prop] p
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
+a✝¹ : p = ¬q
+a✝ : p
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] p = ¬q
+    [prop] p
+  [eqc] True propositions
+    [prop] p = ¬q
+    [prop] ¬q
+    [prop] p
+  [eqc] False propositions
+    [prop] q
+-/
+#guard_msgs (error) in
+set_option trace.grind.split true in
+example (p q : Prop) : ¬(p ↔ q) → p → False := by
+  grind -- should not split on (p ↔ q)
+
+example {a b : Nat} (h : a < b) : ¬ b < a := by
+  grind
+
+example {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m := by
+  grind
+
+example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (f a) := by
+  grind
+
+example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
+  grind

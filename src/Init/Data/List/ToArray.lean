@@ -46,7 +46,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem isEmpty_toArray (l : List α) : l.toArray.isEmpty = l.isEmpty := by
   cases l <;> simp [Array.isEmpty]
 
-@[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = singleton a := rfl
+@[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = Array.singleton a := rfl
 
 @[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
   simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
@@ -142,6 +142,9 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
     l.toArray.foldl f init 0 stop = l.foldl f init := by
   subst h
   rw [foldl_toList]
+
+@[simp] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
+  simp [Array.sum, List.sum]
 
 @[simp] theorem append_toArray (l₁ l₂ : List α) :
     l₁.toArray ++ l₂.toArray = (l₁ ++ l₂).toArray := by
@@ -393,5 +396,25 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
 
 @[deprecated toArray_replicate (since := "2024-12-13")]
 abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
+
+@[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
+
+theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) :
+    (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by
+  simp [Array.flatMap]
+  suffices ∀ cs, List.foldl (fun bs a => bs ++ f a) (f a ++ cs) as =
+      f a ++ List.foldl (fun bs a => bs ++ f a) cs as by
+    erw [empty_append] -- Why doesn't this work via `simp`?
+    simpa using this #[]
+  intro cs
+  induction as generalizing cs <;> simp_all
+
+@[simp] theorem flatMap_toArray {β} (f : α → Array β) (as : List α) :
+    as.toArray.flatMap f = (as.flatMap (fun a => (f a).toList)).toArray := by
+  induction as with
+  | nil => simp
+  | cons a as ih =>
+    apply ext'
+    simp [ih, flatMap_toArray_cons]
 
 end List

@@ -53,11 +53,13 @@ theorem left_comm [CommMonoid α] (a b c : α) : a * (b * c) = b * (a * c) := by
 open Lean Meta Elab Tactic Grind in
 def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isAppOf ``HMul.hMul
-  logInfo (nodes.toList.map (·.self))
+  trace[Meta.debug] "{nodes.toList.map (·.self)}"
   (← get).mvarId.admit
 
+set_option trace.Meta.debug true
+
 /--
-info: [b * c, a * (b * c), d * (b * c)]
+info: [Meta.debug] [b * c, a * (b * c), d * (b * c)]
 -/
 #guard_msgs (info) in
 example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
@@ -68,7 +70,8 @@ example (a b c d : Nat) : b * (a * c) = d * (b * c) → False := by
 set_option pp.notation false in
 set_option pp.explicit true in
 /--
-info: [@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a, @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
+info: [Meta.debug] [@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b a,
+     @HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) b d]
 -/
 #guard_msgs (info) in
 example (a b c d : Nat) : b * a = d * b → False := by

@@ -6,12 +6,13 @@ def f (a : α) := a
 open Lean Meta Grind in
 def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isAppOf ``f
-  logInfo (nodes.toList.map (·.self))
+  trace[Meta.debug] "{nodes.toList.map (·.self)}"
   (← get).mvarId.admit
 
+set_option trace.Meta.debug true
 set_option pp.explicit true
 /--
-info: [@f Nat a, @f Nat b]
+info: [Meta.debug] [@f Nat a, @f Nat b]
 -/
 #guard_msgs (info) in
 example (a b c d : Nat) : @f Nat a = b → @f (g Nat) a = c → @f (g Nat) b = d → a = b → False := by

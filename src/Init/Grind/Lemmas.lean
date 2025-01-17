@@ -12,6 +12,9 @@ import Init.Grind.Util
 
 namespace Lean.Grind
 
+theorem rfl_true : true = true :=
+  rfl
+
 theorem intro_with_eq (p p' q : Prop) (he : p = p') (h : p' → q) : p → q :=
   fun hp => h (he.mp hp)
 
@@ -65,6 +68,12 @@ theorem eq_eq_of_eq_true_right {a b : Prop} (h : b = True) : (a = b) = a := by s
 
 theorem eq_congr  {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = a₂) (h₂ : b₁ = b₂) : (a₁ = b₁) = (a₂ = b₂) := by simp [*]
 theorem eq_congr' {α : Sort u} {a₁ b₁ a₂ b₂ : α} (h₁ : a₁ = b₂) (h₂ : b₁ = a₂) : (a₁ = b₁) = (a₂ = b₂) := by rw [h₁, h₂, Eq.comm (a := a₂)]
+
+/- The following two helper theorems are used to case-split `a = b` representing `iff`. -/
+theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (¬a ∨ b) ∧ (¬b ∨ a) := by
+  by_cases a <;> by_cases b <;> simp_all
+theorem of_eq_eq_false {a b : Prop} (h : (a = b) = False) : (¬a ∨ ¬b) ∧ (b ∨ a) := by
+  by_cases a <;> by_cases b <;> simp_all
 
 /-! Forall -/
 

@@ -38,6 +38,9 @@ declare_config_elab elabBVDecideConfig Lean.Elab.Tactic.BVDecide.Frontend.BVDeci
 builtin_initialize bvNormalizeExt : Meta.SimpExtension ←
   Meta.registerSimpAttr `bv_normalize "simp theorems used by bv_normalize"
 
+builtin_initialize intToBitVecExt : Meta.SimpExtension ←
+  Meta.registerSimpAttr `int_toBitVec "simp theorems used to convert UIntX/IntX statements into BitVec ones"
+
 /-- Builtin `bv_normalize` simprocs. -/
 builtin_initialize builtinBVNormalizeSimprocsRef : IO.Ref Meta.Simp.Simprocs ← IO.mkRef {}
 

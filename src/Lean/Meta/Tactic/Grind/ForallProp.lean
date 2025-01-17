@@ -8,6 +8,7 @@ import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.EqResolution
 
 namespace Lean.Meta.Grind
 /--
@@ -24,7 +25,7 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
     unless (← isEqTrue p) do return
     trace_goal[grind.debug.forallPropagator] "isEqTrue, {e}"
     let h₁ ← mkEqTrueProof p
-    let qh₁ := q.instantiate1 (mkApp2 (mkConst ``of_eq_true) p h₁)
+    let qh₁ := q.instantiate1 (mkOfEqTrueCore p h₁)
     let r ← simp qh₁
     let q := mkLambda n bi p q
     let q' := r.expr
@@ -51,6 +52,13 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   let .fvar fvarId := p | return none
   return some fvarId
 
+/-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
+private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+  try
+    mkEMatchTheoremWithKind? origin #[] proof kind
+  catch _ =>
+    return none
+
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
   let origin ← if let some fvarId := isEqTrueHyp? proof then
@@ -58,19 +66,19 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   else
     let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
-  let proof := mkApp2 (mkConst ``of_eq_true) e proof
+  let proof := mkOfEqTrueCore e proof
   let size := (← get).newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .fwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .fwd then
     activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .bwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .bwd then
     activateTheorem thm gen
   if (← get).newThms.size == size then
-    if let some thm ← mkEMatchTheoremWithKind? origin #[] proof .default then
+    if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
   if (← get).newThms.size == size then
-    trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"
+    reportIssue m!"failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()
@@ -89,7 +97,13 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
       pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
   else if (← isEqTrue e) then
-    if b.hasLooseBVars then
-      addLocalEMatchTheorems e
+    if let some (e', h') ← eqResolution e then
+      trace[grind.eqResolution] "{e}, {e'}"
+      let h := mkOfEqTrueCore e (← mkEqTrueProof e)
+      let h' := mkApp h' h
+      addNewFact h' e' (← getGeneration e)
+    else
+      if b.hasLooseBVars then
+        addLocalEMatchTheorems e
 
 end Lean.Meta.Grind

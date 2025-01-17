@@ -46,8 +46,8 @@ def wait (s : Sleep) : IO (AsyncTask Unit) := do
 
 /--
 If:
-- `s` is still running this will delay the resolution of `AsyncTask`s created with `wait` by
-  `duration` milliseconds.
+- `s` is still running the timer restarts counting from now and finishes after `duration`
+  milliseconds.
 - `s` is not yet or not anymore running this is a no-op.
 -/
 @[inline]
@@ -56,7 +56,7 @@ def reset (s : Sleep) : IO Unit :=
 
 /--
 If:
-- `s` is still running this stops `s` without resolving any remaing `AsyncTask` that were created
+- `s` is still running this stops `s` without resolving any remaining `AsyncTask`s that were created
   through `wait`. Note that if another `AsyncTask` is binding on any of these it is going hang
   forever without further intervention.
 - `s` is not yet or not anymore running this is a no-op.

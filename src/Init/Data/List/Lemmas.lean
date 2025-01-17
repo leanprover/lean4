@@ -1076,8 +1076,30 @@ theorem forall_mem_map {f : α → β} {l : List α} {P : β → Prop} :
 
 @[deprecated forall_mem_map (since := "2024-07-25")] abbrev forall_mem_map_iff := @forall_mem_map
 
+@[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
+  constructor <;> exact fun _ => match l with | [] => rfl
+
+@[deprecated map_eq_nil_iff (since := "2024-09-05")] abbrev map_eq_nil := @map_eq_nil_iff
+
+theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
+  map_eq_nil_iff.mp h
+
 @[simp] theorem map_inj_left {f g : α → β} : map f l = map g l ↔ ∀ a ∈ l, f a = g a := by
   induction l <;> simp_all
+
+theorem map_inj_right {f : α → β} (w : ∀ x y, f x = f y → x = y) : map f l = map f l' ↔ l = l' := by
+  induction l generalizing l' with
+  | nil => simp
+  | cons a l ih =>
+    simp only [map_cons]
+    cases l' with
+    | nil => simp
+    | cons a' l' =>
+      simp only [map_cons, cons.injEq, ih, and_congr_left_iff]
+      intro h
+      constructor
+      · apply w
+      · simp +contextual
 
 theorem map_congr_left (h : ∀ a ∈ l, f a = g a) : map f l = map g l :=
   map_inj_left.2 h
@@ -1086,14 +1108,6 @@ theorem map_inj : map f = map g ↔ f = g := by
   constructor
   · intro h; ext a; replace h := congrFun h [a]; simpa using h
   · intro h; subst h; rfl
-
-@[simp] theorem map_eq_nil_iff {f : α → β} {l : List α} : map f l = [] ↔ l = [] := by
-  constructor <;> exact fun _ => match l with | [] => rfl
-
-@[deprecated map_eq_nil_iff (since := "2024-09-05")] abbrev map_eq_nil := @map_eq_nil_iff
-
-theorem eq_nil_of_map_eq_nil {f : α → β} {l : List α} (h : map f l = []) : l = [] :=
-  map_eq_nil_iff.mp h
 
 theorem map_eq_cons_iff {f : α → β} {l : List α} :
     map f l = b :: l₂ ↔ ∃ a l₁, l = a :: l₁ ∧ f a = b ∧ map f l₁ = l₂ := by
@@ -1494,6 +1508,34 @@ theorem filterMap_eq_cons_iff {l} {b} {bs} :
 @[simp] theorem cons_append_fun (a : α) (as : List α) :
     (fun bs => ((a :: as) ++ bs)) = fun bs => a :: (as ++ bs) := rfl
 
+@[simp] theorem mem_append {a : α} {s t : List α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
+  induction s <;> simp_all [or_assoc]
+
+theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
+  mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
+
+@[deprecated mem_append (since := "2025-01-13")]
+theorem mem_append_eq (a : α) (s t : List α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
+  propext mem_append
+
+@[deprecated mem_append_left (since := "2024-11-20")] abbrev mem_append_of_mem_left := @mem_append_left
+@[deprecated mem_append_right (since := "2024-11-20")] abbrev mem_append_of_mem_right := @mem_append_right
+
+/--
+See also `eq_append_cons_of_mem`, which proves a stronger version
+in which the initial list must not contain the element.
+-/
+theorem append_of_mem {a : α} {l : List α} : a ∈ l → ∃ s t : List α, l = s ++ a :: t
+  | .head l => ⟨[], l, rfl⟩
+  | .tail b h => let ⟨s, t, h'⟩ := append_of_mem h; ⟨b::s, t, by rw [h', cons_append]⟩
+
+theorem mem_iff_append {a : α} {l : List α} : a ∈ l ↔ ∃ s t : List α, l = s ++ a :: t :=
+  ⟨append_of_mem, fun ⟨s, t, e⟩ => e ▸ by simp⟩
+
+theorem forall_mem_append {p : α → Prop} {l₁ l₂ : List α} :
+    (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
+  simp only [mem_append, or_imp, forall_and]
+
 theorem getElem_append {l₁ l₂ : List α} (i : Nat) (h : i < (l₁ ++ l₂).length) :
     (l₁ ++ l₂)[i] = if h' : i < l₁.length then l₁[i] else l₂[i - l₁.length]'(by simp at h h'; exact Nat.sub_lt_left_of_lt_add h' h) := by
   split <;> rename_i h'
@@ -1561,14 +1603,6 @@ theorem get_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.lengt
     l.get ⟨i, get_of_append_proof eq h⟩ = a := Option.some.inj <| by
   rw [← get?_eq_get, eq, get?_append_right (h ▸ Nat.le_refl _), h, Nat.sub_self]; rfl
 
-/--
-See also `eq_append_cons_of_mem`, which proves a stronger version
-in which the initial list must not contain the element.
--/
-theorem append_of_mem {a : α} {l : List α} : a ∈ l → ∃ s t : List α, l = s ++ a :: t
-  | .head l => ⟨[], l, rfl⟩
-  | .tail b h => let ⟨s, t, h'⟩ := append_of_mem h; ⟨b::s, t, by rw [h', cons_append]⟩
-
 @[simp 1100] theorem singleton_append : [x] ++ l = x :: l := rfl
 
 theorem append_inj :
@@ -1585,8 +1619,8 @@ theorem append_inj_left (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length s₁ = le
 
 /-- Variant of `append_inj` instead requiring equality of the lengths of the second lists. -/
 theorem append_inj' (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : s₁ = s₂ ∧ t₁ = t₂ :=
-  append_inj h <| @Nat.add_right_cancel _ (length t₁) _ <| by
-  let hap := congrArg length h; simp only [length_append, ← hl] at hap; exact hap
+  append_inj h <| @Nat.add_right_cancel _ t₁.length _ <| by
+    let hap := congrArg length h; simp only [length_append, ← hl] at hap; exact hap
 
 /-- Variant of `append_inj_right` instead requiring equality of the lengths of the second lists. -/
 theorem append_inj_right' (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : length t₁ = length t₂) : t₁ = t₂ :=
@@ -1614,9 +1648,6 @@ theorem append_left_inj {s₁ s₂ : List α} (t) : s₁ ++ t = s₂ ++ t ↔ s�
 @[simp] theorem self_eq_append_right {x y : List α} : x = x ++ y ↔ y = [] := by
   rw [eq_comm, append_right_eq_self]
 
-@[simp] theorem append_eq_nil : p ++ q = [] ↔ p = [] ∧ q = [] := by
-  cases p <;> simp
-
 theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp) = a
   | [] => rfl
   | a::t => by
@@ -1641,6 +1672,54 @@ theorem get_append_right (as bs : List α) (h : as.length ≤ i) {h' h''} :
 theorem get?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
     (l₁ ++ l₂).get? n = l₁.get? n := by
   simp [getElem?_append_left hn]
+
+@[simp] theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by
+  cases p <;> simp
+
+@[deprecated append_eq_nil_iff (since := "2025-01-13")] abbrev append_eq_nil := @append_eq_nil_iff
+
+@[simp] theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
+  rw [eq_comm, append_eq_nil_iff]
+
+@[deprecated nil_eq_append_iff (since := "2024-07-24")] abbrev nil_eq_append := @nil_eq_append_iff
+
+theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
+theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
+
+@[deprecated append_ne_nil_of_left_ne_nil (since := "2024-07-24")]
+theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
+@[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
+theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
+
+theorem append_eq_cons_iff :
+    a ++ b = x :: c ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by
+  cases a with simp | cons a as => ?_
+  exact ⟨fun h => ⟨as, by simp [h]⟩, fun ⟨a', ⟨aeq, aseq⟩, h⟩ => ⟨aeq, by rw [aseq, h]⟩⟩
+
+@[deprecated append_eq_cons_iff (since := "2024-07-24")] abbrev append_eq_cons := @append_eq_cons_iff
+
+theorem cons_eq_append_iff :
+    x :: c = a ++ b ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by
+  rw [eq_comm, append_eq_cons_iff]
+
+@[deprecated cons_eq_append_iff (since := "2024-07-24")] abbrev cons_eq_append := @cons_eq_append_iff
+
+theorem append_eq_singleton_iff :
+    a ++ b = [x] ↔ (a = [] ∧ b = [x]) ∨ (a = [x] ∧ b = []) := by
+  cases a <;> cases b <;> simp
+
+theorem singleton_eq_append_iff :
+    [x] = a ++ b ↔ (a = [] ∧ b = [x]) ∨ (a = [x] ∧ b = []) := by
+  cases a <;> cases b <;> simp [eq_comm]
+
+theorem append_eq_append_iff {a b c d : List α} :
+    a ++ b = c ++ d ↔ (∃ a', c = a ++ a' ∧ b = a' ++ d) ∨ ∃ c', a = c ++ c' ∧ d = c' ++ b := by
+  induction a generalizing c with
+  | nil => simp_all
+  | cons a as ih => cases c <;> simp [eq_comm, and_assoc, ih, and_or_left]
+
+@[deprecated append_inj (since := "2024-07-24")] abbrev append_inj_of_length_left := @append_inj
+@[deprecated append_inj' (since := "2024-07-24")] abbrev append_inj_of_length_right := @append_inj'
 
 @[simp] theorem head_append_of_ne_nil {l : List α} {w₁} (w₂) :
     head (l ++ l') w₁ = head l w₂ := by
@@ -1690,60 +1769,6 @@ theorem tail_append {l l' : List α} : (l ++ l').tail = if l.isEmpty then l'.tai
   simp_all [tail_append]
 
 @[deprecated tail_append_of_ne_nil (since := "2024-07-24")] abbrev tail_append_left := @tail_append_of_ne_nil
-
-theorem nil_eq_append_iff : [] = a ++ b ↔ a = [] ∧ b = [] := by
-  rw [eq_comm, append_eq_nil]
-
-@[deprecated nil_eq_append_iff (since := "2024-07-24")] abbrev nil_eq_append := @nil_eq_append_iff
-
-theorem append_ne_nil_of_left_ne_nil {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
-theorem append_ne_nil_of_right_ne_nil (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
-
-@[deprecated append_ne_nil_of_left_ne_nil (since := "2024-07-24")]
-theorem append_ne_nil_of_ne_nil_left {s : List α} (h : s ≠ []) (t : List α) : s ++ t ≠ [] := by simp_all
-@[deprecated append_ne_nil_of_right_ne_nil (since := "2024-07-24")]
-theorem append_ne_nil_of_ne_nil_right (s : List α) : t ≠ [] → s ++ t ≠ [] := by simp_all
-
-theorem append_eq_cons_iff :
-    a ++ b = x :: c ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by
-  cases a with simp | cons a as => ?_
-  exact ⟨fun h => ⟨as, by simp [h]⟩, fun ⟨a', ⟨aeq, aseq⟩, h⟩ => ⟨aeq, by rw [aseq, h]⟩⟩
-
-@[deprecated append_eq_cons_iff (since := "2024-07-24")] abbrev append_eq_cons := @append_eq_cons_iff
-
-theorem cons_eq_append_iff :
-    x :: c = a ++ b ↔ (a = [] ∧ b = x :: c) ∨ (∃ a', a = x :: a' ∧ c = a' ++ b) := by
-  rw [eq_comm, append_eq_cons_iff]
-
-@[deprecated cons_eq_append_iff (since := "2024-07-24")] abbrev cons_eq_append := @cons_eq_append_iff
-
-theorem append_eq_append_iff {a b c d : List α} :
-    a ++ b = c ++ d ↔ (∃ a', c = a ++ a' ∧ b = a' ++ d) ∨ ∃ c', a = c ++ c' ∧ d = c' ++ b := by
-  induction a generalizing c with
-  | nil => simp_all
-  | cons a as ih => cases c <;> simp [eq_comm, and_assoc, ih, and_or_left]
-
-@[deprecated append_inj (since := "2024-07-24")] abbrev append_inj_of_length_left := @append_inj
-@[deprecated append_inj' (since := "2024-07-24")] abbrev append_inj_of_length_right := @append_inj'
-
-@[simp] theorem mem_append {a : α} {s t : List α} : a ∈ s ++ t ↔ a ∈ s ∨ a ∈ t := by
-  induction s <;> simp_all [or_assoc]
-
-theorem not_mem_append {a : α} {s t : List α} (h₁ : a ∉ s) (h₂ : a ∉ t) : a ∉ s ++ t :=
-  mt mem_append.1 $ not_or.mpr ⟨h₁, h₂⟩
-
-theorem mem_append_eq (a : α) (s t : List α) : (a ∈ s ++ t) = (a ∈ s ∨ a ∈ t) :=
-  propext mem_append
-
-@[deprecated mem_append_left (since := "2024-11-20")] abbrev mem_append_of_mem_left := @mem_append_left
-@[deprecated mem_append_right (since := "2024-11-20")] abbrev mem_append_of_mem_right := @mem_append_right
-
-theorem mem_iff_append {a : α} {l : List α} : a ∈ l ↔ ∃ s t : List α, l = s ++ a :: t :=
-  ⟨append_of_mem, fun ⟨s, t, e⟩ => e ▸ by simp⟩
-
-theorem forall_mem_append {p : α → Prop} {l₁ l₂ : List α} :
-    (∀ (x) (_ : x ∈ l₁ ++ l₂), p x) ↔ (∀ (x) (_ : x ∈ l₁), p x) ∧ (∀ (x) (_ : x ∈ l₂), p x) := by
-  simp only [mem_append, or_imp, forall_and]
 
 theorem set_append {s t : List α} :
     (s ++ t).set i x = if i < s.length then s.set i x ++ t else s ++ t.set (i - s.length) x := by
@@ -1873,7 +1898,7 @@ theorem eq_nil_or_concat : ∀ l : List α, l = [] ∨ ∃ L b, l = concat L b
 
 /-! ### flatten -/
 
-@[simp] theorem length_flatten (L : List (List α)) : (flatten L).length = (L.map length).sum := by
+@[simp] theorem length_flatten (L : List (List α)) : L.flatten.length = (L.map length).sum := by
   induction L with
   | nil => rfl
   | cons =>
@@ -1887,6 +1912,9 @@ theorem flatten_singleton (l : List α) : [l].flatten = l := by simp
 
 @[simp] theorem flatten_eq_nil_iff {L : List (List α)} : L.flatten = [] ↔ ∀ l ∈ L, l = [] := by
   induction L <;> simp_all
+
+@[simp] theorem nil_eq_flatten_iff {L : List (List α)} : [] = L.flatten ↔ ∀ l ∈ L, l = [] := by
+  rw [eq_comm, flatten_eq_nil_iff]
 
 theorem flatten_ne_nil_iff {xs : List (List α)} : xs.flatten ≠ [] ↔ ∃ x, x ∈ xs ∧ x ≠ [] := by
   simp
@@ -1913,7 +1941,8 @@ theorem head?_flatten {L : List (List α)} : (flatten L).head? = L.findSome? fun
 -- `getLast?_flatten` is proved later, after the `reverse` section.
 -- `head_flatten` and `getLast_flatten` are proved in `Init.Data.List.Find`.
 
-@[simp] theorem map_flatten (f : α → β) (L : List (List α)) : map f (flatten L) = flatten (map (map f) L) := by
+@[simp] theorem map_flatten (f : α → β) (L : List (List α)) :
+    (flatten L).map f = (map (map f) L).flatten := by
   induction L <;> simp_all
 
 @[simp] theorem filterMap_flatten (f : α → Option β) (L : List (List α)) :
@@ -1966,6 +1995,26 @@ theorem flatten_eq_cons_iff {xs : List (List α)} {y : α} {ys : List α} :
   · rintro ⟨as, bs, cs, rfl, h₁, rfl⟩
     simp [flatten_eq_nil_iff.mpr h₁]
 
+theorem cons_eq_flatten_iff {xs : List (List α)} {y : α} {ys : List α} :
+    y :: ys = xs.flatten ↔
+      ∃ as bs cs, xs = as ++ (y :: bs) :: cs ∧ (∀ l, l ∈ as → l = []) ∧ ys = bs ++ cs.flatten := by
+  rw [eq_comm, flatten_eq_cons_iff]
+
+theorem flatten_eq_singleton_iff {xs : List (List α)} {y : α} :
+    xs.flatten = [y] ↔ ∃ as bs, xs = as ++ [y] :: bs ∧ (∀ l, l ∈ as → l = []) ∧ (∀ l, l ∈ bs → l = []) := by
+  rw [flatten_eq_cons_iff]
+  constructor
+  · rintro ⟨as, bs, cs, rfl, h₁, h₂⟩
+    simp at h₂
+    obtain ⟨rfl, h₂⟩ := h₂
+    exact ⟨as, cs, by simp, h₁, h₂⟩
+  · rintro ⟨as, bs, rfl, h₁, h₂⟩
+    exact ⟨as, [], bs, rfl, h₁, by simpa⟩
+
+theorem singleton_eq_flatten_iff {xs : List (List α)} {y : α} :
+    [y] = xs.flatten ↔ ∃ as bs, xs = as ++ [y] :: bs ∧ (∀ l, l ∈ as → l = []) ∧ (∀ l, l ∈ bs → l = []) := by
+  rw [eq_comm, flatten_eq_singleton_iff]
+
 theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
     xs.flatten = ys ++ zs ↔
       (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
@@ -1974,8 +2023,8 @@ theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
   constructor
   · induction xs generalizing ys with
     | nil =>
-      simp only [flatten_nil, nil_eq, append_eq_nil, and_false, cons_append, false_and, exists_const,
-        exists_false, or_false, and_imp, List.cons_ne_nil]
+      simp only [flatten_nil, nil_eq, append_eq_nil_iff, and_false, cons_append, false_and,
+        exists_const, exists_false, or_false, and_imp, List.cons_ne_nil]
       rintro rfl rfl
       exact ⟨[], [], by simp⟩
     | cons x xs ih =>
@@ -1993,6 +2042,13 @@ theorem flatten_eq_append_iff {xs : List (List α)} {ys zs : List α} :
   · rintro (⟨as, bs, rfl, rfl, rfl⟩ | ⟨as, bs, c, cs, ds, rfl, rfl, rfl⟩)
     · simp
     · simp
+
+theorem append_eq_flatten_iff {xs : List (List α)} {ys zs : List α} :
+    ys ++ zs = xs.flatten ↔
+      (∃ as bs, xs = as ++ bs ∧ ys = as.flatten ∧ zs = bs.flatten) ∨
+        ∃ as bs c cs ds, xs = as ++ (bs ++ c :: cs) :: ds ∧ ys = as.flatten ++ bs ∧
+          zs = c :: cs ++ ds.flatten := by
+  rw [eq_comm, flatten_eq_append_iff]
 
 /-- Two lists of sublists are equal iff their flattens coincide, as well as the lengths of the
 sublists. -/
@@ -2014,12 +2070,14 @@ theorem eq_iff_flatten_eq : ∀ {L L' : List (List α)},
 
 theorem flatMap_def (l : List α) (f : α → List β) : l.flatMap f = flatten (map f l) := by rfl
 
-@[simp] theorem flatMap_id (l : List (List α)) : List.flatMap l id = l.flatten := by simp [flatMap_def]
+@[simp] theorem flatMap_id (l : List (List α)) : l.flatMap id = l.flatten := by simp [flatMap_def]
+
+@[simp] theorem flatMap_id' (l : List (List α)) : l.flatMap (fun a => a) = l.flatten := by simp [flatMap_def]
 
 @[simp]
 theorem length_flatMap (l : List α) (f : α → List β) :
-    length (l.flatMap f) = sum (map (length ∘ f) l) := by
-  rw [List.flatMap, length_flatten, map_map]
+    length (l.flatMap f) = sum (map (fun a => (f a).length) l) := by
+  rw [List.flatMap, length_flatten, map_map, Function.comp_def]
 
 @[simp] theorem mem_flatMap {f : α → List β} {b} {l : List α} : b ∈ l.flatMap f ↔ ∃ a, a ∈ l ∧ b ∈ f a := by
   simp [flatMap_def, mem_flatten]
@@ -2032,7 +2090,7 @@ theorem mem_flatMap_of_mem {b : β} {l : List α} {f : α → List β} {a} (al :
     b ∈ l.flatMap f := mem_flatMap.2 ⟨a, al, h⟩
 
 @[simp]
-theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : List.flatMap l f = [] ↔ ∀ x ∈ l, f x = [] :=
+theorem flatMap_eq_nil_iff {l : List α} {f : α → List β} : l.flatMap f = [] ↔ ∀ x ∈ l, f x = [] :=
   flatten_eq_nil_iff.trans <| by
     simp only [mem_map, forall_exists_index, and_imp, forall_apply_eq_imp_iff₂]
 
@@ -2216,13 +2274,16 @@ theorem map_const' (l : List α) (b : β) : map (fun _ => b) l = replicate l.len
   · intro i h₁ h₂
     simp [getElem_set]
 
-@[simp] theorem append_replicate_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
+@[simp] theorem replicate_append_replicate : replicate n a ++ replicate m a = replicate (n + m) a := by
   rw [eq_replicate_iff]
   constructor
   · simp
   · intro b
     simp only [mem_append, mem_replicate, ne_eq]
     rintro (⟨-, rfl⟩ | ⟨_, rfl⟩) <;> rfl
+
+@[deprecated replicate_append_replicate (since := "2025-01-16")]
+abbrev append_replicate_replicate := @replicate_append_replicate
 
 theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
     l₁ ++ l₂ = replicate n a ↔
@@ -2233,6 +2294,11 @@ theorem append_eq_replicate_iff {l₁ l₂ : List α} {a : α} :
       mpr := fun h b x => Or.casesOn x (fun m => h.left b m) fun m => h.right b m }
 
 @[deprecated append_eq_replicate_iff (since := "2024-09-05")] abbrev append_eq_replicate := @append_eq_replicate_iff
+
+theorem replicate_eq_append_iff {l₁ l₂ : List α} {a : α} :
+    replicate n a = l₁ ++ l₂ ↔
+      l₁.length + l₂.length = n ∧ l₁ = replicate l₁.length a ∧ l₂ = replicate l₂.length a := by
+  rw [eq_comm, append_eq_replicate_iff]
 
 @[simp] theorem map_replicate : (replicate n a).map f = replicate n (f a) := by
   ext1 n
@@ -2285,7 +2351,7 @@ theorem filterMap_replicate_of_some {f : α → Option β} (h : f a = some b) :
   induction n with
   | zero => simp
   | succ n ih =>
-    simp only [replicate_succ, flatten_cons, ih, append_replicate_replicate, replicate_inj, or_true,
+    simp only [replicate_succ, flatten_cons, ih, replicate_append_replicate, replicate_inj, or_true,
       and_true, add_one_mul, Nat.add_comm]
 
 theorem flatMap_replicate {β} (f : α → List β) : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
@@ -2336,6 +2402,9 @@ theorem replicateRecOn {α : Type _} {p : List α → Prop} (m : List α)
     subst w
     exact hi _ _ _ _ h hn (replicateRecOn (b :: l') h0 hr hi)
 termination_by m.length
+
+@[simp] theorem sum_replicate_nat (n : Nat) (a : Nat) : (replicate n a).sum = n * a := by
+  induction n <;> simp_all [replicate_succ, Nat.add_mul, Nat.add_comm]
 
 /-! ### reverse -/
 

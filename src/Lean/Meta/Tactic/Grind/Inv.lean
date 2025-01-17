@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Proof
+import Lean.Meta.Tactic.Grind.Arith.Inv
 
 namespace Lean.Meta.Grind
 
@@ -58,9 +59,12 @@ private def checkParents (e : Expr) : GoalM Unit := do
           found := true
           break
       -- Recall that we have support for `Expr.forallE` propagation. See `ForallProp.lean`.
-      if let .forallE _ d _ _ := parent then
+      if let .forallE _ d b _ := parent then
         if (← checkChild d) then
           found := true
+        unless b.hasLooseBVars do
+          if (← checkChild b) then
+            found := true
       unless found do
         assert! (← checkChild parent.getAppFn)
   else
@@ -100,6 +104,7 @@ def checkInvariants (expensive := false) : GoalM Unit := do
         checkEqc node
     if expensive then
       checkPtrEqImpliesStructEq
+    Arith.checkInvariants
   if expensive && grind.debug.proofs.get (← getOptions) then
     checkProofs
 

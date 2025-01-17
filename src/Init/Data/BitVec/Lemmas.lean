@@ -11,6 +11,7 @@ import Init.Data.Fin.Lemmas
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.Div.Lemmas
 import Init.Data.Nat.Mod
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Bitwise.Lemmas
 import Init.Data.Int.Pow
 
@@ -98,6 +99,12 @@ theorem ofFin_eq_ofNat : @BitVec.ofFin w (Fin.mk x lt) = BitVec.ofNat w x := by
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toNat_eq {n} : ∀ {x y : BitVec n}, x.toNat = y.toNat → x = y
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
+
+/-- Prove nonequality of bitvectors in terms of nat operations. -/
+theorem toNat_ne_iff_ne {n} {x y : BitVec n} : x.toNat ≠ y.toNat ↔ x ≠ y := by
+  constructor
+  · rintro h rfl; apply h rfl
+  · intro h h_eq; apply h <| eq_of_toNat_eq h_eq
 
 @[simp] theorem val_toFin (x : BitVec w) : x.toFin.val = x.toNat := rfl
 
@@ -2694,6 +2701,10 @@ theorem toNat_umod {x y : BitVec n} :
     (x % y).toNat = x.toNat % y.toNat := rfl
 
 @[simp]
+theorem toFin_umod {x y : BitVec w} :
+    (x % y).toFin = x.toFin % y.toFin := rfl
+
+@[simp]
 theorem umod_zero {x : BitVec n} : x % 0#n = x := by
   simp [umod_def]
 
@@ -2719,6 +2730,55 @@ theorem umod_eq_and {x y : BitVec 1} : x % y = x &&& (~~~y) := by
   rcases hx with rfl | rfl <;>
     rcases hy with rfl | rfl <;>
       rfl
+
+theorem umod_eq_of_lt {x y : BitVec w} (h : x < y) :
+    x % y = x := by
+  apply eq_of_toNat_eq
+  simp [Nat.mod_eq_of_lt h]
+
+@[simp]
+theorem msb_umod {x y : BitVec w} :
+    (x % y).msb = (x.msb && (x < y || y == 0#w)) := by
+  rw [msb_eq_decide, toNat_umod]
+  cases msb_x : x.msb
+  · suffices x.toNat % y.toNat < 2 ^ (w - 1) by simpa
+    calc
+      x.toNat % y.toNat ≤ x.toNat     := by apply Nat.mod_le
+                      _ < 2 ^ (w - 1) := by simpa [msb_eq_decide] using msb_x
+  . by_cases hy : y = 0
+    · simp_all [msb_eq_decide]
+    · suffices 2 ^ (w - 1) ≤ x.toNat % y.toNat ↔ x < y by simp_all
+      by_cases x_lt_y : x < y
+      . simp_all [Nat.mod_eq_of_lt x_lt_y, msb_eq_decide]
+      · suffices x.toNat % y.toNat < 2 ^ (w - 1) by
+          simpa [x_lt_y]
+        have y_le_x : y.toNat ≤ x.toNat := by
+          simpa using x_lt_y
+        replace hy : y.toNat ≠ 0 :=
+          toNat_ne_iff_ne.mpr hy
+        by_cases msb_y : y.toNat < 2 ^ (w - 1)
+        · have : x.toNat % y.toNat < y.toNat := Nat.mod_lt _ (by omega)
+          omega
+        · rcases w with _|w
+          · contradiction
+          simp only [Nat.add_one_sub_one]
+          replace msb_y : 2 ^ w ≤ y.toNat := by
+            simpa using msb_y
+          have : y.toNat ≤ y.toNat * (x.toNat / y.toNat) := by
+              apply Nat.le_mul_of_pos_right
+              apply Nat.div_pos y_le_x
+              omega
+          have : x.toNat % y.toNat ≤ x.toNat - y.toNat := by
+            rw [Nat.mod_eq_sub]; omega
+          omega
+
+theorem toInt_umod {x y : BitVec w} :
+    (x % y).toInt = (x.toNat % y.toNat : Int).bmod (2 ^ w) := by
+  simp [toInt_eq_toNat_bmod]
+
+theorem toInt_umod_of_msb {x y : BitVec w} (h : x.msb = false) :
+    (x % y).toInt = x.toInt % y.toNat := by
+  simp [toInt_eq_msb_cond, h]
 
 /-! ### smtUDiv -/
 
@@ -3479,7 +3539,7 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 /-! ### Non-overflow theorems -/
 
-/-- If `x.toNat * y.toNat < 2^w`, then the multiplication `(x * y)` does not overflow. -/
+/-- If `x.toNat + y.toNat < 2^w`, then the addition `(x + y)` does not overflow. -/
 theorem toNat_add_of_lt {w} {x y : BitVec w} (h : x.toNat + y.toNat < 2^w) :
     (x + y).toNat = x.toNat + y.toNat := by
   rw [BitVec.toNat_add, Nat.mod_eq_of_lt h]

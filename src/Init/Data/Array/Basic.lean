@@ -244,8 +244,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
-def singleton (v : α) : Array α :=
-  mkArray 1 v
+@[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=
   a[a.size - 1]!
@@ -576,6 +575,12 @@ def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : A
 @[inline]
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
   Id.run <| as.foldrM f init start stop
+
+/-- Sum of an array.
+
+`Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : Array α → α :=
+  foldr (· + ·) 0
 
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=

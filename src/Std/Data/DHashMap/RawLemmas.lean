@@ -2079,7 +2079,7 @@ theorem get?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (�
   simp [get?_alter h]
 
 theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (hc : k' ∈ m.alter k f) :
+    (h : m.WF) {hc : k' ∈ m.alter k f} :
     (m.alter k f).get k' hc =
     if heq : k == k' then
       haveI h' : (f (m.get? k)).isSome := mem_alter_of_beq h heq |>.mp hc
@@ -2152,7 +2152,7 @@ theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (�
   simp [getKey!_alter h]
 
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (hc : k' ∈ m.alter k f) :
+    (h : m.WF) {hc : k' ∈ m.alter k f} :
     (m.alter k f).getKey k' hc =
     if heq : k == k' then
       k
@@ -2165,7 +2165,7 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k
 
 @[simp]
 theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (hc : k ∈ m.alter k f) : (m.alter k f).getKey k hc = k := by
+    (h : m.WF) {hc : k ∈ m.alter k f} : (m.alter k f).getKey k hc = k := by
   simp [getKey_alter h]
 
 theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -2278,7 +2278,7 @@ theorem get?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option �
   simp [get?_alter h]
 
 theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
-    (h : m.WF) (hc : k' ∈ Const.alter m k f) :
+    (h : m.WF) {hc : k' ∈ Const.alter m k f} :
     Const.get (Const.alter m k f) k' hc =
     if heq : k == k' then
       haveI h' : (f (Const.get? m k)).isSome := mem_alter_of_beq h heq |>.mp hc
@@ -2351,7 +2351,7 @@ theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
   simp [getKey!_alter h]
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
-    {f : Option β → Option β} (h : m.WF) (hc : k' ∈ Const.alter m k f) :
+    {f : Option β → Option β} (h : m.WF) {hc : k' ∈ Const.alter m k f} :
     (Const.alter m k f).getKey k' hc =
     if heq : k == k' then
       k
@@ -2364,7 +2364,7 @@ theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α
 
 @[simp]
 theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
-    {f : Option β → Option β} (h : m.WF) (hc : k ∈ Const.alter m k f) :
+    {f : Option β → Option β} (h : m.WF) {hc : k ∈ Const.alter m k f} :
     (Const.alter m k f).getKey k hc = k := by
   simp [getKey_alter h]
 

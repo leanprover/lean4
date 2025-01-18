@@ -125,10 +125,10 @@ static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_v
 uint8_t l_Lean_Exception_isRuntime(lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_getAlias_x3f___closed__1;
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Attr___hyg_423____closed__22;
+lean_object* l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Attr___hyg_423____lambda__2___closed__1;
 lean_object* l_Lean_throwError___at_Lean_Attribute_Builtin_ensureNoArgs___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t l___private_Lean_Meta_Basic_0__Lean_Meta_Config_toKey(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_addDecl___spec__2(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_Attr___hyg_423____closed__7;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_getAlias_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -808,7 +808,7 @@ lean_object* x_26; lean_object* x_27;
 x_26 = lean_ctor_get(x_25, 1);
 lean_inc(x_26);
 lean_dec(x_25);
-x_27 = l_Lean_throwError___at_Lean_addDecl___spec__2(x_13, x_2, x_3, x_26);
+x_27 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_13, x_2, x_3, x_26);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_27;
@@ -851,7 +851,7 @@ if (x_35 == 0)
 lean_object* x_36; 
 lean_free_object(x_30);
 lean_dec(x_32);
-x_36 = l_Lean_throwError___at_Lean_addDecl___spec__2(x_13, x_2, x_3, x_33);
+x_36 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_13, x_2, x_3, x_33);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_36;
@@ -889,7 +889,7 @@ if (x_40 == 0)
 {
 lean_object* x_41; 
 lean_dec(x_37);
-x_41 = l_Lean_throwError___at_Lean_addDecl___spec__2(x_13, x_2, x_3, x_38);
+x_41 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_13, x_2, x_3, x_38);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_41;
@@ -1000,7 +1000,7 @@ x_60 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_validateGrindC
 x_61 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_61, 0, x_59);
 lean_ctor_set(x_61, 1, x_60);
-x_62 = l_Lean_throwError___at_Lean_addDecl___spec__2(x_61, x_2, x_3, x_56);
+x_62 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_61, x_2, x_3, x_56);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_62;
@@ -1022,7 +1022,7 @@ x_67 = l___private_Lean_Meta_Tactic_Grind_Attr_0__Lean_Meta_Grind_validateGrindC
 x_68 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_68, 0, x_66);
 lean_ctor_set(x_68, 1, x_67);
-x_69 = l_Lean_throwError___at_Lean_addDecl___spec__2(x_68, x_2, x_3, x_63);
+x_69 = l_Lean_throwError___at___private_Lean_ReducibilityAttrs_0__Lean_validate___spec__3(x_68, x_2, x_3, x_63);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_69;

@@ -34,6 +34,17 @@ def elabGrindPattern : CommandElab := fun stx => do
         Grind.addEMatchTheorem declName xs.size patterns.toList
   | _ => throwUnsupportedSyntax
 
+open Command Term in
+@[builtin_command_elab Lean.Parser.Command.initGrindNorm]
+def elabInitGrindNorm : CommandElab := fun stx =>
+  match stx with
+  | `(init_grind_norm $pre:ident* | $post*) =>
+    Command.liftTermElabM do
+      let pre ← pre.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
+      let post ← post.mapM fun id => realizeGlobalConstNoOverloadWithInfo id
+      Grind.registerNormTheorems pre post
+  | _ => throwUnsupportedSyntax
+
 def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let mut params := params
   for p in ps do
@@ -104,7 +115,7 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
     pure auxDeclName
   unsafe evalConst (Grind.GoalM Unit) auxDeclName
 
-@[builtin_tactic Lean.Parser.Tactic.grind] def evalApplyRfl : Tactic := fun stx => do
+@[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
     let fallback ← elabFallback fallback?

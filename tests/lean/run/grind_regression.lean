@@ -10,12 +10,9 @@ These tests are originally from the `lean-egg` repository at
 https://github.com/marcusrossel/lean-egg and were written by Marcus Rossel.
 
 They are re-used here with permission, and adapted as regression tests for the `grind` tactic.
-
-This does not include all the tests from the `lean-egg` repository,
-only those passing with `grind` at the time this file was prepared.
 -/
 
-section -- From `Application Order.lean`
+section
 
 example (p q : Nat → Prop) : ((∀ x, p x) ∧ (∀ x, q x)) ↔ ∀ x, p x ∧ q x := by
   grind
@@ -31,7 +28,7 @@ example (p q : Nat → Nat → Prop) : ((∀ x, p x 1) ∧ (∀ x, q x 1)) ↔ �
 
 end
 
-section -- From `Beta.lean`
+section
 
 example : (fun x => x) 0 = 0 := by
   grind
@@ -59,7 +56,7 @@ example (h : y + 1 = z) : (fun x => x + 1) y = z := by
 
 end
 
-section -- From `Binder BVars.lean`
+section
 
 example :
     (∀ (α : Type) (l : List α), l.length = l.length) ↔
@@ -68,7 +65,7 @@ example :
 
 end
 
-section -- From `Conditional.lean`
+section
 
 example (h₁ : x ∧ y) (h₂ : x ∧ y → 1 = 2) : 1 = 2 := by
   grind
@@ -108,7 +105,7 @@ example {p q r : Prop} (h₁ : p) (h₂ : p ↔ q) (h₃ : q ↔ r) (h₄ : r �
 
 end
 
-section -- From `Equality Conditions.lean`
+section
 
 example (h : 0 = 0 → 1 = 2) : 1 = 2 := by
   grind
@@ -139,21 +136,21 @@ example (h₁ : ∀ a : Nat, f a = a) (h₂ : p ∧ q) (h₃ : p ∧ q ↔ r) (h
 
 end
 
-section -- From `Erase TC Instances Bug 1.lean`
+section
 
 example : (fun _ => 1) 0 = 1 := by
   grind
 
 end
 
-section -- From `Eta Conservative.lean`
+section
 
 example : (fun (z : α → α → α) x => (fun _y => z) x x) = (fun x => x) := by
   grind
 
 end
 
-section -- From `Eta.lean`
+section
 
 example : (fun x => Nat.succ x) = Nat.succ := by
   grind
@@ -194,7 +191,7 @@ example (f : α → α → α → α) : (fun a b => (fun x => (f a b) x)) = (fun
 
 end
 
-section -- From `Explosion.lean`
+section
 
 example : true = true := by
   grind
@@ -215,7 +212,7 @@ example (a b : Nat) (h : ∀ x y : Nat, f x x = f y x) : f a a = f b a := by
 
 end
 
-section -- From `Functional.lean`
+section
 
 namespace Functional
 
@@ -287,14 +284,14 @@ end Functional
 
 end
 
-section -- From `Ground Eqs.lean`
+section
 
 example (h₁ : ∀ p, p ∧ p) (h₂ : (∀ p, p ∧ p) → q = True) : q = True := by
   grind
 
 end
 
-section -- From `Hypotheses.lean`
+section
 
 example (a b : Nat) : a + b = b + a := by
   have h := Nat.add_comm
@@ -322,14 +319,14 @@ example (a : Nat) : a + 1 = 1 + a := by
 
 end
 
-section -- From `Int`
+section
 
 example {a : Int} : ((a * b) - (2 * c)) * d - (a * b) = (d - 1) * (a * b) - (2 * c * d) := by
   grind only [Int.sub_mul, Int.sub_sub, Int.add_comm, Int.mul_comm, Int.one_mul]
 
 end
 
-section -- From `Intro Hygiene.lean`
+section
 
 example : Nat → (x : Nat) → x = x := by
   intro x
@@ -341,7 +338,7 @@ example : Nat → (x : Nat) → (x_1 : Nat) → x = x := by
 
 end
 
-section -- From `Level Defeq.lean`
+section
 
 example (f : α → γ) (g : β → δ) : List.map (Prod.map f g) [] = [] := by
   grind only [List.map]
@@ -363,7 +360,7 @@ example (h : ∀ γ : Type (max u v), γ = id γ) (α : Type u) (β : Type v) : 
 
 end
 
-section -- From `NatLit.lean`
+section
 
 example : 0 = Nat.zero := by
   grind
@@ -425,7 +422,7 @@ example : 12345 % 0 = 12345 := by
 
 end
 
-section -- From `NestedSplits.lean`
+section
 
 example (h : (a = b) ↔ (c = d)) : 0 = 0 := by
   grind
@@ -444,7 +441,7 @@ example (h₁ : (a = b) ↔ (c = d)) (h₂ : a = b) (h₃ : d = e) : c = e := by
 
 end
 
-section -- From `Normalize.lean`
+section
 
 variable {I : Type u} {f : I → Type v₁} (x y : (i : I) → f i) (i : I)
 
@@ -459,7 +456,7 @@ example : True = True := by
 
 end
 
-section -- From `Pattern MVar.lean`
+section
 
 variable (h : ∀ (p : Nat → Nat) (x : Nat), p x = p (x + 0))
 
@@ -483,7 +480,7 @@ example (f : Nat → Nat → Nat) : (f 1) x = (f 1) (x + 0) := by
 
 end
 
-section -- From `Polymorphic.lean`
+section
 
 example : ([] : List α) = [] := by
   grind
@@ -493,7 +490,7 @@ example {l₁ l₂ : List α} : l₁ ++ l₂ = (l₂.reverse ++ l₁.reverse).re
 
 end
 
-section -- From `Propositions.lean`
+section
 
 example : True := by
   grind
@@ -535,7 +532,7 @@ example (P : Nat → Prop) (hp : P Nat.zero.succ) (h : ∀ n, P n ↔ P n.succ) 
 
 end
 
-section -- From `Readme.lean`
+section
 
 example : 0 = 0 := by
   grind
@@ -559,14 +556,14 @@ example {p q r : Prop} (h₁ : p) (h₂ : p ↔ q) (h₃ : q → (p ↔ r)) : p 
 
 end
 
-section -- From `Reconstruction Beta.lean`
+section
 
 example (arr : Array α) (i : Nat) (h₁ h₂ : i < arr.size) : arr[i]'h₁ = arr[i]'h₂ := by
   grind
 
 end
 
-section -- From `Reduce.lean`
+section
 
 example : true = true := by
   grind
@@ -594,14 +591,14 @@ example (h : S) : R := by
 
 end
 
-section -- From `Rudi.lean`
+section
 
 example : (fun x => (fun t _y => t) (fun z => x z)) = (fun (x : α → α) (_y : α) => x) := by
   grind
 
 end
 
-section -- From `Shapes DefEqs.lean`
+section
 
 example : 0 = Nat.zero := by
   grind
@@ -620,7 +617,7 @@ example (h : ∀ n, Nat.succ n = n + 1) : 1 = Nat.zero + 1 := by
 
 end
 
-section -- From `StrLit.lean`
+section
 
 example : "a" = "a" := by
   grind
@@ -648,7 +645,7 @@ example (h : "Le " ++ " an" = "Le  an") : "Le " ++ " an" = "Le  an" := by
 
 end
 
-section -- From `Tags.lean`
+section
 
 class One (α) where one : α
 instance [One α] : OfNat α 1 where ofNat := One.one
@@ -681,7 +678,7 @@ theorem mul_inv_cancel_left : a * (a⁻¹ * b) = b := by grind
 
 end
 
-section -- From `TC Inst Erasure Blocking TC.lean`
+section
 
 example (h : ∀ [inst : Neg Int] (x : Int), @Neg.neg Int inst x = x) : (0 : Int) = (0 : Int) := by
   grind
@@ -727,7 +724,7 @@ example :
 
 end
 
-section -- From `Unexpected Bound Var.lean`
+section
 
 variable (h : True ↔ ∀ (a : Nat) (_ : a > 0), True)
 

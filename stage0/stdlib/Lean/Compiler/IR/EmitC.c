@@ -115,7 +115,7 @@ LEAN_EXPORT lean_object* l_List_forM___at_Lean_IR_EmitC_emitLns___spec__1___rarg
 uint8_t l_Lean_IR_FnBody_isTerminal(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitLns___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitFnDeclAux___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_getJPParams(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitFnDeclAux(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -3049,7 +3049,7 @@ x_7 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__1;
 x_8 = lean_string_append(x_6, x_7);
 x_9 = l_Lean_IR_EmitC_emitLn___rarg___closed__1;
 x_10 = lean_string_append(x_8, x_9);
-x_11 = lean_environment_find(x_1, x_2);
+x_11 = l_Lean_Environment_find_x3f(x_1, x_2);
 x_12 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_12, 0, x_7);
 lean_ctor_set(x_12, 1, x_3);
@@ -3908,6 +3908,7 @@ lean_object* x_7;
 x_7 = l_Lean_IR_EmitC_emitMainFn___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
+lean_dec(x_2);
 return x_7;
 }
 }
@@ -3919,6 +3920,7 @@ x_7 = l_Lean_IR_EmitC_emitMainFn___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_7;
 }
 }
@@ -3932,6 +3934,7 @@ x_9 = l_Lean_IR_EmitC_emitMainFn___lambda__3(x_1, x_2, x_3, x_8, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_9;
 }
 }
@@ -3943,6 +3946,7 @@ x_6 = l_Lean_IR_EmitC_emitMainFn___lambda__4(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_6;
 }
 }

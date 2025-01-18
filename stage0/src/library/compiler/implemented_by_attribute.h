@@ -5,11 +5,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 
 namespace lean {
-optional<name> get_implemented_by_attribute(environment const & env, name const & n);
-inline bool has_implemented_by_attribute(environment const & env, name const & n) {
+optional<name> get_implemented_by_attribute(elab_environment const & env, name const & n);
+inline bool has_implemented_by_attribute(elab_environment const & env, name const & n) {
     return static_cast<bool>(get_implemented_by_attribute(env, n));
 }
 }

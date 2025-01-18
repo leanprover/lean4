@@ -89,7 +89,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normExpr___rarg(uint8_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normCodeImp___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_instMonadFVarSubstNormalizerM(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_normCode(lean_object*);
@@ -2875,7 +2875,8 @@ x_22 = lean_ctor_get(x_20, 0);
 x_23 = lean_ctor_get(x_22, 0);
 lean_inc(x_23);
 lean_dec(x_22);
-x_24 = lean_environment_find(x_23, x_19);
+x_24 = l_Lean_Environment_find_x3f(x_23, x_19);
+lean_dec(x_19);
 if (lean_obj_tag(x_24) == 0)
 {
 uint8_t x_25; lean_object* x_26; 
@@ -2921,7 +2922,8 @@ lean_dec(x_20);
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec(x_32);
-x_35 = lean_environment_find(x_34, x_19);
+x_35 = l_Lean_Environment_find_x3f(x_34, x_19);
+lean_dec(x_19);
 if (lean_obj_tag(x_35) == 0)
 {
 uint8_t x_36; lean_object* x_37; lean_object* x_38; 

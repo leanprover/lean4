@@ -94,13 +94,13 @@ extern "C" uint8 lean_has_inline_if_reduce_attribute(object* env, object* n);
 extern "C" uint8 lean_has_macro_inline_attribute(object* env, object* n);
 extern "C" uint8 lean_has_noinline_attribute(object* env, object* n);
 
-bool has_inline_attribute(environment const & env, name const & n) { return lean_has_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_inline_if_reduce_attribute(environment const & env, name const & n) { return lean_has_inline_if_reduce_attribute(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_macro_inline_attribute(environment const & env, name const & n) { return lean_has_macro_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
-bool has_noinline_attribute(environment const & env, name const & n) { return lean_has_noinline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_inline_attribute(elab_environment const & env, name const & n) { return lean_has_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_inline_if_reduce_attribute(elab_environment const & env, name const & n) { return lean_has_inline_if_reduce_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_macro_inline_attribute(elab_environment const & env, name const & n) { return lean_has_macro_inline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_noinline_attribute(elab_environment const & env, name const & n) { return lean_has_noinline_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 
 extern "C" uint8 lean_has_never_extract_attribute(object* env, object *n);
-bool has_never_extract_attribute(environment const & env, name const & n) { return lean_has_never_extract_attribute(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_never_extract_attribute(elab_environment const & env, name const & n) { return lean_has_never_extract_attribute(env.to_obj_arg(), n.to_obj_arg()); }
 
 bool is_lcnf_atom(expr const & e) {
     switch (e.kind()) {
@@ -126,8 +126,8 @@ expr elim_trivial_let_decls(expr const & e) {
 }
 
 struct unfold_macro_defs_fn : public replace_visitor {
-    environment const & m_env;
-    unfold_macro_defs_fn(environment const & env):m_env(env) {}
+    elab_environment const & m_env;
+    unfold_macro_defs_fn(elab_environment const & env):m_env(env) {}
 
 
     bool should_macro_inline(name const & n) {
@@ -175,15 +175,15 @@ struct unfold_macro_defs_fn : public replace_visitor {
     }
 };
 
-expr unfold_macro_defs(environment const & env, expr const & e) {
+expr unfold_macro_defs(elab_environment const & env, expr const & e) {
     return unfold_macro_defs_fn(env)(e);
 }
 
-bool is_cases_on_recursor(environment const & env, name const & n) {
+bool is_cases_on_recursor(elab_environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && n.get_string() == g_cases_on;
 }
 
-unsigned get_cases_on_arity(environment const & env, name const & c, bool before_erasure) {
+unsigned get_cases_on_arity(elab_environment const & env, name const & c, bool before_erasure) {
     lean_assert(is_cases_on_recursor(env, c));
     inductive_val I_val = get_cases_on_inductive_val(env, c);
     unsigned nminors    = I_val.get_ncnstrs();
@@ -196,7 +196,7 @@ unsigned get_cases_on_arity(environment const & env, name const & c, bool before
     }
 }
 
-unsigned get_cases_on_major_idx(environment const & env, name const & c, bool before_erasure) {
+unsigned get_cases_on_major_idx(elab_environment const & env, name const & c, bool before_erasure) {
     if (before_erasure) {
         inductive_val I_val = get_cases_on_inductive_val(env, c);
         return I_val.get_nparams() + 1 /* motive */ + I_val.get_nindices();
@@ -205,14 +205,14 @@ unsigned get_cases_on_major_idx(environment const & env, name const & c, bool be
     }
 }
 
-expr get_cases_on_app_major(environment const & env, expr const & c, bool before_erasure) {
+expr get_cases_on_app_major(elab_environment const & env, expr const & c, bool before_erasure) {
     lean_assert(is_cases_on_app(env, c));
     buffer<expr> args;
     expr const & fn = get_app_args(c, args);
     return args[get_cases_on_major_idx(env, const_name(fn), before_erasure)];
 }
 
-pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c, bool before_erasure) {
+pair<unsigned, unsigned> get_cases_on_minors_range(elab_environment const & env, name const & c, bool before_erasure) {
     inductive_val I_val = get_cases_on_inductive_val(env, c);
     unsigned nminors    = I_val.get_ncnstrs();
     if (before_erasure) {
@@ -294,7 +294,7 @@ void sort_fvars(local_ctx const & lctx, buffer<expr> & fvars) {
               });
 }
 
-unsigned get_lcnf_size(environment const & env, expr e) {
+unsigned get_lcnf_size(elab_environment const & env, expr e) {
     unsigned r = 0;
     switch (e.kind()) {
     case expr_kind::BVar:  case expr_kind::MVar:
@@ -558,16 +558,16 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
     }
 }
 
-environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v) {
+elab_environment register_stage1_decl(elab_environment const & env, name const & n, names const & ls, expr const & t, expr const & v) {
     declaration aux_decl = mk_definition(mk_cstage1_name(n), ls, t, v, reducibility_hints::mk_opaque(), definition_safety::unsafe);
     return env.add(aux_decl, false);
 }
 
-bool is_stage2_decl(environment const & env, name const & n) {
+bool is_stage2_decl(elab_environment const & env, name const & n) {
     return static_cast<bool>(env.find(mk_cstage2_name(n)));
 }
 
-environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v) {
+elab_environment register_stage2_decl(elab_environment const & env, name const & n, expr const & t, expr const & v) {
     declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
                                          v, reducibility_hints::mk_opaque(), definition_safety::unsafe);
     return env.add(aux_decl, false);
@@ -608,10 +608,11 @@ we can get an irrelevant `ty`.
 We disabled this validator since we will delete the code generator written in C++.
 */
 class lcnf_valid_let_decls_fn {
+    elab_environment    m_env;
     type_checker::state m_st;
     local_ctx           m_lctx;
 
-    environment const & env() const { return m_st.env(); }
+    elab_environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -675,19 +676,19 @@ class lcnf_valid_let_decls_fn {
     }
 
 public:
-    lcnf_valid_let_decls_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx) {}
+    lcnf_valid_let_decls_fn(elab_environment const & env, local_ctx const & lctx):
+        m_env(env), m_st(env), m_lctx(lctx) {}
 
     optional<expr> operator()(expr const & e) {
         return visit(e);
     }
 };
 
-optional<expr> lcnf_valid_let_decls(environment const & env, expr const & e) {
+optional<expr> lcnf_valid_let_decls(elab_environment const & env, expr const & e) {
     return lcnf_valid_let_decls_fn(env, local_ctx())(e);
 }
 
-bool lcnf_check_let_decls(environment const & env, comp_decl const & d) {
+bool lcnf_check_let_decls(elab_environment const & env, comp_decl const & d) {
     if (optional<expr> v = lcnf_valid_let_decls(env, d.snd())) {
         tout() << "LCNF violation at " << d.fst() << "\n" << *v << "\n";
         return false;
@@ -696,7 +697,7 @@ bool lcnf_check_let_decls(environment const & env, comp_decl const & d) {
     }
 }
 
-bool lcnf_check_let_decls(environment const & env, comp_decls const & ds) {
+bool lcnf_check_let_decls(elab_environment const & env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         if (!lcnf_check_let_decls(env, d))
             return false;
@@ -771,12 +772,12 @@ expr lcnf_eta_expand(type_checker::state & st, local_ctx lctx, expr e) {
     }
 }
 
-bool is_quot_primitive_app(environment const & env, expr const & e) {
+bool is_quot_primitive_app(elab_environment const & env, expr const & e) {
   expr const & f = get_app_fn(e);
   return is_constant(f) && is_quot_primitive(env, const_name(f));
 }
 
-bool must_be_eta_expanded(environment const & env, expr const & e) {
+bool must_be_eta_expanded(elab_environment const & env, expr const & e) {
   return
     is_constructor_app(env, e) ||
     is_proj(e) ||

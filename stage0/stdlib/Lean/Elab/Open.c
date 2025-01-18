@@ -136,7 +136,7 @@ LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_OpenDecl_elabOpenDec
 LEAN_EXPORT lean_object* l_Lean_resolveNamespaceCore___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__39___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_resolveUniqueNamespace___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__6___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__41(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_OpenDecl_resolveNameUsingNamespaces(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Open_0__Lean_Elab_OpenDecl_addOpenDecl___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at_Lean_Elab_OpenDecl_elabOpenDecl___spec__37___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3896,8 +3896,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_OpenDecl_elabOpenDec
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
-x_8 = lean_environment_find(x_7, x_1);
+x_8 = l_Lean_Environment_find_x3f(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -4268,8 +4267,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_OpenDecl_elabOpenDec
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
-x_8 = lean_environment_find(x_7, x_1);
+x_8 = l_Lean_Environment_find_x3f(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -5699,8 +5697,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_OpenDecl_elabOpenDec
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
-x_8 = lean_environment_find(x_7, x_1);
+x_8 = l_Lean_Environment_find_x3f(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -6714,8 +6711,7 @@ LEAN_EXPORT lean_object* l_Lean_getConstInfo___at_Lean_Elab_OpenDecl_elabOpenDec
 _start:
 {
 lean_object* x_8; 
-lean_inc(x_1);
-x_8 = lean_environment_find(x_7, x_1);
+x_8 = l_Lean_Environment_find_x3f(x_7, x_1);
 if (lean_obj_tag(x_8) == 0)
 {
 uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

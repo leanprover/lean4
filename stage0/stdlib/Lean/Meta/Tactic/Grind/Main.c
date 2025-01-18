@@ -2479,7 +2479,7 @@ x_31 = l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___close
 x_32 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_instInhabitedMatchEqnsExtState___spec__1;
 x_33 = l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_instInhabitedGoal___spec__3;
 lean_inc(x_1);
-x_34 = lean_alloc_ctor(0, 24, 1);
+x_34 = lean_alloc_ctor(0, 25, 1);
 lean_ctor_set(x_34, 0, x_1);
 lean_ctor_set(x_34, 1, x_22);
 lean_ctor_set(x_34, 2, x_23);
@@ -2504,7 +2504,8 @@ lean_ctor_set(x_34, 20, x_33);
 lean_ctor_set(x_34, 21, x_27);
 lean_ctor_set(x_34, 22, x_29);
 lean_ctor_set(x_34, 23, x_21);
-lean_ctor_set_uint8(x_34, sizeof(void*)*24, x_26);
+lean_ctor_set(x_34, 24, x_23);
+lean_ctor_set_uint8(x_34, sizeof(void*)*25, x_26);
 x_35 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___lambda__1___boxed), 9, 1);
 lean_closure_set(x_35, 0, x_34);
 x_36 = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Main_0__Lean_Meta_Grind_mkGoal___lambda__2___boxed), 13, 4);
@@ -2771,7 +2772,7 @@ else
 lean_object* x_4; uint8_t x_5; 
 x_4 = lean_ctor_get(x_1, 0);
 lean_inc(x_4);
-x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*24);
+x_5 = lean_ctor_get_uint8(x_4, sizeof(void*)*25);
 if (x_5 == 0)
 {
 uint8_t x_6; 
@@ -3548,7 +3549,7 @@ if (lean_obj_tag(x_18) == 0)
 lean_object* x_19; uint8_t x_20; 
 x_19 = lean_ctor_get(x_18, 0);
 lean_inc(x_19);
-x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*24);
+x_20 = lean_ctor_get_uint8(x_19, sizeof(void*)*25);
 if (x_20 == 0)
 {
 lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -3657,7 +3658,7 @@ else
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_2, 0);
 lean_inc(x_14);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*24);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*25);
 if (x_15 == 0)
 {
 uint8_t x_16; 

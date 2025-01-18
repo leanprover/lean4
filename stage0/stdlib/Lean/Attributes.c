@@ -91,7 +91,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_upda
 static lean_object* l_Lean_isAttribute___closed__1;
 LEAN_EXPORT lean_object* l_Lean_EnumAttributes_getValue(lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Attributes___hyg_3785____closed__4;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_mkAttributeImplOfEntry___spec__1___boxed(lean_object*, lean_object*);
@@ -9015,9 +9015,8 @@ LEAN_EXPORT lean_object* l_Lean_mkAttributeImplOfConstantUnsafe(lean_object* x_1
 _start:
 {
 lean_object* x_4; 
-lean_inc(x_3);
 lean_inc(x_1);
-x_4 = lean_environment_find(x_1, x_3);
+x_4 = l_Lean_Environment_find_x3f(x_1, x_3);
 if (lean_obj_tag(x_4) == 0)
 {
 uint8_t x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 

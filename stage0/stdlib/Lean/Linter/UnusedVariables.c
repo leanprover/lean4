@@ -141,7 +141,7 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLint___at_Lean_Linter_UnusedVariables_
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterUnusedVariablesFunArgs___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_collectMacroExpansions_x3f_go___at_Lean_Linter_UnusedVariables_unusedVariables___elambda__1___spec__6___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_987____lambda__1___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_640____lambda__1___closed__1;
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_1316____lambda__4___closed__10;
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1242,9 +1242,8 @@ x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 1);
 lean_inc(x_5);
-lean_inc(x_1);
 lean_inc(x_4);
-x_6 = lean_environment_find(x_4, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_4, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 uint8_t x_7; 

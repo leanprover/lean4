@@ -3227,7 +3227,6 @@ x_7 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
-lean_inc(x_1);
 x_8 = l_Lean_mkPrivateName(x_1, x_4);
 lean_inc(x_8);
 x_9 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_1, x_8);
@@ -3273,7 +3272,6 @@ return x_14;
 else
 {
 lean_object* x_15; uint8_t x_16; 
-lean_inc(x_1);
 x_15 = l_Lean_mkPrivateName(x_1, x_4);
 lean_inc(x_15);
 x_16 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_1, x_15);
@@ -3347,7 +3345,6 @@ x_7 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_
 if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
-lean_inc(x_1);
 x_8 = l_Lean_mkPrivateName(x_1, x_6);
 lean_inc(x_8);
 x_9 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_1, x_8);
@@ -3958,7 +3955,6 @@ lean_inc(x_13);
 lean_inc(x_1);
 x_16 = l___private_Lean_ResolveName_0__Lean_ResolveName_containsDeclOrReserved(x_1, x_13);
 lean_inc(x_13);
-lean_inc(x_1);
 x_17 = l_Lean_mkPrivateName(x_1, x_13);
 lean_inc(x_17);
 lean_inc(x_1);

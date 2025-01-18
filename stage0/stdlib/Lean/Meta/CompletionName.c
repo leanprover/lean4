@@ -190,7 +190,6 @@ x_6 = l_Lean_TagDeclarationExtension_isTagged(x_5, x_1, x_2);
 if (x_6 == 0)
 {
 uint8_t x_7; 
-lean_inc(x_2);
 lean_inc(x_1);
 x_7 = l_Lean_isRecCore(x_1, x_2);
 if (x_7 == 0)

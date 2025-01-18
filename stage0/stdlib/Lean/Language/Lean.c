@@ -119,8 +119,6 @@ LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_parseHeader___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Language_Lean_reparseOptions___spec__1___lambda__1___closed__7;
 lean_object* l_Lean_Elab_withLogging___at_Lean_Elab_Command_withLoggingExceptions___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
-uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__17;
 static lean_object* l_Lean_Language_Lean_process_processHeader___lambda__4___closed__5;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Language_Lean_reparseOptions___spec__1___lambda__1___closed__3;
@@ -161,6 +159,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Language_Lean_pr
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__12___closed__13;
 static lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_402____closed__4;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
+uint8_t l_Lean_Kernel_Environment_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_instMonadLiftProcessingTLeanProcessingT___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_process_processHeader___lambda__1(lean_object*);
@@ -195,7 +194,7 @@ lean_object* lean_io_mono_nanos_now(lean_object*);
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__6___closed__2;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__2;
-lean_object* lean_environment_set_main_module(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_setMainModule(lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 lean_object* lean_thunk_get_own(lean_object*);
 static lean_object* l_Lean_Language_Lean_process_doElab___closed__4;
@@ -342,6 +341,7 @@ static lean_object* l_List_forIn_x27_loop___at_Lean_Language_Lean_reparseOptions
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Language_Lean_process_parseCmd___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_402_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Language_Lean_process_parseCmd___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Kernel_Environment_enableDiag(lean_object*, uint8_t);
 static lean_object* l_Lean_Language_Lean_initFn____x40_Lean_Language_Lean___hyg_402____closed__6;
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_Lean_process_doElab___lambda__4___closed__3;
@@ -5881,7 +5881,7 @@ lean_dec(x_83);
 x_86 = lean_ctor_get(x_84, 0);
 lean_inc(x_86);
 lean_dec(x_84);
-x_87 = l_Lean_Kernel_isDiagnosticsEnabled(x_86);
+x_87 = l_Lean_Kernel_Environment_isDiagnosticsEnabled(x_86);
 lean_dec(x_86);
 if (x_87 == 0)
 {
@@ -6118,7 +6118,7 @@ lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean
 x_93 = lean_ctor_get(x_90, 0);
 x_94 = lean_ctor_get(x_90, 4);
 lean_dec(x_94);
-x_95 = l_Lean_Kernel_enableDiag(x_93, x_82);
+x_95 = l_Lean_Kernel_Environment_enableDiag(x_93, x_82);
 lean_ctor_set(x_90, 4, x_76);
 lean_ctor_set(x_90, 0, x_95);
 x_96 = lean_st_ref_set(x_79, x_90, x_91);
@@ -6204,7 +6204,7 @@ lean_inc(x_116);
 lean_inc(x_115);
 lean_inc(x_114);
 lean_dec(x_90);
-x_121 = l_Lean_Kernel_enableDiag(x_114, x_82);
+x_121 = l_Lean_Kernel_Environment_enableDiag(x_114, x_82);
 x_122 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_122, 0, x_121);
 lean_ctor_set(x_122, 1, x_115);
@@ -7092,7 +7092,7 @@ lean_dec(x_83);
 x_86 = lean_ctor_get(x_84, 0);
 lean_inc(x_86);
 lean_dec(x_84);
-x_87 = l_Lean_Kernel_isDiagnosticsEnabled(x_86);
+x_87 = l_Lean_Kernel_Environment_isDiagnosticsEnabled(x_86);
 lean_dec(x_86);
 if (x_87 == 0)
 {
@@ -7329,7 +7329,7 @@ lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean
 x_93 = lean_ctor_get(x_90, 0);
 x_94 = lean_ctor_get(x_90, 4);
 lean_dec(x_94);
-x_95 = l_Lean_Kernel_enableDiag(x_93, x_82);
+x_95 = l_Lean_Kernel_Environment_enableDiag(x_93, x_82);
 lean_ctor_set(x_90, 4, x_76);
 lean_ctor_set(x_90, 0, x_95);
 x_96 = lean_st_ref_set(x_79, x_90, x_91);
@@ -7415,7 +7415,7 @@ lean_inc(x_116);
 lean_inc(x_115);
 lean_inc(x_114);
 lean_dec(x_90);
-x_121 = l_Lean_Kernel_enableDiag(x_114, x_82);
+x_121 = l_Lean_Kernel_Environment_enableDiag(x_114, x_82);
 x_122 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_122, 0, x_121);
 lean_ctor_set(x_122, 1, x_115);
@@ -12945,7 +12945,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = lean_environment_set_main_module(x_2, x_15);
+x_16 = l_Lean_Environment_setMainModule(x_2, x_15);
 x_17 = l_Lean_Language_Lean_process_processHeader___lambda__4___closed__2;
 x_18 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(x_3, x_17);
 if (lean_obj_tag(x_18) == 0)

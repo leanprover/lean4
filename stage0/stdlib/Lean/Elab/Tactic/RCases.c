@@ -157,7 +157,7 @@ lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_rcasesCore___rarg___lambda__8___closed__4;
 lean_object* l_ReaderT_pure___at___private_Lean_Elab_Term_0__Lean_Elab_Term_applyAttributesCore___spec__12___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_RCasesPatt_typed_x3f___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Elab_Tactic_RCases_tryClearMany_x27___spec__2(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_RCases_evalObtain___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_RCases_evalRCases___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11568,7 +11568,8 @@ if (lean_is_exclusive(x_112)) {
 x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
-x_117 = lean_environment_find(x_116, x_111);
+x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
+lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -12653,7 +12654,8 @@ if (lean_is_exclusive(x_282)) {
 x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
-x_287 = lean_environment_find(x_286, x_281);
+x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
+lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -13896,7 +13898,8 @@ if (lean_is_exclusive(x_112)) {
 x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
-x_117 = lean_environment_find(x_116, x_111);
+x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
+lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -14981,7 +14984,8 @@ if (lean_is_exclusive(x_282)) {
 x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
-x_287 = lean_environment_find(x_286, x_281);
+x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
+lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -15845,7 +15849,8 @@ if (lean_is_exclusive(x_112)) {
 x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
-x_117 = lean_environment_find(x_116, x_111);
+x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
+lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -16930,7 +16935,8 @@ if (lean_is_exclusive(x_282)) {
 x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
-x_287 = lean_environment_find(x_286, x_281);
+x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
+lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -17794,7 +17800,8 @@ if (lean_is_exclusive(x_112)) {
 x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
-x_117 = lean_environment_find(x_116, x_111);
+x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
+lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -18879,7 +18886,8 @@ if (lean_is_exclusive(x_282)) {
 x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
-x_287 = lean_environment_find(x_286, x_281);
+x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
+lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 

@@ -96,7 +96,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_ntop_v4(b_obj_arg ipv4_addr) {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_pton_v6(b_obj_arg str_obj) {
     const char* str = string_cstr(str_obj);
     in6_addr internal;
-
     if (uv_inet_pton(AF_INET6, str, &internal) == 0) {
         return mk_option_some(lean_in6_addr_to_ipv6_addr(&internal));
     } else {

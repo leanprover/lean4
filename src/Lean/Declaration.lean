@@ -469,6 +469,10 @@ def isInductive : ConstantInfo → Bool
   | .inductInfo _ => true
   | _             => false
 
+def isDefinition : ConstantInfo → Bool
+  | .defnInfo _ => true
+  | _           => false
+
 def isTheorem : ConstantInfo → Bool
   | .thmInfo _ => true
   | _          => false

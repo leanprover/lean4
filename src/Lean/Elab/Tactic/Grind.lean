@@ -49,13 +49,25 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       let kind ← if let some mod := mod? then Grind.getTheoremKindCore mod else pure .default
       if (← isInductivePredicate declName) then
         throwErrorAt p "NIY"
-      else if (← getConstInfo declName).isTheorem then
-        params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
-      else if let some eqns ← getEqnsFor? declName then
-        for eqn in eqns do
-          params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl eqn kind) }
       else
-        throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
+        let info ← getConstInfo declName
+        match info with
+        | .thmInfo _ =>
+          if kind == .eqBoth then
+            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
+            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }
+          else
+            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
+        | .defnInfo _ =>
+          if (← isReducible declName) then
+            throwErrorAt p "`{declName}` is a reducible definition, `grind` automatically unfolds them"
+          if kind != .eqLhs && kind != .default then
+            throwErrorAt p "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+          let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
+            | throwErrorAt p "failed to genereate equation theorems for `{declName}`"
+          params := { params with extra := params.extra ++ thms.toPArray' }
+        | _ =>
+          throwErrorAt p "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 

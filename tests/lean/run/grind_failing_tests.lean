@@ -1,6 +1,6 @@
 import Lean.Elab.Term
 
-section -- From `Basic.lean`
+section
 
 def f : Nat → Nat
   | .zero   => .zero
@@ -15,7 +15,7 @@ example : f (g Nat.zero.succ.succ) = .zero := by
 
 end
 
-section -- From `Cast.lean`
+section
 
 namespace Simple
 
@@ -75,7 +75,7 @@ end Diamond
 
 end
 
-section -- From `Class Def.lean`
+section
 
 def Mul.pow [Mul α] [OfNat α 1] (a : α) : Nat → α
   | 0     => 1
@@ -92,14 +92,14 @@ example [Mul α] [OfNat α 1] (a : α) : a ^ 0 = (1 : α) := by
 
 end
 
-section -- From `Condition Kind.lean`
+section
 
 example (h : Nat → 0 = 1) : 0 = 1 := by
   grind
 
 end
 
-section -- From `Constants.lean`
+section
 
 axiom ax : 1 = 2
 
@@ -108,7 +108,7 @@ example : 1 = 2 := by
 
 end
 
-section -- From `Eta.lean`
+section
 
 example (a : Nat) (b : Nat → False) : False := by grind -- fails
 
@@ -120,18 +120,17 @@ example : (fun x => x) = Add.add 0 := by
 
 end
 
-section -- From `Explosion Failure.lean`
+section
 
--- This only works for `egg` with `set_option egg.explosion true`
-
+-- We probably don't want to support this, it requires aggressive instantiation.
 example [Mul G] (h : ∀ x y z w : G, x * y = (z * w) * w) : ∀ x y z w : G, x * y = z * w := by
   grind
 
 end
 
-section -- From `Explosion.lean`
+section
 
--- These only work for `egg` with `set_option egg.explosion true`
+-- We probably don't want to support these, it requires aggressive instantiation.
 
 variable (f : Nat → Nat → Nat)
 
@@ -146,7 +145,7 @@ example (a : Nat) (h₁ : ∀ x : Nat, 0 = f x x) (h₂ : ∀ x : Nat, 1 = f x x
 
 end
 
-section -- From `NatLit.lean`
+section
 
 elab "app" n:num fn:ident arg:term : term => open Lean.Elab.Term in do
   let fn ← elabTerm fn none
@@ -179,7 +178,7 @@ example (h : ∀ f : Nat → Nat, f (2 ^ 3) = x) : id 8 = x := by
 
 end
 
-section -- From `Non-Recursive Def.lean`
+section
 
 def f' : Bool → Nat
   | false => 0
@@ -190,7 +189,7 @@ example : f' false = 0 := by
 
 end
 
-section -- From `Readme.lean`
+section
 
 -- attribute [grind _=_] List.append_eq -- needs this to work currently
 
@@ -202,7 +201,7 @@ example (as bs : List α) : reverse (as ++ bs) = (reverse bs) ++ (reverse as) :=
 
 end
 
-section -- From `Reconstruction.lean`
+section
 
 example (f i : Nat → Nat → Nat) (h₁ : f y = g) (h₂ : g y = i y (nat_lit 0)) :
     (f ·) y y = (i ·) y (nat_lit 0) := by
@@ -214,7 +213,7 @@ example (f i : Nat → Nat → Nat) (h₁ : f y = g) (h₂ : g y = i y (nat_lit 
 
 end
 
-section -- From `Reduce.lean`
+section
 
 abbrev Q := ∀ x : Nat, x = nat_lit 0
 
@@ -225,7 +224,7 @@ example (h : Q) : 1 = 0 := by
 
 end
 
-section -- From `Stuck 3.lean`
+section
 
 variable
   {n : Nat} {p : Nat → Prop} [inst : DecidablePred p]
@@ -238,17 +237,10 @@ theorem find_le_iff (h : ∃ z : Nat, p z) (n : Nat) : find h ≤ n ↔ ∃ m �
 
 end
 
-section -- From `TC Cond Spec.lean`
+section
 
 example [inst : Decidable p] (h : [Decidable p] → p = q) : p = q := by
   grind
-
-end
-
-section
-
-example (h : ∀ {α} [Add α] (a : α), a + a = a) : 1 + 1 = 1 := by
-  grind -- this also doesn't work for `egg`
 
 end
 

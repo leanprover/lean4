@@ -704,11 +704,7 @@ def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMa
 def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchTheorem)) := do
   let some eqns ← getEqnsFor? declName | return none
   eqns.mapM fun eqn => do
-    /-
-    We disable normalization because we don't want to reduce equation theorems's LHS such as
-    `List.replicate 0 [] = []`
-    -/
-   mkEMatchEqTheorem eqn (normalizePattern := false)
+    mkEMatchEqTheorem eqn (normalizePattern := true)
 
 private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
   if (← getConstInfo declName).isTheorem then

@@ -11,19 +11,17 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/compiler/ir_interpreter.h"
 
 namespace lean {
-/* updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) :
-   Environment
+/* updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) : Environment
 
-   Updates an elab environment with a given kernel environment after the declaration `d` has been
-   added to it. `d` is used to adjust further elab env data such as registering new namespaces.
+   Updates an elab environment with a given kernel environment.
 
    NOTE: Ideally this language switching would not be necessary and we could do all this in Lean
    only but the old code generator and `mk_projections` still need a C++ `elab_environment::add`. */
-extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg d, obj_arg kenv);
+extern "C" obj_res lean_elab_environment_update_base_after_kernel_add(obj_arg env, obj_arg kenv);
 
 elab_environment elab_environment::add(declaration const & d, bool check) const {
     environment kenv = to_kernel_env().add(d, check);
-    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), d.to_obj_arg(), kenv.to_obj_arg()));
+    return elab_environment(lean_elab_environment_update_base_after_kernel_add(this->to_obj_arg(), kenv.to_obj_arg()));
 }
 
 extern "C" LEAN_EXPORT object * lean_elab_add_decl(object * env, size_t max_heartbeat, object * decl,

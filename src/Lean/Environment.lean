@@ -1077,34 +1077,9 @@ def isNamespace (env : Environment) (n : Name) : Bool :=
 def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
-private def isNamespaceName : Name → Bool
-  | .str .anonymous _ => true
-  | .str p _          => isNamespaceName p
-  | _                 => false
-
-private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
-  match name with
-    | .str _ s =>
-      if s.get 0 == '_' then
-        -- Do not register namespaces that only contain internal declarations.
-        env
-      else
-        go env name
-    | _ => env
-where go env
-  | .str p _ => if isNamespaceName p then go (registerNamespace env p) p else env
-  | _        => env
-
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (added : Declaration) (base : Kernel.Environment) : Environment := Id.run do
-  let mut env := { env with base }
-  env := added.getNames.foldl registerNamePrefixes env
-  if let .inductDecl _ _ types _ := added then
-    -- also register inductive type names as namespaces; this used to be done by the kernel itself
-    -- when adding e.g. the recursor but now that the environment extension API exists only for
-    -- `Lean.Environment`, we have to do it here
-    env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
-  env
+private def updateBaseAfterKernelAdd (env : Environment) (base : Kernel.Environment) : Environment :=
+  { env with base }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

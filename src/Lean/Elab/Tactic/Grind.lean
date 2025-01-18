@@ -50,12 +50,17 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       if (← isInductivePredicate declName) then
         throwErrorAt p "NIY"
       else if (← getConstInfo declName).isTheorem then
-        params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
-      else if let some eqns ← getEqnsFor? declName then
-        for eqn in eqns do
-          params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl eqn kind) }
+        if kind == .eqBoth then
+          params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
+          params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }
+        else
+          params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
+      else if let some thms ← Grind.mkEMatchEqTheoremsForDef? declName then
+        if kind != .eqLhs && kind != .default then
+          throwErrorAt p "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+        params := { params with extra := params.extra ++ thms.toPArray' }
       else
-        throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
+        throwErrorAt p "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 

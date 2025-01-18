@@ -516,7 +516,9 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | HEq _ lhs _ rhs => pure (lhs, rhs)
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {← origin.pp}, pat: {pat}, useLhs: {useLhs}"
     let pat ← preprocessPattern pat normalizePattern
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
   mkEMatchTheoremCore origin levelParams numParams proof patterns
@@ -651,9 +653,9 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
 
 def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := true))
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := false))
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false))
   let type ← inferType proof
   forallTelescopeReducing type fun xs type => do
     let searchPlaces ← match kind with
@@ -694,21 +696,29 @@ def getTheoremKindFromOpt (stx : Syntax) : CoreM TheoremKind := do
   else
     getTheoremKindCore stx[1][0]
 
-private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
-  if (← getConstInfo declName).isTheorem then
-    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
-  else if let some eqns ← getEqnsFor? declName then
-    unless useLhs do
-      throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
-    for eqn in eqns do
-      ematchTheoremsExt.add (← mkEMatchEqTheorem eqn) attrKind
-  else
-    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
-
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
     | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
+
+def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchTheorem)) := do
+  let some eqns ← getEqnsFor? declName | return none
+  eqns.mapM fun eqn => do
+    /-
+    We disable normalization because we don't want to reduce equation theorems's LHS such as
+    `List.replicate 0 [] = []`
+    -/
+   mkEMatchEqTheorem eqn (normalizePattern := false)
+
+private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
+  if (← getConstInfo declName).isTheorem then
+    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
+  else if let some thms ← mkEMatchEqTheoremsForDef? declName then
+    unless useLhs do
+      throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
+    thms.forM (ematchTheoremsExt.add · attrKind)
+  else
+    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
 
 private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do
   if thmKind == .eqLhs then

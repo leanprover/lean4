@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Henrik Böving
+Authors: Henrik Böving, Sofia Rodrigues.
 -/
 prelude
 import Init.Data.SInt
@@ -23,7 +23,7 @@ instance : Nonempty TcpSocket := TcpSocketImpl.property
 namespace TcpSocket
 
 /--
-Create a new TCP socket.
+Creates a new TCP socket.
 -/
 @[extern "lean_uv_tcp_new"]
 opaque new : IO TcpSocket

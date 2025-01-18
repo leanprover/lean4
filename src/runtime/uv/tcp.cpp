@@ -84,7 +84,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     lean_object * obj = lean_uv_tcp_socket_new(tcp_socket);
     lean_mark_mt(obj);
 
-    // Stores the higher level struct in the data field of `uv_tcp_t` like with timers.
     tcp_socket->m_uv_tcp->data = obj;
 
     return lean_io_result_mk_ok(obj);
@@ -171,9 +170,37 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
-    lean_always_assert(
-        false && ("Please build a version of Lean4 with libuv to invoke this.")
-    );
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+    lean_object * promise = create_promise();
+
+    tcp_socket->m_promise_read = promise;
+    lean_inc(promise);
+
+    event_loop_lock(&global_ev);
+
+    uv_read_start((uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
+        buf->base = (char*)malloc(suggested_size);
+        buf->len = suggested_size;
+    }, [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
+        lean_uv_tcp_socket_object *tcp_socket = (lean_uv_tcp_socket_object *)stream->data;
+        lean_object * promise = tcp_socket->m_promise_read;
+
+        if (nread > 0) {
+            lean_object * data = lean_alloc_sarray(1, nread, nread);
+            memcpy(lean_sarray_cptr(data), buf->base, nread);
+            resolve_promise(promise, 0);
+            lean_dec(data);
+        } else if (nread < 0) {
+            resolve_promise(promise, nread);
+        }
+
+        if (buf->base) free(buf->base);
+    });
+
+    event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(promise);
+}
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr) {

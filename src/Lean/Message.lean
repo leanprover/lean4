@@ -448,6 +448,9 @@ def markAllReported (log : MessageLog) : MessageLog :=
 def errorsToWarnings (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.warning } | _ => m) }
 
+def errorsToInfos (log : MessageLog) : MessageLog :=
+  { unreported := log.unreported.map (fun m => match m.severity with | MessageSeverity.error => { m with severity := MessageSeverity.information } | _ => m) }
+
 def getInfoMessages (log : MessageLog) : MessageLog :=
   { unreported := log.unreported.filter fun m => match m.severity with | MessageSeverity.information => true | _ => false }
 

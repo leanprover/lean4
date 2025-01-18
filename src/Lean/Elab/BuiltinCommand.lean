@@ -294,7 +294,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     modify fun s => { s with messages := {} };
     pure messages
   let restoreMessages (prevMessages : MessageLog) : CommandElabM Unit := do
-    modify fun s => { s with messages := prevMessages ++ s.messages.errorsToWarnings }
+    modify fun s => { s with messages := prevMessages ++ s.messages.errorsToInfos }
   let prevMessages ← resetMessages
   let succeeded ← try
     x

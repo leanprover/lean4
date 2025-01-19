@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
 
@@ -32,9 +33,37 @@ Tries to apply beta-reductiong using the parent applications of the functions in
 the lambda expressions in `lams`.
 -/
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
-  if lams.isEmpty then do return ()
-  trace[grind.debug.beta] "{lams} {fns}"
-  -- TODO
-  return ()
+  if lams.isEmpty then return ()
+  let lamRoot ← getRoot lams.back!
+  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  for fn in fns do
+    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    for parent in (← getParents fn) do
+      let mut args := #[]
+      let mut curr := parent
+      trace[grind.debug.beta] "parent: {parent}"
+      repeat
+        trace[grind.debug.beta] "curr: {curr}"
+        if (← isEqv curr lamRoot) then
+          propagate curr args (Nat.max (← getGeneration curr) (← getGeneration lamRoot))
+        let .app f arg := curr
+          | break
+        -- Remark: recall that we do not eagerly internalize partial applications.
+        internalize curr (← getGeneration parent)
+        args := args.push arg
+        curr := f
+where
+  propagate (f : Expr) (args : Array Expr) (gen : Nat) : GoalM Unit := do
+    if args.isEmpty then return ()
+    for lam in lams do
+      let lhs := mkAppRev f args
+      let rhs := lam.betaRev args
+      if (← hasSameType f lam) then
+        let mut h ← mkEqProof f lam
+        for arg in args.reverse do
+          h ← mkCongrFun h arg
+        let eq ← mkEq lhs rhs
+        trace[grind.beta] "{eq}, using {lam}"
+        addNewFact h eq (gen+1)
 
 end Lean.Meta.Grind

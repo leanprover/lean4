@@ -628,12 +628,10 @@ def getParents (e : Expr) : GoalM ParentSet := do
   return parents
 
 /--
-Similar to `getParents`, but also removes the entry `e ↦ parents` from the parent map.
+Removes the entry `e ↦ parents` from the parent map.
 -/
-def getParentsAndReset (e : Expr) : GoalM ParentSet := do
-  let parents ← getParents e
+def resetParentsOf (e : Expr) : GoalM Unit := do
   modify fun s => { s with parents := s.parents.erase { expr := e } }
-  return parents
 
 /--
 Copy `parents` to the parents of `root`.

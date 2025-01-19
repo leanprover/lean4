@@ -41,7 +41,7 @@ Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
-  let parents ← getParentsAndReset root
+  let parents ← getParents root
   for parent in parents do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
     if (← pure parent.isApp <&&> isCongrRoot parent) then
@@ -179,6 +179,7 @@ where
     }
     propagateBeta lams₁ fns₁
     propagateBeta lams₂ fns₂
+    resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self

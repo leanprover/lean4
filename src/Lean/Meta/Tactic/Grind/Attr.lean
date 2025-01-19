@@ -10,12 +10,6 @@ import Lean.Meta.Tactic.Simp.Simproc
 namespace Lean.Meta.Grind
 open Simp
 
-builtin_initialize grindNormExt : SimpExtension ←
-  registerSimpAttr `grind_norm "simplification/normalization theorems for `grind`"
-
-builtin_initialize grindNormSimprocExt : SimprocExtension ←
-  registerSimprocAttr `grind_norm_proc "simplification/normalization procedured for `grind`" none
-
 builtin_initialize grindCasesExt : SimpleScopedEnvExtension Name NameSet ←
   registerSimpleScopedEnvExtension {
     initial        := {}

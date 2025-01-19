@@ -23,7 +23,7 @@ info: [grind.assert] f (y + 1) = a
 [grind.assert] f (y + 1) = g (f y)
 -/
 #guard_msgs (info) in
-example : f (y + 1) = a → a = g (f y):= by
+example : f (y + 1) = a → a = g (f y) := by
   grind
 
 /--

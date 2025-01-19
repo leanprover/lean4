@@ -1379,8 +1379,6 @@ theorem filter_eq_push_iff {p : α → Bool} {l l' : Array α} {a : α} :
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, h₁, h₂, h₃, h₄⟩
     refine ⟨l₂.reverse, l₁.reverse, by simp_all⟩
 
-@[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
-
 theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
   (mem_filter.mp h).1
 
@@ -2269,12 +2267,174 @@ theorem flatMap_mkArray {β} (f : α → Array β) : (mkArray n a).flatMap f = (
   rw [← toList_inj]
   simp [flatMap_toList, List.flatMap_replicate]
 
-@[simp] theorem isEmpty_replicate : (mkArray n a).isEmpty = decide (n = 0) := by
+@[simp] theorem isEmpty_mkArray : (mkArray n a).isEmpty = decide (n = 0) := by
   rw [← List.toArray_replicate, List.isEmpty_toArray]
   simp
 
 @[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkArray n a).sum = n * a := by
   rw [← List.toArray_replicate, List.sum_toArray]
+  simp
+
+/-! ### Preliminaries about `swap` needed for `reverse`. -/
+
+theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
+    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
+  simp [swap]
+
+theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j hi hj)[k]? =
+    if j = k then some a[i] else if i = k then some a[j] else a[k]? := by
+  simp [swap_def, getElem?_set]
+
+/-! ### reverse -/
+
+@[simp] theorem size_reverse (a : Array α) : a.reverse.size = a.size := by
+  let rec go (as : Array α) (i j) : (reverse.loop as i j).size = as.size := by
+    rw [reverse.loop]
+    if h : i < j then
+      simp [(go · (i+1) ⟨j-1, ·⟩), h]
+    else simp [h]
+    termination_by j - i
+  simp only [reverse]; split <;> simp [go]
+
+@[simp] theorem toList_reverse (a : Array α) : a.reverse.toList = a.toList.reverse := by
+  let rec go (as : Array α) (i j hj)
+      (h : i + j + 1 = a.size) (h₂ : as.size = a.size)
+      (H : ∀ k, as.toList[k]? = if i ≤ k ∧ k ≤ j then a.toList[k]? else a.toList.reverse[k]?)
+      (k : Nat) : (reverse.loop as i ⟨j, hj⟩).toList[k]? = a.toList.reverse[k]? := by
+    rw [reverse.loop]; dsimp only; split <;> rename_i h₁
+    · match j with | j+1 => ?_
+      simp only [Nat.add_sub_cancel]
+      rw [(go · (i+1) j)]
+      · rwa [Nat.add_right_comm i]
+      · simp [size_swap, h₂]
+      · intro k
+        rw [getElem?_toList, getElem?_swap]
+        simp only [H, ← getElem_toList, ← List.getElem?_eq_getElem, Nat.le_of_lt h₁,
+          ← getElem?_toList]
+        split <;> rename_i h₂
+        · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
+          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
+        split <;> rename_i h₃
+        · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
+          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
+        simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
+          Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
+    · rw [H]; split <;> rename_i h₂
+      · cases Nat.le_antisymm (Nat.not_lt.1 h₁) (Nat.le_trans h₂.1 h₂.2)
+        cases Nat.le_antisymm h₂.1 h₂.2
+        exact (List.getElem?_reverse' _ _ h).symm
+      · rfl
+    termination_by j - i
+  simp only [reverse]
+  split
+  · match a with | ⟨[]⟩ | ⟨[_]⟩ => rfl
+  · have := Nat.sub_add_cancel (Nat.le_of_not_le ‹_›)
+    refine List.ext_getElem? <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
+    split
+    · rfl
+    · rename_i h
+      simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
+        true_and, Nat.not_lt] at h
+      rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
+
+@[simp] theorem _root_.List.reverse_toArray (l : List α) : l.toArray.reverse = l.reverse.toArray := by
+  apply ext'
+  simp only [toList_reverse]
+
+@[simp] theorem reverse_push (as : Array α) (a : α) : (as.push a).reverse = #[a] ++ as.reverse := by
+  cases as
+  simp
+
+@[simp] theorem mem_reverse {x : α} {as : Array α} : x ∈ as.reverse ↔ x ∈ as := by
+  cases as
+  simp
+
+@[simp] theorem getElem_reverse (as : Array α) (i : Nat) (hi : i < as.reverse.size) :
+    (as.reverse)[i] = as[as.size - 1 - i]'(by simp at hi; omega) := by
+  cases as
+  simp
+
+@[simp] theorem reverse_eq_empty_iff {xs : Array α} : xs.reverse = #[] ↔ xs = #[] := by
+  cases xs
+  simp
+
+theorem reverse_ne_empty_iff {xs : Array α} : xs.reverse ≠ #[] ↔ xs ≠ #[] :=
+  not_congr reverse_eq_empty_iff
+
+/-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
+theorem getElem?_reverse' {l : Array α} (i j) (h : i + j + 1 = l.size) : l.reverse[i]? = l[j]? := by
+  rcases l with ⟨l⟩
+  simp at h
+  simp only [List.reverse_toArray, List.getElem?_toArray]
+  rw [List.getElem?_reverse' (l := l) _ _ h]
+
+@[simp]
+theorem getElem?_reverse {l : Array α} {i} (h : i < l.size) :
+    l.reverse[i]? = l[l.size - 1 - i]? := by
+  cases l
+  simp_all
+
+@[simp] theorem reverse_reverse (as : Array α) : as.reverse.reverse = as := by
+  cases as
+  simp
+
+theorem reverse_eq_iff {as bs : Array α} : as.reverse = bs ↔ as = bs.reverse := by
+  constructor <;> (rintro rfl; simp)
+
+@[simp] theorem reverse_inj {xs ys : Array α} : xs.reverse = ys.reverse ↔ xs = ys := by
+  simp [reverse_eq_iff]
+
+@[simp] theorem reverse_eq_push_iff {xs : Array α} {ys : Array α} {a : α} :
+    xs.reverse = ys.push a ↔ xs = #[a] ++ ys.reverse := by
+  rw [reverse_eq_iff, reverse_push]
+
+@[simp] theorem map_reverse (f : α → β) (l : Array α) : l.reverse.map f = (l.map f).reverse := by
+  cases l <;> simp [*]
+
+@[simp] theorem filter_reverse (p : α → Bool) (l : Array α) : (l.reverse.filter p) = (l.filter p).reverse := by
+  cases l
+  simp
+
+@[simp] theorem filterMap_reverse (f : α → Option β) (l : Array α) : (l.reverse.filterMap f) = (l.filterMap f).reverse := by
+  cases l
+  simp
+
+@[simp] theorem reverse_append (as bs : Array α) : (as ++ bs).reverse = bs.reverse ++ as.reverse := by
+  cases as
+  cases bs
+  simp
+
+@[simp] theorem reverse_eq_append_iff {xs ys zs : Array α} :
+    xs.reverse = ys ++ zs ↔ xs = zs.reverse ++ ys.reverse := by
+  cases xs
+  cases ys
+  cases zs
+  simp
+
+/-- Reversing a flatten is the same as reversing the order of parts and reversing all parts. -/
+theorem reverse_flatten (L : Array (Array α)) :
+    L.flatten.reverse = (L.map reverse).reverse.flatten := by
+  cases L using array₂_induction
+  simp [flatten_toArray, List.reverse_flatten, Function.comp_def]
+
+/-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
+theorem flatten_reverse (L : Array (Array α)) :
+    L.reverse.flatten = (L.map reverse).flatten.reverse := by
+  cases L using array₂_induction
+  simp [flatten_toArray, List.flatten_reverse, Function.comp_def]
+
+theorem reverse_flatMap {β} (l : Array α) (f : α → Array β) :
+    (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
+  cases l
+  simp [List.reverse_flatMap, Function.comp_def]
+
+theorem flatMap_reverse {β} (l : Array α) (f : α → Array β) :
+    (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+  cases l
+  simp [List.flatMap_reverse, Function.comp_def]
+
+@[simp] theorem reverse_mkArray (n) (a : α) : reverse (mkArray n a) = mkArray n a := by
+  rw [← toList_inj]
   simp
 
 /-! Content below this point has not yet been aligned with `List`. -/
@@ -2468,6 +2628,7 @@ theorem getElem?_push_eq (a : Array α) (x : α) : (a.push x)[a.size]? = some x 
 
 @[deprecated getElem?_size (since := "2024-10-21")] abbrev get?_size := @getElem?_size
 
+@[deprecated getElem_set_self (since := "2025-01-17")]
 theorem get_set_eq (a : Array α) (i : Nat) (v : α) (h : i < a.size) :
     (a.set i v h)[i]'(by simp [h]) = v := by
   simp only [set, ← getElem_toList, List.getElem_set_self]
@@ -2491,16 +2652,8 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
     (h : i ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
   simp only [set, ← getElem_toList, List.getElem_set_ne h]
 
-theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
-    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
-  simp [swap]
-
 @[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
     (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
-
-theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j hi hj)[k]? =
-    if j = k then some a[i] else if i = k then some a[j] else a[k]? := by
-  simp [swap_def, get?_set]
 
 @[simp] theorem swapAt_def (a : Array α) (i : Nat) (v : α) (hi) :
     a.swapAt i v hi = (a[i], a.set i v) := rfl
@@ -2555,15 +2708,6 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
 
 @[deprecated size_swapIfInBounds (since := "2024-11-24")] abbrev size_swap! := @size_swapIfInBounds
 
-@[simp] theorem size_reverse (a : Array α) : a.reverse.size = a.size := by
-  let rec go (as : Array α) (i j) : (reverse.loop as i j).size = as.size := by
-    rw [reverse.loop]
-    if h : i < j then
-      simp [(go · (i+1) ⟨j-1, ·⟩), h]
-    else simp [h]
-    termination_by j - i
-  simp only [reverse]; split <;> simp [go]
-
 @[simp] theorem size_range {n : Nat} : (range n).size = n := by
   induction n <;> simp [range]
 
@@ -2573,61 +2717,6 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
 @[simp]
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [← getElem_toList]
-
-@[simp] theorem toList_reverse (a : Array α) : a.reverse.toList = a.toList.reverse := by
-  let rec go (as : Array α) (i j hj)
-      (h : i + j + 1 = a.size) (h₂ : as.size = a.size)
-      (H : ∀ k, as.toList[k]? = if i ≤ k ∧ k ≤ j then a.toList[k]? else a.toList.reverse[k]?)
-      (k : Nat) : (reverse.loop as i ⟨j, hj⟩).toList[k]? = a.toList.reverse[k]? := by
-    rw [reverse.loop]; dsimp only; split <;> rename_i h₁
-    · match j with | j+1 => ?_
-      simp only [Nat.add_sub_cancel]
-      rw [(go · (i+1) j)]
-      · rwa [Nat.add_right_comm i]
-      · simp [size_swap, h₂]
-      · intro k
-        rw [getElem?_toList, getElem?_swap]
-        simp only [H, ← getElem_toList, ← List.getElem?_eq_getElem, Nat.le_of_lt h₁,
-          ← getElem?_toList]
-        split <;> rename_i h₂
-        · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
-          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
-        split <;> rename_i h₃
-        · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
-          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
-        simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
-          Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
-    · rw [H]; split <;> rename_i h₂
-      · cases Nat.le_antisymm (Nat.not_lt.1 h₁) (Nat.le_trans h₂.1 h₂.2)
-        cases Nat.le_antisymm h₂.1 h₂.2
-        exact (List.getElem?_reverse' _ _ h).symm
-      · rfl
-    termination_by j - i
-  simp only [reverse]
-  split
-  · match a with | ⟨[]⟩ | ⟨[_]⟩ => rfl
-  · have := Nat.sub_add_cancel (Nat.le_of_not_le ‹_›)
-    refine List.ext_getElem? <| go _ _ _ _ (by simp [this]) rfl fun k => ?_
-    split
-    · rfl
-    · rename_i h
-      simp only [← show k < _ + 1 ↔ _ from Nat.lt_succ (n := a.size - 1), this, Nat.zero_le,
-        true_and, Nat.not_lt] at h
-      rw [List.getElem?_eq_none_iff.2 ‹_›, List.getElem?_eq_none_iff.2 (a.toList.length_reverse ▸ ‹_›)]
-
-end Array
-
-open Array
-
-namespace List
-
-@[simp] theorem reverse_toArray (l : List α) : l.toArray.reverse = l.reverse.toArray := by
-  apply ext'
-  simp only [toList_reverse]
-
-end List
-
-namespace Array
 
 /-! ### foldlM and foldrM -/
 
@@ -3323,17 +3412,6 @@ theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β
   induction xss generalizing as with
   | nil => simp
   | cons xs xss ih => simp [ih]
-
-/-! ### reverse -/
-
-@[simp] theorem mem_reverse {x : α} {as : Array α} : x ∈ as.reverse ↔ x ∈ as := by
-  cases as
-  simp
-
-@[simp] theorem getElem_reverse (as : Array α) (i : Nat) (hi : i < as.reverse.size) :
-    (as.reverse)[i] = as[as.size - 1 - i]'(by simp at hi; omega) := by
-  cases as
-  simp [Array.getElem_reverse]
 
 /-! ### findSomeRevM?, findRevM?, findSomeRev?, findRev? -/
 

@@ -1746,6 +1746,92 @@ theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f
 @[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkVector n a).sum = n * a := by
   simp [toArray_mkVector]
 
+/-! ### reverse -/
+
+@[simp] theorem reverse_push (as : Vector α n) (a : α) :
+    (as.push a).reverse = (#v[a] ++ as.reverse).cast (by omega) := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.reverse_push]
+
+@[simp] theorem mem_reverse {x : α} {as : Vector α n} : x ∈ as.reverse ↔ x ∈ as := by
+  cases as
+  simp
+
+@[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
+    (a.reverse)[i] = a[n - 1 - i] := by
+  rcases a with ⟨a, rfl⟩
+  simp
+
+/-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
+theorem getElem?_reverse' {l : Vector α n} (i j) (h : i + j + 1 = n) : l.reverse[i]? = l[j]? := by
+  rcases l with ⟨l, rfl⟩
+  simpa using Array.getElem?_reverse' i j h
+
+@[simp]
+theorem getElem?_reverse {l : Vector α n} {i} (h : i < n) :
+    l.reverse[i]? = l[n - 1 - i]? := by
+  cases l
+  simp_all
+
+@[simp] theorem reverse_reverse (as : Vector α n) : as.reverse.reverse = as := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.reverse_reverse]
+
+theorem reverse_eq_iff {as bs : Vector α n} : as.reverse = bs ↔ as = bs.reverse := by
+  constructor <;> (rintro rfl; simp)
+
+@[simp] theorem reverse_inj {xs ys : Vector α n} : xs.reverse = ys.reverse ↔ xs = ys := by
+  simp [reverse_eq_iff]
+
+@[simp] theorem reverse_eq_push_iff {xs : Vector α (n + 1)} {ys : Vector α n} {a : α} :
+    xs.reverse = ys.push a ↔ xs = (#v[a] ++ ys.reverse).cast (by omega) := by
+  rcases xs with ⟨xs, h⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp [Array.reverse_eq_push_iff]
+
+@[simp] theorem map_reverse (f : α → β) (l : Vector α n) : l.reverse.map f = (l.map f).reverse := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.map_reverse]
+
+@[simp] theorem reverse_append (as : Vector α n) (bs : Vector α m) :
+    (as ++ bs).reverse = (bs.reverse ++ as.reverse).cast (by omega) := by
+  rcases as with ⟨as, rfl⟩
+  rcases bs with ⟨bs, rfl⟩
+  simp [Array.reverse_append]
+
+@[simp] theorem reverse_eq_append_iff {xs : Vector α (n + m)} {ys : Vector α n} {zs : Vector α m} :
+    xs.reverse = ys ++ zs ↔ xs = (zs.reverse ++ ys.reverse).cast (by omega) := by
+  cases xs
+  cases ys
+  cases zs
+  simp
+
+/-- Reversing a flatten is the same as reversing the order of parts and reversing all parts. -/
+theorem reverse_flatten (L : Vector (Vector α m) n) :
+    L.flatten.reverse = (L.map reverse).reverse.flatten := by
+  cases L using vector₂_induction
+  simp [Array.reverse_flatten]
+
+/-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
+theorem flatten_reverse (L : Vector (Vector α m) n) :
+    L.reverse.flatten = (L.map reverse).flatten.reverse := by
+  cases L using vector₂_induction
+  simp [Array.flatten_reverse]
+
+theorem reverse_flatMap {β} (l : Vector α n) (f : α → Vector β m) :
+    (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.reverse_flatMap, Function.comp_def]
+
+theorem flatMap_reverse {β} (l : Vector α n) (f : α → Vector β m) :
+    (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.flatMap_reverse, Function.comp_def]
+
+@[simp] theorem reverse_mkVector (n) (a : α) : reverse (mkVector n a) = mkVector n a := by
+  rw [← toArray_inj]
+  simp
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
@@ -1875,13 +1961,6 @@ theorem swap_comm (a : Vector α n) {i j : Nat} {hi hj} :
 @[simp] theorem getElem_drop (a : Vector α n) (m : Nat) (hi : i < n - m) :
     (a.drop m)[i] = a[m + i] := by
   cases a
-  simp
-
-/-! ### reverse -/
-
-@[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
-    (a.reverse)[i] = a[n - 1 - i] := by
-  rcases a with ⟨a, rfl⟩
   simp
 
 /-! ### Decidable quantifiers. -/

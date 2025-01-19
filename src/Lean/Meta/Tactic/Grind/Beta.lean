@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
 
@@ -29,41 +28,32 @@ def getFnRoots (e : Expr) : GoalM (Array Expr) := do
       return fns
 
 /--
-Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
-the lambda expressions in `lams`.
+For each `lam` in `lams` s.t. `lam` and `f` are in the same equivalence class,
+propagate `f args = lam args`.
 -/
-def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
-  if lams.isEmpty then return ()
-  let lamRoot ← getRoot lams.back!
-  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
-  for fn in fns do
-    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
-    for parent in (← getParents fn) do
-      let mut args := #[]
-      let mut curr := parent
-      trace[grind.debug.beta] "parent: {parent}"
-      repeat
-        trace[grind.debug.beta] "curr: {curr}"
-        if (← isEqv curr lamRoot) then
-          propagate curr args (Nat.max (← getGeneration curr) (← getGeneration lamRoot))
-        let .app f arg := curr
-          | break
-        -- Remark: recall that we do not eagerly internalize partial applications.
-        internalize curr (← getGeneration parent)
-        args := args.push arg
-        curr := f
-where
-  propagate (f : Expr) (args : Array Expr) (gen : Nat) : GoalM Unit := do
-    if args.isEmpty then return ()
-    for lam in lams do
-      let lhs := mkAppRev f args
-      let rhs := lam.betaRev args
+def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM Unit := do
+  if args.isEmpty then return ()
+  for lam in lams do
+    let rhs := lam.beta args
+    unless rhs.isLambda do
+      let mut gen := Nat.max (← getGeneration lam) (← getGeneration f)
+      let lhs := mkAppN f args
       if (← hasSameType f lam) then
         let mut h ← mkEqProof f lam
-        for arg in args.reverse do
+        for arg in args do
+          gen := Nat.max gen (← getGeneration arg)
           h ← mkCongrFun h arg
         let eq ← mkEq lhs rhs
         trace[grind.beta] "{eq}, using {lam}"
         addNewFact h eq (gen+1)
+
+/--
+Applies beta-reduction for lambdas in `f`s equivalence class.
+We use this function while internalizing new applications.
+-/
+def propagateBetaForNewApp (f : Expr) (args : Array Expr) : GoalM Unit := do
+  let some fRoot ← getRoot? f | return ()
+  let some n ← getENode? fRoot | return ()
+  propagateBetaEqs (← getEqcLambdas n) f args
 
 end Lean.Meta.Grind

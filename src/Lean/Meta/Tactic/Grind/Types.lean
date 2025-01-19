@@ -501,8 +501,9 @@ def getENode (e : Expr) : GoalM ENode := do
   (← get).getENode e
 
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
-def getGeneration (e : Expr) : GoalM Nat :=
-  return (← getENode e).generation
+def getGeneration (e : Expr) : GoalM Nat := do
+  let some n ← getENode? e | return 0
+  return n.generation
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do

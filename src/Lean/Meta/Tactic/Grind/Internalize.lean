@@ -12,6 +12,7 @@ import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
@@ -204,6 +205,8 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
       updateAppMap e
       Arith.internalize e parent?
       propagateUp e
+      propagateBetaForNewApp f args
+
 end
 
 end Lean.Meta.Grind

@@ -24,8 +24,6 @@ def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name
 
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
-  let s ← grindNormSimprocExt.getSimprocs
-  let s ← addDoNotSimp s
   let e ← Simp.getSEvalSimprocs
   /-
   We don't want to apply `List.reduceReplicate` as a normalization operation in
@@ -41,11 +39,12 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   We don't want it to be simplified to `[] = []`.
   -/
   let e := e.erase ``List.reduceReplicate
-  return #[s, e]
+  let e ← addDoNotSimp e
+  return #[e]
 
 /-- Returns the simplification context used by `grind`. -/
 protected def getSimpContext : MetaM Simp.Context := do
-  let thms ← grindNormExt.getTheorems
+  let thms ← normExt.getTheorems
   Simp.mkContext
     (config := { arith := true })
     (simpTheorems := #[thms])

@@ -14,7 +14,7 @@ def fallback (n : Nat) : Fallback := do
   -- The `f 0` equivalence class contains `n+1` elements
   assert! (← getEqc f0).length == n + 1
   forEachENode fun node => do
-    if node.self.isAppOf ``g then
+    if node.self.isApp && node.self.isAppOf ``g then
       -- Any equivalence class containing a `g`-application contains 2 elements
       assert! (← getEqc (← getRoot node.self)).length == 2
   (← get).mvarId.admit

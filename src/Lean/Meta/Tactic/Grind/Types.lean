@@ -501,8 +501,9 @@ def getENode (e : Expr) : GoalM ENode := do
   (← get).getENode e
 
 /-- Returns the generation of the given term. Is assumes it has been internalized -/
-def getGeneration (e : Expr) : GoalM Nat :=
-  return (← getENode e).generation
+def getGeneration (e : Expr) : GoalM Nat := do
+  let some n ← getENode? e | return 0
+  return n.generation
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
@@ -519,8 +520,8 @@ def isEqv (a b : Expr) : GoalM Bool := do
   if isSameExpr a b then
     return true
   else
-    let na ← getENode a
-    let nb ← getENode b
+    let some na ← getENode? a | return false
+    let some nb ← getENode? b | return false
     return isSameExpr na.root nb.root
 
 /-- Returns `true` if the root of its equivalence class. -/
@@ -548,6 +549,11 @@ def getRoot (e : Expr) : GoalM Expr := do
 /-- Returns the root enode in the equivalence class of `e`. -/
 def getRootENode (e : Expr) : GoalM ENode := do
   getENode (← getRoot e)
+
+/-- Returns the root enode in the equivalence class of `e` if it is in an equivalence class. -/
+def getRootENode? (e : Expr) : GoalM (Option ENode) := do
+  let some n ← getENode? e | return none
+  getENode? n.root
 
 /--
 Returns the next element in the equivalence class of `e`
@@ -614,7 +620,7 @@ Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/
 def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
-  let some childRoot ← getRoot? child | return ()
+  let childRoot := (← getRoot? child).getD child
   let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
   modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
 
@@ -628,12 +634,10 @@ def getParents (e : Expr) : GoalM ParentSet := do
   return parents
 
 /--
-Similar to `getParents`, but also removes the entry `e ↦ parents` from the parent map.
+Removes the entry `e ↦ parents` from the parent map.
 -/
-def getParentsAndReset (e : Expr) : GoalM ParentSet := do
-  let parents ← getParents e
+def resetParentsOf (e : Expr) : GoalM Unit := do
   modify fun s => { s with parents := s.parents.erase { expr := e } }
-  return parents
 
 /--
 Copy `parents` to the parents of `root`.
@@ -799,6 +803,18 @@ def getENodes : GoalM (Array ENode) := do
     f n
     if isSameExpr n.next e then return ()
     curr := n.next
+
+/-- Folds using `f` and `init` over the equivalence class containing `e` -/
+@[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
+  let mut curr := e
+  let mut r := init
+  repeat
+    let n ← getENode curr
+    r ← f n r
+    if isSameExpr n.next e then return r
+    curr := n.next
+  unreachable!
+  return r
 
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes

@@ -11,10 +11,11 @@ namespace Lean.Parser.Attr
 syntax grindEq     := "="
 syntax grindEqBoth := atomic("_" "=" "_")
 syntax grindEqRhs  := atomic("=" "_")
+syntax grindEqBwd  := atomic("←" "=")
 syntax grindBwd    := "←"
 syntax grindFwd    := "→"
 
-syntax grindThmMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindBwd <|> grindFwd
+syntax grindThmMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd
 
 syntax (name := grind) "grind" (grindThmMod)? : attr
 

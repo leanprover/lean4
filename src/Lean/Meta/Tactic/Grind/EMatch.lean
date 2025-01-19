@@ -310,12 +310,44 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
           modify fun s => { s with choiceStack := [c] }
           processChoices
 
+/--
+Entry point for matching `lhs ←= rhs` patterns.
+It traverses disequalities `a = b`, and tries to solve two matching problems:
+1- match `lhs` with `a` and `rhs` with `b`
+2- match `lhs` with `b` and `rhs` with `a`
+-/
+private def matchEqBwdPat (p : Expr) : M Unit := do
+  let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
+  let numParams  := (← read).thm.numParams
+  let assignment := mkArray numParams unassigned
+  let useMT      := (← read).useMT
+  let gmt        := (← getThe Goal).gmt
+  let false      ← getFalseExpr
+  let mut curr   := false
+  repeat
+    if (← checkMaxInstancesExceeded) then return ()
+    let n ← getENode curr
+    if (n.heqProofs || n.isCongrRoot) &&
+       (!useMT || n.mt == gmt) then
+      let_expr Eq α lhs rhs := n.self | pure ()
+      if (← isDefEq α pα) then
+         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
+         let go (lhs rhs : Expr) : M Unit := do
+           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+           modify fun s => { s with choiceStack := [c₂] }
+           processChoices
+         go lhs rhs
+         go rhs lhs
+    if isSameExpr n.next false then return ()
+    curr := n.next
+
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()
   withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
-    | [p],   _     => main p []
+    | [p],   _     => if isEqBwdPattern p then matchEqBwdPat p else main p []
     | p::ps, false => main p (ps.map (.continue ·))
     | _::_,  true  => tryAll ps []
     | _,     _     => unreachable!

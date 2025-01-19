@@ -22,7 +22,7 @@ open Lean in
 open Lean in
 #eval id (α := CoreM Unit) do
   -- this implementation is no longer allowed because of a private constructor
-  modifyEnv fun env => { env with base.header.mainModule := `foo }
+  modifyEnv fun env => { env with checked.header.mainModule := `foo }
 
 #check a -- Error
 

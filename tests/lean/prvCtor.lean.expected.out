@@ -1,5 +1,5 @@
 a : Nat
-prvCtor.lean:25:23-25:66: error: invalid {...} notation, constructor for `Lean.Environment` is marked as private
+prvCtor.lean:25:23-25:69: error: invalid {...} notation, constructor for `Lean.Environment` is marked as private
 prvCtor.lean:27:7-27:8: error: unknown identifier 'a'
 prvCtor.lean:29:25-29:27: error: overloaded, errors 
   failed to synthesize

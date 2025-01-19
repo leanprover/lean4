@@ -519,8 +519,8 @@ def isEqv (a b : Expr) : GoalM Bool := do
   if isSameExpr a b then
     return true
   else
-    let na ← getENode a
-    let nb ← getENode b
+    let some na ← getENode? a | return false
+    let some nb ← getENode? b | return false
     return isSameExpr na.root nb.root
 
 /-- Returns `true` if the root of its equivalence class. -/

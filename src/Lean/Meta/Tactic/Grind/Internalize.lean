@@ -205,7 +205,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
       updateAppMap e
       Arith.internalize e parent?
       propagateUp e
-      propagateBetaForNewApp f args
+      propagateBetaForNewApp e
 
 end
 

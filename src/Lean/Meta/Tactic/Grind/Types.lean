@@ -550,6 +550,11 @@ def getRoot (e : Expr) : GoalM Expr := do
 def getRootENode (e : Expr) : GoalM ENode := do
   getENode (← getRoot e)
 
+/-- Returns the root enode in the equivalence class of `e` if it is in an equivalence class. -/
+def getRootENode? (e : Expr) : GoalM (Option ENode) := do
+  let some n ← getENode? e | return none
+  getENode? n.root
+
 /--
 Returns the next element in the equivalence class of `e`
 if `e` has been internalized in the given goal.

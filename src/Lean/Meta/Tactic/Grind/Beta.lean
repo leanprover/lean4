@@ -47,13 +47,31 @@ def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM 
         trace[grind.beta] "{eq}, using {lam}"
         addNewFact h eq (gen+1)
 
+private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
+  let .app f _ := e | return false
+  go f
+where
+  go (f : Expr) : GoalM Bool := do
+    if let some root ← getRootENode? f then
+      return root.hasLambdas
+    let .app f _ := f | return false
+    go f
+
 /--
 Applies beta-reduction for lambdas in `f`s equivalence class.
 We use this function while internalizing new applications.
 -/
-def propagateBetaForNewApp (f : Expr) (args : Array Expr) : GoalM Unit := do
-  let some fRoot ← getRoot? f | return ()
-  let some n ← getENode? fRoot | return ()
-  propagateBetaEqs (← getEqcLambdas n) f args
+def propagateBetaForNewApp (e : Expr) : GoalM Unit := do
+  unless (← isPropagateBetaTarget e) do return ()
+  let mut e := e
+  let mut args := #[]
+  repeat
+    unless args.isEmpty do
+      if let some root ← getRootENode? e then
+        if root.hasLambdas then
+          propagateBetaEqs (← getEqcLambdas root) e args.reverse
+    let .app f arg := e | return ()
+    e := f
+    args := args.push arg
 
 end Lean.Meta.Grind

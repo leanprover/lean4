@@ -800,6 +800,18 @@ def getENodes : GoalM (Array ENode) := do
     if isSameExpr n.next e then return ()
     curr := n.next
 
+/-- Folds using `f` and `init` over the equivalence class containing `e` -/
+@[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
+  let mut curr := e
+  let mut r := init
+  repeat
+    let n ← getENode curr
+    r ← f n r
+    if isSameExpr n.next e then return r
+    curr := n.next
+  unreachable!
+  return r
+
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
   let nodes ← getENodes
   for n in nodes do

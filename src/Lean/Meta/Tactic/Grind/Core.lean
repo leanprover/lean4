@@ -161,8 +161,8 @@ where
     }
     let lams₁ ← getEqcLambdas lhsRoot
     let lams₂ ← getEqcLambdas rhsRoot
-    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot
-    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot
+    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot.self
+    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot.self
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"

@@ -1379,8 +1379,6 @@ theorem filter_eq_push_iff {p : α → Bool} {l l' : Array α} {a : α} :
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, h₁, h₂, h₃, h₄⟩
     refine ⟨l₂.reverse, l₁.reverse, by simp_all⟩
 
-@[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
-
 theorem mem_of_mem_filter {a : α} {l} (h : a ∈ filter p l) : a ∈ l :=
   (mem_filter.mp h).1
 

@@ -1294,11 +1294,6 @@ theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
     BitVec.allOnes w <<< n ||| x <<< n = BitVec.allOnes w <<< n := by
   simp [← shiftLeft_or_distrib]
 
-@[deprecated shiftLeft_add (since := "2024-06-02")]
-theorem shiftLeft_shiftLeft {w : Nat} (x : BitVec w) (n m : Nat) :
-    (x <<< n) <<< m = x <<< (n + m) := by
-  rw [shiftLeft_add]
-
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
 @[simp]
@@ -1945,11 +1940,6 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
 theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]
-
-@[deprecated shiftRight_add (since := "2024-06-02")]
-theorem shiftRight_shiftRight {w : Nat} (x : BitVec w) (n m : Nat) :
-    (x >>> n) >>> m = x >>> (n + m) := by
-  rw [shiftRight_add]
 
 /-! ### rev -/
 

@@ -194,7 +194,7 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
           activateTheoremPatterns fName generation
         else
           internalize f generation e
-          registerParent e f
+        registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
           internalize arg generation e

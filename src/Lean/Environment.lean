@@ -871,15 +871,13 @@ namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  let checked := env.checked.get
-  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.setState ext checked.extensions s }
+  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.setState ext env.checkedWithoutAsync.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  let checked := env.checked.get
-  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.modifyState ext checked.extensions f }
+  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.modifyState ext env.checkedWithoutAsync.extensions f }
 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
+  EnvExtensionInterfaceImp.getState ext env.checkedWithoutAsync.extensions
 
 end EnvExtension
 

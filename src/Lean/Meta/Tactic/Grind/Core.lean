@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
@@ -158,6 +159,10 @@ where
       proof?  := proof
       flipped
     }
+    let lams₁ ← getEqcLambdas lhsRoot
+    let lams₂ ← getEqcLambdas rhsRoot
+    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot
+    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
@@ -172,6 +177,8 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
+    propagateBeta lams₁ fns₁
+    propagateBeta lams₂ fns₂
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self

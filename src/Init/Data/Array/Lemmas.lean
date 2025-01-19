@@ -1658,9 +1658,9 @@ theorem getElem_of_append {l l₁ l₂ : Array α} (eq : l = l₁.push a ++ l₂
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
   simp
 
-@[simp 1100] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := by
-  cases as
-  simp
+@[simp 1100] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := rfl
+
+theorem push_eq_append {a : α} {as : Array α} : as.push a = as ++ #[a] := rfl
 
 theorem append_inj {s₁ s₂ t₁ t₂ : Array α} (h : s₁ ++ t₁ = s₂ ++ t₂) (hl : s₁.size = s₂.size) :
     s₁ = s₂ ∧ t₁ = t₂ := by

@@ -45,6 +45,12 @@ Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, 
 
 /-! ### mapFinIdx -/
 
+@[congr] theorem mapFinIdx_congr {xs ys : List α} (w : xs = ys)
+    (f : (i : Nat) → α → (h : i < xs.length) → β) :
+    mapFinIdx xs f = mapFinIdx ys (fun i a h => f i a (by simp [w]; omega)) := by
+  subst w
+  rfl
+
 @[simp]
 theorem mapFinIdx_nil {f : (i : Nat) → α → (h : i < 0) → β} : mapFinIdx [] f = [] :=
   rfl

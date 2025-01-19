@@ -11,6 +11,17 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 
 namespace Lean.Meta.Grind
 
+builtin_initialize normExt : SimpExtension ← mkSimpExt
+
+def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name) : MetaM Unit := do
+  let thms ← normExt.getTheorems
+  unless thms.lemmaNames.isEmpty do
+    throwError "`grind` normalization theorems have already been initialized"
+  for declName in preDeclNames do
+    addSimpTheorem normExt declName (post := false) (inv := false) .global (eval_prio default)
+  for declName in postDeclNames do
+    addSimpTheorem normExt declName (post := true) (inv := false) .global (eval_prio default)
+
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
   let s ← grindNormSimprocExt.getSimprocs

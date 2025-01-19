@@ -2269,7 +2269,7 @@ theorem flatMap_mkArray {β} (f : α → Array β) : (mkArray n a).flatMap f = (
   rw [← toList_inj]
   simp [flatMap_toList, List.flatMap_replicate]
 
-@[simp] theorem isEmpty_replicate : (mkArray n a).isEmpty = decide (n = 0) := by
+@[simp] theorem isEmpty_mkArray : (mkArray n a).isEmpty = decide (n = 0) := by
   rw [← List.toArray_replicate, List.isEmpty_toArray]
   simp
 
@@ -2417,20 +2417,23 @@ theorem reverse_eq_iff {as bs : Array α} : as.reverse = bs ↔ as = bs.reverse 
 theorem reverse_flatten (L : Array (Array α)) :
     L.flatten.reverse = (L.map reverse).reverse.flatten := by
   cases L using array₂_induction
-  simp [List.flatten_reverse]
+  simp [flatten_toArray, List.reverse_flatten, Function.comp_def]
 
 /-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
 theorem flatten_reverse (L : Array (Array α)) :
     L.reverse.flatten = (L.map reverse).flatten.reverse := by
-  induction L <;> simp_all
+  cases L using array₂_induction
+  simp [flatten_toArray, List.flatten_reverse, Function.comp_def]
 
-theorem reverse_flatMap {β} (l : Array α) (f : α → Array β) : (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
+theorem reverse_flatMap {β} (l : Array α) (f : α → Array β) :
+    (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
   cases l
-  simp [List.reverse_flatMap]
+  simp [List.reverse_flatMap, Function.comp_def]
 
-theorem flatMap_reverse {β} (l : Array α) (f : α → Array β) : (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+theorem flatMap_reverse {β} (l : Array α) (f : α → Array β) :
+    (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
   cases l
-  simp [List.flatMap_reverse]
+  simp [List.flatMap_reverse, Function.comp_def]
 
 @[simp] theorem reverse_mkArray (n) (a : α) : reverse (mkArray n a) = mkArray n a := by
   rw [← toList_inj]

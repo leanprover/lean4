@@ -5441,6 +5441,7 @@ lean_dec(x_10);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_2);
 x_14 = l_Lean_Environment_contains(x_13, x_2);
 if (x_14 == 0)
 {
@@ -5457,6 +5458,7 @@ x_20 = lean_ctor_get(x_17, 1);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec(x_19);
+lean_inc(x_16);
 x_22 = l_Lean_Environment_contains(x_21, x_16);
 if (x_22 == 0)
 {
@@ -5534,6 +5536,7 @@ lean_dec(x_17);
 x_37 = lean_ctor_get(x_35, 0);
 lean_inc(x_37);
 lean_dec(x_35);
+lean_inc(x_16);
 x_38 = l_Lean_Environment_contains(x_37, x_16);
 if (x_38 == 0)
 {
@@ -13287,7 +13290,6 @@ x_16 = lean_ctor_get(x_7, 7);
 lean_inc(x_16);
 lean_inc(x_1);
 x_17 = l_Lean_ResolveName_resolveNamespace(x_14, x_15, x_16, x_1);
-lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_18; 
@@ -13364,7 +13366,6 @@ x_37 = lean_ctor_get(x_7, 7);
 lean_inc(x_37);
 lean_inc(x_1);
 x_38 = l_Lean_ResolveName_resolveNamespace(x_35, x_36, x_37, x_1);
-lean_dec(x_35);
 if (x_2 == 0)
 {
 uint8_t x_39; 

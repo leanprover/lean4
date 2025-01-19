@@ -55,6 +55,7 @@ static lean_object* l_Lean_Meta_subCounters___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkDiagSummaryForUnfolded___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hasSyntheticSorry(lean_object*);
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Lean_Meta_mkDiagSummary___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Kernel_getDiagnostics(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_subCounters___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_reportDiag___closed__17;
 static lean_object* l_Lean_Meta_reportDiag___closed__3;
@@ -2809,7 +2810,6 @@ if (lean_obj_tag(x_5) == 1)
 uint8_t x_6; 
 x_6 = l_Lean_Meta_isInstanceCore(x_1, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 if (x_6 == 0)
 {
 if (x_2 == 0)
@@ -5510,9 +5510,7 @@ lean_dec(x_53);
 x_56 = lean_ctor_get(x_54, 0);
 lean_inc(x_56);
 lean_dec(x_54);
-x_57 = lean_ctor_get(x_56, 1);
-lean_inc(x_57);
-lean_dec(x_56);
+x_57 = l_Lean_Kernel_getDiagnostics(x_56);
 x_58 = lean_ctor_get(x_57, 0);
 lean_inc(x_58);
 lean_dec(x_57);

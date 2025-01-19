@@ -6284,7 +6284,6 @@ lean_inc(x_18);
 lean_dec(x_16);
 lean_inc(x_1);
 x_19 = l_Lean_ResolveName_resolveNamespace(x_9, x_13, x_18, x_1);
-lean_dec(x_9);
 if (x_2 == 0)
 {
 uint8_t x_20; 
@@ -6354,7 +6353,6 @@ lean_inc(x_37);
 lean_dec(x_35);
 lean_inc(x_1);
 x_38 = l_Lean_ResolveName_resolveNamespace(x_9, x_13, x_37, x_1);
-lean_dec(x_9);
 if (x_2 == 0)
 {
 uint8_t x_39; 
@@ -7128,6 +7126,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_8);
 x_14 = l_Lean_Environment_contains(x_13, x_8);
 if (x_14 == 0)
 {
@@ -7210,6 +7209,7 @@ lean_dec(x_9);
 x_36 = lean_ctor_get(x_34, 0);
 lean_inc(x_36);
 lean_dec(x_34);
+lean_inc(x_8);
 x_37 = l_Lean_Environment_contains(x_36, x_8);
 if (x_37 == 0)
 {
@@ -8593,6 +8593,7 @@ x_8 = lean_ctor_get(x_5, 1);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
+lean_inc(x_1);
 x_10 = l_Lean_Environment_find_x3f(x_9, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -8634,6 +8635,7 @@ lean_dec(x_5);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec(x_19);
+lean_inc(x_1);
 x_22 = l_Lean_Environment_find_x3f(x_21, x_1);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -10280,7 +10282,6 @@ lean_inc(x_19);
 lean_dec(x_17);
 lean_inc(x_1);
 x_20 = l_Lean_ResolveName_resolveNamespace(x_10, x_14, x_19, x_1);
-lean_dec(x_10);
 if (x_2 == 0)
 {
 uint8_t x_21; 
@@ -10348,7 +10349,6 @@ lean_inc(x_38);
 lean_dec(x_36);
 lean_inc(x_1);
 x_39 = l_Lean_ResolveName_resolveNamespace(x_10, x_14, x_38, x_1);
-lean_dec(x_10);
 if (x_2 == 0)
 {
 uint8_t x_40; 
@@ -10955,6 +10955,7 @@ x_9 = lean_ctor_get(x_6, 1);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
+lean_inc(x_1);
 x_11 = l_Lean_Environment_find_x3f(x_10, x_1);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -10995,6 +10996,7 @@ lean_dec(x_6);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_find_x3f(x_22, x_1);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -26189,7 +26191,6 @@ lean_dec(x_7);
 x_9 = l_Lean_instInhabitedDeclarationRanges;
 x_10 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
 x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
-lean_dec(x_8);
 lean_ctor_set(x_5, 0, x_11);
 return x_5;
 }
@@ -26207,7 +26208,6 @@ lean_dec(x_12);
 x_15 = l_Lean_instInhabitedDeclarationRanges;
 x_16 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
-lean_dec(x_14);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_13);
@@ -26697,7 +26697,6 @@ x_11 = l_Lean_instInhabitedDeclarationRanges;
 x_12 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
 lean_inc(x_1);
 x_13 = l_Lean_MapDeclarationExtension_contains___rarg(x_11, x_12, x_10, x_1);
-lean_dec(x_10);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -26819,7 +26818,6 @@ x_47 = l_Lean_instInhabitedDeclarationRanges;
 x_48 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Elab_Command_elabAddDeclDoc___spec__1___closed__1;
 lean_inc(x_1);
 x_49 = l_Lean_MapDeclarationExtension_contains___rarg(x_47, x_48, x_46, x_1);
-lean_dec(x_46);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 

@@ -132,6 +132,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_mkDelabAttribute___lam
 static lean_object* l_Lean_PrettyPrinter_Delaborator_delab___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_PrettyPrinter_Delaborator_delab___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAtomic(lean_object*);
+lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 static lean_object* l_Lean_PrettyPrinter_delabCore___rarg___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadWithReaderOfSubExprDelabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_instAlternativeDelabM___closed__3;
@@ -139,6 +140,7 @@ LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_instMonadStateOfHoleIt
 extern lean_object* l_Lean_SubExpr_Pos_maxChildren;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getUnusedName___closed__2;
 static lean_object* l_Lean_PrettyPrinter_delabCore___rarg___lambda__5___closed__3;
+uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_PrettyPrinter_Delaborator_addTermInfo___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_shouldOmitProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -200,7 +202,6 @@ extern lean_object* l_Lean_SubExpr_Pos_typeCoord;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_getExprKind___closed__15;
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_ReaderT_instMonadLift(lean_object*, lean_object*, lean_object*);
-uint8_t l_Lean_Kernel_Environment_isDiagnosticsEnabled(lean_object*);
 uint8_t l_Lean_getPPInstantiateMVars(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_Delaborator_attrApp__delab_____closed__7;
 static lean_object* l_Lean_PrettyPrinter_Delaborator_OmissionReason_toString___closed__3;
@@ -433,7 +434,6 @@ lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___s
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4658____closed__11;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_annotateCurPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_withBindingBodyUnusedName___rarg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Kernel_Environment_enableDiag(lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isMData(lean_object*);
 static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter_Delaborator_Basic___hyg_4658____closed__9;
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___at_Lean_PrettyPrinter_Delaborator_mkAnnotatedIdent___spec__1___boxed(lean_object*);
@@ -1770,6 +1770,7 @@ x_29 = lean_ctor_get(x_26, 1);
 x_30 = lean_ctor_get(x_28, 0);
 lean_inc(x_30);
 lean_dec(x_28);
+lean_inc(x_25);
 x_31 = l_Lean_Environment_contains(x_30, x_25);
 if (x_31 == 0)
 {
@@ -1846,6 +1847,7 @@ lean_dec(x_26);
 x_44 = lean_ctor_get(x_42, 0);
 lean_inc(x_44);
 lean_dec(x_42);
+lean_inc(x_25);
 x_45 = l_Lean_Environment_contains(x_44, x_25);
 if (x_45 == 0)
 {
@@ -1957,6 +1959,7 @@ if (lean_is_exclusive(x_63)) {
 x_67 = lean_ctor_get(x_64, 0);
 lean_inc(x_67);
 lean_dec(x_64);
+lean_inc(x_62);
 x_68 = l_Lean_Environment_contains(x_67, x_62);
 if (x_68 == 0)
 {
@@ -9414,7 +9417,6 @@ lean_inc(x_29);
 lean_dec(x_27);
 x_30 = l_Lean_PrettyPrinter_Delaborator_delabFor___closed__1;
 x_31 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_30, x_29, x_1);
-lean_dec(x_29);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
@@ -12174,7 +12176,7 @@ lean_object* x_19; uint8_t x_20; uint8_t x_21;
 x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
-x_20 = l_Lean_Kernel_Environment_isDiagnosticsEnabled(x_19);
+x_20 = l_Lean_Kernel_isDiagnosticsEnabled(x_19);
 lean_dec(x_19);
 if (x_20 == 0)
 {
@@ -12228,7 +12230,7 @@ lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean
 x_26 = lean_ctor_get(x_23, 0);
 x_27 = lean_ctor_get(x_23, 4);
 lean_dec(x_27);
-x_28 = l_Lean_Kernel_Environment_enableDiag(x_26, x_14);
+x_28 = l_Lean_Kernel_enableDiag(x_26, x_14);
 x_29 = l_Lean_PrettyPrinter_delabCore___rarg___lambda__5___closed__4;
 lean_ctor_set(x_23, 4, x_29);
 lean_ctor_set(x_23, 0, x_28);
@@ -12258,7 +12260,7 @@ lean_inc(x_36);
 lean_inc(x_35);
 lean_inc(x_34);
 lean_dec(x_23);
-x_41 = l_Lean_Kernel_Environment_enableDiag(x_34, x_14);
+x_41 = l_Lean_Kernel_enableDiag(x_34, x_14);
 x_42 = l_Lean_PrettyPrinter_delabCore___rarg___lambda__5___closed__4;
 x_43 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_43, 0, x_41);

@@ -538,6 +538,7 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
+lean_inc(x_1);
 x_12 = l_Lean_Environment_find_x3f(x_11, x_1);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -806,6 +807,7 @@ lean_dec(x_7);
 x_55 = lean_ctor_get(x_53, 0);
 lean_inc(x_55);
 lean_dec(x_53);
+lean_inc(x_1);
 x_56 = l_Lean_Environment_find_x3f(x_55, x_1);
 if (lean_obj_tag(x_56) == 0)
 {
@@ -1396,7 +1398,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Meta_getUnfoldableConstNoEx_x3f(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_7;
 }
 }

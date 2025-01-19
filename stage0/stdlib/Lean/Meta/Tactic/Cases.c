@@ -633,7 +633,6 @@ x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
 x_18 = l_Lean_Environment_find_x3f(x_17, x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_18) == 0)
 {
 lean_object* x_19; 
@@ -710,7 +709,6 @@ x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
 lean_dec(x_33);
 x_36 = l_Lean_Environment_find_x3f(x_35, x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -2688,7 +2686,6 @@ x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Lean_Environment_find_x3f(x_19, x_15);
-lean_dec(x_15);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -3146,7 +3143,6 @@ x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);
 x_16 = l_Lean_Environment_find_x3f(x_15, x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
@@ -3204,7 +3200,6 @@ lean_dec(x_26);
 x_28 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_mkCasesContext_x3f___spec__1___closed__1;
 x_29 = l_Lean_Name_str___override(x_27, x_28);
 x_30 = l_Lean_Environment_find_x3f(x_1, x_29);
-lean_dec(x_29);
 if (lean_obj_tag(x_30) == 0)
 {
 lean_object* x_31; 
@@ -3347,7 +3342,6 @@ x_55 = lean_ctor_get(x_53, 0);
 lean_inc(x_55);
 lean_dec(x_53);
 x_56 = l_Lean_Environment_find_x3f(x_55, x_11);
-lean_dec(x_11);
 if (lean_obj_tag(x_56) == 0)
 {
 lean_object* x_57; lean_object* x_58; 
@@ -3409,7 +3403,6 @@ lean_dec(x_68);
 x_70 = l_Lean_Expr_withAppAux___at___private_Lean_Meta_Tactic_Cases_0__Lean_Meta_Cases_mkCasesContext_x3f___spec__1___closed__1;
 x_71 = l_Lean_Name_str___override(x_69, x_70);
 x_72 = l_Lean_Environment_find_x3f(x_1, x_71);
-lean_dec(x_71);
 if (lean_obj_tag(x_72) == 0)
 {
 lean_object* x_73; lean_object* x_74; 

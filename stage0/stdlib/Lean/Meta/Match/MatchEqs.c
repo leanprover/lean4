@@ -5259,7 +5259,6 @@ x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
 x_28 = l_Lean_Environment_find_x3f(x_27, x_8);
-lean_dec(x_8);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; 
@@ -5328,7 +5327,6 @@ x_41 = lean_ctor_get(x_39, 0);
 lean_inc(x_41);
 lean_dec(x_39);
 x_42 = l_Lean_Environment_find_x3f(x_41, x_8);
-lean_dec(x_8);
 if (lean_obj_tag(x_42) == 0)
 {
 lean_object* x_43; lean_object* x_44; 
@@ -50285,7 +50283,6 @@ lean_dec(x_9);
 x_12 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
 x_13 = l_Lean_Meta_Match_getEquationsForImpl___closed__1;
 x_14 = l_Lean_EnvExtension_getState___rarg(x_12, x_13, x_11);
-lean_dec(x_11);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);
@@ -50326,7 +50323,6 @@ lean_dec(x_19);
 x_22 = l_Lean_Meta_Match_instInhabitedMatchEqnsExtState;
 x_23 = l_Lean_Meta_Match_getEquationsForImpl___closed__1;
 x_24 = l_Lean_EnvExtension_getState___rarg(x_22, x_23, x_21);
-lean_dec(x_21);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec(x_24);

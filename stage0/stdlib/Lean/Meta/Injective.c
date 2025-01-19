@@ -5581,6 +5581,7 @@ x_10 = lean_ctor_get(x_7, 1);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
+lean_inc(x_1);
 x_12 = l_Lean_Environment_find_x3f(x_11, x_1);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -5621,6 +5622,7 @@ lean_dec(x_7);
 x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 lean_dec(x_21);
+lean_inc(x_1);
 x_24 = l_Lean_Environment_find_x3f(x_23, x_1);
 if (lean_obj_tag(x_24) == 0)
 {
@@ -8370,6 +8372,7 @@ lean_inc(x_5);
 lean_inc(x_4);
 lean_inc(x_3);
 lean_inc(x_2);
+lean_inc(x_1);
 x_12 = l_Lean_Meta_isInductivePredicate(x_1, x_2, x_3, x_4, x_5, x_9);
 if (lean_obj_tag(x_12) == 0)
 {

@@ -1786,7 +1786,6 @@ x_77 = lean_ctor_get(x_2, 0);
 lean_inc(x_77);
 lean_dec(x_2);
 x_78 = l_Lean_Environment_find_x3f(x_11, x_77);
-lean_dec(x_77);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; 

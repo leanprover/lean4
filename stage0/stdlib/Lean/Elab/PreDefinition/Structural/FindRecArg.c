@@ -5560,7 +5560,6 @@ x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
 lean_dec(x_20);
 x_24 = l_Lean_Environment_find_x3f(x_23, x_17);
-lean_dec(x_17);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; 
@@ -5599,6 +5598,7 @@ lean_dec(x_29);
 x_31 = l_Lean_binductionOnSuffix;
 lean_inc(x_30);
 x_32 = l_Lean_Name_str___override(x_30, x_31);
+lean_inc(x_32);
 x_33 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_32, x_7, x_8, x_9, x_10, x_21);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
@@ -5616,6 +5616,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_30);
 x_37 = l_Lean_Meta_isInductivePredicate(x_30, x_7, x_8, x_9, x_10, x_35);
 if (lean_obj_tag(x_37) == 0)
 {
@@ -6692,7 +6693,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -14298,7 +14298,6 @@ x_76 = lean_unsigned_to_nat(0u);
 x_77 = l_Lean_Elab_Structural_IndGroupInfo_brecOnName(x_74, x_75, x_76);
 lean_dec(x_74);
 x_78 = l_Lean_hasConst___at_Lean_Elab_Structural_tryAllArgs___spec__5(x_77, x_15, x_16, x_17, x_18, x_19, x_20);
-lean_dec(x_77);
 x_79 = lean_ctor_get(x_78, 0);
 lean_inc(x_79);
 x_80 = lean_unbox(x_79);
@@ -16922,7 +16921,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_8;
 }
 }

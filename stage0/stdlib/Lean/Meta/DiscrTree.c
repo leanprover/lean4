@@ -1798,6 +1798,7 @@ x_9 = lean_ctor_get(x_6, 1);
 x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
+lean_inc(x_1);
 x_11 = l_Lean_Environment_find_x3f(x_10, x_1);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -1838,6 +1839,7 @@ lean_dec(x_6);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_find_x3f(x_22, x_1);
 if (lean_obj_tag(x_23) == 0)
 {
@@ -12926,10 +12928,10 @@ x_68 = lean_ctor_get(x_66, 0);
 lean_inc(x_68);
 lean_dec(x_66);
 x_69 = l_Lean_Meta_isMatcherAppCore_x3f(x_68, x_1);
-lean_dec(x_68);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; lean_object* x_71; uint8_t x_72; 
+lean_inc(x_50);
 x_70 = l_Lean_isRec___at___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_getKeyArgs___spec__1(x_50, x_4, x_5, x_6, x_7, x_67);
 x_71 = lean_ctor_get(x_70, 0);
 lean_inc(x_71);
@@ -13343,7 +13345,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }

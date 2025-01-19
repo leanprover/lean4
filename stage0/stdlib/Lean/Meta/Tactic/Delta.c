@@ -72,7 +72,6 @@ x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Environment_find_x3f(x_13, x_7);
-lean_dec(x_7);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -357,7 +356,6 @@ x_82 = lean_ctor_get(x_80, 0);
 lean_inc(x_82);
 lean_dec(x_80);
 x_83 = l_Lean_Environment_find_x3f(x_82, x_7);
-lean_dec(x_7);
 if (lean_obj_tag(x_83) == 0)
 {
 lean_object* x_84; lean_object* x_85; 

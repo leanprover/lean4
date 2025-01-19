@@ -2080,7 +2080,6 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
 x_12 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_11, x_1);
-lean_dec(x_11);
 x_13 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_13, 0, x_12);
 lean_ctor_set(x_13, 1, x_2);
@@ -2099,7 +2098,6 @@ x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_16, x_1);
-lean_dec(x_16);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_2);
@@ -2196,6 +2194,7 @@ x_11 = lean_ctor_get(x_8, 1);
 x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
+lean_inc(x_1);
 x_13 = l_Lean_Environment_find_x3f(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -2240,6 +2239,7 @@ lean_dec(x_8);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
+lean_inc(x_1);
 x_26 = l_Lean_Environment_find_x3f(x_25, x_1);
 if (lean_obj_tag(x_26) == 0)
 {
@@ -28478,7 +28478,6 @@ x_12 = lean_ctor_get(x_11, 0);
 lean_inc(x_12);
 lean_dec(x_11);
 x_13 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_12, x_1);
-lean_dec(x_12);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_13);
 lean_ctor_set(x_14, 1, x_2);
@@ -28500,7 +28499,6 @@ x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec(x_16);
 x_19 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_18, x_1);
-lean_dec(x_18);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_2);
@@ -28566,6 +28564,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
+lean_inc(x_1);
 x_14 = l_Lean_Environment_find_x3f(x_13, x_1);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -28614,6 +28613,7 @@ lean_dec(x_9);
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
+lean_inc(x_1);
 x_28 = l_Lean_Environment_find_x3f(x_27, x_1);
 if (lean_obj_tag(x_28) == 0)
 {
@@ -59640,6 +59640,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t
 x_7 = l_Lean_Tactic_FunInd_deriveUnaryInduction___closed__2;
 lean_inc(x_1);
 x_8 = l_Lean_Name_append(x_1, x_7);
+lean_inc(x_8);
 x_9 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_8, x_2, x_3, x_4, x_5, x_6);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -60001,6 +60002,7 @@ x_36 = lean_nat_add(x_27, x_29);
 lean_ctor_set(x_9, 0, x_36);
 x_37 = l_Lean_Tactic_FunInd_deriveUnaryInduction___closed__2;
 x_38 = l_Lean_Name_append(x_17, x_37);
+lean_inc(x_38);
 x_39 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_38, x_10, x_11, x_12, x_13, x_14);
 x_40 = lean_ctor_get(x_39, 0);
 lean_inc(x_40);
@@ -60385,6 +60387,7 @@ lean_ctor_set(x_106, 1, x_28);
 lean_ctor_set(x_106, 2, x_29);
 x_107 = l_Lean_Tactic_FunInd_deriveUnaryInduction___closed__2;
 x_108 = l_Lean_Name_append(x_17, x_107);
+lean_inc(x_108);
 x_109 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_108, x_10, x_11, x_12, x_13, x_14);
 x_110 = lean_ctor_get(x_109, 0);
 lean_inc(x_110);
@@ -64302,6 +64305,7 @@ goto block_19;
 block_19:
 {
 lean_object* x_9; lean_object* x_10; uint8_t x_11; 
+lean_inc(x_8);
 x_9 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_8, x_3, x_4, x_5, x_6, x_7);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
@@ -64950,7 +64954,6 @@ x_31 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_32 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural___spec__2___closed__1;
 lean_inc(x_30);
 x_33 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_31, x_32, x_28, x_30);
-lean_dec(x_28);
 if (lean_obj_tag(x_33) == 0)
 {
 lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; uint8_t x_39; 
@@ -65223,7 +65226,6 @@ x_85 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_86 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural___spec__2___closed__1;
 lean_inc(x_84);
 x_87 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_85, x_86, x_82, x_84);
-lean_dec(x_82);
 if (lean_obj_tag(x_87) == 0)
 {
 lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; 
@@ -77592,7 +77594,6 @@ x_12 = l_Lean_Elab_WF_instInhabitedEqnInfo;
 x_13 = l_Lean_Tactic_FunInd_deriveInduction___lambda__1___closed__1;
 lean_inc(x_1);
 x_14 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_12, x_13, x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; uint8_t x_16; 
@@ -77610,7 +77611,6 @@ x_20 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_21 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural___spec__2___closed__1;
 lean_inc(x_1);
 x_22 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_20, x_21, x_19, x_1);
-lean_dec(x_19);
 if (lean_obj_tag(x_22) == 0)
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
@@ -77663,7 +77663,6 @@ x_34 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_35 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural___spec__2___closed__1;
 lean_inc(x_1);
 x_36 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_34, x_35, x_33, x_1);
-lean_dec(x_33);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
@@ -77829,7 +77828,6 @@ x_68 = l_Lean_Elab_WF_instInhabitedEqnInfo;
 x_69 = l_Lean_Tactic_FunInd_deriveInduction___lambda__1___closed__1;
 lean_inc(x_1);
 x_70 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_68, x_69, x_67, x_1);
-lean_dec(x_67);
 if (lean_obj_tag(x_70) == 0)
 {
 lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; 
@@ -77853,7 +77851,6 @@ x_76 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_77 = l_Array_mapMUnsafe_map___at_Lean_Tactic_FunInd_deriveInductionStructural___spec__2___closed__1;
 lean_inc(x_1);
 x_78 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_76, x_77, x_75, x_1);
-lean_dec(x_75);
 if (lean_obj_tag(x_78) == 0)
 {
 lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; 
@@ -78278,6 +78275,7 @@ lean_closure_set(x_11, 1, x_3);
 x_12 = l_Lean_Elab_WF_instInhabitedEqnInfo;
 x_13 = l_Lean_Tactic_FunInd_deriveInduction___lambda__1___closed__1;
 lean_inc(x_3);
+lean_inc(x_1);
 x_14 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_12, x_13, x_1, x_3);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -78285,7 +78283,6 @@ lean_object* x_15; lean_object* x_16;
 lean_dec(x_11);
 x_15 = lean_box(0);
 x_16 = l_Lean_Tactic_FunInd_isFunInductName___lambda__2(x_1, x_3, x_15);
-lean_dec(x_1);
 return x_16;
 }
 else
@@ -78325,13 +78322,13 @@ lean_dec(x_4);
 x_23 = l_Lean_Elab_WF_instInhabitedEqnInfo;
 x_24 = l_Lean_Tactic_FunInd_deriveInduction___lambda__1___closed__1;
 lean_inc(x_3);
+lean_inc(x_1);
 x_25 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_23, x_24, x_1, x_3);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; 
 x_26 = lean_box(0);
 x_27 = l_Lean_Tactic_FunInd_isFunInductName___lambda__4(x_1, x_3, x_26);
-lean_dec(x_1);
 return x_27;
 }
 else
@@ -78387,7 +78384,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Tactic_FunInd_isFunInductName___lambda__2(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -78408,7 +78404,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Tactic_FunInd_isFunInductName___lambda__4(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_4;
 }
 }

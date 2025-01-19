@@ -734,7 +734,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_9;
 }
 }
@@ -1686,6 +1685,7 @@ if (x_77 == 0)
 lean_object* x_78; 
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_69);
 x_78 = l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f(x_69, x_70, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_78) == 0)
 {
@@ -1707,6 +1707,7 @@ lean_dec(x_81);
 x_84 = lean_ctor_get(x_82, 0);
 lean_inc(x_84);
 lean_dec(x_82);
+lean_inc(x_69);
 x_85 = l_Lean_Environment_find_x3f(x_84, x_69);
 if (lean_obj_tag(x_85) == 0)
 {
@@ -1938,6 +1939,7 @@ if (x_137 == 0)
 lean_object* x_138; 
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_130);
 x_138 = l_Lean_Compiler_LCNF_isTrivialConstructorApp_x3f(x_130, x_131, x_2, x_3, x_4, x_5, x_6, x_7);
 if (lean_obj_tag(x_138) == 0)
 {
@@ -1959,6 +1961,7 @@ lean_dec(x_141);
 x_144 = lean_ctor_get(x_142, 0);
 lean_inc(x_144);
 lean_dec(x_142);
+lean_inc(x_130);
 x_145 = l_Lean_Environment_find_x3f(x_144, x_130);
 if (lean_obj_tag(x_145) == 0)
 {

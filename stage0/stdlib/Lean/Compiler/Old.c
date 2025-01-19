@@ -230,6 +230,7 @@ LEAN_EXPORT lean_object* l_Lean_Compiler_checkIsDefinition(lean_object* x_1, lea
 _start:
 {
 lean_object* x_3; 
+lean_inc(x_2);
 x_3 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {

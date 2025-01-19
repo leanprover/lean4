@@ -2060,6 +2060,7 @@ x_15 = lean_ctor_get(x_12, 1);
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
+lean_inc(x_11);
 x_17 = l_Lean_Environment_contains(x_16, x_11);
 if (x_17 == 0)
 {
@@ -2100,6 +2101,7 @@ lean_dec(x_12);
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
+lean_inc(x_11);
 x_28 = l_Lean_Environment_contains(x_27, x_11);
 if (x_28 == 0)
 {
@@ -2197,6 +2199,7 @@ lean_dec(x_23);
 x_26 = lean_ctor_get(x_2, 0);
 lean_inc(x_26);
 lean_dec(x_2);
+lean_inc(x_26);
 x_27 = l_Lean_Environment_contains(x_25, x_26);
 if (x_27 == 0)
 {
@@ -2240,6 +2243,7 @@ lean_dec(x_35);
 x_38 = lean_ctor_get(x_2, 0);
 lean_inc(x_38);
 lean_dec(x_2);
+lean_inc(x_38);
 x_39 = l_Lean_Environment_contains(x_37, x_38);
 if (x_39 == 0)
 {
@@ -4100,7 +4104,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_checkLeftRec___spec__1___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -4110,7 +4113,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_checkLeftRec___spec__1___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -4120,7 +4122,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Term_checkLeftRec___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -13019,7 +13020,6 @@ x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Parser_leadingIdentBehavior(x_13, x_2);
-lean_dec(x_13);
 x_15 = 1;
 x_16 = lean_alloc_ctor(0, 1, 3);
 lean_ctor_set(x_16, 0, x_2);
@@ -18172,6 +18172,7 @@ x_8 = lean_ctor_get(x_5, 1);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
+lean_inc(x_1);
 x_10 = l_Lean_Parser_isValidSyntaxNodeKind(x_9, x_1);
 if (x_10 == 0)
 {
@@ -18200,6 +18201,7 @@ lean_dec(x_5);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Parser_isValidSyntaxNodeKind(x_15, x_1);
 if (x_16 == 0)
 {
@@ -22635,7 +22637,6 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = l_Lean_Parser_isParserCategory(x_28, x_23);
-lean_dec(x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; uint8_t x_35; 
@@ -22700,7 +22701,6 @@ x_43 = lean_ctor_get(x_41, 0);
 lean_inc(x_43);
 lean_dec(x_41);
 x_44 = l_Lean_Parser_isParserCategory(x_43, x_23);
-lean_dec(x_43);
 if (x_44 == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; 

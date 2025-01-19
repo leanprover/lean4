@@ -2920,6 +2920,7 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 lean_dec(x_20);
+lean_inc(x_19);
 x_22 = l_Lean_getStructureFields(x_19, x_21);
 x_23 = lean_ctor_get(x_2, 1);
 lean_inc(x_23);
@@ -7730,7 +7731,6 @@ x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lean_isStructure(x_14, x_16);
-lean_dec(x_14);
 if (x_17 == 0)
 {
 lean_object* x_18; 
@@ -9687,7 +9687,6 @@ if (x_7 == 0)
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
 x_8 = lean_array_uget(x_1, x_2);
 x_9 = l_Lean_isInductive___at_Lean_Elab_Deriving_Repr_mkReprInstanceHandler___spec__3(x_8, x_4, x_5, x_6);
-lean_dec(x_8);
 x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 x_11 = lean_unbox(x_10);
@@ -9906,7 +9905,6 @@ lean_object* x_5;
 x_5 = l_Lean_isInductive___at_Lean_Elab_Deriving_Repr_mkReprInstanceHandler___spec__3(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_5;
 }
 }

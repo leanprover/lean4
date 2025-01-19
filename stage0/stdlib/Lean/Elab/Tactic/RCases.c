@@ -11569,7 +11569,6 @@ x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
 x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
-lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -12655,7 +12654,6 @@ x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
 x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
-lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -13899,7 +13897,6 @@ x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
 x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
-lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -14985,7 +14982,6 @@ x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
 x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
-lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -15850,7 +15846,6 @@ x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
 x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
-lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -16936,7 +16931,6 @@ x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
 x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
-lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 
@@ -17801,7 +17795,6 @@ x_116 = lean_ctor_get(x_113, 0);
 lean_inc(x_116);
 lean_dec(x_113);
 x_117 = l_Lean_Environment_find_x3f(x_116, x_111);
-lean_dec(x_111);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; lean_object* x_122; lean_object* x_123; lean_object* x_124; lean_object* x_125; lean_object* x_126; lean_object* x_127; 
@@ -18887,7 +18880,6 @@ x_286 = lean_ctor_get(x_283, 0);
 lean_inc(x_286);
 lean_dec(x_283);
 x_287 = l_Lean_Environment_find_x3f(x_286, x_281);
-lean_dec(x_281);
 if (lean_obj_tag(x_287) == 0)
 {
 lean_object* x_288; lean_object* x_289; lean_object* x_290; lean_object* x_291; lean_object* x_292; lean_object* x_293; lean_object* x_294; lean_object* x_295; lean_object* x_296; lean_object* x_297; 

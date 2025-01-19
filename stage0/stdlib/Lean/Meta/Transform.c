@@ -11477,13 +11477,13 @@ x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
+lean_inc(x_7);
 x_9 = l_Lean_Environment_contains(x_2, x_7);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; 
 x_10 = lean_box(0);
 x_11 = l_Lean_Meta_unfoldDeclsFrom___lambda__1(x_1, x_7, x_3, x_8, x_10, x_4, x_5, x_6);
-lean_dec(x_7);
 return x_11;
 }
 else
@@ -11623,7 +11623,6 @@ x_9 = l_Lean_Meta_unfoldDeclsFrom___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7,
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_2);
 return x_9;
 }
 }

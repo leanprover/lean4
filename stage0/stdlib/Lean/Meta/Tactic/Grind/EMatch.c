@@ -5566,6 +5566,7 @@ x_16 = lean_ctor_get(x_13, 1);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
+lean_inc(x_1);
 x_18 = l_Lean_Environment_find_x3f(x_17, x_1);
 if (lean_obj_tag(x_18) == 0)
 {
@@ -5606,6 +5607,7 @@ lean_dec(x_13);
 x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
+lean_inc(x_1);
 x_30 = l_Lean_Environment_find_x3f(x_29, x_1);
 if (lean_obj_tag(x_30) == 0)
 {
@@ -6483,7 +6485,6 @@ lean_dec(x_20);
 x_23 = l_Lean_Meta_Grind_Origin_key(x_3);
 x_24 = l_Lean_Meta_Match_isMatchEqnTheorem(x_22, x_23);
 lean_dec(x_23);
-lean_dec(x_22);
 if (x_24 == 0)
 {
 lean_object* x_25; lean_object* x_26; 

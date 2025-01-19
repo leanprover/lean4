@@ -1177,7 +1177,6 @@ uint32_t x_4; uint32_t x_5; lean_object* x_6;
 x_4 = lean_unbox_uint32(x_3);
 lean_dec(x_3);
 x_5 = l_Lean_getMaxHeight___lambda__1(x_1, x_2, x_4);
-lean_dec(x_2);
 x_6 = lean_box_uint32(x_5);
 return x_6;
 }

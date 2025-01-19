@@ -265,6 +265,7 @@ lean_dec(x_31);
 x_34 = lean_ctor_get(x_32, 0);
 lean_inc(x_34);
 lean_dec(x_32);
+lean_inc(x_28);
 x_35 = l_Lean_Environment_find_x3f(x_34, x_28);
 if (lean_obj_tag(x_35) == 0)
 {

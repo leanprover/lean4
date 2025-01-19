@@ -282,7 +282,7 @@ LEAN_EXPORT lean_object* l_Lake_importModulesUsingCache___boxed(lean_object*, le
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1110____closed__15;
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1110____closed__21;
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1110____closed__14;
-lean_object* lean_elab_environment_add(lean_object*, lean_object*);
+lean_object* lake_environment_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__28;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_addToEnv___boxed(lean_object*, lean_object*);
@@ -3476,7 +3476,7 @@ LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_addToEnv___boxe
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_elab_environment_add(x_1, x_2);
+x_3 = lake_environment_add(x_1, x_2);
 return x_3;
 }
 }
@@ -4221,7 +4221,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; size_t x_8; size_t x_9; 
 x_6 = lean_array_uget(x_1, x_2);
-x_7 = lean_elab_environment_add(x_4, x_6);
+x_7 = lake_environment_add(x_4, x_6);
 x_8 = 1;
 x_9 = lean_usize_add(x_2, x_8);
 x_2 = x_9;

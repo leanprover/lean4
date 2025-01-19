@@ -1792,6 +1792,7 @@ if (lean_is_exclusive(x_21)) {
 x_25 = lean_ctor_get(x_22, 0);
 lean_inc(x_25);
 lean_dec(x_22);
+lean_inc(x_17);
 x_26 = l_Lean_Environment_find_x3f(x_25, x_17);
 if (lean_obj_tag(x_26) == 0)
 {

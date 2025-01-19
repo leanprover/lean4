@@ -129,6 +129,7 @@ x_11 = l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_4, x_1, x_10);
 lean_inc(x_5);
 lean_inc(x_11);
 lean_ctor_set(x_3, 0, x_11);
+lean_inc(x_1);
 lean_inc(x_2);
 x_12 = l_Lean_Environment_find_x3f(x_2, x_1);
 if (lean_obj_tag(x_12) == 0)
@@ -614,6 +615,7 @@ lean_inc(x_123);
 x_124 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_124, 0, x_123);
 lean_ctor_set(x_124, 1, x_5);
+lean_inc(x_1);
 lean_inc(x_2);
 x_125 = l_Lean_Environment_find_x3f(x_2, x_1);
 if (lean_obj_tag(x_125) == 0)

@@ -2466,7 +2466,6 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 x_14 = l_Lean_Meta_isInductivePredicate_x3f(x_13, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_13);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -2653,7 +2652,6 @@ x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_Meta_isMatcherAppCore_x3f(x_16, x_1);
-lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 
@@ -2699,7 +2697,6 @@ x_26 = lean_ctor_get(x_24, 0);
 lean_inc(x_26);
 lean_dec(x_24);
 x_27 = l_Lean_Meta_isMatcherAppCore_x3f(x_26, x_1);
-lean_dec(x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; 

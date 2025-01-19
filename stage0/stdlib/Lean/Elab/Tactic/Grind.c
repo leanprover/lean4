@@ -3504,6 +3504,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
+lean_inc(x_1);
 x_10 = l_Lean_Meta_isInductivePredicate(x_1, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -5005,6 +5006,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
+lean_inc(x_118);
 x_120 = l_Lean_Meta_isInductivePredicate(x_118, x_7, x_8, x_9, x_10, x_119);
 if (lean_obj_tag(x_120) == 0)
 {

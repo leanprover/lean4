@@ -573,6 +573,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_find_x3f(x_15, x_1);
 if (lean_obj_tag(x_16) == 0)
 {
@@ -613,6 +614,7 @@ lean_dec(x_11);
 x_27 = lean_ctor_get(x_25, 0);
 lean_inc(x_27);
 lean_dec(x_25);
+lean_inc(x_1);
 x_28 = l_Lean_Environment_find_x3f(x_27, x_1);
 if (lean_obj_tag(x_28) == 0)
 {
@@ -1014,7 +1016,6 @@ x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
 x_26 = l_Lean_Environment_contains(x_25, x_20);
-lean_dec(x_20);
 if (x_26 == 0)
 {
 lean_object* x_27; 
@@ -1053,7 +1054,6 @@ x_32 = lean_ctor_get(x_30, 0);
 lean_inc(x_32);
 lean_dec(x_30);
 x_33 = l_Lean_Environment_contains(x_32, x_20);
-lean_dec(x_20);
 if (x_33 == 0)
 {
 lean_object* x_34; lean_object* x_35; 
@@ -1123,6 +1123,7 @@ x_46 = lean_ctor_get(x_43, 1);
 x_47 = lean_ctor_get(x_45, 0);
 lean_inc(x_47);
 lean_dec(x_45);
+lean_inc(x_42);
 x_48 = l_Lean_Environment_contains(x_47, x_42);
 if (x_48 == 0)
 {
@@ -1162,6 +1163,7 @@ lean_dec(x_43);
 x_54 = lean_ctor_get(x_52, 0);
 lean_inc(x_54);
 lean_dec(x_52);
+lean_inc(x_42);
 x_55 = l_Lean_Environment_contains(x_54, x_42);
 if (x_55 == 0)
 {

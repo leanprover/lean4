@@ -1267,6 +1267,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 6);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_10, x_1);
 if (x_16 == 0)
 {
@@ -1354,6 +1355,7 @@ lean_dec(x_11);
 x_30 = lean_ctor_get(x_28, 6);
 lean_inc(x_30);
 lean_dec(x_28);
+lean_inc(x_1);
 x_31 = l_Lean_Environment_contains(x_10, x_1);
 if (x_31 == 0)
 {
@@ -1512,6 +1514,7 @@ goto block_29;
 else
 {
 lean_object* x_31; 
+lean_inc(x_14);
 lean_inc(x_10);
 x_31 = l_Lean_Environment_find_x3f(x_10, x_14);
 if (lean_obj_tag(x_31) == 0)
@@ -1537,6 +1540,7 @@ block_29:
 {
 uint8_t x_16; 
 lean_dec(x_15);
+lean_inc(x_14);
 x_16 = l_Lean_Parser_isValidSyntaxNodeKind(x_10, x_14);
 if (x_16 == 0)
 {
@@ -1963,7 +1967,6 @@ x_14 = l_Lean_Syntax_getId(x_12);
 x_15 = l_Lean_Parser_ParserExtension_instInhabitedState;
 x_16 = l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__2___closed__1;
 x_17 = l_Lean_ScopedEnvExtension_getState___rarg(x_15, x_16, x_10);
-lean_dec(x_10);
 x_18 = lean_ctor_get(x_17, 2);
 lean_inc(x_18);
 lean_dec(x_17);
@@ -2050,6 +2053,7 @@ lean_dec(x_40);
 x_43 = lean_ctor_get(x_28, 0);
 lean_inc(x_43);
 lean_dec(x_28);
+lean_inc(x_43);
 x_44 = l_Lean_Environment_contains(x_42, x_43);
 if (x_44 == 0)
 {
@@ -2129,6 +2133,7 @@ lean_dec(x_55);
 x_58 = lean_ctor_get(x_28, 0);
 lean_inc(x_58);
 lean_dec(x_28);
+lean_inc(x_58);
 x_59 = l_Lean_Environment_contains(x_57, x_58);
 if (x_59 == 0)
 {
@@ -2250,7 +2255,6 @@ x_80 = l_Lean_Syntax_getId(x_78);
 x_81 = l_Lean_Parser_ParserExtension_instInhabitedState;
 x_82 = l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__2___closed__1;
 x_83 = l_Lean_ScopedEnvExtension_getState___rarg(x_81, x_82, x_76);
-lean_dec(x_76);
 x_84 = lean_ctor_get(x_83, 2);
 lean_inc(x_84);
 lean_dec(x_83);
@@ -2340,6 +2344,7 @@ lean_dec(x_105);
 x_109 = lean_ctor_get(x_95, 0);
 lean_inc(x_109);
 lean_dec(x_95);
+lean_inc(x_109);
 x_110 = l_Lean_Environment_contains(x_108, x_109);
 if (x_110 == 0)
 {
@@ -10037,7 +10042,6 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer___closed__1;
 x_13 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_12, x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 

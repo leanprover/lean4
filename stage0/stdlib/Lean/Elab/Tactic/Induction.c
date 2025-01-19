@@ -22368,7 +22368,6 @@ x_151 = lean_ctor_get(x_149, 0);
 lean_inc(x_151);
 lean_dec(x_149);
 x_152 = l_Lean_Environment_find_x3f(x_151, x_146);
-lean_dec(x_146);
 if (lean_obj_tag(x_152) == 0)
 {
 uint8_t x_153; lean_object* x_154; 
@@ -23245,7 +23244,6 @@ x_405 = lean_ctor_get(x_403, 0);
 lean_inc(x_405);
 lean_dec(x_403);
 x_406 = l_Lean_Environment_find_x3f(x_405, x_146);
-lean_dec(x_146);
 if (lean_obj_tag(x_406) == 0)
 {
 uint8_t x_407; lean_object* x_408; 
@@ -26065,6 +26063,7 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint
 x_40 = lean_ctor_get(x_36, 0);
 x_41 = l_Lean_Name_getPrefix(x_40);
 lean_dec(x_40);
+lean_inc(x_41);
 x_42 = l_Lean_isInductive___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__1(x_41, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_34);
 x_43 = lean_ctor_get(x_42, 0);
 lean_inc(x_43);
@@ -26111,6 +26110,7 @@ lean_inc(x_50);
 lean_dec(x_36);
 x_51 = l_Lean_Name_getPrefix(x_50);
 lean_dec(x_50);
+lean_inc(x_51);
 x_52 = l_Lean_isInductive___at___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_getElimNameInfo___spec__1(x_51, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_34);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
@@ -26329,7 +26329,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_11;
 }
 }

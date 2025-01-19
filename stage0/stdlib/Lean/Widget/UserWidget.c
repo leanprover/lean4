@@ -6517,7 +6517,6 @@ x_24 = lean_box(0);
 x_25 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2(x_2, x_1, x_10, x_3, x_23, x_18, x_24, x_5, x_6, x_7, x_8, x_22);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_23);
 return x_25;
 }
 else
@@ -7382,7 +7381,6 @@ x_32 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__7
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_23);
 return x_32;
 }
 else
@@ -7402,7 +7400,6 @@ lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_35);
-lean_dec(x_23);
 return x_37;
 }
 }
@@ -8065,7 +8062,6 @@ x_13 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_7);
-lean_dec(x_5);
 return x_13;
 }
 }
@@ -8122,7 +8118,6 @@ lean_dec(x_10);
 lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_12;
 }
 }
@@ -8857,7 +8852,6 @@ x_6 = lean_box(0);
 x_7 = l_Lean_Server_Snapshots_Snapshot_env(x_3);
 x_8 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2___closed__1;
 x_9 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_6, x_8, x_7);
-lean_dec(x_7);
 x_10 = l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____spec__1(x_9, x_2);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -8987,7 +8981,6 @@ x_6 = lean_box(0);
 x_7 = l_Lean_Server_Snapshots_Snapshot_env(x_3);
 x_8 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2___closed__1;
 x_9 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_6, x_8, x_7);
-lean_dec(x_7);
 x_10 = l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____spec__1(x_9, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -12502,7 +12495,6 @@ lean_dec(x_7);
 x_10 = lean_box(0);
 x_11 = l_Lean_Widget_evalPanelWidgets___closed__1;
 x_12 = l_Lean_ScopedEnvExtension_getState___rarg(x_10, x_11, x_9);
-lean_dec(x_9);
 x_13 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__4___closed__9;
 x_14 = l_Lean_RBNode_forIn_visit___at_Lean_Widget_evalPanelWidgets___spec__2(x_12, x_13, x_1, x_2, x_3, x_4, x_8);
 if (lean_obj_tag(x_14) == 0)
@@ -13031,7 +13023,6 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19;
 x_16 = lean_box(0);
 x_17 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2___closed__1;
 x_18 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_16, x_17, x_9);
-lean_dec(x_9);
 x_19 = l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____spec__1(x_18, x_1);
 if (lean_obj_tag(x_19) == 0)
 {
@@ -13101,7 +13092,6 @@ lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41;
 x_38 = lean_box(0);
 x_39 = l_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____lambda__2___closed__1;
 x_40 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_38, x_39, x_9);
-lean_dec(x_9);
 x_41 = l_Lean_RBNode_find___at_Lean_Widget_initFn____x40_Lean_Widget_UserWidget___hyg_240____spec__1(x_40, x_1);
 if (lean_obj_tag(x_41) == 0)
 {
@@ -18431,7 +18421,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__3___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -18441,7 +18430,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__3___lambda__2(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 return x_5;
 }
 }
@@ -18451,7 +18439,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Widget_elabShowPanelWidgetsCmd___spec__3___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -22117,6 +22104,7 @@ x_13 = lean_unsigned_to_nat(0u);
 x_14 = lean_array_uset(x_4, x_3, x_13);
 x_15 = lean_ctor_get(x_12, 0);
 lean_inc(x_15);
+lean_inc(x_15);
 lean_inc(x_1);
 x_16 = l_Lean_Environment_find_x3f(x_1, x_15);
 if (lean_obj_tag(x_16) == 0)
@@ -22338,6 +22326,7 @@ lean_inc(x_16);
 x_17 = lean_ctor_get(x_13, 1);
 lean_inc(x_17);
 x_45 = lean_ctor_get(x_16, 0);
+lean_inc(x_45);
 lean_inc(x_45);
 lean_inc(x_2);
 x_46 = l_Lean_Environment_find_x3f(x_2, x_45);

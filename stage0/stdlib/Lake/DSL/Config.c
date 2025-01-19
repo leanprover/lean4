@@ -333,7 +333,6 @@ lean_dec(x_12);
 x_15 = lean_box(0);
 x_16 = l_Lake_DSL_elabDirConst___closed__1;
 x_17 = l_Lean_EnvExtension_getState___rarg(x_15, x_16, x_14);
-lean_dec(x_14);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -405,7 +404,6 @@ lean_dec(x_45);
 x_48 = lean_box(0);
 x_49 = l_Lake_DSL_elabDirConst___closed__1;
 x_50 = l_Lean_EnvExtension_getState___rarg(x_48, x_49, x_47);
-lean_dec(x_47);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; uint8_t x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; uint8_t x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; 
@@ -1104,7 +1102,6 @@ lean_dec(x_19);
 x_22 = lean_box(0);
 x_23 = l_Lake_DSL_elabGetConfig___closed__1;
 x_24 = l_Lean_EnvExtension_getState___rarg(x_22, x_23, x_21);
-lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
@@ -1438,7 +1435,6 @@ lean_dec(x_162);
 x_165 = lean_box(0);
 x_166 = l_Lake_DSL_elabGetConfig___closed__1;
 x_167 = l_Lean_EnvExtension_getState___rarg(x_165, x_166, x_164);
-lean_dec(x_164);
 if (lean_obj_tag(x_167) == 0)
 {
 lean_object* x_168; uint8_t x_169; lean_object* x_170; lean_object* x_171; lean_object* x_172; lean_object* x_173; 

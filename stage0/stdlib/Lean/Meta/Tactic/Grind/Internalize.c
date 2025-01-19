@@ -4482,7 +4482,6 @@ x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = l_Lean_Meta_isMatcherAppCore(x_14, x_1);
-lean_dec(x_14);
 x_16 = lean_box(x_15);
 lean_ctor_set(x_11, 0, x_16);
 return x_11;
@@ -4499,7 +4498,6 @@ x_19 = lean_ctor_get(x_17, 0);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Lean_Meta_isMatcherAppCore(x_19, x_1);
-lean_dec(x_19);
 x_21 = lean_box(x_20);
 x_22 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_22, 0, x_21);
@@ -4525,6 +4523,7 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_2);
+lean_dec(x_1);
 x_16 = !lean_is_exclusive(x_13);
 if (x_16 == 0)
 {
@@ -4659,7 +4658,6 @@ if (x_15 == 0)
 lean_object* x_16; lean_object* x_17; 
 x_16 = lean_box(0);
 x_17 = l___private_Lean_Meta_Tactic_Grind_Internalize_0__Lean_Meta_Grind_checkAndAddSplitCandidate___lambda__1(x_13, x_1, x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_13);
 return x_17;
 }
 else
@@ -5159,7 +5157,6 @@ lean_dec(x_6);
 lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_13;
 }
 }

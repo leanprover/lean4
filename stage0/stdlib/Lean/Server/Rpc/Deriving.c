@@ -7913,7 +7913,6 @@ lean_dec(x_16);
 x_18 = 0;
 lean_inc(x_17);
 x_19 = l_Lean_getStructureFieldsFlattened(x_15, x_17, x_18);
-lean_dec(x_15);
 x_20 = l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__3;
 x_21 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(x_20, x_4, x_5, x_6, x_7, x_8, x_9, x_14);
 x_22 = lean_ctor_get(x_21, 0);
@@ -8036,7 +8035,6 @@ lean_dec(x_63);
 x_65 = 0;
 lean_inc(x_64);
 x_66 = l_Lean_getStructureFieldsFlattened(x_62, x_64, x_65);
-lean_dec(x_62);
 x_67 = l___private_Lean_Server_Rpc_Deriving_0__Lean_Server_RpcEncodable_deriveStructureInstance___closed__3;
 x_68 = l_Lean_isTracingEnabledFor___at_Lean_Elab_Term_traceAtCmdPos___spec__1(x_67, x_4, x_5, x_6, x_7, x_8, x_9, x_61);
 x_69 = lean_ctor_get(x_68, 0);
@@ -15002,6 +15000,7 @@ x_8 = lean_ctor_get(x_5, 1);
 x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
+lean_inc(x_1);
 x_10 = l_Lean_Environment_find_x3f(x_9, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
@@ -15043,6 +15042,7 @@ lean_dec(x_5);
 x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec(x_19);
+lean_inc(x_1);
 x_22 = l_Lean_Environment_find_x3f(x_21, x_1);
 if (lean_obj_tag(x_22) == 0)
 {
@@ -15744,7 +15744,6 @@ x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
 x_26 = l_Lean_isStructure(x_25, x_1);
-lean_dec(x_25);
 if (x_26 == 0)
 {
 size_t x_27; lean_object* x_28; lean_object* x_29; 

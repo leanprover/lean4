@@ -614,7 +614,7 @@ Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.
 -/
 def registerParent (parent : Expr) (child : Expr) : GoalM Unit := do
-  let some childRoot ← getRoot? child | return ()
+  let childRoot := (← getRoot? child).getD child
   let parents := if let some parents := (← get).parents.find? { expr := childRoot } then parents else {}
   modify fun s => { s with parents := s.parents.insert { expr := childRoot } (parents.insert parent) }
 

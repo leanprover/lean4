@@ -6,6 +6,7 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 
 prelude
 import Init.Data.Array.Lemmas
+import Init.Data.Array.MapIdx
 import Init.Data.Range
 
 /-!
@@ -90,14 +91,12 @@ of bounds.
 /-- The last element of a vector. Panics if the vector is empty. -/
 @[inline] def back! [Inhabited α] (v : Vector α n) : α := v.toArray.back!
 
-/-- The last element of a vector, or `none` if the array is empty. -/
+/-- The last element of a vector, or `none` if the vector is empty. -/
 @[inline] def back? (v : Vector α n) : Option α := v.toArray.back?
 
 /-- The last element of a non-empty vector. -/
 @[inline] def back [NeZero n] (v : Vector α n) : α :=
-  -- TODO: change to just `v[n]`
-  have : Inhabited α := ⟨v[0]'(Nat.pos_of_neZero n)⟩
-  v.back!
+  v[n - 1]'(Nat.sub_one_lt (NeZero.ne n))
 
 /-- The first element of a non-empty vector.  -/
 @[inline] def head [NeZero n] (v : Vector α n) := v[0]'(Nat.pos_of_neZero n)
@@ -170,12 +169,24 @@ result is empty. If `stop` is greater than the size of the vector, the size is u
 @[inline] def map (f : α → β) (v : Vector α n) : Vector β n :=
   ⟨v.toArray.map f, by simp⟩
 
+/-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/
+@[inline] def mapIdx (f : Nat → α → β) (v : Vector α n) : Vector β n :=
+  ⟨v.toArray.mapIdx f, by simp⟩
+
+/-- Maps elements of a vector using the function `f`,
+which also receives the index of the element, and the fact that the index is less than the size of the vector. -/
+@[inline] def mapFinIdx (v : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) : Vector β n :=
+  ⟨v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)), by simp⟩
+
 @[inline] def flatten (v : Vector (Vector α n) m) : Vector α (m * n) :=
   ⟨(v.toArray.map Vector.toArray).flatten,
     by rcases v; simp_all [Function.comp_def, Array.map_const']⟩
 
 @[inline] def flatMap (v : Vector α n) (f : α → Vector β m) : Vector β (n * m) :=
   ⟨v.toArray.flatMap fun a => (f a).toArray, by simp [Array.map_const']⟩
+
+@[inline] def zipWithIndex (v : Vector α n) : Vector (α × Nat) n :=
+  ⟨v.toArray.zipWithIndex, by simp⟩
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
 @[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=

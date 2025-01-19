@@ -22,13 +22,15 @@ namespace List
 Given a list `as = [a₀, a₁, ...]` function `f : Fin as.length → α → β`, returns the list
 `[f 0 a₀, f 1 a₁, ...]`.
 -/
-@[inline] def mapFinIdx (as : List α) (f : Fin as.length → α → β) : List β := go as #[] (by simp) where
+@[inline] def mapFinIdx (as : List α) (f : Fin as.length → α → β) : List β :=
+  go as #[] (by simp)
+where
   /-- Auxiliary for `mapFinIdx`:
   `mapFinIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀, f 1 a₁, ...]` -/
   @[specialize] go : (bs : List α) → (acc : Array β) → bs.length + acc.size = as.length → List β
   | [], acc, h => acc.toList
-  | a :: as, acc, h =>
-    go as (acc.push (f ⟨acc.size, by simp at h; omega⟩ a)) (by simp at h ⊢; omega)
+  | b :: bs, acc, h =>
+    go bs (acc.push (f ⟨acc.size, by simp at h; omega⟩ b)) (by simp at h ⊢; omega)
 
 /--
 Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, ...]`, returns the list
@@ -100,7 +102,8 @@ theorem mapFinIdx_cons {l : List α} {a : α} {f : Fin (l.length + 1) → α →
 
 theorem mapFinIdx_append {K L : List α} {f : Fin (K ++ L).length → α → β} :
     (K ++ L).mapFinIdx f =
-      K.mapFinIdx (fun i => f (i.castLE (by simp))) ++ L.mapFinIdx (fun i => f ((i.natAdd K.length).cast (by simp))) := by
+      K.mapFinIdx (fun i => f (i.castLE (by simp))) ++
+        L.mapFinIdx (fun i => f ((i.natAdd K.length).cast (by simp))) := by
   apply ext_getElem
   · simp
   · intro i h₁ h₂

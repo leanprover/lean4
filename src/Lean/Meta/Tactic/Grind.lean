@@ -53,6 +53,7 @@ builtin_initialize registerTraceClass `grind.offset.propagate
 builtin_initialize registerTraceClass `grind.offset.eq
 builtin_initialize registerTraceClass `grind.offset.eq.to (inherited := true)
 builtin_initialize registerTraceClass `grind.offset.eq.from (inherited := true)
+builtin_initialize registerTraceClass `grind.beta
 
 /-! Trace options for `grind` developers -/
 builtin_initialize registerTraceClass `grind.debug
@@ -68,5 +69,6 @@ builtin_initialize registerTraceClass `grind.debug.canon
 builtin_initialize registerTraceClass `grind.debug.offset
 builtin_initialize registerTraceClass `grind.debug.offset.proof
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
+builtin_initialize registerTraceClass `grind.debug.beta
 
 end Lean

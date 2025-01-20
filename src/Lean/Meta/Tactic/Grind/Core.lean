@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Internalize
 
 namespace Lean.Meta.Grind
@@ -40,7 +41,7 @@ Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
-  let parents ← getParentsAndReset root
+  let parents ← getParents root
   for parent in parents do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
     if (← pure parent.isApp <&&> isCongrRoot parent) then
@@ -107,6 +108,31 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
     if let some rhsOffset := rhsRoot.offset? then
       Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
 
+/--
+Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+the lambda expressions in `lams`.
+-/
+def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
+  if lams.isEmpty then return ()
+  let lamRoot ← getRoot lams.back!
+  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  for fn in fns do
+    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    for parent in (← getParents fn) do
+      let mut args := #[]
+      let mut curr := parent
+      trace[grind.debug.beta] "parent: {parent}"
+      repeat
+        trace[grind.debug.beta] "curr: {curr}"
+        if (← isEqv curr lamRoot) then
+          propagateBetaEqs lams curr args.reverse
+        let .app f arg := curr
+          | break
+        -- Remark: recall that we do not eagerly internalize partial applications.
+        internalize curr (← getGeneration parent)
+        args := args.push arg
+        curr := f
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -158,6 +184,10 @@ where
       proof?  := proof
       flipped
     }
+    let lams₁ ← getEqcLambdas lhsRoot
+    let lams₂ ← getEqcLambdas rhsRoot
+    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot.self
+    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot.self
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
@@ -172,6 +202,9 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
+    propagateBeta lams₁ fns₁
+    propagateBeta lams₂ fns₂
+    resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self

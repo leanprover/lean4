@@ -6,6 +6,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Pairwise
+import Init.Data.List.Find
 
 /-!
 # Lemmas about `List.eraseP` and `List.erase`.
@@ -571,5 +572,20 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
 
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
+
+theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
+    l.erase a = l.eraseIdx i := by
+  subst w
+  rw [erase_eq_iff]
+  by_cases h : a ∈ l
+  · right
+    obtain ⟨as, bs, rfl, h'⟩ := eq_append_cons_of_mem h
+    refine ⟨as, bs, h', by simp, ?_⟩
+    rw [indexOf_append, if_neg h', indexOf_cons_self, eraseIdx_append_of_length_le] <;>
+      simp
+  · left
+    refine ⟨h, ?_⟩
+    rw [eq_comm, eraseIdx_eq_self]
+    exact Nat.le_of_eq (indexOf_eq_length h).symm
 
 end List

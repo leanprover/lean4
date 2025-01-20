@@ -3762,6 +3762,27 @@ namespace Array
   cases a
   simp
 
+/-! ### countP and count -/
+
+@[simp] theorem _root_.List.countP_toArray (l : List α) : countP p l.toArray = l.countP p := by
+  simp [countP]
+  induction l with
+  | nil => rfl
+  | cons head tail ih =>
+    simp only [List.foldr_cons, ih, List.countP_cons]
+    split <;> simp_all
+
+@[simp] theorem countP_toList (as : Array α) : as.toList.countP p = countP p as := by
+  cases as
+  simp
+
+@[simp] theorem _root_.List.count_toArray [BEq α] (l : List α) (a : α) : count a l.toArray = l.count a := by
+  simp [count, List.count_eq_countP]
+
+@[simp] theorem count_toList [BEq α] (as : Array α) (a : α) : as.toList.count a = as.count a := by
+  cases as
+  simp
+
 end Array
 
 namespace List

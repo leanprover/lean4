@@ -2037,27 +2037,31 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
   simp_to_raw using Raw₀.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isSome) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (m.get? k)).isSome) :
     (m.alter k f).size = m.size + 1 := by
   revert h₁ h₂
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.size_alter_eq_add_one
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isNone)  :
+    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size - 1 := by
   revert h₁ h₂
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_alter_eq_sub_one
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone)  :
+    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome)  :
+    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (m.get? k)).isSome)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_alter_eq_self_of_mem
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -2066,7 +2070,6 @@ theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option
 
 theorem size_le_size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     m.size - 1 ≤ (m.alter k f).size := by
-  -- does not work without the argument for some reason...
   simp_to_raw using Raw₀.size_le_size_alter ⟨m, h.size_buckets_pos⟩
 
 theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -2195,7 +2198,8 @@ theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α
 
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (get? m k)).isNone) := by
+    (Const.alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) &&
+      (f (get? m k)).isNone) := by
   simp_to_raw using Raw₀.Const.isEmpty_alter
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
@@ -2242,27 +2246,31 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.
   simp_to_raw using Raw₀.Const.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isSome) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size + 1 := by
   revert h₁ h₂
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.size_alter_eq_add_one
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isNone) :
+    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size - 1 := by
   revert h₁ h₂
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.size_alter_eq_sub_one
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isNone) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
+  simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isSome) :
+    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
+  simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.size_alter_eq_self_of_mem
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :

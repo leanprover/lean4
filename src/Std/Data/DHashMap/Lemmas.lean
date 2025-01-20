@@ -1931,14 +1931,12 @@ theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Opt
   Raw₀.size_alter_eq_sub_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∉ m) (h': (f (m.get? k)).isNone) :
-    (m.alter k f).size = m.size := by
+    (h : k ∉ m) (h': (f (m.get? k)).isNone) : (m.alter k f).size = m.size := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.size_alter_eq_self_of_not_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∈ m) (h': (f (m.get? k)).isSome) :
-    (m.alter k f).size = m.size :=
+    (h : k ∈ m) (h': (f (m.get? k)).isSome) : (m.alter k f).size = m.size :=
   Raw₀.size_alter_eq_self_of_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -2134,14 +2132,12 @@ theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option 
   Raw₀.Const.size_alter_eq_sub_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∉ m) (h': (f (Const.get? m k)).isNone) :
-    (Const.alter m k f).size = m.size := by
+    (h : k ∉ m) (h': (f (Const.get? m k)).isNone) : (Const.alter m k f).size = m.size := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.Const.size_alter_eq_self_of_not_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∈ m) (h': (f (Const.get? m k)).isSome) :
-    (Const.alter m k f).size = m.size :=
+    (h : k ∈ m) (h': (f (Const.get? m k)).isSome) : (Const.alter m k f).size = m.size :=
   Raw₀.Const.size_alter_eq_self_of_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} :

@@ -21,6 +21,9 @@ def doNotSimp {α : Sort u} (a : α) : α := a
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b
 
+/-- Gadget for representing `a = b` in patterns for backward propagation. -/
+def eqBwdPattern (a b : α) : Prop := a = b
+
 /--
 Gadget for annotating the equalities in `match`-equations conclusions.
 `_origin` is the term used to instantiate the `match`-equation using E-matching.

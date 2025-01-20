@@ -39,6 +39,17 @@ def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
   let .lit (.natVal k) := k | none
   return some (pat, k)
 
+def mkEqBwdPattern (u : List Level) (α : Expr) (lhs rhs : Expr) : Expr :=
+  mkApp3 (mkConst ``Grind.eqBwdPattern u) α lhs rhs
+
+def isEqBwdPattern (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.eqBwdPattern 3
+
+def isEqBwdPattern? (e : Expr) : Option (Expr × Expr) :=
+  let_expr Grind.eqBwdPattern _ lhs rhs := e
+    | none
+  some (lhs, rhs)
+
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← unfoldReducible pat
@@ -314,7 +325,8 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
   let some f := getPatternFn? pattern
     | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
-  saveSymbol f.toHeadIndex
+  unless f.isConstOf ``Grind.eqBwdPattern do
+   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let supportMask ← getPatternSupportMask f args.size
   for h : i in [:args.size] do
@@ -481,6 +493,8 @@ Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr) (patterns : List Expr) : MetaM EMatchTheorem := do
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
+  if symbols.isEmpty then
+    throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
   trace[grind.ematch.pattern] "{MessageData.ofConst proof}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
@@ -523,6 +537,14 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
     return (xs.size, pats)
   mkEMatchTheoremCore origin levelParams numParams proof patterns
 
+def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) : MetaM EMatchTheorem := do
+  let (numParams, patterns) ← forallTelescopeReducing (← inferType proof) fun xs type => do
+    let_expr f@Eq α lhs rhs := type
+      | throwError "invalid E-matching `≠` theorem, conclusion must be an equality{indentExpr type}"
+    let pat ← preprocessPattern (mkEqBwdPattern f.constLevels! α lhs rhs)
+    return (xs.size, [pat.abstract xs])
+  mkEMatchTheoremCore origin levelParams numParams proof patterns
+
 /--
 Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
 creates an E-matching pattern for it using `addEMatchTheorem n [lhs]`
@@ -552,13 +574,14 @@ def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
 inductive TheoremKind where
-  | eqLhs | eqRhs | eqBoth | fwd | bwd | default
+  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default
   deriving Inhabited, BEq, Repr
 
 private def TheoremKind.toAttribute : TheoremKind → String
   | .eqLhs   => "[grind =]"
   | .eqRhs   => "[grind =_]"
   | .eqBoth  => "[grind _=_]"
+  | .eqBwd   => "[grind ←=]"
   | .fwd     => "[grind →]"
   | .bwd     => "[grind ←]"
   | .default => "[grind]"
@@ -567,6 +590,7 @@ private def TheoremKind.explainFailure : TheoremKind → String
   | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
   | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
   | .eqBoth  => unreachable! -- eqBoth is a macro
+  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
   | .fwd     => "failed to find patterns in the antecedents of the theorem"
   | .bwd     => "failed to find patterns in the theorem's conclusion"
   | .default => "failed to find patterns"
@@ -656,6 +680,8 @@ def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false))
+  else if kind == .eqBwd then
+    return (← mkEMatchEqBwdTheoremCore origin levelParams proof)
   let type ← inferType proof
   forallTelescopeReducing type fun xs type => do
     let searchPlaces ← match kind with
@@ -687,6 +713,7 @@ def getTheoremKindCore (stx : Syntax) : CoreM TheoremKind := do
   | `(Parser.Attr.grindThmMod| ←) => return .bwd
   | `(Parser.Attr.grindThmMod| =_) => return .eqRhs
   | `(Parser.Attr.grindThmMod| _=_) => return .eqBoth
+  | `(Parser.Attr.grindThmMod| ←=) => return .eqBwd
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindThmMod)?` -/

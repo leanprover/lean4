@@ -1098,7 +1098,7 @@ theorem getElem_udiv (n d : BitVec w) (hy : 0#w < d) (i : Nat) (hi : i < w) :
 theorem getLsbD_udiv (n d : BitVec w) (hy : 0#w < d)  (i : Nat) :
     (n / d).getLsbD i = (decide (i < w) && (divRec w {n, d} (DivModState.init w)).q.getLsbD i) := by
   by_cases hi : i < w
-  · simp only [udiv_eq_divRec (by assumption), Bool.iff_and_self, decide_eq_true_eq]
+  · simp [udiv_eq_divRec (by assumption)]
     omega
   · simp_all
 

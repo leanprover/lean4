@@ -23,7 +23,6 @@ end Array
 
 namespace Vector
 
-
 /-! ### mk lemmas -/
 
 theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
@@ -70,6 +69,10 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem back?_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).back? = a.back? := rfl
 
+@[simp] theorem back_mk [NeZero n] (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).back =
+      a[n - 1]'(Nat.lt_of_lt_of_eq (Nat.sub_one_lt (NeZero.ne n)) h.symm) := rfl
+
 @[simp] theorem foldlM_mk [Monad m] (f : β → α → m β) (b : β) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).foldlM f b = a.foldlM f b := rfl
 
@@ -111,6 +114,13 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem map_mk (a : Array α) (h : a.size = n) (f : α → β) :
     (Vector.mk a h).map f = Vector.mk (a.map f) (by simp [h]) := rfl
 
+@[simp] theorem mapIdx_mk (a : Array α) (h : a.size = n) (f : Nat → α → β) :
+    (Vector.mk a h).mapIdx f = Vector.mk (a.mapIdx f) (by simp [h]) := rfl
+
+@[simp] theorem mapFinIdx_mk (a : Array α) (h : a.size = n) (f : (i : Nat) → α → (h : i < n) → β) :
+    (Vector.mk a h).mapFinIdx f =
+      Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
+
 @[simp] theorem reverse_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).reverse = Vector.mk a.reverse (by simp [h]) := rfl
 
@@ -140,6 +150,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem take_mk (a : Array α) (h : a.size = n) (m) :
     (Vector.mk a h).take m = Vector.mk (a.take m) (by simp [h]) := rfl
+
+@[simp] theorem zipWithIndex_mk (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).zipWithIndex = Vector.mk (a.zipWithIndex) (by simp [h]) := rfl
 
 @[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
       (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
@@ -204,6 +217,14 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem toArray_map (f : α → β) (a : Vector α n) :
     (a.map f).toArray = a.toArray.map f := rfl
 
+@[simp] theorem toArray_mapIdx (f : Nat → α → β) (a : Vector α n) :
+    (a.mapIdx f).toArray = a.toArray.mapIdx f := rfl
+
+@[simp] theorem toArray_mapFinIdx (f : (i : Nat) → α → (h : i < n) → β) (v : Vector α n) :
+    (v.mapFinIdx f).toArray =
+      v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) :=
+  rfl
+
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl
 
 @[simp] theorem toArray_pop (a : Vector α n) : a.pop.toArray = a.toArray.pop := rfl
@@ -245,6 +266,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
       ((a.toArray.swapAt! i x).fst, (a.toArray.swapAt! i x).snd) := rfl
 
 @[simp] theorem toArray_take (a : Vector α n) (m) : (a.take m).toArray = a.toArray.take m := rfl
+
+@[simp] theorem toArray_zipWithIndex (a : Vector α n) :
+    (a.zipWithIndex).toArray = a.toArray.zipWithIndex := rfl
 
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
     (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
@@ -298,6 +322,8 @@ protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i
 
 /-! ### toList -/
 
+theorem toArray_toList (a : Vector α n) : a.toArray.toList = a.toList := rfl
+
 @[simp] theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
@@ -336,6 +362,14 @@ theorem toList_extract (a : Vector α n) (start stop) :
 
 theorem toList_map (f : α → β) (a : Vector α n) :
     (a.map f).toList = a.toList.map f := by simp
+
+theorem toList_mapIdx (f : Nat → α → β) (a : Vector α n) :
+    (a.mapIdx f).toList = a.toList.mapIdx f := by simp
+
+theorem toList_mapFinIdx (f : (i : Nat) → α → (h : i < n) → β) (v : Vector α n) :
+    (v.mapFinIdx f).toList =
+      v.toList.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) := by
+  simp
 
 theorem toList_ofFn (f : Fin n → α) : (Vector.ofFn f).toList = List.ofFn f := by simp
 
@@ -2076,7 +2110,7 @@ defeq issues in the implicit size argument.
   · simp [h]
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
-    simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
+    simp [back]
 
 /-! ### zipWith -/
 

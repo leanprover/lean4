@@ -441,9 +441,9 @@ def identNoAntiquot.formatter : Formatter := do
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do
   checkKind identKind
-  let Syntax.ident info _ id _ ← getCur
+  let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
-  pushToken info id.toString true
+  withMaybeTag (getExprPos? stx) (pushToken info id.toString true)
   goLeft
 
 @[combinator_formatter identEq] def identEq.formatter (_id : Name) := rawIdentNoAntiquot.formatter

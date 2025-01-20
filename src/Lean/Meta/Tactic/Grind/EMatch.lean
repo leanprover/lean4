@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchCond
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -215,7 +216,11 @@ Helper function for marking parts of `match`-equation theorem as "do-not-simplif
 -/
 private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
   if let .forallE n d b bi := prop then
-    withLocalDecl n bi (← markAsDoNotSimp d) fun x => do
+    let d ← if (← isProp d) then
+      markAsMatchCond d
+    else
+      pure d
+    withLocalDecl n bi d fun x => do
       mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
   else
     let_expr f@Eq α lhs rhs := prop | return prop

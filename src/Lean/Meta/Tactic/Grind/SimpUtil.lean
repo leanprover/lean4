@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 
 namespace Lean.Meta.Grind
@@ -24,7 +25,7 @@ def registerNormTheorems (preDeclNames : Array Name) (postDeclNames : Array Name
 
 /-- Returns the array of simprocs used by `grind`. -/
 protected def getSimprocs : MetaM (Array Simprocs) := do
-  let e ← Simp.getSEvalSimprocs
+  let s ← Simp.getSEvalSimprocs
   /-
   We don't want to apply `List.reduceReplicate` as a normalization operation in
   `grind`. Consider the following example:
@@ -38,9 +39,10 @@ protected def getSimprocs : MetaM (Array Simprocs) := do
   ```
   We don't want it to be simplified to `[] = []`.
   -/
-  let e := e.erase ``List.reduceReplicate
-  let e ← addDoNotSimp e
-  return #[e]
+  let s := s.erase ``List.reduceReplicate
+  let s ← addDoNotSimp s
+  let s ← addMatchCond s
+  return #[s]
 
 /-- Returns the simplification context used by `grind`. -/
 protected def getSimpContext : MetaM Simp.Context := do

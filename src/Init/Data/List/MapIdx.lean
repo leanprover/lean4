@@ -17,7 +17,6 @@ namespace List
 
 /-! ### mapIdx -/
 
-
 /--
 Given a list `as = [a₀, a₁, ...]` function `f : Fin as.length → α → β`, returns the list
 `[f 0 a₀, f 1 a₁, ...]`.

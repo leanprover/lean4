@@ -14,25 +14,29 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__12;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__7;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__11;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__7;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__15;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindBwd;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__6;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__24;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindBwd___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__4;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__5;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__9;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__5;
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__8;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__5;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindFwd;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__29;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__2;
 extern lean_object* l_Lean_Parser_Tactic_optConfig;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__8;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__23;
+LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindEqBwd;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__4;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__3;
 static lean_object* l_Lean_Parser_Attr_grind___closed__4;
@@ -44,91 +48,110 @@ static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindEqRhs;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindCasesEager;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__8;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__4;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__9;
-LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151____boxed(lean_object*, lean_object*);
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_grindParam;
+static lean_object* l_Lean_Parser_Attr_grindCases___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grind;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__5;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__9;
 static lean_object* l_Lean_Parser_Attr_grindBwd___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__1;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__12;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__6;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__1;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_grind;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__14;
 static lean_object* l_Lean_Grind_instBEqConfig___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Grind_instBEqConfig;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__7;
-LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151_(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__2;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__9;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__8;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__3;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__5;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindMod;
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_grindErase;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__1;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__1;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindEqBoth;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__3;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Tactic_grindLemma;
 LEAN_EXPORT lean_object* l_Lean_Grind_instInhabitedConfig;
+LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220_(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__3;
 static lean_object* l_Lean_Parser_Attr_grind___closed__3;
+static lean_object* l_Lean_Parser_Attr_grindCases___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__3;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__17;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__5;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__18;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindThmMod;
+LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220____boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Attr_grindCases___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__5;
 static lean_object* l_Lean_Parser_Attr_grind___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__7;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__7;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__13;
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__5;
+LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindCases;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__3;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__11;
 static lean_object* l_Lean_Parser_Attr_grind___closed__6;
+static lean_object* l_Lean_Parser_Attr_grindCases___closed__3;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__6;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__5;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Tactic_grindParam___closed__4;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__27;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__4;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindBwd___closed__3;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__25;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__19;
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__3;
+static lean_object* l_Lean_Parser_Attr_grindCases___closed__1;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__2;
 static lean_object* l_Lean_Parser_Attr_grindEq___closed__6;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__28;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__2;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__7;
 LEAN_EXPORT lean_object* l_Lean_Parser_Attr_grindEq;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__26;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__4;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__11;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__7;
 static lean_object* l_Lean_Parser_Attr_grind___closed__5;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__10;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__30;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__6;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__21;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__8;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__4;
 static lean_object* l_Lean_Parser_Attr_grindEqBoth___closed__10;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__5;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__3;
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__2;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Parser_Attr_grindEqBwd___closed__1;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__4;
 static lean_object* l_Lean_Parser_Attr_grind___closed__8;
-static lean_object* l_Lean_Parser_Attr_grindBwd___closed__4;
+static lean_object* l_Lean_Parser_Attr_grindCasesEager___closed__4;
 static lean_object* l_Lean_Parser_Attr_grind___closed__7;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__20;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__6;
-static lean_object* l_Lean_Parser_Attr_grindBwd___closed__5;
 static lean_object* l_Lean_Parser_Attr_grindFwd___closed__2;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grindErase___closed__10;
-static lean_object* l_Lean_Parser_Attr_grindThmMod___closed__7;
 static lean_object* l_Lean_Parser_Attr_grindEqRhs___closed__2;
+static lean_object* l_Lean_Parser_Attr_grindMod___closed__3;
 static lean_object* l_Lean_Parser_Attr_grind___closed__1;
 static lean_object* l_Lean_Parser_Tactic_grind___closed__22;
 static lean_object* l_Lean_Parser_Tactic_grindLemma___closed__3;
@@ -422,6 +445,92 @@ x_1 = l_Lean_Parser_Attr_grindEqRhs___closed__5;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("grindEqBwd", 10, 10);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Attr_grindEq___closed__1;
+x_2 = l_Lean_Parser_Attr_grindEq___closed__2;
+x_3 = l_Lean_Parser_Attr_grindEq___closed__3;
+x_4 = l_Lean_Parser_Attr_grindEqBwd___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("←", 3, 1);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Parser_Attr_grindEqBwd___closed__3;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindEqBoth___closed__6;
+x_2 = l_Lean_Parser_Attr_grindEqBwd___closed__4;
+x_3 = l_Lean_Parser_Attr_grindEq___closed__7;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Attr_grindEqBoth___closed__4;
+x_2 = l_Lean_Parser_Attr_grindEqBwd___closed__5;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindEqBwd___closed__1;
+x_2 = l_Lean_Parser_Attr_grindEqBwd___closed__2;
+x_3 = l_Lean_Parser_Attr_grindEqBwd___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindEqBwd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_Attr_grindEqBwd___closed__7;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Parser_Attr_grindBwd___closed__1() {
 _start:
 {
@@ -445,28 +554,10 @@ return x_5;
 static lean_object* _init_l_Lean_Parser_Attr_grindBwd___closed__3() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("←", 3, 1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindBwd___closed__4() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Parser_Attr_grindBwd___closed__3;
-x_2 = lean_alloc_ctor(5, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindBwd___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Parser_Attr_grindBwd___closed__1;
 x_2 = l_Lean_Parser_Attr_grindBwd___closed__2;
-x_3 = l_Lean_Parser_Attr_grindBwd___closed__4;
+x_3 = l_Lean_Parser_Attr_grindEqBwd___closed__4;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -478,7 +569,7 @@ static lean_object* _init_l_Lean_Parser_Attr_grindBwd() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Attr_grindBwd___closed__5;
+x_1 = l_Lean_Parser_Attr_grindBwd___closed__3;
 return x_1;
 }
 }
@@ -542,107 +633,53 @@ x_1 = l_Lean_Parser_Attr_grindFwd___closed__5;
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__1() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("grindThmMod", 11, 11);
+x_1 = lean_mk_string_unchecked("grindCases", 10, 10);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__2() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases___closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_1 = l_Lean_Parser_Attr_grindEq___closed__1;
 x_2 = l_Lean_Parser_Attr_grindEq___closed__2;
 x_3 = l_Lean_Parser_Attr_grindEq___closed__3;
-x_4 = l_Lean_Parser_Attr_grindThmMod___closed__1;
+x_4 = l_Lean_Parser_Attr_grindCases___closed__1;
 x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__3() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("orelse", 6, 6);
+x_1 = lean_mk_string_unchecked("cases", 5, 5);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__4() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases___closed__4() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Parser_Attr_grindThmMod___closed__3;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Attr_grindCases___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
 return x_3;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__5() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__4;
-x_2 = l_Lean_Parser_Attr_grindBwd;
-x_3 = l_Lean_Parser_Attr_grindFwd;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__4;
-x_2 = l_Lean_Parser_Attr_grindEq;
-x_3 = l_Lean_Parser_Attr_grindThmMod___closed__5;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__7() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__4;
-x_2 = l_Lean_Parser_Attr_grindEqRhs;
-x_3 = l_Lean_Parser_Attr_grindThmMod___closed__6;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__4;
-x_2 = l_Lean_Parser_Attr_grindEqBoth;
-x_3 = l_Lean_Parser_Attr_grindThmMod___closed__7;
-x_4 = lean_alloc_ctor(2, 3, 0);
-lean_ctor_set(x_4, 0, x_1);
-lean_ctor_set(x_4, 1, x_2);
-lean_ctor_set(x_4, 2, x_3);
-return x_4;
-}
-}
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod___closed__9() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__1;
-x_2 = l_Lean_Parser_Attr_grindThmMod___closed__2;
-x_3 = l_Lean_Parser_Attr_grindThmMod___closed__8;
+x_1 = l_Lean_Parser_Attr_grindCases___closed__1;
+x_2 = l_Lean_Parser_Attr_grindCases___closed__2;
+x_3 = l_Lean_Parser_Attr_grindCases___closed__4;
 x_4 = lean_alloc_ctor(9, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -650,11 +687,257 @@ lean_ctor_set(x_4, 2, x_3);
 return x_4;
 }
 }
-static lean_object* _init_l_Lean_Parser_Attr_grindThmMod() {
+static lean_object* _init_l_Lean_Parser_Attr_grindCases() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__9;
+x_1 = l_Lean_Parser_Attr_grindCases___closed__5;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("grindCasesEager", 15, 15);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Attr_grindEq___closed__1;
+x_2 = l_Lean_Parser_Attr_grindEq___closed__2;
+x_3 = l_Lean_Parser_Attr_grindEq___closed__3;
+x_4 = l_Lean_Parser_Attr_grindCasesEager___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("eager", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__4() {
+_start:
+{
+lean_object* x_1; uint8_t x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Attr_grindCasesEager___closed__3;
+x_2 = 0;
+x_3 = lean_alloc_ctor(6, 1, 1);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set_uint8(x_3, sizeof(void*)*1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindEqBoth___closed__6;
+x_2 = l_Lean_Parser_Attr_grindCases___closed__4;
+x_3 = l_Lean_Parser_Attr_grindCasesEager___closed__4;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Attr_grindEqBoth___closed__4;
+x_2 = l_Lean_Parser_Attr_grindCasesEager___closed__5;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindCasesEager___closed__1;
+x_2 = l_Lean_Parser_Attr_grindCasesEager___closed__2;
+x_3 = l_Lean_Parser_Attr_grindCasesEager___closed__6;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindCasesEager() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_Attr_grindCasesEager___closed__7;
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("grindMod", 8, 8);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Lean_Parser_Attr_grindEq___closed__1;
+x_2 = l_Lean_Parser_Attr_grindEq___closed__2;
+x_3 = l_Lean_Parser_Attr_grindEq___closed__3;
+x_4 = l_Lean_Parser_Attr_grindMod___closed__1;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("orelse", 6, 6);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Parser_Attr_grindMod___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindCasesEager;
+x_3 = l_Lean_Parser_Attr_grindCases;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindFwd;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__5;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__7() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindBwd;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__6;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__8() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindEqBwd;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__7;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__9() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindEq;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__8;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindEqRhs;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__9;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__11() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
+x_2 = l_Lean_Parser_Attr_grindEqBoth;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__10;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__1;
+x_2 = l_Lean_Parser_Attr_grindMod___closed__2;
+x_3 = l_Lean_Parser_Attr_grindMod___closed__11;
+x_4 = lean_alloc_ctor(9, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Parser_Attr_grindMod() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_Parser_Attr_grindMod___closed__12;
 return x_1;
 }
 }
@@ -713,7 +996,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lean_Parser_Attr_grind___closed__5;
-x_2 = l_Lean_Parser_Attr_grindThmMod;
+x_2 = l_Lean_Parser_Attr_grindMod;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -785,7 +1068,7 @@ x_1 = l_Lean_Grind_instInhabitedConfig___closed__1;
 return x_1;
 }
 }
-LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151_(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; uint8_t x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; uint8_t x_21; lean_object* x_22; lean_object* x_23; uint8_t x_24; uint8_t x_25; uint8_t x_34; uint8_t x_41; uint8_t x_48; uint8_t x_55; 
@@ -1081,11 +1364,11 @@ goto block_47;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151____boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220____boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 uint8_t x_3; lean_object* x_4; 
-x_3 = l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151_(x_1, x_2);
+x_3 = l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220_(x_1, x_2);
 lean_dec(x_2);
 lean_dec(x_1);
 x_4 = lean_box(x_3);
@@ -1096,7 +1379,7 @@ static lean_object* _init_l_Lean_Grind_instBEqConfig___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_151____boxed), 2, 0);
+x_1 = lean_alloc_closure((void*)(l___private_Init_Grind_Tactics_0__Lean_Grind_beqConfig____x40_Init_Grind_Tactics___hyg_220____boxed), 2, 0);
 return x_1;
 }
 }
@@ -1298,7 +1581,7 @@ static lean_object* _init_l_Lean_Parser_Tactic_grindParam___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Parser_Attr_grindThmMod___closed__4;
+x_1 = l_Lean_Parser_Attr_grindMod___closed__4;
 x_2 = l_Lean_Parser_Tactic_grindErase;
 x_3 = l_Lean_Parser_Tactic_grindLemma;
 x_4 = lean_alloc_ctor(2, 3, 0);
@@ -1739,16 +2022,28 @@ l_Lean_Parser_Attr_grindEqRhs___closed__5 = _init_l_Lean_Parser_Attr_grindEqRhs_
 lean_mark_persistent(l_Lean_Parser_Attr_grindEqRhs___closed__5);
 l_Lean_Parser_Attr_grindEqRhs = _init_l_Lean_Parser_Attr_grindEqRhs();
 lean_mark_persistent(l_Lean_Parser_Attr_grindEqRhs);
+l_Lean_Parser_Attr_grindEqBwd___closed__1 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__1();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__1);
+l_Lean_Parser_Attr_grindEqBwd___closed__2 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__2();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__2);
+l_Lean_Parser_Attr_grindEqBwd___closed__3 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__3();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__3);
+l_Lean_Parser_Attr_grindEqBwd___closed__4 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__4();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__4);
+l_Lean_Parser_Attr_grindEqBwd___closed__5 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__5();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__5);
+l_Lean_Parser_Attr_grindEqBwd___closed__6 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__6();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__6);
+l_Lean_Parser_Attr_grindEqBwd___closed__7 = _init_l_Lean_Parser_Attr_grindEqBwd___closed__7();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd___closed__7);
+l_Lean_Parser_Attr_grindEqBwd = _init_l_Lean_Parser_Attr_grindEqBwd();
+lean_mark_persistent(l_Lean_Parser_Attr_grindEqBwd);
 l_Lean_Parser_Attr_grindBwd___closed__1 = _init_l_Lean_Parser_Attr_grindBwd___closed__1();
 lean_mark_persistent(l_Lean_Parser_Attr_grindBwd___closed__1);
 l_Lean_Parser_Attr_grindBwd___closed__2 = _init_l_Lean_Parser_Attr_grindBwd___closed__2();
 lean_mark_persistent(l_Lean_Parser_Attr_grindBwd___closed__2);
 l_Lean_Parser_Attr_grindBwd___closed__3 = _init_l_Lean_Parser_Attr_grindBwd___closed__3();
 lean_mark_persistent(l_Lean_Parser_Attr_grindBwd___closed__3);
-l_Lean_Parser_Attr_grindBwd___closed__4 = _init_l_Lean_Parser_Attr_grindBwd___closed__4();
-lean_mark_persistent(l_Lean_Parser_Attr_grindBwd___closed__4);
-l_Lean_Parser_Attr_grindBwd___closed__5 = _init_l_Lean_Parser_Attr_grindBwd___closed__5();
-lean_mark_persistent(l_Lean_Parser_Attr_grindBwd___closed__5);
 l_Lean_Parser_Attr_grindBwd = _init_l_Lean_Parser_Attr_grindBwd();
 lean_mark_persistent(l_Lean_Parser_Attr_grindBwd);
 l_Lean_Parser_Attr_grindFwd___closed__1 = _init_l_Lean_Parser_Attr_grindFwd___closed__1();
@@ -1763,26 +2058,60 @@ l_Lean_Parser_Attr_grindFwd___closed__5 = _init_l_Lean_Parser_Attr_grindFwd___cl
 lean_mark_persistent(l_Lean_Parser_Attr_grindFwd___closed__5);
 l_Lean_Parser_Attr_grindFwd = _init_l_Lean_Parser_Attr_grindFwd();
 lean_mark_persistent(l_Lean_Parser_Attr_grindFwd);
-l_Lean_Parser_Attr_grindThmMod___closed__1 = _init_l_Lean_Parser_Attr_grindThmMod___closed__1();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__1);
-l_Lean_Parser_Attr_grindThmMod___closed__2 = _init_l_Lean_Parser_Attr_grindThmMod___closed__2();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__2);
-l_Lean_Parser_Attr_grindThmMod___closed__3 = _init_l_Lean_Parser_Attr_grindThmMod___closed__3();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__3);
-l_Lean_Parser_Attr_grindThmMod___closed__4 = _init_l_Lean_Parser_Attr_grindThmMod___closed__4();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__4);
-l_Lean_Parser_Attr_grindThmMod___closed__5 = _init_l_Lean_Parser_Attr_grindThmMod___closed__5();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__5);
-l_Lean_Parser_Attr_grindThmMod___closed__6 = _init_l_Lean_Parser_Attr_grindThmMod___closed__6();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__6);
-l_Lean_Parser_Attr_grindThmMod___closed__7 = _init_l_Lean_Parser_Attr_grindThmMod___closed__7();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__7);
-l_Lean_Parser_Attr_grindThmMod___closed__8 = _init_l_Lean_Parser_Attr_grindThmMod___closed__8();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__8);
-l_Lean_Parser_Attr_grindThmMod___closed__9 = _init_l_Lean_Parser_Attr_grindThmMod___closed__9();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod___closed__9);
-l_Lean_Parser_Attr_grindThmMod = _init_l_Lean_Parser_Attr_grindThmMod();
-lean_mark_persistent(l_Lean_Parser_Attr_grindThmMod);
+l_Lean_Parser_Attr_grindCases___closed__1 = _init_l_Lean_Parser_Attr_grindCases___closed__1();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases___closed__1);
+l_Lean_Parser_Attr_grindCases___closed__2 = _init_l_Lean_Parser_Attr_grindCases___closed__2();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases___closed__2);
+l_Lean_Parser_Attr_grindCases___closed__3 = _init_l_Lean_Parser_Attr_grindCases___closed__3();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases___closed__3);
+l_Lean_Parser_Attr_grindCases___closed__4 = _init_l_Lean_Parser_Attr_grindCases___closed__4();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases___closed__4);
+l_Lean_Parser_Attr_grindCases___closed__5 = _init_l_Lean_Parser_Attr_grindCases___closed__5();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases___closed__5);
+l_Lean_Parser_Attr_grindCases = _init_l_Lean_Parser_Attr_grindCases();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCases);
+l_Lean_Parser_Attr_grindCasesEager___closed__1 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__1();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__1);
+l_Lean_Parser_Attr_grindCasesEager___closed__2 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__2();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__2);
+l_Lean_Parser_Attr_grindCasesEager___closed__3 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__3();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__3);
+l_Lean_Parser_Attr_grindCasesEager___closed__4 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__4();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__4);
+l_Lean_Parser_Attr_grindCasesEager___closed__5 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__5();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__5);
+l_Lean_Parser_Attr_grindCasesEager___closed__6 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__6();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__6);
+l_Lean_Parser_Attr_grindCasesEager___closed__7 = _init_l_Lean_Parser_Attr_grindCasesEager___closed__7();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager___closed__7);
+l_Lean_Parser_Attr_grindCasesEager = _init_l_Lean_Parser_Attr_grindCasesEager();
+lean_mark_persistent(l_Lean_Parser_Attr_grindCasesEager);
+l_Lean_Parser_Attr_grindMod___closed__1 = _init_l_Lean_Parser_Attr_grindMod___closed__1();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__1);
+l_Lean_Parser_Attr_grindMod___closed__2 = _init_l_Lean_Parser_Attr_grindMod___closed__2();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__2);
+l_Lean_Parser_Attr_grindMod___closed__3 = _init_l_Lean_Parser_Attr_grindMod___closed__3();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__3);
+l_Lean_Parser_Attr_grindMod___closed__4 = _init_l_Lean_Parser_Attr_grindMod___closed__4();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__4);
+l_Lean_Parser_Attr_grindMod___closed__5 = _init_l_Lean_Parser_Attr_grindMod___closed__5();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__5);
+l_Lean_Parser_Attr_grindMod___closed__6 = _init_l_Lean_Parser_Attr_grindMod___closed__6();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__6);
+l_Lean_Parser_Attr_grindMod___closed__7 = _init_l_Lean_Parser_Attr_grindMod___closed__7();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__7);
+l_Lean_Parser_Attr_grindMod___closed__8 = _init_l_Lean_Parser_Attr_grindMod___closed__8();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__8);
+l_Lean_Parser_Attr_grindMod___closed__9 = _init_l_Lean_Parser_Attr_grindMod___closed__9();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__9);
+l_Lean_Parser_Attr_grindMod___closed__10 = _init_l_Lean_Parser_Attr_grindMod___closed__10();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__10);
+l_Lean_Parser_Attr_grindMod___closed__11 = _init_l_Lean_Parser_Attr_grindMod___closed__11();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__11);
+l_Lean_Parser_Attr_grindMod___closed__12 = _init_l_Lean_Parser_Attr_grindMod___closed__12();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod___closed__12);
+l_Lean_Parser_Attr_grindMod = _init_l_Lean_Parser_Attr_grindMod();
+lean_mark_persistent(l_Lean_Parser_Attr_grindMod);
 l_Lean_Parser_Attr_grind___closed__1 = _init_l_Lean_Parser_Attr_grind___closed__1();
 lean_mark_persistent(l_Lean_Parser_Attr_grind___closed__1);
 l_Lean_Parser_Attr_grind___closed__2 = _init_l_Lean_Parser_Attr_grind___closed__2();

@@ -2639,7 +2639,48 @@ theorem foldlM_start_stop {m} [Monad m] (l : Array α) (f : β → α → m β) 
       simp [← Nat.add_assoc] at ih
       rw [ih]
 
-@[congr] theorem foldlM_congr {m} [Monad m] [LawfulMonad m] {f g : β → α → m β} {b : β} {l l' : Array α}
+theorem foldrM_start_stop {m} [Monad m] (l : Array α) (f : α → β → m β) (b) (start stop : Nat) :
+    l.foldrM f b start stop = (l.extract stop start).foldrM f b := by
+  unfold foldrM
+  simp only [size_extract, Nat.le_refl, ↓reduceDIte]
+  suffices stop ≤ min start l.size →
+      foldrM.fold f l stop (min start l.size) (by omega) b =
+        foldrM.fold f (l.extract stop start) 0 (min start l.size - stop) (by simp) b by
+    split
+    · split
+      · rw [if_pos (by omega)]
+        have h : min start l.size = start := by omega
+        specialize this (by omega)
+        simp_all
+      · rw [if_neg (by omega)]
+    · split
+      · rw [if_pos (by omega)]
+        have h : min start l.size = l.size := by omega
+        specialize this (by omega)
+        simp_all
+      · rw [if_neg (by omega)]
+  revert b
+  suffices ∀ (b : β) (i) (w : stop + i ≤ min start l.size),
+      foldrM.fold f l stop (stop + i) (by omega) b =
+        foldrM.fold f (l.extract stop start) 0 i (by simp; omega) b by
+    intro b w
+    specialize this b (min start l.size - stop)
+    have h : stop + (min start l.size - stop) = min start l.size := by omega
+    simp_all
+  intro b i w
+  induction i generalizing b with
+  | zero =>
+    unfold foldrM.fold
+    simp
+  | succ i ih =>
+    unfold foldrM.fold
+    simp only [beq_iff_eq, Nat.add_right_eq_self, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
+      getElem_extract]
+    congr
+    funext b
+    simp [ih b (by omega)]
+
+@[congr] theorem foldlM_congr {m} [Monad m] {f g : β → α → m β} {b : β} {l l' : Array α}
     (w : l = l')
     (h : ∀ x y, f x y = g x y) (hstart : start = start') (hstop : stop = stop') :
     l.foldlM f b start stop = l'.foldlM g b start' stop' := by
@@ -2649,6 +2690,20 @@ theorem foldlM_start_stop {m} [Monad m] (l : Array α) (f : β → α → m β) 
   simp only [size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
   rw [foldlM_start_stop, List.extract_toArray]
   simp only [size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
+  congr
+  funext b a
+  simp_all
+
+@[congr] theorem foldrM_congr {m} [Monad m] {f g : α → β → m β} {b : β} {l l' : Array α}
+    (w : l = l')
+    (h : ∀ x y, f x y = g x y) (hstart : start = start') (hstop : stop = stop') :
+    l.foldrM f b start stop = l'.foldrM g b start' stop' := by
+  subst hstart hstop w
+  rcases l with ⟨l⟩
+  rw [foldrM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
+  rw [foldrM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
   congr
   funext b a
   simp_all
@@ -2666,6 +2721,32 @@ theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l 
     (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
   simp
 
+@[simp] theorem foldlM_loop_empty [Monad m] (f : β → α → m β) (init : β) (i j : Nat) :
+    foldlM.loop f #[] s h i j init = pure init := by
+  unfold foldlM.loop; split
+  · split
+    · rfl
+    · simp at h
+      omega
+  · rfl
+
+@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
+    foldlM f init #[] start stop = return init := by
+  simp [foldlM]
+
+@[simp] theorem foldrM_fold_empty [Monad m] (f : α → β → m β) (init : β) (i j : Nat) (h) :
+    foldrM.fold f #[] i j h init = pure init := by
+  unfold foldrM.fold
+  split <;> rename_i h₁
+  · rfl
+  · split <;> rename_i h₂
+    · rfl
+    · simp at h₂
+
+@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
+    foldrM f init #[] start stop = return init := by
+  simp [foldrM]
+
 /-- Variant of `foldlM_push` with a side condition for the `stop` argument. -/
 @[simp] theorem foldlM_push' [Monad m] [LawfulMonad m] (l : Array α) (a : α) (f : β → α → m β) (b)
     (w : stop = l.size + 1) :
@@ -2678,20 +2759,18 @@ theorem foldlM_push [Monad m] [LawfulMonad m] (l : Array α) (a : α) (f : β �
   simp
 
 theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Array α) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  rcases l with ⟨l⟩
-  simp [List.foldl_eq_foldlM]
+    l.foldl f b start stop = l.foldlM (m := Id) f b start stop := by
+  simp [foldl, Id.run]
 
 theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  rcases l with ⟨l⟩
-  simp [List.foldr_eq_foldrM]
+    l.foldr f b start stop = l.foldrM (m := Id) f b start stop := by
+  simp [foldr, Id.run]
 
 @[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Array α) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+    Id.run (l.foldlM f b start stop) = l.foldl f b start stop := (foldl_eq_foldlM f b l).symm
 
 @[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Array α) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+    Id.run (l.foldrM f b start stop) = l.foldr f b start stop := (foldr_eq_foldrM f b l).symm
 
 /-- Variant of `foldlM_reverse` with a side condition for the `stop` argument. -/
 @[simp] theorem foldlM_reverse' [Monad m] (l : Array α) (f : β → α → m β) (b)
@@ -2701,10 +2780,10 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
   rcases l with ⟨l⟩
   simp [List.foldlM_reverse]
 
-/-- Variant of `foldrM_reverse` with a side condition for the `stop` argument. -/
+/-- Variant of `foldrM_reverse` with a side condition for the `start` argument. -/
 @[simp] theorem foldrM_reverse' [Monad m] (l : Array α) (f : α → β → m β) (b)
-    (w : stop = l.size) :
-    l.reverse.foldrM f b 0 stop = l.foldlM (fun x y => f y x) b := by
+    (w : start = l.size) :
+    l.reverse.foldrM f b start 0 = l.foldlM (fun x y => f y x) b := by
   subst w
   rcases l with ⟨l⟩
   simp [List.foldrM_reverse]
@@ -2718,211 +2797,294 @@ theorem foldrM_reverse [Monad m] (l : Array α) (f : α → β → m β) (b) :
   rcases l with ⟨l⟩
   simp
 
-/-! ### foldl and foldr -/
+theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
+    (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
+  simp only [foldrM_eq_reverse_foldlM_toList, push_toList, List.reverse_append, List.reverse_cons,
+    List.reverse_nil, List.nil_append, List.singleton_append, List.foldlM_cons, List.foldlM_reverse]
 
-@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
-  induction l <;> simp [*]
+/--
+Variant of `foldrM_push` with `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α)
+    {start} (h : start = arr.size + 1) :
+    (arr.push a).foldrM f init start = f a init >>= arr.foldrM f := by
+  simp [← foldrM_push, h]
 
-@[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
+/-! ### foldl / foldr -/
 
-@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
-  induction l generalizing l' <;> simp [*]
+-- This proof is the pure version of `Array.SatisfiesM_foldlM` in Batteries,
+-- reproduced to avoid a dependency on `SatisfiesM`.
+theorem foldl_induction
+    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
+    (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
+    motive as.size (as.foldl f init) := by
+  let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
+    (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
+    unfold foldlM.loop; split
+    · next hj =>
+      split
+      · cases Nat.not_le_of_gt (by simp [hj]) h₂
+      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
+    · next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
+  simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
 
-theorem foldr_cons_nil (l : List α) : l.foldr cons [] = l := by simp
+-- This proof is the pure version of `Array.SatisfiesM_foldrM` in Batteries,
+-- reproduced to avoid a dependency on `SatisfiesM`.
+theorem foldr_induction
+    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
+    (hf : ∀ i : Fin as.size, ∀ b, motive (i.1 + 1) b → motive i.1 (f as[i] b)) :
+    motive 0 (as.foldr f init) := by
+  let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
+    (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
+    unfold foldrM.fold; simp; split
+    · next hi => exact (hi ▸ H)
+    · next hi =>
+      split; {simp at hi}
+      · next i hi' =>
+        exact go _ (hf ⟨i, hi'⟩ b H)
+  simp [foldr, foldrM]; split; {exact go _ h0}
+  · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
 
-@[deprecated foldr_cons_nil (since := "2024-09-04")] abbrev foldr_self := @foldr_cons_nil
+@[congr]
+theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldl f a start stop = bs.foldl g b start' stop' := by
+  congr
 
-theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : List β₁) (init : α) :
+@[congr]
+theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldr f a start stop = bs.foldr g b start' stop' := by
+  congr
+
+theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
+    (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
+
+/--
+Variant of `foldr_push` with the `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) {start}
+    (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
+  foldrM_push' _ _ _ _ h
+
+@[simp] theorem foldl_push_eq_append (l l' : Array α) : l.foldl push l' = l' ++ l := by
+  cases l
+  cases l'
+  simp
+
+@[simp] theorem foldr_flip_push_eq_append (l l' : Array α) :
+    l.foldr (fun x y => push y x) l' = l' ++ l.reverse := by
+  cases l
+  cases l'
+  simp
+
+theorem foldl_map' (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) (w : stop = l.size) :
+    (l.map f).foldl g init 0 stop = l.foldl (fun x y => g x (f y)) init := by
+  subst w
+  cases l; simp [List.foldl_map]
+
+theorem foldr_map' (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) (w : start = l.size) :
+    (l.map f).foldr g init start 0 = l.foldr (fun x y => g (f x) y) init := by
+  subst w
+  cases l; simp [List.foldr_map]
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) :
     (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
-  induction l generalizing init <;> simp [*]
+  cases l; simp [List.foldl_map]
 
-theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : List α₁) (init : β) :
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) :
     (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  induction l generalizing init <;> simp [*]
+  cases l; simp [List.foldr_map]
 
-theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : List α) (init : γ) :
+theorem foldl_filterMap' (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ)
+    (w : stop = (l.filterMap f).size) :
+    (l.filterMap f).foldl g init 0 stop = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  subst w
+  cases l
+  simp [List.foldl_filterMap]
+  rfl
+
+theorem foldr_filterMap' (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ)
+    (w : start = (l.filterMap f).size) :
+    (l.filterMap f).foldr g init start 0 = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  subst w
+  cases l
+  simp [List.foldr_filterMap]
+  rfl
+
+theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ) :
     (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldl_cons]
-    cases f a <;> simp [ih]
+  simp [foldl_filterMap']
 
-theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List α) (init : γ) :
+theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ) :
     (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  induction l generalizing init with
-  | nil => rfl
-  | cons a l ih =>
-    simp only [filterMap_cons, foldr_cons]
-    cases f a <;> simp [ih]
+  simp [foldr_filterMap']
 
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldl_map_hom' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : stop = l.size) :
+    (l.map g).foldl f' (g a) 0 stop = g (l.foldl f a) := by
+  subst w
+  cases l
+  simp
+  rw [List.foldl_map_hom _ _ _ _ _ h]
+
+theorem foldr_map_hom' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : start = l.size) :
+    (l.map g).foldr f' (g a) start 0 = g (l.foldr f a) := by
+  subst w
+  cases l
+  simp
+  rw [List.foldr_map_hom _ _ _ _ _ h]
+
+theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
+  cases l
+  simp
+  rw [List.foldl_map_hom _ _ _ _ _ h]
 
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
-  induction l generalizing a
-  · simp
-  · simp [*, h]
+  cases l
+  simp
+  rw [List.foldr_map_hom _ _ _ _ _ h]
 
-@[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : List α) :
+/-- Variant of `foldrM_append` with a side condition for the `start` argument. -/
+@[simp] theorem foldrM_append' [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : Array α)
+    (w : start = l.size + l'.size) :
+    (l ++ l').foldrM f b start 0 = l'.foldrM f b >>= l.foldrM f := by
+  subst w
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  simp
+
+theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : Array α) :
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
-  induction l <;> simp [*]
+  simp
 
-@[simp] theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : List α) :
-    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+@[simp] theorem foldl_append' {β : Type _} (f : β → α → β) (b) (l l' : Array α)
+    (w : stop = l.size + l'.size) :
+    (l ++ l').foldl f b 0 stop = l'.foldl f (l.foldl f b) := by
+  subst w
+  simp [foldl_eq_foldlM]
 
-@[simp] theorem foldr_append (f : α → β → β) (b) (l l' : List α) :
-    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+@[simp] theorem foldr_append' (f : α → β → β) (b) (l l' : Array α)
+    (w : start = l.size + l'.size) :
+    (l ++ l').foldr f b start 0 = l.foldr f (l'.foldr f b) := by
+  subst w
+  simp [foldr_eq_foldrM]
 
-theorem foldl_flatten (f : β → α → β) (b : β) (L : List (List α)) :
+theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : Array α) :
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by
+  simp [foldl_eq_foldlM]
+
+theorem foldr_append (f : α → β → β) (b) (l l' : Array α) :
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by
+  simp [foldr_eq_foldrM]
+
+@[simp] theorem foldl_flatten' (f : β → α → β) (b : β) (L : Array (Array α))
+    (w : stop = L.flatten.size) :
+    (flatten L).foldl f b 0 stop = L.foldl (fun b l => l.foldl f b) b := by
+  subst w
+  cases L using array₂_induction
+  simp [List.foldl_flatten, List.foldl_map]
+
+@[simp] theorem foldr_flatten' (f : α → β → β) (b : β) (L : Array (Array α))
+    (w : start = L.flatten.size) :
+    (flatten L).foldr f b start 0 = L.foldr (fun l b => l.foldr f b) b := by
+  subst w
+  cases L using array₂_induction
+  simp [List.foldr_flatten, List.foldr_map]
+
+theorem foldl_flatten (f : β → α → β) (b : β) (L : Array (Array α)) :
     (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
-  induction L generalizing b <;> simp_all
+  cases L using array₂_induction
+  simp [List.foldl_flatten, List.foldl_map]
 
-theorem foldr_flatten (f : α → β → β) (b : β) (L : List (List α)) :
+theorem foldr_flatten (f : α → β → β) (b : β) (L : Array (Array α)) :
     (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
-  induction L <;> simp_all
+  cases L using array₂_induction
+  simp [List.foldr_flatten, List.foldr_map]
 
-@[simp] theorem foldl_reverse (l : List α) (f : β → α → β) (b) :
+/-- Variant of `foldl_reverse` with a side condition for the `stop` argument. -/
+@[simp] theorem foldl_reverse' (l : Array α) (f : β → α → β) (b) (w : stop = l.size) :
+    l.reverse.foldl f b 0 stop = l.foldr (fun x y => f y x) b := by
+  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+
+/-- Variant of `foldr_reverse` with a side condition for the `start` argument. -/
+@[simp] theorem foldr_reverse' (l : Array α) (f : α → β → β) (b) (w : start = l.size) :
+    l.reverse.foldr f b start 0 = l.foldl (fun x y => f y x) b := by
+  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+
+theorem foldl_reverse (l : Array α) (f : β → α → β) (b) :
     l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
 
-@[simp] theorem foldr_reverse (l : List α) (f : α → β → β) (b) :
+theorem foldr_reverse (l : Array α) (f : α → β → β) (b) :
     l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
   (foldl_reverse ..).symm.trans <| by simp
 
-theorem foldl_eq_foldr_reverse (l : List α) (f : β → α → β) (b) :
+theorem foldl_eq_foldr_reverse (l : Array α) (f : β → α → β) (b) :
     l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
 
-theorem foldr_eq_foldl_reverse (l : List α) (f : α → β → β) (b) :
+theorem foldr_eq_foldl_reverse (l : Array α) (f : α → β → β) (b) :
     l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
 
-theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂)
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldl_cons, ha.assoc]
-    rw [foldl_assoc]
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {l : Array α} {a₁ a₂} :
+     l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂) := by
+  rcases l with ⟨l⟩
+  simp [List.foldl_assoc]
 
-theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] :
-    ∀ {l : List α} {a₁ a₂}, l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂
-  | [], a₁, a₂ => rfl
-  | a :: l, a₁, a₂ => by
-    simp only [foldr_cons, ha.assoc]
-    rw [foldr_assoc]
+theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] {l : Array α} {a₁ a₂} :
+    l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂ := by
+  rcases l with ⟨l⟩
+  simp [List.foldr_assoc]
 
-theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : List β) (init : α₁)
+theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Array β) (init : α₁)
     (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  induction l generalizing init <;> simp [*, H]
+  cases l
+  simp
+  rw [List.foldl_hom _ _ _ _ _ H]
 
-theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : List α) (init : β₁)
+theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Array α) (init : β₁)
     (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  induction l <;> simp [*, H]
+  cases l
+  simp
+  rw [List.foldr_hom _ _ _ _ _ H]
 
 /--
-Prove a proposition about the result of `List.foldl`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
-
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
--/
-def foldlRecOn {motive : β → Sort _} : ∀ (l : List α) (op : β → α → β) (b : β) (_ : motive b)
-    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op b a)), motive (List.foldl op b l)
-  | [], _, _, hb, _ => hb
-  | hd :: tl, op, b, hb, hl =>
-    foldlRecOn tl op (op b hd) (hl b hb hd (mem_cons_self hd tl))
-      fun y hy x hx => hl y hy x (mem_cons_of_mem hd hx)
-
-@[simp] theorem foldlRecOn_nil {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op b a)) :
-    foldlRecOn [] op b hb hl = hb := rfl
-
-@[simp] theorem foldlRecOn_cons {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op b a)) :
-    foldlRecOn (x :: l) op b hb hl =
-      foldlRecOn l op (op b x) (hl b hb x (mem_cons_self x l))
-        (fun b c a m => hl b c a (mem_cons_of_mem x m)) :=
-  rfl
-
-/--
-Prove a proposition about the result of `List.foldr`,
-by proving it for the initial data,
-and the implication that the operation applied to any element of the list preserves the property.
-
-The motive can take values in `Sort _`, so this may be used to construct data,
-as well as to prove propositions.
--/
-def foldrRecOn {motive : β → Sort _} : ∀ (l : List α) (op : α → β → β) (b : β) (_ : motive b)
-    (_ : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ l), motive (op a b)), motive (List.foldr op b l)
-  | nil, _, _, hb, _ => hb
-  | x :: l, op, b, hb, hl =>
-    hl (foldr op b l)
-      (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m)) x (mem_cons_self x l)
-
-@[simp] theorem foldrRecOn_nil {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ []), motive (op a b)) :
-    foldrRecOn [] op b hb hl = hb := rfl
-
-@[simp] theorem foldrRecOn_cons {motive : β → Sort _} (hb : motive b)
-    (hl : ∀ (b : β) (_ : motive b) (a : α) (_ : a ∈ x :: l), motive (op a b)) :
-    foldrRecOn (x :: l) op b hb hl =
-      hl _ (foldrRecOn l op b hb fun b c a m => hl b c a (mem_cons_of_mem x m))
-        x (mem_cons_self x l) :=
-  rfl
-
-/--
-We can prove that two folds over the same list are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the list,
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldl_rel {l : List α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+theorem foldl_rel {l : Array α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
     r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldl_cons]
-    apply ih
-    · simp_all
-    · exact fun a m c c' h => h' _ (by simp_all) _ _ h
+  rcases l with ⟨l⟩
+  simpa using List.foldl_rel r h (by simpa using h')
 
 /--
-We can prove that two folds over the same list are related (by some arbitrary relation)
-if we know that the initial elements are related and the folding function, for each element of the list,
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
 preserves the relation.
 -/
-theorem foldr_rel {l : List α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+theorem foldr_rel {l : Array α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
     (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
     r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
-  induction l generalizing a b with
-  | nil => simp_all
-  | cons a l ih =>
-    simp only [foldr_cons]
-    apply h'
-    · simp
-    · exact ih h fun a m c c' h => h' _ (by simp_all) _ _ h
+  rcases l with ⟨l⟩
+  simpa using List.foldr_rel r h (by simpa using h')
 
-@[simp] theorem foldl_add_const (l : List α) (a b : Nat) :
-    l.foldl (fun x _ => x + a) b = b + a * l.length := by
-  induction l generalizing b with
-  | nil => simp
-  | cons y l ih =>
-    simp only [foldl_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc,
-      Nat.add_comm a]
+@[simp] theorem foldl_add_const (l : Array α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
 
-@[simp] theorem foldr_add_const (l : List α) (a b : Nat) :
-    l.foldr (fun _ x => x + a) b = b + a * l.length := by
-  induction l generalizing b with
-  | nil => simp
-  | cons y l ih =>
-    simp only [foldr_cons, ih, length_cons, Nat.mul_add, Nat.mul_one, Nat.add_assoc]
-
-
+@[simp] theorem foldr_add_const (l : Array α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
 
 /-! Content below this point has not yet been aligned with `List`. -/
 
@@ -3203,75 +3365,8 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [← getElem_toList]
 
-/-! ### foldlM and foldrM -/
 
-theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α) :
-    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
-  cases l
-  cases l'
-  rw [List.append_toArray]
-  simp
 
-/-- Variant of `foldM_append` with `h : stop = (l ++ l').size`. -/
-@[simp] theorem foldlM_append' [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α)
-    (h : stop = (l ++ l').size) :
-    (l ++ l').foldlM f b 0 stop = l.foldlM f b >>= l'.foldlM f := by
-  subst h
-  rw [foldlM_append]
-
-theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
-  simp only [foldrM_eq_reverse_foldlM_toList, push_toList, List.reverse_append, List.reverse_cons,
-    List.reverse_nil, List.nil_append, List.singleton_append, List.foldlM_cons, List.foldlM_reverse]
-
-/--
-Variant of `foldrM_push` with `h : start = arr.size + 1`
-rather than `(arr.push a).size` as the argument.
--/
-@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α)
-    {start} (h : start = arr.size + 1) :
-    (arr.push a).foldrM f init start = f a init >>= arr.foldrM f := by
-  simp [← foldrM_push, h]
-
-theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Array α) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  cases l
-  simp [List.foldl_eq_foldlM]
-
-theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  cases l
-  simp [List.foldr_eq_foldrM]
-
-@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Array α) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
-
-@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Array α) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
-
-/-! ### foldl and foldr -/
-
-theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
-
-/--
-Variant of `foldr_push` with the `h : start = arr.size + 1`
-rather than `(arr.push a).size` as the argument.
--/
-@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) {start}
-    (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
-  foldrM_push' _ _ _ _ h
-
-@[simp] theorem foldl_push_eq_append (l l' : Array α) : l.foldl push l' = l' ++ l := by
-  cases l
-  cases l'
-  simp
-
-@[simp] theorem foldr_flip_push_eq_append (l l' : Array α) :
-    l.foldr (fun x y => push y x) l' = l' ++ l.reverse := by
-  cases l
-  cases l'
-  simp
 
 /-! ### take -/
 
@@ -3311,91 +3406,6 @@ rather than `(arr.push a).size` as the argument.
     forIn' as.toList b f = forIn' as b (fun a m b => f a (mem_toList.mpr m) b) := by
   cases as
   simp
-
-/-! ### foldl / foldr -/
-
-@[simp] theorem foldlM_loop_empty [Monad m] (f : β → α → m β) (init : β) (i j : Nat) :
-    foldlM.loop f #[] s h i j init = pure init := by
-  unfold foldlM.loop; split
-  · split
-    · rfl
-    · simp at h
-      omega
-  · rfl
-
-@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
-    foldlM f init #[] start stop = return init := by
-  simp [foldlM]
-
-@[simp] theorem foldrM_fold_empty [Monad m] (f : α → β → m β) (init : β) (i j : Nat) (h) :
-    foldrM.fold f #[] i j h init = pure init := by
-  unfold foldrM.fold
-  split <;> rename_i h₁
-  · rfl
-  · split <;> rename_i h₂
-    · rfl
-    · simp at h₂
-
-@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
-    foldrM f init #[] start stop = return init := by
-  simp [foldrM]
-
--- This proof is the pure version of `Array.SatisfiesM_foldlM` in Batteries,
--- reproduced to avoid a dependency on `SatisfiesM`.
-theorem foldl_induction
-    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
-    motive as.size (as.foldl f init) := by
-  let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
-    (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
-    unfold foldlM.loop; split
-    · next hj =>
-      split
-      · cases Nat.not_le_of_gt (by simp [hj]) h₂
-      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
-    · next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
-  simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
-
--- This proof is the pure version of `Array.SatisfiesM_foldrM` in Batteries,
--- reproduced to avoid a dependency on `SatisfiesM`.
-theorem foldr_induction
-    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive (i.1 + 1) b → motive i.1 (f as[i] b)) :
-    motive 0 (as.foldr f init) := by
-  let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
-    (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
-    unfold foldrM.fold; simp; split
-    · next hi => exact (hi ▸ H)
-    · next hi =>
-      split; {simp at hi}
-      · next i hi' =>
-        exact go _ (hf ⟨i, hi'⟩ b H)
-  simp [foldr, foldrM]; split; {exact go _ h0}
-  · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
-
-@[congr]
-theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
-     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
-    as.foldl f a start stop = bs.foldl g b start' stop' := by
-  congr
-
-@[congr]
-theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
-     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
-    as.foldr f a start stop = bs.foldr g b start' stop' := by
-  congr
-
-theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Array β) (init : α₁)
-    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  cases l
-  simp
-  rw [List.foldl_hom _ _ _ _ _ H]
-
-theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Array α) (init : β₁)
-    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  cases l
-  simp
-  rw [List.foldr_hom _ _ _ _ _ H]
 
 /-! ### map -/
 
@@ -3640,11 +3650,6 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
   apply ext'
   simp
 
-@[simp] theorem extract_toArray (l : List α) (start stop : Nat) :
-    l.toArray.extract start stop = ((l.drop start).take (stop - start)).toArray := by
-  apply ext'
-  simp
-
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
 
@@ -3696,42 +3701,6 @@ namespace Array
     (as.eraseIdxIfInBounds i).toList = as.toList.eraseIdx i := by
   induction as
   simp
-
-/-! ### map -/
-
-theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) :
-    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
-  cases l; simp [List.foldl_map]
-
-theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) :
-    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  cases l; simp [List.foldr_map]
-
-theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  cases l
-  simp [List.foldl_filterMap]
-  rfl
-
-theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  cases l
-  simp [List.foldr_filterMap]
-  rfl
-
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
-  cases l
-  simp
-  rw [List.foldl_map' _ _ _ _ _ h]
-
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
-  cases l
-  simp
-  rw [List.foldr_map' _ _ _ _ _ h]
 
 /-! ### flatten -/
 

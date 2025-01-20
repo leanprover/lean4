@@ -2868,7 +2868,6 @@ lean_dec(x_7);
 x_10 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_11 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
 x_12 = l_Lean_EnvExtension_getState___rarg(x_10, x_11, x_9);
-lean_dec(x_9);
 x_13 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -3074,7 +3073,6 @@ lean_dec(x_59);
 x_62 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_63 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
 x_64 = l_Lean_EnvExtension_getState___rarg(x_62, x_63, x_61);
-lean_dec(x_61);
 x_65 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_64, x_1);
 if (lean_obj_tag(x_65) == 0)
 {

@@ -26037,7 +26037,6 @@ lean_dec(x_4);
 x_6 = l_Lean_Parser_categoryParserFn___closed__2;
 x_7 = l_Lean_Parser_categoryParserFn___closed__3;
 x_8 = l_Lean_EnvExtension_getState___rarg(x_6, x_7, x_5);
-lean_dec(x_5);
 x_9 = lean_apply_3(x_8, x_1, x_2, x_3);
 return x_9;
 }

@@ -914,7 +914,6 @@ lean_dec(x_15);
 x_18 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_19 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_20 = l_Lean_EnvExtension_getState___rarg(x_18, x_19, x_17);
-lean_dec(x_17);
 lean_inc(x_11);
 x_21 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__1(x_20, x_11);
 if (lean_obj_tag(x_21) == 0)
@@ -1060,7 +1059,6 @@ lean_dec(x_57);
 x_60 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_61 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_62 = l_Lean_EnvExtension_getState___rarg(x_60, x_61, x_59);
-lean_dec(x_59);
 lean_inc(x_11);
 x_63 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__1(x_62, x_11);
 if (lean_obj_tag(x_63) == 0)
@@ -1250,7 +1248,6 @@ lean_dec(x_106);
 x_110 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__1;
 x_111 = l_Lean_Compiler_LCNF_cacheAuxDecl___closed__2;
 x_112 = l_Lean_EnvExtension_getState___rarg(x_110, x_111, x_109);
-lean_dec(x_109);
 lean_inc(x_103);
 x_113 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_cacheAuxDecl___spec__1(x_112, x_103);
 if (lean_obj_tag(x_113) == 0)

@@ -6,7 +6,7 @@ open Lean Meta Grind in
 def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
   trace[Meta.debug] "{nodes.toList.map (·.self)}"
-  let nodes ← filterENodes fun e => return e.self.isAppOf ``GetElem.getElem
+  let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``GetElem.getElem
   let [_, n, _] := nodes.toList | unreachable!
   trace[Meta.debug] "{← getEqc n.self}"
   (← get).mvarId.admit

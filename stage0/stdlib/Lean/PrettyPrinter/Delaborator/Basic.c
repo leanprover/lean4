@@ -1770,6 +1770,7 @@ x_29 = lean_ctor_get(x_26, 1);
 x_30 = lean_ctor_get(x_28, 0);
 lean_inc(x_30);
 lean_dec(x_28);
+lean_inc(x_25);
 x_31 = l_Lean_Environment_contains(x_30, x_25);
 if (x_31 == 0)
 {
@@ -1846,6 +1847,7 @@ lean_dec(x_26);
 x_44 = lean_ctor_get(x_42, 0);
 lean_inc(x_44);
 lean_dec(x_42);
+lean_inc(x_25);
 x_45 = l_Lean_Environment_contains(x_44, x_25);
 if (x_45 == 0)
 {
@@ -1957,6 +1959,7 @@ if (lean_is_exclusive(x_63)) {
 x_67 = lean_ctor_get(x_64, 0);
 lean_inc(x_67);
 lean_dec(x_64);
+lean_inc(x_62);
 x_68 = l_Lean_Environment_contains(x_67, x_62);
 if (x_68 == 0)
 {
@@ -9414,7 +9417,6 @@ lean_inc(x_29);
 lean_dec(x_27);
 x_30 = l_Lean_PrettyPrinter_Delaborator_delabFor___closed__1;
 x_31 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_30, x_29, x_1);
-lean_dec(x_29);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);

@@ -8255,6 +8255,7 @@ x_9 = lean_usize_dec_lt(x_4, x_3);
 if (x_9 == 0)
 {
 lean_object* x_10; 
+lean_dec(x_2);
 x_10 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_10, 0, x_5);
 lean_ctor_set(x_10, 1, x_8);
@@ -8267,11 +8268,13 @@ x_11 = lean_array_uget(x_5, x_4);
 x_12 = lean_unsigned_to_nat(0u);
 x_13 = lean_array_uset(x_5, x_4, x_12);
 lean_inc(x_11);
+lean_inc(x_2);
 x_14 = l_Lean_Compiler_LCNF_getDeclCore_x3f(x_2, x_1, x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
 lean_dec(x_13);
+lean_dec(x_2);
 x_15 = l_Lean_MessageData_ofName(x_11);
 x_16 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_runOnDeclsNamed___spec__2___closed__2;
 x_17 = lean_alloc_ctor(7, 2, 0);
@@ -8359,7 +8362,6 @@ lean_dec(x_9);
 x_12 = lean_array_size(x_1);
 x_13 = 0;
 x_14 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_runOnDeclsNamed___spec__2(x_7, x_11, x_12, x_13, x_1, x_4, x_5, x_10);
-lean_dec(x_11);
 lean_dec(x_7);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -8430,7 +8432,6 @@ lean_dec(x_4);
 x_11 = l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_Probe_runOnDeclsNamed___spec__2(x_1, x_2, x_9, x_10, x_5, x_6, x_7, x_8);
 lean_dec(x_7);
 lean_dec(x_6);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_11;
 }
@@ -8566,7 +8567,6 @@ lean_dec(x_13);
 x_20 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
 x_21 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_20, x_7, x_12, x_19);
 lean_dec(x_19);
-lean_dec(x_12);
 lean_dec(x_7);
 x_22 = lean_apply_1(x_2, x_21);
 x_23 = l_Lean_Compiler_LCNF_Probe_runOnDeclsNamed___rarg___closed__2;
@@ -8617,7 +8617,6 @@ lean_dec(x_28);
 x_36 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
 x_37 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_36, x_7, x_27, x_35);
 lean_dec(x_35);
-lean_dec(x_27);
 lean_dec(x_7);
 x_38 = lean_apply_1(x_2, x_37);
 x_39 = l_Lean_Compiler_LCNF_Probe_runOnDeclsNamed___rarg___closed__2;
@@ -8665,6 +8664,7 @@ if (x_13 == 0)
 {
 lean_object* x_14; 
 lean_dec(x_6);
+lean_dec(x_2);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_5);
 lean_ctor_set(x_14, 1, x_11);
@@ -8674,6 +8674,7 @@ else
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
 x_15 = l_Lean_Compiler_LCNF_Probe_runOnModule___rarg___closed__3;
+lean_inc(x_2);
 x_16 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_15, x_1, x_2, x_6);
 x_17 = l_Array_append___rarg(x_5, x_16);
 lean_dec(x_16);
@@ -8714,7 +8715,6 @@ lean_ctor_set(x_15, 2, x_14);
 x_16 = l_Lean_Compiler_LCNF_Probe_filter___rarg___closed__1;
 x_17 = l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_Probe_runGlobally___spec__1(x_6, x_10, x_15, x_15, x_16, x_13, lean_box(0), lean_box(0), x_3, x_4, x_9);
 lean_dec(x_15);
-lean_dec(x_10);
 lean_dec(x_6);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
@@ -8744,7 +8744,6 @@ lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_12;
 }

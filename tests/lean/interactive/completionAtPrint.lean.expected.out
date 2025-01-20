@@ -1,26 +1,13 @@
 {"textDocument": {"uri": "file:///completionAtPrint.lean"},
- "position": {"line": 2, "character": 25}}
+ "position": {"line": 2, "character": 10}}
 {"items":
  [{"sortText": "0",
-   "label": "find?",
-   "kind": 3,
+   "label": "gg",
+   "kind": 21,
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionAtPrint.lean"},
-     "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.find?"}},
-    "cPos": 0}},
-  {"sortText": "1",
-   "label": "freeRegions",
-   "kind": 3,
-   "documentation":
-   {"value":
-    "Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in\nparticular, `env` should be the last reference to any `Environment` derived from these imports. ",
-    "kind": "markdown"},
-   "data":
-   {"params":
-    {"textDocument": {"uri": "file:///completionAtPrint.lean"},
-     "position": {"line": 2, "character": 25}},
-    "id": {"const": {"declName": "Lean.Environment.freeRegions"}},
+     "position": {"line": 2, "character": 10}},
+    "id": {"const": {"declName": "f.gg"}},
     "cPos": 0}}],
  "isIncomplete": true}

@@ -56,7 +56,7 @@ static lean_object* l_Lean_PrettyPrinter_initFn____x40_Lean_PrettyPrinter___hyg_
 static lean_object* l_panic___at_Lean_MessageData_ofConst___spec__1___closed__2;
 static lean_object* l_Lean_PrettyPrinter_ppTactic___closed__2;
 static lean_object* l_Lean_PrettyPrinter_ppExprLegacy___closed__1;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_PrettyPrinter_ppConstNameWithInfos___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_ofFormatWithInfosM___lambda__2___boxed(lean_object*);
 lean_object* l_Lean_PrettyPrinter_format(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2133,7 +2133,7 @@ x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
 lean_inc(x_1);
-x_12 = lean_environment_find(x_11, x_1);
+x_12 = l_Lean_Environment_find_x3f(x_11, x_1);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -2236,7 +2236,7 @@ x_40 = lean_ctor_get(x_38, 0);
 lean_inc(x_40);
 lean_dec(x_38);
 lean_inc(x_1);
-x_41 = lean_environment_find(x_40, x_1);
+x_41 = l_Lean_Environment_find_x3f(x_40, x_1);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; lean_object* x_49; 

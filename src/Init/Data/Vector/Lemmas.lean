@@ -23,7 +23,6 @@ end Array
 
 namespace Vector
 
-
 /-! ### mk lemmas -/
 
 theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a := rfl
@@ -70,6 +69,10 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem back?_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).back? = a.back? := rfl
 
+@[simp] theorem back_mk [NeZero n] (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).back =
+      a[n - 1]'(Nat.lt_of_lt_of_eq (Nat.sub_one_lt (NeZero.ne n)) h.symm) := rfl
+
 @[simp] theorem foldlM_mk [Monad m] (f : β → α → m β) (b : β) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).foldlM f b = a.foldlM f b := rfl
 
@@ -111,6 +114,13 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem map_mk (a : Array α) (h : a.size = n) (f : α → β) :
     (Vector.mk a h).map f = Vector.mk (a.map f) (by simp [h]) := rfl
 
+@[simp] theorem mapIdx_mk (a : Array α) (h : a.size = n) (f : Nat → α → β) :
+    (Vector.mk a h).mapIdx f = Vector.mk (a.mapIdx f) (by simp [h]) := rfl
+
+@[simp] theorem mapFinIdx_mk (a : Array α) (h : a.size = n) (f : (i : Nat) → α → (h : i < n) → β) :
+    (Vector.mk a h).mapFinIdx f =
+      Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
+
 @[simp] theorem reverse_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).reverse = Vector.mk a.reverse (by simp [h]) := rfl
 
@@ -140,6 +150,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem take_mk (a : Array α) (h : a.size = n) (m) :
     (Vector.mk a h).take m = Vector.mk (a.take m) (by simp [h]) := rfl
+
+@[simp] theorem zipWithIndex_mk (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).zipWithIndex = Vector.mk (a.zipWithIndex) (by simp [h]) := rfl
 
 @[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
       (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
@@ -204,6 +217,14 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem toArray_map (f : α → β) (a : Vector α n) :
     (a.map f).toArray = a.toArray.map f := rfl
 
+@[simp] theorem toArray_mapIdx (f : Nat → α → β) (a : Vector α n) :
+    (a.mapIdx f).toArray = a.toArray.mapIdx f := rfl
+
+@[simp] theorem toArray_mapFinIdx (f : (i : Nat) → α → (h : i < n) → β) (v : Vector α n) :
+    (v.mapFinIdx f).toArray =
+      v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) :=
+  rfl
+
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl
 
 @[simp] theorem toArray_pop (a : Vector α n) : a.pop.toArray = a.toArray.pop := rfl
@@ -245,6 +266,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
       ((a.toArray.swapAt! i x).fst, (a.toArray.swapAt! i x).snd) := rfl
 
 @[simp] theorem toArray_take (a : Vector α n) (m) : (a.take m).toArray = a.toArray.take m := rfl
+
+@[simp] theorem toArray_zipWithIndex (a : Vector α n) :
+    (a.zipWithIndex).toArray = a.toArray.zipWithIndex := rfl
 
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
     (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
@@ -298,6 +322,8 @@ protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i
 
 /-! ### toList -/
 
+theorem toArray_toList (a : Vector α n) : a.toArray.toList = a.toList := rfl
+
 @[simp] theorem getElem_toList {α n} (xs : Vector α n) (i : Nat) (h : i < xs.toList.length) :
     xs.toList[i] = xs[i]'(by simpa using h) := by
   cases xs
@@ -336,6 +362,14 @@ theorem toList_extract (a : Vector α n) (start stop) :
 
 theorem toList_map (f : α → β) (a : Vector α n) :
     (a.map f).toList = a.toList.map f := by simp
+
+theorem toList_mapIdx (f : Nat → α → β) (a : Vector α n) :
+    (a.mapIdx f).toList = a.toList.mapIdx f := by simp
+
+theorem toList_mapFinIdx (f : (i : Nat) → α → (h : i < n) → β) (v : Vector α n) :
+    (v.mapFinIdx f).toList =
+      v.toList.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) := by
+  simp
 
 theorem toList_ofFn (f : Fin n → α) : (Vector.ofFn f).toList = List.ofFn f := by simp
 
@@ -1746,6 +1780,308 @@ theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f
 @[simp] theorem sum_mkArray_nat (n : Nat) (a : Nat) : (mkVector n a).sum = n * a := by
   simp [toArray_mkVector]
 
+/-! ### reverse -/
+
+@[simp] theorem reverse_push (as : Vector α n) (a : α) :
+    (as.push a).reverse = (#v[a] ++ as.reverse).cast (by omega) := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.reverse_push]
+
+@[simp] theorem mem_reverse {x : α} {as : Vector α n} : x ∈ as.reverse ↔ x ∈ as := by
+  cases as
+  simp
+
+@[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
+    (a.reverse)[i] = a[n - 1 - i] := by
+  rcases a with ⟨a, rfl⟩
+  simp
+
+/-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
+theorem getElem?_reverse' {l : Vector α n} (i j) (h : i + j + 1 = n) : l.reverse[i]? = l[j]? := by
+  rcases l with ⟨l, rfl⟩
+  simpa using Array.getElem?_reverse' i j h
+
+@[simp]
+theorem getElem?_reverse {l : Vector α n} {i} (h : i < n) :
+    l.reverse[i]? = l[n - 1 - i]? := by
+  cases l
+  simp_all
+
+@[simp] theorem reverse_reverse (as : Vector α n) : as.reverse.reverse = as := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.reverse_reverse]
+
+theorem reverse_eq_iff {as bs : Vector α n} : as.reverse = bs ↔ as = bs.reverse := by
+  constructor <;> (rintro rfl; simp)
+
+@[simp] theorem reverse_inj {xs ys : Vector α n} : xs.reverse = ys.reverse ↔ xs = ys := by
+  simp [reverse_eq_iff]
+
+@[simp] theorem reverse_eq_push_iff {xs : Vector α (n + 1)} {ys : Vector α n} {a : α} :
+    xs.reverse = ys.push a ↔ xs = (#v[a] ++ ys.reverse).cast (by omega) := by
+  rcases xs with ⟨xs, h⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp [Array.reverse_eq_push_iff]
+
+@[simp] theorem map_reverse (f : α → β) (l : Vector α n) : l.reverse.map f = (l.map f).reverse := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.map_reverse]
+
+@[simp] theorem reverse_append (as : Vector α n) (bs : Vector α m) :
+    (as ++ bs).reverse = (bs.reverse ++ as.reverse).cast (by omega) := by
+  rcases as with ⟨as, rfl⟩
+  rcases bs with ⟨bs, rfl⟩
+  simp [Array.reverse_append]
+
+@[simp] theorem reverse_eq_append_iff {xs : Vector α (n + m)} {ys : Vector α n} {zs : Vector α m} :
+    xs.reverse = ys ++ zs ↔ xs = (zs.reverse ++ ys.reverse).cast (by omega) := by
+  cases xs
+  cases ys
+  cases zs
+  simp
+
+/-- Reversing a flatten is the same as reversing the order of parts and reversing all parts. -/
+theorem reverse_flatten (L : Vector (Vector α m) n) :
+    L.flatten.reverse = (L.map reverse).reverse.flatten := by
+  cases L using vector₂_induction
+  simp [Array.reverse_flatten]
+
+/-- Flattening a reverse is the same as reversing all parts and reversing the flattened result. -/
+theorem flatten_reverse (L : Vector (Vector α m) n) :
+    L.reverse.flatten = (L.map reverse).flatten.reverse := by
+  cases L using vector₂_induction
+  simp [Array.flatten_reverse]
+
+theorem reverse_flatMap {β} (l : Vector α n) (f : α → Vector β m) :
+    (l.flatMap f).reverse = l.reverse.flatMap (reverse ∘ f) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.reverse_flatMap, Function.comp_def]
+
+theorem flatMap_reverse {β} (l : Vector α n) (f : α → Vector β m) :
+    (l.reverse.flatMap f) = (l.flatMap (reverse ∘ f)).reverse := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.flatMap_reverse, Function.comp_def]
+
+@[simp] theorem reverse_mkVector (n) (a : α) : reverse (mkVector n a) = mkVector n a := by
+  rw [← toArray_inj]
+  simp
+
+/-! ### extract -/
+
+@[simp] theorem getElem_extract {as : Vector α n} {start stop : Nat}
+    (h : i < min stop n - start) :
+    (as.extract start stop)[i] = as[start + i] := by
+  rcases as with ⟨as, rfl⟩
+  simp
+
+theorem getElem?_extract {as : Vector α n} {start stop : Nat} :
+    (as.extract start stop)[i]? = if i < min stop as.size - start then as[start + i]? else none := by
+  rcases as with ⟨as, rfl⟩
+  simp [Array.getElem?_extract]
+
+@[simp] theorem extract_size (as : Vector α n) : as.extract 0 n = as.cast (by simp) := by
+  rcases as with ⟨as, rfl⟩
+  simp
+
+theorem extract_empty (start stop : Nat) :
+    (#v[] : Vector α 0).extract start stop = #v[].cast (by simp) := by
+  simp
+
+/-! ### foldlM and foldrM -/
+
+@[simp] theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l : Vector α n) (l' : Vector α k) :
+    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
+  rcases l with ⟨l, rfl⟩
+  rcases l' with ⟨l', rfl⟩
+  simp
+
+@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
+    foldlM f init #v[] = return init := by
+  simp [foldlM]
+
+@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
+    foldrM f init #v[] = return init := by
+  simp [foldrM]
+
+@[simp] theorem foldlM_push [Monad m] [LawfulMonad m] (l : Vector α n) (a : α) (f : β → α → m β) (b) :
+    (l.push a).foldlM f b = l.foldlM f b >>= fun b => f b a := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Vector α n) :
+    l.foldl f b = l.foldlM (m := Id) f b := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldl_eq_foldlM]
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Vector α n) :
+    l.foldr f b = l.foldrM (m := Id) f b := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldr_eq_foldrM]
+
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Vector α n) :
+    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Vector α n) :
+    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
+
+@[simp] theorem foldlM_reverse [Monad m] (l : Vector α n) (f : β → α → m β) (b) :
+    l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldlM_reverse]
+
+@[simp] theorem foldrM_reverse [Monad m] (l : Vector α n) (f : α → β → m β) (b) :
+    l.reverse.foldrM f b = l.foldlM (fun x y => f y x) b := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Vector α n) (a : α) :
+    (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
+  rcases arr with ⟨arr, rfl⟩
+  simp [Array.foldrM_push]
+
+/-! ### foldl / foldr -/
+
+@[congr]
+theorem foldl_congr {as bs : Vector α n} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) :
+    as.foldl f a = bs.foldl g b := by
+  congr
+
+@[congr]
+theorem foldr_congr {as bs : Vector α n} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) :
+    as.foldr f a = bs.foldr g b := by
+  congr
+
+@[simp] theorem foldr_push (f : α → β → β) (init : β) (arr : Vector α n) (a : α) :
+    (arr.push a).foldr f init = arr.foldr f (f a init) := by
+  rcases arr with ⟨arr, rfl⟩
+  simp [Array.foldr_push]
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : Vector β₁ n) (init : α) :
+    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
+  cases l; simp [Array.foldl_map']
+
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : Vector α₁ n) (init : β) :
+    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
+  cases l; simp [Array.foldr_map']
+
+theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : Vector α n) (init : γ) :
+    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldl_filterMap']
+  rfl
+
+theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Vector α n) (init : γ) :
+    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldr_filterMap']
+  rfl
+
+theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Vector α n)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
+  rcases l with ⟨l, rfl⟩
+  simp
+  rw [Array.foldl_map_hom' _ _ _ _ _ h rfl]
+
+theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Vector α n)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
+  rcases l with ⟨l, rfl⟩
+  simp
+  rw [Array.foldr_map_hom' _ _ _ _ _ h rfl]
+
+@[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l : Vector α n) (l' : Vector α k) :
+    (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
+  rcases l with ⟨l, rfl⟩
+  rcases l' with ⟨l', rfl⟩
+  simp
+
+@[simp] theorem foldl_append {β : Type _} (f : β → α → β) (b) (l : Vector α n) (l' : Vector α k) :
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by simp [foldl_eq_foldlM]
+
+@[simp] theorem foldr_append (f : α → β → β) (b) (l : Vector α n) (l' : Vector α k) :
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by simp [foldr_eq_foldrM]
+
+@[simp] theorem foldl_flatten (f : β → α → β) (b : β) (L : Vector (Vector α m) n) :
+    (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
+  cases L using vector₂_induction
+  simp [Array.foldl_flatten', Array.foldl_map']
+
+@[simp] theorem foldr_flatten (f : α → β → β) (b : β) (L : Vector (Vector α m) n) :
+    (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
+  cases L using vector₂_induction
+  simp [Array.foldr_flatten', Array.foldr_map']
+
+@[simp] theorem foldl_reverse (l : Vector α n) (f : β → α → β) (b) :
+    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+
+@[simp] theorem foldr_reverse (l : Vector α n) (f : α → β → β) (b) :
+    l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
+  (foldl_reverse ..).symm.trans <| by simp
+
+theorem foldl_eq_foldr_reverse (l : Vector α n) (f : β → α → β) (b) :
+    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
+
+theorem foldr_eq_foldl_reverse (l : Vector α n) (f : α → β → β) (b) :
+    l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
+
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {l : Vector α n} {a₁ a₂} :
+     l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldl_assoc]
+
+@[simp] theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] {l : Vector α n} {a₁ a₂} :
+    l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂ := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.foldr_assoc]
+
+theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Vector β n) (init : α₁)
+    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
+  rcases l with ⟨l, rfl⟩
+  simp
+  rw [Array.foldl_hom _ _ _ _ _ H]
+
+theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Vector α n) (init : β₁)
+    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
+  cases l
+  simp
+  rw [Array.foldr_hom _ _ _ _ _ H]
+
+/--
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
+preserves the relation.
+-/
+theorem foldl_rel {l : Array α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
+  rcases l with ⟨l⟩
+  simpa using List.foldl_rel r h (by simpa using h')
+
+/--
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
+preserves the relation.
+-/
+theorem foldr_rel {l : Array α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
+  rcases l with ⟨l⟩
+  simpa using List.foldr_rel r h (by simpa using h')
+
+@[simp] theorem foldl_add_const (l : Array α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem foldr_add_const (l : Array α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
+
+
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
@@ -1774,14 +2110,7 @@ defeq issues in the implicit size argument.
   · simp [h]
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
-    simp [pop, back, back!, ← Array.eq_push_pop_back!_of_size_ne_zero]
-
-/-! ### extract -/
-
-@[simp] theorem getElem_extract (a : Vector α n) (start stop) (i : Nat) (hi : i < min stop n - start) :
-    (a.extract start stop)[i] = a[start + i] := by
-  cases a
-  simp
+    simp [back]
 
 /-! ### zipWith -/
 
@@ -1790,37 +2119,6 @@ defeq issues in the implicit size argument.
   cases a
   cases b
   simp
-
-/-! ### foldlM and foldrM -/
-
-@[simp] theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l : Vector α n) (l' : Vector α n') :
-    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
-  cases l
-  cases l'
-  simp
-
-@[simp] theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (l : Vector α n) (a : α) :
-    (l.push a).foldrM f init = f a init >>= l.foldrM f := by
-  cases l
-  simp
-
-theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Vector α n) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  cases l
-  simp [Array.foldl_eq_foldlM]
-
-theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Vector α n) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  cases l
-  simp [Array.foldr_eq_foldrM]
-
-@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Vector α n) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
-
-@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Vector α n) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
-
-/-! ### foldl and foldr -/
 
 /-! ### take -/
 
@@ -1875,13 +2173,6 @@ theorem swap_comm (a : Vector α n) {i j : Nat} {hi hj} :
 @[simp] theorem getElem_drop (a : Vector α n) (m : Nat) (hi : i < n - m) :
     (a.drop m)[i] = a[m + i] := by
   cases a
-  simp
-
-/-! ### reverse -/
-
-@[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
-    (a.reverse)[i] = a[n - 1 - i] := by
-  rcases a with ⟨a, rfl⟩
   simp
 
 /-! ### Decidable quantifiers. -/

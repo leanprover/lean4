@@ -195,7 +195,7 @@ lean_object* lean_io_mono_nanos_now(lean_object*);
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
 static lean_object* l_Lean_Language_Lean_process_parseCmd___lambda__6___closed__2;
 static lean_object* l___private_Lean_Language_Lean_0__Lean_Language_Lean_withHeaderExceptions___rarg___closed__2;
-lean_object* lean_environment_set_main_module(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_setMainModule(lean_object*, lean_object*);
 lean_object* l_Lean_Option_set___at_Lean_Elab_Term_withoutMacroStackAtErr___spec__1(lean_object*, lean_object*, uint8_t);
 lean_object* lean_thunk_get_own(lean_object*);
 static lean_object* l_Lean_Language_Lean_process_doElab___closed__4;
@@ -12945,7 +12945,7 @@ lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18;
 x_15 = lean_ctor_get(x_1, 0);
 lean_inc(x_15);
 lean_dec(x_1);
-x_16 = lean_environment_set_main_module(x_2, x_15);
+x_16 = l_Lean_Environment_setMainModule(x_2, x_15);
 x_17 = l_Lean_Language_Lean_process_processHeader___lambda__4___closed__2;
 x_18 = l_Lean_Option_get_x3f___at_Lean_addTraceAsMessages___spec__17(x_3, x_17);
 if (lean_obj_tag(x_18) == 0)

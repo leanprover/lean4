@@ -266,7 +266,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstance mvar type) do
+      unless (← synthesizeInstanceAndAssign mvar type) do
         reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
@@ -278,10 +278,6 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm.origin proof c.gen
-where
-  synthesizeInstance (x type : Expr) : MetaM Bool := do
-    let .some val ← trySynthInstance type | return false
-    isDefEq x val
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -314,12 +310,44 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
           modify fun s => { s with choiceStack := [c] }
           processChoices
 
+/--
+Entry point for matching `lhs ←= rhs` patterns.
+It traverses disequalities `a = b`, and tries to solve two matching problems:
+1- match `lhs` with `a` and `rhs` with `b`
+2- match `lhs` with `b` and `rhs` with `a`
+-/
+private def matchEqBwdPat (p : Expr) : M Unit := do
+  let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
+  let numParams  := (← read).thm.numParams
+  let assignment := mkArray numParams unassigned
+  let useMT      := (← read).useMT
+  let gmt        := (← getThe Goal).gmt
+  let false      ← getFalseExpr
+  let mut curr   := false
+  repeat
+    if (← checkMaxInstancesExceeded) then return ()
+    let n ← getENode curr
+    if (n.heqProofs || n.isCongrRoot) &&
+       (!useMT || n.mt == gmt) then
+      let_expr Eq α lhs rhs := n.self | pure ()
+      if (← isDefEq α pα) then
+         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
+         let go (lhs rhs : Expr) : M Unit := do
+           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+           modify fun s => { s with choiceStack := [c₂] }
+           processChoices
+         go lhs rhs
+         go rhs lhs
+    if isSameExpr n.next false then return ()
+    curr := n.next
+
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()
   withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
-    | [p],   _     => main p []
+    | [p],   _     => if isEqBwdPattern p then matchEqBwdPat p else main p []
     | p::ps, false => main p (ps.map (.continue ·))
     | _::_,  true  => tryAll ps []
     | _,     _     => unreachable!

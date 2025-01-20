@@ -17,15 +17,17 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Cases
 
 namespace Lean.Meta.Grind
 
 structure Params where
-  config    : Grind.Config
-  ematch    : EMatchTheorems := {}
-  extra     : PArray EMatchTheorem := {}
-  norm      : Simp.Context
-  normProcs : Array Simprocs
+  config     : Grind.Config
+  ematch     : EMatchTheorems := {}
+  casesTypes : CasesTypes := {}
+  extra      : PArray EMatchTheorem := {}
+  norm       : Simp.Context
+  normProcs  : Array Simprocs
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) : MetaM Params := do

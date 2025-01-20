@@ -14,10 +14,12 @@ syntax grindEqRhs  := atomic("=" "_")
 syntax grindEqBwd  := atomic("←" "=")
 syntax grindBwd    := "←"
 syntax grindFwd    := "→"
+syntax grindCases  := &"cases"
+syntax grindCasesEager := atomic(&"cases" &"eager")
 
-syntax grindThmMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindCasesEager <|> grindCases
 
-syntax (name := grind) "grind" (grindThmMod)? : attr
+syntax (name := grind) "grind" (grindMod)? : attr
 
 end Lean.Parser.Attr
 
@@ -65,7 +67,7 @@ namespace Lean.Parser.Tactic
 -/
 
 syntax grindErase := "-" ident
-syntax grindLemma := (Attr.grindThmMod)? ident
+syntax grindLemma := (Attr.grindMod)? ident
 syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)

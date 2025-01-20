@@ -176,7 +176,7 @@ where
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
       Array MessageData :=
-    if children.size > blockSize + 1 then  -- + 1 to make idempotent
+    if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
       let more := chopUpChildren cls blockSize children[blockSize:]
       children[:blockSize].toArray.push <|
         .trace { collapsed := true, cls }

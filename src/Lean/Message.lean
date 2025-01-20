@@ -247,7 +247,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
     let mut children := children
     if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
-      if children.size > maxNum then
+      if maxNum > 0 && children.size > maxNum then
         children := children.take maxNum |>.push <|
           ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
     let childFmts ← children.mapM (formatAux nCtx ctx)

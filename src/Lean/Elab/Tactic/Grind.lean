@@ -51,41 +51,52 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
     match p with
     | `(Parser.Tactic.grindParam| - $id:ident) =>
       let declName ← realizeGlobalConstNoOverloadWithInfo id
-      if (← isInductivePredicate declName) then
-        throwErrorAt p "NIY"
+      if (← Grind.isCasesAttrCandidate declName false) then
+        params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
-    | `(Parser.Tactic.grindParam| $[$mod?:grindThmMod]? $id:ident) =>
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
       let declName ← realizeGlobalConstNoOverloadWithInfo id
-      let kind ← if let some mod := mod? then Grind.getTheoremKindCore mod else pure .default
-      if (← isInductivePredicate declName) then
-        throwErrorAt p "NIY"
-      else
-        let info ← getConstInfo declName
-        match info with
-        | .thmInfo _ =>
-          if kind == .eqBoth then
-            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
-            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }
-          else
-            params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
-        | .defnInfo _ =>
-          if (← isReducible declName) then
-            throwErrorAt p "`{declName}` is a reducible definition, `grind` automatically unfolds them"
-          if kind != .eqLhs && kind != .default then
-            throwErrorAt p "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
-          let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
-            | throwErrorAt p "failed to genereate equation theorems for `{declName}`"
-          params := { params with extra := params.extra ++ thms.toPArray' }
-        | _ =>
-          throwErrorAt p "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
+      let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
+      match kind with
+      | .ematch kind =>
+        params ← withRef p <| addEMatchTheorem params declName kind
+      | .cases eager =>
+        withRef p <| Grind.validateCasesAttr declName eager
+        params := { params with casesTypes := params.casesTypes.insert declName eager }
+      | .infer =>
+        if (← Grind.isCasesAttrCandidate declName false) then
+          params := { params with casesTypes := params.casesTypes.insert declName false }
+        else
+          params ← withRef p <| addEMatchTheorem params declName .default
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
+where
+  addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.TheoremKind) : MetaM Grind.Params := do
+    let info ← getConstInfo declName
+    match info with
+    | .thmInfo _ =>
+      if kind == .eqBoth then
+        let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
+        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }
+      else
+        return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName kind) }
+    | .defnInfo _ =>
+      if (← isReducible declName) then
+        throwError "`{declName}` is a reducible definition, `grind` automatically unfolds them"
+      if kind != .eqLhs && kind != .default then
+        throwError "invalid `grind` parameter, `{declName}` is a definition, the only acceptable (and redundant) modifier is '='"
+      let some thms ← Grind.mkEMatchEqTheoremsForDef? declName
+        | throwError "failed to genereate equation theorems for `{declName}`"
+      return { params with extra := params.extra ++ thms.toPArray' }
+    | _ =>
+      throwError "invalid `grind` parameter, `{declName}` is not a theorem, definition, or inductive type"
 
 def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
   let params ← Grind.mkParams config
   let ematch ← if only then pure {} else Grind.getEMatchTheorems
-  let params := { params with ematch }
+  let casesTypes ← if only then pure {} else Grind.getCasesTypes
+  let params := { params with ematch, casesTypes }
   elabGrindParams params ps
 
 def grind

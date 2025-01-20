@@ -579,8 +579,17 @@ def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : A
 /-- Sum of an array.
 
 `Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+@[inline]
 def sum {α} [Add α] [Zero α] : Array α → α :=
   foldr (· + ·) 0
+
+@[inline]
+def countP {α : Type u} (p : α → Bool) (as : Array α) : Nat :=
+  as.foldr (init := 0) fun a acc => bif p a then acc + 1 else acc
+
+@[inline]
+def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
+  countP (· == a) as
 
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=

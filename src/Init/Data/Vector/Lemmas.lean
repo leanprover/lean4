@@ -170,6 +170,12 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem all_mk (p : α → Bool) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).all p = a.all p := rfl
 
+@[simp] theorem countP_mk (p : α → Bool) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).countP p = a.countP p := rfl
+
+@[simp] theorem count_mk [BEq α] (a : Array α) (h : a.size = n) (b : α) :
+    (Vector.mk a h).count b = a.count b := rfl
+
 @[simp] theorem eq_mk : v = Vector.mk a h ↔ v.toArray = a := by
   cases v
   simp
@@ -290,6 +296,16 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem all_toArray (p : α → Bool) (v : Vector α n) :
     v.toArray.all p = v.all p := by
+  cases v
+  simp
+
+@[simp] theorem countP_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.countP p = v.countP p := by
+  cases v
+  simp
+
+@[simp] theorem count_toArray [BEq α] (a : α) (v : Vector α n) :
+    v.toArray.count a = v.count a := by
   cases v
   simp
 
@@ -423,6 +439,16 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
   cases v
   simp
 
+@[simp] theorem countP_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.countP p = v.countP p := by
+  cases v
+  simp
+
+@[simp] theorem count_toList [BEq α] (a : α) (v : Vector α n) :
+    v.toList.count a = v.count a := by
+  cases v
+  simp
+
 @[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
 
 theorem toList_inj {v w : Vector α n} : v.toList = w.toList ↔ v = w := by
@@ -502,6 +528,32 @@ theorem exists_push {xs : Vector α (n + 1)} :
 theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
   simp
 
+/-! ### cast -/
+
+@[simp] theorem getElem_cast (a : Vector α n) (h : n = m) (i : Nat) (hi : i < m) :
+    (a.cast h)[i] = a[i] := by
+  cases a
+  simp
+
+@[simp] theorem getElem?_cast {l : Vector α n} {m : Nat} {w : n = m} {i : Nat} :
+    (l.cast w)[i]? = l[i]? := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem mem_cast {a : α} {l : Vector α n} {m : Nat} {w : n = m} :
+    a ∈ l.cast w ↔ a ∈ l := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem cast_cast {l : Vector α n} {w : n = m} {w' : m = k} :
+    (l.cast w).cast w' = l.cast (w.trans w') := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
+@[simp] theorem cast_rfl {l : Vector α n} : l.cast rfl = l := by
+  rcases l with ⟨l, rfl⟩
+  simp
+
 /-! ### mkVector -/
 
 @[simp] theorem mkVector_zero : mkVector 0 a = #v[] := rfl
@@ -511,6 +563,13 @@ theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
 
 @[simp] theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
   simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
+
+@[simp] theorem _root_.Array.toVector_mkArray (a : α) (n : Nat) :
+    (Array.mkArray n a).toVector = (mkVector n a).cast (by simp) := rfl
+
+theorem mkVector_eq_toVector_mkArray (a : α) (n : Nat) :
+    mkVector n a = (Array.mkArray n a).toVector.cast (by simp) := by
+  simp
 
 /-! ## L[i] and L[i]? -/
 
@@ -730,24 +789,6 @@ theorem forall_getElem {l : Vector α n} {p : α → Prop} :
     (∀ (i : Nat) h, p (l[i]'h)) ↔ ∀ a, a ∈ l → p a := by
   rcases l with ⟨l, rfl⟩
   simp [Array.forall_getElem]
-
-
-/-! ### cast -/
-
-@[simp] theorem getElem_cast (a : Vector α n) (h : n = m) (i : Nat) (hi : i < m) :
-    (a.cast h)[i] = a[i] := by
-  cases a
-  simp
-
-@[simp] theorem getElem?_cast {l : Vector α n} {m : Nat} {w : n = m} {i : Nat} :
-    (l.cast w)[i]? = l[i]? := by
-  rcases l with ⟨l, rfl⟩
-  simp
-
-@[simp] theorem mem_cast {a : α} {l : Vector α n} {m : Nat} {w : n = m} :
-    a ∈ l.cast w ↔ a ∈ l := by
-  rcases l with ⟨l, rfl⟩
-  simp
 
 /-! ### Decidability of bounded quantifiers -/
 

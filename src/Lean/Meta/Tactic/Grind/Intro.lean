@@ -74,12 +74,12 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
   else
     return .done
 
-private def isCasesCandidate (type : Expr) : MetaM Bool := do
+def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
   let .const declName _ := type.getAppFn | return false
-  isGrindCasesTarget declName
+  return goal.casesTypes.isEagerSplit declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
-  if (← isCasesCandidate (← fvarId.getType)) then
+  if isEagerCasesCandidate goal (← fvarId.getType) then
     let mvarIds ← cases goal.mvarId (mkFVar fvarId)
     return mvarIds.map fun mvarId => { goal with mvarId }
   else
@@ -121,7 +121,7 @@ partial def intros  (generation : Nat) : GrindTactic' := fun goal => do
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
 def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := fun goal => do
-  if (← isCasesCandidate prop) then
+  if isEagerCasesCandidate goal prop then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
     let goal := { goal with mvarId }
     intros generation goal

@@ -32,6 +32,12 @@ def CasesTypes.insert (s : CasesTypes) (declName : Name) (eager : Bool) : CasesT
 def CasesTypes.find? (s : CasesTypes) (declName : Name) : Option Bool :=
   s.casesMap.find? declName
 
+def CasesTypes.isEagerSplit (s : CasesTypes) (declName : Name) : Bool :=
+  s.casesMap.find? declName |>.getD false
+
+def CasesTypes.isSplit (s : CasesTypes) (declName : Name) : Bool :=
+  s.casesMap.find? declName |>.isSome
+
 builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
   registerSimpleScopedEnvExtension {
     initial        := {}

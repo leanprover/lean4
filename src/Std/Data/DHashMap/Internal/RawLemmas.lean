@@ -1315,12 +1315,6 @@ theorem getD_insertManyIfNewUnit_list
 
 end Const
 
-end Raw₀
-
-namespace Raw₀
-
-variable [BEq α] [Hashable α]
-
 @[simp]
 theorem insertMany_empty_list_nil :
     (insertMany empty ([] : List ((a : α) × (β a)))).1 = empty := by
@@ -1723,8 +1717,6 @@ theorem getD_insertManyIfNewUnit_empty_list
 
 end Const
 
-variable (m : Raw₀ α β)
-
 section Alter
 
 @[simp]
@@ -1829,8 +1821,7 @@ theorem getD_alter [LawfulBEq α] {k k' : α} {fallback : β k'} (h : m.1.WF)
         m.getD k' fallback := by
   simp_to_model using List.getValueCastD_alterKey
 
--- TODO where to put this?
-theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
+private theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
 
 theorem getD_alter_self [LawfulBEq α] {k : α} {fallback : β k} (h : m.1.WF)
     {f : Option (β k) → Option (β k)} :
@@ -1863,12 +1854,13 @@ theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
         m.getKey k' h' := by
   simp_to_model using List.getKey_alterKey
 
-theorem getKeyD_alter [LawfulBEq α] {k k' d : α} (h : m.1.WF) {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKeyD k' d =
+theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getKeyD k' fallback =
       if k == k' then
-        if (f (m.get? k)).isSome then k else d
+        if (f (m.get? k)).isSome then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_model using List.getKeyD_alterKey
 
 namespace Const
@@ -2006,12 +1998,12 @@ theorem getKey_alter [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option β → 
         m.getKey k' h' := by
   simp_to_model using List.Const.getKey_alterKey
 
-theorem getKeyD_alter {k k' d : α} (h : m.1.WF) {f : Option β → Option β} :
-    (Const.alter m k f).getKeyD k' d =
+theorem getKeyD_alter {k k' fallback : α} (h : m.1.WF) {f : Option β → Option β} :
+    (Const.alter m k f).getKeyD k' fallback =
       if k == k' then
-        if (f (Const.get? m k)).isSome then k else d
+        if (f (Const.get? m k)).isSome then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_model using List.Const.getKeyD_alterKey
 
 end Const
@@ -2131,16 +2123,16 @@ theorem getKey_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β k → β
     (hc : (m.modify k f).contains k) : (m.modify k f).getKey k hc = k := by
   simp_to_model using List.getKey_modifyKey_self
 
-theorem getKeyD_modify (h : m.1.WF) {k k' d : α} {f : β k → β k} :
-    (m.modify k f).getKeyD k' d =
+theorem getKeyD_modify (h : m.1.WF) {k k' fallback : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k' fallback =
       if k == k' then
-        if m.contains k then k else d
+        if m.contains k then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_model using List.getKeyD_modifyKey
 
-theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k d : α} {f : β k → β k} :
-    (m.modify k f).getKeyD k d = if m.contains k then k else d := by
+theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k fallback : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k fallback = if m.contains k then k else fallback := by
   simp_to_model using List.getKeyD_modifyKey_self
 
 namespace Const
@@ -2256,16 +2248,16 @@ theorem getKey_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β → β}
     (hc : (Const.modify m k f).contains k) : (Const.modify m k f).getKey k hc = k := by
   simp_to_model using List.Const.getKey_modifyKey_self
 
-theorem getKeyD_modify (h : m.1.WF) {k k' d : α} {f : β → β} :
-    (Const.modify m k f).getKeyD k' d =
+theorem getKeyD_modify (h : m.1.WF) {k k' fallback : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k' fallback =
       if k == k' then
-        if m.contains k then k else d
+        if m.contains k then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_model using List.Const.getKeyD_modifyKey
 
-theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k d : α} {f : β → β} :
-    (Const.modify m k f).getKeyD k d = if m.contains k then k else d := by
+theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k fallback : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k fallback = if m.contains k then k else fallback := by
   simp_to_model using List.Const.getKeyD_modifyKey_self
 
 end Const

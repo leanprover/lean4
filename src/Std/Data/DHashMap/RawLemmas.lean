@@ -2119,17 +2119,17 @@ theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (
     (h : m.WF) : (m.alter k f).get! k = (f (m.get? k)).get! := by
   simp [get!_alter h]
 
-theorem getD_alter [LawfulBEq α] {k k' : α} {v : β k'} {f : Option (β k) → Option (β k)}
-    (h : m.WF) : (m.alter k f).getD k' v =
+theorem getD_alter [LawfulBEq α] {k k' : α} {fallback : β k'} {f : Option (β k) → Option (β k)}
+    (h : m.WF) : (m.alter k f).getD k' fallback =
       if heq : k == k' then
-        f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
+        f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
       else
-        m.getD k' v := by
+        m.getD k' fallback := by
   simp_to_raw using Raw₀.getD_alter
 
 @[simp]
-theorem getD_alter_self [LawfulBEq α] {k : α} {v : β k} {f : Option (β k) → Option (β k)}
-    (h : m.WF) : (m.alter k f).getD k v = (f (m.get? k)).getD v := by
+theorem getD_alter_self [LawfulBEq α] {k : α} {fallback : β k} {f : Option (β k) → Option (β k)}
+    (h : m.WF) : (m.alter k f).getD k fallback = (f (m.get? k)).getD fallback := by
   simp_to_raw using Raw₀.getD_alter_self
 
 theorem getKey?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
@@ -2173,18 +2173,18 @@ theorem getKey_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β
     (h : m.WF) {hc : k ∈ m.alter k f} : (m.alter k f).getKey k hc = k := by
   simp [getKey_alter h]
 
-theorem getKeyD_alter [LawfulBEq α] {k k' d : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
-    (m.alter k f).getKeyD k' d =
+theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).getKeyD k' fallback =
       if k == k' then
-        if (f (m.get? k)).isSome then k else d
+        if (f (m.get? k)).isSome then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_raw using Raw₀.getKeyD_alter
 
 @[simp]
-theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {d : α}
+theorem getKeyD_alter_self [LawfulBEq α] [Inhabited α] {k : α} {fallback : α}
     {f : Option (β k) → Option (β k)} (h : m.WF) :
-    (m.alter k f).getKeyD k d = if (f (m.get? k)).isSome then k else d := by
+    (m.alter k f).getKeyD k fallback = if (f (m.get? k)).isSome then k else fallback := by
   simp [getKeyD_alter h]
 
 namespace Const
@@ -2330,17 +2330,18 @@ theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β
     Const.get! (Const.alter m k f) k = (f (Const.get? m k)).get! := by
   simp [get!_alter h]
 
-theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} {f : Option β → Option β}
-    (h : m.WF) : Const.getD (Const.alter m k f) k' v =
+theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β} {f : Option β → Option β}
+    (h : m.WF) : Const.getD (Const.alter m k f) k' fallback =
       if k == k' then
-        f (Const.get? m k) |>.getD v
+        f (Const.get? m k) |>.getD fallback
       else
-        Const.getD m k' v := by
+        Const.getD m k' fallback := by
   simp_to_raw using Raw₀.Const.getD_alter
 
 @[simp]
-theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f : Option β → Option β}
-    (h : m.WF) : Const.getD (Const.alter m k f) k v = (f (Const.get? m k)).getD v := by
+theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β}
+    {f : Option β → Option β} (h : m.WF) :
+    Const.getD (Const.alter m k f) k fallback = (f (Const.get? m k)).getD fallback := by
   simp [getD_alter h]
 
 theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
@@ -2387,17 +2388,17 @@ theorem getKey_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : 
     (Const.alter m k f).getKey k hc = k := by
   simp [getKey_alter h]
 
-theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : Option β → Option β}
-    (h : m.WF) : (Const.alter m k f).getKeyD k' d =
+theorem getKeyD_alter [EquivBEq α] [LawfulHashable α] {k k' fallback : α} {f : Option β → Option β}
+    (h : m.WF) : (Const.alter m k f).getKeyD k' fallback =
       if k == k' then
-        if (f (Const.get? m k)).isSome then k else d
+        if (f (Const.get? m k)).isSome then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp_to_raw using Raw₀.Const.getKeyD_alter
 
-theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α}
+theorem getKeyD_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k fallback : α}
     {f : Option β → Option β} (h : m.WF) :
-    (Const.alter m k f).getKeyD k d = if (f (Const.get? m k)).isSome then k else d := by
+    (Const.alter m k f).getKeyD k fallback = if (f (Const.get? m k)).isSome then k else fallback := by
   simp [getKeyD_alter h]
 
 end Const
@@ -2474,17 +2475,17 @@ theorem get!_modify_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : β k �
     (m.modify k f).get! k = ((m.get? k).map f).get! := by
   simp_to_raw using Raw₀.get!_modify_self
 
-theorem getD_modify [LawfulBEq α] {k k' : α} {v : β k'} {f : β k → β k} (h : m.WF) :
-    (m.modify k f).getD k' v =
+theorem getD_modify [LawfulBEq α] {k k' : α} {fallback : β k'} {f : β k → β k} (h : m.WF) :
+    (m.modify k f).getD k' fallback =
       if heq : k == k' then
-        m.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD v
+        m.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
       else
-        m.getD k' v := by
+        m.getD k' fallback := by
   simp_to_raw using Raw₀.getD_modify
 
 @[simp]
-theorem getD_modify_self [LawfulBEq α] {k : α} {v : β k} {f : β k → β k} (h : m.WF) :
-    (m.modify k f).getD k v = ((m.get? k).map f).getD v := by
+theorem getD_modify_self [LawfulBEq α] {k : α} {fallback : β k} {f : β k → β k} (h : m.WF) :
+    (m.modify k f).getD k fallback = ((m.get? k).map f).getD fallback := by
   simp_to_raw using Raw₀.getD_modify_self
 
 theorem getKey?_modify [LawfulBEq α] {k k' : α} {f : β k → β k} (h : m.WF) :
@@ -2534,17 +2535,17 @@ theorem getKey_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → 
   revert hc
   simp_to_raw using Raw₀.getKey_modify_self
 
-theorem getKeyD_modify [LawfulBEq α] {k k' d : α} {f : β k → β k} (h : m.WF) :
-    (m.modify k f).getKeyD k' d =
+theorem getKeyD_modify [LawfulBEq α] {k k' fallback : α} {f : β k → β k} (h : m.WF) :
+    (m.modify k f).getKeyD k' fallback =
       if k == k' then
-        if k ∈ m then k else d
+        if k ∈ m then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKeyD_modify
 
-theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k d : α} {f : β k → β k} (h : m.WF) :
-    (m.modify k f).getKeyD k d = if k ∈ m then k else d := by
+theorem getKeyD_modify_self [LawfulBEq α] [Inhabited α] {k fallback : α} {f : β k → β k} (h : m.WF) :
+    (m.modify k f).getKeyD k fallback = if k ∈ m then k else fallback := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKeyD_modify_self
 
@@ -2620,17 +2621,17 @@ theorem get!_modify_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited �
     (h : m.WF) : Const.get! (Const.modify m k f) k = ((Const.get? m k).map f).get! := by
   simp_to_raw using Raw₀.Const.get!_modify_self
 
-theorem getD_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} {f : β → β} (h : m.WF) :
-    Const.getD (Const.modify m k f) k' v =
+theorem getD_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β} {f : β → β} (h : m.WF) :
+    Const.getD (Const.modify m k f) k' fallback =
       if k == k' then
-        Const.get? m k |>.map f |>.getD v
+        Const.get? m k |>.map f |>.getD fallback
       else
-        Const.getD m k' v := by
+        Const.getD m k' fallback := by
   simp_to_raw using Raw₀.Const.getD_modify
 
 @[simp]
-theorem getD_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} {f : β → β} (h : m.WF) :
-    Const.getD (Const.modify m k f) k v = ((Const.get? m k).map f).getD v := by
+theorem getD_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} {f : β → β} (h : m.WF) :
+    Const.getD (Const.modify m k f) k fallback = ((Const.get? m k).map f).getD fallback := by
   simp_to_raw using Raw₀.Const.getD_modify_self
 
 theorem getKey?_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β → β} (h : m.WF) :
@@ -2680,17 +2681,17 @@ theorem getKey_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k :
   revert hc
   simp_to_raw using Raw₀.Const.getKey_modify_self
 
-theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' d : α} {f : β → β} (h : m.WF) :
-    (Const.modify m k f).getKeyD k' d =
+theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' fallback : α} {f : β → β} (h : m.WF) :
+    (Const.modify m k f).getKeyD k' fallback =
       if k == k' then
-        if k ∈ m then k else d
+        if k ∈ m then k else fallback
       else
-        m.getKeyD k' d := by
+        m.getKeyD k' fallback := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.getKeyD_modify
 
-theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k d : α} {f : β → β}
-    (h : m.WF) : (Const.modify m k f).getKeyD k d = if k ∈ m then k else d := by
+theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k fallback : α} {f : β → β}
+    (h : m.WF) : (Const.modify m k f).getKeyD k fallback = if k ∈ m then k else fallback := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.getKeyD_modify_self
 

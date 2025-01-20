@@ -2546,19 +2546,23 @@ theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List 
     simp only [filterMap_cons, foldr_cons]
     cases f a <;> simp [ih]
 
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
 
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+@[deprecated foldl_map_hom (since := "2025-01-20")] abbrev foldl_map' := @foldl_map_hom
+
+theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
+
+@[deprecated foldr_map_hom (since := "2025-01-20")] abbrev foldr_map' := @foldr_map_hom
 
 @[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : List α) :
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by

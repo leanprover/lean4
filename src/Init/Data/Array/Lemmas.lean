@@ -51,6 +51,10 @@ theorem toArray_eq : List.toArray a = v ↔ a = v.toList := by
 @[simp] theorem empty_eq {xs : Array α} : #[] = xs ↔ xs = #[] := by
   cases xs <;> simp
 
+theorem size_empty : (#[] : Array α).size = 0 := rfl
+
+@[simp] theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
+
 /-! ### size -/
 
 theorem eq_empty_of_size_eq_zero (h : l.size = 0) : l = #[] := by
@@ -2437,6 +2441,651 @@ theorem flatMap_reverse {β} (l : Array α) (f : α → Array β) :
   rw [← toList_inj]
   simp
 
+/-! ### extract -/
+
+theorem extract_loop_zero (as bs : Array α) (start : Nat) : extract.loop as 0 start bs = bs := by
+  rw [extract.loop]; split <;> rfl
+
+theorem extract_loop_succ (as bs : Array α) (size start : Nat) (h : start < as.size) :
+    extract.loop as (size+1) start bs = extract.loop as size (start+1) (bs.push as[start]) := by
+  rw [extract.loop, dif_pos h]; rfl
+
+theorem extract_loop_of_ge (as bs : Array α) (size start : Nat) (h : start ≥ as.size) :
+    extract.loop as size start bs = bs := by
+  rw [extract.loop, dif_neg (Nat.not_lt_of_ge h)]
+
+theorem extract_loop_eq_aux (as bs : Array α) (size start : Nat) :
+    extract.loop as size start bs = bs ++ extract.loop as size start #[] := by
+  induction size using Nat.recAux generalizing start bs with
+  | zero => rw [extract_loop_zero, extract_loop_zero, append_empty]
+  | succ size ih =>
+    if h : start < as.size then
+      rw [extract_loop_succ (h:=h), ih (bs.push _), push_eq_append_singleton]
+      rw [extract_loop_succ (h:=h), ih (#[].push _), push_eq_append_singleton, empty_append]
+      rw [append_assoc]
+    else
+      rw [extract_loop_of_ge (h:=Nat.le_of_not_lt h)]
+      rw [extract_loop_of_ge (h:=Nat.le_of_not_lt h)]
+      rw [append_empty]
+
+theorem extract_loop_eq (as bs : Array α) (size start : Nat) (h : start + size ≤ as.size) :
+  extract.loop as size start bs = bs ++ as.extract start (start + size) := by
+  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  rw [extract_loop_eq_aux, Nat.min_eq_left h, Nat.add_sub_cancel_left]
+
+theorem size_extract_loop (as bs : Array α) (size start : Nat) :
+    (extract.loop as size start bs).size = bs.size + min size (as.size - start) := by
+  induction size using Nat.recAux generalizing start bs with
+  | zero => rw [extract_loop_zero, Nat.zero_min, Nat.add_zero]
+  | succ size ih =>
+    if h : start < as.size then
+      rw [extract_loop_succ (h:=h), ih, size_push, Nat.add_assoc, ←Nat.add_min_add_left,
+        Nat.sub_succ, Nat.one_add, Nat.one_add, Nat.succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)]
+    else
+      have h := Nat.le_of_not_gt h
+      rw [extract_loop_of_ge (h:=h), Nat.sub_eq_zero_of_le h, Nat.min_zero, Nat.add_zero]
+
+@[simp] theorem size_extract (as : Array α) (start stop : Nat) :
+    (as.extract start stop).size = min stop as.size - start := by
+  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  rw [size_extract_loop, size_empty, Nat.zero_add, Nat.sub_min_sub_right, Nat.min_assoc,
+    Nat.min_self]
+
+theorem getElem_extract_loop_lt_aux (as bs : Array α) (size start : Nat) (hlt : i < bs.size) :
+    i < (extract.loop as size start bs).size := by
+  rw [size_extract_loop]
+  apply Nat.lt_of_lt_of_le hlt
+  exact Nat.le_add_right ..
+
+theorem getElem_extract_loop_lt (as bs : Array α) (size start : Nat) (hlt : i < bs.size)
+    (h := getElem_extract_loop_lt_aux as bs size start hlt) :
+    (extract.loop as size start bs)[i] = bs[i] := by
+  apply Eq.trans _ (getElem_append_left (bs:=extract.loop as size start #[]) hlt)
+  · rw [size_append]; exact Nat.lt_of_lt_of_le hlt (Nat.le_add_right ..)
+  · congr; rw [extract_loop_eq_aux]
+
+theorem getElem_extract_loop_ge_aux (as bs : Array α) (size start : Nat) (hge : i ≥ bs.size)
+    (h : i < (extract.loop as size start bs).size) : start + i - bs.size < as.size := by
+  have h : i < bs.size + (as.size - start) := by
+      apply Nat.lt_of_lt_of_le h
+      rw [size_extract_loop]
+      apply Nat.add_le_add_left
+      exact Nat.min_le_right ..
+  rw [Nat.add_sub_assoc hge]
+  apply Nat.add_lt_of_lt_sub'
+  exact Nat.sub_lt_left_of_lt_add hge h
+
+theorem getElem_extract_loop_ge (as bs : Array α) (size start : Nat) (hge : i ≥ bs.size)
+    (h : i < (extract.loop as size start bs).size)
+    (h' := getElem_extract_loop_ge_aux as bs size start hge h) :
+    (extract.loop as size start bs)[i] = as[start + i - bs.size] := by
+  induction size using Nat.recAux generalizing start bs with
+  | zero =>
+    rw [size_extract_loop, Nat.zero_min, Nat.add_zero] at h
+    omega
+  | succ size ih =>
+    have : start < as.size := by
+      apply Nat.lt_of_le_of_lt (Nat.le_add_right start (i - bs.size))
+      rwa [← Nat.add_sub_assoc hge]
+    have : i < (extract.loop as size (start+1) (bs.push as[start])).size := by
+      rwa [← extract_loop_succ]
+    have heq : (extract.loop as (size+1) start bs)[i] =
+        (extract.loop as size (start+1) (bs.push as[start]))[i] := by
+      congr 1; rw [extract_loop_succ]
+    rw [heq]
+    if hi : bs.size = i then
+      cases hi
+      have h₁ : bs.size < (bs.push as[start]).size := by rw [size_push]; exact Nat.lt_succ_self ..
+      have h₂ : bs.size < (extract.loop as size (start+1) (bs.push as[start])).size := by
+        rw [size_extract_loop]; apply Nat.lt_of_lt_of_le h₁; exact Nat.le_add_right ..
+      have h : (extract.loop as size (start + 1) (push bs as[start]))[bs.size] = as[start] := by
+        rw [getElem_extract_loop_lt as (bs.push as[start]) size (start+1) h₁ h₂, getElem_push_eq]
+      rw [h]; congr; rw [Nat.add_sub_cancel]
+    else
+      have hge : bs.size + 1 ≤ i := Nat.lt_of_le_of_ne hge hi
+      rw [ih (bs.push as[start]) (start+1) ((size_push ..).symm ▸ hge)]
+      congr 1; rw [size_push, Nat.add_right_comm, Nat.add_sub_add_right]
+
+theorem getElem_extract_aux {as : Array α} {start stop : Nat} (h : i < (as.extract start stop).size) :
+    start + i < as.size := by
+  rw [size_extract] at h; apply Nat.add_lt_of_lt_sub'; apply Nat.lt_of_lt_of_le h
+  apply Nat.sub_le_sub_right; apply Nat.min_le_right
+
+@[simp] theorem getElem_extract {as : Array α} {start stop : Nat}
+    (h : i < (as.extract start stop).size) :
+    (as.extract start stop)[i] = as[start + i]'(getElem_extract_aux h) :=
+  show (extract.loop as (min stop as.size - start) start #[])[i]
+    = as[start + i]'(getElem_extract_aux h) by rw [getElem_extract_loop_ge]; rfl; exact Nat.zero_le _
+
+theorem getElem?_extract {as : Array α} {start stop : Nat} :
+    (as.extract start stop)[i]? = if i < min stop as.size - start then as[start + i]? else none := by
+  simp only [getElem?_def, size_extract, getElem_extract]
+  split
+  · split
+    · rfl
+    · omega
+  · rfl
+
+@[simp] theorem toList_extract (as : Array α) (start stop : Nat) :
+    (as.extract start stop).toList = (as.toList.drop start).take (stop - start) := by
+  apply List.ext_getElem
+  · simp only [length_toList, size_extract, List.length_take, List.length_drop]
+    omega
+  · intros n h₁ h₂
+    simp
+
+@[simp] theorem extract_size (as : Array α) : as.extract 0 as.size = as := by
+  apply ext
+  · rw [size_extract, Nat.min_self, Nat.sub_zero]
+  · intros; rw [getElem_extract]; congr; rw [Nat.zero_add]
+
+@[deprecated extract_size (since := "2025-01-19")]
+abbrev extract_all := @extract_size
+
+theorem extract_empty_of_stop_le_start (as : Array α) {start stop : Nat} (h : stop ≤ start) :
+    as.extract start stop = #[] := by
+  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.zero_min, extract_loop_zero]
+
+theorem extract_empty_of_size_le_start (as : Array α) {start stop : Nat} (h : as.size ≤ start) :
+    as.extract start stop = #[] := by
+  simp only [extract, Nat.sub_eq, mkEmpty_eq]
+  rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.min_zero, extract_loop_zero]
+
+@[simp] theorem extract_empty (start stop : Nat) : (#[] : Array α).extract start stop = #[] :=
+  extract_empty_of_size_le_start _ (Nat.zero_le _)
+
+@[simp] theorem _root_.List.extract_toArray (l : List α) (start stop : Nat) :
+    l.toArray.extract start stop = ((l.drop start).take (stop - start)).toArray := by
+  apply ext'
+  simp
+
+/-! ### foldlM and foldrM -/
+
+theorem foldlM_start_stop {m} [Monad m] (l : Array α) (f : β → α → m β) (b) (start stop : Nat) :
+    l.foldlM f b start stop = (l.extract start stop).foldlM f b := by
+  unfold foldlM
+  simp only [Nat.sub_zero, size_extract, Nat.le_refl, ↓reduceDIte]
+  suffices foldlM.loop f l (min stop l.size) (by omega) (min stop l.size - start) start b =
+      foldlM.loop f (l.extract start stop) (min stop l.size - start) (by simp) (min stop l.size - start) 0 b by
+    split
+    · have : min stop l.size = stop := by omega
+      simp_all
+    · have : min stop l.size = l.size := by omega
+      simp_all
+  revert b
+  suffices ∀ (b : β) (i k) (w : i + k = min stop l.size - start),
+    foldlM.loop f l (min stop l.size) (by omega) i (start + k) b =
+      foldlM.loop f (l.extract start stop) (min stop l.size - start) (by simp) i k b by
+    intro b
+    simpa using this b (min stop l.size - start) 0 (by omega)
+  intro b i k w
+  induction i generalizing b k with
+  | zero =>
+    simp only [Nat.zero_add] at w
+    subst k
+    simp [foldlM.loop]
+  | succ i ih =>
+    unfold foldlM.loop
+    rw [dif_pos (by omega), dif_pos (by omega)]
+    split <;> rename_i h
+    · rfl
+    · simp at h
+      subst h
+      simp only [getElem_extract]
+      congr
+      funext b
+      specialize ih b (k + 1) (by omega)
+      simp [← Nat.add_assoc] at ih
+      rw [ih]
+
+theorem foldrM_start_stop {m} [Monad m] (l : Array α) (f : α → β → m β) (b) (start stop : Nat) :
+    l.foldrM f b start stop = (l.extract stop start).foldrM f b := by
+  unfold foldrM
+  simp only [size_extract, Nat.le_refl, ↓reduceDIte]
+  suffices stop ≤ min start l.size →
+      foldrM.fold f l stop (min start l.size) (by omega) b =
+        foldrM.fold f (l.extract stop start) 0 (min start l.size - stop) (by simp) b by
+    split
+    · split
+      · rw [if_pos (by omega)]
+        have h : min start l.size = start := by omega
+        specialize this (by omega)
+        simp_all
+      · rw [if_neg (by omega)]
+    · split
+      · rw [if_pos (by omega)]
+        have h : min start l.size = l.size := by omega
+        specialize this (by omega)
+        simp_all
+      · rw [if_neg (by omega)]
+  revert b
+  suffices ∀ (b : β) (i) (w : stop + i ≤ min start l.size),
+      foldrM.fold f l stop (stop + i) (by omega) b =
+        foldrM.fold f (l.extract stop start) 0 i (by simp; omega) b by
+    intro b w
+    specialize this b (min start l.size - stop)
+    have h : stop + (min start l.size - stop) = min start l.size := by omega
+    simp_all
+  intro b i w
+  induction i generalizing b with
+  | zero =>
+    unfold foldrM.fold
+    simp
+  | succ i ih =>
+    unfold foldrM.fold
+    simp only [beq_iff_eq, Nat.add_right_eq_self, Nat.add_one_ne_zero, ↓reduceIte, Nat.add_eq,
+      getElem_extract]
+    congr
+    funext b
+    simp [ih b (by omega)]
+
+@[congr] theorem foldlM_congr {m} [Monad m] {f g : β → α → m β} {b : β} {l l' : Array α}
+    (w : l = l')
+    (h : ∀ x y, f x y = g x y) (hstart : start = start') (hstop : stop = stop') :
+    l.foldlM f b start stop = l'.foldlM g b start' stop' := by
+  subst hstart hstop w
+  rcases l with ⟨l⟩
+  rw [foldlM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
+  rw [foldlM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldlM_toArray']
+  congr
+  funext b a
+  simp_all
+
+@[congr] theorem foldrM_congr {m} [Monad m] {f g : α → β → m β} {b : β} {l l' : Array α}
+    (w : l = l')
+    (h : ∀ x y, f x y = g x y) (hstart : start = start') (hstop : stop = stop') :
+    l.foldrM f b start stop = l'.foldrM g b start' stop' := by
+  subst hstart hstop w
+  rcases l with ⟨l⟩
+  rw [foldrM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
+  rw [foldrM_start_stop, List.extract_toArray]
+  simp only [size_toArray, List.length_take, List.length_drop, List.foldrM_toArray']
+  congr
+  funext b a
+  simp_all
+
+/-- Variant of `foldlM_append` with a side condition for the `stop` argument. -/
+@[simp] theorem foldlM_append' [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α)
+    (w : stop = l.size + l'.size) :
+    (l ++ l').foldlM f b 0 stop = l.foldlM f b >>= l'.foldlM f := by
+  subst w
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  simp
+
+theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α) :
+    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
+  simp
+
+@[simp] theorem foldlM_loop_empty [Monad m] (f : β → α → m β) (init : β) (i j : Nat) :
+    foldlM.loop f #[] s h i j init = pure init := by
+  unfold foldlM.loop; split
+  · split
+    · rfl
+    · simp at h
+      omega
+  · rfl
+
+@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
+    foldlM f init #[] start stop = return init := by
+  simp [foldlM]
+
+@[simp] theorem foldrM_fold_empty [Monad m] (f : α → β → m β) (init : β) (i j : Nat) (h) :
+    foldrM.fold f #[] i j h init = pure init := by
+  unfold foldrM.fold
+  split <;> rename_i h₁
+  · rfl
+  · split <;> rename_i h₂
+    · rfl
+    · simp at h₂
+
+@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
+    foldrM f init #[] start stop = return init := by
+  simp [foldrM]
+
+/-- Variant of `foldlM_push` with a side condition for the `stop` argument. -/
+@[simp] theorem foldlM_push' [Monad m] [LawfulMonad m] (l : Array α) (a : α) (f : β → α → m β) (b)
+    (w : stop = l.size + 1) :
+    (l.push a).foldlM f b 0 stop = l.foldlM f b >>= fun b => f b a := by
+  subst w
+  simp [← append_singleton]
+
+theorem foldlM_push [Monad m] [LawfulMonad m] (l : Array α) (a : α) (f : β → α → m β) (b) :
+    (l.push a).foldlM f b = l.foldlM f b >>= fun b => f b a := by
+  simp
+
+theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Array α) :
+    l.foldl f b start stop = l.foldlM (m := Id) f b start stop := by
+  simp [foldl, Id.run]
+
+theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
+    l.foldr f b start stop = l.foldrM (m := Id) f b start stop := by
+  simp [foldr, Id.run]
+
+@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Array α) :
+    Id.run (l.foldlM f b start stop) = l.foldl f b start stop := (foldl_eq_foldlM f b l).symm
+
+@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Array α) :
+    Id.run (l.foldrM f b start stop) = l.foldr f b start stop := (foldr_eq_foldrM f b l).symm
+
+/-- Variant of `foldlM_reverse` with a side condition for the `stop` argument. -/
+@[simp] theorem foldlM_reverse' [Monad m] (l : Array α) (f : β → α → m β) (b)
+    (w : stop = l.size) :
+    l.reverse.foldlM f b 0 stop = l.foldrM (fun x y => f y x) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldlM_reverse]
+
+/-- Variant of `foldrM_reverse` with a side condition for the `start` argument. -/
+@[simp] theorem foldrM_reverse' [Monad m] (l : Array α) (f : α → β → m β) (b)
+    (w : start = l.size) :
+    l.reverse.foldrM f b start 0 = l.foldlM (fun x y => f y x) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldrM_reverse]
+
+theorem foldlM_reverse [Monad m] (l : Array α) (f : β → α → m β) (b) :
+    l.reverse.foldlM f b = l.foldrM (fun x y => f y x) b := by
+  simp
+
+theorem foldrM_reverse [Monad m] (l : Array α) (f : α → β → m β) (b) :
+    l.reverse.foldrM f b = l.foldlM (fun x y => f y x) b := by
+  rcases l with ⟨l⟩
+  simp
+
+theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
+    (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
+  simp only [foldrM_eq_reverse_foldlM_toList, push_toList, List.reverse_append, List.reverse_cons,
+    List.reverse_nil, List.nil_append, List.singleton_append, List.foldlM_cons, List.foldlM_reverse]
+
+/--
+Variant of `foldrM_push` with `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α)
+    {start} (h : start = arr.size + 1) :
+    (arr.push a).foldrM f init start = f a init >>= arr.foldrM f := by
+  simp [← foldrM_push, h]
+
+/-! ### foldl / foldr -/
+
+-- This proof is the pure version of `Array.SatisfiesM_foldlM` in Batteries,
+-- reproduced to avoid a dependency on `SatisfiesM`.
+theorem foldl_induction
+    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
+    (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
+    motive as.size (as.foldl f init) := by
+  let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
+    (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
+    unfold foldlM.loop; split
+    · next hj =>
+      split
+      · cases Nat.not_le_of_gt (by simp [hj]) h₂
+      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
+    · next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
+  simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
+
+-- This proof is the pure version of `Array.SatisfiesM_foldrM` in Batteries,
+-- reproduced to avoid a dependency on `SatisfiesM`.
+theorem foldr_induction
+    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
+    (hf : ∀ i : Fin as.size, ∀ b, motive (i.1 + 1) b → motive i.1 (f as[i] b)) :
+    motive 0 (as.foldr f init) := by
+  let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
+    (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
+    unfold foldrM.fold; simp; split
+    · next hi => exact (hi ▸ H)
+    · next hi =>
+      split; {simp at hi}
+      · next i hi' =>
+        exact go _ (hf ⟨i, hi'⟩ b H)
+  simp [foldr, foldrM]; split; {exact go _ h0}
+  · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
+
+@[congr]
+theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldl f a start stop = bs.foldl g b start' stop' := by
+  congr
+
+@[congr]
+theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
+     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
+    as.foldr f a start stop = bs.foldr g b start' stop' := by
+  congr
+
+theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
+    (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
+
+/--
+Variant of `foldr_push` with the `h : start = arr.size + 1`
+rather than `(arr.push a).size` as the argument.
+-/
+@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) {start}
+    (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
+  foldrM_push' _ _ _ _ h
+
+@[simp] theorem foldl_push_eq_append (l l' : Array α) : l.foldl push l' = l' ++ l := by
+  cases l
+  cases l'
+  simp
+
+@[simp] theorem foldr_flip_push_eq_append (l l' : Array α) :
+    l.foldr (fun x y => push y x) l' = l' ++ l.reverse := by
+  cases l
+  cases l'
+  simp
+
+theorem foldl_map' (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) (w : stop = l.size) :
+    (l.map f).foldl g init 0 stop = l.foldl (fun x y => g x (f y)) init := by
+  subst w
+  cases l; simp [List.foldl_map]
+
+theorem foldr_map' (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) (w : start = l.size) :
+    (l.map f).foldr g init start 0 = l.foldr (fun x y => g (f x) y) init := by
+  subst w
+  cases l; simp [List.foldr_map]
+
+theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) :
+    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
+  cases l; simp [List.foldl_map]
+
+theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) :
+    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
+  cases l; simp [List.foldr_map]
+
+theorem foldl_filterMap' (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ)
+    (w : stop = (l.filterMap f).size) :
+    (l.filterMap f).foldl g init 0 stop = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  subst w
+  cases l
+  simp [List.foldl_filterMap]
+  rfl
+
+theorem foldr_filterMap' (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ)
+    (w : start = (l.filterMap f).size) :
+    (l.filterMap f).foldr g init start 0 = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  subst w
+  cases l
+  simp [List.foldr_filterMap]
+  rfl
+
+theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ) :
+    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
+  simp [foldl_filterMap']
+
+theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ) :
+    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
+  simp [foldr_filterMap']
+
+theorem foldl_map_hom' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : stop = l.size) :
+    (l.map g).foldl f' (g a) 0 stop = g (l.foldl f a) := by
+  subst w
+  cases l
+  simp
+  rw [List.foldl_map_hom _ _ _ _ _ h]
+
+theorem foldr_map_hom' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) (w : start = l.size) :
+    (l.map g).foldr f' (g a) start 0 = g (l.foldr f a) := by
+  subst w
+  cases l
+  simp
+  rw [List.foldr_map_hom _ _ _ _ _ h]
+
+theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
+  cases l
+  simp
+  rw [List.foldl_map_hom _ _ _ _ _ h]
+
+theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
+    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
+    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
+  cases l
+  simp
+  rw [List.foldr_map_hom _ _ _ _ _ h]
+
+/-- Variant of `foldrM_append` with a side condition for the `start` argument. -/
+@[simp] theorem foldrM_append' [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : Array α)
+    (w : start = l.size + l'.size) :
+    (l ++ l').foldrM f b start 0 = l'.foldrM f b >>= l.foldrM f := by
+  subst w
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  simp
+
+theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : Array α) :
+    (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
+  simp
+
+@[simp] theorem foldl_append' {β : Type _} (f : β → α → β) (b) (l l' : Array α)
+    (w : stop = l.size + l'.size) :
+    (l ++ l').foldl f b 0 stop = l'.foldl f (l.foldl f b) := by
+  subst w
+  simp [foldl_eq_foldlM]
+
+@[simp] theorem foldr_append' (f : α → β → β) (b) (l l' : Array α)
+    (w : start = l.size + l'.size) :
+    (l ++ l').foldr f b start 0 = l.foldr f (l'.foldr f b) := by
+  subst w
+  simp [foldr_eq_foldrM]
+
+theorem foldl_append {β : Type _} (f : β → α → β) (b) (l l' : Array α) :
+    (l ++ l').foldl f b = l'.foldl f (l.foldl f b) := by
+  simp [foldl_eq_foldlM]
+
+theorem foldr_append (f : α → β → β) (b) (l l' : Array α) :
+    (l ++ l').foldr f b = l.foldr f (l'.foldr f b) := by
+  simp [foldr_eq_foldrM]
+
+@[simp] theorem foldl_flatten' (f : β → α → β) (b : β) (L : Array (Array α))
+    (w : stop = L.flatten.size) :
+    (flatten L).foldl f b 0 stop = L.foldl (fun b l => l.foldl f b) b := by
+  subst w
+  cases L using array₂_induction
+  simp [List.foldl_flatten, List.foldl_map]
+
+@[simp] theorem foldr_flatten' (f : α → β → β) (b : β) (L : Array (Array α))
+    (w : start = L.flatten.size) :
+    (flatten L).foldr f b start 0 = L.foldr (fun l b => l.foldr f b) b := by
+  subst w
+  cases L using array₂_induction
+  simp [List.foldr_flatten, List.foldr_map]
+
+theorem foldl_flatten (f : β → α → β) (b : β) (L : Array (Array α)) :
+    (flatten L).foldl f b = L.foldl (fun b l => l.foldl f b) b := by
+  cases L using array₂_induction
+  simp [List.foldl_flatten, List.foldl_map]
+
+theorem foldr_flatten (f : α → β → β) (b : β) (L : Array (Array α)) :
+    (flatten L).foldr f b = L.foldr (fun l b => l.foldr f b) b := by
+  cases L using array₂_induction
+  simp [List.foldr_flatten, List.foldr_map]
+
+/-- Variant of `foldl_reverse` with a side condition for the `stop` argument. -/
+@[simp] theorem foldl_reverse' (l : Array α) (f : β → α → β) (b) (w : stop = l.size) :
+    l.reverse.foldl f b 0 stop = l.foldr (fun x y => f y x) b := by
+  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+
+/-- Variant of `foldr_reverse` with a side condition for the `start` argument. -/
+@[simp] theorem foldr_reverse' (l : Array α) (f : α → β → β) (b) (w : start = l.size) :
+    l.reverse.foldr f b start 0 = l.foldl (fun x y => f y x) b := by
+  simp [w, foldl_eq_foldlM, foldr_eq_foldrM]
+
+theorem foldl_reverse (l : Array α) (f : β → α → β) (b) :
+    l.reverse.foldl f b = l.foldr (fun x y => f y x) b := by simp [foldl_eq_foldlM, foldr_eq_foldrM]
+
+theorem foldr_reverse (l : Array α) (f : α → β → β) (b) :
+    l.reverse.foldr f b = l.foldl (fun x y => f y x) b :=
+  (foldl_reverse ..).symm.trans <| by simp
+
+theorem foldl_eq_foldr_reverse (l : Array α) (f : β → α → β) (b) :
+    l.foldl f b = l.reverse.foldr (fun x y => f y x) b := by simp
+
+theorem foldr_eq_foldl_reverse (l : Array α) (f : α → β → β) (b) :
+    l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
+
+theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {l : Array α} {a₁ a₂} :
+     l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂) := by
+  rcases l with ⟨l⟩
+  simp [List.foldl_assoc]
+
+theorem foldr_assoc {op : α → α → α} [ha : Std.Associative op] {l : Array α} {a₁ a₂} :
+    l.foldr op (op a₁ a₂) = op (l.foldr op a₁) a₂ := by
+  rcases l with ⟨l⟩
+  simp [List.foldr_assoc]
+
+theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Array β) (init : α₁)
+    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
+  cases l
+  simp
+  rw [List.foldl_hom _ _ _ _ _ H]
+
+theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Array α) (init : β₁)
+    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
+  cases l
+  simp
+  rw [List.foldr_hom _ _ _ _ _ H]
+
+/--
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
+preserves the relation.
+-/
+theorem foldl_rel {l : Array α} {f g : β → α → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f c a) (g c' a)) :
+    r (l.foldl (fun acc a => f acc a) a) (l.foldl (fun acc a => g acc a) b) := by
+  rcases l with ⟨l⟩
+  simpa using List.foldl_rel r h (by simpa using h')
+
+/--
+We can prove that two folds over the same array are related (by some arbitrary relation)
+if we know that the initial elements are related and the folding function, for each element of the array,
+preserves the relation.
+-/
+theorem foldr_rel {l : Array α} {f g : α → β → β} {a b : β} (r : β → β → Prop)
+    (h : r a b) (h' : ∀ (a : α), a ∈ l → ∀ (c c' : β), r c c' → r (f a c) (g a c')) :
+    r (l.foldr (fun a acc => f a acc) a) (l.foldr (fun a acc => g a acc) b) := by
+  rcases l with ⟨l⟩
+  simpa using List.foldr_rel r h (by simpa using h')
+
+@[simp] theorem foldl_add_const (l : Array α) (a b : Nat) :
+    l.foldl (fun x _ => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
+
+@[simp] theorem foldr_add_const (l : Array α) (a b : Nat) :
+    l.foldr (fun _ x => x + a) b = b + a * l.size := by
+  rcases l with ⟨l⟩
+  simp
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/
@@ -2449,8 +3098,6 @@ theorem sum_eq_sum_toList [Add α] [Zero α] (as : Array α) : as.toList.sum = a
 -- It's confusing to guess which namespace this theorem should live in,
 -- so we provide both.
 @[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
-
-@[simp] theorem mkEmpty_eq (α n) : @mkEmpty α n = #[] := rfl
 
 @[deprecated size_toArray (since := "2024-12-11")]
 theorem size_mk (as : List α) : (Array.mk as).size = as.length := by simp [size]
@@ -2718,75 +3365,8 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [← getElem_toList]
 
-/-! ### foldlM and foldrM -/
 
-theorem foldlM_append [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α) :
-    (l ++ l').foldlM f b = l.foldlM f b >>= l'.foldlM f := by
-  cases l
-  cases l'
-  rw [List.append_toArray]
-  simp
 
-/-- Variant of `foldM_append` with `h : stop = (l ++ l').size`. -/
-@[simp] theorem foldlM_append' [Monad m] [LawfulMonad m] (f : β → α → m β) (b) (l l' : Array α)
-    (h : stop = (l ++ l').size) :
-    (l ++ l').foldlM f b 0 stop = l.foldlM f b >>= l'.foldlM f := by
-  subst h
-  rw [foldlM_append]
-
-theorem foldrM_push [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldrM f init = f a init >>= arr.foldrM f := by
-  simp only [foldrM_eq_reverse_foldlM_toList, push_toList, List.reverse_append, List.reverse_cons,
-    List.reverse_nil, List.nil_append, List.singleton_append, List.foldlM_cons, List.foldlM_reverse]
-
-/--
-Variant of `foldrM_push` with `h : start = arr.size + 1`
-rather than `(arr.push a).size` as the argument.
--/
-@[simp] theorem foldrM_push' [Monad m] (f : α → β → m β) (init : β) (arr : Array α) (a : α)
-    {start} (h : start = arr.size + 1) :
-    (arr.push a).foldrM f init start = f a init >>= arr.foldrM f := by
-  simp [← foldrM_push, h]
-
-theorem foldl_eq_foldlM (f : β → α → β) (b) (l : Array α) :
-    l.foldl f b = l.foldlM (m := Id) f b := by
-  cases l
-  simp [List.foldl_eq_foldlM]
-
-theorem foldr_eq_foldrM (f : α → β → β) (b) (l : Array α) :
-    l.foldr f b = l.foldrM (m := Id) f b := by
-  cases l
-  simp [List.foldr_eq_foldrM]
-
-@[simp] theorem id_run_foldlM (f : β → α → Id β) (b) (l : Array α) :
-    Id.run (l.foldlM f b) = l.foldl f b := (foldl_eq_foldlM f b l).symm
-
-@[simp] theorem id_run_foldrM (f : α → β → Id β) (b) (l : Array α) :
-    Id.run (l.foldrM f b) = l.foldr f b := (foldr_eq_foldrM f b l).symm
-
-/-! ### foldl and foldr -/
-
-theorem foldr_push (f : α → β → β) (init : β) (arr : Array α) (a : α) :
-    (arr.push a).foldr f init = arr.foldr f (f a init) := foldrM_push ..
-
-/--
-Variant of `foldr_push` with the `h : start = arr.size + 1`
-rather than `(arr.push a).size` as the argument.
--/
-@[simp] theorem foldr_push' (f : α → β → β) (init : β) (arr : Array α) (a : α) {start}
-    (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
-  foldrM_push' _ _ _ _ h
-
-@[simp] theorem foldl_push_eq_append (l l' : Array α) : l.foldl push l' = l' ++ l := by
-  cases l
-  cases l'
-  simp
-
-@[simp] theorem foldr_flip_push_eq_append (l l' : Array α) :
-    l.foldr (fun x y => push y x) l' = l' ++ l.reverse := by
-  cases l
-  cases l'
-  simp
 
 /-! ### take -/
 
@@ -2826,91 +3406,6 @@ rather than `(arr.push a).size` as the argument.
     forIn' as.toList b f = forIn' as b (fun a m b => f a (mem_toList.mpr m) b) := by
   cases as
   simp
-
-/-! ### foldl / foldr -/
-
-@[simp] theorem foldlM_loop_empty [Monad m] (f : β → α → m β) (init : β) (i j : Nat) :
-    foldlM.loop f #[] s h i j init = pure init := by
-  unfold foldlM.loop; split
-  · split
-    · rfl
-    · simp at h
-      omega
-  · rfl
-
-@[simp] theorem foldlM_empty [Monad m] (f : β → α → m β) (init : β) :
-    foldlM f init #[] start stop = return init := by
-  simp [foldlM]
-
-@[simp] theorem foldrM_fold_empty [Monad m] (f : α → β → m β) (init : β) (i j : Nat) (h) :
-    foldrM.fold f #[] i j h init = pure init := by
-  unfold foldrM.fold
-  split <;> rename_i h₁
-  · rfl
-  · split <;> rename_i h₂
-    · rfl
-    · simp at h₂
-
-@[simp] theorem foldrM_empty [Monad m] (f : α → β → m β) (init : β) :
-    foldrM f init #[] start stop = return init := by
-  simp [foldrM]
-
--- This proof is the pure version of `Array.SatisfiesM_foldlM` in Batteries,
--- reproduced to avoid a dependency on `SatisfiesM`.
-theorem foldl_induction
-    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
-    motive as.size (as.foldl f init) := by
-  let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
-    (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
-    unfold foldlM.loop; split
-    · next hj =>
-      split
-      · cases Nat.not_le_of_gt (by simp [hj]) h₂
-      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
-    · next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
-  simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
-
--- This proof is the pure version of `Array.SatisfiesM_foldrM` in Batteries,
--- reproduced to avoid a dependency on `SatisfiesM`.
-theorem foldr_induction
-    {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive (i.1 + 1) b → motive i.1 (f as[i] b)) :
-    motive 0 (as.foldr f init) := by
-  let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
-    (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
-    unfold foldrM.fold; simp; split
-    · next hi => exact (hi ▸ H)
-    · next hi =>
-      split; {simp at hi}
-      · next i hi' =>
-        exact go _ (hf ⟨i, hi'⟩ b H)
-  simp [foldr, foldrM]; split; {exact go _ h0}
-  · next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
-
-@[congr]
-theorem foldl_congr {as bs : Array α} (h₀ : as = bs) {f g : β → α → β} (h₁ : f = g)
-     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
-    as.foldl f a start stop = bs.foldl g b start' stop' := by
-  congr
-
-@[congr]
-theorem foldr_congr {as bs : Array α} (h₀ : as = bs) {f g : α → β → β} (h₁ : f = g)
-     {a b : β} (h₂ : a = b) {start start' stop stop' : Nat} (h₃ : start = start') (h₄ : stop = stop') :
-    as.foldr f a start stop = bs.foldr g b start' stop' := by
-  congr
-
-theorem foldl_hom (f : α₁ → α₂) (g₁ : α₁ → β → α₁) (g₂ : α₂ → β → α₂) (l : Array β) (init : α₁)
-    (H : ∀ x y, g₂ (f x) y = f (g₁ x y)) : l.foldl g₂ (f init) = f (l.foldl g₁ init) := by
-  cases l
-  simp
-  rw [List.foldl_hom _ _ _ _ _ H]
-
-theorem foldr_hom (f : β₁ → β₂) (g₁ : α → β₁ → β₁) (g₂ : α → β₂ → β₂) (l : Array α) (init : β₁)
-    (H : ∀ x y, g₂ x (f y) = f (g₁ x y)) : l.foldr g₂ (f init) = f (l.foldr g₁ init) := by
-  cases l
-  simp
-  rw [List.foldr_hom _ _ _ _ _ H]
 
 /-! ### map -/
 
@@ -2981,159 +3476,6 @@ theorem getElem?_modify {as : Array α} {i : Nat} {f : α → α} {j : Nat} :
     (as.modify i f)[j]? = if i = j then as[j]?.map f else as[j]? := by
   simp only [getElem?_def, size_modify, getElem_modify, Option.map_dif]
   split <;> split <;> rfl
-
-/-! ### empty -/
-
-theorem size_empty : (#[] : Array α).size = 0 := rfl
-
-/-! ### extract -/
-
-theorem extract_loop_zero (as bs : Array α) (start : Nat) : extract.loop as 0 start bs = bs := by
-  rw [extract.loop]; split <;> rfl
-
-theorem extract_loop_succ (as bs : Array α) (size start : Nat) (h : start < as.size) :
-    extract.loop as (size+1) start bs = extract.loop as size (start+1) (bs.push as[start]) := by
-  rw [extract.loop, dif_pos h]; rfl
-
-theorem extract_loop_of_ge (as bs : Array α) (size start : Nat) (h : start ≥ as.size) :
-    extract.loop as size start bs = bs := by
-  rw [extract.loop, dif_neg (Nat.not_lt_of_ge h)]
-
-theorem extract_loop_eq_aux (as bs : Array α) (size start : Nat) :
-    extract.loop as size start bs = bs ++ extract.loop as size start #[] := by
-  induction size using Nat.recAux generalizing start bs with
-  | zero => rw [extract_loop_zero, extract_loop_zero, append_empty]
-  | succ size ih =>
-    if h : start < as.size then
-      rw [extract_loop_succ (h:=h), ih (bs.push _), push_eq_append_singleton]
-      rw [extract_loop_succ (h:=h), ih (#[].push _), push_eq_append_singleton, empty_append]
-      rw [append_assoc]
-    else
-      rw [extract_loop_of_ge (h:=Nat.le_of_not_lt h)]
-      rw [extract_loop_of_ge (h:=Nat.le_of_not_lt h)]
-      rw [append_empty]
-
-theorem extract_loop_eq (as bs : Array α) (size start : Nat) (h : start + size ≤ as.size) :
-  extract.loop as size start bs = bs ++ as.extract start (start + size) := by
-  simp [extract]; rw [extract_loop_eq_aux, Nat.min_eq_left h, Nat.add_sub_cancel_left]
-
-theorem size_extract_loop (as bs : Array α) (size start : Nat) :
-    (extract.loop as size start bs).size = bs.size + min size (as.size - start) := by
-  induction size using Nat.recAux generalizing start bs with
-  | zero => rw [extract_loop_zero, Nat.zero_min, Nat.add_zero]
-  | succ size ih =>
-    if h : start < as.size then
-      rw [extract_loop_succ (h:=h), ih, size_push, Nat.add_assoc, ←Nat.add_min_add_left,
-        Nat.sub_succ, Nat.one_add, Nat.one_add, Nat.succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)]
-    else
-      have h := Nat.le_of_not_gt h
-      rw [extract_loop_of_ge (h:=h), Nat.sub_eq_zero_of_le h, Nat.min_zero, Nat.add_zero]
-
-@[simp] theorem size_extract (as : Array α) (start stop : Nat) :
-    (as.extract start stop).size = min stop as.size - start := by
-  simp [extract]; rw [size_extract_loop, size_empty, Nat.zero_add, Nat.sub_min_sub_right,
-    Nat.min_assoc, Nat.min_self]
-
-theorem getElem_extract_loop_lt_aux (as bs : Array α) (size start : Nat) (hlt : i < bs.size) :
-    i < (extract.loop as size start bs).size := by
-  rw [size_extract_loop]
-  apply Nat.lt_of_lt_of_le hlt
-  exact Nat.le_add_right ..
-
-theorem getElem_extract_loop_lt (as bs : Array α) (size start : Nat) (hlt : i < bs.size)
-    (h := getElem_extract_loop_lt_aux as bs size start hlt) :
-    (extract.loop as size start bs)[i] = bs[i] := by
-  apply Eq.trans _ (getElem_append_left (bs:=extract.loop as size start #[]) hlt)
-  · rw [size_append]; exact Nat.lt_of_lt_of_le hlt (Nat.le_add_right ..)
-  · congr; rw [extract_loop_eq_aux]
-
-theorem getElem_extract_loop_ge_aux (as bs : Array α) (size start : Nat) (hge : i ≥ bs.size)
-    (h : i < (extract.loop as size start bs).size) : start + i - bs.size < as.size := by
-  have h : i < bs.size + (as.size - start) := by
-      apply Nat.lt_of_lt_of_le h
-      rw [size_extract_loop]
-      apply Nat.add_le_add_left
-      exact Nat.min_le_right ..
-  rw [Nat.add_sub_assoc hge]
-  apply Nat.add_lt_of_lt_sub'
-  exact Nat.sub_lt_left_of_lt_add hge h
-
-theorem getElem_extract_loop_ge (as bs : Array α) (size start : Nat) (hge : i ≥ bs.size)
-    (h : i < (extract.loop as size start bs).size)
-    (h' := getElem_extract_loop_ge_aux as bs size start hge h) :
-    (extract.loop as size start bs)[i] = as[start + i - bs.size] := by
-  induction size using Nat.recAux generalizing start bs with
-  | zero =>
-    rw [size_extract_loop, Nat.zero_min, Nat.add_zero] at h
-    omega
-  | succ size ih =>
-    have : start < as.size := by
-      apply Nat.lt_of_le_of_lt (Nat.le_add_right start (i - bs.size))
-      rwa [← Nat.add_sub_assoc hge]
-    have : i < (extract.loop as size (start+1) (bs.push as[start])).size := by
-      rwa [← extract_loop_succ]
-    have heq : (extract.loop as (size+1) start bs)[i] =
-        (extract.loop as size (start+1) (bs.push as[start]))[i] := by
-      congr 1; rw [extract_loop_succ]
-    rw [heq]
-    if hi : bs.size = i then
-      cases hi
-      have h₁ : bs.size < (bs.push as[start]).size := by rw [size_push]; exact Nat.lt_succ_self ..
-      have h₂ : bs.size < (extract.loop as size (start+1) (bs.push as[start])).size := by
-        rw [size_extract_loop]; apply Nat.lt_of_lt_of_le h₁; exact Nat.le_add_right ..
-      have h : (extract.loop as size (start + 1) (push bs as[start]))[bs.size] = as[start] := by
-        rw [getElem_extract_loop_lt as (bs.push as[start]) size (start+1) h₁ h₂, getElem_push_eq]
-      rw [h]; congr; rw [Nat.add_sub_cancel]
-    else
-      have hge : bs.size + 1 ≤ i := Nat.lt_of_le_of_ne hge hi
-      rw [ih (bs.push as[start]) (start+1) ((size_push ..).symm ▸ hge)]
-      congr 1; rw [size_push, Nat.add_right_comm, Nat.add_sub_add_right]
-
-theorem getElem_extract_aux {as : Array α} {start stop : Nat} (h : i < (as.extract start stop).size) :
-    start + i < as.size := by
-  rw [size_extract] at h; apply Nat.add_lt_of_lt_sub'; apply Nat.lt_of_lt_of_le h
-  apply Nat.sub_le_sub_right; apply Nat.min_le_right
-
-@[simp] theorem getElem_extract {as : Array α} {start stop : Nat}
-    (h : i < (as.extract start stop).size) :
-    (as.extract start stop)[i] = as[start + i]'(getElem_extract_aux h) :=
-  show (extract.loop as (min stop as.size - start) start #[])[i]
-    = as[start + i]'(getElem_extract_aux h) by rw [getElem_extract_loop_ge]; rfl; exact Nat.zero_le _
-
-theorem getElem?_extract {as : Array α} {start stop : Nat} :
-    (as.extract start stop)[i]? = if i < min stop as.size - start then as[start + i]? else none := by
-  simp only [getElem?_def, size_extract, getElem_extract]
-  split
-  · split
-    · rfl
-    · omega
-  · rfl
-
-@[simp] theorem toList_extract (as : Array α) (start stop : Nat) :
-    (as.extract start stop).toList = (as.toList.drop start).take (stop - start) := by
-  apply List.ext_getElem
-  · simp only [length_toList, size_extract, List.length_take, List.length_drop]
-    omega
-  · intros n h₁ h₂
-    simp
-
-@[simp] theorem extract_all (as : Array α) : as.extract 0 as.size = as := by
-  apply ext
-  · rw [size_extract, Nat.min_self, Nat.sub_zero]
-  · intros; rw [getElem_extract]; congr; rw [Nat.zero_add]
-
-theorem extract_empty_of_stop_le_start (as : Array α) {start stop : Nat} (h : stop ≤ start) :
-    as.extract start stop = #[] := by
-  simp [extract]; rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.zero_min,
-    extract_loop_zero]
-
-theorem extract_empty_of_size_le_start (as : Array α) {start stop : Nat} (h : as.size ≤ start) :
-    as.extract start stop = #[] := by
-  simp [extract]; rw [←Nat.sub_min_sub_right, Nat.sub_eq_zero_of_le h, Nat.min_zero,
-    extract_loop_zero]
-
-@[simp] theorem extract_empty (start stop : Nat) : (#[] : Array α).extract start stop = #[] :=
-  extract_empty_of_size_le_start _ (Nat.zero_le _)
 
 /-! ### contains -/
 
@@ -3308,11 +3650,6 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
   apply ext'
   simp
 
-@[simp] theorem extract_toArray (l : List α) (start stop : Nat) :
-    l.toArray.extract start stop = ((l.drop start).take (stop - start)).toArray := by
-  apply ext'
-  simp
-
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
 
@@ -3364,42 +3701,6 @@ namespace Array
     (as.eraseIdxIfInBounds i).toList = as.toList.eraseIdx i := by
   induction as
   simp
-
-/-! ### map -/
-
-theorem foldl_map (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) :
-    (l.map f).foldl g init = l.foldl (fun x y => g x (f y)) init := by
-  cases l; simp [List.foldl_map]
-
-theorem foldr_map (f : α₁ → α₂) (g : α₂ → β → β) (l : Array α₁) (init : β) :
-    (l.map f).foldr g init = l.foldr (fun x y => g (f x) y) init := by
-  cases l; simp [List.foldr_map]
-
-theorem foldl_filterMap (f : α → Option β) (g : γ → β → γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldl g init = l.foldl (fun x y => match f y with | some b => g x b | none => x) init := by
-  cases l
-  simp [List.foldl_filterMap]
-  rfl
-
-theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldr g init = l.foldr (fun x y => match f x with | some b => g b y | none => y) init := by
-  cases l
-  simp [List.foldr_filterMap]
-  rfl
-
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : Array α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldl f' (g a) = g (l.foldl f a) := by
-  cases l
-  simp
-  rw [List.foldl_map' _ _ _ _ _ h]
-
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
-    (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
-    (l.map g).foldr f' (g a) = g (l.foldr f a) := by
-  cases l
-  simp
-  rw [List.foldr_map' _ _ _ _ _ h]
 
 /-! ### flatten -/
 

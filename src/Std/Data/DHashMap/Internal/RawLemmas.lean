@@ -1719,7 +1719,6 @@ end Const
 
 section Alter
 
-@[simp]
 theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α}
     {f : Option (β k) → Option (β k)} :
     (m.alter k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (m.get? k)).isNone) := by

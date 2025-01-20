@@ -262,6 +262,14 @@ attribute [bv_normalize] BitVec.shiftLeft_ofNat_eq
 attribute [bv_normalize] BitVec.ushiftRight_ofNat_eq
 attribute [bv_normalize] BitVec.sshiftRight'_ofNat_eq_sshiftRight
 
+@[bv_normalize]
+theorem BitVec.neg_mul' (x y : BitVec w) : (~~~x + 1#w) * y = ~~~(x * y) + 1#w := by
+  rw [← BitVec.neg_eq_not_add, ← BitVec.neg_eq_not_add, BitVec.neg_mul]
+
+@[bv_normalize]
+theorem BitVec.mul_neg' (x y : BitVec w) : x * (~~~y + 1#w) = ~~~(x * y) + 1#w := by
+  rw [← BitVec.neg_eq_not_add, ← BitVec.neg_eq_not_add, BitVec.mul_neg]
+
 attribute [bv_normalize] BitVec.shiftLeft_zero
 attribute [bv_normalize] BitVec.zero_shiftLeft
 

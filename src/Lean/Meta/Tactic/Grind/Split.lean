@@ -101,6 +101,13 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
     if let some info ← isInductivePredicate? declName then
       if (← isEqTrue e) then
         return .ready info.ctors.length info.isRec
+    if e.isFVar then
+      let type ← whnfD (← inferType e)
+      let report : GoalM Unit := do
+        reportIssue "cannot perform case-split on {e}, unexpected type{indentExpr type}"
+      let .const declName _ := type.getAppFn | report; return .resolved
+      let .inductInfo info ← getConstInfo declName | report; return .resolved
+      return .ready info.ctors.length info.isRec
     return .notReady
 
 private inductive SplitCandidate where

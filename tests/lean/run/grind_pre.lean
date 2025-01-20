@@ -39,7 +39,9 @@ h : c = true
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind
 
-open Lean.Grind.Eager in
+section
+attribute [local grind cases eager] Or
+
 /--
 error: `grind` failed
 case grind.2.1
@@ -68,6 +70,8 @@ h : b = false
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind
+
+end
 
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 

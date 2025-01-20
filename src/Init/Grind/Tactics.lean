@@ -48,8 +48,8 @@ structure Config where
   splitIte : Bool := true
   /--
   If `splitIndPred` is `true`, `grind` performs case-splitting on inductive predicates.
-  Otherwise, it performs case-splitting only on types marked with `[grind_split]` attribute. -/
-  splitIndPred : Bool := true
+  Otherwise, it performs case-splitting only on types marked with `[grind cases]` attribute. -/
+  splitIndPred : Bool := false
   /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
   failures : Nat := 1
   /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/

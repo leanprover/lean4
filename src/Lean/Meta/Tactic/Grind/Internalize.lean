@@ -53,7 +53,6 @@ private def addSplitCandidate (e : Expr) : GoalM Unit := do
   trace_goal[grind.split.candidate] "{e}"
   modify fun s => { s with splitCandidates := e :: s.splitCandidates }
 
--- TODO: add attribute to make this extensible
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Returns `true` if `e` is of the form `@Eq Prop a b` -/
@@ -63,29 +62,37 @@ def isMorallyIff (e : Expr) : Bool :=
 
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
-  unless e.isApp do return ()
-  if (← getConfig).splitIte && (e.isIte || e.isDIte) then
-    addSplitCandidate e
-    return ()
-  if isMorallyIff e then
-    addSplitCandidate e
-    return ()
-  if (← getConfig).splitMatch then
-    if (← isMatcherApp e) then
-      if let .reduced _ ← reduceMatcher? e then
-        -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
-        -- and consequently don't need to be splitted.
+  match e with
+  | .app .. =>
+    if (← getConfig).splitIte && (e.isIte || e.isDIte) then
+      addSplitCandidate e
+      return ()
+    if isMorallyIff e then
+      addSplitCandidate e
+      return ()
+    if (← getConfig).splitMatch then
+      if (← isMatcherApp e) then
+        if let .reduced _ ← reduceMatcher? e then
+          -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
+          -- and consequently don't need to be splitted.
+          return ()
+        else
+          addSplitCandidate e
+          return ()
+    let .const declName _  := e.getAppFn | return ()
+      if forbiddenSplitTypes.contains declName then
         return ()
-      else
-        addSplitCandidate e
+      unless (← isInductivePredicate declName) do
         return ()
-  let .const declName _  := e.getAppFn | return ()
-    if forbiddenSplitTypes.contains declName then return ()
-    -- We should have a mechanism for letting users to select types to case-split.
-    -- Right now, we just consider inductive predicates that are not in the forbidden list
-    if (← getConfig).splitIndPred then
-      if (← isInductivePredicate declName) then
+      if (← get).casesTypes.isSplit declName then
         addSplitCandidate e
+      else if (← getConfig).splitIndPred then
+        addSplitCandidate e
+  | .fvar .. =>
+    let .const declName _ := (← inferType e).getAppFn | return ()
+    if (← get).casesTypes.isSplit declName then
+      addSplitCandidate e
+  | _ => pure ()
 
 /--
 If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.

@@ -54,10 +54,13 @@ inductive HasType : Expr → Ty → Prop
 
 set_option trace.grind true
 theorem HasType.det (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
-  grind
+  grind [HasType]
 
-theorem HasType.det' (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
-  fail_if_success grind (splitIndPred := false)
+example (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
+  grind +splitIndPred
+
+example (h₁ : HasType e t₁) (h₂ : HasType e t₂) : t₁ = t₂ := by
+  fail_if_success grind
   sorry
 
 end grind_test_induct_pred

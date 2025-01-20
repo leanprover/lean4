@@ -160,40 +160,42 @@ end Lean
   | _               => throw ()
 
 @[app_unexpander Prod.mk] def unexpandProdMk : Lean.PrettyPrinter.Unexpander
-  | `($(_) $x ($y, $ys,*)) => `(($x, $y, $ys,*))
-  | `($(_) $x $y)          => `(($x, $y))
+  | `($f $x ($y, $ys,*)) => withRef f `(($x, $y, $ys,*))
+  | `($f $x $y)          => withRef f `(($x, $y))
   | _                      => throw ()
 
 @[app_unexpander ite] def unexpandIte : Lean.PrettyPrinter.Unexpander
-  | `($(_) $c $t $e) => `(if $c then $t else $e)
+  | `($f $c $t $e) => withRef f `(if $c then $t else $e)
   | _                => throw ()
 
 @[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
-  | `($(_) $m $h) => `($h ▸ $m)
+  | `($f $m $h) => withRef f `($h ▸ $m)
   | _             => throw ()
 
 @[app_unexpander Eq.rec] def unexpandEqRec : Lean.PrettyPrinter.Unexpander
-  | `($(_) $m $h) => `($h ▸ $m)
+  | `($f $m $h) => withRef f `($h ▸ $m)
   | _             => throw ()
 
 @[app_unexpander Exists] def unexpandExists : Lean.PrettyPrinter.Unexpander
-  | `($(_) fun $x:ident => ∃ $xs:binderIdent*, $b) => `(∃ $x:ident $xs:binderIdent*, $b)
-  | `($(_) fun $x:ident => $b)                     => `(∃ $x:ident, $b)
-  | `($(_) fun ($x:ident : $t) => $b)              => `(∃ ($x:ident : $t), $b)
-  | _                                              => throw ()
+  | `($f fun $x:ident => ∃ $xs:binderIdent*, $b) => withRef f `(∃ $x:ident $xs:binderIdent*, $b)
+  | `($f fun $x:ident => $b)                     => withRef f `(∃ $x:ident, $b)
+  | `($f fun ($x:ident : $t) => $b)              => do
+    let binder ← `(bracketedExplicitBinders| ($x:ident : $t))
+    withRef f `(∃ $binder:bracketedExplicitBinders, $b)
+  | _                                            => throw ()
 
 @[app_unexpander Sigma] def unexpandSigma : Lean.PrettyPrinter.Unexpander
-  | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) × $b)
-  | _                                  => throw ()
+  | `($f fun ($x:ident : $t) => $b) => withRef f `(($x:ident : $t) × $b)
+  | _                               => throw ()
 
 @[app_unexpander PSigma] def unexpandPSigma : Lean.PrettyPrinter.Unexpander
-  | `($(_) fun ($x:ident : $t) => $b) => `(($x:ident : $t) ×' $b)
-  | _                                 => throw ()
+  | `($f fun ($x:ident : $t) => $b) => withRef f `(($x:ident : $t) ×' $b)
+  | _                               => throw ()
 
 @[app_unexpander Subtype] def unexpandSubtype : Lean.PrettyPrinter.Unexpander
-  | `($(_) fun ($x:ident : $type) => $p)  => `({ $x : $type // $p })
-  | `($(_) fun $x:ident => $p)            => `({ $x // $p })
-  | _                                     => throw ()
+  | `($f fun ($x:ident : $type) => $p) => withRef f `({ $x : $type // $p })
+  | `($f fun $x:ident => $p)           => withRef f `({ $x // $p })
+  | _                                  => throw ()
 
 @[app_unexpander TSyntax] def unexpandTSyntax : Lean.PrettyPrinter.Unexpander
   | `($f [$k])  => `($f $k)
@@ -208,15 +210,15 @@ end Lean
   | _                => throw ()
 
 @[app_unexpander GetElem.getElem] def unexpandGetElem : Lean.PrettyPrinter.Unexpander
-  | `($_ $array $index $_) => `($array[$index])
+  | `($f $array $index $_) => withRef f `($array[$index])
   | _ => throw ()
 
 @[app_unexpander getElem!] def unexpandGetElem! : Lean.PrettyPrinter.Unexpander
-  | `($_ $array $index) => `($array[$index]!)
+  | `($f $array $index) => withRef f `($array[$index]!)
   | _ => throw ()
 
 @[app_unexpander getElem?] def unexpandGetElem? : Lean.PrettyPrinter.Unexpander
-  | `($_ $array $index) => `($array[$index]?)
+  | `($f $array $index) => withRef f `($array[$index]?)
   | _ => throw ()
 
 @[app_unexpander Array.empty] def unexpandArrayEmpty : Lean.PrettyPrinter.Unexpander
@@ -356,13 +358,13 @@ namespace Lean
 /-- Unexpander for the `{ x }` notation. -/
 @[app_unexpander singleton]
 def singletonUnexpander : Lean.PrettyPrinter.Unexpander
-  | `($_ $a) => `({ $a:term })
+  | `($f $a) => withRef f `({ $a:term })
   | _ => throw ()
 
 /-- Unexpander for the `{ x, y, ... }` notation. -/
 @[app_unexpander insert]
 def insertUnexpander : Lean.PrettyPrinter.Unexpander
-  | `($_ $a { $ts:term,* }) => `({$a:term, $ts,*})
+  | `($f $a { $ts:term,* }) => withRef f `({$a:term, $ts,*})
   | _ => throw ()
 
 end Lean

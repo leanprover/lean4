@@ -1987,14 +1987,14 @@ open Internal.Raw Internal.Raw₀
 
 section Alter
 
-theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
-    (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) := by
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+    (h : m.WF) : (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) := by
   simp_to_raw using Raw₀.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
-    (m.alter k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (m.get? k)).isNone := by
-  simp_to_raw using Raw₀.Const.isEmpty_alter
+    (m.alter k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (m.get? k)).isNone) := by
+  simp_to_raw using Raw₀.isEmpty_alter
 
 theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
@@ -2052,7 +2052,7 @@ theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k)
     (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
-  simp_to_raw using Raw₀.size_alter_eq_self
+  simp_to_raw using Raw₀.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome)  :
@@ -2144,13 +2144,13 @@ theorem getKey?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option
 theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) : (m.alter k f).getKey! k' =
       if k == k' then
-        if (f (m.get? k)).isSome then k else panic ""
+        if (f (m.get? k)).isSome then k else default
       else
         m.getKey! k' := by
   simp_to_raw using Raw₀.getKey!_alter
 
 theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) : (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else panic "" := by
+    (h : m.WF) : (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp [getKey!_alter h]
 
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
@@ -2188,13 +2188,14 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
-theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
+theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α}
+    {f : Option β → Option β} (h : m.WF) :
     (Const.alter m k f).isEmpty = ((m.erase k).isEmpty && (f (Const.get? m k)).isNone) := by
   simp_to_raw using Raw₀.Const.isEmpty_alter_eq_isEmpty_erase
 
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (get? m k)).isNone := by
+    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (get? m k)).isNone) := by
   simp_to_raw using Raw₀.Const.isEmpty_alter
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
@@ -2256,7 +2257,7 @@ theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β →
     (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
-  simp_to_raw using Raw₀.Const.size_alter_eq_self
+  simp_to_raw using Raw₀.Const.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
     (h : m.WF) (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isSome) :
@@ -2350,14 +2351,14 @@ theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Optio
 theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} (h : m.WF) : (Const.alter m k f).getKey! k' =
       if k == k' then
-        if (f (Const.get? m k)).isSome then k else panic ""
+        if (f (Const.get? m k)).isSome then k else default
       else
         m.getKey! k' := by
   simp_to_raw using Raw₀.Const.getKey!_alter
 
 theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
     {f : Option β → Option β} (h : m.WF) :
-    (Const.alter m k f).getKey! k = if (f (Const.get? m k)).isSome then k else panic "" := by
+    (Const.alter m k f).getKey! k = if (f (Const.get? m k)).isSome then k else default := by
   simp [getKey!_alter h]
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
@@ -2495,14 +2496,14 @@ theorem getKey?_modify_self [LawfulBEq α] {k : α} {f : β k → β k} (h : m.W
 theorem getKey!_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k} (h : m.WF) :
     (m.modify k f).getKey! k' =
       if k == k' then
-        if k ∈ m then k else panic ""
+        if k ∈ m then k else default
       else
         m.getKey! k' := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKey!_modify
 
 theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} (h : m.WF) :
-    (m.modify k f).getKey! k = if k ∈ m then k else panic "" := by
+    (m.modify k f).getKey! k = if k ∈ m then k else default := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.getKey!_modify_self
 
@@ -2641,14 +2642,14 @@ theorem getKey?_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β �
 theorem getKey!_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}
     (h : m.WF) : (Const.modify m k f).getKey! k' =
       if k == k' then
-        if k ∈ m then k else panic ""
+        if k ∈ m then k else default
       else
         m.getKey! k' := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.getKey!_modify
 
 theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : β → β}
-    (h : m.WF) : (Const.modify m k f).getKey! k = if k ∈ m then k else panic "" := by
+    (h : m.WF) : (Const.modify m k f).getKey! k = if k ∈ m then k else default := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.getKey!_modify_self
 

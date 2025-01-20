@@ -1728,13 +1728,15 @@ variable (m : Raw₀ α β)
 section Alter
 
 @[simp]
-theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
     (m.alter k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (m.get? k)).isNone) := by
   simp_to_model using List.isEmpty_alterKey_eq_isEmpty_eraseKey
 
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).1.isEmpty = (((m.1.isEmpty || (m.1.size == 1 && m.contains k))) && (f (m.get? k)).isNone) := by
+    (m.alter k f).1.isEmpty = (((m.1.isEmpty || (m.1.size == 1 && m.contains k))) &&
+      (f (m.get? k)).isNone) := by
   simp_to_model using List.isEmpty_alterKey
 
 theorem contains_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
@@ -1761,13 +1763,13 @@ theorem size_alter_eq_sub_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (
     (m.alter k f).1.size = m.1.size - 1 := by
   simp [size_alter, h, h₁, h₂]
 
-theorem size_alter_eq_self_of_not_mem [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone) :
+theorem size_alter_eq_self_of_not_mem [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone) :
     (m.alter k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, h₂]
 
-theorem size_alter_eq_self_of_mem [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome) :
+theorem size_alter_eq_self_of_mem [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome) :
     (m.alter k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
 
@@ -1875,12 +1877,13 @@ variable {β : Type v} [EquivBEq α] [LawfulHashable α] (m : Raw₀ α (fun _ =
 
 theorem isEmpty_alter_eq_isEmpty_erase (h : m.1.WF)  {k : α} {f : Option β → Option β} :
     (Const.alter m k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (Const.get? m k)).isNone) := by
-  simp_to_model using List.Const.isEmpty_alter_eq_isEmpty_eraseKey
+  simp_to_model using List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
 
 @[simp]
-theorem isEmpty_alter {k : α} {f : Option β → Option β} :
-    (Const.alter m k f).1.isEmpty = ((m.1.isEmpty || (m.1.size == 1 && m.contains k))) && (f (Const.get? m k)).isNone := by
-  simp_to_model using List.Const.isEmpty_alter
+theorem isEmpty_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.isEmpty = ((m.1.isEmpty || (m.1.size == 1 && m.contains k)) &&
+      (f (Const.get? m k)).isNone) := by
+  simp_to_model using List.Const.isEmpty_alterKey
 
 theorem contains_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
     (Const.alter m k f).contains k' =

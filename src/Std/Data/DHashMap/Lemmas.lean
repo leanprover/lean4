@@ -1876,8 +1876,8 @@ theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] {k : α} {f : Option (β k
 
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
-    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (get? m k)).isNone :=
-  Raw₀.Const.isEmpty_alter _ m.2
+    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (get? m k)).isNone) :=
+  Raw₀.isEmpty_alter _ m.2
 
 theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' :=
@@ -2022,7 +2022,7 @@ theorem getKey?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option
 theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getKey! k' =
       if k == k' then
-        if (f (m.get? k)).isSome then k else panic ""
+        if (f (m.get? k)).isSome then k else default
       else
         m.getKey! k' := by
   simp [getKey!_eq_get!_getKey?, getKey?_alter]
@@ -2034,7 +2034,7 @@ theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β 
     rfl
 
 theorem getKey!_alter_self [LawfulBEq α] [Inhabited α] {k : α} {f : Option (β k) → Option (β k)} :
-    (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else panic "" := by
+    (m.alter k f).getKey! k = if (f (m.get? k)).isSome then k else default := by
   simp only [getKey!_alter, beq_self_eq_true, reduceIte]
 
 theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} {f : Option (β k) → Option (β k)}
@@ -2070,14 +2070,15 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
-theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
+theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α}
+    {f : Option β → Option β} :
     (Const.alter m k f).isEmpty = ((m.erase k).isEmpty && (f (Const.get? m k)).isNone) :=
   Raw₀.Const.isEmpty_alter_eq_isEmpty_erase _ m.2
 
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} :
-    (Const.alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (Const.get? m k)).isNone :=
-  Raw₀.Const.isEmpty_alter
+    (Const.alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (Const.get? m k)).isNone) :=
+  Raw₀.Const.isEmpty_alter _ m.2
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} :
     (Const.alter m k f).contains k' =
@@ -2195,7 +2196,8 @@ theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β
     {f : Option β → Option β} : Const.get! (Const.alter m k f) k = (f (Const.get? m k)).get! := by
   simp [get!_alter]
 
-theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β}
+    {f : Option β → Option β} :
     Const.getD (Const.alter m k f) k' fallback =
       if k == k' then
         f (Const.get? m k) |>.getD fallback
@@ -2204,7 +2206,8 @@ theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β}
   Raw₀.Const.getD_alter ⟨m.1, _⟩ m.2
 
 @[simp]
-theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} {f : Option β → Option β} :
+theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β}
+    {f : Option β → Option β} :
     Const.getD (Const.alter m k f) k fallback = (f (Const.get? m k)).getD fallback := by
   simp [getD_alter]
 
@@ -2223,14 +2226,14 @@ theorem getKey?_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Optio
 theorem getKey!_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
     {f : Option β → Option β} : (Const.alter m k f).getKey! k' =
       if k == k' then
-        if (f (Const.get? m k)).isSome then k else panic ""
+        if (f (Const.get? m k)).isSome then k else default
       else
         m.getKey! k' :=
   Raw₀.Const.getKey!_alter ⟨m.1, _⟩ m.2
 
 theorem getKey!_alter_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α}
     {f : Option β → Option β} :
-    (Const.alter m k f).getKey! k = if (f (Const.get? m k)).isSome then k else panic "" := by
+    (Const.alter m k f).getKey! k = if (f (Const.get? m k)).isSome then k else default := by
   simp [getKey!_alter]
 
 theorem getKey_alter [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α}
@@ -2357,13 +2360,13 @@ theorem getKey?_modify_self [LawfulBEq α] {k : α} {f : β k → β k} :
 theorem getKey!_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k} :
     (m.modify k f).getKey! k' =
       if k == k' then
-        if k ∈ m then k else panic ""
+        if k ∈ m then k else default
       else
         m.getKey! k' :=
   Raw₀.getKey!_modify ⟨m.1, _⟩ m.2
 
 theorem getKey!_modify_self [LawfulBEq α] [Inhabited α] {k : α} {f : β k → β k} :
-    (m.modify k f).getKey! k = if k ∈ m then k else panic "" :=
+    (m.modify k f).getKey! k = if k ∈ m then k else default :=
   Raw₀.getKey!_modify_self ⟨m.1, _⟩ m.2
 
 theorem getKey_modify [LawfulBEq α] [Inhabited α] {k k' : α} {f : β k → β k}
@@ -2488,13 +2491,13 @@ theorem getKey?_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β �
 theorem getKey!_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β} :
     (Const.modify m k f).getKey! k' =
       if k == k' then
-        if k ∈ m then k else panic ""
+        if k ∈ m then k else default
       else
         m.getKey! k' :=
   Raw₀.Const.getKey!_modify ⟨m.1, _⟩ m.2
 
 theorem getKey!_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k : α} {f : β → β} :
-    (Const.modify m k f).getKey! k = if k ∈ m then k else panic "" :=
+    (Const.modify m k f).getKey! k = if k ∈ m then k else default :=
   Raw₀.Const.getKey!_modify_self ⟨m.1, _⟩ m.2
 
 theorem getKey_modify [EquivBEq α] [LawfulHashable α] [Inhabited α] {k k' : α} {f : β → β}

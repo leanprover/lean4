@@ -1292,14 +1292,15 @@ variable [BEq α] [Hashable α] {m : Raw α β}
 
 section Alter
 
-theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
+theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α}
+    {f : Option β → Option β} (h : m.WF) :
     (alter m k f).isEmpty = ((m.erase k).isEmpty && (f (get? m k)).isNone) :=
   DHashMap.Raw.Const.isEmpty_alter_eq_isEmpty_erase h.out
 
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (get? m k)).isNone :=
-  DHashMap.Raw.Const.isEmpty_alter
+    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k)) && (f (get? m k)).isNone) :=
+  DHashMap.Raw.Const.isEmpty_alter h.out
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : m.WF) : (alter m k f).contains k' =
@@ -1415,8 +1416,8 @@ theorem get!_alter_self [EquivBEq α] [LawfulHashable α] {k : α} [Inhabited β
     {f : Option β → Option β} (h : m.WF) : get! (alter m k f) k = (f (get? m k)).get! :=
   DHashMap.Raw.Const.get!_alter_self h.out
 
-theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β} {f : Option β → Option β}
-    (h : m.WF) : getD (alter m k f) k' fallback =
+theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β}
+    {f : Option β → Option β} (h : m.WF) : getD (alter m k f) k' fallback =
       if k == k' then
         f (get? m k) |>.getD fallback
       else
@@ -1424,8 +1425,9 @@ theorem getD_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {fallback : β}
   DHashMap.Raw.Const.getD_alter h.out
 
 @[simp]
-theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β} {f : Option β → Option β}
-    (h : m.WF) : getD (alter m k f) k fallback = (f (get? m k)).getD fallback :=
+theorem getD_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {fallback : β}
+    {f : Option β → Option β} (h : m.WF) :
+    getD (alter m k f) k fallback = (f (get? m k)).getD fallback :=
   DHashMap.Raw.Const.getD_alter_self h.out
 
 theorem getKey?_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β → Option β}
@@ -1610,8 +1612,8 @@ theorem getKeyD_modify [EquivBEq α] [LawfulHashable α] {k k' fallback : α} {f
         m.getKeyD k' fallback :=
   DHashMap.Raw.Const.getKeyD_modify h.out
 
-theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k fallback : α} {f : β → β}
-    (h : m.WF) : (modify m k f).getKeyD k fallback = if k ∈ m then k else fallback :=
+theorem getKeyD_modify_self [EquivBEq α] [LawfulHashable α] [Inhabited α] {k fallback : α}
+    {f : β → β} (h : m.WF) : (modify m k f).getKeyD k fallback = if k ∈ m then k else fallback :=
   DHashMap.Raw.Const.getKeyD_modify_self h.out
 
 end Modify

@@ -195,6 +195,9 @@ theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n -
 
 /-! ### iota -/
 
+section
+set_option linter.deprecated false
+
 theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
   | 0 => rfl
   | n + 1 => by simp [iota, range'_concat, iota_eq_reverse_range' n, reverse_append, Nat.add_comm]
@@ -316,6 +319,8 @@ theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
       apply h
       · omega
       · omega
+
+end
 
 /-! ### enumFrom -/
 

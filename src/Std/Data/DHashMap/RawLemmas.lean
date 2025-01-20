@@ -1987,11 +1987,14 @@ open Internal.Raw Internal.Raw₀
 
 section Alter
 
--- Is there a way to declare h with `variable` so that simp_to_raw still finds it?
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
+    (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) := by
+  simp_to_raw using Raw₀.isEmpty_alter_eq_isEmpty_erase
+
 @[simp]
 theorem isEmpty_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
-    (m.alter k f).isEmpty = ((m.erase k).isEmpty && (f (m.get? k)).isNone) := by
-  simp_to_raw using Raw₀.isEmpty_alter
+    (m.alter k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (m.get? k)).isNone := by
+  simp_to_raw using Raw₀.Const.isEmpty_alter
 
 theorem contains_alter [LawfulBEq α] {k k': α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
@@ -2045,17 +2048,17 @@ theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Opt
   revert h₁ h₂
   simp_to_raw using Raw₀.size_alter_eq_sub_one
 
-theorem size_alter_eq_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
   simp_to_raw using Raw₀.size_alter_eq_self
 
-theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
+theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     (h : m.WF) (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
-  simp_to_raw using Raw₀.size_alter_eq_self'
+  simp_to_raw using Raw₀.size_alter_eq_self_of_mem
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} (h : m.WF) :
     (m.alter k f).size ≤ m.size + 1 := by
@@ -2185,14 +2188,18 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
+theorem isEmpty_alter_eq_isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
+    (Const.alter m k f).isEmpty = ((m.erase k).isEmpty && (f (Const.get? m k)).isNone) := by
+  simp_to_raw using Raw₀.Const.isEmpty_alter_eq_isEmpty_erase
+
 @[simp]
 theorem isEmpty_alter [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β} (h : m.WF) :
-    (Const.alter m k f).isEmpty ↔ (m.erase k).isEmpty ∧ f (Const.get? m k) = none := by
+    (alter m k f).isEmpty = ((m.isEmpty || (m.size == 1 && m.contains k))) && (f (get? m k)).isNone := by
   simp_to_raw using Raw₀.Const.isEmpty_alter
 
 theorem contains_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β}
     (h : m.WF) : (Const.alter m k f).contains k' =
-    if k == k' then (f (Const.get? m k)).isSome else m.contains k' := by
+      if k == k' then (f (Const.get? m k)).isSome else m.contains k' := by
   simp_to_raw using Raw₀.Const.contains_alter
 
 theorem mem_alter [EquivBEq α] [LawfulHashable α] {k k': α} {f : Option β → Option β} (h : m.WF) :
@@ -2245,17 +2252,17 @@ theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option 
   revert h₁ h₂
   simp_to_raw using Raw₀.Const.size_alter_eq_sub_one
 
-theorem size_alter_eq_self [LawfulBEq α] {k : α} {f : Option β → Option β}
+theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
     (h : m.WF) (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
   simp_to_raw using Raw₀.Const.size_alter_eq_self
 
-theorem size_alter_eq_self' [LawfulBEq α] {k : α} {f : Option β → Option β}
+theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
     (h : m.WF) (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
-  simp_to_raw using Raw₀.Const.size_alter_eq_self'
+  simp_to_raw using Raw₀.Const.size_alter_eq_self_of_mem
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.WF) :
     (Const.alter m k f).size ≤ m.size + 1 := by

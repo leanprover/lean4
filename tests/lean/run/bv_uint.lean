@@ -57,3 +57,27 @@ b.toBitVec = 0xffffffffffffffff#64
 #guard_msgs in
 example (a b : UInt64) : a + b = a := by
   bv_decide
+
+
+
+
+
+/-! USize -/
+example (a b : USize) : a + b = b + a := by
+  rcases System.Platform.numBits_eq with h | h
+  · simp only [int_toBitVec]
+    subst h
+    simp only [h, int_toBitVec]
+    bv_decide
+    sorry
+  · sorry
+  bv_decide
+
+/--
+error: The prover found a counterexample, consider the following assignment:
+a.toBitVec = 0xff#8
+b.toBitVec = 0xff#8
+-/
+#guard_msgs in
+example (a b : USize) : a + b = a := by
+  bv_decide

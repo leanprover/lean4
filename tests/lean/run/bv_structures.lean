@@ -18,16 +18,8 @@ structure Basic where
   y : BitVec 32
   h : y + x = 0
 
---example (b : Basic) : b.x + b.y = 0 := by
 example (b : Basic) : b.x + b.y = 0 := by
-  -- TODO: with this it works, figure out where i'm messing up mvar contexts
-  -- bv_normalize
-set_option trace.Meta.Tactic.bv true in
-set_option trace.Meta.Tactic.simp.rewrite true in
-set_option trace.profiler true in
-  bv_normalize
-  sorry
-  --bv_decide
+  bv_decide
 
 end Ex2
 
@@ -64,9 +56,9 @@ end Ex4
 namespace Ex5
 
 structure Param (x : BitVec 32) (y : BitVec 32) where
-  h : x + y = 0
+  h : y + x = 0
 
-example (p : Param x y) : x + y = 0 := by
+example (x y : BitVec 32) (p : Param x y) : x + y = 0 := by
   bv_decide
 
 end Ex5

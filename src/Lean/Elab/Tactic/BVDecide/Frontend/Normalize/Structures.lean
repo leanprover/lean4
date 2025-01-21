@@ -10,6 +10,12 @@ import Lean.Meta.Tactic.Cases
 /-!
 This module contains the implementation of the pre processing pass for automatically splitting up
 structures containing information about supported types into individual parts recursively.
+
+The implementation runs cases recursively on all "interesting" types where a type is interesting if
+it is a non recursive structure and at least one of the following conditions hold:
+- it contains something of type `BitVec`/`UIntX`/`Bool`
+- it is parametrized by an interesting type
+- it contains another interesting type
 -/
 
 namespace Lean.Elab.Tactic.BVDecide
@@ -17,61 +23,92 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
+/--
+Contains a cache for interesting and uninteresting types such that we don't duplicate work in the
+structures pass.
+-/
+structure InterestingStructures where
+  interesting : Std.HashMap Name Bool := {}
+
+private abbrev M := StateRefT InterestingStructures MetaM
+
+namespace M
+
+@[inline]
+def lookup (n : Name) : M (Option Bool) := do
+  let s ← get
+  return s.interesting.get? n
+
+@[inline]
+def markInteresting (n : Name) : M Unit := do
+  modify (fun s => {s with interesting := s.interesting.insert n true})
+
+@[inline]
+def markUninteresting (n : Name) : M Unit := do
+  modify (fun s => {s with interesting := s.interesting.insert n false})
+
+end M
+
 partial def structuresPass : Pass where
   name := `structures
   run' goal := do
-    let (_, supportedTypes) ← checkContext goal |>.run {}
+    let (_, { interesting, ..} ) ← checkContext goal |>.run {}
 
-    let detector decl := do
-      if decl.isLet then
+    let goals ← goal.casesRec fun decl => do
+      if decl.isLet || decl.isImplementationDetail then
         return false
       else
         let some const := decl.type.getAppFn.constName? | return false
-        return supportedTypes.contains const
-    let goals ← goal.casesRec detector
+        let some ofInterest := interesting.get? const | return false
+        return ofInterest
     match goals with
     | [goal] => return goal
     | _ => throwError "structures preprocessor generated more than 1 goal"
 where
-  checkContext (goal : MVarId) : StateRefT (Std.HashSet Name) MetaM Unit := do
+  checkContext (goal : MVarId) : M Unit := do
     goal.withContext do
       for decl in ← getLCtx do
-        -- TODO: support lets?
-        if !decl.isLet then
-          let some const := decl.type.getAppFn.constName? | continue
-          discard <| checkType const
+        if !decl.isLet && !decl.isImplementationDetail then
+          discard <| typeRelevant decl.type
 
-  checkType (n : Name) : StateRefT (Std.HashSet Name) MetaM Bool := do
-    -- TODO: support structures parametrized by BitVec/UInt/Bool
-    if (← get).contains n then
-     return true
+  constInterestingCached (n : Name) : M Bool := do
+    if let some cached ← M.lookup n then
+      return cached
 
-    let env ← getEnv
-    let some info := getStructureInfo? env n | return false
-    if (← getConstInfoInduct n).isRec then
-      return false
-
-    let analyzer field := do
-      let typ := (← getConstInfo field.projFn).type
-      forallTelescope typ fun _ ret => do
-        match_expr ret with
-        | BitVec n => return (← getNatValue? n).isSome
-        | UInt8 => return true
-        | UInt16 => return true
-        | UInt32 => return true
-        | UInt64 => return true
-        | USize => return true
-        | Bool => return true
-        | _ =>
-          let some const := ret.getAppFn.constName? | return false
-          checkType const
-
-    let projs ← info.fieldInfo.mapM analyzer
-    if projs.contains true then
-      modify fun s => s.insert n
+    let interesting ← constInteresting n
+    if interesting then
+      M.markInteresting n
       return true
     else
+      M.markUninteresting n
       return false
+
+  constInteresting (n : Name) : M Bool := do
+    let env ← getEnv
+    if !isStructure env n then
+      return false
+    let constInfo := (← getConstInfoInduct n)
+    if constInfo.isRec then
+      return false
+
+    let ctorTyp := (← getConstInfoCtor constInfo.ctors.head!).type
+    let analyzer state arg := do
+      return state || (← typeRelevant (← arg.fvarId!.getType))
+    forallTelescope ctorTyp (fun args _ => args.foldlM (init := false) analyzer)
+
+  typeRelevant (expr : Expr) : M Bool := do
+    match_expr expr with
+    | BitVec n => return (← getNatValue? n).isSome
+    | UInt8 => return true
+    | UInt16 => return true
+    | UInt32 => return true
+    | UInt64 => return true
+    | USize => return true
+    | Bool => return true
+    | _ =>
+      let some const := expr.getAppFn.constName? | return false
+      constInterestingCached const
+
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

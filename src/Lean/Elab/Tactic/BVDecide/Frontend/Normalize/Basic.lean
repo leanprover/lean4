@@ -32,7 +32,6 @@ def getConfig : PreProcessM BVDecideConfig := read
 @[inline]
 def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
   let val := (← get).rewriteCache.contains fvar
-  trace[Meta.Tactic.bv] m!"{mkFVar fvar} was already rewritten? {val}"
   return val
 
 @[inline]

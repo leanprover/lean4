@@ -13,6 +13,7 @@ scoped notation:max "◾" => lcErased
 namespace LCNF
 
 def erasedExpr := mkConst ``lcErased
+def anyExpr := mkConst ``lcAny
 
 def _root_.Lean.Expr.isErased (e : Expr) :=
   e.isAppOf ``lcErased

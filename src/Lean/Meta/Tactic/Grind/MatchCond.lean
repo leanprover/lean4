@@ -29,6 +29,36 @@ def addMatchCond (s : Simprocs) : CoreM Simprocs := do
   s.add ``reduceMatchCond (post := false)
 
 /--
+Helper function for `isSatisfied`.
+See `isSatisfied`.
+-/
+private partial def isMathCondFalseHyp (e : Expr) : GoalM Bool := do
+  match_expr e with
+  | Eq _ lhs rhs => isFalse lhs rhs
+  | HEq _ lhs _ rhs => isFalse lhs rhs
+  | _ => return false
+where
+  isFalse (lhs rhs : Expr) : GoalM Bool := do
+    if lhs.hasLooseBVars then return false
+    let root ← getRootENode lhs
+    if root.ctor then
+      let some ctorLhs ← isConstructorApp? root.self | return false
+      let some ctorRhs ← isConstructorApp? rhs | return false
+      if ctorLhs.name ≠ ctorRhs.name then return true
+      let lhsArgs := root.self.getAppArgs
+      let rhsArgs := rhs.getAppArgs
+      for i in [ctorLhs.numParams : ctorLhs.numParams + ctorLhs.numFields] do
+        if (← isFalse lhsArgs[i]! rhsArgs[i]!) then
+          return true
+      return false
+    else if root.interpreted then
+      if rhs.hasLooseBVars then return false
+      unless (← isLitValue rhs) do return false
+      return (← normLitValue root.self) != (← normLitValue rhs)
+    else
+      return false
+
+/--
 Returns `true` if `e` is a `Grind.MatchCond`, and it has been satifisfied.
 Recall that we use `Grind.MatchCond` to annotate conditional `match`-equations.
 Consider the following example:
@@ -61,43 +91,65 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
   let mut e := e
   repeat
     let .forallE _ d b _ := e | break
-    match_expr d with
-    | Eq _ lhs rhs => if (← isFalse lhs rhs) then return true
-    | HEq _ lhs _ rhs => if (← isFalse lhs rhs) then return true
-    | _ => pure ()
+    if (← isMathCondFalseHyp d) then
+      trace[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
+      return true
     e := b
   return false
-where
-  isFalse (lhs rhs : Expr) : GoalM Bool := do
-    let r ← isFalseLoop lhs rhs
-    if r then
-      trace[grind.debug.matchCond] "satifised{indentExpr e}\nthe term{indentExpr lhs}\nis not equal to{indentExpr rhs}"
-    return r
 
-  isFalseLoop (lhs rhs : Expr) : GoalM Bool := do
-    if lhs.hasLooseBVars then return false
+private partial def mkMathCondProof? (e : Expr) : GoalM (Option Expr) := do
+  let_expr Grind.MatchCond f ← e | return none
+  forallTelescopeReducing f fun xs _ => do
+    for x in xs do
+      let type ← inferType x
+      if (← isMathCondFalseHyp type) then
+        trace[grind.debug.matchCond] ">>> {type}"
+        let some h ← go? x | pure ()
+        return some (← mkLambdaFVars xs h)
+    return none
+where
+  go? (h : Expr) : GoalM (Option Expr) := do
+    trace[grind.debug.matchCond] "go?: {← inferType h}"
+    let (lhs, rhs, isHeq) ← match_expr (← inferType h) with
+      | Eq _ lhs rhs => pure (lhs, rhs, false)
+      | HEq _ lhs _ rhs => pure (lhs, rhs, true)
+      | _ => return none
+    let target ← (← get).mvarId.getType
     let root ← getRootENode lhs
-    if root.ctor then
-      let some ctorLhs ← isConstructorApp? root.self | return false
-      let some ctorRhs ← isConstructorApp? rhs | return false
-      if ctorLhs.name ≠ ctorRhs.name then return true
-      let lhsArgs := root.self.getAppArgs
-      let rhsArgs := rhs.getAppArgs
-      for i in [ctorLhs.numParams : ctorLhs.numParams + ctorLhs.numFields] do
-        if (← isFalseLoop lhsArgs[i]! rhsArgs[i]!) then
-          return true
-      return false
-    else if root.interpreted then
-      if rhs.hasLooseBVars then return false
-      unless (← isLitValue rhs) do return false
-      return (← normLitValue root.self) != (← normLitValue rhs)
+    let h ← if isHeq then
+      mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
     else
-      return false
+      mkEqTrans (← mkEqProof root.self lhs) h
+    if root.ctor then
+      let some ctorLhs ← isConstructorApp? root.self | return none
+      let some ctorRhs ← isConstructorApp? rhs | return none
+      let h ← mkNoConfusion target h
+      if ctorLhs.name ≠ ctorRhs.name then
+        return some h
+      else
+        let .forallE _ k _ _ ← whnfD (← inferType h)
+          | return none
+        forallTelescopeReducing k fun xs _ => do
+          for x in xs do
+            let some hx ← go? x | pure ()
+            return some (mkApp h (← mkLambdaFVars xs hx))
+          return none
+    else if root.interpreted then
+      if (← normLitValue root.self) != (← normLitValue rhs) then
+        let hne ← mkDecideProof (mkNot (← mkEq root.self rhs))
+        return some (mkApp hne h)
+      else
+        return none
+    else
+      return none
 
 /-- Propagates `MatchCond` upwards -/
 builtin_grind_propagator propagateMatchCond ↑Grind.MatchCond := fun e => do
   trace[grind.debug.matchCond] "visiting{indentExpr e}"
   if !(← isStatisfied e) then return ()
-  -- TODO: construct proof for `e = True`.
+  let some h ← mkMathCondProof? e
+     | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
+  trace[grind.debug.matchCond] "{← inferType h}"
+  pushEqTrue e <| mkEqTrueCore e h
 
 end Lean.Meta.Grind

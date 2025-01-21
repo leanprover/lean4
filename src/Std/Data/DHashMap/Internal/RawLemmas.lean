@@ -1805,7 +1805,6 @@ theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')]
     {f : Option (β k) → Option (β k)} :
     (m.alter k f).get! k' =
       if heq : k == k' then
-        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
         (f (m.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         m.get! k' := by
@@ -2059,7 +2058,6 @@ theorem get_modify_self (h : m.1.WF) {k : α} {f : β k → β k} {hc : (m.modif
 theorem get!_modify (h : m.1.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
     (m.modify k f).get! k' =
       if heq : k == k' then
-        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
         m.get? k |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         m.get! k' := by

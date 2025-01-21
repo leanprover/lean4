@@ -2967,7 +2967,6 @@ theorem getValueCast_alterKey_self (k : α) (f : Option (β k) → Option (β k)
 theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')] {f : Option (β k) → Option (β k)}
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) : getValueCast! k' (alterKey k f l) =
       if heq : k == k' then
-        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
         (f (getValueCast? k l)).map (cast (congrArg β <| eq_of_beq heq)) |>.get!
       else
         getValueCast! k' l := by
@@ -3418,7 +3417,6 @@ theorem getValueCast!_modifyKey [BEq α] [LawfulBEq α] {k k' : α} [hi : Inhabi
     {f : β k → β k} (l : List ((a : α) × β a)) (hl : DistinctKeys l) :
     getValueCast! k' (modifyKey k f l) =
       if heq : k == k' then
-        haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
         getValueCast? k l |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         getValueCast! k' l := by

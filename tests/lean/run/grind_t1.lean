@@ -325,3 +325,28 @@ example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
 
 example (x : S) : x.a = 10 → false ≠ x.b → x = { a := 10, b := true } := by
   grind
+
+
+-- In the following test, we should not display `10 := 10` and `20 := 20` in the
+-- assignment produced by the offset module
+/--
+error: `grind` failed
+case grind
+a : Nat
+b : Bool
+a✝¹ : (if b = true then 10 else 20) = a
+a✝ : b = true
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] (if b = true then 10 else 20) = a
+    [prop] b = true
+  [eqc] True propositions
+    [prop] b = true
+  [eqc] Equivalence classes
+    [eqc] {a, if b = true then 10 else 20, 10}
+    [eqc] {b, true}
+-/
+#guard_msgs (error) in
+example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
+  grind

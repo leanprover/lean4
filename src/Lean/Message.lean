@@ -220,6 +220,15 @@ where
   | trace _ msg msgs        => visit mctx? msg || msgs.any (visit mctx?)
   | _                       => false
 
+/--
+Maximum number of trace node children to display by default to prevent slowdowns from rendering. In
+the info view, more children can be expanded interactively.
+-/
+register_option maxTraceChildren : Nat := {
+  defValue := 50
+  descr := "Maximum number of trace node children to display"
+}
+
 partial def formatAux : NamingContext → Option MessageDataContext → MessageData → BaseIO Format
   | _,    _,         ofFormatWithInfos fmt    => return fmt.1
   | _,    none,      ofGoal mvarId            => return formatRawGoal mvarId
@@ -236,8 +245,13 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
     msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
-    let children ← children.mapM (formatAux nCtx ctx)
-    return .nest 2 (.joinSep (msg::children.toList) "\n")
+    let mut children := children
+    if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
+      if maxNum > 0 && children.size > maxNum then
+        children := children.take maxNum |>.push <|
+          ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData

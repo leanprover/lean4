@@ -19,7 +19,7 @@ namespace Errors
 -- A few error conditions
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   it is unchanged in the recursive calls
 -/
 #guard_msgs in
@@ -27,7 +27,7 @@ def foo1 (n : Nat) : Nat := foo1 n
 termination_by structural n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type Nat.le is an inductive family and indices are not variables
     n.succ.le 100
 -/

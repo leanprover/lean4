@@ -469,8 +469,8 @@ theorem monotone_mapM (xs : Array α) (f : γ → α → m β) (hmono : monotone
     apply monotone_const
 
 @[partial_fixpoint_monotone]
-theorem monotone_mapFinIdxM (xs : Array α) (f : γ → Fin xs.size → α → m β) (hmono : monotone f) :
-    monotone (fun x => xs.mapFinIdxM (f x)) := by
+theorem monotone_mapFinIdxM (xs : Array α) (f : γ → (i : Nat) → α → i < xs.size → m β)
+    (hmono : monotone f) : monotone (fun x => xs.mapFinIdxM (f x)) := by
   suffices ∀ i j (h : i + j = xs.size) r, monotone (fun x => Array.mapFinIdxM.map xs (f x) i j h r) by apply this
   intros i j h r
   induction i, j, h, r using Array.mapFinIdxM.map.induct xs
@@ -479,6 +479,7 @@ theorem monotone_mapFinIdxM (xs : Array α) (f : γ → Fin xs.size → α → m
   case case2 ih =>
     apply monotone_bind
     · dsimp
+      apply monotone_apply
       apply monotone_apply
       apply monotone_apply
       apply hmono

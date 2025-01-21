@@ -51,7 +51,9 @@ def rewriteRulesPass : Pass where
 where
   getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
     goal.withContext do
-      let mut hyps ← goal.getNondepPropHyps
+      -- TODO: it seems getNondepPropHyps doesn't return all the hyps we are interested in, investiagte
+      let hyps ← goal.getNondepPropHyps
+      trace[Meta.Tactic.bv] m!"Filtering: {hyps.map mkFVar}"
       let filter hyp := do
         return !(← PreProcessM.checkRewritten hyp)
       hyps.filterM filter

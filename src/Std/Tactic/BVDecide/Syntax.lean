@@ -39,6 +39,11 @@ structure BVDecideConfig where
   -/
   embeddedConstraintSubst : Bool := true
   /--
+  Split up local declarations of structures that are collections of other supported types into their
+  individual parts automatically.
+  -/
+  structures : Bool := true
+  /--
   Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
   Lean process.
   -/

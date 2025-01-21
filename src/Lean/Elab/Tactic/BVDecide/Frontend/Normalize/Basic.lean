@@ -37,7 +37,6 @@ def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
 
 @[inline]
 def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do
-  trace[Meta.Tactic.bv] m!"Adding {mkFVar fvar} to the rewritten set"
   modify (fun s => { s with rewriteCache := s.rewriteCache.insert fvar })
 
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do

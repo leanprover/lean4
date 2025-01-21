@@ -3253,9 +3253,11 @@ theorem back!_eq_back? [Inhabited α] (a : Array α) : a.back! = a.back?.getD de
 @[simp] theorem back!_push [Inhabited α] (a : Array α) : (a.push x).back! = x := by
   simp [back!_eq_back?]
 
-theorem mem_of_back?_eq_some {xs : Array α} {a : α} (h : xs.back? = some a) : a ∈ xs := by
+theorem mem_of_back? {xs : Array α} {a : α} (h : xs.back? = some a) : a ∈ xs := by
   cases xs
-  simpa using List.mem_of_getLast?_eq_some (by simpa using h)
+  simpa using List.mem_of_getLast? (by simpa using h)
+
+@[deprecated mem_of_back? (since := "2024-10-21")] abbrev mem_of_back?_eq_some := @mem_of_back?
 
 theorem getElem?_push_lt (a : Array α) (x : α) (i : Nat) (h : i < a.size) :
     (a.push x)[i]? = some a[i] := by
@@ -3760,6 +3762,27 @@ namespace Array
 
 @[simp] theorem take_size (a : Array α) : a.take a.size = a := by
   cases a
+  simp
+
+/-! ### countP and count -/
+
+@[simp] theorem _root_.List.countP_toArray (l : List α) : countP p l.toArray = l.countP p := by
+  simp [countP]
+  induction l with
+  | nil => rfl
+  | cons head tail ih =>
+    simp only [List.foldr_cons, ih, List.countP_cons]
+    split <;> simp_all
+
+@[simp] theorem countP_toList (as : Array α) : as.toList.countP p = countP p as := by
+  cases as
+  simp
+
+@[simp] theorem _root_.List.count_toArray [BEq α] (l : List α) (a : α) : count a l.toArray = l.count a := by
+  simp [count, List.count_eq_countP]
+
+@[simp] theorem count_toList [BEq α] (as : Array α) (a : α) : as.toList.count a = as.count a := by
+  cases as
   simp
 
 end Array

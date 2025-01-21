@@ -294,7 +294,7 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let brecOn := mkAppN brecOn packedFArgs
     let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.indexOf? fnIdx
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
-    let brecOn ← PProdN.proj size idx brecOn
+    let brecOn ← PProdN.projM size idx brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)
 
 end Lean.Elab.Structural

@@ -1520,11 +1520,14 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
 `O(n)`. `iota n` is the numbers from `1` to `n` inclusive, in decreasing order.
 * `iota 5 = [5, 4, 3, 2, 1]`
 -/
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
+set_option linter.deprecated false in
 @[simp] theorem iota_zero : iota 0 = [] := rfl
+set_option linter.deprecated false in
 @[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
 
 /-! ### enumFrom -/
@@ -1848,12 +1851,14 @@ def unzipTR (l : List (α × β)) : List α × List β :=
 /-! ### iota -/
 
 /-- Tail-recursive version of `List.iota`. -/
+@[deprecated "Use `List.range' 1 n` instead of `iota n`." (since := "2025-01-20")]
 def iotaTR (n : Nat) : List Nat :=
   let rec go : Nat → List Nat → List Nat
     | 0, r => r.reverse
     | m@(n+1), r => go n (m::r)
   go n []
 
+set_option linter.deprecated false in
 @[csimp]
 theorem iota_eq_iotaTR : @iota = @iotaTR :=
   have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by

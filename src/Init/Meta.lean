@@ -93,7 +93,8 @@ def isLetterLike (c : Char) : Bool :=
 def isSubScriptAlnum (c : Char) : Bool :=
   isNumericSubscript c ||
   (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
-  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
+  (0x1d62 ≤ c.val && c.val ≤ 0x1d6a) ||
+  c.val == 0x2c7c
 
 @[inline] def isIdFirst (c : Char) : Bool :=
   c.isAlpha || c = '_' || isLetterLike c

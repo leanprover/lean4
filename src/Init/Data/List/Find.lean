@@ -884,14 +884,68 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
 
-/-! ### indexOf -/
+/-! ### indexOf
+
+The verification API for `indexOf` is still incomplete.
+The lemmas below should be made consistent with those for `findIdx` (and proved using them).
+-/
 
 theorem indexOf_cons [BEq α] :
     (x :: xs : List α).indexOf y = bif x == y then 0 else xs.indexOf y + 1 := by
   dsimp [indexOf]
   simp [findIdx_cons]
 
+@[simp] theorem indexOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).indexOf a = 0 := by
+  simp [indexOf_cons]
+
+theorem indexOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
+    (l₁ ++ l₂).indexOf a = if a ∈ l₁ then l₁.indexOf a else l₂.indexOf a + l₁.length := by
+  rw [indexOf, findIdx_append]
+  split <;> rename_i h
+  · rw [if_pos]
+    simpa using h
+  · rw [if_neg]
+    simpa using h
+
+theorem indexOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.indexOf a = l.length := by
+  induction l with
+  | nil => rfl
+  | cons x xs ih =>
+    simp only [mem_cons, not_or] at h
+    simp only [indexOf_cons, cond_eq_if, beq_iff_eq]
+    split <;> simp_all
+
+theorem indexOf_lt_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∈ l) : l.indexOf a < l.length := by
+  induction l with
+  | nil => simp at h
+  | cons x xs ih =>
+    simp only [mem_cons] at h
+    obtain rfl | h := h
+    · simp
+    · simp only [indexOf_cons, cond_eq_if, beq_iff_eq, length_cons]
+      specialize ih h
+      split
+      · exact zero_lt_succ xs.length
+      · exact Nat.add_lt_add_right ih 1
+
+/-! ### indexOf?
+
+The verification API for `indexOf?` is still incomplete.
+The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
+-/
+
+@[simp] theorem indexOf?_eq_none_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    l.indexOf? a = none ↔ a ∉ l := by
+  simp only [indexOf?, findIdx?_eq_none_iff, beq_eq_false_iff_ne, ne_eq]
+  constructor
+  · intro w h
+    specialize w _ h
+    simp at w
+  · rintro w x h rfl
+    contradiction
+
 /-! ### lookup -/
+
 section lookup
 variable [BEq α] [LawfulBEq α]
 

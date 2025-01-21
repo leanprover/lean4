@@ -312,6 +312,14 @@ no element of the index matches the given value.
 @[inline] def all (v : Vector α n) (p : α → Bool) : Bool :=
   v.toArray.all p
 
+/-- Count the number of elements of a vector that satisfy the predicate `p`. -/
+@[inline] def countP (p : α → Bool) (v : Vector α n) : Nat :=
+  v.toArray.countP p
+
+/-- Count the number of elements of a vector that are equal to `a`. -/
+@[inline] def count [BEq α] (a : α) (v : Vector α n) : Nat :=
+  v.toArray.count a
+
 /-! ### Lexicographic ordering -/
 
 instance instLT [LT α] : LT (Vector α n) := ⟨fun v w => v.toArray < w.toArray⟩

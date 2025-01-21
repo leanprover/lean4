@@ -3797,7 +3797,8 @@ theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
 
 @[simp]
 theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by omega) :
-    (x.replicate 1) = x.cast h := by simp [replicate, h]
+    (x.replicate 1) = x.cast h := by 
+  simp [replicate, h]
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :

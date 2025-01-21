@@ -59,8 +59,7 @@ partial def structuresPass : Pass where
         return false
       else
         let some const := decl.type.getAppFn.constName? | return false
-        let some ofInterest := interesting.get? const | return false
-        return ofInterest
+        return interesting.getD const false
     match goals with
     | [goal] => return goal
     | _ => throwError "structures preprocessor generated more than 1 goal"

@@ -2750,9 +2750,11 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   rw [getLast?_eq_head?_reverse, head?_isSome]
   simp
 
-theorem mem_of_getLast?_eq_some {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
+theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
   obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.1 h
   exact mem_concat_self ys a
+
+@[deprecated mem_of_getLast? (since := "2024-10-21")] abbrev mem_of_getLast?_eq_some := @mem_of_getLast?
 
 @[simp] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by

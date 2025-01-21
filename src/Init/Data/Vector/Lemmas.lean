@@ -779,6 +779,10 @@ theorem getElem?_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ i : Nat, l[i]?
 theorem mem_of_getElem? {l : Vector α n} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 
+theorem mem_of_back? {xs : Vector α n} {a : α} (h : xs.back? = some a) : a ∈ xs := by
+  cases xs
+  simpa using Array.mem_of_back? (by simpa using h)
+
 theorem mem_iff_getElem {a} {l : Vector α n} : a ∈ l ↔ ∃ (i : Nat) (h : i < n), l[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
@@ -1147,6 +1151,11 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
   cases a
   simp
 
+@[simp] theorem getElem?_map (f : α → β) (a : Vector α n) (i : Nat) :
+    (a.map f)[i]? = a[i]?.map f := by
+  cases a
+  simp
+
 /-- The empty vector maps to the empty vector. -/
 @[simp]
 theorem map_empty (f : α → β) : map f #v[] = #v[] := by
@@ -1323,10 +1332,10 @@ theorem singleton_eq_toVector_singleton (a : α) : #v[a] = #[a].toVector := rfl
   cases t
   simp
 
-theorem mem_append_left {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ s) : a ∈ s ++ t :=
+theorem mem_append_left {a : α} {s : Vector α n} (t : Vector α m) (h : a ∈ s) : a ∈ s ++ t :=
   mem_append.2 (Or.inl h)
 
-theorem mem_append_right {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ t) : a ∈ s ++ t :=
+theorem mem_append_right {a : α} (s : Vector α n) {t : Vector α m} (h : a ∈ t) : a ∈ s ++ t :=
   mem_append.2 (Or.inr h)
 
 theorem not_mem_append {a : α} {s : Vector α n} {t : Vector α m} (h₁ : a ∉ s) (h₂ : a ∉ t) :

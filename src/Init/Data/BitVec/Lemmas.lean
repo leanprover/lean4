@@ -3796,8 +3796,8 @@ theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
   by_cases h' : w = 0 <;> simp [h'] <;> omega
 
 @[simp]
-theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := Nat.mul_one _) :
-    (x.replicate 1) = x.cast h := by 
+theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by rw [Nat.mul_one]) :
+    (x.replicate 1) = x.cast h := by
   simp [replicate, h]
 
 @[simp]

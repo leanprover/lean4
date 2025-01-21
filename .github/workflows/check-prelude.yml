@@ -14,6 +14,7 @@ jobs:
           sparse-checkout: |
             src/Lean
             src/Std
+            src/lake/Lake
       - name: Check Prelude
         run: |
           failed_files=""
@@ -21,7 +22,7 @@ jobs:
             if ! grep -q "^prelude$" "$file"; then
               failed_files="$failed_files$file\n"
             fi
-          done < <(find src/Lean src/Std -name '*.lean' -print0)
+          done < <(find src/Lean src/Std src/lake/Lake -name '*.lean' -print0)
           if [ -n "$failed_files" ]; then
             echo -e "The following files should use 'prelude':\n$failed_files"
             exit 1

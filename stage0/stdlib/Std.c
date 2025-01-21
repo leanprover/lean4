@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std
-// Imports: Std.Data Std.Sat Std.Time Std.Tactic Std.Internal
+// Imports: Std.Data Std.Sat Std.Sync Std.Time Std.Tactic Std.Internal Std.Net
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,9 +15,11 @@ extern "C" {
 #endif
 lean_object* initialize_Std_Data(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sat(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Sync(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Time(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Tactic(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Internal(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Net(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -29,6 +31,9 @@ lean_dec_ref(res);
 res = initialize_Std_Sat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Std_Sync(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Std_Time(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -36,6 +41,9 @@ res = initialize_Std_Tactic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Net(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

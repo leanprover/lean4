@@ -160,7 +160,8 @@ def _root_.Lean.MVarId.contradictionCore (mvarId : MVarId) (config : Contradicti
         -- (h : ¬ p) (h' : p)
         if let some p ← matchNot? localDecl.type then
           if let some pFVarId ← findLocalDeclWithType? p then
-            mvarId.assign (← mkAbsurd (← mvarId.getType) (mkFVar pFVarId) localDecl.toExpr)
+            -- We use `False.elim` because `p`'s type may be Type
+            mvarId.assign (← mkFalseElim (← mvarId.getType) (mkApp localDecl.toExpr (mkFVar pFVarId)))
             return true
         -- (h : x ≠ x)
         if let some (_, lhs, rhs) ← matchNe? localDecl.type then

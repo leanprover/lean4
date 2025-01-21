@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.Package
 
 namespace Lake
@@ -96,7 +97,7 @@ Otherwise, falls back to the package's.
   self.config.defaultFacets
 
 /-- The library's `nativeFacets` configuration. -/
-@[inline] def nativeFacets (self : LeanLib) (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+@[inline] def nativeFacets (self : LeanLib) (shouldExport : Bool) : Array (ModuleFacet (Job FilePath)) :=
   self.config.nativeFacets shouldExport
 
 /--

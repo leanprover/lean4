@@ -22,7 +22,7 @@ def Ordinal := Bounded.LE 0 999999999
   deriving Repr, BEq, LE, LT
 
 instance : OfNat Ordinal n where
-  ofNat := Bounded.LE.ofFin (Fin.ofNat n)
+  ofNat := Bounded.LE.ofFin (Fin.ofNat' _ n)
 
 instance : Inhabited Ordinal where
   default := 0
@@ -41,6 +41,9 @@ def Offset : Type := UnitVal (1 / 1000000000)
 
 instance { x y : Offset } : Decidable (x ≤ y) :=
   inferInstanceAs (Decidable (x.val ≤ y.val))
+
+instance { x y : Offset } : Decidable (x < y) :=
+  inferInstanceAs (Decidable (x.val < y.val))
 
 instance : OfNat Offset n :=
   ⟨UnitVal.ofNat n⟩

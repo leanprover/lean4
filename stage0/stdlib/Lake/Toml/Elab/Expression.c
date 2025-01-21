@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Elab.Expression
-// Imports: Init Lake.Toml.Elab.Value
+// Imports: Lake.Toml.Elab.Value
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -185,6 +185,7 @@ lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Toml_elabSubKeys___spec__3(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 static lean_object* l_Lean_logAt___at_Lake_Toml_elabToml___spec__1___closed__2;
+uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(uint8_t, uint8_t);
 lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_elabToml___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Toml_elabToml___spec__2___closed__3;
@@ -210,7 +211,6 @@ LEAN_EXPORT lean_object* l_Lean_logAt___at_Lake_Toml_elabToml___spec__1___lambda
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_StateT_bind___at_Lake_Toml_elabToml___spec__3___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Toml_elabToml___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);
 static lean_object* l_Lake_Toml_elabToml___closed__2;
@@ -7155,7 +7155,7 @@ _start:
 {
 lean_object* x_8; uint8_t x_320; uint8_t x_321; 
 x_320 = 2;
-x_321 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_320);
+x_321 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_320);
 if (x_321 == 0)
 {
 lean_object* x_322; 
@@ -7199,7 +7199,7 @@ lean_dec(x_8);
 x_313 = lean_ctor_get(x_5, 2);
 lean_inc(x_313);
 x_314 = 1;
-x_315 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_106_(x_3, x_314);
+x_315 = l___private_Lean_Message_0__Lean_beqMessageSeverity____x40_Lean_Message___hyg_107_(x_3, x_314);
 if (x_315 == 0)
 {
 lean_dec(x_313);
@@ -9254,16 +9254,12 @@ lean_dec(x_3);
 return x_7;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Elab_Value(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Toml_Elab_Expression(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_Elab_Value(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
 import Lake.Build.Facets
@@ -136,7 +137,7 @@ module_data lean.precompileImports : Array Module
 
 /-- Shared library for `--load-dynlib`. -/
 abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : BuildJob Dynlib
+module_data dynlib : Job Dynlib
 
 /-- A Lean library's Lean modules. -/
 abbrev LeanLib.modulesFacet := `modules
@@ -241,10 +242,10 @@ abbrev Package.gitHubRelease (self : Package) : BuildInfo :=
 abbrev Package.optGitHubRelease (self : Package) : BuildInfo :=
   self.facet optGitHubReleaseFacet
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated gitHubRelease (since := "2024-09-27")]
 abbrev Package.release := @gitHubRelease
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated optGitHubRelease (since := "2024-09-27")]
 abbrev Package.optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]

@@ -32,12 +32,8 @@ theorem get_map {xs : IntList} (h : f 0 = 0) : get (xs.map f) i = f (xs.get i) :
   cases xs[i]? <;> simp_all
 
 theorem get_of_length_le {xs : IntList} (h : xs.length ≤ i) : xs.get i = 0 := by
-  rw [get, List.get?_eq_none.mpr h]
+  rw [get, List.get?_eq_none_iff.mpr h]
   rfl
-
--- theorem lt_length_of_get_nonzero {xs : IntList} (h : xs.get i ≠ 0) : i < xs.length := by
---   revert h
---   simpa using mt get_of_length_le
 
 /-- Like `List.set`, but right-pad with zeroes as necessary first. -/
 def set (xs : IntList) (i : Nat) (y : Int) : IntList :=

@@ -11,7 +11,7 @@ import Init.Data.UInt.BasicAux
 import Init.Data.Repr
 import Init.Data.ToString.Basic
 import Init.GetElem
-import Init.Data.List.ToArray
+import Init.Data.List.ToArrayImpl
 import Init.Data.Array.Set
 
 universe u v w
@@ -79,11 +79,14 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp] theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+-- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
+
+@[simp] theorem getElem?_toList {a : Array α} {i : Nat} : a.toList[i]? = a[i]? := rfl
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -96,6 +99,9 @@ instance : Membership α (Array α) where
 
 theorem mem_def {a : α} {as : Array α} : a ∈ as ↔ a ∈ as.toList :=
   ⟨fun | .mk h => h, Array.Mem.mk⟩
+
+@[simp] theorem mem_toArray {a : α} {l : List α} : a ∈ l.toArray ↔ a ∈ l := by
+  simp [mem_def]
 
 @[simp] theorem getElem_mem {l : Array α} {i : Nat} (h : i < l.size) : l[i] ∈ l := by
   rw [Array.mem_def, ← getElem_toList]
@@ -166,15 +172,15 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_fswap"]
-def swap (a : Array α) (i j : @& Fin a.size) : Array α :=
+def swap (a : Array α) (i j : @& Nat) (hi : i < a.size := by get_elem_tactic) (hj : j < a.size := by get_elem_tactic) : Array α :=
   let v₁ := a[i]
   let v₂ := a[j]
   let a'  := a.set i v₂
-  a'.set j v₁ (Nat.lt_of_lt_of_eq j.isLt (size_set a i v₂ _).symm)
+  a'.set j v₁ (Nat.lt_of_lt_of_eq hj (size_set a i v₂ _).symm)
 
-@[simp] theorem size_swap (a : Array α) (i j : Fin a.size) : (a.swap i j).size = a.size := by
+@[simp] theorem size_swap (a : Array α) (i j : Nat) {hi hj} : (a.swap i j hi hj).size = a.size := by
   show ((a.set i a[j]).set j a[i]
-    (Nat.lt_of_lt_of_eq j.isLt (size_set a i a[j] _).symm)).size = a.size
+    (Nat.lt_of_lt_of_eq hj (size_set a i a[j] _).symm)).size = a.size
   rw [size_set, size_set]
 
 /--
@@ -184,11 +190,13 @@ This will perform the update destructively provided that `a` has a reference
 count of 1 when called.
 -/
 @[extern "lean_array_swap"]
-def swap! (a : Array α) (i j : @& Nat) : Array α :=
+def swapIfInBounds (a : Array α) (i j : @& Nat) : Array α :=
   if h₁ : i < a.size then
-  if h₂ : j < a.size then swap a ⟨i, h₁⟩ ⟨j, h₂⟩
+  if h₂ : j < a.size then swap a i j
   else a
   else a
+
+@[deprecated swapIfInBounds (since := "2024-11-24")] abbrev swap! := @swapIfInBounds
 
 /-! ### GetElem instance for `USize`, backed by `uget` -/
 
@@ -201,7 +209,7 @@ instance : EmptyCollection (Array α) := ⟨Array.empty⟩
 instance : Inhabited (Array α) where
   default := Array.empty
 
-@[simp] def isEmpty (a : Array α) : Bool :=
+def isEmpty (a : Array α) : Bool :=
   a.size = 0
 
 @[specialize]
@@ -236,11 +244,10 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
-def singleton (v : α) : Array α :=
-  mkArray 1 v
+@[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=
-  a.get! (a.size - 1)
+  a[a.size - 1]!
 
 @[deprecated back! (since := "2024-10-31")] abbrev back := @back!
 
@@ -250,7 +257,7 @@ def get? (a : Array α) (i : Nat) : Option α :=
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
 
-@[inline] def swapAt (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+@[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]
   let a := a.set i v
   (e, a)
@@ -258,7 +265,7 @@ def back? (a : Array α) : Option α :=
 @[inline]
 def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
   if h : i < a.size then
-    swapAt a ⟨i, h⟩ v
+    swapAt a i v
   else
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
@@ -448,7 +455,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
 /-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
-    (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
+    (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
     match i, inv with
     | 0,    _  => pure bs
@@ -457,12 +464,12 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get j j_lt)))
+      map i (j+1) this (bs.push (← f j (as.get j j_lt) j_lt))
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-  as.mapFinIdxM fun i a => f i a
+  as.mapFinIdxM fun i a _ => f i a
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
@@ -472,6 +479,10 @@ def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f 
     | _      => pure ⟨⟩
   return none
 
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
 @[inline]
 def findM? {α : Type} {m : Type → Type} [Monad m] (p : α → m Bool) (as : Array α) : m (Option α) := do
   for a in as do
@@ -565,13 +576,19 @@ def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : A
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
   Id.run <| as.foldrM f init start stop
 
+/-- Sum of an array.
+
+`Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+def sum {α} [Add α] [Zero α] : Array α → α :=
+  foldr (· + ·) 0
+
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
 /-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
   Id.run <| as.mapFinIdxM f
 
 @[inline]
@@ -583,8 +600,12 @@ def zipWithIndex (arr : Array α) : Array (α × Nat) :=
   arr.mapIdx fun i a => (a, i)
 
 @[inline]
-def find? {α : Type} (p : α → Bool) (as : Array α) : Option α :=
-  Id.run <| as.findM? p
+def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
+  Id.run do
+    for a in as do
+      if p a then
+        return a
+    return none
 
 @[inline]
 def findSome? {α : Type u} {β : Type v} (f : α → Option β) (as : Array α) : Option β :=
@@ -647,9 +668,15 @@ def any (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool 
 def all (as : Array α) (p : α → Bool) (start := 0) (stop := as.size) : Bool :=
   Id.run <| as.allM p start stop
 
+/-- `as.contains a` is true if there is some element `b` in `as` such that `a == b`. -/
 def contains [BEq α] (as : Array α) (a : α) : Bool :=
-  as.any (· == a)
+  as.any (a == ·)
 
+/--
+Variant of `Array.contains` with arguments reversed.
+
+For verification purposes, we simplify this to `contains`.
+-/
 def elem [BEq α] (a : α) (as : Array α) : Bool :=
   as.contains a
 
@@ -747,7 +774,7 @@ where
   loop (as : Array α) (i : Nat) (j : Fin as.size) :=
     if h : i < j then
       have := termination h
-      let as := as.swap ⟨i, Nat.lt_trans h j.2⟩ j
+      let as := as.swap i j (Nat.lt_trans h j.2)
       have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
       loop as (i+1) ⟨j-1, this⟩
     else
@@ -787,7 +814,7 @@ it has to backshift all elements at positions greater than `i`.-/
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def eraseIdx (a : Array α) (i : Nat) (h : i < a.size := by get_elem_tactic) : Array α :=
   if h' : i + 1 < a.size then
-    let a' := a.swap ⟨i + 1, h'⟩ ⟨i, h⟩
+    let a' := a.swap (i + 1) i
     a'.eraseIdx (i + 1) (by simp [a', h'])
   else
     a.pop
@@ -799,7 +826,7 @@ decreasing_by simp_wf; exact Nat.sub_succ_lt_self _ _ h
   induction a, i, h using Array.eraseIdx.induct with
   | @case1 a i h h' a' ih =>
     unfold eraseIdx
-    simp [h', a', ih]
+    simp +zetaDelta [h', a', ih]
   | case2 a i h h' =>
     unfold eraseIdx
     simp [h']
@@ -834,7 +861,7 @@ def eraseP (as : Array α) (p : α → Bool) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=
     if i < j then
-      let j' := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
+      let j' : Fin as.size := ⟨j-1, Nat.lt_of_le_of_lt (Nat.pred_le _) j.2⟩
       let as := as.swap j' j
       loop as ⟨j', by rw [size_swap]; exact j'.2⟩
     else
@@ -921,6 +948,13 @@ def unzip (as : Array (α × β)) : Array α × Array β :=
 def split (as : Array α) (p : α → Bool) : Array α × Array α :=
   as.foldl (init := (#[], #[])) fun (as, bs) a =>
     if p a then (as.push a, bs) else (as, bs.push a)
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Array α) := ⟨fun as bs => as.toList < bs.toList⟩
+instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toList⟩
+
+-- See `Init.Data.Array.Lex.Basic` for the boolean valued lexicographic comparator.
 
 /-! ## Auxiliary functions used in metaprogramming.
 

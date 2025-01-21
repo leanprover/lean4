@@ -48,6 +48,10 @@ def tactic : Category := {}
 For example, `let x ← e` is a `doElem`, and a `do` block consists of a list of `doElem`s. -/
 def doElem : Category := {}
 
+/-- `structInstFieldDecl` is the syntax category for value declarations for fields in structure instance notation.
+For example, the `:= 1` and `| 0 => 0 | n + 1 => n` in `{ x := 1, f | 0 => 0 | n + 1 => n }` are in the `structInstFieldDecl` class. -/
+def structInstFieldDecl : Category := {}
+
 /-- `level` is a builtin syntax category for universe levels.
 This is the `u` in `Sort u`: it can contain `max` and `imax`, addition with
 constants, and variables. -/

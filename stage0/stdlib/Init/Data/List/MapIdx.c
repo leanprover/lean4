@@ -55,7 +55,7 @@ lean_inc(x_8);
 lean_dec(x_3);
 x_9 = lean_array_get_size(x_4);
 lean_inc(x_2);
-x_10 = lean_apply_2(x_2, x_9, x_7);
+x_10 = lean_apply_3(x_2, x_9, x_7, lean_box(0));
 x_11 = lean_array_push(x_4, x_10);
 x_3 = x_8;
 x_4 = x_11;

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Toml.Load
-// Imports: Init Lake.Toml.Elab Lake.Util.Message
+// Imports: Lake.Toml.Elab Lake.Util.Message
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -332,15 +332,14 @@ return x_2;
 static lean_object* _init_l_Lake_Toml_loadToml___lambda__2___closed__18() {
 _start:
 {
-uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = 0;
-x_2 = l_Lake_Toml_loadToml___lambda__2___closed__13;
-x_3 = l_Lean_NameSet_empty;
-x_4 = lean_alloc_ctor(0, 2, 1);
-lean_ctor_set(x_4, 0, x_2);
-lean_ctor_set(x_4, 1, x_3);
-lean_ctor_set_uint8(x_4, sizeof(void*)*2, x_1);
-return x_4;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lake_Toml_loadToml___lambda__2___closed__13;
+x_2 = l_Lean_NameSet_empty;
+x_3 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_1);
+lean_ctor_set(x_3, 2, x_2);
+return x_3;
 }
 }
 static lean_object* _init_l_Lake_Toml_loadToml___lambda__2___closed__19() {
@@ -1015,7 +1014,6 @@ lean_dec(x_4);
 return x_9;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Toml_Elab(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Message(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1023,9 +1021,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Toml_Load(uint8_t builtin, lean_object*
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Toml_Elab(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

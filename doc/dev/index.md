@@ -80,3 +80,10 @@ Unlike most Lean projects, all submodules of the `Lean` module begin with the
 `prelude` keyword. This disables the automated import of `Init`, meaning that
 developers need to figure out their own subset of `Init` to import. This is done
 such that changing files in `Init` doesn't force a full rebuild of `Lean`.
+
+### Testing against Mathlib/Batteries
+You can test a Lean PR against Mathlib and Batteries by rebasing your PR
+on to `nightly-with-mathlib` branch. (It is fine to force push after rebasing.)
+CI will generate a branch of Mathlib and Batteries called `lean-pr-testing-NNNN`
+that uses the toolchain for your PR, and will report back to the Lean PR with results from Mathlib CI.
+See https://leanprover-community.github.io/contribute/tags_and_branches.html for more details.

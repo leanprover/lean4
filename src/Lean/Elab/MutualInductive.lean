@@ -377,7 +377,7 @@ private def getArity (indType : InductiveType) : MetaM Nat :=
   forallTelescopeReducing indType.type fun xs _ => return xs.size
 
 private def resetMaskAt (mask : Array Bool) (i : Nat) : Array Bool :=
-  mask.setD i false
+  mask.setIfInBounds i false
 
 /--
 Compute a bit-mask that for `indType`. The size of the resulting array `result` is the arity of `indType`.

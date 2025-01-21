@@ -38,6 +38,7 @@ end
 instance : Hashable Code where
   hash c := hashCode c
 
+deriving instance Hashable for DeclValue
 deriving instance Hashable for Decl
 
 end Lean.Compiler.LCNF

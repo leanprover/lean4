@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Workspace
-// Imports: Init Lean.Util.Paths Lake.Config.FacetConfig Lake.Config.TargetConfig Lake.Config.Env Lake.Util.Log
+// Imports: Lean.Util.Paths Lake.Config.FacetConfig Lake.Config.TargetConfig Lake.Config.Env Lake.Util.Log
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -111,6 +111,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Workspace_clean___s
 LEAN_EXPORT lean_object* l_Lake_Workspace_findLeanLib_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findTargetConfig_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_addPackageFacetConfig(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lake_Workspace_packageOverridesFile___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Workspace_augmentedLeanSrcPath___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_findLeanExe_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lake_Workspace_sharedLibPath___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,6 +119,7 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_findTargetConfig_x3f___boxed(lean_obje
 lean_object* l_System_SearchPath_toString(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_findTargetConfig_x3f___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Workspace_packageOverridesFile(lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_findExternLib_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lake_Workspace_findTargetConfig_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Workspace_pkgsDir(lean_object*);
@@ -385,6 +387,31 @@ lean_dec(x_2);
 x_5 = l_System_FilePath_join(x_3, x_4);
 lean_dec(x_4);
 return x_5;
+}
+}
+static lean_object* _init_l_Lake_Workspace_packageOverridesFile___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("package-overrides.json", 22, 22);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Workspace_packageOverridesFile(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = l_Lake_defaultLakeDir;
+x_5 = l_System_FilePath_join(x_3, x_4);
+x_6 = l_Lake_Workspace_packageOverridesFile___closed__1;
+x_7 = l_System_FilePath_join(x_5, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_RBNode_ins___at_Lake_Workspace_addPackage___spec__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -12477,7 +12504,6 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Util_Paths(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_FacetConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_TargetConfig(uint8_t builtin, lean_object*);
@@ -12488,9 +12514,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Workspace(uint8_t builtin, lean_
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Util_Paths(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -12514,6 +12537,8 @@ l_Lake_OpaqueWorkspace_instCoeWorkspace__1___closed__1 = _init_l_Lake_OpaqueWork
 lean_mark_persistent(l_Lake_OpaqueWorkspace_instCoeWorkspace__1___closed__1);
 l_Lake_OpaqueWorkspace_instCoeWorkspace__1 = _init_l_Lake_OpaqueWorkspace_instCoeWorkspace__1();
 lean_mark_persistent(l_Lake_OpaqueWorkspace_instCoeWorkspace__1);
+l_Lake_Workspace_packageOverridesFile___closed__1 = _init_l_Lake_Workspace_packageOverridesFile___closed__1();
+lean_mark_persistent(l_Lake_Workspace_packageOverridesFile___closed__1);
 l_Lake_Workspace_findScript_x3f___closed__1 = _init_l_Lake_Workspace_findScript_x3f___closed__1();
 lean_mark_persistent(l_Lake_Workspace_findScript_x3f___closed__1);
 l_Lake_Workspace_findScript_x3f___closed__2 = _init_l_Lake_Workspace_findScript_x3f___closed__2();

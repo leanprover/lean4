@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Util.Casing
 import Lake.Build.Facets
 import Lake.Config.InstallPath
@@ -78,7 +79,7 @@ structure LeanLibConfig extends LeanConfig where
   `Module.oFacet`. That is, the  object files compiled from the Lean sources,
   potentially with exported Lean symbols.
   -/
-  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (BuildJob FilePath)) :=
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (Job FilePath)) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited

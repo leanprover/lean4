@@ -501,8 +501,8 @@ example := Week.Ordinal.ofInt 1 (by decide)
 
 example := Nanosecond.Ordinal.ofFin 1
 example := Millisecond.Ordinal.ofFin 1
-example := Second.Ordinal.ofFin (leap := false) (Fin.ofNat 1)
-example := Second.Ordinal.ofFin (leap := true) (Fin.ofNat 1)
+example := Second.Ordinal.ofFin (leap := false) 37
+example := Second.Ordinal.ofFin (leap := true) 37
 example := Minute.Ordinal.ofFin 1
 example := Hour.Ordinal.ofFin 1
 example := Day.Ordinal.ofFin 1
@@ -587,7 +587,7 @@ Std.Time.Weekday.friday
 2023-06-09
 2023-06-09
 19517
-1686268800000
+1686268800
 1970-01-02
 
 -/
@@ -667,7 +667,7 @@ Std.Time.Weekday.tuesday
 12
 3
 9938
-858650584000
+858650584
 1970-01-02T00:00:00.000000000
 
 -/
@@ -741,7 +741,7 @@ Std.Time.Weekday.thursday
 37
 2
 19978
-1726117262000
+1726117262
 1970-01-02T00:00:00.000000000Z
 
 -/
@@ -816,7 +816,7 @@ Std.Time.Weekday.tuesday
 12
 3
 9938
-858661384000
+858661384
 
 -/
 #guard_msgs in

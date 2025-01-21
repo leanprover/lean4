@@ -61,7 +61,6 @@ static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____cl
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__25;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50_;
 static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___closed__3;
-lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_evalConst___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__26;
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__12;
@@ -71,6 +70,7 @@ lean_object* l_Lean_Attribute_Builtin_getIdent(lean_object*, lean_object*, lean_
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__5;
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__10;
+lean_object* l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__27;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__1(lean_object*);
 lean_object* l_Lean_Elab_realizeGlobalConstNoOverloadWithInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -936,7 +936,7 @@ lean_dec(x_17);
 lean_ctor_set(x_8, 1, x_2);
 lean_ctor_set(x_8, 0, x_18);
 x_20 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_1, x_12, x_8);
-x_21 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_20, x_5, x_6, x_19);
+x_21 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(x_20, x_5, x_6, x_19);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_21;
@@ -1036,7 +1036,7 @@ x_40 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_40, 0, x_38);
 lean_ctor_set(x_40, 1, x_2);
 x_41 = l_Lean_PersistentEnvExtension_addEntry___rarg(x_1, x_32, x_40);
-x_42 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__3(x_41, x_5, x_6, x_39);
+x_42 = l_Lean_setEnv___at_Lean_registerParametricAttribute___spec__4(x_41, x_5, x_6, x_39);
 lean_dec(x_6);
 lean_dec(x_5);
 return x_42;
@@ -1349,7 +1349,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -1586,7 +1585,6 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 x_11 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_1, x_10, x_2);
-lean_dec(x_10);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; 
@@ -1645,7 +1643,6 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f(x_1, x_28, x_2);
-lean_dec(x_28);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Opaque
-// Imports: Init Lake.Util.Name Lake.Util.Opaque
+// Imports: Lake.Util.Name Lake.Util.OpaqueType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -38,21 +38,17 @@ lean_dec(x_2);
 return x_4;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_Name(uint8_t builtin, lean_object*);
-lean_object* initialize_Lake_Util_Opaque(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Util_OpaqueType(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Config_Opaque(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Util_Name(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_Opaque(builtin, lean_io_mk_world());
+res = initialize_Lake_Util_OpaqueType(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lake_OpaqueWorkspace_nonemptyType = _init_l_Lake_OpaqueWorkspace_nonemptyType();

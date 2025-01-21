@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone, Mario Carneiro
 -/
+prelude
 import Lake.Build.Fetch
 
 namespace Lake
@@ -13,7 +14,7 @@ structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type
   /-- The facet's build (function). -/
   build : ι → FetchM (DataFam name)
   /-- Does this facet produce an associated asynchronous job? -/
-  getJob? : Option (DataFam name → BuildJob Unit)
+  getJob? : Option (DataFam name → OpaqueJob)
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
@@ -25,10 +26,10 @@ protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
   getJob? := none
 
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
-@[inline] def mkFacetJobConfig (build : ι → FetchM (BuildJob α))
-[h : FamilyOut Fam facet (BuildJob α)] : FacetConfig Fam ι facet where
+@[inline] def mkFacetJobConfig (build : ι → FetchM (Job α))
+[h : FamilyOut Fam facet (Job α)] : FacetConfig Fam ι facet where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some fun data => discard <| ofFamily data
+  getJob? := some fun data => ofFamily data |>.toOpaque
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

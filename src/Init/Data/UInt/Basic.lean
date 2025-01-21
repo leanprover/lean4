@@ -159,6 +159,8 @@ def UInt32.xor (a b : UInt32) : UInt32 := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def UInt32.shiftLeft (a b : UInt32) : UInt32 := ⟨a.toBitVec <<< (mod b 32).toBitVec⟩
 @[extern "lean_uint32_shift_right"]
 def UInt32.shiftRight (a b : UInt32) : UInt32 := ⟨a.toBitVec >>> (mod b 32).toBitVec⟩
+def UInt32.lt (a b : UInt32) : Prop := a.toBitVec < b.toBitVec
+def UInt32.le (a b : UInt32) : Prop := a.toBitVec ≤ b.toBitVec
 
 instance : Add UInt32       := ⟨UInt32.add⟩
 instance : Sub UInt32       := ⟨UInt32.sub⟩
@@ -169,6 +171,8 @@ set_option linter.deprecated false in
 instance : HMod UInt32 Nat UInt32 := ⟨UInt32.modn⟩
 
 instance : Div UInt32       := ⟨UInt32.div⟩
+instance : LT UInt32        := ⟨UInt32.lt⟩
+instance : LE UInt32        := ⟨UInt32.le⟩
 
 @[extern "lean_uint32_complement"]
 def UInt32.complement (a : UInt32) : UInt32 := ⟨~~~a.toBitVec⟩
@@ -246,6 +250,12 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
+theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
+  cases usize_size_eq <;> next h => rw [h]; decide
+
+theorem le_usize_size : 4294967296 ≤ USize.size := by
+  cases usize_size_eq <;> next h => rw [h]; decide
+
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
 @[extern "lean_usize_div"]
@@ -264,10 +274,39 @@ def USize.xor (a b : USize) : USize := ⟨a.toBitVec ^^^ b.toBitVec⟩
 def USize.shiftLeft (a b : USize) : USize := ⟨a.toBitVec <<< (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
 @[extern "lean_usize_shift_right"]
 def USize.shiftRight (a b : USize) : USize := ⟨a.toBitVec >>> (mod b (USize.ofNat System.Platform.numBits)).toBitVec⟩
+/--
+Upcast a `Nat` less than `2^32` to a `USize`.
+This is lossless because `USize.size` is either `2^32` or `2^64`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_usize_of_nat"]
+def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
+  USize.ofNatCore n (Nat.lt_of_lt_of_le h le_usize_size)
+@[extern "lean_uint8_to_usize"]
+def UInt8.toUSize (a : UInt8) : USize :=
+  USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
+@[extern "lean_usize_to_uint8"]
+def USize.toUInt8 (a : USize) : UInt8 := a.toNat.toUInt8
+@[extern "lean_uint16_to_usize"]
+def UInt16.toUSize (a : UInt16) : USize :=
+  USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
+@[extern "lean_usize_to_uint16"]
+def USize.toUInt16 (a : USize) : UInt16 := a.toNat.toUInt16
 @[extern "lean_uint32_to_usize"]
 def UInt32.toUSize (a : UInt32) : USize := USize.ofNat32 a.toBitVec.toNat a.toBitVec.isLt
 @[extern "lean_usize_to_uint32"]
 def USize.toUInt32 (a : USize) : UInt32 := a.toNat.toUInt32
+/-- Converts a `UInt64` to a `USize` by reducing modulo `USize.size`. -/
+@[extern "lean_uint64_to_usize"]
+def UInt64.toUSize (a : UInt64) : USize := a.toNat.toUSize
+/--
+Upcast a `USize` to a `UInt64`.
+This is lossless because `USize.size` is either `2^32` or `2^64`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_usize_to_uint64"]
+def USize.toUInt64 (a : USize) : UInt64 :=
+  UInt64.ofNatCore a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩

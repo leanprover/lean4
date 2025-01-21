@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.DSL.DeclUtil
 import Lake.Build.Index
 
@@ -23,8 +24,8 @@ syntax buildDeclSig :=
 
 abbrev mkModuleFacetDecl
   (α) (facet : Name)
-  [FamilyDef ModuleData facet (BuildJob α)]
-  (f : Module → FetchM (BuildJob α))
+  [FamilyDef ModuleData facet (Job α)]
+  (f : Module → FetchM (Job α))
 : ModuleFacetDecl := .mk facet <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
     (f mod)
@@ -34,7 +35,7 @@ Define a new module facet. Has one form:
 
 ```lean
 module_facet «facet-name» (mod : Module) : α :=
-  /- build term of type `FetchM (BuildJob α)` -/
+  /- build term of type `FetchM (Job α)` -/
 ```
 
 The `mod` parameter (and its type specifier) is optional.
@@ -50,7 +51,7 @@ kw:"module_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_modFacet")
     let mod ← expandOptSimpleBinder mod?
-    `(module_data $id : BuildJob $ty
+    `(module_data $id : Job $ty
       $[$doc?:docComment]? @[$attrs,*] abbrev $declId :=
         Lake.DSL.mkModuleFacetDecl $ty $facet (fun $mod => $defn)
       $[$wds?:whereDecls]?)
@@ -58,8 +59,8 @@ kw:"module_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkPackageFacetDecl
   (α) (facet : Name)
-  [FamilyDef PackageData facet (BuildJob α)]
-  (f : Package → FetchM (BuildJob α))
+  [FamilyDef PackageData facet (Job α)]
+  (f : Package → FetchM (Job α))
 : PackageFacetDecl := .mk facet <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
     (f pkg)
@@ -69,7 +70,7 @@ Define a new package facet. Has one form:
 
 ```lean
 package_facet «facet-name» (pkg : Package) : α :=
-  /- build term of type `FetchM (BuildJob α)` -/
+  /- build term of type `FetchM (Job α)` -/
 ```
 
 The `pkg` parameter (and its type specifier) is optional.
@@ -85,7 +86,7 @@ kw:"package_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
     let pkg ← expandOptSimpleBinder pkg?
-    `(package_data $id : BuildJob $ty
+    `(package_data $id : Job $ty
       $[$doc?]? @[$attrs,*] abbrev $declId :=
         Lake.DSL.mkPackageFacetDecl $ty $facet (fun $pkg => $defn)
       $[$wds?:whereDecls]?)
@@ -93,8 +94,8 @@ kw:"package_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkLibraryFacetDecl
   (α) (facet : Name)
-  [FamilyDef LibraryData facet (BuildJob α)]
-  (f : LeanLib → FetchM (BuildJob α))
+  [FamilyDef LibraryData facet (Job α)]
+  (f : LeanLib → FetchM (Job α))
 : LibraryFacetDecl := .mk facet <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
     (f lib)
@@ -104,7 +105,7 @@ Define a new library facet. Has one form:
 
 ```lean
 library_facet «facet-name» (lib : LeanLib) : α :=
-  /- build term of type `FetchM (BuildJob α)` -/
+  /- build term of type `FetchM (Job α)` -/
 ```
 
 The `lib` parameter (and its type specifier) is optional.
@@ -120,7 +121,7 @@ kw:"library_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_libFacet")
     let lib ← expandOptSimpleBinder lib?
-    `(library_data $id : BuildJob $ty
+    `(library_data $id : Job $ty
       $[$doc?]? @[$attrs,*] abbrev $declId : LibraryFacetDecl :=
         Lake.DSL.mkLibraryFacetDecl $ty $facet (fun $lib => $defn)
       $[$wds?:whereDecls]?)
@@ -132,8 +133,8 @@ kw:"library_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkTargetDecl
   (α) (pkgName target : Name)
-  [FamilyDef CustomData (pkgName, target) (BuildJob α)]
-  (f : NPackage pkgName → FetchM (BuildJob α))
+  [FamilyDef CustomData (pkgName, target) (Job α)]
+  (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl := .mk pkgName target <| mkTargetJobConfig fun pkg => do
   withRegisterJob (pkg.target target |>.key.toSimpleString)
     (f pkg)
@@ -143,7 +144,7 @@ Define a new custom target for the package. Has one form:
 
 ```lean
 target «target-name» (pkg : NPackage _package.name) : α :=
-  /- build term of type `FetchM (BuildJob α)` -/
+  /- build term of type `FetchM (Job α)` -/
 ```
 
 The `pkg` parameter (and its type specifier) is optional.
@@ -160,7 +161,7 @@ kw:"target " sig:buildDeclSig : command => do
     let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
     let pkg ← expandOptSimpleBinder pkg?
-    `(family_def $id : CustomData ($pkgName, $name) := BuildJob $ty
+    `(family_def $id : CustomData ($pkgName, $name) := Job $ty
       $[$doc?]? @[$attrs,*] abbrev $id :=
         Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
       $[$wds?:whereDecls]?)
@@ -229,7 +230,7 @@ Define a new external library target for the package. Has one form:
 
 ```lean
 extern_lib «target-name» (pkg : NPackage _package.name) :=
-  /- build term of type `FetchM (BuildJob FilePath)` -/
+  /- build term of type `FetchM (Job FilePath)` -/
 ```
 
 The `pkg` parameter (and its type specifier) is optional.

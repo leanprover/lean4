@@ -23,7 +23,7 @@ theorem foldlM_toList.aux [Monad m]
   · cases Nat.not_le_of_gt ‹_› (Nat.zero_add _ ▸ H)
   · rename_i i; rw [Nat.succ_add] at H
     simp [foldlM_toList.aux f arr i (j+1) H]
-    rw (occs := .pos [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
+    rw (occs := [2]) [← List.getElem_cons_drop_succ_eq_drop ‹_›]
     rfl
   · rw [List.drop_of_length_le (Nat.ge_of_not_lt ‹_›)]; rfl
 
@@ -81,11 +81,17 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] (f : α → β → m β) (init
 
 @[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
-@[simp] theorem append_nil (as : Array α) : as ++ #[] = as := by
+@[simp] theorem append_empty (as : Array α) : as ++ #[] = as := by
   apply ext'; simp only [toList_append, toList_empty, List.append_nil]
 
-@[simp] theorem nil_append (as : Array α) : #[] ++ as = as := by
+@[deprecated append_empty (since := "2025-01-13")]
+abbrev append_nil := @append_empty
+
+@[simp] theorem empty_append (as : Array α) : #[] ++ as = as := by
   apply ext'; simp only [toList_append, toList_empty, List.nil_append]
+
+@[deprecated empty_append (since := "2025-01-13")]
+abbrev nil_append := @empty_append
 
 @[simp] theorem append_assoc (as bs cs : Array α) : as ++ bs ++ cs = as ++ (bs ++ cs) := by
   apply ext'; simp only [toList_append, List.append_assoc]
@@ -93,10 +99,13 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] (f : α → β → m β) (init
 @[simp] theorem appendList_eq_append
     (arr : Array α) (l : List α) : arr.appendList l = arr ++ l := rfl
 
-@[simp] theorem appendList_toList (arr : Array α) (l : List α) :
+@[simp] theorem toList_appendList (arr : Array α) (l : List α) :
     (arr ++ l).toList = arr.toList ++ l := by
   rw [← appendList_eq_append]; unfold Array.appendList
   induction l generalizing arr <;> simp [*]
+
+@[deprecated toList_appendList (since := "2024-12-11")]
+abbrev appendList_toList := @toList_appendList
 
 @[deprecated "Use the reverse direction of `foldrM_toList`." (since := "2024-11-13")]
 theorem foldrM_eq_foldrM_toList [Monad m]
@@ -149,7 +158,7 @@ abbrev pop_data := @pop_toList
 @[deprecated toList_append (since := "2024-09-09")]
 abbrev append_data := @toList_append
 
-@[deprecated appendList_toList (since := "2024-09-09")]
-abbrev appendList_data := @appendList_toList
+@[deprecated toList_appendList (since := "2024-09-09")]
+abbrev appendList_data := @toList_appendList
 
 end Array

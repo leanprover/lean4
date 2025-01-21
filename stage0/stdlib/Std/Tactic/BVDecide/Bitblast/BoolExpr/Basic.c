@@ -167,7 +167,7 @@ static lean_object* _init_l_Std_Tactic_BVDecide_Gate_toString___closed__4() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("->", 2, 2);
+x_1 = lean_mk_string_unchecked("||", 2, 2);
 return x_1;
 }
 }
@@ -277,13 +277,13 @@ default:
 {
 if (x_2 == 0)
 {
-uint8_t x_9; 
-x_9 = 1;
-return x_9;
+return x_3;
 }
 else
 {
-return x_3;
+uint8_t x_9; 
+x_9 = 1;
+return x_9;
 }
 }
 }

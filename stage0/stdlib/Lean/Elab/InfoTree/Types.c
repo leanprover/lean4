@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: Lean.Data.Position Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json Lean.Server.Rpc.Basic Lean.Widget.Types
+// Imports: Lean.Data.DeclarationRange Lean.Data.OpenDecl Lean.MetavarContext Lean.Environment Lean.Data.Json Lean.Server.Rpc.Basic Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -436,7 +436,7 @@ lean_dec(x_1);
 return x_3;
 }
 }
-lean_object* initialize_Lean_Data_Position(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);
@@ -448,7 +448,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_InfoTree_Types(uint8_t builtin, le
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Data_Position(builtin, lean_io_mk_world());
+res = initialize_Lean_Data_DeclarationRange(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_OpenDecl(builtin, lean_io_mk_world());

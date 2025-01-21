@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Std.Data.HashMap
 import Std.Data.HashSet
 
 namespace Std
@@ -471,7 +470,7 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
-  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -487,7 +486,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -503,7 +502,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 end AIG
 

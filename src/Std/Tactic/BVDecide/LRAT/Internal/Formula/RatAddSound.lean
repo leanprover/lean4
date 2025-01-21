@@ -461,7 +461,7 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     constructor
     · rw [← Array.mem_toList]
       apply Array.getElem_mem_toList
-    · rw [← Array.getElem_eq_getElem_toList] at c'_in_f
+    · rw [Array.getElem_toList] at c'_in_f
       simp only [getElem!, Array.getElem_range, i_lt_f_clauses_size, dite_true,
         c'_in_f, DefaultClause.contains_iff, Array.get_eq_getElem, decidableGetElem?]
       simpa [Clause.toList] using negPivot_in_c'
@@ -472,8 +472,8 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     dsimp at *
     omega
   simp only [List.get_eq_getElem, Array.toList_map, Array.length_toList, List.getElem_map] at h'
-  rw [← Array.getElem_eq_getElem_toList] at h'
-  rw [← Array.getElem_eq_getElem_toList] at c'_in_f
+  rw [Array.getElem_toList] at h'
+  rw [Array.getElem_toList] at c'_in_f
   exists ⟨j.1, j_in_bounds⟩
   simp [getElem!, h', i_lt_f_clauses_size, dite_true, c'_in_f, decidableGetElem?]
 

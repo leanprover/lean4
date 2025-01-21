@@ -86,7 +86,7 @@ variable {α : Type} {m : Type → Type} [Monad m] [MonadTrace m] [MonadOptions 
 
 def printTraces : m Unit := do
   for {msg, ..} in (← getTraceState).traces do
-    IO.println (← msg.format)
+    IO.println (← msg.format.toIO)
 
 def resetTraceState : m Unit :=
   modifyTraceState (fun _ => {})
@@ -260,7 +260,7 @@ def withTraceNode [always : MonadAlwaysExcept ε m] [MonadLiftT BaseIO m] (cls :
   let ref ← getRef
   let mut m ← try msg res catch _ => pure m!"<exception thrown while producing trace node message>"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref m
   MonadExcept.ofExcept res
@@ -293,12 +293,15 @@ def registerTraceClass (traceClassName : Name) (inherited := false) (ref : Name 
   if inherited then
     inheritedTraceOptions.modify (·.insert optionName)
 
-macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
-  let msg ← if s.raw.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+def expandTraceMacro (id : Syntax) (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
   `(doElem| do
     let cls := $(quote id.getId.eraseMacroScopes)
     if (← Lean.isTracingEnabledFor cls) then
       Lean.addTrace cls $msg)
+
+macro "trace[" id:ident "]" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandTraceMacro id s.raw
 
 def bombEmoji := "💥️"
 def checkEmoji := "✅️"
@@ -356,7 +359,7 @@ def withTraceNodeBefore [MonadRef m] [AddMessageContext m] [MonadOptions m]
     return (← MonadExcept.ofExcept res)
   let mut msg := m!"{ExceptToEmoji.toEmoji res} {msg}"
   let mut data := { cls, collapsed, tag }
-  if profiler.get opts || aboveThresh then
+  if trace.profiler.get opts then
     data := { data with startTime := start, stopTime := stop }
   addTraceNode oldTraces data ref msg
   MonadExcept.ofExcept res

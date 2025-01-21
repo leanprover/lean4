@@ -23,16 +23,13 @@ def split (s : Subarray α) (i : Fin s.size.succ) : (Subarray α × Subarray α)
   let ⟨i', isLt⟩ := i
   have := s.start_le_stop
   have := s.stop_le_array_size
-  have : i' ≤ s.stop - s.start := Nat.lt_succ.mp isLt
-  have : s.start + i' ≤ s.stop := by omega
-  have : s.start + i' ≤ s.array.size := by omega
   have : s.start + i' ≤ s.stop := by
     simp only [size] at isLt
     omega
   let pre := {s with
     stop := s.start + i',
     start_le_stop := by omega,
-    stop_le_array_size := by assumption
+    stop_le_array_size := by omega
   }
   let post := {s with
     start := s.start + i'
@@ -48,9 +45,7 @@ def drop (arr : Subarray α) (i : Nat) : Subarray α where
   array := arr.array
   start := min (arr.start + i) arr.stop
   stop := arr.stop
-  start_le_stop := by
-    rw [Nat.min_def]
-    split <;> simp only [Nat.le_refl, *]
+  start_le_stop := by omega
   stop_le_array_size := arr.stop_le_array_size
 
 /--
@@ -63,9 +58,7 @@ def take (arr : Subarray α) (i : Nat) : Subarray α where
   stop := min (arr.start + i) arr.stop
   start_le_stop := by
     have := arr.start_le_stop
-    rw [Nat.min_def]
-    split <;> omega
+    omega
   stop_le_array_size := by
     have := arr.stop_le_array_size
-    rw [Nat.min_def]
-    split <;> omega
+    omega

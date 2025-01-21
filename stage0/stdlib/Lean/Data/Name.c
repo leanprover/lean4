@@ -42,10 +42,10 @@ LEAN_EXPORT uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail___boxed(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isImplementationDetail(lean_object*);
-uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_isStr___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_eqStr(lean_object*, lean_object*);
 LEAN_EXPORT uint64_t lean_name_hash_exported(lean_object*);
+uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternalDetail_matchPrefix(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_cmp(lean_object*, lean_object*);
 static lean_object* l_Lean_Name_isInternalDetail___closed__1;
@@ -76,6 +76,7 @@ LEAN_EXPORT uint8_t l_Lean_Name_isNum(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_hasNum(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_updatePrefix(lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(uint8_t, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Name_isImplementationDetail___boxed(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Name_eqStr___boxed(lean_object*, lean_object*);
@@ -95,7 +96,6 @@ LEAN_EXPORT lean_object* l_Lean_Name_isInternalDetail_matchPrefix___boxed(lean_o
 LEAN_EXPORT uint8_t l_Lean_Name_isSuffixOf(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_anyS(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t lean_string_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Name_isInternal(lean_object*);
 static lean_object* l_Lean_Name_isInternalDetail___closed__5;
 LEAN_EXPORT uint8_t l_Lean_Name_lt(lean_object*, lean_object*);
@@ -641,7 +641,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_cmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(x_3, x_4);
 return x_5;
 }
 }
@@ -828,7 +828,7 @@ _start:
 uint8_t x_3; uint8_t x_4; uint8_t x_5; 
 x_3 = l_Lean_Name_quickCmp(x_1, x_2);
 x_4 = 0;
-x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_16_(x_3, x_4);
+x_5 = l___private_Init_Data_Ord_0__beqOrdering____x40_Init_Data_Ord___hyg_17_(x_3, x_4);
 return x_5;
 }
 }

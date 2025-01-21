@@ -108,13 +108,19 @@ where
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
+private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
+  if thm.rfl then
+    return (← getConfig).implicitDefEqProofs
+  else
+    return false
+
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
   let rec go (e : Expr) : SimpM (Option Result) := do
-    if (← isDefEq lhs e) then
+    if (← withSimpMetaConfig <| isDefEq lhs e) then
       unless (← synthesizeArgs thm.origin bis xs) do
         return none
-      let proof? ← if thm.rfl then
+      let proof? ← if (← useImplicitDefEqProof thm) then
         pure none
       else
         let proof ← instantiateMVars (mkAppN val xs)
@@ -336,7 +342,7 @@ def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
 def simpMatch : Simproc := fun e => do
   unless (← getConfig).iota do
     return .continue
-  if let some e ← reduceRecMatcher? e then
+  if let some e ← withSimpMetaConfig <| reduceRecMatcher? e then
     return .visit { expr := e }
   let .const declName _ := e.getAppFn
     | return .continue
@@ -543,7 +549,7 @@ private def dischargeUsingAssumption? (e : Expr) : SimpM (Option Expr) := do
     -- well-behaved discharger. See comment at `Methods.wellBehavedDischarge`
     else if !contextual && localDecl.index >= lctxInitIndices then
       return none
-    else if (← isDefEq e localDecl.type) then
+    else if (← withSimpMetaConfig <| isDefEq e localDecl.type) then
       return some localDecl.toExpr
     else
       return none
@@ -585,7 +591,7 @@ def dischargeRfl (e : Expr) : SimpM (Option Expr) := do
   forallTelescope e fun xs e => do
     let some (t, a, b) := e.eq? | return .none
     unless a.getAppFn.isMVar || b.getAppFn.isMVar do return .none
-    if (← withReducible <| isDefEq a b) then
+    if (← withSimpMetaConfig <| isDefEq a b) then
       trace[Meta.Tactic.simp.discharge] "Discharging with rfl: {e}"
       let u ← getLevel t
       let proof := mkApp2 (.const ``rfl [u]) t a

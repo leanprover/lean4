@@ -105,6 +105,11 @@ mutual
         return f!"⊥ : {← ppExpr type}"
       else
         return "⊥"
+
+  partial def ppDeclValue (b : DeclValue) : M Format := do
+    match b with
+    | .code c => ppCode c
+    | .extern .. => return "extern"
 end
 
 def run (x : M α) : CompilerM α :=
@@ -121,7 +126,7 @@ def ppLetValue (e : LetValue) : CompilerM Format :=
 
 def ppDecl (decl : Decl) : CompilerM Format :=
   PP.run do
-    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppCode decl.value)}"
+    return f!"def {decl.name}{← PP.ppParams decl.params} : {← PP.ppExpr (← PP.getFunType decl.params decl.type)} :={indentD (← PP.ppDeclValue decl.value)}"
 
 def ppFunDecl (decl : FunDecl) : CompilerM Format :=
   PP.run do

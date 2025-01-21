@@ -203,9 +203,34 @@ partial def collectExprAux (e : Expr) : ClosureM Expr := do
     let type ← collect type
     let newFVarId ← mkFreshFVarId
     let userName ← mkNextUserName
+    /-
+    Recall that delayed assignment metavariables must always be applied to at least
+    `a.fvars.size` arguments (where `a : DelayedMetavarAssignment` is its record).
+    This assumption is used in `lean::instantiate_mvars_fn::visit_app` for example, where there's a comment
+    about how under-applied delayed assignments are an error.
+
+    If we were to collect the delayed assignment metavariable itself and push it onto the `exprMVarArgs` list,
+    then `exprArgs` returned by `Lean.Meta.Closure.mkValueTypeClosure` would contain underapplied delayed assignment metavariables.
+    This leads to kernel 'declaration has metavariables' errors, as reported in https://github.com/leanprover/lean4/issues/6354
+
+    The straightforward solution to this problem (implemented below) is to eta expand the delayed assignment metavariable
+    to ensure it is fully applied. This isn't full eta expansion; we only need to eta expand the first `fvars.size` arguments.
+
+    Note: there is the possibility of handling special cases to create more-efficient terms.
+    For example, if the delayed assignment metavariable is applied to fvars, we could avoid eta expansion for those arguments
+    since the fvars are being collected anyway. It's not clear that the additional implementation complexity is worth it,
+    and it is something we can evaluate later. In any case, the current solution is necessary as the generic case.
+    -/
+    let e' ←
+      if let some { fvars, .. } ← getDelayedMVarAssignment? mvarId then
+        -- Eta expand `e` for the requisite number of arguments.
+        forallBoundedTelescope mvarDecl.type fvars.size fun args _ => do
+          mkLambdaFVars args <| mkAppN e args
+      else
+        pure e
     modify fun s => { s with
       newLocalDeclsForMVars := s.newLocalDeclsForMVars.push $ .cdecl default newFVarId userName type .default .default,
-      exprMVarArgs          := s.exprMVarArgs.push e
+      exprMVarArgs          := s.exprMVarArgs.push e'
     }
     return mkFVar newFVarId
   | Expr.fvar fvarId =>

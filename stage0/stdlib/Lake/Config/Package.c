@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Package
-// Imports: Init Lake.Config.Opaque Lake.Config.Defaults Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
+// Imports: Lake.Config.Opaque Lake.Config.Defaults Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2949,7 +2949,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = lean_string_dec_eq(x_6, x_1);
+x_7 = lean_string_dec_eq(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {
@@ -4947,7 +4947,6 @@ return x_17;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Opaque(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin, lean_object*);
@@ -4965,9 +4964,6 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Opaque(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -4,6 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.AddDecl
+import Lean.ReservedNameAction
+import Lean.ResolveName
 import Lean.Meta.AppBuilder
 import Lean.Class
 
@@ -32,7 +35,7 @@ inductive CongrArgKind where
   For congr-simp theorems only.  Indicates a decidable instance argument.
   The lemma contains two arguments [a_i : Decidable ...] [b_i : Decidable ...] -/
   | subsingletonInst
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq
 
 structure CongrTheorem where
   type     : Expr
@@ -351,5 +354,90 @@ def mkCongrSimp? (f : Expr) (subsingletonInstImplicitRhs : Bool := true) : MetaM
   let f := (← instantiateMVars f).cleanupAnnotations
   let info ← getFunInfo f
   mkCongrSimpCore? f info (← getCongrSimpKinds f info) (subsingletonInstImplicitRhs := subsingletonInstImplicitRhs)
+
+def hcongrThmSuffixBase := "hcongr"
+def hcongrThmSuffixBasePrefix := hcongrThmSuffixBase ++ "_"
+
+/-- Returns `true` if `s` is of the form `hcongr_<idx>` -/
+def isHCongrReservedNameSuffix (s : String) : Bool :=
+  hcongrThmSuffixBasePrefix.isPrefixOf s && (s.drop 7).isNat
+
+def congrSimpSuffix := "congr_simp"
+
+builtin_initialize congrKindsExt : MapDeclarationExtension (Array CongrArgKind) ← mkMapDeclarationExtension
+
+builtin_initialize registerReservedNamePredicate fun env n =>
+  match n with
+  | .str p s => (isHCongrReservedNameSuffix s || s == congrSimpSuffix) && env.isSafeDefinition p
+  | _ => false
+
+builtin_initialize
+  registerReservedNameAction fun name => do
+    let .str p s := name | return false
+    unless (← getEnv).isSafeDefinition p do return false
+    if isHCongrReservedNameSuffix s then
+      let numArgs := (s.drop 7).toNat!
+      try MetaM.run' do
+        let info ← getConstInfo p
+        let f := mkConst p (info.levelParams.map mkLevelParam)
+        let congrThm ← mkHCongrWithArity f numArgs
+        addDecl <| Declaration.thmDecl {
+           name, type := congrThm.type, value := congrThm.proof
+           levelParams := info.levelParams
+        }
+        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        return true
+      catch _ => return false
+    else if s == congrSimpSuffix then
+      try MetaM.run' do
+        let cinfo ← getConstInfo p
+        let f := mkConst p (cinfo.levelParams.map mkLevelParam)
+        let info ← getFunInfo f
+        let some congrThm ← mkCongrSimpCore? f info (← getCongrSimpKinds f info)
+          | return false
+        addDecl <| Declaration.thmDecl {
+           name, type := congrThm.type, value := congrThm.proof
+           levelParams := cinfo.levelParams
+        }
+        modifyEnv fun env => congrKindsExt.insert env name congrThm.argKinds
+        return true
+      catch _ => return false
+    else
+      return false
+
+/--
+Similar to `mkHCongrWithArity`, but uses reserved names to ensure we don't keep creating the
+same congruence theorem over and over again.
+-/
+def mkHCongrWithArityForConst? (declName : Name) (levels : List Level) (numArgs : Nat) : MetaM (Option CongrTheorem) := do
+  try
+    let suffix := hcongrThmSuffixBasePrefix ++ toString numArgs
+    let thmName := Name.str declName suffix
+    unless (← getEnv).contains thmName do
+      executeReservedNameAction thmName
+    let proof := mkConst thmName levels
+    let type ← inferType proof
+    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+      | unreachable!
+    return some { proof, type, argKinds }
+  catch _ =>
+    return none
+
+/--
+Similar to `mkCongrSimp?`, but uses reserved names to ensure we don't keep creating the
+same congruence theorem over and over again.
+-/
+def mkCongrSimpForConst? (declName : Name) (levels : List Level) : MetaM (Option CongrTheorem) := do
+  try
+    let thmName := Name.str declName congrSimpSuffix
+    unless (← getEnv).contains thmName do
+      executeReservedNameAction thmName
+    let proof := mkConst thmName levels
+    let type ← inferType proof
+    let some argKinds := congrKindsExt.getState (← getEnv) |>.find? thmName
+      | unreachable!
+    return some { proof, type, argKinds }
+  catch _ =>
+    return none
 
 end Lean.Meta

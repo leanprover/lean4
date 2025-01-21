@@ -74,9 +74,6 @@ instance [Clause α β] : Entails α β where
 instance [Clause α β] (p : α → Bool) (c : β) : Decidable (p ⊨ c) :=
   inferInstanceAs (Decidable (Clause.eval p c = true))
 
-instance [Clause α β] : Inhabited β where
-  default := empty
-
 end Clause
 
 /--
@@ -297,7 +294,7 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
       dsimp; omega
     rw [List.getElem?_eq_getElem i_in_bounds, List.getElem?_eq_getElem i_in_bounds']
     simp only [List.get_eq_getElem, Nat.zero_add] at h
-    rw [← Array.getElem_eq_getElem_toList]
+    rw [Array.getElem_toList]
     simp [h]
   · have arr_data_length_le_i : arr.toList.length ≤ i := by
       dsimp; omega

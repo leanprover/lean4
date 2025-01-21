@@ -11,6 +11,22 @@ import Init.Data.List.Impl
 namespace Lean
 namespace Json
 
+set_option maxRecDepth 1024 in
+/--
+This table contains for each UTF-8 byte whether we need to escape a string that contains it.
+-/
+private def escapeTable : { xs : ByteArray // xs.size = 256 } :=
+  ⟨ByteArray.mk #[
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+  ], by rfl⟩
+
 private def escapeAux (acc : String) (c : Char) : String :=
   -- escape ", \, \n and \r, keep all other characters ≥ 0x20 and render characters < 0x20 with \u
   if c = '"' then -- hack to prevent emacs from regarding the rest of the file as a string: "
@@ -39,8 +55,27 @@ private def escapeAux (acc : String) (c : Char) : String :=
     let d4 := Nat.digitChar (n % 16)
     acc ++ "\\u" |>.push d1 |>.push d2 |>.push d3 |>.push d4
 
+private def needEscape (s : String) : Bool :=
+  go s 0
+where
+  go (s : String) (i : Nat) : Bool :=
+    if h : i < s.utf8ByteSize then
+      let byte := s.getUtf8Byte i h
+      have h1 : byte.toNat < 256 := UInt8.toNat_lt_size byte
+      have h2 : escapeTable.val.size = 256 := escapeTable.property
+      if escapeTable.val.get byte.toNat (Nat.lt_of_lt_of_eq h1 h2.symm) == 0 then
+        go s (i + 1)
+      else
+        true
+    else
+      false
+
 def escape (s : String) (acc : String := "") : String :=
-  s.foldl escapeAux acc
+  -- If we don't have any characters that need to be escaped we can just append right away.
+  if needEscape s then
+    s.foldl escapeAux acc
+  else
+    acc ++ s
 
 def renderString (s : String) (acc : String := "") : String :=
   let acc := acc ++ "\""

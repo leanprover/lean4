@@ -228,6 +228,7 @@ partial def asLinearComboImpl (e : Expr) : OmegaM (LinearCombo × OmegaM Expr ×
     | .app (.app (.app (.app (.const ``Prod.mk [u, v]) _) _) x) y =>
       rewrite e (mkApp4 (.const ``Prod.snd_mk [u, v]) α x β y)
     | _ => mkAtomLinearCombo e
+  | (``Int.negSucc, #[n]) => rewrite e (mkApp (.const ``Int.negSucc_eq []) n)
   | _ => mkAtomLinearCombo e
 where
   /--
@@ -679,7 +680,7 @@ def omegaTactic (cfg : OmegaConfig) : TacticM Unit := do
 
 /-- The `omega` tactic, for resolving integer and natural linear arithmetic problems. This
 `TacticM Unit` frontend with default configuration can be used as an Aesop rule, for example via
-the tactic call `aesop (add 50% tactic Lean.Omega.omegaDefault)`. -/
+the tactic call `aesop (add 50% tactic Lean.Elab.Tactic.Omega.omegaDefault)`. -/
 def omegaDefault : TacticM Unit := omegaTactic {}
 
 @[builtin_tactic Lean.Parser.Tactic.omega]

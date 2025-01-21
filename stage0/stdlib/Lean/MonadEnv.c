@@ -29,7 +29,6 @@ static lean_object* l_Lean_withEnv___rarg___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_isRec(lean_object*);
 lean_object* l_Lean_ConstantInfo_levelParams(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withoutModifyingEnv___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_hasConst___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isEnumType___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_hasConst___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_isInductive___rarg(lean_object*, lean_object*, lean_object*);
@@ -40,7 +39,7 @@ static lean_object* l_Lean_getConstInfo___rarg___lambda__1___closed__3;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_getConstInfoDefn___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_evalConst___spec__1(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getConstInfoCtor(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_findModuleOf_x3f___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_matchConstRec(lean_object*, lean_object*);
@@ -277,7 +276,7 @@ LEAN_EXPORT lean_object* l_Lean_isInductive___rarg___lambda__1(lean_object* x_1,
 _start:
 {
 lean_object* x_4; 
-x_4 = lean_environment_find(x_3, x_1);
+x_4 = l_Lean_Environment_find_x3f(x_3, x_1);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; lean_object* x_9; 
@@ -359,7 +358,7 @@ LEAN_EXPORT uint8_t l_Lean_isRecCore(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_environment_find(x_1, x_2);
+x_3 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -593,7 +592,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConst___rarg___lambda__1(lean_object* x_1, 
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_environment_find(x_5, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_5, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -665,7 +664,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstInduct___rarg___lambda__1(lean_object*
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_environment_find(x_5, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_5, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -754,7 +753,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstCtor___rarg___lambda__1(lean_object* x
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_environment_find(x_5, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_5, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -843,7 +842,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstRec___rarg___lambda__1(lean_object* x_
 _start:
 {
 lean_object* x_6; 
-x_6 = lean_environment_find(x_5, x_1);
+x_6 = l_Lean_Environment_find_x3f(x_5, x_1);
 if (lean_obj_tag(x_6) == 0)
 {
 lean_object* x_7; lean_object* x_8; 
@@ -953,7 +952,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg___lambda__1___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg___lambda__1), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
@@ -968,15 +967,6 @@ x_2 = lean_alloc_closure((void*)(l_Lean_hasConst___rarg), 3, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_hasConst___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_hasConst___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_2);
-return x_4;
-}
-}
 LEAN_EXPORT lean_object* l___private_Lean_MonadEnv_0__Lean_mkAuxNameAux(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -984,6 +974,7 @@ lean_object* x_4; uint8_t x_5;
 lean_inc(x_3);
 lean_inc(x_2);
 x_4 = lean_name_append_index_after(x_2, x_3);
+lean_inc(x_4);
 lean_inc(x_1);
 x_5 = l_Lean_Environment_contains(x_1, x_4);
 if (x_5 == 0)
@@ -1084,7 +1075,7 @@ _start:
 {
 lean_object* x_5; 
 lean_inc(x_1);
-x_5 = lean_environment_find(x_4, x_1);
+x_5 = l_Lean_Environment_find_x3f(x_4, x_1);
 if (lean_obj_tag(x_5) == 0)
 {
 uint8_t x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
@@ -1602,7 +1593,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstStructure___rarg___lambda__2(lean_obje
 _start:
 {
 lean_object* x_10; 
-x_10 = lean_environment_find(x_9, x_1);
+x_10 = l_Lean_Environment_find_x3f(x_9, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; 
@@ -1753,7 +1744,7 @@ LEAN_EXPORT lean_object* l_Lean_matchConstStructureLike___rarg___lambda__1(lean_
 _start:
 {
 lean_object* x_10; 
-x_10 = lean_environment_find(x_9, x_1);
+x_10 = l_Lean_Environment_find_x3f(x_9, x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; 

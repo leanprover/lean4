@@ -21,6 +21,7 @@ import Init.Data.Fin
 import Init.Data.UInt
 import Init.Data.SInt
 import Init.Data.Float
+import Init.Data.Float32
 import Init.Data.Option
 import Init.Data.Ord
 import Init.Data.Random
@@ -43,3 +44,4 @@ import Init.Data.Zero
 import Init.Data.NeZero
 import Init.Data.Function
 import Init.Data.RArray
+import Init.Data.Vector

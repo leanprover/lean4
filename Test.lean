@@ -8,37 +8,57 @@ open Lean.Meta
 open Lean.SubExpr
 --open Std.Range
 
+def PredTransM α := (α → Prop) → Prop
+instance : Monad PredTransM where
+  pure x := fun p => p x
+  bind x f := fun p => x (fun a => f a p)
+instance : LawfulMonad PredTransM := sorry
 
-def SatisfiesM {m : Type u → Type v} {α} [Monad m] (p : α → Prop) (x : m α) : Prop :=
+
+/-- Backward predicate transformer derived from a substitution property of monads.
+A generic effect observation that can be used to observe all monads.
+It is oblivious to any computations that happened before it, so `Obs.bind` loses information
+for non-pure monads.
+It is a suitable choice for the base layer of a specification monad stack if
+the observation does the right thing for your use case; see the equivalence lemmas such as
+`Obs_Id_eq`.
+More sophisticated observations can be built on top of `Obs` by wrapping suitable monad transformers such
+as `StateT` or `ExceptT`.
+-/
+def Obs {m : Type u → Type v} {α} [Monad m] (x : m α) : PredTransM α := fun p =>
   ∀ {β} {f g : α → m β}, (∀ a, p a → f a = g a) → x >>= f = x >>= g
 
-theorem SatisfiesM.pure [Monad m] [LawfulMonad m]
-    (h : p a) : SatisfiesM (m := m) p (pure a) := by
-  simp_all only [SatisfiesM, pure_bind, implies_true]
+notation "obs⟦" x "⟧" => Obs x
 
-theorem SatisfiesM.bind [Monad m] [LawfulMonad m] {f : α → m β}
-    (hx : SatisfiesM p x) (hf : ∀ a, p a → SatisfiesM q (f a)) :
-    SatisfiesM q (x >>= f) := by
+theorem Obs.pure [Monad m] [LawfulMonad m]
+    (h : p a) : obs⟦pure (f:=m) a⟧ p := by
+  simp_all only [Obs, pure_bind, implies_true]
+
+--set_option pp.all true in
+--theorem repro {m : Type u → Type v} {p : α × σ → Prop} [Monad m] [LawfulMonad m] (hp : p (a, s)) :
+--  (do Obs (m := StateT σ m) (set s); Obs (m := StateT σ m) (Pure.pure (a, s))) p
+--  = Obs (m := StateT σ m) (set s) (fun _ => True)
+--  := by
+--    replace hp : Obs (m := StateT σ m) (Pure.pure (a, s)) p := (Obs.pure hp)
+--    set_option trace.Tactic.rewrites true in
+--    conv => lhs; arg 1; intro; rw [eq_true @hp]
+
+theorem Obs.bind [Monad m] [LawfulMonad m] {f : α → m β}
+    (hx : obs⟦x⟧ (fun a => obs⟦f a⟧ q)) :
+    obs⟦x >>= f⟧ q := by
   intros γ f g hfg
   simp only [bind_assoc]
-  exact hx fun a hpa => hf a hpa hfg
+  exact hx fun a hq => hq hfg
 
-/-- `SatisfiesM` distributes over `>>=`, weakest precondition version. -/
-theorem SatisfiesM.bind_pre [Monad m] [LawfulMonad m] {f : α → m β}
-    (hx : SatisfiesM (fun a => SatisfiesM q (f a)) x) :
-    SatisfiesM q (x >>= f) := hx.bind fun _ h => h
+theorem Obs.subst [Monad m] [LawfulMonad m] {x : m α}
+  (hp : obs⟦x⟧ p) (hf : ∀ a, p a → f a = g a) : x >>= f = x >>= g := hp hf
 
-theorem SatisfiesM.subst [Monad m] [LawfulMonad m] {x : m α}
-  (hp : SatisfiesM p x) (hf : ∀ a, p a → f a = g a) :
-  x >>= f = x >>= g := hp hf
-
-theorem SatisfiesM.subst_pre [Monad m] [LawfulMonad m] {x : m α} (hp : SatisfiesM (fun r => f r = g r) x) :
+theorem Obs.subst_pre [Monad m] [LawfulMonad m] {x : m α} (hp : obs⟦x⟧ (fun r => f r = g r)) :
   x >>= f = x >>= g := by apply hp; simp
 
-theorem SatisfiesM.conj [Monad m] [LawfulMonad m] {x : m α}
-    (hp : SatisfiesM p x) (hq : SatisfiesM q x) : SatisfiesM (fun r => p r ∧ q r) x := by
+theorem Obs.conj [Monad m] [LawfulMonad m] {x : m α}
+    (hp : obs⟦x⟧ p) (hq : obs⟦x⟧ q) : obs⟦x⟧ (fun r => p r ∧ q r) := by
   intros β f g hfg
-  dsimp at hfg
   open Classical in
   calc x >>= f
     _ = x >>= (fun r => if p r ∧ q r then f r else f r) := by simp
@@ -46,179 +66,203 @@ theorem SatisfiesM.conj [Monad m] [LawfulMonad m] {x : m α}
     _ = x >>= (fun r => if q r then g r else f r) := hp (by simp +contextual)
     _ = x >>= g := hq (by simp +contextual)
 
-def KimsSatisfiesM {m : Type u → Type v} {α} [Functor m] (p : α → Prop) (x : m α) : Prop :=
+theorem Obs.inf_conj [Monad m] [LawfulMonad m] {x : m α}
+    (hp : obs⟦x⟧ p) (hq : obs⟦x⟧ q) : obs⟦x⟧ (fun r => sInf { p ∈ ps // p r }) := by
+  intros β f g hfg
+  open Classical in
+  calc x >>= f
+    _ = x >>= (fun r => if p r ∧ q r then f r else f r) := by simp
+    _ = x >>= (fun r => if p r ∧ q r then g r else f r) := by simp +contextual [hfg]
+    _ = x >>= (fun r => if q r then g r else f r) := hp (by simp +contextual)
+    _ = x >>= g := hq (by simp +contextual)
+
+@[simp]
+theorem Monad.bind_unit {m : Type u → Type v} [Monad m] {x : m PUnit} {f : PUnit → m α} :
+  (do let a ← x; f a) = (do x; f ⟨⟩) := by simp only
+
+theorem Obs.split_unit {m : Type u → Type v} [Monad m] {x : m PUnit} (hp : p) :
+  obs⟦x⟧ (fun _ => p) := fun hfg =>
+    funext (fun u => hfg u hp) ▸ rfl
+
+def KimsObs {m : Type u → Type v} {α} [Functor m] (p : α → Prop) (x : m α) : Prop :=
   (fun r => (r, p r)) <$> x = (fun r => (r, True)) <$> x
 
-def KimsSatisfiesM_of_SatisfiesM {m : Type u → Type v} {α} [Monad m] [LawfulMonad m] (p : α → Prop) (x : m α)
-  (h : SatisfiesM p x) : KimsSatisfiesM p x := by
-  unfold KimsSatisfiesM
+def KimsObs_of_Obs {m : Type u → Type v} {α} [Monad m] [LawfulMonad m] (p : α → Prop) (x : m α)
+  (h : obs⟦x⟧ p) : KimsObs p x := by
+  unfold KimsObs
   simp [← LawfulMonad.bind_pure_comp]
   apply h
   intros
   simp [*]
 
--- this is actually the fwd direction of SatisfiesM_Id_eq. Good!
-theorem SatisfiesM_Id_eq : SatisfiesM P x → P (Id.run x) := by
-  intro h
-  replace h := KimsSatisfiesM_of_SatisfiesM P x h
-  simp [KimsSatisfiesM] at h
-  injection h
-  simp[*, Id.run]
+@[simp]
+theorem Obs_Id_eq : obs⟦x⟧ P ↔ P (Id.run x) := by
+  constructor
+  case mp =>
+    intro h
+    replace h := KimsObs_of_Obs P x h
+    simp [KimsObs] at h
+    injection h
+    simp[*, Id.run]
+  case mpr =>
+    intro h; apply Obs.pure; exact h
 
-theorem SatisfiesM.imp [Monad m] [LawfulMonad m] {p : Prop} {f : α → m β} :
-    SatisfiesM (fun r => p → q r) (f a) ↔ (p → SatisfiesM q (f a)) := by
+theorem Obs.imp [Monad m] [LawfulMonad m] {p : Prop} {f : α → m β} :
+    obs⟦f a⟧ (fun r => p → q r) ↔ (p → obs⟦f a⟧ q) := by
   if hp : p
   then simp_all
-  else simp_all[SatisfiesM]; intro _ _ _ h; simp[funext h]
+  else simp_all; intro _ _ _ h; simp[funext (fun a => h a ⟨⟩)]
 
-theorem SatisfiesM.mono [Monad m] [LawfulMonad m] {x : m a}
-    (h : SatisfiesM p x) (H : ∀ {a}, p a → q a) : SatisfiesM q x := by
+theorem Obs.mono [Monad m] [LawfulMonad m] {x : m a}
+    (h : obs⟦x⟧ p) (H : ∀ {a}, p a → q a) : obs⟦x⟧ q := by
     intro _ _ _ hfg
     apply h
     simp_all only [implies_true]
 
-/-
-Verification conditions for imperative While lang:
+class LawfulMonadState (σ : semiOutParam (Type u)) (m : Type u → Type v) [Monad m] [LawfulMonad m] [MonadStateOf σ m] where
+  get_set : (do let s ← get; set s) = pure (f := m) ⟨⟩
+  set_get {k : σ → m β} : (do set s₁; let s₂ ← get; k s₂) = (do set s₁; k s₁)
+  set_set {s₁ s₂ : σ} : (do set s₁; set s₂) = set (m := m) s₂
 
-  c ::= skip | x := a | c1; c2 | if (b) then c1 else c2 | while (b) {I} do c
+theorem LawfulMonadState.set_get_pure [Monad m] [LawfulMonad m] [MonadStateOf σ m] [LawfulMonadState σ m] {s : σ} :
+  (do set s; get) = (do set (m := m) s; pure s) := by
+    calc (do set s; get)
+      _ = (do set s; let s' ← get; pure s') := by simp
+      _ = (do set s; pure s) := by rw [LawfulMonadState.set_get]
+attribute [simp] LawfulMonadState.get_set LawfulMonadState.set_get LawfulMonadState.set_set LawfulMonadState.set_get_pure
 
-pre(skip, P) := P
-pre(x := a, P) := P[x↦a]
-pre(c1; c2, P) := pre(c1, pre(c2, P))
-pre(if (b) then c1 else c2, P) := (b → pre(c1, P)) ∧ (¬b → pre(c2, P))
-pre(while (b) {I} do c, P) := I
+instance [Monad m] [LawfulMonad m] : LawfulMonadState σ (StateT σ m) where
+  get_set := by intros; ext s; simp
+  set_get := by intros; ext s; simp
+  set_set := by intros; ext s; simp
 
-To prove {pre(c,P)} c {P}, we need to show the following additional verification conditions:
+def SatisfiesSM {m : Type u → Type v} {α} [Monad m] (x : StateT σ m α) (p : α × σ → Prop) : Prop :=
+  obs⟦do let a ← x; let s ← get; pure (a, s)⟧ p
 
-vc(skip, P) := true
-vc(x := a, P) := true
-vc(c1; c2, P) := vc(c1, pre(c2, P)) ∧ vc(c2, P)
-vc(if (b) then c1 else c2, P) := vc(c1, P) ∧ vc(c2, P)
-vc(while (b) {I} do c, P) := (b ∧ I → pre(c, I)) ∧ (¬b ∧ I → P) ∧ vc(c, I)
+theorem SatisfiesSM.subst [Monad m] [LawfulMonad m] {x : StateT σ m α}
+  {f g : α → StateT σ m β}
+  (hp : SatisfiesSM x p) (hf : ∀ a s, p (a, s) → (do set s; f a) = (do set s; g a)) :
+  x >>= f = x >>= g := by
+    suffices h : (do let (a,s) ← (do let a ← x; let s ← get; pure (a, s)); set s; f a) = (do let (a,s) ← (do let a ← x; let s ← get; pure (a, s)); set s; g a) by
+      simp at h
+      simp[← LawfulMonad.bind_assoc] at h
+      assumption
+    unfold SatisfiesSM at hp
+    apply hp.subst fun ⟨a, s⟩ => hf a s
 
-We collect verification conditions as we descent into the program.
-At the end of the day, it's just a list of all the conjuncts.
-Notably, the only non-trivial conjunct is the one for while loops,
-because that's where transitivity needs to be established for the invariant.
--/
-
-theorem SatisfiesM.split_step [Monad m] [LawfulMonad m] {x : m (ForInStep β)}
+theorem Obs.split_step [Monad m] [LawfulMonad m] {x : m (ForInStep β)}
     {done : β → Prop} {yield : β → Prop}
-    (hyield : SatisfiesM (∀ b', · = .yield b' → yield b') x)
-    (hdone :  SatisfiesM (∀ b', · = .done b'  → done b') x) :
-    SatisfiesM (fun | .yield b' => yield b' | .done b' => done b') x := by
-  apply SatisfiesM.mono (SatisfiesM.conj hyield hdone)
+    (hyield : obs⟦x⟧ (∀ b', · = .yield b' → yield b'))
+    (hdone :  obs⟦x⟧ (∀ b', · = .done b'  → done b')) :
+    obs⟦x⟧ (fun | .yield b' => yield b' | .done b' => done b') := by
+  apply Obs.mono (Obs.conj hyield hdone)
   rintro a ⟨hyield, hdone⟩
   split <;> solve_by_elim
 
-theorem SatisfiesM.forIn_list
+theorem Obs.forIn_list
   [Monad m] [LawfulMonad m]
   {xs : List α} {init : β} {f : α → β → m (ForInStep β)}
   (inv : List α → β → Prop)                     -- user-supplied loop invariant
   (hpre : inv xs init)                          -- pre⟦for {inv} xs init f⟧(p)
   (hweaken : ∀ b, inv [] b → p b)               -- vc₁: weaken invariant to postcondition after loop exit
   (hdone : ∀ {hd tl b}, inv (hd::tl) b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
-          SatisfiesM (∀ b', · = .done b'  → inv [] b') (f hd b))
+          obs⟦f hd b⟧ (∀ b', · = .done b'  → inv [] b'))
   (hyield : ∀ {hd tl b}, inv (hd::tl) b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
-          SatisfiesM (∀ b', · = .yield b' → inv tl b') (f hd b)) :
-  SatisfiesM p (forIn xs init f) := by
+          obs⟦f hd b⟧ (∀ b', · = .yield b' → inv tl b')) :
+  obs⟦forIn xs init f⟧ p := by
     induction xs generalizing init
-    case nil => simp only [List.forIn_nil]; apply SatisfiesM.pure; apply hweaken; exact hpre
+    case nil => simp only [List.forIn_nil]; apply Obs.pure; apply hweaken; exact hpre
     case cons hd tl h =>
       simp only [List.forIn_cons]
-      apply SatisfiesM.bind_pre
-      have : SatisfiesM (fun | .yield b' => inv tl b' | .done b' => inv [] b') (f hd init) :=
-        SatisfiesM.split_step (hyield hpre) (hdone hpre)
-      apply SatisfiesM.mono this
+      apply Obs.bind
+      have : obs⟦f hd init⟧ (fun | .yield b' => inv tl b' | .done b' => inv [] b') :=
+        Obs.split_step (hyield hpre) (hdone hpre)
+      apply Obs.mono this
       intro r hres
       match r with
-      | .done b => apply SatisfiesM.pure; apply hweaken; assumption
+      | .done b => apply Obs.pure; apply hweaken; assumption
       | .yield b => simp; simp at hres; exact @h b hres
 
-#check Std.Range.forIn'.eq_def
-#check Loop.forIn.eq_def
-theorem SatisfiesM.forIn_range
+theorem Obs.forIn_range
   [Monad m] [LawfulMonad m]
   {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
   (inv : List Nat → β → Prop := fun _ => p)     -- user-supplied loop invariant
   (hpre : inv (List.range' xs.start xs.size xs.step) init)                          -- pre⟦for {inv} xs init f⟧(p)
   (hweaken : ∀ b, inv [] b → p b)               -- vc1: weaken invariant to postcondition after loop exit
   (hdone : ∀ {hd tl b}, inv (hd::tl) b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
-          SatisfiesM (∀ b', · = .done b'  → inv [] b') (f hd b))
+          obs⟦f hd b⟧ (∀ b', · = .done b'  → inv [] b'))
   (hyield : ∀ {hd tl b}, inv (hd::tl) b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
-          SatisfiesM (∀ b', · = .yield b' → inv tl b') (f hd b)) :
-  SatisfiesM p (forIn xs init f) := by
+          obs⟦f hd b⟧ (∀ b', · = .yield b' → inv tl b')) :
+  obs⟦forIn xs init f⟧ p := by
     rw [Std.Range.forIn_eq_forIn_range']
-    exact SatisfiesM.forIn_list inv hpre hweaken hdone hyield
+    exact Obs.forIn_list inv hpre hweaken hdone hyield
 
-theorem SatisfiesM.forIn_loop
+theorem Obs.forIn_loop
   [Monad m] [LawfulMonad m]
   {xs : Loop} {init : β} {f : Unit → β → m (ForInStep β)}
   (inv : Bool → β → Prop := fun _ => p)     -- user-supplied loop invariant
   (hpre : inv true init)                          -- pre⟦for {inv} xs init f⟧(p)
   (hweaken : ∀ b, inv false b → p b)               -- vc1: weaken invariant to postcondition after loop exit
   (hdone : ∀ {b}, inv true b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
-          SatisfiesM (∀ b', · = .done b'  → inv false b') (f () b))
+          obs⟦f () b⟧ (∀ b', · = .done b'  → inv false b'))
   (hyield : ∀ {b}, inv true b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
-          SatisfiesM (∀ b', · = .yield b' → inv true b') (f () b)) :
-  SatisfiesM p (forIn Loop.mk init f) := by
-    rw[Loop.forIn.eq_def]
-    unfold Loop.forIn
-    rw [Std.Range.forIn_eq_forIn_range']
-    exact SatisfiesM.forIn_list inv hpre hweaken hdone hyield
+          obs⟦f () b⟧ (∀ b', · = .yield b' → inv true b')) :
+  obs⟦forIn Loop.mk init f⟧ p := sorry
 
 elab "vcgen" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainContext <| do
   let goal ← getMainGoal
   let ctx ← mkSimpContext Syntax.missing (eraseLocal := false)
-  let goal := match ← dsimpGoal goal ctx.ctx with
-  | (some goal, _) => goal
-  | _              => goal
-  replaceMainGoal [goal]
-
+  try
+    let goal := match ← dsimpGoal goal ctx.ctx with
+    | (some goal, _) => goal
+    | _              => goal
+    replaceMainGoal [goal]
+  catch _ => pure ()
   let mut verification_conds := #[]
   while true do
     let goal :: goals ← getGoals | break
     if ← goal.isAssigned then setGoals goals; continue
     let (_xs, goal) ← goal.intros
     let ty ← instantiateMVars (← goal.getType)
-    -- ty = @SatisfiesM m α [Functor m] post prog
-    if ¬(ty.isAppOfArity `SatisfiesM 5) then
+    -- ty = @Obs m α [Functor m] prog post
+    if ¬(ty.isAppOfArity `Obs 5) then
       logInfo m!"give up on {ty}"
       verification_conds := verification_conds.push goal
       setGoals goals
       continue
-    let prog := ty.appArg!
+    let prog := ty.appFn!.appArg!
+    let α := ty.appFn!.appFn!.appFn!.appArg!
     let m := ty.appFn!.appFn!.appFn!.appFn!.appArg!
 
-    -- Convention: ⟦P⟧(x) for SatisfiesM P x
+    -- Convention: ⟦P⟧(x) for Obs P x
     if prog.isAppOfArity ``Pure.pure 4 then
       -- prog = @pure m [Pure m] α (x : α)
       -- ⟦P⟧(pure x)
       -- <=={Satisfies.pure}
       -- P x
-      let [goal] ← goal.applyConst ``SatisfiesM.pure | throwError "argh"
+      let [goal] ← goal.applyConst ``Obs.pure | throwError "argh"
       replaceMainGoal [goal]
       continue
     else if prog.isAppOfArity ``Bind.bind 6 then
       -- prog = @bind m [Bind m] α β e f
       -- ⟦P⟧(bind e f)
-      -- <=={Satisfies.bind_pre}
+      -- <=={Satisfies.bind}
       -- P⟦fun r => ⟦P⟧(f r)⟧(e)
-      let [goal] ← goal.applyConst ``SatisfiesM.bind_pre | throwError "argh"
+      let [goal] ← goal.applyConst ``Obs.bind | throwError "argh"
       replaceMainGoal [goal]
       continue
     else if prog.isAppOfArity ``ForIn.forIn 9 then
       -- prog = @forIn {m} {ρ} {α} [ForIn m ρ α] {β} [Monad m] xs init f
       -- ⟦P⟧(forIn xs init f)
-      -- <=={SatisfiesM.forIn_*} (depending on ρ)
+      -- <=={Obs.forIn_*} (depending on ρ)
       -- ... a bunch of sub-goals, including the invariant
       let ρ := prog.appFn!.appFn!.appFn!.appFn!.appFn!.appFn!.appFn!.appArg!;
       if ρ.isConstOf ``Std.Range then
-        let goals ← goal.applyConst ``SatisfiesM.forIn_range
+        let goals ← goal.applyConst ``Obs.forIn_range
         replaceMainGoal goals
         continue
       else if ρ.isConstOf ``List then
-        let goals ← goal.applyConst ``SatisfiesM.forIn_range
+        let goals ← goal.applyConst ``Obs.forIn_range
         replaceMainGoal goals
         continue
       -- let name := match
@@ -251,12 +295,20 @@ elab "vcgen" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainC
         continue
       catch _ => pure ()
     else if m.isConstOf ``Id then
-      -- Id x is definitionally equal to x, and we can apply SatisfiesM.pure in that case
+      -- Id x is definitionally equal to x, and we can apply Obs.pure in that case
       -- prog = @pure m [Pure m] α (x : α)
       -- ⟦P⟧(pure x)
       -- <=={Satisfies.pure}
       -- P x
-      let [goal] ← goal.applyConst ``SatisfiesM.pure | throwError "argh"
+      let [goal] ← goal.applyConst ``Obs.pure | throwError "argh"
+      replaceMainGoal [goal]
+      continue
+    else if α.isConstOf ``PUnit then
+      -- If c : m PUnit, then the predicate is constant and can be pulled out
+      -- ⟦P⟧(c)
+      -- <=={Satisfies.split_unit}
+      -- P ⟨⟩
+      let [goal] ← goal.applyConst ``Obs.split_unit | throwError "argh"
       replaceMainGoal [goal]
       continue
 
@@ -267,213 +319,143 @@ elab "vcgen" /-("invariant " ilbls:ident ": " inv:term)*-/ : tactic => withMainC
 
   setGoals verification_conds.toList
 
-theorem test_5 : SatisfiesM (m:=Id) (fun r => r ≤ 25) (do let mut x := 0; for i in [1:5] do { x := x + i } return x) := by
+theorem test_5 : Obs (m:=Id) (do let mut x := 0; for i in [1:5] do { x := x + i } return x) (fun r => r ≤ 25) := by
   vcgen
   case inv => exact (fun xs r => (∀ x, x ∈ xs → x ≤ 5) ∧ r + xs.length * 5 ≤ 25)
   set_option trace.grind.debug true in
-  case hpre => simp_all; grind; omega
+  case hpre => simp_all; omega
   case hweaken => simp_all
   case hdone => simp_all
   case hyield h => injection h; simp_all; omega
 
-theorem test_6 : SatisfiesM (m:=Id) (fun r => r ≤ 1) (do let mut x := 0; let mut i := 0; while i < 4 do { x := x + i; i := i + 1 } return x) := by
+theorem test_6 : Obs (m:=Id) (do let mut x := 0; let mut i := 0; while i < 4 do { x := x + i; i := i + 1 } return x) (fun r => r ≤ 1) := by
   dsimp
   vcgen
   case inv => exact (fun xs r => (∀ x, x ∈ xs → x ≤ 5) ∧ r + xs.length * 5 ≤ 25)
   case hpre => simp; omega
   case hweaken => simp
-  case hdone => intros; apply SatisfiesM.pure; simp;
-  case hyield => intros; apply SatisfiesM.pure; simp_all; intro _ h; injection h; omega
+  case hdone => intros; apply Obs.pure; simp;
+  case hyield => intros; apply Obs.pure; simp_all; intro _ h; injection h; omega
 
-theorem test_1 : SatisfiesM (m:=Id) (fun r => r = 3) (do return 3) := by
+theorem test_1 : Obs (m:=Id) (do return 3) (fun r => r = 3) := by
   vcgen
   trivial
 
-theorem test_2 : SatisfiesM (m:=Id) (fun r => r = id 3) (do let mut id := 5; id := 3; return id) := by
+theorem test_2 : Obs (m:=Id) (do let mut id := 5; id := 3; return id) (fun r => r = 3) := by
   vcgen
   trivial
 
-theorem test_3 [Monad m] [LawfulMonad m] (h : SatisfiesM (fun _ => SatisfiesM (m:=m) P (do e₂; e₃)) e₁) : SatisfiesM (m:=m) P (do e₁; e₂; e₃) := by
+theorem test_3 [Monad m] [LawfulMonad m] (h : Obs e₁ (fun _ => Obs (m:=m) (do e₂; e₃) P)) : Obs (m:=m) (do e₁; e₂; e₃) P := by
   vcgen
   trivial
 
-theorem test_4 : SatisfiesM (m:=Id) (fun r => r ≤ 1) (do let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x) := by
+theorem test_4 : Obs (m:=Id) (do let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x) (fun r => r ≤ 1) := by
+  vcgen <;> simp; omega
+
+def fib_impl (n : Nat) := Id.run do
+  if n = 0 then return 0
+  let mut a := 0
+  let mut b := 0
+  b := b + 1
+  for _ in [1:n] do
+    let a' := a
+    a := b
+    b := a' + b
+  return b
+
+def fib_spec : Nat → Nat
+| 0 => 0
+| 1 => 1
+| n+2 => fib_spec n + fib_spec (n+1)
+
+theorem fib_correct {n} : fib_impl n = fib_spec n := Obs_Id_eq (P := fun r => r = fib_spec n) <| by
   vcgen
-  omega
-  simp [gt_iff_lt, Nat.le_of_not_gt] at *
-  assumption
-
-
+  case isTrue => simp_all[fib_spec]
+  case inv => exact (fun | xs, ⟨a, b⟩ => a = fib_spec (n - xs.length - 1) ∧ b = fib_spec (n - xs.length))
+  case hpre col _ h =>
+    simp_all[List.range']
+    have : 1 ≤ n := Nat.succ_le_of_lt (Nat.zero_lt_of_ne_zero h)
+    rw[Nat.div_one, Nat.sub_one_add_one h, Nat.sub_sub, Nat.sub_add_cancel this, Nat.sub_self, Nat.sub_sub_self this]
+    simp_all[fib_spec]
+    exact ⟨rfl, rfl⟩
+  case hweaken => apply Obs.pure; simp_all
+  case hdone.hx.h.h => simp_all
+  case hyield.hx.h.h b' h => injection h; subst b'; subst_vars; simp_all; rw[fib_spec] at ⊢;
+  -- The default simp set eliminates the binds generated by `do` notation,
+  -- and converts the `for` loop into a `List.foldl` over `List.range'`.
+  simp [fib_impl, Id.run]
+  match n with
+  | 0 => simp [fib_spec]
+  | n+1 =>
+    -- Note here that we have to use `⟨x, y⟩ : MProd _ _`, because these are not `Prod` products.
+    suffices ((List.range' 1 n).foldl (fun b a ↦ ⟨b.snd, b.fst + b.snd⟩) (⟨0, 1⟩ : MProd _ _)) =
+        ⟨fib_spec n, fib_spec (n + 1)⟩ by simp_all
+    induction n with
+    | zero => rfl
+    | succ n ih => simp [fib_spec, List.range'_1_concat, ih]
 /-
 https://lean-fro.zulipchat.com/#narrow/channel/398861-general/topic/baby.20steps.20towards.20monadic.20verification
 
 -/
 
+class MonadObserve (m : Type u₁ → Type u₂) [Monad com] [LawfulMonad com] [Monad spec] [LawfulMonad spec] where
+  observe : com α → spec α
+  pure_pure : ∀ {a : α} {p : α → prop}, p a → observe (pure a) p
+
+class MonadPost (m : Type u₁ → Type u₂) (prop : Type) [Monad m] [LawfulMonad m] where
+  Post : m α → Prop
+  pure {a : α} {p : α → prop} (hp : p a) : Post (pure a)
+  bind {α β} (x : m α) (f : α → m β) {p : β → prop} : Post x (fun a => Post (f a) p) → Post (x >>= f) p
+  forIn_list {α β} {xs : List α} {init : β} {f : α → β → m (ForInStep β)} {p : α → prop}
+    (inv : List α → β → Prop)                     -- user-supplied loop invariant
+    (hpre : inv xs init)                          -- pre⟦for {inv} xs init f⟧(p)
+    (hweaken : ∀ b, inv [] b → p b)               -- vc₁: weaken invariant to postcondition after loop exit
+    (hdone : ∀ {hd tl b}, inv (hd::tl) b →        -- vc₂: weaken invariant to precondition of loop body upon loop entry, done case
+            Post (f hd b) (∀ b', · = .done b'  → inv [] b'))
+    (hyield : ∀ {hd tl b}, inv (hd::tl) b →       -- vc₃: weaken invariant to precondition of loop body upon loop entry, yield case
+          Post (f hd b) (∀ b', · = .yield b' → inv tl b')) :
+      Post (forIn xs init f) p
 
 
-#check wp⟦let x ← pure 3; pure x⟧(fun r => r = 15)
-/-
+def StateT.observe {m : Type u → Type v} {α} [Monad m] (x : StateT σ m α) : StateT σ PredTransM α := fun s₁ p =>
+  Obs (do set s₁; let a ← x; let s₂ ← get; pure (a, s₂)) p
 
-goal : Q (impl n)
-       Q (Id.run (do impl' n))
-       SatisfiesM Q (do impl' n)
+theorem blah {a : α} {s : σ} : (fun p => p (a, s)) → (do s ← Obs get; Obs (Pure.pure (a, s))) := by
+  intro h
+  simp only [observe]
+  vcgen
+  assumption
 
-Wenn
-  wlp(s,P)
-Dann
-  SatisfiesM P (do s)
+theorem StateT.observe.pure {m : Type u → Type v} {p : α × σ → Prop} [Monad m] [LawfulMonad m]
+  (hp : p (a, s)) : StateT.observe (m:=m) (pure a) s p := by
+  simp only [observe, pure_bind, LawfulMonadState.set_get]
+  vcgen
+  assumption
 
-Why do we need explicit σ instead of "substituting"?
-For one, what do we do with loop invariants, where there is not a single definition?
-Or the postcondition after an if-diamond?
-"Substitution" only makes sense in an SSA world.
-Hence any predicate depends on a tuple σ;
+theorem StateT.observe.get_pre {m : Type u → Type v} [Monad m] [LawfulMonad m] {p : σ × σ → Prop} (hp : p ⟨s, s⟩) :
+  StateT.observe (m:=m) get s p := by
+  simp only [observe, pure_bind, LawfulMonadState.set_get]
+  vcgen
+  assumption
 
-P : σ × α → Prop
-(in general, both σ and α are indices)
+theorem StateT.observe.get {m : Type u → Type v} [Monad m] [LawfulMonad m] :
+  StateT.observe (m:=m) get s (· = ⟨s, s⟩) := StateT.observe.get_pre (by rfl)
 
-Q: Is σ the actual state or rather a syntax, i.e., a var to Syntax mapping? I think the latter!
-And ofc., P is also a function constructing syntax for a predicate.
-So it's rather
+theorem StateT.observe.set_pre {m : Type u → Type v} [Monad m] [LawfulMonad m] {p : PUnit × σ → Prop} (hp : p ⟨⟨⟩, s₂⟩) :
+  StateT.observe (m:=m) (set s₂) s₁ p := by
+  simp only [observe, pure_bind, Monad.bind_unit]
+  simp only [← LawfulMonad.bind_assoc, LawfulMonadState.set_set]
+  simp only [LawfulMonadState.set_get_pure]
+  simp [-LawfulMonad.bind_pure_comp]
+  vcgen
+  assumption
 
-def Subst := (Name ↦ Syntax Var) -- Name to SSA val
-def Pred := Subst → (Syntax (α → Prop))
-
-wp : Syntax Cmd × Pred → Pred
-wp(do return $e, P) σ := `(SatisfiesM.pure ($(P σ) $e))
-wp(do lift $e, P) σ := `(satisfying $(P σ) $e)
-wp(do let mut $x := $e; $s, P) σ := `(let v := $e; let $x := v; $(wp((do $s), P) σ[x := `v]))
-wp(do $x := $e, P) σ := `(let v := $e; $(P σ[x := `v]) ())
-wp(do let $x ← $s₁; $s₂, P) σ := wp(s₁, fun σ' => `(fun r => let $x := r; let $σ'; $(wp(s₂, P) σ'))) σ
-wp(do if $b then $s₁ else s₂, P) σ := `(($b = true → $(wlp(s₁, P) σ)) ∧ ($b = false → $wlp(s₂, P) σ))
-wlp(do while $b do $s invariant $Pinv, $P) σ := (abstract $Pinv over names in σ, call that $Pinv)
-                                                `(  $b = true  ∧ $(Pinv σ) → $(wlp(s,Pinv σ))
-                                                  ∧ $b = false ∧ $(Pinv σ) → $(P σ))
-
--/
-
-
-abbrev Subst := Std.HashMap Name (TSyntax `term) -- Name to SSA value
-#check Lean.Parser.Term.doSeq
-
-private def Lean.Syntax.getDoSeqElems (doSeq : Syntax) : List Syntax :=
-  if doSeq.getKind == ``Parser.Term.doSeqBracketed then
-    doSeq[1].getArgs.toList.map fun arg => arg[0]
-  else if doSeq.getKind == ``Parser.Term.doSeqIndent then
-    doSeq[0].getArgs.toList.map fun arg => arg[0]
-  else
-    []
-
-def restore (σ : Subst) (rest : MacroM (TSyntax `term)) : MacroM (TSyntax `term) := do
-  let mut r ← rest
-  for (x, v) in σ.toList do
-    r ← `(let $(mkIdent x) := $(v); $r)
-  return r
-
-def tupelize (σ : Subst) : MacroM (TSyntax `term) := do
-  let mut r ← `(())
-  for (_x, v) in σ.toList do
-    r ← `(($(v), $r))
-  return r
-
-mutual
-  partial def wp (seq : TSyntax `Lean.Parser.Term.doSeq) (P : Subst → MacroM (TSyntax `term)) : Subst → MacroM (TSyntax `term) :=
-    List.foldr (wp_one ∘ TSyntax.mk) P seq.raw.getDoSeqElems
-  partial def wp_one (syn : TSyntax `doElem) (P : Subst → MacroM (TSyntax `term)) (σ : Subst) : MacroM (TSyntax `term) := restore σ <| do match syn with
-  -- | `(doElem|return $e) => fun P σ => do `(SatisfiesM (m:=Id) $(← P σ) (pure $e))
-  | `(doElem|$e:term) => do `(SatisfiesM (m:=Id) $(← P σ) $e)
-  | `(doElem|let mut $x:ident := $e) => do `(let v := $e; $(← P (σ.insert x.raw.getId (← `(v)))))
-  | `(doElem|$x:ident := $e) => do `(let v := $e; $(← P (σ.insert x.raw.getId (← `(v)))))
-  | `(doElem|let $x:ident ← $s) => wp_one s (fun σ' => do `(fun $x => $(← P (σ'.erase x.raw.getId)))) σ
-  | `(doElem|if $b then $s₁ else $s₂) => do `(($b → $(← wp s₁ P σ)) ∧ (¬$b → $(← wp s₂ P σ)))
-  | `(doElem|while $b do $s) => do `(fun Pinv => ($b ∧ Pinv $(← tupelize σ) → $(← wp s (fun σ' => do `(fun _r => Pinv $(← tupelize σ'))) σ)) ∧ (fun r => ¬$b ∧ Pinv $(← tupelize σ) → $(← P σ) r))
-  | _ => Lean.Macro.throwUnsupported
-end
-
-/-
-Alternatives:
-1. Hook into do elaboration; compute wp from syntax, persist wp+proof of soundness in .olean.
-   Pro: Simple, intuitive impl.
-   Con: even just wp can be larger than actual code => code bloat
-2. Compute wp from Core Expr.
--/
-
-macro "wp⟦" s:doSeq "⟧(" P:term ")"   : term => wp s (fun _σ => pure P) Std.HashMap.empty
-
-#check wp⟦pure 15⟧(fun r => r = 15)
-#check wp⟦let x ← pure 3; pure x⟧(fun r => r = 15)
-#check wp⟦let mut x := 3; pure x⟧(fun r => r = 15)
-#check wp⟦let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x⟧(fun r => r = 15)
-#check wp⟦let mut x := 5; while x > 1 do { x := x - 1 }; pure x⟧(fun r => r = 15)
-
-theorem blah : wp⟦pure 15⟧(P) → SatisfiesM (m:=Id) P (do return 15) := fun h => h
-theorem blah1 : wp⟦let x ← pure 3; pure x⟧(P) → SatisfiesM (m:=Id) P (do let x ← pure 3; pure x) := by
-  rintro ⟨⟨x, ⟨⟨x₂,h₂⟩, h₁⟩⟩, h⟩
-  simp only [Id.pure_eq, Id.bind_eq, Id.map_eq] at h₁ h ⊢
-  simp_all
-  exact SatisfiesM.pure h₂
-theorem blah2 : wp⟦let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x⟧(P)
-              → SatisfiesM (m:=Id) P (do let mut x := 5; if x > 1 then { x := 1 } else { x := x }; pure x) := by
-  simp [Nat.reduceLT]
-
-#check CommandElabM
-#eval format <$> liftMacroM (do wp (← `(doSeq|return 15)) (fun σ => `(fun r => r = 15)) Std.HashMap.empty)
-
--- syntax "wp⟦" doSeq "⟧" : term
--- macro_rules
--- | `(wp⟦do return $e⟧) => fun P σ => do `(SatisfiesM.pure ($(← P σ) $e))
--- | `(wp⟦do $e:term⟧) => fun P σ => do `(SatisfiesM.satisfying $(← P σ) $e)
--- | `(wp⟦do let mut $x := $e; $s⟧) => fun P σ => do `(let v := $e; let $x := v; wp⟦do $s⟧)
+theorem StateT.observe.set {m : Type u → Type v} [Monad m] [LawfulMonad m] {s₂ : σ} :
+  StateT.observe (m:=m) (set s₂) s₁ (· = ⟨⟨⟩, s₂⟩) := StateT.observe.set_pre (by rfl)
 
 
 
 /-
-Wenn
-  P
-Dann
-  SatisfiesM sp(P,s) (do s)
-
-{P}
-
-{P1 * P2(mut vars)} return e {fun ρ σ => Q}
-
-Wenn {P} cmd {v. Q}
-Dann Id.run
-Id.run ()
-
-P (do <fib_impl>)
-...
-P (do return x)
-
-
-def bar (n : Nat) := Id.run do
-
-  let mut i := 0
-  while i < n do
-    i := i + 1
-  return i
-
-theorem bar_upper_bound : bar n = n := by
-  unfold bar
-  mut_intro i
-  while_inv fun i =>
-
-def foo (xs : List Nat) := Id.run do
-  let mut s := 0
-  for x in xs do
-    if x % 2 = 0 then
-      continue
-    if x > 5 then
-      break
-    s := s + x
-  return s
-
-theorem foo_upper_bound : foo xs ≤ xs.length * 5 := by
-  unfold foo
-  mut_intro s
-  for_inv x in xs (h : s ≤ xs.old.length * 5)
-  simp
-
 def fib_spec : Nat → Nat
 | 0 => 0
 | 1 => 1

@@ -3773,9 +3773,8 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
     simp [reverse_append, ih]
 
 @[simp]
-theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
-    (x.replicate n).getLsbD i =
-    (decide (i < w * n) && x.getLsbD (i % w)) := by
+theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).getLsbD i = (decide (i < w * n) && x.getLsbD (i % w)) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>
@@ -3791,7 +3790,7 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
 @[simp]
-theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   by_cases h' : w = 0 <;> simp [h'] <;> omega
@@ -3801,13 +3800,12 @@ theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by omega) :
     (x.replicate 1) = x.cast h := by simp [replicate, h]
 
 @[simp]
-theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
-    (x.replicate n).getMsbD i =
-    (decide (i < w * n) && x.getMsbD (i % w)) := by
+theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).getMsbD i = (decide (i < w * n) && x.getMsbD (i % w)) := by
   rw [← getLsbD_reverse, reverse_replicate, getLsbD_replicate, getLsbD_reverse]
 
 @[simp]
-theorem msb_replicate {n w : Nat} (x : BitVec w) :
+theorem msb_replicate {n w : Nat} {x : BitVec w} :
     (x.replicate n).msb =
     (decide (0 < n) && x.msb) := by
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]

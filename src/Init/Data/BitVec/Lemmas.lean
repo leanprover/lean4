@@ -3525,12 +3525,8 @@ theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
 theorem msb_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).msb =
     (decide (0 < n) && x.msb) := by
-  simp [BitVec.msb, getMsbD_replicate]
-  by_cases hn : 0 < n <;> by_cases hw : 0 < w
-  · simp [hn, hw]
-  · simp [show w = 0 by omega]
-  · simp [hn, hw]
-  · simp [show w = 0 by omega, show n = 0 by omega]
+  simp [BitVec.msb]
+  cases n <;> cases w <;> simp
 
 /-! ### intMin -/
 

@@ -3783,7 +3783,7 @@ theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
     · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
       · simp [hi', ih]
-      · simp [hi', decide_false]
+      · simp only [hi', ↓reduceIte]
         rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]

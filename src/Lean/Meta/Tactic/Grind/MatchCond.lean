@@ -28,20 +28,9 @@ builtin_dsimproc_decl reduceMatchCond (Grind.MatchCond _) := fun e => do
 def addMatchCond (s : Simprocs) : CoreM Simprocs := do
   s.add ``reduceMatchCond (post := false)
 
-def registerMatchCondChildren (e : Expr) : GoalM Unit := do
-  let_expr Grind.MatchCond p ← e | return ()
-  let mut p := p
-  repeat
-    let .forallE _ d b _ := p | return ()
-    -- TODO: NIY
-    match_expr d with
-    | Eq _ lhs _ => return ()
-    | HEq _ lhs _ _ => return ()
-    | _ => p := b
-
 /-- Propagates `MatchCond` upwards -/
 builtin_grind_propagator propagateMatchCond ↑Grind.MatchCond := fun e => do
-  trace[Meta.debug] "e: {e}"
-  return ()
+  trace[grind.debug.matchCond] "{e}"
+  -- TODO: NIY
 
 end Lean.Meta.Grind

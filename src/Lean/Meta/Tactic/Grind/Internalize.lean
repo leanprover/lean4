@@ -110,6 +110,9 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
 private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
   shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
 
+private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
+  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
 private partial def internalizePattern (pattern : Expr) (generation : Nat) : GoalM Expr := do
@@ -121,6 +124,24 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
     return mkGroundPattern e
   else pattern.withApp fun f args => do
     return mkAppN f (← args.mapM (internalizePattern · generation))
+
+/-- Internalizes the `MatchCond` gadget. -/
+private partial def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
+  let_expr Grind.MatchCond e ← matchCond | return ()
+  mkENode' matchCond generation
+  let mut e := e
+  repeat
+    let .forallE _ d b _ := e | break
+    let internalizeLhs (lhs : Expr) : GoalM Unit := do
+      unless lhs.hasLooseBVars do
+        internalize lhs generation
+        registerParent matchCond lhs
+    match_expr d with
+    | Eq _ lhs _ => internalizeLhs lhs
+    | HEq _ lhs _ _ => internalizeLhs lhs
+    | _ => pure ()
+    e := b
+  propagateUp matchCond
 
 partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
@@ -164,10 +185,9 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
-  | .fvar .. | .letE .. | .lam .. =>
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+  | .fvar .. | .letE .. | .lam .. => mkENode' e generation
   | .forallE _ d b _ =>
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    mkENode' e generation
     if (← isProp d <&&> isProp e) then
       internalize d generation e
       registerParent e d
@@ -181,12 +201,14 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
   | .mdata ..
   | .proj .. =>
     reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    mkENode' e generation
   | .app .. =>
     if (← isLitValue e) then
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
       Arith.internalize e parent?
+    else if e.isAppOfArity ``Grind.MatchCond 1 then
+      internalizeMatchCond e generation
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
       pushCastHEqs e

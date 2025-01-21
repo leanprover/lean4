@@ -3491,8 +3491,19 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
     (decide (i < w * n) && x.getLsbD (i % w)) := by
-  rw [← getLsbD_reverse]
-  -- rw [reverse_replicate, getLsbD_replicate, getLsbD_reverse]
+  induction n generalizing x
+  case zero => simp
+  case succ n ih =>
+    simp only [replicate_succ, getLsbD_cast, getLsbD_append]
+    by_cases hi : i < w * (n + 1)
+    · simp only [hi, decide_true, Bool.true_and]
+      by_cases hi' : i < w * n
+      · simp [hi', ih]
+      · simp [hi', decide_false]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
+    · rw [Nat.mul_succ] at hi ⊢
+      simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
+      apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
 @[simp]
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
@@ -3508,41 +3519,7 @@ theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by omega) :
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getMsbD i =
     (decide (i < w * n) && x.getMsbD (i % w)) := by
-  simp [getMsbD_eq_getLsbD]
-  by_cases h₀ : 0 < w
-  · by_cases h₁ : i < w * n <;> by_cases h₂ : n = 0
-    · simp [h₁, h₂]
-    · simp [h₁, h₂, show w * n - 1 - i < w * n by omega, Nat.mod_lt i h₀]
-      congr 1
-      induction n
-      case neg.e_i.zero => omega
-      case neg.e_i.succ n ih =>
-        simp_all [Nat.mul_add]
-        by_cases h₃ : i < w * n
-        · simp [show w * n + w - 1 -i = w + (w * n - 1 - i) by omega]
-          rw [ih (by omega)]
-          intros hcontra
-          subst hcontra
-          simp at h₃
-        · rw [Nat.mod_eq_of_lt]
-          · have := Nat.mod_add_div i w
-            have hiw : i / w = n := by
-              apply Nat.div_eq_of_lt_le
-              · rw [Nat.mul_comm]
-                omega
-              · rw [Nat.add_mul]
-                simp
-                rw [Nat.mul_comm]
-                omega
-            rw [hiw] at this
-            conv =>
-              lhs
-              rw [← this]
-            omega
-          · omega
-    · simp [h₁, h₂]
-    · simp [h₁, h₂]
-  · simp [show w = 0 by omega]
+  rw [← getLsbD_reverse, reverse_replicate, getLsbD_replicate, getLsbD_reverse]
 
 @[simp]
 theorem msb_replicate {n w : Nat} (x : BitVec w) :

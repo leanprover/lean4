@@ -3807,8 +3807,7 @@ theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :
 
 @[simp]
 theorem msb_replicate {n w : Nat} {x : BitVec w} :
-    (x.replicate n).msb =
-    (decide (0 < n) && x.msb) := by
+    (x.replicate n).msb = (decide (0 < n) && x.msb) := by
   simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
   cases n <;> cases w <;> simp
 

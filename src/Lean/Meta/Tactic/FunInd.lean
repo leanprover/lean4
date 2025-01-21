@@ -1095,50 +1095,60 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
 
 /--
-TODO
- -/
+For non-recursive (and recursive functions) functions we derive a “functional case splitting theorem”. This is very similar
+than the functional induction theorem. It splits the goal, but does not give you inductive hyptheses.
+
+For these, it is not really clear which parameters should be “targets” of the motive, as there is
+no “fixed prefix” to guide this decision. All? None? Some?
+
+We tried none, but that did not work well. Right now it's all parameters, and it seems to work well.
+In the future, we might post-process the theorem (or run the code below iteratively) and remove
+targets that are unchanged in each case, so simplify applying the lemma when these “fixed” parameters
+are not variables, to avoid having to generalize them.
+-/
 def deriveCases (name : Name) : MetaM Unit := do
-  let info ← getConstInfo name
-  let value ←
-    if let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := false) name then
-      let eqInfo ← getConstInfo unfoldEqnName
-      forallTelescope eqInfo.type fun xs body => do
-        let some (_, _, rhs) := body.eq?
-          | throwError "Type of {unfoldEqnName} not an equality: {body}"
-        mkLambdaFVars xs rhs
-    else if let some value := info.value? then
-      pure value
-    else
-      throwError "'{name}' does not have an unfold theorem nor a value"
-  let motiveType ← lambdaTelescope value fun xs _body => do
-    mkForallFVars xs (.sort 0)
-  let e' ← withLocalDeclD `motive motiveType fun motive => do
-    lambdaTelescope value fun xs body => do
-      let (e',mvars) ← M2.run do
-        let goal := mkAppN motive xs
-        -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
-        -- so `buildInductionBody` should just do the right thing
-        withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
-          let isRecCall := fun _ => none
-          buildInductionBody #[fakeIH.fvarId!] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
-      let e' ← mkLambdaFVars xs e'
-      let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
-      let e' ← mkLambdaFVars #[motive] e'
-      pure e'
+  mapError (f := (m!"Cannot derive functional cases principle (please report this issue)\n{indentD ·}")) do
+    let info ← getConstInfo name
+    let value ←
+      if let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := false) name then
+        let eqInfo ← getConstInfo unfoldEqnName
+        forallTelescope eqInfo.type fun xs body => do
+          let some (_, _, rhs) := body.eq?
+            | throwError "Type of {unfoldEqnName} not an equality: {body}"
+          mkLambdaFVars xs rhs
+      else if let some value := info.value? then
+        pure value
+      else
+        throwError "'{name}' does not have an unfold theorem nor a value"
+    let motiveType ← lambdaTelescope value fun xs _body => do
+      mkForallFVars xs (.sort 0)
+    let e' ← withLocalDeclD `motive motiveType fun motive => do
+      lambdaTelescope value fun xs body => do
+        let (e',mvars) ← M2.run do
+          let goal := mkAppN motive xs
+          -- We bring an unused FVars into scope to pass as `oldIH` and `newIH`. These do not appear anywhere
+          -- so `buildInductionBody` should just do the right thing
+          withLocalDeclD `fakeIH (mkConst ``Unit) fun fakeIH =>
+            let isRecCall := fun _ => none
+            buildInductionBody #[fakeIH.fvarId!] goal fakeIH.fvarId! fakeIH.fvarId! isRecCall body
+        let e' ← mkLambdaFVars xs e'
+        let e' ← abstractIndependentMVars mvars (← motive.fvarId!.getDecl).index e'
+        let e' ← mkLambdaFVars #[motive] e'
+        pure e'
 
-  unless (← isTypeCorrect e') do
-    logError m!"constructed induction principle is not type correct:{indentExpr e'}"
-    check e'
+    unless (← isTypeCorrect e') do
+      logError m!"constructed functional cases principle is not type correct:{indentExpr e'}"
+      check e'
 
-  let eTyp ← inferType e'
-  let eTyp ← elimOptParam eTyp
-  -- logInfo m!"eTyp: {eTyp}"
-  let params := (collectLevelParams {} eTyp).params
-  -- Prune unused level parameters, preserving the original order
-  let us := info.levelParams.filter (params.contains ·)
+    let eTyp ← inferType e'
+    let eTyp ← elimOptParam eTyp
+    -- logInfo m!"eTyp: {eTyp}"
+    let params := (collectLevelParams {} eTyp).params
+    -- Prune unused level parameters, preserving the original order
+    let us := info.levelParams.filter (params.contains ·)
 
-  addDecl <| Declaration.thmDecl
-    { name := info.name ++ `fun_cases, levelParams := us, type := eTyp, value := e' }
+    addDecl <| Declaration.thmDecl
+      { name := info.name ++ `fun_cases, levelParams := us, type := eTyp, value := e' }
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.

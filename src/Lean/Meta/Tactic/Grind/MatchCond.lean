@@ -17,8 +17,8 @@ Recall that `Grind.MatchCond` is an identity function,
 but the following simproc is used to prevent the term `e` from being simplified,
 and we have special support for propagating is truth value.
 -/
-def markAsMatchCond (e : Expr) : MetaM Expr :=
-  mkAppM ``Grind.MatchCond #[e]
+def markAsMatchCond (e : Expr) : Expr :=
+  mkApp (mkConst ``Grind.MatchCond) e
 
 builtin_dsimproc_decl reduceMatchCond (Grind.MatchCond _) := fun e => do
   let_expr Grind.MatchCond _ ← e | return .continue

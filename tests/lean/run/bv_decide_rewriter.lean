@@ -95,8 +95,12 @@ example (x y : BitVec 16) : (-x) * y = -(x * y) := by bv_normalize
 example (x y : BitVec 16) : x * (-y) = -(x * y) := by bv_normalize
 example (x y : BitVec 16) : -x * -y = x * y := by bv_normalize
 example (x y : BitVec 16) : (~~~x + 1) * y = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * y = ~~~(x * y) + 1 := by bv_normalize
 example (x y : BitVec 16) : x * (~~~y + 1) = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : x * (1 + ~~~y) = ~~~(x * y) + 1 := by bv_normalize
 example (x y : BitVec 16) : (~~~x + 1) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (1 + ~~~y) = x * y := by bv_normalize
 
 -- lt_irrefl
 example (x : BitVec 16) : ¬x < x := by bv_normalize

@@ -48,8 +48,10 @@ theorem mapFinIdx_spec (as : Array α) (f : (i : Nat) → α → (h : i < as.siz
     (a.mapFinIdx f).size = a.size :=
   (mapFinIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
 
-@[simp] theorem size_zipWithIndex (as : Array α) : as.zipWithIndex.size = as.size :=
+@[simp] theorem size_zipIdx (as : Array α) : as.zipIdx.size = as.size :=
   Array.size_mapFinIdx _ _
+
+@[deprecated size_zipIdx (since := "2025-01-21")] abbrev size_zipWithIndex := @size_zipIdx
 
 @[simp] theorem getElem_mapFinIdx (a : Array α) (f : (i : Nat) → α → (h : i < a.size) → β) (i : Nat)
     (h : i < (mapFinIdx a f).size) :
@@ -115,34 +117,44 @@ end List
 
 namespace Array
 
-/-! ### zipWithIndex -/
+/-! ### zipIdx -/
 
-@[simp] theorem getElem_zipWithIndex (a : Array α) (i : Nat) (h : i < a.zipWithIndex.size) :
-    (a.zipWithIndex)[i] = (a[i]'(by simp_all), i) := by
-  simp [zipWithIndex]
+@[simp] theorem getElem_zipIdx (a : Array α) (i : Nat) (h : i < a.zipIdx.size) :
+    (a.zipIdx)[i] = (a[i]'(by simp_all), i) := by
+  simp [zipIdx]
 
-@[simp] theorem zipWithIndex_toArray {l : List α} :
-    l.toArray.zipWithIndex = (l.enum.map fun (i, x) => (x, i)).toArray := by
+@[deprecated getElem_zipIdx (since := "2025-01-21")]
+abbrev getElem_zipWithIndex := @getElem_zipIdx
+
+@[simp] theorem zipIdx_toArray {l : List α} :
+    l.toArray.zipIdx = l.zipIdx.toArray := by
   ext i hi₁ hi₂ <;> simp
 
-@[simp] theorem toList_zipWithIndex (a : Array α) :
-    a.zipWithIndex.toList = a.toList.enum.map (fun (i, a) => (a, i)) := by
+@[deprecated zipIdx_toArray (since := "2025-01-21")]
+abbrev zipWithIndex_toArray := @zipIdx_toArray
+
+@[simp] theorem toList_zipIdx (a : Array α) :
+    a.zipIdx.toList = a.toList.zipIdx := by
   rcases a with ⟨a⟩
   simp
 
-theorem mk_mem_zipWithIndex_iff_getElem? {x : α} {i : Nat} {l : Array α} :
-    (x, i) ∈ l.zipWithIndex ↔ l[i]? = x := by
-  rcases l with ⟨l⟩
-  simp only [zipWithIndex_toArray, mem_toArray, List.mem_map, Prod.mk.injEq, Prod.exists,
-    List.mk_mem_enum_iff_getElem?, List.getElem?_toArray]
-  constructor
-  · rintro ⟨a, b, h, rfl, rfl⟩
-    exact h
-  · intro h
-    exact ⟨i, x, by simp [h]⟩
+@[deprecated toList_zipIdx (since := "2025-01-21")]
+abbrev toList_zipWithIndex := @toList_zipIdx
 
-theorem mem_enum_iff_getElem? {x : α × Nat} {l : Array α} : x ∈ l.zipWithIndex ↔ l[x.2]? = some x.1 :=
-  mk_mem_zipWithIndex_iff_getElem?
+theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {l : Array α} :
+    (x, i) ∈ l.zipIdx ↔ l[i]? = x := by
+  rcases l with ⟨l⟩
+  simp only [zipIdx_toArray, mem_toArray, List.mem_map, Prod.mk.injEq, Prod.exists,
+    List.mk_mem_zipIdx_iff_getElem?, List.getElem?_toArray]
+
+@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-21")]
+abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
+
+theorem mem_zipIdx_iff_getElem? {x : α × Nat} {l : Array α} : x ∈ l.zipIdx ↔ l[x.2]? = some x.1 :=
+  mk_mem_zipIdx_iff_getElem?
+
+@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-21")]
+abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
 
 /-! ### mapFinIdx -/
 
@@ -179,11 +191,14 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
     #[a].mapFinIdx f = #[f 0 a (by simp)] := by
   simp
 
-theorem mapFinIdx_eq_zipWithIndex_map {l : Array α} {f : (i : Nat) → α → (h : i < l.size) → β} :
-    l.mapFinIdx f = l.zipWithIndex.attach.map
+theorem mapFinIdx_eq_zipIdx_map {l : Array α} {f : (i : Nat) → α → (h : i < l.size) → β} :
+    l.mapFinIdx f = l.zipIdx.attach.map
       fun ⟨⟨x, i⟩, m⟩ =>
-        f i x (by simp [mk_mem_zipWithIndex_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
+        f i x (by simp [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   ext <;> simp
+
+@[deprecated mapFinIdx_eq_zipIdx_map (since := "2025-01-21")]
+abbrev mapFinIdx_eq_zipWithIndex_map := @mapFinIdx_eq_zipIdx_map
 
 @[simp]
 theorem mapFinIdx_eq_empty_iff {l : Array α} {f : (i : Nat) → α → (h : i < l.size) → β} :
@@ -285,9 +300,12 @@ theorem mapIdx_eq_mapFinIdx {l : Array α} {f : Nat → α → β} :
     l.mapIdx f = l.mapFinIdx (fun i a _ => f i a) := by
   simp [mapFinIdx_eq_mapIdx]
 
-theorem mapIdx_eq_zipWithIndex_map {l : Array α} {f : Nat → α → β} :
-    l.mapIdx f = l.zipWithIndex.map fun ⟨a, i⟩ => f i a := by
+theorem mapIdx_eq_zipIdx_map {l : Array α} {f : Nat → α → β} :
+    l.mapIdx f = l.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
+
+@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
+abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
 
 theorem mapIdx_append {K L : Array α} :
     (K ++ L).mapIdx f = K.mapIdx f ++ L.mapIdx fun i => f (i + K.size) := by

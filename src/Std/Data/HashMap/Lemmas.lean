@@ -1325,22 +1325,22 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
   DHashMap.Const.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∉ m) (h': (f (get? m k)).isSome) :
+    (h : k ∉ m) (h' : (f (get? m k)).isSome) :
     (alter m k f).size = m.size + 1 :=
   DHashMap.Const.size_alter_eq_add_one h h'
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∈ m) (h': (f (get? m k)).isNone) :
+    (h : k ∈ m) (h' : (f (get? m k)).isNone) :
     (alter m k f).size = m.size - 1 :=
   DHashMap.Const.size_alter_eq_sub_one h h'
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∉ m) (h': (f (get? m k)).isNone) :
+    (h : k ∉ m) (h' : (f (get? m k)).isNone) :
     (alter m k f).size = m.size :=
   DHashMap.Const.size_alter_eq_self_of_not_mem h h'
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∈ m) (h': (f (get? m k)).isSome) :
+    (h : k ∈ m) (h' : (f (get? m k)).isSome) :
     (alter m k f).size = m.size :=
   DHashMap.Const.size_alter_eq_self_of_mem h h'
 
@@ -1379,7 +1379,7 @@ theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β �
 @[simp]
 theorem get_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     {h : k ∈ alter m k f} :
-    haveI h' : (f (get? m k)).isSome := mem_alter_self |>.mp h
+    haveI h' : (f (get? m k)).isSome := mem_alter_self.mp h
     get (alter m k f) k h = (f (get? m k)).get h' :=
   DHashMap.Const.get_alter_self
 

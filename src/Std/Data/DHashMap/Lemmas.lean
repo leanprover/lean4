@@ -1920,23 +1920,23 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
   Raw₀.size_alter ⟨m.1, _⟩ m.2
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∉ m) (h': (f (m.get? k)).isSome) :
+    (h : k ∉ m) (h' : (f (m.get? k)).isSome) :
     (m.alter k f).size = m.size + 1 := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.size_alter_eq_add_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∈ m) (h': (f (m.get? k)).isNone) :
+    (h : k ∈ m) (h' : (f (m.get? k)).isNone) :
     (m.alter k f).size = m.size - 1 :=
   Raw₀.size_alter_eq_sub_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∉ m) (h': (f (m.get? k)).isNone) : (m.alter k f).size = m.size := by
+    (h : k ∉ m) (h' : (f (m.get? k)).isNone) : (m.alter k f).size = m.size := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.size_alter_eq_self_of_not_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : k ∈ m) (h': (f (m.get? k)).isSome) : (m.alter k f).size = m.size :=
+    (h : k ∈ m) (h' : (f (m.get? k)).isSome) : (m.alter k f).size = m.size :=
   Raw₀.size_alter_eq_self_of_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
@@ -1974,7 +1974,7 @@ theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k
 @[simp]
 theorem get_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
     {h : k ∈ m.alter k f} :
-    haveI h' : (f (m.get? k)).isSome := mem_alter_self |>.mp h
+    haveI h' : (f (m.get? k)).isSome := mem_alter_self.mp h
     (m.alter k f).get k h = (f (m.get? k)).get h' :=
   Raw₀.get_alter_self ⟨m.1, _⟩ m.2
 
@@ -1982,15 +1982,19 @@ theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
     {f : Option (β k) → Option (β k)} : (m.alter k f).get! k' =
       if heq : k == k' then
         haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-        cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
+        (f (m.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         m.get! k' :=
   Raw₀.get!_alter ⟨m.1, _⟩ m.2
 
+private theorem Option.map_cast_apply {γ γ' : Type u} (h : γ = γ') (x : Option γ) :
+    Option.map (cast h) x = cast (congrArg Option h) x := by
+  cases h; cases x <;> simp
+
 @[simp]
 theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (β k) → Option (β k)} :
     (m.alter k f).get! k = (f (m.get? k)).get! := by
-  simp only [get!_alter, beq_self_eq_true, reduceDIte, cast_eq]
+  simp only [get!_alter, beq_self_eq_true, reduceDIte, cast_eq, Option.map_cast_apply]
 
 theorem getD_alter [LawfulBEq α] {k k' : α} {fallback : β k'} {f : Option (β k) → Option (β k)} :
     (m.alter k f).getD k' fallback =
@@ -2122,23 +2126,23 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} :
   Raw₀.Const.size_alter ⟨m.1, _⟩ m.2
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∉ m) (h': (f (Const.get? m k)).isSome) :
+    (h : k ∉ m) (h' : (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size + 1 := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.Const.size_alter_eq_add_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∈ m) (h': (f (Const.get? m k)).isNone) :
+    (h : k ∈ m) (h' : (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size - 1 :=
   Raw₀.Const.size_alter_eq_sub_one ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∉ m) (h': (f (Const.get? m k)).isNone) : (Const.alter m k f).size = m.size := by
+    (h : k ∉ m) (h' : (f (Const.get? m k)).isNone) : (Const.alter m k f).size = m.size := by
   rw [mem_iff_contains, Bool.not_eq_true] at h
   exact Raw₀.Const.size_alter_eq_self_of_not_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : k ∈ m) (h': (f (Const.get? m k)).isSome) : (Const.alter m k f).size = m.size :=
+    (h : k ∈ m) (h' : (f (Const.get? m k)).isSome) : (Const.alter m k f).size = m.size :=
   Raw₀.Const.size_alter_eq_self_of_mem ⟨m.1, _⟩ m.2 h h'
 
 theorem size_alter_le_size [LawfulBEq α] {k : α} {f : Option β → Option β} :
@@ -2176,7 +2180,7 @@ theorem get_alter [EquivBEq α] [LawfulHashable α] {k k' : α} {f : Option β �
 @[simp]
 theorem get_alter_self [EquivBEq α] [LawfulHashable α] {k : α} {f : Option β → Option β}
     {h : k ∈ Const.alter m k f} :
-    haveI h' : (f (Const.get? m k)).isSome := mem_alter_self |>.mp h
+    haveI h' : (f (Const.get? m k)).isSome := mem_alter_self.mp h
     Const.get (Const.alter m k f) k h = (f (Const.get? m k)).get h' := by
   simp [get_alter]
 

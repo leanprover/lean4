@@ -2968,7 +2968,7 @@ theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')] {f : Option (β k
     (l : List ((a : α) × β a)) (hl : DistinctKeys l) : getValueCast! k' (alterKey k f l) =
       if heq : k == k' then
         haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-        cast (congrArg β (eq_of_beq heq)) <| (f (getValueCast? k l)).get!
+        (f (getValueCast? k l)).map (cast (congrArg β <| eq_of_beq heq)) |>.get!
       else
         getValueCast! k' l := by
   simp only [hl, getValueCast!_eq_getValueCast?, getValueCast?_alterKey, beq_iff_eq,
@@ -2976,7 +2976,7 @@ theorem getValueCast!_alterKey {k k' : α} [Inhabited (β k')] {f : Option (β k
   split
   · next heq =>
     cases eq_of_beq heq
-    simp only [cast_eq]
+    simp only [cast_eq, Option.map_cast_apply]
   · rfl
 
 theorem getValueCastD_alterKey {k k' : α} {fallback : β k'} {f : Option (β k) → Option (β k)}
@@ -3423,11 +3423,6 @@ theorem getValueCast!_modifyKey [BEq α] [LawfulBEq α] {k k' : α} [hi : Inhabi
       else
         getValueCast! k' l := by
   simp only [modifyKey_eq_alterKey, getValueCast!_alterKey, hl]
-  split
-  · next heq =>
-    cases eq_of_beq heq
-    simp [getValueCast?_eq_some_getValueCast, List.cast_eq_id, List.function_id_comp]
-  · rfl
 
 @[simp]
 theorem getValueCast!_modifyKey_self [BEq α] [LawfulBEq α] {k : α} [Inhabited (β k)]

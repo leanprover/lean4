@@ -2037,28 +2037,28 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
   simp_to_raw using Raw₀.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (m.get? k)).isSome) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂ : (f (m.get? k)).isSome) :
     (m.alter k f).size = m.size + 1 := by
   revert h₁ h₂
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.size_alter_eq_add_one
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (m.get? k)).isNone)  :
+    (h : m.WF) (h₁ : k ∈ m) (h₂ : (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size - 1 := by
   revert h₁ h₂
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_alter_eq_sub_one
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (m.get? k)).isNone)  :
+    (h : m.WF) (h₁ : k ∉ m) (h₂ : (f (m.get? k)).isNone)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)}
-    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (m.get? k)).isSome)  :
+    (h : m.WF) (h₁ : k ∈ m) (h₂ : (f (m.get? k)).isSome)  :
     (m.alter k f).size = m.size := by
   revert h₁ h₂
   simp only [mem_iff_contains]
@@ -2109,15 +2109,19 @@ theorem get!_alter [LawfulBEq α] {k k' : α} [hi : Inhabited (β k')]
     {f : Option (β k) → Option (β k)} (h : m.WF) : (m.alter k f).get! k' =
       if heq : k == k' then
         haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-        cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
+        (f (m.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         m.get! k' := by
   simp_to_raw using Raw₀.get!_alter
 
+private theorem Option.map_cast_apply {γ γ' : Type u} (h : γ = γ') (x : Option γ) :
+    Option.map (cast h) x = cast (congrArg Option h) x := by
+  cases h; cases x <;> simp
+
 @[simp]
 theorem get!_alter_self [LawfulBEq α] {k : α} [Inhabited (β k)] {f : Option (β k) → Option (β k)}
     (h : m.WF) : (m.alter k f).get! k = (f (m.get? k)).get! := by
-  simp [get!_alter h]
+  simp [get!_alter h, Option.map_cast_apply]
 
 theorem getD_alter [LawfulBEq α] {k k' : α} {fallback : β k'} {f : Option (β k) → Option (β k)}
     (h : m.WF) : (m.alter k f).getD k' fallback =
@@ -2246,28 +2250,28 @@ theorem size_alter [LawfulBEq α] {k : α} {f : Option β → Option β} (h : m.
   simp_to_raw using Raw₀.Const.size_alter
 
 theorem size_alter_eq_add_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (Const.get? m k)).isSome) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂ : (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size + 1 := by
   revert h₁ h₂
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.size_alter_eq_add_one
 
 theorem size_alter_eq_sub_one [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (Const.get? m k)).isNone) :
+    (h : m.WF) (h₁ : k ∈ m) (h₂ : (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size - 1 := by
   revert h₁ h₂
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.Const.size_alter_eq_sub_one
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : k ∉ m) (h₂: (f (Const.get? m k)).isNone) :
+    (h : m.WF) (h₁ : k ∉ m) (h₂ : (f (Const.get? m k)).isNone) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
   simp only [mem_iff_contains, Bool.not_eq_true]
   simp_to_raw using Raw₀.Const.size_alter_eq_self_of_not_mem
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] {k : α} {f : Option β → Option β}
-    (h : m.WF) (h₁ : k ∈ m) (h₂: (f (Const.get? m k)).isSome) :
+    (h : m.WF) (h₁ : k ∈ m) (h₂ : (f (Const.get? m k)).isSome) :
     (Const.alter m k f).size = m.size := by
   revert h₁ h₂
   simp only [mem_iff_contains]

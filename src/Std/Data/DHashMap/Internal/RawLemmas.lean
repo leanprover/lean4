@@ -1745,22 +1745,22 @@ theorem size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → O
   simp_to_model using List.length_alterKey'
 
 theorem size_alter_eq_add_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isSome) :
+    (h₁ : m.contains k = false) (h₂ : (f (m.get? k)).isSome) :
     (m.alter k f).1.size = m.1.size + 1 := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_sub_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
-    (h₁ : m.contains k) (h₂: (f (m.get? k)).isNone) :
+    (h₁ : m.contains k) (h₂ : (f (m.get? k)).isNone) :
     (m.alter k f).1.size = m.1.size - 1 := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_self_of_not_mem [LawfulBEq α] (h : m.1.WF) {k : α}
-    {f : Option (β k) → Option (β k)} (h₁ : m.contains k = false) (h₂: (f (m.get? k)).isNone) :
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k = false) (h₂ : (f (m.get? k)).isNone) :
     (m.alter k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_self_of_mem [LawfulBEq α] (h : m.1.WF) {k : α}
-    {f : Option (β k) → Option (β k)} (h₁ : m.contains k) (h₂: (f (m.get? k)).isSome) :
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k) (h₂ : (f (m.get? k)).isSome) :
     (m.alter k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
 
@@ -1806,7 +1806,7 @@ theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')]
     (m.alter k f).get! k' =
       if heq : k == k' then
         haveI : Inhabited (β k) := ⟨cast (congrArg β <| eq_of_beq heq).symm default⟩
-        cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get!
+        (f (m.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
       else
         m.get! k' := by
   simp_to_model using List.getValueCast!_alterKey
@@ -1895,22 +1895,22 @@ theorem size_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
   simp_to_model using List.Const.length_alterKey'
 
 theorem size_alter_eq_add_one (h : m.1.WF) {k : α} {f : Option β → Option β}
-    (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isSome) :
+    (h₁ : m.contains k = false) (h₂ : (f (Const.get? m k)).isSome) :
     (Const.alter m k f).1.size = m.1.size + 1 := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_sub_one (h : m.1.WF) {k : α} {f : Option β → Option β}
-    (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isNone) :
+    (h₁ : m.contains k) (h₂ : (f (Const.get? m k)).isNone) :
     (Const.alter m k f).1.size = m.1.size - 1 := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_self_of_not_mem (h : m.1.WF) {k : α} {f : Option β → Option β}
-    (h₁ : m.contains k = false) (h₂: (f (Const.get? m k)).isNone) :
+    (h₁ : m.contains k = false) (h₂ : (f (Const.get? m k)).isNone) :
     (Const.alter m k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, h₂]
 
 theorem size_alter_eq_self_of_mem (h : m.1.WF) {k : α} {f : Option β → Option β}
-    (h₁ : m.contains k) (h₂: (f (Const.get? m k)).isSome) :
+    (h₁ : m.contains k) (h₂ : (f (Const.get? m k)).isSome) :
     (Const.alter m k f).1.size = m.1.size := by
   simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
 

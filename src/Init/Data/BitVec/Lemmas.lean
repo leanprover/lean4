@@ -3433,27 +3433,6 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   by_cases h' : w = 0 <;> simp [h'] <;> omega
 
-theorem append_assoc_left {a b c : Nat} (x : BitVec a) (y : BitVec b) (z : BitVec c) :
-    have : a + b + c = a + (b + c) := by rw [Nat.add_assoc]
-    (x ++ y) ++ z =  cast (by omega) (x ++ (y ++ z)) := by
-  ext k
-  simp only [getLsbD_cast, getLsbD_append]
-  by_cases h₀ : (↑k < c) <;> by_cases h₁ : (↑k < b + c)
-  · simp [h₀, h₁]
-  · simp [h₀, h₁]
-    omega
-  · simp [h₀, h₁]
-    by_cases h₂ : (↑k - c < b)
-    · simp [h₂]
-    · simp [h₂]
-      omega
-  · simp [h₀, h₁]
-    by_cases h₂ : (↑k - c < b)
-    · simp [h₂]
-      omega
-    · simp [h₂]
-      rw [Nat.sub_sub, Nat.add_comm (n := c)]
-
 @[simp]
 theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by omega) :
     (x.replicate 1) = x.cast h := by simp [replicate, h]

@@ -350,20 +350,20 @@ partial_fixpoint
 /--
 error: Could not prove 'Tree.rev''' to be monotone in its recursive calls:
   Cannot eliminate recursive call `Tree.rev'' my_name` enclosed in
-    id (if ↑my_idx < 0 then some my_name else my_name.rev'')
+    id (if my_idx < 0 then some my_name else my_name.rev'')
 -/
 #guard_msgs in
 def Tree.rev'' (t : Tree) : Option Tree := do
   Tree.mk (← t.cs.reverse.toArray.mapFinIdxM
-    (fun my_idx my_name => id (if my_idx.val < 0 then my_name else Tree.rev'' my_name))).toList
+    (fun my_idx my_name _ => id (if my_idx < 0 then my_name else Tree.rev'' my_name))).toList
 partial_fixpoint
 
 /--
 error: Could not prove 'Tree.rev'''' to be monotone in its recursive calls:
   Cannot eliminate recursive call `Tree.rev''' my_tree.cs.toArray` enclosed in
-    ts.reverse.mapFinIdxM fun my_idx my_tree =>
+    ts.reverse.mapFinIdxM fun my_idx my_tree x =>
       id
-        (if ↑my_idx < 0 then my_tree
+        (if my_idx < 0 then my_tree
         else do
           let ts ← rev''' my_tree.cs.toArray
           { cs := ts.toList })
@@ -374,7 +374,7 @@ error: Could not prove 'Tree.rev'''' to be monotone in its recursive calls:
 #guard_msgs in
 def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do
   ts.reverse.mapFinIdxM
-    (fun my_idx my_tree => id (if my_idx.val < 0 then my_tree else (Tree.rev''' my_tree.cs.toArray) >>= (fun ts => ⟨ts.toList⟩)))
+    (fun my_idx my_tree _ => id (if my_idx < 0 then my_tree else (Tree.rev''' my_tree.cs.toArray) >>= (fun ts => ⟨ts.toList⟩)))
 partial_fixpoint
 
 def List.findIndex (xs : List α) (p : α → Bool) : Option Nat := match xs with

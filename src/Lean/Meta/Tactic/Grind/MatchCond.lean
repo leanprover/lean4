@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Init.Grind.Util
+import Init.Grind
 import Init.Simproc
 import Lean.Meta.Tactic.Simp.Simproc
+import Lean.Meta.Tactic.Grind.PropagatorAttr
 
 namespace Lean.Meta.Grind
 
@@ -26,5 +27,21 @@ builtin_dsimproc_decl reduceMatchCond (Grind.MatchCond _) := fun e => do
 /-- Adds `reduceMatchCond` to `s` -/
 def addMatchCond (s : Simprocs) : CoreM Simprocs := do
   s.add ``reduceMatchCond (post := false)
+
+def registerMatchCondChildren (e : Expr) : GoalM Unit := do
+  let_expr Grind.MatchCond p ← e | return ()
+  let mut p := p
+  repeat
+    let .forallE _ d b _ := p | return ()
+    -- TODO: NIY
+    match_expr d with
+    | Eq _ lhs _ => return ()
+    | HEq _ lhs _ _ => return ()
+    | _ => p := b
+
+/-- Propagates `MatchCond` upwards -/
+builtin_grind_propagator propagateMatchCond ↑Grind.MatchCond := fun e => do
+  trace[Meta.debug] "e: {e}"
+  return ()
 
 end Lean.Meta.Grind

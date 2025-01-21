@@ -46,13 +46,12 @@ def rewriteRulesPass : Pass where
 
       let some (_, newGoal) := result? | return none
       newGoal.withContext do
-        (← newGoal.getNondepPropHyps).forM PreProcessM.rewriteFinished
+        (← getPropHyps).forM PreProcessM.rewriteFinished
       return newGoal
 where
   getHyps (goal : MVarId) : PreProcessM (Array FVarId) := do
     goal.withContext do
-      -- TODO: it seems getNondepPropHyps doesn't return all the hyps we are interested in, investiagte
-      let hyps ← goal.getNondepPropHyps
+      let hyps ← getPropHyps
       let filter hyp := do
         return !(← PreProcessM.checkRewritten hyp)
       hyps.filterM filter

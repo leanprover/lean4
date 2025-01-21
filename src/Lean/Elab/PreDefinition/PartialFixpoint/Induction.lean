@@ -210,7 +210,7 @@ def mkOptionAdm (motive : Expr) : MetaM Expr := do
     let P := mkAppN motive ysr
     let ys := ysr.pop
     let r := ysr.back!
-    let mut inst ← mkAppM ``admissible_eq_some #[P, r]
+    let mut inst ← mkAppM ``Option.admissible_eq_some #[P, r]
     inst ← mkLambdaFVars #[r] inst
     inst ← mkAppOptM ``admissible_pi #[none, none, none, none, inst]
     for y in ys.reverse do

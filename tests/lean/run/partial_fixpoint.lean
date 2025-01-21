@@ -367,7 +367,7 @@ error: Could not prove 'Tree.rev'''' to be monotone in its recursive calls:
         else do
           let ts ← rev''' my_tree.cs.toArray
           { cs := ts.toList })
-  Tried to apply 'Lean.Order.monotone_array_mapFinIdxM', but failed.
+  Tried to apply 'Lean.Order.Array.monotone_mapFinIdxM', but failed.
   Possible cause: A missing `Lean.Order.MonoBind` instance.
   Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.
 -/

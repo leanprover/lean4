@@ -49,11 +49,12 @@ def embeddedConstraintPass : Pass where
         return goal
 
       let cfg ← PreProcessM.getConfig
+      let targets ← goal.withContext getPropHyps
       let simpCtx ← Simp.mkContext
         (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← getPropHyps)
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)
       let some (_, newGoal) := result? | return none
       return newGoal
 

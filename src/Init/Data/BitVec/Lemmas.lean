@@ -3080,9 +3080,8 @@ theorem getMsbD_rotateLeft_of_lt {n w : Nat} {x : BitVec w} (hi : r < w):
         have h₂ : (r + n) < 2 * (w + 1) := by omega
         rw [Nat.mod_eq_sub_of_le_of_lt (n := 1)]
         congr 1
-        · omega
-        · omega
-        · omega
+        rw [← Nat.sub_mul_eq_mod_of_lt_of_le (n := 1) (by omega) (by omega), Nat.mul_one]
+        omega
       · simp [h₁]
 
 theorem getMsbD_rotateLeft {r n w : Nat} {x : BitVec w} :

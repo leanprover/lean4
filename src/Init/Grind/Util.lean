@@ -31,6 +31,14 @@ When `EqMatch a b origin` is `True`, we mark `origin` as a resolved case-split.
 -/
 def EqMatch (a b : α) {_origin : α} : Prop := a = b
 
+/--
+Gadget for annotating conditions of `match` equational lemmas.
+We use this annotation for two different reasons:
+- We don't want to normalize them.
+- We have a propagator for them.
+-/
+def MatchCond (p : Prop) : Prop := p
+
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
   subst h; apply HEq.refl
 

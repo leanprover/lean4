@@ -4,6 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
 prelude
-import Init.Internal.Order.Basic
-import Init.Internal.Order.Lemmas
-import Init.Internal.Order.Tactic
+import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
+import Lean.Elab.PreDefinition.PartialFixpoint.Main
+import Lean.Elab.PreDefinition.PartialFixpoint.Induction

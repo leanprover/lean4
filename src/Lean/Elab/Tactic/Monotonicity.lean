@@ -21,7 +21,6 @@ partial def headBetaUnderLambda (f : Expr) : Expr := Id.run do
       f := f.updateLambda! f.bindingInfo! f.bindingDomain! f.bindingBody!.headBeta
   return f
 
-
 /-- Environment extensions for monotonicity lemmas -/
 builtin_initialize monotoneExt :
     SimpleScopedEnvExtension (Name × Array DiscrTree.Key) (DiscrTree Name) ←
@@ -85,7 +84,7 @@ partial def solveMonoCall (α inst_α : Expr) (e : Expr) : MetaM (Option Expr) :
     let_expr monotone _ _ _ inst _ := hmonoType | throwError "solveMonoCall {e}: unexpected type {hmonoType}"
     let some inst ← whnfUntil inst ``instPartialOrderPProd | throwError "solveMonoCall {e}: unexpected instance {inst}"
     let_expr instPartialOrderPProd β γ inst_β inst_γ ← inst | throwError "solveMonoCall {e}: whnfUntil failed?{indentExpr inst}"
-    let n := if e.projIdx! == 0 then ``monotone_pprod_fst else ``monotone_pprod_snd
+    let n := if e.projIdx! == 0 then ``PProd.monotone_fst else ``PProd.monotone_snd
     return ← mkAppOptM n #[β, γ, α, inst_β, inst_γ, inst_α, none, hmono]
 
   if e == .bvar 0 then
@@ -126,19 +125,25 @@ def solveMonoStep (failK : ∀ {α}, Expr → Array Name → MetaM α := @defaul
       goal.assign goal'
       return [goal'.mvarId!]
 
-    -- Float letE to the environment
+    -- Handle let
     if let .letE n t v b _nonDep := e then
       if t.hasLooseBVars || v.hasLooseBVars then
-        failK f #[]
-      let goal' ← withLetDecl n t v fun x => do
-        let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+        -- We cannot float the let to the context, so just zeta-reduce.
+        let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 v)
         let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
-        goal.assign (← mkLetFVars #[x] goal')
-        pure goal'
-      return [goal'.mvarId!]
+        goal.assign goal'
+        return [goal'.mvarId!]
+      else
+        -- No recursive call in t or v, so float out
+        let goal' ← withLetDecl n t v fun x => do
+          let b' := f.updateLambdaE! f.bindingDomain! (b.instantiate1 x)
+          let goal' ← mkFreshExprSyntheticOpaqueMVar (mkApp type.appFn! b')
+          goal.assign (← mkLetFVars #[x] goal')
+          pure goal'
+        return [goal'.mvarId!]
 
     -- Float `letFun` to the environment.
-    -- `applyConst` tends to reduce the redex
+    -- (cannot use `applyConst`, it tends to reduce the let redex)
     match_expr e with
     | letFun γ _ v b =>
       if γ.hasLooseBVars || v.hasLooseBVars then

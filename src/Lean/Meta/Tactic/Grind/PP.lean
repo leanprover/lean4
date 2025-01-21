@@ -121,6 +121,7 @@ private def ppOffset : M Unit := do
   let nodes := s.nodes
   if nodes.isEmpty then return ()
   let model ← Arith.Offset.mkModel goal
+  if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
     ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]

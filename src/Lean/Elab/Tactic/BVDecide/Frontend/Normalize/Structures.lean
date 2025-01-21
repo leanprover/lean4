@@ -52,7 +52,7 @@ end M
 partial def structuresPass : Pass where
   name := `structures
   run' goal := do
-    let (_, { interesting, ..} ) ← checkContext goal |>.run {}
+    let (_, { interesting, .. }) ← checkContext goal |>.run {}
 
     let goals ← goal.casesRec fun decl => do
       if decl.isLet || decl.isImplementationDetail then

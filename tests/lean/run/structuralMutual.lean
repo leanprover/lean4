@@ -415,7 +415,7 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     A n
   and the datatype parameter
@@ -439,7 +439,7 @@ end
 end Mutual3
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type FixedIndex.T is an inductive family and indices are not variables
     T 37
 -/
@@ -460,7 +460,7 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     T n n
   and the datatype parameter
@@ -523,7 +523,7 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
 Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
    #1 #2 #3 #4

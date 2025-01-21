@@ -3413,19 +3413,8 @@ theorem replicate_succ {x : BitVec w} :
 theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     (x.replicate n).getLsbD i =
     (decide (i < w * n) && x.getLsbD (i % w)) := by
-  induction n generalizing x
-  case zero => simp
-  case succ n ih =>
-    simp only [replicate_succ, getLsbD_cast, getLsbD_append]
-    by_cases hi : i < w * (n + 1)
-    · simp only [hi, decide_true, Bool.true_and]
-      by_cases hi' : i < w * n
-      · simp [hi', ih]
-      · simp [hi', decide_false]
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
-    · rw [Nat.mul_succ] at hi ⊢
-      simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
-      apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
+  rw [← getLsbD_reverse]
+  rw [reverse_replicate, getLsbD_replicate, getLsbD_reverse]
 
 @[simp]
 theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
@@ -3436,27 +3425,6 @@ theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
 @[simp]
 theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by omega) :
     (x.replicate 1) = x.cast h := by simp [replicate, h]
-
-theorem replicate_append_replicate_eq {w n : Nat} {x : BitVec w} (h : w * (n + m) = w * n + w * m := by omega) :
-    x.replicate n ++ x.replicate m = (x.replicate (n + m)).cast h := by
-  apply BitVec.eq_of_getLsbD_eq
-  simp only [getLsbD_cast, getLsbD_replicate, getLsbD_append, getLsbD_replicate]
-  intros i
-  by_cases h₀ : i < w * m <;> by_cases h₁ : i < w * (n + m)
-  · simp only [h₀, decide_true, Bool.true_and, cond_true, h₁]
-  · rw [Nat.mul_add] at h₁
-    simp only [h₀, decide_true, Bool.true_and, cond_true, Bool.iff_and_self, decide_eq_true_eq]
-    omega
-  · have h₂ : i ≥ w * m := by omega
-    simp only [h₀, decide_false, Bool.false_and, show i - w * m < w * n by omega, decide_true,
-      Bool.true_and, cond_false, h₁]
-    congr 1
-    rw [Nat.sub_mul_mod (by omega)]
-  · simp only [h₀, decide_false, Bool.false_and, cond_false, h₁, Bool.and_eq_false_imp,
-    decide_eq_true_eq]
-    omega
-
-
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} (x : BitVec w) :

@@ -100,7 +100,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_Unrea
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_addFunctionSummary___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_findVarValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_UnreachableBranches_elimDead_go___spec__7___closed__3;
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_widening(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
@@ -343,7 +343,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_UnreachableBranches_elimDead_go___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_UnreachableBranches_resetNestedFunDeclParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_goBig___closed__1;
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_Compiler_LCNF_Decl_elimDeadBranches___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_UnreachableBranches_inferStep___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2546,7 +2545,7 @@ if (x_13 == 0)
 lean_object* x_14; 
 lean_inc(x_12);
 lean_inc(x_1);
-x_14 = lean_environment_find(x_1, x_12);
+x_14 = l_Lean_Environment_find_x3f(x_1, x_12);
 if (lean_obj_tag(x_14) == 0)
 {
 size_t x_15; size_t x_16; lean_object* x_17; 
@@ -2713,7 +2712,7 @@ if (x_54 == 0)
 lean_object* x_55; 
 lean_inc(x_53);
 lean_inc(x_1);
-x_55 = lean_environment_find(x_1, x_53);
+x_55 = l_Lean_Environment_find_x3f(x_1, x_53);
 if (lean_obj_tag(x_55) == 0)
 {
 size_t x_56; size_t x_57; lean_object* x_58; lean_object* x_59; 
@@ -7988,15 +7987,6 @@ lean_dec(x_2);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_getAssignment___closed__1() {
 _start:
 {
@@ -10732,7 +10722,7 @@ x_38 = lean_ctor_get(x_35, 1);
 x_39 = lean_ctor_get(x_35, 0);
 lean_dec(x_39);
 lean_inc(x_24);
-x_40 = lean_environment_find(x_30, x_24);
+x_40 = l_Lean_Environment_find_x3f(x_30, x_24);
 if (lean_obj_tag(x_40) == 0)
 {
 lean_object* x_41; 
@@ -10868,7 +10858,7 @@ x_63 = lean_ctor_get(x_35, 1);
 lean_inc(x_63);
 lean_dec(x_35);
 lean_inc(x_24);
-x_64 = lean_environment_find(x_30, x_24);
+x_64 = l_Lean_Environment_find_x3f(x_30, x_24);
 if (lean_obj_tag(x_64) == 0)
 {
 lean_object* x_65; lean_object* x_66; 
@@ -11034,7 +11024,6 @@ else
 lean_object* x_95; 
 lean_inc(x_24);
 x_95 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_30, x_24);
-lean_dec(x_30);
 if (lean_obj_tag(x_95) == 0)
 {
 lean_object* x_96; lean_object* x_97; 
@@ -11159,7 +11148,6 @@ else
 lean_object* x_117; 
 lean_inc(x_24);
 x_117 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_30, x_24);
-lean_dec(x_30);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; 

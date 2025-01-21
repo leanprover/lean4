@@ -367,28 +367,244 @@ theorem containsThenInsert_snd (h : m.WF) {k : α} : (m.containsThenInsert k).2 
   ext (HashMap.Raw.containsThenInsertIfNew_snd h.out)
 
 @[simp]
-theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF): 
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.length = m.size :=
   HashMap.Raw.length_keys h.1
 
 @[simp]
-theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF):
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.isEmpty = m.isEmpty :=
   HashMap.Raw.isEmpty_keys h.1
 
 @[simp]
-theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF):
+theorem contains_toList [EquivBEq α] [LawfulHashable α] {k : α} (h : m.WF) :
     m.toList.contains k = m.contains k :=
   HashMap.Raw.contains_keys h.1
 
 @[simp]
-theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α}:
+theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
     k ∈ m.toList ↔ k ∈ m :=
   HashMap.Raw.mem_keys h.1
 
 theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.Raw.distinct_keys h.1
+
+@[simp]
+theorem insertMany_nil (h : m.WF) :
+    insertMany m [] = m :=
+  ext (HashMap.Raw.insertManyIfNewUnit_nil h.1)
+
+@[simp]
+theorem insertMany_list_singleton (h : m.WF) {k : α} :
+    insertMany m [k] = m.insert k :=
+  ext (HashMap.Raw.insertManyIfNewUnit_list_singleton h.1)
+
+theorem insertMany_cons (h : m.WF) {l : List α} {k : α} :
+    insertMany m (k :: l) = insertMany (m.insert k) l :=
+  ext (HashMap.Raw.insertManyIfNewUnit_cons h.1)
+
+@[simp]
+theorem contains_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} {k : α} :
+    (insertMany m l).contains k = (m.contains k || l.contains k) :=
+  HashMap.Raw.contains_insertManyIfNewUnit_list h.1
+
+@[simp]
+theorem mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} {k : α} :
+    k ∈ insertMany m l ↔ k ∈ m ∨ l.contains k :=
+  HashMap.Raw.mem_insertManyIfNewUnit_list h.1
+
+theorem mem_of_mem_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
+    k ∈ insertMany m l → k ∈ m :=
+  HashMap.Raw.mem_of_mem_insertManyIfNewUnit_list h.1 contains_eq_false
+
+theorem get?_insertMany_list_of_not_mem_of_contains_eq_false
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k : α}
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
+    get? (insertMany m l) k = none :=
+  HashMap.Raw.getKey?_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.1 not_mem contains_eq_false
+
+theorem get?_insertMany_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
+    (not_mem : ¬ k ∈ m)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    get? (insertMany m l) k' = some k :=
+  HashMap.Raw.getKey?_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.1 k_beq not_mem distinct mem
+
+theorem get?_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α} {k : α} (mem : k ∈ m) :
+    get? (insertMany m l) k = get? m k :=
+  HashMap.Raw.getKey?_insertManyIfNewUnit_list_of_mem h.1 mem
+
+theorem get_insertMany_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α}
+    {k k' : α} (k_beq : k == k')
+    (not_mem : ¬ k ∈ m)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) {h'} :
+    get (insertMany m l) k' h' = k :=
+  HashMap.Raw.getKey_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.1 k_beq not_mem distinct mem
+
+theorem get_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α} {k : α} (mem : k ∈ m) {h₃} :
+    get (insertMany m l) k h₃ = get m k mem :=
+  HashMap.Raw.getKey_insertManyIfNewUnit_list_of_mem h.1 mem
+
+theorem get!_insertMany_list_of_not_mem_of_contains_eq_false
+    [EquivBEq α] [LawfulHashable α] [Inhabited α] (h : m.WF) {l : List α} {k : α}
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
+    get! (insertMany m l) k = default :=
+  HashMap.Raw.getKey!_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.1 not_mem contains_eq_false
+
+theorem get!_insertMany_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] (h : m.WF) {l : List α} {k k' : α} (k_beq : k == k')
+    (not_mem : ¬ k ∈ m)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    get! (insertMany m l) k' = k :=
+  HashMap.Raw.getKey!_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.1 k_beq not_mem distinct mem
+
+theorem get!_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] (h : m.WF) {l : List α} {k : α} (mem : k ∈ m) :
+    get! (insertMany m l) k = get! m k :=
+  HashMap.Raw.getKey!_insertManyIfNewUnit_list_of_mem h.1 mem
+
+theorem getD_insertMany_list_of_not_mem_of_contains_eq_false
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {l : List α} {k fallback : α}
+    (not_mem : ¬ k ∈ m) (contains_eq_false : l.contains k = false) :
+    getD (insertMany m l) k fallback = fallback :=
+  HashMap.Raw.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_contains_eq_false
+    h.1 not_mem contains_eq_false
+
+theorem getD_insertMany_list_of_not_mem_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α} {k k' fallback : α} (k_beq : k == k')
+    (not_mem : ¬ k ∈ m)
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    getD (insertMany m l) k' fallback = k :=
+  HashMap.Raw.getKeyD_insertManyIfNewUnit_list_of_not_mem_of_mem
+    h.1 k_beq not_mem distinct mem
+
+theorem getD_insertMany_list_of_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {l : List α} {k fallback : α} (mem : k ∈ m) :
+    getD (insertMany m l) k fallback = getD m k fallback :=
+  HashMap.Raw.getKeyD_insertManyIfNewUnit_list_of_mem h.1 mem
+
+theorem size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α}
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) :
+    (∀ (a : α), a ∈ m → l.contains a = false) →
+      (insertMany m l).size = m.size + l.length :=
+  HashMap.Raw.size_insertManyIfNewUnit_list h.1 distinct
+
+theorem size_le_size_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} :
+    m.size ≤ (insertMany m l).size :=
+  HashMap.Raw.size_le_size_insertManyIfNewUnit_list h.1
+
+theorem size_insertMany_list_le [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} :
+    (insertMany m l).size ≤ m.size + l.length :=
+  HashMap.Raw.size_insertManyIfNewUnit_list_le h.1
+
+@[simp]
+theorem isEmpty_insertMany_list [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {l : List α} :
+    (insertMany m l).isEmpty = (m.isEmpty && l.isEmpty) :=
+  HashMap.Raw.isEmpty_insertManyIfNewUnit_list h.1
+
+@[simp]
+theorem ofList_nil :
+    ofList ([] : List α) = ∅ :=
+  ext HashMap.Raw.unitOfList_nil
+
+@[simp]
+theorem ofList_singleton {k : α} :
+    ofList [k] = (∅ : Raw α).insert k :=
+  ext HashMap.Raw.unitOfList_singleton
+
+theorem ofList_cons {hd : α} {tl : List α} :
+    ofList (hd :: tl) = insertMany ((∅ : Raw α).insert hd) tl :=
+  ext HashMap.Raw.unitOfList_cons
+
+@[simp]
+theorem contains_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    (ofList l).contains k = l.contains k :=
+  HashMap.Raw.contains_unitOfList
+
+@[simp]
+theorem mem_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} :
+    k ∈ ofList l ↔ l.contains k :=
+  HashMap.Raw.mem_unitOfList
+
+theorem get?_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k : α} (contains_eq_false : l.contains k = false) :
+    get? (ofList l) k = none :=
+  HashMap.Raw.getKey?_unitOfList_of_contains_eq_false contains_eq_false
+
+theorem get?_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) (mem : k ∈ l) :
+    get? (ofList l) k' = some k :=
+  HashMap.Raw.getKey?_unitOfList_of_mem k_beq distinct mem
+
+theorem get_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) {h'} :
+    get (ofList l) k' h' = k :=
+  HashMap.Raw.getKey_unitOfList_of_mem k_beq distinct mem
+
+theorem get!_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] {l : List α} {k : α}
+    (contains_eq_false : l.contains k = false) :
+    get! (ofList l) k = default :=
+  HashMap.Raw.getKey!_unitOfList_of_contains_eq_false contains_eq_false
+
+theorem get!_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    [Inhabited α] {l : List α} {k k' : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) :
+    get! (ofList l) k' = k :=
+  HashMap.Raw.getKey!_unitOfList_of_mem k_beq distinct mem
+
+theorem getD_ofList_of_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k fallback : α}
+    (contains_eq_false : l.contains k = false) :
+    getD (ofList l) k fallback = fallback :=
+  HashMap.Raw.getKeyD_unitOfList_of_contains_eq_false contains_eq_false
+
+theorem getD_ofList_of_mem [EquivBEq α] [LawfulHashable α]
+    {l : List α} {k k' fallback : α} (k_beq : k == k')
+    (distinct : l.Pairwise (fun a b => (a == b) = false))
+    (mem : k ∈ l) :
+    getD (ofList l) k' fallback = k :=
+  HashMap.Raw.getKeyD_unitOfList_of_mem k_beq distinct mem
+
+theorem size_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List α}
+    (distinct : l.Pairwise (fun a b => (a == b) = false)) :
+    (ofList l).size = l.length :=
+  HashMap.Raw.size_unitOfList distinct
+
+theorem size_ofList_le [EquivBEq α] [LawfulHashable α]
+    {l : List α} :
+    (ofList l).size ≤ l.length :=
+  HashMap.Raw.size_unitOfList_le
+
+@[simp]
+theorem isEmpty_ofList [EquivBEq α] [LawfulHashable α]
+    {l : List α} :
+    (ofList l).isEmpty = l.isEmpty :=
+  HashMap.Raw.isEmpty_unitOfList
 
 end Raw
 

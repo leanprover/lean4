@@ -74,9 +74,6 @@ instance [Clause α β] : Entails α β where
 instance [Clause α β] (p : α → Bool) (c : β) : Decidable (p ⊨ c) :=
   inferInstanceAs (Decidable (Clause.eval p c = true))
 
-instance [Clause α β] : Inhabited β where
-  default := empty
-
 end Clause
 
 /--

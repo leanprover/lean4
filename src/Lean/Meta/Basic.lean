@@ -1977,15 +1977,22 @@ def sortFVarIds (fvarIds : Array FVarId) : MetaM (Array FVarId) := do
 
 end Methods
 
+/--
+Return `some info` if `declName` is an inductive predicate where `info : InductiveVal`.
+That is, `inductive` type in `Prop`.
+-/
+def isInductivePredicate? (declName : Name) : MetaM (Option InductiveVal) := do
+  match (← getEnv).find? declName with
+  | some (.inductInfo info) =>
+    forallTelescopeReducing info.type fun _ type => do
+      match (← whnfD type) with
+      | .sort u .. => if u == levelZero then return some info else return none
+      | _ => return none
+  | _ => return none
+
 /-- Return `true` if `declName` is an inductive predicate. That is, `inductive` type in `Prop`. -/
 def isInductivePredicate (declName : Name) : MetaM Bool := do
-  match (← getEnv).find? declName with
-  | some (.inductInfo { type := type, ..}) =>
-    forallTelescopeReducing type fun _ type => do
-      match (← whnfD type) with
-      | .sort u .. => return u == levelZero
-      | _ => return false
-  | _ => return false
+  return (← isInductivePredicate? declName).isSome
 
 def isListLevelDefEqAux : List Level → List Level → MetaM Bool
   | [],    []    => return true

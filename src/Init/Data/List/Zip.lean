@@ -76,15 +76,6 @@ theorem getElem?_zip_eq_some {l₁ : List α} {l₂ : List β} {z : α × β} {i
   · rintro ⟨h₀, h₁⟩
     exact ⟨_, _, h₀, h₁, rfl⟩
 
-@[deprecated getElem?_zipWith (since := "2024-06-12")]
-theorem get?_zipWith {f : α → β → γ} :
-    (List.zipWith f as bs).get? i = match as.get? i, bs.get? i with
-      | some a, some b => some (f a b) | _, _ => none := by
-  simp [getElem?_zipWith]
-
-set_option linter.deprecated false in
-@[deprecated getElem?_zipWith (since := "2024-06-07")] abbrev zipWith_get? := @get?_zipWith
-
 theorem head?_zipWith {f : α → β → γ} :
     (List.zipWith f as bs).head? = match as.head?, bs.head? with
       | some a, some b => some (f a b) | _, _ => none := by
@@ -203,11 +194,11 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
     cases l₂ with
     | nil =>
       constructor
-      · simp only [zipWith_nil_right, nil_eq, append_eq_nil, exists_and_left, and_imp]
+      · simp only [zipWith_nil_right, nil_eq, append_eq_nil_iff, exists_and_left, and_imp]
         rintro rfl  rfl
         exact ⟨[], x₁ :: l₁, [], by simp⟩
       · rintro ⟨w, x, y, z, h₁, _, h₃, rfl, rfl⟩
-        simp only [nil_eq, append_eq_nil] at h₃
+        simp only [nil_eq, append_eq_nil_iff] at h₃
         obtain ⟨rfl, rfl⟩ := h₃
         simp
     | cons x₂ l₂ =>
@@ -368,15 +359,6 @@ theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
       specialize @aih []
       cases i <;> simp_all
     | cons b bs => cases i <;> simp_all
-
-@[deprecated getElem?_zipWithAll (since := "2024-06-12")]
-theorem get?_zipWithAll {f : Option α → Option β → γ} :
-    (zipWithAll f as bs).get? i = match as.get? i, bs.get? i with
-      | none, none => .none | a?, b? => some (f a? b?) := by
-  simp [getElem?_zipWithAll]
-
-set_option linter.deprecated false in
-@[deprecated getElem?_zipWithAll (since := "2024-06-07")] abbrev zipWithAll_get? := @get?_zipWithAll
 
 theorem head?_zipWithAll {f : Option α → Option β → γ} :
     (zipWithAll f as bs).head? = match as.head?, bs.head? with

@@ -10,6 +10,7 @@ import Lean.Meta.FunInfo
 import Lean.Util.FVarSubset
 import Lean.Util.PtrSet
 import Lean.Util.FVarSubset
+import Lean.Meta.Tactic.Grind.Types
 
 namespace Lean.Meta.Grind
 namespace Canon
@@ -22,7 +23,7 @@ to detect when two structurally different atoms are definitionally equal.
 The `grind` tactic, on the other hand, uses congruence closure. Moreover, types, type formers, proofs, and instances
 are considered supporting elements and are not factored into congruence detection.
 
-This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they instances,
+This module minimizes the number of `isDefEq` checks by comparing two terms `a` and `b` only if they are instances,
 types, or type formers and are the `i`-th arguments of two different `f`-applications. This approach is
 sufficient for the congruence closure procedure used by the `grind` tactic.
 
@@ -40,22 +41,37 @@ additions will still use structurally different (and definitionally different) i
 Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even if we add the assumptions `n = m` and `HEq a b`.
 -/
 
-structure State where
-  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
-  canon      : PHashMap Expr Expr := {}
-  proofCanon : PHashMap Expr Expr := {}
-  deriving Inhabited
+@[inline] private def get' : GoalM State :=
+  return (← get).canon
+
+@[inline] private def modify' (f : State → State) : GoalM Unit :=
+  modify fun s => { s with canon := f s.canon }
+
+/--
+Helper function for `canonElemCore`. It tries `isDefEq a b` with default transparency, but using
+at most `canonHeartbeats` heartbeats. It reports an issue if the threshold is reached.
+Remark: `parent` is use only to report an issue
+-/
+private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
+  withCurrHeartbeats do
+  let config ← getConfig
+  tryCatchRuntimeEx
+    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := config.canonHeartbeats }) do
+      withDefault <| isDefEq a b)
+    fun ex => do
+      if ex.isRuntime then
+        let curr := (← getConfig).canonHeartbeats
+        reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
+        return false
+      else
+        throw ex
 
 /--
 Helper function for canonicalizing `e` occurring as the `i`th argument of an `f`-application.
-`isInst` is true if `e` is an type class instance.
-
-Recall that we use `TransparencyMode.instances` for checking whether two instances are definitionally equal or not.
-Thus, if diagnostics are enabled, we also check them using `TransparencyMode.default`. If the result is different
-we report to the user.
+If `useIsDefEqBounded` is `true`, we try `isDefEqBounded` before returning false
 -/
-def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State MetaM Expr := do
-  let s ← get
+def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBounded : Bool) : GoalM Expr := do
+  let s ← get'
   if let some c := s.canon.find? e then
     return c
   let key := (f, i)
@@ -65,17 +81,23 @@ def canonElemCore (f : Expr) (i : Nat) (e : Expr) (isInst : Bool) : StateT State
       -- We used to check `c.fvarsSubset e` because it is not
       -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
       -- However, we don't revert previously canonicalized elements in the `grind` tactic.
-      modify fun s => { s with canon := s.canon.insert e c }
+      -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
+      -- and different locals are added in different branches.
+      modify' fun s => { s with canon := s.canon.insert e c }
+      trace[grind.debugn.canon] "found {e} ===> {c}"
       return c
-    if isInst then
-      if (← isDiagnosticsEnabled <&&> pure (c.fvarsSubset e) <&&> (withDefault <| isDefEq e c)) then
-        -- TODO: consider storing this information in some structure that can be browsed later.
-        trace[grind.issues] "the following `grind` static elements are definitionally equal with `default` transparency, but not with `instances` transparency{indentExpr e}\nand{indentExpr c}"
-  modify fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
+    if useIsDefEqBounded then
+      if (← isDefEqBounded e c parent) then
+        modify' fun s => { s with canon := s.canon.insert e c }
+        trace[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+        return c
+  trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
+  modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
   return e
 
-abbrev canonType (f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore f i e false
-abbrev canonInst (f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore f i e true
+abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
+abbrev canonInst (parent f : Expr) (i : Nat) (e : Expr) := withReducibleAndInstances <| canonElemCore parent f i e (useIsDefEqBounded := true)
+abbrev canonImplicit (parent f : Expr) (i : Nat) (e : Expr) := withReducible <| canonElemCore parent f i e (useIsDefEqBounded := true)
 
 /--
 Return type for the `shouldCanon` function.
@@ -85,12 +107,21 @@ private inductive ShouldCanonResult where
     canonType
   | /- Nested instances are canonicalized. -/
     canonInst
+  | /- Implicit argument that is not an instance nor a type. -/
+    canonImplicit
   | /-
     Term is not a proof, type (former), nor an instance.
     Thus, it must be recursively visited by the canonizer.
     -/
     visit
   deriving Inhabited
+
+instance : Repr ShouldCanonResult where
+  reprPrec r _ := match r with
+    | .canonType => "canonType"
+    | .canonInst => "canonInst"
+    | .canonImplicit => "canonImplicit"
+    | .visit => "visit"
 
 /--
 See comments at `ShouldCanonResult`.
@@ -102,62 +133,68 @@ def shouldCanon (pinfos : Array ParamInfo) (i : Nat) (arg : Expr) : MetaM Should
       return .canonInst
     else if pinfo.isProp then
       return .visit
-  if (← isTypeFormer arg) then
+    else if pinfo.isImplicit then
+      if (← isTypeFormer arg) then
+        return .canonType
+      else
+        return .canonImplicit
+  if (← isProp arg) then
+    return .visit
+  else if (← isTypeFormer arg) then
     return .canonType
   else
     return .visit
 
-unsafe def canonImpl (e : Expr) : StateT State MetaM Expr := do
+unsafe def canonImpl (e : Expr) : GoalM Expr := do
   visit e |>.run' mkPtrMap
 where
-  visit (e : Expr) : StateRefT (PtrMap Expr Expr) (StateT State MetaM) Expr := do
-    match e with
-    | .bvar .. => unreachable!
-    -- Recall that `grind` treats `let`, `forall`, and `lambda` as atomic terms.
-    | .letE .. | .forallE .. | .lam ..
-    | .const .. | .lit .. | .mvar .. | .sort .. | .fvar ..
-    -- Recall that the `grind` preprocessor uses the `foldProjs` preprocessing step.
-    | .proj ..
-    -- Recall that the `grind` preprocessor uses the `eraseIrrelevantMData` preprocessing step.
-    | .mdata ..  => return e
-    -- We only visit applications
-    | .app .. =>
-      -- Check whether it is cached
-      if let some r := (← get).find? e then
-        return r
-      e.withApp fun f args => do
-        let e' ← if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
+  visit (e : Expr) : StateRefT (PtrMap Expr Expr) GoalM Expr := do
+    unless e.isApp || e.isForall do return e
+    -- Check whether it is cached
+    if let some r := (← get).find? e then
+      return r
+    let e' ← match e with
+      | .app .. => e.withApp fun f args => do
+        if f.isConstOf ``Lean.Grind.nestedProof && args.size == 2 then
           let prop := args[0]!
           let prop' ← visit prop
-          if let some r := (← getThe State).proofCanon.find? prop' then
+          if let some r := (← get').proofCanon.find? prop' then
             pure r
           else
             let e' := if ptrEq prop prop' then e else mkAppN f (args.set! 0 prop')
-            modifyThe State fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
+            modify' fun s => { s with proofCanon := s.proofCanon.insert prop' e' }
             pure e'
         else
           let pinfos := (← getFunInfo f).paramInfo
           let mut modified := false
-          let mut args := args
-          for i in [:args.size] do
-            let arg := args[i]!
+          let mut args := args.toVector
+          for h : i in [:args.size] do
+            let arg := args[i]
+            trace[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
-            | .canonType  => canonType f i arg
-            | .canonInst  => canonInst f i arg
+            | .canonType  => canonType e f i arg
+            | .canonInst  => canonInst e f i arg
+            | .canonImplicit => canonImplicit e f i (← visit arg)
             | .visit      => visit arg
             unless ptrEq arg arg' do
-              args := args.set! i arg'
+              args := args.set i arg'
               modified := true
-          pure <| if modified then mkAppN f args else e
-        modify fun s => s.insert e e'
-        return e'
-
-/--
-Canonicalizes nested types, type formers, and instances in `e`.
--/
-def canon (e : Expr) : StateT State MetaM Expr :=
-  unsafe canonImpl e
+          pure <| if modified then mkAppN f args.toArray else e
+      | .forallE _ d b _ =>
+        -- Recall that we have `ForallProp.lean`.
+        let d' ← visit d
+        -- Remark: users may not want to convert `p → q` into `¬p ∨ q`
+        let b' ← if b.hasLooseBVars then pure b else visit b
+        pure <| e.updateForallE! d' b'
+      | _ => unreachable!
+    modify fun s => s.insert e e'
+    return e'
 
 end Canon
+
+/-- Canonicalizes nested types, type formers, and instances in `e`. -/
+def canon (e : Expr) : GoalM Expr := do
+  trace[grind.debug.canon] "{e}"
+  unsafe Canon.canonImpl e
 
 end Lean.Meta.Grind

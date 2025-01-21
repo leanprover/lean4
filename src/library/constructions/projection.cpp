@@ -30,7 +30,7 @@ static bool is_prop(expr type) {
     return is_sort(type) && is_zero(sort_level(type));
 }
 
-environment mk_projections(environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
+elab_environment mk_projections(elab_environment const & env, name const & n, buffer<name> const & proj_names, bool inst_implicit) {
     local_ctx lctx;
     name_generator ngen = mk_constructions_name_generator();
     constant_info ind_info       = env.get(n);
@@ -82,7 +82,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         it = instantiate(binding_body(it), local);
     }
     unsigned i = 0;
-    environment new_env = env;
+    elab_environment new_env = env;
     for (name const & proj_name : proj_names) {
         if (!is_pi(cnstr_type))
             throw exception(sstream() << "generating projection '" << proj_name << "', '"
@@ -126,14 +126,14 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
 
 
 extern "C" LEAN_EXPORT object * lean_mk_projections(object * env, object * struct_name, object * proj_infos, uint8 inst_implicit) {
-    environment new_env(env);
+    elab_environment new_env(env);
     name n(struct_name);
     list_ref<name> ps(proj_infos);
     buffer<name> proj_names;
     for (auto p : ps) {
         proj_names.push_back(p);
     }
-    return catch_kernel_exceptions<environment>([&]() { return mk_projections(new_env, n, proj_names, inst_implicit != 0); });
+    return catch_kernel_exceptions<elab_environment>([&]() { return mk_projections(new_env, n, proj_names, inst_implicit != 0); });
 }
 
 void initialize_def_projection() {

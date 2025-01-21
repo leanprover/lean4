@@ -40,7 +40,7 @@ protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 :
 theorem countP_cons (a : α) (l) : countP p (a :: l) = countP p l + if p a then 1 else 0 := by
   by_cases h : p a <;> simp [h]
 
-theorem countP_singleton (a : α) : countP p [a] = if p a then 1 else 0 := by
+@[simp] theorem countP_singleton (a : α) : countP p [a] = if p a then 1 else 0 := by
   simp [countP_cons]
 
 theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a => ¬p a) l := by

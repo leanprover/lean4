@@ -14,45 +14,68 @@ import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.EMatch
+import Lean.Meta.Tactic.Grind.Split
+import Lean.Meta.Tactic.Grind.Solve
+import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Cases
 
 namespace Lean.Meta.Grind
 
-def mkMethods : CoreM Methods := do
+structure Params where
+  config     : Grind.Config
+  ematch     : EMatchTheorems := {}
+  casesTypes : CasesTypes := {}
+  extra      : PArray EMatchTheorem := {}
+  norm       : Simp.Context
+  normProcs  : Array Simprocs
+  -- TODO: inductives to split
+
+def mkParams (config : Grind.Config) : MetaM Params := do
+  let norm ← Grind.getSimpContext
+  let normProcs ← Grind.getSimprocs
+  return { config, norm, normProcs }
+
+def mkMethods (fallback : Fallback) : CoreM Methods := do
   let builtinPropagators ← builtinPropagatorsRef.get
   return {
+    fallback
     propagateUp := fun e => do
-     propagateForallProp e
+     propagateForallPropUp e
      let .const declName _ := e.getAppFn | return ()
      propagateProjEq e
      if let some prop := builtinPropagators.up[declName]? then
        prop e
     propagateDown := fun e => do
+     propagateForallPropDown e
      let .const declName _ := e.getAppFn | return ()
      if let some prop := builtinPropagators.down[declName]? then
        prop e
   }
 
-def GrindM.run (x : GrindM α) (mainDeclName : Name) (config : Grind.Config) : MetaM α := do
+def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback : Fallback) : MetaM α := do
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
-  let thms ← grindNormExt.getTheorems
-  let simprocs := #[(← grindNormSimprocExt.getSimprocs)]
-  let simp ← Simp.mkContext
-    (config := { arith := true })
-    (simpTheorems := #[thms])
-    (congrTheorems := (← getSimpCongrTheorems))
-  x (← mkMethods).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr }
+  let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
+  let simprocs := params.normProcs
+  let simp := params.norm
+  let config := params.config
+  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr, natZExpr }
 
-private def mkGoal (mvarId : MVarId) : GrindM Goal := do
+private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
-  let thmMap ← getEMatchTheorems
-  GoalM.run' { mvarId, thmMap } do
+  let natZeroExpr ← getNatZeroExpr
+  let thmMap := params.ematch
+  let casesTypes := params.casesTypes
+  GoalM.run' { mvarId, thmMap, casesTypes } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
+    for thm in params.extra do
+      activateTheorem thm 0
 
-private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
+private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) := do
   mvarId.ensureProp
   -- TODO: abstract metavars
   mvarId.ensureNoMVar
@@ -60,34 +83,23 @@ private def initCore (mvarId : MVarId) : GrindM (List Goal) := do
   let mvarId ← mvarId.revertAll
   let mvarId ← mvarId.unfoldReducible
   let mvarId ← mvarId.betaReduce
-  let goals ← intros (← mkGoal mvarId) (generation := 0)
+  appendTagSuffix mvarId `grind
+  let goals ← intros (← mkGoal mvarId params) (generation := 0)
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
 
-def all (goals : List Goal) (f : Goal → GrindM (List Goal)) : GrindM (List Goal) := do
-  goals.foldlM (init := []) fun acc goal => return acc ++ (← f goal)
-
-/-- A very simple strategy -/
-private def simple (goals : List Goal) : GrindM (List Goal) := do
-  all goals ematchStar
-
-def main (mvarId : MVarId) (config : Grind.Config) (mainDeclName : Name) : MetaM (List MVarId) := do
-  let go : GrindM (List MVarId) := do
-    let goals ← initCore mvarId
-    let goals ← simple goals
+def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
+  let go : GrindM (List Goal) := do
+    let goals ← initCore mvarId params
+    let goals ← solve goals
+    let goals ← goals.filterMapM fun goal => do
+      if goal.inconsistent then return none
+      let goal ← GoalM.run' goal fallback
+      if goal.inconsistent then return none
+      if (← goal.mvarId.isAssigned) then return none
+      return some goal
     trace[grind.debug.final] "{← ppGoals goals}"
-    return goals.map (·.mvarId)
-  go.run mainDeclName config
-
-/-- Helper function for debugging purposes -/
-def preprocessAndProbe (mvarId : MVarId) (mainDeclName : Name) (p : GoalM Unit) : MetaM Unit :=
-  let go : GrindM Unit := do
-    let goals ← initCore mvarId
-    trace[grind.debug.final] "{← ppGoals goals}"
-    goals.forM fun goal =>
-      discard <| GoalM.run' goal p
-    return ()
-  withoutModifyingMCtx do
-    go.run mainDeclName {}
+    return goals
+  go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

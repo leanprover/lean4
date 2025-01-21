@@ -81,7 +81,10 @@ def ppLetDecl (letDecl : LetDecl) : M Format := do
     return f!"let {letDecl.binderName} := {← ppLetValue letDecl.value}"
 
 def getFunType (ps : Array Param) (type : Expr) : CoreM Expr :=
-  instantiateForall type (ps.map (mkFVar ·.fvarId))
+  if type.isErased then
+    pure type
+  else
+    instantiateForall type (ps.map (mkFVar ·.fvarId))
 
 mutual
   partial def ppFunDecl (funDecl : FunDecl) : M Format := do

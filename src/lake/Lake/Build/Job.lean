@@ -265,7 +265,7 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
 /-- Merges this job with another, discarding its output and trace. -/
 def add (self : Job α) (other : Job β) : Job α :=
   self.zipResultWith (other := other) fun
-  | .ok a sa, .ok _ sb => .ok a (sa.merge sb)
+  | .ok a sa, .ok _ sb => .ok a {sa.merge sb with trace := sa.trace}
   | ra, rb => .error 0 {ra.state.merge rb.state with trace := ra.state.trace}
 
 /-- Merges this job with another, discarding both outputs. -/

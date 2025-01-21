@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_DeclarationRange___hyg_45____closed__1;
-LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_declRangeExt;
 static lean_object* l_Lean_addDeclarationRanges___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -36,7 +35,6 @@ LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_DeclarationRange___hyg_45____closed__3;
 uint8_t lean_is_aux_recursor(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_builtinDeclRanges;
 lean_object* l_Lean_Name_getPrefix(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_DeclarationRange___hyg_45_(lean_object*);
@@ -225,7 +223,7 @@ x_5 = lean_ctor_get(x_1, 1);
 lean_inc(x_5);
 x_6 = lean_ctor_get(x_2, 0);
 lean_inc(x_6);
-x_7 = lean_alloc_closure((void*)(l_Lean_addDeclarationRanges___rarg___lambda__2___boxed), 5, 4);
+x_7 = lean_alloc_closure((void*)(l_Lean_addDeclarationRanges___rarg___lambda__2), 5, 4);
 lean_closure_set(x_7, 0, x_3);
 lean_closure_set(x_7, 1, x_2);
 lean_closure_set(x_7, 2, x_4);
@@ -240,15 +238,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_addDeclarationRanges___rarg), 4, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_addDeclarationRanges___rarg___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
-_start:
-{
-lean_object* x_6; 
-x_6 = l_Lean_addDeclarationRanges___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5);
-lean_dec(x_5);
-return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -277,7 +266,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1___boxed), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
@@ -290,15 +279,6 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_findDeclarationRangesCore_x3f___rarg), 3, 0);
 return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_findDeclarationRangesCore_x3f___rarg___lambda__1(x_1, x_2, x_3);
-lean_dec(x_3);
-return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_findDeclarationRanges_x3f___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -387,7 +367,6 @@ if (x_9 == 0)
 lean_object* x_10; uint8_t x_11; 
 x_10 = l_Lean_findDeclarationRanges_x3f___rarg___lambda__3___closed__1;
 x_11 = l_Lean_TagDeclarationExtension_isTagged(x_10, x_5, x_3);
-lean_dec(x_5);
 if (x_11 == 0)
 {
 if (x_7 == 0)

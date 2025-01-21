@@ -33,6 +33,9 @@ Format of the commit message
  - chore (maintain, ex: travis-ci)
  - perf (performance improvement, optimization, ...)
 
+Every `feat` or `fix` commit must have a `changelog-*` label, and a commit message
+beginning with "This PR " that will be included in the changelog.
+
 ``<subject>`` has the following constraints:
 
  - use imperative, present tense: "change" not "changed" nor "changes"
@@ -44,6 +47,7 @@ Format of the commit message
  - just as in ``<subject>``, use imperative, present tense
  - includes motivation for the change and contrasts with previous
    behavior
+ - If a `changelog-*` label is present, the body must begin with "This PR ".
 
 ``<footer>`` is optional and may contain two items:
 
@@ -60,17 +64,21 @@ Examples
 
 fix: add declarations for operator<<(std::ostream&, expr const&) and operator<<(std::ostream&, context const&) in the kernel
 
+This PR adds declarations `operator<<` for raw printing.
 The actual implementation of these two operators is outside of the
-kernel. They are implemented in the file 'library/printer.cpp'. We
-declare them in the kernel to prevent the following problem. Suppose
-there is a file 'foo.cpp' that does not include 'library/printer.h',
-but contains
+kernel. They are implemented in the file 'library/printer.cpp'.
 
-    expr a;
-    ...
-    std::cout << a << "\n";
-    ...
+We declare them in the kernel to prevent the following problem.
+Suppose there is a file 'foo.cpp' that does not include 'library/printer.h',
+but contains
+```cpp
+expr a;
+...
+std::cout << a << "\n";
+...
+```
 
 The compiler does not generate an error message. It silently uses the
 operator bool() to coerce the expression into a Boolean. This produces
 counter-intuitive behavior, and may confuse developers.
+

@@ -818,7 +818,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)*)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,
@@ -1647,17 +1647,6 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
-
-/--
-Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.
--/
-syntax (name := grind_norm) "grind_norm" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
-
-/--
-Simplification procedures tagged with the `grind_norm_proc` attribute are used by the `grind` tactic normalizer/pre-processor.
--/
-syntax (name := grind_norm_proc) "grind_norm_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
-
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

@@ -280,7 +280,6 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_isCoeDecl(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -347,7 +346,6 @@ lean_dec(x_14);
 x_17 = l_Lean_Meta_isCoeDecl___closed__1;
 x_18 = l_Lean_TagAttribute_hasTag(x_17, x_16, x_12);
 lean_dec(x_12);
-lean_dec(x_16);
 if (x_18 == 0)
 {
 lean_object* x_19; lean_object* x_20; 

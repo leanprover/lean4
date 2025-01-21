@@ -322,6 +322,11 @@ private def substSomeVar (mvarId : MVarId) : MetaM (Array MVarId) := mvarId.with
           | none => pure ()
   throwError "substSomeVar failed"
 
+private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
+  if Option.isNone <| (← mvarId.getType).find? fun e => e.isConstOf ``Nat.elimOffset then
+    throwError "goal's target does not contain `Nat.elimOffset`"
+  mvarId.deltaTarget (· == ``Nat.elimOffset)
+
 /--
   Helper method for proving a conditional equational theorem associated with an alternative of
   the `match`-eliminator `matchDeclName`. `type` contains the type of the theorem. -/
@@ -342,6 +347,8 @@ where
       (do mvarId.refl; return #[])
       <|>
       (do mvarId.contradiction { genDiseq := true }; return #[])
+      <|>
+      (do let mvarId ← unfoldElimOffset mvarId; return #[mvarId])
       <|>
       (casesOnStuckLHS mvarId)
       <|>

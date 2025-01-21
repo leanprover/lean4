@@ -96,14 +96,14 @@ The following operations are given `@[csimp]` replacements below:
 /-! ### flatMap  -/
 
 /-- Tail recursive version of `List.flatMap`. -/
-@[inline] def flatMapTR (as : List α) (f : α → List β) : List β := go as #[] where
+@[inline] def flatMapTR (f : α → List β) (as : List α) : List β := go as #[] where
   /-- Auxiliary for `flatMap`: `flatMap.go f as = acc.toList ++ bind f as` -/
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | x::xs, acc => go xs (acc ++ f x)
 
 @[csimp] theorem flatMap_eq_flatMapTR : @List.flatMap = @flatMapTR := by
-  funext α β as f
+  funext α β f as
   let rec go : ∀ as acc, flatMapTR.go f as acc = acc.toList ++ as.flatMap f
     | [], acc => by simp [flatMapTR.go, flatMap]
     | x::xs, acc => by simp [flatMapTR.go, flatMap, go xs]
@@ -112,7 +112,7 @@ The following operations are given `@[csimp]` replacements below:
 /-! ### flatten -/
 
 /-- Tail recursive version of `List.flatten`. -/
-@[inline] def flattenTR (l : List (List α)) : List α := flatMapTR l id
+@[inline] def flattenTR (l : List (List α)) : List α := l.flatMapTR id
 
 @[csimp] theorem flatten_eq_flattenTR : @flatten = @flattenTR := by
   funext α l; rw [← List.flatMap_id, List.flatMap_eq_flatMapTR]; rfl

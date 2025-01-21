@@ -25,11 +25,11 @@ bool projection_info::is_inst_implicit() const { return lean_projection_info_fro
 extern "C" object* lean_add_projection_info(object* env, object* p, object* ctor, object* nparams, object* i, uint8 fromClass);
 extern "C" object* lean_get_projection_info(object* env, object* p);
 
-environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
-    return environment(lean_add_projection_info(env.to_obj_arg(), p.to_obj_arg(), mk.to_obj_arg(), mk_nat_obj(nparams), mk_nat_obj(i), inst_implicit));
+elab_environment save_projection_info(elab_environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
+    return elab_environment(lean_add_projection_info(env.to_obj_arg(), p.to_obj_arg(), mk.to_obj_arg(), mk_nat_obj(nparams), mk_nat_obj(i), inst_implicit));
 }
 
-optional<projection_info> get_projection_info(environment const & env, name const & p) {
+optional<projection_info> get_projection_info(elab_environment const & env, name const & p) {
     return to_optional<projection_info>(lean_get_projection_info(env.to_obj_arg(), p.to_obj_arg()));
 }
 }

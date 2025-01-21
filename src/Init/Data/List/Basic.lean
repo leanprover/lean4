@@ -258,9 +258,6 @@ theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n)
     have h0 : some a = some a' := h 0
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
-/-- Deprecated alias for `ext_get?`. The preferred extensionality theorem is now `ext_getElem?`. -/
-@[deprecated ext_get? (since := "2024-06-07")] abbrev ext := @ext_get?
-
 /-! ### getD -/
 
 /--
@@ -606,11 +603,11 @@ set_option linter.missingDocs false in
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] def flatMap {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β := flatten (map b a)
+@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (a : List α) : List β := flatten (map b a)
 
-@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap [] f = [] := by simp [flatten, List.flatMap]
+@[simp] theorem flatMap_nil (f : α → List β) : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
 @[simp] theorem flatMap_cons x xs (f : α → List β) :
-  List.flatMap (x :: xs) f = f x ++ List.flatMap xs f := by simp [flatten, List.flatMap]
+  List.flatMap f (x :: xs) = f x ++ List.flatMap f xs := by simp [flatten, List.flatMap]
 
 set_option linter.missingDocs false in
 @[deprecated flatMap (since := "2024-10-16")] abbrev bind := @flatMap
@@ -618,11 +615,6 @@ set_option linter.missingDocs false in
 @[deprecated flatMap_nil (since := "2024-10-16")] abbrev nil_flatMap := @flatMap_nil
 set_option linter.missingDocs false in
 @[deprecated flatMap_cons (since := "2024-10-16")] abbrev cons_flatMap := @flatMap_cons
-
-set_option linter.missingDocs false in
-@[deprecated flatMap_nil (since := "2024-06-15")] abbrev nil_bind := @flatMap_nil
-set_option linter.missingDocs false in
-@[deprecated flatMap_cons (since := "2024-06-15")] abbrev cons_bind := @flatMap_cons
 
 /-! ### replicate -/
 
@@ -712,11 +704,6 @@ def elem [BEq α] (a : α) : List α → Bool
 @[simp] theorem elem_nil [BEq α] : ([] : List α).elem a = false := rfl
 theorem elem_cons [BEq α] {a : α} :
     (b::bs).elem a = match a == b with | true => true | false => bs.elem a := rfl
-
-/-- `notElem a l` is `!(elem a l)`. -/
-@[deprecated "Use `!(elem a l)` instead."(since := "2024-06-15")]
-def notElem [BEq α] (a : α) (as : List α) : Bool :=
-  !(as.elem a)
 
 /-! ### contains -/
 
@@ -1533,11 +1520,14 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
 `O(n)`. `iota n` is the numbers from `1` to `n` inclusive, in decreasing order.
 * `iota 5 = [5, 4, 3, 2, 1]`
 -/
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 def iota : Nat → List Nat
   | 0       => []
   | m@(n+1) => m :: iota n
 
+set_option linter.deprecated false in
 @[simp] theorem iota_zero : iota 0 = [] := rfl
+set_option linter.deprecated false in
 @[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
 
 /-! ### enumFrom -/
@@ -1861,12 +1851,14 @@ def unzipTR (l : List (α × β)) : List α × List β :=
 /-! ### iota -/
 
 /-- Tail-recursive version of `List.iota`. -/
+@[deprecated "Use `List.range' 1 n` instead of `iota n`." (since := "2025-01-20")]
 def iotaTR (n : Nat) : List Nat :=
   let rec go : Nat → List Nat → List Nat
     | 0, r => r.reverse
     | m@(n+1), r => go n (m::r)
   go n []
 
+set_option linter.deprecated false in
 @[csimp]
 theorem iota_eq_iotaTR : @iota = @iotaTR :=
   have aux (n : Nat) (r : List Nat) : iotaTR.go n r = r.reverse ++ iota n := by

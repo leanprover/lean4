@@ -244,8 +244,7 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
-def singleton (v : α) : Array α :=
-  mkArray 1 v
+@[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=
   a[a.size - 1]!
@@ -456,7 +455,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
 /-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
 @[inline]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
-    (as : Array α) (f : Fin as.size → α → m β) : m (Array β) :=
+    (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
   let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = as.size) (bs : Array β) : m (Array β) := do
     match i, inv with
     | 0,    _  => pure bs
@@ -465,12 +464,12 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f ⟨j, j_lt⟩ (as.get j j_lt)))
+      map i (j+1) this (bs.push (← f j (as.get j j_lt) j_lt))
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
-  as.mapFinIdxM fun i a => f i a
+  as.mapFinIdxM fun i a _ => f i a
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
@@ -577,13 +576,28 @@ def foldl {α : Type u} {β : Type v} (f : β → α → β) (init : β) (as : A
 def foldr {α : Type u} {β : Type v} (f : α → β → β) (init : β) (as : Array α) (start := as.size) (stop := 0) : β :=
   Id.run <| as.foldrM f init start stop
 
+/-- Sum of an array.
+
+`Array.sum #[a, b, c] = a + (b + (c + 0))` -/
+@[inline]
+def sum {α} [Add α] [Zero α] : Array α → α :=
+  foldr (· + ·) 0
+
+@[inline]
+def countP {α : Type u} (p : α → Bool) (as : Array α) : Nat :=
+  as.foldr (init := 0) fun a acc => bif p a then acc + 1 else acc
+
+@[inline]
+def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
+  countP (· == a) as
+
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
 /-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
-def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : Fin as.size → α → β) : Array β :=
+def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
   Id.run <| as.mapFinIdxM f
 
 @[inline]

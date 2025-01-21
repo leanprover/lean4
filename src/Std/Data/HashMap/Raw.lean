@@ -181,6 +181,14 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (l : List α) : Raw α Unit :=
   ⟨DHashMap.Raw.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Raw.Const.alter] def alter [BEq α] [EquivBEq α] [Hashable α]
+    (m : Raw α β) (a : α) (f : Option β → Option β) : Raw α β :=
+  ⟨DHashMap.Raw.Const.alter m.inner a f⟩
+
+@[inline, inherit_doc DHashMap.Raw.Const.modify] def modify [BEq α] [EquivBEq α] [Hashable α]
+    (m : Raw α β) (a : α) (f : β → β) : Raw α β :=
+  ⟨DHashMap.Raw.Const.modify m.inner a f⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/

@@ -71,7 +71,9 @@ variable [BEq α] [Hashable α]
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply Raw₀.wfImp_insert | apply Raw₀.wfImp_insertIfNew | apply Raw₀.wfImp_insertMany
-    | apply Raw₀.Const.wfImp_insertMany| apply Raw₀.Const.wfImp_insertManyIfNewUnit
+    | apply Raw₀.Const.wfImp_insertMany | apply Raw₀.Const.wfImp_insertManyIfNewUnit
+    | apply Raw₀.wfImp_alter | apply Raw₀.wfImp_modify
+    | apply Raw₀.Const.wfImp_alter | apply Raw₀.Const.wfImp_modify
     | apply Raw₀.wfImp_erase | apply Raw.WF.out | assumption | apply Raw₀.wfImp_empty
     | apply Raw.WFImp.distinct | apply Raw.WF.empty₀))
 
@@ -92,8 +94,9 @@ private def queryNames : Array Name :=
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_erase, ``toListModel_insertIfNew,
-  ``toListModel_insertMany_list, ``Const.toListModel_insertMany_list,
-  ``Const.toListModel_insertManyIfNewUnit_list]
+    ``toListModel_insertMany_list, ``Const.toListModel_insertMany_list,
+    ``Const.toListModel_insertManyIfNewUnit_list, ``toListModel_alter,
+    ``toListModel_modify, ``Const.toListModel_alter, ``Const.toListModel_modify]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -310,7 +313,7 @@ theorem get_erase [LawfulBEq α] (h : m.1.WF) {k a : α} {h'} :
     (m.erase k).get a h' = m.get a (contains_of_contains_erase _ h h') := by
   simp_to_model using List.getValueCast_eraseKey
 
-theorem get?_eq_some_get [LawfulBEq α] (h : m.1.WF) {a : α} {h} : m.get? a = some (m.get a h) := by
+theorem get?_eq_some_get [LawfulBEq α] (h : m.1.WF) {a : α} {h'} : m.get? a = some (m.get a h') := by
   simp_to_model using List.getValueCast?_eq_some_getValueCast
 
 namespace Const
@@ -592,8 +595,8 @@ theorem getKey_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} {
     (m.erase k).getKey a h' = m.getKey a (contains_of_contains_erase _ h h') := by
   simp_to_model using List.getKey_eraseKey
 
-theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {h} :
-    m.getKey? a = some (m.getKey a h) := by
+theorem getKey?_eq_some_getKey [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {a : α} {h'} :
+    m.getKey? a = some (m.getKey a h') := by
   simp_to_model using List.getKey?_eq_some_getKey
 
 theorem getKey!_empty {a : α} [Inhabited α] {c} :
@@ -1312,12 +1315,6 @@ theorem getD_insertManyIfNewUnit_list
 
 end Const
 
-end Raw₀
-
-namespace Raw₀
-
-variable [BEq α] [Hashable α]
-
 @[simp]
 theorem insertMany_empty_list_nil :
     (insertMany empty ([] : List ((a : α) × (β a)))).1 = empty := by
@@ -1719,6 +1716,550 @@ theorem getD_insertManyIfNewUnit_empty_list
   simp
 
 end Const
+
+section Alter
+
+theorem isEmpty_alter_eq_isEmpty_erase [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (m.get? k)).isNone) := by
+  simp_to_model using List.isEmpty_alterKey_eq_isEmpty_eraseKey
+
+@[simp]
+theorem isEmpty_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).1.isEmpty = (((m.1.isEmpty || (m.1.size == 1 && m.contains k))) &&
+      (f (m.get? k)).isNone) := by
+  simp_to_model using List.isEmpty_alterKey
+
+theorem contains_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).contains k' = if k == k' then (f (m.get? k)).isSome else m.contains k' := by
+  simp_to_model using List.containsKey_alterKey
+
+theorem size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).1.size =
+      if m.contains k && (f (m.get? k)).isNone then
+        m.1.size - 1
+      else if !m.contains k && (f (m.get? k)).isSome then
+        m.1.size + 1
+      else
+        m.1.size := by
+  simp_to_model using List.length_alterKey'
+
+theorem size_alter_eq_add_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
+    (h₁ : m.contains k = false) (h₂ : (f (m.get? k)).isSome) :
+    (m.alter k f).1.size = m.1.size + 1 := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_sub_one [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
+    (h₁ : m.contains k) (h₂ : (f (m.get? k)).isNone) :
+    (m.alter k f).1.size = m.1.size - 1 := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_self_of_not_mem [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k = false) (h₂ : (f (m.get? k)).isNone) :
+    (m.alter k f).1.size = m.1.size := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_self_of_mem [LawfulBEq α] (h : m.1.WF) {k : α}
+    {f : Option (β k) → Option (β k)} (h₁ : m.contains k) (h₂ : (f (m.get? k)).isSome) :
+    (m.alter k f).1.size = m.1.size := by
+  simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
+
+theorem size_alter_le_size [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).1.size ≤ m.1.size + 1 := by
+  simp [size_alter, h]
+  split <;> try split
+  all_goals omega
+
+theorem size_le_size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    m.1.size - 1 ≤ (m.alter k f).1.size := by
+  simp [size_alter, h]
+  split <;> try split
+  all_goals omega
+
+theorem get?_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).get? k' =
+      if h : k == k' then
+        cast (congrArg (Option ∘ β) (eq_of_beq h)) (f (m.get? k))
+      else
+        m.get? k' := by
+  simp_to_model using List.getValueCast?_alterKey
+
+theorem get_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)}
+    (hc : (m.alter k f).contains k') :
+    (m.alter k f).get k' hc =
+      if heq : k == k' then
+        haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        cast (congrArg β (eq_of_beq heq)) <| (f (m.get? k)).get <| h'
+      else
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        m.get k' h' := by
+  simp_to_model using List.getValueCast_alterKey
+
+theorem get_alter_self [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option (β k) → Option (β k)}
+    {hc : (m.alter k f).contains k} :
+    haveI h' : (f (m.get? k)).isSome := by rwa [contains_alter _ h, beq_self_eq_true] at hc
+    (m.alter k f).get k hc = (f (m.get? k)).get h' := by
+  simp_to_model using List.getValueCast_alterKey_self
+
+theorem get!_alter [LawfulBEq α] {k k' : α} (h : m.1.WF) [Inhabited (β k')]
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).get! k' =
+      if heq : k == k' then
+        (f (m.get? k)).map (cast (congrArg β (eq_of_beq heq))) |>.get!
+      else
+        m.get! k' := by
+  simp_to_model using List.getValueCast!_alterKey
+
+theorem getD_alter [LawfulBEq α] {k k' : α} {fallback : β k'} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getD k' fallback =
+      if heq : k == k' then
+        f (m.get? k) |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
+      else
+        m.getD k' fallback := by
+  simp_to_model using List.getValueCastD_alterKey
+
+private theorem cast_eq_id {α : Type u} : cast (rfl : α = α) = id := by rfl
+
+theorem getD_alter_self [LawfulBEq α] {k : α} {fallback : β k} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getD k fallback = (f (m.get? k)).getD fallback := by
+  simp only [getD_alter, h, beq_self_eq_true, reduceDIte, cast_eq_id, Option.map_id_fun, id_eq]
+
+theorem getKey?_alter [LawfulBEq α] (h : m.1.WF) {k k' : α} {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getKey? k' =
+      if k == k' then
+        if (f (m.get? k)).isSome then some k else none
+      else
+        m.getKey? k' := by
+  simp_to_model using List.getKey?_alterKey
+
+theorem getKey!_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} : (m.alter k f).getKey! k' =
+      if k == k' then
+        if (f (m.get? k)).isSome then k else default
+      else
+        m.getKey! k' := by
+  simp_to_model using List.getKey!_alterKey
+
+theorem getKey_alter [LawfulBEq α] [Inhabited α] {k k' : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} (hc : (m.alter k f).contains k') :
+    (m.alter k f).getKey k' hc =
+      if heq : k == k' then
+        k
+      else
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        m.getKey k' h' := by
+  simp_to_model using List.getKey_alterKey
+
+theorem getKeyD_alter [LawfulBEq α] {k k' fallback : α} (h : m.1.WF)
+    {f : Option (β k) → Option (β k)} :
+    (m.alter k f).getKeyD k' fallback =
+      if k == k' then
+        if (f (m.get? k)).isSome then k else fallback
+      else
+        m.getKeyD k' fallback := by
+  simp_to_model using List.getKeyD_alterKey
+
+namespace Const
+
+variable {β : Type v} [EquivBEq α] [LawfulHashable α] (m : Raw₀ α (fun _ => β))
+
+theorem isEmpty_alter_eq_isEmpty_erase (h : m.1.WF)  {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.isEmpty = ((m.erase k).1.isEmpty && (f (Const.get? m k)).isNone) := by
+  simp_to_model using List.Const.isEmpty_alterKey_eq_isEmpty_eraseKey
+
+@[simp]
+theorem isEmpty_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.isEmpty = ((m.1.isEmpty || (m.1.size == 1 && m.contains k)) &&
+      (f (Const.get? m k)).isNone) := by
+  simp_to_model using List.Const.isEmpty_alterKey
+
+theorem contains_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
+    (Const.alter m k f).contains k' =
+      if k == k' then
+        (f (Const.get? m k)).isSome
+      else
+        m.contains k' := by
+  simp_to_model using List.Const.containsKey_alterKey
+
+theorem size_alter (h : m.1.WF) {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.size =
+      if m.contains k && (f (Const.get? m k)).isNone then
+        m.1.size - 1
+      else if !m.contains k && (f (Const.get? m k)).isSome then
+        m.1.size + 1
+      else
+        m.1.size := by
+  simp_to_model using List.Const.length_alterKey'
+
+theorem size_alter_eq_add_one (h : m.1.WF) {k : α} {f : Option β → Option β}
+    (h₁ : m.contains k = false) (h₂ : (f (Const.get? m k)).isSome) :
+    (Const.alter m k f).1.size = m.1.size + 1 := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_sub_one (h : m.1.WF) {k : α} {f : Option β → Option β}
+    (h₁ : m.contains k) (h₂ : (f (Const.get? m k)).isNone) :
+    (Const.alter m k f).1.size = m.1.size - 1 := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_self_of_not_mem (h : m.1.WF) {k : α} {f : Option β → Option β}
+    (h₁ : m.contains k = false) (h₂ : (f (Const.get? m k)).isNone) :
+    (Const.alter m k f).1.size = m.1.size := by
+  simp [size_alter, h, h₁, h₂]
+
+theorem size_alter_eq_self_of_mem (h : m.1.WF) {k : α} {f : Option β → Option β}
+    (h₁ : m.contains k) (h₂ : (f (Const.get? m k)).isSome) :
+    (Const.alter m k f).1.size = m.1.size := by
+  simp [size_alter, h, h₁, Option.isSome_iff_ne_none.mp h₂]
+
+theorem size_alter_le_size [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option β → Option β} :
+    (Const.alter m k f).1.size ≤ m.1.size + 1 := by
+  simp [size_alter, h]
+  split <;> try split
+  all_goals omega
+
+theorem size_le_size_alter [LawfulBEq α] (h : m.1.WF) {k : α} {f : Option β → Option β} :
+    m.1.size - 1 ≤ (Const.alter m k f).1.size := by
+  simp [size_alter, h]
+  split <;> try split
+  all_goals omega
+
+theorem get?_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
+    Const.get? (Const.alter m k f) k' =
+      if k == k' then
+        f (Const.get? m k)
+      else
+        Const.get? m k' := by
+  simp_to_model using List.Const.getValue?_alterKey
+
+theorem get_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β}
+    (hc : (Const.alter m k f).contains k') :
+    Const.get (Const.alter m k f) k' hc =
+      if heq : k == k' then
+        haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, if_pos heq] at hc
+        (f (Const.get? m k)).get <| h'
+      else
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        Const.get m k' h' := by
+  simp_to_model using List.Const.getValue_alterKey
+
+theorem get_alter_self (h : m.1.WF) {k : α} {f : Option β → Option β}
+    {hc : (Const.alter m k f).contains k} :
+    haveI h' : (f (Const.get? m k)).isSome := by rwa [contains_alter _ h, BEq.refl] at hc
+    Const.get (Const.alter m k f) k hc = (f (Const.get? m k)).get h' := by
+  simp_to_model using List.Const.getValue_alterKey_self
+
+theorem get!_alter {k k' : α} (h : m.1.WF) [Inhabited β] {f : Option β → Option β} :
+    Const.get! (Const.alter m k f) k' =
+      if k == k' then
+        (f (Const.get? m k)).get!
+      else
+        Const.get! m k' := by
+  simp_to_model using List.Const.getValue!_alterKey
+
+theorem getD_alter {k k' : α} {fallback : β} (h : m.1.WF) {f : Option β → Option β} :
+    Const.getD (Const.alter m k f) k' fallback =
+      if k == k' then
+        f (Const.get? m k) |>.getD fallback
+      else
+        Const.getD m k' fallback := by
+  simp_to_model using List.Const.getValueD_alterKey
+
+theorem getD_alter_self {k : α} {fallback : β} (h : m.1.WF) {f : Option β → Option β} :
+    Const.getD (Const.alter m k f) k fallback = (f (Const.get? m k)).getD fallback := by
+  simp only [h, getD_alter, BEq.refl, reduceIte]
+
+theorem getKey?_alter (h : m.1.WF) {k k' : α} {f : Option β → Option β} :
+    (Const.alter m k f).getKey? k' =
+      if k == k' then
+        if (f (Const.get? m k)).isSome then some k else none
+      else
+        m.getKey? k' := by
+  simp_to_model using List.Const.getKey?_alterKey
+
+theorem getKey!_alter [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option β → Option β} :
+    (Const.alter m k f).getKey! k' =
+      if k == k' then
+        if (f (Const.get? m k)).isSome then k else default
+      else
+        m.getKey! k' := by
+  simp_to_model using List.Const.getKey!_alterKey
+
+theorem getKey_alter [Inhabited α] {k k' : α} (h : m.1.WF) {f : Option β → Option β}
+    (hc : (Const.alter m k f).contains k') :
+    (Const.alter m k f).getKey k' hc =
+      if heq : k == k' then
+        k
+      else
+        haveI h' : m.contains k' := by rwa [contains_alter _ h, if_neg heq] at hc
+        m.getKey k' h' := by
+  simp_to_model using List.Const.getKey_alterKey
+
+theorem getKeyD_alter {k k' fallback : α} (h : m.1.WF) {f : Option β → Option β} :
+    (Const.alter m k f).getKeyD k' fallback =
+      if k == k' then
+        if (f (Const.get? m k)).isSome then k else fallback
+      else
+        m.getKeyD k' fallback := by
+  simp_to_model using List.Const.getKeyD_alterKey
+
+end Const
+
+end Alter
+
+section Modify
+
+variable [LawfulBEq α]
+
+@[simp]
+theorem isEmpty_modify (h : m.1.WF) {k : α} {f : β k → β k} :
+    (m.modify k f).1.isEmpty = m.1.isEmpty := by
+  simp_to_model using List.isEmpty_modifyKey
+
+theorem contains_modify (h : m.1.WF) {k k' : α} {f : β k → β k} :
+    (m.modify k f).contains k' = m.contains k' := by
+  simp_to_model using List.containsKey_modifyKey
+
+theorem size_modify (h : m.1.WF) {k : α} {f : β k → β k} :
+    (m.modify k f).1.size = m.1.size := by
+  simp_to_model using List.length_modifyKey
+
+theorem get?_modify (h : m.1.WF) {k k' : α} {f : β k → β k} :
+    (m.modify k f).get? k' =
+      if h : k == k' then
+        (cast (congrArg (Option ∘ β) (eq_of_beq h)) ((m.get? k).map f))
+      else
+        m.get? k' := by
+  simp_to_model using List.getValueCast?_modifyKey
+
+@[simp]
+theorem get?_modify_self (h : m.1.WF) {k : α} {f : β k → β k} :
+    (m.modify k f).get? k = (m.get? k).map f := by
+  simp_to_model using List.getValueCast?_modifyKey_self
+
+theorem get_modify (h : m.1.WF) {k k' : α} {f : β k → β k}
+    (hc : (m.modify k f).contains k') :
+    (m.modify k f).get k' hc =
+      if heq : k == k' then
+        haveI h' : m.contains k := by rwa [contains_modify _ h, ← eq_of_beq heq] at hc
+        cast (congrArg β (eq_of_beq heq)) <| f (m.get k h')
+      else
+        haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc
+        m.get k' h' := by
+  simp_to_model using List.getValueCast_modifyKey
+
+@[simp]
+theorem get_modify_self (h : m.1.WF) {k : α} {f : β k → β k} {hc : (m.modify k f).contains k} :
+    haveI h' : m.contains k := by rwa [contains_modify _ h] at hc
+    (m.modify k f).get k hc = f (m.get k h') := by
+  simp_to_model using List.getValueCast_modifyKey_self
+
+theorem get!_modify (h : m.1.WF) {k k' : α} [hi : Inhabited (β k')] {f : β k → β k} :
+    (m.modify k f).get! k' =
+      if heq : k == k' then
+        m.get? k |>.map f |>.map (cast (congrArg β (eq_of_beq heq))) |>.get!
+      else
+        m.get! k' := by
+  simp_to_model using List.getValueCast!_modifyKey
+
+@[simp]
+theorem get!_modify_self (h : m.1.WF) {k : α} [Inhabited (β k)] {f : β k → β k} :
+    (m.modify k f).get! k = ((m.get? k).map f).get! := by
+  simp_to_model using List.getValueCast!_modifyKey_self
+
+theorem getD_modify (h : m.1.WF) {k k' : α} {fallback : β k'} {f : β k → β k} :
+    (m.modify k f).getD k' fallback =
+      if heq : k == k' then
+        m.get? k |>.map f |>.map (cast (congrArg β <| eq_of_beq heq)) |>.getD fallback
+      else
+        m.getD k' fallback := by
+  simp_to_model using List.getValueCastD_modifyKey
+
+@[simp]
+theorem getD_modify_self (h : m.1.WF) {k : α} {fallback : β k} {f : β k → β k} :
+    (m.modify k f).getD k fallback = ((m.get? k).map f).getD fallback := by
+  simp_to_model using List.getValueCastD_modifyKey_self
+
+theorem getKey?_modify (h : m.1.WF) {k k' : α} {f : β k → β k} :
+    (m.modify k f).getKey? k' =
+      if k == k' then
+        if m.contains k then some k else none
+      else
+        m.getKey? k' := by
+  simp_to_model using List.getKey?_modifyKey
+
+theorem getKey?_modify_self (h : m.1.WF) {k : α} {f : β k → β k} :
+    (m.modify k f).getKey? k = if m.contains k then some k else none := by
+  simp_to_model using List.getKey?_modifyKey_self
+
+theorem getKey!_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β k → β k} :
+    (m.modify k f).getKey! k' =
+      if k == k' then
+        if m.contains k then k else default
+      else
+        m.getKey! k' := by
+  simp_to_model using List.getKey!_modifyKey
+
+theorem getKey!_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β k → β k} :
+    (m.modify k f).getKey! k = if m.contains k then k else default := by
+  simp_to_model using List.getKey!_modifyKey_self
+
+theorem getKey_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β k → β k}
+    (hc : (m.modify k f).contains k') :
+    (m.modify k f).getKey k' hc =
+      if heq : k == k' then
+        k
+      else
+        haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc
+        m.getKey k' h' := by
+  simp_to_model using List.getKey_modifyKey
+
+@[simp]
+theorem getKey_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β k → β k}
+    (hc : (m.modify k f).contains k) : (m.modify k f).getKey k hc = k := by
+  simp_to_model using List.getKey_modifyKey_self
+
+theorem getKeyD_modify (h : m.1.WF) {k k' fallback : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k' fallback =
+      if k == k' then
+        if m.contains k then k else fallback
+      else
+        m.getKeyD k' fallback := by
+  simp_to_model using List.getKeyD_modifyKey
+
+theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k fallback : α} {f : β k → β k} :
+    (m.modify k f).getKeyD k fallback = if m.contains k then k else fallback := by
+  simp_to_model using List.getKeyD_modifyKey_self
+
+namespace Const
+
+variable {β : Type v} [EquivBEq α] [LawfulHashable α] (m : Raw₀ α (fun _ => β))
+omit [LawfulBEq α]
+
+@[simp]
+theorem isEmpty_modify (m : Raw₀ α (fun _ => β)) (h : m.1.WF) {k : α} {f : β → β} :
+    (Const.modify m k f).1.isEmpty = m.1.isEmpty := by
+  simp_to_model using List.Const.isEmpty_modifyKey
+
+theorem contains_modify (h : m.1.WF) {k k' : α} {f : β → β} :
+    (Const.modify m k f).contains k' = m.contains k' := by
+  simp_to_model using List.Const.containsKey_modifyKey
+
+theorem size_modify (h : m.1.WF) {k : α} {f : β → β} :
+    (Const.modify m k f).1.size = m.1.size := by
+  simp_to_model using List.Const.length_modifyKey
+
+theorem get?_modify (h : m.1.WF) {k k' : α} {f : β → β} :
+    Const.get? (Const.modify m k f) k' =
+      if k == k' then
+        (Const.get? m k).map f
+      else
+        Const.get? m k' := by
+  simp_to_model using List.Const.getValue?_modifyKey
+
+@[simp]
+theorem get?_modify_self (h : m.1.WF) {k : α} {f : β → β} :
+    Const.get? (Const.modify m k f) k = (Const.get? m k).map f := by
+  simp_to_model using List.Const.getValue?_modifyKey_self
+
+theorem get_modify (h : m.1.WF) {k k' : α} {f : β → β}
+    (hc : (Const.modify m k f).contains k') :
+    Const.get (Const.modify m k f) k' hc =
+      if heq : k == k' then
+        haveI h' : m.contains k := by rwa [contains_modify _ h, ← contains_congr _ h heq] at hc
+        f (Const.get m k h')
+      else
+        haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc
+        Const.get m k' h' := by
+  simp_to_model using List.Const.getValue_modifyKey
+
+@[simp]
+theorem get_modify_self (h : m.1.WF) {k : α} {f : β → β} {hc : (Const.modify m k f).contains k} :
+    haveI h' : m.contains k := by rwa [contains_modify _ h] at hc
+    Const.get (Const.modify m k f) k hc = f (Const.get m k h') := by
+  simp_to_model using List.Const.getValue_modifyKey_self
+
+theorem get!_modify (h : m.1.WF) {k k' : α} [hi : Inhabited β] {f : β → β} :
+    Const.get! (Const.modify m k f) k' =
+      if k == k' then
+        Const.get? m k |>.map f |>.get!
+      else
+        Const.get! m k' := by
+  simp_to_model using List.Const.getValue!_modifyKey
+
+@[simp]
+theorem get!_modify_self (h : m.1.WF) {k : α} [Inhabited (β)] {f : β → β} :
+    Const.get! (Const.modify m k f) k = ((Const.get? m k).map f).get! := by
+  simp_to_model using List.Const.getValue!_modifyKey_self
+
+theorem getD_modify (h : m.1.WF) {k k' : α} {fallback : β} {f : β → β} :
+    Const.getD (Const.modify m k f) k' fallback =
+      if k == k' then
+        Const.get? m k |>.map f |>.getD fallback
+      else
+        Const.getD m k' fallback := by
+  simp_to_model using List.Const.getValueD_modifyKey
+
+@[simp]
+theorem getD_modify_self (h : m.1.WF) {k : α} {fallback : β} {f : β → β} :
+    Const.getD (Const.modify m k f) k fallback = ((Const.get? m k).map f).getD fallback := by
+  simp_to_model using List.Const.getValueD_modifyKey_self
+
+theorem getKey?_modify (h : m.1.WF) {k k' : α} {f : β → β} :
+    (Const.modify m k f).getKey? k' =
+      if k == k' then
+        if m.contains k then some k else none
+      else
+        m.getKey? k' := by
+  simp_to_model using List.Const.getKey?_modifyKey
+
+theorem getKey?_modify_self (h : m.1.WF) {k : α} {f : β → β} :
+    (Const.modify m k f).getKey? k = if m.contains k then some k else none := by
+  simp_to_model using List.Const.getKey?_modifyKey_self
+
+theorem getKey!_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β → β} :
+    (Const.modify m k f).getKey! k' =
+      if k == k' then
+        if m.contains k then k else default
+      else
+        m.getKey! k' := by
+  simp_to_model using List.Const.getKey!_modifyKey
+
+theorem getKey!_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β → β} :
+    (Const.modify m k f).getKey! k = if m.contains k then k else default := by
+  simp_to_model using List.Const.getKey!_modifyKey_self
+
+theorem getKey_modify (h : m.1.WF) [Inhabited α] {k k' : α} {f : β → β}
+    (hc : (Const.modify m k f).contains k') :
+    (Const.modify m k f).getKey k' hc =
+      if heq : k == k' then
+        k
+      else
+        haveI h' : m.contains k' := by rwa [contains_modify _ h] at hc
+        m.getKey k' h' := by
+  simp_to_model using List.Const.getKey_modifyKey
+
+@[simp]
+theorem getKey_modify_self (h : m.1.WF) [Inhabited α] {k : α} {f : β → β}
+    (hc : (Const.modify m k f).contains k) : (Const.modify m k f).getKey k hc = k := by
+  simp_to_model using List.Const.getKey_modifyKey_self
+
+theorem getKeyD_modify (h : m.1.WF) {k k' fallback : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k' fallback =
+      if k == k' then
+        if m.contains k then k else fallback
+      else
+        m.getKeyD k' fallback := by
+  simp_to_model using List.Const.getKeyD_modifyKey
+
+theorem getKeyD_modify_self (h : m.1.WF) [Inhabited α] {k fallback : α} {f : β → β} :
+    (Const.modify m k f).getKeyD k fallback = if m.contains k then k else fallback := by
+  simp_to_model using List.Const.getKeyD_modifyKey_self
+
+end Const
+
+end Modify
 
 end Raw₀
 

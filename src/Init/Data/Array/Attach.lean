@@ -143,6 +143,12 @@ theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (l H) :
   cases l
   simp [List.pmap_eq_map_attach]
 
+@[simp]
+theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
+    pmap (fun a h => ⟨a, f a h⟩) l H = l.attachWith q (fun x h => f x (H x h)) := by
+  cases l
+  simp [List.pmap_eq_attachWith]
+
 theorem attach_map_coe (l : Array α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   cases l
@@ -172,6 +178,12 @@ theorem mem_attach (l : Array α) : ∀ x, x ∈ l.attach
     have := mem_map.1 (by rw [attach_map_subtype_val] <;> exact h)
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
+
+@[simp]
+theorem mem_attachWith (l : Array α) {q : α → Prop} (H) (x : {x // q x}) :
+    x ∈ l.attachWith q H ↔ x.1 ∈ l := by
+  cases l
+  simp
 
 @[simp]
 theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
@@ -256,6 +268,18 @@ theorem getElem_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, 
 theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :
     xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ :=
   getElem_attachWith h
+
+@[simp] theorem pmap_attach (l : Array α) {p : {x // x ∈ l} → Prop} (f : ∀ a, p a → β) (H) :
+    pmap f l.attach H =
+      l.pmap (P := fun a => ∃ h : a ∈ l, p ⟨a, h⟩)
+        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
+  ext <;> simp
+
+@[simp] theorem pmap_attachWith (l : Array α) {p : {x // q x} → Prop} (f : ∀ a, p a → β) (H₁ H₂) :
+    pmap f (l.attachWith q H₁) H₂ =
+      l.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
+        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
+  ext <;> simp
 
 theorem foldl_pmap (l : Array α) {P : α → Prop} (f : (a : α) → P a → β)
   (H : ∀ (a : α), a ∈ l → P a) (g : γ → β → γ) (x : γ) :
@@ -344,7 +368,23 @@ theorem attach_filter {l : Array α} (p : α → Bool) :
   simp [List.attach_filter, List.map_filterMap, Function.comp_def]
 
 -- We are still missing here `attachWith_filterMap` and `attachWith_filter`.
--- Also missing are `filterMap_attach`, `filter_attach`, `filterMap_attachWith` and `filter_attachWith`.
+
+@[simp]
+theorem filterMap_attachWith {q : α → Prop} {l : Array α} {f : {x // q x} → Option β} (H)
+    (w : stop = (l.attachWith q H).size) :
+    (l.attachWith q H).filterMap f 0 stop = l.attach.filterMap (fun ⟨x, h⟩ => f ⟨x, H _ h⟩) := by
+  subst w
+  cases l
+  simp [Function.comp_def]
+
+@[simp]
+theorem filter_attachWith {q : α → Prop} {l : Array α} {p : {x // q x} → Bool} (H)
+    (w : stop = (l.attachWith q H).size) :
+    (l.attachWith q H).filter p 0 stop =
+      (l.attach.filter (fun ⟨x, h⟩ => p ⟨x, H _ h⟩)).map (fun ⟨x, h⟩ => ⟨x, H _ h⟩) := by
+  subst w
+  cases l
+  simp [Function.comp_def, List.filter_map]
 
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l H₁ H₂) :
     pmap f (pmap g l H₁) H₂ =
@@ -424,13 +464,13 @@ theorem reverse_attach (xs : Array α) :
 
 @[simp] theorem back?_attachWith {P : α → Prop} {xs : Array α}
     {H : ∀ (a : α), a ∈ xs → P a} :
-    (xs.attachWith P H).back? = xs.back?.pbind (fun a h => some ⟨a, H _ (mem_of_back?_eq_some h)⟩) := by
+    (xs.attachWith P H).back? = xs.back?.pbind (fun a h => some ⟨a, H _ (mem_of_back? h)⟩) := by
   cases xs
   simp
 
 @[simp]
 theorem back?_attach {xs : Array α} :
-    xs.attach.back? = xs.back?.pbind fun a h => some ⟨a, mem_of_back?_eq_some h⟩ := by
+    xs.attach.back? = xs.back?.pbind fun a h => some ⟨a, mem_of_back? h⟩ := by
   cases xs
   simp
 

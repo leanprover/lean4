@@ -779,6 +779,10 @@ theorem getElem?_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ i : Nat, l[i]?
 theorem mem_of_getElem? {l : Vector α n} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 
+theorem mem_of_back? {xs : Vector α n} {a : α} (h : xs.back? = some a) : a ∈ xs := by
+  cases xs
+  simpa using Array.mem_of_back? (by simpa using h)
+
 theorem mem_iff_getElem {a} {l : Vector α n} : a ∈ l ↔ ∃ (i : Nat) (h : i < n), l[i]'h = a :=
   ⟨getElem_of_mem, fun ⟨_, _, e⟩ => e ▸ getElem_mem ..⟩
 
@@ -1144,6 +1148,11 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
 
 @[simp] theorem getElem_map (f : α → β) (a : Vector α n) (i : Nat) (hi : i < n) :
     (a.map f)[i] = f a[i] := by
+  cases a
+  simp
+
+@[simp] theorem getElem?_map (f : α → β) (a : Vector α n) (i : Nat) :
+    (a.map f)[i]? = a[i]?.map f := by
   cases a
   simp
 

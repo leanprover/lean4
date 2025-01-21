@@ -560,6 +560,11 @@ theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : List α) (H : �
     (l.attachWith p H).count a = l.count ↑a :=
   Eq.trans (countP_congr fun _ _ => by simp [Subtype.ext_iff]) <| countP_attachWith _ _ _
 
+@[simp] theorem countP_pmap {p : α → Prop} (g : ∀ a, p a → β) (f : β → Bool) (l : List α) (H₁) :
+    (l.pmap g H₁).countP f =
+      l.attach.countP (fun ⟨a, m⟩ => f (g a (H₁ a m))) := by
+  simp [pmap_eq_map_attach, countP_map, Function.comp_def]
+
 /-! ## unattach
 
 `List.unattach` is the (one-sided) inverse of `List.attach`. It is a synonym for `List.map Subtype.val`.
@@ -578,7 +583,7 @@ and is ideally subsequently simplified away by `unattach_attach`.
 
 If not, usually the right approach is `simp [List.unattach, -List.map_subtype]` to unfold.
 -/
-def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) := l.map (·.val)
+def unattach {α : Type _} {p : α → Prop} (l : List { x // p x }) : List α := l.map (·.val)
 
 @[simp] theorem unattach_nil {p : α → Prop} : ([] : List { x // p x }).unattach = [] := rfl
 @[simp] theorem unattach_cons {p : α → Prop} {a : { x // p x }} {l : List { x // p x }} :

@@ -1323,10 +1323,10 @@ theorem singleton_eq_toVector_singleton (a : α) : #v[a] = #[a].toVector := rfl
   cases t
   simp
 
-theorem mem_append_left {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ s) : a ∈ s ++ t :=
+theorem mem_append_left {a : α} {s : Vector α n} (t : Vector α m) (h : a ∈ s) : a ∈ s ++ t :=
   mem_append.2 (Or.inl h)
 
-theorem mem_append_right {a : α} {s : Vector α n} {t : Vector α m} (h : a ∈ t) : a ∈ s ++ t :=
+theorem mem_append_right {a : α} (s : Vector α n) {t : Vector α m} (h : a ∈ t) : a ∈ s ++ t :=
   mem_append.2 (Or.inr h)
 
 theorem not_mem_append {a : α} {s : Vector α n} {t : Vector α m} (h₁ : a ∉ s) (h₂ : a ∉ t) :

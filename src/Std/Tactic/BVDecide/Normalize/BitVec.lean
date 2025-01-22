@@ -309,5 +309,41 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
   have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
+
+/-! ### Overflow definitions -/
+
+theorem Int.bmod_two_pow_neg_iff {w : Nat} {x : Int} (h1 : x < 2 ^ w) (h2 : -(2 ^ w) ≤ x) :
+    (x.bmod (2 ^ w)) < 0 ↔ (-(2 ^ w) ≤ 2 * x ∧ x < 0) ∨ (2 ^ w ≤ 2 * x) := by
+  simp only [Int.bmod_def, Nat.cast_pow, Nat.cast_ofNat]
+  by_cases xpos : 0 ≤ x
+  · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
+  · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = BitVec.carry w x y false := by
+  simp only [uaddOverflow, BitVec.carry]
+  by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
+
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y = true ↔ x.msb = y.msb ∧ ¬(x + y).msb = x.msb := by
+  simp only [saddOverflow]
+  rcases w with _|w'
+  · revert x y
+    decide
+  · have h : 0 < w' + 1 := by omega
+    generalize w' + 1 = w at *
+    have := le_toInt x
+    have := le_toInt y
+    have := toInt_lt y
+    have := toInt_lt x
+    have := toInd_add_toInt_lt_two_pow x y
+    have := neg_two_pow_le_toInd_add_toInt x y
+    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
+      decide_eq_decide, BitVec.toInt_add]
+    rw [bmod_two_pow_neg_iff (by omega) (by omega)]
+    rw_mod_cast [← @Nat.two_pow_pred_add_two_pow_pred w (by omega)] at *
+    omega
+
+
 end Normalize
 end Std.Tactic.BVDecide

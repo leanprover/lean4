@@ -68,7 +68,7 @@ where
     goal.withContext do
       for decl in ← getLCtx do
         if !decl.isLet && !decl.isImplementationDetail then
-          discard <| typeRelevant decl.type
+          discard <| typeInteresting decl.type
 
   constInterestingCached (n : Name) : M Bool := do
     if let some cached ← M.lookup n then
@@ -92,10 +92,10 @@ where
 
     let ctorTyp := (← getConstInfoCtor constInfo.ctors.head!).type
     let analyzer state arg := do
-      return state || (← typeRelevant (← arg.fvarId!.getType))
-    forallTelescope ctorTyp (fun args _ => args.foldlM (init := false) analyzer)
+      return state || (← typeInteresting (← arg.fvarId!.getType))
+    forallTelescope ctorTyp fun args _ => args.foldlM (init := false) analyzer
 
-  typeRelevant (expr : Expr) : M Bool := do
+  typeInteresting (expr : Expr) : M Bool := do
     match_expr expr with
     | BitVec n => return (← getNatValue? n).isSome
     | UInt8 => return true

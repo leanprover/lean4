@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 import Std.Data.DHashMap.Internal.List.Associative
-import Orderedtree.Classes.TransOrd
+import Std.Data.Classes.TransOrd
 
 set_option linter.missingDocs true
 set_option autoImplicit false

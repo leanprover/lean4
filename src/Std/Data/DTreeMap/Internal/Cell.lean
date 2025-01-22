@@ -1,5 +1,5 @@
-import Orderedtree.Classes.TransOrd
-import Orderedtree.Classes.LawfulEqOrd
+import Std.Data.Classes.TransOrd
+import Std.Data.Classes.LawfulEqOrd
 
 /-!
 # The `Cell` type

@@ -3,8 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
-import Orderedtree.DTreeMap.Internal.Lemmas
-import Orderedtree.DTreeMap.Raw
+import Std.Data.DTreeMap.Internal.Lemmas
+import Std.Data.DTreeMap.Raw
 
 /-!
 # API lemmas for `DTreeMap.Raw`

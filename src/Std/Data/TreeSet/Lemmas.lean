@@ -3,8 +3,8 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
-import Orderedtree.TreeMap.Lemmas
-import Orderedtree.TreeSet.Basic
+import Std.Data.TreeMap.Lemmas
+import Std.Data.TreeSet.Basic
 
 /-!
 # API lemmas for `TreeMap`

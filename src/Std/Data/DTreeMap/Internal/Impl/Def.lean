@@ -3,9 +3,10 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
-import Orderedtree.Classes.LawfulEqOrd
-import Orderedtree.DTreeMap.Internal.Impl.Attr
-import Orderedtree.Classes.TransOrd
+prelude
+import Std.Data.Classes.LawfulEqOrd
+import Std.Data.DTreeMap.Internal.Impl.Attr
+import Std.Data.Classes.TransOrd
 import Lean.Elab.Tactic
 
 /-!

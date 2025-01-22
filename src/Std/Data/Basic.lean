@@ -1,8 +1,8 @@
-import Orderedtree.DTreeMap.Internal.Impl
-import Orderedtree.DTreeMap.Internal.Model
-import Orderedtree.DTreeMap.Internal.WF
-import Orderedtree.DTreeMap.Raw
-import Orderedtree.DTreeMap.Basic
-import Orderedtree.Examples.InversionCount
-import Orderedtree.TreeMap.Lemmas
-import Orderedtree.TreeMap.RawLemmas
+import Std.Data.DTreeMap.Internal.Impl
+import Std.Data.DTreeMap.Internal.Model
+import Std.Data.DTreeMap.Internal.WF
+import Std.Data.DTreeMap.Raw
+import Std.Data.DTreeMap.Basic
+import Std.Data.Examples.InversionCount
+import Std.Data.TreeMap.Lemmas
+import Std.Data.TreeMap.RawLemmas

@@ -3403,6 +3403,11 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
 @[simp]
+theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by rw [Nat.mul_one]) :
+    (x.replicate 1) = x.cast h := by
+  simp [replicate, h]
+
+@[simp]
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
@@ -3794,11 +3799,6 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
   | succ n ih =>
     conv => lhs; simp only [replicate_succ']
     simp [reverse_append, ih]
-
-@[simp]
-theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by rw [Nat.mul_one]) :
-    (x.replicate 1) = x.cast h := by
-  simp [replicate, h]
 
 @[simp]
 theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :

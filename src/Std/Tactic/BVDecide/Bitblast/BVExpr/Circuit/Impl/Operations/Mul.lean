@@ -57,27 +57,31 @@ where
       (acc : AIG.RefVec aig w) :
       AIG.RefVecEntry BVBit w :=
     if h : curr < w then
-      let res := blastShiftLeftConst aig ⟨lhs, curr⟩
-      let aig := res.aig
-      let shifted := res.vec
-      have := by apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
-      let lhs := lhs.cast this
-      let rhs := rhs.cast this
-      let acc := acc.cast this
-      let res := blastAdd aig ⟨acc, shifted⟩
-      let aig := res.aig
-      let added := res.vec
-      have := by apply AIG.LawfulVecOperator.le_size (f := blastAdd)
-      let lhs := lhs.cast this
-      let rhs := rhs.cast this
-      let acc := acc.cast this
-      let res := AIG.RefVec.ite aig ⟨rhs.get curr h, added, acc⟩
-      let aig := res.aig
-      let acc := res.vec
-      have := by apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
-      let lhs := lhs.cast this
-      let rhs := rhs.cast this
-      go aig lhs rhs (curr + 1) acc
+      -- If the rhs is false we can skip this iteration as we would add zero
+      if aig.isConstant (rhs.get curr h) false then
+        go aig lhs rhs (curr + 1) acc
+      else
+        let res := blastShiftLeftConst aig ⟨lhs, curr⟩
+        let aig := res.aig
+        let shifted := res.vec
+        have := by apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
+        let lhs := lhs.cast this
+        let rhs := rhs.cast this
+        let acc := acc.cast this
+        let res := blastAdd aig ⟨acc, shifted⟩
+        let aig := res.aig
+        let added := res.vec
+        have := by apply AIG.LawfulVecOperator.le_size (f := blastAdd)
+        let lhs := lhs.cast this
+        let rhs := rhs.cast this
+        let acc := acc.cast this
+        let res := AIG.RefVec.ite aig ⟨rhs.get curr h, added, acc⟩
+        let aig := res.aig
+        let acc := res.vec
+        have := by apply AIG.LawfulVecOperator.le_size (f := AIG.RefVec.ite)
+        let lhs := lhs.cast this
+        let rhs := rhs.cast this
+        go aig lhs rhs (curr + 1) acc
     else
       ⟨aig, acc⟩
 
@@ -88,11 +92,13 @@ theorem go_le_size {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec ai
     aig.decls.size ≤ (go aig lhs rhs curr acc).aig.decls.size := by
   unfold go
   split
-  · dsimp only
-    refine Nat.le_trans ?_ (by apply go_le_size)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
-    apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
-    apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
+  · split
+    · apply go_le_size
+    · dsimp only
+      refine Nat.le_trans ?_ (by apply go_le_size)
+      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
+      apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := blastAdd)
+      apply AIG.LawfulVecOperator.le_size (f := blastShiftLeftConst)
   · simp
 
 theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec aig w)
@@ -102,22 +108,26 @@ theorem go_decl_eq {w : Nat} (aig : AIG BVBit) (curr : Nat) (acc : AIG.RefVec ai
   generalize hgo : go aig lhs rhs curr acc = res
   unfold go at hgo
   split at hgo
-  · dsimp only at hgo
-    rw [← hgo]
-    intro idx h1 h2
-    rw [go_decl_eq]
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeftConst)]
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-      assumption
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-      assumption
-    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
-      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
-      assumption
+  · split at hgo
+    · rw [← hgo]
+      intro idx h1 h2
+      rw [go_decl_eq]
+    · dsimp only at hgo
+      rw [← hgo]
+      intro idx h1 h2
+      rw [go_decl_eq]
+      rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
+      rw [AIG.LawfulVecOperator.decl_eq (f := blastAdd)]
+      rw [AIG.LawfulVecOperator.decl_eq (f := blastShiftLeftConst)]
+      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
+        assumption
+      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
+        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
+        assumption
+      · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
+        apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastShiftLeftConst)
+        assumption
   · simp [← hgo]
 
 instance : AIG.LawfulVecOperator BVBit AIG.BinaryRefVec blast where

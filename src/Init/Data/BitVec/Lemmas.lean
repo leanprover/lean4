@@ -3418,6 +3418,29 @@ theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w�
     ext j h
     simp [getLsbD_cons, show n + w₂ + w₃ = n + (w₂ + w₃) by omega]
 
+@[simp]
+theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).getLsbD i = (decide (i < w * n) && x.getLsbD (i % w)) := by
+  induction n generalizing x
+  case zero => simp
+  case succ n ih =>
+    simp only [replicate_succ, getLsbD_cast, getLsbD_append]
+    by_cases hi : i < w * (n + 1)
+    · simp only [hi, decide_true, Bool.true_and]
+      by_cases hi' : i < w * n
+      · simp [hi', ih]
+      · simp only [hi', ↓reduceIte]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
+    · rw [Nat.mul_succ] at hi ⊢
+      simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
+      apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
+
+@[simp]
+theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
+    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
+  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
+  cases w <;> simp; omega
+
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by
   induction n with
@@ -3771,29 +3794,6 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
   | succ n ih =>
     conv => lhs; simp only [replicate_succ']
     simp [reverse_append, ih]
-
-@[simp]
-theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
-    (x.replicate n).getLsbD i = (decide (i < w * n) && x.getLsbD (i % w)) := by
-  induction n generalizing x
-  case zero => simp
-  case succ n ih =>
-    simp only [replicate_succ, getLsbD_cast, getLsbD_append]
-    by_cases hi : i < w * (n + 1)
-    · simp only [hi, decide_true, Bool.true_and]
-      by_cases hi' : i < w * n
-      · simp [hi', ih]
-      · simp only [hi', ↓reduceIte]
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
-    · rw [Nat.mul_succ] at hi ⊢
-      simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
-      apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
-
-@[simp]
-theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
-    (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
-  simp only [← getLsbD_eq_getElem, getLsbD_replicate]
-  cases w <;> simp; omega
 
 @[simp]
 theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := by rw [Nat.mul_one]) :

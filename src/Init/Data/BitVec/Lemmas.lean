@@ -3415,7 +3415,8 @@ theorem replicate_succ {x : BitVec w} :
 
 @[simp]
 theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
-    (x.replicate n).getLsbD i = (decide (i < w * n) && x.getLsbD (i % w)) := by
+    (x.replicate n).getLsbD i =
+    (decide (i < w * n) && x.getLsbD (i % w)) := by
   induction n generalizing x
   case zero => simp
   case succ n ih =>

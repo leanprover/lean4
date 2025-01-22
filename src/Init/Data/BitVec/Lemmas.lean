@@ -544,25 +544,22 @@ theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
 
 theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
   simp only [BitVec.toInt]
-  by_cases hw : w = 0
-  · subst hw
-    simp [BitVec.eq_nil x]
+  rcases w with _|w'
+  · omega
   · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    split
-    case neg.isTrue h =>
-      norm_cast
+    by_cases h : 2 * x.toNat < 2 * 2 ^ (w' + 1 - 1)
+    · norm_cast
       omega
-    case neg.isFalse h => sorry
-      -- rw [Nat.sub_lt_iff_lt_add]
-      -- norm_cast; omega
-
+    · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul,
+        Int.Nat.cast_ofNat_Int]
+      norm_cast; omega
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   simp only [BitVec.toInt]
   rcases w with _|w'
   · omega
-  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    by_cases h2 : 2 * x.toNat < 2 * 2 ^ (w' - 1)
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul]
+    by_cases h : 2 * x.toNat < 2 * 2 ^ (w' - 1) -- i tried using split here but the final omega stops working?! im confused
     · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul,
         Int.Nat.cast_ofNat_Int]
       norm_cast

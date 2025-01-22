@@ -268,6 +268,7 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  if fact.isTrue then return ()
   storeFact fact
   trace_goal[grind.assert] "{fact}"
   if (← isInconsistent) then return ()

@@ -216,10 +216,10 @@ Helper function for marking parts of `match`-equation theorem as "do-not-simplif
 -/
 private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
   if let .forallE n d b bi := prop then
-    let d ← if (← isProp d) then
+    let d := if (← isProp d) then
       markAsMatchCond d
     else
-      pure d
+      d
     withLocalDecl n bi d fun x => do
       mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
   else

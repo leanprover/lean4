@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
@@ -127,21 +128,12 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
 
 /-- Internalizes the `MatchCond` gadget. -/
 private partial def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
-  let_expr Grind.MatchCond e ← matchCond | return ()
   mkENode' matchCond generation
-  let mut e := e
-  repeat
-    let .forallE _ d b _ := e | break
-    let internalizeLhs (lhs : Expr) : GoalM Unit := do
-      unless lhs.hasLooseBVars do
-        internalize lhs generation
-        registerParent matchCond lhs
-    match_expr d with
-    | Eq _ lhs _ => internalizeLhs lhs
-    | HEq _ lhs _ _ => internalizeLhs lhs
-    | _ => pure ()
-    e := b
+  let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
+  lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
   propagateUp matchCond
+  internalize e' generation
+  pushEq matchCond e' (← mkEqRefl matchCond)
 
 partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.

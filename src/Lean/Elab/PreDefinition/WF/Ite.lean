@@ -5,26 +5,30 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Transform
+import Lean.Elab.Tactic.Simp
 
 namespace Lean.Meta
 
-/--
-  Convert `ite` expressions in `e` to `dite`s.
-  It is useful to make this conversion in the `WF` module because the condition is often used in
-  termination proofs. -/
+private def getContext : MetaM Simp.Context := do
+  let s : SimpTheorems := {}
+  let s ← s.addConst ``dite_eq_ite (inv := true)
+  Simp.mkContext
+    (simpTheorems  := #[s])
+    (congrTheorems := {})
+    (config        := { Simp.neutralConfig with dsimp := false })
+
 def iteToDIte (e : Expr) : MetaM Expr := do
-  -- TODO: move this file to `Meta` if we decide to use it in other places.
-  let post (e : Expr) : MetaM TransformStep := do
-    if e.isAppOfArity ``ite 5 then
-      let f    := e.getAppFn
-      let args := e.getAppArgs
-      let c    := args[1]!
-      let h    ← mkFreshUserName `h
-      let args := args.set! 3 (Lean.mkLambda h BinderInfo.default c args[3]!)
-      let args := args.set! 4 (Lean.mkLambda h BinderInfo.default (mkNot c) args[4]!)
-      return .done <| mkAppN (mkConst ``dite f.constLevels!) args
-    else
-      return .done e
-  transform e (post := post)
+  let ctx ← getContext
+  let (result, _) ← Meta.simp e ctx
+  return result.expr
+
+/-
+run_elab do
+  let stx ← `(fun (n : Nat) => if n > 0 then 3 else 4)
+  let e ← Elab.Term.elabTerm stx .none
+  let e' ← iteToDIte e
+  logInfo m!"{e}\n{e'}"
+-/
+
 
 end Lean.Meta

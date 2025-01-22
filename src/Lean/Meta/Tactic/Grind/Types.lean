@@ -336,7 +336,7 @@ structure NewFact where
 
 /-- Canonicalizer state. See `Canon.lean` for additional details. -/
 structure Canon.State where
-  argMap     : PHashMap (Expr × Nat) (List Expr) := {}
+  argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
   canon      : PHashMap Expr Expr := {}
   proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited

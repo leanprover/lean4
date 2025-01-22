@@ -350,3 +350,10 @@ a✝ : b = true
 #guard_msgs (error) in
 example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
   grind
+
+-- Should not generate a trace message about canonicalization issues
+#guard_msgs (info) in
+set_option trace.grind.issues true in
+example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
+  fail_if_success grind (splits := 0)
+  sorry

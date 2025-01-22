@@ -542,6 +542,62 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
 
+theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
+  simp only [BitVec.toInt, Nat.cast_pow]
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x]
+  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
+    split
+    case neg.isTrue h =>
+      norm_cast
+      omega
+    case neg.isFalse h =>
+      rw [sub_lt_iff_lt_add]
+      norm_cast
+      omega
+
+theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
+  simp only [BitVec.toInt, Nat.cast_pow]
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x]
+  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
+    simp only [zero_lt_two, mul_lt_mul_left, Nat.cast_ofNat]
+    split
+    case neg.isTrue h =>
+      norm_cast
+      omega
+    case neg.isFalse h =>
+      simp only [neg_le_sub_iff_le_add]
+      norm_cast
+      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
+      omega
+
+theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
+    (x.toInt + y.toInt) < 2 ^ w := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x, BitVec.eq_nil y]
+  · norm_cast
+    rw [←Nat.two_pow_pred_add_two_pow_pred (by omega)]
+    have hx := toInt_lt x
+    have hy := toInt_lt y
+    push_cast
+    omega
+
+theorem neg_two_pow_le_toInd_add_toInt (x y : BitVec w) :
+    - 2 ^ w ≤ x.toInt + y.toInt := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x, BitVec.eq_nil y]
+  · norm_cast
+    rw [←Nat.two_pow_pred_add_two_pow_pred (by omega)]
+    have hx := le_toInt x
+    have hy := le_toInt y
+    push_cast
+    omega
+
 /-! ### slt -/
 
 /--

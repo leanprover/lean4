@@ -3551,9 +3551,9 @@ theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [uaddOverflow, BitVec.carry]
   by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
 
-theorem sadd_overflow_eq {w : Nat} (x y : BitVec w) :
-    sadd_overflow x y = true ↔ x.msb = y.msb ∧ ¬(x + y).msb = x.msb := by
-  simp only [sadd_overflow]
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y = true ↔ x.msb = y.msb ∧ ¬(x + y).msb = x.msb := by
+  simp only [saddOverflow]
   rcases w with _|w'
   · revert x y
     decide

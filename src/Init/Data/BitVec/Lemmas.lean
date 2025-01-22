@@ -3594,13 +3594,6 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 /-! ### Overflow definitions -/
 
-theorem Int.bmod_two_pow_neg_iff {w : Nat} {x : Int} (h1 : x < 2 ^ w) (h2 : -(2 ^ w) ≤ x) :
-    (x.bmod (2 ^ w)) < 0 ↔ (-(2 ^ w) ≤ 2 * x ∧ x < 0) ∨ (2 ^ w ≤ 2 * x) := by
-  simp only [Int.bmod_def, Nat.cast_pow, Nat.cast_ofNat]
-  by_cases xpos : 0 ≤ x
-  · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
-  · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-
 theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
     uaddOverflow x y = BitVec.carry w x y false := by
   simp only [uaddOverflow, BitVec.carry]

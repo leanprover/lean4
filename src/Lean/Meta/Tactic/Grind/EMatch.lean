@@ -211,18 +211,27 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
 /--
-Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
-`initApp` is the match-expression used to instantiate the `match`-equation.
+Given a proposition `prop` corresponding to an equational theorem.
+Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
 -/
-private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
+private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
     let d := if (← isProp d) then
       markAsMatchCond d
     else
       d
     withLocalDecl n bi d fun x => do
-      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
+      mkForallFVars #[x] (← annotateEqnTypeConds (b.instantiate1 x) k)
   else
+    k prop
+
+/--
+Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
+`initApp` is the match-expression used to instantiate the `match`-equation.
+It also introduce `Grind.MatchCond` at equation conditions. See `MatchCond.lean`.
+-/
+private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
+  annotateEqnTypeConds prop fun prop => do
     let_expr f@Eq α lhs rhs := prop | return prop
     -- See comment at `Grind.EqMatch`
     return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α (← markAsDoNotSimp lhs) rhs initApp
@@ -238,6 +247,8 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
+  else if (← isEqnThm origin.key) then
+    prop ← annotateEqnTypeConds prop
   trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
 

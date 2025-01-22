@@ -109,7 +109,7 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | _ => return ()
 
 private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+  shareCommon (← canon (← normalizeLevels (← eraseIrrelevantMData (← unfoldReducible e))))
 
 private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)

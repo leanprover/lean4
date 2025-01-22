@@ -88,8 +88,23 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) :=
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
 
-def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
-  let go : GrindM (List Goal) := do
+structure Result where
+  goals  : List Goal
+  issues : List MessageData
+  config : Grind.Config
+
+def Result.isFailure (r : Result) : Bool :=
+  !r.goals.isEmpty
+
+def Result.toMessageData (result : Result) : MetaM MessageData := do
+  let mut msgs ← result.goals.mapM (goalToMessageData · result.config)
+  let issues := result.issues
+  unless issues.isEmpty do
+    msgs := msgs ++ [.trace { cls := `issues } "Issues" issues.reverse.toArray]
+  return MessageData.joinSep msgs m!"\n"
+
+def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do
+  let go : GrindM Result := do
     let goals ← initCore mvarId params
     let goals ← solve goals
     let goals ← goals.filterMapM fun goal => do
@@ -99,7 +114,8 @@ def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : F
       if (← goal.mvarId.isAssigned) then return none
       return some goal
     trace[grind.debug.final] "{← ppGoals goals}"
-    return goals
+    let issues := (← get).issues
+    return { goals, issues, config := params.config }
   go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

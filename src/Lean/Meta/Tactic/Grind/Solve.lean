@@ -40,7 +40,7 @@ def pushFailure (goal : Goal) : M Unit := do
     x goal
   catch ex =>
     if ex.isMaxHeartbeat || ex.isMaxRecDepth then
-      let goal ← goal.reportIssue ex.toMessageData
+      reportIssue ex.toMessageData
       pushFailure goal
       return true
     else
@@ -85,8 +85,6 @@ Try to solve/close the given goals, and returns the ones that could not be solve
 -/
 def solve (goals : List Goal) : GrindM (List Goal) := do
   let (_, s) ← Solve.main.run { todo := goals }
-  let todo ← s.todo.mapM fun goal => do
-    goal.reportIssue m!"this goal was not fully processed due to previous failures, threshold: `(failures := {(← getConfig).failures})`"
-  return s.failures.reverse ++ todo
+  return s.failures.reverse ++ s.todo
 
 end Lean.Meta.Grind

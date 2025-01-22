@@ -563,17 +563,16 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   · subst hw
     simp [BitVec.eq_nil x]
   · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    sorry
-    -- simp only [zero_lt_two, mul_lt_mul_left, Nat.cast_ofNat]
-    -- split
-    -- case neg.isTrue h =>
-    --   norm_cast
-    --   omega
-    -- case neg.isFalse h =>
-    --   simp only [neg_le_sub_iff_le_add]
-    --   norm_cast
-    --   rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    --   omega
+    simp only [zero_lt_two, mul_lt_mul_left, Nat.cast_ofNat]
+    split
+    case neg.isTrue h =>
+      norm_cast
+      omega
+    case neg.isFalse h =>
+      simp only [neg_le_sub_iff_le_add]
+      norm_cast
+      rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
+      omega
 
 theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
     (x.toInt + y.toInt) < 2 ^ w := by

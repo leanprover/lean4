@@ -20,7 +20,9 @@ private def getContext : MetaM Simp.Context := do
 def iteToDIte (e : Expr) : MetaM Expr := do
   let ctx ← getContext
   let (result, _) ← Meta.simp e ctx
-  return result.expr
+  let e' := result.expr
+  trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}"
+  return e'
 
 /-
 run_elab do

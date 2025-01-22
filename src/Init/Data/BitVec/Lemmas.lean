@@ -905,6 +905,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
   ext i h
   simp [h]
 
+theorem extractLsb'_or {x y : BitVec w} {start len : Nat} :
+   (x ||| y).extractLsb' start len = (x.extractLsb' start len) ||| (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_or {x : BitVec w} {hi lo : Nat} :
+   (x ||| y).extractLsb lo hi = (x.extractLsb lo hi) ||| (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
@@ -978,6 +988,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) wher
   ext i h
   simp [h]
 
+theorem extractLsb'_and {x y : BitVec w} {start len : Nat} :
+   (x &&& y).extractLsb' start len = (x.extractLsb' start len) &&& (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_and {x : BitVec w} {hi lo : Nat} :
+   (x &&& y).extractLsb lo hi = (x.extractLsb lo hi) &&& (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
+
 /-! ### xor -/
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
@@ -1042,6 +1062,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
 @[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
   ext i
   simp
+
+theorem extractLsb'_xor {x y : BitVec w} {start len : Nat} :
+   (x ^^^ y).extractLsb' start len = (x.extractLsb' start len) ^^^ (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_xor {x : BitVec w} {hi lo : Nat} :
+   (x ^^^ y).extractLsb lo hi = (x.extractLsb lo hi) ^^^ (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
 
 /-! ### not -/
 
@@ -1148,6 +1178,31 @@ theorem getMsb_not {x : BitVec w} :
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
   simp [BitVec.msb]
+
+/--
+Negating `x` and then extracting [start..start+len) is the same as extracting and then negating,
+as long as the range [start..start+len) is in bounds.
+See that if the index is out-of-bounds, then `extractLsb` will return `false`,
+which makes the operation not commute.
+-/
+theorem extractLsb'_not_of_lt {x : BitVec w} {start len : Nat} (h : start + len < w) :
+   (~~~ x).extractLsb' start len = ~~~ (x.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+  omega
+
+/--
+Negating `x` and then extracting [lo:hi] is the same as extracting and then negating.
+For the extraction to be well-behaved,
+we need the range [lo:hi] to be a valid closed interval inside the bitvector:
+1. `lo ≤ hi` for the interval to be a well-formed closed interval.
+2. `hi < w`, for the interval to be contained inside the bitvector.
+-/
+theorem extractLsb_not_of_lt {x : BitVec w} {hi lo : Nat} (hlo : lo ≤ hi) (hhi : hi < w) :
+   (~~~ x).extractLsb hi lo = ~~~ (x.extractLsb hi lo) := by
+  ext k hk
+  simp [hk, show k ≤ hi - lo by omega]
+  omega
 
 /-! ### cast -/
 

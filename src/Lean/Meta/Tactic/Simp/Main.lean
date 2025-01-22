@@ -623,6 +623,7 @@ It attempts to minimize the quadratic overhead imposed by
 the locally nameless discipline.
 -/
 partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
+  let cfg ← getConfig
   let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
     /-
     Helper function applied when `e` is not a `let_fun` or
@@ -648,9 +649,9 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     -/
     if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
       stop
-    else if !body.bindingBody!.hasLooseBVar 0 then
+    else if cfg.zeta && !body.bindingBody!.hasLooseBVar 0 then
       /-
-      Redundant `let_fun`. The simplifier will remove it.
+      Redundant `let_fun`. The simplifier will remove it when `zeta := true`.
       Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
       If observe that in practice, we may use a separate step for removing unused variables.
 

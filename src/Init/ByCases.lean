@@ -37,10 +37,8 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
     f (ite P x y) = ite P (f x) (f y) :=
   apply_dite f P (fun _ => x) (fun _ => y)
 
--- we want to use `fun h` below for prettier daggered names
-set_option linter.unusedVariables false in
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun h => a) fun h => b) = ite P a b := rfl
+@[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
 
 @[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]
 theorem ite_some_none_eq_none [Decidable P] :

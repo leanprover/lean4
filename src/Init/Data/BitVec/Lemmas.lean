@@ -3784,7 +3784,7 @@ theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
       by_cases hi' : i < w * n
       · simp [hi', ih]
       · simp only [hi', ↓reduceIte]
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)

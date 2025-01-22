@@ -60,7 +60,6 @@ def casesMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.with
   let numAlts := app.alts.size
   let splitterType ← inferType splitterApp
   let splitterType := addMatchCondsToSplitter splitterType app.alts.size
-  trace[Meta.debug] "casesMatch: {splitterType}"
   let (mvars, _, _) ← forallMetaBoundedTelescope splitterType numAlts (kind := .syntheticOpaque)
   let splitterApp := mkAppN splitterApp mvars
   let val := mkAppN splitterApp eqRefls

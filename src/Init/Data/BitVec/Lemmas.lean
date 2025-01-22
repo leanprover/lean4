@@ -1941,6 +1941,15 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]
 
+theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
+    x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
+  ext i hi
+  simp only [getLsbD_ushiftRight, getLsbD_cast, getLsbD_append, getLsbD_extractLsb', getLsbD_zero,
+    Bool.if_false_right, Bool.and_self_left, Bool.iff_and_self, decide_eq_true_eq]
+  intros h
+  have := lt_of_getLsbD h
+  omega
+
 /-! ### rev -/
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :

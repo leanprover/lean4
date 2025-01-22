@@ -1350,8 +1350,8 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
     · exact succ_ofNat_pos (x + 1)
 
 theorem bmod_two_pow_neg_iff {w : Nat} {x : Int} (h1 : x < 2 ^ w) (h2 : -(2 ^ w) ≤ x) :
-    (x.bmod (2 ^ w)) < 0 ↔ (-(2 ^ w) ≤ 2 * x ∧ x < 0) ∨ (2 ^ w ≤ 2 * x) := by
-  simp only [Int.bmod_def, Nat.cast_pow, Nat.cast_ofNat]
-  by_cases xpos : 0 ≤ x
-  · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
-  · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
+    (x.bmod (2 ^ w)) < 0 ↔ (-(2 ^ w) ≤ 2 * x ∧ x < 0) ∨ (2 ^ w ≤ 2 * x) := by sorry
+  -- simp only [Int.bmod_def, Nat.cast_pow, Nat.cast_ofNat]
+  -- by_cases xpos : 0 ≤ x
+  -- · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
+  -- · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega

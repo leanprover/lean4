@@ -1230,4 +1230,31 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [ushiftRightRec_eq]
 
+/-! ### Overflow definitions -/
+
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = carry w x y false := by
+  simp only [uaddOverflow, BitVec.carry]
+  by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
+
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y ↔ (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by
+  simp only [saddOverflow]
+  rcases w with _|w'
+  · revert x y
+    decide
+  · have h : 0 < w' + 1 := by omega
+    generalize w' + 1 = w at *
+    have := le_toInt x
+    have := le_toInt y
+    have := toInt_lt y
+    have := toInt_lt x
+    have := toInd_add_toInt_lt_two_pow x y
+    have := neg_two_pow_le_toInd_add_toInt x y
+    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
+      decide_eq_decide, BitVec.toInt_add]
+    rw [Int.bmod_two_pow_neg_iff (by omega) (by omega)]
+    rw_mod_cast [← @Nat.two_pow_pred_add_two_pow_pred w (by omega)] at *
+    omega
+
 end BitVec

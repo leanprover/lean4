@@ -3536,6 +3536,33 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+/-! ### Overflow definitions -/
+
+theorem uadd_overflow_eq {w : Nat} (x y : BitVec w) :
+    uadd_overflow x y = BitVec.carry w x y false := by
+  simp only [uadd_overflow, BitVec.carry]
+  by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
+
+theorem sadd_overflow_eq {w : Nat} (x y : BitVec w) :
+    sadd_overflow x y = true ↔ x.msb = y.msb ∧ ¬(x + y).msb = x.msb := by
+  simp only [sadd_overflow]
+  rcases w with _|w'
+  · revert x y
+    decide
+  · have h : 0 < w' + 1 := by omega
+    generalize w' + 1 = w at *
+    have := le_toInt x
+    have := le_toInt y
+    have := toInt_lt y
+    have := toInt_lt x
+    have := toInd_add_toInt_lt_two_pow x y
+    have := neg_two_pow_le_toInd_add_toInt x y
+    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
+      decide_eq_decide, BitVec.toInt_add]
+    rw [bmod_two_pow_neg_iff (by omega) (by omega)]
+    rw_mod_cast [← @Nat.two_pow_pred_add_two_pow_pred w (by omega)] at *
+    omega
+
 
 /-! ### Non-overflow theorems -/
 

@@ -171,8 +171,10 @@ builtin_grind_propagator propagateHEqUp ↑HEq := fun e => do
 builtin_grind_propagator propagateIte ↑ite := fun e => do
   let_expr f@ite α c h a b := e | return ()
   if (← isEqTrue c) then
+    internalize a (← getGeneration e)
     pushEq e a <| mkApp6 (mkConst ``ite_cond_eq_true f.constLevels!) α c h a b (← mkEqTrueProof c)
   else if (← isEqFalse c) then
+    internalize b (← getGeneration e)
     pushEq e b <| mkApp6 (mkConst ``ite_cond_eq_false f.constLevels!) α c h a b (← mkEqFalseProof c)
 
 /-- Propagates `dite` upwards -/

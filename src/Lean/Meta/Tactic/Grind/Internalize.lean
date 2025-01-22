@@ -211,6 +211,10 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
         let c := args[0]!
         internalize c generation e
         registerParent e c
+      else if f.isConstOf ``ite && args.size == 5 then
+        let c := args[1]!
+        internalize c generation e
+        registerParent e c
       else
         if let .const fName _ := f then
           activateTheoremPatterns fName generation

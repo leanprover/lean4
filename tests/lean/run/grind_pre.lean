@@ -173,37 +173,8 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
-case grind.2
-α : Type
-a : α
-p q r : Prop
-h₁ : HEq p a
-h₂ : HEq q a
-h₃ : p = r
-left : ¬p ∨ r
-h : p
-⊢ False
-[grind] Diagnostics
-  [facts] Asserted facts
-    [prop] HEq p a
-    [prop] HEq q a
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] p
-  [eqc] True propositions
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] a
-    [prop] p
-    [prop] q
-    [prop] r
-  [eqc] False propositions
-    [prop] ¬p
-    [prop] ¬r
-  [issues] Issues
-    [issue] this goal was not fully processed due to previous failures, threshold: `(failures := 1)`
+[grind] Issues
+  [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
@@ -252,8 +223,8 @@ x✝ : ¬f a = g b
   [eqc] Equivalence classes
     [eqc] {a, b}
     [eqc] {f, g}
-  [issues] Issues
-    [issue] found congruence between g b and f a but functions have different types
+[grind] Issues
+  [issue] found congruence between g b and f a but functions have different types
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

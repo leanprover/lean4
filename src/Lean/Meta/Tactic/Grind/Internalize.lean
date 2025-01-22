@@ -109,7 +109,7 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | _ => return ()
 
 private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+  shareCommon (← canon (← normalizeLevels (← eraseIrrelevantMData (← unfoldReducible e))))
 
 private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
   mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
@@ -189,8 +189,12 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
       propagateUp e
   | .lit .. | .const .. =>
     mkENode e generation
-  | .mvar ..
-  | .mdata ..
+  | .mvar .. =>
+    reportIssue m!"unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+    mkENode' e generation
+  | .mdata .. =>
+    reportIssue m!"unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
+    mkENode' e generation
   | .proj .. =>
     reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
     mkENode' e generation

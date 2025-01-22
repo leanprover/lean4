@@ -50,17 +50,16 @@ Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even 
 /--
 Helper function for `canonElemCore`. It tries `isDefEq a b` with default transparency, but using
 at most `canonHeartbeats` heartbeats. It reports an issue if the threshold is reached.
-Remark: `parent` is use only to report an issue
+Remark: `parent` is use only to report an issue.
 -/
 private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
   withCurrHeartbeats do
-  let config ← getConfig
+  let curr := (← getConfig).canonHeartbeats
   tryCatchRuntimeEx
-    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := config.canonHeartbeats }) do
+    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := curr*1000 }) do
       withDefault <| isDefEq a b)
     fun ex => do
       if ex.isRuntime then
-        let curr := (← getConfig).canonHeartbeats
         reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
         return false
       else

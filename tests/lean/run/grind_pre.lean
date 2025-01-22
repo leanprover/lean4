@@ -173,7 +173,7 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
-[issues] Issues
+[grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
@@ -223,7 +223,7 @@ x✝ : ¬f a = g b
   [eqc] Equivalence classes
     [eqc] {a, b}
     [eqc] {f, g}
-[issues] Issues
+[grind] Issues
   [issue] found congruence between g b and f a but functions have different types
 -/
 #guard_msgs (error) in

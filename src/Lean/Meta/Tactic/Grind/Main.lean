@@ -104,7 +104,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
     let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
     issues := .trace { cls := `issue } m #[] :: issues
   unless issues.isEmpty do
-    msgs := msgs ++ [.trace { cls := `issues } "Issues" issues.reverse.toArray]
+    msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
   return MessageData.joinSep msgs m!"\n"
 
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do

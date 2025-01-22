@@ -22,7 +22,7 @@ h : HEq ⋯ ⋯
     [prop] X c s
   [eqc] Equivalence classes
     [eqc] {s, 0}
-[issues] Issues
+[grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in

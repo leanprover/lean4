@@ -32,7 +32,7 @@ def addMatchCond (s : Simprocs) : CoreM Simprocs := do
 Helper function for `isSatisfied`.
 See `isSatisfied`.
 -/
-private partial def isMathCondFalseHyp (e : Expr) : GoalM Bool := do
+private partial def isMatchCondFalseHyp (e : Expr) : GoalM Bool := do
   match_expr e with
   | Eq _ lhs rhs => isFalse lhs rhs
   | HEq _ lhs _ rhs => isFalse lhs rhs
@@ -91,18 +91,18 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
   let mut e := e
   repeat
     let .forallE _ d b _ := e | break
-    if (← isMathCondFalseHyp d) then
+    if (← isMatchCondFalseHyp d) then
       trace[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
       return true
     e := b
   return false
 
-private partial def mkMathCondProof? (e : Expr) : GoalM (Option Expr) := do
+private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
   let_expr Grind.MatchCond f ← e | return none
   forallTelescopeReducing f fun xs _ => do
     for x in xs do
       let type ← inferType x
-      if (← isMathCondFalseHyp type) then
+      if (← isMatchCondFalseHyp type) then
         trace[grind.debug.matchCond] ">>> {type}"
         let some h ← go? x | pure ()
         return some (← mkLambdaFVars xs h)
@@ -147,7 +147,7 @@ where
 builtin_grind_propagator propagateMatchCond ↑Grind.MatchCond := fun e => do
   trace[grind.debug.matchCond] "visiting{indentExpr e}"
   if !(← isStatisfied e) then return ()
-  let some h ← mkMathCondProof? e
+  let some h ← mkMatchCondProof? e
      | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
   trace[grind.debug.matchCond] "{← inferType h}"
   pushEqTrue e <| mkEqTrueCore e h

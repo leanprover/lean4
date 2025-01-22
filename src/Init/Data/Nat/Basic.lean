@@ -788,9 +788,6 @@ theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
 theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
   pred_lt (not_eq_zero_of_lt h)
 
-set_option linter.missingDocs false in
-@[deprecated pred_lt_of_lt (since := "2024-06-01")] abbrev pred_lt' := @pred_lt_of_lt
-
 theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
   sub_one_lt (not_eq_zero_of_lt h)
 
@@ -1074,9 +1071,6 @@ theorem pred_mul (n m : Nat) : pred n * m = n * m - m := by
   | zero   => simp
   | succ n => rw [Nat.pred_succ, succ_mul, Nat.add_sub_cancel]
 
-set_option linter.missingDocs false in
-@[deprecated pred_mul (since := "2024-06-01")] abbrev mul_pred_left := @pred_mul
-
 protected theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
   cases n with
   | zero   => simp
@@ -1085,9 +1079,6 @@ protected theorem sub_one_mul  (n m : Nat) : (n - 1) * m = n * m - m := by
 
 theorem mul_pred (n m : Nat) : n * pred m = n * m - n := by
   rw [Nat.mul_comm, pred_mul, Nat.mul_comm]
-
-set_option linter.missingDocs false in
-@[deprecated mul_pred (since := "2024-06-01")] abbrev mul_pred_right := @mul_pred
 
 theorem mul_sub_one (n m : Nat) : n * (m - 1) = n * m - n := by
   rw [Nat.mul_comm, Nat.sub_one_mul , Nat.mul_comm]

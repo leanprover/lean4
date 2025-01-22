@@ -67,16 +67,8 @@ theorem getElem_cons_drop : ∀ (l : List α) (i : Nat) (h : i < l.length),
   | _::_, 0, _ => rfl
   | _::_, i+1, h => getElem_cons_drop _ i (Nat.add_one_lt_add_one_iff.mp h)
 
-@[deprecated getElem_cons_drop (since := "2024-06-12")]
-theorem get_cons_drop (l : List α) (i) : get l i :: drop (i + 1) l = drop i l := by
-  simp
-
 theorem drop_eq_getElem_cons {n} {l : List α} (h : n < l.length) : drop n l = l[n] :: drop (n + 1) l :=
   (getElem_cons_drop _ n h).symm
-
-@[deprecated drop_eq_getElem_cons (since := "2024-06-12")]
-theorem drop_eq_get_cons {n} {l : List α} (h) : drop n l = get l ⟨n, h⟩ :: drop (n + 1) l := by
-  simp [drop_eq_getElem_cons]
 
 @[simp]
 theorem getElem?_take_of_lt {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m]? = l[m]? := by
@@ -90,10 +82,6 @@ theorem getElem?_take_of_lt {l : List α} {n m : Nat} (h : m < n) : (l.take n)[m
       cases m
       · simp
       · simpa using hn (Nat.lt_of_succ_lt_succ h)
-
-@[deprecated getElem?_take_of_lt (since := "2024-06-12")]
-theorem get?_take {l : List α} {n m : Nat} (h : m < n) : (l.take n).get? m = l.get? m := by
-  simp [getElem?_take_of_lt, h]
 
 theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l[n]? := by simp
 
@@ -110,10 +98,6 @@ theorem take_drop : ∀ (m n : Nat) (l : List α), take n (drop m l) = drop m (t
   | 0, _, _ => by simp
   | _, _, [] => by simp
   | _+1, _, _ :: _ => by simpa [Nat.succ_add, take_succ_cons, drop_succ_cons] using take_drop ..
-
-@[deprecated drop_drop (since := "2024-06-15")]
-theorem drop_add (m n) (l : List α) : drop (m + n) l = drop n (drop m l) := by
-  simp [drop_drop]
 
 @[simp]
 theorem tail_drop (l : List α) (n : Nat) : (l.drop n).tail = l.drop (n + 1) := by

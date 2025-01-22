@@ -11,10 +11,15 @@ namespace Lean.Parser.Attr
 syntax grindEq     := "="
 syntax grindEqBoth := atomic("_" "=" "_")
 syntax grindEqRhs  := atomic("=" "_")
+syntax grindEqBwd  := atomic("←" "=")
 syntax grindBwd    := "←"
 syntax grindFwd    := "→"
+syntax grindCases  := &"cases"
+syntax grindCasesEager := atomic(&"cases" &"eager")
 
-syntax (name := grind) "grind" (grindEqBoth <|> grindEqRhs <|> grindEq <|> grindBwd <|> grindFwd)? : attr
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindCasesEager <|> grindCases
+
+syntax (name := grind) "grind" (grindMod)? : attr
 
 end Lean.Parser.Attr
 
@@ -43,8 +48,14 @@ structure Config where
   splitIte : Bool := true
   /--
   If `splitIndPred` is `true`, `grind` performs case-splitting on inductive predicates.
-  Otherwise, it performs case-splitting only on types marked with `[grind_split]` attribute. -/
-  splitIndPred : Bool := true
+  Otherwise, it performs case-splitting only on types marked with `[grind cases]` attribute. -/
+  splitIndPred : Bool := false
+  /-- By default, `grind` halts as soon as it encounters a sub-goal where no further progress can be made. -/
+  failures : Nat := 1
+  /-- Maximum number of heartbeats (in thousands) the canonicalizer can spend per definitional equality test. -/
+  canonHeartbeats : Nat := 1000
+  /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
+  ext : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind
@@ -55,7 +66,13 @@ namespace Lean.Parser.Tactic
 `grind` tactic and related tactics.
 -/
 
--- TODO: parameters
-syntax (name := grind) "grind" optConfig ("on_failure " term)? : tactic
+syntax grindErase := "-" ident
+syntax grindLemma := (Attr.grindMod)? ident
+syntax grindParam := grindErase <|> grindLemma
+
+syntax (name := grind)
+  "grind" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  ("on_failure " term)? : tactic
 
 end Lean.Parser.Tactic

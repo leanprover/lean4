@@ -257,7 +257,7 @@ theorem ofNat_fdiv : ∀ m n : Nat, ↑(m / n) = fdiv ↑m ↑n
 # `bmod` ("balanced" mod)
 
 Balanced mod (and balanced div) are a division and modulus pair such
-that `b * (Int.bdiv a b) + Int.bmod a b = a` and `b/2 ≤ Int.bmod a b <
+that `b * (Int.bdiv a b) + Int.bmod a b = a` and `-b/2 ≤ Int.bmod a b <
 b/2` for all `a : Int` and `b > 0`.
 
 This is used in Omega as well as signed bitvectors.
@@ -266,10 +266,26 @@ This is used in Omega as well as signed bitvectors.
 /--
 Balanced modulus.  This version of Integer modulus uses the
 balanced rounding convention, which guarantees that
-`m/2 ≤ bmod x m < m/2` for `m ≠ 0` and `bmod x m` is congruent
+`-m/2 ≤ bmod x m < m/2` for `m ≠ 0` and `bmod x m` is congruent
 to `x` modulo `m`.
 
 If `m = 0`, then `bmod x m = x`.
+
+Examples:
+```
+#eval (7 : Int).bdiv 0 -- 0
+#eval (0 : Int).bdiv 7 -- 0
+
+#eval (12 : Int).bdiv 6 -- 2
+#eval (12 : Int).bdiv 7 -- 2
+#eval (12 : Int).bdiv 8 -- 2
+#eval (12 : Int).bdiv 9 -- 1
+
+#eval (-12 : Int).bdiv 6 -- -2
+#eval (-12 : Int).bdiv 7 -- -2
+#eval (-12 : Int).bdiv 8 -- -1
+#eval (-12 : Int).bdiv 9 -- -1
+```
 -/
 def bmod (x : Int) (m : Nat) : Int :=
   let r := x % m
@@ -281,6 +297,22 @@ def bmod (x : Int) (m : Nat) : Int :=
 /--
 Balanced division.  This returns the unique integer so that
 `b * (Int.bdiv a b) + Int.bmod a b = a`.
+
+Examples:
+```
+#eval (7 : Int).bmod 0 -- 7
+#eval (0 : Int).bmod 7 -- 0
+
+#eval (12 : Int).bmod 6 -- 0
+#eval (12 : Int).bmod 7 -- -2
+#eval (12 : Int).bmod 8 -- -4
+#eval (12 : Int).bmod 9 -- 3
+
+#eval (-12 : Int).bmod 6 -- 0
+#eval (-12 : Int).bmod 7 -- 2
+#eval (-12 : Int).bmod 8 -- -4
+#eval (-12 : Int).bmod 9 -- -3
+```
 -/
 def bdiv (x : Int) (m : Nat) : Int :=
   if m = 0 then

@@ -209,7 +209,7 @@ static lean_object* l_Lean_Meta_Simp_simpForall___lambda__5___closed__9;
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_Meta_Simp_simpProj___spec__8(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLet___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_dsimpImpl___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_Simp_simpLet___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_simpNonDepLetFun_go___lambda__1___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_Simp_simpArrow___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1458,7 +1458,6 @@ lean_dec(x_12);
 x_14 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_15 = l_Lean_getProjectionFnInfo_x3f___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceProjFn_x3f___spec__1___closed__1;
 x_16 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_14, x_15, x_13, x_1);
-lean_dec(x_13);
 lean_ctor_set(x_10, 0, x_16);
 return x_10;
 }
@@ -1476,7 +1475,6 @@ lean_dec(x_17);
 x_20 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_21 = l_Lean_getProjectionFnInfo_x3f___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceProjFn_x3f___spec__1___closed__1;
 x_22 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_20, x_21, x_19, x_1);
-lean_dec(x_19);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_18);
@@ -1891,7 +1889,7 @@ x_15 = lean_ctor_get(x_12, 1);
 x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_environment_find(x_16, x_11);
+x_17 = l_Lean_Environment_find_x3f(x_16, x_11);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 
@@ -2769,7 +2767,7 @@ lean_dec(x_12);
 x_245 = lean_ctor_get(x_243, 0);
 lean_inc(x_245);
 lean_dec(x_243);
-x_246 = lean_environment_find(x_245, x_11);
+x_246 = l_Lean_Environment_find_x3f(x_245, x_11);
 if (lean_obj_tag(x_246) == 0)
 {
 lean_object* x_247; lean_object* x_248; 
@@ -3996,7 +3994,6 @@ x_62 = l_Lean_Meta_smartUnfoldingSuffix;
 lean_inc(x_2);
 x_63 = l_Lean_Name_str___override(x_2, x_62);
 x_64 = l_Lean_Environment_contains(x_18, x_63);
-lean_dec(x_63);
 if (x_64 == 0)
 {
 lean_object* x_65; 
@@ -4036,7 +4033,7 @@ x_23 = lean_ctor_get(x_20, 1);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
-x_25 = lean_environment_find(x_24, x_2);
+x_25 = l_Lean_Environment_find_x3f(x_24, x_2);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; 
@@ -4115,7 +4112,7 @@ lean_dec(x_20);
 x_40 = lean_ctor_get(x_38, 0);
 lean_inc(x_40);
 lean_dec(x_38);
-x_41 = lean_environment_find(x_40, x_2);
+x_41 = l_Lean_Environment_find_x3f(x_40, x_2);
 if (lean_obj_tag(x_41) == 0)
 {
 lean_object* x_42; lean_object* x_43; 
@@ -4230,7 +4227,6 @@ lean_dec(x_12);
 x_14 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_15 = l_Lean_getProjectionFnInfo_x3f___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceProjFn_x3f___spec__1___closed__1;
 x_16 = l_Lean_MapDeclarationExtension_contains___rarg(x_14, x_15, x_13, x_1);
-lean_dec(x_13);
 x_17 = lean_box(x_16);
 lean_ctor_set(x_10, 0, x_17);
 return x_10;
@@ -4249,7 +4245,6 @@ lean_dec(x_18);
 x_21 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_22 = l_Lean_getProjectionFnInfo_x3f___at___private_Lean_Meta_Tactic_Simp_Main_0__Lean_Meta_Simp_reduceProjFn_x3f___spec__1___closed__1;
 x_23 = l_Lean_MapDeclarationExtension_contains___rarg(x_21, x_22, x_20, x_1);
-lean_dec(x_20);
 x_24 = lean_box(x_23);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_24);

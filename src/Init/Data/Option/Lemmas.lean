@@ -208,6 +208,15 @@ theorem comp_map (h : β → γ) (g : α → β) (x : Option α) : x.map (h ∘ 
 
 theorem mem_map_of_mem (g : α → β) (h : a ∈ x) : g a ∈ Option.map g x := h.symm ▸ map_some' ..
 
+theorem map_inj_right {f : α → β} {o o' : Option α} (w : ∀ x y, f x = f y → x = y) :
+    o.map f = o'.map f ↔ o = o' := by
+  cases o with
+  | none => cases o' <;> simp
+  | some a =>
+    cases o' with
+    | none => simp
+    | some a' => simpa using ⟨fun h => w _ _ h, fun h => congrArg f h⟩
+
 @[simp] theorem map_if {f : α → β} [Decidable c] :
      (if c then some a else none).map f = if c then some (f a) else none := by
   split <;> rfl
@@ -628,6 +637,15 @@ theorem pbind_eq_some_iff {o : Option α} {f : (a : α) → a ∈ o → Option �
     · exact fun w => ⟨h a rfl, w⟩
     · rintro ⟨h, rfl⟩
       rfl
+
+@[simp]
+theorem pmap_eq_map (p : α → Prop) (f : α → β) (o : Option α) (H) :
+    @pmap _ _ p (fun a _ => f a) o H = Option.map f o := by
+  cases o <;> simp
+
+theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (o H) :
+    Option.map g (pmap f o H) = pmap (fun a h => g (f a h)) o H := by
+  cases o <;> simp
 
 /-! ### pelim -/
 

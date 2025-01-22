@@ -16,7 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_CollectAxioms_collect(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_insert___at_Lean_NameSet_insert___spec__1(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at_Lean_CollectAxioms_collect___spec__2(lean_object*, lean_object*, lean_object*);
@@ -131,7 +131,7 @@ lean_inc(x_11);
 lean_ctor_set(x_3, 0, x_11);
 lean_inc(x_1);
 lean_inc(x_2);
-x_12 = lean_environment_find(x_2, x_1);
+x_12 = l_Lean_Environment_find_x3f(x_2, x_1);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; 
@@ -617,7 +617,7 @@ lean_ctor_set(x_124, 0, x_123);
 lean_ctor_set(x_124, 1, x_5);
 lean_inc(x_1);
 lean_inc(x_2);
-x_125 = lean_environment_find(x_2, x_1);
+x_125 = l_Lean_Environment_find_x3f(x_2, x_1);
 if (lean_obj_tag(x_125) == 0)
 {
 lean_object* x_126; 

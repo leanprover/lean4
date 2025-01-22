@@ -296,7 +296,7 @@ where
     m.apply recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
-    let mss ← ms.toArray.mapIdxM fun _ m => do
+    let mss ← ms.toArray.mapM fun m => do
       let m ← introNPRec m
       (← m.getType).withApp fun below args =>
       m.withContext do

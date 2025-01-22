@@ -7146,6 +7146,7 @@ x_16 = lean_ctor_get(x_13, 1);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
+lean_inc(x_3);
 x_18 = l_Lean_Environment_contains(x_17, x_3);
 if (x_18 == 0)
 {
@@ -7184,6 +7185,7 @@ lean_dec(x_13);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
+lean_inc(x_3);
 x_25 = l_Lean_Environment_contains(x_24, x_3);
 if (x_25 == 0)
 {
@@ -7264,6 +7266,7 @@ x_16 = lean_ctor_get(x_13, 1);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
+lean_inc(x_3);
 x_18 = l_Lean_Environment_contains(x_17, x_3);
 if (x_18 == 0)
 {
@@ -7302,6 +7305,7 @@ lean_dec(x_13);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
+lean_inc(x_3);
 x_25 = l_Lean_Environment_contains(x_24, x_3);
 if (x_25 == 0)
 {
@@ -7598,6 +7602,7 @@ x_16 = lean_ctor_get(x_13, 1);
 x_17 = lean_ctor_get(x_15, 0);
 lean_inc(x_17);
 lean_dec(x_15);
+lean_inc(x_3);
 x_18 = l_Lean_Environment_contains(x_17, x_3);
 if (x_18 == 0)
 {
@@ -7636,6 +7641,7 @@ lean_dec(x_13);
 x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
+lean_inc(x_3);
 x_25 = l_Lean_Environment_contains(x_24, x_3);
 if (x_25 == 0)
 {
@@ -12910,6 +12916,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -12945,6 +12952,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -13166,6 +13174,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -13201,6 +13210,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -14128,6 +14138,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -14164,6 +14175,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -14438,6 +14450,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -14474,6 +14487,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -15402,6 +15416,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -15438,6 +15453,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -15712,6 +15728,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -15748,6 +15765,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -16676,6 +16694,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -16712,6 +16731,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -16986,6 +17006,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -17022,6 +17043,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -17950,6 +17972,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -17986,6 +18009,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18260,6 +18284,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18296,6 +18321,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18366,6 +18392,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18401,6 +18428,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18442,6 +18470,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18478,6 +18507,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18520,6 +18550,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18556,6 +18587,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18598,6 +18630,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18634,6 +18667,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -18676,6 +18710,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
+lean_inc(x_1);
 x_16 = l_Lean_Environment_contains(x_15, x_1);
 if (x_16 == 0)
 {
@@ -18712,6 +18747,7 @@ lean_dec(x_11);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_1);
 x_23 = l_Lean_Environment_contains(x_22, x_1);
 if (x_23 == 0)
 {
@@ -28110,7 +28146,6 @@ lean_dec(x_5);
 x_7 = l_Lean_Compiler_LCNF_Simp_ConstantFold_getFolders___rarg___closed__2;
 x_8 = l_Lean_Compiler_LCNF_Simp_ConstantFold_registerFolder___closed__1;
 x_9 = l_Lean_PersistentEnvExtension_getState___rarg(x_7, x_8, x_6);
-lean_dec(x_6);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
@@ -28131,7 +28166,6 @@ lean_dec(x_11);
 x_14 = l_Lean_Compiler_LCNF_Simp_ConstantFold_getFolders___rarg___closed__2;
 x_15 = l_Lean_Compiler_LCNF_Simp_ConstantFold_registerFolder___closed__1;
 x_16 = l_Lean_PersistentEnvExtension_getState___rarg(x_14, x_15, x_13);
-lean_dec(x_13);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);

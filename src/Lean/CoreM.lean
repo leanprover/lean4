@@ -514,16 +514,19 @@ register_builtin_option compiler.enableNew : Bool := {
 @[extern "lean_lcnf_compile_decls"]
 opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 
+@[extern "lean_compile_decls"]
+opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
+
 def compileDecl (decl : Declaration) : CoreM Unit := do
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
     compileDeclsNew decls
   let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
-    return (← getEnv).compileDecl opts decl
+    return compileDeclsOld (← getEnv) opts decls
   match res with
   | Except.ok env => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
     throwError msg
   | Except.error ex =>
@@ -533,9 +536,9 @@ def compileDecls (decls : List Name) : CoreM Unit := do
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
-  match (← getEnv).compileDecls opts decls with
+  match compileDeclsOld (← getEnv) opts decls with
   | Except.ok env   => setEnv env
-  | Except.error (KernelException.other msg) =>
+  | Except.error (.other msg) =>
     throwError msg
   | Except.error ex =>
     throwKernelException ex

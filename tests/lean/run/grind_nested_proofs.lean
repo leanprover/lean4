@@ -6,7 +6,7 @@ open Lean Meta Grind in
 def fallback : Fallback := do
   let nodes ← filterENodes fun e => return e.self.isAppOf ``Lean.Grind.nestedProof
   trace[Meta.debug] "{nodes.toList.map (·.self)}"
-  let nodes ← filterENodes fun e => return e.self.isAppOf ``GetElem.getElem
+  let nodes ← filterENodes fun e => return e.self.isApp && e.self.isAppOf ``GetElem.getElem
   let [_, n, _] := nodes.toList | unreachable!
   trace[Meta.debug] "{← getEqc n.self}"
   (← get).mvarId.admit
@@ -22,9 +22,9 @@ detect equalities between array access terms.
 -/
 
 /--
-info: [Meta.debug] [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),
-     Lean.Grind.nestedProof (j < a.toList.length) h1,
-     Lean.Grind.nestedProof (j < b.toList.length) h]
+info: [Meta.debug] [Lean.Grind.nestedProof (i < a.toList.length),
+     Lean.Grind.nestedProof (j < a.toList.length),
+     Lean.Grind.nestedProof (j < b.toList.length)]
 [Meta.debug] [a[i], b[j], a[j]]
 -/
 #guard_msgs (info) in
@@ -32,9 +32,9 @@ example (i j : Nat) (a b : Array Nat) (h1 : j < a.size) (h : j < b.size) (h2 : i
   grind on_failure fallback
 
 /--
-info: [Meta.debug] [Lean.Grind.nestedProof (i < a.toList.length) (_example.proof_1 i j a b h1 h2),
-     Lean.Grind.nestedProof (j < a.toList.length) h1,
-     Lean.Grind.nestedProof (j < b.toList.length) h]
+info: [Meta.debug] [Lean.Grind.nestedProof (i < a.toList.length),
+     Lean.Grind.nestedProof (j < a.toList.length),
+     Lean.Grind.nestedProof (j < b.toList.length)]
 [Meta.debug] [a[i], a[j]]
 -/
 #guard_msgs (info) in

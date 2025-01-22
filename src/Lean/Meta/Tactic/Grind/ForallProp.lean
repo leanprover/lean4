@@ -8,6 +8,7 @@ import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Simp
+import Lean.Meta.Tactic.Grind.EqResolution
 
 namespace Lean.Meta.Grind
 /--
@@ -77,7 +78,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
     if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
   if (← get).newThms.size == size then
-    trace[grind.issues] "failed to create E-match local theorem for{indentExpr e}"
+    reportIssue m!"failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()
@@ -96,7 +97,13 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
       pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
   else if (← isEqTrue e) then
-    if b.hasLooseBVars then
-      addLocalEMatchTheorems e
+    if let some (e', h') ← eqResolution e then
+      trace[grind.eqResolution] "{e}, {e'}"
+      let h := mkOfEqTrueCore e (← mkEqTrueProof e)
+      let h' := mkApp h' h
+      addNewFact h' e' (← getGeneration e)
+    else
+      if b.hasLooseBVars then
+        addLocalEMatchTheorems e
 
 end Lean.Meta.Grind

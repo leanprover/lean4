@@ -52,12 +52,12 @@ def reportDiag (diag : Simp.Diagnostics) : MetaM Unit := do
     let congr ← mkDiagSummary `simp diag.congrThmCounter
     let thmsWithBadKeys ← mkTheoremsWithBadKeySummary diag.thmsWithBadKeys
     unless used.isEmpty && tried.isEmpty && congr.isEmpty && thmsWithBadKeys.isEmpty do
-      let m := MessageData.nil
+      let m := #[]
       let m := appendSection m `simp "used theorems" used
       let m := appendSection m `simp "tried theorems" tried
       let m := appendSection m `simp "tried congruence theorems" congr
       let m := appendSection m `simp "theorems with bad keys" thmsWithBadKeys (resultSummary := false)
-      let m := m ++ "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
-      logInfo m
+      let m := m.push <| "use `set_option diagnostics.threshold <num>` to control threshold for reporting counters"
+      logInfo <| .trace { cls := `simp, collapsed := false } "Diagnostics" m
 
 end Lean.Meta.Simp

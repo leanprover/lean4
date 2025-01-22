@@ -681,7 +681,14 @@ def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ 
 
   SMT-Lib name: `bvsaddo`.
 -/
-def saddOverflow {w : Nat} (x y : BitVec w) : Bool := 
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
   (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
+/- ### reverse -/
+
+/-- Reverse the bits in a bitvector. -/
+def reverse : {w : Nat} → BitVec w → BitVec w
+  | 0, x => x
+  | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
 end BitVec

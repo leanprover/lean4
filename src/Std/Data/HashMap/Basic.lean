@@ -191,6 +191,14 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
 @[inline, inherit_doc DHashMap.keys] def keys (m : HashMap α β) : List α :=
   m.inner.keys
 
+@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] (l : List (α × β)) :
+    HashMap α β :=
+  ⟨DHashMap.Const.ofList l⟩
+
+@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
+    HashMap α Unit :=
+  ⟨DHashMap.Const.unitOfList l⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -245,21 +253,13 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     Array β :=
   m.inner.valuesArray
 
-@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) : HashMap α β :=
-  match m.get? a with
-  | none => m
-  | some b => m.erase a |>.insert a (f b)
+@[inline, inherit_doc DHashMap.modify] def modify (m : HashMap α β) (a : α) (f : β → β) :
+    HashMap α β :=
+  ⟨DHashMap.Const.modify m.inner a f⟩
 
-@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α) (f : Option β → Option β) : HashMap α β :=
-  match m.get? a with
-  | none =>
-    match f none with
-    | none => m
-    | some b => m.insert a b
-  | some b =>
-    match f (some b) with
-    | none => m.erase a
-    | some b => m.erase a |>.insert a b
+@[inline, inherit_doc DHashMap.alter] def alter (m : HashMap α β) (a : α)
+    (f : Option β → Option β) : HashMap α β :=
+  ⟨DHashMap.Const.alter m.inner a f⟩
 
 @[inline, inherit_doc DHashMap.Const.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ (α × β)] (m : HashMap α β) (l : ρ) : HashMap α β :=
@@ -269,19 +269,11 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β
     {ρ : Type w} [ForIn Id ρ α] (m : HashMap α Unit) (l : ρ) : HashMap α Unit :=
   ⟨DHashMap.Const.insertManyIfNewUnit m.inner l⟩
 
-@[inline, inherit_doc DHashMap.Const.ofList] def ofList [BEq α] [Hashable α] (l : List (α × β)) :
-    HashMap α β :=
-  ⟨DHashMap.Const.ofList l⟩
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : HashMap α β) : HashMap α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (HashMap α β) := ⟨union⟩
-
-@[inline, inherit_doc DHashMap.Const.unitOfList] def unitOfList [BEq α] [Hashable α] (l : List α) :
-    HashMap α Unit :=
-  ⟨DHashMap.Const.unitOfList l⟩
 
 @[inline, inherit_doc DHashMap.Const.unitOfArray] def unitOfArray [BEq α] [Hashable α] (l : Array α) :
     HashMap α Unit :=

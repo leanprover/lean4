@@ -504,6 +504,17 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
     · contradiction
   ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
+
+/--
+Determine whether `ref` is a `Decl.const` with value `b`.
+-/
+def isConstant (aig : AIG α) (ref : Ref aig) (b : Bool) : Bool :=
+  let ⟨gate, hgate⟩ := ref
+  let decl := aig.decls[gate]'hgate
+  match decl with
+  | .const val => b = val
+  | _ => false
+
 end AIG
 
 end Sat

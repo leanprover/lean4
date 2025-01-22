@@ -193,6 +193,19 @@ def Declaration.definitionVal! : Declaration → DefinitionVal
   | .defnDecl val => val
   | _ => panic! "Expected a `Declaration.defnDecl`."
 
+/--
+Returns all top-level names to be defined by adding this declaration to the environment. This does
+not include auxiliary definitions such as projections.
+-/
+def Declaration.getNames : Declaration → List Name
+  | .axiomDecl val          => [val.name]
+  | .defnDecl val           => [val.name]
+  | .thmDecl val            => [val.name]
+  | .opaqueDecl val         => [val.name]
+  | .quotDecl               => [``Quot, ``Quot.mk, ``Quot.lift, ``Quot.ind]
+  | .mutualDefnDecl defns   => defns.map (·.name)
+  | .inductDecl _ _ types _ => types.map (·.name)
+
 @[specialize] def Declaration.foldExprM {α} {m : Type → Type} [Monad m] (d : Declaration) (f : α → Expr → m α) (a : α) : m α :=
   match d with
   | .quotDecl                                        => pure a
@@ -468,6 +481,10 @@ def isCtor : ConstantInfo → Bool
 def isInductive : ConstantInfo → Bool
   | .inductInfo _ => true
   | _             => false
+
+def isDefinition : ConstantInfo → Bool
+  | .defnInfo _ => true
+  | _           => false
 
 def isTheorem : ConstantInfo → Bool
   | .thmInfo _ => true

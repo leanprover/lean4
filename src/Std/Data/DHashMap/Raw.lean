@@ -94,7 +94,7 @@ Checks whether a key is present in a map, and unconditionally inserts a value fo
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
-    Bool × Raw α β:=
+    Bool × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩
@@ -296,6 +296,45 @@ to get anything out of the hash map.
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
+/--
+Modifies in place the value associated with a given key.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def modify [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) (f : β a → β a) :
+    Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.modify] def Const.modify [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : β → β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+/--
+Modifies in place the value associated with a given key,
+allowing creating new values and deleting values via an `Option` valued replacement function.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def alter [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β)
+    (a : α) (f : Option (β a) → Option (β a)) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.alter ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.alter] def Const.alter [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : Option β → Option β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.alter ⟨m, h⟩ a f
+  else
+    ∅
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -422,28 +461,11 @@ This is mainly useful to implement `HashSet.insertMany`, so if you are consideri
     (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
 
-/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
-occurrence takes precedence. -/
-@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
-  insertMany ∅ l
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
-
-@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
-    (l : List (α × β)) : Raw α (fun _ => β) :=
-  Const.insertMany ∅ l
-
-/-- Creates a hash map from a list of keys, associating the value `()` with each key.
-
-This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
-`HashSet` or `HashSet.Raw` might be a better fit for you. -/
-@[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
-    Raw α (fun _ => Unit) :=
-  Const.insertManyIfNewUnit ∅ l
 
 /-- Creates a hash map from an array of keys, associating the value `()` with each key.
 
@@ -469,6 +491,23 @@ end Unverified
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=
   m.foldRev (fun acc k _ => k :: acc) []
+
+/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
+
+@[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
+    (l : List (α × β)) : Raw α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+/-- Creates a hash map from a list of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofList`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyIfNewUnit ∅ l
 
 section WF
 
@@ -509,6 +548,18 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
+  /-- Internal implementation detail of the hash map -/
+  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
+      WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constModify₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a} {f : β → β} :
+      WF m → WF (Raw₀.Const.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | alter₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
+      {f : Option (β a) → Option (β a)} : WF m → WF (Raw₀.alter ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
+      {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
 
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
@@ -522,6 +573,10 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
   | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
+  | modify₀ _ => (Raw₀.modify _ _ _).2
+  | constModify₀ _ => (Raw₀.Const.modify _ _ _).2
+  | alter₀ _ => (Raw₀.alter _ _ _).2
+  | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
 
 @[simp] theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
   .empty₀

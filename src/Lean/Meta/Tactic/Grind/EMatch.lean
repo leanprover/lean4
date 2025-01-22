@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchCond
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -129,6 +130,16 @@ private partial def matchArgs? (c : Choice) (p : Expr) (e : Expr) : OptionT Goal
   let c ← matchArg? c pArg eArg
   matchArgs? c p.appFn! e.appFn!
 
+/-- Similar to `matchArgs?` but if `p` has fewer arguments than `e`, we match `p` with a prefix of `e`. -/
+private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : OptionT GoalM Choice := do
+  let pn := p.getAppNumArgs
+  let en := e.getAppNumArgs
+  guard (pn <= en)
+  if pn == en then
+    matchArgs? c p e
+  else
+    matchArgs? c p (e.getAppPrefix pn)
+
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
@@ -194,7 +205,7 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
     let n ← getENode app
     if n.generation < maxGeneration
        && (n.heqProofs || n.isCongrRoot) then
-      if let some c ← matchArgs? c p app |>.run then
+      if let some c ← matchArgsPrefix? c p app |>.run then
         let gen := n.generation
         let c := { c with gen := Nat.max gen c.gen }
         modify fun s => { s with choiceStack := c :: s.choiceStack }
@@ -205,7 +216,11 @@ Helper function for marking parts of `match`-equation theorem as "do-not-simplif
 -/
 private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
   if let .forallE n d b bi := prop then
-    withLocalDecl n bi (← markAsDoNotSimp d) fun x => do
+    let d := if (← isProp d) then
+      markAsMatchCond d
+    else
+      d
+    withLocalDecl n bi d fun x => do
       mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
   else
     let_expr f@Eq α lhs rhs := prop | return prop
@@ -240,7 +255,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    trace_goal[grind.issues] "unexpected number of parameters at {← thm.origin.pp}"
+    reportIssue m!"unexpected number of parameters at {← thm.origin.pp}"
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
@@ -250,14 +265,14 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
       unless (← isDefEq mvarIdType vType <&&> mvarId.checkedAssign v) do
-        trace_goal[grind.issues] "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+        reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstance mvar type) do
-        trace_goal[grind.issues] "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+      unless (← synthesizeInstanceAndAssign mvar type) do
+        reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
@@ -265,13 +280,9 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      trace_goal[grind.issues] "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm.origin proof c.gen
-where
-  synthesizeInstance (x type : Expr) : MetaM Bool := do
-    let .some val ← trySynthInstance type | return false
-    isDefEq x val
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -300,16 +311,48 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
     if (n.heqProofs || n.isCongrRoot) &&
        (!useMT || n.mt == gmt) then
       withInitApp app do
-        if let some c ← matchArgs? { cnstrs, assignment, gen := n.generation } p app |>.run then
+        if let some c ← matchArgsPrefix? { cnstrs, assignment, gen := n.generation } p app |>.run then
           modify fun s => { s with choiceStack := [c] }
           processChoices
+
+/--
+Entry point for matching `lhs ←= rhs` patterns.
+It traverses disequalities `a = b`, and tries to solve two matching problems:
+1- match `lhs` with `a` and `rhs` with `b`
+2- match `lhs` with `b` and `rhs` with `a`
+-/
+private def matchEqBwdPat (p : Expr) : M Unit := do
+  let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
+  let numParams  := (← read).thm.numParams
+  let assignment := mkArray numParams unassigned
+  let useMT      := (← read).useMT
+  let gmt        := (← getThe Goal).gmt
+  let false      ← getFalseExpr
+  let mut curr   := false
+  repeat
+    if (← checkMaxInstancesExceeded) then return ()
+    let n ← getENode curr
+    if (n.heqProofs || n.isCongrRoot) &&
+       (!useMT || n.mt == gmt) then
+      let_expr Eq α lhs rhs := n.self | pure ()
+      if (← isDefEq α pα) then
+         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
+         let go (lhs rhs : Expr) : M Unit := do
+           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+           modify fun s => { s with choiceStack := [c₂] }
+           processChoices
+         go lhs rhs
+         go rhs lhs
+    if isSameExpr n.next false then return ()
+    curr := n.next
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()
   withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
-    | [p],   _     => main p []
+    | [p],   _     => if isEqBwdPattern p then matchEqBwdPat p else main p []
     | p::ps, false => main p (ps.map (.continue ·))
     | _::_,  true  => tryAll ps []
     | _,     _     => unreachable!
@@ -359,8 +402,5 @@ def ematchAndAssert : GrindTactic := fun goal => do
   if goal.numInstances == numInstances then
     return none
   assertAll goal
-
-def ematchStar : GrindTactic :=
-  ematchAndAssert.iterate
 
 end Lean.Meta.Grind

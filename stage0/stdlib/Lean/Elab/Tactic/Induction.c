@@ -161,7 +161,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tac
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalAlt___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalInduction___lambda__5(lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_Induction_0__Lean_Elab_Tactic_withAltsOfOptInductionAlts(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_getInductiveValFromMajor___lambda__1___closed__1;
 lean_object* l_Lean_MVarId_setKind(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -22367,7 +22367,7 @@ x_150 = lean_ctor_get(x_147, 1);
 x_151 = lean_ctor_get(x_149, 0);
 lean_inc(x_151);
 lean_dec(x_149);
-x_152 = lean_environment_find(x_151, x_146);
+x_152 = l_Lean_Environment_find_x3f(x_151, x_146);
 if (lean_obj_tag(x_152) == 0)
 {
 uint8_t x_153; lean_object* x_154; 
@@ -23243,7 +23243,7 @@ lean_dec(x_147);
 x_405 = lean_ctor_get(x_403, 0);
 lean_inc(x_405);
 lean_dec(x_403);
-x_406 = lean_environment_find(x_405, x_146);
+x_406 = l_Lean_Environment_find_x3f(x_405, x_146);
 if (lean_obj_tag(x_406) == 0)
 {
 uint8_t x_407; lean_object* x_408; 
@@ -25419,7 +25419,7 @@ x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_environment_find(x_14, x_1);
+x_15 = l_Lean_Environment_find_x3f(x_14, x_1);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; lean_object* x_17; 
@@ -25465,7 +25465,7 @@ lean_dec(x_11);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
-x_26 = lean_environment_find(x_25, x_1);
+x_26 = l_Lean_Environment_find_x3f(x_25, x_1);
 if (lean_obj_tag(x_26) == 0)
 {
 uint8_t x_27; lean_object* x_28; lean_object* x_29; 

@@ -54,7 +54,7 @@ LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Class_0__Lea
 LEAN_EXPORT uint8_t l_Lean_Expr_hasAnyFVar_visit___at___private_Lean_Class_0__Lean_checkOutParam___spec__3(lean_object*, lean_object*);
 static lean_object* l_Lean_mkOutParamArgsImplicit___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_initFn____x40_Lean_Class___hyg_83____spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Attribute_Builtin_ensureNoArgs(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_initFn____x40_Lean_Class___hyg_789____closed__6;
 static lean_object* l___private_Lean_Class_0__Lean_checkOutParam___closed__1;
@@ -1938,7 +1938,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lean_instInhabitedClassState;
 x_4 = l_Lean_isClass___closed__1;
 x_5 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_4, x_1);
-lean_dec(x_1);
 x_6 = l_Lean_SMap_contains___at_Lean_isClass___spec__1(x_5, x_2);
 lean_dec(x_2);
 return x_6;
@@ -2382,7 +2381,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_getOutParamPositions_x3f(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -2392,7 +2390,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_getOutParamPositions_x3f(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -3541,7 +3538,7 @@ _start:
 lean_object* x_4; lean_object* x_13; 
 lean_inc(x_2);
 lean_inc(x_1);
-x_13 = lean_environment_find(x_1, x_2);
+x_13 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 

@@ -681,7 +681,7 @@ def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ 
 
   SMT-Lib name: `bvsaddo`.
 -/
-
-def saddOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool := 
+  (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
 
 end BitVec

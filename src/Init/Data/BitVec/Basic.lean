@@ -671,13 +671,6 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 
 /-! ## Overflow -/
 
-/-- Overflow predicate for 2's complement unary minus.
-
-  SMT-Lib name: `bvnego`.
--/
-
-def notOverflow {w : Nat} (x : BitVec w) : Bool := x.toInt == - (2 ^ (w - 1))
-
 /-- Overflow predicate for unsigned addition modulo 2^w.
 
   SMT-Lib name: `bvuaddo`.

@@ -3546,9 +3546,9 @@ theorem Int.bmod_two_pow_neg_iff {w : Nat} {x : Int} (h1 : x < 2 ^ w) (h2 : -(2 
   · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem uadd_overflow_eq {w : Nat} (x y : BitVec w) :
-    uadd_overflow x y = BitVec.carry w x y false := by
-  simp only [uadd_overflow, BitVec.carry]
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = BitVec.carry w x y false := by
+  simp only [uaddOverflow, BitVec.carry]
   by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
 
 theorem sadd_overflow_eq {w : Nat} (x y : BitVec w) :

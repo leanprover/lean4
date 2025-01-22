@@ -62,3 +62,50 @@ example (x y : BitVec 32) (p : Param x y) : x + y = 0 := by
   bv_decide
 
 end Ex5
+
+namespace Ex6
+
+structure Pair where
+  x : BitVec 32
+  y : BitVec 32
+
+example (a b : Pair) (h1 : a.x = a.y) (h2 : b.x = b.y) (h3 : a.x = b.y) : a = b := by
+  bv_decide
+
+example (a b : Pair) (h : a = b) : a.x = b.x := by
+  bv_decide
+
+end Ex6
+
+namespace Ex7
+
+structure Single where
+  z : BitVec 32
+
+structure Pair where
+  x : BitVec 32
+  y : Single
+
+example (a b : Pair) (h1 : a.x = a.y.z) (h2 : b.x = b.y.z) (h3 : a.x = b.y.z) : a = b := by
+  bv_decide
+
+example (a b : Pair) (h : a = b) : a.x = b.x ∧ a.y.z = b.y.z := by
+  bv_decide
+
+end Ex7
+
+namespace Ex8
+
+structure Single where
+  z : BitVec 32
+
+structure Pair extends Single where
+  x : BitVec 32
+
+example (a b : Pair) (h1 : a.x = a.z) (h2 : b.x = b.z) (h3 : a.x = b.z) : a = b := by
+  bv_decide
+
+example (a b : Pair) (h : a = b) : a.x = b.x ∧ a.z = b.z := by
+  bv_decide
+
+end Ex8

@@ -106,7 +106,7 @@ def grind
     (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Unit := do
   let params ← mkGrindParams config only ps
   let result ← Grind.main mvarId params mainDeclName fallback
-  if result.isFailure then
+  if result.hasFailures then
     throwError "`grind` failed\n{← result.toMessageData}"
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do

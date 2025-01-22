@@ -89,16 +89,20 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) :=
   return goals.filter fun goal => !goal.inconsistent
 
 structure Result where
-  goals  : List Goal
-  issues : List MessageData
-  config : Grind.Config
+  failures : List Goal
+  skipped  : List Goal
+  issues   : List MessageData
+  config   : Grind.Config
 
-def Result.isFailure (r : Result) : Bool :=
-  !r.goals.isEmpty
+def Result.hasFailures (r : Result) : Bool :=
+  !r.failures.isEmpty
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
-  let mut msgs ← result.goals.mapM (goalToMessageData · result.config)
-  let issues := result.issues
+  let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
+  let mut issues := result.issues
+  unless result.skipped.isEmpty do
+    let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
+    issues := .trace { cls := `issue } m #[] :: issues
   unless issues.isEmpty do
     msgs := msgs ++ [.trace { cls := `issues } "Issues" issues.reverse.toArray]
   return MessageData.joinSep msgs m!"\n"
@@ -106,16 +110,10 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do
   let go : GrindM Result := do
     let goals ← initCore mvarId params
-    let goals ← solve goals
-    let goals ← goals.filterMapM fun goal => do
-      if goal.inconsistent then return none
-      let goal ← GoalM.run' goal fallback
-      if goal.inconsistent then return none
-      if (← goal.mvarId.isAssigned) then return none
-      return some goal
+    let (failures, skipped) ← solve goals fallback
     trace[grind.debug.final] "{← ppGoals goals}"
     let issues := (← get).issues
-    return { goals, issues, config := params.config }
+    return { failures, skipped, issues, config := params.config }
   go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

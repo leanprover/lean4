@@ -62,7 +62,7 @@ def trySplit : Goal → M Bool := applyTac splitNext
 def maxNumFailuresReached : M Bool := do
   return (← get).failures.length ≥ (← getConfig).failures
 
-partial def main : M Unit := do
+partial def main (fallback : Fallback) : M Unit := do
   repeat do
     if (← get).stop then
       return ()
@@ -76,6 +76,9 @@ partial def main : M Unit := do
       continue
     if (← trySplit goal) then
       continue
+    let goal ← GoalM.run' goal fallback
+    if goal.inconsistent || (← goal.mvarId.isAssigned) then
+      continue
     pushFailure goal
 
 end Solve
@@ -83,8 +86,8 @@ end Solve
 /--
 Try to solve/close the given goals, and returns the ones that could not be solved.
 -/
-def solve (goals : List Goal) : GrindM (List Goal) := do
-  let (_, s) ← Solve.main.run { todo := goals }
-  return s.failures.reverse ++ s.todo
+def solve (goals : List Goal) (fallback : Fallback) : GrindM (List Goal × List Goal) := do
+  let (_, s) ← Solve.main fallback |>.run { todo := goals }
+  return (s.failures.reverse, s.todo)
 
 end Lean.Meta.Grind

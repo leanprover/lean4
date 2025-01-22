@@ -3408,16 +3408,6 @@ theorem replicate_succ {x : BitVec w} :
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
 
-theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
-    (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
-  induction w₁ generalizing x₂ x₃
-  case zero => simp
-  case succ n ih =>
-    specialize @ih (setWidth n x₁)
-    rw [← cons_msb_setWidth x₁, cons_append_append, ih, cons_append]
-    ext j h
-    simp [getLsbD_cons, show n + w₂ + w₃ = n + (w₂ + w₃) by omega]
-
 @[simp]
 theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
     (x.replicate n).getLsbD i = (decide (i < w * n) && x.getLsbD (i % w)) := by
@@ -3440,6 +3430,16 @@ theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
   cases w <;> simp; omega
+
+theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
+    (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
+  induction w₁ generalizing x₂ x₃
+  case zero => simp
+  case succ n ih =>
+    specialize @ih (setWidth n x₁)
+    rw [← cons_msb_setWidth x₁, cons_append_append, ih, cons_append]
+    ext j h
+    simp [getLsbD_cons, show n + w₂ + w₃ = n + (w₂ + w₃) by omega]
 
 theorem replicate_append_self {x : BitVec w} :
     x ++ x.replicate n = (x.replicate n ++ x).cast (by omega) := by

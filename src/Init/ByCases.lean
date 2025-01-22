@@ -37,8 +37,16 @@ theorem apply_ite (f : α → β) (P : Prop) [Decidable P] (x y : α) :
     f (ite P x y) = ite P (f x) (f y) :=
   apply_dite f P (fun _ => x) (fun _ => y)
 
+/--
+`fun_h => …` is like `fun _ =>` but the binder name is based on `h`, not `x`.
+This is relevant when preparing well-founded recusion proof obligations, where the lemma below is
+rewritten with backwards, and the name shows up in the context (daggered, but still visible).
+-/
+local macro "fun_h" "=>" t:term : term => `(fun h => $t)
+
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] : (dite P (fun _ => a) fun _ => b) = ite P a b := rfl
+@[simp] theorem dite_eq_ite [Decidable P] :
+  (dite P (fun_h => a) (fun_h => b)) = ite P a b := rfl
 
 @[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]
 theorem ite_some_none_eq_none [Decidable P] :

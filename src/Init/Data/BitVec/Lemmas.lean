@@ -554,26 +554,23 @@ theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
       omega
     case neg.isFalse h => sorry
       -- rw [Nat.sub_lt_iff_lt_add]
-      -- norm_cast
-      -- omega
+      -- norm_cast; omega
+
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   simp only [BitVec.toInt]
-  by_cases hw : w = 0
-  · subst hw
-    simp [BitVec.eq_nil x]
+  rcases w with _|w'
+  · omega
   · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    sorry
-    -- simp only [zero_lt_two, mul_lt_mul_left, Nat.cast_ofNat]
-    -- split
-    -- case neg.isTrue h =>
-    --   norm_cast
-    --   omega
-    -- case neg.isFalse h =>
-    --   simp only [neg_le_sub_iff_le_add]
-    --   norm_cast
-    --   rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    --   omega
+    by_cases h2 : 2 * x.toNat < 2 * 2 ^ (w' - 1)
+    · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul,
+        Int.Nat.cast_ofNat_Int]
+      norm_cast
+      omega
+    · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul,
+        Int.Nat.cast_ofNat_Int]
+      norm_cast
+      omega
 
 theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
     (x.toInt + y.toInt) < 2 ^ w := by

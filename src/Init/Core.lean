@@ -516,8 +516,17 @@ The tasks have an overridden representation in the runtime.
 structure Task (α : Type u) : Type u where
   /-- `Task.pure (a : α)` constructs a task that is already resolved with value `a`. -/
   pure ::
-  /-- If `task : Task α` then `task.get : α` blocks the current thread until the
-  value is available, and then returns the result of the task. -/
+  /--
+  Blocks the current thread until the given task has finished execution, and then returns the result
+  of the task. If the current thread is itself executing a (non-dedicated) task, the maximum
+  threadpool size is temporarily increased by one while waiting so as to ensure the process cannot
+  be deadlocked by threadpool starvation. Note that when the current thread is unblocked, more tasks
+  than the configured threadpool size may temporarily be running at the same time until sufficiently
+  many tasks have finished.
+
+  `Task.map` and `Task.bind` should be preferred over `Task.get` for setting up task dependencies
+  where possible as they do not require temporarily growing the threadpool in this way.
+  -/
   get : α
   deriving Inhabited, Nonempty
 

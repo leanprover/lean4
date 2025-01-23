@@ -451,6 +451,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
     return lean_io_result_mk_ok(lean_box(0));
 }
+}
 
 #else
 

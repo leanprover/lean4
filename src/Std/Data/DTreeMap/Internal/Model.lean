@@ -26,7 +26,7 @@ namespace Impl
 ## General infrastructure
 -/
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 def contains' [Ord α] (k : α → Ordering) (l : Impl α β) : Bool :=
   match l with
   | .leaf => false
@@ -40,7 +40,7 @@ theorem contains'_compare [Ord α] {k : α} {l : Impl α β} :
     l.contains' (compare k) = l.contains k := by
   induction l <;> simp_all [contains, contains'] <;> rfl
 
-/-- Internal implementation detail of the ordered set. General tree-traversal function. -/
+/-- General tree-traversal function. Internal implementation detail of the tree map -/
 def applyPartition [Ord α] (k : α → Ordering) (l : Impl α β)
     (f : List ((a : α) × β a) → (c : Cell α β k) → (l.contains' k → c.contains) → List ((a : α) × β a) → δ) : δ :=
   go [] l id []
@@ -54,7 +54,7 @@ where
     | .eq => f (ll ++ l.toListModel) (.ofEq k' v' h) (by simp) (r.toListModel ++ rr)
     | .gt => go (ll ++ l.toListModel ++ [⟨k', v'⟩]) r (fun hc => have := hm hc; by rw [← this, contains']; simp_all) rr
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 def applyCell [Ord α] (k : α) (l : Impl α β)
     (f : (c : Cell α β (compare k)) → (l.contains' (compare k) → c.contains) → δ) : δ :=
   match l with
@@ -65,7 +65,7 @@ def applyCell [Ord α] (k : α) (l : Impl α β)
     | .eq => f (.ofEq k' v' hcmp) (by simp)
     | .gt => applyCell k r (fun c h => f c fun h' => h (by simpa [contains', hcmp] using h'))
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 theorem applyCell_eq_applyPartition [Ord α] (k : α) (l : Impl α β)
     (f : (c : Cell α β (compare k)) → (l.contains' (compare k) → c.contains) → δ) :
     applyCell k l f = applyPartition (compare k) l (fun _ c hc _ => f c hc) := by
@@ -86,7 +86,7 @@ theorem applyCell_eq_applyPartition [Ord α] (k : α) (l : Impl α β)
 variable (α β) in
 /--
 Data structure used by the general tree-traversal function `explore`.
-Internal implementation detail of the ordered set
+Internal implementation detail of the tree map
 -/
 inductive ExplorationStep [Ord α] (k : α → Ordering) where
   /-- Needle was less than key at this node: return key-value pair and unexplored right subtree,
@@ -99,7 +99,7 @@ inductive ExplorationStep [Ord α] (k : α → Ordering) where
       recusion will containue in right subtree. -/
   | gt : List ((a : α) × β a) → (a : α) → k a = .gt → β a → ExplorationStep k
 
-/-- General tree-traversal function. Internal implementation detail of the ordered set -/
+/-- General tree-traversal function. Internal implementation detail of the tree map -/
 def explore {γ : Type w} [Ord α] (k : α → Ordering) (init : γ)
     (inner : γ → ExplorationStep α β k → γ) (l : Impl α β) : γ :=
   match l with
@@ -169,7 +169,10 @@ theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l 
       apply hfl
   · simp [explore, applyPartition.go]
 
-/-- General "update the mapping for a given key" function. -/
+/--
+General "update the mapping for a given key" function.
+Internal implementation detail of the tree map
+-/
 def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
     (l : Impl α β) (hl : Balanced l) : TreeB α β (l.size - 1) (l.size + 1) :=
   match l with
@@ -196,44 +199,19 @@ def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (com
 ## Model functions
 -/
 
-/-- Model implementation of the `contains` function. -/
+/--
+Model implementation of the `contains` function.
+Internal implementation detail of the tree map
+ -/
 def containsₘ [Ord α] (k : α) (l : Impl α β) : Bool :=
   applyCell k l fun c _ => c.contains
 
-/-- Model implementation of the `get?` function. -/
-def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) : Option (β k) :=
-  applyCell k l fun c _ => c.get?
-
-/-- Model implementation of the `get?ₘ` function. -/
-def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (h : l.contains k = true) : β k :=
-  applyCell k l fun c hc => c.get (by simp_all [contains'_compare])
-
-/-- Model implementation of the `insert` function. -/
+/--
+Model implementation of the `insert` function.
+Internal implementation detail of the tree map
+-/
 def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun _ => .of k v) l h |>.impl
-
-/-- Preliminary model implementation of the `lookupGE` function. -/
-def lookupGEₘ' [Ord α] (k : α) (l : Impl α β) : Option ((a : α) × β a) :=
-  explore (compare k) none (fun sofar step =>
-    match step with
-    | .lt ky _ y _ => some ⟨ky, y⟩
-    | .eq _ c r => c.inner.or r.head? |>.or sofar
-    | .gt _ _ _ _ => sofar) l
-
-/-- Model implementation of the `lookupGE` function. -/
-def lookupGEₘ [Ord α] (k : α) (l : Impl α β) : Option ((a : α) × β a) :=
-  applyPartition (compare k) l fun _ c _ r => c.inner.or r.head?
-
-/-- Internal implementation detail of the ordered set -/
-def min?ₘ' [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
-  explore (fun (_ : α) => .lt) none (fun sofar step =>
-    match step with
-    | .lt ky _ y _ => some ⟨ky, y⟩
-    | .eq _ _ r => r.head?.or sofar) l
-
-/-- Internal implementation detail of the ordered set -/
-def min?ₘ [Ord α] (l : Impl α β) : Option ((a : α) × β a) :=
-  applyPartition (fun (_ : α) => .lt) l fun _ _ _ r => r.head?
 
 /-!
 ## Helper theorems for reasoning with key-value pairs
@@ -263,51 +241,6 @@ theorem contains_eq_containsₘ [Ord α] (k : α) (l : Impl α β) :
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all
   · simp [contains, applyCell]
-
-theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) :
-    l.get? k = l.get?ₘ k := by
-  simp only [get?ₘ]
-  induction l
-  · simp only [applyCell, get?]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all [Cell.get?, Cell.ofEq]
-  · simp [get?, applyCell]
-
-theorem lookupGE_eq_lookupGEₘ' [Ord α] {k : α} {l : Impl α β} :
-    l.lookupGE k = l.lookupGEₘ' k := by
-  rw [lookupGE, lookupGEₘ']
-  suffices ∀ o, lookupGE.go k o l = explore (compare k) o _ l from this none
-  intro o
-  induction l generalizing o
-  · rename_i sz k' v' l r ih₁ ih₂
-    rw [lookupGE.go, explore]
-    split <;> rename_i hcmp <;> split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
-    all_goals simp_all
-  · simp [lookupGE.go, explore]
-
-theorem lookupGEₘ'_eq_lookupGEₘ [Ord α] {k : α} {l : Impl α β} :
-    l.lookupGEₘ' k = l.lookupGEₘ k := by
-  rw [lookupGEₘ', explore_eq_applyPartition, lookupGEₘ]
-  · simp only [Option.or_none]
-  · intros k hcmp v ll c rr r init
-    simp
-    cases c.inner <;> simp
-  · intros k hcmp v ll c rr l init
-    simp
-
-theorem min?_eq_min?ₘ' [Ord α] {l : Impl α β} : l.min? = l.min?ₘ' := by
-  rw [min?ₘ']
-  induction l using min?.induct <;> simp_all [min?, explore]
-
-theorem min?ₘ'_eq_min?ₘ [Ord α] {l : Impl α β} : l.min?ₘ' = l.min?ₘ := by
-  rw [min?ₘ', explore_eq_applyPartition, min?ₘ] <;> simp
-
-theorem min?_eq_min?ₘ [Ord α] {l : Impl α β} : l.min? = l.min?ₘ := by
-  rw [min?_eq_min?ₘ', min?ₘ'_eq_min?ₘ]
-
-theorem lookupGE_eq_lookupGEₘ [Ord α] {k : α} {l : Impl α β} :
-    l.lookupGE k = l.lookupGEₘ k := by
-  rw [lookupGE_eq_lookupGEₘ', lookupGEₘ'_eq_lookupGEₘ]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

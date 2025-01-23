@@ -36,7 +36,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def queryNames : Array Name :=
-  #[``apply_contains, ``apply_min?]
+  #[``apply_contains]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_insertSlow]
@@ -93,17 +93,6 @@ theorem contains_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
 theorem contains_insertSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertSlow k v).contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model using List.containsKey_insertEntry
-
-theorem min?_empty : min? (empty : Impl α β) = none := by
-  rw [empty, min?]
-
-theorem min?_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
-    (t.insert k v h.balanced).impl.min? =
-      some (match t.min? with
-      | none => ⟨k, v⟩
-      | some w => if compare k w.fst |>.isLE then ⟨k, v⟩ else w)
-      := by
-  simp_to_model using List.min?_insertKey
 
 end Std.DTreeMap.Internal.Impl
 

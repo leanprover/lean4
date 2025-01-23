@@ -3677,26 +3677,4 @@ theorem constModifyKey_eq_modifyKey {β : Type v} [BEq α] [LawfulBEq α] {k : �
 
 end Modify
 
-@[simp]
-theorem getEntry_fst [BEq α] {xs : List ((a : α) × β a)} {k : α} (h : containsKey k xs) :
-    (getEntry k xs h).1 = getKey k xs h := by
-  induction xs using assoc_induction
-  · simp at h
-  · next k' v' l ih =>
-    cases hkk' : k' == k
-    · rw [getEntry_cons_of_false hkk', getKey_cons]
-      simp [hkk', ih]
-    · rw [getEntry_cons_of_beq hkk', getKey_cons]
-      simp [hkk']
-
-theorem getKey_beq [BEq α] {xs : List ((a : α) × β a)} {k : α} (h : containsKey k xs) :
-    getKey k xs h == k := by
-  induction xs using assoc_induction
-  · simp at h
-  · next k' v' l ih =>
-    rw [getKey_cons]
-    split
-    · assumption
-    · apply ih
-
 end Std.Internal.List

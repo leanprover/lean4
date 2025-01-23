@@ -531,51 +531,6 @@ theorem isEmpty_eq_isEmpty (m : Impl α β) : m.isEmpty = m.toListModel.isEmpty 
   induction m <;> simp [Impl.isEmpty]
 
 /-!
-### `lowerBound`
--/
-
-theorem apply_lookupGEₘ [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
-    l.lookupGEₘ k = Std.DHashMap.Internal.List.lookupGE k l.toListModel := by
-  rw [lookupGEₘ,
-    applyPartition_eq_apply_toListModel hlo (fun l _ => Std.DHashMap.Internal.List.lookupGE k l)]
-  intro ll rr c hc hp hll hrr
-  rw [List.append_assoc, lookupGE_append_of_forall_mem_left hll,
-    lookupGE_eq_head? _ (hp.sublist (by simp)), List.head?_append, Option.head?_toList]
-  simp only [List.mem_append, Option.mem_toList, Option.mem_def]
-  rintro p (hp|hp)
-  · exact Ordering.isLE_of_eq_eq (c.property _ hp)
-  · exact Ordering.isLE_of_eq_lt (hrr _ hp)
-
-theorem apply_lookupGE [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
-    l.lookupGE k = Std.DHashMap.Internal.List.lookupGE k l.toListModel := by
-  rw [lookupGE_eq_lookupGEₘ, apply_lookupGEₘ hlo]
-
-/-!
-### `min?`
--/
-
-instance [Ord α] : IsStrictCut (compare : α → α → Ordering) (fun _ => .lt) where
-  lt := by simp
-  gt := by simp
-  eq := by simp
-
-theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
-    l.min?ₘ = Std.DHashMap.Internal.List.min?' l.toListModel := by
-  rw [min?ₘ, applyPartition_eq_apply_toListModel' hlo]
-  simp only [List.append_assoc, reduceCtorEq, imp_false, implies_true, forall_const]
-  intro ll rr c h₁ h₂ h₃
-  obtain rfl : ll = [] := List.eq_nil_iff_forall_not_mem.2 h₃
-  obtain hc : c.inner.toList = [] := by
-    cases h : c.inner
-    · simp
-    · simpa [h] using c.property
-  rw [hc, List.nil_append, List.nil_append, min?'_eq_head? (by simpa [hc] using h₂)]
-
-theorem apply_min? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :
-    l.min? = Std.DHashMap.Internal.List.min?' l.toListModel := by
-  rw [min?_eq_min?ₘ, apply_min?ₘ hlo]
-
-/-!
 ### `contains`
 -/
 

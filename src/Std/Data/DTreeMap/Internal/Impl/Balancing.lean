@@ -68,7 +68,7 @@ section
 
 open Lean Meta Elab Tactic
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
   let (mvars, _) ← runTactic mvarId s
   unless mvars.isEmpty do
@@ -78,7 +78,7 @@ elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => 
   mvarId.assign e
   return []
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 scoped macro "tree_tac" : tactic => `(tactic|(
   subst_eqs
   repeat' split
@@ -96,7 +96,7 @@ scoped macro "tree_tac" : tactic => `(tactic|(
     omega
   ))
 
-/-- Internal implementation detail of the ordered set -/
+/-- Internal implementation detail of the tree map -/
 scoped macro "✓" : term => `(term| by as_aux_lemma => tree_tac)
 
 end
@@ -599,8 +599,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     refine balanced_inner_iff.2 ⟨hlb.2.1, .leaf, ?_, by simp [size_leaf, size_inner]⟩
     simp [size_leaf, size_inner]
 
-  ·
-    refine ⟨by ac_rfl, ?_⟩
+  · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs hlsrs rls rrs hrlsrrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_singleL k v _ _ _ _ _ _ hlb hrb hlr hlsrs hrlsrrs).map ?_
     simp only [singleL, bin]
@@ -611,8 +610,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
       simp only [size_inner]
       ac_rfl
 
-  ·
-    refine ⟨by ac_rfl, ?_⟩
+  · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs hlsrs rls rrs hrlsrrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_doubleL k v _ _ _ _ _ _ _ _ _ _ hlb hrb hlr hlsrs hrlsrrs).map ?_
     simp only [doubleL, bin]
@@ -638,8 +636,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     simp only [delta] at h
     have := hlb.one_le
     omega
-  ·
-    refine ⟨by ac_rfl, ?_⟩
+  · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs _ hlsrs lls lrs hllslrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_singleR k v _ _ _ _ _ _ hlb hrb hlr hlsrs hllslrs).map ?_
     simp only [singleR, bin]
@@ -649,8 +646,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     · congr 1
       simp only [size_inner]
       ac_rfl
-  ·
-    refine ⟨by ac_rfl, ?_⟩
+  · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs _ hlsrs lls lrs hllslrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_doubleR k v _ _ _ _ _ _ _ _ _ _ hlb hrb hlr hlsrs hllslrs).map ?_
     simp only [doubleR, bin]

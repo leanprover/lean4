@@ -570,7 +570,7 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
       omega
 
 theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
-    (x.toInt + y.toInt) < 2 ^ w := by
+    x.toInt + y.toInt < 2 ^ w := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
   · norm_cast

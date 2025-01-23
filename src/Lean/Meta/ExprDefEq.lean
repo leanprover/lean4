@@ -1636,7 +1636,7 @@ private partial def consumeLet : Expr → Expr
 
 private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
   let cfg ← getConfig
-  if cfg.zeta then
+  if cfg.zeta || cfg.zetaUnused then
     return consumeLet e
   else
     return e

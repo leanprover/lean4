@@ -465,7 +465,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
   withInDSimp do
-  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
+  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -649,9 +649,9 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     -/
     if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
       stop
-    else if cfg.zeta && !body.bindingBody!.hasLooseBVar 0 then
+    else if (cfg.zeta || cfg.zetaUnused) && !body.bindingBody!.hasLooseBVar 0 then
       /-
-      Redundant `let_fun`. The simplifier will remove it when `zeta := true`.
+      Redundant `let_fun`. The simplifier will remove it when `zetaUnused := true`.
       Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
       If observe that in practice, we may use a separate step for removing unused variables.
 

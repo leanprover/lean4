@@ -325,7 +325,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     lean_inc(socket);
 
     int result = uv_listen((uv_stream_t*)tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
-        printf("ke\n"); fflush(stdout);
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
 
         if (tcp_socket->m_promise_accept == NULL) {
@@ -383,7 +382,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     event_loop_lock(&global_ev);
 
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
-    printf("result: %d\n", result); fflush(stdout);
 
     if (result < 0 && result != UV_EAGAIN) {
         lean_dec(client);
@@ -432,6 +430,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     lean_object *lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
     return lean_io_result_mk_ok(lean_addr);
 }
+
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);

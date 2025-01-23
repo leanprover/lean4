@@ -8,7 +8,7 @@ import Std.Data.DTreeMap.Internal.Model
 import Std.Data.Classes.TransOrd
 import Std.Data.Classes.Cut
 import Std.Data.DTreeMap.Internal.List.Associative
-import Std.Data.DHashMap.Internal.List.Associative
+import Std.Data.Internal.List.Associative
 
 /-!
 # Low-level proofs about size-bounded trees

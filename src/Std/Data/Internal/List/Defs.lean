@@ -22,7 +22,7 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
 open List (Pairwise)
 
-namespace Std.DHashMap.Internal.List
+namespace Std.Internal.List
 
 /-- Internal implementation detail of the hash map -/
 def keys : List ((a : α) × β a) → List α
@@ -39,4 +39,4 @@ def values {β : Type v} : List ((_ : α) × β) → List β
   | [] => []
   | ⟨_, v⟩ :: l => v :: values l
 
-end Std.DHashMap.Internal.List
+end Std.Internal.List

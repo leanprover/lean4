@@ -8,7 +8,7 @@ import Init.Data.BEq
 import Init.Data.Nat.Simproc
 import Init.Data.List.Perm
 import Init.Data.List.Find
-import Std.Data.DHashMap.Internal.List.Defs
+import Std.Data.Internal.List.Defs
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -26,7 +26,7 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w}
 
 open List (Perm Sublist pairwise_cons erase_sublist filter_sublist)
 
-namespace Std.DHashMap.Internal.List
+namespace Std.Internal.List
 
 attribute [-simp] List.isEmpty_eq_false
 
@@ -1304,7 +1304,7 @@ theorem insertEntryIfNew_of_containsKey_eq_false [BEq α] {l : List ((a : α) ×
 theorem DistinctKeys.insertEntryIfNew [BEq α] [PartialEquivBEq α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (h: DistinctKeys l):
     DistinctKeys (insertEntryIfNew k v l) := by
-  simp only [Std.DHashMap.Internal.List.insertEntryIfNew, cond_eq_if]
+  simp only [Std.Internal.List.insertEntryIfNew, cond_eq_if]
   split
   · exact h
   · rw [distinctKeys_cons_iff]
@@ -3677,4 +3677,26 @@ theorem constModifyKey_eq_modifyKey {β : Type v} [BEq α] [LawfulBEq α] {k : �
 
 end Modify
 
-end List
+@[simp]
+theorem getEntry_fst [BEq α] {xs : List ((a : α) × β a)} {k : α} (h : containsKey k xs) :
+    (getEntry k xs h).1 = getKey k xs h := by
+  induction xs using assoc_induction
+  · simp at h
+  · next k' v' l ih =>
+    cases hkk' : k' == k
+    · rw [getEntry_cons_of_false hkk', getKey_cons]
+      simp [hkk', ih]
+    · rw [getEntry_cons_of_beq hkk', getKey_cons]
+      simp [hkk']
+
+theorem getKey_beq [BEq α] {xs : List ((a : α) × β a)} {k : α} (h : containsKey k xs) :
+    getKey k xs h == k := by
+  induction xs using assoc_induction
+  · simp at h
+  · next k' v' l ih =>
+    rw [getKey_cons]
+    split
+    · assumption
+    · apply ih
+
+end Std.Internal.List

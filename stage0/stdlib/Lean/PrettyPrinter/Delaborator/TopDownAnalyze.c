@@ -923,7 +923,7 @@ static lean_object* _init_l_Lean_initFn____x40_Lean_PrettyPrinter_Delaborator_To
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("(pretty printer analyzer) determine annotations sufficient to ensure round-tripping", 83, 83);
+x_1 = lean_mk_string_unchecked("(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping", 90, 90);
 return x_1;
 }
 }

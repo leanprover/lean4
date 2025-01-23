@@ -8900,7 +8900,7 @@ x_71 = l_Lean_instToStringImport___closed__2;
 x_72 = lean_string_append(x_70, x_71);
 x_73 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_74 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__11;
-x_75 = lean_unsigned_to_nat(688u);
+x_75 = lean_unsigned_to_nat(691u);
 x_76 = lean_unsigned_to_nat(11u);
 x_77 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_73, x_74, x_75, x_76, x_72);
 lean_dec(x_72);
@@ -10078,7 +10078,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_setState___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(813u);
+x_3 = lean_unsigned_to_nat(816u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10148,7 +10148,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_modifyState___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(823u);
+x_3 = lean_unsigned_to_nat(826u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -10214,7 +10214,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_2 = l_Lean_EnvExtensionInterfaceUnsafe_getState___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(830u);
+x_3 = lean_unsigned_to_nat(833u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l___private_Lean_Environment_0__Lean_EnvExtensionInterfaceUnsafe_invalidExtMsg;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -13188,7 +13188,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_2 = l_Lean_TagDeclarationExtension_tag___closed__4;
-x_3 = lean_unsigned_to_nat(1111u);
+x_3 = lean_unsigned_to_nat(1114u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_TagDeclarationExtension_tag___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -13615,7 +13615,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Environment_AddConstAsyncResult_commitFailure___closed__10;
 x_2 = l_Lean_MapDeclarationExtension_insert___rarg___closed__3;
-x_3 = lean_unsigned_to_nat(1142u);
+x_3 = lean_unsigned_to_nat(1145u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_MapDeclarationExtension_insert___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

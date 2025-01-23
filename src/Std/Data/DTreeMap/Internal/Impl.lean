@@ -46,8 +46,6 @@ inductive WF [Ord α] : Impl α β → Prop where
   /-- `insert` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | insert {t h k v} : WF t → WF (t.insert k v h).impl
 
-set_option debug.byAsSorry false
-
 /-- A well-formed tree is balanced. This is needed here already because we need to know that the
 tree is balanced to call the optimized modification functions. -/
 theorem WF.balanced [Ord α] {t : Impl α β} : WF t → t.Balanced

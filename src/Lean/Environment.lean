@@ -141,7 +141,10 @@ structure EnvironmentHeader where
   imports      : Array Import := #[]
   /-- Compacted regions for all imported modules. Objects in compacted memory regions do no require any memory management. -/
   regions      : Array CompactedRegion := #[]
-  /-- Name of all imported modules (directly and indirectly). -/
+  /--
+  Name of all imported modules (directly and indirectly).
+  The index of a module name in the array equals the `ModuleIdx` for the same module.
+  -/
   moduleNames  : Array Name   := #[]
   /-- Module data for all imported modules. -/
   moduleData   : Array ModuleData := #[]

@@ -73,5 +73,6 @@ builtin_initialize registerTraceClass `grind.debug.offset.proof
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.matchCond
+builtin_initialize registerTraceClass `grind.debug.matchCond.lambda
 
 end Lean

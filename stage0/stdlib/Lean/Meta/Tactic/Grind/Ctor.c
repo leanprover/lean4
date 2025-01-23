@@ -23,7 +23,7 @@ lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, l
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateCtor(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isApp(lean_object*);
-lean_object* l_Lean_Meta_Grind_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Grind_Ctor_0__Lean_Meta_Grind_propagateInjEqs___closed__3;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateCtor___lambda__3___closed__2;
@@ -213,7 +213,7 @@ x_15 = l___private_Lean_Meta_Tactic_Grind_Ctor_0__Lean_Meta_Grind_propagateInjEq
 x_16 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_16, 0, x_14);
 lean_ctor_set(x_16, 1, x_15);
-x_17 = l_Lean_Meta_Grind_reportIssue(x_16, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_17 = l_Lean_Meta_Grind_reportIssue(x_16, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 x_18 = !lean_is_exclusive(x_17);
 if (x_18 == 0)
 {

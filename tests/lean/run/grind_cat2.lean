@@ -261,97 +261,12 @@ In this example, we restrict the number of heartbeats used by the canonicalizer.
 The idea is to test the issue tracker.
 -/
 
-/--
-error: `grind` failed
-case grind
-C✝¹ : Type u₁
-inst✝⁸ : Category C✝¹
-D✝ : Type u₂
-inst✝⁷ : Category D✝
-E✝ : Type u₃
-inst✝⁶ : Category E✝
-F✝ G✝ H : C✝¹ ⥤ D✝
-C✝ : Type u
-inst✝⁵ : Category C✝
-X✝ Y✝ Z✝ : C✝
-C : Type u₁
-inst✝⁴ : Category C
-D : Type u₂
-inst✝³ : Category D
-E : Type u₃
-inst✝² : Category E
-F : C → D
-inst✝¹ : Functorial F
-G : D → E
-inst✝ : Functorial G
-__src✝ : C ⥤ E := of F ⋙ of G
-X Y Z : C
-f : X ⟶ Y
-g : Y ⟶ Z
-x✝ : ¬map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
-⊢ False
-[grind] Diagnostics
-  [facts] Asserted facts
-    [prop] __src✝ = of F ⋙ of G
-    [prop] ¬map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
-    [prop] map F (f ≫ g) = map F f ≫ map F g
-    [prop] map G (map F f ≫ map F g) = map G (map F f) ≫ map G (map F g)
-  [eqc] False propositions
-    [prop] map G (map F (f ≫ g)) = map G (map F f) ≫ map G (map F g)
-  [eqc] Equivalence classes
-    [eqc] {map G (map F f ≫ map F g), map G (map F (f ≫ g)), map G (map F f) ≫ map G (map F g)}
-    [eqc] {map F (f ≫ g), map F f ≫ map F g}
-    [eqc] {__src✝, of F ⋙ of G}
-  [ematch] E-matching
-    [thm] Functorial.map_comp:
-        ∀ {C : Type u₁} [inst : Category C] {D : Type u₂} [inst_1 : Category D] {F : C → D} [inst_2 : Functorial F]
-          {X Y Z : C} {f : X ⟶ Y} {g : Y ⟶ Z}, map F (f ≫ g) = map F f ≫ map F g
-        patterns: [@map #10 #9 #8 #7 #6 #5 #4 #2 (@Category.comp ? ? #4 #3 #2 #1 #0)]
-    [thm] assoc:
-        ∀ {obj : Type u} [self : Category obj] {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z),
-          (f ≫ g) ≫ h = f ≫ g ≫ h
-        patterns: [@Category.comp #8 #7 #6 #5 #3 #2 (@Category.comp ? ? #5 #4 #3 #1 #0)]
-    [thm] assoc:
-        ∀ {obj : Type u} [self : Category obj] {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z),
-          (f ≫ g) ≫ h = f ≫ g ≫ h
-        patterns: [@Category.comp #8 #7 #6 #4 #3 (@Category.comp ? ? #6 #5 #4 #2 #1) #0]
-  [issues] Issues
-    [issue] failed to show that
-          F Y
-        is definitionally equal to
-          F Z
-        while canonicalizing
-          map G (map F f)
-        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
-    [issue] failed to show that
-          G (F X)
-        is definitionally equal to
-          (G ∘ F) X
-        while canonicalizing
-          map G (map F f) ≫ map G (map F g)
-        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
-    [issue] failed to show that
-          G (F Y)
-        is definitionally equal to
-          (G ∘ F) Y
-        while canonicalizing
-          map G (map F f) ≫ map G (map F g)
-        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
-    [issue] failed to show that
-          G (F Z)
-        is definitionally equal to
-          (G ∘ F) Z
-        while canonicalizing
-          map G (map F f) ≫ map G (map F g)
-        using `100*1000` heartbeats, `(canonHeartbeats := 100)`
--/
-#guard_msgs (error) in
 def functorial_comp' (F : C → D) [Functorial.{v₁, v₂} F] (G : D → E) [Functorial.{v₂, v₃} G] :
     Functorial.{v₁, v₃} (G ∘ F) :=
   { Functor.of F ⋙ Functor.of G with
     map' := fun f => map G (map F f)
     map_id' := sorry
-    map_comp' := by grind (canonHeartbeats := 100)
+    map_comp' := by grind (canonHeartbeats := 1)
   }
 
 end Ex2

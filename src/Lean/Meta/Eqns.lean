@@ -168,6 +168,12 @@ def isEqnThm? (thmName : Name) : CoreM (Option Name) := do
   return eqnsExt.getState (← getEnv) |>.mapInv.find? thmName
 
 /--
+Returns `true` if `thmName` is an equational theorem.
+-/
+def isEqnThm (thmName : Name) : CoreM Bool := do
+  return eqnsExt.getState (← getEnv) |>.mapInv.contains thmName
+
+/--
 Stores in the `eqnsExt` environment extension that `eqThms` are the equational theorems for `declName`
 -/
 private def registerEqnThms (declName : Name) (eqThms : Array Name) : CoreM Unit := do

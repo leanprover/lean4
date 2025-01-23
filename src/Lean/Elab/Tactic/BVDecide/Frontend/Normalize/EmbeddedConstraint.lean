@@ -27,7 +27,7 @@ def embeddedConstraintPass : Pass where
   name := `embeddedConstraintSubsitution
   run' goal := do
     goal.withContext do
-      let hyps ← goal.getNondepPropHyps
+      let hyps ← getPropHyps
       let mut relevantHyps : SimpTheoremsArray := #[]
       let mut seen : Std.HashSet Expr := {}
       let mut duplicates : Array FVarId := #[]
@@ -49,11 +49,12 @@ def embeddedConstraintPass : Pass where
         return goal
 
       let cfg ← PreProcessM.getConfig
+      let targets ← goal.withContext getPropHyps
       let simpCtx ← Simp.mkContext
         (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
         (simpTheorems := relevantHyps)
         (congrTheorems := (← getSimpCongrTheorems))
-      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← goal.getNondepPropHyps)
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := targets)
       let some (_, newGoal) := result? | return none
       return newGoal
 

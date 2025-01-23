@@ -86,6 +86,11 @@ structure State where
   and implement the macro `trace_goal`.
   -/
   lastTag    : Name := .anonymous
+  /--
+  Issues found during the proof search. These issues are reported to
+  users when `grind` fails.
+  -/
+  issues     : List MessageData := []
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -133,9 +138,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
+  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
+    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues })
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -159,6 +164,15 @@ def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   let result ← Meta.mkHCongrWithArity f numArgs
   modify fun s => { s with congrThms := s.congrThms.insert key result }
   return result
+
+def reportIssue (msg : MessageData) : GrindM Unit := do
+  let msg ← addMessageContext msg
+  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
+  /-
+  We also add a trace message because we may want to know when
+  an issue happened relative to other trace messages.
+  -/
+  trace[grind.issues] msg
 
 /--
 Stores information for a node in the egraph.
@@ -394,11 +408,6 @@ structure Goal where
   nextThmIdx : Nat := 0
   /-- Asserted facts -/
   facts      : PArray Expr := {}
-  /--
-  Issues found during the proof search in this goal. This issues are reported to
-  users when `grind` fails.
-  -/
-  issues     : List MessageData := []
   /-- Cached extensionality theorems for types. -/
   extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
   deriving Inhabited
@@ -420,20 +429,6 @@ def updateLastTag : GoalM Unit := do
     if currTag != (← getThe Grind.State).lastTag then
       trace[grind] "working on goal `{currTag}`"
       modifyThe Grind.State fun s => { s with lastTag := currTag }
-
-def Goal.reportIssue (goal : Goal) (msg : MessageData) : MetaM Goal := do
-  let msg ← addMessageContext msg
-  let goal := { goal with issues := .trace { cls := `issue } msg #[] :: goal.issues }
-  /-
-  We also add a trace message because we may want to know when
-  an issue happened relative to other trace messages.
-  -/
-  trace[grind.issues] msg
-  return goal
-
-def reportIssue (msg : MessageData) : GoalM Unit := do
-  let goal ← (← get).reportIssue msg
-  set goal
 
 /--
 Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`

@@ -42511,7 +42511,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Termination_terminationBy_d
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Specify a termination argument for recursive functions.\n```\ntermination_by a - b\n```\nindicates that termination of the currently defined recursive function follows\nbecause the difference between the arguments `a` and `b` decreases.\n\nIf the function takes further argument after the colon, you can name them as follows:\n```\ndef example (a : Nat) : Nat → Nat → Nat :=\ntermination_by b c => a - b\n```\n\nBy default, a `termination_by` clause will cause the function to be constructed using well-founded\nrecursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)\nindicates the function is expected to be structural recursive on the argument. In this case\nthe body of the `termination_by` clause must be one of the function's parameters.\n\nIf omitted, a termination argument will be inferred. If written as `termination_by\?`,\nthe inferrred termination argument will be suggested.\n\n", 912, 908);
+x_1 = lean_mk_string_unchecked("Specify a termination measure for recursive functions.\n```\ntermination_by a - b\n```\nindicates that termination of the currently defined recursive function follows\nbecause the difference between the arguments `a` and `b` decreases.\n\nIf the function takes further argument after the colon, you can name them as follows:\n```\ndef example (a : Nat) : Nat → Nat → Nat :=\ntermination_by b c => a - b\n```\n\nBy default, a `termination_by` clause will cause the function to be constructed using well-founded\nrecursion. The syntax `termination_by structural a` (or `termination_by structural _ c => c`)\nindicates the function is expected to be structural recursive on the argument. In this case\nthe body of the `termination_by` clause must be one of the function's parameters.\n\nIf omitted, a termination measure will be inferred. If written as `termination_by\?`,\nthe inferrred termination measure will be suggested.\n\n", 909, 905);
 return x_1;
 }
 }
@@ -43053,7 +43053,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Termination_decreasingBy_do
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Manually prove that the termination argument (as specified with `termination_by` or inferred)\ndecreases at each recursive call.\n\nBy default, the tactic `decreasing_tactic` is used.\n\nForces the use of well-founded recursion and is hence incompatible with\n`termination_by structural`.\n", 283, 283);
+x_1 = lean_mk_string_unchecked("Manually prove that the termination measure (as specified with `termination_by` or inferred)\ndecreases at each recursive call.\n\nBy default, the tactic `decreasing_tactic` is used.\n\nForces the use of well-founded recursion and is hence incompatible with\n`termination_by structural`.\n", 282, 282);
 return x_1;
 }
 }

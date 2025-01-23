@@ -433,8 +433,6 @@ where
         }
       -- now that imports have been loaded, check options again
       let opts ← reparseOptions setup.opts
-      -- default to async elaboration; see also `Elab.async` docs
-      let opts := Elab.async.setIfNotSet opts true
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {

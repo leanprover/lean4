@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
-import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
@@ -56,7 +56,7 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 
 /--
 Assemble the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
-various sanity checks on the argument (is it even an inductive type etc).
+various sanity checks on the parameter (is it even of inductive type etc).
 -/
 def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
   if h : i < xs.size then
@@ -112,17 +112,17 @@ considered.
 
 The `xs` are the fixed parameters, `value` the body with the fixed prefix instantiated.
 
-Takes the optional user annotations into account (`termArg?`). If this is given and the argument
+Takes the optional user annotation into account (`termMeasure?`). If this is given and the measure
 is unsuitable, throw an error.
 -/
 def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
-    (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo × MessageData) := do
+    (termMeasure? : Option TerminationMeasure) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
-    if let .some termArg := termArg? then
-      -- User explicitly asked to use a certain argument, so throw errors eagerly
-      let recArgInfo ← withRef termArg.ref do
-        mapError (f := (m!"cannot use specified parameter for structural recursion:{indentD ·}")) do
-          getRecArgInfo fnName xs.size (xs ++ ys) (← termArg.structuralArg)
+    if let .some termMeasure := termMeasure? then
+      -- User explicitly asked to use a certain measure, so throw errors eagerly
+      let recArgInfo ← withRef termMeasure.ref do
+        mapError (f := (m!"cannot use specified measure for structural recursion:{indentD ·}")) do
+          getRecArgInfo fnName xs.size (xs ++ ys) (← termMeasure.structuralArg)
       return (#[recArgInfo], m!"")
     else
       let mut recArgInfos := #[]
@@ -233,12 +233,12 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
 
 
 def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
-   (termArg?s : Array (Option TerminationArgument)) (k : Array RecArgInfo → M α) : M α := do
+   (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
   let mut report := m!""
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
-  for fnName in fnNames, value in values, termArg? in termArg?s do
-    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termArg?
+  for fnName in fnNames, value in values, termMeasure? in termMeasure?s do
+    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termMeasure?
     report := report ++ thisReport
     recArgInfoss := recArgInfoss.push recArgInfos
   -- Put non-indices first

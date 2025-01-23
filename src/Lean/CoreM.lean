@@ -36,7 +36,7 @@ register_builtin_option Elab.async : Bool := {
   descr := "perform elaboration using multiple threads where possible\
     \n\
     \nThis option defaults to `false` but (when not explicitly set) is overridden to `true` in \
-      `Lean.Language.Lean.process` as used by the cmdline driver and language server. \
+      the language server. \
       Metaprogramming users driving elaboration directly via e.g. \
       `Lean.Elab.Command.elabCommandTopLevel` can opt into asynchronous elaboration by setting \
       this option but then are responsible for processing messages and other data not only in the \

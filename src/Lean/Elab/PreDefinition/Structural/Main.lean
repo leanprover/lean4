@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
-import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.PreDefinition.Structural.Preprocess
@@ -127,7 +127,7 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr
   let valuesNew ← valuesNew.mapM (mkLambdaFVars xs ·)
   return (Array.zip preDefs valuesNew).map fun ⟨preDef, valueNew⟩ => { preDef with value := valueNew }
 
-private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) :
+private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) :
     M (Array Nat × (Array PreDefinition) × Nat) := do
   withoutModifyingEnv do
     preDefs.forM (addAsAxiom ·)
@@ -142,7 +142,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
       assert! xs.size = maxNumFixed
       let values ← preDefs.mapM (instantiateLambda ·.value xs)
 
-      tryAllArgs fnNames xs values termArg?s fun recArgInfos => do
+      tryAllArgs fnNames xs values termMeasure?s fun recArgInfos => do
         let recArgPoss := recArgInfos.map (·.recArgPos)
         trace[Elab.definition.structural] "Trying argument set {recArgPoss}"
         let numFixed := recArgInfos.foldl (·.min ·.numFixed) maxNumFixed
@@ -156,20 +156,20 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termArg?s : Array (O
           let preDefs' ← elimMutualRecursion preDefs xs recArgInfos
           return (recArgPoss, preDefs', numFixed)
 
-def reportTermArg (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
+def reporttermMeasure (preDef : PreDefinition) (recArgPos : Nat) : MetaM Unit := do
   if let some ref := preDef.termination.terminationBy?? then
     let fn ← lambdaTelescope preDef.value fun xs _ => mkLambdaFVars xs xs[recArgPos]!
-    let termArg : TerminationArgument:= {ref := .missing, structural := true, fn}
+    let termMeasure : TerminationMeasure:= {ref := .missing, structural := true, fn}
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
-    let stx ← termArg.delab arity (extraParams := preDef.termination.extraParams)
+    let stx ← termMeasure.delab arity (extraParams := preDef.termination.extraParams)
     Tactic.TryThis.addSuggestion ref stx
 
 
-def structuralRecursion (preDefs : Array PreDefinition) (termArg?s : Array (Option TerminationArgument)) : TermElabM Unit := do
+def structuralRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let names := preDefs.map (·.declName)
-  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termArg?s
+  let ((recArgPoss, preDefsNonRec, numFixed), state) ← run <| inferRecArgPos preDefs termMeasure?s
   for recArgPos in recArgPoss, preDef in preDefs do
-    reportTermArg preDef recArgPos
+    reporttermMeasure preDef recArgPos
   state.addMatchers.forM liftM
   preDefsNonRec.forM fun preDefNonRec => do
     let preDefNonRec ← eraseRecAppSyntax preDefNonRec

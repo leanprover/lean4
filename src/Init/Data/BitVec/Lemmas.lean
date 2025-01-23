@@ -1941,6 +1941,15 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]
 
+theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
+    x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
+  ext i hi
+  simp only [getLsbD_ushiftRight, getLsbD_cast, getLsbD_append, getLsbD_extractLsb', getLsbD_zero,
+    Bool.if_false_right, Bool.and_self_left, Bool.iff_and_self, decide_eq_true_eq]
+  intros h
+  have := lt_of_getLsbD h
+  omega
+
 /-! ### rev -/
 
 theorem getLsbD_rev (x : BitVec w) (i : Fin w) :
@@ -3328,6 +3337,11 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
 
+theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
+    (twoPow w i) * x = x <<< i := by
+  rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
+
+
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
   simp
@@ -3336,6 +3350,12 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
+
+/-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_mul, toNat_twoPow]
+  rw [← Nat.mul_mod, Nat.pow_add]
 
 /--
 The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,

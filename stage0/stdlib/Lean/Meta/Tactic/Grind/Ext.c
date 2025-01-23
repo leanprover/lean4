@@ -19,7 +19,7 @@ static lean_object* l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed
 LEAN_EXPORT lean_object* l_Lean_Meta_withNewMCtxDepth___at_Lean_Meta_Grind_instantiateExtTheorem___spec__5(lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_lor(uint64_t, uint64_t);
-lean_object* l_Lean_Meta_Grind_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_Grind_reportIssue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Grind_instantiateExtTheorem___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem___spec__1___boxed(lean_object**);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -311,7 +311,7 @@ x_68 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem__
 x_69 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_69, 0, x_67);
 lean_ctor_set(x_69, 1, x_68);
-x_70 = l_Lean_Meta_Grind_reportIssue(x_69, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_61);
+x_70 = l_Lean_Meta_Grind_reportIssue(x_69, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_61);
 x_71 = lean_ctor_get(x_70, 1);
 lean_inc(x_71);
 lean_dec(x_70);
@@ -502,7 +502,7 @@ x_104 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem_
 x_105 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_105, 0, x_103);
 lean_ctor_set(x_105, 1, x_104);
-x_106 = l_Lean_Meta_Grind_reportIssue(x_105, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_96);
+x_106 = l_Lean_Meta_Grind_reportIssue(x_105, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_96);
 x_107 = lean_ctor_get(x_106, 1);
 lean_inc(x_107);
 lean_dec(x_106);
@@ -722,7 +722,7 @@ x_148 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem_
 x_149 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_149, 0, x_147);
 lean_ctor_set(x_149, 1, x_148);
-x_150 = l_Lean_Meta_Grind_reportIssue(x_149, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_140);
+x_150 = l_Lean_Meta_Grind_reportIssue(x_149, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_140);
 x_151 = lean_ctor_get(x_150, 1);
 lean_inc(x_151);
 lean_dec(x_150);
@@ -993,7 +993,7 @@ x_201 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem_
 x_202 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_202, 0, x_200);
 lean_ctor_set(x_202, 1, x_201);
-x_203 = l_Lean_Meta_Grind_reportIssue(x_202, x_10, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_193);
+x_203 = l_Lean_Meta_Grind_reportIssue(x_202, x_11, x_12, x_13, x_14, x_15, x_16, x_17, x_193);
 x_204 = lean_ctor_get(x_203, 1);
 lean_inc(x_204);
 lean_dec(x_203);
@@ -1652,6 +1652,7 @@ else
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; uint8_t x_58; 
 lean_dec(x_43);
 lean_dec(x_40);
+lean_dec(x_7);
 x_49 = l_Lean_MessageData_ofName(x_4);
 x_50 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__3;
 lean_ctor_set_tag(x_38, 7);
@@ -1674,7 +1675,7 @@ x_55 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__5;
 x_56 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_56, 0, x_54);
 lean_ctor_set(x_56, 1, x_55);
-x_57 = l_Lean_Meta_Grind_reportIssue(x_56, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_44);
+x_57 = l_Lean_Meta_Grind_reportIssue(x_56, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_44);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1682,7 +1683,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 x_58 = !lean_is_exclusive(x_57);
 if (x_58 == 0)
 {
@@ -1712,6 +1712,7 @@ else
 lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; uint8_t x_73; 
 lean_dec(x_43);
 lean_dec(x_40);
+lean_dec(x_7);
 x_64 = l_Lean_MessageData_ofName(x_4);
 x_65 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__3;
 lean_ctor_set_tag(x_38, 7);
@@ -1734,7 +1735,7 @@ x_70 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__5;
 x_71 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_71, 0, x_69);
 lean_ctor_set(x_71, 1, x_70);
-x_72 = l_Lean_Meta_Grind_reportIssue(x_71, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_44);
+x_72 = l_Lean_Meta_Grind_reportIssue(x_71, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_44);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1742,7 +1743,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 x_73 = !lean_is_exclusive(x_72);
 if (x_73 == 0)
 {
@@ -1853,6 +1853,7 @@ else
 lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
 lean_dec(x_86);
 lean_dec(x_83);
+lean_dec(x_7);
 x_92 = l_Lean_MessageData_ofName(x_4);
 x_93 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__3;
 x_94 = lean_alloc_ctor(7, 2, 0);
@@ -1875,7 +1876,7 @@ x_99 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__5;
 x_100 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_100, 0, x_98);
 lean_ctor_set(x_100, 1, x_99);
-x_101 = l_Lean_Meta_Grind_reportIssue(x_100, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_87);
+x_101 = l_Lean_Meta_Grind_reportIssue(x_100, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_87);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1883,7 +1884,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 x_102 = lean_ctor_get(x_101, 1);
 lean_inc(x_102);
 if (lean_is_exclusive(x_101)) {
@@ -1910,6 +1910,7 @@ else
 lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; lean_object* x_117; lean_object* x_118; lean_object* x_119; 
 lean_dec(x_86);
 lean_dec(x_83);
+lean_dec(x_7);
 x_106 = l_Lean_MessageData_ofName(x_4);
 x_107 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__3;
 x_108 = lean_alloc_ctor(7, 2, 0);
@@ -1932,7 +1933,7 @@ x_113 = l_Lean_Meta_Grind_instantiateExtTheorem___lambda__2___closed__5;
 x_114 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_114, 0, x_112);
 lean_ctor_set(x_114, 1, x_113);
-x_115 = l_Lean_Meta_Grind_reportIssue(x_114, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_87);
+x_115 = l_Lean_Meta_Grind_reportIssue(x_114, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_87);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
@@ -1940,7 +1941,6 @@ lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
 lean_dec(x_8);
-lean_dec(x_7);
 x_116 = lean_ctor_get(x_115, 1);
 lean_inc(x_116);
 if (lean_is_exclusive(x_115)) {
@@ -2369,6 +2369,7 @@ lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean
 lean_dec(x_50);
 lean_dec(x_47);
 lean_dec(x_15);
+lean_dec(x_4);
 x_55 = lean_ctor_get(x_52, 1);
 lean_inc(x_55);
 lean_dec(x_52);
@@ -2397,7 +2398,7 @@ x_65 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem__
 x_66 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_66, 0, x_64);
 lean_ctor_set(x_66, 1, x_65);
-x_67 = l_Lean_Meta_Grind_reportIssue(x_66, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_55);
+x_67 = l_Lean_Meta_Grind_reportIssue(x_66, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_55);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -2405,7 +2406,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_68 = !lean_is_exclusive(x_67);
 if (x_68 == 0)
 {
@@ -2511,6 +2511,7 @@ lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean
 lean_dec(x_81);
 lean_dec(x_47);
 lean_dec(x_15);
+lean_dec(x_4);
 x_86 = lean_ctor_get(x_83, 1);
 lean_inc(x_86);
 lean_dec(x_83);
@@ -2539,7 +2540,7 @@ x_97 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem__
 x_98 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_98, 0, x_96);
 lean_ctor_set(x_98, 1, x_97);
-x_99 = l_Lean_Meta_Grind_reportIssue(x_98, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_86);
+x_99 = l_Lean_Meta_Grind_reportIssue(x_98, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_86);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -2547,7 +2548,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_100 = lean_ctor_get(x_99, 1);
 lean_inc(x_100);
 if (lean_is_exclusive(x_99)) {
@@ -2661,6 +2661,7 @@ lean_object* x_118; lean_object* x_119; lean_object* x_120; lean_object* x_121; 
 lean_dec(x_112);
 lean_dec(x_111);
 lean_dec(x_15);
+lean_dec(x_4);
 x_118 = lean_ctor_get(x_115, 1);
 lean_inc(x_118);
 lean_dec(x_115);
@@ -2694,7 +2695,7 @@ x_130 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem_
 x_131 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_131, 0, x_129);
 lean_ctor_set(x_131, 1, x_130);
-x_132 = l_Lean_Meta_Grind_reportIssue(x_131, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_118);
+x_132 = l_Lean_Meta_Grind_reportIssue(x_131, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_118);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -2702,7 +2703,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_133 = lean_ctor_get(x_132, 1);
 lean_inc(x_133);
 if (lean_is_exclusive(x_132)) {
@@ -2928,6 +2928,7 @@ lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; 
 lean_dec(x_182);
 lean_dec(x_180);
 lean_dec(x_15);
+lean_dec(x_4);
 x_188 = lean_ctor_get(x_185, 1);
 lean_inc(x_188);
 lean_dec(x_185);
@@ -2966,7 +2967,7 @@ x_200 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_instantiateExtTheorem_
 x_201 = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(x_201, 0, x_199);
 lean_ctor_set(x_201, 1, x_200);
-x_202 = l_Lean_Meta_Grind_reportIssue(x_201, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_188);
+x_202 = l_Lean_Meta_Grind_reportIssue(x_201, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_188);
 lean_dec(x_11);
 lean_dec(x_10);
 lean_dec(x_9);
@@ -2974,7 +2975,6 @@ lean_dec(x_8);
 lean_dec(x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_203 = lean_ctor_get(x_202, 1);
 lean_inc(x_203);
 if (lean_is_exclusive(x_202)) {

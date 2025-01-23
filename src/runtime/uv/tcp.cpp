@@ -340,7 +340,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
             return;
         }
 
-        // Accepts
         lean_object * client = unpack_io(lean_uv_tcp_new());
         lean_uv_tcp_socket_object * client_socket = lean_to_uv_tcp_socket(client);
 
@@ -355,7 +354,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
         tcp_socket->m_promise_accept = NULL;
 
         resolve_promise(promise, mk_ok_except(client));
-
     });
 
     if (result < 0) {
@@ -388,6 +386,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     if (result < 0 && result != UV_EAGAIN) {
         lean_dec(client);
         resolve_promise_with_status(promise, result);
+    } else if (result >= 0) {
+        resolve_promise(promise, mk_ok_except(client));
+        tcp_socket->m_promise_accept = NULL;
+    } else {
+        lean_dec(client);
     }
 
     return lean_io_result_mk_ok(promise);
@@ -405,7 +408,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
         return io_result_mk_error(uv_strerror(result));
     }
 
-    // Convert sockaddr to Lean-compatible socket address
     lean_object *lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
 
     return lean_io_result_mk_ok(lean_addr);
@@ -455,7 +457,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
 #else
 
+// =======================================
 // TCP Socket Operations
+
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
@@ -498,7 +502,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     );
 }
 
+// =======================================
 // TCP Socket Utility Functions
+
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

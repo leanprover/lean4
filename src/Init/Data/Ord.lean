@@ -86,6 +86,64 @@ def isGE : Ordering → Bool
   | lt => false
   | _ => true
 
+section SimpsLemmas
+
+@[simp]
+theorem lt_isLT : lt.isLT := rfl
+
+@[simp]
+theorem lt_isLE : lt.isLE := rfl
+
+@[simp]
+theorem lt_isEq : lt.isEq = false := rfl
+
+@[simp]
+theorem lt_isGE : lt.isGE = false := rfl
+
+@[simp]
+theorem lt_isGT : lt.isGT = false := rfl
+
+@[simp]
+theorem eq_isLT : eq.isLT = false := rfl
+
+@[simp]
+theorem eq_isLE : eq.isLE := rfl
+
+@[simp]
+theorem eq_isEq : eq.isEq := rfl
+
+@[simp]
+theorem eq_isGE : eq.isGE := rfl
+
+@[simp]
+theorem eq_isGT : eq.isGT = false := rfl
+
+@[simp]
+theorem gt_isLT : gt.isLT = false := rfl
+
+@[simp]
+theorem gt_isLE : gt.isLE = false := rfl
+
+@[simp]
+theorem gt_isEq : gt.isEq = false := rfl
+
+@[simp]
+theorem gt_isGE : gt.isGE := rfl
+
+@[simp]
+theorem gt_isGT : gt.isGT := rfl
+
+@[simp]
+theorem lt_swap : lt.swap = .gt := rfl
+
+@[simp]
+theorem eq_swap : eq.swap = .eq := rfl
+
+@[simp]
+theorem gt_swap : gt.swap = .lt := rfl
+
+end SimpsLemmas
+
 end Ordering
 
 /--

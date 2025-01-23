@@ -165,6 +165,16 @@ theorem TransCmp.lt_of_isLE_of_lt [TransCmp cmp] {a b c : α} (hab : (cmp a b).i
   · exact TransCmp.lt_trans hab hbc
   · exact TransCmp.lt_of_eq_of_lt hab hbc
 
+theorem TransCmp.le_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
+    cmp a b = .eq := by
+  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
+  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
+
+theorem TransCmp.ge_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isGE) (h₂ : cmp b a |>.isGE) :
+    cmp a b = .eq := by
+  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
+  cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
+
 theorem TransCmp.eq_trans [TransCmp cmp] {a b c : α} (hab : cmp a b = .eq)
     (hbc : cmp b c = .eq) : cmp a c = .eq := by
   apply Ordering.eq_eq_of_isLE_of_isLE_swap
@@ -186,66 +196,5 @@ theorem TransCmp.congr_right [TransCmp cmp] {a b c : α} (hbc : cmp b c = .eq) :
   | lt => exact TransCmp.lt_of_lt_of_eq hab hbc |>.symm
   | eq => exact TransCmp.eq_trans hab hbc |>.symm
   | gt => exact OrientedCmp.gt_of_lt (TransCmp.lt_of_eq_of_lt (OrientedCmp.eq_symm hbc) (OrientedCmp.lt_of_gt hab)) |>.symm
-
-@[simp]
-theorem lt_isLT : Ordering.lt.isLT := rfl
-
-@[simp]
-theorem lt_isLE : Ordering.lt.isLE := rfl
-
-@[simp]
-theorem lt_isEq : Ordering.lt.isEq = false := rfl
-
-@[simp]
-theorem lt_isGE : Ordering.lt.isGE = false := rfl
-
-@[simp]
-theorem lt_isGT : Ordering.lt.isGT = false := rfl
-
-@[simp]
-theorem eq_isLT : Ordering.eq.isLT = false := rfl
-
-@[simp]
-theorem eq_isLE : Ordering.eq.isLE := rfl
-
-@[simp]
-theorem eq_isEq : Ordering.eq.isEq := rfl
-
-@[simp]
-theorem eq_isGE : Ordering.eq.isGE := rfl
-
-@[simp]
-theorem eq_isGT : Ordering.eq.isGT = false := rfl
-
-@[simp]
-theorem gt_isLT : Ordering.gt.isLT = false := rfl
-
-@[simp]
-theorem gt_isLE : Ordering.gt.isLE = false := rfl
-
-@[simp]
-theorem gt_isEq : Ordering.gt.isEq = false := rfl
-
-@[simp]
-theorem gt_isGE : Ordering.gt.isGE := rfl
-
-@[simp]
-theorem gt_isGT : Ordering.gt.isGT := rfl
-
-@[simp]
-theorem lt_swap : Ordering.lt.swap = .gt := rfl
-
-@[simp]
-theorem eq_swap : Ordering.eq.swap = .eq := rfl
-
-@[simp]
-theorem gt_swap : Ordering.gt.swap = .lt := rfl
-
-theorem TransCmp.eq_of_lt_of_lt [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
-    cmp a b = .eq := by
-  rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
-  cases h : cmp a b <;> rw [h] at h₁ h₂
-  · simp at h₂
-  · simp at h₁
 
 end

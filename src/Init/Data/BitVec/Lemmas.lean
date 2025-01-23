@@ -781,6 +781,20 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb' start len x).getLsbD i = (i < len && x.getLsbD (start+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
+@[simp] theorem getMsbD_extractLsb' (start len : Nat) (x : BitVec w) (i : Nat) :
+    (extractLsb' start len x).getMsbD i =
+    (decide (i < len) &&
+    (decide (len - 1 - i < len) &&
+    (decide (start + (len - 1 - i) < w) && x.getMsbD (w - 1 - (start + (len - 1 - i)))))) := by
+  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
+
+@[simp] theorem msb_extractLsb' (start len : Nat) (x : BitVec w) :
+    (extractLsb' start len x).msb =
+    (decide (0 < len) &&
+    (decide (len - 1 - 0 < len) &&
+    (decide (start + (len - 1 - 0) < w) && x.getMsbD (w - 1 - (start + (len - 1 - 0))))))  := by
+  rw [BitVec.msb, BitVec.getMsbD_extractLsb']
+
 @[simp] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by
   simp [getElem_eq_testBit_toNat, getLsbD, h]
@@ -788,6 +802,18 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem getLsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
   simp [getLsbD, Nat.lt_succ]
+
+@[simp] theorem getMsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
+    (extractLsb hi lo x).getMsbD i = (decide (i < hi - lo + 1) &&
+    (decide (hi - lo - i ≤ hi - lo) &&
+    (decide (lo + (hi - lo - i) < n) && x.getMsbD (n - 1 - (lo + (hi - lo - i)))))) := by
+  rw [getMsbD_eq_getLsbD, getLsbD_extract, getLsbD_eq_getMsbD, Nat.add_sub_cancel]
+
+@[simp] theorem msb_extract (hi lo : Nat) (x : BitVec n) :
+    (extractLsb hi lo x).msb = (decide (0 < hi - lo + 1) &&
+    (decide (hi - lo ≤ hi - lo) &&
+    (decide (lo + (hi - lo) < n) && x.getMsbD (n - 1 - (lo + (hi - lo)))))) := by
+  rw [BitVec.msb, BitVec.getMsbD_extract, Nat.sub_zero]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
@@ -3352,7 +3378,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

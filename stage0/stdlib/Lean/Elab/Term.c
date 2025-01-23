@@ -2307,12 +2307,13 @@ lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4;
 x_1 = lean_box(0);
 x_2 = lean_box(0);
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = lean_alloc_ctor(0, 5, 0);
+x_4 = lean_alloc_ctor(0, 6, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_1);
 lean_ctor_set(x_4, 2, x_1);
 lean_ctor_set(x_4, 3, x_1);
-lean_ctor_set(x_4, 4, x_3);
+lean_ctor_set(x_4, 4, x_1);
+lean_ctor_set(x_4, 5, x_3);
 return x_4;
 }
 }

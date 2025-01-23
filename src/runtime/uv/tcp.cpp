@@ -14,6 +14,19 @@ namespace lean {
 #define UV_OK 1
 #define UV_ERROR 0
 
+// Stores all the things needed to connect to a TCP socket.
+typedef struct {
+    lean_object *promise;
+    lean_object *socket;
+} tcp_connect_data;
+
+// Stores all the things needed to send data to a TCP socket.
+typedef struct {
+    lean_object *promise;
+    lean_object *data;
+    lean_object *socket;
+} tcp_send_data;
+
 // =======================================
 // Utility functions
 
@@ -156,12 +169,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     uv_connect_t * uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
 
-    lean_object** tup = (lean_object**) malloc(sizeof(lean_object*) * 2);
-
-    tup[0] = promise;
-    tup[1] = socket;
-
-    uv_connect->data = tup;
+    uv_connect->data = new tcp_connect_data { promise, socket };
 
     event_loop_lock(&global_ev);
 
@@ -169,14 +177,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     lean_inc(socket);
 
     int result = uv_tcp_connect(uv_connect, tcp_socket->m_uv_tcp, (const struct sockaddr *)&addr_ptr, [](uv_connect_t* req, int status) {
-        lean_object** tup = (lean_object**) req->data;
-        lean_object * promise = tup[0];
-        lean_object * socket = tup[1];
+        tcp_connect_data* tup = (tcp_connect_data*) req->data;
+        resolve_promise_with_status(tup->promise, status);
 
-        resolve_promise_with_status(promise, status);
-
-        // The event loop does not owns the object anymore.
-        lean_dec(socket);
+        // The event loop does not own the object anymore.
+        lean_dec(tup->socket);
 
         free(req->data);
         free(req);
@@ -184,6 +189,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
 
     if (result < 0) {
         free(uv_connect);
+        free(uv_connect->data);
         std::string err = std::string("failed to connect tcp_socket: ") + uv_strerror(result);
         return io_result_mk_error(err.c_str());
     }
@@ -206,12 +212,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
 
     uv_write_t * write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
 
-    lean_object** tup = (lean_object**) malloc(sizeof(lean_object*) * 3);
-    tup[0] = promise;
-    tup[1] = data;
-    tup[2] = socket;
-
-    write_uv->data = tup;
+    write_uv->data = new tcp_send_data { promise, data, socket };
 
     event_loop_lock(&global_ev);
 
@@ -219,16 +220,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
     lean_inc(socket);
 
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1, [](uv_write_t * req, int status) {
-        lean_object** tup = (lean_object**) req->data;
-        lean_object * promise = tup[0];
-        lean_object * data = tup[1];
-        lean_object * socket = tup[2];
+        tcp_send_data * tup = (tcp_send_data*) req->data;
 
-        resolve_promise_with_status(promise, status);
+        resolve_promise_with_status(tup->promise, status);
 
         // The event loop does not owns the object anymore.
-        lean_dec(socket);
-        lean_dec(data);
+        lean_dec(tup->socket);
+        lean_dec(tup->data);
 
         free(req->data);
         free(req);
@@ -236,7 +234,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
 
     if (result < 0) {
         free(write_uv);
-        free(tup);
+        free(write_uv->data);
         std::string err = std::string("failed to write to tcp_socket: ") + uv_strerror(result);
         return io_result_mk_error(err.c_str());
     }
@@ -275,12 +273,13 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
         lean_object * promise = tcp_socket->m_promise_read;
 
+        lean_dec_ref_cold(tcp_socket->m_byte_array);
+
         if (nread >= 0) {
             lean_sarray_set_size(tcp_socket->m_byte_array, nread);
             resolve_promise(promise, mk_ok_except(tcp_socket->m_byte_array));
         } else if (nread < 0) {
             resolve_promise(promise, mk_err_except(lean_mk_io_user_error(mk_string(uv_strerror(nread)))));
-            lean_dec(tcp_socket->m_byte_array);
         }
 
         tcp_socket->m_promise_read = NULL;

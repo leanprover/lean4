@@ -692,7 +692,7 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for recursive functions.
+Specify a termination measure for recursive functions.
 ```
 termination_by a - b
 ```
@@ -710,8 +710,8 @@ recursion. The syntax `termination_by structural a` (or `termination_by structur
 indicates the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
-If omitted, a termination argument will be inferred. If written as `termination_by?`,
-the inferrred termination argument will be suggested.
+If omitted, a termination measure will be inferred. If written as `termination_by?`,
+the inferrred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser
@@ -751,7 +751,7 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
-Manually prove that the termination argument (as specified with `termination_by` or inferred)
+Manually prove that the termination measure (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.

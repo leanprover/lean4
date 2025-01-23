@@ -54,7 +54,7 @@ structure TerminationHints where
   Here we record the number of parameters past the `:`. It is set by
   `TerminationHints.rememberExtraParams` and used as follows:
 
-  * When we guess the termination argument in `GuessLex` and want to print it in surface-syntax
+  * When we guess the termination measure in `GuessLex` and want to print it in surface-syntax
     compatible form.
   * If there are fewer variables in the `termination_by` annotation than there are extra
     parameters, we know which parameters they should apply to (`TerminationBy.checkVars`).

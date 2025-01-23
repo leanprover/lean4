@@ -14,8 +14,8 @@ import Lean.PrettyPrinter.Delaborator.Basic
 
 /-!
 This module contains
-* the data type `TerminationArgument`, the elaborated form of a `TerminationBy` clause,
-* the `TerminationArguments` type for a clique, and
+* the data type `TerminationMeasure`, the elaborated form of a `TerminationBy` clause,
+* the `TerminationMeasures` type for a clique, and
 * elaboration and deelaboration functions.
 -/
 
@@ -29,28 +29,28 @@ open Lean Meta Elab Term
 Elaborated form for a `termination_by` clause.
 
 The `fn` has the same (value) arity as the recursive functions (stored in
-`arity`), and maps its arguments (including fixed prefix, in unpacked form) to
-the termination argument.
+`arity`), and maps its measures (including fixed prefix, in unpacked form) to
+the termination measure.
 
-If `structural := Bool`, then the `fn` is a lambda picking out exactly one argument.
+If `structural := Bool`, then the `fn` is a lambda picking out exactly one measure.
 -/
-structure TerminationArgument where
+structure TerminationMeasure where
   ref : Syntax
   structural : Bool
   fn : Expr
 deriving Inhabited
 
-/-- A complete set of `TerminationArgument`s, as applicable to a single clique.  -/
-abbrev TerminationArguments := Array TerminationArgument
+/-- A complete set of `TerminationMeasure`s, as applicable to a single clique.  -/
+abbrev TerminationMeasures := Array TerminationMeasure
 
 /--
-Elaborates a `TerminationBy` to an `TerminationArgument`.
+Elaborates a `TerminationBy` to an `TerminationMeasure`.
 
 * `type` is the full type of the original recursive function, including fixed prefix.
 * `hint : TerminationBy` is the syntactic `TerminationBy`.
 -/
-def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams : Nat)
-    (hint : TerminationBy) : TermElabM TerminationArgument := withDeclName funName do
+def TerminationMeasure.elab (funName : Name) (type : Expr) (arity extraParams : Nat)
+    (hint : TerminationBy) : TermElabM TerminationMeasure := withDeclName funName do
   assert! extraParams ≤ arity
 
   if h : hint.vars.size > extraParams then
@@ -73,7 +73,7 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
         -- Structural recursion: The body has to be a single parameter, whose index we return
         if hint.structural then unless (ys ++ xs).contains body do
           let params := MessageData.andList ((ys ++ xs).toList.map (m!"'{·}'"))
-          throwErrorAt hint.ref m!"The termination argument of a structurally recursive " ++
+          throwErrorAt hint.ref m!"The termination measure of a structurally recursive " ++
             m!"function must be one of the parameters {params}, but{indentExpr body}\nisn't " ++
             m!"one of these."
 
@@ -87,24 +87,24 @@ def TerminationArgument.elab (funName : Name) (type : Expr) (arity extraParams :
     | 1 => "one parameter"
     | n => m!"{n} parameters"
 
-def TerminationArgument.structuralArg (termArg : TerminationArgument) : MetaM Nat := do
-  assert! termArg.structural
-  lambdaTelescope termArg.fn fun ys e => do
+def TerminationMeasure.structuralArg (measure : TerminationMeasure) : MetaM Nat := do
+  assert! measure.structural
+  lambdaTelescope measure.fn fun ys e => do
     let .some idx := ys.indexOf? e
-      | panic! "TerminationArgument.structuralArg: body not one of the parameters"
+      | panic! "TerminationMeasure.structuralArg: body not one of the parameters"
     return idx
 
 
 open PrettyPrinter Delaborator SubExpr Parser.Termination Parser.Term in
 /--
-Delaborates a `TerminationArgument` back to a `TerminationHint`, e.g. for `termination_by?`.
+Delaborates a `TerminationMeasure` back to a `TerminationHint`, e.g. for `termination_by?`.
 
 This needs extra information:
 * `arity` is the value arity of the recursive function
-* `extraParams` indicates how many of the functions arguments are bound “after the colon”.
+* `extraParams` indicates how many of the function's parameters are bound “after the colon”.
 -/
-def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : TerminationArgument) : MetaM (TSyntax ``terminationBy) := do
-  lambdaBoundedTelescope termArg.fn (arity - extraParams) fun _ys e => do
+def TerminationMeasure.delab (arity : Nat) (extraParams : Nat) (measure : TerminationMeasure) : MetaM (TSyntax ``terminationBy) := do
+  lambdaBoundedTelescope measure.fn (arity - extraParams) fun _ys e => do
     pure (← delabCore e (delab := go extraParams #[])).1
   where
     go : Nat → TSyntaxArray `ident → DelabM (TSyntax ``terminationBy)
@@ -119,7 +119,7 @@ def TerminationArgument.delab (arity : Nat) (extraParams : Nat) (termArg : Termi
       -- drop trailing underscores
       let mut vars := vars
       while ! vars.isEmpty && vars.back!.raw.isOfKind ``hole do vars := vars.pop
-      if termArg.structural then
+      if measure.structural then
         if vars.isEmpty then
           `(terminationBy|termination_by structural $stxBody)
         else

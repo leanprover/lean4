@@ -50,8 +50,8 @@ private partial def updateAlts (unrefinedArgType : Expr) (typeNew : Expr) (altNu
   - each alternative is a lambda abstraction where `ys_i.size == matcherApp.altNumParams[i]`
 
   This is used in `Lean.Elab.PreDefinition.WF.Fix` when replacing recursive calls with calls to
-  the argument provided by `fix` to refine the termination argument, which may mention `major`.
-  See there for how to use this function.
+  the argument provided by `fix` to refine type of the local variable used for recursive calls,
+  which may mention `major`. See there for how to use this function.
 -/
 def addArg (matcherApp : MatcherApp) (e : Expr) : MetaM MatcherApp :=
   lambdaTelescope matcherApp.motive fun motiveArgs motiveBody => do

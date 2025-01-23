@@ -200,7 +200,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     return lean_io_result_mk_ok(promise);
 }
 
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg data) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg data) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
     size_t data_len = lean_sarray_size(data);
@@ -224,7 +224,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg
 
         resolve_promise_with_status(tup->promise, status);
 
-        // The event loop does not owns the object anymore.
+        // The event loop does not own the object anymore.
         lean_dec(tup->socket);
         lean_dec(tup->data);
 
@@ -249,7 +249,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (tcp_socket->m_byte_array != NULL) {
-        std::string err = std::string("failed to read from tcp_socket: parallel read is not allowed!");
+        std::string err = std::string("failed to recv from tcp_socket: parallel recv is not allowed!");
         return io_result_mk_error(err.c_str());
     }
 
@@ -287,7 +287,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
 
         uv_read_stop(stream);
 
-        // The event loop does not owns the object anymore.
+        // The event loop does not own the object anymore.
         lean_dec((lean_object*)stream->data);
     });
 
@@ -322,10 +322,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 
     event_loop_lock(&global_ev);
 
-    // The event loop owns the socket.
     lean_inc(socket);
 
     int result = uv_listen((uv_stream_t*)tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
+        printf("ke\n"); fflush(stdout);
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
 
         if (tcp_socket->m_promise_accept == NULL) {
@@ -380,7 +380,10 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
 
     lean_uv_tcp_socket_object * client_socket = lean_to_uv_tcp_socket(client);
 
+    event_loop_lock(&global_ev);
+
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+    printf("result: %d\n", result); fflush(stdout);
 
     if (result < 0 && result != UV_EAGAIN) {
         lean_dec(client);
@@ -392,6 +395,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
         lean_dec(client);
     }
 
+    event_loop_unlock(&global_ev);
+    
     return lean_io_result_mk_ok(promise);
 }
 
@@ -427,7 +432,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     lean_object *lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
     return lean_io_result_mk_ok(lean_addr);
 }
-
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);

@@ -133,6 +133,7 @@ private partial def internalizeMatchCond (matchCond : Expr) (generation : Nat) :
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
   propagateUp matchCond
   internalize e' generation
+  trace[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
   pushEq matchCond e' (← mkEqRefl matchCond)
 
 partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do

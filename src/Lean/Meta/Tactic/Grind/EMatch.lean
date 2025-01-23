@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.DoNotSimp
 import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Core
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -270,13 +271,20 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
-    let v := c.assignment[numParams - i - 1]!
+    let mut v := c.assignment[numParams - i - 1]!
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
-      unless (← isDefEq mvarIdType vType <&&> mvarId.checkedAssign v) do
+      let report : M Unit := do
         reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      unless (← isDefEq mvarIdType vType) do
+        let some heq ← proveEq? vType mvarIdType
+          | report
+            return ()
+        v ← mkAppM ``cast #[heq, v]
+      unless (← mvarId.checkedAssign v) do
+        report
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do

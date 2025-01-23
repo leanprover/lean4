@@ -175,6 +175,11 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
+  /--
+  Zeta reduction for unused let-declarations: `let x := v; e` reduces to `e` when `x` does not occur
+  in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/

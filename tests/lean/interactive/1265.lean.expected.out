@@ -4,6 +4,10 @@
  [{"sortText": "0",
    "label": "expandInterpolatedStr",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Expand `interpStr` into a term of type `type` (which supports ` ++ `),\ncalling `ofInterpFn` on terms within `{}`,\nand `ofLitFn` on the literals between the interpolations. ",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},
@@ -100,6 +104,10 @@
  [{"sortText": "0",
    "label": "expandInterpolatedStr",
    "kind": 3,
+   "documentation":
+   {"value":
+    "Expand `interpStr` into a term of type `type` (which supports ` ++ `),\ncalling `ofInterpFn` on terms within `{}`,\nand `ofLitFn` on the literals between the interpolations. ",
+    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},

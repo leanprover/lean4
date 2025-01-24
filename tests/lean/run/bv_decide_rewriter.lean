@@ -101,6 +101,8 @@ example (x y : BitVec 256) : x * y = y * x := by
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
   bv_decide (config := { acNf := true })
 
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
+
 end
 
 def foo (x : Bool) : Prop := x = true

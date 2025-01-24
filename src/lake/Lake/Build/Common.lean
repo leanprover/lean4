@@ -19,6 +19,9 @@ namespace Lake
 
 /-! ## General Utilities -/
 
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
+
 /--
 Build trace for the host platform.
 If an artifact includes this trace, it is platform-dependent

@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Lake.Util.Lift
 import Lake.Util.Error
 import Lake.Util.Cycle
 import Lake.Util.EquipT
 import Lake.Build.Info
 import Lake.Build.Store
+import Lake.Build.Job
 
 /-! # Recursive Building
 
@@ -38,6 +40,9 @@ should be run asynchronously in a Job (e.g., via `Job.async`).
   | .error e s => return .error e s.log
 
 instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
+
+/-- The internal core monad of Lake builds. Not intended for user use. -/
+abbrev CoreBuildM := BuildT LogIO
 
 /-- Run a recursive build. -/
 @[inline] def RecBuildM.run
@@ -86,6 +91,8 @@ example : MonadLiftT SpawnM FetchM := inferInstance
   fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)
+
+/-! ## Job Registration -/
 
 /-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
 def ensureJob (x : FetchM (Job α))

@@ -187,13 +187,13 @@ example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h�
   grind
 
 /--
-warning: declaration uses 'sorry'
----
 info: [grind.issues] found congruence between
       g b
     and
       f a
     but functions have different types
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 set_option trace.grind.issues true in

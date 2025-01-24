@@ -812,7 +812,7 @@ private:
     decl get_decl(name const & fn) {
         option_ref<decl> d = find_ir_decl(m_env, fn);
         if (!d) {
-            throw exception(sstream() << "unknown declaration '" << fn << "'");
+            throw exception(sstream() << "(interpreter) unknown declaration '" << fn << "'");
         }
         return d.get().value();
     }

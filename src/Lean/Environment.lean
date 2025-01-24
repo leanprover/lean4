@@ -451,7 +451,9 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  env.checked.get
+  -- TODO: should just be the following when we store extension data in `checked`
+  --env.checked.get
+  { env.checked.get with extensions := env.checkedWithoutAsync.extensions }
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -498,7 +500,7 @@ def const2ModIdx (env : Environment) : Std.HashMap Name ModuleIdx :=
 -- only needed for the lakefile.lean cache
 @[export lake_environment_add]
 private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
-  { env with checked := .pure <| env.checked.get.add cinfo }
+  env.setCheckedSync <| env.checked.get.add cinfo
 
 /--
 Save an extra constant name that is used to populate `const2ModIdx` when we import
@@ -867,22 +869,22 @@ opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
-  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.checked.get.extensions
+  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.checkedWithoutAsync.extensions
   return env.modifyCheckedAsync ({ · with extensions := exts })
 
 namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
+-- TODO: store extension state in `checked`
+
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  let checked := env.checked.get
-  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.setState ext checked.extensions s }
+  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.setState ext env.checkedWithoutAsync.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  let checked := env.checked.get
-  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.modifyState ext checked.extensions f }
+  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.modifyState ext env.checkedWithoutAsync.extensions f }
 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
+  EnvExtensionInterfaceImp.getState ext env.checkedWithoutAsync.extensions
 
 end EnvExtension
 
@@ -1469,7 +1471,7 @@ def getNamespaceSet (env : Environment) : NameSSet :=
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) : Environment :=
-  env.setCheckedSync kernel
+  env.setCheckedSync { kernel with extensions := env.checkedWithoutAsync.extensions }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

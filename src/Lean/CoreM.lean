@@ -423,7 +423,11 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -518,6 +522,10 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
 
 def compileDecl (decl : Declaration) : CoreM Unit := do
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
+  if !decl.getNames.all (← getEnv).constants.contains then
+    return
   let opts ← getOptions
   let decls := Compiler.getDeclNamesForCodeGen decl
   if compiler.enableNew.get opts then
@@ -533,6 +541,10 @@ def compileDecl (decl : Declaration) : CoreM Unit := do
     throwKernelException ex
 
 def compileDecls (decls : List Name) : CoreM Unit := do
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
+  if !decls.all (← getEnv).constants.contains then
+    return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls

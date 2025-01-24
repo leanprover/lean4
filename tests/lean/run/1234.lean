@@ -7,8 +7,6 @@ set_option trace.Meta.Tactic.simp true
 
 
 /--
-warning: declaration uses 'sorry'
----
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
@@ -16,6 +14,8 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
 [Meta.Tactic.simp.rewrite] ite_true:1000, if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩ ==> ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000, ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -32,8 +32,6 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
 -- it works
 
 /--
-warning: declaration uses 'sorry'
----
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
@@ -41,6 +39,8 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
 [Meta.Tactic.simp.rewrite] ite_true:1000, if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩ ==> ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000, ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):
@@ -55,8 +55,6 @@ example (h₁: k ≤ v - 1) (h₂: 0 < v):
     ]
 
 /--
-warning: declaration uses 'sorry'
----
 info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.discharge] succ_pred_eq_of_pos discharge ✅️
       0 < v
@@ -64,6 +62,8 @@ info: [Meta.Tactic.simp.rewrite] h₁:1000, k ≤ v - 1 ==> True
 [Meta.Tactic.simp.rewrite] succ_pred_eq_of_pos:1000, v - 1 + 1 ==> v
 [Meta.Tactic.simp.rewrite] ite_true:1000, if True then ⟨v, ⋯⟩ else ⟨v - 1, ⋯⟩ ==> ⟨v, ⋯⟩
 [Meta.Tactic.simp.rewrite] eq_self:1000, ⟨v, ⋯⟩ = ⟨v, ⋯⟩ ==> True
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (h₁: k ≤ v - 1) (h₂: 0 < v):

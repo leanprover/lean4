@@ -1243,8 +1243,7 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
   rcases w with _|w
   · revert x y
     decide
-  · have h : 0 < w + 1 := by omega
-    have := le_toInt x; have := toInt_lt x
+  · have := le_toInt x; have := toInt_lt x
     have := le_toInt y; have := toInt_lt y
     have := toInd_add_toInt_lt_two_pow x y
     have := neg_two_pow_le_toInd_add_toInt x y

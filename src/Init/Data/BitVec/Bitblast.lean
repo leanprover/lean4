@@ -1232,10 +1232,25 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 
 /-! ### Overflow definitions -/
 
+theorem msb_setWidth_plus_one {x : BitVec w} :
+    (setWidth (w + 1) x).msb = false := sorry
+
+theorem helper {x : BitVec w}: (setWidth (w + 1) x).toNat % 2 ^ w = x.toNat := sorry
+
+@[simp] theorem toNat_mod_cancel_2 (x : BitVec n) (h : n < m): x.toNat % (2^m) = x.toNat :=
+  Nat.mod_eq_of_lt (by
+    have := (@Nat.pow_lt_pow_iff_right 2 n m (by omega)).mpr (by omega)
+    omega
+  )
+
+
 theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
-    uaddOverflow x y = carry w x y false := by
-  simp only [uaddOverflow, BitVec.carry]
-  by_cases h : 2 ^ w ≤ x.toNat + y.toNat <;> simp [h]
+    uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w+1)).msb := by
+  simp only [uaddOverflow]
+  rw [msb_add]
+  simp [msb_setWidth_plus_one]
+  simp only [carry]
+  simp?
 
 theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     saddOverflow x y ↔ (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by

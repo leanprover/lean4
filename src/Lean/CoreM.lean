@@ -548,9 +548,6 @@ where doCompile := do
   | Except.error ex =>
     throwKernelException ex
 
-def compileDecl (decl : Declaration) : CoreM Unit := do
-  compileDecls <| Compiler.getDeclNamesForCodeGen decl
-
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
 

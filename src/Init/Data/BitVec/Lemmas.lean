@@ -546,7 +546,7 @@ theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
   simp only [BitVec.toInt]
   rcases w with _|w'
   · omega
-  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul, Nat.add_sub_cancel]
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
@@ -555,23 +555,25 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
   rcases w with _|w'
   · omega
   · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
-    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int];
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
 theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
     x.toInt + y.toInt < 2 ^ w := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · have hx := toInt_lt x; rw [Nat.add_sub_cancel] at *
-    have hy := toInt_lt y; rw [Nat.add_sub_cancel] at *
+  · have hx := toInt_lt x
+    have hy := toInt_lt y
+    rw [Nat.add_sub_cancel] at hx hy
     omega
 
 theorem neg_two_pow_le_toInd_add_toInt (x y : BitVec w) :
     - 2 ^ w ≤ x.toInt + y.toInt := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · have hx := le_toInt x; rw [Nat.add_sub_cancel] at *
-    have hy := le_toInt y; rw [Nat.add_sub_cancel] at *
+  · have hx := le_toInt x
+    have hy := le_toInt y
+    rw [Nat.add_sub_cancel] at hx hy
     omega
 
 /-! ### slt -/

@@ -134,6 +134,7 @@ private partial def internalizeMatchCond (matchCond : Expr) (generation : Nat) :
   propagateUp matchCond
   internalize e' generation
   trace[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
+  trace[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
   pushEq matchCond e' (← mkEqRefl matchCond)
 
 partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do

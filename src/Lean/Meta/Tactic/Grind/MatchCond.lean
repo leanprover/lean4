@@ -90,38 +90,39 @@ def addMatchCond (s : Simprocs) : CoreM Simprocs := do
   s.add ``reduceMatchCond (post := false)
 
 /--
-Returns `some (lhs, rhs, isHEq)` if `e` is of the form
-- `Eq _ lhs rhs` (`isHEq := false`), or
-- `HEq _ lhs _ rhs` (`isHEq := true`)
+Returns `some (α?, lhs, rhs)` if `e` is of the form
+- `Eq _ lhs rhs` (`?α := none`), or
+- `HEq α lhs _ rhs` (`α? := some α`)
 -/
-private def isEqHEq? (e : Expr) : Option (Expr × Expr × Bool) :=
+private def isEqHEq? (e : Expr) : Option (Option Expr × Expr × Expr) :=
   match_expr e with
-  | Eq _ lhs rhs => some (lhs, rhs, false)
-  | HEq _ lhs _ rhs => some (lhs, rhs, true)
+  | Eq _ lhs rhs => some (none, lhs, rhs)
+  | HEq α lhs _ rhs => some (some α, lhs, rhs)
   | _ => none
 
 /--
 Given `e` a `match`-expression condition, returns the left-hand side
-of the ground equations.
+of the ground equations, and its type if it is the left-hand side of
+a heterogeneous equality.
 -/
-private def collectMatchCondLhss (e : Expr) : Array Expr := Id.run do
+private def collectMatchCondLhss (e : Expr) : Array (Expr × Option Expr) := Id.run do
   let mut r := #[]
   let mut e := e
   repeat
     let .forallE _ d b _ := e | return r
-    if let some (lhs, _, _) := isEqHEq? d then
+    if let some (α?, lhs, _) := isEqHEq? d then
       unless lhs.hasLooseBVars do
-        r := r.push lhs
+        r := r.push (lhs, α?)
     e := b
   return r
 
 /--
 Replaces the left-hand side of an equality (or heterogeneous equality) `e` with `lhsNew`.
 -/
-private def replaceLhs? (e : Expr) (lhsNew : Expr) : Option Expr :=
+private def replaceLhs? (e : Expr) (lhsNew : Expr) (ty? : Option Expr) : Option Expr :=
   match_expr e with
   | f@Eq α lhs rhs => if lhs.hasLooseBVars then none else some (mkApp3 f α lhsNew rhs)
-  | f@HEq α lhs β rhs => if lhs.hasLooseBVars then none else some (mkApp4 f α lhsNew β rhs)
+  | f@HEq _ lhs β rhs => if lhs.hasLooseBVars then none else some (mkApp4 f ty?.get! lhsNew β rhs)
   | _ => none
 
 /--
@@ -153,38 +154,60 @@ Thus, we can write the two pairs above as
 Moreover, `C₁` is definitionally equal to `l t s`, and `C₂` is definitionally equal to `l a b`.
 Then, if `grind` infers that `t = a` and `s = b`, it will detect that `l t s` and `l a b` are
 equal by congruence, and consequently `C₁` is equal to `C₂`.
+
+Gruesome details for heterogenenous equalities.
+
+When pattern matching on indexing families, the generated conditions often use heterogenenous equalities. Here is an example:
+```
+(∀ (x : Vec α 0), n = 0 → HEq as Vec.nil → HEq bs x → False)
+```
+In this case, it is not sufficient to abstract the left-hand side. We also have
+to abstract its type. The following is produced in this case.
+```
+(#[n, Vec α n, as, Vec α n, bs],
+ (fun (x_0 : Nat) (ty_1 : Type u_1) (x_1 : ty_1) (ty_2 : Type u_1) (x_2 : ty_2) =>
+    ∀ (x : Vec α 0), x_0 = 0 → HEq x_1 Vec.nil → HEq x_2 x → False)
+ n (Vec α n) as (Vec α n) bs)
+```
+The example makes it clear why this is needed, `as` and `bs` depend on `n`.
+Note that we can abstract the type without introducing typer errors because
+heterogenenous equality is used for `as` and `bs`.
 -/
 def collectMatchCondLhssAndAbstract (matchCond : Expr) : GoalM (Array Expr × Expr) := do
   let_expr Grind.MatchCond e := matchCond | return (#[], matchCond)
-  let lhss := collectMatchCondLhss e
-  let rec go (i : Nat) (xs : Array Expr) : GoalM Expr := do
-    if h : i < lhss.size then
-      let lhs := lhss[i]
-      withLocalDeclD ((`x).appendIndexAfter i) (← inferType lhs) fun x =>
-        go (i+1) (xs.push x)
+  let lhssαs := collectMatchCondLhss e
+  let rec go (i : Nat) (xs : Array Expr) (tys : Array (Option Expr)) (tysxs : Array Expr) (args : Array Expr) : GoalM (Array Expr × Expr) := do
+    if h : i < lhssαs.size then
+      let (lhs, α?) := lhssαs[i]
+      if let some α := α? then
+        withLocalDeclD ((`ty).appendIndexAfter i) (← inferType α) fun ty =>
+        withLocalDeclD ((`x).appendIndexAfter i) ty fun x =>
+          go (i+1) (xs.push x) (tys.push ty) (tysxs.push ty |>.push x) (args.push α |>.push lhs)
+      else
+        withLocalDeclD ((`x).appendIndexAfter i) (← inferType lhs) fun x =>
+          go (i+1) (xs.push x) (tys.push none) (tysxs.push x) (args.push lhs)
     else
       let rec replaceLhss (e : Expr) (i : Nat) : Expr := Id.run do
         let .forallE _ d b _ := e | return e
         if h : i < xs.size then
-          if let some dNew := replaceLhs? d xs[i] then
+          if let some dNew := replaceLhs? d xs[i] tys[i]! then
             return e.updateForallE! dNew (replaceLhss b (i+1))
           else
             return e.updateForallE! d (replaceLhss b i)
         else
           return e
       let eAbst := replaceLhss e 0
-      let eLam  ← mkLambdaFVars xs eAbst
-      let e' := mkAppN eLam lhss
-      shareCommon e'
-  let e' ← go 0 #[]
-  return (lhss, e')
+      let eLam  ← mkLambdaFVars tysxs eAbst
+      let e' := mkAppN eLam args
+      return (args, ← shareCommon e')
+  go 0 #[] #[] #[] #[]
 
 /--
 Helper function for `isSatisfied`.
 See `isSatisfied`.
 -/
 private partial def isMatchCondFalseHyp (e : Expr) : GoalM Bool := do
-  let some (lhs, rhs, _) := isEqHEq? e | return false
+  let some (_, lhs, rhs) := isEqHEq? e | return false
   isFalse lhs rhs
 where
   isFalse (lhs rhs : Expr) : GoalM Bool := do
@@ -260,11 +283,12 @@ private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
 where
   go? (h : Expr) : GoalM (Option Expr) := do
     trace[grind.debug.matchCond] "go?: {← inferType h}"
-    let some (lhs, rhs, isHeq) := isEqHEq? (← inferType h)
+    let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
     let target ← (← get).mvarId.getType
     let root ← getRootENode lhs
-    let h ← if isHeq then
+    let isHEq := α?.isSome
+    let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
     else
       mkEqTrans (← mkEqProof root.self lhs) h

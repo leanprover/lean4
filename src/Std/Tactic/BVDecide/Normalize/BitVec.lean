@@ -340,10 +340,6 @@ theorem BitVec.carry_eq_msb_add_zeroExtend (x y : BitVec w) :
   rw [BitVec.msb_eq_getLsbD_last, BitVec.getLsbD_add_add_bool (by omega)]
   simp
 
--- TODO: put this somewhere else
-instance : Commutative (Bool.xor) where
-  comm := Bool.xor_comm
-
 /-- bitblasting lemma for an arbitrary carry bit -/
 theorem BitVec.carry_eq_getLsbD_add_zeroExtend (x y : BitVec w) (i : Nat) :
     BitVec.carry i x y c =

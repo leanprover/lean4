@@ -562,22 +562,16 @@ theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
     x.toInt + y.toInt < 2 ^ w := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · norm_cast
-    rw [←Nat.two_pow_pred_add_two_pow_pred (by omega)]
-    have hx := toInt_lt x; rw [Nat.add_sub_cancel] at *
+  · have hx := toInt_lt x; rw [Nat.add_sub_cancel] at *
     have hy := toInt_lt y; rw [Nat.add_sub_cancel] at *
-    push_cast
     omega
 
 theorem neg_two_pow_le_toInd_add_toInt (x y : BitVec w) :
     - 2 ^ w ≤ x.toInt + y.toInt := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · norm_cast
-    rw [←Nat.two_pow_pred_add_two_pow_pred (by omega)]
-    have hx := le_toInt x; rw [Nat.add_sub_cancel] at *
+  · have hx := le_toInt x; rw [Nat.add_sub_cancel] at *
     have hy := le_toInt y; rw [Nat.add_sub_cancel] at *
-    push_cast
     omega
 
 /-! ### slt -/

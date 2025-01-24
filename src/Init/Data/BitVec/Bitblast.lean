@@ -1248,16 +1248,18 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     have := le_toInt y; have := toInt_lt y
     have := toInd_add_toInt_lt_two_pow x y
     have := neg_two_pow_le_toInd_add_toInt x y
-    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
-      decide_eq_decide, BitVec.toInt_add]
+
     have bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
         (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
       simp only [Int.bmod_def]
       by_cases xpos : 0 ≤ x
       · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
       · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-    rw [bmod_neg_iff (by norm_cast at *) (by norm_cast at *)]
-    rw_mod_cast [← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega)] at *
+
+    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
+      decide_eq_decide, BitVec.toInt_add]
+    rw_mod_cast [bmod_neg_iff (by assumption) (by assumption),
+      ← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega)] at *
     omega
 
 end BitVec

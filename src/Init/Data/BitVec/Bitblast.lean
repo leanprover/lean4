@@ -216,6 +216,14 @@ theorem carry_width {x y : BitVec w} :
     carry w x y c = decide (x.toNat + y.toNat + c.toNat ≥ 2^w) := by
   simp [carry]
 
+theorem carry_gt {x y : BitVec w} (h : w < i) : carry i x y c = false := by
+  have : 2 ^ (w+1) ≤ 2 ^ i := Nat.pow_le_pow_of_le_right (by omega) (by omega)
+  simp [carry]
+  rw [Nat.mod_eq_of_lt (a:=x.toNat) (by omega),
+      Nat.mod_eq_of_lt (a:=y.toNat) (by omega)]
+  have := Bool.toNat_le c
+  omega
+
 theorem carry_setWidth_of_le (x y : BitVec w) (h : w ≤ w' := by omega) :
     BitVec.carry i (x.setWidth w') (y.setWidth w') c = BitVec.carry i x y c := by
   have : 2 ^ w ≤ 2 ^ w' := Nat.pow_le_pow_of_le_right (by omega) h

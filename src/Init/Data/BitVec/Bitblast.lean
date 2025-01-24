@@ -1233,7 +1233,7 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 /-! ### Overflow definitions -/
 
 
-@[simp] theorem toNat_mod_lt_cancel {x : BitVec n} (h : n < m): x.toNat % (2 ^ m) = x.toNat :=
+@[simp] theorem toNat_mod_lt_eq {x : BitVec n} (h : n < m): x.toNat % (2 ^ m) = x.toNat :=
   Nat.mod_eq_of_lt (by
     have := (@Nat.pow_lt_pow_iff_right 2 n m (by omega)).mpr (by omega)
     omega
@@ -1247,8 +1247,7 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
     saddOverflow x y ↔ (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by
   simp only [saddOverflow]
   rcases w with _|w
-  · revert x y
-    decide
+  · revert x y; decide
   · have := le_toInt x; have := toInt_lt x
     have := le_toInt y; have := toInt_lt y
     have := toInd_add_toInt_lt_two_pow x y
@@ -1259,7 +1258,6 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
       by_cases xpos : 0 ≤ x
       · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
       · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-
     simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
       decide_eq_decide, BitVec.toInt_add]
     rw_mod_cast [bmod_neg_iff (by assumption) (by assumption),

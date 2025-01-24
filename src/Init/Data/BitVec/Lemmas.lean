@@ -1313,6 +1313,11 @@ theorem getElem_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} (h : i 
     (x <<< y)[i] = (!decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by
   simp
 
+@[simp] theorem shiftLeft_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) : x <<< n = 0#w := by
+  ext i hi
+  simp [hn, hi]
+  omega
+
 /-! ### ushiftRight -/
 
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
@@ -1949,6 +1954,16 @@ theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
   intros h
   have := lt_of_getLsbD h
   omega
+
+theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
+    x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by
+  ext i hi
+  simp only [getLsbD_shiftLeft, hi, decide_true, Bool.true_and, getLsbD_cast, getLsbD_append,
+    getLsbD_zero, getLsbD_extractLsb', Nat.zero_add, Bool.if_false_left]
+  by_cases hi' : i < n
+  · simp [hi']
+  · simp [hi']
+    omega
 
 /-! ### rev -/
 

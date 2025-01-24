@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Lean.Meta.Tactic.Simp.RegisterCommand
+-- import Lean.Meta.Tactic.Simp.RegisterCommand
 
 /-!
 # `@[tree_tac]` attribute
 -/
 
-register_simp_attr tree_tac
+-- register_simp_attr tree_tac

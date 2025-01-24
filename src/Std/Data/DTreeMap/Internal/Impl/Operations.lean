@@ -219,7 +219,8 @@ def link (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanc
           else
             ⟨.inner (szl + 1 + szr) k v (inner szl k' v' l' r') (inner szr k'' v'' l'' r''),
               ✓, ✓⟩
-  termination_by sizeOf l + sizeOf r
+  -- It seems this is unnecessary, but removing it does not help with proof size without aux lemmas, either
+  --termination_by sizeOf l + sizeOf r
 
 /-- Slower version of `link` which can be used in the absence of balance information but
 still assumes the preconditions of `link`, otherwise might panic. -/
@@ -236,7 +237,7 @@ def linkSlow (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
             balanceRSlow k' v' l' (linkSlow k v r r')
           else
             .inner (l.size + 1 + r.size) k v l r
-  termination_by sizeOf l + sizeOf r
+termination_by sizeOf l + sizeOf r
 
 /-- Builds the tree `l ++ r` without any balancing information at the root. -/
 def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
@@ -255,7 +256,7 @@ def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
             ⟨balanceRErase k' v' l' ℓ ✓ ✓ ✓, ✓, ✓⟩
           else
             ⟨glue l r ✓ ✓ ✓, ✓, ✓⟩
-  termination_by sizeOf l + sizeOf r
+termination_by sizeOf l + sizeOf r
 
 /-- Slower version of `link2` which can be used in the absence of balance information but
 still assumes the preconditions of `link2`, otherwise might panic. -/

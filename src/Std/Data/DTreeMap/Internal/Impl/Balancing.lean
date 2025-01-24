@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.Classes.LawfulEqOrd
-import Std.Data.DTreeMap.Internal.Impl.Attr -- TODO
+import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Query
 import Std.Data.Classes.TransOrd
 -- import Lean.Elab.Tactic
@@ -97,7 +97,7 @@ scoped macro "tree_tac" : tactic => `(tactic|(
   ))
 
 /-- Internal implementation detail of the ordered set -/
-scoped macro "✓" : term => `(term| by as_aux_lemma => tree_tac)
+scoped macro "✓" : term => `(term| by tree_tac)
 
 end
 

@@ -224,7 +224,7 @@ theorem carry_gt {x y : BitVec w} (h : w < i) : carry i x y c = false := by
   have := Bool.toNat_le c
   omega
 
-theorem carry_setWidth_of_le (x y : BitVec w) (h : w ≤ w' := by omega) :
+theorem carry_setWidth_eq_carry_of_le {x y : BitVec w} (h : w ≤ w' := by omega) :
     BitVec.carry i (x.setWidth w') (y.setWidth w') c = BitVec.carry i x y c := by
   have : 2 ^ w ≤ 2 ^ w' := Nat.pow_le_pow_of_le_right (by omega) h
   simp only [BitVec.carry, BitVec.toNat_setWidth, ge_iff_le, decide_eq_decide]

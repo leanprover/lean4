@@ -59,6 +59,9 @@ abbrev BuildT := ReaderT BuildContext
 abbrev MonadBuild (m : Type → Type u) :=
   MonadReaderOf BuildContext m
 
+instance [Pure m] : MonadLift LakeM (BuildT m) where
+  monadLift x := fun ctx => pure <| x.run ctx.toContext
+
 @[inline] def getBuildContext [MonadBuild m] : m BuildContext :=
   readThe BuildContext
 

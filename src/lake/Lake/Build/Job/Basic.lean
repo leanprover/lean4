@@ -60,14 +60,6 @@ structure JobState where
   trace : BuildTrace := .nil
   deriving Inhabited
 
-/--
-Resets the job state after a checkpoint (e.g., registering the job).
-Preserves state that downstream jobs want to depend on while resetting
-job-local state that should not be inherited by downstream jobs.
--/
-@[inline] def JobState.renew (s : JobState) : JobState where
-  trace := s.trace
-
 def JobState.merge (a b : JobState) : JobState where
   log := a.log ++ b.log
   action := a.action.merge b.action
@@ -104,6 +96,57 @@ structure Job (α : Type u)  where
   /-- Whether this job failing should cause the build to fail. -/
   optional : Bool := false
   deriving Inhabited
+
+namespace Job
+
+@[inline] def ofTask (task : JobTask α) (caption := "") : Job α :=
+  {task, caption}
+
+@[inline] protected def error (log : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.error 0 {log}), caption}
+
+@[inline] protected def pure (a : α) (log : Log := {}) (caption := "") : Job α :=
+  {task := Task.pure (.ok a {log}), caption}
+
+instance : Pure Job := ⟨Job.pure⟩
+
+@[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
+  .pure () log caption
+
+@[inline] def nil : Job Unit :=
+  .pure ()
+
+/-- Sets the job's caption. -/
+@[inline] def setCaption (caption : String) (job : Job α) : Job α :=
+  {job with caption}
+
+/-- Sets the job's caption if the job's current caption is empty. -/
+@[inline] def setCaption? (caption : String) (job : Job α) : Job α :=
+  if job.caption.isEmpty then {job with caption} else job
+
+@[inline] def mapResult
+  (f : JobResult α → JobResult β) (self : Job α)
+  (prio := Task.Priority.default) (sync := false)
+: Job β := {self with task := self.task.map f prio sync}
+
+@[inline] def mapOk
+  (f : α → JobState → JobResult β) (self : Job α)
+  (prio := Task.Priority.default) (sync := false)
+: Job β :=
+  self.mapResult (prio := prio) (sync := sync) fun
+    | .ok a s => f a s
+    | .error e s => .error e s
+
+@[inline] protected def map
+  (f : α → β) (self : Job α)
+  (prio := Task.Priority.default) (sync := false)
+: Job β := self.mapResult (·.map f) prio sync
+
+instance : Functor Job where map := Job.map
+
+end Job
+
+/-! ## OpaqueJob -/
 
 /-- A Lake job with an opaque value in `Type`. -/
 abbrev OpaqueJob := Job Opaque

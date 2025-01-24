@@ -5,8 +5,9 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Config.Monad
-import Lake.Build.Actions
 import Lake.Util.JsonObject
+import Lake.Build.Actions
+import Lake.Build.Job
 
 /-! # Common Build Tools
 This file defines general utilities that abstract common

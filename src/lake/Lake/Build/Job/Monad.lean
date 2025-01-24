@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Context
+import Lake.Build.Fetch
 
 open System
 
@@ -24,17 +24,14 @@ While this can be lifted into `FetchM`, job action should generally
 be wrapped into an asynchronous job (e.g., via `Job.async`) instead of being
 run directly in `FetchM`.
 -/
-abbrev JobM := BuildT <| EStateT Log.Pos JobState BaseIO
+abbrev JobM := FetchT <| EStateT Log.Pos JobState BaseIO
 
-instance [Pure m] : MonadLift LakeM (BuildT m) where
-  monadLift x := fun ctx => pure <| x.run ctx.toContext
+instance (priority := high) : MonadStateOf JobState JobM := inferInstance
 
 instance : MonadStateOf Log JobM where
   get := (·.log) <$> get
   set log := modify fun s => {s with log}
   modifyGet f := modifyGet fun s => let (a, log) := f s.log; (a, {s with log})
-
-instance : MonadStateOf JobState JobM := inferInstance
 
 instance : MonadLog JobM := .ofMonadState
 instance : MonadError JobM := ELog.monadError
@@ -62,83 +59,60 @@ instance : MonadLift LogIO JobM := ⟨ELogT.takeAndRun⟩
   modifyGet fun s => (s.trace, {s with trace := nilTrace})
 
 /-- The monad used to spawn asynchronous Lake build jobs. Lifts into `FetchM`. -/
-abbrev SpawnM := BuildT <| ReaderT BuildTrace <| BaseIO
+abbrev SpawnM := FetchT <| ReaderT BuildTrace <| BaseIO
 
-@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun ctx s =>
-  return .ok (← x ctx s.trace) s
+@[inline] def JobM.runSpawnM (x : SpawnM α) : JobM α := fun fn stack store ctx s =>
+  return .ok (← x fn stack store ctx s.trace) s
 
 instance : MonadLift SpawnM JobM := ⟨JobM.runSpawnM⟩
 
 /-- The monad used to spawn asynchronous Lake build jobs. **Replaced by `SpawnM`.** -/
 @[deprecated SpawnM (since := "2024-05-21")] abbrev SchedulerM := SpawnM
 
+/--
+Run a `JobM` action in `FetchM`.
+
+Generally, this should not be done, and instead a job action
+should be run asynchronously in a Job (e.g., via `Job.async`).
+-/
+@[inline] def FetchM.runJobM (x : JobM α) : FetchM α := fun fetch stack store ctx log => do
+  match (← x fetch stack store ctx {log}) with
+  | .ok a s => return .ok a s.log
+  | .error e s => return .error e s.log
+
+instance : MonadLift JobM FetchM := ⟨FetchM.runJobM⟩
+
+/-- Ensures that `JobM` lifts into `FetchM`. -/
+example : MonadLiftT JobM FetchM := inferInstance
+
+/-- Ensures that `SpawnM` lifts into `FetchM`. -/
+example : MonadLiftT SpawnM FetchM := inferInstance
+
+/-- Run a `FetchM` action in `JobM`. -/
+@[inline] def JobM.runFetchM (x : FetchM α) : JobM α := fun fetch stack store ctx s => do
+  match (← x fetch stack store ctx s.log) with
+  | .ok a log => return .ok a {s with log}
+  | .error e log => return .error e {s with log}
+
+instance : MonadLift FetchM JobM := ⟨JobM.runFetchM⟩
+
+/-- Ensures that `FetchM` lifts into `JobM`. -/
+example : MonadLiftT FetchM JobM := inferInstance
+
+/-- Ensures that `FetchM` lifts into `SpawnM`. -/
+example : MonadLiftT SpawnM FetchM := inferInstance
+
 namespace Job
-
-@[inline] def ofTask (task : JobTask α) (caption := "") : Job α :=
-  {task, caption}
-
-@[inline] protected def error (log : Log := {}) (caption := "") : Job α :=
-  {task := Task.pure (.error 0 {log}), caption}
-
-@[inline] protected def pure (a : α) (log : Log := {}) (caption := "") : Job α :=
-  {task := Task.pure (.ok a {log}), caption}
-
-instance : Pure Job := ⟨Job.pure⟩
-instance [Inhabited α] : Inhabited (Job α) := ⟨pure default⟩
-
-@[inline] protected def nop (log : Log := {}) (caption := "") : Job Unit :=
-  .pure () log caption
-
-@[inline] def nil : Job Unit :=
-  .pure ()
-
-/-- Sets the job's caption. -/
-@[inline] def setCaption (caption : String) (job : Job α) : Job α :=
-  {job with caption}
-
-/-- Sets the job's caption if the job's current caption is empty. -/
-@[inline] def setCaption? (caption : String) (job : Job α) : Job α :=
-  if job.caption.isEmpty then {job with caption} else job
-
-@[inline] def mapResult
-  (f : JobResult α → JobResult β) (self : Job α)
-  (prio := Task.Priority.default) (sync := false)
-: Job β := {self with task := self.task.map f prio sync}
-
-@[inline] def mapOk
-  (f : α → JobState → JobResult β) (self : Job α)
-  (prio := Task.Priority.default) (sync := false)
-: Job β :=
-  self.mapResult (prio := prio) (sync := sync) fun
-    | .ok a s => f a s
-    | .error e s => .error e s
 
 @[inline] def bindTask [Monad m]
   (f : JobTask α → m (JobTask β)) (self : Job α)
 : m (Job β) := return {self with task := ← f self.task}
 
-@[inline] protected def map
-  (f : α → β) (self : Job α)
-  (prio := Task.Priority.default) (sync := false)
-: Job β := self.mapResult (·.map f) prio sync
-
-instance : Functor Job where map := Job.map
-
-/--
-Resets the job's state after a checkpoint (e.g., registering the job).
-Preserves information that downstream jobs want to depend on while resetting
-job-local information that should not be inherited by downstream jobs.
--/
-def renew (self : Job α) : Job α :=
-  self.mapResult (sync := true) fun
-  | .ok a s => .ok a s.renew
-  | .error _ s => .error 0 s.renew
-
 /-- Spawn a job that asynchronously performs `act`. -/
 @[inline] protected def async
   (act : JobM α) (prio := Task.Priority.default)
-: SpawnM (Job α) := fun ctx => .ofTask <$> do
-  BaseIO.asTask (prio := prio) do (withLoggedIO act) ctx {}
+: SpawnM (Job α) := fun fetch stack store ctx => .ofTask <$> do
+  BaseIO.asTask (prio := prio) do (withLoggedIO act) fetch stack store ctx {}
 
 /-- Wait a the job to complete and return the result. -/
 @[inline] protected def wait (self : Job α) : BaseIO (JobResult α) := do
@@ -165,12 +139,12 @@ protected def mapM
   (self : Job α) (f : α → JobM β)
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun ctx trace => do
+  fun fetch stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.mapTask (t := task) (prio := prio) (sync := sync) fun
     | .ok a s =>
       let trace := mixTrace trace s.trace
-      withLoggedIO (f a) ctx {s with trace}
+      withLoggedIO (f a) fetch stack store ctx {s with trace}
     | .error n s => return .error n s
 
 @[deprecated Job.mapM (since := "2024-12-06")]
@@ -187,12 +161,12 @@ def bindM
   (self : Job α) (f : α → JobM (Job β))
   (prio := Task.Priority.default) (sync := false)
 : SpawnM (Job β) :=
-  fun ctx trace => do
+  fun fetch stack store ctx trace => do
   self.bindTask fun task => do
   BaseIO.bindTask task (prio := prio) (sync := sync) fun
     | .ok a sa => do
       let trace := mixTrace trace sa.trace
-      match (← withLoggedIO (f a) ctx {sa with trace}) with
+      match (← withLoggedIO (f a) fetch stack store ctx {sa with trace}) with
       | .ok job sa =>
         return job.task.map (prio := prio) (sync := true) fun
         | .ok b sb => .ok b {sa.merge sb with trace := sb.trace}
@@ -230,7 +204,6 @@ results of `a` and `b`. The job `c` errors if either `a` or `b` error.
   | .ok a sa, .ok b sb => .ok (f a b) (sa.merge sb)
   | ra, rb => .error 0 (ra.state.merge rb.state)
 
-
 /-- Merges this job with another, discarding its output and trace. -/
 def add (self : Job α) (other : Job β) : Job α :=
   self.zipResultWith (other := other) fun
@@ -258,6 +231,8 @@ def collectArray (jobs : Array (Job α)) : Job (Array α) :=
   jobs.foldl (zipWith Array.push) (pure (Array.mkEmpty jobs.size))
 
 end Job
+
+/-! ## BuildJob (deprecated) -/
 
 /-- A Lake build job. -/
 abbrev BuildJob α := Job α

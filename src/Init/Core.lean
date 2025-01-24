@@ -1162,7 +1162,7 @@ theorem existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exist
 
 variable {α : Type u} {p : α → Prop}
 
-protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+protected theorem eq : ∀ {a₁ a₂ : {x // p x}}, val a₁ = val a₂ → a₁ = a₂
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a := by

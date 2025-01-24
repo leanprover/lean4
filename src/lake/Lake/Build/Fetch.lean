@@ -78,8 +78,7 @@ abbrev FetchM := FetchT LogIO
 @[deprecated FetchM (since := "2024-04-30")] abbrev BuildM := BuildT LogIO
 
 /-- Fetch the result associated with the info using the Lake build index. -/
-@[inline] def BuildInfo.fetch
-  (self : BuildInfo) [FamilyOut BuildData self.key α]
-: FetchM α := fun build => cast (by simp) <| build self
+@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=
+  fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)

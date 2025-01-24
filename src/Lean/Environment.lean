@@ -451,9 +451,7 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  -- TODO: should just be the following when we store extension data in `checked`
-  --env.checked.get
-  { env.checked.get with extensions := env.checkedWithoutAsync.extensions }
+  env.checked.get
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -869,22 +867,22 @@ opaque EnvExtensionInterfaceImp : EnvExtensionInterface
 def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
 
 private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
-  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.checkedWithoutAsync.extensions
+  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.checked.get.extensions
   return env.modifyCheckedAsync ({ · with extensions := exts })
 
 namespace EnvExtension
 instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
 
--- TODO: store extension state in `checked`
-
 def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.setState ext env.checkedWithoutAsync.extensions s }
+  let checked := env.checked.get
+  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.setState ext checked.extensions s }
 
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.modifyState ext env.checkedWithoutAsync.extensions f }
+  let checked := env.checked.get
+  env.setCheckedSync { checked with extensions := EnvExtensionInterfaceImp.modifyState ext checked.extensions f }
 
 def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checkedWithoutAsync.extensions
+  EnvExtensionInterfaceImp.getState ext env.checked.get.extensions
 
 end EnvExtension
 
@@ -1471,7 +1469,7 @@ def getNamespaceSet (env : Environment) : NameSSet :=
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) : Environment :=
-  env.setCheckedSync { kernel with extensions := env.checkedWithoutAsync.extensions }
+  env.setCheckedSync kernel
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

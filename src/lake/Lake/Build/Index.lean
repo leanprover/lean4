@@ -82,4 +82,5 @@ Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
 def FetchM.run (x : FetchM α) : RecBuildM α :=
+  haveI : LawfulCmpEq BuildKey BuildKey.quickCmp := inferInstance
   x (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)

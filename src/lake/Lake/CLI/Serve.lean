@@ -57,7 +57,7 @@ def setupFile
       let some module := ws.findModule? moduleName
         | pure ⟨∅⟩
       let options := module.serverOptions.map fun opt => ⟨opt.name, opt.value⟩
-      pure ⟨Lean.RBMap.fromArray options Lean.Name.cmp⟩
+      pure ⟨Std.TreeMap.fromArray options Lean.Name.cmp⟩
     IO.println <| Json.compress <| toJson {
       paths,
       setupOptions

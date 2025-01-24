@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Data
 import Lake.Util.StoreInsts
+import Std.Data.DTreeMap.Basic
 
 /-!
 # The Lake Build Store
@@ -17,15 +18,16 @@ topological-based build of an initial key's dependencies).
 
 namespace Lake
 open Lean (Name NameMap)
+open Std
 
 /-- A monad equipped with a Lake build store. -/
 abbrev MonadBuildStore (m) := MonadDStore BuildKey BuildData m
 
 /-- The type of the Lake build store. -/
 abbrev BuildStore :=
-  DRBMap BuildKey BuildData BuildKey.quickCmp
+  DTreeMap BuildKey BuildData BuildKey.quickCmp
 
-@[inline] def BuildStore.empty : BuildStore := DRBMap.empty
+@[inline] def BuildStore.empty : BuildStore := DTreeMap.empty
 
 namespace BuildStore
 

@@ -6,6 +6,7 @@ Authors: Markus Himmel
 prelude
 import Std.Data.DHashMap.Internal.List.Associative
 import Std.Data.Classes.TransOrd
+import Init.Data.List.MinMax
 
 set_option linter.missingDocs true
 set_option autoImplicit false
@@ -42,7 +43,7 @@ universe u v
 --           · exact fun h => h ▸ hxy.symm ▸ List.mem_cons_self _ _
 --           · exact fun h => List.mem_cons_of_mem _ (List.mem_cons_of_mem _ h)
 --           · exact fun h => h ▸ hxy.symm ▸ List.mem_cons_of_mem _ (List.mem_cons_self _ _)
---           · exact fun h => List.mem_cons_of_mem _ (List.mem_cons_of_mem _ h)
+--           · exacta fun h => List.mem_cons_of_mem _ (List.mem_cons_of_mem _ h)
 --         · refine hxy.elim (fun hxy => (List.mem_cons.1 hb).elim ?_ ?_) (fun hxy => (List.mem_cons.1 hb).elim ?_ ?_)
 --           · exact fun h => h ▸ hxy.symm ▸ List.mem_cons_self _ _
 --           · exact fun h => List.mem_cons_of_mem _ (List.mem_cons_of_mem _ h)

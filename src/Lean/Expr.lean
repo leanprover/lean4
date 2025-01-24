@@ -9,6 +9,7 @@ import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
 import Std.Data.HashSet.Basic
+import Std.Data.TreeMap.Basic --imports Lean.Expr?!
 
 namespace Lean
 

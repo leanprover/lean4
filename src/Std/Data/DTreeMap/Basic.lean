@@ -5,6 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Impl
+import Lake.Util.Compare
 
 set_option autoImplicit false
 set_option linter.missingDocs true
@@ -45,6 +46,45 @@ def contains (l : DTreeMap α β cmp) (a : α) : Bool :=
 
 instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
+
+universe w in
+@[inline, inherit_doc DHashMap.fold] def fold {γ : Type w}
+    (f : γ → (a : α) → β a → γ) (init : γ) (b : DTreeMap α β cmp) : γ :=
+  b.inner.foldl f init
+
+@[inline] def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  l.foldl (fun r p => r.insert p.1 p.2) empty
+
+@[inline] def get? [i : Lake.LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
+  letI : Ord α := ⟨cmp⟩
+  haveI : ReflOrd α := ⟨i.cmp_rfl⟩
+  haveI : LawfulEqOrd α := ⟨i.eq_of_cmp⟩
+  Std.DTreeMap.Internal.Impl.get? a l.inner
+
+@[inline] def find? [i : Lake.LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
+  letI : Ord α := ⟨cmp⟩
+  haveI : ReflOrd α := ⟨i.cmp_rfl⟩
+  haveI : LawfulEqOrd α := ⟨i.eq_of_cmp⟩
+  Std.DTreeMap.Internal.Impl.get? a l.inner
+
+universe w in
+@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w} [Monad m]
+    {γ : Type w} (f : (a : α) → β a → γ → m (ForInStep γ)) (init : γ) (b : DTreeMap α β cmp) : m γ :=
+  b.inner.forIn (fun c a b => f a b c) init
+
+universe w in
+instance {m : Type w → Type w} : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+instance : Membership α (DTreeMap α β cmp) where
+  mem m a := m.contains a
+
+instance : Inhabited (DTreeMap α β cmp) := ⟨empty⟩
+
+instance : Repr (DTreeMap α β cmp) where
+  reprPrec _ _ := Format.nil
+
+instance : EmptyCollection (DTreeMap α β cmp) := ⟨empty⟩
 
 end DTreeMap
 

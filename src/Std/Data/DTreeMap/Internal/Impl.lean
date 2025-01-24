@@ -59,22 +59,22 @@ end Impl
 
 end Std.DTreeMap.Internal
 
--- open Lean
+open Lean
 
--- run_meta do
---   let env ← getEnv
---   let mut arr : Array (Nat × Name × MessageData) := #[]
---   let mut unknown : Array Name := #[]
---   let mut totalSize : Nat := 0
---   for (name, info) in env.constants do
---     if (`Std.DTreeMap.Internal.Impl).isPrefixOf name then
---       if let some e := info.value? then
---         let numObjs ← e.numObjs
---         arr := arr.push (numObjs, (name, m!"{info.type}"))
---         totalSize := totalSize + numObjs
---       else
---         unknown := unknown.push name
---   arr := arr.qsort (fun a b => a.1 > b.1)
---   logInfo m!"total size: {totalSize}"
---   for (a, (b, c)) in arr do
---     logInfo m!"({a}, {b}, {c})"
+run_meta do
+  let env ← getEnv
+  let mut arr : Array (Nat × Name × MessageData) := #[]
+  let mut unknown : Array Name := #[]
+  let mut totalSize : Nat := 0
+  for (name, info) in env.constants do
+    if (`Std.DTreeMap.Internal.Impl).isPrefixOf name then
+      if let some e := info.value? then
+        let numObjs ← e.numObjs
+        arr := arr.push (numObjs, (name, m!"{info.type}"))
+        totalSize := totalSize + numObjs
+      else
+        unknown := unknown.push name
+  arr := arr.qsort (fun a b => a.1 > b.1)
+  logInfo m!"total size: {totalSize}"
+  for (a, (b, c)) in arr do
+    logInfo m!"({a}, {b}, {c})"

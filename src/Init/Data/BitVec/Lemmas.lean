@@ -784,15 +784,17 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem getMsbD_extractLsb' (start len : Nat) (x : BitVec w) (i : Nat) :
     (extractLsb' start len x).getMsbD i =
     (decide (i < len) &&
-    (decide (len - 1 - i < len) &&
-    (decide (start + (len - 1 - i) < w) && x.getMsbD (w - 1 - (start + (len - 1 - i)))))) := by
-  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
+    decide (start + (len - 1 - i) < w) && x.getMsbD (w - 1 - (start + (len - 1 - i)))) := by
+  rcases len with _|len'
+  · simp
+  · rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD, Nat.sub_add_eq]
+    have := @Nat.sub_lt_add_one (a := len') (b := i)
+    simp only [Nat.add_one_sub_one, this, decide_true, Bool.true_and, Bool.and_assoc]
 
 @[simp] theorem msb_extractLsb' (start len : Nat) (x : BitVec w) :
     (extractLsb' start len x).msb =
-    (decide (0 < len) && (decide (start + (len - 1) < w)
-    && x.getMsbD (w - 1 - (start + (len - 1))))) := by
-  simp [BitVec.msb, BitVec.getMsbD_extractLsb', Nat.sub_zero, show (len - 1 < len) = (0 < len) by simp; omega]
+    (decide (0 < len) && (decide (start + (len - 1) < w) && x.getMsbD (w - 1 - (start + (len - 1))))) := by
+  simp [BitVec.msb, BitVec.getMsbD_extractLsb', Nat.sub_zero, show (len - 1 < len) = (0 < len) by simp; omega, Bool.and_assoc]
 
 @[simp] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by
@@ -803,7 +805,8 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   simp [getLsbD, Nat.lt_succ]
 
 @[simp] theorem getMsbD_extract (hi lo : Nat) (x : BitVec n) (i : Nat) :
-    (extractLsb hi lo x).getMsbD i = (decide (i < hi - lo + 1) &&
+    (extractLsb hi lo x).getMsbD i =
+    (decide (i < hi - lo + 1) &&
     (decide (hi - lo - i ≤ hi - lo) &&
     (decide (lo + (hi - lo - i) < n) && x.getMsbD (n - 1 - (lo + (hi - lo - i)))))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extract, getLsbD_eq_getMsbD, Nat.add_sub_cancel]

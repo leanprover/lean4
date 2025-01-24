@@ -546,12 +546,10 @@ theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
   simp only [BitVec.toInt]
   rcases w with _|w'
   · omega
-  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul]
-    by_cases h : 2 * x.toNat < 2 * 2 ^ (w' + 1 - 1)
-    · norm_cast
-      omega
-    · simp only [Nat.add_one_sub_one, Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul,
-        Int.Nat.cast_ofNat_Int]
+  · rw [←Nat.two_pow_pred_add_two_pow_pred (by omega), ←Nat.two_mul, Nat.add_sub_cancel]
+    by_cases h : x.toNat < 2 ^ w'
+    · norm_cast; omega
+    · simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
       norm_cast; omega
 
 theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by

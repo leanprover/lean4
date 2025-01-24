@@ -82,7 +82,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
       async.commitCheckEnv (← getEnv)
     finally
       async.commitFailure
-  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+  let t ← BaseIO.mapTask (fun _ => checkAct) (env.checked : Task Kernel.Environment)
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { range? := endRange?, task := t }
 where doAdd := do

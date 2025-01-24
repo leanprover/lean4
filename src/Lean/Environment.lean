@@ -409,6 +409,26 @@ def AsyncConsts.hasPrefix (aconsts : AsyncConsts) (declName : Name) : Bool :=
   -- as macro scopes are a strict suffix,
   aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName.eraseMacroScopes) |>.isSome
 
+inductive MyTask (α : Type) where
+  | pure (a : α)
+  | async (t : Task α)
+deriving Nonempty
+
+def MyTask.map (t : MyTask α) (f : α → β) (sync := true) : MyTask β :=
+  match t with
+  | .pure a => .pure (f a)
+  | .async t => .async (t.map f (sync := sync))
+
+def MyTask.get (t : MyTask α) : α :=
+  match t with
+  | .pure a => a
+  | .async t => t.get
+
+instance : CoeOut (MyTask α) (Task α) where
+  coe t := match t with
+    | .pure a => .pure a
+    | .async t => t
+
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
 elaborated declarations.
@@ -433,7 +453,7 @@ structure Environment where
   finished, containing the resulting environment. Also collects the environment extension state of
   all environment branches that contributed contained declarations.
   -/
-  checked             : Task Kernel.Environment := .pure checkedWithoutAsync
+  checked             : MyTask Kernel.Environment := .pure checkedWithoutAsync
   /--
   Container of asynchronously elaborated declarations, i.e.
   `checked = checkedWithoutAsync ⨃ asyncConsts`.
@@ -626,7 +646,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
     constName, kind
     mainEnv := { env with
       asyncConsts := env.asyncConsts.add asyncConst
-      checked := checkedEnvPromise.result }
+      checked := .async checkedEnvPromise.result }
     asyncEnv := { env with
       asyncCtx? := some { declPrefix := privateToUserName constName.eraseMacroScopes }
     }

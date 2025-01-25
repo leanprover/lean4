@@ -4,11 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
+import Lake.Util.Lift
 import Lake.Util.Error
 import Lake.Util.Cycle
 import Lake.Util.EquipT
 import Lake.Build.Info
 import Lake.Build.Store
+import Lake.Build.Context
 
 /-! # Recursive Building
 
@@ -20,43 +22,40 @@ using the `fetch` function defined in this module.
 
 namespace Lake
 
-/-- A recursive build of a Lake build store that may encounter a cycle. -/
-abbrev RecBuildM :=
-  CallStackT BuildKey <| BuildT <| ELogT <| StateRefT BuildStore BaseIO
-
-instance : MonadLift LogIO RecBuildM := ⟨ELogT.takeAndRun⟩
+/-- The internal core monad of Lake builds. Not intended for user use. -/
+abbrev CoreBuildM := BuildT LogIO
 
 /--
-Run a `JobM` action in `RecBuildM` (and thus `FetchM`).
+A recursive build of a Lake build store that may encounter a cycle.
 
-Generally, this should not be done, and instead a job action
-should be run asynchronously in a Job (e.g., via `Job.async`).
+An internal monad. Not intended for user use.
 -/
-@[inline] def RecBuildM.runJobM (x : JobM α) : RecBuildM α := fun _ ctx log => do
-  match (← x ctx {log}) with
-  | .ok a s => return .ok a s.log
-  | .error e s => return .error e s.log
-
-instance : MonadLift JobM RecBuildM := ⟨RecBuildM.runJobM⟩
-
-/-- Run a recursive build. -/
-@[inline] def RecBuildM.run
-  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
-: CoreBuildM (α × BuildStore) := fun ctx log => do
-  match (← (build stack ctx log).run store) with
-  | (.ok a log, store) => return .ok (a, store) log
-  | (.error e log, _) => return .error e log
-
-/-- Run a recursive build in a fresh build store. -/
-@[inline] def RecBuildM.run' (build : RecBuildM α) : CoreBuildM α := do
-  (·.1) <$> build.run {} {}
+abbrev RecBuildT (m : Type → Type) :=
+  CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
 
 /-- Log build cycle and error. -/
 @[specialize] def buildCycleError [MonadError m] (cycle : Cycle BuildKey) : m α :=
   error s!"build cycle detected:\n{"\n".intercalate <| cycle.map (s!"  {·}")}"
 
-instance : MonadCycleOf BuildKey RecBuildM where
+instance [Monad m] [MonadError m] : MonadCycleOf BuildKey (RecBuildT m) where
   throwCycle := buildCycleError
+
+/--
+A recursive build of a Lake build store that may encounter a cycle.
+
+An internal monad. Not intended for user use.
+-/
+abbrev RecBuildM := RecBuildT LogIO
+
+/-- Run a recursive build. -/
+@[inline] def RecBuildM.run
+  (stack : CallStack BuildKey) (store : BuildStore) (build : RecBuildM α)
+: CoreBuildM (α × BuildStore) :=
+  build stack |>.run store
+
+/-- Run a recursive build in a fresh build store. -/
+@[inline] def RecBuildM.run' (build : RecBuildM α) : CoreBuildM α := do
+  (·.1) <$> build.run {} {}
 
 /-- A build function for any element of the Lake build index. -/
 abbrev IndexBuildFn (m : Type → Type v) :=
@@ -64,16 +63,13 @@ abbrev IndexBuildFn (m : Type → Type v) :=
   (info : BuildInfo) → m (BuildData info.key)
 
 /-- A transformer to equip a monad with a build function for the Lake index. -/
-abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn m) m
+abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn RecBuildM) m
+
+/-- The top-level monad transformer for Lake build functions. -/
+abbrev FetchT (m : Type → Type) := IndexT <| RecBuildT m
 
 /-- The top-level monad for Lake build functions. -/
-abbrev FetchM := IndexT RecBuildM
-
-/-- Ensures that `JobM` lifts into `FetchM`. -/
-example : MonadLiftT JobM FetchM := inferInstance
-
-/-- Ensures that `SpawnM` lifts into `FetchM`. -/
-example : MonadLiftT SpawnM FetchM := inferInstance
+abbrev FetchM := FetchT LogIO
 
 /-- The top-level monad for Lake build functions. **Renamed `FetchM`.** -/
 @[deprecated FetchM (since := "2024-04-30")] abbrev IndexBuildM := FetchM
@@ -86,52 +82,3 @@ example : MonadLiftT SpawnM FetchM := inferInstance
   fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)
-
-/-- Wraps stray I/O, logs, and errors in `x` into the produced job.  -/
-def ensureJob (x : FetchM (Job α))
-: FetchM (Job α) := fun fetch stack ctx log store => do
-  let iniPos := log.endPos
-  match (← (withLoggedIO x) fetch stack ctx log store) with
-  | .ok job log =>
-    if iniPos < log.endPos then
-      let (log, jobLog) := log.split iniPos
-      let job := job.mapResult (sync := true) (·.prependLog jobLog)
-      return .ok job log
-    else
-      return .ok job log
-  | .error _ log =>
-    let (log, jobLog) := log.split iniPos
-    return .ok (.error jobLog) log
-
-/--
-Registers the job for the top-level build monitor,
-(e.g., the Lake CLI progress UI), assigning it `caption`.
--/
-def registerJob (caption : String) (job : Job α) (optional := false) : FetchM (Job α) := do
-  let job : Job α := {job with caption, optional}
-  (← getBuildContext).registeredJobs.modify (·.push job)
-  return job.renew
-
-/--
-Registers the produced job for the top-level build monitor
-(e.g., the Lake CLI progress UI), assigning it `caption`.
-
-Stray I/O, logs, and errors produced by `x` will be wrapped into the job.
--/
-def withRegisterJob
-  (caption : String) (x : FetchM (Job α)) (optional := false)
-: FetchM (Job α) := do
-  let job ← ensureJob x
-  registerJob caption job optional
-
-/--
-Registers the produced job for the top-level build monitor
-if it is not already (i.e., it has an empty caption).
--/
-@[inline] def maybeRegisterJob
-  (caption : String) (job : Job α)
-: FetchM (Job α) := do
-  if job.caption.isEmpty then
-    registerJob caption job
-  else
-    return job

@@ -267,6 +267,7 @@ end MonadLogT
 /- A Lake log. An `Array` of log entries. -/
 structure Log where
   entries : Array LogEntry
+  deriving Inhabited
 
 instance : ToJson Log := ⟨(toJson ·.entries)⟩
 instance : FromJson Log := ⟨(Log.mk <$> fromJson? ·)⟩

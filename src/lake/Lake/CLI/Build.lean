@@ -5,6 +5,7 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Config.Monad
+import Lake.Build.Job
 import Lake.CLI.Error
 
 namespace Lake

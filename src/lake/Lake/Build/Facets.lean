@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Job
 import Lake.Build.Data
+import Lake.Build.Job.Basic
 
 /-!
 # Simple Builtin Facet Declarations

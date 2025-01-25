@@ -740,6 +740,10 @@ It assumes `a` and `b` are in the same equivalence class.
 @[extern "lean_grind_mk_heq_proof"]
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
+-- Forward definition
+@[extern "lean_grind_internalize"]
+opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
+
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
 It assumes `a` and `b` are in the same equivalence class.

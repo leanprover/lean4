@@ -174,7 +174,9 @@ private partial def activateTheoremPatterns (fName : Name) (generation : Nat) : 
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
 partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
-  if (← alreadyInternalized e) then return ()
+  if (← alreadyInternalized e) then
+    trace_goal[grind.debug.internalize] "already internalized: {e}"
+    return ()
   trace_goal[grind.internalize] "{e}"
   match e with
   | .bvar .. => unreachable!

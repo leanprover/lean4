@@ -38,8 +38,9 @@ def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
     /-
     We should not include the assignment for auxiliary offset terms since
     they do not provide any additional information.
+    That said, the information is relevant for debugging `grind`.
     -/
-    if !(← isLitValue e) && (isNatOffset? e).isNone && isNatNum? e != some 0 then
+    if (!(← isLitValue e) && (isNatOffset? e).isNone && isNatNum? e != some 0) || grind.debug.get (← getOptions) then
       r := r.push (e, val)
   return r
 

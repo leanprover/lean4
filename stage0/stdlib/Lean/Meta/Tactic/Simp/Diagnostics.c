@@ -191,6 +191,7 @@ x_10 = lean_ctor_get(x_8, 0);
 x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
+lean_inc(x_7);
 x_12 = l_Lean_Environment_contains(x_11, x_7);
 if (x_12 == 0)
 {
@@ -234,6 +235,7 @@ lean_dec(x_8);
 x_25 = lean_ctor_get(x_23, 0);
 lean_inc(x_25);
 lean_dec(x_23);
+lean_inc(x_7);
 x_26 = l_Lean_Environment_contains(x_25, x_7);
 if (x_26 == 0)
 {

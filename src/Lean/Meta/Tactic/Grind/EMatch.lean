@@ -7,6 +7,8 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Core
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -210,14 +212,27 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
 /--
+Given a proposition `prop` corresponding to an equational theorem.
+Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
+-/
+private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
+  if let .forallE n d b bi := prop then
+    let d := if (← isProp d) then
+      markAsMatchCond d
+    else
+      d
+    withLocalDecl n bi d fun x => do
+      mkForallFVars #[x] (← annotateEqnTypeConds (b.instantiate1 x) k)
+  else
+    k prop
+
+/--
 Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
 `initApp` is the match-expression used to instantiate the `match`-equation.
+It also introduce `Grind.MatchCond` at equation conditions. See `MatchCond.lean`.
 -/
-private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
-  if let .forallE n d b bi := prop then
-    withLocalDecl n bi (← markAsDoNotSimp d) fun x => do
-      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
-  else
+private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
+  annotateEqnTypeConds prop fun prop => do
     let_expr f@Eq α lhs rhs := prop | return prop
     -- See comment at `Grind.EqMatch`
     return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α (← markAsDoNotSimp lhs) rhs initApp
@@ -233,6 +248,8 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
+  else if (← isEqnThm origin.key) then
+    prop ← annotateEqnTypeConds prop
   trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
 
@@ -254,19 +271,26 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
-    let v := c.assignment[numParams - i - 1]!
+    let mut v := c.assignment[numParams - i - 1]!
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
-      unless (← isDefEq mvarIdType vType <&&> mvarId.checkedAssign v) do
+      let report : M Unit := do
         reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      unless (← isDefEq mvarIdType vType) do
+        let some heq ← proveEq? vType mvarIdType
+          | report
+            return ()
+        v ← mkAppM ``cast #[heq, v]
+      unless (← mvarId.checkedAssign v) do
+        report
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
-      unless (← synthesizeInstance mvar type) do
+      unless (← synthesizeInstanceAndAssign mvar type) do
         reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
@@ -278,10 +302,6 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm.origin proof c.gen
-where
-  synthesizeInstance (x type : Expr) : MetaM Bool := do
-    let .some val ← trySynthInstance type | return false
-    isDefEq x val
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -314,12 +334,44 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
           modify fun s => { s with choiceStack := [c] }
           processChoices
 
+/--
+Entry point for matching `lhs ←= rhs` patterns.
+It traverses disequalities `a = b`, and tries to solve two matching problems:
+1- match `lhs` with `a` and `rhs` with `b`
+2- match `lhs` with `b` and `rhs` with `a`
+-/
+private def matchEqBwdPat (p : Expr) : M Unit := do
+  let_expr Grind.eqBwdPattern pα plhs prhs := p | return ()
+  let numParams  := (← read).thm.numParams
+  let assignment := mkArray numParams unassigned
+  let useMT      := (← read).useMT
+  let gmt        := (← getThe Goal).gmt
+  let false      ← getFalseExpr
+  let mut curr   := false
+  repeat
+    if (← checkMaxInstancesExceeded) then return ()
+    let n ← getENode curr
+    if (n.heqProofs || n.isCongrRoot) &&
+       (!useMT || n.mt == gmt) then
+      let_expr Eq α lhs rhs := n.self | pure ()
+      if (← isDefEq α pα) then
+         let c₀ : Choice := { cnstrs := [], assignment, gen := n.generation }
+         let go (lhs rhs : Expr) : M Unit := do
+           let some c₁ ← matchArg? c₀ plhs lhs |>.run | return ()
+           let some c₂ ← matchArg? c₁ prhs rhs |>.run | return ()
+           modify fun s => { s with choiceStack := [c₂] }
+           processChoices
+         go lhs rhs
+         go rhs lhs
+    if isSameExpr n.next false then return ()
+    curr := n.next
+
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()
   withReader (fun ctx => { ctx with thm }) do
     let ps := thm.patterns
     match ps, (← read).useMT with
-    | [p],   _     => main p []
+    | [p],   _     => if isEqBwdPattern p then matchEqBwdPat p else main p []
     | p::ps, false => main p (ps.map (.continue ·))
     | _::_,  true  => tryAll ps []
     | _,     _     => unreachable!

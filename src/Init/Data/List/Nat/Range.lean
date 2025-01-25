@@ -195,24 +195,32 @@ theorem erase_range : (range n).erase i = range (min n i) ++ range' (i + 1) (n -
 
 /-! ### iota -/
 
+section
+set_option linter.deprecated false
+
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem iota_eq_reverse_range' : ∀ n : Nat, iota n = reverse (range' 1 n)
   | 0 => rfl
   | n + 1 => by simp [iota, range'_concat, iota_eq_reverse_range' n, reverse_append, Nat.add_comm]
 
-@[simp] theorem length_iota (n : Nat) : length (iota n) = n := by simp [iota_eq_reverse_range']
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem length_iota (n : Nat) : length (iota n) = n := by simp [iota_eq_reverse_range']
 
-@[simp] theorem iota_eq_nil {n : Nat} : iota n = [] ↔ n = 0 := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem iota_eq_nil {n : Nat} : iota n = [] ↔ n = 0 := by
   cases n <;> simp
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem iota_ne_nil {n : Nat} : iota n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
-@[simp]
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
 theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 0 < m ∧ m ≤ n := by
   simp [iota_eq_reverse_range', Nat.add_comm, Nat.lt_succ]
   omega
 
-@[simp] theorem iota_inj : iota n = iota n' ↔ n = n' := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem iota_inj : iota n = iota n' ↔ n = n' := by
   constructor
   · intro h
     have h' := congrArg List.length h
@@ -221,6 +229,7 @@ theorem mem_iota {m n : Nat} : m ∈ iota n ↔ 0 < m ∧ m ≤ n := by
   · rintro rfl
     simp
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem iota_eq_cons_iff : iota n = a :: xs ↔ n = a ∧ 0 < n ∧ xs = iota (n - 1) := by
   simp [iota_eq_reverse_range']
   simp [range'_eq_append_iff, reverse_eq_iff]
@@ -234,6 +243,7 @@ theorem iota_eq_cons_iff : iota n = a :: xs ↔ n = a ∧ 0 < n ∧ xs = iota (n
     rw [eq_comm, range'_eq_singleton]
     omega
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem iota_eq_append_iff : iota n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = (range' (k + 1) (n - k)).reverse ∧ ys = iota k := by
   simp only [iota_eq_reverse_range']
   rw [reverse_eq_append_iff]
@@ -245,42 +255,52 @@ theorem iota_eq_append_iff : iota n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = (rang
   · rintro ⟨k, h, rfl, rfl⟩
     exact ⟨k, by simp; omega⟩
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem pairwise_gt_iota (n : Nat) : Pairwise (· > ·) (iota n) := by
   simpa only [iota_eq_reverse_range', pairwise_reverse] using pairwise_lt_range' 1 n
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem nodup_iota (n : Nat) : Nodup (iota n) :=
   (pairwise_gt_iota n).imp Nat.ne_of_gt
 
-@[simp] theorem head?_iota (n : Nat) : (iota n).head? = if n = 0 then none else some n := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem head?_iota (n : Nat) : (iota n).head? = if n = 0 then none else some n := by
   cases n <;> simp
 
-@[simp] theorem head_iota (n : Nat) (h) : (iota n).head h = n := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem head_iota (n : Nat) (h) : (iota n).head h = n := by
   cases n with
   | zero => simp at h
   | succ n => simp
 
-@[simp] theorem tail_iota (n : Nat) : (iota n).tail = iota (n - 1) := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem tail_iota (n : Nat) : (iota n).tail = iota (n - 1) := by
   cases n <;> simp
 
-@[simp] theorem reverse_iota : reverse (iota n) = range' 1 n := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem reverse_iota : reverse (iota n) = range' 1 n := by
   induction n with
   | zero => simp
   | succ n ih =>
     rw [iota_succ, reverse_cons, ih, range'_1_concat, Nat.add_comm]
 
-@[simp] theorem getLast?_iota (n : Nat) : (iota n).getLast? = if n = 0 then none else some 1 := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem getLast?_iota (n : Nat) : (iota n).getLast? = if n = 0 then none else some 1 := by
   rw [getLast?_eq_head?_reverse]
   simp [head?_range']
 
-@[simp] theorem getLast_iota (n : Nat) (h) : (iota n).getLast h = 1 := by
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem getLast_iota (n : Nat) (h) : (iota n).getLast h = 1 := by
   rw [getLast_eq_head_reverse]
   simp
 
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20")]
 theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
     (iota n).find? p = none ↔ ∀ i, 0 < i → i ≤ n → !p i := by
   simp
 
-@[simp] theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
+@[deprecated "Use `(List.range' 1 n).reverse` instead of `iota n`." (since := "2025-01-20"), simp]
+theorem find?_iota_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (iota n).find? p = some i ↔ p i ∧ i ∈ iota n ∧ ∀ j, i < j → j ≤ n → !p j := by
   rw [find?_eq_some_iff_append]
   simp only [iota_eq_reverse_range', reverse_eq_append_iff, reverse_cons, append_assoc, cons_append,
@@ -316,6 +336,8 @@ theorem find?_iota_eq_none {n : Nat} {p : Nat → Bool} :
       apply h
       · omega
       · omega
+
+end
 
 /-! ### enumFrom -/
 

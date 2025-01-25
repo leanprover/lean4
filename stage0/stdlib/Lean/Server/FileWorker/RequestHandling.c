@@ -1572,7 +1572,6 @@ lean_inc(x_22);
 x_23 = l_Lean_Server_Snapshots_Snapshot_env(x_1);
 x_24 = 1;
 x_25 = l_Lean_findDocString_x3f(x_23, x_22, x_24, x_4);
-lean_dec(x_23);
 x_26 = lean_ctor_get(x_25, 0);
 lean_inc(x_26);
 if (lean_obj_tag(x_26) == 0)
@@ -1720,7 +1719,6 @@ lean_inc(x_51);
 x_52 = l_Lean_Server_Snapshots_Snapshot_env(x_1);
 x_53 = 1;
 x_54 = l_Lean_findDocString_x3f(x_52, x_51, x_53, x_4);
-lean_dec(x_52);
 x_55 = lean_ctor_get(x_54, 0);
 lean_inc(x_55);
 if (lean_obj_tag(x_55) == 0)
@@ -4433,6 +4431,7 @@ lean_dec(x_16);
 x_18 = lean_ctor_get(x_4, 0);
 lean_inc(x_18);
 lean_dec(x_4);
+lean_inc(x_18);
 x_19 = l_Lean_Environment_contains(x_17, x_18);
 if (x_19 == 0)
 {
@@ -4698,6 +4697,7 @@ lean_dec(x_19);
 x_21 = lean_ctor_get(x_14, 1);
 lean_inc(x_21);
 x_22 = l_Lean_Syntax_getKind(x_21);
+lean_inc(x_22);
 x_23 = l_Lean_Environment_contains(x_20, x_22);
 if (x_23 == 0)
 {
@@ -4961,6 +4961,7 @@ lean_dec(x_20);
 x_22 = lean_ctor_get(x_15, 1);
 lean_inc(x_22);
 x_23 = l_Lean_Syntax_getKind(x_22);
+lean_inc(x_23);
 x_24 = l_Lean_Environment_contains(x_21, x_23);
 if (x_24 == 0)
 {
@@ -5618,7 +5619,6 @@ lean_dec(x_35);
 x_37 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_38 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_39 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_37, x_38, x_36, x_24);
-lean_dec(x_36);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_dec(x_26);
@@ -5784,7 +5784,6 @@ lean_dec(x_78);
 x_80 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_81 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_82 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_80, x_81, x_79, x_24);
-lean_dec(x_79);
 if (lean_obj_tag(x_82) == 0)
 {
 lean_object* x_83; 
@@ -6012,7 +6011,6 @@ lean_dec(x_133);
 x_135 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_136 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_137 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_135, x_136, x_134, x_24);
-lean_dec(x_134);
 if (lean_obj_tag(x_137) == 0)
 {
 lean_dec(x_27);
@@ -6181,7 +6179,6 @@ lean_dec(x_176);
 x_178 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_179 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_180 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_178, x_179, x_177, x_24);
-lean_dec(x_177);
 if (lean_obj_tag(x_180) == 0)
 {
 lean_object* x_181; 
@@ -6418,7 +6415,6 @@ lean_dec(x_231);
 x_233 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_234 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_235 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_233, x_234, x_232, x_24);
-lean_dec(x_232);
 if (lean_obj_tag(x_235) == 0)
 {
 lean_object* x_236; 
@@ -7844,7 +7840,6 @@ lean_dec(x_35);
 x_37 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_38 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_39 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_37, x_38, x_36, x_24);
-lean_dec(x_36);
 if (lean_obj_tag(x_39) == 0)
 {
 lean_dec(x_26);
@@ -8010,7 +8005,6 @@ lean_dec(x_78);
 x_80 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_81 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_82 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_80, x_81, x_79, x_24);
-lean_dec(x_79);
 if (lean_obj_tag(x_82) == 0)
 {
 lean_object* x_83; 
@@ -8238,7 +8232,6 @@ lean_dec(x_133);
 x_135 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_136 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_137 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_135, x_136, x_134, x_24);
-lean_dec(x_134);
 if (lean_obj_tag(x_137) == 0)
 {
 lean_dec(x_27);
@@ -8407,7 +8400,6 @@ lean_dec(x_176);
 x_178 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_179 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_180 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_178, x_179, x_177, x_24);
-lean_dec(x_177);
 if (lean_obj_tag(x_180) == 0)
 {
 lean_object* x_181; 
@@ -8644,7 +8636,6 @@ lean_dec(x_231);
 x_233 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_234 = l_Lean_Server_FileWorker_locationLinksOfInfo___lambda__9___closed__2;
 x_235 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_233, x_234, x_232, x_24);
-lean_dec(x_232);
 if (lean_obj_tag(x_235) == 0)
 {
 lean_object* x_236; 

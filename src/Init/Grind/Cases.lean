@@ -5,11 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Core
+import Init.Grind.Tactics
 
-attribute [grind_cases] And Prod False Empty True Unit Exists
-
-namespace Lean.Grind.Eager
-
-attribute [scoped grind_cases] Or
-
-end Lean.Grind.Eager
+attribute [grind cases eager] And Prod False Empty True Unit Exists
+attribute [grind cases] Or

@@ -185,7 +185,7 @@ language server.
 -/
 def withAlwaysResolvedPromises [Monad m] [MonadLiftT BaseIO m] [MonadFinally m] [Inhabited α]
     (count : Nat) (act : Array (IO.Promise α) → m Unit) : m Unit := do
-  let ps ← List.iota count |>.toArray.mapM fun _ => IO.Promise.new
+  let ps ← Array.range count |>.mapM fun _ => IO.Promise.new
   try
     act ps
   finally

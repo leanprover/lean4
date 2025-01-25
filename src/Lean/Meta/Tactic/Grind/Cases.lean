@@ -7,6 +7,85 @@ prelude
 import Lean.Meta.Tactic.Cases
 
 namespace Lean.Meta.Grind
+
+/-- Types that `grind` will case-split on. -/
+structure CasesTypes where
+  casesMap : PHashMap Name Bool := {}
+  deriving Inhabited
+
+structure CasesEntry where
+  declName : Name
+  eager : Bool
+  deriving Inhabited
+
+/-- Returns `true` if `s` contains a `declName`. -/
+def CasesTypes.contains (s : CasesTypes) (declName : Name) : Bool :=
+  s.casesMap.contains declName
+
+/-- Removes the given declaration from `s`. -/
+def CasesTypes.erase (s : CasesTypes) (declName : Name) : CasesTypes :=
+  { s with casesMap := s.casesMap.erase declName }
+
+def CasesTypes.insert (s : CasesTypes) (declName : Name) (eager : Bool) : CasesTypes :=
+  { s with casesMap := s.casesMap.insert declName eager }
+
+def CasesTypes.find? (s : CasesTypes) (declName : Name) : Option Bool :=
+  s.casesMap.find? declName
+
+def CasesTypes.isEagerSplit (s : CasesTypes) (declName : Name) : Bool :=
+  s.casesMap.find? declName |>.getD false
+
+def CasesTypes.isSplit (s : CasesTypes) (declName : Name) : Bool :=
+  s.casesMap.find? declName |>.isSome
+
+builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
+  registerSimpleScopedEnvExtension {
+    initial        := {}
+    addEntry       := fun s {declName, eager} => s.insert declName eager
+  }
+
+def getCasesTypes : CoreM CasesTypes :=
+  return casesExt.getState (← getEnv)
+
+private def getAlias? (value : Expr) : MetaM (Option Name) :=
+  lambdaTelescope value fun _ body => do
+    if let .const declName _ := body.getAppFn' then
+      return some declName
+    else
+      return none
+
+partial def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do
+  match (← getConstInfo declName) with
+  | .inductInfo info => return !info.isRec || !eager
+  | .defnInfo info =>
+    let some declName ← getAlias? info.value |>.run' {} {}
+      | return false
+    isCasesAttrCandidate declName eager
+  | _ => return false
+
+def validateCasesAttr (declName : Name) (eager : Bool) : CoreM Unit := do
+  unless (← isCasesAttrCandidate declName eager) do
+    if eager then
+      throwError "invalid `[grind cases eager]`, `{declName}` is not a non-recursive inductive datatype or an alias for one"
+    else
+      throwError "invalid `[grind cases]`, `{declName}` is not an inductive datatype or an alias for one"
+
+def addCasesAttr (declName : Name) (eager : Bool) (attrKind : AttributeKind) : CoreM Unit := do
+  validateCasesAttr declName eager
+  casesExt.add { declName, eager } attrKind
+
+def CasesTypes.eraseDecl (s : CasesTypes) (declName : Name) : CoreM CasesTypes := do
+  if s.contains declName then
+    return s.erase declName
+  else
+    throwError "`{declName}` is not marked with the `[grind]` attribute"
+
+def eraseCasesAttr (declName : Name) : CoreM Unit := do
+  let s := casesExt.getState (← getEnv)
+  let s ← s.eraseDecl declName
+  modifyEnv fun env => casesExt.modifyState env fun _ => s
+
+
 /--
 The `grind` tactic includes an auxiliary `cases` tactic that is not intended for direct use by users.
 This method implements it.

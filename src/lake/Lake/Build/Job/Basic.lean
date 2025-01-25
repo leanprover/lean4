@@ -68,6 +68,9 @@ def JobState.merge (a b : JobState) : JobState where
 @[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) : JobState :=
   {s with log := f s.log}
 
+@[inline] def JobState.logEntry (e : LogEntry) (s : JobState) :=
+  s.modifyLog (·.push e)
+
 /-! ## JobTask -/
 
 /-- The result of a Lake job. -/

@@ -12,6 +12,8 @@ import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Canon
+import Lean.Meta.Tactic.Grind.Beta
+import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Arith.Internalize
 
 namespace Lean.Meta.Grind
@@ -52,7 +54,6 @@ private def addSplitCandidate (e : Expr) : GoalM Unit := do
   trace_goal[grind.split.candidate] "{e}"
   modify fun s => { s with splitCandidates := e :: s.splitCandidates }
 
--- TODO: add attribute to make this extensible
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
 /-- Returns `true` if `e` is of the form `@Eq Prop a b` -/
@@ -62,29 +63,37 @@ def isMorallyIff (e : Expr) : Bool :=
 
 /-- Inserts `e` into the list of case-split candidates if applicable. -/
 private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
-  unless e.isApp do return ()
-  if (← getConfig).splitIte && (e.isIte || e.isDIte) then
-    addSplitCandidate e
-    return ()
-  if isMorallyIff e then
-    addSplitCandidate e
-    return ()
-  if (← getConfig).splitMatch then
-    if (← isMatcherApp e) then
-      if let .reduced _ ← reduceMatcher? e then
-        -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
-        -- and consequently don't need to be splitted.
+  match e with
+  | .app .. =>
+    if (← getConfig).splitIte && (e.isIte || e.isDIte) then
+      addSplitCandidate e
+      return ()
+    if isMorallyIff e then
+      addSplitCandidate e
+      return ()
+    if (← getConfig).splitMatch then
+      if (← isMatcherApp e) then
+        if let .reduced _ ← reduceMatcher? e then
+          -- When instantiating `match`-equations, we add `match`-applications that can be reduced,
+          -- and consequently don't need to be splitted.
+          return ()
+        else
+          addSplitCandidate e
+          return ()
+    let .const declName _  := e.getAppFn | return ()
+      if forbiddenSplitTypes.contains declName then
         return ()
-      else
-        addSplitCandidate e
+      unless (← isInductivePredicate declName) do
         return ()
-  let .const declName _  := e.getAppFn | return ()
-    if forbiddenSplitTypes.contains declName then return ()
-    -- We should have a mechanism for letting users to select types to case-split.
-    -- Right now, we just consider inductive predicates that are not in the forbidden list
-    if (← getConfig).splitIndPred then
-      if (← isInductivePredicate declName) then
+      if (← get).casesTypes.isSplit declName then
         addSplitCandidate e
+      else if (← getConfig).splitIndPred then
+        addSplitCandidate e
+  | .fvar .. =>
+    let .const declName _ := (← inferType e).getAppFn | return ()
+    if (← get).casesTypes.isSplit declName then
+      addSplitCandidate e
+  | _ => pure ()
 
 /--
 If `e` is a `cast`-like term (e.g., `cast h a`), add `HEq e a` to the to-do list.
@@ -100,7 +109,10 @@ private def pushCastHEqs (e : Expr) : GoalM Unit := do
   | _ => return ()
 
 private def preprocessGroundPattern (e : Expr) : GoalM Expr := do
-  shareCommon (← canon (← normalizeLevels (← unfoldReducible e)))
+  shareCommon (← canon (← normalizeLevels (← eraseIrrelevantMData (← unfoldReducible e))))
+
+private def mkENode' (e : Expr) (generation : Nat) : GoalM Unit :=
+  mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
 
 mutual
 /-- Internalizes the nested ground terms in the given pattern. -/
@@ -113,6 +125,17 @@ private partial def internalizePattern (pattern : Expr) (generation : Nat) : Goa
     return mkGroundPattern e
   else pattern.withApp fun f args => do
     return mkAppN f (← args.mapM (internalizePattern · generation))
+
+/-- Internalizes the `MatchCond` gadget. -/
+private partial def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM Unit := do
+  mkENode' matchCond generation
+  let (lhss, e') ← collectMatchCondLhssAndAbstract matchCond
+  lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
+  propagateUp matchCond
+  internalize e' generation
+  trace[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
+  trace[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
+  pushEq matchCond e' (← mkEqRefl matchCond)
 
 partial def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   -- Recall that we use the proof as part of the key for a set of instances found so far.
@@ -156,10 +179,9 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
-  | .fvar .. | .letE .. | .lam .. =>
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+  | .fvar .. | .letE .. | .lam .. => mkENode' e generation
   | .forallE _ d b _ =>
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    mkENode' e generation
     if (← isProp d <&&> isProp e) then
       internalize d generation e
       registerParent e d
@@ -169,16 +191,22 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
       propagateUp e
   | .lit .. | .const .. =>
     mkENode e generation
-  | .mvar ..
-  | .mdata ..
+  | .mvar .. =>
+    reportIssue m!"unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+    mkENode' e generation
+  | .mdata .. =>
+    reportIssue m!"unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
+    mkENode' e generation
   | .proj .. =>
     reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
-    mkENodeCore e (ctor := false) (interpreted := false) (generation := generation)
+    mkENode' e generation
   | .app .. =>
     if (← isLitValue e) then
       -- We do not want to internalize the components of a literal value.
       mkENode e generation
       Arith.internalize e parent?
+    else if e.isAppOfArity ``Grind.MatchCond 1 then
+      internalizeMatchCond e generation
     else e.withApp fun f args => do
       checkAndAddSplitCandidate e
       pushCastHEqs e
@@ -189,12 +217,16 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
         let c := args[0]!
         internalize c generation e
         registerParent e c
+      else if f.isConstOf ``ite && args.size == 5 then
+        let c := args[1]!
+        internalize c generation e
+        registerParent e c
       else
         if let .const fName _ := f then
           activateTheoremPatterns fName generation
         else
           internalize f generation e
-          registerParent e f
+        registerParent e f
         for h : i in [: args.size] do
           let arg := args[i]
           internalize arg generation e
@@ -204,6 +236,8 @@ partial def internalize (e : Expr) (generation : Nat) (parent? : Option Expr := 
       updateAppMap e
       Arith.internalize e parent?
       propagateUp e
+      propagateBetaForNewApp e
+
 end
 
 end Lean.Meta.Grind

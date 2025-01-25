@@ -69,7 +69,7 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_revert___lambda__1(lean_object*, size_t, 
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_revert___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-lean_object* lean_environment_main_module(lean_object*);
+lean_object* l_Lean_Environment_mainModule(lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_revertAfter___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -830,7 +830,8 @@ if (x_95 == 0)
 lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; 
 x_96 = lean_ctor_get(x_94, 0);
 x_97 = lean_ctor_get(x_94, 1);
-x_98 = lean_environment_main_module(x_85);
+x_98 = l_Lean_Environment_mainModule(x_85);
+lean_dec(x_85);
 lean_ctor_set(x_94, 1, x_81);
 lean_ctor_set(x_94, 0, x_98);
 x_99 = lean_ctor_get(x_96, 1);
@@ -1230,7 +1231,8 @@ x_214 = lean_ctor_get(x_94, 1);
 lean_inc(x_214);
 lean_inc(x_213);
 lean_dec(x_94);
-x_215 = lean_environment_main_module(x_85);
+x_215 = l_Lean_Environment_mainModule(x_85);
+lean_dec(x_85);
 x_216 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_216, 0, x_215);
 lean_ctor_set(x_216, 1, x_81);

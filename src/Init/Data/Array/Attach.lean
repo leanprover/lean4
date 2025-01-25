@@ -6,6 +6,7 @@ Authors: Joachim Breitner, Mario Carneiro
 prelude
 import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas
+import Init.Data.Array.Count
 import Init.Data.List.Attach
 
 namespace Array
@@ -142,10 +143,16 @@ theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (l H) :
   cases l
   simp [List.pmap_eq_map_attach]
 
+@[simp]
+theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
+    pmap (fun a h => ⟨a, f a h⟩) l H = l.attachWith q (fun x h => f x (H x h)) := by
+  cases l
+  simp [List.pmap_eq_attachWith]
+
 theorem attach_map_coe (l : Array α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   cases l
-  simp [List.attach_map_coe]
+  simp
 
 theorem attach_map_val (l : Array α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
   attach_map_coe _ _
@@ -171,6 +178,12 @@ theorem mem_attach (l : Array α) : ∀ x, x ∈ l.attach
     have := mem_map.1 (by rw [attach_map_subtype_val] <;> exact h)
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
+
+@[simp]
+theorem mem_attachWith (l : Array α) {q : α → Prop} (H) (x : {x // q x}) :
+    x ∈ l.attachWith q H ↔ x.1 ∈ l := by
+  cases l
+  simp
 
 @[simp]
 theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
@@ -223,16 +236,16 @@ theorem attachWith_ne_empty_iff {l : Array α} {P : α → Prop} {H : ∀ a ∈ 
   cases l; simp
 
 @[simp]
-theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) (n : Nat) :
-    (pmap f l h)[n]? = Option.pmap f l[n]? fun x H => h x (mem_of_getElem? H) := by
+theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) (i : Nat) :
+    (pmap f l h)[i]? = Option.pmap f l[i]? fun x H => h x (mem_of_getElem? H) := by
   cases l; simp
 
 @[simp]
-theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) {n : Nat}
-    (hn : n < (pmap f l h).size) :
-    (pmap f l h)[n] =
-      f (l[n]'(@size_pmap _ _ p f l h ▸ hn))
-        (h _ (getElem_mem (@size_pmap _ _ p f l h ▸ hn))) := by
+theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) {i : Nat}
+    (hi : i < (pmap f l h).size) :
+    (pmap f l h)[i] =
+      f (l[i]'(@size_pmap _ _ p f l h ▸ hi))
+        (h _ (getElem_mem (@size_pmap _ _ p f l h ▸ hi))) := by
   cases l; simp
 
 @[simp]
@@ -255,6 +268,18 @@ theorem getElem_attachWith {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, 
 theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :
     xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ :=
   getElem_attachWith h
+
+@[simp] theorem pmap_attach (l : Array α) {p : {x // x ∈ l} → Prop} (f : ∀ a, p a → β) (H) :
+    pmap f l.attach H =
+      l.pmap (P := fun a => ∃ h : a ∈ l, p ⟨a, h⟩)
+        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
+  ext <;> simp
+
+@[simp] theorem pmap_attachWith (l : Array α) {p : {x // q x} → Prop} (f : ∀ a, p a → β) (H₁ H₂) :
+    pmap f (l.attachWith q H₁) H₂ =
+      l.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
+        (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
+  ext <;> simp
 
 theorem foldl_pmap (l : Array α) {P : α → Prop} (f : (a : α) → P a → β)
   (H : ∀ (a : α), a ∈ l → P a) (g : γ → β → γ) (x : γ) :
@@ -313,11 +338,7 @@ theorem attachWith_map {l : Array α} (f : α → β) {P : β → Prop} {H : ∀
     (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases l
-  ext
-  · simp
-  · simp only [List.map_toArray, List.attachWith_toArray, List.getElem_toArray,
-      List.getElem_attachWith, List.getElem_map, Function.comp_apply]
-    erw [List.getElem_attachWith] -- Why is `erw` needed here?
+  simp [List.attachWith_map]
 
 theorem map_attachWith {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
     (f : { x // P x } → β) :
@@ -347,7 +368,23 @@ theorem attach_filter {l : Array α} (p : α → Bool) :
   simp [List.attach_filter, List.map_filterMap, Function.comp_def]
 
 -- We are still missing here `attachWith_filterMap` and `attachWith_filter`.
--- Also missing are `filterMap_attach`, `filter_attach`, `filterMap_attachWith` and `filter_attachWith`.
+
+@[simp]
+theorem filterMap_attachWith {q : α → Prop} {l : Array α} {f : {x // q x} → Option β} (H)
+    (w : stop = (l.attachWith q H).size) :
+    (l.attachWith q H).filterMap f 0 stop = l.attach.filterMap (fun ⟨x, h⟩ => f ⟨x, H _ h⟩) := by
+  subst w
+  cases l
+  simp [Function.comp_def]
+
+@[simp]
+theorem filter_attachWith {q : α → Prop} {l : Array α} {p : {x // q x} → Bool} (H)
+    (w : stop = (l.attachWith q H).size) :
+    (l.attachWith q H).filter p 0 stop =
+      (l.attach.filter (fun ⟨x, h⟩ => p ⟨x, H _ h⟩)).map (fun ⟨x, h⟩ => ⟨x, H _ h⟩) := by
+  subst w
+  cases l
+  simp [Function.comp_def, List.filter_map]
 
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l H₁ H₂) :
     pmap f (pmap g l H₁) H₂ =
@@ -427,15 +464,47 @@ theorem reverse_attach (xs : Array α) :
 
 @[simp] theorem back?_attachWith {P : α → Prop} {xs : Array α}
     {H : ∀ (a : α), a ∈ xs → P a} :
-    (xs.attachWith P H).back? = xs.back?.pbind (fun a h => some ⟨a, H _ (mem_of_back?_eq_some h)⟩) := by
+    (xs.attachWith P H).back? = xs.back?.pbind (fun a h => some ⟨a, H _ (mem_of_back? h)⟩) := by
   cases xs
   simp
 
 @[simp]
 theorem back?_attach {xs : Array α} :
-    xs.attach.back? = xs.back?.pbind fun a h => some ⟨a, mem_of_back?_eq_some h⟩ := by
+    xs.attach.back? = xs.back?.pbind fun a h => some ⟨a, mem_of_back? h⟩ := by
   cases xs
   simp
+
+@[simp]
+theorem countP_attach (l : Array α) (p : α → Bool) :
+    l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
+  cases l
+  simp [Function.comp_def]
+
+@[simp]
+theorem countP_attachWith {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) (q : α → Bool) :
+    (l.attachWith p H).countP (fun a : {x // p x} => q a) = l.countP q := by
+  cases l
+  simp
+
+@[simp]
+theorem count_attach [DecidableEq α] (l : Array α) (a : {x // x ∈ l}) :
+    l.attach.count a = l.count ↑a := by
+  rcases l with ⟨l⟩
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.count_toArray]
+  rw [List.map_attach, List.count_eq_countP]
+  simp only [Subtype.beq_iff]
+  rw [List.countP_pmap, List.countP_attach (p := (fun x => x == a.1)), List.count]
+
+@[simp]
+theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) (a : {x // p x}) :
+    (l.attachWith p H).count a = l.count ↑a := by
+  cases l
+  simp
+
+@[simp] theorem countP_pmap {p : α → Prop} (g : ∀ a, p a → β) (f : β → Bool) (l : Array α) (H₁) :
+    (l.pmap g H₁).countP f =
+      l.attach.countP (fun ⟨a, m⟩ => f (g a (H₁ a m))) := by
+  simp [pmap_eq_map_attach, countP_map, Function.comp_def]
 
 /-! ## unattach
 
@@ -455,7 +524,7 @@ and is ideally subsequently simplified away by `unattach_attach`.
 
 If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]` to unfold.
 -/
-def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) := l.map (·.val)
+def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) : Array α := l.map (·.val)
 
 @[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
 @[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {l : Array { x // p x }} :
@@ -577,5 +646,17 @@ and simplifies these to the function directly taking the value.
   cases l₁
   cases l₂
   simp
+
+@[simp] theorem unattach_flatten {p : α → Prop} {l : Array (Array { x // p x })} :
+    l.flatten.unattach = (l.map unattach).flatten := by
+  unfold unattach
+  cases l using array₂_induction
+  simp only [flatten_toArray, List.map_map, Function.comp_def, List.map_id_fun', id_eq,
+    List.map_toArray, List.map_flatten, map_subtype, map_id_fun', List.unattach_toArray, mk.injEq]
+  simp only [List.unattach]
+
+@[simp] theorem unattach_mkArray {p : α → Prop} {n : Nat} {x : { x // p x }} :
+    (Array.mkArray n x).unattach = Array.mkArray n x.1 := by
+  simp [unattach]
 
 end Array

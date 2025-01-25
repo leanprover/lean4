@@ -39,6 +39,17 @@ def isOffsetPattern? (pat : Expr) : Option (Expr × Nat) := Id.run do
   let .lit (.natVal k) := k | none
   return some (pat, k)
 
+def mkEqBwdPattern (u : List Level) (α : Expr) (lhs rhs : Expr) : Expr :=
+  mkApp3 (mkConst ``Grind.eqBwdPattern u) α lhs rhs
+
+def isEqBwdPattern (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.eqBwdPattern 3
+
+def isEqBwdPattern? (e : Expr) : Option (Expr × Expr) :=
+  let_expr Grind.eqBwdPattern _ lhs rhs := e
+    | none
+  some (lhs, rhs)
+
 def preprocessPattern (pat : Expr) (normalizePattern := true) : MetaM Expr := do
   let pat ← instantiateMVars pat
   let pat ← unfoldReducible pat
@@ -131,7 +142,7 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
   s.origins.contains origin
 
-/-- Mark the theorm with the given origin as `erased` -/
+/-- Mark the theorem with the given origin as `erased` -/
 def EMatchTheorems.erase (s : EMatchTheorems) (origin : Origin) : EMatchTheorems :=
   { s with erased := s.erased.insert origin, origins := s.origins.erase origin }
 
@@ -314,7 +325,8 @@ private partial def go (pattern : Expr) (root := false) : M Expr := do
   let some f := getPatternFn? pattern
     | throwError "invalid pattern, (non-forbidden) application expected{indentExpr pattern}"
   assert! f.isConst || f.isFVar
-  saveSymbol f.toHeadIndex
+  unless f.isConstOf ``Grind.eqBwdPattern do
+   saveSymbol f.toHeadIndex
   let mut args := pattern.getAppArgs.toVector
   let supportMask ← getPatternSupportMask f args.size
   for h : i in [:args.size] do
@@ -481,6 +493,8 @@ Pattern variables are represented using de Bruijn indices.
 -/
 def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr) (patterns : List Expr) : MetaM EMatchTheorem := do
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
+  if symbols.isEmpty then
+    throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
   trace[grind.ematch.pattern] "{MessageData.ofConst proof}: {patterns.map ppPattern}"
   if let .missing pos ← checkCoverage proof numParams bvarFound then
      let pats : MessageData := m!"{patterns.map ppPattern}"
@@ -516,9 +530,19 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
       | HEq _ lhs _ rhs => pure (lhs, rhs)
       | _ => throwError "invalid E-matching equality theorem, conclusion must be an equality{indentExpr type}"
     let pat := if useLhs then lhs else rhs
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: origin: {← origin.pp}, pat: {pat}, useLhs: {useLhs}"
     let pat ← preprocessPattern pat normalizePattern
+    trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
+  mkEMatchTheoremCore origin levelParams numParams proof patterns
+
+def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) : MetaM EMatchTheorem := do
+  let (numParams, patterns) ← forallTelescopeReducing (← inferType proof) fun xs type => do
+    let_expr f@Eq α lhs rhs := type
+      | throwError "invalid E-matching `≠` theorem, conclusion must be an equality{indentExpr type}"
+    let pat ← preprocessPattern (mkEqBwdPattern f.constLevels! α lhs rhs)
+    return (xs.size, [pat.abstract xs])
   mkEMatchTheoremCore origin levelParams numParams proof patterns
 
 /--
@@ -550,13 +574,14 @@ def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
 
 inductive TheoremKind where
-  | eqLhs | eqRhs | eqBoth | fwd | bwd | default
+  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default
   deriving Inhabited, BEq, Repr
 
 private def TheoremKind.toAttribute : TheoremKind → String
   | .eqLhs   => "[grind =]"
   | .eqRhs   => "[grind =_]"
   | .eqBoth  => "[grind _=_]"
+  | .eqBwd   => "[grind ←=]"
   | .fwd     => "[grind →]"
   | .bwd     => "[grind ←]"
   | .default => "[grind]"
@@ -565,6 +590,7 @@ private def TheoremKind.explainFailure : TheoremKind → String
   | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
   | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
   | .eqBoth  => unreachable! -- eqBoth is a macro
+  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
   | .fwd     => "failed to find patterns in the antecedents of the theorem"
   | .bwd     => "failed to find patterns in the theorem's conclusion"
   | .default => "failed to find patterns"
@@ -651,9 +677,11 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
 
 def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := true))
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
-    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := false) (useLhs := false))
+    return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := false))
+  else if kind == .eqBwd then
+    return (← mkEMatchEqBwdTheoremCore origin levelParams proof)
   let type ← inferType proof
   forallTelescopeReducing type fun xs type => do
     let searchPlaces ← match kind with
@@ -677,52 +705,25 @@ where
       levelParams, origin
     }
 
-/-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
-def getTheoremKindCore (stx : Syntax) : CoreM TheoremKind := do
-  match stx with
-  | `(Parser.Attr.grindThmMod| =) => return .eqLhs
-  | `(Parser.Attr.grindThmMod| →) => return .fwd
-  | `(Parser.Attr.grindThmMod| ←) => return .bwd
-  | `(Parser.Attr.grindThmMod| =_) => return .eqRhs
-  | `(Parser.Attr.grindThmMod| _=_) => return .eqBoth
-  | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
-
-/-- Return theorem kind for `stx` of the form `(Attr.grindThmMod)?` -/
-def getTheoremKindFromOpt (stx : Syntax) : CoreM TheoremKind := do
-  if stx[1].isNone then
-    return .default
-  else
-    getTheoremKindCore stx[1][0]
-
-private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
-  if (← getConstInfo declName).isTheorem then
-    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
-  else if let some eqns ← getEqnsFor? declName then
-    unless useLhs do
-      throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
-    for eqn in eqns do
-      ematchTheoremsExt.add (← mkEMatchEqTheorem eqn) attrKind
-  else
-    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
-
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind
     | throwError "`@{thmKind.toAttribute} theorem {declName}` {thmKind.explainFailure}, consider using different options or the `grind_pattern` command"
   return thm
 
-private def addGrindAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do
-  if thmKind == .eqLhs then
-    addGrindEqAttr declName attrKind thmKind (useLhs := true)
-  else if thmKind == .eqRhs then
-    addGrindEqAttr declName attrKind thmKind (useLhs := false)
-  else if thmKind == .eqBoth then
-    addGrindEqAttr declName attrKind thmKind (useLhs := true)
-    addGrindEqAttr declName attrKind thmKind (useLhs := false)
-  else if !(← getConstInfo declName).isTheorem then
-    addGrindEqAttr declName attrKind thmKind
+def mkEMatchEqTheoremsForDef? (declName : Name) : MetaM (Option (Array EMatchTheorem)) := do
+  let some eqns ← getEqnsFor? declName | return none
+  eqns.mapM fun eqn => do
+    mkEMatchEqTheorem eqn (normalizePattern := true)
+
+private def addGrindEqAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) (useLhs := true) : MetaM Unit := do
+  if (← getConstInfo declName).isTheorem then
+    ematchTheoremsExt.add (← mkEMatchEqTheorem declName (normalizePattern := true) (useLhs := useLhs)) attrKind
+  else if let some thms ← mkEMatchEqTheoremsForDef? declName then
+    unless useLhs do
+      throwError "`{declName}` is a definition, you must only use the left-hand side for extracting patterns"
+    thms.forM (ematchTheoremsExt.add · attrKind)
   else
-    let thm ← mkEMatchTheoremForDecl declName thmKind
-    ematchTheoremsExt.add thm attrKind
+    throwError s!"`{thmKind.toAttribute}` attribute can only be applied to equational theorems or function definitions"
 
 def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMatchTheorems := do
   let throwErr {α} : MetaM α :=
@@ -741,47 +742,37 @@ def EMatchTheorems.eraseDecl (s : EMatchTheorems) (declName : Name) : MetaM EMat
       throwErr
     return s.erase <| .decl declName
 
-builtin_initialize
-  registerBuiltinAttribute {
-    name := `grind
-    descr :=
-      "The `[grind]` attribute is used to annotate declarations.\
-      \
-      When applied to an equational theorem, `[grind =]`, `[grind =_]`, or `[grind _=_]`\
-      will mark the theorem for use in heuristic instantiations by the `grind` tactic,
-      using respectively the left-hand side, the right-hand side, or both sides of the theorem.\
-      When applied to a function, `[grind =]` automatically annotates the equational theorems associated with that function.\
-      When applied to a theorem `[grind ←]` will instantiate the theorem whenever it encounters the conclusion of the theorem
-      (that is, it will use the theorem for backwards reasoning).\
-      When applied to a theorem `[grind →]` will instantiate the theorem whenever it encounters sufficiently many of the propositional hypotheses
-      (that is, it will use the theorem for forwards reasoning).\
-      \
-      The attribute `[grind]` by itself will effectively try `[grind ←]` (if the conclusion is sufficient for instantiation) and then `[grind →]`.\
-      \
-      The `grind` tactic utilizes annotated theorems to add instances of matching patterns into the local context during proof search.\
-      For example, if a theorem `@[grind =] theorem foo_idempotent : foo (foo x) = foo x` is annotated,\
-      `grind` will add an instance of this theorem to the local context whenever it encounters the pattern `foo (foo x)`."
-    applicationTime := .afterCompilation
-    add := fun declName stx attrKind => do
-      addGrindAttr declName attrKind (← getTheoremKindFromOpt stx) |>.run' {}
-    erase := fun declName => MetaM.run' do
-      /-
-      Remark: consider the following example
-      ```
-      attribute [grind] foo  -- ok
-      attribute [-grind] foo.eqn_2  -- ok
-      attribute [-grind] foo  -- error
-      ```
-      One may argue that the correct behavior should be
-      ```
-      attribute [grind] foo  -- ok
-      attribute [-grind] foo.eqn_2  -- error
-      attribute [-grind] foo  -- ok
-      ```
-      -/
-      let s := ematchTheoremsExt.getState (← getEnv)
-      let s ← s.eraseDecl declName
-      modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => s
-  }
+def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : TheoremKind) : MetaM Unit := do
+  if thmKind == .eqLhs then
+    addGrindEqAttr declName attrKind thmKind (useLhs := true)
+  else if thmKind == .eqRhs then
+    addGrindEqAttr declName attrKind thmKind (useLhs := false)
+  else if thmKind == .eqBoth then
+    addGrindEqAttr declName attrKind thmKind (useLhs := true)
+    addGrindEqAttr declName attrKind thmKind (useLhs := false)
+  else if !(← getConstInfo declName).isTheorem then
+    addGrindEqAttr declName attrKind thmKind
+  else
+    let thm ← mkEMatchTheoremForDecl declName thmKind
+    ematchTheoremsExt.add thm attrKind
+
+def eraseEMatchAttr (declName : Name) : MetaM Unit := do
+  /-
+  Remark: consider the following example
+  ```
+  attribute [grind] foo  -- ok
+  attribute [-grind] foo.eqn_2  -- ok
+  attribute [-grind] foo  -- error
+  ```
+  One may argue that the correct behavior should be
+  ```
+  attribute [grind] foo  -- ok
+  attribute [-grind] foo.eqn_2  -- error
+  attribute [-grind] foo  -- ok
+  ```
+  -/
+  let s := ematchTheoremsExt.getState (← getEnv)
+  let s ← s.eraseDecl declName
+  modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => s
 
 end Lean.Meta.Grind

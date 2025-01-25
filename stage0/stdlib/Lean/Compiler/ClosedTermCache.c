@@ -921,7 +921,6 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = l_Lean_instInhabitedClosedTermCache;
 x_4 = l_Lean_cacheClosedTermName___closed__1;
 x_5 = l_Lean_EnvExtension_getState___rarg(x_3, x_4, x_1);
-lean_dec(x_1);
 x_6 = lean_ctor_get(x_5, 0);
 lean_inc(x_6);
 lean_dec(x_5);
@@ -982,7 +981,6 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_isClosedTermName(x_1, x_2);
 lean_dec(x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

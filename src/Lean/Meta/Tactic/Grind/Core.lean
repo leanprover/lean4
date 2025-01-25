@@ -11,7 +11,9 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind
 
@@ -40,7 +42,7 @@ Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
-  let parents ← getParentsAndReset root
+  let parents ← getParents root
   for parent in parents do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
     if (← pure parent.isApp <&&> isCongrRoot parent) then
@@ -107,6 +109,31 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
     if let some rhsOffset := rhsRoot.offset? then
       Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
 
+/--
+Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+the lambda expressions in `lams`.
+-/
+def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
+  if lams.isEmpty then return ()
+  let lamRoot ← getRoot lams.back!
+  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  for fn in fns do
+    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    for parent in (← getParents fn) do
+      let mut args := #[]
+      let mut curr := parent
+      trace[grind.debug.beta] "parent: {parent}"
+      repeat
+        trace[grind.debug.beta] "curr: {curr}"
+        if (← isEqv curr lamRoot) then
+          propagateBetaEqs lams curr args.reverse
+        let .app f arg := curr
+          | break
+        -- Remark: recall that we do not eagerly internalize partial applications.
+        internalize curr (← getGeneration parent)
+        args := args.push arg
+        curr := f
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -158,6 +185,10 @@ where
       proof?  := proof
       flipped
     }
+    let lams₁ ← getEqcLambdas lhsRoot
+    let lams₂ ← getEqcLambdas rhsRoot
+    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot.self
+    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot.self
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
@@ -172,6 +203,9 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
+    propagateBeta lams₁ fns₁
+    propagateBeta lams₂ fns₂
+    resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
@@ -200,18 +234,19 @@ private def popNextEq? : GoalM (Option NewEq) := do
     modify fun s => { s with newEqs := s.newEqs.pop }
   return r
 
-private partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  addEqStep lhs rhs proof isHEq
-  processTodo
-where
-  processTodo : GoalM Unit := do
+private def processNewEqs : GoalM Unit := do
+  repeat
     if (← isInconsistent) then
       resetNewEqs
       return ()
     checkSystem "grind"
-    let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
+    let some { lhs, rhs, proof, isHEq } := (← popNextEq?)
+      | return ()
     addEqStep lhs rhs proof isHEq
-    processTodo
+
+private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+  addEqStep lhs rhs proof isHEq
+  processNewEqs
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -235,6 +270,7 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  if fact.isTrue then return ()
   storeFact fact
   trace_goal[grind.assert] "{fact}"
   if (← isInconsistent) then return ()
@@ -274,5 +310,57 @@ where
 /-- Adds a new hypothesis. -/
 def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
+
+/--
+Helper function for executing `x` with a fresh `newEqs` and without modifying
+the goal state.
+ -/
+private def withoutModifyingState (x : GoalM α) : GoalM α := do
+  let saved ← get
+  modify fun goal => { goal with newEqs := {} }
+  try
+    x
+  finally
+    set saved
+
+/--
+If `e` has not been internalized yet, simplify it, and internalize the result.
+-/
+private def simpAndInternalize (e : Expr) (gen : Nat := 0) : GoalM Simp.Result := do
+  if (← alreadyInternalized e) then
+    return { expr := e }
+  else
+    let r ← simp e
+    internalize r.expr gen
+    return r
+
+/--
+Try to construct a proof that `lhs = rhs` using the information in the
+goal state. If `lhs` and `rhs` have not been internalized, this function
+will internalize then, process propagated equalities, and then check
+whether they are in the same equivalence class or not.
+The goal state is not modified by this function.
+This function mainly relies on congruence closure, and constraint
+propagation. It will not perform case analysis.
+-/
+def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
+  if (← alreadyInternalized lhs <&&> alreadyInternalized rhs) then
+    if (← isEqv lhs rhs) then
+      return some (← mkEqProof lhs rhs)
+    else
+      return none
+  else withoutModifyingState do
+    let lhs ← simpAndInternalize lhs
+    let rhs ← simpAndInternalize rhs
+    processNewEqs
+    unless (← isEqv lhs.expr rhs.expr) do return none
+    unless (← hasSameType lhs.expr rhs.expr) do return none
+    let h ← mkEqProof lhs.expr rhs.expr
+    let h ← match lhs.proof?, rhs.proof? with
+      | none,    none    => pure h
+      | none,    some h₂ => mkEqTrans h (← mkEqSymm h₂)
+      | some h₁, none    => mkEqTrans h₁ h
+      | some h₁, some h₂ => mkEqTrans (← mkEqTrans h₁ h) (← mkEqSymm h₂)
+    return some h
 
 end Lean.Meta.Grind

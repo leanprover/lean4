@@ -669,4 +669,11 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 
+/- ### reverse -/
+
+/-- Reverse the bits in a bitvector. -/
+def reverse : {w : Nat} → BitVec w → BitVec w
+  | 0, x => x
+  | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
+
 end BitVec

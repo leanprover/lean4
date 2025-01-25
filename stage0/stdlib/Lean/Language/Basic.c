@@ -34,6 +34,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f___rarg___bo
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__26;
 LEAN_EXPORT lean_object* l_Lean_Language_mkIncrementalProcessor___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_Snapshot_Diagnostics_ofMessageLog(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Language_initFn____x40_Lean_Language_Basic___hyg_1278____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_DynamicSnapshot_toTyped_x3f___rarg(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__30;
@@ -87,6 +88,7 @@ static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__20;
 lean_object* l_IO_Promise_resolve___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_Promise_new___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_range___lambda__1___boxed(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__36;
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__34;
@@ -114,6 +116,7 @@ static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__21;
 LEAN_EXPORT lean_object* l_Lean_Language_instInhabitedSnapshotTree;
 LEAN_EXPORT lean_object* l_Lean_Language_reportMessages(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_instToSnapshotTreeOption___rarg(lean_object*, lean_object*);
+lean_object* l_Array_ofFn___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_forM___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_map___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_strict_or(uint8_t, uint8_t);
@@ -234,8 +237,8 @@ lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t
 LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises(lean_object*, lean_object*);
 static lean_object* l_Lean_Language_withAlwaysResolvedPromise___rarg___lambda__3___closed__1;
 static lean_object* l___auto____x40_Lean_Language_Basic___hyg_62____closed__31;
-lean_object* l_List_iotaTR(lean_object*);
 static lean_object* l_Lean_Language_instInhabitedSnapshot___closed__2;
+static lean_object* l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTask_bind(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg___lambda__1___closed__1;
 static lean_object* l_Lean_Language_withAlwaysResolvedPromise___rarg___closed__1;
@@ -1721,6 +1724,14 @@ x_22 = lean_apply_4(x_20, lean_box(0), lean_box(0), x_21, x_19);
 return x_22;
 }
 }
+static lean_object* _init_l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Array_range___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1() {
 _start:
 {
@@ -1736,8 +1747,8 @@ _start:
 lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x_10; size_t x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_7 = lean_ctor_get(x_1, 1);
 lean_inc(x_7);
-x_8 = l_List_iotaTR(x_5);
-x_9 = lean_array_mk(x_8);
+x_8 = l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1;
+x_9 = l_Array_ofFn___rarg(x_5, x_8);
 x_10 = lean_array_size(x_9);
 x_11 = 0;
 lean_inc(x_2);
@@ -1761,7 +1772,7 @@ LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises(lean_object*
 _start:
 {
 lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg), 6, 0);
+x_3 = lean_alloc_closure((void*)(l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed), 6, 0);
 return x_3;
 }
 }
@@ -1839,6 +1850,15 @@ x_9 = lean_unbox_usize(x_6);
 lean_dec(x_6);
 x_10 = l_Lean_Language_withAlwaysResolvedPromises___rarg___lambda__2(x_1, x_2, x_3, x_4, x_5, x_9, x_7, x_8);
 return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+lean_object* x_7; 
+x_7 = l_Lean_Language_withAlwaysResolvedPromises___rarg(x_1, x_2, x_3, x_4, x_5, x_6);
+lean_dec(x_5);
+return x_7;
 }
 }
 static lean_object* _init_l_Lean_Language_instInhabitedSnapshotTree___closed__1() {
@@ -6023,6 +6043,8 @@ l_Lean_Language_withAlwaysResolvedPromise___rarg___closed__1 = _init_l_Lean_Lang
 lean_mark_persistent(l_Lean_Language_withAlwaysResolvedPromise___rarg___closed__1);
 l_Array_forIn_x27Unsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg___lambda__1___closed__1 = _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg___lambda__1___closed__1();
 lean_mark_persistent(l_Array_forIn_x27Unsafe_loop___at_Lean_Language_withAlwaysResolvedPromises___spec__2___rarg___lambda__1___closed__1);
+l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1 = _init_l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1();
+lean_mark_persistent(l_Lean_Language_withAlwaysResolvedPromises___rarg___closed__1);
 l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1 = _init_l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1();
 lean_mark_persistent(l_Lean_Language_withAlwaysResolvedPromises___rarg___boxed__const__1);
 l_Lean_Language_instInhabitedSnapshotTree___closed__1 = _init_l_Lean_Language_instInhabitedSnapshotTree___closed__1();

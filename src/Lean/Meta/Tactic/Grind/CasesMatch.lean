@@ -7,8 +7,42 @@ prelude
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Cases
 import Lean.Meta.Match.MatcherApp
+import Lean.Meta.Tactic.Grind.MatchCond
 
 namespace Lean.Meta.Grind
+
+/--
+Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False`
+-/
+private def isMatchCond (e : Expr) : Bool := Id.run do
+  let mut e := e
+  let mut hasEqs := false
+  repeat
+    let .forallE _ d b _ := e | return false
+    if d.isEq || d.isHEq then hasEqs := true
+    if b.isFalse then return hasEqs
+    e := b
+  return true
+
+/--
+Given a splitter alternative, annotate the terms that are `match`-expression
+conditions corresponding to overlapping patterns.
+-/
+private def addMatchCondsToAlt (alt : Expr) : Expr := Id.run do
+  let .forallE _ d b _ := alt
+    | return alt
+  let d := if isMatchCond d then markAsMatchCond d else d
+  return alt.updateForallE! d (addMatchCondsToAlt b)
+
+/--
+Annotates the `match`-expression conditions in the alternatives in the given
+`match` splitter type.
+-/
+private def addMatchCondsToSplitter (splitterType : Expr) (numAlts : Nat) : Expr := Id.run do
+  if numAlts == 0 then return splitterType
+  let .forallE _ alt b _ := splitterType
+    | return splitterType
+  return splitterType.updateForallE! (addMatchCondsToAlt alt) (addMatchCondsToSplitter b (numAlts-1))
 
 def casesMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withContext do
   let some app ← matchMatcherApp? e
@@ -23,7 +57,10 @@ def casesMatch (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.with
   let splitterApp := mkAppN splitterApp app.params
   let splitterApp := mkApp splitterApp motive
   let splitterApp := mkAppN splitterApp app.discrs
-  let (mvars, _, _) ← forallMetaBoundedTelescope (← inferType splitterApp) app.alts.size (kind := .syntheticOpaque)
+  let numAlts := app.alts.size
+  let splitterType ← inferType splitterApp
+  let splitterType := addMatchCondsToSplitter splitterType app.alts.size
+  let (mvars, _, _) ← forallMetaBoundedTelescope splitterType numAlts (kind := .syntheticOpaque)
   let splitterApp := mkAppN splitterApp mvars
   let val := mkAppN splitterApp eqRefls
   mvarId.assign val

@@ -813,11 +813,6 @@ theorem getElem_cons_length (x : α) (xs : List α) (i : Nat) (h : i = xs.length
     (x :: xs)[i]'(by simp [h]) = (x :: xs).getLast (cons_ne_nil x xs) := by
   rw [getLast_eq_getElem]; cases h; rfl
 
-@[deprecated getElem_cons_length (since := "2024-06-12")]
-theorem get_cons_length (x : α) (xs : List α) (n : Nat) (h : n = xs.length) :
-    (x :: xs).get ⟨n, by simp [h]⟩ = (x :: xs).getLast (cons_ne_nil x xs) := by
-  simp [getElem_cons_length, h]
-
 /-! ### getLast? -/
 
 @[simp] theorem getLast?_singleton (a : α) : getLast? [a] = a := rfl
@@ -1026,20 +1021,9 @@ theorem getLast?_tail (l : List α) : (tail l).getLast? = if l.length = 1 then n
   | _ :: _, 0 => by simp
   | _ :: l, i+1 => by simp [getElem?_map f l i]
 
-@[deprecated getElem?_map (since := "2024-06-12")]
-theorem get?_map (f : α → β) : ∀ l i, (map f l).get? i = (l.get? i).map f
-  | [], _ => rfl
-  | _ :: _, 0 => rfl
-  | _ :: l, i+1 => get?_map f l i
-
 @[simp] theorem getElem_map (f : α → β) {l} {i : Nat} {h : i < (map f l).length} :
     (map f l)[i] = f (l[i]'(length_map l f ▸ h)) :=
   Option.some.inj <| by rw [← getElem?_eq_getElem, getElem?_map, getElem?_eq_getElem]; rfl
-
-@[deprecated getElem_map (since := "2024-06-12")]
-theorem get_map (f : α → β) {l i} :
-    get (map f l) i = f (get l ⟨i, length_map l f ▸ i.2⟩) := by
-  simp
 
 @[simp] theorem map_id_fun : map (id : α → α) = id := by
   funext l
@@ -1286,8 +1270,6 @@ theorem filter_map (f : β → α) (l : List β) : filter p (map f l) = map f (f
   | nil => rfl
   | cons a l IH => by_cases h : p (f a) <;> simp [*]
 
-@[deprecated filter_map (since := "2024-06-15")] abbrev map_filter := @filter_map
-
 theorem map_filter_eq_foldr (f : α → β) (p : α → Bool) (as : List α) :
     map f (filter p as) = foldr (fun a bs => bif p a then f a :: bs else bs) [] as := by
   induction as with
@@ -1331,8 +1313,6 @@ theorem filter_congr {p q : α → Bool} :
     rw [forall_mem_cons] at h; by_cases pa : p a
     · simp [pa, h.1 ▸ pa, filter_congr h.2]
     · simp [pa, h.1 ▸ pa, filter_congr h.2]
-
-@[deprecated filter_congr (since := "2024-06-20")] abbrev filter_congr' := @filter_congr
 
 theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p (l.head w)) :
     (filter p l).head ((ne_nil_of_mem (mem_filter.2 ⟨head_mem w, h⟩))) = l.head w := by
@@ -1561,11 +1541,6 @@ theorem getElem?_append {l₁ l₂ : List α} {i : Nat} :
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
 
-@[deprecated getElem?_append_right (since := "2024-06-12")]
-theorem get?_append_right {l₁ l₂ : List α} {i : Nat} (h : l₁.length ≤ i) :
-    (l₁ ++ l₂).get? i = l₂.get? (i - l₁.length) := by
-  simp [getElem?_append_right, h]
-
 /-- Variant of `getElem_append_left` useful for rewriting from the small list to the big list. -/
 theorem getElem_append_left' (l₂ : List α) {l₁ : List α} {i : Nat} (hi : i < l₁.length) :
     l₁[i] = (l₁ ++ l₂)[i]'(by simpa using Nat.lt_add_right l₂.length hi) := by
@@ -1576,32 +1551,10 @@ theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {i : Nat} (hi : 
     l₂[i] = (l₁ ++ l₂)[i + l₁.length]'(by simpa [Nat.add_comm] using Nat.add_lt_add_left hi _) := by
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
-@[deprecated "Deprecated without replacement." (since := "2024-06-12")]
-theorem get_append_right_aux {l₁ l₂ : List α} {i : Nat}
-  (h₁ : l₁.length ≤ i) (h₂ : i < (l₁ ++ l₂).length) : i - l₁.length < l₂.length := by
-  rw [length_append] at h₂
-  exact Nat.sub_lt_left_of_lt_add h₁ h₂
-
-set_option linter.deprecated false in
-@[deprecated getElem_append_right (since := "2024-06-12")]
-theorem get_append_right' {l₁ l₂ : List α} {i : Nat} (h₁ : l₁.length ≤ i) (h₂) :
-    (l₁ ++ l₂).get ⟨i, h₂⟩ = l₂.get ⟨i - l₁.length, get_append_right_aux h₁ h₂⟩ :=
-  Option.some.inj <| by rw [← get?_eq_get, ← get?_eq_get, get?_append_right h₁]
-
 theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
     l[i]'(eq ▸ h ▸ by simp_arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
-
-@[deprecated "Deprecated without replacement." (since := "2024-06-12")]
-theorem get_of_append_proof {l : List α}
-    (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) : i < length l := eq ▸ h ▸ by simp_arith
-
-set_option linter.deprecated false in
-@[deprecated getElem_of_append (since := "2024-06-12")]
-theorem get_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
-    l.get ⟨i, get_of_append_proof eq h⟩ = a := Option.some.inj <| by
-  rw [← get?_eq_get, eq, get?_append_right (h ▸ Nat.le_refl _), h, Nat.sub_self]; rfl
 
 @[simp 1100] theorem singleton_append : [x] ++ l = x :: l := rfl
 
@@ -1652,26 +1605,6 @@ theorem getLast_concat {a : α} : ∀ (l : List α), getLast (l ++ [a]) (by simp
   | [] => rfl
   | a::t => by
     simp [getLast_cons _, getLast_concat t]
-
-@[deprecated getElem_append (since := "2024-06-12")]
-theorem get_append {l₁ l₂ : List α} (n : Nat) (h : n < l₁.length) :
-    (l₁ ++ l₂).get ⟨n, length_append .. ▸ Nat.lt_add_right _ h⟩ = l₁.get ⟨n, h⟩ := by
-  simp [getElem_append, h]
-
-@[deprecated getElem_append_left (since := "2024-06-12")]
-theorem get_append_left (as bs : List α) (h : i < as.length) {h'} :
-    (as ++ bs).get ⟨i, h'⟩ = as.get ⟨i, h⟩ := by
-  simp [getElem_append_left, h, h']
-
-@[deprecated getElem_append_right (since := "2024-06-12")]
-theorem get_append_right (as bs : List α) (h : as.length ≤ i) {h' h''} :
-    (as ++ bs).get ⟨i, h'⟩ = bs.get ⟨i - as.length, h''⟩ := by
-  simp [getElem_append_right, h, h', h'']
-
-@[deprecated getElem?_append_left (since := "2024-06-12")]
-theorem get?_append {l₁ l₂ : List α} {n : Nat} (hn : n < l₁.length) :
-    (l₁ ++ l₂).get? n = l₁.get? n := by
-  simp [getElem?_append_left hn]
 
 @[simp] theorem append_eq_nil_iff : p ++ q = [] ↔ p = [] ∧ q = [] := by
   cases p <;> simp
@@ -2199,10 +2132,6 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
     (replicate n a)[m] = a :=
   eq_of_mem_replicate (getElem_mem _)
 
-@[deprecated getElem_replicate (since := "2024-06-12")]
-theorem get_replicate (a : α) {n : Nat} (m : Fin _) : (replicate n a).get m = a := by
-  simp
-
 theorem getElem?_replicate : (replicate n a)[m]? = if m < n then some a else none := by
   by_cases h : m < n
   · rw [getElem?_eq_getElem (by simpa), getElem_replicate, if_pos h]
@@ -2438,10 +2367,6 @@ theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     rw [getElem?_append_left, getElem?_reverse' _ _ this]
     rw [length_reverse, ← this]; apply Nat.lt_add_of_pos_right (Nat.succ_pos _)
 
-@[deprecated getElem?_reverse' (since := "2024-06-12")]
-theorem get?_reverse' {l : List α} (i j) (h : i + j + 1 = length l) : get? l.reverse i = get? l j := by
-  simp [getElem?_reverse' _ _ h]
-
 @[simp]
 theorem getElem?_reverse {l : List α} {i} (h : i < length l) :
     l.reverse[i]? = l[l.length - 1 - i]? :=
@@ -2455,11 +2380,6 @@ theorem getElem_reverse {l : List α} {i} (h : i < l.reverse.length) :
   apply Option.some.inj
   rw [← getElem?_eq_getElem, ← getElem?_eq_getElem]
   rw [getElem?_reverse (by simpa using h)]
-
-@[deprecated getElem?_reverse (since := "2024-06-12")]
-theorem get?_reverse {l : List α} {i} (h : i < length l) :
-    get? l.reverse i = get? l (l.length - 1 - i) := by
-  simp [getElem?_reverse h]
 
 theorem reverseAux_reverseAux_nil (as bs : List α) : reverseAux (reverseAux as bs) [] = reverseAux bs as := by
   induction as generalizing bs with
@@ -2500,10 +2420,6 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
 
 @[simp] theorem map_reverse (f : α → β) (l : List α) : l.reverse.map f = (l.map f).reverse := by
   induction l <;> simp [*]
-
-@[deprecated map_reverse (since := "2024-06-20")]
-theorem reverse_map (f : α → β) (l : List α) : (l.map f).reverse = l.reverse.map f := by
-  simp
 
 @[simp] theorem filter_reverse (p : α → Bool) (l : List α) : (l.reverse.filter p) = (l.filter p).reverse := by
   induction l with
@@ -2630,19 +2546,23 @@ theorem foldr_filterMap (f : α → Option β) (g : β → γ → γ) (l : List 
     simp only [filterMap_cons, foldr_cons]
     cases f a <;> simp [ih]
 
-theorem foldl_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+theorem foldl_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldl f' (g a) = g (l.foldl f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
 
-theorem foldr_map' (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
+@[deprecated foldl_map_hom (since := "2025-01-20")] abbrev foldl_map' := @foldl_map_hom
+
+theorem foldr_map_hom (g : α → β) (f : α → α → α) (f' : β → β → β) (a : α) (l : List α)
     (h : ∀ x y, f' (g x) (g y) = g (f x y)) :
     (l.map g).foldr f' (g a) = g (l.foldr f a) := by
   induction l generalizing a
   · simp
   · simp [*, h]
+
+@[deprecated foldr_map_hom (since := "2025-01-20")] abbrev foldr_map' := @foldr_map_hom
 
 @[simp] theorem foldrM_append [Monad m] [LawfulMonad m] (f : α → β → m β) (b) (l l' : List α) :
     (l ++ l').foldrM f b = l'.foldrM f b >>= l.foldrM f := by
@@ -2830,9 +2750,11 @@ theorem getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ 
   rw [getLast?_eq_head?_reverse, head?_isSome]
   simp
 
-theorem mem_of_getLast?_eq_some {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
+theorem mem_of_getLast? {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
   obtain ⟨ys, rfl⟩ := getLast?_eq_some_iff.1 h
   exact mem_concat_self ys a
+
+@[deprecated mem_of_getLast? (since := "2024-10-21")] abbrev mem_of_getLast?_eq_some := @mem_of_getLast?
 
 @[simp] theorem getLast_reverse {l : List α} (h : l.reverse ≠ []) :
     l.reverse.getLast h = l.head (by simp_all) := by
@@ -2967,11 +2889,6 @@ are often used for theorems about `Array.pop`.
     xs.dropLast[i] = xs[i]'(Nat.lt_of_lt_of_le h (length_dropLast .. ▸ Nat.pred_le _))
   | _::_::_, 0, _ => rfl
   | _::_::_, i+1, h => getElem_dropLast _ i (Nat.add_one_lt_add_one_iff.mp h)
-
-@[deprecated getElem_dropLast (since := "2024-06-12")]
-theorem get_dropLast (xs : List α) (i : Fin xs.dropLast.length) :
-    xs.dropLast.get i = xs.get ⟨i, Nat.lt_of_lt_of_le i.isLt (length_dropLast .. ▸ Nat.pred_le _)⟩ := by
-  simp
 
 theorem getElem?_dropLast (xs : List α) (i : Nat) :
     xs.dropLast[i]? = if i < xs.length - 1 then xs[i]? else none := by
@@ -3509,29 +3426,6 @@ theorem mem_iff_get? {a} {l : List α} : a ∈ l ↔ ∃ n, l.get? n = some a :=
   simp [getElem?_eq_some_iff, Fin.exists_iff, mem_iff_get]
 
 /-! ### Deprecations -/
-
-@[deprecated getD_eq_getElem?_getD (since := "2024-06-12")]
-theorem getD_eq_get? : ∀ l n (a : α), getD l n a = (get? l n).getD a := by simp
-@[deprecated getElem_singleton (since := "2024-06-12")]
-theorem get_singleton (a : α) (n : Fin 1) : get [a] n = a := by simp
-@[deprecated getElem?_concat_length (since := "2024-06-12")]
-theorem get?_concat_length (l : List α) (a : α) : (l ++ [a]).get? l.length = some a := by simp
-@[deprecated getElem_set_self (since := "2024-06-12")]
-theorem get_set_eq {l : List α} {i : Nat} {a : α} (h : i < (l.set i a).length) :
-    (l.set i a).get ⟨i, h⟩ = a := by
-  simp
-@[deprecated getElem_set_ne (since := "2024-06-12")]
-theorem get_set_ne {l : List α} {i j : Nat} (h : i ≠ j) {a : α}
-    (hj : j < (l.set i a).length) :
-    (l.set i a).get ⟨j, hj⟩ = l.get ⟨j, by simp at hj; exact hj⟩ := by
-  simp [h]
-@[deprecated getElem_set (since := "2024-06-12")]
-theorem get_set {l : List α} {m n} {a : α} (h) :
-    (set l m a).get ⟨n, h⟩ = if m = n then a else l.get ⟨n, length_set .. ▸ h⟩ := by
-  simp [getElem_set]
-@[deprecated cons_inj_right (since := "2024-06-15")] abbrev cons_inj := @cons_inj_right
-@[deprecated ne_nil_of_length_eq_add_one (since := "2024-06-16")]
-abbrev ne_nil_of_length_eq_succ := @ne_nil_of_length_eq_add_one
 
 @[deprecated "Deprecated without replacement." (since := "2024-07-09")]
 theorem get_cons_cons_one : (a₁ :: a₂ :: as).get (1 : Fin (as.length + 2)) = a₂ := rfl

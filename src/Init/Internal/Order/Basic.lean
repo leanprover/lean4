@@ -104,7 +104,7 @@ variable {α : Sort u} [PartialOrder α]
 variable {β : Sort v} [PartialOrder β]
 
 /--
-A function is monotone if if it maps related elements to releated elements.
+A function is monotone if it maps related elements to releated elements.
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
@@ -401,6 +401,7 @@ theorem monotone_letFun
     (hmono : ∀ y, monotone (fun x => k x y)) :
   monotone fun (x : α) => letFun v (k x) := hmono v
 
+@[partial_fixpoint_monotone]
 theorem monotone_ite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
     (c : Prop) [Decidable c]
@@ -411,6 +412,7 @@ theorem monotone_ite
     · apply hmono₁
     · apply hmono₂
 
+@[partial_fixpoint_monotone]
 theorem monotone_dite
     {α : Sort u} {β : Sort v} [PartialOrder α] [PartialOrder β]
     (c : Prop) [Decidable c]
@@ -440,38 +442,41 @@ instance [PartialOrder α] [PartialOrder β] : PartialOrder (α ×' β) where
     dsimp at *
     rw [rel_antisymm ha.1 hb.1, rel_antisymm ha.2 hb.2]
 
-theorem monotone_pprod [PartialOrder α] [PartialOrder β] [PartialOrder γ]
+@[partial_fixpoint_monotone]
+theorem PProd.monotone_mk [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α} {g : γ → β} (hf : monotone f) (hg : monotone g) :
     monotone (fun x => PProd.mk (f x) (g x)) :=
   fun _ _ h12 => ⟨hf _ _ h12, hg _ _ h12⟩
 
-theorem monotone_pprod_fst [PartialOrder α] [PartialOrder β] [PartialOrder γ]
+@[partial_fixpoint_monotone]
+theorem PProd.monotone_fst [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).1) :=
   fun _ _ h12 => (hf _ _ h12).1
 
-theorem monotone_pprod_snd [PartialOrder α] [PartialOrder β] [PartialOrder γ]
+@[partial_fixpoint_monotone]
+theorem PProd.monotone_snd [PartialOrder α] [PartialOrder β] [PartialOrder γ]
     {f : γ → α ×' β} (hf : monotone f) : monotone (fun x => (f x).2) :=
   fun _ _ h12 => (hf _ _ h12).2
 
-def chain_pprod_fst [CCPO α] [CCPO β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
-def chain_pprod_snd [CCPO α] [CCPO β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
+def PProd.chain.fst [CCPO α] [CCPO β] (c : α ×' β → Prop) : α → Prop := fun a => ∃ b, c ⟨a, b⟩
+def PProd.chain.snd [CCPO α] [CCPO β] (c : α ×' β → Prop) : β → Prop := fun b => ∃ a, c ⟨a, b⟩
 
-theorem chain.pprod_fst [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
-    chain (chain_pprod_fst c) := by
+theorem PProd.chain.chain_fst [CCPO α] [CCPO β] {c : α ×' β → Prop} (hchain : chain c) :
+    chain (chain.fst c) := by
   intro a₁ a₂ ⟨b₁, h₁⟩ ⟨b₂, h₂⟩
   cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
   case inl h => left; exact h.1
   case inr h => right; exact h.1
 
-theorem chain.pprod_snd [CCPO α] [CCPO β] (c : α ×' β → Prop) (hchain : chain c) :
-    chain (chain_pprod_snd c) := by
+theorem PProd.chain.chain_snd [CCPO α] [CCPO β] {c : α ×' β → Prop} (hchain : chain c) :
+    chain (chain.snd c) := by
   intro b₁ b₂ ⟨a₁, h₁⟩ ⟨a₂, h₂⟩
   cases hchain ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ h₁ h₂
   case inl h => left; exact h.2
   case inr h => right; exact h.2
 
-instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
-  csup c := ⟨CCPO.csup (chain_pprod_fst c), CCPO.csup (chain_pprod_snd c)⟩
+instance instCCPOPProd [CCPO α] [CCPO β] : CCPO (α ×' β) where
+  csup c := ⟨CCPO.csup (PProd.chain.fst c), CCPO.csup (PProd.chain.snd c)⟩
   csup_spec := by
     intro ⟨a, b⟩ c hchain
     dsimp
@@ -480,32 +485,32 @@ instance [CCPO α] [CCPO β] : CCPO (α ×' β) where
       intro ⟨h₁, h₂⟩ ⟨a', b'⟩ cab
       constructor <;> dsimp at *
       · apply rel_trans ?_ h₁
-        apply le_csup hchain.pprod_fst
+        apply le_csup (PProd.chain.chain_fst hchain)
         exact ⟨b', cab⟩
       · apply rel_trans ?_ h₂
-        apply le_csup hchain.pprod_snd
+        apply le_csup (PProd.chain.chain_snd hchain)
         exact ⟨a', cab⟩
     next =>
       intro h
       constructor <;> dsimp
-      · apply csup_le hchain.pprod_fst
+      · apply csup_le (PProd.chain.chain_fst hchain)
         intro a' ⟨b', hcab⟩
         apply (h _ hcab).1
-      · apply csup_le hchain.pprod_snd
+      · apply csup_le (PProd.chain.chain_snd hchain)
         intro b' ⟨a', hcab⟩
         apply (h _ hcab).2
 
 theorem admissible_pprod_fst {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : α → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.1) := by
   intro c hchain h
-  apply hadm _ hchain.pprod_fst
+  apply hadm _ (PProd.chain.chain_fst hchain)
   intro x ⟨y, hxy⟩
   apply h ⟨x,y⟩ hxy
 
 theorem admissible_pprod_snd {α : Sort u} {β : Sort v} [CCPO α] [CCPO β] (P : β → Prop)
     (hadm : admissible P) : admissible (fun (x : α ×' β) => P x.2) := by
   intro c hchain h
-  apply hadm _ hchain.pprod_snd
+  apply hadm _ (PProd.chain.chain_snd hchain)
   intro y ⟨x, hxy⟩
   apply h ⟨x,y⟩ hxy
 
@@ -609,6 +614,7 @@ class MonoBind (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] wh
   bind_mono_left {a₁ a₂ : m α} {f : α → m b} (h : a₁ ⊑ a₂) : a₁ >>= f ⊑ a₂ >>= f
   bind_mono_right {a : m α} {f₁ f₂ : α → m b} (h : ∀ x, f₁ x ⊑ f₂ x) : a >>= f₁ ⊑ a >>= f₂
 
+@[partial_fixpoint_monotone]
 theorem monotone_bind
     (m : Type u → Type v) [Bind m] [∀ α, PartialOrder (m α)] [MonoBind m]
     {α β : Type u}
@@ -634,7 +640,7 @@ noncomputable instance : MonoBind Option where
     · exact FlatOrder.rel.refl
     · exact h _
 
-theorem admissible_eq_some (P : Prop) (y : α) :
+theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
   apply admissible_flatOrder; simp
 
@@ -677,7 +683,7 @@ theorem find_spec : ∀ n m, find P n = some m → n ≤ m ∧ P m := by
   refine fix_induct (motive := fun (f : Nat → Option Nat) => ∀ n m, f n = some m → n ≤ m ∧ P m) _ ?hadm ?hstep
   case hadm =>
     -- apply admissible_pi_apply does not work well, hard to infer everything
-    exact admissible_pi_apply _ (fun n => admissible_pi _ (fun m => admissible_eq_some _ m))
+    exact admissible_pi_apply _ (fun n => admissible_pi _ (fun m => Option.admissible_eq_some _ m))
   case hstep =>
     intro f ih n m heq
     simp only [findF] at heq

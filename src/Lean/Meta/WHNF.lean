@@ -104,7 +104,7 @@ Otherwise executes `failK`.
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d |
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) := (← getEnv).find? d |
     return none
   return some ctor
 
@@ -258,7 +258,7 @@ private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Un
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getUnfoldableConstNoEx? majorFn | failK ()
+        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
@@ -321,7 +321,7 @@ mutual
         | .mvar mvarId => return some mvarId
         | _ => getStuckMVar? e
       | .const fName _ =>
-        match (← getUnfoldableConstNoEx? fName) with
+        match (← getEnv).find? fName with
         | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
@@ -625,17 +625,18 @@ where
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | c@(.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  recordUnfold c.name
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+            let .const cname lvls := f' | return e
+            let some cinfo := (← getEnv).find? cname | return e
+            match cinfo with
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | c@(.defnInfo _) => do
+              if (← isAuxDef c.name) then
+                recordUnfold c.name
+                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+              else
+                return e
+            | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
           match (← projectCore? c i) with
@@ -860,7 +861,9 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     return none
   else match (← reduceMatcher? e) with
     | .reduced e => return e
-    | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
+    | _ =>
+      let .const cname lvls := e.getAppFn | return none
+      let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))

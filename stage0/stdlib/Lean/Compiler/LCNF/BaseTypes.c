@@ -896,7 +896,7 @@ x_2 = 1;
 x_3 = 1;
 x_4 = 0;
 x_5 = 2;
-x_6 = lean_alloc_ctor(0, 0, 17);
+x_6 = lean_alloc_ctor(0, 0, 18);
 lean_ctor_set_uint8(x_6, 0, x_1);
 lean_ctor_set_uint8(x_6, 1, x_1);
 lean_ctor_set_uint8(x_6, 2, x_1);
@@ -914,6 +914,7 @@ lean_ctor_set_uint8(x_6, 13, x_2);
 lean_ctor_set_uint8(x_6, 14, x_5);
 lean_ctor_set_uint8(x_6, 15, x_2);
 lean_ctor_set_uint8(x_6, 16, x_2);
+lean_ctor_set_uint8(x_6, 17, x_2);
 return x_6;
 }
 }
@@ -1112,7 +1113,6 @@ lean_dec(x_10);
 x_13 = l_Lean_Compiler_LCNF_instInhabitedBaseTypeExtState;
 x_14 = l_Lean_Compiler_LCNF_getOtherDeclBaseType___closed__1;
 x_15 = l_Lean_EnvExtension_getState___rarg(x_13, x_14, x_12);
-lean_dec(x_12);
 x_16 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_15, x_1);
 if (lean_obj_tag(x_16) == 0)
 {

@@ -32,6 +32,9 @@ def JobState.merge (a b : JobState) : JobState where
 @[inline] def JobState.modifyLog (f : Log → Log) (s : JobState) :=
   {s with log := f s.log}
 
+@[inline] def JobState.logEntry (e : LogEntry) (s : JobState) :=
+  s.modifyLog (·.push e)
+
 /-- Add log entries to the beginning of the job's log. -/
 def JobResult.prependLog (log : Log) (self : JobResult α) : JobResult α :=
   match self with

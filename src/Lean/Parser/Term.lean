@@ -741,7 +741,7 @@ Common special cases are
 * Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
   the bind operator and other supported monadic combinators.
 
-By default, the onotonicity proof is performed by the compositional `monotonicity` tactic. Using
+By default, the monotonicity proof is performed by the compositional `monotonicity` tactic. Using
 the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
 -/
 @[builtin_doc] def partialFixpoint := leading_parser

@@ -11,7 +11,9 @@ import Lean.Meta.Tactic.Simp.Rewrite
 
 namespace Lean.Meta.Grind
 /--
-TODO
+Returns `Grind.simpMatchDiscrsOnly e`. Recall that `Grind.simpMatchDiscrsOnly` is
+a gadget for instructing the `grind` simplifier to only normalize/simplify
+the discriminants of a `match`-expression. See `reduceSimpMatchDiscrsOnly`.
 -/
 def markAsSimpMatchDiscrsOnly (e : Expr) : MetaM Expr :=
   mkAppM ``Grind.simpMatchDiscrsOnly #[e]

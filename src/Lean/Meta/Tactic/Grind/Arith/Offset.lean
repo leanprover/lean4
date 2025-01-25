@@ -270,7 +270,13 @@ private def isEqParent (parent? : Option Expr) : Bool := Id.run do
   let some parent := parent? | return false
   return parent.isEq
 
+private def alreadyInternalized (e : Expr) : GoalM Bool := do
+  let s ← get'
+  return s.cnstrs.contains { expr := e } || s.nodeMap.contains { expr := e }
+
 def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
+  if (← alreadyInternalized e) then
+    return ()
   let z ← getNatZeroExpr
   if let some c := isNatOffsetCnstr? e z then
     internalizeCnstr e c

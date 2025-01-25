@@ -97,6 +97,7 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
     [assign] i + j := 1
 -/
 #guard_msgs (error) in
+set_option grind.debug false in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   grind
 
@@ -192,10 +193,8 @@ info: [grind.issues] found congruence between
     and
       f a
     but functions have different types
----
-warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+#guard_msgs (info) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

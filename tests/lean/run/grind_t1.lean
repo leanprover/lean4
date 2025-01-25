@@ -357,3 +357,6 @@ set_option trace.grind.issues true in
 example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
   fail_if_success grind (splits := 0)
   sorry
+
+example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
+  grind

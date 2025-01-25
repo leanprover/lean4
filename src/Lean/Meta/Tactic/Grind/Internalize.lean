@@ -177,6 +177,15 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
 private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
+    /-
+    Even if `e` has already been internalized, we must check whether it has also been internalized in
+    the satellite solvers. For example, suppose we have already internalized the term `f (a + 1)`.
+    The `1` in this term is treated as an offset for the offset term `a + 1` by the arithmetic module, and
+    only nodes for `a` and `a+1` are created. However, an ENode for `1` is created here.
+    Later, if we try to internalize `f 1`, the arithmetic module must create a node for `1`.
+    Otherwise, it will not be able to propagate that `a + 1 = 1` when `a = 0`
+    -/
+    Arith.internalize e parent?
     return ()
   trace_goal[grind.internalize] "{e}"
   match e with

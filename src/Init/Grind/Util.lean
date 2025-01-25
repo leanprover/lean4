@@ -18,6 +18,11 @@ We use it when adding instances of `match`-equations to prevent them from being 
 -/
 def doNotSimp {α : Sort u} (a : α) : α := a
 
+/--
+TODO
+-/
+def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
+
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b
 

@@ -9,7 +9,7 @@ import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MarkNestedProofs
 import Lean.Meta.Tactic.Grind.Canon
 
@@ -35,7 +35,7 @@ def simp (e : Expr) : GoalM Simp.Result := do
   let e' ← eraseIrrelevantMData e'
   let e' ← foldProjs e'
   let e' ← normalizeLevels e'
-  let e' ← eraseDoNotSimp e'
+  let e' ← eraseSimpMatchDiscrsOnly e'
   let e' ← canon e'
   let e' ← shareCommon e'
   trace[grind.simp] "{e}\n===>\n{e'}"

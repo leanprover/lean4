@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MatchCond
 import Lean.Meta.Tactic.Grind.Core
 
@@ -235,7 +235,8 @@ private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
   annotateEqnTypeConds prop fun prop => do
     let_expr f@Eq α lhs rhs := prop | return prop
     -- See comment at `Grind.EqMatch`
-    return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α (← markAsDoNotSimp lhs) rhs initApp
+    let lhs ← markAsSimpMatchDiscrsOnly lhs
+    return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α lhs rhs initApp
 
 /--
 Stores new theorem instance in the state.
@@ -282,6 +283,11 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
         let some heq ← proveEq? vType mvarIdType
           | report
             return ()
+        /-
+        Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
+        we want their proofs to be properly wrapped.
+        -/
+        let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
         v ← mkAppM ``cast #[heq, v]
       unless (← mvarId.checkedAssign v) do
         report

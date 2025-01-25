@@ -8,15 +8,16 @@ import Lake.Util.DRBMap
 import Lake.Util.RBArray
 import Lake.Util.Family
 import Lake.Util.Store
+import Std.Data.DTreeMap.Basic
 
-open Lean
+open Lean Std
 namespace Lake
 
-instance [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateT (DRBMap κ β cmp) m) where
+instance [Monad m] [LawfulCmpEq κ cmp] : MonadDStore κ β (StateT (DTreeMap κ β cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)
 
-instance [MonadLiftT (ST ω) m] [Monad m] [EqOfCmpWrt κ β cmp] : MonadDStore κ β (StateRefT' ω (DRBMap κ β cmp) m) where
+instance [MonadLiftT (ST ω) m] [Monad m] [LawfulCmpEq κ cmp] : MonadDStore κ β (StateRefT' ω (DTreeMap κ β cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)
 

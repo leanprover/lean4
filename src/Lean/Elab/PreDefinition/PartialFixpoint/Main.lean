@@ -112,7 +112,7 @@ def partialFixpoint (preDefs : Array PreDefinition) : TermElabM Unit := do
         let extraMsg := if monoThms.isEmpty then m!"" else
           m!"Tried to apply {.andList (monoThms.toList.map (m!"'{.ofConstName ·}'"))}, but failed.\n\
              Possible cause: A missing `{.ofConstName ``MonoBind}` instance.\n\
-             Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug."
+             Use `set_option trace.Elab.Tactic.monotonicity true` to debug."
         if let some recApp := t.find? hasRecAppSyntax then
           let some syn := getRecAppSyntax? recApp | panic! "getRecAppSyntax? failed"
           withRef syn <|

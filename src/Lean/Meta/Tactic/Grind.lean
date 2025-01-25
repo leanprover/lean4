@@ -27,7 +27,7 @@ import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 
 namespace Lean
 

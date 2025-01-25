@@ -81,6 +81,9 @@ and we have special support for propagating is truth value.
 def markAsMatchCond (e : Expr) : Expr :=
   mkApp (mkConst ``Grind.MatchCond) e
 
+def isMatchCond (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.MatchCond 1
+
 builtin_dsimproc_decl reduceMatchCond (Grind.MatchCond _) := fun e => do
   let_expr Grind.MatchCond _ ← e | return .continue
   return .done e

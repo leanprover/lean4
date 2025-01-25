@@ -94,10 +94,12 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
   [offset] Assignment satisfying offset contraints
     [assign] j := 0
     [assign] i := 1
-    [assign] i + j := 1
+    [assign] i + 1 := 2
+    [assign] 0 := 0
+    [assign] i + j + 1 := 1
+    [assign] i + j := 0
 -/
 #guard_msgs (error) in
-set_option grind.debug false in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
   grind
 

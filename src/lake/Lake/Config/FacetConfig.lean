@@ -11,25 +11,19 @@ open Lean (Name)
 
 /-- A facet's declarative configuration. -/
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where
-  /-- The facet's build (function). -/
-  build : ι → FetchM (DataFam name)
-  /-- Does this facet produce an associated asynchronous job? -/
-  getJob? : Option (DataFam name → OpaqueJob)
+  /-- The facet's build function. -/
+  build : ι → FetchM (Job (DataFam name))
+  /-- Does this facet  compatible with the `lake build` CLI? -/
+  cli : Bool := true
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 
-/-- A smart constructor for facet configurations that are not known to generate targets. -/
-@[inline] def mkFacetConfig (build : ι → FetchM α)
-[h : FamilyOut Fam facet α] : FacetConfig Fam ι facet where
-  build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := none
-
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
-@[inline] def mkFacetJobConfig (build : ι → FetchM (Job α))
-[h : FamilyOut Fam facet (Job α)] : FacetConfig Fam ι facet where
+@[inline] def mkFacetJobConfig
+  (build : ι → FetchM (Job α)) [h : FamilyOut Fam facet α]
+: FacetConfig Fam ι facet  where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob? := some fun data => ofFamily data |>.toOpaque
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

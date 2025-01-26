@@ -125,27 +125,27 @@ definitions.
 
 /-- The direct local imports of the Lean module. -/
 abbrev Module.importsFacet := `lean.imports
-module_data lean.imports : Job (Array Module)
+module_data lean.imports : Array Module
 
 /-- The transitive local imports of the Lean module. -/
 abbrev Module.transImportsFacet := `lean.transImports
-module_data lean.transImports : Job (Array Module)
+module_data lean.transImports : Array Module
 
 /-- The transitive local imports of the Lean module. -/
 abbrev Module.precompileImportsFacet := `lean.precompileImports
-module_data lean.precompileImports : Job (Array Module)
+module_data lean.precompileImports : Array Module
 
 /-- Shared library for `--load-dynlib`. -/
 abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : Job Dynlib
+module_data dynlib : Dynlib
 
 /-- A Lean library's Lean modules. -/
 abbrev LeanLib.modulesFacet := `modules
-library_data modules : Job (Array Module)
+library_data modules : Array Module
 
 /-- The package's complete array of transitive dependencies. -/
 abbrev Package.depsFacet := `deps
-package_data deps : Job (Array Package)
+package_data deps : Array Package
 
 
 /-!

@@ -147,7 +147,7 @@ def Package.fetchBuildArchive
 private def Package.mkOptBuildArchiveFacetConfig
   {facet : Name} (archiveFile : Package → FilePath)
   (getUrl : Package → JobM String) (headers : Array String := #[])
-  [FamilyDef PackageData facet (Job Bool)]
+  [FamilyDef PackageData facet Bool]
 : PackageFacetConfig facet := mkFacetJobConfig fun pkg =>
   withRegisterJob s!"{pkg.name}:{facet}" (optional := true) <| Job.async do
   try
@@ -161,8 +161,8 @@ private def Package.mkOptBuildArchiveFacetConfig
 @[inline]
 private def Package.mkBuildArchiveFacetConfig
   {facet : Name} (optFacet : Name) (what : String)
-  [FamilyDef PackageData facet (Job Unit)]
-  [FamilyDef PackageData optFacet (Job Bool)]
+  [FamilyDef PackageData facet Unit]
+  [FamilyDef PackageData optFacet Bool]
 : PackageFacetConfig facet :=
   mkFacetJobConfig fun pkg =>
     withRegisterJob s!"{pkg.name}:{facet}" do

@@ -90,7 +90,7 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
       else if (← getConfig).splitIndPred then
         addSplitCandidate e
   | .fvar .. =>
-    let .const declName _ := (← inferType e).getAppFn | return ()
+    let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
     if (← get).casesTypes.isSplit declName then
       addSplitCandidate e
   | _ => pure ()
@@ -191,7 +191,11 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
-  | .fvar .. | .letE .. | .lam .. => mkENode' e generation
+  | .fvar .. =>
+    mkENode' e generation
+    checkAndAddSplitCandidate e
+  | .letE .. | .lam .. =>
+    mkENode' e generation
   | .forallE _ d b _ =>
     mkENode' e generation
     if (← isProp d <&&> isProp e) then

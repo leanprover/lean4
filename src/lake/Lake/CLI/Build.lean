@@ -15,7 +15,6 @@ open Lean (Name)
 
 structure BuildSpec where
   info : BuildInfo
-  getBuildJob : BuildData info.key → OpaqueJob
 
 @[inline] def BuildData.toJob
   [FamilyOut BuildData k (Job α)] (data : BuildData k)
@@ -23,21 +22,18 @@ structure BuildSpec where
   ofFamily data |>.toOpaque
 
 @[inline] def mkBuildSpec
-  (info : BuildInfo) [FamilyOut BuildData info.key (Job α)]
-: BuildSpec :=
-  {info, getBuildJob := BuildData.toJob}
+  (info : BuildInfo) [FamilyOut BuildData info.key α]
+: BuildSpec := {info}
 
 @[inline] def mkConfigBuildSpec
-  (facetType : String) (info : BuildInfo)
-  (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
+  (facetType : String) (info : BuildInfo) (config : FacetConfig Fam ι facet)
 : Except CliError BuildSpec := do
-  let some getBuildJob := config.getJob?
-    | throw <| CliError.nonCliFacet facetType facet
-  return {info, getBuildJob := h ▸ getBuildJob}
+  unless config.cli do
+    throw <| CliError.nonCliFacet facetType facet
+  return {info}
 
 @[inline] protected def BuildSpec.fetch (self : BuildSpec) : FetchM OpaqueJob := do
-  maybeRegisterJob (self.info.key.toSimpleString) <| ← do
-    self.getBuildJob <$> self.info.fetch
+  maybeRegisterJob (self.info.key.toSimpleString) (← self.info.fetch)
 
 def buildSpecs (specs : Array BuildSpec) : FetchM (Job Unit) := do
   return .mixArray (← specs.mapM (·.fetch))
@@ -59,7 +55,7 @@ def resolveModuleTarget
   if facet.isAnonymous then
     return mkBuildSpec <| mod.facet leanArtsFacet
   else if let some config := ws.findModuleFacetConfig? facet then do
-    mkConfigBuildSpec "module" (mod.facet facet) config rfl
+    mkConfigBuildSpec "module" (mod.facet facet) config
   else
     throw <| CliError.unknownFacet "module" facet
 
@@ -73,7 +69,7 @@ def resolveLibTarget
 where
   resolveFacet facet :=
     if let some config := ws.findLibraryFacetConfig? facet then do
-      mkConfigBuildSpec "library" (lib.facet facet) config rfl
+      mkConfigBuildSpec "library" (lib.facet facet) config
     else
       throw <| CliError.unknownFacet "library" facet
 
@@ -91,14 +87,14 @@ def resolveExternLibTarget (lib : ExternLib) (facet : Name) : Except CliError Bu
   else
     throw <| CliError.unknownFacet "external library" facet
 
-def resolveCustomTarget (pkg : Package)
-(name facet : Name) (config : TargetConfig pkg.name name) : Except CliError BuildSpec :=
+set_option linter.unusedVariables false in
+def resolveCustomTarget
+  (pkg : Package) (name facet : Name) (config : TargetConfig pkg.name name)
+: Except CliError BuildSpec :=
   if !facet.isAnonymous then
     throw <| CliError.invalidFacet name facet
   else do
-    let info := pkg.target name
-    have h : BuildData info.key = CustomData (pkg.name, name) := rfl
-    return {info, getBuildJob := h ▸ config.getJob}
+    return {info := pkg.target name}
 
 def resolveTargetInPackage (ws : Workspace)
 (pkg : Package) (target facet : Name) : Except CliError (Array BuildSpec) :=
@@ -122,7 +118,7 @@ def resolvePackageTarget (ws : Workspace) (pkg : Package) (facet : Name) : Excep
   if facet.isAnonymous then
     resolveDefaultPackageTarget ws pkg
   else if let some config := ws.findPackageFacetConfig? facet then do
-    Array.singleton <$> mkConfigBuildSpec "package" (pkg.facet facet) config rfl
+    Array.singleton <$> mkConfigBuildSpec "package" (pkg.facet facet) config
   else
     throw <| CliError.unknownFacet "package" facet
 

@@ -75,4 +75,10 @@ syntax (name := grind)
   (" [" withoutPosition(grindParam,*) "]")?
   ("on_failure " term)? : tactic
 
+
+syntax (name := grindTrace)
+  "grind?" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  ("on_failure " term)? : tactic
+
 end Lean.Parser.Tactic

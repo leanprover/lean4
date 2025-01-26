@@ -234,7 +234,8 @@ private def popNextEq? : GoalM (Option NewEq) := do
     modify fun s => { s with newEqs := s.newEqs.pop }
   return r
 
-private def processNewEqs : GoalM Unit := do
+@[export lean_grind_process_new_eqs]
+private def processNewEqsImpl : GoalM Unit := do
   repeat
     if (← isInconsistent) then
       resetNewEqs
@@ -246,7 +247,7 @@ private def processNewEqs : GoalM Unit := do
 
 private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   addEqStep lhs rhs proof isHEq
-  processNewEqs
+  processNewEqsImpl
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -310,57 +311,5 @@ where
 /-- Adds a new hypothesis. -/
 def addHypothesis (fvarId : FVarId) (generation := 0) : GoalM Unit := do
   add (← fvarId.getType) (mkFVar fvarId) generation
-
-/--
-Helper function for executing `x` with a fresh `newEqs` and without modifying
-the goal state.
- -/
-private def withoutModifyingState (x : GoalM α) : GoalM α := do
-  let saved ← get
-  modify fun goal => { goal with newEqs := {} }
-  try
-    x
-  finally
-    set saved
-
-/--
-If `e` has not been internalized yet, simplify it, and internalize the result.
--/
-private def simpAndInternalize (e : Expr) (gen : Nat := 0) : GoalM Simp.Result := do
-  if (← alreadyInternalized e) then
-    return { expr := e }
-  else
-    let r ← simp e
-    internalize r.expr gen
-    return r
-
-/--
-Try to construct a proof that `lhs = rhs` using the information in the
-goal state. If `lhs` and `rhs` have not been internalized, this function
-will internalize then, process propagated equalities, and then check
-whether they are in the same equivalence class or not.
-The goal state is not modified by this function.
-This function mainly relies on congruence closure, and constraint
-propagation. It will not perform case analysis.
--/
-def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
-  if (← alreadyInternalized lhs <&&> alreadyInternalized rhs) then
-    if (← isEqv lhs rhs) then
-      return some (← mkEqProof lhs rhs)
-    else
-      return none
-  else withoutModifyingState do
-    let lhs ← simpAndInternalize lhs
-    let rhs ← simpAndInternalize rhs
-    processNewEqs
-    unless (← isEqv lhs.expr rhs.expr) do return none
-    unless (← hasSameType lhs.expr rhs.expr) do return none
-    let h ← mkEqProof lhs.expr rhs.expr
-    let h ← match lhs.proof?, rhs.proof? with
-      | none,    none    => pure h
-      | none,    some h₂ => mkEqTrans h (← mkEqSymm h₂)
-      | some h₁, none    => mkEqTrans h₁ h
-      | some h₁, some h₂ => mkEqTrans (← mkEqTrans h₁ h) (← mkEqSymm h₂)
-    return some h
 
 end Lean.Meta.Grind

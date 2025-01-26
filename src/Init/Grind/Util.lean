@@ -12,11 +12,10 @@ namespace Lean.Grind
 def nestedProof (p : Prop) {h : p} : p := h
 
 /--
-Gadget for marking terms that should not be normalized by `grind`s simplifier.
-`grind` uses a simproc to implement this feature.
+Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
 We use it when adding instances of `match`-equations to prevent them from being simplified to true.
 -/
-def doNotSimp {α : Sort u} (a : α) : α := a
+def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
 
 /-- Gadget for representing offsets `t+k` in patterns. -/
 def offset (a b : Nat) : Nat := a + b

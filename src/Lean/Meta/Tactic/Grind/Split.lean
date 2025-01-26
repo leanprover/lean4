@@ -91,7 +91,7 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
     if (← isResolvedCaseSplit e) then
-      trace[grind.debug.split] "split resolved: {e}"
+      trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
     if (← isCongrToPrevSplit e) then
       return .resolved

@@ -267,7 +267,7 @@ private partial def isStatisfied (e : Expr) : GoalM Bool := do
   repeat
     let .forallE _ d b _ := e | break
     if (← isMatchCondFalseHyp d) then
-      trace[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
+      trace_goal[grind.debug.matchCond] "satifised{indentExpr e}\nthe following equality is false{indentExpr d}"
       return true
     e := b
   return false
@@ -279,13 +279,13 @@ private partial def mkMatchCondProof? (e : Expr) : GoalM (Option Expr) := do
     for x in xs do
       let type ← inferType x
       if (← isMatchCondFalseHyp type) then
-        trace[grind.debug.matchCond] ">>> {type}"
+        trace_goal[grind.debug.matchCond] ">>> {type}"
         let some h ← go? x | pure ()
         return some (← mkLambdaFVars xs h)
     return none
 where
   go? (h : Expr) : GoalM (Option Expr) := do
-    trace[grind.debug.matchCond] "go?: {← inferType h}"
+    trace_goal[grind.debug.matchCond] "go?: {← inferType h}"
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
     let target ← (← get).mvarId.getType
@@ -318,13 +318,28 @@ where
     else
       return none
 
+def tryToProveFalse (e : Expr) : GoalM Unit := do
+  trace_goal[grind.debug.matchCond.proveFalse] "{e}"
+  -- TODO
+  return ()
+
 /-- Propagates `MatchCond` upwards -/
-builtin_grind_propagator propagateMatchCond ↑Grind.MatchCond := fun e => do
-  trace[grind.debug.matchCond] "visiting{indentExpr e}"
-  if !(← isStatisfied e) then return ()
-  let some h ← mkMatchCondProof? e
-     | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
-  trace[grind.debug.matchCond] "{← inferType h}"
-  pushEqTrue e <| mkEqTrueCore e h
+builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
+  trace_goal[grind.debug.matchCond] "visiting{indentExpr e}"
+  if (← isEqTrue e) then
+    unless (← isStatisfied e) do
+      tryToProveFalse e
+  else
+    if !(← isStatisfied e) then return ()
+    let some h ← mkMatchCondProof? e
+       | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
+    trace_goal[grind.debug.matchCond] "{← inferType h}"
+    pushEqTrue e <| mkEqTrueCore e h
+
+/-- Propagates `MatchCond` downwards -/
+builtin_grind_propagator propagateMatchCondDown ↓Grind.MatchCond := fun e => do
+  if (← isEqTrue e) then
+    unless (← isStatisfied e) do
+      tryToProveFalse e
 
 end Lean.Meta.Grind

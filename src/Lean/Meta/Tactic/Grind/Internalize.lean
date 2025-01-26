@@ -132,8 +132,8 @@ private def internalizeMatchCond (matchCond : Expr) (generation : Nat) : GoalM U
   lhss.forM fun lhs => do internalize lhs generation; registerParent matchCond lhs
   propagateUp matchCond
   internalize e' generation
-  trace[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
-  trace[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
+  trace_goal[grind.debug.matchCond.lambda] "(idx := {(← getENode e'.getAppFn).idx}) {e'.getAppFn}"
+  trace_goal[grind.debug.matchCond.lambda] "auxiliary application{indentExpr e'}"
   pushEq matchCond e' (← mkEqRefl matchCond)
 
 def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do

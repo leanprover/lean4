@@ -31,7 +31,7 @@ def elabGrindPattern : CommandElab := fun stx => do
           let pattern ← instantiateMVars pattern
           let pattern ← Grind.preprocessPattern pattern
           return pattern.abstract xs
-        Grind.addEMatchTheorem declName xs.size patterns.toList
+        Grind.addEMatchTheorem declName xs.size patterns.toList .user
   | _ => throwUnsupportedSyntax
 
 open Command Term in

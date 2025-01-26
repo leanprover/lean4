@@ -116,15 +116,15 @@ the lambda expressions in `lams`.
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
   if lams.isEmpty then return ()
   let lamRoot ← getRoot lams.back!
-  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  trace_goal[grind.debug.beta] "fns: {fns}, lams: {lams}"
   for fn in fns do
-    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    trace_goal[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
     for parent in (← getParents fn) do
       let mut args := #[]
       let mut curr := parent
-      trace[grind.debug.beta] "parent: {parent}"
+      trace_goal[grind.debug.beta] "parent: {parent}"
       repeat
-        trace[grind.debug.beta] "curr: {curr}"
+        trace_goal[grind.debug.beta] "curr: {curr}"
         if (← isEqv curr lamRoot) then
           propagateBetaEqs lams curr args.reverse
         let .app f arg := curr

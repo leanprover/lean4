@@ -38,7 +38,7 @@ def simp (e : Expr) : GoalM Simp.Result := do
   let e' ← eraseSimpMatchDiscrsOnly e'
   let e' ← canon e'
   let e' ← shareCommon e'
-  trace[grind.simp] "{e}\n===>\n{e'}"
+  trace_goal[grind.simp] "{e}\n===>\n{e'}"
   return { r with expr := e' }
 
 end Lean.Meta.Grind

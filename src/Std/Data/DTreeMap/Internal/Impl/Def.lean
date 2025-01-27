@@ -32,10 +32,12 @@ inductive Impl (α : Type u) (β : α → Type v) where
   deriving Inhabited
 
 /-- The "delta" parameter of the size-bounded tree. Controls how imbalanced the tree can be. -/
-@[inline]
+@[inline, tree_tac]
 def delta : Nat := 3
 
 /-- The "ratio" parameter of the size-bounded tree. Controls how aggressive the rebalancing
 operations are. -/
-@[inline]
+@[inline, tree_tac]
 def ratio : Nat := 2
+
+macro "tree_simp₁" : tactic => `(tactic| simp only [delta, ratio])

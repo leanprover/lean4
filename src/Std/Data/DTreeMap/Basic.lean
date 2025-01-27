@@ -5,7 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Impl
-import Lake.Util.Compare
 
 set_option autoImplicit false
 set_option linter.missingDocs true
@@ -15,6 +14,26 @@ universe u v
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
 
 namespace Std
+
+/--
+Proof that the equality of a compare function corresponds
+to propositional equality.
+-/
+class EqOfCmp (α : Type u) (cmp : α → α → Ordering) where
+  eq_of_cmp {a a' : α} : cmp a a' = .eq → a = a'
+
+export EqOfCmp (eq_of_cmp)
+
+/--
+Proof that the equality of a compare function corresponds
+to propositional equality and vice versa.
+-/
+class LawfulCmpEq (α : Type u) (cmp : α → α → Ordering) extends EqOfCmp α cmp where
+  cmp_rfl {a : α} : cmp a a = .eq
+
+export LawfulCmpEq (cmp_rfl)
+
+attribute [simp] cmp_rfl
 
 /-- Binary search trees. -/
 structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Ordering) where
@@ -55,13 +74,13 @@ universe w in
 @[inline] def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   l.foldl (fun r p => r.insert p.1 p.2) empty
 
-@[inline] def get? [i : Lake.LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
+@[inline] def get? [i : LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩
   haveI : ReflOrd α := ⟨i.cmp_rfl⟩
   haveI : LawfulEqOrd α := ⟨i.eq_of_cmp⟩
   Std.DTreeMap.Internal.Impl.get? a l.inner
 
-@[inline] def find? [i : Lake.LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
+@[inline] def find? [i : LawfulCmpEq α cmp] (l : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩
   haveI : ReflOrd α := ⟨i.cmp_rfl⟩
   haveI : LawfulEqOrd α := ⟨i.eq_of_cmp⟩

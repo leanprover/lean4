@@ -10,7 +10,7 @@ import Lean.Data.SMap
 import Lean.Level
 import Std.Data.HashSet.Basic
 -- import Std.Data.TreeMap.Basic --imports Lean.Expr
-import Std.Data.DTreeMap.Internal.Impl.Operations
+-- import Lean.Meta.Tactic.Simp.RegisterCommand
 
 namespace Lean
 

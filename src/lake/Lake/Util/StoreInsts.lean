@@ -13,6 +13,10 @@ import Std.Data.DTreeMap.Basic
 open Lean Std
 namespace Lake
 
+scoped instance [inst : LawfulCmpEq κ cmp] : Std.LawfulCmpEq κ cmp where
+  eq_of_cmp := inst.eq_of_cmp
+  cmp_rfl := inst.cmp_rfl
+
 instance [Monad m] [LawfulCmpEq κ cmp] : MonadDStore κ β (StateT (DTreeMap κ β cmp) m) where
   fetch? k := return (← get).find? k
   store k a := modify (·.insert k a)

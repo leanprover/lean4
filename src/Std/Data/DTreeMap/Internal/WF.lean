@@ -41,7 +41,7 @@ theorem toListModel_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
     try simp; done
   all_goals
     rename_i l r _ _ _
-    cases l <;> cases r <;> (try simp; done) <;> (exfalso; tree_tac)
+    cases l <;> cases r <;> (try simp; done) <;> (exfalso; exact ✓)
 
 @[simp]
 theorem toListModel_balanceL {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
@@ -568,7 +568,12 @@ theorem apply_min?ₘ [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) 
   obtain hc : c.inner.toList = [] := by
     cases h : c.inner
     · simp
-    · simpa [h] using c.property
+    ·
+      have := c.property
+      simp [h] at this
+      simp
+      exact this _ rfl
+      -- TODO: why does this not work anymore? simpa [h] using c.property
   rw [hc, List.nil_append, List.nil_append, min?'_eq_head? (by simpa [hc] using h₂)]
 
 theorem apply_min? [Ord α] [TransOrd α] {l : Impl α β} (hlo : l.Ordered) :

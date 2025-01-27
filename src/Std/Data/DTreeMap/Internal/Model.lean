@@ -174,23 +174,23 @@ def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (com
     (l : Impl α β) (hl : Balanced l) : TreeB α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
-            | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
-            | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
+            | none => ⟨.leaf, ✓, ✓, ✓⟩
+            | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
-        let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
-        ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-          by tree_tac⟩
+        let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l ✓
+        ⟨balance ky y newL r ✓ ✓ ✓, ✓₃, ✓₃,
+          ✓₃⟩
     | .eq => match (f (.ofEq ky y h)).inner with
              | none =>
-               ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-                  by tree_tac⟩
-             | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
+               ⟨glue l r ✓ ✓ ✓, ✓₃, ✓₃,
+                  ✓₃⟩
+             | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, ✓, ✓, ✓⟩
     | .gt =>
-        let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
-        ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-          by tree_tac⟩
+        let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r ✓
+        ⟨balance ky y l newR ✓ ✓ ✓, ✓₃, ✓₃,
+          ✓₃⟩
 
 /-!
 ## Model functions

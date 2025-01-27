@@ -9,6 +9,9 @@ import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Balancing
 import Std.Data.Classes.TransOrd
 import Init.Data.Nat
+import Lean.Elab.Tactic -- TODO
+import Lean.Meta.Closure
+open Lean.Elab.Tactic Lean.Elab Lean Lean.Meta
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -63,6 +66,24 @@ structure View (size : Nat) where
 
 attribute [tree_tac] Tree.balanced_impl Tree.size_impl
 
+-- TODO
+elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
+  let (mvars, _) ← runTactic mvarId s
+  unless mvars.isEmpty do
+    throwError "Left-over goals, cannot abstract"
+  let e ← instantiateMVars (mkMVar mvarId)
+  let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+  mvarId.assign e
+  return []
+
+/-- Internal implementation detail of the ordered set -/
+scoped macro "✓₂" : term => `(term| by tree_tac [ratio, delta, size_inner, size_leaf,
+  BalancedAtRoot, balanced_inner_iff, Balanced.leaf, BalanceLPrecond, BalanceLErasePrecond,
+  balanced_balanceRErase, size_balanceRErase, balanced_balanceLErase, size_balanceLErase,
+  balanced_balanceR, size_balanceR, balanced_balanceL, size_balanceL,
+  Tree.balanced_impl, Tree.size_impl,
+  and_true, true_and, or_true, true_or])
+
 /-- Returns the tree `l ++ ⟨k, v⟩ ++ r`, with the smallest element chopped off. -/
 def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced)
     (hlr : BalancedAtRoot l.size r.size) : View α β (l.size + r.size) :=
@@ -73,7 +94,7 @@ def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
       ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by as_aux_lemma =>
         exact hlr.erase_left
           (by simp only [hdt', hl.eq, size_inner]; omega)
-          (by simp only [hdt', hl.eq, size_inner]; omega)), ✓, ✓⟩⟩
+          (by simp only [hdt', hl.eq, size_inner]; omega)), ✓₂, ✓₂⟩⟩
   where triviality {n m : Nat} : n + 1 + m - 1 = n + m := by omega
 
 /-- Slow version of `minView` which can be used in the absence of balance information but still
@@ -94,7 +115,7 @@ def maxView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
       let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := maxView k' v' l' r' ✓ ✓ ✓
       ⟨dk, dv, ⟨balanceLErase k v l dt ✓ ✓ (by as_aux_lemma =>
         simp only [hdt', size_inner, hr.eq] at *
-        apply hlr.erase_right <;> omega), ✓, ✓⟩⟩
+        apply hlr.erase_right <;> omega), ✓₂, ✓₂⟩⟩
 
 /-- Slow version of `maxView` which can be used in the absence of balance information but still
 assumes the preconditions of `maxView`, otherwise might panic. -/
@@ -134,11 +155,11 @@ def glue (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) (hlr : BalancedA
 
 @[tree_tac]
 theorem size_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).size = l.size + r.size := by
-  simp only [glue]; tree_tac
+  simp only [glue]; exact ✓₂
 
 @[tree_tac]
 theorem balanced_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).Balanced := by
-  simp only [glue]; tree_tac
+  simp only [glue]; exact ✓₂
 
 /-- Slower version of `glue` which can be used in the absence of balance information but still
 assumes the preconditions of `glue`, otherwise might panic. -/
@@ -167,7 +188,7 @@ def insertMin (k : α) (v : β k) (t : Impl α β) (hr : t.Balanced) : Tree α �
   | leaf => ⟨.inner 1 k v .leaf .leaf, ✓, ✓⟩
   | inner sz k' v' l' r' =>
       let ⟨l'', hl''₁, hl''₂⟩ := insertMin k v l' ✓
-      ⟨balanceL k' v' l'' r' ✓ ✓ ✓, ✓, ✓⟩
+      ⟨balanceL k' v' l'' r' ✓ ✓ ✓, ✓₂, ✓₂⟩
 
 /-- Slower version of `insertMin` which can be used in the absence of balance information but
 still assumes the preconditions of `insertMin`, otherwise might panic. -/
@@ -182,7 +203,7 @@ def insertMax (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) : Tree α �
   | leaf => ⟨.inner 1 k v .leaf .leaf, ✓, ✓⟩
   | inner sz k' v' l' r' =>
       let ⟨r'', hr''₁, hr''₂⟩ := insertMax k v r' ✓
-      ⟨balanceR k' v' l' r'' ✓ ✓ ✓, ✓, ✓⟩
+      ⟨balanceR k' v' l' r'' ✓ ✓ ✓, ✓₂, ✓₂⟩
 
 /-- Slower version of `insertMax` which can be used in the absence of balance information but
 still assumes the preconditions of `insertMax`, otherwise might panic. -/
@@ -203,22 +224,22 @@ def link (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanc
   match l with
   | leaf =>
       let d := insertMin k v r ✓
-      ⟨d.impl, ✓, ✓⟩
+      ⟨d.impl, ✓₂, ✓₂⟩
   | (inner szl k' v' l' r') =>
       match r with
       | leaf =>
           let d := insertMax k v (inner szl k' v' l' r') ✓
-          ⟨d.impl, ✓, ✓⟩
+          ⟨d.impl, ✓₂, ✓₂⟩
       | (inner szr k'' v'' l'' r'') =>
           if h₁ : delta * szl < szr then
             let ⟨ℓ, hℓ₁, hℓ₂⟩ := link k v (inner szl k' v' l' r') l'' ✓ ✓
-            ⟨balanceLErase k'' v'' ℓ r'' ✓ ✓ ✓, ✓, ✓⟩
+            ⟨balanceLErase k'' v'' ℓ r'' ✓ ✓ ✓, ✓₂, ✓₂⟩
           else if h₂ : delta * szr < szl then
             let ⟨ℓ, hℓ₁, hℓ₂⟩ := link k v r' (inner szr k'' v'' l'' r'') ✓ ✓
-            ⟨balanceRErase k' v' l' ℓ ✓ ✓ ✓, ✓, ✓⟩
+            ⟨balanceRErase k' v' l' ℓ ✓ ✓ ✓, ✓₂, ✓₂⟩
           else
             ⟨.inner (szl + 1 + szr) k v (inner szl k' v' l' r') (inner szr k'' v'' l'' r''),
-              ✓, ✓⟩
+              ✓₂, ✓₂⟩
   -- It seems this is unnecessary, but removing it does not help with proof size without aux lemmas, either
   --termination_by sizeOf l + sizeOf r
 
@@ -239,6 +260,17 @@ def linkSlow (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
             .inner (l.size + 1 + r.size) k v l r
 termination_by sizeOf l + sizeOf r
 
+/-- Internal implementation detail of the ordered set -/
+scoped macro "✓₃" : term => `(term| by tree_tac [ratio, delta, size_inner, size_leaf,
+  BalancedAtRoot, balanced_inner_iff, Balanced.leaf, BalanceLPrecond, BalanceLErasePrecond,
+  balanced_balanceRErase, size_balanceRErase, balanced_balanceLErase, size_balanceLErase,
+  balanced_balanceR, size_balanceR, balanced_balanceL, size_balanceL,
+  Tree.balanced_impl, Tree.size_impl,
+  balanced_glue, size_glue,
+  balance_balance, size_balance,
+  Nat.compare_eq_gt, Nat.compare_eq_lt, Nat.compare_eq_eq,
+  and_true, true_and, or_true, true_or])
+
 /-- Builds the tree `l ++ r` without any balancing information at the root. -/
 def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
     Tree α β (l.size + r.size) :=
@@ -250,12 +282,12 @@ def link2 (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
       | (inner szr k'' v'' l'' r'') =>
           if h₁ : delta * szl < szr then
             let ⟨ℓ, hℓ₁, hℓ₂⟩ := link2 l l'' ✓ ✓
-            ⟨balanceLErase k'' v'' ℓ r'' ✓ ✓ ✓, ✓, ✓⟩
+            ⟨balanceLErase k'' v'' ℓ r'' ✓ ✓ ✓, ✓₂, ✓₂⟩
           else if h₂ : delta * szr < szl then
             let ⟨ℓ, hℓ₁, hℓ₂⟩ := link2 r' r ✓ ✓
-            ⟨balanceRErase k' v' l' ℓ ✓ ✓ ✓, ✓, ✓⟩
+            ⟨balanceRErase k' v' l' ℓ ✓ ✓ ✓, ✓₂, ✓₂⟩
           else
-            ⟨glue l r ✓ ✓ ✓, ✓, ✓⟩
+            ⟨glue l r ✓ ✓ ✓, ✓₃, ✓₃⟩
 termination_by sizeOf l + sizeOf r
 
 /-- Slower version of `link2` which can be used in the absence of balance information but
@@ -317,10 +349,10 @@ def insert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
       match compare k k' with
       | .lt =>
           let ⟨d, hd, hd₁, hd₂⟩ := insert k v l' ✓
-          ⟨balanceL k' v' d r' ✓ ✓ ✓, ✓, ✓, ✓⟩
+          ⟨balanceL k' v' d r' ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
       | .gt =>
           let ⟨d, hd, hd₁, hd₂⟩ := insert k v r' ✓
-          ⟨balanceR k' v' l' d ✓ ✓ ✓, ✓, ✓, ✓⟩
+          ⟨balanceR k' v' l' d ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
       | .eq => ⟨.inner sz k v l' r', ✓, ✓, ✓⟩
 
 /-- Slower version of `insert` which can be used in the absence of balance information but
@@ -431,11 +463,11 @@ def erase [Ord α] (t : Impl α β) (k : α) (h : t.Balanced) : TreeB α β (t.s
     match compare k k' with
     | .lt =>
       let ⟨l', hl'₁, hl'₂, hl'₃⟩ := erase l k ✓
-      ⟨balanceRErase k' v' l' r ✓ ✓ ✓, ✓, ✓, ✓⟩
+      ⟨balanceRErase k' v' l' r ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
     | .gt =>
       let ⟨r', hr'₁, hr'₂, hr'₃⟩ := erase r k ✓
-      ⟨balanceLErase k' v' l r' ✓ ✓ ✓, ✓, ✓, ✓⟩
-    | .eq => ⟨glue l r ✓ ✓ ✓, ✓, ✓, ✓⟩
+      ⟨balanceLErase k' v' l r' ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
+    | .eq => ⟨glue l r ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
 
 /-- Slower version of `erase` which can be used in the absence of balance
 information but still assumes the preconditions of `erase`, otherwise might panic. -/
@@ -470,11 +502,11 @@ def filterMap [Ord α] (f : (a : α) → β a → Option (γ a)) (t : Impl α β
     | none =>
         let ⟨l', hl'⟩ := filterMap f l ✓
         let ⟨r', hr'⟩ := filterMap f r ✓
-        ⟨(link2 l' r' ✓ ✓).impl, ✓⟩
+        ⟨(link2 l' r' ✓ ✓).impl, ✓₃⟩
     | some v' =>
         let ⟨l', hl'⟩ := filterMap f l ✓
         let ⟨r', hr'⟩ := filterMap f r ✓
-        ⟨(link k v' l' r' ✓ ✓).impl, ✓⟩
+        ⟨(link k v' l' r' ✓ ✓).impl, ✓₃⟩
 
 /-- Slower version of `filterMap` which can be used in the absence of balance
 information but still assumes the preconditions of `filterMap`, otherwise might panic. -/
@@ -506,11 +538,11 @@ def filter [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) (hl : Bala
     | false =>
         let ⟨l', hl'⟩ := filter f l ✓
         let ⟨r', hr'⟩ := filter f r ✓
-        ⟨(link2 l' r'  ✓ ✓).impl, ✓⟩
+        ⟨(link2 l' r'  ✓ ✓).impl, ✓₃⟩
     | true =>
         let ⟨l', hl'⟩ := filter f l ✓
         let ⟨r', hr'⟩ := filter f r ✓
-        ⟨(link k v l' r' ✓ ✓).impl, ✓⟩
+        ⟨(link k v l' r' ✓ ✓).impl, ✓₃⟩
 
 /-- Slower version of `filter` which can be used in the absence of balance
 information but still assumes the preconditions of `filter`, otherwise might panic. -/
@@ -541,13 +573,13 @@ def alter [Ord α] (k : α) (f : Option δ → Option δ) (t : Impl α (fun _ =>
     match compare k k' with
     | .lt =>
         let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
-        ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
+        ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓₃, ✓₃, ✓₃⟩
     | .gt =>
         let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
-        ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
+        ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓₃, ✓₃, ✓₃⟩
     | .eq =>
       match f (some v') with
-      | none => ⟨glue l' r' ✓ ✓ ✓, ✓, ✓, ✓⟩
+      | none => ⟨glue l' r' ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
       | some v => ⟨.inner sz k' v l' r', ✓, ✓, ✓⟩
 
 /-- Slower version of `modify` which can be used in the absence of balance
@@ -587,13 +619,13 @@ def alter [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k
     match h : compare k k' with
     | .lt =>
         let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
-        ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
+        ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓₃, ✓₃, ✓₃⟩
     | .gt =>
         let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
-        ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
+        ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓₃, ✓₃, ✓₃⟩
     | .eq =>
       match f (some (cast (congrArg β (eq_of_compare h).symm) v')) with
-      | none => ⟨glue l' r' ✓ ✓ ✓, ✓, ✓, ✓⟩
+      | none => ⟨glue l' r' ✓ ✓ ✓, ✓₃, ✓₃, ✓₃⟩
       | some v => ⟨.inner sz k v l' r', ✓, ✓, ✓⟩
 
 /-- Slower version of `modify` which can be used in the absence of balance
@@ -635,9 +667,9 @@ attribute [tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
   | .inner _ k v l' r', hl, n, h =>
     match h : compare n l'.size with
-    | .lt => l'.atIndex hl.left n ✓
+    | .lt => l'.atIndex hl.left n ✓₃
     | .eq => ⟨k, v⟩
-    | .gt => r'.atIndex hl.right (n - l'.size - 1) ✓
+    | .gt => r'.atIndex hl.right (n - l'.size - 1) ✓₃
 
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]

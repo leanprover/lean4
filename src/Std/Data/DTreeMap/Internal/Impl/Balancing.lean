@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.AC
 import Std.Data.Classes.LawfulEqOrd
 import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Query
@@ -69,23 +70,40 @@ section
 open Lean Meta Elab Tactic
 
 /-- Internal implementation detail of the ordered set -/
-elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
-  let (mvars, _) ← runTactic mvarId s
-  unless mvars.isEmpty do
-    throwError "Left-over goals, cannot abstract"
-  let e ← instantiateMVars (mkMVar mvarId)
-  let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
-  mvarId.assign e
-  return []
+-- elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
+--   let (mvars, _) ← runTactic mvarId s
+--   unless mvars.isEmpty do
+--     throwError "Left-over goals, cannot abstract"
+--   let e ← instantiateMVars (mkMVar mvarId)
+--   let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+--   mvarId.assign e
+--   return []
 
-/-- Internal implementation detail of the ordered set -/
-scoped macro "tree_tac" : tactic => `(tactic|(
+-- /-- Internal implementation detail of the ordered set -/
+scoped macro "tree_tac" "[" id:Lean.Parser.Tactic.simpLemma,* "]" : tactic => `(tactic|(
   subst_eqs
   repeat' split
   all_goals
-    try simp only [tree_tac] at *
+    try simp only [$id,*] at *
   all_goals
-    try simp only [tree_tac] at *
+    try simp only [$id,*] at *
+    repeat cases ‹_ ∧ _›
+    repeat' apply And.intro
+  all_goals
+    try assumption
+    try contradiction
+  all_goals
+    subst_eqs
+    omega
+  ))
+
+scoped macro "tree_tac?" "[" id:Lean.Parser.Tactic.simpLemma,* "]" : tactic => `(tactic|(
+  subst_eqs
+  repeat' split
+  all_goals
+    try simp? only [$id,*] at *
+  all_goals
+    try simp? only [$id,*] at *
     repeat cases ‹_ ∧ _›
     repeat' apply And.intro
   all_goals
@@ -97,13 +115,17 @@ scoped macro "tree_tac" : tactic => `(tactic|(
   ))
 
 /-- Internal implementation detail of the ordered set -/
-scoped macro "✓" : term => `(term| by tree_tac)
+scoped macro "✓" : term => `(term| by tree_tac [ratio, delta, size_inner, size_leaf,
+  BalancedAtRoot, balanced_inner_iff, Balanced.leaf, BalanceLPrecond, BalanceLErasePrecond])
+
+/-- Internal implementation detail of the ordered set -/
+scoped macro "✓?" : term => `(term| by tree_tac? [tree_tac])
 
 end
 
 theorem BalanceLPrecond.erase {left right : Nat} :
     BalanceLPrecond left right → BalanceLErasePrecond left right := by
-  tree_tac
+  tree_tac [tree_tac]
 
 /-!
 ### `balanceL` variants
@@ -416,7 +438,7 @@ theorem balancedAtRoot_zero_iff' {n : Nat} : BalancedAtRoot n 0 ↔ n ≤ 1 := b
   simp only [BalancedAtRoot]; omega
 
 theorem Balanced.one_le {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → 1 ≤ sz := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem Balanced.eq {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → sz = l.size + 1 + r.size
   | .inner _ _ _ h => h
@@ -432,27 +454,27 @@ theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Bal
   | .inner _ _ h _ => h
 
 theorem BalancedAtRoot.symm {l r : Nat} : BalancedAtRoot l r → BalancedAtRoot r l := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem BalancedAtRoot.erase_left {l l' r : Nat} : BalancedAtRoot l r → l - 1 ≤ l' → l' ≤ l →
-    BalanceLErasePrecond r l' := by tree_tac
+    BalanceLErasePrecond r l' := by tree_tac [tree_tac]
 
 theorem BalancedAtRoot.erase_right {l r r' : Nat} : BalancedAtRoot l r → r - 1 ≤ r' → r' ≤ r →
     BalanceLErasePrecond l r' :=
   fun h h₁ h₂ => h.symm.erase_left h₁ h₂
 
 theorem BalancedAtRoot.adjust_left {l l' r : Nat} : BalancedAtRoot l r → l - 1 ≤ l' → l' ≤ l + 1 →
-    BalanceLErasePrecond l' r ∨ BalanceLErasePrecond r l' := by tree_tac
+    BalanceLErasePrecond l' r ∨ BalanceLErasePrecond r l' := by tree_tac [tree_tac]
 
 theorem BalancedAtRoot.adjust_right {l r r' : Nat} : BalancedAtRoot l r → r - 1 ≤ r' → r' ≤ r + 1 →
     BalanceLErasePrecond l r' ∨ BalanceLErasePrecond r' l :=
   fun h h₁ h₂ => h.symm.adjust_left h₁ h₂ |>.symm
 
 theorem balanceLErasePrecond_zero_iff {n : Nat} : BalanceLErasePrecond 0 n ↔ n ≤ 1 := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem balanceLErasePrecond_zero_iff' {n : Nat} : BalanceLErasePrecond n 0 ↔ n ≤ 3 := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem omega_fact_1 {n m : Nat} (h₂ : n + 1 + m ≤ 3) (h₃ : 1 ≤ n) (h₄ : 1 ≤ m) :
     n = 1 ∧ m = 1 := by omega
@@ -501,28 +523,28 @@ theorem balanced_singleL (k v l rs rk rv rl rr) (hl : l.Balanced)
     (hh : rs > delta * l.size)
     (hx : rl.size < ratio * rr.size) :
     (singleL k v l rk rv rl rr : Impl α β).Balanced := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem balanced_singleR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr).Balanced)
     (hr : r.Balanced) (hlr : BalanceLErasePrecond ls r.size ∨ BalanceLErasePrecond r.size ls)
     (hh : ls > delta * r.size)
     (hx : lr.size < ratio * ll.size) :
     (singleR k v lk lv ll lr r : Impl α β).Balanced := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem balanced_doubleL (k v l rs rk rv rls rlk rlv rll rlr) (rr : Impl α β) (hl : l.Balanced)
     (hr : (Impl.inner rs rk rv (Impl.inner rls rlk rlv rll rlr) rr).Balanced)
     (hlr : BalanceLErasePrecond l.size rs ∨ BalanceLErasePrecond rs l.size)
     (hh : rs > delta * l.size) (hx : ¬rls < ratio * rr.size) :
     (doubleL k v l rk rv rlk rlv rll rlr rr).Balanced := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem balanced_doubleR (k v ls lk lv ll lrs lrk lrv lrl lrr) (r : Impl α β)
     (hl : (Impl.inner ls lk lv ll (Impl.inner lrs lrk lrv lrl lrr)).Balanced) (hr : r.Balanced)
     (hlr : BalanceLErasePrecond ls r.size ∨ BalanceLErasePrecond r.size ls)
     (hh : ls > delta * r.size) (hx : ¬lrs < ratio * ll.size) :
     (doubleR k v lk lv ll lrk lrv lrl lrr r).Balanced := by
-  tree_tac
+  tree_tac [tree_tac]
 
 theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
@@ -534,7 +556,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
 
   -- Group 1: l = leaf
   · rename_i sz k' v'
-    obtain rfl : sz = 1 := by tree_tac
+    obtain rfl : sz = 1 := by tree_tac [tree_tac]
     simp only [Nat.zero_add, Nat.reduceAdd, true_and]
     exact balanced_inner_iff.2 ⟨.leaf, balanced_one_leaf_leaf, by simp [size_leaf, size_inner],
       by simp only [tree_tac]⟩
@@ -567,7 +589,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
 
   -- Group 2: r = leaf
   · rename_i sz k' v'
-    obtain rfl : sz = 1 := by tree_tac
+    obtain rfl : sz = 1 := by tree_tac [tree_tac]
     simp only [Nat.reduceAdd, Nat.add_zero, true_and]
     exact balanced_inner_iff.2 ⟨balanced_one_leaf_leaf, .leaf, by simp [size_leaf, size_inner],
       by simp [size_leaf, size_inner]⟩
@@ -712,8 +734,8 @@ theorem balanceLSlow_eq_balanceSlow {k : α} {v : β k} {l r : Impl α β} (hlb 
     simp only [balanceLSlow, balanceSlow, *, if_true, if_false, true_and, size_inner, size_leaf]
   all_goals try rfl
   all_goals try contradiction
-  all_goals try (exfalso; tree_tac; done)
-  all_goals congr; tree_tac
+  all_goals try (exfalso; exact ✓)
+  all_goals congr; exact ✓
 
 theorem balanceR_eq_balanceRErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceR k v l r hlb hrb hlr = balanceRErase k v l r hlb hrb hlr.erase := by
@@ -748,8 +770,8 @@ theorem balanceRSlow_eq_balanceSlow {k : α} {v : β k} {l r : Impl α β} (hlb 
     simp only [balanceRSlow, balanceSlow, *, if_true, if_false, true_and, size_inner, size_leaf]
   all_goals try rfl
   all_goals try contradiction
-  all_goals try (exfalso; tree_tac; done)
-  all_goals congr; tree_tac
+  all_goals try (exfalso; exact ✓)
+  all_goals congr; exact ✓
 
 theorem balance_eq_balanceSlow {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balance k v l r hlb hrb hlr = balanceSlow k v l r := by

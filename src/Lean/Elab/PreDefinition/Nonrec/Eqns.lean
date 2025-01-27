@@ -38,35 +38,10 @@ private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
-    let rec go (mvarId : MVarId) : MetaM Unit := do
-      trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
-      if ← withAtLeastTransparency .all (tryURefl mvarId) then
-        return ()
-      else if (← tryContradiction mvarId) then
-        return ()
-      else if let some mvarId ← simpMatch? mvarId then
-        go mvarId
-      else if let some mvarId ← simpIf? mvarId then
-        go mvarId
-      else if let some mvarId ← whnfReducibleLHS? mvarId then
-        go mvarId
-      else
-        let ctx ← Simp.mkContext (config := { dsimp := false })
-        match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
-        | TacticResultCNM.closed => return ()
-        | TacticResultCNM.modified mvarId => go mvarId
-        | TacticResultCNM.noChange =>
-          if let some mvarIds ← casesOnStuckLHS? mvarId then
-            mvarIds.forM go
-          else if let some mvarIds ← splitTarget? mvarId then
-            mvarIds.forM go
-          else
-            throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
     unless ← withAtLeastTransparency .all (tryURefl mvarId) do
-      go (← deltaLHS mvarId)
+      mkEqnProofCore declName (← deltaLHS mvarId)
     instantiateMVars main
 
 def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=

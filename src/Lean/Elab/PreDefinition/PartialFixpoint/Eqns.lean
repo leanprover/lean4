@@ -100,60 +100,13 @@ def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {}
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let name := Name.str declName unfoldThmSuffix
   let env ← getEnv
-  if env.contains name then
-    pure name
-  else
-    let some info := eqnInfoExt.find? env declName | return none
-    return some (← mkUnfoldEq declName info)
-
-private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  let some unfoldThm ← getUnfoldFor? declName | throwError "unfoldLHS: {declName} has no unfold theorem"
-  let mut mvarId := mvarId
-  let target ← mvarId.getType'
-  let some (_, lhs, rhs) := target.eq? | throwError "unfoldLHS: Unexpected target {target}"
-  unless lhs.isAppOf declName do throwError "unfoldLHS: Unexpected LHS {lhs}"
-  let h := mkAppN (.const unfoldThm lhs.getAppFn.constLevels!) lhs.getAppArgs
-  let some (_, _, lhsNew) := (← inferType h).eq? | unreachable!
-  let targetNew ← mkEq lhsNew rhs
-  let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew
-  mvarId.assign (← mkEqTrans h mvarNew)
-  return mvarNew.mvarId!
-
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.partialFixpoint] "proving: {type}"
-  withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← main.mvarId!.intros
-    let mvarId ← unfoldLHS declName mvarId
-    mkEqnProofCore declName mvarId
-    instantiateMVars main
-
-def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
-  withOptions (tactic.hygienic.set · false) do
-  let baseName := declName
-  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-    let us := info.levelParams.map mkLevelParam
-    let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-    let goal ← mkFreshExprSyntheticOpaqueMVar target
-    withReducible do
-      mkEqnTypes info.declNames goal.mvarId!
-  let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.partialFixpoint] "{eqnTypes[i]}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
-    thmNames := thmNames.push name
-    let value ← mkProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
-  return thmNames
+  if env.contains name then return name
+  let some info := eqnInfoExt.find? env declName | return none
+  return some (← mkUnfoldEq declName info)
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info
+  if let some _ := eqnInfoExt.find? (← getEnv) declName then
+    mkEqns declName
   else
     return none
 

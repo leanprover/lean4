@@ -33,46 +33,12 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
   else
     return none
 
-private partial def mkProof (declName : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.eqns] "proving: {type}"
-  withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← main.mvarId!.intros
-    -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
-    -- the lemma ineligible for dsimp
-    unless ← withAtLeastTransparency .all (tryURefl mvarId) do
-      mkEqnProofCore declName (← deltaLHS mvarId)
-    instantiateMVars main
-
-def mkEqns (declName : Name) (info : DefinitionVal) : MetaM (Array Name) :=
-  withOptions (tactic.hygienic.set · false) do
-  let baseName := declName
-  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-    let us := info.levelParams.map mkLevelParam
-    let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-    let goal ← mkFreshExprSyntheticOpaqueMVar target
-    withReducible do
-      mkEqnTypes #[] goal.mvarId!
-  let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
-    thmNames := thmNames.push name
-    let value ← mkProof declName type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
-  return thmNames
-
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
   if (← isRecursiveDefinition declName) then
     return none
-  if let some (.defnInfo info) := (← getEnv).find? declName then
+  if (← getEnv).contains declName then
     if backward.eqns.nonrecursive.get (← getOptions) then
-      mkEqns declName info
+      mkEqns declName
     else
       let o ← mkSimpleEqThm declName
       return o.map (#[·])

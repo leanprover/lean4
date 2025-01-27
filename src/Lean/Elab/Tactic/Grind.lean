@@ -136,16 +136,32 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
     pure auxDeclName
   unsafe evalConst (Grind.GoalM Unit) auxDeclName
 
+private def evalGrindCore
+    (ref : Syntax)
+    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (only : Option Syntax)
+    (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
+    (fallback? : Option Term)
+    (_trace : Bool) -- TODO
+    : TacticM Unit := do
+  let fallback ← elabFallback fallback?
+  let only := only.isSome
+  let params := if let some params := params then params.getElems else #[]
+  logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
+  let declName := (← Term.getDeclName?).getD `_grind
+  let config ← elabGrindConfig config
+  withMainContext do liftMetaFinishingTactic (grind · config only params declName fallback)
+
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    let fallback ← elabFallback fallback?
-    let only := only.isSome
-    let params := if let some params := params then params.getElems else #[]
-    logWarningAt stx "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
-    let declName := (← Term.getDeclName?).getD `_grind
-    let config ← elabGrindConfig config
-    withMainContext do liftMetaFinishingTactic (grind · config only params declName fallback)
+    evalGrindCore stx config only params fallback? false
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
+  match stx with
+  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+    evalGrindCore stx config only params fallback? true
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

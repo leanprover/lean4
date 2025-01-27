@@ -14,10 +14,11 @@ syntax grindEqRhs  := atomic("=" "_")
 syntax grindEqBwd  := atomic("←" "=")
 syntax grindBwd    := "←"
 syntax grindFwd    := "→"
+syntax grindUsr    := &"usr"
 syntax grindCases  := &"cases"
 syntax grindCasesEager := atomic(&"cases" &"eager")
 
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindCasesEager <|> grindCases
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
 
 syntax (name := grind) "grind" (grindMod)? : attr
 

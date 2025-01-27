@@ -195,6 +195,15 @@ def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EM
   else
     none
 
+/--
+Returns theorems associated with the given origin.
+-/
+def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheorem :=
+  if let some thms := s.omap.find? origin then
+    thms
+  else
+    []
+
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
     let declName := thm.proof.constName!

@@ -45,7 +45,7 @@ def elabInitGrindNorm : CommandElab := fun stx =>
       Grind.registerNormTheorems pre post
   | _ => throwUnsupportedSyntax
 
-def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) : MetaM Grind.Params := do
+def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.grindParam) (only : Bool) : MetaM Grind.Params := do
   let mut params := params
   for p in ps do
     match p with
@@ -59,6 +59,16 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       let declName ← realizeGlobalConstNoOverloadWithInfo id
       let kind ← if let some mod := mod? then Grind.getAttrKindCore mod else pure .infer
       match kind with
+      | .ematch .user =>
+        unless only do
+          withRef p <| Grind.throwInvalidUsrModifier
+        let s ← Grind.getEMatchTheorems
+        let thms := s.find (.decl declName)
+        let thms := thms.filter fun thm => thm.kind == .user
+        if thms.isEmpty then
+          throwErrorAt p "invalid use of `usr` modifier, `{declName}` does not have patterns specified with the command `grind_pattern`"
+        for thm in thms do
+          params := { params with extra := params.extra.push thm }
       | .ematch kind =>
         params ← withRef p <| addEMatchTheorem params declName kind
       | .cases eager =>
@@ -97,7 +107,7 @@ def mkGrindParams (config : Grind.Config) (only : Bool) (ps :  TSyntaxArray ``Pa
   let ematch ← if only then pure {} else Grind.getEMatchTheorems
   let casesTypes ← if only then pure {} else Grind.getCasesTypes
   let params := { params with ematch, casesTypes }
-  elabGrindParams params ps
+  elabGrindParams params ps only
 
 def grind
     (mvarId : MVarId) (config : Grind.Config)

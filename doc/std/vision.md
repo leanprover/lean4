@@ -21,9 +21,10 @@ The standard library is under active development. Our guiding principles are:
 * Provide comprehensive, verified building blocks for real-world software.  
 * Build a public API of the highest quality with excellent internal consistency.  
 * Carefully optimize components that may be used in performance-critical software.  
-* Ensure stability and ease of use for developers.  
+* Ensure smooth adoption and maintenance for users.  
 * Offer excellent documentation, example projects, and guides.  
-* Provide a reliable and extensible basis that libraries for software development, software verification and mathematics can build on.
+* Provide a reliable and extensible basis that libraries for software
+  development, software verification and mathematics can build on.
 
 The standard library is principally developed by the Lean FRO. Community
 contributions are welcome. If you would like to contribute, please refer to the
@@ -42,18 +43,19 @@ call for contributions below.
    3. Basic monad infrastructure  
 3. Libraries  
    1. Random numbers  
-   2. Date and time  
-4. Operating system abstractions[^1]  
-   1. Concurrency and parallelism primitives  
-   2. Asynchronous I/O  
-   3. FFI helpers  
-   4. Environment, file system, processes  
-   5. Locales
+   2. Dates and times  
+4. Operating system abstractions  
+5. Concurrency and parallelism primitives  
+   1. Asynchronous I/O  
+   2. FFI helpers  
+   3. Environment, file system, processes  
+   4. Locales
 
-The core types and operations, language constructs and libraries chapters will
-be verified, with the exception of floating point numbers and the parts of the
-libraries that interface with the operating system (e.g., time zone database
-access).
+The material covered in the first three sections (core types and operations,
+language constructs and libraries) will be verified, with the exception of
+floating point numbers and the parts of the libraries that interface with the
+operating system (e.g., sources of operating system randomness or time zone
+database access).
 
 ### Call for contributions
 
@@ -86,13 +88,10 @@ suitable for new contributors. Please reach out to Markus Himmel on Zulip to
 discuss possible contributions.
 
 As laid out in the [project-wide External Contribution
-Guidelines](../../CONTRIBUTING.md), PRs are much more likely to be merged if
-they are preceded by an RFC or if you discussed your planned contribution with
-a member of the standard library maintainer team. When in doubt, introducing
-yourself is always a good idea.
+Guidelines](../../CONTRIBUTING.md),
+PRs are much more likely to be merged if they are preceded by an RFC or if you
+discussed your planned contribution with a member of the standard library
+maintainer team. When in doubt, introducing yourself is always a good idea.
 
 All code in the standard library is expected to strictly adhere to the
 [standard library coding conventions](./style.md).
-
-[^1]:  Due to technical limitations, WebAssembly support will be provided on a
-    best-effort basis

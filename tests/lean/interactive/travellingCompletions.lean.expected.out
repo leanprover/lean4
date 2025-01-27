@@ -65,10 +65,6 @@
  [{"sortText": "0",
    "label": "intro",
    "kind": 4,
-   "documentation":
-   {"value":
-    "`True` is true, and `True.intro` (or more commonly, `trivial`)\nis the proof. ",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///travellingCompletions.lean"},

@@ -8,7 +8,6 @@ import Std.Data.Classes.LawfulEqOrd
 import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Operations
 import Std.Data.Classes.TransOrd
-import Lean.Elab.Tactic
 
 /-!
 # Low-level implementation of the size-bounded tree

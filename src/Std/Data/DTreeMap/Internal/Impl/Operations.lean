@@ -9,9 +9,9 @@ import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Balancing
 import Std.Data.Classes.TransOrd
 import Init.Data.Nat
-import Lean.Elab.Tactic -- TODO
-import Lean.Meta.Closure
-open Lean.Elab.Tactic Lean.Elab Lean Lean.Meta
+-- import Lean.Elab.Tactic -- TODO
+-- import Lean.Meta.Closure
+-- open Lean.Elab.Tactic Lean.Elab Lean Lean.Meta
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -64,17 +64,15 @@ structure View (size : Nat) where
   /-- The tree. -/
   tree : Tree α β size
 
-attribute [tree_tac] Tree.balanced_impl Tree.size_impl
-
 -- TODO
-elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
-  let (mvars, _) ← runTactic mvarId s
-  unless mvars.isEmpty do
-    throwError "Left-over goals, cannot abstract"
-  let e ← instantiateMVars (mkMVar mvarId)
-  let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
-  mvarId.assign e
-  return []
+-- elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
+--   let (mvars, _) ← runTactic mvarId s
+--   unless mvars.isEmpty do
+--     throwError "Left-over goals, cannot abstract"
+--   let e ← instantiateMVars (mkMVar mvarId)
+--   let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+--   mvarId.assign e
+--   return []
 
 /-- Internal implementation detail of the ordered set -/
 scoped macro "✓₂" : term => `(term| by tree_tac [ratio, delta, size_inner, size_leaf,
@@ -91,7 +89,7 @@ def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
   | leaf => ⟨k, v, ⟨r, hr, ✓⟩⟩
   | inner _ k' v' l' r' =>
       let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := minView k' v' l' r' ✓ ✓ ✓
-      ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by as_aux_lemma =>
+      ⟨dk, dv, ⟨balanceRErase k v dt r ✓ ✓ (by -- as_aux_lemma =>
         exact hlr.erase_left
           (by simp only [hdt', hl.eq, size_inner]; omega)
           (by simp only [hdt', hl.eq, size_inner]; omega)), ✓₂, ✓₂⟩⟩
@@ -113,7 +111,7 @@ def maxView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
   | leaf => ⟨k, v, ⟨l, hl, ✓⟩⟩
   | inner _ k' v' l' r' =>
       let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := maxView k' v' l' r' ✓ ✓ ✓
-      ⟨dk, dv, ⟨balanceLErase k v l dt ✓ ✓ (by as_aux_lemma =>
+      ⟨dk, dv, ⟨balanceLErase k v l dt ✓ ✓ (by -- as_aux_lemma =>
         simp only [hdt', size_inner, hr.eq] at *
         apply hlr.erase_right <;> omega), ✓₂, ✓₂⟩⟩
 
@@ -143,21 +141,19 @@ def glue (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) (hlr : BalancedA
       if sz < sz' then
         let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := minView k' v' l'' r'' ✓ ✓ ✓
         balanceLErase dk dv (.inner sz k v l' r') dt hl ✓
-          (by as_aux_lemma =>
+          (by -- as_aux_lemma =>
             simp only [hdt', size_inner, hr.eq] at *
             apply hlr.erase_right <;> omega)
       else
         let ⟨dk, dv, ⟨dt, hdt, hdt'⟩⟩ := maxView k v l' r' ✓ ✓ ✓
         balanceRErase dk dv dt (.inner sz' k' v' l'' r'') ✓ hr
-          (by as_aux_lemma =>
+          (by -- as_aux_lemma =>
             simp only [hdt', size_inner, hl.eq] at *
             apply hlr.erase_left <;> omega)
 
-@[tree_tac]
 theorem size_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).size = l.size + r.size := by
   simp only [glue]; exact ✓₂
 
-@[tree_tac]
 theorem balanced_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).Balanced := by
   simp only [glue]; exact ✓₂
 
@@ -215,8 +211,6 @@ def insertMaxSlow (k : α) (v : β k) (t : Impl α β) : Impl α β :=
 /-!
 ## `link` and `link2`
 -/
-
-attribute [tree_tac] and_true true_and
 
 /-- Builds the tree `l ++ ⟨k, v⟩ ++ r` without any balancing information at the root. -/
 def link (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
@@ -327,18 +321,13 @@ structure TreeB (lb ub : Nat) where
   /-- The tree has size at most `ub`. -/
   size_impl_le_ub : impl.size ≤ ub
 
-attribute [tree_tac] TreeB.balanced_impl
-
 /-- An empty tree. -/
 @[inline]
 def empty : Impl α β :=
   .leaf
 
-@[tree_tac]
 theorem balanced_empty : (empty : Impl α β).Balanced :=
   .leaf
-
-attribute [tree_tac] or_true true_or
 
 /-- Adds a new mapping to the key, overwriting an existing one with equal key if present. -/
 def insert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
@@ -487,8 +476,6 @@ structure BImpl where
   impl : Impl α β
   /-- The tree is balanced. -/
   balanced_impl : impl.Balanced
-
-attribute [tree_tac] BImpl.balanced_impl
 
 /-- Returns the tree consisting of the mappings `(k, (f k v).get)` where `(k, v)` was a mapping in
 the original tree and `(f k v).isSome`. -/
@@ -660,8 +647,6 @@ def modify [Ord α] (k : α) (f : (k' : α) → β k' → (compare k k' = .eq) �
     | .lt => .inner sz k' v' (modify k f l) r
     | .gt => .inner sz k' v' l (modify k f r)
     | .eq => .inner sz k' (f k' v' h) l r
-
-attribute [tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
 /-- Returns the mapping with the `n`-th smallest key. -/
 def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a

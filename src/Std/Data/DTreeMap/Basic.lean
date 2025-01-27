@@ -67,7 +67,7 @@ instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
 
 universe w in
-@[inline, inherit_doc DHashMap.fold] def fold {γ : Type w}
+@[inline] def fold {γ : Type w}
     (f : γ → (a : α) → β a → γ) (init : γ) (b : DTreeMap α β cmp) : γ :=
   b.inner.foldl f init
 
@@ -87,7 +87,7 @@ universe w in
   Std.DTreeMap.Internal.Impl.get? a l.inner
 
 universe w in
-@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w} [Monad m]
+@[inline] def forIn {m : Type w → Type w} [Monad m]
     {γ : Type w} (f : (a : α) → β a → γ → m (ForInStep γ)) (init : γ) (b : DTreeMap α β cmp) : m γ :=
   b.inner.forIn (fun c a b => f a b c) init
 

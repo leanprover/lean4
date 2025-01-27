@@ -289,6 +289,14 @@ theorem toListModel_eq_append [Ord α] [TransOrd α] (k : α → Ordering) [IsSt
 theorem Option.pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pairwise P := by
   cases o <;> simp
 
+-- TODO
+theorem mem_toList {α : Type u} (a : α) (x : Option α) : a ∈ x.toList ↔ x = some a := by
+  dsimp only [Option.toList]
+  split
+  · simp
+  · simp only [List.mem_singleton, Option.some.injEq]
+    constructor <;> exact Eq.symm
+
 theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
     {f : Cell α β (compare k) → Cell α β (compare k)}
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) : (l.updateCell k f hlb).impl.Ordered := by
@@ -299,14 +307,14 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
   · intro a ha b hb
     have := hlo.2.2 a (List.mem_append_left _ ha)
     clear hlo
-    simp at ha hb
+    simp [mem_toList] at ha hb
     have : compare k b.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ hb
     exact TransCmp.lt_of_lt_of_eq (OrientedCmp.lt_of_gt ha.2) this
   · intro a ha b hb
     rw [List.mem_append] at ha
     obtain ha|ha := ha
     · exact hlo.2.2 a (List.mem_append_left _ ha) _ hb
-    · simp at ha
+    · simp [mem_toList] at ha
       have h₀ : compare k a.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ ha
       have h₁ : compare k b.fst = .lt := by
         simp only [List.mem_filter, beq_iff_eq] at hb
@@ -541,7 +549,7 @@ theorem apply_lookupGEₘ [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo 
   intro ll rr c hc hp hll hrr
   rw [List.append_assoc, lookupGE_append_of_forall_mem_left hll,
     lookupGE_eq_head? _ (hp.sublist (by simp)), List.head?_append, Option.head?_toList]
-  simp only [List.mem_append, Option.mem_toList, Option.mem_def]
+  simp only [List.mem_append, mem_toList, Option.mem_def]
   rintro p (hp|hp)
   · exact Ordering.isLE_of_eq_eq (c.property _ hp)
   · exact Ordering.isLE_of_eq_lt (hrr _ hp)

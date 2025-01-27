@@ -40,25 +40,46 @@ def contains (l : TreeMap α β cmp) (a : α) : Bool :=
   l.inner.contains a
 
 universe w in
-@[inline, inherit_doc DHashMap.fold] def fold {γ : Type w}
+@[inline] def fold {γ : Type w}
     (f : γ → α → β → γ) (init : γ) (b : TreeMap α β cmp) : γ :=
   b.inner.inner.foldl f init
 
 @[inline] def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
   l.foldl (fun r p => r.insert p.1 p.2) empty
 
+@[inline] def find! [Inhabited β] (l : TreeMap α β cmp) (a : α) : β :=
+  letI : Ord α := ⟨cmp⟩
+  Std.DTreeMap.Internal.Impl.Const.get! a l.inner.inner
+
 @[inline] def get? (l : TreeMap α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩
   Std.DTreeMap.Internal.Impl.Const.Const.get? a l.inner.inner
 
+@[inline] def find? (l : TreeMap α β cmp) (a : α) : Option β :=
+  letI : Ord α := ⟨cmp⟩
+  Std.DTreeMap.Internal.Impl.Const.Const.get? a l.inner.inner
+
+@[inline] def size (l : TreeMap α β cmp) : Nat :=
+  letI : Ord α := ⟨cmp⟩
+  Std.DTreeMap.Internal.Impl.size l.inner.inner
+
 universe w in
-@[inline, inherit_doc DHashMap.forIn] def forIn {m : Type w → Type w} [Monad m]
+@[inline] def forIn {m : Type w → Type w} [Monad m]
     {γ : Type w} (f : (a : α) → β → γ → m (ForInStep γ)) (init : γ) (b : TreeMap α β cmp) : m γ :=
   b.inner.inner.forIn (fun c a b => f a b c) init
 
 universe w in
 instance {m : Type w → Type w} : ForIn m (TreeMap α β cmp) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
+
+@[inline] def any (l : TreeMap α β cmp) (p : α → β → Bool) : Bool := Id.run $ do
+  for ⟨a, b⟩ in l do
+    if p a b then return true
+  return false
+
+@[inline] def erase (l : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨l.inner.inner.erase a l.inner.wf.balanced |>.impl, l.inner.wf.erase⟩
 
 instance : Membership α (TreeMap α β cmp) where
   mem m a := m.contains a

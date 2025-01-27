@@ -9,7 +9,7 @@ import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
 import Std.Data.HashSet.Basic
--- import Std.Data.TreeMap.Basic --imports Lean.Expr
+import Std.Data.TreeMap.Basic
 -- import Lean.Meta.Tactic.Simp.RegisterCommand
 
 namespace Lean
@@ -253,12 +253,12 @@ def FVarIdHashSet := Std.HashSet FVarId
 /--
 A mapping from free variable identifiers to values of type `α`.
 This is a persistent data structure implemented using red-black trees. -/
-def FVarIdMap (α : Type) := RBMap FVarId α (Name.quickCmp ·.name ·.name)
+def FVarIdMap (α : Type) := Std.TreeMap FVarId α (Name.quickCmp ·.name ·.name)
 
 def FVarIdMap.insert (s : FVarIdMap α) (fvarId : FVarId) (a : α) : FVarIdMap α :=
-  RBMap.insert s fvarId a
+  Std.TreeMap.insert s fvarId a
 
-instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (FVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap ..))
 
 instance : Inhabited (FVarIdMap α) where
   default := {}
@@ -279,14 +279,14 @@ def MVarIdSet.insert (s : MVarIdSet) (mvarId : MVarId) : MVarIdSet :=
 
 instance : ForIn m MVarIdSet MVarId := inferInstanceAs (ForIn _ (RBTree ..) ..)
 
-def MVarIdMap (α : Type) := RBMap MVarId α (Name.quickCmp ·.name ·.name)
+def MVarIdMap (α : Type) := Std.TreeMap MVarId α (Name.quickCmp ·.name ·.name)
 
 def MVarIdMap.insert (s : MVarIdMap α) (mvarId : MVarId) (a : α) : MVarIdMap α :=
-  RBMap.insert s mvarId a
+  Std.TreeMap.insert s mvarId a
 
-instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (RBMap ..))
+instance : EmptyCollection (MVarIdMap α) := inferInstanceAs (EmptyCollection (Std.TreeMap ..))
 
-instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (RBMap ..) ..)
+instance : ForIn m (MVarIdMap α) (MVarId × α) := inferInstanceAs (ForIn _ (Std.TreeMap ..) ..)
 
 instance : Inhabited (MVarIdMap α) where
   default := {}

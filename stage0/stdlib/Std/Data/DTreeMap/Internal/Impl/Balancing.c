@@ -295,7 +295,6 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__4;
 lean_object* l_String_toSubstring_x27(lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8;
 static lean_object* l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__tacticTree__tac__1___closed__34;
 static lean_object* l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__11;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Internal_Impl_Balancing_0__Std_DTreeMap_Internal_Impl_balanceLErase_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2347,21 +2346,11 @@ return x_1;
 static lean_object* _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("TreeMap", 7, 7);
-return x_1;
-}
-}
-static lean_object* _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_1 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__1;
-x_2 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__3;
-x_3 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7;
-x_4 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__9;
-x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
-return x_5;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__9;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -2423,7 +2412,7 @@ lean_inc(x_16);
 lean_inc(x_14);
 lean_inc(x_10);
 x_28 = l_Lean_Syntax_node3(x_10, x_27, x_14, x_16, x_26);
-x_29 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8;
+x_29 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7;
 lean_inc(x_10);
 x_30 = l_Lean_Syntax_node3(x_10, x_29, x_14, x_16, x_26);
 x_31 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__5;
@@ -4822,7 +4811,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(195u);
+x_3 = lean_unsigned_to_nat(194u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -4835,7 +4824,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(196u);
+x_3 = lean_unsigned_to_nat(195u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8342,7 +8331,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceRSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(283u);
+x_3 = lean_unsigned_to_nat(282u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceRSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -8355,7 +8344,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceRSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(284u);
+x_3 = lean_unsigned_to_nat(283u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceRSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12143,7 +12132,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(382u);
+x_3 = lean_unsigned_to_nat(381u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12156,7 +12145,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(383u);
+x_3 = lean_unsigned_to_nat(382u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12169,7 +12158,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(372u);
+x_3 = lean_unsigned_to_nat(371u);
 x_4 = lean_unsigned_to_nat(36u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -12182,7 +12171,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(373u);
+x_3 = lean_unsigned_to_nat(372u);
 x_4 = lean_unsigned_to_nat(22u);
 x_5 = l_Std_DTreeMap_Internal_Impl_balanceSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -17466,8 +17455,6 @@ l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balanci
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__6);
 l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7 = _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7();
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7);
-l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8 = _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8();
-lean_mark_persistent(l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__8);
 l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1 = _init_l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1();
 lean_mark_persistent(l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__1);
 l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__2 = _init_l_Std_DTreeMap_Internal_Impl_balanceLSlow___rarg___closed__2();

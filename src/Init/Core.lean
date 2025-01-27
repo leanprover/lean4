@@ -516,8 +516,17 @@ The tasks have an overridden representation in the runtime.
 structure Task (α : Type u) : Type u where
   /-- `Task.pure (a : α)` constructs a task that is already resolved with value `a`. -/
   pure ::
-  /-- If `task : Task α` then `task.get : α` blocks the current thread until the
-  value is available, and then returns the result of the task. -/
+  /--
+  Blocks the current thread until the given task has finished execution, and then returns the result
+  of the task. If the current thread is itself executing a (non-dedicated) task, the maximum
+  threadpool size is temporarily increased by one while waiting so as to ensure the process cannot
+  be deadlocked by threadpool starvation. Note that when the current thread is unblocked, more tasks
+  than the configured threadpool size may temporarily be running at the same time until sufficiently
+  many tasks have finished.
+
+  `Task.map` and `Task.bind` should be preferred over `Task.get` for setting up task dependencies
+  where possible as they do not require temporarily growing the threadpool in this way.
+  -/
   get : α
   deriving Inhabited, Nonempty
 
@@ -2116,14 +2125,35 @@ instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
 
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
+/-- `Refl r` means the binary relation `r` is reflexive, that is, `r x x` always holds. -/
+class Refl (r : α → α → Prop) : Prop where
+  /-- A reflexive relation satisfies `r a a`. -/
+  refl : ∀ a, r a a
+
+/-- `Antisymm r` says that `r` is antisymmetric, that is, `r a b → r b a → a = b`. -/
 class Antisymm (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
+  /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
+  antisymm (a b : α) : r a b → r b a → a = b
 
 @[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
 abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
+
+/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+`r a b → ¬ r b a`. -/
+class Asymm (r : α → α → Prop) : Prop where
+  /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
+  asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
+`x y : X` we have `r x y` or `r y x`. -/
+class Total (r : α → α → Prop) : Prop where
+  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  total : ∀ a b, r a b ∨ r b a
+
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
+holds. -/
+class Irrefl (r : α → α → Prop) : Prop where
+  /-- An irreflexive relation satisfies `¬ r a a`. -/
+  irrefl : ∀ a, ¬r a a
 
 end Std

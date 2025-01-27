@@ -14,7 +14,7 @@ open Meta
 def admitGoal (mvarId : MVarId) : MetaM Unit :=
   mvarId.withContext do
     let mvarType ← inferType (mkMVar mvarId)
-    mvarId.assign (← mkSorry mvarType (synthetic := true))
+    mvarId.assign (← mkLabeledSorry mvarType (synthetic := true) (unique := true))
 
 def goalsToMessageData (goals : List MVarId) : MessageData :=
   MessageData.joinSep (goals.map MessageData.ofGoal) m!"\n\n"

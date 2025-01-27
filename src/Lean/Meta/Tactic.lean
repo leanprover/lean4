@@ -41,3 +41,4 @@ import Lean.Meta.Tactic.FunInd
 import Lean.Meta.Tactic.Rfl
 import Lean.Meta.Tactic.Rewrites
 import Lean.Meta.Tactic.Grind
+import Lean.Meta.Tactic.Ext

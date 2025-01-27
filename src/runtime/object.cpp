@@ -693,10 +693,14 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
-                if (m_queues_size == 0) {
-                    if (m_shutting_down) {
-                        break;
-                    }
+                if (m_queues_size == 0 && m_shutting_down) {
+                    break;
+                }
+                if (m_queues_size == 0 ||
+                        // If we have reached the maximum number of standard workers (because the
+                        // maximum was decreased by `task_get`), wait for someone else to become
+                        // idle before picking up new work.
+                        m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
                     continue;
                 }
@@ -859,7 +863,19 @@ public:
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value)
             return;
+        // see `Task.get`
+        bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
+        if (in_pool) {
+            m_max_std_workers++;
+            if (m_idle_std_workers == 0)
+                spawn_worker();
+            else
+                m_queue_cv.notify_one();
+        }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        if (in_pool) {
+            m_max_std_workers--;
+        }
     }
 
     object * wait_any(object * task_list) {
@@ -1658,6 +1674,58 @@ extern "C" LEAN_EXPORT uint64_t lean_float_to_bits(double d)
     if (isnan(d))
         d = std::numeric_limits<double>::quiet_NaN();
     std::memcpy(&ret, &d, sizeof(double));
+    return ret;
+}
+
+// =======================================
+// Float32
+
+extern "C" LEAN_EXPORT lean_obj_res lean_float32_to_string(float a) {
+    if (isnan(a))
+        // override NaN because we don't want NaNs to be distinguishable
+        // because the sign bit / payload bits can be architecture-dependent
+        return mk_ascii_string_unchecked("NaN");
+    else
+        return mk_ascii_string_unchecked(std::to_string(a));
+}
+
+extern "C" LEAN_EXPORT float lean_float32_scaleb(float a, b_lean_obj_arg b) {
+   if (lean_is_scalar(b)) {
+     return scalbn(a, lean_scalar_to_int(b));
+   } else if (a == 0 || mpz_value(b).is_neg()) {
+     return 0;
+   } else {
+     return a * (1.0 / 0.0);
+   }
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_float32_isnan(float a) { return (bool) isnan(a); }
+extern "C" LEAN_EXPORT uint8_t lean_float32_isfinite(float a) { return (bool) isfinite(a); }
+extern "C" LEAN_EXPORT uint8_t lean_float32_isinf(float a) { return (bool) isinf(a); }
+extern "C" LEAN_EXPORT obj_res lean_float32_frexp(float a) {
+    object* r = lean_alloc_ctor(0, 2, 0);
+    int exp;
+    lean_ctor_set(r, 0, lean_box_float32(frexp(a, &exp)));
+    lean_ctor_set(r, 1, isfinite(a) ? lean_int_to_int(exp) : lean_box(0));
+    return r;
+}
+
+extern "C" LEAN_EXPORT float lean_float32_of_bits(uint32_t u)
+{
+    static_assert(sizeof(float) == sizeof(u), "`float` unexpected size.");
+    float ret;
+    std::memcpy(&ret, &u, sizeof(float));
+    if (isnan(ret))
+        ret = std::numeric_limits<float>::quiet_NaN();
+    return ret;
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_float32_to_bits(float d)
+{
+    uint32_t ret;
+    if (isnan(d))
+        d = std::numeric_limits<float>::quiet_NaN();
+    std::memcpy(&ret, &d, sizeof(float));
     return ret;
 }
 

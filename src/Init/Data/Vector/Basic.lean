@@ -6,6 +6,8 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 
 prelude
 import Init.Data.Array.Lemmas
+import Init.Data.Array.MapIdx
+import Init.Data.Range
 
 /-!
 # Vectors
@@ -70,6 +72,16 @@ instance [Inhabited α] : Inhabited (Vector α n) where
 instance : GetElem (Vector α n) Nat α fun _ i => i < n where
   getElem x i h := get x ⟨i, h⟩
 
+/-- Check if there is an element which satisfies `a == ·`. -/
+def contains [BEq α] (v : Vector α n) (a : α) : Bool := v.toArray.contains a
+
+/-- `a ∈ v` is a predicate which asserts that `a` is in the vector `v`. -/
+structure Mem (as : Vector α n) (a : α) : Prop where
+  val : a ∈ as.toArray
+
+instance : Membership α (Vector α n) where
+  mem := Mem
+
 /--
 Get an element of a vector using a `Nat` index. Returns the given default value if the index is out
 of bounds.
@@ -79,20 +91,18 @@ of bounds.
 /-- The last element of a vector. Panics if the vector is empty. -/
 @[inline] def back! [Inhabited α] (v : Vector α n) : α := v.toArray.back!
 
-/-- The last element of a vector, or `none` if the array is empty. -/
+/-- The last element of a vector, or `none` if the vector is empty. -/
 @[inline] def back? (v : Vector α n) : Option α := v.toArray.back?
 
 /-- The last element of a non-empty vector. -/
 @[inline] def back [NeZero n] (v : Vector α n) : α :=
-  -- TODO: change to just `v[n]`
-  have : Inhabited α := ⟨v[0]'(Nat.pos_of_neZero n)⟩
-  v.back!
+  v[n - 1]'(Nat.sub_one_lt (NeZero.ne n))
 
 /-- The first element of a non-empty vector.  -/
 @[inline] def head [NeZero n] (v : Vector α n) := v[0]'(Nat.pos_of_neZero n)
 
 /-- Push an element `x` to the end of a vector. -/
-@[inline] def push (x : α) (v : Vector α n)  : Vector α (n + 1) :=
+@[inline] def push (v : Vector α n) (x : α) : Vector α (n + 1) :=
   ⟨v.toArray.push x, by simp⟩
 
 /-- Remove the last element of a vector. -/
@@ -125,6 +135,18 @@ This will perform the update destructively provided that the vector has a refere
 @[inline] def set! (v : Vector α n) (i : Nat) (x : α) : Vector α n :=
   ⟨v.toArray.set! i x, by simp⟩
 
+@[inline] def foldlM [Monad m] (f : β → α → m β) (b : β) (v : Vector α n) : m β :=
+  v.toArray.foldlM f b
+
+@[inline] def foldrM [Monad m] (f : α → β → m β) (b : β) (v : Vector α n) : m β :=
+  v.toArray.foldrM f b
+
+@[inline] def foldl (f : β → α → β) (b : β) (v : Vector α n) : β :=
+  v.toArray.foldl f b
+
+@[inline] def foldr (f : α → β → β) (b : β) (v : Vector α n) : β :=
+  v.toArray.foldr f b
+
 /-- Append two vectors. -/
 @[inline] def append (v : Vector α n) (w : Vector α m) : Vector α (n + m) :=
   ⟨v.toArray ++ w.toArray, by simp⟩
@@ -146,6 +168,25 @@ result is empty. If `stop` is greater than the size of the vector, the size is u
 /-- Maps elements of a vector using the function `f`. -/
 @[inline] def map (f : α → β) (v : Vector α n) : Vector β n :=
   ⟨v.toArray.map f, by simp⟩
+
+/-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/
+@[inline] def mapIdx (f : Nat → α → β) (v : Vector α n) : Vector β n :=
+  ⟨v.toArray.mapIdx f, by simp⟩
+
+/-- Maps elements of a vector using the function `f`,
+which also receives the index of the element, and the fact that the index is less than the size of the vector. -/
+@[inline] def mapFinIdx (v : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) : Vector β n :=
+  ⟨v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)), by simp⟩
+
+@[inline] def flatten (v : Vector (Vector α n) m) : Vector α (m * n) :=
+  ⟨(v.toArray.map Vector.toArray).flatten,
+    by rcases v; simp_all [Function.comp_def, Array.map_const']⟩
+
+@[inline] def flatMap (v : Vector α n) (f : α → Vector β m) : Vector β (n * m) :=
+  ⟨v.toArray.flatMap fun a => (f a).toArray, by simp [Array.map_const']⟩
+
+@[inline] def zipWithIndex (v : Vector α n) : Vector (α × Nat) n :=
+  ⟨v.toArray.zipWithIndex, by simp⟩
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
 @[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=
@@ -254,3 +295,47 @@ no element of the index matches the given value.
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=
   v.toArray.isPrefixOf w.toArray
+
+/-- Returns `true` with the monad if `p` returns `true` for any element of the vector. -/
+@[inline] def anyM [Monad m] (p : α → m Bool) (v : Vector α n) : m Bool :=
+  v.toArray.anyM p
+
+/-- Returns `true` with the monad if `p` returns `true` for all elements of the vector. -/
+@[inline] def allM [Monad m] (p : α → m Bool) (v : Vector α n) : m Bool :=
+  v.toArray.allM p
+
+/-- Returns `true` if `p` returns `true` for any element of the vector. -/
+@[inline] def any (v : Vector α n) (p : α → Bool) : Bool :=
+  v.toArray.any p
+
+/-- Returns `true` if `p` returns `true` for all elements of the vector. -/
+@[inline] def all (v : Vector α n) (p : α → Bool) : Bool :=
+  v.toArray.all p
+
+/-- Count the number of elements of a vector that satisfy the predicate `p`. -/
+@[inline] def countP (p : α → Bool) (v : Vector α n) : Nat :=
+  v.toArray.countP p
+
+/-- Count the number of elements of a vector that are equal to `a`. -/
+@[inline] def count [BEq α] (a : α) (v : Vector α n) : Nat :=
+  v.toArray.count a
+
+/-! ### Lexicographic ordering -/
+
+instance instLT [LT α] : LT (Vector α n) := ⟨fun v w => v.toArray < w.toArray⟩
+instance instLE [LT α] : LE (Vector α n) := ⟨fun v w => v.toArray ≤ w.toArray⟩
+
+/--
+Lexicographic comparator for vectors.
+
+`lex v w lt` is true if
+- `v` is pairwise equivalent via `==` to `w`, or
+- there is an index `i` such that `lt v[i] w[i]`, and for all `j < i`, `v[j] == w[j]`.
+-/
+def lex [BEq α] (v w : Vector α n) (lt : α → α → Bool := by exact (· < ·)) : Bool := Id.run do
+  for h : i in [0 : n] do
+    if lt v[i] w[i] then
+      return true
+    else if v[i] != w[i] then
+      return false
+  return false

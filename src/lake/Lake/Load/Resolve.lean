@@ -373,7 +373,7 @@ def Workspace.writeManifest
     packagesDir? := ws.relPkgsDir
     packages := manifestEntries
   }
-  manifest.saveToFile ws.manifestFile
+  manifest.save ws.manifestFile
 
 /-- Run a package's `post_update` hooks. -/
 def Package.runPostUpdateHooks (pkg : Package) : LakeT LoggerIO PUnit := do
@@ -399,15 +399,12 @@ def Workspace.updateAndMaterialize
   return ws
 
 /--
-Check whether the manifest exists and
-whether entries in the manifest are up-to-date,
+Check whether entries in the manifest are up-to-date,
 reporting warnings and/or errors as appropriate.
 -/
 def validateManifest
   (pkgEntries : NameMap PackageEntry) (deps : Array Dependency)
 : LoggerIO PUnit := do
-  if pkgEntries.isEmpty && !deps.isEmpty then
-    error "missing manifest; use `lake update` to generate one"
   deps.forM fun dep => do
     let warnOutOfDate (what : String) :=
       logWarning <|
@@ -429,16 +426,27 @@ downloading and/or updating them as necessary.
 def Workspace.materializeDeps
   (ws : Workspace) (manifest : Manifest)
   (leanOpts : Options := {}) (reconfigure := false)
+  (overrides : Array PackageEntry := #[])
 : LoggerIO Workspace := do
+  -- Load locked dependencies
   if !manifest.packages.isEmpty && manifest.packagesDir? != some (mkRelPathString ws.relPkgsDir) then
     logWarning <|
       "manifest out of date: packages directory changed; \
       use `lake update` to rebuild the manifest \
       (warning: this will update ALL workspace dependencies)"
   let relPkgsDir := manifest.packagesDir?.getD ws.relPkgsDir
-  let pkgEntries : NameMap PackageEntry := manifest.packages.foldl (init := {})
-    fun map entry => map.insert entry.name entry
+  let mut pkgEntries := mkNameMap PackageEntry
+  pkgEntries := manifest.packages.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
   validateManifest pkgEntries ws.root.depConfigs
+  let wsOverrides ← Manifest.tryLoadEntries ws.packageOverridesFile
+  pkgEntries := wsOverrides.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
+  pkgEntries := overrides.foldl (init := pkgEntries) fun map entry =>
+    map.insert entry.name entry
+  if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
+    error "missing manifest; use `lake update` to generate one"
+  -- Materialize all dependencies
   let ws := ws.addPackage ws.root
   ws.resolveDepsCore fun pkg dep => do
     let ws ← getWorkspace

@@ -178,7 +178,8 @@ def groupGoalsByFunction (argsPacker : ArgsPacker) (numFuncs : Nat) (goals : Arr
     let type ← goal.getType
     let (.mdata _ (.app _ param)) := type
         | throwError "MVar does not look like a recursive call:{indentExpr type}"
-    let (funidx, _) ← argsPacker.unpack param
+    let some (funidx, _) := argsPacker.unpack param
+        | throwError "Cannot unpack param, unexpected expression:{indentExpr param}"
     r := r.modify funidx (·.push goal)
   return r
 

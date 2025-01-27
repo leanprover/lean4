@@ -668,7 +668,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_withLocation___lambda__1(lean_object
 _start:
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; 
-x_13 = lean_ctor_get(x_8, 1);
+x_13 = lean_ctor_get(x_8, 2);
 lean_inc(x_13);
 x_14 = l_Lean_LocalContext_getFVarIds(x_13);
 lean_dec(x_13);

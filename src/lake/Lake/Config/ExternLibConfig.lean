@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
 prelude
-import Lake.Build.Job
 import Lake.Build.Data
+import Lake.Build.Job.Basic
 
 namespace Lake
 open Lean System
@@ -13,7 +13,7 @@ open Lean System
 /-- A external library's declarative configuration. -/
 structure ExternLibConfig (pkgName name : Name) where
   /-- The library's build data. -/
-  getJob : CustomData (pkgName, .str name "static") → BuildJob FilePath
+  getPath : Job (CustomData (pkgName, .str name "static")) → Job FilePath
   deriving Inhabited
 
 /-- A dependently typed configuration based on its registered package and name. -/

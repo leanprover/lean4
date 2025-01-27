@@ -95,7 +95,7 @@ def Foo'.preorder : Foo' → String
   | {name, n, children} => Id.run do
     let mut acc := name
     for h : i in [0:n] do
-      acc := acc ++ (children ⟨i, h.2⟩).preorder
+      acc := acc ++ (children ⟨i, h.2.1⟩).preorder
     return acc
 
 /-- info: Foo'.preorder : Foo' → String -/

@@ -97,7 +97,7 @@ abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 
-abbrev RequestTask.pure (a : α) : RequestTask α := .pure (.ok a)
+abbrev RequestTask.pure (a : α) : RequestTask α := Task.pure (.ok a)
 
 instance : MonadLift IO RequestM where
   monadLift x := do

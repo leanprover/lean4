@@ -281,6 +281,17 @@ theorem denote_congr (assign1 assign2 : α → Bool) (aig : AIG α) (idx : Nat)
     rw [denote_congr assign1 assign2 aig lhs (by omega) h]
     rw [denote_congr assign1 assign2 aig rhs (by omega) h]
 
+theorem of_isConstant {aig : AIG α} {assign : α → Bool} {ref : Ref aig} {b : Bool} :
+    aig.isConstant ref b → ⟦aig, ref, assign⟧ = b := by
+  rcases ref with ⟨gate, hgate⟩
+  intro h
+  unfold isConstant at h
+  dsimp only at h
+  split at h
+  · rw [denote_idx_const]
+    simp_all
+  · contradiction
+
 end AIG
 
 end Sat

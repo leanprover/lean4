@@ -12,17 +12,15 @@ open Lean (Name)
 /-- A custom target's declarative configuration. -/
 structure TargetConfig (pkgName name : Name) : Type where
   /-- The target's build function. -/
-  build : (pkg : NPackage pkgName) → FetchM (CustomData (pkgName, name))
-  /-- The target's resulting build job. -/
-  getJob : CustomData (pkgName, name) → BuildJob Unit
+  build : (pkg : NPackage pkgName) → FetchM (Job (CustomData (pkgName, name)))
   deriving Inhabited
 
 /-- A smart constructor for target configurations that generate CLI targets. -/
 @[inline] def mkTargetJobConfig
-(build : (pkg : NPackage pkgName) → FetchM (BuildJob α))
-[h : FamilyOut CustomData (pkgName, name) (BuildJob α)] : TargetConfig pkgName name where
+  (build : (pkg : NPackage pkgName) → FetchM (Job α))
+  [h : FamilyOut CustomData (pkgName, name) α]
+: TargetConfig pkgName name where
   build := cast (by rw [← h.family_key_eq_type]) build
-  getJob := fun data => discard <| ofFamily data
 
 /-- A dependently typed configuration based on its registered package and name. -/
 structure TargetDecl where

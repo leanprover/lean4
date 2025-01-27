@@ -14,10 +14,7 @@ This module contains the equality simplifying part of the `bv_normalize` simp se
 namespace Std.Tactic.BVDecide
 namespace Frontend.Normalize
 
-attribute [bv_normalize] beq_true
-attribute [bv_normalize] Bool.true_beq
-attribute [bv_normalize] beq_false
-attribute [bv_normalize] Bool.false_beq
+attribute [bv_normalize] eq_self
 attribute [bv_normalize] beq_self_eq_true
 attribute [bv_normalize] beq_self_eq_true'
 

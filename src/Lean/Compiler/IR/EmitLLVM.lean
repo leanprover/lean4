@@ -315,6 +315,7 @@ def callLeanCtorSetTag (builder : LLVM.Builder llvmctx)
 def toLLVMType (t : IRType) : M llvmctx (LLVM.LLVMType llvmctx) := do
   match t with
   | IRType.float      => LLVM.doubleTypeInContext llvmctx
+  | IRType.float32    => LLVM.floatTypeInContext llvmctx
   | IRType.uint8      => LLVM.intTypeInContext llvmctx 8
   | IRType.uint16     => LLVM.intTypeInContext llvmctx 16
   | IRType.uint32     => LLVM.intTypeInContext llvmctx 32
@@ -817,12 +818,13 @@ def emitSProj (builder : LLVM.Builder llvmctx)
     (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M llvmctx Unit := do
   let (fnName, retty) ←
     match t with
-    | IRType.float  => pure ("lean_ctor_get_float", ← LLVM.doubleTypeInContext llvmctx)
-    | IRType.uint8  => pure ("lean_ctor_get_uint8", ← LLVM.i8Type llvmctx)
-    | IRType.uint16 => pure ("lean_ctor_get_uint16", ←  LLVM.i16Type llvmctx)
-    | IRType.uint32 => pure ("lean_ctor_get_uint32", ← LLVM.i32Type llvmctx)
-    | IRType.uint64 => pure ("lean_ctor_get_uint64", ← LLVM.i64Type llvmctx)
-    | _             => throw s!"Invalid type for lean_ctor_get: '{t}'"
+    | IRType.float   => pure ("lean_ctor_get_float", ← LLVM.doubleTypeInContext llvmctx)
+    | IRType.float32 => pure ("lean_ctor_get_float32", ← LLVM.floatTypeInContext llvmctx)
+    | IRType.uint8   => pure ("lean_ctor_get_uint8", ← LLVM.i8Type llvmctx)
+    | IRType.uint16  => pure ("lean_ctor_get_uint16", ←  LLVM.i16Type llvmctx)
+    | IRType.uint32  => pure ("lean_ctor_get_uint32", ← LLVM.i32Type llvmctx)
+    | IRType.uint64  => pure ("lean_ctor_get_uint64", ← LLVM.i64Type llvmctx)
+    | _              => throw s!"Invalid type for lean_ctor_get: '{t}'"
   let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.unsignedType llvmctx]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let xval ← emitLhsVal builder x
@@ -862,11 +864,12 @@ def emitBox (builder : LLVM.Builder llvmctx) (z : VarId) (x : VarId) (xType : IR
   let xv ← emitLhsVal builder x
   let (fnName, argTy, xv) ←
     match xType with
-    | IRType.usize  => pure ("lean_box_usize", ← LLVM.size_tType llvmctx, xv)
-    | IRType.uint32 => pure ("lean_box_uint32", ← LLVM.i32Type llvmctx, xv)
-    | IRType.uint64 => pure ("lean_box_uint64", ← LLVM.size_tType llvmctx, xv)
-    | IRType.float  => pure ("lean_box_float", ← LLVM.doubleTypeInContext llvmctx, xv)
-    | _             => do
+    | IRType.usize   => pure ("lean_box_usize", ← LLVM.size_tType llvmctx, xv)
+    | IRType.uint32  => pure ("lean_box_uint32", ← LLVM.i32Type llvmctx, xv)
+    | IRType.uint64  => pure ("lean_box_uint64", ← LLVM.size_tType llvmctx, xv)
+    | IRType.float   => pure ("lean_box_float", ← LLVM.doubleTypeInContext llvmctx, xv)
+    | IRType.float32 => pure ("lean_box_float32", ← LLVM.floatTypeInContext llvmctx, xv)
+    | _              =>
          -- sign extend smaller values into i64
          let xv ← LLVM.buildSext builder xv (← LLVM.size_tType llvmctx)
          pure ("lean_box", ← LLVM.size_tType llvmctx, xv)
@@ -892,11 +895,12 @@ def callUnboxForType (builder : LLVM.Builder llvmctx)
     (retName : String := "") : M llvmctx (LLVM.Value llvmctx) := do
   let (fnName, retty) ←
      match t with
-     | IRType.usize  => pure ("lean_unbox_usize", ← toLLVMType t)
-     | IRType.uint32 => pure ("lean_unbox_uint32", ← toLLVMType t)
-     | IRType.uint64 => pure ("lean_unbox_uint64", ← toLLVMType t)
-     | IRType.float  => pure ("lean_unbox_float", ← toLLVMType t)
-     | _             => pure ("lean_unbox", ← LLVM.size_tType llvmctx)
+     | IRType.usize   => pure ("lean_unbox_usize", ← toLLVMType t)
+     | IRType.uint32  => pure ("lean_unbox_uint32", ← toLLVMType t)
+     | IRType.uint64  => pure ("lean_unbox_uint64", ← toLLVMType t)
+     | IRType.float   => pure ("lean_unbox_float", ← toLLVMType t)
+     | IRType.float32 => pure ("lean_unbox_float32", ← toLLVMType t)
+     | _              => pure ("lean_unbox", ← LLVM.size_tType llvmctx)
   let argtys := #[← LLVM.voidPtrType llvmctx ]
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys
   let fnty ← LLVM.functionType retty argtys
@@ -1041,12 +1045,13 @@ def emitJmp (builder : LLVM.Builder llvmctx) (jp : JoinPointId) (xs : Array Arg)
 def emitSSet (builder : LLVM.Builder llvmctx) (x : VarId) (n : Nat) (offset : Nat) (y : VarId) (t : IRType) : M llvmctx Unit := do
   let (fnName, setty) ←
   match t with
-  | IRType.float  => pure ("lean_ctor_set_float", ← LLVM.doubleTypeInContext llvmctx)
-  | IRType.uint8  => pure ("lean_ctor_set_uint8", ← LLVM.i8Type llvmctx)
-  | IRType.uint16 => pure ("lean_ctor_set_uint16", ← LLVM.i16Type llvmctx)
-  | IRType.uint32 => pure ("lean_ctor_set_uint32", ← LLVM.i32Type llvmctx)
-  | IRType.uint64 => pure ("lean_ctor_set_uint64", ← LLVM.i64Type llvmctx)
-  | _             => throw s!"invalid type for 'lean_ctor_set': '{t}'"
+  | IRType.float   => pure ("lean_ctor_set_float", ← LLVM.doubleTypeInContext llvmctx)
+  | IRType.float32 => pure ("lean_ctor_set_float32", ← LLVM.floatTypeInContext llvmctx)
+  | IRType.uint8   => pure ("lean_ctor_set_uint8", ← LLVM.i8Type llvmctx)
+  | IRType.uint16  => pure ("lean_ctor_set_uint16", ← LLVM.i16Type llvmctx)
+  | IRType.uint32  => pure ("lean_ctor_set_uint32", ← LLVM.i32Type llvmctx)
+  | IRType.uint64  => pure ("lean_ctor_set_uint64", ← LLVM.i64Type llvmctx)
+  | _              => throw s!"invalid type for 'lean_ctor_set': '{t}'"
   let argtys := #[ ← LLVM.voidPtrType llvmctx, ← LLVM.unsignedType llvmctx, setty]
   let retty  ← LLVM.voidType llvmctx
   let fn ← getOrCreateFunctionPrototype (← getLLVMModule) retty fnName argtys

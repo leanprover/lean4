@@ -77,12 +77,8 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
     simp only [go, denote_blastAppend, RefVec.get_cast, Ref.cast_eq, eval_append,
       BitVec.getLsbD_append]
     split
-    · next hsplit =>
-      simp only [hsplit, decide_true, cond_true]
-      rw [rih]
-    · next hsplit =>
-      simp only [hsplit, decide_false, cond_false]
-      rw [go_denote_mem_prefix, lih]
+    · next hsplit => rw [rih]
+    · next hsplit => rw [go_denote_mem_prefix, lih]
   | replicate n expr ih => simp [go, ih, hidx]
   | signExtend v inner ih =>
     rename_i originalWidth
@@ -95,7 +91,7 @@ theorem go_denote_eq (aig : AIG BVBit) (expr : BVExpr w) (assign : Assignment) :
       rw [blastSignExtend_empty_eq_zeroExtend] at hgo
       · rw [← hgo]
         simp only [eval_signExtend]
-        rw [BitVec.signExtend_eq_not_setWidth_not_of_msb_false]
+        rw [BitVec.signExtend_eq_setWidth_of_msb_false]
         · simp only [denote_blastZeroExtend, ih, dite_eq_ite, Bool.if_false_right,
             BitVec.getLsbD_setWidth, hidx, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
             decide_eq_true_eq]

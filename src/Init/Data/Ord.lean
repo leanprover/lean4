@@ -210,11 +210,17 @@ Derive an `LT` instance from an `Ord` instance.
 protected def toLT (_ : Ord α) : LT α :=
   ltOfOrd
 
+instance [i : Ord α] : DecidableRel (@LT.lt _ (Ord.toLT i)) :=
+  inferInstanceAs (DecidableRel (fun a b => compare a b = Ordering.lt))
+
 /--
 Derive an `LE` instance from an `Ord` instance.
 -/
 protected def toLE (_ : Ord α) : LE α :=
   leOfOrd
+
+instance [i : Ord α] : DecidableRel (@LE.le _ (Ord.toLE i)) :=
+  inferInstanceAs (DecidableRel (fun a b => (compare a b).isLE))
 
 /--
 Invert the order of an `Ord` instance.
@@ -248,6 +254,6 @@ protected def arrayOrd [a : Ord α] : Ord (Array α) where
   compare x y :=
     let _ : LT α := a.toLT
     let _ : BEq α := a.toBEq
-    compareOfLessAndBEq x.toList y.toList
+    if List.lex x.toList y.toList then .lt else if x == y then .eq else .gt
 
 end Ord

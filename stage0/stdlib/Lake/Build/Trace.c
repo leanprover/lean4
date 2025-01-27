@@ -47,6 +47,7 @@ extern lean_object* l_IO_FS_instOrdSystemTime;
 LEAN_EXPORT lean_object* l_Lake_computeTrace___rarg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_io_metadata(lean_object*, lean_object*);
+uint8_t l_Ord_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_mixTraceArray___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instComputeTraceListOfMonad(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofBool___boxed(lean_object*);
@@ -60,7 +61,6 @@ static lean_object* l_Lake_instComputeHashStringId___closed__1;
 uint64_t lean_string_hash(lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__11;
 extern lean_object* l_IO_FS_instReprSystemTime;
-uint8_t l_instDecidableRelLt___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_toJson(uint64_t);
 LEAN_EXPORT lean_object* l_Lake_computeFileHash(lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lake_Hash_instToString___closed__1;
@@ -134,6 +134,7 @@ static lean_object* l___private_Lake_Build_Trace_0__Lake_reprBuildTrace____x40_L
 LEAN_EXPORT lean_object* l_Lake_instComputeHashTextFilePathIO(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_inhabitedOfNilTrace___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_computeArrayHash___spec__1___rarg___lambda__2(size_t, lean_object*, lean_object*, lean_object*, size_t, uint64_t);
+uint8_t l_Ord_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Build_Trace_0__Lake_reprHash____x40_Lake_Build_Trace___hyg_614____closed__12;
 LEAN_EXPORT lean_object* l_Lake_computeArrayHash(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_BuildTrace_checkAgainstFile___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -196,7 +197,6 @@ LEAN_EXPORT uint64_t l_Lake_Hash_instNilTrace;
 static lean_object* l_Lake_instCheckExistsFilePath___closed__1;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_instComputeTraceArrayOfMonad___spec__2___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeTextFileHash___boxed(lean_object*, lean_object*);
-uint8_t l_instDecidableRelLe___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_computeTrace(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldlM___at_Lake_computeListTrace___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Hash_ofByteArray___boxed(lean_object*);
@@ -2401,7 +2401,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lake_MTime_instOrd;
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_instDecidableRelLe___rarg(x_3, x_1, x_2);
+x_4 = l_Ord_instDecidableRelLe___rarg(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_dec(x_1);
@@ -2421,7 +2421,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lake_MTime_instOrd;
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_instDecidableRelLe___rarg(x_3, x_1, x_2);
+x_4 = l_Ord_instDecidableRelLe___rarg(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_dec(x_2);
@@ -2449,7 +2449,7 @@ lean_object* x_3; uint8_t x_4;
 x_3 = l_Lake_MTime_instOrd;
 lean_inc(x_2);
 lean_inc(x_1);
-x_4 = l_instDecidableRelLe___rarg(x_3, x_1, x_2);
+x_4 = l_Ord_instDecidableRelLe___rarg(x_3, x_1, x_2);
 if (x_4 == 0)
 {
 lean_dec(x_2);
@@ -2654,7 +2654,7 @@ if (x_6 == 0)
 lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_7 = lean_ctor_get(x_5, 0);
 x_8 = l_Lake_MTime_instOrd;
-x_9 = l_instDecidableRelLt___rarg(x_8, x_3, x_7);
+x_9 = l_Ord_instDecidableRelLt___rarg(x_8, x_3, x_7);
 x_10 = lean_box(x_9);
 lean_ctor_set(x_5, 0, x_10);
 return x_5;
@@ -2668,7 +2668,7 @@ lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_5);
 x_13 = l_Lake_MTime_instOrd;
-x_14 = l_instDecidableRelLt___rarg(x_13, x_3, x_11);
+x_14 = l_Ord_instDecidableRelLt___rarg(x_13, x_3, x_11);
 x_15 = lean_box(x_14);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
@@ -3166,7 +3166,7 @@ x_10 = lean_uint64_mix_hash(x_8, x_9);
 x_11 = l_Lake_MTime_instOrd;
 lean_inc(x_7);
 lean_inc(x_4);
-x_12 = l_instDecidableRelLe___rarg(x_11, x_4, x_7);
+x_12 = l_Ord_instDecidableRelLe___rarg(x_11, x_4, x_7);
 if (x_12 == 0)
 {
 lean_object* x_13; 
@@ -3201,7 +3201,7 @@ x_19 = lean_uint64_mix_hash(x_17, x_18);
 x_20 = l_Lake_MTime_instOrd;
 lean_inc(x_16);
 lean_inc(x_4);
-x_21 = l_instDecidableRelLe___rarg(x_20, x_4, x_16);
+x_21 = l_Ord_instDecidableRelLe___rarg(x_20, x_4, x_16);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; 

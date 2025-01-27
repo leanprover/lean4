@@ -79,7 +79,30 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
   rw [List.filter_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldrM_filter]
 
+/-! ### forM -/
+
+@[congr] theorem forM_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {f : α → m PUnit} :
+    forM f as = forM f bs := by
+  cases as <;> cases bs
+  simp_all
+
+@[simp] theorem forM_map [Monad m] [LawfulMonad m] (l : Array α) (g : α → β) (f : β → m PUnit) :
+    (l.map g).forM f = l.forM (fun a => f (g a)) := by
+  cases l
+  simp
+
 /-! ### forIn' -/
+
+@[congr] theorem forIn'_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {b b' : β} (hb : b = b')
+    {f : (a' : α) → a' ∈ as → β → m (ForInStep β)}
+    {g : (a' : α) → a' ∈ bs → β → m (ForInStep β)}
+    (h : ∀ a m b, f a (by simpa [w] using m) b = g a m b) :
+    forIn' as b f = forIn' bs b' g := by
+  cases as <;> cases bs
+  simp only [mk.injEq, mem_toArray, List.forIn'_toArray] at w h ⊢
+  exact List.forIn'_congr w hb h
 
 /--
 We can express a for loop over an array as a fold,
@@ -120,6 +143,12 @@ theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   cases l
   simp [List.foldl_map]
 
+@[simp] theorem forIn'_map [Monad m] [LawfulMonad m]
+    (l : Array α) (g : α → β) (f : (b : β) → b ∈ l.map g → γ → m (ForInStep γ)) :
+    forIn' (l.map g) init f = forIn' l init fun a h y => f (g a) (mem_map_of_mem g h) y := by
+  cases l
+  simp
+
 /--
 We can express a for loop over an array as a fold,
 in which whenever we reach `.done b` we keep that value through the rest of the fold.
@@ -155,5 +184,11 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
       l.foldl (fun b a => f a b) init := by
   cases l
   simp [List.foldl_map]
+
+@[simp] theorem forIn_map [Monad m] [LawfulMonad m]
+    (l : Array α) (g : α → β) (f : β → γ → m (ForInStep γ)) :
+    forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
+  cases l
+  simp
 
 end Array

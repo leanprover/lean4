@@ -28,7 +28,7 @@ Author: Leonardo de Moura
 #include "util/io.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
-#include "kernel/environment.h"
+#include "library/elab_environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/trace.h"
 #include "library/formatter.h"
@@ -223,7 +223,9 @@ static void display_help(std::ostream & out) {
     std::cout << "      --plugin=file      load and initialize Lean shared library for registering linters etc.\n";
     std::cout << "      --load-dynlib=file load shared library to make its symbols available to the interpreter\n";
     std::cout << "      --json             report Lean output (e.g., messages) as JSON (one per line)\n";
+    std::cout << "  -E  --error=kind       report Lean messages of kind as errors\n";
     std::cout << "      --deps             just print dependencies of a Lean input\n";
+    std::cout << "      --src-deps         just print dependency sources of a Lean input\n";
     std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
     std::cout << "      --profile          display elaboration/type checking time for each definition/theorem\n";
@@ -234,6 +236,7 @@ static void display_help(std::ostream & out) {
     std::cout << "      -D name=value      set a configuration option (see set_option command)\n";
 }
 
+static int only_src_deps = 0;
 static int print_prefix = 0;
 static int print_libdir = 0;
 static int json_output = 0;
@@ -254,6 +257,7 @@ static struct option g_long_options[] = {
     {"stats",        no_argument,       0, 'a'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
+    {"src-deps",     no_argument,       &only_src_deps, 1},
     {"deps-json",    no_argument,       0, 'J'},
     {"timeout",      optional_argument, 0, 'T'},
     {"c",            optional_argument, 0, 'c'},
@@ -268,6 +272,7 @@ static struct option g_long_options[] = {
 #endif
     {"plugin",       required_argument, 0, 'p'},
     {"load-dynlib",  required_argument, 0, 'l'},
+    {"error",        required_argument, 0, 'E'},
     {"json",         no_argument,       &json_output, 1},
     {"print-prefix", no_argument,       &print_prefix, 1},
     {"print-libdir", no_argument,       &print_libdir, 1},
@@ -278,7 +283,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:e"
+    "PdD:o:i:b:c:C:qgvVht:012j:012rR:M:012T:012ap:eE:"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -330,21 +335,23 @@ extern "C" object * lean_run_frontend(
     uint32_t trust_level,
     object * ilean_filename,
     uint8_t  json_output,
+    object * error_kinds,
     object * w
 );
-pair_ref<environment, object_ref> run_new_frontend(
+pair_ref<elab_environment, object_ref> run_new_frontend(
     std::string const & input,
     options const & opts, std::string const & file_name,
     name const & main_module_name,
     uint32_t trust_level,
     optional<std::string> const & ilean_file_name,
-    uint8_t json_output
+    uint8_t json_output,
+    array_ref<name> const & error_kinds
 ) {
     object * oilean_file_name = mk_option_none();
     if (ilean_file_name) {
         oilean_file_name = mk_option_some(mk_string(*ilean_file_name));
     }
-    return get_io_result<pair_ref<environment, object_ref>>(lean_run_frontend(
+    return get_io_result<pair_ref<elab_environment, object_ref>>(lean_run_frontend(
         mk_string(input),
         opts.to_obj_arg(),
         mk_string(file_name),
@@ -352,6 +359,7 @@ pair_ref<environment, object_ref> run_new_frontend(
         trust_level,
         oilean_file_name,
         json_output,
+        error_kinds.to_obj_arg(),
         io_mk_world()
     ));
 }
@@ -394,6 +402,12 @@ void print_imports(std::string const & input, std::string const & fname) {
     consume_io_result(lean_print_imports(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
 }
 
+/* def printImportSrcs (input : String) (fileName : Option String := none) : IO Unit */
+extern "C" object* lean_print_import_srcs(object* input, object* file_name, object* w);
+void print_import_srcs(std::string const & input, std::string const & fname) {
+    consume_io_result(lean_print_import_srcs(mk_string(input), mk_option_some(mk_string(fname)), io_mk_world()));
+}
+
 /* def printImportsJson (fileNames : Array String) : IO Unit */
 extern "C" object* lean_print_imports_json(object * file_names, object * w);
 void print_imports_json(array_ref<string_ref> const & fnames) {
@@ -401,7 +415,7 @@ void print_imports_json(array_ref<string_ref> const & fnames) {
 }
 
 extern "C" object* lean_environment_free_regions(object * env, object * w);
-void environment_free_regions(environment && env) {
+void environment_free_regions(elab_environment && env) {
     consume_io_result(lean_environment_free_regions(env.steal(), io_mk_world()));
 }
 }
@@ -475,6 +489,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     optional<std::string> llvm_output;
     optional<std::string> root_dir;
     buffer<string_ref> forwarded_args;
+    buffer<name> error_kinds;
 
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -597,6 +612,10 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
                 lean::load_dynlib(optarg);
                 forwarded_args.push_back(string_ref("--load-dynlib=" + std::string(optarg)));
                 break;
+            case 'E':
+                check_optarg("E");
+                error_kinds.push_back(string_to_name(std::string(optarg)));
+                break;
             default:
                 std::cerr << "Unknown command line option\n";
                 display_help(std::cerr);
@@ -633,7 +652,6 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
         report_profiling_time("initialization", init_time);
     }
 
-    environment env(trust_lvl);
     scoped_task_manager scope_task_man(num_threads);
     optional<name> main_module_name;
 
@@ -687,6 +705,11 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
             return 0;
         }
 
+        if (only_src_deps) {
+            print_import_srcs(contents, mod_fn);
+            return 0;
+        }
+
         // Quick and dirty `#lang` support
         // TODO: make it extensible, and add `lean4md`
         if (contents.compare(0, 5, "#lang") == 0) {
@@ -705,8 +728,8 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 
         if (!main_module_name)
             main_module_name = name("_stdin");
-        pair_ref<environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output);
-        env = r.fst();
+        pair_ref<elab_environment, object_ref> r = run_new_frontend(contents, opts, mod_fn, *main_module_name, trust_lvl, ilean_fn, json_output, error_kinds);
+        elab_environment env = r.fst();
         bool ok = unbox(r.snd().raw());
 
         if (stats) {

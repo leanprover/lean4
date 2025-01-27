@@ -192,8 +192,12 @@ def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
   f!"FieldRedecl @ {formatStxRange ctx info.stx}"
 
-def OmissionInfo.format (ctx : ContextInfo) (info : OmissionInfo) : IO Format := do
-  return f!"Omission @ {← TermInfo.format ctx info.toTermInfo}\nReason: {info.reason}"
+def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
+  let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
+  return f!"DelabTermInfo @ {← TermInfo.format ctx info.toTermInfo}\n\
+    Location: {loc}\n\
+    Docstring: {repr info.docString?}\n\
+    Explicit: {info.explicit}"
 
 def ChoiceInfo.format (ctx : ContextInfo) (info : ChoiceInfo) : Format :=
   f!"Choice @ {formatElabInfo ctx info.toElabInfo}"
@@ -211,7 +215,7 @@ def Info.format (ctx : ContextInfo) : Info → IO Format
   | ofCustomInfo i         => pure <| Std.ToFormat.format i
   | ofFVarAliasInfo i      => pure <| i.format
   | ofFieldRedeclInfo i    => pure <| i.format ctx
-  | ofOmissionInfo i       => i.format ctx
+  | ofDelabTermInfo i      => i.format ctx
   | ofChoiceInfo i         => pure <| i.format ctx
 
 def Info.toElabInfo? : Info → Option ElabInfo
@@ -227,7 +231,7 @@ def Info.toElabInfo? : Info → Option ElabInfo
   | ofCustomInfo _         => none
   | ofFVarAliasInfo _      => none
   | ofFieldRedeclInfo _    => none
-  | ofOmissionInfo i       => some i.toElabInfo
+  | ofDelabTermInfo i      => some i.toElabInfo
   | ofChoiceInfo i         => some i.toElabInfo
 
 /--

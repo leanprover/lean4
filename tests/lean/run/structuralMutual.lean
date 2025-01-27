@@ -415,7 +415,7 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     A n
   and the datatype parameter
@@ -439,7 +439,7 @@ end
 end Mutual3
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type FixedIndex.T is an inductive family and indices are not variables
     T 37
 -/
@@ -460,7 +460,7 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     T n n
   and the datatype parameter
@@ -523,7 +523,7 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
 Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
    #1 #2 #3 #4
@@ -682,7 +682,7 @@ info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1
 #check EvenOdd.isEven.induct
 
 /--
-info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+info: WithTuple.Tree.map.induct {α : Type} (motive_1 : WithTuple.Tree α → Prop)
   (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
   (case1 :
     ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
@@ -693,8 +693,8 @@ info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithT
 #check WithTuple.Tree.map.induct
 
 /--
-info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
-  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+info: WithArray.Tree.map.induct {α : Type} (motive_1 : WithArray.Tree α → Prop) (motive_2 : Array (WithArray.Tree α) → Prop)
+  (motive_3 : List (WithArray.Tree α) → Prop)
   (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
   (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
   (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))

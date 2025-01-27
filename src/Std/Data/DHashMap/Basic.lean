@@ -251,34 +251,27 @@ instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) wh
 Modifies in place the value associated with a given key.
 
 This function ensures that the value is used linearly.
-It is currently implemented in terms of `get?`, `erase`, and `insert`,
-but will later become a primitive operation.
-(It is provided already to help avoid non-linear code.)
 -/
 @[inline] def modify [LawfulBEq α] (m : DHashMap α β) (a : α) (f : β a → β a) : DHashMap α β :=
-  match m.get? a with
-  | none => m
-  | some b => m.erase a |>.insert a (f b)
+  ⟨Raw₀.modify ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.modify₀ m.2⟩
+
+@[inline, inherit_doc DHashMap.modify] def Const.modify {β : Type v} (m : DHashMap α (fun _ => β))
+    (a : α) (f : β → β) : DHashMap α (fun _ => β) :=
+  ⟨Raw₀.Const.modify ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constModify₀ m.2⟩
 
 /--
 Modifies in place the value associated with a given key,
 allowing creating new values and deleting values via an `Option` valued replacement function.
 
 This function ensures that the value is used linearly.
-It is currently implemented in terms of `get?`, `erase`, and `insert`,
-but will later become a primitive operation.
-(It is provided already to help avoid non-linear code.)
 -/
-@[inline] def alter [LawfulBEq α] (m : DHashMap α β) (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
-  match m.get? a with
-  | none =>
-    match f none with
-    | none => m
-    | some b => m.insert a b
-  | some b =>
-    match f (some b) with
-    | none => m.erase a
-    | some b => m.erase a |>.insert a b
+@[inline] def alter [LawfulBEq α] (m : DHashMap α β)
+    (a : α) (f : Option (β a) → Option (β a)) : DHashMap α β :=
+  ⟨Raw₀.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.alter₀ m.2⟩
+
+@[inline, inherit_doc DHashMap.alter] def Const.alter {β : Type v}
+    (m : DHashMap α (fun _ => β)) (a : α) (f : Option β → Option β) : DHashMap α (fun _ => β) :=
+  ⟨Raw₀.Const.alter ⟨m.1, m.2.size_buckets_pos⟩ a f, Raw.WF.constAlter₀ m.2⟩
 
 @[inline, inherit_doc Raw.insertMany] def insertMany {ρ : Type w}
     [ForIn Id ρ ((a : α) × β a)] (m : DHashMap α β) (l : ρ) : DHashMap α β :=
@@ -297,23 +290,11 @@ but will later become a primitive operation.
   ⟨(Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).1,
    (Raw₀.Const.insertManyIfNewUnit ⟨m.1, m.2.size_buckets_pos⟩ l).2 _ Raw.WF.insertIfNew₀ m.2⟩
 
-@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
-    DHashMap α β :=
-  insertMany ∅ l
-
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : DHashMap α β) : DHashMap α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (DHashMap α β) := ⟨union⟩
-
-@[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
-    (l : List (α × β)) : DHashMap α (fun _ => β) :=
-  Const.insertMany ∅ l
-
-@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
-    DHashMap α (fun _ => Unit) :=
-  Const.insertManyIfNewUnit ∅ l
 
 @[inline, inherit_doc Raw.Const.unitOfArray] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
     DHashMap α (fun _ => Unit) :=
@@ -327,5 +308,17 @@ instance [BEq α] [Hashable α] [Repr α] [(a : α) → Repr (β a)] : Repr (DHa
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.ofList " ++ reprArg m.toList) prec
 
 end Unverified
+
+@[inline, inherit_doc Raw.ofList] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) :
+    DHashMap α β :=
+  insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
+    (l : List (α × β)) : DHashMap α (fun _ => β) :=
+  Const.insertMany ∅ l
+
+@[inline, inherit_doc Raw.Const.unitOfList] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
+    DHashMap α (fun _ => Unit) :=
+  Const.insertManyIfNewUnit ∅ l
 
 end Std.DHashMap

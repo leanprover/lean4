@@ -97,6 +97,10 @@ example (x : BitVec 16) : ¬x < 0 := by bv_normalize
 example (x : BitVec 16) : x ≥ 0 := by bv_normalize
 example (x : BitVec 16) : !(x.ult 0) := by bv_normalize
 
+-- lt_one_iff
+example (x : BitVec 16) : (x < 1) ↔ (x = 0) := by bv_normalize
+example (x : BitVec 16) : (x.ult 1) = (x == 0) := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

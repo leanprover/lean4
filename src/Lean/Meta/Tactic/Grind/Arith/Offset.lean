@@ -76,7 +76,8 @@ where
     if u == p.w then
       return p.proof
     else
-      let p' := (← getProof? u p.w).get!
+      let some p' ← getProof? u p.w
+        | throwError "internal `grind` error, failed to construct proof for{indentExpr (← getExpr u)}\nand{indentExpr (← getExpr p.w)}"
       go (mkTrans (← get').nodes p' p v)
 
 /--

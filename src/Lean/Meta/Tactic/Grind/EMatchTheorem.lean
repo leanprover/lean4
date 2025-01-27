@@ -92,6 +92,30 @@ instance : BEq Origin where
 instance : Hashable Origin where
   hash a := hash a.key
 
+inductive TheoremKind where
+  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default | user /- pattern specified using `grind_pattern` command -/
+  deriving Inhabited, BEq, Repr
+
+private def TheoremKind.toAttribute : TheoremKind → String
+  | .eqLhs   => "[grind =]"
+  | .eqRhs   => "[grind =_]"
+  | .eqBoth  => "[grind _=_]"
+  | .eqBwd   => "[grind ←=]"
+  | .fwd     => "[grind →]"
+  | .bwd     => "[grind ←]"
+  | .default => "[grind]"
+  | .user    => "[grind]"
+
+private def TheoremKind.explainFailure : TheoremKind → String
+  | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
+  | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
+  | .eqBoth  => unreachable! -- eqBoth is a macro
+  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
+  | .fwd     => "failed to find patterns in the antecedents of the theorem"
+  | .bwd     => "failed to find patterns in the theorem's conclusion"
+  | .default => "failed to find patterns"
+  | .user    => unreachable!
+
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
   /--
@@ -106,16 +130,20 @@ structure EMatchTheorem where
   /-- Contains all symbols used in `pattterns`. -/
   symbols     : List HeadIndex
   origin      : Origin
+  /-- The `kind` is used for generating the `patterns`. We save it here to implement `grind?`. -/
+  kind        : TheoremKind
   deriving Inhabited
 
 /-- Set of E-matching theorems. -/
 structure EMatchTheorems where
   /-- The key is a symbol from `EMatchTheorem.symbols`. -/
-  private map : PHashMap Name (List EMatchTheorem) := {}
+  private smap : PHashMap Name (List EMatchTheorem) := {}
   /-- Set of theorem ids that have been inserted using `insert`. -/
   private origins : PHashSet Origin := {}
   /-- Theorems that have been marked as erased -/
   private erased  : PHashSet Origin := {}
+  /-- Mapping from origin to E-matching theorems associated with this origin. -/
+  private omap : PHashMap Origin (List EMatchTheorem) := {}
   deriving Inhabited
 
 /--
@@ -130,13 +158,19 @@ def EMatchTheorems.insert (s : EMatchTheorems) (thm : EMatchTheorem) : EMatchThe
   let .const declName :: syms := thm.symbols
     | unreachable!
   let thm := { thm with symbols := syms }
-  let { map, origins, erased } := s
-  let origins := origins.insert thm.origin
-  let erased := erased.erase thm.origin
-  if let some thms := map.find? declName then
-    return { map := map.insert declName (thm::thms), origins, erased }
+  let { smap, origins, erased, omap } := s
+  let origin := thm.origin
+  let origins := origins.insert origin
+  let erased := erased.erase origin
+  let smap := if let some thms := smap.find? declName then
+    smap.insert declName (thm::thms)
   else
-    return { map := map.insert declName [thm], origins, erased }
+    smap.insert declName [thm]
+  let omap := if let some thms := omap.find? origin then
+    omap.insert origin (thm::thms)
+  else
+    omap.insert origin [thm]
+  return { smap, origins, erased, omap }
 
 /-- Returns `true` if `s` contains a theorem with the given origin. -/
 def EMatchTheorems.contains (s : EMatchTheorems) (origin : Origin) : Bool :=
@@ -156,10 +190,19 @@ The theorems are removed from `s`.
 -/
 @[inline]
 def EMatchTheorems.retrieve? (s : EMatchTheorems) (sym : Name) : Option (List EMatchTheorem × EMatchTheorems) :=
-  if let some thms := s.map.find? sym then
-    some (thms, { s with map := s.map.erase sym })
+  if let some thms := s.smap.find? sym then
+    some (thms, { s with smap := s.smap.erase sym })
   else
     none
+
+/--
+Returns theorems associated with the given origin.
+-/
+def EMatchTheorems.find (s : EMatchTheorems) (origin : Origin) : List EMatchTheorem :=
+  if let some thms := s.omap.find? origin then
+    thms
+  else
+    []
 
 def EMatchTheorem.getProofWithFreshMVarLevels (thm : EMatchTheorem) : MetaM Expr := do
   if thm.proof.isConst && thm.levelParams.isEmpty then
@@ -491,7 +534,7 @@ private def ppParamsAt (proof : Expr) (numParams : Nat) (paramPos : List Nat) : 
 Creates an E-matching theorem for a theorem with proof `proof`, `numParams` parameters, and the given set of patterns.
 Pattern variables are represented using de Bruijn indices.
 -/
-def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr) (patterns : List Expr) : MetaM EMatchTheorem := do
+def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams : Nat) (proof : Expr) (patterns : List Expr) (kind : TheoremKind): MetaM EMatchTheorem := do
   let (patterns, symbols, bvarFound) ← NormalizePattern.main patterns
   if symbols.isEmpty then
     throwError "invalid pattern for `{← origin.pp}`{indentD (patterns.map ppPattern)}\nthe pattern does not contain constant symbols for indexing"
@@ -501,7 +544,7 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
      throwError "invalid pattern(s) for `{← origin.pp}`{indentD pats}\nthe following theorem parameters cannot be instantiated:{indentD (← ppParamsAt proof numParams pos)}"
   return {
     proof, patterns, numParams, symbols
-    levelParams, origin
+    levelParams, origin, kind
   }
 
 private def getProofFor (declName : Name) : CoreM Expr := do
@@ -514,8 +557,8 @@ private def getProofFor (declName : Name) : CoreM Expr := do
 Creates an E-matching theorem for `declName` with `numParams` parameters, and the given set of patterns.
 Pattern variables are represented using de Bruijn indices.
 -/
-def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM EMatchTheorem := do
-  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns
+def mkEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : TheoremKind) : MetaM EMatchTheorem := do
+  mkEMatchTheoremCore (.decl declName) #[] numParams (← getProofFor declName) patterns kind
 
 /--
 Given a theorem with proof `proof` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
@@ -535,15 +578,15 @@ def mkEMatchEqTheoremCore (origin : Origin) (levelParams : Array Name) (proof : 
     trace[grind.debug.ematch.pattern] "mkEMatchEqTheoremCore: after preprocessing: {pat}, {← normalize pat}"
     let pats := splitWhileForbidden (pat.abstract xs)
     return (xs.size, pats)
-  mkEMatchTheoremCore origin levelParams numParams proof patterns
+  mkEMatchTheoremCore origin levelParams numParams proof patterns (if useLhs then .eqLhs else .eqRhs)
 
 def mkEMatchEqBwdTheoremCore (origin : Origin) (levelParams : Array Name) (proof : Expr) : MetaM EMatchTheorem := do
   let (numParams, patterns) ← forallTelescopeReducing (← inferType proof) fun xs type => do
     let_expr f@Eq α lhs rhs := type
-      | throwError "invalid E-matching `≠` theorem, conclusion must be an equality{indentExpr type}"
+      | throwError "invalid E-matching `←=` theorem, conclusion must be an equality{indentExpr type}"
     let pat ← preprocessPattern (mkEqBwdPattern f.constLevels! α lhs rhs)
     return (xs.size, [pat.abstract xs])
-  mkEMatchTheoremCore origin levelParams numParams proof patterns
+  mkEMatchTheoremCore origin levelParams numParams proof patterns .eqBwd
 
 /--
 Given theorem with name `declName` and type of the form `∀ (a_1 ... a_n), lhs = rhs`,
@@ -559,8 +602,8 @@ def mkEMatchEqTheorem (declName : Name) (normalizePattern := true) (useLhs : Boo
 Adds an E-matching theorem to the environment.
 See `mkEMatchTheorem`.
 -/
-def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) : MetaM Unit := do
-  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns)
+def addEMatchTheorem (declName : Name) (numParams : Nat) (patterns : List Expr) (kind : TheoremKind) : MetaM Unit := do
+  ematchTheoremsExt.add (← mkEMatchTheorem declName numParams patterns kind)
 
 /--
 Adds an E-matching equality theorem to the environment.
@@ -572,28 +615,6 @@ def addEMatchEqTheorem (declName : Name) : MetaM Unit := do
 /-- Returns the E-matching theorems registered in the environment. -/
 def getEMatchTheorems : CoreM EMatchTheorems :=
   return ematchTheoremsExt.getState (← getEnv)
-
-inductive TheoremKind where
-  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default
-  deriving Inhabited, BEq, Repr
-
-private def TheoremKind.toAttribute : TheoremKind → String
-  | .eqLhs   => "[grind =]"
-  | .eqRhs   => "[grind =_]"
-  | .eqBoth  => "[grind _=_]"
-  | .eqBwd   => "[grind ←=]"
-  | .fwd     => "[grind →]"
-  | .bwd     => "[grind ←]"
-  | .default => "[grind]"
-
-private def TheoremKind.explainFailure : TheoremKind → String
-  | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
-  | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
-  | .eqBoth  => unreachable! -- eqBoth is a macro
-  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
-  | .fwd     => "failed to find patterns in the antecedents of the theorem"
-  | .bwd     => "failed to find patterns in the theorem's conclusion"
-  | .default => "failed to find patterns"
 
 /-- Returns the types of `xs` that are propositions. -/
 private def getPropTypes (xs : Array Expr) : MetaM (Array Expr) :=
@@ -702,7 +723,7 @@ where
     trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
     return some {
       proof, patterns, numParams, symbols
-      levelParams, origin
+      levelParams, origin, kind
     }
 
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : TheoremKind) : MetaM EMatchTheorem := do

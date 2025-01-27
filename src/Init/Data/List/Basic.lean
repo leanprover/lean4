@@ -43,7 +43,7 @@ The operations are organized as follow:
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
-* Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
+* Ranges and enumeration: `range`, `zipIdx`.
 * Minima and maxima: `min?` and `max?`.
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`

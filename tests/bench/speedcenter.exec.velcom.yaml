@@ -55,6 +55,18 @@
     max_runs: 1
     runner: output
 - attributes:
+    description: Init.Prelude async
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Init/Prelude.lean -DElab.async=true
+- attributes:
+    description: Init.Data.List.Sublist async
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean ../../src/Init/Data/List/Sublist.lean -DElab.async=true
+- attributes:
     description: import Lean
     tags: [fast]
   run_config:

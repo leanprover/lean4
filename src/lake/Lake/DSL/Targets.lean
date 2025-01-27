@@ -24,7 +24,7 @@ syntax buildDeclSig :=
 
 abbrev mkModuleFacetDecl
   (α) (facet : Name)
-  [FamilyDef ModuleData facet (Job α)]
+  [FamilyDef ModuleData facet α]
   (f : Module → FetchM (Job α))
 : ModuleFacetDecl := .mk facet <| mkFacetJobConfig fun mod => do
   withRegisterJob (mod.facet facet |>.key.toSimpleString)
@@ -51,7 +51,7 @@ kw:"module_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_modFacet")
     let mod ← expandOptSimpleBinder mod?
-    `(module_data $id : Job $ty
+    `(module_data $id : $ty
       $[$doc?:docComment]? @[$attrs,*] abbrev $declId :=
         Lake.DSL.mkModuleFacetDecl $ty $facet (fun $mod => $defn)
       $[$wds?:whereDecls]?)
@@ -59,7 +59,7 @@ kw:"module_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkPackageFacetDecl
   (α) (facet : Name)
-  [FamilyDef PackageData facet (Job α)]
+  [FamilyDef PackageData facet α]
   (f : Package → FetchM (Job α))
 : PackageFacetDecl := .mk facet <| mkFacetJobConfig fun pkg => do
   withRegisterJob (pkg.facet facet |>.key.toSimpleString)
@@ -86,7 +86,7 @@ kw:"package_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_pkgFacet")
     let pkg ← expandOptSimpleBinder pkg?
-    `(package_data $id : Job $ty
+    `(package_data $id : $ty
       $[$doc?]? @[$attrs,*] abbrev $declId :=
         Lake.DSL.mkPackageFacetDecl $ty $facet (fun $pkg => $defn)
       $[$wds?:whereDecls]?)
@@ -94,7 +94,7 @@ kw:"package_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkLibraryFacetDecl
   (α) (facet : Name)
-  [FamilyDef LibraryData facet (Job α)]
+  [FamilyDef LibraryData facet α]
   (f : LeanLib → FetchM (Job α))
 : LibraryFacetDecl := .mk facet <| mkFacetJobConfig fun lib => do
   withRegisterJob (lib.facet facet |>.key.toSimpleString)
@@ -121,7 +121,7 @@ kw:"library_facet " sig:buildDeclSig : command => withRef kw do
     let facet := Name.quoteFrom id id.getId
     let declId := mkIdentFrom id <| id.getId.modifyBase (.str · "_libFacet")
     let lib ← expandOptSimpleBinder lib?
-    `(library_data $id : Job $ty
+    `(library_data $id : $ty
       $[$doc?]? @[$attrs,*] abbrev $declId : LibraryFacetDecl :=
         Lake.DSL.mkLibraryFacetDecl $ty $facet (fun $lib => $defn)
       $[$wds?:whereDecls]?)
@@ -133,7 +133,7 @@ kw:"library_facet " sig:buildDeclSig : command => withRef kw do
 
 abbrev mkTargetDecl
   (α) (pkgName target : Name)
-  [FamilyDef CustomData (pkgName, target) (Job α)]
+  [FamilyDef CustomData (pkgName, target) α]
   (f : NPackage pkgName → FetchM (Job α))
 : TargetDecl := .mk pkgName target <| mkTargetJobConfig fun pkg => do
   withRegisterJob (pkg.target target |>.key.toSimpleString)
@@ -161,7 +161,7 @@ kw:"target " sig:buildDeclSig : command => do
     let name := Name.quoteFrom id id.getId
     let pkgName := mkIdentFrom id `_package.name
     let pkg ← expandOptSimpleBinder pkg?
-    `(family_def $id : CustomData ($pkgName, $name) := Job $ty
+    `(family_def $id : CustomData ($pkgName, $name) := $ty
       $[$doc?]? @[$attrs,*] abbrev $id :=
         Lake.DSL.mkTargetDecl $ty $pkgName $name (fun $pkg => $defn)
       $[$wds?:whereDecls]?)
@@ -222,6 +222,11 @@ instance : Coe LeanExeDecl Command where
 /-! ## External Library Target Declaration                                    -/
 --------------------------------------------------------------------------------
 
+abbrev mkExternLibDecl
+  (pkgName name : Name)
+  [FamilyDef CustomData (pkgName, .str name "static")  FilePath]
+: ExternLibDecl := .mk pkgName name {getPath := cast (by simp)}
+
 syntax externLibDeclSpec :=
   identOrStr (ppSpace simpleBinder)? declValSimple
 
@@ -251,9 +256,6 @@ kw:"extern_lib " spec:externLibDeclSpec : command => withRef kw do
     let targetId := mkIdentFrom id <| id.getId.modifyBase (· ++ `static)
     let name := Name.quoteFrom id id.getId
     `(target $targetId:ident $[$pkg?]? : FilePath := $defn $[$wds?:whereDecls]?
-      $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl := {
-        pkg := $pkgName
-        name := $name
-        config := {getJob := ofFamily}
-      })
+      $[$doc?:docComment]? @[$attrs,*] def $id : ExternLibDecl :=
+        Lake.DSL.mkExternLibDecl $pkgName $name)
   | stx => Macro.throwErrorAt stx "ill-formed external library declaration"

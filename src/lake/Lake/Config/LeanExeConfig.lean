@@ -71,7 +71,7 @@ structure LeanExeConfig extends LeanConfig where
   `Module.oFacet`. That is, the  object file compiled from the Lean source,
   potentially with exported Lean symbols.
   -/
-  nativeFacets (shouldExport : Bool) : Array (ModuleFacet (Job FilePath)) :=
+  nativeFacets (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
     #[if shouldExport then Module.oExportFacet else Module.oFacet]
 
 deriving Inhabited

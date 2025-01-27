@@ -105,9 +105,9 @@ def grind
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
     (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Unit := do
   let params ← mkGrindParams config only ps
-  let goals ← Grind.main mvarId params mainDeclName fallback
-  unless goals.isEmpty do
-    throwError "`grind` failed\n{← Grind.goalsToMessageData goals config}"
+  let result ← Grind.main mvarId params mainDeclName fallback
+  if result.hasFailures then
+    throwError "`grind` failed\n{← result.toMessageData}"
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())

@@ -14,7 +14,7 @@ namespace Lean.Meta.Grind
 /--
 Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False`
 -/
-private def isMatchCond (e : Expr) : Bool := Id.run do
+private def isMatchCondCandidate (e : Expr) : Bool := Id.run do
   let mut e := e
   let mut hasEqs := false
   repeat
@@ -31,7 +31,7 @@ conditions corresponding to overlapping patterns.
 private def addMatchCondsToAlt (alt : Expr) : Expr := Id.run do
   let .forallE _ d b _ := alt
     | return alt
-  let d := if isMatchCond d then markAsMatchCond d else d
+  let d := if isMatchCondCandidate d then markAsMatchCond d else d
   return alt.updateForallE! d (addMatchCondsToAlt b)
 
 /--

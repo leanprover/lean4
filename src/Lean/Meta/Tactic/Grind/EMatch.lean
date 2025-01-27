@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Intro
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 import Lean.Meta.Tactic.Grind.MatchCond
+import Lean.Meta.Tactic.Grind.Core
 
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -211,21 +212,31 @@ private def processContinue (c : Choice) (p : Expr) : M Unit := do
         modify fun s => { s with choiceStack := c :: s.choiceStack }
 
 /--
-Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
-`initApp` is the match-expression used to instantiate the `match`-equation.
+Given a proposition `prop` corresponding to an equational theorem.
+Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
 -/
-private partial def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
+private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
     let d := if (← isProp d) then
       markAsMatchCond d
     else
       d
     withLocalDecl n bi d fun x => do
-      mkForallFVars #[x] (← annotateMatchEqnType (b.instantiate1 x) initApp)
+      mkForallFVars #[x] (← annotateEqnTypeConds (b.instantiate1 x) k)
   else
+    k prop
+
+/--
+Helper function for marking parts of `match`-equation theorem as "do-not-simplify"
+`initApp` is the match-expression used to instantiate the `match`-equation.
+It also introduce `Grind.MatchCond` at equation conditions. See `MatchCond.lean`.
+-/
+private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
+  annotateEqnTypeConds prop fun prop => do
     let_expr f@Eq α lhs rhs := prop | return prop
     -- See comment at `Grind.EqMatch`
-    return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α (← markAsDoNotSimp lhs) rhs initApp
+    let lhs ← markAsSimpMatchDiscrsOnly lhs
+    return mkApp4 (mkConst ``Grind.EqMatch f.constLevels!) α lhs rhs initApp
 
 /--
 Stores new theorem instance in the state.
@@ -238,6 +249,8 @@ private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) :
   let mut prop ← inferType proof
   if Match.isMatchEqnTheorem (← getEnv) origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
+  else if (← isEqnThm origin.key) then
+    prop ← annotateEqnTypeConds prop
   trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
   addTheoremInstance proof prop (generation+1)
 
@@ -259,13 +272,25 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
-    let v := c.assignment[numParams - i - 1]!
+    let mut v := c.assignment[numParams - i - 1]!
     unless isSameExpr v unassigned do
       let mvarId := mvars[i].mvarId!
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
-      unless (← isDefEq mvarIdType vType <&&> mvarId.checkedAssign v) do
+      let report : M Unit := do
         reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      unless (← isDefEq mvarIdType vType) do
+        let some heq ← proveEq? vType mvarIdType
+          | report
+            return ()
+        /-
+        Some of the `cast`s will appear inside the `Grind.MatchCond` binders, and
+        we want their proofs to be properly wrapped.
+        -/
+        let heq := mkApp2 (mkConst ``Grind.nestedProof) (← mkEq vType mvarIdType) heq
+        v ← mkAppM ``cast #[heq, v]
+      unless (← mvarId.checkedAssign v) do
+        report
         return ()
   -- Synthesize instances
   for mvar in mvars, bi in bis do

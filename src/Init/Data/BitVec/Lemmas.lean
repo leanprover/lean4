@@ -905,6 +905,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
   ext i h
   simp [h]
 
+theorem extractLsb'_or {x y : BitVec w} {start len : Nat} :
+   (x ||| y).extractLsb' start len = (x.extractLsb' start len) ||| (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_or {x : BitVec w} {hi lo : Nat} :
+   (x ||| y).extractLsb lo hi = (x.extractLsb lo hi) ||| (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
+
 /-! ### and -/
 
 @[simp] theorem toNat_and (x y : BitVec v) :
@@ -978,6 +988,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) wher
   ext i h
   simp [h]
 
+theorem extractLsb'_and {x y : BitVec w} {start len : Nat} :
+   (x &&& y).extractLsb' start len = (x.extractLsb' start len) &&& (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_and {x : BitVec w} {hi lo : Nat} :
+   (x &&& y).extractLsb lo hi = (x.extractLsb lo hi) &&& (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
+
 /-! ### xor -/
 
 @[simp] theorem toNat_xor (x y : BitVec v) :
@@ -1042,6 +1062,16 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
 @[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
   ext i
   simp
+
+theorem extractLsb'_xor {x y : BitVec w} {start len : Nat} :
+   (x ^^^ y).extractLsb' start len = (x.extractLsb' start len) ^^^ (y.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+
+theorem extractLsb_xor {x : BitVec w} {hi lo : Nat} :
+   (x ^^^ y).extractLsb lo hi = (x.extractLsb lo hi) ^^^ (y.extractLsb lo hi) := by
+  ext k hk
+  simp [hk, show k ≤ lo - hi by omega]
 
 /-! ### not -/
 
@@ -1148,6 +1178,31 @@ theorem getMsb_not {x : BitVec w} :
 
 @[simp] theorem msb_not {x : BitVec w} : (~~~x).msb = (decide (0 < w) && !x.msb) := by
   simp [BitVec.msb]
+
+/--
+Negating `x` and then extracting [start..start+len) is the same as extracting and then negating,
+as long as the range [start..start+len) is in bounds.
+See that if the index is out-of-bounds, then `extractLsb` will return `false`,
+which makes the operation not commute.
+-/
+theorem extractLsb'_not_of_lt {x : BitVec w} {start len : Nat} (h : start + len < w) :
+   (~~~ x).extractLsb' start len = ~~~ (x.extractLsb' start len) := by
+  ext i hi
+  simp [hi]
+  omega
+
+/--
+Negating `x` and then extracting [lo:hi] is the same as extracting and then negating.
+For the extraction to be well-behaved,
+we need the range [lo:hi] to be a valid closed interval inside the bitvector:
+1. `lo ≤ hi` for the interval to be a well-formed closed interval.
+2. `hi < w`, for the interval to be contained inside the bitvector.
+-/
+theorem extractLsb_not_of_lt {x : BitVec w} {hi lo : Nat} (hlo : lo ≤ hi) (hhi : hi < w) :
+   (~~~ x).extractLsb hi lo = ~~~ (x.extractLsb hi lo) := by
+  ext k hk
+  simp [hk, show k ≤ hi - lo by omega]
+  omega
 
 /-! ### cast -/
 
@@ -1313,6 +1368,13 @@ theorem getElem_shiftLeft' {x : BitVec w₁} {y : BitVec w₂} {i : Nat} (h : i 
     (x <<< y)[i] = (!decide (i < y.toNat) && x.getLsbD (i - y.toNat)) := by
   simp
 
+@[simp] theorem shiftLeft_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) : x <<< n = 0#w := by
+  ext i hi
+  simp [hn, hi]
+  omega
+
+theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) = x <<< (k % 2^w) := rfl
+
 /-! ### ushiftRight -/
 
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
@@ -1444,6 +1506,8 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
     x >>> y = x >>> y.toNat := by rfl
 
+theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
+
 /-! ### sshiftRight -/
 
 theorem sshiftRight_eq {x : BitVec n} {i : Nat} :
@@ -1540,6 +1604,9 @@ theorem sshiftRight_or_distrib (x y : BitVec w) (n : Nat) :
   split
     <;> by_cases w ≤ i
     <;> simp [*]
+
+
+theorem sshiftRight'_ofNat_eq_sshiftRight {x : BitVec w} {k : Nat} : x.sshiftRight' (BitVec.ofNat w k) = x.sshiftRight (k % 2^w) := rfl
 
 /-- The msb after arithmetic shifting right equals the original msb. -/
 @[simp]
@@ -1940,6 +2007,25 @@ theorem shiftLeft_ushiftRight {x : BitVec w} {n : Nat}:
 theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
     (x <<< n).msb = x.getMsbD n := by
   simp [BitVec.msb]
+
+theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
+    x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
+  ext i hi
+  simp only [getLsbD_ushiftRight, getLsbD_cast, getLsbD_append, getLsbD_extractLsb', getLsbD_zero,
+    Bool.if_false_right, Bool.and_self_left, Bool.iff_and_self, decide_eq_true_eq]
+  intros h
+  have := lt_of_getLsbD h
+  omega
+
+theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
+    x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by
+  ext i hi
+  simp only [getLsbD_shiftLeft, hi, decide_true, Bool.true_and, getLsbD_cast, getLsbD_append,
+    getLsbD_zero, getLsbD_extractLsb', Nat.zero_add, Bool.if_false_left]
+  by_cases hi' : i < n
+  · simp [hi']
+  · simp [hi']
+    omega
 
 /-! ### rev -/
 
@@ -3328,6 +3414,11 @@ theorem mul_twoPow_eq_shiftLeft (x : BitVec w) (i : Nat) :
       apply Nat.pow_dvd_pow 2 (by omega)
     simp [Nat.mul_mod, hpow]
 
+theorem twoPow_mul_eq_shiftLeft (x : BitVec w) (i : Nat) :
+    (twoPow w i) * x = x <<< i := by
+  rw [BitVec.mul_comm, mul_twoPow_eq_shiftLeft]
+
+
 theorem twoPow_zero {w : Nat} : twoPow w 0 = 1#w := by
   apply eq_of_toNat_eq
   simp
@@ -3336,6 +3427,12 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
     x <<< n = x * (BitVec.twoPow w n) := by
   ext i
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
+
+/-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+  apply BitVec.eq_of_toNat_eq
+  simp only [toNat_mul, toNat_twoPow]
+  rw [← Nat.mul_mod, Nat.pow_add]
 
 /--
 The unsigned division of `x` by `2^k` equals shifting `x` right by `k`,

@@ -85,6 +85,20 @@ def eraseCasesAttr (declName : Name) : CoreM Unit := do
   let s ← s.eraseDecl declName
   modifyEnv fun env => casesExt.modifyState env fun _ => s
 
+/--
+We say a free variable is "simple" to be processed by the cases tactic IF:
+- It is the latest and consequently there are no forward dependencies, OR
+- It is not a proposion.
+-/
+private def isSimpleFVar (e : Expr) : MetaM Bool := do
+  let .fvar fvarId := e | return false
+  let decl ← fvarId.getDecl
+  if decl.index == (← getLCtx).numIndices - 1 then
+    -- It is the latest free variable, so there are no forward dependencies
+    return true
+  else
+    -- It is pointless to add an auxiliary equality if `e`s type is a proposition
+    isProp decl.type
 
 /--
 The `grind` tactic includes an auxiliary `cases` tactic that is not intended for direct use by users.
@@ -132,12 +146,17 @@ def cases (mvarId : MVarId) (e : Expr) : MetaM (List MVarId) := mvarId.withConte
     let s ← generalizeIndices' mvarId e
     s.mvarId.withContext do
       k s.mvarId s.fvarId s.indicesFVarIds
-  else if let .fvar fvarId := e then
-    k mvarId fvarId #[]
+  else if (← isSimpleFVar e) then
+    -- We don't need to revert anything.
+    k mvarId e.fvarId! #[]
   else
-    let mvarId ← mvarId.assert (← mkFreshUserName `x) type e
+    let mvarId ← if (← isProof e) then
+      mvarId.assert (← mkFreshUserName `x) type e
+    else
+      mvarId.assertExt (← mkFreshUserName `x) type e
     let (fvarId, mvarId) ← mvarId.intro1
     mvarId.withContext do k mvarId fvarId #[]
+
 where
   throwInductiveExpected {α} (type : Expr) : MetaM α := do
     throwTacticEx `grind.cases mvarId m!"(non-recursive) inductive type expected at {e}{indentExpr type}"

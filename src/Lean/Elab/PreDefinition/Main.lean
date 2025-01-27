@@ -219,14 +219,14 @@ def checkTerminationByHints (preDefs : Array PreDefinition) : CoreM Unit := do
         m!"`nontermination_partialFixpointursive`, so this one cannot be either.")
 
 /--
-Elaborates the `TerminationHint` in the clique to `TerminationArguments`
+Elaborates the `TerminationHint` in the clique to `TerminationMeasures`
 -/
-def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (Option TerminationArgument)) := do
+def elabTerminationByHints (preDefs : Array PreDefinition) : TermElabM (Array (Option TerminationMeasure)) := do
   preDefs.mapM fun preDef => do
     let arity ← lambdaTelescope preDef.value fun xs _ => pure xs.size
     let hints := preDef.termination
     hints.terminationBy?.mapM
-      (TerminationArgument.elab preDef.declName preDef.type arity hints.extraParams ·)
+      (TerminationMeasure.elab preDef.declName preDef.type arity hints.extraParams ·)
 
 def shouldUseStructural (preDefs : Array PreDefinition) : Bool :=
   preDefs.any fun preDef =>
@@ -279,18 +279,18 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           try
             checkCodomainsLevel preDefs
             checkTerminationByHints preDefs
-            let termArg?s ← elabTerminationByHints preDefs
+            let termMeasures?s ← elabTerminationByHints preDefs
             if shouldUseStructural preDefs then
-              structuralRecursion preDefs termArg?s
+              structuralRecursion preDefs termMeasures?s
             else if shouldUsepartialFixpoint preDefs then
               partialFixpoint preDefs
             else if shouldUseWF preDefs then
-              wfRecursion preDefs termArg?s
+              wfRecursion preDefs termMeasures?s
             else
               withRef (preDefs[0]!.ref) <| mapError
                 (orelseMergeErrors
-                  (structuralRecursion preDefs termArg?s)
-                  (wfRecursion preDefs termArg?s))
+                  (structuralRecursion preDefs termMeasures?s)
+                  (wfRecursion preDefs termMeasures?s))
                 (fun msg =>
                   let preDefMsgs := preDefs.toList.map (MessageData.ofExpr $ mkConst ·.declName)
                   m!"fail to show termination for{indentD (MessageData.joinSep preDefMsgs Format.line)}\nwith errors\n{msg}")

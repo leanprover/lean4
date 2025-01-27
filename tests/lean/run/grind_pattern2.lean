@@ -45,8 +45,6 @@ grind_pattern fooThm => foo x [a, b]
 
 
 /--
-warning: declaration uses 'sorry'
----
 info: [grind.internalize] foo x y
 [grind.internalize] [a, b]
 [grind.internalize] Nat
@@ -58,6 +56,8 @@ info: [grind.internalize] foo x y
 [grind.internalize] x
 [grind.internalize] y
 [grind.internalize] z
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 set_option trace.grind.internalize true in

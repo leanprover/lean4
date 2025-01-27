@@ -50,18 +50,49 @@ where go env
   | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
-  profileitM Exception "type checking" (← getOptions) do
-    let mut env ← withTraceNode `Kernel (fun _ => return m!"typechecking declaration") do
-      if !(← MonadLog.hasErrors) && decl.hasSorry then
-        logWarning "declaration uses 'sorry'"
-      (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk? |> ofExceptKernelException
+  let mut env ← getEnv
+  -- register namespaces for newly added constants; this used to be done by the kernel itself
+  -- but that is incompatible with moving it to a separate task
+  env := decl.getNames.foldl registerNamePrefixes env
+  if let .inductDecl _ _ types _ := decl then
+    env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
 
-    -- register namespaces for newly added constants; this used to be done by the kernel itself
-    -- but that is incompatible with moving it to a separate task
-    env := decl.getNames.foldl registerNamePrefixes env
-    if let .inductDecl _ _ types _ := decl then
-      env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
+  if !Elab.async.get (← getOptions) then
     setEnv env
+    return (← doAdd)
+
+  -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
+  -- kernel checking has finished; not all cases are supported yet
+  let (name, info, kind) ← match decl with
+    | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
+    | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
+    | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | _ => return (← doAdd)
+
+  -- no environment extension changes to report after kernel checking; ensures we do not
+  -- accidentally wait for this snapshot when querying extension states
+  let async ← env.addConstAsync (reportExts := false) name kind
+  -- report preliminary constant info immediately
+  async.commitConst async.asyncEnv (some info)
+  setEnv async.mainEnv
+  let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+    try
+      setEnv async.asyncEnv
+      doAdd
+      async.commitCheckEnv (← getEnv)
+    finally
+      async.commitFailure
+  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+  Core.logSnapshotTask { range? := endRange?, task := t }
+where doAdd := do
+  profileitM Exception "type checking" (← getOptions) do
+    withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getNames}") do
+      if !(← MonadLog.hasErrors) && decl.hasSorry then
+        logWarning m!"declaration uses 'sorry'"
+      let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+        |> ofExceptKernelException
+      setEnv env
 
 def addAndCompile (decl : Declaration) : CoreM Unit := do
   addDecl decl

@@ -11,6 +11,7 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -43,9 +44,17 @@ def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := d
     (go g).run cfg g
 where
   go (g : MVarId) : PreProcessM (Option MVarId) := do
-    let some g ← g.falseOrByContra | return none
+    let some g' ← g.falseOrByContra | return none
+    let mut g := g'
 
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
+    let cfg ← PreProcessM.getConfig
+
+    if cfg.structures then
+      let some g' ← structuresPass.run g | return none
+      g := g'
+
+    trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
     Pass.fixpointPipeline pipeline g
 

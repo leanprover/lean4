@@ -27,7 +27,7 @@ import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Arith
 import Lean.Meta.Tactic.Grind.Ext
 import Lean.Meta.Tactic.Grind.MatchCond
-import Lean.Meta.Tactic.Grind.DoNotSimp
+import Lean.Meta.Tactic.Grind.MatchDiscrOnly
 
 namespace Lean
 
@@ -72,6 +72,9 @@ builtin_initialize registerTraceClass `grind.debug.offset
 builtin_initialize registerTraceClass `grind.debug.offset.proof
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
+builtin_initialize registerTraceClass `grind.debug.internalize
 builtin_initialize registerTraceClass `grind.debug.matchCond
+builtin_initialize registerTraceClass `grind.debug.matchCond.lambda
+builtin_initialize registerTraceClass `grind.debug.matchCond.proveFalse
 
 end Lean

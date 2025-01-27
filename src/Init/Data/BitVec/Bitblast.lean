@@ -1244,7 +1244,7 @@ theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp [uaddOverflow, msb_add, msb_setWidth, carry]
 
 theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
-    saddOverflow x y ↔ (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by
+    saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by
   simp only [saddOverflow]
   rcases w with _|w
   · revert x y; decide
@@ -1262,6 +1262,7 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
       decide_eq_decide, BitVec.toInt_add]
     rw_mod_cast [bmod_neg_iff (by assumption) (by assumption),
       ← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega)] at *
+    rw [_root_.eq_iff_iff]
     omega
 
 end BitVec

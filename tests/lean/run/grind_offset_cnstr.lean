@@ -268,9 +268,12 @@ fun {a4} p a1 a2 a3 =>
     intro_with_eq (p ↔ a4 ≤ a3 + 2) (p = (a4 ≤ a3 + 2)) (a1 ≤ a4) (iff_eq p (a4 ≤ a3 + 2)) fun a_3 =>
       Classical.byContradiction
         (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_le_eq a1 a4) fun x =>
-          Nat.unsat_lo_lo a4 a1 1 7 rfl_true x
-            (Nat.lo_lo a1 a2 a4 1 6 (Nat.of_le_eq_false a2 a1 (Eq.trans (Eq.symm a) (eq_false a_1)))
-              (Nat.lo_lo a2 a3 a4 3 3 a_2 (Nat.of_ro_eq_false a4 a3 2 (Eq.trans (Eq.symm a_3) (eq_false a_1))))))
+          Eq.mp
+            (Eq.trans (Eq.symm (eq_true x))
+              (Nat.lo_eq_false_of_lo a1 a4 7 1 rfl_true
+                (Nat.lo_lo a1 a2 a4 1 6 (Nat.of_le_eq_false a2 a1 (Eq.trans (Eq.symm a) (eq_false a_1)))
+                  (Nat.lo_lo a2 a3 a4 3 3 a_2 (Nat.of_ro_eq_false a4 a3 2 (Eq.trans (Eq.symm a_3) (eq_false a_1)))))))
+            True.intro)
 -/
 #guard_msgs (info) in
 open Lean Grind in

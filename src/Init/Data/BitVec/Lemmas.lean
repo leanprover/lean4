@@ -542,7 +542,7 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
 
-theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
+theorem toInt_lt {w : Nat} {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
   simp only [BitVec.toInt]
   rcases w with _|w'
   · omega
@@ -550,7 +550,7 @@ theorem toInt_lt {w : Nat} (x : BitVec w) : x.toInt < 2 ^ (w - 1) := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
-theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
+theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ (w - 1) ≤ x.toInt := by
   simp only [BitVec.toInt]
   rcases w with _|w'
   · omega
@@ -558,21 +558,21 @@ theorem le_toInt {w : Nat} (x : BitVec w) : -2 ^ (w - 1) ≤ x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
-theorem toInd_add_toInt_lt_two_pow (x y : BitVec w) :
+theorem toInd_add_toInt_lt_two_pow {x y : BitVec w} :
     x.toInt + y.toInt < 2 ^ w := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · have hx := toInt_lt x
-    have hy := toInt_lt y
+  · have hx := toInt_lt (x := x)
+    have hy := toInt_lt (x := y)
     rw [Nat.add_sub_cancel] at hx hy
     omega
 
-theorem neg_two_pow_le_toInd_add_toInt (x y : BitVec w) :
+theorem neg_two_pow_le_toInd_add_toInt {x y : BitVec w} :
     - 2 ^ w ≤ x.toInt + y.toInt := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]
-  · have hx := le_toInt x
-    have hy := le_toInt y
+  · have hx := le_toInt (x := x)
+    have hy := le_toInt (x := y)
     rw [Nat.add_sub_cancel] at hx hy
     omega
 

@@ -1248,10 +1248,10 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [saddOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have := le_toInt x; have := toInt_lt x
-    have := le_toInt y; have := toInt_lt y
-    have := toInd_add_toInt_lt_two_pow x y
-    have := neg_two_pow_le_toInd_add_toInt x y
+  · have := le_toInt (x := x); have := toInt_lt (x := x)
+    have := le_toInt (x := y); have := toInt_lt (x := y)
+    have := toInd_add_toInt_lt_two_pow (x := x) (y := y)
+    have := neg_two_pow_le_toInd_add_toInt (x := x) (y := y)
     have bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
         (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
       simp only [Int.bmod_def]

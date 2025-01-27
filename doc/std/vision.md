@@ -45,11 +45,11 @@ call for contributions below.
    1. Random numbers  
    2. Dates and times  
 4. Operating system abstractions  
-5. Concurrency and parallelism primitives  
-   1. Asynchronous I/O  
-   2. FFI helpers  
-   3. Environment, file system, processes  
-   4. Locales
+   1. Concurrency and parallelism primitives  
+   2. Asynchronous I/O  
+   3. FFI helpers  
+   4. Environment, file system, processes  
+   5. Locales
 
 The material covered in the first three sections (core types and operations,
 language constructs and libraries) will be verified, with the exception of

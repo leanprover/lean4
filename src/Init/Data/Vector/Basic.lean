@@ -185,8 +185,11 @@ which also receives the index of the element, and the fact that the index is les
 @[inline] def flatMap (v : Vector α n) (f : α → Vector β m) : Vector β (n * m) :=
   ⟨v.toArray.flatMap fun a => (f a).toArray, by simp [Array.map_const']⟩
 
-@[inline] def zipWithIndex (v : Vector α n) : Vector (α × Nat) n :=
-  ⟨v.toArray.zipWithIndex, by simp⟩
+@[inline] def zipIdx (v : Vector α n) (k : Nat := 0) : Vector (α × Nat) n :=
+  ⟨v.toArray.zipIdx k, by simp⟩
+
+@[deprecated zipIdx (since := "2025-01-21")]
+abbrev zipWithIndex := @zipIdx
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
 @[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=

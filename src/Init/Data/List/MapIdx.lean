@@ -346,8 +346,7 @@ abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
 @[simp]
 theorem mapIdx_cons {l : List α} {a : α} :
     mapIdx f (a :: l) = f 0 a :: mapIdx (fun i => f (i + 1)) l := by
-  simp [mapIdx_eq_zipIdx_map, zipIdx_eq_zip_range', map_uncurry_zip_eq_zipWith,
-    range_succ_eq_map, zipWith_map_left]
+  simp [mapIdx_eq_zipIdx_map, List.zipIdx_succ]
 
 theorem mapIdx_append {K L : List α} :
     (K ++ L).mapIdx f = K.mapIdx f ++ L.mapIdx fun i => f (i + K.length) := by

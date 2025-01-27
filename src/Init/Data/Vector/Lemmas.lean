@@ -151,8 +151,11 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem take_mk (a : Array α) (h : a.size = n) (m) :
     (Vector.mk a h).take m = Vector.mk (a.take m) (by simp [h]) := rfl
 
-@[simp] theorem zipWithIndex_mk (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).zipWithIndex = Vector.mk (a.zipWithIndex) (by simp [h]) := rfl
+@[simp] theorem zipIdx_mk (a : Array α) (h : a.size = n) (k : Nat := 0) :
+    (Vector.mk a h).zipIdx k = Vector.mk (a.zipIdx k) (by simp [h]) := rfl
+
+@[deprecated zipIdx_mk (since := "2025-01-21")]
+abbrev zipWithIndex_mk := @zipIdx_mk
 
 @[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
       (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
@@ -273,8 +276,8 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_take (a : Vector α n) (m) : (a.take m).toArray = a.toArray.take m := rfl
 
-@[simp] theorem toArray_zipWithIndex (a : Vector α n) :
-    (a.zipWithIndex).toArray = a.toArray.zipWithIndex := rfl
+@[simp] theorem toArray_zipIdx (a : Vector α n) (k : Nat := 0) :
+    (a.zipIdx k).toArray = a.toArray.zipIdx k := rfl
 
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
     (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl

@@ -48,7 +48,7 @@ theorem mapFinIdx_spec (as : Array α) (f : (i : Nat) → α → (h : i < as.siz
     (a.mapFinIdx f).size = a.size :=
   (mapFinIdx_spec (p := fun _ _ _ => True) (hs := fun _ _ => trivial)).1
 
-@[simp] theorem size_zipIdx (as : Array α) : as.zipIdx.size = as.size :=
+@[simp] theorem size_zipIdx (as : Array α) (k : Nat) : (as.zipIdx k).size = as.size :=
   Array.size_mapFinIdx _ _
 
 @[deprecated size_zipIdx (since := "2025-01-21")] abbrev size_zipWithIndex := @size_zipIdx
@@ -119,39 +119,53 @@ namespace Array
 
 /-! ### zipIdx -/
 
-@[simp] theorem getElem_zipIdx (a : Array α) (i : Nat) (h : i < a.zipIdx.size) :
-    (a.zipIdx)[i] = (a[i]'(by simp_all), i) := by
+@[simp] theorem getElem_zipIdx (a : Array α) (k : Nat) (i : Nat) (h : i < (a.zipIdx k).size) :
+    (a.zipIdx k)[i] = (a[i]'(by simp_all), i + k) := by
   simp [zipIdx]
 
 @[deprecated getElem_zipIdx (since := "2025-01-21")]
 abbrev getElem_zipWithIndex := @getElem_zipIdx
 
-@[simp] theorem zipIdx_toArray {l : List α} :
-    l.toArray.zipIdx = l.zipIdx.toArray := by
-  ext i hi₁ hi₂ <;> simp
+@[simp] theorem zipIdx_toArray {l : List α} {k : Nat} :
+    l.toArray.zipIdx k = (l.zipIdx k).toArray := by
+  ext i hi₁ hi₂ <;> simp [Nat.add_comm]
 
 @[deprecated zipIdx_toArray (since := "2025-01-21")]
 abbrev zipWithIndex_toArray := @zipIdx_toArray
 
-@[simp] theorem toList_zipIdx (a : Array α) :
-    a.zipIdx.toList = a.toList.zipIdx := by
+@[simp] theorem toList_zipIdx (a : Array α) (k : Nat) :
+    (a.zipIdx k).toList = a.toList.zipIdx k := by
   rcases a with ⟨a⟩
   simp
 
 @[deprecated toList_zipIdx (since := "2025-01-21")]
 abbrev toList_zipWithIndex := @toList_zipIdx
 
+theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {l : Array α} :
+    (x, i) ∈ zipIdx l k ↔ k ≤ i ∧ l[i - k]? = some x := by
+  rcases l with ⟨l⟩
+  simp [List.mk_mem_zipIdx_iff_le_and_getElem?_sub]
+
+/-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {l : Array α} :
     (x, i) ∈ l.zipIdx ↔ l[i]? = x := by
-  rcases l with ⟨l⟩
-  simp only [zipIdx_toArray, mem_toArray, List.mem_map, Prod.mk.injEq, Prod.exists,
-    List.mk_mem_zipIdx_iff_getElem?, List.getElem?_toArray]
+  rw [mk_mem_zipIdx_iff_le_and_getElem?_sub]
+  simp
+
+theorem mem_zipIdx_iff_le_and_getElem?_sub {x : α × Nat} {l : Array α} {k : Nat} :
+    x ∈ zipIdx l k ↔ k ≤ x.2 ∧ l[x.2 - k]? = some x.1 := by
+  cases x
+  simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
+
+/-- Variant of `mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
+theorem mem_zipIdx_iff_getElem? {x : α × Nat} {l : Array α} :
+    x ∈ l.zipIdx ↔ l[x.2]? = some x.1 := by
+  rw [mk_mem_zipIdx_iff_getElem?]
 
 @[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-21")]
 abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
-
-theorem mem_zipIdx_iff_getElem? {x : α × Nat} {l : Array α} : x ∈ l.zipIdx ↔ l[x.2]? = some x.1 :=
-  mk_mem_zipIdx_iff_getElem?
 
 @[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-21")]
 abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?

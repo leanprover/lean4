@@ -342,94 +342,103 @@ end
 /-! ### zipIdx -/
 
 @[simp]
-theorem zipIdx_singleton (x : α) (n : Nat) : zipIdx [x] n = [(x, n)] :=
+theorem zipIdx_singleton (x : α) (k : Nat) : zipIdx [x] k = [(x, k)] :=
   rfl
 
-@[simp] theorem head?_zipIdx (n : Nat) (l : List α) :
-    (zipIdx l n).head? = l.head?.map fun a => (a, n) := by
+@[simp] theorem head?_zipIdx (l : List α) (k : Nat) :
+    (zipIdx l k).head? = l.head?.map fun a => (a, k) := by
   simp [head?_eq_getElem?]
 
-@[simp] theorem getLast?_zipIdx (n : Nat) (l : List α) :
-    (zipIdx l n).getLast? = l.getLast?.map fun a => (a, n + l.length - 1) := by
+@[simp] theorem getLast?_zipIdx (l : List α) (k : Nat) :
+    (zipIdx l k).getLast? = l.getLast?.map fun a => (a, k + l.length - 1) := by
   simp [getLast?_eq_getElem?]
   cases l <;> simp; omega
 
-theorem mk_add_mem_zipIdx_iff_getElem? {n i : Nat} {x : α} {l : List α} :
-    (x, n + i) ∈ zipIdx l n ↔ l[i]? = some x := by
+theorem mk_add_mem_zipIdx_iff_getElem? {k i : Nat} {x : α} {l : List α} :
+    (x, k + i) ∈ zipIdx l k ↔ l[i]? = some x := by
   simp [mem_iff_getElem?, and_left_comm]
 
-theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {n i : Nat} {x : α} {l : List α} :
-    (x, i) ∈ zipIdx l n ↔ n ≤ i ∧ l[i - n]? = some x := by
-  if h : n ≤ i then
+theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {l : List α} :
+    (x, i) ∈ zipIdx l k ↔ k ≤ i ∧ l[i - k]? = some x := by
+  if h : k ≤ i then
     rcases Nat.exists_eq_add_of_le h with ⟨i, rfl⟩
     simp [mk_add_mem_zipIdx_iff_getElem?, Nat.add_sub_cancel_left]
   else
-    have : ∀ k, n + k ≠ i := by rintro k rfl; simp at h
+    have : ∀ m, k + m ≠ i := by rintro _ rfl; simp at h
     simp [h, mem_iff_get?, this]
 
+/-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
 theorem mk_mem_zipIdx_iff_getElem? {i : Nat} {x : α} {l : List α} : (x, i) ∈ zipIdx l ↔ l[i]? = x := by
   simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
+theorem mem_zipIdx_iff_le_and_getElem?_sub {x : α × Nat} {l : List α} {k : Nat} :
+    x ∈ zipIdx l k ↔ k ≤ x.2 ∧ l[x.2 - k]? = some x.1 := by
+  cases x
+  simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
+
+/-- Variant of `mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
 theorem mem_zipIdx_iff_getElem? {x : α × Nat} {l : List α} : x ∈ zipIdx l ↔ l[x.2]? = some x.1 := by
   cases x
   simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
-theorem le_snd_of_mem_zipIdx {x : α × Nat} {n : Nat} {l : List α} (h : x ∈ zipIdx l n) :
-    n ≤ x.2 :=
+theorem le_snd_of_mem_zipIdx {x : α × Nat} {k : Nat} {l : List α} (h : x ∈ zipIdx l k) :
+    k ≤ x.2 :=
   (mk_mem_zipIdx_iff_le_and_getElem?_sub.1 h).1
 
-theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {n : Nat} {l : List α} (h : x ∈ zipIdx l n) :
-    x.2 < n + length l := by
+theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) :
+    x.2 < k + length l := by
   rcases mem_iff_get.1 h with ⟨i, rfl⟩
   simpa using i.isLt
 
-theorem snd_lt_of_mem_zipIdx {x : α × Nat} {l : List α} (h : x ∈ l.zipIdx) : x.2 < length l := by
-  simpa using snd_lt_add_of_mem_zipIdx h
+theorem snd_lt_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ l.zipIdx k) : x.2 < l.length + k := by
+  simpa [Nat.add_comm] using snd_lt_add_of_mem_zipIdx h
 
-theorem map_zipIdx (f : α → β) (n : Nat) (l : List α) :
-    map (Prod.map f id) (zipIdx l n) = zipIdx (l.map f) n := by
-  induction l generalizing n <;> simp_all
+theorem map_zipIdx (f : α → β) (l : List α) (k : Nat) :
+    map (Prod.map f id) (zipIdx l k) = zipIdx (l.map f) k := by
+  induction l generalizing k <;> simp_all
 
-theorem fst_mem_of_mem_zipIdx {x : α × Nat} {n : Nat} {l : List α} (h : x ∈ zipIdx l n) : x.1 ∈ l :=
-  zipIdx_map_fst n l ▸ mem_map_of_mem _ h
+theorem fst_mem_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) : x.1 ∈ l :=
+  zipIdx_map_fst k l ▸ mem_map_of_mem _ h
 
-theorem fst_eq_of_mem_zipIdx {x : α × Nat} {n : Nat} {l : List α} (h : x ∈ zipIdx l n) :
-    x.1 = l[x.2 - n]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by
-  induction l generalizing n with
+theorem fst_eq_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) :
+    x.1 = l[x.2 - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) := by
+  induction l generalizing k with
   | nil => cases h
   | cons hd tl ih =>
     cases h with
     | head h => simp
     | tail h m =>
       specialize ih m
-      have : x.2 - n = x.2 - (n + 1) + 1 := by
+      have : x.2 - k = x.2 - (k + 1) + 1 := by
         have := le_snd_of_mem_zipIdx m
         omega
       simp [this, ih]
 
-theorem mem_zipIdx {x : α} {i j : Nat} {xs : List α} (h : (x, i) ∈ xs.zipIdx j) :
-    j ≤ i ∧ i < j + xs.length ∧
-      x = xs[i - j]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) :=
+theorem mem_zipIdx {x : α} {i : Nat} {xs : List α} {k : Nat} (h : (x, i) ∈ xs.zipIdx k) :
+    k ≤ i ∧ i < k + xs.length ∧
+      x = xs[i - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) :=
   ⟨le_snd_of_mem_zipIdx h, snd_lt_add_of_mem_zipIdx h, fst_eq_of_mem_zipIdx h⟩
 
-theorem zipIdx_map (n : Nat) (l : List α) (f : α → β) :
-    zipIdx (l.map f) n = (zipIdx l n).map (Prod.map f id) := by
+theorem zipIdx_map (l : List α) (k : Nat) (f : α → β) :
+    zipIdx (l.map f) k = (zipIdx l k).map (Prod.map f id) := by
   induction l with
   | nil => rfl
   | cons hd tl IH =>
     rw [map_cons, zipIdx_cons', zipIdx_cons', map_cons, map_map, IH, map_map]
     rfl
 
-theorem zipIdx_append (xs ys : List α) (n : Nat) :
-    zipIdx (xs ++ ys) n = zipIdx xs n ++ zipIdx ys (n + xs.length) := by
-  induction xs generalizing ys n with
+theorem zipIdx_append (xs ys : List α) (k : Nat) :
+    zipIdx (xs ++ ys) k = zipIdx xs k ++ zipIdx ys (k + xs.length) := by
+  induction xs generalizing ys k with
   | nil => simp
   | cons x xs IH =>
     rw [cons_append, zipIdx_cons, IH, ← cons_append, ← zipIdx_cons, length, Nat.add_right_comm,
       Nat.add_assoc]
 
-theorem zipIdx_eq_cons_iff {l : List α} {n : Nat} :
-    zipIdx l n = x :: l' ↔ ∃ a as, l = a :: as ∧ x = (a, n) ∧ l' = zipIdx as (n + 1) := by
+theorem zipIdx_eq_cons_iff {l : List α} {k : Nat} :
+    zipIdx l k = x :: l' ↔ ∃ a as, l = a :: as ∧ x = (a, k) ∧ l' = zipIdx as (k + 1) := by
   rw [zipIdx_eq_zip_range', zip_eq_cons_iff]
   constructor
   · rintro ⟨l₁, l₂, rfl, h, rfl⟩
@@ -437,12 +446,12 @@ theorem zipIdx_eq_cons_iff {l : List α} {n : Nat} :
     obtain ⟨rfl, -, rfl⟩ := h
     exact ⟨x.1, l₁, by simp [zipIdx_eq_zip_range']⟩
   · rintro ⟨a, as, rfl, rfl, rfl⟩
-    refine ⟨as, range' (n+1) as.length, ?_⟩
+    refine ⟨as, range' (k+1) as.length, ?_⟩
     simp [zipIdx_eq_zip_range', range'_succ]
 
-theorem zipIdx_eq_append_iff {l : List α} {n : Nat} :
-    zipIdx l n = l₁ ++ l₂ ↔
-      ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = zipIdx l₁' n ∧ l₂ = zipIdx l₂' (n + l₁'.length) := by
+theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
+    zipIdx l k = l₁ ++ l₂ ↔
+      ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = zipIdx l₁' k ∧ l₂ = zipIdx l₂' (k + l₁'.length) := by
   rw [zipIdx_eq_zip_range', zip_eq_append_iff]
   constructor
   · rintro ⟨w, x, y, z, h, rfl, h', rfl, rfl⟩
@@ -456,7 +465,7 @@ theorem zipIdx_eq_append_iff {l : List α} {n : Nat} :
     omega
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     simp only [zipIdx_eq_zip_range']
-    refine ⟨l₁', l₂', range' n l₁'.length, range' (n + l₁'.length) l₂'.length, ?_⟩
+    refine ⟨l₁', l₂', range' k l₁'.length, range' (k + l₁'.length) l₂'.length, ?_⟩
     simp [Nat.add_comm]
 
 /-! ### enumFrom -/

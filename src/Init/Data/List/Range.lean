@@ -264,6 +264,22 @@ theorem unzip_zipIdx_eq_prod (l : List α) {n : Nat} :
     (l.zipIdx n).unzip = (l, range' n l.length) := by
   simp only [zipIdx_eq_zip_range', unzip_zip, length_range']
 
+/-- Replace `zipIdx` with a starting index `n+1` with `zipIdx` starting from `n`,
+followed by a `map` increasing the indices by one. -/
+theorem zipIdx_succ (l : List α) (n : Nat) :
+    l.zipIdx (n + 1) = (l.zipIdx n).map (fun ⟨a, i⟩ => (a, i + 1)) := by
+  induction l generalizing n with
+  | nil => rfl
+  | cons _ _ ih => simp only [zipIdx_cons, ih (n + 1), map_cons]
+
+/-- Replace `zipIdx` with a starting index with `zipIdx` starting from 0,
+followed by a `map` increasing the indices. -/
+theorem zipIdx_eq_map_add (l : List α) (n : Nat) :
+    l.zipIdx n = l.zipIdx.map (fun ⟨a, i⟩ => (a, n + i)) := by
+  induction l generalizing n with
+  | nil => rfl
+  | cons _ _ ih => simp [ih (n+1), zipIdx_succ, Nat.add_assoc, Nat.add_comm 1]
+
 /-! ### enumFrom -/
 
 section

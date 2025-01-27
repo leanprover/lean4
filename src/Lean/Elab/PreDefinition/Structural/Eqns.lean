@@ -98,7 +98,10 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+  if let some info := eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore) then
+    return some (← mkUnfoldEq declName info)
+  else
+    return none
 
 @[export lean_get_structural_rec_arg_pos]
 def getStructuralRecArgPosImp? (declName : Name) : CoreM (Option Nat) := do

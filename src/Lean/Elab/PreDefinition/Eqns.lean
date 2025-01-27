@@ -308,6 +308,40 @@ def whnfReducibleLHS? (mvarId : MVarId) : MetaM (Option MVarId) := mvarId.withCo
 def tryContradiction (mvarId : MVarId) : MetaM Bool := do
   mvarId.contradictionCore { genDiseq := true }
 
+
+/--
+The core loop of proving an equation. Assumes that the function call on the left-hand side has
+already been unfolded, using whatever method applies to the current function definition strategy.
+
+Currently used for non-recursive functions and partial fixpoints; maybe later well-founded
+recursion and structural recursion can and should use this too.
+-/
+partial def mkEqnProofCore (declName : Name) (mvarId : MVarId) : MetaM Unit := do
+  trace[Elab.definition.eqns] "step\n{MessageData.ofGoal mvarId}"
+  if ← withAtLeastTransparency .all (tryURefl mvarId) then
+    return ()
+  else if (← tryContradiction mvarId) then
+    return ()
+  else if let some mvarId ← simpMatch? mvarId then
+    mkEqnProofCore declName mvarId
+  else if let some mvarId ← simpIf? mvarId then
+    mkEqnProofCore declName mvarId
+  else if let some mvarId ← whnfReducibleLHS? mvarId then
+    mkEqnProofCore declName mvarId
+  else
+    let ctx ← Simp.mkContext (config := { dsimp := false })
+    match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
+    | TacticResultCNM.closed => return ()
+    | TacticResultCNM.modified mvarId => mkEqnProofCore declName mvarId
+    | TacticResultCNM.noChange =>
+      if let some mvarIds ← casesOnStuckLHS? mvarId then
+        mvarIds.forM (mkEqnProofCore declName)
+      else if let some mvarIds ← splitTarget? mvarId then
+        mvarIds.forM (mkEqnProofCore declName)
+      else
+        throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
+
+
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.
   `mvarId` is the goal to be proved. It is a goal of the form

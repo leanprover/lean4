@@ -764,7 +764,7 @@ and the second `setWidth` is a non-trivial extension.
 -/
 -- Note that in the special cases `v = u` or `v = w`,
 -- `simp` can discharge the side condition itself.
-@[simp] theorem setWidth_setWidth (x : BitVec u) (w v : Nat) (h : ¬ (v < u ∧ v < w)) :
+@[simp] theorem setWidth_setWidth {x : BitVec u} {w v : Nat} (h : ¬ (v < u ∧ v < w)) :
     setWidth w (setWidth v x) = setWidth w x := by
   ext
   simp_all only [getLsbD_setWidth, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,

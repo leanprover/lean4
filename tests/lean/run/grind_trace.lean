@@ -33,14 +33,14 @@ example : 0 < (x :: t).length := by
 /--
 info: Try this: grind only [= List.getElem?_replicate, = List.getElem?_eq_some_iff, = List.getElem?_map, =
   List.getElem_replicate, = List.getElem?_eq_none, = Option.map_some', = Option.map_none', = List.length_replicate, →
-  List.getElem?_eq_getElem, cases And, cases Or, cases Exists]
+  List.getElem?_eq_getElem, cases Or]
 -/
 #guard_msgs (info) in
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by
   grind?
 
 /--
-info: Try this: grind only [= List.getLast?_eq_some_iff, List.mem_concat_self, cases Exists]
+info: Try this: grind only [= List.getLast?_eq_some_iff, List.mem_concat_self]
 -/
 #guard_msgs (info) in
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
@@ -79,3 +79,16 @@ info: Try this: grind only [usr gthm]
 #guard_msgs (info) in
 example : g (g (g x)) = g x := by
   grind?
+
+/--
+error: `And` is marked as a built-in case-split for `grind` and cannot be erased
+-/
+#guard_msgs (error) in
+attribute [-grind] And
+
+/--
+error: `And` is marked as a built-in case-split for `grind` and cannot be erased
+-/
+#guard_msgs (error) in
+example : p ∧ q → p := by
+  grind [-And]

@@ -379,7 +379,8 @@ SMT-Lib name: `extract`.
 def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
-A version of `setWidth` that requires a proof, but is a noop.
+A version of `setWidth` that requires a proof the new width is at least as large,
+and is a computational noop.
 -/
 def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by

@@ -3403,9 +3403,9 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
 @[simp]
-theorem replicate_one {w : Nat} {x : BitVec w} (h : w = w * 1 := Eq.symm (Nat.mul_one _)) :
-    (x.replicate 1) = x.cast h := by
-  simp [replicate, h]
+theorem replicate_one {w : Nat} {x : BitVec w} :
+    (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
+  simp [replicate]
 
 @[simp]
 theorem replicate_succ {x : BitVec w} :

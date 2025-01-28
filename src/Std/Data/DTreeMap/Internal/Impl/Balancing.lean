@@ -441,14 +441,6 @@ theorem balanceLErasePrecond_zero_iff {n : Nat} : BalanceLErasePrecond 0 n ↔ n
 theorem balanceLErasePrecond_zero_iff' {n : Nat} : BalanceLErasePrecond n 0 ↔ n ≤ 3 := by
   tree_tac
 
-theorem omega_fact_1 {n m : Nat} (h₂ : n + 1 + m ≤ 3) (h₃ : 1 ≤ n) (h₄ : 1 ≤ m) :
-    n = 1 ∧ m = 1 := by omega
-
-theorem omega_fact_2 {ls rls rrs : Nat} (h₁ : rls < 2 * rrs)
-    (h₂ : BalanceLErasePrecond (rls + 1 + rrs) ls) (h₃ : 1 ≤ ls) : rls ≤ 3 * ls := by
-  dsimp only [Std.Internal.tree_tac] at *
-  omega
-
 /-- Constructor for an inner node with the correct size. -/
 @[Std.Internal.tree_tac]
 def bin (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
@@ -511,6 +503,9 @@ theorem balanced_doubleR (k v ls lk lv ll lrs lrk lrv lrl lrr) (r : Impl α β)
     (doubleR k v lk lv ll lrk lrv lrl lrr r).Balanced := by
   tree_tac
 
+theorem balanceSlow_desc.aux {n m : Nat} (h₂ : n + 1 + m ≤ 3) (h₃ : 1 ≤ n) (h₄ : 1 ≤ m) :
+    n = 1 ∧ m = 1 := by omega
+
 theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balanceSlow k v l r).size = l.size + 1 + r.size ∧ (balanceSlow k v l r).Balanced := by
@@ -547,7 +542,7 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     rw [or_iff_right_of_imp (fun h => Nat.le_trans h (by decide))] at hlr
     simp only [ratio] at *
     rename_i rls rrs _ _ _ _ _ _ _ _ _ _
-    obtain ⟨rfl, rfl⟩ : rls = 1 ∧ rrs = 1 := omega_fact_1 hlr hrb.1.one_le hrb.2.1.one_le
+    obtain ⟨rfl, rfl⟩ : rls = 1 ∧ rrs = 1 := balanceSlow_desc.aux hlr hrb.1.one_le hrb.2.1.one_le
     refine balanced_inner_iff.2 ⟨?_, hrb.2.1, by simp [size_inner], by simp [size_inner, Nat.add_assoc]⟩
     refine balanced_inner_iff.2 ⟨.leaf, hrb.1, ?_, by simp [size_leaf, size_inner]⟩
     simp [size_leaf, size_inner]
@@ -580,12 +575,13 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     rw [or_iff_left_of_imp (fun h => Nat.le_trans h (by decide))] at hlr
     simp only [ratio] at *
     rename_i rls rrs _ _ _ _ _ _ _ _ _ _
-    obtain ⟨rfl, rfl⟩ : rls = 1 ∧ rrs = 1 := omega_fact_1 hlr hlb.1.one_le hlb.2.1.one_le
+    obtain ⟨rfl, rfl⟩ : rls = 1 ∧ rrs = 1 := balanceSlow_desc.aux hlr hlb.1.one_le hlb.2.1.one_le
     simp only [Nat.reduceAdd, Nat.add_zero, true_and]
     refine balanced_inner_iff.2 ⟨hlb.1, ?_, by simp [size_inner], by simp [size_inner, Nat.add_assoc]⟩
     refine balanced_inner_iff.2 ⟨hlb.2.1, .leaf, ?_, by simp [size_leaf, size_inner]⟩
     simp [size_leaf, size_inner]
 
+  -- Group 3: l, r = inner
   · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs hlsrs rls rrs hrlsrrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_singleL k v _ _ _ _ _ _ hlb hrb hlr hlsrs hrlsrrs).map ?_

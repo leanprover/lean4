@@ -86,7 +86,7 @@ def isGE : Ordering → Bool
   | lt => false
   | _ => true
 
-section SimpsLemmas
+section ReductionLemmas
 
 @[simp]
 theorem lt_isLT : lt.isLT := rfl
@@ -142,7 +142,7 @@ theorem eq_swap : eq.swap = .eq := rfl
 @[simp]
 theorem gt_swap : gt.swap = .lt := rfl
 
-end SimpsLemmas
+end ReductionLemmas
 
 end Ordering
 

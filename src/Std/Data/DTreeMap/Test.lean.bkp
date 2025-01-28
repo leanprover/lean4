@@ -1,4 +1,0 @@
-@[Std.Internal.tree_tac]
-def two := 2
-
-example : 1 = 1 := by as_aux_lemma => rfl

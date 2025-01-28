@@ -1233,11 +1233,9 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 /-! ### Overflow definitions -/
 
 
-@[simp] theorem toNat_mod_lt_eq {x : BitVec n} (h : n < m): x.toNat % (2 ^ m) = x.toNat :=
-  Nat.mod_eq_of_lt (by
-    have := (@Nat.pow_lt_pow_iff_right 2 n m (by omega)).mpr (by omega)
-    omega
-  )
+@[simp] theorem toNat_mod_lt_eq {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
+ have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
+ exact Nat.mod_eq_of_lt (by omega)
 
 theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
     uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by

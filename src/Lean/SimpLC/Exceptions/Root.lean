@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Data
 import Lean.SimpLC
+import Lean.Elab.Tactic.Grind
 
 -- This possibly could be a simp lemma.
 -- It would fire on any `arrow` goal, but we have plenty of these already.
@@ -27,7 +28,9 @@ simp_lc allow forall_false forall_apply_eq_imp_iff₂
 -- Produces many non-confluence goals that could be resolved by better automation.
 simp_lc ignore forall_exists_index
 
--- The following would be easy with some additional automation.
+-- The following would be easy with some additional automation; indeed `grind` works well.
+-- example (q : α → Prop) (a b : α) : q a ∧ b = a ↔ b = a ∧ q b := by
+--   grind
 simp_lc allow exists_eq_left exists_eq_right_right'
 simp_lc allow exists_eq_right exists_eq_left
 simp_lc allow exists_eq_right exists_eq_or_imp
@@ -43,6 +46,7 @@ simp_lc allow exists_eq_right_right' exists_eq_or_imp
 example {P : Prop} (h h' : Decidable P) :
     ((@decide P h) || (@decide P h')) = ((@decide P h') || (@decide P h)) := by
   have : h = h' := Subsingleton.elim _ _
+  -- grind -- works from here
   subst this
   simp
 simp_lc allow ite_else_decide_not_self ite_then_decide_not_self
@@ -51,11 +55,6 @@ simp_lc allow ite_then_decide_self ite_else_decide_self
 -- This would be resolved if `exists_prop'` were a simp lemma, but it is not.
 -- See https://github.com/leanprover/lean4/pull/5529
 simp_lc allow exists_and_left exists_and_right
-
-example (x : Id PUnit) : PUnit.unit = x := by
-  change PUnit at x
-  simp
-simp_lc allow Id.bind_eq bind_pure_unit
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

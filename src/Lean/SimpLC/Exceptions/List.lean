@@ -55,21 +55,6 @@ simp_lc allow List.append_right_sublist_self List.sublist_append_of_sublist_righ
 simp_lc allow List.append_sublist_append_left List.sublist_append_of_sublist_right
 simp_lc allow List.append_sublist_append_right List.sublist_append_of_sublist_left
 
-def decidableEq_of_lawfulBEq [BEq α] [LawfulBEq α] : DecidableEq α :=
-  fun a b =>
-    if h : a == b then
-      isTrue (by simpa using h)
-    else
-      isFalse (by simpa using h)
-
--- Even with a `[BEq α] [LawfulBEq α] → DecidableEq α` instance,
--- we would get stuck here.
-example {as : List α} {a b : α} [BEq α] [LawfulBEq α] [Decidable (a = b ∨ a ∈ as)] :
-    (a == b || decide (a ∈ as)) = decide (a = b ∨ a ∈ as) := by
-  have : DecidableEq α := decidableEq_of_lawfulBEq
-  simp -- but this won't change `a == b` to `decide (a = b)`
-  rw [Bool.beq_eq_decide_eq]
-
 -- This one works, just not by `simp_all` because it is unwilling to make a copy of `h₂`.
 example {p : α → Prop} {f : (a : α) → p a → β} {l : List α} {h₁ : ∀ (a : α), a ∈ l → p a}
     {n : Nat} {h₂ : n < (List.pmap f l h₁).length} :
@@ -98,7 +83,8 @@ simp_lc ignore List.foldr_subtype
 simp_lc ignore List.mapFinIdx_eq_mapIdx
 
 -- TODO move to library.
-@[simp] theorem List.modifyHead_dropLast {l : List α} : l.dropLast.modifyHead f = (l.modifyHead f).dropLast:= by
+@[simp] theorem List.modifyHead_dropLast {l : List α} :
+    l.dropLast.modifyHead f = (l.modifyHead f).dropLast := by
   rcases l with _|⟨a, l⟩
   · simp
   · rcases l with _|⟨b, l⟩ <;> simp

@@ -7,20 +7,9 @@ prelude
 import Std
 import Lean.SimpLC.Exceptions.Root
 
-
 -- Internal implementation details of `DHashMap`.
 simp_lc ignore Std.DHashMap.Internal.Raw₀.contains_keys
 simp_lc ignore Std.DHashMap.Internal.Raw₀.mem_keys
-
--- These all become confluent with the stronger hypothesis `[LawfulBEq α]`.
-simp_lc allow List.elem_eq_mem Std.DHashMap.Internal.Raw₀.contains_keys
-simp_lc allow List.elem_eq_mem Std.HashMap.Raw.contains_keys
-simp_lc allow Std.HashSet.contains_toList List.elem_eq_mem
-simp_lc allow Std.HashSet.Raw.contains_toList List.elem_eq_mem
-simp_lc allow Std.DHashMap.contains_keys List.elem_eq_mem
-simp_lc allow Std.HashMap.contains_keys List.elem_eq_mem
-simp_lc allow Std.DHashMap.Raw.contains_keys List.elem_eq_mem
-
 
 -- I don't understand this next set: `simp` seems to close the goal.
 example {α : Type _} [BEq α] [EquivBEq α] (a : α) : (a == a) = true := by simp
@@ -29,12 +18,6 @@ example {α : Type _} {β : Type _} [BEq α] [Hashable α] {m : Std.HashMap α �
     (a == a) = true ∨ a ∈ m :=
   by simp
 
-simp_lc allow Std.HashSet.contains_insert_self Std.HashSet.contains_insert
-simp_lc allow Std.HashSet.mem_insert Std.HashSet.mem_insert_self
-simp_lc allow Std.HashMap.mem_insert_self Std.HashMap.mem_insert
-simp_lc allow Std.DHashMap.mem_insert Std.DHashMap.mem_insert_self
-simp_lc allow Std.DHashMap.contains_insert Std.DHashMap.contains_insert_self
-simp_lc allow Std.HashMap.contains_insert Std.HashMap.contains_insert_self
 simp_lc allow Std.HashSet.Raw.contains_insert Std.HashSet.Raw.contains_insert_self
 simp_lc allow Std.DHashMap.Raw.mem_insert Std.DHashMap.Raw.mem_insert_self
 simp_lc allow Std.HashMap.Raw.mem_insert_self Std.HashMap.Raw.mem_insert
@@ -51,9 +34,26 @@ simp_lc allow Std.HashSet.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow Std.HashMap.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow LawfulSingleton.insert_emptyc_eq Std.DHashMap.Raw.insert_eq_insert
 
+-- TODO: these have not been looked at yet
+simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_alter_self
+simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_modify_self
+simp_lc allow Std.HashMap.get!_alter_self Std.HashMap.get!_eq_getElem!
+simp_lc allow Std.HashMap.get!_modify_self Std.HashMap.get!_eq_getElem!
+simp_lc allow Std.DHashMap.Raw.contains_keys Std.DHashMap.Internal.Raw₀.contains_keys
+simp_lc allow Std.HashMap.Raw.get!_eq_getElem! Std.HashMap.Raw.get!_modify_self
+simp_lc allow Std.HashMap.Raw.get!_alter_self Std.HashMap.Raw.get!_eq_getElem!
+simp_lc allow Std.HashMap.Raw.get?_eq_getElem? Std.HashMap.Raw.get?_alter_self
+simp_lc allow Std.HashMap.Raw.get?_eq_getElem? Std.HashMap.Raw.get?_modify_self
+simp_lc allow Std.DHashMap.Internal.Raw₀.mem_keys Std.DHashMap.Raw.mem_keys
+simp_lc allow Std.HashMap.get?_alter_self Std.HashMap.get?_eq_getElem?
+simp_lc allow Std.HashMap.get?_modify_self Std.HashMap.get?_eq_getElem?
+simp_lc allow Std.HashMap.Raw.get_eq_getElem Std.HashMap.Raw.get_alter_self
+simp_lc allow Std.HashMap.Raw.get_eq_getElem Std.HashMap.Raw.get_modify_self
+
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
+-- set_option maxHeartbeats 1000000 in
 -- #guard_msgs (drop info) in
 -- simp_lc check in Std Id LawfulSingleton _root_

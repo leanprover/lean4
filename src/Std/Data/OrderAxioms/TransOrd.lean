@@ -11,7 +11,10 @@ set_option linter.missingDocs true
 
 universe u
 
-/-- Class for functions `α → α → Ordering` which are "oriented". -/
+/--
+Class for functions `α → α → Ordering` which are "oriented": flipping the arguments amounts
+to applying `Ordering.swap` to the return value.
+ -/
 class OrientedCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Swapping the arguments to `cmp` swaps the outcome. -/
   eq_swap {a b : α} : cmp a b = (cmp b a).swap
@@ -23,6 +26,7 @@ section
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+@[simp]
 theorem OrientedCmp.cmp_self [OrientedCmp cmp] {a : α} : cmp a a = .eq :=
   Ordering.eq_eq_of_eq_swap OrientedCmp.eq_swap
 

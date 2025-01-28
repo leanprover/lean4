@@ -6,9 +6,9 @@ Authors: Markus Himmel
 prelude
 import Init.Data.Option
 import Std.Data.DTreeMap.Internal.Model
-import Std.Data.Classes.TransOrd
-import Std.Data.Classes.Cut
-import Std.Data.DTreeMap.Internal.List.Associative
+import Std.Data.OrderAxioms.TransOrd
+import Std.Data.Internal.Cut
+import Std.Data.Internal.List.Associative
 import Std.Data.Internal.List.Associative
 
 /-!
@@ -335,7 +335,7 @@ theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
   trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂
   refl := by simp
 
-open Std.DHashMap.Internal.List
+open Std.Internal.List
 
 theorem exists_cell_of_updateAtKey [Ord α] [TransOrd α] (l : Impl α β) (hlb : l.Balanced)
     (hlo : l.Ordered) (k : α)

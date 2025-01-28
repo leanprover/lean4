@@ -13,8 +13,8 @@ import Std.Data.DTreeMap.Internal.WF
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-open Std.DHashMap.Internal
-open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 universe u v
 
@@ -47,7 +47,7 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(getValue?_of_perm _), ← `(getValue_of_perm _), ← `(getValueCast_of_perm _),
     ← `(getValueCast!_of_perm _), ← `(getValueCastD_of_perm _), ← `(getValue!_of_perm _),
     ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
-    ← `(getKey!_of_perm _), ← `(min?_of_perm _)]
+    ← `(getKey!_of_perm _)]
 
 /-- Internal implementation detail of the hash map -/
 scoped syntax "simp_to_model" ("using" term)? : tactic

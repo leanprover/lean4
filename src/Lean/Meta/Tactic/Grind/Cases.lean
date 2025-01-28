@@ -60,6 +60,9 @@ builtin_initialize casesExt : SimpleScopedEnvExtension CasesEntry CasesTypes ←
     addEntry       := fun s {declName, eager} => s.insert declName eager
   }
 
+def resetCasesExt : CoreM Unit := do
+  modifyEnv fun env => casesExt.modifyState env fun _ => {}
+
 def getCasesTypes : CoreM CasesTypes :=
   return casesExt.getState (← getEnv)
 

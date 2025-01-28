@@ -6,8 +6,13 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
-namespace Lean.Parser.Attr
+namespace Lean.Parser
+/--
+Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
+-/
+syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
 
+namespace Attr
 syntax grindEq     := "= "
 syntax grindEqBoth := atomic("_" "=" "_ ")
 syntax grindEqRhs  := atomic("=" "_ ")
@@ -17,12 +22,10 @@ syntax grindFwd    := "→ "
 syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
-
 syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
-
 syntax (name := grind) "grind" (grindMod)? : attr
-
-end Lean.Parser.Attr
+end Attr
+end Lean.Parser
 
 namespace Lean.Grind
 /--

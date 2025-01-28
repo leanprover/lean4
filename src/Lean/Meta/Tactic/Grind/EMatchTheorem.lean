@@ -224,6 +224,9 @@ private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTh
     initial  := {}
   }
 
+def resetEMatchTheoremsExt : CoreM Unit := do
+  modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => {}
+
 /--
 Symbols with built-in support in `grind` are unsuitable as pattern candidates for E-matching.
 This is because `grind` performs normalization operations and uses specialized data structures

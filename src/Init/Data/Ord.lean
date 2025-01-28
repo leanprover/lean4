@@ -103,6 +103,9 @@ theorem lt_isLE : lt.isLE := rfl
 theorem lt_isEq : lt.isEq = false := rfl
 
 @[simp]
+theorem lt_isNe : lt.isNe = true := rfl
+
+@[simp]
 theorem lt_isGE : lt.isGE = false := rfl
 
 @[simp]
@@ -118,6 +121,9 @@ theorem eq_isLE : eq.isLE := rfl
 theorem eq_isEq : eq.isEq := rfl
 
 @[simp]
+theorem eq_isNe : eq.isNe = false := rfl
+
+@[simp]
 theorem eq_isGE : eq.isGE := rfl
 
 @[simp]
@@ -131,6 +137,9 @@ theorem gt_isLE : gt.isLE = false := rfl
 
 @[simp]
 theorem gt_isEq : gt.isEq = false := rfl
+
+@[simp]
+theorem gt_isNe : gt.isNe = true := rfl
 
 @[simp]
 theorem gt_isGE : gt.isGE := rfl
@@ -160,7 +169,11 @@ theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq := by
   cases o <;> simp
 
 @[simp]
-theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = gt := by
+theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = .gt := by
+  cases o <;> simp
+
+@[simp]
+theorem isGE_eq_false {o : Ordering} : o.isGE = false ↔ o = .lt := by
   cases o <;> simp
 
 @[simp]
@@ -175,6 +188,30 @@ theorem swap_eq_lt {o : Ordering} : o.swap = .lt ↔ o = .gt := by
 theorem swap_eq_eq {o : Ordering} : o.swap = .eq ↔ o = .eq := by
   cases o <;> simp
 
+@[simp]
+theorem isLT_swap {o : Ordering} : o.swap.isLT = o.isGT := by
+  cases o <;> simp
+
+@[simp]
+theorem isLE_swap {o : Ordering} : o.swap.isLE = o.isGE := by
+  cases o <;> simp
+
+@[simp]
+theorem isEq_swap {o : Ordering} : o.swap.isEq = o.isEq := by
+  cases o <;> simp
+
+@[simp]
+theorem isNe_swap {o : Ordering} : o.swap.isNe = o.isNe := by
+  cases o <;> simp
+
+@[simp]
+theorem isGE_swap {o : Ordering} : o.swap.isGE = o.isLE := by
+  cases o <;> simp
+
+@[simp]
+theorem isGT_swap {o : Ordering} : o.swap.isGT = o.isLT := by
+  cases o <;> simp
+
 theorem isLT_iff_eq_lt {o : Ordering} : o.isLT ↔ o = .lt := by
   cases o <;> simp
 
@@ -186,6 +223,12 @@ theorem isLE_of_eq_lt {o : Ordering} : o = .lt → o.isLE := by
 
 theorem isLE_of_eq_eq {o : Ordering} : o = .eq → o.isLE := by
   rintro rfl; rfl
+
+theorem isEq_iff_eq_eq {o : Ordering} : o.isEq ↔ o = .eq := by
+  cases o <;> simp
+
+theorem isNe_iff_ne_eq {o : Ordering} : o.isNe ↔ o ≠ .eq := by
+  cases o <;> simp
 
 theorem isGE_iff_eq_gt_or_eq_eq {o : Ordering} : o.isGE ↔ o = .gt ∨ o = .eq := by
   cases o <;> simp

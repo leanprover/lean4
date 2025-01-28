@@ -53,6 +53,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
     | `(Parser.Tactic.grindParam| - $id:ident) =>
       let declName ← realizeGlobalConstNoOverloadWithInfo id
       if (← Grind.isCasesAttrCandidate declName false) then
+        Grind.ensureNotBuiltinCases declName
         params := { params with casesTypes := (← params.casesTypes.eraseDecl declName) }
       else
         params := { params with ematch := (← params.ematch.eraseDecl declName) }
@@ -188,11 +189,12 @@ private def mkGrindOnly
             | .default => `(Parser.Tactic.grindParam| $decl:ident)
           params := params.push param
   for declName in trace.eagerCases.toList do
-    let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-    let param ← `(Parser.Tactic.grindParam| cases eager $decl)
-    params := params.push param
+    unless Grind.isBuiltinEagerCases declName do
+      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+      let param ← `(Parser.Tactic.grindParam| cases eager $decl)
+      params := params.push param
   for declName in trace.cases.toList do
-    unless trace.eagerCases.contains declName do
+    unless trace.eagerCases.contains declName || Grind.isBuiltinEagerCases declName do
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
       let param ← `(Parser.Tactic.grindParam| cases $decl)
       params := params.push param

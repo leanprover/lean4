@@ -1391,6 +1391,11 @@ theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) =
 
 /-! ### ushiftRight -/
 
+@[simp] theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
+    x >>> y = x >>> y.toNat := by rfl
+
+theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
+
 @[simp, bv_toNat] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
     (x >>> i).toNat = x.toNat >>> i := rfl
 
@@ -1514,13 +1519,9 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
   case succ nn ih =>
     simp [BitVec.ushiftRight_eq, getMsbD_ushiftRight, BitVec.msb, ih, show nn + 1 > 0 by omega]
 
-/-! ### ushiftRight reductions from BitVec to Nat -/
-
 @[simp]
-theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
-    x >>> y = x >>> y.toNat := by rfl
-
-theorem ushiftRight_ofNat_eq {x : BitVec w} {k : Nat} : x >>> (BitVec.ofNat w k) = x >>> (k % 2^w) := rfl
+theorem ushiftRight_self (n : BitVec w) : n >>> n.toNat = 0#w := by
+  simp [BitVec.toNat_eq, Nat.shiftRight_eq_div_pow, Nat.lt_two_pow_self, Nat.div_eq_of_lt]
 
 /-! ### sshiftRight -/
 

@@ -46,7 +46,7 @@ BASIC OPTIONS:
   -K key[=value]        set the configuration file option named key
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
-  --update, -U          update dependencies on load (e.g., before a build)
+  --update              update dependencies on load (e.g., before a build)
   --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --keep-toolchain      do not update toolchain on workspace update

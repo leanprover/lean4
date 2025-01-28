@@ -172,7 +172,9 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
-| 'U' => modifyThe LakeOptions ({· with updateDeps := true})
+| 'U' => do
+  logWarning "the '-U' shorthand for '--update' is deprecated"
+  modifyThe LakeOptions ({· with updateDeps := true})
 | 'R' => modifyThe LakeOptions ({· with reconfigure := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'H' => modifyThe LakeOptions ({· with trustHash := false})

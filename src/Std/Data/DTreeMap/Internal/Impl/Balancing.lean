@@ -592,7 +592,6 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     · congr 1
       simp only [size_inner]
       ac_rfl
-
   · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs hlsrs rls rrs hrlsrrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_doubleL k v _ _ _ _ _ _ _ _ _ _ hlb hrb hlr hlsrs hrlsrrs).map ?_
@@ -606,7 +605,6 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     · congr 1
       simp only [size_inner]
       ac_rfl
-
   · exfalso
     rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hrb
@@ -624,23 +622,16 @@ theorem balanceSlow_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balance
     refine (balanced_singleR k v _ _ _ _ _ _ hlb hrb hlr hlsrs hllslrs).map ?_
     simp only [singleR, bin]
     congr 1
-    · simp only [size_inner, hlb.eq]
-      ac_rfl
-    · congr 1
-      simp only [size_inner]
+    all_goals
+      simp only [size_inner, hlb.eq]
       ac_rfl
   · refine ⟨by ac_rfl, ?_⟩
     rename_i ls rs _ hlsrs lls lrs hllslrs _ _ _ _ _ _ _ _ _ _ _ _ _ _
     refine (balanced_doubleR k v _ _ _ _ _ _ _ _ _ _ hlb hrb hlr hlsrs hllslrs).map ?_
     simp only [doubleR, bin]
     congr 1
-    · simp only [size_inner, hlb.eq, hlb.right.eq]
-      ac_rfl
-    · congr 1
-      simp only [size_inner]
-      ac_rfl
-    · congr 1
-      simp only [size_inner]
+    all_goals
+      simp only [size_inner, hlb.eq, hlb.right.eq]
       ac_rfl
   · exfalso
     rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _

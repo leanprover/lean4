@@ -124,17 +124,13 @@ theorem applyPartition_go_step [Ord α] {k : α → Ordering} {init : δ} (l₁ 
   induction l generalizing l₁ l₂ l₃ l₄
   · rename_i sz k' v' l r ih₁ ih₂
     simp only [applyPartition.go]
-    split <;> rename_i hcmp
+    split
     · simp only [List.cons_append, List.append_assoc, List.append_nil]
-      rw [ih₁]
-      simp only [← List.append_assoc l₃]
-      rw [ih₁]
+      simp only [ih₁, ← List.append_assoc l₃]
       simp
     · simp
     · simp only [List.append_assoc, List.nil_append]
-      rw [ih₂]
-      simp only [← List.append_assoc l₃]
-      rw [ih₂]
+      simp only [ih₂, ← List.append_assoc l₃]
       simp
   · simp [applyPartition.go]
 
@@ -152,18 +148,18 @@ theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l 
   · rename_i sz k' v' l r ih₁ ih₂
     rw [explore, applyPartition.go]
     split <;> rename_i hcmp
-    · simp [hcmp, contains'] at hL
+    · simp only [hcmp, contains'] at hL
       rw [ih₁ _ hL]
       conv => rhs; rw [applyPartition_go_step]
-      simp
+      simp only [List.nil_append, List.append_nil]
       congr
       ext ll c hc rr
       apply hfr
     · simp
-    · simp [hcmp, contains'] at hL
+    · simp only [hcmp, contains'] at hL
       rw [ih₂ _ hL]
       conv => rhs; rw [applyPartition_go_step]
-      simp
+      simp only [List.nil_append, List.append_assoc, List.singleton_append, List.append_nil]
       congr
       ext ll c hc rr
       apply hfl
@@ -238,8 +234,7 @@ theorem contains_eq_containsₘ [Ord α] (k : α) (l : Impl α β) :
   simp only [containsₘ]
   induction l
   · simp only [contains, applyCell]
-    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
-    all_goals simp_all
+    split <;> split <;> simp_all
   · simp [contains, applyCell]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
@@ -303,9 +298,10 @@ theorem maxView_tree_impl_eq_maxViewSlow {k : α} {v : β k} {l r : Impl α β} 
 theorem glue_eq_glueSlow {l r : Impl α β} {hl hr hlr} :
     glue l r hl hr hlr = glueSlow l r := by
   rw [glue.eq_def, glueSlow.eq_def]
-  split; simp
-  split; simp
-  dsimp only
+  split
+  · simp
+  split
+  · simp
   split
   · simpa [*, balanceLErase_eq_balanceLSlow] using balanceLSlow_pair_congr
       minView_kv_eq_minViewSlow rfl minView_tree_impl_eq_minViewSlow
@@ -322,8 +318,7 @@ theorem insert_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
   simp only [insertₘ]
   induction l
   · simp only [insert, updateCell]
-    split <;> rename_i hcmp <;> split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
-    all_goals simp_all [balanceL_eq_balance, balanceR_eq_balance]
+    split <;> split <;> simp_all [balanceL_eq_balance, balanceR_eq_balance]
   · simp [insert, insertₘ, updateCell]
 
 theorem insertSlow_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} (h : l.Balanced) :

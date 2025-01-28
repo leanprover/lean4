@@ -13,6 +13,8 @@ import Init.Omega
 
 namespace Fin
 
+@[simp] theorem ofNat'_zero (n : Nat) [NeZero n] : Fin.ofNat' n 0 = 0 := rfl
+
 @[deprecated Fin.pos (since := "2024-11-11")]
 theorem size_pos (i : Fin n) : 0 < n := i.pos
 

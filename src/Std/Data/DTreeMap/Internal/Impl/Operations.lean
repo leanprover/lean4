@@ -5,7 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.Classes.LawfulEqOrd
-import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Balancing
 import Std.Data.Classes.TransOrd
 
@@ -25,6 +24,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {
 namespace Std.DTreeMap.Internal
 
 namespace Impl
+
+open Lean.Parser.Tactic
 
 /-!
 ## `minView` and `maxView`

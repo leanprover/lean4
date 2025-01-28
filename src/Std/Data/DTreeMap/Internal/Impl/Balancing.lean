@@ -5,10 +5,8 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.Classes.LawfulEqOrd
-import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Query
 import Std.Data.Classes.TransOrd
-import Lean.Elab.Tactic
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -66,17 +64,7 @@ abbrev BalanceLErasePrecond (left right : Nat) :=
 
 section
 
-open Lean Meta Elab Tactic
-
-/-- Internal implementation detail of the tree map -/
-elab "as_aux_lemma" " => " s:tacticSeq : tactic => liftMetaTactic fun mvarId => do
-  let (mvars, _) ← runTactic mvarId s
-  unless mvars.isEmpty do
-    throwError "Left-over goals, cannot abstract"
-  let e ← instantiateMVars (mkMVar mvarId)
-  let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
-  mvarId.assign e
-  return []
+open Lean.Parser.Tactic
 
 /-- Internal implementation detail of the tree map -/
 scoped macro "tree_tac" : tactic => `(tactic|(

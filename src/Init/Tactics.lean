@@ -8,6 +8,9 @@ import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
+
+scoped syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.

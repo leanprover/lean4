@@ -46,3 +46,27 @@ import Lean.Elab.Tactic.BoolToPropSimps
 import Lean.Elab.Tactic.Classical
 import Lean.Elab.Tactic.Grind
 import Lean.Elab.Tactic.Monotonicity
+
+-- TODO: move to TreeTac.lean
+open Lean Elab Tactic Meta
+
+builtin_initialize treeTacExt' : Meta.SimpExtension
+  ← Meta.registerSimpAttr `tree_tac "simp theorems used by internal DTreeMap lemmas"
+
+builtin_initialize treeTacExt : Meta.SimpExtension
+  ← Meta.registerSimpAttr `Std.Internal.tree_tac "simp theorems used by internal DTreeMap lemmas"
+
+open Lean.Parser.Tactic
+
+@[builtin_tactic as_aux_lemma]
+def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
+| `(tactic| as_aux_lemma => $s) =>
+  liftMetaTactic fun mvarId => do
+    let (mvars, _) ← runTactic mvarId s
+    unless mvars.isEmpty do
+      throwError "Left-over goals, cannot abstract"
+    let e ← instantiateMVars (mkMVar mvarId)
+    let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+    mvarId.assign e
+    return []
+| _ => throwError "Invalid as_aux_lemma syntax"

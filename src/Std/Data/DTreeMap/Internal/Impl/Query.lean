@@ -5,7 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.Classes.LawfulEqOrd
-import Std.Data.DTreeMap.Internal.Impl.Attr
 import Std.Data.DTreeMap.Internal.Impl.Def
 import Std.Data.Classes.TransOrd
 import Lean.Elab.Tactic

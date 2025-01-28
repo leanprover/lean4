@@ -299,20 +299,15 @@ theorem BitVec.lt_irrefl (a : BitVec n) : (BitVec.ult a a) = false := by
 @[bv_normalize]
 theorem BitVec.not_lt_zero (a : BitVec n) : (BitVec.ult a 0#n) = false := by rfl
 
-theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
-  rcases w with rfl | w
-  · simp [bv_toNat, BitVec.toNat_of_zero_length]
-  · simp only [BitVec.lt_def, BitVec.toNat_neg, BitVec.toNat_ofNat, Nat.not_lt]
-    rw [Nat.mod_eq_of_lt (a := 1) (by simp)];
-    rw [Nat.mod_eq_of_lt]
-    · omega
-    · apply Nat.sub_one_lt_of_le (Nat.pow_pos (by omega)) (Nat.le_refl ..)
+@[bv_normalize]
+theorem BitVec.lt_one_iff (a : BitVec n) (h : 0 < n) : (BitVec.ult a 1#n) = (a == 0#n) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, ← BitVec.lt_ult]
+  exact _root_.BitVec.lt_one_iff h
 
 -- used in simproc because of -1#w normalisation
 theorem BitVec.max_ult' (a : BitVec w) : (BitVec.ult (-1#w) a) = false := by
-  have := BitVec.max_ult a
-  rw [BitVec.lt_ult] at this
-  simp [this]
+  rw [BitVec.negOne_eq_allOnes, ← Bool.not_eq_true, ← @lt_ult]
+  exact BitVec.not_allOnes_lt
 
 attribute [bv_normalize] BitVec.replicate_zero_eq
 attribute [bv_normalize] BitVec.add_eq_xor

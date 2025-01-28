@@ -2716,6 +2716,40 @@ theorem not_lt_iff_le {x y : BitVec w} : (¬ x < y) ↔ y ≤ x := by
   constructor <;>
     (intro h; simp only [lt_def, Nat.not_lt, le_def] at h ⊢; omega)
 
+@[simp]
+theorem not_lt_zero {x : BitVec w} : ¬x < 0#w := of_decide_eq_false rfl
+
+@[simp]
+theorem le_zero_iff {x : BitVec w} : x ≤ 0#w ↔ x = 0#w := by
+  constructor
+  · intro h
+    have : x ≥ 0 := not_lt_iff_le.mp not_lt_zero
+    exact Eq.symm (BitVec.le_antisymm this h)
+  · simp_all
+
+@[simp]
+theorem lt_one_iff {x : BitVec w} (h : 0 < w) : x < 1#w ↔ x = 0#w := by
+  constructor
+  · intro h₂
+    rw [lt_def, toNat_ofNat, ← Int.ofNat_lt, Int.ofNat_emod, Int.ofNat_one, Int.natCast_pow,
+      Int.ofNat_two, @Int.emod_eq_of_lt 1 (2^w) (by omega) (by omega)] at h₂
+    simp [toNat_eq, show x.toNat = 0 by omega]
+  · simp_all
+
+@[simp]
+theorem not_allOnes_lt {x : BitVec w} : ¬allOnes w < x := by
+  have : 2^w ≠ 0 := Ne.symm (NeZero.ne' (2^w))
+  rw [BitVec.not_lt, le_def, Nat.le_iff_lt_add_one, toNat_allOnes, Nat.sub_one_add_one this]
+  exact isLt x
+
+@[simp]
+theorem allOnes_le_iff {x : BitVec w} : allOnes w ≤ x ↔ x = allOnes w := by
+  constructor
+  · intro h
+    have : x ≤ allOnes w := not_lt_iff_le.mp not_allOnes_lt
+    exact Eq.symm (BitVec.le_antisymm h this)
+  · simp_all
+
 /-! ### udiv -/
 
 theorem udiv_def {x y : BitVec n} : x / y = BitVec.ofNat n (x.toNat / y.toNat) := by

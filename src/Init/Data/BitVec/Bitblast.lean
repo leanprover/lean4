@@ -1240,8 +1240,9 @@ theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     (umod n d)[i] = if d = 0#w then n[i] else (divRec w {n, d} (DivModState.init w)).r[i] := by
   by_cases hd : d = 0#w
   · simp [hd]
-  · have hd' := BitVec.zero_lt_of_neq_zero hd
-    rw [getElem_umod_of_lt hi hd']
+  · have := (BitVec.not_le (x := d) (y := 0#w)).mp
+    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 
 theorem getLsbD_umod {n d : BitVec w}:
@@ -1250,8 +1251,9 @@ theorem getLsbD_umod {n d : BitVec w}:
       else (divRec w {n, d} (DivModState.init w)).r.getLsbD i := by
   by_cases hd : d = 0#w
   · simp [hd]
-  · have hd' := BitVec.zero_lt_of_neq_zero hd
-    rw [← BitVec.umod_eq_divRec hd']
+  · have := (BitVec.not_le (x := d) (y := 0#w)).mp
+    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 
 theorem getMsbD_umod {n d : BitVec w}:
@@ -1260,8 +1262,9 @@ theorem getMsbD_umod {n d : BitVec w}:
       else (divRec w {n, d} (DivModState.init w)).r.getMsbD i := by
   by_cases hd : d = 0#w
   · simp [hd]
-  · have hd' := BitVec.zero_lt_of_neq_zero hd
-    rw [← BitVec.umod_eq_divRec hd']
+  · have := (BitVec.not_le (x := d) (y := 0#w)).mp
+    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 
 end BitVec

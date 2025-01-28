@@ -76,6 +76,12 @@ theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
 
 @[simp] theorem modifyHead_id : modifyHead (id : α → α) = id := by funext l; cases l <;> simp
 
+@[simp] theorem modifyHead_dropLast {l : List α} {f : α → α} :
+    l.dropLast.modifyHead f = (l.modifyHead f).dropLast := by
+  rcases l with _|⟨a, l⟩
+  · simp
+  · rcases l with _|⟨b, l⟩ <;> simp
+
 /-! ### modifyTailIdx -/
 
 @[simp] theorem modifyTailIdx_id : ∀ n (l : List α), l.modifyTailIdx id n = l

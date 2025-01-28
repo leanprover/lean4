@@ -16,6 +16,11 @@ namespace Ordering
 
 deriving instance DecidableEq for Ordering
 
+-- This becomes obsolete with https://github.com/leanprover/lean4/issues/5295
+instance : LawfulBEq Ordering where
+  eq_of_beq {a b} := by cases a <;> cases b <;> simp <;> rfl
+  rfl {a} := by cases a <;> rfl
+
 /-- Swaps less and greater ordering results -/
 def swap : Ordering → Ordering
   | .lt => .gt
@@ -86,7 +91,7 @@ def isGE : Ordering → Bool
   | lt => false
   | _ => true
 
-section ReductionLemmas
+section Lemmas
 
 @[simp]
 theorem lt_isLT : lt.isLT := rfl
@@ -142,7 +147,59 @@ theorem eq_swap : eq.swap = .eq := rfl
 @[simp]
 theorem gt_swap : gt.swap = .lt := rfl
 
-end ReductionLemmas
+theorem eq_eq_of_isLE_of_isLE_swap {o : Ordering} : o.isLE → o.swap.isLE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_isGE_of_isGE_swap {o : Ordering} : o.isGE → o.swap.isGE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_isLE_of_isGE {o : Ordering} : o.isLE → o.isGE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq := by
+  cases o <;> simp
+
+@[simp]
+theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = gt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_gt {o : Ordering} : o.swap = .gt ↔ o = .lt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_lt {o : Ordering} : o.swap = .lt ↔ o = .gt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_eq {o : Ordering} : o.swap = .eq ↔ o = .eq := by
+  cases o <;> simp
+
+theorem isLT_iff_eq_lt {o : Ordering} : o.isLT ↔ o = .lt := by
+  cases o <;> simp
+
+theorem isLE_iff_eq_lt_or_eq_eq {o : Ordering} : o.isLE ↔ o = .lt ∨ o = .eq := by
+  cases o <;> simp
+
+theorem isLE_of_eq_lt {o : Ordering} : o = .lt → o.isLE := by
+  rintro rfl; rfl
+
+theorem isLE_of_eq_eq {o : Ordering} : o = .eq → o.isLE := by
+  rintro rfl; rfl
+
+theorem isGE_iff_eq_gt_or_eq_eq {o : Ordering} : o.isGE ↔ o = .gt ∨ o = .eq := by
+  cases o <;> simp
+
+theorem isGE_of_eq_gt {o : Ordering} : o = .gt → o.isGE := by
+  rintro rfl; rfl
+
+theorem isGE_of_eq_eq {o : Ordering} : o = .eq → o.isGE := by
+  rintro rfl; rfl
+
+theorem isGT_iff_eq_gt {o : Ordering} : o.isGT ↔ o = .gt := by
+  cases o <;> simp
+
+end Lemmas
 
 end Ordering
 

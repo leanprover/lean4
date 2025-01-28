@@ -11,52 +11,6 @@ set_option linter.missingDocs true
 
 universe u
 
-theorem Ordering.eq_eq_of_isLE_of_isLE_swap {o : Ordering} : o.isLE → o.swap.isLE → o = .eq := by
-  cases o <;> simp [isLE, swap]
-
-theorem Ordering.eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq := by
-  cases o <;> simp [swap]
-
-@[simp]
-theorem Ordering.isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = gt := by
-  cases o <;> simp [isLE]
-
-@[simp]
-theorem Ordering.swap_eq_gt {o : Ordering} : o.swap = .gt ↔ o = .lt := by
-  cases o <;> simp [swap]
-
-@[simp]
-theorem Ordering.swap_eq_lt {o : Ordering} : o.swap = .lt ↔ o = .gt := by
-  cases o <;> simp [swap]
-
-theorem Ordering.isLE_iff_eq_lt_or_eq_eq {o : Ordering} : o.isLE ↔ o = .lt ∨ o = .eq := by
-  cases o <;> simp [isLE]
-
-theorem Ordering.isLE_of_eq_lt {o : Ordering} : o = .lt → o.isLE := by
-  rintro rfl; rfl
-
-theorem Ordering.isLE_of_eq_eq {o : Ordering} : o = .eq → o.isLE := by
-  rintro rfl; rfl
-
-theorem Ordering.isGE_of_eq_gt {o : Ordering} : o = .gt → o.isGE := by
-  rintro rfl; rfl
-
-theorem Ordering.isGE_of_eq_eq {o : Ordering} : o = .eq → o.isGE := by
-  rintro rfl; rfl
-
--- https://github.com/leanprover/lean4/issues/5295
-instance : LawfulBEq Ordering where
-  eq_of_beq {a b} := by cases a <;> cases b <;> simp <;> rfl
-  rfl {a} := by cases a <;> rfl
-
-theorem LawfulBEq.beq_eq_eq {α : Type u} [BEq α] [LawfulBEq α] {a b : α} : (a == b) = (a = b) := by
-  by_cases h : a = b
-  · subst h
-    simp
-  · cases h : a == b
-    · simpa
-    · simpa using eq_of_beq h
-
 /-- Class for functions `α → α → Ordering` which are "oriented". -/
 class OrientedCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Swapping the arguments to `cmp` swaps the outcome. -/
@@ -167,12 +121,12 @@ theorem TransCmp.lt_of_isLE_of_lt [TransCmp cmp] {a b c : α} (hab : (cmp a b).i
   · exact TransCmp.lt_trans hab hbc
   · exact TransCmp.lt_of_eq_of_lt hab hbc
 
-theorem TransCmp.le_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
+theorem TransCmp.isLE_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isLE) (h₂ : cmp b a |>.isLE) :
     cmp a b = .eq := by
   rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
   cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂
 
-theorem TransCmp.ge_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isGE) (h₂ : cmp b a |>.isGE) :
+theorem TransCmp.isGE_antisymm [TransCmp cmp] {a b : α} (h₁ : cmp a b |>.isGE) (h₂ : cmp b a |>.isGE) :
     cmp a b = .eq := by
   rw [OrientedCmp.eq_swap (cmp := cmp)] at h₂
   cases h : cmp a b <;> rw [h] at h₁ h₂ <;> simp at h₁ h₂

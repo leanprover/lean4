@@ -378,6 +378,16 @@ theorem getElem_ofBool {b : Bool} : (ofBool b)[0] = b := by simp
 @[simp] theorem msb_ofBool (b : Bool) : (ofBool b).msb = b := by
   cases b <;> simp [BitVec.msb]
 
+@[simp] theorem one_eq_zero_iff : 1#w = 0#w ↔ w = 0 := by
+  constructor
+  · intro h
+    cases w
+    · rfl
+    · replace h := congrArg BitVec.toNat h
+      simp at h
+  · rintro rfl
+    simp
+
 /-! ### msb -/
 
 @[simp] theorem msb_zero : (0#w).msb = false := by simp [BitVec.msb, getMsbD]
@@ -1163,6 +1173,10 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
 theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i h
   simp [h]
+
+@[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
+   ext i
+   simp_all
 
 theorem not_eq_comm {x y : BitVec w} : ~~~ x = y ↔ x = ~~~ y := by
   constructor
@@ -3429,7 +3443,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

@@ -238,6 +238,14 @@ theorem map_uncurry_zip_eq_zipWith (f : α → β → γ) (l : List α) (l' : Li
   | cons hl tl ih =>
     cases l' <;> simp [ih]
 
+theorem map_zip_eq_zipWith (f : α × β → γ) (l : List α) (l' : List β) :
+    map f (l.zip l') = zipWith (Function.curry f) l l' := by
+  rw [zip]
+  induction l generalizing l' with
+  | nil => simp
+  | cons hl tl ih =>
+    cases l' <;> simp [ih]
+
 /-! ### zip -/
 
 theorem zip_eq_zipWith : ∀ (l₁ : List α) (l₂ : List β), zip l₁ l₂ = zipWith Prod.mk l₁ l₂

@@ -168,16 +168,17 @@ private def mkGrindOnly
   for { origin, kind } in trace.thms.toList do
     if let .decl declName := origin then
       let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
-      let param ← match kind with
-        | .eqLhs   => `(Parser.Tactic.grindParam| = $decl)
-        | .eqRhs   => `(Parser.Tactic.grindParam| =_ $decl)
-        | .eqBoth  => `(Parser.Tactic.grindParam| _=_ $decl)
-        | .eqBwd   => `(Parser.Tactic.grindParam| ←= $decl)
-        | .bwd     => `(Parser.Tactic.grindParam| ← $decl)
-        | .fwd     => `(Parser.Tactic.grindParam| → $decl)
-        | .user    => `(Parser.Tactic.grindParam| usr $decl)
-        | .default => `(Parser.Tactic.grindParam| $decl:ident)
-      params := params.push param
+      unless Match.isMatchEqnTheorem (← getEnv) declName do
+        let param ← match kind with
+          | .eqLhs   => `(Parser.Tactic.grindParam| = $decl)
+          | .eqRhs   => `(Parser.Tactic.grindParam| =_ $decl)
+          | .eqBoth  => `(Parser.Tactic.grindParam| _=_ $decl)
+          | .eqBwd   => `(Parser.Tactic.grindParam| ←= $decl)
+          | .bwd     => `(Parser.Tactic.grindParam| ← $decl)
+          | .fwd     => `(Parser.Tactic.grindParam| → $decl)
+          | .user    => `(Parser.Tactic.grindParam| usr $decl)
+          | .default => `(Parser.Tactic.grindParam| $decl:ident)
+        params := params.push param
   for declName in trace.eagerCases.toList do
     let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
     let param ← `(Parser.Tactic.grindParam| cases eager $decl)

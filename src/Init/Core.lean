@@ -1409,9 +1409,6 @@ theorem Nat.succ.injEq (u v : Nat) : (u.succ = v.succ) = (u = v) :=
 @[simp] theorem beq_iff_eq [BEq α] [LawfulBEq α] {a b : α} : a == b ↔ a = b :=
   ⟨eq_of_beq, by intro h; subst h; exact LawfulBEq.rfl⟩
 
-theorem beq_eq_eq [BEq α] [LawfulBEq α] {a b : α} : (a == b) = (a = b) :=
-  propext beq_iff_eq
-
 /-! # Prop lemmas -/
 
 /-- *Ex falso* for negation: from `¬a` and `a` anything follows. This is the same as `absurd` with

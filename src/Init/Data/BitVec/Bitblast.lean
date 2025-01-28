@@ -1241,7 +1241,7 @@ theorem getElem_umod {n d : BitVec w} (hi : i < w) :
   by_cases hd : d = 0#w
   · simp [hd]
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
-    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    simp only [le_zero_iff] at this
     rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 
@@ -1252,7 +1252,7 @@ theorem getLsbD_umod {n d : BitVec w}:
   by_cases hd : d = 0#w
   · simp [hd]
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
-    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    simp only [le_zero_iff] at this
     rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 
@@ -1263,7 +1263,7 @@ theorem getMsbD_umod {n d : BitVec w}:
   by_cases hd : d = 0#w
   · simp [hd]
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
-    simp only [implies_true, not_false_eq_true, le_zero_iff, forall_const, umod_eq, ite_false] at this
+    simp only [le_zero_iff] at this
     rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 

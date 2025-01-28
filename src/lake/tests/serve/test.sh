@@ -38,5 +38,5 @@ echo "tested 49"
 
 # Test that `lake serve` produces the `Invalid Lake configuration message`.
 MSGS="$INIT_REQ$INITD_NOT$OPEN_REQ"
-grep -q "Invalid Lake configuration" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
+grep -q "Failed to configure the Lake workspace" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
 echo "tested 116"

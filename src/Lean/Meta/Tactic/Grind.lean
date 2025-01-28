@@ -33,6 +33,7 @@ namespace Lean
 
 /-! Trace options for `grind` users -/
 builtin_initialize registerTraceClass `grind
+builtin_initialize registerTraceClass `grind.trace
 builtin_initialize registerTraceClass `grind.assert
 builtin_initialize registerTraceClass `grind.eqc
 builtin_initialize registerTraceClass `grind.internalize

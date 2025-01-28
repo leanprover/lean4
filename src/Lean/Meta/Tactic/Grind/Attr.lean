@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.Cases
 namespace Lean.Meta.Grind
 
 inductive AttrKind where
-  | ematch (k : TheoremKind)
+  | ematch (k : EMatchTheoremKind)
   | cases (eager : Bool)
   | infer
 

@@ -65,6 +65,21 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
+structure EMatchTheoremTrace where
+  origin : Origin
+  kind   : EMatchTheoremKind
+  deriving BEq, Hashable
+
+structure CasesTrace where
+  declName : Name
+  eager : Bool
+  deriving BEq, Hashable
+
+structure Trace where
+  thms  : PHashSet EMatchTheoremTrace := {}
+  cases : PHashSet CasesTrace := {}
+  deriving Inhabited
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
@@ -91,6 +106,8 @@ structure State where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
+  /-- `trace` for `grind?` -/
+  trace      : Trace := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -117,6 +134,14 @@ def getNatZeroExpr : GrindM Expr := do
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
 
+def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
+  if (← getConfig).trace then
+    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+
+def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
+  if (← getConfig).trace then
+    modify fun s => { s with trace.cases := s.trace.cases.insert { declName, eager } }
+
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
 
@@ -138,9 +163,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues } =>
+  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues })
+    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace })
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -458,7 +483,8 @@ def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := d
   modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
-def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  saveEMatchTheorem thm
   addNewFact proof prop generation
   modify fun s => { s with numInstances := s.numInstances + 1 }
 

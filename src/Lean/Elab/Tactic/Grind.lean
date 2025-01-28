@@ -82,7 +82,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 where
-  addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.TheoremKind) : MetaM Grind.Params := do
+  addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.EMatchTheoremKind) : MetaM Grind.Params := do
     let info ← getConstInfo declName
     match info with
     | .thmInfo _ =>
@@ -142,14 +142,16 @@ private def evalGrindCore
     (only : Option Syntax)
     (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
     (fallback? : Option Term)
-    (_trace : Bool) -- TODO
+    (trace : Bool)
     : TacticM Unit := do
   let fallback ← elabFallback fallback?
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
   let declName := (← Term.getDeclName?).getD `_grind
-  let config ← elabGrindConfig config
+  let mut config ← elabGrindConfig config
+  if trace then
+    config := { config with trace }
   withMainContext do liftMetaFinishingTactic (grind · config only params declName fallback)
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do

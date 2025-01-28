@@ -74,12 +74,15 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
   else
     return .done
 
-def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
+private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
   let .const declName _ := type.getAppFn | return false
   return goal.casesTypes.isEagerSplit declName
 
-private def applyCases? (goal : Goal) (fvarId : FVarId) : MetaM (Option (List Goal)) := goal.mvarId.withContext do
-  if isEagerCasesCandidate goal (← fvarId.getType) then
+private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
+  let type ← whnfD (← fvarId.getType)
+  if isEagerCasesCandidate goal type then
+    if let .const declName _ := type.getAppFn then
+      saveCases declName true
     let mvarIds ← cases goal.mvarId (mkFVar fvarId)
     return mvarIds.map fun mvarId => { goal with mvarId }
   else

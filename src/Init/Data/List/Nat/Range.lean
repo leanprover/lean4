@@ -421,6 +421,11 @@ theorem mem_zipIdx {x : α} {i : Nat} {xs : List α} {k : Nat} (h : (x, i) ∈ x
       x = xs[i - k]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) :=
   ⟨le_snd_of_mem_zipIdx h, snd_lt_add_of_mem_zipIdx h, fst_eq_of_mem_zipIdx h⟩
 
+/-- Variant of `mem_zipIdx` specialized at `k = 0`. -/
+theorem mem_zipIdx' {x : α} {i : Nat} {xs : List α} (h : (x, i) ∈ xs.zipIdx) :
+    i < xs.length ∧ x = xs[i]'(by have := le_snd_of_mem_zipIdx h; have := snd_lt_add_of_mem_zipIdx h; omega) :=
+  ⟨by simpa using snd_lt_add_of_mem_zipIdx h, fst_eq_of_mem_zipIdx h⟩
+
 theorem zipIdx_map (l : List α) (k : Nat) (f : α → β) :
     zipIdx (l.map f) k = (zipIdx l k).map (Prod.map f id) := by
   induction l with

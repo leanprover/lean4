@@ -43,7 +43,7 @@ run_meta
       names := names.push name
   unless names.isEmpty do
     names := names.qsort Name.lt
-    let mut msg := m!"Possible candidates for Init/Core.lean:\n"
+    let mut msg := m!"Possible candidates for Init/Core.lean (these do not need to be added if they are irrelevant for verification):\n"
     for n in names do
       msg := msg ++ m!"gen_injective_theorems% {.ofConstName n}\n"
     logInfo msg

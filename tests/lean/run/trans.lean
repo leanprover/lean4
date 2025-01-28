@@ -5,7 +5,7 @@ instance : Trans (α := Int) (β := Int) (γ := Int) (.≤.) (.≤.) (.≤.) whe
   trans := sorry
 
 theorem ex1 {a b c d : Nat} (h1 : a ≤ b) (h2 : b ≤ c) (h3 : c ≤ d) : a ≤ d :=
-  trans h1 <| trans h2 h3
+  Trans.trans h1 <| Trans.trans h2 h3
 
 theorem ex2 {a b c d : Int} (h1 : a ≤ b) (h2 : b ≤ c) (h3 : c ≤ d) : a ≤ d :=
-  trans h1 <| trans h2 h3
+  Trans.trans h1 <| Trans.trans h2 h3

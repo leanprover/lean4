@@ -2724,7 +2724,7 @@ theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
 
 @[simp] protected theorem neg_mul (x y : BitVec w) : -x * y = -(x * y) := by
   apply eq_of_toInt_eq
-  simp [toInt_mul, toInt_neg, Int.bmod_neg_bmod]
+  simp [toInt_neg]
 
 @[simp] protected theorem mul_neg (x y : BitVec w) : x * -y = -(x * y) := by
   rw [BitVec.mul_comm, BitVec.neg_mul, BitVec.mul_comm]

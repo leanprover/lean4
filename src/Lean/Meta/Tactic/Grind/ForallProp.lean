@@ -53,7 +53,7 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   return some fvarId
 
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
-private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) : MetaM (Option EMatchTheorem) := do
   try
     mkEMatchTheoremWithKind? origin #[] proof kind
   catch _ =>

@@ -190,6 +190,9 @@ def splitNext : GrindTactic := fun goal => do
       casesMatch (← get).mvarId c
     else
       let major ← mkCasesMajor c
+      if (← getConfig).trace then
+        if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
+          saveCases declName false
       cases (← get).mvarId major
     let goal ← get
     let goals := mvarIds.map fun mvarId => { goal with mvarId }

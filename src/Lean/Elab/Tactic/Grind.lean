@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Tactics
 import Lean.Meta.Tactic.Grind
+import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Command
 import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.Config
@@ -82,7 +83,7 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
     | _ => throwError "unexpected `grind` parameter{indentD p}"
   return params
 where
-  addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.TheoremKind) : MetaM Grind.Params := do
+  addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.EMatchTheoremKind) : MetaM Grind.Params := do
     let info ← getConstInfo declName
     match info with
     | .thmInfo _ =>
@@ -113,11 +114,12 @@ def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
-    (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Unit := do
+    (mainDeclName : Name) (fallback : Grind.Fallback) : MetaM Grind.Trace := do
   let params ← mkGrindParams config only ps
   let result ← Grind.main mvarId params mainDeclName fallback
   if result.hasFailures then
     throwError "`grind` failed\n{← result.toMessageData}"
+  return result.trace
 
 private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit) := do
   let some fallback := fallback? | return (pure ())
@@ -142,26 +144,80 @@ private def evalGrindCore
     (only : Option Syntax)
     (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
     (fallback? : Option Term)
-    (_trace : Bool) -- TODO
-    : TacticM Unit := do
+    (trace : Bool)
+    : TacticM Grind.Trace := do
   let fallback ← elabFallback fallback?
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
   logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
   let declName := (← Term.getDeclName?).getD `_grind
-  let config ← elabGrindConfig config
-  withMainContext do liftMetaFinishingTactic (grind · config only params declName fallback)
+  let mut config ← elabGrindConfig config
+  if trace then
+    config := { config with trace }
+  withMainContext do
+    let result ← grind (← getMainGoal) config only params declName fallback
+    replaceMainGoal []
+    return result
+
+private def mkGrindOnly
+    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (fallback? : Option Term)
+    (trace : Grind.Trace)
+    : MetaM (TSyntax `tactic) := do
+  let mut params := #[]
+  let mut foundFns : NameSet := {}
+  for { origin, kind } in trace.thms.toList do
+    if let .decl declName := origin then
+      unless Match.isMatchEqnTheorem (← getEnv) declName do
+        if let some declName ← isEqnThm? declName then
+          unless foundFns.contains declName do
+            foundFns := foundFns.insert declName
+            let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+            let param ← `(Parser.Tactic.grindParam| $decl:ident)
+            params := params.push param
+        else
+          let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+          let param ← match kind with
+            | .eqLhs   => `(Parser.Tactic.grindParam| = $decl)
+            | .eqRhs   => `(Parser.Tactic.grindParam| =_ $decl)
+            | .eqBoth  => `(Parser.Tactic.grindParam| _=_ $decl)
+            | .eqBwd   => `(Parser.Tactic.grindParam| ←= $decl)
+            | .bwd     => `(Parser.Tactic.grindParam| ← $decl)
+            | .fwd     => `(Parser.Tactic.grindParam| → $decl)
+            | .user    => `(Parser.Tactic.grindParam| usr $decl)
+            | .default => `(Parser.Tactic.grindParam| $decl:ident)
+          params := params.push param
+  for declName in trace.eagerCases.toList do
+    let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+    let param ← `(Parser.Tactic.grindParam| cases eager $decl)
+    params := params.push param
+  for declName in trace.cases.toList do
+    unless trace.eagerCases.contains declName do
+      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+      let param ← `(Parser.Tactic.grindParam| cases $decl)
+      params := params.push param
+  let result ← if let some fallback := fallback? then
+    `(tactic| grind $config:optConfig only on_failure $fallback)
+  else
+    `(tactic| grind $config:optConfig only)
+  if params.isEmpty then
+    return result
+  else
+    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
+    return ⟨result.raw.setArg 3 (mkNullNode paramsStx)⟩
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    evalGrindCore stx config only params fallback? false
+    discard <| evalGrindCore stx config only params fallback? false
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind? $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    evalGrindCore stx config only params fallback? true
+  | `(tactic| grind?%$tk $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+    let trace ← evalGrindCore stx config only params fallback? true
+    let stx ← mkGrindOnly config fallback? trace
+    Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic

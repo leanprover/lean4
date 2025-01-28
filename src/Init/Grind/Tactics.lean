@@ -8,15 +8,15 @@ import Init.Tactics
 
 namespace Lean.Parser.Attr
 
-syntax grindEq     := "="
-syntax grindEqBoth := atomic("_" "=" "_")
-syntax grindEqRhs  := atomic("=" "_")
-syntax grindEqBwd  := atomic("←" "=")
-syntax grindBwd    := "←"
-syntax grindFwd    := "→"
-syntax grindUsr    := &"usr"
-syntax grindCases  := &"cases"
-syntax grindCasesEager := atomic(&"cases" &"eager")
+syntax grindEq     := "= "
+syntax grindEqBoth := atomic("_" "=" "_ ")
+syntax grindEqRhs  := atomic("=" "_ ")
+syntax grindEqBwd  := atomic("←" "= ")
+syntax grindBwd    := "← "
+syntax grindFwd    := "→ "
+syntax grindUsr    := &"usr "
+syntax grindCases  := &"cases "
+syntax grindCasesEager := atomic(&"cases" &"eager ")
 
 syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
 
@@ -30,6 +30,8 @@ The configuration for `grind`.
 Passed to `grind` using, for example, the `grind (config := { matchEqs := true })` syntax.
 -/
 structure Config where
+  /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
+  trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 8
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/

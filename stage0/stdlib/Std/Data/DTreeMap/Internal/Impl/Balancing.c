@@ -2346,11 +2346,13 @@ return x_1;
 static lean_object* _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1___closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__9;
-x_3 = l_Lean_Name_str___override(x_1, x_2);
-return x_3;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+x_1 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__tacticTree__tac__1___closed__1;
+x_2 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__tacticTree__tac__1___closed__2;
+x_3 = l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__tacticTree__tac__1___closed__3;
+x_4 = l_Std_DTreeMap_Internal_Impl_tacticAs__aux__lemma_x3d_x3e_____closed__9;
+x_5 = l_Lean_Name_mkStr4(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMap__Internal__Impl__Balancing______macroRules__Std__DTreeMap__Internal__Impl__term_u2713__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {

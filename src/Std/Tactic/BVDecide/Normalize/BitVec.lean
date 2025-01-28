@@ -278,6 +278,8 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   simp only [(· >>> ·)]
   simp
 
+attribute [bv_normalize] BitVec.ushiftRight_self
+
 theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (a ≠ 0#w) := by
   constructor <;>
     simp_all only [BitVec.lt_def, BitVec.toNat_ofNat, Nat.zero_mod, ne_eq, BitVec.toNat_eq] <;>

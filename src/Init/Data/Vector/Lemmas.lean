@@ -1188,7 +1188,9 @@ theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : Vector α n) : map f 
 
 theorem map_singleton (f : α → β) (a : α) : map f #v[a] = #v[f a] := rfl
 
-@[simp] theorem mem_map {f : α → β} {l : Vector α n} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
+-- We use a lower priority here as there are more specific lemmas in downstream libraries
+-- which should be able to fire first.
+@[simp 500] theorem mem_map {f : α → β} {l : Vector α n} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
   cases l
   simp
 

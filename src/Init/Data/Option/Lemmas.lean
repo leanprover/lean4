@@ -34,7 +34,7 @@ theorem get_mem : ∀ {o : Option α} (h : isSome o), o.get h ∈ o
 theorem get_of_mem : ∀ {o : Option α} (h : isSome o), a ∈ o → o.get h = a
   | _, _, rfl => rfl
 
-theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
+@[simp] theorem not_mem_none (a : α) : a ∉ (none : Option α) := nofun
 
 theorem getD_of_ne_none {x : Option α} (hx : x ≠ none) (y : α) : some (x.getD y) = x := by
   cases x; {contradiction}; rw [getD_some]

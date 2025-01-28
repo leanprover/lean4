@@ -1520,7 +1520,7 @@ theorem msb_ushiftRight {x : BitVec w} {n : Nat} :
     simp [BitVec.ushiftRight_eq, getMsbD_ushiftRight, BitVec.msb, ih, show nn + 1 > 0 by omega]
 
 @[simp]
-theorem ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
+theorem ushiftRight_self (n : BitVec w) : n >>> n.toNat = 0#w := by
   simp [BitVec.toNat_eq, Nat.shiftRight_eq_div_pow, Nat.lt_two_pow_self, Nat.div_eq_of_lt]
 
 /-! ### sshiftRight -/

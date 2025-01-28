@@ -278,7 +278,9 @@ theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   simp only [(· >>> ·)]
   simp
 
-attribute [bv_normalize] BitVec.ushiftRight_self
+@[bv_normalize]
+theorem BitVec.ushiftRight_self (n : BitVec w) : n >>> n = 0#w := by
+  simp
 
 theorem BitVec.zero_lt_iff_zero_neq (a : BitVec w) : (0#w < a) ↔ (a ≠ 0#w) := by
   constructor <;>

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.Option
 import Std.Data.DTreeMap.Internal.Model
 import Std.Data.Classes.TransOrd
 import Std.Data.Classes.Cut
@@ -299,14 +300,14 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
   · intro a ha b hb
     have := hlo.2.2 a (List.mem_append_left _ ha)
     clear hlo
-    simp at ha hb
+    simp only [List.mem_filter, beq_iff_eq, Option.mem_toList, Option.mem_def] at ha hb
     have : compare k b.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ hb
     exact TransCmp.lt_of_lt_of_eq (OrientedCmp.lt_of_gt ha.2) this
   · intro a ha b hb
     rw [List.mem_append] at ha
     obtain ha|ha := ha
     · exact hlo.2.2 a (List.mem_append_left _ ha) _ hb
-    · simp at ha
+    · simp only [Option.mem_toList, Option.mem_def] at ha
       have h₀ : compare k a.fst = .eq := (f (List.findCell l.toListModel (compare k))).property _ ha
       have h₁ : compare k b.fst = .lt := by
         simp only [List.mem_filter, beq_iff_eq] at hb

@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.Classes.LawfulEqOrd
 import Std.Data.DTreeMap.Internal.Impl.Balancing
-import Std.Data.Classes.TransOrd
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -61,7 +59,7 @@ structure View (size : Nat) where
   /-- The tree. -/
   tree : Tree α β size
 
-attribute [tree_tac] Tree.balanced_impl Tree.size_impl
+attribute [Std.Internal.tree_tac] Tree.balanced_impl Tree.size_impl
 
 /-- Returns the tree `l ++ ⟨k, v⟩ ++ r`, with the smallest element chopped off. -/
 def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced)
@@ -132,11 +130,11 @@ def glue (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) (hlr : BalancedA
             simp only [hdt', size_inner, hl.eq] at *
             apply hlr.erase_left <;> omega)
 
-@[tree_tac]
+@[Std.Internal.tree_tac]
 theorem size_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).size = l.size + r.size := by
   simp only [glue]; tree_tac
 
-@[tree_tac]
+@[Std.Internal.tree_tac]
 theorem balanced_glue {l r : Impl α β} {hl hr hlr} : (glue l r hl hr hlr).Balanced := by
   simp only [glue]; tree_tac
 
@@ -195,7 +193,7 @@ def insertMaxSlow (k : α) (v : β k) (t : Impl α β) : Impl α β :=
 ## `link` and `link2`
 -/
 
-attribute [tree_tac] and_true true_and
+attribute [Std.Internal.tree_tac] and_true true_and
 
 /-- Builds the tree `l ++ ⟨k, v⟩ ++ r` without any balancing information at the root. -/
 def link (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Balanced) :
@@ -294,18 +292,18 @@ structure TreeB (lb ub : Nat) where
   /-- The tree has size at most `ub`. -/
   size_impl_le_ub : impl.size ≤ ub
 
-attribute [tree_tac] TreeB.balanced_impl
+attribute [Std.Internal.tree_tac] TreeB.balanced_impl
 
 /-- An empty tree. -/
 @[inline]
 def empty : Impl α β :=
   .leaf
 
-@[tree_tac]
+@[Std.Internal.tree_tac]
 theorem balanced_empty : (empty : Impl α β).Balanced :=
   .leaf
 
-attribute [tree_tac] or_true true_or
+attribute [Std.Internal.tree_tac] or_true true_or
 
 /-- Adds a new mapping to the key, overwriting an existing one with equal key if present. -/
 def insert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
@@ -392,4 +390,4 @@ structure BImpl where
   /-- The tree is balanced. -/
   balanced_impl : impl.Balanced
 
-attribute [tree_tac] BImpl.balanced_impl
+attribute [Std.Internal.tree_tac] BImpl.balanced_impl

@@ -4,10 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.Classes.LawfulEqOrd
 import Std.Data.DTreeMap.Internal.Impl.Operations
-import Std.Data.Classes.TransOrd
-import Lean.Elab.Tactic
 
 /-!
 # Low-level implementation of the size-bounded tree

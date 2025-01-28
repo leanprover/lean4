@@ -4,9 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.Classes.LawfulEqOrd
 import Std.Data.Classes.TransOrd
-import Lean.Elab.Tactic
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -32,10 +30,10 @@ inductive Impl (α : Type u) (β : α → Type v) where
   deriving Inhabited
 
 /-- The "delta" parameter of the size-bounded tree. Controls how imbalanced the tree can be. -/
-@[inline, tree_tac]
+@[inline, Std.Internal.tree_tac]
 def delta : Nat := 3
 
 /-- The "ratio" parameter of the size-bounded tree. Controls how aggressive the rebalancing
 operations are. -/
-@[inline, tree_tac]
+@[inline, Std.Internal.tree_tac]
 def ratio : Nat := 2

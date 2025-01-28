@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Simp
 open Lean Meta.Simp
 
 /-!
-# `@[tree_tac]` attribute
+# `@[Std.Internal.tree_tac]` attribute
 -/
 
 namespace Std.Internal.TreeMap

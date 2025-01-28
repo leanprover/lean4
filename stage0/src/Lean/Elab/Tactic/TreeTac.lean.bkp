@@ -1,0 +1,4 @@
+prelude
+import Init.Tactics
+import Lean.Elab.Tactic.Simp
+import Lean.Elab.Tactic.Meta

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Impl.Operations
-// Imports: Std.Data.Classes.LawfulEqOrd Std.Data.DTreeMap.Internal.Impl.Attr Std.Data.DTreeMap.Internal.Impl.Balancing Std.Data.Classes.TransOrd
+// Imports: Std.Data.Classes.LawfulEqOrd Std.Data.DTreeMap.Internal.Impl.Balancing Std.Data.Classes.TransOrd
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1686,7 +1686,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(282u);
+x_3 = lean_unsigned_to_nat(269u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1699,7 +1699,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(283u);
+x_3 = lean_unsigned_to_nat(270u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5926,7 +5926,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_maxViewSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(194u);
+x_3 = lean_unsigned_to_nat(181u);
 x_4 = lean_unsigned_to_nat(37u);
 x_5 = l_Std_DTreeMap_Internal_Impl_maxViewSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -5939,7 +5939,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minViewSlow___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_maxViewSlow___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(195u);
+x_3 = lean_unsigned_to_nat(182u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Std_DTreeMap_Internal_Impl_maxViewSlow___rarg___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -52722,7 +52722,6 @@ return x_3;
 }
 }
 lean_object* initialize_Std_Data_Classes_LawfulEqOrd(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_Impl_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_DTreeMap_Internal_Impl_Balancing(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Classes_TransOrd(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -52731,9 +52730,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_Classes_LawfulEqOrd(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Impl_Attr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_DTreeMap_Internal_Impl_Balancing(builtin, lean_io_mk_world());

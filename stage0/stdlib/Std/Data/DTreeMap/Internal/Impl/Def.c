@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.DTreeMap.Internal.Impl.Def
-// Imports: Std.Data.Classes.LawfulEqOrd Std.Data.DTreeMap.Internal.Impl.Attr Std.Data.Classes.TransOrd Lean.Elab.Tactic
+// Imports: Std.Data.Classes.LawfulEqOrd Std.Data.Classes.TransOrd Lean.Elab.Tactic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -41,7 +41,6 @@ return x_1;
 }
 }
 lean_object* initialize_Std_Data_Classes_LawfulEqOrd(uint8_t builtin, lean_object*);
-lean_object* initialize_Std_Data_DTreeMap_Internal_Impl_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Data_Classes_TransOrd(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -50,9 +49,6 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Std_Data_Classes_LawfulEqOrd(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Std_Data_DTreeMap_Internal_Impl_Attr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Data_Classes_TransOrd(builtin, lean_io_mk_world());

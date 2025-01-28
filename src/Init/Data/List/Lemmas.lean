@@ -379,7 +379,7 @@ theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := b
 theorem eq_of_mem_singleton : a ∈ [b] → a = b
   | .head .. => rfl
 
-@[simp 1100] theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b :=
+@[simp] theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b :=
   ⟨eq_of_mem_singleton, (by simp [·])⟩
 
 theorem forall_mem_cons {p : α → Prop} {a : α} {l : List α} :
@@ -1558,7 +1558,7 @@ theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.l
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
 
-@[simp 1100] theorem singleton_append : [x] ++ l = x :: l := rfl
+@[simp] theorem singleton_append : [x] ++ l = x :: l := rfl
 
 theorem append_inj :
     ∀ {s₁ s₂ t₁ t₂ : List α}, s₁ ++ t₁ = s₂ ++ t₂ → length s₁ = length s₂ → s₁ = s₂ ∧ t₁ = t₂
@@ -2967,7 +2967,7 @@ theorem dropLast_append {l₁ l₂ : List α} :
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   simp
 
-@[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
+@[simp] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
 @[simp] theorem dropLast_replicate (n) (a : α) : dropLast (replicate n a) = replicate (n - 1) a := by
   match n with
@@ -3133,7 +3133,7 @@ variable [LawfulBEq α]
     | Or.inr h' => exact h'
   else rw [insert_of_not_mem h, mem_cons]
 
-@[simp 1100] theorem mem_insert_self (a : α) (l : List α) : a ∈ l.insert a :=
+@[simp] theorem mem_insert_self (a : α) (l : List α) : a ∈ l.insert a :=
   mem_insert_iff.2 (Or.inl rfl)
 
 theorem mem_insert_of_mem {l : List α} (h : a ∈ l) : a ∈ l.insert b :=

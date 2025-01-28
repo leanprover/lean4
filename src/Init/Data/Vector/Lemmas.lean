@@ -1420,7 +1420,7 @@ theorem getElem_of_append {l : Vector α n} {l₁ : Vector α m} {l₂ : Vector 
   rw [← getElem?_eq_getElem, eq, getElem?_cast, getElem?_append_left (by simp)]
   simp
 
-@[simp 1100] theorem append_singleton {a : α} {as : Vector α n} : as ++ #v[a] = as.push a := by
+@[simp] theorem append_singleton {a : α} {as : Vector α n} : as ++ #v[a] = as.push a := by
   cases as
   simp
 

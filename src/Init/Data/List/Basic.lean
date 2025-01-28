@@ -74,7 +74,7 @@ namespace List
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
-@[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
+@[simp] theorem length_singleton (a : α) : length [a] = 1 := rfl
 
 @[simp] theorem length_cons {α} (a : α) (as : List α) : (cons a as).length = as.length + 1 :=
   rfl
@@ -352,8 +352,8 @@ def headD : (as : List α) → (fallback : α) → α
   | [],   fallback => fallback
   | a::_, _  => a
 
-@[simp 1100] theorem headD_nil : @headD α [] d = d := rfl
-@[simp 1100] theorem headD_cons : @headD α (a::l) d = a := rfl
+@[simp] theorem headD_nil : @headD α [] d = d := rfl
+@[simp] theorem headD_cons : @headD α (a::l) d = a := rfl
 
 /-! ### tail -/
 
@@ -393,8 +393,8 @@ def tailD (list fallback : List α) : List α :=
   | [] => fallback
   | _ :: tl => tl
 
-@[simp 1100] theorem tailD_nil : @tailD α [] l' = l' := rfl
-@[simp 1100] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
+@[simp] theorem tailD_nil : @tailD α [] l' = l' := rfl
+@[simp] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
 
 /-! ## Basic `List` operations.
 

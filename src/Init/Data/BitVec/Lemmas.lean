@@ -681,6 +681,7 @@ theorem getMsbD_setWidth {m : Nat} {x : BitVec n} {i : Nat} :
 
 -- This is a simp lemma as there is only a runtime difference between `setWidth'` and `setWidth`,
 -- and for verification purposes they are equivalent.
+@[simp]
 theorem setWidth'_eq {x : BitVec w} (h : w ≤ v) : x.setWidth' h = x.setWidth v := by
   apply eq_of_toNat_eq
   rw [toNat_setWidth, toNat_setWidth']

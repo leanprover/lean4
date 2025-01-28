@@ -147,7 +147,7 @@ It is named with a prime to avoid conflict with the inherited field `LawfulMonad
   simp only [map_pure]
 
 /--
-This is just a duplicate of `Functor.map_map`, but sometimes applied when that doesn't.
+This is just a duplicate of `Functor.map_map`, but sometimes applies when that doesn't.
 -/
 @[simp] theorem LawfulMonad.map_map {m} [Monad m] [LawfulMonad m] {x : m α} :
     g <$> f <$> x = (fun a => g (f a)) <$> x := by

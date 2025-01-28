@@ -341,7 +341,7 @@ theorem mapIdx_eq_zipIdx_map {l : List α} {f : Nat → α → β} :
   split <;> simp
 
 @[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
-abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
+abbrev mapIdx_eq_enum_map := @mapIdx_eq_zipIdx_map
 
 @[simp]
 theorem mapIdx_cons {l : List α} {a : α} :

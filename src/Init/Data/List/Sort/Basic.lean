@@ -73,14 +73,14 @@ termination_by xs => xs.length
 
 /--
 Given an ordering relation `le : α → α → Bool`,
-construct the reverse lexicographic ordering on `Nat × α`.
-which first compares the second components using `le`,
+construct the lexicographic ordering on `α × Nat`.
+which first compares the first components using `le`,
 but if these are equivalent (in the sense `le a.2 b.2 && le b.2 a.2`)
-then compares the first components using `≤`.
+then compares the second components using `≤`.
 
 This function is only used in stating the stability properties of `mergeSort`.
 -/
-def enumLE (le : α → α → Bool) (a b : Nat × α) : Bool :=
-  if le a.2 b.2 then if le b.2 a.2 then a.1 ≤ b.1 else true else false
+def zipIdxLE (le : α → α → Bool) (a b : α × Nat) : Bool :=
+  if le a.1 b.1 then if le b.1 a.1 then a.2 ≤ b.2 else true else false
 
 end List

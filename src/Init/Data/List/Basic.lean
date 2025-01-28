@@ -43,7 +43,7 @@ The operations are organized as follow:
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
-* Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
+* Ranges and enumeration: `range`, `zipIdx`.
 * Minima and maxima: `min?` and `max?`.
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`
@@ -1530,28 +1530,51 @@ set_option linter.deprecated false in
 set_option linter.deprecated false in
 @[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
 
+/-! ### zipIdx -/
+
+/--
+`O(|l|)`. `zipIdx l` zips a list with its indices, optionally starting from a given index.
+* `zipIdx [a, b, c] = [(a, 0), (b, 1), (c, 2)]`
+* `zipIdx [a, b, c] 5 = [(a, 5), (b, 6), (c, 7)]`
+-/
+def zipIdx : List α → (n : Nat := 0) → List (α × Nat)
+  | [], _ => nil
+  | x :: xs, n => (x, n) :: zipIdx xs (n + 1)
+
+@[simp] theorem zipIdx_nil : ([] : List α).zipIdx i = [] := rfl
+@[simp] theorem zipIdx_cons : (a::as).zipIdx i = (a, i) :: as.zipIdx (i+1) := rfl
+
 /-! ### enumFrom -/
 
 /--
 `O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
 * `enumFrom 5 [a, b, c] = [(5, a), (6, b), (7, c)]`
 -/
+@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
 def enumFrom : Nat → List α → List (Nat × α)
   | _, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
-@[simp] theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
-@[simp] theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
+theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_cons (since := "2025-01-21"), simp]
+theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
 
 /-! ### enum -/
 
+set_option linter.deprecated false in
 /--
 `O(|l|)`. `enum l` pairs up each element with its index in the list.
 * `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
 -/
+@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
 def enum : List α → List (Nat × α) := enumFrom 0
 
-@[simp] theorem enum_nil : ([] : List α).enum = [] := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
+theorem enum_nil : ([] : List α).enum = [] := rfl
 
 /-! ## Minima and maxima -/
 

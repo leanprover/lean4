@@ -822,28 +822,28 @@ theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
     simp only [replicate, findIdx?_cons, Nat.zero_add, findIdx?_succ, zero_lt_succ, true_and]
     split <;> simp_all
 
-theorem findIdx?_eq_findSome?_enum {xs : List α} {p : α → Bool} :
-    xs.findIdx? p = xs.enum.findSome? fun ⟨i, a⟩ => if p a then some i else none := by
+theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = xs.zipIdx.findSome? fun ⟨a, i⟩ => if p a then some i else none := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_succ, enum]
+    simp only [findIdx?_cons, Nat.zero_add, findIdx?_succ, zipIdx]
     split
     · simp_all
-    · simp_all only [enumFrom_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
-      simp [Function.comp_def, ← map_fst_add_enum_eq_enumFrom, findSome?_map]
+    · simp_all only [zipIdx_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
+      rw [← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]
+      simp [Function.comp_def, findSome?_map]
 
-theorem findIdx?_eq_fst_find?_enum {xs : List α} {p : α → Bool} :
-    xs.findIdx? p = (xs.enum.find? fun ⟨_, x⟩ => p x).map (·.1) := by
+theorem findIdx?_eq_fst_find?_zipIdx {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = (xs.zipIdx.find? fun ⟨x, _⟩ => p x).map (·.2) := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_start_succ, enum_cons]
+    simp only [findIdx?_cons, Nat.zero_add, findIdx?_start_succ, zipIdx_cons]
     split
     · simp_all
-    · simp only [Option.map_map, enumFrom_eq_map_enum, Bool.false_eq_true, not_false_eq_true,
-        find?_cons_of_neg, find?_map, *]
-      congr
+    · rw [ih, ← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]
+      simp [Function.comp_def, *]
 
 -- See also `findIdx_le_findIdx`.
 theorem findIdx?_eq_none_of_findIdx?_eq_none {xs : List α} {p q : α → Bool} (w : ∀ x ∈ xs, p x → q x) :

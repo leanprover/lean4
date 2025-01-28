@@ -605,8 +605,10 @@ def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) :
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
-def zipWithIndex (arr : Array α) : Array (α × Nat) :=
-  arr.mapIdx fun i a => (a, i)
+def zipIdx (arr : Array α) (start := 0) : Array (α × Nat) :=
+  arr.mapIdx fun i a => (a, i + start)
+
+@[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
 
 @[inline]
 def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=

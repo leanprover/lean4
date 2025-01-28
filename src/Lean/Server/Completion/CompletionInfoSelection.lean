@@ -125,7 +125,7 @@ def findPrioritizedCompletionPartitionsAt
     (infoTree : InfoTree)
     : Array (Array (ContextualizedCompletionInfo × Nat)) :=
   findCompletionInfosAt fileMap hoverPos cmdStx infoTree
-    |>.zipWithIndex
+    |>.zipIdx
     |> computePrioritizedCompletionPartitions
 
 end Lean.Server.Completion

@@ -1173,8 +1173,6 @@ class Trans (r : α → β → Sort u) (s : β → γ → Sort v) (t : outParam 
   /-- Compose two proofs by transitivity, generalized over the relations involved. -/
   trans : r a b → s b c → t a c
 
-export Trans (trans)
-
 instance (r : α → γ → Sort u) : Trans Eq r r where
   trans heq h' := heq ▸ h'
 

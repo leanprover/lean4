@@ -192,10 +192,10 @@ theorem Sublist.getLast_mem (s : ys <+ xs) (h) : ys.getLast h ∈ xs :=
   s.mem (List.getLast_mem h)
 
 instance : Trans (@Sublist α) Subset Subset :=
-  ⟨fun h₁ h₂ => trans h₁.subset h₂⟩
+  ⟨fun h₁ h₂ => Trans.trans h₁.subset h₂⟩
 
 instance : Trans Subset (@Sublist α) Subset :=
-  ⟨fun h₁ h₂ => trans h₁ h₂.subset⟩
+  ⟨fun h₁ h₂ => Trans.trans h₁ h₂.subset⟩
 
 instance : Trans (fun l₁ l₂ => Sublist l₂ l₁) (Membership.mem : List α → α → Prop) Membership.mem :=
   ⟨fun h₁ h₂ => h₁.subset h₂⟩

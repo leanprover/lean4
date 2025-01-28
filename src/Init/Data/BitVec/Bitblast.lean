@@ -1254,7 +1254,7 @@ theorem getLsbD_umod {n d : BitVec w}:
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
     simp only [le_zero_iff] at this
     rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
-    simp [hd]
+    simp only [umod_eq, hd, ↓reduceIte]
 
 theorem getMsbD_umod {n d : BitVec w}:
     (umod n d).getMsbD i =

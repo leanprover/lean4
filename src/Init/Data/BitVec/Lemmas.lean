@@ -595,12 +595,6 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
     (x.setWidth v).toFin = Fin.ofNat' (2^v) x.toNat := by
   ext; simp
 
-theorem setWidth'_eq {x : BitVec w} (h : w ≤ v) : x.setWidth' h = x.setWidth v := by
-  apply eq_of_toNat_eq
-  rw [toNat_setWidth, toNat_setWidth']
-  rw [Nat.mod_eq_of_lt]
-  exact Nat.lt_of_lt_of_le x.isLt (Nat.pow_le_pow_right (Nat.zero_lt_two) h)
-
 @[simp] theorem setWidth_eq (x : BitVec n) : setWidth n x = x := by
   apply eq_of_toNat_eq
   let ⟨x, lt_n⟩ := x
@@ -685,6 +679,14 @@ theorem getMsbD_setWidth {m : Nat} {x : BitVec n} {i : Nat} :
     · simp [h']
       omega
 
+-- This is a simp lemma as there is only a runtime difference between `setWidth'` and `setWidth`,
+-- and for verification purposes they are equivalent.
+theorem setWidth'_eq {x : BitVec w} (h : w ≤ v) : x.setWidth' h = x.setWidth v := by
+  apply eq_of_toNat_eq
+  rw [toNat_setWidth, toNat_setWidth']
+  rw [Nat.mod_eq_of_lt]
+  exact Nat.lt_of_lt_of_le x.isLt (Nat.pow_le_pow_right (Nat.zero_lt_two) h)
+
 @[simp] theorem getMsbD_setWidth_add {x : BitVec w} (h : k ≤ i) :
     (x.setWidth (w + k)).getMsbD i = x.getMsbD (i - k) := by
   by_cases h : w = 0
@@ -754,6 +756,22 @@ theorem setWidth_one {x : BitVec w} :
   simp only [toNat_setWidth, toNat_ofNat]
   rw [Nat.mod_mod_of_dvd]
   exact Nat.pow_dvd_pow_iff_le_right'.mpr h
+
+/--
+Iterated `setWidth` agrees with the second `setWidth`
+except in the case the first `setWidth` is a non-trivial truncation,
+and the second `setWidth` is a non-trivial extension.
+-/
+-- Note that in the special cases `v = u` or `v = w`,
+-- `simp` can discharge the side condition itself.
+@[simp] theorem setWidth_setWidth (x : BitVec u) (w v : Nat) (h : ¬ (v < u ∧ v < w)) :
+    setWidth w (setWidth v x) = setWidth w x := by
+  ext
+  simp_all only [getLsbD_setWidth, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
+    decide_eq_true_eq]
+  intro h
+  replace h := lt_of_getLsbD h
+  omega
 
 /-! ## extractLsb -/
 
@@ -3429,7 +3447,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

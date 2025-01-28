@@ -165,20 +165,28 @@ private def mkGrindOnly
     (trace : Grind.Trace)
     : MetaM (TSyntax `tactic) := do
   let mut params := #[]
+  let mut foundFns : NameSet := {}
   for { origin, kind } in trace.thms.toList do
     if let .decl declName := origin then
-      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
       unless Match.isMatchEqnTheorem (← getEnv) declName do
-        let param ← match kind with
-          | .eqLhs   => `(Parser.Tactic.grindParam| = $decl)
-          | .eqRhs   => `(Parser.Tactic.grindParam| =_ $decl)
-          | .eqBoth  => `(Parser.Tactic.grindParam| _=_ $decl)
-          | .eqBwd   => `(Parser.Tactic.grindParam| ←= $decl)
-          | .bwd     => `(Parser.Tactic.grindParam| ← $decl)
-          | .fwd     => `(Parser.Tactic.grindParam| → $decl)
-          | .user    => `(Parser.Tactic.grindParam| usr $decl)
-          | .default => `(Parser.Tactic.grindParam| $decl:ident)
-        params := params.push param
+        if let some declName ← isEqnThm? declName then
+          unless foundFns.contains declName do
+            foundFns := foundFns.insert declName
+            let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+            let param ← `(Parser.Tactic.grindParam| $decl:ident)
+            params := params.push param
+        else
+          let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+          let param ← match kind with
+            | .eqLhs   => `(Parser.Tactic.grindParam| = $decl)
+            | .eqRhs   => `(Parser.Tactic.grindParam| =_ $decl)
+            | .eqBoth  => `(Parser.Tactic.grindParam| _=_ $decl)
+            | .eqBwd   => `(Parser.Tactic.grindParam| ←= $decl)
+            | .bwd     => `(Parser.Tactic.grindParam| ← $decl)
+            | .fwd     => `(Parser.Tactic.grindParam| → $decl)
+            | .user    => `(Parser.Tactic.grindParam| usr $decl)
+            | .default => `(Parser.Tactic.grindParam| $decl:ident)
+          params := params.push param
   for declName in trace.eagerCases.toList do
     let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
     let param ← `(Parser.Tactic.grindParam| cases eager $decl)

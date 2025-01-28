@@ -1384,21 +1384,43 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
 
-gen_injective_theorems% Prod
-gen_injective_theorems% PProd
-gen_injective_theorems% MProd
-gen_injective_theorems% Subtype
-gen_injective_theorems% Fin
 gen_injective_theorems% Array
-gen_injective_theorems% Sum
-gen_injective_theorems% PSum
-gen_injective_theorems% Option
-gen_injective_theorems% List
-gen_injective_theorems% Except
+gen_injective_theorems% BitVec
+gen_injective_theorems% Char
+gen_injective_theorems% DoResultBC
+gen_injective_theorems% DoResultPR
+gen_injective_theorems% DoResultPRBC
+gen_injective_theorems% DoResultSBC
 gen_injective_theorems% EStateM.Result
+gen_injective_theorems% Except
+gen_injective_theorems% Fin
+gen_injective_theorems% ForInStep
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
-gen_injective_theorems% BitVec
+gen_injective_theorems% List
+gen_injective_theorems% MProd
+gen_injective_theorems% NonScalar
+gen_injective_theorems% Option
+gen_injective_theorems% PLift
+gen_injective_theorems% PNonScalar
+gen_injective_theorems% PProd
+gen_injective_theorems% Prod
+gen_injective_theorems% PSigma
+gen_injective_theorems% PSum
+gen_injective_theorems% Sigma
+gen_injective_theorems% String
+gen_injective_theorems% String.Pos
+gen_injective_theorems% Substring
+gen_injective_theorems% Subtype
+gen_injective_theorems% Sum
+gen_injective_theorems% Task
+gen_injective_theorems% Thunk
+gen_injective_theorems% UInt16
+gen_injective_theorems% UInt32
+gen_injective_theorems% UInt64
+gen_injective_theorems% UInt8
+gen_injective_theorems% ULift
+gen_injective_theorems% USize
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id

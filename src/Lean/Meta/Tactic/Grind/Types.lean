@@ -70,11 +70,6 @@ structure EMatchTheoremTrace where
   kind   : EMatchTheoremKind
   deriving BEq, Hashable
 
-structure CasesTrace where
-  declName : Name
-  eager : Bool
-  deriving BEq, Hashable
-
 /--
 E-match theorems and case-splits performed by `grind`.
 Note that it may contain elements that are not needed by the final proof.
@@ -82,8 +77,9 @@ For example, `grind` instantiated the theorem, but theorem instance was not actu
 in the proof.
 -/
 structure Trace where
-  thms  : PHashSet EMatchTheoremTrace := {}
-  cases : PHashSet CasesTrace := {}
+  thms       : PHashSet EMatchTheoremTrace := {}
+  eagerCases : PHashSet Name := {}
+  cases      : PHashSet Name := {}
   deriving Inhabited
 
 /-- State for the `GrindM` monad. -/
@@ -146,7 +142,10 @@ def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
   if (← getConfig).trace then
-    modify fun s => { s with trace.cases := s.trace.cases.insert { declName, eager } }
+    if eager then
+      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
+    else
+      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read

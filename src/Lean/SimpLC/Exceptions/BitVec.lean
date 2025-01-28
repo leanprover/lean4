@@ -16,9 +16,10 @@ simp_lc ignore BitVec.getMsbD_ge
 
 namespace BitVec
 
--- @[simp] theorem setWidth_setWidth (x : BitVec u) (w : Nat) (h : u ≤ v ∨ w ≤ v) : setWidth w (setWidth v x) = setWidth w x := by
+-- @[simp] theorem setWidth_setWidth (x : BitVec u) (w : Nat) (h : u ≤ v ∨ w ≤ v) :
+--     setWidth w (setWidth v x) = setWidth w x := by
 --   ext
---   simp only [getLsbD_setWidth, Fin.is_lt, decide_True, Bool.true_and, Bool.and_iff_right_iff_imp,
+--   simp_all only [getLsbD_setWidth, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
 --     decide_eq_true_eq]
 --   intro h
 --   replace h := lt_of_getLsbD h
@@ -28,12 +29,12 @@ namespace BitVec
 -- TODO: discuss with Tobias et al.
 example (h : v = w) (x : BitVec v) : x.cast h = x.setWidth w := by
   ext
-  simp
+  simp_all
 simp_lc allow BitVec.setWidth_eq BitVec.setWidth_cast
 
 @[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
    ext i
-   simp
+   simp_all
 
 @[simp] theorem one_eq_zero_iff : 1#w = 0#w ↔ w = 0 := by
   constructor

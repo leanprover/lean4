@@ -50,24 +50,24 @@ def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
 def recBuildWithIndex : (info : BuildInfo) → FetchM (Job (BuildData info.key))
 | .moduleFacet mod facet => do
   if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-    config.build mod
+    config.fetchFn mod
   else
-    error s!"do not know how to build module facet `{facet}`"
+    error s!"do not know how to fetch module facet `{facet}`"
 | .packageFacet pkg facet => do
   if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-    config.build pkg
+    config.fetchFn pkg
   else
-    error s!"do not know how to build package facet `{facet}`"
+    error s!"do not know how to fetch package facet `{facet}`"
 | .target pkg target =>
   if let some config := pkg.findTargetConfig? target then
-    config.build pkg
+    config.fetchFn pkg
   else
-    error s!"could not build `{target}` of `{pkg.name}` -- target not found"
+    error s!"could not fetch `{target}` of `{pkg.name}` -- target not found"
 | .libraryFacet lib facet => do
   if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-    config.build lib
+    config.fetchFn lib
   else
-    error s!"do not know how to build library facet `{facet}`"
+    error s!"do not know how to fetch library facet `{facet}`"
 | .leanExe exe =>
   mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>

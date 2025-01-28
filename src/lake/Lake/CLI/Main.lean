@@ -48,6 +48,7 @@ structure LakeOptions where
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
+  outFormat : OutFormat := .text
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -175,6 +176,7 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'R' => modifyThe LakeOptions ({· with reconfigure := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'H' => modifyThe LakeOptions ({· with trustHash := false})
+| 'J' => modifyThe LakeOptions ({· with outFormat := .json})
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
@@ -184,6 +186,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+| "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
+| "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
@@ -349,6 +353,9 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
+  specs.forM fun spec =>
+    unless spec.buildable do
+      throw <| .invalidBuildTarget spec.info.key.toSimpleString
   let buildConfig := mkBuildConfig opts (out := .stdout)
   let showProgress := buildConfig.showProgress
   ws.runBuild (buildSpecs specs) buildConfig
@@ -359,6 +366,18 @@ protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
+
+protected def query : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let targetSpecs ← takeArgs
+  let specs ← parseTargetSpecs ws targetSpecs
+  let fmt := opts.outFormat
+  let buildConfig := mkBuildConfig opts
+  let results ← ws.runBuild (querySpecs specs fmt) buildConfig
+  results.forM (IO.println ·)
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
@@ -597,6 +616,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "init"                => lake.init
 | "build"               => lake.build
 | "check-build"         => lake.checkBuild
+| "query"               => lake.query
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack

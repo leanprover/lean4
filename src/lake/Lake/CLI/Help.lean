@@ -18,6 +18,7 @@ COMMANDS:
   new <name> <temp>     create a Lean package in a new directory
   init <name> <temp>    create a Lean package in the current directory
   build <targets>...    build targets
+  query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
@@ -52,6 +53,8 @@ BASIC OPTIONS:
   --no-build            exit immediately if a build target is not up-to-date
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
+  --json, -J            output JSON-formatted results (in `lake query`)
+  --text                output results as plain text (in `lake query`)
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator
@@ -136,8 +139,22 @@ TARGET EXAMPLES:        build the ...
   a/+A:c                C file of module `A` of package `a`
   :foo                  facet `foo` of the root package
 
-A bare `lake build` command will build the default facet of the root package.
+A bare `lake build` command will build the default target(s) of the root package.
 Package dependencies are not updated during a build."
+
+def helpQuery :=
+"Build targets and output results
+
+USAGE:
+  lake query [<targets>...]
+
+Builds a set of targets, reporting progress on standard error and outputting
+the results on standard out. Target results are output in the same order they
+are listed and end with a newline. If `--json` is set, results are formatted as
+JSON. Otherwise, they are printed as raw strings. Targets which do not have
+output configured will be printed as an empty string or `null`.
+
+See `lake help build` for information on and examples of targets."
 
 def helpCheckBuild :=
 "Check if any default build targets are configured
@@ -402,6 +419,7 @@ def help : (cmd : String) → String
 | "init"                => helpInit
 | "build"               => helpBuild
 | "check-build"         => helpCheckBuild
+| "query"               => helpQuery
 | "update" | "upgrade"  => helpUpdate
 | "pack"                => helpPack
 | "unpack"              => helpUnpack

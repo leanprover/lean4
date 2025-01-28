@@ -35,6 +35,12 @@ def elabGrindPattern : CommandElab := fun stx => do
         Grind.addEMatchTheorem declName xs.size patterns.toList .user
   | _ => throwUnsupportedSyntax
 
+open Command in
+@[builtin_command_elab Lean.Parser.resetGrindAttrs]
+def elabResetGrindAttrs : CommandElab := fun _ => liftTermElabM do
+  Grind.resetCasesExt
+  Grind.resetEMatchTheoremsExt
+
 open Command Term in
 @[builtin_command_elab Lean.Parser.Command.initGrindNorm]
 def elabInitGrindNorm : CommandElab := fun stx =>

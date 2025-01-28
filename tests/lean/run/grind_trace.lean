@@ -1,3 +1,5 @@
+%reset_grind_attrs
+
 attribute [grind =] List.length_cons
 attribute [grind →] List.getElem?_eq_getElem
 attribute [grind =] List.length_replicate
@@ -92,3 +94,12 @@ error: `And` is marked as a built-in case-split for `grind` and cannot be erased
 #guard_msgs (error) in
 example : p ∧ q → p := by
   grind [-And]
+
+example : (List.replicate n a)[m]? = if m < n then some a else none := by
+  grind?
+
+%reset_grind_attrs
+
+example : (List.replicate n a)[m]? = if m < n then some a else none := by
+  fail_if_success grind?
+  sorry

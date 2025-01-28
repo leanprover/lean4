@@ -10,16 +10,9 @@ import Init.Data.Array.Basic
 
 inductive Ordering where
   | lt | eq | gt
-deriving Inhabited, BEq
+deriving Inhabited, DecidableEq
 
 namespace Ordering
-
-deriving instance DecidableEq for Ordering
-
--- This becomes obsolete with https://github.com/leanprover/lean4/issues/5295
-instance : LawfulBEq Ordering where
-  eq_of_beq {a b} := by cases a <;> cases b <;> simp <;> rfl
-  rfl {a} := by cases a <;> rfl
 
 /-- Swaps less and greater ordering results -/
 def swap : Ordering → Ordering

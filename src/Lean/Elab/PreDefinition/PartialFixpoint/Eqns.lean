@@ -23,6 +23,18 @@ structure EqnInfo extends EqnInfoCore where
   fixedPrefixSize : Nat
   deriving Inhabited
 
+builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
+
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
+  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
+  unless preDefs.all fun p => p.kind.isTheorem do
+    unless (← preDefs.allM fun p => isProp p.type) do
+      let declNames := preDefs.map (·.declName)
+      modifyEnv fun env =>
+        preDefs.foldl (init := env) fun env preDef =>
+          eqnInfoExt.insert env preDef.declName { preDef with
+            declNames, declNameNonRec, fixedPrefixSize }
+
 private def deltaLHSUntilFix (declName declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | throwTacticEx `deltaLHSUntilFix mvarId "equality expected"
@@ -53,62 +65,50 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
-private partial def mkProof (declName : Name) (declNameNonRec : Name) (type : Expr) : MetaM Expr := do
-  trace[Elab.definition.partialFixpoint] "proving: {type}"
-  withNewMCtxDepth do
-    let main ← mkFreshExprSyntheticOpaqueMVar type
-    let (_, mvarId) ← main.mvarId!.intros
-    let mvarId ← deltaLHSUntilFix declName declNameNonRec mvarId
-    let mvarId ← rwFixEq mvarId
-    if ← withAtLeastTransparency .all (tryURefl mvarId) then
-      instantiateMVars main
-    else
-      throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-
-def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=
+/-- Generate the "unfold" lemma for `declName`. -/
+def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := withLCtx {} {} do
   withOptions (tactic.hygienic.set · false) do
-  let baseName := declName
-  let eqnTypes ← withNewMCtxDepth <| lambdaTelescope (cleanupAnnotations := true) info.value fun xs body => do
-    let us := info.levelParams.map mkLevelParam
-    let target ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
-    let goal ← mkFreshExprSyntheticOpaqueMVar target
-    withReducible do
-      mkEqnTypes info.declNames goal.mvarId!
-  let mut thmNames := #[]
-  for h : i in [: eqnTypes.size] do
-    let type := eqnTypes[i]
-    trace[Elab.definition.partialFixpoint] "{eqnTypes[i]}"
-    let name := (Name.str baseName eqnThmSuffixBase).appendIndexAfter (i+1)
-    thmNames := thmNames.push name
-    let value ← mkProof declName info.declNameNonRec type
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
-  return thmNames
-
-builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
-
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat) : MetaM Unit := do
-  preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
-  unless preDefs.all fun p => p.kind.isTheorem do
-    unless (← preDefs.allM fun p => isProp p.type) do
-      let declNames := preDefs.map (·.declName)
-      modifyEnv fun env =>
-        preDefs.foldl (init := env) fun env preDef =>
-          eqnInfoExt.insert env preDef.declName { preDef with
-            declNames, declNameNonRec, fixedPrefixSize }
-
-def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some info := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName info
-  else
-    return none
+    let baseName := declName
+    lambdaTelescope info.value fun xs body => do
+      let us := info.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
+      let goal ← withNewMCtxDepth do
+        try
+          let goal ← mkFreshExprSyntheticOpaqueMVar type
+          let mvarId := goal.mvarId!
+          trace[Elab.definition.partialFixpoint] "mkUnfoldEq start:{mvarId}"
+          let mvarId ← deltaLHSUntilFix declName info.declNameNonRec mvarId
+          trace[Elab.definition.partialFixpoint] "mkUnfoldEq after deltaLHS:{mvarId}"
+          let mvarId ← rwFixEq mvarId
+          trace[Elab.definition.partialFixpoint] "mkUnfoldEq after rwFixEq:{mvarId}"
+          withAtLeastTransparency .all <|
+            withOptions (smartUnfolding.set · false) <|
+              mvarId.refl
+          trace[Elab.definition.partialFixpoint] "mkUnfoldEq rfl succeeded"
+          instantiateMVars goal
+        catch e =>
+          throwError "failed to generate unfold theorem for '{declName}':\n{e.toMessageData}"
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs goal
+      let name := Name.str baseName unfoldThmSuffix
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := info.levelParams
+      }
+      return name
 
 def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
+  let name := Name.str declName unfoldThmSuffix
   let env ← getEnv
-  Eqns.getUnfoldFor? declName fun _ => eqnInfoExt.find? env declName |>.map (·.toEqnInfoCore)
+  if env.contains name then return name
+  let some info := eqnInfoExt.find? env declName | return none
+  return some (← mkUnfoldEq declName info)
+
+def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
+  if let some _ := eqnInfoExt.find? (← getEnv) declName then
+    mkEqns declName
+  else
+    return none
 
 builtin_initialize
   registerGetEqnsFn getEqnsFor?

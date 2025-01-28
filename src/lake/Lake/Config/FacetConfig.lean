@@ -5,25 +5,31 @@ Authors: Mac Malone, Mario Carneiro
 -/
 prelude
 import Lake.Build.Fetch
+import Lake.Config.OutFormat
 
 namespace Lake
 open Lean (Name)
 
 /-- A facet's declarative configuration. -/
 structure FacetConfig (DataFam : Name → Type) (ι : Type) (name : Name) : Type where
-  /-- The facet's build function. -/
-  build : ι → FetchM (Job (DataFam name))
-  /-- Does this facet  compatible with the `lake build` CLI? -/
-  cli : Bool := true
+  /-- The facet's fetch function. -/
+  fetchFn : ι → FetchM (Job (DataFam name))
+  /-- Is this facet compatible with the `lake build` CLI? -/
+  buildable : Bool := true
+  /-- Format this facet's output (e.g., for `lake query`). -/
+  format : OutFormat → DataFam name → String
   deriving Inhabited
 
 protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
 
 /-- A smart constructor for facet configurations that generate jobs for the CLI. -/
 @[inline] def mkFacetJobConfig
-  (build : ι → FetchM (Job α)) [h : FamilyOut Fam facet α]
-: FacetConfig Fam ι facet  where
-  build := cast (by rw [← h.family_key_eq_type]) build
+  [FormatQuery α] [h : FamilyOut Fam facet α]
+  (build : ι → FetchM (Job α)) (buildable := true)
+: FacetConfig Fam ι facet where
+  buildable
+  fetchFn := h.family_key_eq_type ▸ build
+  format := h.family_key_eq_type ▸ formatQuery
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

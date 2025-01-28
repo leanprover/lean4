@@ -6,6 +6,8 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.Simp
+import Lean.Meta.Injective
 
 /-!
 This module contains the implementation of the pre processing pass for automatically splitting up
@@ -16,6 +18,8 @@ it is a non recursive structure and at least one of the following conditions hol
 - it contains something of type `BitVec`/`UIntX`/`Bool`
 - it is parametrized by an interesting type
 - it contains another interesting type
+Afterwards we also apply relevant `injEq` theorems to support at least equality for these types out
+of the box.
 -/
 
 namespace Lean.Elab.Tactic.BVDecide
@@ -28,7 +32,8 @@ Contains a cache for interesting and uninteresting types such that we don't dupl
 structures pass.
 -/
 structure InterestingStructures where
-  interesting : Std.HashMap Name Bool := {}
+  interesting : Std.HashSet Name := {}
+  uninteresting : Std.HashSet Name := {}
 
 private abbrev M := StateRefT InterestingStructures MetaM
 
@@ -37,15 +42,20 @@ namespace M
 @[inline]
 def lookup (n : Name) : M (Option Bool) := do
   let s ← get
-  return s.interesting.get? n
+  if s.uninteresting.contains n then
+    return some false
+  else if s.interesting.contains n then
+    return some true
+  else
+    return none
 
 @[inline]
 def markInteresting (n : Name) : M Unit := do
-  modify (fun s => {s with interesting := s.interesting.insert n true})
+  modify (fun s => {s with interesting := s.interesting.insert n })
 
 @[inline]
 def markUninteresting (n : Name) : M Unit := do
-  modify (fun s => {s with interesting := s.interesting.insert n false})
+  modify (fun s => {s with uninteresting := s.uninteresting.insert n })
 
 end M
 
@@ -59,11 +69,31 @@ partial def structuresPass : Pass where
         return false
       else
         let some const := decl.type.getAppFn.constName? | return false
-        return interesting.getD const false
+        return interesting.contains const
     match goals with
-    | [goal] => return goal
+    | [goal] => postprocess goal interesting
     | _ => throwError "structures preprocessor generated more than 1 goal"
 where
+  postprocess (goal : MVarId) (interesting : Std.HashSet Name) : PreProcessM (Option MVarId) := do
+    goal.withContext do
+      let mut relevantLemmas : SimpTheoremsArray := #[]
+      for const in interesting do
+        let constInfo ← getConstInfoInduct const
+        let ctorName := (← getConstInfoCtor constInfo.ctors.head!).name
+        let lemmaName := mkInjectiveEqTheoremNameFor ctorName
+        if (← getEnv).find? lemmaName |>.isSome then
+          trace[Meta.Tactic.bv] m!"Using injEq lemma: {lemmaName}"
+          let statement ← mkConstWithLevelParams lemmaName
+          relevantLemmas ← relevantLemmas.addTheorem (.decl lemmaName) statement
+      let cfg ← PreProcessM.getConfig
+      let simpCtx ← Simp.mkContext
+        (config := { failIfUnchanged := false, maxSteps := cfg.maxSteps })
+        (simpTheorems := relevantLemmas)
+        (congrTheorems := ← getSimpCongrTheorems)
+      let ⟨result?, _⟩ ← simpGoal goal (ctx := simpCtx) (fvarIdsToSimp := ← getPropHyps)
+      let some (_, newGoal) := result? | return none
+      return newGoal
+
   checkContext (goal : MVarId) : M Unit := do
     goal.withContext do
       for decl in ← getLCtx do
@@ -86,7 +116,7 @@ where
     let env ← getEnv
     if !isStructure env n then
       return false
-    let constInfo := (← getConstInfoInduct n)
+    let constInfo ← getConstInfoInduct n
     if constInfo.isRec then
       return false
 

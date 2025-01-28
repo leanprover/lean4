@@ -103,13 +103,10 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
           return .ready info.ctors.length info.isRec
     if e.isFVar then
       let type ← whnfD (← inferType e)
-      trace[Meta.debug] "1. {e}"
       let report : GoalM Unit := do
         reportIssue "cannot perform case-split on {e}, unexpected type{indentExpr type}"
       let .const declName _ := type.getAppFn | report; return .resolved
-      trace[Meta.debug] "2. {e}"
       let .inductInfo info ← getConstInfo declName | report; return .resolved
-      trace[Meta.debug] "3. {e}"
       return .ready info.ctors.length info.isRec
     return .notReady
 
@@ -193,6 +190,9 @@ def splitNext : GrindTactic := fun goal => do
       casesMatch (← get).mvarId c
     else
       let major ← mkCasesMajor c
+      if (← getConfig).trace then
+        if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
+          saveCases declName false
       cases (← get).mvarId major
     let goal ← get
     let goals := mvarIds.map fun mvarId => { goal with mvarId }

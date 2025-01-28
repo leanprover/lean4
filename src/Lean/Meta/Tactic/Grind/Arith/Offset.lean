@@ -65,18 +65,23 @@ private def getNodeId (e : Expr) : GoalM NodeId := do
     | throwError "internal `grind` error, term has not been internalized by offset module{indentExpr e}"
   return nodeId
 
+private def getProof (u v : NodeId) : GoalM ProofInfo := do
+  let some p ← getProof? u v
+    | throwError "internal `grind` error, failed to construct proof for{indentExpr (← getExpr u)}\nand{indentExpr (← getExpr v)}"
+  return p
+
 /--
 Returns a proof for `u + k ≤ v` (or `u ≤ v + k`) where `k` is the
 shortest path between `u` and `v`.
 -/
 private partial def mkProofForPath (u v : NodeId) : GoalM Expr := do
-  go (← getProof? u v).get!
+  go (← getProof u v)
 where
   go (p : ProofInfo) : GoalM Expr := do
     if u == p.w then
       return p.proof
     else
-      let p' := (← getProof? u p.w).get!
+      let p' ← getProof u p.w
       go (mkTrans (← get').nodes p' p v)
 
 /--
@@ -119,32 +124,68 @@ private def isShorter (u v : NodeId) (k : Int) : GoalM Bool := do
   else
     return true
 
+/-- Adds `p` to the list of things to be propagated. -/
+private def pushToPropagate (p : ToPropagate) : GoalM Unit :=
+  modify' fun s => { s with propagate := p :: s.propagate }
+
+private def propagateEqTrue (e : Expr) (u v : NodeId) (k k' : Int) : GoalM Unit := do
+  let kuv ← mkProofForPath u v
+  let u ← getExpr u
+  let v ← getExpr v
+  pushEqTrue e <| mkPropagateEqTrueProof u v k kuv k'
+
+private def propagateEqFalse (e : Expr) (u v : NodeId) (k k' : Int) : GoalM Unit := do
+  let kuv ← mkProofForPath u v
+  let u ← getExpr u
+  let v ← getExpr v
+  pushEqFalse e <| mkPropagateEqFalseProof u v k kuv k'
+
+/-- Propagates all pending contraints and equalities and resets to "to do" list. -/
+private def propagatePending : GoalM Unit := do
+  let todo ← modifyGet fun s => (s.arith.offset.propagate, { s with arith.offset.propagate := [] })
+  for p in todo do
+    match p with
+    | .eqTrue e u v k k' => propagateEqTrue e u v k k'
+    | .eqFalse e u v k k' => propagateEqFalse e u v k k'
+    | .eq u v =>
+      let ue ← getExpr u
+      let ve ← getExpr v
+      unless (← isEqv ue ve) do
+        let huv ← mkProofForPath u v
+        let hvu ← mkProofForPath v u
+        pushEq ue ve <| mkApp4 (mkConst ``Grind.Nat.eq_of_le_of_le) ue ve huv hvu
+
 /--
-Tries to assign `e` to `True`, which is represented by constraint `c` (from `u` to `v`), using the
-path `u --(k)--> v`.
+Given `e` represented by constraint `c` (from `u` to `v`).
+Checks whether `e = True` can be propagated using the path `u --(k)--> v`.
+If it can, adds a new entry to propagation list.
 -/
-private def propagateTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+private def checkEqTrue (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
   if k ≤ c.k then
-    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = True"
-    let kuv ← mkProofForPath u v
-    let u ← getExpr u
-    let v ← getExpr v
-    pushEqTrue e <| mkPropagateEqTrueProof u v k kuv c.k
+    pushToPropagate <| .eqTrue e u v k c.k
     return true
   return false
 
 /--
-Tries to assign `e` to `False`, which is represented by constraint `c` (from `v` to `u`), using the
-path `u --(k)--> v`.
+Given `e` represented by constraint `c` (from `v` to `u`).
+Checks whether `e = False` can be propagated using the path `u --(k)--> v`.
+If it can, adds a new entry to propagation list.
 -/
-private def propagateFalse (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
+private def checkEqFalse (u v : NodeId) (k : Int) (c : Cnstr NodeId) (e : Expr) : GoalM Bool := do
   if k + c.k < 0 then
-    trace[grind.offset.propagate] "{{ u, v, k : Cnstr NodeId}} ==> {e} = False"
-    let kuv ← mkProofForPath u v
-    let u ← getExpr u
-    let v ← getExpr v
-    pushEqFalse e <| mkPropagateEqFalseProof u v k kuv c.k
+    pushToPropagate <| .eqFalse e u v k c.k
+    return true
   return false
+
+/-- Equality propagation. -/
+private def checkEq (u v : NodeId) (k : Int) : GoalM Unit := do
+  if k != 0 then return ()
+  let some k' ← getDist? v u | return ()
+  if k' != 0 then return ()
+  let ue ← getExpr u
+  let ve ← getExpr v
+  if (← isEqv ue ve) then return ()
+  pushToPropagate <| .eq u v
 
 /--
 Auxiliary function for implementing `propagateAll`.
@@ -164,34 +205,44 @@ private def updateCnstrsOf (u v : NodeId) (f : Cnstr NodeId → Expr → GoalM B
         return !(← f c e)
     modify' fun s => { s with cnstrsOf := s.cnstrsOf.insert (u, v) cs' }
 
-/-- Equality propagation. -/
-private def propagateEq (u v : NodeId) (k : Int) : GoalM Unit := do
-  if k != 0 then return ()
-  let some k' ← getDist? v u | return ()
-  if k' != 0 then return ()
-  let ue ← getExpr u
-  let ve ← getExpr v
-  if (← isEqv ue ve) then return ()
-  let huv ← mkProofForPath u v
-  let hvu ← mkProofForPath v u
-  trace[grind.offset.eq.from] "{ue}, {ve}"
-  pushEq ue ve <| mkApp4 (mkConst ``Grind.Nat.eq_of_le_of_le) ue ve huv hvu
-
-/-- Performs constraint propagation. -/
-private def propagateAll (u v : NodeId) (k : Int) : GoalM Unit := do
-  updateCnstrsOf u v fun c e => return !(← propagateTrue u v k c e)
-  updateCnstrsOf v u fun c e => return !(← propagateFalse u v k c e)
-  propagateEq u v k
+/-- Finds constrains and equalities to be propagated. -/
+private def checkToPropagate (u v : NodeId) (k : Int) : GoalM Unit := do
+  updateCnstrsOf u v fun c e => return !(← checkEqTrue u v k c e)
+  updateCnstrsOf v u fun c e => return !(← checkEqFalse u v k c e)
+  checkEq u v k
 
 /--
 If `isShorter u v k`, updates the shortest distance between `u` and `v`.
-`w` is the penultimate node in the path from `u` to `v`.
+`w` is a node in the path from `u` to `v` such that `(← getProof? w v)` is `some`
 -/
 private def updateIfShorter (u v : NodeId) (k : Int) (w : NodeId) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
-    setProof u v (← getProof? w v).get!
-    propagateAll u v k
+    setProof u v (← getProof w v)
+    checkToPropagate u v k
+
+def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
+  let u := (← get').nodes[c.u]!
+  let v := (← get').nodes[c.v]!
+  if c.k == 0 then
+    return mkNatLE u v
+  else if c.k < 0 then
+    return mkNatLE (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
+  else
+    return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
+
+def checkInvariants : GoalM Unit := do
+  let s ← get'
+  for u in [:s.targets.size], es in s.targets.toArray do
+    for (v, k) in es do
+      let c : Cnstr NodeId := { u, v, k }
+      trace[grind.debug.offset] "{c}"
+      let p ← mkProofForPath u v
+      trace[grind.debug.offset.proof] "{p} : {← inferType p}"
+      check p
+      unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
+        trace[grind.debug.offset.proof] "failed: {← inferType p} =?= {← Cnstr.toExpr c}"
+        unreachable!
 
 /--
 Adds an edge `u --(k) --> v` justified by the proof term `p`, and then
@@ -207,8 +258,9 @@ def addEdge (u : NodeId) (v : NodeId) (k : Int) (p : Expr) : GoalM Unit := do
   if (← isShorter u v k) then
     setDist u v k
     setProof u v { w := u, k, proof := p }
-    propagateAll u v k
+    checkToPropagate u v k
     update
+    propagatePending
 where
   update : GoalM Unit := do
     forEachTargetOf v fun j k₂ => do
@@ -226,10 +278,12 @@ private def internalizeCnstr (e : Expr) (c : Cnstr Expr) : GoalM Unit := do
   let v ← mkNode c.v
   let c := { c with u, v }
   if let some k ← getDist? u v then
-    if (← propagateTrue u v k c e) then
+    if k ≤ c.k then
+      propagateEqTrue e u v k c.k
       return ()
   if let some k ← getDist? v u then
-    if (← propagateFalse v u k c e) then
+    if k + c.k < 0 then
+      propagateEqFalse e v u k c.k
       return ()
   trace[grind.offset.internalize] "{e} ↦ {c}"
   modify' fun s => { s with
@@ -314,28 +368,5 @@ def traceDists : GoalM Unit := do
   for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
       trace[grind.offset.dist] "#{u} -({k})-> #{v}"
-
-def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
-  let u := (← get').nodes[c.u]!
-  let v := (← get').nodes[c.v]!
-  if c.k == 0 then
-    return mkNatLE u v
-  else if c.k < 0 then
-    return mkNatLE (mkNatAdd u (Lean.toExpr ((-c.k).toNat))) v
-  else
-    return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
-
-def checkInvariants : GoalM Unit := do
-  let s ← get'
-  for u in [:s.targets.size], es in s.targets.toArray do
-    for (v, k) in es do
-      let c : Cnstr NodeId := { u, v, k }
-      trace[grind.debug.offset] "{c}"
-      let p ← mkProofForPath u v
-      trace[grind.debug.offset.proof] "{p} : {← inferType p}"
-      check p
-      unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
-        trace[grind.debug.offset.proof] "failed: {← inferType p} =?= {← Cnstr.toExpr c}"
-        unreachable!
 
 end Lean.Meta.Grind.Arith.Offset

@@ -242,17 +242,17 @@ private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
   let mut prop ← inferType proof
-  if Match.isMatchEqnTheorem (← getEnv) origin.key then
+  if Match.isMatchEqnTheorem (← getEnv) thm.origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
-  else if (← isEqnThm origin.key) then
+  else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
-  trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
-  addTheoremInstance proof prop (generation+1)
+  trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
+  addTheoremInstance thm proof prop (generation+1)
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -301,13 +301,13 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
         return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
-    addNewInstance thm.origin proof c.gen
+    addNewInstance thm proof c.gen
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
       reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-    addNewInstance thm.origin proof c.gen
+    addNewInstance thm proof c.gen
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do

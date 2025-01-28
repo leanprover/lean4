@@ -291,6 +291,14 @@ theorem BitVec.zero_ult' (a : BitVec w) : (BitVec.ult 0#w a) = (!a == 0#w) := by
   | true => simp_all
   | false => simp_all
 
+@[bv_normalize]
+theorem BitVec.lt_irrefl (a : BitVec n) : (BitVec.ult a a) = false := by
+  rw [← Bool.not_eq_true, ← BitVec.lt_ult]
+  exact _root_.BitVec.lt_irrefl _
+
+@[bv_normalize]
+theorem BitVec.not_lt_zero (a : BitVec n) : (BitVec.ult a 0#n) = false := by rfl
+
 theorem BitVec.max_ult (a : BitVec w) : ¬ ((-1#w) < a) := by
   rcases w with rfl | w
   · simp [bv_toNat, BitVec.toNat_of_zero_length]

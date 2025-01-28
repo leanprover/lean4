@@ -75,6 +75,12 @@ structure CasesTrace where
   eager : Bool
   deriving BEq, Hashable
 
+/--
+E-match theorems and case-splits performed by `grind`.
+Note that it may contain elements that are not needed by the final proof.
+For example, `grind` instantiated the theorem, but theorem instance was not actually used
+in the proof.
+-/
 structure Trace where
   thms  : PHashSet EMatchTheoremTrace := {}
   cases : PHashSet CasesTrace := {}

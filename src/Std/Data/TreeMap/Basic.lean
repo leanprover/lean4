@@ -81,9 +81,13 @@ def insert (l : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
 def contains (l : TreeMap α β cmp) (a : α) : Bool :=
   l.inner.contains a
 
+@[inline, inherit_doc DTreeMap.size]
+def size (t : TreeMap α β cmp) : Nat :=
+  t.inner.size
+
 @[inline, inherit_doc DTreeMap.erase]
-def erase (l : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
-  ⟨l.inner.erase a⟩
+def erase (t : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
+  ⟨t.inner.erase a⟩
 
 instance : Membership α (TreeMap α β cmp) where
   mem m a := m.contains a

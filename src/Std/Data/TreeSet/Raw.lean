@@ -123,10 +123,15 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
 def contains (l : Raw α cmp) (a : α) : Bool :=
   l.inner.contains a
 
+/-- Returns the number of mappings present in the map. -/
+@[inline]
+def size (t : Raw α cmp) : Nat :=
+  t.inner.size
+
 /-- Removes the given key if it exists. -/
 @[inline]
-def erase (l : Raw α cmp) (a : α) : Raw α cmp :=
-  ⟨l.inner.erase a⟩
+def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
+  ⟨t.inner.erase a⟩
 
 instance : Membership α (Raw α cmp) where
   mem m a := m.contains a

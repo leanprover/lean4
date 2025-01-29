@@ -739,7 +739,15 @@ where
         return none
     | _ => return none
 
-def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind) : MetaM (Option EMatchTheorem) := do
+/--
+Creates an E-match theorem using the given proof and kind.
+If `groundPatterns` is `true`, it accepts patterns without pattern variables. This is useful for
+theorems such as `theorem evenZ : Even 0`. For local theorems, we use `groundPatterns := false`
+since the theorem is already in the `grind` state and there is nothing to be instantiated.
+-/
+def mkEMatchTheoremWithKind?
+      (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+      (groundPatterns := true) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
@@ -762,6 +770,8 @@ where
   go (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option EMatchTheorem) := do
     let (patterns, symbols) ← if let some r ← collectPatterns? proof xs searchPlaces then
       pure r
+    else if !groundPatterns then
+      return none
     else if let some (pattern, symbols) ← collectGroundPattern? proof xs searchPlaces then
       pure ([pattern], symbols)
     else

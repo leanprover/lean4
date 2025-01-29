@@ -4250,7 +4250,7 @@ static lean_object* _init_l_Array_mapFinIdxM_map___at_Lean_Elab_partialFixpoint_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("` instance.\nUse `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.", 82, 82);
+x_1 = lean_mk_string_unchecked("` instance.\nUse `set_option trace.Elab.Tactic.monotonicity true` to debug.", 74, 74);
 return x_1;
 }
 }

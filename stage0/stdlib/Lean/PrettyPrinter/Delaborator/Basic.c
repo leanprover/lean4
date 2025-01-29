@@ -9417,6 +9417,7 @@ lean_inc(x_29);
 lean_dec(x_27);
 x_30 = l_Lean_PrettyPrinter_Delaborator_delabFor___closed__1;
 x_31 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_30, x_29, x_1);
+lean_dec(x_29);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);

@@ -2810,6 +2810,7 @@ if (lean_obj_tag(x_5) == 1)
 uint8_t x_6; 
 x_6 = l_Lean_Meta_isInstanceCore(x_1, x_3);
 lean_dec(x_3);
+lean_dec(x_1);
 if (x_6 == 0)
 {
 if (x_2 == 0)

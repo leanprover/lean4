@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.SimpUtil
-// Imports: Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Grind.Simp Lean.Meta.Tactic.Grind.DoNotSimp Lean.Meta.Tactic.Grind.MatchCond Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
+// Imports: Lean.Meta.Tactic.Simp.Simproc Lean.Meta.Tactic.Grind.Simp Lean.Meta.Tactic.Grind.MatchDiscrOnly Lean.Meta.Tactic.Grind.MatchCond Lean.Meta.Tactic.Simp.BuiltinSimprocs.List
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_registerNormTheorems(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__6;
 static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__7;
+lean_object* l_Lean_Meta_Grind_addSimpMatchDiscrsOnly(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getSimprocs___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_isEmpty___at_Lean_Meta_Grind_registerNormTheorems___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_registerNormTheorems___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -33,7 +34,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_getSimpContext(lean_object*, lean_obj
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_SimpUtil___hyg_3____closed__2;
 static lean_object* l_Lean_Meta_Grind_initFn____x40_Lean_Meta_Tactic_Grind_SimpUtil___hyg_3____closed__1;
 static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__5;
-lean_object* l_Lean_Meta_Grind_addDoNotSimp(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_normExt;
 static lean_object* l_Lean_Meta_Grind_normalizeImp___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_registerNormTheorems___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -559,7 +559,7 @@ x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_Meta_Grind_getSimprocs___rarg___closed__3;
 x_9 = l_Lean_Meta_Simp_Simprocs_erase(x_6, x_8);
-x_10 = l_Lean_Meta_Grind_addDoNotSimp(x_9, x_1, x_2, x_7);
+x_10 = l_Lean_Meta_Grind_addSimpMatchDiscrsOnly(x_9, x_1, x_2, x_7);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; 
@@ -662,7 +662,7 @@ lean_inc(x_31);
 lean_dec(x_4);
 x_33 = l_Lean_Meta_Grind_getSimprocs___rarg___closed__3;
 x_34 = l_Lean_Meta_Simp_Simprocs_erase(x_31, x_33);
-x_35 = l_Lean_Meta_Grind_addDoNotSimp(x_34, x_1, x_2, x_32);
+x_35 = l_Lean_Meta_Grind_addSimpMatchDiscrsOnly(x_34, x_1, x_2, x_32);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; lean_object* x_38; 
@@ -1078,7 +1078,7 @@ return x_31;
 }
 lean_object* initialize_Lean_Meta_Tactic_Simp_Simproc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_Simp(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Meta_Tactic_Grind_DoNotSimp(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_MatchDiscrOnly(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Grind_MatchCond(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Simp_BuiltinSimprocs_List(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -1092,7 +1092,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Simp(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Meta_Tactic_Grind_DoNotSimp(builtin, lean_io_mk_world());
+res = initialize_Lean_Meta_Tactic_Grind_MatchDiscrOnly(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_MatchCond(builtin, lean_io_mk_world());

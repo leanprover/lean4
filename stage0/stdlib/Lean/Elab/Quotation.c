@@ -13290,6 +13290,7 @@ x_16 = lean_ctor_get(x_7, 7);
 lean_inc(x_16);
 lean_inc(x_1);
 x_17 = l_Lean_ResolveName_resolveNamespace(x_14, x_15, x_16, x_1);
+lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_18; 
@@ -13366,6 +13367,7 @@ x_37 = lean_ctor_get(x_7, 7);
 lean_inc(x_37);
 lean_inc(x_1);
 x_38 = l_Lean_ResolveName_resolveNamespace(x_35, x_36, x_37, x_1);
+lean_dec(x_35);
 if (x_2 == 0)
 {
 uint8_t x_39; 

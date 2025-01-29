@@ -1197,6 +1197,7 @@ lean_object* x_6; lean_object* x_7; uint8_t x_8;
 x_6 = lean_ctor_get(x_4, 0);
 x_7 = lean_ctor_get(x_4, 1);
 x_8 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_6, x_1);
+lean_dec(x_6);
 if (x_8 == 0)
 {
 lean_object* x_9; 
@@ -1357,6 +1358,7 @@ lean_inc(x_50);
 lean_inc(x_49);
 lean_dec(x_4);
 x_51 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_49, x_1);
+lean_dec(x_49);
 if (x_51 == 0)
 {
 lean_object* x_52; lean_object* x_53; 

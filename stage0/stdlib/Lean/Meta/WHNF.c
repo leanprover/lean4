@@ -1014,6 +1014,7 @@ lean_object* x_12; uint8_t x_13; lean_object* x_14;
 x_12 = l_Lean_Meta_isAuxDef___closed__1;
 x_13 = l_Lean_TagDeclarationExtension_isTagged(x_12, x_10, x_1);
 lean_dec(x_1);
+lean_dec(x_10);
 x_14 = lean_box(x_13);
 lean_ctor_set(x_7, 0, x_14);
 return x_7;
@@ -1049,6 +1050,7 @@ lean_object* x_21; uint8_t x_22; lean_object* x_23; lean_object* x_24;
 x_21 = l_Lean_Meta_isAuxDef___closed__1;
 x_22 = l_Lean_TagDeclarationExtension_isTagged(x_21, x_19, x_1);
 lean_dec(x_1);
+lean_dec(x_19);
 x_23 = lean_box(x_22);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
@@ -3490,6 +3492,7 @@ lean_inc(x_13);
 lean_dec(x_1);
 lean_inc(x_13);
 x_14 = l_Lean_getStructureInfo_x3f(x_12, x_13);
+lean_dec(x_12);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -3546,6 +3549,7 @@ lean_inc(x_26);
 lean_dec(x_1);
 lean_inc(x_26);
 x_27 = l_Lean_getStructureInfo_x3f(x_25, x_26);
+lean_dec(x_25);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; 
@@ -6394,6 +6398,7 @@ lean_dec(x_9);
 x_11 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_12 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_getStuckMVar_x3f___spec__1___closed__1;
 x_13 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_11, x_12, x_10, x_1);
+lean_dec(x_10);
 lean_ctor_set(x_7, 0, x_13);
 return x_7;
 }
@@ -6411,6 +6416,7 @@ lean_dec(x_14);
 x_17 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_18 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_getStuckMVar_x3f___spec__1___closed__1;
 x_19 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_17, x_18, x_16, x_1);
+lean_dec(x_16);
 x_20 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_20, 0, x_19);
 lean_ctor_set(x_20, 1, x_15);
@@ -15574,6 +15580,7 @@ lean_inc(x_45);
 lean_dec(x_44);
 x_46 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
 x_47 = l_Lean_TagAttribute_hasTag(x_46, x_45, x_31);
+lean_dec(x_45);
 if (x_47 == 0)
 {
 lean_object* x_48; uint8_t x_49; 
@@ -15862,6 +15869,7 @@ lean_inc(x_123);
 lean_dec(x_121);
 x_124 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
 x_125 = l_Lean_TagAttribute_hasTag(x_124, x_123, x_31);
+lean_dec(x_123);
 if (x_125 == 0)
 {
 lean_object* x_126; uint8_t x_127; 
@@ -16220,6 +16228,7 @@ lean_inc(x_228);
 lean_dec(x_225);
 x_229 = l_Lean_Meta_canUnfoldAtMatcher___closed__1;
 x_230 = l_Lean_TagAttribute_hasTag(x_229, x_228, x_31);
+lean_dec(x_228);
 if (x_230 == 0)
 {
 lean_object* x_231; uint8_t x_232; 
@@ -17052,6 +17061,7 @@ x_10 = lean_ctor_get(x_9, 0);
 lean_inc(x_10);
 lean_dec(x_9);
 x_11 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_10, x_1);
+lean_dec(x_10);
 lean_ctor_set(x_7, 0, x_11);
 return x_7;
 }
@@ -17067,6 +17077,7 @@ x_14 = lean_ctor_get(x_12, 0);
 lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_14, x_1);
+lean_dec(x_14);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_13);

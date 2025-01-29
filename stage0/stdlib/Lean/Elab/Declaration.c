@@ -1820,6 +1820,7 @@ lean_inc(x_27);
 lean_dec(x_25);
 lean_inc(x_2);
 x_28 = l_Lean_isExtern(x_27, x_2);
+lean_dec(x_27);
 if (x_28 == 0)
 {
 uint8_t x_29; lean_object* x_30; 
@@ -6476,6 +6477,7 @@ x_9 = l_Lean_Syntax_getKind(x_1);
 x_10 = l_Lean_Elab_Command_isInductiveCommand___at_Lean_Elab_Command_elabMutual___spec__2___closed__1;
 x_11 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_10, x_8, x_9);
 lean_dec(x_9);
+lean_dec(x_8);
 x_12 = l_List_isEmpty___rarg(x_11);
 lean_dec(x_11);
 if (x_12 == 0)
@@ -6510,6 +6512,7 @@ x_20 = l_Lean_Syntax_getKind(x_1);
 x_21 = l_Lean_Elab_Command_isInductiveCommand___at_Lean_Elab_Command_elabMutual___spec__2___closed__1;
 x_22 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_21, x_19, x_20);
 lean_dec(x_20);
+lean_dec(x_19);
 x_23 = l_List_isEmpty___rarg(x_22);
 lean_dec(x_22);
 if (x_23 == 0)
@@ -7086,6 +7089,7 @@ x_31 = lean_ctor_get(x_29, 0);
 lean_inc(x_31);
 lean_dec(x_29);
 x_32 = l_Lean_isAttribute(x_31, x_26);
+lean_dec(x_31);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; uint8_t x_37; lean_object* x_38; lean_object* x_39; size_t x_40; size_t x_41; 
@@ -7137,6 +7141,7 @@ x_49 = lean_ctor_get(x_47, 0);
 lean_inc(x_49);
 lean_dec(x_47);
 x_50 = l_Lean_isAttribute(x_49, x_26);
+lean_dec(x_49);
 if (x_50 == 0)
 {
 lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_object* x_58; size_t x_59; size_t x_60; 
@@ -7228,6 +7233,7 @@ x_84 = lean_ctor_get(x_81, 0);
 lean_inc(x_84);
 lean_dec(x_81);
 x_85 = l_Lean_isAttribute(x_84, x_79);
+lean_dec(x_84);
 if (x_85 == 0)
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; uint8_t x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; size_t x_95; size_t x_96; 
@@ -8637,6 +8643,7 @@ x_11 = l_Lean_instInhabitedDeclarationRanges;
 x_12 = l_Lean_addDeclarationRanges___at_Lean_Elab_Command_elabInitialize___spec__4___closed__1;
 lean_inc(x_1);
 x_13 = l_Lean_MapDeclarationExtension_contains___rarg(x_11, x_12, x_10, x_1);
+lean_dec(x_10);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -8758,6 +8765,7 @@ x_47 = l_Lean_instInhabitedDeclarationRanges;
 x_48 = l_Lean_addDeclarationRanges___at_Lean_Elab_Command_elabInitialize___spec__4___closed__1;
 lean_inc(x_1);
 x_49 = l_Lean_MapDeclarationExtension_contains___rarg(x_47, x_48, x_46, x_1);
+lean_dec(x_46);
 if (x_49 == 0)
 {
 lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; 

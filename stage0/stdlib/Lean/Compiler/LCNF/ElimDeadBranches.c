@@ -343,6 +343,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Compiler_LCNF_UnreachableBranches_elimDead_go___spec__5___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_ElimDeadBranches_0__Lean_Compiler_LCNF_UnreachableBranches_resetNestedFunDeclParams(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_Value_ofNat_goBig___closed__1;
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lean_Compiler_LCNF_Decl_elimDeadBranches___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_UnreachableBranches_inferStep___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7987,6 +7988,15 @@ lean_dec(x_2);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
 static lean_object* _init_l_Lean_Compiler_LCNF_UnreachableBranches_getAssignment___closed__1() {
 _start:
 {
@@ -11024,6 +11034,7 @@ else
 lean_object* x_95; 
 lean_inc(x_24);
 x_95 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_30, x_24);
+lean_dec(x_30);
 if (lean_obj_tag(x_95) == 0)
 {
 lean_object* x_96; lean_object* x_97; 
@@ -11148,6 +11159,7 @@ else
 lean_object* x_117; 
 lean_inc(x_24);
 x_117 = l_Lean_Compiler_LCNF_UnreachableBranches_getFunctionSummary_x3f(x_30, x_24);
+lean_dec(x_30);
 if (lean_obj_tag(x_117) == 0)
 {
 lean_object* x_118; lean_object* x_119; 

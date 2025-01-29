@@ -16228,6 +16228,7 @@ lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___closed__2;
 x_24 = l_Lean_getAttributeImpl(x_22, x_23);
+lean_dec(x_22);
 x_25 = l_Lean_ofExcept___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__1(x_24, x_5, x_6, x_7, x_8, x_21);
 lean_dec(x_24);
 if (lean_obj_tag(x_25) == 0)

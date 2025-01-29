@@ -19,7 +19,6 @@ uint8_t lean_usize_dec_le(size_t, size_t);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* lean_array_push(lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51____closed__1;
@@ -30,7 +29,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_mkAux
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51____closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedAuxLemmas;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_mkAuxLemma___spec__5(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51_(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
@@ -48,6 +46,8 @@ uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40
 static lean_object* l_Lean_Meta_mkAuxLemma___closed__3;
 uint64_t l_Lean_Expr_hash(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
+lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_mkAuxLemma___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instInhabitedAuxLemmas___closed__1;
@@ -144,7 +144,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_AuxLemma___hyg_51____closed__2;
-x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -983,8 +983,7 @@ lean_inc(x_13);
 lean_dec(x_11);
 x_14 = l_Lean_Meta_instInhabitedAuxLemmas;
 x_15 = l_Lean_Meta_mkAuxLemma___closed__1;
-lean_inc(x_13);
-x_16 = l_Lean_EnvExtension_getState___rarg(x_14, x_15, x_13);
+x_16 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_14, x_15, x_13);
 x_17 = l_Lean_Environment_mainModule(x_13);
 lean_dec(x_13);
 x_18 = l_Lean_Meta_mkAuxLemma___closed__3;
@@ -1530,8 +1529,7 @@ lean_inc(x_165);
 lean_dec(x_163);
 x_166 = l_Lean_Meta_instInhabitedAuxLemmas;
 x_167 = l_Lean_Meta_mkAuxLemma___closed__1;
-lean_inc(x_165);
-x_168 = l_Lean_EnvExtension_getState___rarg(x_166, x_167, x_165);
+x_168 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_166, x_167, x_165);
 x_169 = l_Lean_Environment_mainModule(x_165);
 lean_dec(x_165);
 x_170 = l_Lean_Meta_mkAuxLemma___closed__3;

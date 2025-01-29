@@ -1002,7 +1002,7 @@ private theorem beq_of_beq_singleton [BEq α] {a b : α} : #[a] == #[b] → a ==
   · intro h
     constructor
     · intro a b h
-      obtain ⟨hs, hi⟩ := rel_of_isEqv h
+      obtain ⟨hs, hi⟩ := isEqv_iff_rel.mp h
       ext i h₁ h₂
       · exact hs
       · simpa using hi _ h₁

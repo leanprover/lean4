@@ -1131,7 +1131,7 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
       constructor
       · rintro ⟨a, ha⟩ ⟨b, hb⟩ h
         simp at h
-        obtain ⟨hs, hi⟩ := Array.rel_of_isEqv h
+        obtain ⟨hs, hi⟩ := Array.isEqv_iff_rel.mp h
         ext i h
         · simpa using hi _ (by omega)
       · rintro ⟨a, ha⟩

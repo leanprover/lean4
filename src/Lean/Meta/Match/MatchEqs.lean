@@ -74,7 +74,7 @@ where
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!
+            let major := args[recVal.getMajorIdx]!.consumeMData
             if major.isFVar then
               return some major.fvarId!
             else

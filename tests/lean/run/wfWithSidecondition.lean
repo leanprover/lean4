@@ -85,6 +85,19 @@ structure Tree (α : Type u) where
   val : α
   cs : List (Tree α)
 
+noncomputable def List.map' (f : α → β) : List α → List β :=
+  fix (sizeOf · < sizeOf ·) (fun map l => match l with | [] => [] | x::xs => f x :: map xs)
+    (InvImage.wf (sizeOf ·) WellFoundedRelation.wf) <| by
+  intro l
+  dsimp only
+  cases l -- check that the predicate of `callsOn` is appropriately refined
+  · simp
+  · simp only [cons.sizeOf_spec, sizeOf_default, Nat.add_zero]
+    apply callsOn_app2
+    · apply callsOn_const
+    · apply callsOn_base
+      simp
+
 noncomputable def Tree.map (f : α → β) : Tree α → Tree β :=
   fix (sizeOf · < sizeOf ·) (fun map t => ⟨f t.val, t.cs.map map⟩)
     (InvImage.wf (sizeOf ·) WellFoundedRelation.wf) <| by

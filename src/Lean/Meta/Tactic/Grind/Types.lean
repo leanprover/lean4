@@ -82,6 +82,13 @@ structure Trace where
   cases      : PHashSet Name := {}
   deriving Inhabited
 
+structure Counters where
+  /-- Number of times E-match theorem has been instantiated. -/
+  thm  : PHashMap Origin Nat := {}
+  /-- Number of times a `cases` has been performed on an inductive type/predicate -/
+  case : PHashMap Name Nat := {}
+  deriving Inhabited
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
@@ -110,6 +117,8 @@ structure State where
   issues     : List MessageData := []
   /-- `trace` for `grind?` -/
   trace      : Trace := {}
+  /-- Performance counters -/
+  counters   : Counters := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -139,6 +148,12 @@ def getMainDeclName : GrindM Name :=
 def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
   if (← getConfig).trace then
     modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+  modify fun s => { s with
+    counters.thm := if let some n := s.counters.thm.find? thm.origin then
+      s.counters.thm.insert thm.origin (n+1)
+    else
+      s.counters.thm.insert thm.origin 1
+  }
 
 def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
   if (← getConfig).trace then
@@ -146,6 +161,12 @@ def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
       modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
     else
       modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+  modify fun s => { s with
+    counters.case := if let some n := s.counters.case.find? declName then
+      s.counters.case.insert declName (n+1)
+    else
+      s.counters.case.insert declName 1
+  }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
@@ -168,9 +189,9 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace } =>
+  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace, counters } =>
     let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace })
+    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace, counters })
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=

@@ -1,7 +1,7 @@
 import Std.Tactic.BVDecide
 
 /-! UInt8 -/
-example (a b : UInt8) : a + b = b + a := by
+example (a b c : UInt8) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
 
 /--
@@ -16,7 +16,7 @@ example (a b : UInt8) : a + b = a := by
 
 
 /-! UInt16 -/
-example (a b : UInt16) : a + b = b + a := by
+example (a b c : UInt16) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
 
 /--
@@ -31,7 +31,7 @@ example (a b : UInt16) : a + b = a := by
 
 
 /-! UInt32 -/
-example (a b : UInt32) : a + b = b + a := by
+example (a b c : UInt32) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
 
 /--
@@ -46,7 +46,7 @@ example (a b : UInt32) : a + b = a := by
 
 
 /-! UInt64 -/
-example (a b : UInt64) : a + b = b + a := by
+example (a b c : UInt64) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide
 
 /--
@@ -61,7 +61,7 @@ example (a b : UInt64) : a + b = a := by
 
 
 /-! USize -/
-example (a b : USize) : a + b = b + a := by
+example (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   cases System.Platform.numBits_eq <;> bv_decide
 
 /--
@@ -74,9 +74,5 @@ example (a b : USize) : a + b = a := by
   bv_normalize
   sorry
 
-
-example (h : 32 = System.Platform.numBits) (a b : USize) : a + b = b + a := by
-  bv_decide
-
-example (h : System.Platform.numBits = 32) (a b : USize) : a + b = a := by
+example (h : 32 = System.Platform.numBits) (a b c : USize) (h1 : a < b) (h2 : b < c) : a < c := by
   bv_decide

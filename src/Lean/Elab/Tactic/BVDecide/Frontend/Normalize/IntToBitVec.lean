@@ -107,7 +107,7 @@ where
         -/
         let (motive, newGoalType) ←
           withLocalDeclD `z (mkConst ``Nat) fun z => do
-            let otherArgType := mkApp2 (mkConst ``Eq [1]) (toExpr numBits) (mkConst ``System.Platform.numBits)
+            let otherArgType := mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) (toExpr numBits) z
             withLocalDeclD `h otherArgType fun other => do
               let argType := mkApp (mkConst ``BitVec) z
               let argTypes := relevantTerms.map (fun _ => (`x, argType))
@@ -133,7 +133,7 @@ where
         goal.assign <| mkAppN casesOn (relevantTerms ++ abstractedHyps)
         -- remove all of the hold hypotheses about USize.toBitVec to prevent false counter examples
         (newGoal, _) ← newGoal.tryClearMany' (abstractedHyps.map Expr.fvarId!)
-        -- intro both the new `BitVec 32` as well as all hypotheses about them
+        -- intro both the new `BitVec const` as well as all hypotheses about them
         (_, newGoal) ← newGoal.introN (relevantTerms.size + abstractedHyps.size)
         return newGoal
     else

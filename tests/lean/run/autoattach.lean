@@ -1,35 +1,3 @@
-prelude
-import Lean.Meta.Transform
-import Lean.Elab.Tactic.Simp
-
-namespace Lean.Meta
-
-private def getContext : MetaM Simp.Context := do
-  let s : SimpTheorems := {}
-  let s ← s.addConst ``dite_eq_ite (inv := true)
-  Simp.mkContext
-    (simpTheorems  := #[s])
-    (congrTheorems := {})
-    (config        := Simp.neutralConfig)
-
-def iteToDIte2 (e : Expr) : MetaM Expr := do
-  let ctx ← getContext
-  let (result, _) ← Simp.main e ctx
-  return result.expr
-
-/--
-info: fun n => if n > 0 then 3 else 4
-fun n => if n > 0 then 3 else 4
--/
-#guard_msgs in
-run_elab do
-  let stx ← `(fun (n : Nat) => if n > 0 then 3 else 4)
-  let e ← Elab.Term.elabTerm stx .none
-  let e' ← iteToDIte2 e
-  logInfo m!"{e}\n{e'}"
-
-end Lean.Meta
-
 universe u
 structure Tree (α : Type u) where
   val : α

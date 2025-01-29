@@ -161,6 +161,12 @@ abbrev zipWithIndex_mk := @zipIdx_mk
       (ha : a.size = n) (hb : b.size = n) : zipWith f (Vector.mk a ha) (Vector.mk b hb) =
         Vector.mk (Array.zipWith f a b) (by simp [ha, hb]) := rfl
 
+@[simp] theorem mk_zip_mk (a : Array α) (b : Array β) (ha : a.size = n) (hb : b.size = n) :
+    zip (Vector.mk a ha) (Vector.mk b hb) = Vector.mk (Array.zip a b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem unzip_mk (a : Array (α × β)) (h : a.size = n) :
+    (Vector.mk a h).unzip = (Vector.mk a.unzip.1 (by simp_all), Vector.mk a.unzip.2 (by simp_all)) := rfl
+
 @[simp] theorem anyM_mk [Monad m] (p : α → m Bool) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).anyM p = a.anyM p := rfl
 

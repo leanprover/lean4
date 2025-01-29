@@ -23,3 +23,4 @@ import Init.Data.Array.FinRange
 import Init.Data.Array.Perm
 import Init.Data.Array.Find
 import Init.Data.Array.Lex
+import Init.Data.Array.Zip

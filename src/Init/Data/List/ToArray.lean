@@ -312,7 +312,7 @@ theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List
     simp [zipWith_cons_cons, zipWithAux_toArray_succ', zipWithAux_toArray_zero, push_append_toArray]
 
 @[simp] theorem zipWith_toArray (as : List α) (bs : List β) (f : α → β → γ) :
-    Array.zipWith as.toArray bs.toArray f = (List.zipWith f as bs).toArray := by
+    Array.zipWith f as.toArray bs.toArray = (List.zipWith f as bs).toArray := by
   rw [Array.zipWith]
   simp [zipWithAux_toArray_zero]
 
@@ -355,7 +355,7 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
   decreasing_by simp_wf; decreasing_trivial_pre_omega
 
 @[simp] theorem zipWithAll_toArray (f : Option α → Option β → γ) (as : List α) (bs : List β) :
-    Array.zipWithAll as.toArray bs.toArray f = (List.zipWithAll f as bs).toArray := by
+    Array.zipWithAll f as.toArray bs.toArray = (List.zipWithAll f as bs).toArray := by
   simp [Array.zipWithAll, zipWithAll_go_toArray]
 
 @[simp] theorem toArray_appendList (l₁ l₂ : List α) :

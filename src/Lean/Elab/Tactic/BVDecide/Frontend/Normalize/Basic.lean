@@ -31,8 +31,7 @@ def getConfig : PreProcessM BVDecideConfig := read
 
 @[inline]
 def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
-  let val := (← get).rewriteCache.contains fvar
-  return val
+  return (← get).rewriteCache.contains fvar
 
 @[inline]
 def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do

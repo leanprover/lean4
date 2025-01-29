@@ -93,7 +93,7 @@ where
   addEMatchTheorem (params : Grind.Params) (declName : Name) (kind : Grind.EMatchTheoremKind) : MetaM Grind.Params := do
     let info ← getConstInfo declName
     match info with
-    | .thmInfo _ =>
+    | .thmInfo _ | .axiomInfo _ | .ctorInfo _ =>
       if kind == .eqBoth then
         let params := { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqLhs) }
         return { params with extra := params.extra.push (← Grind.mkEMatchTheoremForDecl declName .eqRhs) }

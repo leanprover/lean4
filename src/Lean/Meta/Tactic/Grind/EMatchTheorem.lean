@@ -550,9 +550,11 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
     levelParams, origin, kind
   }
 
-private def getProofFor (declName : Name) : CoreM Expr := do
-  let .thmInfo info ← getConstInfo declName
-    | throwError "`{declName}` is not a theorem"
+private def getProofFor (declName : Name) : MetaM Expr := do
+  let info ← getConstInfo declName
+  unless info.isTheorem do
+    unless (← isProp info.type) do
+      throwError "invalid `grind` theorem `{declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
@@ -774,11 +776,13 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
   else if thmKind == .eqBoth then
     addGrindEqAttr declName attrKind thmKind (useLhs := true)
     addGrindEqAttr declName attrKind thmKind (useLhs := false)
-  else if !(← getConstInfo declName).isTheorem then
-    addGrindEqAttr declName attrKind thmKind
   else
-    let thm ← mkEMatchTheoremForDecl declName thmKind
-    ematchTheoremsExt.add thm attrKind
+    let info ← getConstInfo declName
+    if !info.isTheorem && !info.isCtor && !info.isAxiom then
+      addGrindEqAttr declName attrKind thmKind
+    else
+      let thm ← mkEMatchTheoremForDecl declName thmKind
+      ematchTheoremsExt.add thm attrKind
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-

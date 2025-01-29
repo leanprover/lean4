@@ -101,6 +101,12 @@ example (x : BitVec 16) : !(x.ult 0) := by bv_normalize
 example (x : BitVec 16) : (x < 1) ↔ (x = 0) := by bv_normalize
 example (x : BitVec 16) : (x.ult 1) = (x == 0) := by bv_normalize
 
+-- ushiftRight_eq_zero / shiftLeft_eq_zero
+example (x : BitVec 16) : (x >>> 16) == 0 := by bv_normalize
+example (x : BitVec 16) : (x >>> 100) == 0 := by bv_normalize
+example (x : BitVec 16) : (x <<< 16) == 0 := by bv_normalize
+example (x : BitVec 16) : (x <<< 100) == 0 := by bv_normalize
+
 -- ushiftRight_self
 example (x : BitVec 16) : (x >>> x) == 0 := by bv_normalize
 

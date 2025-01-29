@@ -272,6 +272,9 @@ attribute [bv_normalize] BitVec.sshiftRight_zero
 attribute [bv_normalize] BitVec.zero_ushiftRight
 attribute [bv_normalize] BitVec.ushiftRight_zero
 
+attribute [bv_normalize] BitVec.ushiftRight_eq_zero
+attribute [bv_normalize] BitVec.shiftLeft_eq_zero
+
 @[bv_normalize]
 theorem BitVec.ushiftRight_zero' (n : BitVec w) : n >>> 0#w' = n := by
   ext i

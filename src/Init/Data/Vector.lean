@@ -11,3 +11,4 @@ import Init.Data.Vector.MapIdx
 import Init.Data.Vector.Count
 import Init.Data.Vector.DecidableEq
 import Init.Data.Vector.Zip
+import Init.Data.Vector.OfFn

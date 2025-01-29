@@ -162,7 +162,6 @@ where
       | UInt16.toBitVec x => fvarId? x
       | UInt32.toBitVec x => fvarId? x
       | UInt64.toBitVec x => fvarId? x
-      | USize.toBitVec x => fvarId? x
       | _ => none
   fvarId? (expr : Expr) : Option FVarId :=
     match expr with

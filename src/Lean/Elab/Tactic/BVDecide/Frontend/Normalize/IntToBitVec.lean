@@ -141,7 +141,7 @@ where
       return goal
 
   /--
-  Builds an expression of type: `System.Platform.numBits = const` from the hypotheses in the context
+  Builds an expression of type: `const = System.Platform.numBits` from the hypotheses in the context
   if possible.
   -/
   findNumBitsEq (goal : MVarId) : MetaM (Option (Nat × Expr)) := do

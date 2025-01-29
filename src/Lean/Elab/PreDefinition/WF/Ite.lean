@@ -12,24 +12,53 @@ namespace Lean.Meta
 private def getSimpContext : MetaM Simp.Context := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``dite_eq_ite (inv := true)
+  let s ← s.addConst `List.wfParam_to_attach
+  let s ← s.addConst `List.map_unattach
+  let s ← s.addConst `List.filter_unattach
+  let s ← s.addConst `List.reverse_unattach
+  let s ← s.addConst `Array.wfParam_to_attach
+  let s ← s.addConst `Array.map_unattach
   Simp.mkContext
     (simpTheorems  := #[s])
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
 
+def isWfParam? (e : Expr) : Option Expr :=
+  if e.isAppOfArity ``wfParam 2 then
+    e.appArg!
+  else
+    none
+
 def mkWfParam (e : Expr) : MetaM Expr :=
   mkAppM ``wfParam #[e]
+
+/-- `f (wfParam x) ==> wfParam (f x)` if `f` is a projection -/
+builtin_dsimproc paramProj (_) := fun e => do
+  if h : e.isApp then
+    let some a' := isWfParam? (e.appArg h) | return .continue
+    let f := e.getAppFn
+    unless f.isConst do return .continue
+    unless (← isProjectionFn f.constName!) do return .continue
+    let e' ← mkWfParam (.app (e.appFn h) a')
+    return .done e'
+  else
+    return .continue
 
 def iteToDIte (e : Expr) : MetaM Expr := do
   lambdaTelescope e fun xs e => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
-    let e := e.replaceFVars xs xs'
+    let e' := e.replaceFVars xs xs'
 
     -- Now run the simplifier
-    let (result, _) ← Meta.simp e (← getSimpContext)
+    let simprocs ← ({} : Simp.SimprocsArray).add ``paramProj (post := true)
+    let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := simprocs)
     let e' := result.expr
     trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}"
+
+    -- Remove markers
+    let e' := e'.replace isWfParam?
+
     mkLambdaFVars xs e'
 
 /-

@@ -94,6 +94,18 @@ theorem contains_insertSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertSlow k v).contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model using List.containsKey_insertEntry
 
+-- theorem isEmpty_erase [EquivBEq α] (h : t.WF) {k : α} :
+--     (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) := by
+--   simp_to_model using List.isEmpty_eraseKey
+
+-- theorem contains_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
+--     (m.erase k).contains a = (!(k == a) && m.contains a) := by
+--   simp_to_model using List.containsKey_eraseKey
+
+-- theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
+--     (m.erase k).contains a → m.contains a := by
+--   simp_to_model using List.containsKey_of_containsKey_eraseKey
+
 end Std.DTreeMap.Internal.Impl
 
 /-- Used as instance by the dependents of this file -/

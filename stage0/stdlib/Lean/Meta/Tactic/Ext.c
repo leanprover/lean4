@@ -3143,6 +3143,7 @@ lean_dec(x_8);
 x_11 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_12 = l_Lean_Meta_Ext_getExtTheorems___closed__1;
 x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_11, x_12, x_10);
+lean_dec(x_10);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_14, x_1, x_2, x_3, x_4, x_5, x_9);

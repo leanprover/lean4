@@ -16969,6 +16969,7 @@ lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_1);
 x_24 = l_Lean_ResolveName_resolveNamespace(x_14, x_18, x_23, x_1);
+lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_25; 
@@ -17036,6 +17037,7 @@ lean_inc(x_42);
 lean_dec(x_40);
 lean_inc(x_1);
 x_43 = l_Lean_ResolveName_resolveNamespace(x_14, x_18, x_42, x_1);
+lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_44; 

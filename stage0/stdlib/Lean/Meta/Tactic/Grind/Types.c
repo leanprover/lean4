@@ -489,6 +489,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_applyFallback(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_updateLastTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_doElemTrace__goal_x5b___x5d_______closed__13;
 static lean_object* l_Lean_Meta_Grind___aux__Lean__Meta__Tactic__Grind__Types______macroRules__Lean__Meta__Grind__doElemTrace__goal_x5b___x5d______1___lambda__1___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_internalize___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_Meta_Grind_markTheoremInstance___spec__13(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at_Lean_Meta_Grind_GoalM_run___spec__1(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instMonadMetaM;
@@ -861,6 +862,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkENode___lambda__1___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_setENode___spec__2(lean_object*, size_t, size_t, lean_object*, lean_object*);
 lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 extern lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Match_instInhabitedMatchEqnsExtState___spec__1;
+lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_updateLastTag___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_hashRoot___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -21391,6 +21393,14 @@ x_12 = lean_grind_mk_heq_proof(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10
 return x_12;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_internalize___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = lean_grind_internalize(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+return x_13;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEqHEqProof(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
@@ -24051,7 +24061,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_Grind_foldEqc___rarg___lambda__1___closed__1;
 x_2 = l_Lean_Meta_Grind_foldEqc___rarg___lambda__1___closed__2;
-x_3 = lean_unsigned_to_nat(814u);
+x_3 = lean_unsigned_to_nat(818u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_Grind_foldEqc___rarg___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -27147,6 +27157,7 @@ lean_dec(x_65);
 x_68 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_69 = l_Lean_Meta_Grind_getExtTheorems___lambda__1___closed__1;
 x_70 = l_Lean_ScopedEnvExtension_getState___rarg(x_68, x_69, x_67);
+lean_dec(x_67);
 x_71 = lean_ctor_get(x_70, 0);
 lean_inc(x_71);
 lean_inc(x_1);
@@ -27417,6 +27428,7 @@ lean_dec(x_137);
 x_140 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_141 = l_Lean_Meta_Grind_getExtTheorems___lambda__1___closed__1;
 x_142 = l_Lean_ScopedEnvExtension_getState___rarg(x_140, x_141, x_139);
+lean_dec(x_139);
 x_143 = lean_ctor_get(x_142, 0);
 lean_inc(x_143);
 lean_inc(x_1);

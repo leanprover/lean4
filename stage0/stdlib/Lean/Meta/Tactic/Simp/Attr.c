@@ -2455,6 +2455,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 x_13 = l_Lean_Meta_instInhabitedSimpTheorems;
 x_14 = l_Lean_ScopedEnvExtension_getState___rarg(x_13, x_1, x_12);
+lean_dec(x_12);
 x_15 = 1;
 x_16 = 0;
 x_17 = lean_alloc_ctor(0, 1, 2);

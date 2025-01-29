@@ -26,7 +26,7 @@ variable {α : Type u} {β : α → Type v} {_ : Ord α} {t : Impl α β}
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply WF.ordered | apply WF.balanced | apply WF.insert | apply WF.insertSlow
-    | apply WF.erase
+    | apply WF.erase | apply WF.eraseSlow
     | apply Ordered.distinctKeys
     | assumption
     ))
@@ -119,13 +119,45 @@ theorem isEmpty_eraseSlow [TransOrd α] (h : t.WF) {k : α} :
     (t.eraseSlow k).isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
   simp_to_model using List.isEmpty_eraseKey
 
--- theorem contains_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
---     (m.erase k).contains a = (!(k == a) && m.contains a) := by
---   simp_to_model using List.containsKey_eraseKey
+theorem contains_erase [TransOrd α] (h : t.WF) {k a : α} :
+    (t.erase k h.balanced).impl.contains a = (!(k == a) && t.contains a) := by
+  simp_to_model using List.containsKey_eraseKey
 
--- theorem contains_of_contains_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
---     (m.erase k).contains a → m.contains a := by
---   simp_to_model using List.containsKey_of_containsKey_eraseKey
+theorem contains_eraseSlow [TransOrd α] (h : t.WF) {k a : α} :
+    (t.eraseSlow k).contains a = (!(k == a) && t.contains a) := by
+  simp_to_model using List.containsKey_eraseKey
+
+theorem contains_of_contains_erase [TransOrd α] (h : t.WF) {k a : α} :
+    (t.erase k h.balanced).impl.contains a → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_eraseKey
+
+theorem contains_of_contains_eraseSlow [TransOrd α] (h : t.WF) {k a : α} :
+    (t.eraseSlow k).contains a → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_eraseKey
+
+theorem size_erase [TransOrd α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.size = if t.contains k then t.size - 1 else t.size := by
+  simp_to_model using List.length_eraseKey
+
+theorem sizeSlow_erase [TransOrd α] (h : t.WF) {k : α} :
+    (t.eraseSlow k).size = if t.contains k then t.size - 1 else t.size := by
+  simp_to_model using List.length_eraseKey
+
+theorem size_erase_le [TransOrd α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.size ≤ t.size := by
+  simp_to_model using List.length_eraseKey_le
+
+theorem sizeSlow_erase_le [TransOrd α] (h : t.WF) {k : α} :
+    (t.eraseSlow k).size ≤ t.size := by
+  simp_to_model using List.length_eraseKey_le
+
+theorem size_le_size_erase [TransOrd α] (h : t.WF) {k : α} :
+    t.size ≤ (t.erase k h.balanced).impl.size + 1 := by
+  simp_to_model using List.length_le_length_eraseKey
+
+theorem sizeSlow_le_size_erase [TransOrd α] (h : t.WF) {k : α} :
+    t.size ≤ (t.eraseSlow k).size + 1 := by
+  simp_to_model using List.length_le_length_eraseKey
 
 end Std.DTreeMap.Internal.Impl
 

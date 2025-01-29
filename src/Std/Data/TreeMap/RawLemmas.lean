@@ -57,4 +57,24 @@ theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   DTreeMap.Raw.isEmpty_erase h
 
+theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
+    (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
+  DTreeMap.Raw.contains_erase h
+
+theorem contains_of_contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
+    (t.erase k).contains a → t.contains a :=
+  DTreeMap.Raw.contains_of_contains_erase h
+
+theorem size_erase [TransCmp cmp] (h : t.WF) {k : α} :
+    (t.erase k).size = if t.contains k then t.size - 1 else t.size :=
+  DTreeMap.Raw.size_erase h
+
+theorem size_erase_le [TransCmp cmp] (h : t.WF) {k : α} :
+    (t.erase k).size ≤ t.size :=
+  DTreeMap.Raw.size_erase_le h
+
+theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
+    t.size ≤ (t.erase k).size + 1 :=
+  DTreeMap.Raw.size_le_size_erase h
+
 end Std.TreeMap.Raw

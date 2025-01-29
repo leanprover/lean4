@@ -566,6 +566,14 @@ theorem ordered_empty [Ord α] : (.empty : Impl α β).Ordered := by
   simp [Ordered]
 
 /-!
+### `isEmpty`
+-/
+
+theorem apply_isEmpty [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) :
+    t.isEmpty = t.toListModel.isEmpty := by
+  cases t <;> simp [isEmpty]
+
+/-!
 ### `insertₘ`
 -/
 

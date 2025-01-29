@@ -41,6 +41,10 @@ theorem contains_empty {k : α} : (empty : TreeMap.Raw α β cmp).contains k = f
 theorem mem_empty {k : α} : k ∉ (empty : TreeMap.Raw α β cmp) :=
   DTreeMap.Raw.mem_empty
 
+theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.insert k v).isEmpty = false :=
+  DTreeMap.Raw.isEmpty_insert h
+
 theorem contains_insert [h : TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
     (t.insert k v).contains a = (cmp k a == .eq || t.contains a) :=
   DTreeMap.Raw.contains_insert h

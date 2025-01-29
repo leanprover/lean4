@@ -36,7 +36,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def queryNames : Array Name :=
-  #[``apply_contains]
+  #[``apply_isEmpty, ``apply_contains]
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_insertSlow]
@@ -85,6 +85,14 @@ theorem contains_empty {k : α} : (empty : Impl α β).contains k = false := by
 
 theorem mem_empty {k : α} : k ∉ (empty : Impl α β) := by
   simp [mem_iff_contains, contains_empty]
+
+theorem isEmpty_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.isEmpty = false := by
+  simp_to_model using List.isEmpty_insertEntry
+
+theorem isEmpty_insertSlow [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertSlow k v).isEmpty = false := by
+  simp_to_model using List.isEmpty_insertEntry
 
 theorem contains_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insert k v h.balanced).impl.contains a = (compare k a == .eq || t.contains a) := by

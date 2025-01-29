@@ -13,7 +13,6 @@ import Init.Data.Array.OfFn
 
 namespace Vector
 
-
 @[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
   simp [ofFn]

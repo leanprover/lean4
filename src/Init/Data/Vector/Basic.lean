@@ -343,6 +343,16 @@ no element of the index matches the given value.
 @[inline] def indexOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
   (v.toArray.indexOf? x).map (Fin.cast v.size_toArray)
 
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
+@[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
+  as.toArray.findM? f
+
+@[inline] def findSomeM? [Monad m] (f : α → m (Option β)) (as : Vector α n) : m (Option β) :=
+  as.toArray.findSomeM? f
+
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=
   v.toArray.isPrefixOf w.toArray

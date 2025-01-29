@@ -42,6 +42,14 @@
 #check Array.foldrM
 #check Vector.foldrM
 
+#check List.findM?
+#check Array.findM?
+#check Vector.findM?
+
+#check List.findSomeM?
+#check Array.findSomeM?
+#check Vector.findSomeM?
+
 #check List.anyM
 #check Array.anyM
 #check Vector.anyM
@@ -75,14 +83,6 @@ variable {m : Type v → Type w} [Monad m] {α : Type} {n : Nat}
 -- #check List.forRevM
 #check Array.forRevM
 -- #check Vector.forRevM
-
-#check List.findM?
-#check Array.findM?
--- #check Vector.findM?
-
-#check List.findSomeM?
-#check Array.findSomeM?
--- #check Vector.findSomeM?
 
 -- #check List.findRevM?
 #check Array.findRevM?

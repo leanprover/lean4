@@ -104,6 +104,12 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem indexOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
     (Vector.mk a h).indexOf? x = (a.indexOf? x).map (Fin.cast h) := rfl
 
+@[simp] theorem findM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
+    (Vector.mk a h).findM? f = a.findM? f := rfl
+
+@[simp] theorem findSomeM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
+    (Vector.mk a h).findSomeM? f = a.findSomeM? f := rfl
+
 @[simp] theorem mk_isEqv_mk (r : α → α → Bool) (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
     Vector.isEqv (Vector.mk a ha) (Vector.mk b hb) r = Array.isEqv a b r := by
   simp [Vector.isEqv, Array.isEqv, ha, hb]

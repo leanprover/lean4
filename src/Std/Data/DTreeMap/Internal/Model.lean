@@ -350,9 +350,35 @@ theorem eraseSlow_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced
     eraseSlow k t = eraseₘ k t h := by
   rw [← erase_eq_eraseSlow (h := h), erase_eq_eraseₘ]
 
+theorem fst_containsThenInsertSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertSlow a b).1 = (t.containsThenInsert a b htb).1 := by
+  cases t <;> simp [containsThenInsert, containsThenInsert.size,
+    containsThenInsertSlow, containsThenInsertSlow.size, insertSlow_eq_insertₘ, insert_eq_insertₘ, htb]
+
+theorem snd_containsThenInsertSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertSlow a b).2 = (t.containsThenInsert a b htb).2.impl := by
+  cases t <;> simp [containsThenInsert, containsThenInsertSlow, insertSlow_eq_insertₘ htb,
+    insert_eq_insertₘ]
+
 theorem containsThenInsert_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).2.impl = t.insertₘ a b htb := by
   rw [containsThenInsert, insert_eq_insertₘ]
+
+theorem containsThenInsertSlow_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertSlow a b).2 = t.insertₘ a b htb := by
+  rw [snd_containsThenInsertSlow_eq_containsThenInsert, containsThenInsert_eq_insertₘ]
+
+theorem fst_containsThenInsertIfNewSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertIfNewSlow a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
+  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
+  split <;> rfl
+
+theorem snd_containsThenInsertIfNewSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertIfNewSlow a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
+  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
+  split
+  · rfl
+  · simp [insertSlow_eq_insertₘ, insert_eq_insertₘ, htb]
 
 end Impl
 

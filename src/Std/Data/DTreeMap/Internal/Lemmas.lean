@@ -27,6 +27,7 @@ scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply WF.ordered | apply WF.balanced | apply WF.insert | apply WF.insertSlow
     | apply WF.erase | apply WF.eraseSlow
+    | apply WF.containsThenInsert | apply WF.containsThenInsertSlow
     | apply Ordered.distinctKeys
     | assumption
     ))
@@ -40,7 +41,8 @@ private def queryNames : Array Name :=
   #[``apply_isEmpty, ``apply_contains, ``apply_size]
 
 private def modifyNames : Array Name :=
-  #[``toListModel_insert, ``toListModel_insertSlow, ``toListModel_erase, ``toListModel_eraseSlow]
+  #[``toListModel_insert, ``toListModel_insertSlow, ``toListModel_erase, ``toListModel_eraseSlow,
+    ``toListModel_containsThenInsert, ``toListModel_containsThenInsertSlow]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -174,6 +176,24 @@ theorem size_le_size_erase [TransOrd α] (h : t.WF) {k : α} :
 theorem sizeSlow_le_size_erase [TransOrd α] (h : t.WF) {k : α} :
     t.size ≤ (t.eraseSlow k).size + 1 := by
   simp_to_model using List.length_le_length_eraseKey
+
+theorem containsThenInsert_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v h.balanced).1 = t.contains k := by
+  rw [containsThenInsert_eq_containsₘ, contains_eq_containsₘ]
+  exact h.ordered
+
+theorem containsThenInsertSlow_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertSlow k v).1 = t.contains k := by
+  rw [fst_containsThenInsertSlow_eq_containsThenInsert, containsThenInsert_fst h]
+
+theorem containsThenInsert_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v h.balanced).2 = t.insert k v h.balanced := by
+  rfl
+
+theorem containsThenInsertSlow_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertSlow k v).2 = t.insertSlow k v := by
+  rw [snd_containsThenInsertSlow_eq_containsThenInsert _ h.balanced, containsThenInsert_snd h,
+    insert_eq_insertSlow]
 
 end Std.DTreeMap.Internal.Impl
 

@@ -704,6 +704,20 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
   exact toListModel_insertₘ htb hto
 
 /-!
+### containsThenInsertSlow
+-/
+
+theorem WF.containsThenInsertSlow [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
+    (t.containsThenInsertSlow k v).2.WF := by
+  simpa [snd_containsThenInsertSlow_eq_containsThenInsert, h.balanced] using WF.containsThenInsert (h := h.balanced) h
+
+theorem toListModel_containsThenInsertSlow [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) :
+    (t.containsThenInsertSlow k v).2.toListModel.Perm (insertEntry k v t.toListModel) := by
+  rw [containsThenInsertSlow_eq_insertₘ]
+  exact toListModel_insertₘ htb hto
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 

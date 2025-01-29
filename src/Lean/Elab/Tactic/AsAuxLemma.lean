@@ -1,7 +1,7 @@
 /-
-Copyright (c) Lean FRO, LLC. All rights reserved.
+Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Joachim Breitner
+Authors: Paul Reichert
 -/
 prelude
 import Init.Tactics
@@ -20,7 +20,7 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
     unless mvars.isEmpty do
       throwError "Left-over goals, cannot abstract"
     let e ← instantiateMVars (mkMVar mvarId)
-    let e ← mkAuxTheorem (`Std.Internal.AuxLemmas ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+    let e ← mkAuxTheorem (`Std.DTreeMap.Internal.Impl ++ (← mkFreshUserName `test)) (← mvarId.getType) e
     mvarId.assign e
     return []
 | _ => throwError "Invalid as_aux_lemma syntax"

@@ -580,7 +580,7 @@ instance : ForM m (Array α) α where
   forM xs f := forM f xs
 
 @[inline]
-def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (as : Array α) (f : α → m PUnit) (start := as.size) (stop := 0) : m PUnit :=
+def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := as.size) (stop := 0) : m PUnit :=
   as.foldrM (fun a _ => f a) ⟨⟩ start stop
 
 @[inline]

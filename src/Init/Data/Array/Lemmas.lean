@@ -3759,6 +3759,27 @@ namespace List
     as.toArray.unzip = Prod.map List.toArray List.toArray as.unzip := by
   ext1 <;> simp
 
+@[simp] theorem firstM_toArray [Alternative m] (as : List α) (f : α → m β) :
+    as.toArray.firstM f = as.firstM f := by
+  unfold Array.firstM
+  suffices ∀ i, i ≤ as.length → firstM.go f as.toArray (as.length - i) = firstM f (as.drop (as.length - i)) by
+    specialize this as.length
+    simpa
+  intro i
+  induction i with
+  | zero => simp [firstM.go]
+  | succ i ih =>
+    unfold firstM.go
+    split <;> rename_i h
+    · rw [drop_eq_getElem_cons h]
+      intro h'
+      specialize ih (by omega)
+      have : as.length - (i + 1) + 1 = as.length - i := by omega
+      simp_all [ih]
+    · simp only [size_toArray, Nat.not_lt] at h
+      have : as.length = 0 := by omega
+      simp_all
+
 end List
 
 namespace Array

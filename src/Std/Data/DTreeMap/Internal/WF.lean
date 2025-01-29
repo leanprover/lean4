@@ -672,6 +672,38 @@ theorem toListModel_eraseSlow [Ord α] [TransOrd α] {k : α} {l : Impl α β}
   exact toListModel_eraseₘ hlb hlo
 
 /-!
+### containsThenInsert
+-/
+
+theorem containsThenInsertSize_eq_size [Ord α] (t : Impl α β) :
+    containsThenInsert.size t = t.size := by
+  induction t <;> rfl
+
+theorem size_le_insertₘ_size [Ord α] [TransOrd α] (t : Impl α β) (h : t.WF) (ho : t.Ordered) (a : α) (b : β a) :
+    t.size ≤ (t.insertₘ a b h.balanced).size := by
+  simp [apply_size, h.balanced, h.insert.balanced, ← insert_eq_insertₘ,
+    toListModel_insert h.balanced ho |>.length_eq]
+  apply length_le_length_insertEntry
+
+theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+    (ho : t.Ordered) (a : α) (b : β a) :
+    (t.containsThenInsert a b htb).1 = t.containsₘ a := by
+  simp [containsThenInsert, containsThenInsertSize_eq_size, apply_size, htb, TreeB.balanced_impl _,
+    toListModel_insert htb ho |>.length_eq, length_insertEntry]
+  simp [apply_containsₘ ho]
+  split <;> simp_all
+
+theorem ordered_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
+    (htb : t.Balanced) (hto : t.Ordered) : (t.containsThenInsert k v htb).2.impl.Ordered := by
+  simpa only [containsThenInsert_eq_insertₘ, hto] using ordered_insertₘ htb hto
+
+theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) :
+    (t.containsThenInsert k v htb).2.impl.toListModel.Perm (insertEntry k v t.toListModel) := by
+  rw [containsThenInsert_eq_insertₘ]
+  exact toListModel_insertₘ htb hto
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 
@@ -681,5 +713,6 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_empty
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_erase ‹_› ‹_›
+  · exact ordered_containsThenInsert ‹_› ‹_›
 
 end Std.DTreeMap.Internal.Impl

@@ -109,6 +109,12 @@ def size (t : Raw α β cmp) : Nat :=
 def erase (t : Raw α β cmp) (a : α) : Raw α β cmp :=
   ⟨t.inner.erase a⟩
 
+@[inline, inherit_doc DTreeMap.Raw.containsThenInsert]
+def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.containsThenInsert a b
+  (p.1, ⟨p.2⟩)
+
 instance : Membership α (Raw α β cmp) where
   mem m a := m.contains a
 

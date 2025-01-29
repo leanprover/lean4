@@ -350,6 +350,10 @@ theorem eraseSlow_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced
     eraseSlow k t = eraseₘ k t h := by
   rw [← erase_eq_eraseSlow (h := h), erase_eq_eraseₘ]
 
+theorem containsThenInsert_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsert a b htb).2.impl = t.insertₘ a b htb := by
+  rw [containsThenInsert, insert_eq_insertₘ]
+
 end Impl
 
 end Std.DTreeMap.Internal

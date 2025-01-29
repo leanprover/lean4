@@ -213,7 +213,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data(object * fname, object *) 
 #endif
             buffer = static_cast<char *>(malloc(size - sizeof(olean_header)));
             free_data = [=]() {
-                free_sized(buffer, size - sizeof(olean_header));
+                free(buffer);
             };
             in.read(buffer, size - sizeof(olean_header));
             if (!in) {

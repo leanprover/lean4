@@ -452,7 +452,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
 
 @[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
 
-/-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
+/-- Variant of `mapIdxM` which receives the index `i` along with the bound `i < as.size`. -/
 @[inline]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
@@ -464,12 +464,24 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f j (as.get j j_lt) j_lt))
+      map i (j+1) this (bs.push (← f j as[j] j_lt))
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
   as.mapFinIdxM fun i a _ => f i a
+
+@[inline]
+def firstM {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Array α) : m β :=
+  go 0
+where
+  go (i : Nat) : m β :=
+    if hlt : i < as.size then
+      f as[i] <|> go (i+1)
+    else
+      failure
+  termination_by as.size - i
+  decreasing_by exact Nat.sub_succ_lt_self as.size i hlt
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
@@ -564,6 +576,9 @@ def findRevM? {α : Type} {m : Type → Type w} [Monad m] (p : α → m Bool) (a
 def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
+instance : ForM m (Array α) α where
+  forM xs f := forM f xs
+
 @[inline]
 def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := as.size) (stop := 0) : m PUnit :=
   as.foldrM (fun a _ => f a) ⟨⟩ start stop
@@ -594,6 +609,9 @@ def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
 @[inline]
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
+
+instance : Functor Array where
+  map := map
 
 /-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
@@ -732,6 +750,24 @@ def flatMap (f : α → Array β) (as : Array α) : Array β :=
 @[inline] def flatten (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
 
+def reverse (as : Array α) : Array α :=
+  if h : as.size ≤ 1 then
+    as
+  else
+    loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
+where
+  termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
+    rw [Nat.sub_sub, Nat.add_comm]
+    exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
+  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
+    if h : i < j then
+      have := termination h
+      let as := as.swap i j (Nat.lt_trans h j.2)
+      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
+      loop as (i+1) ⟨j-1, this⟩
+    else
+      as
+
 @[inline]
 def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=
   as.foldl (init := #[]) (start := start) (stop := stop) fun r a =>
@@ -740,6 +776,11 @@ def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Ar
 @[inline]
 def filterM {α : Type} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m (Array α) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun r a => do
+    if (← p a) then return r.push a else return r
+
+@[inline]
+def filterRevM {α : Type} [Monad m] (p : α → m Bool) (as : Array α) (start := as.size) (stop := 0) : m (Array α) :=
+  reverse <$> as.foldrM (init := #[]) (start := start) (stop := stop) fun a r => do
     if (← p a) then return r.push a else return r
 
 @[specialize]
@@ -772,24 +813,6 @@ def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run
     else
       cs := cs.push a
   return (bs, cs)
-
-def reverse (as : Array α) : Array α :=
-  if h : as.size ≤ 1 then
-    as
-  else
-    loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
-where
-  termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
-    rw [Nat.sub_sub, Nat.add_comm]
-    exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
-  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
-    if h : i < j then
-      have := termination h
-      let as := as.swap i j (Nat.lt_trans h j.2)
-      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
-      loop as (i+1) ⟨j-1, this⟩
-    else
-      as
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def popWhile (p : α → Bool) (as : Array α) : Array α :=

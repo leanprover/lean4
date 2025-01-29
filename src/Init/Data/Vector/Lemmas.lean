@@ -104,6 +104,12 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem indexOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
     (Vector.mk a h).indexOf? x = (a.indexOf? x).map (Fin.cast h) := rfl
 
+@[simp] theorem findM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
+    (Vector.mk a h).findM? f = a.findM? f := rfl
+
+@[simp] theorem findSomeM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
+    (Vector.mk a h).findSomeM? f = a.findSomeM? f := rfl
+
 @[simp] theorem mk_isEqv_mk (r : α → α → Bool) (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
     Vector.isEqv (Vector.mk a ha) (Vector.mk b hb) r = Array.isEqv a b r := by
   simp [Vector.isEqv, Array.isEqv, ha, hb]
@@ -120,6 +126,16 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem mapFinIdx_mk (a : Array α) (h : a.size = n) (f : (i : Nat) → α → (h : i < n) → β) :
     (Vector.mk a h).mapFinIdx f =
       Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
+
+@[simp] theorem forM_mk [Monad m] (f : α → m PUnit) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).forM f = a.forM f := rfl
+
+@[simp] theorem flatMap_mk (f : α → Vector β m) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).flatMap f =
+      Vector.mk (a.flatMap (fun a => (f a).toArray)) (by simp [h, Array.map_const']) := rfl
+
+@[simp] theorem firstM_mk [Alternative m] (f : α → m β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).firstM f = a.firstM f := rfl
 
 @[simp] theorem reverse_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).reverse = Vector.mk a.reverse (by simp [h]) := rfl
@@ -1661,11 +1677,6 @@ theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :
 
 
 /-! ### flatMap -/
-
-@[simp] theorem flatMap_mk (l : Array α) (h : l.size = m) (f : α → Vector β n) :
-    (mk l h).flatMap f =
-      mk (l.flatMap (fun a => (f a).toArray)) (by simp [Array.map_const', h]) := by
-  simp [flatMap]
 
 @[simp] theorem flatMap_toArray (l : Vector α n) (f : α → Vector β m) :
     l.toArray.flatMap (fun a => (f a).toArray) = (l.flatMap f).toArray := by

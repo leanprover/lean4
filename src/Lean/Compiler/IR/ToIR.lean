@@ -409,20 +409,28 @@ where resultTypeForArity (type : Lean.Expr) (arity : Nat) : Lean.Expr :=
     | .const ``lcErased _ => mkConst ``lcErased
     | _ => panic! "invalid arity"
 
-def lowerDecl (d : LCNF.Decl) : M Decl := do
+def lowerDecl (d : LCNF.Decl) : M (Option Decl) := do
   let params ← d.params.mapM lowerParam
   let resultType ← lowerResultType d.type d.params.size
-  let irDecl ← match d.value with
+  match d.value with
   | .code code =>
     let body ← lowerCode code
-    pure <| .fdecl d.name params resultType body {}
+    pure <| some <| .fdecl d.name params resultType body {}
   | .extern externAttrData =>
-    pure <| .extern d.name params resultType externAttrData
-  return irDecl
+    if externAttrData.entries.isEmpty then
+      -- This is a complete hack to duplicate the complete hack in the C++ code.
+      addDecl (mkDummyExternDecl d.name params resultType)
+      pure <| none
+    else
+      pure <| some <| .extern d.name params resultType externAttrData
 
 end ToIR
 
-def toIR (decls: Array LCNF.Decl) : CoreM (Array Decl) :=
-  decls.mapM (ToIR.lowerDecl · |>.run)
+def toIR (decls: Array LCNF.Decl) : CoreM (Array Decl) := do
+  let mut irDecls := #[]
+  for decl in decls do
+    if let some irDecl ← ToIR.lowerDecl decl |>.run then
+      irDecls := irDecls.push irDecl
+  return irDecls
 
 end Lean.IR

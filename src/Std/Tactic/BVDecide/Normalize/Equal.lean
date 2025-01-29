@@ -45,5 +45,25 @@ theorem BitVec.add_right_inj (a b c : BitVec w) : (c + a == c + b) = (a == b) :=
 theorem BitVec.add_right_inj' (a b c : BitVec w) : (c + a == b + c) = (a == b) := by
   rw [BitVec.add_comm b c, add_right_inj]
 
+@[bv_normalize]
+theorem BitVec.add_left_eq_self (a b : BitVec w) : (a + b == b) = (a == 0#w) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.add_right_eq_self (a b : BitVec w) : (a + b == a) = (b == 0#w) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.self_eq_add_right (a b : BitVec w) : (a == a + b) = (b == 0#w) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.self_eq_add_left (a b : BitVec w) : (a == b + a) = (b == 0#w) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
 end Frontend.Normalize
 end Std.Tactic.BVDecide

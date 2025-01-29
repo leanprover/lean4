@@ -552,7 +552,7 @@ private def getProofFor (declName : Name) : MetaM Expr := do
   let info ← getConstInfo declName
   unless info.isTheorem do
     unless (← isProp info.type) do
-      throwError "invalid `grind` theorem `{declName}`, type is not a proposition"
+      throwError "invalid E-matching theorem `{declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
@@ -720,14 +720,16 @@ def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof
     go xs searchPlaces
 where
   go (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option EMatchTheorem) := do
-    let some (patterns, symbols) ← collectPatterns? proof xs searchPlaces
-      | return none
-    let numParams := xs.size
-    trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
-    return some {
-      proof, patterns, numParams, symbols
-      levelParams, origin, kind
-    }
+    if let some (patterns, symbols) ← collectPatterns? proof xs searchPlaces then
+      let numParams := xs.size
+      trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
+      return some {
+        proof, patterns, numParams, symbols
+        levelParams, origin, kind
+      }
+    else
+      -- Try to find a ground term to work as a pattern
+      return none
 
 def mkEMatchTheoremForDecl (declName : Name) (thmKind : EMatchTheoremKind) : MetaM EMatchTheorem := do
   let some thm ← mkEMatchTheoremWithKind? (.decl declName) #[] (← getProofFor declName) thmKind

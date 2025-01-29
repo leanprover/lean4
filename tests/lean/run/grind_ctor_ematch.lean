@@ -65,8 +65,6 @@ attribute [grind] fax
 example : f (f (f x)) = f x := by
   grind
 
-/--
-error: invalid `grind` theorem `Nat.succ`, type is not a proposition
--/
+/-- error: invalid E-matching theorem `Nat.succ`, type is not a proposition -/
 #guard_msgs in
 attribute [grind] Nat.succ

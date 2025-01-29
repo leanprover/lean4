@@ -20,7 +20,7 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
     unless mvars.isEmpty do
       throwError "Left-over goals, cannot abstract"
     let e ← instantiateMVars (mkMVar mvarId)
-    let e ← mkAuxTheorem (`Lean.Elab.Tactic.AsAuxLemma ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+    let e ← mkAuxTheorem (`Std.Internal.AuxLemmas ++ (← mkFreshUserName `test)) (← mvarId.getType) e
     mvarId.assign e
     return []
 | _ => throwError "Invalid as_aux_lemma syntax"

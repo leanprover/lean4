@@ -836,9 +836,6 @@ theorem mem_or_eq_of_mem_set
   cases as
   simpa using List.mem_or_eq_of_mem_set (by simpa using h)
 
-@[simp] theorem toList_set (a : Array α) (i x h) :
-    (a.set i x).toList = a.toList.set i x := rfl
-
 /-! ### setIfInBounds -/
 
 @[simp] theorem set!_eq_setIfInBounds : @set! = @setIfInBounds := rfl
@@ -2283,10 +2280,6 @@ theorem flatMap_mkArray {β} (f : α → Array β) : (mkArray n a).flatMap f = (
 
 /-! ### Preliminaries about `swap` needed for `reverse`. -/
 
-theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
-    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
-  simp [swap]
-
 theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j hi hj)[k]? =
     if j = k then some a[i] else if i = k then some a[j] else a[k]? := by
   simp [swap_def, getElem?_set]
@@ -3303,9 +3296,6 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
     (h : i ≠ j) : (a.set i v)[j]'(by simp [*]) = a[j] := by
   simp only [set, ← getElem_toList, List.getElem_set_ne h]
 
-@[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
-    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
-
 @[simp] theorem swapAt_def (a : Array α) (i : Nat) (v : α) (hi) :
     a.swapAt i v hi = (a[i], a.set i v) := rfl
 
@@ -3635,11 +3625,6 @@ theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by 
 theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray.size) :
     l.toArray.uset i a h = (l.set i.toNat a).toArray := by simp
 
-@[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
-    l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
-  apply ext'
-  simp
-
 @[simp] theorem modify_toArray (f : α → α) (l : List α) :
     l.toArray.modify i f = (l.modify f i).toArray := by
   apply ext'
@@ -3656,31 +3641,6 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
 
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
-
-@[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
-    l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
-  rw [Array.eraseIdx]
-  split <;> rename_i h'
-  · rw [eraseIdx_toArray]
-    simp only [swap_toArray, Fin.getElem_fin, toList_toArray, mk.injEq]
-    rw [eraseIdx_set_gt (by simp), eraseIdx_set_eq]
-    simp
-  · simp at h h'
-    have t : i = l.length - 1 := by omega
-    simp [t]
-termination_by l.length - i
-decreasing_by
-  rename_i h
-  simp at h
-  simp
-  omega
-
-@[simp] theorem eraseIdxIfInBounds_toArray (l : List α) (i : Nat) :
-    l.toArray.eraseIdxIfInBounds i = (l.eraseIdx i).toArray := by
-  rw [Array.eraseIdxIfInBounds]
-  split
-  · simp
-  · simp_all [eraseIdx_eq_self.2]
 
 end List
 

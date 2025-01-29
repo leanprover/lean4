@@ -107,12 +107,13 @@ def Counters.toMessageData? (cs : Counters) : MetaM (Option MessageData) := do
     match origin with
     | .decl declName => some (declName, c)
     | _ => none
+  -- We do not report `cases` applications on builtin types
+  let cases := cs.case.toList.toArray.filter fun (declName, _) => !isBuiltinEagerCases declName
   let mut msgs := #[]
   unless thms.isEmpty do
     msgs := msgs.push <| (← countersToMessageData "E-Matching instances" `thm thms)
-  let cases := cs.case.toList.toArray
   unless cases.isEmpty do
-    msgs := msgs.push <| (← countersToMessageData "Case splits" `cases cases)
+    msgs := msgs.push <| (← countersToMessageData "Cases instances" `cases cases)
   if msgs.isEmpty then
     return none
   else

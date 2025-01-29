@@ -2,11 +2,10 @@ inductive Even : Nat → Prop
   | zero : Even 0
   | plus_two {n} : Even n → Even (n + 2)
 
-grind_pattern Even.zero => Even 0
-
 example : Even 2 := by
-  grind [Even.plus_two]
+  grind [Even.plus_two, Even.zero]
 
+attribute [grind] Even.zero
 attribute [grind] Even.plus_two
 
 example : Even 2 := by

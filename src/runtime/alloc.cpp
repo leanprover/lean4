@@ -437,7 +437,7 @@ void dealloc(void * o, size_t sz) {
     LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
     sz = lean_align(sz, LEAN_OBJECT_SIZE_DELTA);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
-        return free_sized(o, sz);
+        return free(o);
     }
     dealloc_small_core(o);
 }

@@ -41,12 +41,6 @@ Author: Leonardo de Moura
 #define isinf(x) std::isinf(x)
 #endif
 
-#if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
-extern "C" __attribute__((weak)) void free_sized(void *ptr, size_t) {
-    free(ptr);
-}
-#endif
-
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
 
@@ -204,7 +198,7 @@ static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
 #else
-    free_sized(o, sz);
+    free(o);
 #endif
 }
 

@@ -30,7 +30,7 @@ private def mkUserNameFor (e : Expr) : TermElabM Name := do
 
 
 /--
-   Remark: if the discriminat is `Syntax.missing`, we abort the elaboration of the `match`-expression.
+   Remark: if the discriminant is `Syntax.missing`, we abort the elaboration of the `match`-expression.
    This can happen due to error recovery. Example
    ```
    example : (p ∨ p) → p := fun h => match
@@ -78,11 +78,11 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptM
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
     let matchTypeStx := matchOptMotive[0][3]
     let matchType ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWitMatchType matchType
+    let (discrs, isDep) ← elabDiscrsWithMatchType matchType
     return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
 where
   /-- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
-  elabDiscrsWitMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
+  elabDiscrsWithMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
     let mut discrs := #[]
     let mut i := 0
     let mut matchType := matchType
@@ -1194,7 +1194,7 @@ Remark the `optIdent` must be `none` at `matchDiscr`. They are expanded by `expa
 -/
 private def elabMatchCore (stx : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   let expectedType   ← waitExpectedTypeAndDiscrs stx expectedType?
-  let discrStxs      := (getDiscrs stx).map fun d => d
+  let discrStxs      := getDiscrs stx
   let gen?           := getMatchGeneralizing? stx
   let altViews       := getMatchAlts stx
   let matchOptMotive := getMatchOptMotive stx

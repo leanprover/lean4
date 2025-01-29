@@ -25,7 +25,6 @@ def mem_subset (a1 a2 b1 b2 : BitVec 64) : Bool :=
 theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
   unfold mem_subset
   bv_normalize
-  sorry
 
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
@@ -87,6 +86,16 @@ example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
 example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
+
+-- lt_irrefl
+example (x : BitVec 16) : ¬x < x := by bv_normalize
+example (x : BitVec 16) : !(x.ult x) := by bv_normalize
+example (x : BitVec 16) : !(x.slt x) := by bv_normalize
+
+-- not_lt_zero
+example (x : BitVec 16) : ¬x < 0 := by bv_normalize
+example (x : BitVec 16) : x ≥ 0 := by bv_normalize
+example (x : BitVec 16) : !(x.ult 0) := by bv_normalize
 
 section
 

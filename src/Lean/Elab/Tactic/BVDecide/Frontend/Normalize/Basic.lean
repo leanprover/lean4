@@ -32,16 +32,14 @@ def getConfig : PreProcessM BVDecideConfig := read
 @[inline]
 def checkRewritten (fvar : FVarId) : PreProcessM Bool := do
   let val := (← get).rewriteCache.contains fvar
-  trace[Meta.Tactic.bv] m!"{mkFVar fvar} was already rewritten? {val}"
   return val
 
 @[inline]
 def rewriteFinished (fvar : FVarId) : PreProcessM Unit := do
-  trace[Meta.Tactic.bv] m!"Adding {mkFVar fvar} to the rewritten set"
   modify (fun s => { s with rewriteCache := s.rewriteCache.insert fvar })
 
 def run (cfg : BVDecideConfig) (goal : MVarId) (x : PreProcessM α) : MetaM α := do
-  let hyps ← goal.getNondepPropHyps
+  let hyps ← goal.withContext do getPropHyps
   ReaderT.run x cfg |>.run' { rewriteCache := Std.HashSet.empty hyps.size }
 
 end PreProcessM

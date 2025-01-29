@@ -679,6 +679,7 @@ x_21 = lean_ctor_get(x_18, 1);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_17);
 x_23 = l_Lean_Environment_contains(x_22, x_17);
 if (x_23 == 0)
 {
@@ -704,7 +705,6 @@ x_29 = lean_ctor_get(x_27, 0);
 lean_inc(x_29);
 lean_dec(x_27);
 x_30 = l_Lean_Environment_contains(x_29, x_17);
-lean_dec(x_17);
 x_11 = x_30;
 x_12 = x_28;
 goto block_16;
@@ -888,6 +888,7 @@ lean_dec(x_18);
 x_71 = lean_ctor_get(x_69, 0);
 lean_inc(x_71);
 lean_dec(x_69);
+lean_inc(x_17);
 x_72 = l_Lean_Environment_contains(x_71, x_17);
 if (x_72 == 0)
 {
@@ -912,7 +913,6 @@ x_78 = lean_ctor_get(x_76, 0);
 lean_inc(x_78);
 lean_dec(x_76);
 x_79 = l_Lean_Environment_contains(x_78, x_17);
-lean_dec(x_17);
 x_11 = x_79;
 x_12 = x_77;
 goto block_16;

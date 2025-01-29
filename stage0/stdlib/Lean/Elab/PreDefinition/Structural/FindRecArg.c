@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.Structural.FindRecArg
-// Imports: Lean.Elab.PreDefinition.TerminationArgument Lean.Elab.PreDefinition.Structural.Basic Lean.Elab.PreDefinition.Structural.RecArgInfo
+// Imports: Lean.Elab.PreDefinition.TerminationMeasure Lean.Elab.PreDefinition.Structural.Basic Lean.Elab.PreDefinition.Structural.RecArgInfo
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,7 +33,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_P
 LEAN_EXPORT lean_object* l_Lean_isTracingEnabledFor___at_Lean_Elab_Structural_tryAllArgs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_allCombinations_go___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_getRecArgInfo___lambda__1___closed__2;
-lean_object* l_Lean_Elab_TerminationArgument_structuralArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_prettyParam___closed__3;
 lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_shouldVisit(lean_object*, lean_object*);
@@ -93,7 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_hasConst___at_Lean_Elab_Structural_tryAllArgs___
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_dedup___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_fvarId_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addTrace___at_Lean_Elab_Structural_tryAllArgs___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Structural_getRecArgInfos___lambda__4___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_tryAllArgs___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -453,6 +452,7 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_
 LEAN_EXPORT lean_object* l_Lean_Elab_Structural_getRecArgInfos___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_tryAllArgs___spec__9___rarg___closed__7;
+lean_object* l_Lean_Elab_TerminationMeasure_structuralArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___closed__1;
 LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyMAux___at___private_Lean_Elab_PreDefinition_Structural_FindRecArg_0__Lean_Elab_Structural_hasBadIndexDep_x3f___spec__14(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_argsInGroup___spec__3___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5559,7 +5559,7 @@ if (lean_is_exclusive(x_19)) {
 x_23 = lean_ctor_get(x_20, 0);
 lean_inc(x_23);
 lean_dec(x_20);
-x_24 = lean_environment_find(x_23, x_17);
+x_24 = l_Lean_Environment_find_x3f(x_23, x_17);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; 
@@ -5598,6 +5598,7 @@ lean_dec(x_29);
 x_31 = l_Lean_binductionOnSuffix;
 lean_inc(x_30);
 x_32 = l_Lean_Name_str___override(x_30, x_31);
+lean_inc(x_32);
 x_33 = l_Lean_hasConst___at_Lean_Elab_Structural_getRecArgInfo___spec__2(x_32, x_7, x_8, x_9, x_10, x_21);
 x_34 = lean_ctor_get(x_33, 0);
 lean_inc(x_34);
@@ -6692,7 +6693,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -7384,7 +7384,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
-x_10 = l_Lean_Elab_TerminationArgument_structuralArg(x_1, x_5, x_6, x_7, x_8, x_9);
+x_10 = l_Lean_Elab_TerminationMeasure_structuralArg(x_1, x_5, x_6, x_7, x_8, x_9);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
@@ -7432,7 +7432,7 @@ static lean_object* _init_l_Lean_Elab_Structural_getRecArgInfos___lambda__3___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("cannot use specified parameter for structural recursion:", 56, 56);
+x_1 = lean_mk_string_unchecked("cannot use specified measure for structural recursion:", 54, 54);
 return x_1;
 }
 }
@@ -14298,7 +14298,6 @@ x_76 = lean_unsigned_to_nat(0u);
 x_77 = l_Lean_Elab_Structural_IndGroupInfo_brecOnName(x_74, x_75, x_76);
 lean_dec(x_74);
 x_78 = l_Lean_hasConst___at_Lean_Elab_Structural_tryAllArgs___spec__5(x_77, x_15, x_16, x_17, x_18, x_19, x_20);
-lean_dec(x_77);
 x_79 = lean_ctor_get(x_78, 0);
 lean_inc(x_79);
 x_80 = lean_unbox(x_79);
@@ -16922,7 +16921,6 @@ lean_dec(x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_8;
 }
 }
@@ -17245,7 +17243,7 @@ lean_dec(x_1);
 return x_12;
 }
 }
-lean_object* initialize_Lean_Elab_PreDefinition_TerminationArgument(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_Basic(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Structural_RecArgInfo(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
@@ -17253,7 +17251,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_Structural_FindRecAr
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Elab_PreDefinition_TerminationArgument(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Structural_Basic(builtin, lean_io_mk_world());

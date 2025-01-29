@@ -293,3 +293,70 @@ example {α} (f : α → Type) (a : α) (h : ∀ x, Nonempty (f x)) : Nonempty (
 
 example {α β} (f : α → β) (a : α) : ∃ a', f a' = f a := by
   grind
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind +splitIndPred only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind only [Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+
+open List in
+example : (replicate n a).map f = replicate n (f a) := by
+  -- Should fail since extensionality is disabled
+  fail_if_success grind -ext only [Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  sorry
+
+@[ext] structure S where
+  a : Nat
+  b : Bool
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  grind
+
+example (x y : S) : x.a = y.a → y.b = x.b → x = y := by
+  fail_if_success grind -ext
+  sorry
+
+example (x : S) : x.a = 10 → false ≠ x.b → x = { a := 10, b := true } := by
+  grind
+
+
+-- In the following test, we should not display `10 := 10` and `20 := 20` in the
+-- assignment produced by the offset module
+/--
+error: `grind` failed
+case grind
+a : Nat
+b : Bool
+a✝¹ : (if b = true then 10 else 20) = a
+a✝ : b = true
+⊢ False
+[grind] Diagnostics
+  [facts] Asserted facts
+    [prop] (if b = true then 10 else 20) = a
+    [prop] b = true
+  [eqc] True propositions
+    [prop] b = true
+  [eqc] Equivalence classes
+    [eqc] {a, if b = true then 10 else 20, 10}
+    [eqc] {b, true}
+-/
+#guard_msgs (error) in
+example (b : Bool) : (if b then 10 else 20) = a → b = true → False := by
+  grind
+
+-- Should not generate a trace message about canonicalization issues
+#guard_msgs (info) in
+set_option trace.grind.issues true in
+example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
+  fail_if_success grind (splits := 0)
+  sorry
+
+example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
+  grind

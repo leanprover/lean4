@@ -41,7 +41,7 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_trivialStructToMono___closed__12;
 lean_object* l_Lean_Compiler_LCNF_Arg_toLetValue(lean_object*);
 lean_object* l_Lean_Compiler_LCNF_instInhabitedAltCore___rarg(lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l___private_Lean_Compiler_LCNF_CompilerM_0__Lean_Compiler_LCNF_updateFunDeclImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_FunDeclCore_toMono(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_LetValue_toMono___closed__1;
@@ -281,7 +281,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_environment_find(x_13, x_1);
+x_14 = l_Lean_Environment_find_x3f(x_13, x_1);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -546,7 +546,7 @@ lean_dec(x_9);
 x_78 = lean_ctor_get(x_76, 0);
 lean_inc(x_78);
 lean_dec(x_76);
-x_79 = lean_environment_find(x_78, x_1);
+x_79 = l_Lean_Environment_find_x3f(x_78, x_1);
 if (lean_obj_tag(x_79) == 0)
 {
 lean_object* x_80; lean_object* x_81; 
@@ -1708,7 +1708,7 @@ x_84 = lean_ctor_get(x_82, 0);
 lean_inc(x_84);
 lean_dec(x_82);
 lean_inc(x_69);
-x_85 = lean_environment_find(x_84, x_69);
+x_85 = l_Lean_Environment_find_x3f(x_84, x_69);
 if (lean_obj_tag(x_85) == 0)
 {
 size_t x_86; size_t x_87; lean_object* x_88; uint8_t x_89; 
@@ -1962,7 +1962,7 @@ x_144 = lean_ctor_get(x_142, 0);
 lean_inc(x_144);
 lean_dec(x_142);
 lean_inc(x_130);
-x_145 = lean_environment_find(x_144, x_130);
+x_145 = l_Lean_Environment_find_x3f(x_144, x_130);
 if (lean_obj_tag(x_145) == 0)
 {
 size_t x_146; size_t x_147; lean_object* x_148; lean_object* x_149; lean_object* x_150; lean_object* x_151; lean_object* x_152; lean_object* x_153; lean_object* x_154; 

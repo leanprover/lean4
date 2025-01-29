@@ -39,6 +39,11 @@ structure BVDecideConfig where
   -/
   embeddedConstraintSubst : Bool := true
   /--
+  Split up local declarations of structures that are collections of other supported types into their
+  individual parts automatically.
+  -/
+  structures : Bool := true
+  /--
   Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
   Lean process.
   -/
@@ -67,8 +72,9 @@ syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
-verifying it inside Lean. The solvable goals are currently limited to the Lean equivalent of
-[`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV):
+verifying it inside Lean. The solvable goals are currently limited to
+- the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
+- automatically splitting up `structure`s that contain information about `BitVec` or `Bool`
 ```lean
 example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
   intros

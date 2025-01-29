@@ -31,7 +31,7 @@ open Meta SubExpr
 register_builtin_option pp.analyze : Bool := {
   defValue := false
   group    := "pp.analyze"
-  descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
+  descr    := "(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping"
 }
 
 register_builtin_option pp.analyze.checkInstances : Bool := {

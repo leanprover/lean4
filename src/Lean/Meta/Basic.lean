@@ -175,6 +175,11 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
+  /--
+  Zeta reduction for unused let-declarations: `let x := v; e` reduces to `e` when `x` does not occur
+  in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -1627,6 +1632,8 @@ def withLocalDeclNoLocalInstanceUpdate (name : Name) (bi : BinderInfo) (type : E
 - the binder info of the variable
 - a type constructor for the variable, where the array consists of all of the free variables
   defined prior to this one. This is needed because the type of the variable may depend on prior variables.
+
+See `withLocalDeclsD` and `withLocalDeclsDND` for simplier variants.
 -/
 partial def withLocalDecls
     [Inhabited α]
@@ -1642,9 +1649,20 @@ where
     else
       k acc
 
+/--
+Variant of `withLocalDecls` using `Binderinfo.default`
+-/
 def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n Expr))) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDecls
     (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
+
+/--
+Simpler variant of `withLocalDeclsD` for brining variables into scope whose types do not depend
+on each other.
+-/
+def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
+  withLocalDeclsD
+    (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
 private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>

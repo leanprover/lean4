@@ -620,3 +620,12 @@ but may be used locally.
 -/
 def boolRelToRel : Coe (α → α → Bool) (α → α → Prop) where
   coe r := fun a b => Eq (r a b) true
+
+/-! ### subtypes -/
+
+@[simp] theorem Subtype.beq_iff {α : Type u} [DecidableEq α] {p : α → Prop} {x y : {a : α // p a}} :
+    (x == y) = (x.1 == y.1) := by
+  cases x
+  cases y
+  rw [Bool.eq_iff_iff]
+  simp [beq_iff_eq]

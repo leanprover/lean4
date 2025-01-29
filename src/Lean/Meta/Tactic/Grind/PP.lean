@@ -121,15 +121,11 @@ private def ppOffset : M Unit := do
   let nodes := s.nodes
   if nodes.isEmpty then return ()
   let model ← Arith.Offset.mkModel goal
+  if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
     ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
   pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
-
-private def ppIssues : M Unit := do
-  let issues := (← read).issues
-  unless issues.isEmpty do
-    pushMsg <| .trace { cls := `issues } "Issues" issues.reverse.toArray
 
 private def ppThresholds (c : Grind.Config) : M Unit := do
   let goal ← read
@@ -158,9 +154,5 @@ where
     ppActiveTheorems
     ppOffset
     ppThresholds config
-    ppIssues
-
-def goalsToMessageData (goals : List Goal) (config : Grind.Config) : MetaM MessageData :=
-  return MessageData.joinSep (← goals.mapM (goalToMessageData · config)) m!"\n"
 
 end Lean.Meta.Grind

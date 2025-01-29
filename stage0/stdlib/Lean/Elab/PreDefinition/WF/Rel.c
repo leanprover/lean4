@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Rel
-// Imports: Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Rename Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.TerminationArgument Lean.Meta.ArgsPacker
+// Imports: Lean.Meta.Tactic.Apply Lean.Meta.Tactic.Cases Lean.Meta.Tactic.Rename Lean.Elab.SyntheticMVars Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.TerminationMeasure Lean.Meta.ArgsPacker
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_hasAnyFVar_visit___at_Lean_Elab_WF_checkCodomains___spec__2___boxed(lean_object*, lean_object*);
-extern lean_object* l_Lean_Elab_instInhabitedTerminationArgument;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_checkCodomains___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_elabWFRel___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_checkCodomains___closed__1;
@@ -43,6 +42,7 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_WF_checkCodomains___spec__1(size_t, size_t, lean_object*);
+extern lean_object* l_Lean_Elab_instInhabitedTerminationMeasure;
 lean_object* l_Lean_Meta_synthInstance(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_checkCodomains___spec__3___lambda__2___closed__4;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_checkCodomains___spec__3___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -267,7 +267,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_checkCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The termination argument's type must not depend on the ", 55, 55);
+x_1 = lean_mk_string_unchecked("The termination measure's type must not depend on the ", 54, 54);
 return x_1;
 }
 }
@@ -301,7 +301,7 @@ static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_WF_checkCo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("'s termination argument does:", 29, 29);
+x_1 = lean_mk_string_unchecked("'s termination measure does:", 28, 28);
 return x_1;
 }
 }
@@ -1536,7 +1536,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The termination arguments of mutually recursive functions ", 58, 58);
+x_1 = lean_mk_string_unchecked("The termination measures of mutually recursive functions ", 57, 57);
 return x_1;
 }
 }
@@ -1553,7 +1553,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("must have the same return type, but the termination argument of ", 64, 64);
+x_1 = lean_mk_string_unchecked("must have the same return type, but the termination measure of ", 63, 63);
 return x_1;
 }
 }
@@ -1604,7 +1604,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_WF_checkCodo
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("while the termination argument of ", 34, 34);
+x_1 = lean_mk_string_unchecked("while the termination measure of ", 33, 33);
 return x_1;
 }
 }
@@ -1682,7 +1682,7 @@ x_37 = l_Lean_indentExpr(x_22);
 if (x_27 == 0)
 {
 lean_object* x_85; lean_object* x_86; 
-x_85 = l_Lean_Elab_instInhabitedTerminationArgument;
+x_85 = l_Lean_Elab_instInhabitedTerminationMeasure;
 x_86 = l_outOfBounds___rarg(x_85);
 x_38 = x_86;
 goto block_84;
@@ -2560,7 +2560,7 @@ lean_object* initialize_Lean_Meta_Tactic_Cases(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_Tactic_Rename(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_Basic(uint8_t builtin, lean_object*);
-lean_object* initialize_Lean_Elab_PreDefinition_TerminationArgument(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_TerminationMeasure(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Meta_ArgsPacker(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Rel(uint8_t builtin, lean_object* w) {
@@ -2582,7 +2582,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_PreDefinition_TerminationArgument(builtin, lean_io_mk_world());
+res = initialize_Lean_Elab_PreDefinition_TerminationMeasure(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_ArgsPacker(builtin, lean_io_mk_world());

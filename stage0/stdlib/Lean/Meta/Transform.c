@@ -107,7 +107,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLambda___rarg___boxed(
 LEAN_EXPORT lean_object* l_Lean_throwMaxRecDepthAt___at_Lean_Meta_zetaReduce___spec__16(lean_object*, lean_object*);
 static lean_object* l_Lean_instInhabitedTransformStep___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_transform_visit_visitLambda___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_eraseInaccessibleAnnotations___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Core_transform_visit___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Meta_transform_visit___spec__3___rarg___lambda__1(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, size_t, lean_object*, lean_object*);
@@ -11294,7 +11294,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_unfoldDeclsFrom___lambda__1(lean_object* x_
 _start:
 {
 lean_object* x_9; 
-x_9 = lean_environment_find(x_1, x_2);
+x_9 = l_Lean_Environment_find_x3f(x_1, x_2);
 if (lean_obj_tag(x_9) == 0)
 {
 lean_object* x_10; lean_object* x_11; 
@@ -11477,6 +11477,7 @@ x_7 = lean_ctor_get(x_3, 0);
 lean_inc(x_7);
 x_8 = lean_ctor_get(x_3, 1);
 lean_inc(x_8);
+lean_inc(x_7);
 x_9 = l_Lean_Environment_contains(x_2, x_7);
 if (x_9 == 0)
 {

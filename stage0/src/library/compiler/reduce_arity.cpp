@@ -29,7 +29,7 @@ bool arity_was_reduced(comp_decl const & cdecl) {
     return is_reduce_arity_aux_fn(n) && n.get_prefix() == cdecl.fst();
 }
 
-comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
+comp_decls reduce_arity(elab_environment const & env, comp_decl const & cdecl) {
     if (has_export_name(env, cdecl.fst()) || cdecl.fst() == "main") {
         /* We do not modify the arity of entry points (i.e., functions with attribute [export]) */
         return comp_decls(cdecl);
@@ -92,7 +92,7 @@ comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
     return comp_decls(red_decl, comp_decls(new_decl));
 }
 
-comp_decls reduce_arity(environment const & env, comp_decls const & ds) {
+comp_decls reduce_arity(elab_environment const & env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         r = append(r, reduce_arity(env, d));

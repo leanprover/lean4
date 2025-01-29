@@ -1233,10 +1233,7 @@ private def processAssignment' (mvarApp : Expr) (v : Expr) : MetaM Bool := do
 
 private def isDeltaCandidate? (t : Expr) : MetaM (Option ConstantInfo) := do
   match t.getAppFn with
-  | .const c _ =>
-    match (← getUnfoldableConst? c) with
-    | r@(some info) => if info.hasValue then return r else return none
-    | _             => return none
+  | .const c _ => getUnfoldableConst? c
   | _ => pure none
 
 /-- Auxiliary method for isDefEqDelta -/
@@ -1637,11 +1634,18 @@ private partial def consumeLet : Expr → Expr
     else
       e
 
+private partial def consumeLetIfZeta (e : Expr) : MetaM Expr := do
+  let cfg ← getConfig
+  if cfg.zeta || cfg.zetaUnused then
+    return consumeLet e
+  else
+    return e
+
 mutual
 
-private partial def isDefEqQuick (t s : Expr) : MetaM LBool :=
-  let t := consumeLet t
-  let s := consumeLet s
+private partial def isDefEqQuick (t s : Expr) : MetaM LBool := do
+  let t ← consumeLetIfZeta t
+  let s ← consumeLetIfZeta s
   match t, s with
   | .lit  l₁,      .lit l₂     => return (l₁ == l₂).toLBool
   | .sort u,       .sort v     => toLBoolM <| isLevelDefEqAux u v

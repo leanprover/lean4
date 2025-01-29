@@ -109,7 +109,7 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_7441____clo
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_SizeOf___hyg_8191____closed__6;
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfMotives_loop___rarg___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_mkSizeOfFn___lambda__6___boxed(lean_object**);
-lean_object* lean_environment_find(lean_object*, lean_object*);
+lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_RecursorVal_getFirstMinorIdx(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___lambda__8___boxed(lean_object**);
 static lean_object* l___private_Lean_Meta_SizeOf_0__Lean_Meta_SizeOfSpecNested_mkMinorProofStep___closed__2;
@@ -7539,7 +7539,7 @@ x_12 = lean_ctor_get(x_9, 1);
 x_13 = lean_ctor_get(x_11, 0);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = lean_environment_find(x_13, x_8);
+x_14 = l_Lean_Environment_find_x3f(x_13, x_8);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
@@ -7746,7 +7746,7 @@ lean_dec(x_9);
 x_75 = lean_ctor_get(x_73, 0);
 lean_inc(x_75);
 lean_dec(x_73);
-x_76 = lean_environment_find(x_75, x_8);
+x_76 = l_Lean_Environment_find_x3f(x_75, x_8);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; 
@@ -8290,7 +8290,7 @@ x_14 = lean_ctor_get(x_11, 1);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = lean_environment_find(x_15, x_9);
+x_16 = l_Lean_Environment_find_x3f(x_15, x_9);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; 
@@ -8457,7 +8457,7 @@ lean_dec(x_11);
 x_75 = lean_ctor_get(x_73, 0);
 lean_inc(x_75);
 lean_dec(x_73);
-x_76 = lean_environment_find(x_75, x_9);
+x_76 = l_Lean_Environment_find_x3f(x_75, x_9);
 if (lean_obj_tag(x_76) == 0)
 {
 lean_object* x_77; 
@@ -11204,6 +11204,7 @@ x_21 = lean_ctor_get(x_18, 1);
 x_22 = lean_ctor_get(x_20, 0);
 lean_inc(x_22);
 lean_dec(x_20);
+lean_inc(x_17);
 x_23 = l_Lean_Environment_contains(x_22, x_17);
 if (x_23 == 0)
 {
@@ -11251,7 +11252,7 @@ lean_dec(x_33);
 x_36 = lean_ctor_get(x_34, 0);
 lean_inc(x_36);
 lean_dec(x_34);
-x_37 = lean_environment_find(x_36, x_32);
+x_37 = l_Lean_Environment_find_x3f(x_36, x_32);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; 
@@ -11501,6 +11502,7 @@ lean_dec(x_18);
 x_83 = lean_ctor_get(x_81, 0);
 lean_inc(x_83);
 lean_dec(x_81);
+lean_inc(x_17);
 x_84 = l_Lean_Environment_contains(x_83, x_17);
 if (x_84 == 0)
 {
@@ -11547,7 +11549,7 @@ lean_dec(x_94);
 x_97 = lean_ctor_get(x_95, 0);
 lean_inc(x_97);
 lean_dec(x_95);
-x_98 = lean_environment_find(x_97, x_93);
+x_98 = l_Lean_Environment_find_x3f(x_97, x_93);
 if (lean_obj_tag(x_98) == 0)
 {
 lean_object* x_99; 
@@ -12024,7 +12026,7 @@ x_12 = lean_ctor_get(x_10, 0);
 lean_inc(x_12);
 lean_dec(x_10);
 lean_inc(x_1);
-x_13 = lean_environment_find(x_12, x_1);
+x_13 = l_Lean_Environment_find_x3f(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
 uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
@@ -12065,7 +12067,7 @@ x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
 lean_inc(x_1);
-x_25 = lean_environment_find(x_24, x_1);
+x_25 = l_Lean_Environment_find_x3f(x_24, x_1);
 if (lean_obj_tag(x_25) == 0)
 {
 uint8_t x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; 
@@ -16226,7 +16228,6 @@ lean_inc(x_22);
 lean_dec(x_20);
 x_23 = l___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___closed__2;
 x_24 = l_Lean_getAttributeImpl(x_22, x_23);
-lean_dec(x_22);
 x_25 = l_Lean_ofExcept___at___private_Lean_Meta_SizeOf_0__Lean_Meta_mkSizeOfSpecTheorem___spec__1(x_24, x_5, x_6, x_7, x_8, x_21);
 lean_dec(x_24);
 if (lean_obj_tag(x_25) == 0)

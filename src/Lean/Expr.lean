@@ -639,7 +639,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId

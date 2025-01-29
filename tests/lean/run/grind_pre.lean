@@ -39,7 +39,9 @@ h : c = true
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind
 
-open Lean.Grind.Eager in
+section
+attribute [local grind cases eager] Or
+
 /--
 error: `grind` failed
 case grind.2.1
@@ -69,6 +71,8 @@ h : b = false
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
   grind
 
+end
+
 def g (i : Nat) (j : Nat) (_ : i > j := by omega) := i + j
 
 /--
@@ -90,7 +94,10 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
   [offset] Assignment satisfying offset contraints
     [assign] j := 0
     [assign] i := 1
-    [assign] i + j := 1
+    [assign] i + 1 := 2
+    [assign] 0 := 0
+    [assign] i + j + 1 := 1
+    [assign] i + j := 0
 -/
 #guard_msgs (error) in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
@@ -169,37 +176,8 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
-case grind.2
-α : Type
-a : α
-p q r : Prop
-h₁ : HEq p a
-h₂ : HEq q a
-h₃ : p = r
-left : ¬p ∨ r
-h : p
-⊢ False
-[grind] Diagnostics
-  [facts] Asserted facts
-    [prop] HEq p a
-    [prop] HEq q a
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] p
-  [eqc] True propositions
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] a
-    [prop] p
-    [prop] q
-    [prop] r
-  [eqc] False propositions
-    [prop] ¬p
-    [prop] ¬r
-  [issues] Issues
-    [issue] this goal was not fully processed due to previous failures, threshold: `(failures := 1)`
+[grind] Issues
+  [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
@@ -212,15 +190,13 @@ example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h�
   grind
 
 /--
-warning: declaration uses 'sorry'
----
 info: [grind.issues] found congruence between
       g b
     and
       f a
     but functions have different types
 -/
-#guard_msgs in
+#guard_msgs (info) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
@@ -248,8 +224,8 @@ x✝ : ¬f a = g b
   [eqc] Equivalence classes
     [eqc] {a, b}
     [eqc] {f, g}
-  [issues] Issues
-    [issue] found congruence between g b and f a but functions have different types
+[grind] Issues
+  [issue] found congruence between g b and f a but functions have different types
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

@@ -11,7 +11,9 @@ import Lean.Meta.Tactic.Grind.Inv
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Util
+import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind
 
@@ -40,7 +42,7 @@ Remove `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
-  let parents ← getParentsAndReset root
+  let parents ← getParents root
   for parent in parents do
     -- Recall that we may have `Expr.forallE` in `parents` because of `ForallProp.lean`
     if (← pure parent.isApp <&&> isCongrRoot parent) then
@@ -107,6 +109,31 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
     if let some rhsOffset := rhsRoot.offset? then
       Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
 
+/--
+Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
+the lambda expressions in `lams`.
+-/
+def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
+  if lams.isEmpty then return ()
+  let lamRoot ← getRoot lams.back!
+  trace_goal[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  for fn in fns do
+    trace_goal[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    for parent in (← getParents fn) do
+      let mut args := #[]
+      let mut curr := parent
+      trace_goal[grind.debug.beta] "parent: {parent}"
+      repeat
+        trace_goal[grind.debug.beta] "curr: {curr}"
+        if (← isEqv curr lamRoot) then
+          propagateBetaEqs lams curr args.reverse
+        let .app f arg := curr
+          | break
+        -- Remark: recall that we do not eagerly internalize partial applications.
+        internalize curr (← getGeneration parent)
+        args := args.push arg
+        curr := f
+
 private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
   let lhsNode ← getENode lhs
   let rhsNode ← getENode rhs
@@ -158,6 +185,10 @@ where
       proof?  := proof
       flipped
     }
+    let lams₁ ← getEqcLambdas lhsRoot
+    let lams₂ ← getEqcLambdas rhsRoot
+    let fns₁  ← if lams₁.isEmpty then pure #[] else getFnRoots rhsRoot.self
+    let fns₂  ← if lams₂.isEmpty then pure #[] else getFnRoots lhsRoot.self
     let parents ← removeParents lhsRoot.self
     updateRoots lhs rhsNode.root
     trace_goal[grind.debug] "{← ppENodeRef lhs} new root {← ppENodeRef rhsNode.root}, {← ppENodeRef (← getRoot lhs)}"
@@ -172,6 +203,9 @@ where
       hasLambdas := rhsRoot.hasLambdas || lhsRoot.hasLambdas
       heqProofs  := isHEq || rhsRoot.heqProofs || lhsRoot.heqProofs
     }
+    propagateBeta lams₁ fns₁
+    propagateBeta lams₂ fns₂
+    resetParentsOf lhsRoot.self
     copyParentsTo parents rhsNode.root
     unless (← isInconsistent) do
       updateMT rhsRoot.self
@@ -200,18 +234,20 @@ private def popNextEq? : GoalM (Option NewEq) := do
     modify fun s => { s with newEqs := s.newEqs.pop }
   return r
 
-private partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  addEqStep lhs rhs proof isHEq
-  processTodo
-where
-  processTodo : GoalM Unit := do
+@[export lean_grind_process_new_eqs]
+private def processNewEqsImpl : GoalM Unit := do
+  repeat
     if (← isInconsistent) then
       resetNewEqs
       return ()
     checkSystem "grind"
-    let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
+    let some { lhs, rhs, proof, isHEq } := (← popNextEq?)
+      | return ()
     addEqStep lhs rhs proof isHEq
-    processTodo
+
+private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+  addEqStep lhs rhs proof isHEq
+  processNewEqsImpl
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do
@@ -235,6 +271,7 @@ def addNewEq (lhs rhs proof : Expr) (generation : Nat) : GoalM Unit := do
 
 /-- Adds a new `fact` justified by the given proof and using the given generation. -/
 def add (fact : Expr) (proof : Expr) (generation := 0) : GoalM Unit := do
+  if fact.isTrue then return ()
   storeFact fact
   trace_goal[grind.assert] "{fact}"
   if (← isInconsistent) then return ()

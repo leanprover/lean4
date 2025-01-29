@@ -26,6 +26,7 @@ static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___
 lean_object* l_Lean_evalConstCheck___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_CodeActions_Basic_0__Lean_Server_toJsonCodeActionResolveData____x40_Lean_Server_CodeActions_Basic___hyg_59____lambda__1(lean_object*);
+lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__4(lean_object*);
 static lean_object* l_Lean_Server_parseRequestParams___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1216____spec__2___closed__1;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___at_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1547____spec__1___lambda__2___closed__2;
@@ -162,7 +163,6 @@ static lean_object* l_Lean_Server_instCodeActionProviderInhabited___lambda__1___
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____closed__18;
 lean_object* l_Lean_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_458____lambda__3(lean_object*);
-lean_object* l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__7(lean_object*);
 extern lean_object* l_Task_Priority_default;
 static lean_object* l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_1547____closed__2;
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
@@ -2890,7 +2890,7 @@ lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; size_t x
 x_6 = l_Lean_NameSet_instInhabited;
 x_7 = l_Lean_Server_initFn____x40_Lean_Server_CodeActions_Basic___hyg_517____lambda__5___closed__1;
 x_8 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_6, x_7, x_1);
-x_9 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__7(x_8);
+x_9 = l_Lean_RBTree_toArray___at_Lean_mkModuleData___spec__4(x_8);
 x_10 = lean_array_size(x_9);
 x_11 = 0;
 lean_inc(x_9);
@@ -3375,7 +3375,6 @@ x_6 = l_Lean_Server_handleCodeAction___lambda__3(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_6;
 }
 }

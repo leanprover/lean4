@@ -212,6 +212,14 @@ theorem ofList_eq [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
   simp only [Raw.ofList, Raw.insertMany, (Raw.WF.empty).size_buckets_pos ∅, ↓reduceDIte]
   congr
 
+theorem alter_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.WF) {k : α} {f : Option (β k) → Option (β k)} :
+    m.alter k f = Raw₀.alter ⟨m, h.size_buckets_pos⟩ k f := by
+  simp [Raw.alter, h.size_buckets_pos]
+
+theorem modify_eq [BEq α] [LawfulBEq α] [Hashable α] {m : Raw α β} (h : m.WF) {k : α} {f : β k → β k} :
+    m.modify k f = Raw₀.modify ⟨m, h.size_buckets_pos⟩ k f := by
+  simp [Raw.modify, h.size_buckets_pos]
+
 section
 
 variable {β : Type v}
@@ -298,6 +306,14 @@ theorem Const.getThenInsertIfNew?_fst_val [BEq α] [Hashable α] {m : Raw₀ α 
     {b : β} : (Raw.Const.getThenInsertIfNew? m.val a b).1 =
       (Raw₀.Const.getThenInsertIfNew? m a b).1 := by
   simp [Raw.Const.getThenInsertIfNew?, m.2]
+
+theorem Const.alter_eq [BEq α] [EquivBEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {k : α} {f : Option β → Option β} :
+    Raw.Const.alter m k f = Raw₀.Const.alter ⟨m, h.size_buckets_pos⟩ k f := by
+  simp [Raw.Const.alter, h.size_buckets_pos]
+
+theorem Const.modify_eq [BEq α] [EquivBEq α] [Hashable α] {m : Raw α (fun _ => β)} (h : m.WF) {k : α} {f : β → β} :
+    Raw.Const.modify m k f = Raw₀.Const.modify ⟨m, h.size_buckets_pos⟩ k f := by
+  simp [Raw.Const.modify, h.size_buckets_pos]
 
 end
 

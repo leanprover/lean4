@@ -98,7 +98,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_imp_eq_false) a b h
   else if (← isEqTrue e) then
     if let some (e', h') ← eqResolution e then
-      trace[grind.eqResolution] "{e}, {e'}"
+      trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
       addNewFact h' e' (← getGeneration e)

@@ -17,15 +17,17 @@ import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.Solve
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.Cases
 
 namespace Lean.Meta.Grind
 
 structure Params where
-  config    : Grind.Config
-  ematch    : EMatchTheorems := {}
-  extra     : PArray EMatchTheorem := {}
-  norm      : Simp.Context
-  normProcs : Array Simprocs
+  config     : Grind.Config
+  ematch     : EMatchTheorems := {}
+  casesTypes : CasesTypes := {}
+  extra      : PArray EMatchTheorem := {}
+  norm       : Simp.Context
+  normProcs  : Array Simprocs
   -- TODO: inductives to split
 
 def mkParams (config : Grind.Config) : MetaM Params := do
@@ -65,7 +67,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let falseExpr ← getFalseExpr
   let natZeroExpr ← getNatZeroExpr
   let thmMap := params.ematch
-  GoalM.run' { mvarId, thmMap } do
+  let casesTypes := params.casesTypes
+  GoalM.run' { mvarId, thmMap, casesTypes } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
@@ -85,18 +88,32 @@ private def initCore (mvarId : MVarId) (params : Params) : GrindM (List Goal) :=
   goals.forM (·.checkInvariants (expensive := true))
   return goals.filter fun goal => !goal.inconsistent
 
-def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM (List Goal) := do
-  let go : GrindM (List Goal) := do
+structure Result where
+  failures : List Goal
+  skipped  : List Goal
+  issues   : List MessageData
+  config   : Grind.Config
+
+def Result.hasFailures (r : Result) : Bool :=
+  !r.failures.isEmpty
+
+def Result.toMessageData (result : Result) : MetaM MessageData := do
+  let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
+  let mut issues := result.issues
+  unless result.skipped.isEmpty do
+    let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
+    issues := .trace { cls := `issue } m #[] :: issues
+  unless issues.isEmpty do
+    msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
+  return MessageData.joinSep msgs m!"\n"
+
+def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do
+  let go : GrindM Result := do
     let goals ← initCore mvarId params
-    let goals ← solve goals
-    let goals ← goals.filterMapM fun goal => do
-      if goal.inconsistent then return none
-      let goal ← GoalM.run' goal fallback
-      if goal.inconsistent then return none
-      if (← goal.mvarId.isAssigned) then return none
-      return some goal
+    let (failures, skipped) ← solve goals fallback
     trace[grind.debug.final] "{← ppGoals goals}"
-    return goals
+    let issues := (← get).issues
+    return { failures, skipped, issues, config := params.config }
   go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

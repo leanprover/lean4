@@ -25,7 +25,7 @@ bool is_extract_closed_aux_fn(name const & n) {
 }
 
 class extract_closed_fn {
-    environment         m_env;
+    elab_environment    m_env;
     comp_decls          m_input_decls;
     name_generator      m_ngen;
     local_ctx           m_lctx;
@@ -34,7 +34,7 @@ class extract_closed_fn {
     unsigned            m_next_idx{1};
     expr_map<bool>      m_closed;
 
-    environment const & env() const { return m_env; }
+    elab_environment const & env() const { return m_env; }
     name_generator & ngen() { return m_ngen; }
 
     name next_name() {
@@ -286,11 +286,11 @@ class extract_closed_fn {
     }
 
 public:
-    extract_closed_fn(environment const & env, comp_decls const & ds):
+    extract_closed_fn(elab_environment const & env, comp_decls const & ds):
         m_env(env), m_input_decls(ds) {
     }
 
-    pair<environment, comp_decls> operator()(comp_decl const & d) {
+    pair<elab_environment, comp_decls> operator()(comp_decl const & d) {
         if (arity_was_reduced(d)) {
             /* Do nothing since `d` will be inlined. */
             return mk_pair(env(), comp_decls(d));
@@ -308,11 +308,11 @@ public:
     }
 };
 
-pair<environment, comp_decls> extract_closed_core(environment const & env, comp_decls const & input_ds, comp_decl const & d) {
+pair<elab_environment, comp_decls> extract_closed_core(elab_environment const & env, comp_decls const & input_ds, comp_decl const & d) {
     return extract_closed_fn(env, input_ds)(d);
 }
 
-pair<environment, comp_decls> extract_closed(environment env, comp_decls const & ds) {
+pair<elab_environment, comp_decls> extract_closed(elab_environment env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {
         comp_decls new_ds;

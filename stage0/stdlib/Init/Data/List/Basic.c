@@ -185,7 +185,6 @@ static lean_object* l_List___aux__Init__Data__List__Basic______macroRules__List_
 LEAN_EXPORT lean_object* l_List_groupBy___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_take___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isEmpty___rarg___boxed(lean_object*);
-LEAN_EXPORT uint8_t l_List_notElem___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_term___x3c_x2b_____closed__3;
 LEAN_EXPORT lean_object* l_List_filterMap___at_List_reduceOption___spec__1___rarg(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2209____closed__28;
@@ -284,7 +283,6 @@ LEAN_EXPORT lean_object* l_List_dropLast___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_List_head___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_span_loop___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_term___x3c_x2b_____closed__5;
-LEAN_EXPORT lean_object* l_List_notElem(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2209____closed__20;
 LEAN_EXPORT lean_object* l_List_lex(lean_object*);
 static lean_object* l_List_term___x3c_x3a_x2b_____closed__1;
@@ -416,7 +414,6 @@ LEAN_EXPORT lean_object* l_List_headD___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_sum___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_List_drop___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_List_Basic___hyg_2209_;
-LEAN_EXPORT lean_object* l_List_notElem___rarg___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_rotateLeft(lean_object*);
 LEAN_EXPORT lean_object* l_List_foldr___at_List_intersperseTR___spec__1(lean_object*);
@@ -3064,42 +3061,6 @@ _start:
 {
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_List_elem___rarg(x_1, x_2, x_3);
-x_5 = lean_box(x_4);
-return x_5;
-}
-}
-LEAN_EXPORT uint8_t l_List_notElem___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; 
-x_4 = l_List_elem___rarg(x_1, x_2, x_3);
-if (x_4 == 0)
-{
-uint8_t x_5; 
-x_5 = 1;
-return x_5;
-}
-else
-{
-uint8_t x_6; 
-x_6 = 0;
-return x_6;
-}
-}
-}
-LEAN_EXPORT lean_object* l_List_notElem(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_notElem___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_List_notElem___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = l_List_notElem___rarg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }

@@ -50,17 +50,16 @@ Furthermore, `grind` will not be able to infer that  `HEq (a + a) (b + b)` even 
 /--
 Helper function for `canonElemCore`. It tries `isDefEq a b` with default transparency, but using
 at most `canonHeartbeats` heartbeats. It reports an issue if the threshold is reached.
-Remark: `parent` is use only to report an issue
+Remark: `parent` is use only to report an issue.
 -/
 private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
   withCurrHeartbeats do
-  let config ← getConfig
+  let curr := (← getConfig).canonHeartbeats
   tryCatchRuntimeEx
-    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := config.canonHeartbeats }) do
+    (withTheReader Core.Context (fun ctx => { ctx with maxHeartbeats := curr*1000 }) do
       withDefault <| isDefEq a b)
     fun ex => do
       if ex.isRuntime then
-        let curr := (← getConfig).canonHeartbeats
         reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
         return false
       else
@@ -75,24 +74,28 @@ def canonElemCore (parent : Expr) (f : Expr) (i : Nat) (e : Expr) (useIsDefEqBou
   if let some c := s.canon.find? e then
     return c
   let key := (f, i)
+  let eType ← inferType e
   let cs := s.argMap.find? key |>.getD []
-  for c in cs do
-    if (← isDefEq e c) then
-      -- We used to check `c.fvarsSubset e` because it is not
-      -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
-      -- However, we don't revert previously canonicalized elements in the `grind` tactic.
-      -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
-      -- and different locals are added in different branches.
-      modify' fun s => { s with canon := s.canon.insert e c }
-      trace[grind.debugn.canon] "found {e} ===> {c}"
-      return c
-    if useIsDefEqBounded then
-      if (← isDefEqBounded e c parent) then
+  for (c, cType) in cs do
+    -- We first check the typesr
+    if (← withDefault <| isDefEq eType cType) then
+      if (← isDefEq e c) then
+        -- We used to check `c.fvarsSubset e` because it is not
+        -- in general safe to replace `e` with `c` if `c` has more free variables than `e`.
+        -- However, we don't revert previously canonicalized elements in the `grind` tactic.
+        -- Moreover, we store the canonicalizer state in the `Goal` because we case-split
+        -- and different locals are added in different branches.
         modify' fun s => { s with canon := s.canon.insert e c }
-        trace[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+        trace_goal[grind.debugn.canon] "found {e} ===> {c}"
         return c
-  trace[grind.debug.canon] "({f}, {i}) ↦ {e}"
-  modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key (e::cs) }
+      if useIsDefEqBounded then
+        -- If `e` and `c` are not types, we use `isDefEqBounded`
+        if (← isDefEqBounded e c parent) then
+          modify' fun s => { s with canon := s.canon.insert e c }
+          trace_goal[grind.debugn.canon] "found using `isDefEqBounded`: {e} ===> {c}"
+          return c
+  trace_goal[grind.debug.canon] "({f}, {i}) ↦ {e}"
+  modify' fun s => { s with canon := s.canon.insert e e, argMap := s.argMap.insert key ((e, eType)::cs) }
   return e
 
 abbrev canonType (parent f : Expr) (i : Nat) (e : Expr) := withDefault <| canonElemCore parent f i e (useIsDefEqBounded := false)
@@ -170,7 +173,7 @@ where
           let mut args := args.toVector
           for h : i in [:args.size] do
             let arg := args[i]
-            trace[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
+            trace_goal[grind.debug.canon] "[{repr (← shouldCanon pinfos i arg)}]: {arg} : {← inferType arg}"
             let arg' ← match (← shouldCanon pinfos i arg) with
             | .canonType  => canonType e f i arg
             | .canonInst  => canonInst e f i arg
@@ -194,7 +197,7 @@ end Canon
 
 /-- Canonicalizes nested types, type formers, and instances in `e`. -/
 def canon (e : Expr) : GoalM Expr := do
-  trace[grind.debug.canon] "{e}"
+  trace_goal[grind.debug.canon] "{e}"
   unsafe Canon.canonImpl e
 
 end Lean.Meta.Grind

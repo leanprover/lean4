@@ -951,10 +951,6 @@ The verification API for `idxOf?` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
 -/
 
-@[simp] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
-    l.idxOf? a = none ↔ a ∉ l := by
-  simp only [idxOf?, findIdx?_eq_none_iff, beq_eq_false_iff_ne, ne_eq]
-
 @[simp] theorem idxOf?_nil [BEq α] [LawfulBEq α] : ([] : List α).idxOf? a = none := rfl
 
 theorem idxOf?_cons [BEq α] [LawfulBEq α] (a : α) (xs : List α) (b : α) :

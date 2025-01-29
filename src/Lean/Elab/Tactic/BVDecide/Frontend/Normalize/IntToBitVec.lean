@@ -4,11 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 prelude
-import Lean.Elab.Tactic.Simp
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Elab.Tactic.BVDecide.Frontend.Attr
 import Lean.Elab.Tactic.Simp
-import Lean.Meta.Tactic.Generalize
 
 /-!
 This module contains the implementation of the pre processing pass for reducing `UIntX`/`IntX` to
@@ -26,8 +24,17 @@ namespace Frontend.Normalize
 
 open Lean.Meta
 
+/--
+Contains information for the `USize` elimination pass.
+-/
 structure USizeState where
+  /--
+  Contains terms of the form `USize.toBitVec e` that we will translate to constant width `BitVec`.
+  -/
   relevantTerms : Std.HashSet Expr := {}
+  /--
+  Contains all hypotheses that contain terms from `relevantTerms`
+  -/
   relevantHyps : Std.HashSet FVarId := {}
 
 private abbrev M := StateRefT USizeState MetaM
@@ -83,9 +90,9 @@ where
   replaceUSize (goal : MVarId) : M MVarId := do
     if let some (numBits, numBitsEq) ← findNumBitsEq goal then
       goal.withContext do
-        let relevantHyps := (← get).relevantHyps.toArray
+        let relevantHyps := (← get).relevantHyps.toArray.map mkFVar
         let relevantTerms := (← get).relevantTerms.toArray
-        let (app, abstractedHyps) ← liftMkBindingM <| MetavarContext.revert (relevantHyps.map mkFVar) goal true
+        let (app, abstractedHyps) ← liftMkBindingM <| MetavarContext.revert relevantHyps goal true
         let newMVar := app.getAppFn.mvarId!
         let targetType ← newMVar.getType
         /-

@@ -10,7 +10,7 @@ a.toBitVec = 0xff#8
 b.toBitVec = 0xff#8
 -/
 #guard_msgs in
-example (a b : UInt8) : a + b = a := by
+example (a b : UInt8) : a + b > a := by
   bv_decide
 
 
@@ -25,7 +25,7 @@ a.toBitVec = 0xffff#16
 b.toBitVec = 0xffff#16
 -/
 #guard_msgs in
-example (a b : UInt16) : a + b = a := by
+example (a b : UInt16) : a + b > a := by
   bv_decide
 
 
@@ -40,7 +40,7 @@ a.toBitVec = 0xffffffff#32
 b.toBitVec = 0xffffffff#32
 -/
 #guard_msgs in
-example (a b : UInt32) : a + b = a := by
+example (a b : UInt32) : a + b > a := by
   bv_decide
 
 
@@ -55,7 +55,7 @@ a.toBitVec = 0xffffffffffffffff#64
 b.toBitVec = 0xffffffffffffffff#64
 -/
 #guard_msgs in
-example (a b : UInt64) : a + b = a := by
+example (a b : UInt64) : a + b > a := by
   bv_decide
 
 
@@ -70,7 +70,7 @@ warning: Detected USize in the goal but no hypothesis about System.Platform.numB
 warning: declaration uses 'sorry'
 -/
 #guard_msgs in
-example (a b : USize) : a + b = a := by
+example (a b : USize) : a + b > a := by
   bv_normalize
   sorry
 

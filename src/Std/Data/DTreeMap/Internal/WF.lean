@@ -528,8 +528,22 @@ theorem Option.head?_toList {o : Option α} : o.toList.head? = o := by
 ### `isEmpty`
 -/
 
-theorem isEmpty_eq_isEmpty (m : Impl α β) : m.isEmpty = m.toListModel.isEmpty := by
-  induction m <;> simp [Impl.isEmpty]
+theorem apply_isEmpty {t : Impl α β} :
+    t.isEmpty = t.toListModel.isEmpty := by
+  cases t <;> simp [isEmpty]
+
+/-!
+### `size`
+-/
+
+theorem apply_size (t : Impl α β) (htb : t.Balanced) : t.size = t.toListModel.length := by
+  induction t <;> simp [Impl.size]
+  rename_i ihl ihr
+  cases htb
+  rename_i htb
+  rw [htb]
+  simp only [*]
+  ac_rfl
 
 /-!
 ### `contains`
@@ -564,14 +578,6 @@ theorem toListModel_empty : (.empty : Impl α β).toListModel = [] := by
 
 theorem ordered_empty [Ord α] : (.empty : Impl α β).Ordered := by
   simp [Ordered]
-
-/-!
-### `isEmpty`
--/
-
-theorem apply_isEmpty [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) :
-    t.isEmpty = t.toListModel.isEmpty := by
-  cases t <;> simp [isEmpty]
 
 /-!
 ### `insertₘ`
@@ -650,6 +656,20 @@ theorem toListModel_erase [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb 
     (t.erase k htb).impl.toListModel.Perm (eraseKey k t.toListModel) := by
   rw [erase_eq_eraseₘ]
   exact toListModel_eraseₘ htb hto
+
+/-!
+### `eraseSlow`
+-/
+
+theorem WF.eraseSlow [Ord α] [TransOrd α] {k : α} {l : Impl α β}
+    (h : l.WF) : (l.eraseSlow k).WF := by
+  simpa [erase_eq_eraseSlow] using WF.erase (h := h.balanced) h
+
+theorem toListModel_eraseSlow [Ord α] [TransOrd α] {k : α} {l : Impl α β}
+    (hlb : l.Balanced) (hlo : l.Ordered) :
+    (l.eraseSlow k).toListModel.Perm (eraseKey k l.toListModel) := by
+  rw [eraseSlow_eq_eraseₘ]
+  exact toListModel_eraseₘ hlb hlo
 
 /-!
 ## Deducing that well-formed trees are ordered

@@ -26,6 +26,7 @@ variable {α : Type u} {β : α → Type v} {_ : Ord α} {t : Impl α β}
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
     | apply WF.ordered | apply WF.balanced | apply WF.insert | apply WF.insertSlow
+    | apply WF.erase
     | apply Ordered.distinctKeys
     | assumption
     ))
@@ -36,10 +37,10 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def queryNames : Array Name :=
-  #[``apply_isEmpty, ``apply_contains]
+  #[``apply_isEmpty, ``apply_contains, ``apply_size]
 
 private def modifyNames : Array Name :=
-  #[``toListModel_insert, ``toListModel_insertSlow]
+  #[``toListModel_insert, ``toListModel_insertSlow, ``toListModel_erase, ``toListModel_eraseSlow]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -68,7 +69,7 @@ attribute [local instance] beqOfOrd
 attribute [local instance] equivBEq_of_transOrd
 
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
-  simp [Impl.isEmpty_eq_isEmpty]
+  simp [Impl.apply_isEmpty]
 
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Iff.rfl
@@ -102,9 +103,13 @@ theorem contains_insertSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertSlow k v).contains a = (compare k a == .eq || t.contains a) := by
   simp_to_model using List.containsKey_insertEntry
 
--- theorem isEmpty_erase [EquivBEq α] (h : t.WF) {k : α} :
---     (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) := by
---   simp_to_model using List.isEmpty_eraseKey
+theorem isEmpty_erase [TransOrd α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
+  simp_to_model using List.isEmpty_eraseKey
+
+theorem isEmpty_eraseSlow [TransOrd α] (h : t.WF) {k : α} :
+    (t.eraseSlow k).isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
+  simp_to_model using List.isEmpty_eraseKey
 
 -- theorem contains_erase [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α} :
 --     (m.erase k).contains a = (!(k == a) && m.contains a) := by

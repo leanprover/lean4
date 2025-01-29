@@ -53,8 +53,8 @@ where
 
     if cfg.structures then
       let some g' ← structuresPass.run g | return none
+      g := g'
 
-    let cfg ← PreProcessM.getConfig
     if cfg.fixedInt then
       let some g' ← intToBitVecPass.run g | return none
       g := g'

@@ -94,6 +94,7 @@ structure Result where
   issues   : List MessageData
   config   : Grind.Config
   trace    : Trace
+  diag     : Diagnostics
 
 def Result.hasFailures (r : Result) : Bool :=
   !r.failures.isEmpty
@@ -114,8 +115,9 @@ def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : F
     let (failures, skipped) ← solve goals fallback
     trace[grind.debug.final] "{← ppGoals goals}"
     let issues := (← get).issues
-    let trace := (← get).trace
-    return { failures, skipped, issues, config := params.config, trace }
+    let trace  := (← get).trace
+    let diag   := (← get).diag
+    return { failures, skipped, issues, config := params.config, trace, diag }
   go.run mainDeclName params fallback
 
 end Lean.Meta.Grind

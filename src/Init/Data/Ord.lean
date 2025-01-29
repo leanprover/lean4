@@ -87,67 +87,67 @@ def isGE : Ordering → Bool
 section Lemmas
 
 @[simp]
-theorem lt_isLT : lt.isLT := rfl
+theorem isLT_lt : lt.isLT := rfl
 
 @[simp]
-theorem lt_isLE : lt.isLE := rfl
+theorem isLE_lt : lt.isLE := rfl
 
 @[simp]
-theorem lt_isEq : lt.isEq = false := rfl
+theorem isEq_lt : lt.isEq = false := rfl
 
 @[simp]
-theorem lt_isNe : lt.isNe = true := rfl
+theorem isNe_lt : lt.isNe = true := rfl
 
 @[simp]
-theorem lt_isGE : lt.isGE = false := rfl
+theorem isGE_lt : lt.isGE = false := rfl
 
 @[simp]
-theorem lt_isGT : lt.isGT = false := rfl
+theorem isGT_lt : lt.isGT = false := rfl
 
 @[simp]
-theorem eq_isLT : eq.isLT = false := rfl
+theorem isLT_eq : eq.isLT = false := rfl
 
 @[simp]
-theorem eq_isLE : eq.isLE := rfl
+theorem isLE_eq : eq.isLE := rfl
 
 @[simp]
-theorem eq_isEq : eq.isEq := rfl
+theorem isEq_eq : eq.isEq := rfl
 
 @[simp]
-theorem eq_isNe : eq.isNe = false := rfl
+theorem isNe_eq : eq.isNe = false := rfl
 
 @[simp]
-theorem eq_isGE : eq.isGE := rfl
+theorem isGE_eq : eq.isGE := rfl
 
 @[simp]
-theorem eq_isGT : eq.isGT = false := rfl
+theorem isGT_eq : eq.isGT = false := rfl
 
 @[simp]
-theorem gt_isLT : gt.isLT = false := rfl
+theorem isLT_gt : gt.isLT = false := rfl
 
 @[simp]
-theorem gt_isLE : gt.isLE = false := rfl
+theorem isLE_gt : gt.isLE = false := rfl
 
 @[simp]
-theorem gt_isEq : gt.isEq = false := rfl
+theorem isEq_gt : gt.isEq = false := rfl
 
 @[simp]
-theorem gt_isNe : gt.isNe = true := rfl
+theorem isNe_gt : gt.isNe = true := rfl
 
 @[simp]
-theorem gt_isGE : gt.isGE := rfl
+theorem isGE_gt : gt.isGE := rfl
 
 @[simp]
-theorem gt_isGT : gt.isGT := rfl
+theorem isGT_gt : gt.isGT := rfl
 
 @[simp]
-theorem lt_swap : lt.swap = .gt := rfl
+theorem swap_lt : lt.swap = .gt := rfl
 
 @[simp]
-theorem eq_swap : eq.swap = .eq := rfl
+theorem swap_eq : eq.swap = .eq := rfl
 
 @[simp]
-theorem gt_swap : gt.swap = .lt := rfl
+theorem swap_gt : gt.swap = .lt := rfl
 
 theorem eq_eq_of_isLE_of_isLE_swap {o : Ordering} : o.isLE → o.swap.isLE → o = .eq := by
   cases o <;> simp
@@ -158,8 +158,11 @@ theorem eq_eq_of_isGE_of_isGE_swap {o : Ordering} : o.isGE → o.swap.isGE → o
 theorem eq_eq_of_isLE_of_isGE {o : Ordering} : o.isLE → o.isGE → o = .eq := by
   cases o <;> simp
 
-theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq := by
+theorem eq_swap_iff_eq_eq {o : Ordering} : o = o.swap ↔ o = .eq := by
   cases o <;> simp
+
+theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq :=
+  eq_swap_iff_eq_eq.mp
 
 @[simp]
 theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = .gt := by

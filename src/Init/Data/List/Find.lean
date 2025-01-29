@@ -808,17 +808,13 @@ theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
   induction l with
   | nil => simp
   | cons xs l ih =>
-    simp only [findIdx?, flatten, map_take, map_cons, findIdx?_go_cons, any_eq_true, Nat.zero_add]
-    split
-    · simp [Option.map_some', take_zero, sum_nil, length_cons, zero_lt_succ,
-        getElem?_eq_getElem, getElem_cons_zero, Option.getD_some, Nat.zero_add]
-      rw [Option.or_of_isSome (by simpa [findIdx?_isSome])]
-      rw [findIdx?_eq_some_of_exists ‹_›]
-    · simp_all only [map_take, not_exists, not_and, Bool.not_eq_true, Option.map_map]
-      rw [Option.or_of_isNone (by simpa [findIdx?_isNone])]
-      congr 1
-      ext i
-      simp [Nat.add_comm, Nat.add_assoc]
+    rw [flatten_cons, findIdx?_append, ih, findIdx?_cons]
+    split <;> rename_i h
+    · simp only [any_eq_true] at h
+      rw [Option.or_of_isSome (by simp_all [findIdx?_isSome])]
+      simp_all [findIdx?_eq_some_of_exists]
+    · rw [Option.or_of_isNone (by simp_all [findIdx?_isNone])]
+      simp [Function.comp_def, Nat.add_comm, Nat.add_assoc]
 
 @[simp] theorem findIdx?_replicate :
     (replicate n a).findIdx? p = if 0 < n ∧ p a then some 0 else none := by
@@ -890,65 +886,83 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
 
-/-! ### indexOf
+/-! ### idxOf
 
-The verification API for `indexOf` is still incomplete.
+The verification API for `idxOf` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx` (and proved using them).
 -/
 
-theorem indexOf_cons [BEq α] :
-    (x :: xs : List α).indexOf y = bif x == y then 0 else xs.indexOf y + 1 := by
-  dsimp [indexOf]
+theorem idxOf_cons [BEq α] :
+    (x :: xs : List α).idxOf y = bif x == y then 0 else xs.idxOf y + 1 := by
+  dsimp [idxOf]
   simp [findIdx_cons]
 
-@[simp] theorem indexOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).indexOf a = 0 := by
-  simp [indexOf_cons]
+@[deprecated idxOf_cons (since := "2025-01-29")]
+abbrev indexOf_cons := @idxOf_cons
 
-theorem indexOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
-    (l₁ ++ l₂).indexOf a = if a ∈ l₁ then l₁.indexOf a else l₂.indexOf a + l₁.length := by
-  rw [indexOf, findIdx_append]
+@[simp] theorem idxOf_cons_self [BEq α] [ReflBEq α] {l : List α} : (a :: l).idxOf a = 0 := by
+  simp [idxOf_cons]
+
+@[deprecated idxOf_cons_self (since := "2025-01-29")]
+abbrev indexOf_cons_self := @idxOf_cons_self
+
+theorem idxOf_append [BEq α] [LawfulBEq α] {l₁ l₂ : List α} {a : α} :
+    (l₁ ++ l₂).idxOf a = if a ∈ l₁ then l₁.idxOf a else l₂.idxOf a + l₁.length := by
+  rw [idxOf, findIdx_append]
   split <;> rename_i h
   · rw [if_pos]
     simpa using h
   · rw [if_neg]
     simpa using h
 
-theorem indexOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.indexOf a = l.length := by
+@[deprecated idxOf_append (since := "2025-01-29")]
+abbrev indexOf_append := @idxOf_append
+
+theorem idxOf_eq_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∉ l) : l.idxOf a = l.length := by
   induction l with
   | nil => rfl
   | cons x xs ih =>
     simp only [mem_cons, not_or] at h
-    simp only [indexOf_cons, cond_eq_if, beq_iff_eq]
+    simp only [idxOf_cons, cond_eq_if, beq_iff_eq]
     split <;> simp_all
 
-theorem indexOf_lt_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∈ l) : l.indexOf a < l.length := by
+@[deprecated idxOf_eq_length (since := "2025-01-29")]
+abbrev indexOf_eq_length := @idxOf_eq_length
+
+theorem idxOf_lt_length [BEq α] [LawfulBEq α] {l : List α} (h : a ∈ l) : l.idxOf a < l.length := by
   induction l with
   | nil => simp at h
   | cons x xs ih =>
     simp only [mem_cons] at h
     obtain rfl | h := h
     · simp
-    · simp only [indexOf_cons, cond_eq_if, beq_iff_eq, length_cons]
+    · simp only [idxOf_cons, cond_eq_if, beq_iff_eq, length_cons]
       specialize ih h
       split
       · exact zero_lt_succ xs.length
       · exact Nat.add_lt_add_right ih 1
 
-/-! ### indexOf?
+@[deprecated idxOf_lt_length (since := "2025-01-29")]
+abbrev indexOf_lt_length := @idxOf_lt_length
 
-The verification API for `indexOf?` is still incomplete.
+/-! ### idxOf?
+
+The verification API for `idxOf?` is still incomplete.
 The lemmas below should be made consistent with those for `findIdx?` (and proved using them).
 -/
 
-@[simp] theorem indexOf?_eq_none_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
-    l.indexOf? a = none ↔ a ∉ l := by
-  simp only [indexOf?, findIdx?_eq_none_iff, beq_eq_false_iff_ne, ne_eq]
+@[simp] theorem idxOf?_eq_none_iff [BEq α] [LawfulBEq α] {l : List α} {a : α} :
+    l.idxOf? a = none ↔ a ∉ l := by
+  simp only [idxOf?, findIdx?_eq_none_iff, beq_eq_false_iff_ne, ne_eq]
   constructor
   · intro w h
     specialize w _ h
     simp at w
   · rintro w x h rfl
     contradiction
+
+@[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
+abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
 
 /-! ### lookup -/
 

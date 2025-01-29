@@ -573,7 +573,7 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
 
-theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
+theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Nat) (w : l.idxOf a = i) :
     l.erase a = l.eraseIdx i := by
   subst w
   rw [erase_eq_iff]
@@ -581,11 +581,11 @@ theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Na
   · right
     obtain ⟨as, bs, rfl, h'⟩ := eq_append_cons_of_mem h
     refine ⟨as, bs, h', by simp, ?_⟩
-    rw [indexOf_append, if_neg h', indexOf_cons_self, eraseIdx_append_of_length_le] <;>
+    rw [idxOf_append, if_neg h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
       simp
   · left
     refine ⟨h, ?_⟩
     rw [eq_comm, eraseIdx_eq_self]
-    exact Nat.le_of_eq (indexOf_eq_length h).symm
+    exact Nat.le_of_eq (idxOf_eq_length h).symm
 
 end List

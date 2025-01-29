@@ -23,10 +23,7 @@ error: failed to generate equational theorem for 'Tree.map'
 β : Type u_2
 f : α → β
 t : Tree α
-⊢ { val := f t.val,
-      cs :=
-        List.map (fun x => ⋯.fix (fun t a => { val := f t.val, cs := List.map (fun x => a x.val ⋯) t.cs.attach }) x.val)
-          t.cs.attach } =
+⊢ { val := f t.val, cs := List.map (fun x => Tree.map f x.val) t.cs.attach } =
     { val := f t.val, cs := List.map (fun x => Tree.map f x) t.cs }
 -/
 #guard_msgs in

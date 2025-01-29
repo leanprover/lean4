@@ -101,6 +101,10 @@ def insertFast (l : Raw α β cmp) (h : l.WF) (a : α) (b : β) : Raw α β cmp 
 def contains (l : Raw α β cmp) (a : α) : Bool :=
   l.inner.contains a
 
+@[inline, inherit_doc DTreeMap.Raw.erase]
+def erase (l : Raw α β cmp) (a : α) : Raw α β cmp :=
+  ⟨l.inner.erase a⟩
+
 instance : Membership α (Raw α β cmp) where
   mem m a := m.contains a
 

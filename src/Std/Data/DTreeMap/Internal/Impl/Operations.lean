@@ -382,6 +382,31 @@ def containsThenInsertIfNewSlow [Ord α] (k : α) (v : β k) (t : Impl α β) :
     Bool × Impl α β :=
   if t.contains k then (true, t) else (false, t.insertSlow k v)
 
+/-- Removes the mapping with key `k`, if it exists. -/
+def erase [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : TreeB α β (t.size - 1) t.size :=
+  match t with
+  | leaf => ⟨.leaf, ✓, ✓, ✓⟩
+  | inner sz k' v' l r =>
+    match compare k k' with
+    | .lt =>
+      let ⟨l', hl'₁, hl'₂, hl'₃⟩ := erase k l ✓
+      ⟨balanceRErase k' v' l' r ✓ ✓ ✓, ✓, ✓, ✓⟩
+    | .gt =>
+      let ⟨r', hr'₁, hr'₂, hr'₃⟩ := erase k r ✓
+      ⟨balanceLErase k' v' l r' ✓ ✓ ✓, ✓, ✓, ✓⟩
+    | .eq => ⟨glue l r ✓ ✓ ✓, ✓, ✓, ✓⟩
+
+/-- Slower version of `erase` which can be used in the absence of balance
+information but still assumes the preconditions of `erase`, otherwise might panic. -/
+def eraseSlow [Ord α] (k : α) (t : Impl α β) : Impl α β :=
+  match t with
+  | leaf => .leaf
+  | inner _ k' v' l r =>
+    match compare k k' with
+    | .lt => balanceRSlow k' v' (eraseSlow k l) r
+    | .gt => balanceLSlow k' v' l (eraseSlow k r)
+    | .eq => glueSlow l r
+
 variable (α β) in
 /-- A balanced tree. -/
 structure BImpl where

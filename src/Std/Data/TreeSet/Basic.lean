@@ -81,6 +81,10 @@ def insert (l : TreeSet α cmp) (a : α) : TreeSet α cmp :=
 def contains (l : TreeSet α cmp) (a : α) : Bool :=
   l.inner.contains a
 
+@[inline, inherit_doc Raw.erase]
+def erase (l : TreeSet α cmp) (a : α) : TreeSet α cmp :=
+  ⟨l.inner.erase a⟩
+
 instance : Membership α (TreeSet α cmp) where
   mem m a := m.contains a
 

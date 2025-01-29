@@ -612,6 +612,38 @@ theorem toListModel_insertSlow [Ord α] [TransOrd α] {k : α} {v : β k} {l : I
   exact toListModel_insertₘ hlb hlo
 
 /-!
+### `eraseₘ`
+-/
+
+theorem ordered_eraseₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) : (t.eraseₘ k htb).Ordered :=
+  ordered_updateAtKey _ hto
+
+theorem toListModel_eraseₘ [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) : (t.eraseₘ k htb).toListModel.Perm (eraseKey k t.toListModel) := by
+  refine toListModel_updateAtKey_perm _ hto ?_ eraseKey_of_perm
+    eraseKey_append_of_containsKey_right_eq_false
+  rintro ⟨(_|t), hl⟩
+  · simp
+  · simp only [Option.toList_some, Cell.of_inner]
+    have h : t.fst == k := by simpa using OrientedCmp.eq_symm (hl t rfl)
+    simp [eraseKey_cons_of_beq h]
+
+/-!
+### `erase`
+-/
+
+theorem ordered_erase [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) : (t.erase k htb).impl.Ordered := by
+  simpa only [erase_eq_eraseₘ] using ordered_eraseₘ htb hto
+
+theorem toListModel_erase [Ord α] [TransOrd α] {k : α} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) :
+    (t.erase k htb).impl.toListModel.Perm (eraseKey k t.toListModel) := by
+  rw [erase_eq_eraseₘ]
+  exact toListModel_eraseₘ htb hto
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 
@@ -620,5 +652,6 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · next h => exact h
   · exact ordered_empty
   · exact ordered_insert ‹_› ‹_›
+  · exact ordered_erase ‹_› ‹_›
 
 end Std.DTreeMap.Internal.Impl

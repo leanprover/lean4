@@ -83,6 +83,10 @@ def insert (l : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
 def contains (l : DTreeMap α β cmp) (a : α) : Bool :=
   letI : Ord α := ⟨cmp⟩; l.inner.contains a
 
+@[inline, inherit_doc Raw.erase]
+def erase (l : DTreeMap α β cmp) (a : α) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨(l.inner.erase a l.wf.balanced).impl, .erase l.wf⟩
+
 instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
 

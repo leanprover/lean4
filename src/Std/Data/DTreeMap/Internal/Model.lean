@@ -209,6 +209,13 @@ Internal implementation detail of the tree map
 def insertₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
   updateCell k (fun _ => .of k v) l h |>.impl
 
+/--
+Model implementation of the `erase` function.
+Internal implementation detail of the tree map
+-/
+def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
+  updateCell k (fun _ => .empty) t h |>.impl
+
 /-!
 ## Helper theorems for reasoning with key-value pairs
 -/
@@ -324,6 +331,24 @@ theorem insert_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
 theorem insertSlow_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} (h : l.Balanced) :
     insertSlow k v l = insertₘ k v l h := by
   rw [← insert_eq_insertSlow (h := h), insert_eq_insertₘ]
+
+theorem erase_eq_eraseSlow [Ord α] {k : α} {t : Impl α β} {h} :
+    (erase k t h).impl = eraseSlow k t := by
+  induction t, h using erase.induct k <;>
+    simp_all [erase, eraseSlow, balanceLErase_eq_balanceLSlow, balanceRErase_eq_balanceRSlow,
+      glue_eq_glueSlow]
+
+theorem erase_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} {h} :
+    (erase k t h).impl = eraseₘ k t h := by
+  simp only [eraseₘ]
+  induction t
+  · simp only [erase, updateCell]
+    split <;> split <;> simp_all [balanceLErase_eq_balance, balanceRErase_eq_balance]
+  · simp [erase, eraseₘ, updateCell]
+
+theorem eraseSlow_eq_eraseₘ [Ord α] {k : α} {t : Impl α β} (h : t.Balanced) :
+    eraseSlow k t = eraseₘ k t h := by
+  rw [← erase_eq_eraseSlow (h := h), erase_eq_eraseₘ]
 
 end Impl
 

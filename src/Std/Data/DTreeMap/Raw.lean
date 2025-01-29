@@ -131,6 +131,11 @@ Observe that this is different behavior than for lists: for lists, `∈` uses `=
 def contains (l : Raw α β cmp) (a : α) : Bool :=
   letI : Ord α := ⟨cmp⟩; l.inner.contains a
 
+/-- Removes the mapping for the given key if it exists. -/
+@[inline]
+def erase (l : Raw α β cmp) (a : α) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨l.inner.eraseSlow a⟩
+
 instance : Membership α (Raw α β cmp) where
   mem m a := m.contains a
 

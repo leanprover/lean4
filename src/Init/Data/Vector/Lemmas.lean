@@ -776,6 +776,10 @@ theorem getElem_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ (i : Nat) (h : 
 theorem getElem?_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ i : Nat, l[i]? = some a :=
   let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
 
+theorem mem_of_getElem {l : Vector α n} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
+  subst e
+  simp
+
 theorem mem_of_getElem? {l : Vector α n} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 
@@ -2135,10 +2139,6 @@ theorem foldr_rel {l : Array α} {f g : α → β → β} {a b : β} (r : β →
 
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
-
-@[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
-    (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
-  simp [ofFn]
 
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩

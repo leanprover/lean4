@@ -75,8 +75,13 @@ void resolve_promise_with_status(lean_object* promise, int status) {
 // Tcp socket object manipulation functions.
 
 void lean_uv_tcp_socket_finalizer(void* ptr) {
-
     lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)ptr;
+
+    lean_always_assert(tcp_socket->m_promise_shutdown == NULL);
+    lean_always_assert(tcp_socket->m_promise_accept == NULL);
+    lean_always_assert(tcp_socket->m_promise_read == NULL);
+    lean_always_assert(tcp_socket->m_byte_array == NULL);
+
 
     /// It's changing here because the object is being freed in the finalizer, and we need the data
     /// inside of it.
@@ -86,19 +91,6 @@ void lean_uv_tcp_socket_finalizer(void* ptr) {
 
     uv_close((uv_handle_t*)tcp_socket->m_uv_tcp, [](uv_handle_t* handle) {
         lean_uv_tcp_socket_object* tcp_socket = (lean_uv_tcp_socket_object*)handle->data;
-
-        if(tcp_socket->m_promise_accept != NULL) {
-            lean_dec_ref(tcp_socket->m_promise_accept);
-        }
-
-        if(tcp_socket->m_promise_read != NULL) {
-            lean_dec_ref(tcp_socket->m_promise_read);
-        }
-
-        if(tcp_socket->m_byte_array != NULL) {
-            lean_dec_ref(tcp_socket->m_byte_array);
-        }
-
         free(tcp_socket->m_uv_tcp);
         free(tcp_socket);
     });
@@ -133,10 +125,12 @@ void initialize_libuv_tcp_socket() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     lean_uv_tcp_socket_object * tcp_socket = (lean_uv_tcp_socket_object*)malloc(sizeof(lean_uv_tcp_socket_object));
     tcp_socket->m_promise_accept = NULL;
+    tcp_socket->m_promise_shutdown = NULL;
     tcp_socket->m_promise_read = NULL;
     tcp_socket->m_byte_array = NULL;
 
     uv_tcp_t * uv_tcp = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
+
     event_loop_lock(&global_ev);
     int result = uv_tcp_init(global_ev.loop, uv_tcp);
     event_loop_unlock(&global_ev);
@@ -145,8 +139,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
         free(uv_tcp);
         free(tcp_socket);
 
-        std::string err = std::string("failed to initialize tcp_socket: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to initialize")));
     }
 
     tcp_socket->m_uv_tcp = uv_tcp;
@@ -171,6 +164,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
     uv_connect_t * uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
 
     uv_connect->data = new tcp_connect_data { promise, socket };
+    lean_inc(promise);
 
     event_loop_lock(&global_ev);
 
@@ -188,16 +182,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_
         free(req);
     });
 
+    event_loop_unlock(&global_ev);
+
     if (result < 0) {
         free(uv_connect);
         free(uv_connect->data);
-        std::string err = std::string("failed to connect tcp_socket: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
+
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to connect")));
     }
 
-    event_loop_unlock(&global_ev);
-
-    lean_inc(promise);
     return lean_io_result_mk_ok(promise);
 }
 
@@ -215,6 +208,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     uv_write_t * write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
 
     write_uv->data = new tcp_send_data { promise, data, socket };
+    lean_inc(promise);
 
     event_loop_lock(&global_ev);
 
@@ -234,16 +228,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         free(req);
     });
 
+    event_loop_unlock(&global_ev);
+
     if (result < 0) {
         free(write_uv);
         free(write_uv->data);
-        std::string err = std::string("failed to write to tcp_socket: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
+
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to write")));
     }
 
-    event_loop_unlock(&global_ev);
-
-    lean_inc(promise);
     return lean_io_result_mk_ok(promise);
 }
 
@@ -252,12 +245,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (tcp_socket->m_byte_array != NULL) {
-        std::string err = std::string("failed to recv from tcp_socket: parallel recv is not allowed!");
-        return io_result_mk_error(err.c_str());
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel recv is not allowed.")));
     }
 
     lean_object * promise = create_promise();
     tcp_socket->m_promise_read = promise;
+    lean_inc(promise);
 
     event_loop_lock(&global_ev);
 
@@ -273,22 +266,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
         buf->len = suggested_size;
 
     }, [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
+        int result = uv_read_stop(stream);
+
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
         lean_object * promise = tcp_socket->m_promise_read;
-
-        lean_dec_ref_cold(tcp_socket->m_byte_array);
-
-        if (nread >= 0) {
-            lean_sarray_set_size(tcp_socket->m_byte_array, nread);
-            resolve_promise(promise, mk_ok_except(tcp_socket->m_byte_array));
-        } else if (nread < 0) {
-            resolve_promise(promise, mk_err_except(lean_mk_io_user_error(mk_string(uv_strerror(nread)))));
-        }
+        lean_object * byte_array = tcp_socket->m_byte_array;
 
         tcp_socket->m_promise_read = NULL;
         tcp_socket->m_byte_array = NULL;
 
-        uv_read_stop(stream);
+        if (nread >= 0) {
+            lean_sarray_set_size(byte_array, nread);
+            resolve_promise(promise, mk_ok_except(byte_array));
+        } else if (nread < 0) {
+            lean_dec(byte_array);
+            resolve_promise(promise, mk_err_except(lean_mk_io_user_error(mk_string(uv_strerror(nread)))));
+        }
+
+        lean_dec(promise);
 
         // The event loop does not own the object anymore.
         lean_dec((lean_object*)stream->data);
@@ -296,7 +291,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
 
     event_loop_unlock(&global_ev);
 
-    lean_inc(promise);
     return lean_io_result_mk_ok(promise);
 }
 
@@ -314,8 +308,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
-        std::string err = std::string("failed to bind tcp_socket: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to bind")));
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -326,8 +319,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
     event_loop_lock(&global_ev);
-
-    lean_inc(socket);
 
     int result = uv_listen((uv_stream_t*)tcp_socket->m_uv_tcp, backlog, [](uv_stream_t* stream, int status) {
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
@@ -359,12 +350,11 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
         resolve_promise(promise, mk_ok_except(client));
     });
 
-    if (result < 0) {
-        std::string err = std::string("failed to listen tcp_socket: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
-    }
-
     event_loop_unlock(&global_ev);
+
+    if (result < 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string(uv_strerror(result))));
+    }
 
     return lean_io_result_mk_ok(lean_box(0));
 }
@@ -374,8 +364,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
 
     if (tcp_socket->m_promise_accept != NULL) {
-        std::string err = std::string("failed to accept tcp_socket: parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead.");
-        return io_result_mk_error(err.c_str());
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("parallel accept is not allowed! consider binding multiple sockets to the same address and accepting on them instead")));
     }
 
     lean_object * promise = create_promise();
@@ -399,6 +388,53 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     }
 
     event_loop_unlock(&global_ev);
+
+    return lean_io_result_mk_ok(promise);
+}
+
+/* Std.Internal.UV.Tcp.Socket.shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit)) */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    if (tcp_socket->m_promise_shutdown != NULL) {
+        return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("shutdown already in progress")));
+    }
+
+    lean_object * promise = create_promise();
+    tcp_socket->m_promise_shutdown = promise;
+    lean_inc(promise);
+
+    event_loop_lock(&global_ev);
+
+    uv_shutdown_t* shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
+    shutdown_req->data = (void*)socket;
+
+    lean_inc(socket);
+
+    int result = uv_shutdown(shutdown_req, (uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_shutdown_t* req, int status) {
+        lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)req->data);
+
+        if (status < 0) {
+            resolve_promise_with_status(tcp_socket->m_promise_shutdown, status);
+        } else {
+            resolve_promise(tcp_socket->m_promise_shutdown, mk_ok_except(lean_box(0)));
+        }
+
+        lean_dec(tcp_socket->m_promise_shutdown);
+
+        tcp_socket->m_promise_shutdown = NULL;
+
+        lean_dec((lean_object*)req->data);
+        free(req);
+    });
+
+    event_loop_unlock(&global_ev);
+
+    if (result < 0) {
+        free(shutdown_req);
+        tcp_socket->m_promise_shutdown = NULL;
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to initiate shutdown")));
+    }
 
     return lean_io_result_mk_ok(promise);
 }
@@ -431,7 +467,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket) {
     int result = uv_tcp_getsockname(tcp_socket->m_uv_tcp, &addr_storage, &addr_len);
 
     if (result < 0) {
-        return io_result_mk_error(uv_strerror(result));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     lean_object *lean_addr = lean_sockaddr_to_socketaddress(&addr_storage);
@@ -445,7 +481,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
     int result = uv_tcp_nodelay(tcp_socket->m_uv_tcp, 1);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, lean::mk_string("Failed to set TCP_NODELAY")));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     return lean_io_result_mk_ok(lean_box(0));
@@ -458,7 +494,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
     int result = uv_tcp_keepalive(tcp_socket->m_uv_tcp, enable, delay);
 
     if (result < 0) {
-        return lean_io_result_mk_error(lean_decode_io_error(EINVAL, lean::mk_string("Failed to set TCP_KEEPALIVE")));
+        return lean_io_result_mk_error(lean_decode_uv_error(result, mk_string("failed to set TCP_KEEPALIVE")));
     }
 
     return lean_io_result_mk_ok(lean_box(0));

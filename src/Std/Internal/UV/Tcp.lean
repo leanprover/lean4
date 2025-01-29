@@ -69,6 +69,12 @@ Accept an incoming connection on a listening TCP socket.
 opaque accept (socket : @& Socket) : IO (IO.Promise (Except IO.Error Socket))
 
 /--
+Accept an incoming connection on a listening TCP socket.
+-/
+@[extern "lean_uv_tcp_shutdown"]
+opaque shutdown (socket : @& Socket) : IO (IO.Promise (Except IO.Error Unit))
+
+/--
 Get the remote address of a connected TCP socket.
 -/
 @[extern "lean_uv_tcp_getpeername"]

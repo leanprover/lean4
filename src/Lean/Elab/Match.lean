@@ -56,6 +56,11 @@ private def elabAtomicDiscr (discr : Syntax) : TermElabM Expr := do
   let term := discr[1]
   elabTerm term none
 
+/-- Creates syntax for a fresh `h : `-notation annotation for a discriminant, copying source
+    information from an existing annotation `stx`. -/
+private def mkFreshDiscrIdentFrom (stx : Syntax) : CoreM Ident :=
+  return mkIdentFrom stx (← mkFreshUserName `h)
+
 structure Discr where
   expr : Expr
   /-- `some h` if discriminant is annotated with the `h : ` notation. -/
@@ -105,6 +110,10 @@ where
   markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
     { r with isDep := true }
 
+  expandDiscrIdent : Syntax → MetaM Syntax
+    | stx@`(_) => mkFreshDiscrIdentFrom stx
+    | stx => return stx
+
   /-- Elaborate discriminants inferring the match-type -/
   elabDiscrs (i : Nat) (discrs : Array Discr) : TermElabM ElabMatchTypeAndDiscrsResult := do
     if h : i < discrStxs.size then
@@ -112,7 +121,12 @@ where
       let discr     ← elabAtomicDiscr discrStx
       let discr     ← instantiateMVars discr
       let userName ← mkUserNameFor discr
-      let h? := if discrStx[0].isNone then none else some discrStx[0][0]
+      let h? ←
+        if discrStx[0].isNone then
+          pure none
+        else
+          let h ← expandDiscrIdent discrStx[0][0]
+          pure (some h)
       let discrs := discrs.push { expr := discr, h? }
       let mut result ← elabDiscrs (i + 1) discrs
       let matchTypeBody ← kabstract result.matchType discr
@@ -916,7 +930,7 @@ where
         | none => return { expr := i : Discr }
         | some h =>
           -- If the discriminant that introduced this index is annotated with `h : discr`, then we should annotate the new discriminant too.
-          let h := mkIdentFrom h (← mkFreshUserName `h)
+          let h ← mkFreshDiscrIdentFrom h
           return { expr := i, h? := h : Discr }
       let discrs    := indDiscrs ++ discrs
       let indexFVarIds := indices.filterMap fun | .fvar fvarId .. => some fvarId | _  => none

@@ -360,3 +360,15 @@ example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
 
 example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
   grind
+
+example [Decidable p] : a = true → decide p = a → p := by
+  grind
+
+example [Decidable p] : false = a → decide p = a → ¬p := by
+  grind
+
+example [Decidable p] : a = true → p → decide p = a := by
+  grind
+
+example [Decidable p] : false = a → ¬p → decide p = a := by
+  grind

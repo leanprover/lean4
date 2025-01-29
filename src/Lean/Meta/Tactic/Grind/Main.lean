@@ -56,21 +56,28 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback
   let scState := ShareCommon.State.mk _
   let (falseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``False)
   let (trueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``True)
+  let (bfalseExpr, scState) := ShareCommon.State.shareCommon scState (mkConst ``Bool.false)
+  let (btrueExpr, scState)  := ShareCommon.State.shareCommon scState (mkConst ``Bool.true)
   let (natZExpr, scState)  := ShareCommon.State.shareCommon scState (mkNatLit 0)
   let simprocs := params.normProcs
   let simp := params.norm
   let config := params.config
-  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp } |>.run' { scState, trueExpr, falseExpr, natZExpr }
+  x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp }
+    |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
 
 private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
+  let btrueExpr ← getBoolTrueExpr
+  let bfalseExpr ← getBoolFalseExpr
   let natZeroExpr ← getNatZeroExpr
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
   GoalM.run' { mvarId, thmMap, casesTypes } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
+    mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)
+    mkENodeCore bfalseExpr (interpreted := false) (ctor := true) (generation := 0)
     mkENodeCore natZeroExpr (interpreted := true) (ctor := false) (generation := 0)
     for thm in params.extra do
       activateTheorem thm 0

@@ -48,16 +48,5 @@ theorem List.palindrome_of_eq_reverse (h : as.reverse = as) : Palindrome as := b
 def List.isPalindrome [DecidableEq α] (as : List α) : Bool :=
     as.reverse = as
 
-/-!
-It is straightforward to prove that `isPalindrome` is correct using the previously proved theorems.
--/
 theorem List.isPalindrome_correct [DecidableEq α] (as : List α) : as.isPalindrome ↔ Palindrome as := by
-  -- TODO: add support for `decide`
   grind [isPalindrome, palindrome_of_eq_reverse, reverse_eq_of_palindrome]
-
-#eval [1, 2, 1].isPalindrome
-#eval [1, 2, 3, 1].isPalindrome
-
-example : [1, 2, 1].isPalindrome := rfl
-example : [1, 2, 2, 1].isPalindrome := rfl
-example : ![1, 2, 3, 1].isPalindrome := rfl

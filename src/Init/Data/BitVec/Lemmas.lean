@@ -1193,6 +1193,10 @@ theorem not_not {b : BitVec w} : ~~~(~~~b) = b := by
   ext i h
   simp [h]
 
+@[simp]
+protected theorem not_inj {x y : BitVec w} : ~~~x = ~~~y ↔ x = y :=
+  ⟨fun h => by rw [← @not_not w x, ← @not_not w y, h], congrArg _⟩
+
 @[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
    ext i
    simp_all
@@ -2515,6 +2519,10 @@ theorem neg_neg {x : BitVec w} : - - x = x := by
   · simp [h]
   · simp [bv_toNat, h]
 
+@[simp]
+protected theorem neg_inj {x y : BitVec w} : -x = -y ↔ x = y :=
+  ⟨fun h => by rw [← @neg_neg w x, ← @neg_neg w y, h], congrArg _⟩
+
 theorem neg_ne_iff_ne_neg {x y : BitVec w} : -x ≠ y ↔ x ≠ -y := by
   constructor
   all_goals
@@ -2556,6 +2564,27 @@ theorem not_neg (x : BitVec w) : ~~~(-x) = x + -1#w := by
         show (x.toNat - 1) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)],
         show (_ - x.toNat) % _ = _ by rw [Nat.mod_eq_of_lt (by omega)]]
       omega
+
+/- ### add/sub injectivity -/
+
+@[simp]
+protected theorem add_left_inj {x y : BitVec w} (z : BitVec w) : (x + z = y + z) ↔ x = y := by
+  apply Iff.intro
+  · intro p
+    rw [← add_sub_cancel x z, ← add_sub_cancel y z, p]
+  · exact congrArg (· + z)
+
+@[simp]
+protected theorem add_right_inj {x y : BitVec w} (z : BitVec w) : (z + x = z + y) ↔ x = y := by
+  simp [BitVec.add_comm z]
+
+@[simp]
+protected theorem sub_left_inj {x y : BitVec w} (z : BitVec w) : (x - z = y - z) ↔ x = y := by
+  simp [sub_toAdd]
+
+@[simp]
+protected theorem sub_right_inj {x y : BitVec w} (z : BitVec w) : (z - x = z - y) ↔ x = y := by
+  simp [sub_toAdd]
 
 /-! ### fill -/
 

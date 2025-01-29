@@ -24,11 +24,26 @@ theorem Bool.not_beq_not : ∀ (a b : Bool), ((!a) == (!b)) = (a == b) := by
 
 @[bv_normalize]
 theorem BitVec.not_beq_not (a b : BitVec w) : (~~~a == ~~~b) = (a == b) := by
-  match h : a == b with
-  | true => simp_all
-  | false =>
-    simp only [beq_eq_false_iff_ne, ne_eq] at *
-    bv_omega
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.add_left_inj (a b c : BitVec w) : (a + c == b + c) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.add_left_inj' (a b c : BitVec w) : (a + c == c + b) = (a == b) := by
+  rw [BitVec.add_comm c b, add_left_inj]
+
+@[bv_normalize]
+theorem BitVec.add_right_inj (a b c : BitVec w) : (c + a == c + b) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.add_right_inj' (a b c : BitVec w) : (c + a == b + c) = (a == b) := by
+  rw [BitVec.add_comm b c, add_right_inj]
 
 end Frontend.Normalize
 end Std.Tactic.BVDecide

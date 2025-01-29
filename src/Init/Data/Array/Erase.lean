@@ -1,38 +1,27 @@
 /-
-Copyright (c) 2014 Parikshit Khanna. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, Mario Carneiro,
-  Yury Kudryashov
+Authors: Kim Morrison
 -/
 prelude
-import Init.Data.List.Pairwise
-import Init.Data.List.Find
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Erase
 
 /-!
-# Lemmas about `List.eraseP` and `List.erase`.
+# Lemmas about `Array.eraseP` and `Array.erase`.
 -/
 
-namespace List
+namespace Array
 
 open Nat
 
 /-! ### eraseP -/
 
-@[simp] theorem eraseP_nil : [].eraseP p = [] := rfl
+@[simp] theorem eraseP_nil : #[].eraseP p = #[] := rfl
 
-theorem eraseP_cons (a : α) (l : List α) :
-    (a :: l).eraseP p = bif p a then l else a :: l.eraseP p := rfl
-
-@[simp] theorem eraseP_cons_of_pos {l : List α} {p} (h : p a) : (a :: l).eraseP p = l := by
-  simp [eraseP_cons, h]
-
-@[simp] theorem eraseP_cons_of_neg {l : List α} {p} (h : ¬p a) :
-    (a :: l).eraseP p = a :: l.eraseP p := by simp [eraseP_cons, h]
-
-theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.eraseP p = l := by
-  induction l with
-  | nil => rfl
-  | cons _ _ ih => simp [h _ (.head ..), ih (forall_mem_cons.1 h).2]
+theorem eraseP_of_forall_not {l : Array α} (h : ∀ a, a ∈ l → ¬p a) : l.eraseP p = l := by
+  cases l
+  simp_all [List.eraseP_of_forall_not]
 
 @[simp] theorem eraseP_eq_nil {xs : List α} {p : α → Bool} : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by
   induction xs with
@@ -271,20 +260,6 @@ theorem head_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).hea
 theorem getLast_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).getLast h ∈ xs :=
   (eraseP_sublist xs).getLast_mem h
 
-theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
-    xs.eraseP p = match xs.findIdx? p with
-    | none => xs
-    | some i => xs.eraseIdx i := by
-  induction xs with
-  | nil => rfl
-  | cons x xs ih =>
-    rw [eraseP_cons, findIdx?_cons]
-    by_cases h : p x
-    · simp [h]
-    · simp only [h]
-      rw [ih]
-      split <;> simp [*]
-
 /-! ### erase -/
 section erase
 variable [BEq α]
@@ -471,19 +446,6 @@ theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs 
 theorem getLast_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).getLast h ∈ xs :=
   (erase_sublist a xs).getLast_mem h
 
-theorem erase_eq_eraseIdx [LawfulBEq α] (l : List α) (a : α) :
-    l.erase a = match l.indexOf? a with
-    | none => l
-    | some i => l.eraseIdx i := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    rw [erase_cons, indexOf?_cons]
-    split
-    · simp
-    · simp [ih]
-      split <;> simp [*]
-
 end erase
 
 /-! ### eraseIdx -/
@@ -600,8 +562,7 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
 
-theorem erase_eq_eraseIdx_of_indexOf [BEq α] [LawfulBEq α]
-    (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
+theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
     l.erase a = l.eraseIdx i := by
   subst w
   rw [erase_eq_iff]

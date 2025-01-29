@@ -3304,7 +3304,8 @@ theorem get_set (a : Array α) (i : Nat) (hi : i < a.size) (j : Nat) (hj : j < a
   simp only [set, ← getElem_toList, List.getElem_set_ne h]
 
 @[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
-    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
+    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by
+  simp only [swap_def, toList_set]
 
 @[simp] theorem swapAt_def (a : Array α) (i : Nat) (v : α) (hi) :
     a.swapAt i v hi = (a[i], a.set i v) := rfl
@@ -3638,7 +3639,7 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
 @[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
     l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
   apply ext'
-  simp
+  simp only [toList_swap, getElem_toArray]
 
 @[simp] theorem modify_toArray (f : α → α) (l : List α) :
     l.toArray.modify i f = (l.modify f i).toArray := by

@@ -53,6 +53,14 @@ theorem size_insert [TransCmp cmp] {k : α} :
     (t.insert k).size = if t.contains k then t.size else t.size + 1 :=
   TreeMap.size_insert
 
+theorem size_le_size_insert [TransCmp cmp] {k : α} :
+    t.size ≤ (t.insert k).size :=
+  TreeMap.size_le_size_insert
+
+theorem size_insert_le [TransCmp cmp] {k : α} :
+    (t.insert k).size ≤ t.size + 1 :=
+  TreeMap.size_insert_le
+
 theorem isEmpty_erase [TransCmp cmp] {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   TreeMap.isEmpty_erase

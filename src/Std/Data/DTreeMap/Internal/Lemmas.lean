@@ -111,6 +111,22 @@ theorem size_insertSlow [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insertSlow k v).size = if t.contains k then t.size else t.size + 1 := by
   simp_to_model using List.length_insertEntry
 
+theorem size_le_size_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    t.size ≤ (t.insert k v h.balanced).impl.size := by
+  simp_to_model using List.length_le_length_insertEntry
+
+theorem size_le_size_insertSlow [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    t.size ≤ (t.insertSlow k v).size := by
+  simp_to_model using List.length_le_length_insertEntry
+
+theorem size_insert_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.size ≤ t.size + 1 := by
+  simp_to_model using List.length_insertEntry_le
+
+theorem size_insertSlow_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertSlow k v).size ≤ t.size + 1 := by
+  simp_to_model using List.length_insertEntry_le
+
 theorem isEmpty_erase [TransOrd α] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.isEmpty = (t.isEmpty || (t.size = 1 && t.contains k)) := by
   simp_to_model using List.isEmpty_eraseKey

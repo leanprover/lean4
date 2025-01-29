@@ -2560,7 +2560,7 @@ protected theorem sub_left_inj {x y : BitVec w} (z : BitVec w) : (x - z = y - z)
 
 @[simp]
 protected theorem sub_right_inj {x y : BitVec w} (z : BitVec w) : (z - x = z - y) ↔ x = y := by
-  simp [sub_toAdd, BitVec.neg_inj]
+  simp [sub_toAdd]
 
 /-! ### fill -/
 

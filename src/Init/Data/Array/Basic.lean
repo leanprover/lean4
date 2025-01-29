@@ -856,12 +856,19 @@ it has to backshift all elements at positions greater than `i`. -/
 def eraseIdx! (a : Array α) (i : Nat) : Array α :=
   if h : i < a.size then a.eraseIdx i h else panic! "invalid index"
 
+/-- Remove a specified element from an array, or do nothing if it is not present.
+
+This function takes worst case O(n) time because
+it has to backshift all later elements. -/
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
   match as.indexOf? a with
   | none   => as
   | some i => as.eraseIdx i
 
-/-- Erase the first element that satisfies the predicate `p`. -/
+/-- Erase the first element that satisfies the predicate `p`.
+
+This function takes worst case O(n) time because
+it has to backshift all later elements. -/
 def eraseP (as : Array α) (p : α → Bool) : Array α :=
   match as.findIdx? p with
   | none   => as

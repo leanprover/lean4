@@ -110,6 +110,12 @@ example (x y z : BitVec 16) : (x + z == z + y) = (x == y) := by bv_normalize
 example (x y z : BitVec 16) : (z + x == y + z) = (x == y) := by bv_normalize
 example (x y z : BitVec 16) : (z + x == z + y) = (x == y) := by bv_normalize
 
+-- add_left_eq_self / add_right_eq_self
+example (x y : BitVec 16) : (x + y == x) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x + y == y) = (x == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == x + y) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == y + x) = (y == 0) := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

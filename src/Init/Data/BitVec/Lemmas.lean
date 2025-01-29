@@ -2586,6 +2586,28 @@ protected theorem sub_left_inj {x y : BitVec w} (z : BitVec w) : (x - z = y - z)
 protected theorem sub_right_inj {x y : BitVec w} (z : BitVec w) : (z - x = z - y) ↔ x = y := by
   simp [sub_toAdd]
 
+/-! ### add self -/
+
+@[simp]
+protected theorem add_left_eq_self {x y : BitVec w} : x + y = y ↔ x = 0#w := by
+  conv => lhs; rhs; rw [← BitVec.zero_add y]
+  exact BitVec.add_left_inj y
+
+@[simp]
+protected theorem add_right_eq_self {x y : BitVec w} : x + y = x ↔ y = 0#w := by
+  rw [BitVec.add_comm]
+  exact BitVec.add_left_eq_self
+
+@[simp]
+protected theorem self_eq_add_right {x y : BitVec w} : x = x + y ↔ y = 0#w := by
+  rw [Eq.comm]
+  exact BitVec.add_right_eq_self
+
+@[simp]
+protected theorem self_eq_add_left {x y : BitVec w} : x = y + x ↔ y = 0#w := by
+  rw [BitVec.add_comm]
+  exact BitVec.self_eq_add_right
+
 /-! ### fill -/
 
 @[simp]

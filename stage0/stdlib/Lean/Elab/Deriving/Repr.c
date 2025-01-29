@@ -2920,7 +2920,6 @@ lean_inc(x_20);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);
 lean_dec(x_20);
-lean_inc(x_19);
 x_22 = l_Lean_getStructureFields(x_19, x_21);
 x_23 = lean_ctor_get(x_2, 1);
 lean_inc(x_23);
@@ -7731,6 +7730,7 @@ x_16 = lean_ctor_get(x_15, 0);
 lean_inc(x_16);
 lean_dec(x_15);
 x_17 = l_Lean_isStructure(x_14, x_16);
+lean_dec(x_14);
 if (x_17 == 0)
 {
 lean_object* x_18; 

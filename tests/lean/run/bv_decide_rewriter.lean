@@ -52,6 +52,9 @@ example : BitVec.sshiftRight 0#16 n = 0#16 := by bv_normalize
 example {x : BitVec 16} : BitVec.sshiftRight x 0 = x := by bv_normalize
 example {x : BitVec 16} : 0#16 * x = 0 := by bv_normalize
 example {x : BitVec 16} : x * 0#16 = 0 := by bv_normalize
+example {x : BitVec 16} : x >>> (12 : Nat) = x >>> 12#16 := by bv_normalize
+example {x : BitVec 16} : x <<< (12 : Nat) = x <<< 12#16 := by bv_normalize
+example {x : BitVec 16} : x.sshiftRight (12 : Nat) = x.sshiftRight' 12#16 := by bv_normalize
 example {x : BitVec 16} : x <<< 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x <<< 0 = x := by bv_normalize
 example : 0#16 <<< (n : Nat) = 0 := by bv_normalize
@@ -103,6 +106,18 @@ example (x : BitVec 16) : (x.ult 1) = (x == 0) := by bv_normalize
 
 -- ushiftRight_self
 example (x : BitVec 16) : (x >>> x) == 0 := by bv_normalize
+
+-- add_left_inj / add_right_inj
+example (x y z : BitVec 16) : (x + z == y + z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (x + z == z + y) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z + x == y + z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z + x == z + y) = (x == y) := by bv_normalize
+
+-- add_left_eq_self / add_right_eq_self
+example (x y : BitVec 16) : (x + y == x) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x + y == y) = (x == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == x + y) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == y + x) = (y == 0) := by bv_normalize
 
 section
 

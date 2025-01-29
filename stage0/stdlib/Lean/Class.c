@@ -1938,6 +1938,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6;
 x_3 = l_Lean_instInhabitedClassState;
 x_4 = l_Lean_isClass___closed__1;
 x_5 = l_Lean_SimplePersistentEnvExtension_getState___rarg(x_3, x_4, x_1);
+lean_dec(x_1);
 x_6 = l_Lean_SMap_contains___at_Lean_isClass___spec__1(x_5, x_2);
 lean_dec(x_2);
 return x_6;
@@ -2381,6 +2382,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_getOutParamPositions_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -2390,6 +2392,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_getOutParamPositions_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 

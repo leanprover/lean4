@@ -307,6 +307,7 @@ lean_dec(x_16);
 x_18 = lean_box(0);
 x_19 = l_Lean_Name_str___override(x_18, x_4);
 x_20 = l_Lean_isSubobjectField_x3f(x_2, x_17, x_19);
+lean_dec(x_2);
 if (lean_obj_tag(x_20) == 0)
 {
 lean_object* x_21; lean_object* x_22; 
@@ -376,7 +377,6 @@ lean_inc(x_14);
 lean_dec(x_12);
 x_15 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_16 = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_getParentProjArg___closed__1;
-lean_inc(x_14);
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_8);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -436,7 +436,6 @@ lean_inc(x_31);
 lean_dec(x_29);
 x_32 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_33 = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_getParentProjArg___closed__1;
-lean_inc(x_31);
 x_34 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_32, x_33, x_31, x_8);
 if (lean_obj_tag(x_34) == 0)
 {
@@ -7658,6 +7657,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__1___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -7676,6 +7676,7 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_x27___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
+lean_dec(x_1);
 return x_7;
 }
 }

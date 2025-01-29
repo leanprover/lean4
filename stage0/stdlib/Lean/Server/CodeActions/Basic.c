@@ -3375,6 +3375,7 @@ x_6 = l_Lean_Server_handleCodeAction___lambda__3(x_1, x_2, x_3, x_4, x_5);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_6;
 }
 }

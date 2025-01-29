@@ -67,6 +67,11 @@ builtin_initialize
       | .infer =>
         if (← isCasesAttrCandidate declName false) then
           addCasesAttr declName false attrKind
+          if let some info ← isInductivePredicate? declName then
+            -- If it is an inductive predicate,
+            -- we also add the contructors (intro rules) as E-matching rules
+            for ctor in info.ctors do
+              addEMatchAttr ctor attrKind .default
         else
           addEMatchAttr declName attrKind .default
     erase := fun declName => MetaM.run' do

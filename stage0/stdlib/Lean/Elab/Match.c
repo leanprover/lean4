@@ -48075,6 +48075,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___spec__1___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -48093,6 +48094,7 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Match_0__Lean_Elab_Term_elabMatchAux___spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
+lean_dec(x_1);
 return x_7;
 }
 }
@@ -50246,6 +50248,7 @@ lean_dec(x_36);
 x_38 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_39 = l_Lean_TagAttribute_hasTag(x_38, x_37, x_23);
 lean_dec(x_23);
+lean_dec(x_37);
 if (x_39 == 0)
 {
 uint8_t x_40; lean_object* x_41; 
@@ -50276,6 +50279,7 @@ lean_dec(x_43);
 x_46 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_47 = l_Lean_TagAttribute_hasTag(x_46, x_45, x_23);
 lean_dec(x_23);
+lean_dec(x_45);
 if (x_47 == 0)
 {
 uint8_t x_48; lean_object* x_49; lean_object* x_50; 
@@ -50368,6 +50372,7 @@ lean_dec(x_64);
 x_68 = l___private_Lean_Elab_Match_0__Lean_Elab_Term_isPatternVar___closed__2;
 x_69 = l_Lean_TagAttribute_hasTag(x_68, x_67, x_23);
 lean_dec(x_23);
+lean_dec(x_67);
 if (x_69 == 0)
 {
 uint8_t x_70; lean_object* x_71; lean_object* x_72; 

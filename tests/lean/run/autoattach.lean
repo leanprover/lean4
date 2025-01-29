@@ -17,6 +17,27 @@ def Tree.map (f : α → β) (t : Tree α) : Tree β :=
 termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
 
+/--
+error: failed to generate equational theorem for 'Tree.map'
+α : Type u_1
+β : Type u_2
+f : α → β
+t : Tree α
+⊢ { val := f t.val,
+      cs :=
+        List.map (fun x => ⋯.fix (fun t a => { val := f t.val, cs := List.map (fun x => a x.val ⋯) t.cs.attach }) x.val)
+          t.cs.attach } =
+    { val := f t.val, cs := List.map (fun x => Tree.map f x) t.cs }
+-/
+#guard_msgs in
+#print equations Tree.map
+
+/--
+info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
+  (case1 : ∀ (x : Tree α), (∀ (x_1 : Tree α), x_1 ∈ x.cs → motive x_1) → motive x) (t : Tree α) : motive t
+-/
+#guard_msgs in
+#check Tree.map.induct
 
 /--
 info: α : Type u_1

@@ -257,6 +257,11 @@ theorem BitVec.add_const_right' (a b c : BitVec w) : (a + b) + c = (b + c) + a :
 attribute [bv_normalize] BitVec.mul_zero
 attribute [bv_normalize] BitVec.zero_mul
 
+
+attribute [bv_normalize] BitVec.shiftLeft_ofNat_eq
+attribute [bv_normalize] BitVec.ushiftRight_ofNat_eq
+attribute [bv_normalize] BitVec.sshiftRight'_ofNat_eq_sshiftRight
+
 attribute [bv_normalize] BitVec.shiftLeft_zero
 attribute [bv_normalize] BitVec.zero_shiftLeft
 

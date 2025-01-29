@@ -1,3 +1,7 @@
+%reset_grind_attrs
+
+attribute [grind cases] Or
+
 inductive Palindrome : List α → Prop where
   | nil      : Palindrome []
   | single   : (a : α) → Palindrome [a]
@@ -19,13 +23,11 @@ def List.last : (as : List α) → as ≠ [] → α
   | [a],         _ => a
   | _::a₂:: as, _ => (a₂::as).last (by grind)
 
-@[simp, grind] theorem List.dropLast_append_last (h : as ≠ []) : as.dropLast ++ [as.last h] = as := by
-  match as with
-  | [] => grind
-  | [a] => grind [last, dropLast]
-  | a₁ :: a₂ :: as =>
-    have := dropLast_append_last (as := a₂ :: as) (by grind)
-    grind [last, dropLast]
+@[grind] theorem List.last_cons (h₁ : as ≠ []) (h₂ : a :: as ≠ []): (a :: as).last h₂ = as.last h₁ := by
+  grind [last.eq_def]
+
+@[grind] theorem List.dropLast_append_last (h : as ≠ []) : as.dropLast ++ [as.last h] = as := by
+   induction as, h using List.last.induct <;> grind [last, dropLast]
 
 theorem List.palindrome_ind (motive : List α → Prop)
     (h₁ : motive [])

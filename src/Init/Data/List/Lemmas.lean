@@ -436,6 +436,10 @@ theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ i : Nat, l[i]? = s
   let ⟨n, _, e⟩ := getElem_of_mem h
   exact ⟨n, e ▸ getElem?_eq_getElem _⟩
 
+theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
+  subst e
+  simp
+
 theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
 

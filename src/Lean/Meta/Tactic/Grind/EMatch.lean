@@ -279,7 +279,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let vType ← inferType v
       let report : M Unit := do
         reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
-      unless (← isDefEq mvarIdType vType) do
+      unless (← withDefault <| isDefEq mvarIdType vType) do
         let some heq ← proveEq? vType mvarIdType
           | report
             return ()

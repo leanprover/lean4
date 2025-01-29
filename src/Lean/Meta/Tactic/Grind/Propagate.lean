@@ -128,6 +128,16 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
     pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
+  let aRoot ← getRootENode a
+  let bRoot ← getRootENode b
+  if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
+    -- ¬a = b
+    let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
+      let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
+      let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
+      let hf ← mkNoConfusion (← getFalseExpr) hf
+      mkLambdaFVars #[h] hf
+    pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do

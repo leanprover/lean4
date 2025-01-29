@@ -42,7 +42,7 @@ Author: Leonardo de Moura
 #endif
 
 #if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
-extern "C" __attribute__((weak)) void free_sized(void *ptr, size_t) {
+extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) {
     free(ptr);
 }
 #endif

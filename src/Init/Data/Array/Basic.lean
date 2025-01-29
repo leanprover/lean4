@@ -941,13 +941,13 @@ def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) 
     cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   zipWithAux as bs f 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
-  zipWith as bs Prod.mk
+  zipWith Prod.mk as bs
 
-def zipWithAll (as : Array α) (bs : Array β) (f : Option α → Option β → γ) : Array γ :=
+def zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) : Array γ :=
   go as bs 0 #[]
 where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
   if i < max as.size bs.size then

@@ -158,8 +158,14 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 abbrev zipWithIndex_mk := @zipIdx_mk
 
 @[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
-      (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
-        Vector.mk (Array.zipWith a b f) (by simp [ha, hb]) := rfl
+      (ha : a.size = n) (hb : b.size = n) : zipWith f (Vector.mk a ha) (Vector.mk b hb) =
+        Vector.mk (Array.zipWith f a b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem mk_zip_mk (a : Array α) (b : Array β) (ha : a.size = n) (hb : b.size = n) :
+    zip (Vector.mk a ha) (Vector.mk b hb) = Vector.mk (Array.zip a b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem unzip_mk (a : Array (α × β)) (h : a.size = n) :
+    (Vector.mk a h).unzip = (Vector.mk a.unzip.1 (by simp_all), Vector.mk a.unzip.2 (by simp_all)) := rfl
 
 @[simp] theorem anyM_mk [Monad m] (p : α → m Bool) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).anyM p = a.anyM p := rfl
@@ -280,7 +286,7 @@ abbrev zipWithIndex_mk := @zipIdx_mk
     (a.zipIdx k).toArray = a.toArray.zipIdx k := rfl
 
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
-    (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
+    (Vector.zipWith f a b).toArray = Array.zipWith f a.toArray b.toArray := rfl
 
 @[simp] theorem anyM_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
     v.toArray.anyM p = v.anyM p := by
@@ -417,7 +423,7 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
   simp [List.take_of_length_le]
 
 @[simp] theorem toList_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
-    (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
+    (Vector.zipWith f a b).toArray = Array.zipWith f a.toArray b.toArray := rfl
 
 @[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (v : Vector α n) :
     v.toList.anyM p = v.anyM p := by
@@ -2167,7 +2173,7 @@ defeq issues in the implicit size argument.
 /-! ### zipWith -/
 
 @[simp] theorem getElem_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) (i : Nat)
-    (hi : i < n) : (zipWith a b f)[i] = f a[i] b[i] := by
+    (hi : i < n) : (zipWith f a b)[i] = f a[i] b[i] := by
   cases a
   cases b
   simp

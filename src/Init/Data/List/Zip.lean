@@ -31,16 +31,18 @@ theorem zipWith_comm_of_comm (f : α → α → β) (comm : ∀ x y : α, f x y 
   simp only [comm]
 
 @[simp]
-theorem zipWith_same (f : α → α → δ) : ∀ l : List α, zipWith f l l = l.map fun a => f a a
+theorem zipWith_self (f : α → α → δ) : ∀ l : List α, zipWith f l l = l.map fun a => f a a
   | [] => rfl
-  | _ :: xs => congrArg _ (zipWith_same f xs)
+  | _ :: xs => congrArg _ (zipWith_self f xs)
+
+@[deprecated zipWith_self (since := "2025-01-29")] abbrev zipWith_same := @zipWith_self
 
 /--
 See also `getElem?_zipWith'` for a variant
 using `Option.map` and `Option.bind` rather than a `match`.
 -/
 theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
-    (List.zipWith f as bs)[i]? = match as[i]?, bs[i]? with
+    (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
       | some a, some b => some (f a b) | _, _ => none := by
   induction as generalizing bs i with
   | nil => cases bs with
@@ -257,8 +259,7 @@ theorem zip_map (f : α → γ) (g : β → δ) :
     ∀ (l₁ : List α) (l₂ : List β), zip (l₁.map f) (l₂.map g) = (zip l₁ l₂).map (Prod.map f g)
   | [], _ => rfl
   | _, [] => by simp only [map, zip_nil_right]
-  | _ :: _, _ :: _ => by
-    simp only [map, zip_cons_cons, zip_map, Prod.map]; try constructor -- TODO: remove try constructor after update stage0
+  | _ :: _, _ :: _ => by simp only [map, zip_cons_cons, zip_map, Prod.map]
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]

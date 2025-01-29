@@ -336,9 +336,6 @@ protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i
   rcases v with ⟨v, h⟩
   exact ⟨by rintro rfl; simp_all, by rintro rfl; simpa using h⟩
 
-@[simp] theorem mem_toArray_iff (a : α) (v : Vector α n) : a ∈ v.toArray ↔ a ∈ v :=
-  ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
-
 /-! ### toList -/
 
 theorem toArray_toList (a : Vector α n) : a.toArray.toList = a.toList := rfl

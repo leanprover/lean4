@@ -28,7 +28,11 @@ abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 
 namespace Vector
 
-/-- Syntax for `Vector α n` -/
+/-- Syntax for `Vector α n`
+
+The recommended way to refer to `#v[]` in names is `empty`.
+
+The recommended way to refer to `#v[a]` in names is `singleton`. -/
 syntax "#v[" withoutPosition(sepBy(term, ", ")) "]" : term
 
 open Lean in

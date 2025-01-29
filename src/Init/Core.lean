@@ -644,6 +644,8 @@ the `BEq` typeclass.
 
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
+
+The recommended way to refer to this notation in names is `bne`.
 -/
 @[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)

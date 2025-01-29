@@ -1037,6 +1037,8 @@ if `x` is false then `y` is not evaluated.
 /--
 `not x`, or `!x`, is the boolean "not" operation (not to be confused
 with `Not : Prop → Prop`, which is the propositional connective).
+
+The recommended way to refer to this notation in names is `not`.
 -/
 @[inline] def Bool.not : Bool → Bool
   | true  => false

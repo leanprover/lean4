@@ -153,7 +153,10 @@ end Int
 
 section Syntax
 
-/-- Notation for bit vector literals. `i#n` is a shorthand for `BitVec.ofNat n i`. -/
+/-- Notation for bit vector literals. `i#n` is a shorthand for `BitVec.ofNat n i`.
+
+The recommended way to refer to this notation in names is to suppress it, i.e., `0#n` should turn
+into `zero`, not `ofNat_zero`. -/
 syntax:max num noWs "#" noWs term:max : term
 macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 

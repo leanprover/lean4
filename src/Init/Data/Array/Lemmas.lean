@@ -3543,23 +3543,23 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
 /-! ### zipWith -/
 
 @[simp] theorem toList_zipWith (f : α → β → γ) (as : Array α) (bs : Array β) :
-    (Array.zipWith as bs f).toList = List.zipWith f as.toList bs.toList := by
+    (zipWith f as bs).toList = List.zipWith f as.toList bs.toList := by
   cases as
   cases bs
   simp
 
 @[simp] theorem toList_zip (as : Array α) (bs : Array β) :
-    (Array.zip as bs).toList = List.zip as.toList bs.toList := by
+    (zip as bs).toList = List.zip as.toList bs.toList := by
   simp [zip, toList_zipWith, List.zip]
 
 @[simp] theorem toList_zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) :
-    (Array.zipWithAll as bs f).toList = List.zipWithAll f as.toList bs.toList := by
+    (zipWithAll f as bs).toList = List.zipWithAll f as.toList bs.toList := by
   cases as
   cases bs
   simp
 
 @[simp] theorem size_zipWith (as : Array α) (bs : Array β) (f : α → β → γ) :
-    (as.zipWith bs f).size = min as.size bs.size := by
+    (zipWith f as bs).size = min as.size bs.size := by
   rw [size_eq_length_toList, toList_zipWith, List.length_zipWith]
 
 @[simp] theorem size_zip (as : Array α) (bs : Array β) :
@@ -3567,8 +3567,8 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
   as.size_zipWith bs Prod.mk
 
 @[simp] theorem getElem_zipWith (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat)
-    (hi : i < (as.zipWith bs f).size) :
-    (as.zipWith bs f)[i] = f (as[i]'(by simp at hi; omega)) (bs[i]'(by simp at hi; omega)) := by
+    (hi : i < (zipWith f as bs).size) :
+    (zipWith f as bs)[i] = f (as[i]'(by simp at hi; omega)) (bs[i]'(by simp at hi; omega)) := by
   cases as
   cases bs
   simp

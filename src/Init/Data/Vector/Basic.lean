@@ -206,8 +206,11 @@ abbrev zipWithIndex := @zipIdx
   ⟨v.toArray.zip w.toArray, by simp⟩
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
-@[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=
-  ⟨Array.zipWith a.toArray b.toArray f, by simp⟩
+@[inline] def zipWith (f : α → β → φ) (a : Vector α n) (b : Vector β n) : Vector φ n :=
+  ⟨Array.zipWith f a.toArray b.toArray, by simp⟩
+
+@[inline] def unzip (v : Vector (α × β) n) : Vector α n × Vector β n :=
+  ⟨⟨v.toArray.unzip.1, by simp⟩, ⟨v.toArray.unzip.2, by simp⟩⟩
 
 /-- The vector of length `n` whose `i`-th element is `f i`. -/
 @[inline] def ofFn (f : Fin n → α) : Vector α n :=

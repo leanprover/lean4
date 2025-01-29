@@ -366,3 +366,9 @@ example [Decidable p] : a = true → decide p = a → p := by
 
 example [Decidable p] : false = a → decide p = a → ¬p := by
   grind
+
+example [Decidable p] : a = true → p → decide p = a := by
+  grind
+
+example [Decidable p] : false = a → ¬p → decide p = a := by
+  grind

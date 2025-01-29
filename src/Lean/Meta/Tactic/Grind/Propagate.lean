@@ -206,4 +206,11 @@ builtin_grind_propagator propagateDecideDown ↓decide := fun e => do
   else if root.self.isConstOf ``false then
     pushEqFalse p <| mkApp3 (mkConst ``Grind.of_decide_eq_false) p h (← mkEqProof e root.self)
 
+builtin_grind_propagator propagateDecideUp ↑decide := fun e => do
+  let_expr decide p h := e | return ()
+  if (← isEqTrue p) then
+    pushEq e (← getBoolTrueExpr) <| mkApp3 (mkConst ``Grind.decide_eq_true) p h (← mkEqTrueProof p)
+  else if (← isEqFalse p) then
+    pushEq e (← getBoolFalseExpr) <| mkApp3 (mkConst ``Grind.decide_eq_false) p h (← mkEqFalseProof p)
+
 end Lean.Meta.Grind

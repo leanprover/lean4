@@ -34,6 +34,9 @@ h : c = true
     [eqc] {b = true, a = false}
     [eqc] {b, false}
     [eqc] {a, c, true}
+[grind] Counters
+  [cases] Case splits
+    [cases] And ↦ 2
 -/
 #guard_msgs (error) in
 theorem ex (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -66,6 +69,10 @@ h : b = false
   [eqc] Equivalence classes
     [eqc] {b, false}
     [eqc] {a, c, true}
+[grind] Counters
+  [cases] Case splits
+    [cases] And ↦ 3
+    [cases] Or ↦ 3
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by

@@ -105,7 +105,7 @@ private def ppEqcs : M Unit := do
      pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}:\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
+  let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
 private def ppActiveTheorems : M Unit := do
@@ -113,7 +113,7 @@ private def ppActiveTheorems : M Unit := do
   let m ← goal.thms.toArray.mapM fun thm => ppEMatchTheorem thm
   let m := m ++ (← goal.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
   unless m.isEmpty do
-    pushMsg <| .trace { cls := `ematch } "E-matching" m
+    pushMsg <| .trace { cls := `ematch } "E-matching patterns" m
 
 private def ppOffset : M Unit := do
   let goal ← read

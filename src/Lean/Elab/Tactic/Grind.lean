@@ -85,6 +85,11 @@ def elabGrindParams (params : Grind.Params) (ps :  TSyntaxArray ``Parser.Tactic.
       | .infer =>
         if (← Grind.isCasesAttrCandidate declName false) then
           params := { params with casesTypes := params.casesTypes.insert declName false }
+          if let some info ← isInductivePredicate? declName then
+            -- If it is an inductive predicate,
+            -- we also add the contructors (intro rules) as E-matching rules
+            for ctor in info.ctors do
+              params ← withRef p <| addEMatchTheorem params ctor .default
         else
           params ← withRef p <| addEMatchTheorem params declName .default
     | _ => throwError "unexpected `grind` parameter{indentD p}"

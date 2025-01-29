@@ -52,6 +52,9 @@ example : BitVec.sshiftRight 0#16 n = 0#16 := by bv_normalize
 example {x : BitVec 16} : BitVec.sshiftRight x 0 = x := by bv_normalize
 example {x : BitVec 16} : 0#16 * x = 0 := by bv_normalize
 example {x : BitVec 16} : x * 0#16 = 0 := by bv_normalize
+example {x : BitVec 16} : x >>> (12 : Nat) = x >>> 12#16 := by bv_normalize
+example {x : BitVec 16} : x <<< (12 : Nat) = x <<< 12#16 := by bv_normalize
+example {x : BitVec 16} : x.sshiftRight (12 : Nat) = x.sshiftRight' 12#16 := by bv_normalize
 example {x : BitVec 16} : x <<< 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x <<< 0 = x := by bv_normalize
 example : 0#16 <<< (n : Nat) = 0 := by bv_normalize

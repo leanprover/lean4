@@ -654,7 +654,8 @@ private partial def collectType (e : Expr) : FVarIdSet → FVarIdSet :=
   | .lam _ d b _     => collectType b ∘ collectType d
   | .app f a         => collectType f ∘ collectType a
   | .fvar fvarId     => fun s => s.insert fvarId
-  | .proj .. | .letE .. | .mdata .. => unreachable!
+  | .mdata _ b       => collectType b
+  | .proj .. | .letE .. => unreachable!
   | _                => id
 
 private def collectArg (arg : Arg) (s : FVarIdSet) : FVarIdSet :=

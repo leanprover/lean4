@@ -641,28 +641,35 @@ theorem findIdx_le_findIdx {l : List α} {p q : α → Bool} (h : ∀ x ∈ l, p
 
 /-! ### findIdx? -/
 
-@[simp] theorem findIdx?_nil : ([] : List α).findIdx? p i = none := rfl
+@[local simp] private theorem findIdx?_go_nil {p : α → Bool} {i : Nat} :
+    findIdx?.go p [] i = none := rfl
 
-@[simp] theorem findIdx?_cons :
-    (x :: xs).findIdx? p i = if p x then some i else findIdx? p xs (i + 1) := rfl
+@[local simp] private theorem findIdx?_go_cons :
+    findIdx?.go p (x :: xs) i = if p x then some i else findIdx?.go p xs (i + 1) := rfl
 
-theorem findIdx?_succ :
-    (xs : List α).findIdx? p (i+1) = (xs.findIdx? p i).map fun i => i + 1 := by
+private theorem findIdx?_go_succ {p : α → Bool} {xs : List α} {i : Nat} :
+    findIdx?.go p xs (i+1) = (findIdx?.go p xs i).map fun i => i + 1 := by
   induction xs generalizing i with simp
   | cons _ _ _ => split <;> simp_all
 
-@[simp] theorem findIdx?_start_succ :
-    (xs : List α).findIdx? p (i+1) = (xs.findIdx? p 0).map fun k => k + (i + 1) := by
+private theorem findIdx?_go_eq {p : α → Bool} {xs : List α} {i : Nat} :
+    findIdx?.go p xs (i+1) = (findIdx?.go p xs 0).map fun k => k + (i + 1) := by
   induction xs generalizing i with
   | nil => simp
   | cons _ _ _ =>
-    simp only [findIdx?_succ, findIdx?_cons, Nat.zero_add]
+    simp only [findIdx?_go_succ, findIdx?_go_cons, Nat.zero_add]
     split
     · simp_all
-    · simp_all only [findIdx?_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
+    · simp_all only [findIdx?_go_succ, Bool.not_eq_true, Option.map_map, Nat.zero_add]
       congr
       ext
       simp only [Nat.add_comm i, Function.comp_apply, Nat.add_assoc]
+
+@[simp] theorem findIdx?_nil : ([] : List α).findIdx? p = none := rfl
+
+@[simp] theorem findIdx?_cons :
+    (x :: xs).findIdx? p = if p x then some 0 else (xs.findIdx? p).map fun i => i + 1 := by
+  simp [findIdx?, findIdx?_go_eq]
 
 @[simp]
 theorem findIdx?_eq_none_iff {xs : List α} {p : α → Bool} :
@@ -731,7 +738,7 @@ theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} 
   induction xs generalizing i with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_succ]
+    simp only [findIdx?_cons, Nat.zero_add]
     split
     · simp only [Option.some.injEq, Bool.not_eq_true, length_cons]
       cases i with
@@ -762,7 +769,7 @@ theorem findIdx?_of_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction xs generalizing i with
   | nil => simp_all
   | cons x xs ih =>
-    simp_all only [findIdx?_cons, Nat.zero_add, findIdx?_succ]
+    simp_all only [findIdx?_cons, Nat.zero_add]
     split at w <;> cases i <;> simp_all [succ_inj']
 
 theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p = none) :
@@ -771,7 +778,7 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction xs generalizing i with
   | nil => simp_all
   | cons x xs ih =>
-    simp_all only [Bool.not_eq_true, findIdx?_cons, Nat.zero_add, findIdx?_succ]
+    simp_all only [Bool.not_eq_true, findIdx?_cons, Nat.zero_add]
     cases i with
     | zero =>
       split at w <;> simp_all
@@ -784,7 +791,7 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
   induction l with
   | nil => simp
   | cons x xs ih =>
-    simp only [map_cons, findIdx?]
+    simp only [map_cons, findIdx?_cons]
     split <;> simp_all
 
 @[simp] theorem findIdx?_append :
@@ -801,10 +808,9 @@ theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
   induction l with
   | nil => simp
   | cons xs l ih =>
-    simp only [flatten, findIdx?_append, map_take, map_cons, findIdx?, any_eq_true, Nat.zero_add,
-      findIdx?_succ]
+    simp only [findIdx?, flatten, map_take, map_cons, findIdx?_go_cons, any_eq_true, Nat.zero_add]
     split
-    · simp only [Option.map_some', take_zero, sum_nil, length_cons, zero_lt_succ,
+    · simp [Option.map_some', take_zero, sum_nil, length_cons, zero_lt_succ,
         getElem?_eq_getElem, getElem_cons_zero, Option.getD_some, Nat.zero_add]
       rw [Option.or_of_isSome (by simpa [findIdx?_isSome])]
       rw [findIdx?_eq_some_of_exists ‹_›]
@@ -819,7 +825,7 @@ theorem findIdx?_flatten {l : List (List α)} {p : α → Bool} :
   cases n with
   | zero => simp
   | succ n =>
-    simp only [replicate, findIdx?_cons, Nat.zero_add, findIdx?_succ, zero_lt_succ, true_and]
+    simp only [replicate, findIdx?_cons, Nat.zero_add, zero_lt_succ, true_and]
     split <;> simp_all
 
 theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
@@ -827,7 +833,7 @@ theorem findIdx?_eq_findSome?_zipIdx {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_succ, zipIdx]
+    simp only [findIdx?_cons, Nat.zero_add, zipIdx]
     split
     · simp_all
     · simp_all only [zipIdx_cons, ite_false, Option.isNone_none, findSome?_cons_of_isNone, reduceCtorEq]
@@ -839,7 +845,7 @@ theorem findIdx?_eq_fst_find?_zipIdx {xs : List α} {p : α → Bool} :
   induction xs with
   | nil => simp
   | cons x xs ih =>
-    simp only [findIdx?_cons, Nat.zero_add, findIdx?_start_succ, zipIdx_cons]
+    simp only [findIdx?_cons, Nat.zero_add, zipIdx_cons]
     split
     · simp_all
     · rw [ih, ← map_snd_add_zipIdx_eq_zipIdx (n := 1) (k := 0)]

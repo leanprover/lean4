@@ -1269,21 +1269,58 @@ theorem findSome?_cons {f : α → Option β} :
 /-! ### indexOf -/
 
 /-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
-def indexOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
+def idxOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
 
-@[simp] theorem indexOf_nil [BEq α] : ([] : List α).indexOf x = 0 := rfl
+/-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
+@[deprecated idxOf (since := "2025-01-29")] abbrev indexOf := @idxOf
+
+@[simp] theorem idxOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
+
+@[deprecated idxOf_nil (since := "2025-01-29")]
+theorem indexOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
 
 /-! ### findIdx? -/
 
 /-- Return the index of the first occurrence of an element satisfying `p`. -/
-def findIdx? (p : α → Bool) : List α → (start : Nat := 0) → Option Nat
-| [], _ => none
-| a :: l, i => if p a then some i else findIdx? p l (i + 1)
+def findIdx? (p : α → Bool) (l : List α) : Option Nat :=
+  go l 0
+where
+  go : List α → Nat → Option Nat
+  | [], _ => none
+  | a :: l, i => if p a then some i else go l (i + 1)
 
 /-! ### indexOf? -/
 
 /-- Return the index of the first occurrence of `a` in the list. -/
-@[inline] def indexOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
+@[inline] def idxOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
+
+/-- Return the index of the first occurrence of `a` in the list. -/
+@[deprecated idxOf? (since := "2025-01-29")]
+abbrev indexOf? := @idxOf?
+
+/-! ### findFinIdx? -/
+
+/-- Return the index of the first occurrence of an element satisfying `p`, as a `Fin l.length`,
+or `none` if no such element is found. -/
+@[inline] def findFinIdx? (p : α → Bool) (l : List α) : Option (Fin l.length) :=
+  go l 0 (by simp)
+where
+  go : (l' : List α) → (i : Nat) → (h : l'.length + i = l.length) → Option (Fin l.length)
+  | [], _, _ => none
+  | a :: l, i, h =>
+    if p a then
+      some ⟨i, by
+        simp only [Nat.add_comm _ i, ← Nat.add_assoc] at h
+        exact Nat.lt_of_add_right_lt (Nat.lt_of_succ_le (Nat.le_of_eq h))⟩
+    else
+      go l (i + 1) (by simp at h; simpa [← Nat.add_assoc, Nat.add_right_comm] using h)
+
+/-! ### finIdxOf? -/
+
+/-- Return the index of the first occurrence of `a`, as a `Fin l.length`,
+or `none` if no such element is found. -/
+@[inline] def finIdxOf? [BEq α] (a : α) : (l : List α) → Option (Fin l.length) :=
+  findFinIdx? (· == a)
 
 /-! ### countP -/
 

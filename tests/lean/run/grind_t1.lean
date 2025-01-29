@@ -300,7 +300,7 @@ example : (replicate n a).map f = replicate n (f a) := by
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by

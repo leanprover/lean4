@@ -359,9 +359,7 @@ def getPatternSupportMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
       else
         return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
 
-private partial def go (pattern : Expr) (root := false) : M Expr := do
-  if root && !pattern.hasLooseBVars then
-    throwError "invalid pattern, it does not have pattern variables"
+private partial def go (pattern : Expr) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
     let e ← goArg e (isSupport := false)
     if e == dontCare then

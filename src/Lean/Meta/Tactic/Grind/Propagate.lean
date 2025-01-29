@@ -197,4 +197,13 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
      internalize r (← getGeneration e)
      pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) α c h a b r h₁ h₂
 
+builtin_grind_propagator propagateDecideDown ↓decide := fun e => do
+  let root ← getRootENode e
+  unless root.ctor do return ()
+  let_expr decide p h := e | return ()
+  if root.self.isConstOf ``true then
+    pushEqTrue p <| mkApp3 (mkConst ``Grind.of_decide_eq_true) p h (← mkEqProof e root.self)
+  else if root.self.isConstOf ``false then
+    pushEqFalse p <| mkApp3 (mkConst ``Grind.of_decide_eq_false) p h (← mkEqProof e root.self)
+
 end Lean.Meta.Grind

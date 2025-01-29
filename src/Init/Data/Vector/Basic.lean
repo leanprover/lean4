@@ -8,6 +8,7 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Range
+import Init.Data.Stream
 
 /-!
 # Vectors
@@ -178,6 +179,16 @@ which also receives the index of the element, and the fact that the index is les
 @[inline] def mapFinIdx (v : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) : Vector β n :=
   ⟨v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)), by simp⟩
 
+/-- Map a monadic function over a vector. -/
+def mapM [Monad m] (f : α → m β) (v : Vector α n) : m (Vector β n) := do
+  go 0 (Nat.zero_le n) #v[]
+where
+  go (i : Nat) (h : i ≤ n) (r : Vector β i) : m (Vector β n) := do
+    if h' : i < n then
+      go (i+1) (by omega) (r.push (← f v[i]))
+    else
+      return r.cast (by omega)
+
 @[inline] def flatten (v : Vector (Vector α n) m) : Vector α (m * n) :=
   ⟨(v.toArray.map Vector.toArray).flatten,
     by rcases v; simp_all [Function.comp_def, Array.map_const']⟩
@@ -190,6 +201,9 @@ which also receives the index of the element, and the fact that the index is les
 
 @[deprecated zipIdx (since := "2025-01-21")]
 abbrev zipWithIndex := @zipIdx
+
+@[inline] def zip (v : Vector α n) (w : Vector β n) : Vector (α × β) n :=
+  ⟨v.toArray.zip w.toArray, by simp⟩
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
 @[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=
@@ -322,6 +336,19 @@ no element of the index matches the given value.
 /-- Count the number of elements of a vector that are equal to `a`. -/
 @[inline] def count [BEq α] (a : α) (v : Vector α n) : Nat :=
   v.toArray.count a
+
+/-! ### ForIn instance -/
+
+@[simp] theorem mem_toArray_iff (a : α) (v : Vector α n) : a ∈ v.toArray ↔ a ∈ v :=
+  ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
+
+instance : ForIn' m (Vector α n) α inferInstance where
+  forIn' v b f := Array.forIn' v.toArray b (fun a h b => f a (by simpa using h) b)
+
+/-! ### ToStream instance -/
+
+instance : ToStream (Vector α n) (Subarray α) where
+  toStream v := v.toArray[:n]
 
 /-! ### Lexicographic ordering -/
 

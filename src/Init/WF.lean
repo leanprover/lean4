@@ -414,3 +414,10 @@ theorem mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β �
 end
 
 end PSigma
+
+/--
+The `wfParam` gadget is used internally during the construction of recursive functions by
+wellfounded recursion, to keep track of the parameter for which the automatic introduction
+of `List.attach` (or similar) is plausible.
+-/
+def wfParam {α : Sort u} (a : α) : α := a

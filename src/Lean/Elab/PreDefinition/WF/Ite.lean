@@ -9,7 +9,7 @@ import Lean.Elab.Tactic.Simp
 
 namespace Lean.Meta
 
-private def getContext : MetaM Simp.Context := do
+private def getSimpContext : MetaM Simp.Context := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``dite_eq_ite (inv := true)
   Simp.mkContext
@@ -17,12 +17,20 @@ private def getContext : MetaM Simp.Context := do
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
 
+def mkWfParam (e : Expr) : MetaM Expr :=
+  mkAppM ``wfParam #[e]
+
 def iteToDIte (e : Expr) : MetaM Expr := do
-  let ctx ← getContext
-  let (result, _) ← Meta.simp e ctx
-  let e' := result.expr
-  trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}"
-  return e'
+  lambdaTelescope e fun xs e => do
+    -- Annotate all xs with `wfParam`
+    let xs' ← xs.mapM mkWfParam
+    let e := e.replaceFVars xs xs'
+
+    -- Now run the simplifier
+    let (result, _) ← Meta.simp e (← getSimpContext)
+    let e' := result.expr
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}"
+    mkLambdaFVars xs e'
 
 /-
 run_elab do

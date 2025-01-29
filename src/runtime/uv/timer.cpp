@@ -82,7 +82,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     if (result != 0) {
         free(uv_timer);
         free(timer);
-        return lean_decode_uv_error(result, NULL);
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     timer->m_uv_timer = uv_timer;
@@ -128,7 +128,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
 
         if (result != 0) {
             lean_dec(obj);
-            return lean_decode_uv_error(result, NULL);
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         } else {
             lean_inc(timer->m_promise);
             return lean_io_result_mk_ok(timer->m_promise);
@@ -195,7 +195,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
         event_loop_unlock(&global_ev);
 
         if (result != 0) {
-            return lean_decode_uv_error(result, NULL);
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         } else {
             return lean_io_result_mk_ok(lean_box(0));
         }

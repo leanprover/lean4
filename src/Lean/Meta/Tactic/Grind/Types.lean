@@ -107,6 +107,8 @@ structure State where
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -139,6 +141,14 @@ def getTrueExpr : GrindM Expr := do
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
+
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : GrindM Expr := do
+  return (← get).btrueExpr
+
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : GrindM Expr := do
+  return (← get).bfalseExpr
 
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do

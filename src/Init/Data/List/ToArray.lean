@@ -13,6 +13,21 @@ import Init.Data.Array.Lex.Basic
 
 We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
+
+namespace Array
+
+@[simp] theorem toList_set (a : Array α) (i x h) :
+    (a.set i x).toList = a.toList.set i x := rfl
+
+theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
+    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
+  simp [swap]
+
+@[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
+    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
+
+end Array
+
 namespace List
 
 open Array
@@ -416,5 +431,35 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   | cons a as ih =>
     apply ext'
     simp [ih, flatMap_toArray_cons]
+
+@[simp] theorem swap_toArray (l : List α) (i j : Nat) {hi hj}:
+    l.toArray.swap i j hi hj = ((l.set i l[j]).set j l[i]).toArray := by
+  apply ext'
+  simp
+
+@[simp] theorem eraseIdx_toArray (l : List α) (i : Nat) (h : i < l.toArray.size) :
+    l.toArray.eraseIdx i h = (l.eraseIdx i).toArray := by
+  rw [Array.eraseIdx]
+  split <;> rename_i h'
+  · rw [eraseIdx_toArray]
+    simp only [swap_toArray, Fin.getElem_fin, toList_toArray, mk.injEq]
+    rw [eraseIdx_set_gt (by simp), eraseIdx_set_eq]
+    simp
+  · simp at h h'
+    have t : i = l.length - 1 := by omega
+    simp [t]
+termination_by l.length - i
+decreasing_by
+  rename_i h
+  simp at h
+  simp
+  omega
+
+@[simp] theorem eraseIdxIfInBounds_toArray (l : List α) (i : Nat) :
+    l.toArray.eraseIdxIfInBounds i = (l.eraseIdx i).toArray := by
+  rw [Array.eraseIdxIfInBounds]
+  split
+  · simp
+  · simp_all [eraseIdx_eq_self.2]
 
 end List

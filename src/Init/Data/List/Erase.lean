@@ -271,6 +271,20 @@ theorem head_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).hea
 theorem getLast_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).getLast h ∈ xs :=
   (eraseP_sublist xs).getLast_mem h
 
+theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
+    xs.eraseP p = match xs.findIdx? p with
+    | none => xs
+    | some i => xs.eraseIdx i := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih =>
+    rw [eraseP_cons, findIdx?_cons]
+    by_cases h : p x
+    · simp [h]
+    · simp only [h]
+      rw [ih]
+      split <;> simp [*]
+
 /-! ### erase -/
 section erase
 variable [BEq α]
@@ -457,6 +471,19 @@ theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs 
 theorem getLast_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).getLast h ∈ xs :=
   (erase_sublist a xs).getLast_mem h
 
+theorem erase_eq_eraseIdx [LawfulBEq α] (l : List α) (a : α) :
+    l.erase a = match l.indexOf? a with
+    | none => l
+    | some i => l.eraseIdx i := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    rw [erase_cons, indexOf?_cons]
+    split
+    · simp
+    · simp [ih]
+      split <;> simp [*]
+
 end erase
 
 /-! ### eraseIdx -/
@@ -573,7 +600,8 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
 
-theorem erase_eq_eraseIdx [BEq α] [LawfulBEq α] (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
+theorem erase_eq_eraseIdx_of_indexOf [BEq α] [LawfulBEq α]
+    (l : List α) (a : α) (i : Nat) (w : l.indexOf a = i) :
     l.erase a = l.eraseIdx i := by
   subst w
   rw [erase_eq_iff]

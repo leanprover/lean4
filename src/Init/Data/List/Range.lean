@@ -8,7 +8,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Zip
 
 /-!
-# Lemmas about `List.range` and `List.enum`
+# Lemmas about `List.range` and `List.zipIdx`
 
 Most of the results are deferred to `Data.Init.List.Nat.Range`, where more results about
 natural arithmetic are available.
@@ -32,7 +32,7 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
 @[simp] theorem range'_eq_nil : range' s n step = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range']
 
-theorem range'_ne_nil (s : Nat) {n : Nat} : range' s n ≠ [] ↔ n ≠ 0 := by
+theorem range'_ne_nil (s : Nat) {n step : Nat} : range' s n step ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
 
 @[simp] theorem range'_zero : range' s 0 step = [] := by

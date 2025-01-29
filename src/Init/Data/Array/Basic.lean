@@ -244,6 +244,10 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
+/-- The array `#[start, start + step, ..., start + step * (size - 1)]`. -/
+def range' (start size : Nat) (step : Nat := 1) : Array Nat :=
+  ofFn fun (i : Fin size) => start + step * i
+
 @[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=

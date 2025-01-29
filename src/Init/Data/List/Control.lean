@@ -98,6 +98,7 @@ def forA {m : Type u → Type v} [Applicative m] {α : Type w} (as : List α) (f
   | []      => pure ⟨⟩
   | a :: as => f a *> forA as f
 
+
 @[specialize]
 def filterAuxM {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → List α → m (List α)
   | [],     acc => pure acc
@@ -134,6 +135,19 @@ def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m 
       match (← f a) with
       | none   => loop as bs
       | some b => loop as (b::bs)
+  loop as []
+
+/--
+Applies the monadic function `f` on every element `x` in the list, left-to-right, and returns the
+concatenation of the results.
+-/
+@[inline]
+def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
+  let rec @[specialize] loop
+    | [],     bs => pure bs.reverse
+    | a :: as, bs => do
+      let bs' ← f a
+      loop as (bs' ++ bs)
   loop as []
 
 /--

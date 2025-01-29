@@ -15,17 +15,15 @@ namespace List
 
 /-! ## Operations using indexes -/
 
-/-! ### mapIdx -/
-
 /--
-Given a list `as = [a₀, a₁, ...]` function `f : Fin as.length → α → β`, returns the list
-`[f 0 a₀, f 1 a₁, ...]`.
+Given a list `as = [a₀, a₁, ...]` and a function `f : (i : Nat) → α → (h : i < as.length) → β`, returns the list
+`[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
 -/
 @[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
 where
   /-- Auxiliary for `mapFinIdx`:
-  `mapFinIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀, f 1 a₁, ...]` -/
+  `mapFinIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀ ⋯, f 1 a₁ ⋯, ...]` -/
   @[specialize] go : (bs : List α) → (acc : Array β) → bs.length + acc.size = as.length → List β
   | [], acc, h => acc.toList
   | a :: as, acc, h =>
@@ -41,6 +39,31 @@ Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, 
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | a :: as, acc => go as (acc.push (f acc.size a))
+
+/--
+Given a list `as = [a₀, a₁, ...]` and a monadic function `f : (i : Nat) → α → (h : i < as.length) → m β`,
+returns the list `[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+-/
+@[inline] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
+  go as #[] (by simp)
+where
+  /-- Auxiliary for `mapFinIdxM`:
+  `mapFinIdxM.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀ ⋯, f 1 a₁ ⋯, ...]` -/
+  @[specialize] go : (bs : List α) → (acc : Array β) → bs.length + acc.size = as.length → m (List β)
+  | [], acc, h => pure acc.toList
+  | a :: as, acc, h => do
+    go as (acc.push (← f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
+
+/--
+Given a monadic function `f : Nat → α → m β` and `as : List α`, `as = [a₀, a₁, ...]`,
+returns the list `[f 0 a₀, f 1 a₁, ...]`.
+-/
+@[inline] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
+  /-- Auxiliary for `mapIdxM`:
+  `mapIdxM.go [a₀, a₁, ...] acc = acc.toList ++ [f acc.size a₀, f (acc.size + 1) a₁, ...]` -/
+  @[specialize] go : List α → Array β → m (List β)
+  | [], acc => pure acc.toList
+  | a :: as, acc => do go as (acc.push (← f acc.size a))
 
 /-! ### mapFinIdx -/
 

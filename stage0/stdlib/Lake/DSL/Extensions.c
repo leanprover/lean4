@@ -17,8 +17,8 @@ LEAN_EXPORT lean_object* l_Lake_dirExt;
 LEAN_EXPORT lean_object* l_Lake_optsExt;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_35_(lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
-lean_object* l___private_Lean_Environment_0__Lean_EnvExtension_registerExt___rarg(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4_(lean_object*);
 static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1() {
 _start:
@@ -33,21 +33,19 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
-x_3 = 2;
-x_4 = l___private_Lean_Environment_0__Lean_EnvExtension_registerExt___rarg(x_2, x_3, x_1);
-return x_4;
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
+return x_3;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_35_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; uint8_t x_3; lean_object* x_4; 
+lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
-x_3 = 2;
-x_4 = l___private_Lean_Environment_0__Lean_EnvExtension_registerExt___rarg(x_2, x_3, x_1);
-return x_4;
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
+return x_3;
 }
 }
 lean_object* initialize_Lean_Environment(uint8_t builtin, lean_object*);

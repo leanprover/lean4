@@ -126,7 +126,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_foldWithLeadingToken_go___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___lambda__1___boxed(lean_object*, lean_object*);
-lean_object* l_Array_zipWithIndex___rarg(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticFieldCompletion_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_foldWithLeadingToken(lean_object*);
 static lean_object* l_Array_anyMUnsafe_any___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_isCompletionAfterSemicolon___spec__1___closed__1;
@@ -145,6 +144,7 @@ LEAN_EXPORT lean_object* l_panic___at___private_Lean_Server_Completion_Synthetic
 uint8_t l_Lean_Syntax_isToken(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findSyntheticIdentifierCompletion_x3f___lambda__5___closed__3;
+lean_object* l_Array_zipIdx___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticTacticCompletion_go___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lambda__6(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
@@ -4326,15 +4326,15 @@ LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Le
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-x_8 = l_Array_zipWithIndex___rarg(x_1);
-x_9 = lean_array_get_size(x_8);
-x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_nat_dec_lt(x_10, x_9);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = l_Array_zipIdx___rarg(x_1, x_8);
+x_10 = lean_array_get_size(x_9);
+x_11 = lean_nat_dec_lt(x_8, x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; uint8_t x_13; 
+lean_dec(x_10);
 lean_dec(x_9);
-lean_dec(x_8);
 x_12 = lean_box(0);
 x_13 = l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___lambda__2(x_2, x_3, x_4, x_5, x_12);
 return x_13;
@@ -4343,10 +4343,10 @@ else
 {
 size_t x_14; size_t x_15; uint8_t x_16; 
 x_14 = 0;
-x_15 = lean_usize_of_nat(x_9);
+x_15 = lean_usize_of_nat(x_10);
+lean_dec(x_10);
+x_16 = l_Array_anyMUnsafe_any___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___spec__1(x_6, x_9, x_14, x_15);
 lean_dec(x_9);
-x_16 = l_Array_anyMUnsafe_any___at___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_isSyntheticStructFieldCompletion___spec__1(x_6, x_8, x_14, x_15);
-lean_dec(x_8);
 if (x_16 == 0)
 {
 lean_object* x_17; uint8_t x_18; 

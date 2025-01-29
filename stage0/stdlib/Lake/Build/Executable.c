@@ -34,7 +34,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuild
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_LeanExe_recBuildExe___spec__4___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_withRegisterJob___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_LeanExe_recBuildExe___lambda__1___boxed(lean_object*);
-static lean_object* l_Lake_LeanExe_recBuildExe___lambda__2___closed__5;
 lean_object* l_Lean_Name_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__5(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_System_FilePath_addExtension(lean_object*, lean_object*);
@@ -47,7 +46,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuild
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__6(size_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_EquipT_bind___at_Lake_LeanExe_recBuildExe___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lake_LeanExe_recBuildExe___spec__6___closed__1;
 static lean_object* l_Lake_LeanExe_recBuildExe___closed__1;
@@ -1033,7 +1031,7 @@ static lean_object* _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("deps", 4, 4);
+x_1 = lean_mk_string_unchecked("transDeps", 9, 9);
 return x_1;
 }
 }
@@ -1051,25 +1049,17 @@ static lean_object* _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__3() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("lean", 4, 4);
+x_1 = lean_mk_string_unchecked("transImports", 12, 12);
 return x_1;
 }
 }
 static lean_object* _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__4() {
 _start:
 {
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("transImports", 12, 12);
-return x_1;
-}
-}
-static lean_object* _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__5() {
-_start:
-{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lake_LeanExe_recBuildExe___lambda__2___closed__3;
-x_2 = l_Lake_LeanExe_recBuildExe___lambda__2___closed__4;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+x_1 = lean_box(0);
+x_2 = l_Lake_LeanExe_recBuildExe___lambda__2___closed__3;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -1077,7 +1067,7 @@ LEAN_EXPORT lean_object* l_Lake_LeanExe_recBuildExe___lambda__2(uint8_t x_1, lea
 _start:
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_285; lean_object* x_286; lean_object* x_302; lean_object* x_303; lean_object* x_327; lean_object* x_328; lean_object* x_329; 
-x_327 = l_Lake_LeanExe_recBuildExe___lambda__2___closed__5;
+x_327 = l_Lake_LeanExe_recBuildExe___lambda__2___closed__4;
 x_328 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_328, 0, x_8);
 lean_ctor_set(x_328, 1, x_327);
@@ -3167,8 +3157,6 @@ l_Lake_LeanExe_recBuildExe___lambda__2___closed__3 = _init_l_Lake_LeanExe_recBui
 lean_mark_persistent(l_Lake_LeanExe_recBuildExe___lambda__2___closed__3);
 l_Lake_LeanExe_recBuildExe___lambda__2___closed__4 = _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__4();
 lean_mark_persistent(l_Lake_LeanExe_recBuildExe___lambda__2___closed__4);
-l_Lake_LeanExe_recBuildExe___lambda__2___closed__5 = _init_l_Lake_LeanExe_recBuildExe___lambda__2___closed__5();
-lean_mark_persistent(l_Lake_LeanExe_recBuildExe___lambda__2___closed__5);
 l_Lake_LeanExe_recBuildExe___closed__1 = _init_l_Lake_LeanExe_recBuildExe___closed__1();
 lean_mark_persistent(l_Lake_LeanExe_recBuildExe___closed__1);
 l_Lake_LeanExe_recBuildExe___closed__2 = _init_l_Lake_LeanExe_recBuildExe___closed__2();

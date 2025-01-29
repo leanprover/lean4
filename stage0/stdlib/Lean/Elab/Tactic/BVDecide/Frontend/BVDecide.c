@@ -35,6 +35,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Fro
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__9___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instBEqOfDecidableEq___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_unusedHyps___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__5___closed__1;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__7___closed__4;
@@ -126,6 +127,8 @@ lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__7;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__4___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz_toGraphvizString___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__18___boxed(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_BVPred_toString(lean_object*);
@@ -139,6 +142,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___lambda__
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__4___lambda__4(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_getMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__19___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6;
 static lean_object* l_Std_Sat_AIG_toGraphviz_toGraphvizString___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__18___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__2___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide___closed__1;
@@ -210,11 +214,11 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__4___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___lambda__1___closed__2;
-static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_explainers;
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__3___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__23;
@@ -236,11 +240,11 @@ LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Elab_Ta
 lean_object* l_panic___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__5;
 lean_object* l_Lean_mkStrLit(lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__11___closed__3;
 lean_object* l_Lean_throwError___at_Lean_Expr_abstractRangeM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__21;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_processPostponed___spec__2___rarg(lean_object*, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_explainCounterExampleQuality___spec__2___closed__3;
@@ -254,6 +258,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go__
 static lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__2___rarg___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__11;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__16;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___closed__3;
 uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
@@ -271,6 +276,7 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_addTraceNode___at_Lean_Meta_pro
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__15(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_elabBVDecideConfig(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_BVDecide_Frontend_bvDecide___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_BoolExpr_toString___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__16___closed__4;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___closed__1;
@@ -281,6 +287,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___l
 lean_object* l_List_mapTR_loop___at_Lean_MessageData_instCoeListExpr___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___spec__2(lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__7___lambda__1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__8___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__13;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___lambda__1___closed__3;
@@ -309,6 +316,7 @@ LEAN_EXPORT lean_object* l_IO_FS_withTempFile___at_Lean_Elab_Tactic_BVDecide_Fro
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__3;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getD___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__9___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1(lean_object*);
 lean_object* l_Lean_Meta_mkAuxLemma___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__24;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___closed__2;
@@ -346,6 +354,7 @@ static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_Fronten
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__4;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__5;
 uint64_t l_Lean_Expr_hash(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__22;
@@ -358,6 +367,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__12;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__6(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__10;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__15___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__16(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__6;
@@ -430,12 +440,12 @@ lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Util_Trace_0__Lean_addTr
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__4___closed__2;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BoolExpr_toString___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__16(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__20___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_equations(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -467,6 +477,7 @@ uint8_t l_Lean_Expr_hasAnyFVar_visit___at_Lean_Expr_containsFVar___spec__1(lean_
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___closed__4;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___closed__6;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__1___closed__4;
@@ -489,8 +500,8 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__44;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__19(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_toGraphviz_toGraphvizString___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__18___closed__7;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_TacticContext_new(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_MVarId_assign___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_explainCounterExampleQuality(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__10___boxed(lean_object*, lean_object*, lean_object*);
@@ -500,7 +511,6 @@ static lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Fro
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__2;
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__1;
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__6___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -550,12 +560,14 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Fro
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__17(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_explainCounterExampleQuality___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__25;
-lean_object* l_Lean_Meta_instantiateMVarsIfMVarApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7;
 lean_object* l_List_reverse___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_getD___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__9(lean_object*, lean_object*, lean_object*);
@@ -579,7 +591,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflect
 lean_object* l_ReaderT_bind___at_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVPred_boolAtom___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_SatAtBVLogical_of(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__1;
-static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__10___closed__5;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reflectBV___lambda__1___closed__9;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -600,6 +611,7 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide__1___closed__5;
 lean_object* l_Lean_addTrace___at_Lean_Meta_processPostponed_loop___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4;
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_SatAtBVLogical_proveFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__9;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__12___boxed(lean_object*, lean_object*, lean_object*);
@@ -612,7 +624,6 @@ lean_object* l_IO_FS_writeFile(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_explainCounterExampleQuality___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvDecide_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -661,6 +672,7 @@ LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Fro
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___lambda__1___closed__1;
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__13(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -668,7 +680,6 @@ lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__11___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__27;
-static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__6;
 lean_object* lean_nat_lor(lean_object*, lean_object*);
 lean_object* l_Std_Tactic_BVDecide_Gate_toString(uint8_t);
@@ -6321,195 +6332,150 @@ lean_dec(x_1);
 return x_9;
 }
 }
-static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_2, 0, x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-if (lean_obj_tag(x_2) == 1)
-{
-lean_object* x_10; lean_object* x_11; 
-lean_dec(x_1);
-x_10 = lean_ctor_get(x_2, 0);
-x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_checkRelevantHypsUsed(x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-if (lean_obj_tag(x_11) == 0)
-{
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_11);
-if (x_12 == 0)
-{
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_11, 0);
-lean_dec(x_13);
-x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-lean_ctor_set(x_11, 0, x_14);
-return x_11;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_11, 1);
-lean_inc(x_15);
-lean_dec(x_11);
-x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set(x_17, 1, x_15);
-return x_17;
-}
-}
-else
-{
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_11);
-if (x_18 == 0)
-{
-return x_11;
-}
-else
-{
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = lean_ctor_get(x_11, 0);
-x_20 = lean_ctor_get(x_11, 1);
-lean_inc(x_20);
-lean_inc(x_19);
-lean_dec(x_11);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_19);
-lean_ctor_set(x_21, 1, x_20);
-return x_21;
-}
-}
-}
-else
-{
-lean_object* x_22; uint8_t x_23; 
-x_22 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_addUninterpretedSymbol(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_5);
-x_23 = !lean_is_exclusive(x_22);
-if (x_23 == 0)
-{
-lean_object* x_24; lean_object* x_25; 
-x_24 = lean_ctor_get(x_22, 0);
-lean_dec(x_24);
-x_25 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-lean_ctor_set(x_22, 0, x_25);
-return x_22;
-}
-else
-{
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_22, 1);
-lean_inc(x_26);
-lean_dec(x_22);
-x_27 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-return x_28;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f(lean_object* x_1) {
 _start:
 {
 if (lean_obj_tag(x_1) == 1)
 {
-lean_object* x_10; lean_object* x_11; 
-x_10 = lean_ctor_get(x_1, 0);
-lean_inc(x_10);
+lean_object* x_2; lean_object* x_3; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+x_3 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_3, 0, x_2);
+return x_3;
+}
+else
+{
+lean_object* x_4; 
+x_4 = lean_box(0);
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f(x_1);
 lean_dec(x_1);
-x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_checkRelevantHypsUsed(x_10, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_10);
-if (lean_obj_tag(x_11) == 0)
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1(lean_object* x_1) {
+_start:
 {
-uint8_t x_12; 
-x_12 = !lean_is_exclusive(x_11);
-if (x_12 == 0)
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1() {
+_start:
 {
-lean_object* x_13; lean_object* x_14; 
-x_13 = lean_ctor_get(x_11, 0);
-lean_dec(x_13);
-x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-lean_ctor_set(x_11, 0, x_14);
-return x_11;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f___boxed), 1, 0);
+return x_1;
 }
-else
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2() {
+_start:
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = lean_ctor_get(x_11, 1);
-lean_inc(x_15);
-lean_dec(x_11);
-x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set(x_17, 1, x_15);
-return x_17;
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1___boxed), 1, 0);
+return x_1;
 }
 }
-else
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3() {
+_start:
 {
-uint8_t x_18; 
-x_18 = !lean_is_exclusive(x_11);
-if (x_18 == 0)
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2;
+x_2 = lean_box(0);
+x_3 = lean_apply_1(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4() {
+_start:
 {
-return x_11;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("UInt64", 6, 6);
+return x_1;
 }
-else
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5() {
+_start:
 {
-lean_object* x_19; lean_object* x_20; lean_object* x_21; 
-x_19 = lean_ctor_get(x_11, 0);
-x_20 = lean_ctor_get(x_11, 1);
-lean_inc(x_20);
-lean_inc(x_19);
-lean_dec(x_11);
-x_21 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_21, 0, x_19);
-lean_ctor_set(x_21, 1, x_20);
-return x_21;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("toBitVec", 8, 8);
+return x_1;
 }
 }
-}
-else
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6() {
+_start:
 {
-lean_object* x_22; uint8_t x_23; 
-x_22 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_addUninterpretedSymbol(x_1, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_5);
-x_23 = !lean_is_exclusive(x_22);
-if (x_23 == 0)
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7() {
+_start:
 {
-lean_object* x_24; lean_object* x_25; 
-x_24 = lean_ctor_get(x_22, 0);
-lean_dec(x_24);
-x_25 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-lean_ctor_set(x_22, 0, x_25);
-return x_22;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("UInt32", 6, 6);
+return x_1;
 }
-else
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8() {
+_start:
 {
-lean_object* x_26; lean_object* x_27; lean_object* x_28; 
-x_26 = lean_ctor_get(x_22, 1);
-lean_inc(x_26);
-lean_dec(x_22);
-x_27 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1;
-x_28 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_28, 0, x_27);
-lean_ctor_set(x_28, 1, x_26);
-return x_28;
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
 }
 }
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("UInt16", 6, 6);
+return x_1;
 }
 }
-static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("UInt8", 5, 5);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13() {
 _start:
 {
 lean_object* x_1; 
@@ -6517,7 +6483,7 @@ x_1 = lean_mk_string_unchecked("BitVec", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14() {
 _start:
 {
 lean_object* x_1; 
@@ -6525,14 +6491,138 @@ x_1 = lean_mk_string_unchecked("ofBool", 6, 6);
 return x_1;
 }
 }
-static lean_object* _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1;
-x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2;
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14;
 x_3 = l_Lean_Name_mkStr2(x_1, x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_fvarId_x3f(x_1);
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1;
+x_4 = l_Lean_Expr_cleanupAnnotations(x_1);
+x_5 = l_Lean_Expr_isApp(x_4);
+if (x_5 == 0)
+{
+lean_object* x_6; 
+lean_dec(x_4);
+x_6 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3;
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_7 = l_Lean_Expr_appArg(x_4, lean_box(0));
+x_8 = l_Lean_Expr_appFnCleanup(x_4, lean_box(0));
+x_9 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6;
+x_10 = l_Lean_Expr_isConstOf(x_8, x_9);
+if (x_10 == 0)
+{
+lean_object* x_11; uint8_t x_12; 
+x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8;
+x_12 = l_Lean_Expr_isConstOf(x_8, x_11);
+if (x_12 == 0)
+{
+lean_object* x_13; uint8_t x_14; 
+x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10;
+x_14 = l_Lean_Expr_isConstOf(x_8, x_13);
+if (x_14 == 0)
+{
+lean_object* x_15; uint8_t x_16; 
+x_15 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12;
+x_16 = l_Lean_Expr_isConstOf(x_8, x_15);
+if (x_16 == 0)
+{
+lean_object* x_17; uint8_t x_18; 
+x_17 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15;
+x_18 = l_Lean_Expr_isConstOf(x_8, x_17);
+lean_dec(x_8);
+if (x_18 == 0)
+{
+lean_object* x_19; 
+lean_dec(x_7);
+x_19 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3;
+return x_19;
+}
+else
+{
+lean_object* x_20; 
+x_20 = lean_apply_1(x_3, x_7);
+return x_20;
+}
+}
+else
+{
+lean_object* x_21; 
+lean_dec(x_8);
+x_21 = lean_apply_1(x_3, x_7);
+return x_21;
+}
+}
+else
+{
+lean_object* x_22; 
+lean_dec(x_8);
+x_22 = lean_apply_1(x_3, x_7);
+return x_22;
+}
+}
+else
+{
+lean_object* x_23; 
+lean_dec(x_8);
+x_23 = lean_apply_1(x_3, x_7);
+return x_23;
+}
+}
+else
+{
+lean_object* x_24; 
+lean_dec(x_8);
+x_24 = lean_apply_1(x_3, x_7);
+return x_24;
+}
+}
+}
+else
+{
+uint8_t x_25; 
+lean_dec(x_1);
+x_25 = !lean_is_exclusive(x_2);
+if (x_25 == 0)
+{
+return x_2;
+}
+else
+{
+lean_object* x_26; lean_object* x_27; 
+x_26 = lean_ctor_get(x_2, 0);
+lean_inc(x_26);
+lean_dec(x_2);
+x_27 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_27, 0, x_26);
+return x_27;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, size_t x_4, size_t x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -6551,278 +6641,74 @@ return x_15;
 }
 else
 {
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; 
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_6);
 x_16 = lean_array_uget(x_3, x_5);
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);
 lean_dec(x_16);
 lean_inc(x_17);
-x_18 = l_Lean_Meta_instantiateMVarsIfMVarApp(x_17, x_9, x_10, x_11, x_12, x_13);
-x_19 = lean_ctor_get(x_18, 0);
-lean_inc(x_19);
-x_20 = lean_ctor_get(x_18, 1);
+x_18 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar(x_17);
+if (lean_obj_tag(x_18) == 0)
+{
+lean_object* x_19; lean_object* x_20; size_t x_21; size_t x_22; lean_object* x_23; 
+x_19 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_addUninterpretedSymbol(x_17, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_20 = lean_ctor_get(x_19, 1);
 lean_inc(x_20);
-lean_dec(x_18);
-x_21 = l_Lean_Expr_cleanupAnnotations(x_19);
-x_22 = l_Lean_Expr_isApp(x_21);
-if (x_22 == 0)
-{
-lean_object* x_23; lean_object* x_24; 
-lean_dec(x_21);
+lean_dec(x_19);
+x_21 = 1;
+x_22 = lean_usize_add(x_5, x_21);
 x_23 = lean_box(0);
-lean_inc(x_9);
-x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2(x_17, x_23, x_7, x_8, x_9, x_10, x_11, x_12, x_20);
-if (lean_obj_tag(x_24) == 0)
+x_5 = x_22;
+x_6 = x_23;
+x_13 = x_20;
+goto _start;
+}
+else
 {
-lean_object* x_25; 
-x_25 = lean_ctor_get(x_24, 0);
+lean_object* x_25; lean_object* x_26; 
+lean_dec(x_17);
+x_25 = lean_ctor_get(x_18, 0);
 lean_inc(x_25);
-if (lean_obj_tag(x_25) == 0)
+lean_dec(x_18);
+lean_inc(x_9);
+x_26 = l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_checkRelevantHypsUsed(x_25, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+lean_dec(x_25);
+if (lean_obj_tag(x_26) == 0)
 {
-uint8_t x_26; 
+lean_object* x_27; size_t x_28; size_t x_29; lean_object* x_30; 
+x_27 = lean_ctor_get(x_26, 1);
+lean_inc(x_27);
+lean_dec(x_26);
+x_28 = 1;
+x_29 = lean_usize_add(x_5, x_28);
+x_30 = lean_box(0);
+x_5 = x_29;
+x_6 = x_30;
+x_13 = x_27;
+goto _start;
+}
+else
+{
+uint8_t x_32; 
 lean_dec(x_9);
-x_26 = !lean_is_exclusive(x_24);
-if (x_26 == 0)
+x_32 = !lean_is_exclusive(x_26);
+if (x_32 == 0)
 {
-lean_object* x_27; lean_object* x_28; 
-x_27 = lean_ctor_get(x_24, 0);
-lean_dec(x_27);
-x_28 = lean_ctor_get(x_25, 0);
-lean_inc(x_28);
-lean_dec(x_25);
-lean_ctor_set(x_24, 0, x_28);
-return x_24;
+return x_26;
 }
 else
 {
-lean_object* x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = lean_ctor_get(x_24, 1);
-lean_inc(x_29);
-lean_dec(x_24);
-x_30 = lean_ctor_get(x_25, 0);
-lean_inc(x_30);
-lean_dec(x_25);
-x_31 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_31, 0, x_30);
-lean_ctor_set(x_31, 1, x_29);
-return x_31;
-}
-}
-else
-{
-lean_object* x_32; lean_object* x_33; size_t x_34; size_t x_35; 
-x_32 = lean_ctor_get(x_24, 1);
-lean_inc(x_32);
-lean_dec(x_24);
-x_33 = lean_ctor_get(x_25, 0);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+x_33 = lean_ctor_get(x_26, 0);
+x_34 = lean_ctor_get(x_26, 1);
+lean_inc(x_34);
 lean_inc(x_33);
-lean_dec(x_25);
-x_34 = 1;
-x_35 = lean_usize_add(x_5, x_34);
-x_5 = x_35;
-x_6 = x_33;
-x_13 = x_32;
-goto _start;
-}
-}
-else
-{
-uint8_t x_37; 
-lean_dec(x_9);
-x_37 = !lean_is_exclusive(x_24);
-if (x_37 == 0)
-{
-return x_24;
-}
-else
-{
-lean_object* x_38; lean_object* x_39; lean_object* x_40; 
-x_38 = lean_ctor_get(x_24, 0);
-x_39 = lean_ctor_get(x_24, 1);
-lean_inc(x_39);
-lean_inc(x_38);
-lean_dec(x_24);
-x_40 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_40, 0, x_38);
-lean_ctor_set(x_40, 1, x_39);
-return x_40;
-}
-}
-}
-else
-{
-lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; 
-x_41 = l_Lean_Expr_appArg(x_21, lean_box(0));
-x_42 = l_Lean_Expr_appFnCleanup(x_21, lean_box(0));
-x_43 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3;
-x_44 = l_Lean_Expr_isConstOf(x_42, x_43);
-lean_dec(x_42);
-if (x_44 == 0)
-{
-lean_object* x_45; lean_object* x_46; 
-lean_dec(x_41);
-x_45 = lean_box(0);
-lean_inc(x_9);
-x_46 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2(x_17, x_45, x_7, x_8, x_9, x_10, x_11, x_12, x_20);
-if (lean_obj_tag(x_46) == 0)
-{
-lean_object* x_47; 
-x_47 = lean_ctor_get(x_46, 0);
-lean_inc(x_47);
-if (lean_obj_tag(x_47) == 0)
-{
-uint8_t x_48; 
-lean_dec(x_9);
-x_48 = !lean_is_exclusive(x_46);
-if (x_48 == 0)
-{
-lean_object* x_49; lean_object* x_50; 
-x_49 = lean_ctor_get(x_46, 0);
-lean_dec(x_49);
-x_50 = lean_ctor_get(x_47, 0);
-lean_inc(x_50);
-lean_dec(x_47);
-lean_ctor_set(x_46, 0, x_50);
-return x_46;
-}
-else
-{
-lean_object* x_51; lean_object* x_52; lean_object* x_53; 
-x_51 = lean_ctor_get(x_46, 1);
-lean_inc(x_51);
-lean_dec(x_46);
-x_52 = lean_ctor_get(x_47, 0);
-lean_inc(x_52);
-lean_dec(x_47);
-x_53 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_53, 0, x_52);
-lean_ctor_set(x_53, 1, x_51);
-return x_53;
-}
-}
-else
-{
-lean_object* x_54; lean_object* x_55; size_t x_56; size_t x_57; 
-x_54 = lean_ctor_get(x_46, 1);
-lean_inc(x_54);
-lean_dec(x_46);
-x_55 = lean_ctor_get(x_47, 0);
-lean_inc(x_55);
-lean_dec(x_47);
-x_56 = 1;
-x_57 = lean_usize_add(x_5, x_56);
-x_5 = x_57;
-x_6 = x_55;
-x_13 = x_54;
-goto _start;
-}
-}
-else
-{
-uint8_t x_59; 
-lean_dec(x_9);
-x_59 = !lean_is_exclusive(x_46);
-if (x_59 == 0)
-{
-return x_46;
-}
-else
-{
-lean_object* x_60; lean_object* x_61; lean_object* x_62; 
-x_60 = lean_ctor_get(x_46, 0);
-x_61 = lean_ctor_get(x_46, 1);
-lean_inc(x_61);
-lean_inc(x_60);
-lean_dec(x_46);
-x_62 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_62, 0, x_60);
-lean_ctor_set(x_62, 1, x_61);
-return x_62;
-}
-}
-}
-else
-{
-lean_object* x_63; 
-lean_inc(x_9);
-x_63 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1(x_17, x_41, x_7, x_8, x_9, x_10, x_11, x_12, x_20);
-lean_dec(x_41);
-if (lean_obj_tag(x_63) == 0)
-{
-lean_object* x_64; 
-x_64 = lean_ctor_get(x_63, 0);
-lean_inc(x_64);
-if (lean_obj_tag(x_64) == 0)
-{
-uint8_t x_65; 
-lean_dec(x_9);
-x_65 = !lean_is_exclusive(x_63);
-if (x_65 == 0)
-{
-lean_object* x_66; lean_object* x_67; 
-x_66 = lean_ctor_get(x_63, 0);
-lean_dec(x_66);
-x_67 = lean_ctor_get(x_64, 0);
-lean_inc(x_67);
-lean_dec(x_64);
-lean_ctor_set(x_63, 0, x_67);
-return x_63;
-}
-else
-{
-lean_object* x_68; lean_object* x_69; lean_object* x_70; 
-x_68 = lean_ctor_get(x_63, 1);
-lean_inc(x_68);
-lean_dec(x_63);
-x_69 = lean_ctor_get(x_64, 0);
-lean_inc(x_69);
-lean_dec(x_64);
-x_70 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_70, 0, x_69);
-lean_ctor_set(x_70, 1, x_68);
-return x_70;
-}
-}
-else
-{
-lean_object* x_71; lean_object* x_72; size_t x_73; size_t x_74; 
-x_71 = lean_ctor_get(x_63, 1);
-lean_inc(x_71);
-lean_dec(x_63);
-x_72 = lean_ctor_get(x_64, 0);
-lean_inc(x_72);
-lean_dec(x_64);
-x_73 = 1;
-x_74 = lean_usize_add(x_5, x_73);
-x_5 = x_74;
-x_6 = x_72;
-x_13 = x_71;
-goto _start;
-}
-}
-else
-{
-uint8_t x_76; 
-lean_dec(x_9);
-x_76 = !lean_is_exclusive(x_63);
-if (x_76 == 0)
-{
-return x_63;
-}
-else
-{
-lean_object* x_77; lean_object* x_78; lean_object* x_79; 
-x_77 = lean_ctor_get(x_63, 0);
-x_78 = lean_ctor_get(x_63, 1);
-lean_inc(x_78);
-lean_inc(x_77);
-lean_dec(x_63);
-x_79 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_79, 0, x_77);
-lean_ctor_set(x_79, 1, x_78);
-return x_79;
-}
+lean_dec(x_26);
+x_35 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_35, 0, x_33);
+lean_ctor_set(x_35, 1, x_34);
+return x_35;
 }
 }
 }
@@ -6891,34 +6777,6 @@ lean_ctor_set(x_23, 1, x_22);
 return x_23;
 }
 }
-}
-}
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_10;
-}
-}
-LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
-_start:
-{
-lean_object* x_10; 
-x_10 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
-lean_dec(x_8);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_4);
-lean_dec(x_3);
-lean_dec(x_2);
-return x_10;
 }
 }
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12, lean_object* x_13) {
@@ -15464,7 +15322,7 @@ _start:
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_2, 5);
 lean_inc(x_14);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*2 + 6);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*2 + 7);
 lean_dec(x_14);
 if (x_15 == 0)
 {
@@ -24597,14 +24455,36 @@ l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__6 = _in
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__6);
 l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_run___closed__1);
-l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1 = _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1();
-lean_mark_persistent(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___lambda__1___closed__1);
-l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1 = _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1();
-lean_mark_persistent(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__1);
-l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2 = _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2();
-lean_mark_persistent(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__2);
-l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3 = _init_l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3();
-lean_mark_persistent(l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose___spec__1___closed__3);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__1);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__2);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__3);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__4);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__5);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__6);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__7);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__8);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__9);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__10);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__11);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__12);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__13);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__14);
+l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_DiagnosisM_diagnose_findRelevantFVar___closed__15);
 l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__1);
 l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__2();

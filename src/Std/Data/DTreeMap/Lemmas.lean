@@ -51,6 +51,10 @@ theorem contains_insert [TransCmp cmp] {k k' : α} {v : β k} :
     (t.insert k v).contains k' = (cmp k k' == .eq || t.contains k') :=
   Impl.contains_insert t.wf
 
+theorem size_insert [TransCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).size = if t.contains k then t.size else t.size + 1 :=
+  Impl.size_insert t.wf
+
 theorem isEmpty_erase [TransCmp cmp] {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   Impl.isEmpty_erase t.wf

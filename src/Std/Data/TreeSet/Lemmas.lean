@@ -49,6 +49,10 @@ theorem contains_insert [h : TransCmp cmp] (t : TreeSet α cmp) {k a : α} :
     (t.insert k).contains a = (cmp k a == .eq || t.contains a) :=
   TreeMap.contains_insert
 
+theorem size_insert [TransCmp cmp] {k : α} :
+    (t.insert k).size = if t.contains k then t.size else t.size + 1 :=
+  TreeMap.size_insert
+
 theorem isEmpty_erase [TransCmp cmp] {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   TreeMap.isEmpty_erase

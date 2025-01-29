@@ -49,6 +49,10 @@ theorem contains_insert [h : TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
     (t.insert k v).contains a = (cmp k a == .eq || t.contains a) :=
   DTreeMap.Raw.contains_insert h
 
+theorem size_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.insert k v).size = if t.contains k then t.size else t.size + 1 :=
+  DTreeMap.Raw.size_insert h
+
 theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).isEmpty = (t.isEmpty || (t.size == 1 && t.contains k)) :=
   DTreeMap.Raw.isEmpty_erase h

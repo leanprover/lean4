@@ -131,6 +131,22 @@ example (x y : BitVec 16) : (x + y == y) = (x == 0) := by bv_normalize
 example (x y : BitVec 16) : (x == x + y) = (y == 0) := by bv_normalize
 example (x y : BitVec 16) : (x == y + x) = (y == 0) := by bv_normalize
 
+-- eq_sub_iff_add_eq / sub_eq_iff_eq_add
+example (x y z : BitVec 16) : (x + -y == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x - y == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x + (~~~y + 1) == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x + (1 + ~~~y) == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (-x + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : ((~~~x + 1) + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : ((1 + ~~~x) + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + -y) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x - y) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + (~~~y + 1)) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + (1 + ~~~y)) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == -x + y) = (z + x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z == (~~~x + 1) + y) = (z + x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z == (1 + ~~~x) + y) = (z + x == y) := by bv_normalize
+
 -- or_beq_zero_iff
 example (x y : BitVec 16) : (x ||| y == 0) = (x == 0 && y == 0) := by bv_normalize
 example (x y : BitVec 16) : (0 == x ||| y) = (x == 0 && y == 0) := by bv_normalize

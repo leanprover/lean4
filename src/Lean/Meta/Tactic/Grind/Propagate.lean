@@ -27,16 +27,16 @@ builtin_grind_propagator propagateAndUp ↑And := fun e => do
   let_expr And a b := e | return ()
   if (← isEqTrue a) then
     -- a = True → (a ∧ b) = b
-    pushEq e b <| mkApp3 (mkConst ``Lean.Grind.and_eq_of_eq_true_left) a b (← mkEqTrueProof a)
+    pushEq e b <| mkApp3 (mkConst ``Grind.and_eq_of_eq_true_left) a b (← mkEqTrueProof a)
   else if (← isEqTrue b) then
     -- b = True → (a ∧ b) = a
-    pushEq e a <| mkApp3 (mkConst ``Lean.Grind.and_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+    pushEq e a <| mkApp3 (mkConst ``Grind.and_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqFalse a) then
     -- a = False → (a ∧ b) = False
-    pushEqFalse e <| mkApp3 (mkConst ``Lean.Grind.and_eq_of_eq_false_left) a b (← mkEqFalseProof a)
+    pushEqFalse e <| mkApp3 (mkConst ``Grind.and_eq_of_eq_false_left) a b (← mkEqFalseProof a)
   else if (← isEqFalse b) then
     -- b = False → (a ∧ b) = False
-    pushEqFalse e <| mkApp3 (mkConst ``Lean.Grind.and_eq_of_eq_false_right) a b (← mkEqFalseProof b)
+    pushEqFalse e <| mkApp3 (mkConst ``Grind.and_eq_of_eq_false_right) a b (← mkEqFalseProof b)
 
 /--
 Propagates truth values downwards for a conjunction `a ∧ b` when the
@@ -46,8 +46,8 @@ builtin_grind_propagator propagateAndDown ↓And := fun e => do
   if (← isEqTrue e) then
     let_expr And a b := e | return ()
     let h ← mkEqTrueProof e
-    pushEqTrue a <| mkApp3 (mkConst ``Lean.Grind.eq_true_of_and_eq_true_left) a b h
-    pushEqTrue b <| mkApp3 (mkConst ``Lean.Grind.eq_true_of_and_eq_true_right) a b h
+    pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_and_eq_true_left) a b h
+    pushEqTrue b <| mkApp3 (mkConst ``Grind.eq_true_of_and_eq_true_right) a b h
 
 /--
 Propagates equalities for a disjunction `a ∨ b` based on the truth values
@@ -63,16 +63,16 @@ builtin_grind_propagator propagateOrUp ↑Or := fun e => do
   let_expr Or a b := e | return ()
   if (← isEqFalse a) then
     -- a = False → (a ∨ b) = b
-    pushEq e b <| mkApp3 (mkConst ``Lean.Grind.or_eq_of_eq_false_left) a b (← mkEqFalseProof a)
+    pushEq e b <| mkApp3 (mkConst ``Grind.or_eq_of_eq_false_left) a b (← mkEqFalseProof a)
   else if (← isEqFalse b) then
     -- b = False → (a ∨ b) = a
-    pushEq e a <| mkApp3 (mkConst ``Lean.Grind.or_eq_of_eq_false_right) a b (← mkEqFalseProof b)
+    pushEq e a <| mkApp3 (mkConst ``Grind.or_eq_of_eq_false_right) a b (← mkEqFalseProof b)
   else if (← isEqTrue a) then
     -- a = True → (a ∨ b) = True
-    pushEqTrue e <| mkApp3 (mkConst ``Lean.Grind.or_eq_of_eq_true_left) a b (← mkEqTrueProof a)
+    pushEqTrue e <| mkApp3 (mkConst ``Grind.or_eq_of_eq_true_left) a b (← mkEqTrueProof a)
   else if (← isEqTrue b) then
     -- b = True → (a ∧ b) = True
-    pushEqTrue e <| mkApp3 (mkConst ``Lean.Grind.or_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+    pushEqTrue e <| mkApp3 (mkConst ``Grind.or_eq_of_eq_true_right) a b (← mkEqTrueProof b)
 
 /--
 Propagates truth values downwards for a disjuction `a ∨ b` when the
@@ -82,8 +82,8 @@ builtin_grind_propagator propagateOrDown ↓Or := fun e => do
   if (← isEqFalse e) then
     let_expr Or a b := e | return ()
     let h ← mkEqFalseProof e
-    pushEqFalse a <| mkApp3 (mkConst ``Lean.Grind.eq_false_of_or_eq_false_left) a b h
-    pushEqFalse b <| mkApp3 (mkConst ``Lean.Grind.eq_false_of_or_eq_false_right) a b h
+    pushEqFalse a <| mkApp3 (mkConst ``Grind.eq_false_of_or_eq_false_left) a b h
+    pushEqFalse b <| mkApp3 (mkConst ``Grind.eq_false_of_or_eq_false_right) a b h
 
 /--
 Propagates equalities for a negation `Not a` based on the truth value of `a`.
@@ -96,12 +96,12 @@ builtin_grind_propagator propagateNotUp ↑Not := fun e => do
   let_expr Not a := e | return ()
   if (← isEqFalse a) then
     -- a = False → (Not a) = True
-    pushEqTrue e <| mkApp2 (mkConst ``Lean.Grind.not_eq_of_eq_false) a (← mkEqFalseProof a)
+    pushEqTrue e <| mkApp2 (mkConst ``Grind.not_eq_of_eq_false) a (← mkEqFalseProof a)
   else if (← isEqTrue a) then
     -- a = True → (Not a) = False
-    pushEqFalse e <| mkApp2 (mkConst ``Lean.Grind.not_eq_of_eq_true) a (← mkEqTrueProof a)
+    pushEqFalse e <| mkApp2 (mkConst ``Grind.not_eq_of_eq_true) a (← mkEqTrueProof a)
   else if (← isEqv e a) then
-    closeGoal <| mkApp2 (mkConst ``Lean.Grind.false_of_not_eq_self) a (← mkEqProof e a)
+    closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
 /--
 Propagates truth values downwards for a negation expression `Not a` based on the truth value of `Not a`.
@@ -113,19 +113,19 @@ This function performs the following:
 builtin_grind_propagator propagateNotDown ↓Not := fun e => do
   let_expr Not a := e | return ()
   if (← isEqFalse e) then
-    pushEqTrue a <| mkApp2 (mkConst ``Lean.Grind.eq_true_of_not_eq_false) a (← mkEqFalseProof e)
+    pushEqTrue a <| mkApp2 (mkConst ``Grind.eq_true_of_not_eq_false) a (← mkEqFalseProof e)
   else if (← isEqTrue e) then
-    pushEqFalse a <| mkApp2 (mkConst ``Lean.Grind.eq_false_of_not_eq_true) a (← mkEqTrueProof e)
+    pushEqFalse a <| mkApp2 (mkConst ``Grind.eq_false_of_not_eq_true) a (← mkEqTrueProof e)
   else if (← isEqv e a) then
-    closeGoal <| mkApp2 (mkConst ``Lean.Grind.false_of_not_eq_self) a (← mkEqProof e a)
+    closeGoal <| mkApp2 (mkConst ``Grind.false_of_not_eq_self) a (← mkEqProof e a)
 
 /-- Propagates `Eq` upwards -/
 builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
   let_expr Eq _ a b := e | return ()
   if (← isEqTrue a) then
-    pushEq e b <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
+    pushEq e b <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_left) a b (← mkEqTrueProof a)
   else if (← isEqTrue b) then
-    pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
+    pushEq e a <| mkApp3 (mkConst ``Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
   let aRoot ← getRootENode a

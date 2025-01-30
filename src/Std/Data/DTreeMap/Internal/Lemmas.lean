@@ -197,6 +197,22 @@ theorem containsThenInsertSlow_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} 
   rw [snd_containsThenInsertSlow_eq_containsThenInsert _ h.balanced, containsThenInsert_snd h,
     insert_eq_insertSlow]
 
+theorem containsThenInsertIfNew_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v h.balanced).1 = t.contains k := by
+  rw [fst_containsThenInsertIfNew_eq_containsₘ, contains_eq_containsₘ]
+
+theorem containsThenInsertIfNewSlow_fst [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNewSlow k v).1 = t.contains k := by
+  rw [fst_containsThenInsertIfNewSlow_eq_containsₘ, contains_eq_containsₘ]
+
+theorem containsThenInsertIfNew_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v h.balanced).2 = t.insertIfNew k v h.balanced := by
+  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+
+theorem containsThenInsertIfNewSlow_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNewSlow k v).2 = t.insertIfNewSlow k v := by
+  rw [snd_containsThenInsertIfNewSlow_eq_insertIfNewSlow]
+
 @[simp]
 theorem isEmpty_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.isEmpty = false := by

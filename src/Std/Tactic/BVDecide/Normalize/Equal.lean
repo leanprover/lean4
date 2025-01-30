@@ -28,6 +28,16 @@ theorem BitVec.not_beq_not (a b : BitVec w) : (~~~a == ~~~b) = (a == b) := by
   simp
 
 @[bv_normalize]
+theorem BitVec.or_beq_zero_iff (a b : BitVec w) : (a ||| b == 0#w) = (a == 0#w && b == 0#w) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.xor_beq_zero_iff (a b : BitVec w) : (a ^^^ b == 0#w) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
 theorem BitVec.add_left_inj (a b c : BitVec w) : (a + c == b + c) = (a == b) := by
   rw [Bool.eq_iff_iff]
   simp

@@ -267,7 +267,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket) {
         buf->len = suggested_size;
 
     }, [](uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf) {
-        int result = uv_read_stop(stream);
+        uv_read_stop(stream);
 
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)stream->data);
         lean_object * promise = tcp_socket->m_promise_read;
@@ -508,6 +508,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
 // =======================================
 // TCP Socket Operations
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     lean_always_assert(

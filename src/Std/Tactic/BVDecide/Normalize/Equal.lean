@@ -48,6 +48,26 @@ theorem BitVec.zero_beq_xor_iff (a b : BitVec w) : (0#w == a ^^^ b) = (a == b) :
   simp
 
 @[bv_normalize]
+theorem BitVec.xor_left_inj (a b c : BitVec w) : (a ^^^ c == b ^^^ c) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.xor_left_inj' (a b c : BitVec w) : (a ^^^ c == c ^^^ b) = (a == b) := by
+  rw [Bool.eq_iff_iff, BitVec.xor_comm c]
+  simp
+
+@[bv_normalize]
+theorem BitVec.xor_right_inj (a b c : BitVec w) : (c ^^^ a == c ^^^ b) = (a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp
+
+@[bv_normalize]
+theorem BitVec.xor_right_inj' (a b c : BitVec w) : (c ^^^ a == b ^^^ c) = (a == b) := by
+  rw [Bool.eq_iff_iff, BitVec.xor_comm c]
+  simp
+
+@[bv_normalize]
 theorem BitVec.add_left_inj (a b c : BitVec w) : (a + c == b + c) = (a == b) := by
   rw [Bool.eq_iff_iff]
   simp

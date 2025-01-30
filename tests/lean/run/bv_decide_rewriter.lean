@@ -139,6 +139,12 @@ example (x y : BitVec 16) : (0 == x ||| y) = (x == 0 && y == 0) := by bv_normali
 example (x y : BitVec 16) : (x ^^^ y == 0) = (x == y) := by bv_normalize
 example (x y : BitVec 16) : (0 == x ^^^ y) = (x == y) := by bv_normalize
 
+-- xor_left_inj / xor_right_inj
+example (x y z : BitVec 16) : (x ^^^ z == y ^^^ z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (x ^^^ z == z ^^^ y) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z ^^^ x == y ^^^ z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z ^^^ x == z ^^^ y) = (x == y) := by bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

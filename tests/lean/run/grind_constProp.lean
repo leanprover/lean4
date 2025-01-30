@@ -3,6 +3,7 @@
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD
 
+set_option profiler true
 
 abbrev Var := String
 
@@ -103,7 +104,6 @@ example : State.get [x ↦ .int 10, y ↦ .int 20] "x" = .int 10 := rfl
 example : State.get [x ↦ 10, y ↦ 20] "x" = 10     := rfl
 example : State.get [x ↦ 10, y ↦ true] "y" = true := rfl
 
-set_option trace.grind.ematch.pattern true in
 @[simp, grind =] def Expr.eval (σ : State) : Expr → Option Val
   | val v   => some v
   | var x   => σ.get x

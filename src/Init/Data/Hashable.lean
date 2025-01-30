@@ -22,6 +22,12 @@ instance : Hashable Bool where
     | true  => 11
     | false => 13
 
+instance : Hashable PEmpty.{u} where
+  hash x := nomatch x
+
+instance : Hashable PUnit.{u} where
+  hash | .unit => 11
+
 instance [Hashable α] : Hashable (Option α) where
   hash
     | none   => 11

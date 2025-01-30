@@ -90,6 +90,18 @@ example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
 
+-- neg_mul / mul_neg
+example (x y : BitVec 16) : (-x) * y = -(x * y) := by bv_normalize
+example (x y : BitVec 16) : x * (-y) = -(x * y) := by bv_normalize
+example (x y : BitVec 16) : -x * -y = x * y := by bv_normalize
+example (x y : BitVec 16) : (~~~x + 1) * y = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * y = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : x * (~~~y + 1) = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : x * (1 + ~~~y) = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : (~~~x + 1) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (1 + ~~~y) = x * y := by bv_normalize
+
 -- lt_irrefl
 example (x : BitVec 16) : ¬x < x := by bv_normalize
 example (x : BitVec 16) : !(x.ult x) := by bv_normalize

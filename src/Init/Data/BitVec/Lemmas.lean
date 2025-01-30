@@ -2722,6 +2722,17 @@ theorem mul_eq_and {a b : BitVec 1} : a * b = a &&& b := by
   have hb : b = 0 ∨ b = 1 := eq_zero_or_eq_one _
   rcases ha with h | h <;> (rcases hb with h' | h' <;> (simp [h, h']))
 
+@[simp] protected theorem neg_mul (x y : BitVec w) : -x * y = -(x * y) := by
+  apply eq_of_toInt_eq
+  simp [toInt_neg]
+
+@[simp] protected theorem mul_neg (x y : BitVec w) : x * -y = -(x * y) := by
+  rw [BitVec.mul_comm, BitVec.neg_mul, BitVec.mul_comm]
+
+protected theorem neg_mul_neg (x y : BitVec w) : -x * -y = x * y := by simp
+
+protected theorem neg_mul_comm (x y : BitVec w) : -x * y = x * -y := by simp
+
 /-! ### le and lt -/
 
 @[bv_toNat] theorem le_def {x y : BitVec n} :

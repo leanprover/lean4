@@ -1232,16 +1232,11 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 
 /- ### umod -/
 
-theorem getElem_umod_of_pos {n d : BitVec w} (hi : i < w) (hd : 0#w < d) :
-    (umod n d)[i] = (divRec w {n, d} (DivModState.init w)).r[i] := by
-  rw [← BitVec.umod_eq_divRec] <;> simp [hd]
-
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     (umod n d)[i] = if d = 0#w then n[i] else (divRec w {n, d} (DivModState.init w)).r[i] := by
   by_cases hd : d = 0#w
   · simp [hd]
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
-    simp only [le_zero_iff] at this
     rw [← BitVec.umod_eq_divRec (by simp [hd, this])]
     simp [hd]
 

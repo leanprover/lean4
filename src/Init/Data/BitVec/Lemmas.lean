@@ -794,7 +794,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb =
     (decide (0 < len) && x.getLsbD (start + len - 1)) := by
-  rcases len with rfl | len
+  cases len
   · simp [BitVec.extractLsb', BitVec.msb]
   · simp [BitVec.msb, BitVec.getMsbD_eq_getLsbD, BitVec.getLsbD_extractLsb', ← Nat.add_assoc]
 

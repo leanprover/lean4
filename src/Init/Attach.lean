@@ -10,15 +10,6 @@ import Init.WF
 import Init.Data.List.Attach
 import Init.Data.Array.Attach
 
-/-
-At some point I tried to use this rule to upgrade `wfParam` to `….unattach` to only
-have a single rule for each function below. But then there are `xs.attach.unattach` below that were
-sometimes hard to reliably get rid of.
-
-So for now I keep `wfParam`, and have duplicate rules below.
-Maybe later I can create an attribute that takes the `xs.unattach`-rule and then produce the
-alternative form from it (like Mathlib’s `assoc` attribute).
-
 theorem List.wfParam_to_attach (xs : List α) :
     (wfParam xs) = xs.attach.unattach :=
   List.unattach_attach.symm
@@ -26,12 +17,6 @@ theorem List.wfParam_to_attach (xs : List α) :
 theorem Array.wfParam_to_attach (xs : Array α) :
     (wfParam xs) = xs.attach.unattach :=
   Array.unattach_attach.symm
--/
-
-set_option linter.unusedVariables false in
-theorem List.map_wfParam (xs : List α) (f : α → β) :
-    (wfParam xs).map f = xs.attach.map (fun ⟨x, h⟩ => f (wfParam x)) := by
-  simp [wfParam]
 
 set_option linter.unusedVariables false in
 theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β) :
@@ -39,25 +24,12 @@ theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → 
   simp [wfParam]
 
 set_option linter.unusedVariables false in
-theorem List.filter_wfParam (xs : List α) (f : α → Bool) :
-    (wfParam xs).filter f = (xs.attach.filter (fun ⟨x, h⟩ => f (wfParam x))).unattach := by
-  simp [wfParam]
-
-set_option linter.unusedVariables false in
 theorem List.filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Bool) :
     xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ => f (wfParam x))).unattach := by
   simp [wfParam]
 
-theorem List.reverse_wfParam (xs : List α) :
-    (wfParam xs).reverse = xs.attach.reverse.unattach := by simp [wfParam]
-
 theorem List.reverse_unattach (P : α → Prop) (xs : List (Subtype P)) :
     xs.unattach.reverse = xs.reverse.unattach := by simp
-
-set_option linter.unusedVariables false in
-theorem Array.map_wfParam (xs : Array α) (f : α → β) :
-    (wfParam xs).map f = xs.attach.map (fun ⟨x, h⟩ => f (wfParam x)) := by
-  simp [wfParam]
 
 set_option linter.unusedVariables false in
 theorem Array.map_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → β) :

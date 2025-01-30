@@ -14,7 +14,7 @@ namespace Lean.Parser.Tactic
 into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
 because the proof term is not duplicated.
 -/
-scoped syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
 
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with

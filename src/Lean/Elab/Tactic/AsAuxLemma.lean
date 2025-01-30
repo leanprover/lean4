@@ -1,5 +1,5 @@
 /-
-Copyright (c) Lean FRO, LLC. All rights reserved.
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Joachim Breitner
 -/
@@ -18,9 +18,9 @@ def elabAsAuxLemma : Lean.Elab.Tactic.Tactic
   liftMetaTactic fun mvarId => do
     let (mvars, _) ← runTactic mvarId s
     unless mvars.isEmpty do
-      throwError "Left-over goals, cannot abstract"
+      throwError "Cannot abstract term into auxiliary lemma because there are open goals."
     let e ← instantiateMVars (mkMVar mvarId)
-    let e ← mkAuxTheorem (`Lean.Elab.Tactic.AsAuxLemma ++ (← mkFreshUserName `test)) (← mvarId.getType) e
+    let e ← mkAuxTheorem (`Lean.Elab.Tactic.AsAuxLemma ++ (← mkFreshUserName `auxLemma)) (← mvarId.getType) e
     mvarId.assign e
     return []
 | _ => throwError "Invalid as_aux_lemma syntax"

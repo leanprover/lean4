@@ -960,6 +960,30 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         mkInjectiveTheorems e.view.declName
     return res
 
+/-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/
+private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) : TermElabM Unit := do
+  let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
+    logErrorAt init msg
+    throwErrorAt cur msg
+  -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
+  let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
+  for { view, .. } in elabs do
+    let typeDeclName := privateToUserName view.declName
+    if let some (prevNameIsType, prevRef) := uniqueNames[typeDeclName]? then
+      if prevNameIsType then
+        throwErrorsAt prevRef view.declId m!"cannot define multiple inductive types with the same name '{typeDeclName}'"
+      else
+        throwErrorsAt prevRef view.declId m!"cannot define an inductive type and a constructor with the same name '{typeDeclName}'"
+    uniqueNames := uniqueNames.insert typeDeclName (true, view.declId)
+    for ctor in view.ctors do
+      let ctorName := privateToUserName ctor.declName
+      if let some (prevNameIsType, prevRef) := uniqueNames[ctorName]? then
+        if prevNameIsType then
+          throwErrorsAt prevRef ctor.declId m!"cannot define an inductive type and a constructor with the same name '{typeDeclName}'"
+        else
+          throwErrorsAt prevRef ctor.declId m!"cannot define multiple constructors with the same name '{ctorName}'"
+      uniqueNames := uniqueNames.insert ctorName (false, ctor.declId)
+
 private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
   if indViews.all (·.computedFields.isEmpty) then return
 
@@ -1016,6 +1040,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   let (elabs, res) ← runTermElabM fun vars => do
     let elabs ← inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
     elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+    checkNoInductiveNameConflicts elabs
     let res ← elabInductiveViews vars elabs
     pure (elabs, res)
   elabInductiveViewsPostprocessing (elabs.map (·.view)) res

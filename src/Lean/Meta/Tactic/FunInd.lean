@@ -982,7 +982,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           let fns := infos.map fun info =>
             mkAppN (.const info.name (info.levelParams.map mkLevelParam)) xs
           let isRecCall : Expr → Option Expr := fun e => do
-            if let .some i := motives.indexOf? e.getAppFn then
+            if let .some i := motives.idxOf? e.getAppFn then
               if e.getAppNumArgs = motiveArities[i]! then
                 return mkAppN fns[i]! e.getAppArgs
             .none

@@ -26832,6 +26832,7 @@ lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_getOutParamPositions_x3f(x_15, x_10);
 lean_dec(x_10);
+lean_dec(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_dec(x_9);
@@ -27032,6 +27033,7 @@ lean_inc(x_55);
 lean_dec(x_53);
 x_56 = l_Lean_getOutParamPositions_x3f(x_55, x_10);
 lean_dec(x_10);
+lean_dec(x_55);
 if (lean_obj_tag(x_56) == 0)
 {
 lean_object* x_57; 

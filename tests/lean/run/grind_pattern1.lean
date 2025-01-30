@@ -19,9 +19,7 @@ grind_pattern List.mem_concat_self => a ∈ xs ++ [a]
 
 def foo (x : Nat) := x + x
 
-/--
-error: `foo` is not a theorem
--/
+/-- error: invalid E-matching theorem `foo`, type is not a proposition -/
 #guard_msgs in
 grind_pattern foo => x + x
 

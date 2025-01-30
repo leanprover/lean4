@@ -62,7 +62,7 @@ lean_object* l_Lean_Expr_getAppFn(lean_object*);
 static lean_object* l_Lean_Meta_Grind_propagateProjEq___lambda__3___closed__2;
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateProjEq___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateProjEq___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_Grind_propagateProjEq___spec__1___closed__1() {
 _start:
@@ -88,6 +88,7 @@ lean_dec(x_13);
 x_15 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_16 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_Grind_propagateProjEq___spec__1___closed__1;
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
+lean_dec(x_14);
 lean_ctor_set(x_11, 0, x_17);
 return x_11;
 }
@@ -105,6 +106,7 @@ lean_dec(x_18);
 x_21 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_22 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_Grind_propagateProjEq___spec__1___closed__1;
 x_23 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_21, x_22, x_20, x_1);
+lean_dec(x_20);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_19);
@@ -448,7 +450,7 @@ lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_19);
-x_25 = l_Lean_Meta_Grind_internalize(x_19, x_22, x_24, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_23);
+x_25 = lean_grind_internalize(x_19, x_22, x_24, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13, x_23);
 if (lean_obj_tag(x_25) == 0)
 {
 lean_object* x_26; lean_object* x_27; 

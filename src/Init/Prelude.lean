@@ -2706,7 +2706,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   If `start` is greater or equal to `stop`, the result is empty.
   If `stop` is greater than the length of `as`, the length is used instead. -/
 -- NOTE: used in the quotation elaborator output
-def Array.extract (as : Array α) (start stop : Nat) : Array α :=
+def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
     dite (LT.lt j as.size)
       (fun hlt =>

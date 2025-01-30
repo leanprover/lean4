@@ -89,10 +89,12 @@ structure Counters where
   case : PHashMap Name Nat := {}
   deriving Inhabited
 
+private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
   /-- Next index for creating auxiliary theorems. -/
   nextThmIdx : Nat := 1
   /--
@@ -105,6 +107,8 @@ structure State where
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -137,6 +141,14 @@ def getTrueExpr : GrindM Expr := do
 /-- Returns the internalized `False` constant.  -/
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
+
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : GrindM Expr := do
+  return (← get).btrueExpr
+
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : GrindM Expr := do
+  return (← get).bfalseExpr
 
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
@@ -189,9 +201,10 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace, counters } =>
-    let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues, trace, counters })
+  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
+  let (e, scState) := ShareCommon.State.shareCommon scState e
+  modify fun s => { s with scState }
+  return e
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=

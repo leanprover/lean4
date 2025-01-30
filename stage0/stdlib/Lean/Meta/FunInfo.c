@@ -3153,6 +3153,7 @@ lean_inc(x_62);
 lean_dec(x_60);
 x_63 = l_Lean_getOutParamPositions_x3f(x_62, x_58);
 lean_dec(x_58);
+lean_dec(x_62);
 if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; 
@@ -3436,6 +3437,7 @@ lean_inc(x_120);
 lean_dec(x_118);
 x_121 = l_Lean_getOutParamPositions_x3f(x_120, x_116);
 lean_dec(x_116);
+lean_dec(x_120);
 if (lean_obj_tag(x_121) == 0)
 {
 lean_object* x_122; lean_object* x_123; 
@@ -4042,6 +4044,7 @@ lean_inc(x_61);
 lean_dec(x_59);
 x_62 = l_Lean_getOutParamPositions_x3f(x_61, x_57);
 lean_dec(x_57);
+lean_dec(x_61);
 if (lean_obj_tag(x_62) == 0)
 {
 lean_object* x_63; 
@@ -4325,6 +4328,7 @@ lean_inc(x_119);
 lean_dec(x_117);
 x_120 = l_Lean_getOutParamPositions_x3f(x_119, x_115);
 lean_dec(x_115);
+lean_dec(x_119);
 if (lean_obj_tag(x_120) == 0)
 {
 lean_object* x_121; lean_object* x_122; 

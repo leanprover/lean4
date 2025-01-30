@@ -45,8 +45,6 @@ info: [grind] Counters
   [thm] E-Matching instances
     [thm] Array.get_set_ne ↦ 3
     [thm] Array.size_set ↦ 3
-  [cases] Case splits
-    [cases] And ↦ 2
 ---
 info: [diag] Diagnostics
   [reduction] unfolded declarations (max: 11822, num: 2):

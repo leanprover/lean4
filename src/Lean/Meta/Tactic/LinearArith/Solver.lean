@@ -37,8 +37,8 @@ abbrev Assignment.get? (a : Assignment) (x : Var) : Option Rat :=
 abbrev Assignment.push (a : Assignment) (v : Rat) : Assignment :=
   { a with val := a.val.push v }
 
-abbrev Assignment.take (a : Assignment) (newSize : Nat) : Assignment :=
-  { a with val := a.val.take newSize }
+abbrev Assignment.shrink (a : Assignment) (newSize : Nat) : Assignment :=
+  { a with val := a.val.shrink newSize }
 
 structure Poly where
   val : Array (Int × Var)
@@ -243,7 +243,7 @@ def resolve (s : State) (cl : Cnstr) (cu : Cnstr) : Sum Result State :=
     let maxVarIdx := c.lhs.getMaxVar.id
     match s with -- Hack: we avoid { s with ... } to make sure we get a destructive update
     | { lowers, uppers, int, assignment, } =>
-      let assignment := assignment.take maxVarIdx
+      let assignment := assignment.shrink maxVarIdx
       if c.lhs.getMaxVarCoeff < 0 then
         let lowers := lowers.modify maxVarIdx (·.push c)
         Sum.inr { lowers, uppers, int, assignment }

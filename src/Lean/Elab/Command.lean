@@ -496,8 +496,8 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                     newStx := stxNew
                     newNextMacroScope := nextMacroScope
                     hasTraces
-                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
-                      { range? := cmd.getRange?, task := cmdPromise.result }
+                    next := Array.zipWith (fun cmdPromise cmd =>
+                      { range? := cmd.getRange?, task := cmdPromise.result }) cmdPromises cmds
                     : MacroExpandedSnapshot
                   }
                   -- After the first command whose syntax tree changed, we must disable

@@ -24,3 +24,4 @@ import Init.Data.Array.Perm
 import Init.Data.Array.Find
 import Init.Data.Array.Lex
 import Init.Data.Array.Erase
+import Init.Data.Array.Zip

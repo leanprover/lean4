@@ -106,4 +106,11 @@ theorem eqNDRec_heq.{u_1, u_2} {α : Sort u_2} {a : α}
         : HEq (@Eq.ndrec α a motive v b h) v := by
  subst h; rfl
 
+/-! decide -/
+
+theorem of_decide_eq_true {p : Prop} {_ : Decidable p} : decide p = true → p = True := by simp
+theorem of_decide_eq_false {p : Prop} {_ : Decidable p} : decide p = false → p = False := by simp
+theorem decide_eq_true {p : Prop} {_ : Decidable p} : p = True → decide p = true := by simp
+theorem decide_eq_false {p : Prop} {_ : Decidable p} : p = False → decide p = false := by simp
+
 end Lean.Grind

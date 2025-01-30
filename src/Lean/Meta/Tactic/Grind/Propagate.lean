@@ -128,6 +128,16 @@ builtin_grind_propagator propagateEqUp ↑Eq := fun e => do
     pushEq e a <| mkApp3 (mkConst ``Lean.Grind.eq_eq_of_eq_true_right) a b (← mkEqTrueProof b)
   else if (← isEqv a b) then
     pushEqTrue e <| mkEqTrueCore e (← mkEqProof a b)
+  let aRoot ← getRootENode a
+  let bRoot ← getRootENode b
+  if aRoot.ctor && bRoot.ctor && aRoot.self.getAppFn != bRoot.self.getAppFn then
+    -- ¬a = b
+    let hne ← withLocalDeclD `h (← mkEq a b) fun h => do
+      let hf ← mkEqTrans (← mkEqProof aRoot.self a) h
+      let hf ← mkEqTrans hf (← mkEqProof b bRoot.self)
+      let hf ← mkNoConfusion (← getFalseExpr) hf
+      mkLambdaFVars #[h] hf
+    pushEqFalse e <| mkApp2 (mkConst ``eq_false) e hne
 
 /-- Propagates `Eq` downwards -/
 builtin_grind_propagator propagateEqDown ↓Eq := fun e => do
@@ -196,5 +206,21 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
      let h₂ ← p.getProof
      internalize r (← getGeneration e)
      pushEq e r <| mkApp8 (mkConst ``Grind.dite_cond_eq_false' f.constLevels!) α c h a b r h₁ h₂
+
+builtin_grind_propagator propagateDecideDown ↓decide := fun e => do
+  let root ← getRootENode e
+  unless root.ctor do return ()
+  let_expr decide p h := e | return ()
+  if root.self.isConstOf ``true then
+    pushEqTrue p <| mkApp3 (mkConst ``Grind.of_decide_eq_true) p h (← mkEqProof e root.self)
+  else if root.self.isConstOf ``false then
+    pushEqFalse p <| mkApp3 (mkConst ``Grind.of_decide_eq_false) p h (← mkEqProof e root.self)
+
+builtin_grind_propagator propagateDecideUp ↑decide := fun e => do
+  let_expr decide p h := e | return ()
+  if (← isEqTrue p) then
+    pushEq e (← getBoolTrueExpr) <| mkApp3 (mkConst ``Grind.decide_eq_true) p h (← mkEqTrueProof p)
+  else if (← isEqFalse p) then
+    pushEq e (← getBoolFalseExpr) <| mkApp3 (mkConst ``Grind.decide_eq_false) p h (← mkEqFalseProof p)
 
 end Lean.Meta.Grind

@@ -40,7 +40,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_toMonoType_visitApp___spec__3(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(lean_object*, lean_object*);
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 extern lean_object* l_Lean_Compiler_LCNF_erasedExpr;
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -63,7 +62,6 @@ static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LC
 static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_253____closed__15;
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___lambda__1___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_MonoTypes___hyg_1660____closed__1;
-lean_object* l_Lean_EnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__2;
 lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__4(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
@@ -106,7 +104,9 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_toMonoType_visitApp___spec__6(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_getOtherDeclBaseType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_253____closed__11;
+lean_object* l_Lean_EnvExtension_getStateUnsafe___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__2;
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Compiler_LCNF_MonoTypes_0__Lean_Compiler_LCNF_reprTrivialStructureInfo____x40_Lean_Compiler_LCNF_MonoTypes___hyg_253____closed__18;
 static lean_object* l_Lean_Compiler_LCNF_getRelevantCtorFields___closed__15;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Compiler_LCNF_hasTrivialStructure_x3f___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -5680,7 +5680,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lean_Compiler_LCNF_initFn____x40_Lean_Compiler_LCNF_MonoTypes___hyg_1660____closed__1;
-x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -5727,7 +5727,8 @@ lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_11 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
-x_12 = l_Lean_EnvExtension_getState___rarg(x_10, x_11, x_9);
+x_12 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_10, x_11, x_9);
+lean_dec(x_9);
 x_13 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_12, x_1);
 if (lean_obj_tag(x_13) == 0)
 {
@@ -5932,7 +5933,8 @@ lean_inc(x_61);
 lean_dec(x_59);
 x_62 = l_Lean_Compiler_LCNF_instInhabitedMonoTypeExtState;
 x_63 = l_Lean_Compiler_LCNF_getOtherDeclMonoType___closed__1;
-x_64 = l_Lean_EnvExtension_getState___rarg(x_62, x_63, x_61);
+x_64 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_62, x_63, x_61);
+lean_dec(x_61);
 x_65 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Compiler_LCNF_getOtherDeclBaseType___spec__1(x_64, x_1);
 if (lean_obj_tag(x_65) == 0)
 {

@@ -42,6 +42,6 @@ example : #[0, 1, 2].insertIdx 1 3 = #[0, 3, 1, 2] := by decide
 
 example : #[0, 1, 2].isPrefixOf #[0, 1, 2, 3] = true := by decide
 
-example : #[0, 1, 2].zipWith #[3, 4, 5] (· + ·) = #[3, 5, 7] := by decide
+example : Array.zipWith (· + ·) #[0, 1, 2] #[3, 4, 5] = #[3, 5, 7] := by decide
 
 example : #[0, 1, 2].allDiff = true := by decide

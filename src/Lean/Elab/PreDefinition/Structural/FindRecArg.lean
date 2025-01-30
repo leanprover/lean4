@@ -32,8 +32,8 @@ def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run do
   let mut minPos := xs.size
   for index in indices do
-    match xs.indexOf? index with
-    | some pos => if pos.val < minPos then minPos := pos.val
+    match xs.idxOf? index with
+    | some pos => if pos < minPos then minPos := pos
     | _        => pure ()
   return minPos
 
@@ -91,8 +91,8 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
             let indAll := indInfo.all.toArray
-            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
-            let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
+            let .some indIdx := indAll.idxOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
+            let indicesPos := indIndices.map fun index => match xs.idxOf? index with | some i => i | none => unreachable!
             let indGroupInst := {
               IndGroupInfo.ofInductiveVal indInfo with
               levels := us
@@ -208,7 +208,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
             -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
             continue
-          let indicesPos := indIndices.map fun index => match (xs++ys).indexOf? index with | some i => i.val | none => unreachable!
+          let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
               numFixed     := recArgInfo.numFixed

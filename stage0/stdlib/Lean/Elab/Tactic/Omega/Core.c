@@ -122,7 +122,6 @@ static lean_object* l___auto____x40_Lean_Elab_Tactic_Omega_Core___hyg_1682____cl
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_proof___rarg___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_proof___rarg___closed__2;
-lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData(lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__3___closed__11;
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
@@ -317,6 +316,7 @@ static lean_object* l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tactic_Omeg
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_toString___closed__16;
 lean_object* l_Int_bmod(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__10;
+lean_object* l_List_findIdx_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_addEquality__proof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_thunk(lean_object*);
@@ -501,7 +501,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_instToExprLinearCombo___lambda
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Tactic_Omega_Problem_fourierMotzkinSelect___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Elab_Tactic_Omega_Problem_instToStringFourierMotzkinData___spec__2(lean_object*, lean_object*);
 lean_object* l_List_toString___at_Lean_MetavarContext_MkBinding_instToStringException___spec__2(lean_object*);
-lean_object* l_List_enumFrom___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_comboProof___closed__1;
 lean_object* l_List_minNatAbs(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
@@ -9557,13 +9556,12 @@ return x_7;
 LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_2 = lean_ctor_get(x_1, 1);
-x_3 = lean_nat_abs(x_2);
-x_4 = lean_unsigned_to_nat(1u);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_3);
-return x_5;
+lean_object* x_2; lean_object* x_3; uint8_t x_4; 
+x_2 = lean_nat_abs(x_1);
+x_3 = lean_unsigned_to_nat(1u);
+x_4 = lean_nat_dec_eq(x_2, x_3);
+lean_dec(x_2);
+return x_4;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___lambda__2(lean_object* x_1) {
@@ -9634,262 +9632,258 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = lean_unsigned_to_nat(0u);
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_3 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__1;
+x_4 = lean_unsigned_to_nat(0u);
 lean_inc(x_2);
-x_4 = l_List_enumFrom___rarg(x_3, x_2);
-x_5 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__1;
-x_6 = l_List_find_x3f___rarg(x_5, x_4);
-x_7 = lean_ctor_get(x_1, 2);
-lean_inc(x_7);
-if (lean_obj_tag(x_6) == 0)
+x_5 = l_List_findIdx_x3f___rarg(x_3, x_2, x_4);
+x_6 = lean_ctor_get(x_1, 2);
+lean_inc(x_6);
+if (lean_obj_tag(x_5) == 0)
 {
-x_8 = x_3;
-goto block_94;
+x_7 = x_4;
+goto block_93;
 }
 else
 {
-lean_object* x_95; lean_object* x_96; 
-x_95 = lean_ctor_get(x_6, 0);
-lean_inc(x_95);
-lean_dec(x_6);
-x_96 = lean_ctor_get(x_95, 0);
-lean_inc(x_96);
-lean_dec(x_95);
-x_8 = x_96;
-goto block_94;
+lean_object* x_94; 
+x_94 = lean_ctor_get(x_5, 0);
+lean_inc(x_94);
+lean_dec(x_5);
+x_7 = x_94;
+goto block_93;
 }
-block_94:
+block_93:
 {
-lean_object* x_9; lean_object* x_10; uint8_t x_11; 
-lean_inc(x_8);
-x_9 = l_Lean_Omega_IntList_get(x_2, x_8);
-x_10 = l_Int_sign(x_9);
-lean_dec(x_9);
-x_11 = !lean_is_exclusive(x_7);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; uint64_t x_21; uint64_t x_22; size_t x_23; size_t x_24; size_t x_25; size_t x_26; size_t x_27; lean_object* x_28; lean_object* x_29; 
-x_12 = lean_ctor_get(x_7, 1);
-x_13 = lean_ctor_get(x_7, 0);
-lean_dec(x_13);
-x_14 = lean_array_get_size(x_12);
-x_15 = 7;
-x_16 = l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__1(x_15, x_2);
-x_17 = 32;
-x_18 = lean_uint64_shift_right(x_16, x_17);
-x_19 = lean_uint64_xor(x_16, x_18);
-x_20 = 16;
-x_21 = lean_uint64_shift_right(x_19, x_20);
-x_22 = lean_uint64_xor(x_19, x_21);
-x_23 = lean_uint64_to_usize(x_22);
-x_24 = lean_usize_of_nat(x_14);
-x_25 = 1;
-x_26 = lean_usize_sub(x_24, x_25);
-x_27 = lean_usize_land(x_23, x_26);
-x_28 = lean_array_uget(x_12, x_27);
-x_29 = l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_Omega_Problem_addConstraint___spec__1(x_2, x_28);
-lean_dec(x_28);
-lean_dec(x_2);
-if (lean_obj_tag(x_29) == 0)
-{
-lean_dec(x_14);
-lean_free_object(x_7);
-lean_dec(x_12);
-lean_dec(x_10);
+lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+lean_inc(x_7);
+x_8 = l_Lean_Omega_IntList_get(x_2, x_7);
+x_9 = l_Int_sign(x_8);
 lean_dec(x_8);
+x_10 = !lean_is_exclusive(x_6);
+if (x_10 == 0)
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; uint64_t x_14; uint64_t x_15; uint64_t x_16; uint64_t x_17; uint64_t x_18; uint64_t x_19; uint64_t x_20; uint64_t x_21; size_t x_22; size_t x_23; size_t x_24; size_t x_25; size_t x_26; lean_object* x_27; lean_object* x_28; 
+x_11 = lean_ctor_get(x_6, 1);
+x_12 = lean_ctor_get(x_6, 0);
+lean_dec(x_12);
+x_13 = lean_array_get_size(x_11);
+x_14 = 7;
+x_15 = l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__1(x_14, x_2);
+x_16 = 32;
+x_17 = lean_uint64_shift_right(x_15, x_16);
+x_18 = lean_uint64_xor(x_15, x_17);
+x_19 = 16;
+x_20 = lean_uint64_shift_right(x_18, x_19);
+x_21 = lean_uint64_xor(x_18, x_20);
+x_22 = lean_uint64_to_usize(x_21);
+x_23 = lean_usize_of_nat(x_13);
+x_24 = 1;
+x_25 = lean_usize_sub(x_23, x_24);
+x_26 = lean_usize_land(x_22, x_25);
+x_27 = lean_array_uget(x_11, x_26);
+x_28 = l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_Omega_Problem_addConstraint___spec__1(x_2, x_27);
+lean_dec(x_27);
+lean_dec(x_2);
+if (lean_obj_tag(x_28) == 0)
+{
+lean_dec(x_13);
+lean_free_object(x_6);
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_7);
 return x_1;
 }
 else
 {
-lean_object* x_30; lean_object* x_31; lean_object* x_32; uint8_t x_33; 
-x_30 = lean_ctor_get(x_29, 0);
+lean_object* x_29; lean_object* x_30; lean_object* x_31; uint8_t x_32; 
+x_29 = lean_ctor_get(x_28, 0);
+lean_inc(x_29);
+lean_dec(x_28);
+x_30 = lean_ctor_get(x_1, 0);
 lean_inc(x_30);
-lean_dec(x_29);
-x_31 = lean_ctor_get(x_1, 0);
-lean_inc(x_31);
-lean_inc(x_10);
-lean_inc(x_8);
-lean_ctor_set(x_7, 1, x_10);
-lean_ctor_set(x_7, 0, x_8);
-lean_inc(x_30);
-x_32 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_32, 0, x_30);
-lean_ctor_set(x_32, 1, x_7);
-x_33 = !lean_is_exclusive(x_1);
-if (x_33 == 0)
+lean_inc(x_9);
+lean_inc(x_7);
+lean_ctor_set(x_6, 1, x_9);
+lean_ctor_set(x_6, 0, x_7);
+lean_inc(x_29);
+x_31 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_31, 0, x_29);
+lean_ctor_set(x_31, 1, x_6);
+x_32 = !lean_is_exclusive(x_1);
+if (x_32 == 0)
 {
-lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; uint8_t x_44; lean_object* x_45; uint8_t x_46; 
-x_34 = lean_ctor_get(x_1, 4);
-x_35 = lean_ctor_get(x_1, 6);
+lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; uint8_t x_43; lean_object* x_44; uint8_t x_45; 
+x_33 = lean_ctor_get(x_1, 4);
+x_34 = lean_ctor_get(x_1, 6);
+lean_dec(x_34);
+x_35 = lean_ctor_get(x_1, 5);
 lean_dec(x_35);
-x_36 = lean_ctor_get(x_1, 5);
+x_36 = lean_ctor_get(x_1, 3);
 lean_dec(x_36);
-x_37 = lean_ctor_get(x_1, 3);
+x_37 = lean_ctor_get(x_1, 2);
 lean_dec(x_37);
-x_38 = lean_ctor_get(x_1, 2);
+x_38 = lean_ctor_get(x_1, 1);
 lean_dec(x_38);
-x_39 = lean_ctor_get(x_1, 1);
+x_39 = lean_ctor_get(x_1, 0);
 lean_dec(x_39);
-x_40 = lean_ctor_get(x_1, 0);
-lean_dec(x_40);
-x_41 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_41, 0, x_32);
-lean_ctor_set(x_41, 1, x_34);
-x_42 = lean_box(0);
-x_43 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
-x_44 = 1;
-x_45 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
-lean_ctor_set(x_1, 6, x_45);
-lean_ctor_set(x_1, 5, x_42);
-lean_ctor_set(x_1, 4, x_41);
-lean_ctor_set(x_1, 3, x_43);
-lean_ctor_set(x_1, 2, x_43);
-lean_ctor_set(x_1, 1, x_3);
-lean_ctor_set_uint8(x_1, sizeof(void*)*7, x_44);
-x_46 = lean_nat_dec_lt(x_3, x_14);
+x_40 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_40, 0, x_31);
+lean_ctor_set(x_40, 1, x_33);
+x_41 = lean_box(0);
+x_42 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
+x_43 = 1;
+x_44 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
+lean_ctor_set(x_1, 6, x_44);
+lean_ctor_set(x_1, 5, x_41);
+lean_ctor_set(x_1, 4, x_40);
+lean_ctor_set(x_1, 3, x_42);
+lean_ctor_set(x_1, 2, x_42);
+lean_ctor_set(x_1, 1, x_4);
+lean_ctor_set_uint8(x_1, sizeof(void*)*7, x_43);
+x_45 = lean_nat_dec_lt(x_4, x_13);
+if (x_45 == 0)
+{
+lean_dec(x_29);
+lean_dec(x_13);
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_7);
+return x_1;
+}
+else
+{
+uint8_t x_46; 
+x_46 = lean_nat_dec_le(x_13, x_13);
+lean_dec(x_13);
 if (x_46 == 0)
 {
-lean_dec(x_30);
-lean_dec(x_14);
-lean_dec(x_12);
-lean_dec(x_10);
-lean_dec(x_8);
+lean_dec(x_29);
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_7);
 return x_1;
 }
 else
 {
-uint8_t x_47; 
-x_47 = lean_nat_dec_le(x_14, x_14);
-lean_dec(x_14);
-if (x_47 == 0)
-{
-lean_dec(x_30);
-lean_dec(x_12);
-lean_dec(x_10);
-lean_dec(x_8);
-return x_1;
-}
-else
-{
-size_t x_48; lean_object* x_49; 
-x_48 = 0;
-x_49 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_8, x_10, x_30, x_12, x_48, x_24, x_1);
-lean_dec(x_12);
-lean_dec(x_10);
-return x_49;
+size_t x_47; lean_object* x_48; 
+x_47 = 0;
+x_48 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_7, x_9, x_29, x_11, x_47, x_23, x_1);
+lean_dec(x_11);
+lean_dec(x_9);
+return x_48;
 }
 }
 }
 else
 {
-lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; 
-x_50 = lean_ctor_get(x_1, 4);
-lean_inc(x_50);
+lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; uint8_t x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; 
+x_49 = lean_ctor_get(x_1, 4);
+lean_inc(x_49);
 lean_dec(x_1);
-x_51 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_51, 0, x_32);
-lean_ctor_set(x_51, 1, x_50);
-x_52 = lean_box(0);
-x_53 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
-x_54 = 1;
-x_55 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
-x_56 = lean_alloc_ctor(0, 7, 1);
-lean_ctor_set(x_56, 0, x_31);
-lean_ctor_set(x_56, 1, x_3);
-lean_ctor_set(x_56, 2, x_53);
-lean_ctor_set(x_56, 3, x_53);
-lean_ctor_set(x_56, 4, x_51);
-lean_ctor_set(x_56, 5, x_52);
-lean_ctor_set(x_56, 6, x_55);
-lean_ctor_set_uint8(x_56, sizeof(void*)*7, x_54);
-x_57 = lean_nat_dec_lt(x_3, x_14);
+x_50 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_50, 0, x_31);
+lean_ctor_set(x_50, 1, x_49);
+x_51 = lean_box(0);
+x_52 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
+x_53 = 1;
+x_54 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
+x_55 = lean_alloc_ctor(0, 7, 1);
+lean_ctor_set(x_55, 0, x_30);
+lean_ctor_set(x_55, 1, x_4);
+lean_ctor_set(x_55, 2, x_52);
+lean_ctor_set(x_55, 3, x_52);
+lean_ctor_set(x_55, 4, x_50);
+lean_ctor_set(x_55, 5, x_51);
+lean_ctor_set(x_55, 6, x_54);
+lean_ctor_set_uint8(x_55, sizeof(void*)*7, x_53);
+x_56 = lean_nat_dec_lt(x_4, x_13);
+if (x_56 == 0)
+{
+lean_dec(x_29);
+lean_dec(x_13);
+lean_dec(x_11);
+lean_dec(x_9);
+lean_dec(x_7);
+return x_55;
+}
+else
+{
+uint8_t x_57; 
+x_57 = lean_nat_dec_le(x_13, x_13);
+lean_dec(x_13);
 if (x_57 == 0)
 {
-lean_dec(x_30);
-lean_dec(x_14);
-lean_dec(x_12);
-lean_dec(x_10);
-lean_dec(x_8);
-return x_56;
-}
-else
-{
-uint8_t x_58; 
-x_58 = lean_nat_dec_le(x_14, x_14);
-lean_dec(x_14);
-if (x_58 == 0)
-{
-lean_dec(x_30);
-lean_dec(x_12);
-lean_dec(x_10);
-lean_dec(x_8);
-return x_56;
-}
-else
-{
-size_t x_59; lean_object* x_60; 
-x_59 = 0;
-x_60 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_8, x_10, x_30, x_12, x_59, x_24, x_56);
-lean_dec(x_12);
-lean_dec(x_10);
-return x_60;
-}
-}
-}
-}
-}
-else
-{
-lean_object* x_61; lean_object* x_62; uint64_t x_63; uint64_t x_64; uint64_t x_65; uint64_t x_66; uint64_t x_67; uint64_t x_68; uint64_t x_69; uint64_t x_70; size_t x_71; size_t x_72; size_t x_73; size_t x_74; size_t x_75; lean_object* x_76; lean_object* x_77; 
-x_61 = lean_ctor_get(x_7, 1);
-lean_inc(x_61);
+lean_dec(x_29);
+lean_dec(x_11);
+lean_dec(x_9);
 lean_dec(x_7);
-x_62 = lean_array_get_size(x_61);
-x_63 = 7;
-x_64 = l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__1(x_63, x_2);
-x_65 = 32;
-x_66 = lean_uint64_shift_right(x_64, x_65);
-x_67 = lean_uint64_xor(x_64, x_66);
-x_68 = 16;
-x_69 = lean_uint64_shift_right(x_67, x_68);
-x_70 = lean_uint64_xor(x_67, x_69);
-x_71 = lean_uint64_to_usize(x_70);
-x_72 = lean_usize_of_nat(x_62);
-x_73 = 1;
-x_74 = lean_usize_sub(x_72, x_73);
-x_75 = lean_usize_land(x_71, x_74);
-x_76 = lean_array_uget(x_61, x_75);
-x_77 = l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_Omega_Problem_addConstraint___spec__1(x_2, x_76);
-lean_dec(x_76);
-lean_dec(x_2);
-if (lean_obj_tag(x_77) == 0)
+return x_55;
+}
+else
 {
-lean_dec(x_62);
+size_t x_58; lean_object* x_59; 
+x_58 = 0;
+x_59 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_7, x_9, x_29, x_11, x_58, x_23, x_55);
+lean_dec(x_11);
+lean_dec(x_9);
+return x_59;
+}
+}
+}
+}
+}
+else
+{
+lean_object* x_60; lean_object* x_61; uint64_t x_62; uint64_t x_63; uint64_t x_64; uint64_t x_65; uint64_t x_66; uint64_t x_67; uint64_t x_68; uint64_t x_69; size_t x_70; size_t x_71; size_t x_72; size_t x_73; size_t x_74; lean_object* x_75; lean_object* x_76; 
+x_60 = lean_ctor_get(x_6, 1);
+lean_inc(x_60);
+lean_dec(x_6);
+x_61 = lean_array_get_size(x_60);
+x_62 = 7;
+x_63 = l_List_foldl___at_Lean_Elab_Tactic_Omega_Problem_insertConstraint___spec__1(x_62, x_2);
+x_64 = 32;
+x_65 = lean_uint64_shift_right(x_63, x_64);
+x_66 = lean_uint64_xor(x_63, x_65);
+x_67 = 16;
+x_68 = lean_uint64_shift_right(x_66, x_67);
+x_69 = lean_uint64_xor(x_66, x_68);
+x_70 = lean_uint64_to_usize(x_69);
+x_71 = lean_usize_of_nat(x_61);
+x_72 = 1;
+x_73 = lean_usize_sub(x_71, x_72);
+x_74 = lean_usize_land(x_70, x_73);
+x_75 = lean_array_uget(x_60, x_74);
+x_76 = l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Elab_Tactic_Omega_Problem_addConstraint___spec__1(x_2, x_75);
+lean_dec(x_75);
+lean_dec(x_2);
+if (lean_obj_tag(x_76) == 0)
+{
 lean_dec(x_61);
-lean_dec(x_10);
-lean_dec(x_8);
+lean_dec(x_60);
+lean_dec(x_9);
+lean_dec(x_7);
 return x_1;
 }
 else
 {
-lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; lean_object* x_86; uint8_t x_87; lean_object* x_88; lean_object* x_89; uint8_t x_90; 
-x_78 = lean_ctor_get(x_77, 0);
+lean_object* x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; lean_object* x_83; lean_object* x_84; lean_object* x_85; uint8_t x_86; lean_object* x_87; lean_object* x_88; uint8_t x_89; 
+x_77 = lean_ctor_get(x_76, 0);
+lean_inc(x_77);
+lean_dec(x_76);
+x_78 = lean_ctor_get(x_1, 0);
 lean_inc(x_78);
-lean_dec(x_77);
-x_79 = lean_ctor_get(x_1, 0);
-lean_inc(x_79);
-lean_inc(x_10);
-lean_inc(x_8);
+lean_inc(x_9);
+lean_inc(x_7);
+x_79 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_79, 0, x_7);
+lean_ctor_set(x_79, 1, x_9);
+lean_inc(x_77);
 x_80 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_80, 0, x_8);
-lean_ctor_set(x_80, 1, x_10);
-lean_inc(x_78);
-x_81 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_81, 0, x_78);
-lean_ctor_set(x_81, 1, x_80);
-x_82 = lean_ctor_get(x_1, 4);
-lean_inc(x_82);
+lean_ctor_set(x_80, 0, x_77);
+lean_ctor_set(x_80, 1, x_79);
+x_81 = lean_ctor_get(x_1, 4);
+lean_inc(x_81);
 if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 0);
  lean_ctor_release(x_1, 1);
@@ -9898,62 +9892,62 @@ if (lean_is_exclusive(x_1)) {
  lean_ctor_release(x_1, 4);
  lean_ctor_release(x_1, 5);
  lean_ctor_release(x_1, 6);
- x_83 = x_1;
+ x_82 = x_1;
 } else {
  lean_dec_ref(x_1);
- x_83 = lean_box(0);
+ x_82 = lean_box(0);
 }
-x_84 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_84, 0, x_81);
-lean_ctor_set(x_84, 1, x_82);
-x_85 = lean_box(0);
-x_86 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
-x_87 = 1;
-x_88 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
-if (lean_is_scalar(x_83)) {
- x_89 = lean_alloc_ctor(0, 7, 1);
+x_83 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_83, 0, x_80);
+lean_ctor_set(x_83, 1, x_81);
+x_84 = lean_box(0);
+x_85 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__4;
+x_86 = 1;
+x_87 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__6;
+if (lean_is_scalar(x_82)) {
+ x_88 = lean_alloc_ctor(0, 7, 1);
 } else {
- x_89 = x_83;
+ x_88 = x_82;
 }
-lean_ctor_set(x_89, 0, x_79);
-lean_ctor_set(x_89, 1, x_3);
-lean_ctor_set(x_89, 2, x_86);
-lean_ctor_set(x_89, 3, x_86);
-lean_ctor_set(x_89, 4, x_84);
-lean_ctor_set(x_89, 5, x_85);
-lean_ctor_set(x_89, 6, x_88);
-lean_ctor_set_uint8(x_89, sizeof(void*)*7, x_87);
-x_90 = lean_nat_dec_lt(x_3, x_62);
+lean_ctor_set(x_88, 0, x_78);
+lean_ctor_set(x_88, 1, x_4);
+lean_ctor_set(x_88, 2, x_85);
+lean_ctor_set(x_88, 3, x_85);
+lean_ctor_set(x_88, 4, x_83);
+lean_ctor_set(x_88, 5, x_84);
+lean_ctor_set(x_88, 6, x_87);
+lean_ctor_set_uint8(x_88, sizeof(void*)*7, x_86);
+x_89 = lean_nat_dec_lt(x_4, x_61);
+if (x_89 == 0)
+{
+lean_dec(x_77);
+lean_dec(x_61);
+lean_dec(x_60);
+lean_dec(x_9);
+lean_dec(x_7);
+return x_88;
+}
+else
+{
+uint8_t x_90; 
+x_90 = lean_nat_dec_le(x_61, x_61);
+lean_dec(x_61);
 if (x_90 == 0)
 {
-lean_dec(x_78);
-lean_dec(x_62);
-lean_dec(x_61);
-lean_dec(x_10);
-lean_dec(x_8);
-return x_89;
+lean_dec(x_77);
+lean_dec(x_60);
+lean_dec(x_9);
+lean_dec(x_7);
+return x_88;
 }
 else
 {
-uint8_t x_91; 
-x_91 = lean_nat_dec_le(x_62, x_62);
-lean_dec(x_62);
-if (x_91 == 0)
-{
-lean_dec(x_78);
-lean_dec(x_61);
-lean_dec(x_10);
-lean_dec(x_8);
-return x_89;
-}
-else
-{
-size_t x_92; lean_object* x_93; 
-x_92 = 0;
-x_93 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_8, x_10, x_78, x_61, x_92, x_72, x_89);
-lean_dec(x_61);
-lean_dec(x_10);
-return x_93;
+size_t x_91; lean_object* x_92; 
+x_91 = 0;
+x_92 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___spec__2(x_7, x_9, x_77, x_60, x_91, x_71, x_88);
+lean_dec(x_60);
+lean_dec(x_9);
+return x_92;
 }
 }
 }

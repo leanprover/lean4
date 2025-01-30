@@ -2,7 +2,7 @@ import Std.Tactic.BVDecide
 
 open BitVec
 
-theorem bv_axiomCheck (x y : BitVec 1) : x + y = y + x := by
+theorem bv_axiomCheck (x : BitVec 2) : x &&& 1 = (x <<< 1) >>> 1 := by
   bv_decide
 
 /--

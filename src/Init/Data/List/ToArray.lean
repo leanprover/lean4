@@ -537,7 +537,7 @@ termination_by xs.length - i
   rw [Array.eraseP, List.eraseP_eq_eraseIdx, findFinIdx?_toArray]
   split <;> simp [*, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem erase_toArray [BEq α] [LawfulBEq α] {as : List α} {a : α} :
+@[simp] theorem erase_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]

@@ -843,6 +843,20 @@ It assumes `a` and `False` are in the same equivalence class.
 def mkEqFalseProof (a : Expr) : GoalM Expr := do
   mkEqProof a (← getFalseExpr)
 
+/--
+Returns a proof that `a = Bool.true`.
+It assumes `a` and `Bool.true` are in the same equivalence class.
+-/
+def mkEqBoolTrueProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolTrueExpr)
+
+/--
+Returns a proof that `a = Bool.false`.
+It assumes `a` and `Bool.false` are in the same equivalence class.
+-/
+def mkEqBoolFalseProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolFalseExpr)
+
 /-- Marks current goal as inconsistent without assigning `mvarId`. -/
 def markAsInconsistent : GoalM Unit := do
   unless (← get).inconsistent do

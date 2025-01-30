@@ -29,3 +29,5 @@ example (as bs : List Nat) : (as != bs) = c → c = true → as ≠ bs := by gri
 example (a b : Nat) : (a != b, c) = d → d = (false, true) → a = b := by grind (splits := 0)
 example (a b : Bool) : (a ^^ b, c) = d → d = (false, true) → a = b := by grind (splits := 0)
 example (a b : Bool) : (a == b, c) = d → d = (true, true) → a = true → true = b := by grind (splits := 0)
+
+example (h : α = β) (a : α) (b : β) : h ▸ a = b → HEq a b := by grind

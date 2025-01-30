@@ -475,7 +475,7 @@ decreasing_by
   | zero => simp [findIdx?.loop]
   | succ i ih =>
     unfold findIdx?.loop
-    simp
+    simp only [size_toArray, getElem_toArray]
     split <;> rename_i h
     · rw [drop_eq_getElem_cons h]
       rw [findIdx?_cons]
@@ -500,9 +500,33 @@ decreasing_by
   rintro ⟨x, hx⟩ ⟨y, hy⟩ rfl
   simp
 
+theorem findFinIdx?_go_beq_eq_idxOfAux_toArray [BEq α]
+    {xs as : List α} {a : α} {i : Nat} {h} (w : as = xs.drop i) :
+    findFinIdx?.go (fun x => x == a) xs as i h =
+      xs.toArray.idxOfAux a i := by
+  unfold findFinIdx?.go
+  unfold idxOfAux
+  split <;> rename_i b as
+  · simp at h
+    simp [h]
+  · simp at h
+    rw [dif_pos (by simp; omega)]
+    simp only [getElem_toArray]
+    erw [getElem_drop' (j := 0)]
+    simp only [← w, getElem_cons_zero]
+    have : xs.length - (i + 1) < xs.length - i := by omega
+    rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
+    rw [← drop_drop, ← w]
+    simp
+termination_by xs.length - i
+
 @[simp] theorem finIdxOf?_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.finIdxOf? a = as.finIdxOf? a := by
-  sorry
+  unfold Array.finIdxOf?
+  unfold finIdxOf?
+  unfold findFinIdx?
+  rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
+  simp
 
 @[simp] theorem idxOf?_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf? a = as.idxOf? a := by
@@ -516,6 +540,7 @@ decreasing_by
 @[simp] theorem erase_toArray [BEq α] [LawfulBEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
-  sorry
+  rw [idxOf?_eq_map_finIdxOf?_val]
+  split <;> simp_all
 
 end List

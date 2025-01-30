@@ -11,7 +11,7 @@ import Init.Data.Array.Zip
 import Init.Data.List.Nat.Range
 
 /-!
-# Lemmas about `Array.range` and `Array.zipIdx`
+# Lemmas about `Array.range'`, `Array.range`, and `Array.zipIdx`
 
 -/
 
@@ -112,9 +112,8 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
 theorem erase_range' :
     (range' s n).erase i =
       range' s (min n (i - s)) ++ range' (max s (i + 1)) (min s (i + 1) + n - (i + 1)) := by
-  simp only [← List.toArray_range']
-  simp [-List.toArray_range']
-  -- Needs `erase_toArray`.
+  simp only [← List.toArray_range', List.erase_toArray]
+  simp [List.erase_range']
 
 /-! ### range -/
 

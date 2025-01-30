@@ -8,6 +8,7 @@ prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
 import Init.Data.Range
+import Init.Data.Stream
 
 /-!
 # Vectors
@@ -162,8 +163,35 @@ instance : HAppend (Vector α n) (Vector α m) (Vector α (n + m)) where
 Extracts the slice of a vector from indices `start` to `stop` (exclusive). If `start ≥ stop`, the
 result is empty. If `stop` is greater than the size of the vector, the size is used instead.
 -/
-@[inline] def extract (v : Vector α n) (start stop : Nat) : Vector α (min stop n - start) :=
+@[inline] def extract (v : Vector α n) (start : Nat := 0) (stop : Nat := n) : Vector α (min stop n - start) :=
   ⟨v.toArray.extract start stop, by simp⟩
+
+/--
+Extract the first `m` elements of a vector. If `m` is greater than or equal to the size of the
+vector then the vector is returned unchanged.
+-/
+@[inline] def take (v : Vector α n) (m : Nat) : Vector α (min m n) :=
+  ⟨v.toArray.take m, by simp⟩
+
+@[simp] theorem take_eq_extract (v : Vector α n) (m : Nat) : v.take m = v.extract 0 m := rfl
+
+/--
+Deletes the first `m` elements of a vector. If `m` is greater than or equal to the size of the
+vector then the empty vector is returned.
+-/
+@[inline] def drop (v : Vector α n) (m : Nat) : Vector α (n - m) :=
+  ⟨v.toArray.drop m, by simp⟩
+
+@[simp] theorem drop_eq_cast_extract (v : Vector α n) (m : Nat) :
+    v.drop m = (v.extract m n).cast (by simp) := by
+  simp [drop, extract, Vector.cast]
+
+/-- Shrinks a vector to the first `m` elements, by repeatedly popping the last element. -/
+@[inline] def shrink (v : Vector α n) (m : Nat) : Vector α (min m n) :=
+  ⟨v.toArray.shrink m, by simp⟩
+
+@[simp] theorem shrink_eq_take (v : Vector α n) (m : Nat) : v.shrink m = v.take m := by
+  simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
 @[inline] def map (f : α → β) (v : Vector α n) : Vector β n :=
@@ -178,6 +206,50 @@ which also receives the index of the element, and the fact that the index is les
 @[inline] def mapFinIdx (v : Vector α n) (f : (i : Nat) → α → (h : i < n) → β) : Vector β n :=
   ⟨v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)), by simp⟩
 
+/-- Map a monadic function over a vector. -/
+@[inline] def mapM [Monad m] (f : α → m β) (v : Vector α n) : m (Vector β n) := do
+  go 0 (Nat.zero_le n) #v[]
+where
+  go (i : Nat) (h : i ≤ n) (r : Vector β i) : m (Vector β n) := do
+    if h' : i < n then
+      go (i+1) (by omega) (r.push (← f v[i]))
+    else
+      return r.cast (by omega)
+
+@[inline] def forM [Monad m] (v : Vector α n) (f : α → m PUnit) : m PUnit :=
+  v.toArray.forM f
+
+@[inline] def flatMapM [Monad m] (v : Vector α n) (f : α → m (Vector β k)) : m (Vector β (n * k)) := do
+  go 0 (Nat.zero_le n) (#v[].cast (by omega))
+where
+  go (i : Nat) (h : i ≤ n) (r : Vector β (i * k)) : m (Vector β (n * k)) := do
+    if h' : i < n then
+      go (i+1) (by omega) ((r ++ (← f v[i])).cast (Nat.succ_mul i k).symm)
+    else
+      return r.cast (by congr; omega)
+
+/-- Variant of `mapIdxM` which receives the index `i` along with the bound `i < n. -/
+@[inline]
+def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
+    (as : Vector α n) (f : (i : Nat) → α → (h : i < n) → m β) : m (Vector β n) :=
+  let rec @[specialize] map (i : Nat) (j : Nat) (inv : i + j = n) (bs : Vector β (n - i)) : m (Vector β n) := do
+    match i, inv with
+    | 0,    _  => pure bs
+    | i+1, inv =>
+      have j_lt : j < n := by
+        rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
+        apply Nat.le_add_right
+      have : i + (j + 1) = n := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
+      map i (j+1) this ((bs.push (← f j as[j] j_lt)).cast (by omega))
+  map n 0 rfl (#v[].cast (by simp))
+
+@[inline]
+def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Vector α n) : m (Vector β n) :=
+  as.mapFinIdxM fun i a _ => f i a
+
+@[inline] def firstM {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Vector α n) : m β :=
+  as.toArray.firstM f
+
 @[inline] def flatten (v : Vector (Vector α n) m) : Vector α (m * n) :=
   ⟨(v.toArray.map Vector.toArray).flatten,
     by rcases v; simp_all [Function.comp_def, Array.map_const']⟩
@@ -185,12 +257,21 @@ which also receives the index of the element, and the fact that the index is les
 @[inline] def flatMap (v : Vector α n) (f : α → Vector β m) : Vector β (n * m) :=
   ⟨v.toArray.flatMap fun a => (f a).toArray, by simp [Array.map_const']⟩
 
-@[inline] def zipWithIndex (v : Vector α n) : Vector (α × Nat) n :=
-  ⟨v.toArray.zipWithIndex, by simp⟩
+@[inline] def zipIdx (v : Vector α n) (k : Nat := 0) : Vector (α × Nat) n :=
+  ⟨v.toArray.zipIdx k, by simp⟩
+
+@[deprecated zipIdx (since := "2025-01-21")]
+abbrev zipWithIndex := @zipIdx
+
+@[inline] def zip (v : Vector α n) (w : Vector β n) : Vector (α × β) n :=
+  ⟨v.toArray.zip w.toArray, by simp⟩
 
 /-- Maps corresponding elements of two vectors of equal size using the function `f`. -/
-@[inline] def zipWith (a : Vector α n) (b : Vector β n) (f : α → β → φ) : Vector φ n :=
-  ⟨Array.zipWith a.toArray b.toArray f, by simp⟩
+@[inline] def zipWith (f : α → β → φ) (a : Vector α n) (b : Vector β n) : Vector φ n :=
+  ⟨Array.zipWith f a.toArray b.toArray, by simp⟩
+
+@[inline] def unzip (v : Vector (α × β) n) : Vector α n × Vector β n :=
+  ⟨⟨v.toArray.unzip.1, by simp⟩, ⟨v.toArray.unzip.2, by simp⟩⟩
 
 /-- The vector of length `n` whose `i`-th element is `f i`. -/
 @[inline] def ofFn (f : Fin n → α) : Vector α n :=
@@ -238,20 +319,6 @@ This will perform the update destructively provided that the vector has a refere
 @[inline] def range (n : Nat) : Vector Nat n := ⟨Array.range n, by simp⟩
 
 /--
-Extract the first `m` elements of a vector. If `m` is greater than or equal to the size of the
-vector then the vector is returned unchanged.
--/
-@[inline] def take (v : Vector α n) (m : Nat) : Vector α (min m n) :=
-  ⟨v.toArray.take m, by simp⟩
-
-/--
-Deletes the first `m` elements of a vector. If `m` is greater than or equal to the size of the
-vector then the empty vector is returned.
--/
-@[inline] def drop (v : Vector α n) (m : Nat) : Vector α (n - m) :=
-  ⟨v.toArray.extract m v.size, by simp⟩
-
-/--
 Compares two vectors of the same size using a given boolean relation `r`. `isEqv v w r` returns
 `true` if and only if `r v[i] w[i]` is true for all indices `i`.
 -/
@@ -289,8 +356,26 @@ instance [BEq α] : BEq (Vector α n) where
 Finds the first index of a given value in a vector using `==` for comparison. Returns `none` if the
 no element of the index matches the given value.
 -/
-@[inline] def indexOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
-  (v.toArray.indexOf? x).map (Fin.cast v.size_toArray)
+@[inline] def finIdxOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
+  (v.toArray.finIdxOf? x).map (Fin.cast v.size_toArray)
+
+@[deprecated finIdxOf? (since := "2025-01-29")]
+abbrev indexOf? := @finIdxOf?
+
+/-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
+no element of the index matches the given value. -/
+@[inline] def findFinIdx? (v : Vector α n) (p : α → Bool) : Option (Fin n) :=
+  (v.toArray.findFinIdx? p).map (Fin.cast v.size_toArray)
+
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
+@[inline] def findM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
+  as.toArray.findM? f
+
+@[inline] def findSomeM? [Monad m] (f : α → m (Option β)) (as : Vector α n) : m (Option β) :=
+  as.toArray.findSomeM? f
 
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=
@@ -319,6 +404,23 @@ no element of the index matches the given value.
 /-- Count the number of elements of a vector that are equal to `a`. -/
 @[inline] def count [BEq α] (a : α) (v : Vector α n) : Nat :=
   v.toArray.count a
+
+/-! ### ForIn instance -/
+
+@[simp] theorem mem_toArray_iff (a : α) (v : Vector α n) : a ∈ v.toArray ↔ a ∈ v :=
+  ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
+
+instance : ForIn' m (Vector α n) α inferInstance where
+  forIn' v b f := Array.forIn' v.toArray b (fun a h b => f a (by simpa using h) b)
+
+/-! ### ForM instance -/
+
+instance : ForM m (Vector α n) α where
+  forM := forM
+/-! ### ToStream instance -/
+
+instance : ToStream (Vector α n) (Subarray α) where
+  toStream v := v.toArray[:n]
 
 /-! ### Lexicographic ordering -/
 

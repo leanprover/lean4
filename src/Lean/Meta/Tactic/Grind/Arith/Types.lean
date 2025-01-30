@@ -24,6 +24,20 @@ structure ProofInfo where
   proof : Expr
   deriving Inhabited
 
+/--
+Auxiliary inductive type for representing contraints and equalities
+that should be propagated to core.
+Recall that we cannot compute proofs until the short-distance
+data-structures have been fully updated when a new edge is inserted.
+Thus, we store the information to be propagated into a list.
+See field `propagate` in `State`.
+-/
+inductive ToPropagate where
+  | eqTrue (e : Expr) (u v : NodeId) (k k' : Int)
+  | eqFalse (e : Expr) (u v : NodeId) (k k' : Int)
+  | eq (u v : NodeId)
+  deriving Inhabited
+
 /-- State of the constraint offset procedure. -/
 structure State where
   /-- Mapping from `NodeId` to the `Expr` represented by the node. -/
@@ -53,7 +67,9 @@ structure State where
   `w` is the penultimate node in the path, and `proof` is the justification for
   the last edge.
   -/
-  proofs   : PArray (AssocList NodeId ProofInfo) := {}
+  proofs    : PArray (AssocList NodeId ProofInfo) := {}
+  /-- Truth values and equalities to propagate to core. -/
+  propagate : List ToPropagate := []
   deriving Inhabited
 
 end Offset

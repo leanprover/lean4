@@ -65,10 +65,36 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
+structure EMatchTheoremTrace where
+  origin : Origin
+  kind   : EMatchTheoremKind
+  deriving BEq, Hashable
+
+/--
+E-match theorems and case-splits performed by `grind`.
+Note that it may contain elements that are not needed by the final proof.
+For example, `grind` instantiated the theorem, but theorem instance was not actually used
+in the proof.
+-/
+structure Trace where
+  thms       : PHashSet EMatchTheoremTrace := {}
+  eagerCases : PHashSet Name := {}
+  cases      : PHashSet Name := {}
+  deriving Inhabited
+
+structure Counters where
+  /-- Number of times E-match theorem has been instantiated. -/
+  thm  : PHashMap Origin Nat := {}
+  /-- Number of times a `cases` has been performed on an inductive type/predicate -/
+  case : PHashMap Name Nat := {}
+  deriving Inhabited
+
+private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
   /-- Next index for creating auxiliary theorems. -/
   nextThmIdx : Nat := 1
   /--
@@ -81,6 +107,8 @@ structure State where
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
@@ -91,6 +119,10 @@ structure State where
   users when `grind` fails.
   -/
   issues     : List MessageData := []
+  /-- `trace` for `grind?` -/
+  trace      : Trace := {}
+  /-- Performance counters -/
+  counters   : Counters := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -110,12 +142,43 @@ def getTrueExpr : GrindM Expr := do
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : GrindM Expr := do
+  return (← get).btrueExpr
+
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : GrindM Expr := do
+  return (← get).bfalseExpr
+
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
   return (← get).natZExpr
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
+
+def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
+  if (← getConfig).trace then
+    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+  modify fun s => { s with
+    counters.thm := if let some n := s.counters.thm.find? thm.origin then
+      s.counters.thm.insert thm.origin (n+1)
+    else
+      s.counters.thm.insert thm.origin 1
+  }
+
+def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
+  if (← getConfig).trace then
+    if eager then
+      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
+    else
+      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+  modify fun s => { s with
+    counters.case := if let some n := s.counters.case.find? declName then
+      s.counters.case.insert declName (n+1)
+    else
+      s.counters.case.insert declName 1
+  }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
@@ -138,9 +201,10 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues } =>
-    let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag, issues })
+  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
+  let (e, scState) := ShareCommon.State.shareCommon scState e
+  modify fun s => { s with scState }
+  return e
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -458,7 +522,8 @@ def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := d
   modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
-def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  saveEMatchTheorem thm
   addNewFact proof prop generation
   modify fun s => { s with numInstances := s.numInstances + 1 }
 
@@ -505,13 +570,19 @@ def getGeneration (e : Expr) : GoalM Nat := do
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getTrueExpr)
+  return isSameExpr (← getENode e).root (← getTrueExpr)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getFalseExpr)
+  return isSameExpr (← getENode e).root (← getFalseExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
+def isEqBoolTrue (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.false`. -/
+def isEqBoolFalse (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolFalseExpr)
 
 /-- Returns `true` if `a` and `b` are in the same equivalence class. -/
 def isEqv (a b : Expr) : GoalM Bool := do
@@ -612,6 +683,14 @@ def pushEqTrue (a proof : Expr) : GoalM Unit := do
 /-- Pushes `a = False` with `proof` to `newEqs`. -/
 def pushEqFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getFalseExpr) proof
+
+/-- Pushes `a = Bool.true` with `proof` to `newEqs`. -/
+def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolTrueExpr) proof
+
+/-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
+def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolFalseExpr) proof
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
@@ -744,6 +823,10 @@ opaque mkHEqProof (a b : Expr) : GoalM Expr
 @[extern "lean_grind_internalize"]
 opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
 
+-- Forward definition
+@[extern "lean_grind_process_new_eqs"]
+opaque processNewEqs : GoalM Unit
+
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
 It assumes `a` and `b` are in the same equivalence class.
@@ -767,6 +850,20 @@ It assumes `a` and `False` are in the same equivalence class.
 -/
 def mkEqFalseProof (a : Expr) : GoalM Expr := do
   mkEqProof a (← getFalseExpr)
+
+/--
+Returns a proof that `a = Bool.true`.
+It assumes `a` and `Bool.true` are in the same equivalence class.
+-/
+def mkEqBoolTrueProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolTrueExpr)
+
+/--
+Returns a proof that `a = Bool.false`.
+It assumes `a` and `Bool.false` are in the same equivalence class.
+-/
+def mkEqBoolFalseProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolFalseExpr)
 
 /-- Marks current goal as inconsistent without assigning `mvarId`. -/
 def markAsInconsistent : GoalM Unit := do

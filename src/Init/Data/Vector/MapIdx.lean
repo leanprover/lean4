@@ -51,30 +51,60 @@ end Array
 
 namespace Vector
 
-/-! ### zipWithIndex -/
+/-! ### zipIdx -/
 
-@[simp] theorem toList_zipWithIndex (a : Vector α n) :
-    a.zipWithIndex.toList = a.toList.enum.map (fun (i, a) => (a, i)) := by
+@[simp] theorem toList_zipIdx (a : Vector α n) (k : Nat := 0) :
+    (a.zipIdx k).toList = a.toList.zipIdx k := by
   rcases a with ⟨a, rfl⟩
   simp
 
-@[simp] theorem getElem_zipWithIndex (a : Vector α n) (i : Nat) (h : i < n) :
-    (a.zipWithIndex)[i] = (a[i]'(by simp_all), i) := by
+@[simp] theorem getElem_zipIdx (a : Vector α n) (i : Nat) (h : i < n) :
+    (a.zipIdx k)[i] = (a[i]'(by simp_all), i + k) := by
   rcases a with ⟨a, rfl⟩
   simp
 
-@[simp] theorem zipWithIndex_toVector {l : Array α} :
-    l.toVector.zipWithIndex = l.zipWithIndex.toVector.cast (by simp) := by
+@[simp] theorem zipIdx_toVector {l : Array α} {k : Nat} :
+    l.toVector.zipIdx k = (l.zipIdx k).toVector.cast (by simp) := by
   ext <;> simp
 
-theorem mk_mem_zipWithIndex_iff_getElem? {x : α} {i : Nat} {l : Vector α n} :
-    (x, i) ∈ l.zipWithIndex ↔ l[i]? = x := by
+theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {x : α} {i : Nat} {l : Vector α n} {k : Nat} :
+    (x, i) ∈ l.zipIdx k ↔ k ≤ i ∧ l[i - k]? = x := by
   rcases l with ⟨l, rfl⟩
-  simp [Array.mk_mem_zipWithIndex_iff_getElem?]
+  simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
 
-theorem mem_enum_iff_getElem? {x : α × Nat} {l : Vector α n} :
-    x ∈ l.zipWithIndex ↔ l[x.2]? = some x.1 :=
-  mk_mem_zipWithIndex_iff_getElem?
+/-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
+theorem mk_mem_zipIdx_iff_getElem? {x : α} {i : Nat} {l : Vector α n} :
+    (x, i) ∈ l.zipIdx ↔ l[i]? = x := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.mk_mem_zipIdx_iff_le_and_getElem?_sub]
+
+theorem mem_zipIdx_iff_le_and_getElem?_sub {x : α × Nat} {l : Vector α n} {k : Nat} :
+    x ∈ zipIdx l k ↔ k ≤ x.2 ∧ l[x.2 - k]? = some x.1 := by
+  cases x
+  simp [mk_mem_zipIdx_iff_le_and_getElem?_sub]
+
+/-- Variant of `mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
+to avoid the inequality and the subtraction. -/
+theorem mem_zipIdx_iff_getElem? {x : α × Nat} {l : Vector α n} :
+    x ∈ l.zipIdx ↔ l[x.2]? = some x.1 := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.mem_zipIdx_iff_getElem?]
+
+@[deprecated toList_zipIdx (since := "2025-01-27")]
+abbrev toList_zipWithIndex := @toList_zipIdx
+@[deprecated getElem_zipIdx (since := "2025-01-27")]
+abbrev getElem_zipWithIndex := @getElem_zipIdx
+@[deprecated zipIdx_toVector (since := "2025-01-27")]
+abbrev zipWithIndex_toVector := @zipIdx_toVector
+@[deprecated mk_mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
+abbrev mk_mem_zipWithIndex_iff_le_and_getElem?_sub := @mk_mem_zipIdx_iff_le_and_getElem?_sub
+@[deprecated mk_mem_zipIdx_iff_getElem? (since := "2025-01-27")]
+abbrev mk_mem_zipWithIndex_iff_getElem? := @mk_mem_zipIdx_iff_getElem?
+@[deprecated mem_zipIdx_iff_le_and_getElem?_sub (since := "2025-01-27")]
+abbrev mem_zipWithIndex_iff_le_and_getElem?_sub := @mem_zipIdx_iff_le_and_getElem?_sub
+@[deprecated mem_zipIdx_iff_getElem? (since := "2025-01-27")]
+abbrev mem_zipWithIndex_iff_getElem? := @mem_zipIdx_iff_getElem?
 
 /-! ### mapFinIdx -/
 
@@ -215,9 +245,12 @@ theorem mapIdx_eq_mapFinIdx {l : Vector α n} {f : Nat → α → β} :
     l.mapIdx f = l.mapFinIdx (fun i a _ => f i a) := by
   simp [mapFinIdx_eq_mapIdx]
 
-theorem mapIdx_eq_zipWithIndex_map {l : Vector α n} {f : Nat → α → β} :
-    l.mapIdx f = l.zipWithIndex.map fun ⟨a, i⟩ => f i a := by
+theorem mapIdx_eq_zipIdx_map {l : Vector α n} {f : Nat → α → β} :
+    l.mapIdx f = l.zipIdx.map fun ⟨a, i⟩ => f i a := by
   ext <;> simp
+
+@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-27")]
+abbrev mapIdx_eq_zipWithIndex_map := @mapIdx_eq_zipIdx_map
 
 theorem mapIdx_append {K : Vector α n} {L : Vector α m} :
     (K ++ L).mapIdx f = K.mapIdx f ++ L.mapIdx fun i => f (i + K.size) := by

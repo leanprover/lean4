@@ -17135,6 +17135,7 @@ lean_inc(x_12);
 lean_dec(x_10);
 lean_inc(x_1);
 x_13 = l_Lean_getRevAliases(x_12, x_1);
+lean_dec(x_12);
 x_14 = lean_array_mk(x_13);
 if (x_2 == 0)
 {
@@ -18098,7 +18099,6 @@ lean_dec(x_277);
 if (x_278 == 0)
 {
 uint8_t x_279; 
-lean_inc(x_4);
 x_279 = l_Lean_Meta_Match_isMatchEqnTheorem(x_4, x_30);
 if (x_279 == 0)
 {
@@ -18127,7 +18127,6 @@ goto block_87;
 else
 {
 uint8_t x_283; 
-lean_inc(x_4);
 x_283 = l_Lean_Meta_Match_isMatchEqnTheorem(x_4, x_30);
 if (x_283 == 0)
 {

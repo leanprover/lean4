@@ -114,6 +114,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_Boxing_0__Lean_IR_ExplicitBoxing_N_mkFresh(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_getJPParams(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(lean_object*, size_t, size_t);
 LEAN_EXPORT uint8_t l_Lean_IR_ExplicitBoxing_isBoxedName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_withVDecl___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -276,7 +277,6 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; 
 lean_dec(x_3);
-lean_dec(x_1);
 x_7 = l_Lean_closureMaxArgs;
 x_8 = lean_nat_dec_lt(x_7, x_4);
 lean_dec(x_4);
@@ -320,7 +320,6 @@ else
 {
 uint8_t x_19; 
 lean_dec(x_4);
-lean_dec(x_1);
 x_19 = 1;
 return x_19;
 }
@@ -330,7 +329,6 @@ else
 uint8_t x_20; 
 lean_dec(x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 x_20 = 1;
 return x_20;
 }
@@ -357,6 +355,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1101,7 +1100,6 @@ if (x_6 == 0)
 {
 lean_object* x_7; uint8_t x_8; size_t x_9; size_t x_10; 
 x_7 = lean_array_uget(x_2, x_3);
-lean_inc(x_1);
 x_8 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_1, x_7);
 x_9 = 1;
 x_10 = lean_usize_add(x_3, x_9);
@@ -1124,7 +1122,6 @@ goto _start;
 }
 else
 {
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -1140,7 +1137,6 @@ if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
 lean_dec(x_3);
-lean_dec(x_1);
 x_6 = l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1;
 x_7 = l_Array_append___rarg(x_2, x_6);
 return x_7;
@@ -1153,7 +1149,6 @@ if (x_8 == 0)
 {
 lean_object* x_9; lean_object* x_10; 
 lean_dec(x_3);
-lean_dec(x_1);
 x_9 = l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1;
 x_10 = l_Array_append___rarg(x_2, x_9);
 return x_10;
@@ -1183,7 +1178,17 @@ x_7 = lean_unbox_usize(x_4);
 lean_dec(x_4);
 x_8 = l_Array_foldlMUnsafe_fold___at_Lean_IR_ExplicitBoxing_addBoxedVersions___spec__1(x_1, x_2, x_6, x_7, x_5);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_IR_ExplicitBoxing_addBoxedVersions___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_1, x_2);
+lean_dec(x_1);
+return x_3;
 }
 }
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_IR_ExplicitBoxing_getScrutineeType___spec__1(lean_object* x_1, size_t x_2, size_t x_3) {
@@ -4219,6 +4224,7 @@ lean_inc(x_157);
 lean_dec(x_155);
 x_158 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_153, x_156);
 lean_dec(x_156);
+lean_dec(x_153);
 x_159 = l_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___closed__1;
 x_160 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux(x_151, x_159, x_5, x_157);
 lean_dec(x_151);
@@ -4343,6 +4349,7 @@ lean_inc(x_194);
 lean_dec(x_192);
 x_195 = l_Lean_IR_ExplicitBoxing_requiresBoxedVersion(x_190, x_193);
 lean_dec(x_193);
+lean_dec(x_190);
 x_196 = l_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___closed__1;
 x_197 = l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux(x_188, x_196, x_5, x_194);
 lean_dec(x_188);
@@ -6523,6 +6530,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 x_7 = l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1;
 x_8 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_1, x_7);
+lean_dec(x_1);
 return x_8;
 }
 else
@@ -6536,6 +6544,7 @@ lean_dec(x_4);
 lean_dec(x_2);
 x_10 = l_Lean_IR_ExplicitBoxing_mkBoxedVersionAux___closed__1;
 x_11 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_1, x_10);
+lean_dec(x_1);
 return x_11;
 }
 else
@@ -6550,6 +6559,7 @@ lean_inc(x_1);
 x_15 = l_Array_foldlMUnsafe_fold___at_Lean_IR_ExplicitBoxing_run___spec__1___at_Lean_IR_ExplicitBoxing_run___spec__2(x_1, x_2, x_3, x_2, x_12, x_13, x_14);
 lean_dec(x_2);
 x_16 = l_Lean_IR_ExplicitBoxing_addBoxedVersions(x_1, x_15);
+lean_dec(x_1);
 return x_16;
 }
 }

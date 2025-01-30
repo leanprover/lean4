@@ -10,7 +10,7 @@ import Lean.Meta.Tactic.Grind.Cases
 namespace Lean.Meta.Grind
 
 inductive AttrKind where
-  | ematch (k : TheoremKind)
+  | ematch (k : EMatchTheoremKind)
   | cases (eager : Bool)
   | infer
 
@@ -23,6 +23,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
   | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
   | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod| usr) => return .ematch .user
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
@@ -33,6 +34,9 @@ def getAttrKindFromOpt (stx : Syntax) : CoreM AttrKind := do
     return .infer
   else
     getAttrKindCore stx[1][0]
+
+def throwInvalidUsrModifier : CoreM α :=
+  throwError "the modifier `usr` is only relevant in parameters for `grind only`"
 
 builtin_initialize
   registerBuiltinAttribute {
@@ -57,11 +61,17 @@ builtin_initialize
     applicationTime := .afterCompilation
     add := fun declName stx attrKind => MetaM.run' do
       match (← getAttrKindFromOpt stx) with
+      | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k
       | .cases eager => addCasesAttr declName eager attrKind
       | .infer =>
         if (← isCasesAttrCandidate declName false) then
           addCasesAttr declName false attrKind
+          if let some info ← isInductivePredicate? declName then
+            -- If it is an inductive predicate,
+            -- we also add the contructors (intro rules) as E-matching rules
+            for ctor in info.ctors do
+              addEMatchAttr ctor attrKind .default
         else
           addEMatchAttr declName attrKind .default
     erase := fun declName => MetaM.run' do

@@ -54,7 +54,7 @@ def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
     config
   }
 where
-  determineSolver : Lean.Elab.TermElabM System.FilePath := do
+  determineSolver : CoreM System.FilePath := do
     let opts ← getOptions
     let option := sat.solver.get opts
     if option == "" then
@@ -96,7 +96,7 @@ instance : ToExpr LRAT.IntAction where
       mkApp3 (mkConst ``LRAT.Action.del [.zero, .zero]) beta alpha (toExpr ids)
   toTypeExpr := mkConst ``LRAT.IntAction
 
-def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM LratCert := do
+def LratCert.load (lratPath : System.FilePath) (trimProofs : Bool) : CoreM (Array LRAT.IntAction) := do
   let proofInput ← IO.FS.readBinFile lratPath
   let proof ←
     withTraceNode `sat (fun _ => return s!"Parsing LRAT file") do
@@ -118,6 +118,10 @@ def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM Lra
       pure proof
 
   trace[Meta.Tactic.sat] s!"LRAT proof has {proof.size} steps after trimming"
+  return proof
+
+def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM LratCert := do
+  let proof ← LratCert.load lratPath trimProofs
 
   -- This is necessary because the proof might be in the binary format in which case we cannot
   -- store it as a string in the environment (yet) due to missing support for binary literals.

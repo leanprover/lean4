@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Vector
-// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Lex Init.Data.Vector.MapIdx Init.Data.Vector.Count
+// Imports: Init.Data.Vector.Basic Init.Data.Vector.Lemmas Init.Data.Vector.Lex Init.Data.Vector.MapIdx Init.Data.Vector.Count Init.Data.Vector.DecidableEq Init.Data.Vector.Zip Init.Data.Vector.OfFn
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,9 @@ lean_object* initialize_Init_Data_Vector_Lemmas(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Lex(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_MapIdx(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Vector_Count(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_DecidableEq(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_Zip(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_Vector_OfFn(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Vector(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -36,6 +39,15 @@ res = initialize_Init_Data_Vector_MapIdx(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Vector_Count(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_DecidableEq(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_Zip(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_Vector_OfFn(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

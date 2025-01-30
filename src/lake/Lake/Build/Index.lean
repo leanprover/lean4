@@ -26,13 +26,13 @@ dynamically-typed equivalent.
 -/
 @[macro_inline] def mkTargetFacetBuild
   (facet : Name) (build : FetchM (Job α))
-  [h : FamilyOut TargetData facet (Job α)]
-: FetchM (TargetData facet) :=
+  [h : FamilyOut TargetData facet α]
+: FetchM (Job (TargetData facet)) :=
   cast (by rw [← h.family_key_eq_type]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:static" do
-  lib.config.getJob <$> fetch (lib.pkg.target lib.staticTargetName)
+  lib.config.getPath <$> fetch (lib.pkg.target lib.staticTargetName)
 
 def ExternLib.recBuildShared (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:shared" do
@@ -47,27 +47,27 @@ def ExternLib.recComputeDynlib (lib : ExternLib) : FetchM (Job Dynlib) := do
 -/
 
 /-- Recursive build function for anything in the Lake build index. -/
-def recBuildWithIndex : (info : BuildInfo) → FetchM (BuildData info.key)
+def recBuildWithIndex : (info : BuildInfo) → FetchM (Job (BuildData info.key))
 | .moduleFacet mod facet => do
   if let some config := (← getWorkspace).findModuleFacetConfig? facet then
-    config.build mod
+    config.fetchFn mod
   else
-    error s!"do not know how to build module facet `{facet}`"
+    error s!"do not know how to fetch module facet `{facet}`"
 | .packageFacet pkg facet => do
   if let some config := (← getWorkspace).findPackageFacetConfig? facet then
-    config.build pkg
+    config.fetchFn pkg
   else
-    error s!"do not know how to build package facet `{facet}`"
+    error s!"do not know how to fetch package facet `{facet}`"
 | .target pkg target =>
   if let some config := pkg.findTargetConfig? target then
-    config.build pkg
+    config.fetchFn pkg
   else
-    error s!"could not build `{target}` of `{pkg.name}` -- target not found"
+    error s!"could not fetch `{target}` of `{pkg.name}` -- target not found"
 | .libraryFacet lib facet => do
   if let some config := (← getWorkspace).findLibraryFacetConfig? facet then
-    config.build lib
+    config.fetchFn lib
   else
-    error s!"do not know how to build library facet `{facet}`"
+    error s!"do not know how to fetch library facet `{facet}`"
 | .leanExe exe =>
   mkTargetFacetBuild LeanExe.exeFacet exe.recBuildExe
 | .staticExternLib lib =>
@@ -82,4 +82,5 @@ Run a recursive Lake build using the Lake build index
 and a topological / suspending scheduler.
 -/
 def FetchM.run (x : FetchM α) : RecBuildM α :=
-  x (inline <| recFetchMemoize BuildInfo.key recBuildWithIndex)
+  x <| inline <|
+    recFetchMemoize (β := (Job <| BuildData ·)) BuildInfo.key recBuildWithIndex

@@ -171,6 +171,20 @@ theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
 
 @[deprecated map_eq_append_iff (since := "2024-09-05")] abbrev map_eq_append_split := @map_eq_append_iff
 
+theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
+    l.take i = l.dropLast := by
+  induction l generalizing i with
+  | nil => simp
+  | cons a as ih =>
+    cases i
+    · simp_all
+    · cases as with
+      | nil => simp_all
+      | cons b bs =>
+        simp only [take_succ_cons, dropLast_cons₂]
+        rw [ih]
+        simpa using h
+
 theorem take_prefix_take_left (l : List α) {m n : Nat} (h : m ≤ n) : take m l <+: take n l := by
   rw [isPrefix_iff]
   intro i w

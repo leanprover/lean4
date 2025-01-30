@@ -6,22 +6,26 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
-namespace Lean.Parser.Attr
+namespace Lean.Parser
+/--
+Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
+-/
+syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
 
-syntax grindEq     := "="
-syntax grindEqBoth := atomic("_" "=" "_")
-syntax grindEqRhs  := atomic("=" "_")
-syntax grindEqBwd  := atomic("←" "=")
-syntax grindBwd    := "←"
-syntax grindFwd    := "→"
-syntax grindCases  := &"cases"
-syntax grindCasesEager := atomic(&"cases" &"eager")
-
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindCasesEager <|> grindCases
-
+namespace Attr
+syntax grindEq     := "= "
+syntax grindEqBoth := atomic("_" "=" "_ ")
+syntax grindEqRhs  := atomic("=" "_ ")
+syntax grindEqBwd  := atomic("←" "= ")
+syntax grindBwd    := "← "
+syntax grindFwd    := "→ "
+syntax grindUsr    := &"usr "
+syntax grindCases  := &"cases "
+syntax grindCasesEager := atomic(&"cases" &"eager ")
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
 syntax (name := grind) "grind" (grindMod)? : attr
-
-end Lean.Parser.Attr
+end Attr
+end Lean.Parser
 
 namespace Lean.Grind
 /--
@@ -29,6 +33,8 @@ The configuration for `grind`.
 Passed to `grind` using, for example, the `grind (config := { matchEqs := true })` syntax.
 -/
 structure Config where
+  /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
+  trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 8
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
@@ -72,6 +78,12 @@ syntax grindParam := grindErase <|> grindLemma
 
 syntax (name := grind)
   "grind" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  ("on_failure " term)? : tactic
+
+
+syntax (name := grindTrace)
+  "grind?" optConfig (&" only")?
   (" [" withoutPosition(grindParam,*) "]")?
   ("on_failure " term)? : tactic
 

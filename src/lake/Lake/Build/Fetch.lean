@@ -59,8 +59,8 @@ abbrev RecBuildM := RecBuildT LogIO
 
 /-- A build function for any element of the Lake build index. -/
 abbrev IndexBuildFn (m : Type → Type v) :=
-  -- `DFetchFn BuildInfo (BuildData ·.key) m` with less imports
-  (info : BuildInfo) → m (BuildData info.key)
+  -- `DFetchFn BuildInfo (Job <| BuildData ·.key) m` with less imports
+  (info : BuildInfo) → m (Job (BuildData info.key))
 
 /-- A transformer to equip a monad with a build function for the Lake index. -/
 abbrev IndexT (m : Type → Type v) := EquipT (IndexBuildFn RecBuildM) m
@@ -78,7 +78,7 @@ abbrev FetchM := FetchT LogIO
 @[deprecated FetchM (since := "2024-04-30")] abbrev BuildM := BuildT LogIO
 
 /-- Fetch the result associated with the info using the Lake build index. -/
-@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM α :=
+@[inline] def BuildInfo.fetch (self : BuildInfo) [FamilyOut BuildData self.key α] : FetchM (Job α) :=
   fun build => cast (by simp) <| build self
 
 export BuildInfo (fetch)

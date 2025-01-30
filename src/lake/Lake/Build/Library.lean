@@ -41,7 +41,7 @@ where
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
 def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=
-  mkFacetJobConfig LeanLib.recCollectLocalModules
+  mkFacetJobConfig LeanLib.recCollectLocalModules (buildable := false)
 
 protected def LeanLib.recBuildLean
 (self : LeanLib) : FetchM (Job Unit) := do

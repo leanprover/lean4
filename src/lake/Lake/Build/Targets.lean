@@ -19,16 +19,14 @@ open System (FilePath)
 /-- Fetch the build job of the specified package target. -/
 def Package.fetchTargetJob
   (self : Package) (target : Name)
-: FetchM OpaqueJob :=  do
-  let some config := self.findTargetConfig? target
-    | error s!"package '{self.name}' has no target '{target}'"
-  return config.getJob (← fetch <| self.target target)
+: FetchM OpaqueJob := do
+  return (← fetch <| self.target target).toOpaque
 
 /-- Fetch the build result of a target. -/
 protected def TargetDecl.fetch
   (self : TargetDecl)
   [FamilyOut CustomData (self.pkg, self.name) α]
-: FetchM α := do
+: FetchM (Job α) := do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
   fetch <| pkg.target self.name
@@ -37,51 +35,43 @@ protected def TargetDecl.fetch
 def TargetDecl.fetchJob (self : TargetDecl) : FetchM OpaqueJob :=  do
   let some pkg ← findPackage? self.pkg
     | error s!"package '{self.pkg}' of target '{self.name}' does not exist in workspace"
-  return self.config.getJob (← fetch <| pkg.target self.name)
+  return (← fetch <| pkg.target self.name).toOpaque
 
 /-- Fetch the build result of a package facet. -/
 @[inline] protected def PackageFacetDecl.fetch
   (pkg : Package) (self : PackageFacetDecl) [FamilyOut PackageData self.name α]
-: FetchM α := fetch <| pkg.facet self.name
+: FetchM (Job α) := fetch <| pkg.facet self.name
 
 /-- Fetch the build job of a package facet. -/
 def PackageFacetConfig.fetchJob
   (pkg : Package) (self : PackageFacetConfig name)
-: FetchM OpaqueJob :=  do
-  let some getJob := self.getJob?
-    | error s!"package facet '{name}' has no associated build job"
-  return getJob <| ← fetch <| pkg.facet self.name
+: FetchM OpaqueJob := do
+  return  (← fetch <| pkg.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 def Package.fetchFacetJob
   (name : Name) (self : Package)
-: FetchM OpaqueJob :=  do
-  let some config := (← getWorkspace).packageFacetConfigs.find? name
-    | error s!"package facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+: FetchM OpaqueJob := do
+  return  (← fetch <| self.facet name).toOpaque
 
 /-! ## Module Facets -/
 
 /-- Fetch the build result of a module facet. -/
 @[inline] protected def ModuleFacetDecl.fetch
   (mod : Module) (self : ModuleFacetDecl) [FamilyOut ModuleData self.name α]
-: FetchM α := fetch <| mod.facet self.name
+: FetchM (Job α) := fetch <| mod.facet self.name
 
 /-- Fetch the build job of a module facet. -/
 def ModuleFacetConfig.fetchJob
   (mod : Module) (self : ModuleFacetConfig name)
-: FetchM OpaqueJob :=  do
-  let some getJob := self.getJob?
-    | error s!"module facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| mod.facet self.name
+: FetchM OpaqueJob := do
+  return (← fetch <| mod.facet self.name).toOpaque
 
 /-- Fetch the build job of a module facet. -/
 def Module.fetchFacetJob
   (name : Name) (self : Module)
-: FetchM OpaqueJob :=  do
-  let some config := (← getWorkspace).moduleFacetConfigs.find? name
-    | error s!"library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+: FetchM OpaqueJob := do
+  return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Library Facets -/
 
@@ -95,23 +85,19 @@ def Module.fetchFacetJob
 /-- Fetch the build result of a library facet. -/
 @[inline] protected def LibraryFacetDecl.fetch
   (lib : LeanLib) (self : LibraryFacetDecl) [FamilyOut LibraryData self.name α]
-: FetchM α := fetch <| lib.facet self.name
+: FetchM (Job α) := fetch <| lib.facet self.name
 
 /-- Fetch the build job of a library facet. -/
 def LibraryFacetConfig.fetchJob
   (lib : LeanLib) (self : LibraryFacetConfig name)
-: FetchM OpaqueJob :=  do
-  let some getJob := self.getJob?
-    | error s!"library facet '{self.name}' has no associated build job"
-  return getJob <| ← fetch <| lib.facet self.name
+: FetchM OpaqueJob := do
+  return (← fetch <| lib.facet self.name).toOpaque
 
 /-- Fetch the build job of a library facet. -/
 def LeanLib.fetchFacetJob
   (name : Name) (self : LeanLib)
-: FetchM OpaqueJob :=  do
-  let some config := (← getWorkspace).libraryFacetConfigs.find? name
-    | error s!"library facet '{name}' does not exist in workspace"
-  inline <| config.fetchJob self
+: FetchM OpaqueJob := do
+  return (← fetch <| self.facet name).toOpaque
 
 /-! ## Lean Executable Target -/
 

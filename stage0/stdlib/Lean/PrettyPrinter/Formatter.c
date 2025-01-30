@@ -12529,6 +12529,7 @@ x_12 = lean_ctor_get(x_9, 0);
 lean_inc(x_12);
 lean_dec(x_9);
 x_13 = l_Lean_Parser_getTokenTable(x_12);
+lean_dec(x_12);
 lean_inc(x_7);
 x_14 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_14, 0, x_7);

@@ -321,7 +321,7 @@ instance : Append Log := ⟨Log.append⟩
 
 /-- Removes log entries after `pos` (inclusive). -/
 @[inline] def dropFrom (log : Log) (pos : Log.Pos) : Log :=
-  .mk <| log.entries.take pos.val
+  .mk <| log.entries.shrink pos.val
 
 /-- Takes log entries before `pos` (exclusive). -/
 @[inline] def takeFrom (log : Log) (pos : Log.Pos) : Log :=

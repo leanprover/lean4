@@ -89,9 +89,6 @@
   {"sortText": "8",
    "label": "BitVec.ofBoolListBE",
    "kind": 3,
-   "documentation":
-   {"value": "Converts a list of `Bool`s to a big-endian `BitVec`. ",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionPrv.lean"},

@@ -2,8 +2,6 @@ universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory
 
-macro "cat_tac" : tactic => `(tactic| (intros; (try ext); grind))
-
 class Category (obj : Type u) : Type max u (v + 1) where
   Hom : obj → obj → Type v
   /-- The identity morphism on an object. -/
@@ -11,11 +9,11 @@ class Category (obj : Type u) : Type max u (v + 1) where
   /-- Composition of morphisms in a category, written `f ≫ g`. -/
   comp : ∀ {X Y Z : obj}, (Hom X Y) → (Hom Y Z) → (Hom X Z)
   /-- Identity morphisms are left identities for composition. -/
-  id_comp : ∀ {X Y : obj} (f : Hom X Y), comp (id X) f = f := by cat_tac
+  id_comp : ∀ {X Y : obj} (f : Hom X Y), comp (id X) f = f := by grind
   /-- Identity morphisms are right identities for composition. -/
-  comp_id : ∀ {X Y : obj} (f : Hom X Y), comp f (id Y) = f := by cat_tac
+  comp_id : ∀ {X Y : obj} (f : Hom X Y), comp f (id Y) = f := by grind
   /-- Composition in a category is associative. -/
-  assoc : ∀ {W X Y Z : obj} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z), comp (comp f g) h = comp f (comp g h) := by cat_tac
+  assoc : ∀ {W X Y Z : obj} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z), comp (comp f g) h = comp f (comp g h) := by grind
 
 infixr:10 " ⟶ " => Category.Hom
 scoped notation "𝟙" => Category.id  -- type as \b1
@@ -32,9 +30,9 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
   /-- The action of a functor on morphisms. -/
   map : ∀ {X Y : C}, (X ⟶ Y) → ((obj X) ⟶ (obj Y))
   /-- A functor preserves identity morphisms. -/
-  map_id : ∀ X : C, map (𝟙 X) = 𝟙 (obj X) := by cat_tac
+  map_id : ∀ X : C, map (𝟙 X) = 𝟙 (obj X) := by grind
   /-- A functor preserves composition. -/
-  map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by cat_tac
+  map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = (map f) ≫ (map g) := by grind
 
 scoped infixr:26 " ⥤ " => Functor
 
@@ -51,7 +49,7 @@ namespace Functor
 def comp (F : Functor C D) (G : Functor D E) : Functor C E where
   obj X := G.obj (F.obj X)
   map f := G.map (F.map f)
-  -- Note `map_id` and `map_comp` are handled by `cat_tac`.
+  -- Note `map_id` and `map_comp` are handled by `grind`.
 
 infixr:80 " ⋙ " => Functor.comp
 
@@ -67,7 +65,7 @@ structure NatTrans [Category.{v₁, u₁} C] [Category.{v₂, u₂} D] (F G : Fu
   /-- The component of a natural transformation. -/
   app : ∀ X : C, F.obj X ⟶ G.obj X
   /-- The naturality square for a given morphism. -/
-  naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by cat_tac
+  naturality : ∀ ⦃X Y : C⦄ (f : X ⟶ Y), F.map f ≫ app Y = app X ≫ G.map f := by grind
 
 attribute [simp, grind =] NatTrans.naturality
 
@@ -98,7 +96,7 @@ instance Functor.category : Category.{max u₁ v₂} (Functor C D) where
   Hom F G := NatTrans F G
   id F := NatTrans.id F
   comp α β := NatTrans.vcomp α β
-  -- Here we're okay: all the proofs are handled by `cat_tac`.
+  -- Here we're okay: all the proofs are handled by `grind`.
 
 namespace NatTrans
 
@@ -114,11 +112,11 @@ theorem comp_app {F G H : Functor C D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
 
 theorem app_naturality {F G : Functor C (Functor D E)} (T : F ⟶ G) (X : C) {Y Z : D} (f : Y ⟶ Z) :
     (F.obj X).map f ≫ (T.app X).app Z = (T.app X).app Y ≫ (G.obj X).map f := by
-  cat_tac
+  grind
 
 theorem naturality_app {F G : Functor C (Functor D E)} (T : F ⟶ G) (Z : D) {X Y : C} (f : X ⟶ Y) :
     (F.map f).app Z ≫ (T.app Y).app Z = (T.app X).app Z ≫ (G.map f).app Z := by
-  cat_tac -- this is done manually in Mathlib!
+  grind -- this is done manually in Mathlib!
   -- rw [← comp_app]
   -- rw [T.naturality f]
   -- rw [comp_app]
@@ -140,9 +138,10 @@ infixl:80 " ◫ " => hcomp
 attribute [grind =] hcomp_app
 
 theorem hcomp_id_app {H : D ⥤ E} (α : F ⟶ G) (X : C) : (α ◫ 𝟙 H).app X = H.map (α.app X) := by
-  cat_tac
+  grind
 
-theorem id_hcomp_app {H : E ⥤ C} (α : F ⟶ G) (X : E) : (𝟙 H ◫ α).app X = α.app _ := by cat_tac
+theorem id_hcomp_app {H : E ⥤ C} (α : F ⟶ G) (X : E) : (𝟙 H ◫ α).app X = α.app _ := by
+  grind
 
 -- Note that we don't yet prove a `hcomp_assoc` lemma here: even stating it is painful, because we
 -- need to use associativity of functor composition. (It's true without the explicit associator,
@@ -150,16 +149,15 @@ theorem id_hcomp_app {H : E ⥤ C} (α : F ⟶ G) (X : E) : (𝟙 H ◫ α).app 
 -- but relying on the definitional equality causes bad problems with elaboration later.)
 theorem exchange {I J K : D ⥤ E} (α : F ⟶ G) (β : G ⟶ H) (γ : I ⟶ J) (δ : J ⟶ K) :
     (α ≫ β) ◫ (γ ≫ δ) = (α ◫ γ) ≫ β ◫ δ := by
-  ext X
-  cat_tac
+  ext X; grind
 
 end NatTrans
 
 structure Iso {C : Type u} [Category.{v} C] (X Y : C) where
   hom : X ⟶ Y
   inv : Y ⟶ X
-  hom_inv_id : hom ≫ inv = 𝟙 X := by cat_tac
-  inv_hom_id : inv ≫ hom = 𝟙 Y := by cat_tac
+  hom_inv_id : hom ≫ inv = 𝟙 X := by grind
+  inv_hom_id : inv ≫ hom = 𝟙 Y := by grind
 
 attribute [grind =] Iso.hom_inv_id Iso.inv_hom_id
 
@@ -172,15 +170,10 @@ namespace Iso
 
 @[ext]
 theorem ext ⦃α β : X ≅ Y⦄ (w : α.hom = β.hom) : α = β :=
-  suffices α.inv = β.inv by
-    cases α
-    cases β
-    cases w
-    cases this
-    rfl
+  suffices α.inv = β.inv by grind [Iso]
   calc
-    α.inv = α.inv ≫ β.hom ≫ β.inv   := by grind
-    _     = β.inv                    := by grind
+    α.inv = α.inv ≫ β.hom ≫ β.inv := by grind
+    _     = β.inv                 := by grind
 
 
 /-- `LeftInverse g f` means that g is a left inverse to f. That is, `g ∘ f = id`. -/
@@ -208,7 +201,7 @@ attribute [local grind] Function.LeftInverse in
 def homToEquiv (α : X ≅ Y) {Z : C} : (Z ⟶ X) ≃ (Z ⟶ Y) where
   toFun f := f ≫ α.hom
   invFun g := g ≫ α.inv
-  left_inv := by cat_tac
+  left_inv := by grind
   right_inv := sorry
 
 end Iso
@@ -254,7 +247,7 @@ protected def flip (F : C ⥤ D ⥤ E) : D ⥤ C ⥤ E where
     { obj := fun j => (F.obj j).obj k,
       map := fun f => (F.map f).app k, }
   map f := { app := fun j => (F.obj j).map f }
-  map_id k := by cat_tac
+  map_id k := by grind
   map_comp f g := sorry
 
 @[simp] theorem flip_obj_obj (F : C ⥤ D ⥤ E) (k : D) : (F.flip.obj k).obj = fun j => (F.obj j).obj k := rfl
@@ -272,9 +265,8 @@ def flipFunctor : (C ⥤ D ⥤ E) ⥤ D ⥤ C ⥤ E where
   map {F₁ F₂} φ :=
     { app := fun Y =>
       { app := fun X => (φ.app X).app Y
-        naturality := fun X₁ X₂ f => by
-          dsimp
-          simp only [← NatTrans.comp_app, naturality] }
+        naturality := fun X₁ X₂ f => by grind
+      }
       naturality := sorry }
   map_id := sorry
   map_comp := sorry
@@ -284,12 +276,12 @@ namespace Iso
 @[simp]
 theorem map_hom_inv_id_app {X Y : C} (e : X ≅ Y) (F : C ⥤ D ⥤ E) (Z : D) :
     (F.map e.hom).app Z ≫ (F.map e.inv).app Z = 𝟙 _ := by
-  cat_tac
+  grind
 
 @[simp]
 theorem map_inv_hom_id_app {X Y : C} (e : X ≅ Y) (F : C ⥤ D ⥤ E) (Z : D) :
     (F.map e.inv).app Z ≫ (F.map e.hom).app Z = 𝟙 _ := by
-  cat_tac
+  grind
 
 end Iso
 

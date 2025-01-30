@@ -91,16 +91,16 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
   | dite _ c _ _ _ => checkIteCondStatus c
   | _ =>
     if (← isResolvedCaseSplit e) then
-      trace[grind.debug.split] "split resolved: {e}"
+      trace_goal[grind.debug.split] "split resolved: {e}"
       return .resolved
     if (← isCongrToPrevSplit e) then
       return .resolved
     if let some info := isMatcherAppCore? (← getEnv) e then
       return .ready info.numAlts
-    let .const declName .. := e.getAppFn | unreachable!
-    if let some info ← isInductivePredicate? declName then
-      if (← isEqTrue e) then
-        return .ready info.ctors.length info.isRec
+    if let .const declName .. := e.getAppFn then
+      if let some info ← isInductivePredicate? declName then
+        if (← isEqTrue e) then
+          return .ready info.ctors.length info.isRec
     if e.isFVar then
       let type ← whnfD (← inferType e)
       let report : GoalM Unit := do
@@ -162,7 +162,11 @@ private def mkCasesMajor (c : Expr) : GoalM Expr := do
       return mkApp3 (mkConst ``Grind.of_eq_eq_true) a b (← mkEqTrueProof c)
     else
       return mkApp3 (mkConst ``Grind.of_eq_eq_false) a b (← mkEqFalseProof c)
-  | _ => return mkOfEqTrueCore c (← mkEqTrueProof c)
+  | _ =>
+    if (← isEqTrue c) then
+      return mkOfEqTrueCore c (← mkEqTrueProof c)
+    else
+      return c
 
 /-- Introduces new hypotheses in each goal. -/
 private def introNewHyp (goals : List Goal) (acc : List Goal) (generation : Nat) : GrindM (List Goal) := do
@@ -186,6 +190,9 @@ def splitNext : GrindTactic := fun goal => do
       casesMatch (← get).mvarId c
     else
       let major ← mkCasesMajor c
+      if (← getConfig).trace then
+        if let .const declName _ := (← whnfD (← inferType major)).getAppFn then
+          saveCases declName false
       cases (← get).mvarId major
     let goal ← get
     let goals := mvarIds.map fun mvarId => { goal with mvarId }

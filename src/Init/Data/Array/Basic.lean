@@ -270,14 +270,22 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
-/-- `take a n` returns the first `n` elements of `a`. -/
-def take (a : Array α) (n : Nat) : Array α :=
+/-- `shrink a n` returns the first `n` elements of `a`, implemented by repeatedly popping the last element. -/
+def shrink (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
 
-@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
+/-- `take a n` returns the first `n` elements of `a`, implemented by copying the first `n` elements. -/
+abbrev take (a : Array α) (n : Nat) : Array α := extract a 0 n
+
+@[simp] theorem take_eq_extract (a : Array α) (n : Nat) : a.take n = a.extract 0 n := rfl
+
+/-- `drop a n` removes the first `n` elements of `a`, implemented by copying the remaining elements. -/
+abbrev drop (a : Array α) (n : Nat) : Array α := extract a n a.size
+
+@[simp] theorem drop_eq_extract (a : Array α) (n : Nat) : a.drop n = a.extract n a.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -452,7 +460,7 @@ def mapM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α �
 
 @[deprecated mapM (since := "2024-11-11")] abbrev sequenceMap := @mapM
 
-/-- Variant of `mapIdxM` which receives the index as a `Fin as.size`. -/
+/-- Variant of `mapIdxM` which receives the index `i` along with the bound `i < as.size`. -/
 @[inline]
 def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
     (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → m β) : m (Array β) :=
@@ -464,12 +472,24 @@ def mapFinIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m]
         rw [← inv, Nat.add_assoc, Nat.add_comm 1 j, Nat.add_comm]
         apply Nat.le_add_right
       have : i + (j + 1) = as.size := by rw [← inv, Nat.add_comm j 1, Nat.add_assoc]
-      map i (j+1) this (bs.push (← f j (as.get j j_lt) j_lt))
+      map i (j+1) this (bs.push (← f j as[j] j_lt))
   map as.size 0 rfl (mkEmpty as.size)
 
 @[inline]
 def mapIdxM {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : Nat → α → m β) (as : Array α) : m (Array β) :=
   as.mapFinIdxM fun i a _ => f i a
+
+@[inline]
+def firstM {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Array α) : m β :=
+  go 0
+where
+  go (i : Nat) : m β :=
+    if hlt : i < as.size then
+      f as[i] <|> go (i+1)
+    else
+      failure
+  termination_by as.size - i
+  decreasing_by exact Nat.sub_succ_lt_self as.size i hlt
 
 @[inline]
 def findSomeM? {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : α → m (Option β)) (as : Array α) : m (Option β) := do
@@ -564,6 +584,9 @@ def findRevM? {α : Type} {m : Type → Type w} [Monad m] (p : α → m Bool) (a
 def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
+instance : ForM m (Array α) α where
+  forM xs f := forM f xs
+
 @[inline]
 def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := as.size) (stop := 0) : m PUnit :=
   as.foldrM (fun a _ => f a) ⟨⟩ start stop
@@ -595,6 +618,9 @@ def count {α : Type u} [BEq α] (a : α) (as : Array α) : Nat :=
 def map {α : Type u} {β : Type v} (f : α → β) (as : Array α) : Array β :=
   Id.run <| as.mapM f
 
+instance : Functor Array where
+  map := map
+
 /-- Variant of `mapIdx` which receives the index as a `Fin as.size`. -/
 @[inline]
 def mapFinIdx {α : Type u} {β : Type v} (as : Array α) (f : (i : Nat) → α → (h : i < as.size) → β) : Array β :=
@@ -605,8 +631,10 @@ def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) :
   Id.run <| as.mapIdxM f
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
-def zipWithIndex (arr : Array α) : Array (α × Nat) :=
-  arr.mapIdx fun i a => (a, i)
+def zipIdx (arr : Array α) (start := 0) : Array (α × Nat) :=
+  arr.mapIdx fun i a => (a, i + start)
+
+@[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
 
 @[inline]
 def find? {α : Type u} (p : α → Bool) (as : Array α) : Option α :=
@@ -654,18 +682,51 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
+theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
+    findIdx?.loop p xs j = (findFinIdx?.loop p xs j).map (·.val) := by
+  unfold findIdx?.loop
+  unfold findFinIdx?.loop
+  split <;> rename_i h
+  case isTrue =>
+    split
+    case isTrue => simp
+    case isFalse =>
+      have : xs.size - (j + 1) < xs.size - j := Nat.sub_succ_lt_self xs.size j h
+      rw [findIdx?_loop_eq_map_findFinIdx?_loop_val (j := j + 1)]
+  case isFalse => simp
+termination_by xs.size - j
+
+theorem findIdx?_eq_map_findFinIdx?_val {xs : Array α} {p : α → Bool} :
+    xs.findIdx? p = (xs.findFinIdx? p).map (·.val) := by
+  simp [findIdx?, findFinIdx?, findIdx?_loop_eq_map_findFinIdx?_loop_val]
+
+@[inline]
+def findIdx (p : α → Bool) (as : Array α) : Nat := (as.findIdx? p).getD as.size
+
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
+def idxOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
   if h : i < a.size then
     if a[i] == v then some ⟨i, h⟩
-    else indexOfAux a v (i+1)
+    else idxOfAux a v (i+1)
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
-  indexOfAux a v 0
+@[deprecated idxOfAux (since := "2025-01-29")]
+abbrev indexOfAux := @idxOfAux
 
-@[deprecated indexOf? (since := "2024-11-20")]
+def finIdxOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+  idxOfAux a v 0
+
+@[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
+abbrev indexOf? := @finIdxOf?
+
+/-- Returns the index of the first element equal to `a`, or the length of the array otherwise. -/
+def idxOf [BEq α] (a : α) : Array α → Nat := findIdx (· == a)
+
+def idxOf? [BEq α] (a : Array α) (v : α) : Option Nat :=
+  (a.finIdxOf? v).map (·.val)
+
+@[deprecated idxOf? (since := "2024-11-20")]
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
   a.findIdx? fun a => a == v
 
@@ -730,6 +791,24 @@ def flatMap (f : α → Array β) (as : Array α) : Array β :=
 @[inline] def flatten (as : Array (Array α)) : Array α :=
   as.foldl (init := empty) fun r a => r ++ a
 
+def reverse (as : Array α) : Array α :=
+  if h : as.size ≤ 1 then
+    as
+  else
+    loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
+where
+  termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
+    rw [Nat.sub_sub, Nat.add_comm]
+    exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
+  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
+    if h : i < j then
+      have := termination h
+      let as := as.swap i j (Nat.lt_trans h j.2)
+      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
+      loop as (i+1) ⟨j-1, this⟩
+    else
+      as
+
 @[inline]
 def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Array α :=
   as.foldl (init := #[]) (start := start) (stop := stop) fun r a =>
@@ -738,6 +817,11 @@ def filter (p : α → Bool) (as : Array α) (start := 0) (stop := as.size) : Ar
 @[inline]
 def filterM {α : Type} [Monad m] (p : α → m Bool) (as : Array α) (start := 0) (stop := as.size) : m (Array α) :=
   as.foldlM (init := #[]) (start := start) (stop := stop) fun r a => do
+    if (← p a) then return r.push a else return r
+
+@[inline]
+def filterRevM {α : Type} [Monad m] (p : α → m Bool) (as : Array α) (start := as.size) (stop := 0) : m (Array α) :=
+  reverse <$> as.foldrM (init := #[]) (start := start) (stop := stop) fun a r => do
     if (← p a) then return r.push a else return r
 
 @[specialize]
@@ -770,24 +854,6 @@ def partition (p : α → Bool) (as : Array α) : Array α × Array α := Id.run
     else
       cs := cs.push a
   return (bs, cs)
-
-def reverse (as : Array α) : Array α :=
-  if h : as.size ≤ 1 then
-    as
-  else
-    loop as 0 ⟨as.size - 1, Nat.pred_lt (mt (fun h : as.size = 0 => h ▸ by decide) h)⟩
-where
-  termination {i j : Nat} (h : i < j) : j - 1 - (i + 1) < j - i := by
-    rw [Nat.sub_sub, Nat.add_comm]
-    exact Nat.lt_of_le_of_lt (Nat.pred_le _) (Nat.sub_succ_lt_self _ _ h)
-  loop (as : Array α) (i : Nat) (j : Fin as.size) :=
-    if h : i < j then
-      have := termination h
-      let as := as.swap i j (Nat.lt_trans h j.2)
-      have : j-1 < as.size := by rw [size_swap]; exact Nat.lt_of_le_of_lt (Nat.pred_le _) j.2
-      loop as (i+1) ⟨j-1, this⟩
-    else
-      as
 
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
 def popWhile (p : α → Bool) (as : Array α) : Array α :=
@@ -854,16 +920,23 @@ it has to backshift all elements at positions greater than `i`. -/
 def eraseIdx! (a : Array α) (i : Nat) : Array α :=
   if h : i < a.size then a.eraseIdx i h else panic! "invalid index"
 
+/-- Remove a specified element from an array, or do nothing if it is not present.
+
+This function takes worst case O(n) time because
+it has to backshift all later elements. -/
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
-  match as.indexOf? a with
+  match as.finIdxOf? a with
   | none   => as
   | some i => as.eraseIdx i
 
-/-- Erase the first element that satisfies the predicate `p`. -/
+/-- Erase the first element that satisfies the predicate `p`.
+
+This function takes worst case O(n) time because
+it has to backshift all later elements. -/
 def eraseP (as : Array α) (p : α → Bool) : Array α :=
-  match as.findIdx? p with
+  match as.findFinIdx? p with
   | none   => as
-  | some i => as.eraseIdxIfInBounds i
+  | some i => as.eraseIdx i
 
 /-- Insert element `a` at position `i`. -/
 @[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=
@@ -932,13 +1005,13 @@ def zipWithAux (as : Array α) (bs : Array β) (f : α → β → γ) (i : Nat) 
     cs
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-@[inline] def zipWith (as : Array α) (bs : Array β) (f : α → β → γ) : Array γ :=
+@[inline] def zipWith (f : α → β → γ) (as : Array α) (bs : Array β) : Array γ :=
   zipWithAux as bs f 0 #[]
 
 def zip (as : Array α) (bs : Array β) : Array (α × β) :=
-  zipWith as bs Prod.mk
+  zipWith Prod.mk as bs
 
-def zipWithAll (as : Array α) (bs : Array β) (f : Option α → Option β → γ) : Array γ :=
+def zipWithAll (f : Option α → Option β → γ) (as : Array α) (bs : Array β) : Array γ :=
   go as bs 0 #[]
 where go (as : Array α) (bs : Array β) (i : Nat) (cs : Array γ) :=
   if i < max as.size bs.size then

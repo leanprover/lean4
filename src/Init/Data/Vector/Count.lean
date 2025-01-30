@@ -71,7 +71,7 @@ theorem countP_le_size {l : Vector α n} : countP p l ≤ n := by
 
 theorem countP_mkVector (p : α → Bool) (a : α) (n : Nat) :
     countP p (mkVector n a) = if p a then n else 0 := by
-  simp only [mkVector_eq_toVector_mkArray, countP_cast, countP_mk]
+  simp only [mkVector_eq_mk_mkArray, countP_cast, countP_mk]
   simp [Array.countP_mkArray]
 
 theorem boole_getElem_le_countP (p : α → Bool) (l : Vector α n) (i : Nat) (h : i < n) :
@@ -213,11 +213,11 @@ theorem count_eq_size {l : Vector α n} : count a l = l.size ↔ ∀ b ∈ l, a 
   simp [Array.count_eq_size]
 
 @[simp] theorem count_mkVector_self (a : α) (n : Nat) : count a (mkVector n a) = n := by
-  simp only [mkVector_eq_toVector_mkArray, count_cast, count_mk]
+  simp only [mkVector_eq_mk_mkArray, count_cast, count_mk]
   simp
 
 theorem count_mkVector (a b : α) (n : Nat) : count a (mkVector n b) = if b == a then n else 0 := by
-  simp only [mkVector_eq_toVector_mkArray, count_cast, count_mk]
+  simp only [mkVector_eq_mk_mkArray, count_cast, count_mk]
   simp [Array.count_mkArray]
 
 theorem count_le_count_map [DecidableEq β] (l : Vector α n) (f : α → β) (x : α) :

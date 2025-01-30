@@ -316,14 +316,35 @@ theorem insertIdxTR_go_eq : ∀ n l, insertIdxTR.go a n l acc = acc.toList ++ in
 
 /-! ## Ranges and enumeration -/
 
+/-! ### zipIdx -/
+
+/-- Tail recursive version of `List.zipIdx`. -/
+def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
+  let arr := l.toArray
+  (arr.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + arr.size, [])).2
+
+@[csimp] theorem zipIdx_eq_zipIdxTR : @zipIdx = @zipIdxTR := by
+  funext α l n; simp [zipIdxTR, -Array.size_toArray]
+  let f := fun (a : α) (n, acc) => (n-1, (a, n-1) :: acc)
+  let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, zipIdx l n)
+    | [], n => rfl
+    | a::as, n => by
+      rw [← show _ + as.length = n + (a::as).length from Nat.succ_add .., foldr, go as]
+      simp [zipIdx, f]
+  rw [← Array.foldr_toList]
+  simp +zetaDelta [go]
+
 /-! ### enumFrom -/
 
 /-- Tail recursive version of `List.enumFrom`. -/
+@[deprecated zipIdxTR (since := "2025-01-21")]
 def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
   let arr := l.toArray
   (arr.foldr (fun a (n, acc) => (n-1, (n-1, a) :: acc)) (n + arr.size, [])).2
 
-@[csimp] theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
+set_option linter.deprecated false in
+@[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
+theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
   funext α n l; simp [enumFromTR, -Array.size_toArray]
   let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
   let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)

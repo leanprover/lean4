@@ -133,9 +133,11 @@ example (x y : BitVec 16) : (x == y + x) = (y == 0) := by bv_normalize
 
 -- or_beq_zero_iff
 example (x y : BitVec 16) : (x ||| y == 0) = (x == 0 && y == 0) := by bv_normalize
+example (x y : BitVec 16) : (0 == x ||| y) = (x == 0 && y == 0) := by bv_normalize
 
 -- xor_beq_zero_iff
 example (x y : BitVec 16) : (x ^^^ y == 0) = (x == y) := by bv_normalize
+example (x y : BitVec 16) : (0 == x ^^^ y) = (x == y) := by bv_normalize
 
 section
 

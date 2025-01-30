@@ -42,6 +42,12 @@ info: [simp] Diagnostics
     [simp] ack.eq_1 ↦ 768, succeeded: 768
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 ---
+info: [diag] Diagnostics
+  [kernel] unfolded declarations (max: 29, num: 2):
+    [kernel] Nat.casesOn ↦ 29
+    [kernel] Nat.rec ↦ 29
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+---
 error: tactic 'simp' failed, nested error:
 maximum recursion depth has been reached
 use `set_option maxRecDepth <num>` to increase limit

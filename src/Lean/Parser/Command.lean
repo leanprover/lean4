@@ -754,6 +754,30 @@ list, so it should be brief.
   optional (docComment >> ppLine) >>
   "tactic_extension " >> ident
 
+/--
+Document a recommended spelling for a notation in identifiers.
+
+```
+/-- some additional info -/
+recommended_spelling "∧" "and" And «term_∧_»
+```
+
+will do the following:
+* Adds the sentence "The recommended spelling of `∧` in identifier is `and` (some additional info)."
+  to the end of the docstring for `And` and for `∧`. If the additional info is more than a single
+  line, it will be placed below the sentence instead of in parentheses.
+* Registers this information in an environment extension, so that it will later be possible to
+  generate a table with all recommended spellings.
+
+You can add attach the recommended spelling to as many declarations as you want. It is recommended
+to attach the recommended spelling to all relevant parsers as well as the declaration the parsers
+refer to (if such a declaration exists). Note that the `inherit_doc` attribute does *not* copy
+recommended spellings, so even though the parser for `∧` uses `@[inherit_doc And]`, we have to
+attach the recommended spelling to both `And` and `«term_∧_»`.
+-/
+@[builtin_command_parser] def «recommended_spelling» := leading_parser
+  optional (docComment >> ppLine) >>
+  "recommended_spelling " >> strLit >> ppSpace >> strLit >> ppSpace >> many1 ident
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

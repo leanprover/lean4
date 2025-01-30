@@ -682,6 +682,24 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
+theorem findIdx?_loop_eq_map_findFinIdx?_loop_val {xs : Array α} {p : α → Bool} {j} :
+    findIdx?.loop p xs j = (findFinIdx?.loop p xs j).map (·.val) := by
+  unfold findIdx?.loop
+  unfold findFinIdx?.loop
+  split <;> rename_i h
+  case isTrue =>
+    split
+    case isTrue => simp
+    case isFalse =>
+      have : xs.size - (j + 1) < xs.size - j := Nat.sub_succ_lt_self xs.size j h
+      rw [findIdx?_loop_eq_map_findFinIdx?_loop_val (j := j + 1)]
+  case isFalse => simp
+termination_by xs.size - j
+
+theorem findIdx?_eq_map_findFinIdx?_val {xs : Array α} {p : α → Bool} :
+    xs.findIdx? p = (xs.findFinIdx? p).map (·.val) := by
+  simp [findIdx?, findFinIdx?, findIdx?_loop_eq_map_findFinIdx?_loop_val]
+
 @[inline]
 def findIdx (p : α → Bool) (as : Array α) : Nat := (as.findIdx? p).getD as.size
 

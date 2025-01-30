@@ -886,6 +886,25 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
 
+/-! ### findFinIdx? -/
+
+theorem findIdx?_go_eq_map_findFinIdx?_go_val {xs : List α} {p : α → Bool} {i : Nat} {h} :
+    List.findIdx?.go p xs i =
+      (List.findFinIdx?.go p l xs i h).map (·.val) := by
+  unfold findIdx?.go
+  unfold findFinIdx?.go
+  split <;> rename_i a xs
+  · simp_all
+  · simp only
+    split
+    · simp
+    · rw [findIdx?_go_eq_map_findFinIdx?_go_val]
+
+theorem findIdx?_eq_map_findFinIdx?_val {xs : List α} {p : α → Bool} :
+    xs.findIdx? p = (xs.findFinIdx? p).map (·.val) := by
+  simp [findIdx?, findFinIdx?]
+  rw [findIdx?_go_eq_map_findFinIdx?_go_val]
+
 /-! ### idxOf
 
 The verification API for `idxOf` is still incomplete.
@@ -969,6 +988,12 @@ theorem idxOf?_cons [BEq α] (a : α) (xs : List α) (b : α) :
 
 @[deprecated idxOf?_eq_none_iff (since := "2025-01-29")]
 abbrev indexOf?_eq_none_iff := @idxOf?_eq_none_iff
+
+/-! ### finIdxOf? -/
+
+theorem idxOf?_eq_map_finIdxOf?_val [BEq α] {xs : List α} {a : α} :
+    xs.idxOf? a = (xs.finIdxOf? a).map (·.val) := by
+  simp [idxOf?, finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
 
 /-! ### lookup -/
 

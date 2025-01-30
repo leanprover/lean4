@@ -23,6 +23,15 @@ private def getSimpContext : MetaM Simp.Context := do
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
 
+private def getCleanupSimpContext : MetaM Simp.Context := do
+  let s : SimpTheorems := {}
+  let s ← s.addConst ``List.unattach_attach
+  let s ← s.addDeclToUnfold ``wfParam
+  Simp.mkContext
+    (simpTheorems  := #[s])
+    (congrTheorems := {})
+    (config        := { Simp.neutralConfig with dsimp := true })
+
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
     e.appArg!
@@ -54,12 +63,17 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     let simprocs ← ({} : Simp.SimprocsArray).add ``paramProj (post := true)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := simprocs)
     let e' := result.expr
-    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}"
 
     -- Remove markers
-    let e' := e'.replace isWfParam?
+    let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
+    let e'' := result.expr
+    -- Simp, even with dsimp on, is not as thorough as `Core.transform`:
+    let e'' ← Core.transform e'' fun e =>
+      pure <| .continue <| (isWfParam? e).getD e
 
-    mkLambdaFVars xs e'
+    trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
+
+    mkLambdaFVars xs e''
 
 /-
 run_elab do

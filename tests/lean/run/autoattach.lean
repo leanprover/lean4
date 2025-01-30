@@ -44,9 +44,16 @@ h : x ∈ t.cs
 -/
 #guard_msgs in
 def Tree.pruneRevAndMap (f : α → β) (t : Tree α) : Tree β :=
-    ⟨f t.val, (t.cs.filter (not ·.isLeaf)).reverse.map (·.pruneRevAndMap f)⟩
+    ⟨f t.val, (t.cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap f)⟩
 termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
+
+/--
+info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
+  (case1 : ∀ (x : Tree α), (∀ (x_1 : Tree α), x_1 ∈ x.cs → motive x_1) → motive x) (t : Tree α) : motive t
+-/
+#guard_msgs in
+#check Tree.pruneRevAndMap.induct
 
 structure MTree (α : Type u) where
   val : α

@@ -377,18 +377,6 @@ theorem containsThenInsertSlow_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.B
     (t.containsThenInsertSlow a b).2 = t.insertₘ a b htb := by
   rw [snd_containsThenInsertSlow_eq_containsThenInsert, containsThenInsert_eq_insertₘ]
 
-theorem fst_containsThenInsertIfNewSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
-    (t.containsThenInsertIfNewSlow a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
-  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
-  split <;> rfl
-
-theorem snd_containsThenInsertIfNewSlow_eq_containsThenInsert [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
-    (t.containsThenInsertIfNewSlow a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
-  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
-  split
-  · rfl
-  · simp [insertSlow_eq_insertₘ, insert_eq_insertₘ, htb]
-
 theorem insertIfNew_eq_insertIfNewSlow [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
     (insertIfNew k v l h).impl = insertIfNewSlow k v l := by
   simp [insertIfNew, insertIfNewSlow]
@@ -396,17 +384,37 @@ theorem insertIfNew_eq_insertIfNewSlow [Ord α] {k : α} {v : β k} {l : Impl α
   · rfl
   · simp [insert_eq_insertSlow]
 
--- theorem insertIfNew_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
---     (insertIfNew k v l h).impl = insertₘ k v l h := by
---   simp only [insertIfNewₘ]
---   induction l
---   · simp only [insertIfNew, updateCell]
---     split <;> split <;> simp_all [balanceL_eq_balance, balanceR_eq_balance]
---   · simp [insertIfNew, insertₘ, updateCell]
+theorem fst_containsThenInsertIfNewSlow_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertIfNewSlow a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
+  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
+  split <;> rfl
 
--- theorem insertIfNewSlow_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} (h : l.Balanced) :
---     insertIfNewSlow k v l = insertₘ k v l h := by
---   rw [← insertIfNew_eq_insertSlow (h := h), insert_eq_insertₘ]
+theorem snd_containsThenInsertIfNewSlow_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertIfNewSlow a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
+  simp [containsThenInsertIfNew, containsThenInsertIfNewSlow]
+  split
+  · rfl
+  · simp [insertSlow_eq_insertₘ, insert_eq_insertₘ, htb]
+
+theorem fst_containsThenInsertIfNew_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+    (a : α) (b : β a) : (t.containsThenInsertIfNew a b htb).1 = t.containsₘ a := by
+  simp [containsThenInsertIfNew, contains_eq_containsₘ]
+  split <;> next h => simp only [h]
+
+theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
+    (t.containsThenInsertIfNew a b htb).2.impl = (t.insertIfNew a b htb).impl := by
+  rw [containsThenInsertIfNew, insertIfNew]
+  split <;> rfl
+
+theorem fst_containsThenInsertIfNewSlow_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+    (a : α) (b : β a) : (t.containsThenInsertIfNewSlow a b).1 = t.containsₘ a := by
+  simp [containsThenInsertIfNewSlow, contains_eq_containsₘ]
+  split <;> next h => simp only [h]
+
+theorem snd_containsThenInsertIfNewSlow_eq_insertIfNewSlow [Ord α] (t : Impl α β) (a : α) (b : β a) :
+    (t.containsThenInsertIfNewSlow a b).2 = t.insertIfNewSlow a b:= by
+  rw [containsThenInsertIfNewSlow, insertIfNewSlow]
+  split <;> rfl
 
 end Impl
 

@@ -770,6 +770,34 @@ theorem toListModel_insertIfNewSlow [Ord α] [TransOrd α] {k : α} {v : β k} {
   simpa [insertIfNew_eq_insertIfNewSlow] using toListModel_insertIfNew hlb hlo
 
 /-!
+### containsThenInsertIfNew
+-/
+
+theorem WF.containsThenInsertIfNew [Ord α] {k : α} {v : β k} {t : Impl α β}
+    (h : t.WF) : (t.containsThenInsertIfNew k v h.balanced).2.impl.WF := by
+  simpa only [snd_containsThenInsertIfNew_eq_insertIfNew, h.balanced] using h.insertIfNew
+
+theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) :
+    (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
+  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  exact toListModel_insertIfNew htb hto
+
+/-!
+### containsThenInsertIfNewSlow
+-/
+
+theorem WF.containsThenInsertIfNewSlow [Ord α] {k : α} {v : β k} {t : Impl α β}
+    (h : t.WF) : (t.containsThenInsertIfNewSlow k v).2.WF := by
+  simpa only [snd_containsThenInsertIfNewSlow_eq_insertIfNewSlow, h.balanced] using h.insertIfNewSlow
+
+theorem toListModel_containsThenInsertIfNewSlow [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (htb : t.Balanced)
+    (hto : t.Ordered) :
+    (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
+  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  exact toListModel_insertIfNew htb hto
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 

@@ -101,6 +101,13 @@ def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DT
 def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
     letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
 
+@[inline, inherit_doc Raw.containsThenInsertIfNew]
+def containsThenInsertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) :
+    Bool × DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.containsThenInsertIfNew a b t.wf.balanced
+  (p.1, ⟨p.2.impl, t.wf.containsThenInsertIfNew⟩)
+
 instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
 

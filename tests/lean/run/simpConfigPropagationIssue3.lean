@@ -22,6 +22,6 @@ open OrientedCmp
 
 theorem ge_trans (h₁ : cmp x y ≠ .lt) (h₂ : cmp y z ≠ .lt) : cmp x z ≠ .lt := by
   have := @TransCmp.le_trans _ cmp _ z y x
-  simp? [cmp_eq_gt] at *
+  simp [cmp_eq_gt] at *
   -- `simp` did not fire at `this`
   exact this h₂ h₁

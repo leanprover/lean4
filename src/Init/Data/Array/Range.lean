@@ -60,9 +60,9 @@ theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1
   ext <;> simp <;> omega
 
 theorem range'_append (s m n step : Nat) :
-    range' s m step ++ range' (s + step * m) n step = range' s (n + m) step := by
+    range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
   ext i h₁ h₂
-  · simp; omega
+  · simp
   · simp only [size_append, size_range'] at h₁ h₂
     simp only [getElem_append, size_range', getElem_range', Nat.mul_sub_left_distrib, dite_eq_ite,
       ite_eq_left_iff, Nat.not_lt]
@@ -71,12 +71,12 @@ theorem range'_append (s m n step : Nat) :
     omega
 
 @[simp] theorem range'_append_1 (s m n : Nat) :
-    range' s m ++ range' (s + m) n = range' s (n + m) := by simpa using range'_append s m n 1
+    range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append s m n 1
 
-theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ [s + step * n] := by
-  rw [Nat.add_comm n 1]; exact (range'_append s n 1 step).symm
+theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ #[s + step * n] := by
+  exact (range'_append s n 1 step).symm
 
-theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ [s + n] := by
+theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ #[s + n] := by
   simp [range'_concat]
 
 @[simp] theorem mem_range'_1 : m ∈ range' s n ↔ s ≤ m ∧ m < s + n := by
@@ -185,7 +185,7 @@ theorem zipIdx_eq_empty_iff {l : Array α} {n : Nat} : l.zipIdx n = #[] ↔ l = 
 
 @[simp]
 theorem getElem?_zipIdx (l : Array α) (n m) : (zipIdx l n)[m]? = l[m]?.map fun a => (a, n + m) := by
-  simp [getElem?_def, Nat.add_comm]
+  simp [getElem?_def]
 
 theorem map_snd_add_zipIdx_eq_zipIdx (l : Array α) (n k : Nat) :
     map (Prod.map id (· + n)) (zipIdx l k) = zipIdx l (n + k) :=

@@ -98,18 +98,18 @@ theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1
   · simp [Nat.add_right_comm]
 
 theorem range'_append : ∀ s m n step : Nat,
-    range' s m step ++ range' (s + step * m) n step = range' s (n + m) step
-  | _, 0, _, _ => rfl
+    range' s m step ++ range' (s + step * m) n step = range' s (m + n) step
+  | _, 0, _, _ => by simp
   | s, m + 1, n, step => by
     simpa [range', Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
       using range'_append (s + step) m n step
 
 @[simp] theorem range'_append_1 (s m n : Nat) :
-    range' s m ++ range' (s + m) n = range' s (n + m) := by simpa using range'_append s m n 1
+    range' s m ++ range' (s + m) n = range' s (m + n) := by simpa using range'_append s m n 1
 
 theorem range'_sublist_right {s m n : Nat} : range' s m step <+ range' s n step ↔ m ≤ n :=
   ⟨fun h => by simpa only [length_range'] using h.length_le,
-   fun h => by rw [← Nat.sub_add_cancel h, ← range'_append]; apply sublist_append_left⟩
+   fun h => by rw [← add_sub_of_le h, ← range'_append]; apply sublist_append_left⟩
 
 theorem range'_subset_right {s m n : Nat} (step0 : 0 < step) :
     range' s m step ⊆ range' s n step ↔ m ≤ n := by
@@ -121,7 +121,7 @@ theorem range'_subset_right_1 {s m n : Nat} : range' s m ⊆ range' s n ↔ m �
   range'_subset_right (by decide)
 
 theorem range'_concat (s n : Nat) : range' s (n + 1) step = range' s n step ++ [s + step * n] := by
-  rw [Nat.add_comm n 1]; exact (range'_append s n 1 step).symm
+  exact (range'_append s n 1 step).symm
 
 theorem range'_1_concat (s n : Nat) : range' s (n + 1) = range' s n ++ [s + n] := by
   simp [range'_concat]

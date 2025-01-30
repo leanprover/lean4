@@ -148,15 +148,26 @@ Diagnose spurious counter examples, currently this checks:
 -/
 def diagnose : DiagnosisM Unit := do
   for (expr, _) in ← equations do
-    match_expr expr with
-    | BitVec.ofBool x =>
-      match x with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
-    | _ =>
-      match expr with
-      | .fvar fvarId => checkRelevantHypsUsed fvarId
-      | _ => addUninterpretedSymbol expr
+    match findRelevantFVar expr with
+    | some fvarId => checkRelevantHypsUsed fvarId
+    | none => addUninterpretedSymbol expr
+where
+  findRelevantFVar (expr : Expr) : Option FVarId :=
+    match fvarId? expr with
+    | some fvarId => some fvarId
+    | none =>
+      match_expr expr with
+      | BitVec.ofBool x => fvarId? x
+      | UInt8.toBitVec x => fvarId? x
+      | UInt16.toBitVec x => fvarId? x
+      | UInt32.toBitVec x => fvarId? x
+      | UInt64.toBitVec x => fvarId? x
+      | _ => none
+  fvarId? (expr : Expr) : Option FVarId :=
+    match expr with
+    | .fvar fvarId => some fvarId
+    | _ => none
+
 
 end DiagnosisM
 

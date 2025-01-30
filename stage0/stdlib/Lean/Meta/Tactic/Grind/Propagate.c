@@ -202,7 +202,7 @@ static lean_object* l_Lean_Meta_Grind_propagateDIte___lambda__1___closed__6;
 static lean_object* l_Lean_Meta_Grind_propagateEqUp___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateHEqUp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_propagateHEqDown(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_Grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_grind_internalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Meta_Grind_propagateNotDown_declare__1____x40_Lean_Meta_Tactic_Grind_Propagate___hyg_1766_(lean_object*);
 uint8_t l_Array_isEmpty___rarg(lean_object*);
 static lean_object* _init_l_Lean_Meta_Grind_propagateAndUp___lambda__1___closed__1() {
@@ -7040,7 +7040,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
-x_35 = l_Lean_Meta_Grind_internalize(x_7, x_32, x_34, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_33);
+x_35 = lean_grind_internalize(x_7, x_32, x_34, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_33);
 if (lean_obj_tag(x_35) == 0)
 {
 lean_object* x_36; lean_object* x_37; 
@@ -7216,7 +7216,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_6);
-x_63 = l_Lean_Meta_Grind_internalize(x_6, x_60, x_62, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_61);
+x_63 = lean_grind_internalize(x_6, x_60, x_62, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_61);
 if (lean_obj_tag(x_63) == 0)
 {
 lean_object* x_64; lean_object* x_65; 
@@ -7810,7 +7810,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_40);
-x_48 = l_Lean_Meta_Grind_internalize(x_40, x_45, x_47, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_46);
+x_48 = lean_grind_internalize(x_40, x_45, x_47, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_46);
 if (lean_obj_tag(x_48) == 0)
 {
 lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; uint8_t x_54; lean_object* x_55; 
@@ -8103,7 +8103,7 @@ lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_85);
-x_93 = l_Lean_Meta_Grind_internalize(x_85, x_90, x_92, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_91);
+x_93 = lean_grind_internalize(x_85, x_90, x_92, x_8, x_9, x_10, x_11, x_12, x_13, x_14, x_15, x_91);
 if (lean_obj_tag(x_93) == 0)
 {
 lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; uint8_t x_99; lean_object* x_100; 

@@ -120,7 +120,7 @@ Expands fields.
   let fields? ← fields.mapM expandStructInstField
   if fields?.all (·.isNone) then
     Macro.throwUnsupported
-  let fields := fields?.zipWith fields Option.getD
+  let fields := Array.zipWith Option.getD fields? fields
   let structInstFields := structInstFields.setArg 0 <| Syntax.mkSep fields (mkAtomFrom stx ", ")
   return stx.setArg 2 structInstFields
 

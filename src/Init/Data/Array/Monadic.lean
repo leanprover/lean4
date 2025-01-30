@@ -83,7 +83,7 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
 
 @[congr] theorem forM_congr [Monad m] {as bs : Array α} (w : as = bs)
     {f : α → m PUnit} :
-    forM f as = forM f bs := by
+    as.forM f = bs.forM f := by
   cases as <;> cases bs
   simp_all
 

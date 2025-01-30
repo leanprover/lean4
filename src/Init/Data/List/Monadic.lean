@@ -28,7 +28,11 @@ attribute [simp] mapA forA filterAuxM firstM anyM allM findM? findSomeM?
 
 /-! ### mapM -/
 
-/-- Alternate (non-tail-recursive) form of mapM for proofs. -/
+/-- Alternate (non-tail-recursive) form of mapM for proofs.
+
+Note that we can not have this as the main definition and replace it using a `@[csimp]` lemma,
+because they are only equal when `m` is a `LawfulMonad`.
+-/
 def mapM' [Monad m] (f : α → m β) : List α → m (List β)
   | [] => pure []
   | a :: l => return (← f a) :: (← l.mapM' f)

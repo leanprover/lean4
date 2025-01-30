@@ -1583,6 +1583,7 @@ lean_inc(x_15);
 lean_dec(x_13);
 lean_inc(x_3);
 x_16 = l_Lean_getAttributeImpl(x_15, x_3);
+lean_dec(x_15);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
@@ -1627,6 +1628,7 @@ lean_inc(x_26);
 lean_dec(x_24);
 lean_inc(x_3);
 x_27 = l_Lean_getAttributeImpl(x_26, x_3);
+lean_dec(x_26);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; 
@@ -4850,6 +4852,7 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__6___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
+lean_dec(x_1);
 return x_5;
 }
 }
@@ -4868,6 +4871,7 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at___private_Lean_Elab_Inductive_0__Lean_Elab_Command_inductiveSyntaxToView___spec__6___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
+lean_dec(x_1);
 return x_7;
 }
 }

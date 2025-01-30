@@ -27,4 +27,4 @@ h : HEq ⋯ ⋯
 -/
 #guard_msgs (error) in
 example {c : Nat} (q : X c 0) : False := by
-  grind [X]
+  grind [cases X]

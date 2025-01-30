@@ -359,9 +359,7 @@ def getPatternSupportMask (f : Expr) (numArgs : Nat) : MetaM (Array Bool) := do
       else
         return (← x.fvarId!.getDecl).binderInfo matches .instImplicit
 
-private partial def go (pattern : Expr) (root := false) : M Expr := do
-  if root && !pattern.hasLooseBVars then
-    throwError "invalid pattern, it does not have pattern variables"
+private partial def go (pattern : Expr) : M Expr := do
   if let some (e, k) := isOffsetPattern? pattern then
     let e ← goArg e (isSupport := false)
     if e == dontCare then
@@ -550,9 +548,11 @@ def mkEMatchTheoremCore (origin : Origin) (levelParams : Array Name) (numParams 
     levelParams, origin, kind
   }
 
-private def getProofFor (declName : Name) : CoreM Expr := do
-  let .thmInfo info ← getConstInfo declName
-    | throwError "`{declName}` is not a theorem"
+private def getProofFor (declName : Name) : MetaM Expr := do
+  let info ← getConstInfo declName
+  unless info.isTheorem do
+    unless (← isProp info.type) do
+      throwError "invalid E-matching theorem `{declName}`, type is not a proposition"
   let us := info.levelParams.map mkLevelParam
   return mkConst declName us
 
@@ -699,7 +699,55 @@ private def collectPatterns? (proof : Expr) (xs : Array Expr) (searchPlaces : Ar
     | return none
   return some (ps, s.symbols.toList)
 
-def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind) : MetaM (Option EMatchTheorem) := do
+/--
+Tries to find a ground pattern to activate the theorem.
+This is used for theorems such as `theorem evenZ : Even 0`.
+This function is only used if `collectPatterns?` returns `none`.
+-/
+private partial def collectGroundPattern? (proof : Expr) (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option (Expr × List HeadIndex)) := do
+  unless (← checkCoverage proof xs.size {}) matches .ok do
+    return none
+  let go? : CollectorM (Option Expr) := do
+    for place in searchPlaces do
+      let place ← preprocessPattern place
+      if let some r ← visit? place then
+        return r
+    return none
+  let (some p, s) ← go? { proof, xs } |>.run' {} |>.run {}
+    | return none
+  return some (p, s.symbols.toList)
+where
+  visit? (e : Expr) : CollectorM (Option Expr) := do
+    match e with
+    | .app .. =>
+      let f := e.getAppFn
+      if (← isPatternFnCandidate f) then
+        let e ← NormalizePattern.normalizePattern e
+        return some e
+      else
+        let args := e.getAppArgs
+        for arg in args, flag in (← NormalizePattern.getPatternSupportMask f args.size) do
+          unless flag do
+            if let some r ← visit? arg then
+              return r
+        return none
+    | .forallE _ d b _ =>
+      if (← pure e.isArrow <&&> isProp d <&&> isProp b) then
+        if let some d ← visit? d then return d
+        visit? b
+      else
+        return none
+    | _ => return none
+
+/--
+Creates an E-match theorem using the given proof and kind.
+If `groundPatterns` is `true`, it accepts patterns without pattern variables. This is useful for
+theorems such as `theorem evenZ : Even 0`. For local theorems, we use `groundPatterns := false`
+since the theorem is already in the `grind` state and there is nothing to be instantiated.
+-/
+def mkEMatchTheoremWithKind?
+      (origin : Origin) (levelParams : Array Name) (proof : Expr) (kind : EMatchTheoremKind)
+      (groundPatterns := true) : MetaM (Option EMatchTheorem) := do
   if kind == .eqLhs then
     return (← mkEMatchEqTheoremCore origin levelParams proof (normalizePattern := true) (useLhs := true))
   else if kind == .eqRhs then
@@ -720,8 +768,14 @@ def mkEMatchTheoremWithKind? (origin : Origin) (levelParams : Array Name) (proof
     go xs searchPlaces
 where
   go (xs : Array Expr) (searchPlaces : Array Expr) : MetaM (Option EMatchTheorem) := do
-    let some (patterns, symbols) ← collectPatterns? proof xs searchPlaces
-      | return none
+    let (patterns, symbols) ← if let some r ← collectPatterns? proof xs searchPlaces then
+      pure r
+    else if !groundPatterns then
+      return none
+    else if let some (pattern, symbols) ← collectGroundPattern? proof xs searchPlaces then
+      pure ([pattern], symbols)
+    else
+      return none
     let numParams := xs.size
     trace[grind.ematch.pattern] "{← origin.pp}: {patterns.map ppPattern}"
     return some {
@@ -774,11 +828,13 @@ def addEMatchAttr (declName : Name) (attrKind : AttributeKind) (thmKind : EMatch
   else if thmKind == .eqBoth then
     addGrindEqAttr declName attrKind thmKind (useLhs := true)
     addGrindEqAttr declName attrKind thmKind (useLhs := false)
-  else if !(← getConstInfo declName).isTheorem then
-    addGrindEqAttr declName attrKind thmKind
   else
-    let thm ← mkEMatchTheoremForDecl declName thmKind
-    ematchTheoremsExt.add thm attrKind
+    let info ← getConstInfo declName
+    if !info.isTheorem && !info.isCtor && !info.isAxiom then
+      addGrindEqAttr declName attrKind thmKind
+    else
+      let thm ← mkEMatchTheoremForDecl declName thmKind
+      ematchTheoremsExt.add thm attrKind
 
 def eraseEMatchAttr (declName : Name) : MetaM Unit := do
   /-

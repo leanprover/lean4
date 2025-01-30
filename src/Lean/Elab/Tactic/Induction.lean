@@ -286,8 +286,9 @@ where
               diagnostics := .empty
               inner? := none
               finished := { range? := none, task := finished.result }
-              next := altStxs.zipWith altPromises fun stx prom =>
-                { range? := stx.getRange?, task := prom.result }
+              next := Array.zipWith
+                (fun stx prom => { range? := stx.getRange?, task := prom.result })
+                altStxs altPromises
             }
             goWithIncremental <| altPromises.mapIdx fun i prom => {
               old? := do

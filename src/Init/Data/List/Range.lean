@@ -29,11 +29,15 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
   | 0 => rfl
   | _ + 1 => congrArg succ (length_range' _ _ _)
 
-@[simp] theorem range'_eq_nil : range' s n step = [] ↔ n = 0 := by
+@[simp] theorem range'_eq_nil_iff : range' s n step = [] ↔ n = 0 := by
   rw [← length_eq_zero, length_range']
 
-theorem range'_ne_nil (s : Nat) {n step : Nat} : range' s n step ≠ [] ↔ n ≠ 0 := by
+@[deprecated range'_eq_nil_iff (since := "2025-01-29")] abbrev range'_eq_nil := @range'_eq_nil_iff
+
+theorem range'_ne_nil_iff (s : Nat) {n step : Nat} : range' s n step ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp
+
+@[deprecated range'_ne_nil_iff (since := "2025-01-29")] abbrev range'_ne_nil := @range'_ne_nil_iff
 
 @[simp] theorem range'_zero : range' s 0 step = [] := by
   simp

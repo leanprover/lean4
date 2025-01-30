@@ -120,7 +120,7 @@ namespace Array
 /-! ### zipIdx -/
 
 @[simp] theorem getElem_zipIdx (a : Array α) (k : Nat) (i : Nat) (h : i < (a.zipIdx k).size) :
-    (a.zipIdx k)[i] = (a[i]'(by simp_all), i + k) := by
+    (a.zipIdx k)[i] = (a[i]'(by simp_all), k + i) := by
   simp [zipIdx]
 
 @[deprecated getElem_zipIdx (since := "2025-01-21")]

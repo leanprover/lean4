@@ -636,7 +636,7 @@ def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) :
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
 def zipIdx (arr : Array α) (start := 0) : Array (α × Nat) :=
-  arr.mapIdx fun i a => (a, i + start)
+  arr.mapIdx fun i a => (a, start + i)
 
 @[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
 

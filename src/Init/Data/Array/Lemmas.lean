@@ -3669,6 +3669,11 @@ theorem uset_toArray (l : List α) (i : USize) (a : α) (h : i.toNat < l.toArray
   apply ext'
   simp
 
+@[simp] theorem toArray_range' (start size step : Nat) :
+    (range' start size step).toArray = Array.range' start size step := by
+  apply ext'
+  simp
+
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (ofFn f).toArray = Array.ofFn f := by
   ext <;> simp
 

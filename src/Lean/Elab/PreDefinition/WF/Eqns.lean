@@ -22,18 +22,12 @@ structure EqnInfo extends EqnInfoCore where
   argsPacker      : ArgsPacker
   deriving Inhabited
 
-private partial def deltaLHsUntil (declNameNonRec : Name) (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
-  let target ← mvarId.getType'
-  let some (_, lhs, _) := target.eq? | throwTacticEx `deltaLHsUntil mvarId "equality expected"
-  if lhs.isAppOf declNameNonRec then
-    return mvarId
-  else
-    deltaLHsUntil declNameNonRec (← deltaLHS mvarId)
-
 private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   let target ← mvarId.getType'
   let some (_, lhs, rhs) := target.eq? | unreachable!
 
+  -- lhs should be an application of the declNameNonrec, which unfolds to an
+  -- application of fix in one step
   let some lhs' ← delta? lhs | throwError "rwFixEq: cannot delta-reduce {lhs}"
   let_expr WellFounded.fix _α _C _r _hwf F x := lhs'
     | throwTacticEx `rwFixEq mvarId "expected saturated fixed-point application in {lhs'}"
@@ -86,7 +80,10 @@ private partial def mkProof (declName declNameNonRec : Name) (type : Expr) : Met
             -- LHS (introduced in 096e4eb), but it seems that code path was never used,
             -- so #3133 removed it again (and can be recovered from there if this was premature).
             throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
-    go (← rwFixEq (← deltaLHsUntil declNameNonRec mvarId))
+
+    let mvarId ← if declName != declNameNonRec then deltaLHS mvarId else pure mvarId
+    let mvarId ← rwFixEq mvarId
+    go mvarId
     instantiateMVars main
 
 def mkEqns (declName : Name) (info : EqnInfo) : MetaM (Array Name) :=

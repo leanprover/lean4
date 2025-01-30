@@ -684,6 +684,14 @@ def pushEqTrue (a proof : Expr) : GoalM Unit := do
 def pushEqFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getFalseExpr) proof
 
+/-- Pushes `a = Bool.true` with `proof` to `newEqs`. -/
+def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolTrueExpr) proof
+
+/-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
+def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolFalseExpr) proof
+
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
 information in the root (aka canonical representative) of `child`.

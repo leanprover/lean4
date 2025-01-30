@@ -30,7 +30,7 @@ hello
 -/
 recommended_spelling "☋" "orbitalAnd" MyAnd «term_☋_»
 /--      Docstring      -/
-recommended_spelling "something" "and" And «term_☃_» «term_☋_»
+recommended_spelling "something" "and" «term_☃_» «term_☋_»
 
 def findDocString? (n : Lean.Name) : Lean.MetaM (Option String) := do
   Lean.findDocString? (← Lean.getEnv) n

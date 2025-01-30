@@ -95,8 +95,15 @@ def containsThenInsert (t : TreeMap α β cmp) (a : α) (b : β) : Bool × TreeM
   let p := t.inner.containsThenInsert a b
   (p.1, ⟨p.2⟩)
 
+@[inline, inherit_doc DTreeMap.insertIfNew]
+def insertIfNew (t : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
+  ⟨t.inner.insertIfNew a b⟩
+
 instance : Membership α (TreeMap α β cmp) where
   mem m a := m.contains a
+
+instance {m : TreeMap α β cmp} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
 
 end TreeMap
 

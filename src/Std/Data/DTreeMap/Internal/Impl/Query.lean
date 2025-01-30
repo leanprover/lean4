@@ -45,6 +45,9 @@ def contains [Ord α] (k : α) (t : Impl α β) : Bool :=
 instance [Ord α] : Membership α (Impl α β) where
   mem t a := t.contains a
 
+instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
+
 /-- Returns `true` if the tree is empty. -/
 @[inline]
 def isEmpty (t : Impl α β) : Bool :=

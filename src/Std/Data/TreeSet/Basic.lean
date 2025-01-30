@@ -95,8 +95,15 @@ def containsThenInsert (t : TreeSet α cmp) (a : α) : Bool × TreeSet α cmp :=
   let p := t.inner.containsThenInsert a ()
   (p.1, ⟨p.2⟩)
 
+@[inline, inherit_doc Raw.insertIfNew]
+def insertIfNew (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
+  ⟨t.inner.insertIfNew a ()⟩
+
 instance : Membership α (TreeSet α cmp) where
   mem m a := m.contains a
+
+instance {m : TreeSet α cmp} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
 
 end TreeSet
 

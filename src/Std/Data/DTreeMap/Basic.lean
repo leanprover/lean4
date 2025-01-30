@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.DTreeMap.Internal.Impl
+import Std.Data.DTreeMap.Internal.WF
 import Std.Data.DTreeMap.Raw
 
 /-!
@@ -97,8 +97,15 @@ def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DT
   let p := t.inner.containsThenInsert a b t.wf.balanced
   (p.1, ⟨p.2.impl, t.wf.containsThenInsert⟩)
 
+@[inline, inherit_doc Raw.insertIfNew]
+def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
+
 instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
+
+instance {m : DTreeMap α β cmp} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
 
 end DTreeMap
 

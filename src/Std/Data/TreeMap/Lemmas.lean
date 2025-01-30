@@ -96,4 +96,59 @@ theorem containsThenInsert_snd [TransCmp cmp] {k : α} {v : β} :
     (t.containsThenInsert k v).2 = t.insert k v :=
   ext <| DTreeMap.containsThenInsert_snd
 
+@[simp]
+theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} {v : β} :
+    (t.insertIfNew k v).isEmpty = false :=
+  DTreeMap.isEmpty_insertIfNew
+
+@[simp]
+theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
+  DTreeMap.contains_insertIfNew
+
+@[simp]
+theorem mem_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    a ∈ t.insertIfNew k v ↔ cmp k a == .eq ∨ a ∈ t :=
+  DTreeMap.mem_insertIfNew
+
+theorem contains_insertIfNew_self [TransCmp cmp] {k : α} {v : β} :
+    (t.insertIfNew k v).contains k :=
+  DTreeMap.contains_insertIfNew_self
+
+theorem mem_insertIfNew_self [TransCmp cmp] {k : α} {v : β} :
+    k ∈ t.insertIfNew k v :=
+  DTreeMap.mem_insertIfNew_self
+
+theorem contains_of_contains_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    (t.insertIfNew k v).contains a → (cmp k a == .eq) = false → t.contains a :=
+  DTreeMap.contains_of_contains_insertIfNew
+
+theorem mem_of_mem_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
+    a ∈ t.insertIfNew k v → (cmp k a == .eq) = false → a ∈ t :=
+  DTreeMap.contains_of_contains_insertIfNew
+
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
+obligation in the statement of `get_insertIfNew`. -/
+theorem contains_of_contains_insertIfNew' [TransCmp cmp] {k a : α} {v : β} :
+    (t.insertIfNew k v).contains a → ¬((cmp k a == .eq) ∧ t.contains k = false) → t.contains a :=
+  DTreeMap.contains_of_contains_insertIfNew'
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the proof obligation
+in the statement of `get_insertIfNew`. -/
+theorem mem_of_mem_insertIfNew' [TransCmp cmp] {k a : α} {v : β} :
+    a ∈ t.insertIfNew k v → ¬((cmp k a == .eq) ∧ ¬k ∈ t) → a ∈ t :=
+  DTreeMap.mem_of_mem_insertIfNew'
+
+theorem size_insertIfNew [TransCmp cmp] {k : α} {v : β} :
+    (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=
+  DTreeMap.size_insertIfNew
+
+theorem size_le_size_insertIfNew [TransCmp cmp] {k : α} {v : β} :
+    t.size ≤ (t.insertIfNew k v).size :=
+  DTreeMap.size_le_size_insertIfNew
+
+theorem size_insertIfNew_le [TransCmp cmp] {k : α} {v : β} :
+    (t.insertIfNew k v).size ≤ t.size + 1 :=
+  DTreeMap.size_insertIfNew_le
+
 end Std.TreeMap

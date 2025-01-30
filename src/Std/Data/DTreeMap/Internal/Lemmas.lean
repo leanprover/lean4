@@ -28,6 +28,7 @@ scoped macro "wf_trivial" : tactic => `(tactic|
     | apply WF.ordered | apply WF.balanced | apply WF.insert | apply WF.insertSlow
     | apply WF.erase | apply WF.eraseSlow
     | apply WF.containsThenInsert | apply WF.containsThenInsertSlow
+    | apply WF.insertIfNew | apply WF.insertIfNewSlow
     | apply Ordered.distinctKeys
     | assumption
     ))
@@ -42,7 +43,8 @@ private def queryNames : Array Name :=
 
 private def modifyNames : Array Name :=
   #[``toListModel_insert, ``toListModel_insertSlow, ``toListModel_erase, ``toListModel_eraseSlow,
-    ``toListModel_containsThenInsert, ``toListModel_containsThenInsertSlow]
+    ``toListModel_containsThenInsert, ``toListModel_containsThenInsertSlow,
+    ``toListModel_insertIfNew, ``toListModel_insertIfNewSlow]
 
 private def congrNames : MacroM (Array (TSyntax `term)) := do
   return #[← `(_root_.List.Perm.isEmpty_eq), ← `(containsKey_of_perm),
@@ -194,6 +196,118 @@ theorem containsThenInsertSlow_snd [TransOrd α] (h : t.WF) {k : α} {v : β k} 
     (t.containsThenInsertSlow k v).2 = t.insertSlow k v := by
   rw [snd_containsThenInsertSlow_eq_containsThenInsert _ h.balanced, containsThenInsert_snd h,
     insert_eq_insertSlow]
+
+@[simp]
+theorem isEmpty_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.isEmpty = false := by
+  simp_to_model using List.isEmpty_insertEntryIfNew
+
+@[simp]
+theorem isEmpty_insertIfNewSlow [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNewSlow k v).isEmpty = false := by
+  simp_to_model using List.isEmpty_insertEntryIfNew
+
+@[simp]
+theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
+  simp_to_model using List.containsKey_insertEntryIfNew
+
+@[simp]
+theorem contains_insertIfNewSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNewSlow k v).contains a = (k == a || t.contains a) := by
+  simp_to_model using List.containsKey_insertEntryIfNew
+
+@[simp]
+theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ (t.insertIfNew k v h.balanced).impl ↔ k == a ∨ a ∈ t := by
+  simp [mem_iff_contains, contains_insertIfNew, h]
+
+@[simp]
+theorem mem_insertIfNewSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNewSlow k v ↔ k == a ∨ a ∈ t := by
+  simp [mem_iff_contains, contains_insertIfNew, h]
+
+theorem contains_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.contains k := by
+  simp [contains_insertIfNew, h]
+
+theorem contains_insertIfNewSlow_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNewSlow k v).contains k := by
+  simp [contains_insertIfNewSlow, h]
+
+theorem mem_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    k ∈ (t.insertIfNew k v h.balanced).impl := by
+  simp [contains_insertIfNew, h]
+
+theorem mem_insertIfNewSlow_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    k ∈ t.insertIfNewSlow k v := by
+  simp [contains_insertIfNewSlow, h]
+
+theorem contains_of_contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.contains a → (k == a) = false → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew
+
+theorem contains_of_contains_insertIfNewSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNewSlow k v).contains a → (k == a) = false → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew
+
+theorem mem_of_mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ (t.insertIfNew k v h.balanced).impl → (k == a) = false → a ∈ t := by
+  simpa [mem_iff_contains] using contains_of_contains_insertIfNew h
+
+theorem mem_of_mem_insertIfNewSlow [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNewSlow k v → (k == a) = false → a ∈ t := by
+  simpa [mem_iff_contains] using contains_of_contains_insertIfNewSlow h
+
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
+obligation in the statement of `get_insertIfNew`. -/
+theorem contains_of_contains_insertIfNew' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.contains a → ¬((k == a) ∧ t.contains k = false) → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew'
+
+/-- This is a restatement of `contains_of_contains_insertIfNewSlow` that is written to exactly match the proof
+obligation in the statement of `get_insertIfNewSlow`. -/
+theorem contains_of_contains_insertIfNewSlow' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    (t.insertIfNewSlow k v).contains a → ¬((k == a) ∧ t.contains k = false) → t.contains a := by
+  simp_to_model using List.containsKey_of_containsKey_insertEntryIfNew'
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the proof obligation
+in the statement of `get_insertIfNew`. -/
+theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ (t.insertIfNew k v h.balanced).impl → ¬((k == a) ∧ ¬k ∈ t) → a ∈ t := by
+  simpa [mem_iff_contains] using contains_of_contains_insertIfNew' h
+
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the proof obligation
+in the statement of `get_insertIfNew`. -/
+theorem mem_of_mem_insertIfNewSlow' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
+    a ∈ t.insertIfNewSlow k v → ¬((k == a) ∧ ¬k ∈ t) → a ∈ t := by
+  simpa [mem_iff_contains] using contains_of_contains_insertIfNewSlow' h
+
+theorem size_insertIfNew [TransOrd α] {k : α} (h : t.WF) {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.size = if k ∈ t then t.size else t.size + 1 := by
+  simp only [mem_iff_contains]
+  simp_to_model using List.length_insertEntryIfNew
+
+theorem size_insertIfNewSlow [TransOrd α] {k : α} (h : t.WF) {v : β k} :
+    (t.insertIfNewSlow k v).size = if k ∈ t then t.size else t.size + 1 := by
+  simp only [mem_iff_contains]
+  simp_to_model using List.length_insertEntryIfNew
+
+theorem size_le_size_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    t.size ≤ (t.insertIfNew k v h.balanced).impl.size := by
+  simp_to_model using List.length_le_length_insertEntryIfNew
+
+theorem size_le_size_insertIfNewSlow [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    t.size ≤ (t.insertIfNewSlow k v).size := by
+  simp_to_model using List.length_le_length_insertEntryIfNew
+
+theorem size_insertIfNew_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.size ≤ t.size + 1 := by
+  simp_to_model using List.length_insertEntryIfNew_le
+
+theorem size_insertIfNewSlow_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNewSlow k v).size ≤ t.size + 1 := by
+  simp_to_model using List.length_insertEntryIfNew_le
 
 end Std.DTreeMap.Internal.Impl
 

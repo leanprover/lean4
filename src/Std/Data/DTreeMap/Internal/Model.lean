@@ -402,11 +402,11 @@ theorem fst_containsThenInsertIfNew_eq_containsₘ [Ord α] [TransOrd α] (t : I
   split <;> next h => simp only [h]
 
 theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
-    (t.containsThenInsertIfNew a b htb).2.impl = (t.insertIfNew a b htb).impl := by
+    (t.containsThenInsertIfNew a b htb).2 = (t.insertIfNew a b htb) := by
   rw [containsThenInsertIfNew, insertIfNew]
   split <;> rfl
 
-theorem fst_containsThenInsertIfNewSlow_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+theorem fst_containsThenInsertIfNewSlow_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
     (a : α) (b : β a) : (t.containsThenInsertIfNewSlow a b).1 = t.containsₘ a := by
   simp [containsThenInsertIfNewSlow, contains_eq_containsₘ]
   split <;> next h => simp only [h]

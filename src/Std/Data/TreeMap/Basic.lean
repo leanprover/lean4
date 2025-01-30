@@ -100,7 +100,7 @@ def insertIfNew (t : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
   ⟨t.inner.insertIfNew a b⟩
 
 @[inline, inherit_doc DTreeMap.containsThenInsertIfNew]
-def containsThenInsertIfNew [BEq α] [Hashable α] (t : TreeMap α β cmp) (a : α) (b : β) :
+def containsThenInsertIfNew (t : TreeMap α β cmp) (a : α) (b : β) :
     Bool × TreeMap α β cmp :=
   let p := t.inner.containsThenInsertIfNew a b
   (p.1, ⟨p.2⟩)

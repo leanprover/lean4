@@ -99,6 +99,16 @@ theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
   ext <| Impl.containsThenInsertSlow_snd h
 
 @[simp]
+theorem containsThenInsertIfNew_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).1 = t.contains k :=
+  Impl.containsThenInsertIfNewSlow_fst h
+
+@[simp]
+theorem containsThenInsertIfNew_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
+  ext <| Impl.containsThenInsertIfNewSlow_snd h
+
+@[simp]
 theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v).isEmpty = false :=
   Impl.isEmpty_insertIfNewSlow h

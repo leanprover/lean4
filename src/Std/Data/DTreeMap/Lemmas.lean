@@ -99,6 +99,16 @@ theorem containsThenInsert_snd [TransCmp cmp] {k : α} {v : β k} :
   ext <| congrArg Impl.TreeB.impl <| Impl.containsThenInsert_snd t.wf
 
 @[simp]
+theorem containsThenInsertIfNew_fst [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).1 = t.contains k :=
+  Impl.containsThenInsertIfNew_fst t.wf
+
+@[simp]
+theorem containsThenInsertIfNew_snd [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
+  ext <| congrArg Impl.TreeB.impl <| Impl.containsThenInsertIfNew_snd t.wf
+
+@[simp]
 theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
     (t.insertIfNew k v).isEmpty = false :=
   Impl.isEmpty_insertIfNew t.wf

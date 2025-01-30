@@ -166,7 +166,7 @@ element, then the hash set is returned unchanged.
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline]
-def containsThenInsertIfNew [BEq α] [Hashable α] (t : Raw α cmp) (a : α) :
+def containsThenInsertIfNew (t : Raw α cmp) (a : α) :
     Bool × Raw α cmp :=
   letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsertIfNew a ()

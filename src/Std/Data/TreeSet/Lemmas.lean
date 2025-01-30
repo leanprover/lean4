@@ -97,6 +97,16 @@ theorem containsThenInsert_snd [TransCmp cmp] {k : α} :
   ext <| TreeMap.containsThenInsert_snd
 
 @[simp]
+theorem containsThenInsertIfNew_fst [TransCmp cmp] {k : α} :
+    (t.containsThenInsertIfNew k).1 = t.contains k :=
+  TreeMap.containsThenInsertIfNew_fst
+
+@[simp]
+theorem containsThenInsertIfNew_snd [TransCmp cmp] {k : α} :
+    (t.containsThenInsertIfNew k).2 = t.insertIfNew k :=
+  ext <| TreeMap.containsThenInsertIfNew_snd
+
+@[simp]
 theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} :
     (t.insertIfNew k).isEmpty = false :=
   DTreeMap.isEmpty_insertIfNew

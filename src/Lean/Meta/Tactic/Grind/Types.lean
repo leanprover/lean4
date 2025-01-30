@@ -570,13 +570,19 @@ def getGeneration (e : Expr) : GoalM Nat := do
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getTrueExpr)
+  return isSameExpr (← getENode e).root (← getTrueExpr)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getFalseExpr)
+  return isSameExpr (← getENode e).root (← getFalseExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
+def isEqBoolTrue (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.false`. -/
+def isEqBoolFalse (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolFalseExpr)
 
 /-- Returns `true` if `a` and `b` are in the same equivalence class. -/
 def isEqv (a b : Expr) : GoalM Bool := do
@@ -677,6 +683,14 @@ def pushEqTrue (a proof : Expr) : GoalM Unit := do
 /-- Pushes `a = False` with `proof` to `newEqs`. -/
 def pushEqFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getFalseExpr) proof
+
+/-- Pushes `a = Bool.true` with `proof` to `newEqs`. -/
+def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolTrueExpr) proof
+
+/-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
+def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolFalseExpr) proof
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
@@ -836,6 +850,20 @@ It assumes `a` and `False` are in the same equivalence class.
 -/
 def mkEqFalseProof (a : Expr) : GoalM Expr := do
   mkEqProof a (← getFalseExpr)
+
+/--
+Returns a proof that `a = Bool.true`.
+It assumes `a` and `Bool.true` are in the same equivalence class.
+-/
+def mkEqBoolTrueProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolTrueExpr)
+
+/--
+Returns a proof that `a = Bool.false`.
+It assumes `a` and `Bool.false` are in the same equivalence class.
+-/
+def mkEqBoolFalseProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolFalseExpr)
 
 /-- Marks current goal as inconsistent without assigning `mvarId`. -/
 def markAsInconsistent : GoalM Unit := do

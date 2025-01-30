@@ -8,6 +8,7 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
+import Lean.Elab.PreDefinition.WF.Ite
 import Lean.Meta.ArgsPacker.Basic
 import Init.Data.Array.Basic
 
@@ -66,7 +67,9 @@ private partial def mkProof (declName declNameNonRec : Name) (type : Expr) : Met
       else if let some mvarId ← whnfReducibleLHS? mvarId then
         go mvarId
       else
-        let ctx ← Simp.mkContext (config := { dsimp := false })
+        let ctx ← Simp.mkContext
+          (config := { dsimp := false })
+          (simpTheorems  := #[(← getUnattachSimpTheorems)])
         match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
         | TacticResultCNM.closed => return ()
         | TacticResultCNM.modified mvarId => go mvarId

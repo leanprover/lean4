@@ -18,13 +18,9 @@ termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
 
 /--
-error: failed to generate equational theorem for 'Tree.map'
-α : Type u_1
-β : Type u_2
-f : α → β
-t : Tree α
-⊢ { val := f t.val, cs := List.map (fun x => Tree.map f x.val) t.cs.attach } =
-    { val := f t.val, cs := List.map (fun x => Tree.map f x) t.cs }
+info: equations:
+theorem Tree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : Tree α),
+  Tree.map f t = { val := f t.val, cs := List.map (fun x => Tree.map f x) t.cs }
 -/
 #guard_msgs in
 #print equations Tree.map
@@ -49,6 +45,16 @@ termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
 
 /--
+info: equations:
+theorem Tree.pruneRevAndMap.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : Tree α),
+  Tree.pruneRevAndMap f t =
+    { val := f t.val,
+      cs := List.map (fun x => Tree.pruneRevAndMap f x) (List.filter (fun t' => !t'.isLeaf) t.cs).reverse }
+-/
+#guard_msgs in
+#print equations Tree.pruneRevAndMap
+
+/--
 info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
   (case1 : ∀ (x : Tree α), (∀ (x_1 : Tree α), x_1 ∈ x.cs → motive x_1) → motive x) (t : Tree α) : motive t
 -/
@@ -61,17 +67,6 @@ structure MTree (α : Type u) where
 
 -- set_option trace.Elab.definition.wf true in
 /--
-error: tactic 'fail' failed
-case mk
-α : Type u_1
-x✝ : List (MTree α)
-x : MTree α
-h✝ : x ∈ x✝
-val✝ : α
-cs✝ : Array (List (MTree α))
-h : x✝ ∈ cs✝
-⊢ sizeOf x✝ ≤ sizeOf cs✝ + 1
----
 info: α : Type u_1
 t : MTree α
 x✝ : List (MTree α)
@@ -79,12 +74,30 @@ h✝ : x✝ ∈ t.cs
 x : MTree α
 h : x ∈ x✝
 ⊢ sizeOf x < sizeOf t
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 def MTree.map (f : α → β) (t : MTree α) : MTree β :=
     ⟨f t.val, t.cs.map (·.map (·.map f))⟩
 termination_by t
-decreasing_by trace_state; cases t; simp at *; decreasing_tactic; fail
+decreasing_by trace_state; cases t; simp at *; decreasing_tactic; sorry
+
+/--
+info: equations:
+theorem MTree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : MTree α),
+  MTree.map f t = { val := f t.val, cs := Array.map (fun x => List.map (fun x => MTree.map f x) x) t.cs }
+-/
+#guard_msgs in
+#print equations MTree.map
+
+/--
+info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
+  (case1 : ∀ (x : MTree α), (∀ (x_1 : List (MTree α)), x_1 ∈ x.cs → ∀ (x : MTree α), x ∈ x_1 → motive x) → motive x)
+  (t : MTree α) : motive t
+-/
+#guard_msgs in
+#check MTree.map.induct
 
 namespace Ex1
 inductive Expression where
@@ -104,5 +117,23 @@ def t (exp: Expression) : List String :=
   | Expression.object L => List.foldl (fun L1 L2 => L1 ++ L2) [] (L.map (fun x => t x.2))
 termination_by exp
 decreasing_by skip
+
+/--
+info: equations:
+theorem Ex1.t.eq_1 : ∀ (s : String), t (Expression.var s) = [s]
+theorem Ex1.t.eq_2 : ∀ (L : List (String × Expression)),
+  t (Expression.object L) = List.foldl (fun L1 L2 => L1 ++ L2) [] (List.map (fun x => t x.snd) L)
+-/
+#guard_msgs in
+#print equations t
+
+/--
+info: Ex1.t.induct (motive : Expression → Prop) (case1 : ∀ (s : String), motive (Expression.var s))
+  (case2 :
+    ∀ (L : List (String × Expression)), (∀ (x : String × Expression), motive x.snd) → motive (Expression.object L))
+  (exp : Expression) : motive exp
+-/
+#guard_msgs in
+#check t.induct
 
 end Ex1

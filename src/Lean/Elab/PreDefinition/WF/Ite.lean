@@ -7,9 +7,11 @@ prelude
 import Lean.Meta.Transform
 import Lean.Elab.Tactic.Simp
 
-namespace Lean.Meta
+open Lean Meta
 
-private def getSimpContext : MetaM Simp.Context := do
+namespace Lean.Elab.WF
+
+def getAttachSimpTheorems : MetaM SimpTheorems := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``dite_eq_ite (inv := true)
   -- let s ← s.addConst `List.wfParam_to_attach
@@ -22,8 +24,21 @@ private def getSimpContext : MetaM Simp.Context := do
   let s ← s.addConst `List.reverse_unattach
   let s ← s.addConst `Array.map_wfParam
   let s ← s.addConst `Array.map_unattach
+  pure s
+
+def getUnattachSimpTheorems : MetaM SimpTheorems := do
+  let s : SimpTheorems := {}
+  let s ← s.addConst ``List.unattach_attach
+  let s ← s.addConst ``List.map_subtype
+  let s ← s.addConst ``List.unattach_filter
+  let s ← s.addConst ``List.unattach_reverse
+  let s ← s.addConst ``Array.map_subtype
+  let s ← s.addConst ``Array.unattach_attach
+  pure s
+
+private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
-    (simpTheorems  := #[s])
+    (simpTheorems  := #[(← getAttachSimpTheorems)])
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
 
@@ -92,4 +107,4 @@ run_elab do
 -/
 
 
-end Lean.Meta
+end Lean.Elab.WF

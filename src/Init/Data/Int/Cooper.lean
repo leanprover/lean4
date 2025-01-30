@@ -3,6 +3,9 @@ Copyright (c) 2023 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
+prelude
+import Init.Data.Int.DivModLemmas
+import Init.Data.Int.Gcd
 
 /-!
 ## Cooper resolution: small solutions to boundedness and divisibility constraints.

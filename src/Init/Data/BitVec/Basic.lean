@@ -671,7 +671,7 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 
 /-! ## Overflow -/
 
-/-- Overflow predicate for unsigned addition modulo 2^w.
+/-- `uaddOverflow x y` returns `true` if addition of `x` and `y` results in *unsigned* overflow.
 
   SMT-Lib name: `bvuaddo`.
 -/

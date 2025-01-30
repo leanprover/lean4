@@ -1277,7 +1277,7 @@ theorem findSome?_cons {f : α → Option β} :
 
 @[simp] theorem findIdx_nil {α : Type _} (p : α → Bool) : [].findIdx p = 0 := rfl
 
-/-! ### indexOf -/
+/-! ### idxOf -/
 
 /-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
 def idxOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
@@ -1300,7 +1300,7 @@ where
   | [], _ => none
   | a :: l, i => if p a then some i else go l (i + 1)
 
-/-! ### indexOf? -/
+/-! ### idxOf? -/
 
 /-- Return the index of the first occurrence of `a` in the list. -/
 @[inline] def idxOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)

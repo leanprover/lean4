@@ -886,6 +886,14 @@ theorem IsInfix.findIdx?_eq_none {l₁ l₂ : List α} {p : α → Bool} (h : l�
     List.findIdx? p l₂ = none → List.findIdx? p l₁ = none :=
   h.sublist.findIdx?_eq_none
 
+theorem findIdx_eq_getD_findIdx? {xs : List α} {p : α → Bool} :
+    xs.findIdx p = (xs.findIdx? p).getD xs.length := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [findIdx_cons, findIdx?_cons]
+    split <;> simp_all [ih]
+
 /-! ### findFinIdx? -/
 
 theorem findIdx?_go_eq_map_findFinIdx?_go_val {xs : List α} {p : α → Bool} {i : Nat} {h} :

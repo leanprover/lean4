@@ -1250,7 +1250,7 @@ theorem getLsbD_umod {n d : BitVec w}:
       if d = 0#w then n.getLsbD i
       else ((divRec w {n, d} (DivModState.init w)).r).getLsbD i := by
   by_cases hi : i < w
-  · simp [BitVec.getLsbD_eq_getElem hi, getElem_umod]
+  · simp only [BitVec.getLsbD_eq_getElem hi, getElem_umod]
   · simp [show w ≤ i by omega]
 
 theorem getMsbD_umod {n d : BitVec w}:

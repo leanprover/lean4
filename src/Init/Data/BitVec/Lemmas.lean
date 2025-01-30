@@ -571,7 +571,7 @@ theorem toInd_add_toInt_lt_two_pow {x y : BitVec w} :
     rw [Nat.add_sub_cancel] at hx hy
     omega
 
-theorem neg_two_pow_le_toInd_add_toInt {x y : BitVec w} :
+theorem neg_two_pow_le_toInt_add_toInt {x y : BitVec w} :
     - 2 ^ w ≤ x.toInt + y.toInt := by
   rcases w with _|w'
   · simp [BitVec.eq_nil x, BitVec.eq_nil y]

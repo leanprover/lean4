@@ -24,6 +24,19 @@ theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → 
   simp [wfParam]
 
 set_option linter.unusedVariables false in
+theorem List.foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (init : β):
+    xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => f s (wfParam x)) init := by
+  simp [wfParam]
+
+theorem List.unattach_foldl {p : α → Prop} {l : List { x // p x }}
+    {f : β → { x // p x } → β} {g : β → α → β} {hf : ∀ s x h, f s ⟨x, h⟩ = g s x} :
+    (l.foldl f) = l.unattach.foldl g := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp [foldl_cons, hf, List.unattach_cons]
+
+set_option linter.unusedVariables false in
 theorem List.filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Bool) :
     xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ => f (wfParam x))).unattach := by
   simp [wfParam]

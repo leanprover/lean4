@@ -61,6 +61,37 @@ info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Pro
 #guard_msgs in
 #check Tree.pruneRevAndMap.induct
 
+/--
+info: α : Type u_1
+v : α
+cs : List (Tree α)
+x : Tree α
+h : x ∈ cs
+⊢ sizeOf x < sizeOf { val := v, cs := cs }
+-/
+#guard_msgs in
+def Tree.pruneRevAndMap' (f : α → β) : Tree α → Tree β
+  | ⟨v,cs⟩ => ⟨f v, (cs.filter (fun t' => not t'.isLeaf)).reverse.map (·.pruneRevAndMap' f)⟩
+termination_by t => t
+decreasing_by trace_state; decreasing_tactic
+
+/--
+info: equations:
+theorem Tree.pruneRevAndMap'.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (v : α) (cs : List (Tree α)),
+  Tree.pruneRevAndMap' f { val := v, cs := cs } =
+    { val := f v, cs := List.map (fun x => Tree.pruneRevAndMap' f x) (List.filter (fun t' => !t'.isLeaf) cs).reverse }
+-/
+#guard_msgs in
+#print equations Tree.pruneRevAndMap'
+
+/--
+info: Tree.pruneRevAndMap'.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
+  (case1 : ∀ (v : α) (cs : List (Tree α)), (∀ (x : Tree α), x ∈ cs → motive x) → motive { val := v, cs := cs })
+  (a✝ : Tree α) : motive a✝
+-/
+#guard_msgs in
+#check Tree.pruneRevAndMap'.induct
+
 structure MTree (α : Type u) where
   val : α
   cs : Array (List (MTree α))
@@ -105,10 +136,12 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
-error: unsolved goals
-L : List (String × Expression)
+info: L : List (String × Expression)
 x : String × Expression
+h : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 def t (exp: Expression) : List String :=
@@ -116,7 +149,7 @@ def t (exp: Expression) : List String :=
   | Expression.var s => [s]
   | Expression.object L => List.foldl (fun L1 L2 => L1 ++ L2) [] (L.map (fun x => t x.2))
 termination_by exp
-decreasing_by skip
+decreasing_by trace_state; sorry
 
 /--
 info: equations:
@@ -137,3 +170,26 @@ info: Ex1.t.induct (motive : Expression → Prop) (case1 : ∀ (s : String), mot
 #check t.induct
 
 end Ex1
+
+namespace Ex2
+inductive Expression where
+| var: String → Expression
+| object: List (String × Expression) → Expression
+
+/--
+info: L : List (String × Expression)
+x : String × Expression
+h : x ∈ L
+⊢ sizeOf x.snd < sizeOf (Expression.object L)
+---
+warning: declaration uses 'sorry'
+-/
+#guard_msgs in
+def t (exp: Expression) : List String :=
+  match exp with
+  | Expression.var s => [s]
+  | Expression.object L => L.foldl (fun L1 x => L1 ++ t x.2) []
+termination_by exp
+decreasing_by trace_state; sorry
+
+end Ex2

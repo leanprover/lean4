@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Transform
+import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Elab.Tactic.Simp
 
 open Lean Meta
@@ -19,6 +20,7 @@ def getAttachSimpTheorems : MetaM SimpTheorems := do
   let s ← s.addConst `List.map_unattach
   let s ← s.addConst `List.filter_unattach
   let s ← s.addConst `List.reverse_unattach
+  let s ← s.addConst `List.foldl_unattach
   let s ← s.addConst `Array.map_unattach
   pure s
 
@@ -28,6 +30,7 @@ def getUnattachSimpTheorems : MetaM SimpTheorems := do
   let s ← s.addConst ``List.map_subtype
   let s ← s.addConst ``List.unattach_filter
   let s ← s.addConst ``List.unattach_reverse
+  let s ← s.addConst `List.unattach_foldl
   let s ← s.addConst ``Array.map_subtype
   let s ← s.addConst ``Array.unattach_attach
   pure s
@@ -69,6 +72,21 @@ builtin_dsimproc paramProj (_) := fun e => do
   else
     return .continue
 
+/-- `match (wfParam x) with con y => alt[y] ==> match x with con y => alt[wfParam y] -/
+builtin_dsimproc paramMatcher (_) := fun e => do
+  let some matcherApp ← matchMatcherApp? e (alsoCasesOn := true)  | return .continue
+  unless matcherApp.discrs.any (isWfParam? · |>.isSome) do return .continue
+  let discrs' := matcherApp.discrs.map (fun e => isWfParam? e |>.getD e)
+  let alts' ← matcherApp.alts.mapM fun alt =>
+    lambdaTelescope alt fun xs body => do
+      -- Annotate all xs with `wfParam`
+      let xs' ← xs.mapM (mkWfParam ·)
+      let body' := body.replaceFVars xs xs'
+      mkLambdaFVars xs body'
+  let matcherApp' := { matcherApp with discrs := discrs', alts := alts' }
+  return .continue <| matcherApp'.toExpr
+
+
 def iteToDIte (e : Expr) : MetaM Expr := do
   lambdaTelescope e fun xs e => do
     -- Annotate all xs with `wfParam`
@@ -76,8 +94,10 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     let e' := e.replaceFVars xs xs'
 
     -- Now run the simplifier
-    let simprocs ← ({} : Simp.SimprocsArray).add ``paramProj (post := true)
-    let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := simprocs)
+    let simprocs : Simprocs := {}
+    let simprocs ← simprocs.add ``paramProj (post := true)
+    let simprocs ← simprocs.add ``paramMatcher (post := true)
+    let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
     let e' := result.expr
 
     -- Remove markers

@@ -570,13 +570,19 @@ def getGeneration (e : Expr) : GoalM Nat := do
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getTrueExpr)
+  return isSameExpr (← getENode e).root (← getTrueExpr)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getFalseExpr)
+  return isSameExpr (← getENode e).root (← getFalseExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
+def isEqBoolTrue (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.false`. -/
+def isEqBoolFalse (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolFalseExpr)
 
 /-- Returns `true` if `a` and `b` are in the same equivalence class. -/
 def isEqv (a b : Expr) : GoalM Bool := do

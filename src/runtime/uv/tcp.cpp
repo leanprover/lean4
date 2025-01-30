@@ -128,6 +128,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     tcp_socket->m_promise_shutdown = NULL;
     tcp_socket->m_promise_read = NULL;
     tcp_socket->m_byte_array = NULL;
+    tcp_socket->m_client = NULL;
 
     uv_tcp_t * uv_tcp = (uv_tcp_t*)malloc(sizeof(uv_tcp_t));
 
@@ -331,23 +332,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 
         if (status < 0) {
             resolve_promise_with_status(promise, status);
+            lean_dec(promise);
             return;
         }
 
-        lean_object * client = unpack_io(lean_uv_tcp_new());
+        lean_object * client = tcp_socket->m_client;
         lean_uv_tcp_socket_object * client_socket = lean_to_uv_tcp_socket(client);
 
         int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
 
+        tcp_socket->m_promise_accept = NULL;
+        tcp_socket->m_client = NULL;
+        
         if (result < 0) {
             lean_dec(client);
             resolve_promise_with_status(promise, result);
+            lean_dec(promise);
             return;
         }
 
-        tcp_socket->m_promise_accept = NULL;
-
         resolve_promise(promise, mk_ok_except(client));
+        lean_dec(promise);
     });
 
     event_loop_unlock(&global_ev);
@@ -373,21 +378,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     lean_uv_tcp_socket_object * client_socket = lean_to_uv_tcp_socket(client);
 
     event_loop_lock(&global_ev);
-
     int result = uv_accept((uv_stream_t*)tcp_socket->m_uv_tcp, (uv_stream_t*)client_socket->m_uv_tcp);
+    event_loop_unlock(&global_ev);
 
     if (result < 0 && result != UV_EAGAIN) {
         lean_dec(client);
         resolve_promise_with_status(promise, result);
     } else if (result >= 0) {
         resolve_promise(promise, mk_ok_except(client));
-        tcp_socket->m_promise_accept = NULL;
     } else {
         tcp_socket->m_promise_accept = promise;
-        lean_dec(client);
+        tcp_socket->m_client = client;
+        lean_inc(promise);
     }
-
-    event_loop_unlock(&global_ev);
 
     return lean_io_result_mk_ok(promise);
 }

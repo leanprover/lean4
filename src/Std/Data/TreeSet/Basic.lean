@@ -89,6 +89,12 @@ def size (t : TreeSet α cmp) : Nat :=
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
+@[inline, inherit_doc Raw.containsThenInsert]
+def containsThenInsert (t : TreeSet α cmp) (a : α) : Bool × TreeSet α cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.containsThenInsert a ()
+  (p.1, ⟨p.2⟩)
+
 instance : Membership α (TreeSet α cmp) where
   mem m a := m.contains a
 

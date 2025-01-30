@@ -141,6 +141,20 @@ def size (t : Raw α β cmp) : Nat :=
 def erase (l : Raw α β cmp) (a : α) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨l.inner.eraseSlow a⟩
 
+/--
+Checks whether a key is present in a map and inserts a value for the key if it was not found.
+
+If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
+the returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
+@[inline]
+def containsThenInsert (t : Raw α β cmp) (a : α) (b : β a) : Bool × Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.containsThenInsertSlow a b
+  (p.1, ⟨p.2⟩)
+
 instance : Membership α (Raw α β cmp) where
   mem m a := m.contains a
 

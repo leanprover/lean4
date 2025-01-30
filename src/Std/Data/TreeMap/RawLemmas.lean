@@ -20,6 +20,9 @@ namespace Std.TreeMap.Raw
 
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeMap.Raw α β cmp}
 
+private theorem ext {t t' : Raw α β cmp} : t.inner = t'.inner → t = t' := by
+  cases t; cases t'; rintro rfl; rfl
+
 attribute [local instance] TransOrd.ofTransCmp
 
 theorem isEmpty_empty : (empty : TreeMap.Raw α β cmp).isEmpty :=
@@ -84,5 +87,13 @@ theorem size_erase_le [TransCmp cmp] (h : t.WF) {k : α} :
 theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   DTreeMap.Raw.size_le_size_erase h
+
+theorem containsThenInsert_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.containsThenInsert k v).1 = t.contains k :=
+  DTreeMap.Raw.containsThenInsert_fst h
+
+theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    (t.containsThenInsert k v).2 = t.insert k v :=
+  ext <| DTreeMap.Raw.containsThenInsert_snd h
 
 end Std.TreeMap.Raw

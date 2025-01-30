@@ -24,6 +24,9 @@ attribute [local instance] TransOrd.ofTransCmp
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
 
+private theorem ext {t t' : Raw α β cmp} : t.inner = t'.inner → t = t' := by
+  cases t; cases t'; rintro rfl; rfl
+
 theorem isEmpty_empty : (empty : DTreeMap.Raw α β cmp).isEmpty :=
   Impl.isEmpty_empty
 
@@ -86,5 +89,13 @@ theorem size_erase_le [TransCmp cmp] (h : t.WF) {k : α} :
 theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   Impl.sizeSlow_le_size_erase h
+
+theorem containsThenInsert_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v).1 = t.contains k :=
+  Impl.containsThenInsertSlow_fst h
+
+theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.containsThenInsert k v).2 = t.insert k v :=
+  ext <| Impl.containsThenInsertSlow_snd h
 
 end Std.DTreeMap.Raw

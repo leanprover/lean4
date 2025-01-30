@@ -133,6 +133,19 @@ def size (t : Raw α cmp) : Nat :=
 def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨t.inner.erase a⟩
 
+/--
+Checks whether an element is present in a set and inserts the element if it was not found.
+If the hash set already contains an element that is equal (with regard to `cmp`) to the given
+element, then the hash set is returned unchanged.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
+-/
+@[inline]
+def containsThenInsert (t : Raw α cmp) (a : α) : Bool × Raw α cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.containsThenInsert a ()
+  (p.1, ⟨p.2⟩)
+
 instance : Membership α (Raw α cmp) where
   mem m a := m.contains a
 

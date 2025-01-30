@@ -22,6 +22,9 @@ namespace Std.TreeSet
 
 variable {α : Type u} {cmp : α → α → Ordering} {t : TreeSet α cmp}
 
+private theorem ext {t t' : TreeSet α cmp} : t.inner = t'.inner → t = t' := by
+  cases t; cases t'; rintro rfl; rfl
+
 theorem isEmpty_empty : (empty : TreeSet α cmp).isEmpty :=
   TreeMap.isEmpty_empty
 
@@ -84,5 +87,13 @@ theorem size_erase_le [TransCmp cmp] {k : α} :
 theorem size_le_size_erase [TransCmp cmp] {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   DTreeMap.size_le_size_erase
+
+theorem containsThenInsert_fst [TransCmp cmp] {k : α} :
+    (t.containsThenInsert k).1 = t.contains k :=
+  TreeMap.containsThenInsert_fst
+
+theorem containsThenInsert_snd [TransCmp cmp] {k : α} :
+    (t.containsThenInsert k).2 = t.insert k :=
+  ext <| TreeMap.containsThenInsert_snd
 
 end Std.TreeSet

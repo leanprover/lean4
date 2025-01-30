@@ -15,12 +15,17 @@ namespace Lean.Elab.WF
 def getAttachSimpTheorems : MetaM SimpTheorems := do
   let s : SimpTheorems := {}
   let s ← s.addConst ``dite_eq_ite (inv := true)
-  let s ← s.addConst `List.wfParam_to_attach
-  let s ← s.addConst `Array.wfParam_to_attach
+  -- let s ← s.addConst `List.wfParam_to_attach
+  -- let s ← s.addConst `Array.wfParam_to_attach
+  let s ← s.addConst `List.map_wfParam
   let s ← s.addConst `List.map_unattach
+  let s ← s.addConst `List.filter_wfParam
   let s ← s.addConst `List.filter_unattach
+  let s ← s.addConst `List.reverse_wfParam
   let s ← s.addConst `List.reverse_unattach
+  let s ← s.addConst `List.foldl_wfParam
   let s ← s.addConst `List.foldl_unattach
+  let s ← s.addConst `Array.map_wfParam
   let s ← s.addConst `Array.map_unattach
   pure s
 
@@ -101,11 +106,11 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     let e' := result.expr
 
     -- Remove markers
-    let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
-    let e'' := result.expr
+    -- let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
+    -- let e'' := result.expr
     -- Simp, even with dsimp on, is not as thorough as `Core.transform`:
-    let e'' ← Core.transform e'' fun e =>
-      e.withApp fun f as =>do
+    let e'' ← Core.transform e' fun e =>
+      e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
             return .continue (mkAppN as[1] as[2:])

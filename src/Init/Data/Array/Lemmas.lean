@@ -2565,8 +2565,14 @@ theorem getElem?_extract {as : Array α} {start stop : Nat} :
     · omega
   · rfl
 
+@[congr] theorem extract_congr {as bs : Array α}
+    (w : as = bs) (h : start = start') (h' : stop = stop') :
+    as.extract start stop = bs.extract start' stop' := by
+  subst w h h'
+  rfl
+
 @[simp] theorem toList_extract (as : Array α) (start stop : Nat) :
-    (as.extract start stop).toList = (as.toList.drop start).take (stop - start) := by
+    (as.extract start stop).toList = as.toList.extract start stop := by
   apply List.ext_getElem
   · simp only [length_toList, size_extract, List.length_take, List.length_drop]
     omega
@@ -2595,7 +2601,7 @@ theorem extract_empty_of_size_le_start (as : Array α) {start stop : Nat} (h : a
   extract_empty_of_size_le_start _ (Nat.zero_le _)
 
 @[simp] theorem _root_.List.extract_toArray (l : List α) (start stop : Nat) :
-    l.toArray.extract start stop = ((l.drop start).take (stop - start)).toArray := by
+    l.toArray.extract start stop = (l.extract start stop).toArray := by
   apply ext'
   simp
 
@@ -3363,35 +3369,35 @@ theorem size_eq_length_toList (as : Array α) : as.size = as.toList.length := rf
 theorem getElem_range {n : Nat} {x : Nat} (h : x < (Array.range n).size) : (Array.range n)[x] = x := by
   simp [← getElem_toList]
 
+/-! ### shrink -/
 
-
-
-/-! ### take -/
-
-@[simp] theorem size_take_loop (a : Array α) (n : Nat) : (take.loop n a).size = a.size - n := by
+@[simp] theorem size_shrink_loop (a : Array α) (n : Nat) : (shrink.loop n a).size = a.size - n := by
   induction n generalizing a with
-  | zero => simp [take.loop]
+  | zero => simp [shrink.loop]
   | succ n ih =>
-    simp [take.loop, ih]
+    simp [shrink.loop, ih]
     omega
 
-@[simp] theorem getElem_take_loop (a : Array α) (n : Nat) (i : Nat) (h : i < (take.loop n a).size) :
-    (take.loop n a)[i] = a[i]'(by simp at h; omega) := by
+@[simp] theorem getElem_shrink_loop (a : Array α) (n : Nat) (i : Nat) (h : i < (shrink.loop n a).size) :
+    (shrink.loop n a)[i] = a[i]'(by simp at h; omega) := by
   induction n generalizing a i with
-  | zero => simp [take.loop]
+  | zero => simp [shrink.loop]
   | succ n ih =>
-    simp [take.loop, ih]
+    simp [shrink.loop, ih]
 
-@[simp] theorem size_take (a : Array α) (n : Nat) : (a.take n).size = min n a.size  := by
-  simp [take]
+@[simp] theorem size_shrink (a : Array α) (n : Nat) : (a.shrink n).size = min n a.size  := by
+  simp [shrink]
   omega
 
-@[simp] theorem getElem_take (a : Array α) (n : Nat) (i : Nat) (h : i < (a.take n).size) :
-    (a.take n)[i] = a[i]'(by simp at h; omega) := by
-  simp [take]
+@[simp] theorem getElem_shrink (a : Array α) (n : Nat) (i : Nat) (h : i < (a.shrink n).size) :
+    (a.shrink n)[i] = a[i]'(by simp at h; omega) := by
+  simp [shrink]
 
-@[simp] theorem toList_take (a : Array α) (n : Nat) : (a.take n).toList = a.toList.take n := by
+@[simp] theorem toList_shrink (a : Array α) (n : Nat) : (a.shrink n).toList = a.toList.take n := by
   apply List.ext_getElem <;> simp
+
+@[simp] theorem shrink_eq_take (a : Array α) (n : Nat) : a.shrink n = a.take n := by
+  ext <;> simp
 
 /-! ### forIn -/
 

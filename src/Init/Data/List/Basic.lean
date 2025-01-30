@@ -823,6 +823,17 @@ theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.dr
   | _::_,  0   => simp at h
   | _::as, i+1 => simp only [length_cons] at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
 
+/-! ### extract -/
+
+/-- `extract l start stop` returns the slice of `l` from indices `start` to `stop` (exclusive). -/
+-- This is only an abbreviation for the operation in terms of `drop` and `take`.
+-- We do not prove properties of extract itself.
+abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
+  (l.drop start).take (stop - start)
+
+@[simp] theorem extract_eq_drop_take (l : List α) (start stop : Nat) :
+    l.extract start stop = (l.drop start).take (stop - start) := rfl
+
 /-! ### takeWhile -/
 
 /--

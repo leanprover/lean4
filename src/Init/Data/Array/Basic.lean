@@ -270,14 +270,22 @@ def swapAt! (a : Array α) (i : Nat) (v : α) : α × Array α :=
     have : Inhabited (α × Array α) := ⟨(v, a)⟩
     panic! ("index " ++ toString i ++ " out of bounds")
 
-/-- `take a n` returns the first `n` elements of `a`. -/
-def take (a : Array α) (n : Nat) : Array α :=
+/-- `shrink a n` returns the first `n` elements of `a`, implemented by repeatedly popping the last element. -/
+def shrink (a : Array α) (n : Nat) : Array α :=
   let rec loop
     | 0,   a => a
     | n+1, a => loop n a.pop
   loop (a.size - n) a
 
-@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
+/-- `take a n` returns the first `n` elements of `a`, implemented by copying the first `n` elements. -/
+abbrev take (a : Array α) (n : Nat) : Array α := extract a 0 n
+
+@[simp] theorem take_eq_extract (a : Array α) (n : Nat) : a.take n = a.extract 0 n := rfl
+
+/-- `drop a n` removes the first `n` elements of `a`, implemented by copying the remaining elements. -/
+abbrev drop (a : Array α) (n : Nat) : Array α := extract a n a.size
+
+@[simp] theorem drop_eq_extract (a : Array α) (n : Nat) : a.drop n = a.extract n a.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (a : Array α) (i : Nat) (f : α → m α) : m (Array α) := do

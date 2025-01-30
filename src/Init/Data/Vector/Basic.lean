@@ -163,8 +163,35 @@ instance : HAppend (Vector α n) (Vector α m) (Vector α (n + m)) where
 Extracts the slice of a vector from indices `start` to `stop` (exclusive). If `start ≥ stop`, the
 result is empty. If `stop` is greater than the size of the vector, the size is used instead.
 -/
-@[inline] def extract (v : Vector α n) (start stop : Nat) : Vector α (min stop n - start) :=
+@[inline] def extract (v : Vector α n) (start : Nat := 0) (stop : Nat := n) : Vector α (min stop n - start) :=
   ⟨v.toArray.extract start stop, by simp⟩
+
+/--
+Extract the first `m` elements of a vector. If `m` is greater than or equal to the size of the
+vector then the vector is returned unchanged.
+-/
+@[inline] def take (v : Vector α n) (m : Nat) : Vector α (min m n) :=
+  ⟨v.toArray.take m, by simp⟩
+
+@[simp] theorem take_eq_extract (v : Vector α n) (m : Nat) : v.take m = v.extract 0 m := rfl
+
+/--
+Deletes the first `m` elements of a vector. If `m` is greater than or equal to the size of the
+vector then the empty vector is returned.
+-/
+@[inline] def drop (v : Vector α n) (m : Nat) : Vector α (n - m) :=
+  ⟨v.toArray.drop m, by simp⟩
+
+@[simp] theorem drop_eq_cast_extract (v : Vector α n) (m : Nat) :
+    v.drop m = (v.extract m n).cast (by simp) := by
+  simp [drop, extract, Vector.cast]
+
+/-- Shrinks a vector to the first `m` elements, by repeatedly popping the last element. -/
+@[inline] def shrink (v : Vector α n) (m : Nat) : Vector α (min m n) :=
+  ⟨v.toArray.shrink m, by simp⟩
+
+@[simp] theorem shrink_eq_take (v : Vector α n) (m : Nat) : v.shrink m = v.take m := by
+  simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
 @[inline] def map (f : α → β) (v : Vector α n) : Vector β n :=
@@ -290,20 +317,6 @@ This will perform the update destructively provided that the vector has a refere
 
 /-- The vector `#v[0,1,2,...,n-1]`. -/
 @[inline] def range (n : Nat) : Vector Nat n := ⟨Array.range n, by simp⟩
-
-/--
-Extract the first `m` elements of a vector. If `m` is greater than or equal to the size of the
-vector then the vector is returned unchanged.
--/
-@[inline] def take (v : Vector α n) (m : Nat) : Vector α (min m n) :=
-  ⟨v.toArray.take m, by simp⟩
-
-/--
-Deletes the first `m` elements of a vector. If `m` is greater than or equal to the size of the
-vector then the empty vector is returned.
--/
-@[inline] def drop (v : Vector α n) (m : Nat) : Vector α (n - m) :=
-  ⟨v.toArray.extract m v.size, by simp⟩
 
 /--
 Compares two vectors of the same size using a given boolean relation `r`. `isEqv v w r` returns

@@ -223,4 +223,64 @@ builtin_grind_propagator propagateDecideUp ↑decide := fun e => do
   else if (← isEqFalse p) then
     pushEq e (← getBoolFalseExpr) <| mkApp3 (mkConst ``Grind.decide_eq_false) p h (← mkEqFalseProof p)
 
+/-- `Bool` version of `propagateAndUp` -/
+builtin_grind_propagator propagateBoolAndUp ↑Bool.and := fun e => do
+  let_expr Bool.and a b := e | return ()
+  if (← isEqBoolTrue a) then
+    pushEq e b <| mkApp3 (mkConst ``Grind.Bool.and_eq_of_eq_true_left) a b (← mkEqBoolTrueProof a)
+  else if (← isEqBoolTrue b) then
+    pushEq e a <| mkApp3 (mkConst ``Grind.Bool.and_eq_of_eq_true_right) a b (← mkEqBoolTrueProof b)
+  else if (← isEqBoolFalse a) then
+    pushEqBoolFalse e <| mkApp3 (mkConst ``Grind.Bool.and_eq_of_eq_false_left) a b (← mkEqBoolFalseProof a)
+  else if (← isEqBoolFalse b) then
+    pushEqBoolFalse e <| mkApp3 (mkConst ``Grind.Bool.and_eq_of_eq_false_right) a b (← mkEqBoolFalseProof b)
+
+/-- `Bool` version of `propagateAndDown` -/
+builtin_grind_propagator propagateBoolAndDown ↓Bool.and := fun e => do
+  if (← isEqBoolTrue e) then
+    let_expr Bool.and a b := e | return ()
+    let h ← mkEqBoolTrueProof e
+    pushEqBoolTrue a <| mkApp3 (mkConst ``Grind.Bool.eq_true_of_and_eq_true_left) a b h
+    pushEqBoolTrue b <| mkApp3 (mkConst ``Grind.Bool.eq_true_of_and_eq_true_right) a b h
+
+/-- `Bool` version of `propagateOrUp` -/
+builtin_grind_propagator propagateBoolOrUp ↑Bool.or := fun e => do
+  let_expr Bool.or a b := e | return ()
+  if (← isEqBoolFalse a) then
+    pushEq e b <| mkApp3 (mkConst ``Grind.Bool.or_eq_of_eq_false_left) a b (← mkEqBoolFalseProof a)
+  else if (← isEqBoolFalse b) then
+    pushEq e a <| mkApp3 (mkConst ``Grind.Bool.or_eq_of_eq_false_right) a b (← mkEqBoolFalseProof b)
+  else if (← isEqBoolTrue a) then
+    pushEqBoolTrue e <| mkApp3 (mkConst ``Grind.Bool.or_eq_of_eq_true_left) a b (← mkEqBoolTrueProof a)
+  else if (← isEqBoolTrue b) then
+    pushEqBoolTrue e <| mkApp3 (mkConst ``Grind.Bool.or_eq_of_eq_true_right) a b (← mkEqBoolTrueProof b)
+
+/-- `Bool` version of `propagateOrDown` -/
+builtin_grind_propagator propagateBoolOrDown ↓Bool.or := fun e => do
+  if (← isEqBoolFalse e) then
+    let_expr Bool.or a b := e | return ()
+    let h ← mkEqBoolFalseProof e
+    pushEqBoolFalse a <| mkApp3 (mkConst ``Grind.Bool.eq_false_of_or_eq_false_left) a b h
+    pushEqBoolFalse b <| mkApp3 (mkConst ``Grind.Bool.eq_false_of_or_eq_false_right) a b h
+
+/-- `Bool` version of `propagateNotUp` -/
+builtin_grind_propagator propagateBoolNotUp ↑Bool.not := fun e => do
+  let_expr Bool.not a := e | return ()
+  if (← isEqBoolFalse a) then
+    pushEqBoolTrue e <| mkApp2 (mkConst ``Grind.Bool.not_eq_of_eq_false) a (← mkEqBoolFalseProof a)
+  else if (← isEqBoolTrue a) then
+    pushEqBoolFalse e <| mkApp2 (mkConst ``Grind.Bool.not_eq_of_eq_true) a (← mkEqBoolTrueProof a)
+  else if (← isEqv e a) then
+    closeGoal <| mkApp2 (mkConst ``Grind.Bool.false_of_not_eq_self) a (← mkEqProof e a)
+
+/-- `Bool` version of `propagateNotDown` -/
+builtin_grind_propagator propagateBoolNotDown ↓Bool.not := fun e => do
+  let_expr Bool.not a := e | return ()
+  if (← isEqBoolFalse e) then
+    pushEqBoolTrue a <| mkApp2 (mkConst ``Grind.Bool.eq_true_of_not_eq_false) a (← mkEqBoolFalseProof e)
+  else if (← isEqBoolTrue e) then
+    pushEqBoolFalse a <| mkApp2 (mkConst ``Grind.Bool.eq_false_of_not_eq_true) a (← mkEqBoolTrueProof e)
+  else if (← isEqv e a) then
+    closeGoal <| mkApp2 (mkConst ``Grind.Bool.false_of_not_eq_self) a (← mkEqProof e a)
+
 end Lean.Meta.Grind

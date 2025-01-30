@@ -1,3 +1,10 @@
+%reset_grind_attrs
+
+attribute [grind cases] Or
+attribute [grind =] List.length_nil List.length_cons Option.getD
+
+set_option profiler true
+
 abbrev Var := String
 
 inductive Val where
@@ -50,12 +57,12 @@ infixr:130 ";; "   => Stmt.seq
 
 abbrev State := List (Var × Val)
 
-@[simp, grind =] def State.update (σ : State) (x : Var) (v : Val) : State :=
+@[simp] def State.update (σ : State) (x : Var) (v : Val) : State :=
   match σ with
   | [] => [(x, v)]
   | (y, w)::σ => if x = y then (x, v)::σ else (y, w) :: update σ x v
 
-@[simp, grind =] def State.find? (σ : State) (x : Var) : Option Val :=
+@[simp] def State.find? (σ : State) (x : Var) : Option Val :=
   match σ with
   | [] => none
   | (y, v) :: σ => if x = y then some v else find? σ x
@@ -63,10 +70,13 @@ abbrev State := List (Var × Val)
 def State.get (σ : State) (x : Var) : Val :=
   σ.find? x |>.getD (.int 0)
 
-@[simp, grind =] def State.erase (σ : State) (x : Var) : State :=
+@[simp] def State.erase (σ : State) (x : Var) : State :=
   match σ with
   | [] => []
   | (y, v) :: σ => if x = y then erase σ x else (y, v) :: erase σ x
+
+section
+attribute [local grind] State.update State.find? State.get State.erase
 
 @[simp, grind =] theorem State.find?_update_self (σ : State) (x : Var) (v : Val) : (σ.update x v).find? x = some v := by
   induction σ, x, v using State.update.induct <;> grind
@@ -74,14 +84,15 @@ def State.get (σ : State) (x : Var) : Val :=
 @[simp, grind =] theorem State.find?_update (σ : State) (v : Val) (h : x ≠ z) : (σ.update x v).find? z = σ.find? z := by
   induction σ, x, v using State.update.induct <;> grind
 
-theorem State.get_of_find? {σ : State} (h : σ.find? x = some v) : σ.get x = v := by
-  grind [State.get, Option.getD]
+@[grind] theorem State.get_of_find? {σ : State} (h : σ.find? x = some v) : σ.get x = v := by
+  grind
 
 @[simp, grind =] theorem State.find?_erase_self (σ : State) (x : Var) : (σ.erase x).find? x = none := by
   induction σ, x using State.erase.induct <;> grind
 
 @[simp, grind =] theorem State.find?_erase (σ : State) (h : x ≠ z) : (σ.erase x).find? z = σ.find? z := by
   induction σ, x using State.erase.induct <;> grind
+end
 
 syntax ident " ↦ " term : term
 
@@ -173,10 +184,10 @@ def evalExpr (e : Expr) : EvalM Val := do
 @[simp, grind =] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
   induction e <;> try grind [BinOp.simplify.eq_def, UnaryOp.simplify.eq_def]
   next op arg ih_arg =>
-    simp [← ih_arg]
+    simp only [simplify, UnaryOp.simplify, eval, ← ih_arg, UnaryOp.eval]
     split
-    · grind (splits := 0) only [eval, UnaryOp.eval]
-    · simp -- TODO: `grind` failes here
+    · grind (splits := 0) [Expr.eval] -- TODO: investigate: why do we need Expr.eval here
+    · simp only [eval, UnaryOp.eval] -- TODO: `grind` failes here
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt
   | skip => skip
@@ -193,7 +204,7 @@ def evalExpr (e : Expr) : EvalM Val := do
     | c' => .while c' b.simplify
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
-  induction h <;> try grind [Bigstep, Expr.eval_simplify]
+  induction h <;> try grind [Bigstep]
   case ifTrue heq h ih => grind [=_ Expr.eval_simplify, Bigstep.ifTrue]
   case ifFalse heq h ih =>
     simp_all
@@ -214,10 +225,10 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
   | una op arg => una op (arg.constProp σ)
 
 @[simp, grind =] theorem Expr.constProp_nil (e : Expr) : e.constProp [] = e := by
-  induction e <;> grind
+  induction e <;> grind [State.find?] -- TODO add missing theorem(s) to avoid unfolding `find?`
 
 @[grind] theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
-  induction σ, x using erase.induct <;> grind [List.length_cons]
+  induction σ, x using erase.induct <;> grind [State.erase] -- TODO add missing theorem(s)
 
 def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
   -- TODO: offset issues?
@@ -250,13 +261,16 @@ local notation "⊥" => []
     | (s₁', σ₁), (s₂', σ₂) => (ite (c.constProp σ) s₁' s₂', σ₁.join σ₂)
   | .while c b => (.while (c.constProp ⊥) (b.constProp ⊥).1, ⊥)
 
-@[grind =] def State.le (σ₁ σ₂ : State) : Prop :=
+def State.le (σ₁ σ₂ : State) : Prop :=
   ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v
 
 infix:50 " ≼ " => State.le
 
 @[grind] theorem State.le_refl (σ : State) : σ ≼ σ :=
   fun _ _ h => h
+
+section
+attribute [local grind] State.le State.erase State.find? State.update
 
 theorem State.le_trans : σ₁ ≼ σ₂ → σ₂ ≼ σ₃ → σ₁ ≼ σ₃ := by
   grind
@@ -273,38 +287,38 @@ theorem State.cons_le_cons (h : σ' ≼ σ) : (x, v) :: σ' ≼ (x, v) :: σ := 
 theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (x, v) :: σ' ≼ σ := by
   grind
 
-theorem State.erase_le (σ : State) : σ.erase x ≼ σ := by
+@[grind] theorem State.erase_le (σ : State) : σ.erase x ≼ σ := by
   induction σ, x using State.erase.induct <;> grind
 
-theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
+@[grind] theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
   induction σ₁, σ₂ using State.join.induct <;> grind
 
-theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
-  grind [le_trans, join_le_left]
+@[grind] theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
+  grind
 
-theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
+@[grind] theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   induction σ₁, σ₂ using State.join.induct <;> grind
 
-theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ := by
-  grind [le_trans, join_le_right]
+@[grind] theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ := by
+  grind
 
 theorem State.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
   match σ with
   | [] => grind
   | (y, v) :: σ =>
     -- TODO: can we avoid this hint?
-    have : State.find? ((y, v) :: σ) y = some v := by grind only [find?]
+    have : State.find? ((y, v) :: σ) y = some v := by grind
     grind
 
 theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ σ := by
   grind
 
-theorem State.erase_le_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
+@[grind] theorem State.erase_le_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
   intro y w hf'
   -- TODO: can we avoid this hint?
   by_cases hxy : x = y <;> grind
 
-theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
+@[grind] theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
   intro y w hf
   induction σ generalizing σ' hf with
   | nil  => grind
@@ -318,11 +332,12 @@ theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x
     next => grind
     sorry
 
-theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
-  induction e <;> grind [State.get_of_find?]
+-- TODO: we are missing theorems here, and cannot seal State functions
+@[grind] theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
+  induction e <;> grind
 
 theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₁ : e.eval σ = v) (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = v := by
-  grind [eval_constProp_of_sub]
+  grind
 
 theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (s.constProp σ₁').2 ≼ σ₂ := by
   induction h₁ generalizing σ₁' with try grind
@@ -332,8 +347,8 @@ theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ�
     next h =>
       have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify, h] at heq'
-      grind [State.update_le_update]
-    next => grind [State.erase_le_update]
+      grind
+    next => grind
   | ifTrue heq h ih =>
     have ih := ih h₂
     apply State.join_le_left_of ih
@@ -342,6 +357,8 @@ theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ�
     apply State.join_le_right_of ih
   | seq h₃ h₄ ih₃ ih₄ =>
     exact ih₄ (ih₃ h₂)
+
+end
 
 theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
   induction h₁ generalizing σ₁' with simp_all
@@ -352,7 +369,7 @@ theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ 
       have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify, h] at heq'
       simp at heq'
-      apply Bigstep.assign; simp [*]
+      apply Bigstep.assign; simp only [Expr.eval, heq']
     next =>
       have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
       rw [← Expr.eval_simplify] at heq'

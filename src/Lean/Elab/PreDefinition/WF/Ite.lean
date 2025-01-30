@@ -101,7 +101,7 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     -- Now run the simplifier
     let simprocs : Simprocs := {}
     let simprocs ← simprocs.add ``paramProj (post := true)
-    let simprocs ← simprocs.add ``paramMatcher (post := true)
+    let simprocs ← simprocs.add ``paramMatcher (post := false)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
     let e' := result.expr
 

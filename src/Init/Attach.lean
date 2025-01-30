@@ -39,7 +39,7 @@ theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → 
   simp [wfParam]
 
 set_option linter.unusedVariables false in
-theorem List.foldl_wfParam (P : α → Prop) (xs : List α) (f : β → α → β) (init : β):
+theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
     (wfParam xs).foldl f init = xs.attach.foldl (fun s ⟨x, h⟩ => f s (wfParam x)) init := by
   simp [wfParam]
 

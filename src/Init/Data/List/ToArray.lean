@@ -528,9 +528,17 @@ termination_by xs.length - i
   rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
   simp
 
+@[simp] theorem findIdx_toArray [BEq α] {as : List α} {p : α → Bool} :
+    as.toArray.findIdx p = as.findIdx p := by
+  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
+
 @[simp] theorem idxOf?_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf? a = as.idxOf? a := by
   rw [Array.idxOf?, finIdxOf?_toArray, idxOf?_eq_map_finIdxOf?_val]
+
+@[simp] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
+    as.toArray.idxOf a = as.idxOf a := by
+  rw [Array.idxOf, findIdx_toArray, idxOf]
 
 @[simp] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by

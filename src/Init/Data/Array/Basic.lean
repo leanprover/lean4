@@ -720,6 +720,9 @@ def finIdxOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
 @[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
 abbrev indexOf? := @finIdxOf?
 
+/-- Returns the index of the first element equal to `a`, or the length of the array otherwise. -/
+def idxOf [BEq α] (a : α) : Array α → Nat := findIdx (· == a)
+
 def idxOf? [BEq α] (a : Array α) (v : α) : Option Nat :=
   (a.finIdxOf? v).map (·.val)
 

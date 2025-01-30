@@ -9,7 +9,7 @@ import Init.Data.List.Pairwise
 import Init.Data.List.Find
 
 /-!
-# Lemmas about `List.eraseP` and `List.erase`.
+# Lemmas about `List.eraseP`, `List.erase`, and `List.eraseIdx`.
 -/
 
 namespace List

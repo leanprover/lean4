@@ -216,6 +216,15 @@ Internal implementation detail of the tree map
 def eraseₘ [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (fun _ => .empty) t h |>.impl
 
+/--
+Model implementation of the `insertIfNew` function.
+Internal implementation detail of the tree map
+-/
+def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced) : Impl α β :=
+  updateCell k (fun
+    | ⟨.none, _⟩ => .of k v
+    | c => c) l h |>.impl
+
 /-!
 ## Helper theorems for reasoning with key-value pairs
 -/
@@ -379,6 +388,25 @@ theorem snd_containsThenInsertIfNewSlow_eq_containsThenInsert [Ord α] (t : Impl
   split
   · rfl
   · simp [insertSlow_eq_insertₘ, insert_eq_insertₘ, htb]
+
+theorem insertIfNew_eq_insertIfNewSlow [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
+    (insertIfNew k v l h).impl = insertIfNewSlow k v l := by
+  simp [insertIfNew, insertIfNewSlow]
+  split
+  · rfl
+  · simp [insert_eq_insertSlow]
+
+-- theorem insertIfNew_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
+--     (insertIfNew k v l h).impl = insertₘ k v l h := by
+--   simp only [insertIfNewₘ]
+--   induction l
+--   · simp only [insertIfNew, updateCell]
+--     split <;> split <;> simp_all [balanceL_eq_balance, balanceR_eq_balance]
+--   · simp [insertIfNew, insertₘ, updateCell]
+
+-- theorem insertIfNewSlow_eq_insertₘ [Ord α] {k : α} {v : β k} {l : Impl α β} (h : l.Balanced) :
+--     insertIfNewSlow k v l = insertₘ k v l h := by
+--   rw [← insertIfNew_eq_insertSlow (h := h), insert_eq_insertₘ]
 
 end Impl
 

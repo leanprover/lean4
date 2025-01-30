@@ -155,8 +155,18 @@ def containsThenInsert (t : Raw α β cmp) (a : α) (b : β a) : Bool × Raw α 
   let p := t.inner.containsThenInsertSlow a b
   (p.1, ⟨p.2⟩)
 
+/--
+If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
+returns the map unaltered.
+-/
+@[inline] def insertIfNew (t : Raw α β cmp) (a : α) (b : β a) : Raw α β cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNewSlow a b⟩
+
 instance : Membership α (Raw α β cmp) where
   mem m a := m.contains a
+
+instance {m : Raw α β cmp} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
 
 end Raw
 

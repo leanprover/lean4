@@ -146,8 +146,23 @@ def containsThenInsert (t : Raw α cmp) (a : α) : Bool × Raw α cmp :=
   let p := t.inner.containsThenInsert a ()
   (p.1, ⟨p.2⟩)
 
+/--
+Inserts the given element into the set. If the tree set already contains an element that is
+equal (with regard to `==`) to the given element, then the tree set is returned unchanged.
+
+Note: this non-replacement behavior is true for `TreeSet` and `TreeSet.Raw`.
+The `insert` function on `TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw` behaves
+differently: it will overwrite an existing mapping.
+-/
+@[inline]
+def insertIfNew (t : Raw α cmp) (a : α) : Raw α cmp :=
+    letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew a ()⟩
+
 instance : Membership α (Raw α cmp) where
   mem m a := m.contains a
+
+instance {m : Raw α cmp} {a : α} : Decidable (a ∈ m) :=
+  show Decidable (m.contains a) from inferInstance
 
 end Raw
 

@@ -717,6 +717,58 @@ theorem toListModel_containsThenInsertSlow [Ord α] [TransOrd α] {k : α} {v : 
   rw [containsThenInsertSlow_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
+
+-- /-!
+-- ### `insertIfNewₘ`
+-- -/
+
+-- theorem WF.insert
+
+-- theorem ordered_insertIfNewₘ [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β} (hlb : l.Balanced)
+--     (hlo : l.Ordered) : (l.insertIfNewₘ k v hlb).Ordered :=
+--   ordered_updateAtKey _ hlo
+
+-- theorem toListModel_insertIfNewₘ [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β} (hlb : l.Balanced)
+--     (hlo : l.Ordered) : (l.insertIfNewₘ k v hlb).toListModel.Perm (insertEntry k v l.toListModel) := by
+--   refine toListModel_updateAtKey_perm _ hlo ?_ insertIfNewEntry_of_perm
+--     insertIfNewEntry_append_of_not_contains_right
+--   rintro ⟨(_|l), hl⟩
+--   · simp
+--   · simp only [Option.toList_some, Cell.of_inner]
+--     have h : l.fst == k := by simpa using OrientedCmp.eq_symm (hl l rfl)
+--     rw [insertIfNewEntry_of_containsKey (containsKey_cons_of_beq h), replaceEntry_cons_of_true h]
+
+/-!
+### `insertIfNew`
+-/
+
+theorem WF.insertIfNew [Ord α] {k : α} {v : β k} {l : Impl α β}
+    (h : l.WF) : (l.insertIfNew k v h.balanced).impl.WF := by
+  simp [Impl.insertIfNew]
+  split <;> simp only [h, h.insert]
+
+theorem toListModel_insertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+    (hlb : l.Balanced) (hlo : l.Ordered) :
+    (l.insertIfNew k v hlb).impl.toListModel.Perm (insertEntryIfNew k v l.toListModel) := by
+  simp only [Impl.insertIfNew, insertEntryIfNew, cond_eq_if, apply_contains hlo]
+  split
+  · rfl
+  · refine (toListModel_insert hlb hlo).trans ?_
+    simp [insertEntry_of_containsKey_eq_false, *]
+
+/-!
+### `insertIfNewSlow`
+-/
+
+theorem WF.insertIfNewSlow [Ord α] {k : α} {v : β k} {l : Impl α β}
+    (h : l.WF) : (l.insertIfNewSlow k v).WF := by
+  simpa [insertIfNew_eq_insertIfNewSlow] using WF.insertIfNew h
+
+theorem toListModel_insertIfNewSlow [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
+    (hlb : l.Balanced) (hlo : l.Ordered) :
+    (l.insertIfNewSlow k v).toListModel.Perm (insertEntryIfNew k v l.toListModel) := by
+  simpa [insertIfNew_eq_insertIfNewSlow] using toListModel_insertIfNew hlb hlo
+
 /-!
 ## Deducing that well-formed trees are ordered
 -/

@@ -15,7 +15,7 @@ namespace Loop
 /--
 Options for configuring the event loop behavior.
 -/
-structure Loop.Options where
+structure Options where
   /--
   Accumulate the amount of idle time the event loop spends in the event provider.
   -/
@@ -31,7 +31,7 @@ structure Loop.Options where
 Configures the event loop with the specified options.
 -/
 @[extern "lean_uv_event_loop_configure"]
-opaque configure (options : Loop.Options) : BaseIO Unit
+opaque configure (options : Options) : BaseIO Unit
 
 /--
 Checks if the event loop is still active and processing events.

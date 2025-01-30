@@ -84,12 +84,12 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
     let e'' := result.expr
     -- Simp, even with dsimp on, is not as thorough as `Core.transform`:
-    -- let e'' ← Core.transform e' fun e =>
-    --   e.withApp fun f as =>do
-    --     if f.isConstOf ``wfParam then
-    --       if h : as.size ≥ 2 then
-    --         return .continue (mkAppN as[1] as[2:])
-    --     return .continue
+    let e'' ← Core.transform e'' fun e =>
+      e.withApp fun f as =>do
+        if f.isConstOf ``wfParam then
+          if h : as.size ≥ 2 then
+            return .continue (mkAppN as[1] as[2:])
+        return .continue
 
     trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
 

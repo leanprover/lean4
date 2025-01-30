@@ -1194,6 +1194,16 @@ theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n
     rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg, ← Int.sub_eq_add_neg]
     simp [emod_sub_bmod_congr]
 
+theorem add_bmod_eq_add_bmod_right (i : Int)
+    (H : bmod x n = bmod y n) : bmod (x + i) n = bmod (y + i) n := by
+  rw [← bmod_add_bmod_congr, ← @bmod_add_bmod_congr y, H]
+
+theorem bmod_add_cancel_right (i : Int) : bmod (x + i) n = bmod (y + i) n ↔ bmod x n = bmod y n :=
+  ⟨fun H => by
+    have := add_bmod_eq_add_bmod_right (-i) H
+    rwa [Int.add_neg_cancel_right, Int.add_neg_cancel_right] at this,
+  fun H => by rw [← bmod_add_bmod_congr, H, bmod_add_bmod_congr]⟩
+
 @[simp] theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
 
@@ -1348,3 +1358,8 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
           all_goals decide
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
+
+@[simp]
+theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
+  apply (bmod_add_cancel_right x).mp
+  rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]

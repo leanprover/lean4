@@ -674,18 +674,30 @@ def findFinIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option (Fin as
     decreasing_by simp_wf; decreasing_trivial_pre_omega
   loop 0
 
+@[inline]
+def findIdx (p : α → Bool) (as : Array α) : Nat := (as.findIdx? p).getD as.size
+
 @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
-def indexOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
+def idxOfAux [BEq α] (a : Array α) (v : α) (i : Nat) : Option (Fin a.size) :=
   if h : i < a.size then
     if a[i] == v then some ⟨i, h⟩
-    else indexOfAux a v (i+1)
+    else idxOfAux a v (i+1)
   else none
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
-def indexOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
-  indexOfAux a v 0
+@[deprecated idxOfAux (since := "2025-01-29")]
+abbrev indexOfAux := @idxOfAux
 
-@[deprecated indexOf? (since := "2024-11-20")]
+def finIdxOf? [BEq α] (a : Array α) (v : α) : Option (Fin a.size) :=
+  idxOfAux a v 0
+
+@[deprecated "`Array.indexOf?` has been deprecated, use `idxOf?` or `finIdxOf?` instead." (since := "2025-01-29")]
+abbrev indexOf? := @finIdxOf?
+
+def idxOf? [BEq α] (a : Array α) (v : α) : Option Nat :=
+  (a.finIdxOf? v).map (·.val)
+
+@[deprecated idxOf? (since := "2024-11-20")]
 def getIdx? [BEq α] (a : Array α) (v : α) : Option Nat :=
   a.findIdx? fun a => a == v
 
@@ -884,7 +896,7 @@ def eraseIdx! (a : Array α) (i : Nat) : Array α :=
 This function takes worst case O(n) time because
 it has to backshift all later elements. -/
 def erase [BEq α] (as : Array α) (a : α) : Array α :=
-  match as.indexOf? a with
+  match as.finIdxOf? a with
   | none   => as
   | some i => as.eraseIdx i
 
@@ -893,9 +905,9 @@ def erase [BEq α] (as : Array α) (a : α) : Array α :=
 This function takes worst case O(n) time because
 it has to backshift all later elements. -/
 def eraseP (as : Array α) (p : α → Bool) : Array α :=
-  match as.findIdx? p with
+  match as.findFinIdx? p with
   | none   => as
-  | some i => as.eraseIdxIfInBounds i
+  | some i => as.eraseIdx i
 
 /-- Insert element `a` at position `i`. -/
 @[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=

@@ -129,9 +129,9 @@ where
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.indexOf? lhs | unreachable!
+               let some j  := ys.finIdxOf? lhs | unreachable!
                let ys      := ys.eraseIdx j
-               let some k  := args.indexOf? lhs | unreachable!
+               let some k  := args.idxOf? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let arg     ← mkEqRefl rhs

@@ -562,7 +562,7 @@ where
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
   (← whnf (← inferType x)).withApp fun f _ =>
-  match f.constName?, xs.indexOf? x with
+  match f.constName?, xs.idxOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then
       let (_, belowTy) ← belowType motive xs idx
@@ -571,7 +571,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
         if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
+          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx)
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
           pure none

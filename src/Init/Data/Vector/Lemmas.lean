@@ -101,8 +101,11 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem extract_mk (a : Array α) (h : a.size = n) (start stop) :
     (Vector.mk a h).extract start stop = Vector.mk (a.extract start stop) (by simp [h]) := rfl
 
-@[simp] theorem indexOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
-    (Vector.mk a h).indexOf? x = (a.indexOf? x).map (Fin.cast h) := rfl
+@[simp] theorem finIdxOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
+    (Vector.mk a h).finIdxOf? x = (a.finIdxOf? x).map (Fin.cast h) := rfl
+
+@[deprecated finIdxOf?_mk (since := "2025-01-29")]
+abbrev indexOf?_mk := @finIdxOf?_mk
 
 @[simp] theorem findM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
     (Vector.mk a h).findM? f = a.findM? f := rfl

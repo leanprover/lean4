@@ -343,8 +343,16 @@ instance [BEq α] : BEq (Vector α n) where
 Finds the first index of a given value in a vector using `==` for comparison. Returns `none` if the
 no element of the index matches the given value.
 -/
-@[inline] def indexOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
-  (v.toArray.indexOf? x).map (Fin.cast v.size_toArray)
+@[inline] def finIdxOf? [BEq α] (v : Vector α n) (x : α) : Option (Fin n) :=
+  (v.toArray.finIdxOf? x).map (Fin.cast v.size_toArray)
+
+@[deprecated finIdxOf? (since := "2025-01-29")]
+abbrev indexOf? := @finIdxOf?
+
+/-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
+no element of the index matches the given value. -/
+@[inline] def findFinIdx? (v : Vector α n) (p : α → Bool) : Option (Fin n) :=
+  (v.toArray.findFinIdx? p).map (Fin.cast v.size_toArray)
 
 /--
 Note that the universe level is contrained to `Type` here,

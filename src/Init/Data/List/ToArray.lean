@@ -528,16 +528,24 @@ termination_by xs.length - i
   rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
   simp
 
+@[simp] theorem findIdx_toArray [BEq α] {as : List α} {p : α → Bool} :
+    as.toArray.findIdx p = as.findIdx p := by
+  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
+
 @[simp] theorem idxOf?_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.idxOf? a = as.idxOf? a := by
   rw [Array.idxOf?, finIdxOf?_toArray, idxOf?_eq_map_finIdxOf?_val]
+
+@[simp] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
+    as.toArray.idxOf a = as.idxOf a := by
+  rw [Array.idxOf, findIdx_toArray, idxOf]
 
 @[simp] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by
   rw [Array.eraseP, List.eraseP_eq_eraseIdx, findFinIdx?_toArray]
   split <;> simp [*, findIdx?_eq_map_findFinIdx?_val]
 
-@[simp] theorem erase_toArray [BEq α] [LawfulBEq α] {as : List α} {a : α} :
+@[simp] theorem erase_toArray [BEq α] {as : List α} {a : α} :
     as.toArray.erase a = (as.erase a).toArray := by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]

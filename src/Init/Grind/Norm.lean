@@ -61,6 +61,14 @@ theorem Int.lt_eq (a b : Int) : (a < b) = (a + 1 ≤ b) := by
 theorem ge_eq [LE α] (a b : α) : (a ≥ b) = (b ≤ a) := rfl
 theorem gt_eq [LT α] (a b : α) : (a > b) = (b < a) := rfl
 
+theorem beq_eq_decide_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a == b) = (decide (a = b)) := by
+  by_cases a = b
+  next h => simp [h]
+  next h => simp [beq_eq_false_iff_ne.mpr h, decide_eq_false h]
+
+theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b : α) : (a != b) = (decide (¬ a = b)) := by
+  by_cases a = b <;> simp [*]
+
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
@@ -95,9 +103,9 @@ init_grind_norm
   -- Bool not
   Bool.not_not
   -- beq
-  beq_iff_eq
+  beq_iff_eq beq_eq_decide_eq
   -- bne
-  bne_iff_ne
+  bne_iff_ne bne_eq_decide_not_eq
   -- Bool not eq true/false
   Bool.not_eq_true Bool.not_eq_false
   -- decide

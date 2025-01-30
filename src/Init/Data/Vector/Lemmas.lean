@@ -589,11 +589,11 @@ theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
 @[simp] theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
   simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
 
-@[simp] theorem _root_.Array.toVector_mkArray (a : α) (n : Nat) :
-    (Array.mkArray n a).toVector = (mkVector n a).cast (by simp) := rfl
+@[simp] theorem _root_.Array.mk_mkArray (a : α) (n : Nat) (h : (mkArray n a).size = m) :
+    mk (Array.mkArray n a) h = (mkVector n a).cast (by simpa using h) := rfl
 
-theorem mkVector_eq_toVector_mkArray (a : α) (n : Nat) :
-    mkVector n a = (Array.mkArray n a).toVector.cast (by simp) := by
+theorem mkVector_eq_mk_mkArray (a : α) (n : Nat) :
+    mkVector n a = mk (mkArray n a) (by simp) := by
   simp
 
 /-! ## L[i] and L[i]? -/
@@ -1770,6 +1770,7 @@ theorem mkVector_succ' : mkVector (n + 1) a = (#v[a] ++ mkVector n a).cast (by o
 
 @[simp] theorem mem_mkVector {a b : α} {n} : b ∈ mkVector n a ↔ n ≠ 0 ∧ b = a := by
   unfold mkVector
+  simp only [mem_mk]
   simp
 
 theorem eq_of_mem_mkVector {a b : α} {n} (h : b ∈ mkVector n a) : b = a := (mem_mkVector.1 h).2
@@ -1779,7 +1780,8 @@ theorem forall_mem_mkVector {p : α → Prop} {a : α} {n} :
   cases n <;> simp [mem_mkVector]
 
 @[simp] theorem getElem_mkVector (a : α) (n i : Nat) (h : i < n) : (mkVector n a)[i] = a := by
-  simp [mkVector]
+  rw [mkVector_eq_mk_mkArray, getElem_mk]
+  simp
 
 theorem getElem?_mkVector (a : α) (n i : Nat) : (mkVector n a)[i]? = if i < n then some a else none := by
   simp [getElem?_def]

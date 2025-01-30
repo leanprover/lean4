@@ -227,13 +227,13 @@ theorem vcomp_eq_comp (α : F ⟶ G) (β : G ⟶ H) : NatTrans.vcomp α β = α 
 
 theorem vcomp_app' (α : F ⟶ G) (β : G ⟶ H) (X : C) : (α ≫ β).app X = α.app X ≫ β.app X := rfl
 
-theorem congr_app {α β : F ⟶ G} (h : α = β) (X : C) : α.app X = β.app X := by rw [h]
+theorem congr_app {α β : F ⟶ G} (h : α = β) (X : C) : α.app X = β.app X := by grind
 
 theorem naturality_app_app {F G : C ⥤ D ⥤ E ⥤ E'}
     (α : F ⟶ G) {X₁ Y₁ : C} (f : X₁ ⟶ Y₁) (X₂ : D) (X₃ : E) :
     ((F.map f).app X₂).app X₃ ≫ ((α.app Y₁).app X₂).app X₃ =
-      ((α.app X₁).app X₂).app X₃ ≫ ((G.map f).app X₂).app X₃ :=
-  congr_app (NatTrans.naturality_app α X₂ f) X₃
+      ((α.app X₁).app X₂).app X₃ ≫ ((G.map f).app X₂).app X₃ := by
+  grind
 
 end NatTrans
 

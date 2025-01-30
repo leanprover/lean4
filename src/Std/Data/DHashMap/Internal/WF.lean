@@ -15,7 +15,8 @@ the contents of this file.
 File contents: proof that all hash map operations preserve `WFImp` to show `WF.out : WF → WFImp`
 -/
 
-open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 set_option linter.missingDocs true
 set_option autoImplicit false

@@ -16,7 +16,8 @@ File contents: verification of operations on `Raw₀`
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 universe u v
 

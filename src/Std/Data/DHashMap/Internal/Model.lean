@@ -6,7 +6,7 @@ Authors: Markus Himmel
 prelude
 import Init.Data.Array.TakeDrop
 import Std.Data.DHashMap.Basic
-import Std.Data.DHashMap.Internal.List.HashesTo
+import Std.Data.DHashMap.Internal.HashesTo
 import Std.Data.DHashMap.Internal.AssocList.Lemmas
 
 /-!
@@ -31,7 +31,9 @@ open List (Perm perm_append_comm_assoc)
 
 namespace Std.DHashMap.Internal
 
-open Internal.List
+open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 /-! # Setting up the infrastructure -/
 

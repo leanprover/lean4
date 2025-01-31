@@ -2364,7 +2364,7 @@ theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
   simp [getElem_shiftConcat]
 
 @[simp]
-theorem getElem_shiftConcat_succ (x : BitVec w) (b : Bool) (h : i+1 < w) :
+theorem getElem_shiftConcat_succ {x : BitVec w} {b : Bool} (h : i + 1 < w) :
     (x.shiftConcat b)[i+1] = x[i] := by
   simp [getElem_shiftConcat]
 

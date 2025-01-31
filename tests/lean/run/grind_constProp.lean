@@ -306,13 +306,12 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
 @[grind] theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ := by
   grind
 
+@[grind] theorem not_cons_le_nil : ¬ (x, v) :: σ ≼ [] := by
+  -- Remark: `grind` fails here because it is not capable of "guessing" that we need to instantiate the hypothesis with `x`
+  intro h; have h := @h x; simp at h
+
 theorem State.eq_bot (h : σ ≼ ⊥) : σ = ⊥ := by
-  match σ with
-  | [] => grind
-  | (y, v) :: σ =>
-    -- TODO: can we avoid this hint?
-    have : State.find? ((y, v) :: σ) y = some v := by grind
-    grind
+  grind [cases Prod, cases List]
 
 theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ σ := by
   grind

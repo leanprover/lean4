@@ -42,10 +42,10 @@ def Module.recParseImports (mod : Module) : FetchM (Job (Array Module)) := Job.a
 def Module.importsFacetConfig : ModuleFacetConfig importsFacet :=
   mkFacetJobConfig recParseImports (buildable := false)
 
-structure ModuleImportData where
+private structure ModuleImportData where
   module : Module
-  transImports : Job (Array Module)
   includeSelf : Bool
+  transImports : Job (Array Module)
 
 @[inline] def collectImportsAux
   (leanFile : FilePath) (imports : Array Module)
@@ -58,25 +58,21 @@ structure ModuleImportData where
     r.bind (sync := true) fun r =>
     imp.transImports.task.map (sync := true) fun
     | .ok transImps _ =>
-      match r with
-      | .ok impSet s =>
+      r.map fun impSet =>
         let impSet := impSet.appendArray transImps
-        let impSet := if imp.includeSelf then impSet.insert imp.module else impSet
-        .ok impSet s
-      | .error e s => .error e s
+        if imp.includeSelf then impSet.insert imp.module else impSet
     | .error _ _ =>
       let entry := LogEntry.error s!"{leanFile}: bad import '{imp.module.name}'"
       match r with
       | .ok _ s => .error 0 (s.logEntry entry)
       | .error e s => .error e (s.logEntry entry)
-  return Job.ofTask <| task.map (sync := true) fun
-    | .ok impSet s => .ok impSet.toArray s
-    | .error e s => .error e s
+  return Job.ofTask <| task.map (sync := true) (·.map (·.toArray))
 
 /-- Recursively compute a module's transitive imports. -/
-def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  collectImportsAux mod.leanFile (← (← mod.imports.fetch).await) fun imp =>
-    (true, ·) <$> imp.transImports.fetch
+def Module.recComputeTransImports (mod : Module) : FetchM (Job (Array Module)) := do
+  (← mod.imports.fetch).bindM fun imports =>
+    collectImportsAux mod.leanFile imports fun imp =>
+      (true, ·) <$> imp.transImports.fetch
 
 /-- The `ModuleFacetConfig` for the builtin `transImportsFacet`. -/
 def Module.transImportsFacetConfig : ModuleFacetConfig transImportsFacet :=
@@ -92,8 +88,9 @@ def computePrecompileImportsAux
       (false, ·) <$> imp.precompileImports.fetch
 
 /-- Recursively compute a module's precompiled imports. -/
-def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := ensureJob do
-  inline <| computePrecompileImportsAux mod.leanFile (← (← mod.imports.fetch).await)
+def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Module)) := do
+  (← mod.imports.fetch).bindM fun imports =>
+    inline <| computePrecompileImportsAux mod.leanFile imports
 
 /-- The `ModuleFacetConfig` for the builtin `precompileImportsFacet`. -/
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
@@ -113,14 +110,14 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job (SearchPath × Array FilePa
   precompiled imports so that errors in the import block of transitive imports
   will not kill this job before the direct imports are built.
   -/
-  let directImports ← (← mod.imports.fetch).await
+  (← mod.imports.fetch).bindM fun directImports => do
   let importJob := Job.mixArray <| ← directImports.mapM fun imp => do
     if imp.name = mod.name then
       logError s!"{mod.leanFile}: module imports itself"
     imp.olean.fetch
   let precompileImports ← if mod.shouldPrecompile then
     mod.transImports.fetch else mod.precompileImports.fetch
-  let precompileImports ← precompileImports.await
+  precompileImports.bindM fun precompileImports => do
   let modLibJobs ← precompileImports.mapM (·.dynlib.fetch)
   let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
   let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
@@ -303,7 +300,7 @@ def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
 
   -- Compute dependencies
-  let transImports ← (← mod.transImports.fetch).await
+  (← mod.transImports.fetch).bindM fun transImports => do
   let modJobs ← transImports.mapM (·.dynlib.fetch)
   let pkgs := transImports.foldl (·.insert ·.pkg)
     OrdPackageSet.empty |>.insert mod.pkg |>.toArray

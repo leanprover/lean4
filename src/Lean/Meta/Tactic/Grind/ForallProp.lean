@@ -26,7 +26,7 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
     trace_goal[grind.debug.forallPropagator] "isEqTrue, {e}"
     let h₁ ← mkEqTrueProof p
     let qh₁ := q.instantiate1 (mkOfEqTrueCore p h₁)
-    let r ← simp qh₁
+    let r ← preprocess qh₁
     let q := mkLambda n bi p q
     let q' := r.expr
     internalize q' (← getGeneration e)

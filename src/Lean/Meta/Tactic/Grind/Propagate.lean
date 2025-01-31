@@ -193,7 +193,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
   if (← isEqTrue c) then
      let h₁ ← mkEqTrueProof c
      let ah₁ := mkApp a (mkOfEqTrueCore c h₁)
-     let p ← simp ah₁
+     let p ← preprocess ah₁
      let r := p.expr
      let h₂ ← p.getProof
      internalize r (← getGeneration e)
@@ -201,7 +201,7 @@ builtin_grind_propagator propagateDIte ↑dite := fun e => do
   else if (← isEqFalse c) then
      let h₁ ← mkEqFalseProof c
      let bh₁ := mkApp b (mkApp2 (mkConst ``of_eq_false) c h₁)
-     let p ← simp bh₁
+     let p ← preprocess bh₁
      let r := p.expr
      let h₂ ← p.getProof
      internalize r (← getGeneration e)

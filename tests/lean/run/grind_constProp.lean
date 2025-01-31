@@ -207,10 +207,8 @@ def evalExpr (e : Expr) : EvalM Val := do
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
   -- TODO: we need a mechanism for saying we just want the intro rules
-  induction h <;> try grind [Bigstep]
-  next => grind [=_ Expr.eval_simplify, Bigstep.ifTrue]
-  next => grind [=_ Expr.eval_simplify, Bigstep.ifFalse]
-  next => grind [=_ Expr.eval_simplify, Bigstep.whileTrue]
+  induction h <;> grind [=_ Expr.eval_simplify, Bigstep.skip, Bigstep.assign,
+    Bigstep.seq, Bigstep.whileFalse, Bigstep.whileTrue, Bigstep.ifTrue, Bigstep.ifFalse]
 
 @[simp, grind =] def Expr.constProp (e : Expr) (σ : State) : Expr :=
   match e with

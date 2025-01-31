@@ -937,6 +937,19 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ||| · ) (0#n) where
   ext i h
   simp [h]
 
+@[simp]
+theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#w := by
+  constructor
+  · intro h
+    constructor
+    all_goals
+    · ext i ih
+      have := BitVec.eq_of_getLsbD_eq_iff.mp h i ih
+      simp only [getLsbD_or, getLsbD_zero, Bool.or_eq_false_iff] at this
+      simp [this]
+  · intro h
+    simp [h]
+
 theorem extractLsb'_or {x y : BitVec w} {start len : Nat} :
    (x ||| y).extractLsb' start len = (x.extractLsb' start len) ||| (y.extractLsb' start len) := by
   ext i hi
@@ -1020,6 +1033,20 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· &&& · ) (allOnes n) wher
   ext i h
   simp [h]
 
+@[simp]
+theorem and_eq_allOnes_iff {x y : BitVec w} :
+    x &&& y = allOnes w ↔ x = allOnes w ∧ y = allOnes w := by
+  constructor
+  · intro h
+    constructor
+    all_goals
+    · ext i ih
+      have := BitVec.eq_of_getLsbD_eq_iff.mp h i ih
+      simp only [getLsbD_and, getLsbD_allOnes, ih, decide_true, Bool.and_eq_true] at this
+      simp [this, ih]
+  · intro h
+    simp [h]
+
 theorem extractLsb'_and {x y : BitVec w} {start len : Nat} :
    (x &&& y).extractLsb' start len = (x.extractLsb' start len) &&& (y.extractLsb' start len) := by
   ext i hi
@@ -1094,6 +1121,31 @@ instance : Std.LawfulCommIdentity (α := BitVec n) (· ^^^ · ) (0#n) where
 @[simp] theorem zero_xor {x : BitVec w} : 0#w ^^^ x = x := by
   ext i
   simp
+
+@[simp]
+theorem xor_left_inj {x y : BitVec w} (z : BitVec w) : (x ^^^ z = y ^^^ z) ↔ x = y := by
+  constructor
+  · intro h
+    ext i ih
+    have := BitVec.eq_of_getLsbD_eq_iff.mp h i
+    simp only [getLsbD_xor, Bool.xor_left_inj] at this
+    exact this ih
+  · intro h
+    rw [h]
+
+@[simp]
+theorem xor_right_inj {x y : BitVec w} (z : BitVec w) : (z ^^^ x = z ^^^ y) ↔ x = y := by
+  rw [xor_comm z x, xor_comm z y]
+  exact xor_left_inj _
+
+@[simp]
+theorem xor_eq_zero_iff {x y : BitVec w} : (x ^^^ y = 0#w) ↔ x = y := by
+  constructor
+  · intro h
+    apply (xor_left_inj y).mp
+    rwa [xor_self]
+  · intro h
+    simp [h]
 
 theorem extractLsb'_xor {x y : BitVec w} {start len : Nat} :
    (x ^^^ y).extractLsb' start len = (x.extractLsb' start len) ^^^ (y.extractLsb' start len) := by

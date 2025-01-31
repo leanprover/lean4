@@ -15,7 +15,7 @@ namespace Lean.Parser.Term.Doc
 /-- Information about how to spell a certain notation for an identifier in declaration names. -/
 structure RecommendedSpelling where
   /-- The notation in question. -/
-  notation_ : String
+  «notation» : String
   /-- The recommended spelling of the notation in identifiers. -/
   recommendedSpelling : String
   /-- Additional information. -/
@@ -73,7 +73,7 @@ where
   indentLine (str : String) : String :=
     (if str.all (·.isWhitespace) then str else "   " ++ str) ++ "\n"
   bullet (spelling : RecommendedSpelling) : String :=
-    let firstLine := s!"* The recommended spelling of `{spelling.notation_}` in identifiers is `{spelling.recommendedSpelling}`"
+    let firstLine := s!" * The recommended spelling of `{spelling.«notation»}` in identifiers is `{spelling.recommendedSpelling}`"
     let additionalInfoLines := spelling.additionalInformation?.map (·.splitOn "\n")
     match additionalInfoLines with
     | none | some [] => firstLine ++ ".\n\n"

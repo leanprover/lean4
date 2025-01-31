@@ -18,7 +18,7 @@ inductive MyAnd (P Q : Prop) : Prop where
 @[inherit_doc] infixr:35 " ☃ " => MyAnd
 @[inherit_doc] infixr:35 " ☋ " => MyAnd
 
-recommended_spelling "☃" "snowmand" MyAnd «term_☃_»
+recommended_spelling "snowmand" for "☃" in [MyAnd, «term_☃_»]
 /-- the preferred notation is `∧`.
 
 more stuff
@@ -60,5 +60,5 @@ info: some
 #guard_msgs in
 #eval do
   return (← Lean.Elab.Term.Doc.allRecommendedSpellings)
-    |>.map Lean.Parser.Term.Doc.RecommendedSpelling.notation_
+    |>.map Lean.Parser.Term.Doc.RecommendedSpelling.«notation»
     |>.count "☋"

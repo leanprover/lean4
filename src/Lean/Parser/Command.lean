@@ -736,7 +736,7 @@ Documentation can only be added to declarations in the same module.
   docComment >> "add_decl_doc " >> ident
 
 /--
-Register a tactic tag, saving its user-facing name and docstring.
+Registers a tactic tag, saving its user-facing name and docstring.
 
 Tactic tags can be used by documentation generation tools to classify related tactics.
 -/
@@ -745,7 +745,7 @@ Tactic tags can be used by documentation generation tools to classify related ta
   "register_tactic_tag " >> ident >> strLit
 
 /--
-Add more documentation as an extension of the documentation for a given tactic.
+Adds more documentation as an extension of the documentation for a given tactic.
 
 The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
 list, so it should be brief.
@@ -755,7 +755,10 @@ list, so it should be brief.
   "tactic_extension " >> ident
 
 /--
-Document a recommended spelling for a notation in identifiers.
+Documents a recommended spelling for a notation in identifiers.
+
+Theorems should generally be systematically named after their statement, rather than creatively.
+Non-identifier notations should be referred to consistently by their recommended spelling.
 
 ```
 /-- some additional info -/
@@ -763,7 +766,7 @@ recommended_spelling "∧" "and" And «term_∧_»
 ```
 
 will do the following:
-* Adds the sentence "The recommended spelling of `∧` in identifier is `and` (some additional info)."
+* Adds the sentence "The recommended spelling of `∧` in identifiers is `and` (some additional info)."
   to the end of the docstring for `And` and for `∧`. If the additional info is more than a single
   line, it will be placed below the sentence instead of in parentheses.
 * Registers this information in an environment extension, so that it will later be possible to
@@ -777,7 +780,8 @@ attach the recommended spelling to both `And` and `«term_∧_»`.
 -/
 @[builtin_command_parser] def «recommended_spelling» := leading_parser
   optional (docComment >> ppLine) >>
-  "recommended_spelling " >> strLit >> ppSpace >> strLit >> ppSpace >> many1 ident
+  "recommended_spelling " >> strLit >> " for " >> strLit >> " in " >>
+    "[" >> sepBy1 ident ", " >> "]"
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

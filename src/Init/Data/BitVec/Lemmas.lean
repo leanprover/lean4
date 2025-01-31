@@ -2359,7 +2359,7 @@ theorem getElem_shiftConcat (x : BitVec w) (b : Bool) (h : i < w) :
   rw [← getLsbD_eq_getElem, getLsbD_shiftConcat, getLsbD_eq_getElem, decide_eq_true h, Bool.true_and]
 
 @[simp]
-theorem getElem_shiftConcat_zero (x : BitVec w) (b : Bool) (h : 0 < w) :
+theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
     (x.shiftConcat b)[0] = b := by
   simp [getElem_shiftConcat]
 

@@ -195,7 +195,8 @@ def splitNext : GrindTactic := fun goal => do
           saveCases declName false
       cases (← get).mvarId major
     let goal ← get
-    let goals := mvarIds.map fun mvarId => { goal with mvarId }
+    let numSubgoals := mvarIds.length
+    let goals := mvarIds.map fun mvarId => { goal with mvarId, casesTrace := (c, numSubgoals) :: goal.casesTrace }
     let goals ← introNewHyp goals [] genNew
     return some goals
   return goals?

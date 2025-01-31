@@ -179,6 +179,9 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
+  [cases] Case analyses
+    [cases] [1]: p = r
+    [cases] [2]: ¬r ∨ p
 [grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/

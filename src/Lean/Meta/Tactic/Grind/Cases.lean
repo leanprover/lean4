@@ -73,14 +73,21 @@ private def getAlias? (value : Expr) : MetaM (Option Name) :=
     else
       return none
 
-partial def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do
+partial def isCasesAttrCandidate? (declName : Name) (eager : Bool) : CoreM (Option Name) := do
   match (← getConstInfo declName) with
-  | .inductInfo info => return !info.isRec || !eager
+  | .inductInfo info => if !info.isRec || !eager then return some declName else return none
   | .defnInfo info =>
     let some declName ← getAlias? info.value |>.run' {} {}
-      | return false
-    isCasesAttrCandidate declName eager
-  | _ => return false
+      | return none
+    isCasesAttrCandidate? declName eager
+  | _ => return none
+
+def isCasesAttrCandidate (declName : Name) (eager : Bool) : CoreM Bool := do
+  return (← isCasesAttrCandidate? declName eager).isSome
+
+def isCasesAttrPredicateCandidate? (declName : Name) (eager : Bool) : MetaM (Option InductiveVal) := do
+  let some declName ← isCasesAttrCandidate? declName eager | return none
+  isInductivePredicate? declName
 
 def validateCasesAttr (declName : Name) (eager : Bool) : CoreM Unit := do
   unless (← isCasesAttrCandidate declName eager) do

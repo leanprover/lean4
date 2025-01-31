@@ -12,6 +12,7 @@ namespace Lean.Meta.Grind
 inductive AttrKind where
   | ematch (k : EMatchTheoremKind)
   | cases (eager : Bool)
+  | intro
   | infer
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
@@ -26,6 +27,7 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   | `(Parser.Attr.grindMod| usr) => return .ematch .user
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true
+  | `(Parser.Attr.grindMod| intro) => return .intro
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
@@ -64,8 +66,14 @@ builtin_initialize
       | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k
       | .cases eager => addCasesAttr declName eager attrKind
+      | .intro =>
+        if let some info ← isCasesAttrPredicateCandidate? declName false then
+          for ctor in info.ctors do
+            addEMatchAttr ctor attrKind .default
+        else
+          throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
       | .infer =>
-        if (← isCasesAttrCandidate declName false) then
+        if let some declName ← isCasesAttrCandidate? declName false then
           addCasesAttr declName false attrKind
           if let some info ← isInductivePredicate? declName then
             -- If it is an inductive predicate,

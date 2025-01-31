@@ -47,15 +47,16 @@ info: [grind] Counters
     [thm] Array.size_set ↦ 3
 ---
 info: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 11822, num: 2):
-    [reduction] LT.lt ↦ 11822
+  [reduction] unfolded declarations (max: 11829, num: 3):
+    [reduction] LT.lt ↦ 11829
     [reduction] getElem ↦ 64
+    [reduction] Nat.lt ↦ 22
   [reduction] unfolded instances (max: 32, num: 1):
     [reduction] Array.instGetElemNatLtSize ↦ 32
   [reduction] unfolded reducible declarations (max: 7079, num: 7):
     [reduction] Array.size ↦ 7079
     [reduction] Array.toList ↦ 1885
-    [reduction] autoParam ↦ 1694
+    [reduction] autoParam ↦ 1715
     [reduction] outParam ↦ 124
     [reduction] Ne ↦ 57
     [reduction] GT.gt ↦ 40

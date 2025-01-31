@@ -110,9 +110,7 @@ opaque P : Nat → Prop
 opaque Q : Nat → Prop
 opaque f : Nat → Nat → Nat
 
-/--
-info: [grind.ematch.pattern] pqf: [P (f #2 #1)]
--/
+/-- info: [grind.ematch.pattern] pqf: [f #2 #1] -/
 #guard_msgs (info) in
 @[grind←] theorem pqf : Q x → P (f x y) := sorry
 

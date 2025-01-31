@@ -26,6 +26,9 @@ unless you use side effecting operations like `dbg_trace`.
 -/
 syntax "[" withoutPosition(term,*,?) "]"  : term
 
+recommended_spelling "[]" "nil" List.nil «term[_]»
+recommended_spelling "[a]" "singleton" List.cons «term[_]»
+
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
 The syntax `%[a,b,c|tail]` constructs a value equivalent to `a::b::c::tail`.

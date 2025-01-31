@@ -762,7 +762,7 @@ Non-identifier notations should be referred to consistently by their recommended
 
 ```
 /-- some additional info -/
-recommended_spelling "∧" "and" And «term_∧_»
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
 ```
 
 will do the following:

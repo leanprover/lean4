@@ -1176,23 +1176,12 @@ theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmo
 
 @[simp]
 theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
-  rw [bmod_def x n]
-  split
-  next p =>
-    simp only [emod_add_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
-    simp
+  have := (@bmod_add_mul_cancel (Int.bmod x n + y) n (bdiv x n)).symm
+  rwa [Int.add_right_comm, bmod_add_bdiv] at this
 
 @[simp]
-theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n := by
-  rw [Int.bmod_def x n]
-  split
-  next p =>
-    simp only [emod_sub_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg, ← Int.sub_eq_add_neg]
-    simp [emod_sub_bmod_congr]
+theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n :=
+  @bmod_add_bmod_congr x n (-y)
 
 theorem add_bmod_eq_add_bmod_right (i : Int)
     (H : bmod x n = bmod y n) : bmod (x + i) n = bmod (y + i) n := by
@@ -1208,13 +1197,8 @@ theorem bmod_add_cancel_right (i : Int) : bmod (x + i) n = bmod (y + i) n ↔ bm
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
 
 @[simp] theorem sub_bmod_bmod : Int.bmod (x - Int.bmod y n) n = Int.bmod (x - y) n := by
-  rw [Int.bmod_def y n]
-  split
-  next p =>
-    simp [sub_emod_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, ← Int.add_assoc, ← Int.sub_eq_add_neg]
-    simp [sub_emod_bmod_congr]
+  apply (bmod_add_cancel_right (bmod y n)).mp
+  rw [Int.sub_add_cancel, add_bmod_bmod, Int.sub_add_cancel]
 
 @[simp]
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by

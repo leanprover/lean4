@@ -131,7 +131,16 @@ abbrev indexOf?_mk := @finIdxOf?_mk
       Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
 
 @[simp] theorem forM_mk [Monad m] (f : α → m PUnit) (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).forM f = a.forM f := rfl
+    forM (Vector.mk a h) f = forM a f := rfl
+
+@[simp] theorem forIn'_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β)
+    (f : (a : α) → a ∈ Vector.mk xs h → β → m (ForInStep β)) :
+    forIn' (Vector.mk xs h) b f = forIn' xs b (fun a m b => f a (by simpa using m) b) := rfl
+
+@[simp] theorem forIn_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn (Vector.mk xs h) b f = forIn xs b f := rfl
 
 @[simp] theorem flatMap_mk (f : α → Vector β m) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).flatMap f =
@@ -257,6 +266,26 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 @[simp] theorem toArray_mapFinIdx (f : (i : Nat) → α → (h : i < n) → β) (v : Vector α n) :
     (v.mapFinIdx f).toArray =
       v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) :=
+  rfl
+
+theorem toArray_mapM_go [Monad m] [LawfulMonad m] (f : α → m β) (v : Vector α n) (i h r) :
+    toArray <$> mapM.go f v i h r = Array.mapM.map f v.toArray i r.toArray := by
+  unfold mapM.go
+  unfold Array.mapM.map
+  simp only [v.size_toArray, getElem_toArray]
+  split
+  · simp only [map_bind]
+    congr
+    funext b
+    rw [toArray_mapM_go]
+    rfl
+  · simp
+
+@[simp] theorem toArray_mapM [Monad m] [LawfulMonad m] (f : α → m β) (a : Vector α n) :
+    toArray <$> a.mapM f = a.toArray.mapM f := by
+  rcases a with ⟨a, rfl⟩
+  unfold mapM
+  rw [toArray_mapM_go]
   rfl
 
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl

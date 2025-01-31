@@ -494,7 +494,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldl_subtype {p : α → Prop} {l : Vector { x // p x } n}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    {hf : ∀ b x h, f b ⟨x, h⟩ = g b x} :
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
     l.foldl f x = l.unattach.foldl g x := by
   rcases l with ⟨l, rfl⟩
   simp [Array.foldl_subtype (hf := hf)]
@@ -505,7 +505,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldr_subtype {p : α → Prop} {l : Vector { x // p x } n}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    {hf : ∀ x h b, f ⟨x, h⟩ b = g x b} :
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
     l.foldr f x = l.unattach.foldr g x := by
   rcases l with ⟨l, rfl⟩
   simp [Array.foldr_subtype (hf := hf)]
@@ -515,7 +515,7 @@ This lemma identifies maps over arrays of subtypes, where the function only depe
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {l : Vector { x // p x } n}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.map f = l.unattach.map g := by
   rcases l with ⟨l, rfl⟩
   simp [Array.map_subtype (hf := hf)]

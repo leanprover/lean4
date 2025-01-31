@@ -140,9 +140,10 @@ theorem foldl_toArray (f : β → α → β) (init : β) (l : List α) :
   simp only [size_toArray, foldlM_toArray']
   induction l <;> simp_all
 
+@[simp]
 theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
-    (l.toArray.forM f) = l.forM f := by
-  simp
+    (forM l.toArray f) = l.forM f :=
+  forM_toArray' l f rfl
 
 /-- Variant of `foldr_toArray` with a side condition for the `start` argument. -/
 @[simp] theorem foldr_toArray' (f : α → β → β) (init : β) (l : List α)

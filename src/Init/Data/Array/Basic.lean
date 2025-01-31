@@ -357,6 +357,9 @@ instance : ForIn' m (Array α) α inferInstance where
 
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
+-- We simplify `Array.forIn'` to `forIn'`.
+@[simp] theorem forIn'_eq_forIn' [Monad m] : @Array.forIn' α β m _ = forIn' := rfl
+
 /-- See comment at `forIn'Unsafe` -/
 @[inline]
 unsafe def foldlMUnsafe {α : Type u} {β : Type v} {m : Type v → Type w} [Monad m] (f : β → α → m β) (init : β) (as : Array α) (start := 0) (stop := as.size) : m β :=
@@ -585,11 +588,15 @@ def findRevM? {α : Type} {m : Type → Type w} [Monad m] (p : α → m Bool) (a
   as.findSomeRevM? fun a => return if (← p a) then some a else none
 
 @[inline]
-def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
+protected def forM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := 0) (stop := as.size) : m PUnit :=
   as.foldlM (fun _ => f) ⟨⟩ start stop
 
 instance : ForM m (Array α) α where
-  forM xs f := forM f xs
+  forM xs f := Array.forM f xs
+
+-- We simplify `Array.forM` to `forM`.
+@[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
+    Array.forM f as 0 as.size = forM as f := rfl
 
 @[inline]
 def forRevM {α : Type u} {m : Type v → Type w} [Monad m] (f : α → m PUnit) (as : Array α) (start := as.size) (stop := 0) : m PUnit :=

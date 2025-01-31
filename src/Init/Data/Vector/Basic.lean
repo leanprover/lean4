@@ -56,6 +56,9 @@ def elimAsList {motive : Vector α n → Sort u}
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
 
+instance : Nonempty (Vector α 0) := ⟨#v[]⟩
+instance [Nonempty α] : Nonempty (Vector α n) := ⟨mkVector _ Classical.ofNonempty⟩
+
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 
@@ -216,7 +219,7 @@ where
     else
       return r.cast (by omega)
 
-@[inline] def forM [Monad m] (v : Vector α n) (f : α → m PUnit) : m PUnit :=
+@[inline] protected def forM [Monad m] (v : Vector α n) (f : α → m PUnit) : m PUnit :=
   v.toArray.forM f
 
 @[inline] def flatMapM [Monad m] (v : Vector α n) (f : α → m (Vector β k)) : m (Vector β (n * k)) := do
@@ -420,7 +423,12 @@ instance : ForIn' m (Vector α n) α inferInstance where
 /-! ### ForM instance -/
 
 instance : ForM m (Vector α n) α where
-  forM := forM
+  forM := Vector.forM
+
+-- We simplify `Vector.forM` to `forM`.
+@[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
+    Vector.forM v f = forM v f := rfl
+
 /-! ### ToStream instance -/
 
 instance : ToStream (Vector α n) (Subarray α) where

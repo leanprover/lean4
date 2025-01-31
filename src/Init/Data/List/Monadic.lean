@@ -80,6 +80,63 @@ theorem mapM_eq_reverse_foldlM_cons [Monad m] [LawfulMonad m] (f : α → m β) 
       reverse_cons, reverse_nil, nil_append, singleton_append]
     simp [bind_pure_comp]
 
+/-! ### filterMapM -/
+
+@[simp] theorem filterMapM_nil [Monad m] (f : α → m (Option β)) : [].filterMapM f = pure [] := rfl
+
+theorem filterMapM_loop_eq [Monad m] [LawfulMonad m]
+    (f : α → m (Option β)) (l : List α) (acc : List β) :
+    filterMapM.loop f l acc = (acc.reverse ++ ·) <$> filterMapM.loop f l [] := by
+  induction l generalizing acc with
+  | nil => simp [filterMapM.loop]
+  | cons a l ih =>
+    simp only [filterMapM.loop, _root_.map_bind]
+    congr
+    funext b?
+    split <;> rename_i b
+    · apply ih
+    · rw [ih, ih [b]]
+      simp
+
+@[simp] theorem filterMapM_cons [Monad m] [LawfulMonad m] (f : α → m (Option β)) :
+    (a :: l).filterMapM f = do
+      match (← f a) with
+      | none => filterMapM f l
+      | some b => return (b :: (← filterMapM f l)) := by
+  conv => lhs; unfold filterMapM; unfold filterMapM.loop
+  congr
+  funext b?
+  split <;> rename_i b
+  · simp [filterMapM]
+  · simp only [bind_pure_comp]
+    rw [filterMapM_loop_eq, filterMapM]
+    simp
+
+/-! ### flatMapM -/
+
+@[simp] theorem flatMapM_nil [Monad m] (f : α → m (List β)) : [].flatMapM f = pure [] := rfl
+
+theorem flatMapM_loop_eq [Monad m] [LawfulMonad m] (f : α → m (List β)) (l : List α) (acc : List (List β)) :
+    flatMapM.loop f l acc = (acc.reverse.flatten ++ ·) <$> flatMapM.loop f l [] := by
+  induction l generalizing acc with
+  | nil => simp [flatMapM.loop]
+  | cons a l ih =>
+    simp only [flatMapM.loop, append_nil, _root_.map_bind]
+    congr
+    funext bs
+    rw [ih, ih [bs]]
+    simp
+
+@[simp] theorem flatMapM_cons [Monad m] [LawfulMonad m] (f : α → m (List β)) :
+    (a :: l).flatMapM f = do
+      let bs ← f a
+      return (bs ++ (← l.flatMapM f)) := by
+  conv => lhs; unfold flatMapM; unfold flatMapM.loop
+  congr
+  funext bs
+  rw [flatMapM_loop_eq, flatMapM]
+  simp
+
 /-! ### foldlM and foldrM -/
 
 theorem foldlM_map [Monad m] (f : β₁ → β₂) (g : α → β₂ → m α) (l : List β₁) (init : α) :
@@ -126,24 +183,36 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
     simp only [filter_cons, foldrM_cons]
     split <;> simp [ih]
 
+@[simp] theorem foldlM_attachWith [Monad m]
+    (l : List α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → m β} {b} :
+    (l.attachWith q H).foldlM f b = l.attach.foldlM (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => simp [ih, foldlM_map]
+
+@[simp] theorem foldrM_attachWith [Monad m] [LawfulMonad m]
+    (l : List α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → m β} {b} :
+    (l.attachWith q H).foldrM f b = l.attach.foldrM (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => simp [ih, foldrM_map]
+
 /-! ### forM -/
 
--- We currently use `List.forM` as the simp normal form, rather that `ForM.forM`.
--- (This should probably be revisited.)
--- As such we need to replace `List.forM_nil` and `List.forM_cons`:
+@[deprecated forM_nil (since := "2025-01-31")]
+theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
 
-@[simp] theorem forM_nil' [Monad m] : ([] : List α).forM f = (pure .unit : m PUnit) := rfl
-
-@[simp] theorem forM_cons' [Monad m] :
+@[deprecated forM_cons (since := "2025-01-31")]
+theorem forM_cons' [Monad m] :
     (a::as).forM f = (f a >>= fun _ => as.forM f : m PUnit) :=
   List.forM_cons _ _ _
 
 @[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : List α) (f : α → m PUnit) :
-    (l₁ ++ l₂).forM f = (do l₁.forM f; l₂.forM f) := by
+    forM (l₁ ++ l₂) f = (do forM l₁ f; forM l₂ f) := by
   induction l₁ <;> simp [*]
 
 @[simp] theorem forM_map [Monad m] [LawfulMonad m] (l : List α) (g : α → β) (f : β → m PUnit) :
-    (l.map g).forM f = l.forM (fun a => f (g a)) := by
+    forM (l.map g) f = forM l (fun a => f (g a)) := by
   induction l <;> simp [*]
 
 /-! ### forIn' -/
@@ -337,5 +406,66 @@ theorem allM_eq_not_anyM_not [Monad m] [LawfulMonad m] (p : α → m Bool) (as :
     congr
     funext b
     split <;> simp_all
+
+/-! ### Recognizing higher order functions using a function that only depends on the value. -/
+
+/--
+This lemma identifies monadic folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldlM_subtype [Monad m] {p : α → Prop} {l : List { x // p x }}
+    {f : β → { x // p x } → m β} {g : β → α → m β} {x : β}
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
+    l.foldlM f x = l.unattach.foldlM g x := by
+  unfold unattach
+  induction l generalizing x with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+/--
+This lemma identifies monadic folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldrM_subtype [Monad m] [LawfulMonad m]{p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → β → m β} {g : α → β → m β} {x : β}
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
+    l.foldrM f x = l.unattach.foldrM g x := by
+  unfold unattach
+  induction l generalizing x with
+  | nil => simp
+  | cons a l ih =>
+    simp [ih, hf, foldrM_cons]
+    congr
+    funext b
+    simp [hf]
+
+/--
+This lemma identifies monadic maps over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem mapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → m β} {g : α → m β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.mapM f = l.unattach.mapM g := by
+  unfold unattach
+  simp [← List.mapM'_eq_mapM]
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
+
+@[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.filterMapM f = l.unattach.filterMapM g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf, filterMapM_cons]
+
+@[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → m (List β)} {g : α → m (List β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.flatMapM f) = l.unattach.flatMapM g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf]
 
 end List

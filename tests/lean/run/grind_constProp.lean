@@ -225,9 +225,8 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
 @[grind] theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
   induction σ, x using erase.induct <;> grind [State.erase] -- TODO add missing theorem(s)
 
-def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
-  -- TODO: offset issues?
-  Nat.lt_of_le_of_lt (length_erase_le ..) (by grind)
+def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ := by
+  grind
 
 @[simp, grind =] def State.join (σ₁ σ₂ : State) : State :=
   match σ₁ with

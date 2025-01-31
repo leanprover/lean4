@@ -71,10 +71,10 @@ def Cache (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) :
 /--
 Create an empty `Cache`, valid with respect to any `Array Decl`.
 -/
-@[irreducible]
+@[irreducible, inline]
 def Cache.empty (decls : Array (Decl α)) : Cache α decls := ⟨{}, WF.empty⟩
 
-@[inherit_doc Cache.WF.push_id, irreducible]
+@[inherit_doc Cache.WF.push_id, irreducible, inline]
 def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
   ⟨cache.val, Cache.WF.push_id cache.property⟩
 
@@ -82,7 +82,7 @@ def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
 We require the `decls` as an explicit argument because we use `decls.size` so accidentally mutating
 `decls` before calling `Cache.insert` will destroy `decl` linearity.
 -/
-@[inherit_doc Cache.WF.push_cache, irreducible]
+@[inherit_doc Cache.WF.push_cache, irreducible, inline]
 def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α) :
     Cache α (decls.push decl) :=
   ⟨cache.val.insert decl decls.size, Cache.WF.push_cache cache.property⟩
@@ -167,13 +167,8 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
 /--
 Lookup a `Decl` in a `Cache`.
 -/
-opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decls decl) :=
-  /-
-  This function is marked as `opaque` to make sure it never, ever gets unfolded anywhere.
-  Unfolding it will often cause `HashMap.find?` to be symbolically evaluated by reducing
-  it either in `whnf` or in the kernel. This causes *huge* performance issues in practice.
-  The function can still be fully verified as all the proofs we need are in `CacheHit`.
-  -/
+@[irreducible, inline]
+def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decls decl) :=
   match hfound : cache.val[decl]? with
   | some hit =>
     some ⟨hit, Cache.get?_bounds _ _ hfound, Cache.get?_property _ _ hfound⟩

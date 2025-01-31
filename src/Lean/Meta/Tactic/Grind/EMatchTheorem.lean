@@ -233,7 +233,7 @@ This is because `grind` performs normalization operations and uses specialized d
 to implement these symbols, which may interfere with E-matching behavior.
 -/
 -- TODO: create attribute?
-private def forbiddenDeclNames := #[``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not]
+private def forbiddenDeclNames := #[``Eq, ``HEq, ``Iff, ``And, ``Or, ``Not, ``LE.le]
 
 private def isForbidden (declName : Name) := forbiddenDeclNames.contains declName
 

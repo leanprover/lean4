@@ -161,7 +161,8 @@ private def evalGrindCore
   let fallback ← elabFallback fallback?
   let only := only.isSome
   let params := if let some params := params then params.getElems else #[]
-  logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
+  if Grind.grind.warning.get (← getOptions) then
+    logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
   let declName := (← Term.getDeclName?).getD `_grind
   let mut config ← elabGrindConfig config
   if trace then

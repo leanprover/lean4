@@ -1,5 +1,7 @@
 %reset_grind_attrs
 
+set_option grind.warning false
+
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD
 

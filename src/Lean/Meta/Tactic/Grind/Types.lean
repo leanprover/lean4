@@ -45,6 +45,12 @@ register_builtin_option grind.debug.proofs : Bool := {
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
+register_builtin_option grind.warning : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "disable `grind` usage warning"
+}
+
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context

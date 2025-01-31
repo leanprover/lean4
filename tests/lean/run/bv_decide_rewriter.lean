@@ -72,11 +72,6 @@ example {x y : BitVec 1} : x + y = x ^^^ y := by bv_normalize
 example {x y : BitVec 1} : x * y = x &&& y := by bv_normalize
 example {x : BitVec 16} : x / 0 = 0 := by bv_normalize
 example {x : BitVec 16} : x % 0 = x := by bv_normalize
-example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(x + 1#16) = ~~~x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(1#16 + ~~~x) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(1#16 + x) = ~~~x + (-1#16) := by bv_normalize
 example {x : BitVec 16} : (10 + x) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : (x + 10) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
@@ -89,6 +84,22 @@ example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
 example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
+
+-- not_neg
+example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(x + 1#16) = ~~~x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + ~~~x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + x) = ~~~x + (-1#16) := by bv_normalize
+
+-- add_neg / neg_add
+example (x : BitVec 16) : x + -x = 0 := by bv_normalize
+example (x : BitVec 16) : x - x = 0 := by bv_normalize
+example (x : BitVec 16) : x + (~~~x + 1) = 0 := by bv_normalize
+example (x : BitVec 16) : x + (1 + ~~~x) = 0 := by bv_normalize
+example (x : BitVec 16) : -x + x = 0 := by bv_normalize
+example (x : BitVec 16) : (~~~x + 1) + x = 0 := by bv_normalize
+example (x : BitVec 16) : (1 + ~~~x) + x = 0 := by bv_normalize
 
 -- neg_mul / mul_neg
 example (x y : BitVec 16) : (-x) * y = -(x * y) := by bv_normalize

@@ -22,6 +22,8 @@ h : HEq ⋯ ⋯
     [prop] X c s
   [eqc] Equivalence classes
     [eqc] {s, 0}
+  [cases] Case analyses
+    [cases] [2]: X c 0
 [grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/

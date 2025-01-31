@@ -321,18 +321,7 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
   grind
 
 @[grind] theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
-  intro y w hf
-  induction σ generalizing σ' hf with
-  | nil  => grind
-  | cons zw' σ ih =>
-    have (z, w') := zw'; simp
-    have : σ'.erase z ≼ σ := erase_le_of_le_cons h
-    have ih := ih this
-    revert ih hf
-    split <;> simp [*] <;> by_cases hyz : y = z <;> simp (config := { contextual := true }) [*]
-    next => grind
-    next => grind
-    sorry
+  grind
 
 @[grind] theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   induction e <;> grind

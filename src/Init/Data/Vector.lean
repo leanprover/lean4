@@ -12,4 +12,5 @@ import Init.Data.Vector.Count
 import Init.Data.Vector.DecidableEq
 import Init.Data.Vector.Zip
 import Init.Data.Vector.OfFn
+import Init.Data.Vector.Range
 import Init.Data.Vector.Erase

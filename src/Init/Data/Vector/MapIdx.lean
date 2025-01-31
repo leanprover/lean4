@@ -59,7 +59,7 @@ namespace Vector
   simp
 
 @[simp] theorem getElem_zipIdx (a : Vector α n) (i : Nat) (h : i < n) :
-    (a.zipIdx k)[i] = (a[i]'(by simp_all), i + k) := by
+    (a.zipIdx k)[i] = (a[i]'(by simp_all), k + i) := by
   rcases a with ⟨a, rfl⟩
   simp
 

@@ -315,8 +315,12 @@ This will perform the update destructively provided that the vector has a refere
   let a := v.toArray.swapAt! i x
   ⟨a.fst, a.snd, by simp [a]⟩
 
-/-- The vector `#v[0,1,2,...,n-1]`. -/
+/-- The vector `#v[0, 1, 2, ..., n-1]`. -/
 @[inline] def range (n : Nat) : Vector Nat n := ⟨Array.range n, by simp⟩
+
+/-- The vector `#v[start, start + step, start + 2 * step, ..., start + (size - 1) * step]`. -/
+@[inline] def range' (start size : Nat) (step : Nat := 1) : Vector Nat size :=
+  ⟨Array.range' start size step, by simp⟩
 
 /--
 Compares two vectors of the same size using a given boolean relation `r`. `isEqv v w r` returns

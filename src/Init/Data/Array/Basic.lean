@@ -244,6 +244,10 @@ def ofFn {n} (f : Fin n → α) : Array α := go 0 (mkEmpty n) where
 def range (n : Nat) : Array Nat :=
   ofFn fun (i : Fin n) => i
 
+/-- The array `#[start, start + step, ..., start + step * (size - 1)]`. -/
+def range' (start size : Nat) (step : Nat := 1) : Array Nat :=
+  ofFn fun (i : Fin size) => start + step * i
+
 @[inline] protected def singleton (v : α) : Array α := #[v]
 
 def back! [Inhabited α] (a : Array α) : α :=
@@ -632,7 +636,7 @@ def mapIdx {α : Type u} {β : Type v} (f : Nat → α → β) (as : Array α) :
 
 /-- Turns `#[a, b]` into `#[(a, 0), (b, 1)]`. -/
 def zipIdx (arr : Array α) (start := 0) : Array (α × Nat) :=
-  arr.mapIdx fun i a => (a, i + start)
+  arr.mapIdx fun i a => (a, start + i)
 
 @[deprecated zipIdx (since := "2025-01-21")] abbrev zipWithIndex := @zipIdx
 

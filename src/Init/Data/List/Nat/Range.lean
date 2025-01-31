@@ -77,11 +77,14 @@ theorem map_sub_range' (a s n : Nat) (h : a ≤ s) :
   rw [← map_add_range', map_map, (?_ : _∘_ = _), map_id]
   funext x; apply Nat.add_sub_cancel_left
 
-@[simp] theorem range'_eq_singleton {s n a : Nat} : range' s n = [a] ↔ s = a ∧ n = 1 := by
+@[simp] theorem range'_eq_singleton_iff {s n a : Nat} : range' s n = [a] ↔ s = a ∧ n = 1 := by
   rw [range'_eq_cons_iff]
-  simp only [nil_eq, range'_eq_nil, and_congr_right_iff]
+  simp only [nil_eq, range'_eq_nil_iff, and_congr_right_iff]
   rintro rfl
   omega
+
+@[deprecated range'_eq_singleton_iff (since := "2025-01-29")]
+abbrev range'_eq_singleton := @range'_eq_singleton_iff
 
 theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs = range' s k ∧ ys = range' (s + k) (n - k) := by
   induction n generalizing s xs ys with
@@ -174,7 +177,7 @@ theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
 theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
   Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
 
-theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
+@[simp] theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
   apply List.ext_getElem
   · simp
   · simp +contextual [getElem_take, Nat.lt_min]

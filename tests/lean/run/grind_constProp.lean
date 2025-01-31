@@ -204,16 +204,11 @@ def evalExpr (e : Expr) : EvalM Val := do
     | c' => .while c' b.simplify
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
+  -- TODO: we need a mechanism for saying we just want the intro rules
   induction h <;> try grind [Bigstep]
-  case ifTrue heq h ih => grind [=_ Expr.eval_simplify, Bigstep.ifTrue]
-  case ifFalse heq h ih =>
-    simp_all
-    rw [← Expr.eval_simplify] at heq
-    -- TODO: `grind` error here
-    -- grind [Expr.eval_simplify, Bigstep]
-    sorry
-  case whileTrue heq h₁ h₂ ih₁ ih₂ =>
-    grind [=_ Expr.eval_simplify, Bigstep.whileTrue]
+  next => grind [=_ Expr.eval_simplify, Bigstep.ifTrue]
+  next => grind [=_ Expr.eval_simplify, Bigstep.ifFalse]
+  next => grind [=_ Expr.eval_simplify, Bigstep.whileTrue]
 
 @[simp, grind =] def Expr.constProp (e : Expr) (σ : State) : Expr :=
   match e with

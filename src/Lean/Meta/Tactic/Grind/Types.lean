@@ -480,6 +480,12 @@ structure Goal where
   facts      : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
   extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  /--
+  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
+  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
+  applications that generated only 1 subgoal.
+  -/
+  casesTrace : List (Expr × Nat) := []
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

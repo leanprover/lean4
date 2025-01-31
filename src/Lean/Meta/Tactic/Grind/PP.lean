@@ -108,7 +108,7 @@ private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
   let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
-private def ppActiveTheorems : M Unit := do
+private def ppActiveTheoremPatterns : M Unit := do
   let goal ← read
   let m ← goal.thms.toArray.mapM fun thm => ppEMatchTheorem thm
   let m := m ++ (← goal.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
@@ -142,6 +142,14 @@ private def ppThresholds (c : Grind.Config) : M Unit := do
   unless msgs.isEmpty do
     pushMsg <| .trace { cls := `limits } "Thresholds reached" msgs
 
+private def ppCasesTrace : M Unit := do
+  let goal ← read
+  unless goal.casesTrace.isEmpty do
+    let mut msgs := #[]
+    for (e, num) in goal.casesTrace.reverse do
+      msgs := msgs.push <| .trace { cls := `cases } m!"[{num}]: {e}" #[]
+    pushMsg <| .trace { cls := `cases } "Case analyses" msgs
+
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
   let (_, m) ← go goal |>.run #[]
   let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
@@ -151,7 +159,8 @@ where
   go : M Unit := do
     pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
     ppEqcs
-    ppActiveTheorems
+    ppCasesTrace
+    ppActiveTheoremPatterns
     ppOffset
     ppThresholds config
 

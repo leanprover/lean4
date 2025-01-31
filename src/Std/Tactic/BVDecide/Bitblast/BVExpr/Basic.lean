@@ -23,13 +23,13 @@ The variable definition used by the bitblaster.
 -/
 structure BVBit where
   /--
-  The width of the BitVec variable.
-  -/
-  {w : Nat}
-  /--
   A numeric identifier for the BitVec variable.
   -/
   var : Nat
+  /--
+  The width of the BitVec variable.
+  -/
+  {w : Nat}
   /--
   The bit that we take out of the BitVec variable by getLsb.
   -/

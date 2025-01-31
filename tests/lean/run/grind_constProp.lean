@@ -188,7 +188,7 @@ def evalExpr (e : Expr) : EvalM Val := do
   next op arg ih_arg =>
     simp only [simplify, UnaryOp.simplify, eval, ← ih_arg, UnaryOp.eval]
     split
-    · grind (splits := 0) [Expr.eval] -- TODO: investigate: why do we need Expr.eval here
+    · grind
     · simp only [eval, UnaryOp.eval] -- TODO: `grind` failes here
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt

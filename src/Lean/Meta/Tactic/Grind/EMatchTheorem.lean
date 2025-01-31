@@ -653,11 +653,42 @@ private def addNewPattern (p : Expr) : CollectorM Unit := do
     trace[grind.ematch.pattern.search] "found full coverage"
   modify fun s => { s with patterns := s.patterns.push p, done }
 
+/-- Collect the pattern (i.e., de Bruijn) variables in the given pattern. -/
+private def collectPatternBVars (p : Expr) : List Nat :=
+  go p |>.run [] |>.2
+where
+  go (e : Expr) : StateM (List Nat) Unit := do
+    match e with
+    | .app f a    => go f; go a
+    | .mdata _ b  => go b
+    | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
+    | _           => return ()
+
+/--
+Returns `true` if pattern `p` contains a child `c` such that
+1- `p` and `c` have the same pattern variables.
+2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
+3- `c` is not an offset pattern.
+4- `c` is not a bound variable.
+-/
+private def hasChildWithSameBVars (p : Expr) (supportMask : Array Bool) : CoreM Bool := do
+  let s := collectPatternBVars p
+  for arg in p.getAppArgs, support in supportMask do
+    unless support do
+    unless arg.isBVar do
+    unless isOffsetPattern? arg |>.isSome do
+      let sArg := collectPatternBVars arg
+      if s ⊆ sArg then
+        trace[Meta.debug] "SKIPPED: {p}, {arg}, {s}, {sArg}"
+        return true
+  return false
+
 private partial def collect (e : Expr) : CollectorM Unit := do
   if (← get).done then return ()
   match e with
   | .app .. =>
     let f := e.getAppFn
+    let supportMask ← NormalizePattern.getPatternSupportMask f e.getAppNumArgs
     if (← isPatternFnCandidate f) then
       let saved ← getThe NormalizePattern.State
       try
@@ -668,8 +699,9 @@ private partial def collect (e : Expr) : CollectorM Unit := do
           return ()
         let p ← NormalizePattern.normalizePattern p
         if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
-          addNewPattern p
-          return ()
+          unless (← hasChildWithSameBVars p supportMask) do
+            addNewPattern p
+            return ()
         trace[grind.ematch.pattern.search] "skip, no new variables covered"
         -- restore state and continue search
         set saved
@@ -678,8 +710,8 @@ private partial def collect (e : Expr) : CollectorM Unit := do
         -- restore state and continue search
         set saved
     let args := e.getAppArgs
-    for arg in args, flag in (← NormalizePattern.getPatternSupportMask f args.size) do
-      unless flag do
+    for arg in args, support in supportMask do
+      unless support do
         collect arg
   | .forallE _ d b _ =>
     if (← pure e.isArrow <&&> isProp d <&&> isProp b) then

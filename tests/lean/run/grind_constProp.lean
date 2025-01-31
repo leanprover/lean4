@@ -1,5 +1,7 @@
 %reset_grind_attrs
 
+set_option grind.warning false
+
 attribute [grind cases] Or
 attribute [grind =] List.length_nil List.length_cons Option.getD
 
@@ -186,7 +188,7 @@ def evalExpr (e : Expr) : EvalM Val := do
   next op arg ih_arg =>
     simp only [simplify, UnaryOp.simplify, eval, ← ih_arg, UnaryOp.eval]
     split
-    · grind (splits := 0) [Expr.eval] -- TODO: investigate: why do we need Expr.eval here
+    · grind
     · simp only [eval, UnaryOp.eval] -- TODO: `grind` failes here
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt
@@ -205,10 +207,8 @@ def evalExpr (e : Expr) : EvalM Val := do
 
 theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' := by
   -- TODO: we need a mechanism for saying we just want the intro rules
-  induction h <;> try grind [Bigstep]
-  next => grind [=_ Expr.eval_simplify, Bigstep.ifTrue]
-  next => grind [=_ Expr.eval_simplify, Bigstep.ifFalse]
-  next => grind [=_ Expr.eval_simplify, Bigstep.whileTrue]
+  induction h <;> grind [=_ Expr.eval_simplify, Bigstep.skip, Bigstep.assign,
+    Bigstep.seq, Bigstep.whileFalse, Bigstep.whileTrue, Bigstep.ifTrue, Bigstep.ifFalse]
 
 @[simp, grind =] def Expr.constProp (e : Expr) (σ : State) : Expr :=
   match e with
@@ -225,9 +225,8 @@ theorem Stmt.simplify_correct (h : (σ, s) ⇓ σ') : (σ, s.simplify) ⇓ σ' :
 @[grind] theorem State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.length := by
   induction σ, x using erase.induct <;> grind [State.erase] -- TODO add missing theorem(s)
 
-def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
-  -- TODO: offset issues?
-  Nat.lt_of_le_of_lt (length_erase_le ..) (by grind)
+def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ := by
+  grind
 
 @[simp, grind =] def State.join (σ₁ σ₂ : State) : State :=
   match σ₁ with

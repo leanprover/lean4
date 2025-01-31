@@ -22,7 +22,8 @@ syntax grindFwd    := "→ "
 syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
+syntax grindIntro  := &"intro "
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
 syntax (name := grind) "grind" (grindMod)? : attr
 end Attr
 end Lean.Parser

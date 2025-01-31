@@ -323,62 +323,34 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
 @[grind] theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
   grind
 
+grind_pattern State.update_le_update => σ' ≼ σ, σ'.update x v
+
 @[grind] theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   induction e <;> grind
 
-theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₁ : e.eval σ = v) (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = v := by
+-- TODO: better pattern selection heuristic. We want to avoid the following step.
+grind_pattern Expr.eval_constProp_of_sub =>  σ' ≼ σ, e.constProp σ'
+
+theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   grind
 
+grind_pattern Expr.eval_constProp_of_eq_of_sub => σ' ≼ σ, e.constProp σ'
+
 theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (s.constProp σ₁').2 ≼ σ₂ := by
-  induction h₁ generalizing σ₁' with try grind
-  | assign heq =>
-    simp
-    split <;> simp
-    next h =>
-      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
-      rw [← Expr.eval_simplify, h] at heq'
-      grind
-    next => grind
-  | ifTrue heq h ih =>
-    have ih := ih h₂
-    apply State.join_le_left_of ih
-  | ifFalse heq h ih =>
-    have ih := ih h₂
-    apply State.join_le_right_of ih
-  | seq h₃ h₄ ih₃ ih₄ =>
-    exact ih₄ (ih₃ h₂)
+  induction h₁ generalizing σ₁' with grind [=_ Expr.eval_simplify]
+
+grind_pattern Stmt.constProp_sub => (σ₁, s) ⇓ σ₂, s.constProp σ₁'
 
 end
 
 theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
-  induction h₁ generalizing σ₁' with simp_all
-  | skip => grind [Bigstep]
-  | assign heq =>
-    split <;> simp
-    next h =>
-      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
-      rw [← Expr.eval_simplify, h] at heq'
-      simp at heq'
-      apply Bigstep.assign; simp only [Expr.eval, heq']
-    next =>
-      have heq' := Expr.eval_constProp_of_eq_of_sub heq h₂
-      rw [← Expr.eval_simplify] at heq'
-      apply Bigstep.assign heq'
-  | seq h₁ h₂ ih₁ ih₂ =>
-    apply Bigstep.seq (ih₁ h₂) (ih₂ (constProp_sub h₁ h₂))
-  | whileTrue heq h₁ h₂ ih₁ ih₂ =>
+  induction h₁ generalizing σ₁' <;> try grind [=_ Expr.eval_simplify, intro Bigstep]
+  next heq h₁ h₂ ih₁ ih₂ =>
+    -- TODO: we need better heuristics for selecting patterns for local quantifiers.
+    -- both `ih₁` and `ih₂` are local, and the current pattern selection picks reall bad patterns.
     have ih₁ := ih₁ (State.bot_le _)
     have ih₂ := ih₂ (State.bot_le _)
-    exact Bigstep.whileTrue heq ih₁ ih₂
-  | whileFalse heq =>
-    grind [Bigstep]
-  | ifTrue heq h ih =>
-    -- TODO: `grind` did not manage to find pattern or `Expr.eval_constProp_of_eq_of_sub`
-    have := Expr.eval_constProp_of_eq_of_sub heq h₂
-    grind [Bigstep]
-  | ifFalse heq h ih =>
-    have := Expr.eval_constProp_of_eq_of_sub heq h₂
-    grind [Bigstep]
+    grind [intro Bigstep, constProp]
 
 def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1

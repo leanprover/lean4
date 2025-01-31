@@ -787,7 +787,24 @@ def mkEMatchTheoremWithKind?
   else if kind == .eqBwd then
     return (← mkEMatchEqBwdTheoremCore origin levelParams proof)
   let type ← inferType proof
-  forallTelescopeReducing type fun xs type => do
+  /-
+  Remark: we should not use `forallTelescopeReducing` (with default reducibility) here
+  because it may unfold a definition/abstraction, and then select a suboptimal pattern.
+  Here is an example. Suppose we have
+  ```
+  def State.le (σ₁ σ₂ : State) : Prop := ∀ ⦃x : Var⦄ ⦃v : Val⦄, σ₁.find? x = some v → σ₂.find? x = some v
+
+  infix:50 " ≼ " => State.le
+  ```
+  Then, we write the theorem
+  ```
+  @[grind] theorem State.join_le_left (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₁ := by
+  ```
+  We do not want `State.le` to be unfolded and the abstraction exposed.
+
+  That said, we must still reduce `[reducible]` definitions since `grind` unfolds them.
+  -/
+  withReducible <| forallTelescopeReducing type fun xs type => withDefault do
     let searchPlaces ← match kind with
       | .fwd =>
         let ps ← getPropTypes xs

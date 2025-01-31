@@ -1222,7 +1222,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
     It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
-    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
+    `Int.fdiv` (floor rounding) and `Int.tdiv` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ

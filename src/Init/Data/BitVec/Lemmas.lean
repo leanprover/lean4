@@ -430,6 +430,9 @@ theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat 
     simp only [Nat.add_sub_cancel]
     exact p
 
+theorem msb_eq_getMsbD_zero (x : BitVec w) : x.msb = x.getMsbD 0 := by
+  cases w <;> simp [getMsbD_eq_getLsbD, msb_eq_getLsbD_last]
+
 /-! ### cast -/
 
 @[simp, bv_toNat] theorem toNat_cast (h : w = v) (x : BitVec w) : (x.cast h).toNat = x.toNat := rfl
@@ -2350,6 +2353,20 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
   rw [toNat_shiftConcat_eq_of_lt hk hx]
   have := Bool.toNat_lt b
   omega
+
+theorem getElem_shiftConcat {x : BitVec w} {b : Bool} (h : i < w) :
+    (x.shiftConcat b)[i] = if i = 0 then b else x[i-1] := by
+  rw [← getLsbD_eq_getElem, getLsbD_shiftConcat, getLsbD_eq_getElem, decide_eq_true h, Bool.true_and]
+
+@[simp]
+theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
+    (x.shiftConcat b)[0] = b := by
+  simp [getElem_shiftConcat]
+
+@[simp]
+theorem getElem_shiftConcat_succ {x : BitVec w} {b : Bool} (h : i + 1 < w) :
+    (x.shiftConcat b)[i+1] = x[i] := by
+  simp [getElem_shiftConcat]
 
 /-! ### add -/
 

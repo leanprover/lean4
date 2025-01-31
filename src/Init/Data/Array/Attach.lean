@@ -291,6 +291,20 @@ theorem foldr_pmap (l : Array α) {P : α → Prop} (f : (a : α) → P a → β
     (l.pmap f H).foldr g x = l.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
   rw [pmap_eq_map_attach, foldr_map]
 
+@[simp] theorem foldl_attachWith
+    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → β} {b} (w : stop = l.size) :
+    (l.attachWith q H).foldl f b 0 stop = l.attach.foldl (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldl_attachWith, List.foldl_map]
+
+@[simp] theorem foldr_attachWith
+    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → β} {b} (w : start = l.size) :
+    (l.attachWith q H).foldr f b start 0 = l.attach.foldr (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldr_attachWith, List.foldr_map]
+
 /--
 If we fold over `l.attach` with a function that ignores the membership predicate,
 we get the same results as folding over `l` directly.

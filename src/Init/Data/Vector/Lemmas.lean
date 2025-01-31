@@ -268,6 +268,26 @@ abbrev zipWithIndex_mk := @zipIdx_mk
       v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) :=
   rfl
 
+theorem toArray_mapM_go [Monad m] [LawfulMonad m] (f : α → m β) (v : Vector α n) (i h r) :
+    toArray <$> mapM.go f v i h r = Array.mapM.map f v.toArray i r.toArray := by
+  unfold mapM.go
+  unfold Array.mapM.map
+  simp only [v.size_toArray, getElem_toArray]
+  split
+  · simp only [map_bind]
+    congr
+    funext b
+    rw [toArray_mapM_go]
+    rfl
+  · simp
+
+@[simp] theorem toArray_mapM [Monad m] [LawfulMonad m] (f : α → m β) (a : Vector α n) :
+    toArray <$> a.mapM f = a.toArray.mapM f := by
+  rcases a with ⟨a, rfl⟩
+  unfold mapM
+  rw [toArray_mapM_go]
+  rfl
+
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl
 
 @[simp] theorem toArray_pop (a : Vector α n) : a.pop.toArray = a.toArray.pop := rfl

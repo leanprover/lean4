@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
@@ -7,6 +7,7 @@ prelude
 import Init.Data.Vector.Lemmas
 import Init.Data.Vector.Attach
 import Init.Data.Array.Monadic
+import Init.Control.Lawful.Lemmas
 
 /-!
 # Lemmas about `Vector.forIn'` and `Vector.forIn`.
@@ -18,21 +19,35 @@ open Nat
 
 /-! ## Monadic operations -/
 
+theorem map_toArray_inj [Monad m] [LawfulMonad m] [Nonempty α]
+    {v₁ : m (Vector α n)} {v₂ : m (Vector α n)} (w : toArray <$> v₁ = toArray <$> v₂) :
+    v₁ = v₂ := by
+  apply map_inj_of_inj ?_ w
+  simp
+
 /-! ### mapM -/
 
-/- We can't prove `mapM_append` until we have
-```
-@[simp] theorem toArray_mapM [Monad m] (f : α → m β) (v : Vector α n) :
-    toArray <$> v.mapM f = v.toArray.mapM f := sorry
-```
--/
+@[congr] theorem mapM_congr [Monad m] {as bs : Vector α n} (w : as = bs)
+    {f : α → m β} :
+    as.mapM f = bs.mapM f := by
+  subst w
+  simp
 
--- @[simp] theorem mapM_append [Monad m] [LawfulMonad m]
---     (f : α → m β) {l₁ : Vector α n} {l₂ : Vector α n'} :
---     (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by
---   rcases l₁ with ⟨l₁, rfl⟩
---   rcases l₂ with ⟨l₂, rfl⟩
---   simp
+@[simp] theorem mapM_mk_empty [Monad m] (f : α → m β)  :
+    (mk #[] rfl).mapM f = pure #v[] := by
+  unfold mapM
+  unfold mapM.go
+  simp
+
+-- The `[Nonempty β]` hypothesis should be avoidable by unfolding `mapM` directly.
+@[simp] theorem mapM_append [Monad m] [LawfulMonad m] [Nonempty β]
+    (f : α → m β) {l₁ : Vector α n} {l₂ : Vector α n'} :
+    (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by
+  apply map_toArray_inj
+  suffices toArray <$> (l₁ ++ l₂).mapM f = (return (← toArray <$> l₁.mapM f) ++ (← toArray <$> l₂.mapM f)) by
+    rw [this]
+    simp only [bind_pure_comp, Functor.map_map, bind_map_left, map_bind, toArray_append]
+  simp
 
 /-! ### foldlM and foldrM -/
 
@@ -77,7 +92,6 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
     (l.attachWith q H).foldlM f b = l.attach.foldlM (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
   rcases l with ⟨l, rfl⟩
   simp [Array.foldlM_map]
-  rw [Array.foldlM_attachWith]
 
 @[simp] theorem foldrM_attachWith [Monad m] [LawfulMonad m]
     (l : Vector α n) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → m β} {b} :
@@ -116,21 +130,21 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
   simp only [eq_mk, mem_mk, forIn'_mk] at w h ⊢
   exact Array.forIn'_congr w hb h
 
--- /--
--- We can express a for loop over an array as a fold,
--- in which whenever we reach `.done b` we keep that value through the rest of the fold.
--- -/
--- theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
---     (l : Vector α n) (f : (a : α) → a ∈ l → β → m (ForInStep β)) (init : β) :
---     forIn' l init f = ForInStep.value <$>
---       l.attach.foldlM (fun b ⟨a, m⟩ => match b with
---         | .yield b => f a m b
---         | .done b => pure (.done b)) (ForInStep.yield init) := by
---   rcases l with ⟨l, rfl⟩
---   simp [Array.forIn'_eq_foldlM]
---   rw [Array.attachWith]
+/--
+We can express a for loop over a vector as a fold,
+in which whenever we reach `.done b` we keep that value through the rest of the fold.
+-/
+theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
+    (l : Vector α n) (f : (a : α) → a ∈ l → β → m (ForInStep β)) (init : β) :
+    forIn' l init f = ForInStep.value <$>
+      l.attach.foldlM (fun b ⟨a, m⟩ => match b with
+        | .yield b => f a m b
+        | .done b => pure (.done b)) (ForInStep.yield init) := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.forIn'_eq_foldlM]
+  rfl
 
-/-- We can express a for loop over an array which always yields as a fold. -/
+/-- We can express a for loop over a vector which always yields as a fold. -/
 @[simp] theorem forIn'_yield_eq_foldlM [Monad m] [LawfulMonad m]
     (l : Vector α n) (f : (a : α) → a ∈ l → β → m γ) (g : (a : α) → a ∈ l → β → γ → β) (init : β) :
     forIn' l init (fun a m b => (fun c => .yield (g a m b c)) <$> f a m b) =
@@ -139,14 +153,14 @@ theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β
   simp
 
 theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
-    (l : Array α) (f : (a : α) → a ∈ l → β → β) (init : β) :
+    (l : Vector α n) (f : (a : α) → a ∈ l → β → β) (init : β) :
     forIn' l init (fun a m b => pure (.yield (f a m b))) =
       pure (f := m) (l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init) := by
-  cases l
-  simp [List.forIn'_pure_yield_eq_foldl, List.foldl_map]
+  rcases l with ⟨l, rfl⟩
+  simp [Array.forIn'_pure_yield_eq_foldl, Array.foldl_map]
 
 @[simp] theorem forIn'_yield_eq_foldl
-    (l : Array α) (f : (a : α) → a ∈ l → β → β) (init : β) :
+    (l : Vector α n) (f : (a : α) → a ∈ l → β → β) (init : β) :
     forIn' (m := Id) l init (fun a m b => .yield (f a m b)) =
       l.attach.foldl (fun b ⟨a, h⟩ => f a h b) init := by
   cases l
@@ -159,40 +173,40 @@ theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   simp
 
 /--
-We can express a for loop over an array as a fold,
+We can express a for loop over a vector as a fold,
 in which whenever we reach `.done b` we keep that value through the rest of the fold.
 -/
 theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
-    (f : α → β → m (ForInStep β)) (init : β) (l : Array α) :
+    (f : α → β → m (ForInStep β)) (init : β) (l : Vector α n) :
     forIn l init f = ForInStep.value <$>
       l.foldlM (fun b a => match b with
         | .yield b => f a b
         | .done b => pure (.done b)) (ForInStep.yield init) := by
-  cases l
-  simp only [List.forIn_toArray, List.forIn_eq_foldlM, size_toArray, List.foldlM_toArray']
-  congr
+  rcases l with ⟨l, rfl⟩
+  simp [Array.forIn_eq_foldlM]
+  rfl
 
-/-- We can express a for loop over an array which always yields as a fold. -/
+/-- We can express a for loop over a vector which always yields as a fold. -/
 @[simp] theorem forIn_yield_eq_foldlM [Monad m] [LawfulMonad m]
-    (l : Array α) (f : α → β → m γ) (g : α → β → γ → β) (init : β) :
+    (l : Vector α n) (f : α → β → m γ) (g : α → β → γ → β) (init : β) :
     forIn l init (fun a b => (fun c => .yield (g a b c)) <$> f a b) =
       l.foldlM (fun b a => g a b <$> f a b) init := by
   cases l
-  simp [List.foldlM_map]
+  simp
 
 theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
-    (l : Array α) (f : α → β → β) (init : β) :
+    (l : Vector α n) (f : α → β → β) (init : β) :
     forIn l init (fun a b => pure (.yield (f a b))) =
       pure (f := m) (l.foldl (fun b a => f a b) init) := by
-  cases l
-  simp [List.forIn_pure_yield_eq_foldl, List.foldl_map]
+  rcases l with ⟨l, rfl⟩
+  simp [Array.forIn_pure_yield_eq_foldl, Array.foldl_map]
 
 @[simp] theorem forIn_yield_eq_foldl
-    (l : Array α) (f : α → β → β) (init : β) :
+    (l : Vector α n) (f : α → β → β) (init : β) :
     forIn (m := Id) l init (fun a b => .yield (f a b)) =
       l.foldl (fun b a => f a b) init := by
   cases l
-  simp [List.foldl_map]
+  simp
 
 @[simp] theorem forIn_map [Monad m] [LawfulMonad m]
     (l : Vector α n) (g : α → β) (f : β → γ → m (ForInStep γ)) :

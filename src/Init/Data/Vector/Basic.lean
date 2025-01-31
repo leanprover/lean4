@@ -56,6 +56,9 @@ def elimAsList {motive : Vector α n → Sort u}
 /-- Makes a vector of size `n` with all cells containing `v`. -/
 @[inline] def mkVector (n) (v : α) : Vector α n := ⟨mkArray n v, by simp⟩
 
+instance : Nonempty (Vector α 0) := ⟨#v[]⟩
+instance [Nonempty α] : Nonempty (Vector α n) := ⟨mkVector _ Classical.ofNonempty⟩
+
 /-- Returns a vector of size `1` with element `v`. -/
 @[inline] def singleton (v : α) : Vector α 1 := ⟨#[v], rfl⟩
 

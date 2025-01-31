@@ -208,7 +208,7 @@ Specialize `decl` using
 - `levelParamsNew`: the universe level parameters for the new declaration.
 -/
 def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
-  let nameNew := decl.name ++ `_at_ ++ (← read).declName.eraseMacroScopes ++ (`spec).appendIndexAfter (← get).decls.size
+  let nameNew := decl.name.appendCore `_at_ |>.appendCore (← read).declName |>.appendCore `spec |>.appendIndexAfter (← get).decls.size
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
   in `params` and `decls` (i.e., the "closure").

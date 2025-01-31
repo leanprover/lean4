@@ -131,7 +131,16 @@ abbrev indexOf?_mk := @finIdxOf?_mk
       Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
 
 @[simp] theorem forM_mk [Monad m] (f : α → m PUnit) (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).forM f = a.forM f := rfl
+    forM (Vector.mk a h) f = forM a f := rfl
+
+@[simp] theorem forIn'_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β)
+    (f : (a : α) → a ∈ Vector.mk xs h → β → m (ForInStep β)) :
+    forIn' (Vector.mk xs h) b f = forIn' xs b (fun a m b => f a (by simpa using m) b) := rfl
+
+@[simp] theorem forIn_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn (Vector.mk xs h) b f = forIn xs b f := rfl
 
 @[simp] theorem flatMap_mk (f : α → Vector β m) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).flatMap f =

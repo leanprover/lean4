@@ -13,3 +13,4 @@ import Init.Data.Vector.DecidableEq
 import Init.Data.Vector.Zip
 import Init.Data.Vector.OfFn
 import Init.Data.Vector.Erase
+import Init.Data.Vector.Monadic

@@ -20,6 +20,12 @@ open Nat
 
 /-! ### mapM -/
 
+@[simp] theorem mapM_append [Monad m] [LawfulMonad m] (f : α → m β) {l₁ l₂ : Array α} :
+    (l₁ ++ l₂).mapM f = (return (← l₁.mapM f) ++ (← l₂.mapM f)) := by
+  rcases l₁ with ⟨l₁⟩
+  rcases l₂ with ⟨l₂⟩
+  simp
+
 theorem mapM_eq_foldlM_push [Monad m] [LawfulMonad m] (f : α → m β) (l : Array α) :
     mapM f l = l.foldlM (fun acc a => return (acc.push (← f a))) #[] := by
   rcases l with ⟨l⟩
@@ -37,58 +43,85 @@ theorem mapM_eq_foldlM_push [Monad m] [LawfulMonad m] (f : α → m β) (l : Arr
 
 /-! ### foldlM and foldrM -/
 
-theorem foldlM_map [Monad m] (f : β₁ → β₂) (g : α → β₂ → m α) (l : Array β₁) (init : α) :
-    (l.map f).foldlM g init = l.foldlM (fun x y => g x (f y)) init := by
+theorem foldlM_map [Monad m] (f : β₁ → β₂) (g : α → β₂ → m α) (l : Array β₁) (init : α) (w : stop = l.size) :
+    (l.map f).foldlM g init 0 stop = l.foldlM (fun x y => g x (f y)) init 0 stop := by
+  subst w
   cases l
-  rw [List.map_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldlM_map]
 
 theorem foldrM_map [Monad m] [LawfulMonad m] (f : β₁ → β₂) (g : β₂ → α → m α) (l : Array β₁)
-    (init : α) : (l.map f).foldrM g init = l.foldrM (fun x y => g (f x) y) init := by
+    (init : α) (w : start = l.size) :
+    (l.map f).foldrM g init start 0 = l.foldrM (fun x y => g (f x) y) init start 0 := by
+  subst w
   cases l
-  rw [List.map_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldrM_map]
 
-theorem foldlM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : γ → β → m γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldlM g init =
+theorem foldlM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : γ → β → m γ)
+    (l : Array α) (init : γ) (w : stop = (l.filterMap f).size) :
+    (l.filterMap f).foldlM g init 0 stop =
       l.foldlM (fun x y => match f y with | some b => g x b | none => pure x) init := by
+  subst w
   cases l
-  rw [List.filterMap_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldlM_filterMap]
   rfl
 
-theorem foldrM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : β → γ → m γ) (l : Array α) (init : γ) :
-    (l.filterMap f).foldrM g init =
+theorem foldrM_filterMap [Monad m] [LawfulMonad m] (f : α → Option β) (g : β → γ → m γ)
+    (l : Array α) (init : γ) (w : start = (l.filterMap f).size) :
+    (l.filterMap f).foldrM g init start 0 =
       l.foldrM (fun x y => match f x with | some b => g b y | none => pure y) init := by
+  subst w
   cases l
-  rw [List.filterMap_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldrM_filterMap]
   rfl
 
-theorem foldlM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : β → α → m β) (l : Array α) (init : β) :
-    (l.filter p).foldlM g init =
+theorem foldlM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : β → α → m β)
+    (l : Array α) (init : β) (w : stop = (l.filter p).size) :
+    (l.filter p).foldlM g init 0 stop =
       l.foldlM (fun x y => if p y then g x y else pure x) init := by
+  subst w
   cases l
-  rw [List.filter_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldlM_filter]
 
-theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β → m β) (l : Array α) (init : β) :
-    (l.filter p).foldrM g init =
+theorem foldrM_filter [Monad m] [LawfulMonad m] (p : α → Bool) (g : α → β → m β)
+    (l : Array α) (init : β) (w : start = (l.filter p).size) :
+    (l.filter p).foldrM g init start 0 =
       l.foldrM (fun x y => if p x then g x y else pure y) init := by
+  subst w
   cases l
-  rw [List.filter_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldrM_filter]
+
+@[simp] theorem foldlM_attachWith [Monad m]
+    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → m β} {b} (w : stop = l.size):
+    (l.attachWith q H).foldlM f b 0 stop =
+      l.attach.foldlM (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldlM_map]
+
+@[simp] theorem foldrM_attachWith [Monad m] [LawfulMonad m]
+    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → m β} {b} (w : start = l.size):
+    (l.attachWith q H).foldrM f b start 0 =
+      l.attach.foldrM (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
+  subst w
+  rcases l with ⟨l⟩
+  simp [List.foldrM_map]
 
 /-! ### forM -/
 
 @[congr] theorem forM_congr [Monad m] {as bs : Array α} (w : as = bs)
     {f : α → m PUnit} :
-    as.forM f = bs.forM f := by
+    forM as f = forM bs f := by
   cases as <;> cases bs
   simp_all
 
+@[simp] theorem forM_append [Monad m] [LawfulMonad m] (l₁ l₂ : Array α) (f : α → m PUnit) :
+    forM (l₁ ++ l₂) f = (do forM l₁ f; forM l₂ f) := by
+  rcases l₁ with ⟨l₁⟩
+  rcases l₂ with ⟨l₂⟩
+  simp
+
 @[simp] theorem forM_map [Monad m] [LawfulMonad m] (l : Array α) (g : α → β) (f : β → m PUnit) :
-    (l.map g).forM f = l.forM (fun a => f (g a)) := by
+    forM (l.map g) f = forM l (fun a => f (g a)) := by
   cases l
   simp
 
@@ -115,9 +148,7 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
         | .yield b => f a m b
         | .done b => pure (.done b)) (ForInStep.yield init) := by
   cases l
-  rw [List.attach_toArray] -- Why doesn't this fire via `simp`?
-  simp only [List.forIn'_toArray, List.forIn'_eq_foldlM, List.attachWith_mem_toArray, size_toArray,
-    List.length_map, List.length_attach, List.foldlM_toArray', List.foldlM_map]
+  simp [List.forIn'_eq_foldlM, List.foldlM_map]
   congr
 
 /-- We can express a for loop over an array which always yields as a fold. -/
@@ -126,7 +157,6 @@ theorem forIn'_eq_foldlM [Monad m] [LawfulMonad m]
     forIn' l init (fun a m b => (fun c => .yield (g a m b c)) <$> f a m b) =
       l.attach.foldlM (fun b ⟨a, m⟩ => g a m b <$> f a m b) init := by
   cases l
-  rw [List.attach_toArray] -- Why doesn't this fire via `simp`?
   simp [List.foldlM_map]
 
 theorem forIn'_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
@@ -190,5 +220,60 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
     forIn (l.map g) init f = forIn l init fun a y => f (g a) y := by
   cases l
   simp
+
+/-! ### Recognizing higher order functions using a function that only depends on the value. -/
+
+/--
+This lemma identifies monadic folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldlM_subtype [Monad m] {p : α → Prop} {l : Array { x // p x }}
+    {f : β → { x // p x } → m β} {g : β → α → m β} {x : β}
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) (w : stop = l.size) :
+    l.foldlM f x 0 stop = l.unattach.foldlM g x 0 stop := by
+  subst w
+  rcases l with ⟨l⟩
+  simp
+  rw [List.foldlM_subtype hf]
+
+/--
+This lemma identifies monadic folds over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem foldrM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → β → m β} {g : α → β → m β} {x : β}
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) (w : start = l.size) :
+    l.foldrM f x start 0 = l.unattach.foldrM g x start 0:= by
+  subst w
+  rcases l with ⟨l⟩
+  simp
+  rw [List.foldrM_subtype hf]
+
+/--
+This lemma identifies monadic maps over lists of subtypes, where the function only depends on the value, not the proposition,
+and simplifies these to the function directly taking the value.
+-/
+@[simp] theorem mapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → m β} {g : α → m β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.mapM f = l.unattach.mapM g := by
+  rcases l with ⟨l⟩
+  simp
+  rw [List.mapM_subtype hf]
+
+-- Without `filterMapM_toArray` relating `filterMapM` on `List` and `Array` we can't prove this yet:
+-- @[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+--     {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+--     l.filterMapM f = l.unattach.filterMapM g := by
+--   rcases l with ⟨l⟩
+--   simp
+--   rw [List.filterMapM_subtype hf]
+
+-- Without `flatMapM_toArray` relating `flatMapM` on `List` and `Array` we can't prove this yet:
+-- @[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+--     {f : { x // p x } → m (Array β)} {g : α → m (Array β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+--     (l.flatMapM f) = l.unattach.flatMapM g := by
+--   rcases l with ⟨l⟩
+--   simp
+--   rw [List.flatMapM_subtype hf]
 
 end Array

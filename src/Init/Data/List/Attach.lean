@@ -361,6 +361,20 @@ theorem foldr_pmap (l : List α) {P : α → Prop} (f : (a : α) → P a → β)
     (l.pmap f H).foldr g x = l.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
   rw [pmap_eq_map_attach, foldr_map]
 
+@[simp] theorem foldl_attachWith
+    (l : List α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → β} {b} :
+    (l.attachWith q H).foldl f b = l.attach.foldl (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => simp [ih, foldl_map]
+
+@[simp] theorem foldr_attachWith
+    (l : List α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → β} {b} :
+    (l.attachWith q H).foldr f b = l.attach.foldr (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
+  induction l generalizing b with
+  | nil => simp
+  | cons a l ih => simp [ih, foldr_map]
+
 /--
 If we fold over `l.attach` with a function that ignores the membership predicate,
 we get the same results as folding over `l` directly.
@@ -676,7 +690,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldl_subtype {p : α → Prop} {l : List { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    {hf : ∀ b x h, f b ⟨x, h⟩ = g b x} :
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
     l.foldl f x = l.unattach.foldl g x := by
   unfold unattach
   induction l generalizing x with
@@ -689,7 +703,7 @@ and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldr_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    {hf : ∀ x h b, f ⟨x, h⟩ b = g x b} :
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
     l.foldr f x = l.unattach.foldr g x := by
   unfold unattach
   induction l generalizing x with
@@ -701,7 +715,7 @@ This lemma identifies maps over lists of subtypes, where the function only depen
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.map f = l.unattach.map g := by
   unfold unattach
   induction l with
@@ -709,7 +723,7 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf]
 
 @[simp] theorem filterMap_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.filterMap f = l.unattach.filterMap g := by
   unfold unattach
   induction l with
@@ -717,7 +731,7 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf, filterMap_cons]
 
 @[simp] theorem flatMap_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : { x // p x } → List β} {g : α → List β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → List β} {g : α → List β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.flatMap f) = l.unattach.flatMap g := by
   unfold unattach
   induction l with
@@ -725,6 +739,8 @@ and simplifies these to the function directly taking the value.
   | cons a l ih => simp [ih, hf]
 
 @[deprecated flatMap_subtype (since := "2024-10-16")] abbrev bind_subtype := @flatMap_subtype
+
+/-! ### Simp lemmas pushing `unattach` inwards. -/
 
 @[simp] theorem unattach_filter {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
@@ -734,8 +750,6 @@ and simplifies these to the function directly taking the value.
   | cons a l ih =>
     simp only [filter_cons, hf, unattach_cons]
     split <;> simp [ih]
-
-/-! ### Simp lemmas pushing `unattach` inwards. -/
 
 @[simp] theorem unattach_reverse {p : α → Prop} {l : List { x // p x }} :
     l.reverse.unattach = l.unattach.reverse := by

@@ -216,7 +216,7 @@ where
     else
       return r.cast (by omega)
 
-@[inline] def forM [Monad m] (v : Vector α n) (f : α → m PUnit) : m PUnit :=
+@[inline] protected def forM [Monad m] (v : Vector α n) (f : α → m PUnit) : m PUnit :=
   v.toArray.forM f
 
 @[inline] def flatMapM [Monad m] (v : Vector α n) (f : α → m (Vector β k)) : m (Vector β (n * k)) := do
@@ -416,7 +416,12 @@ instance : ForIn' m (Vector α n) α inferInstance where
 /-! ### ForM instance -/
 
 instance : ForM m (Vector α n) α where
-  forM := forM
+  forM := Vector.forM
+
+-- We simplify `Vector.forM` to `forM`.
+@[simp] theorem forM_eq_forM [Monad m] (f : α → m PUnit) :
+    Vector.forM v f = forM v f := rfl
+
 /-! ### ToStream instance -/
 
 instance : ToStream (Vector α n) (Subarray α) where

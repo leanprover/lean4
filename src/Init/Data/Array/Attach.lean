@@ -571,7 +571,7 @@ and simplifies these to the function directly taking the value.
 -/
 theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    {hf : ∀ b x h, f b ⟨x, h⟩ = g b x} :
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
     l.foldl f x = l.unattach.foldl g x := by
   cases l
   simp only [List.foldl_toArray', List.unattach_toArray]
@@ -581,7 +581,7 @@ theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
 /-- Variant of `foldl_subtype` with side condition to check `stop = l.size`. -/
 @[simp] theorem foldl_subtype' {p : α → Prop} {l : Array { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    {hf : ∀ b x h, f b ⟨x, h⟩ = g b x} (h : stop = l.size) :
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) (h : stop = l.size) :
     l.foldl f x 0 stop = l.unattach.foldl g x := by
   subst h
   rwa [foldl_subtype]
@@ -592,7 +592,7 @@ and simplifies these to the function directly taking the value.
 -/
 theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    {hf : ∀ x h b, f ⟨x, h⟩ b = g x b} :
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
     l.foldr f x = l.unattach.foldr g x := by
   cases l
   simp only [List.foldr_toArray', List.unattach_toArray]
@@ -602,7 +602,7 @@ theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
 /-- Variant of `foldr_subtype` with side condition to check `stop = l.size`. -/
 @[simp] theorem foldr_subtype' {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    {hf : ∀ x h b, f ⟨x, h⟩ b = g x b} (h : start = l.size) :
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) (h : start = l.size) :
     l.foldr f x start 0 = l.unattach.foldr g x := by
   subst h
   rwa [foldr_subtype]
@@ -612,7 +612,7 @@ This lemma identifies maps over arrays of subtypes, where the function only depe
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {l : Array { x // p x }}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.map f = l.unattach.map g := by
   cases l
   simp only [List.map_toArray, List.unattach_toArray]
@@ -620,7 +620,7 @@ and simplifies these to the function directly taking the value.
   simp [hf]
 
 @[simp] theorem filterMap_subtype {p : α → Prop} {l : Array { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.filterMap f = l.unattach.filterMap g := by
   cases l
   simp only [size_toArray, List.filterMap_toArray', List.unattach_toArray, List.length_unattach,
@@ -629,7 +629,7 @@ and simplifies these to the function directly taking the value.
   simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {l : Array { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.filter f).unattach = l.unattach.filter g := by
   cases l
   simp [hf]

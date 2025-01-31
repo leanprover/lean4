@@ -1238,11 +1238,12 @@ theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
   simp [uaddOverflow, msb_add, msb_setWidth, carry]
 
 theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
-    saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by
+    saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
   simp only [saddOverflow]
   rcases w with _|w
   · revert x y; decide
-  · have := le_toInt (x := x); have := toInt_lt (x := x)
+  · simp [decide_eq_true]
+    have := le_toInt (x := x); have := toInt_lt (x := x)
     have := le_toInt (x := y); have := toInt_lt (x := y)
     have := toInd_add_toInt_lt_two_pow (x := x) (y := y)
     have := neg_two_pow_le_toInt_add_toInt (x := x) (y := y)
@@ -1252,11 +1253,12 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
       by_cases xpos : 0 ≤ x
       · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
       · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
-    simp only [ge_iff_le, Bool.or_eq_true, decide_eq_true_eq, BitVec.msb_eq_toInt,
-      decide_eq_decide, BitVec.toInt_add]
-    rw_mod_cast [bmod_neg_iff (by assumption) (by assumption),
-      ← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega)] at *
-    rw [_root_.eq_iff_iff]
-    omega
+    simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
+      decide_eq_decide]
+    rw [bmod_neg_iff (by rw [← Nat.two_pow_pred_add_two_pow_pred (by omega)]; push_cast; omega)
+                     (by rw [← Nat.two_pow_pred_add_two_pow_pred (by omega)]; push_cast; omega),
+        ← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega), Nat.add_one_sub_one] at *
+    · push_cast
+      omega
 
 end BitVec

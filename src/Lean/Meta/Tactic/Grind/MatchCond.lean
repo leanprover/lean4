@@ -291,7 +291,12 @@ where
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
     let target ← (← get).mvarId.getType
-    let root ← getRootENode lhs
+    -- We use `shareCommon` here because we may accessing a new expression
+    -- created when we infer the type of the `noConfusion` term below
+    let lhs ← shareCommon lhs
+    let some root ← getRootENode? lhs
+      | reportIssue "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
+        return none
     let isHEq := α?.isSome
     let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
@@ -300,6 +305,7 @@ where
     if root.ctor then
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
+      -- See comment on `shareCommon` above.
       let h ← mkNoConfusion target h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h

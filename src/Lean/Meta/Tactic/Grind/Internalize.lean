@@ -172,9 +172,8 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
-
 @[export lean_grind_internalize]
-private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
     /-

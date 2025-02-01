@@ -201,13 +201,14 @@ def evalExpr (e : Expr) : EvalM Val := do
   | una op arg => op.simplify arg.simplify
   | e => e
 
+@[grind] theorem BinaryOp.simplify_eval (op : BinOp) : (op.simplify a b).eval σ = (Expr.bin a op b).eval σ := by
+  grind [BinOp.simplify.eq_def]
+
+@[grind] theorem UnaryOp.simplify_eval (op : UnaryOp) : (op.simplify a).eval σ = (Expr.una op a).eval σ := by
+  grind [UnaryOp.simplify.eq_def]
+
 @[simp, grind =] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  induction e <;> try grind [BinOp.simplify.eq_def, UnaryOp.simplify.eq_def]
-  next op arg ih_arg =>
-    simp only [simplify, UnaryOp.simplify, eval, ← ih_arg, UnaryOp.eval]
-    split
-    · grind
-    · simp only [eval, UnaryOp.eval] -- TODO: `grind` failes here
+  induction e, σ using Expr.simplify.induct <;> grind
 
 @[simp, grind =] def Stmt.simplify : Stmt → Stmt
   | skip => skip

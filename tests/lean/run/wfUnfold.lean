@@ -2,7 +2,7 @@ def fib : Nat → Nat
   | 0 => 0
   | 1 => 1
   | n+2 => fib n + fib (n+1)
-decreasing_by all_goals sorry
+termination_by n => n
 
 /--
 error: tactic 'fail' failed
@@ -17,7 +17,7 @@ def ack : Nat → Nat → Nat
   | 0, m => m + 1
   | n+1, 0 => ack n 1
   | n+1, m+1 => ack n (ack (n+1) m)
-decreasing_by all_goals sorry
+termination_by n m => (n, m)
 
 /--
 error: tactic 'fail' failed
@@ -47,3 +47,22 @@ j : Fin as.size
     (insertIdx.loop i as j).size = as.size := by
   unfold insertIdx.loop
   fail
+
+
+
+theorem fib_eq_fib (n : Nat) : n ≤ fib (n + 2) :=
+  match h : n with
+  | 0 => by simp [fib]
+  | 1 => by simp [fib]
+  | n+2 => by
+    have := fib_eq_fib n
+    have := fib_eq_fib (n+1)
+    simp only [fib] at *
+    omega
+termination_by n
+
+-- This should not exist!
+
+/-- error: unknown constant 'fib_eq_fib.eq_def' -/
+#guard_msgs in
+#check fib_eq_fib.eq_def

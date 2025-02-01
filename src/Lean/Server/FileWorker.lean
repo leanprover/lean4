@@ -331,6 +331,7 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
   return .ok {
     mainModuleName
     opts
+    plugins := fileSetupResult.plugins
   }
 
 /- Worker initialization sequence. -/

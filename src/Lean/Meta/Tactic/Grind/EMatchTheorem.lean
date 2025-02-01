@@ -93,28 +93,32 @@ instance : Hashable Origin where
   hash a := hash a.key
 
 inductive EMatchTheoremKind where
-  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default | user /- pattern specified using `grind_pattern` command -/
+  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | leftRight | rightLeft | default | user /- pattern specified using `grind_pattern` command -/
   deriving Inhabited, BEq, Repr, Hashable
 
 private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
-  | .eqLhs   => "[grind =]"
-  | .eqRhs   => "[grind =_]"
-  | .eqBoth  => "[grind _=_]"
-  | .eqBwd   => "[grind ←=]"
-  | .fwd     => "[grind →]"
-  | .bwd     => "[grind ←]"
-  | .default => "[grind]"
-  | .user    => "[grind]"
+  | .eqLhs     => "[grind =]"
+  | .eqRhs     => "[grind =_]"
+  | .eqBoth    => "[grind _=_]"
+  | .eqBwd     => "[grind ←=]"
+  | .fwd       => "[grind →]"
+  | .bwd       => "[grind ←]"
+  | .leftRight => "[grind =>]"
+  | .rightLeft => "[grind <=]"
+  | .default   => "[grind]"
+  | .user      => "[grind]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
-  | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
-  | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
-  | .eqBoth  => unreachable! -- eqBoth is a macro
-  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
-  | .fwd     => "failed to find patterns in the antecedents of the theorem"
-  | .bwd     => "failed to find patterns in the theorem's conclusion"
-  | .default => "failed to find patterns"
-  | .user    => unreachable!
+  | .eqLhs     => "failed to find pattern in the left-hand side of the theorem's conclusion"
+  | .eqRhs     => "failed to find pattern in the right-hand side of the theorem's conclusion"
+  | .eqBoth    => unreachable! -- eqBoth is a macro
+  | .eqBwd     => "failed to use theorem's conclusion as a pattern"
+  | .fwd       => "failed to find patterns in the antecedents of the theorem"
+  | .bwd       => "failed to find patterns in the theorem's conclusion"
+  | .leftRight => "failed to find patterns searching from left to right"
+  | .rightLeft => "failed to find patterns searching from right to left"
+  | .default   => "failed to find patterns"
+  | .user      => unreachable!
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
@@ -812,6 +816,8 @@ def mkEMatchTheoremWithKind?
           throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
         pure ps
       | .bwd => pure #[type]
+      | .leftRight => pure <| (← getPropTypes xs).push type
+      | .rightLeft => pure <| #[type] ++ (← getPropTypes xs).reverse
       | .default => pure <| #[type] ++ (← getPropTypes xs)
       | _ => unreachable!
     go xs searchPlaces

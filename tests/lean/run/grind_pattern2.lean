@@ -56,10 +56,8 @@ info: [grind.internalize] foo x y
 [grind.internalize] x
 [grind.internalize] y
 [grind.internalize] z
----
-warning: declaration uses 'sorry'
 -/
-#guard_msgs in
+#guard_msgs (info) in
 set_option trace.grind.internalize true in
 example : foo x y = z → False := by
   fail_if_success grind

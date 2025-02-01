@@ -100,13 +100,14 @@
 {"range":
  {"start": {"line": 59, "character": 7}, "end": {"line": 59, "character": 15}},
  "contents":
- {"value": "```lean\nNat\n```\n***\nMy notation ", "kind": "markdown"}}
+ {"value": "```lean\n2 * 1 : Nat\n```\n***\nMy notation ", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 69, "character": 7}}
 {"range":
  {"start": {"line": 69, "character": 7}, "end": {"line": 69, "character": 16}},
  "contents":
- {"value": "```lean\nNat\n```\n***\nMy ultimate notation ", "kind": "markdown"}}
+ {"value": "```lean\n1 * 1 : Nat\n```\n***\nMy ultimate notation ",
+  "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 73, "character": 21}}
 {"range":
@@ -128,7 +129,7 @@
  {"start": {"line": 77, "character": 7}, "end": {"line": 77, "character": 14}},
  "contents":
  {"value":
-  "```lean\nNat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n",
+  "```lean\n1 >+< 2 : Nat\n```\n***\nAddition of natural numbers.\n\nThis definition is overridden in both the kernel and the compiler to efficiently\nevaluate using the \"bignum\" representation (see `Nat`). The definition provided\nhere is the logical model (and it is soundness-critical that they coincide).\n",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 82, "character": 7}}
@@ -219,7 +220,8 @@
 {"range":
  {"start": {"line": 119, "character": 8},
   "end": {"line": 119, "character": 21}},
- "contents": {"value": "```lean\nTrue\n```", "kind": "markdown"}}
+ "contents":
+ {"value": "```lean\nid True.intro : True\n```", "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 126, "character": 2}}
 {"range":
@@ -407,7 +409,7 @@
   "end": {"line": 206, "character": 13}},
  "contents":
  {"value":
-  "```lean\n?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
+  "```lean\nx1✝ + x2✝ : ?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 215, "character": 28}}

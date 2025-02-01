@@ -668,22 +668,24 @@ where
     | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
     | _           => return ()
 
+private def diff (s : List Nat) (found : Std.HashSet Nat) : List Nat :=
+  if found.isEmpty then s else s.filter fun x => !found.contains x
+
 /--
 Returns `true` if pattern `p` contains a child `c` such that
-1- `p` and `c` have the same pattern variables.
+1- `p` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `alreadyFound`.
 2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
 3- `c` is not an offset pattern.
 4- `c` is not a bound variable.
 -/
-private def hasChildWithSameBVars (p : Expr) (supportMask : Array Bool) : CoreM Bool := do
-  let s := collectPatternBVars p
+private def hasChildWithSameNewBVars (p : Expr) (supportMask : Array Bool) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
+  let s := diff (collectPatternBVars p) alreadyFound
   for arg in p.getAppArgs, support in supportMask do
     unless support do
     unless arg.isBVar do
     unless isOffsetPattern? arg |>.isSome do
-      let sArg := collectPatternBVars arg
+      let sArg := diff (collectPatternBVars arg) alreadyFound
       if s ⊆ sArg then
-        trace[Meta.debug] "SKIPPED: {p}, {arg}, {s}, {sArg}"
         return true
   return false
 
@@ -703,7 +705,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
           return ()
         let p ← NormalizePattern.normalizePattern p
         if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
-          unless (← hasChildWithSameBVars p supportMask) do
+          unless (← hasChildWithSameNewBVars p supportMask saved.bvarsFound) do
             addNewPattern p
             return ()
         trace[grind.ematch.pattern.search] "skip, no new variables covered"

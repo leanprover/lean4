@@ -28,13 +28,19 @@ example : ack 2 2 = 7 := by
   unfold ack
   fail
 
+-- This checks that we can unfold definitions in the prelude
 /--
 error: tactic 'fail' failed
 α : Type u_1
 as : Array α
 i : Nat
 j : Fin as.size
-⊢ (insertIdx.loop._unary i ⟨as, j⟩).size = as.size
+⊢ (if i < ↑j then
+        let j' := ⟨↑j - 1, ⋯⟩;
+        let as_1 := as.swap ↑j' ↑j ⋯ ⋯;
+        insertIdx.loop i as_1 ⟨↑j', ⋯⟩
+      else as).size =
+    as.size
 -/
 #guard_msgs in
 @[simp] private theorem Array.size_insertIdx_loop (as : Array α) (i : Nat) (j : Fin as.size) :

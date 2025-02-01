@@ -20,7 +20,9 @@ def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
   | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
   | `(Parser.Attr.grindMod| →) => return .ematch .fwd
+  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
   | `(Parser.Attr.grindMod| ←) => return .ematch .bwd
+  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
   | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
   | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
   | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd

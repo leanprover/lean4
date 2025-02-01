@@ -16,9 +16,9 @@ namespace Attr
 syntax grindEq     := "= "
 syntax grindEqBoth := atomic("_" "=" "_ ")
 syntax grindEqRhs  := atomic("=" "_ ")
-syntax grindEqBwd  := atomic("←" "= ")
-syntax grindBwd    := "← "
-syntax grindFwd    := "→ "
+syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
+syntax grindBwd    := "← " <|> "-> "
+syntax grindFwd    := "→ " <|> "<- "
 syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")

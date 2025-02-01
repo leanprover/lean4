@@ -781,6 +781,15 @@ attach the recommended spelling to both `And` and `«term_∧_»`.
 The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
 assign a name to the created parser so that you do not have to guess the automatically generated
 name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+
+For complex notations which enclose identifiers, the convention is to use example identifiers rather
+than other placeholders. This is an example following the convention:
+```
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
+```
+Using `[·]` or `[⋯]` or `[…]` instead of `[a]` would be against the convention. When attaching a
+recommended spelling to a notation whose docstring already has an example, try to reuse the
+identifier names chosen in the docstring for consistency.
 -/
 @[builtin_command_parser] def «recommended_spelling» := leading_parser
   optional (docComment >> ppLine) >>
@@ -793,13 +802,6 @@ name. The `synax`, `macro` and `elab` commands can be hovered to see the name of
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
-
-
-notation (name := bluib) a " andaa " b => a ∧ b
-
-#check True andaa True
-
-#check aa
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all

@@ -334,12 +334,11 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
 
 end
 
-theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
+@[grind] theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
   induction h₁ generalizing σ₁' <;> try grind [=_ Expr.eval_simplify, intro Bigstep]
 
-def Stmt.constPropagation (s : Stmt) : Stmt :=
+@[grind] def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1
 
 theorem Stmt.constPropagation_correct (h : (σ, s) ⇓ σ') : (σ, s.constPropagation) ⇓ σ' := by
-  -- TODO: grind [constProp_correct, State.bot_le]
-  exact constProp_correct h (State.bot_le _)
+  grind

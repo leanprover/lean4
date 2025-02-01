@@ -1138,14 +1138,16 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
-  /-- If `r a b` then `TransGen r a b`. This is the base case of the transitive closure. -/
+  /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
   | single {a b} : r a b → TransGen r a b
-  /-- The transitive closure is transitive. -/
+  /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
+  This is the inductive case of the transitive closure. -/
   | tail {a b c} : TransGen r a b → r b c → TransGen r a c
 
 /-- Deprecated synonym for `Relation.TransGen`. -/
 @[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
 
+/-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
     TransGen r a b → TransGen r b c → TransGen r a c := by
   intro hab hbc

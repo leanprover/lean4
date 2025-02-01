@@ -48,7 +48,8 @@ private def rwFixEq (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
   mvarId.assign (← mkEqTrans h mvarNew)
   return mvarNew.mvarId!
 
-private partial def mkProof (declName declNameNonRec : Name) (type : Expr) : MetaM Expr := do
+-- TODO: Used to be private
+partial def mkProof (declName declNameNonRec : Name) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.wf.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type

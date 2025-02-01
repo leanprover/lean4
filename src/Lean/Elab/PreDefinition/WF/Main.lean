@@ -19,6 +19,27 @@ namespace Lean.Elab
 open WF
 open Meta
 
+-- TODO: Move to Eqns.lean
+/--
+This generates the "unfold" lemma for the `unaryPreDef`, which is known to be unary and defined
+directly by `WellFounded.fix`. The `unaryPreDef` is still recursive.
+-/
+def WF.mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
+  withOptions (tactic.hygienic.set · false) do
+    let baseName := preDef.declName
+    lambdaTelescope preDef.value fun xs body => do
+      let us := preDef.levelParams.map mkLevelParam
+      let type ← mkEq (mkAppN (Lean.mkConst preDef.declName us) xs) body
+      let value ← WF.mkProof preDef.declName unaryPreDefName type
+      let type ← mkForallFVars xs type
+      let value ← mkLambdaFVars xs value
+      let name := Name.str baseName unfoldThmSuffix
+      addDecl <| Declaration.thmDecl {
+        name, type, value
+        levelParams := preDef.levelParams
+      }
+      trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
+
 def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
@@ -61,6 +82,8 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  for preDef in preDefs do
+    WF.mkUnfoldEq preDef preDefNonRec.declName
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

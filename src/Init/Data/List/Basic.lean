@@ -960,7 +960,7 @@ def IsPrefix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => l₁ ++
 @[inherit_doc] infixl:50 " <+: " => IsPrefix
 
 /-- not `isPrefix` -/
-recommended_spelling "<+:" "prefix" IsPrefix «term_<+:_»
+recommended_spelling "prefix" for "<+:" in [IsPrefix, «term_<+:_»]
 
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`.
 That is, there exists a `t` such that `l₂ == l₁ ++ t`. -/
@@ -1005,7 +1005,7 @@ def IsSuffix (l₁ : List α) (l₂ : List α) : Prop := Exists fun t => t ++ l�
 @[inherit_doc] infixl:50 " <:+ " => IsSuffix
 
 /-- not `isSuffix` -/
-recommended_spelling "<:+" "suffix" IsSuffix «term_<:+_»
+recommended_spelling "suffix" for "<:+" in [IsSuffix, «term_<:+_»]
 
 /-! ### IsInfix -/
 
@@ -1018,7 +1018,7 @@ def IsInfix (l₁ : List α) (l₂ : List α) : Prop := Exists fun s => Exists f
 @[inherit_doc] infixl:50 " <:+: " => IsInfix
 
 /-- not `isInfix` -/
-recommended_spelling "<:+:" "infix" IsInfix «term_<:+:_»
+recommended_spelling "infix" for "<:+:" in [IsInfix, «term_<:+:_»]
 
 /-! ### splitAt -/
 

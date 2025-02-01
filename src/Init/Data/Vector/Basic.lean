@@ -36,8 +36,8 @@ open Lean in
 macro_rules
   | `(#v[ $elems,* ]) => `(Vector.mk (n := $(quote elems.getElems.size)) #[$elems,*] rfl)
 
-recommended_spelling "#v[]" "empty" Vector.mk «term#v[_,]»
-recommended_spelling "#v[x]" "singleton" Vector.mk «term#v[_,]»
+recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
+recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
 @[elab_as_elim]

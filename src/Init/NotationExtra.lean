@@ -352,7 +352,7 @@ macro_rules
   | `({$x:term}) => `(singleton $x)
   | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
 
-recommended_spelling "{x}" "singleton" singleton «term{_}»
+recommended_spelling "singleton" for "{x}" in [singleton, «term{_}»]
 
 namespace Lean
 

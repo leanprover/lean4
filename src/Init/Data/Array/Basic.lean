@@ -24,8 +24,8 @@ syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
 
-recommended_spelling "#[]" "empty" «term#[_,]»
-recommended_spelling "#[x]" "singleton" «term#[_,]»
+recommended_spelling "empty" for "#[]" in [«term#[_,]»]
+recommended_spelling "singleton" for "#[x]" in [«term#[_,]»]
 
 variable {α : Type u}
 

@@ -26,8 +26,8 @@ unless you use side effecting operations like `dbg_trace`.
 -/
 syntax "[" withoutPosition(term,*,?) "]"  : term
 
-recommended_spelling "[]" "nil" List.nil «term[_]»
-recommended_spelling "[a]" "singleton" List.cons «term[_]»
+recommended_spelling "nil" for "[]" in [List.nil, «term[_]»]
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.

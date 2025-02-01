@@ -114,10 +114,10 @@ panics `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
-recommended_spelling "xs[i]" "getElem" GetElem.getElem «term__[_]»
-recommended_spelling "xs[i]'h" "getElem" GetElem.getElem «term__[_]'_»
-recommended_spelling "xs[i]?" "getElem?" GetElem?.getElem? «term__[_]_?»
-recommended_spelling "xs[i]!" "getElem!" GetElem?.getElem! «term__[_]_!»
+recommended_spelling "getElem" for "xs[i]" in [GetElem.getElem, «term__[_]»]
+recommended_spelling "getElem" for "xs[i]'h" in [GetElem.getElem, «term__[_]'_»]
+recommended_spelling "getElem?" for "xs[i]?" in [GetElem?.getElem?, «term__[_]_?»]
+recommended_spelling "getElem!" for "xs[i]!" in [GetElem?.getElem!, «term__[_]_!»]
 
 instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     GetElem? coll idx elem valid where

@@ -273,9 +273,9 @@ syntax (name := rawNatLit) "nat_lit " num : term
 @[inherit_doc] infixr:35 " × "  => Prod
 @[inherit_doc] infixr:35 " ×' " => PProd
 
-recommended_spelling "∘" "comp" Function.comp «term_∘_»
-recommended_spelling "×" "Prod" Prod «term_×_»
-recommended_spelling "×'" "PProd" PProd «term_×'_»
+recommended_spelling "comp" for "∘" in [Function.comp, «term_∘_»]
+recommended_spelling "Prod" for "×" in [Prod, «term_×_»]
+recommended_spelling "PProd" for "×'" in [PProd, «term_×'_»]
 
 @[inherit_doc] infix:50  " ∣ " => Dvd.dvd
 @[inherit_doc] infixl:55 " ||| " => HOr.hOr
@@ -310,23 +310,23 @@ macro_rules | `($x ^ $y)   => `(rightact% HPow.hPow $x $y)
 macro_rules | `($x ++ $y)  => `(binop% HAppend.hAppend $x $y)
 macro_rules | `(- $x)      => `(unop% Neg.neg $x)
 
-recommended_spelling "|||" "or" HOr.hOr «term_|||_»
-recommended_spelling "^^^" "xor" HXor.hXor «term_^^^_»
-recommended_spelling "&&&" "and" HAnd.hAnd «term_&&&_»
-recommended_spelling "+" "add" HAdd.hAdd «term_+_»
+recommended_spelling "or" for "|||" in [HOr.hOr, «term_|||_»]
+recommended_spelling "xor" for "^^^" in [HXor.hXor, «term_^^^_»]
+recommended_spelling "and" for "&&&" in [HAnd.hAnd, «term_&&&_»]
+recommended_spelling "add" for "+" in [HAdd.hAdd, «term_+_»]
 /-- when used as a binary operator -/
-recommended_spelling "-" "sub" HSub.hSub «term_-_»
-recommended_spelling "*" "mul" HMul.hMul «term_*_»
-recommended_spelling "/" "div" HDiv.hDiv «term_/_»
-recommended_spelling "%" "mod" HMod.hMod «term_%_»
-recommended_spelling "^" "pow" HPow.hPow «term_^_»
-recommended_spelling "++" "append" HAppend.hAppend «term_++_»
+recommended_spelling "sub" for "-" in [HSub.hSub, «term_-_»]
+recommended_spelling "mul" for "*" in [HMul.hMul, «term_*_»]
+recommended_spelling "div" for "/" in [HDiv.hDiv, «term_/_»]
+recommended_spelling "mod" for "%" in [HMod.hMod, «term_%_»]
+recommended_spelling "pow" for "^" in [HPow.hPow, «term_^_»]
+recommended_spelling "append" for "++" in [HAppend.hAppend, «term_++_»]
 /-- when used as a unary operator -/
-recommended_spelling "-" "neg" Neg.neg «term-_»
-recommended_spelling "∣" "dvd" Dvd.dvd «term_∣_»
-recommended_spelling "<<<" "shiftLeft" HShiftLeft.hShiftLeft «term_<<<_»
-recommended_spelling ">>>" "shiftRight" HShiftRight.hShiftRight «term_>>>_»
-recommended_spelling "~~~" "not" Complement.complement «term~~~_»
+recommended_spelling "neg" for "-" in [Neg.neg, «term-_»]
+recommended_spelling "dvd" for "∣" in [Dvd.dvd, «term_∣_»]
+recommended_spelling "shiftLeft" for "<<<" in [HShiftLeft.hShiftLeft, «term_<<<_»]
+recommended_spelling "shiftRight" for ">>>" in [HShiftRight.hShiftRight, «term_>>>_»]
+recommended_spelling "not" for "~~~" in [Complement.complement, «term~~~_»]
 
 -- declare ASCII alternatives first so that the latter Unicode unexpander wins
 @[inherit_doc] infix:50 " <= " => LE.le
@@ -352,16 +352,16 @@ macro_rules | `($x ≥ $y)  => `(binrel% GE.ge $x $y)
 macro_rules | `($x = $y)  => `(binrel% Eq $x $y)
 macro_rules | `($x == $y) => `(binrel_no_prop% BEq.beq $x $y)
 
-recommended_spelling "≤" "le" LE.le «term_≤_»
+recommended_spelling "le" for "≤" in [LE.le, «term_≤_»]
 /-- prefer `≤` over `<=` -/
-recommended_spelling "<=" "le" LE.le «term_<=_»
-recommended_spelling "<" "lt" LT.lt «term_<_»
-recommended_spelling ">" "gt" GT.gt «term_>_»
-recommended_spelling "≥" "ge" GE.ge «term_≥_»
+recommended_spelling "le" for "<=" in [LE.le, «term_<=_»]
+recommended_spelling "lt" for "<" in [LT.lt, «term_<_»]
+recommended_spelling "gt" for ">" in [GT.gt, «term_>_»]
+recommended_spelling "ge" for "≥" in [GE.ge, «term_≥_»]
 /-- prefer `≥` over `>=` -/
-recommended_spelling ">=" "ge" GE.ge «term_>=_»
-recommended_spelling "=" "eq" Eq «term_=_»
-recommended_spelling "==" "beq" BEq.beq «term_==_»
+recommended_spelling "ge" for ">=" in [GE.ge, «term_>=_»]
+recommended_spelling "eq" for "=" in [Eq, «term_=_»]
+recommended_spelling "beq" for "==" in [BEq.beq, «term_==_»]
 
 @[inherit_doc] infixr:35 " /\\ " => And
 @[inherit_doc] infixr:35 " ∧ "   => And
@@ -369,28 +369,28 @@ recommended_spelling "==" "beq" BEq.beq «term_==_»
 @[inherit_doc] infixr:30 " ∨  "  => Or
 @[inherit_doc] notation:max "¬" p:40 => Not p
 
-recommended_spelling "∧" "and" And «term_∧_»
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
 /-- prefer `∧` over `/\` -/
-recommended_spelling "/\\" "and" And «term_/\_»
-recommended_spelling "∨" "or" Or «term_∨_»
+recommended_spelling "and" for "/\\" in [And, «term_/\_»]
+recommended_spelling "or" for "∨" in [Or, «term_∨_»]
 /-- prefer `∨` over `\/` -/
-recommended_spelling "\\/" "or" Or «term_\/_»
-recommended_spelling "¬" "not" Not «term¬_»
+recommended_spelling "or" for "\\/" in [Or, «term_\/_»]
+recommended_spelling "not" for "¬" in [Not, «term¬_»]
 
 @[inherit_doc] infixl:35 " && " => and
 @[inherit_doc] infixl:30 " || " => or
 @[inherit_doc] notation:max "!" b:40 => not b
 
-recommended_spelling "&&" "and" and «term_&&_»
-recommended_spelling "||" "or" and «term_||_»
-recommended_spelling "!" "not" not «term!_»
+recommended_spelling "and" for "&&" in [and, «term_&&_»]
+recommended_spelling "or" for "||" in [and, «term_||_»]
+recommended_spelling "not" for "!" in [not, «term!_»]
 
 @[inherit_doc] notation:50 a:50 " ∈ " b:50 => Membership.mem b a
 /-- `a ∉ b` is negated elementhood. It is notation for `¬ (a ∈ b)`. -/
 notation:50 a:50 " ∉ " b:50 => ¬ (a ∈ b)
 
-recommended_spelling "∈" "mem" Membership.mem «term_∈_»
-recommended_spelling "∉" "not_mem" «term_∉_»
+recommended_spelling "mem" for "∈" in [Membership.mem, «term_∈_»]
+recommended_spelling "not_mem" for "∉" in [«term_∉_»]
 
 @[inherit_doc] infixr:67 " :: " => List.cons
 @[inherit_doc] infixr:100 " <$> " => Functor.map
@@ -407,14 +407,14 @@ macro_rules | `($x <*> $y) => `(Seq.seq $x fun _ : Unit => $y)
 macro_rules | `($x <* $y)  => `(SeqLeft.seqLeft $x fun _ : Unit => $y)
 macro_rules | `($x *> $y)  => `(SeqRight.seqRight $x fun _ : Unit => $y)
 
-recommended_spelling "::" "cons" List.cons «term_::_»
-recommended_spelling "<$>" "map" Functor.map «term_<$>_»
-recommended_spelling ">>=" "bind" Bind.bind «term_>>=_»
-recommended_spelling "<|>" "orElse" HOrElse.hOrElse «term_<|>_»
-recommended_spelling ">>" "andThen" HAndThen.hAndThen «term_>>_»
-recommended_spelling "<*>" "seq" Seq.seq «term_<*>_»
-recommended_spelling "<*" "seqLeft" SeqLeft.seqLeft «term_<*_»
-recommended_spelling "*>" "seqRight" SeqRight.seqRight «term_*>_»
+recommended_spelling "cons" for "::" in [List.cons, «term_::_»]
+recommended_spelling "map" for "<$>" in [Functor.map, «term_<$>_»]
+recommended_spelling "bind" for ">>=" in [Bind.bind, «term_>>=_»]
+recommended_spelling "orElse" for "<|>" in [HOrElse.hOrElse, «term_<|>_»]
+recommended_spelling "andThen" for ">>" in [HAndThen.hAndThen, «term_>>_»]
+recommended_spelling "seq" for "<*>" in [Seq.seq, «term_<*>_»]
+recommended_spelling "seqLeft" for "<*" in [SeqLeft.seqLeft, «term_<*_»]
+recommended_spelling "seqRight" for "*>" in [SeqRight.seqRight, «term_*>_»]
 
 namespace Lean
 
@@ -520,7 +520,7 @@ macro_rules
   | `({ $x : $type // $p }) => ``(Subtype (fun ($x:ident : $type) => $p))
   | `({ $x // $p })         => ``(Subtype (fun ($x:ident : _) => $p))
 
-recommended_spelling "{ x // p x }" "subtype" Subtype «term{_:_//_}»
+recommended_spelling "subtype" for "{ x // p x }" in [Subtype, «term{_:_//_}»]
 
 /--
 `without_expected_type t` instructs Lean to elaborate `t` without an expected type.

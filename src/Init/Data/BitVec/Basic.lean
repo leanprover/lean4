@@ -158,9 +158,9 @@ syntax:max num noWs "#" noWs term:max : term
 macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 
 /-- not `ofNat_zero` -/
-recommended_spelling "0#n" "zero" BitVec.ofNat «term__#__»
+recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
 /-- not `ofNat_one` -/
-recommended_spelling "1#n" "one" BitVec.ofNat «term__#__»
+recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
 
 /-- Unexpander for bit vector literals. -/
 @[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander

@@ -70,9 +70,9 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let size := (← get).newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .fwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight then
     activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .bwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
     activateTheorem thm gen
   if (← get).newThms.size == size then
     if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then

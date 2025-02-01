@@ -15,17 +15,17 @@ import Lean.Meta.Tactic.Grind.Canon
 
 namespace Lean.Meta.Grind
 /-- Simplifies the given expression using the `grind` simprocs and normalization theorems. -/
-def simpCore (e : Expr) : GrindM Simp.Result := do
+private def simpCore (e : Expr) : GrindM Simp.Result := do
   let simpStats := (← get).simpStats
   let (r, simpStats) ← Meta.simp e (← readThe Context).simp (← readThe Context).simprocs (stats := simpStats)
   modify fun s => { s with simpStats }
   return r
 
 /--
-Simplifies `e` using `grind` normalization theorems and simprocs,
+Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.
 -/
-def simp (e : Expr) : GoalM Simp.Result := do
+def preprocess (e : Expr) : GoalM Simp.Result := do
   let e ← instantiateMVars e
   let r ← simpCore e
   let e' := r.expr

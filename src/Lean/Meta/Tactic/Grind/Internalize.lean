@@ -172,9 +172,31 @@ private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Un
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
           modify fun s => { s with thmMap := s.thmMap.insert thm }
 
+/--
+If type of `a` is an inductive datatype with one constructor `ctor` without fields,
+pushes the equality `a = ctor`.
+
+Remark: we added this feature because `isDefEq` implements it, and consequently
+the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
+This `isDefEq` feature was negatively affecting `grind` until we added an
+equivalent one here. For example, when splitting on a `match`-expression
+using Unit-like types, equalites about these types were being reduced to `True`
+by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
+these facts.
+-/
+private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
+  let aType ← whnfD (← inferType a)
+  matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
+    unless a.isAppOf ctorVal.name do
+      if ctorVal.numFields == 0 then
+        let params := aType.getAppArgs[:inductVal.numParams]
+        let unit := mkAppN (mkConst ctorVal.name us) params
+        let unit ← shareCommon unit
+        internalize unit generation
+        pushEq a unit <| (← mkEqRefl unit)
 
 @[export lean_grind_internalize]
-private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
     /-
@@ -188,6 +210,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Arith.internalize e parent?
     return ()
   trace_goal[grind.internalize] "{e}"
+  propagateUnitLike e generation
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()

@@ -12,6 +12,12 @@ import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 
 namespace Lean.Meta.Grind
+/-
+Remark: the `simp` module has some support for `MatchCond`, but it is
+called `isEqnThmHypothesis` there. This is actually a better name.
+TODO: rename this module and functions to `EqThmHyp`.
+-/
+
 /-!
 Support for `match`-expressions with overlapping patterns.
 Recall that when a `match`-expression has overlapping patterns, some of its equation theorems are

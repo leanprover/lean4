@@ -24,11 +24,11 @@ private def withoutModifyingState (x : GoalM α) : GoalM α := do
 /--
 If `e` has not been internalized yet, simplify it, and internalize the result.
 -/
-private def simpAndInternalize (e : Expr) (gen : Nat := 0) : GoalM Simp.Result := do
+private def preprocessAndInternalize (e : Expr) (gen : Nat := 0) : GoalM Simp.Result := do
   if (← alreadyInternalized e) then
     return { expr := e }
   else
-    let r ← simp e
+    let r ← preprocess e
     internalize r.expr gen
     return r
 
@@ -48,8 +48,8 @@ def proveEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     else
       return none
   else withoutModifyingState do
-    let lhs ← simpAndInternalize lhs
-    let rhs ← simpAndInternalize rhs
+    let lhs ← preprocessAndInternalize lhs
+    let rhs ← preprocessAndInternalize rhs
     processNewEqs
     unless (← isEqv lhs.expr rhs.expr) do return none
     unless (← hasSameType lhs.expr rhs.expr) do return none
@@ -69,8 +69,8 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
     else
       return none
   else withoutModifyingState do
-    let lhs ← simpAndInternalize lhs
-    let rhs ← simpAndInternalize rhs
+    let lhs ← preprocessAndInternalize lhs
+    let rhs ← preprocessAndInternalize rhs
     processNewEqs
     unless (← isEqv lhs.expr rhs.expr) do return none
     let h ← mkHEqProof lhs.expr rhs.expr
@@ -80,6 +80,5 @@ def proveHEq? (lhs rhs : Expr) : GoalM (Option Expr) := do
       | some h₁, none    => mkHEqTrans h₁ h
       | some h₁, some h₂ => mkHEqTrans (← mkHEqTrans h₁ h) (← mkHEqSymm h₂)
     return some h
-
 
 end Lean.Meta.Grind

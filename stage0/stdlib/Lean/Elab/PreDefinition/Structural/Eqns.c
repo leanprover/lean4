@@ -3769,7 +3769,6 @@ lean_dec(x_9);
 x_12 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_13 = l_Lean_Elab_Structural_registerEqnsInfo___closed__1;
 x_14 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_12, x_13, x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_14) == 0)
 {
 lean_object* x_15; 
@@ -3916,7 +3915,6 @@ lean_dec(x_39);
 x_42 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_43 = l_Lean_Elab_Structural_registerEqnsInfo___closed__1;
 x_44 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_42, x_43, x_41, x_1);
-lean_dec(x_41);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; lean_object* x_46; 
@@ -4072,7 +4070,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_Elab_Structural_getUnfoldFor_x3f___lambda__1(x_1, x_2, x_3);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -4094,7 +4091,6 @@ lean_dec(x_7);
 x_9 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_10 = l_Lean_Elab_Structural_registerEqnsInfo___closed__1;
 x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
-lean_dec(x_8);
 if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_12; 
@@ -4147,7 +4143,6 @@ lean_dec(x_19);
 x_22 = l_Lean_Elab_Structural_instInhabitedEqnInfo;
 x_23 = l_Lean_Elab_Structural_registerEqnsInfo___closed__1;
 x_24 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_22, x_23, x_21, x_1);
-lean_dec(x_21);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; 

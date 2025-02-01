@@ -2623,7 +2623,6 @@ lean_inc(x_45);
 lean_dec(x_43);
 lean_inc(x_1);
 x_46 = l_Lean_findField_x3f(x_45, x_1, x_33);
-lean_dec(x_45);
 if (lean_obj_tag(x_46) == 0)
 {
 uint8_t x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; uint8_t x_55; lean_object* x_56; lean_object* x_57; lean_object* x_58; 
@@ -2706,7 +2705,6 @@ lean_inc(x_66);
 lean_dec(x_64);
 lean_inc(x_1);
 x_67 = l_Lean_findField_x3f(x_66, x_1, x_33);
-lean_dec(x_66);
 if (lean_obj_tag(x_67) == 0)
 {
 uint8_t x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; uint8_t x_77; lean_object* x_78; lean_object* x_79; lean_object* x_80; 
@@ -2794,7 +2792,6 @@ lean_inc(x_90);
 lean_dec(x_87);
 lean_inc(x_1);
 x_91 = l_Lean_findField_x3f(x_90, x_1, x_33);
-lean_dec(x_90);
 if (lean_obj_tag(x_91) == 0)
 {
 uint8_t x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; uint8_t x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; 
@@ -3394,7 +3391,6 @@ lean_inc(x_47);
 lean_dec(x_45);
 lean_inc(x_1);
 x_48 = l_Lean_findField_x3f(x_47, x_1, x_35);
-lean_dec(x_47);
 if (lean_obj_tag(x_48) == 0)
 {
 uint8_t x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; uint8_t x_57; lean_object* x_58; lean_object* x_59; lean_object* x_60; 
@@ -3477,7 +3473,6 @@ lean_inc(x_68);
 lean_dec(x_66);
 lean_inc(x_1);
 x_69 = l_Lean_findField_x3f(x_68, x_1, x_35);
-lean_dec(x_68);
 if (lean_obj_tag(x_69) == 0)
 {
 uint8_t x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; lean_object* x_78; uint8_t x_79; lean_object* x_80; lean_object* x_81; lean_object* x_82; 
@@ -3565,7 +3560,6 @@ lean_inc(x_92);
 lean_dec(x_89);
 lean_inc(x_1);
 x_93 = l_Lean_findField_x3f(x_92, x_1, x_35);
-lean_dec(x_92);
 if (lean_obj_tag(x_93) == 0)
 {
 uint8_t x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; uint8_t x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; 
@@ -4143,7 +4137,6 @@ lean_inc(x_46);
 lean_dec(x_44);
 lean_inc(x_1);
 x_47 = l_Lean_findField_x3f(x_46, x_1, x_34);
-lean_dec(x_46);
 if (lean_obj_tag(x_47) == 0)
 {
 uint8_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; uint8_t x_56; lean_object* x_57; lean_object* x_58; lean_object* x_59; 
@@ -4226,7 +4219,6 @@ lean_inc(x_67);
 lean_dec(x_65);
 lean_inc(x_1);
 x_68 = l_Lean_findField_x3f(x_67, x_1, x_34);
-lean_dec(x_67);
 if (lean_obj_tag(x_68) == 0)
 {
 uint8_t x_69; lean_object* x_70; lean_object* x_71; lean_object* x_72; lean_object* x_73; lean_object* x_74; lean_object* x_75; lean_object* x_76; lean_object* x_77; uint8_t x_78; lean_object* x_79; lean_object* x_80; lean_object* x_81; 
@@ -4314,7 +4306,6 @@ lean_inc(x_91);
 lean_dec(x_88);
 lean_inc(x_1);
 x_92 = l_Lean_findField_x3f(x_91, x_1, x_34);
-lean_dec(x_91);
 if (lean_obj_tag(x_92) == 0)
 {
 uint8_t x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; uint8_t x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; 

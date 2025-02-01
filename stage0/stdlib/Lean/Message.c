@@ -33,7 +33,6 @@ static lean_object* l_Lean_SerialMessage_toString___lambda__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MessageData_paren(lean_object*);
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__53;
 static lean_object* l_Lean_MessageData_initFn____x40_Lean_Message___hyg_1438____closed__4;
-lean_object* l_Array_take___rarg(lean_object*, lean_object*);
 extern lean_object* l_Std_instInhabitedFormat;
 static lean_object* l_Lean_mkErrorStringWithPos___closed__4;
 static lean_object* l_Lean_Kernel_Exception_toMessageData___closed__30;
@@ -406,6 +405,7 @@ LEAN_EXPORT uint8_t l_Lean_PersistentArray_anyM___at_Lean_MessageLog_hasErrors__
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
 static lean_object* l___private_Lean_Message_0__Lean_fromJsonBaseMessage____x40_Lean_Message___hyg_3070____rarg___closed__11;
 static lean_object* l_Lean_instToMessageDataOptionExpr___closed__3;
+lean_object* l_Array_extract___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_instToMessageDataOptionExpr___closed__1;
 static lean_object* l_panic___at_Lean_MessageData_formatAux___spec__2___closed__1;
 static lean_object* l_Lean_termM_x21_____closed__8;
@@ -3431,7 +3431,8 @@ return x_30;
 else
 {
 lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; 
-x_31 = l_Array_take___rarg(x_5, x_22);
+x_31 = l_Array_extract___rarg(x_5, x_23, x_22);
+lean_dec(x_5);
 x_32 = lean_nat_sub(x_27, x_22);
 lean_dec(x_22);
 lean_dec(x_27);

@@ -4780,7 +4780,6 @@ lean_inc(x_12);
 lean_dec(x_11);
 lean_inc(x_10);
 x_13 = l_Lean_isStructure(x_12, x_10);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; 

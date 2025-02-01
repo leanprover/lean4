@@ -201,6 +201,7 @@ lean_inc(x_14);
 lean_dec(x_11);
 x_15 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_16 = l___private_Lean_PrettyPrinter_Delaborator_FieldNotation_0__Lean_PrettyPrinter_Delaborator_projInfo___closed__3;
+lean_inc(x_14);
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -321,7 +322,6 @@ lean_inc(x_30);
 lean_dec(x_29);
 lean_inc(x_9);
 x_31 = l_Lean_isSubobjectField_x3f(x_14, x_30, x_9);
-lean_dec(x_14);
 if (lean_obj_tag(x_31) == 0)
 {
 lean_object* x_32; uint8_t x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; 
@@ -2674,7 +2674,6 @@ lean_object* x_18; lean_object* x_19;
 lean_free_object(x_9);
 x_18 = lean_box(0);
 x_19 = l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__6(x_3, x_1, x_15, x_2, x_13, x_18, x_4, x_5, x_6, x_7, x_12);
-lean_dec(x_13);
 return x_19;
 }
 else
@@ -2735,7 +2734,6 @@ if (x_28 == 0)
 lean_object* x_29; lean_object* x_30; 
 x_29 = lean_box(0);
 x_30 = l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__6(x_3, x_1, x_26, x_2, x_24, x_29, x_4, x_5, x_6, x_7, x_23);
-lean_dec(x_24);
 return x_30;
 }
 else
@@ -2843,7 +2841,6 @@ x_12 = lean_unbox(x_1);
 lean_dec(x_1);
 x_13 = l_Lean_PrettyPrinter_Delaborator_fieldNotationCandidate_x3f___lambda__6(x_12, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_6);
-lean_dec(x_5);
 return x_13;
 }
 }

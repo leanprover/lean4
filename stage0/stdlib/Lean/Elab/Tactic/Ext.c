@@ -1101,7 +1101,6 @@ x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_getStructureFields(x_16, x_6);
-lean_dec(x_16);
 x_18 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__2___closed__1;
 x_19 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__1(x_1, x_7, x_2, x_3, x_4, x_18, x_17, x_8, x_9, x_10, x_11, x_15);
 lean_dec(x_17);
@@ -1121,7 +1120,6 @@ lean_inc(x_23);
 lean_dec(x_21);
 x_24 = 0;
 x_25 = l_Lean_getStructureFieldsFlattened(x_23, x_6, x_24);
-lean_dec(x_23);
 x_26 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__2___closed__1;
 x_27 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__1(x_1, x_7, x_2, x_3, x_4, x_26, x_25, x_8, x_9, x_10, x_11, x_22);
 lean_dec(x_25);
@@ -1377,7 +1375,6 @@ lean_inc(x_13);
 lean_dec(x_11);
 lean_inc(x_1);
 x_14 = l_Lean_isStructure(x_13, x_1);
-lean_dec(x_13);
 if (x_14 == 0)
 {
 lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
@@ -1437,7 +1434,6 @@ lean_inc(x_28);
 lean_dec(x_26);
 lean_inc(x_1);
 x_29 = l_Lean_isStructure(x_28, x_1);
-lean_dec(x_28);
 if (x_29 == 0)
 {
 lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; 
@@ -3640,7 +3636,6 @@ x_15 = l_Lean_instInhabitedDeclarationRanges;
 x_16 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__5___closed__1;
 lean_inc(x_1);
 x_17 = l_Lean_MapDeclarationExtension_contains___rarg(x_15, x_16, x_14, x_1);
-lean_dec(x_14);
 if (x_17 == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
@@ -3861,7 +3856,6 @@ x_83 = l_Lean_instInhabitedDeclarationRanges;
 x_84 = l_Lean_addDeclarationRanges___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__5___closed__1;
 lean_inc(x_1);
 x_85 = l_Lean_MapDeclarationExtension_contains___rarg(x_83, x_84, x_82, x_1);
-lean_dec(x_82);
 if (x_85 == 0)
 {
 lean_object* x_86; lean_object* x_87; lean_object* x_88; lean_object* x_89; lean_object* x_90; lean_object* x_91; lean_object* x_92; lean_object* x_93; lean_object* x_94; lean_object* x_95; lean_object* x_96; lean_object* x_97; lean_object* x_98; lean_object* x_99; lean_object* x_100; lean_object* x_101; lean_object* x_102; lean_object* x_103; lean_object* x_104; lean_object* x_105; lean_object* x_106; lean_object* x_107; lean_object* x_108; lean_object* x_109; lean_object* x_110; lean_object* x_111; lean_object* x_112; lean_object* x_113; lean_object* x_114; lean_object* x_115; lean_object* x_116; 
@@ -5830,7 +5824,6 @@ lean_inc(x_10);
 lean_dec(x_8);
 lean_inc(x_1);
 x_11 = l_Lean_isStructure(x_10, x_1);
-lean_dec(x_10);
 if (x_11 == 0)
 {
 lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; uint8_t x_17; 
@@ -5885,7 +5878,6 @@ lean_inc(x_25);
 lean_dec(x_23);
 lean_inc(x_1);
 x_26 = l_Lean_isStructure(x_25, x_1);
-lean_dec(x_25);
 if (x_26 == 0)
 {
 lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
@@ -8887,7 +8879,6 @@ lean_dec(x_8);
 x_11 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_12 = l_Lean_Elab_Tactic_Ext_extExtension___closed__1;
 x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_11, x_12, x_10);
-lean_dec(x_10);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_14, x_1, x_2, x_3, x_4, x_5, x_9);
@@ -12060,7 +12051,6 @@ lean_inc(x_22);
 lean_dec(x_20);
 lean_inc(x_4);
 x_23 = l_Lean_isStructure(x_22, x_4);
-lean_dec(x_22);
 if (x_23 == 0)
 {
 if (lean_obj_tag(x_7) == 0)
@@ -12748,7 +12738,6 @@ lean_dec(x_6);
 x_9 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_10 = l_Lean_Elab_Tactic_Ext_extExtension___closed__1;
 x_11 = l_Lean_ScopedEnvExtension_getState___rarg(x_9, x_10, x_8);
-lean_dec(x_8);
 x_12 = l_Lean_Meta_Ext_ExtTheorems_erase___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3071____spec__8(x_11, x_1, x_2, x_3, x_7);
 if (lean_obj_tag(x_12) == 0)
 {
@@ -13156,7 +13145,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3071____spec__1___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -13175,7 +13163,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3071____spec__1___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_7;
 }
 }
@@ -14314,7 +14301,6 @@ lean_dec(x_43);
 x_46 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_47 = l_Lean_Elab_Tactic_Ext_extExtension___closed__1;
 x_48 = l_Lean_ScopedEnvExtension_getState___rarg(x_46, x_47, x_45);
-lean_dec(x_45);
 x_49 = lean_ctor_get(x_48, 0);
 lean_inc(x_49);
 lean_inc(x_8);

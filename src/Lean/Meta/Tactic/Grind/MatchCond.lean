@@ -301,7 +301,7 @@ where
     -- created when we infer the type of the `noConfusion` term below
     let lhs ← shareCommon lhs
     let some root ← getRootENode? lhs
-      | reportIssue "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
+      | reportIssue! "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
         return none
     let isHEq := α?.isSome
     let h ← if isHEq then
@@ -430,7 +430,7 @@ builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
   else
     if !(← isStatisfied e) then return ()
     let some h ← mkMatchCondProof? e
-       | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
+       | reportIssue! "failed to construct proof for{indentExpr e}"; return ()
     trace_goal[grind.debug.matchCond] "{← inferType h}"
     pushEqTrue e <| mkEqTrueCore e h
 

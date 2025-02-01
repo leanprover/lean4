@@ -131,14 +131,15 @@ def Result.hasFailures (r : Result) : Bool :=
 
 def Result.toMessageData (result : Result) : MetaM MessageData := do
   let mut msgs ← result.failures.mapM (goalToMessageData · result.config)
-  let mut issues := result.issues
-  unless result.skipped.isEmpty do
-    let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
-    issues := .trace { cls := `issue } m #[] :: issues
-  unless issues.isEmpty do
-    msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
-  if let some msg ← result.counters.toMessageData? then
-    msgs := msgs ++ [msg]
+  if result.config.verbose then
+    let mut issues := result.issues
+    unless result.skipped.isEmpty do
+      let m := m!"#{result.skipped.length} other goal(s) were not fully processed due to previous failures, threshold: `(failures := {result.config.failures})`"
+      issues := .trace { cls := `issue } m #[] :: issues
+    unless issues.isEmpty do
+      msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
+    if let some msg ← result.counters.toMessageData? then
+      msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do

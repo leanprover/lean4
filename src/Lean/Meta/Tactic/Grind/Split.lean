@@ -104,7 +104,7 @@ private def checkCaseSplitStatus (e : Expr) : GoalM CaseSplitStatus := do
     if e.isFVar then
       let type ← whnfD (← inferType e)
       let report : GoalM Unit := do
-        reportIssue "cannot perform case-split on {e}, unexpected type{indentExpr type}"
+        reportIssue! "cannot perform case-split on {e}, unexpected type{indentExpr type}"
       let .const declName _ := type.getAppFn | report; return .resolved
       let .inductInfo info ← getConstInfo declName | report; return .resolved
       return .ready info.ctors.length info.isRec

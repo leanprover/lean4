@@ -27,7 +27,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
     let g := e'.getAppFn
     unless isSameExpr f g do
       unless (← hasSameType f g) do
-        reportIssue m!"found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
@@ -231,13 +231,13 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
   | .lit .. | .const .. =>
     mkENode e generation
   | .mvar .. =>
-    reportIssue m!"unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+    reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation
   | .mdata .. =>
-    reportIssue m!"unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
+    reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
     mkENode' e generation
   | .proj .. =>
-    reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
+    reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
     mkENode' e generation
   | .app .. =>
     if (← isLitValue e) then

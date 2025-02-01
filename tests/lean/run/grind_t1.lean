@@ -263,6 +263,19 @@ example (p q : Prop) : (p ↔ q) → p → False := by
 error: `grind` failed
 case grind
 p q : Prop
+a✝¹ : p = q
+a✝ : p
+⊢ False
+-/
+#guard_msgs (error) in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -verbose -- We should not get any diagnostics
+
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
 a✝¹ : p = ¬q
 a✝ : p
 ⊢ False

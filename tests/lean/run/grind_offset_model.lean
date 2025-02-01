@@ -10,7 +10,7 @@ i j : Nat
 h : j + 1 ≤ i
 h_1 : ¬g (i + 1) j = i + 1
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] j + 1 ≤ i
     [prop] ¬g (i + 1) j = i + 1
@@ -34,7 +34,7 @@ case grind
 i : Nat
 h : 101 ≤ i
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] 101 ≤ i
   [eqc] True propositions
@@ -53,7 +53,7 @@ case grind
 i : Nat
 h : i ≤ 99
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] i ≤ 99
   [eqc] True propositions
@@ -73,7 +73,7 @@ n m a j i : Nat
 h : g (n + 1) m = a
 h_1 : i ≤ j + 99
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] g (n + 1) m = a
     [prop] i ≤ j + 99
@@ -99,7 +99,7 @@ n m a j i : Nat
 h : g (n + 1) m = a
 h_1 : i + 101 ≤ j
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] g (n + 1) m = a
     [prop] i + 101 ≤ j

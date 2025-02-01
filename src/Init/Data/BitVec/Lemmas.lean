@@ -2566,6 +2566,11 @@ theorem eq_sub_iff_add_eq {x y z : BitVec w} : x = z - y ↔ x + y = z := by
   · simp [h, sub_add_cancel]
   · simp [←h, add_sub_cancel]
 
+theorem sub_eq_iff_eq_add {x y z : BitVec w} : x - y = z ↔ x = z + y := by
+  apply Iff.intro <;> intro h
+  · simp [← h, sub_add_cancel]
+  · simp [h, add_sub_cancel]
+
 theorem negOne_eq_allOnes : -1#w = allOnes w := by
   apply eq_of_toNat_eq
   if g : w = 0 then

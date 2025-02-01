@@ -245,7 +245,7 @@ p q : Prop
 a✝¹ : p = q
 a✝ : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = q
     [prop] p
@@ -266,7 +266,7 @@ p q : Prop
 a✝¹ : p = ¬q
 a✝ : p
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] p = ¬q
     [prop] p
@@ -337,7 +337,7 @@ b : Bool
 a✝¹ : (if b = true then 10 else 20) = a
 a✝ : b = true
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] (if b = true then 10 else 20) = a
     [prop] b = true

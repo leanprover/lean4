@@ -36,7 +36,7 @@ x : Nat
 a✝ : P x
 x✝ : ¬R x
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] P x
     [prop] ¬R x

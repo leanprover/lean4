@@ -777,6 +777,10 @@ to attach the recommended spelling to all relevant parsers as well as the declar
 refer to (if such a declaration exists). Note that the `inherit_doc` attribute does *not* copy
 recommended spellings, so even though the parser for `∧` uses `@[inherit_doc And]`, we have to
 attach the recommended spelling to both `And` and `«term_∧_»`.
+
+The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
+assign a name to the created parser so that you do not have to guess the automatically generated
+name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
 -/
 @[builtin_command_parser] def «recommended_spelling» := leading_parser
   optional (docComment >> ppLine) >>
@@ -789,6 +793,13 @@ attach the recommended spelling to both `And` and `«term_∧_»`.
   It is meant for bootstrapping purposes only. -/
 @[builtin_command_parser] def genInjectiveTheorems := leading_parser
   "gen_injective_theorems% " >> ident
+
+
+notation (name := bluib) a " andaa " b => a ∧ b
+
+#check True andaa True
+
+#check aa
 
 /--
 `include eeny meeny` instructs Lean to include the section `variable`s `eeny` and `meeny` in all

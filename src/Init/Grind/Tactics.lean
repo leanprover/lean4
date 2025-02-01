@@ -16,14 +16,16 @@ namespace Attr
 syntax grindEq     := "= "
 syntax grindEqBoth := atomic("_" "=" "_ ")
 syntax grindEqRhs  := atomic("=" "_ ")
-syntax grindEqBwd  := atomic("←" "= ")
-syntax grindBwd    := "← "
-syntax grindFwd    := "→ "
+syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
+syntax grindBwd    := "← " <|> "-> "
+syntax grindFwd    := "→ " <|> "<- "
+syntax grindRL     := "⇐ " <|> "<= "
+syntax grindLR     := "⇒ " <|> "=> "
 syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
 syntax grindIntro  := &"intro "
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
 syntax (name := grind) "grind" (grindMod)? : attr
 end Attr
 end Lean.Parser

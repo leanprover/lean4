@@ -93,28 +93,32 @@ instance : Hashable Origin where
   hash a := hash a.key
 
 inductive EMatchTheoremKind where
-  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | default | user /- pattern specified using `grind_pattern` command -/
+  | eqLhs | eqRhs | eqBoth | eqBwd | fwd | bwd | leftRight | rightLeft | default | user /- pattern specified using `grind_pattern` command -/
   deriving Inhabited, BEq, Repr, Hashable
 
 private def EMatchTheoremKind.toAttribute : EMatchTheoremKind → String
-  | .eqLhs   => "[grind =]"
-  | .eqRhs   => "[grind =_]"
-  | .eqBoth  => "[grind _=_]"
-  | .eqBwd   => "[grind ←=]"
-  | .fwd     => "[grind →]"
-  | .bwd     => "[grind ←]"
-  | .default => "[grind]"
-  | .user    => "[grind]"
+  | .eqLhs     => "[grind =]"
+  | .eqRhs     => "[grind =_]"
+  | .eqBoth    => "[grind _=_]"
+  | .eqBwd     => "[grind ←=]"
+  | .fwd       => "[grind →]"
+  | .bwd       => "[grind ←]"
+  | .leftRight => "[grind =>]"
+  | .rightLeft => "[grind <=]"
+  | .default   => "[grind]"
+  | .user      => "[grind]"
 
 private def EMatchTheoremKind.explainFailure : EMatchTheoremKind → String
-  | .eqLhs   => "failed to find pattern in the left-hand side of the theorem's conclusion"
-  | .eqRhs   => "failed to find pattern in the right-hand side of the theorem's conclusion"
-  | .eqBoth  => unreachable! -- eqBoth is a macro
-  | .eqBwd   => "failed to use theorem's conclusion as a pattern"
-  | .fwd     => "failed to find patterns in the antecedents of the theorem"
-  | .bwd     => "failed to find patterns in the theorem's conclusion"
-  | .default => "failed to find patterns"
-  | .user    => unreachable!
+  | .eqLhs     => "failed to find pattern in the left-hand side of the theorem's conclusion"
+  | .eqRhs     => "failed to find pattern in the right-hand side of the theorem's conclusion"
+  | .eqBoth    => unreachable! -- eqBoth is a macro
+  | .eqBwd     => "failed to use theorem's conclusion as a pattern"
+  | .fwd       => "failed to find patterns in the antecedents of the theorem"
+  | .bwd       => "failed to find patterns in the theorem's conclusion"
+  | .leftRight => "failed to find patterns searching from left to right"
+  | .rightLeft => "failed to find patterns searching from right to left"
+  | .default   => "failed to find patterns"
+  | .user      => unreachable!
 
 /-- A theorem for heuristic instantiation based on E-matching. -/
 structure EMatchTheorem where
@@ -664,22 +668,24 @@ where
     | .bvar idx   => modify fun s => if s.contains idx then s else idx :: s
     | _           => return ()
 
+private def diff (s : List Nat) (found : Std.HashSet Nat) : List Nat :=
+  if found.isEmpty then s else s.filter fun x => !found.contains x
+
 /--
 Returns `true` if pattern `p` contains a child `c` such that
-1- `p` and `c` have the same pattern variables.
+1- `p` and `c` have the same new pattern variables. We say a pattern variable is new if it is not in `alreadyFound`.
 2- `c` is not a support argument. See `NormalizePattern.getPatternSupportMask` for definition.
 3- `c` is not an offset pattern.
 4- `c` is not a bound variable.
 -/
-private def hasChildWithSameBVars (p : Expr) (supportMask : Array Bool) : CoreM Bool := do
-  let s := collectPatternBVars p
+private def hasChildWithSameNewBVars (p : Expr) (supportMask : Array Bool) (alreadyFound : Std.HashSet Nat) : CoreM Bool := do
+  let s := diff (collectPatternBVars p) alreadyFound
   for arg in p.getAppArgs, support in supportMask do
     unless support do
     unless arg.isBVar do
     unless isOffsetPattern? arg |>.isSome do
-      let sArg := collectPatternBVars arg
+      let sArg := diff (collectPatternBVars arg) alreadyFound
       if s ⊆ sArg then
-        trace[Meta.debug] "SKIPPED: {p}, {arg}, {s}, {sArg}"
         return true
   return false
 
@@ -699,7 +705,7 @@ private partial def collect (e : Expr) : CollectorM Unit := do
           return ()
         let p ← NormalizePattern.normalizePattern p
         if saved.bvarsFound.size < (← getThe NormalizePattern.State).bvarsFound.size then
-          unless (← hasChildWithSameBVars p supportMask) do
+          unless (← hasChildWithSameNewBVars p supportMask saved.bvarsFound) do
             addNewPattern p
             return ()
         trace[grind.ematch.pattern.search] "skip, no new variables covered"
@@ -812,6 +818,8 @@ def mkEMatchTheoremWithKind?
           throwError "invalid `grind` forward theorem, theorem `{← origin.pp}` does not have propositional hypotheses"
         pure ps
       | .bwd => pure #[type]
+      | .leftRight => pure <| (← getPropTypes xs).push type
+      | .rightLeft => pure <| #[type] ++ (← getPropTypes xs).reverse
       | .default => pure <| #[type] ++ (← getPropTypes xs)
       | _ => unreachable!
     go xs searchPlaces

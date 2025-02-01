@@ -41,9 +41,7 @@ info: Try this: grind only [= List.getElem?_replicate, = List.getElem?_eq_some_i
 theorem map_replicate' : (List.replicate n a).map f = List.replicate n (f a) := by
   grind?
 
-/--
-info: Try this: grind only [= List.getLast?_eq_some_iff, List.mem_concat_self]
--/
+/-- info: Try this: grind only [List.mem_concat_self, = List.getLast?_eq_some_iff] -/
 #guard_msgs (info) in
 theorem mem_of_getLast?_eq_some' {xs : List α} {a : α} (h : xs.getLast? = some a) : a ∈ xs := by
   grind?

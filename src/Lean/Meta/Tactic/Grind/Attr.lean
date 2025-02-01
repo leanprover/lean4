@@ -19,11 +19,17 @@ inductive AttrKind where
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
   | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
-  | `(Parser.Attr.grindMod| →) => return .ematch .fwd
-  | `(Parser.Attr.grindMod| ←) => return .ematch .bwd
+  | `(Parser.Attr.grindMod| →)
+  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
+  | `(Parser.Attr.grindMod| ←)
+  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
   | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
   | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
   | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod| ⇒)
+  | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
+  | `(Parser.Attr.grindMod| ⇐)
+  | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
   | `(Parser.Attr.grindMod| usr) => return .ematch .user
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true

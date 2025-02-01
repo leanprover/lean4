@@ -280,7 +280,7 @@ attribute [local grind] State.le State.erase State.find? State.update
 theorem State.le_trans : σ₁ ≼ σ₂ → σ₂ ≼ σ₃ → σ₁ ≼ σ₃ := by
   grind
 
-theorem State.bot_le (σ : State) : ⊥ ≼ σ := by
+@[grind] theorem State.bot_le (σ : State) : ⊥ ≼ σ := by
   grind
 
 theorem State.erase_le_cons (h : σ' ≼ σ) : σ'.erase x ≼ ((x, v) :: σ) := by
@@ -320,41 +320,25 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
 @[grind] theorem State.erase_le_update (h : σ' ≼ σ) : σ'.erase x ≼ σ.update x v := by
   grind
 
-@[grind] theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
+@[grind =>] theorem State.update_le_update (h : σ' ≼ σ) : σ'.update x v ≼ σ.update x v := by
   grind
 
-grind_pattern State.update_le_update => σ' ≼ σ, σ'.update x v
-
-@[grind] theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
+@[grind =>] theorem Expr.eval_constProp_of_sub (e : Expr) (h : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   induction e <;> grind
 
--- TODO: better pattern selection heuristic. We want to avoid the following step.
-grind_pattern Expr.eval_constProp_of_sub =>  σ' ≼ σ, e.constProp σ'
-
-theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
+@[grind =>] theorem Expr.eval_constProp_of_eq_of_sub {e : Expr} (h₂ : σ' ≼ σ) : (e.constProp σ').eval σ = e.eval σ := by
   grind
 
-grind_pattern Expr.eval_constProp_of_eq_of_sub => σ' ≼ σ, e.constProp σ'
-
-theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (s.constProp σ₁').2 ≼ σ₂ := by
+@[grind =>] theorem Stmt.constProp_sub (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (s.constProp σ₁').2 ≼ σ₂ := by
   induction h₁ generalizing σ₁' with grind [=_ Expr.eval_simplify]
-
-grind_pattern Stmt.constProp_sub => (σ₁, s) ⇓ σ₂, s.constProp σ₁'
 
 end
 
-theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
+@[grind] theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
   induction h₁ generalizing σ₁' <;> try grind [=_ Expr.eval_simplify, intro Bigstep]
-  next heq h₁ h₂ ih₁ ih₂ =>
-    -- TODO: we need better heuristics for selecting patterns for local quantifiers.
-    -- both `ih₁` and `ih₂` are local, and the current pattern selection picks reall bad patterns.
-    have ih₁ := ih₁ (State.bot_le _)
-    have ih₂ := ih₂ (State.bot_le _)
-    grind [intro Bigstep, constProp]
 
-def Stmt.constPropagation (s : Stmt) : Stmt :=
+@[grind] def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1
 
 theorem Stmt.constPropagation_correct (h : (σ, s) ⇓ σ') : (σ, s.constPropagation) ⇓ σ' := by
-  -- TODO: grind [constProp_correct, State.bot_le]
-  exact constProp_correct h (State.bot_le _)
+  grind

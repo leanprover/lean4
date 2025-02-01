@@ -56,24 +56,33 @@ private partial def mkProof (declName declNameNonRec : Name) (type : Expr) : Met
     let rec go (mvarId : MVarId) : MetaM Unit := do
       trace[Elab.definition.wf.eqns] "step\n{MessageData.ofGoal mvarId}"
       if ← withAtLeastTransparency .all (tryURefl mvarId) then
+        trace[Elab.definition.wf.eqns] "refl!"
         return ()
       else if (← tryContradiction mvarId) then
+        trace[Elab.definition.wf.eqns] "contradiction!"
         return ()
       else if let some mvarId ← simpMatch? mvarId then
+        trace[Elab.definition.wf.eqns] "simpMatch!"
         go mvarId
       else if let some mvarId ← simpIf? mvarId then
+        trace[Elab.definition.wf.eqns] "simpIf!"
         go mvarId
       else if let some mvarId ← whnfReducibleLHS? mvarId then
+        trace[Elab.definition.wf.eqns] "whnfReducibleLHS!"
         go mvarId
       else
-        let ctx ← Simp.mkContext (config := { dsimp := false })
+        let ctx ← Simp.mkContext (config := { dsimp := false, etaStruct := .none })
         match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
         | TacticResultCNM.closed => return ()
-        | TacticResultCNM.modified mvarId => go mvarId
+        | TacticResultCNM.modified mvarId =>
+          trace[Elab.definition.wf.eqns] "simp only!"
+          go mvarId
         | TacticResultCNM.noChange =>
           if let some mvarIds ← casesOnStuckLHS? mvarId then
+            trace[Elab.definition.wf.eqns] "case split into {mvarIds.size} goals"
             mvarIds.forM go
           else if let some mvarIds ← splitTarget? mvarId then
+            trace[Elab.definition.wf.eqns] "splitTarget into {mvarIds.length} goals"
             mvarIds.forM go
           else
             -- At some point in the past, we looked for occurrences of Wf.fix to fold on the

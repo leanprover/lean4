@@ -78,7 +78,7 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
     if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
   if (← get).newThms.size == size then
-    reportIssue m!"failed to create E-match local theorem for{indentExpr e}"
+    reportIssue! "failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()

@@ -151,10 +151,13 @@ private def ppCasesTrace : M Unit := do
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
-  let (_, m) ← go goal |>.run #[]
-  let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
-  let r := m!"{.ofGoal goal.mvarId}\n{gm}"
-  addMessageContextFull r
+  if config.verbose then
+    let (_, m) ← go goal |>.run #[]
+    let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
+    let r := m!"{.ofGoal goal.mvarId}\n{gm}"
+    addMessageContextFull r
+  else
+    return .ofGoal goal.mvarId
 where
   go : M Unit := do
     pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop

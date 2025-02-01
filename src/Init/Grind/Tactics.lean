@@ -65,6 +65,8 @@ structure Config where
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
   ext : Bool := true
+  /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
+  verbose : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

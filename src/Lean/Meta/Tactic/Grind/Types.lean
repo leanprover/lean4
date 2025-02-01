@@ -244,6 +244,15 @@ def reportIssue (msg : MessageData) : GrindM Unit := do
   -/
   trace[grind.issues] msg
 
+private def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      reportIssue $msg)
+
+macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportIssueMacro s.raw
+
 /--
 Stores information for a node in the egraph.
 Each internalized expression `e` has an `ENode` associated with it.

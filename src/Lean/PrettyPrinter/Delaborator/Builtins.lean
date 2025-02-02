@@ -1117,13 +1117,12 @@ where
     withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
       guard <| !insertExplicit
       if info.type == .coeFun && nargs > 0 then
+        -- In the `.coeFun` case, delaborate the coercee itself.
+        -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
+        -- In the `pp.tagAppFns` case, if the coercee is a constant application,
+        -- then `delab` will tag the result with the constant, ensuring docgen linkifies it.
         let tagAppFns ← getPPOption getPPTagAppFns
-        withNaryArg info.coercee <| withOptionAtCurrPos `pp.tagAppFns tagAppFns do
-          -- In the CoeFun case, annotate with the coercee itself.
-          -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
-          -- In the `pp.tagAppFns` case, if the coercee is a constant application, it will be annotated with the constant,
-          -- so we avoid re-annotating here. This is to make sure docgen linkifies the constant.
-          withAnnotateTermInfoUnlessAnnotated delab
+        withNaryArg info.coercee <| withOptionAtCurrPos `pp.tagAppFns tagAppFns delab
       else
         withAnnotateTermInfo do
           match info.type with

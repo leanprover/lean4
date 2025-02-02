@@ -427,7 +427,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         let isFirst := args[0:fieldIdx].all (· matches .skip)
         -- Clear the `obj` argument from `args`.
         let args' := args.set! fieldIdx .skip
-        let mut head : Term ← `($obj.$(mkIdent field))
+        let mut head : Term ← `($obj.$(mkIdentFrom fnStx field))
         if isFirst then
           -- If the object is the first argument (after some implicit arguments),
           -- we can annotate `obj.field` with the prefix of the application

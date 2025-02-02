@@ -38,18 +38,15 @@ structure Context where
 
 abbrev M := ReaderT Context <| StateRefT Result MetaM
 
-unsafe abbrev Cache := PtrSet Expr
+def getConfig : M Try.Config := do
+  return (← read).config
 
-def getModuleName? (declName : Name) : CoreM (Option Name) := do
-  let some modIdx := (← getEnv).getModuleIdxFor? declName | return none
-  return (← getEnv).header.moduleNames[modIdx.toNat]!
+def saveConst (declName : Name) : M Unit := do
+  modify fun s => { s with allConsts := s.allConsts.insert declName }
 
-def inCoreModule (declName : Name) : CoreM Bool := do
-  let some moduleName ← getModuleName? declName | return false
-  return (`Init).isPrefixOf moduleName || (`Std).isPrefixOf moduleName
-
+/-- Returns `true` if `declName` is in the module being compiled. -/
 def inCurrentModule (declName : Name) : CoreM Bool := do
-  return (← getModuleName? declName).isNone
+  return ((← getEnv).getModuleIdxFor? declName).isNone
 
 def getFunInductName (declName : Name) : Name :=
   declName ++ `induct
@@ -62,15 +59,9 @@ def getFunInduct? (declName : Name) : MetaM (Option Name) := do
   catch _ =>
     return none
 
-def getConfig : M Try.Config := do
-  return (← read).config
-
-def saveConst (declName : Name) : M Unit := do
-  modify fun s => { s with allConsts := s.allConsts.insert declName }
-
 def isEligible (declName : Name) : M Bool := do
   if (← getConfig).main then
-    return (← getModuleName? declName).isNone
+    return (← inCurrentModule declName)
   if (← getConfig).name then
     let ns ← getCurrNamespace
     return ns.isPrefixOf declName
@@ -107,6 +98,15 @@ def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveFunInduct e declName args
   saveLibSearchCandidates e
 
+def checkInductive (localDecl : LocalDecl) : M Unit := do
+  let .const declName _ ← whnfD localDecl.type | return ()
+  let .inductInfo val ← getConstInfo declName | return ()
+  if (← isEligible declName) then
+    unless (← Grind.isSplit declName) do
+      modify fun s => { s with indCandidates := s.indCandidates.push { fvarId := localDecl.fvarId, val } }
+
+unsafe abbrev Cache := PtrSet Expr
+
 unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
   unless (← get).contains e do
     modify fun s => s.insert e
@@ -126,13 +126,6 @@ unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
         args.forM visit
       | .proj _ _ b       => visit b
       | _                 => return ()
-
-def checkInductive (localDecl : LocalDecl) : M Unit := do
-  let .const declName _ ← whnfD localDecl.type | return ()
-  let .inductInfo val ← getConstInfo declName | return ()
-  if (← isEligible declName) then
-    unless (← Grind.isSplit declName) do
-      modify fun s => { s with indCandidates := s.indCandidates.push { fvarId := localDecl.fvarId, val } }
 
 unsafe def main (mvarId : MVarId) (config : Try.Config) : MetaM Result := mvarId.withContext do
   let (_, s) ← go |>.run mkPtrSet |>.run { config } |>.run {}

@@ -19,6 +19,7 @@ gen_injective_theorems% Macro.State
 gen_injective_theorems% Syntax.Preresolved
 gen_injective_theorems% Syntax.SepArray
 gen_injective_theorems% Syntax.TSepArray
+gen_injective_theorems% Try.Config
 gen_injective_theorems% Parser.Tactic.DecideConfig
 -/
 #guard_msgs in

@@ -26,6 +26,8 @@ structure Result where
   allConsts : Std.HashSet Name  := {}
   /-- Unfolding candiates. -/
   unfoldCandidates : Std.HashSet Name  := {}
+  /-- Equation function candiates. -/
+  eqnCandidates : Std.HashSet Name  := {}
   /-- Function induction candidates. -/
   funIndCandidates : Std.HashSet FunIndCandidate := {}
   /-- Induction candidates. -/
@@ -60,6 +62,8 @@ def getFunInduct? (declName : Name) : MetaM (Option Name) := do
     return none
 
 def isEligible (declName : Name) : M Bool := do
+  if declName.hasMacroScopes then
+    return false
   if (← getConfig).main then
     return (← inCurrentModule declName)
   if (← getConfig).name then
@@ -67,10 +71,26 @@ def isEligible (declName : Name) : M Bool := do
     return ns.isPrefixOf declName
   return false
 
+def saveEqnCandidate (declName : Name) : M Unit := do
+  if (← isEligible declName) then
+    let some eqns ← getEqnsFor? declName | return ()
+    if eqns.isEmpty then return ()
+    unless (← Grind.isEMatchTheorem eqns[0]!) do
+      modify fun s => { s with eqnCandidates := s.eqnCandidates.insert declName }
+
+def getEqDefDecl? (declName : Name) : MetaM (Option Name) := do
+  let declName := declName ++ `eq_def
+  if (← Grind.isEMatchTheorem declName) then return none
+  try
+    let result ← realizeGlobalConstNoOverloadCore declName
+    return some result
+  catch _ =>
+    return none
+
 def saveUnfoldCandidate (declName : Name) : M Unit := do
   if (← isEligible declName) then
-    unless (← Grind.isEMatchTheorem (declName ++ `eq_def)) do
-      modify fun s => { s with unfoldCandidates := s.unfoldCandidates.insert declName }
+    let some eqDefName ← getEqDefDecl? declName | return ()
+    modify fun s => { s with unfoldCandidates := s.unfoldCandidates.insert eqDefName }
 
 def visitConst (declName : Name) : M Unit := do
   saveConst declName
@@ -95,6 +115,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
         modify fun s => { s with libSearchResults := s.libSearchResults.insert (declName, kind) }
 
 def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
+  saveEqnCandidate declName
   saveFunInduct e declName args
   saveLibSearchCandidates e
 
@@ -144,7 +165,9 @@ where
 
 end Collector
 
-def collect (mvarId : MVarId) (config : Try.Config) : MetaM Collector.Result := do
+abbrev Info := Collector.Result
+
+def collect (mvarId : MVarId) (config : Try.Config) : MetaM Info := do
   unsafe Collector.main mvarId config
 
 end Lean.Meta.Try

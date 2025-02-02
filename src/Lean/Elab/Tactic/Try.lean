@@ -11,7 +11,7 @@ import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Config
 
 namespace Lean.Elab.Tactic
-
+open Meta
 /-!
 A **very** simple `try?` tactic implementation.
 -/
@@ -28,7 +28,7 @@ private abbrev M := ReaderT Try.Context TacticM
 instance : OrElse (M α) where
   orElse a b := fun ctx => a ctx <|> b () ctx
 
-open Meta.Tactic in
+open Tactic in
 private def addSuggestion (stx : TryThis.Suggestion) : M Bool := do
   TryThis.addSuggestion (← read).tk stx (origSpan? := (← getRef))
   return true
@@ -56,11 +56,54 @@ private def tryGrind : M Bool := do
     addSuggestion (← `(tactic| grind?)))
   <|> failed "`grind` failed"
 
+private def collect : M Try.Info := do
+  Try.collect (← read).mvarId (← read).config
+
+private def toIdent (declName : Name) : MetaM Ident := do
+  return mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+
+inductive GrindKind where
+  | tactic
+  | suggestion
+  | errorMsg
+
+private def mkGrindStx (params : Array (TSyntax ``Parser.Tactic.grindParam)) (kind : GrindKind := .tactic) : MetaM (TSyntax `tactic) := do
+  let result ← match kind with
+    | .tactic => `(tactic| grind -verbose)
+    | .suggestion => `(tactic| grind?)
+    | .errorMsg => `(tactic| grind)
+  let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
+  return ⟨result.raw.setArg 3 (mkNullNode paramsStx)⟩
+
+private def tryGrindWith (params : Array (TSyntax ``Parser.Tactic.grindParam)) : M Bool := do
+  let stx ← mkGrindStx params
+  (do
+    evalTactic stx
+    addSuggestion (← mkGrindStx params .suggestion))
+  <|>
+  (do failed m!"`{← mkGrindStx params .errorMsg}` failed")
+
+private def tryGrindEqnsCore (declNames : Std.HashSet Name) : M Bool := do
+  if declNames.isEmpty then return false
+  let mut params := #[]
+  for declName in declNames do
+    params := params.push (← `(Parser.Tactic.grindParam| = $(← toIdent declName)))
+  tryGrindWith params
+
+private def tryGrindEqns (info : Try.Info) : M Bool := do
+  tryGrindEqnsCore info.eqnCandidates
+
+private def tryGrindUnfold (info : Try.Info) : M Bool := do
+  tryGrindEqnsCore info.unfoldCandidates
+
 private def evalTryTraceCore : M Unit := do
   if (← trySimp) then return ()
   if (← trySimpArith) then return ()
   if (← tryGrind) then return ()
-  Meta.throwTacticEx `«try?» (← read).mvarId "`try?` failed, consider using `grind` manually"
+  let info ← collect
+  if (← tryGrindEqns info) then return ()
+  if (← tryGrindUnfold info) then return ()
+  Meta.throwTacticEx `«try?» (← read).mvarId "consider using `grind` manually"
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with

@@ -465,17 +465,10 @@ where
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
   tryUnexpand (ref : Syntax) (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    let tagAppFns ← getPPOption getPPTagAppFns
-    let stx' ← fs.firstM fun f =>
+    withAnnotateTermInfoUnlessAnnotated <| fs.firstM fun f =>
       match f stx |>.run ref |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
-    if tagAppFns then
-      -- Don't re-annotate. Use `ref` for annotation if no annotation exists.
-      -- Example: `notation "U" => Finset.univ` has implicit arguments, but we want to ensure that `U` is annotated with `@Finset.univ`, not `@Finset.univ α inst`.
-      withRef ref <| annotateTermInfoUnlessAnnotated stx'
-    else
-      annotateTermInfo stx'
   /--
   If the expression is a candidate for app unexpanders,
   try applying an app unexpander using some prefix of the arguments, longest prefix first.

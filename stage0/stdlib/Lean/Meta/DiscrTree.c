@@ -12932,6 +12932,7 @@ x_68 = lean_ctor_get(x_66, 0);
 lean_inc(x_68);
 lean_dec(x_66);
 x_69 = l_Lean_Meta_isMatcherAppCore_x3f(x_68, x_1);
+lean_dec(x_68);
 if (lean_obj_tag(x_69) == 0)
 {
 lean_object* x_70; lean_object* x_71; uint8_t x_72; 

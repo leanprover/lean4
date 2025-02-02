@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_ScopedEnvExtension_pushScope___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__3___closed__1;
 extern lean_object* l_Lean_Meta_instanceExtension;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_evalClassical__1___closed__1;
@@ -59,6 +60,7 @@ static lean_object* l_Lean_Elab_Tactic_classical___rarg___closed__1;
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__4___closed__1;
+lean_object* l_Lean_ScopedEnvExtension_popScope___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_classical___rarg___lambda__2(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_evalClassical__2(lean_object*);
@@ -107,7 +109,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_classical___rarg___lambda__3___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_ScopedEnvExtension_popScope___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_ScopedEnvExtension_popScope___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -204,7 +206,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; 
 x_1 = l_Lean_Elab_Tactic_classical___rarg___lambda__3___closed__1;
-x_2 = lean_alloc_closure((void*)(l_Lean_ScopedEnvExtension_pushScope___rarg), 2, 1);
+x_2 = lean_alloc_closure((void*)(l_Lean_ScopedEnvExtension_pushScope___rarg___boxed), 2, 1);
 lean_closure_set(x_2, 0, x_1);
 return x_2;
 }

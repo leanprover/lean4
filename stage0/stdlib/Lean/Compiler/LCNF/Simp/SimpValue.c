@@ -1377,6 +1377,7 @@ lean_dec(x_22);
 x_24 = l_Lean_instInhabitedName;
 x_25 = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___closed__1;
 x_26 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_24, x_25, x_23, x_17);
+lean_dec(x_23);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; 
@@ -1428,6 +1429,7 @@ lean_dec(x_32);
 x_35 = l_Lean_instInhabitedName;
 x_36 = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___closed__1;
 x_37 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_35, x_36, x_34, x_17);
+lean_dec(x_34);
 if (lean_obj_tag(x_37) == 0)
 {
 lean_object* x_38; lean_object* x_39; 
@@ -1495,6 +1497,7 @@ lean_dec(x_48);
 x_52 = l_Lean_instInhabitedName;
 x_53 = l_Lean_Compiler_LCNF_Simp_applyImplementedBy_x3f___closed__1;
 x_54 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_52, x_53, x_51, x_44);
+lean_dec(x_51);
 if (lean_obj_tag(x_54) == 0)
 {
 lean_object* x_55; lean_object* x_56; 

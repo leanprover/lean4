@@ -42,3 +42,4 @@ import Lean.Meta.Tactic.Rfl
 import Lean.Meta.Tactic.Rewrites
 import Lean.Meta.Tactic.Grind
 import Lean.Meta.Tactic.Ext
+import Lean.Meta.Tactic.Try

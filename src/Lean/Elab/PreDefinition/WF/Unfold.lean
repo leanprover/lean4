@@ -84,7 +84,8 @@ private partial def mkUnfoldProof (declName declNameNonRec : Name) (type : Expr)
     go mvarId
     instantiateMVars main
 
-def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) : MetaM Unit := do
+-- TODO: Afer the next stage0 update, change the type to PreDefinition
+def mkUnfoldEq (preDef : EqnInfoCore) (unaryPreDefName : Name) : MetaM Unit := do
   withOptions (tactic.hygienic.set · false) do
     let baseName := preDef.declName
     lambdaTelescope preDef.value fun xs body => do

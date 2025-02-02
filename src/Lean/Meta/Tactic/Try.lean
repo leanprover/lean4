@@ -9,5 +9,7 @@ import Lean.Meta.Tactic.Try.Collect
 namespace Lean
 
 builtin_initialize registerTraceClass `try
+builtin_initialize registerTraceClass `try.collect
+builtin_initialize registerTraceClass `try.collect.funInd
 
 end Lean

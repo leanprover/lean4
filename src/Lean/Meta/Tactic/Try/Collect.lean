@@ -18,7 +18,7 @@ structure InductionCandidate where
 
 structure FunIndCandidate where
   funIndDeclName : Name
-  majors : Array Expr
+  majors : Array FVarId
   deriving Hashable, BEq
 
 structure Result where
@@ -96,12 +96,49 @@ def visitConst (declName : Name) : M Unit := do
   saveConst declName
   saveUnfoldCandidate declName
 
-def saveFunInduct (_e : Expr) (declName : Name) (_args : Array Expr) : M Unit := do
+-- Horrible temporary hack: compute the mask assuming parameters appear before a variable named `motive`
+-- It assumes major premises appear after variables with name `case?`
+-- It assumes if something is not a parameter, then it is major :(
+-- TODO: save the mask while generating the induction principle.
+def getFunIndMask? (declName : Name) (indDeclName : Name) : MetaM (Option (Array Bool)) := do
+  let info ← getConstInfo declName
+  let indInfo ← getConstInfo indDeclName
+  let (numParams, numMajor) ← forallTelescope indInfo.type fun xs _ => do
+    let mut foundCase := false
+    let mut foundMotive := false
+    let mut numParams : Nat := 0
+    let mut numMajor : Nat := 0
+    for x in xs do
+      let localDecl ← x.fvarId!.getDecl
+      let n := localDecl.userName
+      if n == `motive then
+        foundMotive := true
+      else if !foundMotive then
+        numParams := numParams + 1
+      else if n.isStr && "case".isPrefixOf n.getString! then
+        foundCase := true
+      else if foundCase then
+        numMajor := numMajor + 1
+    return (numParams, numMajor)
+  if numMajor == 0 then return none
+  forallTelescope info.type fun xs _ => do
+    if xs.size != numParams + numMajor then
+      return none
+    return some (mkArray numParams false ++ mkArray numMajor true)
+
+def saveFunInd (_e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let some _indDeclName ← getFunInduct? declName
+    let some funIndDeclName ← getFunInduct? declName
       | saveUnfoldCandidate declName; return ()
-    -- TODO
-    return ()
+    let some mask ← getFunIndMask? declName funIndDeclName | return ()
+    if mask.size != args.size then return ()
+    let mut majors := #[]
+    for arg in args, isMajor in mask do
+      if isMajor then
+        if !arg.isFVar then return ()
+        majors := majors.push arg.fvarId!
+    trace[try.collect.funInd] "{funIndDeclName}, {majors.map mkFVar}"
+    modify fun s => { s with funIndCandidates := s.funIndCandidates.insert { majors, funIndDeclName }}
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
@@ -116,7 +153,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
 
 def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveEqnCandidate declName
-  saveFunInduct e declName args
+  saveFunInd e declName args
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do

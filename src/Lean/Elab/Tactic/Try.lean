@@ -103,7 +103,7 @@ private def evalTryTraceCore : M Unit := do
   let info ← collect
   if (← tryGrindEqns info) then return ()
   if (← tryGrindUnfold info) then return ()
-  Meta.throwTacticEx `«try?» (← read).mvarId "consider using `grind` manually"
+  Meta.throwTacticEx `«try?» (← read).mvarId "consider using `grind` manually, `set_option trace.try true` shows everything `try?` tried"
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do
   match stx with

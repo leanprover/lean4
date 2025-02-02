@@ -11,13 +11,15 @@ namespace Lean.Try
 Configuration for `try?`.
 -/
 structure Config where
-  /--
-  If `core` is `true`, then constants in the `Init` and `Std` library are considered for unfolding.
-  This flag is used for debugging purposes only.
-  -/
-  core := false
+  /-- If `main` is `true`, all functions in the current module are considered for function induction, unfolding, etc. -/
+  main := true
+  /-- If `name` is `true`, all functions in the same namespace are considere for function induction, unfolding, etc. -/
+  name := true
+  /-- If `lib` is `true`, uses `libSearch` results. -/
+  lib := true
+  /-- If `targetOnly` is `true`, `try?` collects information using the goal target only. -/
+  targetOnly := false
   deriving Inhabited
-
 
 end Lean.Try
 

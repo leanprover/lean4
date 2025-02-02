@@ -4,9 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Util.ForEachExpr
+import Init.Try
 import Lean.Meta.Tactic.LibrarySearch
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.EMatchTheorem
 
 namespace Lean.Meta.Try.Collector
 
@@ -29,13 +31,14 @@ structure Result where
   /-- Induction candidates. -/
   indCandidates : Array InductionCandidate := #[]
   /-- Relevant declarations by `libSearch` -/
-  libSearchResults : Std.HashSet (Expr × LibrarySearch.DeclMod) := {}
+  libSearchResults : Std.HashSet (Name × Grind.EMatchTheoremKind) := {}
 
-unsafe structure State where
-  result : Result := {}
-  visited : PtrSet Expr := mkPtrSet
+structure Context where
+  config : Try.Config
 
-unsafe abbrev M := StateRefT State MetaM
+abbrev M := ReaderT Context <| StateRefT Result MetaM
+
+unsafe abbrev Cache := PtrSet Expr
 
 def getModuleName? (declName : Name) : CoreM (Option Name) := do
   let some modIdx := (← getEnv).getModuleIdxFor? declName | return none
@@ -59,24 +62,54 @@ def getFunInduct? (declName : Name) : MetaM (Option Name) := do
   catch _ =>
     return none
 
-unsafe def saveConst (declName : Name) : M Unit := do
-  modify fun s => { s with result.allConsts := s.result.allConsts.insert declName }
+def getConfig : M Try.Config := do
+  return (← read).config
 
-unsafe def visitConst (declName : Name) : M Unit := do
+def saveConst (declName : Name) : M Unit := do
+  modify fun s => { s with allConsts := s.allConsts.insert declName }
+
+def isEligible (declName : Name) : M Bool := do
+  if (← getConfig).main then
+    return (← getModuleName? declName).isNone
+  if (← getConfig).name then
+    let ns ← getCurrNamespace
+    return ns.isPrefixOf declName
+  return false
+
+def saveUnfoldCandidate (declName : Name) : M Unit := do
+  if (← isEligible declName) then
+    unless (← Grind.isEMatchTheorem (declName ++ `eq_def)) do
+      modify fun s => { s with unfoldCandidates := s.unfoldCandidates.insert declName }
+
+def visitConst (declName : Name) : M Unit := do
   saveConst declName
-  return ()
+  saveUnfoldCandidate declName
 
-unsafe def saveFunInduct (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
-  let some indDeclName ← getFunInduct? declName | return ()
+def saveFunInduct (_e : Expr) (declName : Name) (_args : Array Expr) : M Unit := do
+  if (← isEligible declName) then
+    let some _indDeclName ← getFunInduct? declName
+      | saveUnfoldCandidate declName; return ()
+    -- TODO
+    return ()
 
+open LibrarySearch in
+def saveLibSearchCandidates (e : Expr) : M Unit := do
+  if (← getConfig).lib then
+    for (declName, declMod) in (← libSearchFindDecls e) do
+      unless (← Grind.isEMatchTheorem declName) do
+        let kind := match declMod with
+          | .none => .default
+          | .mp => .leftRight
+          | .mpr => .rightLeft
+        modify fun s => { s with libSearchResults := s.libSearchResults.insert (declName, kind) }
 
-unsafe def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
+def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
+  saveFunInduct e declName args
+  saveLibSearchCandidates e
 
-  return ()
-
-unsafe def visit (e : Expr) : M Unit := do
-  unless (← get).visited.contains e do
-    modify fun s => { s with visited := s.visited.insert e }
+unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
+  unless (← get).contains e do
+    modify fun s => s.insert e
     match e with
       | .const declName _ => visitConst declName
       | .forallE _ d b _  => visit d; visit b
@@ -94,17 +127,19 @@ unsafe def visit (e : Expr) : M Unit := do
       | .proj _ _ b       => visit b
       | _                 => return ()
 
-unsafe def checkInductive (localDecl : LocalDecl) : M Unit := do
+def checkInductive (localDecl : LocalDecl) : M Unit := do
   let .const declName _ ← whnfD localDecl.type | return ()
   let .inductInfo val ← getConstInfo declName | return ()
-  modify fun s => { s with result.indCandidates := s.result.indCandidates.push { fvarId := localDecl.fvarId, val } }
+  if (← isEligible declName) then
+    unless (← Grind.isSplit declName) do
+      modify fun s => { s with indCandidates := s.indCandidates.push { fvarId := localDecl.fvarId, val } }
 
-unsafe def main (mvarId : MVarId) (targetOnly : Bool := false) : MetaM Result := mvarId.withContext do
-  let (_, s) ← go |>.run {}
-  return s.result
+unsafe def main (mvarId : MVarId) (config : Try.Config) : MetaM Result := mvarId.withContext do
+  let (_, s) ← go |>.run mkPtrSet |>.run { config } |>.run {}
+  return s
 where
-  go : M Unit := do
-    unless targetOnly do
+  go : StateRefT Cache M Unit := do
+    unless (← getConfig).targetOnly do
       for localDecl in (← getLCtx) do
         unless localDecl.isAuxDecl do
           if let some val := localDecl.value? then
@@ -116,7 +151,7 @@ where
 
 end Collector
 
-def collect (mvarId : MVarId) (targetOnly := false) : MetaM Collector.Result := do
-  unsafe Collector.main mvarId targetOnly
+def collect (mvarId : MVarId) (config : Try.Config) : MetaM Collector.Result := do
+  unsafe Collector.main mvarId config
 
 end Lean.Meta.Try

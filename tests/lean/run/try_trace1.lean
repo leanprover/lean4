@@ -28,3 +28,17 @@ example : f (f 0) > 0 := by
 #guard_msgs (info) in
 example : f x > 0 := by
   try?
+
+def app : List α → List α → List α
+  | [], bs => bs
+  | a::as, bs => a :: app as bs
+
+/-- info: Try this: grind? [= app] -/
+#guard_msgs (info) in
+example : app [a, b] [c] = [a, b, c] := by
+  try?
+
+/-- info: Try this: (induction as, bs using app.induct) <;> grind? [= app] -/
+#guard_msgs (info) in
+example : app (app as bs) cs = app as (app bs cs) := by
+  try?

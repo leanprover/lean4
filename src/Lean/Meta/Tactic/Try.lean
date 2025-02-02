@@ -5,3 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Try.Collect
+
+namespace Lean
+
+builtin_initialize registerTraceClass `try
+
+end Lean

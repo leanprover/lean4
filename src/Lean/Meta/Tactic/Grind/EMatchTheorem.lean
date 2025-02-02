@@ -228,6 +228,10 @@ private builtin_initialize ematchTheoremsExt : SimpleScopedEnvExtension EMatchTh
     initial  := {}
   }
 
+/-- Returns `true` if `declName` has been tagged as an E-match theorem using `[grind]`. -/
+def isEMatchTheorem (declName : Name) : CoreM Bool := do
+  return ematchTheoremsExt.getState (← getEnv) |>.omap.contains (.decl declName)
+
 def resetEMatchTheoremsExt : CoreM Unit := do
   modifyEnv fun env => ematchTheoremsExt.modifyState env fun _ => {}
 

@@ -46,3 +46,4 @@ import Lean.Elab.Tactic.BoolToPropSimps
 import Lean.Elab.Tactic.Classical
 import Lean.Elab.Tactic.Grind
 import Lean.Elab.Tactic.Monotonicity
+import Lean.Elab.Tactic.Try

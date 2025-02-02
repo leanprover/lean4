@@ -268,7 +268,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue m!"unexpected number of parameters at {← thm.origin.pp}"
+    reportIssue! "unexpected number of parameters at {← thm.origin.pp}"
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
@@ -278,7 +278,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
       let report : M Unit := do
-        reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+        reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
       unless (← withDefault <| isDefEq mvarIdType vType) do
         let some heq ← proveEq? vType mvarIdType
           | report
@@ -297,7 +297,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthesizeInstanceAndAssign mvar type) do
-        reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+        reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
@@ -305,7 +305,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportIssue! "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
     addNewInstance thm proof c.gen
 

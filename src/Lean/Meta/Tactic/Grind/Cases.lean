@@ -66,6 +66,10 @@ def resetCasesExt : CoreM Unit := do
 def getCasesTypes : CoreM CasesTypes :=
   return casesExt.getState (← getEnv)
 
+/-- Returns `true` is `declName` is a builtin split or has been tagged with `[grind]` attribute. -/
+def isSplit (declName : Name) : CoreM Bool := do
+  return (← getCasesTypes).isSplit declName
+
 private def getAlias? (value : Expr) : MetaM (Option Name) :=
   lambdaTelescope value fun _ body => do
     if let .const declName _ := body.getAppFn' then

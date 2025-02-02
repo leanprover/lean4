@@ -464,15 +464,21 @@ where
   /--
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
-  tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    fs.firstM fun f =>
-      match f stx |>.run .missing |>.run () with
+  tryUnexpand (ref : Syntax) (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
+    withAnnotateTermInfoUnlessAnnotated <| fs.firstM fun f =>
+      match f stx |>.run ref |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
   /--
   If the expression is a candidate for app unexpanders,
   try applying an app unexpander using some prefix of the arguments, longest prefix first.
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
+
+  Ref logic:
+  1. The unexpanders are run with the head constant's syntax as the ref.
+  2. If `pp.tagAppFns` is false, then this does nothing, since `delabConst` won't register any terminfo for the constant.
+  3. If `pp.tagAppFns` is true, then this causes all tokens in app unexpanders to refer to the head constant.
+     The effect is that in docgen, every token will be linkified (supposing the app unexpander uses syntax quotations).
   -/
   tryAppUnexpanders (fnStx : Term) (args : Array AppImplicitArg) : Delab := do
     let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
@@ -481,13 +487,13 @@ where
     let rec go (i : Nat) (implicitArgs : Nat) (argStxs : Array Syntax) : DelabM Term := do
       match i with
       | 0 =>
-        let stx ← tryUnexpand fs fnStx
-        return Syntax.mkApp (← annotateTermInfo stx) (args.filterMap (·.syntax?))
+        let stx ← tryUnexpand fnStx fs fnStx
+        return Syntax.mkApp stx (args.filterMap (·.syntax?))
       | i' + 1 =>
         if args[i']!.syntax?.isSome then
-          (do let stx ← tryUnexpand fs <| Syntax.mkApp fnStx argStxs
+          (do let stx ← tryUnexpand fnStx fs <| Syntax.mkApp fnStx argStxs
               let argStxs' := args.extract i args.size |>.filterMap (·.syntax?)
-              return Syntax.mkApp (← annotateTermInfo stx) argStxs')
+              return Syntax.mkApp stx argStxs')
           <|> withBoundedAppFn (implicitArgs + 1) (go i' 0 argStxs.pop)
         else
           go i' (implicitArgs + 1) argStxs

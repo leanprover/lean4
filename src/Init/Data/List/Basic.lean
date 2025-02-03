@@ -43,7 +43,7 @@ The operations are organized as follow:
  `countP`, `count`, and `lookup`.
 * Logic: `any`, `all`, `or`, and `and`.
 * Zippers: `zipWith`, `zip`, `zipWithAll`, and `unzip`.
-* Ranges and enumeration: `range`, `iota`, `enumFrom`, and `enum`.
+* Ranges and enumeration: `range`, `zipIdx`.
 * Minima and maxima: `min?` and `max?`.
 * Other functions: `intersperse`, `intercalate`, `eraseDups`, `eraseReps`, `span`, `splitBy`,
   `removeAll`
@@ -74,7 +74,7 @@ namespace List
 @[simp] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
-@[simp 1100] theorem length_singleton (a : α) : length [a] = 1 := rfl
+@[simp] theorem length_singleton (a : α) : length [a] = 1 := rfl
 
 @[simp] theorem length_cons {α} (a : α) (as : List α) : (cons a as).length = as.length + 1 :=
   rfl
@@ -352,8 +352,8 @@ def headD : (as : List α) → (fallback : α) → α
   | [],   fallback => fallback
   | a::_, _  => a
 
-@[simp 1100] theorem headD_nil : @headD α [] d = d := rfl
-@[simp 1100] theorem headD_cons : @headD α (a::l) d = a := rfl
+@[simp] theorem headD_nil : @headD α [] d = d := rfl
+@[simp] theorem headD_cons : @headD α (a::l) d = a := rfl
 
 /-! ### tail -/
 
@@ -393,8 +393,8 @@ def tailD (list fallback : List α) : List α :=
   | [] => fallback
   | _ :: tl => tl
 
-@[simp 1100] theorem tailD_nil : @tailD α [] l' = l' := rfl
-@[simp 1100] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
+@[simp] theorem tailD_nil : @tailD α [] l' = l' := rfl
+@[simp] theorem tailD_cons : @tailD α (a::l) l' = l := rfl
 
 /-! ## Basic `List` operations.
 
@@ -822,6 +822,17 @@ theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.dr
   | [],    i   => simp
   | _::_,  0   => simp at h
   | _::as, i+1 => simp only [length_cons] at h; exact @drop_eq_nil_of_le as i (Nat.le_of_succ_le_succ h)
+
+/-! ### extract -/
+
+/-- `extract l start stop` returns the slice of `l` from indices `start` to `stop` (exclusive). -/
+-- This is only an abbreviation for the operation in terms of `drop` and `take`.
+-- We do not prove properties of extract itself.
+abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
+  (l.drop start).take (stop - start)
+
+@[simp] theorem extract_eq_drop_take (l : List α) (start stop : Nat) :
+    l.extract start stop = (l.drop start).take (stop - start) := rfl
 
 /-! ### takeWhile -/
 
@@ -1266,24 +1277,61 @@ theorem findSome?_cons {f : α → Option β} :
 
 @[simp] theorem findIdx_nil {α : Type _} (p : α → Bool) : [].findIdx p = 0 := rfl
 
-/-! ### indexOf -/
+/-! ### idxOf -/
 
 /-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
-def indexOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
+def idxOf [BEq α] (a : α) : List α → Nat := findIdx (· == a)
 
-@[simp] theorem indexOf_nil [BEq α] : ([] : List α).indexOf x = 0 := rfl
+/-- Returns the index of the first element equal to `a`, or the length of the list otherwise. -/
+@[deprecated idxOf (since := "2025-01-29")] abbrev indexOf := @idxOf
+
+@[simp] theorem idxOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
+
+@[deprecated idxOf_nil (since := "2025-01-29")]
+theorem indexOf_nil [BEq α] : ([] : List α).idxOf x = 0 := rfl
 
 /-! ### findIdx? -/
 
 /-- Return the index of the first occurrence of an element satisfying `p`. -/
-def findIdx? (p : α → Bool) : List α → (start : Nat := 0) → Option Nat
-| [], _ => none
-| a :: l, i => if p a then some i else findIdx? p l (i + 1)
+def findIdx? (p : α → Bool) (l : List α) : Option Nat :=
+  go l 0
+where
+  go : List α → Nat → Option Nat
+  | [], _ => none
+  | a :: l, i => if p a then some i else go l (i + 1)
 
-/-! ### indexOf? -/
+/-! ### idxOf? -/
 
 /-- Return the index of the first occurrence of `a` in the list. -/
-@[inline] def indexOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
+@[inline] def idxOf? [BEq α] (a : α) : List α → Option Nat := findIdx? (· == a)
+
+/-- Return the index of the first occurrence of `a` in the list. -/
+@[deprecated idxOf? (since := "2025-01-29")]
+abbrev indexOf? := @idxOf?
+
+/-! ### findFinIdx? -/
+
+/-- Return the index of the first occurrence of an element satisfying `p`, as a `Fin l.length`,
+or `none` if no such element is found. -/
+@[inline] def findFinIdx? (p : α → Bool) (l : List α) : Option (Fin l.length) :=
+  go l 0 (by simp)
+where
+  go : (l' : List α) → (i : Nat) → (h : l'.length + i = l.length) → Option (Fin l.length)
+  | [], _, _ => none
+  | a :: l, i, h =>
+    if p a then
+      some ⟨i, by
+        simp only [Nat.add_comm _ i, ← Nat.add_assoc] at h
+        exact Nat.lt_of_add_right_lt (Nat.lt_of_succ_le (Nat.le_of_eq h))⟩
+    else
+      go l (i + 1) (by simp at h; simpa [← Nat.add_assoc, Nat.add_right_comm] using h)
+
+/-! ### finIdxOf? -/
+
+/-- Return the index of the first occurrence of `a`, as a `Fin l.length`,
+or `none` if no such element is found. -/
+@[inline] def finIdxOf? [BEq α] (a : α) : (l : List α) → Option (Fin l.length) :=
+  findFinIdx? (· == a)
 
 /-! ### countP -/
 
@@ -1530,28 +1578,51 @@ set_option linter.deprecated false in
 set_option linter.deprecated false in
 @[simp] theorem iota_succ : iota (i+1) = (i+1) :: iota i := rfl
 
+/-! ### zipIdx -/
+
+/--
+`O(|l|)`. `zipIdx l` zips a list with its indices, optionally starting from a given index.
+* `zipIdx [a, b, c] = [(a, 0), (b, 1), (c, 2)]`
+* `zipIdx [a, b, c] 5 = [(a, 5), (b, 6), (c, 7)]`
+-/
+def zipIdx : List α → (n : Nat := 0) → List (α × Nat)
+  | [], _ => nil
+  | x :: xs, n => (x, n) :: zipIdx xs (n + 1)
+
+@[simp] theorem zipIdx_nil : ([] : List α).zipIdx i = [] := rfl
+@[simp] theorem zipIdx_cons : (a::as).zipIdx i = (a, i) :: as.zipIdx (i+1) := rfl
+
 /-! ### enumFrom -/
 
 /--
 `O(|l|)`. `enumFrom n l` is like `enum` but it allows you to specify the initial index.
 * `enumFrom 5 [a, b, c] = [(5, a), (6, b), (7, c)]`
 -/
+@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
 def enumFrom : Nat → List α → List (Nat × α)
   | _, [] => nil
   | n, x :: xs   => (n, x) :: enumFrom (n + 1) xs
 
-@[simp] theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
-@[simp] theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
+theorem enumFrom_nil : ([] : List α).enumFrom i = [] := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_cons (since := "2025-01-21"), simp]
+theorem enumFrom_cons : (a::as).enumFrom i = (i, a) :: as.enumFrom (i+1) := rfl
 
 /-! ### enum -/
 
+set_option linter.deprecated false in
 /--
 `O(|l|)`. `enum l` pairs up each element with its index in the list.
 * `enum [a, b, c] = [(0, a), (1, b), (2, c)]`
 -/
+@[deprecated "Use `zipIdx` instead; note the signature change." (since := "2025-01-21")]
 def enum : List α → List (Nat × α) := enumFrom 0
 
-@[simp] theorem enum_nil : ([] : List α).enum = [] := rfl
+set_option linter.deprecated false in
+@[deprecated zipIdx_nil (since := "2025-01-21"), simp]
+theorem enum_nil : ([] : List α).enum = [] := rfl
 
 /-! ## Minima and maxima -/
 

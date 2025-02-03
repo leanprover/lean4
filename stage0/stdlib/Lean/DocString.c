@@ -24,13 +24,11 @@ _start:
 {
 lean_object* x_5; 
 lean_inc(x_2);
-lean_inc(x_1);
 x_5 = l_Lean_Parser_Tactic_Doc_alternativeOfTactic(x_1, x_2);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 lean_inc(x_2);
-lean_inc(x_1);
 x_6 = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(x_1, x_2);
 x_7 = l_Lean_findSimpleDocString_x3f(x_1, x_2, x_3, x_4);
 x_8 = lean_ctor_get(x_7, 0);
@@ -133,7 +131,6 @@ x_29 = lean_ctor_get(x_5, 0);
 lean_inc(x_29);
 lean_dec(x_5);
 lean_inc(x_29);
-lean_inc(x_1);
 x_30 = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(x_1, x_29);
 x_31 = l_Lean_findSimpleDocString_x3f(x_1, x_29, x_3, x_4);
 x_32 = lean_ctor_get(x_31, 0);
@@ -237,6 +234,7 @@ uint8_t x_5; lean_object* x_6;
 x_5 = lean_unbox(x_3);
 lean_dec(x_3);
 x_6 = l_Lean_findDocString_x3f(x_1, x_2, x_5, x_4);
+lean_dec(x_1);
 return x_6;
 }
 }

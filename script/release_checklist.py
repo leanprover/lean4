@@ -33,10 +33,17 @@ def branch_exists(repo_url, branch, github_token):
     return response.status_code == 200
 
 def tag_exists(repo_url, tag_name, github_token):
-    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/git/refs/tags/{tag_name}"
+    # Use /git/matching-refs/tags/ to get all matching tags
+    api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/git/matching-refs/tags/{tag_name}"
     headers = {'Authorization': f'token {github_token}'} if github_token else {}
     response = requests.get(api_url, headers=headers)
-    return response.status_code == 200
+
+    if response.status_code != 200:
+        return False
+
+    # Check if any of the returned refs exactly match our tag
+    matching_tags = response.json()
+    return any(tag["ref"] == f"refs/tags/{tag_name}" for tag in matching_tags)
 
 def release_page_exists(repo_url, tag_name, github_token):
     api_url = repo_url.replace("https://github.com/", "https://api.github.com/repos/") + f"/releases/tags/{tag_name}"

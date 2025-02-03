@@ -90,7 +90,7 @@ def TerminationMeasure.elab (funName : Name) (type : Expr) (arity extraParams : 
 def TerminationMeasure.structuralArg (measure : TerminationMeasure) : MetaM Nat := do
   assert! measure.structural
   lambdaTelescope measure.fn fun ys e => do
-    let .some idx := ys.indexOf? e
+    let .some idx := ys.idxOf? e
       | panic! "TerminationMeasure.structuralArg: body not one of the parameters"
     return idx
 

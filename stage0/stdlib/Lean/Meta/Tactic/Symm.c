@@ -3726,6 +3726,7 @@ lean_dec(x_10);
 x_13 = l_panic___at_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_5____spec__13___closed__1;
 x_14 = l_Lean_Meta_Symm_initFn____x40_Lean_Meta_Tactic_Symm___hyg_88____lambda__1___closed__21;
 x_15 = l_Lean_ScopedEnvExtension_getState___rarg(x_13, x_14, x_12);
+lean_dec(x_12);
 x_16 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_15, x_8, x_2, x_3, x_4, x_5, x_11);
 return x_16;
 }

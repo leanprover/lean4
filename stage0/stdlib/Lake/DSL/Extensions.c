@@ -14,10 +14,10 @@
 extern "C" {
 #endif
 LEAN_EXPORT lean_object* l_Lake_dirExt;
-lean_object* l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_optsExt;
 lean_object* l_EStateM_pure___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_35_(lean_object*);
+lean_object* l_Lean_registerEnvExtension___rarg(lean_object*, lean_object*);
 static lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
 LEAN_EXPORT lean_object* l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4_(lean_object*);
 static lean_object* _init_l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1() {
@@ -35,7 +35,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
-x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
 return x_3;
 }
 }
@@ -44,7 +44,7 @@ _start:
 {
 lean_object* x_2; lean_object* x_3; 
 x_2 = l_Lake_initFn____x40_Lake_DSL_Extensions___hyg_4____closed__1;
-x_3 = l_Lean_EnvExtensionInterfaceUnsafe_registerExt___rarg(x_2, x_1);
+x_3 = l_Lean_registerEnvExtension___rarg(x_2, x_1);
 return x_3;
 }
 }

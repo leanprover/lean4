@@ -105,15 +105,15 @@ private def ppEqcs : M Unit := do
      pushMsg <| .trace { cls := `eqc } "Equivalence classes" otherEqcs
 
 private def ppEMatchTheorem (thm : EMatchTheorem) : MetaM MessageData := do
-  let m := m!"{← thm.origin.pp}:\n{← inferType thm.proof}\npatterns: {thm.patterns.map ppPattern}"
+  let m := m!"{← thm.origin.pp}: {thm.patterns.map ppPattern}"
   return .trace { cls := `thm } m #[]
 
-private def ppActiveTheorems : M Unit := do
+private def ppActiveTheoremPatterns : M Unit := do
   let goal ← read
   let m ← goal.thms.toArray.mapM fun thm => ppEMatchTheorem thm
   let m := m ++ (← goal.newThms.toArray.mapM fun thm => ppEMatchTheorem thm)
   unless m.isEmpty do
-    pushMsg <| .trace { cls := `ematch } "E-matching" m
+    pushMsg <| .trace { cls := `ematch } "E-matching patterns" m
 
 private def ppOffset : M Unit := do
   let goal ← read
@@ -142,16 +142,28 @@ private def ppThresholds (c : Grind.Config) : M Unit := do
   unless msgs.isEmpty do
     pushMsg <| .trace { cls := `limits } "Thresholds reached" msgs
 
+private def ppCasesTrace : M Unit := do
+  let goal ← read
+  unless goal.casesTrace.isEmpty do
+    let mut msgs := #[]
+    for { expr, i , num } in goal.casesTrace.reverse do
+      msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[]
+    pushMsg <| .trace { cls := `cases } "Case analyses" msgs
+
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
-  let (_, m) ← go goal |>.run #[]
-  let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
-  let r := m!"{.ofGoal goal.mvarId}\n{gm}"
-  addMessageContextFull r
+  if config.verbose then
+    let (_, m) ← go goal |>.run #[]
+    let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
+    let r := m!"{.ofGoal goal.mvarId}\n{gm}"
+    addMessageContextFull r
+  else
+    return .ofGoal goal.mvarId
 where
   go : M Unit := do
     pushMsg <| ppExprArray `facts "Asserted facts" goal.facts.toArray `prop
     ppEqcs
-    ppActiveTheorems
+    ppCasesTrace
+    ppActiveTheoremPatterns
     ppOffset
     ppThresholds config
 

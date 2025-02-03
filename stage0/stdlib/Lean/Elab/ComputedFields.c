@@ -2661,6 +2661,7 @@ x_34 = l_Lean_Elab_WF_instInhabitedEqnInfo;
 x_35 = l_Lean_Elab_ComputedFields_getComputedFieldValue___closed__1;
 lean_inc(x_1);
 x_36 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_34, x_35, x_33, x_1);
+lean_dec(x_33);
 if (lean_obj_tag(x_36) == 0)
 {
 lean_object* x_37; 
@@ -8548,6 +8549,7 @@ lean_inc(x_42);
 lean_dec(x_40);
 lean_inc(x_25);
 x_43 = l_Lean_isExtern(x_42, x_25);
+lean_dec(x_42);
 if (x_43 == 0)
 {
 lean_object* x_44; lean_object* x_45; 
@@ -8750,6 +8752,7 @@ lean_inc(x_74);
 lean_dec(x_72);
 lean_inc(x_25);
 x_75 = l_Lean_isExtern(x_74, x_25);
+lean_dec(x_74);
 if (x_75 == 0)
 {
 lean_object* x_76; lean_object* x_77; 
@@ -8968,6 +8971,7 @@ lean_inc(x_111);
 lean_dec(x_108);
 lean_inc(x_25);
 x_112 = l_Lean_isExtern(x_111, x_25);
+lean_dec(x_111);
 if (x_112 == 0)
 {
 lean_object* x_113; lean_object* x_114; 
@@ -10978,6 +10982,7 @@ lean_inc(x_19);
 lean_dec(x_17);
 x_20 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__3___closed__1;
 x_21 = l_Lean_TagAttribute_hasTag(x_20, x_19, x_14);
+lean_dec(x_19);
 if (x_21 == 0)
 {
 lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; lean_object* x_27; lean_object* x_28; size_t x_29; size_t x_30; lean_object* x_31; 
@@ -11031,6 +11036,7 @@ lean_inc(x_39);
 lean_dec(x_37);
 x_40 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_ComputedFields_setComputedFields___spec__3___closed__1;
 x_41 = l_Lean_TagAttribute_hasTag(x_40, x_39, x_14);
+lean_dec(x_39);
 if (x_41 == 0)
 {
 lean_object* x_42; lean_object* x_43; lean_object* x_44; lean_object* x_45; lean_object* x_46; uint8_t x_47; lean_object* x_48; lean_object* x_49; size_t x_50; size_t x_51; lean_object* x_52; 
@@ -11273,6 +11279,7 @@ lean_inc(x_18);
 lean_dec(x_16);
 lean_inc(x_14);
 x_19 = l_Lean_isExtern(x_18, x_14);
+lean_dec(x_18);
 if (x_19 == 0)
 {
 lean_object* x_20; lean_object* x_21; lean_object* x_22; size_t x_23; size_t x_24; 

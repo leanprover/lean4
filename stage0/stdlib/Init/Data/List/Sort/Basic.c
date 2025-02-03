@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__20;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__34;
+LEAN_EXPORT uint8_t l_List_zipIdxLE___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__16;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__39;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__33;
@@ -39,6 +40,7 @@ static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__41;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__12;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__13;
+LEAN_EXPORT lean_object* l_List_zipIdxLE___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__36;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__43;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__21;
@@ -61,16 +63,15 @@ lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__53;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__50;
-LEAN_EXPORT lean_object* l_List_enumLE(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__5;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__52;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__15;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__54;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__59;
-LEAN_EXPORT lean_object* l_List_enumLE___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__25;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__32;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Sort_Basic_0__List_merge_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_zipIdxLE(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__38;
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitInTwo___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__10;
@@ -78,7 +79,6 @@ static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed
 LEAN_EXPORT lean_object* l_List_MergeSort_Internal_splitInTwo(lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__14;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__35;
-LEAN_EXPORT uint8_t l_List_enumLE___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__11;
 static lean_object* l___auto____x40_Init_Data_List_Sort_Basic___hyg_12____closed__45;
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1159,13 +1159,13 @@ x_2 = lean_alloc_closure((void*)(l_List_mergeSort___rarg), 2, 0);
 return x_2;
 }
 }
-LEAN_EXPORT uint8_t l_List_enumLE___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_List_zipIdxLE___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_4 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_2, 0);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_3, 1);
+x_5 = lean_ctor_get(x_3, 0);
 lean_inc(x_5);
 lean_inc(x_1);
 lean_inc(x_5);
@@ -1201,10 +1201,10 @@ return x_11;
 else
 {
 lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_12 = lean_ctor_get(x_2, 0);
+x_12 = lean_ctor_get(x_2, 1);
 lean_inc(x_12);
 lean_dec(x_2);
-x_13 = lean_ctor_get(x_3, 0);
+x_13 = lean_ctor_get(x_3, 1);
 lean_inc(x_13);
 lean_dec(x_3);
 x_14 = lean_nat_dec_le(x_12, x_13);
@@ -1215,19 +1215,19 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_List_enumLE(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_List_zipIdxLE(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_List_enumLE___rarg___boxed), 3, 0);
+x_2 = lean_alloc_closure((void*)(l_List_zipIdxLE___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_List_enumLE___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_List_zipIdxLE___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; lean_object* x_5; 
-x_4 = l_List_enumLE___rarg(x_1, x_2, x_3);
+x_4 = l_List_zipIdxLE___rarg(x_1, x_2, x_3);
 x_5 = lean_box(x_4);
 return x_5;
 }

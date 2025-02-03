@@ -101,8 +101,38 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem extract_mk (a : Array α) (h : a.size = n) (start stop) :
     (Vector.mk a h).extract start stop = Vector.mk (a.extract start stop) (by simp [h]) := rfl
 
-@[simp] theorem indexOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
-    (Vector.mk a h).indexOf? x = (a.indexOf? x).map (Fin.cast h) := rfl
+@[simp] theorem finIdxOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
+    (Vector.mk a h).finIdxOf? x = (a.finIdxOf? x).map (Fin.cast h) := rfl
+
+@[simp] theorem findFinIdx?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).findFinIdx? f = (a.findFinIdx? f).map (Fin.cast h) := rfl
+
+@[deprecated finIdxOf?_mk (since := "2025-01-29")]
+abbrev indexOf?_mk := @finIdxOf?_mk
+
+@[simp] theorem findM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
+    (Vector.mk a h).findM? f = a.findM? f := rfl
+
+@[simp] theorem findSomeM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
+    (Vector.mk a h).findSomeM? f = a.findSomeM? f := rfl
+
+@[simp] theorem findRevM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
+    (Vector.mk a h).findRevM? f = a.findRevM? f := rfl
+
+@[simp] theorem findSomeRevM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
+    (Vector.mk a h).findSomeRevM? f = a.findSomeRevM? f := rfl
+
+@[simp] theorem find?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).find? f = a.find? f := rfl
+
+@[simp] theorem findSome?_mk (a : Array α) (h : a.size = n) (f : α → Option β) :
+    (Vector.mk a h).findSome? f = a.findSome? f := rfl
+
+@[simp] theorem findRev?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).findRev? f = a.findRev? f := rfl
+
+@[simp] theorem findSomeRev?_mk (a : Array α) (h : a.size = n) (f : α → Option β) :
+    (Vector.mk a h).findSomeRev? f = a.findSomeRev? f := rfl
 
 @[simp] theorem mk_isEqv_mk (r : α → α → Bool) (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
     Vector.isEqv (Vector.mk a ha) (Vector.mk b hb) r = Array.isEqv a b r := by
@@ -120,6 +150,25 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem mapFinIdx_mk (a : Array α) (h : a.size = n) (f : (i : Nat) → α → (h : i < n) → β) :
     (Vector.mk a h).mapFinIdx f =
       Vector.mk (a.mapFinIdx fun i a h' => f i a (by simpa [h] using h')) (by simp [h]) := rfl
+
+@[simp] theorem forM_mk [Monad m] (f : α → m PUnit) (a : Array α) (h : a.size = n) :
+    forM (Vector.mk a h) f = forM a f := rfl
+
+@[simp] theorem forIn'_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β)
+    (f : (a : α) → a ∈ Vector.mk xs h → β → m (ForInStep β)) :
+    forIn' (Vector.mk xs h) b f = forIn' xs b (fun a m b => f a (by simpa using m) b) := rfl
+
+@[simp] theorem forIn_mk [Monad m]
+    (xs : Array α) (h : xs.size = n) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn (Vector.mk xs h) b f = forIn xs b f := rfl
+
+@[simp] theorem flatMap_mk (f : α → Vector β m) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).flatMap f =
+      Vector.mk (a.flatMap (fun a => (f a).toArray)) (by simp [h, Array.map_const']) := rfl
+
+@[simp] theorem firstM_mk [Alternative m] (f : α → m β) (a : Array α) (h : a.size = n) :
+    (Vector.mk a h).firstM f = a.firstM f := rfl
 
 @[simp] theorem reverse_mk (a : Array α) (h : a.size = n) :
     (Vector.mk a h).reverse = Vector.mk a.reverse (by simp [h]) := rfl
@@ -151,12 +200,21 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem take_mk (a : Array α) (h : a.size = n) (m) :
     (Vector.mk a h).take m = Vector.mk (a.take m) (by simp [h]) := rfl
 
-@[simp] theorem zipWithIndex_mk (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).zipWithIndex = Vector.mk (a.zipWithIndex) (by simp [h]) := rfl
+@[simp] theorem zipIdx_mk (a : Array α) (h : a.size = n) (k : Nat := 0) :
+    (Vector.mk a h).zipIdx k = Vector.mk (a.zipIdx k) (by simp [h]) := rfl
+
+@[deprecated zipIdx_mk (since := "2025-01-21")]
+abbrev zipWithIndex_mk := @zipIdx_mk
 
 @[simp] theorem mk_zipWith_mk (f : α → β → γ) (a : Array α) (b : Array β)
-      (ha : a.size = n) (hb : b.size = n) : zipWith (Vector.mk a ha) (Vector.mk b hb) f =
-        Vector.mk (Array.zipWith a b f) (by simp [ha, hb]) := rfl
+      (ha : a.size = n) (hb : b.size = n) : zipWith f (Vector.mk a ha) (Vector.mk b hb) =
+        Vector.mk (Array.zipWith f a b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem mk_zip_mk (a : Array α) (b : Array β) (ha : a.size = n) (hb : b.size = n) :
+    zip (Vector.mk a ha) (Vector.mk b hb) = Vector.mk (Array.zip a b) (by simp [ha, hb]) := rfl
+
+@[simp] theorem unzip_mk (a : Array (α × β)) (h : a.size = n) :
+    (Vector.mk a h).unzip = (Vector.mk a.unzip.1 (by simp_all), Vector.mk a.unzip.2 (by simp_all)) := rfl
 
 @[simp] theorem anyM_mk [Monad m] (p : α → m Bool) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).anyM p = a.anyM p := rfl
@@ -231,6 +289,26 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
       v.toArray.mapFinIdx (fun i a h => f i a (by simpa [v.size_toArray] using h)) :=
   rfl
 
+theorem toArray_mapM_go [Monad m] [LawfulMonad m] (f : α → m β) (v : Vector α n) (i h r) :
+    toArray <$> mapM.go f v i h r = Array.mapM.map f v.toArray i r.toArray := by
+  unfold mapM.go
+  unfold Array.mapM.map
+  simp only [v.size_toArray, getElem_toArray]
+  split
+  · simp only [map_bind]
+    congr
+    funext b
+    rw [toArray_mapM_go]
+    rfl
+  · simp
+
+@[simp] theorem toArray_mapM [Monad m] [LawfulMonad m] (f : α → m β) (a : Vector α n) :
+    toArray <$> a.mapM f = a.toArray.mapM f := by
+  rcases a with ⟨a, rfl⟩
+  unfold mapM
+  rw [toArray_mapM_go]
+  rfl
+
 @[simp] theorem toArray_ofFn (f : Fin n → α) : (Vector.ofFn f).toArray = Array.ofFn f := rfl
 
 @[simp] theorem toArray_pop (a : Vector α n) : a.pop.toArray = a.toArray.pop := rfl
@@ -273,11 +351,11 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 
 @[simp] theorem toArray_take (a : Vector α n) (m) : (a.take m).toArray = a.toArray.take m := rfl
 
-@[simp] theorem toArray_zipWithIndex (a : Vector α n) :
-    (a.zipWithIndex).toArray = a.toArray.zipWithIndex := rfl
+@[simp] theorem toArray_zipIdx (a : Vector α n) (k : Nat := 0) :
+    (a.zipIdx k).toArray = a.toArray.zipIdx k := rfl
 
 @[simp] theorem toArray_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
-    (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
+    (Vector.zipWith f a b).toArray = Array.zipWith f a.toArray b.toArray := rfl
 
 @[simp] theorem anyM_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
     v.toArray.anyM p = v.anyM p := by
@@ -309,6 +387,56 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
   cases v
   simp
 
+@[simp] theorem find?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.find? p = v.find? p := by
+  cases v
+  simp
+
+@[simp] theorem findSome?_toArray (f : α → Option β) (v : Vector α n) :
+    v.toArray.findSome? f = v.findSome? f := by
+  cases v
+  simp
+
+@[simp] theorem findRev?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.findRev? p = v.findRev? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeRev?_toArray (f : α → Option β) (v : Vector α n) :
+    v.toArray.findSomeRev? f = v.findSomeRev? f := by
+  cases v
+  simp
+
+@[simp] theorem findM?_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.findM? p = v.findM? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeM?_toArray [Monad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toArray.findSomeM? f = v.findSomeM? f := by
+  cases v
+  simp
+
+@[simp] theorem findRevM?_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.findRevM? p = v.findRevM? p := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findSomeRevM?_toArray [Monad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toArray.findSomeRevM? f = v.findSomeRevM? f := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem finIdxOf?_toArray [BEq α] (a : α) (v : Vector α n) :
+    v.toArray.finIdxOf? a = (v.finIdxOf? a).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findFinIdx?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.findFinIdx? p = (v.findFinIdx? p).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
 @[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
 
 @[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
@@ -332,9 +460,6 @@ protected theorem ext {a b : Vector α n} (h : (i : Nat) → (_ : i < n) → a[i
 @[simp] theorem toArray_eq_empty_iff (v : Vector α n) : v.toArray = #[] ↔ n = 0 := by
   rcases v with ⟨v, h⟩
   exact ⟨by rintro rfl; simp_all, by rintro rfl; simpa using h⟩
-
-@[simp] theorem mem_toArray_iff (a : α) (v : Vector α n) : a ∈ v.toArray ↔ a ∈ v :=
-  ⟨fun h => ⟨h⟩, fun ⟨h⟩ => h⟩
 
 /-! ### toList -/
 
@@ -417,7 +542,7 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
   simp [List.take_of_length_le]
 
 @[simp] theorem toList_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) :
-    (Vector.zipWith a b f).toArray = Array.zipWith a.toArray b.toArray f := rfl
+    (Vector.zipWith f a b).toArray = Array.zipWith f a.toArray b.toArray := rfl
 
 @[simp] theorem anyM_toList [Monad m] (p : α → m Bool) (v : Vector α n) :
     v.toList.anyM p = v.anyM p := by
@@ -447,6 +572,36 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
 @[simp] theorem count_toList [BEq α] (a : α) (v : Vector α n) :
     v.toList.count a = v.count a := by
   cases v
+  simp
+
+@[simp] theorem find?_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.find? p = v.find? p := by
+  cases v
+  simp
+
+@[simp] theorem findSome?_toList (f : α → Option β) (v : Vector α n) :
+    v.toList.findSome? f = v.findSome? f := by
+  cases v
+  simp
+
+@[simp] theorem findM?_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (v : Vector α n) :
+    v.toList.findM? p = v.findM? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeM?_toList [Monad m] [LawfulMonad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toList.findSomeM? f = v.findSomeM? f := by
+  cases v
+  simp
+
+@[simp] theorem finIdxOf?_toList [BEq α] (a : α) (v : Vector α n) :
+    v.toList.finIdxOf? a = (v.finIdxOf? a).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findFinIdx?_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.findFinIdx? p = (v.findFinIdx? p).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
   simp
 
 @[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
@@ -564,11 +719,11 @@ theorem mkVector_succ : mkVector (n + 1) a = (mkVector n a).push a := by
 @[simp] theorem mkVector_inj : mkVector n a = mkVector n b ↔ n = 0 ∨ a = b := by
   simp [← toArray_inj, toArray_mkVector, Array.mkArray_inj]
 
-@[simp] theorem _root_.Array.toVector_mkArray (a : α) (n : Nat) :
-    (Array.mkArray n a).toVector = (mkVector n a).cast (by simp) := rfl
+@[simp] theorem _root_.Array.mk_mkArray (a : α) (n : Nat) (h : (mkArray n a).size = m) :
+    mk (Array.mkArray n a) h = (mkVector n a).cast (by simpa using h) := rfl
 
-theorem mkVector_eq_toVector_mkArray (a : α) (n : Nat) :
-    mkVector n a = (Array.mkArray n a).toVector.cast (by simp) := by
+theorem mkVector_eq_mk_mkArray (a : α) (n : Nat) :
+    mkVector n a = mk (mkArray n a) (by simp) := by
   simp
 
 /-! ## L[i] and L[i]? -/
@@ -775,6 +930,10 @@ theorem getElem_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ (i : Nat) (h : 
 
 theorem getElem?_of_mem {a} {l : Vector α n} (h : a ∈ l) : ∃ i : Nat, l[i]? = some a :=
   let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
+
+theorem mem_of_getElem {l : Vector α n} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
+  subst e
+  simp
 
 theorem mem_of_getElem? {l : Vector α n} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
@@ -1131,7 +1290,7 @@ theorem mem_setIfInBounds (v : Vector α n) (i : Nat) (hi : i < n) (a : α) :
       constructor
       · rintro ⟨a, ha⟩ ⟨b, hb⟩ h
         simp at h
-        obtain ⟨hs, hi⟩ := Array.rel_of_isEqv h
+        obtain ⟨hs, hi⟩ := Array.isEqv_iff_rel.mp h
         ext i h
         · simpa using hi _ (by omega)
       · rintro ⟨a, ha⟩
@@ -1188,7 +1347,9 @@ theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : Vector α n) : map f 
 
 theorem map_singleton (f : α → β) (a : α) : map f #v[a] = #v[f a] := rfl
 
-@[simp] theorem mem_map {f : α → β} {l : Vector α n} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
+-- We use a lower priority here as there are more specific lemmas in downstream libraries
+-- which should be able to fire first.
+@[simp 500] theorem mem_map {f : α → β} {l : Vector α n} : b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b := by
   cases l
   simp
 
@@ -1415,7 +1576,7 @@ theorem getElem_of_append {l : Vector α n} {l₁ : Vector α m} {l₂ : Vector 
   rw [← getElem?_eq_getElem, eq, getElem?_cast, getElem?_append_left (by simp)]
   simp
 
-@[simp 1100] theorem append_singleton {a : α} {as : Vector α n} : as ++ #v[a] = as.push a := by
+@[simp] theorem append_singleton {a : α} {as : Vector α n} : as ++ #v[a] = as.push a := by
   cases as
   simp
 
@@ -1650,11 +1811,6 @@ theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :
 
 /-! ### flatMap -/
 
-@[simp] theorem flatMap_mk (l : Array α) (h : l.size = m) (f : α → Vector β n) :
-    (mk l h).flatMap f =
-      mk (l.flatMap (fun a => (f a).toArray)) (by simp [Array.map_const', h]) := by
-  simp [flatMap]
-
 @[simp] theorem flatMap_toArray (l : Vector α n) (f : α → Vector β m) :
     l.toArray.flatMap (fun a => (f a).toArray) = (l.flatMap f).toArray := by
   rcases l with ⟨l, rfl⟩
@@ -1744,6 +1900,7 @@ theorem mkVector_succ' : mkVector (n + 1) a = (#v[a] ++ mkVector n a).cast (by o
 
 @[simp] theorem mem_mkVector {a b : α} {n} : b ∈ mkVector n a ↔ n ≠ 0 ∧ b = a := by
   unfold mkVector
+  simp only [mem_mk]
   simp
 
 theorem eq_of_mem_mkVector {a b : α} {n} (h : b ∈ mkVector n a) : b = a := (mem_mkVector.1 h).2
@@ -1753,7 +1910,8 @@ theorem forall_mem_mkVector {p : α → Prop} {a : α} {n} :
   cases n <;> simp [mem_mkVector]
 
 @[simp] theorem getElem_mkVector (a : α) (n i : Nat) (h : i < n) : (mkVector n a)[i] = a := by
-  simp [mkVector]
+  rw [mkVector_eq_mk_mkArray, getElem_mk]
+  simp
 
 theorem getElem?_mkVector (a : α) (n i : Nat) : (mkVector n a)[i]? = if i < n then some a else none := by
   simp [getElem?_def]
@@ -2134,10 +2292,6 @@ theorem foldr_rel {l : Array α} {f g : α → β → β} {a b : β} (r : β →
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
-@[simp] theorem getElem_ofFn {α n} (f : Fin n → α) (i : Nat) (h : i < n) :
-    (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
-  simp [ofFn]
-
 @[simp] theorem getElem_push_last {v : Vector α n} {x : α} : (v.push x)[n] = x := by
   rcases v with ⟨data, rfl⟩
   simp
@@ -2162,10 +2316,20 @@ defeq issues in the implicit size argument.
     subst h
     simp [back]
 
+/-! ### findRev? and findSomeRev? -/
+
+@[simp] theorem findRev?_eq_find?_reverse (f : α → Bool) (as : Vector α n) :
+    findRev? f as = find? f as.reverse := by
+  simp [findRev?, find?]
+
+@[simp] theorem findSomeRev?_eq_findSome?_reverse (f : α → Option β) (as : Vector α n) :
+    findSomeRev? f as = findSome? f as.reverse := by
+  simp [findSomeRev?, findSome?]
+
 /-! ### zipWith -/
 
 @[simp] theorem getElem_zipWith (f : α → β → γ) (a : Vector α n) (b : Vector β n) (i : Nat)
-    (hi : i < n) : (zipWith a b f)[i] = f a[i] b[i] := by
+    (hi : i < n) : (zipWith f a b)[i] = f a[i] b[i] := by
   cases a
   cases b
   simp

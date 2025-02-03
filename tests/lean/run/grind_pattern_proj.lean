@@ -35,13 +35,13 @@ structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.
 set_option trace.grind.ematch.pattern true
 
 /--
-info: [grind.ematch.pattern] Functor.map_id: [@Prefunctor.map #5 ? #3 ? (@Functor.toPrefunctor ? #4 ? #2 #1) #0 #0 (@CategoryStruct.id ? ? #0)]
+info: [grind.ematch.pattern] Functor.map_id: [@Prefunctor.map #5 _ #3 _ (@Functor.toPrefunctor _ #4 _ #2 #1) #0 #0 (@CategoryStruct.id _ _ #0)]
 -/
 #guard_msgs in
 grind_pattern Functor.map_id => self.map (𝟙 X)
 
 /--
-info: [grind.ematch.pattern] Functor.map_comp: [@Prefunctor.map #9 ? #7 ? (@Functor.toPrefunctor ? #8 ? #6 #5) #4 #2 (@CategoryStruct.comp ? ? #4 #3 #2 #1 #0)]
+info: [grind.ematch.pattern] Functor.map_comp: [@Prefunctor.map #9 _ #7 _ (@Functor.toPrefunctor _ #8 _ #6 #5) #4 #2 (@CategoryStruct.comp _ _ #4 #3 #2 #1 #0)]
 -/
 #guard_msgs in
 grind_pattern Functor.map_comp => self.map (f ≫ g)

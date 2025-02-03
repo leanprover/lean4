@@ -698,6 +698,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Comm
 static lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkAuxConstructions___closed__7;
 static lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_updateResultingUniverse___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_mkInductiveDecl___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Command_initFn____x40_Lean_Elab_MutualInductive___hyg_46____closed__1;
 LEAN_EXPORT uint8_t l___private_Init_Data_Option_Basic_0__Option_beqOption____x40_Init_Data_Option_Basic___hyg_159____at___private_Lean_Elab_MutualInductive_0__Lean_Elab_Command_levelMVarToParam_levelMVarToParam_x27___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Command_checkValidInductiveModifier___at_Lean_Elab_Command_elabInductives___spec__2___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2445,7 +2446,7 @@ lean_inc(x_4);
 x_5 = lean_ctor_get(x_2, 0);
 lean_inc(x_5);
 lean_dec(x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1), 3, 2);
+x_6 = lean_alloc_closure((void*)(l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1___boxed), 3, 2);
 lean_closure_set(x_6, 0, x_1);
 lean_closure_set(x_6, 1, x_3);
 x_7 = lean_apply_4(x_4, lean_box(0), lean_box(0), x_5, x_6);
@@ -2458,6 +2459,15 @@ _start:
 lean_object* x_2; 
 x_2 = lean_alloc_closure((void*)(l_Lean_Elab_Command_isInductiveCommand___rarg), 3, 0);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
 }
 }
 static lean_object* _init_l_Lean_Elab_Command_mkInductiveView___lambda__1___closed__1() {
@@ -2545,6 +2555,7 @@ lean_inc(x_2);
 x_15 = l_Lean_Syntax_getKind(x_2);
 x_16 = l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1___closed__1;
 x_17 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_16, x_14, x_15);
+lean_dec(x_14);
 x_18 = l_List_isEmpty___rarg(x_17);
 if (x_18 == 0)
 {
@@ -2612,6 +2623,7 @@ lean_inc(x_2);
 x_34 = l_Lean_Syntax_getKind(x_2);
 x_35 = l_Lean_Elab_Command_isInductiveCommand___rarg___lambda__1___closed__1;
 x_36 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_35, x_33, x_34);
+lean_dec(x_33);
 x_37 = l_List_isEmpty___rarg(x_36);
 if (x_37 == 0)
 {
@@ -39583,6 +39595,7 @@ lean_inc(x_11);
 lean_dec(x_9);
 lean_inc(x_3);
 x_12 = l_Lean_getAttributeImpl(x_11, x_3);
+lean_dec(x_11);
 if (lean_obj_tag(x_12) == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
@@ -39627,6 +39640,7 @@ lean_inc(x_22);
 lean_dec(x_20);
 lean_inc(x_3);
 x_23 = l_Lean_getAttributeImpl(x_22, x_3);
+lean_dec(x_22);
 if (lean_obj_tag(x_23) == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; 

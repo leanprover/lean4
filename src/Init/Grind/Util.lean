@@ -41,4 +41,29 @@ def MatchCond (p : Prop) : Prop := p
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
   subst h; apply HEq.refl
 
+@[app_unexpander nestedProof]
+def nestedProofUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $p:term) => `(‹$p›)
+  | _ => throw ()
+
+@[app_unexpander MatchCond]
+def matchCondUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $p:term) => `($p)
+  | _ => throw ()
+
+@[app_unexpander EqMatch]
+def eqMatchUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $lhs:term $rhs:term) => `($lhs = $rhs)
+  | _ => throw ()
+
+@[app_unexpander offset]
+def offsetUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $lhs:term $rhs:term) => `($lhs + $rhs)
+  | _ => throw ()
+
+
 end Lean.Grind

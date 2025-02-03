@@ -5296,6 +5296,7 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__7___closed__1;
 x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_12, x_1, x_11);
+lean_dec(x_11);
 x_14 = l_Lean_KeyedDeclsAttribute_ExtensionState_erase___rarg(x_13, x_2, x_4, x_5, x_6, x_10);
 if (lean_obj_tag(x_14) == 0)
 {
@@ -7157,6 +7158,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }
@@ -7245,6 +7247,7 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_1, x_2, x_3);
 lean_dec(x_3);
+lean_dec(x_2);
 lean_dec(x_1);
 return x_4;
 }

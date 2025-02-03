@@ -60,7 +60,7 @@ private def isDefEqBounded (a b : Expr) (parent : Expr) : GoalM Bool := do
       withDefault <| isDefEq a b)
     fun ex => do
       if ex.isRuntime then
-        reportIssue m!"failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
+        reportIssue! "failed to show that{indentExpr a}\nis definitionally equal to{indentExpr b}\nwhile canonicalizing{indentExpr parent}\nusing `{curr}*1000` heartbeats, `(canonHeartbeats := {curr})`"
         return false
       else
         throw ex

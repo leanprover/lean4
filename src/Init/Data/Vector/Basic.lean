@@ -371,7 +371,7 @@ abbrev indexOf? := @finIdxOf?
 
 /-- Finds the first index of a given value in a vector using a predicate. Returns `none` if the
 no element of the index matches the given value. -/
-@[inline] def findFinIdx? (v : Vector α n) (p : α → Bool) : Option (Fin n) :=
+@[inline] def findFinIdx? (p : α → Bool) (v : Vector α n) : Option (Fin n) :=
   (v.toArray.findFinIdx? p).map (Fin.cast v.size_toArray)
 
 /--
@@ -383,6 +383,28 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 
 @[inline] def findSomeM? [Monad m] (f : α → m (Option β)) (as : Vector α n) : m (Option β) :=
   as.toArray.findSomeM? f
+
+/--
+Note that the universe level is contrained to `Type` here,
+to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
+-/
+@[inline] def findRevM? {α : Type} {m : Type → Type} [Monad m] (f : α → m Bool) (as : Vector α n) : m (Option α) :=
+  as.toArray.findRevM? f
+
+@[inline] def findSomeRevM? [Monad m] (f : α → m (Option β)) (as : Vector α n) : m (Option β) :=
+  as.toArray.findSomeRevM? f
+
+@[inline] def find? {α : Type} (f : α → Bool) (as : Vector α n) : Option α :=
+  as.toArray.find? f
+
+@[inline] def findRev? {α : Type} (f : α → Bool) (as : Vector α n) : Option α :=
+  as.toArray.findRev? f
+
+@[inline] def findSome? (f : α → Option β) (as : Vector α n) : Option β :=
+  as.toArray.findSome? f
+
+@[inline] def findSomeRev? (f : α → Option β) (as : Vector α n) : Option β :=
+  as.toArray.findSomeRev? f
 
 /-- Returns `true` when `v` is a prefix of the vector `w`. -/
 @[inline] def isPrefixOf [BEq α] (v : Vector α m) (w : Vector α n) : Bool :=

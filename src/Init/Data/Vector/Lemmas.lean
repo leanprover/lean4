@@ -104,6 +104,9 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
 @[simp] theorem finIdxOf?_mk [BEq α] (a : Array α) (h : a.size = n) (x : α) :
     (Vector.mk a h).finIdxOf? x = (a.finIdxOf? x).map (Fin.cast h) := rfl
 
+@[simp] theorem findFinIdx?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).findFinIdx? f = (a.findFinIdx? f).map (Fin.cast h) := rfl
+
 @[deprecated finIdxOf?_mk (since := "2025-01-29")]
 abbrev indexOf?_mk := @finIdxOf?_mk
 
@@ -112,6 +115,24 @@ abbrev indexOf?_mk := @finIdxOf?_mk
 
 @[simp] theorem findSomeM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
     (Vector.mk a h).findSomeM? f = a.findSomeM? f := rfl
+
+@[simp] theorem findRevM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m Bool) :
+    (Vector.mk a h).findRevM? f = a.findRevM? f := rfl
+
+@[simp] theorem findSomeRevM?_mk [Monad m] (a : Array α) (h : a.size = n) (f : α → m (Option β)) :
+    (Vector.mk a h).findSomeRevM? f = a.findSomeRevM? f := rfl
+
+@[simp] theorem find?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).find? f = a.find? f := rfl
+
+@[simp] theorem findSome?_mk (a : Array α) (h : a.size = n) (f : α → Option β) :
+    (Vector.mk a h).findSome? f = a.findSome? f := rfl
+
+@[simp] theorem findRev?_mk (a : Array α) (h : a.size = n) (f : α → Bool) :
+    (Vector.mk a h).findRev? f = a.findRev? f := rfl
+
+@[simp] theorem findSomeRev?_mk (a : Array α) (h : a.size = n) (f : α → Option β) :
+    (Vector.mk a h).findSomeRev? f = a.findSomeRev? f := rfl
 
 @[simp] theorem mk_isEqv_mk (r : α → α → Bool) (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
     Vector.isEqv (Vector.mk a ha) (Vector.mk b hb) r = Array.isEqv a b r := by
@@ -366,6 +387,56 @@ theorem toArray_mapM_go [Monad m] [LawfulMonad m] (f : α → m β) (v : Vector 
   cases v
   simp
 
+@[simp] theorem find?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.find? p = v.find? p := by
+  cases v
+  simp
+
+@[simp] theorem findSome?_toArray (f : α → Option β) (v : Vector α n) :
+    v.toArray.findSome? f = v.findSome? f := by
+  cases v
+  simp
+
+@[simp] theorem findRev?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.findRev? p = v.findRev? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeRev?_toArray (f : α → Option β) (v : Vector α n) :
+    v.toArray.findSomeRev? f = v.findSomeRev? f := by
+  cases v
+  simp
+
+@[simp] theorem findM?_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.findM? p = v.findM? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeM?_toArray [Monad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toArray.findSomeM? f = v.findSomeM? f := by
+  cases v
+  simp
+
+@[simp] theorem findRevM?_toArray [Monad m] (p : α → m Bool) (v : Vector α n) :
+    v.toArray.findRevM? p = v.findRevM? p := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findSomeRevM?_toArray [Monad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toArray.findSomeRevM? f = v.findSomeRevM? f := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem finIdxOf?_toArray [BEq α] (a : α) (v : Vector α n) :
+    v.toArray.finIdxOf? a = (v.finIdxOf? a).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findFinIdx?_toArray (p : α → Bool) (v : Vector α n) :
+    v.toArray.findFinIdx? p = (v.findFinIdx? p).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
 @[simp] theorem toArray_mkVector : (mkVector n a).toArray = mkArray n a := rfl
 
 @[simp] theorem toArray_inj {v w : Vector α n} : v.toArray = w.toArray ↔ v = w := by
@@ -501,6 +572,36 @@ theorem toList_swap (a : Vector α n) (i j) (hi hj) :
 @[simp] theorem count_toList [BEq α] (a : α) (v : Vector α n) :
     v.toList.count a = v.count a := by
   cases v
+  simp
+
+@[simp] theorem find?_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.find? p = v.find? p := by
+  cases v
+  simp
+
+@[simp] theorem findSome?_toList (f : α → Option β) (v : Vector α n) :
+    v.toList.findSome? f = v.findSome? f := by
+  cases v
+  simp
+
+@[simp] theorem findM?_toList [Monad m] [LawfulMonad m] (p : α → m Bool) (v : Vector α n) :
+    v.toList.findM? p = v.findM? p := by
+  cases v
+  simp
+
+@[simp] theorem findSomeM?_toList [Monad m] [LawfulMonad m] (f : α → m (Option β)) (v : Vector α n) :
+    v.toList.findSomeM? f = v.findSomeM? f := by
+  cases v
+  simp
+
+@[simp] theorem finIdxOf?_toList [BEq α] (a : α) (v : Vector α n) :
+    v.toList.finIdxOf? a = (v.finIdxOf? a).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
+  simp
+
+@[simp] theorem findFinIdx?_toList (p : α → Bool) (v : Vector α n) :
+    v.toList.findFinIdx? p = (v.findFinIdx? p).map (Fin.cast v.size_toArray.symm) := by
+  rcases v with ⟨v, rfl⟩
   simp
 
 @[simp] theorem toList_mkVector : (mkVector n a).toList = List.replicate n a := rfl
@@ -2214,6 +2315,16 @@ defeq issues in the implicit size argument.
   · replace h : i = v.size - 1 := by rw [size_toArray]; omega
     subst h
     simp [back]
+
+/-! ### findRev? and findSomeRev? -/
+
+@[simp] theorem findRev?_eq_find?_reverse (f : α → Bool) (as : Vector α n) :
+    findRev? f as = find? f as.reverse := by
+  simp [findRev?, find?]
+
+@[simp] theorem findSomeRev?_eq_findSome?_reverse (f : α → Option β) (as : Vector α n) :
+    findSomeRev? f as = findSome? f as.reverse := by
+  simp [findSomeRev?, findSome?]
 
 /-! ### zipWith -/
 

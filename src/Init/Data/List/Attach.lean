@@ -740,6 +740,24 @@ and simplifies these to the function directly taking the value.
 
 @[deprecated flatMap_subtype (since := "2024-10-16")] abbrev bind_subtype := @flatMap_subtype
 
+@[simp] theorem findSome?_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.findSome? f = l.unattach.findSome? g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih => simp [ih, hf, findSome?_cons]
+
+@[simp] theorem find?_subtype {p : α → Prop} {l : List { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.find? f).map Subtype.val = l.unattach.find? g := by
+  unfold unattach
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    simp [hf, find?_cons]
+    split <;> simp [ih]
+
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 
 @[simp] theorem unattach_filter {p : α → Prop} {l : List { x // p x }}

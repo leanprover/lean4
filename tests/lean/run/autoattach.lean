@@ -98,6 +98,8 @@ structure MTree (α : Type u) where
 
 -- set_option trace.Elab.definition.wf true in
 /--
+warning: declaration uses 'sorry'
+---
 info: α : Type u_1
 t : MTree α
 x✝ : List (MTree α)
@@ -105,8 +107,6 @@ h✝ : x✝ ∈ t.cs
 x : MTree α
 h : x ∈ x✝
 ⊢ sizeOf x < sizeOf t
----
-warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 def MTree.map (f : α → β) (t : MTree α) : MTree β :=
@@ -136,12 +136,12 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
+warning: declaration uses 'sorry'
+---
 info: L : List (String × Expression)
 x : String × Expression
 h : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
----
-warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 def t (exp: Expression) : List String :=
@@ -177,12 +177,12 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
+warning: declaration uses 'sorry'
+---
 info: L : List (String × Expression)
 x : String × Expression
 h : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
----
-warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 def t (exp: Expression) : List String :=

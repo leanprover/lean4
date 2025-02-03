@@ -208,7 +208,7 @@ structure SimpTheorems where
 Configuration for `MetaM` used to process global simp theorems
 -/
 def simpGlobalConfig : ConfigWithKey :=
-  { iota         := false
+  { iota         := true
     proj         := .no
     zetaDelta    := false
     transparency := .reducible

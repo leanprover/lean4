@@ -470,6 +470,14 @@ incorrect results for objects that had already been processed by
 * [#6429](https://github.com/leanprover/lean4/pull/6429) adds support for extern LCNF decls, which is required for parity
 with the existing code generator.
 
+* [#6535](https://github.com/leanprover/lean4/pull/6535) avoids a linker warning on Windows.
+
+* [#6547](https://github.com/leanprover/lean4/pull/6547) should prevent Lake from accidentally picking up other linkers
+installed on the machine.
+
+* [#6574](https://github.com/leanprover/lean4/pull/6574) actually prevents Lake from accidentally picking up other
+toolchains installed on the machine.
+
 ## Pretty Printing
 
 * [#5689](https://github.com/leanprover/lean4/pull/5689) adjusts the way the pretty printer unresolves names. It used to
@@ -544,6 +552,12 @@ with `--packages` or applied persistently by placing it at
 * [#6422](https://github.com/leanprover/lean4/pull/6422) fixes a bug in #6388 where the `Package.afterBuildCahe*`
 functions would produce different traces depending on whether the cache
 was fetched.
+
+* [#6627](https://github.com/leanprover/lean4/pull/6627) aims to fix the trace issues reported by Mathlib that are
+breaking `lake exe cache` in downstream projects.
+
+* [#6631](https://github.com/leanprover/lean4/pull/6631) sets `MACOSX_DEPLOYMENT_TARGET` for shared libraries (it was
+previously only set for executables).
 
 ## Other
 

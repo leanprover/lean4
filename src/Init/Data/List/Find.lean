@@ -580,7 +580,7 @@ theorem le_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs
 
 /-- If `¬ p xs[j]` for all `j ≤ i`, then `i < xs.findIdx p`. -/
 theorem lt_findIdx_of_not {p : α → Bool} {xs : List α} {i : Nat} (h : i < xs.length)
-    (h2 : ∀ j (hji : j ≤ i), ¬p (xs.get ⟨j, Nat.lt_of_le_of_lt hji h⟩)) : i < xs.findIdx p := by
+    (h2 : ∀ j (hji : j ≤ i), ¬p (xs[j]'(Nat.lt_of_le_of_lt hji h))) : i < xs.findIdx p := by
   apply Decidable.byContradiction
   intro f
   simp only [Nat.not_lt] at f
@@ -764,7 +764,7 @@ theorem findIdx?_eq_some_iff_getElem {xs : List α} {p : α → Bool} {i : Nat} 
           refine ⟨i, ⟨Nat.succ_lt_succ_iff.mp h, by simpa, fun j hj => ?_⟩, rfl⟩
           simpa using h₂ (j + 1) (Nat.succ_lt_succ_iff.mpr hj)
 
-theorem findIdx?_of_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p = some i) :
+theorem of_findIdx?_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p = some i) :
     match xs[i]? with | some a => p a | none => false := by
   induction xs generalizing i with
   | nil => simp_all
@@ -772,7 +772,10 @@ theorem findIdx?_of_eq_some {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
     simp_all only [findIdx?_cons, Nat.zero_add]
     split at w <;> cases i <;> simp_all [succ_inj']
 
-theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p = none) :
+@[deprecated of_findIdx?_eq_some (since := "2025-02-02")]
+abbrev findIdx?_of_eq_some := @of_findIdx?_eq_some
+
+theorem of_findIdx?_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p = none) :
     ∀ i : Nat, match xs[i]? with | some a => ¬ p a | none => true := by
   intro i
   induction xs generalizing i with
@@ -786,6 +789,9 @@ theorem findIdx?_of_eq_none {xs : List α} {p : α → Bool} (w : xs.findIdx? p 
       simp only [getElem?_cons_succ]
       apply ih
       split at w <;> simp_all
+
+@[deprecated of_findIdx?_eq_none (since := "2025-02-02")]
+abbrev findIdx?_of_eq_none := @of_findIdx?_eq_none
 
 @[simp] theorem findIdx?_map (f : β → α) (l : List β) : findIdx? p (l.map f) = l.findIdx? (p ∘ f) := by
   induction l with

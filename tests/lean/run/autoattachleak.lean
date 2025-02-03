@@ -35,7 +35,7 @@ decreasing_by
 
 -- as well as in the induction principle:
 
--- (Also, why three IHs here?)
+-- set_option trace.Meta.FunInd true
 
 /--
 info: Tree.revrev.induct {α : Type} (motive : Nat → Tree α → Prop) (case1 : ∀ (t : Tree α), motive 0 t)
@@ -56,6 +56,16 @@ info: Tree.revrev.induct {α : Type} (motive : Nat → Tree α → Prop) (case1 
 -/
 #guard_msgs in
 #check Tree.revrev.induct
+
+-- Tangent: Why three IHs here? Because in the termination proof, the `
+--    match x with | ⟨x, h⟩ => Tree.revrev (n + 1) x)
+-- was replaced by
+--    Tree.revrev (n + 1) ↑x
+-- (maybe due to split/simpMatch) and funind picks up that recursive call as a separate one.
+-- See
+-- set_option pp.proofs true in #print Tree.revrev._unary
+-- set_option pp.proofs true in #print Tree.revrev._unary.proof_3
+
 
 -- It does not show up in the equational theorems:
 

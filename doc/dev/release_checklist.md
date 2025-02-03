@@ -102,7 +102,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
-- Run `scripts/release_checklist.py v4.6.0` to check that everything is in order.
+- Run `script/release_checklist.py v4.6.0` to check that everything is in order.
 - The `v4.6.0` section of `RELEASES.md` is out of sync between
   `releases/v4.6.0` and `master`. This should be reconciled:
   - Replace the `v4.6.0` section on `master` with the `v4.6.0` section on `releases/v4.6.0`
@@ -252,8 +252,10 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
 
 Release notes are automatically generated from the commit history, using `script/release_notes.py`.
 
-Run this as `script/release_notes.py v4.6.0`, where `v4.6.0` is the *previous* release version. This will generate output
-for all commits since that tag. Note that there is output on both stderr, which should be manually reviewed,
+Run this as `script/release_notes.py --since v4.6.0`, where `v4.6.0` is the *previous* release version.
+This script should be run on the `releases/v4.7.0` branch.
+This will generate output for all commits since that tag.
+Note that there is output on both stderr, which should be manually reviewed,
 and on stdout, which should be manually copied to `RELEASES.md`.
 
 There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.

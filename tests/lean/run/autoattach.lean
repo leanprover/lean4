@@ -1,3 +1,5 @@
+set_option Elab.async false -- for stable output order in #guard_msgs
+
 universe u
 structure Tree (α : Type u) where
   val : α

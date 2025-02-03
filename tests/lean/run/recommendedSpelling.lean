@@ -2,10 +2,9 @@ import Lean
 
 /-!
 Test the `recommended_spelling` command.
-
-TODO: once we use this command in Init, we can test that recommended spellings from imported
-modules are reported correctly.
 -/
+
+recommended_spelling "bland" for "🥤" in [And]
 
 /--
 Conjuction
@@ -55,6 +54,13 @@ info: some
 -/
 #guard_msgs in
 #eval findDocString? `«term_☋_»
+
+/--
+info: some
+  "`And a b`, or `a ∧ b`, is the conjunction of propositions. It can be\nconstructed and destructed like a pair: if `ha : a` and `hb : b` then\n`⟨ha, hb⟩ : a ∧ b`, and if `h : a ∧ b` then `h.left : a` and `h.right : b`.\n\n\nConventions for notations in identifiers:\n\n * The recommended spelling of `∧` in identifiers is `and`.\n\n * The recommended spelling of `/\\` in identifiers is `and` (prefer `∧` over `/\\`).\n\n * The recommended spelling of `🥤` in identifiers is `bland`."
+-/
+#guard_msgs in
+#eval findDocString? `And
 
 /-- info: 1 -/
 #guard_msgs in

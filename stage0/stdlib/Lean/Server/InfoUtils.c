@@ -9007,7 +9007,6 @@ x_10 = l_Lean_Elab_Info_toElabInfo_x3f(x_1);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; 
-lean_dec(x_2);
 x_11 = lean_box(0);
 x_12 = lean_apply_6(x_9, x_11, x_4, x_5, x_6, x_7, x_8);
 return x_12;
@@ -9026,7 +9025,6 @@ x_14 = lean_ctor_get(x_13, 1);
 lean_inc(x_14);
 x_15 = l_Lean_Syntax_getKind(x_14);
 x_16 = 1;
-lean_inc(x_2);
 x_17 = l_Lean_findDocString_x3f(x_2, x_15, x_16, x_8);
 x_18 = lean_ctor_get(x_17, 0);
 lean_inc(x_18);
@@ -9063,7 +9061,6 @@ else
 {
 uint8_t x_26; 
 lean_dec(x_13);
-lean_dec(x_2);
 x_26 = !lean_is_exclusive(x_17);
 if (x_26 == 0)
 {
@@ -9226,6 +9223,7 @@ if (lean_obj_tag(x_13) == 0)
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_box(0);
 x_15 = l_Lean_Elab_Info_docString_x3f___lambda__2(x_1, x_10, x_14, x_2, x_3, x_4, x_5, x_9);
+lean_dec(x_10);
 return x_15;
 }
 else
@@ -9241,6 +9239,7 @@ lean_inc(x_16);
 lean_dec(x_13);
 x_17 = 1;
 x_18 = l_Lean_findDocString_x3f(x_10, x_16, x_17, x_9);
+lean_dec(x_10);
 x_19 = !lean_is_exclusive(x_18);
 if (x_19 == 0)
 {
@@ -9279,6 +9278,7 @@ x_27 = lean_ctor_get(x_26, 2);
 lean_inc(x_27);
 x_28 = 1;
 x_29 = l_Lean_findDocString_x3f(x_25, x_27, x_28, x_24);
+lean_dec(x_25);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 if (lean_obj_tag(x_30) == 0)
@@ -9374,6 +9374,7 @@ lean_inc(x_48);
 lean_dec(x_47);
 x_49 = 1;
 x_50 = l_Lean_findDocString_x3f(x_46, x_48, x_49, x_45);
+lean_dec(x_46);
 x_51 = !lean_is_exclusive(x_50);
 if (x_51 == 0)
 {
@@ -9424,6 +9425,7 @@ if (lean_obj_tag(x_62) == 0)
 lean_object* x_63; lean_object* x_64; 
 x_63 = lean_box(0);
 x_64 = l_Lean_Elab_Info_docString_x3f___lambda__2(x_1, x_60, x_63, x_2, x_3, x_4, x_5, x_59);
+lean_dec(x_60);
 return x_64;
 }
 else
@@ -9439,6 +9441,7 @@ lean_inc(x_65);
 lean_dec(x_62);
 x_66 = 1;
 x_67 = l_Lean_findDocString_x3f(x_60, x_65, x_66, x_59);
+lean_dec(x_60);
 x_68 = !lean_is_exclusive(x_67);
 if (x_68 == 0)
 {
@@ -9533,6 +9536,7 @@ lean_inc(x_84);
 lean_dec(x_82);
 x_85 = lean_box(0);
 x_86 = l_Lean_Elab_Info_docString_x3f___lambda__2(x_1, x_84, x_85, x_2, x_3, x_4, x_5, x_83);
+lean_dec(x_84);
 return x_86;
 }
 }
@@ -9557,6 +9561,7 @@ _start:
 lean_object* x_9; 
 x_9 = l_Lean_Elab_Info_docString_x3f___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_3);
+lean_dec(x_2);
 return x_9;
 }
 }

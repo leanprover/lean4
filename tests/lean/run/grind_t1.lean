@@ -263,6 +263,19 @@ example (p q : Prop) : (p ↔ q) → p → False := by
 error: `grind` failed
 case grind
 p q : Prop
+a✝¹ : p = q
+a✝ : p
+⊢ False
+-/
+#guard_msgs (error) in
+example (p q : Prop) : (p ↔ q) → p → False := by
+  grind -verbose -- We should not get any diagnostics
+
+
+/--
+error: `grind` failed
+case grind
+p q : Prop
 a✝¹ : p = ¬q
 a✝ : p
 ⊢ False
@@ -300,7 +313,7 @@ example : (replicate n a).map f = replicate n (f a) := by
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
-  grind only [Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
+  grind only [cases Exists, Option.map_some', Option.map_none', getElem?_map, getElem?_replicate]
 
 open List in
 example : (replicate n a).map f = replicate n (f a) := by
@@ -359,4 +372,16 @@ example : (if n + 2 < m then a else b) = (if n + 1 < m then c else d) := by
   sorry
 
 example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
+  grind
+
+example [Decidable p] : a = true → decide p = a → p := by
+  grind
+
+example [Decidable p] : false = a → decide p = a → ¬p := by
+  grind
+
+example [Decidable p] : a = true → p → decide p = a := by
+  grind
+
+example [Decidable p] : false = a → ¬p → decide p = a := by
   grind

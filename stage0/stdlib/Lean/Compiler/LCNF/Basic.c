@@ -8561,6 +8561,7 @@ if (x_16 == 0)
 {
 uint8_t x_17; 
 x_17 = l_Lean_Compiler_hasSpecializeAttribute(x_15, x_7);
+lean_dec(x_15);
 if (x_17 == 0)
 {
 uint8_t x_18; lean_object* x_19; 
@@ -8606,6 +8607,7 @@ if (x_27 == 0)
 {
 uint8_t x_28; 
 x_28 = l_Lean_Compiler_hasSpecializeAttribute(x_26, x_7);
+lean_dec(x_26);
 if (x_28 == 0)
 {
 uint8_t x_29; lean_object* x_30; lean_object* x_31; 

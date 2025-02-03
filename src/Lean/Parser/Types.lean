@@ -158,10 +158,8 @@ def size (stack : SyntaxStack) : Nat :=
 def isEmpty (stack : SyntaxStack) : Bool :=
   stack.size == 0
 
-def take (stack : SyntaxStack) (n : Nat) : SyntaxStack :=
-  { stack with raw := stack.raw.take (stack.drop + n) }
-
-@[deprecated take (since := "2024-10-22")] abbrev shrink := @take
+def shrink (stack : SyntaxStack) (n : Nat) : SyntaxStack :=
+  { stack with raw := stack.raw.shrink (stack.drop + n) }
 
 def push (stack : SyntaxStack) (a : Syntax) : SyntaxStack :=
   { stack with raw := stack.raw.push a }
@@ -214,7 +212,7 @@ def stackSize (s : ParserState) : Nat :=
   s.stxStack.size
 
 def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos) : ParserState :=
-  { s with stxStack := s.stxStack.take iniStackSz, errorMsg := none, pos := iniPos }
+  { s with stxStack := s.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos }
 
 def setPos (s : ParserState) (pos : String.Pos) : ParserState :=
   { s with pos := pos }
@@ -228,10 +226,8 @@ def pushSyntax (s : ParserState) (n : Syntax) : ParserState :=
 def popSyntax (s : ParserState) : ParserState :=
   { s with stxStack := s.stxStack.pop }
 
-def takeStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
-  { s with stxStack := s.stxStack.take iniStackSz }
-
-@[deprecated takeStack (since := "2024-10-22")] abbrev shrinkStack := @takeStack
+def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
+  { s with stxStack := s.stxStack.shrink iniStackSz }
 
 def next (s : ParserState) (input : String) (pos : String.Pos) : ParserState :=
   { s with pos := input.next pos }
@@ -254,7 +250,7 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
       ⟨stack, lhsPrec, pos, cache, err, recovered⟩
     else
       let newNode := Syntax.node SourceInfo.none k (stack.extract iniStackSz stack.size)
-      let stack   := stack.take iniStackSz
+      let stack   := stack.shrink iniStackSz
       let stack   := stack.push newNode
       ⟨stack, lhsPrec, pos, cache, err, recovered⟩
 
@@ -262,7 +258,7 @@ def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : P
   match s with
   | ⟨stack, lhsPrec, pos, cache, err, errs⟩ =>
     let newNode := Syntax.node SourceInfo.none k (stack.extract (iniStackSz - 1) stack.size)
-    let stack   := stack.take (iniStackSz - 1)
+    let stack   := stack.shrink (iniStackSz - 1)
     let stack   := stack.push newNode
     ⟨stack, lhsPrec, pos, cache, err, errs⟩
 
@@ -287,7 +283,7 @@ def mkEOIError (s : ParserState) (expected : List String := []) : ParserState :=
 def mkErrorsAt (s : ParserState) (ex : List String) (pos : String.Pos) (initStackSz? : Option Nat := none) : ParserState := Id.run do
   let mut s := s.setPos pos
   if let some sz := initStackSz? then
-    s := s.takeStack sz
+    s := s.shrinkStack sz
   s := s.setError { expected := ex }
   s.pushSyntax .missing
 

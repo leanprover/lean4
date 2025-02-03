@@ -9,6 +9,7 @@ import Lean.Meta.Tactic.Assert
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Cases
+import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.Combinators
@@ -22,6 +23,18 @@ private inductive IntroResult where
   | newLocal (fvarId : FVarId) (goal : Goal)
   deriving Inhabited
 
+/--
+Similar to `Grind.preprocess`, but does not simplify `e` if
+`isMatchCondCandidate` (aka `Simp.isEqnThmHypothesis`) is `true`.
+We added this feature because it may be coming from external sources
+(e.g., manually applying an function induction principle before invoking `grind`).
+-/
+private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
+  if isMatchCondCandidate e then
+    preprocess (markAsMatchCond e)
+  else
+    preprocess e
+
 private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := do
   let target ← goal.mvarId.getType
   if target.isArrow then
@@ -34,8 +47,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
       else
         let tag ← mvarId.getTag
         let q := target.bindingBody!
-        -- TODO: keep applying simp/eraseIrrelevantMData/canon/shareCommon until no progress
-        let r ← simp p
+        let r ← preprocessHypothesis p
         let fvarId ← mkFreshFVarId
         let lctx := (← getLCtx).mkLocalDecl fvarId target.bindingName! r.expr target.bindingInfo!
         let mvarNew ← mkFreshExprMVarAt lctx (← getLocalInstances) q .syntheticOpaque tag
@@ -65,7 +77,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
         if target.isLet || target.isLetFun then
           let goal ← GoalM.run' goal do
             let v := (← fvarId.getDecl).value
-            let r ← simp v
+            let r ← preprocessHypothesis v
             let x ← shareCommon (mkFVar fvarId)
             addNewEq x r.expr (← r.getProof) generation
           return .newLocal fvarId goal
@@ -130,7 +142,7 @@ def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : GrindTactic' := f
     intros generation goal
   else
     let goal ← GoalM.run' goal do
-      let r ← simp prop
+      let r ← preprocess prop
       let prop' := r.expr
       let proof' ← mkEqMP (← r.getProof) proof
       add prop' proof' generation

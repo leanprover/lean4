@@ -4128,6 +4128,7 @@ lean_dec(x_8);
 x_11 = l_panic___at_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_166____spec__13___closed__1;
 x_12 = l_Lean_Meta_Monotonicity_initFn____x40_Lean_Elab_Tactic_Monotonicity___hyg_249____lambda__1___closed__1;
 x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_11, x_12, x_10);
+lean_dec(x_10);
 x_14 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_13, x_1, x_2, x_3, x_4, x_5, x_9);
 return x_14;
 }
@@ -7152,6 +7153,7 @@ x_16 = lean_ctor_get(x_14, 0);
 lean_inc(x_16);
 lean_dec(x_14);
 x_17 = l_Lean_Meta_isMatcherAppCore_x3f(x_16, x_4);
+lean_dec(x_16);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; 

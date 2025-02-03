@@ -6,23 +6,29 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
-namespace Lean.Parser.Attr
+namespace Lean.Parser
+/--
+Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
+-/
+syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
 
+namespace Attr
 syntax grindEq     := "= "
 syntax grindEqBoth := atomic("_" "=" "_ ")
 syntax grindEqRhs  := atomic("=" "_ ")
-syntax grindEqBwd  := atomic("←" "= ")
-syntax grindBwd    := "← "
-syntax grindFwd    := "→ "
+syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
+syntax grindBwd    := "← " <|> "-> "
+syntax grindFwd    := "→ " <|> "<- "
+syntax grindRL     := "⇐ " <|> "<= "
+syntax grindLR     := "⇒ " <|> "=> "
 syntax grindUsr    := &"usr "
 syntax grindCases  := &"cases "
 syntax grindCasesEager := atomic(&"cases" &"eager ")
-
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
-
+syntax grindIntro  := &"intro "
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
 syntax (name := grind) "grind" (grindMod)? : attr
-
-end Lean.Parser.Attr
+end Attr
+end Lean.Parser
 
 namespace Lean.Grind
 /--
@@ -59,6 +65,8 @@ structure Config where
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
   ext : Bool := true
+  /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
+  verbose : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

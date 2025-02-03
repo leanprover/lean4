@@ -10,11 +10,9 @@ import Init.Data.Array.Basic
 
 inductive Ordering where
   | lt | eq | gt
-deriving Inhabited, BEq
+deriving Inhabited, DecidableEq
 
 namespace Ordering
-
-deriving instance DecidableEq for Ordering
 
 /-- Swaps less and greater ordering results -/
 def swap : Ordering → Ordering
@@ -85,6 +83,181 @@ Check whether the ordering is 'greater than or equal'.
 def isGE : Ordering → Bool
   | lt => false
   | _ => true
+
+section Lemmas
+
+@[simp]
+theorem isLT_lt : lt.isLT := rfl
+
+@[simp]
+theorem isLE_lt : lt.isLE := rfl
+
+@[simp]
+theorem isEq_lt : lt.isEq = false := rfl
+
+@[simp]
+theorem isNe_lt : lt.isNe = true := rfl
+
+@[simp]
+theorem isGE_lt : lt.isGE = false := rfl
+
+@[simp]
+theorem isGT_lt : lt.isGT = false := rfl
+
+@[simp]
+theorem isLT_eq : eq.isLT = false := rfl
+
+@[simp]
+theorem isLE_eq : eq.isLE := rfl
+
+@[simp]
+theorem isEq_eq : eq.isEq := rfl
+
+@[simp]
+theorem isNe_eq : eq.isNe = false := rfl
+
+@[simp]
+theorem isGE_eq : eq.isGE := rfl
+
+@[simp]
+theorem isGT_eq : eq.isGT = false := rfl
+
+@[simp]
+theorem isLT_gt : gt.isLT = false := rfl
+
+@[simp]
+theorem isLE_gt : gt.isLE = false := rfl
+
+@[simp]
+theorem isEq_gt : gt.isEq = false := rfl
+
+@[simp]
+theorem isNe_gt : gt.isNe = true := rfl
+
+@[simp]
+theorem isGE_gt : gt.isGE := rfl
+
+@[simp]
+theorem isGT_gt : gt.isGT := rfl
+
+@[simp]
+theorem swap_lt : lt.swap = .gt := rfl
+
+@[simp]
+theorem swap_eq : eq.swap = .eq := rfl
+
+@[simp]
+theorem swap_gt : gt.swap = .lt := rfl
+
+theorem eq_eq_of_isLE_of_isLE_swap {o : Ordering} : o.isLE → o.swap.isLE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_isGE_of_isGE_swap {o : Ordering} : o.isGE → o.swap.isGE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_isLE_of_isGE {o : Ordering} : o.isLE → o.isGE → o = .eq := by
+  cases o <;> simp
+
+theorem eq_swap_iff_eq_eq {o : Ordering} : o = o.swap ↔ o = .eq := by
+  cases o <;> simp
+
+theorem eq_eq_of_eq_swap {o : Ordering} : o = o.swap → o = .eq :=
+  eq_swap_iff_eq_eq.mp
+
+@[simp]
+theorem isLE_eq_false {o : Ordering} : o.isLE = false ↔ o = .gt := by
+  cases o <;> simp
+
+@[simp]
+theorem isGE_eq_false {o : Ordering} : o.isGE = false ↔ o = .lt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_gt {o : Ordering} : o.swap = .gt ↔ o = .lt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_lt {o : Ordering} : o.swap = .lt ↔ o = .gt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_eq_eq {o : Ordering} : o.swap = .eq ↔ o = .eq := by
+  cases o <;> simp
+
+@[simp]
+theorem isLT_swap {o : Ordering} : o.swap.isLT = o.isGT := by
+  cases o <;> simp
+
+@[simp]
+theorem isLE_swap {o : Ordering} : o.swap.isLE = o.isGE := by
+  cases o <;> simp
+
+@[simp]
+theorem isEq_swap {o : Ordering} : o.swap.isEq = o.isEq := by
+  cases o <;> simp
+
+@[simp]
+theorem isNe_swap {o : Ordering} : o.swap.isNe = o.isNe := by
+  cases o <;> simp
+
+@[simp]
+theorem isGE_swap {o : Ordering} : o.swap.isGE = o.isLE := by
+  cases o <;> simp
+
+@[simp]
+theorem isGT_swap {o : Ordering} : o.swap.isGT = o.isLT := by
+  cases o <;> simp
+
+theorem isLT_iff_eq_lt {o : Ordering} : o.isLT ↔ o = .lt := by
+  cases o <;> simp
+
+theorem isLE_iff_eq_lt_or_eq_eq {o : Ordering} : o.isLE ↔ o = .lt ∨ o = .eq := by
+  cases o <;> simp
+
+theorem isLE_of_eq_lt {o : Ordering} : o = .lt → o.isLE := by
+  rintro rfl; rfl
+
+theorem isLE_of_eq_eq {o : Ordering} : o = .eq → o.isLE := by
+  rintro rfl; rfl
+
+theorem isEq_iff_eq_eq {o : Ordering} : o.isEq ↔ o = .eq := by
+  cases o <;> simp
+
+theorem isNe_iff_ne_eq {o : Ordering} : o.isNe ↔ o ≠ .eq := by
+  cases o <;> simp
+
+theorem isGE_iff_eq_gt_or_eq_eq {o : Ordering} : o.isGE ↔ o = .gt ∨ o = .eq := by
+  cases o <;> simp
+
+theorem isGE_of_eq_gt {o : Ordering} : o = .gt → o.isGE := by
+  rintro rfl; rfl
+
+theorem isGE_of_eq_eq {o : Ordering} : o = .eq → o.isGE := by
+  rintro rfl; rfl
+
+theorem isGT_iff_eq_gt {o : Ordering} : o.isGT ↔ o = .gt := by
+  cases o <;> simp
+
+@[simp]
+theorem swap_swap {o : Ordering} : o.swap.swap = o := by
+  cases o <;> simp
+
+@[simp] theorem swap_inj {o₁ o₂ : Ordering} : o₁.swap = o₂.swap ↔ o₁ = o₂ :=
+  ⟨fun h => by simpa using congrArg swap h, congrArg _⟩
+
+theorem swap_then (o₁ o₂ : Ordering) : (o₁.then o₂).swap = o₁.swap.then o₂.swap := by
+  cases o₁ <;> rfl
+
+theorem then_eq_lt {o₁ o₂ : Ordering} : o₁.then o₂ = lt ↔ o₁ = lt ∨ o₁ = eq ∧ o₂ = lt := by
+  cases o₁ <;> cases o₂ <;> decide
+
+theorem then_eq_eq {o₁ o₂ : Ordering} : o₁.then o₂ = eq ↔ o₁ = eq ∧ o₂ = eq := by
+  cases o₁ <;> simp [«then»]
+
+theorem then_eq_gt {o₁ o₂ : Ordering} : o₁.then o₂ = gt ↔ o₁ = gt ∨ o₁ = eq ∧ o₂ = gt := by
+  cases o₁ <;> cases o₂ <;> decide
+
+end Lemmas
 
 end Ordering
 

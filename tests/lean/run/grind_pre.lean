@@ -5,14 +5,14 @@ set_option grind.debug.proofs true
 
 /--
 error: `grind` failed
-case grind.1.2
+case grind
 a b c : Bool
 p q : Prop
 left✝ : a = true
+right✝ : b = true ∨ c = true
 left : p
 right : q
-h✝ : b = false
-h : c = true
+x✝ : b = false ∨ a = false
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -21,8 +21,6 @@ h : c = true
     [prop] p
     [prop] q
     [prop] b = false ∨ a = false
-    [prop] b = false
-    [prop] c = true
   [eqc] True propositions
     [prop] b = true ∨ c = true
     [prop] p
@@ -30,8 +28,10 @@ h : c = true
     [prop] b = false ∨ a = false
     [prop] b = false
     [prop] c = true
+  [eqc] False propositions
+    [prop] a = false
+    [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {b = true, a = false}
     [eqc] {b, false}
     [eqc] {a, c, true}
 -/
@@ -66,6 +66,9 @@ h : b = false
   [eqc] Equivalence classes
     [eqc] {b, false}
     [eqc] {a, c, true}
+[grind] Counters
+  [cases] Cases instances
+    [cases] Or ↦ 3
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -176,6 +179,9 @@ h : ¬r
     [prop] p
     [prop] q
     [prop] r
+  [cases] Case analyses
+    [cases] [1]: p = r
+    [cases] [2]: ¬r ∨ p
 [grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/

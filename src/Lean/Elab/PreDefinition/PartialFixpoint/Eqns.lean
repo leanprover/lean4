@@ -105,8 +105,8 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   return some (← mkUnfoldEq declName info)
 
 def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
-  if let some _ := eqnInfoExt.find? (← getEnv) declName then
-    mkEqns declName
+  if let some info := eqnInfoExt.find? (← getEnv) declName then
+    mkEqns declName info.declNames
   else
     return none
 

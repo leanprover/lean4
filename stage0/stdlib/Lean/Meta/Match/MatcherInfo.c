@@ -2319,6 +2319,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -2375,6 +2376,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_getMatcherInfoCore_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -2422,6 +2424,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Meta_getMatcherInfo_x3f___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
 }
@@ -2432,6 +2435,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 if (lean_obj_tag(x_3) == 0)
 {
 uint8_t x_4; 
@@ -2506,7 +2510,6 @@ if (x_4 == 0)
 {
 lean_object* x_5; 
 lean_dec(x_3);
-lean_dec(x_1);
 x_5 = lean_box(0);
 return x_5;
 }
@@ -2587,6 +2590,7 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Meta_isMatcherAppCore_x3f(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 return x_3;
 }
 }
@@ -2616,6 +2620,7 @@ _start:
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Meta_isMatcherAppCore(x_1, x_2);
 lean_dec(x_2);
+lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -2665,6 +2670,7 @@ _start:
 {
 lean_object* x_4; 
 x_4 = l_Lean_Meta_isMatcherApp___rarg___lambda__1(x_1, x_2, x_3);
+lean_dec(x_3);
 lean_dec(x_2);
 return x_4;
 }

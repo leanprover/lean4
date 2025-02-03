@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
+import Lean.Parser.Term.Doc
 
 namespace Lean
 namespace Parser

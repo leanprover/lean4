@@ -133,6 +133,10 @@ structure Iff (a b : Prop) : Prop where
 @[inherit_doc] infix:20 " <-> " => Iff
 @[inherit_doc] infix:20 " ↔ "   => Iff
 
+recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
+/-- prefer `↔` over `<->` -/
+recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
+
 /--
 `Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
 An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
@@ -400,6 +404,8 @@ class HasEquiv (α : Sort u) where
 
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
+recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
+
 /-! # set notation  -/
 
 /-- Notation type class for the subset relation `⊆`. -/
@@ -462,6 +468,16 @@ consisting of all elements in `a` that are not in `b`.
 -/
 infix:70 " \\ " => SDiff.sdiff
 
+recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
+recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]
+/-- prefer `⊆` over `⊇` -/
+recommended_spelling "superset" for "⊇" in [Superset, «term_⊇_»]
+/-- prefer `⊂` over `⊃` -/
+recommended_spelling "ssuperset" for "⊃" in [SSuperset, «term_⊃_»]
+recommended_spelling "union" for "∪" in [Union.union, «term_∪_»]
+recommended_spelling "inter" for "∩" in [Inter.inter, «term_∩_»]
+recommended_spelling "sdiff" for "\\" in [SDiff.sdiff, «term_\_»]
+
 /-! # collections  -/
 
 /-- `EmptyCollection α` is the typeclass which supports the notation `∅`, also written as `{}`. -/
@@ -472,6 +488,9 @@ class EmptyCollection (α : Type u) where
 
 @[inherit_doc] notation "{" "}" => EmptyCollection.emptyCollection
 @[inherit_doc] notation "∅"     => EmptyCollection.emptyCollection
+
+recommended_spelling "empty" for "{}" in [EmptyCollection.emptyCollection, «term{}»]
+recommended_spelling "empty" for "∅" in [EmptyCollection.emptyCollection, «term∅»]
 
 /--
 Type class for the `insert` operation.
@@ -650,6 +669,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
+
 /--
 `LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
 (which supplies the `a == b` notation) coincides with logical equality `a = b`.
@@ -725,6 +746,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
 section Ne
 variable {α : Sort u}

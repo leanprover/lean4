@@ -18,10 +18,14 @@ universe u v w
 
 /-! ### Array literal syntax -/
 
+/-- Syntax for `Array α`. -/
 syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term
 
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
+
+recommended_spelling "empty" for "#[]" in [«term#[_,]»]
+recommended_spelling "singleton" for "#[x]" in [«term#[_,]»]
 
 variable {α : Type u}
 

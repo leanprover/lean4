@@ -345,11 +345,14 @@ macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
 
 end Lean
 
+/-- `{ a, b, c }` syntax, powered by the `Singleton` and `Insert` typeclasses. -/
 syntax "{" term,+ "}" : term
 
 macro_rules
   | `({$x:term}) => `(singleton $x)
   | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+recommended_spelling "singleton" for "{x}" in [singleton, «term{_}»]
 
 namespace Lean
 

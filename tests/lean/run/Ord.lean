@@ -41,7 +41,9 @@ inductive Fixed' : Type → Type 1 where
   | mk : Int → Fixed' α
 deriving Ord
 
--- Before fixing the definition of `Ordering.then`, this would fail with a PANIC,
+-- Before fixing the definition of `Ordering.then`, this would panic,
 -- because short-circuiting was not working.
 def foo (a : List Nat) := Ordering.then (compare a.length 1) (compare a[0]! 1)
+/-- info: Ordering.lt -/
+#guard_msgs in
 #eval foo []

@@ -179,7 +179,7 @@ def main():
 
         # Check the first line of the release notes
         release_notes = get_release_notes(lean_repo_url, toolchain, github_token)
-        if release_notes and release_notes.splitlines()[0].strip() == toolchain:
+        if release_notes and toolchain in release_notes.splitlines()[0].strip():
             print(f"  ✅ Release notes look good.")
         else:
             previous_minor_version = version_minor - 1

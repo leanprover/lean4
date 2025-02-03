@@ -5,6 +5,8 @@ See below for the checklist for release candidates.
 
 We'll use `v4.6.0` as the intended release version as a running example.
 
+- Run `scripts/release_checklist.py v4.6.0` to check the status of the release.
+  This script is purely informational, idempotent, and safe to run at any stage of the release process.
 - `git checkout releases/v4.6.0`
   (This branch should already exist, from the release candidates.)
 - `git pull`
@@ -20,14 +22,24 @@ We'll use `v4.6.0` as the intended release version as a running example.
   - This step can take up to an hour.
   - If you are intending to cut the next release candidate on the same day,
     you may want to start on the release candidate checklist now.
+- Next we need to prepare the release notes.
+  - If the stable release is identical to the last release candidate (this should usually be the case),
+    you can reuse the release notes from `RELEASES.md`.
+  - If you want to regenerate the release notes,
+    use `script/release_notes.py --since v4.5.0`, run on the `releases/v4.6.0` branch,
+    and see the section "Writing the release notes" below for more information.
+  - Release notes should go in `RELEASES.md` on the `releases/v4.6.0` branch,
+    and should also be PR'd to `master` (suggested title: "chore: update release notes for v4.6.0").
 - Go to https://github.com/leanprover/lean4/releases and verify that the `v4.6.0` release appears.
-  - Edit the release notes on Github to select the "Set as the latest release".
-  - Follow the instructions in creating a release candidate for the "GitHub release notes" step,
-    now that we have a written `RELEASES.md` section.
-    Do a quick sanity check.
+  - Verify on Github that "Set as the latest release" is checked.
+  - Copy the generated release note into the text box, adding
 - Next, we will move a curated list of downstream repos to the latest stable release.
+  - In order to have the access rights to push to these repositories and merge PRs,
+    you will need to be a member of the `lean-release-managers` team at both `leanprover-community` and `leanprover`.
+    Contact Kim Morrison (@kim-em) to arrange access.
   - For each of the repositories listed below:
     - Make a PR to `master`/`main` changing the toolchain to `v4.6.0`
+      - The usual branch name would be `bump_to_v4.6.0`.
       - Update the toolchain file
       - In the Lakefile, if there are dependencies on specific version tags of dependencies that you've already pushed as part of this process, update them to the new tag.
         If they depend on `main` or `master`, don't change this; you've just updated the dependency, so it will work and be saved in the manifest
@@ -47,6 +59,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR
       - Create and push the tag
       - Merge the tag into `stable`
+    - [quote4](https://github.com/leanprover-community/quote4)
+      - No dependencies
+      - Toolchain bump PR
+      - Create and push the tag
+      - Merge the tag into `stable`
     - [doc-gen4](https://github.com/leanprover/doc-gen4)
       - Dependencies: exist, but they're not part of the release workflow
       - Toolchain bump PR including updated Lake manifest
@@ -55,6 +72,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - [Verso](https://github.com/leanprover/verso)
       - Dependencies: exist, but they're not part of the release workflow
       - The `SubVerso` dependency should be compatible with _every_ Lean release simultaneously, rather than following this workflow
+      - Warnings during `lake build` are expected.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step
@@ -102,7 +120,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
-- Run `scripts/release_checklist.py v4.6.0` to check that everything is in order.
+- Run `script/release_checklist.py v4.6.0` to check that everything is in order.
 - The `v4.6.0` section of `RELEASES.md` is out of sync between
   `releases/v4.6.0` and `master`. This should be reconciled:
   - Replace the `v4.6.0` section on `master` with the `v4.6.0` section on `releases/v4.6.0`
@@ -252,10 +270,24 @@ Please read https://leanprover-community.github.io/contribute/tags_and_branches.
 
 Release notes are automatically generated from the commit history, using `script/release_notes.py`.
 
-Run this as `script/release_notes.py v4.6.0`, where `v4.6.0` is the *previous* release version. This will generate output
-for all commits since that tag. Note that there is output on both stderr, which should be manually reviewed,
+Run this as `script/release_notes.py --since v4.6.0`, where `v4.6.0` is the *previous* release version.
+This script should be run on the `releases/v4.7.0` branch.
+This will generate output for all commits since that tag.
+Note that there is output on both stderr, which should be manually reviewed,
 and on stdout, which should be manually copied to `RELEASES.md`.
+
+The output on stderr should mostly be about commits for which the script could not find an associated PR,
+usually because a PR was rebase-merged because it contained an update to stage0.
+Some judgement is required here: ignore commits which look minor,
+but manually add items to the release notes for significant PRs that were rebase-merged.
 
 There can also be pre-written entries in `./releases_drafts`, which should be all incorporated in the release notes and then deleted from the branch.
   See `./releases_drafts/README.md` for more information.
 
+# `release_checklist.py`
+
+The script `script/release_checklist.py` attempts to automate checking the status of the release.
+
+Future improvements:
+* We check the release notes have been posted on Github,
+  but do not check that they are present in `RELEASES.md` on the release branch or on `master`.

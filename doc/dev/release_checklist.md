@@ -76,7 +76,7 @@ We'll use `v4.6.0` as the intended release version as a running example.
     - [Verso](https://github.com/leanprover/verso)
       - Dependencies: exist, but they're not part of the release workflow
       - The `SubVerso` dependency should be compatible with _every_ Lean release simultaneously, rather than following this workflow
-      - Warnings during `lake build` are expected.
+      - Warnings during `lake update` and `lake build` are expected.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - There is no `stable` branch; skip this step

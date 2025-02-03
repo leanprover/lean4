@@ -10978,7 +10978,6 @@ lean_dec(x_5);
 x_7 = l_Lean_Meta_instInhabitedSimpCongrTheorems;
 x_8 = l_Lean_Meta_addSimpCongrTheorem___closed__1;
 x_9 = l_Lean_ScopedEnvExtension_getState___rarg(x_7, x_8, x_6);
-lean_dec(x_6);
 lean_ctor_set(x_3, 0, x_9);
 return x_3;
 }
@@ -10996,7 +10995,6 @@ lean_dec(x_10);
 x_13 = l_Lean_Meta_instInhabitedSimpCongrTheorems;
 x_14 = l_Lean_Meta_addSimpCongrTheorem___closed__1;
 x_15 = l_Lean_ScopedEnvExtension_getState___rarg(x_13, x_14, x_12);
-lean_dec(x_12);
 x_16 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_16, 0, x_15);
 lean_ctor_set(x_16, 1, x_11);

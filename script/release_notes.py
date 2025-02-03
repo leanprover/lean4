@@ -5,6 +5,7 @@ import re
 import json
 import requests
 import subprocess
+import argparse
 from collections import defaultdict
 from git import Repo
 
@@ -65,20 +66,19 @@ def format_markdown_description(pr_number, description):
     return f"{link} {description}"
 
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: script.py <git-tag>\n")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Generate release notes from Git commits')
+    parser.add_argument('--since', required=True, help='Git tag to generate release notes since')
+    args = parser.parse_args()
 
-    tag = sys.argv[1]
     try:
         repo = Repo(".")
     except Exception as e:
         sys.stderr.write(f"Error opening Git repository: {e}\n")
         sys.exit(1)
 
-    commits = get_commits_since_tag(repo, tag)
+    commits = get_commits_since_tag(repo, args.since)
 
-    sys.stderr.write(f"Found {len(commits)} commits since tag {tag}:\n")
+    sys.stderr.write(f"Found {len(commits)} commits since tag {args.since}:\n")
     for commit_hash, first_line, _ in commits:
         sys.stderr.write(f"- {commit_hash}: {first_line}\n")
 

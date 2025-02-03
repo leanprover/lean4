@@ -945,18 +945,19 @@ x_6 = lean_ctor_get(x_2, 1);
 x_7 = lean_nat_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
-uint8_t x_8; uint8_t x_9; 
-x_8 = lean_nat_dec_lt(x_4, x_6);
-x_9 = lean_nat_dec_eq(x_3, x_5);
-if (x_9 == 0)
+uint8_t x_8; 
+x_8 = lean_nat_dec_eq(x_3, x_5);
+if (x_8 == 0)
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_9; 
+x_9 = 2;
+return x_9;
 }
 else
 {
-if (x_8 == 0)
+uint8_t x_10; 
+x_10 = lean_nat_dec_lt(x_4, x_6);
+if (x_10 == 0)
 {
 uint8_t x_11; 
 x_11 = lean_nat_dec_eq(x_4, x_6);
@@ -1986,18 +1987,18 @@ return x_1;
 LEAN_EXPORT uint8_t l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordRange____x40_Lean_Data_Lsp_Basic___hyg_715_(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; uint8_t x_8; lean_object* x_9; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_3 = lean_ctor_get(x_1, 0);
 x_4 = lean_ctor_get(x_1, 1);
 x_5 = lean_ctor_get(x_2, 0);
 x_6 = lean_ctor_get(x_2, 1);
 x_7 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_Basic___hyg_115_(x_3, x_5);
-x_8 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_Basic___hyg_115_(x_4, x_6);
-x_9 = lean_box(x_8);
-if (lean_obj_tag(x_9) == 1)
+x_8 = lean_box(x_7);
+if (lean_obj_tag(x_8) == 1)
 {
-lean_object* x_10; 
-x_10 = lean_box(x_7);
+uint8_t x_9; lean_object* x_10; 
+x_9 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordPosition____x40_Lean_Data_Lsp_Basic___hyg_115_(x_4, x_6);
+x_10 = lean_box(x_9);
 if (lean_obj_tag(x_10) == 1)
 {
 uint8_t x_11; 
@@ -2007,23 +2008,13 @@ return x_11;
 else
 {
 lean_dec(x_10);
-return x_7;
+return x_9;
 }
 }
 else
 {
-lean_object* x_12; 
-lean_dec(x_9);
-x_12 = lean_box(x_7);
-if (lean_obj_tag(x_12) == 1)
-{
-return x_8;
-}
-else
-{
-lean_dec(x_12);
+lean_dec(x_8);
 return x_7;
-}
 }
 }
 }
@@ -2546,19 +2537,19 @@ x_6 = lean_ctor_get(x_2, 1);
 x_7 = lean_string_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
-uint8_t x_8; uint8_t x_9; 
-x_8 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordRange____x40_Lean_Data_Lsp_Basic___hyg_715_(x_4, x_6);
-x_9 = lean_string_dec_eq(x_3, x_5);
-if (x_9 == 0)
+uint8_t x_8; 
+x_8 = lean_string_dec_eq(x_3, x_5);
+if (x_8 == 0)
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_9; 
+x_9 = 2;
+return x_9;
 }
 else
 {
-lean_object* x_11; 
-x_11 = lean_box(x_8);
+uint8_t x_10; lean_object* x_11; 
+x_10 = l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_ordRange____x40_Lean_Data_Lsp_Basic___hyg_715_(x_4, x_6);
+x_11 = lean_box(x_10);
 if (lean_obj_tag(x_11) == 1)
 {
 uint8_t x_12; 
@@ -2568,7 +2559,7 @@ return x_12;
 else
 {
 lean_dec(x_11);
-return x_8;
+return x_10;
 }
 }
 }

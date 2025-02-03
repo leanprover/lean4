@@ -2261,6 +2261,7 @@ lean_inc(x_22);
 x_23 = l_Lean_Linter_instInhabitedDeprecationEntry;
 x_24 = l_Lean_Lsp_CompletionItem_resolve___lambda__4___closed__2;
 lean_inc(x_22);
+lean_inc(x_2);
 x_25 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_23, x_24, x_2, x_22);
 if (lean_obj_tag(x_25) == 0)
 {
@@ -2491,6 +2492,7 @@ else
 {
 lean_object* x_100; lean_object* x_101; 
 lean_dec(x_21);
+lean_dec(x_2);
 lean_dec(x_1);
 x_100 = lean_box(0);
 x_101 = lean_apply_7(x_10, x_3, x_100, x_5, x_6, x_7, x_8, x_9);
@@ -2517,6 +2519,7 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; 
+lean_dec(x_2);
 lean_dec(x_1);
 x_18 = lean_box(0);
 x_19 = l_Lean_Lsp_CompletionItem_resolve___lambda__3(x_11, x_10, x_3, x_18, x_5, x_6, x_7, x_8, x_9);
@@ -2680,7 +2683,6 @@ lean_dec(x_75);
 lean_dec(x_12);
 x_94 = lean_box(0);
 x_95 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_1, x_94, x_3, x_4, x_5, x_6, x_10);
-lean_dec(x_11);
 return x_95;
 }
 block_74:
@@ -2698,7 +2700,6 @@ lean_dec(x_16);
 lean_ctor_set(x_1, 1, x_14);
 x_17 = lean_box(0);
 x_18 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_1, x_17, x_3, x_4, x_5, x_6, x_10);
-lean_dec(x_11);
 return x_18;
 }
 else
@@ -2730,7 +2731,6 @@ lean_ctor_set(x_26, 6, x_24);
 lean_ctor_set(x_26, 7, x_25);
 x_27 = lean_box(0);
 x_28 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_26, x_27, x_3, x_4, x_5, x_6, x_10);
-lean_dec(x_11);
 return x_28;
 }
 }
@@ -2766,7 +2766,6 @@ lean_dec(x_36);
 lean_ctor_set(x_1, 1, x_13);
 x_37 = lean_box(0);
 x_38 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_1, x_37, x_3, x_4, x_5, x_6, x_34);
-lean_dec(x_11);
 return x_38;
 }
 else
@@ -2798,7 +2797,6 @@ lean_ctor_set(x_46, 6, x_44);
 lean_ctor_set(x_46, 7, x_45);
 x_47 = lean_box(0);
 x_48 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_46, x_47, x_3, x_4, x_5, x_6, x_34);
-lean_dec(x_11);
 return x_48;
 }
 }
@@ -2898,7 +2896,6 @@ lean_ctor_set(x_67, 6, x_64);
 lean_ctor_set(x_67, 7, x_65);
 x_68 = lean_box(0);
 x_69 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_2, x_11, x_67, x_68, x_3, x_4, x_5, x_6, x_57);
-lean_dec(x_11);
 return x_69;
 }
 else
@@ -2956,7 +2953,6 @@ _start:
 lean_object* x_10; 
 x_10 = l_Lean_Lsp_CompletionItem_resolve___lambda__4(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_10;
 }
 }

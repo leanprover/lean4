@@ -88,7 +88,6 @@ lean_dec(x_13);
 x_15 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_16 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_Grind_propagateProjEq___spec__1___closed__1;
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
-lean_dec(x_14);
 lean_ctor_set(x_11, 0, x_17);
 return x_11;
 }
@@ -106,7 +105,6 @@ lean_dec(x_18);
 x_21 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_22 = l_Lean_getProjectionFnInfo_x3f___at_Lean_Meta_Grind_propagateProjEq___spec__1___closed__1;
 x_23 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_21, x_22, x_20, x_1);
-lean_dec(x_20);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
 lean_ctor_set(x_24, 1, x_19);

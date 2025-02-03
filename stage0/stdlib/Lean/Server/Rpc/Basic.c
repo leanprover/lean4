@@ -81,7 +81,7 @@ lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcEncode(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Json_getObjValAs_x3f___at___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_106____spec__1(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_106____closed__8;
-LEAN_EXPORT lean_object* l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6(lean_object*, size_t, lean_object*);
+LEAN_EXPORT lean_object* l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_rpcReleaseRef___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_eraseAux___at_Lean_Server_rpcReleaseRef___spec__5___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Server_rpcGetRef___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, size_t);
@@ -92,6 +92,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at_Lean_Server_r
 LEAN_EXPORT lean_object* l_Lean_Server_rpcGetRef(size_t, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 static lean_object* l_Lean_Lsp_instHashableRpcRef___closed__1;
+LEAN_EXPORT lean_object* l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Server_rpcReleaseRef___spec__1(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_rpcStoreRef(lean_object*, lean_object*);
@@ -105,7 +106,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableWithRpcRefOfTypeName_rpcE
 lean_object* l_Lean_bignumFromJson_x3f(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableArray(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableProd___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instRpcEncodableStateMRpcObjectStore___rarg(lean_object*);
 static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_106____closed__6;
 static lean_object* l___private_Lean_Server_Rpc_Basic_0__Lean_Lsp_fromJsonRpcRef____x40_Lean_Server_Rpc_Basic___hyg_106____closed__1;
@@ -1673,7 +1673,7 @@ x_5 = l_Lean_PersistentHashMap_containsAux___at_Lean_Server_rpcReleaseRef___spec
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6(lean_object* x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 lean_object* x_4; uint8_t x_5; 
@@ -1970,7 +1970,7 @@ lean_inc(x_64);
 x_65 = lean_ctor_get(x_1, 1);
 lean_inc(x_65);
 x_66 = lean_unsigned_to_nat(0u);
-x_67 = l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6(x_64, x_3, x_66);
+x_67 = l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6(x_64, x_3, x_66);
 if (lean_obj_tag(x_67) == 0)
 {
 lean_dec(x_65);
@@ -2120,13 +2120,13 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; lean_object* x_5; 
 x_4 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_5 = l_Array_indexOfAux___at_Lean_Server_rpcReleaseRef___spec__6(x_1, x_4, x_3);
+x_5 = l_Array_idxOfAux___at_Lean_Server_rpcReleaseRef___spec__6(x_1, x_4, x_3);
 lean_dec(x_1);
 return x_5;
 }

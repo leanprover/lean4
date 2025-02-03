@@ -185,7 +185,7 @@ def main():
             previous_minor_version = version_minor - 1
             previous_stable_branch = f"releases/v{version_major}.{previous_minor_version}.0"
             previous_release = f"v{version_major}.{previous_minor_version}.0"
-            print(f"  ❌ Release notes not published. Please run `script/release_notes.py {previous_release}` on branch `{previous_stable_branch}`.")
+            print(f"  ❌ Release notes not published. Please run `script/release_notes.py --since {previous_release}` on branch `{branch_name}`.")
     else:
         print(f"  ❌ Release page for {toolchain} does not exist")
 

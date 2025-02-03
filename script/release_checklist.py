@@ -142,6 +142,14 @@ def extract_org_repo_from_url(repo_url):
         return repo_url.replace("https://github.com/", "").rstrip("/")
     return repo_url
 
+def get_next_version(version):
+    """Calculate the next version number, ignoring RC suffix."""
+    # Strip v prefix and RC suffix if present
+    base_version = strip_rc_suffix(version.lstrip('v'))
+    major, minor, patch = map(int, base_version.split('.'))
+    # Next version is always .0
+    return f"v{major}.{minor + 1}.0"
+
 def main():
     github_token = get_github_token()
 
@@ -201,6 +209,7 @@ def main():
         branch = repo["branch"]
         check_stable = repo["stable-branch"]
         check_tag = repo.get("toolchain-tag", True)
+        check_bump = repo.get("bump-branch", False)
 
         print(f"\nRepository: {name}")
 
@@ -220,15 +229,24 @@ def main():
         if check_tag:
             if not tag_exists(url, toolchain, github_token):
                 print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
-                continue
-            print(f"  ✅ Tag {toolchain} exists")
+            else:
+                print(f"  ✅ Tag {toolchain} exists")
 
         # Only check merging into stable if stable-branch is true and not a release candidate
         if check_stable and not is_release_candidate(toolchain):
             if not is_merged_into_stable(url, toolchain, "stable", github_token):
                 print(f"  ❌ Tag {toolchain} is not merged into stable")
-                continue
-            print(f"  ✅ Tag {toolchain} is merged into stable")
+            else:
+                print(f"  ✅ Tag {toolchain} is merged into stable")
+
+        # Check for bump branch if configured
+        if check_bump:
+            next_version = get_next_version(toolchain)
+            bump_branch = f"bump/{next_version}"
+            if branch_exists(url, bump_branch, github_token):
+                print(f"  ✅ Bump branch {bump_branch} exists")
+            else:
+                print(f"  ❌ Bump branch {bump_branch} does not exist")
 
 if __name__ == "__main__":
     main()

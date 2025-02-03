@@ -8,6 +8,14 @@ import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
+
+/--
+`as_aux_lemma => tac` does the same as `tac`, except that it wraps the resulting expression
+into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
+because the proof term is not duplicated.
+-/
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.

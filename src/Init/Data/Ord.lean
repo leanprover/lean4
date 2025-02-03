@@ -38,9 +38,10 @@ the same name by age (in descending order). (If all fields are sorted ascending 
 order as they are listed in the structure, you can also use `deriving Ord` on the structure
 definition for the same effect.)
 -/
-@[macro_inline] def «then» : Ordering → Ordering → Ordering
-  | .eq, f => f
-  | o, _ => o
+@[macro_inline] def «then» (a b : Ordering) : Ordering :=
+  match a with
+  | .eq => b
+  | a => a
 
 /--
 Check whether the ordering is 'equal'.

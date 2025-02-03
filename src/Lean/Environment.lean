@@ -451,9 +451,7 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  -- TODO: should just be the following when we store extension data in `checked`
-  --env.checked.get
-  { env.checked.get with extensions := env.checkedWithoutAsync.extensions }
+  env.checked.get
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -462,6 +460,10 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 /-- Sets synchronous and asynchronous parts of the environment to the given kernel environment. -/
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, checkedWithoutAsync := newChecked }
+
+def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
+  let prom ← IO.Promise.new
+  return ({ env with checked := prom.result.bind (sync := true) (·.checked) }, prom)
 
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
@@ -527,7 +529,11 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
 
 /-- Find base case: name did not match any asynchronous declaration. -/
 private def findNoAsync (env : Environment) (n : Name) : Option ConstantInfo := do
-  if let some _ := env.asyncConsts.findPrefix? n then
+  if env.asyncMayContain n then
+    -- Constant definitely not generated in a different environment branch: return none, callers
+    -- have already checked this branch.
+    none
+  else if let some _ := env.asyncConsts.findPrefix? n then
     -- Constant generated in a different environment branch: wait for final kernel environment. Rare
     -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
     -- optimized in the future by having the elaboration thread publish an (incremental?) map of
@@ -621,6 +627,7 @@ information.
 -/
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true) :
     IO AddConstAsyncResult := do
+  assert! env.asyncMayContain constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
   let extensionsPromise ← IO.Promise.new
@@ -701,6 +708,9 @@ def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit 
     }
     | .thm  => .thmInfo { val with
       value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
+    }
+    | .axiom  => .axiomInfo { val with
+      isUnsafe := false
     }
     | k => panic! s!"AddConstAsyncResult.commitFailure: unsupported constant kind {repr k}"
   res.extensionsPromise.resolve #[]
@@ -1565,7 +1575,7 @@ def getNamespaceSet (env : Environment) : NameSSet :=
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) : Environment :=
-  env.setCheckedSync { kernel with extensions := env.checkedWithoutAsync.extensions }
+  { env with checked := .pure kernel, checkedWithoutAsync := { kernel with extensions := env.checkedWithoutAsync.extensions } }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

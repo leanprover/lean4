@@ -102,15 +102,8 @@ def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do
 private def shouldGenCodeFor (preDef : PreDefinition) : Bool :=
   !preDef.kind.isTheorem && !preDef.modifiers.isNoncomputable
 
-private def compileDecl (decl : Declaration) : TermElabM Bool := do
-  try
-    Lean.compileDecl decl
-  catch ex =>
-    if (← read).isNoncomputableSection then
-      return false
-    else
-      throw ex
-  return true
+private def compileDecl (decl : Declaration) : TermElabM Unit := do
+  Lean.compileDecl (logErrors := !(← read).isNoncomputableSection) decl
 
 register_builtin_option diagnostics.threshold.proofSize : Nat := {
   defValue := 16384
@@ -166,7 +159,7 @@ private def addNonRecAux (preDef : PreDefinition) (compile : Bool) (all : List N
     if preDef.modifiers.isNoncomputable then
       modifyEnv fun env => addNoncomputable env preDef.declName
     if compile && shouldGenCodeFor preDef then
-      discard <| compileDecl decl
+      compileDecl decl
     if applyAttrAfterCompilation then
       generateEagerEqns preDef.declName
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation
@@ -206,7 +199,7 @@ def addAndCompileUnsafe (preDefs : Array PreDefinition) (safety := DefinitionSaf
       for preDef in preDefs do
         addTermInfo' preDef.ref (← mkConstWithLevelParams preDef.declName) (isBinder := true)
     applyAttributesOf preDefs AttributeApplicationTime.afterTypeChecking
-    discard <| compileDecl decl
+    compileDecl decl
     applyAttributesOf preDefs AttributeApplicationTime.afterCompilation
     return ()
 

@@ -300,12 +300,13 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
             try
               if preDefs.all fun preDef => (preDef.kind matches DefKind.def | DefKind.instance) || preDefs.all fun preDef => preDef.kind == DefKind.abbrev then
                 -- try to add as partial definition
-                try
-                  addAndCompilePartial preDefs (useSorry := true)
-                catch _ =>
-                  -- Compilation failed try again just as axiom
-                  s.restore
-                  addAsAxioms preDefs
+                withOptions (Elab.async.set · false) do
+                  try
+                    addAndCompilePartial preDefs (useSorry := true)
+                  catch _ =>
+                    -- Compilation failed try again just as axiom
+                    s.restore
+                    addAsAxioms preDefs
               else if preDefs.all fun preDef => preDef.kind == DefKind.theorem then
                 addAsAxioms preDefs
             catch _ => s.restore

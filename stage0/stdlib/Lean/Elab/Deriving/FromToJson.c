@@ -2159,7 +2159,6 @@ lean_inc(x_14);
 lean_dec(x_12);
 x_15 = 0;
 x_16 = l_Lean_getStructureFieldsFlattened(x_14, x_2, x_15);
-lean_dec(x_14);
 x_17 = lean_array_size(x_16);
 x_18 = 0;
 lean_inc(x_7);
@@ -2368,7 +2367,6 @@ lean_inc(x_97);
 lean_dec(x_95);
 x_98 = 0;
 x_99 = l_Lean_getStructureFieldsFlattened(x_97, x_2, x_98);
-lean_dec(x_97);
 x_100 = lean_array_size(x_99);
 x_101 = 0;
 lean_inc(x_7);
@@ -9169,7 +9167,6 @@ lean_dec(x_11);
 x_14 = 0;
 lean_inc(x_1);
 x_15 = l_Lean_getStructureFieldsFlattened(x_13, x_1, x_14);
-lean_dec(x_13);
 x_16 = lean_array_size(x_15);
 x_17 = 0;
 lean_inc(x_6);
@@ -9411,7 +9408,6 @@ lean_dec(x_109);
 x_112 = 0;
 lean_inc(x_1);
 x_113 = l_Lean_getStructureFieldsFlattened(x_111, x_1, x_112);
-lean_dec(x_111);
 x_114 = lean_array_size(x_113);
 x_115 = 0;
 lean_inc(x_6);
@@ -13517,7 +13513,6 @@ lean_inc(x_16);
 lean_dec(x_14);
 lean_inc(x_12);
 x_17 = l_Lean_isStructure(x_16, x_12);
-lean_dec(x_16);
 if (x_17 == 0)
 {
 lean_object* x_18; 
@@ -14680,7 +14675,6 @@ lean_inc(x_15);
 lean_dec(x_13);
 lean_inc(x_11);
 x_16 = l_Lean_isStructure(x_15, x_11);
-lean_dec(x_15);
 if (x_16 == 0)
 {
 lean_object* x_17; 

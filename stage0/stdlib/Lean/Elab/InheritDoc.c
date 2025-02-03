@@ -1728,7 +1728,6 @@ lean_dec(x_10);
 x_13 = 1;
 lean_inc(x_1);
 x_14 = l_Lean_findSimpleDocString_x3f(x_12, x_1, x_13, x_11);
-lean_dec(x_12);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 if (lean_obj_tag(x_15) == 0)
@@ -1876,7 +1875,6 @@ lean_dec(x_48);
 x_51 = 1;
 lean_inc(x_1);
 x_52 = l_Lean_findSimpleDocString_x3f(x_50, x_1, x_51, x_49);
-lean_dec(x_50);
 x_53 = lean_ctor_get(x_52, 0);
 lean_inc(x_53);
 if (lean_obj_tag(x_53) == 0)
@@ -2052,7 +2050,6 @@ lean_dec(x_20);
 x_23 = 0;
 lean_inc(x_2);
 x_24 = l_Lean_findSimpleDocString_x3f(x_22, x_2, x_23, x_21);
-lean_dec(x_22);
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 if (lean_obj_tag(x_25) == 0)
@@ -2226,7 +2223,6 @@ lean_dec(x_62);
 x_65 = 0;
 lean_inc(x_2);
 x_66 = l_Lean_findSimpleDocString_x3f(x_64, x_2, x_65, x_63);
-lean_dec(x_64);
 x_67 = lean_ctor_get(x_66, 0);
 lean_inc(x_67);
 if (lean_obj_tag(x_67) == 0)
@@ -2448,7 +2444,6 @@ lean_dec(x_117);
 x_121 = 0;
 lean_inc(x_2);
 x_122 = l_Lean_findSimpleDocString_x3f(x_120, x_2, x_121, x_118);
-lean_dec(x_120);
 x_123 = lean_ctor_get(x_122, 0);
 lean_inc(x_123);
 if (lean_obj_tag(x_123) == 0)

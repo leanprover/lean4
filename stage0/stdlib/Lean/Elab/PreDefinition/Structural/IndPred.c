@@ -8552,7 +8552,6 @@ x_11 = lean_ctor_get(x_10, 0);
 lean_inc(x_11);
 lean_dec(x_10);
 x_12 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_11, x_1);
-lean_dec(x_11);
 lean_ctor_set(x_8, 0, x_12);
 return x_8;
 }
@@ -8568,7 +8567,6 @@ x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_Meta_Match_Extension_getMatcherInfo_x3f(x_15, x_1);
-lean_dec(x_15);
 x_17 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_17, 0, x_16);
 lean_ctor_set(x_17, 1, x_14);

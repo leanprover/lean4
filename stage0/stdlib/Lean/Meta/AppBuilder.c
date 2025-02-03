@@ -13661,6 +13661,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13676,6 +13677,7 @@ lean_dec(x_11);
 x_19 = lean_array_uget(x_8, x_10);
 lean_inc(x_19);
 lean_inc(x_3);
+lean_inc(x_4);
 x_44 = l_Lean_isSubobjectField_x3f(x_4, x_3, x_19);
 if (lean_obj_tag(x_44) == 0)
 {
@@ -13773,6 +13775,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13787,6 +13790,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13829,6 +13833,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13847,6 +13852,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13867,6 +13873,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -13979,6 +13986,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -14001,6 +14009,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -14023,6 +14032,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -14059,6 +14069,7 @@ lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_12);
 lean_dec(x_7);
+lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
@@ -14246,12 +14257,14 @@ _start:
 lean_object* x_13; 
 lean_inc(x_3);
 lean_inc(x_2);
+lean_inc(x_1);
 x_13 = l_Lean_getProjFnForField_x3f(x_1, x_2, x_3);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; size_t x_17; size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_37; lean_object* x_38; 
 lean_dec(x_6);
 lean_inc(x_2);
+lean_inc(x_1);
 x_14 = l_Lean_getStructureFields(x_1, x_2);
 x_15 = lean_box(0);
 x_16 = lean_box(0);
@@ -14387,6 +14400,7 @@ lean_dec(x_9);
 lean_dec(x_8);
 lean_dec(x_3);
 lean_dec(x_2);
+lean_dec(x_1);
 x_48 = lean_ctor_get(x_13, 0);
 lean_inc(x_48);
 lean_dec(x_13);
@@ -14488,6 +14502,7 @@ x_21 = lean_ctor_get(x_19, 0);
 lean_inc(x_21);
 lean_dec(x_19);
 lean_inc(x_15);
+lean_inc(x_21);
 x_22 = l_Lean_isStructure(x_21, x_15);
 if (x_22 == 0)
 {
@@ -14532,7 +14547,6 @@ lean_object* x_31; lean_object* x_32;
 lean_free_object(x_17);
 x_31 = lean_box(0);
 x_32 = l_Lean_Meta_mkProjection___lambda__2(x_21, x_15, x_2, x_1, x_12, x_16, x_31, x_3, x_4, x_5, x_6, x_20);
-lean_dec(x_21);
 return x_32;
 }
 }
@@ -14548,6 +14562,7 @@ x_35 = lean_ctor_get(x_33, 0);
 lean_inc(x_35);
 lean_dec(x_33);
 lean_inc(x_15);
+lean_inc(x_35);
 x_36 = l_Lean_isStructure(x_35, x_15);
 if (x_36 == 0)
 {
@@ -14593,7 +14608,6 @@ else
 lean_object* x_46; lean_object* x_47; 
 x_46 = lean_box(0);
 x_47 = l_Lean_Meta_mkProjection___lambda__2(x_35, x_15, x_2, x_1, x_12, x_16, x_46, x_3, x_4, x_5, x_6, x_34);
-lean_dec(x_35);
 return x_47;
 }
 }
@@ -14688,7 +14702,6 @@ x_19 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_mkProjection___spec__1(x_1, x
 lean_dec(x_8);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 return x_19;
 }
 }
@@ -14708,7 +14721,6 @@ _start:
 lean_object* x_13; 
 x_13 = l_Lean_Meta_mkProjection___lambda__2(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean_dec(x_7);
-lean_dec(x_1);
 return x_13;
 }
 }

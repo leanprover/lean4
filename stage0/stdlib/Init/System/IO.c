@@ -5753,18 +5753,19 @@ x_6 = lean_ctor_get_uint32(x_2, sizeof(void*)*1);
 x_7 = lean_int_dec_lt(x_3, x_5);
 if (x_7 == 0)
 {
-uint8_t x_8; uint8_t x_9; 
-x_8 = lean_uint32_dec_lt(x_4, x_6);
-x_9 = lean_int_dec_eq(x_3, x_5);
-if (x_9 == 0)
+uint8_t x_8; 
+x_8 = lean_int_dec_eq(x_3, x_5);
+if (x_8 == 0)
 {
-uint8_t x_10; 
-x_10 = 2;
-return x_10;
+uint8_t x_9; 
+x_9 = 2;
+return x_9;
 }
 else
 {
-if (x_8 == 0)
+uint8_t x_10; 
+x_10 = lean_uint32_dec_lt(x_4, x_6);
+if (x_10 == 0)
 {
 uint8_t x_11; 
 x_11 = lean_uint32_dec_eq(x_4, x_6);

@@ -273,7 +273,6 @@ static lean_object* l_Lean_Linter_MissingDocs_lintDeclHead___closed__15;
 LEAN_EXPORT lean_object* l___private_Lean_Data_PersistentArray_0__Lean_PersistentArray_foldlFromMAux___at_Lean_Linter_MissingDocs_checkDecl___spec__9(lean_object*, size_t, size_t, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkRegisterBuiltinOption__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_802____lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_getHandlers___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_lintField(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Linter_MissingDocs_checkSyntaxCat__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Linter_MissingDocs_handleMutual___spec__1(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2356,21 +2355,23 @@ return x_1;
 static lean_object* _init_l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_1 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__2;
 x_2 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__5;
 x_3 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__6;
 x_4 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__7;
 x_5 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__8;
 x_6 = l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370____closed__9;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
+x_7 = 2;
+x_8 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_4);
+lean_ctor_set(x_8, 4, x_5);
+lean_ctor_set(x_8, 5, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*6, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_initFn____x40_Lean_Linter_MissingDocs___hyg_370_(lean_object* x_1) {
@@ -2474,15 +2475,6 @@ lean_dec(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_getHandlers___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Linter_MissingDocs_getHandlers(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_Linter_MissingDocs_missingDocs___elambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -2498,7 +2490,6 @@ x_9 = lean_ctor_get(x_7, 0);
 lean_inc(x_9);
 lean_dec(x_7);
 x_10 = l_Lean_Linter_MissingDocs_getHandlers(x_9);
-lean_dec(x_9);
 lean_inc(x_1);
 x_11 = l_Lean_Syntax_getKind(x_1);
 x_12 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_10, x_11);
@@ -2556,7 +2547,6 @@ x_28 = lean_ctor_get(x_26, 0);
 lean_inc(x_28);
 lean_dec(x_26);
 x_29 = l_Lean_Linter_MissingDocs_getHandlers(x_28);
-lean_dec(x_28);
 lean_inc(x_1);
 x_30 = l_Lean_Syntax_getKind(x_1);
 x_31 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_29, x_30);

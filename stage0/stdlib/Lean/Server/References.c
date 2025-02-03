@@ -759,7 +759,6 @@ lean_dec(x_7);
 x_9 = l_Lean_instInhabitedDeclarationRanges;
 x_10 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__5___closed__1;
 x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
-lean_dec(x_8);
 lean_ctor_set(x_5, 0, x_11);
 return x_5;
 }
@@ -777,7 +776,6 @@ lean_dec(x_12);
 x_15 = l_Lean_instInhabitedDeclarationRanges;
 x_16 = l_Lean_findDeclarationRangesCore_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__5___closed__1;
 x_17 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_15, x_16, x_14, x_1);
-lean_dec(x_14);
 x_18 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_18, 0, x_17);
 lean_ctor_set(x_18, 1, x_13);
@@ -873,7 +871,6 @@ if (x_12 == 0)
 lean_object* x_13; uint8_t x_14; 
 x_13 = l_Lean_findDeclarationRanges_x3f___at_Lean_Server_RefInfo_toLspRefInfo___spec__3___closed__1;
 x_14 = l_Lean_TagDeclarationExtension_isTagged(x_13, x_8, x_1);
-lean_dec(x_8);
 if (x_14 == 0)
 {
 uint8_t x_15; 

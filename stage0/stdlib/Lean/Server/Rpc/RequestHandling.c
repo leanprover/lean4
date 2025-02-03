@@ -830,7 +830,6 @@ x_6 = l_Lean_Server_Snapshots_Snapshot_env(x_3);
 x_7 = l_Lean_instInhabitedName;
 x_8 = l_Lean_Server_handleRpcCall___lambda__3___closed__1;
 x_9 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_7, x_8, x_6, x_2);
-lean_dec(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -877,6 +876,7 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = l_Lean_Server_Snapshots_Snapshot_env(x_5);
 x_9 = l_Lean_instInhabitedName;
 x_10 = l_Lean_Server_handleRpcCall___lambda__3___closed__1;
+lean_inc(x_8);
 x_11 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_9, x_10, x_8, x_1);
 if (lean_obj_tag(x_11) == 0)
 {
@@ -4481,7 +4481,6 @@ lean_object* x_20; lean_object* x_21;
 lean_free_object(x_15);
 x_20 = lean_box(0);
 x_21 = l_Lean_Server_registerRpcProcedure___lambda__3(x_1, x_9, x_13, x_20, x_2, x_3, x_18);
-lean_dec(x_9);
 return x_21;
 }
 else
@@ -4534,7 +4533,6 @@ if (x_32 == 0)
 lean_object* x_33; lean_object* x_34; 
 x_33 = lean_box(0);
 x_34 = l_Lean_Server_registerRpcProcedure___lambda__3(x_1, x_9, x_13, x_33, x_2, x_3, x_31);
-lean_dec(x_9);
 return x_34;
 }
 else
@@ -4618,7 +4616,6 @@ lean_object* x_58; lean_object* x_59;
 lean_dec(x_56);
 x_58 = lean_box(0);
 x_59 = l_Lean_Server_registerRpcProcedure___lambda__3(x_1, x_46, x_51, x_58, x_2, x_3, x_55);
-lean_dec(x_46);
 return x_59;
 }
 else
@@ -4681,7 +4678,6 @@ _start:
 lean_object* x_8; 
 x_8 = l_Lean_Server_registerRpcProcedure___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_4);
-lean_dec(x_2);
 return x_8;
 }
 }

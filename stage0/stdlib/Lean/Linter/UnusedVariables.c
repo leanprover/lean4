@@ -2149,21 +2149,23 @@ return x_1;
 static lean_object* _init_l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__10() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_1 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__2;
 x_2 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__5;
 x_3 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__6;
 x_4 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__7;
 x_5 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__8;
 x_6 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426____closed__9;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
+x_7 = 2;
+x_8 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_4);
+lean_ctor_set(x_8, 4, x_5);
+lean_ctor_set(x_8, 5, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*6, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_426_(lean_object* x_1) {
@@ -6107,7 +6109,6 @@ lean_dec(x_5);
 x_7 = l_Lean_Linter_getUnusedVariablesIgnoreFns___rarg___closed__1;
 x_8 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_640____lambda__5___closed__1;
 x_9 = l_Lean_PersistentEnvExtension_getState___rarg(x_7, x_8, x_6);
-lean_dec(x_6);
 x_10 = lean_ctor_get(x_9, 1);
 lean_inc(x_10);
 lean_dec(x_9);
@@ -6128,7 +6129,6 @@ lean_dec(x_11);
 x_14 = l_Lean_Linter_getUnusedVariablesIgnoreFns___rarg___closed__1;
 x_15 = l_Lean_Linter_initFn____x40_Lean_Linter_UnusedVariables___hyg_640____lambda__5___closed__1;
 x_16 = l_Lean_PersistentEnvExtension_getState___rarg(x_14, x_15, x_13);
-lean_dec(x_13);
 x_17 = lean_ctor_get(x_16, 1);
 lean_inc(x_17);
 lean_dec(x_16);

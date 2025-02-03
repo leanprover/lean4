@@ -16539,7 +16539,6 @@ x_21 = lean_ctor_get(x_18, 0);
 x_22 = lean_ctor_get(x_18, 4);
 lean_dec(x_22);
 x_23 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_16, x_21);
-lean_dec(x_16);
 x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 lean_ctor_set(x_18, 4, x_24);
 lean_ctor_set(x_18, 0, x_23);
@@ -16624,7 +16623,6 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_58 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_16, x_51);
-lean_dec(x_16);
 x_59 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 x_60 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_60, 0, x_58);
@@ -16969,7 +16967,6 @@ lean_inc(x_23);
 lean_dec(x_21);
 lean_inc(x_1);
 x_24 = l_Lean_ResolveName_resolveNamespace(x_14, x_18, x_23, x_1);
-lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_25; 
@@ -17037,7 +17034,6 @@ lean_inc(x_42);
 lean_dec(x_40);
 lean_inc(x_1);
 x_43 = l_Lean_ResolveName_resolveNamespace(x_14, x_18, x_42, x_1);
-lean_dec(x_14);
 if (x_2 == 0)
 {
 uint8_t x_44; 
@@ -22551,7 +22547,6 @@ x_21 = lean_ctor_get(x_18, 0);
 x_22 = lean_ctor_get(x_18, 4);
 lean_dec(x_22);
 x_23 = l_Lean_ScopedEnvExtension_popScope___rarg(x_16, x_21);
-lean_dec(x_16);
 x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 lean_ctor_set(x_18, 4, x_24);
 lean_ctor_set(x_18, 0, x_23);
@@ -22636,7 +22631,6 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_58 = l_Lean_ScopedEnvExtension_popScope___rarg(x_16, x_51);
-lean_dec(x_16);
 x_59 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 x_60 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_60, 0, x_58);

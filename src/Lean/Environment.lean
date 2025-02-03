@@ -709,6 +709,9 @@ def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit 
     | .thm  => .thmInfo { val with
       value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
     }
+    | .axiom  => .axiomInfo { val with
+      isUnsafe := false
+    }
     | k => panic! s!"AddConstAsyncResult.commitFailure: unsupported constant kind {repr k}"
   res.extensionsPromise.resolve #[]
   let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve

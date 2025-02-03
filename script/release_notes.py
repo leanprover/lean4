@@ -117,7 +117,11 @@ def main():
         body = full_message[len(first_line):].strip()
 
         paragraphs = body.split('\n\n')
-        second_paragraph = paragraphs[0] if len(paragraphs) > 0 else ""
+        description = paragraphs[0] if len(paragraphs) > 0 else ""
+        
+        # If there's a third paragraph and second ends with colon, include it
+        if len(paragraphs) > 1 and description.endswith(':'):
+            description = description + '\n\n' + paragraphs[1]
 
         labels = fetch_pr_labels(pr_number)
 
@@ -127,7 +131,7 @@ def main():
 
         report_errors = first_line.startswith("feat:") or first_line.startswith("fix:")
 
-        if not second_paragraph.startswith("This PR "):
+        if not description.startswith("This PR "):
             if report_errors:
                 sys.stderr.write(f"No PR description found in commit:\n{commit_hash}\n{first_line}\n{body}\n\n")
                 fallback_description = re.sub(r":$", "", first_line.split(" ", 1)[1]).rsplit(" (#", 1)[0]
@@ -135,7 +139,7 @@ def main():
             else:
                 continue
         else:
-            markdown_description = format_markdown_description(pr_number, second_paragraph.replace("This PR ", ""))
+            markdown_description = format_markdown_description(pr_number, description.replace("This PR ", ""))
 
         changelog_labels = [label for label in labels if label.startswith("changelog-")]
         if len(changelog_labels) > 1:

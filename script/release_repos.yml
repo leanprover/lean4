@@ -13,6 +13,13 @@ repositories:
     branch: master
     dependencies: []
 
+  - name: quote4
+    url: https://github.com/leanprover-community/quote4
+    toolchain-tag: true
+    stable-branch: true
+    branch: master
+    dependencies: []
+
   - name: doc-gen4
     url: https://github.com/leanprover/doc-gen4
     toolchain-tag: true

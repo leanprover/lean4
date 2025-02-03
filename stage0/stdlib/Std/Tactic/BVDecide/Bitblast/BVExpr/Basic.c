@@ -273,7 +273,7 @@ static lean_object* _init_l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("w", 1, 1);
+x_1 = lean_mk_string_unchecked("var", 3, 3);
 return x_1;
 }
 }
@@ -333,7 +333,7 @@ static lean_object* _init_l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(5u);
+x_1 = lean_unsigned_to_nat(7u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -360,7 +360,7 @@ static lean_object* _init_l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("var", 3, 3);
+x_1 = lean_mk_string_unchecked("w", 1, 1);
 return x_1;
 }
 }
@@ -378,7 +378,7 @@ static lean_object* _init_l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(7u);
+x_1 = lean_unsigned_to_nat(5u);
 x_2 = lean_nat_to_int(x_1);
 return x_2;
 }
@@ -527,7 +527,7 @@ x_33 = l___private_Init_Data_Repr_0__Nat_reprFast(x_32);
 x_34 = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(x_34, 0, x_33);
 x_35 = lean_alloc_ctor(4, 2, 0);
-lean_ctor_set(x_35, 0, x_23);
+lean_ctor_set(x_35, 0, x_6);
 lean_ctor_set(x_35, 1, x_34);
 x_36 = lean_alloc_ctor(6, 1, 1);
 lean_ctor_set(x_36, 0, x_35);
@@ -606,7 +606,7 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_instToStringBVBit(lean_object* x_
 _start:
 {
 lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_2 = lean_ctor_get(x_1, 1);
+x_2 = lean_ctor_get(x_1, 0);
 lean_inc(x_2);
 x_3 = l___private_Init_Data_Repr_0__Nat_reprFast(x_2);
 x_4 = l_Std_Tactic_BVDecide_instToStringBVBit___closed__1;
@@ -629,12 +629,12 @@ static lean_object* _init_l_Std_Tactic_BVDecide_instInhabitedBVBit___closed__1()
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_unsigned_to_nat(1u);
-x_2 = lean_unsigned_to_nat(0u);
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_unsigned_to_nat(1u);
 x_3 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
-lean_ctor_set(x_3, 2, x_2);
+lean_ctor_set(x_3, 2, x_1);
 return x_3;
 }
 }
@@ -1304,7 +1304,7 @@ x_3 = lean_ctor_get(x_2, 1);
 lean_inc(x_3);
 lean_dec(x_2);
 x_4 = l___private_Init_Data_Repr_0__Nat_reprFast(x_3);
-x_5 = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_reprBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_287____closed__10;
+x_5 = l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic_0__Std_Tactic_BVDecide_reprBVBit____x40_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic___hyg_287____closed__1;
 x_6 = lean_string_append(x_5, x_4);
 lean_dec(x_4);
 x_7 = l_Std_Tactic_BVDecide_BVUnOp_toString___closed__3;

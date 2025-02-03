@@ -293,17 +293,25 @@ partial def ppPattern (pattern : Expr) : MessageData := Id.run do
   if let some e := groundPattern? pattern then
     return m!"`[{e}]"
   else if isPatternDontCare pattern then
-    return m!"?"
+    return m!"_"
   else match pattern with
     | .bvar idx => return m!"#{idx}"
     | _ =>
-      let mut r := m!"{pattern.getAppFn}"
-      for arg in pattern.getAppArgs do
-        let mut argFmt ← ppPattern arg
-        if !isAtomicPattern arg then
-          argFmt := MessageData.paren argFmt
-        r := r ++ " " ++ argFmt
-      return r
+      if pattern.isAppOfArity ``Grind.offset 2 then
+        let lhs := ppArg <| pattern.getArg! 0
+        let rhs := ppPattern <| pattern.getArg! 1
+        return m!"{lhs} + {rhs}"
+      else
+        let mut r := m!"{pattern.getAppFn}"
+        for arg in pattern.getAppArgs do
+          r := r ++ " " ++ ppArg arg
+        return r
+where
+  ppArg (arg : Expr) : MessageData :=
+    if isAtomicPattern arg then
+      ppPattern arg
+    else
+      .paren (ppPattern arg)
 
 namespace NormalizePattern
 

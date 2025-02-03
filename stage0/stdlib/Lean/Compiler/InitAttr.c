@@ -3328,7 +3328,6 @@ _start:
 lean_object* x_4; 
 x_4 = l_Lean_getInitFnNameForCore_x3f(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -3346,7 +3345,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_getBuiltinInitFnNameFor_x3f___closed__1;
 x_4 = l_Lean_getInitFnNameForCore_x3f(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -3364,7 +3362,6 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_getRegularInitFnNameFor_x3f___closed__1;
 x_4 = l_Lean_getInitFnNameForCore_x3f(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -3374,13 +3371,13 @@ _start:
 lean_object* x_3; lean_object* x_4; 
 x_3 = l_Lean_getBuiltinInitFnNameFor_x3f___closed__1;
 lean_inc(x_2);
+lean_inc(x_1);
 x_4 = l_Lean_getInitFnNameForCore_x3f(x_1, x_3, x_2);
 if (lean_obj_tag(x_4) == 0)
 {
 lean_object* x_5; lean_object* x_6; 
 x_5 = l_Lean_getRegularInitFnNameFor_x3f___closed__1;
 x_6 = l_Lean_getInitFnNameForCore_x3f(x_1, x_5, x_2);
-lean_dec(x_1);
 return x_6;
 }
 else
@@ -3446,7 +3443,6 @@ _start:
 uint8_t x_4; lean_object* x_5; 
 x_4 = l_Lean_isIOUnitInitFnCore(x_1, x_2, x_3);
 lean_dec(x_2);
-lean_dec(x_1);
 x_5 = lean_box(x_4);
 return x_5;
 }
@@ -3457,7 +3453,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_getRegularInitFnNameFor_x3f___closed__1;
 x_4 = l_Lean_isIOUnitInitFnCore(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -3476,7 +3471,6 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_getBuiltinInitFnNameFor_x3f___closed__1;
 x_4 = l_Lean_isIOUnitInitFnCore(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -3495,6 +3489,7 @@ _start:
 lean_object* x_3; uint8_t x_4; 
 x_3 = l_Lean_getBuiltinInitFnNameFor_x3f___closed__1;
 lean_inc(x_2);
+lean_inc(x_1);
 x_4 = l_Lean_isIOUnitInitFnCore(x_1, x_3, x_2);
 if (x_4 == 0)
 {
@@ -3507,6 +3502,7 @@ else
 {
 uint8_t x_7; 
 lean_dec(x_2);
+lean_dec(x_1);
 x_7 = 1;
 return x_7;
 }
@@ -3517,7 +3513,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_isIOUnitInitFn(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }

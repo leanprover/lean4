@@ -3621,6 +3621,16 @@ theorem eraseIdx_eq_eraseIdxIfInBounds {a : Array α} {i : Nat} (h : i < a.size)
   cases as
   simp
 
+@[simp] theorem finIdxOf?_toList [BEq α] (a : α) (v : Array α) :
+    v.toList.finIdxOf? a = (v.finIdxOf? a).map (Fin.cast (by simp)) := by
+  rcases v with ⟨v⟩
+  simp
+
+@[simp] theorem findFinIdx?_toList (p : α → Bool) (v : Array α) :
+    v.toList.findFinIdx? p = (v.findFinIdx? p).map (Fin.cast (by simp)) := by
+  rcases v with ⟨v⟩
+  simp
+
 end Array
 
 open Array

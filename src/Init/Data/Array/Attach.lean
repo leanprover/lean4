@@ -642,13 +642,27 @@ and simplifies these to the function directly taking the value.
   rw [List.filterMap_subtype]
   simp [hf]
 
+@[simp] theorem findSome?_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.findSome? f = l.unattach.findSome? g := by
+  cases l
+  simp
+  rw [List.findSome?_subtype hf]
+
+@[simp] theorem find?_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.find? f).map Subtype.val = l.unattach.find? g := by
+  cases l
+  simp
+  rw [List.find?_subtype hf]
+
+/-! ### Simp lemmas pushing `unattach` inwards. -/
+
 @[simp] theorem unattach_filter {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.filter f).unattach = l.unattach.filter g := by
   cases l
   simp [hf]
-
-/-! ### Simp lemmas pushing `unattach` inwards. -/
 
 @[simp] theorem unattach_reverse {p : α → Prop} {l : Array { x // p x }} :
     l.reverse.unattach = l.unattach.reverse := by

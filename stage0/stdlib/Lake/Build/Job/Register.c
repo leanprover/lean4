@@ -15,7 +15,6 @@ extern "C" {
 #endif
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_JobState_renew___closed__1;
-lean_object* l_Array_take___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Job_renew___rarg___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_IO_withStdout___at_Lake_ensureJob___spec__2(lean_object*);
@@ -69,6 +68,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Substring_takeRightWhileAux___at_Substring_trimRight___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerJob___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_shrink___rarg(lean_object*, lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 lean_object* lean_get_set_stdin(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_FS_withIsolatedStreams___at_Lake_ensureJob___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3405,7 +3405,7 @@ else
 {
 lean_object* x_17; lean_object* x_18; lean_object* x_19; uint8_t x_20; 
 lean_inc(x_13);
-x_17 = l_Array_take___rarg(x_13, x_8);
+x_17 = l_Array_shrink___rarg(x_13, x_8);
 x_18 = l_Array_extract___rarg(x_13, x_8, x_14);
 lean_dec(x_14);
 lean_dec(x_13);
@@ -3478,7 +3478,7 @@ else
 {
 lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_object* x_46; lean_object* x_47; uint8_t x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; 
 lean_inc(x_35);
-x_40 = l_Array_take___rarg(x_35, x_8);
+x_40 = l_Array_shrink___rarg(x_35, x_8);
 x_41 = l_Array_extract___rarg(x_35, x_8, x_36);
 lean_dec(x_36);
 lean_dec(x_35);
@@ -3529,7 +3529,7 @@ x_54 = lean_ctor_get(x_9, 1);
 x_55 = lean_ctor_get(x_9, 0);
 lean_dec(x_55);
 lean_inc(x_54);
-x_56 = l_Array_take___rarg(x_54, x_8);
+x_56 = l_Array_shrink___rarg(x_54, x_8);
 x_57 = lean_array_get_size(x_54);
 x_58 = l_Array_extract___rarg(x_54, x_8, x_57);
 lean_dec(x_57);
@@ -3565,7 +3565,7 @@ x_69 = lean_ctor_get(x_9, 1);
 lean_inc(x_69);
 lean_dec(x_9);
 lean_inc(x_69);
-x_70 = l_Array_take___rarg(x_69, x_8);
+x_70 = l_Array_shrink___rarg(x_69, x_8);
 x_71 = lean_array_get_size(x_69);
 x_72 = l_Array_extract___rarg(x_69, x_8, x_71);
 lean_dec(x_71);

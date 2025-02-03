@@ -235,6 +235,87 @@ theorem findRevM?_toArray [Monad m] [LawfulMonad m] (f : α → m Bool) (l : Lis
     simp only [forIn_cons, Id.pure_eq, Id.bind_eq, find?]
     by_cases f a <;> simp_all
 
+private theorem findFinIdx?_loop_toArray (w : l' = l.drop j) :
+    Array.findFinIdx?.loop p l.toArray j = List.findFinIdx?.go p l l' j h := by
+  unfold findFinIdx?.loop
+  unfold findFinIdx?.go
+  split <;> rename_i h'
+  · cases l' with
+    | nil =>
+      simp at h h'
+      omega
+    | cons a l' =>
+      have : l[j] = a := by
+        rw [drop_eq_getElem_cons] at w
+        simp only [cons.injEq] at w
+        exact w.1.symm
+      simp only [getElem_toArray, this]
+      split
+      · rfl
+      · simp only [length_cons] at h
+        have : l.length - (j + 1) < l.length - j := by omega
+        rw [findFinIdx?_loop_toArray]
+        rw [drop_add_one_eq_tail_drop, ← w, tail_cons]
+  · have : l' = [] := by simp_all
+    subst this
+    simp
+termination_by l.length - j
+
+@[simp] theorem findFinIdx?_toArray (p : α → Bool) (l : List α) :
+    l.toArray.findFinIdx? p = l.findFinIdx? p := by
+  rw [Array.findFinIdx?, findFinIdx?, findFinIdx?_loop_toArray]
+  simp
+
+@[simp] theorem findIdx?_toArray (p : α → Bool) (l : List α) :
+    l.toArray.findIdx? p = l.findIdx? p := by
+  rw [Array.findIdx?_eq_map_findFinIdx?_val, findIdx?_eq_map_findFinIdx?_val]
+  simp
+
+private theorem idxAuxOf_toArray [BEq α] (a : α) (l : List α) (j : Nat) (w : l' = l.drop j) (h) :
+    l.toArray.idxOfAux a j = findFinIdx?.go (fun x => x == a) l l' j h := by
+  unfold idxOfAux
+  unfold findFinIdx?.go
+  split <;> rename_i h'
+  · cases l' with
+    | nil =>
+      simp at h h'
+      omega
+    | cons b l' =>
+      simp at h'
+      have : l[j] = b := by
+        rw [drop_eq_getElem_cons h'] at w
+        simp only [cons.injEq] at w
+        exact w.1.symm
+      simp only [getElem_toArray, this]
+      split
+      · rfl
+      · simp only [length_cons] at h
+        have : l.length - (j + 1) < l.length - j := by omega
+        rw [idxAuxOf_toArray]
+        rw [drop_add_one_eq_tail_drop, ← w, tail_cons]
+  · have : l' = [] := by simp_all
+    subst this
+    simp
+termination_by l.length - j
+
+@[simp] theorem finIdxOf?_toArray [BEq α] (a : α) (l : List α) :
+    l.toArray.finIdxOf? a = l.finIdxOf? a := by
+  rw [Array.finIdxOf?, finIdxOf?, findFinIdx?]
+  simp [idxAuxOf_toArray]
+
+@[simp] theorem idxOf?_toArray [BEq α] (a : α) (l : List α) :
+    l.toArray.idxOf? a = l.idxOf? a := by
+  rw [Array.idxOf?, idxOf?]
+  simp [finIdxOf?, findIdx?_eq_map_findFinIdx?_val]
+
+@[simp] theorem findIdx_toArray {as : List α} {p : α → Bool} :
+    as.toArray.findIdx p = as.findIdx p := by
+  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
+
+@[simp] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
+    as.toArray.idxOf a = as.idxOf a := by
+  rw [Array.idxOf, findIdx_toArray, idxOf]
+
 theorem isPrefixOfAux_toArray_succ [BEq α] (l₁ l₂ : List α) (hle : l₁.length ≤ l₂.length) (i : Nat) :
     Array.isPrefixOfAux l₁.toArray l₂.toArray hle (i + 1) =
       Array.isPrefixOfAux l₁.tail.toArray l₂.tail.toArray (by simp; omega) i := by
@@ -462,84 +543,6 @@ decreasing_by
   split
   · simp
   · simp_all [eraseIdx_eq_self.2]
-
-@[simp] theorem findIdx?_toArray {as : List α} {p : α → Bool} :
-    as.toArray.findIdx? p = as.findIdx? p := by
-  unfold Array.findIdx?
-  suffices ∀ i, i ≤ as.length →
-      Array.findIdx?.loop p as.toArray (as.length - i) =
-        (findIdx? p (as.drop  (as.length - i))).map fun j => j +  (as.length - i) by
-    specialize this as.length
-    simpa
-  intro i
-  induction i with
-  | zero => simp [findIdx?.loop]
-  | succ i ih =>
-    unfold findIdx?.loop
-    simp only [size_toArray, getElem_toArray]
-    split <;> rename_i h
-    · rw [drop_eq_getElem_cons h]
-      rw [findIdx?_cons]
-      split <;> rename_i h'
-      · simp
-      · intro w
-        have : as.length - (i + 1) + 1 = as.length - i := by omega
-        specialize ih (by omega)
-        simp only [Option.map_map, this, ih]
-        congr
-        ext
-        simp
-        omega
-    · have : as.length = 0 := by omega
-      simp_all
-
-@[simp] theorem findFinIdx?_toArray {as : List α} {p : α → Bool} :
-    as.toArray.findFinIdx? p = as.findFinIdx? p := by
-  have h := findIdx?_toArray (as := as) (p := p)
-  rw [findIdx?_eq_map_findFinIdx?_val, Array.findIdx?_eq_map_findFinIdx?_val] at h
-  rwa [Option.map_inj_right] at h
-  rintro ⟨x, hx⟩ ⟨y, hy⟩ rfl
-  simp
-
-theorem findFinIdx?_go_beq_eq_idxOfAux_toArray [BEq α]
-    {xs as : List α} {a : α} {i : Nat} {h} (w : as = xs.drop i) :
-    findFinIdx?.go (fun x => x == a) xs as i h =
-      xs.toArray.idxOfAux a i := by
-  unfold findFinIdx?.go
-  unfold idxOfAux
-  split <;> rename_i b as
-  · simp at h
-    simp [h]
-  · simp at h
-    rw [dif_pos (by simp; omega)]
-    simp only [getElem_toArray]
-    erw [getElem_drop' (j := 0)]
-    simp only [← w, getElem_cons_zero]
-    have : xs.length - (i + 1) < xs.length - i := by omega
-    rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
-    rw [← drop_drop, ← w]
-    simp
-termination_by xs.length - i
-
-@[simp] theorem finIdxOf?_toArray [BEq α] {as : List α} {a : α} :
-    as.toArray.finIdxOf? a = as.finIdxOf? a := by
-  unfold Array.finIdxOf?
-  unfold finIdxOf?
-  unfold findFinIdx?
-  rw [findFinIdx?_go_beq_eq_idxOfAux_toArray]
-  simp
-
-@[simp] theorem findIdx_toArray [BEq α] {as : List α} {p : α → Bool} :
-    as.toArray.findIdx p = as.findIdx p := by
-  rw [Array.findIdx, findIdx?_toArray, findIdx_eq_getD_findIdx?]
-
-@[simp] theorem idxOf?_toArray [BEq α] {as : List α} {a : α} :
-    as.toArray.idxOf? a = as.idxOf? a := by
-  rw [Array.idxOf?, finIdxOf?_toArray, idxOf?_eq_map_finIdxOf?_val]
-
-@[simp] theorem idxOf_toArray [BEq α] {as : List α} {a : α} :
-    as.toArray.idxOf a = as.idxOf a := by
-  rw [Array.idxOf, findIdx_toArray, idxOf]
 
 @[simp] theorem eraseP_toArray {as : List α} {p : α → Bool} :
     as.toArray.eraseP p = (as.eraseP p).toArray := by

@@ -146,8 +146,8 @@ private def ppCasesTrace : M Unit := do
   let goal ← read
   unless goal.casesTrace.isEmpty do
     let mut msgs := #[]
-    for (e, num) in goal.casesTrace.reverse do
-      msgs := msgs.push <| .trace { cls := `cases } m!"[{num}]: {e}" #[]
+    for { expr, i , num } in goal.casesTrace.reverse do
+      msgs := msgs.push <| .trace { cls := `cases } m!"[{i+1}/{num}]: {expr}" #[]
     pushMsg <| .trace { cls := `cases } "Case analyses" msgs
 
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do

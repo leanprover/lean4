@@ -158,7 +158,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_map___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapM_x27___at_Lean_PersistentHashMap_map___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashMap_toList___spec__4(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_indexOfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashMap_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toList___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT size_t l_Lean_PersistentHashMap_shift;
@@ -250,6 +249,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashMap_toList___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_instForInProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_idxOfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_mapMAux___rarg(lean_object*, lean_object*, lean_object*);
@@ -2730,7 +2730,7 @@ lean_inc(x_65);
 x_66 = lean_ctor_get(x_2, 1);
 lean_inc(x_66);
 x_67 = lean_unsigned_to_nat(0u);
-x_68 = l_Array_indexOfAux___rarg(x_1, x_65, x_4, x_67);
+x_68 = l_Array_idxOfAux___rarg(x_1, x_65, x_4, x_67);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_dec(x_66);

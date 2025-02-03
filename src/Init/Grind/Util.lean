@@ -59,4 +59,11 @@ def eqMatchUnexpander : PrettyPrinter.Unexpander := fun stx => do
   | `($_ $lhs:term $rhs:term) => `($lhs = $rhs)
   | _ => throw ()
 
+@[app_unexpander offset]
+def offsetUnexpander : PrettyPrinter.Unexpander := fun stx => do
+  match stx with
+  | `($_ $lhs:term $rhs:term) => `($lhs + $rhs)
+  | _ => throw ()
+
+
 end Lean.Grind

@@ -95,7 +95,6 @@ static lean_object* l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_isVal
 LEAN_EXPORT uint8_t l_Lean_Compiler_hasAlwaysInlineAttribute(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_beqInlineAttributeKind____x40_Lean_Compiler_InlineAttrs___hyg_18_(uint8_t, uint8_t);
 lean_object* l_Lean_EnumAttributes_getValue___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Compiler_getInlineAttribute_x3f___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofConstName(lean_object*, uint8_t);
 static lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____closed__6;
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn____x40_Lean_Compiler_InlineAttrs___hyg_267____lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1761,15 +1760,6 @@ x_6 = l_Lean_EnumAttributes_getValue___rarg(x_5, x_4, x_1, x_2);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Compiler_getInlineAttribute_x3f___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Compiler_getInlineAttribute_x3f(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
 LEAN_EXPORT uint8_t l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrCore(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
 _start:
 {
@@ -1804,7 +1794,6 @@ uint8_t x_4; uint8_t x_5; lean_object* x_6;
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
 x_5 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrCore(x_1, x_4, x_3);
-lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -1823,7 +1812,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Compiler_hasInlineAttribute(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1842,7 +1830,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Compiler_hasInlineIfReduceAttribute(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1861,7 +1848,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Compiler_hasNoInlineAttribute(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1880,7 +1866,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Compiler_hasMacroInlineAttribute(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1899,7 +1884,6 @@ _start:
 {
 uint8_t x_3; lean_object* x_4; 
 x_3 = l_Lean_Compiler_hasAlwaysInlineAttribute(x_1, x_2);
-lean_dec(x_1);
 x_4 = lean_box(x_3);
 return x_4;
 }
@@ -1917,6 +1901,7 @@ x_5 = l_Lean_Compiler_instInhabitedInlineAttributeKind;
 x_6 = l_Lean_Compiler_setInlineAttribute___closed__1;
 x_7 = lean_box(x_5);
 lean_inc(x_3);
+lean_inc(x_1);
 x_8 = l_Lean_EnumAttributes_getValue___rarg(x_7, x_6, x_1, x_3);
 if (lean_obj_tag(x_8) == 0)
 {
@@ -1926,6 +1911,7 @@ if (x_9 == 0)
 {
 uint8_t x_10; 
 lean_dec(x_3);
+lean_dec(x_1);
 x_10 = 0;
 return x_10;
 }
@@ -1942,6 +1928,7 @@ else
 {
 lean_object* x_13; uint8_t x_14; uint8_t x_15; 
 lean_dec(x_3);
+lean_dec(x_1);
 x_13 = lean_ctor_get(x_8, 0);
 lean_inc(x_13);
 lean_dec(x_8);
@@ -1955,6 +1942,7 @@ else
 {
 uint8_t x_16; 
 lean_dec(x_3);
+lean_dec(x_1);
 x_16 = 0;
 return x_16;
 }
@@ -1967,7 +1955,6 @@ uint8_t x_4; uint8_t x_5; lean_object* x_6;
 x_4 = lean_unbox(x_2);
 lean_dec(x_2);
 x_5 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(x_1, x_4, x_3);
-lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;
 }
@@ -1978,7 +1965,6 @@ _start:
 uint8_t x_3; uint8_t x_4; 
 x_3 = 0;
 x_4 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -1997,7 +1983,6 @@ _start:
 uint8_t x_3; uint8_t x_4; 
 x_3 = 3;
 x_4 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -2016,7 +2001,6 @@ _start:
 uint8_t x_3; uint8_t x_4; 
 x_3 = 1;
 x_4 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }
@@ -2035,7 +2019,6 @@ _start:
 uint8_t x_3; uint8_t x_4; 
 x_3 = 2;
 x_4 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrAux(x_1, x_3, x_2);
-lean_dec(x_1);
 return x_4;
 }
 }

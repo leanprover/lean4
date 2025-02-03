@@ -434,6 +434,13 @@ structure Canon.State where
   proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited
 
+/-- Trace information for a case split. -/
+structure CaseTrace where
+  expr : Expr
+  i    : Nat
+  num  : Nat
+  deriving Inhabited
+
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
@@ -494,7 +501,7 @@ structure Goal where
   Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
   applications that generated only 1 subgoal.
   -/
-  casesTrace : List (Expr × Nat) := []
+  casesTrace : List CaseTrace := []
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

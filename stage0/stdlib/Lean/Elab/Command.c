@@ -23915,7 +23915,6 @@ lean_inc(x_14);
 lean_dec(x_13);
 x_15 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4___closed__2;
 x_16 = l_Lean_TagAttribute_hasTag(x_15, x_14, x_1);
-lean_dec(x_14);
 x_17 = lean_box(x_16);
 lean_ctor_set(x_11, 0, x_17);
 return x_11;
@@ -23933,7 +23932,6 @@ lean_inc(x_20);
 lean_dec(x_18);
 x_21 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4___closed__2;
 x_22 = l_Lean_TagAttribute_hasTag(x_21, x_20, x_1);
-lean_dec(x_20);
 x_23 = lean_box(x_22);
 x_24 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_24, 0, x_23);
@@ -23980,7 +23978,6 @@ lean_inc(x_33);
 lean_dec(x_30);
 x_34 = l_Lean_Elab_isIncrementalElab___at___private_Lean_Elab_Command_0__Lean_Elab_Command_elabCommandUsing___spec__4___closed__2;
 x_35 = l_Lean_TagAttribute_hasTag(x_34, x_33, x_1);
-lean_dec(x_33);
 x_36 = lean_box(x_35);
 if (lean_is_scalar(x_32)) {
  x_37 = lean_alloc_ctor(0, 2, 0);
@@ -31017,7 +31014,6 @@ lean_inc(x_15);
 lean_dec(x_13);
 x_16 = l_Lean_Elab_Command_elabCommand___lambda__6___closed__1;
 x_17 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_16, x_11, x_2);
-lean_dec(x_11);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
@@ -31145,7 +31141,6 @@ lean_inc(x_45);
 lean_dec(x_43);
 x_46 = l_Lean_Elab_Command_elabCommand___lambda__6___closed__1;
 x_47 = l_Lean_KeyedDeclsAttribute_getEntries___rarg(x_46, x_41, x_2);
-lean_dec(x_41);
 if (lean_obj_tag(x_47) == 0)
 {
 lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
@@ -31561,7 +31556,6 @@ _start:
 lean_object* x_5; 
 x_5 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabCommand___spec__2___lambda__1(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
-lean_dec(x_1);
 return x_5;
 }
 }
@@ -31580,7 +31574,6 @@ _start:
 lean_object* x_7; 
 x_7 = l_Lean_Elab_liftMacroM___at_Lean_Elab_Command_elabCommand___spec__2___lambda__3(x_1, x_2, x_3, x_4, x_5, x_6);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_7;
 }
 }

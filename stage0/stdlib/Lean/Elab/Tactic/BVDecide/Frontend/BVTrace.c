@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 lean_object* l_Lean_KeyedDeclsAttribute_addBuiltin___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile___spec__4(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVCheck_getSrcDir(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__6;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -98,6 +97,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrac
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__10;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName___lambda__1(lean_object* x_1) {
 _start:
 {
@@ -887,7 +887,7 @@ lean_dec(x_89);
 x_92 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__11;
 x_93 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg(x_90, x_92);
 lean_dec(x_90);
-x_94 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile___spec__4(x_93, x_91);
+x_94 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__4(x_93, x_91);
 if (lean_obj_tag(x_94) == 0)
 {
 lean_object* x_95; lean_object* x_96; lean_object* x_97; 
@@ -1170,7 +1170,7 @@ lean_dec(x_149);
 x_152 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__11;
 x_153 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg(x_150, x_152);
 lean_dec(x_150);
-x_154 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile___spec__4(x_153, x_151);
+x_154 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__4(x_153, x_151);
 if (lean_obj_tag(x_154) == 0)
 {
 lean_object* x_155; lean_object* x_156; lean_object* x_157; 
@@ -1722,7 +1722,7 @@ lean_dec(x_261);
 x_264 = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___closed__11;
 x_265 = l_Lean_Elab_Tactic_BVDecide_LRAT_trim_M_run___rarg(x_262, x_264);
 lean_dec(x_262);
-x_266 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_ofFile___spec__4(x_265, x_263);
+x_266 = l_IO_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_load___spec__4(x_265, x_263);
 if (lean_obj_tag(x_266) == 0)
 {
 lean_object* x_267; lean_object* x_268; lean_object* x_269; 

@@ -94,6 +94,9 @@ theorem getElem?_take_of_succ {l : List α} {n : Nat} : (l.take (n + 1))[n]? = l
       _ = drop (m + n) l := drop_drop n m l
       _ = drop ((m + 1) + n) (a :: l) := by rw [Nat.add_right_comm]; rfl
 
+theorem drop_add_one_eq_tail_drop (l : List α) : l.drop (i + 1) = (l.drop i).tail := by
+  rw [← drop_drop, drop_one]
+
 theorem take_drop : ∀ (m n : Nat) (l : List α), take n (drop m l) = drop m (take (m + n) l)
   | 0, _, _ => by simp
   | _, _, [] => by simp

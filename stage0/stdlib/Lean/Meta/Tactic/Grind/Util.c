@@ -5346,7 +5346,6 @@ lean_inc(x_14);
 lean_dec(x_12);
 lean_inc(x_7);
 x_15 = l_Lean_getStructureInfo_x3f(x_14, x_7);
-lean_dec(x_14);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -5819,7 +5818,6 @@ lean_inc(x_142);
 lean_dec(x_140);
 lean_inc(x_7);
 x_143 = l_Lean_getStructureInfo_x3f(x_142, x_7);
-lean_dec(x_142);
 if (lean_obj_tag(x_143) == 0)
 {
 lean_object* x_144; lean_object* x_145; lean_object* x_146; uint8_t x_147; 

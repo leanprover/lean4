@@ -745,7 +745,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
 x_2 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__4;
 x_3 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__3;
 x_4 = lean_alloc_closure((void*)(l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____lambda__1___boxed), 5, 2);
@@ -756,15 +756,17 @@ x_6 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____c
 x_7 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__6;
 x_8 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__7;
 x_9 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__8;
-x_10 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_10, 0, x_5);
-lean_ctor_set(x_10, 1, x_6);
-lean_ctor_set(x_10, 2, x_4);
-lean_ctor_set(x_10, 3, x_7);
-lean_ctor_set(x_10, 4, x_8);
-lean_ctor_set(x_10, 5, x_9);
-x_11 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_10, x_1);
-return x_11;
+x_10 = 2;
+x_11 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_11, 0, x_5);
+lean_ctor_set(x_11, 1, x_6);
+lean_ctor_set(x_11, 2, x_4);
+lean_ctor_set(x_11, 3, x_7);
+lean_ctor_set(x_11, 4, x_8);
+lean_ctor_set(x_11, 5, x_9);
+lean_ctor_set_uint8(x_11, sizeof(void*)*6, x_10);
+x_12 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_11, x_1);
+return x_12;
 }
 }
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
@@ -2709,21 +2711,23 @@ return x_1;
 static lean_object* _init_l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803____closed__8() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
 x_1 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803____closed__2;
 x_2 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803____closed__5;
 x_3 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803____closed__6;
 x_4 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803____closed__7;
 x_5 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__7;
 x_6 = l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_83____closed__8;
-x_7 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_7, 0, x_1);
-lean_ctor_set(x_7, 1, x_2);
-lean_ctor_set(x_7, 2, x_3);
-lean_ctor_set(x_7, 3, x_4);
-lean_ctor_set(x_7, 4, x_5);
-lean_ctor_set(x_7, 5, x_6);
-return x_7;
+x_7 = 2;
+x_8 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_2);
+lean_ctor_set(x_8, 2, x_3);
+lean_ctor_set(x_8, 3, x_4);
+lean_ctor_set(x_8, 4, x_5);
+lean_ctor_set(x_8, 5, x_6);
+lean_ctor_set_uint8(x_8, sizeof(void*)*6, x_7);
+return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_CodeAction_initFn____x40_Lean_Server_CodeActions_Attr___hyg_803_(lean_object* x_1) {

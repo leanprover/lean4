@@ -162,6 +162,7 @@ static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtThe
 LEAN_EXPORT lean_object* l_panic___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__13(lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_DiscrTreeTypes_0__Lean_Meta_DiscrTree_reprKey____x40_Lean_Meta_DiscrTreeTypes___hyg_356_(lean_object*, lean_object*);
+lean_object* l_Array_idxOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -173,7 +174,6 @@ static lean_object* l___private_Lean_Meta_Tactic_Ext_0__Lean_Meta_Ext_reprExtThe
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__14(lean_object*, lean_object*);
-lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Ext_instBEqExtTheorem;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Ext_initFn____x40_Lean_Meta_Tactic_Ext___hyg_310____spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2664,7 +2664,7 @@ lean_inc(x_63);
 x_64 = lean_ctor_get(x_1, 1);
 lean_inc(x_64);
 x_65 = lean_unsigned_to_nat(0u);
-x_66 = l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(x_63, x_3, x_65);
+x_66 = l_Array_idxOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(x_63, x_3, x_65);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_dec(x_64);
@@ -3143,7 +3143,6 @@ lean_dec(x_8);
 x_11 = l_Lean_Meta_Ext_instInhabitedExtTheorems;
 x_12 = l_Lean_Meta_Ext_getExtTheorems___closed__1;
 x_13 = l_Lean_ScopedEnvExtension_getState___rarg(x_11, x_12, x_10);
-lean_dec(x_10);
 x_14 = lean_ctor_get(x_13, 0);
 lean_inc(x_14);
 x_15 = l_Lean_Meta_DiscrTree_getMatch___rarg(x_14, x_1, x_2, x_3, x_4, x_5, x_9);

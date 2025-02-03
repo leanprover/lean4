@@ -28,6 +28,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_gcd___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sdiv(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_sdiv(lean_object*, lean_object*);
+lean_object* l_List_findIdx_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_gcd(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_get___boxed(lean_object*, lean_object*);
@@ -44,7 +45,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_map(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_findIdx_x3f(lean_object*, lean_object*);
 lean_object* l_Int_bmod(lean_object*, lean_object*);
-lean_object* l_List_findIdx_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_smul(lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_ofList(lean_object*);
@@ -287,7 +287,7 @@ _start:
 {
 lean_object* x_3; lean_object* x_4; 
 x_3 = lean_unsigned_to_nat(0u);
-x_4 = l_List_findIdx_x3f___rarg(x_1, x_2, x_3);
+x_4 = l_List_findIdx_x3f_go___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }

@@ -36,7 +36,7 @@ x✝ : ¬Even 16
   [eqc] False propositions
     [prop] Even 16
   [ematch] E-matching patterns
-    [thm] Even.plus_two: [Even (Lean.Grind.offset #1 (2))]
+    [thm] Even.plus_two: [Even (#1 + 2)]
     [thm] Even.zero: [Even `[0]]
   [limits] Thresholds reached
     [limit] maximum number of E-matching rounds has been reached, threshold: `(ematch := 5)`

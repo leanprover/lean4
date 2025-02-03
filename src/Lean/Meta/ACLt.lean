@@ -27,14 +27,6 @@ def Expr.ctorWeight : Expr → UInt8
 namespace Meta
 namespace ACLt
 
-inductive ReduceMode where
-  | reduce
-  | reduceSimpleOnly
-  | none
-
-private def config : ConfigWithKey :=
-  { transparency := .reducible, iota := false, proj := .no : Config }.toConfigWithKey
-
 mutual
 
 /--
@@ -53,7 +45,7 @@ mutual
    - We ignore metadata.
    - We ignore universe parameterst at constants.
 -/
-partial def main (a b : Expr) (mode : ReduceMode := .none) : MetaM Bool := do
+partial def main (a b : Expr) (reduce? : Bool := false) : MetaM Bool := do
   lt a b
 where
   reduce (e : Expr) : MetaM Expr := do
@@ -63,10 +55,10 @@ where
       -- TODO: investigate whether we have to create temporary fresh free variables in practice.
       -- Drawback: cost.
       return e
-    else match mode with
-      | .reduce => DiscrTree.reduce e
-      | .reduceSimpleOnly => withConfigWithKey config <| DiscrTree.reduce e
-      | .none => return e
+    else if reduce? then
+      DiscrTree.reduce e
+    else
+      return e
 
   lt (a b : Expr) : MetaM Bool := do
     if a == b then
@@ -192,7 +184,7 @@ end
 end ACLt
 
 @[inherit_doc ACLt.main]
-def acLt (a b : Expr) (mode : ACLt.ReduceMode := .none) : MetaM Bool :=
-  ACLt.main a b mode
+def acLt (a b : Expr) (reduce? : Bool := false) : MetaM Bool :=
+  ACLt.main a b reduce?
 
 end Lean.Meta

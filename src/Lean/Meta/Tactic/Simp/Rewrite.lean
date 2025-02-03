@@ -140,10 +140,10 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         return none
       if thm.perm then
         /-
-        We use `.reduceSimpleOnly` because this is how we indexed the discrimination tree.
+        We use `withSimpIndexConfig` because this is how we indexed the discrimination tree.
         See issue #1815
         -/
-        if !(← acLt rhs e .reduceSimpleOnly) then
+        if !(← withSimpIndexConfig <| acLt rhs e (reduce? := true)) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
       trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"

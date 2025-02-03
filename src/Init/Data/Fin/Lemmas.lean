@@ -374,6 +374,8 @@ theorem succ_succ_ne_one (a : Fin n) : Fin.succ (Fin.succ a) ≠ 1 :=
 
 @[simp] theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
 
+@[simp] theorem cast_zero [NeZero n] [NeZero m] (h : n = m) : Fin.cast h 0 = 0 := rfl
+
 @[simp] theorem cast_last {n' : Nat} {h : n + 1 = n' + 1} : (last n).cast h  = last n' :=
   Fin.ext (by rw [coe_cast, val_last, val_last, Nat.succ.inj h])
 

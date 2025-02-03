@@ -32,7 +32,11 @@ We'll use `v4.6.0` as the intended release version as a running example.
     and should also be PR'd to `master` (suggested title: "chore: update release notes for v4.6.0").
 - Go to https://github.com/leanprover/lean4/releases and verify that the `v4.6.0` release appears.
   - Verify on Github that "Set as the latest release" is checked.
-  - Copy the generated release note into the text box, adding
+  - Copy the generated release note into the text box, adding the header
+    ```
+    v4.6.0
+    ----------
+    ```
 - Next, we will move a curated list of downstream repos to the latest stable release.
   - In order to have the access rights to push to these repositories and merge PRs,
     you will need to be a member of the `lean-release-managers` team at both `leanprover-community` and `leanprover`.

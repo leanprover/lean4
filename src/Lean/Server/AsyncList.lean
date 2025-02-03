@@ -135,7 +135,8 @@ where
 partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32) : BaseIO (List α × Option ε × Bool) := do
   let timestamp ← IO.monoMsNow
   let r ← xs.getFinishedPrefixWithTimeout latencyMs
-  IO.sleep ((← IO.monoMsNow) - timestamp).toUInt32
+  let passedTimeMs := (← IO.monoMsNow) - timestamp
+  IO.sleep <| (latencyMs.toNat - passedTimeMs).toUInt32
   return r
 
 def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=

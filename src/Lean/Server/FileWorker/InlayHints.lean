@@ -124,10 +124,13 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
       s.oldInlayHints
   let newInlayHints : Array Elab.InlayHintInfo ← (·.2) <$> StateT.run (s := #[]) do
     for s in snaps do
-      s.infoTree.visitM' (postNode := fun _ i _ => do
-        let .ofInlayHintInfo ihi := i
+      s.infoTree.visitM' (postNode := fun ci i _ => do
+        let .ofCustomInfo i := i
           | return
-        modify (·.push ihi))
+        let some ih := Elab.InlayHint.ofCustomInfo? i
+          | return
+        let ih ← ci.runMetaM ih.lctx ih.resolveDeferred
+        modify (·.push ih.toInlayHintInfo))
   let inlayHints := newInlayHints ++ oldInlayHints
   let lspInlayHints ← inlayHints.mapM (·.toLspInlayHint srcSearchPath ctx.doc.meta.text)
   return ({ response := lspInlayHints, isComplete }, { s with oldInlayHints := inlayHints })

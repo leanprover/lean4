@@ -16,6 +16,7 @@ import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.TerminationHint
 import Lean.Elab.DeclarationRange
 import Lean.Language.Basic
+import Lean.Elab.InfoTree.InlayHints
 
 namespace Lean.Elab
 
@@ -1987,26 +1988,35 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
   let autos := autos.filter (· matches .fvar ..)
   let autoNames ← autos.mapM (·.fvarId!.getUserName)
   let formattedHint := s!" \{{" ".intercalate <| Array.toList <| autoNames.map toString}}"
-  let autoLabelParts : List InlayHintLabelPart := Array.toList <| ← autos.mapM fun auto => do
+  let autoLabelParts : List (InlayHintLabelPart × Option Expr) := Array.toList <| ← autos.mapM fun auto => do
     let name := toString <| ← auto.fvarId!.getUserName
-    let type := toString <| ← Meta.ppExpr <| ← instantiateMVars (← inferType auto)
-    return {
-      value := name,
-      tooltip? := some s!"{name} : {type}"
-    }
-  let p value : InlayHintLabelPart := {
-    value
-  }
+    return ({ value := name }, some auto)
+  let p value : InlayHintLabelPart × Option Expr := ({ value }, none)
   let labelParts := [p " ", p "{"] ++ [p " "].intercalate (autoLabelParts.map ([·])) ++ [p "}"]
-  pushInfoLeaf <| .ofInlayHintInfo {
-    position := inlayHintPos
-    label := .parts labelParts.toArray
-    textEdits := #[{
-      range := ⟨inlayHintPos, inlayHintPos⟩,
-      newText := formattedHint
-    }]
-    kind? := some .parameter
-  }
+  let labelParts := labelParts.toArray
+  let deferredResolution ih := do
+    let .parts ps := ih.label
+      | return ih
+    let ps ← ps.mapIdxM fun i p => do
+      let some (part, some auto) := labelParts[i]?
+        | return p
+      let type := toString <| ← Meta.ppExpr <| ← instantiateMVars (← inferType auto)
+      return { p with
+        tooltip? := s!"{part.value} : {type}"
+      }
+    return { ih with label := .parts ps }
+  pushInfoLeaf <| .ofCustomInfo {
+      position := inlayHintPos
+      label := .parts <| labelParts.map (·.1)
+      textEdits := #[{
+        range := ⟨inlayHintPos, inlayHintPos⟩,
+        newText := formattedHint
+      }]
+      kind? := some .parameter
+      lctx := ← getLCtx
+      deferredResolution
+      : InlayHint
+    }.toCustomInfo
 
 /--
   Return `autoBoundImplicits ++ xs`

@@ -233,7 +233,7 @@ example (d : Bool) (a b c : BitVec w) :
 example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
   bv_normalize
 
-example (a : BitVec 32) : (0#32 = ~~~a) ↔ (-1 = a) := by
+example (a : BitVec 32) : (0#32 = ~~~a) ↔ (a = -1) := by
   bv_normalize
 
 -- reducing or to and while still applying or specific rewrites

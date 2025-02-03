@@ -190,9 +190,10 @@ theorem BitVec.not_eq_comm (a b : BitVec w) : (~~~a == b) = (a == ~~~b) := by
   simp [_root_.BitVec.not_eq_comm]
 
 -- used for bv_equal_const_not simproc
-theorem BitVec.not_eq_comm' (a b : BitVec w) : (a == ~~~b) = (~~~a == b) := by
-  rw [Bool.eq_iff_iff]
+theorem BitVec.not_eq_comm' (a b : BitVec w) : (a == ~~~b) = (b == ~~~a) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm]
   simp [_root_.BitVec.not_eq_comm]
+
 
 end Frontend.Normalize
 end Std.Tactic.BVDecide

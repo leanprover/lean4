@@ -165,8 +165,7 @@ builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (_ : Bit
     let_expr BEq.beq α inst outerLhs rhs := e | return .continue
     let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
     let_expr Complement.complement _ _ lhs := outerLhs | return .continue
-    let newRhs := ~~~rhsVal
-    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst lhs (toExpr newRhs)
+    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst lhs (toExpr (~~~rhsVal))
     let proof :=
       mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm)
         (toExpr w)
@@ -179,8 +178,7 @@ builtin_simproc [bv_normalize] bv_equal_const_not' ((_ : BitVec _) == ~~~(_ : Bi
     let_expr BEq.beq α inst lhs outerRhs := e | return .continue
     let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
     let_expr Complement.complement _ _ rhs := outerRhs | return .continue
-    let newLhs := ~~~lhsVal
-    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst (toExpr newLhs) rhs
+    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst rhs (toExpr (~~~lhsVal))
     let proof :=
       mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm')
         (toExpr w)

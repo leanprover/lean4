@@ -104,11 +104,10 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Create and push the tag
       - There is no `stable` branch; skip this step
     - [Mathlib](https://github.com/leanprover-community/mathlib4)
-      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Batteries`, `doc-gen4`, `import-graph`
+      - Dependencies: `Aesop`, `ProofWidgets4`, `lean4checker`, `Batteries`, `doc-gen4`, `quote4`, `import-graph`
       - Toolchain bump PR notes:
-        - In addition to updating the `lean-toolchain` and `lakefile.lean`,
-          in `.github/workflows/lean4checker.yml` update the line
-          `git checkout v4.6.0` to the appropriate tag.
+        - Upstream dependencies should use their `main` or `master` branch, not toolchain tags.
+          (Unlike for other repos.)
         - Push the PR branch to the main Mathlib repository rather than a fork, or CI may not work reliably
         - Create and push the tag
         - Create a new branch from the tag, push it, and open a pull request against `stable`.
@@ -120,17 +119,12 @@ We'll use `v4.6.0` as the intended release version as a running example.
       - Toolchain bump PR including updated Lake manifest
       - Create and push the tag
       - Merge the tag into `stable`
-- Run `script/release_checklist.py v4.6.0` to check that everything is in order.
-- The `v4.6.0` section of `RELEASES.md` is out of sync between
-  `releases/v4.6.0` and `master`. This should be reconciled:
-  - Replace the `v4.6.0` section on `master` with the `v4.6.0` section on `releases/v4.6.0`
-    and commit this to `master`.
-- Merge the release announcement PR for the Lean website - it will be deployed automatically
+- Run `script/release_checklist.py v4.6.0` again to check that everything is in order.
 - Finally, make an announcement!
   This should go in https://leanprover.zulipchat.com/#narrow/stream/113486-announce, with topic `v4.6.0`.
   Please see previous announcements for suggested language.
   You will want a few bullet points for main topics from the release notes.
-  Link to the blog post from the Zulip announcement.
+  If there is a blog post, link to that from the zulip announcement.
 - Make sure that whoever is handling social media knows the release is out.
 
 ## Optimistic(?) time estimates:
@@ -150,6 +144,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 
 - Decide which nightly release you want to turn into a release candidate.
   We will use `nightly-2024-02-29` in this example.
+- It is essential to choose the nightly that will become the release candidate as early as possible, to avoid confusion.
 - It is essential that Batteries and Mathlib already have reviewed branches compatible with this nightly.
   - Check that both Batteries and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
     in their `lean-toolchain`.
@@ -162,10 +157,9 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     git checkout -b releases/v4.7.0
     ```
 - In `RELEASES.md` replace `Development in progress` in the `v4.7.0` section with `Release notes to be written.`
-- It is essential to choose the nightly that will become the release candidate as early as possible, to avoid confusion.
 - In `src/CMakeLists.txt`,
   - verify that you see `set(LEAN_VERSION_MINOR 7)` (for whichever `7` is appropriate); this should already have been updated when the development cycle began.
-  - `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
+  - change the `LEAN_VERSION_IS_RELEASE` line to `set(LEAN_VERSION_IS_RELEASE 1)` (this should be a change; on `master` and nightly releases it is always `0`).
   - Commit your changes to `src/CMakeLists.txt`, and push.
 - `git tag v4.7.0-rc1`
 - `git push origin v4.7.0-rc1`
@@ -174,9 +168,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - This step can take up to an hour.
 - (GitHub release notes) Once the release appears at https://github.com/leanprover/lean4/releases/
   - Verify that the release is marked as a prerelease (this should have been done automatically by the CI release job).
-  - In the "previous tag" dropdown, select `v4.6.0`, and click "Generate release notes".
-    This will add a list of all the commits since the last stable version.
-    - Delete "update stage0" commits, and anything with a completely inscrutable commit message.
+  - Generate release notes by running `script/release_notes.py --since v4.6.0` on the `releases/v4.7.0` branch.
+    See the section "Writing the release notes" below for more information.
 - Next, we will move a curated list of downstream repos to the release candidate.
   - This assumes that for each repository either:
     * There is already a *reviewed* branch `bump/v4.7.0` containing the required adaptations.
@@ -204,7 +197,8 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
     It is essential for Mathlib CI that you then create the next `bump/v4.8.0` branch
     for the next development cycle.
     Set the `lean-toolchain` file on this branch to same `nightly` you used for this release.
-  - For Batteries/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
+  - (Note: we're currently uncertain if we really want to do this step. Check with Kim Morrison if you're unsure.)
+    For Batteries/Aesop/Mathlib, which maintain a `nightly-testing` branch, make sure there is a tag
     `nightly-testing-2024-02-29` with date corresponding to the nightly used for the release
     (create it if not), and then on the `nightly-testing` branch `git reset --hard master`, and force push.
 - Make an announcement!

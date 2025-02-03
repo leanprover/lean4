@@ -185,5 +185,15 @@ theorem BitVec.bif_eq_not_bif' (d : Bool) (a b c : BitVec w) :
     ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
   cases d <;> simp
 
+-- used for bv_equal_const_not simproc
+theorem BitVec.not_eq_comm (a b : BitVec w) : (~~~a == b) = (a == ~~~b) := by
+  rw [Bool.eq_iff_iff]
+  simp [_root_.BitVec.not_eq_comm]
+
+-- used for bv_equal_const_not simproc
+theorem BitVec.not_eq_comm' (a b : BitVec w) : (a == ~~~b) = (~~~a == b) := by
+  rw [Bool.eq_iff_iff]
+  simp [_root_.BitVec.not_eq_comm]
+
 end Frontend.Normalize
 end Std.Tactic.BVDecide

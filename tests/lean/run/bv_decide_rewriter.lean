@@ -229,6 +229,13 @@ example (d : Bool) (a b c : BitVec w) :
     ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
   bv_normalize
 
+-- bv_equal_const_not
+example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
+  bv_normalize
+
+example (a : BitVec 32) : (0#32 = ~~~a) ↔ (-1 = a) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

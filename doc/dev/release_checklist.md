@@ -199,7 +199,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
   - We do this for the same list of repositories as for stable releases, see above.
     As above, there are dependencies between these, and so the process above is iterative.
     It greatly helps if you can merge the `bump/v4.7.0` PRs yourself!
-    It is essential for Mathlib CI that you then create the next `bump/v4.8.0` branch
+  - It is essential for Mathlib and Batteries CI that you then create the next `bump/v4.8.0` branch
     for the next development cycle.
     Set the `lean-toolchain` file on this branch to same `nightly` you used for this release.
   - (Note: we're currently uncertain if we really want to do this step. Check with Kim Morrison if you're unsure.)

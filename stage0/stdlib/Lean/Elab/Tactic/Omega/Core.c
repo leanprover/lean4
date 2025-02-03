@@ -188,6 +188,7 @@ static uint8_t l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_Omega_Problem_fou
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_elimination___closed__1;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_Omega_instToExprLinearCombo___spec__1___closed__13;
+lean_object* l_List_findIdx_x3f_go___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_ToExpr_0__Lean_List_toExprAux___at_Lean_Elab_Tactic_Omega_instToExprLinearCombo___spec__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tactic_Omega_Core___hyg_3____closed__22;
 static lean_object* l_Lean_Elab_Tactic_Omega_Problem_proveFalse___closed__9;
@@ -316,7 +317,6 @@ static lean_object* l_Lean_Elab_Tactic_Omega_initFn____x40_Lean_Elab_Tactic_Omeg
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_toString___closed__16;
 lean_object* l_Int_bmod(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Omega_Justification_bmodProof___closed__10;
-lean_object* l_List_findIdx_x3f___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_Omega_Problem_dealWithHardEquality___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Omega_Problem_addEquality__proof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_thunk(lean_object*);
@@ -9636,7 +9636,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = l_Lean_Elab_Tactic_Omega_Problem_solveEasyEquality___closed__1;
 x_4 = lean_unsigned_to_nat(0u);
 lean_inc(x_2);
-x_5 = l_List_findIdx_x3f___rarg(x_3, x_2, x_4);
+x_5 = l_List_findIdx_x3f_go___rarg(x_3, x_2, x_4);
 x_6 = lean_ctor_get(x_1, 2);
 lean_inc(x_6);
 if (lean_obj_tag(x_5) == 0)

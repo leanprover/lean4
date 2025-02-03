@@ -16,9 +16,7 @@ grind_pattern contains_insert => contains (insertElem s a) a
 set_option trace.grind.ematch true
 set_option trace.grind.ematch.pattern true
 
-/--
-info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem ? #2 #1 #0) #0]
--/
+/-- info: [grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0] -/
 #guard_msgs (info) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
         s₂ = insertElem s₁ a₁ → a₁ = a₂ → contains s₂ a₂ := by
@@ -26,7 +24,7 @@ example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
 
 /--
 info: [grind.ematch] reinsert `contains_insert`
-[grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem ? #2 #1 #0) #0]
+[grind.ematch] activated `contains_insert`, [@contains #3 (@insertElem _ #2 #1 #0) #0]
 -/
 #guard_msgs (info) in
 example [DecidableEq α] (s₁ s₂ : Set α) (a₁ a₂ : α) :
@@ -67,7 +65,7 @@ theorem arrEx [Add α] (as : Array α) (h₁ : i < as.size) (h₂ : i = j) : as[
 
 
 /--
-info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 ? ? ? (@getElem ? `[Nat] ? ? ? #2 #5 ?) (@getElem ? `[Nat] ? ? ? #2 #4 ?)]
+info: [grind.ematch.pattern] arrEx: [@HAdd.hAdd #6 _ _ _ (@getElem _ `[Nat] _ _ _ #2 #5 _) (@getElem _ `[Nat] _ _ _ #2 #4 _)]
 -/
 #guard_msgs in
 grind_pattern arrEx => as[i]+as[j]'(h₂▸h₁)

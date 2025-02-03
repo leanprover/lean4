@@ -576,6 +576,7 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9;
 x_7 = l_Lean_instInhabitedName;
 x_8 = l_Lean_Compiler_LCNF_shouldGenerateCode___lambda__4___closed__1;
 lean_inc(x_1);
+lean_inc(x_2);
 x_9 = l_Lean_ParametricAttribute_getParam_x3f___rarg(x_7, x_8, x_2, x_1);
 if (lean_obj_tag(x_9) == 0)
 {
@@ -607,6 +608,7 @@ _start:
 uint8_t x_7; uint8_t x_8; 
 x_7 = 2;
 lean_inc(x_1);
+lean_inc(x_2);
 x_8 = l___private_Lean_Compiler_InlineAttrs_0__Lean_Compiler_hasInlineAttrCore(x_2, x_7, x_1);
 if (x_8 == 0)
 {
@@ -760,6 +762,7 @@ x_10 = lean_ctor_get(x_8, 0);
 lean_inc(x_10);
 lean_dec(x_8);
 lean_inc(x_1);
+lean_inc(x_10);
 x_11 = l_Lean_isExtern(x_10, x_1);
 if (x_11 == 0)
 {
@@ -794,6 +797,7 @@ x_18 = lean_ctor_get(x_16, 0);
 lean_inc(x_18);
 lean_dec(x_16);
 lean_inc(x_1);
+lean_inc(x_18);
 x_19 = l_Lean_isExtern(x_18, x_1);
 if (x_19 == 0)
 {

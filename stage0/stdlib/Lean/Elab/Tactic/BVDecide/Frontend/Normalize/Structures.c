@@ -5641,7 +5641,6 @@ lean_inc(x_12);
 lean_dec(x_10);
 lean_inc(x_1);
 x_13 = l_Lean_isStructure(x_12, x_1);
-lean_dec(x_12);
 if (x_13 == 0)
 {
 uint8_t x_14; lean_object* x_15; 
@@ -5678,7 +5677,6 @@ lean_inc(x_20);
 lean_dec(x_18);
 lean_inc(x_1);
 x_21 = l_Lean_isStructure(x_20, x_1);
-lean_dec(x_20);
 if (x_21 == 0)
 {
 uint8_t x_22; lean_object* x_23; lean_object* x_24; 

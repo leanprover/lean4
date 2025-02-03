@@ -1137,7 +1137,7 @@ return x_1;
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186_(lean_object* x_1) {
 _start:
 {
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
 x_2 = lean_box(0);
 x_3 = lean_alloc_closure((void*)(l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____lambda__1___boxed), 4, 1);
 lean_closure_set(x_3, 0, x_2);
@@ -1146,15 +1146,17 @@ x_5 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__3;
 x_6 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__4;
 x_7 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__5;
 x_8 = l_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____closed__6;
-x_9 = lean_alloc_ctor(0, 6, 0);
-lean_ctor_set(x_9, 0, x_4);
-lean_ctor_set(x_9, 1, x_5);
-lean_ctor_set(x_9, 2, x_3);
-lean_ctor_set(x_9, 3, x_6);
-lean_ctor_set(x_9, 4, x_7);
-lean_ctor_set(x_9, 5, x_8);
-x_10 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_9, x_1);
-return x_10;
+x_9 = 2;
+x_10 = lean_alloc_ctor(0, 6, 1);
+lean_ctor_set(x_10, 0, x_4);
+lean_ctor_set(x_10, 1, x_5);
+lean_ctor_set(x_10, 2, x_3);
+lean_ctor_set(x_10, 3, x_6);
+lean_ctor_set(x_10, 4, x_7);
+lean_ctor_set(x_10, 5, x_8);
+lean_ctor_set_uint8(x_10, sizeof(void*)*6, x_9);
+x_11 = l_Lean_registerPersistentEnvExtensionUnsafe___rarg(x_10, x_1);
+return x_11;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lean_initFn____x40_Lean_ReducibilityAttrs___hyg_186____spec__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -3004,6 +3006,7 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_3 = l_Lean_getReducibilityStatusCore___closed__1;
 x_4 = l_Lean_getReducibilityStatusCore___closed__2;
+lean_inc(x_1);
 x_5 = l_Lean_ScopedEnvExtension_getState___rarg(x_3, x_4, x_1);
 x_6 = l_Lean_SMap_find_x3f___at_Lean_getReducibilityStatusCore___spec__1(x_5, x_2);
 if (lean_obj_tag(x_6) == 0)
@@ -3016,7 +3019,6 @@ lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11;
 x_8 = lean_box(0);
 x_9 = l_Lean_getReducibilityStatusCore___closed__3;
 x_10 = l_Lean_PersistentEnvExtension_getState___rarg(x_8, x_9, x_1);
-lean_dec(x_1);
 x_11 = l_Lean_RBNode_find___at_Lean_NameMap_find_x3f___spec__1___rarg(x_10, x_2);
 lean_dec(x_2);
 lean_dec(x_10);
@@ -3047,7 +3049,6 @@ x_16 = lean_box(0);
 x_17 = l_Lean_getReducibilityStatusCore___closed__3;
 x_18 = l_Lean_PersistentEnvExtension_getModuleEntries___rarg(x_16, x_17, x_1, x_15);
 lean_dec(x_15);
-lean_dec(x_1);
 x_19 = 1;
 x_20 = lean_box(x_19);
 x_21 = lean_alloc_ctor(0, 2, 0);

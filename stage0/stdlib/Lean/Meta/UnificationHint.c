@@ -9638,7 +9638,6 @@ lean_dec(x_10);
 x_13 = l_Lean_Meta_instInhabitedUnificationHints;
 x_14 = l_Lean_Meta_addUnificationHint___lambda__1___closed__3;
 x_15 = l_Lean_ScopedEnvExtension_getState___rarg(x_13, x_14, x_12);
-lean_dec(x_12);
 x_16 = l___private_Lean_Meta_UnificationHint_0__Lean_Meta_config;
 x_17 = lean_ctor_get(x_16, 0);
 lean_inc(x_17);

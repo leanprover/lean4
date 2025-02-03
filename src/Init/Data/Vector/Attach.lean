@@ -497,7 +497,7 @@ and simplifies these to the function directly taking the value.
     (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
     l.foldl f x = l.unattach.foldl g x := by
   rcases l with ⟨l, rfl⟩
-  simp [Array.foldl_subtype (hf := hf)]
+  simp [Array.foldl_subtype hf]
 
 /--
 This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
@@ -508,7 +508,7 @@ and simplifies these to the function directly taking the value.
     (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
     l.foldr f x = l.unattach.foldr g x := by
   rcases l with ⟨l, rfl⟩
-  simp [Array.foldr_subtype (hf := hf)]
+  simp [Array.foldr_subtype hf]
 
 /--
 This lemma identifies maps over arrays of subtypes, where the function only depends on the value, not the proposition,
@@ -518,7 +518,21 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.map f = l.unattach.map g := by
   rcases l with ⟨l, rfl⟩
-  simp [Array.map_subtype (hf := hf)]
+  simp [Array.map_subtype hf]
+
+@[simp] theorem findSome?_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    l.findSome? f = l.unattach.findSome? g := by
+  rcases l with ⟨l, rfl⟩
+  simp
+  rw [Array.findSome?_subtype hf]
+
+@[simp] theorem find?_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.find? f).map Subtype.val = l.unattach.find? g := by
+  rcases l with ⟨l, rfl⟩
+  simp
+  rw [Array.find?_subtype hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 

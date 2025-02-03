@@ -11598,6 +11598,7 @@ if (x_7 == 0)
 {
 lean_object* x_8; uint8_t x_9; 
 x_8 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_1);
 x_9 = l_Lean_TagDeclarationExtension_isTagged(x_8, x_1, x_4);
 if (x_9 == 0)
 {
@@ -11606,7 +11607,6 @@ x_10 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_11 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
 lean_inc(x_4);
 x_12 = l_Lean_MapDeclarationExtension_contains___rarg(x_10, x_11, x_1, x_4);
-lean_dec(x_1);
 if (x_12 == 0)
 {
 lean_object* x_13; uint8_t x_14; 
@@ -11687,6 +11687,7 @@ if (x_23 == 0)
 {
 lean_object* x_24; uint8_t x_25; 
 x_24 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
+lean_inc(x_1);
 x_25 = l_Lean_TagDeclarationExtension_isTagged(x_24, x_1, x_4);
 if (x_25 == 0)
 {
@@ -11695,7 +11696,6 @@ x_26 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_27 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
 lean_inc(x_4);
 x_28 = l_Lean_MapDeclarationExtension_contains___rarg(x_26, x_27, x_1, x_4);
-lean_dec(x_1);
 if (x_28 == 0)
 {
 lean_object* x_29; uint8_t x_30; 
@@ -15555,7 +15555,6 @@ lean_dec(x_10);
 x_12 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_13 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
 x_14 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_12, x_13, x_11, x_1);
-lean_dec(x_11);
 lean_ctor_set(x_8, 0, x_14);
 return x_8;
 }
@@ -15573,7 +15572,6 @@ lean_dec(x_15);
 x_18 = l_Lean_instInhabitedProjectionFunctionInfo;
 x_19 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__2;
 x_20 = l_Lean_MapDeclarationExtension_find_x3f___rarg(x_18, x_19, x_17, x_1);
-lean_dec(x_17);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_16);
@@ -15994,7 +15992,6 @@ lean_inc(x_57);
 lean_dec(x_55);
 x_58 = l_Lean_Compiler_LCNF_ToLCNF_mustEtaExpand___closed__1;
 x_59 = l_Lean_TagDeclarationExtension_isTagged(x_58, x_57, x_15);
-lean_dec(x_57);
 if (x_59 == 0)
 {
 lean_object* x_60; lean_object* x_61; 

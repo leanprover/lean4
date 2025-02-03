@@ -808,15 +808,15 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i
-    = (decide (i < hi - lo + 1)
+    = (decide (i ≤  hi - lo)
       && (decide (lo + (hi - lo - i) < w)
       && x.getMsbD (w - 1 - (lo + (hi - lo - i))))) := by
-  rw [BitVec.extractLsb, BitVec.getMsbD_extractLsb', Nat.add_sub_cancel]
+  simp [BitVec.extractLsb, BitVec.getMsbD_extractLsb', Nat.add_sub_cancel, Nat.lt_add_one_iff (m := i) (n := (hi - lo))]
 
 @[simp] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb
     = (decide (lo + (hi - lo) < w) && x.getMsbD (w - 1 - (lo + (hi - lo)))) := by
-  simp [BitVec.msb, BitVec.getMsbD_extractLsb, show hi - lo ≤ hi - lo by omega]
+  simp [BitVec.msb, BitVec.getMsbD_extractLsb]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
@@ -3381,7 +3381,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

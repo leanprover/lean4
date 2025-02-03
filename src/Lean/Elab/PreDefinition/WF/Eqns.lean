@@ -60,7 +60,7 @@ def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
   let env ← getEnv
   if env.contains name then return name
   let some info := eqnInfoExt.find? env declName | return none
-  mkUnfoldEq info.toEqnInfoCore info.declNameNonRec
+  mkUnfoldEq info.toEqnInfoCore info.declNameNonRec .none
   return some name
 
 builtin_initialize

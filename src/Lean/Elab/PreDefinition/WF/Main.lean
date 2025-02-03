@@ -23,7 +23,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
-  let (fixedPrefixSize, argsPacker, unaryPreDef) ← withoutModifyingEnv do
+  let (fixedPrefixSize, argsPacker, unaryPreDef, iteProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
@@ -33,8 +33,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let preDefsDIte ← preDefs.mapM fun preDef => return { preDef with value := (← iteToDIte preDef.value) }
-    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte)
+    let (preDefsDIte, iteProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
+      let result ← iteToDIte preDef.value
+      return ({preDef with value := result.expr}, result)
+    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte, iteProofs)
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
@@ -61,10 +63,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
-  for preDef in preDefs do
+  for preDef in preDefs, iteProof in iteProofs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
-        WF.mkUnfoldEq { preDef with } preDefNonRec.declName
+        WF.mkUnfoldEq { preDef with } preDefNonRec.declName iteProof
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

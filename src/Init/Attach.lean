@@ -48,6 +48,7 @@ theorem List.foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β �
     xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => f s (wfParam x)) init := by
   simp [wfParam]
 
+-- TODO: Unused, here, but worth moving to library?
 theorem List.unattach_foldl {p : α → Prop} {l : List { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {hf : ∀ s x h, f s ⟨x, h⟩ = g s x} :
     (l.foldl f) = l.unattach.foldl g := by

@@ -772,6 +772,15 @@ def DStep.addExtraArgs (s : DStep) (extraArgs : Array Expr) : DStep :=
   | .continue none => .continue none
   | .continue (some eNew) => .continue (mkAppN eNew extraArgs)
 
+def Result.addLambdas (r : Result) (xs : Array Expr) : MetaM Result := do
+  let eNew ← mkLambdaFVars xs r.expr
+  match r.proof? with
+  | none   => return { expr := eNew }
+  | some h =>
+    let p ← xs.foldrM (init := h) fun x h => do
+      mkFunExt (← mkLambdaFVars #[x] h)
+    return { expr := eNew, proof? := p }
+
 end Simp
 
 export Simp (SimpM Simprocs)

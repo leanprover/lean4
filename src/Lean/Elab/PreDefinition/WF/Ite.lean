@@ -29,17 +29,6 @@ def getAttachSimpTheorems : MetaM SimpTheorems := do
   let s ← s.addConst `Array.map_unattach
   pure s
 
-def getUnattachSimpTheorems : MetaM SimpTheorems := do
-  let s : SimpTheorems := {}
-  let s ← s.addConst ``List.unattach_attach
-  let s ← s.addConst ``List.map_subtype
-  let s ← s.addConst ``List.unattach_filter
-  let s ← s.addConst ``List.unattach_reverse
-  let s ← s.addConst `List.unattach_foldl
-  let s ← s.addConst ``Array.map_subtype
-  let s ← s.addConst ``Array.unattach_attach
-  pure s
-
 private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[(← getAttachSimpTheorems)])
@@ -92,7 +81,7 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   return .continue <| matcherApp'.toExpr
 
 
-def iteToDIte (e : Expr) : MetaM Expr := do
+def iteToDIte (e : Expr) : MetaM Simp.Result := do
   lambdaTelescope e fun xs e => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
@@ -103,22 +92,21 @@ def iteToDIte (e : Expr) : MetaM Expr := do
     let simprocs ← simprocs.add ``paramProj (post := true)
     let simprocs ← simprocs.add ``paramMatcher (post := false)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
-    let e' := result.expr
 
     -- Remove markers
     -- let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
     -- let e'' := result.expr
     -- Simp, even with dsimp on, is not as thorough as `Core.transform`:
-    let e'' ← Core.transform e' fun e =>
+    let e'' ← Core.transform result.expr fun e =>
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
           if h : as.size ≥ 2 then
             return .continue (mkAppN as[1] as[2:])
         return .continue
+    let result ← result.mkEqTrans { expr := e'', proof? := none }
 
     trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
-
-    mkLambdaFVars xs e''
+    result.addLambdas xs
 
 /-
 run_elab do

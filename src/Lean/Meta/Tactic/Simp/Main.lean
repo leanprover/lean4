@@ -299,13 +299,7 @@ def simpConst (e : Expr) : SimpM Result :=
 def simpLambda (e : Expr) : SimpM Result :=
   withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
     let r ← simp e
-    let eNew ← mkLambdaFVars xs r.expr
-    match r.proof? with
-    | none   => return { expr := eNew }
-    | some h =>
-      let p ← xs.foldrM (init := h) fun x h => do
-        mkFunExt (← mkLambdaFVars #[x] h)
-      return { expr := eNew, proof? := p }
+    r.addLambdas xs
 
 def simpArrow (e : Expr) : SimpM Result := do
   trace[Debug.Meta.Tactic.simp] "arrow {e}"

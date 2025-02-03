@@ -188,5 +188,37 @@ builtin_simproc [bv_normalize] bv_equal_const_not' ((_ : BitVec _) == ~~~(_ : Bi
         rhs
     return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec _) == (_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α instBEq outerLhs rhs := e | return .continue
+    let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
+    if -1#w != rhsVal then return .continue
+    let_expr HAnd.hAnd _ _ _ _ llhs lrhs := outerLhs | return .continue
+    let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq llhs rhs
+    let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq lrhs rhs
+    let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.and_eq_allOnes)
+        (toExpr w)
+        llhs
+        lrhs
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_allOnes_eq_and ((_ : BitVec _) == (_ : BitVec _) &&& (_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α instBEq lhs outerRhs := e | return .continue
+    let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
+    if -1#w != lhsVal then return .continue
+    let_expr HAnd.hAnd _ _ _ _ rlhs rrhs := outerRhs | return .continue
+    let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rlhs lhs
+    let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rrhs lhs
+    let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.allOnes_eq_and)
+        (toExpr w)
+        rlhs
+        rrhs
+    return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

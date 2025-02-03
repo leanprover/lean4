@@ -236,6 +236,17 @@ example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
 example (a : BitVec 32) : (0#32 = ~~~a) ↔ (-1 = a) := by
   bv_normalize
 
+-- reducing or to and while still applying or specific rewrites
+example {x : BitVec 64} : x ||| 0 = x := by
+  bv_normalize
+
+-- bv_and_eq_allOnes
+example (a b : BitVec 16) : (a &&& b == -1#16) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
+
+example (a b : BitVec 16) : (-1#16 == a &&& b) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

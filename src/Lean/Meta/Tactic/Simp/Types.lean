@@ -132,7 +132,6 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
   let curr ← Meta.getConfig
   return { curr with
     beta         := c.beta
-    iota         := c.iota
     zeta         := c.zeta
     zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
@@ -142,6 +141,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     is an instance of the pattern `f (?x.1)`
     -/
     proj         := .no
+    iota         := false
     transparency := .reducible
   : Meta.Config }.toConfigWithKey
 

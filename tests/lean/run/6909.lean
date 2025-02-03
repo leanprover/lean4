@@ -10,7 +10,5 @@ axiom bad_simp_lemma (n : Nat) (ns : List Nat) : maxExp n ns [] = 8
 example (n : Nat) (ns : List Nat) : maxExp n ns [] = 8 := by
   simp -- previously, simp made no progress
 
-/-- error: simp made no progress -/
-#guard_msgs in
 example (n : Nat) (ns : List Nat) : maxExp n ns [] = 8 := by
   simp -iota -- previously, succeeded

@@ -30,7 +30,7 @@ x✝ :
         0}
   [ematch] E-matching patterns
     [thm] _example.match_1.eq_1: [_example.match_1 #2 `[0] #1 #0]
-    [thm] _example.match_1.eq_2: [_example.match_1 #3 (Lean.Grind.offset #2 (1)) #1 #0]
+    [thm] _example.match_1.eq_2: [_example.match_1 #3 (#2 + 1) #1 #0]
   [limits] Thresholds reached
     [limit] maximum number of case-splits has been reached, threshold: `(splits := 0)`
 grind_guide.lean:68:2-68:7: error: `grind` failed
@@ -78,7 +78,7 @@ h : x = 0
         | n.succ => 2
   [ematch] E-matching patterns
     [thm] _example.match_1.eq_1: [_example.match_1 #2 `[0] #1 #0]
-    [thm] _example.match_1.eq_2: [_example.match_1 #3 (Lean.Grind.offset #2 (1)) #1 #0]
+    [thm] _example.match_1.eq_2: [_example.match_1 #3 (#2 + 1) #1 #0]
   [offset] Assignment satisfying offset contraints
     [assign] match x with
         | 0 => 1

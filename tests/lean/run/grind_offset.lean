@@ -9,9 +9,7 @@ set_option trace.grind.ematch.pattern true
 set_option trace.grind.ematch.instance true
 set_option trace.grind.assert true
 
-/--
-info: [grind.ematch.pattern] f.eq_2: [f (Lean.Grind.offset #0 (1))]
--/
+/-- info: [grind.ematch.pattern] f.eq_2: [f (#0 + 1)] -/
 #guard_msgs in
 grind_pattern f.eq_2 => f (x + 1)
 
@@ -66,9 +64,7 @@ example : f (c + 2) = a → a = g (g (f c)) := by
   | 1 => 10
   | a+2 => g (foo a)
 
-/--
-info: [grind.ematch.pattern] foo.eq_3: [foo (Lean.Grind.offset #0 (2))]
--/
+/-- info: [grind.ematch.pattern] foo.eq_3: [foo (#0 + 2)] -/
 #guard_msgs in
 grind_pattern foo.eq_3 => foo (a_2 + 2)
 

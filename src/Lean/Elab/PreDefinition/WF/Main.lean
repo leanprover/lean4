@@ -64,7 +64,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   for preDef in preDefs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
-        WF.mkUnfoldEq { preDef with } preDefNonRec.declName
+        WF.mkUnfoldEq preDef preDefNonRec.declName
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

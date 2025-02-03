@@ -108,3 +108,13 @@ namespace List
   simp [beq_eq_decide, Array.beq_eq_decide]
 
 end List
+
+namespace Array
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Array α) where
+  rfl := by simp [BEq.beq, isEqv_self_beq]
+  eq_of_beq := by
+    rintro ⟨a⟩ ⟨b⟩ h
+    simpa using h
+
+end Array

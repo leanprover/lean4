@@ -73,7 +73,7 @@ h : x = 0
         1}
     [eqc] {x, 0}
   [cases] Case analyses
-    [cases] [2]: match x with
+    [cases] [1/2]: match x with
         | 0 => 1
         | n.succ => 2
   [ematch] E-matching patterns

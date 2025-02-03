@@ -51,19 +51,4 @@ def getEqnsFor? (declName : Name) : MetaM (Option (Array Name)) := do
 builtin_initialize
   registerGetEqnsFn getEqnsFor?
 
-
--- Remove the rest of this file after the next stage update,
--- as we generate these eagerly now.
-def getUnfoldFor? (declName : Name) : MetaM (Option Name) := do
-  let name := Name.str declName unfoldThmSuffix
-  let env ← getEnv
-  if env.contains name then return name
-  let some info := eqnInfoExt.find? env declName | return none
-  mkUnfoldEq info.toEqnInfoCore info.declNameNonRec
-  return some name
-
-builtin_initialize
-  registerGetUnfoldEqnFn getUnfoldFor?
-
-
 end Lean.Elab.WF

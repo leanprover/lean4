@@ -1967,7 +1967,6 @@ x_14 = l_Lean_Syntax_getId(x_12);
 x_15 = l_Lean_Parser_ParserExtension_instInhabitedState;
 x_16 = l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__2___closed__1;
 x_17 = l_Lean_ScopedEnvExtension_getState___rarg(x_15, x_16, x_10);
-lean_dec(x_10);
 x_18 = lean_ctor_get(x_17, 2);
 lean_inc(x_18);
 lean_dec(x_17);
@@ -2256,7 +2255,6 @@ x_80 = l_Lean_Syntax_getId(x_78);
 x_81 = l_Lean_Parser_ParserExtension_instInhabitedState;
 x_82 = l_Lean_PrettyPrinter_mkCategoryParenthesizerAttribute___lambda__2___closed__1;
 x_83 = l_Lean_ScopedEnvExtension_getState___rarg(x_81, x_82, x_76);
-lean_dec(x_76);
 x_84 = lean_ctor_get(x_83, 2);
 lean_inc(x_84);
 lean_dec(x_83);
@@ -10044,7 +10042,6 @@ lean_inc(x_11);
 lean_dec(x_9);
 x_12 = l_Lean_PrettyPrinter_Parenthesizer_categoryParser_parenthesizer___closed__1;
 x_13 = l_Lean_KeyedDeclsAttribute_getValues___rarg(x_12, x_11, x_1);
-lean_dec(x_11);
 if (lean_obj_tag(x_13) == 0)
 {
 lean_object* x_14; 

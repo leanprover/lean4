@@ -19,6 +19,7 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__4;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__22;
 static lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___closed__2;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Compiler_LCNF_getCasesInfo_x3f___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44;
 lean_object* l___private_Lean_Expr_0__Lean_Expr_getAppNumArgsAux(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes;
 lean_object* l_Lean_Core_instInhabitedCoreM___boxed(lean_object*, lean_object*, lean_object*);
@@ -61,6 +62,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_Util_0__Lean_Compiler_LC
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__25;
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextPartial___at_Lean_Core_instAddMessageContextCoreM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__16;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__14;
 static lean_object* l_Lean_Compiler_LCNF_isCasesApp_x3f___closed__3;
@@ -92,6 +94,7 @@ static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__40;
 static lean_object* l_Lean_Compiler_LCNF_isLcCast_x3f___closed__1;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__34;
 static lean_object* l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__1;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -1654,7 +1657,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__15(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Thunk", 5, 5);
+x_1 = lean_mk_string_unchecked("Float32", 7, 7);
 return x_1;
 }
 }
@@ -1672,7 +1675,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__17(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Task", 4, 4);
+x_1 = lean_mk_string_unchecked("Thunk", 5, 5);
 return x_1;
 }
 }
@@ -1690,7 +1693,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__19(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Array", 5, 5);
+x_1 = lean_mk_string_unchecked("Task", 4, 4);
 return x_1;
 }
 }
@@ -1708,7 +1711,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__21(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("ByteArray", 9, 9);
+x_1 = lean_mk_string_unchecked("Array", 5, 5);
 return x_1;
 }
 }
@@ -1726,7 +1729,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__23(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("FloatArray", 10, 10);
+x_1 = lean_mk_string_unchecked("ByteArray", 9, 9);
 return x_1;
 }
 }
@@ -1744,7 +1747,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__25(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Nat", 3, 3);
+x_1 = lean_mk_string_unchecked("FloatArray", 10, 10);
 return x_1;
 }
 }
@@ -1762,7 +1765,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__27(
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Int", 3, 3);
+x_1 = lean_mk_string_unchecked("Nat", 3, 3);
 return x_1;
 }
 }
@@ -1779,24 +1782,18 @@ return x_3;
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__29() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = lean_box(0);
-x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__28;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_2);
-lean_ctor_set(x_3, 1, x_1);
-return x_3;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Int", 3, 3);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__30() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__26;
+x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__29;
-x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }
@@ -1804,11 +1801,11 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__31(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__24;
+x_1 = lean_box(0);
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__30;
 x_3 = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(x_3, 0, x_1);
-lean_ctor_set(x_3, 1, x_2);
+lean_ctor_set(x_3, 0, x_2);
+lean_ctor_set(x_3, 1, x_1);
 return x_3;
 }
 }
@@ -1816,7 +1813,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__32(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__22;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__28;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__31;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1828,7 +1825,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__33(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__20;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__26;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__32;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1840,7 +1837,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__34(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__18;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__24;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__33;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1852,7 +1849,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__35(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__16;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__22;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__34;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1864,7 +1861,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__36(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__14;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__20;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__35;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1876,7 +1873,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__37(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__12;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__18;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__36;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1888,7 +1885,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__38(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__10;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__16;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__37;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1900,7 +1897,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__39(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__8;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__14;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__38;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1912,7 +1909,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__40(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__6;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__12;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__39;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1924,7 +1921,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__4;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__10;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__40;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
@@ -1936,8 +1933,44 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42(
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__8;
 x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__6;
+x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__4;
+x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43;
+x_3 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__2;
+x_2 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44;
 x_3 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_3, 0, x_1);
 lean_ctor_set(x_3, 1, x_2);
@@ -1948,7 +1981,7 @@ static lean_object* _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42;
+x_1 = l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45;
 return x_1;
 }
 }
@@ -2108,6 +2141,12 @@ l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41 = _init_l_Lean_Compiler_LC
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__41);
 l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__42);
+l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__43);
+l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__44);
+l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45 = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45();
+lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes___closed__45);
 l_Lean_Compiler_LCNF_builtinRuntimeTypes = _init_l_Lean_Compiler_LCNF_builtinRuntimeTypes();
 lean_mark_persistent(l_Lean_Compiler_LCNF_builtinRuntimeTypes);
 return lean_io_result_mk_ok(lean_box(0));

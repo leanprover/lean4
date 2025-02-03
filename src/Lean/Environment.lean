@@ -529,7 +529,11 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
 
 /-- Find base case: name did not match any asynchronous declaration. -/
 private def findNoAsync (env : Environment) (n : Name) : Option ConstantInfo := do
-  if let some _ := env.asyncConsts.findPrefix? n then
+  if env.asyncMayContain n then
+    -- Constant definitely not generated in a different environment branch: return none, callers
+    -- have already checked this branch.
+    none
+  else if let some _ := env.asyncConsts.findPrefix? n then
     -- Constant generated in a different environment branch: wait for final kernel environment. Rare
     -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
     -- optimized in the future by having the elaboration thread publish an (incremental?) map of

@@ -645,4 +645,8 @@ def logMessageKind (kind : Name) : CoreM Bool := do
     modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
 
+builtin_initialize
+  registerTraceClass `Elab.async
+  registerTraceClass `Elab.block
+
 end Lean

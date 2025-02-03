@@ -149,6 +149,7 @@ We'll use `v4.7.0-rc1` as the intended release version in this example.
 - Decide which nightly release you want to turn into a release candidate.
   We will use `nightly-2024-02-29` in this example.
 - It is essential to choose the nightly that will become the release candidate as early as possible, to avoid confusion.
+- Throughout this process you can use `script/release_checklist.py v4.7.0-rc1` to track progress.
 - It is essential that Batteries and Mathlib already have reviewed branches compatible with this nightly.
   - Check that both Batteries and Mathlib's `bump/v4.7.0` branch contain `nightly-2024-02-29`
     in their `lean-toolchain`.

@@ -157,31 +157,24 @@ p q r : Prop
 h₁ : HEq p a
 h₂ : HEq q a
 h₃ : p = r
-left : ¬p ∨ r
-h : ¬r
+left : p
+right : r
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
     [prop] HEq p a
     [prop] HEq q a
     [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] ¬r
+    [prop] p
+    [prop] r
   [eqc] True propositions
     [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] ¬p
-    [prop] ¬r
-  [eqc] False propositions
     [prop] a
     [prop] p
     [prop] q
     [prop] r
   [cases] Case analyses
-    [cases] [1/1]: p = r
-    [cases] [1/2]: ¬r ∨ p
+    [cases] [1/2]: p = r
 [grind] Issues
   [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/

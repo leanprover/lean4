@@ -326,6 +326,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
   rw [Nat.mod_eq_of_lt (by omega)]
 
+@[simp] theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
+  have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
+  exact Nat.mod_eq_of_lt (by omega)
+
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
     2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
   simp [Nat.sub_sub_eq_min, Nat.min_eq_right]

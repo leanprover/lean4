@@ -1983,9 +1983,17 @@ The inserted inlay hint has a hover that denotes the type of the auto-implicit (
 and can be inserted at `inlayHintPos`.
 -/
 def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.Pos) : TermElabM Unit := do
+  -- If the list of auto-implicits contains a non-type fvar, then the list of auto-implicits will
+  -- also contain an mvar that denotes the type of the non-type fvar.
+  -- For example, the auto-implicit `x` in a type `Foo x` for `Foo.{u} {α : Sort u} (x : α) : Type`
+  -- also comes with an auto-implicit mvar denoting the type of `x`.
+  -- We have no way of displaying this mvar to the user in an inlay hint, as it doesn't have a name,
+  -- so we filter it.
+  -- This also means that inserting the inlay hint with the syntax displayed in the inlay hint will
+  -- cause a "failed to infer binder type" error, since we don't have a name to insert in the code.
+  let autos := autos.filter (· matches .fvar ..)
   if autos.isEmpty then
     return
-  let autos := autos.filter (· matches .fvar ..)
   let autoNames ← autos.mapM (·.fvarId!.getUserName)
   let formattedHint := s!" \{{" ".intercalate <| Array.toList <| autoNames.map toString}}"
   let autoLabelParts : List (InlayHintLabelPart × Option Expr) := Array.toList <| ← autos.mapM fun auto => do

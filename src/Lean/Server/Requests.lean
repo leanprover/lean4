@@ -348,8 +348,8 @@ def chainLspRequestHandler (method : String)
   else
     throw <| IO.userError s!"Failed to chain LSP request handler for '{method}': no initial handler registered"
 
-inductive RequestHandlerTotality where
-  | total
+inductive RequestHandlerCompleteness where
+  | complete
   /--
   A request handler is partial if the LSP spec states that the request method implemented by
   the handler should be responded to with the full state of the document, but our implementation
@@ -369,8 +369,16 @@ structure LspResponse (α : Type) where
 
 structure StatefulRequestHandler where
   fileSource      : Json → Except RequestError Lsp.DocumentUri
+  /--
+  `handle` with explicit state management for chaining request handlers.
+  This function is pure w.r.t. `lastTaskMutex` and `stateRef`, but not `RequestM`.
+  -/
   pureHandle      : Json → Dynamic → RequestM (LspResponse Json × Dynamic)
   handle          : Json → RequestM (RequestTask (LspResponse Json))
+  /--
+  `onDidChange` with explicit state management for chaining request handlers.
+  This function is pure w.r.t. `lastTaskMutex` and `stateRef`, but not `RequestM`.
+  -/
   pureOnDidChange : DidChangeTextDocumentParams → (StateT Dynamic RequestM) Unit
   onDidChange     : DidChangeTextDocumentParams → RequestM Unit
   lastTaskMutex   : Std.Mutex (Task Unit)
@@ -380,7 +388,7 @@ structure StatefulRequestHandler where
   ensure that stateful request tasks for the same handler are executed sequentially (in order of arrival).
   -/
   stateRef        : IO.Ref Dynamic
-  totality        : RequestHandlerTotality
+  completeness    : RequestHandlerCompleteness
 
 builtin_initialize statefulRequestHandlers : IO.Ref (PersistentHashMap String StatefulRequestHandler) ←
   IO.mkRef {}
@@ -395,7 +403,8 @@ private def getIOState! (method : String) (state : Dynamic) stateType [TypeName 
     | throw <| .userError s!"Got invalid state type in stateful LSP request handler for {method}"
   return state
 
-private def overrideStatefulLspRequestHandler (method : String) (totality : RequestHandlerTotality)
+private def overrideStatefulLspRequestHandler
+    (method : String) (completeness : RequestHandlerCompleteness)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     stateType [TypeName stateType]
@@ -449,10 +458,11 @@ private def overrideStatefulLspRequestHandler (method : String) (totality : Requ
     lastTaskMutex,
     initState,
     stateRef,
-    totality
+    completeness
   }
 
-private def registerStatefulLspRequestHandler (method : String) (totality : RequestHandlerTotality)
+private def registerStatefulLspRequestHandler
+    (method : String) (completeness : RequestHandlerCompleteness)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     stateType [TypeName stateType]
@@ -462,9 +472,9 @@ private def registerStatefulLspRequestHandler (method : String) (totality : Requ
     : IO Unit := do
   if (← requestHandlers.get).contains method then
     throw <| IO.userError s!"Failed to register stateful LSP request handler for '{method}': already registered"
-  overrideStatefulLspRequestHandler method totality paramType respType stateType initState handler onDidChange
+  overrideStatefulLspRequestHandler method completeness paramType respType stateType initState handler onDidChange
 
-def registerTotalStatefulLspRequestHandler (method : String)
+def registerCompleteStatefulLspRequestHandler (method : String)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     stateType [TypeName stateType]
@@ -475,7 +485,7 @@ def registerTotalStatefulLspRequestHandler (method : String)
   let handler : paramType → stateType → RequestM (LspResponse respType × stateType) := fun p s => do
     let (response, s) ← handler p s
     return ({ response, isComplete := true }, s)
-  registerStatefulLspRequestHandler method .total paramType respType stateType initState handler onDidChange
+  registerStatefulLspRequestHandler method .complete paramType respType stateType initState handler onDidChange
 
 def registerPartialStatefulLspRequestHandler (method refreshMethod : String)
     paramType [FromJson paramType] [FileSource paramType]
@@ -494,7 +504,7 @@ def lookupStatefulLspRequestHandler (method : String) : BaseIO (Option StatefulR
 
 def partialLspRequestHandlerMethods : IO (Array (String × String)) := do
   return (← statefulRequestHandlers.get).toArray.filterMap fun (method, h) => do
-    let .partial refreshMethod := h.totality
+    let .partial refreshMethod := h.completeness
       | none
     return (method, refreshMethod)
 
@@ -524,7 +534,7 @@ def chainStatefulLspRequestHandler (method : String)
     let s ← getState! method s stateType
     let ((), s) ← onDidChange p |>.run s
     set <| s
-  overrideStatefulLspRequestHandler method oldHandler.totality paramType respType stateType initState
+  overrideStatefulLspRequestHandler method oldHandler.completeness paramType respType stateType initState
     handle onDidChange
 
 def handleOnDidChange (p : DidChangeTextDocumentParams) : RequestM Unit := do

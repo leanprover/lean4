@@ -97,7 +97,11 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (O
       | .ok tl   => tl.waitFind? p
       | .error e => .pure <| .error e
 
-/-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
+/--
+Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well.
+The returned boolean indicates whether the complete `AsyncList` was returned, or whether only a
+proper prefix was returned.
+-/
 partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε × Bool)
   | cons hd tl => do
     let ⟨tl, e?, isComplete⟩ ← tl.getFinishedPrefix

@@ -88,9 +88,7 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
-    ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
-    ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys,
-    ``Raw.pairwise_keys_iff_pairwise_keys]
+    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_sigma_fst_toListModel]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -847,12 +845,32 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 @[simp]
 theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
+  rw [← List.contains_iff]
   simp_to_model
   rw [List.containsKey_eq_keys_contains]
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
+
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.length = m.1.size := by
+  simp_to_model
+
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.1.toList.map Sigma.fst = m.1.keys := by
+  simp_to_model
+  rw [List.keys_eq_map]
+
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.isEmpty = m.1.isEmpty := by
+  simp_to_model
+
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    (k : α) (v : β k) :
+    ⟨k, v⟩ ∈ m.1.toList ↔ m.get? k = some v := by
+  simp_to_model
+  sorry
 
 @[simp]
 theorem insertMany_nil :

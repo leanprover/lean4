@@ -248,4 +248,55 @@ theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
   induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
 
+theorem foldr_foldr_cons_eq_flatMap_toList {l: List (AssocList α β)}:
+    List.foldr (fun x y => AssocList.foldr (fun a b d => ⟨a, b⟩ :: d) y x) [] l
+    = List.flatMap AssocList.toList l := by
+  suffices ∀ (l: List (AssocList α β)) (l': List ( (a : α) ×  β a) ),
+    List.foldr (fun x y => AssocList.foldr (fun a b d => ⟨a, b⟩ :: d) y x) l' l
+    = (List.flatMap AssocList.toList l) ++ l'
+  by
+    rw [← List.append_nil (List.flatMap AssocList.toList l)]
+    apply this
+  intro l
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    intro l'
+    simp[ih]
+    suffices ∀ {l : AssocList α β} {l' : List ((a : α) × β a)},
+      AssocList.foldr (fun a b d => ⟨a, b⟩ :: d) l' l = l.toList ++ l' from this
+    intro l
+    induction l with
+    | nil => simp [AssocList.foldr, AssocList.foldrM, Id.run]
+    | cons hda hdb tl ih =>
+      intro l'
+      simp [AssocList.foldr, AssocList.foldrM, Id.run]
+      apply ih
+
+theorem foldr_foldr_eq_sigma_fst_flatMap_toList {l: List (AssocList α β)}:
+    List.foldr (fun x y => AssocList.foldr (fun a _ d => a :: d) y x) [] l
+    = List.map Sigma.fst (List.flatMap AssocList.toList l) := by
+  suffices ∀ (l: List (AssocList α β)) (l': List ((a : α) ×  β a)),
+    (List.foldr (fun x y => AssocList.foldr (fun a b d => a :: d) y x) (l'.map Sigma.fst) l)
+    = (List.foldr (fun x y => AssocList.foldr (fun a b d => ⟨a, b⟩ :: d) y x) l' l).map Sigma.fst
+  by
+    specialize this l []
+    simp at this
+    rw [this, foldr_foldr_cons_eq_flatMap_toList]
+  intro l
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    intro l'
+    simp [ih]
+    suffices ∀ {l : AssocList α β} {l' : List ((a : α) × β a)},
+      AssocList.foldr (fun a b d => a :: d) (l'.map Sigma.fst) l = List.map Sigma.fst (foldr (fun a b d => ⟨a, b⟩ :: d) l' l) from this
+    intro l
+    induction l with
+    | nil => simp [AssocList.foldr, AssocList.foldrM, Id.run]
+    | cons hda hdb tl ih =>
+      intro l'
+      simp [AssocList.foldr, AssocList.foldrM, Id.run]
+      apply ih
+
 end Std.DHashMap.Internal.AssocList

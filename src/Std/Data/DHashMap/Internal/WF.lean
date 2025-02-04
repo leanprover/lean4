@@ -107,8 +107,18 @@ theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
     l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
 
+theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets := by
+  simp only [Raw.toList, Raw.foldRev, Raw.foldRevM, Array.id_run_foldrM, ← Array.foldr_toList,
+    toListModel]
+  apply AssocList.foldr_foldr_cons_eq_flatMap_toList
+
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
   simp [Raw.toList, foldRev_cons]
+
+theorem keys_eq_sigma_fst_toListModel {m : Raw α β }:
+    m.keys = List.keys (toListModel m.buckets) := by
+  simp [Raw.keys, Raw.foldRev, Raw.foldRevM, keys_eq_map, ← Array.foldr_toList, toListModel]
+  apply AssocList.foldr_foldr_eq_sigma_fst_flatMap_toList
 
 theorem keys_perm_keys_toListModel {m : Raw α β} :
     Perm m.keys (List.keys (toListModel m.buckets)) := by

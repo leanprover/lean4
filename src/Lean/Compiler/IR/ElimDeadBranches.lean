@@ -295,7 +295,11 @@ def inferStep : M Bool := do
         let s ← get
         let newVals := s.funVals[idx]!
         pure (modified || currVals != newVals)
-    | .extern .. => pure modified
+    | .extern .. => do
+      let currVals := (← get).funVals[idx]!
+      updateCurrFnSummary .top
+      let newVals := (← get).funVals[idx]!
+      pure (modified || currVals != newVals)
 
 partial def inferMain : M Unit := do
   let modified ← inferStep

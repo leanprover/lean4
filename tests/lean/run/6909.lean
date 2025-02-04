@@ -4,6 +4,13 @@ abbrev Multiseries : List Nat → Type
 
 opaque maxExp (n : Nat) (ns : List Nat) (li : List (Multiseries (n :: ns))) : Nat
 
+/-
+Previously, this lemma couldn't simplify itself, because the discrimination tree
+keys were computed with `iota := false`.
+Because `simp` uses `iota := true`, `Multiseries (n :: ns)` reduces to `Int`,
+so the discrimination tree keys didn't match.
+-/
+
 @[simp]
 axiom bad_simp_lemma (n : Nat) (ns : List Nat) : maxExp n ns [] = 8
 

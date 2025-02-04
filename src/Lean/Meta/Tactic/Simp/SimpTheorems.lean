@@ -195,6 +195,9 @@ structure SimpTheorems where
 
 /--
 Configuration for `MetaM` used to process global simp theorems
+
+Note that this configuration should be similar to the default `simp` configuration,
+so that the discrimination tree keys are appropriate for `simp`lified expressions.
 -/
 def simpGlobalConfig : ConfigWithKey :=
   { proj         := .no

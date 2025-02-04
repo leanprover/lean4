@@ -17,7 +17,7 @@ example : Even 4 := by
 /--
 error: `grind` failed
 case grind
-x✝ : ¬Even 16
+h : ¬Even 16
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

@@ -264,15 +264,15 @@ info: theorem ex1 : ∀ {a4 : Nat} (p : Prop) (a1 a2 a3 : Nat),
   (p ↔ a2 ≤ a1) → ¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4 :=
 fun {a4} p a1 a2 a3 =>
   intro_with_eq (p ↔ a2 ≤ a1) (p = (a2 ≤ a1)) (¬p → a2 + 3 ≤ a3 → (p ↔ a4 ≤ a3 + 2) → a1 ≤ a4) (iff_eq p (a2 ≤ a1))
-    fun a a_1 a_2 =>
-    intro_with_eq (p ↔ a4 ≤ a3 + 2) (p = (a4 ≤ a3 + 2)) (a1 ≤ a4) (iff_eq p (a4 ≤ a3 + 2)) fun a_3 =>
+    fun h h_1 h_2 =>
+    intro_with_eq (p ↔ a4 ≤ a3 + 2) (p = (a4 ≤ a3 + 2)) (a1 ≤ a4) (iff_eq p (a4 ≤ a3 + 2)) fun h_3 =>
       Classical.byContradiction
-        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_le_eq a1 a4) fun x =>
+        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_le_eq a1 a4) fun h_4 =>
           Eq.mp
-            (Eq.trans (Eq.symm (eq_true x))
+            (Eq.trans (Eq.symm (eq_true h_4))
               (Nat.lo_eq_false_of_lo a1 a4 7 1 rfl_true
-                (Nat.lo_lo a1 a2 a4 1 6 (Nat.of_le_eq_false a2 a1 (Eq.trans (Eq.symm a) (eq_false a_1)))
-                  (Nat.lo_lo a2 a3 a4 3 3 a_2 (Nat.of_ro_eq_false a4 a3 2 (Eq.trans (Eq.symm a_3) (eq_false a_1)))))))
+                (Nat.lo_lo a1 a2 a4 1 6 (Nat.of_le_eq_false a2 a1 (Eq.trans (Eq.symm h) (eq_false h_1)))
+                  (Nat.lo_lo a2 a3 a4 3 3 h_2 (Nat.of_ro_eq_false a4 a3 2 (Eq.trans (Eq.symm h_3) (eq_false h_1)))))))
             True.intro)
 -/
 #guard_msgs (info) in

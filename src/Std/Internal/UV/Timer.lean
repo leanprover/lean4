@@ -32,9 +32,9 @@ namespace Timer
 
 /--
 This creates a `Timer` in the initial state and doesn't run it yet.
-- If `repeating` is `false` this constructs a timer that resolves once after `durationMs`
+- If `repeating` is `false` this constructs a timer that resolves once after `timeout`
   milliseconds, counting from when it's run.
-- If `repeating` is `true` this constructs a timer that resolves after multiples of `durationMs`
+- If `repeating` is `true` this constructs a timer that resolves after multiples of `timeout`
   milliseconds, counting from when it's run. Note that this includes the 0th multiple right after
   starting the timer. Furthermore a repeating timer will only be freed after `Timer.stop` is called.
 -/
@@ -44,12 +44,12 @@ opaque mk (timeout : UInt64) (repeating : Bool) : IO Timer
 /--
 This function has different behavior depending on the state and configuration of the `Timer`:
 - if `repeating` is `false` and:
-  - it is initial, run it and return a new `IO.Promise` that is set to resolve once `durationMs`
+  - it is initial, run it and return a new `IO.Promise` that is set to resolve once `timeout`
     milliseconds have elapsed. After this `IO.Promise` is resolved the `Timer` is finished.
   - it is running or finished, return the same `IO.Promise` that the first call to `next` returned.
 - if `repeating` is `true` and:
   - it is initial, run it and return a new `IO.Promise` that resolves right away
-    (as it is the 0th multiple of `durationMs`).
+    (as it is the 0th multiple of `timeout`).
   - it is running, check whether the last returned `IO.Promise` is already resolved:
      - If it is, return a new `IO.Promise` that resolves upon finishing the next cycle
      - If it is not, return the last `IO.Promise`
@@ -64,8 +64,8 @@ opaque next (timer : @& Timer) : IO (IO.Promise Unit)
 This function has different behavior depending on the state and configuration of the `Timer`:
 - If it is initial or finished this is a no-op.
 - If it is running and `repeating` is `false` this will delay the resolution of the timer until
-  `durationMs` milliseconds after the call of this function.
-- Delay the resolution of the next tick of the timer until `durationMs` milliseconds after the
+  `timeout` milliseconds after the call of this function.
+- Delay the resolution of the next tick of the timer until `timeout` milliseconds after the
   call of this function, then continue normal ticking behavior from there.
 -/
 @[extern "lean_uv_timer_reset"]

@@ -52,7 +52,7 @@ def connect (s : Socket) (addr : SocketAddress) : IO (AsyncTask Unit) :=
 Listen for incoming connections with the given backlog.
 -/
 @[inline]
-def listen (s : Socket) (backlog : Int32) : IO Unit :=
+def listen (s : Socket) (backlog : UInt32) : IO Unit :=
   s.native.listen backlog
 
 /--
@@ -74,8 +74,8 @@ def send (s : Socket) (data : ByteArray) : IO (AsyncTask Unit) :=
 Receive data from the socket.
 -/
 @[inline]
-def recv (s : Socket) : IO (AsyncTask ByteArray) :=
-  AsyncTask.ofPromise <$> s.native.recv
+def recv (s : Socket) (size : UInt64) : IO (AsyncTask ByteArray) :=
+  AsyncTask.ofPromise <$> s.native.recv size
 
 /--
 Receive data from the socket.

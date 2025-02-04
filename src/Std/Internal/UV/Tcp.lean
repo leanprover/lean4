@@ -48,7 +48,7 @@ opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.
 Receive data from a TCP socket.
 -/
 @[extern "lean_uv_tcp_recv"]
-opaque recv (socket : @& Socket) : IO (IO.Promise (Except IO.Error ByteArray))
+opaque recv (socket : @& Socket) (size : UInt64) : IO (IO.Promise (Except IO.Error ByteArray))
 
 /--
 Bind a TCP socket to a specific address.
@@ -60,7 +60,7 @@ opaque bind (socket : @& Socket) (addr : SocketAddress) : IO Unit
 Start listening for incoming connections on a TCP socket.
 -/
 @[extern "lean_uv_tcp_listen"]
-opaque listen (socket : @& Socket) (backlog : Int32) : IO Unit
+opaque listen (socket : @& Socket) (backlog : UInt32) : IO Unit
 
 /--
 Accept an incoming connection on a listening TCP socket.

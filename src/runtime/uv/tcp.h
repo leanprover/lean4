@@ -26,6 +26,7 @@ typedef struct {
     lean_object *   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
     lean_object *   m_client;           // Cached client that is going to be used in the next accept.
     lean_object *   m_byte_array;       // The data stored.
+    uint64_t        m_buffer_size;      // The size of the thing that is going to be stored 
 } lean_uv_tcp_socket_object;
 
 // =======================================
@@ -40,7 +41,7 @@ static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object * o) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg data);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t backlog);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket);

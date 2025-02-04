@@ -5,37 +5,56 @@ import Std.Net.Addr
 open Std.Internal.IO.Async
 open Std.Net
 
+-- Define the Async monad
+structure Async (α : Type) where
+  run : IO (AsyncTask α)
+
+namespace Async
+
+-- Monad instance for Async
+instance : Monad Async where
+  pure x := Async.mk (pure (AsyncTask.pure x))
+  bind ma f := Async.mk do
+    let task ← ma.run
+    task.bindIO fun a => (f a).run
+
+-- Await function to simplify AsyncTask handling
+def await (task : IO (AsyncTask α)) : Async α :=
+  Async.mk task
+
+instance : MonadLift IO Async where
+  monadLift io := Async.mk (io >>= (pure ∘ AsyncTask.pure))
+
+--------------------------------------------------------------
+
 /-- Mike is another client. -/
-def runMike (client: Tcp.Socket) : IO (AsyncTask Unit) := do
-  client.recv 1024 >>= fun task => task.bindIO fun mes =>
+def runMike (client: Tcp.Socket) : Async Unit := do
+  let mes ← await (client.recv 1024)
   assert! String.fromUTF8! mes == "hi mike!! :)"
-  client.send (String.toUTF8 "hello robert!!") >>= fun task => task.bindIO fun _ =>
-  client.shutdown
+  await (client.send (String.toUTF8 "hello robert!!"))
+  await (client.shutdown)
 
 /-- Joe is another client. -/
-def runJoe (client: Tcp.Socket) : IO (AsyncTask Unit) := do
-  client.recv 1024 >>= fun task => task.bindIO fun mes =>
+def runJoe (client: Tcp.Socket) : Async Unit := do
+  let mes ← await (client.recv 1024)
   assert! String.fromUTF8! mes == "hi joe! :)"
-  client.send (String.toUTF8 "hello robert!") >>= fun task => task.bindIO fun _ =>
-  client.shutdown
+  await (client.send (String.toUTF8 "hello robert!"))
+  await client.shutdown
 
 /-- Robert is the server. -/
-def runRobert (server: Tcp.Socket) : IO (AsyncTask Unit) := do
-  let joeClientTask ← server.accept
-  let mikeClientTask ← server.accept
+def runRobert (server: Tcp.Socket) : Async Unit := do
+  let joe ← await server.accept
+  let mike ← await server.accept
 
-  joeClientTask |>.bindIO fun joe =>
-  mikeClientTask |>.bindIO fun mike =>
-
-  joe.send (String.toUTF8 "hi joe! :)") >>= fun task => task.bindIO fun _ =>
-  joe.recv 1024 >>= fun task => task.bindIO fun mes =>
+  await (joe.send (String.toUTF8 "hi joe! :)"))
+  let mes ← await (joe.recv 1024)
   assert! String.fromUTF8! mes == "hello robert!"
 
-  mike.send (String.toUTF8 "hi mike!! :)") >>= fun task => task.bindIO fun _ =>
-  mike.recv 1024 >>= fun task => task.bindIO fun mes =>
+  await (mike.send (String.toUTF8 "hi mike!! :)"))
+  let mes ← await (mike.recv 1024)
   assert! String.fromUTF8! mes == "hello robert!!"
 
-  pure (AsyncTask.pure ())
+  pure ()
 
 def clientServer : IO Unit := do
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
@@ -62,10 +81,10 @@ def clientServer : IO Unit := do
 
   mike.noDelay
 
-  let serverTask ← runRobert server
+  let serverTask ← (runRobert server).run
 
-  discard <| runJoe joe
-  discard <| runMike mike
+  discard <| (runJoe joe).run
+  discard <| (runMike mike).run
   serverTask.block
 
 #eval clientServer

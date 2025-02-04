@@ -3712,13 +3712,18 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
 @[simp]
+theorem replicate_one {w : Nat} {x : BitVec w} :
+    (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
+  simp [replicate]
+
+@[simp]
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
 
 @[simp]
-theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
+theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
     (x.replicate n).getLsbD i =
     (decide (i < w * n) && x.getLsbD (i % w)) := by
   induction n generalizing x
@@ -3729,17 +3734,17 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
       · simp [hi', ih]
-      · simp [hi', decide_false]
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
+      · simp only [hi', ↓reduceIte]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
 @[simp]
-theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
-  by_cases h' : w = 0 <;> simp [h'] <;> omega
+  cases w <;> simp; omega
 
 theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
     (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
@@ -4104,6 +4109,17 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
   | succ n ih =>
     conv => lhs; simp only [replicate_succ']
     simp [reverse_append, ih]
+
+@[simp]
+theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).getMsbD i = (decide (i < w * n) && x.getMsbD (i % w)) := by
+  rw [← getLsbD_reverse, reverse_replicate, getLsbD_replicate, getLsbD_reverse]
+
+@[simp]
+theorem msb_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).msb = (decide (0 < n) && x.msb) := by
+  simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
+  cases n <;> cases w <;> simp
 
 /-! ### Decidable quantifiers -/
 

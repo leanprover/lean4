@@ -9,13 +9,13 @@ def Tree.isLeaf (t : Tree α) := t.cs.isEmpty
 
 /--
 info: α : Type u_1
-t x : Tree α
-h : x ∈ t.cs
-⊢ sizeOf x < sizeOf t
+t t' : Tree α
+h : t' ∈ t.cs
+⊢ sizeOf t' < sizeOf t
 -/
 #guard_msgs in
 def Tree.map (f : α → β) (t : Tree α) : Tree β :=
-    ⟨f t.val, t.cs.map (·.map f)⟩
+    ⟨f t.val, t.cs.map (fun t' => t'.map f)⟩
 termination_by t
 decreasing_by trace_state; cases t; decreasing_tactic
 
@@ -36,9 +36,9 @@ info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
 
 /--
 info: α : Type u_1
-t x : Tree α
-h : x ∈ t.cs
-⊢ sizeOf x < sizeOf t
+t x✝ : Tree α
+h : x✝ ∈ t.cs
+⊢ sizeOf x✝ < sizeOf t
 -/
 #guard_msgs in
 def Tree.pruneRevAndMap (f : α → β) (t : Tree α) : Tree β :=
@@ -67,9 +67,9 @@ info: Tree.pruneRevAndMap.induct.{u_1} {α : Type u_1} (motive : Tree α → Pro
 info: α : Type u_1
 v : α
 cs : List (Tree α)
-x : Tree α
-h : x ∈ cs
-⊢ sizeOf x < sizeOf { val := v, cs := cs }
+x✝ : Tree α
+h : x✝ ∈ cs
+⊢ sizeOf x✝ < sizeOf { val := v, cs := cs }
 -/
 #guard_msgs in
 def Tree.pruneRevAndMap' (f : α → β) : Tree α → Tree β
@@ -104,11 +104,11 @@ warning: declaration uses 'sorry'
 ---
 info: α : Type u_1
 t : MTree α
-x✝ : List (MTree α)
-h✝ : x✝ ∈ t.cs
-x : MTree α
-h : x ∈ x✝
-⊢ sizeOf x < sizeOf t
+x✝¹ : List (MTree α)
+h✝ : x✝¹ ∈ t.cs
+x✝ : MTree α
+h : x✝ ∈ x✝¹
+⊢ sizeOf x✝ < sizeOf t
 -/
 #guard_msgs in
 def MTree.map (f : α → β) (t : MTree α) : MTree β :=
@@ -182,9 +182,9 @@ inductive Expression where
 warning: declaration uses 'sorry'
 ---
 info: L : List (String × Expression)
-x : String × Expression
-h : x ∈ L
-⊢ sizeOf x.snd < sizeOf (Expression.object L)
+L1 : String × Expression
+h : L1 ∈ L
+⊢ sizeOf L1.snd < sizeOf (Expression.object L)
 -/
 #guard_msgs in
 def t (exp: Expression) : List String :=

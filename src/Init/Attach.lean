@@ -9,6 +9,7 @@ prelude
 import Init.WF
 import Init.Data.List.Attach
 import Init.Data.Array.Attach
+import Init.BinderNameHint
 
 /-
 At some point I tried to use this rule to upgrade `wfParam` to `….unattach` to only
@@ -34,7 +35,7 @@ theorem List.map_wfParam (xs : List α) (f : α → β) :
 
 set_option linter.unusedVariables false in
 theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β) :
-    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => f (wfParam x)) := by
+    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
   simp [wfParam]
 
 theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
@@ -43,7 +44,7 @@ theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
 
 set_option linter.unusedVariables false in
 theorem List.foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (init : β):
-    xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => f s (wfParam x)) init := by
+    xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => binderNameHint x f (f s (wfParam x) )) init := by
   simp [wfParam]
 
 -- TODO: Unused, here, but worth moving to library?
@@ -61,7 +62,7 @@ theorem List.filter_wfParam (xs : List α) (f : α → Bool) :
 
 set_option linter.unusedVariables false in
 theorem List.filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Bool) :
-    xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ => f (wfParam x))).unattach := by
+    xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x)))).unattach := by
   simp [wfParam]
 
 theorem List.reverse_wfParam (xs : List α) :
@@ -76,5 +77,5 @@ theorem Array.map_wfParam (xs : Array α) (f : α → β) :
 
 set_option linter.unusedVariables false in
 theorem Array.map_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → β) :
-    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => f (wfParam x)) := by
+    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
   simp [wfParam]

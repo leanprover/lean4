@@ -7,6 +7,7 @@ Authors: Shreyas Srinivas, François G. Dorais, Kim Morrison
 prelude
 import Init.Data.Array.Lemmas
 import Init.Data.Array.MapIdx
+import Init.Data.Array.InsertIdx
 import Init.Data.Range
 import Init.Data.Stream
 
@@ -353,6 +354,19 @@ instance [BEq α] : BEq (Vector α n) where
     v.eraseIdx i
   else
     have : Inhabited (Vector α (n-1)) := ⟨v.pop⟩
+    panic! "index out of bounds"
+
+/-- Insert an element into a vector using a `Nat` index and a tactic provided proof. -/
+@[inline] def insertIdx (v : Vector α n) (i : Nat) (x : α) (h : i ≤ n := by get_elem_tactic) :
+    Vector α (n+1) :=
+  ⟨v.toArray.insertIdx i x (v.size_toArray.symm ▸ h), by simp [Array.size_insertIdx]⟩
+
+/-- Insert an element into a vector using a `Nat` index. Panics if the index is out of bounds. -/
+@[inline] def insertIdx! (v : Vector α n) (i : Nat) (x : α) : Vector α (n+1) :=
+  if _ : i ≤ n then
+    v.insertIdx i x
+  else
+    have : Inhabited (Vector α (n+1)) := ⟨v.push x⟩
     panic! "index out of bounds"
 
 /-- Delete the first element of a vector. Returns the empty vector if the input vector is empty. -/

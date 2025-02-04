@@ -49,10 +49,20 @@ theorem beq_eq_decide [BEq α] (a b : Vector α n) :
     (a == b) = decide (∀ (i : Nat) (h' : i < n), a[i] == b[i]) := by
   simp [BEq.beq, isEqv_eq_decide]
 
+@[simp] theorem beq_mk [BEq α] (a b : Array α) (ha : a.size = n) (hb : b.size = n) :
+    (mk a ha == mk b hb) = (a == b) := by
+  simp [BEq.beq]
+
 @[simp] theorem beq_toArray [BEq α] (a b : Vector α n) : (a.toArray == b.toArray) = (a == b) := by
   simp [beq_eq_decide, Array.beq_eq_decide]
 
 @[simp] theorem beq_toList [BEq α] (a b : Vector α n) : (a.toList == b.toList) = (a == b) := by
   simp [beq_eq_decide, List.beq_eq_decide]
+
+instance [BEq α] [LawfulBEq α] : LawfulBEq (Vector α n) where
+  rfl := by simp [BEq.beq, isEqv_self_beq]
+  eq_of_beq := by
+    rintro ⟨a, rfl⟩ ⟨b, h⟩ h'
+    simpa using h'
 
 end Vector

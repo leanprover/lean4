@@ -57,7 +57,8 @@ example : (match x with
 example : (match x with
            | 0 => 1
            | _ + 1 => 2) > 0 := by
-  grind (splits := 0) -- `grind` fails if we don't allow it case-split.
+  fail_if_success grind (splits := 0) -- `grind` fails if we don't allow it case-split.
+  sorry
 
 /-
 `grind` shows you the case-splits performed when it fails.
@@ -65,7 +66,8 @@ example : (match x with
 example : (match x with
            | 0 => 1
            | _ + 1 => 2) > 1 := by
-  grind
+  fail_if_success grind
+  sorry
 
 /-
 `simp` uses theorems as rewriting rules.
@@ -141,7 +143,8 @@ whenever it learns a disequality `t = s` where `t` or `s` E-matches `inv a`
 Like `simp`, we also have `grind only`
 -/
 example : R a b → R c b → R d c → R a d := by
-  grind only -- `Rtrans` and `Rsymm` were not applied
+  fail_if_success grind only -- `Rtrans` and `Rsymm` were not applied
+  sorry
 
 example : R a b → R c b → R d c → R a d := by
   grind only [→ Rtrans, → Rsymm]
@@ -263,11 +266,6 @@ def h (v w : Vec α n) : Nat :=
 example : b = .cons 1 .nil → h a b = 40 := by
   grind [h.eq_def]
 
-example : b = .cons 1 .nil → h a b = 40 := by
-  unfold h
-  split
-
-
 /-
 `try?` tactic is a driver around `grind` (and other tactics).
 It tries many different things (e.g., applies function induction principle for you)
@@ -287,7 +285,8 @@ opaque bomb : Nat → Nat
 @[grind =] theorem bombEx : bomb x = bomb (bomb x) + 1 := sorry
 
 example : bomb x > 10 := by
-  grind
+  fail_if_success grind
+  sorry
 
 /-
 Roadmap:

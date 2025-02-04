@@ -172,6 +172,81 @@ example (x y z : BitVec 16) : (x ^^^ z == z ^^^ y) = (x == y) := by bv_normalize
 example (x y z : BitVec 16) : (z ^^^ x == y ^^^ z) = (x == y) := by bv_normalize
 example (x y z : BitVec 16) : (z ^^^ x == z ^^^ y) = (x == y) := by bv_normalize
 
+-- bif_eq_bif
+example (d a b c : Bool) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || (b == c)) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((!(bif d then a else b)) == (bif d then a else c)) = (!d && (!b) == c) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else b) == !(bif d then a else c)) = (!d && b == (!c)) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((!(bif d then a else c)) == (bif d then b else c)) = (d && (!a) == b) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else c) == !(bif d then b else c)) = (d && a == (!b)) := by
+  bv_normalize
+
+example (a b c d e : BitVec 16) :
+    ((bif a == b then c else d) == (bif a == b then c else e)) = (a == b || d == e) := by
+  bv_normalize
+
+example (a b c d e : BitVec 16) :
+    ((bif a == b then c else d) == (bif a == b then e else d)) = (!a == b || c == e) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || b == c) := by
+  cases d <;> simp
+
+example (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else b) == (bif d then a else c)) = (bif d then ~~~a == a else ~~~b == c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == ~~~(bif d then a else c)) = (bif d then a == ~~~a else b == ~~~c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else c) == (bif d then b else c)) = (bif d then ~~~a == b else ~~~c == c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
+  bv_normalize
+
+-- bv_equal_const_not
+example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
+  bv_normalize
+
+example (a : BitVec 32) : (0#32 = ~~~a) ↔ (a = -1) := by
+  bv_normalize
+
+-- reducing or to and while still applying or specific rewrites
+example {x : BitVec 64} : x ||| 0 = x := by
+  bv_normalize
+
+-- bv_and_eq_allOnes
+example (a b : BitVec 16) : (a &&& b == -1#16) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
+
+example (a b : BitVec 16) : (-1#16 == a &&& b) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

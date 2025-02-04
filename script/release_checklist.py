@@ -96,7 +96,17 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     tag_response = requests.get(f"{api_base}/git/refs/tags/{tag_name}", headers=headers)
     if tag_response.status_code != 200:
         return False
-    tag_sha = tag_response.json()['object']['sha']
+    
+    # Handle both single object and array responses
+    tag_data = tag_response.json()
+    if isinstance(tag_data, list):
+        # Find the exact matching tag in the list
+        matching_tags = [tag for tag in tag_data if tag['ref'] == f'refs/tags/{tag_name}']
+        if not matching_tags:
+            return False
+        tag_sha = matching_tags[0]['object']['sha']
+    else:
+        tag_sha = tag_data['object']['sha']
 
     # Get commits on stable branch containing this SHA
     commits_response = requests.get(
@@ -142,6 +152,32 @@ def extract_org_repo_from_url(repo_url):
         return repo_url.replace("https://github.com/", "").rstrip("/")
     return repo_url
 
+def get_next_version(version):
+    """Calculate the next version number, ignoring RC suffix."""
+    # Strip v prefix and RC suffix if present
+    base_version = strip_rc_suffix(version.lstrip('v'))
+    major, minor, patch = map(int, base_version.split('.'))
+    # Next version is always .0
+    return f"v{major}.{minor + 1}.0"
+
+def check_bump_branch_toolchain(url, bump_branch, github_token):
+    """Check if the lean-toolchain file in bump branch starts with either 'leanprover/lean4:nightly-' or the next version."""
+    content = get_branch_content(url, bump_branch, "lean-toolchain", github_token)
+    if content is None:
+        print(f"  ❌ No lean-toolchain file found in {bump_branch} branch")
+        return False
+    
+    # Extract the next version from the bump branch name (bump/v4.X.0)
+    next_version = bump_branch.split('/')[1]
+    
+    if not (content.startswith("leanprover/lean4:nightly-") or 
+            content.startswith(f"leanprover/lean4:{next_version}")):
+        print(f"  ❌ Bump branch toolchain should use either nightly or {next_version}, but found: {content}")
+        return False
+    
+    print(f"  ✅ Bump branch correctly uses toolchain: {content}")
+    return True
+
 def main():
     github_token = get_github_token()
 
@@ -179,11 +215,10 @@ def main():
 
         # Check the first line of the release notes
         release_notes = get_release_notes(lean_repo_url, toolchain, github_token)
-        if release_notes and release_notes.splitlines()[0].strip() == toolchain:
+        if release_notes and toolchain in release_notes.splitlines()[0].strip():
             print(f"  ✅ Release notes look good.")
         else:
             previous_minor_version = version_minor - 1
-            previous_stable_branch = f"releases/v{version_major}.{previous_minor_version}.0"
             previous_release = f"v{version_major}.{previous_minor_version}.0"
             print(f"  ❌ Release notes not published. Please run `script/release_notes.py --since {previous_release}` on branch `{branch_name}`.")
     else:
@@ -201,6 +236,7 @@ def main():
         branch = repo["branch"]
         check_stable = repo["stable-branch"]
         check_tag = repo.get("toolchain-tag", True)
+        check_bump = repo.get("bump-branch", False)
 
         print(f"\nRepository: {name}")
 
@@ -220,15 +256,54 @@ def main():
         if check_tag:
             if not tag_exists(url, toolchain, github_token):
                 print(f"  ❌ Tag {toolchain} does not exist. Run `script/push_repo_release_tag.py {extract_org_repo_from_url(url)} {branch} {toolchain}`.")
-                continue
-            print(f"  ✅ Tag {toolchain} exists")
+            else:
+                print(f"  ✅ Tag {toolchain} exists")
 
         # Only check merging into stable if stable-branch is true and not a release candidate
         if check_stable and not is_release_candidate(toolchain):
             if not is_merged_into_stable(url, toolchain, "stable", github_token):
                 print(f"  ❌ Tag {toolchain} is not merged into stable")
-                continue
-            print(f"  ✅ Tag {toolchain} is merged into stable")
+            else:
+                print(f"  ✅ Tag {toolchain} is merged into stable")
+
+        # Check for bump branch if configured
+        if check_bump:
+            next_version = get_next_version(toolchain)
+            bump_branch = f"bump/{next_version}"
+            if branch_exists(url, bump_branch, github_token):
+                print(f"  ✅ Bump branch {bump_branch} exists")
+                check_bump_branch_toolchain(url, bump_branch, github_token)
+            else:
+                print(f"  ❌ Bump branch {bump_branch} does not exist")
+
+    # Check lean4 master branch for next development cycle
+    print("\nChecking lean4 master branch configuration...")
+    next_version = get_next_version(toolchain)
+    next_minor = int(next_version.split('.')[1])
+    
+    cmake_content = get_branch_content(lean_repo_url, "master", "src/CMakeLists.txt", github_token)
+    if cmake_content is None:
+        print("  ❌ Could not retrieve CMakeLists.txt from master")
+    else:
+        cmake_lines = cmake_content.splitlines()
+        # Find the actual minor version in CMakeLists.txt
+        for line in cmake_lines:
+            if line.strip().startswith("set(LEAN_VERSION_MINOR "):
+                actual_minor = int(line.split()[-1].rstrip(")"))
+                version_minor_correct = actual_minor >= next_minor
+                break
+        else:
+            version_minor_correct = False
+            
+        is_release_correct = any(
+            l.strip().startswith("set(LEAN_VERSION_IS_RELEASE 0)") 
+            for l in cmake_lines
+        )
+        
+        if not (version_minor_correct and is_release_correct):
+            print("  ❌ lean4 needs a \"begin dev cycle\" PR")
+        else:
+            print("  ✅ lean4 master branch is configured for next development cycle")
 
 if __name__ == "__main__":
     main()

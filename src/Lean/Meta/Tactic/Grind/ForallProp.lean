@@ -64,20 +64,20 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let origin ← if let some fvarId := isEqTrueHyp? proof then
     pure <| .fvar fvarId
   else
-    let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
+    let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
   let proof := mkOfEqTrueCore e proof
-  let size := (← get).newThms.size
+  let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
   if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight then
     activateTheorem thm gen
   if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
     activateTheorem thm gen
-  if (← get).newThms.size == size then
+  if (← get).ematch.newThms.size == size then
     if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
-  if (← get).newThms.size == size then
+  if (← get).ematch.newThms.size == size then
     reportIssue! "failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do

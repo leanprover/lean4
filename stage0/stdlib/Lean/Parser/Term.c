@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Parser.Term
-// Imports: Lean.Parser.Attr Lean.Parser.Level
+// Imports: Lean.Parser.Attr Lean.Parser.Level Lean.Parser.Term.Doc
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -72247,6 +72247,7 @@ return x_263;
 }
 lean_object* initialize_Lean_Parser_Attr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Parser_Level(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Parser_Term_Doc(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Parser_Term(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -72256,6 +72257,9 @@ res = initialize_Lean_Parser_Attr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Parser_Level(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Parser_Term_Doc(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Parser_Command_commentBody___elambda__1___closed__1 = _init_l_Lean_Parser_Command_commentBody___elambda__1___closed__1();

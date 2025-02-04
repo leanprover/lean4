@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
+import Lean.Parser.Term.Doc
 
 namespace Lean
 namespace Parser
@@ -252,6 +253,8 @@ do not yield the right result.
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
+recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
 
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).

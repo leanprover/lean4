@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.DocString.Extension
 import Lean.Parser.Tactic.Doc
+import Lean.Parser.Term.Doc
 
 set_option linter.missingDocs true
 
@@ -15,6 +16,7 @@ set_option linter.missingDocs true
 
 namespace Lean
 open Lean.Parser.Tactic.Doc
+open Lean.Parser.Term.Doc
 
 /--
 Finds the docstring for a name, taking tactic alternate forms and documentation extensions into
@@ -26,4 +28,5 @@ including extensions.
 def findDocString? (env : Environment) (declName : Name) (includeBuiltin := true) : IO (Option String) := do
   let declName := alternativeOfTactic env declName |>.getD declName
   let exts := getTacticExtensionString env declName
-  return (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts)
+  let spellings := getRecommendedSpellingString env declName
+  return (← findSimpleDocString? env declName (includeBuiltin := includeBuiltin)).map (· ++ exts ++ spellings)

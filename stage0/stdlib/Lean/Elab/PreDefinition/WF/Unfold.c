@@ -4492,9 +4492,9 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_mkUnfoldEq(lean_object* x_1, lean_object
 _start:
 {
 lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; uint8_t x_22; 
-x_8 = lean_ctor_get(x_1, 0);
+x_8 = lean_ctor_get(x_1, 3);
 lean_inc(x_8);
-x_9 = lean_ctor_get(x_1, 3);
+x_9 = lean_ctor_get(x_1, 5);
 lean_inc(x_9);
 x_10 = lean_alloc_closure((void*)(l_Lean_Elab_WF_mkUnfoldEq___lambda__1___boxed), 10, 3);
 lean_closure_set(x_10, 0, x_1);

@@ -441,6 +441,56 @@ structure CaseTrace where
   num  : Nat
   deriving Inhabited
 
+/-- E-matching related fields for the `grind` goal. -/
+structure EMatch.State where
+  /--
+  Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
+  Local theorem provided by users are added directly into `newThms`.
+  -/
+  thmMap       : EMatchTheorems
+  /-- Goal modification time. -/
+  gmt          : Nat := 0
+  /-- Active theorems that we have performed ematching at least once. -/
+  thms         : PArray EMatchTheorem := {}
+  /-- Active theorems that we have not performed any round of ematching yet. -/
+  newThms      : PArray EMatchTheorem := {}
+  /-- Number of theorem instances generated so far -/
+  numInstances : Nat := 0
+  /-- Number of E-matching rounds performed in this goal since the last case-split. -/
+  num          : Nat := 0
+  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
+  preInstances : PreInstanceSet := {}
+  /-- Next local E-match theorem idx. -/
+  nextThmIdx   : Nat := 0
+  /-- `match` auxiliary functions whose equations have already been created and activated. -/
+  matchEqNames : PHashSet Name := {}
+  deriving Inhabited
+
+/-- Case splitting related fields for the `grind` goal. -/
+structure Split.State where
+  /-- Inductive datatypes marked for case-splitting -/
+  casesTypes : CasesTypes := {}
+  /-- Case-split candidates. -/
+  candidates : List Expr := []
+  /-- Number of splits performed to get to this goal. -/
+  num        : Nat := 0
+  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
+  resolved   : PHashSet ENodeKey := {}
+  /--
+  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
+  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
+  applications that generated only 1 subgoal.
+  -/
+  trace      : List CaseTrace := []
+  deriving Inhabited
+
+/-- Clean name generator. -/
+structure Clean.State where
+  used : PHashSet Name := {}
+  next : PHashMap Name Nat := {}
+  deriving Inhabited
+
+/-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
@@ -457,51 +507,22 @@ structure Goal where
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
-  /-- Goal modification time. -/
-  gmt          : Nat := 0
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
-  /-- State of arithmetic procedures -/
-  arith        : Arith.State := {}
-  /-- Inductive datatypes marked for case-splitting -/
-  casesTypes : CasesTypes := {}
-  /-- Active theorems that we have performed ematching at least once. -/
-  thms         : PArray EMatchTheorem := {}
-  /-- Active theorems that we have not performed any round of ematching yet. -/
-  newThms      : PArray EMatchTheorem := {}
-  /--
-  Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
-  Local theorem provided by users are added directly into `newThms`.
-  -/
-  thmMap       : EMatchTheorems
-  /-- Number of theorem instances generated so far -/
-  numInstances : Nat := 0
-  /-- Number of E-matching rounds performed in this goal since the last case-split. -/
-  numEmatch    : Nat := 0
-  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
-  preInstances : PreInstanceSet := {}
   /-- new facts to be processed. -/
   newFacts     : Std.Queue NewFact := ∅
-  /-- `match` auxiliary functions whose equations have already been created and activated. -/
-  matchEqNames : PHashSet Name := {}
-  /-- Case-split candidates. -/
-  splitCandidates : List Expr := []
-  /-- Number of splits performed to get to this goal. -/
-  numSplits : Nat := 0
-  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolvedSplits : PHashSet ENodeKey := {}
-  /-- Next local E-match theorem idx. -/
-  nextThmIdx : Nat := 0
   /-- Asserted facts -/
   facts      : PArray Expr := {}
   /-- Cached extensionality theorems for types. -/
   extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
-  /--
-  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
-  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
-  applications that generated only 1 subgoal.
-  -/
-  casesTrace : List CaseTrace := []
+  /-- State of the E-matching module. -/
+  ematch     : EMatch.State
+  /-- State of the case-splitting module. -/
+  split      : Split.State := {}
+  /-- State of arithmetic procedures. -/
+  arith      : Arith.State := {}
+  /-- State of the clean name generator. -/
+  clean      : Clean.State := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -540,9 +561,9 @@ It returns `true` if it is a new instance and `false` otherwise.
 -/
 def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
   let k := { proof, assignment }
-  if (← get).preInstances.contains k then
+  if (← get).ematch.preInstances.contains k then
     return false
-  modify fun s => { s with preInstances := s.preInstances.insert k }
+  modify fun s => { s with ematch.preInstances := s.ematch.preInstances.insert k }
   return true
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
@@ -553,19 +574,19 @@ def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := d
 def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
   saveEMatchTheorem thm
   addNewFact proof prop generation
-  modify fun s => { s with numInstances := s.numInstances + 1 }
+  modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
-  return (← get).numInstances >= (← getConfig).instances
+  return (← get).ematch.numInstances >= (← getConfig).instances
 
 /-- Returns `true` if the maximum number of case-splits has been reached. -/
 def checkMaxCaseSplit : GoalM Bool := do
-  return (← get).numSplits >= (← getConfig).splits
+  return (← get).split.num >= (← getConfig).splits
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
 def checkMaxEmatchExceeded : GoalM Bool := do
-  return (← get).numEmatch >= (← getConfig).ematch
+  return (← get).ematch.num >= (← getConfig).ematch
 
 /--
 Returns `some n` if `e` has already been "internalized" into the
@@ -766,7 +787,7 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     flipped := false
     heqProofs := false
     hasLambdas := e.isLambda
-    mt := (← get).gmt
+    mt := (← get).ematch.gmt
     idx := (← get).nextIdx
     interpreted, ctor, generation
   }
@@ -1020,7 +1041,7 @@ def getEqcs : GoalM (List (List Expr)) :=
 
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
-  return (← get).resolvedSplits.contains { expr := e }
+  return (← get).split.resolved.contains { expr := e }
 
 /--
 Mark `e` as a case-split that does not need to be performed anymore.
@@ -1030,7 +1051,7 @@ Remark: we also use this feature to record the case-splits that have already bee
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
     trace_goal[grind.split.resolved] "{e}"
-    modify fun s => { s with resolvedSplits := s.resolvedSplits.insert { expr := e } }
+    modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
 
 /--
 Returns extensionality theorems for the given type if available.

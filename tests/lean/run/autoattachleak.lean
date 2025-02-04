@@ -42,7 +42,7 @@ info: Tree.revrev.induct {α : Type} (motive : Nat → Tree α → Prop) (case1 
   (case2 :
     ∀ (n : Nat) (cs : List (Tree α)),
       (∀ (x : Tree α), x ∈ cs → motive (n + 1) x) →
-        (∀ (x : { x // x ∈ cs }), motive (n + 1) x.val) →
+        (∀ (x : Subtype (Membership.mem cs)), motive (n + 1) x.val) →
           motive n
               {
                 cs :=

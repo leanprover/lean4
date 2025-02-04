@@ -20,10 +20,10 @@ inductive Location where
 /-
 Recall that
 ```
-syntax locationWildcard := "*"
-syntax locationType := ("|-" <|> "⊢")
-syntax locationHyp := (colGt (term:max <|> locationType))+
-syntax location         := withPosition("at " locationWildcard <|> locationHyp)
+syntax locationWildcard := " *"
+syntax locationType     := patternIgnore(atomic("|" noWs "-") <|> "⊢")
+syntax locationHyp      := (ppSpace colGt (term:max <|> locationType))+
+syntax location         := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 ```
 -/
 def expandLocation (stx : Syntax) : Location :=

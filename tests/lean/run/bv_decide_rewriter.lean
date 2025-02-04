@@ -25,7 +25,6 @@ def mem_subset (a1 a2 b1 b2 : BitVec 64) : Bool :=
 theorem mem_subset_refl : mem_subset a1 a2 a1 a2 := by
   unfold mem_subset
   bv_normalize
-  sorry
 
 example {x : BitVec 16} : 0#16 + x = x := by bv_normalize
 example {x : BitVec 16} : x + 0#16 = x := by bv_normalize
@@ -53,6 +52,9 @@ example : BitVec.sshiftRight 0#16 n = 0#16 := by bv_normalize
 example {x : BitVec 16} : BitVec.sshiftRight x 0 = x := by bv_normalize
 example {x : BitVec 16} : 0#16 * x = 0 := by bv_normalize
 example {x : BitVec 16} : x * 0#16 = 0 := by bv_normalize
+example {x : BitVec 16} : x >>> (12 : Nat) = x >>> 12#16 := by bv_normalize
+example {x : BitVec 16} : x <<< (12 : Nat) = x <<< 12#16 := by bv_normalize
+example {x : BitVec 16} : x.sshiftRight (12 : Nat) = x.sshiftRight' 12#16 := by bv_normalize
 example {x : BitVec 16} : x <<< 0#16 = x := by bv_normalize
 example {x : BitVec 16} : x <<< 0 = x := by bv_normalize
 example : 0#16 <<< (n : Nat) = 0 := by bv_normalize
@@ -70,11 +72,6 @@ example {x y : BitVec 1} : x + y = x ^^^ y := by bv_normalize
 example {x y : BitVec 1} : x * y = x &&& y := by bv_normalize
 example {x : BitVec 16} : x / 0 = 0 := by bv_normalize
 example {x : BitVec 16} : x % 0 = x := by bv_normalize
-example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(x + 1#16) = ~~~x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(1#16 + ~~~x) = x + (-1#16) := by bv_normalize
-example {x : BitVec 16} : ~~~(1#16 + x) = ~~~x + (-1#16) := by bv_normalize
 example {x : BitVec 16} : (10 + x) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : (x + 10) + 2 = 12 + x := by bv_normalize
 example {x : BitVec 16} : 2 + (x + 10) = 12 + x := by bv_normalize
@@ -92,6 +89,168 @@ example (x y : BitVec 16) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + 
 example (x y : BitVec w) : BitVec.uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by bv_normalize
 example (x y : BitVec w) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by bv_normalize
 
+
+-- not_neg
+example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(~~~x + 1#16) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(x + 1#16) = ~~~x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + ~~~x) = x + (-1#16) := by bv_normalize
+example {x : BitVec 16} : ~~~(1#16 + x) = ~~~x + (-1#16) := by bv_normalize
+
+-- add_neg / neg_add
+example (x : BitVec 16) : x + -x = 0 := by bv_normalize
+example (x : BitVec 16) : x - x = 0 := by bv_normalize
+example (x : BitVec 16) : x + (~~~x + 1) = 0 := by bv_normalize
+example (x : BitVec 16) : x + (1 + ~~~x) = 0 := by bv_normalize
+example (x : BitVec 16) : -x + x = 0 := by bv_normalize
+example (x : BitVec 16) : (~~~x + 1) + x = 0 := by bv_normalize
+example (x : BitVec 16) : (1 + ~~~x) + x = 0 := by bv_normalize
+
+-- neg_mul / mul_neg
+example (x y : BitVec 16) : (-x) * y = -(x * y) := by bv_normalize
+example (x y : BitVec 16) : x * (-y) = -(x * y) := by bv_normalize
+example (x y : BitVec 16) : -x * -y = x * y := by bv_normalize
+example (x y : BitVec 16) : (~~~x + 1) * y = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * y = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : x * (~~~y + 1) = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : x * (1 + ~~~y) = ~~~(x * y) + 1 := by bv_normalize
+example (x y : BitVec 16) : (~~~x + 1) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (~~~y + 1) = x * y := by bv_normalize
+example (x y : BitVec 16) : (1 + ~~~x) * (1 + ~~~y) = x * y := by bv_normalize
+
+-- lt_irrefl
+example (x : BitVec 16) : ¬x < x := by bv_normalize
+example (x : BitVec 16) : !(x.ult x) := by bv_normalize
+example (x : BitVec 16) : !(x.slt x) := by bv_normalize
+
+-- not_lt_zero
+example (x : BitVec 16) : ¬x < 0 := by bv_normalize
+example (x : BitVec 16) : x ≥ 0 := by bv_normalize
+example (x : BitVec 16) : !(x.ult 0) := by bv_normalize
+
+-- lt_one_iff
+example (x : BitVec 16) : (x < 1) ↔ (x = 0) := by bv_normalize
+example (x : BitVec 16) : (x.ult 1) = (x == 0) := by bv_normalize
+
+-- ushiftRight_self
+example (x : BitVec 16) : (x >>> x) == 0 := by bv_normalize
+
+-- add_left_inj / add_right_inj
+example (x y z : BitVec 16) : (x + z == y + z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (x + z == z + y) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z + x == y + z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z + x == z + y) = (x == y) := by bv_normalize
+
+-- add_left_eq_self / add_right_eq_self
+example (x y : BitVec 16) : (x + y == x) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x + y == y) = (x == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == x + y) = (y == 0) := by bv_normalize
+example (x y : BitVec 16) : (x == y + x) = (y == 0) := by bv_normalize
+
+-- eq_sub_iff_add_eq / sub_eq_iff_eq_add
+example (x y z : BitVec 16) : (x + -y == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x - y == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x + (~~~y + 1) == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (x + (1 + ~~~y) == z) = (x == z + y) := by bv_normalize
+example (x y z : BitVec 16) : (-x + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : ((~~~x + 1) + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : ((1 + ~~~x) + y == z) = (y == z + x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + -y) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x - y) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + (~~~y + 1)) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == x + (1 + ~~~y)) = (z + y == x) := by bv_normalize
+example (x y z : BitVec 16) : (z == -x + y) = (z + x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z == (~~~x + 1) + y) = (z + x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z == (1 + ~~~x) + y) = (z + x == y) := by bv_normalize
+
+-- or_beq_zero_iff
+example (x y : BitVec 16) : (x ||| y == 0) = (x == 0 && y == 0) := by bv_normalize
+example (x y : BitVec 16) : (0 == x ||| y) = (x == 0 && y == 0) := by bv_normalize
+
+-- xor_beq_zero_iff
+example (x y : BitVec 16) : (x ^^^ y == 0) = (x == y) := by bv_normalize
+example (x y : BitVec 16) : (0 == x ^^^ y) = (x == y) := by bv_normalize
+
+-- xor_left_inj / xor_right_inj
+example (x y z : BitVec 16) : (x ^^^ z == y ^^^ z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (x ^^^ z == z ^^^ y) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z ^^^ x == y ^^^ z) = (x == y) := by bv_normalize
+example (x y z : BitVec 16) : (z ^^^ x == z ^^^ y) = (x == y) := by bv_normalize
+
+-- bif_eq_bif
+example (d a b c : Bool) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || (b == c)) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((!(bif d then a else b)) == (bif d then a else c)) = (!d && (!b) == c) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else b) == !(bif d then a else c)) = (!d && b == (!c)) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((!(bif d then a else c)) == (bif d then b else c)) = (d && (!a) == b) := by
+  bv_normalize
+
+example (d a b c : Bool) :
+    ((bif d then a else c) == !(bif d then b else c)) = (d && a == (!b)) := by
+  bv_normalize
+
+example (a b c d e : BitVec 16) :
+    ((bif a == b then c else d) == (bif a == b then c else e)) = (a == b || d == e) := by
+  bv_normalize
+
+example (a b c d e : BitVec 16) :
+    ((bif a == b then c else d) == (bif a == b then e else d)) = (!a == b || c == e) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || b == c) := by
+  cases d <;> simp
+
+example (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else b) == (bif d then a else c)) = (bif d then ~~~a == a else ~~~b == c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == ~~~(bif d then a else c)) = (bif d then a == ~~~a else b == ~~~c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else c) == (bif d then b else c)) = (bif d then ~~~a == b else ~~~c == c) := by
+  bv_normalize
+
+example (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
+  bv_normalize
+
+-- bv_equal_const_not
+example (a : BitVec 32) : (~~~a = 0#32) ↔ (a = -1) := by
+  bv_normalize
+
+example (a : BitVec 32) : (0#32 = ~~~a) ↔ (a = -1) := by
+  bv_normalize
+
+-- reducing or to and while still applying or specific rewrites
+example {x : BitVec 64} : x ||| 0 = x := by
+  bv_normalize
+
+-- bv_and_eq_allOnes
+example (a b : BitVec 16) : (a &&& b == -1#16) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
+
+example (a b : BitVec 16) : (-1#16 == a &&& b) = (a == -1#16 && b == -1#16) := by
+  bv_normalize
 
 section
 

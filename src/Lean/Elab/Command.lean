@@ -313,7 +313,11 @@ def wrapAsyncAsSnapshot (act : Unit → CommandElabM Unit)
     IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
-      modify fun st => { st with messages := st.messages.markAllReported, traceState := { tid } }
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -492,8 +496,8 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                     newStx := stxNew
                     newNextMacroScope := nextMacroScope
                     hasTraces
-                    next := cmdPromises.zipWith cmds fun cmdPromise cmd =>
-                      { range? := cmd.getRange?, task := cmdPromise.result }
+                    next := Array.zipWith (fun cmdPromise cmd =>
+                      { range? := cmd.getRange?, task := cmdPromise.result }) cmdPromises cmds
                     : MacroExpandedSnapshot
                   }
                   -- After the first command whose syntax tree changed, we must disable

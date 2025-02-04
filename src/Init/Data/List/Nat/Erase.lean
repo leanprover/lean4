@@ -65,6 +65,11 @@ theorem getElem_eraseIdx_of_ge (l : List α) (i : Nat) (j : Nat) (h : j < (l.era
   rw [getElem_eraseIdx, dif_neg]
   omega
 
+theorem eraseIdx_eq_dropLast (l : List α) (i : Nat) (h : i + 1 = l.length) :
+    l.eraseIdx i = l.dropLast := by
+  simp [eraseIdx_eq_take_drop_succ, h]
+  rw [take_eq_dropLast h]
+
 theorem eraseIdx_set_eq {l : List α} {i : Nat} {a : α} :
     (l.set i a).eraseIdx i = l.eraseIdx i := by
   apply ext_getElem

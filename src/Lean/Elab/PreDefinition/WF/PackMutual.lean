@@ -48,7 +48,7 @@ def packCalls (fixedPrefix : Nat) (argsPacker : ArgsPacker) (funNames : Array Na
     let f := e.getAppFn
     if !f.isConst then
       return TransformStep.done e
-    if let some fidx := funNames.indexOf? f.constName! then
+    if let some fidx := funNames.idxOf? f.constName! then
       let arity := fixedPrefix + argsPacker.varNamess[fidx]!.size
       let e' ← withAppN arity e fun args => do
         let packedArg ← argsPacker.pack domain fidx args[fixedPrefix:]

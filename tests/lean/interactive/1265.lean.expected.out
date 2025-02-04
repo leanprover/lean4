@@ -85,8 +85,6 @@
   {"sortText": "9",
    "label": "raw",
    "kind": 5,
-   "documentation":
-   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},
@@ -181,8 +179,6 @@
   {"sortText": "9",
    "label": "raw",
    "kind": 5,
-   "documentation":
-   {"value": "The underlying `Syntax` value. ", "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///1265.lean"},

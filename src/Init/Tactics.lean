@@ -8,6 +8,14 @@ import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
+
+/--
+`as_aux_lemma => tac` does the same as `tac`, except that it wraps the resulting expression
+into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
+because the proof term is not duplicated.
+-/
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.
@@ -1593,6 +1601,12 @@ The command `by?` will print a suggestion for replacing the proof block with a p
 using `show_term`.
 -/
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
+
+/--
+`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
+accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+-/
+syntax (name := exposeNames) "expose_names" : tactic
 
 end Tactic
 

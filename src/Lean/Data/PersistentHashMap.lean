@@ -231,7 +231,7 @@ def isUnaryNode : Node α β → Option (α × β)
 
 partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
   | n@(Node.collision keys vals heq), _, k =>
-    match keys.indexOf? k with
+    match keys.finIdxOf? k with
     | some idx =>
       let keys' := keys.eraseIdx idx
       have keq := keys.size_eraseIdx idx _

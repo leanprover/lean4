@@ -1222,7 +1222,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
     It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
-    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
+    `Int.fdiv` (floor rounding) and `Int.tdiv` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
@@ -1551,7 +1551,7 @@ instance instAddNat : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg
+attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2706,7 +2706,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   If `start` is greater or equal to `stop`, the result is empty.
   If `stop` is greater than the length of `as`, the length is used instead. -/
 -- NOTE: used in the quotation elaborator output
-def Array.extract (as : Array α) (start stop : Nat) : Array α :=
+def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
     dite (LT.lt j as.size)
       (fun hlt =>
@@ -3705,8 +3705,7 @@ inductive Syntax where
   /-- Node in the syntax tree.
 
   The `info` field is used by the delaborator to store the position of the
-  subexpression corresponding to this node. The parser sets the `info` field
-  to `none`.
+  subexpression corresponding to this node.
   The parser sets the `info` field to `none`, with position retrieval continuing recursively.
   Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
   as synthetic even when the leading/trailing token is not.

@@ -137,6 +137,23 @@ theorem Functor.map_unit [Monad m] [LawfulMonad m] {a : m PUnit} : (fun _ => PUn
   simp [map]
 
 /--
+This is just a duplicate of `LawfulApplicative.map_pure`,
+but sometimes applies when that doesn't.
+
+It is named with a prime to avoid conflict with the inherited field `LawfulMonad.map_pure`.
+-/
+@[simp] theorem LawfulMonad.map_pure' [Monad m] [LawfulMonad m] {a : α} :
+    (f <$> pure a : m β) = pure (f a) := by
+  simp only [map_pure]
+
+/--
+This is just a duplicate of `Functor.map_map`, but sometimes applies when that doesn't.
+-/
+@[simp] theorem LawfulMonad.map_map {m} [Monad m] [LawfulMonad m] {x : m α} :
+    g <$> f <$> x = (fun a => g (f a)) <$> x := by
+  simp only [Functor.map_map]
+
+/--
 An alternative constructor for `LawfulMonad` which has more
 defaultable fields in the common case.
 -/

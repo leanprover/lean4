@@ -42,8 +42,6 @@ def LazyList.ind {α : Type u} {motive : LazyList α → Sort v}
 -- Remark: Lean used well-founded recursion behind the scenes to define LazyList.ind
 
 /--
-warning: declaration uses 'sorry'
----
 info: case cons
 τ : Type u_1
 nil : LazyList τ
@@ -62,6 +60,8 @@ t : Thunk (LazyList τ)
 a✝ : ∀ (h : t.get.length + 1 = R.length), (rotate t.get R nil h).length = t.get.length + R.length
 ⊢ ∀ (h : (LazyList.delayed t).length + 1 = R.length),
     (rotate (LazyList.delayed t) R nil h).length = (LazyList.delayed t).length + R.length
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 theorem rotate_inv' {F : LazyList τ} {R : List τ} : (h : F.length + 1 = R.length) → (rotate F R nil h).length = F.length + R.length := by

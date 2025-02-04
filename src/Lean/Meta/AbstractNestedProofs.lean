@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Grind.Util
 import Lean.Meta.Closure
 
 namespace Lean.Meta
@@ -16,7 +17,12 @@ def getLambdaBody (e : Expr) : Expr :=
 
 def isNonTrivialProof (e : Expr) : MetaM Bool := do
   if !(← isProof e) then
-    pure false
+    return false
+  else if e.isAppOf ``Grind.nestedProof then
+    -- Grind.nestedProof is a gadget created by the `grind` tactic.
+    -- We want to avoid the situation where `grind` keeps creating them,
+    -- and this module, which is used by `grind`, keeps abstracting them.
+    return false
   else
     -- We consider proofs such as `fun x => f x a` as trivial.
     -- For example, we don't want to abstract the body of `def rfl`

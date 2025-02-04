@@ -5,8 +5,9 @@ Authors: Mac Malone
 -/
 prelude
 import Lake.Config.Monad
-import Lake.Build.Actions
 import Lake.Util.JsonObject
+import Lake.Build.Actions
+import Lake.Build.Job
 
 /-! # Common Build Tools
 This file defines general utilities that abstract common
@@ -18,6 +19,9 @@ open System Lean
 namespace Lake
 
 /-! ## General Utilities -/
+
+/-- Exit code to return if `--no-build` is set and a build is required. -/
+def noBuildCode : ExitCode := 3
 
 /--
 Build trace for the host platform.

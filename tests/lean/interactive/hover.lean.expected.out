@@ -407,7 +407,7 @@
   "end": {"line": 206, "character": 13}},
  "contents":
  {"value":
-  "```lean\n?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. ",
+  "```lean\n?m x1✝ x2✝\n```\n***\n`a + b` computes the sum of `a` and `b`.\nThe meaning of this notation is type-dependent. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `+` in identifiers is `add`.",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 215, "character": 28}}
@@ -612,7 +612,7 @@
   "end": {"line": 290, "character": 16}},
  "contents":
  {"value":
-  "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\n`[]` is the empty list. \n***\n*import Init.Prelude*",
+  "```lean\nList.nil.{u} {α : Type u} : List α\n```\n***\n`[]` is the empty list. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `[]` in identifiers is `nil`.\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 292, "character": 13}}
@@ -621,7 +621,7 @@
   "end": {"line": 292, "character": 15}},
  "contents":
  {"value":
-  "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nIf `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the\nlist whose first element is `a` and with `l` as the rest of the list. \n***\n*import Init.Prelude*",
+  "```lean\nList.cons.{u} {α : Type u} (head : α) (tail : List α) : List α\n```\n***\nIf `a : α` and `l : List α`, then `cons a l`, or `a :: l`, is the\nlist whose first element is `a` and with `l` as the rest of the list. \n\nConventions for notations in identifiers:\n\n * The recommended spelling of `::` in identifiers is `cons`.\n\n * The recommended spelling of `[a]` in identifiers is `singleton`.\n***\n*import Init.Prelude*",
   "kind": "markdown"}}
 {"textDocument": {"uri": "file:///hover.lean"},
  "position": {"line": 294, "character": 18}}

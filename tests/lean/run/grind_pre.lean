@@ -5,14 +5,14 @@ set_option grind.debug.proofs true
 
 /--
 error: `grind` failed
-case grind.1.2
+case grind
 a b c : Bool
 p q : Prop
-left✝ : a = true
-left : p
-right : q
-h✝ : b = false
-h : c = true
+left : a = true
+right : b = true ∨ c = true
+left_1 : p
+right_1 : q
+h_1 : b = false ∨ a = false
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -21,8 +21,6 @@ h : c = true
     [prop] p
     [prop] q
     [prop] b = false ∨ a = false
-    [prop] b = false
-    [prop] c = true
   [eqc] True propositions
     [prop] b = true ∨ c = true
     [prop] p
@@ -30,8 +28,10 @@ h : c = true
     [prop] b = false ∨ a = false
     [prop] b = false
     [prop] c = true
+  [eqc] False propositions
+    [prop] a = false
+    [prop] b = true
   [eqc] Equivalence classes
-    [eqc] {b = true, a = false}
     [eqc] {b, false}
     [eqc] {a, c, true}
 -/
@@ -47,11 +47,11 @@ error: `grind` failed
 case grind.2.1
 a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : c = true
-left : p
-right : q
-h : b = false
+left : a = true
+h_1 : c = true
+left_1 : p
+right_1 : q
+h_3 : b = false
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -66,6 +66,9 @@ h : b = false
   [eqc] Equivalence classes
     [eqc] {b, false}
     [eqc] {a, c, true}
+[grind] Counters
+  [cases] Cases instances
+    [cases] Or ↦ 3
 -/
 #guard_msgs (error) in
 theorem ex2 (h : (f a && (b || f (f c))) = true) (h' : p ∧ q) : b && a := by
@@ -80,8 +83,8 @@ error: `grind` failed
 case grind
 i j : Nat
 h : j + 1 < i + 1
-h✝ : j + 1 ≤ i
-x✝ : ¬g (i + 1) j ⋯ = i + j + 1
+h_2 : j + 1 ≤ i
+h_3 : ¬g (i + 1) j ⋯ = i + j + 1
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -94,7 +97,10 @@ x✝ : ¬g (i + 1) j ⋯ = i + j + 1
   [offset] Assignment satisfying offset contraints
     [assign] j := 0
     [assign] i := 1
-    [assign] i + j := 1
+    [assign] i + 1 := 2
+    [assign] 0 := 0
+    [assign] i + j + 1 := 1
+    [assign] i + j := 0
 -/
 #guard_msgs (error) in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = f ((fun x => x) i) + f j + 1 := by
@@ -118,7 +124,7 @@ b₃ : Int
 head_eq : a₁ = b₁
 x_eq : a₂ = b₂
 y_eq : a₃ = b₃
-tail_eq : as = bs
+tail_eq_1 : as = bs
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -151,59 +157,26 @@ p q r : Prop
 h₁ : HEq p a
 h₂ : HEq q a
 h₃ : p = r
-left : ¬p ∨ r
-h : ¬r
+left : p
+right : r
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
     [prop] HEq p a
     [prop] HEq q a
     [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] ¬r
+    [prop] p
+    [prop] r
   [eqc] True propositions
     [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] ¬p
-    [prop] ¬r
-  [eqc] False propositions
     [prop] a
     [prop] p
     [prop] q
     [prop] r
-case grind.2
-α : Type
-a : α
-p q r : Prop
-h₁ : HEq p a
-h₂ : HEq q a
-h₃ : p = r
-left : ¬p ∨ r
-h : p
-⊢ False
-[grind] Diagnostics
-  [facts] Asserted facts
-    [prop] HEq p a
-    [prop] HEq q a
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] p
-  [eqc] True propositions
-    [prop] p = r
-    [prop] ¬p ∨ r
-    [prop] ¬r ∨ p
-    [prop] a
-    [prop] p
-    [prop] q
-    [prop] r
-  [eqc] False propositions
-    [prop] ¬p
-    [prop] ¬r
-  [issues] Issues
-    [issue] this goal was not fully processed due to previous failures, threshold: `(failures := 1)`
+  [cases] Case analyses
+    [cases] [1/2]: p = r
+[grind] Issues
+  [issue] #1 other goal(s) were not fully processed due to previous failures, threshold: `(failures := 1)`
 -/
 #guard_msgs (error) in
 example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h₃ : p = r) → False := by
@@ -216,15 +189,13 @@ example (a : α) (p q r : Prop) : (h₁ : HEq p a) → (h₂ : HEq q a) → (h�
   grind
 
 /--
-warning: declaration uses 'sorry'
----
 info: [grind.issues] found congruence between
       g b
     and
       f a
     but functions have different types
 -/
-#guard_msgs in
+#guard_msgs (info) in
 set_option trace.grind.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by
@@ -238,9 +209,9 @@ f : Nat → Bool
 g : Int → Bool
 a : Nat
 b : Int
-a✝¹ : HEq f g
-a✝ : HEq a b
-x✝ : ¬f a = g b
+h : HEq f g
+h_1 : HEq a b
+h_2 : ¬f a = g b
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -252,8 +223,8 @@ x✝ : ¬f a = g b
   [eqc] Equivalence classes
     [eqc] {a, b}
     [eqc] {f, g}
-  [issues] Issues
-    [issue] found congruence between g b and f a but functions have different types
+[grind] Issues
+  [issue] found congruence between g b and f a but functions have different types
 -/
 #guard_msgs (error) in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : HEq f g → HEq a b → f a = g b := by

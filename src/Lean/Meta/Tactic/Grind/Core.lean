@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.Grind.Ctor
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.Beta
 import Lean.Meta.Tactic.Grind.Internalize
+import Lean.Meta.Tactic.Grind.Simp
 
 namespace Lean.Meta.Grind
 
@@ -81,7 +82,7 @@ Updates the modification time to `gmt` for the parents of `root`.
 The modification time is used to decide which terms are considered during e-matching.
 -/
 private partial def updateMT (root : Expr) : GoalM Unit := do
-  let gmt := (← get).gmt
+  let gmt := (← get).ematch.gmt
   for parent in (← getParents root) do
     let node ← getENode parent
     if node.mt < gmt then
@@ -115,15 +116,15 @@ the lambda expressions in `lams`.
 def propagateBeta (lams : Array Expr) (fns : Array Expr) : GoalM Unit := do
   if lams.isEmpty then return ()
   let lamRoot ← getRoot lams.back!
-  trace[grind.debug.beta] "fns: {fns}, lams: {lams}"
+  trace_goal[grind.debug.beta] "fns: {fns}, lams: {lams}"
   for fn in fns do
-    trace[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
+    trace_goal[grind.debug.beta] "fn: {fn}, parents: {(← getParents fn).toArray}"
     for parent in (← getParents fn) do
       let mut args := #[]
       let mut curr := parent
-      trace[grind.debug.beta] "parent: {parent}"
+      trace_goal[grind.debug.beta] "parent: {parent}"
       repeat
-        trace[grind.debug.beta] "curr: {curr}"
+        trace_goal[grind.debug.beta] "curr: {curr}"
         if (← isEqv curr lamRoot) then
           propagateBetaEqs lams curr args.reverse
         let .app f arg := curr
@@ -233,18 +234,20 @@ private def popNextEq? : GoalM (Option NewEq) := do
     modify fun s => { s with newEqs := s.newEqs.pop }
   return r
 
-private partial def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
-  addEqStep lhs rhs proof isHEq
-  processTodo
-where
-  processTodo : GoalM Unit := do
+@[export lean_grind_process_new_eqs]
+private def processNewEqsImpl : GoalM Unit := do
+  repeat
     if (← isInconsistent) then
       resetNewEqs
       return ()
     checkSystem "grind"
-    let some { lhs, rhs, proof, isHEq } := (← popNextEq?) | return ()
+    let some { lhs, rhs, proof, isHEq } := (← popNextEq?)
+      | return ()
     addEqStep lhs rhs proof isHEq
-    processTodo
+
+private def addEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+  addEqStep lhs rhs proof isHEq
+  processNewEqsImpl
 
 /-- Adds a new equality `lhs = rhs`. It assumes `lhs` and `rhs` have already been internalized. -/
 private def addEq (lhs rhs proof : Expr) : GoalM Unit := do

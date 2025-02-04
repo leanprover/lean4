@@ -14,6 +14,8 @@ abbrev xor : Bool → Bool → Bool := bne
 
 @[inherit_doc] infixl:33 " ^^ " => xor
 
+recommended_spelling "xor" for "^^" in [xor, «term_^^_»]
+
 instance (p : Bool → Prop) [inst : DecidablePred p] : Decidable (∀ x, p x) :=
   match inst true, inst false with
   | isFalse ht, _ => isFalse fun h => absurd (h _) ht

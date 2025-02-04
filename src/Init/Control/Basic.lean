@@ -50,6 +50,8 @@ def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α �
 
 infixr:100 " <&> " => Functor.mapRev
 
+recommended_spelling "mapRev" for "<&>" in [Functor.mapRev, «term_<&>_»]
+
 @[always_inline, inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
   Functor.mapConst PUnit.unit x
@@ -120,6 +122,8 @@ instance : ToBool Bool where
 
 infixr:30 " <||> " => orM
 
+recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
+
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -127,6 +131,8 @@ infixr:30 " <||> " => orM
   | false => pure b
 
 infixr:35 " <&&> " => andM
+
+recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 
 @[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x
@@ -315,3 +321,7 @@ def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
 @[inherit_doc] infixr:55 " >=> " => Bind.kleisliRight
 @[inherit_doc] infixr:55 " <=< " => Bind.kleisliLeft
 @[inherit_doc] infixr:55 " =<< " => Bind.bindLeft
+
+recommended_spelling "kleisliRight" for ">=>" in [Bind.kleisliRight, «term_>=>_»]
+recommended_spelling "kleisliLeft" for "<=<" in [Bind.kleisliLeft, «term_<=<_»]
+recommended_spelling "bindLeft" for "=<<" in [Bind.bindLeft, «term_=<<_»]

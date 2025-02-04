@@ -2376,7 +2376,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_mkModel(lean_object* x_1
 _start:
 {
 lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
-x_7 = lean_ctor_get(x_1, 9);
+x_7 = lean_ctor_get(x_1, 13);
 lean_inc(x_7);
 lean_dec(x_1);
 x_8 = lean_ctor_get(x_4, 2);

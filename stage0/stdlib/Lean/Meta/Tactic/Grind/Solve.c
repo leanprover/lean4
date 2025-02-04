@@ -2315,7 +2315,7 @@ x_23 = lean_ctor_get(x_21, 0);
 lean_inc(x_23);
 x_24 = l_Lean_MVarId_isAssigned___at_Lean_Meta_Grind_Solve_main___spec__1(x_23, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_22);
 lean_dec(x_23);
-x_25 = lean_ctor_get_uint8(x_21, sizeof(void*)*26);
+x_25 = lean_ctor_get_uint8(x_21, sizeof(void*)*15);
 if (x_25 == 0)
 {
 lean_object* x_26; uint8_t x_27; 
@@ -2837,7 +2837,7 @@ if (x_21 == 0)
 {
 lean_object* x_22; uint8_t x_23; 
 x_22 = lean_ctor_get(x_14, 0);
-x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*26);
+x_23 = lean_ctor_get_uint8(x_22, sizeof(void*)*15);
 if (x_23 == 0)
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; 
@@ -2890,7 +2890,7 @@ lean_object* x_31; uint8_t x_32;
 x_31 = lean_ctor_get(x_14, 0);
 lean_inc(x_31);
 lean_dec(x_14);
-x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*26);
+x_32 = lean_ctor_get_uint8(x_31, sizeof(void*)*15);
 if (x_32 == 0)
 {
 lean_object* x_33; lean_object* x_34; lean_object* x_35; 

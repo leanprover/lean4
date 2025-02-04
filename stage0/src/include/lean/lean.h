@@ -380,11 +380,16 @@ static inline unsigned lean_small_object_size(lean_object * o) {
 void free(void *);  // avoid including big `stdlib.h`
 #endif
 
+#if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+void free_sized(void* ptr, size_t);
+#endif
+
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
 #else
-    free((size_t*)o - 1);
+    size_t* ptr = (size_t*)o - 1;
+    free_sized(ptr, *ptr + sizeof(size_t));
 #endif
 }
 

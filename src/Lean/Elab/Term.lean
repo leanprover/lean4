@@ -2196,6 +2196,11 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
 
+/-- Like `Lean.unresolveNameGlobal`, but also ensures that the unresolved name does not conflict
+with the names of any local declarations. -/
+def unresolveNameGlobalAvoidingLocals (n₀ : Name) (fullNames := false) : TermElabM Name :=
+  unresolveNameGlobal n₀ (fullNames := fullNames) (filter := fun n => Option.isNone <$> Term.resolveLocalName n)
+
 def TermElabM.run (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)
 

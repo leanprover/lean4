@@ -554,8 +554,8 @@ def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config :=
 /-! Helper functions -/
 
 /-- Converts a declaraion name into an identifier. -/
-private def toIdent (declName : Name) : MetaM Ident := do
-  return mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+private def toIdent (declName : Name) : TermElabM Ident := do
+  return mkIdent (← Term.unresolveNameGlobalAvoidingLocals declName)
 
 private def mkFirstStx (tacs : Array (TSyntax `tactic)) : CoreM (TSyntax `tactic) :=
   if tacs.size = 1 then

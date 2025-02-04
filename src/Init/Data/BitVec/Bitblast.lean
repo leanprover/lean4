@@ -1233,7 +1233,9 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 /- ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
-    (umod n d)[i] = if d = 0#w then n[i] else (divRec w {n, d} (DivModState.init w)).r[i] := by
+    (n % d)[i]
+      = if d = 0#w then n[i]
+      else (divRec w { n := n, d := d } (DivModState.init w)).r[i] := by
   by_cases hd : d = 0#w
   · simp [hd]
   · have := (BitVec.not_le (x := d) (y := 0#w)).mp
@@ -1241,17 +1243,17 @@ theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     simp [hd]
 
 theorem getLsbD_umod {n d : BitVec w}:
-    (umod n d).getLsbD i =
-      if d = 0#w then n.getLsbD i
-      else ((divRec w {n, d} (DivModState.init w)).r).getLsbD i := by
+    (n % d).getLsbD i
+      = if d = 0#w then n.getLsbD i
+      else (divRec w { n := n, d := d } (DivModState.init w)).r.getLsbD i := by
   by_cases hi : i < w
   · simp only [BitVec.getLsbD_eq_getElem hi, getElem_umod]
   · simp [show w ≤ i by omega]
 
 theorem getMsbD_umod {n d : BitVec w}:
-    (umod n d).getMsbD i =
-      if d = 0#w then n.getMsbD i
-      else (divRec w {n, d} (DivModState.init w)).r.getMsbD i := by
+    (n % d).getMsbD i
+      = if d = 0#w then n.getMsbD i
+      else (divRec w { n := n, d := d } (DivModState.init w)).r.getMsbD i := by
   by_cases hi : i < w
   · rw [BitVec.getMsbD_eq_getLsbD, getLsbD_umod]
     simp [BitVec.getMsbD_eq_getLsbD, hi]

@@ -73,7 +73,7 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let natZeroExpr ← getNatZeroExpr
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
-  GoalM.run' { mvarId, thmMap, casesTypes } do
+  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)

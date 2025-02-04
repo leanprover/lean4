@@ -88,7 +88,7 @@ private def introNext (goal : Goal) (generation : Nat) : GrindM IntroResult := d
 
 private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
   let .const declName _ := type.getAppFn | return false
-  return goal.casesTypes.isEagerSplit declName
+  return goal.split.casesTypes.isEagerSplit declName
 
 private def applyCases? (goal : Goal) (fvarId : FVarId) : GrindM (Option (List Goal)) := goal.mvarId.withContext do
   let type ← whnfD (← fvarId.getType)

@@ -58,12 +58,12 @@ structure Context where
   deriving Inhabited
 
 /-- State for the E-matching monad -/
-structure State where
+structure SearchState where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
   deriving Inhabited
 
-abbrev M := ReaderT Context $ StateRefT State GoalM
+abbrev M := ReaderT Context $ StateRefT SearchState GoalM
 
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
@@ -315,7 +315,7 @@ private def processChoices : M Unit := do
   while !(← get).choiceStack.isEmpty do
     checkSystem "ematch"
     if (← checkMaxInstancesExceeded) then return ()
-    let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
+    let c ← modifyGet fun s : SearchState => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
     if c.gen < maxGeneration then
       match c.cnstrs with
       | [] => instantiateTheorem c
@@ -329,7 +329,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   let numParams  := (← read).thm.numParams
   let assignment := mkArray numParams unassigned
   let useMT      := (← read).useMT
-  let gmt        := (← getThe Goal).gmt
+  let gmt        := (← getThe Goal).ematch.gmt
   for app in apps do
     if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode app
@@ -351,7 +351,7 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
   let numParams  := (← read).thm.numParams
   let assignment := mkArray numParams unassigned
   let useMT      := (← read).useMT
-  let gmt        := (← getThe Goal).gmt
+  let gmt        := (← getThe Goal).ematch.gmt
   let false      ← getFalseExpr
   let mut curr   := false
   repeat
@@ -412,19 +412,19 @@ def ematch : GoalM Unit := do
   if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
     return ()
   else
-    go (← get).thms (← get).newThms |>.run'
+    go (← get).ematch.thms (← get).ematch.newThms |>.run'
     modify fun s => { s with
-      thms         := s.thms ++ s.newThms
-      newThms      := {}
-      gmt          := s.gmt + 1
-      numEmatch    := s.numEmatch + 1
+      ematch.thms      := s.ematch.thms ++ s.ematch.newThms
+      ematch.newThms   := {}
+      ematch.gmt       := s.ematch.gmt + 1
+      ematch.num       := s.ematch.num + 1
     }
 
 /-- Performs one round of E-matching, and assert new instances. -/
 def ematchAndAssert : GrindTactic := fun goal => do
-  let numInstances := goal.numInstances
+  let numInstances := goal.ematch.numInstances
   let goal ← GoalM.run' goal ematch
-  if goal.numInstances == numInstances then
+  if goal.ematch.numInstances == numInstances then
     return none
   assertAll goal
 

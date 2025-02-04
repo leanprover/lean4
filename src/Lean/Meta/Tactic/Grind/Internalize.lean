@@ -52,7 +52,7 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
 /-- Inserts `e` into the list of case-split candidates. -/
 private def addSplitCandidate (e : Expr) : GoalM Unit := do
   trace_goal[grind.split.candidate] "{e}"
-  modify fun s => { s with splitCandidates := e :: s.splitCandidates }
+  modify fun s => { s with split.candidates := e :: s.split.candidates }
 
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
@@ -85,13 +85,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
         return ()
       unless (← isInductivePredicate declName) do
         return ()
-      if (← get).casesTypes.isSplit declName then
+      if (← get).split.casesTypes.isSplit declName then
         addSplitCandidate e
       else if (← getConfig).splitIndPred then
         addSplitCandidate e
   | .fvar .. =>
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
-    if (← get).casesTypes.isSplit declName then
+    if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate e
   | _ => pure ()
 
@@ -142,7 +142,7 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   let proof ← shareCommon thm.proof
   let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
   trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
-  modify fun s => { s with newThms := s.newThms.push thm }
+  modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
 /--
 If `Config.matchEqs` is set to `true`, and `f` is `match`-auxiliary function,
@@ -152,25 +152,25 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
   if !(← getConfig).matchEqs then return ()
   let .const declName _ := f | return ()
   if !(← isMatcher declName) then return ()
-  if (← get).matchEqNames.contains declName then return ()
-  modify fun s => { s with matchEqNames := s.matchEqNames.insert declName }
+  if (← get).ematch.matchEqNames.contains declName then return ()
+  modify fun s => { s with ematch.matchEqNames := s.ematch.matchEqNames.insert declName }
   for eqn in (← Match.getEquationsFor declName).eqnNames do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
 private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some (thms, thmMap) := (← get).thmMap.retrieve? fName then
-    modify fun s => { s with thmMap }
+  if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
+    modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
-      unless (← get).thmMap.isErased thm.origin do
+      unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
         | [] => activateTheorem thm generation
         | _ =>
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
-          modify fun s => { s with thmMap := s.thmMap.insert thm }
+          modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
 /--
 If type of `a` is an inductive datatype with one constructor `ctor` without fields,

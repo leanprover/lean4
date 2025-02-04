@@ -23,6 +23,8 @@ def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
         mkPath lhs
       else if let some (lhs, _) := type.iff? then
         mkPath lhs
+      else if let some p := type.not? then
+        mkPath p
       else
         mkPath type
   else

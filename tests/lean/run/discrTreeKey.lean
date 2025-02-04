@@ -11,9 +11,19 @@ universe u
 open Nat List
 
 /-!
-  We can produce `simp` keys for theorems of the form `=`, `≠`, and `↔` by supplying the name
+  We can produce `simp` keys for theorems of the form `=`, `↔`, and `¬` by supplying the name
   of the declaration.
 -/
+
+#check Nat.zero_eq
+/-- info: zero -/
+#guard_msgs in
+#discr_tree_simp_key Nat.zero_eq
+
+#check Nat.zero_ne_add_one
+/-- info: @OfNat.ofNat Nat 0 _ -/
+#guard_msgs in
+#discr_tree_simp_key Nat.zero_ne_add_one
 
 #check zero_le
 #discr_tree_simp_key zero_le

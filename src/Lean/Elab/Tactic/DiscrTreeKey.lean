@@ -14,7 +14,7 @@ open Lean.Meta DiscrTree
 open Lean.Elab.Tactic
 open Lean.Elab.Command
 
-def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
+private def mkKey (e : Expr) (simp : Bool) : MetaM (Array Key) := do
   let (_, _, type) ← withReducible <| forallMetaTelescopeReducing e
   let type ← whnfR type
   if simp then

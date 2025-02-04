@@ -14,7 +14,9 @@ import Lean.Elab.Config
 import Lean.Elab.Level
 import Lean.Elab.DeclModifiers
 import Lean.Elab.PreDefinition.TerminationHint
+import Lean.Elab.DeclarationRange
 import Lean.Language.Basic
+import Lean.Elab.InfoTree.InlayHints
 
 namespace Lean.Elab
 
@@ -1976,21 +1978,75 @@ where
           go (mvarIdsNew.toList ++ mvarId :: mvarIds) result visited
 
 /--
+Adds an `InlayHintInfo` for the fvar auto implicits in `autos` at `inlayHintPos`.
+The inserted inlay hint has a hover that denotes the type of the auto-implicit (with meta-variables)
+and can be inserted at `inlayHintPos`.
+-/
+def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.Pos) : TermElabM Unit := do
+  -- If the list of auto-implicits contains a non-type fvar, then the list of auto-implicits will
+  -- also contain an mvar that denotes the type of the non-type fvar.
+  -- For example, the auto-implicit `x` in a type `Foo x` for `Foo.{u} {α : Sort u} (x : α) : Type`
+  -- also comes with an auto-implicit mvar denoting the type of `x`.
+  -- We have no way of displaying this mvar to the user in an inlay hint, as it doesn't have a name,
+  -- so we filter it.
+  -- This also means that inserting the inlay hint with the syntax displayed in the inlay hint will
+  -- cause a "failed to infer binder type" error, since we don't have a name to insert in the code.
+  let autos := autos.filter (· matches .fvar ..)
+  if autos.isEmpty then
+    return
+  let autoNames ← autos.mapM (·.fvarId!.getUserName)
+  let formattedHint := s!" \{{" ".intercalate <| Array.toList <| autoNames.map toString}}"
+  let autoLabelParts : List (InlayHintLabelPart × Option Expr) := Array.toList <| ← autos.mapM fun auto => do
+    let name := toString <| ← auto.fvarId!.getUserName
+    return ({ value := name }, some auto)
+  let p value : InlayHintLabelPart × Option Expr := ({ value }, none)
+  let labelParts := [p " ", p "{"] ++ [p " "].intercalate (autoLabelParts.map ([·])) ++ [p "}"]
+  let labelParts := labelParts.toArray
+  let deferredResolution ih := do
+    let .parts ps := ih.label
+      | return ih
+    let ps ← ps.mapIdxM fun i p => do
+      let some (part, some auto) := labelParts[i]?
+        | return p
+      let type := toString <| ← Meta.ppExpr <| ← instantiateMVars (← inferType auto)
+      return { p with
+        tooltip? := s!"{part.value} : {type}"
+      }
+    return { ih with label := .parts ps }
+  pushInfoLeaf <| .ofCustomInfo {
+      position := inlayHintPos
+      label := .parts <| labelParts.map (·.1)
+      textEdits := #[{
+        range := ⟨inlayHintPos, inlayHintPos⟩,
+        newText := formattedHint
+      }]
+      kind? := some .parameter
+      lctx := ← getLCtx
+      deferredResolution
+      : InlayHint
+    }.toCustomInfo
+
+/--
   Return `autoBoundImplicits ++ xs`
   This method throws an error if a variable in `autoBoundImplicits` depends on some `x` in `xs`.
   The `autoBoundImplicits` may contain free variables created by the auto-implicit feature, and unassigned free variables.
   It avoids the hack used at `autoBoundImplicitsOld`.
 
+  If `inlayHintPos?` is set, this function also inserts an inlay hint denoting `autoBoundImplicits`.
+  See `addAutoBoundImplicitsInlayHint` for more information.
+
   Remark: we cannot simply replace every occurrence of `addAutoBoundImplicitsOld` with this one because a particular
   use-case may not be able to handle the metavariables in the array being given to `k`.
 -/
-def addAutoBoundImplicits (xs : Array Expr) : TermElabM (Array Expr) := do
+def addAutoBoundImplicits (xs : Array Expr) (inlayHintPos? : Option String.Pos) : TermElabM (Array Expr) := do
   let autos := (← read).autoBoundImplicits
   go autos.toList #[]
 where
   go (todo : List Expr) (autos : Array Expr) : TermElabM (Array Expr) := do
     match todo with
     | [] =>
+      if let some inlayHintPos := inlayHintPos? then
+        addAutoBoundImplicitsInlayHint autos inlayHintPos
       for auto in autos do
         if auto.isFVar then
           let localDecl ← auto.fvarId!.getDecl
@@ -2009,7 +2065,7 @@ where
   We use this method to simplify the conversion of code using `autoBoundImplicitsOld` to `autoBoundImplicits`.
 -/
 def addAutoBoundImplicits' (xs : Array Expr) (type : Expr) (k : Array Expr → Expr → TermElabM α) : TermElabM α := do
-  let xs ← addAutoBoundImplicits xs
+  let xs ← addAutoBoundImplicits xs none
   if xs.all (·.isFVar) then
     k xs type
   else

@@ -59,27 +59,33 @@ open IO
 open Snapshots
 open JsonRpc
 
+structure RefreshInfo where
+  lastRefreshTimestamp      : Nat
+  successiveRefreshAttempts : Nat
+
+structure PartialHandlerInfo where
+  refreshMethod            : String
+  requestsInFlight         : Nat
+  pendingRefreshInfo?      : Option RefreshInfo
+  deriving Inhabited
+
 open Widget in
 
 structure WorkerContext where
   /-- Synchronized output channel for LSP messages. Notifications for outdated versions are
     discarded on read. -/
-  chanOut              : Std.Channel JsonRpc.Message
+  chanOut               : Std.Channel JsonRpc.Message
   /--
   Latest document version received by the client, used for filtering out notifications from
   previous versions.
   -/
-  maxDocVersionRef     : IO.Ref Int
-  freshRequestIdRef    : IO.Ref Int
-  /--
-  Channel that receives a message for every a `$/lean/fileProgress` notification, indicating whether
-  the notification suggests that the file is currently being processed.
-  -/
-  chanIsProcessing     : Std.Channel Bool
+  maxDocVersionRef      : IO.Ref Int
+  freshRequestIdRef     : IO.Ref Int
   /--
   Diagnostics that are included in every single `textDocument/publishDiagnostics` notification.
   -/
   stickyDiagnosticsRef : IO.Ref (Array InteractiveDiagnostic)
+  partialHandlersRef   : IO.Ref (RBMap String PartialHandlerInfo compare)
   hLog                 : FS.Stream
   initParams           : InitializeParams
   processor            : Parser.InputContext → BaseIO Lean.Language.Lean.InitialSnapshot
@@ -89,6 +95,23 @@ structure WorkerContext where
   context-free tasks such as editing delay.
   -/
   cmdlineOpts          : Options
+
+def WorkerContext.modifyGetPartialHandler (ctx : WorkerContext) (method : String)
+    (f : PartialHandlerInfo → α × PartialHandlerInfo) : BaseIO α :=
+  ctx.partialHandlersRef.modifyGet fun partialHandlers => Id.run do
+    let h := partialHandlers.find! method
+    let (r, h) := f h
+    (r, partialHandlers.insert method h)
+
+def WorkerContext.modifyPartialHandler (ctx : WorkerContext) (method : String)
+    (f : PartialHandlerInfo → PartialHandlerInfo) : BaseIO Unit :=
+  ctx.partialHandlersRef.modify fun partialHandlers => Id.run do
+  let some h := partialHandlers.find? method
+    | return partialHandlers
+  partialHandlers.insert method <| f h
+
+def WorkerContext.updateRequestsInFlight (ctx : WorkerContext) (method : String) (f : Nat → Nat) : BaseIO Unit :=
+    ctx.modifyPartialHandler method fun h => { h with requestsInFlight := f h.requestsInFlight }
 
 /-! # Asynchronous snapshot elaboration -/
 
@@ -340,11 +363,16 @@ section Initialization
     let clientHasWidgets := initParams.initializationOptions?.bind (·.hasWidgets?) |>.getD false
     let maxDocVersionRef ← IO.mkRef 0
     let freshRequestIdRef ← IO.mkRef (0 : Int)
-    let chanIsProcessing ← Std.Channel.new
     let stickyDiagnosticsRef ← IO.mkRef ∅
-    let chanOut ← mkLspOutputChannel maxDocVersionRef chanIsProcessing
+    let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
-
+    let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
+      (← partialLspRequestHandlerMethods).map fun (method, refreshMethod) =>
+        (method, {
+          refreshMethod
+          requestsInFlight := 0
+          pendingRefreshInfo? := none
+        })
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
@@ -358,9 +386,9 @@ section Initialization
       initParams
       processor
       clientHasWidgets
+      partialHandlersRef
       maxDocVersionRef
       freshRequestIdRef
-      chanIsProcessing
       cmdlineOpts := opts
       stickyDiagnosticsRef
     }
@@ -383,7 +411,7 @@ section Initialization
         the output FS stream after discarding outdated notifications. This is the only component of
         the worker with access to the output stream, so we can synchronize messages from parallel
         elaboration tasks here. -/
-    mkLspOutputChannel maxDocVersion chanIsProcessing : IO (Std.Channel JsonRpc.Message) := do
+    mkLspOutputChannel maxDocVersion : IO (Std.Channel JsonRpc.Message) := do
       let chanOut ← Std.Channel.new
       let _ ← chanOut.forAsync (prio := .dedicated) fun msg => do
         -- discard outdated notifications; note that in contrast to responses, notifications can
@@ -399,12 +427,10 @@ section Initialization
         if let some version := version? then
           if version < (← maxDocVersion.get) then
             return
+
           -- note that because of `server.reportDelayMs`, we cannot simply set `maxDocVersion` here
           -- as that would allow outdated messages to be reported until the delay is over
         o.writeLspMessage msg |>.catchExceptions (fun _ => pure ())
-        if let .notification "$/lean/fileProgress" (some params) := msg then
-          if let some (params : LeanFileProgressParams) := fromJson? (toJson params) |>.toOption then
-            chanIsProcessing.send (! params.processing.isEmpty)
       return chanOut
 
     getImportClosure? (snap : Language.Lean.InitialSnapshot) : Array Name := Id.run do
@@ -422,7 +448,7 @@ section ServerRequests
       (ctx    : WorkerContext)
       (method : String)
       (param  : α)
-      : IO Unit := do
+      : BaseIO Unit := do
     let freshRequestId ← ctx.freshRequestIdRef.modifyGet fun freshRequestId =>
       (freshRequestId, freshRequestId + 1)
     let r : JsonRpc.Request α := ⟨freshRequestId, method, param⟩
@@ -455,8 +481,18 @@ section NotificationHandling
   def handleDidChange (p : DidChangeTextDocumentParams) : WorkerM Unit := do
     let docId := p.textDocument
     let changes := p.contentChanges
+    let ctx ← read
+    let st ← get
     let oldDoc := (←get).doc
     let newVersion := docId.version?.getD 0
+    let _ ← IO.mapTask (t := st.srcSearchPathTask) fun srcSearchPath =>
+      let rc : RequestContext :=
+        { rpcSessions := st.rpcSessions
+          srcSearchPath
+          doc := oldDoc
+          hLog := ctx.hLog
+          initParams := ctx.initParams }
+      RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
@@ -594,6 +630,11 @@ section MessageHandling
     let ctx ← read
     let st ← get
 
+    ctx.modifyPartialHandler method fun h => { h with
+      pendingRefreshInfo? := none
+      requestsInFlight := h.requestsInFlight + 1
+    }
+
     -- special cases
     try
       match method with
@@ -644,8 +685,17 @@ section MessageHandling
           IO.asTask do
             ctx.chanOut.send <| e.toLspResponseError id
         | Except.ok t => (IO.mapTask · t) fun
-          | Except.ok resp =>
-            ctx.chanOut.send <| .response id (toJson resp)
+          | Except.ok r => do
+            ctx.chanOut.send <| .response id (toJson r.response)
+            let timestamp ← IO.monoMsNow
+            ctx.modifyPartialHandler method fun h => { h with
+              requestsInFlight := h.requestsInFlight - 1
+              pendingRefreshInfo? :=
+                if r.isComplete then
+                  none
+                else
+                  some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
+            }
           | Except.error e =>
             ctx.chanOut.send <| e.toLspResponseError id
     queueRequest id t
@@ -698,19 +748,78 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def runRefreshTask : WorkerM (Task (Except IO.Error Unit)) := do
+def runRefreshTasks : WorkerM (Array (Task Unit)) := do
+  let timeUntilRefreshMs := 2000
+  -- We limit the amount of successive refresh attempts in case the user has switched files,
+  -- in which case VS Code won't respond to any refresh request for the given file.
+  -- Since we don't want to spam the client with refresh requests for every single file that they
+  -- switched away from, we limit the amount of attempts.
+  let maxSuccessiveRefreshAttempts := 10
   let ctx ← read
-  IO.asTask (prio := Task.Priority.dedicated) do
-    while ! (←IO.checkCanceled) do
-      let pastProcessingStates ← ctx.chanIsProcessing.recvAllCurrent
-      if pastProcessingStates.isEmpty then
-        -- Processing progress has not changed since we last sent out a refresh request
-        -- => do not send out another one for now so that we do not make the client spam
-        --    semantic token requests while idle and already having received an up-to-date state
-        IO.sleep 1000
-        continue
-      sendServerRequest ctx "workspace/semanticTokens/refresh" (none : Option Nat)
-      IO.sleep 2000
+  let mut tasks := #[]
+  for (method, refreshMethod) in ← partialLspRequestHandlerMethods do
+    tasks := tasks.push <| ← BaseIO.asTask (prio := .dedicated) do
+      while true do
+        let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do
+          let some info := h.pendingRefreshInfo?
+            | return (none, h)
+          if info.successiveRefreshAttempts >= maxSuccessiveRefreshAttempts then
+            return (none, { h with pendingRefreshInfo? := none })
+          return (some info.lastRefreshTimestamp, h)
+        let some lastRefreshTimestamp := lastRefreshTimestamp?
+          | let cancelled ← sleepWithCancellation timeUntilRefreshMs.toUInt32
+            if cancelled then
+              return
+            continue
+
+        let currentTimestamp ← IO.monoMsNow
+        let passedTimeMs := currentTimestamp - lastRefreshTimestamp
+        let remainingTimeMs := timeUntilRefreshMs - passedTimeMs
+        if remainingTimeMs > 0 then
+          let cancelled ← sleepWithCancellation remainingTimeMs.toUInt32
+          if cancelled then
+            return
+
+        let currentTimestamp ← IO.monoMsNow
+        let canRefresh := ← ctx.modifyGetPartialHandler method fun h => Id.run do
+          let some pendingRefreshInfo := h.pendingRefreshInfo?
+            | return (false, h)
+          -- If there is a request in flight and we emit a refresh request, VS Code will discard
+          -- the response for the request in flight.
+          -- To avoid this (especially for long-running requests), we only emit refresh requests
+          -- once there are no pending requests anymore.
+          if h.requestsInFlight > 0 then
+            return (false, h)
+          let h := { h with
+            pendingRefreshInfo? := some {
+              lastRefreshTimestamp := currentTimestamp
+              successiveRefreshAttempts := pendingRefreshInfo.successiveRefreshAttempts + 1
+            }
+          }
+          (true, h)
+        if ! canRefresh then
+          let cancelled ← sleepWithCancellation timeUntilRefreshMs.toUInt32
+          if cancelled then
+            return
+          continue
+
+        sendServerRequest ctx refreshMethod (none : Option Nat)
+  return tasks
+
+where
+
+  sleepWithCancellation (ms : UInt32) : BaseIO Bool := do
+    if (← IO.checkCanceled) then
+      return true
+    let napMs := 200
+    let mut remainingMs := ms
+    while remainingMs > 0 do
+      let remainingNapMs := if remainingMs < napMs then remainingMs else napMs
+      IO.sleep remainingNapMs
+      remainingMs := remainingMs - remainingNapMs
+      if (← IO.checkCanceled) then
+        return true
+    return false
 
 def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
   let i ← maybeTee "fwIn.txt" false i
@@ -730,9 +839,10 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
     throw err
   StateRefT'.run' (s := st) <| ReaderT.run (r := ctx) do
     try
-      let refreshTask ← runRefreshTask
+      let refreshTasks ← runRefreshTasks
       mainLoop i
-      IO.cancel refreshTask
+      for refreshTasks in refreshTasks do
+        IO.cancel refreshTasks
     catch err =>
       let st ← get
       writeErrorDiag st.doc.meta err

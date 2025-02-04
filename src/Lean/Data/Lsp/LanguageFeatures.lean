@@ -350,10 +350,9 @@ def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.toCtorIdx
 
 -- sanity check
--- TODO: restore after update-stage0
---example {v : SemanticTokenType} : open SemanticTokenType in
---    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
---  cases v <;> native_decide
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 /--
 The semantic token modifiers included by default in the LSP specification.

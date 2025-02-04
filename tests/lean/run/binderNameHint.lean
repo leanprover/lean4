@@ -36,9 +36,6 @@ names : List String
 ⊢ (!names.any fun name => !"Waldo".isPrefixOf name) = true
 -/
 #guard_msgs in
-#eval 0
-
-set_option trace.Meta.Tactic.simp.rewrite true
 example (names : List String) : names.myAll (fun name => "Waldo".isPrefixOf name) = true := by
   dsimp [myAll_eq_not_any_not]
   fail

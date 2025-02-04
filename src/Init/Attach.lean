@@ -28,9 +28,8 @@ theorem Array.wfParam_to_attach (xs : Array α) :
   Array.unattach_attach.symm
 -/
 
-set_option linter.unusedVariables false in
 theorem List.map_wfParam (xs : List α) (f : α → β) :
-    (wfParam xs).map f = xs.attach.map (fun ⟨x, h⟩ => f (wfParam x)) := by
+    (wfParam xs).map f = xs.attach.unattach.map f := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
@@ -38,9 +37,8 @@ theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → 
     xs.unattach.map f = xs.map (fun ⟨x, h⟩ => f (wfParam x)) := by
   simp [wfParam]
 
-set_option linter.unusedVariables false in
 theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
-    (wfParam xs).foldl f init = xs.attach.foldl (fun s ⟨x, h⟩ => f s (wfParam x)) init := by
+    (wfParam xs).foldl f init = xs.attach.unattach.foldl f init := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
@@ -57,9 +55,8 @@ theorem List.unattach_foldl {p : α → Prop} {l : List { x // p x }}
   | cons a l ih =>
     simp [foldl_cons, hf, List.unattach_cons]
 
-set_option linter.unusedVariables false in
 theorem List.filter_wfParam (xs : List α) (f : α → Bool) :
-    (wfParam xs).filter f = (xs.attach.filter (fun ⟨x, h⟩ => f (wfParam x))).unattach := by
+    (wfParam xs).filter f = xs.attach.unattach.filter f:= by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
@@ -68,14 +65,13 @@ theorem List.filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α �
   simp [wfParam]
 
 theorem List.reverse_wfParam (xs : List α) :
-    (wfParam xs).reverse = xs.attach.reverse.unattach := by simp [wfParam]
+    (wfParam xs).reverse = xs.attach.unattach.reverse:= by simp [wfParam]
 
 theorem List.reverse_unattach (P : α → Prop) (xs : List (Subtype P)) :
     xs.unattach.reverse = xs.reverse.unattach := by simp
 
-set_option linter.unusedVariables false in
 theorem Array.map_wfParam (xs : Array α) (f : α → β) :
-    (wfParam xs).map f = xs.attach.map (fun ⟨x, h⟩ => f (wfParam x)) := by
+    (wfParam xs).map f = xs.attach.unattach.map f := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in

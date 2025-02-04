@@ -8,11 +8,11 @@ error: `grind` failed
 case grind
 a b c : Bool
 p q : Prop
-left✝ : a = true
-right✝ : b = true ∨ c = true
-left : p
-right : q
-x✝ : b = false ∨ a = false
+left : a = true
+right : b = true ∨ c = true
+left_1 : p
+right_1 : q
+h_1 : b = false ∨ a = false
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -47,11 +47,11 @@ error: `grind` failed
 case grind.2.1
 a b c : Bool
 p q : Prop
-left✝ : a = true
-h✝ : c = true
-left : p
-right : q
-h : b = false
+left : a = true
+h_1 : c = true
+left_1 : p
+right_1 : q
+h_3 : b = false
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -83,8 +83,8 @@ error: `grind` failed
 case grind
 i j : Nat
 h : j + 1 < i + 1
-h✝ : j + 1 ≤ i
-x✝ : ¬g (i + 1) j ⋯ = i + j + 1
+h_2 : j + 1 ≤ i
+h_3 : ¬g (i + 1) j ⋯ = i + j + 1
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -124,7 +124,7 @@ b₃ : Int
 head_eq : a₁ = b₁
 x_eq : a₂ = b₂
 y_eq : a₃ = b₃
-tail_eq : as = bs
+tail_eq_1 : as = bs
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -216,9 +216,9 @@ f : Nat → Bool
 g : Int → Bool
 a : Nat
 b : Int
-a✝¹ : HEq f g
-a✝ : HEq a b
-x✝ : ¬f a = g b
+h : HEq f g
+h_1 : HEq a b
+h_2 : ¬f a = g b
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

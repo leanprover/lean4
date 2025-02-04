@@ -242,8 +242,8 @@ example (x y : Bool) : ¬(x = true ↔ y = true) ↔ (¬(x = true) ↔ y = true)
 error: `grind` failed
 case grind
 p q : Prop
-a✝¹ : p = q
-a✝ : p
+h : p = q
+h_1 : p
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -263,8 +263,8 @@ example (p q : Prop) : (p ↔ q) → p → False := by
 error: `grind` failed
 case grind
 p q : Prop
-a✝¹ : p = q
-a✝ : p
+h : p = q
+h_1 : p
 ⊢ False
 -/
 #guard_msgs (error) in
@@ -276,8 +276,8 @@ example (p q : Prop) : (p ↔ q) → p → False := by
 error: `grind` failed
 case grind
 p q : Prop
-a✝¹ : p = ¬q
-a✝ : p
+h : p = ¬q
+h_1 : p
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -347,8 +347,8 @@ error: `grind` failed
 case grind
 a : Nat
 b : Bool
-a✝¹ : (if b = true then 10 else 20) = a
-a✝ : b = true
+h : (if b = true then 10 else 20) = a
+h_1 : b = true
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

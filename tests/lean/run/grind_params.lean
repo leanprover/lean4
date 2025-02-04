@@ -33,8 +33,8 @@ example : P x → R x := by
 error: `grind` failed
 case grind
 x : Nat
-a✝ : P x
-x✝ : ¬R x
+h : P x
+h_1 : ¬R x
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

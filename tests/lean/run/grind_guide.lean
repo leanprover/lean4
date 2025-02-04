@@ -266,11 +266,6 @@ def h (v w : Vec α n) : Nat :=
 example : b = .cons 1 .nil → h a b = 40 := by
   grind [h.eq_def]
 
-example : b = .cons 1 .nil → h a b = 40 := by
-  unfold h
-  split
-
-
 /-
 `try?` tactic is a driver around `grind` (and other tactics).
 It tries many different things (e.g., applies function induction principle for you)

@@ -21,15 +21,24 @@ def _root_.Lean.MVarId.exposeNames (mvarId : MVarId) : MetaM MVarId := mvarId.wi
       toRename := toRename.push localDecl.fvarId
     else
       if let some fvarId := map[userName]? then
+        -- Variable has been shadowed
         toRename := toRename.push fvarId
       map := map.insert userName localDecl.fvarId
   if toRename.isEmpty then
     return mvarId
   let mut next : Std.HashMap Name Nat := {}
   let mut lctx ← getLCtx
+  -- Remark: Shadowed variables may be inserted later.
+  toRename := toRename.qsort fun fvarId₁ fvarId₂ =>
+    (lctx.get! fvarId₁).index < (lctx.get! fvarId₂).index
   for fvarId in toRename do
     let localDecl := lctx.get! fvarId
-    let baseName := localDecl.userName.eraseMacroScopes
+    let mut baseName := localDecl.userName
+    if baseName.hasMacroScopes then
+      baseName := baseName.eraseMacroScopes
+      if baseName == `x then
+        if (← isProp localDecl.type) then
+          baseName := `h
     let mut userName := baseName
     let mut i := next[baseName]?.getD 0
     repeat

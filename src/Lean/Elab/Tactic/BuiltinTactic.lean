@@ -93,9 +93,9 @@ where
               desc := tac.getKind.toString
               diagnostics := .empty
               stx := tac
-              inner? := some { range?, task := inner.result }
-              finished := { range?, task := finished.result }
-              next := #[{ range? := stxs.getRange?, task := next.result }]
+              inner? := some { range?, task := inner.resultD default }
+              finished := { range?, task := finished.resultD default }
+              next := #[{ range? := stxs.getRange?, task := next.resultD default }]
             }
             -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
             -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`

@@ -249,7 +249,7 @@ where
   mkBodyTask (body : Syntax) (new : IO.Promise (Option BodyProcessedSnapshot)) :
       Language.SnapshotTask (Option BodyProcessedSnapshot) :=
     let rangeStx := getBodyTerm? body |>.getD body
-    { range? := rangeStx.getRange?, task := new.result }
+    { range? := rangeStx.getRange?, task := new.resultD default }
 
   /--
   If `body` allows for incremental tactic reporting and reuse, creates a snapshot task out of the
@@ -261,7 +261,7 @@ where
    := do
     if let some e := getBodyTerm? body then
       if let `(by $tacs*) := e then
-        return (e, some { range? := mkNullNode tacs |>.getRange?, task := tacPromise.result })
+        return (e, some { range? := mkNullNode tacs |>.getRange?, task := tacPromise.resultD default })
     tacPromise.resolve default
     return (none, none)
 
@@ -1091,7 +1091,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
         } }
         defs := defs.push {
           fullHeaderRef
-          headerProcessedSnap := { range? := d.getRange?, task := headerPromise.result }
+          headerProcessedSnap := { range? := d.getRange?, task := headerPromise.resultD default }
         }
         reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
       views := views.push view

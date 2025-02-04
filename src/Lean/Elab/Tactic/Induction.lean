@@ -285,9 +285,9 @@ where
               stx := mkNullNode altStxs
               diagnostics := .empty
               inner? := none
-              finished := { range? := none, task := finished.result }
+              finished := { range? := none, task := finished.resultD default }
               next := Array.zipWith
-                (fun stx prom => { range? := stx.getRange?, task := prom.result })
+                (fun stx prom => { range? := stx.getRange?, task := prom.resultD default })
                 altStxs altPromises
             }
             goWithIncremental <| altPromises.mapIdx fun i prom => {

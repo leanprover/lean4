@@ -73,10 +73,10 @@ lean_obj_res lean_in6_addr_to_ipv6_addr(const in6_addr* ipv6_addr) {
     return ret;
 }
 
-lean_obj_res lean_mk_socketaddress(lean_obj_res ip_addr, lean_obj_res port) {
-    lean_obj_res socket_addr = lean_alloc_ctor(0, 2, 0);
+lean_obj_res lean_mk_socketaddress(lean_obj_res ip_addr, uint16_t port) {
+    lean_obj_res socket_addr = lean_alloc_ctor(0, 1, 2);
     lean_ctor_set(socket_addr, 0, ip_addr);
-    lean_ctor_set(socket_addr, 1, port);
+    lean_ctor_set_uint16(socket_addr, sizeof(void*)*1, port);
     return socket_addr;
 }
 
@@ -90,14 +90,14 @@ lean_obj_res lean_sockaddr_to_socketaddress(const struct sockaddr* sockaddr) {
 
         lean_obj_res lean_ipv4 = lean_in_addr_to_ipv4_addr(ipv4_addr);
         uint16_t port = ntohs(addr_in->sin_port);
-        part = lean_mk_socketaddress(lean_ipv4, lean_box(port));
+        part = lean_mk_socketaddress(lean_ipv4, port);
         tag = 0;
     } else if (sockaddr->sa_family == AF_INET6) {
         const struct sockaddr_in6* addr_in6 = (const struct sockaddr_in6*)sockaddr;
         const in6_addr* ipv6_addr = &addr_in6->sin6_addr;
         lean_obj_res lean_ipv6 = lean_in6_addr_to_ipv6_addr(ipv6_addr);
         uint16_t port = ntohs(addr_in6->sin6_port);
-        part = lean_mk_socketaddress(lean_ipv6, lean_box(port));
+        part = lean_mk_socketaddress(lean_ipv6, port);
         tag = 1;
     }
 

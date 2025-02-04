@@ -583,18 +583,6 @@ theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
     simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
     norm_cast; omega
 
-theorem toInt_add_toInt_lt {x y : BitVec w} :
-    x.toInt + y.toInt < 2 ^ w := by
-  have hx := toInt_lt (x := x)
-  have hy := toInt_lt (x := y)
-  omega
-
-theorem le_toInt_add_toInt {x y : BitVec w} :
-    - 2 ^ w ≤ x.toInt + y.toInt := by
-  have hx := le_toInt (x := x)
-  have hy := le_toInt (x := y)
-  omega
-
 /-! ### slt -/
 
 /--

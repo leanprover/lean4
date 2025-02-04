@@ -461,10 +461,15 @@ syntax config := atomic(" (" &"config") " := " withoutPosition(term) ")"
 /-- The `*` location refers to all hypotheses and the goal. -/
 syntax locationWildcard := " *"
 
+/-- The `⊢` location refers to the current goal. -/
+syntax locationType := patternIgnore(atomic("|" noWs "-") <|> "⊢")
+
 /--
 A hypothesis location specification consists of 1 or more hypothesis references
 and optionally `⊢` denoting the goal.
 -/
+-- Forthcoming definition after stage0 update:
+-- syntax locationHyp := (ppSpace colGt (term:max <|> locationType))+
 syntax locationHyp := (ppSpace colGt term:max)+ patternIgnore(ppSpace (atomic("|" noWs "-") <|> "⊢"))?
 
 /--

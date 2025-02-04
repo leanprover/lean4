@@ -165,6 +165,35 @@ Correct:
 theorem eraseP_nil : [].eraseP p = [] := rfl
 ```
 
+### Documentation comments
+
+Note to external contributors: this is a section where the Lean style and the mathlib style are different.
+
+Declarations should be documented as required by the `docBlame` linter, which may be activated in a file using
+`set_option linter.missingDocs true` (we allow these to stay in the file).
+
+Single-line documentation comments should go on the same line as `/--`/`-/`, while multi-line documentation strings
+should have these delimiters on their own line, with the documentation comment itself unindented.
+
+Documentation comments must be written in the indicative mood.
+
+Correct:
+```lean
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+@[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
+  b.buckets.forM (AssocList.forM f)
+```
+
+Correct:
+```lean
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
+@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
+```
+
 ### Where clauses
 
 The where keyword should be unindented, and all declarations bound by it should be indented with two spaces.
@@ -205,14 +234,14 @@ Correct:
 
 ### Deriving
 
-The `deriving` clause should be indented.
+The `deriving` clause should be unindented.
 
 Correct:
 ```lean
 structure Iterator where
   array : ByteArray
   idx : Nat
-  deriving Inhabited
+deriving Inhabited
 ```
 
 ## Language constructs
@@ -289,7 +318,7 @@ def mkEqTrans? (h₁? h₂? : Option Expr) : MetaM (Option Expr) :=
 
 ### Structures
 
-Note to external contributors: this is one section where the Lean style and the mathlib style are different.
+Note to external contributors: this is a section where the Lean style and the mathlib style are different.
 
 When using structure instance syntax over multiple lines, the opening brace should go on the preceding line, while the closing brace should go on its own line. The rest of the syntax should be indented by one level. During structure updates, the `with` clause goes on the same line as the opening brace. Aligning at the assignment symbol is allowed but not required.
 

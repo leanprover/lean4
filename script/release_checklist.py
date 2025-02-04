@@ -96,7 +96,17 @@ def is_merged_into_stable(repo_url, tag_name, stable_branch, github_token):
     tag_response = requests.get(f"{api_base}/git/refs/tags/{tag_name}", headers=headers)
     if tag_response.status_code != 200:
         return False
-    tag_sha = tag_response.json()['object']['sha']
+    
+    # Handle both single object and array responses
+    tag_data = tag_response.json()
+    if isinstance(tag_data, list):
+        # Find the exact matching tag in the list
+        matching_tags = [tag for tag in tag_data if tag['ref'] == f'refs/tags/{tag_name}']
+        if not matching_tags:
+            return False
+        tag_sha = matching_tags[0]['object']['sha']
+    else:
+        tag_sha = tag_data['object']['sha']
 
     # Get commits on stable branch containing this SHA
     commits_response = requests.get(
@@ -149,6 +159,24 @@ def get_next_version(version):
     major, minor, patch = map(int, base_version.split('.'))
     # Next version is always .0
     return f"v{major}.{minor + 1}.0"
+
+def check_bump_branch_toolchain(url, bump_branch, github_token):
+    """Check if the lean-toolchain file in bump branch starts with either 'leanprover/lean4:nightly-' or the next version."""
+    content = get_branch_content(url, bump_branch, "lean-toolchain", github_token)
+    if content is None:
+        print(f"  ❌ No lean-toolchain file found in {bump_branch} branch")
+        return False
+    
+    # Extract the next version from the bump branch name (bump/v4.X.0)
+    next_version = bump_branch.split('/')[1]
+    
+    if not (content.startswith("leanprover/lean4:nightly-") or 
+            content.startswith(f"leanprover/lean4:{next_version}")):
+        print(f"  ❌ Bump branch toolchain should use either nightly or {next_version}, but found: {content}")
+        return False
+    
+    print(f"  ✅ Bump branch correctly uses toolchain: {content}")
+    return True
 
 def main():
     github_token = get_github_token()
@@ -244,6 +272,7 @@ def main():
             bump_branch = f"bump/{next_version}"
             if branch_exists(url, bump_branch, github_token):
                 print(f"  ✅ Bump branch {bump_branch} exists")
+                check_bump_branch_toolchain(url, bump_branch, github_token)
             else:
                 print(f"  ❌ Bump branch {bump_branch} does not exist")
 

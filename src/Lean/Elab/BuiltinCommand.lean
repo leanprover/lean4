@@ -159,11 +159,6 @@ private def typelessBinder? : Syntax → Option (Array (TSyntax [`ident, `Lean.P
 private def containsId (ids : Array (TSyntax [`ident, ``Parser.Term.hole])) (id : TSyntax [`ident, ``Parser.Term.hole]) : Bool :=
   id.raw.isIdent && ids.any fun id' => id'.raw.getId == id.raw.getId
 
-/-- Elaborates `binders` using `withSynthesize` and `withAutoBoundImplicit`. -/
-private def elabBindersSynthesizingAutoBound (binders : TSyntaxArray ``bracketedBinder) :=
-  runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
-    Term.elabBinders binders fun _ => pure ()
-
 /--
   Auxiliary method for processing binder annotation update commands:
   `variable (α)`, `variable {α}`, `variable ⦃α⦄`, and `variable [α]`.
@@ -228,7 +223,8 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
           if binderInfo.isInstImplicit then
             -- We elaborate the new binder to make sure it's valid as instance implicit
             try
-              elabBindersSynthesizingAutoBound #[newBinder]
+              runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
+                Term.elabBinder newBinder fun _ => pure ()
             catch e =>
               throwErrorAt binder m!"cannot update binder annotation of variable '{id}' to instance implicit:\n\
                 {e.toMessageData}"

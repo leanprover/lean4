@@ -7,6 +7,7 @@ prelude
 import Init.Data.List.Impl
 import Init.Data.List.Nat.Erase
 import Init.Data.List.Monadic
+import Init.Data.List.Nat.InsertIdx
 import Init.Data.Array.Lex.Basic
 
 /-! ### Lemmas about `List.toArray`.
@@ -554,5 +555,66 @@ decreasing_by
   rw [Array.erase, finIdxOf?_toArray, List.erase_eq_eraseIdx]
   rw [idxOf?_eq_map_finIdxOf?_val]
   split <;> simp_all
+
+private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j < l.toArray.size) (h : i ≤ j) :
+    insertIdx.loop i l.toArray ⟨j, hj⟩ = (l.take i ++ l[j] :: (l.take j).drop i ++ l.drop (j + 1)).toArray := by
+  rw [insertIdx.loop]
+  simp only [size_toArray] at hj
+  split <;> rename_i h'
+  · simp only at h'
+    have w : j - 1 + 1 = j := by omega
+    simp only [append_assoc, cons_append]
+    rw [insertIdx_loop_toArray _ _ _ _ (by omega)]
+    simp only [swap_toArray, w, append_assoc, cons_append, mk.injEq]
+    rw [List.take_set_of_le _ _ (by omega)]
+    rw [List.drop_eq_getElem_cons (n := j) (by simpa)]
+    rw [List.getElem_set_self]
+    rw [List.drop_set_of_lt _ _ (by omega)]
+    rw [List.drop_set_of_lt _ _ (by omega)]
+    rw [List.getElem_set_ne (by omega)]
+    rw [List.getElem_set_self]
+    rw [List.take_set_of_le (m := j - 1) _ _ (by omega)]
+    rw [List.take_set_of_le (m := j - 1) _ _ (by omega)]
+    rw [List.take_eq_append_getElem_of_pos (n := j) (l := l) (by omega) hj]
+    rw [List.drop_append_of_le_length (by simp; omega)]
+    simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
+    cases i with
+    | zero => simp
+    | succ i => rw [List.take_set_of_le _ _ (by omega)]
+  · simp only [Nat.not_lt] at h'
+    have : i = j := by omega
+    subst this
+    simp
+
+@[simp] theorem insertIdx_toArray (l : List α) (i : Nat) (a : α) (h : i ≤ l.toArray.size):
+    l.toArray.insertIdx i a = (l.insertIdx i a).toArray := by
+  rw [Array.insertIdx]
+  rw [insertIdx_loop_toArray (h := h)]
+  ext j h₁ h₂
+  · simp at h
+    simp [length_insertIdx, h]
+    omega
+  · simp [length_insertIdx] at h₁ h₂
+    simp [getElem_insertIdx]
+    split <;> rename_i h₃
+    · rw [getElem_append_left (by simp; split at h₂ <;> omega)]
+      simp only [getElem_take]
+      rw [getElem_append_left]
+    · rw [getElem_append_right (by simp; omega)]
+      rw [getElem_cons]
+      simp
+      split <;> rename_i h₄
+      · rw [dif_pos (by omega)]
+      · rw [dif_neg (by omega)]
+        congr
+        omega
+
+@[simp] theorem insertIdxIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
+    l.toArray.insertIdxIfInBounds i a = (l.insertIdx i a).toArray := by
+  rw [Array.insertIdxIfInBounds]
+  split <;> rename_i h'
+  · simp
+  · simp only [size_toArray, Nat.not_le] at h'
+    rw [List.insertIdx_of_length_lt (h := h')]
 
 end List

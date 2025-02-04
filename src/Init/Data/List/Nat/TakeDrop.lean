@@ -101,13 +101,16 @@ theorem take_take : ∀ (n m) (l : List α), take n (take m l) = take (min n m) 
   | succ n, succ m, a :: l => by
     simp only [take, succ_min_succ, take_take n m l]
 
-theorem take_set_of_lt (a : α) {n m : Nat} (l : List α) (h : m < n) :
+theorem take_set_of_le (a : α) {n m : Nat} (l : List α) (h : m ≤ n) :
     (l.set n a).take m = l.take m :=
   List.ext_getElem? fun i => by
     rw [getElem?_take, getElem?_take]
     split
     · next h' => rw [getElem?_set_ne (by omega)]
     · rfl
+
+@[deprecated take_set_of_le (since := "2025-02-04")]
+abbrev take_set_of_lt := @take_set_of_le
 
 @[simp] theorem take_replicate (a : α) : ∀ n m : Nat, take n (replicate m a) = replicate (min n m) a
   | n, 0 => by simp [Nat.min_zero]
@@ -164,6 +167,10 @@ theorem take_add (l : List α) (m n : Nat) : l.take (m + n) = l.take m ++ (l.dro
 
 theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
   induction l <;> simp
+
+theorem take_eq_append_getElem_of_pos {n} {l : List α} (h₁ : 0 < n) (h₂ : n < l.length) : l.take n = l.take (n - 1) ++ [l[n - 1]] :=
+  match n, h₁ with
+  | n + 1, _ => take_succ_eq_append_getElem (n := n) (by omega)
 
 theorem dropLast_take {n : Nat} {l : List α} (h : n < l.length) :
     (l.take n).dropLast = l.take (n - 1) := by
@@ -358,6 +365,10 @@ theorem drop_take : ∀ (m n : Nat) (l : List α), drop n (take m l) = take (m -
     simp [take_succ_cons, drop_succ_cons, drop_take m n t]
     congr 1
     omega
+
+@[simp] theorem drop_take_self : drop n (take n l) = [] := by
+  rw [drop_take]
+  simp
 
 theorem take_reverse {α} {xs : List α} {n : Nat} :
     xs.reverse.take n = (xs.drop (xs.length - n)).reverse := by

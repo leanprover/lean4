@@ -418,7 +418,7 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 /-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
 `match h1 : e1, e2, h3 : e3 with ...`. -/
 @[builtin_doc] def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"

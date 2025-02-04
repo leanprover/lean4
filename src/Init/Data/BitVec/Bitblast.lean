@@ -1254,8 +1254,8 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
       · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
-    rw_mod_cast [bmod_neg_iff (by omega) (by omega),
-      ← @Nat.two_pow_pred_add_two_pow_pred (w + 1) (by omega)] at *
+    rw_mod_cast [bmod_neg_iff (by omega) (by omega)]
+    simp
     omega
 
 /- ### umod -/

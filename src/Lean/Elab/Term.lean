@@ -30,6 +30,7 @@ structure SavedContext where
   macroStack : MacroStack
   errToSorry : Bool
   levelNames : List Name
+  auxDeclToFullName : FVarIdMap Name
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -1231,13 +1232,14 @@ def saveContext : TermElabM SavedContext :=
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
     levelNames := (← get).levelNames
+    auxDeclToFullName := (← read).auxDeclToFullName
   }
 
 /--
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry, auxDeclToFullName := savedCtx.auxDeclToFullName }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 

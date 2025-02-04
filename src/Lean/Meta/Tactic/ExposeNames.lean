@@ -36,7 +36,7 @@ def _root_.Lean.MVarId.exposeNames (mvarId : MVarId) : MetaM MVarId := mvarId.wi
     let mut baseName := localDecl.userName
     if baseName.hasMacroScopes then
       baseName := baseName.eraseMacroScopes
-      if baseName == `x then
+      if baseName == `x || baseName == `a then
         if (← isProp localDecl.type) then
           baseName := `h
     let mut userName := baseName

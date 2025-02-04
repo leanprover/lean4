@@ -484,6 +484,12 @@ structure Split.State where
   trace      : List CaseTrace := []
   deriving Inhabited
 
+/-- Clean name generator. -/
+structure Clean.State where
+  used : PHashSet Name := {}
+  next : PHashMap Name Nat := {}
+  deriving Inhabited
+
 /-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
@@ -514,7 +520,9 @@ structure Goal where
   /-- State of the case-splitting module. -/
   split      : Split.State := {}
   /-- State of arithmetic procedures. -/
-  arith        : Arith.State := {}
+  arith      : Arith.State := {}
+  /-- State of the clean name generator. -/
+  clean      : Clean.State := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=

@@ -191,7 +191,6 @@ def main():
             print(f"  ✅ Release notes look good.")
         else:
             previous_minor_version = version_minor - 1
-            previous_stable_branch = f"releases/v{version_major}.{previous_minor_version}.0"
             previous_release = f"v{version_major}.{previous_minor_version}.0"
             print(f"  ❌ Release notes not published. Please run `script/release_notes.py --since {previous_release}` on branch `{branch_name}`.")
     else:
@@ -247,6 +246,35 @@ def main():
                 print(f"  ✅ Bump branch {bump_branch} exists")
             else:
                 print(f"  ❌ Bump branch {bump_branch} does not exist")
+
+    # Check lean4 master branch for next development cycle
+    print("\nChecking lean4 master branch configuration...")
+    next_version = get_next_version(toolchain)
+    next_minor = int(next_version.split('.')[1])
+    
+    cmake_content = get_branch_content(lean_repo_url, "master", "src/CMakeLists.txt", github_token)
+    if cmake_content is None:
+        print("  ❌ Could not retrieve CMakeLists.txt from master")
+    else:
+        cmake_lines = cmake_content.splitlines()
+        # Find the actual minor version in CMakeLists.txt
+        for line in cmake_lines:
+            if line.strip().startswith("set(LEAN_VERSION_MINOR "):
+                actual_minor = int(line.split()[-1].rstrip(")"))
+                version_minor_correct = actual_minor >= next_minor
+                break
+        else:
+            version_minor_correct = False
+            
+        is_release_correct = any(
+            l.strip().startswith("set(LEAN_VERSION_IS_RELEASE 0)") 
+            for l in cmake_lines
+        )
+        
+        if not (version_minor_correct and is_release_correct):
+            print("  ❌ lean4 needs a \"begin dev cycle\" PR")
+        else:
+            print("  ✅ lean4 master branch is configured for next development cycle")
 
 if __name__ == "__main__":
     main()

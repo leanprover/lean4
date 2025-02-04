@@ -110,7 +110,7 @@ def main():
         pr_number = check_pr_number(first_line)
 
         if not pr_number:
-            sys.stderr.write(f"No PR number found in {first_line}\n")
+            sys.stderr.write(f"No PR number found in commit:\n{commit_hash}\n{first_line}\n")
             continue
 
         # Remove the first line from the full_message for further processing

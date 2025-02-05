@@ -14,6 +14,8 @@ This file defines style linters for the `List`/`Array`/`Vector` modules.
 Currently, we do not anticipate that they will be useful elsewhere.
 -/
 
+namespace Lean.Linter.List
+
 /--
 `set_option linter.index_variables true` enables a strict linter that
 validates that the only variables appearing as an index (e.g. in `xs[i]` or `xs.take i`)
@@ -67,3 +69,5 @@ def indexLinter : Linter
             m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
 
 builtin_initialize addLinter indexLinter
+
+end Lean.Linter.List

@@ -26,7 +26,8 @@ a : α
       • β : Type @ ⟨7, 33⟩-⟨7, 34⟩ @ Lean.Elab.Term.elabIdent
         • [.] β : some Sort.{?_uniq} @ ⟨7, 33⟩-⟨7, 34⟩
         • β : Type @ ⟨7, 33⟩-⟨7, 34⟩
-      • _example (isBinder := true) : {α β : Type} → α → Fam2 α β → β @ ⟨7, 0⟩†-⟨10, 19⟩†
+      • CustomInfo(Lean.Elab.InlayHint)
+      • _example (isBinder := true) : {α β : Type} → α → Fam2 α β → β @ ⟨7, 0⟩†!-⟨7, 7⟩†!
       • a (isBinder := true) : α @ ⟨7, 9⟩-⟨7, 10⟩
       • x (isBinder := true) : Fam2 α β @ ⟨7, 17⟩-⟨7, 18⟩
       • CustomInfo(Lean.Elab.Term.BodyInfo)

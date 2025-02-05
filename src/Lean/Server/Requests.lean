@@ -68,6 +68,9 @@ def invalidParams (message : String) : RequestError :=
 def internalError (message : String) : RequestError :=
   { code := ErrorCode.internalError, message }
 
+def requestCancelled : RequestError :=
+  { code := ErrorCode.requestCancelled, message := "" }
+
 def ofException (e : Lean.Exception) : IO RequestError :=
   return internalError (← e.toMessageData.toString)
 
@@ -93,6 +96,7 @@ structure RequestContext where
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
+  cancelTk      : IO.Promise Unit
 
 abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
@@ -361,7 +365,7 @@ inductive RequestHandlerCompleteness where
   data for a partial request if we returned a partial response for that request in the past,
   so that the client eventually converges to a complete set of information for the full document.
   -/
-  | «partial» (refreshMethod : String)
+  | «partial» (refreshMethod : String) (refreshIntervalMs : Nat)
 
 structure LspResponse (α : Type) where
   response   : α
@@ -487,14 +491,14 @@ def registerCompleteStatefulLspRequestHandler (method : String)
     return ({ response, isComplete := true }, s)
   registerStatefulLspRequestHandler method .complete paramType respType stateType initState handler onDidChange
 
-def registerPartialStatefulLspRequestHandler (method refreshMethod : String)
+def registerPartialStatefulLspRequestHandler (method refreshMethod : String) (refreshIntervalMs : Nat)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     stateType [TypeName stateType]
     (initState : stateType)
     (handler : paramType → stateType → RequestM (LspResponse respType × stateType))
     (onDidChange : DidChangeTextDocumentParams → StateT stateType RequestM Unit) :=
-  registerStatefulLspRequestHandler method (.partial refreshMethod) paramType respType stateType initState handler onDidChange
+  registerStatefulLspRequestHandler method (.partial refreshMethod refreshIntervalMs) paramType respType stateType initState handler onDidChange
 
 def isStatefulLspRequestMethod (method : String) : BaseIO Bool := do
   return (← statefulRequestHandlers.get).contains method
@@ -502,11 +506,11 @@ def isStatefulLspRequestMethod (method : String) : BaseIO Bool := do
 def lookupStatefulLspRequestHandler (method : String) : BaseIO (Option StatefulRequestHandler) := do
   return (← statefulRequestHandlers.get).find? method
 
-def partialLspRequestHandlerMethods : IO (Array (String × String)) := do
+def partialLspRequestHandlerMethods : IO (Array (String × String × Nat)) := do
   return (← statefulRequestHandlers.get).toArray.filterMap fun (method, h) => do
-    let .partial refreshMethod := h.completeness
+    let .partial refreshMethod refreshIntervalMs := h.completeness
       | none
-    return (method, refreshMethod)
+    return (method, refreshMethod, refreshIntervalMs)
 
 def chainStatefulLspRequestHandler (method : String)
     paramType [FromJson paramType] [ToJson paramType] [FileSource paramType]

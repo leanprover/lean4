@@ -139,6 +139,7 @@ def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken
 /-- Computes the semantic tokens in the range [beginPos, endPos?). -/
 def handleSemanticTokens (beginPos : String.Pos) (endPos? : Option String.Pos)
     : RequestM (RequestTask (LspResponse SemanticTokens)) := do
+  let ctx ← read
   let doc ← readDoc
   match endPos? with
   | none =>
@@ -146,7 +147,7 @@ def handleSemanticTokens (beginPos : String.Pos) (endPos? : Option String.Pos)
     -- for the full file before sending a response. This means that the response will be incomplete,
     -- which we mitigate by regularly sending `workspace/semanticTokens/refresh` requests in the
     -- `FileWorker` to tell the client to re-compute the semantic tokens.
-    let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 2000
+    let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 2000 (cancelTk? := ctx.cancelTk)
     asTask <| do
       return { response := ← run doc snaps, isComplete }
   | some endPos =>
@@ -201,6 +202,7 @@ builtin_initialize
   registerPartialStatefulLspRequestHandler
     "textDocument/semanticTokens/full"
     "workspace/semanticTokens/refresh"
+    2000
     SemanticTokensParams
     SemanticTokens
     SemanticTokensState

@@ -31,3 +31,16 @@ note: this linter can be disabled with `set_option linter.index_variables false`
 -/
 #guard_msgs in
 example (xs : List Nat) (m : Nat) : xs[m]? = xs[m]? := rfl
+
+#guard_msgs in
+example (xs : List Nat) (i : Nat) : xs.take i = xs.take i := rfl
+
+/--
+warning: Forbidden variable appearing as an index: use `i`, `j`, or `k`: m
+note: this linter can be disabled with `set_option linter.index_variables false`
+---
+warning: Forbidden variable appearing as an index: use `i`, `j`, or `k`: m
+note: this linter can be disabled with `set_option linter.index_variables false`
+-/
+#guard_msgs in
+example (xs : List Nat) (m : Nat) : xs.drop m = xs.drop m := rfl

@@ -26,27 +26,21 @@ register_builtin_option linter.index_variables : Bool := {
 
 open Lean Elab Command
 
--- def numericalIndex? (stx : Syntax) : Option Syntax :=
---   if stx.isOfKind ``«term__[_]» || stx.isOfKind ``«term__[_]'_» then
---     some stx[2]
---   else if stx.isOfKind ``«term__[_]_?» then
---     some stx[3]
---   else
---     none
-
--- /-- Return the syntax for the arguments of all "numerical indices" appearing in the given syntax. -/
--- partial def numericalIndices (stx : Syntax) : Array Syntax :=
---   match numericalIndex? stx with
---   | some idx => #[idx]
---   | none => stx.getArgs.flatMap numericalIndices
-
-partial def numericalIndices' (t : InfoTree) : List (Syntax × Name) :=
+/--
+Return the syntax for all expressions in which an `fvarId` appears as a "numerical index", along with the user name of that `fvarId`.
+-/
+partial def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
   t.deepestNodes fun _ info _ => do
     let stx := info.stx
     if let .ofTermInfo info := info then
       let idx? := match_expr info.expr with
+      | GetElem.getElem _ _ _ _ _ _ i _ => some i
       | GetElem?.getElem? _ _ _ _ _ _ i => some i
       | List.take _ i _ => some i
+      | List.drop _ i _ => some i
+      | List.set _ _ i _ => some i
+      | List.insertIdx _ i _ _ => some i
+      | List.eraseIdx _ _ i _ => some i
       | _ => none
       match idx? with
       | some (.fvar i) =>
@@ -66,19 +60,10 @@ def indexLinter : Linter
     unless Linter.getLinterValue linter.index_variables (← getOptions) do return
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
-    let trees ← getInfoTrees
-    for t in trees do
-      for (idxStx, n) in (numericalIndices' t) do
+    for t in ← getInfoTrees do
+      for (idxStx, n) in (numericalIndices t) do
         if n != `i && n != `j && n != `k then
           Linter.logLint linter.index_variables idxStx
-            m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}\n{toString idxStx}"
-
-    -- for idxStx in numericalIndices stx do
-    --   if idxStx.isIdent then
-    --     let ident := idxStx.getId
-    --     if ident != `i && ident != `j && ident != `k then
-    --       Linter.logLint linter.index_variables idxStx
-    --         m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {ident}"
+            m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
 
 builtin_initialize addLinter indexLinter
-#eval `(term| xs.drop i)

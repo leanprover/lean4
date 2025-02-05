@@ -573,9 +573,9 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     rw [List.drop_set_of_lt _ _ (by omega)]
     rw [List.getElem_set_ne (by omega)]
     rw [List.getElem_set_self]
-    rw [List.take_set_of_le (m := j - 1) _ _ (by omega)]
-    rw [List.take_set_of_le (m := j - 1) _ _ (by omega)]
-    rw [List.take_eq_append_getElem_of_pos (n := j) (l := l) (by omega) hj]
+    rw [List.take_set_of_le (j := j - 1) _ _ (by omega)]
+    rw [List.take_set_of_le (j := j - 1) _ _ (by omega)]
+    rw [List.take_eq_append_getElem_of_pos (i := j) (l := l) (by omega) hj]
     rw [List.drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
     cases i with

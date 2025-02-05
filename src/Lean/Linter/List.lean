@@ -63,7 +63,8 @@ def indexLinter : Linter
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do
-      for (idxStx, n) in (numericalIndices t) do
+      if let .context _ _ := t then -- Only consider info trees with top-level context
+      for (idxStx, n) in numericalIndices t do
         if n != `i && n != `j && n != `k then
           Linter.logLint linter.index_variables idxStx
             m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"

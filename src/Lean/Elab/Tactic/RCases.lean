@@ -248,7 +248,7 @@ def subst' (goal : MVarId) (hFVarId : FVarId)
     (fvarSubst : FVarSubst := {}) : MetaM (FVarSubst × MVarId) := do
   let hLocalDecl ← hFVarId.getDecl
   let error {α} _ : MetaM α := throwTacticEx `subst goal
-    m!"invalid equality proof, it is not of the form (x = t) or (t = x){indentExpr hLocalDecl.type}"
+    m!"invalid equality proof, it is not of the form 'x = t' or 't = x'{indentExpr hLocalDecl.type}"
   let some (_, lhs, rhs) ← matchEq? hLocalDecl.type | error ()
   let substReduced (newType : Expr) (symm : Bool) : MetaM (FVarSubst × MVarId) := do
     let goal ← goal.assert hLocalDecl.userName newType (mkFVar hFVarId)

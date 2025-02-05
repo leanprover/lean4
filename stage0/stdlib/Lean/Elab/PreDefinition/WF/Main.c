@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.PreDefinition.WF.Main
-// Imports: Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.TerminationMeasure Lean.Elab.PreDefinition.Mutual Lean.Elab.PreDefinition.WF.PackMutual Lean.Elab.PreDefinition.WF.Preprocess Lean.Elab.PreDefinition.WF.Rel Lean.Elab.PreDefinition.WF.Fix Lean.Elab.PreDefinition.WF.Unfold Lean.Elab.PreDefinition.WF.Ite Lean.Elab.PreDefinition.WF.GuessLex
+// Imports: Lean.Elab.PreDefinition.Basic Lean.Elab.PreDefinition.TerminationMeasure Lean.Elab.PreDefinition.Mutual Lean.Elab.PreDefinition.WF.PackMutual Lean.Elab.PreDefinition.WF.Preprocess Lean.Elab.PreDefinition.WF.Rel Lean.Elab.PreDefinition.WF.Fix Lean.Elab.PreDefinition.WF.Unfold Lean.Elab.PreDefinition.WF.Ite Lean.Elab.PreDefinition.WF.AutoAttach Lean.Elab.PreDefinition.WF.GuessLex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -3436,6 +3436,7 @@ lean_object* initialize_Lean_Elab_PreDefinition_WF_Rel(uint8_t builtin, lean_obj
 lean_object* initialize_Lean_Elab_PreDefinition_WF_Fix(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_WF_Unfold(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_WF_Ite(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_PreDefinition_WF_AutoAttach(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_PreDefinition_WF_GuessLex(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_PreDefinition_WF_Main(uint8_t builtin, lean_object* w) {
@@ -3467,6 +3468,9 @@ res = initialize_Lean_Elab_PreDefinition_WF_Unfold(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_WF_Ite(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_PreDefinition_WF_AutoAttach(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_PreDefinition_WF_GuessLex(builtin, lean_io_mk_world());

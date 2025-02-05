@@ -1,4 +1,4 @@
-inductive F: Prop where
+inductive F : Prop where
   | base
   | step (fn: Nat → F)
 

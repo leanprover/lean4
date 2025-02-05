@@ -26,8 +26,8 @@ Typical usage is as follows:
 4. `promise.resolve a` resolves the promise
 5. `promise.result?.get` now returns `some a`
 
-If the promise is dropped without ever being resolved, `promise.result.get` will panic and return
-`default : α`. See `Promise.result?/resultD` for other ways to handle this case.
+If the promise is dropped without ever being resolved, `promise.result?.get` will return `none`.
+See `Promise.result!/resultD` for other ways to handle this case.
 -/
 def Promise (α : Type) : Type := PromiseImpl α
 

@@ -781,6 +781,15 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb' start len x).getLsbD i = (i < len && x.getLsbD (start+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
+/-!
+  We extract a BitVec x' with length `len` from BitVec x, starting from the element at position `start`
+  let x                       = 8 7 6 5 4 3 2 1 0
+  let x' = x.extractLsb' 3 4  =     6 5 4 3
+  with `start = 3` and `len = 4`
+  we have `x'.getMsbD i = x[start + (len - 1 - i)] = x.getLsbD (start + (len - 1 - i))`
+  and rewrite `x.getLsbD (start + (len - 1 - i))` as `getMsbD`, which requires checking
+  `start + (len - 1 - i) < w` and yields `x.getMsbD (w - 1 - (start + (len - 1 - i)))`
+-/
 @[simp] theorem getMsbD_extractLsb' {start len : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb' start len x).getMsbD i =
       (decide (i < len) &&

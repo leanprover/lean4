@@ -240,6 +240,9 @@ theorem not_bne_not : ∀ (x y : Bool), ((!x) != (!y)) = (x != y) := by simp
 @[simp] theorem bne_assoc : ∀ (x y z : Bool), ((x != y) != z) = (x != (y != z)) := by decide
 instance : Std.Associative (· != ·) := ⟨bne_assoc⟩
 
+@[simp] theorem bne_comm : ∀ (x y : Bool), (x != y) = (y != x) := by decide
+instance : Std.Commutative (· != ·) := ⟨bne_comm⟩
+
 @[simp] theorem bne_right_inj  : ∀ {x y z : Bool}, (x != y) = (x != z) ↔ y = z := by decide
 @[simp] theorem bne_left_inj : ∀ {x y z : Bool}, (x != z) = (y != z) ↔ x = y := by decide
 

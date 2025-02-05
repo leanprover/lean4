@@ -339,5 +339,42 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
   have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
+/-- Bitblasting lemma for the *last* carry bit. -/
+@[bv_normalize]
+theorem BitVec.carry_width_eq_msb_add_zeroExtend (x y : BitVec w) :
+    BitVec.carry w x y c = (x.setWidth (w + 1) + y.setWidth (w + 1) + (BitVec.ofBool c).setWidth _).msb := by
+  rw [BitVec.msb_eq_getLsbD_last, BitVec.getLsbD_add_add_bool (by omega)]
+  simp [BitVec.carry_setWidth_of_le]
+
+/-- Bitblasting lemma for an arbitrary carry bit.
+
+Given lower priority, so that `carry_width_eq_msb_add_zeroExtend` is preferred
+in the case where `i = w`.
+-/
+@[bv_normalize low]
+theorem BitVec.carry_eq_getLsbD_add_zeroExtend (x y : BitVec w) (i : Nat) :
+    BitVec.carry i x y c =
+      (x.getLsbD i ^^ y.getLsbD i
+      ^^ (x.setWidth (w + 1) + y.setWidth (w + 1) + (BitVec.ofBool c).setWidth _).getLsbD i) := by
+  by_cases hi : i < w + 1
+  · rw [BitVec.getLsbD_add_add_bool hi]
+    simp only [BitVec.getLsbD_setWidth, hi, decide_true, Bool.true_and, Nat.le_add_right,
+      BitVec.carry_setWidth_of_le]
+    have (C) :=
+      calc (x.getLsbD i ^^ y.getLsbD i ^^ (x.getLsbD i ^^ (y.getLsbD i ^^ C)))
+      _ = ((x.getLsbD i ^^ x.getLsbD i) ^^ (y.getLsbD i ^^ y.getLsbD i) ^^ C) := by ac_rfl
+      _ = C                                                                   := by simp
+    rw [this]
+  · suffices BitVec.carry i x y c = false by
+      have : w ≤ i := by omega
+      have : w + 1 ≤ i := by omega
+      simp [BitVec.getLsbD_ge, *]
+    suffices x.toNat % 2 ^ i + y.toNat % 2 ^ i + c.toNat < 2 ^ i by
+      simpa [BitVec.carry] using this
+    have twoPow_le : 2 ^ (w + 1) ≤ 2 ^ i := Nat.pow_le_pow_of_le_right (by omega) (by omega)
+    rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by omega)]
+    have : c.toNat ≤ 1 := Bool.toNat_le c
+    omega
+
 end Normalize
 end Std.Tactic.BVDecide

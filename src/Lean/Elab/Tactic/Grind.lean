@@ -156,7 +156,7 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
     pure auxDeclName
   unsafe evalConst (Grind.GoalM Unit) auxDeclName
 
-private def evalGrindCore
+def evalGrindCore
     (ref : Syntax)
     (config : TSyntax `Lean.Parser.Tactic.optConfig)
     (only : Option Syntax)
@@ -178,7 +178,7 @@ private def evalGrindCore
     replaceMainGoal []
     return result
 
-private def mkGrindOnly
+def mkGrindOnly
     (config : TSyntax `Lean.Parser.Tactic.optConfig)
     (fallback? : Option Term)
     (trace : Grind.Trace)

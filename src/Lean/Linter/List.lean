@@ -40,9 +40,8 @@ open Lean Elab Command
 --   | some idx => #[idx]
 --   | none => stx.getArgs.flatMap numericalIndices
 
-partial def numericalIndices' (t : InfoTree) : MetaM (Array (Syntax × Name)) := do
-  -- logInfo (← t.format)
-  let r ← t.foldInfoM (init := #[]) fun _ info r => do
+partial def numericalIndices' (t : InfoTree) : List (Syntax × Name) :=
+  t.deepestNodes fun _ info _ => do
     let stx := info.stx
     if let .ofTermInfo info := info then
       let idx? := match_expr info.expr with
@@ -52,12 +51,11 @@ partial def numericalIndices' (t : InfoTree) : MetaM (Array (Syntax × Name)) :=
       match idx? with
       | some (.fvar i) =>
         match info.lctx.find? i with
-        | some ldecl => return r.push (stx, ldecl.userName)
-        | none => return r
-      | _ => return r
+        | some ldecl => some (stx, ldecl.userName)
+        | none => none
+      | _ => none
     else
-      return r
-  return r
+      none
 
 /--
 A linter which validates that the only variables used as "indices" (e.g. in `xs[i]` or `xs.take i`)
@@ -70,7 +68,7 @@ def indexLinter : Linter
     if ! (← getInfoState).enabled then return
     let trees ← getInfoTrees
     for t in trees do
-      for (idxStx, n) in ← liftCoreM ((numericalIndices' t).run' {} {}) do
+      for (idxStx, n) in (numericalIndices' t) do
         if n != `i && n != `j && n != `k then
           Linter.logLint linter.index_variables idxStx
             m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}\n{toString idxStx}"

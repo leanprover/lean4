@@ -1234,6 +1234,24 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
 /-- ### Overflow
 -/
 
+/-- Unsigned addition overflows iff the final carry bit of the addition circuit is `true`. -/
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by
+  simp [uaddOverflow, msb_add, msb_setWidth, carry]
+
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
+  simp only [saddOverflow]
+  rcases w with _|w
+  · revert x y; decide
+  · have := le_toInt (x := x); have := toInt_lt (x := x)
+    have := le_toInt (x := y); have := toInt_lt (x := y)
+    simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
+      decide_eq_decide]
+    rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
+    simp
+    omega
+
 theorem Int.emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
   Int.add_emod_self.symm
 
@@ -1386,24 +1404,6 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     rw [BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega),
       BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega), toInt_twoPow_of_eq (by omega), ←Nat.two_pow_pred_add_two_pow_pred (by omega)]
     simp only [← Nat.mul_two, bmod_eq_iff_of_lt_of_lt hlb hub, toInt_twoPow_sub_one, or_eq_true, decide_eq_true_eq, _root_.eq_iff_iff, and_eq_true]
-    omega
-
-/-- Unsigned addition overflows iff the final carry bit of the addition circuit is `true`. -/
-theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
-    uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by
-  simp [uaddOverflow, msb_add, msb_setWidth, carry]
-
-theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
-    saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
-  simp only [saddOverflow]
-  rcases w with _|w
-  · revert x y; decide
-  · have := le_toInt (x := x); have := toInt_lt (x := x)
-    have := le_toInt (x := y); have := toInt_lt (x := y)
-    simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
-      decide_eq_decide]
-    rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
-    simp
     omega
 
 /- ### umod -/

@@ -766,6 +766,8 @@ structure SpawnArgs extends StdioConfig where
   cwd : Option FilePath := none
   /-- Add or remove environment variables for the process. -/
   env : Array (String × Option String) := #[]
+  /-- Inherit environment variables from the spawning process. -/
+  inheritEnv : Bool := true
   /-- Start process in new session and process group using `setsid`. Currently a no-op on non-POSIX platforms. -/
   setsid : Bool := false
 

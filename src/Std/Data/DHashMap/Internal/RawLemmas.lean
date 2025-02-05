@@ -88,7 +88,7 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
-    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_sigma_fst_toListModel]
+    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -857,7 +857,7 @@ theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.length = m.1.size := by
   simp_to_model
 
-theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+theorem map_Sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.1.toList.map Sigma.fst = m.1.keys := by
   simp_to_model
   rw [List.keys_eq_map]

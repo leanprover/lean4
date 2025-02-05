@@ -115,9 +115,10 @@ theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
   simp [Raw.toList, foldRev_cons]
 
-theorem keys_eq_sigma_fst_toListModel {m : Raw α β }:
+theorem keys_eq_keys_toListModel {m : Raw α β }:
     m.keys = List.keys (toListModel m.buckets) := by
-  simp [Raw.keys, Raw.foldRev, Raw.foldRevM, keys_eq_map, ← Array.foldr_toList, toListModel]
+  simp only [Raw.keys, Raw.foldRev, Raw.foldRevM, Array.id_run_foldrM, ← Array.foldr_toList,
+    toListModel, keys_eq_map]
   apply AssocList.foldr_foldr_eq_sigma_fst_flatMap_toList
 
 theorem keys_perm_keys_toListModel {m : Raw α β} :

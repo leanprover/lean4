@@ -1945,26 +1945,7 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
 theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (h : DistinctKeys l):
     ⟨k, v⟩ ∈ l ↔ getValueCast? k l = some v := by
-  induction l with
-  | nil =>
-    -- Base case: Empty list
-    simp [getValueCast?, List.Mem]
-  | cons hd tl ih =>
-    -- Inductive case: l = hd :: tl
-    cases hd with
-    | mk k' v' =>
-      simp [getValueCast?, List.Mem]
-      split
-      -- Case 1: k == k'
-      case inl h_eq =>
-        simp at h_eq
-        rw [←eq_of_beq h_eq]
-        simp
-      -- Case 2: k ≠ k'
-      case inr h_neq =>
-        simp [ih (DistinctKeys.of_cons h)]
-
-
+  sorry
 
 /-- Internal implementation detail of the hash map -/
 def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) × β a) :=

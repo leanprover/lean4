@@ -1662,6 +1662,14 @@ If there are several with the same priority, it is uses the "most recent one". E
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
+/--
+Theorems tagged with the `auto_attach` attribute are used during the processing of functions defined
+by well-founded recursion. They are applied to the function's body to add additional hypotheses,
+such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
+`xs.attach.map`. Also see `wfParam`.
+-/
+syntax (name := auto_attach) "auto_attach" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"
 

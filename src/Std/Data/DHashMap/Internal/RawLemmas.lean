@@ -827,6 +827,10 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
 
 end Const
 
+theorem keys_def [EquivBEq α] [LawfulHashable α] :
+    m.1.keys = m.1.toList.map Sigma.fst := by
+  simp_to_model using List.keys_eq_map
+
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.length = m.1.size := by
@@ -857,11 +861,6 @@ theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.length = m.1.size := by
   simp_to_model
 
-theorem map_Sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
-    m.1.toList.map Sigma.fst = m.1.keys := by
-  simp_to_model
-  rw [List.keys_eq_map]
-
 theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.toList.isEmpty = m.1.isEmpty := by
   simp_to_model
@@ -869,8 +868,7 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
     (k : α) (v : β k) :
     ⟨k, v⟩ ∈ m.1.toList ↔ m.get? k = some v := by
-  simp_to_model
-  sorry
+  simp_to_model using List.mem_iff_getValueCast?_eq_some
 
 @[simp]
 theorem insertMany_nil :

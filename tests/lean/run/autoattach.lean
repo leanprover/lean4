@@ -1,18 +1,5 @@
 set_option Elab.async false -- for stable output order in #guard_msgs
 
--- Until stage0 update
-attribute [auto_attach]
-  List.map_wfParam
-  List.map_unattach
-  List.filter_wfParam
-  List.filter_unattach
-  List.reverse_wfParam
-  List.reverse_unattach
-  List.foldl_wfParam
-  List.foldl_unattach
-  Array.map_wfParam
-  Array.map_unattach
-
 universe u
 structure Tree (α : Type u) where
   val : α

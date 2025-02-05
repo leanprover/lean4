@@ -45,7 +45,7 @@ rewritten with backwards, and the name shows up in the context (daggered, but st
 local macro "fun_h" "=>" t:term : term => `(fun h => $t)
 
 /-- A `dite` whose results do not actually depend on the condition may be reduced to an `ite`. -/
-@[simp] theorem dite_eq_ite [Decidable P] :
+@[simp, auto_attach ←] theorem dite_eq_ite [Decidable P] :
   (dite P (fun_h => a) (fun_h => b)) = ite P a b := rfl
 
 @[deprecated "Use `ite_eq_right_iff`" (since := "2024-09-18")]

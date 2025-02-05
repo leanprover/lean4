@@ -22,15 +22,10 @@ builtin_initialize autoAttachSimpExtension : SimpExtension ←
     "simp lemma used in the preprocessing of well-founded recursive function definitions, in \
     particular to add additional hypotheses to the context. Also see `wfParam`."
 
-private def getAttachSimpTheorems : MetaM SimpTheorems := do
-  let s ← autoAttachSimpExtension.getTheorems
-  -- Remove the next line after a stage0 update that sets the attribute on that theroem
-  let s ← s.addConst ``dite_eq_ite (inv := true)
-  return s
-
 private def getSimpContext : MetaM Simp.Context := do
+  let simpTheorems ← autoAttachSimpExtension.getTheorems
   Simp.mkContext
-    (simpTheorems  := #[(← getAttachSimpTheorems)])
+    (simpTheorems  := #[simpTheorems])
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
 

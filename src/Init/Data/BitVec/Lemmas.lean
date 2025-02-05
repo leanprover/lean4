@@ -797,9 +797,8 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
       x.getMsbD (w - 1 - (start + (len - 1 - i))))) := by
   rcases len with rfl | len
   · simp
-  · have h : (len - i < len + 1) := by omega
-    rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
-    simp [h]
+  · rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
+    simp [show (len - i < len + 1) by omega]
 
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb
@@ -822,8 +821,7 @@ attribute [boolToPropSimps] decide_eq_true_iff
 
 @[simp] theorem getLsbD_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
-  rw [extractLsb]
-  rw [getLsbD_extractLsb']
+  rw [extractLsb, getLsbD_extractLsb']
 
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
@@ -831,7 +829,7 @@ attribute [boolToPropSimps] decide_eq_true_iff
       (decide ((max hi lo) - i < w) &&
       x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
-  simp only [Bool.true_and, and_congr_right_iff, Nat.add_one_sub_one, boolToPropSimps, show hi - lo - i < hi - lo + 1 by omega]
+  simp only [and_congr_right_iff, Nat.add_one_sub_one, boolToPropSimps, show hi - lo - i < hi - lo + 1 by omega]
   intro
   by_cases hmax : lo ≤ hi
   · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]

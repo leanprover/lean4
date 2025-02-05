@@ -38,7 +38,7 @@ namespace Int
   simp [toNat]
   split <;> simp_all <;> omega
 
-@[simp] theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
+theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
     (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
   simp only [Int.bmod_def]
   by_cases xpos : 0 ≤ x

@@ -8,7 +8,6 @@ import Lean.Meta.Tactic.Rewrite
 import Lean.Meta.Tactic.Split
 import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
-import Lean.Elab.PreDefinition.WF.Ite
 import Lean.Meta.ArgsPacker.Basic
 import Lean.Elab.PreDefinition.WF.Unfold
 import Init.Data.Array.Basic

@@ -70,7 +70,7 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   return .continue <| matcherApp'.toExpr
 
 
-def iteToDIte (e : Expr) : MetaM Simp.Result := do
+def autoAttach (e : Expr) : MetaM Simp.Result := do
   unless wf.auto_attach.get (← getOptions) do
     return { expr := e }
   lambdaTelescope e fun xs e => do

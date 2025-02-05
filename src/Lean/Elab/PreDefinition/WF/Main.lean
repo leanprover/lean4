@@ -12,7 +12,7 @@ import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Unfold
-import Lean.Elab.PreDefinition.WF.Ite
+import Lean.Elab.PreDefinition.WF.AutoAttach
 import Lean.Elab.PreDefinition.WF.GuessLex
 
 namespace Lean.Elab
@@ -23,7 +23,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
     return { preDef with value := (← preprocess preDef.value) }
-  let (fixedPrefixSize, argsPacker, unaryPreDef, iteProofs) ← withoutModifyingEnv do
+  let (fixedPrefixSize, argsPacker, unaryPreDef, autoAttachProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
@@ -33,10 +33,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
       if varNames.isEmpty then
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
-    let (preDefsDIte, iteProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
-      let result ← iteToDIte preDef.value
+    let (preDefsAttached, autoAttachProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
+      let result ← autoAttach preDef.value
       return ({preDef with value := result.expr}, result)
-    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsDIte, iteProofs)
+    return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsAttached, autoAttachProofs)
 
   let wf : TerminationMeasures ← do
     if let some tms := termMeasures? then pure tms else
@@ -63,10 +63,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
-  for preDef in preDefs, iteProof in iteProofs do
+  for preDef in preDefs, autoAttachProof in autoAttachProofs do
     unless preDef.kind.isTheorem do
       unless (← isProp preDef.type) do
-        WF.mkUnfoldEq preDef preDefNonRec.declName iteProof
+        WF.mkUnfoldEq preDef preDefNonRec.declName autoAttachProof
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

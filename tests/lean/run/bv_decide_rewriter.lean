@@ -84,6 +84,11 @@ example {x : BitVec 16} : x / (BitVec.twoPow 16 2) = x >>> 2 := by bv_normalize
 example {x : BitVec 16} : x / (BitVec.ofNat 16 8) = x >>> 3 := by bv_normalize
 example {x y : Bool} (h1 : x && y) : x || y := by bv_normalize
 example (a b c: Bool) : (if a then b else c) = (if !a then c else b) := by bv_normalize
+example (x y : BitVec 16) : BitVec.uaddOverflow x y = (x.setWidth (17) + y.setWidth (17)).msb := by bv_normalize
+example (x y : BitVec 16) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by bv_normalize
+example (x y : BitVec w) : BitVec.uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by bv_normalize
+example (x y : BitVec w) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by bv_normalize
+
 
 -- not_neg
 example {x : BitVec 16} : ~~~(-x) = x + (-1#16) := by bv_normalize
@@ -254,6 +259,8 @@ example (x y : BitVec 256) : x * y = y * x := by
 
 example {x y z : BitVec 64} : ~~~(x &&& (y * z)) = (~~~x ||| ~~~(z * y)) := by
   bv_decide (config := { acNf := true })
+
+example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) := by bv_decide
 
 end
 

@@ -816,21 +816,31 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
+@[boolToPropSimps] theorem and_eq_decide (a b : Bool) : (a && b) = decide (a = true ∧ b = true) := by simp [Bool.decide_and]
+
+attribute [boolToPropSimps] decide_eq_true_iff
+
+@[simp] theorem getLsbD_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
+    getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
+  rw [extractLsb]
+  rw [getLsbD_extractLsb']
+
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
-    (extractLsb hi lo x).getMsbD i
-    = if lo ≤ hi then decide (i ≤ hi - lo) && (decide (hi - i < w) && x.getMsbD (w - 1 - (hi - i)))
-    else decide (i = 0) && (decide (lo < w) && x.getMsbD (w - 1 - lo)) := by
-  by_cases hlo : lo ≤ hi
-  · simp only [hlo, ↓reduceIte]
-    by_cases hil : i ≤ hi - lo
-    · simp [hil, BitVec.extractLsb, BitVec.getMsbD_extractLsb', Nat.add_sub_cancel, Nat.lt_add_one_iff (m := i) (n := (hi - lo)), show lo + (hi - lo - i) = hi - i by omega]
-    · simp [hil, BitVec.extractLsb]; omega
-  · simp [hlo, BitVec.extractLsb, show hi - lo = 0 by omega, show lo + (hi - lo - i) = lo by omega]
+    (extractLsb hi lo x).getMsbD i =
+      (decide (i < hi - lo + 1) &&
+      (decide ((max hi lo) - i < w) &&
+      x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
+  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
+  simp only [Bool.true_and, and_congr_right_iff, Nat.add_one_sub_one, boolToPropSimps, show hi - lo - i < hi - lo + 1 by omega]
+  intro
+  by_cases hmax : lo ≤ hi
+  · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]
+  · simp [Nat.max_eq_right (show hi ≤ lo by omega), show lo + (hi - lo - i) = lo - i by omega]
 
 @[simp] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb
-    = if lo ≤ hi then (decide (hi < w) && x.getMsbD (w - 1 - hi))
-    else (decide (lo < w) && x.getMsbD (w - 1 - lo)) := by
+    = (decide ((max hi lo) < w) &&
+      x.getMsbD (w - 1 - ((max hi lo)))) := by
   simp [BitVec.msb, BitVec.getMsbD_extractLsb, Nat.le_sub_iff_add_le' (k := lo) (n := 0) (m := hi)]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :

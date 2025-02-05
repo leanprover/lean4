@@ -248,7 +248,13 @@ This option can only be set on the command line, not in the lakefile or via `set
         -- non-monotonic progress updates; replace missing children's ranges with parent's
         let ts := t.task.get.children.map (fun t' => { t' with range? :=
           match t.range?, t'.range? with
-          | some r, some r' => some { start := max r.start r'.start, stop := min r.stop r'.stop }
+          | some r, some r' =>
+            let start := max r.start r'.start
+            let stop := min r.stop r'.stop
+            -- ensure `stop ≥ start`, lest we end up with negative ranges if `r` and `r'` are
+            -- disjoint
+            let stop := max start stop
+            some { start, stop }
           | r?,     r?'     => r?' <|> r? })
         ts.flatMapM handleFinished
       else

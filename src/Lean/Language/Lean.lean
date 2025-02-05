@@ -338,6 +338,8 @@ where
       -- parser state may still have changed because of trailing whitespace and comments etc., so
       -- they are passed separately from `old`
       if let some oldSuccess := old.result? then
+        -- make sure to update ranges of all reused tasks
+        let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
         return {
           ictx
           stx := newStx
@@ -345,11 +347,12 @@ where
           cancelTk? := ctx.newCancelTk
           result? := some {
             parserState := newParserState
-            processedSnap := (← oldSuccess.processedSnap.bindIO (sync := true) fun oldProcessed => do
+            processedSnap := (← oldSuccess.processedSnap.bindIO (range? := progressRange?)
+                (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
-                oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd => do
+                oldProcSuccess.firstCmdSnap.bindIO (sync := true) (range? := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) ctx
                   return .pure {
@@ -484,11 +487,14 @@ where
       -- have changed because of trailing whitespace and comments etc., so it is passed separately
       -- from `old`
       if let some oldNext := old.nextCmdSnap? then do
+        -- make sure to update ranges of all reused tasks
+        let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
         let newProm ← IO.Promise.new
-        let _ ← old.finishedSnap.bindIO (sync := true) fun oldFinished =>
+        -- can reuse range, syntax unchanged
+        let _ ← old.finishedSnap.bindIO (sync := true) (range? := progressRange?) fun oldFinished =>
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
-          oldNext.bindIO (sync := true) fun oldNext => do
+          oldNext.bindIO (sync := true) (range? := progressRange?) fun oldNext => do
             parseCmd oldNext newParserState oldFinished.cmdState newProm sync ctx
             return .pure ()
         prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result! } }

@@ -326,6 +326,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
   rw [Nat.mod_eq_of_lt (by omega)]
 
+@[simp] theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
+  have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
+  exact Nat.mod_eq_of_lt (by omega)
+
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
     2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
   simp [Nat.sub_sub_eq_min, Nat.min_eq_right]
@@ -554,6 +558,30 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 @[simp]
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
+
+/--
+`x.toInt` is less than `2^(w-1)`.
+We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
+-/
+theorem toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
+  simp only [BitVec.toInt]
+  rcases w with _|w'
+  · omega
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    norm_cast; omega
+
+/--
+`x.toInt` is greater than or equal to `-2^(w-1)`.
+We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
+-/
+theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
+  simp only [BitVec.toInt]
+  rcases w with _|w'
+  · omega
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    norm_cast; omega
 
 /-! ### slt -/
 

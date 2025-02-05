@@ -6,6 +6,7 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
+import Init.Data.Int.LemmasAux
 
 /-!
 # Bitblasting of bitvectors
@@ -1229,6 +1230,26 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   rcases w₂ with rfl | w₂
   · simp [of_length_zero]
   · simp [ushiftRightRec_eq]
+
+/-! ### Overflow definitions -/
+
+/-- Unsigned addition overflows iff the final carry bit of the addition circuit is `true`. -/
+theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :
+    uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by
+  simp [uaddOverflow, msb_add, msb_setWidth, carry]
+
+theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
+    saddOverflow x y = (x.msb == y.msb && !((x + y).msb == x.msb)) := by
+  simp only [saddOverflow]
+  rcases w with _|w
+  · revert x y; decide
+  · have := le_toInt (x := x); have := toInt_lt (x := x)
+    have := le_toInt (x := y); have := toInt_lt (x := y)
+    simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
+      decide_eq_decide]
+    rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
+    simp
+    omega
 
 /- ### umod -/
 

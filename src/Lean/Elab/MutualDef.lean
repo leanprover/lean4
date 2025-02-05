@@ -981,6 +981,21 @@ private def levelMVarToParamHeaders (views : Array DefView) (headers : Array Def
   let newHeaders ← (process).run' 1
   newHeaders.mapM fun header => return { header with type := (← instantiateMVarsProfiling header.type) }
 
+/--
+Ensures that all declarations given by `preDefs` have distinct names.
+Remark: we wait to perform this check until the pre-definition phase because we must account for
+auxiliary declarations introduced by `where` and `let rec`.
+-/
+private def checkAllDeclNamesDistinct (preDefs : Array PreDefinition) : TermElabM Unit := do
+  let mut names : Std.HashMap Name Syntax := {}
+  for preDef in preDefs do
+    let userName := privateToUserName preDef.declName
+    if let some dupStx := names[userName]? then
+      let errorMsg := m!"'mutual' block contains two declarations of the same name '{userName}'"
+      Lean.logErrorAt dupStx errorMsg
+      throwErrorAt preDef.ref errorMsg
+    names := names.insert userName preDef.ref
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1014,6 +1029,7 @@ where
         checkLetRecsToLiftTypes funFVars letRecsToLift
         (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
           let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+          checkAllDeclNamesDistinct preDefs
           for preDef in preDefs do
             trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
           let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs

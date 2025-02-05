@@ -336,6 +336,7 @@ extern "C" object * lean_run_frontend(
     object * ilean_filename,
     uint8_t  json_output,
     object * error_kinds,
+    object * plugins,
     object * w
 );
 pair_ref<elab_environment, object_ref> run_new_frontend(
@@ -360,6 +361,7 @@ pair_ref<elab_environment, object_ref> run_new_frontend(
         oilean_file_name,
         json_output,
         error_kinds.to_obj_arg(),
+        mk_empty_array(),
         io_mk_world()
     ));
 }

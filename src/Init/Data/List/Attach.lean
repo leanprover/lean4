@@ -722,7 +722,7 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[simp] theorem List.map_Subtype {p : α → Prop} {l : List { x // p x }}
+@[simp] theorem map_Subtype {p : α → Prop} {l : List { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {hf : ∀ s x h, f s ⟨x, h⟩ = g s x} :
     (l.foldl f) = l.unattach.foldl g := by
   induction l with

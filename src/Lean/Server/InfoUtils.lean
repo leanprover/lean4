@@ -98,17 +98,6 @@ where go ctx? a
     ts.foldl (init := a) (go <| i.updateContext? ctx?)
   | hole _ => a
 
-partial def InfoTree.foldInfoM [Monad m] (f : ContextInfo → Info → α → m α) (init : α) : InfoTree → m α :=
-  go none init
-where go ctx? a
-  | context ctx t => go (ctx.mergeIntoOuter? ctx?) a t
-  | node i ts => do
-    let a ← match ctx? with
-      | none => pure a
-      | some ctx => f ctx i a
-    ts.foldlM (init := a) (go <| i.updateContext? ctx?)
-  | hole _ => pure a
-
 /--
 Fold an info tree as follows, while ensuring that the correct `ContextInfo` is supplied at each stage:
 

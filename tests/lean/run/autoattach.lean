@@ -1,5 +1,18 @@
 set_option Elab.async false -- for stable output order in #guard_msgs
 
+-- Until stage0 update
+attribute [auto_attach]
+  List.map_wfParam
+  List.map_unattach
+  List.filter_wfParam
+  List.filter_unattach
+  List.reverse_wfParam
+  List.reverse_unattach
+  List.foldl_wfParam
+  List.foldl_unattach
+  Array.map_wfParam
+  Array.map_unattach
+
 universe u
 structure Tree (α : Type u) where
   val : α
@@ -22,14 +35,14 @@ decreasing_by trace_state; cases t; decreasing_tactic
 /--
 info: equations:
 theorem Tree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α → β) (t : Tree α),
-  Tree.map f t = { val := f t.val, cs := List.map (fun x => Tree.map f x) t.cs }
+  Tree.map f t = { val := f t.val, cs := List.map (fun t' => Tree.map f t') t.cs }
 -/
 #guard_msgs in
 #print equations Tree.map
 
 /--
 info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
-  (case1 : ∀ (x : Tree α), (∀ (x_1 : Tree α), x_1 ∈ x.cs → motive x_1) → motive x) (t : Tree α) : motive t
+  (case1 : ∀ (x : Tree α), (∀ (t' : Tree α), t' ∈ x.cs → motive t') → motive x) (t : Tree α) : motive t
 -/
 #guard_msgs in
 #check Tree.map.induct
@@ -195,3 +208,22 @@ termination_by exp
 decreasing_by trace_state; sorry
 
 end Ex2
+
+
+namespace WithOptionOff
+
+set_option wf.auto_attach false
+
+/--
+error: tactic 'fail' failed
+α : Type u_1
+t t' : Tree α
+⊢ sizeOf t' < sizeOf t
+-/
+#guard_msgs in
+def map (f : α → β) (t : Tree α) : Tree β :=
+    ⟨f t.val, t.cs.map (fun t' => map f t')⟩
+termination_by t
+decreasing_by fail
+
+end WithOptionOff

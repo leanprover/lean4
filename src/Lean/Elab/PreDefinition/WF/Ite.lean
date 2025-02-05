@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Joachim Breitner
 -/
 prelude
 import Lean.Meta.Transform
@@ -10,40 +10,29 @@ import Lean.Elab.Tactic.Simp
 
 open Lean Meta
 
+register_builtin_option wf.auto_attach : Bool := {
+  defValue := true
+  descr := "pre-process definitions defined by well-founded recursion with the `auto_attach` simp set"
+}
+
 namespace Lean.Elab.WF
 
-def getAttachSimpTheorems : MetaM SimpTheorems := do
-  let s : SimpTheorems := {}
+builtin_initialize autoAttachSimpExtension : SimpExtension ←
+  registerSimpAttr `auto_attach
+    "simp lemma used in the preprocessing of well-founded recursive function definitions, in \
+    particular to add additional hypotheses to the context. Also see `wfParam`."
+
+private def getAttachSimpTheorems : MetaM SimpTheorems := do
+  let s ← autoAttachSimpExtension.getTheorems
+  -- Remove the next line after a stage0 update that sets the attribute on that theroem
   let s ← s.addConst ``dite_eq_ite (inv := true)
-  -- let s ← s.addConst `List.wfParam_to_attach
-  -- let s ← s.addConst `Array.wfParam_to_attach
-  let s ← s.addConst `List.map_wfParam
-  let s ← s.addConst `List.map_unattach
-  let s ← s.addConst `List.filter_wfParam
-  let s ← s.addConst `List.filter_unattach
-  let s ← s.addConst `List.reverse_wfParam
-  let s ← s.addConst `List.reverse_unattach
-  let s ← s.addConst `List.foldl_wfParam
-  let s ← s.addConst `List.foldl_unattach
-  let s ← s.addConst `Array.map_wfParam
-  let s ← s.addConst `Array.map_unattach
-  pure s
+  return s
 
 private def getSimpContext : MetaM Simp.Context := do
   Simp.mkContext
     (simpTheorems  := #[(← getAttachSimpTheorems)])
     (congrTheorems := {})
     (config        := { Simp.neutralConfig with dsimp := false })
-
-private def getCleanupSimpContext : MetaM Simp.Context := do
-  let s : SimpTheorems := {}
-  let s ← s.addConst ``List.unattach_attach
-  let s ← s.addConst ``Array.unattach_attach
-  let s ← s.addDeclToUnfold ``wfParam
-  Simp.mkContext
-    (simpTheorems  := #[s])
-    (congrTheorems := {})
-    (config        := { Simp.neutralConfig with dsimp := true })
 
 def isWfParam? (e : Expr) : Option Expr :=
   if e.isAppOfArity ``wfParam 2 then
@@ -82,6 +71,8 @@ builtin_dsimproc paramMatcher (_) := fun e => do
 
 
 def iteToDIte (e : Expr) : MetaM Simp.Result := do
+  unless wf.auto_attach.get (← getOptions) do
+    return { expr := e }
   lambdaTelescope e fun xs e => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
@@ -93,10 +84,7 @@ def iteToDIte (e : Expr) : MetaM Simp.Result := do
     let simprocs ← simprocs.add ``paramMatcher (post := false)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
 
-    -- Remove markers
-    -- let (result, _) ← Meta.simp e' (← getCleanupSimpContext)
-    -- let e'' := result.expr
-    -- Simp, even with dsimp on, is not as thorough as `Core.transform`:
+    -- Remove left-over markers
     let e'' ← Core.transform result.expr fun e =>
       e.withApp fun f as => do
         if f.isConstOf ``wfParam then
@@ -107,14 +95,5 @@ def iteToDIte (e : Expr) : MetaM Simp.Result := do
 
     trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
     result.addLambdas xs
-
-/-
-run_elab do
-  let stx ← `(fun (n : Nat) => if n > 0 then 3 else 4)
-  let e ← Elab.Term.elabTerm stx .none
-  let e' ← iteToDIte e
-  logInfo m!"{e}\n{e'}"
--/
-
 
 end Lean.Elab.WF

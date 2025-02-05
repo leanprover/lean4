@@ -16,8 +16,6 @@ These are in a separate file from most of the list lemmas
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
-set_option linter.index_variables true
-
 namespace List
 
 open Nat

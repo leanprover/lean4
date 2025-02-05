@@ -1945,7 +1945,45 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
 theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (h : DistinctKeys l):
     ⟨k, v⟩ ∈ l ↔ getValueCast? k l = some v := by
-  sorry
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.mem_cons]
+    by_cases kv_hd: ⟨k, v⟩ = hd
+    · rw [← kv_hd]
+      simp
+    · simp only [kv_hd, false_or]
+      rw [distinctKeys_cons_iff] at h
+      by_cases k_hdfst: k == hd.fst
+      · simp only [beq_iff_eq] at k_hdfst
+        have : ∃ (v' : β k), ⟨k, v'⟩ = hd := by
+          exists cast (by congr;symm;exact k_hdfst) hd.snd
+          refine Sigma.ext k_hdfst ?_
+          simp
+        rcases this with ⟨v', h'⟩
+        rw [← h']
+        simp only [getValueCast?_cons_self, Option.some.injEq]
+        have h₁ : ¬ ⟨k,v⟩ ∈ tl := by
+          rw [containsKey_eq_false_iff] at h
+          false_or_by_contra
+          rename_i p
+          rcases h with ⟨_, h⟩
+          specialize h ⟨k, v⟩ p
+          simp [k_hdfst] at h
+        have h₂ : ¬ v' = v := by
+          false_or_by_contra
+          rename_i p
+          rw [← p, h'] at kv_hd
+          contradiction
+        simp [h₁, h₂]
+      · simp only [getValueCast?, beq_iff_eq]
+        split
+        · rename_i h
+          simp only [beq_iff_eq] at k_hdfst
+          simp only [beq_iff_eq] at h
+          rw [h] at k_hdfst
+          simp at k_hdfst
+        · apply ih (And.left h)
 
 /-- Internal implementation detail of the hash map -/
 def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) × β a) :=

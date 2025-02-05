@@ -67,6 +67,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
   -- no environment extension changes to report after kernel checking; ensures we do not

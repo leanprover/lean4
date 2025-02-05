@@ -1440,9 +1440,10 @@ theorem _root_.List.filterMap_toArray (f : α → Option β) (l : List α) :
   rcases l with ⟨l⟩
   simp [h]
 
-@[simp] theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
-  funext l
-  cases l
+@[simp] theorem filterMap_eq_map (f : α → β) (w : stop = as.size ) :
+    filterMap (some ∘ f) as 0 stop = map f as := by
+  subst w
+  cases as
   simp
 
 theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
@@ -1470,10 +1471,10 @@ theorem size_filterMap_le (f : α → Option β) (l : Array α) :
   simp [List.filterMap_length_eq_length]
 
 @[simp]
-theorem filterMap_eq_filter (p : α → Bool) :
-    filterMap (Option.guard (p ·)) = filter p := by
-  funext l
-  cases l
+theorem filterMap_eq_filter (p : α → Bool) (w : stop = as.size) :
+    filterMap (Option.guard (p ·)) as 0 stop = filter p as := by
+  subst w
+  cases as
   simp
 
 theorem filterMap_filterMap (f : α → Option β) (g : β → Option γ) (l : Array α) :
@@ -1846,7 +1847,7 @@ theorem append_eq_filterMap_iff {f : α → Option β} :
 
 theorem map_eq_append_iff {f : α → β} :
     map f l = L₁ ++ L₂ ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by
-  rw [← filterMap_eq_map, filterMap_eq_append_iff]
+  simp only [← filterMap_eq_map, filterMap_eq_append_iff]
 
 theorem append_eq_map_iff {f : α → β} :
     L₁ ++ L₂ = map f l ↔ ∃ l₁ l₂, l = l₁ ++ l₂ ∧ map f l₁ = L₁ ∧ map f l₂ = L₂ := by

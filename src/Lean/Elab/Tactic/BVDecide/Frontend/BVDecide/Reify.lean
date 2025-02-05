@@ -35,8 +35,6 @@ where
     | BitVec.ofNat _ _ => goBvLit x
     | HAnd.hAnd _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .and ``Std.Tactic.BVDecide.Reflect.BitVec.and_congr
-    | HOr.hOr _ _ _ _ lhsExpr rhsExpr =>
-      binaryReflection lhsExpr rhsExpr .or ``Std.Tactic.BVDecide.Reflect.BitVec.or_congr
     | HXor.hXor _ _ _ _ lhsExpr rhsExpr =>
       binaryReflection lhsExpr rhsExpr .xor ``Std.Tactic.BVDecide.Reflect.BitVec.xor_congr
     | HAdd.hAdd _ _ _ _ lhsExpr rhsExpr =>

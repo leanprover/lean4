@@ -67,6 +67,8 @@ structure Config where
   ext : Bool := true
   /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
   verbose : Bool := true
+  /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
+  clean : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

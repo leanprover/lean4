@@ -1,23 +1,29 @@
 Try this: simp only [f, reduceCtorEq]
 [Meta.Tactic.simp.rewrite] unfold f, f (a :: b = []) ==> a :: b = []
-[Meta.Tactic.simp.rewrite] eq_self:1000, False = False ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000: False = False ==> True
 Try this: simp only [length, gt_iff_lt]
 [Meta.Tactic.simp.rewrite] unfold length, length (a :: b :: as) ==> length (b :: as) + 1
 [Meta.Tactic.simp.rewrite] unfold length, length (b :: as) ==> length as + 1
-[Meta.Tactic.simp.rewrite] gt_iff_lt:1000, length as + 1 + 1 > length as ==> length as < length as + 1 + 1
+[Meta.Tactic.simp.rewrite] gt_iff_lt:1000: length as + 1 + 1 > length as ==> length as < length as + 1 + 1
 Try this: simp only [fact, gt_iff_lt, Nat.zero_lt_succ, Nat.mul_pos_iff_of_pos_left]
 [Meta.Tactic.simp.rewrite] unfold fact, fact (x + 1) ==> (x + 1) * fact x
-[Meta.Tactic.simp.rewrite] gt_iff_lt:1000, (x + 1) * fact x > 0 ==> 0 < (x + 1) * fact x
-[Meta.Tactic.simp.rewrite] Nat.zero_lt_succ:1000, 0 < x + 1 ==> True
-[Meta.Tactic.simp.rewrite] Nat.mul_pos_iff_of_pos_left:1000, 0 < (x + 1) * fact x ==> 0 < fact x
+[Meta.Tactic.simp.rewrite] gt_iff_lt:1000:
+      (x + 1) * fact x > 0
+    ==>
+      0 < (x + 1) * fact x
+[Meta.Tactic.simp.rewrite] Nat.zero_lt_succ:1000:
+      0 < x + 1
+    ==>
+      True
+[Meta.Tactic.simp.rewrite] Nat.mul_pos_iff_of_pos_left:1000: 0 < (x + 1) * fact x ==> 0 < fact x
 Try this: simp only [head]
 [Meta.Tactic.simp.rewrite] unfold head, head (a :: as) ==> match a :: as with
     | [] => default
     | a :: tail => a
-[Meta.Tactic.simp.rewrite] eq_self:1000, a = a ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000: a = a ==> True
 Try this: simp only [foo]
 [Meta.Tactic.simp.rewrite] unfold foo, foo ==> 10
-[Meta.Tactic.simp.rewrite] eq_self:1000, 10 + x = 10 + x ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000: 10 + x = 10 + x ==> True
 Try this: simp only [g, pure]
 [Meta.Tactic.simp.rewrite] unfold g, g x ==> (let x := x;
       pure x).run
@@ -37,32 +43,59 @@ Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modify
 [Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)
 [Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g s) s ==> pure (PUnit.unit, g s)
-[Meta.Tactic.simp.rewrite] eq_self:1000, (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s) ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000: (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s) ==> True
 Try this: simp only [bla, h]
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] eq_self:1000, x + x = x + x ==> True
+[Meta.Tactic.simp.rewrite] eq_self:1000: x + x = x + x ==> True
 Try this: simp only [h, Nat.sub_add_cancel]
-[Meta.Tactic.simp.rewrite] h:1000, 1 ≤ x ==> True
-[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
-[Meta.Tactic.simp.rewrite] eq_self:1000, x + 2 = x + 2 ==> True
+[Meta.Tactic.simp.rewrite] h:1000:
+      1 ≤ x
+    ==>
+      True
+[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000:
+      x - 1 + 1
+    ==>
+      x
+[Meta.Tactic.simp.rewrite] eq_self:1000: x + 2 = x + 2 ==> True
 Try this: simp (config := { contextual := true }) only [Nat.sub_add_cancel, dite_eq_ite]
-[Meta.Tactic.simp.rewrite] h:1000, 1 ≤ x ==> True
-[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
-[Meta.Tactic.simp.rewrite] dite_eq_ite:1000, if h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
-[Meta.Tactic.simp.rewrite] dite_eq_ite:1000, if _h : 1 ≤ x then x else 0 ==> if 1 ≤ x then x else 0
-[Meta.Tactic.simp.rewrite] eq_self:1000, (if 1 ≤ x then x else 0) = if 1 ≤ x then x else 0 ==> True
+[Meta.Tactic.simp.rewrite] h:1000:
+      1 ≤ x
+    ==>
+      True
+[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000:
+      x - 1 + 1
+    ==>
+      x
+[Meta.Tactic.simp.rewrite] dite_eq_ite:1000:
+      if h : 1 ≤ x then x else 0
+    ==>
+      if 1 ≤ x then x else 0
+[Meta.Tactic.simp.rewrite] dite_eq_ite:1000:
+      if _h : 1 ≤ x then x else 0
+    ==>
+      if 1 ≤ x then x else 0
+[Meta.Tactic.simp.rewrite] eq_self:1000: (if 1 ≤ x then x else 0) = if 1 ≤ x then x else 0 ==> True
 Try this: simp only [and_self]
-[Meta.Tactic.simp.rewrite] and_self:1000, b ∧ b ==> b
-[Meta.Tactic.simp.rewrite] iff_self:1000, a ∧ b ↔ a ∧ b ==> True
+[Meta.Tactic.simp.rewrite] and_self:1000:
+      b ∧ b
+    ==>
+      b
+[Meta.Tactic.simp.rewrite] iff_self:1000: a ∧ b ↔ a ∧ b ==> True
 Try this: simp only [my_thm]
-[Meta.Tactic.simp.rewrite] my_thm:1000, b ∧ b ==> b
-[Meta.Tactic.simp.rewrite] eq_self:1000, (a ∧ b) = (a ∧ b) ==> True
+[Meta.Tactic.simp.rewrite] my_thm:1000:
+      b ∧ b
+    ==>
+      b
+[Meta.Tactic.simp.rewrite] eq_self:1000: (a ∧ b) = (a ∧ b) ==> True
 Try this: simp (discharger := sorry) only [Nat.sub_add_cancel]
-[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000, x - 1 + 1 ==> x
-[Meta.Tactic.simp.rewrite] eq_self:1000, x = x ==> True
+[Meta.Tactic.simp.rewrite] Nat.sub_add_cancel:1000:
+      x - 1 + 1
+    ==>
+      x
+[Meta.Tactic.simp.rewrite] eq_self:1000: x = x ==> True
 simp_trace.lean:83:0-83:7: warning: declaration uses 'sorry'
 Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
@@ -86,7 +119,7 @@ h₂ : xs.length + ys.length = y
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] List.length_append:1000, (xs ++ ys).length ==> xs.length + ys.length
+[Meta.Tactic.simp.rewrite] List.length_append:1000: (xs ++ ys).length ==> xs.length + ys.length
 Try this: simp only [bla, h, List.length_append] at *
 simp_trace.lean:106:101-107:53: error: unsolved goals
 x y : Nat
@@ -99,7 +132,7 @@ h₂ : xs.length + ys.length = y
     | Sum.inl (y, z) => y + z
     | Sum.inr val => 0
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
-[Meta.Tactic.simp.rewrite] List.length_append:1000, (xs ++ ys).length ==> xs.length + ys.length
+[Meta.Tactic.simp.rewrite] List.length_append:1000: (xs ++ ys).length ==> xs.length + ys.length
 Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold bla, bla x ==> match h x with
     | Sum.inl (y, z) => y + z
@@ -120,16 +153,34 @@ Try this: simp only [bla, h] at *
 [Meta.Tactic.simp.rewrite] unfold h, h x ==> Sum.inl (x, x)
 Try this: simp only [HasProp.toProp]
 Try this: simp only [← h]
-[Meta.Tactic.simp.rewrite] ← h:1000, Q ==> P
+[Meta.Tactic.simp.rewrite] ← h:1000:
+      Q
+    ==>
+      P
 Try this: simp only [← my_thm']
-[Meta.Tactic.simp.rewrite] ← my_thm':1000, P ∧ P ==> P
-[Meta.Tactic.simp.rewrite] iff_self:1000, P ↔ P ==> True
+[Meta.Tactic.simp.rewrite] ← my_thm':1000:
+      P ∧ P
+    ==>
+      P
+[Meta.Tactic.simp.rewrite] iff_self:1000: P ↔ P ==> True
 Try this: simp only [h]
-[Meta.Tactic.simp.rewrite] h:1000, P ==> True
+[Meta.Tactic.simp.rewrite] h:1000:
+      P
+    ==>
+      True
 Try this: simp only [*]
-[Meta.Tactic.simp.rewrite] a✝:1000, P ==> True
+[Meta.Tactic.simp.rewrite] a✝:1000:
+      P
+    ==>
+      True
 Try this: simp_all only
-[Meta.Tactic.simp.rewrite] h₁:1000, n ==> m
+[Meta.Tactic.simp.rewrite] h₁:1000:
+      n
+    ==>
+      m
 Try this: simp_all only
-[Meta.Tactic.simp.rewrite] h₁:1000, n ==> m
-[Meta.Tactic.simp.rewrite] h₁:1000, n ==> m
+[Meta.Tactic.simp.rewrite] h₁:1000:
+      n
+    ==>
+      m
+[Meta.Tactic.simp.rewrite] h₁:1000: n ==> m

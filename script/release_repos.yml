@@ -4,6 +4,7 @@ repositories:
     toolchain-tag: true
     stable-branch: true
     branch: main
+    bump-branch: true
     dependencies: []
 
   - name: lean4checker
@@ -76,6 +77,7 @@ repositories:
     toolchain-tag: true
     stable-branch: true
     branch: master
+    bump-branch: true
     dependencies:
       - Aesop
       - ProofWidgets4

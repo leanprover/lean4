@@ -76,7 +76,7 @@ private def checkIffStatus (e a b : Expr) : GoalM CaseSplitStatus := do
 
 /-- Returns `true` is `c` is congruent to a case-split that was already performed. -/
 private def isCongrToPrevSplit (c : Expr) : GoalM Bool := do
-  (← get).resolvedSplits.foldM (init := false) fun flag { expr := c' } => do
+  (← get).split.resolved.foldM (init := false) fun flag { expr := c' } => do
     if flag then
       return true
     else
@@ -118,19 +118,19 @@ private inductive SplitCandidate where
 private def selectNextSplit? : GoalM SplitCandidate := do
   if (← isInconsistent) then return .none
   if (← checkMaxCaseSplit) then return .none
-  go (← get).splitCandidates .none []
+  go (← get).split.candidates .none []
 where
   go (cs : List Expr) (c? : SplitCandidate) (cs' : List Expr) : GoalM SplitCandidate := do
     match cs with
     | [] =>
-      modify fun s => { s with splitCandidates := cs'.reverse }
+      modify fun s => { s with split.candidates := cs'.reverse }
       if let .some _ numCases isRec := c? then
-        let numSplits := (← get).numSplits
+        let numSplits := (← get).split.num
         -- We only increase the number of splits if there is more than one case or it is recursive.
         let numSplits := if numCases > 1 || isRec then numSplits + 1 else numSplits
         -- Remark: we reset `numEmatch` after each case split.
         -- We should consider other strategies in the future.
-        modify fun s => { s with numSplits, numEmatch := 0 }
+        modify fun s => { s with split.num := numSplits, ematch.num := 0 }
       return c?
     | c::cs =>
     match (← checkCaseSplitStatus c) with
@@ -196,7 +196,7 @@ def splitNext : GrindTactic := fun goal => do
       cases (← get).mvarId major
     let goal ← get
     let numSubgoals := mvarIds.length
-    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, casesTrace := { expr := c, i, num := numSubgoals } :: goal.casesTrace }
+    let goals := mvarIds.mapIdx fun i mvarId => { goal with mvarId, split.trace := { expr := c, i, num := numSubgoals } :: goal.split.trace }
     let goals ← introNewHyp goals [] genNew
     return some goals
   return goals?

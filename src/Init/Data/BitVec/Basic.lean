@@ -675,6 +675,22 @@ def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 
+/-! ## Overflow -/
+
+/-- `uaddOverflow x y` returns `true` if addition of `x` and `y` results in *unsigned* overflow.
+
+  SMT-Lib name: `bvuaddo`.
+-/
+def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- `saddOverflow x y` returns `true` if addition of `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsaddo`.
+-/
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
+
 /- ### reverse -/
 
 /-- Reverse the bits in a bitvector. -/

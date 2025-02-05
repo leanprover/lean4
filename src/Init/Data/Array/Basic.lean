@@ -953,7 +953,11 @@ def eraseP (as : Array α) (p : α → Bool) : Array α :=
   | none   => as
   | some i => as.eraseIdx i
 
-/-- Insert element `a` at position `i`. -/
+/-- Insert element `a` at position `i`.
+
+This function takes worst case O(n) time because
+it has to swap the inserted element into place.
+-/
 @[inline] def insertIdx (as : Array α) (i : Nat) (a : α) (_ : i ≤ as.size := by get_elem_tactic) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   loop (as : Array α) (j : Fin as.size) :=

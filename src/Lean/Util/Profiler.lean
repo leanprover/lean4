@@ -31,7 +31,7 @@ instance : ToJson Microseconds where toJson x := toJson x.μs
 instance : FromJson Microseconds where fromJson? j := Microseconds.mk <$> fromJson? j
 
 structure Category where
-  name : String
+  name : Name
   color : String
   subcategories : Array String := #[]
 deriving FromJson, ToJson
@@ -164,10 +164,13 @@ structure ThreadWithMaps extends Thread where
   lastTime : Float := 0
 
 -- TODO: add others, dynamically?
+-- NOTE: more specific prefixes should come first
 def categories : Array Category := #[
-  { name := "Other", color := "gray" },
-  { name := "Elab", color := "red" },
-  { name := "Meta", color := "yellow" }
+  { name := `Other, color := "gray" },
+  { name := `Elab.async, color := "gray" },
+  { name := `Elab.block, color := "brown" },
+  { name := `Elab, color := "red" },
+  { name := `Meta, color := "yellow" }
 ]
 
 /-- Returns first `startTime` in the trace tree, if any. -/
@@ -201,7 +204,7 @@ where
           (thread.stringMap.size, { thread with
             stringArray := thread.stringArray.push funcName
             stringMap := thread.stringMap.insert funcName thread.stringMap.size })
-      let category := categories.findIdx? (·.name == data.cls.getRoot.toString) |>.getD 0
+      let category := categories.findIdx? (·.name.isPrefixOf data.cls) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap[strIdx]? then
           (idx, thread)

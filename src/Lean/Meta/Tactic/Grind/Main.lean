@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Util
+import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Grind.RevertAll
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Proj
@@ -65,7 +66,15 @@ def GrindM.run (x : GrindM α) (mainDeclName : Name) (params : Params) (fallback
   x (← mkMethods fallback).toMethodsRef { mainDeclName, config, simprocs, simp }
     |>.run' { scState, trueExpr, falseExpr, natZExpr, btrueExpr, bfalseExpr }
 
+private def mkCleanState (mvarId : MVarId) (params : Params) : MetaM Clean.State := mvarId.withContext do
+  unless params.config.clean do return {}
+  let mut used : PHashSet Name := {}
+  for localDecl in (← getLCtx) do
+    used := used.insert localDecl.userName
+  return { used }
+
 private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
+  let mvarId ← if params.config.clean then mvarId.exposeNames else pure mvarId
   let trueExpr ← getTrueExpr
   let falseExpr ← getFalseExpr
   let btrueExpr ← getBoolTrueExpr
@@ -73,7 +82,8 @@ private def mkGoal (mvarId : MVarId) (params : Params) : GrindM Goal := do
   let natZeroExpr ← getNatZeroExpr
   let thmMap := params.ematch
   let casesTypes := params.casesTypes
-  GoalM.run' { mvarId, thmMap, casesTypes } do
+  let clean ← mkCleanState mvarId params
+  GoalM.run' { mvarId, ematch.thmMap := thmMap, split.casesTypes := casesTypes, clean } do
     mkENodeCore falseExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore trueExpr (interpreted := true) (ctor := false) (generation := 0)
     mkENodeCore btrueExpr (interpreted := false) (ctor := true) (generation := 0)

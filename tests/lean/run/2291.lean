@@ -8,6 +8,8 @@ The following example would cause the pretty printer to panic.
 
 set_option trace.compiler.simp true in
 /--
+info: [0]
+---
 info: [compiler.simp] >> _eval
 let _x_21 := `Nat;
 let _x_22 := [];
@@ -105,8 +107,6 @@ let _x_1 :=
   Lean.List.toExprAux._at._eval._spec_1✝ _eval._closed_9 _eval._closed_13
     _eval._closed_14;
 Lean.MessageData.ofExpr _x_1
----
-info: [0]
 -/
 #guard_msgs in
 #eval [0]

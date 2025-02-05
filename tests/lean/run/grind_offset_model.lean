@@ -8,7 +8,7 @@ error: `grind` failed
 case grind
 i j : Nat
 h : j + 1 ≤ i
-x✝ : ¬g (i + 1) j = i + 1
+h_1 : ¬g (i + 1) j = i + 1
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -32,7 +32,7 @@ example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = i + 1 := by
 error: `grind` failed
 case grind
 i : Nat
-x✝ : 101 ≤ i
+h : 101 ≤ i
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -51,7 +51,7 @@ example (i : Nat) : i ≤ 100 := by
 error: `grind` failed
 case grind
 i : Nat
-x✝ : i ≤ 99
+h : i ≤ 99
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -70,8 +70,8 @@ example (i : Nat) : 100 ≤ i := by
 error: `grind` failed
 case grind
 n m a j i : Nat
-a✝ : g (n + 1) m = a
-x✝ : i ≤ j + 99
+h : g (n + 1) m = a
+h_1 : i ≤ j + 99
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -96,8 +96,8 @@ example (i : Nat) : g (n + 1) m = a → 100 + j ≤ i := by
 error: `grind` failed
 case grind
 n m a j i : Nat
-a✝ : g (n + 1) m = a
-x✝ : i + 101 ≤ j
+h : g (n + 1) m = a
+h_1 : i + 101 ≤ j
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

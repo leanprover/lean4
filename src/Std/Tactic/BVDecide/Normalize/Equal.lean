@@ -28,16 +28,6 @@ theorem BitVec.not_beq_not (a b : BitVec w) : (~~~a == ~~~b) = (a == b) := by
   simp
 
 @[bv_normalize]
-theorem BitVec.or_beq_zero_iff (a b : BitVec w) : (a ||| b == 0#w) = (a == 0#w && b == 0#w) := by
-  rw [Bool.eq_iff_iff]
-  simp
-
-@[bv_normalize]
-theorem BitVec.zero_beq_or_iff (a b : BitVec w) : (0#w == a ||| b) = (a == 0#w && b == 0#w) := by
-  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm]
-  simp
-
-@[bv_normalize]
 theorem BitVec.xor_beq_zero_iff (a b : BitVec w) : (a ^^^ b == 0#w) = (a == b) := by
   rw [Bool.eq_iff_iff]
   simp
@@ -45,6 +35,15 @@ theorem BitVec.xor_beq_zero_iff (a b : BitVec w) : (a ^^^ b == 0#w) = (a == b) :
 @[bv_normalize]
 theorem BitVec.zero_beq_xor_iff (a b : BitVec w) : (0#w == a ^^^ b) = (a == b) := by
   rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm]
+  simp
+
+-- used in bv_and_eq_allOnes simproc
+theorem BitVec.and_eq_allOnes (a b : BitVec w) : (a &&& b == -1#w) = (a == -1#w && b == -1#w) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, BitVec.negOne_eq_allOnes]
+  simp
+
+theorem BitVec.allOnes_eq_and (a b : BitVec w) : (-1#w == a &&& b) = (a == -1#w && b == -1#w) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm, BitVec.negOne_eq_allOnes]
   simp
 
 @[bv_normalize]
@@ -124,6 +123,77 @@ theorem BitVec.sub_eq_iff_eq_add (a b c : BitVec w) : (a + (~~~b + 1#w) == c) = 
 theorem BitVec.neg_add_eq_iff_eq_add (a b c : BitVec w) : ((~~~a + 1#w) + b == c) = (b == c + a) := by
   rw [BitVec.add_comm]
   exact BitVec.sub_eq_iff_eq_add _ _ _
+
+@[bv_normalize]
+theorem Bool.bif_eq_bif (d a b c : Bool) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || b == c) := by
+  decide +revert
+
+@[bv_normalize]
+theorem Bool.not_bif_eq_bif (d a b c : Bool) :
+    ((!(bif d then a else b)) == (bif d then a else c)) = (!d && (!b) == c) := by
+  decide +revert
+
+@[bv_normalize]
+theorem Bool.bif_eq_not_bif (d a b c : Bool) :
+    ((bif d then a else b) == (!(bif d then a else c))) = (!d && b == (!c)) := by
+  decide +revert
+
+@[bv_normalize]
+theorem Bool.bif_eq_bif' (d a b c : Bool) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  decide +revert
+
+@[bv_normalize]
+theorem Bool.not_bif_eq_bif' (d a b c : Bool) :
+    ((!(bif d then a else c)) == (bif d then b else c)) = (d && (!a) == b) := by
+  decide +revert
+
+@[bv_normalize]
+theorem Bool.bif_eq_not_bif' (d a b c : Bool) :
+    ((bif d then a else c) == (!(bif d then b else c))) = (d && a == (!b)) := by
+  decide +revert
+
+@[bv_normalize]
+theorem BitVec.bif_eq_bif (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == (bif d then a else c)) = (d || b == c) := by
+  cases d <;> simp
+
+@[bv_normalize]
+theorem BitVec.not_bif_eq_bif (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else b) == (bif d then a else c)) = (bif d then ~~~a == a else ~~~b == c) := by
+  cases d <;> simp
+
+@[bv_normalize]
+theorem BitVec.bif_eq_not_bif (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else b) == ~~~(bif d then a else c)) = (bif d then a == ~~~a else b == ~~~c) := by
+  cases d <;> simp
+
+@[bv_normalize]
+theorem BitVec.bif_eq_bif' (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == (bif d then b else c)) = (!d || a == b) := by
+  cases d <;> simp
+
+@[bv_normalize]
+theorem BitVec.not_bif_eq_bif' (d : Bool) (a b c : BitVec w) :
+    (~~~(bif d then a else c) == (bif d then b else c)) = (bif d then ~~~a == b else ~~~c == c) := by
+  cases d <;> simp
+
+@[bv_normalize]
+theorem BitVec.bif_eq_not_bif' (d : Bool) (a b c : BitVec w) :
+    ((bif d then a else c) == ~~~(bif d then b else c)) = (bif d then a == ~~~b else c == ~~~c) := by
+  cases d <;> simp
+
+-- used for bv_equal_const_not simproc
+theorem BitVec.not_eq_comm (a b : BitVec w) : (~~~a == b) = (a == ~~~b) := by
+  rw [Bool.eq_iff_iff]
+  simp [_root_.BitVec.not_eq_comm]
+
+-- used for bv_equal_const_not simproc
+theorem BitVec.not_eq_comm' (a b : BitVec w) : (a == ~~~b) = (b == ~~~a) := by
+  rw [Bool.eq_iff_iff, beq_iff_eq, Eq.comm]
+  simp [_root_.BitVec.not_eq_comm]
+
 
 end Frontend.Normalize
 end Std.Tactic.BVDecide

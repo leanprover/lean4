@@ -9,8 +9,8 @@ case grind.1
 c : Nat
 q : X c 0
 s : Nat
-h✝ : 0 = s
-h : HEq ⋯ ⋯
+h : 0 = s
+h_1 : HEq ⋯ ⋯
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts

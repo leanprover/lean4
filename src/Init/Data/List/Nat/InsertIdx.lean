@@ -52,6 +52,7 @@ theorem length_insertIdx_of_le_length (h : n ≤ length as) : length (insertIdx 
 theorem length_insertIdx_of_length_lt (h : length as < n) : length (insertIdx n a as) = length as := by
   simp [length_insertIdx, h]
 
+@[simp]
 theorem eraseIdx_insertIdx (n : Nat) (l : List α) : (l.insertIdx n a).eraseIdx n = l := by
   rw [eraseIdx_eq_modifyTailIdx, insertIdx, modifyTailIdx_modifyTailIdx_self]
   exact modifyTailIdx_id _ _
@@ -150,7 +151,7 @@ theorem getElem_insertIdx_self {l : List α} {x : α} {n : Nat} (hn : n < (inser
     · simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_lt_add_iff_right] at hn ih
       simpa using ih hn
 
-theorem getElem_insertIdx_of_ge {l : List α} {x : α} {n k : Nat} (hn : n + 1 ≤ k)
+theorem getElem_insertIdx_of_gt {l : List α} {x : α} {n k : Nat} (hn : n < k)
     (hk : k < (insertIdx n x l).length) :
     (insertIdx n x l)[k] = l[k - 1]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
   induction l generalizing n k with
@@ -177,6 +178,9 @@ theorem getElem_insertIdx_of_ge {l : List α} {x : α} {n k : Nat} (hn : n + 1 �
         | zero => omega
         | succ k => simp
 
+@[deprecated getElem_insertIdx_of_gt (since := "2025-02-04")]
+abbrev getElem_insertIdx_of_ge := @getElem_insertIdx_of_gt
+
 theorem getElem_insertIdx {l : List α} {x : α} {n k : Nat} (h : k < (insertIdx n x l).length) :
     (insertIdx n x l)[k] =
       if h₁ : k < n then
@@ -191,7 +195,7 @@ theorem getElem_insertIdx {l : List α} {x : α} {n k : Nat} (h : k < (insertIdx
   · split <;> rename_i h₂
     · subst h₂
       rw [getElem_insertIdx_self h]
-    · rw [getElem_insertIdx_of_ge (by omega)]
+    · rw [getElem_insertIdx_of_gt (by omega)]
 
 theorem getElem?_insertIdx {l : List α} {x : α} {n k : Nat} :
     (insertIdx n x l)[k]? =
@@ -233,9 +237,12 @@ theorem getElem?_insertIdx_self {l : List α} {x : α} {n : Nat} :
   rw [getElem?_insertIdx, if_neg (by omega)]
   simp
 
-theorem getElem?_insertIdx_of_ge {l : List α} {x : α} {n k : Nat} (h : n + 1 ≤ k) :
+theorem getElem?_insertIdx_of_gt {l : List α} {x : α} {n k : Nat} (h : n < k) :
     (insertIdx n x l)[k]? = l[k - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
+
+@[deprecated getElem?_insertIdx_of_gt (since := "2025-02-04")]
+abbrev getElem?_insertIdx_of_ge := @getElem?_insertIdx_of_gt
 
 end InsertIdx
 

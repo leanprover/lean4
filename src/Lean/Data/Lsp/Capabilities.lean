@@ -30,6 +30,7 @@ structure CompletionClientCapabilities where
 structure TextDocumentClientCapabilities where
   completion? : Option CompletionClientCapabilities := none
   codeAction? : Option CodeActionClientCapabilities := none
+  inlayHint?  : Option InlayHintClientCapabilities  := none
   deriving ToJson, FromJson
 
 structure ShowDocumentClientCapabilities where
@@ -81,6 +82,7 @@ structure ServerCapabilities where
   foldingRangeProvider      : Bool                           := false
   semanticTokensProvider?   : Option SemanticTokensOptions   := none
   codeActionProvider?       : Option CodeActionOptions       := none
+  inlayHintProvider?        : Option InlayHintOptions        := none
   deriving ToJson, FromJson
 
 end Lsp

@@ -110,6 +110,7 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
   registerSimplePersistentEnvExtension {
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
+    asyncMode     := .sync  -- compilation is non-parallel anyway
   }
 
 @[export lean_add_specialization_info]

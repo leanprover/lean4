@@ -1602,6 +1602,12 @@ using `show_term`.
 -/
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
+/--
+`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
+accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+-/
+syntax (name := exposeNames) "expose_names" : tactic
+
 end Tactic
 
 namespace Attr

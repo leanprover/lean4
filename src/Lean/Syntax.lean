@@ -24,6 +24,14 @@ def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := 
 def String.Range.includes (super sub : String.Range) : Bool :=
   super.start <= sub.start && super.stop >= sub.stop
 
+def String.Range.overlaps (first second : String.Range)
+    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
+  (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
+    (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
+
+def String.Range.bsize (r : String.Range) : Nat :=
+  r.stop.byteIdx - r.start.byteIdx
+
 namespace Lean
 
 def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo

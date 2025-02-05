@@ -26,3 +26,4 @@ import Init.Data.Array.Lex
 import Init.Data.Array.Range
 import Init.Data.Array.Erase
 import Init.Data.Array.Zip
+import Init.Data.Array.InsertIdx

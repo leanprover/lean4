@@ -143,13 +143,14 @@ def runFrontend
     (ileanFileName? : Option String := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
+    (plugins : Array System.FilePath := #[])
     : IO (Environment × Bool) := do
   let startTime := (← IO.monoNanosNow).toFloat / 1000000000
   let inputCtx := Parser.mkInputContext input fileName
   let opts := Language.Lean.internal.cmdlineSnapshots.setIfNotSet opts true
   let ctx := { inputCtx with }
   let processor := Language.Lean.process
-  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel }) none ctx
+  let snap ← processor (fun _ => pure <| .ok { mainModuleName, opts, trustLevel, plugins }) none ctx
   let snaps := Language.toSnapshotTree snap
   let severityOverrides := errorOnKinds.foldl (·.insert · .error) {}
   let hasErrors ← snaps.runAndReport opts jsonOutput severityOverrides

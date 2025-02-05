@@ -49,6 +49,7 @@ def setupFile
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
+      pluginPaths := #[]
       : LeanPaths
     }
     let setupOptions : LeanOptions ← do

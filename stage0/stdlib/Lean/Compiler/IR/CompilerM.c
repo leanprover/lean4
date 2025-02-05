@@ -1975,7 +1975,7 @@ x_1 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_468____closed__4;
 x_2 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_468____closed__5;
 x_3 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_468____closed__6;
 x_4 = l_Lean_IR_initFn____x40_Lean_Compiler_IR_CompilerM___hyg_468____closed__7;
-x_5 = 2;
+x_5 = 0;
 x_6 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);

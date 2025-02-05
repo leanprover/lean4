@@ -227,11 +227,16 @@ private def replaceBinderAnnotation (binder : TSyntax ``Parser.Term.bracketedBin
     return #[binder]
 
 @[builtin_command_elab «variable»] def elabVariable : CommandElab
-  | `(variable $binders*) => do
+  | `(variable%$tk $binders*) => do
     let binders ← binders.flatMapM replaceBinderAnnotation
     -- Try to elaborate `binders` for sanity checking
     runTermElabM fun _ => Term.withSynthesize <| Term.withAutoBoundImplicit <|
-      Term.elabBinders binders fun _ => pure ()
+      Term.elabBinders binders fun xs => do
+        -- Determine the set of auto-implicits for this variable command and add an inlay hint
+        -- for them. We will only actually add the auto-implicits to a type when the variables
+        -- declared here are used in some other declaration, but this is nonetheless the right
+        -- place to display the inlay hint.
+        let _ ← Term.addAutoBoundImplicits xs (tk.getTailPos? (canonicalOnly := true))
     -- Remark: if we want to produce error messages when variables shadow existing ones, here is the place to do it.
     for binder in binders do
       let varUIds ← (← getBracketedBinderIds binder) |>.mapM (withFreshMacroScope ∘ MonadQuotation.addMacroScope)

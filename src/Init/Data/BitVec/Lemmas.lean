@@ -326,6 +326,10 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
   simp only [toNat_eq, toNat_ofNat, Nat.zero_mod] at h
   rw [Nat.mod_eq_of_lt (by omega)]
 
+@[simp] theorem toNat_mod_cancel_of_lt {x : BitVec n} (h : n < m) : x.toNat % (2 ^ m) = x.toNat := by
+  have : 2 ^ n < 2 ^ m := Nat.pow_lt_pow_of_lt (by omega) h
+  exact Nat.mod_eq_of_lt (by omega)
+
 @[simp] theorem sub_sub_toNat_cancel {x : BitVec w} :
     2 ^ w - (2 ^ w - x.toNat) = x.toNat := by
   simp [Nat.sub_sub_eq_min, Nat.min_eq_right]
@@ -554,6 +558,30 @@ theorem eq_zero_or_eq_one (a : BitVec 1) : a = 0#1 ∨ a = 1#1 := by
 @[simp]
 theorem toInt_zero {w : Nat} : (0#w).toInt = 0 := by
   simp [BitVec.toInt, show 0 < 2^w by exact Nat.two_pow_pos w]
+
+/--
+`x.toInt` is less than `2^(w-1)`.
+We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
+-/
+theorem toInt_lt {w : Nat} {x : BitVec w} : 2 * x.toInt < 2 ^ w := by
+  simp only [BitVec.toInt]
+  rcases w with _|w'
+  · omega
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    norm_cast; omega
+
+/--
+`x.toInt` is greater than or equal to `-2^(w-1)`.
+We phrase the fact in terms of `2^w` to prevent a case split on `w=0` when the lemma is used.
+-/
+theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ w ≤ 2 * x.toInt := by
+  simp only [BitVec.toInt]
+  rcases w with _|w'
+  · omega
+  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
+    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
+    norm_cast; omega
 
 /-! ### slt -/
 
@@ -3712,13 +3740,18 @@ theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by
   simp [replicate]
 
 @[simp]
+theorem replicate_one {w : Nat} {x : BitVec w} :
+    (x.replicate 1) = x.cast (by rw [Nat.mul_one]) := by
+  simp [replicate]
+
+@[simp]
 theorem replicate_succ {x : BitVec w} :
     x.replicate (n + 1) =
     (x ++ replicate n x).cast (by rw [Nat.mul_succ]; omega) := by
   simp [replicate]
 
 @[simp]
-theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
+theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
     (x.replicate n).getLsbD i =
     (decide (i < w * n) && x.getLsbD (i % w)) := by
   induction n generalizing x
@@ -3729,17 +3762,17 @@ theorem getLsbD_replicate {n w : Nat} (x : BitVec w) :
     · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
       · simp [hi', ih]
-      · simp [hi', decide_false]
-        rw [Nat.sub_mul_eq_mod_of_lt_of_le] <;> omega
+      · simp only [hi', ↓reduceIte]
+        rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
     · rw [Nat.mul_succ] at hi ⊢
       simp only [show ¬i < w * n by omega, decide_false, cond_false, hi, Bool.false_and]
       apply BitVec.getLsbD_ge (x := x) (i := i - w * n) (ge := by omega)
 
 @[simp]
-theorem getElem_replicate {n w : Nat} (x : BitVec w) (h : i < w * n) :
+theorem getElem_replicate {n w : Nat} {x : BitVec w} (h : i < w * n) :
     (x.replicate n)[i] = if h' : w = 0 then false else x[i % w]'(@Nat.mod_lt i w (by omega)) := by
   simp only [← getLsbD_eq_getElem, getLsbD_replicate]
-  by_cases h' : w = 0 <;> simp [h'] <;> omega
+  cases w <;> simp; omega
 
 theorem append_assoc {x₁ : BitVec w₁} {x₂ : BitVec w₂} {x₃ : BitVec w₃} :
     (x₁ ++ x₂) ++ x₃ = (x₁ ++ (x₂ ++ x₃)).cast (by omega) := by
@@ -4104,6 +4137,17 @@ theorem reverse_replicate {n : Nat} {x : BitVec w} :
   | succ n ih =>
     conv => lhs; simp only [replicate_succ']
     simp [reverse_append, ih]
+
+@[simp]
+theorem getMsbD_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).getMsbD i = (decide (i < w * n) && x.getMsbD (i % w)) := by
+  rw [← getLsbD_reverse, reverse_replicate, getLsbD_replicate, getLsbD_reverse]
+
+@[simp]
+theorem msb_replicate {n w : Nat} {x : BitVec w} :
+    (x.replicate n).msb = (decide (0 < n) && x.msb) := by
+  simp only [BitVec.msb, getMsbD_replicate, Nat.zero_mod]
+  cases n <;> cases w <;> simp
 
 /-! ### Decidable quantifiers -/
 

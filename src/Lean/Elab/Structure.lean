@@ -562,7 +562,7 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
       | some valStx =>
         Term.synthesizeSyntheticMVarsNoPostponing
         -- TODO: add forbidden predicate using `shortDeclName` from `view`
-        let params ← Term.addAutoBoundImplicits params
+        let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
         let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
         registerFailedToInferFieldType view.name (← inferType value) view.nameId
         registerFailedToInferDefaultValue view.name value valStx
@@ -572,7 +572,7 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
       let type ← Term.elabType typeStx
       registerFailedToInferFieldType view.name type typeStx
       Term.synthesizeSyntheticMVarsNoPostponing
-      let params ← Term.addAutoBoundImplicits params
+      let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
       match view.value? with
       | none        =>
         let type  ← mkForallFVars params type

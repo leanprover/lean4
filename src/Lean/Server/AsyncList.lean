@@ -97,18 +97,51 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (O
       | .ok tl   => tl.waitFind? p
       | .error e => .pure <| .error e
 
-/-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
-partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε)
+/--
+Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well.
+The returned boolean indicates whether the complete `AsyncList` was returned, or whether only a
+proper prefix was returned.
+-/
+partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε × Bool)
   | cons hd tl => do
-    let ⟨tl, e?⟩ ← tl.getFinishedPrefix
-    pure ⟨hd :: tl, e?⟩
-  | nil => pure ⟨[], none⟩
+    let ⟨tl, e?, isComplete⟩ ← tl.getFinishedPrefix
+    pure ⟨hd :: tl, e?, isComplete⟩
+  | nil => pure ⟨[], none, true⟩
   | delayed tl => do
     if (← hasFinished tl) then
       match tl.get with
       | Except.ok tl => tl.getFinishedPrefix
-      | Except.error e => pure ⟨[], some e⟩
-    else pure ⟨[], none⟩
+      | Except.error e => pure ⟨[], some e, true⟩
+    else pure ⟨[], none, false⟩
+
+partial def getFinishedPrefixWithTimeout (xs : AsyncList ε α) (timeoutMs : UInt32) : BaseIO (List α × Option ε × Bool) := do
+  let timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)) ← BaseIO.asTask (prio := .dedicated) do
+    IO.sleep timeoutMs
+    return .inl ()
+  go timeoutTask xs
+where
+  go (timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α))) (xs : AsyncList ε α) : BaseIO (List α × Option ε × Bool) := do
+    match xs with
+    | cons hd tl =>
+      let ⟨tl, e?, isComplete⟩ ← go timeoutTask tl
+      return ⟨hd :: tl, e?, isComplete⟩
+    | nil => return ⟨[], none, true⟩
+    | delayed tl =>
+      let r ← IO.waitAny [
+        timeoutTask,
+        tl.map (sync := true) .inr
+      ]
+      match r with
+      | .inl _ => return ⟨[], none, false⟩ -- Timeout - stop waiting
+      | .inr (.ok tl) => go timeoutTask tl
+      | .inr (.error e) => return ⟨[], some e, true⟩
+
+partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32) : BaseIO (List α × Option ε × Bool) := do
+  let timestamp ← IO.monoMsNow
+  let r ← xs.getFinishedPrefixWithTimeout latencyMs
+  let passedTimeMs := (← IO.monoMsNow) - timestamp
+  IO.sleep <| (latencyMs.toNat - passedTimeMs).toUInt32
+  return r
 
 def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=
   as.waitFind? fun _ => true

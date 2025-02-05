@@ -34,7 +34,7 @@ jobs:
       - name: Download artifact from the previous workflow.
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: download-artifact
-        uses: dawidd6/action-download-artifact@v7 # https://github.com/marketplace/actions/download-workflow-artifact
+        uses: dawidd6/action-download-artifact@v8 # https://github.com/marketplace/actions/download-workflow-artifact
         with:
           run_id: ${{ github.event.workflow_run.id }}
           path: artifacts

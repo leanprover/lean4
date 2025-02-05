@@ -49,3 +49,4 @@ import Lean.Elab.Tactic.Monotonicity
 import Lean.Elab.Tactic.Try
 import Lean.Elab.Tactic.AsAuxLemma
 import Lean.Elab.Tactic.TreeTacAttr
+import Lean.Elab.Tactic.ExposeNames

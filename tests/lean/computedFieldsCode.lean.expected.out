@@ -54,6 +54,7 @@ def Exp.casesOn._override._rarg._boxed (x_1 : obj) (x_2 : obj) (x_3 : obj) (x_4 
   dec x_5;
   dec x_4;
   ret x_9
+
 [result]
 def Exp.var._override (x_1 : u32) : obj :=
   let x_2 : u64 := UInt32.toUInt64 x_1;

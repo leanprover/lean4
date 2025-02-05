@@ -101,9 +101,9 @@ theorem Bool.false_of_not_eq_self {a : Bool} (h : (!a) = a) : False := by
   by_cases a <;> simp_all
 
 /- The following two helper theorems are used to case-split `a = b` representing `iff`. -/
-theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (¬a ∨ b) ∧ (¬b ∨ a) := by
+theorem of_eq_eq_true {a b : Prop} (h : (a = b) = True) : (a ∧ b) ∨ (¬ a ∧ ¬ b) := by
   by_cases a <;> by_cases b <;> simp_all
-theorem of_eq_eq_false {a b : Prop} (h : (a = b) = False) : (¬a ∨ ¬b) ∧ (b ∨ a) := by
+theorem of_eq_eq_false {a b : Prop} (h : (a = b) = False) : (a ∧ ¬b) ∨ (¬ a ∧ b) := by
   by_cases a <;> by_cases b <;> simp_all
 
 /-! Forall -/

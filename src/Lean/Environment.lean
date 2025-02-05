@@ -19,6 +19,7 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
 import Lean.PrivateName
+import Lean.LoadDynlib
 
 /-!
 # Note [Environment Branches]
@@ -1510,11 +1511,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
 @[export lean_import_modules]
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := profileitIO "import" opts do
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
+    plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
     finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 

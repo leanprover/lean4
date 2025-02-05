@@ -95,6 +95,13 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
     (Vector.mk a h).eraseIdx! i = Vector.mk (a.eraseIdx i) (by simp [h, hi]) := by
   simp [Vector.eraseIdx!, hi]
 
+@[simp] theorem insertIdx_mk (a : Array α) (h : a.size = n) (i x) (h') :
+    (Vector.mk a h).insertIdx i x h' = Vector.mk (a.insertIdx i x) (by simp [h, h']) := rfl
+
+@[simp] theorem insertIdx!_mk (a : Array α) (h : a.size = n) (i x) (hi : i ≤ n) :
+    (Vector.mk a h).insertIdx! i x = Vector.mk (a.insertIdx i x) (by simp [h, hi]) := by
+  simp [Vector.insertIdx!, hi]
+
 @[simp] theorem cast_mk (a : Array α) (h : a.size = n) (h' : n = m) :
     (Vector.mk a h).cast h' = Vector.mk a (by simp [h, h']) := rfl
 
@@ -271,6 +278,13 @@ abbrev zipWithIndex_mk := @zipIdx_mk
 @[simp] theorem toArray_eraseIdx! (a : Vector α n) (i) (hi : i < n) :
     (a.eraseIdx! i).toArray = a.toArray.eraseIdx! i := by
   cases a; simp_all [Array.eraseIdx!]
+
+@[simp] theorem toArray_insertIdx (a : Vector α n) (i x) (h) :
+    (a.insertIdx i x h).toArray = a.toArray.insertIdx i x (by simp [h]) := rfl
+
+@[simp] theorem toArray_insertIdx! (a : Vector α n) (i x) (hi : i ≤ n) :
+    (a.insertIdx! i x).toArray = a.toArray.insertIdx! i x := by
+  cases a; simp_all [Array.insertIdx!]
 
 @[simp] theorem toArray_cast (a : Vector α n) (h : n = m) :
     (a.cast h).toArray = a.toArray := rfl
@@ -493,6 +507,13 @@ theorem toList_eraseIdx (a : Vector α n) (i) (h) :
 @[simp] theorem toList_eraseIdx! (a : Vector α n) (i) (hi : i < n) :
     (a.eraseIdx! i).toList = a.toList.eraseIdx i := by
   cases a; simp_all [Array.eraseIdx!]
+
+theorem toList_insertIdx (a : Vector α n) (i x) (h) :
+    (a.insertIdx i x h).toList = a.toList.insertIdx i x := by simp
+
+theorem toList_insertIdx! (a : Vector α n) (i x) (hi : i ≤ n) :
+    (a.insertIdx! i x).toList = a.toList.insertIdx i x := by
+  cases a; simp_all [Array.insertIdx!]
 
 theorem toList_cast (a : Vector α n) (h : n = m) :
     (a.cast h).toList = a.toList := rfl

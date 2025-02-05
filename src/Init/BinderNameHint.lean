@@ -11,9 +11,9 @@ set_option linter.unusedVariables false in
 /--
 The expression `binderNameHint v binder e` defined to be `e`.
 
-If it is used on the right-hand side of an equation that is applied by a tactic like `rw` or `simp`,
+If it is used on the right-hand side of an equation that is used for rewriting by `rw` or `simp`,
 and `v` is a local variable, and `binder` is an expression that (after beta-reduction) is a binder
-(so `fun w => …` or `∀ w, …`), then it will rename `v` to the name used in the binder, and remove
+(`fun w => …` or `∀ w, …`), then it will rename `v` to the name used in that binder, and remove
 the `binderNameHint`.
 
 A typical use of this gadget would be as follows; the gadget ensures that after rewriting, the local
@@ -26,6 +26,9 @@ example (names : List String) : names.all (fun name => "Waldo".isPrefixOf name) 
   rw [all_eq_not_any_not]
   -- ⊢ (!names.any fun name => !"Waldo".isPrefixOf name) = true
 ```
+
+This gadget is supported by `simp`, `dsimp` and `rw` in the right-hand-side of an equation, but not
+in hypotheses or by other tactics.
 -/
 @[simp]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

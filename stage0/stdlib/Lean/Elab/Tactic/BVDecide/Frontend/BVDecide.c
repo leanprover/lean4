@@ -336,6 +336,7 @@ static lean_object* l_Std_Tactic_BVDecide_BoolExpr_toString___at_Lean_Elab_Tacti
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__6___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Option_set___at_Lean_Meta_evalExprCore___spec__1(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__5___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___lambda__10___closed__6;
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -346,7 +347,6 @@ lean_object* lean_io_mono_nanos_now(lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__7___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide___closed__4;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Tactic_BVDecide_Frontend_bvDecide___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Option_set___at_Lean_Meta_getEqnsFor_x3f___spec__1(lean_object*, lean_object*, uint8_t);
 static lean_object* l_Std_Sat_AIG_Entrypoint_relabelNat_x27___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__3___closed__1;
 extern lean_object* l_Lean_instInhabitedExpr;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___spec__7___closed__6;
@@ -528,7 +528,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_evalBvDecide___lam
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__34;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__4___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
 extern lean_object* l_Id_instMonad;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___lambda__3___closed__1;
@@ -655,6 +654,7 @@ static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_bvUnsat___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_instToExprBoolExpr_go___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__9___closed__15;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Tactic_BVDecide_Frontend_bvDecide___spec__2(lean_object*, size_t, size_t, lean_object*);
+lean_object* l_Lean_withTraceNode___at_Lean_Meta_evalExprCore___spec__5(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_reconstructCounterExample___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_closeWithBVReflection___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -12765,7 +12765,7 @@ lean_ctor_set(x_9, 2, x_1);
 lean_ctor_set_uint8(x_9, sizeof(void*)*12, x_2);
 x_17 = 1;
 x_18 = l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__3;
-x_19 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__3(x_3, x_4, x_5, x_17, x_18, x_6, x_7, x_9, x_10, x_11);
+x_19 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__1(x_3, x_4, x_5, x_17, x_18, x_6, x_7, x_9, x_10, x_11);
 return x_19;
 }
 else
@@ -12812,7 +12812,7 @@ lean_ctor_set_uint8(x_33, sizeof(void*)*12, x_2);
 lean_ctor_set_uint8(x_33, sizeof(void*)*12 + 1, x_30);
 x_34 = 1;
 x_35 = l_Lean_Elab_Tactic_BVDecide_Frontend_uninterpretedExplainer___closed__3;
-x_36 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__3(x_3, x_4, x_5, x_34, x_35, x_6, x_7, x_33, x_10, x_11);
+x_36 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__1(x_3, x_4, x_5, x_34, x_35, x_6, x_7, x_33, x_10, x_11);
 return x_36;
 }
 }
@@ -13067,7 +13067,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_27 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__1(x_23, x_24, x_22, x_25, x_26, x_6, x_7, x_8, x_9, x_10);
+x_27 = l_Lean_withTraceNode___at_Lean_Meta_evalExprCore___spec__5(x_23, x_24, x_22, x_25, x_26, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_27) == 0)
 {
 lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; 
@@ -13088,7 +13088,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_34 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__1(x_23, x_33, x_32, x_25, x_26, x_6, x_7, x_8, x_9, x_28);
+x_34 = l_Lean_withTraceNode___at_Lean_Meta_evalExprCore___spec__5(x_23, x_33, x_32, x_25, x_26, x_6, x_7, x_8, x_9, x_28);
 if (lean_obj_tag(x_34) == 0)
 {
 lean_object* x_35; lean_object* x_36; lean_object* x_37; lean_object* x_38; lean_object* x_39; lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean_object* x_44; 
@@ -13115,7 +13115,7 @@ lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
 lean_inc(x_6);
-x_44 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___spec__1(x_23, x_43, x_42, x_25, x_26, x_6, x_7, x_8, x_9, x_35);
+x_44 = l_Lean_withTraceNode___at_Lean_Meta_evalExprCore___spec__5(x_23, x_43, x_42, x_25, x_26, x_6, x_7, x_8, x_9, x_35);
 if (lean_obj_tag(x_44) == 0)
 {
 lean_object* x_45; lean_object* x_46; lean_object* x_47; lean_object* x_48; 
@@ -13168,7 +13168,7 @@ x_75 = lean_ctor_get(x_8, 2);
 lean_inc(x_75);
 x_76 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__20;
 x_77 = 0;
-x_78 = l_Lean_Option_set___at_Lean_Meta_getEqnsFor_x3f___spec__1(x_75, x_76, x_77);
+x_78 = l_Lean_Option_set___at_Lean_Meta_evalExprCore___spec__1(x_75, x_76, x_77);
 x_79 = l_Lean_Elab_Tactic_BVDecide_Frontend_LratCert_toReflectionProof___at_Lean_Elab_Tactic_BVDecide_Frontend_lratBitblaster___spec__8___closed__21;
 x_80 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_78, x_79);
 x_81 = lean_st_ref_get(x_9, x_53);

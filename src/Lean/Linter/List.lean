@@ -17,11 +17,11 @@ Currently, we do not anticipate that they will be useful elsewhere.
 namespace Lean.Linter.List
 
 /--
-`set_option linter.index_variables true` enables a strict linter that
+`set_option linter.indexVariables true` enables a strict linter that
 validates that the only variables appearing as an index (e.g. in `xs[i]` or `xs.take i`)
 are `i`, `j`, or `k`.
 -/
-register_builtin_option linter.index_variables : Bool := {
+register_builtin_option linter.indexVariables : Bool := {
   defValue := false
   descr := "Validate that variables appearing as an index (e.g. in `xs[i]` or `xs.take i`) are only `i`, `j`, or `k`."
 }
@@ -59,14 +59,14 @@ are `i`, `j`, or `k`.
 -/
 def indexLinter : Linter
   where run := withSetOptionIn fun stx => do
-    unless Linter.getLinterValue linter.index_variables (← getOptions) do return
+    unless Linter.getLinterValue linter.indexVariables (← getOptions) do return
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do
       if let .context _ _ := t then -- Only consider info trees with top-level context
       for (idxStx, n) in numericalIndices t do
         if n != `i && n != `j && n != `k then
-          Linter.logLint linter.index_variables idxStx
+          Linter.logLint linter.indexVariables idxStx
             m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
 
 builtin_initialize addLinter indexLinter

@@ -1297,7 +1297,7 @@ theorem Int.mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s)
   · have : -x * -y ≤ s * s := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
     simp_all
 
-theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
+theorem BitVec.toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   by_cases h : w = 0
   · subst h
     revert x y
@@ -1306,25 +1306,9 @@ theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 -
     have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
     have h : 2 ^ (w * 2 - 2) = 2 ^ (w - 1) * 2 ^ (w - 1) := by
       rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w - 1)), Nat.mul_sub_one, Nat.mul_comm]
-    have mul_le_mul_self_neg {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
-        x * y ≤ s * s := by
-      have : 0 < s * s := Nat.mul_pos (by omega) (by omega)
-      by_cases hx : 0 < x <;> by_cases hy : 0 < y
-      · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-      · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega)
-        omega
-      · rw [Int.mul_comm]
-        have : y * x ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega)
-        omega
-      · have : -x * -y ≤ s * s := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-        simp_all
     rw_mod_cast [h]
-    rw [← Nat.two_pow_pred_mul_two, Int.natCast_mul] at xlt ylt xle yle
-    exact mul_le_mul_self_neg (by omega) (by omega) (by omega) (by omega)
-    omega
-    omega
-    omega
-    omega
+    rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
+    exact Int.mul_le_mul_self (by omega) (by omega) (by omega) (by omega)
 
 theorem Int.neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
       -(s * s) ≤ x * y := by
@@ -1349,20 +1333,8 @@ theorem le_toInt_mul_toInt {x y : BitVec w} : -(2 ^ (w * 2 - 2)) ≤ x.toInt * y
     have h : 2 ^ (w * 2 - 2) = 2 ^ (w - 1) * 2 ^ (w - 1) := by
       rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w - 1)), Nat.mul_sub_one, Nat.mul_comm]
     rw_mod_cast [h]
-    have mul_self_neg_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
-        -(s * s) ≤ x * y := by
-      have : 0 * 0 ≤ s * s := Nat.mul_le_mul (by omega) (by omega)
-      by_cases 0 ≤ x <;> by_cases 0 ≤ y
-      · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega)
-        omega
-      · rw [← Int.neg_mul, Int.mul_comm (a := x)]
-        exact mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-      · rw [← Int.neg_mul]
-        exact mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-      · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega)
-        omega
     rw [← Nat.two_pow_pred_mul_two, Int.natCast_mul] at xlt ylt xle yle
-    apply mul_self_neg_le_mul (by omega) (by omega) (by omega) (by omega)
+    apply Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
     omega
     omega
     omega
@@ -1444,7 +1416,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     have := Int.pow_lt_pow (a := 2) (b := ((w + 1) * 2 - 2)) (c := ((w + 1) * 2 - 1))
     have := @le_toInt_mul_toInt (w + 1) x y
     have hlb : -((2 ^ ((w + 1) * 2 - 1) : Nat) * 2) ≤ x.toInt * y.toInt * 2 := by push_cast; omega
-    have := @toInt_mul_toInt_lt (w + 1) x y
+    have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
     have hub : x.toInt * y.toInt * 2 < ((2 ^ ((w + 1) * 2 - 1): Nat) * 2) := Int.mul_lt_mul_of_pos_right (by norm_cast at *; omega) (by omega)
     rw [BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega),
       BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega), toInt_twoPow_of_eq (by omega), ←Nat.two_pow_pred_add_two_pow_pred (by omega)]

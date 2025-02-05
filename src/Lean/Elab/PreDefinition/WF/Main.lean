@@ -13,6 +13,7 @@ import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Unfold
 import Lean.Elab.PreDefinition.WF.Ite
+import Lean.Elab.PreDefinition.WF.AutoAttach
 import Lean.Elab.PreDefinition.WF.GuessLex
 
 namespace Lean.Elab

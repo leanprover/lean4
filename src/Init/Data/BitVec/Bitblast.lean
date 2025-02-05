@@ -6,6 +6,7 @@ Authors: Harun Khan, Abdalrhman M Mohamed, Joe Hendrix, Siddharth Bhat
 prelude
 import Init.Data.BitVec.Folds
 import Init.Data.Nat.Mod
+import Init.Data.Int.LemmasAux
 
 /-!
 # Bitblasting of bitvectors
@@ -1244,15 +1245,9 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
   · revert x y; decide
   · have := le_toInt (x := x); have := toInt_lt (x := x)
     have := le_toInt (x := y); have := toInt_lt (x := y)
-    have bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
-        (x.bmod m) < 0 ↔ (-(m / 2) ≤ x ∧ x < 0) ∨ ((m + 1) / 2 ≤ x) := by
-      simp only [Int.bmod_def]
-      by_cases xpos : 0 ≤ x
-      · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
-      · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
     simp only [← decide_or, msb_eq_toInt, decide_beq_decide, toInt_add, ← decide_not, ← decide_and,
       decide_eq_decide]
-    rw_mod_cast [bmod_neg_iff (by omega) (by omega)]
+    rw_mod_cast [Int.bmod_neg_iff (by omega) (by omega)]
     simp
     omega
 

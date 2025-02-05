@@ -4212,6 +4212,7 @@ instance instDecidableExistsBitVec :
   | 0, _, _ => inferInstance
   | _ + 1, _, _ => inferInstance
 
+
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false

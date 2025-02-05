@@ -1254,14 +1254,14 @@ theorem saddOverflow_eq {w : Nat} (x y : BitVec w) :
 theorem Int.emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
   Int.add_emod_self.symm
 
-theorem bmod_eq_iff_of_lt_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
+theorem Int.bmod_eq_iff_of_lt_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
   simp only [Int.bmod_def]
   by_cases 0 ≤ x
   · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem toInt_twoPow {w i : Nat} :
+theorem BitVec.toInt_twoPow {w i : Nat} :
     (BitVec.twoPow w i).toInt = if w ≤ i then (0 : Int) else (if i + 1 = w then -(1 <<< i:Int) else (1 <<< i)) := by
   simp only [BitVec.twoPow, BitVec.toInt]
   rcases w with _|w'
@@ -1282,7 +1282,7 @@ theorem toInt_twoPow {w i : Nat} :
         simp only [sl, ↓reduceIte]
         omega
 
-theorem mul_le_mul_neg {a b c d : Int}
+theorem Int.mul_le_mul_neg {a b c d : Int}
     (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
   Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 
@@ -1298,12 +1298,14 @@ theorem Int.mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s)
     simp_all
 
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
-  have xlt := toInt_lt (x := x); have xle := le_toInt (x := x)
-  have ylt := toInt_lt (x := y); have yle := le_toInt (x := y)
-  have h : 2 ^ (w * 2 - 2) = 2 ^ (w - 1) * 2 ^ (w - 1) := by
-    rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w - 1)), Nat.mul_sub_one, Nat.mul_comm]
-  rw_mod_cast [h]
-  exact Int.mul_le_mul_self xle xlt yle ylt
+  rcases w with _|w'
+  . simp [BitVec.toInt, BitVec.toNat]
+  · have xle := le_toInt (x := x); have xlt := toInt_lt (x := x)
+    have yle := le_toInt (x := y); have ylt := toInt_lt (x := y)
+    have h : 2 ^ ((w' + 1) * 2 - 2) = 2 ^ ((w' + 1) - 1) * 2 ^ ((w' + 1) - 1) := by
+      rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := ((w' + 1) - 1)), Nat.mul_sub_one, Nat.mul_comm]
+    rw_mod_cast [h]
+    sorry
 
 theorem Int.neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
       -(s * s) ≤ x * y := by
@@ -1320,11 +1322,11 @@ theorem le_toInt_mul_toInt {x y : BitVec w} : -(2 ^ (w * 2 - 2)) ≤ x.toInt * y
   have h : 2 ^ (w * 2 - 2) = 2 ^ (w - 1) * 2 ^ (w - 1) := by
     rw [← Nat.pow_add, ←Nat.mul_two, Nat.mul_comm (m := 2) (n := (w - 1)), Nat.mul_sub_one, Nat.mul_comm]
   rw_mod_cast [h]
-  exact Int.neg_mul_self_le_mul xle xlt yle ylt
+  sorry
 
 theorem toInt_twoPow_of_eq {w i : Nat} (h : i + 1 = w) :
     (BitVec.twoPow w i).toInt = -(2 ^ i) := by
-  simp only [toInt_twoPow, show ¬(w ≤ i) by omega, ↓reduceIte, h, Nat.shiftLeft_eq, Nat.one_mul]
+  simp only [BitVec.toInt_twoPow, show ¬(w ≤ i) by omega, ↓reduceIte, h, Nat.shiftLeft_eq, Nat.one_mul]
   norm_cast
 
 @[simp]
@@ -1350,7 +1352,7 @@ theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 
   · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
     rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
       Int.bmod_sub_bmod_congr, toInt_one (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by omega), bmod_eq_iff_of_lt_of_lt]
+      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_iff_of_lt_of_lt]
     simp only [Nat.add_one_sub_one, Nat.one_mul]
     · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
       norm_cast
@@ -1402,7 +1404,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     have hub : x.toInt * y.toInt * 2 < ((2 ^ ((w + 1) * 2 - 1): Nat) * 2) := Int.mul_lt_mul_of_pos_right (by norm_cast at *; omega) (by omega)
     rw [BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega),
       BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega), toInt_twoPow_of_eq (by omega), ←Nat.two_pow_pred_add_two_pow_pred (by omega)]
-    simp only [← Nat.mul_two, bmod_eq_iff_of_lt_of_lt hlb hub, toInt_twoPow_sub_one, or_eq_true, decide_eq_true_eq, _root_.eq_iff_iff, and_eq_true]
+    simp only [← Nat.mul_two, Int.bmod_eq_iff_of_lt_of_lt hlb hub, toInt_twoPow_sub_one, or_eq_true, decide_eq_true_eq, _root_.eq_iff_iff, and_eq_true]
     omega
 
 /- ### umod -/

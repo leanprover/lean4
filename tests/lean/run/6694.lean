@@ -61,8 +61,8 @@ error: 'mutual' block contains two declarations of the same name 'a.b'
 #guard_msgs in
 mutual
 def a :=
-  let rec b := 4
   b + 2
+where b := 4
 
 def a.b := 42
 end

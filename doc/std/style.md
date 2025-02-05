@@ -40,7 +40,7 @@ When splitting a term across multiple lines, increase indentation by two spaces 
 
 When splitting at an infix operator, the operator goes at the end of the first line, not at the beginning of the second line. When splitting at an infix operator, you may or may not increase indentation depth, depending on what is more readable.
 
-When splitting an if-then-else expression, the then keyword wants to stay with the condition and the else keyword wants to stay with the alternative term. Otherwise, indent as if the if and else keywords were arguments to the same function.
+When splitting an `if`-`then`-`else` expression, the `then` keyword wants to stay with the condition and the `else` keyword wants to stay with the alternative term. Otherwise, indent as if the `if` and `else` keywords were arguments to the same function.
 
 When splitting an anonymous constructor application, it is allowed to indent subsequent lines by one space for alignment, but indenting by two spaces is also allowed.
 
@@ -175,7 +175,7 @@ Declarations should be documented as required by the `docBlame` linter, which ma
 Single-line documentation comments should go on the same line as `/--`/`-/`, while multi-line documentation strings
 should have these delimiters on their own line, with the documentation comment itself unindented.
 
-Documentation comments must be written in the indicative mood.
+Documentation comments must be written in the indicative mood. Use American ortography.
 
 Correct:
 ```lean
@@ -196,7 +196,10 @@ map in some order.
 
 ### Where clauses
 
-The where keyword should be unindented, and all declarations bound by it should be indented with two spaces.
+The `where` keyword should be unindented, and all declarations bound by it should be indented with two spaces.
+
+Blank lines before and after `where` and between declarations bound by `where` are optional and should be chosen
+to maximize readability.
 
 Correct:
 ```lean
@@ -230,6 +233,37 @@ Correct:
     apply Nat.sub_lt_sub_left h
     simp [String.lt_next opt p]
   loop ⟨1⟩
+```
+
+Correct:
+```lean
+def substrEq (s1 : String) (off1 : String.Pos) (s2 : String) (off2 : String.Pos) (sz : Nat) : Bool :=
+  off1.byteIdx + sz ≤ s1.endPos.byteIdx && off2.byteIdx + sz ≤ s2.endPos.byteIdx && loop off1 off2 { byteIdx := off1.byteIdx + sz }
+where
+  loop (off1 off2 stop1 : Pos) :=
+    if _h : off1.byteIdx < stop1.byteIdx then
+      let c₁ := s1.get off1
+      let c₂ := s2.get off2
+      c₁ == c₂ && loop (off1 + c₁) (off2 + c₂) stop1
+    else true
+  termination_by stop1.1 - off1.1
+  decreasing_by
+    have := Nat.sub_lt_sub_left _h (Nat.add_lt_add_left c₁.utf8Size_pos off1.1)
+    decreasing_tactic
+```
+
+Correct:
+```lean
+theorem div_add_mod (m n : Nat) : n * (m / n) + m % n = m := by
+  rw [div_eq, mod_eq]
+  have h : Decidable (0 < n ∧ n ≤ m) := inferInstance
+  cases h with
+  | isFalse h => simp [h]
+  | isTrue h =>
+    simp [h]
+    have ih := div_add_mod (m - n) n
+    rw [Nat.left_distrib, Nat.mul_one, Nat.add_assoc, Nat.add_left_comm, ih, Nat.add_comm, Nat.sub_add_cancel h.2]
+decreasing_by apply div_rec_lemma; assumption
 ```
 
 ### Deriving
@@ -369,14 +403,46 @@ Tactic proofs are the most common thing to break during any kind of upgrade, so 
 
 If there are multiple goals, either use a tactic combinator (like `all_goals`) to operate on all of them or a clearly specified subset, or use focus dots to work on goals one at a time. Using structured proofs (e.g., `induction … with`) is encouraged but not mandatory.
 
-Squeeze non-terminal `simp`s. Squeezing terminal `simp`s is generally discouraged, although there are exceptions (for example if squeezing yields a noticeable performance improvement).
+Squeeze non-terminal `simp`s (i.e., calls to `simp` which do not close the goal). Squeezing terminal `simp`s is generally discouraged, although there are exceptions (for example if squeezing yields a noticeable performance improvement).
 
 Do not over-golf proofs in ways that are likely to lead to hard-to-debug breakage. Examples of things to avoid include complex multi-goal manipulation using lots of tactic combinators, complex uses of the substitution operator (`▸`) and clever point-free expressions (possibly involving anonymous function notation for multiple arguments).
 
 Do not under-golf proofs: for routine tasks, use the most powerful tactics available.
 
-Avoid definitional equality abuse like `erw` or `rfl` after `simp`/`rw`.
+Do not use `erw`. Avoid using `rfl` after `simp` or `rw`, as this usually indicates a missing lemma that should be used instead of `rfl`.
 
 Use `(d)simp` or `rw` instead of `delta` or `unfold`. Use `refine` instead of `exists` or `refine’`. Use `haveI` and `letI` only if they are actually required.
 
 Prefer highly automated tactics (like `grind` and `omega`) over low-level proofs, unless the automated tactic requires unacceptable additional imports or has bad performance. If you decide against using a highly automated tactic, leave a comment explaining the decision.
+
+## `do` notation
+
+Use early `return` statements to reduce nesting depth and make the non-exceptional control flow of a function easier to see.
+
+Alternatives for `let` matches may be placed in the same line or in the next line, indented by two spaces. If the term that is
+being matched on is itself more than one line, it should be indented by four spaces if an alternative is present.
+
+Correct:
+```lean
+def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
+  let some decl ← findFunDecl? fvarId | throwError "unknown local function {fvarId.name}"
+  return decl
+```
+
+Correct:
+```lean
+def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
+  let some decl ← findFunDecl? fvarId
+    | throwError "unknown local function {fvarId.name}"
+  return decl
+```
+
+Correct:
+```lean
+def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
+  let some decl ← findFunDecl?
+      fvarId
+    | throwError "unknown local function {fvarId.name}"
+  return decl
+```
+

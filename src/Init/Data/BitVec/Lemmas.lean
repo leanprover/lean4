@@ -4212,22 +4212,6 @@ instance instDecidableExistsBitVec :
   | 0, _, _ => inferInstance
   | _ + 1, _, _ => inferInstance
 
-theorem toInt_lt {w : Nat} {x : BitVec w} : x.toInt < 2 ^ (w - 1) := by
-  simp only [BitVec.toInt]
-  rcases w with _|w'
-  · omega
-  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
-    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
-    norm_cast; omega
-
-theorem le_toInt {w : Nat} {x : BitVec w} : -2 ^ (w - 1) ≤ x.toInt := by
-  simp only [BitVec.toInt]
-  rcases w with _|w'
-  · omega
-  · rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), ← Nat.two_mul, Nat.add_sub_cancel]
-    simp only [Nat.zero_lt_succ, Nat.mul_lt_mul_left, Int.natCast_mul, Int.Nat.cast_ofNat_Int]
-    norm_cast; omega
-
 /-! ### Deprecations -/
 
 set_option linter.missingDocs false

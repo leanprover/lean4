@@ -2,7 +2,8 @@
 
 The easiest way to access a result in the standard library is to correctly guess the name of the declaration (possibly with the help of identifier autocompletion). This is faster and has lower friction than more sophisticated search tools, so easily guessable names (which are still reasonably short) make Lean users more productive.
 
-The guide that follows contains very few hard rules, many heuristics and a selection of examples. It cannot and does not present a deterministic algorithm for choosing good names in all situations. It is intended as a living document that gets clarified and expanded as situations arise during code reviews for the standard library.
+The guide that follows contains very few hard rules, many heuristics and a selection of examples. It cannot and does not present a deterministic algorithm for choosing good names in all situations. It is intended as a living document that gets clarified and expanded as situations arise during code reviews for the standard library. If applying one of the suggestions in this guide leads to nonsensical results in a certain situation, it is
+probably safe to ignore the suggestion (or even better, suggest a way to improve the suggestion).
 
 ## Prelude
 
@@ -225,3 +226,5 @@ theorem Nat.add_sub_cancel (n m : Nat) : (n + m) - m = n := sorry
 For acronyms which are three letters or shorter, all letters should use the same case as dictated by the convention. For example, `IO` is a correct name for a type and the name `IO.Ref` may become `IORef` when used as part of a definition name and `ioRef` when used as part of a theorem name.
 
 For acronyms which are at least four letters long, switch to lower case starting from the second letter. For example, `Json` is a correct name for a type, as is `JsonRPC`.
+
+If an acronym is typically spelled using mixed case, this mixed spelling may be used in identifiers (for example `Std.Net.IPv4Addr`).

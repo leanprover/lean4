@@ -136,7 +136,7 @@ instance (m : Type u → Type v) (ε₁ : Type u) (ε₂ : Type u) [MonadExceptO
   tryCatch x handle := ExceptT.mk <| tryCatchThe ε₁ x handle
 
 @[always_inline]
-instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where
+instance (priority := high) (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExceptOf ε (ExceptT ε m) where
   throw e := ExceptT.mk <| pure (Except.error e)
   tryCatch := ExceptT.tryCatch
 

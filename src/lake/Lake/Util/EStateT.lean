@@ -185,7 +185,7 @@ protected def get [Pure m] : EStateT ε σ m σ := fun s =>
 protected def modifyGet [Pure m] (f : σ → Prod α σ) : EStateT ε σ m α := fun s =>
   match f s with | (a, s) => pure <| .ok a s
 
-instance [Pure m] : MonadStateOf σ (EStateT ε σ m) where
+instance (priority := high) [Pure m] : MonadStateOf σ (EStateT ε σ m) where
   set       := EStateT.set
   get       := EStateT.get
   modifyGet := EStateT.modifyGet
@@ -201,7 +201,7 @@ protected def tryCatch [Monad m] (x : EStateT ε σ m α) (handle : ε → EStat
   | .error e s => handle e s
   | ok         => pure ok
 
-instance [Monad m] : MonadExceptOf ε (EStateT ε σ m) where
+instance (priority := high) [Monad m] : MonadExceptOf ε (EStateT ε σ m) where
   throw    := EStateT.throw
   tryCatch := EStateT.tryCatch
 

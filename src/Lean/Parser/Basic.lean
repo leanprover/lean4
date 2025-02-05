@@ -660,6 +660,9 @@ def quotedCharCoreFn (isQuotable : Char → Bool) (inString : Bool) : ParserFn :
       andthenFn hexDigitFn hexDigitFn c (s.next' input i h)
     else if curr == 'u' then
       andthenFn hexDigitFn (andthenFn hexDigitFn (andthenFn hexDigitFn hexDigitFn)) c (s.next' input i h)
+    else if curr == 'U' then
+      (andthenFn hexDigitFn <| andthenFn hexDigitFn <| andthenFn hexDigitFn <| andthenFn hexDigitFn <|
+        andthenFn hexDigitFn <| andthenFn hexDigitFn <| andthenFn hexDigitFn hexDigitFn) c (s.next' input i h)
     else if inString && curr == '\n' then
       stringGapFn false c s
     else

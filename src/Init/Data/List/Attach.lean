@@ -6,6 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.List.Count
 import Init.Data.Subtype
+import Init.BinderNameHint
 
 namespace List
 
@@ -795,5 +796,40 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by
   simp [unattach, -map_subtype]
+
+/-! ### Auto-attach setup -/
+
+@[auto_attach] theorem List.map_wfParam (xs : List α) (f : α → β) :
+    (wfParam xs).map f = xs.attach.unattach.map f := by
+  simp [wfParam]
+
+set_option linter.unusedVariables false in
+@[auto_attach] theorem List.map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β) :
+    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
+  simp [wfParam]
+
+@[auto_attach] theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
+    (wfParam xs).foldl f init = xs.attach.unattach.foldl f init := by
+  simp [wfParam]
+
+set_option linter.unusedVariables false in
+@[auto_attach] theorem List.foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (init : β):
+    xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => binderNameHint x f (f s (wfParam x) )) init := by
+  simp [wfParam]
+
+@[auto_attach] theorem List.filter_wfParam (xs : List α) (f : α → Bool) :
+    (wfParam xs).filter f = xs.attach.unattach.filter f:= by
+  simp [wfParam]
+
+set_option linter.unusedVariables false in
+@[auto_attach] theorem List.filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Bool) :
+    xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x)))).unattach := by
+  simp [wfParam]
+
+@[auto_attach] theorem List.reverse_wfParam (xs : List α) :
+    (wfParam xs).reverse = xs.attach.unattach.reverse := by simp [wfParam]
+
+@[auto_attach] theorem List.reverse_unattach (P : α → Prop) (xs : List (Subtype P)) :
+    xs.unattach.reverse = xs.reverse.unattach := by simp
 
 end List

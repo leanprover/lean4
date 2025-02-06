@@ -687,4 +687,15 @@ and simplifies these to the function directly taking the value.
     (Array.mkArray n x).unattach = Array.mkArray n x.1 := by
   simp [unattach]
 
+/-! ### Auto-attach setup -/
+
+@[auto_attach] theorem Array.map_wfParam (xs : Array α) (f : α → β) :
+    (wfParam xs).map f = xs.attach.unattach.map f := by
+  simp [wfParam]
+
+set_option linter.unusedVariables false in
+@[auto_attach] theorem Array.map_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → β) :
+    xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
+  simp [wfParam]
+
 end Array

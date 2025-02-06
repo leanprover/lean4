@@ -38,6 +38,5 @@ import Init.Grind
 import Init.While
 import Init.Syntax
 import Init.Internal
-import Init.Attach
 import Init.Try
 import Init.BinderNameHint

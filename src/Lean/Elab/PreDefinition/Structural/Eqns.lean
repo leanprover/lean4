@@ -26,15 +26,6 @@ structure EqnInfo extends EqnInfoCore where
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def injections? (mvarId : MVarId) : MetaM (Option InjectionsResult) := do
-  match ← injections mvarId with
-  | .solved => return InjectionsResult.solved
-  | .subgoal mvarId' ns forbidden =>
-    if mvarId != mvarId' then
-      return some (.subgoal mvarId' ns forbidden)
-    else
-      return none
-
 private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
@@ -50,29 +41,26 @@ where
       return ()
     else if (← tryContradiction mvarId) then
       return ()
-    else if let some mvarId ← whnfReducibleLHS? mvarId then
-      go mvarId
     else if let some mvarId ← simpMatch? mvarId then
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
-    -- else if let some res ← injections? mvarId then
-    --   if let .subgoal mvarId _ := res then
-    --     go mvarId
-    --   else
-    --     return
     else
-      let ctx ← Simp.mkContext
+      let ctx ← Simp.mkContext (config := { iota := false })
       match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>
         if let some mvarId ← deltaRHS? mvarId declName then
           go mvarId
-        else if let some mvarIds ← splitTarget? mvarId then
-          mvarIds.forM go
+        -- The order of the following two cases is crucial, and I have not yet found
+        -- one that works for all test cases. Needs more thought.
         else if let some mvarIds ← casesOnStuckLHS? mvarId then
           mvarIds.forM go
+        else if let some mvarIds ← splitTarget? mvarId then
+          mvarIds.forM go
+        else if let some mvarId ← whnfReducibleLHS? mvarId then
+          go mvarId
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 

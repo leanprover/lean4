@@ -132,24 +132,31 @@ private def peekOne (tac1 : TSyntax `tactic) (tacss2 : Array (Array (TSyntax `ta
       tacs2 := tacs2.push (← `(tactic| · sorry))
     else
       tacs2 := tacs2.push (← `(tactic| · $(s[0]!):tactic))
-  `(tactic|
-    · $tac1:tactic
-      $tacs2*)
+  `(tactic| · $tac1:tactic
+              $tacs2*)
 
-private def mkChainResultCore (tac1 : TSyntax `tactic) (tacs2 : Array (TSyntax `tactic)) : TacticM (Array (TSyntax `tactic)) := do
-  trace[try.debug] "mkChainResultCore tac1{indentD tac1}\ntacs2:{← tacs2.toList.mapM fun x => PrettyPrinter.ppTactic x}"
-  let tacs2 := tacs2.map getSuggestionsCore
+private def mkChainResultCore (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : TacticM (Array (TSyntax `tactic)) := do
+  let tacss2 := tacss2.map getSuggestionsCore
+  if (← isTracingEnabledFor `try.debug) then
+    trace[try.debug] "mkChainResultCore tac1{indentD tac1}"
+    let mut i : Nat := 0
+    for tacs2 in tacss2 do
+      i := i + 1
+      trace[try.debug] "goal #{i} tactics"
+      for tac2 in tacs2 do
+        trace[try.debug] "  {tac2}"
+    trace[try.debug] "mkChainResult -----"
   let mut acc := #[]
-  let solvedAll := getTacsSolvedAll tacs2
+  let solvedAll := getTacsSolvedAll tacss2
   for tac2 in solvedAll do
     acc := acc.push (← `(tactic| $tac1 <;> $tac2))
-  let tacs2 := eraseTacs tacs2 solvedAll
+  let tacss2 := eraseTacs tacss2 solvedAll
   -- TODO: mixed cases
-  trace[try.debug] "kinds: {getKindsSolvedAll tacs2}"
-  if (!acc.isEmpty && tacs2.all fun s => !s.isEmpty)
+  trace[try.debug] "kinds: {getKindsSolvedAll tacss2}"
+  if (!acc.isEmpty && tacss2.all fun s => !s.isEmpty)
      -- We only include partial solutions if there are no other solutions.
-     || (acc.isEmpty && tacs2.any fun s => !s.isEmpty) then
-    acc := acc.push <| (← peekOne tac1 tacs2)
+     || (acc.isEmpty && tacss2.any fun s => !s.isEmpty) then
+    acc := acc.push <| (← peekOne tac1 tacss2)
   return acc
 
 private def mkChainResult (tac1 : TSyntax `tactic) (tacs2 : Array (TSyntax `tactic)) : TacticM (TSyntax `tactic) := do
@@ -362,17 +369,17 @@ private def setGrindParams (tac : TSyntax `tactic) (params : Array (TSyntax ``Pa
   ⟨tac.raw.setArg 3 (mkNullNode paramsStx)⟩
 
 /-- Given a set of declaration names, returns `grind` parameters of the form `= <declName>` -/
-private def mkGrindEqnParams (declNames : Std.HashSet Name) : MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
-  declNames.toArray.mapM fun declName => do
+private def mkGrindEqnParams (declNames : Array Name) : MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+  declNames.mapM fun declName => do
     `(Parser.Tactic.grindParam| = $(← toIdent declName))
 
 private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
   let grind ← `(tactic| grind?)
   let mut tacs := #[grind]
   unless info.eqnCandidates.isEmpty do
-    tacs := tacs.push (setGrindParams grind (← mkGrindEqnParams info.eqnCandidates))
+    tacs := tacs.push (setGrindParams grind (← mkGrindEqnParams info.eqnCandidates.elems))
   unless info.unfoldCandidates.isEmpty do
-    tacs := tacs.push (setGrindParams grind (← mkGrindEqnParams info.unfoldCandidates))
+    tacs := tacs.push (setGrindParams grind (← mkGrindEqnParams info.unfoldCandidates.elems))
   mkFirstStx tacs
 
 /-! Other generators -/
@@ -419,7 +426,7 @@ where
     `(tactic| induction $terms,* using $indFn <;> $cont)
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  let tacs ← info.funIndCandidates.toArray.mapM (mkFunIndStx · cont)
+  let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)
   mkFirstStx tacs
 
 /-! Main code -/

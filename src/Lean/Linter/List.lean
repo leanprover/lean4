@@ -26,32 +26,67 @@ register_builtin_option linter.indexVariables : Bool := {
   descr := "Validate that variables appearing as an index (e.g. in `xs[i]` or `xs.take i`) are only `i`, `j`, or `k`."
 }
 
+/--
+`set_option linter.listName true` enables a strict linter that
+validates that all `List` variables are named `l`, `xs`, `ys`, `zs`, `as`, or `bs` (optionally with a `'`, `₁`, or `₂` suffix).
+-/
+register_builtin_option linter.listName : Bool := {
+  defValue := false
+  descr := "Validate that all `List`/`Array`/`Vector` variables use allowed names."
+}
+
 open Lean Elab Command
 
 /--
 Return the syntax for all expressions in which an `fvarId` appears as a "numerical index", along with the user name of that `fvarId`.
 -/
-partial def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
-  t.deepestNodes fun _ info _ => do
+def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
+  (t.deepestNodes fun _ info _ => do
     let stx := info.stx
     if let .ofTermInfo info := info then
-      let idx? := match_expr info.expr with
-      | GetElem.getElem _ _ _ _ _ _ i _ => some i
-      | GetElem?.getElem? _ _ _ _ _ _ i => some i
-      | List.take _ i _ => some i
-      | List.drop _ i _ => some i
-      | List.set _ _ i _ => some i
-      | List.insertIdx _ i _ _ => some i
-      | List.eraseIdx _ _ i _ => some i
-      | _ => none
-      match idx? with
-      | some (.fvar i) =>
-        match info.lctx.find? i with
-        | some ldecl => some (stx, ldecl.userName)
-        | none => none
-      | _ => none
+      let idxs := match_expr info.expr with
+      | GetElem.getElem _ _ _ _ _ _ i _ => [i]
+      | GetElem?.getElem? _ _ _ _ _ _ i => [i]
+      | List.take _ i _ => [i]
+      | List.drop _ i _ => [i]
+      | List.set _ _ i _ => [i]
+      | List.insertIdx _ i _ _ => [i]
+      | List.eraseIdx _ _ i _ => [i]
+      | _ => []
+      match idxs with
+      | [] => none
+      | _ => idxs.filterMap fun i =>
+        match i with
+        | .fvar i =>
+          match info.lctx.find? i with
+          | some ldecl => some (stx, ldecl.userName)
+          | none => none
+        | _ => none
     else
-      none
+      none).flatten
+
+/-- Find all binders appearing in the given info tree. -/
+def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Syntax × Name × Expr)) :=
+  t.collectTermInfoM fun ctx ti => do
+    if ti.isBinder then do
+      -- Something is wrong here: sometimes `inferType` fails with an unknown fvar error,
+      -- despite passing the local context here.
+      -- We fail quietly by returning a `Unit` type.
+      let ty ← ctx.runMetaM ti.lctx do (Meta.inferType ti.expr) <|> pure (.const `Unit [])
+      if p ty then
+        if let .fvar i := ti.expr then
+          match ti.lctx.find? i with
+          | some ldecl => return some (ti.stx, ldecl.userName, ty)
+          | none => return none
+        else
+          return none
+      else
+        return none
+    else
+      return none
+
+/-- Allowed names for index variables. -/
+def allowedIndices : List String := ["i", "j", "k"]
 
 /--
 A linter which validates that the only variables used as "indices" (e.g. in `xs[i]` or `xs.take i`)
@@ -66,10 +101,56 @@ def indexLinter : Linter
     for t in ← getInfoTrees do
       if let .context _ _ := t then -- Only consider info trees with top-level context
       for (idxStx, n) in numericalIndices t do
-        if n != `i && n != `j && n != `k then
-          Linter.logLint linter.indexVariables idxStx
-            m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
+        if let .str _ n := n then
+          if !allowedIndices.contains n then
+            Linter.logLint linter.indexVariables idxStx
+              m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
 
 builtin_initialize addLinter indexLinter
+
+/-- Strip optional suffixes from a binder name. -/
+def stripBinderName (s : String) : String :=
+  s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂"
+
+/-- Allowed names for `List` variables. -/
+def allowedListNames : List String := ["l", "xs", "ys", "zs", "as", "bs"]
+
+/-- Allowed names for `Array` variables. -/
+def allowedArrayNames : List String := ["xs", "ys", "zs", "as", "bs"]
+
+/-- Allowed names for `Vector` variables. -/
+def allowedVectorNames : List String := ["xs", "ys", "zs", "as", "bs"]
+
+/--
+A linter which validates that all `List`/`Array`/`Vector` variables use allowed names.
+-/
+def listNameLinter : Linter
+  where run := withSetOptionIn fun stx => do
+    unless (← getOptions).get linter.listName.name false do return
+    if (← get).messages.hasErrors then return
+    if ! (← getInfoState).enabled then return
+    for t in ← getInfoTrees do
+      if let .context _ _ := t then -- Only consider info trees with top-level context
+        let binders ← binders t
+        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `List do
+          if let .str _ n := n then
+          let n := stripBinderName n
+          if !allowedListNames.contains n then
+            Linter.logLint linter.listName stx
+              m!"Forbidden variable appearing as a `List` name: use `l` instead of {n}"
+        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
+          if let .str _ n := n then
+          let n := stripBinderName n
+          if !allowedArrayNames.contains n then
+            Linter.logLint linter.listName stx
+              m!"Forbidden variable appearing as a `Array` name: use `l` instead of {n}"
+        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
+          if let .str _ n := n then
+          let n := stripBinderName n
+          if !allowedVectorNames.contains n then
+            Linter.logLint linter.listName stx
+              m!"Forbidden variable appearing as a `Vector` name: use `l` instead of {n}"
+
+builtin_initialize addLinter listNameLinter
 
 end Lean.Linter.List

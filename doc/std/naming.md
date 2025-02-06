@@ -174,11 +174,11 @@ There are certain special “keywords” that may appear in identifiers.
 
 | Keyword | Meaning | Example |
 | :---- | :---- | :---- |
-| `def` | Unfold a definition | `Nat.max_def` |
+| `def` | Unfold a definition. Avoid this for public APIs. | `Nat.max_def` |
 | `refl` | Theorems of the form `a R a`, where R is a reflexive relation and `a` is an explicit parameter | `Nat.le_refl` |
 | `rfl` | Like `refl`, but with `a` implicit | `Nat.le_rfl` |
 | `irrefl` | Theorems of the form `¬a R a`, where R is an irreflexive relation | `Nat.lt_irrefl` |
-| `symm` | Theorems of the form `a R b→ b R a`, where R is a symmetric relation (compare `comm` below) | `Eq.symm` |
+| `symm` | Theorems of the form `a R b → b R a`, where R is a symmetric relation (compare `comm` below) | `Eq.symm` |
 | `trans` | Theorems of the form `a R b → b R c → a R c`, where R is a transitive relation (R may carry data) | `Eq.trans` |
 | `antisymmm` | Theorems of the form `a R b → b R a → a = b`, where R is an antisymmetric relation | `Nat.le_antisymm` |
 | `congr` | Theorems of the form `a R b → f a S f b`, where R and S are usually equivalence relations | `Std.HashMap.mem_congr` |

@@ -42,7 +42,7 @@ When splitting at an infix operator, the operator goes at the end of the first l
 
 When splitting an `if`-`then`-`else` expression, the `then` keyword wants to stay with the condition and the `else` keyword wants to stay with the alternative term. Otherwise, indent as if the `if` and `else` keywords were arguments to the same function.
 
-When splitting an anonymous constructor application, it is allowed to indent subsequent lines by one space for alignment, but indenting by two spaces is also allowed.
+When splitting a comma-separated bracketed sequence (i.e., anonymous constructor application, list/array/vector literal, tuple) it is allowed to indent subsequent lines for alignment, but indenting by two spaces is also allowed.
 
 Do not orphan parentheses.
 
@@ -109,6 +109,13 @@ Correct:
 example : Nat × Nat :=
   ⟨imagineThisWasALongTerm,
     imagineThisWasAnotherLongTerm⟩
+```
+
+Correct:
+```lean
+example : Vector Nat :=
+  #v[imagineThisWasALongTerm,
+     imagineThisWasAnotherLongTerm]
 ```
 
 ## Basic file structure
@@ -411,7 +418,7 @@ Do not under-golf proofs: for routine tasks, use the most powerful tactics avail
 
 Do not use `erw`. Avoid using `rfl` after `simp` or `rw`, as this usually indicates a missing lemma that should be used instead of `rfl`.
 
-Use `(d)simp` or `rw` instead of `delta` or `unfold`. Use `refine` instead of `exists` or `refine’`. Use `haveI` and `letI` only if they are actually required.
+Use `(d)simp` or `rw` instead of `delta` or `unfold`. Use `refine` instead of `refine’`. Use `haveI` and `letI` only if they are actually required.
 
 Prefer highly automated tactics (like `grind` and `omega`) over low-level proofs, unless the automated tactic requires unacceptable additional imports or has bad performance. If you decide against using a highly automated tactic, leave a comment explaining the decision.
 
@@ -420,7 +427,8 @@ Prefer highly automated tactics (like `grind` and `omega`) over low-level proofs
 Use early `return` statements to reduce nesting depth and make the non-exceptional control flow of a function easier to see.
 
 Alternatives for `let` matches may be placed in the same line or in the next line, indented by two spaces. If the term that is
-being matched on is itself more than one line, it should be indented by four spaces if an alternative is present.
+being matched on is itself more than one line and there is an alternative present, consider breaking immediately after `←` and indent
+as far as necessary to ensure readability.
 
 Correct:
 ```lean
@@ -432,7 +440,8 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
 Correct:
 ```lean
 def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
-  let some decl ← findFunDecl? fvarId
+  let some decl ←
+        findFunDecl? fvarId
     | throwError "unknown local function {fvarId.name}"
   return decl
 ```

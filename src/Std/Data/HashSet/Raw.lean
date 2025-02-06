@@ -177,8 +177,6 @@ section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
 
-/-! We currently do not provide lemmas for the functions below. -/
-
 /-- Removes all elements from the hash set for which the given function returns `false`. -/
 @[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
   ⟨m.inner.filter fun a _ => f a⟩

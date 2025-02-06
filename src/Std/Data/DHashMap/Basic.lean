@@ -9,7 +9,7 @@ import Std.Data.DHashMap.Raw
 /-!
 # Dependent hash maps
 
-This file develops the type `Std.Data.DHashMap` of dependent hash maps.
+This file develops the type `Std.DHashMap` of dependent hash maps.
 
 The operations `map` and `filterMap` on `Std.Data.DHashMap` are defined in the module
 `Std.Data.DHashMap.AdditionalOperations`.

@@ -2612,7 +2612,13 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
-@[inherit_doc Array.mk, match_pattern]
+/--
+Converts a `List α` into an `Array α`. (This is preferred over the synonym `Array.mk`.)
+
+At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
+list.
+-/
+@[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
 /-- Construct a new empty array with initial capacity `c`. -/

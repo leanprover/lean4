@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.SizeOf
+import Init.BinderNameHint
 import Init.Data.Nat.Basic
 
 universe u v
@@ -421,3 +422,11 @@ wellfounded recursion, to keep track of the parameter for which the automatic in
 of `List.attach` (or similar) is plausible.
 -/
 def wfParam {α : Sort u} (a : α) : α := a
+
+/--
+Reverse direction of `dite_eq_ite`. Used by the auto-attach feature to extend the context
+of a termination proof inside `if-then-else` with the condition.
+-/
+@[auto_attach] theorem ite_eq_dite [Decidable P] :
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
+  rfl

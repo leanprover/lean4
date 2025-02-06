@@ -61,7 +61,10 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String
   let isLabelLocAffectedByEdit :=
     match ihi.label with
     | .name _ => false
-    | .parts ps => ps.any (·.location?.any (fun loc => loc.module == hintMod && range.overlaps loc.range (includeFirstStop := true)))
+    | .parts ps =>
+      ps.any fun p =>
+        p.location?.any fun loc =>
+          loc.module == hintMod && range.overlaps loc.range (includeFirstStop := true)
   -- We always include the stop of the edit range because insertion edit ranges may be empty,
   -- but we must still invalidate the inlay hint in this case.
   let isInlayHintInvalidatedByEdit :=
@@ -148,13 +151,14 @@ def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
   let meta := (← read).doc.meta
   let text := meta.text
   let srcSearchPath := (← read).srcSearchPath
-  let .ok (some modName) ← EIO.toBaseIO <| do
+  let .ok modName? ← EIO.toBaseIO <| do
       let some path := System.Uri.fileUriToPath? meta.uri
         | return none
       let some mod ← searchModuleNameOfFileName path srcSearchPath
         | return some <| ← moduleNameOfFileName path none
       return some mod
     | return
+  let modName := modName?.getD .anonymous -- `.anonymous` occurs in untitled files
   let s ← get
   let mut updatedOldInlayHints := #[]
   for ihi in s.oldInlayHints do

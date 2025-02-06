@@ -52,6 +52,7 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | List.set _ _ i _ => [i]
       | List.insertIdx _ i _ _ => [i]
       | List.eraseIdx _ _ i _ => [i]
+      | List.zipIdx _ _ i => [i]
       | _ => []
       match idxs with
       | [] => none
@@ -72,7 +73,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
       -- Something is wrong here: sometimes `inferType` fails with an unknown fvar error,
       -- despite passing the local context here.
       -- We fail quietly by returning a `Unit` type.
-      let ty ← ctx.runMetaM ti.lctx do (Meta.inferType ti.expr) <|> pure (.const `Unit [])
+      let ty ← ctx.runMetaM ti.lctx do instantiateMVars (← (Meta.inferType ti.expr) <|> pure (.const `Unit []))
       if p ty then
         if let .fvar i := ti.expr then
           match ti.lctx.find? i with
@@ -110,16 +111,16 @@ builtin_initialize addLinter indexLinter
 
 /-- Strip optional suffixes from a binder name. -/
 def stripBinderName (s : String) : String :=
-  s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂"
+  s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂" |>.stripSuffix "₃"
 
 /-- Allowed names for `List` variables. -/
-def allowedListNames : List String := ["l", "tl", "xs", "ys", "zs", "as", "bs"]
+def allowedListNames : List String := ["l", "r", "s", "t", "tl", "ws", "xs", "ys", "zs", "as", "bs", "cs", "acc"]
 
 /-- Allowed names for `Array` variables. -/
-def allowedArrayNames : List String := ["xs", "ys", "zs", "as", "bs"]
+def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"]
 
 /-- Allowed names for `Vector` variables. -/
-def allowedVectorNames : List String := ["xs", "ys", "zs", "as", "bs"]
+def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"]
 
 /--
 A linter which validates that all `List`/`Array`/`Vector` variables use allowed names.
@@ -132,24 +133,25 @@ def listNameLinter : Linter
     for t in ← getInfoTrees do
       if let .context _ _ := t then -- Only consider info trees with top-level context
         let binders ← binders t
-        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `List do
+        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `List do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedListNames.contains n then
-            Linter.logLint linter.listName stx
-              m!"Forbidden variable appearing as a `List` name: use `l` instead of {n}"
+            unless (ty.getArg! 0).isAppOf `List && n == "L" do
+              Linter.logLint linter.listName stx
+                m!"Forbidden variable appearing as a `List` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedArrayNames.contains n then
             Linter.logLint linter.listName stx
-              m!"Forbidden variable appearing as a `Array` name: use `l` instead of {n}"
+              m!"Forbidden variable appearing as a `Array` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedVectorNames.contains n then
             Linter.logLint linter.listName stx
-              m!"Forbidden variable appearing as a `Vector` name: use `l` instead of {n}"
+              m!"Forbidden variable appearing as a `Vector` name: {n}"
 
 builtin_initialize addLinter listNameLinter
 

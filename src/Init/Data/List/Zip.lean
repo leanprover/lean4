@@ -11,6 +11,10 @@ import Init.Data.Function
 # Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
 -/
 
+set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+
 namespace List
 
 open Nat
@@ -207,21 +211,21 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
       simp only [zipWith_cons_cons]
       rw [cons_eq_append_iff]
       constructor
-      · rintro (⟨rfl, rfl⟩ | ⟨l₁'', rfl, h⟩)
+      · rintro (⟨rfl, rfl⟩ | ⟨_, rfl, h⟩)
         · exact ⟨[], x₁ :: l₁, [], x₂ :: l₂, by simp⟩
         · rw [ih₁] at h
-          obtain ⟨w, x, y, z, h, rfl, rfl, h', rfl⟩ := h
-          refine ⟨x₁ :: w, x, x₂ :: y, z, by simp [h, h']⟩
-      · rintro ⟨w, x, y, z, h₁, h₂, h₃, rfl, rfl⟩
+          obtain ⟨ws, xs, ys, zs, h, rfl, rfl, h', rfl⟩ := h
+          refine ⟨x₁ :: ws, xs, x₂ :: ys, zs, by simp [h, h']⟩
+      · rintro ⟨_, _, _, _, h₁, h₂, h₃, rfl, rfl⟩
         rw [cons_eq_append_iff] at h₂
         rw [cons_eq_append_iff] at h₃
-        obtain (⟨rfl, rfl⟩ | ⟨w', rfl, rfl⟩) := h₂
+        obtain (⟨rfl, rfl⟩ | ⟨_, rfl, rfl⟩) := h₂
         · simp only [zipWith_nil_left, true_and, nil_eq, reduceCtorEq, false_and, exists_const,
           or_false]
-          obtain (⟨rfl, rfl⟩ | ⟨y', rfl, rfl⟩) := h₃
+          obtain (⟨rfl, rfl⟩ | ⟨_, rfl, rfl⟩) := h₃
           · simp
           · simp_all
-        · obtain (⟨rfl, rfl⟩ | ⟨y', rfl, rfl⟩) := h₃
+        · obtain (⟨rfl, rfl⟩ | ⟨_, rfl, rfl⟩) := h₃
           · simp_all
           · simp_all [zipWith_append, Nat.succ_inj']
 
@@ -274,9 +278,9 @@ theorem zip_map_right (f : β → γ) (l₁ : List α) (l₂ : List β) :
 theorem zip_append :
     ∀ {l₁ r₁ : List α} {l₂ r₂ : List β} (_h : length l₁ = length l₂),
       zip (l₁ ++ r₁) (l₂ ++ r₂) = zip l₁ l₂ ++ zip r₁ r₂
-  | [], r₁, l₂, r₂, h => by simp only [eq_nil_of_length_eq_zero h.symm]; rfl
-  | l₁, r₁, [], r₂, h => by simp only [eq_nil_of_length_eq_zero h]; rfl
-  | a :: l₁, r₁, b :: l₂, r₂, h => by
+  | [], _, _, _, h => by simp only [eq_nil_of_length_eq_zero h.symm]; rfl
+  | _, _, [], _, h => by simp only [eq_nil_of_length_eq_zero h]; rfl
+  | _ :: _, _, _ :: _, _, h => by
     simp only [cons_append, zip_cons_cons, zip_append (Nat.succ.inj h)]
 
 theorem zip_map' (f : α → β) (g : α → γ) :
@@ -448,9 +452,9 @@ theorem unzip_zip {l₁ : List α} {l₂ : List β} (h : length l₁ = length l�
   · rw [unzip_zip_left (Nat.le_of_eq h)]
   · rw [unzip_zip_right (Nat.le_of_eq h.symm)]
 
-theorem zip_of_prod {l : List α} {l' : List β} {lp : List (α × β)} (hl : lp.map Prod.fst = l)
-    (hr : lp.map Prod.snd = l') : lp = l.zip l' := by
-  rw [← hl, ← hr, ← zip_unzip lp, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
+theorem zip_of_prod {l : List α} {l' : List β} {xs : List (α × β)} (hl : xs.map Prod.fst = l)
+    (hr : xs.map Prod.snd = l') : xs = l.zip l' := by
+  rw [← hl, ← hr, ← zip_unzip xs, ← unzip_fst, ← unzip_snd, zip_unzip, zip_unzip]
 
 theorem tail_zip_fst {l : List (α × β)} : l.unzip.1.tail = l.tail.unzip.1 := by
   simp

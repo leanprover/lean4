@@ -114,3 +114,19 @@ info: Try this: ·
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
   try?
+
+def foo : Nat → Nat
+  | 0   => 1
+  | x+1 => foo x - 1
+
+
+/--
+info: Try this: ·
+  induction x using foo.induct
+  · grind [= foo]
+  · sorry
+-/
+#guard_msgs (info) in
+example : foo x > 0 := by
+  try?  -- `try?` does not solve all subgoals.
+  sorry

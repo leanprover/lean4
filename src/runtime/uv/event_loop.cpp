@@ -98,13 +98,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_configure(b_obj_arg optio
 
     event_loop_lock(&global_ev);
 
-    if (accum && uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME) != 0) {
-        return io_result_mk_error("failed to configure global_ev.loop with UV_METRICS_IDLE_TIME");
+    if (accum) {
+        int result = uv_loop_configure(global_ev.loop, UV_METRICS_IDLE_TIME);
+        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     #if!defined(WIN32) && !defined(_WIN32)
-    if (block && uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF) != 0) {
-        return io_result_mk_error("failed to configure global_ev.loop with UV_LOOP_BLOCK_SIGNAL");
+    if (block) {
+        int result = uv_loop_configure(global_ev.loop, UV_LOOP_BLOCK_SIGNAL, SIGPROF);
+        if (result != 0) return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
     #endif
 

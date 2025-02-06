@@ -82,8 +82,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t r
     if (result != 0) {
         free(uv_timer);
         free(timer);
-        std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
-        return io_result_mk_error(err.c_str());
+        return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
     }
 
     timer->m_uv_timer = uv_timer;
@@ -129,8 +128,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
 
         if (result != 0) {
             lean_dec(obj);
-            std::string err = std::string("failed to initialize timer: ") + uv_strerror(result);
-            return io_result_mk_error(err.c_str());
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         } else {
             lean_inc(timer->m_promise);
             return lean_io_result_mk_ok(timer->m_promise);
@@ -197,7 +195,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg obj, obj_arg /
         event_loop_unlock(&global_ev);
 
         if (result != 0) {
-            return io_result_mk_error("failed to restart uv_timer");
+            return lean_io_result_mk_error(lean_decode_uv_error(result, NULL));
         } else {
             return lean_io_result_mk_ok(lean_box(0));
         }
@@ -235,19 +233,27 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg obj, obj_arg /*
 void lean_uv_timer_finalizer(void* ptr);
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_mk(uint64_t timeout, uint8_t repeating, obj_arg /* w */) {
-    return io_result_mk_error("lean_uv_timer_mk is not supported");
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg timer, obj_arg /* w */ ) {
-    return io_result_mk_error("lean_uv_timer_next is not supported");
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_reset(b_obj_arg timer, obj_arg /* w */ ) {
-    return io_result_mk_error("lean_uv_timer_reset is not supported");
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_stop(b_obj_arg timer, obj_arg /* w */ ) {
-    return io_result_mk_error("lean_uv_timer_stop is not supported");
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
 }
 
 #endif

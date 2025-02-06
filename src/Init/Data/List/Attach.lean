@@ -690,10 +690,9 @@ This lemma identifies folds over lists of subtypes, where the function only depe
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldl_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : β → { x // p x } → β} {g : β → α → β}
+    {f : β → { x // p x } → β} {g : β → α → β} {x : β}
     (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
-    l.foldl f = l.unattach.foldl g := by
-  ext x
+    l.foldl f x = l.unattach.foldl g x := by
   unfold unattach
   induction l generalizing x with
   | nil => simp
@@ -801,24 +800,24 @@ set_option linter.unusedVariables false in
     xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
   simp [wfParam]
 
-@[auto_attach] theorem foldl_wfParam (xs : List α) (f : β → α → β) :
-    (wfParam xs).foldl f = xs.attach.unattach.foldl f := by
+@[auto_attach] theorem foldl_wfParam (xs : List α) (f : β → α → β) (x : β) :
+    (wfParam xs).foldl f x = xs.attach.unattach.foldl f x := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
-@[auto_attach] theorem foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) :
-    xs.unattach.foldl f = xs.foldl
-      (fun s ⟨x, h⟩ => binderNameHint s f <| binderNameHint x (f s) <| f s (wfParam x)) := by
+@[auto_attach] theorem foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (x : β):
+    xs.unattach.foldl f x = xs.foldl
+      (fun s ⟨x, h⟩ => binderNameHint s f <| binderNameHint x (f s) <| f s (wfParam x)) x := by
   simp [wfParam]
 
-@[auto_attach] theorem foldr_wfParam (xs : List α) (f : α → β → β) :
-    (wfParam xs).foldr f = xs.attach.unattach.foldr f := by
+@[auto_attach] theorem foldr_wfParam (xs : List α) (f : α → β → β) (x : β) :
+    (wfParam xs).foldr f x = xs.attach.unattach.foldr f x := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
-@[auto_attach] theorem foldr_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β → β) :
-    xs.unattach.foldr f = xs.foldr
-      (fun ⟨x, h⟩ s => binderNameHint x f <| binderNameHint s (f x) <| f (wfParam x) s) := by
+@[auto_attach] theorem foldr_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β → β) (x : β):
+    xs.unattach.foldr f x = xs.foldr
+      (fun ⟨x, h⟩ s => binderNameHint x f <| binderNameHint s (f x) <| f (wfParam x) s) x := by
   simp [wfParam]
 
 @[auto_attach] theorem filter_wfParam (xs : List α) (f : α → Bool) :

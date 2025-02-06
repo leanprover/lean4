@@ -27,7 +27,7 @@ termination_by n t => (n, t)
 decreasing_by
   · apply Prod.Lex.right
     simp
-    have := List.sizeOf_lt_of_mem h
+    have := List.sizeOf_lt_of_mem ‹_ ∈ _›
     omega
   · trace_state
     apply Prod.Lex.left

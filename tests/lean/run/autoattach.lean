@@ -10,7 +10,7 @@ def Tree.isLeaf (t : Tree α) := t.cs.isEmpty
 /--
 info: α : Type u_1
 t t' : Tree α
-h : t' ∈ t.cs
+h✝ : t' ∈ t.cs
 ⊢ sizeOf t' < sizeOf t
 -/
 #guard_msgs in
@@ -37,7 +37,7 @@ info: Tree.map.induct.{u_1} {α : Type u_1} (motive : Tree α → Prop)
 /--
 info: α : Type u_1
 t x✝ : Tree α
-h : x✝ ∈ t.cs
+h✝ : x✝ ∈ t.cs
 ⊢ sizeOf x✝ < sizeOf t
 -/
 #guard_msgs in
@@ -68,7 +68,7 @@ info: α : Type u_1
 v : α
 cs : List (Tree α)
 x✝ : Tree α
-h : x✝ ∈ cs
+h✝ : x✝ ∈ cs
 ⊢ sizeOf x✝ < sizeOf { val := v, cs := cs }
 -/
 #guard_msgs in
@@ -105,9 +105,9 @@ warning: declaration uses 'sorry'
 info: α : Type u_1
 t : MTree α
 x✝¹ : List (MTree α)
-h✝ : x✝¹ ∈ t.cs
+h✝¹ : x✝¹ ∈ t.cs
 x✝ : MTree α
-h : x✝ ∈ x✝¹
+h✝ : x✝ ∈ x✝¹
 ⊢ sizeOf x✝ < sizeOf t
 -/
 #guard_msgs in
@@ -142,7 +142,7 @@ warning: declaration uses 'sorry'
 ---
 info: L : List (String × Expression)
 x : String × Expression
-h : x ∈ L
+h✝ : x ∈ L
 ⊢ sizeOf x.snd < sizeOf (Expression.object L)
 -/
 #guard_msgs in
@@ -182,9 +182,9 @@ inductive Expression where
 warning: declaration uses 'sorry'
 ---
 info: L : List (String × Expression)
-L1 : String × Expression
-h : L1 ∈ L
-⊢ sizeOf L1.snd < sizeOf (Expression.object L)
+x : String × Expression
+h✝ : x ∈ L
+⊢ sizeOf x.snd < sizeOf (Expression.object L)
 -/
 #guard_msgs in
 def t (exp: Expression) : List String :=

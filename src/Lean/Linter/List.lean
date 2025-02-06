@@ -59,7 +59,8 @@ are `i`, `j`, or `k`.
 -/
 def indexLinter : Linter
   where run := withSetOptionIn fun stx => do
-    unless Linter.getLinterValue linter.indexVariables (← getOptions) do return
+    -- We intentionally do not use `getLinterValue` here, as we do *not* want to opt in to `linter.all`.
+    unless (← getOptions).get linter.indexVariables.name false do return
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do

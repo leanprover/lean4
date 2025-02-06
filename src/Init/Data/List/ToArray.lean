@@ -15,6 +15,8 @@ import Init.Data.Array.Lex.Basic
 We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Array
 
 @[simp] theorem toList_set (a : Array α) (i x h) :
@@ -566,21 +568,15 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
     simp only [append_assoc, cons_append]
     rw [insertIdx_loop_toArray _ _ _ _ (by omega)]
     simp only [swap_toArray, w, append_assoc, cons_append, mk.injEq]
-    rw [List.take_set_of_le _ _ (by omega)]
-    rw [List.drop_eq_getElem_cons (n := j) (by simpa)]
-    rw [List.getElem_set_self]
-    rw [List.drop_set_of_lt _ _ (by omega)]
-    rw [List.drop_set_of_lt _ _ (by omega)]
-    rw [List.getElem_set_ne (by omega)]
-    rw [List.getElem_set_self]
-    rw [List.take_set_of_le (j := j - 1) _ _ (by omega)]
-    rw [List.take_set_of_le (j := j - 1) _ _ (by omega)]
-    rw [List.take_eq_append_getElem_of_pos (i := j) (l := l) (by omega) hj]
-    rw [List.drop_append_of_le_length (by simp; omega)]
+    rw [take_set_of_le _ _ (by omega), drop_eq_getElem_cons (i := j) (by simpa), getElem_set_self,
+      drop_set_of_lt _ _ (by omega), drop_set_of_lt _ _ (by omega), getElem_set_ne (by omega),
+      getElem_set_self, take_set_of_le (j := j - 1) _ _ (by omega),
+      take_set_of_le (j := j - 1) _ _ (by omega), take_eq_append_getElem_of_pos (by omega) hj,
+      drop_append_of_le_length (by simp; omega)]
     simp only [append_assoc, cons_append, nil_append, append_cancel_right_eq]
     cases i with
     | zero => simp
-    | succ i => rw [List.take_set_of_le _ _ (by omega)]
+    | succ i => rw [take_set_of_le _ _ (by omega)]
   · simp only [Nat.not_lt] at h'
     have : i = j := by omega
     subst this

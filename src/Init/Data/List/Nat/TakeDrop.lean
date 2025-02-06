@@ -16,6 +16,8 @@ These are in a separate file from most of the list lemmas
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -170,7 +172,7 @@ theorem take_one {l : List α} : l.take 1 = l.head?.toList := by
 
 theorem take_eq_append_getElem_of_pos {i} {l : List α} (h₁ : 0 < i) (h₂ : i < l.length) : l.take i = l.take (i - 1) ++ [l[i - 1]] :=
   match i, h₁ with
-  | i + 1, _ => take_succ_eq_append_getElem (n := i) (by omega)
+  | i + 1, _ => take_succ_eq_append_getElem (by omega)
 
 theorem dropLast_take {i : Nat} {l : List α} (h : i < l.length) :
     (l.take i).dropLast = l.take (i - 1) := by

@@ -302,19 +302,6 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
 
 @[simp] theorem getMsbD_zero : (0#w).getMsbD i = false := by simp [getMsbD]
 
-@[simp] theorem toInt_one {w : Nat} (h : 1 < w ) : (1#w).toInt = 1 := by
-  have : 1 < 2 ^ w := Nat.one_lt_two_pow (by omega)
-  unfold BitVec.toInt
-  simp only [BitVec.toNat_ofNat, Int.ofNat_emod]
-  rw [Nat.mod_eq_of_lt (by omega)]
-  by_cases hw' : 2 * 1 < 2 ^ w
-  · simp only [Nat.mul_one, hw', ↓reduceIte, Int.Nat.cast_ofNat_Int]
-    norm_cast
-    rw [Nat.mod_eq_of_lt (by omega)]
-  · simp only [Int.not_lt] at hw'
-    have h2 : 2 * 1 = 2 ^ 1 := by rw [Nat.mul_one, Nat.pow_one]
-    rw [h2, Nat.pow_lt_pow_iff_right (a := 2) (by omega)] at hw'
-    omega
 
 @[simp] theorem getLsbD_one : (1#w).getLsbD i = (decide (0 < w) && decide (i = 0)) := by
   simp only [getLsbD, toNat_ofNat, Nat.testBit_mod_two_pow]
@@ -511,6 +498,14 @@ theorem toInt_eq_toNat_bmod (x : BitVec n) : x.toInt = Int.bmod x.toNat (2^n) :=
   next g =>
     rw [Int.bmod_neg] <;> simp only [←Int.ofNat_emod, toNat_mod_cancel]
     omega
+
+@[simp] theorem toInt_one_of_lt {w : Nat} (h : 1 < w) : (1#w).toInt = 1 := by
+  rw [toInt_eq_msb_cond]
+  simp only [msb_one, show w ≠ 1 by omega, decide_false, Bool.false_eq_true, ↓reduceIte,
+    toNat_ofNat, Int.ofNat_emod, Int.Nat.cast_ofNat_Int]
+  norm_cast
+  apply Nat.mod_eq_of_lt
+  apply Nat.one_lt_two_pow (by omega)
 
 /-- Prove equality of bitvectors in terms of nat operations. -/
 theorem eq_of_toInt_eq {x y : BitVec n} : x.toInt = y.toInt → x = y := by
@@ -3749,7 +3744,7 @@ theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 
   · decide
   · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
     rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
-      Int.bmod_sub_bmod_congr, BitVec.toInt_one (by omega), Nat.shiftLeft_eq,
+      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
       Nat.mod_eq_of_lt (by omega), Int.bmod_eq_iff_of_lt_of_lt]
     simp only [Nat.add_one_sub_one, Nat.one_mul]
     · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega

@@ -8,11 +8,11 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.WF.PackMutual
-import Lean.Elab.PreDefinition.WF.Preprocess
+import Lean.Elab.PreDefinition.WF.FloatRec
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Unfold
-import Lean.Elab.PreDefinition.WF.AutoAttach
+import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.GuessLex
 
 namespace Lean.Elab
@@ -22,7 +22,7 @@ open Meta
 def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
-    return { preDef with value := (← preprocess preDef.value) }
+    return { preDef with value := (← floatRec preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef, autoAttachProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef
@@ -34,7 +34,7 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
         throwError "well-founded recursion cannot be used, '{preDef.declName}' does not take any (non-fixed) arguments"
     let argsPacker := { varNamess }
     let (preDefsAttached, autoAttachProofs) ← Array.unzip <$> preDefs.mapM fun preDef => do
-      let result ← autoAttach preDef.value
+      let result ← preprocess preDef.value
       return ({preDef with value := result.expr}, result)
     return (fixedPrefixSize, argsPacker, ← packMutual fixedPrefixSize argsPacker preDefsAttached, autoAttachProofs)
 

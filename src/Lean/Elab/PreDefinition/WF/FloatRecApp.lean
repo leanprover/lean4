@@ -10,12 +10,6 @@ import Lean.Elab.RecAppSyntax
 namespace Lean.Elab.WF
 open Meta
 
-private def shouldBetaReduce (e : Expr) (recFnNames : Array Name) : Bool :=
-  if e.isHeadBetaTarget then
-    e.getAppFn.find? (fun e => recFnNames.any (e.isConstOf ·)) |>.isSome
-  else
-    false
-
 /--
 Preprocesses the expressions to improve the effectiveness of `wfRecursion`.
 

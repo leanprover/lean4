@@ -723,14 +723,6 @@ and simplifies these to the function directly taking the value.
   | nil => simp
   | cons a l ih => simp [ih, hf]
 
-@[simp] theorem map_Subtype {p : α → Prop} {l : List { x // p x }}
-    {f : β → { x // p x } → β} {g : β → α → β} {hf : ∀ s x h, f s ⟨x, h⟩ = g s x} :
-    (l.foldl f) = l.unattach.foldl g := by
-  induction l with
-  | nil => simp
-  | cons a l ih =>
-    simp [foldl_cons, hf, List.unattach_cons]
-
 @[simp] theorem filterMap_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.filterMap f = l.unattach.filterMap g := by

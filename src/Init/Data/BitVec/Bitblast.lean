@@ -1231,7 +1231,7 @@ theorem shiftRight_eq_ushiftRightRec (x : BitVec w₁) (y : BitVec w₂) :
   · simp [of_length_zero]
   · simp [ushiftRightRec_eq]
 
-/-! ### Overflow -/
+/-! ### Overflow definitions -/
 
 /-- Unsigned addition overflows iff the final carry bit of the addition circuit is `true`. -/
 theorem uaddOverflow_eq {w : Nat} (x y : BitVec w) :

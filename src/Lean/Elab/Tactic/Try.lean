@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Try
 import Init.Grind.Tactics
+import Lean.Meta.Tactic.ExposeNames
 import Lean.Meta.Tactic.Try
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Config
@@ -382,15 +383,21 @@ private def allAccessible (majors : Array FVarId) : MetaM Bool :=
 open Try.Collector in
 private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
   if (← allAccessible c.majors) then
+    go
+  else withNewMCtxDepth do
+    -- Create a helper goal to apply
+    let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
+    let mvarId ← mvarId.exposeNames
+    mvarId.withContext do
+      `(tactic| (expose_names; $(← go):tactic))
+where
+  go : MetaM (TSyntax `tactic) := do
     let mut terms := #[]
     for major in c.majors do
       let localDecl ← major.getDecl
       terms := terms.push (← `($(mkIdent localDecl.userName):term))
     let indFn ← toIdent c.funIndDeclName
     `(tactic| induction $terms,* using $indFn <;> $cont)
-  else
-    -- TODO: use `expose_names`
-    throwError "`induction` failed, majors contain inaccessible vars"
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
   let tacs ← info.funIndCandidates.toArray.mapM (mkFunIndStx · cont)

@@ -75,3 +75,25 @@ info: Try these:
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try?
+
+/--
+info: Try these:
+• · expose_names; induction as, bs_1 using app.induct <;> grind [= app]
+• · expose_names; induction as, bs_1 using app.induct <;> grind only [app]
+-/
+#guard_msgs (info) in
+example : app (app as bs) cs = app as (app bs cs) := by
+  have bs := 20 -- shadow variable in the goal
+  try?
+
+/--
+info: Try these:
+• · expose_names; induction as, bs using app.induct <;> grind [= app]
+• · expose_names; induction as, bs using app.induct <;> grind only [app]
+-/
+#guard_msgs (info) in
+example : app (app as bs) cs = app as (app bs cs) := by
+  revert as bs cs
+  intro _ _ _
+  -- `as`, `bs`, and `cs` now have inaccessible names.
+  try?

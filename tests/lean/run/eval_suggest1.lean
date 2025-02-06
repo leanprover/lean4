@@ -60,11 +60,7 @@ example (h : 0 + x = y) : f x = f y := by
 macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
 
 /--
-error: invalid occurrence of `attempt_all` in non-terminal position
-  attempt_all
-  | rfl
-  | grind?
-in tactic script for `try?`
+error: invalid occurrence of `attempt_all` in non-terminal position for `try?` script
   (intros;
     (attempt_all
       | rfl
@@ -74,3 +70,16 @@ in tactic script for `try?`
 #guard_msgs (error) in
 example : True := by
   bad_tac
+
+macro "simple_tac" : tactic => `(tactic| eval_suggest (intros; skip; first | skip | simp))
+
+/--
+info: Try this: simp
+-/
+#guard_msgs (info) in
+example : True ∧ True := by
+  simple_tac -- terminal `skip` should not succeed
+
+example : False := by
+  fail_if_success simple_tac -- should not succeed
+  sorry

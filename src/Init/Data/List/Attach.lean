@@ -690,9 +690,10 @@ This lemma identifies folds over lists of subtypes, where the function only depe
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem foldl_subtype {p : α → Prop} {l : List { x // p x }}
-    {f : β → { x // p x } → β} {g : β → α → β} {x : β}
+    {f : β → { x // p x } → β} {g : β → α → β}
     (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
-    l.foldl f x = l.unattach.foldl g x := by
+    l.foldl f = l.unattach.foldl g := by
+  ext x
   unfold unattach
   induction l generalizing x with
   | nil => simp
@@ -800,13 +801,13 @@ set_option linter.unusedVariables false in
     xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x))) := by
   simp [wfParam]
 
-@[auto_attach] theorem List.foldl_wfParam (xs : List α) (f : β → α → β) (init : β):
-    (wfParam xs).foldl f init = xs.attach.unattach.foldl f init := by
+@[auto_attach] theorem List.foldl_wfParam (xs : List α) (f : β → α → β) :
+    (wfParam xs).foldl f = xs.attach.unattach.foldl f := by
   simp [wfParam]
 
 set_option linter.unusedVariables false in
 @[auto_attach] theorem List.foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (init : β):
-    xs.unattach.foldl f init = xs.foldl (fun s ⟨x, h⟩ => binderNameHint x f (f s (wfParam x) )) init := by
+    xs.unattach.foldl f = xs.foldl (fun s ⟨x, h⟩ => binderNameHint x f (f s (wfParam x) )) := by
   simp [wfParam]
 
 @[auto_attach] theorem List.filter_wfParam (xs : List α) (f : α → Bool) :

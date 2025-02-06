@@ -135,9 +135,8 @@ info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
 /--
 info: α : Type u_1
 t : MTree α
-col✝ : Array (List (MTree α)) := t.cs
 css : List (MTree α)
-h✝¹ : css ∈ col✝
+h✝¹ : css ∈ t.cs
 c : MTree α
 h✝ : c ∈ css
 ⊢ sizeOf c < sizeOf t
@@ -153,7 +152,6 @@ termination_by t
 decreasing_by
   trace_state
   fail_if_success grind -- eventually, grind should be able to handle this
-  dsimp +zetaDelta at *
   cases t
   have := Array.sizeOf_lt_of_mem ‹_ ∈ _›
   have := List.sizeOf_lt_of_mem ‹_ ∈ _›
@@ -167,8 +165,7 @@ theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
     (let s := 1;
       do
       let r ←
-        let col := t.cs;
-          forIn col s fun css r =>
+        forIn t.cs s fun css r =>
             let s := r;
             do
             let r ←
@@ -189,11 +186,7 @@ theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
 
 /--
 info: MTree.size.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
-  (case1 :
-    ∀ (x : MTree α),
-      (let col := x.cs;
-        ∀ (css : List (MTree α)), css ∈ col → ∀ (c : MTree α), c ∈ css → motive c) →
-        motive x)
+  (case1 : ∀ (x : MTree α), (∀ (css : List (MTree α)), css ∈ x.cs → ∀ (c : MTree α), c ∈ css → motive c) → motive x)
   (t : MTree α) : motive t
 -/
 #guard_msgs in

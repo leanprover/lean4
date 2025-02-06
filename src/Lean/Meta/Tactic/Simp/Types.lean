@@ -586,11 +586,15 @@ def congrArgs (r : Result) (args : Array Expr) : SimpM Result := do
   else
     let cfg ← getConfig
     let infos := (← getFunInfoNArgs r.expr args.size).paramInfo
+    let noIteArms := !cfg.underLambda && r.expr.isConstOf ``ite
     let mut r := r
     let mut i := 0
     for arg in args do
-      if h : i < infos.size then
-        trace[Debug.Meta.Tactic.simp] "app [{i}] {infos.size} {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
+      if noIteArms && (i == 3 || i == 4) then
+        -- Do not traverse then/else arguments when underLambda := false
+        r ← mkCongrFun r arg
+      else if h : i < infos.size then
+        trace[Debug.Meta.Tactic.simp] "app [{i+1}/{infos.size}] {arg} hasFwdDeps: {infos[i].hasFwdDeps}"
         let info := infos[i]
         if cfg.ground && info.isInstImplicit then
           -- We don't visit instance implicit arguments when we are reducing ground terms.
@@ -645,6 +649,7 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
   let args := e.getAppArgs
   let infos := (← getFunInfoNArgs f args.size).paramInfo
   let config ← getConfig
+  let noIteArms := !config.underLambda && f.isConstOf ``ite
   let mut simplified := false
   let mut hasProof   := false
   let mut hasCast    := false
@@ -656,6 +661,11 @@ def tryAutoCongrTheorem? (e : Expr) : SimpM (Option Result) := do
       if (infos[i]'h.2).isInstImplicit then
         -- Do not visit instance implicit arguments when `ground := true`
         -- See comment at `congrArgs`
+        argsNew := argsNew.push arg
+        i := i + 1
+        continue
+    if noIteArms && (i = 3 || i = 4) then
+        -- Do not visit arms of an ite when `underLambda := false`
         argsNew := argsNew.push arg
         i := i + 1
         continue

@@ -38,14 +38,6 @@ private def getSuggestionOfTactic (tac : TSyntax `tactic) : Array (TSyntax `tact
 private def appendSuggestion (suggestions : Array (TSyntax `tactic)) (tac : TSyntax `tactic) : Array (TSyntax `tactic) :=
   suggestions ++ getSuggestionOfTactic tac
 
-/--
-Given the suggestion sequecences `suggestionsSeqs`, extends each sequence using `tac`.
--/
-private def appendSeqResult (suggestionSeqs : Array (Array (TSyntax `tactic))) (tac : TSyntax `tactic) : Array (Array (TSyntax `tactic)) :=
-  match tac with
-  | `(tactic| try_suggestions $tacs:tactic*) => suggestionSeqs.foldl (init := #[]) fun result seq => result ++ tacs.map (seq.push ·)
-  | _ => suggestionSeqs.map (·.push tac)
-
 /-- Returns a tactic representing all given suggestions `tacs`. -/
 private def mkTrySuggestions (tacs : Array (TSyntax `tactic)) : TacticM (TSyntax `tactic) := do
   if tacs.isEmpty then
@@ -134,7 +126,7 @@ private def peekOne (tac1 : TSyntax `tactic) (tacss2 : Array (Array (TSyntax `ta
   `(tactic| · $tac1:tactic
               $tacs2*)
 
-private def mkChainResultCore (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : TacticM (Array (TSyntax `tactic)) := do
+private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : TacticM (TSyntax `tactic) := do
   let tacss2 := tacss2.map getSuggestionsCore
   if (← isTracingEnabledFor `try.debug) then
     trace[try.debug] "mkChainResultCore tac1{indentD tac1}"
@@ -156,14 +148,7 @@ private def mkChainResultCore (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax 
      -- We only include partial solutions if there are no other solutions.
      || (acc.isEmpty && tacss2.any fun s => !s.isEmpty) then
     acc := acc.push <| (← peekOne tac1 tacss2)
-  return acc
-
-private def mkChainResult (tac1 : TSyntax `tactic) (tacs2 : Array (TSyntax `tactic)) : TacticM (TSyntax `tactic) := do
-  match tac1 with
-  | `(tactic| try_suggestions $tacs1:tactic*) =>
-    let tacs ← tacs1.foldlM (init := #[]) fun acc tac1 => return acc ++ (← mkChainResultCore tac1 tacs2)
-    mkTrySuggestions tacs
-  | _ => mkTrySuggestions (← mkChainResultCore tac1 tacs2)
+  mkTrySuggestions acc
 
 private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   let goals ← getGoals

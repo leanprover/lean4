@@ -32,26 +32,29 @@ open Lean Elab Command
 Return the syntax for all expressions in which an `fvarId` appears as a "numerical index", along with the user name of that `fvarId`.
 -/
 partial def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
-  t.deepestNodes fun _ info _ => do
+  (t.deepestNodes fun _ info _ => do
     let stx := info.stx
     if let .ofTermInfo info := info then
-      let idx? := match_expr info.expr with
-      | GetElem.getElem _ _ _ _ _ _ i _ => some i
-      | GetElem?.getElem? _ _ _ _ _ _ i => some i
-      | List.take _ i _ => some i
-      | List.drop _ i _ => some i
-      | List.set _ _ i _ => some i
-      | List.insertIdx _ i _ _ => some i
-      | List.eraseIdx _ _ i _ => some i
-      | _ => none
-      match idx? with
-      | some (.fvar i) =>
-        match info.lctx.find? i with
-        | some ldecl => some (stx, ldecl.userName)
-        | none => none
-      | _ => none
+      let idxs := match_expr info.expr with
+      | GetElem.getElem _ _ _ _ _ _ i _ => [i]
+      | GetElem?.getElem? _ _ _ _ _ _ i => [i]
+      | List.take _ i _ => [i]
+      | List.drop _ i _ => [i]
+      | List.set _ _ i _ => [i]
+      | List.insertIdx _ i _ _ => [i]
+      | List.eraseIdx _ _ i _ => [i]
+      | _ => []
+      match idxs with
+      | [] => none
+      | _ => idxs.filterMap fun i =>
+        match i with
+        | .fvar i =>
+          match info.lctx.find? i with
+          | some ldecl => some (stx, ldecl.userName)
+          | none => none
+        | _ => none
     else
-      none
+      none).flatten
 
 /--
 A linter which validates that the only variables used as "indices" (e.g. in `xs[i]` or `xs.take i`)

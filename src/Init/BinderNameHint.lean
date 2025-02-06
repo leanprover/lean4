@@ -28,6 +28,9 @@ example (names : List String) : names.all (fun name => "Waldo".isPrefixOf name) 
   -- ⊢ (!names.any fun name => !"Waldo".isPrefixOf name) = true
 ```
 
+If `binder` is not a binder, then the name of `v` attains a macro scope. This only matters when the
+resulting term is used in a non-hygienic way, e.g. in termination proofs for well-founded recursion.
+
 This gadget is supported by `simp`, `dsimp` and `rw` in the right-hand-side of an equation, but not
 in hypotheses or by other tactics.
 -/

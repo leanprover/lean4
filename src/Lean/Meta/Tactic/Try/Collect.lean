@@ -21,19 +21,35 @@ structure FunIndCandidate where
   majors : Array FVarId
   deriving Hashable, BEq
 
+/-- `Set` with insertion order preserved. -/
+structure OrdSet (α : Type) [Hashable α] [BEq α] where
+  elems : Array α := #[]
+  set : Std.HashSet α := {}
+  deriving Inhabited
+
+def OrdSet.insert {_ : Hashable α} {_ : BEq α} (s : OrdSet α) (a : α) : OrdSet α :=
+  if s.set.contains a then
+    s
+  else
+    let { elems, set } := s
+    { elems := elems.push a, set := set.insert a }
+
+def OrdSet.isEmpty {_ : Hashable α} {_ : BEq α} (s : OrdSet α) : Bool :=
+  s.elems.isEmpty
+
 structure Result where
   /-- All constant symbols occurring in the gal. -/
-  allConsts : Std.HashSet Name  := {}
+  allConsts : OrdSet Name  := {}
   /-- Unfolding candiates. -/
-  unfoldCandidates : Std.HashSet Name  := {}
+  unfoldCandidates : OrdSet Name  := {}
   /-- Equation function candiates. -/
-  eqnCandidates : Std.HashSet Name  := {}
+  eqnCandidates : OrdSet Name  := {}
   /-- Function induction candidates. -/
-  funIndCandidates : Std.HashSet FunIndCandidate := {}
+  funIndCandidates : OrdSet FunIndCandidate := {}
   /-- Induction candidates. -/
   indCandidates : Array InductionCandidate := #[]
   /-- Relevant declarations by `libSearch` -/
-  libSearchResults : Std.HashSet (Name × Grind.EMatchTheoremKind) := {}
+  libSearchResults : OrdSet (Name × Grind.EMatchTheoremKind) := {}
 
 structure Context where
   config : Try.Config

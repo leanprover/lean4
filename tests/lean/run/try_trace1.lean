@@ -1,4 +1,5 @@
 set_option grind.warning false
+%reset_grind_attrs
 
 /--
 info: Try these:
@@ -96,4 +97,20 @@ example : app (app as bs) cs = app as (app bs cs) := by
   revert as bs cs
   intro _ _ _
   -- `as`, `bs`, and `cs` now have inaccessible names.
+  try?
+
+def concat : List α → α → List α
+  | .nil,       b => .cons b .nil
+  | .cons a as, b => .cons a (concat as b)
+
+attribute [simp] concat
+
+/--
+info: Try this: ·
+  induction as, a using concat.induct
+  · rfl
+  · simp_all
+-/
+#guard_msgs (info) in
+example (as : List α) (a : α) : concat as a = as ++ [a] := by
   try?

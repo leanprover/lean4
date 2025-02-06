@@ -27,7 +27,10 @@ namespace Lean.Parser.Tactic
 
 syntax (name := tryTrace) "try?" optConfig : tactic
 
-/-- Helper tactic for implementing the tactic `try?`. -/
+/-- Helper internal tactic for implementing the tactic `try?`. -/
 syntax (name := attemptAll) "attempt_all " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
+
+/-- Helper internal tactic used to implement `evalSuggest` in `try?` -/
+syntax (name := tryResult) "try_suggestions " tactic* : tactic
 
 end Lean.Parser.Tactic

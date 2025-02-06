@@ -26,6 +26,34 @@ structure EqnInfo extends EqnInfoCore where
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
+def getSimpMatchContext : MetaM Simp.Context := do
+   Simp.mkContext
+      (simpTheorems   := {})
+      (congrTheorems := (← getSimpCongrTheorems))
+      (config        := { Simp.neutralConfig with dsimp := false, etaStruct := .none, underLambda := false })
+
+def simpMatch (e : Expr) : MetaM Simp.Result := do
+  let discharge? ← SplitIf.mkDischarge?
+  (·.1) <$> Simp.main e (← getSimpMatchContext) (methods := { pre, discharge? })
+where
+  pre (e : Expr) : SimpM Simp.Step := do
+    unless (← isMatcherApp e) do
+      return Simp.Step.continue
+    let matcherDeclName := e.getAppFn.constName!
+    -- First try to reduce matcher
+    match (← reduceRecMatcher? e) with
+    | some e' => return Simp.Step.done { expr := e' }
+    | none    => Simp.simpMatchCore matcherDeclName e
+
+def simpMatchTarget (mvarId : MVarId) : MetaM MVarId := mvarId.withContext do
+  let target ← instantiateMVars (← mvarId.getType)
+  let r ← simpMatch target
+  applySimpResultToTarget mvarId target r
+
+def simpMatch? (mvarId : MVarId) : MetaM (Option MVarId) := do
+  let mvarId' ← simpMatchTarget mvarId
+  if mvarId != mvarId' then return some mvarId' else return none
+
 private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
   withNewMCtxDepth do
@@ -39,8 +67,8 @@ where
     trace[Elab.definition.structural.eqns] "go1\n{MessageData.ofGoal mvarId}"
     if let some mvarId ← simpIf? mvarId then
       go1 mvarId
-    else if let some mvarId ← deltaRHS? mvarId declName then
-      go1 mvarId
+    -- else if let some mvarId ← deltaRHS? mvarId declName then
+    --   go1 mvarId
     else if let some mvarIds ← splitTarget? mvarId then
       mvarIds.forM go1
     else
@@ -56,7 +84,7 @@ where
     else if let some mvarId ← simpMatch? mvarId then
       go2 mvarId
     else
-      let ctx ← Simp.mkContext (config := { iota := false })
+      let ctx ← Simp.mkContext (config := { iota := false, underLambda := false })
       match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go2 mvarId

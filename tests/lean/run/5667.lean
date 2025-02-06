@@ -10,25 +10,121 @@ def optimize : Expr → Expr
     | _, _ => .const 0
 
 /--
-info: optimize.eq_def (x✝ : Expr) :
-  optimize x✝ =
-    match x✝ with
-    | Expr.const i => Expr.const i
-    | Expr.op bop e1 =>
-      match bop, optimize e1 with
-      | x, Expr.const i => Expr.op bop (Expr.const 0)
-      | x, x_1 => Expr.const 0
+error: Failed to realize constant optimize.eq_def:
+  failed to generate equational theorem for 'optimize'
+  case h_2.h_1
+  x e1 : Expr
+  bop✝ bop_1 : Unit
+  x_1 : Expr
+  i : BitVec 32
+  heq✝ : optimize e1 = Expr.const i
+  ⊢ (match bop✝,
+        (Expr.rec
+            (fun i =>
+              ⟨(fun x f =>
+                    (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                      | Expr.const i => fun x => Expr.const i
+                      | Expr.op bop e1 => fun x =>
+                        match bop, x.1 with
+                        | x, Expr.const i => Expr.op bop (Expr.const 0)
+                        | x, x_2 => Expr.const 0)
+                      f)
+                  (Expr.const i) PUnit.unit,
+                PUnit.unit⟩)
+            (fun op e1 e1_ih =>
+              ⟨(fun x f =>
+                    (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                      | Expr.const i => fun x => Expr.const i
+                      | Expr.op bop e1 => fun x =>
+                        match bop, x.1 with
+                        | x, Expr.const i => Expr.op bop (Expr.const 0)
+                        | x, x_2 => Expr.const 0)
+                      f)
+                  (Expr.op op e1) e1_ih,
+                e1_ih⟩)
+            e1).1 with
+      | x, Expr.const i => Expr.op bop✝ (Expr.const 0)
+      | x, x_2 => Expr.const 0) =
+      Expr.op bop✝ (Expr.const 0)
+---
+error: Failed to realize constant optimize.eq_def:
+  failed to generate equational theorem for 'optimize'
+  case h_2.h_1
+  x e1 : Expr
+  bop✝ bop_1 : Unit
+  x_1 : Expr
+  i : BitVec 32
+  heq✝ : optimize e1 = Expr.const i
+  ⊢ (match bop✝,
+        (Expr.rec
+            (fun i =>
+              ⟨(fun x f =>
+                    (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                      | Expr.const i => fun x => Expr.const i
+                      | Expr.op bop e1 => fun x =>
+                        match bop, x.1 with
+                        | x, Expr.const i => Expr.op bop (Expr.const 0)
+                        | x, x_2 => Expr.const 0)
+                      f)
+                  (Expr.const i) PUnit.unit,
+                PUnit.unit⟩)
+            (fun op e1 e1_ih =>
+              ⟨(fun x f =>
+                    (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                      | Expr.const i => fun x => Expr.const i
+                      | Expr.op bop e1 => fun x =>
+                        match bop, x.1 with
+                        | x, Expr.const i => Expr.op bop (Expr.const 0)
+                        | x, x_2 => Expr.const 0)
+                      f)
+                  (Expr.op op e1) e1_ih,
+                e1_ih⟩)
+            e1).1 with
+      | x, Expr.const i => Expr.op bop✝ (Expr.const 0)
+      | x, x_2 => Expr.const 0) =
+      Expr.op bop✝ (Expr.const 0)
+---
+error: unknown identifier 'optimize.eq_def'
 -/
 #guard_msgs in
 #check optimize.eq_def
 
 /--
-info: equations:
-theorem optimize.eq_1 : ∀ (i : BitVec 32), optimize (Expr.const i) = Expr.const i
-theorem optimize.eq_2 : ∀ (e1 : Expr) (bop : Unit) (i : BitVec 32),
-  optimize e1 = Expr.const i → optimize (Expr.op bop e1) = Expr.op bop (Expr.const 0)
-theorem optimize.eq_3 : ∀ (e1 : Expr) (bop : Unit),
-  (∀ (i : BitVec 32), optimize e1 = Expr.const i → False) → optimize (Expr.op bop e1) = Expr.const 0
+error: failed to generate equational theorem for 'optimize'
+case h_2.h_1
+x e1 : Expr
+bop✝ bop_1 : Unit
+x_1 : Expr
+i : BitVec 32
+heq✝ : optimize e1 = Expr.const i
+⊢ (match bop✝,
+      (Expr.rec
+          (fun i =>
+            ⟨(fun x f =>
+                  (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                    | Expr.const i => fun x => Expr.const i
+                    | Expr.op bop e1 => fun x =>
+                      match bop, x.1 with
+                      | x, Expr.const i => Expr.op bop (Expr.const 0)
+                      | x, x_2 => Expr.const 0)
+                    f)
+                (Expr.const i) PUnit.unit,
+              PUnit.unit⟩)
+          (fun op e1 e1_ih =>
+            ⟨(fun x f =>
+                  (match (motive := (x : Expr) → Expr.below x → Expr) x with
+                    | Expr.const i => fun x => Expr.const i
+                    | Expr.op bop e1 => fun x =>
+                      match bop, x.1 with
+                      | x, Expr.const i => Expr.op bop (Expr.const 0)
+                      | x, x_2 => Expr.const 0)
+                    f)
+                (Expr.op op e1) e1_ih,
+              e1_ih⟩)
+          e1).1 with
+    | x, Expr.const i => Expr.op bop✝ (Expr.const 0)
+    | x, x_2 => Expr.const 0) =
+    Expr.op bop✝ (Expr.const 0)
 -/
 #guard_msgs in
 #print equations optimize

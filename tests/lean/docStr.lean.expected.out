@@ -19,7 +19,7 @@ doc string for 'g' is not available
 "Auxiliary declaration used to implement named patterns like `x@h:p`. "
 "Similar to `forallTelescope`, but given `type` of the form `forall xs, A`,\nit reduces `A` and continues building the telescope if it is a `forall`.\n\nIf `cleanupAnnotations` is `true`, we apply `Expr.cleanupAnnotations` to each type in the telescope.\n"
 Foo :=
-  { range := { pos := { line := 4, column := 0 },
+  { range := { pos := { line := 3, column := 0 },
                charUtf16 := 0,
                endPos := { line := 6, column := 58 },
                endCharUtf16 := 58 },
@@ -46,7 +46,7 @@ Foo.val :=
                         endPos := { line := 6, column := 47 },
                         endCharUtf16 := 47 } }
 myAxiom :=
-  { range := { pos := { line := 9, column := 0 },
+  { range := { pos := { line := 8, column := 0 },
                charUtf16 := 0,
                endPos := { line := 9, column := 19 },
                endCharUtf16 := 19 },
@@ -91,7 +91,7 @@ Boo.y :=
                         endPos := { line := 15, column := 5 },
                         endCharUtf16 := 5 } }
 Tree :=
-  { range := { pos := { line := 18, column := 0 },
+  { range := { pos := { line := 17, column := 0 },
                charUtf16 := 0,
                endPos := { line := 20, column := 56 },
                endCharUtf16 := 56 },
@@ -100,7 +100,7 @@ Tree :=
                         endPos := { line := 18, column := 14 },
                         endCharUtf16 := 14 } }
 Tree.rec :=
-  { range := { pos := { line := 18, column := 0 },
+  { range := { pos := { line := 17, column := 0 },
                charUtf16 := 0,
                endPos := { line := 20, column := 56 },
                endCharUtf16 := 56 },
@@ -109,7 +109,7 @@ Tree.rec :=
                         endPos := { line := 18, column := 14 },
                         endCharUtf16 := 14 } }
 Tree.casesOn :=
-  { range := { pos := { line := 18, column := 0 },
+  { range := { pos := { line := 17, column := 0 },
                charUtf16 := 0,
                endPos := { line := 20, column := 56 },
                endCharUtf16 := 56 },
@@ -136,7 +136,7 @@ Tree.leaf :=
                         endPos := { line := 20, column := 43 },
                         endCharUtf16 := 43 } }
 Bla.test :=
-  { range := { pos := { line := 25, column := 0 },
+  { range := { pos := { line := 24, column := 0 },
                charUtf16 := 0,
                endPos := { line := 31, column := 16 },
                endCharUtf16 := 16 },

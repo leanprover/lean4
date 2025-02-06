@@ -12,11 +12,10 @@ namespace Lean.Elab.Tactic.Conv
 open Meta
 
 private def getContext : MetaM Simp.Context := do
-  return {
-    simpTheorems  := {}
-    congrTheorems := (← getSimpCongrTheorems)
-    config        := Simp.neutralConfig
-  }
+  Simp.mkContext
+    (simpTheorems  := {})
+    (congrTheorems := (← getSimpCongrTheorems))
+    (config        := Simp.neutralConfig)
 
 partial def matchPattern? (pattern : AbstractMVarsResult) (e : Expr) : MetaM (Option (Expr × Array Expr)) :=
   withNewMCtxDepth do
@@ -119,14 +118,14 @@ private def pre (pattern : AbstractMVarsResult) (state : IO.Ref PatternMatchStat
         let ids ← ids.mapIdxM fun i id =>
           match id.getNat with
           | 0 => throwErrorAt id "positive integer expected"
-          | n+1 => pure (n, i.1)
+          | n+1 => pure (n, i)
         let ids := ids.qsort (·.1 < ·.1)
         unless @Array.allDiff _ ⟨(·.1 == ·.1)⟩ ids do
           throwError "occurrence list is not distinct"
         pure (.occs #[] 0 ids.toList)
       | _ => throwUnsupportedSyntax
     let state ← IO.mkRef occs
-    let ctx := { ← getContext with config.memoize := occs matches .all _ }
+    let ctx := (← getContext).setMemoize (occs matches .all _)
     let (result, _) ← Simp.main lhs ctx (methods := { pre := pre patternA state })
     let subgoals ← match ← state.get with
     | .all #[] | .occs _ 0 _ =>

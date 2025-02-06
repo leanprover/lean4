@@ -429,7 +429,6 @@ static lean_object* l___regBuiltin_BitVec_reduceShiftLeftZeroExtend_declare__1__
 LEAN_EXPORT lean_object* l_BitVec_reduceSDiv(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_BitVec_reduceReplicate_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec___hyg_5597____closed__5;
 lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 static lean_object* l___regBuiltin_BitVec_reduceShiftLeftShiftLeft_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec___hyg_6570____closed__3;
 static lean_object* l_BitVec_reduceHShiftRight___closed__3;
 LEAN_EXPORT lean_object* l___regBuiltin_BitVec_reduceLE_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_BitVec___hyg_4215_(lean_object*);
@@ -16356,9 +16355,9 @@ static lean_object* _init_l_BitVec_reduceCast___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_BitVec_reduceUnary___lambda__1___closed__2;
+x_1 = lean_box(0);
 x_2 = l_BitVec_reduceCast___closed__2;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

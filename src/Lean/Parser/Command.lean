@@ -134,10 +134,8 @@ def declValSimple    := leading_parser
   " :=" >> ppHardLineUnlessUngrouped >> declBody >> Termination.suffix >> optional Term.whereDecls
 def declValEqns      := leading_parser
   Term.matchAltsWhereDecls
-def whereStructField := leading_parser
-  Term.letDecl
 def whereStructInst  := leading_parser
-  ppIndent ppSpace >> "where" >> sepByIndent (ppGroup whereStructField) "; " (allowTrailingSep := true) >>
+  ppIndent ppSpace >> "where" >> Term.structInstFields (sepByIndent Term.structInstField "; " (allowTrailingSep := true)) >>
   optional Term.whereDecls
 /-- `declVal` matches the right-hand side of a declaration, one of:
 * `:= expr` (a "simple declaration")
@@ -173,7 +171,7 @@ def «example»        := leading_parser
 def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
-def derivingClasses  := sepBy1 (group (ident >> optional (" with " >> ppIndent Term.structInst))) ", "
+def derivingClasses  := sepBy1 ident ", "
 def optDeriving      := leading_parser
   optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
 def computedField    := leading_parser
@@ -505,6 +503,16 @@ Displays all available tactic tags, with documentation.
 -/
 @[builtin_command_parser] def printTacTags   := leading_parser
   "#print " >> nonReservedSymbol "tactic " >> nonReservedSymbol "tags"
+/--
+`#where` gives a description of the state of the current scope scope.
+This includes the current namespace, `open` namespaces, `universe` and `variable` commands,
+and options set with `set_option`.
+-/
+@[builtin_command_parser] def «where»        := leading_parser
+  "#where"
+/-- Shows the current Lean version. Prints `Lean.versionString`. -/
+@[builtin_command_parser] def version        := leading_parser
+  "#version"
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
@@ -728,7 +736,7 @@ Documentation can only be added to declarations in the same module.
   docComment >> "add_decl_doc " >> ident
 
 /--
-Register a tactic tag, saving its user-facing name and docstring.
+Registers a tactic tag, saving its user-facing name and docstring.
 
 Tactic tags can be used by documentation generation tools to classify related tactics.
 -/
@@ -737,7 +745,7 @@ Tactic tags can be used by documentation generation tools to classify related ta
   "register_tactic_tag " >> ident >> strLit
 
 /--
-Add more documentation as an extension of the documentation for a given tactic.
+Adds more documentation as an extension of the documentation for a given tactic.
 
 The extended documentation is placed in the command's docstring. It is shown as part of a bulleted
 list, so it should be brief.
@@ -746,6 +754,47 @@ list, so it should be brief.
   optional (docComment >> ppLine) >>
   "tactic_extension " >> ident
 
+/--
+Documents a recommended spelling for a notation in identifiers.
+
+Theorems should generally be systematically named after their statement, rather than creatively.
+Non-identifier notations should be referred to consistently by their recommended spelling.
+
+```
+/-- some additional info -/
+recommended_spelling "and" for "∧" in [And, «term_∧_»]
+```
+
+will do the following:
+* Adds the sentence "The recommended spelling of `∧` in identifiers is `and` (some additional info)."
+  to the end of the docstring for `And` and for `∧`. If the additional info is more than a single
+  line, it will be placed below the sentence instead of in parentheses.
+* Registers this information in an environment extension, so that it will later be possible to
+  generate a table with all recommended spellings.
+
+You can add attach the recommended spelling to as many declarations as you want. It is recommended
+to attach the recommended spelling to all relevant parsers as well as the declaration the parsers
+refer to (if such a declaration exists). Note that the `inherit_doc` attribute does *not* copy
+recommended spellings, so even though the parser for `∧` uses `@[inherit_doc And]`, we have to
+attach the recommended spelling to both `And` and `«term_∧_»`.
+
+The `syntax`, `macro`, `elab` and `notation` commands accept a `(name := parserName)` option to
+assign a name to the created parser so that you do not have to guess the automatically generated
+name. The `synax`, `macro` and `elab` commands can be hovered to see the name of the parser.
+
+For complex notations which enclose identifiers, the convention is to use example identifiers rather
+than other placeholders. This is an example following the convention:
+```
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
+```
+Using `[·]` or `[⋯]` or `[…]` instead of `[a]` would be against the convention. When attaching a
+recommended spelling to a notation whose docstring already has an example, try to reuse the
+identifier names chosen in the docstring for consistency.
+-/
+@[builtin_command_parser] def «recommended_spelling» := leading_parser
+  optional (docComment >> ppLine) >>
+  "recommended_spelling " >> strLit >> " for " >> strLit >> " in " >>
+    "[" >> sepBy1 ident ", " >> "]"
 
 /--
   This is an auxiliary command for generation constructor injectivity theorems for

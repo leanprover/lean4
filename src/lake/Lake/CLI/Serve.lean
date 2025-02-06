@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load
 import Lake.Build
 import Lake.Util.MainM
@@ -10,6 +11,7 @@ import Lean.Util.FileSetupInfo
 
 namespace Lake
 open Lean
+open System (FilePath)
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
@@ -37,7 +39,7 @@ def setupFile
       IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
       exit 1
     let outLv := buildConfig.verbosity.minLogLv
-    let ws ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+    let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
@@ -47,6 +49,7 @@ def setupFile
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
+      pluginPaths := #[]
       : LeanPaths
     }
     let setupOptions : LeanOptions ← do
@@ -70,7 +73,7 @@ with the given additional `args`.
 -/
 def serve (config : LoadConfig) (args : Array String) : IO UInt32 := do
   let (extraEnv, moreServerArgs) ← do
-    let (ws?, log) ← (loadWorkspace config).run?
+    let (ws?, log) ← (loadWorkspace config).captureLog
     log.replay (logger := MonadLog.stderr)
     if let some ws := ws? then
       let ctx := mkLakeContext ws

@@ -15,7 +15,7 @@ theorem bar : True := by
 
 /--
 info: theorem bar : True :=
-sorryAx True true
+sorry
 -/
 #guard_msgs in
 #print bar
@@ -31,7 +31,7 @@ theorem bar2 : True := by
 
 /--
 info: theorem bar2 : True :=
-sorryAx True true
+sorry
 -/
 #guard_msgs in
 #print bar2

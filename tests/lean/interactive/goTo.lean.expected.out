@@ -92,8 +92,7 @@
   {"start": {"line": 38, "character": 26},
    "end": {"line": 38, "character": 38}},
   "targetRange":
-  {"start": {"line": 38, "character": 22},
-   "end": {"line": 40, "character": 78}},
+  {"start": {"line": 38, "character": 0}, "end": {"line": 40, "character": 78}},
   "originSelectionRange":
   {"start": {"line": 43, "character": 7},
    "end": {"line": 43, "character": 11}}}]

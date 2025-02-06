@@ -639,7 +639,7 @@ def mkFVar (fvarId : FVarId) : Expr :=
 /--
 `.mvar mvarId` is now the preferred form.
 This function is seldom used, metavariables are often created using functions such
-as `mkFresheExprMVar` at `MetaM`.
+as `mkFreshExprMVar` at `MetaM`.
 -/
 def mkMVar (mvarId : MVarId) : Expr :=
   .mvar mvarId
@@ -768,6 +768,11 @@ opaque quickLt (a : @& Expr) (b : @& Expr) : Bool
 /-- A total order for expressions that takes the structure into account (e.g., variable names). -/
 @[extern "lean_expr_lt"]
 opaque lt (a : @& Expr) (b : @& Expr) : Bool
+
+def quickComp (a b : Expr) : Ordering :=
+  if quickLt a b then .lt
+  else if quickLt b a then .gt
+  else .eq
 
 /--
 Return true iff `a` and `b` are alpha equivalent.
@@ -1039,6 +1044,14 @@ def getForallBinderNames : Expr → List Name
   | _ => []
 
 /--
+Returns the number of leading `∀` binders of an expression. Ignores metadata.
+-/
+def getNumHeadForalls : Expr → Nat
+  | mdata _ b => getNumHeadForalls b
+  | forallE _ _ body _ => getNumHeadForalls body + 1
+  | _ => 0
+
+/--
 If the given expression is a sequence of
 function applications `f a₁ .. aₙ`, return `f`.
 Otherwise return the input expression.
@@ -1084,6 +1097,16 @@ private def getAppNumArgsAux : Expr → Nat → Nat
 /-- Counts the number `n` of arguments for an expression `f a₁ .. aₙ`. -/
 def getAppNumArgs (e : Expr) : Nat :=
   getAppNumArgsAux e 0
+
+/-- Like `getAppNumArgs` but ignores metadata. -/
+def getAppNumArgs' (e : Expr) : Nat :=
+  go e 0
+where
+  /-- Auxiliary definition for `getAppNumArgs'`. -/
+  go : Expr → Nat → Nat
+    | mdata _ b, n => go b n
+    | app f _  , n => go f (n + 1)
+    | _        , n => n
 
 /--
 Like `Lean.Expr.getAppFn` but assumes the application has up to `maxArgs` arguments.
@@ -1217,6 +1240,9 @@ def getRevArg!' : Expr → Nat → Expr
 @[inline] def getArgD (e : Expr) (i : Nat) (v₀ : Expr) (n := e.getAppNumArgs) : Expr :=
   getRevArgD e (n - i - 1) v₀
 
+/-- Return `true` if `e` contains any loose bound variables.
+
+This is a constant time operation. -/
 def hasLooseBVars (e : Expr) : Bool :=
   e.looseBVarRange > 0
 
@@ -1229,6 +1255,11 @@ def isArrow (e : Expr) : Bool :=
   | forallE _ _ b _ => !b.hasLooseBVars
   | _ => false
 
+/--
+Return `true` if `e` contains the specified loose bound variable with index `bvarIdx`.
+
+This operation traverses the expression tree.
+-/
 @[extern "lean_expr_has_loose_bvar"]
 opaque hasLooseBVar (e : @& Expr) (bvarIdx : @& Nat) : Bool
 
@@ -1348,7 +1379,11 @@ See also `Lean.Expr.instantiateRange`, which instantiates with the "backwards" i
 @[extern "lean_expr_instantiate_rev_range"]
 opaque instantiateRevRange (e : @& Expr) (beginIdx endIdx : @& Nat) (subst : @& Array Expr) : Expr
 
-/-- Replace free (or meta) variables `xs` with loose bound variables. -/
+/-- Replace free (or meta) variables `xs` with loose bound variables,
+with `xs` ordered from outermost to innermost de Bruijn index.
+
+For example, `e := f x y` with `xs := #[x, y]` goes to `f #1 #0`,
+whereas `e := f x y` with `xs := #[y, x]` goes to `f #0 #1`. -/
 @[extern "lean_expr_abstract"]
 opaque abstract (e : @& Expr) (xs : @& Array Expr) : Expr
 
@@ -1614,6 +1649,23 @@ def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
 
 /--
+`getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
+and performs pending beta reductions. It does **not** use whnf.
+Examples:
+- If `a` is `Nat`, `getForallArity a` returns `0`
+- If `a` is `Nat → Bool`, `getForallArity a` returns `1`
+-/
+partial def getForallArity : Expr → Nat
+  | .mdata _ b       => getForallArity b
+  | .forallE _ _ b _ => getForallArity b + 1
+  | e                =>
+    if e.isHeadBetaTarget then
+      getForallArity e.headBeta
+    else
+      let e' := e.cleanupAnnotations
+      if e != e' then getForallArity e' else 0
+
+/--
 Checks if an expression is a "natural number numeral in normal form",
 i.e. of type `Nat`, and explicitly of the form `OfNat.ofNat n`
 where `n` matches `.lit (.natVal n)` for some literal natural number `n`.
@@ -1817,6 +1869,27 @@ The delaborator uses `pp` options.
 -/
 def setPPUniverses (e : Expr) (flag : Bool) :=
   e.setOption `pp.universes flag
+
+/--
+Annotate `e` with `pp.piBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPPiBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.piBinderTypes flag
+
+/--
+Annotate `e` with `pp.funBinderTypes := flag`
+The delaborator uses `pp` options.
+-/
+def setPPFunBinderTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.funBinderTypes flag
+
+/--
+Annotate `e` with `pp.explicit := flag`
+The delaborator uses `pp` options.
+-/
+def setPPNumericTypes (e : Expr) (flag : Bool) :=
+  e.setOption `pp.numericTypes flag
 
 /--
 If `e` is an application `f a_1 ... a_n` annotate `f`, `a_1` ... `a_n` with `pp.explicit := false`,

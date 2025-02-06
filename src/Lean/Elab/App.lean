@@ -506,8 +506,7 @@ where
     if h : i < args.size then
       match (← whnf cType) with
       | .forallE _ d b _ =>
-        let arg := args.get ⟨i, h⟩
-        if arg == x && d.isOutParam then
+        if args[i] == x && d.isOutParam then
           return true
         isOutParamOf x (i+1) args b
       | _ => return false
@@ -595,6 +594,22 @@ mutual
       elabAndAddNewArg argName arg
       main
     | _ =>
+      if (← read).ellipsis && (← readThe Term.Context).inPattern then
+        /-
+        In patterns, ellipsis should always be an implicit argument, even if it is an optparam or autoparam.
+        This prevents examples such as the one in #4555 from failing:
+        ```lean
+        match e with
+        | .internal .. => sorry
+        | .error .. => sorry
+        ```
+        The `internal` has an optparam (`| internal (id : InternalExceptionId) (extra : KVMap := {})`).
+
+        We may consider having ellipsis suppress optparams and autoparams in general.
+        We avoid doing so for now since it's possible to opt-out of them (for example with `.internal (extra := _) ..`)
+        but it's not possible to opt-in.
+        -/
+        return ← addImplicitArg argName
       let argType ← getArgExpectedType
       match (← read).explicit, argType.getOptParamDefault?, argType.getAutoParamTactic? with
       | false, some defVal, _  => addNewArg argName defVal; main
@@ -613,7 +628,7 @@ mutual
           (in particular, `Lean.Elab.Term.withReuseContext`) controls the ref to avoid leakage of outside data.
           Note that `tacticSyntax` contains no position information itself, since it is erased by `Lean.Elab.Term.quoteAutoTactic`.
           -/
-          let info := (← getRef).getHeadInfo
+          let info := (← getRef).getHeadInfo.nonCanonicalSynthetic
           let tacticBlock := tacticBlock.raw.rewriteBottomUp (·.setInfo info)
           let mvar ← mkTacticMVar argType.consumeTypeAnnotations tacticBlock (.autoParam argName)
           -- Note(kmill): We are adding terminfo to simulate a previous implementation that elaborated `tacticBlock`.
@@ -777,7 +792,7 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
   forallTelescopeReducing elimType fun xs type => do
     let motive  := type.getAppFn
     let motiveArgs := type.getAppArgs
-    unless motive.isFVar do
+    unless motive.isFVar && motiveArgs.size > 0 do
       throwError "unexpected eliminator resulting type{indentExpr type}"
     let motiveType ← inferType motive
     forallTelescopeReducing motiveType fun motiveParams motiveResultType => do
@@ -785,15 +800,15 @@ def getElabElimExprInfo (elimExpr : Expr) : MetaM ElabElimInfo := do
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     /-
     Compute transitive closure of fvars appearing in arguments to the motive.
     These are the primary set of major parameters.
     -/
     let initMotiveFVars : CollectFVars.State := motiveArgs.foldl (init := {}) collectFVars
-    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i s => do
-      let x := xs[i]!
+    let motiveFVars ← xs.size.foldRevM (init := initMotiveFVars) fun i _ s => do
+      let x := xs[i]
       if s.fvarSet.contains x.fvarId! then
         return collectFVars s (← inferType x)
       else
@@ -1118,51 +1133,49 @@ where
 
 /-- Auxiliary inductive datatype that represents the resolution of an `LVal`. -/
 inductive LValResolution where
+  /-- When applied to `f`, effectively expands to `BaseStruct.fieldName (self := Struct.toBase f)`.
+  This is a special named argument where it suppresses any explicit arguments depending on it so that type parameters don't need to be supplied. -/
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
+  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for structure-like inductive types in general. -/
   | projIdx  (structName : Name) (idx : Nat)
+  /-- When applied to `f`, effectively expands to `constName ... (Struct.toBase f)`, with the argument placed in the correct
+  positional argument if possible, or otherwise as a named argument. The `Struct.toBase` is not present if `baseStructName == structName`,
+  in which case these do not need to be structures. Supports generalized field notation. -/
   | const    (baseStructName : Name) (structName : Name) (constName : Name)
+  /-- Like `const`, but with `fvar` instead of `constName`.
+  The `fullName` is the name of the recursive function, and `baseName` is the base name of the type to search for in the parameter list. -/
   | localRec (baseName : Name) (fullName : Name) (fvar : Expr)
 
 private def throwLValError (e : Expr) (eType : Expr) (msg : MessageData) : TermElabM α :=
   throwError "{msg}{indentExpr e}\nhas type{indentExpr eType}"
 
 /--
-`findMethod? env S fName`.
-- If `env` contains `S ++ fName`, return `(S, S++fName)`
-- Otherwise if `env` contains private name `prv` for `S ++ fName`, return `(S, prv)`, o
-- Otherwise for each parent structure `S'` of  `S`, we try `findMethod? env S' fname`
+`findMethod? S fName` tries the for each namespace `S'` in the resolution order for `S` to resolve the name `S'.fname`.
+If it resolves to `name`, returns `(S', name)`.
 -/
-private partial def findMethod? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
-  let fullName := structName ++ fieldName
-  match env.find? fullName with
-  | some _ => some (structName, fullName)
-  | none   =>
-    let fullNamePrv := mkPrivateName env fullName
-    match env.find? fullNamePrv with
-    | some _ => some (structName, fullNamePrv)
-    | none   =>
-      if isStructure env structName then
-        (getParentStructures env structName).findSome? fun parentStructName => findMethod? env parentStructName fieldName
-      else
-        none
-
-/--
-  Return `some (structName', fullName)` if `structName ++ fieldName` is an alias for `fullName`, and
-  `fullName` is of the form `structName' ++ fieldName`.
-
-  TODO: if there is more than one applicable alias, it returns `none`. We should consider throwing an error or
-  warning.
--/
-private def findMethodAlias? (env : Environment) (structName fieldName : Name) : Option (Name × Name) :=
-  let fullName := structName ++ fieldName
-  -- We never skip `protected` aliases when resolving dot-notation.
-  let aliasesCandidates := getAliases env fullName (skipProtected := false) |>.filterMap fun alias =>
-    match alias.eraseSuffix? fieldName with
-    | none => none
-    | some structName' => some (structName', alias)
-  match aliasesCandidates with
-  | [r] => some r
-  | _   => none
+private partial def findMethod? (structName fieldName : Name) : MetaM (Option (Name × Name)) := do
+  let env ← getEnv
+  let find? structName' : MetaM (Option (Name × Name)) := do
+    let fullName := structName' ++ fieldName
+    -- We do not want to make use of the current namespace for resolution.
+    let candidates := ResolveName.resolveGlobalName (← getEnv) Name.anonymous (← getOpenDecls) fullName
+      |>.filter (fun (_, fieldList) => fieldList.isEmpty)
+      |>.map Prod.fst
+    match candidates with
+    | []          => return none
+    | [fullName'] => return some (structName', fullName')
+    | _ => throwError "\
+      invalid field notation '{fieldName}', the name '{fullName}' is ambiguous, possible interpretations: \
+      {MessageData.joinSep (candidates.map (m!"'{.ofConstName ·}'")) ", "}"
+  -- Optimization: the first element of the resolution order is `structName`,
+  -- so we can skip computing the resolution order in the common case
+  -- of the name resolving in the `structName` namespace.
+  find? structName <||> do
+    let resolutionOrder ← if isStructure env structName then getStructureResolutionOrder structName else pure #[structName]
+    for ns in resolutionOrder[1:resolutionOrder.size] do
+      if let some res ← find? ns then
+        return res
+    return none
 
 private def throwInvalidFieldNotation (e eType : Expr) : TermElabM α :=
   throwLValError e eType "invalid field notation, type is not of the form (C ...) where C is a constant"
@@ -1180,45 +1193,37 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if idx == 0 then
       throwError "invalid projection, index must be greater than 0"
     let env ← getEnv
-    unless isStructureLike env structName do
-      throwLValError e eType "invalid projection, structure expected"
-    let numFields := getStructureLikeNumFields env structName
-    if idx - 1 < numFields then
-      if isStructure env structName then
-        let fieldNames := getStructureFields env structName
-        return LValResolution.projFn structName structName fieldNames[idx - 1]!
+    let failK _ := throwLValError e eType "invalid projection, structure expected"
+    matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
+      let numFields := ctorVal.numFields
+      if idx - 1 < numFields then
+        if isStructure env structName then
+          let fieldNames := getStructureFields env structName
+          return LValResolution.projFn structName structName fieldNames[idx - 1]!
+        else
+          /- `structName` was declared using `inductive` command.
+            So, we don't projection functions for it. Thus, we use `Expr.proj` -/
+          return LValResolution.projIdx structName (idx - 1)
       else
-        /- `structName` was declared using `inductive` command.
-           So, we don't projection functions for it. Thus, we use `Expr.proj` -/
-        return LValResolution.projIdx structName (idx - 1)
-    else
-      throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
+        throwLValError e eType m!"invalid projection, structure has only {numFields} field(s)"
   | some structName, LVal.fieldName _ fieldName _ _ =>
     let env ← getEnv
-    let searchEnv : Unit → TermElabM LValResolution := fun _ => do
-      if let some (baseStructName, fullName) := findMethod? env structName (.mkSimple fieldName) then
-        return LValResolution.const baseStructName structName fullName
-      else if let some (structName', fullName) := findMethodAlias? env structName (.mkSimple fieldName) then
-        return LValResolution.const structName' structName' fullName
-      else
-        throwLValError e eType
-          m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
-    -- search local context first, then environment
-    let searchCtx : Unit → TermElabM LValResolution := fun _ => do
-      let fullName := Name.mkStr structName fieldName
-      for localDecl in (← getLCtx) do
-        if localDecl.isAuxDecl then
-          if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
-            if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
-              /- LVal notation is being used to make a "local" recursive call. -/
-              return LValResolution.localRec structName fullName localDecl.toExpr
-      searchEnv ()
     if isStructure env structName then
-      match findField? env structName (Name.mkSimple fieldName) with
-      | some baseStructName => return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
-      | none                => searchCtx ()
-    else
-      searchCtx ()
+      if let some baseStructName := findField? env structName (Name.mkSimple fieldName) then
+        return LValResolution.projFn baseStructName structName (Name.mkSimple fieldName)
+    -- Search the local context first
+    let fullName := Name.mkStr structName fieldName
+    for localDecl in (← getLCtx) do
+      if localDecl.isAuxDecl then
+        if let some localDeclFullName := (← read).auxDeclToFullName.find? localDecl.fvarId then
+          if fullName == (privateToUserName? localDeclFullName).getD localDeclFullName then
+            /- LVal notation is being used to make a "local" recursive call. -/
+            return LValResolution.localRec structName fullName localDecl.toExpr
+    -- Then search the environment
+    if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
+      return LValResolution.const baseStructName structName fullName
+    throwLValError e eType
+      m!"invalid field '{fieldName}', the environment does not contain '{Name.mkStr structName fieldName}'"
   | none, LVal.fieldName _ _ (some suffix) _ =>
     if e.isConst then
       throwUnknownConstant (e.constName! ++ suffix)
@@ -1290,45 +1295,70 @@ private def typeMatchesBaseName (type : Expr) (baseName : Name) : MetaM Bool := 
   else
     return (← whnfR type).isAppOf baseName
 
-/-- Auxiliary method for field notation. It tries to add `e` as a new argument to `args` or `namedArgs`.
-   This method first finds the parameter with a type of the form `(baseName ...)`.
-   When the parameter is found, if it an explicit one and `args` is big enough, we add `e` to `args`.
-   Otherwise, if there isn't another parameter with the same name, we add `e` to `namedArgs`.
+/--
+Auxiliary method for field notation. Tries to add `e` as a new argument to `args` or `namedArgs`.
+This method first finds the parameter with a type of the form `(baseName ...)`.
+When the parameter is found, if it an explicit one and `args` is big enough, we add `e` to `args`.
+Otherwise, if there isn't another parameter with the same name, we add `e` to `namedArgs`.
 
-   Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors -/
-private def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (fType : Expr)
-    : TermElabM (Array Arg × Array NamedArg) :=
-  forallTelescopeReducing fType fun xs _ => do
-    let mut argIdx := 0 -- position of the next explicit argument
-    let mut remainingNamedArgs := namedArgs
-    for h : i in [:xs.size] do
-      let x := xs[i]
-      let xDecl ← x.fvarId!.getDecl
-      /- If there is named argument with name `xDecl.userName`, then we skip it. -/
-      match remainingNamedArgs.findIdx? (fun namedArg => namedArg.name == xDecl.userName) with
-      | some idx =>
+Remark: `fullName` is the name of the resolved "field" access function. It is used for reporting errors
+-/
+private partial def addLValArg (baseName : Name) (fullName : Name) (e : Expr) (args : Array Arg) (namedArgs : Array NamedArg) (f : Expr) (explicit : Bool) :
+    MetaM (Array Arg × Array NamedArg) := do
+  withoutModifyingState <| go f (← inferType f) 0 namedArgs (namedArgs.map (·.name)) true
+where
+  /--
+  * `argIdx` is the position into `args` for the next place an explicit argument can be inserted.
+  * `remainingNamedArgs` keeps track of named arguments that haven't been visited yet,
+    for handling the case where multiple parameters have the same name.
+  * `unusableNamedArgs` keeps track of names that can't be used as named arguments. This is initialized with user-provided named arguments.
+  * `allowNamed` is whether or not to allow using named arguments.
+    Disabled after using `CoeFun` since those parameter names unlikely to be meaningful,
+    and otherwise whether dot notation works or not could feel random.
+  -/
+  go (f fType : Expr) (argIdx : Nat) (remainingNamedArgs : Array NamedArg) (unusableNamedArgs : Array Name) (allowNamed : Bool) := withIncRecDepth do
+    /- Use metavariables (rather than `forallTelescope`) to prevent `coerceToFunction?` from succeeding when multiple instances could apply -/
+    let (xs, bInfos, fType') ← forallMetaTelescope fType
+    let mut argIdx := argIdx
+    let mut remainingNamedArgs := remainingNamedArgs
+    let mut unusableNamedArgs := unusableNamedArgs
+    for x in xs, bInfo in bInfos do
+      let xDecl ← x.mvarId!.getDecl
+      if let some idx := remainingNamedArgs.findFinIdx? (·.name == xDecl.userName) then
+        /- If there is named argument with name `xDecl.userName`, then it is accounted for and we can't make use of it. -/
         remainingNamedArgs := remainingNamedArgs.eraseIdx idx
-      | none =>
-        let type := xDecl.type
-        if (← typeMatchesBaseName type baseName) then
-          /- We found a type of the form (baseName ...).
-             First, we check if the current argument is an explicit one,
-             and the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
-          if argIdx ≤ args.size && xDecl.binderInfo.isExplicit then
-            /- We insert `e` as an explicit argument -/
-            return (args.insertAt! argIdx (Arg.expr e), namedArgs)
-          /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
-             if there isn't an argument with the same name occurring before it. -/
-          for j in [:i] do
-            let prev := xs[j]!
-            let prevDecl ← prev.fvarId!.getDecl
-            if prevDecl.userName == xDecl.userName then
-              throwError "invalid field notation, function '{fullName}' has argument with the expected type{indentExpr type}\nbut it cannot be used"
-          return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
-        if xDecl.binderInfo.isExplicit then
-          -- advance explicit argument position
+      else
+        if ← typeMatchesBaseName xDecl.type baseName then
+          /- We found a type of the form (baseName ...), or we found the first explicit argument in useFirstExplicit mode.
+             First, we check if the current argument is one that can be used positionally,
+             and if the current explicit position "fits" at `args` (i.e., it must be ≤ arg.size) -/
+          if h : argIdx ≤ args.size ∧ (explicit || bInfo.isExplicit) then
+            /- We can insert `e` as an explicit argument -/
+            return (args.insertIdx argIdx (Arg.expr e), namedArgs)
+          else
+            /- If we can't add `e` to `args`, we try to add it using a named argument, but this is only possible
+               if there isn't an argument with the same name occurring before it. -/
+            if !allowNamed || unusableNamedArgs.contains xDecl.userName then
+              throwError "\
+                invalid field notation, function '{.ofConstName fullName}' has argument with the expected type\
+                {indentExpr xDecl.type}\n\
+                but it cannot be used"
+            else
+              return (args, namedArgs.push { name := xDecl.userName, val := Arg.expr e })
+        /- Advance `argIdx` and update seen named arguments. -/
+        if explicit || bInfo.isExplicit then
           argIdx := argIdx + 1
-    throwError "invalid field notation, function '{fullName}' does not have argument with type ({baseName} ...) that can be used, it must be explicit or implicit with a unique name"
+        unusableNamedArgs := unusableNamedArgs.push xDecl.userName
+    /- If named arguments aren't allowed, then it must still be possible to pass the value as an explicit argument.
+       Otherwise, we can abort now. -/
+    if allowNamed || argIdx ≤ args.size then
+      if let fType'@(.forallE ..) ← whnf fType' then
+        return ← go (mkAppN f xs) fType' argIdx remainingNamedArgs unusableNamedArgs allowNamed
+      if let some f' ← coerceToFunction? (mkAppN f xs) then
+        return ← go f' (← inferType f') argIdx remainingNamedArgs unusableNamedArgs false
+    throwError "\
+      invalid field notation, function '{.ofConstName fullName}' does not have argument with type ({.ofConstName baseName} ...) that can be used, \
+      it must be explicit or implicit with a unique name"
 
 /-- Adds the `TermInfo` for the field of a projection. See `Lean.Parser.Term.identProjKind`. -/
 private def addProjTermInfo
@@ -1346,8 +1376,8 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
   let rec loop : Expr → List LVal → TermElabM Expr
   | f, []          => elabAppArgs f namedArgs args expectedType? explicit ellipsis
   | f, lval::lvals => do
-    if let LVal.fieldName (fullRef := fullRef) .. := lval then
-      addDotCompletionInfo fullRef f expectedType?
+    if let LVal.fieldName (ref := ref) .. := lval then
+      addDotCompletionInfo ref f expectedType?
     let hasArgs := !namedArgs.isEmpty || !args.isEmpty
     let (f, lvalRes) ← resolveLVal f lval hasArgs
     match lvalRes with
@@ -1357,26 +1387,23 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
       loop f lvals
     | LValResolution.projFn baseStructName structName fieldName =>
       let f ← mkBaseProjections baseStructName structName f
-      if let some info := getFieldInfo? (← getEnv) baseStructName fieldName then
-        if isPrivateNameFromImportedModule (← getEnv) info.projFn then
-          throwError "field '{fieldName}' from structure '{structName}' is private"
-        let projFn ← mkConst info.projFn
-        let projFn ← addProjTermInfo lval.getRef projFn
-        if lvals.isEmpty then
-          let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
-          elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
-        else
-          let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
-          loop f lvals
+      let some info := getFieldInfo? (← getEnv) baseStructName fieldName | unreachable!
+      if isPrivateNameFromImportedModule (← getEnv) info.projFn then
+        throwError "field '{fieldName}' from structure '{structName}' is private"
+      let projFn ← mkConst info.projFn
+      let projFn ← addProjTermInfo lval.getRef projFn
+      if lvals.isEmpty then
+        let namedArgs ← addNamedArg namedArgs { name := `self, val := Arg.expr f, suppressDeps := true }
+        elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
-        unreachable!
+        let f ← elabAppArgs projFn #[{ name := `self, val := Arg.expr f, suppressDeps := true }] #[] (expectedType? := none) (explicit := false) (ellipsis := false)
+        loop f lvals
     | LValResolution.const baseStructName structName constName =>
       let f ← if baseStructName != structName then mkBaseProjections baseStructName structName f else pure f
       let projFn ← mkConst constName
       let projFn ← addProjTermInfo lval.getRef projFn
       if lvals.isEmpty then
-        let projFnType ← inferType projFn
-        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFnType
+        let (args, namedArgs) ← addLValArg baseStructName constName f args namedArgs projFn explicit
         elabAppArgs projFn namedArgs args expectedType? explicit ellipsis
       else
         let f ← elabAppArgs projFn #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
@@ -1384,8 +1411,7 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
     | LValResolution.localRec baseName fullName fvar =>
       let fvar ← addProjTermInfo lval.getRef fvar
       if lvals.isEmpty then
-        let fvarType ← inferType fvar
-        let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvarType
+        let (args, namedArgs) ← addLValArg baseName fullName f args namedArgs fvar explicit
         elabAppArgs fvar namedArgs args expectedType? explicit ellipsis
       else
         let f ← elabAppArgs fvar #[] #[Arg.expr f] (expectedType? := none) (explicit := false) (ellipsis := false)
@@ -1394,8 +1420,6 @@ private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (exp
 
 private def elabAppLVals (f : Expr) (lvals : List LVal) (namedArgs : Array NamedArg) (args : Array Arg)
     (expectedType? : Option Expr) (explicit ellipsis : Bool) : TermElabM Expr := do
-  if !lvals.isEmpty && explicit then
-    throwError "invalid use of field notation with `@` modifier"
   elabAppLValsAux namedArgs args expectedType? explicit ellipsis f lvals
 
 def elabExplicitUnivs (lvls : Array Syntax) : TermElabM (List Level) := do
@@ -1450,7 +1474,7 @@ where
     | field::fields, false => .fieldName field field.getId.getString! none fIdent :: toLVals fields false
 
 /-- Resolve `(.$id:ident)` using the expected type to infer namespace. -/
-private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Name := do
+private partial def resolveDotName (id : Syntax) (expectedType? : Option Expr) : TermElabM Expr := do
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwError "invalid dotted identifier notation, expected type must be known"
@@ -1465,7 +1489,7 @@ where
         withForallBody body k
       else
         k body
-  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Name := do
+  go (resultType : Expr) (expectedType : Expr) (previousExceptions : Array Exception) : TermElabM Expr := do
     let resultType ← instantiateMVars resultType
     let resultTypeFn := resultType.cleanupAnnotations.getAppFn
     try
@@ -1473,9 +1497,12 @@ where
       let .const declName .. := resultTypeFn.cleanupAnnotations
         | throwError "invalid dotted identifier notation, expected type is not of the form (... → C ...) where C is a constant{indentExpr expectedType}"
       let idNew := declName ++ id.getId.eraseMacroScopes
-      unless (← getEnv).contains idNew do
+      if (← getEnv).contains idNew then
+        mkConst idNew
+      else if let some (fvar, []) ← resolveLocalName idNew then
+        return fvar
+      else
         throwError "invalid dotted identifier notation, unknown identifier `{idNew}` from expected type{indentExpr expectedType}"
-      return idNew
     catch
       | ex@(.error ..) =>
         match (← unfoldDefinition? resultType) with
@@ -1494,19 +1521,21 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     withReader (fun ctx => { ctx with errToSorry := false }) do
       f.getArgs.foldlM (init := acc) fun acc f => elabAppFn f lvals namedArgs args expectedType? explicit ellipsis true acc
   else
-    let elabFieldName (e field : Syntax) := do
+    let elabFieldName (e field : Syntax) (explicit : Bool) := do
       let newLVals := field.identComponents.map fun comp =>
         -- We use `none` in `suffix?` since `field` can't be part of a composite name
         LVal.fieldName comp comp.getId.getString! none f
       elabAppFn e (newLVals ++ lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
-    let elabFieldIdx (e idxStx : Syntax) := do
+    let elabFieldIdx (e idxStx : Syntax) (explicit : Bool) := do
       let some idx := idxStx.isFieldIdx? | throwError "invalid field index"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
     match f with
-    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx
-    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx
-    | `($(e).$field:ident) => elabFieldName e field
-    | `($e |>.$field:ident) => elabFieldName e field
+    | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx explicit
+    | `($(e).$field:ident) => elabFieldName e field explicit
+    | `($e |>.$field:ident) => elabFieldName e field explicit
+    | `(@$(e).$idx:fieldIdx) => elabFieldIdx e idx (explicit := true)
+    | `(@$(e).$field:ident) => elabFieldName e field (explicit := true)
     | `($_:ident@$_:term) =>
       throwError "unexpected occurrence of named pattern"
     | `($id:ident) => do
@@ -1522,7 +1551,7 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `(_)       => throwError "placeholders '_' cannot be used where a function is expected"
     | `(.$id:ident) =>
         addCompletionInfo <| CompletionInfo.dotId f id.getId (← getLCtx) expectedType?
-        let fConst ← mkConst (← resolveDotName id expectedType?)
+        let fConst ← resolveDotName id expectedType?
         let s ← observing do
           -- Use (force := true) because we want to record the result of .ident resolution even in patterns
           let fConst ← addTermInfo f fConst expectedType? (force := true)
@@ -1601,6 +1630,14 @@ private def getSuccesses (candidates : Array (TermElabResult Expr)) : TermElabM 
 -/
 private def mergeFailures (failures : Array (TermElabResult Expr)) : TermElabM α := do
   let exs := failures.map fun | .error ex _ => ex | _ => unreachable!
+  let trees := failures.map (fun | .error _ s => s.meta.core.infoState.trees | _ => unreachable!)
+    |>.filterMap (·[0]?)
+  -- Retain partial `InfoTree` subtrees in an `.ofChoiceInfo` node in case of multiple failures.
+  -- This ensures that the language server still has `Info` to work with when multiple overloaded
+  -- elaborators fail.
+  withInfoContext (mkInfo := pure <| .ofChoiceInfo { elaborator := .anonymous, stx := ← getRef }) do
+    for tree in trees do
+      pushInfoTree tree
   throwErrorWithNestedErrors "overloaded" exs
 
 private def elabAppAux (f : Syntax) (namedArgs : Array NamedArg) (args : Array Arg) (ellipsis : Bool) (expectedType? : Option Expr) : TermElabM Expr := do
@@ -1663,8 +1700,10 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$_:ident)         => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident)          => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
   | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@$(_).$_:fieldIdx)  => elabAtom stx expectedType?
+  | `(@$(_).$_:ident)     => elabAtom stx expectedType?
   | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
   | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
   | _                    => throwUnsupportedSyntax

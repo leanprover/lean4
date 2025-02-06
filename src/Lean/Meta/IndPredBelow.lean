@@ -54,7 +54,7 @@ def mkContext (declName : Name) : MetaM Context := do
   let typeInfos ← indVal.all.toArray.mapM getConstInfoInduct
   let motiveTypes ← typeInfos.mapM motiveType
   let motives ← motiveTypes.mapIdxM fun j motive =>
-    return (← motiveName motiveTypes j.val, motive)
+    return (← motiveName motiveTypes j, motive)
   let headers ← typeInfos.mapM $ mkHeader motives indVal.numParams
   return {
     motives := motives
@@ -83,7 +83,7 @@ where
       forallTelescopeReducing t fun xs s => do
         let motiveType ← instantiateForall motive xs[:numParams]
         withLocalDecl motiveName BinderInfo.implicit motiveType fun motive => do
-          mkForallFVars (xs.insertAt! numParams motive) s)
+          mkForallFVars (xs.insertIdxIfInBounds numParams motive) s)
 
   motiveType (indVal : InductiveVal) : MetaM Expr :=
     forallTelescopeReducing indVal.type fun xs _ => do
@@ -152,7 +152,7 @@ where
     let run (x : StateRefT Nat MetaM Expr) : MetaM (Expr × Nat) := StateRefT'.run x 0
     let (_, cnt) ← run <| transform domain fun e => do
       if let some name := e.constName? then
-        if let some _ := ctx.typeInfos.findIdx? fun indVal => indVal.name == name then
+        if ctx.typeInfos.any fun indVal => indVal.name == name then
           modify (· + 1)
       return .continue
 
@@ -214,7 +214,7 @@ def mkConstructor (ctx : Context) (i : Nat) (ctor : Name) : MetaM Constructor :=
 
 def mkInductiveType
     (ctx : Context)
-    (i : Fin ctx.typeInfos.size)
+    (i : Nat)
     (indVal : InductiveVal) : MetaM InductiveType := do
   return {
     name := ctx.belowNames[i]!
@@ -296,11 +296,11 @@ where
     m.apply recursor
 
   applyCtors (ms : List MVarId) : MetaM $ List MVarId := do
-    let mss ← ms.toArray.mapIdxM fun _ m => do
+    let mss ← ms.toArray.mapM fun m => do
       let m ← introNPRec m
       (← m.getType).withApp fun below args =>
       m.withContext do
-        args.back.withApp fun ctor _ => do
+        args.back!.withApp fun ctor _ => do
         let ctorName := ctor.constName!.updatePrefix below.constName!
         let ctor := mkConst ctorName below.constLevels!
         let ctorInfo ← getConstInfoCtor ctorName
@@ -340,11 +340,11 @@ where
   mkIH
       (params : Array Expr)
       (motives : Array Expr)
-      (idx : Fin ctx.motives.size)
+      (idx : Nat)
       (motive : Name × Expr) : MetaM $ Name × (Array Expr → MetaM Expr) := do
     let name :=
       if ctx.motives.size > 1
-      then mkFreshUserName <| .mkSimple s!"ih_{idx.val.succ}"
+      then mkFreshUserName <| .mkSimple s!"ih_{idx + 1}"
       else mkFreshUserName <| .mkSimple "ih"
     let ih ← instantiateForall motive.2 params
     let mkDomain (_ : Array Expr) : MetaM Expr :=
@@ -353,7 +353,7 @@ where
         let args := params ++ motives ++ ys
         let premise :=
           mkAppN
-            (mkConst ctx.belowNames[idx.val]! levels) args
+            (mkConst ctx.belowNames[idx]! levels) args
         let conclusion :=
           mkAppN motives[idx]! ys
         mkForallFVars ys (←mkArrow premise conclusion)
@@ -562,7 +562,7 @@ where
 def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat) := do
   xs.findSomeM? fun x => do
   (← whnf (← inferType x)).withApp fun f _ =>
-  match f.constName?, xs.indexOf? x with
+  match f.constName?, xs.idxOf? x with
   | some name, some idx => do
     if (← isInductivePredicate name) then
       let (_, belowTy) ← belowType motive xs idx
@@ -571,7 +571,7 @@ def findBelowIdx (xs : Array Expr) (motive : Expr) : MetaM $ Option (Expr × Nat
         trace[Meta.IndPredBelow.match] "{←Meta.ppGoal below.mvarId!}"
         if (← below.mvarId!.applyRules { backtracking := false, maxDepth := 1 } []).isEmpty then
           trace[Meta.IndPredBelow.match] "Found below term in the local context: {below}"
-          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx.val)
+          if (← xs.anyM (isDefEq below)) then pure none else pure (below, idx)
         else
           trace[Meta.IndPredBelow.match] "could not find below term in the local context"
           pure none
@@ -594,7 +594,9 @@ def mkBelow (declName : Name) : MetaM Unit := do
       for i in [:ctx.typeInfos.size] do
         try
           let decl ← IndPredBelow.mkBrecOnDecl ctx i
-          addDecl decl
+          -- disable async TC so we can catch its exceptions
+          withOptions (Elab.async.set · false) do
+            addDecl decl
         catch e => trace[Meta.IndPredBelow] "failed to prove brecOn for {ctx.belowNames[i]!}\n{e.toMessageData}"
     else trace[Meta.IndPredBelow] "Nested or not recursive"
   else trace[Meta.IndPredBelow] "Not inductive predicate"

@@ -61,7 +61,7 @@ builtin_dsimproc [simp, seval] reducePow ((_ ^ _ : Nat)) := fun e => do
   unless (← checkExponent m) do return .continue
   return .done <| toExpr (n ^ m)
 
-builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HOr.hOr 6 (· &&& ·)
+builtin_dsimproc [simp, seval] reduceAnd ((_ &&& _ : Nat)) := reduceBin ``HAnd.hAnd 6 (· &&& ·)
 builtin_dsimproc [simp, seval] reduceXor ((_ ^^^ _ : Nat)) := reduceBin ``HXor.hXor 6 (· ^^^ ·)
 builtin_dsimproc [simp, seval] reduceOr ((_ ||| _ : Nat)) := reduceBin ``HOr.hOr 6 (· ||| ·)
 
@@ -149,11 +149,14 @@ private def mkSubNat (x y : Expr) : Expr :=
 private def mkEqNat (x y : Expr) : Expr :=
   mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat, x, y]
 
-private def mkBeqNat (x y : Expr) : Expr :=
-  mkAppN (mkConst ``BEq.beq [levelZero]) #[mkConst ``Nat, mkConst ``instBEqNat, x, y]
+private def mkBEqNatInstance : Expr :=
+  mkAppN (mkConst ``instBEqOfDecidableEq [levelZero]) #[mkConst ``Nat, mkConst ``instDecidableEqNat []]
+
+private def mkBEqNat (x y : Expr) : Expr :=
+  mkAppN (mkConst ``BEq.beq [levelZero]) #[mkConst ``Nat, mkBEqNatInstance, x, y]
 
 private def mkBneNat (x y : Expr) : Expr :=
-  mkAppN (mkConst ``bne [levelZero]) #[mkConst ``Nat, mkConst ``instBEqNat, x, y]
+  mkAppN (mkConst ``bne [levelZero]) #[mkConst ``Nat, mkBEqNatInstance, x, y]
 
 private def mkLENat (x y : Expr) : Expr :=
   mkAppN (.const ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat, x, y]
@@ -250,7 +253,7 @@ builtin_simproc [simp, seval] reduceBeqDiff ((_ : Nat) == _) := fun e => do
     return .done  { expr := mkConst ``false, proof? := some q, cache := true }
   | some (.eq u v p) =>
     let q := mkAppN (mkConst ``Nat.Simproc.beqEqOfEqEq) #[x, y, u, v, p]
-    return .visit { expr := mkBeqNat u v, proof? := some q, cache := true }
+    return .visit { expr := mkBEqNat u v, proof? := some q, cache := true }
 
 builtin_simproc [simp, seval] reduceBneDiff ((_ : Nat) != _) := fun e => do
   unless e.isAppOfArity ``bne 4 do

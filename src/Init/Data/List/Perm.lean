@@ -39,6 +39,9 @@ protected theorem Perm.symm {l₁ l₂ : List α} (h : l₁ ~ l₂) : l₂ ~ l�
   | swap => exact swap ..
   | trans _ _ ih₁ ih₂ => exact trans ih₂ ih₁
 
+instance : Trans (Perm (α := α)) (Perm (α := α)) (Perm (α := α)) where
+  trans h₁ h₂ := Perm.trans h₁ h₂
+
 theorem perm_comm {l₁ l₂ : List α} : l₁ ~ l₂ ↔ l₂ ~ l₁ := ⟨Perm.symm, Perm.symm⟩
 
 theorem Perm.swap' (x y : α) {l₁ l₂ : List α} (p : l₁ ~ l₂) : y :: x :: l₁ ~ x :: y :: l₂ :=
@@ -102,7 +105,7 @@ theorem perm_append_comm : ∀ {l₁ l₂ : List α}, l₁ ++ l₂ ~ l₂ ++ l�
   | _ :: _, _ => (perm_append_comm.cons _).trans perm_middle.symm
 
 theorem perm_append_comm_assoc (l₁ l₂ l₃ : List α) :
-    Perm (l₁ ++ (l₂ ++ l₃)) (l₂ ++ (l₁ ++ l₃)) := by
+    (l₁ ++ (l₂ ++ l₃)) ~ (l₂ ++ (l₁ ++ l₃)) := by
   simpa only [List.append_assoc] using perm_append_comm.append_right _
 
 theorem concat_perm (l : List α) (a : α) : concat l a ~ a :: l := by simp
@@ -113,6 +116,14 @@ theorem Perm.length_eq {l₁ l₂ : List α} (p : l₁ ~ l₂) : length l₁ = l
   | cons _ _ ih => simp only [length_cons, ih]
   | swap => rfl
   | trans _ _ ih₁ ih₂ => simp only [ih₁, ih₂]
+
+theorem Perm.contains_eq [BEq α] {l₁ l₂ : List α} (h : l₁ ~ l₂) {a : α} :
+    l₁.contains a = l₂.contains a := by
+  induction h with
+  | nil => rfl
+  | cons => simp_all
+  | swap => simp only [contains_cons, ← Bool.or_assoc, Bool.or_comm]
+  | trans => simp_all
 
 theorem Perm.eq_nil {l : List α} (p : l ~ []) : l = [] := eq_nil_of_length_eq_zero p.length_eq
 
@@ -125,7 +136,7 @@ theorem Perm.nil_eq {l : List α} (p : [] ~ l) : [] = l := p.symm.eq_nil.symm
 
 theorem not_perm_nil_cons (x : α) (l : List α) : ¬[] ~ x :: l := (nomatch ·.symm.eq_nil)
 
-theorem not_perm_cons_nil {l : List α} {a : α} : ¬(Perm (a::l) []) :=
+theorem not_perm_cons_nil {l : List α} {a : α} : ¬((a::l) ~ []) :=
   fun h => by simpa using h.length_eq
 
 theorem Perm.isEmpty_eq {l l' : List α} (h : Perm l l') : l.isEmpty = l'.isEmpty := by
@@ -461,15 +472,28 @@ theorem Perm.nodup {l l' : List α} (hl : l ~ l') (hR : l.Nodup) : l'.Nodup := h
 theorem Perm.nodup_iff {l₁ l₂ : List α} : l₁ ~ l₂ → (Nodup l₁ ↔ Nodup l₂) :=
   Perm.pairwise_iff <| @Ne.symm α
 
-theorem Perm.join {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.join ~ l₂.join := by
+theorem Perm.flatten {l₁ l₂ : List (List α)} (h : l₁ ~ l₂) : l₁.flatten ~ l₂.flatten := by
   induction h with
   | nil => rfl
-  | cons _ _ ih => simp only [join_cons, perm_append_left_iff, ih]
-  | swap => simp only [join_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
+  | cons _ _ ih => simp only [flatten_cons, perm_append_left_iff, ih]
+  | swap => simp only [flatten_cons, ← append_assoc, perm_append_right_iff]; exact perm_append_comm ..
   | trans _ _ ih₁ ih₂ => exact trans ih₁ ih₂
 
-theorem Perm.bind_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.bind f ~ l₂.bind f :=
-  (p.map _).join
+@[deprecated Perm.flatten (since := "2024-10-14")] abbrev Perm.join := @Perm.flatten
+
+theorem cons_append_cons_perm {a b : α} {as bs : List α} :
+    a :: as ++ b :: bs ~ b :: as ++ a :: bs := by
+  suffices [[a], as, [b], bs].flatten ~ [[b], as, [a], bs].flatten by simpa
+  apply Perm.flatten
+  calc
+    [[a], as, [b], bs] ~ [as, [a], [b], bs] := Perm.swap as [a] _
+    _ ~ [as, [b], [a], bs] := Perm.cons _ (Perm.swap [b] [a] _)
+    _ ~ [[b], as, [a], bs] := Perm.swap [b] as _
+
+theorem Perm.flatMap_right {l₁ l₂ : List α} (f : α → List β) (p : l₁ ~ l₂) : l₁.flatMap f ~ l₂.flatMap f :=
+  (p.map _).flatten
+
+@[deprecated Perm.flatMap_right (since := "2024-10-16")] abbrev Perm.bind_right := @Perm.flatMap_right
 
 theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
     (H : Pairwise (fun a b => f a → f b → False) l₁) (p : l₁ ~ l₂) : eraseP f l₁ ~ eraseP f l₂ := by
@@ -485,5 +509,19 @@ theorem Perm.eraseP (f : α → Bool) {l₁ l₂ : List α}
   | trans p₁ _ IH₁ IH₂ =>
     refine (IH₁ H).trans (IH₂ ((p₁.pairwise_iff ?_).1 H))
     exact fun h h₁ h₂ => h h₂ h₁
+
+theorem perm_insertIdx {α} (x : α) (l : List α) {n} (h : n ≤ l.length) :
+    insertIdx n x l ~ x :: l := by
+  induction l generalizing n with
+  | nil =>
+    cases n with
+    | zero => rfl
+    | succ => cases h
+  | cons _ _ ih =>
+    cases n with
+    | zero => simp [insertIdx]
+    | succ =>
+      simp only [insertIdx, modifyTailIdx]
+      refine .trans (.cons _ (ih (Nat.le_of_succ_le_succ h))) (.swap ..)
 
 end List

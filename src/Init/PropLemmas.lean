@@ -135,6 +135,10 @@ Both reduce to `b = false ∧ c = false` via `not_or`.
 
 theorem not_and_of_not_or_not (h : ¬a ∨ ¬b) : ¬(a ∧ b) := h.elim (mt (·.1)) (mt (·.2))
 
+/-! ## not equal -/
+
+theorem ne_of_apply_ne {α β : Sort _} (f : α → β) {x y : α} : f x ≠ f y → x ≠ y :=
+  mt <| congrArg _
 
 /-! ## Ite -/
 
@@ -358,6 +362,10 @@ theorem exists_prop' {p : Prop} : (∃ _ : α, p) ↔ Nonempty α ∧ p :=
 @[simp] theorem exists_prop : (∃ _h : a, b) ↔ a ∧ b :=
   ⟨fun ⟨hp, hq⟩ => ⟨hp, hq⟩, fun ⟨hp, hq⟩ => ⟨hp, hq⟩⟩
 
+@[simp] theorem exists_idem {P : Prop} (f : P → P → Sort _) :
+    (∃ (p₁ : P), ∃ (p₂ : P), f p₁ p₂) ↔ ∃ (p : P), f p p :=
+  ⟨fun ⟨p, _, h⟩ => ⟨p, h⟩, fun ⟨p, h⟩ => ⟨p, p, h⟩⟩
+
 @[simp] theorem exists_apply_eq_apply (f : α → β) (a' : α) : ∃ a, f a = f a' := ⟨a', rfl⟩
 
 theorem forall_prop_of_true {p : Prop} {q : p → Prop} (h : p) : (∀ h' : p, q h') ↔ q h :=
@@ -382,7 +390,27 @@ theorem exists_comm {p : α → β → Prop} : (∃ a b, p a b) ↔ (∃ b a, p 
 theorem forall_prop_of_false {p : Prop} {q : p → Prop} (hn : ¬p) : (∀ h' : p, q h') ↔ True :=
   iff_true_intro fun h => hn.elim h
 
+@[simp] theorem and_exists_self (P : Prop) (Q : P → Prop) : (P ∧ ∃ p, Q p) ↔ ∃ p, Q p :=
+  ⟨fun ⟨_, h⟩ => h, fun ⟨p, q⟩ => ⟨p, ⟨p, q⟩⟩⟩
+
+@[simp] theorem exists_and_self (P : Prop) (Q : P → Prop) : ((∃ p, Q p) ∧ P) ↔ ∃ p, Q p :=
+  ⟨fun ⟨h, _⟩ => h, fun ⟨p, q⟩ => ⟨⟨p, q⟩, p⟩⟩
+
+@[simp] theorem forall_self_imp (P : Prop) (Q : P → Prop) : (∀ p : P, P → Q p) ↔ ∀ p, Q p :=
+  ⟨fun h p => h p p, fun h _ p => h p⟩
+
 end quantifiers
+
+/-! ## membership -/
+
+section Mem
+variable [Membership α β] {s t : β} {a b : α}
+
+theorem ne_of_mem_of_not_mem (h : a ∈ s) : b ∉ s → a ≠ b := mt fun e => e ▸ h
+
+theorem ne_of_mem_of_not_mem' (h : a ∈ s) : a ∉ t → s ≠ t := mt fun e => e ▸ h
+
+end Mem
 
 /-! ## Nonempty -/
 
@@ -628,11 +656,11 @@ theorem decide_ite (u : Prop) [du : Decidable u] (p q : Prop)
     (@ite _ p h q (decide p)) = (decide p && q) := by
   split <;> simp_all
 
-@[deprecated ite_then_decide_self]
+@[deprecated ite_then_decide_self (since := "2024-08-29")]
 theorem ite_true_decide_same (p : Prop) [Decidable p] (b : Bool) :
   (if p then decide p else b) = (decide p || b) := ite_then_decide_self p b
 
-@[deprecated ite_false_decide_same]
+@[deprecated ite_false_decide_same (since := "2024-08-29")]
 theorem ite_false_decide_same (p : Prop) [Decidable p] (b : Bool) :
   (if p then b else decide p) = (decide p && b) := ite_else_decide_self p b
 

@@ -1,10 +1,10 @@
 doNotation1.lean:4:0-4:6: error: `y` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `y`, consider using `let y` instead
 doNotation1.lean:8:2-8:18: error: `y` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `y`, consider using `let y` instead
 doNotation1.lean:12:2-12:17: error: `p` cannot be mutated, only variables declared using `let mut` can be mutated. If you did not intend to mutate but define `p`, consider using `let p` instead
-doNotation1.lean:20:7-20:22: error: invalid reassignment, value has type
-  Vector Nat (n + 1) : Type
+doNotation1.lean:20:7-20:23: error: invalid reassignment, value has type
+  Vector' Nat (n + 1) : Type
 but is expected to have type
-  Vector Nat n : Type
+  Vector' Nat n : Type
 doNotation1.lean:25:7-25:11: error: invalid reassignment, value has type
   Bool : Type
 but is expected to have type

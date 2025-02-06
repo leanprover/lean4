@@ -29,7 +29,6 @@ import Lean.Server
 import Lean.ScopedEnvExtension
 import Lean.DocString
 import Lean.DeclarationRange
-import Lean.LazyInitExtension
 import Lean.LoadDynlib
 import Lean.Widget
 import Lean.Log
@@ -37,3 +36,4 @@ import Lean.Linter
 import Lean.SubExpr
 import Lean.LabelAttribute
 import Lean.AddDecl
+import Lean.Replay

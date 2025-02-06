@@ -28,7 +28,7 @@ namespace LinearCombo
 
 instance : ToString LinearCombo where
   toString lc :=
-    s!"{lc.const}{String.join <| lc.coeffs.toList.enum.map fun ⟨i, c⟩ => s!" + {c} * x{i+1}"}"
+    s!"{lc.const}{String.join <| lc.coeffs.toList.zipIdx.map fun ⟨c, i⟩ => s!" + {c} * x{i+1}"}"
 
 instance : Inhabited LinearCombo := ⟨{const := 1}⟩
 

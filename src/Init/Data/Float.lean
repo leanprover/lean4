@@ -31,7 +31,7 @@ opaque floatSpec : FloatSpec := {
 structure Float where
   val : floatSpec.float
 
-instance : Inhabited Float := ⟨{ val := floatSpec.val }⟩
+instance : Nonempty Float := ⟨{ val := floatSpec.val }⟩
 
 @[extern "lean_float_add"] opaque Float.add : Float → Float → Float
 @[extern "lean_float_sub"] opaque Float.sub : Float → Float → Float
@@ -46,6 +46,25 @@ def Float.lt : Float → Float → Prop := fun a b =>
 
 def Float.le : Float → Float → Prop := fun a b =>
   floatSpec.le a.val b.val
+
+/--
+Raw transmutation from `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+-/
+@[extern "lean_float_of_bits"] opaque Float.ofBits : UInt64 → Float
+
+/--
+Raw transmutation to `UInt64`.
+
+Floats and UInts have the same endianness on all supported platforms.
+IEEE 754 very precisely specifies the bit layout of floats.
+
+Note that this function is distinct from `Float.toUInt64`, which attempts
+to preserve the numeric value, and not the bitwise value.
+-/
+@[extern "lean_float_to_bits"] opaque Float.toBits : Float → UInt64
 
 instance : Add Float := ⟨Float.add⟩
 instance : Sub Float := ⟨Float.sub⟩
@@ -116,6 +135,9 @@ instance : ToString Float where
   toString := Float.toString
 
 @[extern "lean_uint64_to_float"] opaque UInt64.toFloat (n : UInt64) : Float
+
+instance : Inhabited Float where
+  default := UInt64.toFloat 0
 
 instance : Repr Float where
   reprPrec n prec := if n < UInt64.toFloat 0 then Repr.addAppParen (toString n) prec else toString n

@@ -85,3 +85,7 @@ theorem b (_h g : true) : true ∧ true := by
 
 example : ¬n - k + 1 = 0 := by
   norm_cast
+
+/-! Test that we can pass simp configuration options to `norm_cast` -/
+example : ¬n - k + 1 = 0 := by
+  norm_cast +singlePass

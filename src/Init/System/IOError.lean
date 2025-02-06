@@ -5,10 +5,7 @@ Authors: Simon Hudon
 -/
 
 prelude
-import Init.Core
-import Init.Data.UInt.Basic
 import Init.Data.ToString.Basic
-import Init.Data.String.Basic
 
 /--
 Imitate the structure of IOErrorType in Haskell:

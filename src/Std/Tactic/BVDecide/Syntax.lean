@@ -9,6 +9,58 @@ import Init.Simproc
 
 set_option linter.missingDocs true -- keep it documented
 
+namespace Lean.Elab.Tactic.BVDecide.Frontend
+
+/--
+The configuration options for `bv_decide`.
+-/
+structure BVDecideConfig where
+  /-- The number of seconds that the SAT solver is run before aborting. -/
+  timeout : Nat := 10
+  /-- Whether to run the trimming algorithm on LRAT proofs. -/
+  trimProofs : Bool := true
+  /--
+  Whether to use the binary LRAT proof format.
+  Currently set to false and ignored on Windows due to a bug in CaDiCal.
+  -/
+  binaryProofs : Bool := true
+  /--
+  Canonicalize with respect to associativity and commutativitiy.
+  -/
+  acNf : Bool := false
+  /--
+  Split hypotheses of the form `h : (x && y) = true` into `h1 : x = true` and `h2 : y = true`.
+  This has synergy potential with embedded constraint substitution.
+  -/
+  andFlattening : Bool := true
+  /--
+  Look at all hypotheses of the form `h : x = true`, if `x` occurs in another hypothesis substitute
+  it with `true`.
+  -/
+  embeddedConstraintSubst : Bool := true
+  /--
+  Split up local declarations of structures that are collections of other supported types into their
+  individual parts automatically.
+  -/
+  structures : Bool := true
+  /--
+  Enable preprocessing with the `int_toBitVec` simp set to reduce `UIntX`/`IntX` to `BitVec` and
+  thus make them accessible for `bv_decide`.
+  -/
+  fixedInt : Bool := true
+  /--
+  Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
+  Lean process.
+  -/
+  graphviz : Bool := false
+  /--
+  The maximum number of subexpressions to visit when performing simplification.
+  -/
+  maxSteps : Nat := Lean.Meta.Simp.defaultMaxSteps
+
+end Lean.Elab.Tactic.BVDecide.Frontend
+
+
 namespace Lean.Parser
 
 namespace Tactic
@@ -21,16 +73,13 @@ current Lean file:
 bv_check "proof.lrat"
 ```
 -/
-syntax (name := bvCheck) "bv_check " str : tactic
+syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
 /--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
-verifying it inside Lean. The solvable goals are currently limited to the Lean equivalent of
-[`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV) with the following changes:
-- Division and remainder operations are not yet implemented.
-- if-then-else is not yet implemented.
-- `BitVec.ofBool` is not yet implemented.
-
+verifying it inside Lean. The solvable goals are currently limited to
+- the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
+- automatically splitting up `structure`s that contain information about `BitVec` or `Bool`
 ```lean
 example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
   intros
@@ -46,21 +95,25 @@ terms that were considered as variables.
 
 In order to avoid calling a SAT solver every time, the proof can be cached with `bv_decide?`.
 
+If solving your problem relies inherently on using associativity or commutativity, consider enabling
+the `bv.ac_nf` option.
+
+
 Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
 -/
-syntax (name := bvDecide) "bv_decide" : tactic
+syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 
 /--
 Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
 -/
-syntax (name := bvTrace) "bv_decide?" : tactic
+syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
 /--
 Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
 `BitVec` goals already.
 -/
-syntax (name := bvNormalize) "bv_normalize" : tactic
+syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic
 

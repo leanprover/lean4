@@ -29,8 +29,11 @@ builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclara
 def injections? (mvarId : MVarId) : MetaM (Option InjectionsResult) := do
   match ← injections mvarId with
   | .solved => return InjectionsResult.solved
-  | .subgoal mvarId' ns =>
-    if mvarId != mvarId' then return some (.subgoal mvarId' ns) else return none
+  | .subgoal mvarId' ns forbidden =>
+    if mvarId != mvarId' then
+      return some (.subgoal mvarId' ns forbidden)
+    else
+      return none
 
 private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId) (type : Expr) : MetaM Expr := do
   trace[Elab.definition.structural.eqns] "proving: {type}"
@@ -53,12 +56,14 @@ where
       go mvarId
     else if let some mvarId ← simpIf? mvarId then
       go mvarId
-    else if let some res ← injections? mvarId then
-      if let .subgoal mvarId _ := res then
-        go mvarId
-      else
-        return
-    else match (← simpTargetStar mvarId {} (simprocs := {})).1 with
+    -- else if let some res ← injections? mvarId then
+    --   if let .subgoal mvarId _ := res then
+    --     go mvarId
+    --   else
+    --     return
+    else
+      let ctx ← Simp.mkContext
+      match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
       | TacticResultCNM.modified mvarId => go mvarId
       | TacticResultCNM.noChange =>

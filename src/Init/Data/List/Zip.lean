@@ -5,6 +5,7 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.TakeDrop
+import Init.Data.Function
 
 /-!
 # Lemmas about `List.zip`, `List.zipWith`, `List.zipWithAll`, and `List.unzip`.
@@ -30,16 +31,18 @@ theorem zipWith_comm_of_comm (f : α → α → β) (comm : ∀ x y : α, f x y 
   simp only [comm]
 
 @[simp]
-theorem zipWith_same (f : α → α → δ) : ∀ l : List α, zipWith f l l = l.map fun a => f a a
+theorem zipWith_self (f : α → α → δ) : ∀ l : List α, zipWith f l l = l.map fun a => f a a
   | [] => rfl
-  | _ :: xs => congrArg _ (zipWith_same f xs)
+  | _ :: xs => congrArg _ (zipWith_self f xs)
+
+@[deprecated zipWith_self (since := "2025-01-29")] abbrev zipWith_same := @zipWith_self
 
 /--
 See also `getElem?_zipWith'` for a variant
 using `Option.map` and `Option.bind` rather than a `match`.
 -/
 theorem getElem?_zipWith {f : α → β → γ} {i : Nat} :
-    (List.zipWith f as bs)[i]? = match as[i]?, bs[i]? with
+    (zipWith f as bs)[i]? = match as[i]?, bs[i]? with
       | some a, some b => some (f a b) | _, _ => none := by
   induction as generalizing bs i with
   | nil => cases bs with
@@ -74,15 +77,6 @@ theorem getElem?_zip_eq_some {l₁ : List α} {l₂ : List β} {z : α × β} {i
     simpa [h₀, h₁] using h₂
   · rintro ⟨h₀, h₁⟩
     exact ⟨_, _, h₀, h₁, rfl⟩
-
-@[deprecated getElem?_zipWith (since := "2024-06-12")]
-theorem get?_zipWith {f : α → β → γ} :
-    (List.zipWith f as bs).get? i = match as.get? i, bs.get? i with
-      | some a, some b => some (f a b) | _, _ => none := by
-  simp [getElem?_zipWith]
-
-set_option linter.deprecated false in
-@[deprecated getElem?_zipWith (since := "2024-06-07")] abbrev zipWith_get? := @get?_zipWith
 
 theorem head?_zipWith {f : α → β → γ} :
     (List.zipWith f as bs).head? = match as.head?, bs.head? with
@@ -202,11 +196,11 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
     cases l₂ with
     | nil =>
       constructor
-      · simp only [zipWith_nil_right, nil_eq, append_eq_nil, exists_and_left, and_imp]
+      · simp only [zipWith_nil_right, nil_eq, append_eq_nil_iff, exists_and_left, and_imp]
         rintro rfl  rfl
         exact ⟨[], x₁ :: l₁, [], by simp⟩
       · rintro ⟨w, x, y, z, h₁, _, h₃, rfl, rfl⟩
-        simp only [nil_eq, append_eq_nil] at h₃
+        simp only [nil_eq, append_eq_nil_iff] at h₃
         obtain ⟨rfl, rfl⟩ := h₃
         simp
     | cons x₂ l₂ =>
@@ -238,6 +232,22 @@ theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : Li
   | zero => rfl
   | succ n ih => simp [replicate_succ, ih]
 
+theorem map_uncurry_zip_eq_zipWith (f : α → β → γ) (l : List α) (l' : List β) :
+    map (Function.uncurry f) (l.zip l') = zipWith f l l' := by
+  rw [zip]
+  induction l generalizing l' with
+  | nil => simp
+  | cons hl tl ih =>
+    cases l' <;> simp [ih]
+
+theorem map_zip_eq_zipWith (f : α × β → γ) (l : List α) (l' : List β) :
+    map f (l.zip l') = zipWith (Function.curry f) l l' := by
+  rw [zip]
+  induction l generalizing l' with
+  | nil => simp
+  | cons hl tl ih =>
+    cases l' <;> simp [ih]
+
 /-! ### zip -/
 
 theorem zip_eq_zipWith : ∀ (l₁ : List α) (l₂ : List β), zip l₁ l₂ = zipWith Prod.mk l₁ l₂
@@ -249,8 +259,7 @@ theorem zip_map (f : α → γ) (g : β → δ) :
     ∀ (l₁ : List α) (l₂ : List β), zip (l₁.map f) (l₂.map g) = (zip l₁ l₂).map (Prod.map f g)
   | [], _ => rfl
   | _, [] => by simp only [map, zip_nil_right]
-  | _ :: _, _ :: _ => by
-    simp only [map, zip_cons_cons, zip_map, Prod.map]; constructor
+  | _ :: _, _ :: _ => by simp only [map, zip_cons_cons, zip_map, Prod.map]
 
 theorem zip_map_left (f : α → γ) (l₁ : List α) (l₂ : List β) :
     zip (l₁.map f) l₂ = (zip l₁ l₂).map (Prod.map f id) := by rw [← zip_map, map_id]
@@ -359,15 +368,6 @@ theorem getElem?_zipWithAll {f : Option α → Option β → γ} {i : Nat} :
       specialize @aih []
       cases i <;> simp_all
     | cons b bs => cases i <;> simp_all
-
-@[deprecated getElem?_zipWithAll (since := "2024-06-12")]
-theorem get?_zipWithAll {f : Option α → Option β → γ} :
-    (zipWithAll f as bs).get? i = match as.get? i, bs.get? i with
-      | none, none => .none | a?, b? => some (f a? b?) := by
-  simp [getElem?_zipWithAll]
-
-set_option linter.deprecated false in
-@[deprecated getElem?_zipWithAll (since := "2024-06-07")] abbrev zipWithAll_get? := @get?_zipWithAll
 
 theorem head?_zipWithAll {f : Option α → Option β → γ} :
     (zipWithAll f as bs).head? = match as.head?, bs.head? with

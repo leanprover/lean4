@@ -25,7 +25,7 @@ inductive CompletionItemKind where
   | unit | value | enum | keyword | snippet
   | color | file | reference | folder | enumMember
   | constant | struct | event | operator | typeParameter
-  deriving Inhabited, DecidableEq, Repr
+  deriving Inhabited, DecidableEq, Repr, Hashable
 
 instance : ToJson CompletionItemKind where
   toJson a := toJson (a.toCtorIdx + 1)
@@ -39,7 +39,19 @@ structure InsertReplaceEdit where
   newText : String
   insert  : Range
   replace : Range
-  deriving FromJson, ToJson
+  deriving FromJson, ToJson, BEq, Hashable
+
+inductive CompletionItemTag where
+  | deprecated
+  deriving Inhabited, DecidableEq, Repr, Hashable
+
+instance : ToJson CompletionItemTag where
+  toJson t := toJson (t.toCtorIdx + 1)
+
+instance : FromJson CompletionItemTag where
+  fromJson? v := do
+    let i : Nat ← fromJson? v
+    return CompletionItemTag.ofNat (i-1)
 
 structure CompletionItem where
   label          : String
@@ -49,8 +61,8 @@ structure CompletionItem where
   textEdit?      : Option InsertReplaceEdit := none
   sortText?      : Option String := none
   data?          : Option Json := none
+  tags?          : Option (Array CompletionItemTag) := none
   /-
-  tags? : CompletionItemTag[]
   deprecated? : boolean
   preselect? : boolean
   filterText? : string
@@ -59,8 +71,9 @@ structure CompletionItem where
   insertTextMode? : InsertTextMode
   additionalTextEdits? : TextEdit[]
   commitCharacters? : string[]
-  command? : Command -/
-  deriving FromJson, ToJson, Inhabited
+  command? : Command
+  -/
+  deriving FromJson, ToJson, Inhabited, BEq, Hashable
 
 structure CompletionList where
   isIncomplete : Bool
@@ -337,10 +350,9 @@ def SemanticTokenType.toNat (tokenType : SemanticTokenType) : Nat :=
   tokenType.toCtorIdx
 
 -- sanity check
--- TODO: restore after update-stage0
---example {v : SemanticTokenType} : open SemanticTokenType in
---    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
---  cases v <;> native_decide
+example {v : SemanticTokenType} : open SemanticTokenType in
+    names[v.toNat]?.map (toString <| toJson ·) = some (toString <| toJson v) := by
+  cases v <;> native_decide
 
 /--
 The semantic token modifiers included by default in the LSP specification.
@@ -430,6 +442,83 @@ structure RenameParams extends TextDocumentPositionParams where
   deriving FromJson, ToJson
 
 structure PrepareRenameParams extends TextDocumentPositionParams
+  deriving FromJson, ToJson
+
+structure InlayHintParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  range        : Range
+  deriving FromJson, ToJson
+
+inductive InlayHintTooltip
+  | plaintext (text : String)
+  | markdown (markup : MarkupContent)
+
+instance : FromJson InlayHintTooltip where
+  fromJson?
+    | .str s => .ok <| .plaintext s
+    | j@(.obj _) => do return .markdown (← fromJson? j)
+    | j => .error s!"invalid inlay hint tooltip {j}"
+
+instance : ToJson InlayHintTooltip where
+  toJson
+    | .plaintext text => toJson text
+    | .markdown markup => toJson markup
+
+structure InlayHintLabelPart where
+  value     : String
+  tooltip?  : Option InlayHintTooltip := none
+  location? : Option Location := none
+  command?  : Option Command := none
+  deriving FromJson, ToJson
+
+inductive InlayHintLabel
+  | name (n : String)
+  | parts (p : Array InlayHintLabelPart)
+
+instance : FromJson InlayHintLabel where
+  fromJson?
+    | .str s => .ok <| .name s
+    | j@(.arr _) => do return .parts (← fromJson? j)
+    | j => .error s!"invalid inlay hint label {j}"
+
+instance : ToJson InlayHintLabel where
+  toJson
+    | .name n => toJson n
+    | .parts p => toJson p
+
+inductive InlayHintKind where
+  | type
+  | parameter
+
+instance : FromJson InlayHintKind where
+  fromJson?
+    | 1 => .ok .type
+    | 2 => .ok .parameter
+    | j => .error s!"unknown inlay hint kind {j}"
+
+instance : ToJson InlayHintKind where
+  toJson
+    | .type => 1
+    | .parameter => 2
+
+structure InlayHint where
+  position      : Position
+  label         : InlayHintLabel
+  kind?         : Option InlayHintKind := none
+  textEdits?    : Option (Array TextEdit) := none
+  tooltip?      : Option (InlayHintTooltip) := none
+  paddingLeft?  : Option Bool := none
+  paddingRight? : Option Bool := none
+  data?         : Option Json := none
+  deriving FromJson, ToJson
+
+structure InlayHintClientCapabilities where
+  dynamicRegistration? : Option Bool := none
+  resolveSupport?      : Option ResolveSupport := none
+  deriving FromJson, ToJson
+
+structure InlayHintOptions extends WorkDoneProgressOptions where
+  resolveProvider? : Option Bool := none
   deriving FromJson, ToJson
 
 end Lsp

@@ -34,7 +34,7 @@ xm : List (Vect m A)
 h0 : xm.length = as.length
 ih : i < (List.zipWith cons as xm).length
 jh : j < m
-⊢ ?_ (sorryAx ?_ true) j
+⊢ ?_ sorry j
 -/
 #guard_msgs in
 theorem Vect.aux

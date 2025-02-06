@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Lean.Data.Json
-import Lean.Data.JsonRpc
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -18,10 +17,6 @@ namespace Lean
 namespace Lsp
 
 open Json
-
-structure CancelParams where
-  id : JsonRpc.RequestID
-  deriving Inhabited, BEq, ToJson, FromJson
 
 abbrev DocumentUri := String
 
@@ -365,6 +360,7 @@ structure TextDocumentRegistrationOptions where
 
 inductive MarkupKind where
   | plaintext | markdown
+  deriving DecidableEq, Hashable
 
 instance : FromJson MarkupKind := ⟨fun
   | str "plaintext" => Except.ok MarkupKind.plaintext
@@ -378,7 +374,7 @@ instance : ToJson MarkupKind := ⟨fun
 structure MarkupContent where
   kind  : MarkupKind
   value : String
-  deriving ToJson, FromJson
+  deriving ToJson, FromJson, DecidableEq, Hashable
 
 /-- Reference to the progress of some in-flight piece of work.
 
@@ -429,6 +425,10 @@ structure PartialResultParams where
 structure WorkDoneProgressOptions where
   workDoneProgress := false
   deriving ToJson, FromJson
+
+structure ResolveSupport where
+  properties : Array String
+  deriving FromJson, ToJson
 
 end Lsp
 end Lean

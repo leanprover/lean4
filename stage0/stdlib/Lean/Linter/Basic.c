@@ -31,7 +31,6 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf(lean_object*);
 static lean_object* l_Lean_Linter_initFn____x40_Lean_Linter_Basic___hyg_5____closed__4;
 static lean_object* l_Lean_Linter_logLint___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Linter_getLinterAll___boxed(lean_object*, lean_object*);
-uint8_t l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Linter_getLinterAll(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -393,7 +392,8 @@ LEAN_EXPORT lean_object* l_Lean_Linter_logLintIf___rarg___lambda__1(lean_object*
 _start:
 {
 uint8_t x_9; 
-x_9 = l_Lean_Option_get___at___private_Lean_Util_Profile_0__Lean_get__profiler___spec__1(x_8, x_1);
+lean_inc(x_1);
+x_9 = l_Lean_Linter_getLinterValue(x_1, x_8);
 if (x_9 == 0)
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 

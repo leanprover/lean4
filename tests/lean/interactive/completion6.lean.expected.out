@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "C.b1"}}}},
+    "id": {"const": {"declName": "C.b1"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "f1",
    "kind": 5,
@@ -16,7 +17,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "C.f1"}}}},
+    "id": {"const": {"declName": "C.f1"}},
+    "cPos": 1}},
   {"sortText": "2",
    "label": "f2",
    "kind": 5,
@@ -24,7 +26,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "C.f2"}}}},
+    "id": {"const": {"declName": "C.f2"}},
+    "cPos": 1}},
   {"sortText": "3",
    "label": "f3",
    "kind": 5,
@@ -32,7 +35,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "D.f3"}}}},
+    "id": {"const": {"declName": "D.f3"}},
+    "cPos": 1}},
   {"sortText": "4",
    "label": "toC",
    "kind": 5,
@@ -40,7 +44,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "D.toC"}}}}],
+    "id": {"const": {"declName": "D.toC"}},
+    "cPos": 1}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completion6.lean"},
  "position": {"line": 21, "character": 4}}
@@ -52,7 +57,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "C.b1"}}}},
+    "id": {"const": {"declName": "C.b1"}},
+    "cPos": 1}},
   {"sortText": "1",
    "label": "doubleF1",
    "kind": 3,
@@ -60,7 +66,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "E.doubleF1"}}}},
+    "id": {"const": {"declName": "E.doubleF1"}},
+    "cPos": 1}},
   {"sortText": "2",
    "label": "f1",
    "kind": 5,
@@ -68,7 +75,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "C.f1"}}}},
+    "id": {"const": {"declName": "C.f1"}},
+    "cPos": 1}},
   {"sortText": "3",
    "label": "f2",
    "kind": 5,
@@ -76,7 +84,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "C.f2"}}}},
+    "id": {"const": {"declName": "C.f2"}},
+    "cPos": 1}},
   {"sortText": "4",
    "label": "f3",
    "kind": 5,
@@ -84,7 +93,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "D.f3"}}}},
+    "id": {"const": {"declName": "D.f3"}},
+    "cPos": 1}},
   {"sortText": "5",
    "label": "toC",
    "kind": 5,
@@ -92,5 +102,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completion6.lean"},
      "position": {"line": 21, "character": 4}},
-    "id": {"const": {"declName": "D.toC"}}}}],
+    "id": {"const": {"declName": "D.toC"}},
+    "cPos": 1}}],
  "isIncomplete": true}

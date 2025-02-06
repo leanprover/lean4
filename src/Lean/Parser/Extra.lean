@@ -189,7 +189,7 @@ open PrettyPrinter Syntax.MonadTraverser Formatter in
 @[combinator_formatter sepByIndent]
 def sepByIndent.formatter (p : Formatter) (_sep : String) (pSep : Formatter) : Formatter := do
   let stx ← getCur
-  let hasNewlineSep := stx.getArgs.mapIdx (fun ⟨i, _⟩ n =>
+  let hasNewlineSep := stx.getArgs.mapIdx (fun i n =>
     i % 2 == 1 && n.matchesNull 0 && i != stx.getArgs.size - 1) |>.any id
   visitArgs do
     for i in (List.range stx.getArgs.size).reverse do

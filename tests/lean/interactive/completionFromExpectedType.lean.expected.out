@@ -8,5 +8,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionFromExpectedType.lean"},
      "position": {"line": 3, "character": 18}},
-    "id": {"const": {"declName": "Foo.mk"}}}}],
+    "id": {"const": {"declName": "Foo.mk"}},
+    "cPos": 0}}],
  "isIncomplete": true}

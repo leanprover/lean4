@@ -8,11 +8,49 @@ import Init.Core
 
 universe u v w
 
+/--
+A `ForIn'` instance, which handles `for h : x in c do`,
+can also handle `for x in x do` by ignoring `h`, and so provides a `ForIn` instance.
+
+Note that this instance will cause a potentially non-defeq duplication if both `ForIn` and `ForIn'`
+instances are provided for the same type.
+-/
+-- We set the priority to 500 so it is below the default,
+-- but still above the low priority instance from `Stream`.
+instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α where
+  forIn x b f := forIn' x b fun a _ => f a
+
+@[simp] theorem forIn'_eq_forIn [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m] (x : ρ) (b : β)
+    (f : (a : α) → a ∈ x → β → m (ForInStep β)) (g : (a : α) → β → m (ForInStep β))
+    (h : ∀ a m b, f a m b = g a b) :
+    forIn' x b f = forIn x b g := by
+  simp [instForInOfForIn']
+  congr
+  apply funext
+  intro a
+  apply funext
+  intro m
+  apply funext
+  intro b
+  simp [h]
+  rfl
+
+/-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
+def ForInStep.value (x : ForInStep α) : α :=
+  match x with
+  | ForInStep.done b => b
+  | ForInStep.yield b => b
+
+@[simp] theorem ForInStep.value_done (b : β) : (ForInStep.done b).value = b := rfl
+@[simp] theorem ForInStep.value_yield (b : β) : (ForInStep.yield b).value = b := rfl
+
 @[reducible]
 def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
   fun a f => f <$> a
 
 infixr:100 " <&> " => Functor.mapRev
+
+recommended_spelling "mapRev" for "<&>" in [Functor.mapRev, «term_<&>_»]
 
 @[always_inline, inline]
 def Functor.discard {f : Type u → Type v} {α : Type u} [Functor f] (x : f α) : f PUnit :=
@@ -84,6 +122,8 @@ instance : ToBool Bool where
 
 infixr:30 " <||> " => orM
 
+recommended_spelling "orM" for "<||>" in [orM, «term_<||>_»]
+
 @[macro_inline] def andM {m : Type u → Type v} {β : Type u} [Monad m] [ToBool β] (x y : m β) : m β := do
   let b ← x
   match toBool b with
@@ -91,6 +131,8 @@ infixr:30 " <||> " => orM
   | false => pure b
 
 infixr:35 " <&&> " => andM
+
+recommended_spelling "andM" for "<&&>" in [andM, «term_<&&>_»]
 
 @[macro_inline] def notM {m : Type → Type v} [Applicative m] (x : m Bool) : m Bool :=
   not <$> x
@@ -279,3 +321,7 @@ def Bind.bindLeft [Bind m] (f : α → m β) (ma : m α) : m β :=
 @[inherit_doc] infixr:55 " >=> " => Bind.kleisliRight
 @[inherit_doc] infixr:55 " <=< " => Bind.kleisliLeft
 @[inherit_doc] infixr:55 " =<< " => Bind.bindLeft
+
+recommended_spelling "kleisliRight" for ">=>" in [Bind.kleisliRight, «term_>=>_»]
+recommended_spelling "kleisliLeft" for "<=<" in [Bind.kleisliLeft, «term_<=<_»]
+recommended_spelling "bindLeft" for "=<<" in [Bind.bindLeft, «term_=<<_»]

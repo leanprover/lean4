@@ -5,22 +5,22 @@
    "severity": 1,
    "range":
    {"start": {"line": 16, "character": 12},
-    "end": {"line": 16, "character": 17}},
+    "end": {"line": 17, "character": 0}},
    "message":
    "could not synthesize default value for field 'h1' of 'B' using tactics",
    "fullRange":
    {"start": {"line": 16, "character": 12},
-    "end": {"line": 16, "character": 17}}},
+    "end": {"line": 20, "character": 0}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
    {"start": {"line": 16, "character": 12},
-    "end": {"line": 16, "character": 17}},
+    "end": {"line": 17, "character": 0}},
    "message":
    "failed to synthesize\n  A\nAdditional diagnostic information may be available using the `set_option diagnostics true` command.",
    "fullRange":
    {"start": {"line": 16, "character": 12},
-    "end": {"line": 16, "character": 17}}},
+    "end": {"line": 20, "character": 0}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
@@ -45,8 +45,8 @@
    "severity": 1,
    "range":
    {"start": {"line": 34, "character": 13},
-    "end": {"line": 34, "character": 18}},
+    "end": {"line": 35, "character": 0}},
    "message": "unsolved goals\n⊢ A",
    "fullRange":
    {"start": {"line": 34, "character": 13},
-    "end": {"line": 34, "character": 18}}}]}
+    "end": {"line": 36, "character": 0}}}]}

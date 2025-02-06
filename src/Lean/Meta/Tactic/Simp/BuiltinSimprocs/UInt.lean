@@ -84,8 +84,22 @@ declare_uint_simprocs UInt8
 declare_uint_simprocs UInt16
 declare_uint_simprocs UInt32
 declare_uint_simprocs UInt64
+
 /-
-We disabled the simprocs for USize since the result of most operations depend on an opaque value: `System.Platform.numBits`.
-We could reduce some cases using the fact that this opaque value is `32` or `64`, but it is unclear whether it would be useful in practice.
+We do not use the normal simprocs for `USize` since the result of most operations depend on an opaque value: `System.Platform.numBits`.
+However, we do reduce natural literals using the fact this opaque value is at least `32`.
 -/
--- declare_uint_simprocs USize
+namespace USize
+
+def fromExpr (e : Expr) : SimpM (Option USize) := do
+  let some (n, _) ← getOfNatValue? e ``USize | return none
+  return USize.ofNat n
+
+builtin_simproc [simp, seval] reduceToNat (USize.toNat _) := fun e => do
+  let_expr USize.toNat e ← e | return .continue
+  let some (n, _) ← getOfNatValue? e ``USize | return .continue
+  unless n < UInt32.size do return .continue
+  let e := toExpr n
+  let p ← mkDecideProof (← mkLT e (mkNatLit UInt32.size))
+  let p := mkApp2 (mkConst ``USize.toNat_ofNat_of_lt_32) e p
+  return .done { expr := e, proof? := p }

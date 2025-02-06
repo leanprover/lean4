@@ -55,10 +55,10 @@ Exercise `isDefEqQuick` for `let_fun`.
 Check that `let_fun` responds to WHNF's `zeta` option.
 -/
 
-open Lean Elab Term in
+open Lean Meta Elab Term in
 elab "#whnfCore " z?:(&"noZeta")? t:term : command => Command.runTermElabM fun _ => do
   let e ← withSynthesize <| Term.elabTerm t none
-  let e ← Meta.whnfCore e {zeta := z?.isNone}
+  let e ← withConfig (fun c => { c with zeta := z?.isNone }) <| Meta.whnfCore e
   logInfo m!"{e}"
 
 #whnfCore let_fun n := 5; n

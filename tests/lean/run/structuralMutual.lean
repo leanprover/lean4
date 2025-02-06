@@ -250,8 +250,8 @@ theorem eq_false_of_not_eq_true {b : Bool} : (! b) = true → b = false := by si
 
 /--
 info: n : Nat
-h : EvenOdd.isOdd (n + 1) = false
-⊢ EvenOdd.isEven n = true
+h : isOdd (n + 1) = false
+⊢ isEven n = true
 -/
 #guard_msgs in
 theorem ex1 (n : Nat) (h : isEven (n+2) = true) : isEven n = true := by
@@ -415,7 +415,7 @@ inductive  B (n : Nat) : Type
 end
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     A n
   and the datatype parameter
@@ -439,7 +439,7 @@ end
 end Mutual3
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type FixedIndex.T is an inductive family and indices are not variables
     T 37
 -/
@@ -460,7 +460,7 @@ inductive T (n : Nat) : Nat → Type where
   | n : T n n → T n n
 
 /--
-error: cannot use specified parameter for structural recursion:
+error: cannot use specified measure for structural recursion:
   its type is an inductive datatype
     T n n
   and the datatype parameter
@@ -523,7 +523,7 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 
 
 Could not find a decreasing measure.
-The arguments relate at each recursive call as follows:
+The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
 Call from ManyCombinations.f to ManyCombinations.g at 557:15-29:
    #1 #2 #3 #4
@@ -631,7 +631,7 @@ namespace FunIndTests
 info: A.size.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
   (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
   (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
-  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
+  (case6 : motive_2 B.empty) (a✝ : A) : motive_1 a✝
 -/
 #guard_msgs in
 #check A.size.induct
@@ -649,7 +649,7 @@ info: A.subs.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀
 info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A → Prop)
   (case1 : ∀ (a : MutualIndNonMutualFun.A), motive a → motive a.self)
   (case2 : ∀ (a : MutualIndNonMutualFun.B), motive (MutualIndNonMutualFun.A.other a))
-  (case3 : motive MutualIndNonMutualFun.A.empty) : ∀ (a : MutualIndNonMutualFun.A), motive a
+  (case3 : motive MutualIndNonMutualFun.A.empty) (a✝ : MutualIndNonMutualFun.A) : motive a✝
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size.induct
@@ -658,8 +658,8 @@ info: MutualIndNonMutualFun.A.self_size.induct (motive : MutualIndNonMutualFun.A
 info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → MutualIndNonMutualFun.A → Prop)
   (case1 : ∀ (n : Nat) (a : MutualIndNonMutualFun.A), motive n a → motive n a.self)
   (case2 : ∀ (x : Nat) (a : MutualIndNonMutualFun.B), motive x (MutualIndNonMutualFun.A.other a))
-  (case3 : ∀ (x : Nat), motive x MutualIndNonMutualFun.A.empty) :
-  ∀ (a : Nat) (a_1 : MutualIndNonMutualFun.A), motive a a_1
+  (case3 : ∀ (x : Nat), motive x MutualIndNonMutualFun.A.empty) (a✝ : Nat) (a✝¹ : MutualIndNonMutualFun.A) :
+  motive a✝ a✝¹
 -/
 #guard_msgs in
 #check MutualIndNonMutualFun.A.self_size_with_param.induct
@@ -668,7 +668,7 @@ info: MutualIndNonMutualFun.A.self_size_with_param.induct (motive : Nat → Mutu
 info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case1 : ∀ (a : A), motive_1 a → motive_1 a.self)
   (case2 : ∀ (b : B), motive_2 b → motive_1 (A.other b)) (case3 : motive_1 A.empty)
   (case4 : ∀ (b : B), motive_2 b → motive_2 b.self) (case5 : ∀ (a : A), motive_1 a → motive_2 (B.other a))
-  (case6 : motive_2 B.empty) : ∀ (a : A), motive_1 a
+  (case6 : motive_2 B.empty) (a✝ : A) : motive_1 a✝
 -/
 #guard_msgs in
 #check A.hasNoBEmpty.induct
@@ -676,13 +676,13 @@ info: A.hasNoBEmpty.induct (motive_1 : A → Prop) (motive_2 : B → Prop) (case
 /--
 info: EvenOdd.isEven.induct (motive_1 motive_2 : Nat → Prop) (case1 : motive_1 0)
   (case2 : ∀ (n : Nat), motive_2 n → motive_1 n.succ) (case3 : motive_2 0)
-  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) : ∀ (a : Nat), motive_1 a
+  (case4 : ∀ (n : Nat), motive_1 n → motive_2 n.succ) (a✝ : Nat) : motive_1 a✝
 -/
 #guard_msgs in
 #check EvenOdd.isEven.induct
 
 /--
-info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithTuple.Tree α → Prop)
+info: WithTuple.Tree.map.induct {α : Type} (motive_1 : WithTuple.Tree α → Prop)
   (motive_2 : WithTuple.Tree α × WithTuple.Tree α → Prop)
   (case1 :
     ∀ (x : α) (arrs : WithTuple.Tree α × WithTuple.Tree α), motive_2 arrs → motive_1 (WithTuple.Tree.node x arrs))
@@ -693,8 +693,8 @@ info: WithTuple.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithT
 #check WithTuple.Tree.map.induct
 
 /--
-info: WithArray.Tree.map.induct {α β : Type} (f : α → β) (motive_1 : WithArray.Tree α → Prop)
-  (motive_2 : Array (WithArray.Tree α) → Prop) (motive_3 : List (WithArray.Tree α) → Prop)
+info: WithArray.Tree.map.induct {α : Type} (motive_1 : WithArray.Tree α → Prop) (motive_2 : Array (WithArray.Tree α) → Prop)
+  (motive_3 : List (WithArray.Tree α) → Prop)
   (case1 : ∀ (x : α) (arr₁ : Array (WithArray.Tree α)), motive_2 arr₁ → motive_1 (WithArray.Tree.node x arr₁))
   (case2 : ∀ (arr₁ : List (WithArray.Tree α)), motive_3 arr₁ → motive_2 { toList := arr₁ }) (case3 : motive_3 [])
   (case4 : ∀ (h₁ : WithArray.Tree α) (t₁ : List (WithArray.Tree α)), motive_1 h₁ → motive_3 t₁ → motive_3 (h₁ :: t₁))

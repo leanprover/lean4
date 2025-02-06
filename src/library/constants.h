@@ -46,6 +46,7 @@ name const & get_eq_subst_name();
 name const & get_eq_symm_name();
 name const & get_eq_trans_name();
 name const & get_float_name();
+name const & get_float32_name();
 name const & get_float_array_name();
 name const & get_float_array_data_name();
 name const & get_false_name();

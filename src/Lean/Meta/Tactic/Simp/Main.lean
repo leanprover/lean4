@@ -20,18 +20,6 @@ builtin_initialize congrHypothesisExceptionId : InternalExceptionId ←
 def throwCongrHypothesisFailed : MetaM α :=
   throw <| Exception.internal congrHypothesisExceptionId
 
-/--
-  Helper method for bootstrapping purposes. It disables `arith` if support theorems have not been defined yet.
--/
-def Config.updateArith (c : Config) : CoreM Config := do
-  if c.arith then
-    if (← getEnv).contains ``Nat.Linear.ExprCnstr.eq_of_toNormPoly_eq then
-      return c
-    else
-      return { c with arith := false }
-  else
-    return c
-
 /-- Return true if `e` is of the form `ofNat n` where `n` is a kernel Nat literal -/
 def isOfNatNatLit (e : Expr) : Bool :=
   e.isAppOf ``OfNat.ofNat && e.getAppNumArgs >= 3 && (e.getArg! 1).isRawNatLit
@@ -59,6 +47,17 @@ def isOfScientificLit (e : Expr) : Bool :=
 def isCharLit (e : Expr) : Bool :=
   e.isAppOfArity ``Char.ofNat 1 && e.appArg!.isRawNatLit
 
+/--
+Unfold definition even if it is not marked as `@[reducible]`.
+Remark: We never unfold irreducible definitions. Mathlib relies on that in the implementation of the
+command `irreducible_def`.
+-/
+private def unfoldDefinitionAny? (e : Expr) : MetaM (Option Expr) := do
+  if let .const declName _ := e.getAppFn then
+    if (← isIrreducible declName) then
+      return none
+  unfoldDefinition? e (ignoreTransparency := true)
+
 private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
   matchConst e.getAppFn (fun _ => pure none) fun cinfo _ => do
     match (← getProjectionFnInfo? cinfo.name) with
@@ -69,7 +68,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
         match e? with
         | none   => pure none
         | some e =>
-          match (← reduceProj? e.getAppFn) with
+          match (← withSimpMetaConfig <| reduceProj? e.getAppFn) with
           | some f => return some (mkAppN f e.getAppArgs)
           | none   => return none
       if projInfo.fromClass then
@@ -95,7 +94,7 @@ private def reduceProjFn? (e : Expr) : SimpM (Option Expr) := do
           let major := e.getArg! projInfo.numParams
           unless (← isConstructorApp major) do
             return none
-          reduceProjCont? (← withDefault <| unfoldDefinition? e)
+          reduceProjCont? (← unfoldDefinitionAny? e)
       else
         -- `structure` projections
         reduceProjCont? (← unfoldDefinition? e)
@@ -145,7 +144,7 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
     if cfg.unfoldPartialApp -- If we are unfolding partial applications, ignore issue #2042
        -- When smart unfolding is enabled, and `f` supports it, we don't need to worry about issue #2042
        || (smartUnfolding.get options && (← getEnv).contains (mkSmartUnfoldingNameFor fName)) then
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
     else
       -- `We are not unfolding partial applications, and `fName` does not have smart unfolding support.
       -- Thus, we must check whether the arity of the function >= number of arguments.
@@ -154,17 +153,17 @@ private def unfold? (e : Expr) : SimpM (Option Expr) := do
       let arity := value.getNumHeadLambdas
       -- Partially applied function, return `none`. See issue #2042
       if arity > e.getAppNumArgs then return none
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
   if (← isProjectionFn fName) then
     return none -- should be reduced by `reduceProjFn?`
   else if ctx.config.autoUnfold then
     if ctx.simpTheorems.isErased (.decl fName) then
       return none
     else if hasSmartUnfoldingDecl (← getEnv) fName then
-      withDefault <| unfoldDefinition? e
+      unfoldDefinitionAny? e
     else if (← isMatchDef fName) then
-      let some value ← withDefault <| unfoldDefinition? e | return none
-      let .reduced value ← reduceMatcher? value | return none
+      let some value ← unfoldDefinitionAny? e | return none
+      let .reduced value ← withSimpMetaConfig <| reduceMatcher? value | return none
       return some value
     else
       return none
@@ -178,6 +177,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
   let f := e.getAppFn
   if f.isMVar then
     return (← instantiateMVars e)
+  withSimpMetaConfig do
   if cfg.beta then
     if f.isHeadBetaTargetFn false then
       return f.betaRev e.getAppRevArgs
@@ -200,7 +200,7 @@ private def reduceStep (e : Expr) : SimpM Expr := do
       return e.letBody!.instantiate1 e.letValue!
   match (← unfold? e) with
   | some e' =>
-    trace[Meta.Tactic.simp.rewrite] "unfold {mkConst e.getAppFn.constName!}, {e} ==> {e'}"
+    trace[Meta.Tactic.simp.rewrite] "unfold {.ofConst e.getAppFn}, {e} ==> {e'}"
     recordSimpTheorem (.decl e.getAppFn.constName!)
     return e'
   | none => foldRawNatLit e
@@ -251,12 +251,13 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
     withFreshCache do
       let mut s ← getSimpTheorems
       let mut updated := false
+      let ctx ← getContext
       for x in xs do
         if (← isProof x) then
-          s ← s.addTheorem (.fvar x.fvarId!) x
+          s ← s.addTheorem (.fvar x.fvarId!) x (config := ctx.indexConfig)
           updated := true
       if updated then
-        withTheReader Context (fun ctx => { ctx with simpTheorems := s }) f
+        withSimpTheorems s f
       else
         f
   else if (← getMethods).wellBehavedDischarge then
@@ -267,7 +268,7 @@ def withNewLemmas {α} (xs : Array Expr) (f : SimpM α) : SimpM α := do
     withFreshCache do f
 
 def simpProj (e : Expr) : SimpM Result := do
-  match (← reduceProj? e) with
+  match (← withSimpMetaConfig <| reduceProj? e) with
   | some e => return { expr := e }
   | none =>
     let s := e.projExpr!
@@ -463,8 +464,8 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let m ← getMethods
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
-  withTheReader Simp.Context (fun ctx => { ctx with inDSimp := true }) do
-  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
+  withInDSimp do
+  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -495,7 +496,7 @@ def processCongrHypothesis (h : Expr) : SimpM Bool := do
     let rhs := hType.appArg!
     rhs.withApp fun m zs => do
       let val ← mkLambdaFVars zs r.expr
-      unless (← isDefEq m val) do
+      unless (← withSimpMetaConfig <| isDefEq m val) do
         throwCongrHypothesisFailed
       let mut proof ← r.getProof
       if hType.isAppOf ``Iff then
@@ -539,7 +540,7 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
     let args := e.getAppArgs
     e := mkAppN e.getAppFn args[:numArgs]
     extraArgs := args[numArgs:].toArray
-  if (← isDefEq lhs e) then
+  if (← withSimpMetaConfig <| isDefEq lhs e) then
     let mut modified := false
     for i in c.hypothesesPos do
       let x := xs[i]!
@@ -582,10 +583,130 @@ def congr (e : Expr) : SimpM Result := do
   else
     congrDefault e
 
+/--
+Returns `true` if `e` is of the form `@letFun _ (fun _ => β) _ _`
+
+`β` must not contain loose bound variables. Recall that `simp` does not have support for `let_fun`s
+where resulting type depends on the `let`-value. Example:
+```
+let_fun n := 10;
+BitVec.zero n
+```
+-/
+def isNonDepLetFun (e : Expr) : Bool :=
+  let_expr letFun _ beta _ body := e | false
+  beta.isLambda && !beta.bindingBody!.hasLooseBVars && body.isLambda
+
+/--
+Auxiliary structure used to represent the return value of `simpNonDepLetFun.go`.
+-/
+private structure SimpLetFunResult where
+  /--
+  The simplified expression. Note that is may contain loose bound variables.
+  `simpNonDepLetFun.go` attempts to minimize the quadratic overhead imposed
+  by the locally nameless discipline in a sequence of `let_fun` declarations.
+  -/
+  expr     : Expr
+  /--
+  The proof that the simplified expression is equal to the input one.
+  It may containt loose bound variables. See `expr` field.
+  -/
+  proof    : Expr
+  /--
+  `modified := false` iff `expr` is structurally equal to the input expression.
+  -/
+  modified : Bool
+
+/--
+Simplifies a sequence of `let_fun` declarations.
+It attempts to minimize the quadratic overhead imposed by
+the locally nameless discipline.
+-/
+partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
+  let cfg ← getConfig
+  let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
+    /-
+    Helper function applied when `e` is not a `let_fun` or
+    is a non supported `let_fun` (e.g., the resulting type depends on the value).
+    -/
+    let stop : SimpM SimpLetFunResult := do
+      let e := e.instantiateRev xs
+      let r ← simp e
+      return { expr := r.expr.abstract xs, proof := (← r.getProof).abstract xs, modified :=  r.expr != e }
+    let_expr f@letFun alpha betaFun val body := e | stop
+    let us := f.constLevels!
+    let [_, v] := us | stop
+    /-
+    Recall that `let_fun x : α := val; e[x]` is encoded at
+    ```
+    @letFun α (fun x : α => β[x]) val (fun x : α => e[x])
+    ```
+    `betaFun` is `(fun x : α => β[x])`. If `β[x]` does not have loose bound variables then the resulting type
+    does not depend on the value since it does not depend on `x`.
+
+    We also check whether `alpha` does not depend on the previous `let_fun`s in the sequence.
+    This check is just to make the code simpler. It is not common to have a type depending on the value of a previous `let_fun`.
+    -/
+    if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
+      stop
+    else if (cfg.zeta || cfg.zetaUnused) && !body.bindingBody!.hasLooseBVar 0 then
+      /-
+      Redundant `let_fun`. The simplifier will remove it when `zetaUnused := true`.
+      Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
+      If observe that in practice, we may use a separate step for removing unused variables.
+
+      Remark: note that we do **not** simplify the value in this case.
+      -/
+      let x := mkConst `__no_used_dummy__ -- dummy value
+      let { expr, proof, .. } ← go (xs.push x) body.bindingBody!
+      let proof := mkApp6 (mkConst ``letFun_unused us) alpha betaFun.bindingBody! val body.bindingBody! expr proof
+      let expr := expr.lowerLooseBVars 1 1
+      let proof := proof.lowerLooseBVars 1 1
+      return { expr, proof, modified := true }
+    else
+      let beta    := betaFun.bindingBody!
+      let valInst := val.instantiateRev xs
+      let valResult ← simp valInst
+      withLocalDecl body.bindingName! body.bindingInfo! alpha fun x => do
+        let valIsNew := valResult.expr != valInst
+        let { expr, proof, modified := bodyIsNew } ← go (xs.push x) body.bindingBody!
+        if !valIsNew && !bodyIsNew then
+          /-
+          Value and body were not simplified. We just return `e` and a new refl proof.
+          We must use the low-level `Expr` APIs because `e` may contain loose bound variables.
+          -/
+          let proof := mkApp2 (mkConst ``Eq.refl [v]) beta e
+          return { expr := e, proof, modified := false }
+        else
+          let body' := mkLambda body.bindingName! body.bindingInfo! alpha expr
+          let val'  := valResult.expr.abstract xs
+          let e'    := mkApp4 f alpha betaFun val' body'
+          if valIsNew && bodyIsNew then
+            -- Value and body were simplified
+            let valProof := (← valResult.getProof).abstract xs
+            let proof := mkApp8 (mkConst ``letFun_congr us) alpha beta val val' body body' valProof (mkLambda body.bindingName! body.bindingInfo! alpha proof)
+            return { expr := e', proof, modified := true }
+          else if valIsNew then
+            -- Only the value was simplified.
+            let valProof := (← valResult.getProof).abstract xs
+            let proof := mkApp6 (mkConst ``letFun_val_congr us) alpha beta val val' body valProof
+            return { expr := e', proof, modified := true }
+          else
+            -- Only the body was simplified.
+            let proof := mkApp6 (mkConst ``letFun_body_congr us) alpha beta val body body' (mkLambda body.bindingName! body.bindingInfo! alpha proof)
+            return { expr := e', proof, modified := true }
+  let { expr, proof, modified } ← go #[] e
+  if !modified then
+    return { expr := e }
+  else
+    return { expr, proof? := proof }
+
 def simpApp (e : Expr) : SimpM Result := do
   if isOfNatNatLit e || isOfScientificLit e || isCharLit e then
     -- Recall that we fold "orphan" kernel Nat literals `n` into `OfNat.ofNat n`
     return { expr := e }
+  else if isNonDepLetFun e then
+    simpNonDepLetFun e
   else
     congr e
 
@@ -658,15 +779,28 @@ where
     trace[Meta.Tactic.simp.heads] "{repr e.toHeadIndex}"
     simpLoop e
 
-@[inline] def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α :=
-  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <| withReducible x
+@[inline] private def withSimpContext (ctx : Context) (x : MetaM α) : MetaM α := do
+  withConfig (fun c => { c with etaStruct := ctx.config.etaStruct }) <|
+  withTrackingZetaDeltaSet ctx.zetaDeltaSet <|
+  withReducible x
+
+private def updateUsedSimpsWithZetaDeltaCore (s : UsedSimps) (usedZetaDelta : FVarIdSet) : UsedSimps :=
+  usedZetaDelta.fold (init := s) fun s fvarId =>
+    s.insert <| .fvar fvarId
+
+private def updateUsedSimpsWithZetaDelta (ctx : Context) (stats : Stats) : MetaM Stats := do
+  let used := stats.usedTheorems
+  let used := updateUsedSimpsWithZetaDeltaCore used ctx.initUsedZetaDelta
+  let used := updateUsedSimpsWithZetaDeltaCore used (← getZetaDeltaFVarIds)
+  return { stats with usedTheorems := used }
 
 def main (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Result × Stats) := do
-  let ctx := { ctx with config := (← ctx.config.updateArith), lctxInitIndices := (← getLCtx).numIndices }
+  let ctx ← ctx.setLctxInitIndices
   withSimpContext ctx do
     let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
     trace[Meta.Tactic.simp.numSteps] "{s.numSteps}"
-    return (r, { s with })
+    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    return (r, s)
 where
   go (e : Expr) : SimpM Result :=
     tryCatchRuntimeEx
@@ -681,7 +815,8 @@ where
 def dsimpMain (e : Expr) (ctx : Context) (stats : Stats := {}) (methods : Methods := {}) : MetaM (Expr × Stats) := do
   withSimpContext ctx do
     let (r, s) ← go e methods.toMethodsRef ctx |>.run { stats with }
-    pure (r, { s with })
+    let s ← updateUsedSimpsWithZetaDelta ctx { s with }
+    pure (r, s)
 where
   go (e : Expr) : SimpM Expr :=
     tryCatchRuntimeEx
@@ -810,7 +945,7 @@ def simpGoal (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsArray :=
     for fvarId in fvarIdsToSimp do
       let localDecl ← fvarId.getDecl
       let type ← instantiateMVars localDecl.type
-      let ctx := { ctx with simpTheorems := ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId) }
+      let ctx := ctx.setSimpTheorems <| ctx.simpTheorems.eraseTheorem (.fvar localDecl.fvarId)
       let (r, stats') ← simp type ctx simprocs discharge? stats
       stats := stats'
       match r.proof? with
@@ -843,8 +978,8 @@ def simpTargetStar (mvarId : MVarId) (ctx : Simp.Context) (simprocs : SimprocsAr
   for h in (← getPropHyps) do
     let localDecl ← h.getDecl
     let proof  := localDecl.toExpr
-    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof
-    ctx := { ctx with simpTheorems }
+    let simpTheorems ← ctx.simpTheorems.addTheorem (.fvar h) proof (config := ctx.indexConfig)
+    ctx := ctx.setSimpTheorems simpTheorems
   match (← simpTarget mvarId ctx simprocs discharge? (stats := stats)) with
   | (none, stats) => return (TacticResultCNM.closed, stats)
   | (some mvarId', stats') =>

@@ -25,7 +25,7 @@ y : Nat
 ⊢ 0 + (y + 1) = y + 1
 inductionErrors.lean:50:2-50:16: error: alternative 'cons' is not needed
 inductionErrors.lean:55:2-55:16: error: alternative 'cons' is not needed
-inductionErrors.lean:60:2-60:40: error: invalid alternative name 'upper2'
+inductionErrors.lean:60:2-60:40: error: invalid alternative name 'upper2', expected 'diag' or 'upper'
 inductionErrors.lean:66:2-66:28: error: invalid occurrence of wildcard alternative, it must be the last alternative
 inductionErrors.lean:74:2-74:34: error: unused alternative '_'
-inductionErrors.lean:80:2-80:56: error: unused alternative 'lower'
+inductionErrors.lean:80:2-80:56: error: duplicate alternative name 'lower'

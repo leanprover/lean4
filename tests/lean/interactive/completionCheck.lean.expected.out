@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///completionCheck.lean"},
      "position": {"line": 6, "character": 33}},
-    "id": {"const": {"declName": "AVerySpecificStructureName"}}}},
+    "id": {"const": {"declName": "AVerySpecificStructureName"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "AVerySpecificStructureName2",
    "kind": 22,
@@ -16,5 +17,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionCheck.lean"},
      "position": {"line": 6, "character": 33}},
-    "id": {"const": {"declName": "AVerySpecificStructureName2"}}}}],
+    "id": {"const": {"declName": "AVerySpecificStructureName2"}},
+    "cPos": 0}}],
  "isIncomplete": true}

@@ -2,4 +2,4 @@
 1074b.lean:11:43-11:53: error: tactic 'assumption' failed
 a n z✝ : Term
 a✝ : Brx z✝
-⊢ Brx (sorryAx Term true)
+⊢ Brx sorry

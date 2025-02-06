@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.LitValues
-// Imports: Lean.Meta.Basic
+// Imports: Lean.Meta.Basic Init.Control.Option
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -84,7 +84,6 @@ static lean_object* l_Lean_Meta_normLitValue___lambda__10___closed__3;
 lean_object* l_Lean_Level_ofNat(lean_object*);
 lean_object* l_Lean_Expr_appArg_x21(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCharValue_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Fin_ofNat(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isLitValue___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -106,7 +105,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_litToCtor___lambda__1(lean_object*, lean_ob
 LEAN_EXPORT lean_object* l_Lean_Meta_getIntValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__2___closed__5;
 static lean_object* l_Lean_Meta_litToCtor___closed__3;
-lean_object* lean_uint16_to_nat(uint16_t);
 static lean_object* l_Lean_Meta_getUInt32Value_x3f___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_getListLitOf_x3f___spec__1___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getListLit_x3f___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -118,12 +116,12 @@ static lean_object* l_Lean_Meta_getCharValue_x3f___closed__2;
 static lean_object* l_Lean_Meta_getIntValue_x3f___lambda__2___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__1;
-lean_object* lean_uint64_to_nat(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getIntValue_x3f___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getBitVecValue_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_ofNat(lean_object*, lean_object*);
+lean_object* lean_uint64_to_nat(uint64_t);
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__16;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__7;
@@ -196,6 +194,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Meta_getListLitOf_x3f___spec__1___rarg___closed__2;
 static lean_object* l_Lean_Meta_getUInt64Value_x3f___closed__1;
+lean_object* lean_nat_mod(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__15;
 lean_object* l_Lean_instantiateMVars___at___private_Lean_Meta_Basic_0__Lean_Meta_isClassApp_x3f___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_normLitValue___lambda__3___closed__1;
@@ -214,6 +213,7 @@ uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__6;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__4;
 lean_object* l_Int_toNat(lean_object*);
+lean_object* lean_uint16_to_nat(uint16_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_getListLitOf_x3f___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_normLitValue___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -236,6 +236,7 @@ static lean_object* l_Lean_Meta_getOfNatValue_x3f___closed__2;
 static lean_object* l_Lean_Meta_getListLit_x3f___closed__1;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__23;
 LEAN_EXPORT lean_object* l_Lean_Meta_getRawNatValue_x3f(lean_object*);
+lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isLitValue___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getUInt8Value_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_getArrayLitOf_x3f___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -265,7 +266,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_getArrayLitOf_x3f(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getBitVecValue_x3f___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_consumeMData(lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_isLitValue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isLitValue___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_litToCtor___lambda__2___closed__2;
@@ -273,7 +273,6 @@ lean_object* l_Char_ofNat(lean_object*);
 static lean_object* l_Lean_Meta_getIntValue_x3f___closed__1;
 static lean_object* l_Lean_Meta_litToCtor___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_isLitValue___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_uint8_to_nat(uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_getRawNatValue_x3f(lean_object* x_1) {
 _start:
 {
@@ -1741,9 +1740,9 @@ x_39 = lean_unsigned_to_nat(1u);
 x_40 = lean_nat_sub(x_36, x_39);
 lean_dec(x_36);
 x_41 = lean_nat_add(x_40, x_39);
-x_42 = l_Fin_ofNat(x_40, x_19);
-lean_dec(x_19);
 lean_dec(x_40);
+x_42 = lean_nat_mod(x_19, x_41);
+lean_dec(x_19);
 lean_ctor_set(x_16, 1, x_42);
 lean_ctor_set(x_16, 0, x_41);
 lean_ctor_set(x_26, 0, x_16);
@@ -1776,9 +1775,9 @@ x_47 = lean_unsigned_to_nat(1u);
 x_48 = lean_nat_sub(x_44, x_47);
 lean_dec(x_44);
 x_49 = lean_nat_add(x_48, x_47);
-x_50 = l_Fin_ofNat(x_48, x_19);
-lean_dec(x_19);
 lean_dec(x_48);
+x_50 = lean_nat_mod(x_19, x_49);
+lean_dec(x_19);
 lean_ctor_set(x_16, 1, x_50);
 lean_ctor_set(x_16, 0, x_49);
 x_51 = lean_alloc_ctor(1, 1, 0);
@@ -1822,9 +1821,9 @@ x_58 = lean_unsigned_to_nat(1u);
 x_59 = lean_nat_sub(x_54, x_58);
 lean_dec(x_54);
 x_60 = lean_nat_add(x_59, x_58);
-x_61 = l_Fin_ofNat(x_59, x_19);
-lean_dec(x_19);
 lean_dec(x_59);
+x_61 = lean_nat_mod(x_19, x_60);
+lean_dec(x_19);
 lean_ctor_set(x_16, 1, x_61);
 lean_ctor_set(x_16, 0, x_60);
 if (lean_is_scalar(x_55)) {
@@ -1993,9 +1992,9 @@ x_92 = lean_unsigned_to_nat(1u);
 x_93 = lean_nat_sub(x_88, x_92);
 lean_dec(x_88);
 x_94 = lean_nat_add(x_93, x_92);
-x_95 = l_Fin_ofNat(x_93, x_74);
-lean_dec(x_74);
 lean_dec(x_93);
+x_95 = lean_nat_mod(x_74, x_94);
+lean_dec(x_74);
 x_96 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_96, 0, x_94);
 lean_ctor_set(x_96, 1, x_95);
@@ -7868,12 +7867,16 @@ return x_7;
 }
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Control_Option(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_LitValues(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Control_Option(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Meta_getOfNatValue_x3f___lambda__1___closed__1 = _init_l_Lean_Meta_getOfNatValue_x3f___lambda__1___closed__1();

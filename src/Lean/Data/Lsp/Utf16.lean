@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.Data.String
-import Init.Data.Array
 import Lean.Data.Lsp.Basic
 import Lean.Data.Position
 import Lean.DeclarationRange
@@ -66,11 +65,11 @@ namespace FileMap
 
 private def lineStartPos (text : FileMap) (line : Nat) : String.Pos :=
   if h : line < text.positions.size then
-    text.positions.get ⟨line, h⟩
+    text.positions[line]
   else if text.positions.isEmpty then
     0
   else
-    text.positions.back
+    text.positions.back!
 
 /-- Computes an UTF-8 offset into `text.source`
 from an LSP-style 0-indexed (ln, col) position. -/
@@ -90,15 +89,31 @@ def utf8PosToLspPos (text : FileMap) (pos : String.Pos) : Lsp.Position :=
 def utf8RangeToLspRange (text : FileMap) (range : String.Range) : Lsp.Range :=
   { start := text.utf8PosToLspPos range.start, «end» := text.utf8PosToLspPos range.stop }
 
+def lspRangeToUtf8Range (text : FileMap) (range : Lsp.Range) : String.Range :=
+  { start := text.lspPosToUtf8Pos range.start, stop := text.lspPosToUtf8Pos range.end }
+
 end FileMap
-end Lean
+
+def DeclarationRange.ofFilePositions (text : FileMap) (pos : Position) (endPos : Position)
+    : DeclarationRange := {
+  pos,
+  charUtf16 := text.leanPosToLspPos pos |>.character
+  endPos,
+  endCharUtf16 := text.leanPosToLspPos endPos |>.character
+}
+
+def DeclarationRange.ofStringPositions (text : FileMap) (pos : String.Pos) (endPos : String.Pos)
+    : DeclarationRange :=
+  .ofFilePositions text (text.toPosition pos) (text.toPosition endPos)
 
 /--
 Convert the Lean `DeclarationRange` to an LSP `Range` by turning the 1-indexed line numbering into a
 0-indexed line numbering and converting the character offset within the line to a UTF-16 indexed
 offset.
 -/
-def Lean.DeclarationRange.toLspRange (r : Lean.DeclarationRange) : Lsp.Range := {
+def DeclarationRange.toLspRange (r : DeclarationRange) : Lsp.Range := {
   start := ⟨r.pos.line - 1, r.charUtf16⟩
   «end» := ⟨r.endPos.line - 1, r.endCharUtf16⟩
 }
+
+end Lean

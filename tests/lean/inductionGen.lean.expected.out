@@ -1,6 +1,5 @@
 inductionGen.lean:23:2-23:14: error: index in target's type is not a variable (consider using the `cases` tactic instead)
   n + 1
-inductionGen.lean:25:8-25:11: warning: declaration uses 'sorry'
 case cons
 α : Type u_1
 n : Nat
@@ -9,7 +8,7 @@ x : α
 xs : Vec α n
 h : Vec.cons x xs = ys
 ⊢ (Vec.cons x xs).head = ys.head
-inductionGen.lean:64:8-64:11: warning: declaration uses 'sorry'
+inductionGen.lean:25:8-25:11: warning: declaration uses 'sorry'
 case natVal
 α : ExprType
 a✝ : Nat
@@ -41,5 +40,6 @@ a_ih✝ : ∀ (b : Expr ExprType.nat), a✝ = b → eval (constProp a✝) = eval
 b : Expr ExprType.nat
 h : a✝¹.add a✝ = b
 ⊢ eval (constProp (a✝¹.add a✝)) = eval b
+inductionGen.lean:64:8-64:11: warning: declaration uses 'sorry'
 inductionGen.lean:78:2-78:27: error: target (or one of its indices) occurs more than once
   n

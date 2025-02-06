@@ -3,7 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
-import Std.Data.HashMap
+prelude
 import Std.Data.HashSet
 
 namespace Std
@@ -71,10 +71,10 @@ def Cache (α : Type) [DecidableEq α] [Hashable α] (decls : Array (Decl α)) :
 /--
 Create an empty `Cache`, valid with respect to any `Array Decl`.
 -/
-@[irreducible]
+@[irreducible, inline]
 def Cache.empty (decls : Array (Decl α)) : Cache α decls := ⟨{}, WF.empty⟩
 
-@[inherit_doc Cache.WF.push_id, irreducible]
+@[inherit_doc Cache.WF.push_id, irreducible, inline]
 def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
   ⟨cache.val, Cache.WF.push_id cache.property⟩
 
@@ -82,7 +82,7 @@ def Cache.noUpdate (cache : Cache α decls) : Cache α (decls.push decl) :=
 We require the `decls` as an explicit argument because we use `decls.size` so accidentally mutating
 `decls` before calling `Cache.insert` will destroy `decl` linearity.
 -/
-@[inherit_doc Cache.WF.push_cache, irreducible]
+@[inherit_doc Cache.WF.push_cache, irreducible, inline]
 def Cache.insert (decls : Array (Decl α)) (cache : Cache α decls) (decl : Decl α) :
     Cache α (decls.push decl) :=
   ⟨cache.val.insert decl decls.size, Cache.WF.push_cache cache.property⟩
@@ -127,7 +127,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
   induction hcache generalizing decl with
   | empty => simp at hfound
   | push_id wf ih =>
-    rw [Array.get_push]
+    rw [Array.getElem_push]
     split
     · apply ih
       simp [hfound]
@@ -139,7 +139,7 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
       assumption
   | push_cache wf ih =>
     rename_i decl'
-    rw [Array.get_push]
+    rw [Array.getElem_push]
     split
     · simp only [HashMap.getElem?_insert] at hfound
       match heq : decl == decl' with
@@ -167,13 +167,8 @@ theorem Cache.get?_property {decls : Array (Decl α)} {idx : Nat} (c : Cache α 
 /--
 Lookup a `Decl` in a `Cache`.
 -/
-opaque Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decls decl) :=
-  /-
-  This function is marked as `opaque` to make sure it never, ever gets unfolded anywhere.
-  Unfolding it will often cause `HashMap.find?` to be symbolically evaluated by reducing
-  it either in `whnf` or in the kernel. This causes *huge* performance issues in practice.
-  The function can still be fully verified as all the proofs we need are in `CacheHit`.
-  -/
+@[irreducible, inline]
+def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decls decl) :=
   match hfound : cache.val[decl]? with
   | some hit =>
     some ⟨hit, Cache.get?_bounds _ _ hfound, Cache.get?_property _ _ hfound⟩
@@ -463,14 +458,14 @@ def mkGate (aig : AIG α) (input : GateInput aig) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs' rhs' linv' rinv' h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption
     · injections
       have := input.lhs.ref.hgate
       have := input.rhs.ref.hgate
       omega
-  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ aig with decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
 Add a new input node to the AIG in `aig`. Note that this version is only meant for proving,
@@ -482,11 +477,11 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
 
 /--
 Add a new constant node to `aig`. Note that this version is only meant for proving,
@@ -498,11 +493,22 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have invariant := by
     intro i lhs rhs linv rinv h1 h2
-    simp only [Array.get_push] at h2
+    simp only [Array.getElem_push] at h2
     split at h2
     · apply aig.invariant <;> assumption
     · contradiction
-  ⟨{ decls, invariant, cache }, ⟨g, by simp [decls]⟩⟩
+  ⟨{ decls, invariant, cache }, ⟨g, by simp [g, decls]⟩⟩
+
+
+/--
+Determine whether `ref` is a `Decl.const` with value `b`.
+-/
+def isConstant (aig : AIG α) (ref : Ref aig) (b : Bool) : Bool :=
+  let ⟨gate, hgate⟩ := ref
+  let decl := aig.decls[gate]'hgate
+  match decl with
+  | .const val => b = val
+  | _ => false
 
 end AIG
 

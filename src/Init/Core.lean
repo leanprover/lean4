@@ -133,6 +133,10 @@ structure Iff (a b : Prop) : Prop where
 @[inherit_doc] infix:20 " <-> " => Iff
 @[inherit_doc] infix:20 " ↔ "   => Iff
 
+recommended_spelling "iff" for "↔" in [Iff, «term_↔_»]
+/-- prefer `↔` over `<->` -/
+recommended_spelling "iff" for "<->" in [Iff, «term_<->_»]
+
 /--
 `Sum α β`, or `α ⊕ β`, is the disjoint union of types `α` and `β`.
 An element of `α ⊕ β` is either of the form `.inl a` where `a : α`,
@@ -324,7 +328,6 @@ class ForIn' (m : Type u₁ → Type u₂) (ρ : Type u) (α : outParam (Type v)
 
 export ForIn' (forIn')
 
-
 /--
 Auxiliary type used to compile `do` notation. It is used when compiling a do block
 nested inside a combinator like `tryCatch`. It encodes the possible ways the
@@ -401,6 +404,8 @@ class HasEquiv (α : Sort u) where
 
 @[inherit_doc] infix:50 " ≈ "  => HasEquiv.Equiv
 
+recommended_spelling "equiv" for "≈" in [HasEquiv.Equiv, «term_≈_»]
+
 /-! # set notation  -/
 
 /-- Notation type class for the subset relation `⊆`. -/
@@ -463,6 +468,16 @@ consisting of all elements in `a` that are not in `b`.
 -/
 infix:70 " \\ " => SDiff.sdiff
 
+recommended_spelling "subset" for "⊆" in [Subset, «term_⊆_»]
+recommended_spelling "ssubset" for "⊂" in [SSubset, «term_⊂_»]
+/-- prefer `⊆` over `⊇` -/
+recommended_spelling "superset" for "⊇" in [Superset, «term_⊇_»]
+/-- prefer `⊂` over `⊃` -/
+recommended_spelling "ssuperset" for "⊃" in [SSuperset, «term_⊃_»]
+recommended_spelling "union" for "∪" in [Union.union, «term_∪_»]
+recommended_spelling "inter" for "∩" in [Inter.inter, «term_∩_»]
+recommended_spelling "sdiff" for "\\" in [SDiff.sdiff, «term_\_»]
+
 /-! # collections  -/
 
 /-- `EmptyCollection α` is the typeclass which supports the notation `∅`, also written as `{}`. -/
@@ -473,6 +488,9 @@ class EmptyCollection (α : Type u) where
 
 @[inherit_doc] notation "{" "}" => EmptyCollection.emptyCollection
 @[inherit_doc] notation "∅"     => EmptyCollection.emptyCollection
+
+recommended_spelling "empty" for "{}" in [EmptyCollection.emptyCollection, «term{}»]
+recommended_spelling "empty" for "∅" in [EmptyCollection.emptyCollection, «term∅»]
 
 /--
 Type class for the `insert` operation.
@@ -517,8 +535,17 @@ The tasks have an overridden representation in the runtime.
 structure Task (α : Type u) : Type u where
   /-- `Task.pure (a : α)` constructs a task that is already resolved with value `a`. -/
   pure ::
-  /-- If `task : Task α` then `task.get : α` blocks the current thread until the
-  value is available, and then returns the result of the task. -/
+  /--
+  Blocks the current thread until the given task has finished execution, and then returns the result
+  of the task. If the current thread is itself executing a (non-dedicated) task, the maximum
+  threadpool size is temporarily increased by one while waiting so as to ensure the process cannot
+  be deadlocked by threadpool starvation. Note that when the current thread is unblocked, more tasks
+  than the configured threadpool size may temporarily be running at the same time until sufficiently
+  many tasks have finished.
+
+  `Task.map` and `Task.bind` should be preferred over `Task.get` for setting up task dependencies
+  where possible as they do not require temporarily growing the threadpool in this way.
+  -/
   get : α
   deriving Inhabited, Nonempty
 
@@ -642,6 +669,8 @@ Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead
 
 @[inherit_doc] infix:50 " != " => bne
 
+recommended_spelling "bne" for "!=" in [bne, «term_!=_»]
+
 /--
 `LawfulBEq α` is a typeclass which asserts that the `BEq α` implementation
 (which supplies the `a == b` notation) coincides with logical equality `a = b`.
@@ -717,6 +746,8 @@ and asserts that `a` and `b` are not equal.
   ¬(a = b)
 
 @[inherit_doc] infix:50 " ≠ "  => Ne
+
+recommended_spelling "ne" for "≠" in [Ne, «term_≠_»]
 
 section Ne
 variable {α : Sort u}
@@ -862,15 +893,20 @@ theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
 
 /-! # Decidable -/
 
-theorem decide_true_eq_true (h : Decidable True) : @decide True h = true :=
+@[simp] theorem decide_true (h : Decidable True) : @decide True h = true :=
   match h with
   | isTrue _  => rfl
   | isFalse h => False.elim <| h ⟨⟩
 
-theorem decide_false_eq_false (h : Decidable False) : @decide False h = false :=
+@[simp] theorem decide_false (h : Decidable False) : @decide False h = false :=
   match h with
   | isFalse _ => rfl
   | isTrue h  => False.elim h
+
+set_option linter.missingDocs false in
+@[deprecated decide_true (since := "2024-11-05")] abbrev decide_true_eq_true := decide_true
+set_option linter.missingDocs false in
+@[deprecated decide_false (since := "2024-11-05")] abbrev decide_false_eq_false := decide_false
 
 /-- Similar to `decide`, but uses an explicit instance -/
 @[inline] def toBoolUsing {p : Prop} (d : Decidable p) : Bool :=
@@ -1125,14 +1161,16 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 `a r b r ... r z` of length at least 1 connecting `a` to `z`.
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
-  /-- If `r a b` then `TransGen r a b`. This is the base case of the transitive closure. -/
+  /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
   | single {a b} : r a b → TransGen r a b
-  /-- The transitive closure is transitive. -/
+  /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
+  This is the inductive case of the transitive closure. -/
   | tail {a b c} : TransGen r a b → r b c → TransGen r a c
 
 /-- Deprecated synonym for `Relation.TransGen`. -/
 @[deprecated Relation.TransGen (since := "2024-07-16")] abbrev TC := @Relation.TransGen
 
+/-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
     TransGen r a b → TransGen r b c → TransGen r a c := by
   intro hab hbc
@@ -1371,20 +1409,43 @@ instance {p q : Prop} [d : Decidable (p ↔ q)] : Decidable (p = q) :=
   | isTrue h => isTrue (propext h)
   | isFalse h => isFalse fun heq => h (heq ▸ Iff.rfl)
 
-gen_injective_theorems% Prod
-gen_injective_theorems% PProd
-gen_injective_theorems% MProd
-gen_injective_theorems% Subtype
-gen_injective_theorems% Fin
 gen_injective_theorems% Array
-gen_injective_theorems% Sum
-gen_injective_theorems% PSum
-gen_injective_theorems% Option
-gen_injective_theorems% List
-gen_injective_theorems% Except
+gen_injective_theorems% BitVec
+gen_injective_theorems% Char
+gen_injective_theorems% DoResultBC
+gen_injective_theorems% DoResultPR
+gen_injective_theorems% DoResultPRBC
+gen_injective_theorems% DoResultSBC
 gen_injective_theorems% EStateM.Result
+gen_injective_theorems% Except
+gen_injective_theorems% Fin
+gen_injective_theorems% ForInStep
 gen_injective_theorems% Lean.Name
 gen_injective_theorems% Lean.Syntax
+gen_injective_theorems% List
+gen_injective_theorems% MProd
+gen_injective_theorems% NonScalar
+gen_injective_theorems% Option
+gen_injective_theorems% PLift
+gen_injective_theorems% PNonScalar
+gen_injective_theorems% PProd
+gen_injective_theorems% Prod
+gen_injective_theorems% PSigma
+gen_injective_theorems% PSum
+gen_injective_theorems% Sigma
+gen_injective_theorems% String
+gen_injective_theorems% String.Pos
+gen_injective_theorems% Substring
+gen_injective_theorems% Subtype
+gen_injective_theorems% Sum
+gen_injective_theorems% Task
+gen_injective_theorems% Thunk
+gen_injective_theorems% UInt16
+gen_injective_theorems% UInt32
+gen_injective_theorems% UInt64
+gen_injective_theorems% UInt8
+gen_injective_theorems% ULift
+gen_injective_theorems% USize
 
 theorem Nat.succ.inj {m n : Nat} : m.succ = n.succ → m = n :=
   fun x => Nat.noConfusion x id
@@ -1864,7 +1925,8 @@ section
 variable {α : Type u}
 variable (r : α → α → Prop)
 
-instance {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)] : DecidableEq (Quotient s) :=
+instance Quotient.decidableEq {α : Sort u} {s : Setoid α} [d : ∀ (a b : α), Decidable (a ≈ b)]
+    : DecidableEq (Quotient s) :=
   fun (q₁ q₂ : Quotient s) =>
     Quotient.recOnSubsingleton₂ q₁ q₂
       fun a₁ a₂ =>
@@ -1916,12 +1978,12 @@ represents an element of `Squash α` the same as `α` itself
 `Squash.lift` will extract a value in any subsingleton `β` from a function on `α`,
 while `Nonempty.rec` can only do the same when `β` is a proposition.
 -/
-def Squash (α : Type u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
 
 /-- The canonical quotient map into `Squash α`. -/
-def Squash.mk {α : Type u} (x : α) : Squash α := Quot.mk _ x
+def Squash.mk {α : Sort u} (x : α) : Squash α := Quot.mk _ x
 
-theorem Squash.ind {α : Type u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
+theorem Squash.ind {α : Sort u} {motive : Squash α → Prop} (h : ∀ (a : α), motive (Squash.mk a)) : ∀ (q : Squash α), motive q :=
   Quot.ind h
 
 /-- If `β` is a subsingleton, then a function `α → β` lifts to `Squash α → β`. -/
@@ -1934,15 +1996,6 @@ instance : Subsingleton (Squash α) where
     induction b using Squash.ind
     apply Quot.sound
     trivial
-
-/-! # Relations -/
-
-/--
-`Antisymm (·≤·)` says that `(·≤·)` is antisymmetric, that is, `a ≤ b → b ≤ a → a = b`.
--/
-class Antisymm {α : Sort u} (r : α → α → Prop) : Prop where
-  /-- An antisymmetric relation `(·≤·)` satisfies `a ≤ b → b ≤ a → a = b`. -/
-  antisymm {a b : α} : r a b → r b a → a = b
 
 namespace Lean
 /-! # Kernel reduction hints -/
@@ -2118,5 +2171,36 @@ class LawfulCommIdentity (op : α → α → α) (o : outParam α) [hc : Commuta
 instance : Commutative Or := ⟨fun _ _ => propext or_comm⟩
 instance : Commutative And := ⟨fun _ _ => propext and_comm⟩
 instance : Commutative Iff := ⟨fun _ _ => propext iff_comm⟩
+
+/-- `Refl r` means the binary relation `r` is reflexive, that is, `r x x` always holds. -/
+class Refl (r : α → α → Prop) : Prop where
+  /-- A reflexive relation satisfies `r a a`. -/
+  refl : ∀ a, r a a
+
+/-- `Antisymm r` says that `r` is antisymmetric, that is, `r a b → r b a → a = b`. -/
+class Antisymm (r : α → α → Prop) : Prop where
+  /-- An antisymmetric relation `r` satisfies `r a b → r b a → a = b`. -/
+  antisymm (a b : α) : r a b → r b a → a = b
+
+@[deprecated Antisymm (since := "2024-10-16"), inherit_doc Antisymm]
+abbrev _root_.Antisymm (r : α → α → Prop) : Prop := Std.Antisymm r
+
+/-- `Asymm X r` means that the binary relation `r` on `X` is asymmetric, that is,
+`r a b → ¬ r b a`. -/
+class Asymm (r : α → α → Prop) : Prop where
+  /-- An asymmetric relation satisfies `r a b → ¬ r b a`. -/
+  asymm : ∀ a b, r a b → ¬r b a
+
+/-- `Total X r` means that the binary relation `r` on `X` is total, that is, that for any
+`x y : X` we have `r x y` or `r y x`. -/
+class Total (r : α → α → Prop) : Prop where
+  /-- A total relation satisfies `r a b ∨ r b a`. -/
+  total : ∀ a b, r a b ∨ r b a
+
+/-- `Irrefl r` means the binary relation `r` is irreflexive, that is, `r x x` never
+holds. -/
+class Irrefl (r : α → α → Prop) : Prop where
+  /-- An irreflexive relation satisfies `¬ r a a`. -/
+  irrefl : ∀ a, ¬r a a
 
 end Std

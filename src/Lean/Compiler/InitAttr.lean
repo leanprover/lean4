@@ -144,11 +144,7 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit := do
   let type := mkApp (mkConst `IO) (mkConst `Unit)
   let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,
                                      safety := DefinitionSafety.safe }
-  match (← getEnv).addAndCompile {} decl with
-  -- TODO: pretty print error
-  | Except.error e => do
-    let msg ← (e.toMessageData {}).toString
-    throwError "failed to emit registration code for builtin '{forDecl}': {msg}"
-  | Except.ok env  => IO.ofExcept (setBuiltinInitAttr env name) >>= setEnv
+  addAndCompile decl
+  IO.ofExcept (setBuiltinInitAttr (← getEnv) name) >>= setEnv
 
 end Lean

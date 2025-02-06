@@ -62,7 +62,7 @@ withFile fn2 Mode.append $ fun h => do
 { h.putStrLn xs₁;
   pure () };
 let ys ← withFile fn2 Mode.read $ fun h => do
-  { let ys ← (List.iota 4).mapM $ fun i => do
+  { let ys ← (List.range 4).mapM $ fun i => do
     { let ln ← h.getLine;
       IO.println i;
       IO.println ∘ repr $ ln;
@@ -80,13 +80,13 @@ info: ⟨[₂,α]⟩⟨[₂,α]⟩
 
 ⟨[₂,α]⟩⟨[₂,α]⟩
 
-4
+0
 "⟨[₂,α]⟩⟨[₂,α]⟩\n"
-3
+1
 "/* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\\0' character and the    *//*   rest of the line is discarded.                      */\n"
 2
 "⟨[6,8,@]⟩\n"
-1
+3
 "⟨[6,8,@]⟩\n"
 [⟨[₂,α]⟩⟨[₂,α]⟩
 , /* Handle.getLine : Handle → IO Unit                     *//*   The line returned by `lean_io_prim_handle_get_line` *//*   is truncated at the first '\0' character and the    *//*   rest of the line is discarded.                      */

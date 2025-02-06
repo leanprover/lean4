@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Basic
 import Lean.Data.Json
 import Lean.Data.RBMap
+import Init.Control.Option
 
 namespace Lean
 

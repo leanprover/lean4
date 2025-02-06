@@ -9,4 +9,4 @@ has type
   String : Type
 but is expected to have type
   Nat : Type
-(sorryAx Nat true).succ : Nat
+sorry.succ : Nat

@@ -18,6 +18,14 @@ namespace Lean.PrettyPrinter.Delaborator
 
 abbrev OptionsPerPos := RBMap SubExpr.Pos Options compare
 
+def OptionsPerPos.insertAt (optionsPerPos : OptionsPerPos) (pos : SubExpr.Pos) (name : Name) (value : DataValue) : OptionsPerPos :=
+  let opts := optionsPerPos.find? pos |>.getD {}
+  optionsPerPos.insert pos <| opts.insert name value
+
+/-- Merges two collections of options, where the second overrides the first. -/
+def OptionsPerPos.merge : OptionsPerPos → OptionsPerPos → OptionsPerPos :=
+  RBMap.mergeBy (fun _ => KVMap.mergeBy (fun _ _ dv => dv))
+
 namespace SubExpr
 
 open Lean.SubExpr

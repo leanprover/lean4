@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Data.PersistentHashMap
-// Imports: Init.Data.Array.BasicAux Init.Data.ToString.Macro
+// Imports: Init.Data.Array.BasicAux Init.Data.ToString.Macro Init.Data.UInt.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -110,7 +110,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_Stats_toString(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_PersistentHashMap_foldl___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_PersistentHashMap_forIn___spec__4___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_isUnaryNode(lean_object*, lean_object*);
-lean_object* l_Array_feraseIdx___rarg(lean_object*, lean_object*);
 LEAN_EXPORT size_t l_Lean_PersistentHashMap_mul2Shift(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashMap_toList___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg___boxed(lean_object*);
@@ -159,11 +158,11 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_map___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_erase___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapM_x27___at_Lean_PersistentHashMap_map___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashMap_toList___spec__4(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_indexOfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_PersistentHashMap_toList___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toList___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT size_t l_Lean_PersistentHashMap_shift;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_instInhabitedNode(lean_object*, lean_object*);
+lean_object* l_Array_eraseIdx___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_PersistentHashMap_mapMAux___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ExceptT_bindCont___at_Lean_PersistentHashMap_forIn___spec__4(lean_object*, lean_object*);
@@ -250,6 +249,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_PersistentHashMap_toList___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_instForInProd___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Array_idxOfAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_mapMAux___rarg(lean_object*, lean_object*, lean_object*);
@@ -2730,7 +2730,7 @@ lean_inc(x_65);
 x_66 = lean_ctor_get(x_2, 1);
 lean_inc(x_66);
 x_67 = lean_unsigned_to_nat(0u);
-x_68 = l_Array_indexOfAux___rarg(x_1, x_65, x_4, x_67);
+x_68 = l_Array_idxOfAux___rarg(x_1, x_65, x_4, x_67);
 if (lean_obj_tag(x_68) == 0)
 {
 lean_dec(x_66);
@@ -2752,8 +2752,8 @@ x_72 = lean_ctor_get(x_68, 0);
 lean_inc(x_72);
 lean_dec(x_68);
 lean_inc(x_72);
-x_73 = l_Array_feraseIdx___rarg(x_65, x_72);
-x_74 = l_Array_feraseIdx___rarg(x_66, x_72);
+x_73 = l_Array_eraseIdx___rarg(x_65, x_72, lean_box(0));
+x_74 = l_Array_eraseIdx___rarg(x_66, x_72, lean_box(0));
 lean_ctor_set(x_2, 1, x_74);
 lean_ctor_set(x_2, 0, x_73);
 return x_2;
@@ -2766,8 +2766,8 @@ x_75 = lean_ctor_get(x_68, 0);
 lean_inc(x_75);
 lean_dec(x_68);
 lean_inc(x_75);
-x_76 = l_Array_feraseIdx___rarg(x_65, x_75);
-x_77 = l_Array_feraseIdx___rarg(x_66, x_75);
+x_76 = l_Array_eraseIdx___rarg(x_65, x_75, lean_box(0));
+x_77 = l_Array_eraseIdx___rarg(x_66, x_75, lean_box(0));
 x_78 = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(x_78, 0, x_76);
 lean_ctor_set(x_78, 1, x_77);
@@ -5865,6 +5865,7 @@ return x_1;
 }
 lean_object* initialize_Init_Data_Array_BasicAux(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_ToString_Macro(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Basic(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Data_PersistentHashMap(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -5874,6 +5875,9 @@ res = initialize_Init_Data_Array_BasicAux(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ToString_Macro(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Basic(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_PersistentHashMap_instInhabitedNode___closed__1 = _init_l_Lean_PersistentHashMap_instInhabitedNode___closed__1();

@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load
 import Lake.Build.Imports
 import Lake.Util.Error
@@ -19,23 +20,26 @@ import Lake.CLI.Serve
 -- # CLI
 
 open System
-open Lean (Json toJson fromJson? LeanPaths)
+open Lean (Json toJson fromJson? LeanPaths NameMap)
 
 namespace Lake
 
 /-! ## General options for top-level `lake` -/
 
 structure LakeOptions where
+  args : List String := []
   rootDir : FilePath := "."
   configFile : FilePath := defaultConfigFile
   elanInstall? : Option ElanInstall := none
   leanInstall? : Option LeanInstall := none
   lakeInstall? : Option LakeInstall := none
   configOpts : NameMap String := {}
+  packageOverrides : Array PackageEntry := #[]
   subArgs : List String := []
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
   updateDeps : Bool := false
+  updateToolchain : Bool := true
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
@@ -44,6 +48,7 @@ structure LakeOptions where
   failLv : LogLevel := .error
   outLv? : Option LogLevel := .none
   ansiMode : AnsiMode := .auto
+  outFormat : OutFormat := .text
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -72,12 +77,16 @@ def LakeOptions.computeEnv (opts : LakeOptions) : EIO CliError Lake.Env := do
 /-- Make a `LoadConfig` from a `LakeOptions`. -/
 def LakeOptions.mkLoadConfig (opts : LakeOptions) : EIO CliError LoadConfig :=
   return {
+    lakeArgs? := opts.args.toArray
     lakeEnv := ← opts.computeEnv
     wsDir := opts.rootDir
     relConfigFile := opts.configFile
+    packageOverrides := opts.packageOverrides
     lakeOpts := opts.configOpts
     leanOpts := Lean.Options.empty
     reconfigure := opts.reconfigure
+    updateDeps := opts.updateDeps
+    updateToolchain := opts.updateToolchain
   }
 
 /-- Make a `BuildConfig` from a `LakeOptions`. -/
@@ -101,7 +110,7 @@ abbrev CliM := ArgsT CliStateM
 
 def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   let (elanInstall?, leanInstall?, lakeInstall?) ← findInstall?
-  let main := self.run' args |>.run' {elanInstall?, leanInstall?, lakeInstall?}
+  let main := self.run' args |>.run' {args, elanInstall?, leanInstall?, lakeInstall?}
   let main := main.run >>= fun | .ok a => pure a | .error e => error e.toString
   main.run
 
@@ -110,6 +119,12 @@ def CliM.run (self : CliM α) (args : List String) : BaseIO ExitCode := do
   MainM.runLogIO x opts.outLv opts.ansiMode
 
 instance (priority := low) : MonadLift LogIO CliStateM := ⟨CliStateM.runLogIO⟩
+
+@[inline] def CliStateM.runLoggerIO (x : LoggerIO α) : CliStateM α := do
+  let opts ← get
+  MainM.runLoggerIO x opts.outLv opts.ansiMode
+
+instance (priority := low) : MonadLift LoggerIO CliStateM := ⟨CliStateM.runLoggerIO⟩
 
 /-! ## Argument Parsing -/
 
@@ -141,10 +156,6 @@ def noArgsRem (act : CliStateM α) : CliM α := do
 def getWantsHelp : CliStateM Bool :=
   (·.wantsHelp) <$> get
 
-def setLean (lean : String) : CliStateM PUnit := do
-  let leanInstall? ← findLeanCmdInstall? lean
-  modify ({·  with leanInstall?})
-
 def setConfigOpt (kvPair : String) : CliM PUnit :=
   let pos := kvPair.posOf '='
   let (key, val) :=
@@ -161,18 +172,24 @@ def lakeShortOption : (opt : Char) → CliM PUnit
 | 'd' => do let rootDir ← takeOptArg "-d" "path"; modifyThe LakeOptions ({· with rootDir})
 | 'f' => do let configFile ← takeOptArg "-f" "path"; modifyThe LakeOptions ({· with configFile})
 | 'K' => do setConfigOpt <| ← takeOptArg "-K" "key-value pair"
-| 'U' => modifyThe LakeOptions ({· with updateDeps := true})
+| 'U' => do
+  logWarning "the '-U' shorthand for '--update' is deprecated"
+  modifyThe LakeOptions ({· with updateDeps := true})
 | 'R' => modifyThe LakeOptions ({· with reconfigure := true})
 | 'h' => modifyThe LakeOptions ({· with wantsHelp := true})
 | 'H' => modifyThe LakeOptions ({· with trustHash := false})
+| 'J' => modifyThe LakeOptions ({· with outFormat := .json})
 | opt => throw <| CliError.unknownShortOption opt
 
 def lakeLongOption : (opt : String) → CliM PUnit
 | "--quiet"       => modifyThe LakeOptions ({· with verbosity := .quiet})
 | "--verbose"     => modifyThe LakeOptions ({· with verbosity := .verbose})
 | "--update"      => modifyThe LakeOptions ({· with updateDeps := true})
+| "--keep-toolchain" => modifyThe LakeOptions ({· with updateToolchain := false})
 | "--reconfigure" => modifyThe LakeOptions ({· with reconfigure := true})
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
+| "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
+| "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
@@ -187,13 +204,17 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with failLv})
 | "--ansi"        => modifyThe LakeOptions ({· with ansiMode := .ansi})
 | "--no-ansi"     => modifyThe LakeOptions ({· with ansiMode := .noAnsi})
+| "--packages"    => do
+  let file ← takeOptArg "--packages" "package overrides file"
+  let overrides ← Manifest.loadEntries file
+  modifyThe LakeOptions fun opts =>
+    {opts with packageOverrides := opts.packageOverrides ++ overrides}
 | "--dir"         => do
   let rootDir ← takeOptArg "--dir" "path"
   modifyThe LakeOptions ({· with rootDir})
 | "--file"        => do
   let configFile ← takeOptArg "--file" "path"
   modifyThe LakeOptions ({· with configFile})
-| "--lean"        => do setLean <| ← takeOptArg "--lean" "path or command"
 | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
 | "--"            => do
   let subArgs ← takeArgs
@@ -331,9 +352,12 @@ protected def build : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
-  let ws ← loadWorkspace config opts.updateDeps
+  let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
+  specs.forM fun spec =>
+    unless spec.buildable do
+      throw <| .invalidBuildTarget spec.info.key.toSimpleString
   let buildConfig := mkBuildConfig opts (out := .stdout)
   let showProgress := buildConfig.showProgress
   ws.runBuild (buildSpecs specs) buildConfig
@@ -345,12 +369,24 @@ protected def checkBuild : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
 
+protected def query : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let config ← mkLoadConfig opts
+  let ws ← loadWorkspace config
+  let targetSpecs ← takeArgs
+  let specs ← parseTargetSpecs ws targetSpecs
+  let fmt := opts.outFormat
+  let buildConfig := mkBuildConfig opts
+  let results ← ws.runBuild (querySpecs specs fmt) buildConfig
+  results.forM (IO.println ·)
+
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
-  discard <| loadWorkspace config opts.updateDeps
+  discard <| loadWorkspace config
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
@@ -508,7 +544,7 @@ protected def translateConfig : CliM PUnit := do
   if outFile?.isNone then
     IO.FS.rename pkg.configFile (pkg.configFile.addExtension "bak")
 
-def ReservoirConfig.currentSchemaVersion : StdVer := v!"1.0.0"
+def ReservoirConfig.currentSchemaVersion : StdVer := {major := 1}
 
 structure ReservoirConfig where
   name : String
@@ -582,6 +618,7 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "init"                => lake.init
 | "build"               => lake.build
 | "check-build"         => lake.checkBuild
+| "query"               => lake.query
 | "update" | "upgrade"  => lake.update
 | "resolve-deps"        => lake.resolveDeps
 | "pack"                => lake.pack

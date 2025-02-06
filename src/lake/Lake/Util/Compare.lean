@@ -3,6 +3,8 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
+import Init.Data.Ord
 
 namespace Lake
 
@@ -64,7 +66,7 @@ instance : LawfulCmpEq Nat compare where
 
 instance : LawfulCmpEq UInt64 compare where
   eq_of_cmp h := eq_of_compareOfLessAndEq h
-  cmp_rfl := compareOfLessAndEq_rfl <| Nat.lt_irrefl _
+  cmp_rfl := compareOfLessAndEq_rfl <| UInt64.lt_irrefl _
 
 instance : LawfulCmpEq String compare where
   eq_of_cmp := eq_of_compareOfLessAndEq

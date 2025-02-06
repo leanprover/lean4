@@ -15,6 +15,7 @@ extern "C" {
 #endif
 LEAN_EXPORT uint8_t l_List_decidablePerm___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_decidablePerm(lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransPerm(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_reverseAux_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_decidablePerm___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_getLast_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -31,6 +32,12 @@ LEAN_EXPORT lean_object* l_List_erase___at_List_decidablePerm___spec__3___rarg(l
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_getLast_x3f_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_isSetoid(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_List_Perm_0__List_reverseAux_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_List_instTransPerm(lean_object* x_1) {
+_start:
+{
+return lean_box(0);
+}
+}
 LEAN_EXPORT lean_object* l_List_isSetoid(lean_object* x_1) {
 _start:
 {

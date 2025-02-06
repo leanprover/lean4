@@ -35,7 +35,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVa
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_IsLive_visitArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_RBNode_appendTrees___rarg(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_mkLiveVarSet(lean_object*);
 lean_object* l_Lean_RBNode_setBlack___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_del___at___private_Lean_Compiler_IR_LiveVars_0__Lean_IR_LiveVars_bindVar___spec__2___boxed(lean_object*, lean_object*);

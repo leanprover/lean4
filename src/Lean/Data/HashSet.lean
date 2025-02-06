@@ -42,7 +42,7 @@ private def mkIdx {sz : Nat} (hash : UInt64) (h : sz.isPowerOfTwo) : { u : USize
   if h' : u.toNat < sz then
     ⟨u, h'⟩
   else
-    ⟨0, by simp [USize.toNat, OfNat.ofNat, USize.ofNat]; apply Nat.pos_of_isPowerOfTwo h⟩
+    ⟨0, by simp; apply Nat.pos_of_isPowerOfTwo h⟩
 
 @[inline] def reinsertAux (hashFn : α → UInt64) (data : HashSetBucket α) (a : α) : HashSetBucket α :=
   let ⟨i, h⟩ := mkIdx (hashFn a) data.property
@@ -80,10 +80,9 @@ def contains [BEq α] [Hashable α] (m : HashSetImp α) (a : α) : Bool :=
 
 def moveEntries [Hashable α] (i : Nat) (source : Array (List α)) (target : HashSetBucket α) : HashSetBucket α :=
   if h : i < source.size then
-     let idx : Fin source.size := ⟨i, h⟩
-     let es  : List α   := source.get idx
+     let es  : List α   := source[i]
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.set idx []
+     let source                := source.set i []
      let target                := es.foldl (reinsertAux hash) target
      moveEntries (i+1) source target
   else
@@ -219,8 +218,8 @@ def merge {α : Type u} [BEq α] [Hashable α] (s t : HashSet α) : HashSet α :
   t.fold (init := s) fun s a => s.insert a
   -- We don't use `insertMany` here because it gives weird universes.
 
-attribute [deprecated Std.HashSet] HashSet
-attribute [deprecated Std.HashSet.Raw] HashSetImp
-attribute [deprecated Std.HashSet.Raw.empty] mkHashSetImp
-attribute [deprecated Std.HashSet.empty] mkHashSet
-attribute [deprecated Std.HashSet.empty] HashSet.empty
+attribute [deprecated Std.HashSet (since := "2024-08-08")] HashSet
+attribute [deprecated Std.HashSet.Raw (since := "2024-08-08")] HashSetImp
+attribute [deprecated Std.HashSet.Raw.empty (since := "2024-08-08")] mkHashSetImp
+attribute [deprecated Std.HashSet.empty (since := "2024-08-08")] mkHashSet
+attribute [deprecated Std.HashSet.empty (since := "2024-08-08")] HashSet.empty

@@ -193,3 +193,15 @@ In this example, `h0` and `h1` used to be reversed, leading to a kernel typechec
 -/
 example (n : Nat) (h0 : n ≠ 0) (h1 : n ≠ 1) : n - 2 ≠ n - 1 :=
   Nat.recOn n (by simp) (by rintro (_ | _) <;> simp) h0 h1
+
+/-!
+Check that eliminators need at least one discriminant
+-/
+
+/--
+error: unexpected eliminator resulting type
+  p
+-/
+#guard_msgs in
+@[elab_as_elim]
+theorem mySillyEliminator {p : Prop} (h : p) : p := h

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Extra
-// Imports: Init.Data.ByteArray
+// Imports: Init.Data.ByteArray Init.Data.UInt.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -64,7 +64,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Extra_0__String_findLeadin
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__1;
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__21;
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_toUTF8___boxed(lean_object*);
 static lean_object* l_String___aux__Init__Data__String__Extra______macroRules__tacticDecreasing__trivial__1___closed__14;
 LEAN_EXPORT lean_object* l_String_fromUTF8_x3f(lean_object*);
@@ -192,7 +191,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toNat_x21___closed__1;
 x_2 = l_String_toNat_x21___closed__2;
-x_3 = lean_unsigned_to_nat(18u);
+x_3 = lean_unsigned_to_nat(19u);
 x_4 = lean_unsigned_to_nat(4u);
 x_5 = l_String_toNat_x21___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -865,7 +864,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_String_toNat_x21___closed__1;
 x_2 = l_String_fromUTF8_x21___closed__1;
-x_3 = lean_unsigned_to_nat(92u);
+x_3 = lean_unsigned_to_nat(100u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_String_fromUTF8_x21___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2618,12 +2617,16 @@ return x_2;
 }
 }
 lean_object* initialize_Init_Data_ByteArray(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Extra(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_ByteArray(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_String_toNat_x21___closed__1 = _init_l_String_toNat_x21___closed__1();

@@ -34,3 +34,4 @@ import Lean.Util.SearchPath
 import Lean.Util.SafeExponentiation
 import Lean.Util.NumObjs
 import Lean.Util.NumApps
+import Lean.Util.FVarSubset

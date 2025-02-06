@@ -6,7 +6,7 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
-import Init.System.Mutex
+import Std.Sync.Mutex
 import Init.Data.ByteArray
 import Lean.Data.RBMap
 
@@ -113,7 +113,7 @@ section FileWorker
   structure FileWorker where
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
-    exitCode           : IO.Mutex (Option UInt32)
+    exitCode           : Std.Mutex (Option UInt32)
     commTask           : Task WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
@@ -392,7 +392,7 @@ section ServerM
       -- open session for `kill` above
       setsid        := true
     }
-    let exitCode ← IO.Mutex.new none
+    let exitCode ← Std.Mutex.new none
     let pendingRequestsRef ← IO.mkRef (RBMap.empty : PendingRequestMap)
     let initialDependencyBuildMode := m.dependencyBuildMode
     let updatedDependencyBuildMode :=
@@ -669,7 +669,7 @@ where
     let grouped := incomingCalls.groupByKey (·.«from»)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       «from» := group[0]!.«from»
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -716,7 +716,7 @@ where
     let grouped := outgoingCalls.groupByKey (·.to)
     let collapsed := grouped.toArray.map fun ⟨_, group⟩ => {
       to := group[0]!.to
-      fromRanges := group.concatMap (·.fromRanges)
+      fromRanges := group.flatMap (·.fromRanges)
     }
     collapsed
 
@@ -811,33 +811,35 @@ section NotificationHandling
     terminateFileWorker p.textDocument.uri
 
   def handleDidChangeWatchedFiles (p : DidChangeWatchedFilesParams) : ServerM Unit := do
-    let importData ← (← read).importData.get
-    let references := (← read).references
-    let oleanSearchPath ← Lean.searchPathRef.get
-    let ileans ← oleanSearchPath.findAllWithExt "ilean"
-    for change in p.changes do
-      let some path := fileUriToPath? change.uri
-        | continue
-      match path.extension with
-      | "lean" =>
-        let dependents := importData.importedBy.findD change.uri ∅
+    let changes := p.changes.filterMap fun c => do return (c, ← fileUriToPath? c.uri)
+    let leanChanges := changes.filter fun (_, path) => path.extension == "lean"
+    let ileanChanges := changes.filter fun (_, path) => path.extension == "ilean"
+    if ! leanChanges.isEmpty then
+      let importData ← (← read).importData.get
+      for (c, _) in leanChanges do
+        let dependents := importData.importedBy.findD c.uri ∅
         for dependent in dependents do
-          notifyAboutStaleDependency dependent change.uri
-      | "ilean" =>
-        if let FileChangeType.Deleted := change.type then
+          notifyAboutStaleDependency dependent c.uri
+    if ! ileanChanges.isEmpty then
+      let references := (← read).references
+      let oleanSearchPath ← Lean.searchPathRef.get
+      for (c, path) in ileanChanges do
+        if let FileChangeType.Deleted := c.type then
           references.modify (fun r => r.removeIlean path)
-        else if ileans.contains path then
-          try
-            let ilean ← Ilean.load path
-            if let FileChangeType.Changed := change.type then
-              references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
-            else
-              references.modify (fun r => r.addIlean path ilean)
-          catch
-            -- ilean vanished, ignore error
-            | .noFileOrDirectory .. => references.modify (·.removeIlean path)
-            | e => throw e
-      | _ => continue
+          continue
+        let isIleanInSearchPath := (← searchModuleNameOfFileName path oleanSearchPath).isSome
+        if ! isIleanInSearchPath then
+          continue
+        try
+          let ilean ← Ilean.load path
+          if let FileChangeType.Changed := c.type then
+            references.modify (fun r => r.removeIlean path |>.addIlean path ilean)
+          else
+            references.modify (fun r => r.addIlean path ilean)
+        catch
+          -- ilean vanished, ignore error
+          | .noFileOrDirectory .. => references.modify (·.removeIlean path)
+          | e => throw e
 
   def handleCancelRequest (p : CancelParams) : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
@@ -995,7 +997,7 @@ section MainLoop
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask readMsgAction).map fun
+    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
@@ -1094,6 +1096,9 @@ def mkLeanServerCapabilities : ServerCapabilities := {
     resolveProvider? := true,
     codeActionKinds? := some #["quickfix", "refactor"]
   }
+  inlayHintProvider? := some {
+    resolveProvider? := false
+  }
 }
 
 def initAndRunWatchdogAux : ServerM Unit := do
@@ -1161,7 +1166,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask do
+  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try

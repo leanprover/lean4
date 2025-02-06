@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.Lemmas
 
@@ -64,7 +65,7 @@ def relabel (r : α → β) (aig : AIG α) : AIG β :=
     cache,
     invariant := by
       intro idx lhs rhs linv rinv hbound hgate
-      simp [decls] at hgate
+      simp +zetaDelta [decls] at hgate
       have := Decl.relabel_gate hgate
       apply aig.invariant
       assumption

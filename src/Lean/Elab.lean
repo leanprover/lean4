@@ -23,6 +23,7 @@ import Lean.Elab.Quotation
 import Lean.Elab.Syntax
 import Lean.Elab.Do
 import Lean.Elab.StructInst
+import Lean.Elab.MutualInductive
 import Lean.Elab.Inductive
 import Lean.Elab.Structure
 import Lean.Elab.Print
@@ -53,3 +54,5 @@ import Lean.Elab.CheckTactic
 import Lean.Elab.MatchExpr
 import Lean.Elab.Tactic.Doc
 import Lean.Elab.Time
+import Lean.Elab.RecommendedSpelling
+import Lean.Elab.InfoTrees

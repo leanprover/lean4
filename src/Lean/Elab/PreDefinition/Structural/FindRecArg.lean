@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
-import Lean.Elab.PreDefinition.TerminationArgument
+import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.RecArgInfo
 
@@ -32,8 +32,8 @@ def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array 
 private def getIndexMinPos (xs : Array Expr) (indices : Array Expr) : Nat := Id.run do
   let mut minPos := xs.size
   for index in indices do
-    match xs.indexOf? index with
-    | some pos => if pos.val < minPos then minPos := pos.val
+    match xs.idxOf? index with
+    | some pos => if pos < minPos then minPos := pos
     | _        => pure ()
   return minPos
 
@@ -56,7 +56,7 @@ private def hasBadParamDep? (ys : Array Expr) (indParams : Array Expr) : MetaM (
 
 /--
 Assemble the `RecArgInfo` for the `i`th parameter in the parameter list `xs`. This performs
-various sanity checks on the argument (is it even an inductive type etc).
+various sanity checks on the parameter (is it even of inductive type etc).
 -/
 def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) : MetaM RecArgInfo := do
   if h : i < xs.size then
@@ -77,7 +77,7 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
       if !indIndices.all Expr.isFVar then
         throwError "its type {indInfo.name} is an inductive family and indices are not variables{indentExpr xType}"
       else if !indIndices.allDiff then
-        throwError " its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
+        throwError "its type {indInfo.name} is an inductive family and indices are not pairwise distinct{indentExpr xType}"
       else
         let indexMinPos := getIndexMinPos xs indIndices
         let numFixed    := if indexMinPos < numFixed then indexMinPos else numFixed
@@ -91,8 +91,8 @@ def getRecArgInfo (fnName : Name) (numFixed : Nat) (xs : Array Expr) (i : Nat) :
             throwError "its type is an inductive datatype{indentExpr xType}\nand the datatype parameter{indentExpr indParam}\ndepends on the function parameter{indentExpr y}\nwhich does not come before the varying parameters and before the indices of the recursion parameter."
           | none =>
             let indAll := indInfo.all.toArray
-            let .some indIdx := indAll.indexOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
-            let indicesPos := indIndices.map fun index => match xs.indexOf? index with | some i => i.val | none => unreachable!
+            let .some indIdx := indAll.idxOf? indInfo.name | panic! "{indInfo.name} not in {indInfo.all}"
+            let indicesPos := indIndices.map fun index => match xs.idxOf? index with | some i => i | none => unreachable!
             let indGroupInst := {
               IndGroupInfo.ofInductiveVal indInfo with
               levels := us
@@ -112,17 +112,17 @@ considered.
 
 The `xs` are the fixed parameters, `value` the body with the fixed prefix instantiated.
 
-Takes the optional user annotations into account (`termArg?`). If this is given and the argument
+Takes the optional user annotation into account (`termMeasure?`). If this is given and the measure
 is unsuitable, throw an error.
 -/
 def getRecArgInfos (fnName : Name) (xs : Array Expr) (value : Expr)
-    (termArg? : Option TerminationArgument) : MetaM (Array RecArgInfo × MessageData) := do
+    (termMeasure? : Option TerminationMeasure) : MetaM (Array RecArgInfo × MessageData) := do
   lambdaTelescope value fun ys _ => do
-    if let .some termArg := termArg? then
-      -- User explicitly asked to use a certain argument, so throw errors eagerly
-      let recArgInfo ← withRef termArg.ref do
-        mapError (f := (m!"cannot use specified parameter for structural recursion:{indentD ·}")) do
-          getRecArgInfo fnName xs.size (xs ++ ys) (← termArg.structuralArg)
+    if let .some termMeasure := termMeasure? then
+      -- User explicitly asked to use a certain measure, so throw errors eagerly
+      let recArgInfo ← withRef termMeasure.ref do
+        mapError (f := (m!"cannot use specified measure for structural recursion:{indentD ·}")) do
+          getRecArgInfo fnName xs.size (xs ++ ys) (← termMeasure.structuralArg)
       return (#[recArgInfo], m!"")
     else
       let mut recArgInfos := #[]
@@ -208,7 +208,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
             -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
             continue
-          let indicesPos := indIndices.map fun index => match (xs++ys).indexOf? index with | some i => i.val | none => unreachable!
+          let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
               numFixed     := recArgInfo.numFixed
@@ -226,24 +226,24 @@ def allCombinations (xss : Array (Array α)) : Option (Array (Array α)) :=
   else
     let rec go i acc : Array (Array α):=
       if h : i < xss.size then
-        xss[i].concatMap fun x => go (i + 1) (acc.push x)
+        xss[i].flatMap fun x => go (i + 1) (acc.push x)
       else
         #[acc]
     some (go 0 #[])
 
 
 def tryAllArgs (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
-   (termArg?s : Array (Option TerminationArgument)) (k : Array RecArgInfo → M α) : M α := do
+   (termMeasure?s : Array (Option TerminationMeasure)) (k : Array RecArgInfo → M α) : M α := do
   let mut report := m!""
   -- Gather information on all possible recursive arguments
   let mut recArgInfoss := #[]
-  for fnName in fnNames, value in values, termArg? in termArg?s do
-    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termArg?
+  for fnName in fnNames, value in values, termMeasure? in termMeasure?s do
+    let (recArgInfos, thisReport) ← getRecArgInfos fnName xs value termMeasure?
     report := report ++ thisReport
     recArgInfoss := recArgInfoss.push recArgInfos
   -- Put non-indices first
   recArgInfoss := recArgInfoss.map nonIndicesFirst
-  trace[Elab.definition.structural] "recArgInfoss: {recArgInfoss.map (·.map (·.recArgPos))}"
+  trace[Elab.definition.structural] "recArgInfos:{indentD (.joinSep (recArgInfoss.flatten.toList.map (repr ·)) Format.line)}"
   -- Inductive groups to consider
   let groups ← inductiveGroups recArgInfoss.flatten
   trace[Elab.definition.structural] "inductive groups: {groups}"

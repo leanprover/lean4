@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Wojciech Nawrocki
 -/
 prelude
 import Lean.Elab.Command
+import Lean.Elab.DeclarationRange
 
 namespace Lean.Elab
 open Command
@@ -55,13 +56,17 @@ def processDefDeriving (className : Name) (declName : Name) : TermElabM Bool := 
       safety      := info.safety
     }
     addInstance instName AttributeKind.global (eval_prio default)
+    addDeclarationRangesFromSyntax instName (← getRef)
     return true
   catch _ =>
     return false
 
 end Term
 
-def DerivingHandler := (typeNames : Array Name) → (args? : Option (TSyntax ``Parser.Term.structInst)) → CommandElabM Bool
+def DerivingHandler := (typeNames : Array Name) → CommandElabM Bool
+
+/-- Deprecated - `DerivingHandler` no longer assumes arguments -/
+@[deprecated DerivingHandler (since := "2024-09-09")]
 def DerivingHandlerNoArgs := (typeNames : Array Name) → CommandElabM Bool
 
 builtin_initialize derivingHandlersRef : IO.Ref (NameMap (List DerivingHandler)) ← IO.mkRef {}
@@ -71,25 +76,21 @@ as well as the syntax of a `with` argument, if present.
 
 For example, `deriving instance Foo with fooArgs for Bar, Baz` invokes
 ``fooHandler #[`Bar, `Baz] `(fooArgs)``. -/
-def registerDerivingHandlerWithArgs (className : Name) (handler : DerivingHandler) : IO Unit := do
+def registerDerivingHandler (className : Name) (handler : DerivingHandler) : IO Unit := do
   unless (← initializing) do
     throw (IO.userError "failed to register deriving handler, it can only be registered during initialization")
   derivingHandlersRef.modify fun m => match m.find? className with
     | some handlers => m.insert className (handler :: handlers)
     | none => m.insert className [handler]
 
-/-- Like `registerBuiltinDerivingHandlerWithArgs` but ignoring any `with` argument. -/
-def registerDerivingHandler (className : Name) (handler : DerivingHandlerNoArgs) : IO Unit := do
-  registerDerivingHandlerWithArgs className fun typeNames _ => handler typeNames
-
 def defaultHandler (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   throwError "default handlers have not been implemented yet, class: '{className}' types: {typeNames}"
 
-def applyDerivingHandlers (className : Name) (typeNames : Array Name) (args? : Option (TSyntax ``Parser.Term.structInst)) : CommandElabM Unit := do
+def applyDerivingHandlers (className : Name) (typeNames : Array Name) : CommandElabM Unit := do
   match (← derivingHandlersRef.get).find? className with
   | some handlers =>
     for handler in handlers do
-      if (← handler typeNames args?) then
+      if (← handler typeNames) then
         return ()
     defaultHandler className typeNames
   | none => defaultHandler className typeNames
@@ -99,16 +100,16 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
     Term.processDefDeriving className declName
 
 @[builtin_command_elab «deriving»] def elabDeriving : CommandElab
-  | `(deriving instance $[$classes $[with $argss?]?],* for $[$declNames],*) => do
+  | `(deriving instance $[$classes],* for $[$declNames],*) => do
      let declNames ← liftCoreM <| declNames.mapM realizeGlobalConstNoOverloadWithInfo
-     for cls in classes, args? in argss? do
+     for cls in classes do
        try
          let className ← liftCoreM <| realizeGlobalConstNoOverloadWithInfo cls
          withRef cls do
-           if declNames.size == 1 && args?.isNone then
+           if declNames.size == 1 then
              if (← tryApplyDefHandler className declNames[0]!) then
                return ()
-           applyDerivingHandlers className declNames args?
+           applyDerivingHandlers className declNames
        catch ex =>
          logException ex
   | _ => throwUnsupportedSyntax
@@ -116,20 +117,19 @@ private def tryApplyDefHandler (className : Name) (declName : Name) : CommandEla
 structure DerivingClassView where
   ref : Syntax
   className : Name
-  args? : Option (TSyntax ``Parser.Term.structInst)
 
 def getOptDerivingClasses (optDeriving : Syntax) : CoreM (Array DerivingClassView) := do
   match optDeriving with
-  | `(Parser.Command.optDeriving| deriving $[$classes $[with $argss?]?],*) =>
+  | `(Parser.Command.optDeriving| deriving $[$classes],*) =>
     let mut ret := #[]
-    for cls in classes, args? in argss? do
+    for cls in classes do
       let className ← realizeGlobalConstNoOverloadWithInfo cls
-      ret := ret.push { ref := cls, className := className, args? }
+      ret := ret.push { ref := cls, className := className }
     return ret
   | _ => return #[]
 
 def DerivingClassView.applyHandlers (view : DerivingClassView) (declNames : Array Name) : CommandElabM Unit :=
-  withRef view.ref do applyDerivingHandlers view.className declNames view.args?
+  withRef view.ref do applyDerivingHandlers view.className declNames
 
 builtin_initialize
   registerTraceClass `Elab.Deriving

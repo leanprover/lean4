@@ -32,6 +32,77 @@ namespace Nat
 @[simp] theorem exists_add_one_eq : (∃ n, n + 1 = a) ↔ 0 < a :=
   ⟨fun ⟨n, h⟩ => by omega, fun h => ⟨a - 1, by omega⟩⟩
 
+/-- Dependent variant of `forall_lt_succ_right`. -/
+theorem forall_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ (∀ m (h : m < n), p m (by omega)) ∧ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · intro w
+    constructor
+    · intro m h
+      exact w _ (.inl h)
+    · exact w _ (.inr rfl)
+  · rintro w m (h|rfl)
+    · exact w.1 _ h
+    · exact w.2
+
+/-- See `forall_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_right {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ (∀ m, m < n → p m) ∧ p n := by
+  simpa using forall_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `forall_lt_succ_left`. -/
+theorem forall_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∀ m (h : m < n + 1), p m h) ↔ p 0 (by omega) ∧ (∀ m (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · intro w
+    constructor
+    · exact w 0 (by omega)
+    · intro m h
+      exact w (m + 1) (by omega)
+  · rintro ⟨h₀, h₁⟩ m h
+    cases m with
+    | zero => exact h₀
+    | succ m => exact h₁ m (by omega)
+
+/-- See `forall_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem forall_lt_succ_left {p : Nat → Prop} :
+    (∀ m, m < n + 1 → p m) ↔ p 0 ∧ (∀ m, m < n → p (m + 1)) := by
+  simpa using forall_lt_succ_left' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_right`. -/
+theorem exists_lt_succ_right' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ (∃ m, ∃ (h : m < n), p m (by omega)) ∨ p n (by omega) := by
+  simp only [Nat.lt_succ_iff, Nat.le_iff_lt_or_eq]
+  constructor
+  · rintro ⟨m, (h|rfl), w⟩
+    · exact .inl ⟨m, h, w⟩
+    · exact .inr w
+  · rintro (⟨m, h, w⟩ | w)
+    · exact ⟨m, by omega, w⟩
+    · exact ⟨n, by omega, w⟩
+
+/-- See `exists_lt_succ_right'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_right {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ (∃ m, m < n ∧ p m) ∨ p n := by
+  simpa using exists_lt_succ_right' (p := fun m _ => p m)
+
+/-- Dependent variant of `exists_lt_succ_left`. -/
+theorem exists_lt_succ_left' {p : (m : Nat) → (m < n + 1) → Prop} :
+    (∃ m, ∃ (h : m < n + 1), p m h) ↔ p 0 (by omega) ∨ (∃ m, ∃ (h : m < n), p (m + 1) (by omega)) := by
+  constructor
+  · rintro ⟨_|m, h, w⟩
+    · exact .inl w
+    · exact .inr ⟨m, by omega, w⟩
+  · rintro (w|⟨m, h, w⟩)
+    · exact ⟨0, by omega, w⟩
+    · exact ⟨m + 1, by omega, w⟩
+
+/-- See `exists_lt_succ_left'` for a variant where `p` takes the bound as an argument. -/
+theorem exists_lt_succ_left {p : Nat → Prop} :
+    (∃ m, m < n + 1 ∧ p m) ↔ p 0 ∨ (∃ m, m < n ∧ p (m + 1)) := by
+  simpa using exists_lt_succ_left' (p := fun m _ => p m)
+
 /-! ## add -/
 
 protected theorem add_add_add_comm (a b c d : Nat) : (a + b) + (c + d) = (a + c) + (b + d) := by
@@ -105,6 +176,9 @@ protected theorem add_pos_right (m) (h : 0 < n) : 0 < m + n :=
 protected theorem add_self_ne_one : ∀ n, n + n ≠ 1
   | n+1, h => by rw [Nat.succ_add, Nat.succ.injEq] at h; contradiction
 
+theorem le_iff_lt_add_one : x ≤ y ↔ x < y + 1 := by
+  omega
+
 /-! ## sub -/
 
 protected theorem sub_one (n) : n - 1 = pred n := rfl
@@ -153,6 +227,9 @@ protected theorem sub_le_iff_le_add' {a b c : Nat} : a - b ≤ c ↔ a ≤ b + c
 
 protected theorem le_sub_iff_add_le {n : Nat} (h : k ≤ m) : n ≤ m - k ↔ n + k ≤ m :=
   ⟨Nat.add_le_of_le_sub h, Nat.le_sub_of_add_le⟩
+
+theorem add_lt_iff_lt_sub_right {a b c : Nat} : a + b < c ↔ a < c - b := by
+  omega
 
 protected theorem add_le_of_le_sub' {n k m : Nat} (h : m ≤ k) : n ≤ k - m → m + n ≤ k :=
   Nat.add_comm .. ▸ Nat.add_le_of_le_sub h
@@ -545,6 +622,14 @@ protected theorem pos_of_mul_pos_right {a b : Nat} (h : 0 < a * b) : 0 < a := by
     0 < a * b ↔ 0 < a :=
   ⟨Nat.pos_of_mul_pos_right, fun w => Nat.mul_pos w h⟩
 
+protected theorem pos_of_lt_mul_left {a b c : Nat} (h : a < b * c) : 0 < c := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_left h
+
+protected theorem pos_of_lt_mul_right {a b c : Nat} (h : a < b * c) : 0 < b := by
+  replace h : 0 < b * c := by omega
+  exact Nat.pos_of_mul_pos_right h
+
 /-! ### div/mod -/
 
 theorem mod_two_eq_zero_or_one (n : Nat) : n % 2 = 0 ∨ n % 2 = 1 :=
@@ -580,8 +665,8 @@ theorem sub_mul_mod {x k n : Nat} (h₁ : n*k ≤ x) : (x - n*k) % n = x % n := 
   | .inr npos => Nat.mod_eq_of_lt (mod_lt _ npos)
 
 theorem mul_mod (a b n : Nat) : a * b % n = (a % n) * (b % n) % n := by
-  rw (config := {occs := .pos [1]}) [← mod_add_div a n]
-  rw (config := {occs := .pos [1]}) [← mod_add_div b n]
+  rw (occs := [1]) [← mod_add_div a n]
+  rw (occs := [1]) [← mod_add_div b n]
   rw [Nat.add_mul, Nat.mul_add, Nat.mul_add,
     Nat.mul_assoc, Nat.mul_assoc, ← Nat.mul_add n, add_mul_mod_self_left,
     Nat.mul_comm _ (n * (b / n)), Nat.mul_assoc, add_mul_mod_self_left]
@@ -607,6 +692,10 @@ theorem add_mod (a b n : Nat) : (a + b) % n = ((a % n) + (b % n)) % n := by
 
 @[simp] theorem mod_mul_mod {a b c : Nat} : (a % c * b) % c = a * b % c := by
   rw [mul_mod, mod_mod, ← mul_mod]
+
+theorem mod_eq_sub (x w : Nat) : x % w = x - w * (x / w) := by
+  conv => rhs; congr; rw [← mod_add_div x w]
+  simp
 
 /-! ### pow -/
 
@@ -775,6 +864,18 @@ protected theorem pow_lt_pow_iff_pow_mul_le_pow {a n m : Nat} (h : 1 < a) :
   rw [←Nat.pow_add_one, Nat.pow_le_pow_iff_right (by omega), Nat.pow_lt_pow_iff_right (by omega)]
   omega
 
+protected theorem lt_pow_self {n a : Nat} (h : 1 < a) : n < a ^ n := by
+  induction n with
+  | zero => exact Nat.zero_lt_one
+  | succ _ ih => exact Nat.lt_of_lt_of_le (Nat.add_lt_add_right ih 1) (Nat.pow_lt_pow_succ h)
+
+protected theorem lt_two_pow_self : n < 2 ^ n :=
+  Nat.lt_pow_self Nat.one_lt_two
+
+@[simp]
+protected theorem mod_two_pow_self : n % 2 ^ n = n :=
+  Nat.mod_eq_of_lt Nat.lt_two_pow_self
+
 @[simp]
 theorem two_pow_pred_mul_two (h : 0 < w) :
     2 ^ (w - 1) * 2 = 2 ^ w := by
@@ -801,6 +902,10 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]
+
+@[simp]
+theorem log2_two_pow : (2 ^ n).log2 = n := by
+  apply Nat.eq_of_le_of_lt_succ <;> simp [le_log2, log2_lt, NeZero.ne, Nat.pow_lt_pow_iff_right]
 
 theorem log2_self_le (h : n ≠ 0) : 2 ^ n.log2 ≤ n := (le_log2 h).1 (Nat.le_refl _)
 
@@ -898,11 +1003,6 @@ theorem shiftLeft_add (m n : Nat) : ∀ k, m <<< (n + k) = (m <<< n) <<< k
   | 0 => rfl
   | k + 1 => by simp [← Nat.add_assoc, shiftLeft_add _ _ k, shiftLeft_succ]
 
-@[deprecated shiftLeft_add (since := "2024-06-02")]
-theorem shiftLeft_shiftLeft (m n : Nat) : ∀ k, (m <<< n) <<< k = m <<< (n + k)
-  | 0 => rfl
-  | k + 1 => by simp [← Nat.add_assoc, shiftLeft_shiftLeft _ _ k, shiftLeft_succ]
-
 @[simp] theorem shiftLeft_shiftRight (x n : Nat) : x <<< n >>> n = x := by
   rw [Nat.shiftLeft_eq, Nat.shiftRight_eq_div_pow, Nat.mul_div_cancel _ (Nat.two_pow_pos _)]
 
@@ -954,3 +1054,31 @@ instance decidableExistsLT [h : DecidablePred p] : DecidablePred fun n => ∃ m 
 instance decidableExistsLE [DecidablePred p] : DecidablePred fun n => ∃ m : Nat, m ≤ n ∧ p m :=
   fun n => decidable_of_iff (∃ m, m < n + 1 ∧ p m)
     (exists_congr fun _ => and_congr_left' Nat.lt_succ_iff)
+
+/-- Dependent version of `decidableExistsLT`. -/
+instance decidableExistsLT' {p : (m : Nat) → m < k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m < k, p m h) :=
+  match k, p, I with
+  | 0, _, _ => isFalse (by simp)
+  | (k + 1), p, I => @decidable_of_iff _ ((∃ m, ∃ h : m < k, p m (by omega)) ∨ p k (by omega))
+      ⟨by rintro (⟨m, h, w⟩ | w); exact ⟨m, by omega, w⟩; exact ⟨k, by omega, w⟩,
+        fun ⟨m, h, w⟩ => if h' : m < k then .inl ⟨m, h', w⟩ else
+          by obtain rfl := (by omega : m = k); exact .inr w⟩
+      (@instDecidableOr _ _
+        (decidableExistsLT' (p := fun m h => p m (by omega)) (I := fun m h => I m (by omega)))
+        inferInstance)
+
+/-- Dependent version of `decidableExistsLE`. -/
+instance decidableExistsLE' {p : (m : Nat) → m ≤ k → Prop} [I : ∀ m h, Decidable (p m h)] :
+    Decidable (∃ m : Nat, ∃ h : m ≤ k, p m h) :=
+  decidable_of_iff (∃ m, ∃ h : m < k + 1, p m (by omega)) (exists_congr fun _ =>
+    ⟨fun ⟨h, w⟩ => ⟨le_of_lt_succ h, w⟩, fun ⟨h, w⟩ => ⟨lt_add_one_of_le h, w⟩⟩)
+
+/-! ### Results about `List.sum` specialized to `Nat` -/
+
+protected theorem sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    simp [← ih]
+    omega

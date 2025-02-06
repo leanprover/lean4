@@ -64,10 +64,38 @@ def isAuxDef (constName : Name) : MetaM Bool := do
   let env ← getEnv
   return isAuxRecursor env constName || isNoConfusion env constName
 
-@[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) : MetaM α := do
-  let .const name lvls := e
+/--
+Retrieves `ConstInfo` for `declName`.
+Remark: if `ignoreTransparency = false`, then `getUnfoldableConst?` is used.
+For example, if `ignoreTransparency = false` and `transparencyMode = .reducible` and `declName` is not reducible,
+then the result is `none`.
+-/
+private def getConstInfo? (declName : Name) (ignoreTransparency : Bool) : MetaM (Option ConstantInfo) := do
+  if ignoreTransparency then
+    return (← getEnv).find? declName
+  else
+    getUnfoldableConst? declName
+
+/--
+Similar to `getConstInfo?` but using `getUnfoldableConstNoEx?`.
+-/
+private def getConstInfoNoEx? (declName : Name) (ignoreTransparency : Bool) : MetaM (Option ConstantInfo) := do
+  if ignoreTransparency then
+    return (← getEnv).find? declName
+  else
+    getUnfoldableConstNoEx? declName
+
+/--
+If `e` is of the form `Expr.const declName us`, executes `k info us` if
+- `declName` is in the `Environment` and (is unfoldable or `ignoreTransparency = true`)
+- `info` is the `ConstantInfo` associated with `declName`.
+
+Otherwise executes `failK`.
+-/
+@[inline] private def matchConstAux {α} (e : Expr) (failK : Unit → MetaM α) (k : ConstantInfo → List Level → MetaM α) (ignoreTransparency := false) : MetaM α := do
+  let .const declName lvls := e
     | failK ()
-  let (some cinfo) ← getUnfoldableConst? name
+  let some cinfo ← getConstInfo? declName ignoreTransparency
     | failK ()
   k cinfo lvls
 
@@ -76,7 +104,7 @@ def isAuxDef (constName : Name) : MetaM Bool := do
 -- ===========================
 
 private def getFirstCtor (d : Name) : MetaM (Option Name) := do
-  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) ← getUnfoldableConstNoEx? d |
+  let some (ConstantInfo.inductInfo { ctors := ctor::_, ..}) := (← getEnv).find? d |
     return none
   return some ctor
 
@@ -95,7 +123,7 @@ private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
-  if !majorTypeI.isConstOf recVal.getInduct then
+  if !majorTypeI.isConstOf recVal.getMajorInduct then
     return major
   else if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams:].any Expr.hasExprMVar then
     return major
@@ -184,7 +212,7 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
 private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
-    let major := recArgs.get ⟨majorIdx, h⟩
+    let major := recArgs[majorIdx]
     let mut major ← if isWFRec recVal.name && (← getTransparency) == .default then
       -- If recursor is `Acc.rec` or `WellFounded.rec` and transparency is default,
       -- then we bump transparency to .all to make sure we can unfold defs defined by WellFounded recursion.
@@ -197,7 +225,7 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
       major ← toCtorWhenK recVal major
     major := major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal.getInduct major
+    major ← toCtorWhenStructure recVal.getMajorInduct major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs
@@ -226,11 +254,11 @@ private def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : A
 private def reduceQuotRec (recVal  : QuotVal) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
   let process (majorPos argPos : Nat) : MetaM α :=
     if h : majorPos < recArgs.size then do
-      let major := recArgs.get ⟨majorPos, h⟩
+      let major := recArgs[majorPos]
       let major ← whnf major
       match major with
       | Expr.app (Expr.app (Expr.app (Expr.const majorFn _) _) _) majorArg => do
-        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) ← getUnfoldableConstNoEx? majorFn | failK ()
+        let some (ConstantInfo.quotInfo { kind := QuotKind.ctor, .. }) := (← getEnv).find? majorFn | failK ()
         let f := recArgs[argPos]!
         let r := mkApp f majorArg
         let recArity := majorPos + 1
@@ -255,7 +283,7 @@ mutual
     else do
       let majorIdx := recVal.getMajorIdx
       if h : majorIdx < recArgs.size then do
-        let major := recArgs.get ⟨majorIdx, h⟩
+        let major := recArgs[majorIdx]
         let major ← whnf major
         getStuckMVar? major
       else
@@ -264,7 +292,7 @@ mutual
   private partial def isQuotRecStuck? (recVal : QuotVal) (recArgs : Array Expr) : MetaM (Option MVarId) :=
     let process? (majorPos : Nat) : MetaM (Option MVarId) :=
       if h : majorPos < recArgs.size then do
-        let major := recArgs.get ⟨majorPos, h⟩
+        let major := recArgs[majorPos]
         let major ← whnf major
         getStuckMVar? major
       else
@@ -293,7 +321,7 @@ mutual
         | .mvar mvarId => return some mvarId
         | _ => getStuckMVar? e
       | .const fName _ =>
-        match (← getUnfoldableConstNoEx? fName) with
+        match (← getEnv).find? fName with
         | some <| .recInfo recVal  => isRecStuck? recVal e.getAppArgs
         | some <| .quotInfo recVal => isQuotRecStuck? recVal e.getAppArgs
         | _  =>
@@ -328,65 +356,8 @@ end
 /-! # Weak Head Normal Form auxiliary combinators -/
 -- ===========================
 
-/--
-Configuration for projection reduction. See `whnfCore`.
--/
-inductive ProjReductionKind where
-  /-- Projections `s.i` are not reduced at `whnfCore`. -/
-  | no
-  /--
-  Projections `s.i` are reduced at `whnfCore`, and `whnfCore` is used at `s` during the process.
-  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations).
-  -/
-  | yes
-  /--
-  Projections `s.i` are reduced at `whnfCore`, and `whnf` is used at `s` during the process.
-  Recall that `whnfCore` does not perform `delta` reduction (i.e., it will not unfold constant declarations), but `whnf` does.
-  -/
-  | yesWithDelta
-  /--
-  Projections `s.i` are reduced at `whnfCore`, and `whnfAtMostI` is used at `s` during the process.
-  Recall that `whnfAtMostI` is like `whnf` but uses transparency at most `instances`.
-  This option is stronger than `yes`, but weaker than `yesWithDelta`.
-  We use this option to ensure we reduce projections to prevent expensive defeq checks when unifying TC operations.
-  When unifying e.g. `(@Field.toNeg α inst1).1 =?= (@Field.toNeg α inst2).1`,
-  we only want to unify negation (and not all other field operations as well).
-  Unifying the field instances slowed down unification: https://github.com/leanprover/lean4/issues/1986
-  -/
-  | yesWithDeltaI
-  deriving DecidableEq, Inhabited, Repr
-
-/--
-Configuration options for `whnfEasyCases` and `whnfCore`.
--/
-structure WhnfCoreConfig where
-  /-- If `true`, reduce recursor/matcher applications, e.g., `Nat.rec true (fun _ _ => false) Nat.zero` reduces to `true` -/
-  iota : Bool := true
-  /-- If `true`, reduce terms such as `(fun x => t[x]) a` into `t[a]` -/
-  beta : Bool := true
-  /-- Control projection reduction at `whnfCore`. -/
-  proj : ProjReductionKind := .yesWithDelta
-  /--
-  Zeta reduction: `let x := v; e[x]` reduces to `e[v]`.
-  We say a let-declaration `let x := v; e` is non dependent if it is equivalent to `(fun x => e) v`.
-  Recall that
-  ```
-  fun x : BitVec 5 => let n := 5; fun y : BitVec n => x = y
-  ```
-  is type correct, but
-  ```
-  fun x : BitVec 5 => (fun n => fun y : BitVec n => x = y) 5
-  ```
-  is not.
-  -/
-  zeta : Bool := true
-  /--
-  Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
-  -/
-  zetaDelta : Bool := true
-
 /-- Auxiliary combinator for handling easy WHNF cases. It takes a function for handling the "hard" cases as an argument -/
-@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) (config : WhnfCoreConfig := {}) : MetaM Expr := do
+@[specialize] partial def whnfEasyCases (e : Expr) (k : Expr → MetaM Expr) : MetaM Expr := do
   match e with
   | .forallE ..    => return e
   | .lam ..        => return e
@@ -397,7 +368,7 @@ structure WhnfCoreConfig where
   | .const ..      => k e
   | .app ..        => k e
   | .proj ..       => k e
-  | .mdata _ e     => whnfEasyCases e k config
+  | .mdata _ e     => whnfEasyCases e k
   | .fvar fvarId   =>
     let decl ← fvarId.getDecl
     match decl with
@@ -405,13 +376,16 @@ structure WhnfCoreConfig where
     | .ldecl (value := v) .. =>
       -- Let-declarations marked as implementation detail should always be unfolded
       -- We initially added this feature for `simp`, and added it here for consistency.
-      unless config.zetaDelta || decl.isImplementationDetail do return e
-      if (← getConfig).trackZetaDelta then
+      let cfg ← getConfig
+      if !decl.isImplementationDetail && !cfg.zetaDelta then
+        if !(← read).zetaDeltaSet.contains fvarId then
+          return e
+      if (← read).trackZetaDelta then
         modify fun s => { s with zetaDeltaFVarIds := s.zetaDeltaFVarIds.insert fvarId }
-      whnfEasyCases v k config
+      whnfEasyCases v k
   | .mvar mvarId   =>
     match (← getExprMVarAssignment? mvarId) with
-    | some v => whnfEasyCases v k config
+    | some v => whnfEasyCases v k
     | none   => return e
 
 @[specialize] private def deltaDefinition (c : ConstantInfo) (lvls : List Level)
@@ -529,7 +503,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
      TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
   if (← getTransparency) matches .instances | .reducible then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withTransparency .instances <| withReader (fun ctx => { ctx with canUnfold? := canUnfoldAtMatcher }) do
+    withTransparency .instances <| withCanUnfoldPred canUnfoldAtMatcher do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -611,52 +585,64 @@ private def whnfDelayedAssigned? (f' : Expr) (e : Expr) : MetaM (Option Expr) :=
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables.
 -/
-partial def whnfCore (e : Expr) (config : WhnfCoreConfig := {}): MetaM Expr :=
+partial def whnfCore (e : Expr) : MetaM Expr :=
   go e
 where
   go (e : Expr) : MetaM Expr :=
-    whnfEasyCases e (config := config) fun e => do
+    whnfEasyCases e fun e => do
       trace[Meta.whnf] e
       match e with
       | .const ..  => pure e
-      | .letE _ _ v b _ => if config.zeta then go <| b.instantiate1 v else return e
+      | .letE _ _ v b _ => if (← getConfig).zeta then go <| b.instantiate1 v else return e
       | .app f ..       =>
-        if config.zeta then
+        let cfg ← getConfig
+        if cfg.zeta then
           if let some (args, _, _, v, b) := e.letFunAppArgs? then
             -- When zeta reducing enabled, always reduce `letFun` no matter the current reducibility level
             return (← go <| mkAppN (b.instantiate1 v) args)
         let f := f.getAppFn
         let f' ← go f
-        if config.beta && f'.isLambda then
+        /-
+        If `f'` is a lambda, then we perform beta-reduction here IF
+        1- `cfg.beta` is enabled, OR
+        2- `f` was not a lambda expression. That is, `f` was reduced, and the beta-reduction step is part
+           of this step. This is similar to allowing beta-reduction while unfolding expressions even if `cfg.beta := false`.
+
+        We added case 2 because a failure at `norm_cast`. See test `6123_mod_cast.lean`.
+        Another possible fix to this test is to set `beta := true` at the `Simp.Config` value at
+        `NormCast.lean`.
+        -/
+        if f'.isLambda && (cfg.beta || !f.isLambda) then
           let revArgs := e.getAppRevArgs
           go <| f'.betaRev revArgs
         else if let some eNew ← whnfDelayedAssigned? f' e then
           go eNew
         else
           let e := if f == f' then e else e.updateFn f'
-          unless config.iota do return e
+          unless cfg.iota do return e
           match (← reduceMatcher? e) with
           | .reduced eNew => go eNew
           | .partialApp   => pure e
           | .stuck _      => pure e
           | .notMatcher   =>
-            matchConstAux f' (fun _ => return e) fun cinfo lvls =>
-              match cinfo with
-              | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
-              | c@(.defnInfo _) => do
-                if (← isAuxDef c.name) then
-                  recordUnfold c.name
-                  deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
-                else
-                  return e
-              | _ => return e
+            let .const cname lvls := f' | return e
+            let some cinfo := (← getEnv).find? cname | return e
+            match cinfo with
+            | .recInfo rec    => reduceRec rec lvls e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | .quotInfo rec   => reduceQuotRec rec e.getAppArgs (fun _ => return e) (fun e => do recordUnfold cinfo.name; go e)
+            | c@(.defnInfo _) => do
+              if (← isAuxDef c.name) then
+                recordUnfold c.name
+                deltaBetaDefinition c lvls e.getAppRevArgs (fun _ => return e) go
+              else
+                return e
+            | _ => return e
       | .proj _ i c =>
         let k (c : Expr) := do
           match (← projectCore? c i) with
           | some e => go e
           | none => return e
-        match config.proj with
+        match (← getConfig).proj with
         | .no => return e
         | .yes => k (← go c)
         | .yesWithDelta => k (← whnf c)
@@ -756,11 +742,14 @@ mutual
     else
       unfoldProjInst? e
 
-  /-- Unfold definition using "smart unfolding" if possible. -/
-  partial def unfoldDefinition? (e : Expr) : MetaM (Option Expr) :=
+  /--
+  Unfold definition using "smart unfolding" if possible.
+  If `ignoreTransparency = true`, then the definition is unfolded even if the transparency setting does not allow it.
+  -/
+  partial def unfoldDefinition? (e : Expr) (ignoreTransparency := false) : MetaM (Option Expr) :=
     match e with
     | .app f _ =>
-      matchConstAux f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
+      matchConstAux (ignoreTransparency := ignoreTransparency) f.getAppFn (fun _ => unfoldProjInstWhenInstances? e) fun fInfo fLvls => do
         if fInfo.levelParams.length != fLvls.length then
           return none
         else
@@ -799,7 +788,8 @@ mutual
 
                   Remark 2: the match expression reduces reduces to `cons a xs` when the discriminants are `⟨0, h⟩` and `xs`.
 
-                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue                        fixed by this extra check. Here is another example that triggers the issue fixed by this check.
+                  Remark 3: this check is unnecessary in most cases, but we don't need dependent elimination to trigger the issue
+                  fixed by this extra check. Here is another example that triggers the issue fixed by this check.
                   ```
                   def f : Nat → Nat → Nat
                     | 0,   y   => y
@@ -831,10 +821,12 @@ mutual
           else
             unfoldDefault ()
     | .const declName lvls => do
+      let some cinfo ← getConstInfoNoEx? declName ignoreTransparency | pure none
+      -- check smart unfolding only after `getUnfoldableConstNoEx?` because smart unfoldings have a
+      -- significant chance of not existing and `Environment.contains` misses are more costly
       if smartUnfolding.get (← getOptions) && (← getEnv).contains (mkSmartUnfoldingNameFor declName) then
         return none
       else
-        let some cinfo ← getUnfoldableConstNoEx? declName | pure none
         unless cinfo.hasValue do return none
         deltaDefinition cinfo lvls
           (fun _ => pure none)
@@ -869,7 +861,9 @@ def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
     return none
   else match (← reduceMatcher? e) with
     | .reduced e => return e
-    | _ => matchConstAux e.getAppFn (fun _ => pure none) fun cinfo lvls => do
+    | _ =>
+      let .const cname lvls := e.getAppFn | return none
+      let some cinfo := (← getEnv).find? cname | return none
       match cinfo with
       | .recInfo «rec»  => reduceRec «rec» lvls e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
       | .quotInfo «rec» => reduceQuotRec «rec» e.getAppArgs (fun _ => pure none) (fun e => do recordUnfold cinfo.name; pure (some e))
@@ -965,26 +959,18 @@ def reduceNat? (e : Expr) : MetaM (Option Expr) :=
   if e.hasFVar || e.hasExprMVar || (← read).canUnfold?.isSome then
     return false
   else
-    match (← getConfig).transparency with
-    | .default => return true
-    | .all     => return true
-    | _        => return false
+    return true
 
 @[inline] private def cached? (useCache : Bool) (e : Expr) : MetaM (Option Expr) := do
   if useCache then
-    match (← getConfig).transparency with
-    | .default => return (← get).cache.whnfDefault.find? e
-    | .all     => return (← get).cache.whnfAll.find? e
-    | _        => unreachable!
+    return (← get).cache.whnf.find? (← mkExprConfigCacheKey e)
   else
     return none
 
 private def cache (useCache : Bool) (e r : Expr) : MetaM Expr := do
   if useCache then
-    match (← getConfig).transparency with
-    | .default => modify fun s => { s with cache.whnfDefault := s.cache.whnfDefault.insert e r }
-    | .all     => modify fun s => { s with cache.whnfAll     := s.cache.whnfAll.insert e r }
-    | _        => unreachable!
+    let key ← mkExprConfigCacheKey e
+    modify fun s => { s with cache.whnf := s.cache.whnf.insert key r }
   return r
 
 @[export lean_whnf]

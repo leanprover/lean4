@@ -42,8 +42,9 @@ private def initEntries : M Unit := do
     unless simpThms.isErased (.fvar h) do
       let localDecl ← h.getDecl
       let proof  := localDecl.toExpr
-      simpThms ← simpThms.addTheorem (.fvar h) proof
-      modify fun s => { s with ctx.simpTheorems := simpThms }
+      let ctx := (← get).ctx
+      simpThms ← simpThms.addTheorem (.fvar h) proof (config := ctx.indexConfig)
+      modify fun s => { s with ctx := s.ctx.setSimpTheorems simpThms }
       if hsNonDeps.contains h then
         -- We only simplify nondependent hypotheses
         let type ← instantiateMVars localDecl.type
@@ -57,12 +58,13 @@ private partial def loop : M Bool := do
   modify fun s => { s with modified := false }
   let simprocs := (← get).simprocs
   -- simplify entries
-  for i in [:(← get).entries.size] do
-    let entry := (← get).entries[i]!
+  let entries := (← get).entries
+  for h : i in [:entries.size] do
+    let entry := entries[i]
     let ctx := (← get).ctx
     -- We disable the current entry to prevent it to be simplified to `True`
     let simpThmsWithoutEntry := (← getSimpTheorems).eraseTheorem entry.id
-    let ctx := { ctx with simpTheorems := simpThmsWithoutEntry }
+    let ctx := ctx.setSimpTheorems simpThmsWithoutEntry
     let (r, stats) ← simpStep (← get).mvarId entry.proof entry.type ctx simprocs (stats := { (← get) with })
     modify fun s => { s with usedTheorems := stats.usedTheorems, diag := stats.diag }
     match r with
@@ -95,10 +97,10 @@ private partial def loop : M Bool := do
         trace[Meta.Tactic.simp.all] "entry.id: {← ppOrigin entry.id}, {entry.type} => {typeNew}"
         let mut simpThmsNew := (← getSimpTheorems).eraseTheorem (.fvar entry.fvarId)
         let idNew ← mkFreshId
-        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew)
+        simpThmsNew ← simpThmsNew.addTheorem (.other idNew) (← mkExpectedTypeHint proofNew typeNew) (config := ctx.indexConfig)
         modify fun s => { s with
           modified         := true
-          ctx.simpTheorems := simpThmsNew
+          ctx              := ctx.setSimpTheorems simpThmsNew
           entries[i]       := { entry with type := typeNew, proof := proofNew, id := .other idNew }
         }
   -- simplify target

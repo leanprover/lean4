@@ -27,7 +27,6 @@ static lean_object* l_Lean_registerInternalExceptionId___closed__2;
 LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_getName(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_registerInternalExceptionId___lambda__2(lean_object*);
 static lean_object* l_Lean_InternalExceptionId_toString___closed__2;
 LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId(lean_object*, lean_object*);
@@ -42,6 +41,7 @@ LEAN_EXPORT lean_object* l___private_Lean_InternalExceptionId_0__Lean_beqInterna
 LEAN_EXPORT lean_object* l_Lean_registerInternalExceptionId___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_registerInternalExceptionId___spec__2(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_instBEqInternalExceptionId;
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_InternalExceptionId_toString(lean_object*);
 static lean_object* l_Lean_registerInternalExceptionId___lambda__1___closed__1;
@@ -146,7 +146,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = lean_name_eq(x_6, x_1);
+x_7 = lean_name_eq(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {

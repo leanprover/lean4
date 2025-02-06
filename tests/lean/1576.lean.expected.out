@@ -1,2 +1,4 @@
 1576.lean:1:35-1:38: error: unknown identifier 'non'
 1576.lean:1:41-1:46: error: unknown identifier 'sense'
+1576.lean:1:18-1:50: error: unsolved goals
+⊢ True

@@ -3,6 +3,7 @@ Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
+prelude
 import Std.Sat.CNF
 import Std.Sat.AIG.Basic
 import Std.Sat.AIG.Lemmas
@@ -242,7 +243,7 @@ theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) {h} (hmarked : cache.mar
   · exact hmarked
 
 theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2) (idx : Nat)
-    (hbound : idx < cache1.marks.size) (h : cache2.marks = cache1.marks.set ⟨idx, hbound⟩ true) :
+    (hbound : idx < cache1.marks.size) (h : cache2.marks = cache1.marks.set idx true) :
     IsExtensionBy cache1 cache2 idx (by have := cache1.hmarks; omega) := by
   apply IsExtensionBy.mk
   · intro idx hidx hmark
@@ -270,7 +271,7 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -284,7 +285,6 @@ def Cache.addConst (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.constToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             simp only [denote_idx_const htip, projectRightAssign_property, heval]
@@ -308,7 +308,7 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -322,7 +322,6 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
             simp [heval, denote_idx_atom htip]
           · next heq =>
@@ -355,7 +354,7 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
   have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
   let out :=
     { cache with
-      marks := cache.marks.set ⟨idx, hmarkbound⟩ true
+      marks := cache.marks.set idx true
       hmarks := by simp [cache.hmarks]
       inv := by
         constructor
@@ -363,7 +362,6 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq2 =>
-            simp only at heq2
             simp only [heq2] at htip
             rw [htip] at heq
             cases heq
@@ -374,7 +372,6 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
           rw [Array.getElem_set] at hmarked
           split at hmarked
           · next heq =>
-            dsimp only at heq
             simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
               at htip heval
             have hleval := cache.inv.heval assign heval.right lhs (by omega) hl
@@ -508,7 +505,7 @@ def State.addConst (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.constToCNF (.inr ⟨idx, h⟩) b
   have hinv := toCNF.State.Inv_constToCNF htip
   let ⟨cache, hcache⟩ := cache.addConst idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.atom` to the state.
@@ -520,7 +517,7 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
   let newCnf := Decl.atomToCNF (.inr ⟨idx, h⟩) (.inl a)
   have hinv := toCNF.State.Inv_atomToCNF htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Add the CNF for a `Decl.gate` to the state.
@@ -540,7 +537,7 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
       rinv
   have hinv := toCNF.State.Inv_gateToCNF htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
-  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [hcache]⟩
+  ⟨⟨newCnf ++ cnf, cache, State.Inv_append hinv inv⟩, by simp [newCnf, hcache]⟩
 
 /--
 Evaluate the CNF contained within the state.

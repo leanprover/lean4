@@ -22,6 +22,12 @@ instance : Hashable Bool where
     | true  => 11
     | false => 13
 
+instance : Hashable PEmpty.{u} where
+  hash x := nomatch x
+
+instance : Hashable PUnit.{u} where
+  hash | .unit => 11
+
 instance [Hashable α] : Hashable (Option α) where
   hash
     | none   => 11
@@ -48,8 +54,14 @@ instance : Hashable UInt64 where
 instance : Hashable USize where
   hash n := n.toUInt64
 
+instance : Hashable ByteArray where
+  hash as := as.foldl (fun r a => mixHash r (hash a)) 7
+
 instance : Hashable (Fin n) where
   hash v := v.val.toUInt64
+
+instance : Hashable Char where
+  hash c := c.val.toUInt64
 
 instance : Hashable Int where
   hash

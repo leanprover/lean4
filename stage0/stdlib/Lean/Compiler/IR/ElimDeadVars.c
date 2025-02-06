@@ -25,7 +25,7 @@ LEAN_EXPORT lean_object* l_Lean_IR_reshapeWithoutDead_reshape(lean_object*, lean
 lean_object* l_Lean_IR_FnBody_setBody(lean_object*, lean_object*);
 lean_object* l_Lean_IR_Decl_updateBody_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_back___rarg(lean_object*, lean_object*);
+lean_object* l_Array_back_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_IR_FnBody_elimDead___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -45,7 +45,7 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; 
 x_5 = l_Lean_IR_instInhabitedFnBody;
-x_6 = l_Array_back___rarg(x_5, x_1);
+x_6 = l_Array_back_x21___rarg(x_5, x_1);
 x_7 = lean_array_pop(x_1);
 switch (lean_obj_tag(x_6)) {
 case 0:

@@ -449,7 +449,6 @@ static lean_object* l_Char_reduceBoolPred___lambda__1___closed__9;
 LEAN_EXPORT lean_object* l_Char_reduceDefault___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Char_reduceToLower_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char___hyg_420____closed__1;
 LEAN_EXPORT lean_object* l_Char_reduceOfNatAux___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_uint32_to_nat(uint32_t);
 static lean_object* l___regBuiltin_Char_reduceNe_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char___hyg_990____closed__7;
 static lean_object* l___regBuiltin_Char_reduceNe_declare__1____x40_Lean_Meta_Tactic_Simp_BuiltinSimprocs_Char___hyg_990____closed__1;
 static lean_object* l_Char_reduceBoolPred___lambda__1___closed__5;

@@ -75,7 +75,7 @@ theorem le_min?_iff [Min α] [LE α]
 
 -- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `min_eq_or`,
 -- and `le_min_iff`.
-theorem min?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·)]
+theorem min?_eq_some_iff [Min α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
     (le_refl : ∀ a : α, a ≤ a)
     (min_eq_or : ∀ a b : α, min a b = a ∨ min a b = b)
     (le_min_iff : ∀ a b c : α, a ≤ min b c ↔ a ≤ b ∧ a ≤ c) {xs : List α} :
@@ -85,7 +85,7 @@ theorem min?_eq_some_iff [Min α] [LE α] [anti : Antisymm ((· : α) ≤ ·)]
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1
+    exact congrArg some <| anti.1 _ _
       ((le_min?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (min?_mem min_eq_or (xs := x::xs) rfl))
 
@@ -146,7 +146,7 @@ theorem max?_le_iff [Max α] [LE α]
 
 -- This could be refactored by designing appropriate typeclasses to replace `le_refl`, `max_eq_or`,
 -- and `le_min_iff`.
-theorem max?_eq_some_iff [Max α] [LE α] [anti : Antisymm ((· : α) ≤ ·)]
+theorem max?_eq_some_iff [Max α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·)]
     (le_refl : ∀ a : α, a ≤ a)
     (max_eq_or : ∀ a b : α, max a b = a ∨ max a b = b)
     (max_le_iff : ∀ a b c : α, max b c ≤ a ↔ b ≤ a ∧ c ≤ a) {xs : List α} :
@@ -156,7 +156,7 @@ theorem max?_eq_some_iff [Max α] [LE α] [anti : Antisymm ((· : α) ≤ ·)]
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1
+    exact congrArg some <| anti.1 _ _
       (h₂ _ (max?_mem max_eq_or (xs := x::xs) rfl))
       ((max?_le_iff max_le_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
 

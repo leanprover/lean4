@@ -74,6 +74,10 @@ instance : Inhabited (Raw α) where
 /--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
+
+Note: this non-replacement behavior is true for `HashSet` and `HashSet.Raw`.
+The `insert` function on `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves
+differently: it will overwrite an existing mapping.
 -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α) (a : α) : Raw α :=
   ⟨m.inner.insertIfNew a ()⟩
@@ -157,6 +161,18 @@ for all `a`.
 @[inline] def isEmpty (m : Raw α) : Bool :=
   m.inner.isEmpty
 
+/-- Transforms the hash set into a list of elements in some order. -/
+@[inline] def toList (m : Raw α) : List α :=
+  m.inner.keys
+
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
+  ⟨HashMap.Raw.unitOfList l⟩
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -206,30 +222,22 @@ instance {m : Type v → Type v} : ForIn m (Raw α) α where
     if p a then return true
   return false
 
-/-- Transforms the hash set into a list of elements in some order. -/
-@[inline] def toList (m : Raw α) : List α :=
-  m.inner.keys
 
 /-- Transforms the hash set into an array of elements in some order. -/
 @[inline] def toArray (m : Raw α) : Array α :=
   m.inner.keysArray
 
 /--
-Inserts multiple elements into the hash set. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
+Inserts multiple mappings into the hash set by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+
+Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
+`HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
+appearance.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] (m : Raw α) (l : ρ) :
     Raw α :=
-  ⟨m.inner.insertManyUnit l⟩
-
-/--
-Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
--/
-@[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
-  ⟨HashMap.Raw.unitOfList l⟩
+  ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the
@@ -289,7 +297,7 @@ theorem WF.filter [BEq α] [Hashable α] {m : Raw α} {f : α → Bool} (h : m.W
 
 theorem WF.insertMany [BEq α] [Hashable α] {ρ : Type v} [ForIn Id ρ α] {m : Raw α} {l : ρ}
     (h : m.WF) : (m.insertMany l).WF :=
-  ⟨HashMap.Raw.WF.insertManyUnit h.out⟩
+  ⟨HashMap.Raw.WF.insertManyIfNewUnit h.out⟩
 
 theorem WF.ofList [BEq α] [Hashable α] {l : List α} :
     (ofList l : Raw α).WF :=

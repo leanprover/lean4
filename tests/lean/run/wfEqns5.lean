@@ -14,15 +14,14 @@ theorem foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 #print equations foo
 
 /--
-info: foo.eq_def :
-  ∀ (x x_1 : Nat),
-    foo x x_1 =
-      match x, x_1 with
-      | 0, m =>
-        match m with
-        | 0 => 0
-        | m => m
-      | n.succ, m => foo n m
+info: foo.eq_def (x✝ x✝¹ : Nat) :
+  foo x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, m =>
+      match m with
+      | 0 => 0
+      | m => m
+    | n.succ, m => foo n m
 -/
 #guard_msgs in
 #check foo.eq_def
@@ -51,15 +50,14 @@ theorem bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 #print equations bar
 
 /--
-info: bar.eq_def :
-  ∀ (x x_1 : Nat),
-    bar x x_1 =
-      match x, x_1 with
-      | 0, m =>
-        match m with
-        | 0 => 0
-        | m => m
-      | n.succ, m => bar n m
+info: bar.eq_def (x✝ x✝¹ : Nat) :
+  bar x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, m =>
+      match m with
+      | 0 => 0
+      | m => m
+    | n.succ, m => bar n m
 -/
 #guard_msgs in
 #check bar.eq_def
@@ -83,15 +81,14 @@ theorem Structural.foo.eq_3 : ∀ (x n : Nat), foo n.succ x = foo n x
 #print equations foo
 
 /--
-info: Structural.foo.eq_def :
-  ∀ (x x_1 : Nat),
-    foo x x_1 =
-      match x, x_1 with
-      | 0, m =>
-        match m with
-        | 0 => 0
-        | m => m
-      | n.succ, m => foo n m
+info: Structural.foo.eq_def (x✝ x✝¹ : Nat) :
+  foo x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, m =>
+      match m with
+      | 0 => 0
+      | m => m
+    | n.succ, m => foo n m
 -/
 #guard_msgs in
 #check foo.eq_def
@@ -120,15 +117,14 @@ theorem Structural.bar.eq_2 : ∀ (x n : Nat), bar n.succ x = bar n x
 #print equations bar
 
 /--
-info: Structural.bar.eq_def :
-  ∀ (x x_1 : Nat),
-    bar x x_1 =
-      match x, x_1 with
-      | 0, m =>
-        match m with
-        | 0 => 0
-        | m => m
-      | n.succ, m => bar n m
+info: Structural.bar.eq_def (x✝ x✝¹ : Nat) :
+  bar x✝ x✝¹ =
+    match x✝, x✝¹ with
+    | 0, m =>
+      match m with
+      | 0 => 0
+      | m => m
+    | n.succ, m => bar n m
 -/
 #guard_msgs in
 #check bar.eq_def

@@ -39,7 +39,7 @@ partial def expandArgs (args : Array Syntax) : MetaM (Array NamedArg × Array Ar
   let (args, ellipsis) :=
     if args.isEmpty then
       (args, false)
-    else if args.back.isOfKind ``Lean.Parser.Term.ellipsis then
+    else if args.back!.isOfKind ``Lean.Parser.Term.ellipsis then
       (args.pop, true)
     else
       (args, false)

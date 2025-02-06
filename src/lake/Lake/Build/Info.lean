@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Config.LeanExe
 import Lake.Config.ExternLib
 import Lake.Build.Facets
@@ -16,6 +17,7 @@ the build.
 -/
 
 namespace Lake
+open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
@@ -122,29 +124,32 @@ definitions.
 -/
 
 /-- The direct local imports of the Lean module. -/
-abbrev Module.importsFacet := `lean.imports
-module_data lean.imports : Array Module
+abbrev Module.importsFacet := `imports
+module_data imports : Array Module
 
 /-- The transitive local imports of the Lean module. -/
-abbrev Module.transImportsFacet := `lean.transImports
-module_data lean.transImports : Array Module
+abbrev Module.transImportsFacet := `transImports
+module_data transImports : Array Module
 
 /-- The transitive local imports of the Lean module. -/
-abbrev Module.precompileImportsFacet := `lean.precompileImports
-module_data lean.precompileImports : Array Module
+abbrev Module.precompileImportsFacet := `precompileImports
+module_data precompileImports : Array Module
 
 /-- Shared library for `--load-dynlib`. -/
 abbrev Module.dynlibFacet := `dynlib
-module_data dynlib : BuildJob Dynlib
+module_data dynlib : Dynlib
 
 /-- A Lean library's Lean modules. -/
 abbrev LeanLib.modulesFacet := `modules
 library_data modules : Array Module
 
-/-- The package's complete array of transitive dependencies. -/
+/-- The package's array of dependencies. -/
 abbrev Package.depsFacet := `deps
 package_data deps : Array Package
 
+/-- The package's complete array of transitive dependencies. -/
+abbrev Package.transDepsFacet := `transDeps
+package_data transDeps : Array Package
 
 /-!
 ### Facet Build Info Helper Constructors
@@ -240,15 +245,23 @@ abbrev Package.gitHubRelease (self : Package) : BuildInfo :=
 abbrev Package.optGitHubRelease (self : Package) : BuildInfo :=
   self.facet optGitHubReleaseFacet
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated gitHubRelease (since := "2024-09-27")]
 abbrev Package.release := @gitHubRelease
 
-@[deprecated (since := "2024-09-27")]
+@[deprecated optGitHubRelease (since := "2024-09-27")]
 abbrev Package.optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
 abbrev Package.extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet
+
+@[inherit_doc depsFacet]
+abbrev Package.deps (self : Package) : BuildInfo :=
+  self.facet depsFacet
+
+@[inherit_doc transDepsFacet]
+abbrev Package.transDeps (self : Package) : BuildInfo :=
+  self.facet transDepsFacet
 
 /-- Build info for a custom package target. -/
 abbrev Package.target (target : Name) (self : Package) : BuildInfo :=

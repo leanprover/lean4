@@ -25,7 +25,7 @@ def isFinite : Prop :=
 
 instance hasNextWF : WellFoundedRelation {s : ρ // isFinite s} where
   rel := λ s1 s2 => hasNext s2.val s1.val
-  wf := ⟨λ ⟨s,h⟩ => ⟨⟨s,h⟩, by
+  wf := ⟨λ ⟨s,h⟩ => ⟨Subtype.mk s h, by
     simp only [Subtype.forall]
     cases h; case intro w h =>
     induction w generalizing s

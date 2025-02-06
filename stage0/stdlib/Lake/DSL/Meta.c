@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.DSL.Meta
-// Imports: Init Lean.Elab.Eval Lean.Elab.ElabRules Lake.Util.FilePath
+// Imports: Lean.Elab.Eval Lean.Elab.ElabRules Lake.Util.FilePath
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -102,7 +102,6 @@ static lean_object* l_Lake_DSL_expandCmdDo___closed__1;
 static lean_object* l_Lake_DSL_elabRunIO___closed__9;
 static lean_object* l_Lake_DSL_cmdDo___closed__3;
 lean_object* l_panic___at_String_fromUTF8_x21___spec__1(lean_object*);
-lean_object* l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_runIO___closed__4;
 LEAN_EXPORT lean_object* l_Lake_DSL_elabRunIO___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_metaIf___closed__22;
@@ -144,6 +143,7 @@ static lean_object* l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__
 LEAN_EXPORT lean_object* l_Lake_DSL_metaIf;
 static lean_object* l_Lake_DSL_metaIf___closed__19;
 lean_object* lean_array_mk(lean_object*);
+lean_object* l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_evalTerm___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_getMVars(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_DSL_cmdDo___closed__11;
@@ -1454,7 +1454,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__1___closed__2;
 x_2 = l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__1___closed__3;
-x_3 = lean_unsigned_to_nat(92u);
+x_3 = lean_unsigned_to_nat(100u);
 x_4 = lean_unsigned_to_nat(47u);
 x_5 = l_IO_FS_withIsolatedStreams___at_Lake_DSL_elabRunIO___spec__1___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -1931,7 +1931,7 @@ x_11 = lean_ctor_get(x_7, 5);
 x_12 = l_Lean_replaceRef(x_1, x_11);
 lean_dec(x_11);
 lean_ctor_set(x_7, 5, x_12);
-x_13 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+x_13 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
 lean_dec(x_7);
 return x_13;
 }
@@ -1982,7 +1982,7 @@ lean_ctor_set(x_29, 10, x_24);
 lean_ctor_set(x_29, 11, x_26);
 lean_ctor_set_uint8(x_29, sizeof(void*)*12, x_25);
 lean_ctor_set_uint8(x_29, sizeof(void*)*12 + 1, x_27);
-x_30 = l_Lean_throwError___at_Lean_Elab_Term_tryPostponeIfHasMVars___spec__1(x_2, x_3, x_4, x_5, x_6, x_29, x_8, x_9);
+x_30 = l_Lean_throwError___at_Lean_Elab_Term_mkCoe___spec__1(x_2, x_3, x_4, x_5, x_6, x_29, x_8, x_9);
 lean_dec(x_29);
 return x_30;
 }
@@ -3309,7 +3309,6 @@ lean_dec(x_4);
 return x_13;
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Eval(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_ElabRules(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Util_FilePath(uint8_t builtin, lean_object*);
@@ -3318,9 +3317,6 @@ LEAN_EXPORT lean_object* initialize_Lake_DSL_Meta(uint8_t builtin, lean_object* 
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lean_Elab_Eval(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);

@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lake.Load.Lean
 import Lake.Load.Toml
 
@@ -15,6 +16,7 @@ from Lake configuration file (either Lean or TOML).
 open Lean
 
 namespace Lake
+open System (FilePath)
 
 /--
 Return whether a configuration file with the given name

@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Lean.Meta.InferType
+import Lean.Meta.Transform
 
 /-!
 This module provides functions to pack and unpack values using nested `PProd` or `And`,
@@ -47,48 +48,81 @@ def mkPProdMk (e1 e2 : Expr) : MetaM Expr := do
     return mkApp4 (.const ``PProd.mk [lvl1, lvl2]) t1 t2 e1 e2
 
 /-- `PProd.fst` or `And.left` (using `.proj`) -/
-def mkPProdFst (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
+def mkPProdFst (t e : Expr) : Expr :=
   match_expr t with
-  | PProd _ _ => return .proj ``PProd 0 e
-  | And _ _ => return .proj ``And 0 e
-  | _ => panic! "mkPProdFst: cannot handle{indentExpr e}\nof type{indentExpr t}"
+  | PProd _ _ => .proj ``PProd 0 e
+  | And _ _ => .proj ``And 0 e
+  | _ => panic! s!"mkPProdFst: cannot handle {e}\nof type {t}"
+
+/-- `PProd.fst` or `And.left` (using `.proj`), inferring the type of `e` -/
+def mkPProdFstM (e : Expr) : MetaM Expr := do
+  return mkPProdFst (← whnf (← inferType e)) e
+
+private def mkTypeSnd (t : Expr) : Expr :=
+  match_expr t with
+  | PProd _ t => t
+  | And _ t => t
+  | _ => panic! s!"mkTypeSnd: cannot handle type {t}"
 
 /-- `PProd.snd` or `And.right` (using `.proj`) -/
-def mkPProdSnd (e : Expr) : MetaM Expr := do
-  let t ← whnf (← inferType e)
+def mkPProdSnd (t e : Expr) : Expr :=
   match_expr t with
-  | PProd _ _ => return .proj ``PProd 1 e
-  | And _ _ => return .proj ``And 1 e
-  | _ => panic! "mkPProdSnd: cannot handle{indentExpr e}\nof type{indentExpr t}"
+  | PProd _ _ => .proj ``PProd 1 e
+  | And _ _ => .proj ``And 1 e
+  | _ => panic! s!"mkPProdSnd: cannot handle {e}\nof type {t}"
 
-
+/-- `PProd.snd` or `And.right` (using `.proj`), inferring the type of `e` -/
+def mkPProdSndM (e : Expr) : MetaM Expr := do
+  return mkPProdSnd (← whnf (← inferType e)) e
 
 namespace PProdN
+
+/--
+Essentially a form of `foldrM1`. Underlies `pack` and `mk`, and is useful to constuct proofs
+that should follow the structure of `pack` and `mk` (e.g. admissibility proofs)
+-/
+def genMk {α : Type _} [Inhabited α] (mk : α → α → MetaM α) (xs : Array α) : MetaM α :=
+  assert! !xs.isEmpty
+  xs.pop.foldrM mk xs.back!
 
 /-- Given types `tᵢ`, produces `t₁ ×' t₂ ×' t₃` -/
 def pack (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True []
                          else return .const ``PUnit [lvl]
-  let xBack := xs.back
-  xs.pop.foldrM mkPProd xBack
+  genMk mkPProd xs
 
 /-- Given values `xᵢ` of type `tᵢ`, produces value of type `t₁ ×' t₂ ×' t₃` -/
 def mk (lvl : Level) (xs : Array Expr) : MetaM Expr := do
   if xs.size = 0 then
     if lvl matches .zero then return .const ``True.intro []
                          else return .const ``PUnit.unit [lvl]
-  let xBack := xs.back
-  xs.pop.foldrM mkPProdMk xBack
+  genMk mkPProdMk xs
 
-/-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
-def proj (n i : Nat) (e : Expr) : MetaM Expr := do
+/-- Given a value `e` of type `t = t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
+def proj (n i : Nat) (t e : Expr) : Expr := Id.run <| do
+  unless i < n do panic! "PProdN.proj: {i} not less than {n}"
+  let mut t := t
   let mut value := e
   for _ in [:i] do
-      value ← mkPProdSnd value
+      value := mkPProdSnd t value
+      t := mkTypeSnd t
   if i+1 < n then
-    mkPProdFst value
+    mkPProdFst t value
+  else
+    value
+
+/-- Given a value `e` of type `t = t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return the values of type `tᵢ` -/
+def projs (n : Nat) (t e : Expr) : Array Expr :=
+  Array.ofFn (n := n) fun i => PProdN.proj n i t e
+
+/-- Given a value of type `t₁ ×' … ×' tᵢ ×' … ×' tₙ`, return a value of type `tᵢ` -/
+def projM (n i : Nat) (e : Expr) : MetaM Expr := do
+  let mut value := e
+  for _ in [:i] do
+      value ← mkPProdSndM value
+  if i+1 < n then
+    mkPProdFstM value
   else
     pure value
 
@@ -139,6 +173,27 @@ def mkLambdas (type : Expr) (es : Array Expr) : MetaM Expr := do
     let packed ← PProdN.mk lvl es'
     mkLambdaFVars xs packed
 
+
+/--  Strips topplevel `PProd` and `And` projections -/
+def stripProjs (e : Expr) : Expr :=
+  match e with
+  | .proj ``PProd _ e' => stripProjs e'
+  | .proj ``And _ e' => stripProjs e'
+  | e => e
+
+/--
+Reduces `⟨x,y⟩.1` redexes for `PProd` and `And`
+-/
+def reduceProjs (e : Expr) : CoreM Expr := do
+  Core.transform e (post := fun e => do
+    if e.isProj then
+      if e.projExpr!.isAppOfArity ``PProd.mk 4 || e.projExpr!.isAppOfArity ``And.intro 2 then
+        if e.projIdx! == 0 then
+          return .continue e.projExpr!.appFn!.appArg!
+        else
+          return .continue e.projExpr!.appArg!
+    return .continue
+  )
 
 end PProdN
 

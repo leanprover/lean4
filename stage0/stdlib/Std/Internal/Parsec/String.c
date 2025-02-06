@@ -40,7 +40,6 @@ LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_pstring___boxed(lean_objec
 static lean_object* l_Std_Internal_Parsec_String_take___closed__2;
 uint8_t l_instDecidableNot___rarg(uint8_t);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_hexDigit(lean_object*);
 lean_object* l_instDecidableEqPos___boxed(lean_object*, lean_object*);
@@ -69,6 +68,7 @@ LEAN_EXPORT lean_object* l___private_Std_Internal_Parsec_String_0__Std_Internal_
 lean_object* l_String_Iterator_forward(lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run___rarg(lean_object*, lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_Std_Internal_Parsec_String_Parser_run(lean_object*);

@@ -13,10 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate(lean_object*);
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_Bitblast_BVExpr_Circuit_Impl_Operations_Replicate_0__Std_Tactic_BVDecide_BVExpr_bitblast_blastReplicate_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Sat_AIG_RefVec_empty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
@@ -144,32 +141,6 @@ lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 return x_7;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = lean_box(0);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Std_Tactic_BVDecide_BVExpr_bitblast_instLawfulVecOperatorReplicateTargetBlastReplicate___rarg(x_1, x_2);
-lean_dec(x_2);
-lean_dec(x_1);
-return x_3;
 }
 }
 lean_object* initialize_Std_Tactic_BVDecide_Bitblast_BVExpr_Basic(uint8_t builtin, lean_object*);

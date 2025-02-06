@@ -135,13 +135,21 @@ open Meta
   | _                                                => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.suffices] def expandSuffices : Macro
-  | `(suffices%$tk $x:ident      : $type from $val; $body)            => `(have%$tk $x : $type := $body; $val)
-  | `(suffices%$tk _%$x          : $type from $val; $body)            => `(have%$tk _%$x : $type := $body; $val)
-  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)            => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
-  | `(suffices%$tk $x:ident      : $type by%$b $tac:tacticSeq; $body) => `(have%$tk $x : $type := $body; by%$b $tac)
-  | `(suffices%$tk _%$x          : $type by%$b $tac:tacticSeq; $body) => `(have%$tk _%$x : $type := $body; by%$b $tac)
-  | `(suffices%$tk $hy:hygieneInfo $type by%$b $tac:tacticSeq; $body) => `(have%$tk $hy:hygieneInfo : $type := $body; by%$b $tac)
-  | _                                                                 => Macro.throwUnsupported
+  | `(suffices%$tk $x:ident      : $type from $val; $body)   => `(have%$tk $x : $type := $body; $val)
+  | `(suffices%$tk _%$x          : $type from $val; $body)   => `(have%$tk _%$x : $type := $body; $val)
+  | `(suffices%$tk $hy:hygieneInfo $type from $val; $body)   => `(have%$tk $hy:hygieneInfo : $type := $body; $val)
+  | `(suffices%$tk $x:ident      : $type $b:byTactic'; $body) =>
+    -- Pass on `SourceInfo` of `b` to `have`. This is necessary to display the goal state in the
+    -- trailing whitespace of `by` and sound since `byTactic` and `byTactic'` are identical.
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $x : $type := $body; $b:byTactic)
+  | `(suffices%$tk _%$x          : $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk _%$x : $type := $body; $b:byTactic)
+  | `(suffices%$tk $hy:hygieneInfo $type $b:byTactic'; $body) =>
+    let b := ⟨b.raw.setKind `Lean.Parser.Term.byTactic⟩
+    `(have%$tk $hy:hygieneInfo : $type := $body; $b:byTactic)
+  | _ => Macro.throwUnsupported
 
 open Lean.Parser in
 private def elabParserMacroAux (prec e : Term) (withAnonymousAntiquot : Bool) : TermElabM Syntax := do
@@ -204,9 +212,9 @@ private def elabTParserMacroAux (prec lhsPrec e : Term) : TermElabM Syntax := do
   | `(dbg_trace $arg:term; $body)            => `(dbgTrace (toString $arg) fun _ => $body)
   | _                                        => Macro.throwUnsupported
 
-@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun stx expectedType? => do
-  let stxNew ← `(@sorryAx _ false) -- Remark: we use `@` to ensure `sorryAx` will not consume auto params
-  withMacroExpansion stx stxNew <| elabTerm stxNew expectedType?
+@[builtin_term_elab «sorry»] def elabSorry : TermElab := fun _ expectedType? => do
+  let type ← expectedType?.getDM mkFreshTypeMVar
+  mkLabeledSorry type (synthetic := false) (unique := true)
 
 /-- Return syntax `Prod.mk elems[0] (Prod.mk elems[1] ... (Prod.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPairs (elems : Array Term) : MacroM Term :=
@@ -218,7 +226,7 @@ partial def mkPairs (elems : Array Term) : MacroM Term :=
       loop i acc
     else
       pure acc
-  loop (elems.size - 1) elems.back
+  loop (elems.size - 1) elems.back!
 
 /-- Return syntax `PProd.mk elems[0] (PProd.mk elems[1] ... (PProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkPPairs (elems : Array Term) : MacroM Term :=
@@ -230,7 +238,7 @@ partial def mkPPairs (elems : Array Term) : MacroM Term :=
       loop i acc
     else
       pure acc
-  loop (elems.size - 1) elems.back
+  loop (elems.size - 1) elems.back!
 
 /-- Return syntax `MProd.mk elems[0] (MProd.mk elems[1] ... (MProd.mk elems[elems.size - 2] elems[elems.size - 1])))` -/
 partial def mkMPairs (elems : Array Term) : MacroM Term :=
@@ -242,7 +250,7 @@ partial def mkMPairs (elems : Array Term) : MacroM Term :=
       loop i acc
     else
       pure acc
-  loop (elems.size - 1) elems.back
+  loop (elems.size - 1) elems.back!
 
 
 open Parser in
@@ -314,7 +322,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   let stx ← liftMacroM <| expandMacros stx
   match stx with
   | `(fun $binders* => $f $args*) =>
-    if binders == args then
+    if binders.raw.toList.isPerm args.raw.toList then
       try Term.resolveId? f catch _ => return none
     else
       return none
@@ -324,7 +332,7 @@ def elabCDotFunctionAlias? (stx : Term) : TermElabM (Option Expr) := do
   | `(fun $binders* => rightact% $f $a $b)
   | `(fun $binders* => binrel% $f $a $b)
   | `(fun $binders* => binrel_no_prop% $f $a $b) =>
-    if binders == #[a, b] then
+    if binders == #[a, b] || binders == #[b, a] then
       try Term.resolveId? f catch _ => return none
     else
       return none

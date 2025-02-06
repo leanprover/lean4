@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": {"declName": "gfxabc"}}}},
+    "id": {"const": {"declName": "gfxabc"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "gfxacc",
    "kind": 3,
@@ -16,7 +17,8 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": {"declName": "gfxacc"}}}},
+    "id": {"const": {"declName": "gfxacc"}},
+    "cPos": 0}},
   {"sortText": "2",
    "label": "gfxadc",
    "kind": 3,
@@ -24,7 +26,8 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 4, "character": 11}},
-    "id": {"const": {"declName": "gfxadc"}}}}],
+    "id": {"const": {"declName": "gfxadc"}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///inWordCompletion.lean"},
  "position": {"line": 12, "character": 15}}
@@ -36,7 +39,8 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxabc"}}}},
+    "id": {"const": {"declName": "Boo.gfxabc"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "gfxacc",
    "kind": 3,
@@ -44,7 +48,8 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxacc"}}}},
+    "id": {"const": {"declName": "Boo.gfxacc"}},
+    "cPos": 0}},
   {"sortText": "2",
    "label": "gfxadc",
    "kind": 3,
@@ -52,5 +57,6 @@
    {"params":
     {"textDocument": {"uri": "file:///inWordCompletion.lean"},
      "position": {"line": 12, "character": 15}},
-    "id": {"const": {"declName": "Boo.gfxadc"}}}}],
+    "id": {"const": {"declName": "Boo.gfxadc"}},
+    "cPos": 0}}],
  "isIncomplete": true}

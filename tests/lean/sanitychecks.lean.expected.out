@@ -12,6 +12,15 @@ sanitychecks.lean:10:0-10:23: error: failed to synthesize
 Additional diagnostic information may be available using the `set_option diagnostics true` command.
 sanitychecks.lean:18:12-18:20: error: invalid use of 'partial', 'Foo.unsound3' is not a function
   False
-sanitychecks.lean:20:0-20:54: error: failed to compile partial definition 'Foo.unsound4', failed to show that type is inhabited and non empty
+sanitychecks.lean:20:0-20:54: error: failed to compile 'partial' definition 'Foo.unsound4', could not prove that the type
+  Unit → False
+is nonempty.
+
+This process uses multiple strategies:
+- It looks for a parameter that matches the return type.
+- It tries synthesizing 'Inhabited' and 'Nonempty' instances for the return type, while making every parameter into a local 'Inhabited' instance.
+- It tries unfolding the return type.
+
+If the return type is defined using the 'structure' or 'inductive' command, you can try adding a 'deriving Nonempty' clause to it.
 sanitychecks.lean:22:12-22:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'
 sanitychecks.lean:25:12-25:20: error: (kernel) invalid declaration, it uses unsafe declaration 'unsafeCast'

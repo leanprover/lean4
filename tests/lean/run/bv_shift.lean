@@ -52,3 +52,6 @@ theorem shift_unit_7 {x : BitVec 64} : BitVec.sshiftRight x 65 = BitVec.sshiftRi
 
 theorem shift_unit_8 {x : BitVec 64} (h : BitVec.slt 0 x) : BitVec.sshiftRight x 32 = x >>> 32 := by
   bv_decide
+
+theorem shift_unit_9 {x y : BitVec 32} (h : BitVec.slt 0 x) : BitVec.sshiftRight' x y = x >>> y := by
+  bv_decide

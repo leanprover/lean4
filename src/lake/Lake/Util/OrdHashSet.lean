@@ -3,6 +3,7 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Data.HashSet
 import Std.Data.HashSet.Basic
 
@@ -69,6 +70,6 @@ def ofArray (arr : Array α) : OrdHashSet α :=
   self.toArray.forM f
 
 @[inline] protected def forIn [Monad m] (self : OrdHashSet α) (init : β) (f : α → β → m (ForInStep β)) : m β :=
-  self.toArray.forIn init f
+  ForIn.forIn self.toArray init f
 
 instance : ForIn m (OrdHashSet α) α := ⟨OrdHashSet.forIn⟩

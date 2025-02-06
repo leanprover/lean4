@@ -10,6 +10,7 @@ Authors: Sebastian Ullrich
 
 prelude
 import Lean.Language.Basic
+import Lean.Language.Util
 import Lean.Language.Lean.Types
 import Lean.Parser.Module
 import Lean.Elab.Import
@@ -45,17 +46,33 @@ delete the space after private, it becomes a syntactically correct structure wit
 privateaxiom! So clearly, because of uses of atomic in the grammar, an edit can affect a command
 syntax tree even across multiple tokens.
 
-Now, what we do today, and have done since Lean 3, is to always reparse the last command completely
-preceding the edit location. If its syntax tree is unchanged, we preserve its data and reprocess all
-following commands only, otherwise we reprocess it fully as well. This seems to have worked well so
-far but it does seem a bit arbitrary given that even if it works for our current grammar, it can
-certainly be extended in ways that break the assumption.
+What we did in Lean 3 was to always reparse the last command completely preceding the edit location.
+If its syntax tree is unchanged, we preserve its data and reprocess all following commands only,
+otherwise we reprocess it fully as well. This worked well but did seem a bit arbitrary given that
+even if it works for a grammar at some point, it can certainly be extended in ways that break the
+assumption.
+
+With grammar changes in Lean 4, we found that the following example indeed breaks this assumption:
+```
+structure Signature where
+  /-- a docstring -/
+  Sort : Type
+    --^ insert: "s"
+```
+As the keyword `Sort` is not a valid start of a structure field and the parser backtracks across the
+docstring in that case, this is parsed as the complete command `structure Signature where` followed
+by the partial command `/-- a docstring -/ <missing>`. If we insert an `s` after the `t`, the last
+command completely preceding the edit location is the partial command containing the docstring. Thus
+we need to go up two commands to ensure we reparse the `structure` command as well. This kind of
+nested docstring is the only part of the grammar to our knowledge that requires going up at least
+two commands; as we never backtrack across more than one docstring, going up two commands should
+also be sufficient.
 
 Finally, a more actually principled and generic solution would be to invalidate a syntax tree when
 the parser has reached the edit location during parsing. If it did not, surely the edit cannot have
 an effect on the syntax tree in question. Sadly such a "high-water mark" parser position does not
 exist currently and likely it could at best be approximated by e.g. "furthest `tokenFn` parse". Thus
-we remain at "go two commands up" at this point.
+we remain at "go up two commands" at this point.
 -/
 
 /-!
@@ -166,13 +183,6 @@ namespace Lean.Language.Lean
 open Lean.Elab Command
 open Lean.Parser
 
-/-- Option for capturing output to stderr during elaboration. -/
-register_builtin_option stderrAsMessages : Bool := {
-  defValue := true
-  group    := "server"
-  descr    := "(server) capture output to the Lean stderr channel (such as from `dbg_trace`) during elaboration of a command as a diagnostic message"
-}
-
 /-- Lean-specific processing context. -/
 structure LeanProcessingContext extends ProcessingContext where
   /-- Position of the first file difference if there was a previous invocation. -/
@@ -233,11 +243,13 @@ structure SetupImportsResult where
   opts : Options
   /-- Kernel trust level. -/
   trustLevel : UInt32 := 0
+  /-- Lean plugins to load as part of the environment setup. -/
+  plugins : Array System.FilePath := #[]
 
 /-- Performance option used by cmdline driver. -/
 register_builtin_option internal.cmdlineSnapshots : Bool := {
   defValue := false
-  descr    := "mark persistent and reduce information stored in snapshots to the minimum necessary \
+  descr    := "reduce information stored in snapshots to the minimum necessary \
     for the cmdline driver: diagnostics per command and final full snapshot"
 }
 
@@ -300,7 +312,9 @@ General notes:
 * We must make sure to trigger `oldCancelTk?` as soon as discarding `old?`.
 * Control flow up to finding the last still-valid snapshot (which should be quick) is synchronous so
   as not to report this "fast forwarding" to the user as well as to make sure the next run sees all
-  fast-forwarded snapshots without having to wait on tasks.
+  fast-forwarded snapshots without having to wait on tasks. It also ensures this part cannot be
+  delayed by threadpool starvation. We track whether we are still on the fast-forwarding path using
+  the `sync` parameter on `parseCmd` and spawn an elaboration task when we leave it.
 -/
 partial def process
     (setupImports : Syntax → ProcessingT IO (Except HeaderProcessedSnapshot SetupImportsResult))
@@ -330,7 +344,7 @@ where
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true) fun oldCmd => do
                   let prom ← IO.Promise.new
-                  let _ ← IO.asTask (parseCmd oldCmd newParserState oldProcSuccess.cmdState prom ctx)
+                  parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) ctx
                   return .pure {
                     diagnostics := oldProcessed.diagnostics
                     result? := some {
@@ -344,11 +358,12 @@ where
     if let some old := old? then
       if let some oldSuccess := old.result? then
         if let some (some processed) ← old.processedResult.get? then
-          -- ...and the edit location is after the next command (see note [Incremental Parsing])...
+          -- ...and the edit is after the second-next command (see note [Incremental Parsing])...
           if let some nextCom ← processed.firstCmdSnap.get? then
-            if (← isBeforeEditPos nextCom.data.parserState.pos) then
-              -- ...go immediately to next snapshot
-              return (← unchanged old old.stx oldSuccess.parserState)
+            if let some nextNextCom ← processed.firstCmdSnap.get? then
+              if (← isBeforeEditPos nextNextCom.parserState.pos) then
+                -- ...go immediately to next snapshot
+                return (← unchanged old old.stx oldSuccess.parserState)
 
     withHeaderExceptions ({ · with
         ictx, stx := .missing, result? := none, cancelTk? := none }) do
@@ -401,7 +416,7 @@ where
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeader (leakEnv := true) stx setup.opts .empty
-        ctx.toInputContext setup.trustLevel
+        ctx.toInputContext setup.trustLevel setup.plugins
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
@@ -441,12 +456,7 @@ where
         traceState
       }
       let prom ← IO.Promise.new
-      -- The speedup of these `markPersistent`s is negligible but they help in making unexpected
-      -- `inc_ref_cold`s more visible
-      let parserState := Runtime.markPersistent parserState
-      let cmdState := Runtime.markPersistent cmdState
-      let ctx := Runtime.markPersistent ctx
-      let _ ← IO.asTask (parseCmd none parserState cmdState prom ctx)
+      parseCmd none parserState cmdState prom (sync := true) ctx
       return {
         diagnostics
         infoTree? := cmdState.infoState.trees[0]!
@@ -457,23 +467,9 @@ where
       }
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
-      (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) :
+      (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool) :
       LeanProcessingM Unit := do
     let ctx ← read
-
-    -- check for cancellation, most likely during elaboration of previous command, before starting
-    -- processing of next command
-    if (← ctx.newCancelTk.isSet) then
-      -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
-      -- (as no-one should look at this result in that case) but anything containing `Environment`
-      -- is not `Inhabited`
-      prom.resolve <| .mk (nextCmdSnap? := none) {
-        diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
-        finishedSnap := .pure { diagnostics := .empty, cmdState }
-        tacticCache := (← IO.mkRef {})
-      }
-      return
 
     let unchanged old newParserState : BaseIO Unit :=
       -- when syntax is unchanged, reuse command processing task as is
@@ -482,20 +478,21 @@ where
       -- from `old`
       if let some oldNext := old.nextCmdSnap? then do
         let newProm ← IO.Promise.new
-        let _ ← old.data.finishedSnap.bindIO fun oldFinished =>
+        let _ ← old.finishedSnap.bindIO (sync := true) fun oldFinished =>
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
           oldNext.bindIO (sync := true) fun oldNext => do
-            parseCmd oldNext newParserState oldFinished.cmdState newProm ctx
+            parseCmd oldNext newParserState oldFinished.cmdState newProm sync ctx
             return .pure ()
-        prom.resolve <| .mk (data := old.data) (nextCmdSnap? := some { range? := none, task := newProm.result })
+        prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result } }
       else prom.resolve old  -- terminal command, we're done!
 
-    -- fast path, do not even start new task for this snapshot
+    -- fast path, do not even start new task for this snapshot (see [Incremental Parsing])
     if let some old := old? then
       if let some nextCom ← old.nextCmdSnap?.bindM (·.get?) then
-        if (← isBeforeEditPos nextCom.data.parserState.pos) then
-          return (← unchanged old old.data.parserState)
+        if let some nextNextCom ← nextCom.nextCmdSnap?.bindM (·.get?) then
+          if (← isBeforeEditPos nextNextCom.parserState.pos) then
+            return (← unchanged old old.parserState)
 
     let beginPos := parserState.pos
     let scope := cmdState.scopes.head!
@@ -512,7 +509,7 @@ where
       -- NOTE: as `parserState.pos` includes trailing whitespace, this forces reprocessing even if
       -- only that whitespace changes, which is wasteful but still necessary because it may
       -- influence the range of error messages such as from a trailing `exact`
-      if stx.eqWithInfo old.data.stx then
+      if stx.eqWithInfo old.stx then
         -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
         return (← unchanged old parserState)
       -- on first change, make sure to cancel old invocation
@@ -521,44 +518,89 @@ where
       if let some tk := ctx.oldCancelTk? then
         tk.set
 
-    -- definitely resolved in `doElab` task
-    let elabPromise ← IO.Promise.new
-    let finishedPromise ← IO.Promise.new
-    -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
-    -- retract the progress bar to a previous position in case the command support incremental
-    -- reporting but has significant work after resolving its last incremental promise, such as
-    -- final type checking; if it does not support incrementality, `elabSnap` constructed in
-    -- `parseCmd` and containing the entire range of the command will determine the reported
-    -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
-    -- irrelevant in this case.
-    let endRange? := stx.getTailPos?.map fun pos => ⟨pos, pos⟩
-    let finishedSnap := { range? := endRange?, task := finishedPromise.result }
-    let tacticCache ← old?.map (·.data.tacticCache) |>.getDM (IO.mkRef {})
+    -- check for cancellation, most likely during elaboration of previous command, before starting
+    -- processing of next command
+    if (← ctx.newCancelTk.isSet) then
+      -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
+      -- (as no-one should look at this result in that case) but anything containing `Environment`
+      -- is not `Inhabited`
+      prom.resolve <| {
+        diagnostics := .empty, stx := .missing, parserState
+        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+        finishedSnap := .pure { diagnostics := .empty, cmdState }
+        reportSnap := default
+        tacticCache := (← IO.mkRef {})
+        nextCmdSnap? := none
+      }
+      return
 
-    let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
-    let next? ← if Parser.isTerminalCommand stx then pure none
-      -- for now, wait on "command finished" snapshot before parsing next command
-      else some <$> IO.Promise.new
-    let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
-    let data := if minimalSnapshots && !Parser.isTerminalCommand stx then {
-      diagnostics
-      stx := .missing
-      parserState := {}
-      elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap
-      tacticCache
-    } else {
-      diagnostics, stx, parserState, tacticCache
-      elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-      finishedSnap
-    }
-    prom.resolve <| .mk (nextCmdSnap? := next?.map
-      ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })) data
-    let cmdState ← doElab stx cmdState beginPos
-      { old? := old?.map fun old => ⟨old.data.stx, old.data.elabSnap⟩, new := elabPromise }
-      finishedPromise tacticCache ctx
-    if let some next := next? then
-      parseCmd none parserState cmdState next ctx
+    -- Start new task when leaving fast-forwarding path; see "General notes" above
+    let _ ← (if sync then BaseIO.asTask else (.pure <$> ·)) do
+      -- definitely resolved in `doElab` task
+      let elabPromise ← IO.Promise.new
+      let finishedPromise ← IO.Promise.new
+      let reportPromise ← IO.Promise.new
+      -- (Try to) use last line of command as range for final snapshot task. This ensures we do not
+      -- retract the progress bar to a previous position in case the command support incremental
+      -- reporting but has significant work after resolving its last incremental promise, such as
+      -- final type checking; if it does not support incrementality, `elabSnap` constructed in
+      -- `parseCmd` and containing the entire range of the command will determine the reported
+      -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
+      -- irrelevant in this case.
+      let endRange? := stx.getTailPos?.map fun pos => ⟨pos, pos⟩
+      let finishedSnap := { range? := endRange?, task := finishedPromise.result }
+      let tacticCache ← old?.map (·.tacticCache) |>.getDM (IO.mkRef {})
+
+      let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
+      let next? ← if Parser.isTerminalCommand stx then pure none
+        -- for now, wait on "command finished" snapshot before parsing next command
+        else some <$> IO.Promise.new
+      let nextCmdSnap? := next?.map
+        ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })
+      let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
+      let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
+        (default, default)
+      else
+        (stx, parserState)
+      prom.resolve {
+        diagnostics, finishedSnap, tacticCache, nextCmdSnap?
+        stx := stx', parserState := parserState'
+        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
+        reportSnap := { range? := endRange?, task := reportPromise.result }
+      }
+      let cmdState ← doElab stx cmdState beginPos
+        { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
+        finishedPromise tacticCache ctx
+      let traceTask ←
+        if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
+          -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
+          -- create a temporary snapshot tree containing all tasks but it
+          let snaps := #[
+            { range? := none, task := elabPromise.result.map (sync := true) toSnapshotTree },
+            { range? := none, task := finishedPromise.result.map (sync := true) toSnapshotTree }] ++
+            cmdState.snapshotTasks
+          let tree := SnapshotTree.mk { diagnostics := .empty } snaps
+          BaseIO.bindTask (← tree.waitAll) fun _ => do
+            let .ok (_, s) ← EIO.toBaseIO <| tree.trace |>.run
+              { ctx with options := cmdState.scopes.head!.opts } { env := cmdState.env }
+              | pure <| .pure <| .mk { diagnostics := .empty } #[]
+            let mut msgLog := MessageLog.empty
+            for trace in s.traceState.traces do
+              msgLog := msgLog.add {
+                fileName := ctx.fileName
+                severity := MessageSeverity.information
+                pos      := ctx.fileMap.toPosition beginPos
+                data     := trace.msg
+              }
+            return .pure <| .mk { diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog) } #[]
+        else
+          pure <| .pure <| .mk { diagnostics := .empty } #[]
+      reportPromise.resolve <|
+        .mk { diagnostics := .empty } <|
+          cmdState.snapshotTasks.push { range? := endRange?, task := traceTask }
+      if let some next := next? then
+        -- We're definitely off the fast-forwarding path now
+        parseCmd none parserState cmdState next (sync := false) ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
@@ -566,7 +608,9 @@ where
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
-    let cmdStateRef ← IO.mkRef { cmdState with messages := .empty }
+    -- reset per-command state
+    let cmdStateRef ← IO.mkRef { cmdState with
+      messages := .empty, traceState := {}, snapshotTasks := #[] }
     /-
     The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
     has exclusive access to the cache, we create a fresh reference here. Before this change, the
@@ -581,8 +625,8 @@ where
       cancelTk?    := some ctx.newCancelTk
     }
     let (output, _) ←
-      IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get scope.opts) do
-        liftM (m := BaseIO) do
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
+        EIO.toBaseIO do
           withLoggingExceptions
             (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
             cmdCtx cmdStateRef
@@ -597,21 +641,21 @@ where
         pos      := ctx.fileMap.toPosition beginPos
         data     := output
       }
-    let cmdState := { cmdState with messages }
+    let cmdState : Command.State := { cmdState with messages }
+    let mut reportedCmdState := cmdState
     -- definitely resolve eventually
     snap.new.resolve <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
 
-    let mut infoTree := cmdState.infoState.trees[0]!
+    let infoTree : InfoTree := cmdState.infoState.trees[0]!
     let cmdline := internal.cmdlineSnapshots.get scope.opts && !Parser.isTerminalCommand stx
     if cmdline then
-      infoTree := Runtime.markPersistent infoTree
+      -- discard all metadata apart from the environment; see `internal.cmdlineSnapshots`
+      reportedCmdState := { env := reportedCmdState.env, maxRecDepth := 0 }
     finishedPromise.resolve {
       diagnostics := (← Snapshot.Diagnostics.ofMessageLog cmdState.messages)
       infoTree? := infoTree
-      cmdState := if cmdline then {
-        env := Runtime.markPersistent cmdState.env
-        maxRecDepth := 0
-      } else cmdState
+      traces := cmdState.traceState
+      cmdState := reportedCmdState
     }
     -- The reported `cmdState` in the snapshot may be minimized as seen above, so we return the full
     -- state here for further processing on the same thread
@@ -625,7 +669,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     (old? : Option (Parser.InputContext × CommandParsedSnapshot) := none) :
     BaseIO (Task CommandParsedSnapshot) := do
   let prom ← IO.Promise.new
-  process.parseCmd (old?.map (·.2)) parserState commandState prom
+  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true)
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
   return prom.result
@@ -639,6 +683,6 @@ where goCmd snap :=
   if let some next := snap.nextCmdSnap? then
     goCmd next.get
   else
-    snap.data.finishedSnap.get.cmdState
+    snap.finishedSnap.get.cmdState
 
 end Lean

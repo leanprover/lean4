@@ -132,6 +132,73 @@ info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
 #guard_msgs in
 #check MTree.map.induct
 
+/--
+info: α : Type u_1
+t : MTree α
+col✝ : Array (List (MTree α)) := t.cs
+css : List (MTree α)
+h✝¹ : css ∈ col✝
+c : MTree α
+h✝ : c ∈ css
+⊢ sizeOf c < sizeOf t
+-/
+#guard_msgs in
+def MTree.size (t : MTree α) : Nat := Id.run do
+  let mut s := 1
+  for css in t.cs do
+    for c in css do
+      s := s + c.size
+  pure s
+termination_by t
+decreasing_by
+  trace_state
+  fail_if_success grind -- eventually, grind should be able to handle this
+  dsimp +zetaDelta at *
+  cases t
+  have := Array.sizeOf_lt_of_mem ‹_ ∈ _›
+  have := List.sizeOf_lt_of_mem ‹_ ∈ _›
+  simp only [mk.sizeOf_spec, sizeOf_default, Nat.add_zero, gt_iff_lt] at *
+  omega
+
+/--
+info: equations:
+theorem MTree.size.eq_1.{u_1} : ∀ {α : Type u_1} (t : MTree α),
+  t.size =
+    (let s := 1;
+      do
+      let r ←
+        let col := t.cs;
+          forIn col s fun css r =>
+            let s := r;
+            do
+            let r ←
+              forIn css s fun c r =>
+                  let s := r;
+                  let s := s + c.size;
+                  do
+                  pure PUnit.unit
+                  pure (ForInStep.yield s)
+            let s : Nat := r
+            pure PUnit.unit
+            pure (ForInStep.yield s)
+      let s : Nat := r
+      pure s).run
+-/
+#guard_msgs in
+#print equations MTree.size
+
+/--
+info: MTree.size.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
+  (case1 :
+    ∀ (x : MTree α),
+      (let col := x.cs;
+        ∀ (css : List (MTree α)), css ∈ col → ∀ (c : MTree α), c ∈ css → motive c) →
+        motive x)
+  (t : MTree α) : motive t
+-/
+#guard_msgs in
+#check MTree.size.induct
+
 namespace Ex1
 inductive Expression where
 | var: String → Expression

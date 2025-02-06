@@ -182,7 +182,7 @@ Declarations should be documented as required by the `docBlame` linter, which ma
 Single-line documentation comments should go on the same line as `/--`/`-/`, while multi-line documentation strings
 should have these delimiters on their own line, with the documentation comment itself unindented.
 
-Documentation comments must be written in the indicative mood. Use American ortography.
+Documentation comments must be written in the indicative mood. Use American orthography.
 
 Correct:
 ```lean

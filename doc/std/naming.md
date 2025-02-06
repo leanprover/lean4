@@ -7,7 +7,7 @@ probably safe to ignore the suggestion (or even better, suggest a way to improve
 
 ## Prelude
 
-Identiers use a mix of `UpperCamelCase`, `lowerCamelCase` and `snake_case`, used for types, data, and theorems, respectively.
+Identifiers use a mix of `UpperCamelCase`, `lowerCamelCase` and `snake_case`, used for types, data, and theorems, respectively.
 
 Structure fields should be named such that the projections have the correct names.
 

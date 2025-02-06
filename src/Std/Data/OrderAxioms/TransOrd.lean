@@ -11,6 +11,8 @@ set_option linter.missingDocs true
 
 universe u
 
+namespace Std
+
 /--
 Class for functions `α → α → Ordering` which are oriented: flipping the arguments amounts
 to applying `Ordering.swap` to the return value.
@@ -160,3 +162,5 @@ theorem TransCmp.congr_right [TransCmp cmp] {a b c : α} (hbc : cmp b c = .eq) :
   | gt => exact OrientedCmp.gt_of_lt (TransCmp.lt_of_eq_of_lt (OrientedCmp.eq_symm hbc) (OrientedCmp.lt_of_gt hab)) |>.symm
 
 end
+
+end Std

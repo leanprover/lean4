@@ -11,6 +11,8 @@ set_option linter.missingDocs true
 
 universe u
 
+namespace Std
+
 /--
 The `LawfulEqCmp cmp` typeclass says `cmp a b = .eq` if and only if the logical equality
 `a = b` holds.
@@ -34,3 +36,5 @@ theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
 @[simp]
 theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
+
+end Std

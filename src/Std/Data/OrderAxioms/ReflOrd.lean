@@ -11,6 +11,8 @@ set_option linter.missingDocs true
 
 universe u
 
+namespace Std
+
 /-- A typeclass for comparison functions `cmp` for which `cmp a a = .eq` for all `a`. -/
 class ReflCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Comparison is reflexive. -/
@@ -22,3 +24,5 @@ export ReflCmp (compare_self)
 abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
 
 attribute [simp] compare_self
+
+end Std

@@ -749,6 +749,14 @@ The top-level command elaborator only runs the linters if `#guard_msgs` is not p
 syntax (name := guardMsgsCmd)
   (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
+/--
+Format and print the info trees for a given command.
+This is mostly useful for debugging info trees.
+-/
+syntax (name := infoTreesCmd)
+  "#info_trees" " in" ppLine command : command
+
+
 namespace Parser
 
 /--

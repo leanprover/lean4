@@ -12,8 +12,8 @@ open Lean Meta
 
 namespace Lean.Elab.WF
 
-builtin_initialize autoAttachSimpExtension : SimpExtension ←
-  registerSimpAttr `auto_attach
+builtin_initialize wfPreprocessSimpExtension : SimpExtension ←
+  registerSimpAttr `wf_preprocess
     "(not yet functional)"
 
 end Lean.Elab.WF

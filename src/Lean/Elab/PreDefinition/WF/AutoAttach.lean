@@ -132,7 +132,7 @@ def autoAttach (e : Expr) : MetaM Simp.Result := do
           if h : as.size ≥ 2 then
             return .continue (mkAppN as[1] as[2:])
         return .continue
-    let result ← result.mkEqTrans { expr := e'', proof? := none }
+    let result := { result with expr := e'' }
 
     trace[Elab.definition.wf] "Attach-introduction:{indentExpr e}\nto{indentExpr e'}\ncleaned up as{indentExpr e''}"
     result.addLambdas xs

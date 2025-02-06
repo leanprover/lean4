@@ -165,6 +165,7 @@ structure InterpContext where
 structure InterpState where
   assignments : Array Assignment
   funVals     : PArray Value -- we take snapshots during fixpoint computations
+  visitedJps  : Array (Std.HashSet JoinPointId)
 
 abbrev M := ReaderT InterpContext (StateM InterpState)
 
@@ -239,6 +240,10 @@ def updateJPParamsAssignment (ys : Array Param) (xs : Array Arg) : M Bool := do
       modify fun s => { s with assignments := s.assignments.modify currFnIdx fun a => a.insert y.x newVal }
       pure true
 
+def markJPVisited (j : JoinPointId) : M Bool := do
+  let currFnIdx := (← read).currFnIdx
+  modifyGet fun s => ⟨!(s.visitedJps[currFnIdx]!.contains j), { s with visitedJps := s.visitedJps.modify currFnIdx fun a => a.insert j }⟩
+
 private partial def resetNestedJPParams : FnBody → M Unit
   | FnBody.jdecl _ ys _ k => do
     ys.forM resetParamAssignment
@@ -273,7 +278,8 @@ partial def interpFnBody : FnBody → M Unit
     let ys := (ctx.lctx.getJPParams j).get!
     let b  := (ctx.lctx.getJPBody j).get!
     let updated ← updateJPParamsAssignment ys xs
-    if updated then
+    let isFirstVisit ← markJPVisited j
+    if updated || isFirstVisit then
       -- We must reset the value of nested join-point parameters since they depend on `ys` values
       resetNestedJPParams b
       interpFnBody b
@@ -283,7 +289,7 @@ partial def interpFnBody : FnBody → M Unit
 
 def inferStep : M Bool := do
   let ctx ← read
-  modify fun s => { s with assignments := ctx.decls.map fun _ => {} }
+  modify fun s => { s with assignments := ctx.decls.map fun _ => {}, visitedJps := ctx.decls.map fun _ => {} }
   ctx.decls.size.foldM (init := false) fun idx _ modified => do
     match ctx.decls[idx] with
     | .fdecl (xs := ys) (body := b) .. => do
@@ -336,8 +342,9 @@ def elimDeadBranches (decls : Array Decl) : CompilerM (Array Decl) := do
   let env := s.env
   let assignments : Array Assignment := decls.map fun _ => {}
   let funVals := mkPArray decls.size Value.bot
+  let visitedJps := decls.map fun _ => {}
   let ctx : InterpContext := { decls := decls, env := env }
-  let s : InterpState := { assignments := assignments, funVals := funVals }
+  let s : InterpState := { assignments, funVals, visitedJps }
   let (_, s) := (inferMain ctx).run s
   let funVals := s.funVals
   let assignments := s.assignments

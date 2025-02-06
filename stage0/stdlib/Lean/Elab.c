@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab
-// Imports: Lean.Elab.Import Lean.Elab.Exception Lean.Elab.Config Lean.Elab.Command Lean.Elab.Term Lean.Elab.App Lean.Elab.Binders Lean.Elab.BinderPredicates Lean.Elab.LetRec Lean.Elab.Frontend Lean.Elab.BuiltinNotation Lean.Elab.Declaration Lean.Elab.Tactic Lean.Elab.Match Lean.Elab.Quotation Lean.Elab.Syntax Lean.Elab.Do Lean.Elab.StructInst Lean.Elab.MutualInductive Lean.Elab.Inductive Lean.Elab.Structure Lean.Elab.Print Lean.Elab.MutualDef Lean.Elab.AuxDef Lean.Elab.PreDefinition Lean.Elab.Deriving Lean.Elab.DeclarationRange Lean.Elab.Extra Lean.Elab.GenInjective Lean.Elab.BuiltinTerm Lean.Elab.Arg Lean.Elab.PatternVar Lean.Elab.ElabRules Lean.Elab.Macro Lean.Elab.Notation Lean.Elab.Mixfix Lean.Elab.MacroRules Lean.Elab.BuiltinCommand Lean.Elab.BuiltinEvalCommand Lean.Elab.RecAppSyntax Lean.Elab.Eval Lean.Elab.Calc Lean.Elab.InheritDoc Lean.Elab.ParseImportsFast Lean.Elab.GuardMsgs Lean.Elab.CheckTactic Lean.Elab.MatchExpr Lean.Elab.Tactic.Doc Lean.Elab.Time Lean.Elab.RecommendedSpelling
+// Imports: Lean.Elab.Import Lean.Elab.Exception Lean.Elab.Config Lean.Elab.Command Lean.Elab.Term Lean.Elab.App Lean.Elab.Binders Lean.Elab.BinderPredicates Lean.Elab.LetRec Lean.Elab.Frontend Lean.Elab.BuiltinNotation Lean.Elab.Declaration Lean.Elab.Tactic Lean.Elab.Match Lean.Elab.Quotation Lean.Elab.Syntax Lean.Elab.Do Lean.Elab.StructInst Lean.Elab.MutualInductive Lean.Elab.Inductive Lean.Elab.Structure Lean.Elab.Print Lean.Elab.MutualDef Lean.Elab.AuxDef Lean.Elab.PreDefinition Lean.Elab.Deriving Lean.Elab.DeclarationRange Lean.Elab.Extra Lean.Elab.GenInjective Lean.Elab.BuiltinTerm Lean.Elab.Arg Lean.Elab.PatternVar Lean.Elab.ElabRules Lean.Elab.Macro Lean.Elab.Notation Lean.Elab.Mixfix Lean.Elab.MacroRules Lean.Elab.BuiltinCommand Lean.Elab.BuiltinEvalCommand Lean.Elab.RecAppSyntax Lean.Elab.Eval Lean.Elab.Calc Lean.Elab.InheritDoc Lean.Elab.ParseImportsFast Lean.Elab.GuardMsgs Lean.Elab.CheckTactic Lean.Elab.MatchExpr Lean.Elab.Tactic.Doc Lean.Elab.Time Lean.Elab.RecommendedSpelling Lean.Elab.InfoTrees
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -63,6 +63,7 @@ lean_object* initialize_Lean_Elab_MatchExpr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_Doc(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Time(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_RecommendedSpelling(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_InfoTrees(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -216,6 +217,9 @@ res = initialize_Lean_Elab_Time(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_RecommendedSpelling(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_InfoTrees(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

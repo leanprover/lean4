@@ -22,14 +22,14 @@ variable [BEq α]
 @[simp] theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons₂]
 
-@[simp] theorem isPrefixOf_length_pos_nil {L : List α} (h : 0 < L.length) : isPrefixOf L [] = false := by
-  cases L <;> simp_all [isPrefixOf]
+@[simp] theorem isPrefixOf_length_pos_nil {l : List α} (h : 0 < l.length) : isPrefixOf l [] = false := by
+  cases l <;> simp_all [isPrefixOf]
 
 @[simp] theorem isPrefixOf_replicate {a : α} :
     isPrefixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
   induction l generalizing n with
   | nil => simp
-  | cons h t ih =>
+  | cons _ _ ih =>
     cases n
     · simp
     · simp [replicate_succ, isPrefixOf_cons₂, ih, Nat.succ_le_succ_iff, Bool.and_left_comm]

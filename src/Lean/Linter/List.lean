@@ -113,7 +113,7 @@ def stripBinderName (s : String) : String :=
   s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂"
 
 /-- Allowed names for `List` variables. -/
-def allowedListNames : List String := ["l", "xs", "ys", "zs", "as", "bs"]
+def allowedListNames : List String := ["l", "tl", "xs", "ys", "zs", "as", "bs"]
 
 /-- Allowed names for `Array` variables. -/
 def allowedArrayNames : List String := ["xs", "ys", "zs", "as", "bs"]

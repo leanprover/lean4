@@ -95,25 +95,30 @@ def applyEditToHint? (hintMod : Name) (ihi : Elab.InlayHintInfo) (range : String
   }
 
 structure InlayHintState where
-  oldInlayHints : Array Elab.InlayHintInfo
+  oldInlayHints      : Array Elab.InlayHintInfo
+  lastEditTimestamp? : Option Nat
   deriving TypeName, Inhabited
 
 def InlayHintState.init : InlayHintState := {
   oldInlayHints := #[]
+  lastEditTimestamp? := none
 }
 
 def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
     RequestM (LspResponse (Array InlayHint) × InlayHintState) := do
   let ctx ← read
   let srcSearchPath := ctx.srcSearchPath
-  -- We delay sending inlay hints by 1000ms to avoid inlay hint flickering on the client.
+  -- We delay sending inlay hints by 3000ms to avoid inlay hint flickering on the client.
   -- VS Code already has a mechanism for this, but it is not sufficient.
-  -- Note that 1000ms of latency for this request are actually 2000ms of latency in VS Code after a
-  -- `textDocument/didChange` notification because VS Code (for some reason) emits two inlay hint
-  -- requests in succession after a change, immediately invalidating the result of the first.
-  -- Finally, for some stupid reason, VS Code doesn't remove the inlay hint when applying it,
-  -- so this additional latency causes the applied inlay hint to linger around for a bit.
-  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency 1000
+  let inlayHintEditDelayMs := 3000
+  let timestamp ← IO.monoMsNow
+  let editDelayMs :=
+    match s.lastEditTimestamp? with
+    | none => 0
+    | some lastEditTimestamp =>
+      let timeSinceLastEditMs := timestamp - lastEditTimestamp
+      inlayHintEditDelayMs - timeSinceLastEditMs
+  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.truncatedTask)
   let finishedRange? : Option String.Range := do
     return ⟨⟨0⟩, ← List.max? <| snaps.map (fun s => s.endPos)⟩
   let oldInlayHints :=
@@ -133,7 +138,10 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
         modify (·.push ih.toInlayHintInfo))
   let inlayHints := newInlayHints ++ oldInlayHints
   let lspInlayHints ← inlayHints.mapM (·.toLspInlayHint srcSearchPath ctx.doc.meta.text)
-  return ({ response := lspInlayHints, isComplete }, { s with oldInlayHints := inlayHints })
+  let r := { response := lspInlayHints, isComplete }
+  let s := { s with oldInlayHints := inlayHints }
+  RequestM.checkCanceled
+  return (r, s)
 
 def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
     : StateT InlayHintState RequestM Unit := do
@@ -164,12 +172,31 @@ def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)
       ihi := ihi'
     if ! inlayHintInvalidated then
       updatedOldInlayHints := updatedOldInlayHints.push ihi
-  set <| { s with oldInlayHints := updatedOldInlayHints }
+  let isInlayHintInsertionEdit := p.contentChanges.all fun c => Id.run do
+    let .rangeChange changeRange newText := c
+      | return false
+    let changeRange := text.lspRangeToUtf8Range changeRange
+    let edit := ⟨changeRange, newText⟩
+    return s.oldInlayHints.any (·.textEdits.contains edit)
+  let timestamp ← IO.monoMsNow
+  let lastEditTimestamp? :=
+    if isInlayHintInsertionEdit then
+      -- For some stupid reason, VS Code doesn't remove the inlay hint when applying it, so we
+      -- try to figure out whether the edit was an insertion of an inlay hint and then respond
+      -- to the request without latency so that it inserted ASAP.
+      none
+    else
+      some timestamp
+  set <| { s with
+    oldInlayHints := updatedOldInlayHints
+    lastEditTimestamp?
+  }
 
 builtin_initialize
   registerPartialStatefulLspRequestHandler
     "textDocument/inlayHint"
     "workspace/inlayHint/refresh"
+    500
     InlayHintParams
     (Array InlayHint)
     InlayHintState

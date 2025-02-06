@@ -266,8 +266,12 @@ This option can only be set on the command line, not in the lakefile or via `set
           BaseIO.bindTask (← go t st) (goSeq · ts)
 end Elab
 
+structure PendingRequest where
+  requestTask : Task (Except IO.Error Unit)
+  cancelTk    : RequestCancellationToken
+
 -- Pending requests are tracked so they can be canceled
-abbrev PendingRequestMap := RBMap RequestID (Task (Except IO.Error Unit)) compare
+abbrev PendingRequestMap := RBMap RequestID PendingRequest compare
 
 structure AvailableImportsCache where
   availableImports       : ImportCompletion.AvailableImports
@@ -367,12 +371,14 @@ section Initialization
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
+    let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
-      (← partialLspRequestHandlerMethods).map fun (method, refreshMethod) =>
+      (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
         (method, {
           refreshMethod
           requestsInFlight := 0
-          pendingRefreshInfo? := none
+          -- Emit a refresh request after a file worker restart.
+          pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
@@ -485,21 +491,30 @@ section NotificationHandling
     let ctx ← read
     let st ← get
     let oldDoc := (←get).doc
+    let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
     let _ ← IO.mapTask (t := st.srcSearchPathTask) fun srcSearchPath =>
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath
           doc := oldDoc
+          cancelTk
           hLog := ctx.hLog
           initParams := ctx.initParams }
       RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      for (_, r) in st.pendingRequests do
+        r.cancelTk.cancel .edit
+
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
-    updatePendingRequests (fun pendingRequests => pendingRequests.erase p.id)
+    let st ← get
+    let some r := st.pendingRequests.find? p.id
+      | return
+    r.cancelTk.cancel .cancelRequest
+    set <| { st with pendingRequests := st.pendingRequests.erase p.id }
 
   /--
   Received from the watchdog when a dependency of this file is detected as being stale.
@@ -572,9 +587,9 @@ section MessageHandling
     | "$/lean/rpc/keepAlive"   => handle RpcKeepAliveParams handleRpcKeepAlive
     | _                        => throwServerError s!"Got unsupported notification method: {method}"
 
-  def queueRequest (id : RequestID) (requestTask : Task (Except IO.Error Unit))
+  def queueRequest (id : RequestID) (r : PendingRequest)
       : WorkerM Unit := do
-    updatePendingRequests (fun pendingRequests => pendingRequests.insert id requestTask)
+    updatePendingRequests (·.insert id r)
 
   open Widget RequestM Language in
   def handleGetInteractiveDiagnosticsRequest (params : GetInteractiveDiagnosticsParams) :
@@ -671,35 +686,42 @@ section MessageHandling
       ctx.chanOut.send <| .responseError id .internalError (toString e) none
       return
 
+    let cancelTk ← RequestCancellationToken.new
     -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
-    let t ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
+    let requestTask ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath
           doc := st.doc
+          cancelTk
           hLog := ctx.hLog
           initParams := ctx.initParams }
       let t? ← EIO.toIO' <| handleLspRequest method params rc
       let t₁ ← match t? with
         | Except.error e =>
-          IO.asTask do
-            ctx.chanOut.send <| e.toLspResponseError id
+            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+            pure <| Task.pure <| .ok ()
         | Except.ok t => (IO.mapTask · t) fun
           | Except.ok r => do
-            ctx.chanOut.send <| .response id (toJson r.response)
-            let timestamp ← IO.monoMsNow
-            ctx.modifyPartialHandler method fun h => { h with
-              requestsInFlight := h.requestsInFlight - 1
-              pendingRefreshInfo? :=
-                if r.isComplete then
-                  none
-                else
-                  some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
-            }
+            emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
           | Except.error e =>
-            ctx.chanOut.send <| e.toLspResponseError id
-    queueRequest id t
+            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+    queueRequest id { cancelTk, requestTask }
+
+  where
+
+    emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
+      ctx.chanOut.send m
+      let timestamp ← IO.monoMsNow
+      ctx.modifyPartialHandler method fun h => { h with
+        requestsInFlight := h.requestsInFlight - 1
+        pendingRefreshInfo? :=
+          if isComplete then
+            none
+          else
+            some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
+      }
 
   def handleResponse (_ : RequestID) (_ : Json) : WorkerM Unit :=
     return -- The only response that we currently expect here is always empty
@@ -720,7 +742,7 @@ section MainLoop
           throwServerError s!"Failed responding to request {id}: {e}"
         pure <| acc.erase id
       else pure acc
-    let pendingRequests ← st.pendingRequests.foldM (fun acc id task => filterFinishedTasks acc id task) st.pendingRequests
+    let pendingRequests ← st.pendingRequests.foldM (fun acc id r => filterFinishedTasks acc id r.requestTask) st.pendingRequests
     st := { st with pendingRequests }
 
     -- Opportunistically (i.e. when we wake up on messages) check if any RPC session has expired.
@@ -750,7 +772,6 @@ section MainLoop
 end MainLoop
 
 def runRefreshTasks : WorkerM (Array (Task Unit)) := do
-  let timeUntilRefreshMs := 2000
   -- We limit the amount of successive refresh attempts in case the user has switched files,
   -- in which case VS Code won't respond to any refresh request for the given file.
   -- Since we don't want to spam the client with refresh requests for every single file that they
@@ -758,7 +779,7 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
   let maxSuccessiveRefreshAttempts := 10
   let ctx ← read
   let mut tasks := #[]
-  for (method, refreshMethod) in ← partialLspRequestHandlerMethods do
+  for (method, refreshMethod, refreshIntervalMs) in ← partialLspRequestHandlerMethods do
     tasks := tasks.push <| ← BaseIO.asTask (prio := .dedicated) do
       while true do
         let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do
@@ -768,14 +789,14 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
             return (none, { h with pendingRefreshInfo? := none })
           return (some info.lastRefreshTimestamp, h)
         let some lastRefreshTimestamp := lastRefreshTimestamp?
-          | let cancelled ← sleepWithCancellation timeUntilRefreshMs.toUInt32
+          | let cancelled ← sleepWithCancellation refreshIntervalMs.toUInt32
             if cancelled then
               return
             continue
 
         let currentTimestamp ← IO.monoMsNow
         let passedTimeMs := currentTimestamp - lastRefreshTimestamp
-        let remainingTimeMs := timeUntilRefreshMs - passedTimeMs
+        let remainingTimeMs := refreshIntervalMs - passedTimeMs
         if remainingTimeMs > 0 then
           let cancelled ← sleepWithCancellation remainingTimeMs.toUInt32
           if cancelled then
@@ -799,11 +820,10 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
           }
           (true, h)
         if ! canRefresh then
-          let cancelled ← sleepWithCancellation timeUntilRefreshMs.toUInt32
+          let cancelled ← sleepWithCancellation refreshIntervalMs.toUInt32
           if cancelled then
             return
           continue
-
         sendServerRequest ctx refreshMethod (none : Option Nat)
   return tasks
 

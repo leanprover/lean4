@@ -2005,14 +2005,24 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
   let deferredResolution ih := do
     let .parts ps := ih.label
       | return ih
-    let ps ← ps.mapIdxM fun i p => do
+    let mut ps' := #[]
+    for h : i in [:ps.size] do
+      let p := ps[i]
       let some (part, some auto) := labelParts[i]?
-        | return p
+        | ps' := ps'.push p
+          continue
       let type := toString <| ← Meta.ppExpr <| ← instantiateMVars (← inferType auto)
-      return { p with
-        tooltip? := s!"{part.value} : {type}"
-      }
-    return { ih with label := .parts ps }
+      let tooltip := s!"{part.value} : {type}"
+      ps' := ps'.push { p with tooltip? := tooltip }
+      let some separatorPart := ps'[ps'.size - 2]?
+        | continue
+      -- We assign the leading `{` and the separation spaces the same tooltip as the auto-implicit
+      -- following it. The reason for this is that VS Code does not display a text cursor
+      -- on auto-implicits, but a regular cursor, and hitting single character auto-implicits
+      -- with that cursor can be a bit tricky. Adding the leading space or the opening `{` to the
+      -- tooltip area makes this much easier.
+      ps' := ps'.set! (ps'.size - 2) { separatorPart with tooltip? := tooltip }
+    return { ih with label := .parts ps' }
   pushInfoLeaf <| .ofCustomInfo {
       position := inlayHintPos
       label := .parts <| labelParts.map (·.1)

@@ -68,6 +68,9 @@ def invalidParams (message : String) : RequestError :=
 def internalError (message : String) : RequestError :=
   { code := ErrorCode.internalError, message }
 
+def requestCancelled : RequestError :=
+  { code := ErrorCode.requestCancelled, message := "" }
+
 def ofException (e : Lean.Exception) : IO RequestError :=
   return internalError (← e.toMessageData.toString)
 
@@ -81,6 +84,47 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 
 end RequestError
 
+inductive RequestCancellationCause where
+  | cancelRequest
+  | edit
+  deriving Inhabited, BEq
+
+structure RequestCancellationToken where
+  promise : IO.Promise RequestCancellationCause
+
+namespace RequestCancellationToken
+
+def new : IO RequestCancellationToken := do
+  return { promise := ← IO.Promise.new }
+
+def cancel (tk : RequestCancellationToken) (cause : RequestCancellationCause) : IO Unit :=
+  tk.promise.resolve cause
+
+def task (tk : RequestCancellationToken) : Task RequestCancellationCause :=
+  tk.promise.result
+
+def truncatedTask (tk : RequestCancellationToken) : Task Unit :=
+  tk.task.map (sync := true) fun _ => ()
+
+def cancelled? (tk : RequestCancellationToken) : IO (Option RequestCancellationCause) := do
+  let t := tk.task
+  if ← IO.hasFinished t then
+    return some t.get
+  else
+    return none
+
+def wasCancelledByCancelRequest (tk : RequestCancellationToken) : IO Bool := do
+  let some c ← tk.cancelled?
+    | return false
+  return c matches .cancelRequest
+
+def wasCancelledByEdit (tk : RequestCancellationToken) : IO Bool := do
+  let some c ← tk.cancelled?
+    | return false
+  return c matches .edit
+
+end RequestCancellationToken
+
 def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
     : Except RequestError paramType :=
   fromJson? params |>.mapError fun inner =>
@@ -93,6 +137,7 @@ structure RequestContext where
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
+  cancelTk      : RequestCancellationToken
 
 abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
@@ -135,6 +180,11 @@ def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) :
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext
   EIO.bindTask t (f · rc)
+
+def checkCanceled : RequestM Unit := do
+  let rc ← readThe RequestContext
+  if ← rc.cancelTk.wasCancelledByCancelRequest then
+    throw .requestCancelled
 
 def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
     : Except IO.Error (Option Snapshot) → RequestM α
@@ -361,7 +411,7 @@ inductive RequestHandlerCompleteness where
   data for a partial request if we returned a partial response for that request in the past,
   so that the client eventually converges to a complete set of information for the full document.
   -/
-  | «partial» (refreshMethod : String)
+  | «partial» (refreshMethod : String) (refreshIntervalMs : Nat)
 
 structure LspResponse (α : Type) where
   response   : α
@@ -487,14 +537,14 @@ def registerCompleteStatefulLspRequestHandler (method : String)
     return ({ response, isComplete := true }, s)
   registerStatefulLspRequestHandler method .complete paramType respType stateType initState handler onDidChange
 
-def registerPartialStatefulLspRequestHandler (method refreshMethod : String)
+def registerPartialStatefulLspRequestHandler (method refreshMethod : String) (refreshIntervalMs : Nat)
     paramType [FromJson paramType] [FileSource paramType]
     respType [ToJson respType]
     stateType [TypeName stateType]
     (initState : stateType)
     (handler : paramType → stateType → RequestM (LspResponse respType × stateType))
     (onDidChange : DidChangeTextDocumentParams → StateT stateType RequestM Unit) :=
-  registerStatefulLspRequestHandler method (.partial refreshMethod) paramType respType stateType initState handler onDidChange
+  registerStatefulLspRequestHandler method (.partial refreshMethod refreshIntervalMs) paramType respType stateType initState handler onDidChange
 
 def isStatefulLspRequestMethod (method : String) : BaseIO Bool := do
   return (← statefulRequestHandlers.get).contains method
@@ -502,11 +552,11 @@ def isStatefulLspRequestMethod (method : String) : BaseIO Bool := do
 def lookupStatefulLspRequestHandler (method : String) : BaseIO (Option StatefulRequestHandler) := do
   return (← statefulRequestHandlers.get).find? method
 
-def partialLspRequestHandlerMethods : IO (Array (String × String)) := do
+def partialLspRequestHandlerMethods : IO (Array (String × String × Nat)) := do
   return (← statefulRequestHandlers.get).toArray.filterMap fun (method, h) => do
-    let .partial refreshMethod := h.completeness
+    let .partial refreshMethod refreshIntervalMs := h.completeness
       | none
-    return (method, refreshMethod)
+    return (method, refreshMethod, refreshIntervalMs)
 
 def chainStatefulLspRequestHandler (method : String)
     paramType [FromJson paramType] [ToJson paramType] [FileSource paramType]

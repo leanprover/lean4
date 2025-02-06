@@ -30,6 +30,7 @@ inductive InlayHintKind where
 structure InlayHintTextEdit where
   range   : String.Range
   newText : String
+  deriving BEq
 
 structure InlayHintInfo where
   position     : String.Pos

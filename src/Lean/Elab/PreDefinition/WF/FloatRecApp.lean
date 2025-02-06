@@ -24,7 +24,7 @@ Preprocesses the expressions to improve the effectiveness of `wfRecursion`.
 Unlike `Lean.Elab.Structural.preprocess`, do _not_ beta-reduce, as it could
 remove `let_fun`-lambdas that contain explicit termination proofs.
 -/
-def preprocess (e : Expr) : CoreM Expr :=
+def floatRecApp (e : Expr) : CoreM Expr :=
   Core.transform e
     (post := fun e => do
       if e.isApp && e.getAppFn.isMData then

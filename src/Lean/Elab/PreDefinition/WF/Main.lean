@@ -8,7 +8,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.TerminationMeasure
 import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.WF.PackMutual
-import Lean.Elab.PreDefinition.WF.FloatRec
+import Lean.Elab.PreDefinition.WF.FloatRecApp
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
 import Lean.Elab.PreDefinition.WF.Unfold
@@ -22,7 +22,7 @@ open Meta
 def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option TerminationMeasure)) : TermElabM Unit := do
   let termMeasures? := termMeasure?s.mapM id -- Either all or none, checked by `elabTerminationByHints`
   let preDefs ← preDefs.mapM fun preDef =>
-    return { preDef with value := (← floatRec preDef.value) }
+    return { preDef with value := (← floatRecApp preDef.value) }
   let (fixedPrefixSize, argsPacker, unaryPreDef, wfPreprocessProofs) ← withoutModifyingEnv do
     for preDef in preDefs do
       addAsAxiom preDef

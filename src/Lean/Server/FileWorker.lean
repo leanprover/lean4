@@ -268,7 +268,7 @@ end Elab
 
 structure PendingRequest where
   requestTask : Task (Except IO.Error Unit)
-  cancelTk    : IO.Promise Unit
+  cancelTk    : RequestCancellationToken
 
 -- Pending requests are tracked so they can be canceled
 abbrev PendingRequestMap := RBMap RequestID PendingRequest compare
@@ -371,12 +371,14 @@ section Initialization
     let stickyDiagnosticsRef ← IO.mkRef ∅
     let chanOut ← mkLspOutputChannel maxDocVersionRef
     let srcSearchPathPromise ← IO.Promise.new
+    let timestamp ← IO.monoMsNow
     let partialHandlersRef ← IO.mkRef <| RBMap.fromArray (cmp := compare) <|
       (← partialLspRequestHandlerMethods).map fun (method, refreshMethod, _) =>
         (method, {
           refreshMethod
           requestsInFlight := 0
-          pendingRefreshInfo? := none
+          -- Emit a refresh request after a file worker restart.
+          pendingRefreshInfo? := some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
         })
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
@@ -489,7 +491,7 @@ section NotificationHandling
     let ctx ← read
     let st ← get
     let oldDoc := (←get).doc
-    let cancelTk ← IO.Promise.new
+    let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
     let _ ← IO.mapTask (t := st.srcSearchPathTask) fun srcSearchPath =>
       let rc : RequestContext :=
@@ -503,12 +505,15 @@ section NotificationHandling
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
+      for (_, r) in st.pendingRequests do
+        r.cancelTk.cancel .edit
+
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
     let some r := st.pendingRequests.find? p.id
       | return
-    r.cancelTk.resolve ()
+    r.cancelTk.cancel .cancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
 
   /--
@@ -681,7 +686,7 @@ section MessageHandling
       ctx.chanOut.send <| .responseError id .internalError (toString e) none
       return
 
-    let cancelTk ← IO.Promise.new
+    let cancelTk ← RequestCancellationToken.new
     -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
     let requestTask ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
@@ -695,23 +700,28 @@ section MessageHandling
       let t? ← EIO.toIO' <| handleLspRequest method params rc
       let t₁ ← match t? with
         | Except.error e =>
-          IO.asTask do
-            ctx.chanOut.send <| e.toLspResponseError id
+            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+            pure <| Task.pure <| .ok ()
         | Except.ok t => (IO.mapTask · t) fun
           | Except.ok r => do
-            ctx.chanOut.send <| .response id (toJson r.response)
-            let timestamp ← IO.monoMsNow
-            ctx.modifyPartialHandler method fun h => { h with
-              requestsInFlight := h.requestsInFlight - 1
-              pendingRefreshInfo? :=
-                if r.isComplete then
-                  none
-                else
-                  some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
-            }
+            emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
           | Except.error e =>
-            ctx.chanOut.send <| e.toLspResponseError id
+            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
     queueRequest id { cancelTk, requestTask }
+
+  where
+
+    emitResponse (ctx : WorkerContext) (m : JsonRpc.Message) (isComplete : Bool) : IO Unit := do
+      ctx.chanOut.send m
+      let timestamp ← IO.monoMsNow
+      ctx.modifyPartialHandler method fun h => { h with
+        requestsInFlight := h.requestsInFlight - 1
+        pendingRefreshInfo? :=
+          if isComplete then
+            none
+          else
+            some { lastRefreshTimestamp := timestamp, successiveRefreshAttempts := 0 }
+      }
 
   def handleResponse (_ : RequestID) (_ : Json) : WorkerM Unit :=
     return -- The only response that we currently expect here is always empty

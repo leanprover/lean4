@@ -116,10 +116,14 @@ partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε
     else pure ⟨[], none, false⟩
 
 partial def getFinishedPrefixWithTimeout (xs : AsyncList ε α) (timeoutMs : UInt32)
-    (cancelTk? : Option (Promise Unit) := none) : BaseIO (List α × Option ε × Bool) := do
-  let timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)) ← BaseIO.asTask (prio := .dedicated) do
-    IO.sleep timeoutMs
-    return .inl ()
+    (cancelTk? : Option (Task Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+  let timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)) ←
+    if timeoutMs == 0 then
+      pure <| Task.pure (Sum.inl ())
+    else
+      BaseIO.asTask (prio := .dedicated) do
+        IO.sleep timeoutMs
+        return .inl ()
   go timeoutTask xs
 where
   go (timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)))
@@ -131,11 +135,11 @@ where
     | nil => return ⟨[], none, true⟩
     | delayed tl =>
       let tl := tl.map (sync := true) .inr
-      let cancelTk? := do return (← cancelTk?).result.map (sync := true) .inl
+      let cancelTk? := do return (← cancelTk?).map (sync := true) .inl
       let tasks : { t : List _ // t.length > 0 } :=
         match cancelTk? with
         | none => ⟨[tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
-        | some cancelTk => ⟨[tl, timeoutTask, cancelTk], by exact Nat.zero_lt_succ _⟩
+        | some cancelTk => ⟨[cancelTk, tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
       let r ← IO.waitAny tasks.val (h := tasks.property)
       match r with
       | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
@@ -143,7 +147,7 @@ where
       | .inr (.error e) => return ⟨[], some e, true⟩
 
 partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32)
-    (cancelTk? : Option (Promise Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+    (cancelTk? : Option (Task Unit) := none) : BaseIO (List α × Option ε × Bool) := do
   let timestamp ← IO.monoMsNow
   let r ← xs.getFinishedPrefixWithTimeout latencyMs cancelTk?
   let passedTimeMs := (← IO.monoMsNow) - timestamp
@@ -157,12 +161,11 @@ where
     let some cancelTk := cancelTk?
       | IO.sleep sleepDurationMs
         return
-    let cancelTkTask := cancelTk.result
-    if ← IO.hasFinished cancelTkTask then
+    if ← IO.hasFinished cancelTk then
       return
     let sleepTask ← BaseIO.asTask (prio := .dedicated) do
       IO.sleep sleepDurationMs
-    IO.waitAny [sleepTask, cancelTkTask]
+    IO.waitAny [sleepTask, cancelTk]
 
 
 def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=

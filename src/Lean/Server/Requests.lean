@@ -84,6 +84,47 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 
 end RequestError
 
+inductive RequestCancellationCause where
+  | cancelRequest
+  | edit
+  deriving Inhabited, BEq
+
+structure RequestCancellationToken where
+  promise : IO.Promise RequestCancellationCause
+
+namespace RequestCancellationToken
+
+def new : IO RequestCancellationToken := do
+  return { promise := ← IO.Promise.new }
+
+def cancel (tk : RequestCancellationToken) (cause : RequestCancellationCause) : IO Unit :=
+  tk.promise.resolve cause
+
+def task (tk : RequestCancellationToken) : Task RequestCancellationCause :=
+  tk.promise.result
+
+def truncatedTask (tk : RequestCancellationToken) : Task Unit :=
+  tk.task.map (sync := true) fun _ => ()
+
+def cancelled? (tk : RequestCancellationToken) : IO (Option RequestCancellationCause) := do
+  let t := tk.task
+  if ← IO.hasFinished t then
+    return some t.get
+  else
+    return none
+
+def wasCancelledByCancelRequest (tk : RequestCancellationToken) : IO Bool := do
+  let some c ← tk.cancelled?
+    | return false
+  return c matches .cancelRequest
+
+def wasCancelledByEdit (tk : RequestCancellationToken) : IO Bool := do
+  let some c ← tk.cancelled?
+    | return false
+  return c matches .edit
+
+end RequestCancellationToken
+
 def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
     : Except RequestError paramType :=
   fromJson? params |>.mapError fun inner =>
@@ -96,7 +137,7 @@ structure RequestContext where
   doc           : FileWorker.EditableDocument
   hLog          : IO.FS.Stream
   initParams    : Lsp.InitializeParams
-  cancelTk      : IO.Promise Unit
+  cancelTk      : RequestCancellationToken
 
 abbrev RequestTask α := Task (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
@@ -139,6 +180,11 @@ def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) :
 def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext
   EIO.bindTask t (f · rc)
+
+def checkCanceled : RequestM Unit := do
+  let rc ← readThe RequestContext
+  if ← rc.cancelTk.wasCancelledByCancelRequest then
+    throw .requestCancelled
 
 def waitFindSnapAux (notFoundX : RequestM α) (x : Snapshot → RequestM α)
     : Except IO.Error (Option Snapshot) → RequestM α

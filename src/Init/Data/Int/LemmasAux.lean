@@ -48,8 +48,8 @@ theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
 theorem bmod_eq_iff_of_lt_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
   simp only [Int.bmod_def]
-  by_cases 0 ≤ x
-  · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
+  rcases x
+  · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
 theorem mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
@@ -58,10 +58,10 @@ theorem mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lb
   by_cases hx : 0 < x <;> by_cases hy : 0 < y
   · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
   · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
-  · rw [Int.mul_comm]
-    have : y * x ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
+  · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
   · have : -x * -y ≤ s * s := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
-    simp_all
+    simp only [gt_iff_lt, Int.mul_neg, Int.neg_mul, Int.neg_neg] at this
+    omega
 
 theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
       -(s * s) ≤ x * y := by
@@ -70,6 +70,6 @@ theorem neg_mul_self_le_mul {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s)
   · have : 0 ≤ x * y := Int.mul_nonneg (by omega) (by omega); omega
   · rw [← Int.neg_mul, Int.mul_comm (a := x)]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
   · rw [← Int.neg_mul]; exact Int.mul_le_mul_neg (by omega) (by omega) (by omega) (by omega)
-  · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega) ;omega
+  · have : 0 < x * y := Int.mul_pos_of_neg_of_neg (by omega) (by omega); omega
 
 end Int

@@ -32,35 +32,39 @@ private partial def mkProof (declName : Name) (unfold : MVarId → MetaM MVarId)
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
     unless (← tryURefl mvarId) do -- catch easy cases
-      go (← unfold mvarId)
+      go1 mvarId
     instantiateMVars main
 where
-  go (mvarId : MVarId) : MetaM Unit := do
-    trace[Elab.definition.structural.eqns] "step\n{MessageData.ofGoal mvarId}"
+  go1 (mvarId : MVarId) : MetaM Unit := do
+    trace[Elab.definition.structural.eqns] "go1\n{MessageData.ofGoal mvarId}"
+    if let some mvarId ← simpIf? mvarId then
+      go1 mvarId
+    else if let some mvarId ← deltaRHS? mvarId declName then
+      go1 mvarId
+    else if let some mvarIds ← splitTarget? mvarId then
+      mvarIds.forM go1
+    else
+      go2 (← unfold mvarId)
+
+
+  go2 (mvarId : MVarId) : MetaM Unit := do
+    trace[Elab.definition.structural.eqns] "go2\n{MessageData.ofGoal mvarId}"
     if (← tryURefl mvarId) then
       return ()
     else if (← tryContradiction mvarId) then
       return ()
     else if let some mvarId ← simpMatch? mvarId then
-      go mvarId
-    else if let some mvarId ← simpIf? mvarId then
-      go mvarId
+      go2 mvarId
     else
       let ctx ← Simp.mkContext (config := { iota := false })
       match (← simpTargetStar mvarId ctx (simprocs := {})).1 with
       | TacticResultCNM.closed => return ()
-      | TacticResultCNM.modified mvarId => go mvarId
+      | TacticResultCNM.modified mvarId => go2 mvarId
       | TacticResultCNM.noChange =>
-        if let some mvarId ← deltaRHS? mvarId declName then
-          go mvarId
-        -- The order of the following two cases is crucial, and I have not yet found
-        -- one that works for all test cases. Needs more thought.
-        else if let some mvarIds ← casesOnStuckLHS? mvarId then
-          mvarIds.forM go
-        else if let some mvarIds ← splitTarget? mvarId then
-          mvarIds.forM go
+        if let some mvarIds ← casesOnStuckLHS? mvarId then
+          mvarIds.forM go2
         else if let some mvarId ← whnfReducibleLHS? mvarId then
-          go mvarId
+          go2 mvarId
         else
           throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 

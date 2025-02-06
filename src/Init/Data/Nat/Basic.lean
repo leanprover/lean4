@@ -780,16 +780,19 @@ protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rf
 
 /-! # Auxiliary theorems for well-founded recursion -/
 
-theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := by
+protected theorem ne_zero_of_lt (h : b < a) : a ≠ 0 := by
   cases a
   exact absurd h (Nat.not_lt_zero _)
   apply Nat.noConfusion
 
+@[deprecated Nat.ne_zero_of_lt (since := "2025-02-06")]
+theorem not_eq_zero_of_lt (h : b < a) : a ≠ 0 := Nat.ne_zero_of_lt h
+
 theorem pred_lt_of_lt {n m : Nat} (h : m < n) : pred n < n :=
-  pred_lt (not_eq_zero_of_lt h)
+  pred_lt (Nat.ne_zero_of_lt h)
 
 theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
-  sub_one_lt (not_eq_zero_of_lt h)
+  sub_one_lt (Nat.ne_zero_of_lt h)
 
 /-! # pred theorems -/
 
@@ -854,7 +857,7 @@ theorem zero_lt_sub_of_lt (h : i < a) : 0 < a - i := by
 theorem sub_succ_lt_self (a i : Nat) (h : i < a) : a - (i + 1) < a - i := by
   rw [Nat.add_succ, Nat.sub_succ]
   apply Nat.pred_lt
-  apply Nat.not_eq_zero_of_lt
+  apply Nat.ne_zero_of_lt
   apply Nat.zero_lt_sub_of_lt
   assumption
 

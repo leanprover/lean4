@@ -114,10 +114,10 @@ builtin_dsimproc paramMatcher (_) := fun e => do
 def autoAttach (e : Expr) : MetaM Simp.Result := do
   unless wf.auto_attach.get (← getOptions) do
     return { expr := e }
-  lambdaTelescope e fun xs e => do
+  lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`
     let xs' ← xs.mapM mkWfParam
-    let e' := e.replaceFVars xs xs'
+    let e' := e.beta xs'
 
     -- Now run the simplifier
     let simprocs : Simprocs := {}

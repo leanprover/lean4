@@ -63,7 +63,7 @@ Inside the `Std` namespace, all internal declarations should be `private` or els
 
 ## Naming convention for data
 
-When defining data, i.e., a (possibly 0-ary) function whose codomain is not `Sort u`, but has type `Type u` for some `u`, it should be named in lowerCamelCase. Examples include List.append and List.isPrefixOf.
+When defining data, i.e., a (possibly 0-ary) function whose codomain is not `Sort u`, but has type `Type u` for some `u`, it should be named in lowerCamelCase. Examples include `List.append` and `List.isPrefixOf`.
 If your data is morally fully specified by its type, then use the naming procedure for theorems described below and convert the result to lower camel case.
 
 If your function returns an `Option`, consider adding `?` as a suffix. If your function may panic, consider adding `!` as a suffix. In many cases, there will be multiple variants of a function; one returning an option, one that may panic and possibly one that takes a proof argument.

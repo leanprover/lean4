@@ -45,7 +45,7 @@ It is not unusual to write definitions in Lean that are purely for verification 
 compiler's perspective. To avoid unwelcome surprised, the have the following guideline:
 
 > **All public definitions must be efficient when used in compiled code (potentially via `@[csimp]`), unless
-> explicitly marked as not indended for execution in a documentation string (or, even better, through a suggestive name and a documentation string).**
+> explicitly marked as not intended for execution in a documentation string (or, even better, through a suggestive name and a documentation string).**
 
 ## Orphan rule for instances and attributes
 

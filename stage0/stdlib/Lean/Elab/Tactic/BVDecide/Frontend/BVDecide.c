@@ -15342,7 +15342,7 @@ _start:
 lean_object* x_14; uint8_t x_15; 
 x_14 = lean_ctor_get(x_2, 5);
 lean_inc(x_14);
-x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*2 + 7);
+x_15 = lean_ctor_get_uint8(x_14, sizeof(void*)*2 + 8);
 lean_dec(x_14);
 if (x_15 == 0)
 {

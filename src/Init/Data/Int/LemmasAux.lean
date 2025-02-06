@@ -52,7 +52,6 @@ theorem bmod_eq_iff_of_lt_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : 
   · rw [Int.emod_eq_of_lt (by omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-
 theorem mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
     x * y ≤ s * s := by
   have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)

@@ -8,6 +8,52 @@ import Lean.Meta.Transform
 import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Elab.Tactic.Simp
 
+/-!
+This module implements *auto-attaching*, i.e. the preprocessing of function definitions involved
+in well-founded recursion. The goal is to change higher order functions to add more information
+to the context, e.g. change `List.map (fun x => …) xs` to `List.map (fun ⟨x, h⟩ => …) xs.attach`.
+This extra information can then be used by the termination proof tactic to determine that a recursive
+call is indeed decreasing.
+
+The process proceeds in these steps, to guide the transformation:
+
+1. The parameters of the function are annotated with the `wfParam` gadget.
+
+   We could be more selective here and only annotate those that have a `SizeOf` instance.
+   We cannot (easily) only consider the parameters that appear in the termination measure, as that
+   is not known yet.
+
+
+2. The `wfParam` gadget is pushed around:
+
+   - `f (wfParam x) ==> wfParam (f x)` if `f` is a projection
+
+   - `match (wfParam x) with con y => alt[y] ==> match x with con y => alt[wfParam y]`
+
+     In a match with multiple targets it suffices for any of the targets to be annotated with
+     `wfParam`, and all parameters of the match arms are annotated with `wfParam`. This is an
+     overapproximation.
+
+3. The `auto_attach` simpset is applied to do the actual transformation. It typically contains two
+   rules for each higher-order function of interest
+
+   - `(wfParam xs).map f = xs.attach.unattach.map f`
+   - `xs.unattach.map f = xs.map (fun ⟨x, h⟩ => binderNameHint x f (f (wfParam x)))`
+
+   The first rule “activates” the call, the second rule actually performs it. They are separated like
+   this so that for chains of the form `(xs.reverse.filter p).map f` the `.attach` is attached
+   to `xs` and we get the basic `x ∈ xs` in the context of `f`.
+
+   The `binderNameHint` preserves the user-chosen name in `f` if that is a lambda.
+
+   The `wfParam` on the right hand side ensurses that doubly-nested recursion works.
+
+4. All left-over `wfParam` gadgets are removed.
+
+The simplifier is used to perform steps 2 (using simprocs) and 3 (using rewrite rules) together.
+
+-/
+
 open Lean Meta
 
 register_builtin_option wf.auto_attach : Bool := {

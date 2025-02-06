@@ -158,11 +158,10 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
 
 def evalGrindCore
     (ref : Syntax)
-    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (config : Grind.Config)
     (only : Option Syntax)
     (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
     (fallback? : Option Term)
-    (trace : Bool)
     : TacticM Grind.Trace := do
   let fallback ← elabFallback fallback?
   let only := only.isSome
@@ -170,9 +169,6 @@ def evalGrindCore
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
   let declName := (← Term.getDeclName?).getD `_grind
-  let mut config ← elabGrindConfig config
-  if trace then
-    config := { config with trace }
   withMainContext do
     let result ← grind (← getMainGoal) config only params declName fallback
     replaceMainGoal []
@@ -231,14 +227,17 @@ def mkGrindOnly
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    discard <| evalGrindCore stx config only params fallback? false
+    let config ← elabGrindConfig config
+    discard <| evalGrindCore stx config only params fallback?
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind?%$tk $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    let trace ← evalGrindCore stx config only params fallback? true
-    let stx ← mkGrindOnly config fallback? trace
+  | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+    let config ← elabGrindConfig configStx
+    let config := { config with trace := true }
+    let trace ← evalGrindCore stx config only params fallback?
+    let stx ← mkGrindOnly configStx fallback? trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 

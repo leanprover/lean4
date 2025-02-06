@@ -13,6 +13,7 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -50,6 +51,9 @@ where
 
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
     let cfg ← PreProcessM.getConfig
+
+    if cfg.structures || cfg.enums then
+      g := (← typeAnalysisPass.run g).get!
 
     if cfg.structures then
       let some g' ← structuresPass.run g | return none

@@ -109,3 +109,31 @@ example (a b : Pair) (h : a = b) : a.x = b.x ∧ a.z = b.z := by
   bv_decide
 
 end Ex8
+
+
+namespace Ex9
+
+inductive Enum where
+  | a
+  | b
+
+structure Pair where
+  x : BitVec 16
+  e : Enum
+
+-- We don't accidentally split up enums even though they are considered interesting
+example (a b c : Pair) (h1 : a.x < b.x) (h2 : b.x ≤ c.x) : a.x < c.x := by
+  bv_decide
+
+end Ex9
+
+namespace Ex10
+
+structure Pair where
+  x : BitVec 16
+  y : BitVec 16
+
+example (a b c : Pair) (h1 : a ≠ b) (h2 : b = c) : a ≠ c := by
+  bv_decide
+
+end Ex10

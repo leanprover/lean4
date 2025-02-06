@@ -6,6 +6,7 @@ Authors: Joachim Breitner
 
 prelude
 import Init.Prelude
+import Init.Tactics
 
 set_option linter.unusedVariables false in
 /--
@@ -30,5 +31,5 @@ example (names : List String) : names.all (fun name => "Waldo".isPrefixOf name) 
 This gadget is supported by `simp`, `dsimp` and `rw` in the right-hand-side of an equation, but not
 in hypotheses or by other tactics.
 -/
-@[simp]
+@[simp ↓]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

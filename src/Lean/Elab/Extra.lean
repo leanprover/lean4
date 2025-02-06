@@ -26,12 +26,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro] def elabForIn : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
@@ -42,7 +40,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.stx col, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance
@@ -52,12 +50,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
 @[builtin_term_elab forInMacro'] def elabForIn' : TermElab :=  fun stx expectedType? => do
   match stx with
   | `(for_in'% $col $init $body) =>
-      match (← isLocalIdent? col) with
-      | none   => elabTerm (← `(let col := $col; for_in'% col $init $body)) expectedType?
-      | some colFVar =>
         tryPostponeIfNoneOrMVar expectedType?
+        let colE ← elabTerm col none
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colFVar
+        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
           try
@@ -70,7 +66,7 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
             (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
-            (args := #[Arg.expr colFVar, Arg.stx init, Arg.stx body])
+            (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
         | .undef    => tryPostpone; throwForInFailure forInInstance

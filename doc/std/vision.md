@@ -13,16 +13,17 @@ as part of verified applications.
 The standard library is a public API that contains the components listed in the
 standard library outline below. Not all public APIs in the Lean distribution
 are part of the standard library, and the standard library does not correspond
-to a certain directory within the Lean source repository. For example, the
-metaprogramming framework is not part of the standard library.
+to a certain directory within the Lean source repository (like `Std`). For
+example, the metaprogramming framework is not part of the standard library, but
+basic types like `True` and `Nat` are.
 
 The standard library is under active development. Our guiding principles are:
 
-* Provide comprehensive, verified building blocks for real-world software.  
-* Build a public API of the highest quality with excellent internal consistency.  
-* Carefully optimize components that may be used in performance-critical software.  
-* Ensure smooth adoption and maintenance for users.  
-* Offer excellent documentation, example projects, and guides.  
+* Provide comprehensive, verified building blocks for real-world software.
+* Build a public API of the highest quality with excellent internal consistency.
+* Carefully optimize components that may be used in performance-critical software.
+* Ensure smooth adoption and maintenance for users.
+* Offer excellent documentation, example projects, and guides.
 * Provide a reliable and extensible basis that libraries for software
   development, software verification and mathematics can build on.
 
@@ -32,23 +33,23 @@ call for contributions below.
 
 ### Standard library outline
 
-1. Core types and operations  
-   1. Basic types  
-   2. Numeric types, including floating point numbers  
-   3. Containers  
-   4. Strings and formatting  
-2. Language constructs  
-   1. Ranges and iterators  
-   2. Comparison, ordering, hashing and related type classes  
-   3. Basic monad infrastructure  
-3. Libraries  
-   1. Random numbers  
-   2. Dates and times  
-4. Operating system abstractions  
-   1. Concurrency and parallelism primitives  
-   2. Asynchronous I/O  
-   3. FFI helpers  
-   4. Environment, file system, processes  
+1. Core types and operations
+   1. Basic types
+   2. Numeric types, including floating point numbers
+   3. Containers
+   4. Strings and formatting
+2. Language constructs
+   1. Ranges and iterators
+   2. Comparison, ordering, hashing and related type classes
+   3. Basic monad infrastructure
+3. Libraries
+   1. Random numbers
+   2. Dates and times
+4. Operating system abstractions
+   1. Concurrency and parallelism primitives
+   2. Asynchronous I/O
+   3. FFI helpers
+   4. Environment, file system, processes
    5. Locales
 
 The material covered in the first three sections (core types and operations,

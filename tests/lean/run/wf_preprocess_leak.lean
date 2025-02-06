@@ -1,12 +1,12 @@
-/-! This tests demonstrates where and how auto-attaching leaks to the user -/
+/-! This tests demonstrates where and how wf preprocessing leaks to the user -/
 
 structure Tree (α : Type) where
   cs : List (Tree α)
 
 def Tree.isLeaf (t : Tree α) := t.cs.isEmpty
 
--- The `cs.map` in the outer call to `revrev` gets the auto-attach treatment and shows up in the
--- proof state:
+-- The `cs.map` in the outer call to `revrev` gets the `attach`-attaching treatment and shows up in
+-- the proof state:
 
 /--
 info: α : Type

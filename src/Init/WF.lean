@@ -424,8 +424,8 @@ of `List.attach` (or similar) is plausible.
 def wfParam {α : Sort u} (a : α) : α := a
 
 /--
-Reverse direction of `dite_eq_ite`. Used by the auto-attach feature to extend the context
-of a termination proof inside `if-then-else` with the condition.
+Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the
+context of a termination proof inside `if-then-else` with the condition.
 -/
 @[wf_preprocess] theorem ite_eq_dite [Decidable P] :
     ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by

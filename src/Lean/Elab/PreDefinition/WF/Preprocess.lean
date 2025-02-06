@@ -9,11 +9,11 @@ import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Elab.Tactic.Simp
 
 /-!
-This module implements *auto-attaching*, i.e. the preprocessing of function definitions involved
-in well-founded recursion. The goal is to change higher order functions to add more information
-to the context, e.g. change `List.map (fun x => …) xs` to `List.map (fun ⟨x, h⟩ => …) xs.attach`.
-This extra information can then be used by the termination proof tactic to determine that a recursive
-call is indeed decreasing.
+This module implements the preprocessing of function definitions involved in well-founded recursion.
+The goal is to change higher order functions to add more information to the context, e.g. change
+`List.map (fun x => …) xs` to `List.map (fun ⟨x, h⟩ => …) xs.attach`.  This extra information can
+then be used by the termination proof tactic to determine that a recursive call is indeed
+decreasing.
 
 The process proceeds in these steps, to guide the transformation:
 
@@ -34,7 +34,7 @@ The process proceeds in these steps, to guide the transformation:
      `wfParam`, and all parameters of the match arms are annotated with `wfParam`. This is an
      overapproximation.
 
-3. The `auto_attach` simpset is applied to do the actual transformation. It typically contains two
+3. The `wf_preprocess` simpset is applied to do the actual transformation. It typically contains two
    rules for each higher-order function of interest
 
    - `(wfParam xs).map f = xs.attach.unattach.map f`
@@ -56,20 +56,20 @@ The simplifier is used to perform steps 2 (using simprocs) and 3 (using rewrite 
 
 open Lean Meta
 
-register_builtin_option wf.auto_attach : Bool := {
+register_builtin_option wf.preprocess : Bool := {
   defValue := true
-  descr := "pre-process definitions defined by well-founded recursion with the `auto_attach` simp set"
+  descr := "pre-process definitions defined by well-founded recursion with the `wf_preprocess` simp set"
 }
 
 namespace Lean.Elab.WF
 
-builtin_initialize autoAttachSimpExtension : SimpExtension ←
-  registerSimpAttr `auto_attach
+builtin_initialize wfPreprocessSimpExtension : SimpExtension ←
+  registerSimpAttr `wf_preprocess
     "simp lemma used in the preprocessing of well-founded recursive function definitions, in \
     particular to add additional hypotheses to the context. Also see `wfParam`."
 
 private def getSimpContext : MetaM Simp.Context := do
-  let simpTheorems ← autoAttachSimpExtension.getTheorems
+  let simpTheorems ← wfPreprocessSimpExtension.getTheorems
   Simp.mkContext
     (simpTheorems  := #[simpTheorems])
     (congrTheorems := {})
@@ -111,8 +111,8 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   return .continue <| matcherApp'.toExpr
 
 
-def autoAttach (e : Expr) : MetaM Simp.Result := do
-  unless wf.auto_attach.get (← getOptions) do
+def preprocess (e : Expr) : MetaM Simp.Result := do
+  unless wf.preprocess.get (← getOptions) do
     return { expr := e }
   lambdaTelescope e fun xs _ => do
     -- Annotate all xs with `wfParam`

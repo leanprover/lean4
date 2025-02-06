@@ -74,7 +74,7 @@ private partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Un
         -- so #3133 removed it again (and can be recovered from there if this was premature).
         throwError "failed to generate equational theorem for '{declName}'\n{MessageData.ofGoal mvarId}"
 
-def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (autoAttachProof : Simp.Result) : MetaM Unit := do
+def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessProof : Simp.Result) : MetaM Unit := do
   withOptions (tactic.hygienic.set · false) do
     let baseName := preDef.declName
     lambdaTelescope preDef.value fun xs body => do
@@ -84,8 +84,8 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (autoAttachProo
 
       let main ← mkFreshExprSyntheticOpaqueMVar type
       let mvarId := main.mvarId!
-      let autoAttachProof ← Simp.mkCongr { expr := type.appFn! } (← autoAttachProof.addExtraArgs xs)
-      let mvarId ← applySimpResultToTarget mvarId type autoAttachProof
+      let wfPreprocessProof ← Simp.mkCongr { expr := type.appFn! } (← wfPreprocessProof.addExtraArgs xs)
+      let mvarId ← applySimpResultToTarget mvarId type wfPreprocessProof
       let mvarId ← if preDef.declName != unaryPreDefName then deltaLHS mvarId else pure mvarId
       let mvarId ← rwFixEq mvarId
       mkUnfoldProof preDef.declName mvarId

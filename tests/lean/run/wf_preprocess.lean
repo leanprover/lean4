@@ -199,7 +199,7 @@ end Ex2
 
 namespace WithOptionOff
 
-set_option wf.auto_attach false
+set_option wf.preprocess false
 
 /--
 error: tactic 'fail' failed

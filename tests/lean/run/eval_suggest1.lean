@@ -55,3 +55,44 @@ info: Try these:
 #guard_msgs (info) in
 example (h : 0 + x = y) : f x = f y := by
   try_simple?
+
+
+macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
+
+/--
+error: invalid occurrence of `attempt_all` in non-terminal position for `try?` script
+  (intros;
+    (attempt_all
+      | rfl
+      | grind?);
+    simp)
+-/
+#guard_msgs (error) in
+example : True := by
+  bad_tac
+
+macro "simple_tac" : tactic => `(tactic| eval_suggest (intros; skip; first | skip | simp))
+
+/--
+info: Try this: simp
+-/
+#guard_msgs (info) in
+example : True ∧ True := by
+  simple_tac -- terminal `skip` should not succeed
+
+example : False := by
+  fail_if_success simple_tac -- should not succeed
+  sorry
+
+set_option hygiene false in
+macro "simple_tac2" : tactic => `(tactic| eval_suggest (intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]))
+
+/--
+info: Try this: · intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]
+-/
+#guard_msgs (info) in
+example : x = 0 → 0 + 1*x = 0 := by
+  simple_tac2
+
+example : x = 0 → 0 + 1*x = 0 := by
+  · intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]

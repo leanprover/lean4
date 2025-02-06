@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__5;
+LEAN_EXPORT lean_object* l_Lean_Elab_WF_wfPreprocessSimpExtension;
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__6;
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__2;
-LEAN_EXPORT lean_object* l_Lean_Elab_WF_autoAttachSimpExtension;
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4_(lean_object*);
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__7;
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__4;
@@ -30,7 +30,7 @@ static lean_object* _init_l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_W
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("auto_attach", 11, 11);
+x_1 = lean_mk_string_unchecked("wf_preprocess", 13, 13);
 return x_1;
 }
 }
@@ -72,7 +72,7 @@ static lean_object* _init_l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_W
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("autoAttachSimpExtension", 23, 23);
+x_1 = lean_mk_string_unchecked("wfPreprocessSimpExtension", 25, 25);
 return x_1;
 }
 }
@@ -142,8 +142,8 @@ l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____cl
 lean_mark_persistent(l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4____closed__8);
 if (builtin) {res = l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_AutoAttach___hyg_4_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
-l_Lean_Elab_WF_autoAttachSimpExtension = lean_io_result_get_value(res);
-lean_mark_persistent(l_Lean_Elab_WF_autoAttachSimpExtension);
+l_Lean_Elab_WF_wfPreprocessSimpExtension = lean_io_result_get_value(res);
+lean_mark_persistent(l_Lean_Elab_WF_wfPreprocessSimpExtension);
 lean_dec_ref(res);
 }return lean_io_result_mk_ok(lean_box(0));
 }

@@ -41,10 +41,10 @@ Nested inductive datatypes are indispensible in many applications, so we formula
 
 ## Executable definitions must be fast or marked as not intended for execution
 
-It is not unusual to write definitions in Lean that are purely for verification puporses and not intended to be executed, even though they are perfectly executable from the
-compiler's perspective. To avoid unwelcome surprised, the have the following guideline:
+It is not unusual to write definitions in Lean that are purely for verification purposes and not intended to be executed, even though they are perfectly executable from the
+compiler's perspective. To avoid unwelcome surprises, the have the following guideline:
 
-> **All public definitions must be efficient when used in compiled code (potentially via `@[csimp]`), unless
+> **All public definitions must be computationally efficient when used in compiled code (potentially via `@[csimp]`), unless
 > explicitly marked as not intended for execution in a documentation string (or, even better, through a suggestive name and a documentation string).**
 
 ## Orphan rule for instances and attributes

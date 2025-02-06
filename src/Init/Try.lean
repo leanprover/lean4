@@ -19,6 +19,10 @@ structure Config where
   lib := true
   /-- If `targetOnly` is `true`, `try?` collects information using the goal target only. -/
   targetOnly := false
+  /-- Maximum number of suggestions. -/
+  max := 8
+  /-- If `missing` is `true`, allows the construction of partial solutions where some of the subgoals are `sorry`. -/
+  missing := false
   deriving Inhabited
 
 end Lean.Try

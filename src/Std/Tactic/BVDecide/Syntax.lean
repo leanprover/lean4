@@ -49,6 +49,10 @@ structure BVDecideConfig where
   -/
   fixedInt : Bool := true
   /--
+  Handle equality on enum inductives by turning them into `BitVec`.
+  -/
+  enums : Bool := true
+  /--
   Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
   Lean process.
   -/

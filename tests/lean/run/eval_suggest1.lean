@@ -55,3 +55,22 @@ info: Try these:
 #guard_msgs (info) in
 example (h : 0 + x = y) : f x = f y := by
   try_simple?
+
+
+macro "bad_tac" : tactic => `(tactic| eval_suggest (intros; (attempt_all | rfl | grind?); simp))
+
+/--
+error: invalid occurrence of `attempt_all` in non-terminal position
+  attempt_all
+  | rfl
+  | grind?
+in tactic script for `try?`
+  (intros;
+    (attempt_all
+      | rfl
+      | grind?);
+    simp)
+-/
+#guard_msgs (error) in
+example : True := by
+  bad_tac

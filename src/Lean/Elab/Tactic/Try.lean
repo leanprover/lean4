@@ -341,7 +341,39 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
   else
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
+/-- `evalAndSuggest` tactic validator -/
+private partial def validate (root : TSyntax `tactic) : CoreM Unit := do
+  go root true
+where
+  goSeq (s : TSyntax ``Parser.Tactic.tacticSeq) (terminal : Bool) : CoreM Unit := do
+    let tacs ← match s with
+      | `(tacticSeq| { $t;* }) => pure t.getElems
+      | `(tacticSeq| $t;*) => pure t.getElems
+      | _ => throwError "unexpeted tactic sequence{indentD s}\nin tactic script for `try?`{indentD root}"
+    for h : i in [:tacs.size] do
+      go tacs[i] (i == tacs.size - 1 && terminal)
+
+  goSeqCore (tacs : Array Syntax) (terminal : Bool) : CoreM Unit := do
+    for h : i in [:tacs.size] do
+      go ⟨tacs[i]⟩ (i == tacs.size - 1 && terminal)
+
+  go (tac : TSyntax `tactic) (terminal : Bool) : CoreM Unit := do
+    match tac with
+      | `(tactic| $tac1 <;> $tac2) => go tac1 false; go tac2 terminal
+      | `(tactic| first $[| $tacs]*) => tacs.forM (goSeq · terminal)
+      | `(tactic| ($tac:tacticSeq)) => goSeq tac terminal
+      | `(tactic| try $tac:tacticSeq) => goSeq tac terminal
+      | `(tactic| attempt_all $[| $tacs]*) =>
+        unless terminal do
+          throwError "invalid occurrence of `attempt_all` in non-terminal position{indentD tac}\nin tactic script for `try?`{indentD root}"
+        tacs.forM (goSeq · terminal)
+      | _ =>
+        let k := tac.raw.getKind
+        if k == ``Parser.Tactic.seq1 then
+          goSeqCore tac.raw[0].getSepArgs terminal
+
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) : TacticM Unit := do
+  validate tac
   let tac' ← evalSuggest tac
   let s := getSuggestions tac'
   if s.isEmpty then

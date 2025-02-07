@@ -816,10 +816,6 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
-theorem test {a b c : Bool} : decide a && (decide b && decide c) = decide a && decide b && decide c := by sorry
-
-attribute [boolToPropSimps] decide_eq_true_iff
-
 @[simp] theorem getLsbD_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
     getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
   rw [extractLsb, getLsbD_extractLsb']
@@ -827,23 +823,14 @@ attribute [boolToPropSimps] decide_eq_true_iff
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
       (decide (i < hi - lo + 1) &&
-      decide ((max hi lo) - i < w) &&
-      x.getMsbD (w - 1 - ((max hi lo) - i))) := by
-  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD, Nat.add_one_sub_one]
-  sorry
-
-  -- conv =>
-  --   lhs
-  --   rw [← decide_eq_true_eq (p := x.getMsbD (w - 1 - (lo + (hi - lo - i))))]
-  --   rw [Bool.and_eq_decide (p := (lo + (hi - lo - i) < w)) (q := )]
-
-  -- simp [and_congr_right_iff, Nat.add_one_sub_one, show hi - lo - i < hi - lo + 1 by omega]
-
-  -- by_cases hmax : lo ≤ hi
-  -- · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]
-  --   sorry
-  -- · simp [Nat.max_eq_right (show hi ≤ lo by omega), show lo + (hi - lo - i) = lo - i by omega]
-  --   sorry
+      (decide ((max hi lo) - i < w) &&
+      x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
+  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
+  simp only [decide_eq_true_iff, and_congr_right_iff, Nat.add_one_sub_one, boolToPropSimps, Bool.and_eq_decide_true, show hi - lo - i < hi - lo + 1 by omega]
+  intro
+  by_cases hmax : lo ≤ hi
+  · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]
+  · simp [Nat.max_eq_right (show hi ≤ lo by omega), show lo + (hi - lo - i) = lo - i by omega]
 
 @[simp] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb =

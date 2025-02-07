@@ -65,7 +65,7 @@ void resolve_promise_with_status(lean_object* promise, int status) {
     if (status == 0) {
         res = mk_ok_except(lean_box(0));
     } else {
-        res = mk_err_except(lean_mk_io_user_error(mk_string(uv_strerror(status))));
+        res = mk_err_except(lean_decode_uv_error(status, mk_string(uv_strerror(status))));
     }
 
     resolve_promise(promise, res);
@@ -293,7 +293,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
             resolve_promise(promise, mk_ok_except(byte_array));
         } else if (nread < 0) {
             lean_dec(byte_array);
-            resolve_promise(promise, mk_err_except(lean_mk_io_user_error(mk_string(uv_strerror(nread)))));
+            resolve_promise(promise, mk_err_except(lean_decode_uv_error(nread, mk_string(uv_strerror(nread)))));
         }
 
         lean_dec(promise);

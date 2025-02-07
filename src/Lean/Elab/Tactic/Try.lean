@@ -412,7 +412,7 @@ private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
 set_option hygiene false in -- Avoid tagger at `+arith`
 /-- `simp` tactic syntax generator -/
 private def mkSimpStx : CoreM (TSyntax `tactic) :=
-  `(tactic| first | simp?; done | simp? +arith; done | simp_all; done)
+  `(tactic| first | simp? | simp? +arith | simp_all)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=

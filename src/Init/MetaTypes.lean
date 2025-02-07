@@ -114,6 +114,12 @@ structure Config where
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `underLambda` (default: `true`) is `false`, then `simp` will not rewrite under lambdas
+  (so in particular not in the arms of a `match` expressoin), and not in the cases of an
+  `if-then-else.`
+  -/
+  underLambda       : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -224,7 +230,7 @@ structure Config where
   -/
   zetaDelta         : Bool := false
   /--
-  When `index` (default : `true`) is `false`, `simp` will only use the root symbol
+  When `index` (default: `true`) is `false`, `simp` will only use the root symbol
   to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
   -/
   index             : Bool := true
@@ -238,6 +244,12 @@ structure Config where
   `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
   -/
   zetaUnused : Bool := true
+  /--
+  When `underLambda` (default: `true`) is `false`, then `simp` will not rewrite under lambdas
+  (so in particular not in the arms of a `match` expressoin), and not in the cases of an
+  `if-then-else.`
+  -/
+  underLambda       : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`

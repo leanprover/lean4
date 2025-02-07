@@ -11,6 +11,9 @@ import Init.Data.Nat.Div.Basic
 -/
 
 set_option linter.missingDocs true -- keep it documented
+-- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Decidable List
 
 /--

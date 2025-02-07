@@ -48,9 +48,9 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
-Keys for which `cmp a b = Ordering.eq` are considered the same, i.e there can be only one entry
+Keys for which `cmp a b = Ordering.eq` are considered the same, i.e., there can be only one entry
 with key either `a` or `b` in a tree map. Looking up either `a` or `b` always yields the same entry,
 if any is present. The `get` operations of the _dependent_ tree map additionally require a
 `LawfulEqCmp` instance to ensure that `cmp a b = .eq` always implies `a = b`, so that their
@@ -58,7 +58,8 @@ respective value types are equal.
 
 To avoid expensive copies, users should make sure that the tree map is used linearly.
 
-Internally, the tree maps are represented as size-bounded trees.
+Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 -/
 structure Raw (α : Type u) (β : α → Type v) (_cmp : α → α → Ordering) where
   /-- Internal implementation detail of the tree map. -/
@@ -122,7 +123,7 @@ If there is no mapping for the given key, inserts the given mapping into the map
 returns the map unaltered.
 -/
 @[inline] def insertIfNew (t : Raw α β cmp) (a : α) (b : β a) : Raw α β cmp :=
-    letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew! a b⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew! a b⟩
 
 /--
 Checks whether a key is present in a map and inserts a value for the key if it was not found.

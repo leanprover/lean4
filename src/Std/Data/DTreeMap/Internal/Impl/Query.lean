@@ -47,7 +47,7 @@ instance [Ord α] : Membership α (Impl α β) where
   mem t a := t.contains a
 
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 /-- Returns `true` if the tree is empty. -/
 @[inline]

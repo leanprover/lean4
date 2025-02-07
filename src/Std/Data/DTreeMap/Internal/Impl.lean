@@ -7,9 +7,12 @@ prelude
 import Std.Data.DTreeMap.Internal.Impl.Operations
 
 /-!
-# Low-level implementation of the size-bounded tree
+# Well-formedness predicate on size-bounded trees
 
-This file contains the basic definition implementing the functionality of the size-bounded trees.
+This file defines the well-formedness predicate `WF` on the internal size-bounded tree data
+structure `Impl` and proves well-formedness for those operations that aren't per definition.
+
+A central consequence of well-formedness, balancedness, is shown for all well-formed trees.
 -/
 
 set_option autoImplicit false

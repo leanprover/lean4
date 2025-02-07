@@ -113,7 +113,7 @@ instance [BEq α] [Hashable α] : Membership α (DHashMap α β) where
   mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 @[inline, inherit_doc Raw.get] def get [LawfulBEq α] (m : DHashMap α β) (a : α)
     (h : a ∈ m) : β a :=

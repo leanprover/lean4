@@ -41,9 +41,9 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
-Keys for which `cmp a b = Ordering.eq` are considered the same, i.e there can be only one entry
+Keys for which `cmp a b = Ordering.eq` are considered the same, i.e., there can be only one entry
 with key either `a` or `b` in a tree map. Looking up either `a` or `b` always yields the same entry,
 if any is present. The `get` operations of the _dependent_ tree map additionally require a
 `LawfulEqCmp` instance to ensure that `cmp a b = .eq` always implies `a = b`, so that their
@@ -51,7 +51,8 @@ respective value types are equal.
 
 To avoid expensive copies, users should make sure that the tree map is used linearly.
 
-Internally, the tree maps are represented as size-bounded trees.
+Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.DTreeMap.Raw` and
@@ -92,7 +93,7 @@ instance : LawfulSingleton ((a : α) × β a) (DTreeMap α β cmp) where
 
 @[inline, inherit_doc Raw.insertIfNew]
 def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
-    letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
+  letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
 
 @[inline, inherit_doc Raw.containsThenInsert]
 def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DTreeMap α β cmp :=
@@ -115,7 +116,7 @@ instance : Membership α (DTreeMap α β cmp) where
   mem m a := m.contains a
 
 instance {m : DTreeMap α β cmp} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 @[inline, inherit_doc Raw.size]
 def size (t : DTreeMap α β cmp) : Nat :=
@@ -218,7 +219,7 @@ def keys (t : DTreeMap α β cmp) : List α :=
   t.inner.keys
 
 @[inline, inherit_doc Raw.keysArray]
-def keysArray (t : Raw α β cmp) : Array α :=
+def keysArray (t : DTreeMap α β cmp) : Array α :=
   t.inner.keysArray
 
 @[inline, inherit_doc Raw.toList]

@@ -47,14 +47,15 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
 Keys for which `cmp a b = Ordering.eq` are considered the same, i.e only one of them
 can be contained in a single tree set at the same time.
 
 To avoid expensive copies, users should make sure that the tree set is used linearly.
 
-Internally, the tree sets are represented as size-bounded trees.
+Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 -/
 structure Raw (α : Type u) (cmp : α → α → Ordering) where
   /-- Internal implementation detail of the tree set. -/

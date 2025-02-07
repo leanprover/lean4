@@ -8,9 +8,10 @@ import Init.Data.AC
 import Std.Data.DTreeMap.Internal.Impl.Query
 
 /-!
-# Low-level implementation of the size-bounded tree
+# Balancing operations
 
-This file contains the basic definition implementing the functionality of the size-bounded trees.
+This file contains the implementation of internal balancing operations used by the modification
+operations of the tree map.
 -/
 
 set_option autoImplicit false
@@ -53,7 +54,16 @@ theorem balanced_inner_iff {sz k v l r} : Balanced (Impl.inner sz k v l r : Impl
    fun ⟨h₁, h₂, h₃, h₄⟩ => .inner h₁ h₂ h₃ h₄⟩
 
 /-!
-## Balancing operations
+## Implementation
+
+Although it is desirable to separate the implementation from the balancedness proofs as much as
+possible, we want the Lean to optimize away some impossible case distinctions. Therefore, we need to
+prove them impossible in the implementation itself. Most proofs are automated using a custom
+tactic `tree_tac`, but the proof terms tend to be large, so we should be cautious.
+
+Implementations marked with an exclamation mark do not rely on balancing proofs and just panic when
+a case occurs that is impossible for balanced trees. These implementations are slower because the
+impossible cases need to be checked for.
 -/
 
 /-- Precondition for `balanceL`: at most one element was added to left subtree. -/
@@ -389,6 +399,10 @@ def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
       else
         .inner (1 + ls + rs) k v l r
 
+/-!
+## Lemmas about balancing operations
+-/
+
 @[simp]
 theorem balancedAtRoot_zero_zero : BalancedAtRoot 0 0 := by
   simp only [BalancedAtRoot]; omega
@@ -461,6 +475,15 @@ theorem balanceLErasePrecond_zero_iff {n : Nat} : BalanceLErasePrecond 0 n ↔ n
 theorem balanceLErasePrecond_zero_iff' {n : Nat} : BalanceLErasePrecond n 0 ↔ n ≤ 3 := by
   tree_tac
 
+/-!
+The following definitions are not actually used by the tree map implementation. Instead, they
+are used in the proofs of lemmas about the implementation.
+
+The terminology is consistent with the comment above
+[the `balance` implementation](https://hackage.haskell.org/package/containers-0.7/docs/src/Data.Map.Internal.html#balance)
+in Haskell.
+-/
+
 /-- Constructor for an inner node with the correct size. -/
 @[Std.Internal.tree_tac]
 def bin (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
@@ -487,7 +510,6 @@ def doubleL (k : α) (v : β k) (l : Impl α β) (rk : α) (rv : β rk) (rlk : �
 def doubleR (k : α) (v : β k) (lk : α) (lv : β lk) (ll : Impl α β) (lrk : α) (lrv : β lrk)
     (lrl lrr : Impl α β) (r : Impl α β) : Impl α β :=
   bin lrk lrv (bin lk lv ll lrl) (bin k v lrr r)
-
 
 theorem Balanced.map {t₁ t₂ : Impl α β} : t₁.Balanced → t₁ = t₂ → t₂.Balanced
   | h, rfl => h
@@ -526,6 +548,10 @@ theorem balanced_doubleR (k v ls lk lv ll lrs lrk lrv lrl lrr) (r : Impl α β)
 theorem balance!_desc.aux {n m : Nat} (h₂ : n + 1 + m ≤ 3) (h₃ : 1 ≤ n) (h₄ : 1 ≤ m) :
     n = 1 ∧ m = 1 := by omega
 
+/--
+This could be proved using `✓` or `by tree_tac` but the generated proof term is too large.
+Hence the long manual proof.
+-/
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
@@ -850,3 +876,5 @@ theorem balanced_balanceR {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanc
     (balanceR k v l r hlb hrb hlr).Balanced := by
   rw [balanceR_eq_balanceRErase]
   exact balanced_balanceRErase hlb hrb hlr.erase
+
+end Std.DTreeMap.Internal.Impl

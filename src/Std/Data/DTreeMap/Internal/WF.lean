@@ -12,7 +12,9 @@ import Std.Data.Internal.Cut
 import Std.Data.Internal.List.Associative
 
 /-!
-# Low-level proofs about size-bounded trees
+# Low-level lemmas about size-bounded trees
+
+These lemmas
 -/
 
 set_option autoImplicit false

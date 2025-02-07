@@ -47,15 +47,16 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
-Keys for which `cmp a b = Ordering.eq` are considered the same, i.e there can be only one entry
+Keys for which `cmp a b = Ordering.eq` are considered the same, i.e., there can be only one entry
 with key either `a` or `b` in a tree map. Looking up either `a` or `b` always yields the same entry,
 if any is present.
 
 To avoid expensive copies, users should make sure that the tree map is used linearly.
 
-Internally, the tree maps are represented as size-bounded trees.
+Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 -/
 structure Raw (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
   /-- Internal implementation detail of the tree map. -/
@@ -106,7 +107,7 @@ instance : LawfulSingleton (α × β) (Raw α β cmp) where
 
 @[inline, inherit_doc DTreeMap.Raw.insertIfNew]
 def insertIfNew (t : Raw α β cmp) (a : α) (b : β) : Raw α β cmp :=
-    letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew a b⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew a b⟩
 
 @[inline, inherit_doc DTreeMap.Raw.containsThenInsert]
 def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β cmp :=

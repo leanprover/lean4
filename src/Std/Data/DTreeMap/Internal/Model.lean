@@ -38,7 +38,7 @@ def contains' [Ord α] (k : α → Ordering) (l : Impl α β) : Bool :=
 
 theorem contains'_compare [Ord α] {k : α} {l : Impl α β} :
     l.contains' (compare k) = l.contains k := by
-  induction l <;> simp_all [contains, contains'] <;> rfl
+  induction l <;> simp_all only [contains', contains] <;> rfl
 
 /-- General tree-traversal function. Internal implementation detail of the tree map -/
 def applyPartition [Ord α] (k : α → Ordering) (l : Impl α β)

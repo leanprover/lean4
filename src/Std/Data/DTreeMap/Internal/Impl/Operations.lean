@@ -73,7 +73,6 @@ def minView (k : α) (v : β k) (l r : Impl α β) (hl : l.Balanced) (hr : r.Bal
       exact hlr.erase_left
         (by simp only [hdt', hl.eq, size_inner]; omega)
         (by simp only [hdt', hl.eq, size_inner]; omega)), ✓, ✓⟩⟩
-  where triviality {n m : Nat} : n + 1 + m - 1 = n + m := by omega
 
 /--
 Slower version of `minView` which can be used in the absence of balance information but still
@@ -321,14 +320,14 @@ def insert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
   match t with
   | leaf => ⟨.inner 1 k v .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz k' v' l' r' =>
-      match compare k k' with
-      | .lt =>
-          let ⟨d, hd, hd₁, hd₂⟩ := insert k v l' ✓
-          ⟨balanceL k' v' d r' ✓ ✓ ✓, ✓, ✓, ✓⟩
-      | .gt =>
-          let ⟨d, hd, hd₁, hd₂⟩ := insert k v r' ✓
-          ⟨balanceR k' v' l' d ✓ ✓ ✓, ✓, ✓, ✓⟩
-      | .eq => ⟨.inner sz k v l' r', ✓, ✓, ✓⟩
+    match compare k k' with
+    | .lt =>
+        let ⟨d, hd, hd₁, hd₂⟩ := insert k v l' ✓
+        ⟨balanceL k' v' d r' ✓ ✓ ✓, ✓, ✓, ✓⟩
+    | .gt =>
+        let ⟨d, hd, hd₁, hd₂⟩ := insert k v r' ✓
+        ⟨balanceR k' v' l' d ✓ ✓ ✓, ✓, ✓, ✓⟩
+    | .eq => ⟨.inner sz k v l' r', ✓, ✓, ✓⟩
 
 /--
 Slower version of `insert` which can be used in the absence of balance information but
@@ -338,10 +337,10 @@ def insert! [Ord α] (k : α) (v : β k) (t : Impl α β) : Impl α β :=
   match t with
   | leaf => .inner 1 k v .leaf .leaf
   | inner sz k' v' l r =>
-      match compare k k' with
-      | .lt => balanceL! k' v' (insert! k v l) r
-      | .gt => balanceR! k' v' l (insert! k v r)
-      | .eq => .inner sz k v l r
+    match compare k k' with
+    | .lt => balanceL! k' v' (insert! k v l) r
+    | .gt => balanceR! k' v' l (insert! k v r)
+    | .eq => .inner sz k v l r
 
 /-- Returns the pair `(t.contains k, t.insert k v)`. -/
 @[inline]
@@ -370,7 +369,7 @@ where -- workaround for https://github.com/leanprover/lean4/issues/6058
   | leaf => 0
   | inner sz _ _ _ _ => sz
 
-/-- Adds a new mapping to the key, overwriting an existing one with equal key if present. -/
+/-- Adds a new mapping to the tree, leaving the tree unchanged if the key is already present. -/
 @[inline]
 def insertIfNew [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
     TreeB α β t.size (t.size + 1) :=
@@ -452,12 +451,11 @@ assumes the preconditions of `eraseMany`, otherwise might panic.
 -/
 @[inline]
 def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ) :
-    IteratedSlowErasureFrom t :=
-  Id.run do
-    let mut r := ⟨t, fun h _ => h⟩
-    for a in l do
-      r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
-    return r
+    IteratedSlowErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for a in l do
+    r := ⟨r.val.erase! a, fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
+  return r
 
 variable (α β) in
 /-- A balanced tree. -/
@@ -517,8 +515,7 @@ Monadic version of `map`.
 -/
 @[specialize]
 def mapM {α : Type v} {β γ : α → Type v} {M : Type v → Type v} [Applicative M]
-  (f : (a : α) → β a → M (γ a))
-  : Impl α β → M (Impl α γ)
+    (f : (a : α) → β a → M (γ a)) : Impl α β → M (Impl α γ)
   | leaf => pure leaf
   | inner sz k v l r => pure (.inner sz k) <*> f k v <*> l.mapM f <*> r.mapM f
 
@@ -533,13 +530,13 @@ def filter [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) (hl : Bala
   | .inner sz k v l r =>
     match f k v with
     | false =>
-        let ⟨l', hl'⟩ := filter f l ✓
-        let ⟨r', hr'⟩ := filter f r ✓
-        ⟨(link2 l' r'  ✓ ✓).impl, ✓⟩
+      let ⟨l', hl'⟩ := filter f l ✓
+      let ⟨r', hr'⟩ := filter f r ✓
+      ⟨(link2 l' r'  ✓ ✓).impl, ✓⟩
     | true =>
-        let ⟨l', hl'⟩ := filter f l ✓
-        let ⟨r', hr'⟩ := filter f r ✓
-        ⟨(link k v l' r' ✓ ✓).impl, ✓⟩
+      let ⟨l', hl'⟩ := filter f l ✓
+      let ⟨r', hr'⟩ := filter f r ✓
+      ⟨(link k v l' r' ✓ ✓).impl, ✓⟩
 
 /--
 Slower version of `filter` which can be used in the absence of balance
@@ -571,11 +568,11 @@ def alter [Ord α] (k : α) (f : Option δ → Option δ) (t : Impl α (fun _ =>
   | .inner sz k' v' l' r' =>
     match compare k k' with
     | .lt =>
-        let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
-        ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
+      let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
+      ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
     | .gt =>
-        let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
-        ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
+      let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
+      ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
     | .eq =>
       match f (some v') with
       | none => ⟨glue l' r' ✓ ✓ ✓, ✓, ✓, ✓⟩

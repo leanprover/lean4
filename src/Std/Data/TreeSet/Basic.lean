@@ -41,14 +41,15 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
-Keys for which `cmp a b = Ordering.eq` are considered the same, i.e there can be only one of them
+Keys for which `cmp a b = Ordering.eq` are considered the same, i.e., there can be only one of them
 be contained in a single tree set at the same time.
 
 To avoid expensive copies, users should make sure that the tree set is used linearly.
 
-Internally, the tree sets are represented as size-bounded trees.
+Internally, the tree sets are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 
 These tree sets contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw` and
@@ -98,7 +99,7 @@ instance : Membership α (TreeSet α cmp) where
   mem m a := m.contains a
 
 instance {m : TreeSet α cmp} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 @[inline, inherit_doc Raw.size]
 def size (t : TreeSet α cmp) : Nat :=

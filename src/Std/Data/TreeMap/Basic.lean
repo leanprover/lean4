@@ -40,15 +40,16 @@ certain laws that ensure a consistent ordering:
 * If `a` is less than (or equal) to `b`, then `b` is greater than (or equal) to `a`
 and vice versa (see the `OrientedCmp` typeclass).
 * If `a` is less than or equal to `b` and `b` is, in turn, less than or equal to `c`, then `a`
-id less than or equal to `c` (see the `TransCmp` typeclass).
+is less than or equal to `c` (see the `TransCmp` typeclass).
 
-Keys for which `cmp a b = Ordering.eq` are considered the same, i.e there can be only one entry
+Keys for which `cmp a b = Ordering.eq` are considered the same, i.e., there can be only one entry
 with key either `a` or `b` in a tree map. Looking up either `a` or `b` always yields the same entry,
 if any is present.
 
 To avoid expensive copies, users should make sure that the tree map is used linearly.
 
-Internally, the tree maps are represented as size-bounded trees.
+Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
+search tree with efficient order statistic lookups.
 
 These tree maps contain a bundled well-formedness invariant, which means that they cannot
 be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw` and
@@ -106,7 +107,7 @@ instance : Membership α (TreeMap α β cmp) where
   mem m a := m.contains a
 
 instance {m : TreeMap α β cmp} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 @[inline, inherit_doc DTreeMap.size]
 def size (t : TreeMap α β cmp) : Nat :=

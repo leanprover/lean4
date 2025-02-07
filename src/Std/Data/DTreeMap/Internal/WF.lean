@@ -6,10 +6,9 @@ Authors: Markus Himmel
 prelude
 import Init.Data.Option
 import Init.Data.Array.Bootstrap
+import Std.Classes.Ord
 import Std.Data.DTreeMap.Internal.Model
-import Std.Data.OrderAxioms.TransOrd
 import Std.Data.Internal.Cut
-import Std.Data.Internal.List.Associative
 import Std.Data.Internal.List.Associative
 
 /-!
@@ -24,6 +23,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal.Impl
+open Std.Internal
 
 @[simp] theorem toListModel_leaf : (.leaf : Impl α β).toListModel = [] := rfl
 @[simp] theorem toListModel_inner {sz k v l r} :
@@ -764,12 +764,6 @@ theorem toListModel_erase! [Ord α] [TransOrd α] {k : α} {l : Impl α β}
 theorem containsThenInsertSize_eq_size [Ord α] (t : Impl α β) :
     containsThenInsert.size t = t.size := by
   induction t <;> rfl
-
-theorem size_le_insertₘ_size [Ord α] [TransOrd α] (t : Impl α β) (h : t.WF) (ho : t.Ordered) (a : α) (b : β a) :
-    t.size ≤ (t.insertₘ a b h.balanced).size := by
-  simp [apply_size, h.balanced, h.insert.balanced, ← insert_eq_insertₘ,
-    toListModel_insert h.balanced ho |>.length_eq]
-  apply length_le_length_insertEntry
 
 theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :

@@ -1,8 +1,9 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Markus Himmel, Paul Reichert
 -/
+
 prelude
 import Init.Data.Ord
 
@@ -13,21 +14,37 @@ universe u
 
 namespace Std
 
+section Refl
+
+/-- A typeclass for comparison functions `cmp` for which `cmp a a = .eq` for all `a`. -/
+class ReflCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
+  /-- Comparison is reflexive. -/
+  compare_self {a : α} : cmp a a = .eq
+
+export ReflCmp (compare_self)
+
+/-- A typeclasses for ordered types for which `compare a a = .eq` for all `a`. -/
+abbrev ReflOrd (α : Type u) [Ord α] := ReflCmp (compare : α → α → Ordering)
+
+attribute [simp] compare_self
+
+end Refl
+
+section Oriented
+
 /--
-Class for functions `α → α → Ordering` which are oriented: flipping the arguments amounts
+A typeclass for functions `α → α → Ordering` which are oriented: flipping the arguments amounts
 to applying `Ordering.swap` to the return value.
- -/
+-/
 class OrientedCmp {α : Type u} (cmp : α → α → Ordering) : Prop where
   /-- Swapping the arguments to `cmp` swaps the outcome. -/
   eq_swap {a b : α} : cmp a b = (cmp b a).swap
 
 /--
-Class for types with an oriented comparison function: flipping the arguments amounts to
+A typeclass for types with an oriented comparison function: flipping the arguments amounts to
 applying `Ordering.swap` to the return value.
 -/
 abbrev OrientedOrd (α : Type u) [Ord α] := OrientedCmp (compare : α → α → Ordering)
-
-section
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
@@ -76,17 +93,17 @@ theorem OrientedCmp.lt_of_not_isLE [OrientedCmp cmp] {a b : α} :
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
-end
+end Oriented
 
-/-- Class for functions `α → α → Ordering` which are transitive. -/
+section Trans
+
+/-- A typeclass for functions `α → α → Ordering` which are transitive. -/
 class TransCmp {α : Type u} (cmp : α → α → Ordering) extends OrientedCmp cmp : Prop where
   /-- Transitivity of `≤`, expressed via `Ordering.isLE`. -/
   le_trans {a b c : α} : (cmp a b).isLE → (cmp b c).isLE → (cmp a c).isLE
 
-/-- Class for types with a transitive ordering function. -/
+/-- A typeclass for types with a transitive ordering function. -/
 abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Ordering)
-
-section
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
@@ -152,15 +169,47 @@ theorem TransCmp.congr_left [TransCmp cmp] {a b c : α} (hab : cmp a b = .eq) :
   cases hbc : cmp b c with
   | lt => exact TransCmp.lt_of_eq_of_lt hab hbc
   | eq => exact TransCmp.eq_trans hab hbc
-  | gt => exact OrientedCmp.gt_of_lt (TransCmp.lt_of_lt_of_eq (OrientedCmp.lt_of_gt hbc) (OrientedCmp.eq_symm hab))
+  | gt =>
+      exact OrientedCmp.gt_of_lt
+        (TransCmp.lt_of_lt_of_eq (OrientedCmp.lt_of_gt hbc) (OrientedCmp.eq_symm hab))
 
 theorem TransCmp.congr_right [TransCmp cmp] {a b c : α} (hbc : cmp b c = .eq) :
     cmp a b = cmp a c := by
   cases hab : cmp a b with
   | lt => exact TransCmp.lt_of_lt_of_eq hab hbc |>.symm
   | eq => exact TransCmp.eq_trans hab hbc |>.symm
-  | gt => exact OrientedCmp.gt_of_lt (TransCmp.lt_of_eq_of_lt (OrientedCmp.eq_symm hbc) (OrientedCmp.lt_of_gt hab)) |>.symm
+  | gt =>
+    exact OrientedCmp.gt_of_lt
+      (TransCmp.lt_of_eq_of_lt (OrientedCmp.eq_symm hbc) (OrientedCmp.lt_of_gt hab)) |>.symm
 
-end
+end Trans
+
+section LawfulEq
+
+/--
+A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the logical equality
+`a = b` holds.
+-/
+class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) extends ReflCmp cmp : Prop where
+  /-- If two values compare equal, then they are logically equal. -/
+  eq_of_compare {a b : α} : cmp a b == .eq → a = b
+
+/--
+A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
+the logical equality `a = b` holds.
+-/
+abbrev LawfulEqOrd (α : Type u) [Ord α] := LawfulEqCmp (compare : α → α → Ordering)
+
+variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
+
+@[simp]
+theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
+  ⟨LawfulEqCmp.eq_of_compare ∘ beq_of_eq, by rintro rfl; simp⟩
+
+@[simp]
+theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
+  ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
+
+end LawfulEq
 
 end Std

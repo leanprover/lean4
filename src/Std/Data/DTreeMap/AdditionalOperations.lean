@@ -1,14 +1,14 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Paul Reichert
 -/
 prelude
 import Std.Data.DTreeMap.Basic
 import Std.Data.DTreeMap.Internal.WF
 
 /-!
-# Additional dependent hash map operations
+# Additional dependent tree map operations
 
 This file defines more operations on `Std.DTreeMap`.
 We currently do not provide lemmas for these functions.
@@ -20,11 +20,11 @@ set_option linter.missingDocs true
 universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
-  {m : Type w → Type w₂} [Monad m]
 
 namespace Std.DTreeMap
 
 namespace Raw
+
 /--
 Updates the values of the map by applying the given function to all mappings, keeping
 only those mappings where the function returns `some` value.

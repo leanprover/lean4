@@ -10,6 +10,8 @@ set_option autoImplicit false
 
 universe u
 
+namespace Std.Internal
+
 class IsCut {α : Type u} (cmp : α → α → Ordering) (cut : α → Ordering) where
   lt {k k'} : cut k' = .lt → cmp k' k = .lt → cut k = .lt
   gt {k k'} : cut k' = .gt → cmp k' k = .gt → cut k = .gt
@@ -32,3 +34,5 @@ theorem IsStrictCut.lt_of_isLE_of_lt [IsStrictCut cmp cut] {k k' : α} :
   | gt => rintro ⟨⟩
   | lt => exact fun _ => IsCut.lt h₁
   | eq => exact fun h₂ h₃ => by rw [← h₃, IsStrictCut.eq (cmp := cmp) k h₁]
+
+end Std.Internal

@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Impl.Def
-import Std.Data.OrderAxioms.LawfulEqOrd
+import Std.Classes.Ord
 
 /-!
 # Low-level implementation of the size-bounded tree

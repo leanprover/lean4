@@ -221,6 +221,121 @@ theorem forIn_pure_yield_eq_foldl [Monad m] [LawfulMonad m]
   cases l
   simp
 
+end Array
+
+namespace List
+
+theorem filterM_toArray [Monad m] [LawfulMonad m] (l : List α) (p : α → m Bool) :
+    l.toArray.filterM p = toArray <$> l.filterM p := by
+  simp only [Array.filterM, filterM, foldlM_toArray, bind_pure_comp, Functor.map_map]
+  conv => lhs; rw [← reverse_nil]
+  generalize [] = acc
+  induction l generalizing acc with simp
+  | cons x xs ih =>
+    congr; funext b
+    cases b
+    · simp only [Bool.false_eq_true, ↓reduceIte, pure_bind, cond_false]
+      exact ih acc
+    · simp only [↓reduceIte, ← reverse_cons, pure_bind, cond_true]
+      exact ih (x :: acc)
+
+/-- Variant of `filterM_toArray` with a side condition for the stop position. -/
+@[simp] theorem filterM_toArray' [Monad m] [LawfulMonad m] (l : List α) (p : α → m Bool) (w : stop = l.length) :
+    l.toArray.filterM p 0 stop = toArray <$> l.filterM p := by
+  subst w
+  rw [filterM_toArray]
+
+theorem filterRevM_toArray [Monad m] [LawfulMonad m] (l : List α) (p : α → m Bool) :
+    l.toArray.filterRevM p = toArray <$> l.filterRevM p := by
+  simp [Array.filterRevM, filterRevM]
+  rw [← foldlM_reverse, ← foldlM_toArray, ← Array.filterM, filterM_toArray]
+  simp only [filterM, bind_pure_comp, Functor.map_map, reverse_toArray, reverse_reverse]
+
+/-- Variant of `filterRevM_toArray` with a side condition for the start position. -/
+@[simp] theorem filterRevM_toArray' [Monad m] [LawfulMonad m] (l : List α) (p : α → m Bool) (w : start = l.length) :
+    l.toArray.filterRevM p start 0 = toArray <$> l.filterRevM p := by
+  subst w
+  rw [filterRevM_toArray]
+
+theorem filterMapM_toArray [Monad m] [LawfulMonad m] (l : List α) (f : α → m (Option β)) :
+    l.toArray.filterMapM f = toArray <$> l.filterMapM f := by
+  simp [Array.filterMapM, filterMapM]
+  conv => lhs; rw [← reverse_nil]
+  generalize [] = acc
+  induction l generalizing acc with simp [filterMapM.loop]
+  | cons x xs ih =>
+    congr; funext o
+    cases o
+    · simp only [pure_bind]; exact ih acc
+    · simp only [pure_bind]; rw [← List.reverse_cons]; exact ih _
+
+/-- Variant of `filterMapM_toArray` with a side condition for the stop position. -/
+@[simp] theorem filterMapM_toArray' [Monad m] [LawfulMonad m] (l : List α) (f : α → m (Option β)) (w : stop = l.length) :
+    l.toArray.filterMapM f 0 stop = toArray <$> l.filterMapM f := by
+  subst w
+  rw [filterMapM_toArray]
+
+@[simp] theorem flatMapM_toArray [Monad m] [LawfulMonad m] (l : List α) (f : α → m (Array β)) :
+    l.toArray.flatMapM f = toArray <$> l.flatMapM (fun a => Array.toList <$> f a) := by
+  simp only [Array.flatMapM, bind_pure_comp, foldlM_toArray, flatMapM]
+  conv => lhs; arg 2; change [].reverse.flatten.toArray
+  generalize [] = acc
+  induction l generalizing acc with
+  | nil => simp only [foldlM_nil, flatMapM.loop, map_pure]
+  | cons x xs ih =>
+    simp only [foldlM_cons, bind_map_left, flatMapM.loop, _root_.map_bind]
+    congr; funext a
+    conv => lhs; rw [Array.toArray_append, ← flatten_concat, ← reverse_cons]
+    exact ih _
+
+end List
+
+namespace Array
+
+@[congr] theorem filterM_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {p : α → m Bool} {q : α → m Bool} (h : ∀ a, p a = q a) :
+    as.filterM p = bs.filterM q := by
+  subst w
+  simp [filterM, h]
+
+@[congr] theorem filterRevM_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {p : α → m Bool} {q : α → m Bool} (h : ∀ a, p a = q a) :
+    as.filterRevM p = bs.filterRevM q := by
+  subst w
+  simp [filterRevM, h]
+
+@[congr] theorem filterMapM_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {f : α → m (Option β)} {g : α → m (Option β)} (h : ∀ a, f a = g a) :
+    as.filterMapM f = bs.filterMapM g := by
+  subst w
+  simp [filterMapM, h]
+
+@[congr] theorem flatMapM_congr [Monad m] {as bs : Array α} (w : as = bs)
+    {f : α → m (Array β)} {g : α → m (Array β)} (h : ∀ a, f a = g a) :
+    as.flatMapM f = bs.flatMapM g := by
+  subst w
+  simp [flatMapM, h]
+
+theorem toList_filterM [Monad m] [LawfulMonad m] (a : Array α) (p : α → m Bool) :
+    toList <$> a.filterM p = a.toList.filterM p := by
+  rw [List.filterM_toArray]
+  simp only [Functor.map_map, id_map']
+
+theorem toList_filterRevM [Monad m] [LawfulMonad m] (a : Array α) (p : α → m Bool) :
+    toList <$> a.filterRevM p = a.toList.filterRevM p := by
+  rw [List.filterRevM_toArray]
+  simp only [Functor.map_map, id_map']
+
+theorem toList_filterMapM [Monad m] [LawfulMonad m] (a : Array α) (f : α → m (Option β)) :
+    toList <$> a.filterMapM f = a.toList.filterMapM f := by
+  rw [List.filterMapM_toArray]
+  simp only [Functor.map_map, id_map']
+
+theorem toList_flatMapM [Monad m] [LawfulMonad m] (a : Array α) (f : α → m (Array β)) :
+    toList <$> a.flatMapM f = a.toList.flatMapM (fun a => toList <$> f a) := by
+  rw [List.flatMapM_toArray]
+  simp only [Functor.map_map, id_map']
+
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 
 /--
@@ -260,20 +375,20 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.mapM_subtype hf]
 
--- Without `filterMapM_toArray` relating `filterMapM` on `List` and `Array` we can't prove this yet:
--- @[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
---     l.filterMapM f = l.unattach.filterMapM g := by
---   rcases l with ⟨l⟩
---   simp
---   rw [List.filterMapM_subtype hf]
+@[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = l.size) :
+    l.filterMapM f 0 stop = l.unattach.filterMapM g := by
+  subst w
+  rcases l with ⟨l⟩
+  simp
+  rw [List.filterMapM_subtype hf]
 
--- Without `flatMapM_toArray` relating `flatMapM` on `List` and `Array` we can't prove this yet:
--- @[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
---     {f : { x // p x } → m (Array β)} {g : α → m (Array β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
---     (l.flatMapM f) = l.unattach.flatMapM g := by
---   rcases l with ⟨l⟩
---   simp
---   rw [List.flatMapM_subtype hf]
+@[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → m (Array β)} {g : α → m (Array β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.flatMapM f) = l.unattach.flatMapM g := by
+  rcases l with ⟨l⟩
+  simp
+  rw [List.flatMapM_subtype]
+  simp [hf]
 
 end Array

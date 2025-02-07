@@ -25,6 +25,15 @@ example : 4 + x + y ≥ 1 + x  := by
 
 /--
 info: Try these:
+• simp +arith
+• grind
+-/
+#guard_msgs (info) in
+example : 4 + x + y ≥ 1 + x  := by
+  try? -only
+
+/--
+info: Try these:
 • grind
 • grind only
 -/

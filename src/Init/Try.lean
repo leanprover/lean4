@@ -23,6 +23,8 @@ structure Config where
   max := 8
   /-- If `missing` is `true`, allows the construction of partial solutions where some of the subgoals are `sorry`. -/
   missing := false
+  /-- If `only` is `true`, generates solutions using `grind only` and `simp only`. -/
+  only := true
   deriving Inhabited
 
 end Lean.Try

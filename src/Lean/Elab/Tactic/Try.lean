@@ -171,29 +171,6 @@ private def simpTraceToSimp (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) 
     `(tactic| simp $config:optConfig $[only%$only]? $[[$args,*]]? $(loc)?)
   | _ => throwUnsupportedSyntax
 
-private def evalSuggestGrindTrace (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
-  match tac with
-  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    let config ← elabGrindConfig configStx
-    let config := { config with trace := true, verbose := false }
-    let trace ← evalGrindCore tac config only params fallback?
-    let tac ← grindTraceToGrind tac
-    let tac' ← mkGrindOnly configStx fallback? trace
-    trace[try.debug] "`grind` succeeded"
-    mkTrySuggestions #[tac, tac']
-  | _ => throwUnsupportedSyntax
-
-private def evalSuggestSimpTrace (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := withMainContext do
-  match tac with
-  | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
-    let tac ← simpTraceToSimp tac
-    let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
-    let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
-    let tac' ← mkSimpCallStx tac stats.usedTheorems
-    trace[try.debug] "`simp` succeeded"
-    mkTrySuggestions #[tac, tac']
-  | _ => throwUnsupportedSyntax
-
 abbrev TacticResult (α : Type) := EStateM.Result Exception SavedState α
 
 structure Ctx where
@@ -225,6 +202,35 @@ def observing (x : M α) : M (TacticResult α) := do
       let sNew ← saveState
       s.restore (restoreInfo := true)
       return .error ex sNew
+
+private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
+  match tac with
+  | `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+    let config ← elabGrindConfig configStx
+    let config := { config with trace := (← read).config.only, verbose := false }
+    let tac ← grindTraceToGrind tac
+    let trace ← evalGrindCore tac config only params fallback?
+    trace[try.debug] "`grind` succeeded"
+    if (← read).config.only then
+      let tac' ← mkGrindOnly configStx fallback? trace
+      mkTrySuggestions #[tac, tac']
+    else
+      return tac
+  | _ => throwUnsupportedSyntax
+
+private def evalSuggestSimpTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do (← getMainGoal).withContext do
+  match tac with
+  | `(tactic| simp? $_:optConfig $[only%$only]? $[[$args,*]]? $(loc)?) =>
+    let tac ← simpTraceToSimp tac
+    let { ctx, simprocs, .. } ← mkSimpContext tac (eraseLocal := false)
+    let stats ← simpLocation ctx (simprocs := simprocs) none <| (loc.map expandLocation).getD (.targets #[] true)
+    trace[try.debug] "`simp` succeeded"
+    if (← read).config.only then
+      let tac' ← mkSimpCallStx tac stats.usedTheorems
+      mkTrySuggestions #[tac, tac']
+    else
+      return tac
+  | _ => throwUnsupportedSyntax
 
 @[extern "lean_eval_suggest_tactic"] -- forward definition to avoid mutual block
 opaque evalSuggest (tac : TSyntax `tactic) : M (TSyntax `tactic)

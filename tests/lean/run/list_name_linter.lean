@@ -13,14 +13,14 @@ example (l₁ : List Nat) : l₁ = l₁ := rfl
 example (l₂ : List Nat) : l₂ = l₂ := rfl
 
 /--
-warning: Forbidden variable appearing as a `List` name: l₃
+warning: Forbidden variable appearing as a `List` name: l₄
 note: this linter can be disabled with `set_option linter.listVariable false`
 ---
-warning: Forbidden variable appearing as a `List` name: l₃
+warning: Forbidden variable appearing as a `List` name: l₄
 note: this linter can be disabled with `set_option linter.listVariable false`
 -/
 #guard_msgs in
-example (l₃ : List Nat) : l₃ = l₃ := rfl
+example (l₄ : List Nat) : l₄ = l₄ := rfl
 
 #guard_msgs in
 example (xs : List Nat) : xs = xs := rfl

@@ -36,7 +36,6 @@ def extSeparator : Char := '.'
 def exeExtension : String :=
   if isWindows then "exe" else ""
 
--- TODO: normalize `a/`, `a//b`, etc.
 def normalize (p : FilePath) : FilePath := Id.run do
   let mut p := p
   -- normalize drive letter
@@ -45,6 +44,23 @@ def normalize (p : FilePath) : FilePath := Id.run do
   -- normalize separator
   unless pathSeparators.length == 1 do
     p := ⟨p.toString.map fun c => if pathSeparators.contains c then pathSeparator else c⟩
+
+  -- normalize `a/`, `a//b`, etc.
+  let pSep := String.singleton pathSeparator
+  let fltr := fun cp => !(cp.isEmpty || cp == ".")
+  let normalized := if p.toString.front == pathSeparator
+    then
+      let s := p.toString.drop 1
+      let components := s.split (fun ch => pathSeparators.contains ch)
+      let components := components.filter fltr |> List.intersperse pSep
+      pSep.append (String.join components)
+    else
+      let components := p.toString.split (fun ch => pathSeparators.contains ch)
+      let components := components.filter fltr |> List.intersperse pSep
+      String.join components
+
+  p := ⟨ normalized ⟩ 
+
   return p
 
 -- the following functions follow the names and semantics from Rust's `std::path::Path`

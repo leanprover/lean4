@@ -826,7 +826,8 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
       (decide ((max hi lo) - i < w) &&
       x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
-  simp only [decide_eq_true_iff, and_congr_right_iff, Nat.add_one_sub_one, boolToPropSimps, Bool.and_eq_decide_true, show hi - lo - i < hi - lo + 1 by omega]
+  simp only [decide_eq_true_iff, and_congr_right_iff, Nat.add_one_sub_one,
+    boolToPropSimps, Bool.and_eq_decide_true, show hi - lo - i < hi - lo + 1 by omega]
   intro
   by_cases hmax : lo ≤ hi
   · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]
@@ -3401,7 +3402,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

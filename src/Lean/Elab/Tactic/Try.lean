@@ -363,6 +363,8 @@ private partial def evalSuggestImpl (tac : TSyntax `tactic) : M (TSyntax `tactic
           throwError "unsolved goals"
       return r
 
+/-! `evalAndSuggest` frontend -/
+
 private def toSuggestion (t : TSyntax `tactic) : Tactic.TryThis.Suggestion :=
   t
 
@@ -432,11 +434,11 @@ private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
 set_option hygiene false in -- Avoid tagger at `+arith`
 /-- `simp` tactic syntax generator -/
 private def mkSimpStx : CoreM (TSyntax `tactic) :=
-  `(tactic| first | simp? | simp? +arith | simp_all)
+  `(tactic| first | simp? | simp? [*] | simp? +arith | simp? +arith [*])
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption | contradiction)
+  `(tactic| attempt_all | rfl | assumption)
 
 /-! Function induction generators -/
 
@@ -481,7 +483,7 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
-  let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic)
+  let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let funInds ← mkAllFunIndStx info atomic
   `(tactic| first | $atomic:tactic | $funInds:tactic)
 

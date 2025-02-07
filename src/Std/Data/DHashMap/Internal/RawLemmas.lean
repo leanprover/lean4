@@ -88,7 +88,8 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
-    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel]
+    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel,
+    ``Raw.Const.toList_eq_toListModel_map]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -869,6 +870,40 @@ theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
     (k : α) (v : β k) :
     ⟨k, v⟩ ∈ m.1.toList ↔ m.get? k = some v := by
   simp_to_model using List.mem_iff_getValueCast?_eq_some
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem keys_def [EquivBEq α] [LawfulHashable α] :
+    m.1.keys = (Raw.Const.toList m.1).map Prod.fst := by
+  simp_to_model using List.keys_eq_map_prod_fst_map_toProd
+
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).length = m.1.size := by
+  simp_to_model using List.length_map
+
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).isEmpty = m.1.isEmpty := by
+  simp_to_model using List.isEmpty_map
+
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    (k : α) (v : β) :
+    (k, v) ∈ (Raw.Const.toList m.1) ↔ get? m k = some v := by
+  simp_to_model using List.mem_map_toProd_iff_getValue?_eq_some
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k': α} {v : β} :
+    (Raw.Const.toList m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩
+    ↔ m.getKey? k = some k' ∧ get? m k = some v := by
+  simp_to_model using List.find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
+
+theorem mem_toList_iff_getKey?_eq_some_and_getValue?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k: α} {v : β} :
+    (k, v) ∈ (Raw.Const.toList m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp_to_model using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some
+
+end Const
 
 @[simp]
 theorem insertMany_nil :

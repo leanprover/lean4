@@ -248,7 +248,7 @@ theorem foldr_apply {l : AssocList α β} {acc : List δ} (f : (a : α) → β a
       (l.toList.map (fun p => f p.1 p.2)) ++ acc := by
   induction l generalizing acc <;> simp_all [AssocList.foldr, AssocList.foldrM, Id.run]
 
-theorem foldr_foldr_cons_eq_flatMap_toList {l: List (AssocList α β)}:
+theorem foldr_foldr_cons_eq_flatMap_toList {l : List (AssocList α β)} :
     List.foldr (fun x y => AssocList.foldr (fun a b d => ⟨a, b⟩ :: d) y x) [] l
     = List.flatMap AssocList.toList l := by
   suffices ∀ (l : List (AssocList α β)) (l' : List ((a : α) ×  β a)),
@@ -274,7 +274,7 @@ theorem foldr_foldr_cons_eq_flatMap_toList {l: List (AssocList α β)}:
         true_and]
       apply ih
 
-theorem foldr_foldr_eq_sigma_fst_flatMap_toList {l: List (AssocList α β)}:
+theorem foldr_foldr_eq_sigma_fst_flatMap_toList {l : List (AssocList α β)} :
     List.foldr (fun x y => AssocList.foldr (fun a _ d => a :: d) y x) [] l
     = List.map Sigma.fst (List.flatMap AssocList.toList l) := by
   suffices ∀ (l: List (AssocList α β)) (l': List ((a : α) ×  β a)),
@@ -299,6 +299,35 @@ theorem foldr_foldr_eq_sigma_fst_flatMap_toList {l: List (AssocList α β)}:
     | cons hda hdb tl ih =>
       intro l'
       simp only [foldr, Id.run, foldrM, Id.bind_eq, List.map_cons, List.cons.injEq, true_and]
+      apply ih
+
+theorem foldr_foldr_toProd_eq_map_toProd_flatMap_toList
+    {β : Type v} {l : List (AssocList α (fun _ => β))} :
+    List.foldr (fun x y => AssocList.foldr (fun a b d => (a, b) :: d) y x) [] l =
+    List.map (fun x => (x.fst, x.snd)) (List.flatMap AssocList.toList l) := by
+  suffices ∀ (l : List (AssocList α (fun _ => β))) (l' : List (α × β)),
+    List.foldr (fun x y => AssocList.foldr (fun a b d => (a, b) :: d) y x) l' l =
+    List.map (fun x => (x.fst, x.snd)) (List.flatMap AssocList.toList l) ++ l' by
+    specialize this l []
+    simp only [List.append_nil] at this
+    exact this
+  intro l
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    intro l'
+    simp only [List.foldr_cons, List.flatMap_cons, List.map_append, List.append_assoc]
+    rw [ih]
+    suffices ∀ {l : AssocList α (fun _ => β)} {l' : List (α × β)},
+      foldr (fun a b d => (a, b) :: d) l' l = List.map (fun x => (x.fst, x.snd)) l.toList ++ l' by
+      apply this
+    intro l
+    induction l with
+    | nil => simp [foldr, foldrM, Id.run]
+    | cons hda hdb tl ih =>
+      intro l'
+      simp only [foldr, Id.run, foldrM, Id.bind_eq, toList_cons, List.map_cons, List.cons_append,
+        List.cons.injEq, true_and]
       apply ih
 
 end Std.DHashMap.Internal.AssocList

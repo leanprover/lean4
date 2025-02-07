@@ -1985,6 +1985,117 @@ theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k
           simp at k_hdfst
         · apply ih (And.left h)
 
+theorem keys_eq_map_prod_fst_map_toProd {β : Type v} {l : List ((_ : α) × β)} :
+    List.keys l = List.map Prod.fst (List.map (fun x => (x.fst, x.snd)) l) := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.map_cons, keys]
+    congr
+
+theorem mem_map_toProd_iff_mem {β : Type v} {k : α} {v : β} {l : List ((_ : α) × β)} :
+    ⟨k, v⟩ ∈ l ↔ (k, v) ∈ l.map (fun x => (x.fst, x.snd)) := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.mem_cons, List.map_cons, Prod.mk.injEq]
+    by_cases hd_kv: hd = ⟨k, v⟩
+    · simp [hd_kv]
+    · simp only [Ne.symm hd_kv, ih, List.mem_map, Prod.mk.injEq, false_or, iff_or_self, and_imp]
+      intro h₁ h₂
+      simp [h₁, h₂] at hd_kv
+
+theorem mem_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
+    {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l ↔ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.mem_cons]
+    by_cases kv_hd: ⟨k, v⟩ = hd
+    · rw [← kv_hd]
+      simp
+    · simp only [kv_hd, false_or, getValue?, cond_eq_if]
+      rw [distinctKeys_cons_iff] at h
+      by_cases hdfst_k: hd.fst == k
+      · simp only [hdfst_k, ↓reduceIte, Option.some.injEq]
+        simp only [beq_iff_eq] at hdfst_k
+        rw [containsKey_eq_false_iff] at h
+        constructor
+        · intro h'
+          rcases h with ⟨_, h⟩
+          specialize h ⟨hd.fst, v⟩
+          rw [hdfst_k] at h
+          simp only [beq_self_eq_true, Bool.true_eq_false, imp_false] at h
+          contradiction
+        · intro h'
+          rw [← hdfst_k, ← h'] at kv_hd
+          simp at kv_hd
+      · simp only [hdfst_k, Bool.false_eq_true, ↓reduceIte]
+        apply ih (And.left h)
+
+theorem mem_map_toProd_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
+    {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l.map (fun x => (x.fst, x.snd)) ↔ getValue? k l = some v := by
+  rw [← mem_map_toProd_iff_mem]
+  exact mem_iff_getValue?_eq_some h
+
+theorem find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k k': α} {v : β} {l : List ((_ : α) × β)} :
+    (l.map (fun x => (x.fst, x.snd))).find? (fun a => a.1 == k) = some (k', v)
+    ↔ getKey? k l = some k' ∧ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.map_cons, List.find?_cons_eq_some, Prod.mk.injEq, Bool.not_eq_eq_eq_not,
+      Bool.not_true, Option.map_eq_some', getKey?, cond_eq_if, getValue?]
+    by_cases hdfst_k: hd.fst == k
+    · simp only [hdfst_k, true_and, Bool.true_eq_false, false_and, or_false, ↓reduceIte,
+      Option.some.injEq]
+    · simp only [hdfst_k, Bool.false_eq_true, false_and, true_and, false_or, ↓reduceIte]
+      rw [ih]
+
+theorem mem_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    ⟨k, v⟩ ∈ l ↔ getKey? k l = some k ∧ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.mem_cons, getKey?, cond_eq_if, getValue?]
+    rw [distinctKeys_cons_iff] at h
+    specialize ih (And.left h)
+    by_cases hdfst_k : hd.fst == k
+    · simp only [hdfst_k, ↓reduceIte, Option.some.injEq]
+      rcases h with ⟨_, h⟩
+      constructor
+      · intro h'
+        cases h' with
+        | inl h' =>
+          rw [← h']
+          simp
+        | inr h' =>
+          rw [containsKey_eq_false_iff] at h
+          specialize h ⟨k, v⟩ h'
+          simp only at h
+          rw [hdfst_k] at h
+          contradiction
+      · intro h'
+        left
+        rw [Sigma.ext_iff]
+        simp [h']
+    · simp only [hdfst_k, Bool.false_eq_true, ↓reduceIte]
+      rw [ih]
+      simp only [or_iff_right_iff_imp]
+      intro h'
+      rw [← h'] at hdfst_k
+      simp at hdfst_k
+
+theorem mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
+    {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
+    (k, v) ∈ l.map (fun x => (x.fst, x.snd)) ↔ getKey? k l = some k ∧ getValue? k l = some v := by
+  rw [← mem_map_toProd_iff_mem]
+  exact mem_iff_getKey?_eq_some_and_getValue?_eq_some h
+
 /-- Internal implementation detail of the hash map -/
 def insertList [BEq α] (l toInsert : List ((a : α) × β a)) : List ((a : α) × β a) :=
   match toInsert with

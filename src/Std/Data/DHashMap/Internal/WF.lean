@@ -112,6 +112,11 @@ theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets
     toListModel]
   apply AssocList.foldr_foldr_cons_eq_flatMap_toList
 
+theorem Const.toList_eq_toListModel_map {β : Type v} {m : Raw α (fun _ => β)} :
+    Raw.Const.toList m = (toListModel m.buckets).map (fun ⟨k, v⟩ => ⟨k, v⟩) := by
+  simp[Raw.Const.toList, Raw.foldRev, Raw.foldRevM, toListModel, ← Array.foldr_toList]
+  apply AssocList.foldr_foldr_toProd_eq_map_toProd_flatMap_toList
+
 theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
   simp [Raw.toList, foldRev_cons]
 

@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Try
 import Lean.Meta.Tactic.TryThis
 import Lean.Elab.Tactic.Config
 import Lean.Elab.Tactic.SimpTrace
+import Lean.Elab.Tactic.LibrarySearch
 import Lean.Elab.Tactic.Grind
 
 namespace Lean.Elab.Tactic
@@ -27,6 +28,59 @@ namespace Try
 `evalSuggest` is a `evalTactic` variant that returns suggestions after executing a tactic built using
 combinatiors such as `first`, `attempt_all`, `<;>`, `;`, and `try`.
 -/
+
+/-- Returns `true` if `fvarId` has an accessible name. -/
+private def isAccessible (fvarId : FVarId) : MetaM Bool := do
+  let localDecl ← fvarId.getDecl
+  if localDecl.userName.hasMacroScopes then
+    return false
+  else
+    -- Check whether variable has been shadowed
+    let some localDecl' := (← getLCtx).findFromUserName? localDecl.userName
+      | return false
+    return localDecl'.fvarId == localDecl.fvarId
+
+/-- Returns `true` if all free variables occurring in `e` are accessible. -/
+private def isExprAccessible (e : Expr) : MetaM Bool := do
+  let (_, s) ← e.collectFVars |>.run {}
+  s.fvarIds.allM isAccessible
+
+/-- Creates a temporary local context where all names are exposed, and executes `k`-/
+private def withExposedNames (k : MetaM α) : MetaM α := do
+  withNewMCtxDepth do
+    -- Create a helper goal to apply
+    let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
+    let mvarId ← mvarId.exposeNames
+    mvarId.withContext do k
+
+/-- Executes `tac` in the saved state. This function is used to validate a tactic before suggesting it. -/
+def checkTactic (savedState : SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
+  let currState ← saveState
+  savedState.restore
+  try
+    evalTactic tac
+  finally
+    currState.restore
+
+def evalSuggestExact : TacticM (TSyntax `tactic) := do
+  let savedState ← saveState
+  let mvarId :: mvarIds ← getGoals
+    | throwError "no goals"
+  mvarId.withContext do
+    let tactic := fun exfalso => LibrarySearch.solveByElim [] (exfalso := exfalso) (maxDepth := 6)
+    let allowFailure := fun _ => return false
+    let .none ← LibrarySearch.librarySearch mvarId tactic allowFailure
+      | throwError "`exact?` failed"
+    let proof := (← instantiateMVars (mkMVar mvarId)).headBeta
+    let tac ← if (← isExprAccessible proof) then
+      let stx ← PrettyPrinter.delab proof
+      `(tactic| exact $stx)
+    else withExposedNames do
+      let stx ← PrettyPrinter.delab proof
+      `(tactic| (expose_names; exact $stx))
+    checkTactic savedState tac
+    setGoals mvarIds
+    return tac
 
 /-- Returns the suggestions represented by `tac`.  -/
 private def getSuggestionOfTactic (tac : TSyntax `tactic) : Array (TSyntax `tactic) :=
@@ -416,6 +470,7 @@ where
 -- `evalSuggest` implementation
 @[export lean_eval_suggest_tactic]
 private partial def evalSuggestImpl (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
+  trace[try.debug] "{tac}"
   match tac with
   | `(tactic| $tac1 <;> $tac2) => evalSuggestChain tac1 tac2
   | `(tactic| first $[| $tacs]*) => evalSuggestFirst tacs
@@ -431,6 +486,8 @@ private partial def evalSuggestImpl (tac : TSyntax `tactic) : M (TSyntax `tactic
         evalSuggestGrindTrace tac
       else if k == ``Parser.Tactic.simpTrace then
         evalSuggestSimpTrace tac
+      else if k == ``Parser.Tactic.exact? then
+        evalSuggestExact
       else
         evalSuggestAtomic tac
       if (← read).terminal then
@@ -517,27 +574,12 @@ private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
 
 /-! Function induction generators -/
 
-private def allAccessible (majors : Array FVarId) : MetaM Bool :=
-  majors.allM fun major => do
-    let localDecl ← major.getDecl
-    if localDecl.userName.hasMacroScopes then
-      return false
-    else
-      -- Check whether variable has been shadowed
-      let some localDecl' := (← getLCtx).findFromUserName? localDecl.userName
-        | return false
-      return localDecl'.fvarId == localDecl.fvarId
-
 open Try.Collector in
 private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  if (← allAccessible c.majors) then
+  if (← c.majors.allM isAccessible) then
     go
-  else withNewMCtxDepth do
-    -- Create a helper goal to apply
-    let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
-    let mvarId ← mvarId.exposeNames
-    mvarId.withContext do
-      `(tactic| (expose_names; $(← go):tactic))
+  else withExposedNames do
+    `(tactic| (expose_names; $(← go):tactic))
 where
   go : MetaM (TSyntax `tactic) := do
     let mut terms := #[]
@@ -560,11 +602,11 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
   let grind ← mkGrindStx info
   let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let funInds ← mkAllFunIndStx info atomic
-  `(tactic| first | $atomic:tactic | $funInds:tactic)
+  let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
+  `(tactic| first | $atomic:tactic | $funInds:tactic | $extra:tactic)
 
 -- TODO: vanilla `induction`.
 -- TODO: make it extensible.
--- TODO: librarySearch integration.
 -- TODO: premise selection.
 
 @[builtin_tactic Lean.Parser.Tactic.tryTrace] def evalTryTrace : Tactic := fun stx => do

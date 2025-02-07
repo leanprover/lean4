@@ -290,6 +290,8 @@ where
         -- Suboptimal combination. See comment at `isOnlyAndNonOnly`
         return ()
       let tac ← if let some tac2 ← mergeAll? tacs2 then
+        -- TODO: when merging tactics, there is a possibility the compressed version will not work.
+        -- TODO: if this is a big issue in practice, we should "replay" the tactic here.
         `(tactic| $tac1:tactic <;> $tac2:tactic)
       else
         let tacs2 ← tacs2.mapM fun tac2 => `(tactic| · $tac2:tactic)

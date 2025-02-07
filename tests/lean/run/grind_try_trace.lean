@@ -122,14 +122,19 @@ def concat : List α → α → List α
 attribute [simp] concat
 
 /--
-info: Try this: ·
+info: Try these:
+• ·
   induction as, a using concat.induct
   · rfl
+  · simp_all
+• ·
+  induction as, a using concat.induct
+  · simp
   · simp_all
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
-  try?
+  try? -only
 
 def foo : Nat → Nat
   | 0   => 1
@@ -144,7 +149,7 @@ info: Try this: ·
 -/
 #guard_msgs (info) in
 example : foo x > 0 := by
-  try? +missing -- `try?` does not solve all subgoals.
+  try? +missing -only -- `try?` does not solve all subgoals.
   sorry
 
 /--

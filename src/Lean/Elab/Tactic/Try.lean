@@ -116,40 +116,6 @@ private def getKindsSolvedAll (tacss : Array (Array (TSyntax `tactic))) : Array 
         r := r.push k
     return r
 
-private def peekOne (tac1 : TSyntax `tactic) (tacss2 : Array (Array (TSyntax `tactic))) : TacticM (TSyntax `tactic) := do
-  let mut tacs2 := #[]
-  for s in tacss2 do
-    if s.isEmpty then
-      tacs2 := tacs2.push (← `(tactic| · sorry))
-    else
-      tacs2 := tacs2.push (← `(tactic| · $(s[0]!):tactic))
-  `(tactic| · $tac1:tactic
-              $tacs2*)
-
-private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : TacticM (TSyntax `tactic) := do
-  let tacss2 := tacss2.map getSuggestionsCore
-  if (← isTracingEnabledFor `try.debug) then
-    trace[try.debug] "mkChainResultCore tac1{indentD tac1}"
-    let mut i : Nat := 0
-    for tacs2 in tacss2 do
-      i := i + 1
-      trace[try.debug] "goal #{i} tactics"
-      for tac2 in tacs2 do
-        trace[try.debug] "  {tac2}"
-    trace[try.debug] "mkChainResult -----"
-  let mut acc := #[]
-  let solvedAll := getTacsSolvedAll tacss2
-  for tac2 in solvedAll do
-    acc := acc.push (← `(tactic| $tac1 <;> $tac2))
-  let tacss2 := eraseTacs tacss2 solvedAll
-  -- TODO: mixed cases
-  trace[try.debug] "kinds: {getKindsSolvedAll tacss2}"
-  if (!acc.isEmpty && tacss2.all fun s => !s.isEmpty)
-     -- We only include partial solutions if there are no other solutions.
-     || (acc.isEmpty && tacss2.any fun s => !s.isEmpty) then
-    acc := acc.push <| (← peekOne tac1 tacss2)
-  mkTrySuggestions acc
-
 private def evalSuggestAtomic (tac : TSyntax `tactic) : TacticM (TSyntax `tactic) := do
   let goals ← getGoals
   evalTactic tac.raw
@@ -202,6 +168,43 @@ def observing (x : M α) : M (TacticResult α) := do
       let sNew ← saveState
       s.restore (restoreInfo := true)
       return .error ex sNew
+
+private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
+  let tacss2 := tacss2.map getSuggestionsCore
+  if (← isTracingEnabledFor `try.debug) then
+    trace[try.debug] "mkChainResultCore tac1{indentD tac1}"
+    let mut i : Nat := 0
+    for tacs2 in tacss2 do
+      i := i + 1
+      trace[try.debug] "goal #{i} tactics"
+      for tac2 in tacs2 do
+        trace[try.debug] "  {tac2}"
+    trace[try.debug] "mkChainResult -----"
+  let mut acc := #[]
+  let solvedAll := getTacsSolvedAll tacss2
+  for tac2 in solvedAll do
+    acc := acc.push (← `(tactic| $tac1 <;> $tac2))
+  let tacss2 := eraseTacs tacss2 solvedAll
+  trace[try.debug] "kinds: {getKindsSolvedAll tacss2}"
+  if (!acc.isEmpty && tacss2.all fun s => !s.isEmpty)
+     -- We only include partial solutions if there are no other solutions.
+     || (acc.isEmpty && tacss2.any fun s => !s.isEmpty) then
+    (_, acc) ← go tacss2 0 [] |>.run acc
+  mkTrySuggestions acc
+where
+  go (tacss2 : Array (Array (TSyntax `tactic))) (i : Nat) (acc : List (TSyntax `tactic)) : StateT (Array (TSyntax `tactic)) M Unit := do
+    if (← get).size > (← read).config.max then
+      return ()
+    else if h : i < tacss2.size then
+      if tacss2[i].isEmpty then
+        go tacss2 (i+1) ((← `(tactic| · sorry)) :: acc)
+      else
+        for tac in tacss2[i] do
+          go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc)
+    else
+      let tac ← `(tactic| · $tac1:tactic
+                            $(acc.toArray.reverse)*)
+      modify (·.push tac)
 
 private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
   match tac with

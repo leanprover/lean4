@@ -143,7 +143,7 @@ theorem size_emptyc : (∅ : Raw α cmp).size = 0 :=
 
 theorem isEmpty_eq_size_eq_zero (h : t.WF) :
     t.isEmpty = (t.size == 0) :=
-  DTreeMap.Raw.isEmpty_eq_size_eq_zero h.out
+  TreeMap.Raw.isEmpty_eq_size_eq_zero h.out
 
 theorem size_insert [TransCmp cmp] (h : t.WF) {k : α} :
     (t.insert k).size = if t.contains k then t.size else t.size + 1 :=

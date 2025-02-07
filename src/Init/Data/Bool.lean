@@ -566,7 +566,6 @@ theorem apply_cond (f : α → β) {b : Bool} {a a' : α} :
 
 protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = true) = b := decide_eq_true
 
-
 @[simp] theorem decide_and (p q : Prop) [dpq : Decidable (p ∧ q)] [dp : Decidable p] [dq : Decidable q] :
     decide (p ∧ q) = (p && q) := by
   cases dp with | _ p => simp [p]

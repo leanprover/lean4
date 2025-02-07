@@ -182,25 +182,45 @@ private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tac
     trace[try.debug] "mkChainResult -----"
   let mut acc := #[]
   let solvedAll := getTacsSolvedAll tacss2
+  -- Give preference to tactics that solved all subgoals
   for tac2 in solvedAll do
     acc := acc.push (← `(tactic| $tac1 <;> $tac2))
+  /-
+  We claim mixed solutions using tactics in `solvedAll` are suboptimal, and should not be considered
+  Example: if `grind` solved all subgoals, we should not propose a solution such as
+  ```
+  induction x
+  · rfl
+  · grind
+  ```
+  -/
   let tacss2 := eraseTacs tacss2 solvedAll
-  trace[try.debug] "kinds: {getKindsSolvedAll tacss2}"
+  trace[try.debug.chain] "kinds: {getKindsSolvedAll tacss2}"
+  let kinds := getKindsSolvedAll tacss2
+  -- Give preference to tactics of the same kind that solved all subgoals
+  for k in kinds do
+    (_, acc) ← go tacss2 0 [] (some k) |>.run acc
+  -- Remove tactics with kind in `kinds`. Again, we claim mixed kind solutions are suboptimal.
+  let tacss2 := tacss2.map fun s => s.filter fun tac => !kinds.contains tac.raw.getKind
   if (!acc.isEmpty && tacss2.all fun s => !s.isEmpty)
      -- We only include partial solutions if there are no other solutions.
      || (acc.isEmpty && tacss2.any fun s => !s.isEmpty) then
-    (_, acc) ← go tacss2 0 [] |>.run acc
+    (_, acc) ← go tacss2 0 [] none |>.run acc
   mkTrySuggestions acc
 where
-  go (tacss2 : Array (Array (TSyntax `tactic))) (i : Nat) (acc : List (TSyntax `tactic)) : StateT (Array (TSyntax `tactic)) M Unit := do
+  go (tacss2 : Array (Array (TSyntax `tactic))) (i : Nat) (acc : List (TSyntax `tactic)) (kind? : Option SyntaxNodeKind) : StateT (Array (TSyntax `tactic)) M Unit := do
     if (← get).size > (← read).config.max then
       return ()
     else if h : i < tacss2.size then
       if tacss2[i].isEmpty then
-        go tacss2 (i+1) ((← `(tactic| · sorry)) :: acc)
+        go tacss2 (i+1) ((← `(tactic| · sorry)) :: acc) kind?
       else
         for tac in tacss2[i] do
-          go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc)
+          if let some kind := kind? then
+            if tac.raw.getKind == kind then
+              go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
+          else
+            go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
     else
       let tac ← `(tactic| · $tac1:tactic
                             $(acc.toArray.reverse)*)
@@ -412,7 +432,7 @@ private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
 set_option hygiene false in -- Avoid tagger at `+arith`
 /-- `simp` tactic syntax generator -/
 private def mkSimpStx : CoreM (TSyntax `tactic) :=
-  `(tactic| first | simp?; done | simp? +arith; done | simp_all; done)
+  `(tactic| first | simp? | simp? +arith | simp_all)
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=

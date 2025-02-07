@@ -11,7 +11,7 @@ import Std.Data.DTreeMap.Internal.Impl.Query
 # Balancing operations
 
 This file contains the implementation of internal balancing operations used by the modification
-operations of the tree map.
+operations of the tree map and proves that these operations produce balanced trees.
 -/
 
 set_option autoImplicit false

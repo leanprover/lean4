@@ -178,6 +178,14 @@ def any (t : TreeMap α β cmp) (p : α → β → Bool) : Bool :=
 def all (t : TreeMap α β cmp) (p : α → β → Bool) : Bool :=
   t.inner.all p
 
+@[inline, inherit_doc DTreeMap.keys]
+def keys (t : TreeMap α β cmp) : List α :=
+  t.inner.keys
+
+@[inline, inherit_doc DTreeMap.keysArray]
+def keysArray (t : TreeMap α β cmp) : Array α :=
+  t.inner.keysArray
+
 @[inline, inherit_doc DTreeMap.Const.toList]
 def toList (t : TreeMap α β cmp) : List (α × β) :=
   DTreeMap.Const.toList t.inner

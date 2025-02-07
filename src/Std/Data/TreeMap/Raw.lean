@@ -200,6 +200,14 @@ def any (t : Raw α β cmp) (p : α → β → Bool) : Bool :=
 def all (t : Raw α β cmp) (p : α → β → Bool) : Bool :=
   t.inner.all p
 
+@[inline, inherit_doc DTreeMap.Raw.keys]
+def keys (t : Raw α β cmp) : List α :=
+  t.inner.keys
+
+@[inline, inherit_doc DTreeMap.Raw.keysArray]
+def keysArray (t : Raw α β cmp) : Array α :=
+  t.inner.keysArray
+
 @[inline, inherit_doc DTreeMap.Raw.toList]
 def toList (t : Raw α β cmp) : List (α × β) :=
   DTreeMap.Raw.Const.toList t.inner

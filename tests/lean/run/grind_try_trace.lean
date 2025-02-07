@@ -25,6 +25,15 @@ example : 4 + x + y ≥ 1 + x  := by
 
 /--
 info: Try these:
+• simp +arith
+• grind
+-/
+#guard_msgs (info) in
+example : 4 + x + y ≥ 1 + x  := by
+  try? -only
+
+/--
+info: Try these:
 • grind
 • grind only
 -/
@@ -78,6 +87,13 @@ example : app (app as bs) cs = app as (app bs cs) := by
   try?
 
 /--
+info: Try this: (induction as, bs using app.induct) <;> grind [= app]
+-/
+#guard_msgs (info) in
+example : app (app as bs) cs = app as (app bs cs) := by
+  try? (max := 1)
+
+/--
 info: Try these:
 • · expose_names; induction as, bs_1 using app.induct <;> grind [= app]
 • · expose_names; induction as, bs_1 using app.induct <;> grind only [app]
@@ -106,14 +122,19 @@ def concat : List α → α → List α
 attribute [simp] concat
 
 /--
-info: Try this: ·
+info: Try these:
+• ·
   induction as, a using concat.induct
   · rfl
+  · simp_all
+• ·
+  induction as, a using concat.induct
+  · simp
   · simp_all
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
-  try?
+  try? -only
 
 def foo : Nat → Nat
   | 0   => 1
@@ -128,5 +149,14 @@ info: Try this: ·
 -/
 #guard_msgs (info) in
 example : foo x > 0 := by
-  try?  -- `try?` does not solve all subgoals.
+  try? +missing -only -- `try?` does not solve all subgoals.
   sorry
+
+/--
+error: tactic 'try?' failed, consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
+x : Nat
+⊢ foo x > 0
+-/
+#guard_msgs (error) in
+example : foo x > 0 := by
+  try?

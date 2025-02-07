@@ -7,6 +7,7 @@ info: Try these:
 • simp only [ne_eq, reduceCtorEq, not_false_eq_true]
 • grind
 • grind only
+• simp_all
 -/
 #guard_msgs (info) in
 example : [1, 2] ≠ [] := by
@@ -123,18 +124,25 @@ attribute [simp] concat
 
 /--
 info: Try these:
-• ·
-  induction as, a using concat.induct
-  · rfl
-  · simp_all
-• ·
-  induction as, a using concat.induct
-  · simp
-  · simp_all
+• (induction as, a using concat.induct) <;> simp_all
+• (induction as, a using concat.induct) <;> simp [*]
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
   try? -only
+
+/--
+info: Try these:
+• (induction as, a using concat.induct) <;> simp_all
+• ·
+  induction as, a using concat.induct
+  · simp
+  · simp [*]
+-/
+#guard_msgs (info) in
+example (as : List α) (a : α) : concat as a = as ++ [a] := by
+  try? -only -merge
+
 
 def foo : Nat → Nat
   | 0   => 1
@@ -159,4 +167,22 @@ x : Nat
 -/
 #guard_msgs (error) in
 example : foo x > 0 := by
+  try?
+
+@[simp] def bla : List Nat → List Nat → List Nat
+  | [],    ys => ys.reverse
+  | _::xs, ys => bla xs ys
+
+attribute [grind] List.length_reverse bla
+
+/--
+info: Try these:
+• (induction xs, ys using bla.induct) <;> grind
+• (induction xs, ys using bla.induct) <;> simp_all
+• (induction xs, ys using bla.induct) <;> simp [*]
+• (induction xs, ys using bla.induct) <;> simp only [bla, List.length_reverse, *]
+• (induction xs, ys using bla.induct) <;> grind only [List.length_reverse, bla]
+-/
+#guard_msgs (info) in
+example : (bla xs ys).length = ys.length := by
   try?

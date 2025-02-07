@@ -158,7 +158,7 @@ def saveFunInd (_e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
-  if (← getConfig).lib then
+  if (← getConfig).harder then
     for (declName, declMod) in (← libSearchFindDecls e) do
       unless (← Grind.isEMatchTheorem declName) do
         let kind := match declMod with

@@ -240,7 +240,7 @@ private def evalSuggestChain (tac1 tac2 : TSyntax `tactic) : M (TSyntax `tactic)
   let mut i : Nat := 0
   for goal in goals do
     setGoals [goal]
-    let tac2' : TSyntax `tactic ← (evalSuggest tac2) <|> `(tactic| sorry)
+    let tac2' : TSyntax `tactic ← (evalSuggest tac2) <|> (if (← read).config.missing then `(tactic| sorry) else failure)
     i := i + 1
     tac2s := tac2s.push tac2'
   if tac2s.all isSorry then
@@ -338,9 +338,12 @@ private def getSuggestions (tac : TSyntax `tactic) : Array Tactic.TryThis.Sugges
   let tacs := getSuggestionsCore tac
   tacs.map toSuggestion
 
-private def throwEvalAndSuggestFailed : TacticM Unit := do
+private def throwEvalAndSuggestFailed (config : Try.Config) : TacticM α := do
   let goal ← getMainGoal
-  Meta.throwTacticEx `«try?» goal "consider using `grind` manually"
+  if config.missing then
+    Meta.throwTacticEx `«try?» goal "consider using `grind` manually"
+  else
+    Meta.throwTacticEx `«try?» goal "consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`"
 
 private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) : TacticM Unit := do
   if s.size == 1 then
@@ -349,10 +352,13 @@ private def addSuggestions (tk : Syntax) (s : Array Tactic.TryThis.Suggestion) :
     Tactic.TryThis.addSuggestions tk (s.map fun stx => stx) (origSpan? := (← getRef))
 
 def evalAndSuggest (tk : Syntax) (tac : TSyntax `tactic) (config : Try.Config := {}) : TacticM Unit := do
-  let tac' ← evalSuggest tac |>.run { terminal := true, root := tac, config }
-  let s := getSuggestions tac'
+  let tac' ← try
+    evalSuggest tac |>.run { terminal := true, root := tac, config }
+  catch _ =>
+    throwEvalAndSuggestFailed config
+  let s := (getSuggestions tac')[:config.max].toArray
   if s.isEmpty then
-    throwEvalAndSuggestFailed
+    throwEvalAndSuggestFailed config
   else
     addSuggestions tk s
 

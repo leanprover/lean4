@@ -132,7 +132,6 @@ theorem size_emptyc : (∅ : Raw α β cmp).size = 0 :=
   Impl.size_empty
 
 theorem isEmpty_eq_size_eq_zero (h : t.WF) :
-    letI : BEq Nat := instBEqOfDecidableEq
     t.isEmpty = (t.size == 0) :=
   Impl.isEmpty_eq_size_eq_zero h.out
 

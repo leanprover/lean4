@@ -13,11 +13,16 @@ name mk_rec_name(name const & I);
 
 bool is_inductive(environment const & env, name const & n);
 bool is_constructor(environment const & env, name const & n);
+bool is_constructor_of(environment const & env, name const & n, name const & induct);
 bool is_recursor(environment const & env, name const & n);
 
 /** \brief If \c e is a constructor application, then return the name of the constructor.
     Otherwise, return none. */
 optional<name> is_constructor_app(environment const & env, expr const & e);
+
+/** \brief If `e` is a constructor application of the inductive type of name `induct`,
+    then return the name of the constructor. Otherwise, return none. */
+optional<name> is_constructor_app_of(environment const & env, expr const & e, name const & induct);
 
 /** \brief Return true if the given declaration is a structure */
 bool is_structure_like(environment const & env, name const & decl_name);

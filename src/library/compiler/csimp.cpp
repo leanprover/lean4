@@ -1603,7 +1603,7 @@ class csimp_fn {
             return *r;
         }
 
-        if (is_constructor_app(env(), major)) {
+        if (is_constructor_app_of(env(), major, I_val.to_constant_val().get_name())) {
             return reduce_cases_cnstr(args, I_val, major, is_let_val);
         } else if (!is_let_val) {
             return visit_cases_default(e);

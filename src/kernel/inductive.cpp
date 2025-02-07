@@ -43,6 +43,12 @@ bool is_constructor(environment const & env, name const & n) {
     return false;
 }
 
+bool is_constructor_of(environment const & env, name const & n, name const & induct) {
+    if (optional<constant_info> info = env.find(n))
+        return info->is_constructor() && info->to_constructor_val().get_induct() == induct;
+    return false;
+}
+
 bool is_recursor(environment const & env, name const & n) {
     if (optional<constant_info> info = env.find(n))
         return info->is_recursor();
@@ -53,6 +59,15 @@ optional<name> is_constructor_app(environment const & env, expr const & e) {
     expr const & fn = get_app_fn(e);
     if (is_constant(fn)) {
         if (is_constructor(env, const_name(fn)))
+            return optional<name>(const_name(fn));
+    }
+    return optional<name>();
+}
+
+optional<name> is_constructor_app_of(environment const & env, expr const & e, name const & induct) {
+    expr const & fn = get_app_fn(e);
+    if (is_constant(fn)) {
+        if (is_constructor_of(env, const_name(fn), induct))
             return optional<name>(const_name(fn));
     }
     return optional<name>();

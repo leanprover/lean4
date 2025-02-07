@@ -430,7 +430,8 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
       catch e =>
-        logError e.toMessageData
+        unless e.isInterrupt do
+          logError e.toMessageData
       finally
         addTraceAsMessages
       get

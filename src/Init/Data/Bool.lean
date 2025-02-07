@@ -597,7 +597,6 @@ theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidab
     (decide p == decide q) = decide (p ↔ q) := by
   cases dp with | _ p => simp [p]
 
-
 end Bool
 
 export Bool (cond_eq_if xor and or not)

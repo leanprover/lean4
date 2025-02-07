@@ -114,5 +114,5 @@ error: The prover found a counterexample, consider the following assignment:
 x = 0x3#2
 -/
 #guard_msgs in
-example (x : BitVec 2) : (bif x.ult 0#2 then 1#2 else 2#2) == 3#2 := by
+example (x : BitVec 2) : (bif x.ult 1#2 then 1#2 else 2#2) == 3#2 := by
   bv_decide

@@ -40,7 +40,7 @@ builtin_initialize reducibilityExtraExt : SimpleScopedEnvExtension (Name × Redu
 
 @[export lean_get_reducibility_status]
 def getReducibilityStatusCore (env : Environment) (declName : Name) : ReducibilityStatus :=
-  let m := reducibilityExtraExt.getStateNoAsync env
+  let m := reducibilityExtraExt.getState (asyncMode := .local) env
   if let some status := m.find? declName then
     status
   else match env.getModuleIdxFor? declName with

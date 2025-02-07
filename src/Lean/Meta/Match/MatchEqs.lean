@@ -74,7 +74,7 @@ where
           matchConstRec f (fun _ => return none) fun recVal _ => do
             if recVal.getMajorIdx >= args.size then
               return none
-            let major := args[recVal.getMajorIdx]!
+            let major := args[recVal.getMajorIdx]!.consumeMData
             if major.isFVar then
               return some major.fvarId!
             else
@@ -129,9 +129,9 @@ where
           let typeNew := b.instantiate1 y
           if let some (_, lhs, rhs) ← matchEq? d then
             if lhs.isFVar && ys.contains lhs && args.contains lhs && isNamedPatternProof typeNew y then
-               let some j  := ys.indexOf? lhs | unreachable!
+               let some j  := ys.finIdxOf? lhs | unreachable!
                let ys      := ys.eraseIdx j
-               let some k  := args.indexOf? lhs | unreachable!
+               let some k  := args.idxOf? lhs | unreachable!
                let mask    := mask.set! k false
                let args    := args.map fun arg => if arg == lhs then rhs else arg
                let arg     ← mkEqRefl rhs
@@ -766,7 +766,7 @@ private partial def mkEquationsFor (matchDeclName : Name) :  MetaM MatchEqns := 
 /- See header at `MatchEqsExt.lean` -/
 @[export lean_get_match_equations_for]
 def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
-  match matchEqnsExt.getStateNoAsync (← getEnv) |>.map.find? matchDeclName with
+  match matchEqnsExt.getState (asyncMode := .local) (← getEnv) |>.map.find? matchDeclName with
   | some matchEqns => return matchEqns
   | none => mkEquationsFor matchDeclName
 

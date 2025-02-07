@@ -97,7 +97,7 @@ Otherwise, falls back to the package's.
   self.config.defaultFacets
 
 /-- The library's `nativeFacets` configuration. -/
-@[inline] def nativeFacets (self : LeanLib) (shouldExport : Bool) : Array (ModuleFacet (Job FilePath)) :=
+@[inline] def nativeFacets (self : LeanLib) (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
   self.config.nativeFacets shouldExport
 
 /--

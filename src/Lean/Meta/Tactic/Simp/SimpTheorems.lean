@@ -172,7 +172,7 @@ instance : ToFormat SimpTheorem where
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .decl n post inv => do
-    let r := MessageData.ofConst (← mkConstWithLevelParams n)
+    let r := MessageData.ofConstName n
     match post, inv with
     | true,  true  => return m!"← {r}"
     | true,  false => return r
@@ -453,7 +453,7 @@ inductive SimpEntry where
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
-  return ext.getStateNoAsync (← getEnv)
+  return ext.getState (asyncMode := .local) (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio

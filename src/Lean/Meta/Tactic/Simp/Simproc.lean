@@ -62,14 +62,14 @@ def getSimprocDeclKeys? (declName : Name) : CoreM (Option (Array SimpTheoremKey)
       let some decl := (simprocDeclExt.getModuleEntries env modIdx).binSearch { declName, keys := #[] } SimprocDecl.lt
         | pure none
       pure (some decl.keys)
-    | none        => pure ((simprocDeclExt.getStateNoAsync env).newEntries.find? declName)
+    | none        => pure ((simprocDeclExt.getState (asyncMode := .local) env).newEntries.find? declName)
   if let some keys := keys? then
     return some keys
   else
-    return (simprocDeclExt.getStateNoAsync env).builtin[declName]?
+    return (simprocDeclExt.getState (asyncMode := .local) env).builtin[declName]?
 
 def isBuiltinSimproc (declName : Name) : CoreM Bool := do
-  let s := simprocDeclExt.getStateNoAsync (← getEnv)
+  let s := simprocDeclExt.getState (asyncMode := .local) (← getEnv)
   return s.builtin.contains declName
 
 def isSimproc (declName : Name) : CoreM Bool :=
@@ -433,10 +433,10 @@ builtin_initialize
   }
 
 def getSimprocs : CoreM Simprocs :=
-  return simprocExtension.getStateNoAsync (← getEnv)
+  return simprocExtension.getState (asyncMode := .local) (← getEnv)
 
 def getSEvalSimprocs : CoreM Simprocs :=
-  return simprocSEvalExtension.getStateNoAsync (← getEnv)
+  return simprocSEvalExtension.getState (asyncMode := .local) (← getEnv)
 
 def getSimprocExtensionCore? (attrName : Name) : IO (Option SimprocExtension) :=
   return (← simprocExtensionMapRef.get)[attrName]?

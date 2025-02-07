@@ -8,6 +8,14 @@ import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
+
+/--
+`as_aux_lemma => tac` does the same as `tac`, except that it wraps the resulting expression
+into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
+because the proof term is not duplicated.
+-/
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.
@@ -1594,6 +1602,12 @@ using `show_term`.
 -/
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
+/--
+`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
+accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+-/
+syntax (name := exposeNames) "expose_names" : tactic
+
 end Tactic
 
 namespace Attr
@@ -1647,6 +1661,14 @@ If there are several with the same priority, it is uses the "most recent one". E
 ```
 -/
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+
+/--
+Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
+by well-founded recursion. They are applied to the function's body to add additional hypotheses,
+such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
+`xs.attach.map`. Also see `wfParam`.
+-/
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

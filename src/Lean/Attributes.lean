@@ -165,7 +165,7 @@ namespace TagAttribute
 def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
   match env.getModuleIdxFor? decl with
   | some modIdx => (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
-  | none        => (attr.ext.getStateNoAsync env).contains decl
+  | none        => (attr.ext.getState (asyncMode := .local) env).contains decl
 
 end TagAttribute
 
@@ -212,13 +212,14 @@ def registerParametricAttribute (impl : ParametricAttributeImpl α) : IO (Parame
 
 namespace ParametricAttribute
 
-def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) (allowAsync := false) : Option α :=
+def getParam? [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name)
+    (asyncMode := attr.ext.toEnvExtension.asyncMode) : Option α :=
   match env.getModuleIdxFor? decl with
   | some modIdx =>
     match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default) (fun a b => Name.quickLt a.1 b.1) with
     | some (_, val) => some val
     | none          => none
-  | none        => (attr.ext.getState (allowAsync := allowAsync) env).find? decl
+  | none        => (attr.ext.getState (asyncMode := asyncMode) env).find? decl
 
 def setParam (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
   if (env.getModuleIdxFor? decl).isSome then
@@ -384,14 +385,14 @@ def getBuiltinAttributeApplicationTime (n : Name) : IO AttributeApplicationTime 
   pure attr.applicationTime
 
 def isAttribute (env : Environment) (attrName : Name) : Bool :=
-  (attributeExtension.getStateNoAsync env).map.contains attrName
+  (attributeExtension.getState (asyncMode := .local) env).map.contains attrName
 
 def getAttributeNames (env : Environment) : List Name :=
-  let m := (attributeExtension.getStateNoAsync env).map
+  let m := (attributeExtension.getState (asyncMode := .local) env).map
   m.fold (fun r n _ => n::r) []
 
 def getAttributeImpl (env : Environment) (attrName : Name) : Except String AttributeImpl :=
-  let m := (attributeExtension.getStateNoAsync env).map
+  let m := (attributeExtension.getState (asyncMode := .local) env).map
   match m[attrName]? with
   | some attr => pure attr
   | none      => throw ("unknown attribute '" ++ toString attrName ++ "'")

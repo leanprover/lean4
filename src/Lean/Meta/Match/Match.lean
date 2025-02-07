@@ -751,9 +751,9 @@ private partial def process (p : Problem) : StateRefT State MetaM Unit := do
 private def getUElimPos? (matcherLevels : List Level) (uElim : Level) : MetaM (Option Nat) :=
   if uElim == levelZero then
     return none
-  else match matcherLevels.toArray.indexOf? uElim with
+  else match matcherLevels.idxOf? uElim with
     | none => throwError "dependent match elimination failed, universe level not found"
-    | some pos => return some pos.val
+    | some pos => return some pos
 
 /- See comment at `mkMatcher` before `mkAuxDefinition` -/
 register_builtin_option bootstrap.genMatcherCode : Bool := {
@@ -773,7 +773,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
   let env ← getEnv
   let mkMatcherConst name :=
     mkAppN (mkConst name result.levelArgs.toList) result.exprArgs
-  match (matcherExt.getStateNoAsync env).find? (result.value, compile) with
+  match (matcherExt.getState (asyncMode := .local) env).find? (result.value, compile) with
   | some nameNew => return (mkMatcherConst nameNew, none)
   | none =>
     let decl := Declaration.defnDecl (← mkDefinitionValInferrringUnsafe name result.levelParams.toList

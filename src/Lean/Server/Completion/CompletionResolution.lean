@@ -62,6 +62,34 @@ def CompletionItem.resolve
         return toString (← Meta.ppExpr typeWithoutImplicits)
     item := { item with detail? := detail? }
 
+  if item.documentation?.isNone then
+    let docStringPrefix? := Id.run do
+      let .const declName := id
+        | none
+      let some param := Linter.deprecatedAttr.getParam? env declName
+        | none
+      let docstringPrefix :=
+        if let some text := param.text? then
+          text
+        else if let some newName := param.newName? then
+          s!"`{declName}` has been deprecated, use `{newName}` instead."
+        else
+          s!"`{declName}` has been deprecated."
+      some docstringPrefix
+    let docString? ← do
+      let .const declName := id
+        | pure none
+      findDocString? env declName
+    let doc? := do
+      let docValue ←
+        match docStringPrefix?, docString? with
+        | none,                 none           => none
+        | some docStringPrefix, none           => docStringPrefix
+        | none,                 docString      => docString
+        | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
+      pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
+    item := { item with documentation? := doc? }
+
   return item
 
 end Lean.Lsp

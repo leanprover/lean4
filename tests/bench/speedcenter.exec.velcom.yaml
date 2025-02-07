@@ -259,6 +259,13 @@
   build_config:
     cmd: ./compile.sh ilean_roundtrip.lean
 - attributes:
+    description: identifier auto-completion
+    tags: [fast]
+  run_config:
+    <<: *time
+    cmd: lean -Dlinter.all=false --run identifier_completion_runner.lean
+    parse_output: true
+- attributes:
     description: liasolver
     tags: [fast, suite]
   run_config:

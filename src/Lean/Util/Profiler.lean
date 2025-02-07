@@ -164,6 +164,7 @@ structure ThreadWithMaps extends Thread where
   lastTime : Float := 0
 
 -- TODO: add others, dynamically?
+-- NOTE: more specific prefixes should come first
 def categories : Array Category := #[
   { name := `Other, color := "gray" },
   { name := `Elab.async, color := "gray" },
@@ -203,8 +204,7 @@ where
           (thread.stringMap.size, { thread with
             stringArray := thread.stringArray.push funcName
             stringMap := thread.stringMap.insert funcName thread.stringMap.size })
-      let category := categories.findIdx? (fun c => c.name == data.cls || c.name.isPrefixOf data.cls)
-        |>.getD 0
+      let category := categories.findIdx? (·.name.isPrefixOf data.cls) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap[strIdx]? then
           (idx, thread)

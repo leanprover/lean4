@@ -31,9 +31,9 @@ private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
     | .proj _ _ e      => visit e deps
     | .mdata _ e       => visit e deps
     | .fvar ..         =>
-      match fvars.indexOf? e with
+      match fvars.idxOf? e with
       | none   => deps
-      | some i => if deps.contains i.val then deps else deps.push i.val
+      | some i => if deps.contains i then deps else deps.push i
     | _ => deps
   let deps := visit e #[]
   deps.qsort (fun i j => i < j)
@@ -82,7 +82,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
                   for h2 : i in [:args.size] do
                     if outParamPositions.contains i then
                       let arg := args[i]
-                      if let some idx := fvars.indexOf? arg then
+                      if let some idx := fvars.idxOf? arg then
                         if (← whnf (← inferType arg)).isForall then
                           paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
                           higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!

@@ -585,10 +585,9 @@ where
       s!"{x} ≤ {e} ≤ {y}"
 
   prettyCoeffs (names : Array String) (coeffs : Coeffs) : String :=
-    coeffs.toList.enum
-      |>.filter (fun (_,c) => c ≠ 0)
-      |>.enum
-      |>.map (fun (j, (i,c)) =>
+    coeffs.toList.zipIdx
+      |>.filter (fun (c,_) => c ≠ 0)
+      |>.mapIdx (fun j (c,i) =>
         (if j > 0 then if c > 0 then " + " else " - " else if c > 0 then "" else "- ") ++
         (if Int.natAbs c = 1 then names[i]! else s!"{c.natAbs}*{names[i]!}"))
       |> String.join
@@ -596,13 +595,13 @@ where
   mentioned (atoms : Array Expr) (constraints : Std.HashMap Coeffs Fact) : MetaM (Array Bool) := do
     let initMask := Array.mkArray atoms.size false
     return constraints.fold (init := initMask) fun mask coeffs _ =>
-      coeffs.enum.foldl (init := mask) fun mask (i, c) =>
+      coeffs.zipIdx.foldl (init := mask) fun mask (c, i) =>
         if c = 0 then mask else mask.set! i true
 
   prettyAtoms (names : Array String) (atoms : Array Expr) (mask : Array Bool) : MessageData :=
-    (Array.zip names atoms).toList.enum
-      |>.filter (fun (i, _) => mask.getD i false)
-      |>.map (fun (_, (n, a)) => m!" {n} := {a}")
+    (Array.zip names atoms).toList.zipIdx
+      |>.filter (fun (_, i) => mask.getD i false)
+      |>.map (fun ((n, a),_) => m!" {n} := {a}")
       |> m!"\n".joinSep
 
 mutual

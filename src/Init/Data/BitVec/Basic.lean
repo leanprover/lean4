@@ -157,6 +157,11 @@ section Syntax
 syntax:max num noWs "#" noWs term:max : term
 macro_rules | `($i:num#$n) => `(BitVec.ofNat $n $i)
 
+/-- not `ofNat_zero` -/
+recommended_spelling "zero" for "0#n" in [BitVec.ofNat, «term__#__»]
+/-- not `ofNat_one` -/
+recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
+
 /-- Unexpander for bit vector literals. -/
 @[app_unexpander BitVec.ofNat] def unexpandBitVecOfNat : Lean.PrettyPrinter.Unexpander
   | `($(_) $n $i:num) => `($i:num#$n)
@@ -379,7 +384,8 @@ SMT-Lib name: `extract`.
 def extractLsb (hi lo : Nat) (x : BitVec n) : BitVec (hi - lo + 1) := extractLsb' lo _ x
 
 /--
-A version of `setWidth` that requires a proof, but is a noop.
+A version of `setWidth` that requires a proof the new width is at least as large,
+and is a computational noop.
 -/
 def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
@@ -668,6 +674,22 @@ def ofBoolListBE : (bs : List Bool) → BitVec bs.length
 def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
+
+/-! ## Overflow -/
+
+/-- `uaddOverflow x y` returns `true` if addition of `x` and `y` results in *unsigned* overflow.
+
+  SMT-Lib name: `bvuaddo`.
+-/
+def uaddOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat + y.toNat ≥ 2 ^ w
+
+/-- `saddOverflow x y` returns `true` if addition of `x` and `y` results in *signed* overflow,
+treating `x` and `y` as 2's complement signed bitvectors.
+
+  SMT-Lib name: `bvsaddo`.
+-/
+def saddOverflow {w : Nat} (x y : BitVec w) : Bool :=
+  (x.toInt + y.toInt ≥ 2 ^ (w - 1)) || (x.toInt + y.toInt < - 2 ^ (w - 1))
 
 /- ### reverse -/
 

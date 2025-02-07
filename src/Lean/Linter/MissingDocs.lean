@@ -64,7 +64,7 @@ builtin_initialize missingDocsExt :
 def addHandler (env : Environment) (declName key : Name) (h : Handler) : Environment :=
   missingDocsExt.addEntry env (declName, key, h)
 
-def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getStateNoAsync env).2
+def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getState (asyncMode := .local) env).2
 
 partial def missingDocs : Linter where
   run stx := do

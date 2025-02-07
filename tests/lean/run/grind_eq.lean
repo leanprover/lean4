@@ -65,13 +65,13 @@ theorem appV_assoc (a : Vector α n) (b : Vector α m) (c : Vector α n') :
         HEq (appV a (appV b c)) (appV (appV a b) c) := sorry
 
 /--
-info: [grind.assert] x1 = appV a b
+info: [grind.assert] x1 = appV a_2 b
 [grind.assert] x2 = appV x1 c
 [grind.assert] x3 = appV b c
-[grind.assert] x4 = appV a x3
+[grind.assert] x4 = appV a_2 x3
 [grind.assert] ¬HEq x2 x4
-[grind.ematch.instance] appV_assoc: HEq (appV a (appV b c)) (appV (appV a b) c)
-[grind.assert] HEq (appV a (appV b c)) (appV (appV a b) c)
+[grind.ematch.instance] appV_assoc: HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
+[grind.assert] HEq (appV a_2 (appV b c)) (appV (appV a_2 b) c)
 -/
 #guard_msgs (info) in
 example : x1 = appV a b → x2 = appV x1 c → x3 = appV b c → x4 = appV a x3 → HEq x2 x4 := by

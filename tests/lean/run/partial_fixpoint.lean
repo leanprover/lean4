@@ -283,7 +283,7 @@ error: Could not prove 'WrongMonad.ack' to be monotone in its recursive calls:
       ack x✝ __do_lift
   Tried to apply 'Lean.Order.monotone_bind', but failed.
   Possible cause: A missing `Lean.Order.MonoBind` instance.
-  Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.
+  Use `set_option trace.Elab.Tactic.monotonicity true` to debug.
 -/
 #guard_msgs in
 def WrongMonad.ack : (n m : Nat) → Id Nat
@@ -369,7 +369,7 @@ error: Could not prove 'Tree.rev'''' to be monotone in its recursive calls:
           { cs := ts.toList })
   Tried to apply 'Lean.Order.Array.monotone_mapFinIdxM', but failed.
   Possible cause: A missing `Lean.Order.MonoBind` instance.
-  Use `set_option trace.Elab.Tactic.partial_monotonicity true` to debug.
+  Use `set_option trace.Elab.Tactic.monotonicity true` to debug.
 -/
 #guard_msgs in
 def Tree.rev''' (ts : Array Tree) : Id (Array Tree) := do

@@ -44,6 +44,15 @@ structure BVDecideConfig where
   -/
   structures : Bool := true
   /--
+  Enable preprocessing with the `int_toBitVec` simp set to reduce `UIntX`/`IntX` to `BitVec` and
+  thus make them accessible for `bv_decide`.
+  -/
+  fixedInt : Bool := true
+  /--
+  Handle equality on enum inductives by turning them into `BitVec`.
+  -/
+  enums : Bool := true
+  /--
   Output the AIG of bv_decide as graphviz into a file called aig.gv in the working directory of the
   Lean process.
   -/

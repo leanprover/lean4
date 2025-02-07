@@ -590,9 +590,9 @@ This table should be read as follows:
  * No other proofs were attempted, either because the parameter has a type without a non-trivial ``WellFounded`` instance (parameter 3), or because it is already clear that no decreasing measure can be found.
 
 
-Lean will print the termination argument it found if ``set_option showInferredTerminationBy true`` is set.
+Lean will print the termination measure it found if ``set_option showInferredTerminationBy true`` is set.
 
-If Lean does not find the termination argument, or if you want to be explicit, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
+If Lean does not find the termination measure, or if you want to be explicit, you can append a `termination_by` clause to the function definition, after the function's body, but before the `where` clause if present. It is of the form
 ```
 termination_by e
 ```
@@ -672,7 +672,7 @@ def num_consts_lst : List Term → Nat
 end
 ```
 
-In a set of mutually recursive function, either all or no functions must have an explicit termination argument (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functions in the group.
+In a set of mutually recursive function, either all or no functions must have an explicit termination measure (``termination_by``). A change of the default termination tactic (``decreasing_by``) only affects the proofs about the recursive calls of that function, not the other functions in the group.
 
 ```
 mutual

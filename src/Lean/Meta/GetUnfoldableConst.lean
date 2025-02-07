@@ -41,12 +41,12 @@ def getUnfoldableConst? (constName : Name) : MetaM (Option ConstantInfo) := do
   match ainfo.kind with
   | .thm =>
     if (← shouldReduceAll) then
-      return some ainfo.info.get
+      return some ainfo.constInfo.get
     else
       return none
   | _ => match ainfo.toConstantInfo with
     | info@(.defnInfo _) => if (← canUnfold info) then return info else return none
-    | info@(.recInfo _)  => return some _
+    | info@(.recInfo _)  => return some info
     -- `.lift` and `.ind` are reducible; no point in finer-grained filtering at this point
     | info@(.quotInfo _) => return some info
     | _                  => return none

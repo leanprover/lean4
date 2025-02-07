@@ -6,6 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Trace
 import Lake.Config.LeanLib
+import Lake.Config.OutFormat
 import Lake.Util.OrdHashSet
 
 namespace Lake
@@ -20,6 +21,9 @@ structure Module where
   Used to create private modules (e.g., executable roots).
   -/
   keyName : Name := name
+
+instance : ToText Module := ⟨(·.name.toString)⟩
+instance : ToJson Module := ⟨(toJson ·.name)⟩
 
 instance : Hashable Module where hash m := hash m.keyName
 instance : BEq Module where beq m n := m.keyName == n.keyName
@@ -148,7 +152,7 @@ def dynlibSuffix := "-1"
 @[inline] def shouldPrecompile (self : Module) : Bool :=
   self.lib.precompileModules
 
-@[inline] def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet (Job FilePath)) :=
+@[inline] def nativeFacets (self : Module) (shouldExport : Bool) : Array (ModuleFacet FilePath) :=
   self.lib.nativeFacets shouldExport
 
 /-! ## Trace Helpers -/

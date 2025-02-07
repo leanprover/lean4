@@ -156,13 +156,9 @@ def ScopedEnvExtension.add [Monad m] [MonadResolveName m] [MonadEnv m] (ext : Sc
   let ns ← getCurrNamespace
   modifyEnv (ext.addCore · b kind ns)
 
-def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
-  match ext.ext.getState env |>.stateStack with
-  | top :: _ => top.state
-  | _        => unreachable!
-
-def ScopedEnvExtension.getStateNoAsync [Inhabited σ] (ext : ScopedEnvExtension α β σ) (env : Environment) : σ :=
-  match ext.ext.getStateNoAsync env |>.stateStack with
+def ScopedEnvExtension.getState [Inhabited σ] (ext : ScopedEnvExtension α β σ)
+    (env : Environment) (asyncMode := ext.ext.toEnvExtension.asyncMode) : σ :=
+  match ext.ext.getState (asyncMode := asyncMode) env |>.stateStack with
   | top :: _ => top.state
   | _        => unreachable!
 

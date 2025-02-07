@@ -428,6 +428,11 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
         traceState := { tid }
         snapshotTasks := #[]
       }
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       try
         withTraceNode `Elab.async (fun _ => return desc) do
           act ()
@@ -521,32 +526,47 @@ opaque compileDeclsNew (declNames : List Name) : CoreM Unit
 @[extern "lean_compile_decls"]
 opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List Name) : Except Kernel.Exception Environment
 
-partial def compileDecls (decls : List Name) : CoreM Unit := do
-  if Elab.async.get (← getOptions) then
-    let env ← getEnv
-    let (postEnv, prom) ← env.promiseChecked
-    let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
-      try
-        doCompile
-      finally
-        prom.resolve (← getEnv)
-    let _ ← BaseIO.mapTask (fun _ => checkAct) env.checked
-    setEnv postEnv
+-- `ref?` is used for error reporting if available
+partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
+    (logErrors := true) : CoreM Unit := do
+  if !Elab.async.get (← getOptions) then
+    doCompile
     return
-  doCompile
+  let env ← getEnv
+  let (postEnv, prom) ← env.promiseChecked
+  let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+    try
+      doCompile
+    finally
+      prom.resolve (← getEnv)
+  let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
+  let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
+  Core.logSnapshotTask { range? := endRange?, task := t }
+  setEnv postEnv
 where doCompile := do
-  -- don't compile if kernel errored
+  -- don't compile if kernel errored; should be converted into a task dependency when compilation
+  -- is made async as well
   if !decls.all (← getEnv).constants.contains then
     return
   let opts ← getOptions
   if compiler.enableNew.get opts then
     compileDeclsNew decls
-  match compileDeclsOld (← getEnv) opts decls with
+
+  let res ← withTraceNode `compiler (fun _ => return m!"compiling old: {decls}") do
+    return compileDeclsOld (← getEnv) opts decls
+  match res with
   | Except.ok env   => setEnv env
   | Except.error (.other msg) =>
-    throwError msg
+    if logErrors then
+      if let some decl := ref? then
+        checkUnsupported decl -- Generate nicer error message for unsupported recursors and axioms
+      throwError msg
   | Except.error ex =>
-    throwKernelException ex
+    if logErrors then
+      throwKernelException ex
+
+def compileDecl (decl : Declaration) (logErrors := true) : CoreM Unit := do
+  compileDecls (Compiler.getDeclNamesForCodeGen decl) decl logErrors
 
 def getDiag (opts : Options) : Bool :=
   diagnostics.get opts
@@ -629,5 +649,9 @@ def logMessageKind (kind : Name) : CoreM Bool := do
   else
     modify fun s => { s with messages.loggedKinds := s.messages.loggedKinds.insert kind }
     return true
+
+builtin_initialize
+  registerTraceClass `Elab.async
+  registerTraceClass `Elab.block
 
 end Lean

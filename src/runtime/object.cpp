@@ -41,8 +41,15 @@ Author: Leonardo de Moura
 #define isinf(x) std::isinf(x)
 #endif
 
+#if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) {
+    free(ptr);
+}
+#endif
+
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
+#define LEAN_SYNC_PRIO std::numeric_limits<unsigned>::max()
 
 namespace lean {
 
@@ -198,7 +205,7 @@ static inline void lean_dealloc(lean_object * o, size_t sz) {
 #ifdef LEAN_SMALL_ALLOCATOR
     dealloc(o, sz);
 #else
-    free(o);
+    free_sized(o, sz);
 #endif
 }
 
@@ -693,10 +700,14 @@ class task_manager {
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
             while (true) {
-                if (m_queues_size == 0) {
-                    if (m_shutting_down) {
-                        break;
-                    }
+                if (m_queues_size == 0 && m_shutting_down) {
+                    break;
+                }
+                if (m_queues_size == 0 ||
+                        // If we have reached the maximum number of standard workers (because the
+                        // maximum was decreased by `task_get`), wait for someone else to become
+                        // idle before picking up new work.
+                        m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
                     continue;
                 }
@@ -750,7 +761,7 @@ class task_manager {
             lock.lock();
         } else if (v != nullptr) {
             lean_assert(t->m_imp->m_closure == nullptr);
-            resolve_core(t, v);
+            resolve_core(lock, t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
             // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
@@ -763,27 +774,30 @@ class task_manager {
         }
     }
 
-    void resolve_core(lean_task_object * t, object * v) {
-        handle_finished(t);
+    void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
         t->m_value = v;
-        /* After the task has been finished and we propagated
-           dependencies, we can release `m_imp` and keep just the value */
-        free_task_imp(t->m_imp);
+        lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
+        handle_finished(lock, t, imp);
+        /* After the task has been finished and we propagated
+           dependencies, we can release `imp` and keep just the value */
+        free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(lean_task_object * t) {
-        lean_task_object * it = t->m_imp->m_head_dep;
-        t->m_imp->m_head_dep = nullptr;
+    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+        lean_task_object * it = imp->m_head_dep;
+        imp->m_head_dep = nullptr;
         while (it) {
-            if (t->m_imp->m_canceled)
+            if (imp->m_canceled)
                 it->m_imp->m_canceled = true;
             lean_task_object * next_it = it->m_imp->m_next_dep;
             it->m_imp->m_next_dep = nullptr;
             if (it->m_imp->m_deleted) {
                 free_task(it);
+            } else if (it->m_imp->m_prio == LEAN_SYNC_PRIO) {
+                run_task(lock, it);
             } else {
                 enqueue_core(it);
             }
@@ -828,13 +842,17 @@ public:
     }
 
     void resolve(lean_task_object * t, object * v) {
+        if (t->m_value) {
+            dec(v);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value) {
             lock.unlock(); // `dec(v)` could lead to `deactivate_task` trying to take the lock
             dec(v);
             return;
         }
-        resolve_core(t, v);
+        resolve_core(lock, t, v);
     }
 
     void add_dep(lean_task_object * t1, lean_task_object * t2) {
@@ -859,7 +877,19 @@ public:
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value)
             return;
+        // see `Task.get`
+        bool in_pool = g_current_task_object && g_current_task_object->m_imp->m_prio <= LEAN_MAX_PRIO;
+        if (in_pool) {
+            m_max_std_workers++;
+            if (m_idle_std_workers == 0)
+                spawn_worker();
+            else
+                m_queue_cv.notify_one();
+        }
         m_task_finished_cv.wait(lock, [&]() { return t->m_value != nullptr; });
+        if (in_pool) {
+            m_max_std_workers--;
+        }
     }
 
     object * wait_any(object * task_list) {
@@ -1009,7 +1039,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned
     if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
-        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio, keep_alive);
+        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
         g_task_manager->add_dep(lean_to_task(t), new_task);
         return (lean_object*)new_task;
     }
@@ -1052,7 +1082,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigne
     if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
         return apply_1(f, lean_task_get_own(x));
     } else {
-        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio, keep_alive);
+        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
         g_task_manager->add_dep(lean_to_task(x), new_task);
         return (lean_object*)new_task;
     }

@@ -134,6 +134,7 @@ private def mkIndexConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     iota         := c.iota
     zeta         := c.zeta
+    zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
     /-
@@ -153,6 +154,7 @@ private def mkMetaConfig (c : Config) : MetaM ConfigWithKey := do
     beta         := c.beta
     zeta         := c.zeta
     iota         := c.iota
+    zetaUnused   := c.zetaUnused
     zetaDelta    := c.zetaDelta
     etaStruct    := c.etaStruct
     proj         := if c.proj then .yesWithDelta else .no

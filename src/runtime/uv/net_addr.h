@@ -7,7 +7,6 @@ Author: Henrik Böving
 #include <lean/lean.h>
 #include "runtime/object.h"
 
-
 namespace lean {
 
 #ifndef LEAN_EMSCRIPTEN

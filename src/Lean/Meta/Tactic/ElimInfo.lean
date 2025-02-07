@@ -60,12 +60,12 @@ def getElimExprInfo (elimExpr : Expr) (baseDeclName? : Option Name := none) : Me
         throwError "unexpected number of arguments at motive type{indentExpr motiveType}"
       unless motiveResultType.isSort do
         throwError "motive result type must be a sort{indentExpr motiveType}"
-    let some motivePos ← pure (xs.indexOf? motive) |
+    let some motivePos ← pure (xs.idxOf? motive) |
       throwError "unexpected eliminator type{indentExpr elimType}"
     let targetsPos ← targets.mapM fun target => do
-      match xs.indexOf? target with
+      match xs.idxOf? target with
       | none => throwError "unexpected eliminator type{indentExpr elimType}"
-      | some targetPos => pure targetPos.val
+      | some targetPos => pure targetPos
     let mut altsInfo := #[]
     let env ← getEnv
     for h : i in [:xs.size] do
@@ -205,6 +205,6 @@ def getCustomEliminator? (targets : Array Expr) (induction : Bool) : MetaM (Opti
     let targetType := (← instantiateMVars (← inferType target)).headBeta
     let .const declName .. := targetType.getAppFn | return none
     key := key.push declName
-  return customEliminatorExt.getStateNoAsync (← getEnv) |>.map.find? (induction, key)
+  return customEliminatorExt.getState (asyncMode := .local) (← getEnv) |>.map.find? (induction, key)
 
 end Lean.Meta

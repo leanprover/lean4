@@ -26,7 +26,7 @@
       "displayName": "Sanitize build config",
       "cacheVariables": {
         "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined",
-        "LEANC_EXTRA_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
         "SMALL_ALLOCATOR": "OFF",
         "BSYMBOLIC": "OFF"
       },

@@ -8,6 +8,9 @@ import Init.Data.Array.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Range
 
+-- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Array
 
 /--

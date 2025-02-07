@@ -11,6 +11,9 @@ import Init.Data.List.TakeDrop
 # Lemmas about `List.Subset`, `List.Sublist`, `List.IsPrefix`, `List.IsSuffix`, and `List.IsInfix`.
 -/
 
+-- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -22,14 +25,14 @@ variable [BEq α]
 @[simp] theorem isPrefixOf_cons₂_self [LawfulBEq α] {a : α} :
     isPrefixOf (a::as) (a::bs) = isPrefixOf as bs := by simp [isPrefixOf_cons₂]
 
-@[simp] theorem isPrefixOf_length_pos_nil {L : List α} (h : 0 < L.length) : isPrefixOf L [] = false := by
-  cases L <;> simp_all [isPrefixOf]
+@[simp] theorem isPrefixOf_length_pos_nil {l : List α} (h : 0 < l.length) : isPrefixOf l [] = false := by
+  cases l <;> simp_all [isPrefixOf]
 
 @[simp] theorem isPrefixOf_replicate {a : α} :
     isPrefixOf l (replicate n a) = (decide (l.length ≤ n) && l.all (· == a)) := by
   induction l generalizing n with
   | nil => simp
-  | cons h t ih =>
+  | cons _ _ ih =>
     cases n
     · simp
     · simp [replicate_succ, isPrefixOf_cons₂, ih, Nat.succ_le_succ_iff, Bool.and_left_comm]
@@ -568,9 +571,9 @@ theorem flatten_sublist_iff {L : List (List α)} {l} :
 instance [DecidableEq α] (l₁ l₂ : List α) : Decidable (l₁ <+ l₂) :=
   decidable_of_iff (l₁.isSublist l₂) isSublist_iff_sublist
 
-protected theorem Sublist.drop : ∀ {l₁ l₂ : List α}, l₁ <+ l₂ → ∀ n, l₁.drop n <+ l₂.drop n
+protected theorem Sublist.drop : ∀ {l₁ l₂ : List α}, l₁ <+ l₂ → ∀ i, l₁.drop i <+ l₂.drop i
   | _, _, h, 0 => h
-  | _, _, h, n + 1 => by rw [← drop_tail, ← drop_tail]; exact h.tail.drop n
+  | _, _, h, i + 1 => by rw [← drop_tail, ← drop_tail]; exact h.tail.drop i
 
 /-! ### IsPrefix / IsSuffix / IsInfix -/
 
@@ -604,10 +607,10 @@ theorem infix_refl (l : List α) : l <:+: l := prefix_rfl.isInfix
 
 @[simp] theorem suffix_cons (a : α) : ∀ l, l <:+ a :: l := suffix_append [a]
 
-theorem infix_cons : l₁ <:+: l₂ → l₁ <:+: a :: l₂ := fun ⟨L₁, L₂, h⟩ => ⟨a :: L₁, L₂, h ▸ rfl⟩
+theorem infix_cons : l₁ <:+: l₂ → l₁ <:+: a :: l₂ := fun ⟨l₁', l₂', h⟩ => ⟨a :: l₁', l₂', h ▸ rfl⟩
 
-theorem infix_concat : l₁ <:+: l₂ → l₁ <:+: concat l₂ a := fun ⟨L₁, L₂, h⟩ =>
-  ⟨L₁, concat L₂ a, by simp [← h, concat_eq_append, append_assoc]⟩
+theorem infix_concat : l₁ <:+: l₂ → l₁ <:+: concat l₂ a := fun ⟨l₁', l₂', h⟩ =>
+  ⟨l₁', concat l₂' a, by simp [← h, concat_eq_append, append_assoc]⟩
 
 theorem IsPrefix.trans : ∀ {l₁ l₂ l₃ : List α}, l₁ <+: l₂ → l₂ <+: l₃ → l₁ <+: l₃
   | _, _, _, ⟨r₁, rfl⟩, ⟨r₂, rfl⟩ => ⟨r₁ ++ r₂, (append_assoc _ _ _).symm⟩
@@ -646,13 +649,13 @@ theorem eq_nil_of_infix_nil (h : l <:+: []) : l = [] := infix_nil.mp h
 theorem eq_nil_of_prefix_nil (h : l <+: []) : l = [] := prefix_nil.mp h
 theorem eq_nil_of_suffix_nil (h : l <:+ []) : l = [] := suffix_nil.mp h
 
-theorem IsPrefix.ne_nil {x y : List α} (h : x <+: y) (hx : x ≠ []) : y ≠ [] := by
+theorem IsPrefix.ne_nil {xs ys : List α} (h : xs <+: ys) (hx : xs ≠ []) : ys ≠ [] := by
   rintro rfl; exact hx <| List.prefix_nil.mp h
 
-theorem IsSuffix.ne_nil {x y : List α} (h : x <:+ y) (hx : x ≠ []) : y ≠ [] := by
+theorem IsSuffix.ne_nil {xs ys : List α} (h : xs <:+ ys) (hx : xs ≠ []) : ys ≠ [] := by
   rintro rfl; exact hx <| List.suffix_nil.mp h
 
-theorem IsInfix.ne_nil {x y : List α} (h : x <:+: y) (hx : x ≠ []) : y ≠ [] := by
+theorem IsInfix.ne_nil {xs ys : List α} (h : xs <:+: ys) (hx : xs ≠ []) : ys ≠ [] := by
   rintro rfl; exact hx <| List.infix_nil.mp h
 
 theorem IsInfix.length_le (h : l₁ <:+: l₂) : l₁.length ≤ l₂.length :=
@@ -664,10 +667,10 @@ theorem IsPrefix.length_le (h : l₁ <+: l₂) : l₁.length ≤ l₂.length :=
 theorem IsSuffix.length_le (h : l₁ <:+ l₂) : l₁.length ≤ l₂.length :=
   h.sublist.length_le
 
-theorem IsPrefix.getElem {x y : List α} (h : x <+: y) {n} (hn : n < x.length) :
-    x[n] = y[n]'(Nat.le_trans hn h.length_le) := by
+theorem IsPrefix.getElem {xs ys : List α} (h : xs <+: ys) {i} (hi : i < xs.length) :
+    xs[i] = ys[i]'(Nat.le_trans hi h.length_le) := by
   obtain ⟨_, rfl⟩ := h
-  exact (List.getElem_append_left hn).symm
+  exact (List.getElem_append_left hi).symm
 
 -- See `Init.Data.List.Nat.Sublist` for `IsSuffix.getElem`.
 
@@ -702,13 +705,13 @@ theorem IsSuffix.reverse : l₁ <:+ l₂ → reverse l₁ <+: reverse l₂ :=
 theorem IsPrefix.reverse : l₁ <+: l₂ → reverse l₁ <:+ reverse l₂ :=
   reverse_suffix.2
 
-theorem IsPrefix.head {x y : List α} (h : x <+: y) (hx : x ≠ []) :
-    x.head hx = y.head (h.ne_nil hx) := by
-  cases x <;> cases y <;> simp only [head_cons, ne_eq, not_true_eq_false] at hx ⊢
+theorem IsPrefix.head {l₁ l₂ : List α} (h : l₁ <+: l₂) (hx : l₁ ≠ []) :
+    l₁.head hx = l₂.head (h.ne_nil hx) := by
+  cases l₁ <;> cases l₂ <;> simp only [head_cons, ne_eq, not_true_eq_false] at hx ⊢
   all_goals (obtain ⟨_, h⟩ := h; injection h)
 
-theorem IsSuffix.getLast {x y : List α} (h : x <:+ y) (hx : x ≠ []) :
-    x.getLast hx = y.getLast (h.ne_nil hx) := by
+theorem IsSuffix.getLast {l₁ l₂ : List α} (h : l₁ <:+ l₂) (hx : l₁ ≠ []) :
+    l₁.getLast hx = l₂.getLast (h.ne_nil hx) := by
   rw [← head_reverse (by simpa), h.reverse.head,
     head_reverse (by rintro h; simp only [reverse_eq_nil_iff] at h; simp_all)]
 
@@ -839,8 +842,8 @@ theorem isPrefix_iff : l₁ <+: l₂ ↔ ∀ i (h : i < l₁.length), l₂[i]? =
       simp [Nat.succ_lt_succ_iff, eq_comm]
 
 theorem isPrefix_iff_getElem {l₁ l₂ : List α} :
-    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ x (hx : x < l₁.length),
-      l₁[x] = l₂[x]'(Nat.lt_of_lt_of_le hx h) where
+    l₁ <+: l₂ ↔ ∃ (h : l₁.length ≤ l₂.length), ∀ i (hx : i < l₁.length),
+      l₁[i] = l₂[i]'(Nat.lt_of_lt_of_le hx h) where
   mp h := ⟨h.length_le, fun _ h' ↦ h.getElem h'⟩
   mpr h := by
     obtain ⟨hl, h⟩ := h
@@ -951,40 +954,40 @@ theorem infix_of_mem_flatten : ∀ {L : List (List α)}, l ∈ L → l <:+: flat
 theorem prefix_cons_inj (a) : a :: l₁ <+: a :: l₂ ↔ l₁ <+: l₂ :=
   prefix_append_right_inj [a]
 
-theorem take_prefix (n) (l : List α) : take n l <+: l :=
+theorem take_prefix (i) (l : List α) : take i l <+: l :=
   ⟨_, take_append_drop _ _⟩
 
-theorem drop_suffix (n) (l : List α) : drop n l <:+ l :=
+theorem drop_suffix (i) (l : List α) : drop i l <:+ l :=
   ⟨_, take_append_drop _ _⟩
 
-theorem take_sublist (n) (l : List α) : take n l <+ l :=
-  (take_prefix n l).sublist
+theorem take_sublist (i) (l : List α) : take i l <+ l :=
+  (take_prefix i l).sublist
 
-theorem drop_sublist (n) (l : List α) : drop n l <+ l :=
-  (drop_suffix n l).sublist
+theorem drop_sublist (i) (l : List α) : drop i l <+ l :=
+  (drop_suffix i l).sublist
 
-theorem take_subset (n) (l : List α) : take n l ⊆ l :=
-  (take_sublist n l).subset
+theorem take_subset (i) (l : List α) : take i l ⊆ l :=
+  (take_sublist i l).subset
 
-theorem drop_subset (n) (l : List α) : drop n l ⊆ l :=
-  (drop_sublist n l).subset
+theorem drop_subset (i) (l : List α) : drop i l ⊆ l :=
+  (drop_sublist i l).subset
 
-theorem mem_of_mem_take {l : List α} (h : a ∈ l.take n) : a ∈ l :=
-  take_subset n l h
+theorem mem_of_mem_take {l : List α} (h : a ∈ l.take i) : a ∈ l :=
+  take_subset _ _ h
 
-theorem mem_of_mem_drop {n} {l : List α} (h : a ∈ l.drop n) : a ∈ l :=
+theorem mem_of_mem_drop {i} {l : List α} (h : a ∈ l.drop i) : a ∈ l :=
   drop_subset _ _ h
 
-theorem drop_suffix_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l <:+ drop m l := by
+theorem drop_suffix_drop_left (l : List α) {i j : Nat} (h : i ≤ j) : drop j l <:+ drop i l := by
   rw [← Nat.sub_add_cancel h, Nat.add_comm, ← drop_drop]
   apply drop_suffix
 
 -- See `Init.Data.List.Nat.TakeDrop` for `take_prefix_take_left`.
 
-theorem drop_sublist_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l <+ drop m l :=
+theorem drop_sublist_drop_left (l : List α) {i j : Nat} (h : i ≤ j) : drop j l <+ drop i l :=
   (drop_suffix_drop_left l h).sublist
 
-theorem drop_subset_drop_left (l : List α) {m n : Nat} (h : m ≤ n) : drop n l ⊆ drop m l :=
+theorem drop_subset_drop_left (l : List α) {i j : Nat} (h : i ≤ j) : drop j l ⊆ drop i l :=
   (drop_sublist_drop_left l h).subset
 
 theorem takeWhile_prefix (p : α → Bool) : l.takeWhile p <+: l :=

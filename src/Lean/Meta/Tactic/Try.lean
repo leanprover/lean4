@@ -14,5 +14,6 @@ builtin_initialize registerTraceClass `try.collect.funInd
 
 builtin_initialize registerTraceClass `try.debug
 builtin_initialize registerTraceClass `try.debug.funInd
+builtin_initialize registerTraceClass `try.debug.chain
 
 end Lean

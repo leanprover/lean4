@@ -107,6 +107,29 @@ private def filterSkipDone (tacs : Array (TSyntax `tactic)) : Array (TSyntax `ta
     | `(tactic| done) | `(tactic| skip) => false
     | _ => true
 
+private def getTacSeqElems? (tseq : TSyntax ``Parser.Tactic.tacticSeq) : Option (Array (TSyntax `tactic)) :=
+  match tseq with
+  | `(tacticSeq| { $t;* }) => some t.getElems
+  | `(tacticSeq| $t;*) => some t.getElems
+  | _ => none
+
+private def isCDotTac (tac : TSyntax `tactic) : Bool :=
+  match tac with
+  | `(tactic| · $_:tacticSeq) => true
+  | _ => false
+
+private def appendSeq (tacs : Array (TSyntax `tactic)) (tac : TSyntax `tactic) : Array (TSyntax `tactic) := Id.run do
+  match tac with
+  | `(tactic| ($tseq:tacticSeq)) =>
+    if let some tacs' := getTacSeqElems? tseq then
+      return tacs ++ tacs'
+  | `(tactic| · $tseq:tacticSeq) =>
+    if let some tacs' := getTacSeqElems? tseq then
+      if !tacs'.any isCDotTac then
+        return tacs ++ tacs'
+  | _ => pure ()
+  return tacs.push tac
+
 private def mkSeq (tacs : Array (TSyntax `tactic)) (terminal : Bool) : CoreM (TSyntax `tactic) := do
   let tacs := filterSkipDone tacs
   if tacs.size = 0 then
@@ -408,9 +431,9 @@ private def evalSuggestSeq (tacs : Array (TSyntax `tactic)) : M (TSyntax `tactic
   if (← read).terminal then
     let mut result := #[]
     for i in [:tacs.size - 1] do
-      result := result.push (← withNonTerminal <| evalSuggest tacs[i]!)
+      result := appendSeq result (← withNonTerminal <| evalSuggest tacs[i]!)
     let suggestions ← getSuggestionOfTactic (← evalSuggest tacs.back!) |>.mapM fun tac =>
-      mkSeq (result.push tac) (terminal := true)
+      mkSeq (appendSeq result tac) (terminal := true)
     mkTrySuggestions suggestions
   else
     mkSeq (← tacs.mapM evalSuggest) (terminal := false)

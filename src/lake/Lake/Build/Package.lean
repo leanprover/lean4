@@ -15,30 +15,41 @@ import Lake.Reservoir
 Build function definitions for a package's builtin facets.
 -/
 
-open System
-namespace Lake
-open Lean (Name)
+open System Lean
 
-/-- Fetch the package's direct dependencies. -/
-def Package.recFetchDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
-  (pure ·) <$> self.depConfigs.mapM fun cfg => do
-    let some dep ← findPackage? cfg.name
-      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+namespace Lake
+
+/-- Resolve the package's direct dependencies. -/
+def Package.recResolveDeps (self : Package) : FetchM (Job (Array Package)) := Job.async do
+  let pkgs? := Array.mkEmpty self.depConfigs.size
+  let pkgs? ← self.depConfigs.foldlM (init := some pkgs?) fun r cfg => do
+    if let some dep ← findPackage? cfg.name then
+      return r.map (·.push dep)
+    else
+      logError s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    return dep
+      return none
+  inline pkgs?.getM
 
 /-- The `PackageFacetConfig` for the builtin `depsFacet`. -/
 def Package.depsFacetConfig : PackageFacetConfig depsFacet :=
-  mkFacetJobConfig recFetchDeps (buildable := false)
+  mkFacetJobConfig recResolveDeps (buildable := false)
 
 /-- Compute a topological ordering of the package's transitive dependencies. -/
 def Package.recComputeTransDeps (self : Package) : FetchM (Job (Array Package)) := ensureJob do
-  (pure ·.toArray) <$> self.depConfigs.foldlM (init := OrdPackageSet.empty) fun deps cfg => do
-    let some dep ← findPackage? cfg.name
-      | error s!"{self.name}: package not found for dependency '{cfg.name}' \
+  let jobs? := Array.mkEmpty self.depConfigs.size
+  let jobs? ← self.depConfigs.foldlM (init := some jobs?) fun r cfg => do
+    if let some dep ← findPackage? cfg.name then
+      let depDeps ← (dep.facet `transDeps).fetch
+      return r.map (·.push depDeps)
+    else
+      logError s!"{self.name}: package not found for dependency '{cfg.name}' \
         (this is likely a bug in Lake)"
-    let depDeps ← (← fetch <| dep.facet `transDeps).await
-    return depDeps.foldl (·.insert ·) deps |>.insert dep
+      return none
+  let jobs ← inline jobs?.getM
+  let job : Job OrdPackageSet := jobs.foldl (init := .pure .empty) fun r job =>
+    r.zipWith (sync := true) (·.appendArray ·) job
+  return job.map (sync := true) (·.toArray)
 
 /-- The `PackageFacetConfig` for the builtin `transDepsFacet`. -/
 def Package.transDepsFacetConfig : PackageFacetConfig transDepsFacet :=

@@ -20,14 +20,14 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   so that errors in the import block of transitive imports will not kill this
   job before the root is built.
   -/
-  let mut linkJobs := #[]
-  for facet in self.root.nativeFacets self.supportInterpreter do
-    linkJobs := linkJobs.push <| ← fetch <| self.root.facet facet.name
-  let imports ← (← self.root.transImports.fetch).await
-  for mod in imports do
-    for facet in mod.nativeFacets self.supportInterpreter do
-      linkJobs := linkJobs.push <| ← fetch <| mod.facet facet.name
-  let deps := (← (← self.pkg.transDeps.fetch).await).push self.pkg
-  for dep in deps do for lib in dep.externLibs do
-    linkJobs := linkJobs.push <| ← lib.static.fetch
+  let linkJobs ← (self.root.nativeFacets self.supportInterpreter).mapM fun facet =>
+    (self.root.facet facet.name).fetch
+  (← self.root.transImports.fetch).bindM fun imports => do
+  let linkJobs ← imports.foldlM (init := linkJobs) fun linkJobs mod => do
+    (mod.nativeFacets self.supportInterpreter).foldlM (init := linkJobs) fun linkJobs facet =>
+      linkJobs.push <$> (mod.facet facet.name).fetch
+  (← self.pkg.transDeps.fetch).bindM fun deps => do
+  let linkJobs ← (deps.push self.pkg).foldlM (init := linkJobs) fun linkJobs dep =>
+    dep.externLibs.foldlM (init := linkJobs) fun linkJobs lib => do
+      linkJobs.push <$> lib.static.fetch
   buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs self.sharedLean

@@ -174,24 +174,24 @@ def evalGrindCore
     replaceMainGoal []
     return result
 
-def getGrindParams (stx : TSyntax `tactic) : Array (TSyntax ``Parser.Tactic.grindParam) :=
-  match stx with
-  | `(tactic| grind $_:optConfig $[only]? $[ [$params?:grindParam,*] ]? $[on_failure $_?]?) =>
-    if let some params := params? then
-      params
-    else
-      #[]
-  | _ => #[]
-
 /-- Position for the `[..]` child syntax in the `grind` tactic. -/
 def grindParamsPos := 3
 
-def setGrindParams (stx : TSyntax `tactic) (params : Array (TSyntax ``Parser.Tactic.grindParam)) : TSyntax `tactic :=
+/-- Position for the `only` child syntax in the `grind` tactic. -/
+def grindOnlyPos := 2
+
+def isGrindOnly (stx : TSyntax `tactic) : Bool :=
+  stx.raw.getKind == ``Parser.Tactic.grind || !stx.raw[grindOnlyPos].isNone
+
+def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `tactic :=
   if params.isEmpty then
     ⟨stx.raw.setArg grindParamsPos (mkNullNode)⟩
   else
     let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
     ⟨stx.raw.setArg grindParamsPos (mkNullNode paramsStx)⟩
+
+def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
+  stx.raw[grindParamsPos][1].getSepArgs
 
 def mkGrindOnly
     (config : TSyntax `Lean.Parser.Tactic.optConfig)

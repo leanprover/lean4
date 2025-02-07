@@ -169,6 +169,69 @@ def observing (x : M α) : M (TacticResult α) := do
       s.restore (restoreInfo := true)
       return .error ex sNew
 
+private def mergeParams (ps1 ps2 : Array Syntax) : Array Syntax := Id.run do
+  let mut r := ps1
+  for p in ps2 do
+    unless r.contains p do
+      r := r.push p
+  return r
+
+private def mergeSimp? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) := Id.run do
+  if setSimpParams tac1 #[] != setSimpParams tac2 #[] then return none
+  let ps1 := getSimpParams tac1
+  let ps2 := getSimpParams tac2
+  return some (setSimpParams tac1 (mergeParams ps1 ps2))
+
+private def mergeGrind? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) := Id.run do
+  if setGrindParams tac1 #[] != setGrindParams tac2 #[] then return none
+  let ps1 := getGrindParams tac1
+  let ps2 := getGrindParams tac2
+  return some (setGrindParams tac1 (mergeParams ps1 ps2))
+
+private def merge? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) :=
+  let k := tac1.raw.getKind
+  -- TODO: we can make this extensible by having a command that allows users to register
+  -- `merge?` functions for different tactics.
+  if k == ``Parser.Tactic.simp then
+    mergeSimp? tac1 tac2
+  else if k == ``Parser.Tactic.grind then
+    mergeGrind? tac1 tac2
+  else
+    none
+
+private def mergeAll? (tacs : Array (TSyntax `tactic)) : M (Option (TSyntax `tactic)) := do
+  if !(← read).config.merge || tacs.isEmpty then
+    return none
+  let tac0 := tacs[0]!
+  if tacs.any fun tac => tac.raw.getKind != tac0.raw.getKind then
+    return none
+  let mut tac := tac0
+  for h : i in [1:tacs.size] do
+    let some tac' := merge? tac tacs[i]
+      | return none
+    tac := tac'
+  return some tac
+
+/--
+Returns `true` IF `tacs2` contains only tactics of the same kind, and one of the following
+- contains `simp only ...` and `simp ...`
+- contains `grind only ..` and `grind ...`
+
+We say suggestions mixing `only` and non-`only` tactics are suboptimal and should not be displayed to
+the user.
+-/
+-- TODO: we may add a mechanism for making this extensible.
+private def isOnlyAndNonOnly (tacs2 : Array (TSyntax `tactic)) : Bool := Id.run do
+  if tacs2.isEmpty then return false
+  let k := tacs2[0]!.raw.getKind
+  unless tacs2.all fun tac => tac.raw.getKind == k do return false
+  if k == ``Parser.Tactic.simp then
+    return tacs2.any (isSimpOnly ·) && tacs2.any (!isSimpOnly ·)
+  else if k == ``Parser.Tactic.grind then
+    return tacs2.any (isGrindOnly ·) && tacs2.any (!isGrindOnly ·)
+  else
+    return false
+
 private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
   let tacss2 := tacss2.map getSuggestionsCore
   if (← isTracingEnabledFor `try.debug) then
@@ -213,17 +276,27 @@ where
       return ()
     else if h : i < tacss2.size then
       if tacss2[i].isEmpty then
-        go tacss2 (i+1) ((← `(tactic| · sorry)) :: acc) kind?
+        go tacss2 (i+1) ((← `(tactic| sorry)) :: acc) kind?
       else
         for tac in tacss2[i] do
           if let some kind := kind? then
             if tac.raw.getKind == kind then
-              go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
+              go tacss2 (i+1) (tac :: acc) kind?
           else
-            go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
+            go tacss2 (i+1) (tac :: acc) kind?
     else
-      let tac ← `(tactic| · $tac1:tactic
-                            $(acc.toArray.reverse)*)
+      let tacs2 := acc.toArray.reverse
+      if kind?.isSome && isOnlyAndNonOnly tacs2 then
+        -- Suboptimal combination. See comment at `isOnlyAndNonOnly`
+        return ()
+      let tac ← if let some tac2 ← mergeAll? tacs2 then
+        -- TODO: when merging tactics, there is a possibility the compressed version will not work.
+        -- TODO: if this is a big issue in practice, we should "replay" the tactic here.
+        `(tactic| $tac1:tactic <;> $tac2:tactic)
+      else
+        let tacs2 ← tacs2.mapM fun tac2 => `(tactic| · $tac2:tactic)
+        `(tactic| · $tac1:tactic
+                    $tacs2*)
       modify (·.push tac)
 
 private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do
@@ -363,6 +436,8 @@ private partial def evalSuggestImpl (tac : TSyntax `tactic) : M (TSyntax `tactic
           throwError "unsolved goals"
       return r
 
+/-! `evalAndSuggest` frontend -/
+
 private def toSuggestion (t : TSyntax `tactic) : Tactic.TryThis.Suggestion :=
   t
 
@@ -432,11 +507,11 @@ private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
 set_option hygiene false in -- Avoid tagger at `+arith`
 /-- `simp` tactic syntax generator -/
 private def mkSimpStx : CoreM (TSyntax `tactic) :=
-  `(tactic| first | simp? | simp? +arith | simp_all)
+  `(tactic| first | simp? | simp? [*] | simp? +arith | simp? +arith [*])
 
 /-- `simple` tactics -/
 private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
-  `(tactic| attempt_all | rfl | assumption | contradiction)
+  `(tactic| attempt_all | rfl | assumption)
 
 /-! Function induction generators -/
 
@@ -481,7 +556,7 @@ private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := d
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info
-  let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic)
+  let atomic ← `(tactic| attempt_all | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
   let funInds ← mkAllFunIndStx info atomic
   `(tactic| first | $atomic:tactic | $funInds:tactic)
 

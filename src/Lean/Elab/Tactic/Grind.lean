@@ -174,8 +174,27 @@ def evalGrindCore
     replaceMainGoal []
     return result
 
+/-- Position for the `[..]` child syntax in the `grind` tactic. -/
+def grindParamsPos := 3
+
+/-- Position for the `only` child syntax in the `grind` tactic. -/
+def grindOnlyPos := 2
+
+def isGrindOnly (stx : TSyntax `tactic) : Bool :=
+  stx.raw.getKind == ``Parser.Tactic.grind && !stx.raw[grindOnlyPos].isNone
+
+def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `tactic :=
+  if params.isEmpty then
+    ⟨stx.raw.setArg grindParamsPos (mkNullNode)⟩
+  else
+    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
+    ⟨stx.raw.setArg grindParamsPos (mkNullNode paramsStx)⟩
+
+def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
+  stx.raw[grindParamsPos][1].getSepArgs
+
 def mkGrindOnly
-    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (config : TSyntax ``Lean.Parser.Tactic.optConfig)
     (fallback? : Option Term)
     (trace : Grind.Trace)
     : MetaM (TSyntax `tactic) := do
@@ -218,11 +237,7 @@ def mkGrindOnly
     `(tactic| grind $config:optConfig only on_failure $fallback)
   else
     `(tactic| grind $config:optConfig only)
-  if params.isEmpty then
-    return result
-  else
-    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
-    return ⟨result.raw.setArg 3 (mkNullNode paramsStx)⟩
+  return setGrindParams result params
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with

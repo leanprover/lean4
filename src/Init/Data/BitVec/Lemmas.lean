@@ -3402,7 +3402,7 @@ theorem shiftLeft_eq_mul_twoPow (x : BitVec w) (n : Nat) :
   simp [getLsbD_shiftLeft, Fin.is_lt, decide_true, Bool.true_and, mul_twoPow_eq_shiftLeft]
 
 /-- 2^i * 2^j = 2^(i + j) with bitvectors as well -/
-theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by
+theorem twoPow_mul_twoPow_eq {w : Nat} (i j : Nat) : twoPow w i * twoPow w j = twoPow w (i + j) := by 
   apply BitVec.eq_of_toNat_eq
   simp only [toNat_mul, toNat_twoPow]
   rw [← Nat.mul_mod, Nat.pow_add]

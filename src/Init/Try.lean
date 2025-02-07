@@ -23,8 +23,21 @@ structure Config where
   missing := false
   /-- If `only` is `true`, generates solutions using `grind only` and `simp only`. -/
   only := true
-  /-- If `harder` is true, more expensive tactics and operations are tried. -/
+  /-- If `harder` is `true`, more expensive tactics and operations are tried. -/
   harder := false
+  /--
+  If `merge` is `true`, it tries to compress suggestions such as
+  ```
+  induction a
+  · grind only [= f]
+  · grind only [→ g]
+  ```
+  as
+  ```
+  induction a <;> grind only [= f, → g]
+  ```
+  -/
+  merge := true
   deriving Inhabited
 
 end Lean.Try

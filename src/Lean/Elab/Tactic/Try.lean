@@ -169,6 +169,49 @@ def observing (x : M α) : M (TacticResult α) := do
       s.restore (restoreInfo := true)
       return .error ex sNew
 
+private def mergeParams (ps1 ps2 : Array Syntax) : Array Syntax := Id.run do
+  let mut r := ps1
+  for p in ps2 do
+    unless r.contains p do
+      r := r.push p
+  return r
+
+private def mergeSimp? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) := Id.run do
+  if setSimpParams tac1 #[] != setSimpParams tac2 #[] then return none
+  let ps1 := getSimpParams tac1
+  let ps2 := getSimpParams tac2
+  return some (setSimpParams tac1 (mergeParams ps1 ps2))
+
+private def mergeGrind? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) := Id.run do
+  if setGrindParams tac1 #[] != setGrindParams tac2 #[] then return none
+  let ps1 := getGrindParams tac1
+  let ps2 := getGrindParams tac2
+  return some (setGrindParams tac1 (mergeParams ps1 ps2))
+
+private def merge? (tac1 tac2 : TSyntax `tactic) : Option (TSyntax `tactic) :=
+  let k := tac1.raw.getKind
+  -- TODO: we can make this extensible by having a command that allows users to register
+  -- `merge?` functions for different tactics.
+  if k == ``Parser.Tactic.simp then
+    mergeSimp? tac1 tac2
+  else if k == ``Parser.Tactic.grind then
+    mergeGrind? tac1 tac2
+  else
+    none
+
+private def mergeAll? (tacs : Array (TSyntax `tactic)) : M (Option (TSyntax `tactic)) := do
+  if !(← read).config.merge || tacs.isEmpty then
+    return none
+  let tac0 := tacs[0]!
+  if tacs.any fun tac => tac.raw.getKind != tac0.raw.getKind then
+    return none
+  let mut tac := tac0
+  for h : i in [1:tacs.size] do
+    let some tac' := merge? tac tacs[i]
+      | return none
+    tac := tac'
+  return some tac
+
 /--
 Returns `true` IF `tacs2` contains only tactics of the same kind, and one of the following
 - contains `simp only ...` and `simp ...`
@@ -246,9 +289,12 @@ where
       if kind?.isSome && isOnlyAndNonOnly tacs2 then
         -- Suboptimal combination. See comment at `isOnlyAndNonOnly`
         return ()
-      let tacs2 ← tacs2.mapM fun tac2 => `(tactic| · $tac2:tactic)
-      let tac ← `(tactic| · $tac1:tactic
-                            $tacs2*)
+      let tac ← if let some tac2 ← mergeAll? tacs2 then
+        `(tactic| $tac1:tactic <;> $tac2:tactic)
+      else
+        let tacs2 ← tacs2.mapM fun tac2 => `(tactic| · $tac2:tactic)
+        `(tactic| · $tac1:tactic
+                    $tacs2*)
       modify (·.push tac)
 
 private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do

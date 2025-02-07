@@ -11,18 +11,10 @@ import Lean.Meta.Tactic.Grind.MatchCond
 
 namespace Lean.Meta.Grind
 
-/--
-Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False`
--/
-private def isMatchCondCandidate (e : Expr) : Bool := Id.run do
-  let mut e := e
-  let mut hasEqs := false
-  repeat
-    let .forallE _ d b _ := e | return false
-    if d.isEq || d.isHEq then hasEqs := true
-    if b.isFalse then return hasEqs
-    e := b
-  return true
+/-- Returns `true` if `e` is of the form `∀ ..., _ = _ ... -> False` -/
+def isMatchCondCandidate (e : Expr) : Bool :=
+  -- TODO: see comment at the beginning of `MatchCond.lean`.
+  Simp.isEqnThmHypothesis e
 
 /--
 Given a splitter alternative, annotate the terms that are `match`-expression

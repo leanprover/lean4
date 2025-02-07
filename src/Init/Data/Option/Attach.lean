@@ -224,17 +224,17 @@ This lemma identifies maps over lists of subtypes, where the function only depen
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     o.map f = o.unattach.map g := by
   cases o <;> simp [hf]
 
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (o.bind f) = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (o.filter f).unattach = o.unattach.filter g := by
   cases o
   · simp

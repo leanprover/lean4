@@ -19,6 +19,7 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
 import Lean.PrivateName
+import Lean.LoadDynlib
 
 /-!
 # Note [Environment Branches]
@@ -404,10 +405,10 @@ def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts 
 def AsyncConsts.find? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
   aconsts.map.find? declName
 
-/-- Checks whether the name of any constant in the collection is a prefix of `declName`. -/
-def AsyncConsts.hasPrefix (aconsts : AsyncConsts) (declName : Name) : Bool :=
+/-- Finds the constant in the collection that is a prefix of `declName`, if any. -/
+def AsyncConsts.findPrefix? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
   -- as macro scopes are a strict suffix,
-  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName.eraseMacroScopes) |>.isSome
+  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName.eraseMacroScopes)
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -451,9 +452,7 @@ def ofKernelEnv (env : Kernel.Environment) : Environment :=
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
-  -- TODO: should just be the following when we store extension data in `checked`
-  --env.checked.get
-  { env.checked.get with extensions := env.checkedWithoutAsync.extensions }
+  env.checked.get
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -462,6 +461,22 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 /-- Sets synchronous and asynchronous parts of the environment to the given kernel environment. -/
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, checkedWithoutAsync := newChecked }
+
+def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
+  let prom ← IO.Promise.new
+  return ({ env with checked := prom.result?.bind (sync := true) (·.getD env |>.checked) }, prom)
+
+/--
+Checks whether the given declaration name may potentially added, or have been added, to the current
+environment branch, which is the case either if this is the main branch or if the declaration name
+is a suffix (modulo privacy and hygiene information) of the top-level declaration name for which
+this branch was created.
+
+This function should always be checked before modifying an `AsyncMode.async` environment extension
+to ensure `findStateAsync` will be able to find the modification from other branches.
+-/
+def asyncMayContain (env : Environment) (declName : Name) : Bool :=
+  env.asyncCtx?.all (·.mayContain declName)
 
 @[extern "lean_elab_add_decl"]
 private opaque addDeclCheck (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
@@ -515,7 +530,11 @@ def addExtraName (env : Environment) (name : Name) : Environment :=
 
 /-- Find base case: name did not match any asynchronous declaration. -/
 private def findNoAsync (env : Environment) (n : Name) : Option ConstantInfo := do
-  if env.asyncConsts.hasPrefix n then
+  if env.asyncMayContain n then
+    -- Constant definitely not generated in a different environment branch: return none, callers
+    -- have already checked this branch.
+    none
+  else if let some _ := env.asyncConsts.findPrefix? n then
     -- Constant generated in a different environment branch: wait for final kernel environment. Rare
     -- case when only proofs are elaborated asynchronously as they are rarely inspected. Could be
     -- optimized in the future by having the elaboration thread publish an (incremental?) map of
@@ -589,8 +608,9 @@ structure AddConstAsyncResult where
   /--
   Resulting "async branch" environment which should be used to add the desired declaration in a new
   task and then call `AddConstAsyncResult.commit*` to commit results back to the main environment.
-  One of `commitCheckEnv` or `commitFailure` must be called eventually to prevent deadlocks on main
-  branch accesses.
+  `commitCheckEnv` completes the addition; if it is not called and the `AddConstAsyncResult` object
+  is dropped, `sorry`ed default values will be reported instead and the kernel environment will be
+  left unchanged.
   -/
   asyncEnv : Environment
   private constName : Name
@@ -609,24 +629,48 @@ information.
 -/
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true) :
     IO AddConstAsyncResult := do
+  assert! env.asyncMayContain constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
   let extensionsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
+
+  -- fallback info in case promises are dropped unfulfilled
+  let fallbackVal := {
+    name := constName
+    levelParams := []
+    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
+  }
+  let fallbackInfo := match kind with
+    | .defn => .defnInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+      hints := .abbrev
+      safety := .safe
+    }
+    | .thm  => .thmInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+    }
+    | .axiom  => .axiomInfo { fallbackVal with
+      isUnsafe := false
+    }
+    | k => panic! s!"AddConstAsyncResult.addConstAsync: unsupported constant kind {repr k}"
+
   let asyncConst := {
     constInfo := {
       name := constName
       kind
-      sig := sigPromise.result
-      constInfo := infoPromise.result
+      sig := sigPromise.resultD fallbackVal
+      constInfo := infoPromise.resultD fallbackInfo
     }
-    exts? := guard reportExts *> some extensionsPromise.result
+    exts? := guard reportExts *> some (extensionsPromise.resultD #[])
   }
   return {
     constName, kind
     mainEnv := { env with
       asyncConsts := env.asyncConsts.add asyncConst
-      checked := checkedEnvPromise.result }
+      checked := checkedEnvPromise.result?.bind (sync := true) fun
+        | some kenv => .pure kenv
+        | none      => env.checked }
     asyncEnv := { env with
       asyncCtx? := some { declPrefix := privateToUserName constName.eraseMacroScopes }
     }
@@ -660,39 +704,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
   let kind' := .ofConstantInfo info
   if res.kind != kind' then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has kind {repr kind'} but expected {repr res.kind}"
-  let sig := res.sigPromise.result.get
+  let sig := res.sigPromise.result!.get
   if sig.levelParams != info.levelParams then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
   res.infoPromise.resolve info
   res.extensionsPromise.resolve env.checkedWithoutAsync.extensions
-
-/--
-Aborts async addition, filling in missing information with default values/sorries and leaving the
-kernel environment unchanged.
--/
-def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
-  let val := if (← IO.hasFinished res.sigPromise.result) then
-    res.sigPromise.result.get
-  else {
-    name := res.constName
-    levelParams := []
-    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
-  }
-  res.sigPromise.resolve val
-  res.infoPromise.resolve <| match res.kind with
-    | .defn => .defnInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-      hints := .abbrev
-      safety := .safe
-    }
-    | .thm  => .thmInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-    }
-    | k => panic! s!"AddConstAsyncResult.commitFailure: unsupported constant kind {repr k}"
-  res.extensionsPromise.resolve #[]
-  let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve
 
 /--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
@@ -756,38 +774,81 @@ def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
 
 end ConstantInfo
 
-/-- Interface for managing environment extensions. -/
-structure EnvExtensionInterface where
-  ext          : Type → Type
-  inhabitedExt : Inhabited σ → Inhabited (ext σ)
-  registerExt  (mkInitial : IO σ) : IO (ext σ)
-  setState     (e : ext σ) (exts : Array EnvExtensionState) : σ → Array EnvExtensionState
-  modifyState  (e : ext σ) (exts : Array EnvExtensionState) : (σ → σ) → Array EnvExtensionState
-  getState     [Inhabited σ] (e : ext σ) (exts : Array EnvExtensionState) : σ
-  mkInitialExtStates : IO (Array EnvExtensionState)
-  ensureExtensionsSize : Array EnvExtensionState → IO (Array EnvExtensionState)
+/--
+Async access mode for environment extensions used in `EnvironmentExtension.get/set/modifyState`.
+Depending on their specific uses, extensions may opt out of the strict `sync` access mode in order
+to avoid blocking parallel elaboration and/or to optimize accesses. The access mode is set at
+environment extension registration time but can be overriden at `EnvironmentExtension.getState` in
+order to weaken it for specific accesses.
 
-instance : Inhabited EnvExtensionInterface where
-  default := {
-    ext                  := id
-    inhabitedExt         := id
-    ensureExtensionsSize := fun exts => pure exts
-    registerExt          := fun mk => mk
-    setState             := fun _ exts _ => exts
-    modifyState          := fun _ exts _ => exts
-    getState             := fun ext _ => ext
-    mkInitialExtStates   := pure #[]
-  }
+In all modes, the state stored into the `.olean` file for persistent environment extensions is the
+result of `getState` called on the main environment branch at the end of the file, i.e. it
+encompasses all modifications for all modes but `local`.
+-/
+inductive EnvExtension.AsyncMode where
+  /--
+  Default access mode, writing and reading the extension state to/from the full `checked`
+  environment. This mode ensures the observed state is identical independently of whether or how
+  parallel elaboration is used but `getState` will block on all prior environment branches by
+  waiting for `checked`. `setState` and `modifyState` do not block.
 
-/-! # Unsafe implementation of `EnvExtensionInterface` -/
-namespace EnvExtensionInterfaceUnsafe
+  While a safe default, any extension that reasonably could be used in parallel elaboration contexts
+  should opt for a weaker mode to avoid blocking unless there is no way to access the correct state
+  without waiting for all prior environment branches, in which case its data management should be
+  restructured if at all possible.
+  -/
+  | sync
+  /--
+  Accesses only the state of the current environment branch. Modifications on other branches are not
+  visible and are ultimately discarded except for the main branch. Provides the fastest accessors,
+  will never block.
 
-structure Ext (σ : Type) where
-  idx       : Nat
-  mkInitial : IO σ
+  This mode is particularly suitable for extensions where state does not escape from lexical scopes
+  even without parallelism, e.g. `ScopedEnvExtension`s when setting local entries.
+  -/
+  | local
+  /--
+  Like `local` but panics when trying to modify the state on anything but the main environment
+  branch. For extensions that fulfill this requirement, all modes functionally coincide but this
+  is the safest and most efficient choice in that case, preventing accidental misuse.
+
+  This mode is suitable for extensions that are modified only at the command elaboration level
+  before any environment forks in the command, and in particular for extensions that are modified
+  only at the very beginning of the file.
+  -/
+  | mainOnly
+  /--
+  Accumulates modifications in the `checked` environment like `sync`, but `getState` will panic
+  instead of blocking. Instead `findStateAsync` should be used, which will access the state of the
+  environment branch corresponding to the passed declaration name, if any, or otherwise the state
+  of the current branch. In other words, at most one environment branch will be blocked on instead
+  of all prior branches. The local state can still be accessed by calling `getState` with mode
+  `local` explicitly.
+
+  This mode is suitable for extensions with map-like state where the key uniquely identifies the
+  top-level declaration where it could have been set, e.g. because the key on modification is always
+  the surrounding declaration's name. Any calls to `modifyState`/`setState` should assert
+  `asyncMayContain` with that key to ensure state is never accidentally stored in a branch where it
+  cannot be found by `findStateAsync`. In particular, this mode is closest to how the environment's
+  own constant map works which asserts the same predicate on modification and provides `findAsync?`
+  for block-avoiding access.
+  -/
+  | async
   deriving Inhabited
 
-private builtin_initialize envExtensionsRef : IO.Ref (Array (Ext EnvExtensionState)) ← IO.mkRef #[]
+/--
+Environment extension, can only be generated by `registerEnvExtension` that allocates a unique index
+for this extension into each environment's extension state's array.
+-/
+structure EnvExtension (σ : Type) where private mk ::
+  idx       : Nat
+  mkInitial : IO σ
+  asyncMode : EnvExtension.AsyncMode
+  deriving Inhabited
+
+namespace EnvExtension
+
+private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExtensionState)) ← IO.mkRef #[]
 
 /--
   User-defined environment extensions are declared using the `initialize` command.
@@ -810,14 +871,14 @@ where
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
+private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
   if h : ext.idx < exts.size then
     exts.set ext.idx (unsafeCast s)
   else
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-@[inline] unsafe def modifyState {σ : Type} (ext : Ext σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
   if ext.idx < exts.size then
     exts.modify ext.idx fun s =>
       let s : σ := unsafeCast s
@@ -827,64 +888,65 @@ unsafe def setState {σ} (ext : Ext σ) (exts : Array EnvExtensionState) (s : σ
     have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-unsafe def getState {σ} [Inhabited σ] (ext : Ext σ) (exts : Array EnvExtensionState) : σ :=
+private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
   if h : ext.idx < exts.size then
-    let s : EnvExtensionState := exts[ext.idx]
-    unsafeCast s
+    unsafeCast exts[ext.idx]
   else
     panic! invalidExtMsg
-
-unsafe def registerExt {σ} (mkInitial : IO σ) : IO (Ext σ) := do
-  unless (← initializing) do
-    throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
-  let exts ← envExtensionsRef.get
-  let idx := exts.size
-  let ext : Ext σ := {
-     idx        := idx,
-     mkInitial  := mkInitial,
-  }
-  envExtensionsRef.modify fun exts => exts.push (unsafeCast ext)
-  pure ext
 
 def mkInitialExtStates : IO (Array EnvExtensionState) := do
   let exts ← envExtensionsRef.get
   exts.mapM fun ext => ext.mkInitial
 
-unsafe def imp : EnvExtensionInterface := {
-  ext                  := Ext
-  ensureExtensionsSize := ensureExtensionsArraySize
-  inhabitedExt         := fun _ => ⟨default⟩
-  registerExt          := registerExt
-  setState             := setState
-  modifyState          := modifyState
-  getState             := getState
-  mkInitialExtStates   := mkInitialExtStates
-}
+/--
+Applies the given function to the extension state. See `AsyncMode` for details on how modifications
+from different environment branches are reconciled.
 
-end EnvExtensionInterfaceUnsafe
-
-@[implemented_by EnvExtensionInterfaceUnsafe.imp]
-opaque EnvExtensionInterfaceImp : EnvExtensionInterface
-
-def EnvExtension (σ : Type) : Type := EnvExtensionInterfaceImp.ext σ
-
-private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
-  let exts ← EnvExtensionInterfaceImp.ensureExtensionsSize env.checkedWithoutAsync.extensions
-  return env.modifyCheckedAsync ({ · with extensions := exts })
-
-namespace EnvExtension
-instance {σ} [s : Inhabited σ] : Inhabited (EnvExtension σ) := EnvExtensionInterfaceImp.inhabitedExt s
-
--- TODO: store extension state in `checked`
-
-def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
-  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.setState ext env.checkedWithoutAsync.extensions s }
-
+Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
+state.
+-/
 def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
-  { env with checkedWithoutAsync.extensions := EnvExtensionInterfaceImp.modifyState ext env.checkedWithoutAsync.extensions f }
+  -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+  match ext.asyncMode with
+  | .mainOnly =>
+    if let some asyncCtx := env.asyncCtx? then
+      let _ : Inhabited Environment := ⟨env⟩
+      panic! s!"Environment.modifyState: environment extension is marked as `mainOnly` but used in \
+        async context '{asyncCtx.declPrefix}'"
+    else
+      { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
+  | .local =>
+    { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
+  | _ =>
+    env.modifyCheckedAsync fun env =>
+      { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
 
-def getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment) : σ :=
-  EnvExtensionInterfaceImp.getState ext env.checkedWithoutAsync.extensions
+/--
+Sets the extension state to the given value. See `AsyncMode` for details on how modifications from
+different environment branches are reconciled.
+-/
+def setState {σ : Type} (ext : EnvExtension σ) (env : Environment) (s : σ) : Environment :=
+  inline <| modifyState ext env fun _ => s
+
+-- `unsafe` fails to infer `Nonempty` here
+private unsafe def getStateUnsafe {σ : Type} [Inhabited σ] (ext : EnvExtension σ)
+    (env : Environment) (asyncMode := ext.asyncMode) : σ :=
+  -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+  match asyncMode with
+  | .sync     => ext.getStateImpl env.checked.get.extensions
+  | .async    => panic! "EnvExtension.getState: called on `async` extension, use `findStateAsync` \
+    instead or pass `(asyncMode := .local)` to explicitly access local state"
+  | _         => ext.getStateImpl env.checkedWithoutAsync.extensions
+
+/--
+Returns the current extension state. See `AsyncMode` for details on how modifications from
+different environment branches are reconciled. Panics if the extension is marked as `async`; see its
+documentation for more details. Overriding the extension's default `AsyncMode` is usually not
+recommended and should be considered only for important optimizations.
+-/
+@[implemented_by getStateUnsafe]
+opaque getState {σ : Type} [Inhabited σ] (ext : EnvExtension σ) (env : Environment)
+  (asyncMode := ext.asyncMode) : σ
 
 end EnvExtension
 
@@ -895,8 +957,18 @@ end EnvExtension
 
    Note that by default, extension state is *not* stored in .olean files and will not propagate across `import`s.
    For that, you need to register a persistent environment extension. -/
-def registerEnvExtension {σ : Type} (mkInitial : IO σ) : IO (EnvExtension σ) := EnvExtensionInterfaceImp.registerExt mkInitial
-private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtensionInterfaceImp.mkInitialExtStates
+def registerEnvExtension {σ : Type} (mkInitial : IO σ)
+    (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
+  unless (← initializing) do
+    throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
+  let exts ← EnvExtension.envExtensionsRef.get
+  let idx := exts.size
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode }
+  -- safety: `EnvExtensionState` is opaque, so we can upcast to it
+  EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
+  pure ext
+
+private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtension.mkInitialExtStates
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
@@ -992,7 +1064,8 @@ instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ)
 namespace PersistentEnvExtension
 
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
-  (ext.toEnvExtension.getState env).importedEntries.get! m
+  -- `importedEntries` is identical on all environment branches, so `local` is always sufficient
+  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries.get! m
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>
@@ -1011,6 +1084,24 @@ def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
 def modifyState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (f : σ → σ) : Environment :=
   ext.toEnvExtension.modifyState env fun ps => { ps with state := f (ps.state) }
 
+-- `unsafe` fails to infer `Nonempty` here
+private unsafe def findStateAsyncUnsafe {α β σ : Type} [Inhabited σ]
+    (ext : PersistentEnvExtension α β σ) (env : Environment) (declPrefix : Name) : σ :=
+  -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
+  if let some { exts? := some exts, .. } := env.asyncConsts.findPrefix? declPrefix then
+    ext.toEnvExtension.getStateImpl exts.get |>.state
+  else
+    ext.toEnvExtension.getStateImpl env.checkedWithoutAsync.extensions |>.state
+
+/--
+Returns the final extension state on the environment branch corresponding to the passed declaration
+name, if any, or otherwise the state on the current branch. In other words, at most one environment
+branch will be blocked on.
+-/
+@[implemented_by findStateAsyncUnsafe]
+opaque findStateAsync {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ)
+  (env : Environment) (declPrefix : Name) : σ
+
 end PersistentEnvExtension
 
 builtin_initialize persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionEntry EnvExtensionState)) ← IO.mkRef #[]
@@ -1022,11 +1113,12 @@ structure PersistentEnvExtensionDescr (α β σ : Type) where
   addEntryFn      : σ → β → σ
   exportEntriesFn : σ → Array α
   statsFn         : σ → Format := fun _ => Format.nil
+  asyncMode       : EnvExtension.AsyncMode := .mainOnly
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
-  let ext ← registerEnvExtension do
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -1058,6 +1150,7 @@ structure SimplePersistentEnvExtensionDescr (α σ : Type) where
   addEntryFn    : σ → α → σ
   addImportedFn : Array (Array α) → σ
   toArrayFn     : List α → Array α := fun es => es.toArray
+  asyncMode     : EnvExtension.AsyncMode := .mainOnly
 
 def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
   registerPersistentEnvExtension {
@@ -1068,6 +1161,7 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
       | (entries, s) => (e::entries, descr.addEntryFn s e),
     exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
+    asyncMode := descr.asyncMode
   }
 
 namespace SimplePersistentEnvExtension
@@ -1226,7 +1320,8 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/
   for extDescr in extDescrs[startingAt:] do
-    states := EnvExtensionInterfaceImp.modifyState extDescr.toEnvExtension states fun s =>
+    -- safety: as in `modifyState`
+    states := unsafe extDescr.toEnvExtension.modifyStateImpl states fun s =>
       { s with importedEntries := mkArray mods.size #[] }
   /- For each module `mod`, and `mod.entries`, if the extension name is one of the extensions after `startingAt`, set `entries` -/
   let extNameIdx ← mkExtNameMap startingAt
@@ -1234,7 +1329,8 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
     let mod := mods[modIdx]
     for (extName, entries) in mod.entries do
       if let some entryIdx := extNameIdx[extName]? then
-        states := EnvExtensionInterfaceImp.modifyState extDescrs[entryIdx]!.toEnvExtension states fun s =>
+        -- safety: as in `modifyState`
+        states := unsafe extDescrs[entryIdx]!.toEnvExtension.modifyStateImpl states fun s =>
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return env.setCheckedSync { env.checkedWithoutAsync with extensions := states }
 
@@ -1250,6 +1346,10 @@ private def setImportedEntries (env : Environment) (mods : Array ModuleData) (st
 @[extern 2 "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern 1 "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
+
+private def ensureExtensionsArraySize (env : Environment) : IO Environment := do
+  let exts ← EnvExtension.ensureExtensionsArraySize env.checkedWithoutAsync.extensions
+  return env.modifyCheckedAsync ({ · with extensions := exts })
 
 private partial def finalizePersistentExtensions (env : Environment) (mods : Array ModuleData) (opts : Options) : IO Environment := do
   loop 0 env
@@ -1406,11 +1506,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
 @[export lean_import_modules]
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := profileitIO "import" opts do
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
+    plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
     finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 
@@ -1471,7 +1573,7 @@ def getNamespaceSet (env : Environment) : NameSSet :=
 
 @[export lean_elab_environment_update_base_after_kernel_add]
 private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) : Environment :=
-  env.setCheckedSync { kernel with extensions := env.checkedWithoutAsync.extensions }
+  { env with checked := .pure kernel, checkedWithoutAsync := { kernel with extensions := env.checkedWithoutAsync.extensions } }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do

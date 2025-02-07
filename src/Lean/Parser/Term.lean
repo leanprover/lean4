@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
+import Lean.Parser.Term.Doc
 
 namespace Lean
 namespace Parser
@@ -253,6 +254,8 @@ do not yield the right result.
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
 
+recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
+
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
 Can also be used for creating simple functions when combined with `·`. Here are some examples:
@@ -415,7 +418,7 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 /-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
 `match h1 : e1, e2, h3 : e3 with ...`. -/
 @[builtin_doc] def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"

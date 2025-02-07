@@ -33,7 +33,7 @@ private def elabSpecArgs (declName : Name) (args : Array Syntax) : MetaM (Array 
           result := result.push idx
       else
         let argName := arg.getId
-        if let some idx := argNames.indexOf? argName then
+        if let some idx := argNames.idxOf? argName then
           if result.contains idx then throwErrorAt arg "invalid specialization argument name `{argName}`, it has already been specified as a specialization candidate"
           result := result.push idx
         else
@@ -110,6 +110,7 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
   registerSimplePersistentEnvExtension {
     addEntryFn    := SpecState.addEntry,
     addImportedFn := fun es => (mkStateFromImportedEntries SpecState.addEntry {} es).switch
+    asyncMode     := .sync  -- compilation is non-parallel anyway
   }
 
 @[export lean_add_specialization_info]

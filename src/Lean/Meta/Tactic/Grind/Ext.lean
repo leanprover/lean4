@@ -14,14 +14,14 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   let c ← mkConstWithFreshMVarLevels thm.declName
   let (mvars, bis, type) ← withDefault <| forallMetaTelescopeReducing (← inferType c)
   unless (← isDefEq e type) do
-    reportIssue m!"failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nis not definitionally equal to{indentExpr type}"
+    reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nis not definitionally equal to{indentExpr type}"
     return ()
   -- Instantiate type class instances
   for mvar in mvars, bi in bis do
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthesizeInstanceAndAssign mvar type) do
-        reportIssue m!"failed to synthesize instance when instantiating extensionality theorem `{thm.declName}` for {indentExpr e}"
+        reportIssue! "failed to synthesize instance when instantiating extensionality theorem `{thm.declName}` for {indentExpr e}"
         return ()
   -- Remark: `proof c mvars` has type `e`
   let proof ← instantiateMVars (mkAppN c mvars)
@@ -33,7 +33,7 @@ def instantiateExtTheorem (thm : Ext.ExtTheorem) (e : Expr) : GoalM Unit := with
   let proof' ← instantiateMVars (← mkLambdaFVars mvars proof)
   let prop' ← inferType proof'
   if proof'.hasMVar || prop'.hasMVar then
-    reportIssue m!"failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
+    reportIssue! "failed to apply extensionality theorem `{thm.declName}` for {indentExpr e}\nresulting terms contain metavariables"
     return ()
   addNewFact proof' prop' ((← getGeneration e) + 1)
 

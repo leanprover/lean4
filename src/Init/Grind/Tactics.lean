@@ -6,23 +6,29 @@ Authors: Leonardo de Moura
 prelude
 import Init.Tactics
 
-namespace Lean.Parser.Attr
+namespace Lean.Parser
+/--
+Reset all `grind` attributes. This command is intended for testing purposes only and should not be used in applications.
+-/
+syntax (name := resetGrindAttrs) "%reset_grind_attrs" : command
 
-syntax grindEq     := "="
-syntax grindEqBoth := atomic("_" "=" "_")
-syntax grindEqRhs  := atomic("=" "_")
-syntax grindEqBwd  := atomic("←" "=")
-syntax grindBwd    := "←"
-syntax grindFwd    := "→"
-syntax grindUsr    := &"usr"
-syntax grindCases  := &"cases"
-syntax grindCasesEager := atomic(&"cases" &"eager")
-
-syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindUsr <|> grindCasesEager <|> grindCases
-
+namespace Attr
+syntax grindEq     := "= "
+syntax grindEqBoth := atomic("_" "=" "_ ")
+syntax grindEqRhs  := atomic("=" "_ ")
+syntax grindEqBwd  := atomic("←" "= ") <|> atomic("<-" "= ")
+syntax grindBwd    := "← " <|> "-> "
+syntax grindFwd    := "→ " <|> "<- "
+syntax grindRL     := "⇐ " <|> "<= "
+syntax grindLR     := "⇒ " <|> "=> "
+syntax grindUsr    := &"usr "
+syntax grindCases  := &"cases "
+syntax grindCasesEager := atomic(&"cases" &"eager ")
+syntax grindIntro  := &"intro "
+syntax grindMod := grindEqBoth <|> grindEqRhs <|> grindEq <|> grindEqBwd <|> grindBwd <|> grindFwd <|> grindRL <|> grindLR <|> grindUsr <|> grindCasesEager <|> grindCases <|> grindIntro
 syntax (name := grind) "grind" (grindMod)? : attr
-
-end Lean.Parser.Attr
+end Attr
+end Lean.Parser
 
 namespace Lean.Grind
 /--
@@ -30,6 +36,8 @@ The configuration for `grind`.
 Passed to `grind` using, for example, the `grind (config := { matchEqs := true })` syntax.
 -/
 structure Config where
+  /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
+  trace : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 8
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
@@ -57,6 +65,10 @@ structure Config where
   canonHeartbeats : Nat := 1000
   /-- If `ext` is `true`, `grind` uses extensionality theorems available in the environment. -/
   ext : Bool := true
+  /-- If `verbose` is `false`, additional diagnostics information is not collected. -/
+  verbose : Bool := true
+  /-- If `clean` is `true`, `grind` uses `expose_names` and only generates accessible names. -/
+  clean : Bool := true
   deriving Inhabited, BEq
 
 end Lean.Grind

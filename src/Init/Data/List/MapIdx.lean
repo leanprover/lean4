@@ -15,17 +15,15 @@ namespace List
 
 /-! ## Operations using indexes -/
 
-/-! ### mapIdx -/
-
 /--
-Given a list `as = [a₀, a₁, ...]` function `f : Fin as.length → α → β`, returns the list
-`[f 0 a₀, f 1 a₁, ...]`.
+Given a list `as = [a₀, a₁, ...]` and a function `f : (i : Nat) → α → (h : i < as.length) → β`, returns the list
+`[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
 -/
 @[inline] def mapFinIdx (as : List α) (f : (i : Nat) → α → (h : i < as.length) → β) : List β :=
   go as #[] (by simp)
 where
   /-- Auxiliary for `mapFinIdx`:
-  `mapFinIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀, f 1 a₁, ...]` -/
+  `mapFinIdx.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀ ⋯, f 1 a₁ ⋯, ...]` -/
   @[specialize] go : (bs : List α) → (acc : Array β) → bs.length + acc.size = as.length → List β
   | [], acc, h => acc.toList
   | a :: as, acc, h =>
@@ -41,6 +39,31 @@ Given a function `f : Nat → α → β` and `as : List α`, `as = [a₀, a₁, 
   @[specialize] go : List α → Array β → List β
   | [], acc => acc.toList
   | a :: as, acc => go as (acc.push (f acc.size a))
+
+/--
+Given a list `as = [a₀, a₁, ...]` and a monadic function `f : (i : Nat) → α → (h : i < as.length) → m β`,
+returns the list `[f 0 a₀ ⋯, f 1 a₁ ⋯, ...]`.
+-/
+@[inline] def mapFinIdxM [Monad m] (as : List α) (f : (i : Nat) → α → (h : i < as.length) → m β) : m (List β) :=
+  go as #[] (by simp)
+where
+  /-- Auxiliary for `mapFinIdxM`:
+  `mapFinIdxM.go [a₀, a₁, ...] acc = acc.toList ++ [f 0 a₀ ⋯, f 1 a₁ ⋯, ...]` -/
+  @[specialize] go : (bs : List α) → (acc : Array β) → bs.length + acc.size = as.length → m (List β)
+  | [], acc, h => pure acc.toList
+  | a :: as, acc, h => do
+    go as (acc.push (← f acc.size a (by simp at h; omega))) (by simp at h ⊢; omega)
+
+/--
+Given a monadic function `f : Nat → α → m β` and `as : List α`, `as = [a₀, a₁, ...]`,
+returns the list `[f 0 a₀, f 1 a₁, ...]`.
+-/
+@[inline] def mapIdxM [Monad m] (f : Nat → α → m β) (as : List α) : m (List β) := go as #[] where
+  /-- Auxiliary for `mapIdxM`:
+  `mapIdxM.go [a₀, a₁, ...] acc = acc.toList ++ [f acc.size a₀, f (acc.size + 1) a₁, ...]` -/
+  @[specialize] go : List α → Array β → m (List β)
+  | [], acc => pure acc.toList
+  | a :: as, acc => do go as (acc.push (← f acc.size a))
 
 /-! ### mapFinIdx -/
 
@@ -132,16 +155,19 @@ theorem mapFinIdx_singleton {a : α} {f : (i : Nat) → α → (h : i < 1) → �
     [a].mapFinIdx f = [f 0 a (by simp)] := by
   simp
 
-theorem mapFinIdx_eq_enum_map {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
-    l.mapFinIdx f = l.enum.attach.map
-      fun ⟨⟨i, x⟩, m⟩ =>
-        f i x (by rw [mk_mem_enum_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
+theorem mapFinIdx_eq_zipIdx_map {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
+    l.mapFinIdx f = l.zipIdx.attach.map
+      fun ⟨⟨x, i⟩, m⟩ =>
+        f i x (by rw [mk_mem_zipIdx_iff_getElem?, getElem?_eq_some_iff] at m; exact m.1) := by
   apply ext_getElem <;> simp
+
+@[deprecated mapFinIdx_eq_zipIdx_map (since := "2025-01-21")]
+abbrev mapFinIdx_eq_zipWithIndex_map := @mapFinIdx_eq_zipIdx_map
 
 @[simp]
 theorem mapFinIdx_eq_nil_iff {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
     l.mapFinIdx f = [] ↔ l = [] := by
-  rw [mapFinIdx_eq_enum_map, map_eq_nil_iff, attach_eq_nil_iff, enum_eq_nil_iff]
+  rw [mapFinIdx_eq_zipIdx_map, map_eq_nil_iff, attach_eq_nil_iff, zipIdx_eq_nil_iff]
 
 theorem mapFinIdx_ne_nil_iff {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β} :
     l.mapFinIdx f ≠ [] ↔ l ≠ [] := by
@@ -149,10 +175,10 @@ theorem mapFinIdx_ne_nil_iff {l : List α} {f : (i : Nat) → α → (h : i < l.
 
 theorem exists_of_mem_mapFinIdx {b : β} {l : List α} {f : (i : Nat) → α → (h : i < l.length) → β}
     (h : b ∈ l.mapFinIdx f) : ∃ (i : Nat) (h : i < l.length), f i l[i] h = b := by
-  rw [mapFinIdx_eq_enum_map] at h
+  rw [mapFinIdx_eq_zipIdx_map] at h
   replace h := exists_of_mem_map h
-  simp only [mem_attach, true_and, Subtype.exists, Prod.exists, mk_mem_enum_iff_getElem?] at h
-  obtain ⟨i, b, h, rfl⟩ := h
+  simp only [mem_attach, true_and, Subtype.exists, Prod.exists, mk_mem_zipIdx_iff_getElem?] at h
+  obtain ⟨b, i, h, rfl⟩ := h
   rw [getElem?_eq_some_iff] at h
   obtain ⟨h', rfl⟩ := h
   exact ⟨i, h', rfl⟩
@@ -331,17 +357,19 @@ theorem mapIdx_eq_mapFinIdx {l : List α} {f : Nat → α → β} :
     l.mapIdx f = l.mapFinIdx (fun i a _ => f i a) := by
   simp [mapFinIdx_eq_mapIdx]
 
-theorem mapIdx_eq_enum_map {l : List α} :
-    l.mapIdx f = l.enum.map (Function.uncurry f) := by
+theorem mapIdx_eq_zipIdx_map {l : List α} {f : Nat → α → β} :
+    l.mapIdx f = l.zipIdx.map (fun ⟨a, i⟩ => f i a) := by
   ext1 i
-  simp only [getElem?_mapIdx, Option.map, getElem?_map, getElem?_enum]
+  simp only [getElem?_mapIdx, Option.map, getElem?_map, getElem?_zipIdx]
   split <;> simp
+
+@[deprecated mapIdx_eq_zipIdx_map (since := "2025-01-21")]
+abbrev mapIdx_eq_enum_map := @mapIdx_eq_zipIdx_map
 
 @[simp]
 theorem mapIdx_cons {l : List α} {a : α} :
     mapIdx f (a :: l) = f 0 a :: mapIdx (fun i => f (i + 1)) l := by
-  simp [mapIdx_eq_enum_map, enum_eq_zip_range, map_uncurry_zip_eq_zipWith,
-    range_succ_eq_map, zipWith_map_left]
+  simp [mapIdx_eq_zipIdx_map, List.zipIdx_succ]
 
 theorem mapIdx_append {K L : List α} :
     (K ++ L).mapIdx f = K.mapIdx f ++ L.mapIdx fun i => f (i + K.length) := by
@@ -358,7 +386,7 @@ theorem mapIdx_singleton {a : α} : mapIdx f [a] = [f 0 a] := by
 
 @[simp]
 theorem mapIdx_eq_nil_iff {l : List α} : List.mapIdx f l = [] ↔ l = [] := by
-  rw [List.mapIdx_eq_enum_map, List.map_eq_nil_iff, List.enum_eq_nil_iff]
+  rw [List.mapIdx_eq_zipIdx_map, List.map_eq_nil_iff, List.zipIdx_eq_nil_iff]
 
 theorem mapIdx_ne_nil_iff {l : List α} :
     List.mapIdx f l ≠ [] ↔ l ≠ [] := by

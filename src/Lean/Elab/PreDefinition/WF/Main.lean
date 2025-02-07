@@ -11,8 +11,9 @@ import Lean.Elab.PreDefinition.WF.PackMutual
 import Lean.Elab.PreDefinition.WF.Preprocess
 import Lean.Elab.PreDefinition.WF.Rel
 import Lean.Elab.PreDefinition.WF.Fix
-import Lean.Elab.PreDefinition.WF.Eqns
+import Lean.Elab.PreDefinition.WF.Unfold
 import Lean.Elab.PreDefinition.WF.Ite
+import Lean.Elab.PreDefinition.WF.AutoAttach
 import Lean.Elab.PreDefinition.WF.GuessLex
 
 namespace Lean.Elab
@@ -61,6 +62,10 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
   Mutual.addPreDefsFromUnary preDefs preDefsNonrec preDefNonRec
   let preDefs ← Mutual.cleanPreDefs preDefs
   registerEqnsInfo preDefs preDefNonRec.declName fixedPrefixSize argsPacker
+  for preDef in preDefs do
+    unless preDef.kind.isTheorem do
+      unless (← isProp preDef.type) do
+        WF.mkUnfoldEq preDef preDefNonRec.declName
   Mutual.addPreDefAttributes preDefs
 
 builtin_initialize registerTraceClass `Elab.definition.wf

@@ -6,3 +6,4 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 prelude
 import Init.Control.Lawful.Basic
 import Init.Control.Lawful.Instances
+import Init.Control.Lawful.Lemmas

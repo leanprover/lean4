@@ -39,6 +39,10 @@ void initialize_libuv_timer() {
     });
 }
 
+static bool timer_promise_is_finished(lean_uv_timer_object * timer) {
+    return lean_io_get_task_state_core((lean_object *)lean_to_promise(timer->m_promise)->m_result) == 2;
+}
+
 void handle_timer_event(uv_timer_t* handle) {
     lean_object * obj = (lean_object*)handle->data;
     lean_uv_timer_object * timer = lean_to_uv_timer(obj);
@@ -48,12 +52,12 @@ void handle_timer_event(uv_timer_t* handle) {
     lean_assert(timer->m_promise != NULL);
 
     if (timer->m_repeating) {
-        if (lean_io_get_task_state_core(timer->m_promise) != 2) {
+        if (!timer_promise_is_finished(timer)) {
             lean_object* res = lean_io_promise_resolve(lean_box(0), timer->m_promise, lean_io_mk_world());
             lean_dec(res);
         }
     } else {
-        lean_assert(lean_io_get_task_state_core(timer->m_promise) != 2);
+        lean_assert(!timer_promise_is_finished(timer));
         uv_timer_stop(timer->m_uv_timer);
         timer->m_state = TIMER_STATE_FINISHED;
 
@@ -145,7 +149,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_timer_next(b_obj_arg obj, obj_arg /*
                 {
                     lean_assert(timer->m_promise != NULL);
                     // 2 indicates finished
-                    if (lean_io_get_task_state_core(timer->m_promise) == 2) {
+                    if (timer_promise_is_finished(timer)) {
                         lean_dec(timer->m_promise);
                         timer->m_promise = create_promise();
                         lean_inc(timer->m_promise);

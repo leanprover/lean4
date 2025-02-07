@@ -10,22 +10,30 @@ import Lean.Meta.Tactic.Grind.Cases
 namespace Lean.Meta.Grind
 
 inductive AttrKind where
-  | ematch (k : TheoremKind)
+  | ematch (k : EMatchTheoremKind)
   | cases (eager : Bool)
+  | intro
   | infer
 
 /-- Return theorem kind for `stx` of the form `Attr.grindThmMod` -/
 def getAttrKindCore (stx : Syntax) : CoreM AttrKind := do
   match stx with
   | `(Parser.Attr.grindMod| =) => return .ematch .eqLhs
-  | `(Parser.Attr.grindMod| →) => return .ematch .fwd
-  | `(Parser.Attr.grindMod| ←) => return .ematch .bwd
+  | `(Parser.Attr.grindMod| →)
+  | `(Parser.Attr.grindMod| ->) => return .ematch .fwd
+  | `(Parser.Attr.grindMod| ←)
+  | `(Parser.Attr.grindMod| <-) => return .ematch .bwd
   | `(Parser.Attr.grindMod| =_) => return .ematch .eqRhs
   | `(Parser.Attr.grindMod| _=_) => return .ematch .eqBoth
   | `(Parser.Attr.grindMod| ←=) => return .ematch .eqBwd
+  | `(Parser.Attr.grindMod| ⇒)
+  | `(Parser.Attr.grindMod| =>) => return .ematch .leftRight
+  | `(Parser.Attr.grindMod| ⇐)
+  | `(Parser.Attr.grindMod| <=) => return .ematch .rightLeft
   | `(Parser.Attr.grindMod| usr) => return .ematch .user
   | `(Parser.Attr.grindMod| cases) => return .cases false
   | `(Parser.Attr.grindMod| cases eager) => return .cases true
+  | `(Parser.Attr.grindMod| intro) => return .intro
   | _ => throwError "unexpected `grind` theorem kind: `{stx}`"
 
 /-- Return theorem kind for `stx` of the form `(Attr.grindMod)?` -/
@@ -64,9 +72,20 @@ builtin_initialize
       | .ematch .user => throwInvalidUsrModifier
       | .ematch k => addEMatchAttr declName attrKind k
       | .cases eager => addCasesAttr declName eager attrKind
+      | .intro =>
+        if let some info ← isCasesAttrPredicateCandidate? declName false then
+          for ctor in info.ctors do
+            addEMatchAttr ctor attrKind .default
+        else
+          throwError "invalid `[grind intro]`, `{declName}` is not an inductive predicate"
       | .infer =>
-        if (← isCasesAttrCandidate declName false) then
+        if let some declName ← isCasesAttrCandidate? declName false then
           addCasesAttr declName false attrKind
+          if let some info ← isInductivePredicate? declName then
+            -- If it is an inductive predicate,
+            -- we also add the contructors (intro rules) as E-matching rules
+            for ctor in info.ctors do
+              addEMatchAttr ctor attrKind .default
         else
           addEMatchAttr declName attrKind .default
     erase := fun declName => MetaM.run' do

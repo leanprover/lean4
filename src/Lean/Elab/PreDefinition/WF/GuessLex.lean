@@ -790,7 +790,7 @@ def guessLex (preDefs : Array PreDefinition) (unaryPreDef : PreDefinition)
   -- (One for each non-forbiddend arg)
   let basicMeassures₁ ← simpleMeasures preDefs fixedPrefixSize userVarNamess
   let basicMeassures₂ ← complexMeasures preDefs fixedPrefixSize userVarNamess recCalls
-  let basicMeasures := Array.zipWith basicMeassures₁ basicMeassures₂ (· ++ ·)
+  let basicMeasures := Array.zipWith (· ++ ·) basicMeassures₁ basicMeassures₂
 
   -- The list of measures, including the measures that order functions.
   -- The function ordering measures come last

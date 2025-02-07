@@ -12,6 +12,12 @@ import Lean.Meta.Tactic.Grind.ProveEq
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 
 namespace Lean.Meta.Grind
+/-
+Remark: the `simp` module has some support for `MatchCond`, but it is
+called `isEqnThmHypothesis` there. This is actually a better name.
+TODO: rename this module and functions to `EqThmHyp`.
+-/
+
 /-!
 Support for `match`-expressions with overlapping patterns.
 Recall that when a `match`-expression has overlapping patterns, some of its equation theorems are
@@ -291,7 +297,12 @@ where
     let some (α?, lhs, rhs) := isEqHEq? (← inferType h)
       | return none
     let target ← (← get).mvarId.getType
-    let root ← getRootENode lhs
+    -- We use `shareCommon` here because we may accessing a new expression
+    -- created when we infer the type of the `noConfusion` term below
+    let lhs ← shareCommon lhs
+    let some root ← getRootENode? lhs
+      | reportIssue! "found term that has not been internalized{indentExpr lhs}\nwhile trying to construct a proof for `MatchCond`{indentExpr e}"
+        return none
     let isHEq := α?.isSome
     let h ← if isHEq then
       mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
@@ -300,6 +311,7 @@ where
     if root.ctor then
       let some ctorLhs ← isConstructorApp? root.self | return none
       let some ctorRhs ← isConstructorApp? rhs | return none
+      -- See comment on `shareCommon` above.
       let h ← mkNoConfusion target h
       if ctorLhs.name ≠ ctorRhs.name then
         return some h
@@ -418,7 +430,7 @@ builtin_grind_propagator propagateMatchCondUp ↑Grind.MatchCond := fun e => do
   else
     if !(← isStatisfied e) then return ()
     let some h ← mkMatchCondProof? e
-       | reportIssue m!"failed to construct proof for{indentExpr e}"; return ()
+       | reportIssue! "failed to construct proof for{indentExpr e}"; return ()
     trace_goal[grind.debug.matchCond] "{← inferType h}"
     pushEqTrue e <| mkEqTrueCore e h
 

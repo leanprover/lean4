@@ -340,15 +340,21 @@ private def unfoldLHS (declName : Name) (mvarId : MVarId) : MetaM MVarId := mvar
     -- Else use delta reduction
     deltaLHS mvarId
 
-private partial def mkEqnProof (declName : Name) (type : Expr) : MetaM Expr := do
+private partial def mkEqnProof (declName : Name) (type : Expr) (tryRefl : Bool) : MetaM Expr := do
   trace[Elab.definition.eqns] "proving: {type}"
   withNewMCtxDepth do
     let main ← mkFreshExprSyntheticOpaqueMVar type
     let (_, mvarId) ← main.mvarId!.intros
+
     -- Try rfl before deltaLHS to avoid `id` checkpoints in the proof, which would make
     -- the lemma ineligible for dsimp
-    unless ← withAtLeastTransparency .all (tryURefl mvarId) do
-      go (← unfoldLHS declName mvarId)
+    -- For well-founded recursion this is disabled: The equation may hold
+    -- definitionally as written, but not embedded in larger proofs
+    if tryRefl then
+      if (← withAtLeastTransparency .all (tryURefl mvarId)) then
+        return ← instantiateMVars main
+
+    go (← unfoldLHS declName mvarId)
     instantiateMVars main
   where
   /--
@@ -391,9 +397,10 @@ This unfolds the function application on the LHS (using an unfold theorem, if pr
 delta-reduction), calculates the types for the equational theorems using `mkEqnTypes`, and then
 proves them using `mkEqnProof`.
 
-This is currently used for non-recursive functions and for functions defined by partial_fixpoint.
+This is currently used for non-recursive functions, well-founded recursion and partial_fixpoint,
+but not for structural recursion.
 -/
-def mkEqns (declName : Name) : MetaM (Array Name) := do
+def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (Array Name) := do
   let info ← getConstInfoDefn declName
   let us := info.levelParams.map mkLevelParam
   withOptions (tactic.hygienic.set · false) do
@@ -402,14 +409,14 @@ def mkEqns (declName : Name) : MetaM (Array Name) := do
     forallTelescope (cleanupAnnotations := true) target fun xs target => do
       let goal ← mkFreshExprSyntheticOpaqueMVar target
       withReducible do
-        mkEqnTypes #[] goal.mvarId!
+        mkEqnTypes declNames goal.mvarId!
   let mut thmNames := #[]
   for h : i in [: eqnTypes.size] do
     let type := eqnTypes[i]
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkEqnProof declName type
+    let value ← mkEqnProof declName type tryRefl
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value

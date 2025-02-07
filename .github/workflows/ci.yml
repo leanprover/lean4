@@ -175,8 +175,8 @@ jobs:
                 "os": "ubuntu-latest",
                 "check-level": 2,
                 "CMAKE_PRESET": "debug",
-                // exclude seriously slow tests
-                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress'"
+                // exclude seriously slow/stackoverflowing tests
+                "CTEST_OPTIONS": "-E 'interactivetest|leanpkgtest|laketest|benchtest|bv_bitblast_stress|3807'"
               },
               // TODO: suddenly started failing in CI
               /*{

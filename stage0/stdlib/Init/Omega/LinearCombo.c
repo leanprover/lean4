@@ -91,6 +91,7 @@ lean_object* l_Lean_Omega_IntList_add___lambda__1___boxed(lean_object*, lean_obj
 lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_LinearCombo_instSub___closed__1;
 lean_object* l_List_reverse___rarg(lean_object*);
+lean_object* l_List_zipIdx___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_decEqLinearCombo____x40_Init_Omega_LinearCombo___hyg_28____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Omega_LinearCombo_instInhabited___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instNeg;
@@ -109,7 +110,6 @@ LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_mul(lean_object*, lean_object*
 LEAN_EXPORT lean_object* l_Lean_Omega_LinearCombo_instSub;
 lean_object* lean_int_neg(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* l_List_enumFrom___rarg(lean_object*, lean_object*);
 static lean_object* l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__1;
 static lean_object* l___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____closed__8;
 LEAN_EXPORT uint8_t l___private_Init_Omega_LinearCombo_0__Lean_Omega_decEqLinearCombo____x40_Init_Omega_LinearCombo___hyg_28_(lean_object*, lean_object*);
@@ -911,16 +911,16 @@ x_8 = lean_ctor_get(x_5, 1);
 lean_inc(x_8);
 lean_dec(x_5);
 x_9 = lean_unsigned_to_nat(1u);
-x_10 = lean_nat_add(x_7, x_9);
-lean_dec(x_7);
+x_10 = lean_nat_add(x_8, x_9);
+lean_dec(x_8);
 x_11 = l___private_Init_Data_Repr_0__Nat_reprFast(x_10);
 x_12 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
-x_13 = lean_int_dec_lt(x_8, x_12);
+x_13 = lean_int_dec_lt(x_7, x_12);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_14 = lean_nat_abs(x_8);
-lean_dec(x_8);
+x_14 = lean_nat_abs(x_7);
+lean_dec(x_7);
 x_15 = l___private_Init_Data_Repr_0__Nat_reprFast(x_14);
 x_16 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__1;
 x_17 = lean_string_append(x_16, x_15);
@@ -944,8 +944,8 @@ goto _start;
 else
 {
 lean_object* x_24; lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; lean_object* x_31; lean_object* x_32; lean_object* x_33; lean_object* x_34; lean_object* x_35; lean_object* x_36; 
-x_24 = lean_nat_abs(x_8);
-lean_dec(x_8);
+x_24 = lean_nat_abs(x_7);
+lean_dec(x_7);
 x_25 = lean_nat_sub(x_24, x_9);
 lean_dec(x_24);
 x_26 = lean_nat_add(x_25, x_9);
@@ -988,16 +988,16 @@ x_41 = lean_ctor_get(x_38, 1);
 lean_inc(x_41);
 lean_dec(x_38);
 x_42 = lean_unsigned_to_nat(1u);
-x_43 = lean_nat_add(x_40, x_42);
-lean_dec(x_40);
+x_43 = lean_nat_add(x_41, x_42);
+lean_dec(x_41);
 x_44 = l___private_Init_Data_Repr_0__Nat_reprFast(x_43);
 x_45 = l_repr___at___private_Init_Omega_LinearCombo_0__Lean_Omega_reprLinearCombo____x40_Init_Omega_LinearCombo___hyg_173____spec__2___closed__1;
-x_46 = lean_int_dec_lt(x_41, x_45);
+x_46 = lean_int_dec_lt(x_40, x_45);
 if (x_46 == 0)
 {
 lean_object* x_47; lean_object* x_48; lean_object* x_49; lean_object* x_50; lean_object* x_51; lean_object* x_52; lean_object* x_53; lean_object* x_54; lean_object* x_55; lean_object* x_56; 
-x_47 = lean_nat_abs(x_41);
-lean_dec(x_41);
+x_47 = lean_nat_abs(x_40);
+lean_dec(x_40);
 x_48 = l___private_Init_Data_Repr_0__Nat_reprFast(x_47);
 x_49 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__1;
 x_50 = lean_string_append(x_49, x_48);
@@ -1018,8 +1018,8 @@ goto _start;
 else
 {
 lean_object* x_58; lean_object* x_59; lean_object* x_60; lean_object* x_61; lean_object* x_62; lean_object* x_63; lean_object* x_64; lean_object* x_65; lean_object* x_66; lean_object* x_67; lean_object* x_68; lean_object* x_69; lean_object* x_70; lean_object* x_71; 
-x_58 = lean_nat_abs(x_41);
-lean_dec(x_41);
+x_58 = lean_nat_abs(x_40);
+lean_dec(x_40);
 x_59 = lean_nat_sub(x_58, x_42);
 lean_dec(x_58);
 x_60 = lean_nat_add(x_59, x_42);
@@ -1058,7 +1058,7 @@ x_3 = lean_ctor_get(x_1, 1);
 lean_inc(x_3);
 lean_dec(x_1);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l_List_enumFrom___rarg(x_4, x_3);
+x_5 = l_List_zipIdx___rarg(x_3, x_4);
 x_6 = lean_box(0);
 x_7 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1(x_5, x_6);
 x_8 = l_List_mapTR_loop___at_Lean_Omega_LinearCombo_instToString___spec__1___closed__3;

@@ -24,8 +24,15 @@ unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (s
        value, hints := ReducibilityHints.opaque,
        safety
     }
-    addAndCompile decl
-    evalConst α name
+    -- compilation will invariably wait on `checked`, do it now and tag as blocker
+    unless (← IO.hasFinished (← getEnv).checked) do
+      withTraceNode `Elab.block (fun _ => pure "") do
+        let _ ← IO.wait (← getEnv).checked
+    -- now that we've already waited, async would just introduce (minor) overhead and trigger
+    -- `Task.get` blocking debug code
+    withOptions (Elab.async.set · false) do
+      addAndCompile decl
+      evalConst α name
 
 unsafe def evalExpr' (α) (typeName : Name) (value : Expr) (safety := DefinitionSafety.safe) : MetaM α :=
   evalExprCore (safety := safety) α value fun type => do

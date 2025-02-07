@@ -46,7 +46,7 @@ partial def parserNodeKind? (e : Expr) : MetaM (Option Name) := do
   else forallTelescope (← inferType e.getAppFn) fun params _ => do
     let lctx ← getLCtx
     -- if there is exactly one parameter of type `Parser`, search there
-    if let [(i, _)] := params.toList.enum.filter (lctx.getFVar! ·.2 |>.type.isConstOf ``Parser) then
+    if let #[(_, i)] := params.zipIdx.filter (lctx.getFVar! ·.1 |>.type.isConstOf ``Parser) then
       parserNodeKind? (e.getArg! i)
     else
       return none

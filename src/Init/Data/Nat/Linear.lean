@@ -637,8 +637,8 @@ theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) {c : PolyCnstr} : c.isUnsa
   simp [isUnsat]
   by_cases he : eq = true <;> simp [he, denote, Poly.denote_eq, Poly.denote_le, -and_imp]
   · intro
-      | Or.inl ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₁]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₂); simp [this.symm]
-      | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.not_eq_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
+      | Or.inl ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₁]; have := Nat.ne_zero_of_lt (Poly.of_isNonZero ctx h₂); simp [this.symm]
+      | Or.inr ⟨h₁, h₂⟩ => simp [Poly.of_isZero, h₂]; have := Nat.ne_zero_of_lt (Poly.of_isNonZero ctx h₁); simp [this]
   · intro ⟨h₁, h₂⟩
     simp [Poly.of_isZero, h₂]
     exact Poly.of_isNonZero ctx h₁

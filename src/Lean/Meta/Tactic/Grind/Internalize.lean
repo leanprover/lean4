@@ -27,7 +27,7 @@ def addCongrTable (e : Expr) : GoalM Unit := do
     let g := e'.getAppFn
     unless isSameExpr f g do
       unless (← hasSameType f g) do
-        reportIssue m!"found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
+        reportIssue! "found congruence between{indentExpr e}\nand{indentExpr e'}\nbut functions have different types"
         return ()
     trace_goal[grind.debug.congr] "{e} = {e'}"
     pushEqHEq e e' congrPlaceholderProof
@@ -52,7 +52,7 @@ private def updateAppMap (e : Expr) : GoalM Unit := do
 /-- Inserts `e` into the list of case-split candidates. -/
 private def addSplitCandidate (e : Expr) : GoalM Unit := do
   trace_goal[grind.split.candidate] "{e}"
-  modify fun s => { s with splitCandidates := e :: s.splitCandidates }
+  modify fun s => { s with split.candidates := e :: s.split.candidates }
 
 private def forbiddenSplitTypes := [``Eq, ``HEq, ``True, ``False]
 
@@ -85,13 +85,13 @@ private def checkAndAddSplitCandidate (e : Expr) : GoalM Unit := do
         return ()
       unless (← isInductivePredicate declName) do
         return ()
-      if (← get).casesTypes.isSplit declName then
+      if (← get).split.casesTypes.isSplit declName then
         addSplitCandidate e
       else if (← getConfig).splitIndPred then
         addSplitCandidate e
   | .fvar .. =>
     let .const declName _ := (← whnfD (← inferType e)).getAppFn | return ()
-    if (← get).casesTypes.isSplit declName then
+    if (← get).split.casesTypes.isSplit declName then
       addSplitCandidate e
   | _ => pure ()
 
@@ -142,7 +142,7 @@ def activateTheorem (thm : EMatchTheorem) (generation : Nat) : GoalM Unit := do
   let proof ← shareCommon thm.proof
   let thm := { thm with proof, patterns := (← thm.patterns.mapM (internalizePattern · generation)) }
   trace_goal[grind.ematch] "activated `{thm.origin.key}`, {thm.patterns.map ppPattern}"
-  modify fun s => { s with newThms := s.newThms.push thm }
+  modify fun s => { s with ematch.newThms := s.ematch.newThms.push thm }
 
 /--
 If `Config.matchEqs` is set to `true`, and `f` is `match`-auxiliary function,
@@ -152,29 +152,51 @@ private def addMatchEqns (f : Expr) (generation : Nat) : GoalM Unit := do
   if !(← getConfig).matchEqs then return ()
   let .const declName _ := f | return ()
   if !(← isMatcher declName) then return ()
-  if (← get).matchEqNames.contains declName then return ()
-  modify fun s => { s with matchEqNames := s.matchEqNames.insert declName }
+  if (← get).ematch.matchEqNames.contains declName then return ()
+  modify fun s => { s with ematch.matchEqNames := s.ematch.matchEqNames.insert declName }
   for eqn in (← Match.getEquationsFor declName).eqnNames do
     -- We disable pattern normalization to prevent the `match`-expression to be reduced.
     activateTheorem (← mkEMatchEqTheorem eqn (normalizePattern := false)) generation
 
 private def activateTheoremPatterns (fName : Name) (generation : Nat) : GoalM Unit := do
-  if let some (thms, thmMap) := (← get).thmMap.retrieve? fName then
-    modify fun s => { s with thmMap }
+  if let some (thms, thmMap) := (← get).ematch.thmMap.retrieve? fName then
+    modify fun s => { s with ematch.thmMap := thmMap }
     let appMap := (← get).appMap
     for thm in thms do
-      unless (← get).thmMap.isErased thm.origin do
+      unless (← get).ematch.thmMap.isErased thm.origin do
         let symbols := thm.symbols.filter fun sym => !appMap.contains sym
         let thm := { thm with symbols }
         match symbols with
         | [] => activateTheorem thm generation
         | _ =>
           trace_goal[grind.ematch] "reinsert `{thm.origin.key}`"
-          modify fun s => { s with thmMap := s.thmMap.insert thm }
+          modify fun s => { s with ematch.thmMap := s.ematch.thmMap.insert thm }
 
+/--
+If type of `a` is an inductive datatype with one constructor `ctor` without fields,
+pushes the equality `a = ctor`.
+
+Remark: we added this feature because `isDefEq` implements it, and consequently
+the simplifier reduces terms of the form `a = ctor` to `True` using `eq_self`.
+This `isDefEq` feature was negatively affecting `grind` until we added an
+equivalent one here. For example, when splitting on a `match`-expression
+using Unit-like types, equalites about these types were being reduced to `True`
+by `simp` (i.e., in the `grind` preprocessor), and `grind` would never see
+these facts.
+-/
+private def propagateUnitLike (a : Expr) (generation : Nat) : GoalM Unit := do
+  let aType ← whnfD (← inferType a)
+  matchConstStructureLike aType.getAppFn (fun _ => return ()) fun inductVal us ctorVal => do
+    unless a.isAppOf ctorVal.name do
+      if ctorVal.numFields == 0 then
+        let params := aType.getAppArgs[:inductVal.numParams]
+        let unit := mkAppN (mkConst ctorVal.name us) params
+        let unit ← shareCommon unit
+        internalize unit generation
+        pushEq a unit <| (← mkEqRefl unit)
 
 @[export lean_grind_internalize]
-private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := do
+private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit := withIncRecDepth do
   if (← alreadyInternalized e) then
     trace_goal[grind.debug.internalize] "already internalized: {e}"
     /-
@@ -188,6 +210,7 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
     Arith.internalize e parent?
     return ()
   trace_goal[grind.internalize] "{e}"
+  propagateUnitLike e generation
   match e with
   | .bvar .. => unreachable!
   | .sort .. => return ()
@@ -208,13 +231,13 @@ private partial def internalizeImpl (e : Expr) (generation : Nat) (parent? : Opt
   | .lit .. | .const .. =>
     mkENode e generation
   | .mvar .. =>
-    reportIssue m!"unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
+    reportIssue! "unexpected metavariable during internalization{indentExpr e}\n`grind` is not supposed to be used in goals containing metavariables."
     mkENode' e generation
   | .mdata .. =>
-    reportIssue m!"unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
+    reportIssue! "unexpected metadata found during internalization{indentExpr e}\n`grind` uses a pre-processing step that eliminates metadata"
     mkENode' e generation
   | .proj .. =>
-    reportIssue m!"unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
+    reportIssue! "unexpected kernel projection term during internalization{indentExpr e}\n`grind` uses a pre-processing step that folds them as projection applications, the pre-processor should have failed to fold this term"
     mkENode' e generation
   | .app .. =>
     if (← isLitValue e) then

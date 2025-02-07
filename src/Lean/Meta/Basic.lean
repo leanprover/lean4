@@ -1657,7 +1657,7 @@ def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n
     (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
 
 /--
-Simpler variant of `withLocalDeclsD` for brining variables into scope whose types do not depend
+Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
 on each other.
 -/
 def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=

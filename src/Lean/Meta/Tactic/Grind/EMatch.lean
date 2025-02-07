@@ -58,12 +58,12 @@ structure Context where
   deriving Inhabited
 
 /-- State for the E-matching monad -/
-structure State where
+structure SearchState where
   /-- Choices that still have to be processed. -/
   choiceStack  : List Choice := []
   deriving Inhabited
 
-abbrev M := ReaderT Context $ StateRefT State GoalM
+abbrev M := ReaderT Context $ StateRefT SearchState GoalM
 
 def M.run' (x : M α) : GoalM α :=
   x {} |>.run' {}
@@ -104,7 +104,7 @@ private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM C
   else if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
-    guard (← isEqv pArg eArg)
+    guard (← isEqv pArg eArg <||> withReducible (isDefEq pArg eArg))
     return c
   else if let some (pArg, k) := isOffsetPattern? pArg then
     assert! Option.isNone <| isOffsetPattern? pArg
@@ -242,17 +242,17 @@ private def annotateMatchEqnType (prop : Expr) (initApp : Expr) : M Expr := do
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (origin : Origin) (proof : Expr) (generation : Nat) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
   let mut prop ← inferType proof
-  if Match.isMatchEqnTheorem (← getEnv) origin.key then
+  if Match.isMatchEqnTheorem (← getEnv) thm.origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
-  else if (← isEqnThm origin.key) then
+  else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
-  trace_goal[grind.ematch.instance] "{← origin.pp}: {prop}"
-  addTheoremInstance proof prop (generation+1)
+  trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
+  addTheoremInstance thm proof prop (generation+1)
 
 /--
 After processing a (multi-)pattern, use the choice assignment to instantiate the proof.
@@ -268,7 +268,7 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
   assert! c.assignment.size == numParams
   let (mvars, bis, _) ← forallMetaBoundedTelescope (← inferType proof) numParams
   if mvars.size != thm.numParams then
-    reportIssue m!"unexpected number of parameters at {← thm.origin.pp}"
+    reportIssue! "unexpected number of parameters at {← thm.origin.pp}"
     return ()
   -- Apply assignment
   for h : i in [:mvars.size] do
@@ -278,8 +278,8 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
       let mvarIdType ← mvarId.getType
       let vType ← inferType v
       let report : M Unit := do
-        reportIssue m!"type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
-      unless (← isDefEq mvarIdType vType) do
+        reportIssue! "type error constructing proof for {← thm.origin.pp}\nwhen assigning metavariable {mvars[i]} with {indentExpr v}\n{← mkHasTypeButIsExpectedMsg vType mvarIdType}"
+      unless (← withDefault <| isDefEq mvarIdType vType) do
         let some heq ← proveEq? vType mvarIdType
           | report
             return ()
@@ -297,17 +297,17 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     if bi.isInstImplicit && !(← mvar.mvarId!.isAssigned) then
       let type ← inferType mvar
       unless (← synthesizeInstanceAndAssign mvar type) do
-        reportIssue m!"failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
+        reportIssue! "failed to synthesize instance when instantiating {← thm.origin.pp}{indentExpr type}"
         return ()
   let proof := mkAppN proof mvars
   if (← mvars.allM (·.mvarId!.isAssigned)) then
-    addNewInstance thm.origin proof c.gen
+    addNewInstance thm proof c.gen
   else
     let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
     if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
-      reportIssue m!"failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
+      reportIssue! "failed to instantiate {← thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
     let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-    addNewInstance thm.origin proof c.gen
+    addNewInstance thm proof c.gen
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -315,7 +315,7 @@ private def processChoices : M Unit := do
   while !(← get).choiceStack.isEmpty do
     checkSystem "ematch"
     if (← checkMaxInstancesExceeded) then return ()
-    let c ← modifyGet fun s : State => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
+    let c ← modifyGet fun s : SearchState => (s.choiceStack.head!, { s with choiceStack := s.choiceStack.tail! })
     if c.gen < maxGeneration then
       match c.cnstrs with
       | [] => instantiateTheorem c
@@ -329,7 +329,7 @@ private def main (p : Expr) (cnstrs : List Cnstr) : M Unit := do
   let numParams  := (← read).thm.numParams
   let assignment := mkArray numParams unassigned
   let useMT      := (← read).useMT
-  let gmt        := (← getThe Goal).gmt
+  let gmt        := (← getThe Goal).ematch.gmt
   for app in apps do
     if (← checkMaxInstancesExceeded) then return ()
     let n ← getENode app
@@ -351,7 +351,7 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
   let numParams  := (← read).thm.numParams
   let assignment := mkArray numParams unassigned
   let useMT      := (← read).useMT
-  let gmt        := (← getThe Goal).gmt
+  let gmt        := (← getThe Goal).ematch.gmt
   let false      ← getFalseExpr
   let mut curr   := false
   repeat
@@ -412,19 +412,19 @@ def ematch : GoalM Unit := do
   if (← checkMaxInstancesExceeded <||> checkMaxEmatchExceeded) then
     return ()
   else
-    go (← get).thms (← get).newThms |>.run'
+    go (← get).ematch.thms (← get).ematch.newThms |>.run'
     modify fun s => { s with
-      thms         := s.thms ++ s.newThms
-      newThms      := {}
-      gmt          := s.gmt + 1
-      numEmatch    := s.numEmatch + 1
+      ematch.thms      := s.ematch.thms ++ s.ematch.newThms
+      ematch.newThms   := {}
+      ematch.gmt       := s.ematch.gmt + 1
+      ematch.num       := s.ematch.num + 1
     }
 
 /-- Performs one round of E-matching, and assert new instances. -/
 def ematchAndAssert : GrindTactic := fun goal => do
-  let numInstances := goal.numInstances
+  let numInstances := goal.ematch.numInstances
   let goal ← GoalM.run' goal ematch
-  if goal.numInstances == numInstances then
+  if goal.ematch.numInstances == numInstances then
     return none
   assertAll goal
 

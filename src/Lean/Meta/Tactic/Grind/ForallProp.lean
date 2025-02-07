@@ -26,7 +26,7 @@ def propagateForallPropUp (e : Expr) : GoalM Unit := do
     trace_goal[grind.debug.forallPropagator] "isEqTrue, {e}"
     let h₁ ← mkEqTrueProof p
     let qh₁ := q.instantiate1 (mkOfEqTrueCore p h₁)
-    let r ← simp qh₁
+    let r ← preprocess qh₁
     let q := mkLambda n bi p q
     let q' := r.expr
     internalize q' (← getGeneration e)
@@ -53,9 +53,9 @@ private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
   return some fvarId
 
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
-private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : TheoremKind) : MetaM (Option EMatchTheorem) := do
+private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) : MetaM (Option EMatchTheorem) := do
   try
-    mkEMatchTheoremWithKind? origin #[] proof kind
+    mkEMatchTheoremWithKind? origin #[] proof kind (groundPatterns := false)
   catch _ =>
     return none
 
@@ -64,21 +64,21 @@ private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let origin ← if let some fvarId := isEqTrueHyp? proof then
     pure <| .fvar fvarId
   else
-    let idx ← modifyGet fun s => (s.nextThmIdx, { s with nextThmIdx := s.nextThmIdx + 1 })
+    let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
     pure <| .local ((`local).appendIndexAfter idx)
   let proof := mkOfEqTrueCore e proof
-  let size := (← get).newThms.size
+  let size := (← get).ematch.newThms.size
   let gen ← getGeneration e
   -- TODO: we should have a flag for collecting all unary patterns in a local theorem
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .fwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .leftRight then
     activateTheorem thm gen
-  if let some thm ← mkEMatchTheoremWithKind'? origin proof .bwd then
+  if let some thm ← mkEMatchTheoremWithKind'? origin proof .rightLeft then
     activateTheorem thm gen
-  if (← get).newThms.size == size then
+  if (← get).ematch.newThms.size == size then
     if let some thm ← mkEMatchTheoremWithKind'? origin proof .default then
       activateTheorem thm gen
-  if (← get).newThms.size == size then
-    reportIssue m!"failed to create E-match local theorem for{indentExpr e}"
+  if (← get).ematch.newThms.size == size then
+    reportIssue! "failed to create E-match local theorem for{indentExpr e}"
 
 def propagateForallPropDown (e : Expr) : GoalM Unit := do
   let .forallE n a b bi := e | return ()

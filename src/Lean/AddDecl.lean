@@ -67,6 +67,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .thmDecl thm => pure (thm.name, .thmInfo thm, .thm)
     | .defnDecl defn => pure (defn.name, .defnInfo defn, .defn)
     | .mutualDefnDecl [defn] => pure (defn.name, .defnInfo defn, .defn)
+    | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
   -- no environment extension changes to report after kernel checking; ensures we do not
@@ -76,12 +77,9 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   async.commitConst async.asyncEnv (some info)
   setEnv async.mainEnv
   let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
-    try
-      setEnv async.asyncEnv
-      doAdd
-      async.commitCheckEnv (← getEnv)
-    finally
-      async.commitFailure
+    setEnv async.asyncEnv
+    doAdd
+    async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { range? := endRange?, task := t }

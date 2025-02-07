@@ -349,7 +349,7 @@ where
                     diagnostics := oldProcessed.diagnostics
                     result? := some {
                       cmdState := oldProcSuccess.cmdState
-                      firstCmdSnap := { range? := none, task := prom.result } } }
+                      firstCmdSnap := { range? := none, task := prom.result! } } }
               else
                 return .pure oldProcessed) } }
       else return old
@@ -462,7 +462,7 @@ where
         infoTree? := cmdState.infoState.trees[0]!
         result? := some {
           cmdState
-          firstCmdSnap := { range? := none, task := prom.result }
+          firstCmdSnap := { range? := none, task := prom.result! }
         }
       }
 
@@ -484,7 +484,7 @@ where
           oldNext.bindIO (sync := true) fun oldNext => do
             parseCmd oldNext newParserState oldFinished.cmdState newProm sync ctx
             return .pure ()
-        prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result } }
+        prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result! } }
       else prom.resolve old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot (see [Incremental Parsing])
@@ -548,7 +548,7 @@ where
       -- progress and be resolved effectively at the same time as this snapshot task, so `tailPos` is
       -- irrelevant in this case.
       let endRange? := stx.getTailPos?.map fun pos => ⟨pos, pos⟩
-      let finishedSnap := { range? := endRange?, task := finishedPromise.result }
+      let finishedSnap := { range? := endRange?, task := finishedPromise.result! }
       let tacticCache ← old?.map (·.tacticCache) |>.getDM (IO.mkRef {})
 
       let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
@@ -556,7 +556,7 @@ where
         -- for now, wait on "command finished" snapshot before parsing next command
         else some <$> IO.Promise.new
       let nextCmdSnap? := next?.map
-        ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result })
+        ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result! })
       let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
       let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
         (default, default)
@@ -565,8 +565,8 @@ where
       prom.resolve {
         diagnostics, finishedSnap, tacticCache, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { range? := stx.getRange?, task := elabPromise.result }
-        reportSnap := { range? := endRange?, task := reportPromise.result }
+        elabSnap := { range? := stx.getRange?, task := elabPromise.result! }
+        reportSnap := { range? := endRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
@@ -576,8 +576,8 @@ where
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
-            { range? := none, task := elabPromise.result.map (sync := true) toSnapshotTree },
-            { range? := none, task := finishedPromise.result.map (sync := true) toSnapshotTree }] ++
+            { range? := none, task := elabPromise.result!.map (sync := true) toSnapshotTree },
+            { range? := none, task := finishedPromise.result!.map (sync := true) toSnapshotTree }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do
@@ -672,7 +672,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
   process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true)
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
-  return prom.result
+  return prom.result!
 
 /-- Waits for and returns final command state, if importing was successful. -/
 partial def waitForFinalCmdState? (snap : InitialSnapshot) : Option Command.State := do

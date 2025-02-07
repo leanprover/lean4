@@ -124,9 +124,13 @@ static void print_backtrace() {
 #endif
 }
 
-extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
+extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
     if (g_panic_messages) {
-        panic_eprintln(lean_string_cstr(msg));
+        if (force_stderr) {
+            std::cerr << msg << "\n";
+        } else {
+            panic_eprintln(msg);
+        }
 #ifdef __GLIBC__
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -140,6 +144,10 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     if (g_exit_on_panic) {
         std::exit(1);
     }
+}
+
+extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
+    lean_panic(lean_string_cstr(msg));
     lean_dec(msg);
     return default_val;
 }
@@ -292,6 +300,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 }
 
 static void deactivate_task(lean_task_object * t);
+static void deactivate_promise(lean_promise_object * t);
 
 static void lean_del_core(object * o, object * & todo) {
     uint8 tag = lean_ptr_tag(o);
@@ -337,6 +346,9 @@ static void lean_del_core(object * o, object * & todo) {
             break;
         case LeanTask:
             deactivate_task(lean_to_task(o));
+            break;
+        case LeanPromise:
+            deactivate_promise(lean_to_promise(o));
             break;
         case LeanExternal:
             lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
@@ -496,6 +508,9 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
                 case LeanTask:
                     todo.push_back(lean_task_get(o));
                     break;
+                case LeanPromise:
+                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
+                    break;
                 case LeanClosure: {
                     object ** it  = lean_closure_arg_cptr(o);
                     object ** end = it + lean_closure_num_fixed(o);
@@ -567,6 +582,9 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
                 }
                 case LeanTask:
                     todo.push_back(lean_task_get(o));
+                    break;
+                case LeanPromise:
+                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
                     break;
                 case LeanClosure: {
                     object ** it  = lean_closure_arg_cptr(o);
@@ -1119,28 +1137,39 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
 
-// Internally, a `Promise` is just a `Task` that is in the "Promised" or "Finished" state
-
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     lean_always_assert(g_task_manager);
+
     bool keep_alive = false;
     unsigned prio = 0;
     object * closure = nullptr;
-    lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
-    lean_set_task_header((lean_object*)o);
-    o->m_value = nullptr;
-    o->m_imp   = alloc_task_imp(closure, prio, keep_alive);
+    lean_task_object * t = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
+    lean_set_task_header((lean_object*)t);
+    t->m_value = nullptr;
+    t->m_imp   = alloc_task_imp(closure, prio, keep_alive);
+
+    lean_promise_object * o = (lean_promise_object *)lean_alloc_small_object(sizeof(lean_promise_object));
+    lean_set_st_header((lean_object *)o, LeanPromise, 0);
+    o->m_result = t; // the promise takes ownership of one task token
+
     return io_result_mk_ok((lean_object *) o);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
-    g_task_manager->resolve(lean_to_task(promise), value);
+    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise) {
-    // the task is the promise itself
-    return promise;
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
+    lean_object * t = (lean_object *)lean_to_promise(promise)->m_result;
+    lean_inc_ref(t);
+    return t;
+}
+
+void deactivate_promise(lean_promise_object * promise) {
+    g_task_manager->resolve(promise->m_result, mk_option_none());
+    lean_dec_ref((lean_object *)promise->m_result);
+    lean_free_small_object((lean_object *)promise);
 }
 
 // =======================================

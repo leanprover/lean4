@@ -101,7 +101,7 @@ def cancel (tk : RequestCancellationToken) (cause : RequestCancellationCause) : 
   tk.promise.resolve cause
 
 def task (tk : RequestCancellationToken) : Task RequestCancellationCause :=
-  tk.promise.result
+  tk.promise.result!
 
 def truncatedTask (tk : RequestCancellationToken) : Task Unit :=
   tk.task.map (sync := true) fun _ => ()

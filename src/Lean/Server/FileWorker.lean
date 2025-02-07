@@ -383,7 +383,7 @@ section Initialization
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
+    let _ ← IO.mapTask (t := srcSearchPathPromise.result!) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
       chanOut.send <| mkImportClosureNotification importClosure
@@ -408,7 +408,7 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      srcSearchPathTask  := srcSearchPathPromise.result
+      srcSearchPathTask  := srcSearchPathPromise.result!
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none

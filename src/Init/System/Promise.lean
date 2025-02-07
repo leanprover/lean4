@@ -21,14 +21,13 @@ private structure PromiseImpl (α : Type) : Type where
 
 Typical usage is as follows:
 1. `let promise ← Promise.new` creates a promise
-2. `promise.result : Task α` can now be passed around
-3. `promise.result.get` blocks until the promise is resolved
+2. `promise.result? : Task (Option α)` can now be passed around
+3. `promise.result?.get` blocks until the promise is resolved
 4. `promise.resolve a` resolves the promise
-5. `promise.result.get` now returns `a`
+5. `promise.result?.get` now returns `some a`
 
-Every promise must eventually be resolved.
-Otherwise the memory used for the promise will be leaked,
-and any tasks depending on the promise's result will wait forever.
+If the promise is dropped without ever being resolved, `promise.result?.get` will return `none`.
+See `Promise.result!/resultD` for other ways to handle this case.
 -/
 def Promise (α : Type) : Type := PromiseImpl α
 
@@ -48,11 +47,31 @@ Only the first call to this function has an effect.
 opaque Promise.resolve (value : α) (promise : @& Promise α) : BaseIO Unit
 
 /--
+Like `Promise.result`, but resolves to `none` if the promise is dropped without ever being resolved.
+-/
+@[extern "lean_io_promise_result_opt"]
+opaque Promise.result? (promise : @& Promise α) : Task (Option α)
+
+-- SU: not planning to make this public without a lot more thought and motivation
+@[extern "lean_option_get_or_block"]
+private opaque Option.getOrBlock! [Nonempty α] : Option α → α
+
+/--
 The result task of a `Promise`.
 
-The task blocks until `Promise.resolve` is called.
+The task blocks until `Promise.resolve` is called. If the promise is dropped without ever being
+resolved, evaluating the task will panic and, when not using fatal panics, block forever. Use
+`Promise.result?` to handle this case explicitly.
 -/
-@[extern "lean_io_promise_result"]
-opaque Promise.result (promise : Promise α) : Task α :=
-  have : Nonempty α := promise.h
-  Classical.choice inferInstance
+def Promise.result! (promise : @& Promise α) : Task α :=
+  let _ : Nonempty α := promise.h
+  promise.result?.map (sync := true) Option.getOrBlock!
+
+@[inherit_doc Promise.result!, deprecated Promise.result! (since := "2025-02-05")]
+def Promise.result := @Promise.result!
+
+/--
+Like `Promise.result`, but resolves to `dflt` if the promise is dropped without ever being resolved.
+-/
+def Promise.resultD (promise : Promise α) (dflt : α): Task α :=
+  promise.result?.map (sync := true) (·.getD dflt)

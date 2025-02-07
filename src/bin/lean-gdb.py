@@ -49,8 +49,9 @@ class LeanObjectPrinter:
     """Print a lean_object object."""
 
     kinds = [
-        # 244, ...
+        # 243, ...
         ('ctor', []),
+        ('promise', ['m_result']),
         ('closure', ['m_arity', 'm_fun', 'm_num_fixed']),
         ('array', ['m_size', 'm_capacity']),
         ('sarray', ['m_size', 'm_capacity']),
@@ -62,7 +63,7 @@ class LeanObjectPrinter:
         ('ref', ['m_value']),
         ('external', ['m_class', 'm_data']),
     ]
-    lean_max_ctor_tag = 244
+    lean_max_ctor_tag = 243
 
     def __init__(self, val):
         self.val = val.address

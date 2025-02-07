@@ -489,38 +489,38 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   return oldSnap
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
-                Language.withAlwaysResolvedPromises cmds.size fun cmdPromises => do
-                  snap.new.resolve <| .ofTyped {
-                    diagnostics := .empty
-                    macroDecl := decl
-                    newStx := stxNew
-                    newNextMacroScope := nextMacroScope
-                    hasTraces
-                    next := Array.zipWith (fun cmdPromise cmd =>
-                      { range? := cmd.getRange?, task := cmdPromise.result }) cmdPromises cmds
-                    : MacroExpandedSnapshot
-                  }
-                  -- After the first command whose syntax tree changed, we must disable
-                  -- incremental reuse
-                  let mut reusedCmds := true
-                  let opts ← getOptions
-                  -- For each command, associate it with new promise and old snapshot, if any, and
-                  -- elaborate recursively
-                  for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
-                    let oldCmd? := oldCmds?.bind (·[i]?)
-                    withReader ({ · with snap? := some {
-                      new := cmdPromise
-                      old? := do
-                        guard reusedCmds
-                        let old ← oldSnap?
-                        return { stx := (← oldCmd?), val := (← old.next[i]?) }
-                    } }) do
-                      elabCommand cmd
-                      -- Resolve promise for commands not supporting incrementality; waiting for
-                      -- `withAlwaysResolvedPromises` to do this could block reporting by later
-                      -- commands
-                      cmdPromise.resolve default
-                    reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
+                let cmdPromises ← cmds.mapM fun _ => IO.Promise.new
+                snap.new.resolve <| .ofTyped {
+                  diagnostics := .empty
+                  macroDecl := decl
+                  newStx := stxNew
+                  newNextMacroScope := nextMacroScope
+                  hasTraces
+                  next := Array.zipWith (fun cmdPromise cmd =>
+                    { range? := cmd.getRange?, task := cmdPromise.resultD default }) cmdPromises cmds
+                  : MacroExpandedSnapshot
+                }
+                -- After the first command whose syntax tree changed, we must disable
+                -- incremental reuse
+                let mut reusedCmds := true
+                let opts ← getOptions
+                -- For each command, associate it with new promise and old snapshot, if any, and
+                -- elaborate recursively
+                for cmd in cmds, cmdPromise in cmdPromises, i in [0:cmds.size] do
+                  let oldCmd? := oldCmds?.bind (·[i]?)
+                  withReader ({ · with snap? := some {
+                    new := cmdPromise
+                    old? := do
+                      guard reusedCmds
+                      let old ← oldSnap?
+                      return { stx := (← oldCmd?), val := (← old.next[i]?) }
+                  } }) do
+                    elabCommand cmd
+                    -- Resolve promise for commands not supporting incrementality; waiting for
+                    -- `withAlwaysResolvedPromises` to do this could block reporting by later
+                    -- commands
+                    cmdPromise.resolve default
+                  reusedCmds := reusedCmds && oldCmd?.any (·.eqWithInfoAndTraceReuse opts cmd)
               else
                 elabCommand stxNew
         | _ =>

@@ -128,7 +128,7 @@ Applies the monadic function `f` on every element `x` in the list, left-to-right
 results `y` for which `f x` returns `some y`.
 -/
 @[inline]
-def filterMapM {m : Type u → Type v} [Monad m] {α β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
+def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (Option β)) (as : List α) : m (List β) :=
   let rec @[specialize] loop
     | [],     bs => pure bs.reverse
     | a :: as, bs => do

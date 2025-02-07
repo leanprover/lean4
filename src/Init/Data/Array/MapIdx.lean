@@ -434,3 +434,57 @@ theorem mapIdx_eq_mkArray_iff {l : Array α} {f : Nat → α → β} {b : β} :
   simp [List.mapIdx_reverse]
 
 end Array
+
+namespace List
+
+theorem mapFinIdxM_toArray [Monad m] [LawfulMonad m] (l : List α)
+    (f : (i : Nat) → α → (h : i < l.length) → m β) :
+    l.toArray.mapFinIdxM f = toArray <$> l.mapFinIdxM f := by
+  let rec go (i : Nat) (acc : Array β) (inv : i + acc.size = l.length) :
+      Array.mapFinIdxM.map l.toArray f i acc.size inv acc
+      = toArray <$> mapFinIdxM.go l f (l.drop acc.size) acc
+        (by simp [Nat.sub_add_cancel (Nat.le.intro (Nat.add_comm _ _ ▸ inv))]) := by
+    match i with
+    | 0 =>
+      rw [Nat.zero_add] at inv
+      simp only [Array.mapFinIdxM.map, inv, drop_length, mapFinIdxM.go, map_pure]
+    | k + 1 =>
+      conv => enter [2, 2, 3]; rw [← getElem_cons_drop l acc.size (by omega)]
+      simp only [Array.mapFinIdxM.map, mapFinIdxM.go, _root_.map_bind]
+      congr; funext x
+      conv => enter [1, 4]; rw [← Array.size_push _ x]
+      conv => enter [2, 2, 3]; rw [← Array.size_push _ x]
+      refine go k (acc.push x) _
+  simp only [Array.mapFinIdxM, mapFinIdxM]
+  exact go _ #[] _
+
+theorem mapIdxM_toArray [Monad m] [LawfulMonad m] (l : List α)
+    (f : Nat → α → m β) :
+    l.toArray.mapIdxM f = toArray <$> l.mapIdxM f := by
+  let rec go (bs : List α) (acc : Array β) (inv : bs.length + acc.size = l.length) :
+      mapFinIdxM.go l (fun i a h => f i a) bs acc inv = mapIdxM.go f bs acc := by
+    match bs with
+    | [] => simp only [mapFinIdxM.go, mapIdxM.go]
+    | x :: xs => simp only [mapFinIdxM.go, mapIdxM.go, go]
+  unfold Array.mapIdxM
+  rw [mapFinIdxM_toArray]
+  simp only [mapFinIdxM, mapIdxM]
+  rw [go]
+
+end List
+
+namespace Array
+
+theorem toList_mapFinIdxM [Monad m] [LawfulMonad m] (l : Array α)
+    (f : (i : Nat) → α → (h : i < l.size) → m β) :
+    toList <$> l.mapFinIdxM f = l.toList.mapFinIdxM f := by
+  rw [List.mapFinIdxM_toArray]
+  simp only [Functor.map_map, id_map']
+
+theorem toList_mapIdxM [Monad m] [LawfulMonad m] (l : Array α)
+    (f : Nat → α → m β) :
+    toList <$> l.mapIdxM f = l.toList.mapIdxM f := by
+  rw [List.mapIdxM_toArray]
+  simp only [Functor.map_map, id_map']
+
+end Array

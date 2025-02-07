@@ -28,21 +28,21 @@ instance : MonadLift IO Async where
 --------------------------------------------------------------
 
 /-- Mike is another client. -/
-def runMike (client: Tcp.Socket) : Async Unit := do
+def runMike (client: TCP.Socket.Client) : Async Unit := do
   let mes ← await (client.recv 1024)
   assert! String.fromUTF8! mes == "hi mike!! :)"
   await (client.send (String.toUTF8 "hello robert!!"))
   await (client.shutdown)
 
 /-- Joe is another client. -/
-def runJoe (client: Tcp.Socket) : Async Unit := do
+def runJoe (client: TCP.Socket.Client) : Async Unit := do
   let mes ← await (client.recv 1024)
   assert! String.fromUTF8! mes == "hi joe! :)"
   await (client.send (String.toUTF8 "hello robert!"))
   await client.shutdown
 
 /-- Robert is the server. -/
-def runRobert (server: Tcp.Socket) : Async Unit := do
+def runRobert (server: TCP.Socket.Server) : Async Unit := do
   let joe ← await server.accept
   let mike ← await server.accept
 
@@ -59,13 +59,13 @@ def runRobert (server: Tcp.Socket) : Async Unit := do
 def clientServer : IO Unit := do
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) 8080
 
-  let server ← Tcp.Socket.mk
+  let server ← TCP.Socket.Server.mk
   server.bind addr
   server.listen 128
 
   assert! (← server.getSockName).port == 8080
 
-  let joe ← Tcp.Socket.mk
+  let joe ← TCP.Socket.Client.mk
   let task ← joe.connect addr
   task.block
 
@@ -73,7 +73,7 @@ def clientServer : IO Unit := do
 
   joe.noDelay
 
-  let mike ← Tcp.Socket.mk
+  let mike ← TCP.Socket.Client.mk
   let task ← mike.connect addr
   task.block
 

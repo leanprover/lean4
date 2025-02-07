@@ -81,7 +81,7 @@ lean_obj_res lean_mk_socketaddress(lean_obj_res ip_addr, uint16_t port) {
 }
 
 lean_obj_res lean_sockaddr_to_socketaddress(const struct sockaddr* sockaddr) {
-    lean_object* part;
+    lean_object* part = nullptr;
     int tag;
 
     if (sockaddr->sa_family == AF_INET) {
@@ -99,6 +99,8 @@ lean_obj_res lean_sockaddr_to_socketaddress(const struct sockaddr* sockaddr) {
         uint16_t port = ntohs(addr_in6->sin6_port);
         part = lean_mk_socketaddress(lean_ipv6, port);
         tag = 1;
+    } else {
+         lean_unreachable();
     }
 
     lean_object* ctor = lean_alloc_ctor(tag, 1, 0);

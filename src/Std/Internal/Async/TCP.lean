@@ -63,7 +63,7 @@ Accepts an incoming connection.
 @[inline]
 def accept (s : Server) : IO (AsyncTask Client) := do
   let conn ← s.native.accept
-  return conn.result.map (·.map Client.ofNative)
+  return conn.result!.map (·.map Client.ofNative)
 
 /--
 Gets the local address of the server socket.

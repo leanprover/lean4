@@ -9,7 +9,7 @@ import Std.Data.TreeMap.Raw
 import Std.Data.DTreeMap.AdditionalOperations
 
 /-!
-# Additional dependent hash map operations
+# Additional dependent tree map operations
 
 This file defines more operations on `Std.TreeMap`.
 We currently do not provide lemmas for these functions.

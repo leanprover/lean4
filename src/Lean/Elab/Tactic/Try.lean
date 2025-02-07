@@ -373,6 +373,8 @@ private def evalSuggestTacticSeq (s : TSyntax ``Parser.Tactic.tacticSeq) : M (TS
 
 /-- `evalSuggest` for `first` tactic. -/
 private partial def evalSuggestFirst (tacs : Array (TSyntax ``Parser.Tactic.tacticSeq)) : M (TSyntax `tactic) := do
+  if tacs.size == 0 then
+    throwError "`first` expects at least one argument"
   go 0
 where
   go (i : Nat) : M (TSyntax `tactic) := do

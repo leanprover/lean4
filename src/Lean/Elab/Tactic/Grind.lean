@@ -181,7 +181,7 @@ def grindParamsPos := 3
 def grindOnlyPos := 2
 
 def isGrindOnly (stx : TSyntax `tactic) : Bool :=
-  stx.raw.getKind == ``Parser.Tactic.grind || !stx.raw[grindOnlyPos].isNone
+  stx.raw.getKind == ``Parser.Tactic.grind && !stx.raw[grindOnlyPos].isNone
 
 def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `tactic :=
   if params.isEmpty then
@@ -194,7 +194,7 @@ def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[grindParamsPos][1].getSepArgs
 
 def mkGrindOnly
-    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (config : TSyntax ``Lean.Parser.Tactic.optConfig)
     (fallback? : Option Term)
     (trace : Grind.Trace)
     : MetaM (TSyntax `tactic) := do

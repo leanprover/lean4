@@ -169,6 +169,26 @@ def observing (x : M α) : M (TacticResult α) := do
       s.restore (restoreInfo := true)
       return .error ex sNew
 
+/--
+Returns `true` IF `tacs2` contains only tactics of the same kind, and one of the following
+- contains `simp only ...` and `simp ...`
+- contains `grind only ..` and `grind ...`
+
+We say suggestions mixing `only` and non-`only` tactics are suboptimal and should not be displayed to
+the user.
+-/
+-- TODO: we may add a mechanism for making this extensible.
+private def isOnlyAndNonOnly (tacs2 : Array (TSyntax `tactic)) : Bool := Id.run do
+  if tacs2.isEmpty then return false
+  let k := tacs2[0]!.raw.getKind
+  unless tacs2.all fun tac => tac.raw.getKind == k do return false
+  if k == ``Parser.Tactic.simp then
+    return tacs2.any (isSimpOnly ·) && tacs2.any (!isSimpOnly ·)
+  else if k == ``Parser.Tactic.grind then
+    return tacs2.any (isGrindOnly ·) && tacs2.any (!isGrindOnly ·)
+  else
+    return false
+
 private def mkChainResult (tac1 : TSyntax `tactic) (tacss2 : Array (TSyntax `tactic)) : M (TSyntax `tactic) := do
   let tacss2 := tacss2.map getSuggestionsCore
   if (← isTracingEnabledFor `try.debug) then
@@ -213,17 +233,22 @@ where
       return ()
     else if h : i < tacss2.size then
       if tacss2[i].isEmpty then
-        go tacss2 (i+1) ((← `(tactic| · sorry)) :: acc) kind?
+        go tacss2 (i+1) ((← `(tactic| sorry)) :: acc) kind?
       else
         for tac in tacss2[i] do
           if let some kind := kind? then
             if tac.raw.getKind == kind then
-              go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
+              go tacss2 (i+1) (tac :: acc) kind?
           else
-            go tacss2 (i+1) ((← `(tactic| · $tac:tactic)) :: acc) kind?
+            go tacss2 (i+1) (tac :: acc) kind?
     else
+      let tacs2 := acc.toArray.reverse
+      if kind?.isSome && isOnlyAndNonOnly tacs2 then
+        -- Suboptimal combination. See comment at `isOnlyAndNonOnly`
+        return ()
+      let tacs2 ← tacs2.mapM fun tac2 => `(tactic| · $tac2:tactic)
       let tac ← `(tactic| · $tac1:tactic
-                            $(acc.toArray.reverse)*)
+                            $tacs2*)
       modify (·.push tac)
 
 private def evalSuggestGrindTrace (tac : TSyntax `tactic) : M (TSyntax `tactic) := do

@@ -301,7 +301,7 @@ def simpParamsPos := 4
 def simpOnlyPos := 3
 
 def isSimpOnly (stx : TSyntax `tactic) : Bool :=
-  stx.raw.getKind == ``Parser.Tactic.simp || !stx.raw[simpOnlyPos].isNone
+  stx.raw.getKind == ``Parser.Tactic.simp && !stx.raw[simpOnlyPos].isNone
 
 def getSimpParams (stx : TSyntax `tactic) : Array Syntax :=
   stx.raw[simpParamsPos][1].getSepArgs

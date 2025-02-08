@@ -51,3 +51,5 @@ import Lean.Meta.LitValues
 import Lean.Meta.CheckTactic
 import Lean.Meta.Canonicalizer
 import Lean.Meta.Diagnostics
+import Lean.Meta.BinderNameHint
+import Lean.Meta.RPINF

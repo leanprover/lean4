@@ -25,12 +25,14 @@ inductive Expr where
   | num  (v : Int)
   | var  (i : Var)
   | add  (a b : Expr)
+  | sub  (a b : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
   deriving Inhabited
 
 def Expr.denote (ctx : Context) : Expr → Int
   | .add a b  => Int.add (denote ctx a) (denote ctx b)
+  | .sub a b  => Int.sub (denote ctx a) (denote ctx b)
   | .num k    => k
   | .var v    => v.denote ctx
   | .mulL k e => Int.mul k (denote ctx e)
@@ -67,11 +69,6 @@ def Poly.norm (p : Poly) : Poly :=
   | .num k => .num k
   | .add k v p => (norm p).insert k v
 
-def Poly.sub (p₁ : Poly) (p₂ : Poly) : Poly :=
-  match p₂ with
-  | .num k =>  p₁.addConst (-k)
-  | .add k v p₂ => sub (p₁.insert (-k) v) p₂
-
 def Expr.toPoly' (e : Expr) :=
   go 1 e (.num 0)
 where
@@ -81,6 +78,7 @@ where
     | .num k    => bif k == 0 then id else (Poly.addConst · (Int.mul coeff k))
     | .var v    => (.add coeff v ·)
     | .add a b  => go coeff a ∘ go coeff b
+    | .sub a b  => go coeff a ∘ go (-coeff) b
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
 
@@ -106,12 +104,12 @@ inductive ExprCnstr  where
   deriving Inhabited
 
 def ExprCnstr.denote (ctx : Context) : ExprCnstr → Prop
-  | .eq p₁ p₂ => p₁.denote ctx = p₂.denote ctx
-  | .le p₁ p₂ => p₁.denote ctx ≤ p₂.denote ctx
+  | .eq e₁ e₂ => e₁.denote ctx = e₂.denote ctx
+  | .le e₁ e₂ => e₁.denote ctx ≤ e₂.denote ctx
 
 def ExprCnstr.toPoly : ExprCnstr → PolyCnstr
-  | .eq p₁ p₂ => .eq (p₁.toPoly.norm.sub p₂.toPoly)
-  | .le p₁ p₂ => .le (p₁.toPoly.norm.sub p₂.toPoly)
+  | .eq e₁ e₂ => .eq (e₁.sub e₂).toPoly.norm
+  | .le e₁ e₂ => .le (e₁.sub e₂).toPoly.norm
 
 attribute [local simp] Int.add_comm Int.add_assoc Int.add_left_comm Int.add_mul Int.mul_add
 attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.addConst
@@ -134,18 +132,11 @@ attribute [local simp] Poly.denote_insert
 theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.denote ctx := by
   induction p <;> simp [*]
 
-attribute [local simp] Poly.denote_norm Poly.sub
+attribute [local simp] Poly.denote_norm
 
-theorem Poly.denote_sub (ctx : Context) (p₁ p₂ : Poly) : (p₁.sub p₂).denote ctx = p₁.denote ctx - p₂.denote ctx := by
-  induction p₂ generalizing p₁ <;> simp [*, ←Int.neg_mul]
-  next => rw [Int.sub_eq_add_neg, Int.add_comm]
-  next =>
-    rw [Int.add_sub_assoc]
-    conv => rhs; rw [Int.sub_eq_add_neg]
-    apply congrArg
-    rw [Int.add_comm, Int.neg_add, Int.neg_mul, Int.sub_eq_add_neg]
+private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
 
-attribute [local simp] Poly.denote_sub
+attribute [local simp] sub_fold
 attribute [local simp] ExprCnstr.denote ExprCnstr.toPoly PolyCnstr.denote Expr.denote
 
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
@@ -158,8 +149,11 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
     · simp [h, Var.denote]
   | case2 k i => simp [toPoly'.go]
   | case3 k a b iha ihb => simp [toPoly'.go, iha, ihb]
-  | case4 k k' a ih
-  | case5 k a k' ih =>
+  | case4 k a b iha ihb =>
+    simp [toPoly'.go, iha, ihb, Int.mul_sub]
+    rw [Int.sub_eq_add_neg, ←Int.neg_mul, Int.add_assoc]
+  | case5 k k' a ih
+  | case6 k a k' ih =>
     simp only [toPoly'.go]
     by_cases h : k' == 0
     · simp [h, eq_of_beq h]

@@ -178,30 +178,21 @@ theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denot
 
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
-    induction a <;> intro b <;> cases b <;> simp_all
-    · simp! [BEq.beq]
-    · simp! [BEq.beq]
-    · simp! [BEq.beq]
-    · rename_i k₁ v₁ p₁ ih k₂ v₂ p₂
-      show (k₁ == k₂ && (v₁ == v₂ && p₁ == p₂)) = true → _
-      simp +contextual
+    induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
+    · rename_i k₁ v₁ p₁ k₂ v₂ p₂ ih
       intro _ _ h
       exact ih h
   rfl := by
     intro a
-    induction a;
-    · simp! [BEq.beq]
+    induction a <;> simp! [BEq.beq]
     · rename_i k v p ih
-      show (k == k && (v == v && p == p)) = true
-      simp_all
+      exact ih
 
 instance : LawfulBEq PolyCnstr where
   eq_of_beq {a b} := by
-    cases a <;> cases b <;> rename_i p₁ p₂
+    cases a <;> cases b <;> rename_i p₁ p₂ <;> simp_all! [BEq.beq]
     · show (p₁ == p₂) = true → _
       simp
-    · simp! [BEq.beq]
-    · simp! [BEq.beq]
     · show (p₁ == p₂) = true → _
       simp
   rfl {a} := by

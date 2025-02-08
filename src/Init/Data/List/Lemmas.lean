@@ -512,9 +512,6 @@ theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 :=
 @[simp] theorem isEmpty_eq_false {l : List α} : l.isEmpty = false ↔ l ≠ [] := by
   cases l <;> simp
 
-@[simp] theorem isEmpty_map {l : List α} {f: α → β} : (l.map f).isEmpty = l.isEmpty := by
-  cases l <;> simp
-
 /-! ### any / all -/
 
 theorem any_eq {l : List α} : l.any p = decide (∃ x, x ∈ l ∧ p x) := by induction l <;> simp [*]

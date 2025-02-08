@@ -885,7 +885,8 @@ theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 
 theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).isEmpty = m.1.isEmpty := by
-  simp_to_model using List.isEmpty_map
+  simp_to_model
+  rw [Bool.eq_iff_iff, List.isEmpty_iff,List.isEmpty_iff, List.map_eq_nil_iff]
 
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
     (k : α) (v : β) :

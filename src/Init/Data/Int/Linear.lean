@@ -44,7 +44,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | zero
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq
+  deriving BEq, Repr
 
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
@@ -74,7 +74,7 @@ def Poly.sub (p₁ : Poly) (p₂ : Poly) : Poly :=
   | .zero =>  p₁
   | .add k v p₂ => sub (p₁.insert (-k) v) p₂
 
-def Expr.toPoly (e : Expr) :=
+def Expr.toPoly' (e : Expr) :=
   go 1 e .zero
 where
   -- Implementation note: This assembles the result using difference lists
@@ -86,13 +86,13 @@ where
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
 
-def Expr.toNormPoly (e : Expr) : Poly :=
-  e.toPoly.norm
+def Expr.toPoly (e : Expr) : Poly :=
+  e.toPoly'.norm
 
 inductive PolyCnstr  where
   | eq (p : Poly)
   | le (p : Poly)
-  deriving BEq
+  deriving BEq, Repr
 
 def PolyCnstr.denote (ctx : Context) : PolyCnstr → Prop
   | .eq p => p.denote ctx = 0
@@ -149,19 +149,19 @@ theorem Poly.denote_sub (ctx : Context) (p₁ p₂ : Poly) : (p₁.sub p₂).den
 attribute [local simp] Poly.denote_sub
 attribute [local simp] ExprCnstr.denote ExprCnstr.toPoly PolyCnstr.denote Expr.denote
 
-theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
-  (toPoly.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
-    induction k, e using Expr.toPoly.go.induct generalizing p with
+theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
+  (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
+    induction k, e using Expr.toPoly'.go.induct generalizing p with
   | case1 k k' =>
-    simp only [toPoly.go]
+    simp only [toPoly'.go]
     by_cases h : k' == 0
     · simp [h, eq_of_beq h]
     · simp [h, Var.denote]
-  | case2 k i => simp [toPoly.go]
-  | case3 k a b iha ihb => simp [toPoly.go, iha, ihb]
+  | case2 k i => simp [toPoly'.go]
+  | case3 k a b iha ihb => simp [toPoly'.go, iha, ihb]
   | case4 k k' a ih
   | case5 k a k' ih =>
-    simp only [toPoly.go]
+    simp only [toPoly'.go]
     by_cases h : k' == 0
     · simp [h, eq_of_beq h]
     · simp [h, cond_false, Int.mul_assoc]
@@ -170,7 +170,7 @@ theorem Expr.denote_toPoly_go (ctx : Context) (e : Expr) :
       rw [Int.mul_assoc, Int.mul_comm k']
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
-  simp [toPoly, Expr.denote_toPoly_go]
+  simp [toPoly, toPoly', Expr.denote_toPoly'_go]
 
 attribute [local simp] Expr.denote_toPoly
 
@@ -211,12 +211,12 @@ instance : LawfulBEq PolyCnstr where
     cases a <;> rename_i p <;> show (p == p) = true
       <;> simp
 
-theorem Expr.eq_of_toNormPoly_eq (ctx : Context) (e e' : Expr) (h : e.toNormPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
+theorem Expr.eq_of_toPoly_eq (ctx : Context) (e e' : Expr) (h : e.toPoly == e'.toPoly) : e.denote ctx = e'.denote ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
-  simp [Expr.toNormPoly, Poly.norm] at h
+  simp [Poly.norm] at h
   assumption
 
-theorem ExprCnstr.eq_of_toNormPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPoly == c'.toPoly) : c.denote ctx = c'.denote ctx := by
+theorem ExprCnstr.eq_of_toPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPoly == c'.toPoly) : c.denote ctx = c'.denote ctx := by
   have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
   rw [denote_toPoly, denote_toPoly] at h
   assumption

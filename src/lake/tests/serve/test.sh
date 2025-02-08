@@ -36,7 +36,7 @@ echo "tested 49"
 # Test that `lake setup-file` produces the error from `LAKE_INVALID_CONFIG`
 (LAKE_INVALID_CONFIG=$'foo\n' $LAKE setup-file ./Irrelevant.lean 2>&1 && exit 1 || true) | grep --color foo
 
-# Test that `lake serve` produces the `Invalid Lake configuration message`.
+# Test that `lake serve` produces the `Failed to configure` message.
 MSGS="$INIT_REQ$INITD_NOT$OPEN_REQ"
-grep -q "Invalid Lake configuration" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
+grep -q "Failed to configure the Lake workspace" <(set +e; (echo -n "$MSGS" && $TAIL --pid=$$ -f /dev/null) | timeout 30s $LAKE serve | tee serve.log)
 echo "tested 116"

@@ -60,7 +60,10 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
     bif Nat.blt v v' then
       .add k v <| .add k' v' p
     else bif Nat.beq v v' then
-      .add (Int.add k k') v' p
+      if Int.add k k' == 0 then
+        p
+      else
+        .add (Int.add k k') v' p
     else
       .add k' v' (insert k v p)
 
@@ -125,7 +128,9 @@ theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
   next k' v' p' ih =>
     by_cases h₁ : Nat.blt v v' <;> simp [*]
     by_cases h₂ : Nat.beq v v' <;> simp [*]
-    simp [Nat.eq_of_beq_eq_true h₂]
+    by_cases h₃ : k + k' = 0 <;> simp [*, Nat.eq_of_beq_eq_true h₂]
+    rw [← Int.add_mul]
+    simp [*]
 
 attribute [local simp] Poly.denote_insert
 

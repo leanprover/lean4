@@ -23,8 +23,6 @@ context:
 ---
 error: failed to infer binder type
 ---
-error: failed to infer collection type
----
 error: don't know how to synthesize implicit argument 'α'
   @List.nil ?_
 context:
@@ -68,8 +66,6 @@ context:
 error: failed to infer binder type
 ---
 error: failed to infer binder type
----
-error: failed to infer collection type
 ---
 error: don't know how to synthesize implicit argument 'α'
   @List.nil ?_

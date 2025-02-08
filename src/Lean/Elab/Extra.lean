@@ -27,9 +27,11 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   match stx with
   | `(for_in% $col $init $body) =>
         tryPostponeIfNoneOrMVar expectedType?
-        let colE ← elabTerm col none
+        let colType ← mkFreshTypeMVar
+        let colE ← elabTerm col colType
+        registerCustomErrorIfMVar colType col m!"failed to infer collection type"
+        registerLevelMVarErrorExprInfo colType col m!"failed to infer universe levels in collection type"
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ← try
           mkAppM ``ForIn #[m, colType, elemType]
@@ -51,9 +53,11 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
   match stx with
   | `(for_in'% $col $init $body) =>
         tryPostponeIfNoneOrMVar expectedType?
-        let colE ← elabTerm col none
+        let colType ← mkFreshTypeMVar
+        let colE ← elabTerm col colType
+        registerCustomErrorIfMVar colType col m!"failed to infer collection type"
+        registerLevelMVarErrorExprInfo colType col m!"failed to infer universe levels in collection type"
         let m ← getMonadForIn expectedType?
-        let colType ← inferType colE
         let elemType ← mkFreshExprMVar (mkSort (mkLevelSucc (← mkFreshLevelMVar)))
         let forInInstance ←
           try

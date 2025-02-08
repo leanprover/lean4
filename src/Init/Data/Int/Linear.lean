@@ -18,13 +18,8 @@ namespace Int.Linear
 abbrev Var := Nat
 abbrev Context := Lean.RArray Int
 
-/--
-When encoding polynomials. We use `fixedVar` for encoding numerals.
-The denotation of `fixedVar` is always `1`. -/
-def fixedVar := 100000000 -- Any big number should work here
-
 def Var.denote (ctx : Context) (v : Var) : Int :=
-  bif v == fixedVar then 1 else ctx.get v
+  ctx.get v
 
 inductive Expr where
   | num  (v : Int)
@@ -42,18 +37,23 @@ def Expr.denote (ctx : Context) : Expr → Int
   | .mulR e k => Int.mul (denote ctx e) k
 
 inductive Poly where
-  | zero
+  | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
   deriving BEq, Repr
 
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
-  | .zero => 0
+  | .num k => k
   | .add k v p => Int.add (Int.mul k (v.denote ctx)) (denote ctx p)
+
+def Poly.addConst (p : Poly) (k : Int) : Poly :=
+  match p with
+  | .num k' => .num (k+k')
+  | .add k' v' p => .add k' v' (addConst p k)
 
 def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
   match p with
-  | .zero => .add k v .zero
+  | .num k' => .add k v (.num k')
   | .add k' v' p =>
     bif Nat.blt v v' then
       .add k v <| .add k' v' p
@@ -62,25 +62,23 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
     else
       .add k' v' (insert k v p)
 
-def Poly.norm (p : Poly) : Poly := go p .zero
-where
-  go (p : Poly) (r : Poly) : Poly :=
-    match p with
-    | .zero => r
-    | .add k v p => go p (r.insert k v)
+def Poly.norm (p : Poly) : Poly :=
+  match p with
+  | .num k => .num k
+  | .add k v p => (norm p).insert k v
 
 def Poly.sub (p₁ : Poly) (p₂ : Poly) : Poly :=
   match p₂ with
-  | .zero =>  p₁
+  | .num k =>  p₁.addConst (-k)
   | .add k v p₂ => sub (p₁.insert (-k) v) p₂
 
 def Expr.toPoly' (e : Expr) :=
-  go 1 e .zero
+  go 1 e (.num 0)
 where
   -- Implementation note: This assembles the result using difference lists
   -- to avoid `++` on lists.
   go (coeff : Int) : Expr → (Poly → Poly)
-    | .num k    => bif k == 0 then id else (.add (Int.mul coeff k) fixedVar ·)
+    | .num k    => bif k == 0 then id else (Poly.addConst · (Int.mul coeff k))
     | .var v    => (.add coeff v ·)
     | .add a b  => go coeff a ∘ go coeff b
     | .mulL k a
@@ -116,11 +114,16 @@ def ExprCnstr.toPoly : ExprCnstr → PolyCnstr
   | .le p₁ p₂ => .le (p₁.toPoly.norm.sub p₂.toPoly)
 
 attribute [local simp] Int.add_comm Int.add_assoc Int.add_left_comm Int.add_mul Int.mul_add
-attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.norm.go
+attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.addConst
+
+theorem Poly.denote_addConst (ctx : Context) (p : Poly) (k : Int) : (p.addConst k).denote ctx = p.denote ctx + k := by
+  induction p <;> simp [*]
+
+attribute [local simp] Poly.denote_addConst
 
 theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
-  induction p <;> simp
+  induction p <;> simp [*]
   next k' v' p' ih =>
     by_cases h₁ : Nat.blt v v' <;> simp [*]
     by_cases h₂ : Nat.beq v v' <;> simp [*]
@@ -128,19 +131,15 @@ theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
 
 attribute [local simp] Poly.denote_insert
 
-theorem Poly.denote_norm_go (ctx : Context) (p : Poly) (r : Poly) : (norm.go p r).denote ctx = p.denote ctx + r.denote ctx := by
-  induction p generalizing r <;> simp [*]
-
-attribute [local simp] Poly.denote_norm_go
-
-theorem Poly.denote_norm (ctx : Context) (m : Poly) : m.norm.denote ctx = m.denote ctx := by
-  simp
+theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.denote ctx := by
+  induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_norm Poly.sub
 
 theorem Poly.denote_sub (ctx : Context) (p₁ p₂ : Poly) : (p₁.sub p₂).denote ctx = p₁.denote ctx - p₂.denote ctx := by
   induction p₂ generalizing p₁ <;> simp [*, ←Int.neg_mul]
-  next k v p ih =>
+  next => rw [Int.sub_eq_add_neg, Int.add_comm]
+  next =>
     rw [Int.add_sub_assoc]
     conv => rhs; rw [Int.sub_eq_add_neg]
     apply congrArg
@@ -186,6 +185,7 @@ instance : LawfulBEq Poly where
     induction a <;> intro b <;> cases b <;> simp_all
     · simp! [BEq.beq]
     · simp! [BEq.beq]
+    · simp! [BEq.beq]
     · rename_i k₁ v₁ p₁ ih k₂ v₂ p₂
       show (k₁ == k₂ && (v₁ == v₂ && p₁ == p₂)) = true → _
       simp +contextual
@@ -193,10 +193,11 @@ instance : LawfulBEq Poly where
       exact ih h
   rfl := by
     intro a
-    induction a; rfl
-    rename_i k v p ih
-    show (k == k && (v == v && p == p)) = true
-    simp_all
+    induction a;
+    · simp! [BEq.beq]
+    · rename_i k v p ih
+      show (k == k && (v == v && p == p)) = true
+      simp_all
 
 instance : LawfulBEq PolyCnstr where
   eq_of_beq {a b} := by

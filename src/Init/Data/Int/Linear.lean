@@ -75,8 +75,6 @@ def Poly.norm (p : Poly) : Poly :=
 def Expr.toPoly' (e : Expr) :=
   go 1 e (.num 0)
 where
-  -- Implementation note: This assembles the result using difference lists
-  -- to avoid `++` on lists.
   go (coeff : Int) : Expr → (Poly → Poly)
     | .num k    => bif k == 0 then id else (Poly.addConst · (Int.mul coeff k))
     | .var v    => (.add coeff v ·)

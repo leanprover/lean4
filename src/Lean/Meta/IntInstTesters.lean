@@ -14,6 +14,9 @@ Functions for testing whether expressions are canonical `Int` instances.
 def isInstOfNatInt (e : Expr) : MetaM Bool := do
   let_expr instOfNat _ ← e | return false
   return true
+def isInstNegInt (e : Expr) : MetaM Bool := do
+  let_expr Int.instNegInt ← e | return false
+  return true
 def isInstAddInt (e : Expr) : MetaM Bool := do
   let_expr Int.instAdd ← e | return false
   return true

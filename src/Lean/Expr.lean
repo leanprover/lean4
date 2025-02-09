@@ -2184,6 +2184,8 @@ namespace Int
 
 protected def mkType : Expr := mkConst ``Int
 
+def mkInstNeg : Expr := mkConst ``Int.instNegInt
+
 def mkInstAdd : Expr := mkConst ``Int.instAdd
 def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
 
@@ -2208,6 +2210,9 @@ def mkInstLE : Expr := mkConst ``Int.instLEInt
 
 end Int
 
+private def intNegFn : Expr :=
+  mkApp2 (mkConst ``Neg.neg [0]) Int.mkType Int.mkInstNeg
+
 private def intAddFn : Expr :=
   mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHAdd
 
@@ -2216,6 +2221,10 @@ private def intSubFn : Expr :=
 
 private def intMulFn : Expr :=
   mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+
+/-- Given `a : Int`, returns `- a` -/
+def mkIntNeg (a : Expr) : Expr :=
+  mkApp intNegFn a
 
 /-- Given `a b : Int`, returns `a + b` -/
 def mkIntAdd (a b : Expr) : Expr :=

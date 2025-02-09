@@ -144,7 +144,7 @@ where
       if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HSub.hSub _ _ _ i a b =>
-      if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.mul a b => mul a b
     | Mul.mul _ i a b =>

@@ -159,13 +159,22 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
   match_expr e with
   | Eq α a b =>
     let_expr Int ← α | failure
-    return .eq (← toLinearExpr a) (← toLinearExpr b)
+    let a ← toLinearExpr a
+    let b ← toLinearExpr b
+    match a, b with
+    /-
+    We do not want to convert `x = y` into `x + -1*y = 0`.
+    Similarly, we don't want to convert `x = 3` into `x + -3 = 0`.
+    `grind` and other tactics have better support for this kind of equalities.
+    -/
+    | .var _, .var _ | .var _, .num _ | .num _, .var _ => failure
+    | _, _ => return .eq a b
   | Int.le a b =>
     return .le (← toLinearExpr a) (← toLinearExpr b)
   | Int.lt a b =>
     return .le (.add (← toLinearExpr a) (.num 1)) (← toLinearExpr b)
   | LE.le _ i a b =>
-    guard (← isInstLENat i)
+    guard (← isInstLEInt i)
     return .le (← toLinearExpr a) (← toLinearExpr b)
   | LT.lt _ i a b =>
     guard (← isInstLTInt i)

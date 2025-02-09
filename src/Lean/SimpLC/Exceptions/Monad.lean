@@ -5,18 +5,24 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Control
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 -- TODO: move this to the library?
 /--
 This is just a duplicate of `LawfulApplicative.map_pure`,
 but sometimes applies when that doesn't.
+
+It is named with a prime to avoid conflict with the inherited field `LawfulMonad.map_pure`.
 -/
 @[simp] theorem LawfulMonad.map_pure' [Monad m] [LawfulMonad m] {a : α} :
     (f <$> pure a : m β) = pure (f a) := by simp
 
--- I can't work out why this isn't closed by `Functor.map_map`.
-simp_lc whitelist LawfulMonad.bind_pure_comp bind_map_left
+/--
+This is just a duplicate of `Functor.map_map`, but sometimes applies when that doesn't.
+-/
+@[simp] theorem LawfulMonad.map_map {m} [Monad m] [LawfulMonad m] {x : m α} :
+    g <$> f <$> x = (fun a => g (f a)) <$> x := by
+  simp only [Functor.map_map]
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

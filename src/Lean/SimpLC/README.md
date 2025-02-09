@@ -5,14 +5,14 @@ The `Lean.SimpLC` library provides a simp local confluence checker.
 * `simp_lc check`: Investigates the full simp set.
 * `simp_lc check in X Y Z`: Investigates the simp set in the specified namespaces.
 * `simp_lc inspect`: Investigates one pair
-* `simp_lc whitelist`: Whitelists a critical pair
+* `simp_lc allow`: Allows a critical pair (checks that it is currently critical, and suppresses further reports from `check`)
 * `simp_lc ignore`: Ignores one lemma
 
-The `Lean.SimpLC.Whitelists` module sets up whitelists and ignores for the core Lean repository.
+The `Lean.SimpLC.Exceptions` module sets up `allow` and `ignore` commands for the core Lean repository.
 
 You can check that the simp set for built-in types is still confluent in a downstream library using
 ```lean
-import Lean.SimpLC.Whitelists
+import Lean.SimpLC.Exceptions
 
 #guard_msgs (drop info) in
 simp_lc check in String Char Float USize UInt64 UInt32 UInt16 UInt8 PLift ULift Prod Sum Range

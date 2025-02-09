@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Option
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 -- These higher order simp lemmas cause many confluence problems. Reconsider?
 simp_lc ignore Option.map_subtype
@@ -22,7 +22,7 @@ theorem foo {a : { x // x ∈ o }} : some a.val = o := by
   | some b, ⟨x, h⟩ =>
     simp only [mem_def, some.injEq] at h
     simp [h]
-simp_lc whitelist Option.mem_attach Option.mem_def
+simp_lc allow Option.mem_attach Option.mem_def
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

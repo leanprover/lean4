@@ -5,31 +5,31 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Bool
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
-simp_lc whitelist Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`
+simp_lc allow Bool.bne_assoc Bool.bne_self_left -- `(x != (y != (x != (y != b)))) = b` `(y != (x != y)) = x`
 
 #guard_msgs (drop info) in
 simp_lc check in Bool
 
 -- x y : Bool
 -- ⊢ x = (y != (x != y))
-simp_lc whitelist bne_self_eq_false Bool.bne_assoc
+simp_lc allow bne_self_eq_false Bool.bne_assoc
 
 -- I'd expected that making `Decidable.em` a `@[simp]` would help here, but it doesn't seem to.
 -- w : Decidable p
 -- ⊢ p ∨ ¬p
-simp_lc whitelist ite_else_decide_not_self Bool.if_true_left
+simp_lc allow ite_else_decide_not_self Bool.if_true_left
 -- w : Decidable p
 -- ⊢ ¬p ∨ p
-simp_lc whitelist ite_then_decide_self Bool.if_true_right
+simp_lc allow ite_then_decide_self Bool.if_true_right
 
 -- These produce many non-confluence goals that would be easily solved by better automation.
 simp_lc ignore Bool.exists_bool
 simp_lc ignore Bool.forall_bool
 
-simp_lc whitelist ite_eq_left_iff Bool.ite_eq_cond_iff
-simp_lc whitelist ite_eq_right_iff Bool.ite_eq_cond_iff
+simp_lc allow ite_eq_left_iff Bool.ite_eq_cond_iff
+simp_lc allow ite_eq_right_iff Bool.ite_eq_cond_iff
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

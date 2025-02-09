@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Prod
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 simp_lc ignore Prod.exists
 simp_lc ignore Prod.forall

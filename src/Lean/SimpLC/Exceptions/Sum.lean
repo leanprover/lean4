@@ -5,9 +5,9 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Sum
-import Lean.SimpLC.Whitelists.List
-import Lean.SimpLC.Whitelists.Bool
-import Lean.SimpLC.Whitelists.Nat
+import Lean.SimpLC.Exceptions.List
+import Lean.SimpLC.Exceptions.Bool
+import Lean.SimpLC.Exceptions.Nat
 
 simp_lc ignore Sum.getLeft_eq_iff
 simp_lc ignore Sum.getRight_eq_iff

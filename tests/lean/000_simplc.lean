@@ -1,15 +1,15 @@
-import Lean.SimpLC.Whitelists
+import Lean.SimpLC.Exceptions
 
 /-!
 # simp local confluence testing
 
 If you experience failures here, take the suggested `simp_lc inspect ...` commands
-and paste them into a relevant `Lean.SimpLC.Whitelists.ABC` file.
+and paste them into a relevant `Lean.SimpLC.Exceptions.ABC` file.
 
 Then decide whether to:
 * Remove a `@[simp]` annotation
 * Add a new `@[simp]` lemma to restore confluence
-* Add a new `simp_lc whitelist` directive to suppress warnings about a given non-confluent pair.
+* Add a new `simp_lc allow` directive to suppress warnings about a given non-confluent pair.
   Ideally add an `example` immediately before it demonstrating the non-confluence.
 * Add a new `simp_lc ignore` directive to suppress all warnings about a given lemma.
   Ideally add a doc-comment justifying why this is reasonable.

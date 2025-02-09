@@ -5,7 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Subtype
-import Lean.SimpLC.Whitelists.Root
+import Lean.SimpLC.Exceptions.Root
 
 simp_lc ignore Subtype.exists
 simp_lc ignore Subtype.forall

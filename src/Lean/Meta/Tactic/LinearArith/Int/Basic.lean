@@ -12,6 +12,27 @@ import Lean.Meta.AppBuilder
 import Lean.Meta.KExprMap
 import Lean.Data.RArray
 
+namespace Int.Linear
+
+/-- Converts the linear polynomial into the "simplified" expression -/
+def Poly.toExpr (p : Poly) : Expr :=
+  go none p
+where
+  go : Option Expr → Poly → Expr
+    | none,   .num k     => .num k
+    | some e, .num 0     => e
+    | some e, .num k     => .add e (.num k)
+    | none,   .add 1 x p => go (some (.var x)) p
+    | none,   .add k x p => go (some (.mulL k (.var x))) p
+    | some e, .add 1 x p => go (some (.add e (.var x))) p
+    | some e, .add k x p => go (some (.add e (.mulL k (.var x)))) p
+
+def PolyCnstr.toExprCnstr : PolyCnstr → ExprCnstr
+  | .eq p => .eq p.toExpr (.num 0)
+  | .le p => .le p.toExpr (.num 0)
+
+end Int.Linear
+
 namespace Lean.Meta.Linear.Int
 
 deriving instance Repr for Int.Linear.Expr

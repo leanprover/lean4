@@ -214,4 +214,33 @@ theorem ExprCnstr.eq_of_toPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPo
   rw [denote_toPoly, denote_toPoly] at h
   assumption
 
+def PolyCnstr.isUnsat : PolyCnstr → Bool
+  | .eq (.num k) => k != 0
+  | .eq _ => false
+  | .le (.num k) => k > 0
+  | .le _ => false
+
+theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) (p : PolyCnstr) : p.isUnsat → p.denote ctx = False := by
+  unfold isUnsat <;> split <;> simp <;> try contradiction
+  apply Int.not_le_of_gt
+
+theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isUnsat) : c.denote ctx = False := by
+  have := PolyCnstr.eq_false_of_isUnsat ctx (c.toPoly) h
+  rw [ExprCnstr.denote_toPoly] at this
+  assumption
+
+def PolyCnstr.isValid : PolyCnstr → Bool
+  | .eq (.num k) => k == 0
+  | .eq _ => false
+  | .le (.num k) => k ≤ 0
+  | .le _ => false
+
+theorem PolyCnstr.eq_true_of_isValid (ctx : Context) (p : PolyCnstr) : p.isValid → p.denote ctx = True := by
+  unfold isValid <;> split <;> simp
+
+theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isValid) : c.denote ctx = True := by
+  have := PolyCnstr.eq_true_of_isValid ctx (c.toPoly) h
+  rw [ExprCnstr.denote_toPoly] at this
+  assumption
+
 end Int.Linear

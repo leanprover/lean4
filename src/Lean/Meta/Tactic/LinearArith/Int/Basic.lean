@@ -104,12 +104,6 @@ def addAsVar (e : Expr) : M LinearExpr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
-private def toInt? (e : Expr) : MetaM (Option Int) := do
-  let_expr OfNat.ofNat _ n i ← e | return none
-  unless (← isInstOfNatInt i) do return none
-  let some n ← evalNat n |>.run | return none
-  return some (Int.ofNat n)
-
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
   | .mdata _ e            => toLinearExpr e
@@ -119,14 +113,14 @@ partial def toLinearExpr (e : Expr) : M LinearExpr := do
 where
   visit (e : Expr) : M LinearExpr := do
     let mul (a b : Expr) := do
-      match (← toInt? a) with
+      match (← getIntValue? a) with
       | some k => return .mulL k (← toLinearExpr b)
-      | none => match (← toInt? b) with
+      | none => match (← getIntValue? b) with
         | some k => return .mulR (← toLinearExpr a) k
         | none => addAsVar e
     match_expr e with
     | OfNat.ofNat _ _ _ =>
-      if let some n ← toInt? e then return .num n
+      if let some n ← getIntValue? e then return .num n
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>

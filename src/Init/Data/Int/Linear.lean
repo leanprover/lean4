@@ -244,3 +244,19 @@ theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPo
   assumption
 
 end Int.Linear
+
+theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
+  apply propext; constructor
+  · intro h; have h := Int.add_one_le_of_lt (Int.lt_of_not_ge h); assumption
+  · intro h; apply Int.not_le_of_gt; exact h
+
+theorem Int.not_ge_eq (a b : Int) : (¬a ≥ b) = (a + 1 ≤ b) := by
+  apply Int.not_le_eq
+
+theorem Int.not_lt_eq (a b : Int) : (¬a < b) = (b ≤ a) := by
+  apply propext; constructor
+  · intro h; simp [Int.not_lt] at h; assumption
+  · intro h; apply Int.not_le_of_gt; simp [Int.lt_add_one_iff, *]
+
+theorem Int.not_gt_eq (a b : Int) : (¬a > b) = (a ≤ b) := by
+  apply Int.not_lt_eq

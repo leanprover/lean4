@@ -125,8 +125,8 @@ where
         | some k => return .mulR (← toLinearExpr a) k
         | none => addAsVar e
     match_expr e with
-    | OfNat.ofNat _ n i =>
-      if (← isInstOfNatInt i) then toLinearExpr n
+    | OfNat.ofNat _ _ _ =>
+      if let some n ← toInt? e then return .num n
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>

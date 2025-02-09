@@ -39,7 +39,7 @@ instance : Enumerable (Fin n) where
   elems := (finElems n).reverse
 
 instance : OfNat (Fin (Nat.succ n)) m :=
-  ⟨Fin.ofNat m⟩
+  ⟨Fin.ofNat' _ m⟩
 
 -- Declare a new syntax category for "indexing" big operators
 declare_syntax_cat index

@@ -70,7 +70,7 @@ def f' (stx : Syntax) : Unhygienic Syntax := match stx with
 open Parser.Term in
 #eval run do
   match ← `(structInstField|a := b) with
-  | `(Parser.Term.structInstField| $lhs:ident := $rhs) => pure #[lhs.raw, rhs]
+  | `(structInstField| $lhs:ident := $rhs) => pure #[lhs.raw, rhs]
   | _ => unreachable!
 
 #eval run do

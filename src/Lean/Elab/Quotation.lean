@@ -58,7 +58,7 @@ partial def mkTuple : Array Syntax → TermElabM Syntax
   | #[]  => `(Unit.unit)
   | #[e] => return e
   | es   => do
-    let stx ← mkTuple (es.eraseIdx 0)
+    let stx ← mkTuple (es.eraseIdxIfInBounds 0)
     `(Prod.mk $(es[0]!) $stx)
 
 def resolveSectionVariable (sectionVars : NameMap Name) (id : Name) : List (Name × List String) :=
@@ -434,7 +434,7 @@ private partial def getHeadInfo (alt : Alt) : TermElabM HeadInfo :=
             else mkNullNode contents
           -- We use `no_error_if_unused%` in auxiliary `match`-syntax to avoid spurious error messages,
           -- the outer `match` is checking for unused alternatives
-          `(match ($(discrs).sequenceMap fun
+          `(match ($(discrs).mapM fun
                 | `($contents) => no_error_if_unused% some $tuple
                 | _            => no_error_if_unused% none) with
               | some $resId => $yes

@@ -1,10 +1,10 @@
 set_option pp.coercions false -- Show `OfNat.ofNat` when present for clarity
 
 /--
-warning: declaration uses 'sorry'
----
 info: x : Nat
 ⊢ OfNat.ofNat 2 = x
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example : nat_lit 2 = x := by
@@ -13,10 +13,10 @@ example : nat_lit 2 = x := by
   sorry
 
 /--
-warning: declaration uses 'sorry'
----
 info: x : Nat
 ⊢ OfNat.ofNat 2 = x
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example : nat_lit 2 = x := by
@@ -25,12 +25,12 @@ example : nat_lit 2 = x := by
   sorry
 
 /--
-warning: declaration uses 'sorry'
----
 info: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
 ⊢ f (OfNat.ofNat 2) = x
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (α : Nat → Type) (f : (n : Nat) → α n) (x : α 2) : f (nat_lit 2) = x := by
@@ -57,8 +57,6 @@ example (f : Nat → Nat) (h : f 2 = x) : f 2 = x := by
   assumption
 
 /--
-warning: declaration uses 'sorry'
----
 info: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
@@ -68,6 +66,8 @@ info: α : Nat → Type
 f : (n : Nat) → α n
 x : α (OfNat.ofNat 2)
 ⊢ f 2 = x
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs in
 example (α : Nat → Type) (f : (n : Nat) → α n) (x : α 2) : f 2 = x := by

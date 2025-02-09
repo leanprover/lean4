@@ -16,5 +16,5 @@ a : α
 i n✝ : Nat
 h : i + 1 < n✝ + 1 + 1
 x : α
-xs : Vector α n✝
-⊢ Vector α (n✝ + 1 + 1)
+xs : Vector' α n✝
+⊢ Vector' α (n✝ + 1 + 1)

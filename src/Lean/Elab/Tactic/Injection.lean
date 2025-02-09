@@ -40,7 +40,7 @@ private def tryAssumption (mvarId : MVarId) : MetaM (List MVarId) := do
   let ids := stx[1].getArgs.toList.map getNameOfIdent'
   liftMetaTactic fun mvarId => do
     match (← Meta.injections mvarId ids) with
-    | .solved                    => checkUnusedIds `injections mvarId ids; return []
-    | .subgoal mvarId' unusedIds => checkUnusedIds `injections mvarId unusedIds; tryAssumption mvarId'
+    | .solved                      => checkUnusedIds `injections mvarId ids; return []
+    | .subgoal mvarId' unusedIds _ => checkUnusedIds `injections mvarId unusedIds; tryAssumption mvarId'
 
 end Lean.Elab.Tactic

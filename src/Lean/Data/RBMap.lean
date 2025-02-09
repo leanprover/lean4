@@ -404,6 +404,24 @@ def intersectBy {γ : Type v₁} {δ : Type v₂} (mergeFn : α → β → γ �
       | some b₂ => acc.insert a <| mergeFn a b₁ b₂
       | none => acc
 
+/--
+`filter f m` returns the `RBMap` consisting of all
+"`key`/`val`"-pairs in `m` where `f key val` returns `true`.
+-/
+def filter (f : α → β → Bool) (m : RBMap α β cmp) : RBMap α β cmp :=
+  m.fold (fun r k v => if f k v then r.insert k v else r) {}
+
+/--
+`filterMap f m` filters an `RBMap` and simultaneously modifies the filtered values.
+
+It takes a function `f : α → β → Option γ` and applies `f k v` to the value with key `k`.
+The resulting entries with non-`none` value are collected to form the output `RBMap`.
+-/
+def filterMap (f : α → β → Option γ) (m : RBMap α β cmp) : RBMap α γ cmp :=
+  m.fold (fun r k v => match f k v with
+    | none => r
+    | some b => r.insert k b) {}
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (cmp : α → α → Ordering) : RBMap α β cmp :=

@@ -8,6 +8,7 @@ import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.AppBuilder
 import Lean.Meta.KExprMap
+import Lean.Data.RArray
 
 namespace Lean.Meta.Linear.Nat
 
@@ -141,10 +142,10 @@ end ToLinear
 
 export ToLinear (toLinearCnstr? toLinearExpr)
 
-def toContextExpr (ctx : Array Expr) : MetaM Expr := do
-  mkListLit (mkConst ``Nat) ctx.toList
+def toContextExpr (ctx : Array Expr) : Expr :=
+  if h : 0 < ctx.size then
+    RArray.toExpr (mkConst ``Nat) id (RArray.ofArray ctx h)
+  else
+    RArray.toExpr (mkConst ``Nat) id (RArray.leaf (mkNatLit 0))
 
-def reflTrue : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
-
-namespace Lean.Meta.Linear.Nat
+end Lean.Meta.Linear.Nat

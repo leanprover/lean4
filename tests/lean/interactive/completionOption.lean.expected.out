@@ -17,7 +17,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -33,7 +34,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -49,7 +51,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -65,7 +68,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -81,7 +85,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -98,7 +103,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}},
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 1, "character": 11},
@@ -115,7 +121,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 1, "character": 17}}}}],
+     "position": {"line": 1, "character": 17}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 4, "character": 20}}
@@ -135,7 +142,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 4, "character": 20}}}},
+     "position": {"line": 4, "character": 20}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
@@ -151,7 +159,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 4, "character": 20}}}},
+     "position": {"line": 4, "character": 20}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 4, "character": 11},
@@ -168,7 +177,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 4, "character": 20}}}}],
+     "position": {"line": 4, "character": 20}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 7, "character": 23}}
@@ -189,7 +199,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 7, "character": 23}}}},
+     "position": {"line": 7, "character": 23}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -206,7 +217,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 7, "character": 23}}}},
+     "position": {"line": 7, "character": 23}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -223,7 +235,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 7, "character": 23}}}},
+     "position": {"line": 7, "character": 23}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 7, "character": 11},
@@ -240,7 +253,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 7, "character": 23}}}}],
+     "position": {"line": 7, "character": 23}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 10, "character": 27}}
@@ -261,7 +275,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 10, "character": 27}}}},
+     "position": {"line": 10, "character": 27}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -278,7 +293,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 10, "character": 27}}}},
+     "position": {"line": 10, "character": 27}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -295,7 +311,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 10, "character": 27}}}},
+     "position": {"line": 10, "character": 27}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 10, "character": 11},
@@ -312,7 +329,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 10, "character": 27}}}}],
+     "position": {"line": 10, "character": 27}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 13, "character": 17}}
@@ -333,7 +351,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -349,7 +368,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -365,7 +385,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -381,7 +402,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -397,7 +419,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -414,7 +437,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}},
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 13, "character": 11},
@@ -431,7 +455,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 13, "character": 17}}}}],
+     "position": {"line": 13, "character": 17}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionOption.lean"},
  "position": {"line": 16, "character": 18}}
@@ -451,7 +476,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}},
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -467,7 +493,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}},
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -483,7 +510,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}},
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -499,7 +527,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}},
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -516,7 +545,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}},
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}},
   {"textEdit":
    {"replace":
     {"start": {"line": 16, "character": 11},
@@ -533,5 +563,6 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionOption.lean"},
-     "position": {"line": 16, "character": 18}}}}],
+     "position": {"line": 16, "character": 18}},
+    "cPos": 0}}],
  "isIncomplete": true}

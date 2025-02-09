@@ -202,7 +202,7 @@ instance : Inhabited (DiscrTree α) where
 -/
 private def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
-    let info := infos.get ⟨i, h⟩
+    let info := infos[i]
     if info.isInstImplicit then
       return true
     else if info.isImplicit || info.isStrictImplicit then
@@ -305,16 +305,13 @@ def hasNoindexAnnotation (e : Expr) : Bool :=
 
 /--
 Reduction procedure for the discrimination tree indexing.
-The parameter `config` controls how aggressively the term is reduced.
-The parameter at type `DiscrTree` controls this value.
-See comment at `DiscrTree`.
 -/
-partial def reduce (e : Expr) (config : WhnfCoreConfig) : MetaM Expr := do
-  let e ← whnfCore e config
+partial def reduce (e : Expr) : MetaM Expr := do
+  let e ← whnfCore e
   match (← unfoldDefinition? e) with
-  | some e => reduce e config
+  | some e => reduce e
   | none => match e.etaExpandedStrict? with
-    | some e => reduce e config
+    | some e => reduce e
     | none   => return e
 
 /--
@@ -333,24 +330,24 @@ private def isBadKey (fn : Expr) : Bool :=
   | _           => true
 
 /--
-  Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
-  is a bad key (see comment at `isBadKey`).
-  We use this method instead of `reduce` for root terms at `pushArgs`. -/
-private partial def reduceUntilBadKey (e : Expr) (config : WhnfCoreConfig) : MetaM Expr := do
+Reduce `e` until we get an irreducible term (modulo current reducibility setting) or the resulting term
+is a bad key (see comment at `isBadKey`).
+We use this method instead of `reduce` for root terms at `pushArgs`. -/
+private partial def reduceUntilBadKey (e : Expr) : MetaM Expr := do
   let e ← step e
   match e.etaExpandedStrict? with
-  | some e => reduceUntilBadKey e config
+  | some e => reduceUntilBadKey e
   | none   => return e
 where
   step (e : Expr) := do
-    let e ← whnfCore e config
+    let e ← whnfCore e
     match (← unfoldDefinition? e) with
     | some e' => if isBadKey e'.getAppFn then return e else step e'
     | none    => return e
 
 /-- whnf for the discrimination tree module -/
-def reduceDT (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM Expr :=
-  if root then reduceUntilBadKey e config else reduce e config
+def reduceDT (e : Expr) (root : Bool) : MetaM Expr :=
+  if root then reduceUntilBadKey e else reduce e
 
 /- Remark: we use `shouldAddAsStar` only for nested terms, and `root == false` for nested terms -/
 
@@ -372,11 +369,11 @@ In this issue, we have a local hypotheses `(h : ∀ p : α × β, f p p.2 = p.2)
 For example, it was introduced by another tactic. Thus, when populating the discrimination tree explicit arguments provided to `simp` (e.g., `simp [h]`),
 we use `noIndexAtArgs := true`. See comment: https://github.com/leanprover/lean4/issues/2670#issuecomment-1758889365
 -/
-private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Key × Array Expr) := do
+private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (noIndexAtArgs : Bool) : MetaM (Key × Array Expr) := do
   if hasNoindexAnnotation e then
     return (.star, todo)
   else
-    let e ← reduceDT e root config
+    let e ← reduceDT e root
     let fn := e.getAppFn
     let push (k : Key) (nargs : Nat) (todo : Array Expr): MetaM (Key × Array Expr) := do
       let info ← getFunInfoNArgs fn nargs
@@ -422,27 +419,27 @@ private def pushArgs (root : Bool) (todo : Array Expr) (e : Expr) (config : Whnf
     | _ => return (.other, todo)
 
 @[inherit_doc pushArgs]
-partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (config : WhnfCoreConfig) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
+partial def mkPathAux (root : Bool) (todo : Array Expr) (keys : Array Key) (noIndexAtArgs : Bool) : MetaM (Array Key) := do
   if todo.isEmpty then
     return keys
   else
     let e    := todo.back!
     let todo := todo.pop
-    let (k, todo) ← pushArgs root todo e config noIndexAtArgs
-    mkPathAux false todo (keys.push k) config noIndexAtArgs
+    let (k, todo) ← pushArgs root todo e noIndexAtArgs
+    mkPathAux false todo (keys.push k) noIndexAtArgs
 
 private def initCapacity := 8
 
 @[inherit_doc pushArgs]
-def mkPath (e : Expr) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (Array Key) := do
+def mkPath (e : Expr) (noIndexAtArgs := false) : MetaM (Array Key) := do
   withReducible do
     let todo : Array Expr := .mkEmpty initCapacity
     let keys : Array Key := .mkEmpty initCapacity
-    mkPathAux (root := true) (todo.push e) keys config noIndexAtArgs
+    mkPathAux (root := true) (todo.push e) keys noIndexAtArgs
 
 private partial def createNodes (keys : Array Key) (v : α) (i : Nat) : Trie α :=
   if h : i < keys.size then
-    let k := keys.get ⟨i, h⟩
+    let k := keys[i]
     let c := createNodes keys v (i+1)
     .node #[] #[(k, c)]
   else
@@ -460,7 +457,7 @@ where
   loop (i : Nat) : Array α :=
     if h : i < vs.size then
       if v == vs[i] then
-        vs.set ⟨i,h⟩ v
+        vs.set i v
       else
         loop (i+1)
     else
@@ -470,7 +467,7 @@ where
 private partial def insertAux [BEq α] (keys : Array Key) (v : α) : Nat → Trie α → Trie α
   | i, .node vs cs =>
     if h : i < keys.size then
-      let k := keys.get ⟨i, h⟩
+      let k := keys[i]
       let c := Id.run $ cs.binInsertM
           (fun a b => a.1 < b.1)
           (fun ⟨_, s⟩ => let c := insertAux keys v (i+1) s; (k, c)) -- merge with existing
@@ -492,23 +489,23 @@ def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTr
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 
-def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
-  let keys ← mkPath e config noIndexAtArgs
+def insert [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e noIndexAtArgs
   return d.insertCore keys v
 
 /--
 Inserts a value into a discrimination tree,
 but only if its key is not of the form `#[*]` or `#[=, *, *, *]`.
 -/
-def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (config : WhnfCoreConfig) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
-  let keys ← mkPath e config noIndexAtArgs
+def insertIfSpecific [BEq α] (d : DiscrTree α) (e : Expr) (v : α) (noIndexAtArgs := false) : MetaM (DiscrTree α) := do
+  let keys ← mkPath e noIndexAtArgs
   return if keys == #[Key.star] || keys == #[Key.const `Eq 3, Key.star, Key.star, Key.star] then
     d
   else
     d.insertCore keys v
 
-private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) := do
-  let e ← reduceDT e root config
+private def getKeyArgs (e : Expr) (isMatch root : Bool) : MetaM (Key × Array Expr) := do
+  let e ← reduceDT e root
   unless root do
     -- See pushArgs
     if let some v := toNatLit? e then
@@ -553,8 +550,8 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
     if isMatch then
       return (.other, #[])
     else do
-      let ctx ← read
-      if ctx.config.isDefEqStuckEx then
+      let cfg ← getConfig
+      if cfg.isDefEqStuckEx then
         /-
           When the configuration flag `isDefEqStuckEx` is set to true,
           we want `isDefEq` to throw an exception whenever it tries to assign
@@ -580,11 +577,11 @@ private def getKeyArgs (e : Expr) (isMatch root : Bool) (config : WhnfCoreConfig
   | .forallE _ d _ _ => return (.arrow, #[d])
   | _ => return (.other, #[])
 
-private abbrev getMatchKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=
-  getKeyArgs e (isMatch := true) (root := root) (config := config)
+private abbrev getMatchKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := true) (root := root)
 
-private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) (config : WhnfCoreConfig) : MetaM (Key × Array Expr) :=
-  getKeyArgs e (isMatch := false) (root := root) (config := config)
+private abbrev getUnifyKeyArgs (e : Expr) (root : Bool) : MetaM (Key × Array Expr) :=
+  getKeyArgs e (isMatch := false) (root := root)
 
 private def getStarResult (d : DiscrTree α) : Array α :=
   let result : Array α := .mkEmpty initCapacity
@@ -595,7 +592,7 @@ private def getStarResult (d : DiscrTree α) : Array α :=
 private abbrev findKey (cs : Array (Key × Trie α)) (k : Key) : Option (Key × Trie α) :=
   cs.binSearch (k, default) (fun a b => a.1 < b.1)
 
-private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) := do
+private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Array α) : MetaM (Array α) := do
   match c with
   | .node vs cs =>
     if todo.isEmpty then
@@ -606,48 +603,48 @@ private partial def getMatchLoop (todo : Array Expr) (c : Trie α) (result : Arr
       let e     := todo.back!
       let todo  := todo.pop
       let first := cs[0]! /- Recall that `Key.star` is the minimal key -/
-      let (k, args) ← getMatchKeyArgs e (root := false) config
+      let (k, args) ← getMatchKeyArgs e (root := false)
       /- We must always visit `Key.star` edges since they are wildcards.
          Thus, `todo` is not used linearly when there is `Key.star` edge
          and there is an edge for `k` and `k != Key.star`. -/
       let visitStar (result : Array α) : MetaM (Array α) :=
         if first.1 == .star then
-          getMatchLoop todo first.2 result config
+          getMatchLoop todo first.2 result
         else
           return result
       let visitNonStar (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
         match findKey cs k with
         | none   => return result
-        | some c => getMatchLoop (todo ++ args) c.2 result config
+        | some c => getMatchLoop (todo ++ args) c.2 result
       let result ← visitStar result
       match k with
       | .star  => return result
       | _      => visitNonStar k args result
 
-private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) (config : WhnfCoreConfig) : MetaM (Array α) :=
+private def getMatchRoot (d : DiscrTree α) (k : Key) (args : Array Expr) (result : Array α) : MetaM (Array α) :=
   match d.root.find? k with
   | none   => return result
-  | some c => getMatchLoop args c result config
+  | some c => getMatchLoop args c result
 
-private def getMatchCore (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Array α) :=
+private def getMatchCore (d : DiscrTree α) (e : Expr) : MetaM (Key × Array α) :=
   withReducible do
     let result := getStarResult d
-    let (k, args) ← getMatchKeyArgs e (root := true) config
+    let (k, args) ← getMatchKeyArgs e (root := true)
     match k with
     | .star  => return (k, result)
-    | _      => return (k, (← getMatchRoot d k args result config))
+    | _      => return (k, (← getMatchRoot d k args result))
 
 /--
   Find values that match `e` in `d`.
 -/
-def getMatch (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
-  return (← getMatchCore d e config).2
+def getMatch (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
+  return (← getMatchCore d e).2
 
 /--
   Similar to `getMatch`, but returns solutions that are prefixes of `e`.
   We store the number of ignored arguments in the result.-/
-partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array (α × Nat)) := do
-  let (k, result) ← getMatchCore d e config
+partial def getMatchWithExtra (d : DiscrTree α) (e : Expr) : MetaM (Array (α × Nat)) := do
+  let (k, result) ← getMatchCore d e
   let result := result.map (·, 0)
   if !e.isApp then
     return result
@@ -669,7 +666,7 @@ where
     | _               => return false
 
   go (e : Expr) (numExtra : Nat) (result : Array (α × Nat)) : MetaM (Array (α × Nat)) := do
-    let result := result ++ (← getMatchCore d e config).2.map (., numExtra)
+    let result := result ++ (← getMatchCore d e).2.map (., numExtra)
     if e.isApp then
       go e.appFn! (numExtra + 1) result
     else
@@ -678,8 +675,8 @@ where
 /--
 Return the root symbol for `e`, and the number of arguments after `reduceDT`.
 -/
-def getMatchKeyRootFor (e : Expr) (config : WhnfCoreConfig) : MetaM (Key × Nat) := do
-  let e ← reduceDT e (root := true) config
+def getMatchKeyRootFor (e : Expr) : MetaM (Key × Nat) := do
+  let e ← reduceDT e (root := true)
   let numArgs := e.getAppNumArgs
   let key := match e.getAppFn with
     | .lit v         => .lit v
@@ -716,17 +713,17 @@ We use this method to simulate Lean 3's indexing.
 
 The natural number in the result is the number of arguments in `e` after `reduceDT`.
 -/
-def getMatchLiberal (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α × Nat) := do
+def getMatchLiberal (d : DiscrTree α) (e : Expr) : MetaM (Array α × Nat) := do
   withReducible do
     let result := getStarResult d
-    let (k, numArgs) ← getMatchKeyRootFor e config
+    let (k, numArgs) ← getMatchKeyRootFor e
     match k with
     | .star  => return (result, numArgs)
     | _      => return (getAllValuesForKey d k result, numArgs)
 
-partial def getUnify (d : DiscrTree α) (e : Expr) (config : WhnfCoreConfig) : MetaM (Array α) :=
+partial def getUnify (d : DiscrTree α) (e : Expr) : MetaM (Array α) :=
   withReducible do
-    let (k, args) ← getUnifyKeyArgs e (root := true) config
+    let (k, args) ← getUnifyKeyArgs e (root := true)
     match k with
     | .star => d.root.foldlM (init := #[]) fun result k c => process k.arity #[] c result
     | _ =>
@@ -750,7 +747,7 @@ where
       else
         let e     := todo.back!
         let todo  := todo.pop
-        let (k, args) ← getUnifyKeyArgs e (root := false) config
+        let (k, args) ← getUnifyKeyArgs e (root := false)
         let visitStar (result : Array α) : MetaM (Array α) :=
           let first := cs[0]!
           if first.1 == .star then

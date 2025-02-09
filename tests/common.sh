@@ -39,22 +39,40 @@ function compile_lean_llvm_backend {
     set +o xtrace
 }
 
+function exec_capture_raw {
+    # backtraces are system-specific, strip them (might be captured in `#guard_msgs`)
+    LEAN_BACKTRACE=0 "$@" 2>&1 > "$f.produced.out"
+}
+
+# produces filtered output intended for usage with `diff_produced`
 function exec_capture {
+    # backtraces are system-specific, strip them
     # mvar suffixes like in `?m.123` are deterministic but prone to change on minor changes, so strip them
     LEAN_BACKTRACE=0 "$@" 2>&1 | perl -pe 's/(\?(\w|_\w+))\.[0-9]+/\1/g' > "$f.produced.out"
 }
 
 # Remark: `${var+x}` is a parameter expansion which evaluates to nothing if `var` is unset, and substitutes the string `x` otherwise.
-function exec_check {
-    ret=0
+function check_ret {
     [ -n "${expected_ret+x}" ] || expected_ret=0
     [ -f "$f.expected.ret" ] && expected_ret=$(< "$f.expected.ret")
-    exec_capture "$@" || ret=$?
     if [ -n "$expected_ret" ] && [ $ret -ne $expected_ret ]; then
         echo "Unexpected return code $ret executing '$@'; expected $expected_ret. Output:"
         cat "$f.produced.out"
         exit 1
     fi
+}
+
+function exec_check_raw {
+    ret=0
+    exec_capture_raw "$@" || ret=$?
+    check_ret
+}
+
+# produces filtered output intended for usage with `diff_produced`
+function exec_check {
+    ret=0
+    exec_capture "$@" || ret=$?
+    check_ret
 }
 
 function diff_produced {

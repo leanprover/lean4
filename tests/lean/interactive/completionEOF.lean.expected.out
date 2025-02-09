@@ -8,5 +8,6 @@
    {"params":
     {"textDocument": {"uri": "file:///completionEOF.lean"},
      "position": {"line": 8, "character": 9}},
-    "id": {"const": {"declName": "And"}}}}],
+    "id": {"const": {"declName": "And"}},
+    "cPos": 0}}],
  "isIncomplete": true}

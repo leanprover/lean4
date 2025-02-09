@@ -16,8 +16,8 @@ by {
 }
 
 def g (i j k : Nat) (a : Array Nat) (h₁ : i < k) (h₂ : k < j) (h₃ : j < a.size) : Nat :=
-  let vj := a.get ⟨j, h₃⟩;
-  let vi := a.get ⟨i, Nat.lt_trans h₁ (Nat.lt_trans h₂ h₃)⟩;
+  let vj := a[j];
+  let vi := a[i];
   vi + vj
 
 set_option pp.all true in

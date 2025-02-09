@@ -162,7 +162,7 @@ private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
 private def reprFast (n : Nat) : String :=
-  if h : n < 128 then Nat.reprArray.get ⟨n, h⟩ else
+  if h : n < 128 then Nat.reprArray.get n h else
   if h : n < USize.size then (USize.ofNatCore n h).repr
   else (toDigits 10 n).asString
 

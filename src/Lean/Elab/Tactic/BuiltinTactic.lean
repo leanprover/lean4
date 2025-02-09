@@ -60,7 +60,7 @@ where
     if let some snap := (← readThe Term.Context).tacSnap? then
       if let some old := snap.old? then
         let oldParsed := old.val.get
-        oldInner? := oldParsed.data.inner? |>.map (⟨oldParsed.data.stx, ·⟩)
+        oldInner? := oldParsed.inner? |>.map (⟨oldParsed.stx, ·⟩)
     -- compare `stx[0]` for `finished`/`next` reuse, focus on remainder of script
     Term.withNarrowedTacticReuse (stx := stx) (fun stx => (stx[0], mkNullNode stx.getArgs[1:])) fun stxs => do
       let some snap := (← readThe Term.Context).tacSnap?
@@ -70,10 +70,10 @@ where
       if let some old := snap.old? then
         -- `tac` must be unchanged given the narrow above; let's reuse `finished`'s state!
         let oldParsed := old.val.get
-        if let some state := oldParsed.data.finished.get.state? then
+        if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.data.next.get? 0 |>.map (⟨old.stx, ·⟩)
+          oldNext? := oldParsed.next.get? 0 |>.map (⟨old.stx, ·⟩)
 
       -- For `tac`'s snapshot task range, disregard synthetic info as otherwise
       -- `SnapshotTree.findInfoTreeAtPos` might choose the wrong snapshot: for example, when
@@ -86,41 +86,41 @@ where
       -- snapshots than necessary.
       if let some range := range? then
         range? := some { range with stop := ⟨range.stop.byteIdx + tac.getTrailingSize⟩ }
-      withAlwaysResolvedPromise fun next => do
-        withAlwaysResolvedPromise fun finished => do
-          withAlwaysResolvedPromise fun inner => do
-            snap.new.resolve <| .mk {
-              desc := tac.getKind.toString
-              diagnostics := .empty
-              stx := tac
-              inner? := some { range?, task := inner.result }
-              finished := { range?, task := finished.result }
-              next := #[{ range? := stxs.getRange?, task := next.result }]
-            }
-            -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
-            -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
-            -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
-            let trees ← getResetInfoTrees
-            try
-              let (_, state) ← withRestoreOrSaveFull reusableResult?
-                  -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
-                  (tacSnap? := some { old? := oldInner?, new := inner }) do
-                Term.withReuseContext tac do
-                  evalTactic tac
-              finished.resolve {
-                diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
-                  (← Core.getAndEmptyMessageLog))
-                infoTree? := (← Term.getInfoTreeWithContext?)
-                state? := state
-              }
-            finally
-              modifyInfoState fun s => { s with trees := trees ++ s.trees }
+      let next ← IO.Promise.new
+      let finished ← IO.Promise.new
+      let inner ← IO.Promise.new
+      snap.new.resolve {
+        desc := tac.getKind.toString
+        diagnostics := .empty
+        stx := tac
+        inner? := some { range?, task := inner.resultD default }
+        finished := { range?, task := finished.resultD default }
+        next := #[{ range? := stxs.getRange?, task := next.resultD default }]
+      }
+      -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
+      -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
+      -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
+      let trees ← getResetInfoTrees
+      try
+        let (_, state) ← withRestoreOrSaveFull reusableResult?
+            -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
+            (tacSnap? := some { old? := oldInner?, new := inner }) do
+          Term.withReuseContext tac do
+            evalTactic tac
+        finished.resolve {
+          diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
+            (← Core.getAndEmptyMessageLog))
+          infoTree? := (← Term.getInfoTreeWithContext?)
+          state? := state
+        }
+      finally
+        modifyInfoState fun s => { s with trees := trees ++ s.trees }
 
-        withTheReader Term.Context ({ · with tacSnap? := some {
-          new := next
-          old? := oldNext?
-        } }) do
-          goOdd stxs
+      withTheReader Term.Context ({ · with tacSnap? := some {
+        new := next
+        old? := oldNext?
+      } }) do
+        goOdd stxs
   -- `stx[0]` is the next separator, if any
   goOdd stx := do
     if stx.getNumArgs == 0 then
@@ -308,7 +308,7 @@ def evalTacticSeq : Tactic :=
 
 partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   if h : i < tactics.size then
-    let tactic := tactics.get ⟨i, h⟩
+    let tactic := tactics[i]
     catchInternalId unsupportedSyntaxExceptionId
       (evalTactic tactic)
       (fun _ => evalChoiceAux tactics (i+1))
@@ -362,9 +362,9 @@ partial def evalChoiceAux (tactics : Array Syntax) (i : Nat) : TacticM Unit :=
   | `(tactic| intro $h:term $hs:term*) => evalTactic (← `(tactic| intro $h:term; intro $hs:term*))
   | _ => throwUnsupportedSyntax
 where
-  introStep (ref : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
+  introStep (ref? : Option Syntax) (n : Name) (typeStx? : Option Syntax := none) : TacticM Unit := do
     let fvarId ← liftMetaTacticAux fun mvarId => do
-      let (fvarId, mvarId) ← mvarId.intro n
+      let (fvarId, mvarId) ← withRef? ref? <| mvarId.intro n
       pure (fvarId, [mvarId])
     if let some typeStx := typeStx? then
       withMainContext do
@@ -374,9 +374,9 @@ where
         unless (← isDefEqGuarded type fvarType) do
           throwError "type mismatch at `intro {fvar}`{← mkHasTypeButIsExpectedMsg fvarType type}"
         liftMetaTactic fun mvarId => return [← mvarId.replaceLocalDeclDefEq fvarId type]
-    if let some stx := ref then
+    if let some ref := ref? then
       withMainContext do
-        Term.addLocalVarInfo stx (mkFVar fvarId)
+        Term.addLocalVarInfo ref (mkFVar fvarId)
 
 @[builtin_tactic Lean.Parser.Tactic.introMatch] def evalIntroMatch : Tactic := fun stx => do
   let matchAlts := stx[1]

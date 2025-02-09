@@ -507,7 +507,7 @@ partial def rintroCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (a 
   match pat with
   | `(rintroPat| $pat:rcasesPat) =>
     let pat := (← RCasesPatt.parse pat).typed? ref ty?
-    let (v, g) ← g.intro (pat.name?.getD `_)
+    let (v, g) ← withRef pat.ref <| g.intro (pat.name?.getD `_)
     rcasesCore g fs clears (.fvar v) a pat cont
   | `(rintroPat| ($(pats)* $[: $ty?']?)) =>
     let ref := if pats.size == 1 then pat.raw else .missing
@@ -526,7 +526,7 @@ where
   /-- Runs `rintroContinue` on `pats[i:]` -/
   loop i g fs clears a := do
     if h : i < pats.size then
-      rintroCore g fs clears a ref (pats.get ⟨i, h⟩) ty? (loop (i+1))
+      rintroCore g fs clears a ref pats[i] ty? (loop (i+1))
     else cont g fs clears a
 
 end

@@ -35,7 +35,7 @@ def insert (s : FVarSubst) (fvarId : FVarId) (v : Expr) : FVarSubst :=
   if s.contains fvarId then s
   else
     let map := s.map.mapVal fun e => e.replaceFVarId fvarId v;
-    { map := map.insert fvarId v }
+    { map := map.insertNew fvarId v }
 
 def erase (s : FVarSubst) (fvarId : FVarId) : FVarSubst :=
   { map := s.map.erase fvarId }

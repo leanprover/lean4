@@ -24,11 +24,11 @@ uint8_t l_Std_DHashMap_Internal_AssocList_contains___at_Lean_ForEachExpr_visit__
 LEAN_EXPORT lean_object* l_Lean_MVarId_assert___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 lean_object* l_Lean_Meta_FVarSubst_insert(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertHypotheses___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ForEachExpr_visit___at_Lean_MVarId_replace_findMaxFVar___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertExt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -91,14 +91,12 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_MVarId_assertAft
 lean_object* l_Std_DHashMap_Internal_AssocList_replace___at_Lean_ForEachExpr_visit___spec__6(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_LocalContext_setKind(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp3(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assertAfter___closed__2;
 LEAN_EXPORT lean_object* l_Lean_MVarId_replace_findMaxFVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqRefl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_uint64_xor(uint64_t, uint64_t);
-lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_MVarId_assertHypotheses___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldrMUnsafe_fold___at_Lean_MVarId_assertHypotheses___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1535,83 +1533,71 @@ lean_dec(x_1);
 return x_14;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-uint8_t x_12; 
-x_12 = lean_nat_dec_lt(x_9, x_6);
-if (x_12 == 0)
+lean_object* x_9; uint8_t x_10; 
+x_9 = lean_ctor_get(x_4, 1);
+x_10 = lean_nat_dec_lt(x_6, x_9);
+if (x_10 == 0)
 {
-lean_dec(x_9);
-lean_dec(x_8);
-return x_11;
+lean_dec(x_6);
+return x_5;
 }
 else
 {
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_nat_dec_eq(x_8, x_13);
+lean_object* x_11; uint8_t x_12; uint8_t x_13; uint8_t x_14; 
+x_11 = lean_array_fget(x_1, x_6);
+x_12 = lean_ctor_get_uint8(x_11, sizeof(void*)*3 + 1);
+lean_dec(x_11);
+x_13 = 0;
+x_14 = l_Lean_instDecidableEqLocalDeclKind(x_12, x_13);
 if (x_14 == 0)
 {
-lean_object* x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; uint8_t x_19; uint8_t x_20; 
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = lean_nat_sub(x_8, x_15);
-lean_dec(x_8);
-x_17 = lean_array_fget(x_1, x_9);
-x_18 = lean_ctor_get_uint8(x_17, sizeof(void*)*3 + 1);
-lean_dec(x_17);
-x_19 = 0;
-x_20 = l_Lean_instDecidableEqLocalDeclKind(x_18, x_19);
-if (x_20 == 0)
+lean_object* x_15; uint8_t x_16; 
+x_15 = lean_array_get_size(x_2);
+x_16 = lean_nat_dec_lt(x_6, x_15);
+lean_dec(x_15);
+if (x_16 == 0)
 {
-lean_object* x_21; uint8_t x_22; 
-x_21 = lean_array_get_size(x_3);
-x_22 = lean_nat_dec_lt(x_9, x_21);
-lean_dec(x_21);
-if (x_22 == 0)
+lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_17 = l_Lean_instInhabitedFVarId;
+x_18 = l_outOfBounds___rarg(x_17);
+x_19 = l_Lean_LocalContext_setKind(x_5, x_18, x_12);
+x_20 = lean_ctor_get(x_4, 2);
+x_21 = lean_nat_add(x_6, x_20);
+lean_dec(x_6);
+x_5 = x_19;
+x_6 = x_21;
+x_7 = lean_box(0);
+x_8 = lean_box(0);
+goto _start;
+}
+else
 {
 lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_23 = l_Lean_instInhabitedFVarId;
-x_24 = l_outOfBounds___rarg(x_23);
-x_25 = l_Lean_LocalContext_setKind(x_11, x_24, x_18);
-x_26 = lean_nat_add(x_9, x_7);
-lean_dec(x_9);
-x_8 = x_16;
-x_9 = x_26;
-x_10 = lean_box(0);
-x_11 = x_25;
-goto _start;
-}
-else
-{
-lean_object* x_28; lean_object* x_29; lean_object* x_30; 
-x_28 = lean_array_fget(x_3, x_9);
-x_29 = l_Lean_LocalContext_setKind(x_11, x_28, x_18);
-x_30 = lean_nat_add(x_9, x_7);
-lean_dec(x_9);
-x_8 = x_16;
-x_9 = x_30;
-x_10 = lean_box(0);
-x_11 = x_29;
+x_23 = lean_array_fget(x_2, x_6);
+x_24 = l_Lean_LocalContext_setKind(x_5, x_23, x_12);
+x_25 = lean_ctor_get(x_4, 2);
+x_26 = lean_nat_add(x_6, x_25);
+lean_dec(x_6);
+x_5 = x_24;
+x_6 = x_26;
+x_7 = lean_box(0);
+x_8 = lean_box(0);
 goto _start;
 }
 }
 else
 {
-lean_object* x_32; 
-x_32 = lean_nat_add(x_9, x_7);
-lean_dec(x_9);
-x_8 = x_16;
-x_9 = x_32;
-x_10 = lean_box(0);
+lean_object* x_28; lean_object* x_29; 
+x_28 = lean_ctor_get(x_4, 2);
+x_29 = lean_nat_add(x_6, x_28);
+lean_dec(x_6);
+x_6 = x_29;
+x_7 = lean_box(0);
+x_8 = lean_box(0);
 goto _start;
-}
-}
-else
-{
-lean_dec(x_9);
-lean_dec(x_8);
-return x_11;
 }
 }
 }
@@ -1760,15 +1746,12 @@ _start:
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
 x_5 = lean_unsigned_to_nat(0u);
 x_6 = lean_unsigned_to_nat(1u);
-lean_inc(x_1);
 x_7 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_7, 0, x_5);
 lean_ctor_set(x_7, 1, x_1);
 lean_ctor_set(x_7, 2, x_6);
-lean_inc(x_1);
-x_8 = l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(x_2, x_1, x_3, x_7, x_5, x_1, x_6, x_1, x_5, lean_box(0), x_4);
+x_8 = l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(x_2, x_3, x_7, x_7, x_4, x_5, lean_box(0), lean_box(0));
 lean_dec(x_7);
-lean_dec(x_1);
 return x_8;
 }
 }
@@ -2149,19 +2132,16 @@ return x_14;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_12; 
-x_12 = l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
-lean_dec(x_7);
-lean_dec(x_6);
-lean_dec(x_5);
+lean_object* x_9; 
+x_9 = l_Std_Range_forIn_x27_loop___at_Lean_MVarId_assertHypotheses___spec__1(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-return x_12;
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_MVarId_modifyLCtx___at_Lean_MVarId_assertHypotheses___spec__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7) {

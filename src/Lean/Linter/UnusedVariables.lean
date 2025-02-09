@@ -18,7 +18,7 @@ It is not immediately obvious but this is a surprisingly expensive check without
 some optimizations.  The main complication is that it can be difficult to
 determine what constitutes a "use" apart from direct references to a variable
 that we can easily find in the info tree.  For example, we would like this to be
-considered a use of `x`: 
+considered a use of `x`:
 ```
 def foo (x : Nat) : Nat := by assumption
 ```
@@ -248,7 +248,7 @@ builtin_initialize addBuiltinUnusedVariablesIgnoreFn (fun _ stack opts =>
   !getLinterUnusedVariablesFunArgs opts &&
   stack.matches [`null, none, `null, ``Lean.Parser.Term.letIdDecl, none] &&
   (stack.get? 3 |>.any fun (_, pos) => pos == 1) &&
-  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Command.whereStructField))
+  (stack.get? 5 |>.any fun (stx, _) => !stx.isOfKind ``Lean.Parser.Term.structInstField))
 
 /--
 Function argument in declaration signature (when `linter.unusedVariables.funArgs` is false)
@@ -390,22 +390,21 @@ where
         -- set if `analyzeTactics` is unset, tactic infos are present, and we're inside the body
         let ignored ← read
         match info with
+        | .ofCustomInfo ti =>
+          if !linter.unusedVariables.analyzeTactics.get ci.options then
+            if let some bodyInfo := ti.value.get? Elab.Term.BodyInfo then
+              if let some value := bodyInfo.value? then
+                -- the body is the only `Expr` we will analyze in this case
+                -- NOTE: we include it even if no tactics are present as at least for parameters we want
+                -- to lint only truly unused binders
+                let (e, _) := instantiateMVarsCore ci.mctx value
+                modify fun s => { s with
+                  assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
+                let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
+                withReader (· || tacticsPresent) do
+                  go children.toArray ci
+                return false
         | .ofTermInfo ti =>
-          -- NOTE: we have to do this check *before* `ignored` because nested bodies (e.g. from
-          -- nested `let rec`s) do need to be included to find all `Expr` uses of the top-level
-          -- parameters
-          if ti.elaborator == `MutualDef.body &&
-              !linter.unusedVariables.analyzeTactics.get ci.options then
-            -- the body is the only `Expr` we will analyze in this case
-            -- NOTE: we include it even if no tactics are present as at least for parameters we want
-            -- to lint only truly unused binders
-            let (e, _) := instantiateMVarsCore ci.mctx ti.expr
-            modify fun s => { s with
-              assignments := s.assignments.push (.insert {} ⟨.anonymous⟩ e) }
-            let tacticsPresent := children.any (·.findInfo? (· matches .ofTacticInfo ..) |>.isSome)
-            withReader (· || tacticsPresent) do
-              go children.toArray ci
-            return false
           if ignored then return true
           match ti.expr with
           | .const .. =>
@@ -441,22 +440,20 @@ where
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
           | _ => pure ()
-          return true
         | .ofTacticInfo ti =>
           -- When ignoring new binders, no need to look at intermediate tactic states either as
           -- references to binders outside the body will be covered by the body `Expr`
           if ignored then return true
           -- Keep track of the `MetavarContext` after a tactic for later
           modify fun s => { s with assignments := s.assignments.push ti.mctxAfter.eAssignment }
-          return true
         | .ofFVarAliasInfo i =>
           if ignored then return true
           -- record any aliases we find
           modify fun s =>
             let id := followAliases s.fvarAliases i.baseId
             { s with fvarAliases := s.fvarAliases.insert i.id id }
-          return true
-        | _ => return true)
+        | _ => pure ()
+        return true)
   /-- Since declarations attach the declaration info to the `declId`,
   we skip that to get to the `.ident` if possible. -/
   skipDeclIdIfPresent (stx : Syntax) : Syntax :=

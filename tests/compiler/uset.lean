@@ -7,4 +7,3 @@ structure Point where
 
 def main : IO Unit :=
   IO.println (Point.right ⟨0, 0⟩).x
-

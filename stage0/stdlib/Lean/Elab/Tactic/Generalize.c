@@ -1356,7 +1356,7 @@ LEAN_EXPORT lean_object* l_Lean_getLocalHyps___at_Lean_Elab_Tactic_evalGeneraliz
 _start:
 {
 lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
-x_10 = lean_ctor_get(x_5, 1);
+x_10 = lean_ctor_get(x_5, 2);
 x_11 = lean_ctor_get(x_10, 1);
 x_12 = l_Lean_getLocalHyps___at_Lean_Elab_Tactic_evalGeneralize___spec__3___closed__1;
 x_13 = l_Lean_PersistentArray_forIn___at_Lean_Elab_Tactic_evalGeneralize___spec__4(x_11, x_12, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);

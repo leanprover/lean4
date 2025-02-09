@@ -125,7 +125,7 @@ theorem eq_one_of_mul_eq_one_right {a b : Int} (H : 0 ≤ a) (H' : a * b = 1) : 
   eq_one_of_dvd_one H ⟨b, H'.symm⟩
 
 theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b = 1 :=
-  eq_one_of_mul_eq_one_right H <| by rw [Int.mul_comm, H']
+  eq_one_of_mul_eq_one_right (b := a) H <| by rw [Int.mul_comm, H']
 
 /-! ### *div zero  -/
 
@@ -533,6 +533,13 @@ theorem mul_emod (a b n : Int) : (a * b) % n = (a % n) * (b % n) % n := by
 
 @[simp] theorem emod_emod (a b : Int) : (a % b) % b = a % b := by
   conv => rhs; rw [← emod_add_ediv a b, add_mul_emod_self_left]
+
+@[simp] theorem emod_sub_emod (m n k : Int) : (m % n - k) % n = (m - k) % n :=
+  Int.emod_add_emod m n (-k)
+
+@[simp] theorem sub_emod_emod (m n k : Int) : (m - n % k) % k = (m - n) % k := by
+  apply (emod_add_cancel_right (n % k)).mp
+  rw [Int.sub_add_cancel, Int.add_emod_emod, Int.sub_add_cancel]
 
 theorem sub_emod (a b n : Int) : (a - b) % n = (a % n - b % n) % n := by
   apply (emod_add_cancel_right b).mp
@@ -1098,6 +1105,32 @@ theorem bmod_def (x : Int) (m : Nat) : bmod x m =
     (x % m) - m :=
   rfl
 
+theorem bdiv_add_bmod (x : Int) (m : Nat) : m * bdiv x m + bmod x m = x := by
+  unfold bdiv bmod
+  split
+  · simp_all only [Nat.cast_ofNat_Int, Int.mul_zero, emod_zero, Int.zero_add, Int.sub_zero,
+      ite_self]
+  · dsimp only
+    split
+    · exact ediv_add_emod x m
+    · rw [Int.mul_add, Int.mul_one, Int.add_assoc, Int.add_comm m, Int.sub_add_cancel]
+      exact ediv_add_emod x m
+
+theorem bmod_add_bdiv (x : Int) (m : Nat) : bmod x m + m * bdiv x m = x := by
+  rw [Int.add_comm]; exact bdiv_add_bmod x m
+
+theorem bdiv_add_bmod' (x : Int) (m : Nat) : bdiv x m * m + bmod x m = x := by
+  rw [Int.mul_comm]; exact bdiv_add_bmod x m
+
+theorem bmod_add_bdiv' (x : Int) (m : Nat) : bmod x m + bdiv x m * m = x := by
+  rw [Int.add_comm]; exact bdiv_add_bmod' x m
+
+theorem bmod_eq_self_sub_mul_bdiv (x : Int) (m : Nat) : bmod x m = x - m * bdiv x m := by
+  rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv]
+
+theorem bmod_eq_self_sub_bdiv_mul (x : Int) (m : Nat) : bmod x m = x - bdiv x m * m := by
+  rw [← Int.add_sub_cancel (bmod x m), bmod_add_bdiv']
+
 theorem bmod_pos (x : Int) (m : Nat) (p : x % m < (m + 1) / 2) : bmod x m = x % m := by
   simp [bmod_def, p]
 
@@ -1143,35 +1176,29 @@ theorem emod_mul_bmod_congr (x : Int) (n : Nat) : Int.bmod (x%n * y) n = Int.bmo
 
 @[simp]
 theorem bmod_add_bmod_congr : Int.bmod (Int.bmod x n + y) n = Int.bmod (x + y) n := by
-  rw [bmod_def x n]
-  split
-  next p =>
-    simp only [emod_add_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg]
-    simp
+  have := (@bmod_add_mul_cancel (Int.bmod x n + y) n (bdiv x n)).symm
+  rwa [Int.add_right_comm, bmod_add_bdiv] at this
 
 @[simp]
-theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n := by
-  rw [Int.bmod_def x n]
-  split
-  next p =>
-    simp only [emod_sub_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.add_right_comm, ←Int.sub_eq_add_neg, ← Int.sub_eq_add_neg]
-    simp [emod_sub_bmod_congr]
+theorem bmod_sub_bmod_congr : Int.bmod (Int.bmod x n - y) n = Int.bmod (x - y) n :=
+  @bmod_add_bmod_congr x n (-y)
+
+theorem add_bmod_eq_add_bmod_right (i : Int)
+    (H : bmod x n = bmod y n) : bmod (x + i) n = bmod (y + i) n := by
+  rw [← bmod_add_bmod_congr, ← @bmod_add_bmod_congr y, H]
+
+theorem bmod_add_cancel_right (i : Int) : bmod (x + i) n = bmod (y + i) n ↔ bmod x n = bmod y n :=
+  ⟨fun H => by
+    have := add_bmod_eq_add_bmod_right (-i) H
+    rwa [Int.add_neg_cancel_right, Int.add_neg_cancel_right] at this,
+  fun H => by rw [← bmod_add_bmod_congr, H, bmod_add_bmod_congr]⟩
 
 @[simp] theorem add_bmod_bmod : Int.bmod (x + Int.bmod y n) n = Int.bmod (x + y) n := by
   rw [Int.add_comm x, Int.bmod_add_bmod_congr, Int.add_comm y]
 
 @[simp] theorem sub_bmod_bmod : Int.bmod (x - Int.bmod y n) n = Int.bmod (x - y) n := by
-  rw [Int.bmod_def y n]
-  split
-  next p =>
-    simp [sub_emod_bmod_congr]
-  next p =>
-    rw [Int.sub_eq_add_neg, Int.sub_eq_add_neg, Int.neg_add, Int.neg_neg, ← Int.add_assoc, ← Int.sub_eq_add_neg]
-    simp [sub_emod_bmod_congr]
+  apply (bmod_add_cancel_right (bmod y n)).mp
+  rw [Int.sub_add_cancel, add_bmod_bmod, Int.sub_add_cancel]
 
 @[simp]
 theorem bmod_mul_bmod : Int.bmod (Int.bmod x n * y) n = Int.bmod (x * y) n := by
@@ -1316,64 +1343,7 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
     · exact ofNat_nonneg x
     · exact succ_ofNat_pos (x + 1)
 
-/-! ### Deprecations -/
-
-@[deprecated Int.zero_tdiv (since := "2024-09-11")] protected abbrev zero_div := @Int.zero_tdiv
-@[deprecated Int.tdiv_zero (since := "2024-09-11")] protected abbrev div_zero := @Int.tdiv_zero
-@[deprecated tdiv_eq_ediv (since := "2024-09-11")] abbrev div_eq_ediv := @tdiv_eq_ediv
-@[deprecated fdiv_eq_tdiv (since := "2024-09-11")] abbrev fdiv_eq_div := @fdiv_eq_tdiv
-@[deprecated zero_tmod (since := "2024-09-11")] abbrev zero_mod := @zero_tmod
-@[deprecated tmod_zero (since := "2024-09-11")] abbrev mod_zero := @tmod_zero
-@[deprecated tmod_add_tdiv (since := "2024-09-11")] abbrev mod_add_div := @tmod_add_tdiv
-@[deprecated tdiv_add_tmod (since := "2024-09-11")] abbrev div_add_mod := @tdiv_add_tmod
-@[deprecated tmod_add_tdiv' (since := "2024-09-11")] abbrev mod_add_div' := @tmod_add_tdiv'
-@[deprecated tdiv_add_tmod' (since := "2024-09-11")] abbrev div_add_mod' := @tdiv_add_tmod'
-@[deprecated tmod_def (since := "2024-09-11")] abbrev mod_def := @tmod_def
-@[deprecated tmod_eq_emod (since := "2024-09-11")] abbrev mod_eq_emod := @tmod_eq_emod
-@[deprecated fmod_eq_tmod (since := "2024-09-11")] abbrev fmod_eq_mod := @fmod_eq_tmod
-@[deprecated Int.tdiv_one (since := "2024-09-11")] protected abbrev div_one := @Int.tdiv_one
-@[deprecated Int.tdiv_neg (since := "2024-09-11")] protected abbrev div_neg := @Int.tdiv_neg
-@[deprecated Int.neg_tdiv (since := "2024-09-11")] protected abbrev neg_div := @Int.neg_tdiv
-@[deprecated Int.neg_tdiv_neg (since := "2024-09-11")] protected abbrev neg_div_neg := @Int.neg_tdiv_neg
-@[deprecated Int.tdiv_nonneg (since := "2024-09-11")] protected abbrev div_nonneg := @Int.tdiv_nonneg
-@[deprecated Int.tdiv_nonpos (since := "2024-09-11")] protected abbrev div_nonpos := @Int.tdiv_nonpos
-@[deprecated Int.tdiv_eq_zero_of_lt (since := "2024-09-11")] abbrev div_eq_zero_of_lt := @Int.tdiv_eq_zero_of_lt
-@[deprecated Int.mul_tdiv_cancel (since := "2024-09-11")] protected abbrev mul_div_cancel := @Int.mul_tdiv_cancel
-@[deprecated Int.mul_tdiv_cancel_left (since := "2024-09-11")] protected abbrev mul_div_cancel_left := @Int.mul_tdiv_cancel_left
-@[deprecated Int.tdiv_self (since := "2024-09-11")] protected abbrev div_self := @Int.tdiv_self
-@[deprecated Int.mul_tdiv_cancel_of_tmod_eq_zero (since := "2024-09-11")] abbrev mul_div_cancel_of_mod_eq_zero := @Int.mul_tdiv_cancel_of_tmod_eq_zero
-@[deprecated Int.tdiv_mul_cancel_of_tmod_eq_zero (since := "2024-09-11")] abbrev div_mul_cancel_of_mod_eq_zero := @Int.tdiv_mul_cancel_of_tmod_eq_zero
-@[deprecated Int.dvd_of_tmod_eq_zero (since := "2024-09-11")] abbrev dvd_of_mod_eq_zero := @Int.dvd_of_tmod_eq_zero
-@[deprecated Int.mul_tdiv_assoc (since := "2024-09-11")] protected abbrev mul_div_assoc := @Int.mul_tdiv_assoc
-@[deprecated Int.mul_tdiv_assoc' (since := "2024-09-11")] protected abbrev mul_div_assoc' := @Int.mul_tdiv_assoc'
-@[deprecated Int.tdiv_dvd_tdiv (since := "2024-09-11")] abbrev div_dvd_div := @Int.tdiv_dvd_tdiv
-@[deprecated Int.natAbs_tdiv (since := "2024-09-11")] abbrev natAbs_div := @Int.natAbs_tdiv
-@[deprecated Int.tdiv_eq_of_eq_mul_right (since := "2024-09-11")] protected abbrev div_eq_of_eq_mul_right := @Int.tdiv_eq_of_eq_mul_right
-@[deprecated Int.eq_tdiv_of_mul_eq_right (since := "2024-09-11")] protected abbrev eq_div_of_mul_eq_right := @Int.eq_tdiv_of_mul_eq_right
-@[deprecated Int.ofNat_tmod (since := "2024-09-11")] abbrev ofNat_mod := @Int.ofNat_tmod
-@[deprecated Int.tmod_one (since := "2024-09-11")] abbrev mod_one := @Int.tmod_one
-@[deprecated Int.tmod_eq_of_lt (since := "2024-09-11")] abbrev mod_eq_of_lt := @Int.tmod_eq_of_lt
-@[deprecated Int.tmod_lt_of_pos (since := "2024-09-11")] abbrev mod_lt_of_pos := @Int.tmod_lt_of_pos
-@[deprecated Int.tmod_nonneg (since := "2024-09-11")] abbrev mod_nonneg := @Int.tmod_nonneg
-@[deprecated Int.tmod_neg (since := "2024-09-11")] abbrev mod_neg := @Int.tmod_neg
-@[deprecated Int.mul_tmod_left (since := "2024-09-11")] abbrev mul_mod_left := @Int.mul_tmod_left
-@[deprecated Int.mul_tmod_right (since := "2024-09-11")] abbrev mul_mod_right := @Int.mul_tmod_right
-@[deprecated Int.tmod_eq_zero_of_dvd (since := "2024-09-11")] abbrev mod_eq_zero_of_dvd := @Int.tmod_eq_zero_of_dvd
-@[deprecated Int.dvd_iff_tmod_eq_zero (since := "2024-09-11")] abbrev dvd_iff_mod_eq_zero := @Int.dvd_iff_tmod_eq_zero
-@[deprecated Int.neg_mul_tmod_right (since := "2024-09-11")] abbrev neg_mul_mod_right := @Int.neg_mul_tmod_right
-@[deprecated Int.neg_mul_tmod_left (since := "2024-09-11")] abbrev neg_mul_mod_left := @Int.neg_mul_tmod_left
-@[deprecated Int.tdiv_mul_cancel (since := "2024-09-11")] protected abbrev div_mul_cancel := @Int.tdiv_mul_cancel
-@[deprecated Int.mul_tdiv_cancel' (since := "2024-09-11")] protected abbrev mul_div_cancel' := @Int.mul_tdiv_cancel'
-@[deprecated Int.eq_mul_of_tdiv_eq_right (since := "2024-09-11")] protected abbrev eq_mul_of_div_eq_right := @Int.eq_mul_of_tdiv_eq_right
-@[deprecated Int.tmod_self (since := "2024-09-11")] abbrev mod_self := @Int.tmod_self
-@[deprecated Int.neg_tmod_self (since := "2024-09-11")] abbrev neg_mod_self := @Int.neg_tmod_self
-@[deprecated Int.lt_tdiv_add_one_mul_self (since := "2024-09-11")] abbrev lt_div_add_one_mul_self := @Int.lt_tdiv_add_one_mul_self
-@[deprecated Int.tdiv_eq_iff_eq_mul_right (since := "2024-09-11")] protected abbrev div_eq_iff_eq_mul_right := @Int.tdiv_eq_iff_eq_mul_right
-@[deprecated Int.tdiv_eq_iff_eq_mul_left (since := "2024-09-11")] protected abbrev div_eq_iff_eq_mul_left := @Int.tdiv_eq_iff_eq_mul_left
-@[deprecated Int.eq_mul_of_tdiv_eq_left (since := "2024-09-11")] protected abbrev eq_mul_of_div_eq_left := @Int.eq_mul_of_tdiv_eq_left
-@[deprecated Int.tdiv_eq_of_eq_mul_left (since := "2024-09-11")] protected abbrev div_eq_of_eq_mul_left := @Int.tdiv_eq_of_eq_mul_left
-@[deprecated Int.eq_zero_of_tdiv_eq_zero (since := "2024-09-11")] protected abbrev eq_zero_of_div_eq_zero := @Int.eq_zero_of_tdiv_eq_zero
-@[deprecated Int.tdiv_left_inj (since := "2024-09-11")] protected abbrev div_left_inj := @Int.tdiv_left_inj
-@[deprecated Int.tdiv_sign (since := "2024-09-11")] abbrev div_sign := @Int.tdiv_sign
-@[deprecated Int.sign_eq_tdiv_abs (since := "2024-09-11")] protected abbrev sign_eq_div_abs := @Int.sign_eq_tdiv_abs
-@[deprecated Int.tdiv_eq_ediv_of_dvd (since := "2024-09-11")] abbrev div_eq_ediv_of_dvd := @Int.tdiv_eq_ediv_of_dvd
+@[simp]
+theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
+  apply (bmod_add_cancel_right x).mp
+  rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]

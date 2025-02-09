@@ -18,7 +18,7 @@ inductive Gate
   | and
   | xor
   | beq
-  | imp
+  | or
 
 namespace Gate
 
@@ -26,13 +26,13 @@ def toString : Gate → String
   | and => "&&"
   | xor => "^^"
   | beq => "=="
-  | imp => "->"
+  | or => "||"
 
 def eval : Gate → Bool → Bool → Bool
   | and => (· && ·)
   | xor => (· ^^ ·)
   | beq => (· == ·)
-  | imp => (· → ·)
+  | or => (· || ·)
 
 end Gate
 
@@ -59,13 +59,13 @@ def eval (a : α → Bool) : BoolExpr α → Bool
   | .const b => b
   | .not x => !eval a x
   | .gate g x y => g.eval (eval a x) (eval a y)
-  | .ite d l r => if d.eval a then l.eval a else r.eval a
+  | .ite d l r => bif d.eval a then l.eval a else r.eval a
 
 @[simp] theorem eval_literal : eval a (.literal l) = a l := rfl
 @[simp] theorem eval_const : eval a (.const b) = b := rfl
 @[simp] theorem eval_not : eval a (.not x) = !eval a x := rfl
 @[simp] theorem eval_gate : eval a (.gate g x y) = g.eval (eval a x) (eval a y) := rfl
-@[simp] theorem eval_ite : eval a (.ite d l r) = if d.eval a then l.eval a else r.eval a := rfl
+@[simp] theorem eval_ite : eval a (.ite d l r) = bif d.eval a then l.eval a else r.eval a := rfl
 
 def Sat (a : α → Bool) (x : BoolExpr α) : Prop := eval a x = true
 def Unsat (x : BoolExpr α) : Prop := ∀ f, eval f x = false

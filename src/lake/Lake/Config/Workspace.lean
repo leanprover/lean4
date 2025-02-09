@@ -3,6 +3,7 @@ Copyright (c) 2021 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Util.Paths
 import Lake.Config.FacetConfig
 import Lake.Config.TargetConfig
@@ -72,6 +73,10 @@ namespace Workspace
 /-- The workspace's Lake manifest. -/
 @[inline] def manifestFile (self : Workspace) : FilePath :=
   self.root.manifestFile
+
+/-- The path to the workspace file used to configure automatic package overloads. -/
+@[inline] def packageOverridesFile (self : Workspace) : FilePath :=
+  self.lakeDir / "package-overrides.json"
 
 /-- Add a package to the workspace. -/
 def addPackage (pkg : Package) (self : Workspace) : Workspace :=

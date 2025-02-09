@@ -8,7 +8,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 5, "character": 12}}}}],
+     "position": {"line": 5, "character": 12}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 9, "character": 12}}
@@ -20,7 +21,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 9, "character": 12}}}}],
+     "position": {"line": 9, "character": 12}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 13, "character": 11}}
@@ -32,7 +34,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 13, "character": 11}}}}],
+     "position": {"line": 13, "character": 11}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 16, "character": 16}}
@@ -44,7 +47,8 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 16, "character": 16}}}}],
+     "position": {"line": 16, "character": 16}},
+    "cPos": 0}}],
  "isIncomplete": true}
 {"textDocument": {"uri": "file:///compNamespace.lean"},
  "position": {"line": 20, "character": 12}}
@@ -56,5 +60,6 @@
    "data":
    {"params":
     {"textDocument": {"uri": "file:///compNamespace.lean"},
-     "position": {"line": 20, "character": 12}}}}],
+     "position": {"line": 20, "character": 12}},
+    "cPos": 0}}],
  "isIncomplete": true}

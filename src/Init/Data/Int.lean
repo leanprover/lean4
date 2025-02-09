@@ -13,3 +13,5 @@ import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.Order
 import Init.Data.Int.Pow
+import Init.Data.Int.Cooper
+import Init.Data.Int.Linear

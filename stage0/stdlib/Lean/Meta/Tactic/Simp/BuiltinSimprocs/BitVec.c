@@ -16355,9 +16355,9 @@ static lean_object* _init_l_BitVec_reduceCast___closed__3() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_BitVec_reduceUnary___lambda__1___closed__2;
+x_1 = lean_box(0);
 x_2 = l_BitVec_reduceCast___closed__2;
-x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+x_3 = l_Lean_Name_str___override(x_1, x_2);
 return x_3;
 }
 }

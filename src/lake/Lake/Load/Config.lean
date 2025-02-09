@@ -3,12 +3,11 @@ Copyright (c) 2022 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Data.Name
 import Lean.Data.Options
-import Lake.Config.Defaults
 import Lake.Config.Env
-import Lake.Util.Log
-import Lake.Util.Version
+import Lake.Load.Manifest
 
 namespace Lake
 open System Lean
@@ -29,6 +28,8 @@ structure LoadConfig where
   relPkgDir : FilePath := "."
   /-- The package's Lake configuration file (relative to the package directory). -/
   relConfigFile : FilePath := defaultConfigFile
+  /-- Additional package overrides for this workspace load. -/
+  packageOverrides : Array PackageEntry := #[]
   /-- A set of key-value Lake configuration options (i.e., `-K` settings). -/
   lakeOpts : NameMap String := {}
   /-- The Lean options with which to elaborate the configuration file. -/

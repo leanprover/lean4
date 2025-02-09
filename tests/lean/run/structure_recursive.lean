@@ -95,7 +95,7 @@ def Foo'.preorder : Foo' → String
   | {name, n, children} => Id.run do
     let mut acc := name
     for h : i in [0:n] do
-      acc := acc ++ (children ⟨i, h.2⟩).preorder
+      acc := acc ++ (children ⟨i, h.2.1⟩).preorder
     return acc
 
 /-- info: Foo'.preorder : Foo' → String -/
@@ -107,6 +107,18 @@ Extending with default values.
 structure A5 extends A4 Nat Bool where
   x := 0
   y := true
+
+/-!
+Default value whose type depends on the recursive structure.
+Reported in https://github.com/leanprover/lean4/issues/6140
+-/
+
+structure RecS where
+  n : Nat
+  recS : Option RecS := none
+
+/-- info: { n := 0, recS := none } : RecS -/
+#guard_msgs in #check ({ n := 0 } : RecS)
 
 /-!
 Incidental new feature: checking projections when the structure is Prop.

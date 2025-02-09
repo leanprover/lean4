@@ -8,7 +8,8 @@
    {"params":
     {"textDocument": {"uri": "file:///compHeader.lean"},
      "position": {"line": 2, "character": 22}},
-    "id": {"fvar": {"id": "_uniq.7"}}}},
+    "id": {"fvar": {"id": "_uniq.7"}},
+    "cPos": 0}},
   {"sortText": "1",
    "label": "veryLongNameForCompletion",
    "kind": 21,
@@ -16,5 +17,6 @@
    {"params":
     {"textDocument": {"uri": "file:///compHeader.lean"},
      "position": {"line": 2, "character": 22}},
-    "id": {"const": {"declName": "veryLongNameForCompletion"}}}}],
+    "id": {"const": {"declName": "veryLongNameForCompletion"}},
+    "cPos": 0}}],
  "isIncomplete": true}

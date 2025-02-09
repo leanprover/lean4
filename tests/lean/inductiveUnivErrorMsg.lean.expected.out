@@ -1,14 +1,18 @@
-inductiveUnivErrorMsg.lean:2:0-2:20: error: failed to compute resulting universe level of inductive datatype, constructor 'Bar.foobar' has type
-  {Foo : Sort u_1} → Foo → Bar
-parameter has type
-  Foo : Sort u_1
-inductive type resulting type
+inductiveUnivErrorMsg.lean:1:0-3:27: error: resulting type is of the form
   Type ?u
-recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level
-inductiveUnivErrorMsg.lean:6:0-6:27: error: failed to compute resulting universe level of inductive datatype, constructor 'Bar2.foobar' has type
-  {Foo : Sort u_1} → Foo → Bar2
-parameter 'x' has type
-  Foo : Sort u_1
-inductive type resulting type
+but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+  Type u_1
+if the resulting universe level should be at the above universe level or higher.
+
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+  u_1 ≤ ?u+1
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.
+inductiveUnivErrorMsg.lean:5:0-7:29: error: resulting type is of the form
   Type ?u
-recall that Lean only infers the resulting universe level automatically when there is a unique solution for the universe level constraints, consider explicitly providing the inductive type resulting universe level
+but the universes of constructor arguments suggest that this could accidentally be a higher universe than necessary. Explicitly providing a resulting type will silence this error. Universe inference suggests using
+  Type u_1
+if the resulting universe level should be at the above universe level or higher.
+
+Explanation: At this point in elaboration, universe level unification has committed to using a resulting universe level of the form '?u+1'. Constructor argument universe levels must be no greater than the resulting universe level, and this condition implies the following constraint(s):
+  u_1 ≤ ?u+1
+However, such constraint(s) usually indicate that the resulting universe level should have been in a different form. For example, if the resulting type is of the form 'Sort (_ + 1)' and a constructor argument is in universe `Sort u`, then universe inference would yield `Sort (u + 1)`, but the resulting type `Sort (max 1 u)` would avoid being in a higher universe than necessary.

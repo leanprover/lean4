@@ -8,6 +8,14 @@ import Init.Notation
 set_option linter.missingDocs true -- keep it documented
 
 namespace Lean.Parser.Tactic
+
+/--
+`as_aux_lemma => tac` does the same as `tac`, except that it wraps the resulting expression
+into an auxiliary lemma. In some cases, this significantly reduces the size of expressions
+because the proof term is not duplicated.
+-/
+syntax (name := as_aux_lemma) "as_aux_lemma" " => " tacticSeq : tactic
+
 /--
 `with_annotate_state stx t` annotates the lexical range of `stx : Syntax` with
 the initial and final state of running tactic `t`.
@@ -408,16 +416,18 @@ example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by ac_rfl
 syntax (name := acRfl) "ac_rfl" : tactic
 
 /--
-The `sorry` tactic closes the goal using `sorryAx`. This is intended for stubbing out incomplete
-parts of a proof while still having a syntactically correct proof skeleton. Lean will give
-a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
-you can double check if a theorem depends on `sorry` by using
-`#print axioms my_thm` and looking for `sorryAx` in the axiom list.
--/
-macro "sorry" : tactic => `(tactic| exact @sorryAx _ false)
+The `sorry` tactic is a temporary placeholder for an incomplete tactic proof,
+closing the main goal using `exact sorry`.
 
-/-- `admit` is a shorthand for `exact sorry`. -/
-macro "admit" : tactic => `(tactic| exact @sorryAx _ false)
+This is intended for stubbing-out incomplete parts of a proof while still having a syntactically correct proof skeleton.
+Lean will give a warning whenever a proof uses `sorry`, so you aren't likely to miss it,
+but you can double check if a theorem depends on `sorry` by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command, the axiom used by the implementation of `sorry`.
+-/
+macro "sorry" : tactic => `(tactic| exact sorry)
+
+/-- `admit` is a synonym for `sorry`. -/
+macro "admit" : tactic => `(tactic| sorry)
 
 /--
 `infer_instance` is an abbreviation for `exact inferInstance`.
@@ -428,11 +438,11 @@ macro "infer_instance" : tactic => `(tactic| exact inferInstance)
 /--
 `+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
 -/
-syntax posConfigItem := "+" noWs ident
+syntax posConfigItem := " +" noWs ident
 /--
 `-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
 -/
-syntax negConfigItem := "-" noWs ident
+syntax negConfigItem := " -" noWs ident
 /--
 `(opt := val)` sets the `opt` configuration option to `val`.
 
@@ -466,7 +476,7 @@ hypotheses or the goal. It can have one of the forms:
 * `at h₁ h₂ ⊢`: target the hypotheses `h₁` and `h₂`, and the goal
 * `at *`: target all hypotheses and the goal
 -/
-syntax location := withPosition(" at" (locationWildcard <|> locationHyp))
+syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)))
 
 /--
 * `change tgt'` will change the goal from `tgt` to `tgt'`,
@@ -816,7 +826,7 @@ syntax inductionAlt  := ppDedent(ppLine) inductionAltLHS+ " => " (hole <|> synth
 After `with`, there is an optional tactic that runs on all branches, and
 then a list of alternatives.
 -/
-syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)+)
+syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)*)
 
 /--
 Assuming `x` is a variable in the local context with an inductive type,
@@ -1155,7 +1165,7 @@ Configuration for the `decide` tactic family.
 structure DecideConfig where
   /-- If true (default: false), then use only kernel reduction when reducing the `Decidable` instance.
   This is more efficient, since the default mode reduces twice (once in the elaborator and again in the kernel),
-  however kernel reduction ignores transparency settings. The `decide!` tactic is a synonym for `decide +kernel`. -/
+  however kernel reduction ignores transparency settings. -/
   kernel : Bool := false
   /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
   admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
@@ -1165,7 +1175,9 @@ structure DecideConfig where
   native : Bool := false
   /-- If true (default: true), then when preprocessing the goal, do zeta reduction to attempt to eliminate free variables. -/
   zetaReduce : Bool := true
-  /-- If true (default: false), then when preprocessing reverts free variables. -/
+  /-- If true (default: false), then when preprocessing, removes irrelevant variables and reverts the local context.
+  A variable is *relevant* if it appears in the target, if it appears in a relevant variable,
+  or if it is a proposition that refers to a relevant variable. -/
   revert : Bool := false
 
 /--
@@ -1241,17 +1253,6 @@ example : 1 + 1 = 2 := by rfl
 syntax (name := decide) "decide" optConfig : tactic
 
 /--
-`decide!` is a variant of the `decide` tactic that uses kernel reduction to prove the goal.
-It has the following properties:
-- Since it uses kernel reduction instead of elaborator reduction, it ignores transparency and can unfold everything.
-- While `decide` needs to reduce the `Decidable` instance twice (once during elaboration to verify whether the tactic succeeds,
-  and once during kernel type checking), the `decide!` tactic reduces it exactly once.
-
-The `decide!` syntax is short for `decide +kernel`.
--/
-syntax (name := decideBang) "decide!" optConfig : tactic
-
-/--
 `native_decide` is a synonym for `decide +native`.
 It will attempt to prove a goal of type `p` by synthesizing an instance
 of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
@@ -1318,7 +1319,7 @@ macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega
 syntax (name := acNf0) "ac_nf0" (location)? : tactic
 
 /-- Implementation of `norm_cast` (the full `norm_cast` calls `trivial` afterwards). -/
-syntax (name := normCast0) "norm_cast0" (location)? : tactic
+syntax (name := normCast0) "norm_cast0" optConfig (location)? : tactic
 
 /-- `assumption_mod_cast` is a variant of `assumption` that solves the goal
 using a hypothesis. Unlike `assumption`, it first pre-processes the goal and
@@ -1327,7 +1328,7 @@ in more situations.
 
 Concretely, it runs `norm_cast` on the goal. For each local hypothesis `h`, it also
 normalizes `h` with `norm_cast` and tries to use that to close the goal. -/
-macro "assumption_mod_cast" : tactic => `(tactic| norm_cast0 at * <;> assumption)
+macro "assumption_mod_cast" cfg:optConfig : tactic => `(tactic| norm_cast0 $cfg at * <;> assumption)
 
 /--
 The `norm_cast` family of tactics is used to normalize certain coercions (*casts*) in expressions.
@@ -1364,26 +1365,9 @@ their operation, to make them more flexible about the expressions they accept
 
 See also `push_cast`, which moves casts inwards rather than lifting them outwards.
 -/
-macro "norm_cast" loc:(location)? : tactic =>
-  `(tactic| norm_cast0 $[$loc]? <;> try trivial)
+macro "norm_cast" cfg:optConfig loc:(location)? : tactic =>
+  `(tactic| norm_cast0 $cfg $[$loc]? <;> try trivial)
 
-/--
-`ac_nf` normalizes equalities up to application of an associative and commutative operator.
-- `ac_nf` normalizes all hypotheses and the goal target of the goal.
-- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
-  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
-  can also be used, to signify the target of the goal.
-```
-instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
-instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
-
-example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
- ac_nf
- -- goal: a + (b + (c + d)) = a + (b + (c + d))
-```
--/
-macro "ac_nf" loc:(location)? : tactic =>
-  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 `push_cast` rewrites the goal to move certain coercions (*casts*) inward, toward the leaf nodes.
@@ -1425,6 +1409,24 @@ syntax (name := pushCast) "push_cast" optConfig (discharger)? (&" only")?
 `norm_cast_add_elim foo` registers `foo` as an elim-lemma in `norm_cast`.
 -/
 syntax (name := normCastAddElim) "norm_cast_add_elim" ident : command
+
+/--
+`ac_nf` normalizes equalities up to application of an associative and commutative operator.
+- `ac_nf` normalizes all hypotheses and the goal target of the goal.
+- `ac_nf at l` normalizes at location(s) `l`, where `l` is either `*` or a
+  list of hypotheses in the local context. In the latter case, a turnstile `⊢` or `|-`
+  can also be used, to signify the target of the goal.
+```
+instance : Associative (α := Nat) (.+.) := ⟨Nat.add_assoc⟩
+instance : Commutative (α := Nat) (.+.) := ⟨Nat.add_comm⟩
+
+example (a b c d : Nat) : a + b + c + d = d + (b + c) + a := by
+ ac_nf
+ -- goal: a + (b + (c + d)) = a + (b + (c + d))
+```
+-/
+macro "ac_nf" loc:(location)? : tactic =>
+  `(tactic| ac_nf0 $[$loc]? <;> try trivial)
 
 /--
 * `symm` applies to a goal whose target has the form `t ~ u` where `~` is a symmetric relation,
@@ -1600,6 +1602,12 @@ using `show_term`.
 -/
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
+/--
+`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
+accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+-/
+syntax (name := exposeNames) "expose_names" : tactic
+
 end Tactic
 
 namespace Attr
@@ -1655,15 +1663,12 @@ If there are several with the same priority, it is uses the "most recent one". E
 syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /--
-Theorems tagged with the `grind_norm` attribute are used by the `grind` tactic normalizer/pre-processor.
+Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
+by well-founded recursion. They are applied to the function's body to add additional hypotheses,
+such as replacing `if c then _ else _` with `if h : c then _ else _` or `xs.map` with
+`xs.attach.map`. Also see `wfParam`.
 -/
-syntax (name := grind_norm) "grind_norm" (Tactic.simpPre <|> Tactic.simpPost)? (ppSpace prio)? : attr
-
-/--
-Simplification procedures tagged with the `grind_norm_proc` attribute are used by the `grind` tactic normalizer/pre-processor.
--/
-syntax (name := grind_norm_proc) "grind_norm_proc" (Tactic.simpPre <|> Tactic.simpPost)? : attr
-
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

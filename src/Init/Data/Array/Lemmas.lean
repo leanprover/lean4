@@ -3653,7 +3653,7 @@ theorem toListRev_toArray (l : List α) : l.toArray.toListRev = l.reverse := by 
     l.toArray.mapM f = List.toArray <$> l.mapM f := by
   simp only [← mapM'_eq_mapM, mapM_eq_foldlM]
   suffices ∀ init : Array β,
-      foldlM (fun bs a => bs.push <$> f a) init l.toArray = (init ++ toArray ·) <$> mapM' f l by
+      Array.foldlM (fun bs a => bs.push <$> f a) init l.toArray = (init ++ toArray ·) <$> mapM' f l by
     simpa using this #[]
   intro init
   induction l generalizing init with

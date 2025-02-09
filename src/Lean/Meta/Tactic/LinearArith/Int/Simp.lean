@@ -4,28 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.LinearArith.Basic
 import Lean.Meta.Tactic.LinearArith.Int.Basic
 
 namespace Lean.Meta.Linear.Int
 
-/-
-To prevent the kernel from accidentially reducing the atoms in the equation while typechecking,
-we abstract over them.
--/
-def withAbstractAtoms (atoms : Array Expr) (k : Array Expr → MetaM (Option (Expr × Expr))) :
-    MetaM (Option (Expr × Expr)) := do
-  let atoms := atoms
-  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun _ => do
-    return ((← mkFreshUserName `x), fun _ => pure (mkConst ``Int))
-  withLocalDeclsD decls fun ctxt => do
-    let some (r, p) ← k ctxt | return none
-    let r := (← mkLambdaFVars ctxt r).beta atoms
-    let p := mkAppN (← mkLambdaFVars ctxt p) atoms
-    return some (r, p)
-
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
-  withAbstractAtoms atoms fun ctx => do
+  withAbstractAtoms atoms ``Int fun ctx => do
     let lhs ← c.toArith ctx
     let p := c.toPoly
     if p.isUnsat then

@@ -148,7 +148,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Nat) id (RArray.leaf (mkNatLit 0))
 
-def reflTrue : Expr :=
-  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
-
-namespace Lean.Meta.Linear.Nat
+end Lean.Meta.Linear.Nat

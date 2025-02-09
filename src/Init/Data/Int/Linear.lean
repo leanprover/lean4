@@ -25,13 +25,15 @@ inductive Expr where
   | var  (i : Var)
   | add  (a b : Expr)
   | sub  (a b : Expr)
+  | neg (a : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def Expr.denote (ctx : Context) : Expr → Int
   | .add a b  => Int.add (denote ctx a) (denote ctx b)
   | .sub a b  => Int.sub (denote ctx a) (denote ctx b)
+  | .neg a    => Int.neg (denote ctx a)
   | .num k    => k
   | .var v    => v.denote ctx
   | .mulL k e => Int.mul k (denote ctx e)
@@ -40,7 +42,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq, Repr
+  deriving BEq
 
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
@@ -81,6 +83,7 @@ where
     | .sub a b  => go coeff a ∘ go (-coeff) b
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
+    | .neg a    => go (-coeff) a
 
 def Expr.toPoly (e : Expr) : Poly :=
   e.toPoly'.norm
@@ -88,7 +91,7 @@ def Expr.toPoly (e : Expr) : Poly :=
 inductive PolyCnstr  where
   | eq (p : Poly)
   | le (p : Poly)
-  deriving BEq, Repr
+  deriving BEq
 
 def PolyCnstr.denote (ctx : Context) : PolyCnstr → Prop
   | .eq p => p.denote ctx = 0
@@ -101,7 +104,7 @@ def PolyCnstr.norm : PolyCnstr → PolyCnstr
 inductive ExprCnstr  where
   | eq (p₁ p₂ : Expr)
   | le (p₁ p₂ : Expr)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def ExprCnstr.denote (ctx : Context) : ExprCnstr → Prop
   | .eq e₁ e₂ => e₁.denote ctx = e₂.denote ctx
@@ -137,8 +140,9 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
 attribute [local simp] Poly.denote_norm
 
 private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+private theorem neg_fold (a : Int) : a.neg = -a := rfl
 
-attribute [local simp] sub_fold
+attribute [local simp] sub_fold neg_fold
 attribute [local simp] ExprCnstr.denote ExprCnstr.toPoly PolyCnstr.denote Expr.denote
 
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
@@ -163,6 +167,7 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
       simp at ih
       rw [ih]
       rw [Int.mul_assoc, Int.mul_comm k']
+  | case7 k a ih => simp [toPoly'.go, ih]
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, toPoly', Expr.denote_toPoly'_go]
@@ -209,4 +214,49 @@ theorem ExprCnstr.eq_of_toPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPo
   rw [denote_toPoly, denote_toPoly] at h
   assumption
 
+def PolyCnstr.isUnsat : PolyCnstr → Bool
+  | .eq (.num k) => k != 0
+  | .eq _ => false
+  | .le (.num k) => k > 0
+  | .le _ => false
+
+theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) (p : PolyCnstr) : p.isUnsat → p.denote ctx = False := by
+  unfold isUnsat <;> split <;> simp <;> try contradiction
+  apply Int.not_le_of_gt
+
+theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isUnsat) : c.denote ctx = False := by
+  have := PolyCnstr.eq_false_of_isUnsat ctx (c.toPoly) h
+  rw [ExprCnstr.denote_toPoly] at this
+  assumption
+
+def PolyCnstr.isValid : PolyCnstr → Bool
+  | .eq (.num k) => k == 0
+  | .eq _ => false
+  | .le (.num k) => k ≤ 0
+  | .le _ => false
+
+theorem PolyCnstr.eq_true_of_isValid (ctx : Context) (p : PolyCnstr) : p.isValid → p.denote ctx = True := by
+  unfold isValid <;> split <;> simp
+
+theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isValid) : c.denote ctx = True := by
+  have := PolyCnstr.eq_true_of_isValid ctx (c.toPoly) h
+  rw [ExprCnstr.denote_toPoly] at this
+  assumption
+
 end Int.Linear
+
+theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
+  apply propext; constructor
+  · intro h; have h := Int.add_one_le_of_lt (Int.lt_of_not_ge h); assumption
+  · intro h; apply Int.not_le_of_gt; exact h
+
+theorem Int.not_ge_eq (a b : Int) : (¬a ≥ b) = (a + 1 ≤ b) := by
+  apply Int.not_le_eq
+
+theorem Int.not_lt_eq (a b : Int) : (¬a < b) = (b ≤ a) := by
+  apply propext; constructor
+  · intro h; simp [Int.not_lt] at h; assumption
+  · intro h; apply Int.not_le_of_gt; simp [Int.lt_add_one_iff, *]
+
+theorem Int.not_gt_eq (a b : Int) : (¬a > b) = (a ≤ b) := by
+  apply Int.not_lt_eq

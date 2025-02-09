@@ -2243,4 +2243,8 @@ private def intEqPred : Expr :=
 def mkIntEq (a b : Expr) : Expr :=
   mkApp2 intEqPred a b
 
+def mkIntLit (n : Nat) : Expr :=
+  let r := mkRawNatLit n
+  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+
 end Lean

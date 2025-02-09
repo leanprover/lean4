@@ -133,3 +133,58 @@ example (x : Int) (h : False) : x > x := by
   simp +arith only
   guard_target = False
   assumption
+
+theorem ex₁ (x y z : Int) : x + y + 2 + y + z + z ≤ y + 3*z + 1 + 1 + x + y - z := by
+  simp +arith only
+
+/--
+info: theorem ex₁ : ∀ (x y z : Int), x + y + 2 + y + z + z ≤ y + 3 * z + 1 + 1 + x + y - z :=
+fun x y z =>
+  of_eq_true
+    (id
+      (Int.Linear.ExprCnstr.eq_true_of_isValid
+        (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf z)))
+        (Int.Linear.ExprCnstr.le
+          ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
+                    (Int.Linear.Expr.var 1)).add
+                (Int.Linear.Expr.var 2)).add
+            (Int.Linear.Expr.var 2))
+          (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 2))).add
+                            (Int.Linear.Expr.num 1)).add
+                        (Int.Linear.Expr.num 1)).add
+                    (Int.Linear.Expr.var 0)).add
+                (Int.Linear.Expr.var 1)).sub
+            (Int.Linear.Expr.var 2)))
+        (Eq.refl true)))
+-/
+#guard_msgs (info) in
+#print ex₁
+
+theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f y + 3*z + 1 + 1 + x + f y - z := by
+  simp +arith only
+
+/--
+info: theorem ex₂ : ∀ (x y z : Int) (f : Int → Int), x + f y + 2 + f y + z + z ≤ f y + 3 * z + 1 + 1 + x + f y - z :=
+fun x y z f =>
+  of_eq_true
+    ((fun x_1 =>
+        id
+          (Int.Linear.ExprCnstr.eq_true_of_isValid
+            (Lean.RArray.branch 1 (Lean.RArray.leaf x)
+              (Lean.RArray.branch 2 (Lean.RArray.leaf x_1) (Lean.RArray.leaf z)))
+            (Int.Linear.ExprCnstr.le
+              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
+                        (Int.Linear.Expr.var 1)).add
+                    (Int.Linear.Expr.var 2)).add
+                (Int.Linear.Expr.var 2))
+              (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 2))).add
+                                (Int.Linear.Expr.num 1)).add
+                            (Int.Linear.Expr.num 1)).add
+                        (Int.Linear.Expr.var 0)).add
+                    (Int.Linear.Expr.var 1)).sub
+                (Int.Linear.Expr.var 2)))
+            (Eq.refl true)))
+      (f y))
+-/
+#guard_msgs (info) in
+#print ex₂

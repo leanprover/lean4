@@ -14,14 +14,24 @@ we abstract over them.
 -/
 def withAbstractAtoms (atoms : Array Expr) (type : Name) (k : Array Expr → MetaM (Option (Expr × Expr))) :
     MetaM (Option (Expr × Expr)) := do
-  let atoms := atoms
-  let decls : Array (Name × (Array Expr → MetaM Expr)) ← atoms.mapM fun _ => do
-    return ((← mkFreshUserName `x), fun _ => pure (mkConst type))
-  withLocalDeclsD decls fun ctxt => do
-    let some (r, p) ← k ctxt | return none
-    let r := (← mkLambdaFVars ctxt r).beta atoms
-    let p := mkAppN (← mkLambdaFVars ctxt p) atoms
-    return some (r, p)
+  let type := mkConst type
+  let rec go (i : Nat) (atoms' : Array Expr) (xs : Array Expr) (args : Array Expr) : MetaM (Option (Expr × Expr)) := do
+    if h : i < atoms.size then
+      let atom := atoms[i]
+      if atom.isFVar then
+        go (i+1) (atoms'.push atom) xs args
+      else
+        withLocalDeclD (← mkFreshUserName `x) type fun x =>
+          go (i+1) (atoms'.push x) (xs.push x) (args.push atom)
+    else
+      if xs.isEmpty then
+        k atoms'
+      else
+        let some (r, p) ← k atoms' | return none
+        let r := (← mkLambdaFVars xs r).beta args
+        let p := mkAppN (← mkLambdaFVars xs p) args
+        return some (r, p)
+  go 0 #[] #[] #[]
 
 /-- Quick filter for linear terms. -/
 def isLinearTerm (e : Expr) : Bool :=

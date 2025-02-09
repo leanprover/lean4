@@ -79,44 +79,14 @@ bv_check "proof.lrat"
 -/
 syntax (name := bvCheck) "bv_check " optConfig str : tactic
 
-/--
-Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
-verifying it inside Lean. The solvable goals are currently limited to
-- the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
-- automatically splitting up `structure`s that contain information about `BitVec` or `Bool`
-```lean
-example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
-  intros
-  bv_decide
-```
-
-If `bv_decide` encounters an unknown definition it will be treated like an unconstrained `BitVec`
-variable. Sometimes this enables solving goals despite not understanding the definition because
-the precise properties of the definition do not matter in the specific proof.
-
-If `bv_decide` fails to close a goal it provides a counter-example, containing assignments for all
-terms that were considered as variables.
-
-In order to avoid calling a SAT solver every time, the proof can be cached with `bv_decide?`.
-
-If solving your problem relies inherently on using associativity or commutativity, consider enabling
-the `bv.ac_nf` option.
-
-
-Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
--/
+@[inherit_doc bvDecideMacro]
 syntax (name := bvDecide) "bv_decide" optConfig : tactic
 
 
-/--
-Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
--/
+@[inherit_doc bvTraceMacro]
 syntax (name := bvTrace) "bv_decide?" optConfig : tactic
 
-/--
-Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
-`BitVec` goals already.
--/
+@[inherit_doc bvNormalizeMacro]
 syntax (name := bvNormalize) "bv_normalize" optConfig : tactic
 
 end Tactic

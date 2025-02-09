@@ -30,7 +30,8 @@ def isLinearTerm (e : Expr) : Bool :=
     false
   else
     let n := f.constName!
-    n == ``HAdd.hAdd || n == ``HMul.hMul || n == ``HSub.hSub || n == ``Nat.succ
+    n == ``HAdd.hAdd || n == ``HMul.hMul || n == ``HSub.hSub || n == ``Neg.neg || n == ``Nat.succ
+    || n == ``Add.add || n == ``Mul.mul || n == ``Sub.sub
 
 /-- Quick filter for linear constraints. -/
 partial def isLinearCnstr (e : Expr) : Bool :=

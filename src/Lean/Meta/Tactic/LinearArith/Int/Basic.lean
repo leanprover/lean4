@@ -35,6 +35,7 @@ end Int.Linear
 
 namespace Lean.Meta.Linear.Int
 
+deriving instance Repr for Int.Linear.Poly
 deriving instance Repr for Int.Linear.Expr
 deriving instance Repr for Int.Linear.ExprCnstr
 deriving instance Repr for Int.Linear.PolyCnstr

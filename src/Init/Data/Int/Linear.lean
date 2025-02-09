@@ -25,6 +25,7 @@ inductive Expr where
   | var  (i : Var)
   | add  (a b : Expr)
   | sub  (a b : Expr)
+  | neg (a : Expr)
   | mulL (k : Int) (a : Expr)
   | mulR (a : Expr) (k : Int)
   deriving Inhabited
@@ -32,6 +33,7 @@ inductive Expr where
 def Expr.denote (ctx : Context) : Expr → Int
   | .add a b  => Int.add (denote ctx a) (denote ctx b)
   | .sub a b  => Int.sub (denote ctx a) (denote ctx b)
+  | .neg a    => Int.neg (denote ctx a)
   | .num k    => k
   | .var v    => v.denote ctx
   | .mulL k e => Int.mul k (denote ctx e)
@@ -81,6 +83,7 @@ where
     | .sub a b  => go coeff a ∘ go (-coeff) b
     | .mulL k a
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
+    | .neg a    => go (-coeff) a
 
 def Expr.toPoly (e : Expr) : Poly :=
   e.toPoly'.norm
@@ -137,8 +140,9 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
 attribute [local simp] Poly.denote_norm
 
 private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+private theorem neg_fold (a : Int) : a.neg = -a := rfl
 
-attribute [local simp] sub_fold
+attribute [local simp] sub_fold neg_fold
 attribute [local simp] ExprCnstr.denote ExprCnstr.toPoly PolyCnstr.denote Expr.denote
 
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
@@ -163,6 +167,7 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
       simp at ih
       rw [ih]
       rw [Int.mul_assoc, Int.mul_comm k']
+  | case7 k a ih => simp [toPoly'.go, ih]
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, toPoly', Expr.denote_toPoly'_go]

@@ -78,6 +78,14 @@ simp_lc allow exists_and_right Nat.exists_ne_zero
 simp_lc allow exists_eq_right_right Nat.exists_ne_zero
 simp_lc allow exists_eq_right_right' Nat.exists_ne_zero
 
+-- An obscure interaction?
+example (a b : Nat) (h : 2 ^ (a % b) ∣ b) : a % 2 ^ (a % b) = a % b := by
+  have : a % b % 2 ^ (a % b) = a % b % 2 ^ (a % b) := rfl
+  conv at this => lhs; rw [Nat.mod_mod_of_dvd _ h]
+  conv at this => rhs; rw [Nat.mod_two_pow_self]
+  exact this
+simp_lc allow Nat.mod_mod_of_dvd Nat.mod_two_pow_self
+
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.

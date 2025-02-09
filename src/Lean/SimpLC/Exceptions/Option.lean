@@ -15,14 +15,14 @@ namespace Option
 
 attribute [simp] not_mem_none
 
--- This is a plausible simp lemma, except that its discrimination key `@some _ _.1` is too weak.
-theorem foo {a : { x // x ∈ o }} : some a.val = o := by
-  match o, a with
-  | none, ⟨x, h⟩ => simp at h
-  | some b, ⟨x, h⟩ =>
-    simp only [mem_def, some.injEq] at h
-    simp [h]
-simp_lc allow Option.mem_attach Option.mem_def
+@[simp] theorem elim_map {f : α → β} {o : Option α} {b : γ} {g} :
+    (Option.map f o).elim b g = o.elim b (fun a => g (f a)) := by
+  cases o <;> simp
+
+
+@[simp] theorem pelim_map {f : α → β} {o : Option α} {b : γ} {g} :
+    (Option.map f o).pelim b g = o.pelim b (fun a h => g (f a) (mem_map_of_mem f h)) := by
+  cases o <;> simp
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

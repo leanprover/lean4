@@ -64,6 +64,10 @@ simp_lc allow forall_self_imp forall_apply_eq_imp_iff
 simp_lc allow forall_self_imp forall_eq_apply_imp_iff
 simp_lc allow forall_self_imp forall_apply_eq_imp_iff₂
 
+-- This is a tricky lemma that removes unused functional dependencies.
+-- It causes confluence problems, but is quite useful.
+simp_lc ignore forIn'_eq_forIn
+
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.

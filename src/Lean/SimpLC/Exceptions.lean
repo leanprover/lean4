@@ -45,12 +45,6 @@ namespace Option
 
 attribute [simp] Option.map_attach
 
-@[simp] theorem elim_pmap {p : α → Prop} (f : (a : α) → p a → β) (o : Option α)
-    (H : ∀ (a : α), a ∈ o → p a) (g : γ) (g' : β → γ) :
-    (o.pmap f H).elim g g' =
-       o.pelim g (fun a h => g' (f a (H a h))) := by
-  cases o <;> simp
-
 end Option
 
 namespace Array
@@ -87,11 +81,6 @@ namespace Array
   simp [List.foldr_map]
 
 end Array
-
--- These would become confluent with `List.foldlM_map` as a simp lemma,
--- but that causes other problems (which we should document).
-simp_lc allow List.forIn'_yield_eq_foldlM List.forIn'_cons
-simp_lc allow List.forIn'_cons List.forIn'_yield_eq_foldl
 
 /-
 Check *everything*.

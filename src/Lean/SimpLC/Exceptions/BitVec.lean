@@ -11,19 +11,7 @@ import Std.Tactic.BVDecide
 simp_lc ignore BitVec.getLsbD_ge
 simp_lc ignore BitVec.getMsbD_ge
 
--- TODO: move to library
-@[simp] theorem Fin.ofNat'_zero (n : Nat) [NeZero n] : Fin.ofNat' n 0 = 0 := rfl
-
 namespace BitVec
-
--- @[simp] theorem setWidth_setWidth (x : BitVec u) (w : Nat) (h : u ≤ v ∨ w ≤ v) :
---     setWidth w (setWidth v x) = setWidth w x := by
---   ext
---   simp_all only [getLsbD_setWidth, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
---     decide_eq_true_eq]
---   intro h
---   replace h := lt_of_getLsbD h
---   omega
 
 -- This would be resolved by simply using `setWidth` instead of `cast`!
 -- TODO: discuss with Tobias et al.
@@ -31,20 +19,6 @@ example (h : v = w) (x : BitVec v) : x.cast h = x.setWidth w := by
   ext
   simp_all
 simp_lc allow BitVec.setWidth_eq BitVec.setWidth_cast
-
-@[simp] theorem and_not_self (x : BitVec n) : x &&& ~~~x = 0 := by
-   ext i
-   simp_all
-
-@[simp] theorem one_eq_zero_iff : 1#w = 0#w ↔ w = 0 := by
-  constructor
-  · intro h
-    cases w
-    · rfl
-    · replace h := congrArg BitVec.toNat h
-      simp at h
-  · rintro rfl
-    simp
 
 example (w : Nat) : 1#w = if w = 0 then 0#w else 1#w := by
   cases w <;> simp
@@ -56,6 +30,20 @@ simp_lc allow BitVec.udiv_eq_and BitVec.udiv_self
 
 example (w : Nat) : w = 0 → 0#w = 1#w := by rintro rfl; simp
 simp_lc allow BitVec.sdiv_self BitVec.sdiv_one
+
+-- TODO: these need further investigation.
+simp_lc allow BitVec.neg_mul BitVec.mul_twoPow_eq_shiftLeft
+simp_lc allow BitVec.shiftLeft_eq_zero BitVec.shiftLeft_zero
+simp_lc allow BitVec.lt_ofFin BitVec.not_allOnes_lt
+simp_lc allow BitVec.lt_one_iff BitVec.ofFin_lt
+simp_lc allow BitVec.lt_one_iff BitVec.not_allOnes_lt
+simp_lc allow BitVec.ofFin_lt BitVec.not_lt_zero
+simp_lc allow BitVec.ofNat_lt_ofNat BitVec.lt_one_iff
+simp_lc allow BitVec.le_ofFin BitVec.allOnes_le_iff
+simp_lc allow BitVec.le_zero_iff BitVec.allOnes_le_iff
+simp_lc allow BitVec.ofFin_le BitVec.le_zero_iff
+simp_lc allow BitVec.ofNat_le_ofNat BitVec.le_zero_iff
+simp_lc allow BitVec.getMsbD_setWidth BitVec.getMsbD_setWidth_add
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.

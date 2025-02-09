@@ -25,7 +25,7 @@ simp_lc allow Std.HashSet.Raw.mem_insert Std.HashSet.Raw.mem_insert_self
 simp_lc allow Std.DHashMap.Raw.contains_insert Std.DHashMap.Raw.contains_insert_self
 simp_lc allow Std.HashMap.Raw.contains_insert Std.HashMap.Raw.contains_insert_self
 
--- TODO: I'm similarly confused by these ones,
+-- TODO: I'm confused by these ones,
 -- which I can't seem to construct simp lemmas to resolve.
 simp_lc allow Std.HashSet.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow Std.HashMap.insert_eq_insert LawfulSingleton.insert_emptyc_eq
@@ -34,7 +34,7 @@ simp_lc allow Std.HashSet.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow Std.HashMap.Raw.insert_eq_insert LawfulSingleton.insert_emptyc_eq
 simp_lc allow LawfulSingleton.insert_emptyc_eq Std.DHashMap.Raw.insert_eq_insert
 
--- TODO: these have not been looked at yet
+-- https://github.com/leanprover/lean4/pull/7004 should fix most of there:
 simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_alter_self
 simp_lc allow Std.HashMap.get_eq_getElem Std.HashMap.get_modify_self
 simp_lc allow Std.HashMap.get!_alter_self Std.HashMap.get!_eq_getElem!

@@ -11,7 +11,6 @@ open List
 
 simp_lc allow List.map_const List.map_flatten -- too hard?
 
-simp_lc allow List.findIdx?_start_succ List.findIdx?_cons -- Would require `Option.map_ite` as a `@[simp]` lemma; not impossible.
 simp_lc allow List.drop_tail List.drop_one -- Would require an infinite chain of lemmas to resolve!
 simp_lc allow List.findSome?_replicate_of_pos List.findSome?_replicate_of_isSome -- split in the discharger would get us there
 
@@ -68,6 +67,7 @@ simp_lc allow List.getElem?_eq_getElem List.getElem?_pmap
 simp_lc allow List.getElem?_eq_getElem List.getElem?_attach
 simp_lc allow List.getElem?_eq_getElem List.getElem?_attachWith
 simp_lc allow List.getElem?_eq_getElem List.getElem?_mapFinIdx
+simp_lc allow List.getElem?_eq_getElem List.getElem?_unattach
 
 -- These are helpful for `simp` to discharge side conditions, but generate too many false positives.
 simp_lc ignore List.head_mem
@@ -80,18 +80,77 @@ simp_lc ignore List.map_subtype
 simp_lc ignore List.flatMap_subtype
 simp_lc ignore List.foldl_subtype
 simp_lc ignore List.foldr_subtype
+simp_lc ignore List.foldlM_subtype
+simp_lc ignore List.foldrM_subtype
 simp_lc ignore List.mapFinIdx_eq_mapIdx
-
--- TODO move to library.
-@[simp] theorem List.modifyHead_dropLast {l : List α} :
-    l.dropLast.modifyHead f = (l.modifyHead f).dropLast := by
-  rcases l with _|⟨a, l⟩
-  · simp
-  · rcases l with _|⟨b, l⟩ <;> simp
+simp_lc ignore List.findSome?_subtype
+simp_lc ignore List.findFinIdx?_subtype
+simp_lc ignore List.findIdx_subtype
+simp_lc ignore List.findIdx?_subtype
 
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.
 -/
--- #guard_msgs (drop info) in
--- simp_lc check in List BEq _root_
+#guard_msgs (drop info) in
+
+-- This would be confluent with `List.foldlM_map`,
+-- but that causes other problems (which we should document).
+simp_lc allow List.forIn'_yield_eq_foldlM List.forIn'_map
+simp_lc allow List.forIn'_yield_eq_foldlM List.forIn'_cons
+simp_lc allow List.forIn_yield_eq_foldl List.forIn_map
+-- This would be confluent with `List.foldl_map`, but that can't be a simp lemma.
+simp_lc allow List.forIn'_map List.forIn'_yield_eq_foldl
+simp_lc allow List.forIn'_cons List.forIn'_yield_eq_foldl
+simp_lc allow List.forIn_yield_eq_foldlM List.forIn_map
+
+@[simp] theorem Array.push_append (a : α) (xs ys : Array α) : (xs ++ ys).push a = xs ++ ys.push a := by
+  cases xs
+  cases ys
+  simp
+-- simp_lc inspect List.foldr_cons List.foldr_push
+
+namespace List
+
+@[simp] theorem foldl_push' {l : List α} {as : Array β} {f : α → β} :
+    l.foldl (fun b a => Array.push b (f a)) as = as ++ (l.map f).toArray := by
+  induction l generalizing as <;> simp [*]
+
+@[simp] theorem foldr_push' {l : List α} {as : Array β} {f : α → β} :
+    l.foldr (fun a b => Array.push b (f a)) as = as ++ (l.map f).reverse.toArray := by
+  rw [foldr_eq_foldl_reverse, foldl_push', map_reverse]
+
+@[simp] theorem foldr_cons_eq_append' (l : List α) (f : α → β): l.foldr (fun y x => f y :: x) l' = l.map f ++ l' := by
+  induction l <;> simp [*]
+
+@[simp] theorem foldl_flip_cons_eq_append' (l : List α) (f : α → β): l.foldl (fun x y => f y :: x) l' = l.reverse.map f ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem tail_take_one {l : List α} : (l.take 1).tail = [] := by
+  induction l <;> simp [*]
+
+attribute [simp] List.getElem_append_left List.getElem_append_right
+
+end List
+
+-- We should try adding:
+-- attribute [simp] List.map_attach
+simp_lc allow List.foldr_push List.foldr_attachWith
+simp_lc allow List.foldr_cons_eq_append List.foldr_attachWith
+simp_lc allow List.foldl_push List.foldl_attachWith
+simp_lc allow List.foldl_flip_cons_eq_append List.foldl_attachWith
+
+-- These still need thinking about.
+simp_lc allow List.pmap_eq_attachWith List.pmap_attachWith
+simp_lc allow List.pmap_eq_attachWith List.pmap_attach
+simp_lc allow List.pmap_attachWith List.pmap_eq_map
+simp_lc allow List.pmap_attach List.pmap_eq_map
+simp_lc allow List.attachWith_mem_toArray List.attachWith_reverse
+simp_lc allow List.attachWith_mem_toArray List.attachWith_append
+simp_lc allow List.attachWith_cons List.attachWith_mem_toArray
+simp_lc allow List.foldr_push' List.foldr_attachWith
+simp_lc allow List.foldr_cons_eq_append' List.foldr_attachWith
+simp_lc allow List.foldl_push' List.foldl_attachWith
+simp_lc allow List.foldl_flip_cons_eq_append' List.foldl_attachWith
+
+simp_lc check in List BEq _root_

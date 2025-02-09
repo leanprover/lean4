@@ -2247,4 +2247,7 @@ def mkIntLit (n : Nat) : Expr :=
   let r := mkRawNatLit n
   mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
 
+def reflBoolTrue : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
+
 end Lean

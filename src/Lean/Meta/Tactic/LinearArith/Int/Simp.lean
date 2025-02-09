@@ -25,9 +25,19 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     else
       let c' : LinearCnstr := p.toExprCnstr
       if c != c' then
-        let r ← c'.toArith ctx
-        let p := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c') reflBoolTrue
-        return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
+        match p with
+        | .eq (.add 1 x (.add (-1) y (.num 0))) =>
+          let r := mkIntEq ctx[x]! ctx[y]!
+          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_var) (toContextExpr ctx) (toExpr x) (toExpr y) (toExpr c) reflBoolTrue
+          return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
+        | .eq (.add 1 x (.num k)) =>
+          let r := mkIntEq ctx[x]! (toExpr (-k))
+          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_const) (toContextExpr ctx) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
+          return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
+        | _ =>
+          let r ← c'.toArith ctx
+          let p := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c') reflBoolTrue
+          return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
       else
         return none
 

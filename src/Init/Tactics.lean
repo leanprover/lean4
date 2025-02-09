@@ -1603,8 +1603,14 @@ using `show_term`.
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
 /--
-`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
-accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+`expose_names` renames all inaccessible variables with accessible names, making them available
+for reference in generated tactics. However, this renaming introduces machine-generated names
+that are not fully under user control. `expose_names` is primarily intended as a preamble for
+auto-generated end-game tactic scripts. It is also useful as an alternative to
+`set_option tactic.hygienic false`. If explicit control over renaming is needed in the
+middle of a tactic script, consider using structured tactic scripts with
+`match .. with`, `induction .. with`, or `intro` with explicit user-defined names,
+as well as tactics such as `next`, `case`, and `rename_i`.
 -/
 syntax (name := exposeNames) "expose_names" : tactic
 

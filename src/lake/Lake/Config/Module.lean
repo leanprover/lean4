@@ -123,7 +123,7 @@ def dynlibSuffix := "-1"
   self.name.mangle ""
 
 @[inline] def dynlibFile (self : Module) : FilePath :=
-  self.pkg.nativeLibDir / s!"{self.dynlibName}.{sharedLibExt}"
+  self.pkg.leanLibDir / s!"{self.dynlibName}.{sharedLibExt}"
 
 @[inline] def serverOptions (self : Module) : Array LeanOption :=
   self.lib.serverOptions

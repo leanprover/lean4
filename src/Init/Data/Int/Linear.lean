@@ -42,7 +42,7 @@ def Expr.denote (ctx : Context) : Expr → Int
 inductive Poly where
   | num (k : Int)
   | add (k : Int) (v : Var) (p : Poly)
-  deriving BEq, Repr
+  deriving BEq
 
 def Poly.denote (ctx : Context) (p : Poly) : Int :=
   match p with
@@ -91,7 +91,7 @@ def Expr.toPoly (e : Expr) : Poly :=
 inductive PolyCnstr  where
   | eq (p : Poly)
   | le (p : Poly)
-  deriving BEq, Repr
+  deriving BEq
 
 def PolyCnstr.denote (ctx : Context) : PolyCnstr → Prop
   | .eq p => p.denote ctx = 0
@@ -104,7 +104,7 @@ def PolyCnstr.norm : PolyCnstr → PolyCnstr
 inductive ExprCnstr  where
   | eq (p₁ p₂ : Expr)
   | le (p₁ p₂ : Expr)
-  deriving Inhabited
+  deriving Inhabited, BEq
 
 def ExprCnstr.denote (ctx : Context) : ExprCnstr → Prop
   | .eq e₁ e₂ => e₁.denote ctx = e₂.denote ctx

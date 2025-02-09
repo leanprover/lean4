@@ -104,12 +104,6 @@ def addAsVar (e : Expr) : M LinearExpr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
-private def toInt? (e : Expr) : MetaM (Option Int) := do
-  let_expr OfNat.ofNat _ n i ← e | return none
-  unless (← isInstOfNatInt i) do return none
-  let some n ← evalNat n |>.run | return none
-  return some (Int.ofNat n)
-
 partial def toLinearExpr (e : Expr) : M LinearExpr := do
   match e with
   | .mdata _ e            => toLinearExpr e
@@ -119,14 +113,14 @@ partial def toLinearExpr (e : Expr) : M LinearExpr := do
 where
   visit (e : Expr) : M LinearExpr := do
     let mul (a b : Expr) := do
-      match (← toInt? a) with
+      match (← getIntValue? a) with
       | some k => return .mulL k (← toLinearExpr b)
-      | none => match (← toInt? b) with
+      | none => match (← getIntValue? b) with
         | some k => return .mulR (← toLinearExpr a) k
         | none => addAsVar e
     match_expr e with
-    | OfNat.ofNat _ n i =>
-      if (← isInstOfNatInt i) then toLinearExpr n
+    | OfNat.ofNat _ _ _ =>
+      if let some n ← getIntValue? e then return .num n
       else addAsVar e
     | Int.neg a => return .neg (← toLinearExpr a)
     | Neg.neg _ i a =>
@@ -144,7 +138,7 @@ where
       if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | HSub.hSub _ _ _ i a b =>
-      if (← isInstSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
+      if (← isInstHSubInt i) then return .sub (← toLinearExpr a) (← toLinearExpr b)
       else addAsVar e
     | Int.mul a b => mul a b
     | Mul.mul _ i a b =>
@@ -159,13 +153,22 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
   match_expr e with
   | Eq α a b =>
     let_expr Int ← α | failure
-    return .eq (← toLinearExpr a) (← toLinearExpr b)
+    let a ← toLinearExpr a
+    let b ← toLinearExpr b
+    match a, b with
+    /-
+    We do not want to convert `x = y` into `x + -1*y = 0`.
+    Similarly, we don't want to convert `x = 3` into `x + -3 = 0`.
+    `grind` and other tactics have better support for this kind of equalities.
+    -/
+    | .var _, .var _ | .var _, .num _ | .num _, .var _ => failure
+    | _, _ => return .eq a b
   | Int.le a b =>
     return .le (← toLinearExpr a) (← toLinearExpr b)
   | Int.lt a b =>
     return .le (.add (← toLinearExpr a) (.num 1)) (← toLinearExpr b)
   | LE.le _ i a b =>
-    guard (← isInstLENat i)
+    guard (← isInstLEInt i)
     return .le (← toLinearExpr a) (← toLinearExpr b)
   | LT.lt _ i a b =>
     guard (← isInstLTInt i)

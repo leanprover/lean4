@@ -214,6 +214,20 @@ theorem ExprCnstr.eq_of_toPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPo
   rw [denote_toPoly, denote_toPoly] at h
   assumption
 
+theorem ExprCnstr.eq_of_toPoly_eq_var (ctx : Context) (x y : Var) (c : ExprCnstr) (h : c.toPoly == .eq (.add 1 x (.add (-1) y (.num 0))))
+    : c.denote ctx = (x.denote ctx = y.denote ctx) := by
+  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
+  rw [denote_toPoly] at h
+  rw [h]; simp
+  rw [← Int.sub_eq_add_neg, Int.sub_eq_zero]
+
+theorem ExprCnstr.eq_of_toPoly_eq_const (ctx : Context) (x : Var) (k : Int) (c : ExprCnstr) (h : c.toPoly == .eq (.add 1 x (.num (-k))))
+    : c.denote ctx = (x.denote ctx = k) := by
+  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
+  rw [denote_toPoly] at h
+  rw [h]; simp
+  rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
+
 def PolyCnstr.isUnsat : PolyCnstr → Bool
   | .eq (.num k) => k != 0
   | .eq _ => false

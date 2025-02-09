@@ -17,6 +17,11 @@ example (x₁ x₂ : Int) :
   x₁ + x₂ + 3  :=
   rfl
 
+example (x₁ x₂ : Int) :
+  Poly.denote #R[x₁, x₂] (.add 1 0 (.add 3 1 (.num 4)))
+  =
+  1 * x₁ + ((3 * x₂) + 4) :=
+  rfl
 
 example (x₁ x₂ : Int) :
   Expr.denote #R[x₁, x₂] (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3))

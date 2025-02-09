@@ -56,6 +56,14 @@ simp_lc allow ite_then_decide_self ite_else_decide_self
 -- See https://github.com/leanprover/lean4/pull/5529
 simp_lc allow exists_and_left exists_and_right
 
+-- Can we add:
+theorem forall_true (p : True → Prop) : (∀ h : True, p h) ↔ p True.intro :=
+  ⟨fun h => h .intro, fun h _ => h⟩
+-- Without it we need:
+simp_lc allow forall_self_imp forall_apply_eq_imp_iff
+simp_lc allow forall_self_imp forall_eq_apply_imp_iff
+simp_lc allow forall_self_imp forall_apply_eq_imp_iff₂
+
 /-
 The actual checks happen in `tests/lean/000_simplc.lean`.
 This commented out command remains here for convenience while debugging.

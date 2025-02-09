@@ -148,4 +148,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Nat) id (RArray.leaf (mkNatLit 0))
 
-namespace Lean.Meta.Linear.Nat
+end Lean.Meta.Linear.Nat

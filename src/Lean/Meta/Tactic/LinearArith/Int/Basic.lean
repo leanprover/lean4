@@ -170,4 +170,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
-namespace Lean.Meta.Linear.Nat
+end Lean.Meta.Linear.Int

@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.AC
-import Std.Data.DTreeMap.Internal.Impl.Query
+import Std.Data.DTreeMap.Internal.Queries
 
 /-!
 # Balancing operations

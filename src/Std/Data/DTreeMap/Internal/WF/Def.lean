@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Internal.Impl.Operations
+import Std.Data.DTreeMap.Internal.Operations
 
 /-!
 # Well-formedness predicate on size-bounded trees

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.DTreeMap.Internal.Impl.Def
+import Std.Data.DTreeMap.Internal.Def
 import Std.Classes.Ord
 
 /-!
@@ -20,9 +20,7 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
 
-namespace Std.DTreeMap.Internal
-
-namespace Impl
+namespace Std.DTreeMap.Internal.Impl
 
 /-- The size information stored in the tree. -/
 @[inline]
@@ -220,3 +218,5 @@ variable {β : Type v}
   t.foldl (init := #[]) fun l k v => l.push (k, v)
 
 end Const
+
+end Std.DTreeMap.Internal.Impl

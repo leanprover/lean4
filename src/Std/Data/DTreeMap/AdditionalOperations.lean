@@ -5,7 +5,7 @@ Authors: Paul Reichert
 -/
 prelude
 import Std.Data.DTreeMap.Raw
-import Std.Data.DTreeMap.Internal.WF
+import Std.Data.DTreeMap.Internal.WF.Lemmas
 
 /-!
 # Additional dependent tree map operations

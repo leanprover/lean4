@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.Nat.Compare
-import Std.Data.DTreeMap.Internal.Impl.Balancing
+import Std.Data.DTreeMap.Internal.Balancing
 import Std.Classes.Ord
 
 /-!
@@ -21,9 +21,7 @@ universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
-namespace Std.DTreeMap.Internal
-
-namespace Impl
+namespace Std.DTreeMap.Internal.Impl
 
 open Lean.Parser.Tactic
 
@@ -727,3 +725,5 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
       | some b₁ => some <| mergeFn a b₁ b₂
 
 end Const
+
+end Std.DTreeMap.Internal.Impl

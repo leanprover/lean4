@@ -12,9 +12,15 @@ import Std.Data.Internal.Cut
 import Std.Data.Internal.List.Associative
 
 /-!
-# Low-level lemmas about size-bounded trees
+# Lemmas relating operations on well-formed size-bounded trees to operations on lists
 
-These lemmas
+This file contains lemmas that relate `Impl.toListModel` to the queries and operations on `Impl`.
+The `Impl.Ordered` property, being defined in terms of `Impl.toListModel`, is then shown to be
+preserved by all of the operations.
+
+However, this file does not contain lemmas that relate operations besides `Impl.toListModel` to
+each other or themselves. Such proofs crucially build on top of the lemmas in this file and
+can be found in `Std.Data.Internal.Lemmas`.
 -/
 
 set_option autoImplicit false

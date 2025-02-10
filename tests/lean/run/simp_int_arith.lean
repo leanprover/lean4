@@ -188,3 +188,50 @@ fun x y z f =>
 -/
 #guard_msgs (info) in
 #print ex₂
+
+example (x y : Int) (h : False) : 2*x = x + y := by
+  simp +arith only
+  guard_target = x = y
+  contradiction
+
+example (x y : Int) (h : 2*x + 2*y = 4) : x + y = 2 := by
+  simp +arith only at h
+  guard_hyp h : x + y + -2 = 0
+  simp +arith
+  assumption
+
+example (x y : Int) (h : 6*x + 3*y = 9) : 2*x + y = 3 := by
+  simp +arith only at h
+  guard_hyp h : 2*x + y + -3 = 0
+  simp +arith
+  assumption
+
+example (x y : Int) (h : 2*x - 2*y ≤ 4) : x - y ≤ 2 := by
+  simp +arith only at h
+  guard_hyp h : x + -1*y + -2 ≤ 0
+  simp +arith
+  assumption
+
+example (x y : Int) (h : -6*x + 3*y = -9) : - 2*x = -3 - y := by
+  simp +arith only at h
+  guard_hyp h : -2*x + y + 3 = 0
+  simp +arith
+  assumption
+
+example (x y : Int) (h : 3*x + 6*y = 2) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : 3*x = 1) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : 2*x = 1) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : x + x = 1) : False := by
+  simp +arith only at h
+
+example (x y : Int) (h : x + x + x = 1 + 2*y + x) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : -x - x = 1) : False := by
+  simp +arith only at h

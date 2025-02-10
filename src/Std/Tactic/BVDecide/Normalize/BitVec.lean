@@ -339,5 +339,13 @@ theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) 
   have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
+attribute [bv_normalize] BitVec.extractLsb'_and
+attribute [bv_normalize] BitVec.extractLsb'_xor
+
+@[bv_normalize]
+theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
+    BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
+  cases c <;> simp
+
 end Normalize
 end Std.Tactic.BVDecide

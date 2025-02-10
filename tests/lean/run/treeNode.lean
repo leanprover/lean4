@@ -15,11 +15,6 @@ def treeToList (t : TreeNode) : List String :=
 
 @[simp] theorem treeToList_eq (name : String) (children : List TreeNode) : treeToList (.mkNode name children) = name :: List.flatten (children.map treeToList) := by
   simp [treeToList, Id.run]
-  conv => rhs; rw [← List.singleton_append]
-  generalize [name] = as
-  induction children generalizing as with
-  | nil => simp
-  | cons c cs ih => simp [ih, List.append_assoc]
 
 mutual
   def numNames : TreeNode → Nat

@@ -238,7 +238,12 @@ protected def TaskState.toString : TaskState → String
 
 instance : ToString TaskState := ⟨TaskState.toString⟩
 
-/-- Returns current state of the `Task` in the Lean runtime's task manager. -/
+/--
+Returns current state of the `Task` in the Lean runtime's task manager.
+
+Note that for tasks derived from `Promise`s, `waiting` and `running` should be considered
+equivalent.
+-/
 @[extern "lean_io_get_task_state"] opaque getTaskState : @& Task α → BaseIO TaskState
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/

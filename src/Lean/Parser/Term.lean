@@ -138,7 +138,9 @@ def optSemicolon (p : Parser) : Parser :=
 /-- A specific universe in Lean's infinite hierarchy of universes. -/
 @[builtin_term_parser] def sort := leading_parser
   "Sort" >> optional (checkWsBefore "" >> checkPrec leadPrec >> checkColGt >> levelParser maxPrec)
-/-- The universe of propositions. `Prop ≡ Sort 0`. -/
+/-- The universe of propositions. `Prop ≡ Sort 0`.
+
+Every proposition is propositionally equal to either `True` or `False`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
 /--

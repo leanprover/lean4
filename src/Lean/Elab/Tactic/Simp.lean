@@ -294,6 +294,25 @@ where
               s := s.insert fvarId
       return s
 
+/-- Position for the `[..]` child syntax in the `simp` tactic. -/
+def simpParamsPos := 4
+
+/-- Position for the `only` child syntax in the `simp` tactic. -/
+def simpOnlyPos := 3
+
+def isSimpOnly (stx : TSyntax `tactic) : Bool :=
+  stx.raw.getKind == ``Parser.Tactic.simp && !stx.raw[simpOnlyPos].isNone
+
+def getSimpParams (stx : TSyntax `tactic) : Array Syntax :=
+  stx.raw[simpParamsPos][1].getSepArgs
+
+def setSimpParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `tactic :=
+  if params.isEmpty then
+    ⟨stx.raw.setArg simpParamsPos (mkNullNode)⟩
+  else
+    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
+    ⟨stx.raw.setArg simpParamsPos (mkNullNode paramsStx)⟩
+
 @[inline] def simpOnlyBuiltins : List Name := [``eq_self, ``iff_self]
 
 structure MkSimpContextResult where
@@ -321,7 +340,7 @@ def mkSimpContext (stx : Syntax) (eraseLocal : Bool) (kind := SimpKind.simp)
     if kind == SimpKind.dsimp then
       throwError "'dsimp' tactic does not support 'discharger' option"
   let dischargeWrapper ← mkDischargeWrapper stx[2]
-  let simpOnly := !stx[3].isNone
+  let simpOnly := !stx[simpOnlyPos].isNone
   let simpTheorems ← if simpOnly then
     simpOnlyBuiltins.foldlM (·.addConst ·) ({} : SimpTheorems)
   else
@@ -412,8 +431,7 @@ def mkSimpOnly (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Syntax := do
     args := args ++ (← locals.mapM fun id => `(Parser.Tactic.simpLemma| $(mkIdent id):ident))
   else
     args := args.push (← `(Parser.Tactic.simpStar| *))
-  let argsStx := if args.isEmpty then #[] else #[mkAtom "[", (mkAtom ",").mkSep args, mkAtom "]"]
-  return stx.setArg 4 (mkNullNode argsStx)
+  return setSimpParams stx args
 
 def traceSimpCall (stx : Syntax) (usedSimps : Simp.UsedSimps) : MetaM Unit := do
   logInfoAt stx[0] m!"Try this: {← mkSimpOnly stx usedSimps}"

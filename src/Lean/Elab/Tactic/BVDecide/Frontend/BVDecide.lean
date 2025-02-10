@@ -202,7 +202,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
     MetaM (Except CounterExample UnsatProver.Result) := do
   let bvExpr := reflectionResult.bvExpr
   let entry ←
-    withTraceNode `bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Bitblasting BVLogicalExpr to AIG") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ => bvExpr.bitblast)
   let aigSize := entry.aig.decls.size
@@ -212,7 +212,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
     IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
   let (cnf, map) ←
-    withTraceNode `sat (fun _ => return "Converting AIG to CNF") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Converting AIG to CNF") do
       -- lazyPure to prevent compiler lifting
       IO.lazyPure (fun _ =>
         let (entry, map) := entry.relabelNat'
@@ -221,7 +221,7 @@ def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : Ref
       )
 
   let res ←
-    withTraceNode `sat (fun _ => return "Obtaining external proof certificate") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining external proof certificate") do
       runExternal cnf ctx.solver ctx.lratPath ctx.config.trimProofs ctx.config.timeout ctx.config.binaryProofs
 
   match res with
@@ -264,7 +264,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
     MetaM (Except CounterExample LratCert) := M.run do
   g.withContext do
     let reflectionResult ←
-      withTraceNode `bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
+      withTraceNode `Meta.Tactic.bv (fun _ => return "Reflecting goal into BVLogicalExpr") do
         reflectBV g
     trace[Meta.Tactic.bv] "Reflected bv logical expression: {reflectionResult.bvExpr}"
 
@@ -280,7 +280,7 @@ def closeWithBVReflection (g : MVarId) (unsatProver : UnsatProver) :
 
 def bvUnsat (g : MVarId) (ctx : TacticContext) : MetaM (Except CounterExample LratCert) := M.run do
   let unsatProver : UnsatProver := fun g reflectionResult atomsAssignment => do
-    withTraceNode `bv (fun _ => return "Preparing LRAT reflection term") do
+    withTraceNode `Meta.Tactic.bv (fun _ => return "Preparing LRAT reflection term") do
       lratBitblaster g ctx reflectionResult atomsAssignment
   closeWithBVReflection g unsatProver
 

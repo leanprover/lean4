@@ -48,6 +48,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "runtime/object.h"
 #include "runtime/thread.h"
 #include "runtime/allocprof.h"
+#include "runtime/option_ref.h"
 
 #ifdef _MSC_VER
 #define S_ISDIR(mode) ((mode & _S_IFDIR) != 0)
@@ -1462,6 +1463,20 @@ extern "C" LEAN_EXPORT obj_res lean_runtime_mark_persistent(obj_arg a, obj_arg /
 
 extern "C" LEAN_EXPORT obj_res lean_runtime_forget(obj_arg /* a */, obj_arg /* w */) {
     return io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_option_get_or_block(obj_arg o_opt) {
+    option_ref<object_ref> opt = option_ref<object_ref>(o_opt);
+    if (opt) {
+        return opt.get_val().steal();
+    } else {
+        lean_panic("PANIC: Promise.result!: promise has been dropped without ever being resolved",
+          /* force_stderr */ true);
+        // this is only reachable when using non-fatal panics
+        while (true) {
+            this_thread::sleep_for(std::chrono::seconds::max());
+        }
+    }
 }
 
 void initialize_io() {

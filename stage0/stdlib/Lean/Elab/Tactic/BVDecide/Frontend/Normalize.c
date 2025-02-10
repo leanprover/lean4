@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.BVDecide.Frontend.Normalize
-// Imports: Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+// Imports: Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Simproc Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Rewrite Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AndFlatten Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -23,13 +23,14 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_g
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___closed__1;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__4___closed__3;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__5;
 double lean_float_div(double, double);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__4;
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__4___closed__2;
 extern lean_object* l_Lean_Elab_Tactic_tacticElabAttribute;
-static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5___closed__2;
@@ -46,6 +47,7 @@ extern lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConst
 lean_object* lean_io_get_num_heartbeats(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 extern lean_object* l_Lean_trace_profiler_useHeartbeats;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__3___closed__1;
@@ -68,6 +70,7 @@ lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_p
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__2;
 extern lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_rewriteRulesPass;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Option_get___at_Lean_profiler_threshold_getSecs___spec__1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__4;
@@ -82,9 +85,9 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_g
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipeline(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__7;
 lean_object* lean_io_mono_nanos_now(lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize__1___closed__5;
@@ -110,6 +113,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize__1___closed__1;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize___closed__4;
 double l_Float_ofScientific(lean_object*, uint8_t, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__3;
@@ -117,6 +121,7 @@ static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormali
 static lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__3___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize___closed__2;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___lambda__1___closed__2;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__9;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -126,13 +131,13 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipe
 lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Tactic_evalExact___spec__1___rarg(lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__4;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__4___closed__2;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize__1___closed__6;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4;
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize__1___closed__7;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -146,6 +151,8 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass;
 lean_object* l_Lean_isTracingEnabledFor___at_Lean_Meta_processPostponed_loop___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2;
+lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___elambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize___closed__5;
@@ -153,20 +160,23 @@ LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Norma
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipeline___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_acNormalizePass;
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipeline___closed__2;
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__3(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, uint8_t, double, double, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__1___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_evalBVNormalize__1___closed__4;
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 lean_object* l_Lean_Elab_Tactic_replaceMainGoal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipeline___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_MonadExcept_ofExcept___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_falseOrByContra(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__2___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 double lean_float_sub(double, double);
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1;
+static lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_passPipeline___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
 _start:
 {
@@ -748,7 +758,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNorma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("structures", 10, 10);
+x_1 = lean_mk_string_unchecked("enums", 5, 5);
 return x_1;
 }
 }
@@ -819,7 +829,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormal
 _start:
 {
 uint8_t x_13; 
-x_13 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 5);
+x_13 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 7);
 if (x_13 == 0)
 {
 lean_object* x_14; lean_object* x_15; 
@@ -833,7 +843,7 @@ lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_obje
 lean_inc(x_4);
 x_16 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__5___boxed), 9, 1);
 lean_closure_set(x_16, 0, x_4);
-x_17 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass___elambda__1), 8, 1);
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_enumsPass___elambda__1), 8, 1);
 lean_closure_set(x_17, 0, x_4);
 x_18 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__4___closed__2;
 x_19 = 1;
@@ -932,7 +942,7 @@ static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNorma
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("typeAnalysis", 12, 12);
+x_1 = lean_mk_string_unchecked("structures", 10, 10);
 return x_1;
 }
 }
@@ -999,7 +1009,191 @@ lean_ctor_set(x_15, 1, x_9);
 return x_15;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1() {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+uint8_t x_13; 
+x_13 = lean_ctor_get_uint8(x_2, sizeof(void*)*2 + 5);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_box(0);
+x_15 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6(x_1, x_2, x_3, x_4, x_14, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+return x_15;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; 
+lean_inc(x_4);
+x_16 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___boxed), 9, 1);
+lean_closure_set(x_16, 0, x_4);
+x_17 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_structuresPass___elambda__1), 8, 1);
+lean_closure_set(x_17, 0, x_4);
+x_18 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__4___closed__2;
+x_19 = 1;
+x_20 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__2___closed__3;
+lean_inc(x_11);
+lean_inc(x_10);
+lean_inc(x_9);
+lean_inc(x_8);
+lean_inc(x_7);
+lean_inc(x_6);
+x_21 = l_Lean_withTraceNode___at_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_run___spec__1(x_18, x_16, x_17, x_19, x_20, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+if (lean_obj_tag(x_21) == 0)
+{
+lean_object* x_22; 
+x_22 = lean_ctor_get(x_21, 0);
+lean_inc(x_22);
+if (lean_obj_tag(x_22) == 0)
+{
+uint8_t x_23; 
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_1);
+x_23 = !lean_is_exclusive(x_21);
+if (x_23 == 0)
+{
+lean_object* x_24; 
+x_24 = lean_ctor_get(x_21, 0);
+lean_dec(x_24);
+lean_ctor_set(x_21, 0, x_3);
+return x_21;
+}
+else
+{
+lean_object* x_25; lean_object* x_26; 
+x_25 = lean_ctor_get(x_21, 1);
+lean_inc(x_25);
+lean_dec(x_21);
+x_26 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_26, 0, x_3);
+lean_ctor_set(x_26, 1, x_25);
+return x_26;
+}
+}
+else
+{
+lean_object* x_27; lean_object* x_28; lean_object* x_29; lean_object* x_30; 
+x_27 = lean_ctor_get(x_21, 1);
+lean_inc(x_27);
+lean_dec(x_21);
+x_28 = lean_ctor_get(x_22, 0);
+lean_inc(x_28);
+lean_dec(x_22);
+x_29 = lean_box(0);
+x_30 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6(x_1, x_2, x_3, x_28, x_29, x_6, x_7, x_8, x_9, x_10, x_11, x_27);
+return x_30;
+}
+}
+else
+{
+uint8_t x_31; 
+lean_dec(x_11);
+lean_dec(x_10);
+lean_dec(x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_1);
+x_31 = !lean_is_exclusive(x_21);
+if (x_31 == 0)
+{
+return x_21;
+}
+else
+{
+lean_object* x_32; lean_object* x_33; lean_object* x_34; 
+x_32 = lean_ctor_get(x_21, 0);
+x_33 = lean_ctor_get(x_21, 1);
+lean_inc(x_33);
+lean_inc(x_32);
+lean_dec(x_21);
+x_34 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_34, 0, x_32);
+lean_ctor_set(x_34, 1, x_33);
+return x_34;
+}
+}
+}
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("typeAnalysis", 12, 12);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2;
+x_2 = l_Lean_MessageData_ofName(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__2;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3;
+x_3 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__3___closed__8;
+x_3 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_3, 0, x_1);
+lean_ctor_set(x_3, 1, x_2);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_10 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_10, 0, x_1);
+x_11 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5;
+x_12 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_10);
+x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__2___closed__4;
+x_14 = lean_alloc_ctor(7, 2, 0);
+lean_ctor_set(x_14, 0, x_12);
+lean_ctor_set(x_14, 1, x_13);
+x_15 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_15, 0, x_14);
+lean_ctor_set(x_15, 1, x_9);
+return x_15;
+}
+}
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -1007,7 +1201,7 @@ x_1 = lean_mk_string_unchecked("Init.Data.Option.BasicAux", 25, 25);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2() {
 _start:
 {
 lean_object* x_1; 
@@ -1015,7 +1209,7 @@ x_1 = lean_mk_string_unchecked("Option.get!", 11, 11);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3() {
 _start:
 {
 lean_object* x_1; 
@@ -1023,20 +1217,20 @@ x_1 = lean_mk_string_unchecked("value is none", 13, 13);
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4() {
+static lean_object* _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1;
-x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2;
+x_1 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1;
+x_2 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2;
 x_3 = lean_unsigned_to_nat(16u);
 x_4 = lean_unsigned_to_nat(14u);
-x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3;
+x_5 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; uint8_t x_34; 
@@ -1050,7 +1244,7 @@ if (x_35 == 0)
 lean_object* x_36; lean_object* x_37; 
 x_36 = lean_box(0);
 lean_inc(x_5);
-x_37 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6(x_1, x_5, x_2, x_3, x_36, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_37 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_1, x_5, x_2, x_3, x_36, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_5);
 return x_37;
 }
@@ -1074,7 +1268,7 @@ block_33:
 lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; lean_object* x_18; 
 lean_dec(x_12);
 lean_inc(x_3);
-x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___boxed), 9, 1);
+x_13 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___boxed), 9, 1);
 lean_closure_set(x_13, 0, x_3);
 x_14 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_typeAnalysisPass___elambda__1), 8, 1);
 lean_closure_set(x_14, 0, x_3);
@@ -1099,11 +1293,11 @@ lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean
 x_20 = lean_ctor_get(x_18, 1);
 lean_inc(x_20);
 lean_dec(x_18);
-x_21 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4;
+x_21 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4;
 x_22 = l_panic___at_Lean_Expr_mvarId_x21___spec__1(x_21);
 x_23 = lean_box(0);
 lean_inc(x_5);
-x_24 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6(x_1, x_5, x_2, x_22, x_23, x_5, x_6, x_7, x_8, x_9, x_10, x_20);
+x_24 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_1, x_5, x_2, x_22, x_23, x_5, x_6, x_7, x_8, x_9, x_10, x_20);
 lean_dec(x_5);
 return x_24;
 }
@@ -1118,7 +1312,7 @@ lean_inc(x_26);
 lean_dec(x_19);
 x_27 = lean_box(0);
 lean_inc(x_5);
-x_28 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__6(x_1, x_5, x_2, x_26, x_27, x_5, x_6, x_7, x_8, x_9, x_10, x_25);
+x_28 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_1, x_5, x_2, x_26, x_27, x_5, x_6, x_7, x_8, x_9, x_10, x_25);
 lean_dec(x_5);
 return x_28;
 }
@@ -1270,7 +1464,7 @@ x_23 = lean_ctor_get(x_20, 1);
 lean_inc(x_23);
 lean_dec(x_20);
 x_24 = lean_box(0);
-x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_19, x_9, x_18, x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_23);
+x_25 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_19, x_9, x_18, x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_23);
 return x_25;
 }
 else
@@ -1298,7 +1492,7 @@ lean_inc(x_33);
 x_34 = lean_ctor_get(x_32, 1);
 lean_inc(x_34);
 lean_dec(x_32);
-x_35 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_19, x_9, x_18, x_33, x_2, x_3, x_4, x_5, x_6, x_7, x_34);
+x_35 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_19, x_9, x_18, x_33, x_2, x_3, x_4, x_5, x_6, x_7, x_34);
 lean_dec(x_33);
 return x_35;
 }
@@ -1323,7 +1517,7 @@ lean_inc(x_42);
 x_43 = lean_ctor_get(x_41, 1);
 lean_inc(x_43);
 lean_dec(x_41);
-x_44 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_19, x_9, x_18, x_42, x_2, x_3, x_4, x_5, x_6, x_7, x_43);
+x_44 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_19, x_9, x_18, x_42, x_2, x_3, x_4, x_5, x_6, x_7, x_43);
 lean_dec(x_42);
 return x_44;
 }
@@ -1348,7 +1542,7 @@ x_50 = lean_ctor_get(x_47, 1);
 lean_inc(x_50);
 lean_dec(x_47);
 x_51 = lean_box(0);
-x_52 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_46, x_9, x_45, x_51, x_2, x_3, x_4, x_5, x_6, x_7, x_50);
+x_52 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_46, x_9, x_45, x_51, x_2, x_3, x_4, x_5, x_6, x_7, x_50);
 return x_52;
 }
 else
@@ -1386,7 +1580,7 @@ lean_inc(x_61);
 x_62 = lean_ctor_get(x_60, 1);
 lean_inc(x_62);
 lean_dec(x_60);
-x_63 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_46, x_9, x_45, x_61, x_2, x_3, x_4, x_5, x_6, x_7, x_62);
+x_63 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_46, x_9, x_45, x_61, x_2, x_3, x_4, x_5, x_6, x_7, x_62);
 lean_dec(x_61);
 return x_63;
 }
@@ -1506,11 +1700,36 @@ lean_dec(x_2);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11, lean_object* x_12) {
+_start:
+{
+lean_object* x_13; 
+x_13 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+lean_dec(x_5);
+lean_dec(x_2);
+return x_13;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9) {
+_start:
+{
+lean_object* x_10; 
+x_10 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9);
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_5);
+lean_dec(x_4);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_10;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8, lean_object* x_9, lean_object* x_10, lean_object* x_11) {
 _start:
 {
 lean_object* x_12; 
-x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
+x_12 = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11);
 lean_dec(x_4);
 return x_12;
 }
@@ -3515,6 +3734,7 @@ lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_EmbeddedCon
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AC(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Structures(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_IntToBitVec(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_TypeAnalysis(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize(uint8_t builtin, lean_object* w) {
@@ -3546,6 +3766,9 @@ res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Structures(builtin
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_IntToBitVec(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Enums(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_TypeAnalysis(builtin, lean_io_mk_world());
@@ -3609,14 +3832,24 @@ l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___clos
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__4);
 l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__5 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__5();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__7___closed__5);
-l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__1);
-l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__2);
-l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__3);
-l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4();
-lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__8___closed__4);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__1);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__2);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__3);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__4);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__9___closed__5);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__1);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__2);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__3);
+l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4();
+lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___lambda__10___closed__4);
 l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__1 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__1();
 lean_mark_persistent(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__1);
 l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__2 = _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_bvNormalize_go___closed__2();

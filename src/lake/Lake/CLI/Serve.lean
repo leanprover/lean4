@@ -36,7 +36,7 @@ def setupFile
   if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
-      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
+      IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
       exit 1
     let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do

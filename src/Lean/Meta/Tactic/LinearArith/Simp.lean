@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.LinearArith.Basic
 import Lean.Meta.Tactic.LinearArith.Nat.Simp
+import Lean.Meta.Tactic.LinearArith.Int.Simp
 
 namespace Lean.Meta.Linear
 

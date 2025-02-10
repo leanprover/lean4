@@ -284,16 +284,22 @@ def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
   if Linear.isLinearCnstr e then
-    let some (e', h) ← Linear.Nat.simpCnstr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
+    if let some (e', h) ← Linear.Nat.simpCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Linear.Int.simpCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
   else if Linear.isLinearTerm e then
     if Linear.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    let some (e', h) ← Linear.Nat.simpExpr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Linear.Nat.simpExpr? e then
+      return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Linear.Int.simpExpr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
   else
     return .continue
 

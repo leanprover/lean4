@@ -1471,7 +1471,7 @@ theorem vector₂_induction (P : Vector (Vector α n) m → Prop)
       P (mk (xss.attach.map (fun ⟨xs, m⟩ => mk xs (h₂ xs m))) (by simpa using h₁)))
     (ass : Vector (Vector α n) m) : P ass := by
   specialize of (ass.map toArray).toArray (by simp) (by simp)
-  simpa [Array.map_attach, Array.pmap_map] using of
+  simpa [Array.map_attach_eq_pmap, Array.pmap_map] using of
 
 /--
 Use this as `induction ass using vector₃_induction` on a hypothesis of the form `ass : Vector (Vector (Vector α n) m) k`.
@@ -1489,7 +1489,7 @@ theorem vector₃_induction (P : Vector (Vector (Vector α n) m) k → Prop)
           mk x (h₃ xs m x m'))) (by simpa using h₂ xs m))) (by simpa using h₁)))
     (ass : Vector (Vector (Vector α n) m) k) : P ass := by
   specialize of (ass.map (fun as => (as.map toArray).toArray)).toArray (by simp) (by simp) (by simp)
-  simpa [Array.map_attach, Array.pmap_map] using of
+  simpa [Array.map_attach_eq_pmap, Array.pmap_map] using of
 
 /-! ### singleton -/
 
@@ -1800,7 +1800,7 @@ theorem flatten_flatten {L : Vector (Vector (Vector α n) m) k} :
   induction L using vector₃_induction with
   | of xss h₁ h₂ h₃ =>
     -- simp [Array.flatten_flatten] -- FIXME: `simp` produces a bad proof here!
-    simp [Array.map_attach, Array.flatten_flatten, Array.map_pmap]
+    simp [Array.map_attach_eq_pmap, Array.flatten_flatten, Array.map_pmap]
 
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :

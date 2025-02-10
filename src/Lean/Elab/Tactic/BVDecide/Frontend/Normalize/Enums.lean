@@ -31,6 +31,7 @@ private def getBitVecSize (domainSize : Nat) : Nat :=
 
 def enumToBitVecSuffix : String := "enumToBitVec"
 def eqIffEnumToBitVecEqSuffix : String := "eq_iff_enumToBitVec_eq"
+def enumToBitVecLeSuffix : String := "enumToBitVec_le"
 
 /--
 Assuming that `declName` is an enum inductive construct a function of type `declName → BitVec w`
@@ -53,12 +54,11 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
       withLocalDeclD `x declType fun x => do
         let motive := mkLambda .anonymous .default declType bvType
         let recOn := mkApp2 (mkConst (mkRecOnName declName) [1]) motive x
-        let numbers :=
+        let translator :=
           Nat.fold
             domainSize
-            (init := #[])
-            (fun i _ acc => acc.push <| toExpr <| BitVec.ofNat bvSize i)
-        let translator := mkAppN recOn numbers
+            (init := recOn)
+            (fun i _ acc => mkApp acc <| toExpr <| BitVec.ofNat bvSize i)
         mkLambdaFVars #[x] translator
     addDecl <| .defnDecl {
       name := enumToBitVecName
@@ -71,7 +71,8 @@ def getEnumToBitVecFor (declName : Name) : MetaM Name := do
     return enumToBitVecName
 
 /--
-Generate a proof of `∀ (x y : declName) : x = y ↔ x.enumToBitVec = y.enumToBitVec`.
+Assuming that `declName` is an enum inductive, construct a proof of
+`∀ (x y : declName) : x = y ↔ x.enumToBitVec = y.enumToBitVec`.
 -/
 def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
   let env ← getEnv
@@ -121,10 +122,11 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
             let motiveType := mkApp3 (mkConst ``Eq [1]) declType (toBvToEnum (.bvar 0)) (.bvar 0)
             let motive := mkLambda `y .default declType motiveType
             let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
-            let args :=
-              ctors.map fun ctor =>
-                mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
-            mkLambdaFVars #[x] <| mkAppN recOn args.toArray
+            let folder acc ctor :=
+              let case := mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
+              mkApp acc case
+            let proof := List.foldl (init := recOn) folder ctors 
+            mkLambdaFVars #[x] proof
 
         let value :=
           mkApp5
@@ -160,10 +162,62 @@ where
       let acc := mkApp4 (mkConst ``cond [0]) retType eq (mkConst ctor) acc
       mkInverse input retType instBEq ctors (counter + 1) acc
 
+/--
+Assuming that `declName` is an enum inductive, construct a proof of
+`∀ (x : declName) : x.enumToBitVec ≤ domainSize - 1` where `domainSize` is the amount of
+constructors of `declName`.
+-/
+def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
+  let env ← getEnv
+  let enumToBitVecLeName := Name.str declName enumToBitVecLeSuffix
+  if env.contains enumToBitVecLeName then
+    return enumToBitVecLeName
+  else
+    let enumToBitVec := mkConst (← getEnumToBitVecFor declName)
+    let .inductInfo inductiveInfo ← getConstInfo declName | unreachable!
+    let ctors := inductiveInfo.ctors
+    let domainSize := ctors.length
+    let bvSize := getBitVecSize domainSize
+    let bvType := mkApp (mkConst ``BitVec) (toExpr bvSize)
+    let declType := mkConst declName
+    let maxValue := toExpr (BitVec.ofNat bvSize (domainSize - 1))
+
+    let instLe ← synthInstance (mkApp (mkConst ``LE [0]) bvType)
+    let mkStatement e := mkApp4 (mkConst ``LE.le [0]) bvType instLe (mkApp enumToBitVec e) maxValue
+    -- ∀ (x : declName), enumToBitVec x ≤ BitVec.ofNat bvSize (domainSize - 1)
+    let (type, motive) ←
+      withLocalDeclD `x declType fun x => do
+        let statement := mkStatement x
+        return (← mkForallFVars #[x] statement, ← mkLambdaFVars #[x] statement)
+
+    let value ←
+      withLocalDeclD `x declType fun x => do
+        let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
+        let folder acc ctor := do
+          let statement := mkStatement (mkConst ctor)
+          let decidable ← synthInstance (mkApp (mkConst ``Decidable) statement)
+          let decideEqTrue :=
+            mkApp2
+              (mkConst ``Eq.refl [1])
+              (mkConst ``Bool)
+              (mkApp2 (mkConst ``decide) statement decidable)
+          return mkApp acc <| mkApp3 (mkConst ``of_decide_eq_true) statement decidable decideEqTrue
+        let cases ← List.foldlM (init := recOn) folder ctors
+        mkLambdaFVars #[x] cases
+
+    addDecl <| .thmDecl {
+      name := enumToBitVecLeName
+      levelParams := []
+      type := type
+      value := value
+    }
+    return enumToBitVecLeName
+
+
 builtin_initialize
   registerReservedNamePredicate fun _ name => Id.run do
     let .str _ s := name | return false
-    s == enumToBitVecSuffix || s == eqIffEnumToBitVecEqSuffix
+    s == enumToBitVecSuffix || s == eqIffEnumToBitVecEqSuffix || s == enumToBitVecLeSuffix
 
 builtin_initialize
   registerReservedNameAction fun name => do
@@ -174,6 +228,9 @@ builtin_initialize
       return true
     else if s == eqIffEnumToBitVecEqSuffix then
       discard <| MetaM.run' (getEqIffEnumToBitVecEqFor p)
+      return true
+    else if s == enumToBitVecLeSuffix then
+      discard <| MetaM.run' (getEnumToBitVecLeFor p)
       return true
     else
       return false
@@ -227,7 +284,33 @@ partial def enumsPass : Pass where
             (simprocs := simprocs)
             (fvarIdsToSimp := ← getPropHyps)
       let some (_, newGoal) := result? | return none
-      return newGoal
+      postprocess newGoal |>.run' {}
+where
+  postprocess (goal : MVarId) : StateRefT (Array Hypothesis) MetaM MVarId :=
+    goal.withContext do
+      let filter e :=
+        if let .app (.const (.str _ s) []) _ := e then
+          s == enumToBitVecSuffix
+        else
+          false
+
+      let processor e := do
+        let .app (.const (.str enumType _) []) val := e | unreachable!
+        let lemma := mkConst (← getEnumToBitVecLeFor enumType)
+        let value := mkApp lemma val
+        let type ← inferType value
+        let hyp := { userName := .anonymous, type, value }
+        modify fun s => s.push hyp
+
+      for hyp in ← getPropHyps do
+        (← hyp.getType).forEachWhere (stopWhenVisited := true) filter processor
+
+      let hyps ← get
+      if hyps.isEmpty then
+        return goal
+      else
+        let (_, goal) ← goal.assertHypotheses hyps
+        return goal
 
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

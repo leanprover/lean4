@@ -30,12 +30,17 @@ info: _root_.Ex1.State.eq_iff_enumToBitVec_eq (x y : State) : x = y ↔ x.enumTo
 #guard_msgs in
 #check State.eq_iff_enumToBitVec_eq
 
+/-- info: _root_.Ex1.State.enumToBitVec_le (x : State) : x.enumToBitVec ≤ 15#4 -/
+#guard_msgs in
+#check State.enumToBitVec_le
+
 structure Pair where
   x : BitVec 16
   s : State
 
 -- large inductive
 example (a b c : Pair) (h1 : a = b) (h2 : b.x < c.x) (h3 : b.s = c.s) : a.s = c.s ∧ a.x < c.x := by
+  bv_normalize
   bv_decide
 
 end Ex1
@@ -55,23 +60,17 @@ structure Pair where
 example (a : Pair) (h : a.x > 0) : a.s = .s2 := by
   bv_decide
 
--- TODO: handling counter examples nicely
-example (a : Pair) (h : a.x > 0) : a.s = .s1 := by
-  bv_decide
-
 end Ex2
 
 namespace Ex3
 
+-- adding ≤ domainSize - 1 hypothesis
 
 inductive State where
   | s1
   | s2
   | s3
 
--- TODO:
--- requires addition of:
--- have : State.enumToBitVec s ≤ 2 := sorry
 example (s : State) (h : s ≠ .s1 ∧ s ≠ .s2 ∧ s ≠ .s3) : False := by
   bv_decide
 

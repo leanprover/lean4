@@ -52,7 +52,19 @@ theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 
   · rw [Int.emod_eq_of_lt (by simp only [ofNat_eq_coe]; omega) (by omega)]; omega
   · rw [Int.emod_eq_add_self_emod, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
+theorem mul_le_mul_self {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x ≤ s) (lby : -s ≤ y) (uby : y < s) :
+    x * y ≤ s * s := by
+  have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
+  by_cases hx : 0 < x <;> by_cases hy : 0 < y
+  · exact Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+  · have : x * y ≤ 0 := Int.mul_nonpos_of_nonneg_of_nonpos (by omega) (by omega); omega
+  · have : x * y ≤ 0 := Int.mul_nonpos_of_nonpos_of_nonneg (by omega) (by omega); omega
+  · have : -x * -y ≤ s * s := Int.mul_le_mul (by omega) (by omega) (by omega) (by omega)
+    simp only [gt_iff_lt, Int.mul_neg, Int.neg_mul, Int.neg_neg] at this
+    omega
+
+
+theorem mul_le_mul_self' {x y : Int} {s : Nat} (lbx : -s ≤ x) (ubx : x < s) (lby : -s ≤ y) (uby : y < s) :
     x * y ≤ s * s := by
   have := Nat.mul_pos (n := s) (m := s) (by omega) (by omega)
   by_cases hx : 0 < x <;> by_cases hy : 0 < y

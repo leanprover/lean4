@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_IO_Channel_close___rarg(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
 lean_object* l_Std_Queue_enqueue___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_Sync_recv_x3f(lean_object*);
-lean_object* lean_io_promise_result(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Channel_0__IO_Channel_Sync_forIn(lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_Queue_empty(lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_Sync_recv_x3f___rarg(lean_object*, lean_object*);
@@ -77,6 +76,7 @@ LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_send___spec__1(lean
 LEAN_EXPORT lean_object* l_IO_Mutex_atomically___at_IO_Channel_recv_x3f___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Channel_recvAllCurrent___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_instForInSyncOfMonadLiftTBaseIO(lean_object*, lean_object*);
+lean_object* l_IO_Promise_result_x21___rarg(lean_object*);
 static lean_object* l_IO_Channel_instInhabitedState___closed__1;
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at_IO_Channel_close___spec__1___rarg(lean_object*, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -1471,7 +1471,8 @@ if (x_14 == 0)
 lean_object* x_15; lean_object* x_16; 
 x_15 = lean_ctor_get(x_13, 0);
 lean_dec(x_15);
-x_16 = lean_io_promise_result(x_10);
+x_16 = l_IO_Promise_result_x21___rarg(x_10);
+lean_dec(x_10);
 lean_ctor_set(x_13, 0, x_16);
 return x_13;
 }
@@ -1481,7 +1482,8 @@ lean_object* x_17; lean_object* x_18; lean_object* x_19;
 x_17 = lean_ctor_get(x_13, 1);
 lean_inc(x_17);
 lean_dec(x_13);
-x_18 = lean_io_promise_result(x_10);
+x_18 = l_IO_Promise_result_x21___rarg(x_10);
+lean_dec(x_10);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_17);
@@ -1731,7 +1733,8 @@ if (lean_is_exclusive(x_67)) {
  lean_dec_ref(x_67);
  x_69 = lean_box(0);
 }
-x_70 = lean_io_promise_result(x_63);
+x_70 = l_IO_Promise_result_x21___rarg(x_63);
+lean_dec(x_63);
 if (lean_is_scalar(x_69)) {
  x_71 = lean_alloc_ctor(0, 2, 0);
 } else {

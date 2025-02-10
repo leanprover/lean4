@@ -1063,10 +1063,21 @@ extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned
     }
 }
 
+// We don't use `time_task` here as it's outside runtime/, and we wouldn't have access to `options`
+// anyway
+LEAN_EXPORT void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds) = nullptr;
+
 extern "C" LEAN_EXPORT b_obj_res lean_task_get(b_obj_arg t) {
     if (object * v = lean_to_task(t)->m_value)
         return v;
-    g_task_manager->wait_for(lean_to_task(t));
+    if (g_lean_report_task_get_blocked_time) {
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        g_task_manager->wait_for(lean_to_task(t));
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        g_lean_report_task_get_blocked_time(std::chrono::nanoseconds(end - start));
+    } else {
+        g_task_manager->wait_for(lean_to_task(t));
+    }
     lean_assert(lean_to_task(t)->m_value != nullptr);
     object * r = lean_to_task(t)->m_value;
     return r;

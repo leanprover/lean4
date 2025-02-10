@@ -5,6 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Classes.Ord
+import Std.Data.Internal.List.Associative
 
 /-!
 # The `Cell` type
@@ -18,6 +19,9 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
+open Std.Internal.List
+
+attribute [local instance] beqOfOrd
 
 /--
 Type for representing the place in a tree map where a mapping for `k` could live.
@@ -73,6 +77,13 @@ theorem contains_ofEq [Ord α] {k : α → Ordering} {k' : α} {v' : β k'} {h} 
 
 @[simp]
 theorem contains_empty [Ord α] {k : α → Ordering} : (Cell.empty : Cell α β k).contains = false := rfl
+
+theorem containsKey_inner_toList [Ord α] [OrientedOrd α] {k : α} {c : Cell α β (compare k)} :
+    c.contains → containsKey k c.inner.toList := by
+  obtain ⟨(_|p), hp⟩ := c
+  · simp [Cell.contains]
+  · simp only [Cell.contains, Option.isSome_some, Option.toList_some, forall_const]
+    exact containsKey_cons_of_beq (by simpa [beq_eq] using (OrientedCmp.eq_symm (hp p rfl)))
 
 /-- Internal implementation detail of the tree map -/
 def get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} (c : Cell α β (compare k)) : Option (β k) :=

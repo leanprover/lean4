@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Init.Data.Option
+import Init.Data.Option.List
 import Init.Data.Array.Bootstrap
 import Std.Classes.Ord
 import Std.Data.DTreeMap.Internal.Model
@@ -328,9 +328,6 @@ theorem toListModel_eq_append [Ord α] [TransOrd α] (k : α → Ordering) [IsSt
       simp
   · simp
 
-theorem Option.pairwise_toList {P : α → α → Prop} {o : Option α} : o.toList.Pairwise P := by
-  cases o <;> simp
-
 theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
     {f : Cell α β (compare k) → Cell α β (compare k)}
     {l : Impl α β} (hlb : l.Balanced) (hlo : l.Ordered) : (l.updateCell k f hlb).impl.Ordered := by
@@ -487,13 +484,6 @@ theorem containsKey_toListModel [Ord α] [OrientedOrd α] {k : α} {l : Impl α 
     · exact ⟨⟨k', v'⟩, by simp, OrientedCmp.eq_symm hcmp⟩
   · simp [contains'] at h
 
-theorem Cell.containsKey_inner_toList [Ord α] [OrientedOrd α] {k : α} {c : Cell α β (compare k)} :
-    c.contains → containsKey k c.inner.toList := by
-  obtain ⟨(_|p), hp⟩ := c
-  · simp [Cell.contains]
-  · simp only [Cell.contains, Option.isSome_some, Option.toList_some, forall_const]
-    exact containsKey_cons_of_beq (by simpa using (OrientedCmp.eq_symm (hp p rfl)))
-
 theorem applyPartition_eq_apply_toListModel [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered)
     {f : List ((a : α) × β a) → (c : Cell α β (compare k)) → (l.contains' (compare k) → c.contains) → List ((a : α) × β a) → δ}
     (g : (ll : List ((a : α) × β a)) → (l.contains' (compare k) → containsKey k ll) → δ)
@@ -528,8 +518,8 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] {k : α} {l : Impl
     (g : (ll : List ((a : α) × β a)) → (l.contains' (compare k) → containsKey k ll) → δ)
     (hfg : ∀ c hc, f c hc = g c.inner.toList (Cell.containsKey_inner_toList ∘ hc))
     (hg₁ : ∀ l₁ l₂ h, DistinctKeys l₁ → (hP : List.Perm l₁ l₂) → g l₁ h = g l₂ (containsKey_of_perm hP ▸ h))
-    (hg : ∀ l₁ l₂ h, (h' : containsKey k l₂ = false) → g (l₁ ++ l₂) h = g l₁ (by simpa [h'] using h))
-    : applyCell k l f = g l.toListModel containsKey_toListModel := by
+    (hg : ∀ l₁ l₂ h, (h' : containsKey k l₂ = false) → g (l₁ ++ l₂) h = g l₁ (by simpa [h'] using h)) :
+    applyCell k l f = g l.toListModel containsKey_toListModel := by
   rw [applyCell_eq_applyPartition, applyPartition_eq_apply_toListModel hlo]
   intro ll rr c h₁ hd hll hrr
   have hperm : List.Perm (ll ++ c.inner.toList ++ rr) (c.inner.toList ++ (ll ++ rr)) := by
@@ -546,10 +536,6 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] {k : α} {l : Impl
 /-!
 ## Verification of access operations
 -/
-
-@[simp]
-theorem Option.head?_toList {o : Option α} : o.toList.head? = o := by
-  cases o <;> simp
 
 /-!
 ### `isEmpty`

@@ -47,12 +47,16 @@ def applyPartition [Ord α] (k : α → Ordering) (l : Impl α β)
 where
   go (ll : List ((a : α) × β a)) (m : Impl α β) (hm : l.contains' k → m.contains' k) (rr : List ((a : α) × β a)) : δ :=
   match m with
-  | .leaf => f ll .empty (by simp [contains'] at hm; simp [hm]) rr
+  | .leaf => f ll .empty (by simp_all [contains']) rr
   | .inner _ k' v' l r =>
     match h : k k' with
-    | .lt => go ll l (fun hc => have := hm hc; by rw [← this, contains']; simp_all) (⟨k', v'⟩ :: r.toListModel ++ rr)
+    | .lt =>
+      go ll l (fun hc => have := hm hc; by rw [← this, contains']; simp_all)
+        (⟨k', v'⟩ :: r.toListModel ++ rr)
     | .eq => f (ll ++ l.toListModel) (.ofEq k' v' h) (by simp) (r.toListModel ++ rr)
-    | .gt => go (ll ++ l.toListModel ++ [⟨k', v'⟩]) r (fun hc => have := hm hc; by rw [← this, contains']; simp_all) rr
+    | .gt =>
+      go (ll ++ l.toListModel ++ [⟨k', v'⟩]) r
+        (fun hc => have := hm hc; by rw [← this, contains']; simp_all) rr
 
 /-- Internal implementation detail of the tree map -/
 def applyCell [Ord α] (k : α) (l : Impl α β)
@@ -424,26 +428,26 @@ theorem containsThenInsert!_eq_insertₘ [Ord α] (t : Impl α β) (htb : t.Bala
 
 theorem insertIfNew_eq_insertIfNew! [Ord α] {k : α} {v : β k} {l : Impl α β} {h} :
     (insertIfNew k v l h).impl = insertIfNew! k v l := by
-  simp [insertIfNew, insertIfNew!]
+  simp only [insertIfNew, insertIfNew!]
   split
   · rfl
   · simp [insert_eq_insert!]
 
 theorem fst_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).1 = (t.containsThenInsertIfNew a b htb).1 := by
-  simp [containsThenInsertIfNew, containsThenInsertIfNew!]
+  simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split <;> rfl
 
 theorem snd_containsThenInsertIfNew!_eq_containsThenInsertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
     (t.containsThenInsertIfNew! a b).2 = (t.containsThenInsertIfNew a b htb).2.impl := by
-  simp [containsThenInsertIfNew, containsThenInsertIfNew!]
+  simp only [containsThenInsertIfNew!, containsThenInsertIfNew]
   split
   · rfl
   · simp [insert!_eq_insertₘ, insert_eq_insertₘ, htb]
 
 theorem fst_containsThenInsertIfNew_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (a : α) (b : β a) : (t.containsThenInsertIfNew a b htb).1 = t.containsₘ a := by
-  simp [containsThenInsertIfNew, contains_eq_containsₘ]
+  simp only [containsThenInsertIfNew, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
 theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (htb : t.Balanced) (a : α) (b : β a) :
@@ -453,7 +457,7 @@ theorem snd_containsThenInsertIfNew_eq_insertIfNew [Ord α] (t : Impl α β) (ht
 
 theorem fst_containsThenInsertIfNew!_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β)
     (a : α) (b : β a) : (t.containsThenInsertIfNew! a b).1 = t.containsₘ a := by
-  simp [containsThenInsertIfNew!, contains_eq_containsₘ]
+  simp only [containsThenInsertIfNew!, contains_eq_containsₘ]
   split <;> next h => simp only [h]
 
 theorem snd_containsThenInsertIfNew!_eq_insertIfNew! [Ord α] (t : Impl α β) (a : α) (b : β a) :

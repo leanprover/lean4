@@ -541,7 +541,7 @@ theorem applyCell_eq_apply_toListModel [Ord α] [TransOrd α] {k : α} {l : Impl
 ### `isEmpty`
 -/
 
-theorem apply_isEmpty {t : Impl α β} :
+theorem isEmpty_eq_isEmpty {t : Impl α β} :
     t.isEmpty = t.toListModel.isEmpty := by
   cases t <;> simp [isEmpty]
 
@@ -549,7 +549,7 @@ theorem apply_isEmpty {t : Impl α β} :
 ### `size`
 -/
 
-theorem apply_size (t : Impl α β) (htb : t.Balanced) : t.size = t.toListModel.length := by
+theorem size_eq_length (t : Impl α β) (htb : t.Balanced) : t.size = t.toListModel.length := by
   induction t <;> simp [Impl.size]
   rename_i ihl ihr
   cases htb
@@ -562,7 +562,7 @@ theorem apply_size (t : Impl α β) (htb : t.Balanced) : t.size = t.toListModel.
 ### `contains`
 -/
 
-theorem apply_containsₘ [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
+theorem containsₘ_eq_containsKey [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
     l.containsₘ k = containsKey k l.toListModel := by
   rw [containsₘ, applyCell_eq_apply_toListModel hlo (fun l _ => containsKey k l)]
   · rintro ⟨(_|p), hp⟩ -
@@ -573,15 +573,15 @@ theorem apply_containsₘ [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo 
   · exact fun l₁ l₂ h a hP => containsKey_of_perm hP
   · exact fun l₁ l₂ h h' => containsKey_append_of_not_contains_right h'
 
-theorem apply_contains [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
+theorem contains_eq_containsKey [Ord α] [TransOrd α] {k : α} {l : Impl α β} (hlo : l.Ordered) :
     l.contains k = containsKey k l.toListModel := by
-  rw [contains_eq_containsₘ, apply_containsₘ hlo]
+  rw [contains_eq_containsₘ, containsₘ_eq_containsKey hlo]
 
 /-!
 ''' `get?`
 -/
 
-theorem apply_get?ₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (hto : t.Ordered) :
+theorem get?ₘ_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (hto : t.Ordered) :
     t.get?ₘ k = getValueCast? k t.toListModel := by
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValueCast? k l)]
   · rintro ⟨(_|p), hp⟩ -
@@ -592,9 +592,9 @@ theorem apply_get?ₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl
   · exact fun l₁ l₂ h => getValueCast?_of_perm
   · exact fun l₁ l₂ h => getValueCast?_append_of_containsKey_eq_false
 
-theorem apply_get? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (hto : t.Ordered) :
+theorem get?_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (hto : t.Ordered) :
     t.get? k = getValueCast? k t.toListModel := by
-  rw [get?_eq_get?ₘ, apply_get?ₘ hto]
+  rw [get?_eq_get?ₘ, get?ₘ_eq_getValueCast? hto]
 
 namespace Const
 
@@ -604,7 +604,7 @@ variable {β : Type v}
 ''' `get?`
 -/
 
-theorem apply_get?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
+theorem get?ₘ_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
     get?ₘ k t = getValue? k t.toListModel := by
   rw [get?ₘ, applyCell_eq_apply_toListModel hto (fun l _ => getValue? k l)]
   · rintro ⟨(_|p), hp⟩ -
@@ -615,9 +615,9 @@ theorem apply_get?ₘ [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)
   · exact fun l₁ l₂ h => getValue?_of_perm
   · exact fun l₁ l₂ h => getValue?_append_of_containsKey_eq_false
 
-theorem apply_get? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
+theorem get?_eq_getValue? [Ord α] [TransOrd α] {k : α} {t : Impl α (fun _ => β)} (hto : t.Ordered) :
     get? k t = getValue? k t.toListModel := by
-  rw [get?_eq_get?ₘ, apply_get?ₘ hto]
+  rw [get?_eq_get?ₘ, get?ₘ_eq_getValue? hto]
 
 end Const
 
@@ -739,9 +739,9 @@ theorem containsThenInsertSize_eq_size [Ord α] (t : Impl α β) :
 theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).1 = t.containsₘ a := by
-  simp [containsThenInsert, containsThenInsertSize_eq_size, apply_size, htb, SizedBalancedTree.balanced_impl _,
-    toListModel_insert htb ho |>.length_eq, length_insertEntry]
-  simp [apply_containsₘ ho]
+  simp [containsThenInsert, containsThenInsertSize_eq_size, size_eq_length, htb,
+    SizedBalancedTree.balanced_impl _, toListModel_insert htb ho |>.length_eq, length_insertEntry]
+  simp [containsₘ_eq_containsKey ho]
   split <;> simp_all
 
 theorem ordered_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
@@ -780,7 +780,7 @@ theorem ordered_insertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl
 theorem toListModel_insertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (hlb : l.Balanced) (hlo : l.Ordered) :
     (l.insertIfNew k v hlb).impl.toListModel.Perm (insertEntryIfNew k v l.toListModel) := by
-  simp only [Impl.insertIfNew, insertEntryIfNew, cond_eq_if, apply_contains hlo]
+  simp only [Impl.insertIfNew, insertEntryIfNew, cond_eq_if, contains_eq_containsKey hlo]
   split
   · rfl
   · refine (toListModel_insert hlb hlo).trans ?_

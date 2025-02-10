@@ -161,7 +161,7 @@ foldlM f x₀ [a, b, c] = do
 ```
 -/
 @[specialize]
-protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a

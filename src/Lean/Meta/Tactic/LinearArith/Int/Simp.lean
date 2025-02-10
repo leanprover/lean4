@@ -11,32 +11,32 @@ namespace Lean.Meta.Linear.Int
 
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
-  withAbstractAtoms atoms ``Int fun ctx => do
-    let lhs ← c.toArith ctx
+  withAbstractAtoms atoms ``Int fun atoms => do
+    let lhs ← c.toArith atoms
     let p := c.toPoly
     if p.isUnsat then
       let r := mkConst ``False
-      let p := mkApp3 (mkConst ``Int.Linear.ExprCnstr.eq_false_of_isUnsat) (toContextExpr ctx) (toExpr c) reflBoolTrue
+      let p := mkApp3 (mkConst ``Int.Linear.ExprCnstr.eq_false_of_isUnsat) (toContextExpr atoms) (toExpr c) reflBoolTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else if p.isValid then
       let r := mkConst ``True
-      let p := mkApp3 (mkConst ``Int.Linear.ExprCnstr.eq_true_of_isValid) (toContextExpr ctx) (toExpr c) reflBoolTrue
+      let p := mkApp3 (mkConst ``Int.Linear.ExprCnstr.eq_true_of_isValid) (toContextExpr atoms) (toExpr c) reflBoolTrue
       return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
     else
       let c' : LinearCnstr := p.toExprCnstr
       if c != c' then
         match p with
         | .eq (.add 1 x (.add (-1) y (.num 0))) =>
-          let r := mkIntEq ctx[x]! ctx[y]!
-          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_var) (toContextExpr ctx) (toExpr x) (toExpr y) (toExpr c) reflBoolTrue
+          let r := mkIntEq atoms[x]! atoms[y]!
+          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_var) (toContextExpr atoms) (toExpr x) (toExpr y) (toExpr c) reflBoolTrue
           return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
         | .eq (.add 1 x (.num k)) =>
-          let r := mkIntEq ctx[x]! (toExpr (-k))
-          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_const) (toContextExpr ctx) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
+          let r := mkIntEq atoms[x]! (toExpr (-k))
+          let p := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_const) (toContextExpr atoms) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
           return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
         | _ =>
-          let r ← c'.toArith ctx
-          let p := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr ctx) (toExpr c) (toExpr c') reflBoolTrue
+          let r ← c'.toArith atoms
+          let p := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr atoms) (toExpr c) (toExpr c') reflBoolTrue
           return some (r, ← mkExpectedTypeHint p (← mkEq lhs r))
       else
         return none

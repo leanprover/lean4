@@ -690,5 +690,5 @@ def evalOmega : Tactic
   | _ => throwUnsupportedSyntax
 
 builtin_initialize bvOmegaSimpExtension : SimpExtension ←
-  registerSimpAttr `bv_toNat
+  registerSimpAttr `bitvec_to_nat
     "simp lemmas converting `BitVec` goals to `Nat` goals, for the `bv_omega` preprocessor"

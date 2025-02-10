@@ -375,7 +375,7 @@ end choice
 @[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
 
-theorem or_eq_right {o o' : Option α} (h : o = none) : o.or o' = o' := by
+theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
   cases h; simp
 
 @[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl

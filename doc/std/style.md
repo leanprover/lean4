@@ -424,6 +424,8 @@ Prefer highly automated tactics (like `grind` and `omega`) over low-level proofs
 
 ## `do` notation
 
+The `do` keyword goes on the same line as the corresponding `:=` (or `=>`, or similar). `Id.run do` should be treated as if it was a bare `do`.
+
 Use early `return` statements to reduce nesting depth and make the non-exceptional control flow of a function easier to see.
 
 Alternatives for `let` matches may be placed in the same line or in the next line, indented by two spaces. If the term that is
@@ -453,5 +455,26 @@ def getFunDecl (fvarId : FVarId) : CompilerM FunDecl := do
       fvarId
     | throwError "unknown local function {fvarId.name}"
   return decl
+```
+
+Correct:
+```lean
+def tagUntaggedGoals (parentTag : Name) (newSuffix : Name) (newGoals : List MVarId) : TacticM Unit := do
+  let mctx ← getMCtx
+  let mut numAnonymous := 0
+  for g in newGoals do
+    if mctx.isAnonymousMVar g then
+      numAnonymous := numAnonymous + 1
+  modifyMCtx fun mctx => Id.run do
+    let mut mctx := mctx
+    let mut idx  := 1
+    for g in newGoals do
+      if mctx.isAnonymousMVar g then
+        if numAnonymous == 1 then
+          mctx := mctx.setMVarUserName g parentTag
+        else
+          mctx := mctx.setMVarUserName g (parentTag ++ newSuffix.appendIndexAfter idx)
+        idx := idx + 1
+    pure mctx
 ```
 

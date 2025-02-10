@@ -138,15 +138,15 @@ lean_inc(x_9);
 lean_dec(x_8);
 x_10 = lean_ctor_get(x_3, 2);
 lean_inc(x_10);
-x_11 = l_Lean_LocalContext_getFVarIds(x_10);
+x_11 = lean_box(0);
+x_12 = l_Lean_LocalContext_getFVarIds(x_10);
 lean_dec(x_10);
-x_12 = lean_box(0);
-x_13 = lean_array_size(x_11);
+x_13 = lean_array_size(x_12);
 x_14 = 0;
 x_15 = l_Lean_MVarId_revertAll___lambda__1___closed__1;
 lean_inc(x_3);
-x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_MVarId_revertAll___spec__1(x_11, x_12, x_11, x_13, x_14, x_15, x_3, x_4, x_5, x_6, x_9);
-lean_dec(x_11);
+x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_MVarId_revertAll___spec__1(x_11, x_12, x_12, x_13, x_14, x_15, x_3, x_4, x_5, x_6, x_9);
+lean_dec(x_12);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; uint8_t x_19; lean_object* x_20; lean_object* x_21; uint8_t x_22; lean_object* x_23; 

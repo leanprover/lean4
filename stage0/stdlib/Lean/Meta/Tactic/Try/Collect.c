@@ -9987,15 +9987,15 @@ lean_dec(x_12);
 x_21 = lean_ctor_get(x_13, 0);
 lean_inc(x_21);
 lean_dec(x_13);
-x_22 = lean_ctor_get(x_1, 1);
-x_23 = lean_box(0);
+x_22 = lean_box(0);
+x_23 = lean_ctor_get(x_1, 1);
 x_24 = lean_box(0);
 x_25 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_25, 0, x_24);
 lean_ctor_set(x_25, 1, x_21);
-x_26 = lean_array_size(x_22);
+x_26 = lean_array_size(x_23);
 x_27 = 0;
-x_28 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Try_Collector_main_go___spec__5(x_22, x_23, x_24, x_22, x_26, x_27, x_25, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
+x_28 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Try_Collector_main_go___spec__5(x_22, x_23, x_24, x_23, x_26, x_27, x_25, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_20);
 if (lean_obj_tag(x_28) == 0)
 {
 lean_object* x_29; lean_object* x_30; 

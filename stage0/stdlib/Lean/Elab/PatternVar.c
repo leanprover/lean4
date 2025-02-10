@@ -6991,8 +6991,8 @@ return x_8;
 else
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_array_fget(x_3, x_9);
-x_15 = lean_array_fget(x_4, x_9);
+x_14 = lean_array_fget(x_4, x_9);
+x_15 = lean_array_fget(x_5, x_9);
 x_16 = l_Lean_Syntax_structEq(x_14, x_15);
 if (x_16 == 0)
 {
@@ -7089,8 +7089,10 @@ lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_5);
 lean_ctor_set(x_12, 2, x_11);
 x_13 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___closed__1;
-x_14 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___spec__1(x_2, x_3, x_4, x_6, x_12, x_13, x_12, x_13, x_1, lean_box(0), lean_box(0));
+lean_inc(x_1);
+x_14 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___spec__1(x_1, x_2, x_3, x_4, x_6, x_13, x_12, x_13, x_1, lean_box(0), lean_box(0));
 lean_dec(x_12);
+lean_dec(x_1);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);

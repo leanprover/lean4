@@ -2376,17 +2376,17 @@ lean_dec(x_8);
 x_11 = lean_ctor_get(x_9, 0);
 lean_inc(x_11);
 lean_dec(x_9);
+x_12 = lean_box(0);
 lean_inc(x_1);
 lean_inc(x_11);
-x_12 = l_Lean_getStructureParentInfo(x_11, x_1);
-x_13 = lean_box(0);
-x_14 = lean_array_size(x_12);
+x_13 = l_Lean_getStructureParentInfo(x_11, x_1);
+x_14 = lean_array_size(x_13);
 x_15 = 0;
 x_16 = l___private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin___closed__1;
 lean_inc(x_11);
 lean_inc(x_2);
-x_17 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin___spec__1(x_2, x_11, x_12, x_13, x_16, x_12, x_14, x_15, x_16, x_3, x_4, x_5, x_6, x_10);
-lean_dec(x_12);
+x_17 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Elab_Print_0__Lean_Elab_Command_getFieldOrigin___spec__1(x_2, x_11, x_12, x_13, x_16, x_13, x_14, x_15, x_16, x_3, x_4, x_5, x_6, x_10);
+lean_dec(x_13);
 if (lean_obj_tag(x_17) == 0)
 {
 lean_object* x_18; lean_object* x_19; 

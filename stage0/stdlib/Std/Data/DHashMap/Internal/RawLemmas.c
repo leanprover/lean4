@@ -6552,7 +6552,7 @@ lean_inc(x_16);
 lean_dec(x_14);
 x_17 = lean_box(0);
 x_18 = lean_array_size(x_15);
-x_19 = l_Array_forIn_x27Unsafe_loop___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__8(x_1, x_13, x_15, x_17, x_15, x_18, x_3, x_8, x_9, x_16);
+x_19 = l_Array_forIn_x27Unsafe_loop___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__8(x_2, x_13, x_15, x_17, x_15, x_18, x_3, x_8, x_9, x_16);
 lean_dec(x_15);
 x_20 = lean_ctor_get(x_19, 0);
 lean_inc(x_20);
@@ -7077,19 +7077,19 @@ return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; size_t x_16; lean_object* x_17; 
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; size_t x_16; lean_object* x_17; 
 x_10 = lean_ctor_get(x_1, 0);
-x_11 = l_Lean_Syntax_TSepArray_getElems___rarg(x_10);
-x_12 = lean_array_get_size(x_11);
-x_13 = lean_unsigned_to_nat(0u);
-x_14 = lean_nat_dec_lt(x_13, x_12);
-x_15 = lean_box(0);
+x_11 = lean_box(0);
+x_12 = l_Lean_Syntax_TSepArray_getElems___rarg(x_10);
+x_13 = lean_array_get_size(x_12);
+x_14 = lean_unsigned_to_nat(0u);
+x_15 = lean_nat_dec_lt(x_14, x_13);
 x_16 = 0;
-if (x_14 == 0)
+if (x_15 == 0)
 {
 lean_object* x_26; 
+lean_dec(x_13);
 lean_dec(x_12);
-lean_dec(x_11);
 x_26 = l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__6;
 x_17 = x_26;
 goto block_25;
@@ -7097,12 +7097,12 @@ goto block_25;
 else
 {
 uint8_t x_27; 
-x_27 = lean_nat_dec_le(x_12, x_12);
+x_27 = lean_nat_dec_le(x_13, x_13);
 if (x_27 == 0)
 {
 lean_object* x_28; 
+lean_dec(x_13);
 lean_dec(x_12);
-lean_dec(x_11);
 x_28 = l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__6;
 x_17 = x_28;
 goto block_25;
@@ -7110,11 +7110,11 @@ goto block_25;
 else
 {
 size_t x_29; lean_object* x_30; lean_object* x_31; 
-x_29 = lean_usize_of_nat(x_12);
-lean_dec(x_12);
+x_29 = lean_usize_of_nat(x_13);
+lean_dec(x_13);
 x_30 = l_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticEmpty__1___closed__6;
-x_31 = l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__10(x_11, x_16, x_29, x_30);
-lean_dec(x_11);
+x_31 = l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__10(x_12, x_16, x_29, x_30);
+lean_dec(x_12);
 x_17 = x_31;
 goto block_25;
 }
@@ -7125,7 +7125,7 @@ size_t x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_objec
 x_18 = lean_array_size(x_17);
 x_19 = l_Array_foldlMUnsafe_fold___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__10___closed__1;
 lean_inc(x_4);
-x_20 = l_Array_forIn_x27Unsafe_loop___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__9(x_6, x_15, x_16, x_17, x_17, x_18, x_16, x_19, x_4, x_5);
+x_20 = l_Array_forIn_x27Unsafe_loop___at_Std_DHashMap_Internal_Raw_u2080___aux__Std__Data__DHashMap__Internal__RawLemmas______macroRules__Std__DHashMap__Internal__Raw_u2080__tacticSimp__to__model_x5b___x5dUsing____1___spec__9(x_11, x_6, x_16, x_17, x_17, x_18, x_16, x_19, x_4, x_5);
 lean_dec(x_17);
 x_21 = lean_ctor_get(x_20, 0);
 lean_inc(x_21);

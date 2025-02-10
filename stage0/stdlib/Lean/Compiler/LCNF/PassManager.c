@@ -1119,7 +1119,7 @@ x_5 = lean_box(0);
 x_6 = lean_array_size(x_1);
 x_7 = 0;
 x_8 = 0;
-x_9 = l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1(x_1, x_5, x_1, x_6, x_7, x_8, x_2, x_3, x_4);
+x_9 = l_Array_forIn_x27Unsafe_loop___at_Lean_Compiler_LCNF_PassManager_validate___spec__1(x_5, x_1, x_1, x_6, x_7, x_8, x_2, x_3, x_4);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 

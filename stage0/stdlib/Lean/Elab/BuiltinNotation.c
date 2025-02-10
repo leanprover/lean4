@@ -2551,7 +2551,7 @@ return x_17;
 else
 {
 lean_object* x_18; lean_object* x_19; 
-x_18 = lean_array_fget(x_1, x_5);
+x_18 = lean_array_fget(x_2, x_5);
 lean_inc(x_10);
 x_19 = l_Lean_Meta_getFVarLocalDecl(x_18, x_10, x_11, x_12, x_13, x_14);
 lean_dec(x_18);
@@ -2782,7 +2782,6 @@ _start:
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_11 = lean_ctor_get(x_1, 3);
 lean_inc(x_11);
-lean_dec(x_1);
 x_12 = lean_array_get_size(x_2);
 x_13 = lean_unsigned_to_nat(1u);
 lean_inc(x_11);
@@ -2791,8 +2790,9 @@ lean_ctor_set(x_14, 0, x_11);
 lean_ctor_set(x_14, 1, x_12);
 lean_ctor_set(x_14, 2, x_13);
 x_15 = lean_unsigned_to_nat(0u);
-x_16 = l_Std_Range_forIn_x27_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3(x_2, x_14, x_14, x_15, x_11, lean_box(0), lean_box(0), x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+x_16 = l_Std_Range_forIn_x27_loop___at_Lean_Elab_Term_elabAnonymousCtor___spec__3(x_1, x_2, x_14, x_15, x_11, lean_box(0), lean_box(0), x_4, x_5, x_6, x_7, x_8, x_9, x_10);
 lean_dec(x_14);
+lean_dec(x_1);
 if (lean_obj_tag(x_16) == 0)
 {
 uint8_t x_17; 

@@ -34,7 +34,7 @@ def enumToBitVecLeSuffix : String := "enumToBitVec_le"
 
 /--
 Assuming that `declName` is an enum inductive construct a function of type `declName → BitVec w`
-that maps `declName` constructors to there numeric indices as `BitVec`.
+that maps `declName` constructors to their numeric indices as `BitVec`.
 -/
 def getEnumToBitVecFor (declName : Name) : MetaM Name := do
   let env ← getEnv
@@ -116,10 +116,12 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
     let value ←
       withLetDecl `inverse (← mkArrow bvType declType) inverseValue fun inv => do
         let invProof ←
-          withLocalDeclD `x declType fun x =>
+          withLocalDeclD `x declType fun x => do
             let toBvToEnum e := mkApp inv (mkApp enumToBitVec e)
-            let motiveType := mkApp3 (mkConst ``Eq [1]) declType (toBvToEnum (.bvar 0)) (.bvar 0)
-            let motive := mkLambda `y .default declType motiveType
+            let motive ←
+              withLocalDeclD `y declType fun y =>
+                mkLambdaFVars #[y] <| mkApp3 (mkConst ``Eq [1]) declType (toBvToEnum y) y
+
             let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
             let folder acc ctor :=
               let case := mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
@@ -180,9 +182,9 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
     let bvType := mkApp (mkConst ``BitVec) (toExpr bvSize)
     let declType := mkConst declName
     let maxValue := toExpr (BitVec.ofNat bvSize (domainSize - 1))
-
     let instLe ← synthInstance (mkApp (mkConst ``LE [0]) bvType)
     let mkStatement e := mkApp4 (mkConst ``LE.le [0]) bvType instLe (mkApp enumToBitVec e) maxValue
+
     -- ∀ (x : declName), enumToBitVec x ≤ BitVec.ofNat bvSize (domainSize - 1)
     let (type, motive) ←
       withLocalDeclD `x declType fun x => do

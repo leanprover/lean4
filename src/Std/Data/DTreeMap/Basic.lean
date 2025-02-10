@@ -179,7 +179,7 @@ def get? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
 /--
-Given a proof that a mapping for the given key is present, returns the value associated .
+Given a proof that a mapping for the given key is present, returns the value associated.
 
 Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 -/

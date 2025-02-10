@@ -37,12 +37,10 @@ def map (f : α → β → γ) (t : Raw α β cmp) : Raw α γ cmp :=
 
 end Raw
 
-variable {γ : Type w} in
 @[inline, inherit_doc DTreeMap.filterMap]
 def filterMap (f : (a : α) → β → Option γ) (m : TreeMap α β cmp) : TreeMap α γ cmp :=
   ⟨m.inner.filterMap f⟩
 
-variable {γ : Type w} in
 @[inline, inherit_doc DTreeMap.map]
 def map (f : α → β → γ) (t : TreeMap α β cmp) : TreeMap α γ cmp :=
   ⟨t.inner.map f⟩

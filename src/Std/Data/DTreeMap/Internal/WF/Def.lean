@@ -26,8 +26,10 @@ namespace Std.DTreeMap.Internal
 
 namespace Impl
 
-/-- Flattens a tree into a list of key-value pairs. This function is defined for verification
-purposes and should not be executed because it is very inefficient. -/
+/--
+Flattens a tree into a list of key-value pairs. This function is defined for verification
+purposes and should not be executed because it is very inefficient.
+-/
 def toListModel : Impl α β → List ((a : α) × β a)
   | .leaf => []
   | .inner _ k v l r => l.toListModel ++ ⟨k, v⟩ :: r.toListModel
@@ -59,8 +61,10 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   /-- `mergeWith` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | constMergeBy {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith f t₁ t₂ h).impl
 
-/-- A well-formed tree is balanced. This is needed here already because we need to know that the
-tree is balanced to call the optimized modification functions. -/
+/--
+A well-formed tree is balanced. This is needed here already because we need to know that the
+tree is balanced to call the optimized modification functions.
+-/
 theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
   cases h <;> (try apply SizedBalancedTree.balanced_impl) <;> try apply BalancedTree.balanced_impl
   case wf htb hto => exact htb

@@ -1309,7 +1309,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains [EquivBEq α] [LawfulHashab
   simp_to_model [Const.insertManyIfNewUnit] using List.getKey?_insertListIfNewUnit_of_contains
 
 theorem getKey_insertManyIfNewUnit_list_of_contains [EquivBEq α] [LawfulHashable α]
-    (h : m.1.WF) {l : List α} {k : α} {h'} (contains : m.contains k):
+    (h : m.1.WF) {l : List α} {k : α} {h'} (contains : m.contains k) :
     getKey (insertManyIfNewUnit m l).1 k h' = getKey m k contains := by
   simp_to_model [Const.insertManyIfNewUnit] using List.getKey_insertListIfNewUnit_of_contains
 

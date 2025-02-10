@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Basic
+import Std.Data.DTreeMap.Raw
 import Std.Data.DTreeMap.Internal.WF
 
 /-!

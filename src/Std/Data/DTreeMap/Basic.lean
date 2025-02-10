@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.DTreeMap.Raw
+import Std.Data.DTreeMap.Internal.Impl
 
 /-!
 # Dependent tree maps
@@ -68,7 +68,11 @@ structure DTreeMap (α : Type u) (β : α → Type v) (cmp : α → α → Order
 namespace DTreeMap
 open Internal (Impl)
 
-@[inline, inherit_doc Raw.empty]
+/--
+Creates a new empty tree map. It is also possible to
+use the empty collection notations `∅` and `{}` to create an empty tree map.
+-/
+@[inline]
 def empty : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Internal.Impl.empty, .empty⟩
 
@@ -78,7 +82,11 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
 
-@[inline, inherit_doc Raw.insert]
+/--
+Inserts the given mapping into the map. If there is already a mapping for the given key, then both
+key and value will be replaced.
+-/
+@[inline]
 def insert (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insert a b t.wf.balanced).impl, .insert t.wf⟩
 
@@ -91,24 +99,52 @@ instance : Insert ((a : α) × β a) (DTreeMap α β cmp) where
 instance : LawfulSingleton ((a : α) × β a) (DTreeMap α β cmp) where
   insert_emptyc_eq _ := rfl
 
-@[inline, inherit_doc Raw.insertIfNew]
+/--
+If there is no mapping for the given key, inserts the given mapping into the map. Otherwise,
+returns the map unaltered.
+-/
+@[inline]
 def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insertIfNew a b t.wf.balanced).impl, t.wf.insertIfNew⟩
 
-@[inline, inherit_doc Raw.containsThenInsert]
+/--
+Checks whether a key is present in a map and inserts a value for the key if it was not found.
+
+If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
+the returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
+@[inline]
 def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsert a b t.wf.balanced
   (p.1, ⟨p.2.impl, t.wf.containsThenInsert⟩)
 
-@[inline, inherit_doc Raw.containsThenInsertIfNew]
+/--
+Checks whether a key is present in a map and inserts a value for the key if it was not found.
+
+If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
+the returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+-/
+@[inline]
 def containsThenInsertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) :
     Bool × DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsertIfNew a b t.wf.balanced
   (p.1, ⟨p.2.impl, t.wf.containsThenInsertIfNew⟩)
 
-@[inline, inherit_doc Raw.contains]
+/--
+Returns `true` if there is a mapping for the given key `a` or a key that is equal to `a` according
+to the comparator `cmp`. There is also a `Prop`-valued version
+of this: `a ∈ t` is equivalent to `t.contains a = true`.
+
+Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` uses
+`==` for equality checks, while for tree maps, both use the given comparator `cmp`.
+-/
+@[inline]
 def contains (t : DTreeMap α β cmp) (a : α) : Bool :=
   letI : Ord α := ⟨cmp⟩; t.inner.contains a
 
@@ -118,31 +154,54 @@ instance : Membership α (DTreeMap α β cmp) where
 instance {m : DTreeMap α β cmp} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs <| Decidable (m.contains a)
 
-@[inline, inherit_doc Raw.size]
+/-- Returns the number of mappings present in the map. -/
+@[inline]
 def size (t : DTreeMap α β cmp) : Nat :=
   t.inner.size
 
-@[inline, inherit_doc Raw.isEmpty]
+/-- Returns `true` if the tree map contains no mappings. -/
+@[inline]
 def isEmpty (t : DTreeMap α β cmp) : Bool :=
   t.inner.isEmpty
 
-@[inline, inherit_doc Raw.erase]
+/-- Removes the mapping for the given key if it exists. -/
+@[inline]
 def erase (t : DTreeMap α β cmp) (a : α) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨(t.inner.erase a t.wf.balanced).impl, .erase t.wf⟩
 
-@[inline, inherit_doc Raw.get?]
+/--
+Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
 def get? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
-@[inline, inherit_doc Raw.get]
+/--
+Given a proof that a mapping for the given key is present, returns the value associated .
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
 def get [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
 
-@[inline, inherit_doc Raw.get!]
+/--
+Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
 def get! [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) [Inhabited (β a)]  : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get! a
 
-@[inline, inherit_doc Raw.getD]
+/--
+Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
 def getD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
@@ -151,19 +210,31 @@ open Internal (Impl)
 
 variable {β : Type v}
 
-@[inline, inherit_doc Raw.Const.get?]
+/--
+Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.
+-/
+@[inline]
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
 
-@[inline, inherit_doc Raw.Const.get]
+/--
+Given a proof that a mapping for the given key is present, returns the value associated .
+-/
+@[inline]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
 
-@[inline, inherit_doc Raw.Const.get!]
+/--
+Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
+-/
+@[inline]
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
 
-@[inline, inherit_doc Raw.Const.getD]
+/--
+Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
+-/
+@[inline]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
 
@@ -172,23 +243,32 @@ end Const
 universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
-@[inline, inherit_doc Raw.filter]
+/-- Removes all mappings of the map for which the given function returns `false`. -/
+@[inline]
 def filter (f : (a : α) → β a → Bool) (t : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.filter f t.wf.balanced |>.impl, t.wf.filter⟩
 
-@[inline, inherit_doc Raw.foldlM]
+/--
+Folds the given monadic function over the mappings in the map in ascending order.
+-/
+@[inline]
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldlM f init
 
-@[inline, inherit_doc Raw.foldl]
+/--
+Folds the given function over the mappings in the map in ascending order.
+-/
+@[inline]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldl f init
 
-@[inline, inherit_doc Raw.forM]
+/-- Carries out a monadic action on each mapping in the tree map in ascending order. -/
+@[inline]
 def forM (f : (a : α) → β a → m PUnit) (t : DTreeMap α β cmp) : m PUnit :=
   t.inner.forM f
 
-@[inline, inherit_doc Raw.forIn]
+/-- Support for the `for` loop construct in `do` blocks. Iteration happens in ascending order. -/
+@[inline]
 def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.forIn (fun c a b => f a b c) init
 
@@ -198,53 +278,66 @@ instance : ForM m (DTreeMap α β cmp) ((a : α) × β a) where
 instance : ForIn m (DTreeMap α β cmp) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-@[inline, inherit_doc Raw.any]
+/-- Check if any element satisfes the predicate, short-circuiting if a predicate fails. -/
+@[inline]
 def any (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
   for ⟨a, b⟩ in t do
     if p a b then return true
   return false
 
-@[inline, inherit_doc Raw.all]
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline]
 def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.run $ do
   for ⟨a, b⟩ in t do
     if p a b = false then return false
   return true
 
-@[inline, inherit_doc Raw.keys]
+/-- Returns a list of all keys present in the tree map in some order. -/
+@[inline]
 def keys (t : DTreeMap α β cmp) : List α :=
   t.inner.keys
 
-@[inline, inherit_doc Raw.keysArray]
+/-- Returns an array of all keys present in the tree map in some order. -/
+@[inline]
 def keysArray (t : DTreeMap α β cmp) : Array α :=
   t.inner.keysArray
 
-@[inline, inherit_doc Raw.toList]
+/-- Transforms the tree map into a list of mappings in ascending order. -/
+@[inline]
 def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
   t.inner.toList
 
-@[inline, inherit_doc Raw.ofList]
+/-- Transforms a list of mappings into a tree map. -/
+@[inline]
 def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofList l |>.impl, Impl.WF.ofList⟩
 
-@[inline, inherit_doc Raw.ofList, deprecated ofList (since := "2025-02-06")]
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-06")]
 def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   ofList l cmp
 
-@[inline, inherit_doc Raw.toArray]
+/-- Transforms the tree map into a list of mappings in ascending order. -/
+@[inline]
 def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
 
-@[inline, inherit_doc Raw.ofArray]
+/-- Transforms an array of mappings into a tree map. -/
+@[inline]
 def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofArray l |>.impl, Impl.WF.ofArray⟩
 
-@[inline, inherit_doc Raw.ofArray, deprecated ofArray (since := "2025-02-06")]
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-06")]
 def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc Raw.mergeBy]
+/--
+Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
+same key `k` with respect to `cmp`, the provided function is used to determine the new value from
+the respective values in `t₁` and `t₂`.
+-/
+@[inline]
 def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeBy mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeBy⟩
 
@@ -252,39 +345,42 @@ namespace Const
 
 variable {β : Type v}
 
-@[inline, inherit_doc Raw.Const.toList]
+@[inline, inherit_doc DTreeMap.toList]
 def toList (t : DTreeMap α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
-@[inline, inherit_doc Raw.Const.ofList]
+@[inline, inherit_doc DTreeMap.ofList]
 def ofList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofList l |>.impl, Impl.WF.constOfList⟩
 
-@[inline, inherit_doc Raw.Const.ofList, deprecated ofList (since := "2025-02-06")]
+@[inline, inherit_doc DTreeMap.ofList, deprecated ofList (since := "2025-02-06")]
 def fromList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   ofList l cmp
 
-@[inline, inherit_doc Raw.Const.toArray]
+@[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
 
-@[inline, inherit_doc Raw.Const.ofArray]
+@[inline, inherit_doc DTreeMap.ofArray]
 def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl, Impl.WF.constOfArray⟩
 
-@[inline, inherit_doc Raw.Const.ofArray, deprecated ofArray (since := "2025-02-06")]
+@[inline, inherit_doc DTreeMap.ofArray, deprecated ofArray (since := "2025-02-06")]
 def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc Raw.Const.mergeBy]
+@[inline, inherit_doc DTreeMap.mergeBy]
 def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩;
   ⟨Impl.Const.mergeBy mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeBy⟩
 
 end Const
 
-@[inline, inherit_doc Raw.eraseMany]
+/--
+Erases multiple mappings from the tree map by iterating over the given collection and calling erase.
+-/
+@[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
 

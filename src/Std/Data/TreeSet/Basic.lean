@@ -5,7 +5,6 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.TreeMap.Basic
-import Std.Data.TreeSet.Raw
 
 /-!
 # Tree sets
@@ -62,7 +61,11 @@ structure TreeSet (α : Type u) (cmp : α → α → Ordering) where
 
 namespace TreeSet
 
-@[inline, inherit_doc Raw.empty]
+/--
+Creates a new empty tree set. It is also possible to
+use the empty collection notations `∅` and `{}` to create an empty tree set.
+-/
+@[inline]
 def empty : TreeSet α cmp :=
   ⟨TreeMap.empty⟩
 
@@ -72,7 +75,15 @@ instance : EmptyCollection (TreeSet α cmp) where
 instance : Inhabited (TreeSet α cmp) where
   default := ∅
 
-@[inline, inherit_doc Raw.insert]
+/--
+Inserts the given element into the set. If the tree set already contains an element that is
+equal (with regard to `cmp`) to the given element, then the tree set is returned unchanged.
+
+Note: this non-replacement behavior is true for `TreeSet` and `TreeSet.Raw`.
+The `insert` function on `TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw` behaves
+differently: it will overwrite an existing mapping.
+-/
+@[inline]
 def insert (l : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨l.inner.insertIfNew a ()⟩
 
@@ -85,13 +96,28 @@ instance : Insert α (TreeSet α cmp) where
 instance : LawfulSingleton α (TreeSet α cmp) where
   insert_emptyc_eq _ := rfl
 
-@[inline, inherit_doc Raw.containsThenInsert]
+/--
+Checks whether an element is present in a set and inserts the element if it was not found.
+If the tree set already contains an element that is equal (with regard to `cmp` to the given
+element, then the tree set is returned unchanged.
+
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
+-/
+@[inline]
 def containsThenInsert (t : TreeSet α cmp) (a : α) : Bool × TreeSet α cmp :=
   letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsertIfNew a ()
   (p.1, ⟨p.2⟩)
 
-@[inline, inherit_doc Raw.contains]
+/--
+Returns `true` if `a`, or an element equal to `a` according to the comparator `cmp`, is contained
+in the set. There is also a `Prop`-valued version of this: `a ∈ t` is equivalent to
+`t.contains a = true`.
+
+Observe that this is different behavior than for lists: for lists, `∈` uses `=` and `contains` uses
+`==` for equality checks, while for tree sets, both use the given comparator `cmp`.
+-/
+@[inline]
 def contains (l : TreeSet α cmp) (a : α) : Bool :=
   l.inner.contains a
 
@@ -101,38 +127,52 @@ instance : Membership α (TreeSet α cmp) where
 instance {m : TreeSet α cmp} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs <| Decidable (m.contains a)
 
-@[inline, inherit_doc Raw.size]
+/-- Returns the number of mappings present in the map. -/
+@[inline]
 def size (t : TreeSet α cmp) : Nat :=
   t.inner.size
 
-@[inline, inherit_doc Raw.isEmpty]
+/-- Returns `true` if the tree set contains no mappings. -/
+@[inline]
 def isEmpty (t : TreeSet α cmp) : Bool :=
   t.inner.isEmpty
 
-@[inline, inherit_doc Raw.erase]
+/-- Removes the given key if it exists. -/
+@[inline]
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
 universe w w₂
 variable  {γ δ: Type w} {m : Type w → Type w₂} [Monad m]
 
-@[inline, inherit_doc Raw.filter]
+/-- Removes all elements from the tree set for which the given function returns `false`. -/
+@[inline]
 def filter (f : α → Bool) (m : TreeSet α cmp) : TreeSet α cmp :=
   ⟨m.inner.filter fun a _ => f a⟩
 
-@[inline, inherit_doc Raw.foldlM]
+/--
+Monadically computes a value by folding the given function over the elements in the tree set in
+ascending order.
+-/
+@[inline]
 def foldlM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
-@[inline, inherit_doc Raw.foldl]
+/-- Folds the given function over the elements of the tree set in ascending order. -/
+@[inline]
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
 
-@[inline, inherit_doc Raw.forM]
+/-- Carries out a monadic action on each element in the tree set in ascending order. -/
+@[inline]
 def forM (f : α → m PUnit) (t : TreeSet α cmp) : m PUnit :=
   t.inner.forM (fun a _ => f a)
 
-@[inline, inherit_doc Raw.forIn]
+/--
+Support for the `for` loop construct in `do` blocks. The iteration happens in ascending
+order.
+-/
+@[inline]
 def forIn (f : α → δ → m (ForInStep δ)) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.forIn (fun a _ c => f a c) init
 
@@ -142,39 +182,53 @@ instance : ForM m (TreeSet α cmp) α where
 instance : ForIn m (TreeSet α cmp) α where
   forIn m init f := m.forIn (fun a acc => f a acc) init
 
-@[inline, inherit_doc Raw.any]
+/-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
+@[inline]
 def any (t : TreeSet α cmp) (p : α → Bool) : Bool :=
   t.inner.any (fun a _ => p a)
 
-@[inline, inherit_doc Raw.all]
+/-- Check if any element satisfies the predicate, short-circuiting if a predicate succeeds. -/
+@[inline]
 def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
   t.inner.all (fun a _ => p a)
 
-@[inline, inherit_doc Raw.toList]
+/-- Transforms the tree set into a list of elements in ascending order. -/
+@[inline]
 def toList (t : TreeSet α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
-@[inline, inherit_doc Raw.ofList]
+/-- Transforms a list of elements into a tree set. -/
+@[inline]
 def ofList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
   l.foldl (fun r a => r.insert a) ∅
 
-@[inline, inherit_doc Raw.ofList, deprecated ofList (since := "2025-02-06")]
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-06")]
 def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
   ofList l cmp
 
-@[inline, inherit_doc Raw.toArray]
+/-- Transforms the tree set into an array of elements in ascending order. -/
+@[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
 
-@[inline, inherit_doc Raw.ofArray]
+/-- Transforms an array of elements into a tree set. -/
+@[inline]
 def ofArray (l : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
   l.foldl (init := ∅) (fun t a => t.insert a)
 
-@[inline, inherit_doc Raw.merge]
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-06")]
+def fromArray (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofList l cmp
+
+/-- Returns a set that contains all mappings of `t₁` and `t₂. -/
+@[inline]
 def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.mergeBy (fun _ _ _ => ()) t₁.inner t₂.inner⟩
 
-@[inline, inherit_doc Raw.eraseMany]
+/--
+Erases multiple items from the tree set by iterating over the given collection and calling erase.
+-/
+@[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
   ⟨t.inner.eraseMany l⟩
 

@@ -218,5 +218,19 @@ builtin_simproc [bv_normalize] bv_allOnes_eq_and ((_ : BitVec _) == (_ : BitVec 
         rrhs
     return .visit { expr := expr, proof? := some proof }
 
+builtin_simproc [bv_normalize] bv_extractLsb'_not (BitVec.extractLsb' _ _ (~~~(_ : BitVec _))) :=
+  fun e => do
+    let_expr BitVec.extractLsb' initialWidth start len inner := e | return .continue
+    let some initialWidthVal ← getNatValue? initialWidth | return .continue
+    let some startVal ← getNatValue? start | return .continue
+    let some lenVal ← getNatValue? len | return .continue
+    if !(startVal + lenVal) < initialWidthVal then return .continue
+    let_expr Complement.complement _ _ inner := inner | return .continue
+    let newInner := mkApp4 (mkConst ``BitVec.extractLsb') initialWidth start len inner
+    let expr ← mkAppM ``Complement.complement #[newInner]
+    let lt ← mkDecideProof (← mkAppM ``LT.lt #[(← mkAppM ``HAdd.hAdd #[start, len]), initialWidth])
+    let proof := mkApp5 (mkConst ``BitVec.extractLsb'_not_of_lt) initialWidth inner start len lt
+    return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

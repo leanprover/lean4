@@ -1344,6 +1344,11 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
   funext l; induction l <;> simp [*, filterMap_cons]
 
+/-- Variant of `filterMap_eq_map` with `some ∘ f` expanded out to a lambda. -/
+@[simp]
+theorem filterMap_eq_map' (f : α → β) : filterMap (fun x => some (f x)) = map f :=
+  filterMap_eq_map f
+
 @[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
@@ -2516,12 +2521,35 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
 
 /-! ### foldl and foldr -/
 
-@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
+@[simp] theorem foldr_cons_eq_append (l : List α) (f : α → β) (l' : List β) :
+    l.foldr (fun x y => f x :: y) l' = l.map f ++ l' := by
+  induction l <;> simp [*]
+
+/-- Variant of `foldr_cons_eq_append` specalized to `f = id`. -/
+@[simp] theorem foldr_cons_eq_append' (l l' : List β) :
+    l.foldr cons l' = l ++ l' := by
   induction l <;> simp [*]
 
 @[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
 
-@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
+@[simp] theorem foldl_flip_cons_eq_append (l : List α) (f : α → β) (l' : List β) :
+    l.foldl (fun x y => f y :: x) l' = (l.map f).reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldr_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
+  induction l <;> simp [*]
+
+@[simp] theorem foldl_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldl (· ++ f ·) l' = l' ++ (l.map f).flatten := by
+  induction l generalizing l'<;> simp [*]
+
+@[simp] theorem foldr_flip_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldr (fun x y => y ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldl_flip_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldl (fun x y => f y ++ x) l' = (l.map f).reverse.flatten ++ l' := by
   induction l generalizing l' <;> simp [*]
 
 theorem foldr_cons_nil (l : List α) : l.foldr cons [] = l := by simp

@@ -252,6 +252,26 @@ example (a b : BitVec 16) : (a &&& b == -1#16) = (a == -1#16 && b == -1#16) := b
 example (a b : BitVec 16) : (-1#16 == a &&& b) = (a == -1#16 && b == -1#16) := by
   bv_normalize
 
+-- extractLsb'_and
+example (a b : BitVec 16) :
+    BitVec.extractLsb' 1 12 (a &&& b) = BitVec.extractLsb' 1 12 a &&& BitVec.extractLsb' 1 12 b := by
+  bv_normalize
+
+-- extractLsb'_xor
+example (a b : BitVec 16) :
+    BitVec.extractLsb' 1 12 (a ^^^ b) = BitVec.extractLsb' 1 12 a ^^^ BitVec.extractLsb' 1 12 b := by
+  bv_normalize
+
+-- extractLsb'_not_of_lt
+example (a b : BitVec 16) :
+    BitVec.extractLsb' 1 12 (~~~(a &&& b)) = ~~~(BitVec.extractLsb' 1 12 a &&& BitVec.extractLsb' 1 12 b) := by
+  bv_normalize
+
+-- extractLsb'_if
+example (a b : BitVec 16) (c : Bool) :
+    BitVec.extractLsb' 1 12 (if c then a else b) = if c then BitVec.extractLsb' 1 12 a else BitVec.extractLsb' 1 12 b := by
+  bv_normalize
+
 section
 
 example (x y : BitVec 256) : x * y = y * x := by

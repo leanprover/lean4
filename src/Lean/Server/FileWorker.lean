@@ -244,14 +244,19 @@ This option can only be set on the command line, not in the lakefile or via `set
         StateT ReportSnapshotsState BaseIO (Array (SnapshotTask SnapshotTree)) := do
       if (← IO.hasFinished t.task) then
         handleNode t.task.get
-        let ts ← t.task.get.children.flatMapM handleFinished
         -- limit children's reported range to that of the parent, if any, to avoid strange
         -- non-monotonic progress updates; replace missing children's ranges with parent's
-        return ts.map (fun t' => { t' with range? := match t.range?, t'.range? with
+        let ts := t.task.get.children.map (fun t' => { t' with range? :=
+          match t.range?, t'.range? with
           | some r, some r' =>
-            let (_, _) := (minOfLe (α := String.Pos), maxOfLe (α := String.Pos))
-            some { start := max r.start r'.start, stop := min r.stop r'.stop }
-          | r?, r?' => r?' <|> r? })
+            let start := max r.start r'.start
+            let stop := min r.stop r'.stop
+            -- ensure `stop ≥ start`, lest we end up with negative ranges if `r` and `r'` are
+            -- disjoint
+            let stop := max start stop
+            some { start, stop }
+          | r?,     r?'     => r?' <|> r? })
+        ts.flatMapM handleFinished
       else
         return #[t]
 
@@ -286,7 +291,11 @@ This option can only be set on the command line, not in the lakefile or via `set
       let ranges := tasks.filterMap (·.range?)
       let ranges := ranges.qsort (·.start < ·.start)
       let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
-        | some last => if last.stop < r.start then rs.push r else rs.pop.push { last with stop := r.stop }
+        | some last =>
+          if last.stop < r.start then
+            rs.push r
+          else
+            rs.pop.push { last with stop := max last.stop r.stop }
         | none => rs.push r
       let ranges := ranges.map (·.toLspRange doc.meta.text)
       let notifs := ranges.map ({ range := ·, kind := .processing })
@@ -381,7 +390,7 @@ def setupImports (meta : DocumentMeta) (cmdlineOpts : Options) (chanOut : Std.Ch
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) fileSetupResult.fileOptions
 
   -- default to async elaboration; see also `Elab.async` docs
-  --let opts := Elab.async.setIfNotSet opts true
+  let opts := Elab.async.setIfNotSet opts true
 
   return .ok {
     mainModuleName
@@ -411,7 +420,7 @@ section Initialization
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← IO.mapTask (t := srcSearchPathPromise.result) fun srcSearchPath => do
+    let _ ← IO.mapTask (t := srcSearchPathPromise.result!) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
       chanOut.send <| mkImportClosureNotification importClosure
@@ -436,7 +445,7 @@ section Initialization
     return (ctx, {
       doc := { doc with reporter }
       reporterCancelTk
-      srcSearchPathTask  := srcSearchPathPromise.result
+      srcSearchPathTask  := srcSearchPathPromise.result!
       pendingRequests    := RBMap.empty
       rpcSessions        := RBMap.empty
       importCachingTask? := none

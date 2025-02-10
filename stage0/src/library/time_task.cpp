@@ -15,9 +15,16 @@ static std::map<std::string, second_duration> * g_cum_times;
 static mutex * g_cum_times_mutex;
 LEAN_THREAD_PTR(time_task, g_current_time_task);
 
+bool has_profiling_task() {
+    return g_current_time_task != nullptr;
+}
 void report_profiling_time(std::string const & category, second_duration time) {
     lock_guard<mutex> _(*g_cum_times_mutex);
     (*g_cum_times)[category] += time;
+}
+void exclude_profiling_time_from_current_task(second_duration time) {
+    if (g_current_time_task)
+        g_current_time_task->exclude_duration(time);
 }
 
 void display_cumulative_profiling_times(std::ostream & out) {

@@ -1280,4 +1280,17 @@ theorem getMsbD_umod {n d : BitVec w}:
     simp [BitVec.getMsbD_eq_getLsbD, hi]
   · simp [show w ≤ i by omega]
 
+
+/-! ### Mappings to and from BitVec -/
+
+theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x, g (f x) = x) :
+    ∀ x y, x = y ↔ f x = f y := by
+  intro x y
+  constructor
+  · intro h'
+    rw [h']
+  · intro h'
+    have := congrArg g h'
+    simpa [h] using this
+
 end BitVec

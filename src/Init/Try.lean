@@ -15,8 +15,6 @@ structure Config where
   main := true
   /-- If `name` is `true`, all functions in the same namespace are considere for function induction, unfolding, etc. -/
   name := true
-  /-- If `lib` is `true`, uses `libSearch` results. -/
-  lib := true
   /-- If `targetOnly` is `true`, `try?` collects information using the goal target only. -/
   targetOnly := false
   /-- Maximum number of suggestions. -/
@@ -25,6 +23,21 @@ structure Config where
   missing := false
   /-- If `only` is `true`, generates solutions using `grind only` and `simp only`. -/
   only := true
+  /-- If `harder` is `true`, more expensive tactics and operations are tried. -/
+  harder := false
+  /--
+  If `merge` is `true`, it tries to compress suggestions such as
+  ```
+  induction a
+  · grind only [= f]
+  · grind only [→ g]
+  ```
+  as
+  ```
+  induction a <;> grind only [= f, → g]
+  ```
+  -/
+  merge := true
   deriving Inhabited
 
 end Lean.Try

@@ -340,7 +340,6 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_IR_EmitC_emitFileHe
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitReset___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitPartialApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Environment_AddConstAsyncResult_commitFailure___spec__1(lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitOffset(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_toCType___closed__9;
@@ -584,6 +583,7 @@ static lean_object* l_Lean_IR_EmitC_emitDeclInit___closed__2;
 LEAN_EXPORT uint8_t l_Lean_IR_EmitC_getDecl___lambda__1(lean_object*);
 LEAN_EXPORT uint8_t l_Nat_anyTR_loop___at_Lean_IR_EmitC_overwriteParam___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitC_emitApp___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Environment_addConstAsync___spec__2(lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__2___closed__7;
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__15;
@@ -3065,7 +3065,7 @@ if (lean_obj_tag(x_11) == 0)
 {
 lean_object* x_68; lean_object* x_69; 
 x_68 = l_Lean_IR_EmitC_emitMainFn___lambda__1___closed__20;
-x_69 = l_panic___at_Lean_Environment_AddConstAsyncResult_commitFailure___spec__1(x_68);
+x_69 = l_panic___at_Lean_Environment_addConstAsync___spec__2(x_68);
 x_24 = x_69;
 goto block_67;
 }

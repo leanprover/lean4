@@ -534,7 +534,7 @@ private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment)
 
 def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
   let prom ← IO.Promise.new
-  return ({ env with checked := prom.result.bind (sync := true) (·.checked) }, prom)
+  return ({ env with checked := prom.result?.bind (sync := true) (·.getD env |>.checked) }, prom)
 
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
@@ -693,8 +693,9 @@ structure AddConstAsyncResult where
   /--
   Resulting "async branch" environment which should be used to add the desired declaration in a new
   task and then call `AddConstAsyncResult.commit*` to commit results back to the main environment.
-  One of `commitCheckEnv` or `commitFailure` must be called eventually to prevent deadlocks on main
-  branch accesses.
+  `commitCheckEnv` completes the addition; if it is not called and the `AddConstAsyncResult` object
+  is dropped, `sorry`ed default values will be reported instead and the kernel environment will be
+  left unchanged.
   -/
   asyncEnv : Environment
   private constName : Name
@@ -719,20 +720,43 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
   let infoPromise ← IO.Promise.new
   let extensionsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
+
+  -- fallback info in case promises are dropped unfulfilled
+  let fallbackVal := {
+    name := constName
+    levelParams := []
+    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
+  }
+  let fallbackInfo := match kind with
+    | .defn => .defnInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+      hints := .abbrev
+      safety := .safe
+    }
+    | .thm  => .thmInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+    }
+    | .axiom  => .axiomInfo { fallbackVal with
+      isUnsafe := false
+    }
+    | k => panic! s!"AddConstAsyncResult.addConstAsync: unsupported constant kind {repr k}"
+
   let asyncConst := {
     constInfo := {
       name := constName
       kind
-      sig := sigPromise.result
-      constInfo := infoPromise.result
+      sig := sigPromise.resultD fallbackVal
+      constInfo := infoPromise.resultD fallbackInfo
     }
-    exts? := guard reportExts *> some extensionsPromise.result
+    exts? := guard reportExts *> some (extensionsPromise.resultD #[])
   }
   return {
     constName, kind
     mainEnv := { env with
       asyncConsts := env.asyncConsts.add asyncConst
-      checked := checkedEnvPromise.result }
+      checked := checkedEnvPromise.result?.bind (sync := true) fun
+        | some kenv => .pure kenv
+        | none      => env.checked }
     asyncEnv := { env with
       asyncCtx? := some { declPrefix := privateToUserName constName.eraseMacroScopes }
     }
@@ -766,42 +790,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
   let kind' := .ofConstantInfo info
   if res.kind != kind' then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has kind {repr kind'} but expected {repr res.kind}"
-  let sig := res.sigPromise.result.get
+  let sig := res.sigPromise.result!.get
   if sig.levelParams != info.levelParams then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
   res.infoPromise.resolve info
   res.extensionsPromise.resolve env.checkedWithoutAsync.extensions
-
-/--
-Aborts async addition, filling in missing information with default values/sorries and leaving the
-kernel environment unchanged.
--/
-def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
-  let val := if (← IO.hasFinished res.sigPromise.result) then
-    res.sigPromise.result.get
-  else {
-    name := res.constName
-    levelParams := []
-    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
-  }
-  res.sigPromise.resolve val
-  res.infoPromise.resolve <| match res.kind with
-    | .defn => .defnInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-      hints := .abbrev
-      safety := .safe
-    }
-    | .thm  => .thmInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-    }
-    | .axiom  => .axiomInfo { val with
-      isUnsafe := false
-    }
-    | k => panic! s!"AddConstAsyncResult.commitFailure: unsupported constant kind {repr k}"
-  res.extensionsPromise.resolve #[]
-  let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve
 
 /--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
@@ -871,8 +866,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
     constInfo := {
       name := constName
       kind
-      sig := sig?.getD (prom.result.map (sync := true) (·.toConstantVal))
-      constInfo := prom.result
+      sig := sig?.getD (prom.result!.map (sync := true) (·.toConstantVal))
+      constInfo := prom.result!
     }
     exts? := none  -- will be reported by the caller eventually
   }
@@ -922,11 +917,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind 
         let _checkTask ← BaseIO.mapTask (t := env.checked) fun _ => EIO.catchExceptions (h := fun _e =>
           panic! s!"realizeConst {constName} failed"
         ) do
-          try
-            let env ← EIO.ofExcept <| addDeclCore async.asyncEnv 0 decl none
-            async.commitCheckEnv env |>.adaptExcept (·.toString |> .other)
-          finally
-            async.commitFailure
+          let env ← EIO.ofExcept <| addDeclCore async.asyncEnv 0 decl none
+          async.commitCheckEnv env |>.adaptExcept (·.toString |> .other)
         if const.name != constName then
           throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
         let kind' := .ofConstantInfo const

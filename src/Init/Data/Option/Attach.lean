@@ -134,15 +134,28 @@ theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : �
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
-theorem map_attach {o : Option α} (f : { x // x ∈ o } → β) :
+theorem map_attach_eq_pmap {o : Option α} (f : { x // x ∈ o } → β) :
     o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
-theorem map_attachWith {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
+@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
+abbrev map_attach := @map_attach_eq_pmap
+
+@[simp] theorem map_attachWith {l : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+    (f : { x // P x } → β) :
+    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  cases l <;> simp_all
+
+theorem map_attachWith_eq_pmap {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
     (f : { x // P x } → β) :
     (o.attachWith P H).map f =
       o.pmap (fun a (h : a ∈ o ∧ P a) => f ⟨a, h.2⟩) (fun a h => ⟨h, H a h⟩) := by
   cases o <;> simp
+
+@[simp]
+theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, a ∈ o → p a) :
+    o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
+  cases o <;> simp_all [Function.comp_def]
 
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =

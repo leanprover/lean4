@@ -83,9 +83,7 @@ example : False := by
 set_option hygiene false in
 macro "simple_tac2" : tactic => `(tactic| eval_suggest (intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]))
 
-/--
-info: Try this: · intros; (simp only [Nat.zero_add]; simp only [Nat.one_mul]); simp [*]
--/
+/-- info: Try this: · intros; simp only [Nat.zero_add]; simp only [Nat.one_mul]; simp [*] -/
 #guard_msgs (info) in
 example : x = 0 → 0 + 1*x = 0 := by
   simple_tac2

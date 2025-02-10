@@ -483,7 +483,6 @@ LEAN_EXPORT lean_object* l_Lean_RBNode_revFold___at_Lean_IR_EmitLLVM_emitFnDecls
 LEAN_EXPORT lean_object* l_Lean_IR_emitLLVM___lambda__1(size_t, size_t, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_getModName(size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_addVartoState___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Environment_AddConstAsyncResult_commitFailure___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callPureDeclInitFn___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_emitLhsVal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -816,6 +815,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_IR_EmitLLVM_emitJmp___lambda__2___closed__2;
 static lean_object* l_Lean_IR_EmitLLVM_emitDeclInit___lambda__3___closed__2;
 LEAN_EXPORT lean_object* l_Lean_IR_emitLLVM___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at_Lean_Environment_addConstAsync___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_toCInitName(size_t);
 LEAN_EXPORT lean_object* l_Lean_IR_EmitLLVM_callLeanBox(size_t, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_IR_collectUsedDecls(lean_object*, lean_object*, lean_object*);
@@ -58524,7 +58524,7 @@ if (lean_obj_tag(x_92) == 0)
 {
 lean_object* x_142; lean_object* x_143; 
 x_142 = l_Lean_IR_EmitLLVM_emitMainFn___lambda__6___closed__8;
-x_143 = l_panic___at_Lean_Environment_AddConstAsyncResult_commitFailure___spec__1(x_142);
+x_143 = l_panic___at_Lean_Environment_addConstAsync___spec__2(x_142);
 x_94 = x_143;
 goto block_141;
 }

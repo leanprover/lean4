@@ -27473,15 +27473,15 @@ lean_object* x_42; lean_object* x_43; lean_object* x_44; uint8_t x_45; lean_obje
 x_42 = lean_ctor_get(x_35, 1);
 lean_inc(x_42);
 lean_dec(x_35);
-x_43 = lean_ctor_get(x_3, 2);
-x_44 = lean_box(0);
+x_43 = lean_box(0);
+x_44 = lean_ctor_get(x_3, 2);
 x_45 = 0;
 x_46 = lean_box(x_45);
 lean_inc(x_2);
 x_47 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_47, 0, x_2);
 lean_ctor_set(x_47, 1, x_46);
-x_48 = lean_array_size(x_43);
+x_48 = lean_array_size(x_44);
 x_49 = 0;
 lean_inc(x_20);
 lean_inc(x_19);
@@ -27492,7 +27492,7 @@ lean_inc(x_15);
 lean_inc(x_14);
 lean_inc(x_2);
 lean_inc(x_4);
-x_50 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_trySimpCongrTheorem_x3f___spec__1(x_4, x_5, x_43, x_44, x_2, x_43, x_48, x_49, x_47, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_42);
+x_50 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Simp_trySimpCongrTheorem_x3f___spec__1(x_4, x_5, x_43, x_44, x_2, x_44, x_48, x_49, x_47, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_42);
 if (lean_obj_tag(x_50) == 0)
 {
 lean_object* x_51; lean_object* x_52; 

@@ -109,7 +109,6 @@ static lean_object* l_Lean_getLibDir___closed__3;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_forEachModuleInDir___spec__2___rarg___lambda__2___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___lambda__3___closed__2;
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_740_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addSearchPathFromEnv(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_SearchPath_findModuleWithExt(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_moduleNameOfFileName___lambda__2___closed__1;
@@ -146,6 +145,7 @@ static lean_object* l_Lean_searchModuleNameOfFileName___closed__1;
 static lean_object* l_Lean_addSearchPathFromEnv___closed__1;
 lean_object* lean_io_realpath(lean_object*, lean_object*);
 lean_object* l_Substring_prevn(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_736_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getBuiltinSearchPath(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_modToFilePath_go(lean_object*, lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
@@ -1515,7 +1515,7 @@ lean_dec(x_1);
 return x_10;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_740_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Util_Path___hyg_736_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
@@ -3171,7 +3171,7 @@ l_List_forIn_x27_loop___at_Lean_SearchPath_findAllWithExt___spec__2___closed__1 
 lean_mark_persistent(l_List_forIn_x27_loop___at_Lean_SearchPath_findAllWithExt___spec__2___closed__1);
 l_Lean_SearchPath_findAllWithExt___closed__1 = _init_l_Lean_SearchPath_findAllWithExt___closed__1();
 lean_mark_persistent(l_Lean_SearchPath_findAllWithExt___closed__1);
-if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Path___hyg_740_(lean_io_mk_world());
+if (builtin) {res = l_Lean_initFn____x40_Lean_Util_Path___hyg_736_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_searchPathRef = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_searchPathRef);

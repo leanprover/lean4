@@ -7021,8 +7021,8 @@ lean_dec(x_15);
 lean_dec(x_14);
 lean_dec(x_13);
 lean_dec(x_8);
+lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 lean_dec(x_3);
 lean_dec(x_2);
 x_19 = lean_alloc_ctor(0, 2, 0);
@@ -7074,8 +7074,8 @@ x_31 = lean_ctor_get(x_3, 0);
 lean_dec(x_31);
 x_32 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1___closed__1;
 lean_ctor_set(x_3, 7, x_32);
-lean_ctor_set(x_3, 1, x_5);
-lean_ctor_set(x_3, 0, x_4);
+lean_ctor_set(x_3, 1, x_6);
+lean_ctor_set(x_3, 0, x_5);
 x_33 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_33, 0, x_3);
 x_34 = lean_box(0);
@@ -7102,8 +7102,8 @@ lean_inc(x_36);
 lean_dec(x_3);
 x_41 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1___closed__1;
 x_42 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_42, 0, x_4);
-lean_ctor_set(x_42, 1, x_5);
+lean_ctor_set(x_42, 0, x_5);
+lean_ctor_set(x_42, 1, x_6);
 lean_ctor_set(x_42, 2, x_36);
 lean_ctor_set(x_42, 3, x_37);
 lean_ctor_set(x_42, 4, x_38);
@@ -7136,8 +7136,8 @@ x_49 = lean_ctor_get(x_3, 0);
 lean_dec(x_49);
 x_50 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1___closed__1;
 lean_ctor_set(x_3, 6, x_50);
-lean_ctor_set(x_3, 1, x_5);
-lean_ctor_set(x_3, 0, x_4);
+lean_ctor_set(x_3, 1, x_6);
+lean_ctor_set(x_3, 0, x_5);
 x_51 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_51, 0, x_3);
 x_52 = lean_box(0);
@@ -7164,8 +7164,8 @@ lean_inc(x_54);
 lean_dec(x_3);
 x_59 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1___closed__1;
 x_60 = lean_alloc_ctor(0, 8, 0);
-lean_ctor_set(x_60, 0, x_4);
-lean_ctor_set(x_60, 1, x_5);
+lean_ctor_set(x_60, 0, x_5);
+lean_ctor_set(x_60, 1, x_6);
 lean_ctor_set(x_60, 2, x_54);
 lean_ctor_set(x_60, 3, x_55);
 lean_ctor_set(x_60, 4, x_56);
@@ -7187,8 +7187,8 @@ return x_63;
 else
 {
 uint8_t x_64; 
+lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_64 = !lean_is_exclusive(x_27);
 if (x_64 == 0)
 {
@@ -7397,8 +7397,8 @@ if (lean_is_scalar(x_106)) {
 } else {
  x_108 = x_106;
 }
-lean_ctor_set(x_108, 0, x_4);
-lean_ctor_set(x_108, 1, x_5);
+lean_ctor_set(x_108, 0, x_5);
+lean_ctor_set(x_108, 1, x_6);
 lean_ctor_set(x_108, 2, x_101);
 lean_ctor_set(x_108, 3, x_102);
 lean_ctor_set(x_108, 4, x_103);
@@ -7449,8 +7449,8 @@ if (lean_is_scalar(x_118)) {
 } else {
  x_120 = x_118;
 }
-lean_ctor_set(x_120, 0, x_4);
-lean_ctor_set(x_120, 1, x_5);
+lean_ctor_set(x_120, 0, x_5);
+lean_ctor_set(x_120, 1, x_6);
 lean_ctor_set(x_120, 2, x_113);
 lean_ctor_set(x_120, 3, x_114);
 lean_ctor_set(x_120, 4, x_115);
@@ -7472,8 +7472,8 @@ return x_124;
 else
 {
 lean_object* x_125; lean_object* x_126; lean_object* x_127; lean_object* x_128; 
+lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_4);
 x_125 = lean_ctor_get(x_100, 0);
 lean_inc(x_125);
 if (lean_is_exclusive(x_100)) {
@@ -7592,18 +7592,18 @@ LEAN_EXPORT lean_object* l_Lean_Widget_diffHypothesesBundle(uint8_t x_1, lean_ob
 _start:
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; lean_object* x_16; 
-x_9 = lean_ctor_get(x_3, 0);
-lean_inc(x_9);
-x_10 = lean_ctor_get(x_3, 1);
+x_9 = lean_box(0);
+x_10 = lean_ctor_get(x_3, 0);
 lean_inc(x_10);
-x_11 = l_Array_zip___rarg(x_9, x_10);
-x_12 = lean_box(0);
-x_13 = lean_array_size(x_11);
+x_11 = lean_ctor_get(x_3, 1);
+lean_inc(x_11);
+x_12 = l_Array_zip___rarg(x_10, x_11);
+x_13 = lean_array_size(x_12);
 x_14 = 0;
 x_15 = l_Lean_Widget_diffHypothesesBundle___closed__1;
 lean_inc(x_3);
-x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1(x_1, x_2, x_3, x_9, x_10, x_11, x_12, x_15, x_11, x_13, x_14, x_15, x_4, x_5, x_6, x_7, x_8);
-lean_dec(x_11);
+x_16 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1(x_1, x_2, x_3, x_9, x_10, x_11, x_12, x_15, x_12, x_13, x_14, x_15, x_4, x_5, x_6, x_7, x_8);
+lean_dec(x_12);
 if (lean_obj_tag(x_16) == 0)
 {
 lean_object* x_17; lean_object* x_18; 
@@ -7723,7 +7723,7 @@ lean_dec(x_11);
 x_21 = l_Array_forIn_x27Unsafe_loop___at_Lean_Widget_diffHypothesesBundle___spec__1(x_18, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_19, x_20, x_12, x_13, x_14, x_15, x_16, x_17);
 lean_dec(x_9);
 lean_dec(x_7);
-lean_dec(x_6);
+lean_dec(x_4);
 return x_21;
 }
 }

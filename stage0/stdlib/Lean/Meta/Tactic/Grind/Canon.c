@@ -12129,10 +12129,10 @@ x_187 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_187, 0, x_10);
 lean_ctor_set(x_187, 1, x_186);
 x_188 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_184);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_189 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_188, x_180, x_181, x_184, x_184, x_187, x_182, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_179);
+x_189 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_188, x_180, x_181, x_10, x_184, x_187, x_182, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_179);
 if (lean_obj_tag(x_189) == 0)
 {
 lean_object* x_190; lean_object* x_191; uint8_t x_192; 
@@ -12876,10 +12876,10 @@ x_391 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_391, 0, x_10);
 lean_ctor_set(x_391, 1, x_390);
 x_392 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_388);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_393 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_392, x_384, x_385, x_388, x_388, x_391, x_386, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_383);
+x_393 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_392, x_384, x_385, x_10, x_388, x_391, x_386, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_383);
 if (lean_obj_tag(x_393) == 0)
 {
 lean_object* x_394; lean_object* x_395; uint8_t x_396; 
@@ -13623,10 +13623,10 @@ x_595 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_595, 0, x_10);
 lean_ctor_set(x_595, 1, x_594);
 x_596 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_592);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_597 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_596, x_588, x_589, x_592, x_592, x_595, x_590, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_587);
+x_597 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_596, x_588, x_589, x_10, x_592, x_595, x_590, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_587);
 if (lean_obj_tag(x_597) == 0)
 {
 lean_object* x_598; lean_object* x_599; uint8_t x_600; 
@@ -14370,10 +14370,10 @@ x_799 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_799, 0, x_10);
 lean_ctor_set(x_799, 1, x_798);
 x_800 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_796);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_801 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_800, x_792, x_793, x_796, x_796, x_799, x_794, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_791);
+x_801 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_800, x_792, x_793, x_10, x_796, x_799, x_794, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_791);
 if (lean_obj_tag(x_801) == 0)
 {
 lean_object* x_802; lean_object* x_803; uint8_t x_804; 
@@ -15117,10 +15117,10 @@ x_1003 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_1003, 0, x_10);
 lean_ctor_set(x_1003, 1, x_1002);
 x_1004 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_1000);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_1005 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1004, x_996, x_997, x_1000, x_1000, x_1003, x_998, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_995);
+x_1005 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1004, x_996, x_997, x_10, x_1000, x_1003, x_998, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_995);
 if (lean_obj_tag(x_1005) == 0)
 {
 lean_object* x_1006; lean_object* x_1007; uint8_t x_1008; 
@@ -15881,10 +15881,10 @@ x_1213 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_1213, 0, x_10);
 lean_ctor_set(x_1213, 1, x_1212);
 x_1214 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_1210);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_1215 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1214, x_1206, x_1207, x_1210, x_1210, x_1213, x_1208, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1205);
+x_1215 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1214, x_1206, x_1207, x_10, x_1210, x_1213, x_1208, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1205);
 if (lean_obj_tag(x_1215) == 0)
 {
 lean_object* x_1216; lean_object* x_1217; uint8_t x_1218; 
@@ -16628,10 +16628,10 @@ x_1417 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_1417, 0, x_10);
 lean_ctor_set(x_1417, 1, x_1416);
 x_1418 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_1414);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_1419 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1418, x_1410, x_1411, x_1414, x_1414, x_1417, x_1412, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1409);
+x_1419 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1418, x_1410, x_1411, x_10, x_1414, x_1417, x_1412, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1409);
 if (lean_obj_tag(x_1419) == 0)
 {
 lean_object* x_1420; lean_object* x_1421; uint8_t x_1422; 
@@ -17375,10 +17375,10 @@ x_1621 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_1621, 0, x_10);
 lean_ctor_set(x_1621, 1, x_1620);
 x_1622 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_1618);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_1623 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1622, x_1614, x_1615, x_1618, x_1618, x_1621, x_1616, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1613);
+x_1623 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1622, x_1614, x_1615, x_10, x_1618, x_1621, x_1616, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1613);
 if (lean_obj_tag(x_1623) == 0)
 {
 lean_object* x_1624; lean_object* x_1625; uint8_t x_1626; 
@@ -18122,10 +18122,10 @@ x_1825 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_1825, 0, x_10);
 lean_ctor_set(x_1825, 1, x_1824);
 x_1826 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_1822);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_1827 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1826, x_1818, x_1819, x_1822, x_1822, x_1825, x_1820, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1817);
+x_1827 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_1826, x_1818, x_1819, x_10, x_1822, x_1825, x_1820, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_1817);
 if (lean_obj_tag(x_1827) == 0)
 {
 lean_object* x_1828; lean_object* x_1829; uint8_t x_1830; 
@@ -18869,10 +18869,10 @@ x_2029 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2029, 0, x_10);
 lean_ctor_set(x_2029, 1, x_2028);
 x_2030 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_2026);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_2031 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_2030, x_2022, x_2023, x_2026, x_2026, x_2029, x_2024, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_2021);
+x_2031 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_2030, x_2022, x_2023, x_10, x_2026, x_2029, x_2024, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_2021);
 if (lean_obj_tag(x_2031) == 0)
 {
 lean_object* x_2032; lean_object* x_2033; uint8_t x_2034; 
@@ -19616,10 +19616,10 @@ x_2233 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_2233, 0, x_10);
 lean_ctor_set(x_2233, 1, x_2232);
 x_2234 = l_Lean_Expr_withAppAux___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__11___closed__1;
-lean_inc(x_2230);
+lean_inc(x_10);
 lean_inc(x_9);
 lean_inc(x_1);
-x_2235 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_2234, x_2226, x_2227, x_2230, x_2230, x_2233, x_2228, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_2225);
+x_2235 = l_Std_Range_forIn_x27_loop___at_Lean_Meta_Grind_Canon_canonImpl_visit___spec__10(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_2234, x_2226, x_2227, x_10, x_2230, x_2233, x_2228, lean_box(0), lean_box(0), x_12, x_13, x_14, x_15, x_16, x_17, x_18, x_19, x_20, x_2225);
 if (lean_obj_tag(x_2235) == 0)
 {
 lean_object* x_2236; lean_object* x_2237; uint8_t x_2238; 

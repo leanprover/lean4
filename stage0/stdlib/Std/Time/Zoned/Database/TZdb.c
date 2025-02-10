@@ -1056,13 +1056,13 @@ LEAN_EXPORT lean_object* l_Std_Time_Database_TZdb_inst___lambda__2(lean_object* 
 _start:
 {
 lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; lean_object* x_10; 
-x_5 = lean_ctor_get(x_1, 1);
-x_6 = lean_box(0);
-x_7 = lean_array_size(x_5);
+x_5 = lean_box(0);
+x_6 = lean_ctor_get(x_1, 1);
+x_7 = lean_array_size(x_6);
 x_8 = 0;
 x_9 = l_Std_Time_Database_TZdb_inst___lambda__2___closed__1;
 lean_inc(x_2);
-x_10 = l_Array_forIn_x27Unsafe_loop___at_Std_Time_Database_TZdb_inst___spec__1(x_2, x_5, x_6, x_9, x_5, x_7, x_8, x_9, x_4);
+x_10 = l_Array_forIn_x27Unsafe_loop___at_Std_Time_Database_TZdb_inst___spec__1(x_2, x_5, x_6, x_9, x_6, x_7, x_8, x_9, x_4);
 if (lean_obj_tag(x_10) == 0)
 {
 lean_object* x_11; lean_object* x_12; 

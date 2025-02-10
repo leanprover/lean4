@@ -513,19 +513,19 @@ lean_object* x_25; lean_object* x_26; lean_object* x_27; lean_object* x_28; lean
 x_25 = lean_ctor_get(x_24, 0);
 lean_inc(x_25);
 lean_dec(x_24);
-x_26 = lean_ctor_get(x_25, 4);
-lean_inc(x_26);
+x_26 = lean_box(0);
+x_27 = lean_ctor_get(x_25, 4);
+lean_inc(x_27);
 lean_dec(x_25);
-x_27 = lean_box(0);
 x_28 = l_Lean_MVarId_constructor___lambda__2___closed__5;
 lean_inc(x_7);
 lean_inc(x_6);
 lean_inc(x_5);
 lean_inc(x_4);
-lean_inc(x_26);
+lean_inc(x_27);
 lean_inc(x_1);
-x_29 = l_List_forIn_x27_loop___at_Lean_MVarId_constructor___spec__1(x_1, x_3, x_16, x_26, x_27, x_28, x_26, x_26, x_28, lean_box(0), x_4, x_5, x_6, x_7, x_19);
-lean_dec(x_26);
+x_29 = l_List_forIn_x27_loop___at_Lean_MVarId_constructor___spec__1(x_1, x_3, x_16, x_26, x_27, x_28, x_27, x_27, x_28, lean_box(0), x_4, x_5, x_6, x_7, x_19);
+lean_dec(x_27);
 if (lean_obj_tag(x_29) == 0)
 {
 lean_object* x_30; lean_object* x_31; 

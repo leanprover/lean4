@@ -64,6 +64,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___lambda__4(lean_
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_handleRpcConnect___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__6;
+lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_2022_(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_FileWorker_handleStaleDependency___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_del___at_Lean_Server_FileWorker_mainLoop___spec__3___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
@@ -370,6 +371,7 @@ lean_object* l_Lean_Language_diagnosticsOfHeaderError(lean_object*, lean_object*
 extern lean_object* l_Task_Priority_default;
 static lean_object* l_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1853____at_Lean_Server_FileWorker_handleRequest___spec__4___closed__7;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_publishDiagnostics___spec__1___boxed(lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanStaleDependencyParams____x40_Lean_Data_Lsp_Internal___hyg_2204_(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Array_mapMUnsafe_map___at_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1853____spec__1(size_t, size_t, lean_object*, lean_object*);
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__70;
@@ -425,7 +427,6 @@ lean_object* l_Lean_Server_ModuleRefs_toLspModuleRefs(lean_object*, lean_object*
 static lean_object* l_Lean_Loop_forIn_loop___at_Lean_Server_FileWorker_runRefreshTasks___spec__3___lambda__7___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Server_FileWorker_runRefreshTasks___spec__3___lambda__5(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_FileWorker_handleRequest___lambda__2___closed__1;
-lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_2029_(lean_object*);
 static lean_object* l_Lean_Server_FileWorker_setupImports___lambda__7___closed__3;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__68;
 static lean_object* l_Lean_Server_FileWorker_initFn____x40_Lean_Server_FileWorker___hyg_522____closed__3;
@@ -464,7 +465,6 @@ lean_object* l___private_Lean_Data_Lsp_Basic_0__Lean_Lsp_toJsonRange____x40_Lean
 uint32_t lean_uint32_sub(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1853____at_Lean_Server_FileWorker_handleRequest___spec__4___closed__4;
-lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanStaleDependencyParams____x40_Lean_Data_Lsp_Internal___hyg_2211_(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_searchModuleNameOfFileName(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at_Lean_Server_FileWorker_runRefreshTasks___spec__3___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -491,6 +491,7 @@ static lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_FileWorker_run
 LEAN_EXPORT lean_object* l_Lean_RBNode_erase___at_Lean_Server_FileWorker_handleCancelRequest___spec__2(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Extra_0__Lean_Lsp_fromJsonLeanDidOpenTextDocumentParams____x40_Lean_Data_Lsp_Extra___hyg_203_(lean_object*);
 extern lean_object* l_Task_Priority_dedicated;
+lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanImportClosureParams____x40_Lean_Data_Lsp_Internal___hyg_2154_(lean_object*);
 static lean_object* l_Lean_Widget_instRpcEncodableDiagnosticWith_enc____x40_Lean_Widget_InteractiveDiagnostic___hyg_1853____at_Lean_Server_FileWorker_handleRequest___spec__4___closed__6;
 static lean_object* l_IO_FS_Stream_readRequestAs___at_Lean_Server_FileWorker_initAndRunWorker___spec__2___closed__26;
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
@@ -643,7 +644,6 @@ LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_WorkerContext_modifyGetPartial
 static lean_object* l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_sendFileProgress___closed__1;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_publishDiagnostics___spec__1(size_t, size_t, lean_object*);
 lean_object* l_ImportCompletion_find(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanImportClosureParams____x40_Lean_Data_Lsp_Internal___hyg_2161_(lean_object*);
 uint8_t l_Lean_KVMap_contains(lean_object*, lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader(lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
@@ -4776,7 +4776,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at___private_Lean_Server
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_2029_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanIleanInfoParams____x40_Lean_Data_Lsp_Internal___hyg_2022_(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -11178,7 +11178,7 @@ LEAN_EXPORT lean_object* l_Lean_Json_toStructured_x3f___at_Lean_Server_FileWorke
 _start:
 {
 lean_object* x_2; uint8_t x_3; 
-x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanImportClosureParams____x40_Lean_Data_Lsp_Internal___hyg_2161_(x_1);
+x_2 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_toJsonLeanImportClosureParams____x40_Lean_Data_Lsp_Internal___hyg_2154_(x_1);
 x_3 = !lean_is_exclusive(x_2);
 if (x_3 == 0)
 {
@@ -13789,9 +13789,9 @@ lean_inc(x_15);
 x_16 = lean_ctor_get(x_14, 1);
 lean_inc(x_16);
 lean_dec(x_14);
-x_17 = lean_ctor_get(x_1, 1);
-x_18 = lean_box(0);
-x_19 = lean_array_size(x_17);
+x_17 = lean_box(0);
+x_18 = lean_ctor_get(x_1, 1);
+x_19 = lean_array_size(x_18);
 x_20 = 0;
 x_21 = lean_st_ref_take(x_13, x_16);
 x_22 = lean_ctor_get(x_21, 0);
@@ -13803,7 +13803,7 @@ x_24 = lean_ctor_get(x_22, 0);
 lean_inc(x_24);
 lean_dec(x_22);
 x_25 = lean_box(0);
-x_26 = l_Array_forIn_x27Unsafe_loop___at_Lean_Server_FileWorker_handleRpcRelease___spec__1(x_17, x_18, x_17, x_19, x_20, x_25, x_24);
+x_26 = l_Array_forIn_x27Unsafe_loop___at_Lean_Server_FileWorker_handleRpcRelease___spec__1(x_17, x_18, x_18, x_19, x_20, x_25, x_24);
 x_27 = !lean_is_exclusive(x_26);
 if (x_27 == 0)
 {
@@ -13908,9 +13908,9 @@ lean_inc(x_55);
 x_56 = lean_ctor_get(x_54, 1);
 lean_inc(x_56);
 lean_dec(x_54);
-x_57 = lean_ctor_get(x_1, 1);
-x_58 = lean_box(0);
-x_59 = lean_array_size(x_57);
+x_57 = lean_box(0);
+x_58 = lean_ctor_get(x_1, 1);
+x_59 = lean_array_size(x_58);
 x_60 = 0;
 x_61 = lean_st_ref_take(x_53, x_56);
 x_62 = lean_ctor_get(x_61, 0);
@@ -13922,7 +13922,7 @@ x_64 = lean_ctor_get(x_62, 0);
 lean_inc(x_64);
 lean_dec(x_62);
 x_65 = lean_box(0);
-x_66 = l_Array_forIn_x27Unsafe_loop___at_Lean_Server_FileWorker_handleRpcRelease___spec__1(x_57, x_58, x_57, x_59, x_60, x_65, x_64);
+x_66 = l_Array_forIn_x27Unsafe_loop___at_Lean_Server_FileWorker_handleRpcRelease___spec__1(x_57, x_58, x_58, x_59, x_60, x_65, x_64);
 x_67 = lean_ctor_get(x_66, 1);
 lean_inc(x_67);
 if (lean_is_exclusive(x_66)) {
@@ -16896,7 +16896,7 @@ _start:
 {
 lean_object* x_5; 
 lean_inc(x_1);
-x_5 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanStaleDependencyParams____x40_Lean_Data_Lsp_Internal___hyg_2211_(x_1);
+x_5 = l___private_Lean_Data_Lsp_Internal_0__Lean_Lsp_fromJsonLeanStaleDependencyParams____x40_Lean_Data_Lsp_Internal___hyg_2204_(x_1);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 

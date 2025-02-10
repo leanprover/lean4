@@ -3310,15 +3310,15 @@ lean_free_object(x_11);
 x_15 = lean_ctor_get(x_13, 0);
 lean_inc(x_15);
 lean_dec(x_13);
-x_16 = lean_ctor_get(x_8, 1);
-x_17 = lean_box(0);
+x_16 = lean_box(0);
+x_17 = lean_ctor_get(x_8, 1);
 x_18 = lean_box(0);
 x_19 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_19, 0, x_18);
 lean_ctor_set(x_19, 1, x_15);
-x_20 = lean_array_size(x_16);
+x_20 = lean_array_size(x_17);
 x_21 = 0;
-x_22 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_17, x_18, x_16, x_20, x_21, x_19);
+x_22 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_16, x_17, x_18, x_17, x_20, x_21, x_19);
 x_23 = !lean_is_exclusive(x_22);
 if (x_23 == 0)
 {
@@ -3424,15 +3424,15 @@ lean_object* x_40; lean_object* x_41; lean_object* x_42; lean_object* x_43; lean
 x_40 = lean_ctor_get(x_37, 0);
 lean_inc(x_40);
 lean_dec(x_37);
-x_41 = lean_ctor_get(x_8, 1);
-x_42 = lean_box(0);
+x_41 = lean_box(0);
+x_42 = lean_ctor_get(x_8, 1);
 x_43 = lean_box(0);
 x_44 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_44, 0, x_43);
 lean_ctor_set(x_44, 1, x_40);
-x_45 = lean_array_size(x_41);
+x_45 = lean_array_size(x_42);
 x_46 = 0;
-x_47 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_41, x_42, x_43, x_41, x_45, x_46, x_44);
+x_47 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_findInfoTree_x3f___spec__6(x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_41, x_42, x_43, x_42, x_45, x_46, x_44);
 x_48 = lean_ctor_get(x_47, 0);
 lean_inc(x_48);
 if (lean_is_exclusive(x_47)) {
@@ -4071,11 +4071,11 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCo
 _start:
 {
 lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; uint8_t x_15; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_box(0);
-x_12 = lean_array_size(x_10);
+x_10 = lean_box(0);
+x_11 = lean_ctor_get(x_1, 0);
+x_12 = lean_array_size(x_11);
 x_13 = 0;
-x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__2(x_2, x_3, x_4, x_5, x_10, x_11, x_10, x_12, x_13, x_6, x_8, x_9);
+x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_CodeAction_cmdCodeActionProvider___spec__2(x_2, x_3, x_4, x_5, x_10, x_11, x_11, x_12, x_13, x_6, x_8, x_9);
 x_15 = !lean_is_exclusive(x_14);
 if (x_15 == 0)
 {

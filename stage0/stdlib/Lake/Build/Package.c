@@ -4954,11 +4954,11 @@ LEAN_EXPORT lean_object* l_Lake_Package_recBuildExtraDepTargets___lambda__3(lean
 _start:
 {
 lean_object* x_11; lean_object* x_12; size_t x_13; size_t x_14; lean_object* x_15; 
-x_11 = lean_ctor_get(x_1, 4);
-x_12 = lean_box(0);
-x_13 = lean_array_size(x_11);
+x_11 = lean_box(0);
+x_12 = lean_ctor_get(x_1, 4);
+x_13 = lean_array_size(x_12);
 x_14 = 0;
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_Package_recBuildExtraDepTargets___spec__1(x_2, x_11, x_12, x_11, x_13, x_14, x_3, x_5, x_6, x_7, x_8, x_9, x_10);
+x_15 = l_Array_forIn_x27Unsafe_loop___at_Lake_Package_recBuildExtraDepTargets___spec__1(x_2, x_11, x_12, x_12, x_13, x_14, x_3, x_5, x_6, x_7, x_8, x_9, x_10);
 if (lean_obj_tag(x_15) == 0)
 {
 lean_object* x_16; 

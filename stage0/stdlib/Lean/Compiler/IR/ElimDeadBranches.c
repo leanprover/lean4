@@ -5069,7 +5069,7 @@ x_1 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranc
 x_2 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1173____closed__6;
 x_3 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1173____closed__7;
 x_4 = l_Lean_IR_UnreachableBranches_initFn____x40_Lean_Compiler_IR_ElimDeadBranches___hyg_1173____closed__8;
-x_5 = 2;
+x_5 = 0;
 x_6 = lean_alloc_ctor(0, 4, 1);
 lean_ctor_set(x_6, 0, x_1);
 lean_ctor_set(x_6, 1, x_2);

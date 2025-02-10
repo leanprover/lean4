@@ -21223,7 +21223,7 @@ static lean_object* _init_l_Lean_Parser_Tactic___aux__Init__Tactics______macroRu
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("bv_toNat", 8, 8);
+x_1 = lean_mk_string_unchecked("bitvec_to_nat", 13, 13);
 return x_1;
 }
 }

@@ -123,7 +123,7 @@ _start:
 {
 lean_object* x_2; uint8_t x_3; lean_object* x_4; 
 x_2 = l_Lean_initFn____x40_Lean_Compiler_ClosedTermCache___hyg_50____closed__1;
-x_3 = 2;
+x_3 = 0;
 x_4 = l_Lean_registerEnvExtension___rarg(x_2, x_3, x_1);
 return x_4;
 }

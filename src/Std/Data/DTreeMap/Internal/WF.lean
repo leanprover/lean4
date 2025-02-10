@@ -218,9 +218,6 @@ theorem toListModel_find?_of_eq [Ord α] [TransOrd α] {k : α → Ordering} [Is
   · simp_all
   · exact Ordered.compare_left_not_beq_eq ho (Ordering.isGE_of_eq_eq hcmp)
 
-theorem Option.or_eq_left {o o' : Option α} (h : o' = none) : o.or o' = o := by
-  cases h; simp
-
 theorem toListModel_find?_of_lt [Ord α] [TransOrd α] {k : α → Ordering} [IsCut compare k]
     {sz k' v' l r} (hcmp : k k' = .lt) (ho : (inner sz k' v' l r).Ordered) :
     (inner sz k' v' l r : Impl α β).toListModel.find? (k ·.1 == .eq) =

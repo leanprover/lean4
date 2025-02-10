@@ -6,7 +6,6 @@ Authors: Henrik Böving
 prelude
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Basic
 import Lean.Meta.Tactic.Simp
-import Std.Tactic.BVDecide.Normalize.BitVec
 
 /-!
 This module contains the implementation of the pre processing pass for handling equality on
@@ -125,7 +124,7 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
             let folder acc ctor :=
               let case := mkApp2 (mkConst ``Eq.refl [1]) declType (toBvToEnum (mkConst ctor))
               mkApp acc case
-            let proof := List.foldl (init := recOn) folder ctors 
+            let proof := List.foldl (init := recOn) folder ctors
             mkLambdaFVars #[x] proof
 
         let value :=

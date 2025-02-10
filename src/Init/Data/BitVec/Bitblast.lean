@@ -1279,7 +1279,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     have hub : x.toInt * y.toInt * 2 < ((2 ^ ((w + 1) * 2 - 1): Nat) * 2) := Int.mul_lt_mul_of_pos_right (by norm_cast at *; omega) (by omega)
     rw [BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega),
       BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_signExtend_of_lt (by omega), BitVec.toInt_twoPow_of_eq (by omega), ←Nat.two_pow_pred_add_two_pow_pred (by omega)]
-    simp only [← Nat.mul_two, Int.bmod_eq_iff_of_lt_of_lt hlb hub, BitVec.toInt_twoPow_sub_one, or_eq_true, decide_eq_true_eq, _root_.eq_iff_iff, and_eq_true]
+    simp only [← Nat.mul_two, Int.bmod_eq_of_le_of_lt hlb hub, BitVec.toInt_twoPow_sub_one, or_eq_true, decide_eq_true_eq, _root_.eq_iff_iff, and_eq_true]
     omega
 
 /- ### umod -/

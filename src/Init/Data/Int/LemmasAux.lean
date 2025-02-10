@@ -45,7 +45,7 @@ theorem bmod_neg_iff {m : Nat} {x : Int} (h2 : -m ≤ x) (h1 : x < m) :
   · rw [Int.emod_eq_of_lt xpos (by omega)]; omega
   · rw [Int.add_emod_self.symm, Int.emod_eq_of_lt (by omega) (by omega)]; omega
 
-theorem bmod_eq_iff_of_lt_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
+theorem bmod_eq_of_le_of_lt {x : Int} {y : Nat} (hge : -y ≤ x * 2) (hlt : x * 2 < y) :
     x.bmod y = x := by
   simp only [Int.bmod_def]
   rcases x

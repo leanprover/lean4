@@ -416,7 +416,12 @@ theorem attachWith_map {l : List α} (f : α → β) {P : β → Prop} {H : ∀ 
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   induction l <;> simp [*]
 
-theorem map_attachWith {l : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+@[simp] theorem map_attachWith {l : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+    (f : { x // P x } → β) :
+    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  induction l <;> simp_all
+
+theorem map_attachWith_eq_pmap {l : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
     (f : { x // P x } → β) :
     (l.attachWith P H).map f =
       l.pmap (fun a (h : a ∈ l ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
@@ -428,7 +433,7 @@ theorem map_attachWith {l : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ 
     simp
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
-theorem map_attach {l : List α} (f : { x // x ∈ l } → β) :
+theorem map_attach_eq_pmap {l : List α} (f : { x // x ∈ l } → β) :
     l.attach.map f = l.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   induction l with
   | nil => rfl
@@ -436,6 +441,9 @@ theorem map_attach {l : List α} (f : { x // x ∈ l } → β) :
     simp only [attach_cons, map_cons, map_map, Function.comp_apply, pmap, cons.injEq, true_and, ih]
     apply pmap_congr_left
     simp
+
+@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
+abbrev map_attach := @map_attach_eq_pmap
 
 theorem attach_filterMap {l : List α} {f : α → Option β} :
     (l.filterMap f).attach = l.attach.filterMap

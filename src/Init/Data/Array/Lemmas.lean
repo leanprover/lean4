@@ -1350,8 +1350,9 @@ theorem map_filter_eq_foldl (f : α → β) (p : α → Bool) (l : Array α) :
     simp only [List.filter_cons, List.foldr_cons]
     split <;> simp_all
 
-@[simp] theorem filter_append {p : α → Bool} (l₁ l₂ : Array α) :
-    filter p (l₁ ++ l₂) = filter p l₁ ++ filter p l₂ := by
+@[simp] theorem filter_append {p : α → Bool} (l₁ l₂ : Array α) (w : stop = l₁.size + l₂.size) :
+    filter p (l₁ ++ l₂) 0 stop = filter p l₁ ++ filter p l₂ := by
+  subst w
   rcases l₁ with ⟨l₁⟩
   rcases l₂ with ⟨l₂⟩
   simp [List.filter_append]
@@ -1440,11 +1441,17 @@ theorem _root_.List.filterMap_toArray (f : α → Option β) (l : List α) :
   rcases l with ⟨l⟩
   simp [h]
 
-@[simp] theorem filterMap_eq_map (f : α → β) (w : stop = as.size ) :
+@[simp] theorem filterMap_eq_map (f : α → β) (w : stop = as.size) :
     filterMap (some ∘ f) as 0 stop = map f as := by
   subst w
   cases as
   simp
+
+/-- Variant of `filterMap_eq_map` with `some ∘ f` expanded out to a lambda. -/
+@[simp]
+theorem filterMap_eq_map' (f : α → β) (w : stop = as.size) :
+    filterMap (fun x => some (f x)) as 0 stop = map f as :=
+  filterMap_eq_map f w
 
 theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
@@ -1514,8 +1521,9 @@ theorem forall_mem_filterMap {f : α → Option β} {l : Array α} {P : β → P
   intro a
   rw [forall_comm]
 
-@[simp] theorem filterMap_append {α β : Type _} (l l' : Array α) (f : α → Option β) :
-    filterMap f (l ++ l') = filterMap f l ++ filterMap f l' := by
+@[simp] theorem filterMap_append {α β : Type _} (l l' : Array α) (f : α → Option β) (w : stop = l.size + l'.size) :
+    filterMap f (l ++ l') 0 stop = filterMap f l ++ filterMap f l' := by
+  subst w
   cases l
   cases l'
   simp
@@ -1557,7 +1565,12 @@ theorem filterMap_eq_push_iff {f : α → Option β} {l : Array α} {l' : Array 
 @[simp] theorem size_append (as bs : Array α) : (as ++ bs).size = as.size + bs.size := by
   simp only [size, toList_append, List.length_append]
 
-@[simp] theorem append_push {as bs : Array α} {a : α} : as ++ bs.push a = (as ++ bs).push a := by
+@[simp] theorem push_append {a : α} {xs ys : Array α} : (xs ++ ys).push a = xs ++ ys.push a := by
+  cases xs
+  cases ys
+  simp
+
+theorem append_push {as bs : Array α} {a : α} : as ++ bs.push a = (as ++ bs).push a := by
   cases as
   cases bs
   simp
@@ -1667,6 +1680,9 @@ theorem getElem_of_append {l l₁ l₂ : Array α} (eq : l = l₁.push a ++ l₂
   simp
 
 @[simp] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := rfl
+
+@[simp] theorem append_singleton_assoc {a : α} {as bs : Array α} : as ++ (#[a] ++ bs) = as.push a ++ bs := by
+  rw [← append_assoc, append_singleton]
 
 theorem push_eq_append {a : α} {as : Array α} : as.push a = as ++ #[a] := rfl
 
@@ -1931,15 +1947,17 @@ theorem flatten_eq_flatMap {L : Array (Array α)} : flatten L = L.flatMap id := 
       Function.comp_def]
     rw [← Function.comp_def, ← List.map_map, flatten_toArray_map]
 
-@[simp] theorem filterMap_flatten (f : α → Option β) (L : Array (Array α)) :
-    filterMap f (flatten L) = flatten (map (filterMap f) L) := by
+@[simp] theorem filterMap_flatten (f : α → Option β) (L : Array (Array α)) (w : stop = L.flatten.size) :
+    filterMap f (flatten L) 0 stop = flatten (map (filterMap f) L) := by
+  subst w
   induction L using array₂_induction
   simp only [flatten_toArray_map, size_toArray, List.length_flatten, List.filterMap_toArray',
     List.filterMap_flatten, List.map_toArray, List.map_map, Function.comp_def]
   rw [← Function.comp_def, ← List.map_map, flatten_toArray_map]
 
-@[simp] theorem filter_flatten (p : α → Bool) (L : Array (Array α)) :
-    filter p (flatten L) = flatten (map (filter p) L) := by
+@[simp] theorem filter_flatten (p : α → Bool) (L : Array (Array α)) (w : stop = L.flatten.size) :
+    filter p (flatten L) 0 stop = flatten (map (filter p) L) := by
+  subst w
   induction L using array₂_induction
   simp only [flatten_toArray_map, size_toArray, List.length_flatten, List.filter_toArray',
     List.filter_flatten, List.map_toArray, List.map_map, Function.comp_def]
@@ -2397,11 +2415,25 @@ theorem reverse_eq_iff {as bs : Array α} : as.reverse = bs ↔ as = bs.reverse 
 @[simp] theorem map_reverse (f : α → β) (l : Array α) : l.reverse.map f = (l.map f).reverse := by
   cases l <;> simp [*]
 
-@[simp] theorem filter_reverse (p : α → Bool) (l : Array α) : (l.reverse.filter p) = (l.filter p).reverse := by
+/-- Variant of `filter_reverse` with a hypothesis giving the stop condition. -/
+@[simp] theorem filter_reverse' (p : α → Bool) (l : Array α) (w : stop = l.size) :
+     (l.reverse.filter p 0 stop) = (l.filter p).reverse := by
+  subst w
   cases l
   simp
 
-@[simp] theorem filterMap_reverse (f : α → Option β) (l : Array α) : (l.reverse.filterMap f) = (l.filterMap f).reverse := by
+theorem filter_reverse (p : α → Bool) (l : Array α) : (l.reverse.filter p) = (l.filter p).reverse := by
+  cases l
+  simp
+
+/-- Variant of `filterMap_reverse` with a hypothesis giving the stop condition. -/
+@[simp] theorem filterMap_reverse' (f : α → Option β) (l : Array α) (w : stop = l.size) :
+    (l.reverse.filterMap f 0 stop) = (l.filterMap f).reverse := by
+  subst w
+  cases l
+  simp
+
+theorem filterMap_reverse (f : α → Option β) (l : Array α) : (l.reverse.filterMap f) = (l.filterMap f).reverse := by
   cases l
   simp
 
@@ -2877,16 +2909,56 @@ rather than `(arr.push a).size` as the argument.
     (h : start = arr.size + 1) : (arr.push a).foldr f init start = arr.foldr f (f a init) :=
   foldrM_push' _ _ _ _ h
 
-@[simp] theorem foldl_push_eq_append (l l' : Array α) : l.foldl push l' = l' ++ l := by
-  cases l
-  cases l'
+@[simp] theorem foldl_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : stop = as.size) :
+    as.foldl (fun b a => Array.push b (f a)) bs 0 stop = bs ++ as.map f := by
+  subst w
+  rcases as with ⟨as⟩
+  rcases bs with ⟨bs⟩
+  simp only [List.foldl_toArray']
+  induction as generalizing bs <;> simp [*]
+
+@[simp] theorem foldl_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : stop = as.size) :
+    as.foldl (fun b a => (f a) :: b) bs 0 stop = (as.map f).reverse.toList ++ bs := by
+  subst w
+  rcases as with ⟨as⟩
   simp
 
-@[simp] theorem foldr_flip_push_eq_append (l l' : Array α) :
-    l.foldr (fun x y => push y x) l' = l' ++ l.reverse := by
-  cases l
-  cases l'
+@[simp] theorem foldr_cons_eq_append {as : Array α} {bs : List β} {f : α → β} (w : start = as.size) :
+    as.foldr (fun a b => (f a) :: b) bs start 0 = (as.map f).toList ++ bs := by
+  subst w
+  rcases as with ⟨as⟩
   simp
+
+/-- Variant of `foldr_cons_eq_append` specialized to `f = id`. -/
+@[simp] theorem foldr_cons_eq_append' {as : Array α} {bs : List α} (w : start = as.size) :
+    as.foldr List.cons bs start 0 = as.toList ++ bs := by
+  subst w
+  rcases as with ⟨as⟩
+  simp
+
+@[simp] theorem foldr_append_eq_append (l : Array α) (f : α → Array β) (l' : Array β) :
+    l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  induction l <;> simp_all [Function.comp_def, flatten_toArray]
+
+@[simp] theorem foldl_append_eq_append (l : Array α) (f : α → Array β) (l' : Array β) :
+    l.foldl (· ++ f ·) l' = l' ++ (l.map f).flatten := by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  induction l generalizing l'<;> simp_all [Function.comp_def, flatten_toArray]
+
+@[simp] theorem foldr_flip_append_eq_append (l : Array α) (f : α → Array β) (l' : Array β) :
+    l.foldr (fun x y => y ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  induction l generalizing l' <;> simp_all [Function.comp_def, flatten_toArray]
+
+@[simp] theorem foldl_flip_append_eq_append (l : Array α) (f : α → Array β) (l' : Array β) :
+    l.foldl (fun x y => f y ++ x) l' = (l.map f).reverse.flatten ++ l':= by
+  rcases l with ⟨l⟩
+  rcases l' with ⟨l'⟩
+  induction l generalizing l' <;> simp_all [Function.comp_def, flatten_toArray]
 
 theorem foldl_map' (f : β₁ → β₂) (g : α → β₂ → α) (l : Array β₁) (init : α) (w : stop = l.size) :
     (l.map f).foldl g init 0 stop = l.foldl (fun x y => g x (f y)) init := by
@@ -3039,6 +3111,13 @@ theorem foldl_eq_foldr_reverse (l : Array α) (f : β → α → β) (b) :
 
 theorem foldr_eq_foldl_reverse (l : Array α) (f : α → β → β) (b) :
     l.foldr f b = l.reverse.foldl (fun x y => f y x) b := by simp
+
+@[simp] theorem foldr_push_eq_append {as : Array α} {bs : Array β} {f : α → β} (w : start = as.size) :
+    as.foldr (fun a b => Array.push b (f a)) bs start 0 = bs ++ (as.map f).reverse := by
+  subst w
+  rw [foldr_eq_foldl_reverse, foldl_push_eq_append rfl, map_reverse]
+
+@[deprecated foldr_push_eq_append (since := "2025-02-09")] abbrev foldr_flip_push_eq_append := @foldr_push_eq_append
 
 theorem foldl_assoc {op : α → α → α} [ha : Std.Associative op] {l : Array α} {a₁ a₂} :
      l.foldl op (op a₁ a₂) = op a₁ (l.foldl op a₂) := by
@@ -3445,11 +3524,11 @@ theorem map_induction (as : Array α) (f : α → β) (motive : Nat → Prop) (h
     (motive := fun i arr => motive i ∧ arr.size = i ∧ ∀ i h2, p i arr[i.1])
     (init := #[]) (f := fun r a => r.push (f a)) ?_ ?_
   obtain ⟨m, eq, w⟩ := t
-  · refine ⟨m, by simpa [map_eq_foldl] using eq, ?_⟩
+  · refine ⟨m, by simp, ?_⟩
     intro i h
     simp only [eq] at w
     specialize w ⟨i, h⟩ h
-    simpa [map_eq_foldl] using w
+    simpa using w
   · exact ⟨h0, rfl, nofun⟩
   · intro i b ⟨m, ⟨eq, w⟩⟩
     refine ⟨?_, ?_, ?_⟩

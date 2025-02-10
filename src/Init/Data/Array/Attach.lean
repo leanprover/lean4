@@ -70,7 +70,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β p f L h'
   cases L
-  simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith]
+  simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith_eq_pmap]
   apply List.pmap_congr_left
   intro a m h₁ h₂
   congr
@@ -318,7 +318,7 @@ See however `foldl_subtype` below.
 theorem foldl_attach (l : Array α) (f : β → α → β) (b : β) :
     l.attach.foldl (fun acc t => f acc t.1) b = l.foldl f b := by
   rcases l with ⟨l⟩
-  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.map_attach, size_toArray,
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, size_toArray,
     List.length_pmap, List.foldl_toArray', mem_toArray, List.foldl_subtype]
   congr
   ext
@@ -337,7 +337,7 @@ See however `foldr_subtype` below.
 theorem foldr_attach (l : Array α) (f : α → β → β) (b : β) :
     l.attach.foldr (fun t acc => f t.1 acc) b = l.foldr f b := by
   rcases l with ⟨l⟩
-  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.map_attach, size_toArray,
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, size_toArray,
     List.length_pmap, List.foldr_toArray', mem_toArray, List.foldr_subtype]
   congr
   ext
@@ -354,7 +354,12 @@ theorem attachWith_map {l : Array α} (f : α → β) {P : β → Prop} {H : ∀
   cases l
   simp [List.attachWith_map]
 
-theorem map_attachWith {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+@[simp] theorem map_attachWith {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+    (f : { x // P x } → β) :
+    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  cases l <;> simp_all
+
+theorem map_attachWith_eq_pmap {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
     (f : { x // P x } → β) :
     (l.attachWith P H).map f =
       l.pmap (fun a (h : a ∈ l ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
@@ -362,10 +367,13 @@ theorem map_attachWith {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈
   ext <;> simp
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
-theorem map_attach {l : Array α} (f : { x // x ∈ l } → β) :
+theorem map_attach_eq_pmap {l : Array α} (f : { x // x ∈ l } → β) :
     l.attach.map f = l.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   cases l
   ext <;> simp
+
+@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
+abbrev map_attach := @map_attach_eq_pmap
 
 theorem attach_filterMap {l : Array α} {f : α → Option β} :
     (l.filterMap f).attach = l.attach.filterMap
@@ -505,7 +513,7 @@ theorem count_attach [DecidableEq α] (l : Array α) (a : {x // x ∈ l}) :
     l.attach.count a = l.count ↑a := by
   rcases l with ⟨l⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.count_toArray]
-  rw [List.map_attach, List.count_eq_countP]
+  rw [List.map_attach_eq_pmap, List.count_eq_countP]
   simp only [Subtype.beq_iff]
   rw [List.countP_pmap, List.countP_attach (p := (fun x => x == a.1)), List.count]
 

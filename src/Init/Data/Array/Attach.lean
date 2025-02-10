@@ -650,6 +650,16 @@ and simplifies these to the function directly taking the value.
   rw [List.filterMap_subtype]
   simp [hf]
 
+
+@[simp] theorem flatMap_subtype {p : α → Prop} {l : Array { x // p x }}
+    {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
+    (l.flatMap f) = l.unattach.flatMap g := by
+  cases l
+  simp only [size_toArray, List.flatMap_toArray, List.unattach_toArray, List.length_unattach,
+    mk.injEq]
+  rw [List.flatMap_subtype]
+  simp [hf]
+
 @[simp] theorem findSome?_subtype {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findSome? f = l.unattach.findSome? g := by
@@ -694,5 +704,68 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_mkArray {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (Array.mkArray n x).unattach = Array.mkArray n x.1 := by
   simp [unattach]
+
+/-! ### Well-founded recursion preprocessing setup -/
+
+@[wf_preprocess] theorem Array.map_wfParam (xs : Array α) (f : α → β) :
+    (wfParam xs).map f = xs.attach.unattach.map f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem Array.map_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → β) :
+    xs.unattach.map f = xs.map fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldl_wfParam (xs : Array α) (f : β → α → β) (x : β) :
+    (wfParam xs).foldl f x = xs.attach.unattach.foldl f x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldl_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : β → α → β) (x : β):
+    xs.unattach.foldl f x = xs.foldl (fun s ⟨x, h⟩ =>
+      binderNameHint s f <| binderNameHint x (f s) <| binderNameHint h () <| f s (wfParam x)) x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldr_wfParam (xs : Array α) (f : α → β → β) (x : β) :
+    (wfParam xs).foldr f x = xs.attach.unattach.foldr f x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldr_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → β → β) (x : β):
+    xs.unattach.foldr f x = xs.foldr (fun ⟨x, h⟩ s =>
+      binderNameHint x f <| binderNameHint s (f x) <| binderNameHint h () <| f (wfParam x) s) x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_wfParam (xs : Array α) (f : α → Bool) :
+    (wfParam xs).filter f = xs.attach.unattach.filter f:= by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → Bool) :
+    xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x))).unattach := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem reverse_wfParam (xs : Array α) :
+    (wfParam xs).reverse = xs.attach.unattach.reverse := by simp [wfParam]
+
+@[wf_preprocess] theorem reverse_unattach (P : α → Prop) (xs : Array (Subtype P)) :
+    xs.unattach.reverse = xs.reverse.unattach := by simp
+
+@[wf_preprocess] theorem filterMap_wfParam (xs : Array α) (f : α → Option β) :
+    (wfParam xs).filterMap f = xs.attach.unattach.filterMap f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filterMap_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → Option β) :
+    xs.unattach.filterMap f = xs.filterMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem flatMap_wfParam (xs : Array α) (f : α → Array β) :
+    (wfParam xs).flatMap f = xs.attach.unattach.flatMap f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem flatMap_unattach (P : α → Prop) (xs : Array (Subtype P)) (f : α → Array β) :
+    xs.unattach.flatMap f = xs.flatMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
 
 end Array

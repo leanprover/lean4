@@ -6,6 +6,7 @@ Authors: Mario Carneiro
 prelude
 import Init.Data.List.Count
 import Init.Data.Subtype
+import Init.BinderNameHint
 
 namespace List
 
@@ -795,5 +796,67 @@ and simplifies these to the function directly taking the value.
 @[simp] theorem unattach_replicate {p : α → Prop} {n : Nat} {x : { x // p x }} :
     (List.replicate n x).unattach = List.replicate n x.1 := by
   simp [unattach, -map_subtype]
+
+/-! ### Well-founded recursion preprocessing setup -/
+
+@[wf_preprocess] theorem map_wfParam (xs : List α) (f : α → β) :
+    (wfParam xs).map f = xs.attach.unattach.map f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem map_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β) :
+    xs.unattach.map f = xs.map fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldl_wfParam (xs : List α) (f : β → α → β) (x : β) :
+    (wfParam xs).foldl f x = xs.attach.unattach.foldl f x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldl_unattach (P : α → Prop) (xs : List (Subtype P)) (f : β → α → β) (x : β):
+    xs.unattach.foldl f x = xs.foldl (fun s ⟨x, h⟩ =>
+      binderNameHint s f <| binderNameHint x (f s) <| binderNameHint h () <| f s (wfParam x)) x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldr_wfParam (xs : List α) (f : α → β → β) (x : β) :
+    (wfParam xs).foldr f x = xs.attach.unattach.foldr f x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldr_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → β → β) (x : β):
+    xs.unattach.foldr f x = xs.foldr (fun ⟨x, h⟩ s =>
+      binderNameHint x f <| binderNameHint s (f x) <| binderNameHint h () <| f (wfParam x) s) x := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_wfParam (xs : List α) (f : α → Bool) :
+    (wfParam xs).filter f = xs.attach.unattach.filter f:= by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filter_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Bool) :
+    xs.unattach.filter f = (xs.filter (fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x))).unattach := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem reverse_wfParam (xs : List α) :
+    (wfParam xs).reverse = xs.attach.unattach.reverse := by simp [wfParam]
+
+@[wf_preprocess] theorem reverse_unattach (P : α → Prop) (xs : List (Subtype P)) :
+    xs.unattach.reverse = xs.reverse.unattach := by simp
+
+@[wf_preprocess] theorem filterMap_wfParam (xs : List α) (f : α → Option β) :
+    (wfParam xs).filterMap f = xs.attach.unattach.filterMap f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filterMap_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → Option β) :
+    xs.unattach.filterMap f = xs.filterMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem flatMap_wfParam (xs : List α) (f : α → List β) :
+    (wfParam xs).flatMap f = xs.attach.unattach.flatMap f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem flatMap_unattach (P : α → Prop) (xs : List (Subtype P)) (f : α → List β) :
+    xs.unattach.flatMap f = xs.flatMap fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
 
 end List

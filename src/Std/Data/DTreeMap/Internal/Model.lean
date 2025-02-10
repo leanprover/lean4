@@ -236,7 +236,7 @@ def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced
 Model implementation of the `alter` function.
 Internal implementation detail of the tree map
 -/
-def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrdWrt β] (k : α) (f : Option (β k) → Option (β k))
+def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k))
     (t : Impl α β) (h : t.Balanced) : Impl α β :=
   updateCell k (·.alter f) t h |>.impl
 
@@ -250,6 +250,14 @@ Internal implementation detail of the tree map
 -/
 def get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) : Option β :=
   applyCell k l fun c _ => Cell.Const.get? c
+
+/--
+Model implementation of the `alter` function.
+Internal implementation detail of the tree map
+-/
+def alterₘ [Ord α] [OrientedOrd α] (k : α) (f : Option β → Option β)
+    (t : Impl α (fun _ => β)) (h : t.Balanced) : Impl α (fun _ => β) :=
+  updateCell k (Cell.Const.alter f) t h |>.impl
 
 end Const
 

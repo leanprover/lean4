@@ -7,10 +7,11 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Init.Data.Ord
 /-!
-# Type classes for comparisons
+# Type classes related to `Ord`
 
-This file provides several typeclasses related to `Ord` and `BEq` and functionality to bridge the
-gap between the two worlds.
+This file provides several typeclasses encode properties of an `Ord` instance. For each typeclass,
+there is also a variant that does not depend on an `Ord` instance and take an explicit comparison
+function `cmp : α → α → Ordering` instead,
 -/
 
 set_option autoImplicit false
@@ -242,49 +243,5 @@ theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
   rfl := by simp
 
 end BEqOfOrd
-
-namespace Internal
-
-universe v
-variable {α : Type u} {γ : Type v}
-
-/--
-Implementation detail. A typeclass of types for which equal elements with respect to `compare`
-are mapped to the same value by a given function `f`.
--/
-class LawfulEqOrdWrt [Ord α] (f : α → γ) : Prop where
-  /-- Implementation detail. -/
-  congr_of_compare {a b : α} (h : compare a b = .eq) : f a = f b
-
-instance [Ord α] [inst : LawfulEqOrd α] {f : α → γ} : LawfulEqOrdWrt f where
-  congr_of_compare h := congrArg f <| inst.eq_of_compare <| beq_iff_eq.mpr h
-
-instance [Ord α] {g : γ} : LawfulEqOrdWrt fun (_ : α) => g where
-  congr_of_compare _ := rfl
-
-/--
-Implementation detail. A typeclass of types for which equal elements with respect to `==`
-are mapped to the same value by a given function `f`.
--/
-class LawfulBEqWrt [BEq α] (f : α → γ) : Prop where
-  /-- Implementation detail. -/
-  congr_of_beq {a b : α} (h : a == b) : f a = f b
-
-instance [BEq α] [inst : LawfulBEq α] {f : α → γ} : LawfulBEqWrt f where
-  congr_of_beq h := congrArg f <| inst.eq_of_beq <| h
-
-instance [BEq α] {g : γ} : LawfulBEqWrt fun (_ : α) => g where
-  congr_of_beq _ := rfl
-
-section BEqOfOrd
-
-attribute [local instance] beqOfOrd
-
-theorem lawfulBEqWrt_of_lawfulEqOrdWrt [Ord α] (f : α → γ) [LawfulEqOrdWrt f] : LawfulBEqWrt f where
-  congr_of_beq h := LawfulEqOrdWrt.congr_of_compare <| beq_iff_eq.mp h
-
-end BEqOfOrd
-
-end Internal
 
 end Std

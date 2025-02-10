@@ -140,9 +140,9 @@ theorem isEmpty_eq_false_iff_exists_isSome_getValue? [BEq α] [ReflBEq α] {l : 
 end
 
 /-- Internal implementation detail of the hash map -/
-def getValueCast? [BEq α] [LawfulBEqWrt β] (a : α) : List ((a : α) × β a) → Option (β a)
+def getValueCast? [BEq α] [LawfulBEq α] (a : α) : List ((a : α) × β a) → Option (β a)
   | [] => none
-  | ⟨k, v⟩ :: l => if h : k == a then some (cast (LawfulBEqWrt.congr_of_beq h) v)
+  | ⟨k, v⟩ :: l => if h : k == a then some (cast (congrArg β (eq_of_beq h)) v)
       else getValueCast? a l
 
 @[simp] theorem getValueCast?_nil [BEq α] [LawfulBEq α] {a : α} :
@@ -2785,9 +2785,8 @@ private theorem function_id_comp {α : Type u} {β : Type v} {f : α → β} :
 section Alter
 
 section Dependent
-open Std.Internal (LawfulBEqWrt)
 
-variable [BEq α] [LawfulBEqWrt β]
+variable [BEq α] [LawfulBEq α]
 
 /-- Internal implementation detail of the hash map -/
 def alterKey (k : α) (f : Option (β k) → Option (β k))

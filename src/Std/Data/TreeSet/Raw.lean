@@ -192,7 +192,7 @@ def fromArray (l : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
 
 @[inline, inherit_doc TreeSet.empty]
 def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=
-  ⟨TreeMap.Raw.mergeBy (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+  ⟨TreeMap.Raw.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=

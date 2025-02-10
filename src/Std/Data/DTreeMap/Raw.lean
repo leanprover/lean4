@@ -257,9 +257,9 @@ def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw 
 def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc DTreeMap.mergeBy]
-def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeBy! mergeFn t₂.inner⟩
+@[inline, inherit_doc DTreeMap.mergeWith]
+def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
 namespace Const
 open Internal (Impl)
@@ -290,9 +290,9 @@ def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cm
 def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc Raw.mergeBy]
-def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeBy! mergeFn t₁.inner t₂.inner⟩
+@[inline, inherit_doc Raw.mergeWith]
+def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
 
 end Const
 

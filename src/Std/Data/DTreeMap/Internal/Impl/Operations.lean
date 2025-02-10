@@ -628,7 +628,7 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β)
+def mergeWith [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β)
     (ht₁ : t₁.Balanced) : BalancedTree α β :=
   t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
     (t.impl.alter a (fun
@@ -641,7 +641,7 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β) :
+def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β) :
     Impl α β :=
   t₂.foldl (init := t₁) fun t a b₂ =>
     t.alter! a fun
@@ -707,7 +707,7 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Impl α β)
+def mergeWith [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Impl α β)
     (ht₁   : t₁.Balanced) : BalancedTree α β :=
   t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
     (alter a (fun
@@ -720,7 +720,7 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Impl α β) : Impl α β :=
+def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Impl α β) : Impl α β :=
   t₂.foldl (init := t₁) fun t a b₂ =>
     alter! (t := t) a fun
       | none => some b₂

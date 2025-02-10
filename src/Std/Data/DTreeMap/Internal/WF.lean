@@ -979,12 +979,12 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
-### mergeBy
+### mergeWith
 -/
 
-theorem ordered_mergeBy [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : Impl α β} {f}
+theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : Impl α β} {f}
     (htb : t₁.Balanced) (hto : t₁.Ordered) :
-    (t₁.mergeBy f t₂ htb).impl.Ordered := by
+    (t₁.mergeWith f t₂ htb).impl.Ordered := by
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
@@ -1045,12 +1045,12 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   exact ordered_updateAtKey htb hto
 
 /-!
-### mergeBy
+### mergeWith
 -/
 
-theorem ordered_mergeBy [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
+theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
     (htb : t₁.Balanced) (hto : t₁.Ordered) :
-    (mergeBy f t₁ t₂ htb).impl.Ordered := by
+    (mergeWith f t₁ t₂ htb).impl.Ordered := by
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
@@ -1071,8 +1071,8 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_containsThenInsert ‹_› ‹_›
   · exact ordered_containsThenInsertIfNew ‹_› ‹_›
   · exact ordered_filter ‹_›
-  · exact ordered_mergeBy ‹_› ‹_›
-  · exact Const.ordered_mergeBy ‹_› ‹_›
+  · exact ordered_mergeWith ‹_› ‹_›
+  · exact Const.ordered_mergeWith ‹_› ‹_›
   · exact ordered_ofList
   · exact ordered_ofArray
   · exact Const.ordered_ofList

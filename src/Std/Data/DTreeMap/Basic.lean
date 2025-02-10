@@ -338,8 +338,8 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeBy mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeBy⟩
+def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
 
 namespace Const
 
@@ -370,10 +370,10 @@ def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α 
 def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc DTreeMap.mergeBy]
-def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+@[inline, inherit_doc DTreeMap.mergeWith]
+def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩;
-  ⟨Impl.Const.mergeBy mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeBy⟩
+  ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeBy⟩
 
 end Const
 

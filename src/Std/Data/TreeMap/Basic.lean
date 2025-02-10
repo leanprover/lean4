@@ -206,9 +206,9 @@ def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α �
 def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
   ofArray l cmp
 
-@[inline, inherit_doc DTreeMap.mergeBy]
-def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
-  ⟨DTreeMap.Const.mergeBy mergeFn t₁.inner t₂.inner⟩
+@[inline, inherit_doc DTreeMap.mergeWith]
+def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=

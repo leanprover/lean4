@@ -223,7 +223,7 @@ def fromArray (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
 /-- Returns a set that contains all mappings of `t₁` and `t₂. -/
 @[inline]
 def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
-  ⟨TreeMap.mergeBy (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+  ⟨TreeMap.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

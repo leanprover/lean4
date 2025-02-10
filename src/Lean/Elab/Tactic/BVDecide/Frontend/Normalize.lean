@@ -13,6 +13,7 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 
 /-!
@@ -57,6 +58,10 @@ where
 
     if cfg.structures then
       let some g' ← structuresPass.run g | return none
+      g := g'
+
+    if cfg.enums then
+      let some g' ← enumsPass.run g | return none
       g := g'
 
     if cfg.fixedInt then

@@ -370,14 +370,14 @@ theorem and_or_inj_left_iff :
 /-- convert a `Bool` to a `Nat`, `false -> 0`, `true -> 1` -/
 def toNat (b : Bool) : Nat := cond b 1 0
 
-@[simp, bv_toNat] theorem toNat_false : false.toNat = 0 := rfl
+@[simp, bitvec_to_nat] theorem toNat_false : false.toNat = 0 := rfl
 
-@[simp, bv_toNat] theorem toNat_true : true.toNat = 1 := rfl
+@[simp, bitvec_to_nat] theorem toNat_true : true.toNat = 1 := rfl
 
 theorem toNat_le (c : Bool) : c.toNat ≤ 1 := by
   cases c <;> trivial
 
-@[bv_toNat]
+@[bitvec_to_nat]
 theorem toNat_lt (b : Bool) : b.toNat < 2 :=
   Nat.lt_succ_of_le (toNat_le _)
 
@@ -580,17 +580,17 @@ protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = tru
     decide (p ↔ q) = (decide p == decide q) := by
   cases dp with | _ p => simp [p]
 
-@[boolToPropSimps]
+@[bool_to_prop]
 theorem and_eq_decide (p q : Prop) [dpq : Decidable (p ∧ q)] [dp : Decidable p] [dq : Decidable q] :
     (p && q) = decide (p ∧ q) := by
   cases dp with | _ p => simp [p]
 
-@[boolToPropSimps]
+@[bool_to_prop]
 theorem or_eq_decide (p q : Prop) [dpq : Decidable (p ∨ q)] [dp : Decidable p] [dq : Decidable q] :
     (p || q) = decide (p ∨ q) := by
   cases dp with | _ p => simp [p]
 
-@[boolToPropSimps]
+@[bool_to_prop]
 theorem decide_beq_decide (p q : Prop) [dpq : Decidable (p ↔ q)] [dp : Decidable p] [dq : Decidable q] :
     (decide p == decide q) = decide (p ↔ q) := by
   cases dp with | _ p => simp [p]

@@ -10,7 +10,8 @@ import Init.Data.List.Lemmas
 # Lemmas about `List.take` and `List.drop`.
 -/
 
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -251,18 +252,18 @@ theorem dropLast_eq_take (l : List α) : l.dropLast = l.take (l.length - 1) := b
     induction l generalizing x <;> simp_all [dropLast]
 
 @[simp] theorem map_take (f : α → β) :
-    ∀ (L : List α) (i : Nat), (L.take i).map f = (L.map f).take i
+    ∀ (l : List α) (i : Nat), (l.take i).map f = (l.map f).take i
   | [], i => by simp
   | _, 0 => by simp
-  | h :: t, n + 1 => by dsimp; rw [map_take f t n]
+  | _ :: tl, n + 1 => by dsimp; rw [map_take f tl n]
 
 @[simp] theorem map_drop (f : α → β) :
-    ∀ (L : List α) (i : Nat), (L.drop i).map f = (L.map f).drop i
+    ∀ (l : List α) (i : Nat), (l.drop i).map f = (l.map f).drop i
   | [], i => by simp
-  | L, 0 => by simp
-  | h :: t, n + 1 => by
+  | l, 0 => by simp
+  | _ :: tl, n + 1 => by
     dsimp
-    rw [map_drop f t]
+    rw [map_drop f tl]
 
 /-! ### takeWhile and dropWhile -/
 
@@ -395,7 +396,7 @@ theorem dropWhile_append {xs ys : List α} :
       if (xs.dropWhile p).isEmpty then ys.dropWhile p else xs.dropWhile p ++ ys := by
   induction xs with
   | nil => simp
-  | cons h t ih =>
+  | cons _ _ ih =>
     simp only [cons_append, dropWhile_cons]
     split <;> simp_all
 
@@ -440,13 +441,13 @@ theorem take_takeWhile {l : List α} (p : α → Bool) i :
 @[simp] theorem all_takeWhile {l : List α} : (l.takeWhile p).all p = true := by
   induction l with
   | nil => rfl
-  | cons h t ih => by_cases p h <;> simp_all
+  | cons h _ ih => by_cases p h <;> simp_all
 
 @[simp] theorem any_dropWhile {l : List α} :
     (l.dropWhile p).any (fun x => !p x) = !l.all p := by
   induction l with
   | nil => rfl
-  | cons h t ih => by_cases p h <;> simp_all
+  | cons h _ ih => by_cases p h <;> simp_all
 
 theorem replace_takeWhile [BEq α] [LawfulBEq α] {l : List α} {p : α → Bool} (h : p a = p b) :
     (l.takeWhile p).replace a b = (l.replace a b).takeWhile p := by

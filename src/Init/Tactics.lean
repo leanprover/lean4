@@ -1603,10 +1603,67 @@ using `show_term`.
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
 /--
-`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
-accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+`expose_names` renames all inaccessible variables with accessible names, making them available
+for reference in generated tactics. However, this renaming introduces machine-generated names
+that are not fully under user control. `expose_names` is primarily intended as a preamble for
+auto-generated end-game tactic scripts. It is also useful as an alternative to
+`set_option tactic.hygienic false`. If explicit control over renaming is needed in the
+middle of a tactic script, consider using structured tactic scripts with
+`match .. with`, `induction .. with`, or `intro` with explicit user-defined names,
+as well as tactics such as `next`, `case`, and `rename_i`.
 -/
 syntax (name := exposeNames) "expose_names" : tactic
+
+/--
+Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
+verifying it inside Lean. The solvable goals are currently limited to
+- the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
+- automatically splitting up `structure`s that contain information about `BitVec` or `Bool`
+```lean
+example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
+  intros
+  bv_decide
+```
+
+If `bv_decide` encounters an unknown definition it will be treated like an unconstrained `BitVec`
+variable. Sometimes this enables solving goals despite not understanding the definition because
+the precise properties of the definition do not matter in the specific proof.
+
+If `bv_decide` fails to close a goal it provides a counter-example, containing assignments for all
+terms that were considered as variables.
+
+In order to avoid calling a SAT solver every time, the proof can be cached with `bv_decide?`.
+
+If solving your problem relies inherently on using associativity or commutativity, consider enabling
+the `bv.ac_nf` option.
+
+
+Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvDecideMacro) (priority:=low) "bv_decide" optConfig : tactic =>
+  Macro.throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
+
+
+/--
+Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvTraceMacro) (priority:=low) "bv_decide?" optConfig : tactic =>
+  Macro.throwError "to use `bv_decide?`, please include `import Std.Tactic.BVDecide`"
+
+
+/--
+Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
+`BitVec` goals already.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
+  Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
+
 
 end Tactic
 

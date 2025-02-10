@@ -307,30 +307,10 @@ def keysArray (t : DTreeMap α β cmp) : Array α :=
 def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
   t.inner.toList
 
-/-- Transforms a list of mappings into a tree map. -/
-@[inline]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofList l |>.impl, Impl.WF.ofList⟩
-
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-06")]
-def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofList l cmp
-
 /-- Transforms the tree map into a list of mappings in ascending order. -/
 @[inline]
 def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
-
-/-- Transforms an array of mappings into a tree map. -/
-@[inline]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofArray l |>.impl, Impl.WF.ofArray⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-06")]
-def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofArray l cmp
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -349,26 +329,9 @@ variable {β : Type v}
 def toList (t : DTreeMap α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
-@[inline, inherit_doc DTreeMap.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  ⟨Impl.Const.ofList l |>.impl, Impl.WF.constOfList⟩
-
-@[inline, inherit_doc DTreeMap.ofList, deprecated ofList (since := "2025-02-06")]
-def fromList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
-
-@[inline, inherit_doc DTreeMap.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl, Impl.WF.constOfArray⟩
-
-@[inline, inherit_doc DTreeMap.ofArray, deprecated ofArray (since := "2025-02-06")]
-def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofArray l cmp
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=

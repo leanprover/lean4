@@ -836,54 +836,6 @@ theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v 
   exact toListModel_insertIfNew htb hto
 
 /-!
-### ofList
--/
-
-theorem ordered_ofList [Ord α] [TransOrd α] {l : List ((a : α) × β a)} : (Impl.ofList l).impl.Ordered := by
-  rw [Impl.ofList, List.foldl_eq_foldr_reverse]
-  generalize l.reverse = l
-  induction l
-  · exact ordered_empty
-  · apply ordered_insert
-    assumption
-
-/-!
-### ofArray
--/
-
-theorem ordered_ofArray [Ord α] [TransOrd α] {l : Array ((a : α) × β a)} : (Impl.ofArray l).impl.Ordered := by
-  rw [Impl.ofArray]
-  rw [← Array.foldl_toList]
-  apply ordered_ofList
-
-namespace Const
-
-variable {β : Type v}
-
-/-!
-### ofList
--/
-
-theorem ordered_ofList [Ord α] [TransOrd α] {l : List (α × β)} : (Impl.Const.ofList l).impl.Ordered := by
-  rw [Impl.Const.ofList, List.foldl_eq_foldr_reverse]
-  generalize l.reverse = l
-  induction l
-  · exact ordered_empty
-  · apply ordered_insert
-    assumption
-
-/-!
-### ofArray
--/
-
-theorem ordered_ofArray [Ord α] [TransOrd α] {l : Array (α × β)} : (Impl.Const.ofArray l).impl.Ordered := by
-  rw [Impl.Const.ofArray]
-  rw [← Array.foldl_toList]
-  apply ordered_ofList
-
-end Const
-
-/-!
 ### filterMap
 -/
 
@@ -1073,10 +1025,6 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_filter ‹_›
   · exact ordered_mergeWith ‹_› ‹_›
   · exact Const.ordered_mergeWith ‹_› ‹_›
-  · exact ordered_ofList
-  · exact ordered_ofArray
-  · exact Const.ordered_ofList
-  · exact Const.ordered_ofArray
 
 /-!
 ## Deducing that additional operations are well-formed

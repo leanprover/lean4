@@ -727,35 +727,3 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
       | some b₁ => some <| mergeFn a b₁ b₂
 
 end Const
-
-/-- Transforms an array of mappings into a tree map. -/
-@[inline]
-def ofArray [Ord α] (l : Array ((a : α) × β a)) : BalancedTree α β :=
-  l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
-    let treeB := r.impl.insert p.1 p.2 r.balanced_impl
-    ⟨treeB.impl, treeB.balanced_impl⟩)
-
-/-- Transforms an array of mappings into a tree map. -/
-@[inline]
-def ofList [Ord α] (l : List ((a : α) × β a)) : BalancedTree α β :=
-  l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
-    let treeB := r.impl.insert p.1 p.2 r.balanced_impl
-    ⟨treeB.impl, treeB.balanced_impl⟩)
-
-namespace Const
-
-variable {β : Type v}
-
-/-- Transforms a list of mappings into a tree map. -/
-@[inline] def ofArray [Ord α] (l : Array (α × β)) :  BalancedTree α (fun _ => β) :=
-  l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
-    let treeB := r.impl.insert p.1 p.2 r.balanced_impl
-    ⟨treeB.impl, treeB.balanced_impl⟩)
-
-/-- Transforms an array of mappings into a tree map. -/
-@[inline] def ofList [Ord α] (l : List (α × β)) : BalancedTree α (fun _ => β) :=
-  l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
-    let treeB := r.impl.insert p.1 p.2 r.balanced_impl
-    ⟨treeB.impl, treeB.balanced_impl⟩)
-
-end Const

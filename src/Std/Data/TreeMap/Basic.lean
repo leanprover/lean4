@@ -186,25 +186,9 @@ def keysArray (t : TreeMap α β cmp) : Array α :=
 def toList (t : TreeMap α β cmp) : List (α × β) :=
   DTreeMap.Const.toList t.inner
 
-@[inline, inherit_doc DTreeMap.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
-  ⟨DTreeMap.Const.ofList l cmp⟩
-
-@[inline, inherit_doc DTreeMap.Const.ofList, deprecated ofList (since := "2025-02-06")]
-def fromList (l : List (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc DTreeMap.Const.toArray]
 def toArray (t : TreeMap α β cmp) : Array (α × β) :=
   DTreeMap.Const.toArray t.inner
-
-@[inline, inherit_doc DTreeMap.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
-  ⟨DTreeMap.Const.ofArray l cmp⟩
-
-@[inline, inherit_doc DTreeMap.Const.ofArray, deprecated ofArray (since := "2025-02-06")]
-def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
-  ofArray l cmp
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=

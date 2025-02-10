@@ -58,14 +58,6 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | mergeWith {t₁ t₂ f h} [LawfulEqOrd α] : WF t₁ → WF (t₁.mergeWith f t₂ h).impl
   /-- `mergeWith` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | constMergeBy {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith f t₁ t₂ h).impl
-  /-- `toList` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
-  | ofList {l} : WF <| ofList l |>.impl
-  /-- `ofList` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
-  | ofArray {l} : WF <| ofArray l |>.impl
-  /-- `Const.ofList` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
-  | constOfList {l} : WF <| Impl.Const.ofList l |>.impl
-  /-- `Const.ofArray` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
-  | constOfArray {l} : WF <| Impl.Const.ofArray l |>.impl
 
 /-- A well-formed tree is balanced. This is needed here already because we need to know that the
 tree is balanced to call the optimized modification functions. -/

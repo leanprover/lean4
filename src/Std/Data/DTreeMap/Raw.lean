@@ -237,25 +237,9 @@ def keysArray (t : Raw α β cmp) : Array α :=
 def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
   t.inner.toList
 
-@[inline, inherit_doc DTreeMap.ofList]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Internal.Impl.ofList l |>.impl⟩
-
-@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-06")]
-def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
-
-@[inline, inherit_doc DTreeMap.ofArray]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Internal.Impl.ofArray l |>.impl⟩
-
-@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-06")]
-def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofArray l cmp
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
@@ -270,25 +254,9 @@ variable {β : Type v}
 def toList (t : Raw α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
-@[inline, inherit_doc Raw.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l |>.impl⟩
-
-@[inline, inherit_doc Raw.ofList, deprecated ofList (since := "2025-02-06")]
-def fromList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofList l cmp
-
 @[inline, inherit_doc Raw.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
-
-@[inline, inherit_doc Raw.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl⟩
-
-@[inline, inherit_doc Raw.ofArray, deprecated ofArray (since := "2025-02-06")]
-def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofArray l cmp
 
 @[inline, inherit_doc Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=

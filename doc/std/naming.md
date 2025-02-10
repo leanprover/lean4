@@ -57,7 +57,7 @@ for deciding where to place a theorem, and is, on occasion, a good reason to dup
 New types that are added will usually be placed in the `Std` namespace and in the `Std/` source directory, unless there are good reasons to place
 them elsewhere.
 
-Inside the  `Std` namespace, all internal declarations should be `private` or else have a name component that clearly marks them as internal, preferably
+Inside the `Std` namespace, all internal declarations should be `private` or else have a name component that clearly marks them as internal, preferably
 `Internal`.
 
 

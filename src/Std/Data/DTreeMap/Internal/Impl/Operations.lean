@@ -292,7 +292,7 @@ termination_by sizeOf l + sizeOf r
 
 variable (α β) in
 /-- A balanced tree of one of the given sizes. -/
-structure TreeB (lb ub : Nat) where
+structure SizedBalancedTree (lb ub : Nat) where
   /-- The tree. -/
   impl : Impl α β
   /-- The tree is balanced. -/
@@ -302,7 +302,7 @@ structure TreeB (lb ub : Nat) where
   /-- The tree has size at most `ub`. -/
   size_impl_le_ub : impl.size ≤ ub
 
-attribute [Std.Internal.tree_tac] TreeB.balanced_impl
+attribute [Std.Internal.tree_tac] SizedBalancedTree.balanced_impl
 
 /-- An empty tree. -/
 @[inline]
@@ -317,7 +317,7 @@ attribute [Std.Internal.tree_tac] or_true true_or
 
 /-- Adds a new mapping to the key, overwriting an existing one with equal key if present. -/
 def insert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
-    TreeB α β t.size (t.size + 1) :=
+    SizedBalancedTree α β t.size (t.size + 1) :=
   match t with
   | leaf => ⟨.inner 1 k v .leaf .leaf, ✓, ✓, ✓⟩
   | inner sz k' v' l' r' =>
@@ -346,7 +346,7 @@ def insert! [Ord α] (k : α) (v : β k) (t : Impl α β) : Impl α β :=
 /-- Returns the pair `(t.contains k, t.insert k v)`. -/
 @[inline]
 def containsThenInsert [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
-    Bool × TreeB α β t.size (t.size + 1) :=
+    Bool × SizedBalancedTree α β t.size (t.size + 1) :=
   let sz := size t
   let m := t.insert k v hl
   (sz == m.1.size, m)
@@ -373,7 +373,7 @@ where -- workaround for https://github.com/leanprover/lean4/issues/6058
 /-- Adds a new mapping to the tree, leaving the tree unchanged if the key is already present. -/
 @[inline]
 def insertIfNew [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
-    TreeB α β t.size (t.size + 1) :=
+    SizedBalancedTree α β t.size (t.size + 1) :=
   if t.contains k then ⟨t, ✓, ✓, ✓⟩ else t.insert k v ✓
 
 /--
@@ -388,7 +388,7 @@ def insertIfNew! [Ord α] (k : α) (v : β k) (t : Impl α β) :
 /-- Returns the pair `(t.contains k, t.insertIfNew k v)`. -/
 @[inline]
 def containsThenInsertIfNew [Ord α] (k : α) (v : β k) (t : Impl α β) (hl : t.Balanced) :
-    Bool × TreeB α β t.size (t.size + 1) :=
+    Bool × SizedBalancedTree α β t.size (t.size + 1) :=
   if t.contains k then (true, ⟨t, ✓, ✓, ✓⟩) else (false, t.insert k v ✓)
 
 /--
@@ -401,7 +401,8 @@ def containsThenInsertIfNew! [Ord α] (k : α) (v : β k) (t : Impl α β) :
   if t.contains k then (true, t) else (false, t.insert! k v)
 
 /-- Removes the mapping with key `k`, if it exists. -/
-def erase [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) : TreeB α β (t.size - 1) t.size :=
+def erase [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) :
+    SizedBalancedTree α β (t.size - 1) t.size :=
   match t with
   | leaf => ⟨.leaf, ✓, ✓, ✓⟩
   | inner sz k' v' l r =>
@@ -460,16 +461,16 @@ def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ)
 
 variable (α β) in
 /-- A balanced tree. -/
-structure BImpl where
+structure BalancedTree where
   /-- The tree. -/
   impl : Impl α β
   /-- The tree is balanced. -/
   balanced_impl : impl.Balanced
 
-attribute [Std.Internal.tree_tac] BImpl.balanced_impl
+attribute [Std.Internal.tree_tac] BalancedTree.balanced_impl
 
-/-- Transforms an element of `TreeB` into a `BImpl`. -/
-def TreeB.toBImpl {lb ub} (t : TreeB α β lb ub) : BImpl α β :=
+/-- Transforms an element of `SizedBalancedTree` into a `BalancedTree`. -/
+def SizedBalancedTree.toBalancedTree {lb ub} (t : SizedBalancedTree α β lb ub) : BalancedTree α β :=
   ⟨t.impl, t.balanced_impl⟩
 
 /--
@@ -478,7 +479,7 @@ the original tree and `(f k v).isSome`.
 -/
 @[specialize]
 def filterMap [Ord α] (f : (a : α) → β a → Option (γ a)) (t : Impl α β) (hl : t.Balanced) :
-    BImpl α γ :=
+    BalancedTree α γ :=
   match t with
   | .leaf => ⟨.leaf, ✓⟩
   | .inner sz k v l r =>
@@ -529,7 +530,7 @@ Returns the tree consisting of the mapping `(k, v)` where `(k, v)` was a mapping
 original tree and `f k v = true`.
 -/
 @[specialize]
-def filter [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) (hl : Balanced t) : BImpl α β :=
+def filter [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) (hl : Balanced t) : BalancedTree α β :=
   match t with
   | .leaf => ⟨.leaf, ✓⟩
   | .inner sz k v l r =>
@@ -564,7 +565,7 @@ called `Const.alter`.
 -/
 @[specialize]
 def alter [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k)) (t : Impl α β)
-    (hl : t.Balanced) : TreeB α β (t.size - 1) (t.size + 1) :=
+    (hl : t.Balanced) : SizedBalancedTree α β (t.size - 1) (t.size + 1) :=
   match t with
   | .leaf =>
     match f none with
@@ -628,11 +629,11 @@ the respective values in `t₁` and `t₂`.
 -/
 @[inline]
 def mergeBy [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β)
-    (ht₁   : t₁.Balanced) : BImpl α β :=
-  t₂.foldl (δ := BImpl α β) (init := (⟨t₁, ht₁⟩ : BImpl α β)) fun t a b₂ =>
+    (ht₁   : t₁.Balanced) : BalancedTree α β :=
+  t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
     (t.impl.alter a (fun
       | none => some b₂
-      | some b₁ => some <| mergeFn a b₁ b₂) t.balanced_impl).toBImpl
+      | some b₁ => some <| mergeFn a b₁ b₂) t.balanced_impl).toBalancedTree
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -640,7 +641,8 @@ same key `k` with respect to `cmp`, the provided function is used to determine t
 the respective values in `t₁` and `t₂`.
 -/
 @[inline]
-def mergeBy! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β) : Impl α β :=
+def mergeBy! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β) :
+    Impl α β :=
   t₂.foldl (init := t₁) fun t a b₂ =>
     t.alter! a fun
       | none => some b₂
@@ -659,7 +661,7 @@ called `Const.alter`.
 -/
 @[specialize]
 def alter [Ord α] (k : α) (f : Option β → Option β) (t : Impl α β)
-    (hl : t.Balanced) : TreeB α β (t.size - 1) (t.size + 1) :=
+    (hl : t.Balanced) : SizedBalancedTree α β (t.size - 1) (t.size + 1) :=
   match t with
   | .leaf =>
     match f none with
@@ -691,7 +693,7 @@ def alter! [Ord α] (k : α) (f : Option β → Option β) (t : Impl α β) :
     | none => .leaf
     | some v => .inner 1 k v .leaf .leaf
   | .inner sz k' v' l' r' =>
-    match h : compare k k' with
+    match compare k k' with
     | .lt => balance! k' v' (alter! k f l') r'
     | .gt => balance! k' v' l' (alter! k f r')
     | .eq =>
@@ -706,11 +708,11 @@ the respective values in `t₁` and `t₂`.
 -/
 @[inline]
 def mergeBy [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Impl α β)
-    (ht₁   : t₁.Balanced) : BImpl α β :=
-  t₂.foldl (δ := BImpl α β) (init := (⟨t₁, ht₁⟩ : BImpl α β)) fun t a b₂ =>
+    (ht₁   : t₁.Balanced) : BalancedTree α β :=
+  t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
     (alter a (fun
       | none => some b₂
-      | some b₁ => some <| mergeFn a b₁ b₂) t.impl t.balanced_impl).toBImpl
+      | some b₁ => some <| mergeFn a b₁ b₂) t.impl t.balanced_impl).toBalancedTree
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -745,14 +747,14 @@ def forIn {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (ini
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray [Ord α] (l : Array ((a : α) × β a)) : BImpl α β :=
+def ofArray [Ord α] (l : Array ((a : α) × β a)) : BalancedTree α β :=
   l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
     let treeB := r.impl.insert p.1 p.2 r.balanced_impl
     ⟨treeB.impl, treeB.balanced_impl⟩)
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofList [Ord α] (l : List ((a : α) × β a)) : BImpl α β :=
+def ofList [Ord α] (l : List ((a : α) × β a)) : BalancedTree α β :=
   l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
     let treeB := r.impl.insert p.1 p.2 r.balanced_impl
     ⟨treeB.impl, treeB.balanced_impl⟩)
@@ -762,13 +764,13 @@ namespace Const
 variable {β : Type v}
 
 /-- Transforms a list of mappings into a tree map. -/
-@[inline] def ofArray [Ord α] (l : Array (α × β)) :  BImpl α (fun _ => β) :=
+@[inline] def ofArray [Ord α] (l : Array (α × β)) :  BalancedTree α (fun _ => β) :=
   l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
     let treeB := r.impl.insert p.1 p.2 r.balanced_impl
     ⟨treeB.impl, treeB.balanced_impl⟩)
 
 /-- Transforms an array of mappings into a tree map. -/
-@[inline] def ofList [Ord α] (l : List (α × β)) : BImpl α (fun _ => β) :=
+@[inline] def ofList [Ord α] (l : List (α × β)) : BalancedTree α (fun _ => β) :=
   l.foldl (init := ⟨empty, balanced_empty⟩) (fun r p =>
     let treeB := r.impl.insert p.1 p.2 r.balanced_impl
     ⟨treeB.impl, treeB.balanced_impl⟩)

@@ -170,7 +170,7 @@ General "update the mapping for a given key" function.
 Internal implementation detail of the tree map
 -/
 def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (compare k))
-    (l : Impl α β) (hl : Balanced l) : TreeB α β (l.size - 1) (l.size + 1) :=
+    (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
             | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩

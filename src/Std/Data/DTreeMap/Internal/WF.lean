@@ -753,7 +753,7 @@ theorem containsThenInsertSize_eq_size [Ord α] (t : Impl α β) :
 theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).1 = t.containsₘ a := by
-  simp [containsThenInsert, containsThenInsertSize_eq_size, apply_size, htb, TreeB.balanced_impl _,
+  simp [containsThenInsert, containsThenInsertSize_eq_size, apply_size, htb, SizedBalancedTree.balanced_impl _,
     toListModel_insert htb ho |>.length_eq, length_insertEntry]
   simp [apply_containsₘ ho]
   split <;> simp_all
@@ -912,7 +912,7 @@ theorem toListModel_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β
     all_goals simp [h, ihl, ihr]
 
 theorem balanced_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} :
-    (t.filterMap f h).impl.Balanced := by apply BImpl.balanced_impl
+    (t.filterMap f h).impl.Balanced := by apply BalancedTree.balanced_impl
 
 theorem ordered_filterMap [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → Option (γ a)} (ho : t.Ordered) :
     (t.filterMap f h).impl.Ordered := by

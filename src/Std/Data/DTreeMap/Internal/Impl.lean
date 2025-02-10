@@ -70,7 +70,7 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
 /-- A well-formed tree is balanced. This is needed here already because we need to know that the
 tree is balanced to call the optimized modification functions. -/
 theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
-  cases h <;> (try apply TreeB.balanced_impl) <;> try apply BImpl.balanced_impl
+  cases h <;> (try apply SizedBalancedTree.balanced_impl) <;> try apply BalancedTree.balanced_impl
   case wf htb hto => exact htb
   case empty => exact balanced_empty
 

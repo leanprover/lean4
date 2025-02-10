@@ -225,7 +225,7 @@ attribute [local simp] subNatNat_self
 @[local simp] protected theorem add_right_neg (a : Int) : a + -a = 0 := by
   rw [Int.add_comm, Int.add_left_neg]
 
-@[simp] protected theorem neg_eq_of_add_eq_zero {a b : Int} (h : a + b = 0) : -a = b := by
+protected theorem neg_eq_of_add_eq_zero {a b : Int} (h : a + b = 0) : -a = b := by
   rw [← Int.add_zero (-a), ← h, ← Int.add_assoc, Int.add_left_neg, Int.zero_add]
 
 protected theorem eq_neg_of_eq_neg {a b : Int} (h : a = -b) : b = -a := by
@@ -328,24 +328,20 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
 
 /- ## add/sub injectivity -/
 
-@[simp]
 protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by
   apply Iff.intro
   · intro p
     rw [←Int.add_sub_cancel i k, ←Int.add_sub_cancel j k, p]
   · exact congrArg (· + k)
 
-@[simp]
 protected theorem add_right_inj {i j : Int} (k : Int) : (k + i = k + j) ↔ i = j := by
-  simp [Int.add_comm k]
+  simp [Int.add_comm k, Int.add_left_inj]
 
-@[simp]
 protected theorem sub_right_inj {i j : Int} (k : Int) : (k - i = k - j) ↔ i = j := by
-  simp [Int.sub_eq_add_neg, Int.neg_inj]
+  simp [Int.sub_eq_add_neg, Int.neg_inj, Int.add_right_inj]
 
-@[simp]
 protected theorem sub_left_inj {i j : Int} (k : Int) : (i - k = j - k) ↔ i = j := by
-  simp [Int.sub_eq_add_neg]
+  simp [Int.sub_eq_add_neg, Int.add_left_inj]
 
 /- ## Ring properties -/
 

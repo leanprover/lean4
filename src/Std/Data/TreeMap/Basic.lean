@@ -56,7 +56,7 @@ be used in nested inductive types. For these use cases, `Std.Data.TreeMap.Raw` a
 `Std.Data.TreeMap.Raw.WF` unbundle the invariant from the tree map. When in doubt, prefer
 `TreeMap` over `TreeMap.Raw`.
 -/
-structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
+structure TreeMap (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap α (fun _ => β) cmp
 

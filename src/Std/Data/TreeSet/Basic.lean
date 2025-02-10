@@ -55,7 +55,7 @@ be used in nested inductive types. For these use cases, `Std.Data.TreeSet.Raw` a
 `Std.Data.TreeSet.Raw.WF` unbundle the invariant from the tree set. When in doubt, prefer
 `TreeSet` over `TreeSet.Raw`.
 -/
-structure TreeSet (α : Type u) (cmp : α → α → Ordering) where
+structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compare) where
   /-- Internal implementation detail of the tree map. -/
   inner : TreeMap α Unit cmp
 

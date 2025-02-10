@@ -58,7 +58,7 @@ To avoid expensive copies, users should make sure that the tree map is used line
 Internally, the tree maps are represented as size-bounded trees, a type of self-balancing binary
 search tree with efficient order statistic lookups.
 -/
-structure Raw (α : Type u) (β : Type v) (cmp : α → α → Ordering) where
+structure Raw (α : Type u) (β : Type v) (cmp : α → α → Ordering := by exact compare) where
   /-- Internal implementation detail of the tree map. -/
   inner : DTreeMap.Raw α (fun _ => β) cmp
 

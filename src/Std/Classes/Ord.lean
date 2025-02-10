@@ -223,8 +223,10 @@ section BEqOfOrd
 
 variable {α : Type u}
 
-/-- ion to derive a `BEq` instance from an `Ord` instance in order to connect the
-verification machinery for tree maps to the verification machinery for hash maps. -/
+/--
+Internal funcion to derive a `BEq` instance from an `Ord` instance in order to connect the
+verification machinery for tree maps to the verification machinery for hash maps.
+-/
 @[local instance]
 def beqOfOrd [Ord α] : BEq α where
   beq a b := compare a b == .eq

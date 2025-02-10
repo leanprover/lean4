@@ -6,6 +6,12 @@ Authors: Markus Himmel, Paul Reichert
 
 prelude
 import Init.Data.Ord
+/-!
+# Type classes for comparisons
+
+This file provides several typeclasses related to `Ord` and `BEq` and functionality to bridge the
+gap between the two worlds.
+-/
 
 set_option autoImplicit false
 set_option linter.missingDocs true
@@ -211,5 +217,74 @@ theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
   ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
 
 end LawfulEq
+
+section BEqOfOrd
+
+variable {α : Type u}
+
+/-- ion to derive a `BEq` instance from an `Ord` instance in order to connect the
+verification machinery for tree maps to the verification machinery for hash maps. -/
+@[local instance]
+def beqOfOrd [Ord α] : BEq α where
+  beq a b := compare a b == .eq
+
+@[local simp]
+theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
+  rfl
+
+theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
+  symm {a b} h := by simp_all [OrientedCmp.eq_comm]
+  trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂
+  refl := by simp
+
+theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
+  eq_of_beq hbeq := by simp_all
+  rfl := by simp
+
+end BEqOfOrd
+
+namespace Internal
+
+universe v
+variable {α : Type u} {γ : Type v}
+
+/--
+Implementation detail. A typeclass of types for which equal elements with respect to `compare`
+are mapped to the same value by a given function `f`.
+-/
+class LawfulEqOrdWrt [Ord α] (f : α → γ) : Prop where
+  /-- Implementation detail. -/
+  congr_of_compare {a b : α} (h : compare a b = .eq) : f a = f b
+
+instance [Ord α] [inst : LawfulEqOrd α] {f : α → γ} : LawfulEqOrdWrt f where
+  congr_of_compare h := congrArg f <| inst.eq_of_compare <| beq_iff_eq.mpr h
+
+instance [Ord α] {g : γ} : LawfulEqOrdWrt fun (_ : α) => g where
+  congr_of_compare _ := rfl
+
+/--
+Implementation detail. A typeclass of types for which equal elements with respect to `==`
+are mapped to the same value by a given function `f`.
+-/
+class LawfulBEqWrt [BEq α] (f : α → γ) : Prop where
+  /-- Implementation detail. -/
+  congr_of_beq {a b : α} (h : a == b) : f a = f b
+
+instance [BEq α] [inst : LawfulBEq α] {f : α → γ} : LawfulBEqWrt f where
+  congr_of_beq h := congrArg f <| inst.eq_of_beq <| h
+
+instance [BEq α] {g : γ} : LawfulBEqWrt fun (_ : α) => g where
+  congr_of_beq _ := rfl
+
+section BEqOfOrd
+
+attribute [local instance] beqOfOrd
+
+theorem lawfulBEqWrt_of_lawfulEqOrdWrt [Ord α] (f : α → γ) [LawfulEqOrdWrt f] : LawfulBEqWrt f where
+  congr_of_beq h := LawfulEqOrdWrt.congr_of_compare <| beq_iff_eq.mp h
+
+end BEqOfOrd
+
+end Internal
 
 end Std

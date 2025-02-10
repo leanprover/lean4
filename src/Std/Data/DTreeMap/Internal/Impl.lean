@@ -54,6 +54,8 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | containsThenInsertIfNew {t h k v} : WF t → WF (t.containsThenInsertIfNew k v h).2.impl
   /-- `filter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | filter {t h f} : WF t → WF (t.filter f h).impl
+  /-- `mergeBy` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | mergeBy {β t₁ t₂ f h} [LawfulEqOrdWrt β] : WF t₁ → WF (t₁.mergeBy (β := β) f t₂ h).impl
   /-- `toList` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | ofList {l} : WF <| ofList l |>.impl
   /-- `ofList` preserves well-formedness. Later shown to be subsumed by `.wf`. -/

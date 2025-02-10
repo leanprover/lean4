@@ -232,6 +232,14 @@ def insertIfNewₘ [Ord α] (k : α) (v : β k) (l : Impl α β) (h : l.Balanced
     | ⟨.none, _⟩ => .of k v
     | c => c) l h |>.impl
 
+/--
+Model implementation of the `alter` function.
+Internal implementation detail of the tree map
+-/
+def alterₘ [Ord α] [OrientedOrd α] [LawfulEqOrdWrt β] (k : α) (f : Option (β k) → Option (β k))
+    (t : Impl α β) (h : t.Balanced) : Impl α β :=
+  updateCell k (·.alter f) t h |>.impl
+
 namespace Const
 
 variable {β : Type v}

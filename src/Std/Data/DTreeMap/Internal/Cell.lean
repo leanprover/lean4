@@ -5,6 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Classes.Ord
+import Std.Data.DTreeMap.Internal.Impl.Operations
 
 /-!
 # The `Cell` type
@@ -18,6 +19,7 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
+open Impl (LawfulEqOrdWrt)
 
 /--
 Type for representing the place in a tree map where a mapping for `k` could live.
@@ -51,6 +53,12 @@ theorem of_inner [Ord α] {k : α} {v : β k} : (Cell.of k v).inner = some ⟨k,
 def empty [Ord α] {k : α → Ordering} : Cell α β k :=
   ⟨none, by simp⟩
 
+/-- Internal implementation detail of the tree map -/
+def ofOption [Ord α] (k : α) (v? : Option (β k)) : Cell α β (compare k) :=
+  match v? with
+  | none => .empty
+  | some v => .of k v
+
 @[simp]
 theorem empty_inner [Ord α] {k : α → Ordering} : (Cell.empty : Cell α β k).inner = none := rfl
 
@@ -78,6 +86,16 @@ def get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} (c : Cell α β (co
 theorem get?_empty [Ord α] [OrientedOrd α] [LawfulEqOrd α] {k : α} :
     (Cell.empty : Cell α β (compare k)).get? = none :=
   rfl
+
+/-- Internal implementation detail of the tree map -/
+def alter [Ord α] [OrientedOrd α] [LawfulEqOrdWrt β] {k : α}
+    (f : Option (β k) → Option (β k)) (c : Cell α β (compare k)) :
+    Cell α β (compare k) :=
+  match h : c.inner with
+  | none => .ofOption k <| f none
+  | some ⟨k', v'⟩ =>
+    have heq : β k' = β k := LawfulEqOrdWrt.congr_of_compare (c.property _ h) |>.symm
+    .ofOption k <| f <| some <| cast heq v'
 
 theorem ext [Ord α] {k : α → Ordering} {c c' : Cell α β k} : c.inner = c'.inner → c = c' := by
   cases c; cases c'; simp

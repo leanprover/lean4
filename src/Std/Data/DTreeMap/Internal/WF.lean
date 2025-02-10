@@ -358,26 +358,8 @@ theorem ordered_updateAtKey [Ord α] [TransOrd α] {k : α}
 ## Connecting the tree maps machinery to the hash map machinery
 -/
 
-/-- Internal function to derive a `BEq` instance from an `Ord` instance in order to connect the
-verification machinery for tree maps to the verification machinery for hash maps. -/
-@[local instance]
-def beqOfOrd [Ord α] : BEq α where
-  beq a b := compare a b == .eq
-
-@[local simp]
-theorem beq_eq [Ord α] {a b : α} : (a == b) = (compare a b == .eq) :=
-  rfl
-
-@[local instance]
-theorem equivBEq_of_transOrd [Ord α] [TransOrd α] : EquivBEq α where
-  symm {a b} h := by simp_all [OrientedCmp.eq_comm]
-  trans h₁ h₂ := by simp_all only [beq_eq, beq_iff_eq]; exact TransCmp.eq_trans h₁ h₂
-  refl := by simp
-
-@[local instance]
-theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
-  eq_of_beq hbeq := by simp_all
-  rfl := by simp
+attribute [local instance] beqOfOrd equivBEq_of_transOrd lawfulBEq_of_lawfulEqOrd
+attribute [local simp] beq_eq
 
 open Std.Internal.List
 
@@ -958,6 +940,64 @@ theorem ordered_filter [Ord α] {t : Impl α β} {h} {f : (a : α) → β a → 
   simpa only [filter_eq_filterMap] using ordered_filterMap hto
 
 /-!
+### alter
+-/
+
+theorem toListModel_alterₘ [Ord α] [TransOrd α] [LawfulEqOrdWrt β] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    List.Perm ((t.alterₘ a f htb).toListModel) (alterKey a f t.toListModel) := by
+  refine toListModel_updateAtKey_perm _ hto ?_ alterKey_of_perm
+    alterKey_append_of_containsKey_right_eq_false
+  rintro ⟨(_|l), hl⟩
+  · simp [Cell.alter, Cell.ofOption]
+    cases f none <;> rfl
+  · simp only [Cell.alter, Cell.ofOption, alterKey, Option.toList_some]
+    have h : a = l.fst := compare_eq_iff_eq.mp <| hl l rfl
+    cases h
+    simp only [getValueCast?, beq_self_eq_true, ↓reduceDIte, cast_eq]
+    cases f _
+    · simp [eraseKey]
+    · simp [insertEntry, containsKey, replaceEntry]
+
+theorem alter_eq_alterₘ [Ord α] [TransOrd α] [LawfulEqOrdWrt β] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    (t.alter a f htb).impl = t.alterₘ a f htb := by
+  rw [alterₘ]
+  induction t with
+  | leaf =>
+    simp only [alter, updateCell, Cell.alter, Cell.empty_inner, Cell.ofOption]
+    cases f none
+    · simp [Cell.of_inner]
+    · simp
+  | inner sz k v l r ihl ihr =>
+    rw [alter, updateCell]
+    split <;> rename_i heq <;> simp only [heq]
+    · simp [ihl htb.left hto.left]
+      split <;> simp_all
+    · simp [ihr htb.right hto.right]
+      split <;> simp_all
+    · apply Eq.symm
+      split <;> (try simp_all; done)
+      simp [Cell.alter, Cell.ofOption, cast]
+      cases h₁ : f _ <;> rfl
+
+theorem toListModel_alter [Ord α] [TransOrd α] [LawfulEqOrdWrt β] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    List.Perm (t.alter a f htb).impl.toListModel (alterKey a f t.toListModel) := by
+  simpa only [alter_eq_alterₘ, htb, hto] using toListModel_alterₘ htb hto
+
+theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrdWrt β] {t : Impl α β} {a f}
+    {htb : t.Balanced} {hto : t.Ordered} : (t.alter a f htb).impl.Ordered := by
+  rw [alter_eq_alterₘ htb hto, alterₘ]
+  exact ordered_updateAtKey htb hto
+
+/-!
+### mergeBy
+-/
+
+theorem ordered_mergeBy [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+
+/-!
 ## Deducing that well-formed trees are ordered
 -/
 
@@ -971,6 +1011,7 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_containsThenInsert ‹_› ‹_›
   · exact ordered_containsThenInsertIfNew ‹_› ‹_›
   · exact ordered_filter ‹_›
+  · exact ordered_
   · exact ordered_ofList
   · exact ordered_ofArray
   · exact Const.ordered_ofList

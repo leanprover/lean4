@@ -365,11 +365,7 @@ the respective values in `t₁` and `t₂`.
 -/
 @[inline]
 def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
-  t₂.foldl (init := t₁) fun t₁ a b₂ =>
-    t₁.insert a <|
-      match t₁.get? a with
-      | some b₁ => mergeFn a b₁ b₂
-      | none => b₂
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeBy! mergeFn t₂.inner⟩
 
 namespace Const
 open Internal (Impl)
@@ -402,11 +398,7 @@ def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β 
 
 @[inline, inherit_doc Raw.mergeBy]
 def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
-  t₂.foldl (init := t₁) fun t₁ a b₂ =>
-    t₁.insert a <|
-      match get? t₁ a with
-      | some b₁ => mergeFn a b₁ b₂
-      | none => b₂
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeBy! mergeFn t₁.inner t₂.inner⟩
 
 end Const
 

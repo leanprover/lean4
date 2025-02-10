@@ -4,8 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
-import Std.Data.DTreeMap.Internal.Impl.Balancing
 import Init.Data.Nat.Compare
+import Std.Data.DTreeMap.Internal.Impl.Balancing
+import Std.Classes.Ord
 
 /-!
 # Low-level implementation of the size-bounded tree
@@ -25,6 +26,7 @@ namespace Std.DTreeMap.Internal
 namespace Impl
 
 open Lean.Parser.Tactic
+open Std.Internal (LawfulEqOrdWrt)
 
 /-!
 ## `minView` and `maxView`
@@ -467,6 +469,10 @@ structure BImpl where
 
 attribute [Std.Internal.tree_tac] BImpl.balanced_impl
 
+/-- Transforms an element of `TreeB` into a `BImpl`. -/
+def TreeB.toBImpl {lb ub} (t : TreeB α β lb ub) : BImpl α β :=
+  ⟨t.impl, t.balanced_impl⟩
+
 /--
 Returns the tree consisting of the mappings `(k, (f k v).get)` where `(k, v)` was a mapping in
 the original tree and `(f k v).isSome`.
@@ -551,64 +557,14 @@ def filter! [Ord α] (f : (a : α) → β a → Bool) (t : Impl α β) : Impl α
     | false => link2! (filter! f l) (filter! f r)
     | true => link! k v (filter! f l) (filter! f r)
 
-namespace Const
-
-/--
-Changes the mapping of the key `k` by applying the function `f` to the current mapped value
-(if any). This function can be used to insert a new mapping, modify an existing one or delete it.
--/
-@[specialize]
-def alter [Ord α] (k : α) (f : Option δ → Option δ) (t : Impl α (fun _ => δ)) (hl : t.Balanced) :
-    TreeB α (fun _ => δ) (t.size - 1) (t.size + 1) :=
-  match t with
-  | .leaf =>
-    match f none with
-    | none => ⟨.leaf, ✓, ✓, ✓⟩
-    | some v => ⟨.inner 1 k v .leaf .leaf, ✓, ✓, ✓⟩
-  | .inner sz k' v' l' r' =>
-    match compare k k' with
-    | .lt =>
-      let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
-      ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
-    | .gt =>
-      let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
-      ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
-    | .eq =>
-      match f (some v') with
-      | none => ⟨glue l' r' ✓ ✓ ✓, ✓, ✓, ✓⟩
-      | some v => ⟨.inner sz k' v l' r', ✓, ✓, ✓⟩
-
-/--
-Slower version of `modify` which can be used in the absence of balance
-information but still assumes the preconditions of `modify`, otherwise might panic.
--/
-@[specialize]
-def alter! [Ord α] (k : α) (f : Option δ → Option δ) (t : Impl α (fun _ => δ)) :
-    Impl α (fun _ => δ) :=
-  match t with
-  | .leaf =>
-    match f none with
-    | none => .leaf
-    | some v => .inner 1 k v .leaf .leaf
-  | .inner sz k' v' l' r' =>
-    match compare k k' with
-    | .lt => balance! k' v' (alter! k f l') r'
-    | .gt => balance! k' v' l' (alter! k f r')
-    | .eq =>
-      match f (some v') with
-      | none => glue! l' r'
-      | some v => .inner sz k' v l' r'
-
-end Const
-
 /--
 Changes the mapping of the key `k` by applying the function `f` to the current mapped value
 (if any). This function can be used to insert a new mapping, modify an existing one or delete it.
 This version of the function requires `LawfulEqOrd α`. There is an alternative non-dependent version
-called `Const.modify`.
+called `Const.alter`.
 -/
 @[specialize]
-def alter [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k)) (t : Impl α β)
+def alter [Ord α] [LawfulEqOrdWrt β] (k : α) (f : Option (β k) → Option (β k)) (t : Impl α β)
     (hl : t.Balanced) : TreeB α β (t.size - 1) (t.size + 1) :=
   match t with
   | .leaf =>
@@ -624,7 +580,7 @@ def alter [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k
       let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f r' ✓
       ⟨balance k' v' l' d ✓ ✓ (hl.at_root.adjust_right hd'₁ hd'₂), ✓, ✓, ✓⟩
     | .eq =>
-      match f (some (cast (congrArg β (compare_eq_iff_eq.mp h).symm) v')) with
+      match f (some (cast (LawfulEqOrdWrt.congr_of_compare h).symm v')) with
       | none => ⟨glue l' r' ✓ ✓ ✓, ✓, ✓, ✓⟩
       | some v => ⟨.inner sz k v l' r', ✓, ✓, ✓⟩
 
@@ -633,7 +589,7 @@ Slower version of `modify` which can be used in the absence of balance
 information but still assumes the preconditions of `modify`, otherwise might panic.
 -/
 @[specialize]
-def alter! [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β k)) (t : Impl α β) :
+def alter! [Ord α] [LawfulEqOrdWrt β] (k : α) (f : Option (β k) → Option (β k)) (t : Impl α β) :
     Impl α β :=
   match t with
   | .leaf =>
@@ -645,7 +601,7 @@ def alter! [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β 
     | .lt => balance! k' v' (alter! k f l') r'
     | .gt => balance! k' v' l' (alter! k f r')
     | .eq =>
-      match f (some (cast (congrArg β (compare_eq_iff_eq.mp h).symm) v')) with
+      match f (some (cast (LawfulEqOrdWrt.congr_of_compare h).symm v')) with
       | none => glue! l' r'
       | some v => .inner sz k v l' r'
 
@@ -656,7 +612,7 @@ tree unmodified. Note that this function is likely to be faster than `modify` be
 needs to rebalance the tree.
 -/
 @[specialize]
-def modify [Ord α] (k : α) (f : (k' : α) → β k' → (compare k k' = .eq) → β k') (t : Impl α β) :
+def modify [Ord α] (k : α) (f : (k' : α) → (compare k k' = .eq) → β k' → β k') (t : Impl α β) :
     Impl α β :=
   match t with
   | .leaf => .leaf
@@ -664,7 +620,32 @@ def modify [Ord α] (k : α) (f : (k' : α) → β k' → (compare k k' = .eq) �
     match h : compare k k' with
     | .lt => .inner sz k' v' (modify k f l) r
     | .gt => .inner sz k' v' l (modify k f r)
-    | .eq => .inner sz k' (f k' v' h) l r
+    | .eq => .inner sz k' (f k' h v') l r
+
+/--
+Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
+same key `k` with respect to `cmp`, the provided function is used to determine the new value from
+the respective values in `t₁` and `t₂`.
+-/
+@[inline]
+def mergeBy [Ord α] [LawfulEqOrdWrt β] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β)
+    (ht₁   : t₁.Balanced) : BImpl α β :=
+  t₂.foldl (δ := BImpl α β) (init := (⟨t₁, ht₁⟩ : BImpl α β)) fun t a b₂ =>
+    (t.impl.alter a (fun
+      | none => some b₂
+      | some b₁ => some <| mergeFn a b₁ b₂) t.balanced_impl).toBImpl
+
+/--
+Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
+same key `k` with respect to `cmp`, the provided function is used to determine the new value from
+the respective values in `t₁` and `t₂`.
+-/
+@[inline]
+def mergeBy! [Ord α] [LawfulEqOrdWrt β] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Impl α β) : Impl α β :=
+  t₂.foldl (init := t₁) fun t a b₂ =>
+    t.alter! a fun
+      | none => some b₂
+      | some b₁ => some <| mergeFn a b₁ b₂
 
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 

@@ -248,6 +248,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => s.toArray.qsort decLt
+    asyncMode := .sync  -- compilation is non-parallel anyway
   }
 
 /--

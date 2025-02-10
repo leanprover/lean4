@@ -217,3 +217,21 @@ example (x y : Int) (h : -6*x + 3*y = -9) : - 2*x = -3 - y := by
   guard_hyp h : -2*x + y + 3 = 0
   simp +arith
   assumption
+
+example (x y : Int) (h : 3*x + 6*y = 2) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : 3*x = 1) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : 2*x = 1) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : x + x = 1) : False := by
+  simp +arith only at h
+
+example (x y : Int) (h : x + x + x = 1 + 2*y + x) : False := by
+  simp +arith only at h
+
+example (x : Int) (h : -x - x = 1) : False := by
+  simp +arith only at h

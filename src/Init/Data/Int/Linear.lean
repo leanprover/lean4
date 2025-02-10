@@ -318,6 +318,7 @@ theorem ExprCnstr.eq_of_toPoly_eq_of_divBy' (ctx : Context) (e e' : ExprCnstr) (
     rw [denote_toPoly, denote_toPoly] at this
     exact this
   next p =>
+    -- TODO: this is correct but we can simplify `p ≤ 0` if `p.divCoeffs k` and `p.getConst % k > 0`. Here, we are simplifying only the case `p.getConst % k = 0`
     replace h₁ := Poly.denote_div_eq_of_divAll ctx p k h₁
     replace h₂ := congrArg (PolyCnstr.denote ctx) h₂
     simp only [PolyCnstr.denote.eq_2, ← h₁] at h₂
@@ -348,6 +349,43 @@ theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toP
   have := PolyCnstr.eq_false_of_isUnsat ctx (c.toPoly) h
   rw [ExprCnstr.denote_toPoly] at this
   assumption
+
+def PolyCnstr.isUnsatCoeff (k : Int) : PolyCnstr → Bool
+  | .eq p => p.divCoeffs k && k > 0 && p.getConst % k > 0
+  | .le _ => false
+
+private theorem contra {a b k : Int} (h₀ : 0 < k) (h₁ : 0 < b) (h₂ : b < k) (h₃ : a*k + b = 0) : False := by
+  have : b = -a*k := by
+    rw [← Int.neg_eq_of_add_eq_zero h₃, Int.neg_mul]
+  rw [this] at h₁ h₂
+  conv at h₂ => rhs; rw [← Int.one_mul k]
+  have high := Int.lt_of_mul_lt_mul_right h₂ (Int.le_of_lt h₀)
+  rw [← Int.zero_mul k] at h₁
+  have low := Int.lt_of_mul_lt_mul_right h₁ (Int.le_of_lt h₀)
+  replace low : 1 ≤ -a := low
+  have : (1 : Int) < 1 := Int.lt_of_le_of_lt low high
+  contradiction
+
+private theorem PolyCnstr.eq_false (ctx : Context) (p : Poly) (k : Int) : p.divCoeffs k → k > 0 → p.getConst % k > 0 → (PolyCnstr.eq p).denote ctx = False := by
+  simp
+  intro h₁ h₂ h₃ h
+  have hnz : k ≠ 0 := by intro h; rw [h] at h₂; contradiction
+  have := Poly.denote_div_eq_of_divCoeffs ctx p k h₁
+  rw [h] at this
+  have low := h₃
+  have high := Int.emod_lt_of_pos p.getConst h₂
+  exact contra h₂ low high this
+
+theorem ExprCnstr.eq_false_of_isUnsat_coeff (ctx : Context) (c : ExprCnstr) (k : Int) : c.toPoly.isUnsatCoeff k → c.denote ctx = False := by
+  intro h
+  cases c <;> simp [toPoly, PolyCnstr.isUnsatCoeff] at h
+  next e₁ e₂ =>
+    have ⟨⟨h₁, h₂⟩, h₃⟩ := h
+    have := PolyCnstr.eq_false ctx _ _ h₁ h₂ h₃
+    simp at this
+    simp
+    intro he
+    simp [he] at this
 
 def PolyCnstr.isValid : PolyCnstr → Bool
   | .eq (.num k) => k == 0

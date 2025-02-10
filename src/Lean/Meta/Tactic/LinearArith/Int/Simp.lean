@@ -21,6 +21,26 @@ def Int.Linear.PolyCnstr.gcdAll : PolyCnstr → Nat
   | .eq p => p.gcdAll
   | .le p => p.gcdAll
 
+def Int.Linear.Poly.gcdCoeffs : Poly → Nat
+  | .num _ => 1
+  | .add k _ p => go k.natAbs p
+where
+  go (k : Nat) (p : Poly) : Nat :=
+    if k == 1 then k
+    else match p with
+      | .num _ => k
+      | .add k' _ p => go (Nat.gcd k k'.natAbs) p
+
+def Int.Linear.PolyCnstr.gcdCoeffs : PolyCnstr → Nat
+  | .eq p | .le p => p.gcdCoeffs
+
+def Int.Linear.PolyCnstr.isEq : PolyCnstr → Bool
+  | .eq _ => true
+  | .le _ => false
+
+def Int.Linear.PolyCnstr.getConst : PolyCnstr → Int
+  | .eq p | .le p => p.getConst
+
 namespace Lean.Meta.Linear.Int
 
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
@@ -49,16 +69,25 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
           let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_const) (toContextExpr atoms) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
           return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
         | _ =>
-          let k := p.gcdAll
-          if k == 1 then
+          let defaultK := do
             let r ← c'.toArith atoms
             let h := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr atoms) (toExpr c) (toExpr c') reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-          else
+          let k := p.gcdCoeffs
+          if k == 1 then
+            defaultK
+          else if p.getConst % k == 0 then
             let c' : LinearCnstr := (p.div k).toExprCnstr
             let r ← c'.toArith atoms
             let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_of_divBy) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
+          else if p.isEq then
+            let r := mkConst ``False
+            let h := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_false_of_isUnsat_coeff) (toContextExpr atoms) (toExpr c) (toExpr (Int.ofNat k)) reflBoolTrue
+            return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
+          else
+            -- TODO: tight the bound
+            defaultK
       else
         return none
 

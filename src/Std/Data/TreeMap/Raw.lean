@@ -159,6 +159,11 @@ def get! (t : Raw α β cmp) (a : α) [Inhabited β]  : β :=
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   DTreeMap.Raw.Const.getD t.inner a fallback
 
+instance : GetElem? (Raw α β cmp) α β (fun m a => a ∈ m) where
+  getElem m a h := m.get a h
+  getElem? m a := m.get? a
+  getElem! m a := m.get! a
+
 universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 

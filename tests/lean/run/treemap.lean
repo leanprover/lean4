@@ -5,7 +5,7 @@ open Std
 variable {α : Type u} {β : Type v} [Ord α]
 
 def mkDTreeMapSingleton (a : α) (b : β) : DTreeMap α (fun _ => β) := Id.run do
-  let mut m : DTreeMap α β := ∅
+  let mut m : DTreeMap α (fun _ => β) := ∅
   m := m.insert a b
   return m
 
@@ -23,4 +23,4 @@ example [TransOrd α] [LawfulEqOrd α] (a : α) (b : β) : Option β :=
   mkDTreeMapSingleton a b |>.get? a
 
 example [TransOrd α] [LawfulEqOrd α] (a : α) (b : β) : Option β :=
-  mkTreeMapSingleton a b |>.get? a
+  (mkTreeMapSingleton a b)[a]?

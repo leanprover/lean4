@@ -31,6 +31,10 @@ Author: Jared Roesch
 #include <sys/syscall.h>
 #endif
 
+#ifdef __linux
+#include <sys/syscall.h>
+#endif
+
 #include "runtime/object.h"
 #include "runtime/io.h"
 #include "runtime/array_ref.h"

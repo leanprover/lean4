@@ -25,10 +25,11 @@ private def mkSimpleEqThm (declName : Name) (suffix := Name.mkSimple unfoldThmSu
       let type  ← mkForallFVars xs (← mkEq lhs body)
       let value ← mkLambdaFVars xs (← mkEqRefl lhs)
       let name := declName ++ suffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return some name
   else
     return none

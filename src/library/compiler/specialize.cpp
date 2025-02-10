@@ -954,13 +954,13 @@ class specialize_fn {
             return optional<comp_decl>();
         }
         lean_assert(!has_fvar(code));
-        /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
+        /* We add the auxiliary declaration `n` as a "meta" axiom to the elab_environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and
            other definitions that use `n`. `csimp` uses the kernel type checker to infer
            types, and it will fail to infer the type of `n`-applications if we do not have
-           an entry in the environment.
+           an entry in the elab_environment.
 
-           Remark: we mark the axiom as `meta` to make sure it does not pollute the environment
+           Remark: we mark the axiom as `meta` to make sure it does not pollute the elab_environment
            regular definitions.
 
            We also considered the following cleaner solution: modify `csimp` to use a custom

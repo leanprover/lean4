@@ -10,6 +10,7 @@ info: 12776324570088369205
 #guard_msgs in
 #eval (123456789012345678901).toUInt64.toNat
 
+set_option trace.Elab.snapshotTree true
 /--
 error: tactic 'native_decide' evaluated that the proposition
   (Nat.toUInt64 123456789012345678901).toNat = 123456789012345678901

@@ -79,8 +79,7 @@ where
   -- makes infoview hovers and the like work. This technique only works because the names are known
   -- to be global constants, so we don't need the local context.
   showName (env : Environment) (n : Name) : MessageData :=
-      let params :=
-        env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
+      let params := env.find? n |>.map (·.levelParams.map Level.param) |>.getD []
       .ofFormatWithInfos {
         fmt := "'" ++ .tag 0 (format n) ++ "'",
         infos :=

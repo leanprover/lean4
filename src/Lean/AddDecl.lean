@@ -5,6 +5,8 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.CoreM
+import Lean.Language.Basic
+import Lean.Elab.Exception
 
 namespace Lean
 

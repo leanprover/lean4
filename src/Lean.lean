@@ -37,3 +37,4 @@ import Lean.SubExpr
 import Lean.LabelAttribute
 import Lean.AddDecl
 import Lean.Replay
+import Lean.PrivateName

@@ -943,6 +943,7 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv
       match getAttributeImpl env attr.name with
@@ -1661,7 +1662,7 @@ def resolveLocalName (n : Name) : TermElabM (Option (Expr × List String)) := do
     let givenNameView := { view with name := n }
     let mut globalDeclFoundNext := globalDeclFound
     unless globalDeclFound do
-      let r ← resolveGlobalName givenNameView.review
+      let r ← withTraceNode `Elab.resolveGlobalName (fun _ => pure givenNameView.review) do resolveGlobalName givenNameView.review
       let r := r.filter fun (_, fieldList) => fieldList.isEmpty
       unless r.isEmpty do
         globalDeclFoundNext := true
@@ -2109,7 +2110,7 @@ private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
 -/
 def mkConst (constName : Name) (explicitLevels : List Level := []) : TermElabM Expr := do
   checkDeprecatedCore constName
-  let cinfo ← getConstInfo constName
+  let cinfo ← getConstVal constName
   if explicitLevels.length > cinfo.levelParams.length then
     throwError "too many explicit universe levels for '{constName}'"
   else
@@ -2280,5 +2281,6 @@ export Term (TermElabM)
 
 builtin_initialize
   registerTraceClass `Elab.implicitForall
+  registerTraceClass `Elab.attribute
 
 end Lean.Elab

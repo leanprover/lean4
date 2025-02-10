@@ -65,18 +65,4 @@ void check_system(char const * component_name, bool do_check_interrupted) {
         check_heartbeat();
     }
 }
-
-void sleep_for(unsigned ms, unsigned step_ms) {
-    if (step_ms == 0)
-        step_ms = 1;
-    unsigned rounds = ms / step_ms;
-    chrono::milliseconds c(step_ms);
-    chrono::milliseconds r(ms % step_ms);
-    for (unsigned i = 0; i < rounds; i++) {
-        this_thread::sleep_for(c);
-        check_interrupted();
-    }
-    this_thread::sleep_for(r);
-    check_interrupted();
-}
 }

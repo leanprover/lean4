@@ -194,6 +194,8 @@ info: [grind.issues] found congruence between
     and
       f a
     but functions have different types
+---
+warning: declaration uses 'sorry'
 -/
 #guard_msgs (info) in
 set_option trace.grind.issues true in

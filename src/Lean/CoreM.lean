@@ -193,7 +193,7 @@ protected def withFreshMacroScope (x : CoreM α) : CoreM α := do
 
 instance : MonadQuotation CoreM where
   getCurrMacroScope   := return (← read).currMacroScope
-  getMainModule       := return (← get).env.mainModule
+  getMainModule       := return (← getEnv).mainModule
   withFreshMacroScope := Core.withFreshMacroScope
 
 instance : Elab.MonadInfoTree CoreM where
@@ -210,7 +210,7 @@ instance : Elab.MonadInfoTree CoreM where
 @[inline] def modifyInstLevelValueCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨c₁, f c₂⟩
 
-def instantiateTypeLevelParams (c : ConstantInfo) (us : List Level) : CoreM Expr := do
+def instantiateTypeLevelParams (c : ConstantVal) (us : List Level) : CoreM Expr := do
   if let some (us', r) := (← get).cache.instLevelType.find? c.name then
     if us == us' then
       return r
@@ -421,6 +421,11 @@ def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact d
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
+      modify fun st => { st with
+        messages := st.messages.markAllReported
+        traceState := { tid }
+        snapshotTasks := #[]
+      }
       modify fun st => { st with
         messages := st.messages.markAllReported
         traceState := { tid }

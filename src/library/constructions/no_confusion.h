@@ -11,18 +11,18 @@ namespace lean {
 /** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
     returns the declaration for <tt>n.no_confusion_type</tt>.
 
-    \remark This procedure assumes the environment contains <tt>eq, n.cases_on</tt>.
-    If the environment has an impredicative Prop, it also assumes heq is defined.
-    If the environment does not have an impredicative Prop, then it also assumes lift is defined.
+    \remark This procedure assumes the elab_environment contains <tt>eq, n.cases_on</tt>.
+    If the elab_environment has an impredicative Prop, it also assumes heq is defined.
+    If the elab_environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
 declaration mk_no_confusion_type(elab_environment const & env, name const & n);
 
 /** \brief Given an inductive datatype \c n (which is not a proposition) in \c env,
     returns the declaration for <tt>n.no_confusion</tt>.
 
-    \remark This procedure assumes the environment contains <tt>eq, n.cases_on, n.no_confusion_type</tt>.
-    If the environment has an impredicative Prop, it also assumes heq is defined.
-    If the environment does not have an impredicative Prop, then it also assumes lift is defined.
+    \remark This procedure assumes the elab_environment contains <tt>eq, n.cases_on, n.no_confusion_type</tt>.
+    If the elab_environment has an impredicative Prop, it also assumes heq is defined.
+    If the elab_environment does not have an impredicative Prop, then it also assumes lift is defined.
 */
 declaration mk_no_confusion(elab_environment const & env, name const & n);
 }

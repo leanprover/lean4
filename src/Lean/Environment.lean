@@ -161,18 +161,17 @@ structure Diagnostics where
   deriving Inhabited
 
 /--
-An environment stores declarations provided by the user. The kernel
-currently supports different kinds of declarations such as definitions, theorems,
-and inductive families. Each has a unique identifier (i.e., `Name`), and can be
-parameterized by a sequence of universe parameters.
-A constant in Lean is just a reference to a `ConstantInfo` object. The main task of
-the kernel is to type check these declarations and refuse type incorrect ones. The
-kernel does not allow declarations containing metavariables and/or free variables
-to be added to an environment. Environments are never destructively updated.
+An environment stores declarations provided by the user. The kernel currently supports different
+kinds of declarations such as definitions, theorems, and inductive families. Each has a unique
+identifier (i.e., `Name`), and can be parameterized by a sequence of universe parameters. A constant
+in Lean is just a reference to a `ConstantInfo` object. The main task of the kernel is to type check
+these declarations and refuse type incorrect ones. The kernel does not allow declarations containing
+metavariables and/or free variables to be added to an environment. Environments are never
+destructively updated.
 
-The environment also contains a collection of extensions. For example, the `simp` theorems
-declared by users are stored in an environment extension. Users can declare new extensions
-using meta-programming.
+This type contains only the minimal data necessary for basic type checking. Other data used only by
+and for elaboration, as well data for the TCB extension of native reduction, is stored in
+`Lean.Environment`.
 -/
 structure Environment where
   /--
@@ -248,6 +247,65 @@ inductive Exception where
 
 namespace Environment
 
+--
+--private def modifyCheckedAsync (env : Environment) (f : EnvironmentBase → EnvironmentBase) : Environment :=
+--  { env with checked := env.checked.map (sync := true) f, checkedNoAsync := f env.checkedNoAsync }
+--
+--private def setCheckedSync (env : Environment) (newChecked : EnvironmentBase) : Environment :=
+--  { env with checked := .pure newChecked, checkedNoAsync := newChecked }
+
+--/-- Type check given declaration and add it to the environment. -/
+--@[extern "lean_elab_add_decl"]
+--opaque addDeclCore (env : Environment) (maxHeartbeats : USize) (decl : @& Declaration)
+--  (cancelTk? : @& Option IO.CancelToken) : Except Kernel.Exception Environment
+--
+--@[inherit_doc Kernel.Environment.addDeclWithoutChecking, extern "lean_elab_add_decl_without_checking"]
+--opaque addDeclWithoutChecking (env : Environment) (decl : @& Declaration) : Except Kernel.Exception Environment
+--
+--def EIO.ofExcept : Except e α → EIO e α
+--  | .ok a    => pure a
+--  | .error e => throw e
+--
+--private def addDeclNoDelay (env : Environment) (opts : Options) (decl : Declaration)
+--    (cancelTk? : Option IO.CancelToken := none) (skipExisting := false) :
+--    Except Kernel.Exception Environment := do
+--  if skipExisting then
+--    if let [name] := decl.getNames then
+--      if env.checked.get.kernel.find? name |>.isSome then
+--        return env.synchronize
+--  if debug.skipKernelTC.get opts then
+--    addDeclWithoutChecking env decl
+--  else
+--    addDeclCore env (Core.getMaxHeartbeats opts).toUSize decl cancelTk?
+--
+--def addDecl (env : Environment) (opts : Options) (decl : Declaration)
+--    (cancelTk? : Option IO.CancelToken := none) (checkAsyncPrefix := true) (skipExisting := false) :
+--    Except Kernel.Exception Environment := do
+--  if let some n := env.realizingConst? then
+--    panic! s!"cannot add declaration {decl.getNames} while realizing constant {n}"
+--  doAdd
+--where doAdd := addDeclNoDelay env opts decl cancelTk? skipExisting
+--
+--@[export lean_elab_environment_to_kernel_env_unchecked]
+--def toKernelEnvUnchecked (env : Environment) : Kernel.Environment := Id.run do
+--  let mut kenv := env.checkedNoAsync.kernel
+--  for asyncConst in env.asyncConsts.toArray do
+--    kenv := kenv.add asyncConst.info.info.get
+--  kenv
+--
+--@[export lean_elab_environment_to_kernel_env_no_async]
+--def toKernelEnv (env : Environment) : Kernel.Environment :=
+--  env.checked.get.kernel
+--
+--def constants (env : Environment) : ConstMap :=
+--  env.checked.get.kernel.constants
+--
+--def getImportedConstants (env : Environment) : Std.HashMap Name ConstantInfo :=
+--  env.checkedNoAsync.kernel.constants.map₁
+--
+--def getLocalConstantsUnchecked (env : Environment) : NameMap AsyncConstantInfo := Id.run do
+--  let map := env.checkedNoAsync.kernel.constants.map₂.foldl (fun m n c => m.insert n (.ofConstantInfo c)) .empty
+--  env.asyncConsts.toArray.foldl (fun m c => m.insert c.info.name c.info) map
 @[export lean_environment_find]
 def find? (env : Environment) (n : Name) : Option ConstantInfo :=
   /- It is safe to use `find'` because we never overwrite imported declarations. -/
@@ -354,6 +412,11 @@ def ofConstantInfo (c : ConstantInfo) : AsyncConstantInfo where
   sig := .pure c.toConstantVal
   constInfo := .pure c
 
+def isUnsafe (c : AsyncConstantInfo) : Bool :=
+  match c.kind with
+  | .thm => false
+  | _ => c.toConstantInfo.isUnsafe
+
 end AsyncConstantInfo
 
 /--
@@ -442,17 +505,24 @@ structure Environment where
   private asyncConsts : AsyncConsts := {}
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
+  private realizedExternConsts? : Option (IO.Ref (NameMap AsyncConst))
+  private realizedLocalConsts  : NameMap (IO.Ref (NameMap AsyncConst)) := {}
+  realizingConst? : Option Name := none
 deriving Nonempty
 
 namespace Environment
 
+-- used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`
 @[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
-  { checkedWithoutAsync := env }
+  { checkedWithoutAsync := env, realizedExternConsts? := none }
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
   env.checked.get
+
+def synchronize (env : Environment) : Environment :=
+  { env with checkedWithoutAsync := env.checked.get }
 
 /-- Consistently updates synchronous and asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
@@ -567,6 +637,17 @@ def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
     return asyncConst.constInfo.toConstantVal
   else env.findNoAsync n |>.map (·.toConstantVal)
 
+def enableRealizationsForConst (env : Environment) (c : Name) : BaseIO Environment := do
+  if env.realizedLocalConsts.contains c then
+    return env
+  return { env with realizedLocalConsts := env.realizedLocalConsts.insert c (← IO.mkRef {}) }
+
+def isAsync (env : Environment) : Bool :=
+  env.asyncCtx?.isSome
+
+def unlockAsync (env : Environment) : Environment :=
+  env  --{ env with asyncCtx? := env.asyncCtx?.map ({ · with declPrefix := .anonymous }) }
+
 /--
 Looks up the given declaration name in the environment, blocking on the corresponding elaboration
 task if not yet complete.
@@ -584,8 +665,12 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   return s!"\
     asyncCtx.declPrefix: {repr <| env.asyncCtx?.map (·.declPrefix)}\
   \nasyncConsts: {repr <| env.asyncConsts.toArray.map (·.constInfo.name)}\
-  \ncheckedWithoutAsync.constants.map₂: {repr <|
-      env.checkedWithoutAsync.constants.map₂.toList.map (·.1)}"
+  \nrealizedLocalConsts: {repr (← env.realizedLocalConsts.toList.filterMapM fun (n, m) => do
+    let consts := (← m.get).toList
+    return guard (!consts.isEmpty) *> some (n, consts.map (·.1)))}
+  \nrealizedExternConsts?: {repr <| (← env.realizedExternConsts?.mapM fun consts => do
+    return (← consts.get).toList.map fun (n, m) => (n, m.constInfo.name))}
+  \ncheckedWithoutAsync.constants.map₂: {repr <| env.checkedWithoutAsync.constants.map₂.toList.map (·.1)}"
 
 /-- Returns debug output about the synchronous state of the environment. -/
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
@@ -667,6 +752,7 @@ information.
 def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (reportExts := true) :
     IO AddConstAsyncResult := do
   assert! env.asyncMayContain constName
+  let env ← enableRealizationsForConst env constName
   let sigPromise ← IO.Promise.new
   let infoPromise ← IO.Promise.new
   let extensionsPromise ← IO.Promise.new
@@ -799,12 +885,93 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)
 
+def EIO.ofExcept (e : Except ε α) : EIO ε α :=
+  match e with
+  | Except.ok a    => pure a
+  | Except.error e => throw e
+
+def realizeConst (env : Environment) (forConst : Name) (constName : Name) (kind : ConstantKind)
+    (sig? : Option (Task ConstantVal) := none) :
+    IO (Environment × Option (Option ConstantInfo → EIO Kernel.Exception Environment)) := do
+  let mut env := env
+  if (env.checkedWithoutAsync.find? constName |>.isSome) || (env.asyncConsts.find? constName |>.isSome) then
+    return (env, none)
+  if let some n := env.realizingConst? then
+    panic! s!"cannot realize {constName} while already realizing {n}"
+  let prom ← IO.Promise.new
+  let asyncConst := Thunk.mk fun _ => {
+    constInfo := {
+      name := constName
+      kind
+      sig := sig?.getD (prom.result!.map (sync := true) (·.toConstantVal))
+      constInfo := prom.result!
+    }
+    exts? := none  -- will be reported by the caller eventually
+  }
+  let ref ← if env.checkedWithoutAsync.const2ModIdx.contains forConst then
+    env.realizedExternConsts?.getDM <|
+      throw <| .userError s!"Environment.realizeConst: `realizedExternConsts` is empty"
+  else
+    match env.realizedLocalConsts.find? forConst with
+    | some ref => pure ref
+    | none     =>
+      if env.asyncCtx?.any (·.mayContain forConst) then
+        let ref ← IO.mkRef {}
+        env := { env with realizedLocalConsts := env.realizedLocalConsts.insert forConst ref }
+        pure ref
+      else
+        throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
+      throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
+  let existingConst? ← ref.modifyGet fun m => match m.find? constName with
+    | some prom' => (some prom', m)
+    | none       => (none, m.insert constName asyncConst.get)
+  if let some existingConst := existingConst? then
+    env := { env with
+      asyncConsts := env.asyncConsts.add existingConst
+      checked := env.checked.map fun env =>
+        if env.find? constName |>.isSome then
+          env
+        else
+          env.add existingConst.constInfo.toConstantInfo
+    }
+    return (env, none)
+  else
+    env := { env with realizingConst? := some constName }
+    return (env, some fun
+      | none => do
+        prom.resolve /- TODO -/ default
+        return { env with realizingConst? := none }
+      | some const => do
+        let env := { env with realizingConst? := none }
+        let decl ← match const with
+          | .thmInfo thm   => pure <| .thmDecl thm
+          | .defnInfo defn => pure <| .defnDecl defn
+          | _              => throw <| .other s!"Environment.realizeConst: {constName} must be definition/theorem"
+        -- must happen before `addDeclCore` because on the main thread that can block on a use of `constName`
+        prom.resolve const
+        let async ← env.addConstAsync (reportExts := false) constName kind |>.adaptExcept (·.toString |> .other)
+        async.commitConst async.asyncEnv (some const) |>.adaptExcept (·.toString |> .other)
+        let _checkTask ← BaseIO.mapTask (t := env.checked) fun _ => EIO.catchExceptions (h := fun _e =>
+          panic! s!"realizeConst {constName} failed"
+        ) do
+          let env ← EIO.ofExcept <| addDeclCore async.asyncEnv 0 decl none
+          async.commitCheckEnv env |>.adaptExcept (·.toString |> .other)
+        if const.name != constName then
+          throw <| .other s!"Environment.realizeConst: realized constant has name {const.name} but expected {constName}"
+        let kind' := .ofConstantInfo const
+        if kind != kind' then
+          throw <| .other s!"Environment.realizeConst: realized constant has kind {repr kind} but expected {repr kind'}"
+        return async.mainEnv)
+
 end Environment
+
+def ConstantVal.instantiateTypeLevelParams (c : ConstantVal) (ls : List Level) : Expr :=
+  c.type.instantiateLevelParams c.levelParams ls
 
 namespace ConstantInfo
 
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.type.instantiateLevelParams c.levelParams ls
+  c.toConstantVal.instantiateTypeLevelParams ls
 
 def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
   c.value!.instantiateLevelParams c.levelParams ls
@@ -1012,7 +1179,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
   let initializing ← IO.initializing
   if initializing then throw (IO.userError "environment objects cannot be created during initialization")
   let exts ← mkInitialExtensionStates
-  pure {
+  return {
     checkedWithoutAsync := {
       const2ModIdx    := {}
       constants       := {}
@@ -1020,11 +1187,14 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       extraConstNames := {}
       extensions      := exts
     }
+    realizedExternConsts? := some (← IO.mkRef {})
   }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) where
   importedEntries : Array (Array α)  -- entries per imported module
   state : σ
+  async : Bool := false
+deriving Inhabited
 
 structure ImportM.Context where
   env  : Environment
@@ -1085,9 +1255,6 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   exportEntriesFn : σ → Array α
   statsFn         : σ → Format
 
-instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
-  ⟨{importedEntries := #[], state := default }⟩
-
 instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ) where
   default := {
      toEnvExtension := default,
@@ -1110,8 +1277,9 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
     { s with state := state }
 
 /-- Get the current state of the given extension in the given environment. -/
-def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
-  (ext.toEnvExtension.getState env).state
+def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
+    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
@@ -1212,8 +1380,9 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
   (PersistentEnvExtension.getState ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
-def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
-  (PersistentEnvExtension.getState ext env).2
+def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
+    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).2
 
 /-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
@@ -1222,6 +1391,10 @@ def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : En
 /-- Modify the state of the given extension in the given environment by applying the given function. This change is *not* persisted across files. -/
 def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
   PersistentEnvExtension.modifyState ext env (fun ⟨entries, s⟩ => (entries, f s))
+
+def findStateAsync {α σ : Type} [Inhabited σ]
+    (ext : SimplePersistentEnvExtension α σ) (env : Environment) (declName : Name) : σ :=
+  PersistentEnvExtension.findStateAsync ext env declName |>.2
 
 end SimplePersistentEnvExtension
 
@@ -1250,7 +1423,7 @@ def tag (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : 
 def isTagged (ext : TagDeclarationExtension) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
   | some modIdx => (ext.getModuleEntries env modIdx).binSearchContains declName Name.quickLt
-  | none        => (ext.getState env).contains declName
+  | none        => (ext.getState (asyncMode := .local) env).contains declName
 
 end TagDeclarationExtension
 
@@ -1278,13 +1451,14 @@ def insert (ext : MapDeclarationExtension α) (env : Environment) (declName : Na
   assert! env.getModuleIdxFor? declName |>.isNone -- See comment at `MapDeclarationExtension`
   ext.addEntry env (declName, val)
 
-def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Option α :=
+def find? [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name)
+    (asyncMode := ext.toEnvExtension.asyncMode) : Option α :=
   match env.getModuleIdxFor? declName with
   | some modIdx =>
     match (ext.getModuleEntries env modIdx).binSearch (declName, default) (fun a b => Name.quickLt a.1 b.1) with
     | some e => some e.2
     | none   => none
-  | none => (ext.getState env).find? declName
+  | none => (ext.getState (asyncMode := asyncMode) env).find? declName
 
 def contains [Inhabited α] (ext : MapDeclarationExtension α) (env : Environment) (declName : Name) : Bool :=
   match env.getModuleIdxFor? declName with
@@ -1515,6 +1689,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         moduleData   := s.moduleData
       }
     }
+    realizedExternConsts? := some (← IO.mkRef {})
   }
   env ← setImportedEntries env s.moduleData
   if leakEnv then
@@ -1598,7 +1773,10 @@ namespace Environment
 
 /-- Register a new namespace in the environment. -/
 def registerNamespace (env : Environment) (n : Name) : Environment :=
-  if (namespacesExt.getState env).contains n then env else namespacesExt.addEntry env n
+  namespacesExt.toEnvExtension.modifyState env fun s =>
+    if s.state.1.contains n then s else
+      let state   := namespacesExt.addEntryFn s.state n;
+      { s with state := state }
 
 /-- Return `true` if `n` is the name of a namespace in `env`. -/
 def isNamespace (env : Environment) (n : Name) : Bool :=
@@ -1653,7 +1831,7 @@ unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : 
 def hasUnsafe (env : Environment) (e : Expr) : Bool :=
   let c? := e.find? fun e => match e with
     | Expr.const c _ =>
-      match env.find? c with
+      match env.findAsync? c with
       | some cinfo => cinfo.isUnsafe
       | none       => false
     | _ => false;

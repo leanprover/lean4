@@ -27,6 +27,8 @@ instance : Coe (TSyntax ``rcasesPatMed) (TSyntax ``rcasesPatLo) where
 instance : Coe (TSyntax `rcasesPat) (TSyntax `rintroPat) where
   coe stx := Unhygienic.run `(rintroPat| $stx:rcasesPat)
 
+set_option interpreter.prefer_native false
+
 /-- A list, with a disjunctive meaning (like a list of inductive constructors, or subgoals) -/
 local notation "ListΣ" => List
 

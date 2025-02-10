@@ -135,12 +135,10 @@ private def cleanupOfNat (type : Expr) : MetaM Expr := do
 Elaborates only the declaration view headers. We have to elaborate the headers first because we
 support mutually recursive declarations in Lean 4.
 -/
-private def elabHeaders (views : Array DefView)
+private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandDeclIdResult)
     (bodyPromises : Array (IO.Promise (Option BodyProcessedSnapshot)))
     (tacPromises : Array (IO.Promise Tactic.TacticParsedSnapshot)) :
     TermElabM (Array DefViewElabHeader) := do
-  let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
-    Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
   withAutoBoundImplicitForbiddenPred (fun n => expandedDeclIds.any (·.shortName == n)) do
     let mut headers := #[]
     -- Can we reuse the result for a body? For starters, all headers (even those below the body)
@@ -415,7 +413,9 @@ private def useProofAsSorry (k : DefKind) : CoreM Bool := do
         return true
   return false
 
-private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr) (sc : Command.Scope) : TermElabM (Array Expr) :=
+private def elabFunValues (headers : Array DefViewElabHeader) (vars : Array Expr)
+    (sc : Command.Scope) :
+    TermElabM (Array Expr) :=
   headers.mapM fun header => do
     let mut reusableResult? := none
     if let some snap := header.bodySnap? then
@@ -1010,43 +1010,96 @@ where
   go := do
     let bodyPromises ← views.mapM fun _ => IO.Promise.new
     let tacPromises ← views.mapM fun _ => IO.Promise.new
+    let valPromise ← IO.Promise.new
     let scopeLevelNames ← getLevelNames
-    let headers ← elabHeaders views bodyPromises tacPromises
+    let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
+      Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+    let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
     let allUserLevelNames := getAllUserLevelNames headers
     withFunLocalDecls headers fun funFVars => do
       for view in views, funFVar in funFVars do
         addLocalVarInfo view.declId funFVar
-      let values ←
+      let mut async? := none
+      if let (#[view], #[declId]) := (views, expandedDeclIds) then
+        if Elab.async.get (← getOptions) && view.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then
+          let env ← getEnv
+          let async ← env.addConstAsync declId.declName .thm
+          modifyEnv fun _=> async.mainEnv
+          async? := some async
+
+          -- TODO: parallelize? must refactor auto implicits catch, makes `@[simp]` etc harder?
+          let header := headers[0]!
+          let type ← withHeaderSecVars vars sc #[header] fun vars => do
+            mkForallFVars vars header.type >>= instantiateMVars
+          let type ← withLevelNames allUserLevelNames <| levelMVarToParam type
+          let mut s : CollectLevelParams.State := {}
+          s := collectLevelParams s type
+          let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
+          async.commitSignature { name := header.declName, levelParams, type }
+
+      let finishElab headers :=
         try
-          let values ← elabFunValues headers vars sc
-          Term.synthesizeSyntheticMVarsNoPostponing
-          values.mapM (instantiateMVarsProfiling ·)
-        catch ex =>
-          logException ex
-          headers.mapM fun header => withRef header.declId <| mkLabeledSorry header.type (synthetic := true) (unique := true)
-      let headers ← headers.mapM instantiateMVarsAtHeader
-      let letRecsToLift ← getLetRecsToLift
-      let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
-      checkLetRecsToLiftTypes funFVars letRecsToLift
-      (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
-        let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
-        checkAllDeclNamesDistinct preDefs
-        for preDef in preDefs do
-          trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
-        let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
-        let preDefs ← instantiateMVarsAtPreDecls preDefs
-        let preDefs ← shareCommonPreDefs preDefs
-        let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
-        for preDef in preDefs do
-          trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
-        addPreDefinitions preDefs
+          let values ← try
+            let values ← elabFunValues headers vars sc
+            Term.synthesizeSyntheticMVarsNoPostponing
+            values.mapM (instantiateMVarsProfiling ·)
+          catch ex =>
+            logException ex
+            headers.mapM fun header => withRef header.declId <| mkLabeledSorry header.type (synthetic := true) (unique := true)
+          if let #[value] := values then
+            valPromise.resolve value
+          let headers ← headers.mapM instantiateMVarsAtHeader
+          let letRecsToLift ← getLetRecsToLift
+          let letRecsToLift ← letRecsToLift.mapM instantiateMVarsAtLetRecToLift
+          checkLetRecsToLiftTypes funFVars letRecsToLift
+          (if headers.all (·.kind.isTheorem) && !deprecated.oldSectionVars.get (← getOptions) then withHeaderSecVars vars sc headers else withUsed vars headers values letRecsToLift) fun vars => do
+            let preDefs ← MutualClosure.main vars headers funFVars values letRecsToLift
+            checkAllDeclNamesDistinct preDefs
+            for preDef in preDefs do
+              trace[Elab.definition] "{preDef.declName} : {preDef.type} :=\n{preDef.value}"
+            let preDefs ← withLevelNames allUserLevelNames <| levelMVarToParamTypesPreDecls preDefs
+            let preDefs ← instantiateMVarsAtPreDecls preDefs
+            let preDefs ← shareCommonPreDefs preDefs
+            let preDefs ← fixLevelParams preDefs scopeLevelNames allUserLevelNames
+            for preDef in preDefs do
+              trace[Elab.definition] "after eraseAuxDiscr, {preDef.declName} : {preDef.type} :=\n{preDef.value}"
+            addPreDefinitions preDefs
+            if let some async := async? then
+              async.commitConst (← getEnv)
+        finally
+          valPromise.resolve (Expr.const `failedAsyncElab [])
+      let checkAndCompile :=
         processDeriving headers
-    for view in views, header in headers do
+        if let some async := async? then
+          async.commitCheckEnv (← getEnv)
+      if let some async := async? then
+        let headers := headers.map fun header => { header with modifiers.attrs := #[] }
+        let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
+          modifyEnv fun _ => async.asyncEnv
+          finishElab headers
+          let checkAct ← wrapAsyncAsSnapshot (desc := s!"finishing proof of {expandedDeclIds[0]?.map (·.declName) |>.get!}") fun _ => do
+            checkAndCompile
+          let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) fun _ => checkAct
+          Core.logSnapshotTask { range? := none, task := checkTask }
+        Core.logSnapshotTask { range? := none, task := (← BaseIO.asTask act) }
+        for view in views, declId in expandedDeclIds do
+          applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+          applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
+      else
+        let env ← getEnv
+        let headers := headers.map fun header => { header with
+          modifiers.attrs := header.modifiers.attrs.filter fun attr =>
+            getAttributeImpl env attr.name |>.map (·.applicationTime != .afterCompilation) |>.toOption |>.getD false
+        }
+        finishElab headers
+        checkAndCompile
+        for view in views, declId in expandedDeclIds do
+          applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
+    for view in views, declId in expandedDeclIds do
       -- NOTE: this should be the full `ref`, and thus needs to be done after any snapshotting
       -- that depends only on a part of the ref
-      addDeclarationRangesForBuiltin header.declName view.modifiers.stx view.ref
-
+      addDeclarationRangesForBuiltin declId.declName view.modifiers.stx view.ref
 
   processDeriving (headers : Array DefViewElabHeader) := do
     for header in headers, view in views do
@@ -1097,14 +1150,19 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view
-  if let some snap := snap? then
-    -- no non-fatal diagnostics at this point
-    snap.new.resolve <| .ofTyped { defs, diagnostics := .empty : DefsParsedSnapshot }
-  let sc ← getScope
-  runTermElabM fun vars => Term.elabMutualDef vars sc views
+    let sc ← getScope
+    runTermElabM fun vars => do
+      if let some snap := snap? then
+        -- no non-fatal diagnostics at this point
+        snap.new.resolve <| .ofTyped {
+            desc := s!"{decl_name%}: {views.map (·.declId)}"
+            defs
+            diagnostics := .empty : DefsParsedSnapshot }
+      Term.elabMutualDef vars sc views
 
 builtin_initialize
   registerTraceClass `Elab.definition.mkClosure
+  registerTraceClass `Elab.async
 
 end Command
 end Lean.Elab

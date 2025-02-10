@@ -151,6 +151,8 @@ mutual
         return false
 
   partial def isRflTheorem (declName : Name) : CoreM Bool := do
+    if !(← getEnv).contains declName && isReservedName (← getEnv) declName then
+      executeReservedNameAction declName
     let .thmInfo info ← getConstInfo declName | return false
     isRflProofCore info.type info.value
 end
@@ -399,8 +401,27 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | none => throwError "unexpected kind of 'simp' theorem{indentExpr type}"
     return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
 
+private def realizePreprocessedSimpTheorems (declName : Name) (inv : Bool) : MetaM (Array Name) := withReducible do
+  let cinfo ← getConstVal declName
+  let us := cinfo.levelParams.map mkLevelParam
+  let val := mkConst declName us
+  let mut r := #[]
+  let type ← inferType val
+  for (val, type) in (← preprocess val type inv (isGlobal := true)) do
+    let mut name := declName ++ `_simp
+    if inv then
+      name := name ++ `inv
+    name := name.mkNum r.size
+    realizeConst declName name .thm do
+      return .thmInfo {
+        name,
+        levelParams := cinfo.levelParams, type, value := val
+      }
+    r := r.push name
+  return r
+
 private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool) (prio : Nat) : MetaM (Array SimpTheorem) := do
-  let cinfo ← getConstInfo declName
+  let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
   let val := mkConst declName us
@@ -408,13 +429,20 @@ private def mkSimpTheoremsFromConst (declName : Name) (post : Bool) (inv : Bool)
     let type ← inferType val
     checkTypeIsProp type
     if inv || (← shouldPreprocess type) then
-      let mut r := #[]
-      for (val, type) in (← preprocess val type inv (isGlobal := true)) do
-        let auxName ← mkAuxLemma cinfo.levelParams type val
-        r := r.push <| (← mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
-      return r
+      (← realizePreprocessedSimpTheorems declName inv).mapM fun name =>
+        mkSimpTheoremCore origin (mkConst name us) #[] (mkConst name) post prio (noIndexAtArgs := false)
     else
       return #[← mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
+
+builtin_initialize
+  registerReservedNameAction fun name => do
+    let .num name _ := name | return false
+    let (name, inv) :=
+      if let .str name' "inv" := name then (name', true)
+      else (name, false)
+    let .str declName "_simp" := name | return false
+    let _ ← realizePreprocessedSimpTheorems declName inv |>.run
+    return true
 
 inductive SimpEntry where
   | thm      : SimpTheorem → SimpEntry
@@ -425,7 +453,7 @@ inductive SimpEntry where
 abbrev SimpExtension := SimpleScopedEnvExtension SimpEntry SimpTheorems
 
 def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
-  return ext.getState (← getEnv)
+  return ext.getState (asyncMode := .local) (← getEnv)
 
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let simpThms ← mkSimpTheoremsFromConst declName post inv prio
@@ -458,7 +486,7 @@ def SimpTheorems.addConst (s : SimpTheorems) (declName : Name) (post := true) (i
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
-    let info ← getConstInfo simpThm.proof.constName!
+    let info ← getConstVal simpThm.proof.constName!
     if info.levelParams.isEmpty then
       return simpThm.proof
     else

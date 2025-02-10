@@ -25,21 +25,17 @@ def withEnv [Monad m] [MonadFinally m] [MonadEnv m] (env : Environment) (x : m �
     setEnv saved
 
 def isInductive [Monad m] [MonadEnv m] (declName : Name) : m Bool := do
-  match (← getEnv).find? declName with
-  | some (ConstantInfo.inductInfo ..) => return true
-  | _ => return false
+  return (← getEnv).findAsync? declName matches some { kind := .induct, .. }
 
 def isRecCore (env : Environment) (declName : Name) : Bool :=
-  match env.find? declName with
-  | some (ConstantInfo.recInfo ..) => true
-  | _ => false
+  env.findAsync? declName matches some { kind := .recursor, .. }
 
 def isRec [Monad m] [MonadEnv m] (declName : Name) : m Bool :=
   return isRecCore (← getEnv) declName
 
 @[inline] def withoutModifyingEnv [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m α := do
   let env ← getEnv
-  try x finally setEnv env
+  try withEnv env.unlockAsync x finally setEnv env
 
 /-- Similar to `withoutModifyingEnv`, but also returns the updated environment -/
 @[inline] def withoutModifyingEnv' [Monad m] [MonadEnv m] [MonadFinally m] {α : Type} (x : m α) : m (α × Environment) := do
@@ -94,8 +90,18 @@ def getConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Co
   | some info => pure info
   | none      => throwError "unknown constant '{.ofConstName constName}'"
 
+def getConstVal [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m ConstantVal := do
+  match (← getEnv).findConstVal? constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
+def getAsyncConstInfo [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m AsyncConstantInfo := do
+  match (← getEnv).findAsync? constName with
+  | some val => pure val
+  | none     => throwError "unknown constant '{mkConst constName}'"
+
 def mkConstWithLevelParams [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m Expr := do
-  let info ← getConstInfo constName
+  let info ← getConstVal constName
   return mkConst constName (info.levelParams.map mkLevelParam)
 
 def getConstInfoDefn [Monad m] [MonadEnv m] [MonadError m] (constName : Name) : m DefinitionVal := do
@@ -170,5 +176,19 @@ def isEnumType  [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m Bool
       return false
   else
     return false
+
+def realizeConst [Monad m] [MonadEnv m] [MonadOptions m] [MonadError m] [MonadLiftT IO m] [MonadAlwaysExcept ε m]
+    (forConst : Name) (constName : Name) (kind : ConstantKind)
+    (doRealize : m ConstantInfo) (sig? : Option (Task ConstantVal) := none) : m Unit := do
+  let env ← getEnv
+  let (env, resolve?) ← env.realizeConst forConst constName kind sig?
+  setEnv env
+  if let some resolve := resolve? then
+    let _ := MonadAlwaysExcept.except (m := m)
+    try
+      let x ← doRealize
+      setEnv <| (← ofExceptKernelException (← resolve x |>.toBaseIO |> liftM (m := IO)))
+    catch _ =>
+      setEnv <| (← ofExceptKernelException (← resolve none |>.toBaseIO |> liftM (m := IO)))
 
 end Lean

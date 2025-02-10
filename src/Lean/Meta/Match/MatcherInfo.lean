@@ -88,7 +88,7 @@ def addMatcherInfo (env : Environment) (matcherName : Name) (info : MatcherInfo)
   extension.addEntry env { name := matcherName, info := info }
 
 def getMatcherInfo? (env : Environment) (declName : Name) : Option MatcherInfo :=
-  (extension.getState env).map.find? declName
+  (extension.findStateAsync env declName).map.find? declName
 
 end Extension
 

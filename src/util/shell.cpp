@@ -38,6 +38,7 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "initialize/init.h"
 #include "library/compiler/ir_interpreter.h"
+#include "library/elab_environment.h"
 #include "util/path.h"
 #include "stdlib_flags.h"
 #ifdef _MSC_VER
@@ -229,7 +230,7 @@ static void display_help(std::ostream & out) {
     std::cout << "      --print-prefix     print the installation prefix for Lean and exit\n";
     std::cout << "      --print-libdir     print the installation directory for Lean's built-in libraries and exit\n";
     std::cout << "      --profile          display elaboration/type checking time for each definition/theorem\n";
-    std::cout << "      --stats            display environment statistics\n";
+    std::cout << "      --stats            display elab_environment statistics\n";
     DEBUG_CODE(
     std::cout << "      --debug=tag        enable assertions with the given tag\n";
         )

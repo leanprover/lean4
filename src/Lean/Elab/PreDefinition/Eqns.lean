@@ -416,12 +416,13 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
-    let value ← mkEqnProof declName type tryRefl
-    let (type, value) ← removeUnusedEqnHypotheses type value
-    addDecl <| Declaration.thmDecl {
-      name, type, value
-      levelParams := info.levelParams
-    }
+    realizeConst declName name .thm do
+      let value ← mkEqnProof declName type tryRefl
+      let (type, value) ← removeUnusedEqnHypotheses type value
+      return .thmInfo {
+        name, type, value
+        levelParams := info.levelParams
+      }
   return thmNames
 
 /--
@@ -466,20 +467,22 @@ partial def mkUnfoldProof (declName : Name) (mvarId : MVarId) : MetaM Unit := do
 
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfoCore) : MetaM Name := withLCtx {} {} do
+  let baseName := declName
+  let name := Name.str baseName unfoldThmSuffix
   withOptions (tactic.hygienic.set · false) do
-    let baseName := declName
     lambdaTelescope info.value fun xs body => do
       let us := info.levelParams.map mkLevelParam
       let type ← mkEq (mkAppN (Lean.mkConst declName us) xs) body
       let goal ← mkFreshExprSyntheticOpaqueMVar type
+      -- TODO: calls getEqnsFor!!!
       mkUnfoldProof declName goal.mvarId!
       let type ← mkForallFVars xs type
       let value ← mkLambdaFVars xs (← instantiateMVars goal)
-      let name := Name.str baseName unfoldThmSuffix
-      addDecl <| Declaration.thmDecl {
-        name, type, value
-        levelParams := info.levelParams
-      }
+      realizeConst declName name .thm do
+        return .thmInfo {
+          name, type, value
+          levelParams := info.levelParams
+        }
       return name
 
 def getUnfoldFor? (declName : Name) (getInfo? : Unit → Option EqnInfoCore) : MetaM (Option Name) := do

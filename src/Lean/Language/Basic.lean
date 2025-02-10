@@ -138,6 +138,10 @@ structure SyntaxGuarded (α : Type) where
   /-- Potentially reusable value. -/
   val : α
 
+/-- Applies `f` to `s.val`. -/
+def SyntaxGuarded.mapVal (s : SyntaxGuarded α) (f : α → β) : SyntaxGuarded β :=
+  { s with val := f s.val }
+
 /--
 Pair of (optional) old snapshot task usable for incremental reuse and new snapshot promise for
 incremental reporting. Inside the elaborator, we build snapshots by carrying such bundles and then

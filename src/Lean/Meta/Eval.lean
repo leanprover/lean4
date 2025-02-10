@@ -10,7 +10,7 @@ import Lean.Util.CollectLevelParams
 
 namespace Lean.Meta
 
-unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (safety := DefinitionSafety.safe) : MetaM α :=
+unsafe def evalExprCore (α) (value : Expr) (checkType : Expr → MetaM Unit) (safety := DefinitionSafety.safe) : MetaM α := do
   withoutModifyingEnv do
     let name ← mkFreshUserName `_tmp
     let value ← instantiateMVars value

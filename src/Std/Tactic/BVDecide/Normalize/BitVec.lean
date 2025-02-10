@@ -336,7 +336,7 @@ attribute [bv_normalize] BitVec.uaddOverflow_eq
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
     x / (BitVec.ofNat w n) = x >>> k := by
-  have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
+  have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bitvec_to_nat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
 
 attribute [bv_normalize] BitVec.extractLsb'_and

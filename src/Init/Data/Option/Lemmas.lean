@@ -407,7 +407,7 @@ instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
 theorem or_none : or o none = o := by
   cases o <;> rfl
 
-theorem or_eq_left {o o' : Option α} (h : o' = none) : o.or o' = o := by
+theorem or_eq_left_of_none {o o' : Option α} (h : o' = none) : o.or o' = o := by
   cases h; simp
 
 instance : Std.LawfulIdentity (or (α := α)) none where

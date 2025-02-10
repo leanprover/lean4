@@ -5,6 +5,7 @@ Author: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Init.Core
+import Init.BinderNameHint
 
 universe u v w
 
@@ -34,6 +35,12 @@ instance (priority := 500) instForInOfForIn' [ForIn' m ρ α d] : ForIn m ρ α 
   intro b
   simp [h]
   rfl
+
+@[wf_preprocess] theorem forIn_eq_forin' [d : Membership α ρ] [ForIn' m ρ α d] {β} [Monad m]
+    (x : ρ) (b : β) (f : (a : α) → β → m (ForInStep β)) :
+    forIn x b f = forIn' x b (fun x h => binderNameHint x f <| binderNameHint h () <| f x) := by
+  simp [binderNameHint]
+  rfl -- very strange why `simp` did not close it
 
 /-- Extract the value from a `ForInStep`, ignoring whether it is `done` or `yield`. -/
 def ForInStep.value (x : ForInStep α) : α :=

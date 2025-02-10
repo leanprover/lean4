@@ -5,6 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import Init.SizeOf
+import Init.BinderNameHint
 import Init.Data.Nat.Basic
 
 universe u v
@@ -414,3 +415,18 @@ theorem mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β �
 end
 
 end PSigma
+
+/--
+The `wfParam` gadget is used internally during the construction of recursive functions by
+wellfounded recursion, to keep track of the parameter for which the automatic introduction
+of `List.attach` (or similar) is plausible.
+-/
+def wfParam {α : Sort u} (a : α) : α := a
+
+/--
+Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the
+context of a termination proof inside `if-then-else` with the condition.
+-/
+@[wf_preprocess] theorem ite_eq_dite [Decidable P] :
+    ite P a b = (dite P (fun h => binderNameHint h () a) (fun h => binderNameHint h () b)) := by
+  rfl

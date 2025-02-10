@@ -155,13 +155,6 @@ Returns `true` if the tree set contains no mappings.
 def isEmpty (t : Raw α cmp) : Bool :=
   t.inner.isEmpty
 
-/--
-Returns true if the tree set contains exactly one element.
--/
-@[inline]
-def isSingleton (t : Raw α cmp) : Bool :=
-  t.inner.isSingleton
-
 /-- Removes the given key if it exists. -/
 @[inline]
 def erase (t : Raw α cmp) (a : α) : Raw α cmp :=

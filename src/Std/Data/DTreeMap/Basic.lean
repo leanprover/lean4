@@ -126,10 +126,6 @@ def size (t : DTreeMap α β cmp) : Nat :=
 def isEmpty (t : DTreeMap α β cmp) : Bool :=
   t.inner.isEmpty
 
-@[inline, inherit_doc Raw.isSingleton]
-def isSingleton (t : DTreeMap α β cmp) : Bool :=
-  t.inner.isSingleton
-
 @[inline, inherit_doc Raw.erase]
 def erase (t : DTreeMap α β cmp) (a : α) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨(t.inner.erase a t.wf.balanced).impl, .erase t.wf⟩

@@ -117,10 +117,6 @@ def size (t : TreeMap α β cmp) : Nat :=
 def isEmpty (t : TreeMap α β cmp) : Bool :=
   t.inner.isEmpty
 
-@[inline, inherit_doc DTreeMap.isSingleton]
-def isSingleton (t : TreeMap α β cmp) : Bool :=
-  t.inner.isSingleton
-
 @[inline, inherit_doc DTreeMap.erase]
 def erase (t : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
   ⟨t.inner.erase a⟩

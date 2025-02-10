@@ -183,13 +183,6 @@ Returns `true` if the tree map contains no mappings.
 def isEmpty (t : Raw α β cmp) : Bool :=
   t.inner.isEmpty
 
-/--
-Returns `true` if the tree map contains exactly one mapping.
--/
-@[inline]
-def isSingleton (t : Raw α β cmp) : Bool :=
-  t.inner.isSingleton
-
 /-- Removes the mapping for the given key if it exists. -/
 @[inline]
 def erase (t : Raw α β cmp) (a : α) : Raw α β cmp :=

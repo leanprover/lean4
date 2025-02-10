@@ -56,12 +56,6 @@ def isEmpty (t : Impl α β) : Bool :=
   | .leaf => true
   | .inner _ _ _ _ _ => false
 
-/-- Returns `true` if the tree contains exactly one element. -/
-def isSingleton (t : Impl α β) : Bool :=
-  match t with
-  | .inner _ _ _ .leaf .leaf => true
-  | _ => false
-
 /-- Returns the value for the key `k`, or `none` if such a key does not exist. -/
 def get? [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) : Option (β k) :=
   match t with

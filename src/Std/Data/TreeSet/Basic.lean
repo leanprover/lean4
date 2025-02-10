@@ -109,10 +109,6 @@ def size (t : TreeSet α cmp) : Nat :=
 def isEmpty (t : TreeSet α cmp) : Bool :=
   t.inner.isEmpty
 
-@[inline, inherit_doc Raw.isSingleton]
-def isSingleton (t : TreeSet α cmp) : Bool :=
-  t.inner.isSingleton
-
 @[inline, inherit_doc Raw.erase]
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩

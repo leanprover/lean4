@@ -56,7 +56,6 @@ lean_object* l_Array_toSubarray___rarg(lean_object*, lean_object*, lean_object*)
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__23;
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__36;
 static lean_object* l_Lean_Elab_Deriving_BEq_initFn____x40_Lean_Elab_Deriving_BEq___hyg_3927____closed__10;
-lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__22(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__38;
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1___closed__31;
@@ -276,6 +275,7 @@ lean_object* l_List_reverse___rarg(lean_object*);
 lean_object* lean_array_mk(lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkElseAlt___spec__1___closed__3;
 static lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__8___lambda__1___closed__9;
+lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__6___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq_mkMatch_mkAlts___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -9717,7 +9717,7 @@ x_20 = 0;
 x_21 = lean_usize_of_nat(x_14);
 lean_dec(x_14);
 x_22 = lean_box(0);
-x_23 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__22(x_12, x_20, x_21, x_22, x_2, x_3, x_13);
+x_23 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_12, x_20, x_21, x_22, x_2, x_3, x_13);
 lean_dec(x_12);
 return x_23;
 }
@@ -9771,7 +9771,7 @@ x_34 = 0;
 x_35 = lean_usize_of_nat(x_26);
 lean_dec(x_26);
 x_36 = lean_box(0);
-x_37 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__22(x_24, x_34, x_35, x_36, x_2, x_3, x_25);
+x_37 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_24, x_34, x_35, x_36, x_2, x_3, x_25);
 lean_dec(x_24);
 return x_37;
 }
@@ -9858,7 +9858,7 @@ x_54 = 0;
 x_55 = lean_usize_of_nat(x_48);
 lean_dec(x_48);
 x_56 = lean_box(0);
-x_57 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__22(x_46, x_54, x_55, x_56, x_2, x_3, x_47);
+x_57 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_46, x_54, x_55, x_56, x_2, x_3, x_47);
 lean_dec(x_46);
 return x_57;
 }
@@ -9912,7 +9912,7 @@ x_68 = 0;
 x_69 = lean_usize_of_nat(x_60);
 lean_dec(x_60);
 x_70 = lean_box(0);
-x_71 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__22(x_58, x_68, x_69, x_70, x_2, x_3, x_59);
+x_71 = l_Array_foldlMUnsafe_fold___at_Lean_Elab_Command_elabCommand___spec__20(x_58, x_68, x_69, x_70, x_2, x_3, x_59);
 lean_dec(x_58);
 return x_71;
 }

@@ -11299,7 +11299,7 @@ static lean_object* _init_l___regBuiltin_Lean_Parser_Term_prop_docString__1___cl
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The universe of propositions. `Prop ≡ Sort 0`. ", 49, 47);
+x_1 = lean_mk_string_unchecked("The universe of propositions. `Prop ≡ Sort 0`.\n\nEvery proposition is propositionally equal to either `True` or `False`. ", 122, 120);
 return x_1;
 }
 }

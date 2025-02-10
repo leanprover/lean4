@@ -13,7 +13,8 @@ structure ClosedTermCache where
   constNames : NameSet := {}
   deriving Inhabited
 
-builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ← registerEnvExtension (pure {})
+builtin_initialize closedTermCacheExt : EnvExtension ClosedTermCache ←
+  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
 
 @[export lean_cache_closed_term_name]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=

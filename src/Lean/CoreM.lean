@@ -527,16 +527,17 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
     doCompile
     return
   let env ← getEnv
-  let (postEnv, prom) ← env.promiseChecked
+  let res ← env.promiseChecked
+  setEnv res.mainEnv
   let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+    setEnv res.asyncEnv
     try
       doCompile
     finally
-      prom.resolve (← getEnv)
+      res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
   Core.logSnapshotTask { range? := endRange?, task := t }
-  setEnv postEnv
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well

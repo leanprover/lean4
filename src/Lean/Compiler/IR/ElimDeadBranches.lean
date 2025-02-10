@@ -142,6 +142,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (FunId ×
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => sortEntries s.toArray
+    asyncMode := .sync  -- compilation is non-parallel anyway
   }
 
 def addFunctionSummary (env : Environment) (fid : FunId) (v : Value) : Environment :=

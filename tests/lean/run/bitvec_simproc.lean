@@ -141,3 +141,12 @@ example (h : False) : 1#2 = 2#2 := by
   simp; guard_target =ₛ False; exact h
 example : 1#2 ≠ 2#2 := by
   simp
+/-! Check that multiplication by twoPow and <<< rewrites to the <<< normal form. -/
+example : twoPow 32 3 * twoPow 32 4 = twoPow 32 7 := by
+  simp
+example (x : BitVec 32) : x * twoPow 32 4 = x <<< 4 := by
+  simp
+example (x : BitVec 32) : twoPow 32 4 * x = x <<< 4 := by
+  simp
+example (x : BitVec 32) : ((twoPow 32 4 * x) <<< 3) * twoPow 32 3 = x <<< 10 := by
+  simp

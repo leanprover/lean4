@@ -728,23 +728,6 @@ def mergeBy! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Imp
 
 end Const
 
-attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
-
-/-- Returns the mapping with the `n`-th smallest key. -/
-def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
-  | .inner _ k v l' r', hl, n, h =>
-    match h : compare n l'.size with
-    | .lt => l'.atIndex hl.left n ✓
-    | .eq => ⟨k, v⟩
-    | .gt => r'.atIndex hl.right (n - l'.size - 1) ✓
-
-/-- Support for the `for` construct in `do` blocks. -/
-@[inline]
-def forIn {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (init : δ) (t : Impl α β) : m δ := do
-  match ← forInStep f init t with
-  | ForInStep.done d => return d
-  | ForInStep.yield d => return d
-
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
 def ofArray [Ord α] (l : Array ((a : α) × β a)) : BalancedTree α β :=

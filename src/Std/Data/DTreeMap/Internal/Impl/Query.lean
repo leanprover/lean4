@@ -144,104 +144,6 @@ def getD [Ord α] (k : α) (t : Impl α (fun _ => δ)) (fallback : δ) : δ :=
 
 end Const
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
-@[inline]
-def lookupGE [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
-  go none
-where
-  go (best : Option ((a : α) × β a)) : Impl α β → Option ((a : α) × β a)
-  | .leaf => best
-  | .inner _ ky y l r => match compare k ky with
-    | .lt => go (some ⟨ky, y⟩) l
-    | .eq => some ⟨ky, y⟩
-    | .gt => go best r
-
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
-@[inline]
-def lookupGT [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
-  go none
-where
-  go (best : Option ((a : α) × β a)) : Impl α β → Option ((a : α) × β a)
-  | .leaf => best
-  | .inner _ ky y l r => match compare k ky with
-    | .lt => go (some ⟨ky, y⟩) l
-    | _ => go best r
-
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
-@[inline]
-def lookupLE [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
-  go none
-where
-  go (best : Option ((a : α) × β a)) : Impl α β → Option ((a : α) × β a)
-  | .leaf => best
-  | .inner _ ky y l r => match compare k ky with
-    | .lt => go best l
-    | .eq => some ⟨ky, y⟩
-    | .gt => go (some ⟨ky, y⟩) r
-
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
-@[inline]
-def lookupLT [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
-  go none
-where
-  go (best : Option ((a : α) × β a)) : Impl α β → Option ((a : α) × β a)
-  | .leaf => best
-  | .inner _ ky y l r => match compare k ky with
-    | .gt => go (some ⟨ky, y⟩) r
-    | _ => go best l
-
-/-- The smallest element of `t`. -/
-def min? [Ord α] : Impl α β → Option ((a : α) × β a)
-  | .leaf => none
-  | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.min?
-
-/-- The largest element of `t`. -/
-def max? [Ord α] : Impl α β → Option ((a : α) × β a)
-  | .leaf => none
-  | .inner _ k v _ .leaf => some ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.max?
-
-/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
-def atIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
-  | .leaf, _ => none
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => l.atIndex? n
-    | .eq => some ⟨k, v⟩
-    | .gt => r.atIndex? (n - l.size - 1)
-
-/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
-def atIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
-  | .leaf, _ => panic! "Out-of-bounds access"
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => l.atIndex! n
-    | .eq => ⟨k, v⟩
-    | .gt => r.atIndex! (n - l.size - 1)
-
-/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
-def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
-  | .leaf, _, fallback => fallback
-  | .inner _ k v l r, n, fallback =>
-    match compare n l.size with
-    | .lt => l.atIndexD n fallback
-    | .eq => ⟨k, v⟩
-    | .gt => r.atIndexD (n - l.size - 1) fallback
-
-/-- Returns the number of mappings whose key is strictly less than `k`. -/
-@[inline]
-def indexOf [Ord α] (k : α) : Impl α β → Nat :=
-  go 0
-where
-  go (sofar : Nat) : Impl α β → Nat
-  | .leaf => sofar
-  | .inner _ ky _ l r =>
-    match compare k ky with
-    | .lt => go sofar l
-    | .eq => sofar
-    | .gt => go (l.size + 1 + sofar) r
-
 /-- Folds the given function over the mappings in the tree in ascending order. -/
 @[specialize]
 def foldlM {m} [Monad m] (f : δ → (a : α) → β a → m δ) (init : δ) : Impl α β → m δ
@@ -287,6 +189,13 @@ def forInStep {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) 
       match ← f d k v with
       | ForInStep.done d => return (.done d)
       | ForInStep.yield d => forInStep f d r
+
+/-- Support for the `for` construct in `do` blocks. -/
+@[inline]
+def forIn {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (init : δ) (t : Impl α β) : m δ := do
+  match ← forInStep f init t with
+  | ForInStep.done d => return d
+  | ForInStep.yield d => return d
 
 /-- Returns a `List` of the keys in order. -/
 @[inline] def keys (t : Impl α β) : List α :=

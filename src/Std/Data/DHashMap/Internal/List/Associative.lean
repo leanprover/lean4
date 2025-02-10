@@ -1987,7 +1987,7 @@ theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k
 
 theorem find?_eq_some_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} {v : β k} (h : DistinctKeys l) :
-    List.find? (fun x => k == x.fst) l = some ⟨k, v⟩ ↔ getValueCast? k l = some v := by
+    List.find? (fun x => x.fst == k) l = some ⟨k, v⟩ ↔ getValueCast? k l = some v := by
   rw [← mem_iff_getValueCast?_eq_some h]
   induction l with
   | nil => simp
@@ -2008,8 +2008,8 @@ theorem find?_eq_some_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α]
 
 theorem find?_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((a : α) × β a)} {k : α} :
-    List.find? (fun x => k == x.fst) l = none ↔ containsKey k l = false := by
-  simp [List.find?_eq_none, containsKey_eq_false_iff]
+    List.find? (fun x => x.fst == k) l = none ↔ containsKey k l = false := by
+  simp [List.find?_eq_none, containsKey_eq_false_iff, BEq.comm]
 
 theorem pairwise_fst_eq_false [BEq α] {l : List ((a : α) × β a)} (h : DistinctKeys l) :
     List.Pairwise (fun a b => (a.fst == b.fst) = false) l := by
@@ -2026,9 +2026,9 @@ theorem keys_eq_map_prod_fst_map_toProd {β : Type v} {l : List ((_ : α) × β)
 
 theorem find?_map_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {β : Type v} {l : List ((_ : α) × β)} {k : α} :
-    List.find? (fun x => k == x.fst) (l.map (fun x => (x.fst, x.snd))) = none ↔
+    List.find? (fun x => x.fst == k) (l.map (fun x => (x.fst, x.snd))) = none ↔
       containsKey k l = false := by
-  simp [List.find?_eq_none, containsKey_eq_false_iff]
+  simp [List.find?_eq_none, containsKey_eq_false_iff, BEq.comm]
 
 theorem mem_map_toProd_iff_mem {β : Type v} {k : α} {v : β} {l : List ((_ : α) × β)} :
     ⟨k, v⟩ ∈ l ↔ (k, v) ∈ l.map (fun x => (x.fst, x.snd)) := by

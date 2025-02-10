@@ -873,12 +873,12 @@ theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
 
 theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
     (h : m.1.WF) {k : α} {v : β k} :
-    m.1.toList.find? (k == ·.1) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+    m.1.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
   simp_to_model using List.find?_eq_some_iff_getValueCast?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {k : α} :
-    m.1.toList.find? (k == ·.1) = none ↔ m.contains k = false := by
+    m.1.toList.find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_model using List.find?_eq_none_iff_containsKey_eq_false
 
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
@@ -920,7 +920,7 @@ theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
 
 theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {k : α} :
-    (Raw.Const.toList m.1).find? (k == ·.1) = none ↔ m.contains k = false := by
+    (Raw.Const.toList m.1).find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_model using List.find?_map_eq_none_iff_containsKey_eq_false
 
 theorem mem_toList_iff_getKey?_eq_some_and_getValue?_eq_some [EquivBEq α] [LawfulHashable α]

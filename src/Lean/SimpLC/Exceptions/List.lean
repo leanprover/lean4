@@ -104,27 +104,15 @@ simp_lc allow List.forIn'_map List.forIn'_yield_eq_foldl
 simp_lc allow List.forIn'_cons List.forIn'_yield_eq_foldl
 simp_lc allow List.forIn_yield_eq_foldlM List.forIn_map
 
-@[simp] theorem Array.push_append (a : α) (xs ys : Array α) : (xs ++ ys).push a = xs ++ ys.push a := by
-  cases xs
-  cases ys
-  simp
--- simp_lc inspect List.foldr_cons List.foldr_push
-
 namespace List
 
-@[simp] theorem foldl_push' {l : List α} {as : Array β} {f : α → β} :
+@[simp] theorem foldl_push_eq_append {l : List α} {as : Array β} {f : α → β} :
     l.foldl (fun b a => Array.push b (f a)) as = as ++ (l.map f).toArray := by
   induction l generalizing as <;> simp [*]
 
-@[simp] theorem foldr_push' {l : List α} {as : Array β} {f : α → β} :
+@[simp] theorem foldr_push_eq_append {l : List α} {as : Array β} {f : α → β} :
     l.foldr (fun a b => Array.push b (f a)) as = as ++ (l.map f).reverse.toArray := by
-  rw [foldr_eq_foldl_reverse, foldl_push', map_reverse]
-
-@[simp] theorem foldr_cons_eq_append' (l : List α) (f : α → β): l.foldr (fun y x => f y :: x) l' = l.map f ++ l' := by
-  induction l <;> simp [*]
-
-@[simp] theorem foldl_flip_cons_eq_append' (l : List α) (f : α → β): l.foldl (fun x y => f y :: x) l' = l.reverse.map f ++ l' := by
-  induction l generalizing l' <;> simp [*]
+  rw [foldr_eq_foldl_reverse, foldl_push_eq_append, map_reverse]
 
 @[simp] theorem tail_take_one {l : List α} : (l.take 1).tail = [] := by
   induction l <;> simp [*]
@@ -136,9 +124,7 @@ end List
 -- We should try adding:
 -- attribute [simp] List.map_attach
 simp_lc allow List.foldr_push List.foldr_attachWith
-simp_lc allow List.foldr_cons_eq_append List.foldr_attachWith
 simp_lc allow List.foldl_push List.foldl_attachWith
-simp_lc allow List.foldl_flip_cons_eq_append List.foldl_attachWith
 
 -- These still need thinking about.
 simp_lc allow List.pmap_eq_attachWith List.pmap_attachWith
@@ -148,9 +134,12 @@ simp_lc allow List.pmap_attach List.pmap_eq_map
 simp_lc allow List.attachWith_mem_toArray List.attachWith_reverse
 simp_lc allow List.attachWith_mem_toArray List.attachWith_append
 simp_lc allow List.attachWith_cons List.attachWith_mem_toArray
-simp_lc allow List.foldr_push' List.foldr_attachWith
+simp_lc allow List.map_const List.map_attachWith
 simp_lc allow List.foldr_cons_eq_append' List.foldr_attachWith
-simp_lc allow List.foldl_push' List.foldl_attachWith
-simp_lc allow List.foldl_flip_cons_eq_append' List.foldl_attachWith
 
-simp_lc check in List BEq _root_
+/-
+The actual checks happen in `tests/lean/000_simplc.lean`.
+This commented out command remains here for convenience while debugging.
+-/
+-- #guard_msgs (drop info) in
+-- simp_lc check in List BEq _root_

@@ -434,6 +434,24 @@ void check_optarg(char const * option_name) {
 
 extern "C" object * lean_enable_initializer_execution(object * w);
 
+namespace lean {
+extern void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds);
+}
+static bool trace_task_get_blocked = getenv("LEAN_TRACE_TASK_GET_BLOCKED") != nullptr;
+static void report_task_get_blocked_time(std::chrono::nanoseconds d) {
+    if (has_profiling_task()) {
+        report_profiling_time("blocked", d);
+        exclude_profiling_time_from_current_task(d);
+        if (trace_task_get_blocked) {
+            sstream ss;
+            ss << "Task.get blocked for " << std::chrono::duration_cast<std::chrono::seconds>(d).count() << "s";
+            // using a panic for reporting is a bit of a hack, but good enough for this
+            // `lean`-specific use case
+            lean_panic(ss.str().c_str(), /* force stderr */ true);
+        }
+    }
+}
+
 extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
 #ifdef LEAN_EMSCRIPTEN
     // When running in command-line mode under Node.js, we make system directories available in the virtual filesystem.
@@ -651,6 +669,7 @@ extern "C" LEAN_EXPORT int lean_main(int argc, char ** argv) {
     }
 
     if (get_profiler(opts)) {
+        g_lean_report_task_get_blocked_time = report_task_get_blocked_time;
         report_profiling_time("initialization", init_time);
     }
 

@@ -732,14 +732,14 @@ theorem toListModel_erase! [Ord α] [TransOrd α] {k : α} {l : Impl α β}
 ### containsThenInsert
 -/
 
-theorem containsThenInsertSize_eq_size [Ord α] (t : Impl α β) :
+theorem size_containsThenInsert_eq_size [Ord α] (t : Impl α β) :
     containsThenInsert.size t = t.size := by
   induction t <;> rfl
 
 theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).1 = t.containsₘ a := by
-  simp [containsThenInsert, containsThenInsertSize_eq_size, size_eq_length, htb,
+  simp [containsThenInsert, size_containsThenInsert_eq_size, size_eq_length, htb,
     SizedBalancedTree.balanced_impl _, toListModel_insert htb ho |>.length_eq, length_insertEntry]
   simp [containsₘ_eq_containsKey ho]
   split <;> simp_all

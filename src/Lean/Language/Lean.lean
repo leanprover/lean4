@@ -539,7 +539,7 @@ where
       -- is not `Inhabited`
       prom.resolve <| {
         diagnostics := .empty, stx := .missing, parserState
-        elabSnap := .pure <| .ofTyped { diagnostics := .empty : SnapshotLeaf }
+        elabSnap := default
         finishedSnap := .pure { diagnostics := .empty, cmdState }
         reportSnap := default
         tacticCache := (← IO.mkRef {})

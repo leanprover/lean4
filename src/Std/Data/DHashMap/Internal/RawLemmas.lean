@@ -828,7 +828,7 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
 
 end Const
 
-theorem keys_def [EquivBEq α] [LawfulHashable α] :
+theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
     m.1.keys = m.1.toList.map Sigma.fst := by
   simp_to_model using List.keys_eq_map
 
@@ -867,15 +867,29 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
   simp_to_model
 
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
-    (k : α) (v : β k) :
+    {k : α} {v : β k} :
     ⟨k, v⟩ ∈ m.1.toList ↔ m.get? k = some v := by
   simp_to_model using List.mem_iff_getValueCast?_eq_some
+
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
+    (h : m.1.WF) {k : α} {v : β k} :
+    m.1.toList.find? (k == ·.1) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp_to_model using List.find?_eq_some_iff_getValueCast?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    m.1.toList.find? (k == ·.1) = none ↔ m.contains k = false := by
+  simp_to_model using List.find?_eq_none_iff_containsKey_eq_false
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
+  simp_to_model using List.pairwise_fst_eq_false
 
 namespace Const
 
 variable {β : Type v} (m : Raw₀ α (fun _ => β))
 
-theorem keys_def [EquivBEq α] [LawfulHashable α] :
+theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
     m.1.keys = (Raw.Const.toList m.1).map Prod.fst := by
   simp_to_model using List.keys_eq_map_prod_fst_map_toProd
 
@@ -889,20 +903,34 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
   rw [Bool.eq_iff_iff, List.isEmpty_iff,List.isEmpty_iff, List.map_eq_nil_iff]
 
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
-    (k : α) (v : β) :
-    (k, v) ∈ (Raw.Const.toList m.1) ↔ get? m k = some v := by
+    {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toList m.1 ↔ get? m k = some v := by
   simp_to_model using List.mem_map_toProd_iff_getValue?_eq_some
 
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toList m.1 := by
+  simp_to_model using getValue?_eq_some_iff_exists_beq_and_mem_toList
+
 theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
-    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k': α} {v : β} :
-    (Raw.Const.toList m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩
-    ↔ m.getKey? k = some k' ∧ get? m k = some v := by
+    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} {v : β} :
+    (Raw.Const.toList m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
   simp_to_model using List.find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    (Raw.Const.toList m.1).find? (k == ·.1) = none ↔ m.contains k = false := by
+  simp_to_model using List.find?_map_eq_none_iff_containsKey_eq_false
 
 theorem mem_toList_iff_getKey?_eq_some_and_getValue?_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {k: α} {v : β} :
     (k, v) ∈ (Raw.Const.toList m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
   simp_to_model using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).Pairwise (fun a b => (a.1 == b.1) = false) := by
+  simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const
 

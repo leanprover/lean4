@@ -49,6 +49,7 @@ extern "C" LEAN_EXPORT __attribute__((weak)) void free_sized(void *ptr, size_t) 
 
 // see `Task.Priority.max`
 #define LEAN_MAX_PRIO 8
+#define LEAN_SYNC_PRIO std::numeric_limits<unsigned>::max()
 
 namespace lean {
 
@@ -123,9 +124,13 @@ static void print_backtrace() {
 #endif
 }
 
-extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
+extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
     if (g_panic_messages) {
-        panic_eprintln(lean_string_cstr(msg));
+        if (force_stderr) {
+            std::cerr << msg << "\n";
+        } else {
+            panic_eprintln(msg);
+        }
 #ifdef __GLIBC__
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
@@ -139,6 +144,10 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     if (g_exit_on_panic) {
         std::exit(1);
     }
+}
+
+extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg) {
+    lean_panic(lean_string_cstr(msg));
     lean_dec(msg);
     return default_val;
 }
@@ -291,6 +300,7 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 }
 
 static void deactivate_task(lean_task_object * t);
+static void deactivate_promise(lean_promise_object * t);
 
 static void lean_del_core(object * o, object * & todo) {
     uint8 tag = lean_ptr_tag(o);
@@ -336,6 +346,9 @@ static void lean_del_core(object * o, object * & todo) {
             break;
         case LeanTask:
             deactivate_task(lean_to_task(o));
+            break;
+        case LeanPromise:
+            deactivate_promise(lean_to_promise(o));
             break;
         case LeanExternal:
             lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
@@ -495,6 +508,9 @@ extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
                 case LeanTask:
                     todo.push_back(lean_task_get(o));
                     break;
+                case LeanPromise:
+                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
+                    break;
                 case LeanClosure: {
                     object ** it  = lean_closure_arg_cptr(o);
                     object ** end = it + lean_closure_num_fixed(o);
@@ -566,6 +582,9 @@ extern "C" LEAN_EXPORT void lean_mark_mt(object * o) {
                 }
                 case LeanTask:
                     todo.push_back(lean_task_get(o));
+                    break;
+                case LeanPromise:
+                    todo.push_back((lean_object *)lean_to_promise(o)->m_result);
                     break;
                 case LeanClosure: {
                     object ** it  = lean_closure_arg_cptr(o);
@@ -760,7 +779,7 @@ class task_manager {
             lock.lock();
         } else if (v != nullptr) {
             lean_assert(t->m_imp->m_closure == nullptr);
-            resolve_core(t, v);
+            resolve_core(lock, t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
             // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
@@ -773,27 +792,30 @@ class task_manager {
         }
     }
 
-    void resolve_core(lean_task_object * t, object * v) {
-        handle_finished(t);
+    void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
         mark_mt(v);
         t->m_value = v;
-        /* After the task has been finished and we propagated
-           dependencies, we can release `m_imp` and keep just the value */
-        free_task_imp(t->m_imp);
+        lean_task_imp * imp = t->m_imp;
         t->m_imp   = nullptr;
+        handle_finished(lock, t, imp);
+        /* After the task has been finished and we propagated
+           dependencies, we can release `imp` and keep just the value */
+        free_task_imp(imp);
         m_task_finished_cv.notify_all();
     }
 
-    void handle_finished(lean_task_object * t) {
-        lean_task_object * it = t->m_imp->m_head_dep;
-        t->m_imp->m_head_dep = nullptr;
+    void handle_finished(unique_lock<mutex> & lock, lean_task_object * t, lean_task_imp * imp) {
+        lean_task_object * it = imp->m_head_dep;
+        imp->m_head_dep = nullptr;
         while (it) {
-            if (t->m_imp->m_canceled)
+            if (imp->m_canceled)
                 it->m_imp->m_canceled = true;
             lean_task_object * next_it = it->m_imp->m_next_dep;
             it->m_imp->m_next_dep = nullptr;
             if (it->m_imp->m_deleted) {
                 free_task(it);
+            } else if (it->m_imp->m_prio == LEAN_SYNC_PRIO) {
+                run_task(lock, it);
             } else {
                 enqueue_core(it);
             }
@@ -838,13 +860,17 @@ public:
     }
 
     void resolve(lean_task_object * t, object * v) {
+        if (t->m_value) {
+            dec(v);
+            return;
+        }
         unique_lock<mutex> lock(m_mutex);
         if (t->m_value) {
             lock.unlock(); // `dec(v)` could lead to `deactivate_task` trying to take the lock
             dec(v);
             return;
         }
-        resolve_core(t, v);
+        resolve_core(lock, t, v);
     }
 
     void add_dep(lean_task_object * t1, lean_task_object * t2) {
@@ -1031,16 +1057,27 @@ extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned
     if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
-        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), prio, keep_alive);
+        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
         g_task_manager->add_dep(lean_to_task(t), new_task);
         return (lean_object*)new_task;
     }
 }
 
+// We don't use `time_task` here as it's outside runtime/, and we wouldn't have access to `options`
+// anyway
+LEAN_EXPORT void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds) = nullptr;
+
 extern "C" LEAN_EXPORT b_obj_res lean_task_get(b_obj_arg t) {
     if (object * v = lean_to_task(t)->m_value)
         return v;
-    g_task_manager->wait_for(lean_to_task(t));
+    if (g_lean_report_task_get_blocked_time) {
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        g_task_manager->wait_for(lean_to_task(t));
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        g_lean_report_task_get_blocked_time(std::chrono::nanoseconds(end - start));
+    } else {
+        g_task_manager->wait_for(lean_to_task(t));
+    }
     lean_assert(lean_to_task(t)->m_value != nullptr);
     object * r = lean_to_task(t)->m_value;
     return r;
@@ -1074,7 +1111,7 @@ extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigne
     if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
         return apply_1(f, lean_task_get_own(x));
     } else {
-        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), prio, keep_alive);
+        lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
         g_task_manager->add_dep(lean_to_task(x), new_task);
         return (lean_object*)new_task;
     }
@@ -1111,28 +1148,39 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
     return g_task_manager->wait_any(task_list);
 }
 
-// Internally, a `Promise` is just a `Task` that is in the "Promised" or "Finished" state
-
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg) {
     lean_always_assert(g_task_manager);
+
     bool keep_alive = false;
     unsigned prio = 0;
     object * closure = nullptr;
-    lean_task_object * o = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
-    lean_set_task_header((lean_object*)o);
-    o->m_value = nullptr;
-    o->m_imp   = alloc_task_imp(closure, prio, keep_alive);
+    lean_task_object * t = (lean_task_object*)lean_alloc_small_object(sizeof(lean_task_object));
+    lean_set_task_header((lean_object*)t);
+    t->m_value = nullptr;
+    t->m_imp   = alloc_task_imp(closure, prio, keep_alive);
+
+    lean_promise_object * o = (lean_promise_object *)lean_alloc_small_object(sizeof(lean_promise_object));
+    lean_set_st_header((lean_object *)o, LeanPromise, 0);
+    o->m_result = t; // the promise takes ownership of one task token
+
     return io_result_mk_ok((lean_object *) o);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg) {
-    g_task_manager->resolve(lean_to_task(promise), value);
+    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
     return io_result_mk_ok(box(0));
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise) {
-    // the task is the promise itself
-    return promise;
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
+    lean_object * t = (lean_object *)lean_to_promise(promise)->m_result;
+    lean_inc_ref(t);
+    return t;
+}
+
+void deactivate_promise(lean_promise_object * promise) {
+    g_task_manager->resolve(promise->m_result, mk_option_none());
+    lean_dec_ref((lean_object *)promise->m_result);
+    lean_free_small_object((lean_object *)promise);
 }
 
 // =======================================

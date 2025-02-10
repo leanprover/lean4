@@ -815,7 +815,7 @@ static lean_object* _init_l_Lake_setupFile___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file.", 96, 96);
+x_1 = lean_mk_string_unchecked("Failed to configure the Lake workspace. Please restart the server after fixing the error above.", 95, 95);
 return x_1;
 }
 }

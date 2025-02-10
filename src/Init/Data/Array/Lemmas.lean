@@ -1878,7 +1878,8 @@ theorem append_eq_map_iff {f : α → β} :
   rw [← flatten_map_toArray]
   simp
 
-theorem flatten_toArray (l : List (Array α)) :
+-- We set this to lower priority so that `flatten_toArray_map` is applied first when relevant.
+@[simp 500] theorem flatten_toArray (l : List (Array α)) :
     l.toArray.flatten = (l.map Array.toList).flatten.toArray := by
   apply ext'
   simp
@@ -2140,7 +2141,8 @@ theorem flatMap_eq_foldl (f : α → Array β) (l : Array α) :
   | nil => simp
   | cons a l ih =>
     intro l'
-    simp [ih ((l' ++ (f a).toList)), toArray_append]
+    rw [List.foldl_cons, ih]
+    simp [toArray_append]
 
 /-! ### mkArray -/
 

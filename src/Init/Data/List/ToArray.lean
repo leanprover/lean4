@@ -15,19 +15,20 @@ import Init.Data.Array.Lex.Basic
 We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
-@[simp] theorem toList_set (a : Array α) (i x h) :
-    (a.set i x).toList = a.toList.set i x := rfl
+@[simp] theorem toList_set (xs : Array α) (i x h) :
+    (xs.set i x).toList = xs.toList.set i x := rfl
 
-theorem swap_def (a : Array α) (i j : Nat) (hi hj) :
-    a.swap i j hi hj = (a.set i a[j]).set j a[i] (by simpa using hj) := by
+theorem swap_def (xs : Array α) (i j : Nat) (hi hj) :
+    xs.swap i j hi hj = (xs.set i xs[j]).set j xs[i] (by simpa using hj) := by
   simp [swap]
 
-@[simp] theorem toList_swap (a : Array α) (i j : Nat) (hi hj) :
-    (a.swap i j hi hj).toList = (a.toList.set i a[j]).set j a[i] := by simp [swap_def]
+@[simp] theorem toList_swap (xs : Array α) (i j : Nat) (hi hj) :
+    (xs.swap i j hi hj).toList = (xs.toList.set i xs[j]).set j xs[i] := by simp [swap_def]
 
 end Array
 
@@ -35,16 +36,16 @@ namespace List
 
 open Array
 
-theorem toArray_inj {a b : List α} (h : a.toArray = b.toArray) : a = b := by
-  cases a with
+theorem toArray_inj {as bs : List α} (h : as.toArray = bs.toArray) : as = bs := by
+  cases as with
   | nil => simpa using h
   | cons a as =>
-    cases b with
+    cases bs with
     | nil => simp at h
     | cons b bs => simpa using h
 
-@[simp] theorem size_toArrayAux {a : List α} {b : Array α} :
-    (a.toArrayAux b).size = b.size + a.length := by
+@[simp] theorem size_toArrayAux {as : List α} {xs : Array α} :
+    (as.toArrayAux xs).size = xs.size + as.length := by
   simp [size]
 
 -- This is not a `@[simp]` lemma because it is pushing `toArray` inwards.
@@ -367,8 +368,8 @@ theorem isPrefixOfAux_toArray_zero [BEq α] (l₁ l₂ : List α) (hle : l₁.le
         rw [ih]
         simp_all
 
-theorem zipWithAux_toArray_succ (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (cs : Array γ) :
-    zipWithAux as.toArray bs.toArray f (i + 1) cs = zipWithAux as.tail.toArray bs.tail.toArray f i cs := by
+theorem zipWithAux_toArray_succ (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (xs : Array γ) :
+    zipWithAux as.toArray bs.toArray f (i + 1) xs = zipWithAux as.tail.toArray bs.tail.toArray f i xs := by
   rw [zipWithAux]
   conv => rhs; rw [zipWithAux]
   simp only [size_toArray, getElem_toArray, length_tail, getElem_tail]
@@ -379,16 +380,16 @@ theorem zipWithAux_toArray_succ (as : List α) (bs : List β) (f : α → β →
       rw [dif_neg (by omega)]
   · rw [dif_neg (by omega)]
 
-theorem zipWithAux_toArray_succ' (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (cs : Array γ) :
-    zipWithAux as.toArray bs.toArray f (i + 1) cs = zipWithAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 cs := by
-  induction i generalizing as bs cs with
+theorem zipWithAux_toArray_succ' (as : List α) (bs : List β) (f : α → β → γ) (i : Nat) (xs : Array γ) :
+    zipWithAux as.toArray bs.toArray f (i + 1) xs = zipWithAux (as.drop (i+1)).toArray (bs.drop (i+1)).toArray f 0 xs := by
+  induction i generalizing as bs xs with
   | zero => simp [zipWithAux_toArray_succ]
   | succ i ih =>
     rw [zipWithAux_toArray_succ, ih]
     simp
 
-theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List β) (cs : Array γ) :
-    zipWithAux as.toArray bs.toArray f 0 cs = cs ++ (List.zipWith f as bs).toArray := by
+theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List β) (xs : Array γ) :
+    zipWithAux as.toArray bs.toArray f 0 xs = xs ++ (List.zipWith f as bs).toArray := by
   rw [Array.zipWithAux]
   match as, bs with
   | [], _ => simp
@@ -405,8 +406,8 @@ theorem zipWithAux_toArray_zero (f : α → β → γ) (as : List α) (bs : List
     Array.zip as.toArray bs.toArray = (List.zip as bs).toArray := by
   simp [Array.zip, zipWith_toArray, zip]
 
-theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → Option β → γ) (i : Nat) (cs : Array γ) :
-    zipWithAll.go f as.toArray bs.toArray i cs = cs ++ (List.zipWithAll f (as.drop i) (bs.drop i)).toArray := by
+theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → Option β → γ) (i : Nat) (xs : Array γ) :
+    zipWithAll.go f as.toArray bs.toArray i xs = xs ++ (List.zipWithAll f (as.drop i) (bs.drop i)).toArray := by
   unfold zipWithAll.go
   split <;> rename_i h
   · rw [zipWithAll_go_toArray]
@@ -502,12 +503,12 @@ abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
 theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) :
     (a :: as).toArray.flatMap f = f a ++ as.toArray.flatMap f := by
   simp [Array.flatMap]
-  suffices ∀ cs, List.foldl (fun bs a => bs ++ f a) (f a ++ cs) as =
-      f a ++ List.foldl (fun bs a => bs ++ f a) cs as by
+  suffices ∀ xs, List.foldl (fun ys a => ys ++ f a) (f a ++ xs) as =
+      f a ++ List.foldl (fun ys a => ys ++ f a) xs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
     simpa using this #[]
-  intro cs
-  induction as generalizing cs <;> simp_all
+  intro xs
+  induction as generalizing xs <;> simp_all
 
 @[simp] theorem flatMap_toArray {β} (f : α → Array β) (as : List α) :
     as.toArray.flatMap f = (as.flatMap (fun a => (f a).toList)).toArray := by

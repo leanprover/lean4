@@ -72,8 +72,11 @@ end Option
 -- Not certain what to hope for here. Having `Function.comp_def` in the simp set would probably resolve it.
 simp_lc allow Array.filterMap_eq_filter Array.filterMap_map
 
-simp_lc inspect Array.filterMap_eq_filter Array.filterMap_attachWith
-simp_lc inspect Array.filterMap_some Array.filterMap_attachWith
+-- The simp normal form for `filterMap` vs `filter`+`map` still needs work.
+simp_lc allow Array.filterMap_eq_filter Array.filterMap_attachWith
+
+-- The simp normal form for `attachWith` vs `map`+`attach` still needs work.
+simp_lc allow Array.filterMap_some Array.filterMap_attachWith
 
 namespace List
 
@@ -137,8 +140,9 @@ simp_lc allow List.forIn'_yield_eq_foldlM Array.forIn'_toList
 -- Gets stuck at `List.foldl ⋯ as.toList.attach`
 simp_lc allow Array.forIn'_toList List.forIn'_yield_eq_foldl
 
--- This could just be a slightly obscure lemma.
-simp_lc inspect Array.map_flatten Array.map_const
+-- `⊢ (Array.map (fun x => mkArray x.size b) L).flatten = mkArray (Array.map Array.size L).sum b`
+-- Sufficiently obscure that it doesn't need a lemma.
+simp_lc allow Array.map_flatten Array.map_const
 
 
 
@@ -163,13 +167,14 @@ end Vector
 
 namespace Array
 
-@[simp] theorem xs: Array α} : a.toList.reverse.toArray = a := by
-  sorry
+-- Ideally this would never appear, as we push `toList` inwards and `toArray` outwards.
+-- It sometimes appears in confluence problems, so we just add it to the simp set.
+@[simp] theorem toArray_reverse_toList {xs: Array α} : xs.toList.reverse.toArray = xs.reverse := by
+  cases xs
+  simp
 
 end Array
 
--- Gets stuck at `arr.toList.reverse.toArray`.
-simp_lc inspect List.foldr_push Array.foldr_toList
 simp_lc inspect List.foldr_cons_eq_append' Array.foldr_toList
 
 -- We currently have `Array.flatten_toArray_map`, `Array.flatten_toArray`, `List.flatten_toArray`, and `Array.flatten_toArray_map_toArray`!

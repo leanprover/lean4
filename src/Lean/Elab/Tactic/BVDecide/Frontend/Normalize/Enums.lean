@@ -196,13 +196,8 @@ def getEnumToBitVecLeFor (declName : Name) : MetaM Name := do
         let recOn := mkApp2 (mkConst (mkRecOnName declName) [0]) motive x
         let folder acc ctor := do
           let statement := mkStatement (mkConst ctor)
-          let decidable ← synthInstance (mkApp (mkConst ``Decidable) statement)
-          let decideEqTrue :=
-            mkApp2
-              (mkConst ``Eq.refl [1])
-              (mkConst ``Bool)
-              (mkApp2 (mkConst ``decide) statement decidable)
-          return mkApp acc <| mkApp3 (mkConst ``of_decide_eq_true) statement decidable decideEqTrue
+          let proof ← mkDecideProof statement
+          return mkApp acc proof
         let cases ← List.foldlM (init := recOn) folder ctors
         mkLambdaFVars #[x] cases
 

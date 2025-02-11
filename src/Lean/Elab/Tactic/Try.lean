@@ -46,7 +46,7 @@ private def isExprAccessible (e : Expr) : MetaM Bool := do
   s.fvarIds.allM isAccessible
 
 /-- Creates a temporary local context where all names are exposed, and executes `k`-/
-private def withExposedNames (k : MetaM α) : MetaM α := do
+private def withExposedNames [Monad m] [MonadLiftT MetaM m] [MonadControlT MetaM m] (k : m α) : m α := do
   withNewMCtxDepth do
     -- Create a helper goal to apply
     let mvarId := (← mkFreshExprMVar (mkConst ``True)).mvarId!
@@ -571,11 +571,11 @@ private def setGrindParams (tac : TSyntax `tactic) (params : Array (TSyntax ``Pa
   ⟨tac.raw.setArg 3 (mkNullNode paramsStx)⟩
 
 /-- Given a set of declaration names, returns `grind` parameters of the form `= <declName>` -/
-private def mkGrindEqnParams (declNames : Array Name) : MetaM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
+private def mkGrindEqnParams (declNames : Array Name) : TermElabM (Array (TSyntax ``Parser.Tactic.grindParam)) := do
   declNames.mapM fun declName => do
     `(Parser.Tactic.grindParam| = $(← toIdent declName))
 
-private def mkGrindStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
+private def mkGrindStx (info : Try.Info) : TermElabM (TSyntax `tactic) := do
   let grind ← `(tactic| grind?)
   let mut tacs := #[grind]
   unless info.eqnCandidates.isEmpty do
@@ -598,13 +598,13 @@ private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
 /-! Function induction generators -/
 
 open Try.Collector in
-private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  if (← c.majors.allM isAccessible) then
+private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : TermElabM (TSyntax `tactic) := do
+  if (← c.majors.allM (isAccessible ·)) then
     go
   else withExposedNames do
     `(tactic| (expose_names; $(← go):tactic))
 where
-  go : MetaM (TSyntax `tactic) := do
+  go : TermElabM (TSyntax `tactic) := do
     let mut terms := #[]
     for major in c.majors do
       let localDecl ← major.getDecl
@@ -612,14 +612,14 @@ where
     let indFn ← toIdent c.funIndDeclName
     `(tactic| induction $terms,* using $indFn <;> $cont)
 
-private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
+private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : TermElabM (TSyntax `tactic) := do
   let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)
   mkFirstStx tacs
 
 /-! Main code -/
 
 /-- Returns tactic for `evalAndSuggest` -/
-private def mkTryEvalSuggestStx (info : Try.Info) : MetaM (TSyntax `tactic) := do
+private def mkTryEvalSuggestStx (info : Try.Info) : TermElabM (TSyntax `tactic) := do
   let simple ← mkSimpleTacStx
   let simp ← mkSimpStx
   let grind ← mkGrindStx info

@@ -69,25 +69,26 @@ def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
           let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_const) (toContextExpr atoms) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
           return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
         | _ =>
-          let defaultK := do
+          let k := p.gcdCoeffs
+          if k == 1 then
             let r ← c'.toArith atoms
             let h := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq) (toContextExpr atoms) (toExpr c) (toExpr c') reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-          let k := p.gcdCoeffs
-          if k == 1 then
-            defaultK
           else if p.getConst % k == 0 then
             let c' : LinearCnstr := (p.div k).toExprCnstr
             let r ← c'.toArith atoms
-            let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_toPoly_eq_of_divBy) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
+            let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_divBy) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
           else if p.isEq then
             let r := mkConst ``False
             let h := mkApp4 (mkConst ``Int.Linear.ExprCnstr.eq_false_of_isUnsat_coeff) (toContextExpr atoms) (toExpr c) (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
           else
-            -- TODO: tight the bound
-            defaultK
+            -- `p.isLe`: tighten the bound
+            let c' : LinearCnstr := (p.div k).toExprCnstr
+            let r ← c'.toArith atoms
+            let h := mkApp5 (mkConst ``Int.Linear.ExprCnstr.eq_of_divByLe) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
+            return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
       else
         return none
 

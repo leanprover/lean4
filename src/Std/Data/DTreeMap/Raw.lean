@@ -98,10 +98,6 @@ theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
 def insert (t : Raw α β cmp) (a : α) (b : β a) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insert! a b⟩
 
-@[inline, inherit_doc DTreeMap.insert]
-def insertFast (t : Raw α β cmp) (h : t.WF) (a : α) (b : β a) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insert a b h.out.balanced).impl⟩
-
 instance : Singleton ((a : α) × β a) (Raw α β cmp) where
   singleton e := (∅ : Raw α β cmp).insert e.1 e.2
 

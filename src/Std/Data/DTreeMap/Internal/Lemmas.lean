@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.HashMap.Basic
-import Std.Data.DTreeMap.Internal.WF
+import Std.Data.DTreeMap.Internal.WF.Lemmas
 
 /-!
 # API lemmas for `DTreeMap.Impl`
@@ -39,7 +39,7 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def queryNames : Array Name :=
-  #[``apply_isEmpty, ``apply_contains, ``apply_size]
+  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -79,7 +79,7 @@ attribute [local instance] beqOfOrd
 attribute [local instance] equivBEq_of_transOrd
 
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
-  simp [Impl.apply_isEmpty]
+  simp [Impl.isEmpty_eq_isEmpty]
 
 theorem isEmpty_insert [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v h.balanced).impl.isEmpty = false := by

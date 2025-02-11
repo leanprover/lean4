@@ -114,6 +114,7 @@ The result of a spurious counter example diagnosis.
 structure Diagnosis where
   uninterpretedSymbols : Std.HashSet Expr := {}
   unusedRelevantHypotheses : Std.HashSet FVarId := {}
+  derivedEquations : Array (Expr × Expr) := #[]
 
 abbrev DiagnosisM : Type → Type := ReaderT CounterExample <| StateRefT Diagnosis MetaM
 
@@ -124,17 +125,25 @@ def run (x : DiagnosisM Unit) (counterExample : CounterExample) : MetaM Diagnosi
     let (_, issues) ← ReaderT.run x counterExample |>.run {}
     return issues
 
+@[inline]
 def unusedHyps : DiagnosisM (Std.HashSet FVarId) := do
   return (← read).unusedHypotheses
 
+@[inline]
 def equations : DiagnosisM (Array (Expr × BVExpr.PackedBitVec)) := do
   return (← read).equations
 
+@[inline]
 def addUninterpretedSymbol (e : Expr) : DiagnosisM Unit :=
   modify fun s => { s with uninterpretedSymbols := s.uninterpretedSymbols.insert e }
 
+@[inline]
 def addUnusedRelevantHypothesis (fvar : FVarId) : DiagnosisM Unit :=
   modify fun s => { s with unusedRelevantHypotheses := s.unusedRelevantHypotheses.insert fvar }
+
+@[inline]
+def addDerivedEquation (var : Expr) (value : Expr) : DiagnosisM Unit :=
+  modify fun s => { s with derivedEquations := s.derivedEquations.push (var, value) }
 
 def checkRelevantHypsUsed (fvar : FVarId) : DiagnosisM Unit := do
   for hyp in ← unusedHyps do
@@ -147,26 +156,51 @@ Diagnose spurious counter examples, currently this checks:
 - Whether all hypotheses which contain any variable that was bitblasted were included
 -/
 def diagnose : DiagnosisM Unit := do
-  for (expr, _) in ← equations do
-    match findRelevantFVar expr with
-    | some fvarId => checkRelevantHypsUsed fvarId
-    | none => addUninterpretedSymbol expr
+  for (var, value) in ← equations do
+    let (var, value) ← transformEquation var value
+    addDerivedEquation var value
+    match var with
+    | .fvar fvarId => checkRelevantHypsUsed fvarId
+    | _ => addUninterpretedSymbol var
 where
-  findRelevantFVar (expr : Expr) : Option FVarId :=
-    match fvarId? expr with
-    | some fvarId => some fvarId
-    | none =>
-      match_expr expr with
-      | BitVec.ofBool x => fvarId? x
-      | UInt8.toBitVec x => fvarId? x
-      | UInt16.toBitVec x => fvarId? x
-      | UInt32.toBitVec x => fvarId? x
-      | UInt64.toBitVec x => fvarId? x
-      | _ => none
-  fvarId? (expr : Expr) : Option FVarId :=
-    match expr with
-    | .fvar fvarId => some fvarId
-    | _ => none
+  transformEquation (var : Expr) (value : BVExpr.PackedBitVec) : DiagnosisM (Expr × Expr) := do
+    if var.isFVar then
+      return (var, toExpr value.bv)
+    else
+      match_expr var with
+      | BitVec.ofBool x =>
+        return (x, toExpr <| value.bv == 1)
+      | UInt8.toBitVec x =>
+        if h : value.w = 8 then
+          return (x, toExpr <| UInt8.mk (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt8 was not 8 bit but {value.w} bit"
+      | UInt16.toBitVec x =>
+        if h : value.w = 16 then
+          return (x, toExpr <| UInt16.mk (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt16 was not 16 bit but {value.w} bit"
+      | UInt32.toBitVec x =>
+        if h : value.w = 32 then
+          return (x, toExpr <| UInt32.mk (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt32 was not 32 bit but {value.w} bit"
+      | UInt64.toBitVec x =>
+        if h : value.w = 64 then
+          return (x, toExpr <| UInt64.mk (h ▸ value.bv))
+        else
+          throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
+      | _ =>
+        match var with
+        | .app (.const (.str p s) []) arg =>
+          if s == Normalize.enumToBitVecSuffix then
+            let .inductInfo inductiveInfo ← getConstInfo p | unreachable!
+            let ctors := inductiveInfo.ctors
+            let enumVal := mkConst ctors[value.bv.toNat]!
+            return (arg, enumVal)
+          else
+            return (var, toExpr value.bv)
+        | _ => return (var, toExpr value.bv)
 
 
 end DiagnosisM
@@ -189,13 +223,19 @@ def explainCounterExampleQuality (counterExample : CounterExample) : MetaM Messa
   let folder acc explainer := if let some m := explainer diagnosis then acc.push m else acc
   let explanations := explainers.foldl (init := #[]) folder
 
+  let mut err := m!""
+
   if explanations.isEmpty then
-    return m!"The prover found a counterexample, consider the following assignment:\n"
+    err := err ++ m!"The prover found a counterexample, consider the following assignment:\n"
   else
-    let mut err := m!"The prover found a potentially spurious counterexample:\n"
+    err := err ++ m!"The prover found a potentially spurious counterexample:\n"
     err := err ++ explanations.foldl (init := m!"") (fun acc exp => acc ++ m!"- " ++ exp ++ m!"\n")
     err := err ++ m!"Consider the following assignment:\n"
-    return err
+
+
+  let folder := fun error (var, value) => error ++ m!"{var} = {value}\n"
+  err := diagnosis.derivedEquations.foldl (init := err) folder
+  return err
 
 def lratBitblaster (goal : MVarId) (ctx : TacticContext) (reflectionResult : ReflectionResult)
     (atomsAssignment : Std.HashMap Nat (Nat × Expr × Bool)) :
@@ -314,9 +354,7 @@ def bvDecide (g : MVarId) (ctx : TacticContext) : MetaM Result := do
   | .error counterExample =>
     counterExample.goal.withContext do
       let error ← explainCounterExampleQuality counterExample
-      let folder := fun error (var, value) => error ++ m!"{var} = {value.bv}\n"
-      let errorMessage := counterExample.equations.foldl (init := error) folder
-      throwError (← addMessageContextFull errorMessage)
+      throwError (← addMessageContextFull error)
 
 @[builtin_tactic Lean.Parser.Tactic.bvDecide]
 def evalBvDecide : Tactic := fun

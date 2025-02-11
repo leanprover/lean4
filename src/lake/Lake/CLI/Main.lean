@@ -642,7 +642,11 @@ def lakeCli : (cmd : String) → CliM PUnit
 | "version-tags"        => lake.versionTags
 | "self-check"          => lake.selfCheck
 | "help"                => lake.help
-| cmd                   => throw <| CliError.unknownCommand cmd
+| cmd                   =>
+  if cmd.startsWith "+" then
+    throw <| CliError.unexpectedPlus
+  else
+    throw <| CliError.unknownCommand cmd
 
 def lake : CliM PUnit := do
   match (← getArgs) with

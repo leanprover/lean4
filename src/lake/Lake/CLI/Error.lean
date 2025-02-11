@@ -20,6 +20,7 @@ inductive CliError
 | unknownShortOption (opt : Char)
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
+| unexpectedPlus
 /- Init CLI Errors -/
 | unknownTemplate (spec : String)
 | unknownConfigLang (spec : String)
@@ -59,6 +60,9 @@ def toString : CliError → String
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
+| unexpectedPlus          =>
+  s!"the `+` option is an Elan feature; \
+    rerun Lake via Elan and ensure this option comes first."
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownConfigLang spec  => s!"unknown configuration language `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"

@@ -71,8 +71,11 @@ OUTPUT OPTIONS:
 
 See `lake help <command>` for more information on a specific command."
 
-def templateHelp :=
-s!"The initial configuration and starter files are based on the template:
+def newInitHelp :=
+s!"If you are using Lake through Elan (which is standard), you can create a
+package with a specific Lean version via the `+` option.
+
+The initial configuration and starter files are based on the template:
 
   std                   library and executable; default
   exe                   executable only
@@ -80,23 +83,23 @@ s!"The initial configuration and starter files are based on the template:
   math                  library only with a mathlib dependency
 
 Templates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML
-version of the configuration file, respectively. The default is Lean."
+version of the configuration file, respectively. The default is TOML."
 
 def helpNew :=
 s!"Create a Lean package in a new directory
 
 USAGE:
-  lake new <name> [<template>][.<language>]
+  lake [+<lean-version>] new <name> [<template>][.<language>]
 
-{templateHelp}"
+{newInitHelp}"
 
 def helpInit :=
 s!"Create a Lean package in the current directory
 
 USAGE:
-  lake init [<name>] [<template>][.<language>]
+  lake [+<lean-version>] init [<name>] [<template>][.<language>]
 
-{templateHelp}
+{newInitHelp}
 
 You can create a package with current directory's name via `lake init .`
 or a bare `lake init`."

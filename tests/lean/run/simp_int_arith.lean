@@ -171,18 +171,18 @@ fun x y z f =>
         id
           (Int.Linear.ExprCnstr.eq_true_of_isValid
             (Lean.RArray.branch 1 (Lean.RArray.leaf x)
-              (Lean.RArray.branch 2 (Lean.RArray.leaf x_1) (Lean.RArray.leaf z)))
+              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x_1)))
             (Int.Linear.ExprCnstr.le
-              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
-                        (Int.Linear.Expr.var 1)).add
-                    (Int.Linear.Expr.var 2)).add
-                (Int.Linear.Expr.var 2))
-              (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 2))).add
+              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 2)).add (Int.Linear.Expr.num 2)).add
+                        (Int.Linear.Expr.var 2)).add
+                    (Int.Linear.Expr.var 1)).add
+                (Int.Linear.Expr.var 1))
+              (((((((Int.Linear.Expr.var 2).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 1))).add
                                 (Int.Linear.Expr.num 1)).add
                             (Int.Linear.Expr.num 1)).add
                         (Int.Linear.Expr.var 0)).add
-                    (Int.Linear.Expr.var 1)).sub
-                (Int.Linear.Expr.var 2)))
+                    (Int.Linear.Expr.var 2)).sub
+                (Int.Linear.Expr.var 1)))
             (Eq.refl true)))
       (f y))
 -/

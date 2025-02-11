@@ -214,7 +214,7 @@ theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
 
 end LawfulEq
 
-section BEqOfOrd
+namespace Internal
 
 variable {α : Type u}
 
@@ -239,6 +239,6 @@ theorem lawfulBEq_of_lawfulEqOrd [Ord α] [LawfulEqOrd α] : LawfulBEq α where
   eq_of_beq hbeq := by simp_all
   rfl := by simp
 
-end BEqOfOrd
+end Internal
 
 end Std

@@ -23,9 +23,6 @@ namespace Std.TreeSet.Raw
 
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeSet.Raw α cmp}
 
-private theorem ext {t t' : Raw α cmp} : t.inner = t'.inner → t = t' := by
-  cases t; cases t'; rintro rfl; rfl
-
 @[simp]
 theorem isEmpty_empty : (empty : Raw α cmp).isEmpty :=
   TreeMap.Raw.isEmpty_empty

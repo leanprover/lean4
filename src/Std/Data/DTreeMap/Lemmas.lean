@@ -25,9 +25,6 @@ namespace Std.DTreeMap
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap α β cmp}
 
-private theorem ext {t t' : DTreeMap α β cmp} : t.inner = t'.inner → t = t' := by
-  cases t; cases t'; rintro rfl; rfl
-
 @[simp]
 theorem isEmpty_empty : (empty : DTreeMap α β cmp).isEmpty :=
   Impl.isEmpty_empty

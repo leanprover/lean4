@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Paul Reichert
 -/
 import Std.Data.TreeSet.Basic
-import Std.Data.TreeSet.Lemmas
 
 open Std
 

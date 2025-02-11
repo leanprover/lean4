@@ -104,4 +104,12 @@ theorem mem_congr [TransOrd α] (h : t.WF) {k k' : α} (hab : compare k k' = .eq
     k ∈ t ↔ k' ∈ t := by
   simp [mem_iff_contains, contains_congr h hab]
 
+theorem isEmpty_insertIfNew [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew k v h.balanced).impl.isEmpty = false := by
+  simp_to_model [insertIfNew] using List.isEmpty_insertEntryIfNew
+
+theorem isEmpty_insertIfNew! [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insertIfNew! k v).isEmpty = false := by
+  simp_to_model [insertIfNew!] using List.isEmpty_insertEntryIfNew
+
 end Std.DTreeMap.Internal.Impl

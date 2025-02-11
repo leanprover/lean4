@@ -48,4 +48,9 @@ theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
 theorem mem_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) : k ∈ t ↔ k' ∈ t :=
   Impl.mem_congr t.wf hab
 
+@[simp]
+theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
+    (t.insertIfNew k v).isEmpty = false :=
+  Impl.isEmpty_insertIfNew t.wf
+
 end Std.DTreeMap

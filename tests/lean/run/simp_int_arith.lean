@@ -171,18 +171,18 @@ fun x y z f =>
         id
           (Int.Linear.ExprCnstr.eq_true_of_isValid
             (Lean.RArray.branch 1 (Lean.RArray.leaf x)
-              (Lean.RArray.branch 2 (Lean.RArray.leaf x_1) (Lean.RArray.leaf z)))
+              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x_1)))
             (Int.Linear.ExprCnstr.le
-              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
-                        (Int.Linear.Expr.var 1)).add
-                    (Int.Linear.Expr.var 2)).add
-                (Int.Linear.Expr.var 2))
-              (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 2))).add
+              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 2)).add (Int.Linear.Expr.num 2)).add
+                        (Int.Linear.Expr.var 2)).add
+                    (Int.Linear.Expr.var 1)).add
+                (Int.Linear.Expr.var 1))
+              (((((((Int.Linear.Expr.var 2).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 1))).add
                                 (Int.Linear.Expr.num 1)).add
                             (Int.Linear.Expr.num 1)).add
                         (Int.Linear.Expr.var 0)).add
-                    (Int.Linear.Expr.var 1)).sub
-                (Int.Linear.Expr.var 2)))
+                    (Int.Linear.Expr.var 2)).sub
+                (Int.Linear.Expr.var 1)))
             (Eq.refl true)))
       (f y))
 -/
@@ -256,3 +256,12 @@ example (x : Int) : (11*x ≤ 10) ↔ (x ≤ 0) := by
 
 example (x : Int) : (11*x > 10) ↔ (x ≥ 1) := by
   simp +arith only
+
+example (x y : Int) : (2*x + y + y = 4) ↔ (y + x = 2) := by
+  simp +arith
+
+example (x y : Int) : (2*x + y + y ≤ 3) ↔ (y + x ≤ 1) := by
+  simp +arith
+
+example (f : Int → Int) (x y : Int) : f (2*x + y) = f (y + x + x) := by
+  simp +arith

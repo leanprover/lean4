@@ -44,7 +44,7 @@ def Int.Linear.PolyCnstr.getConst : PolyCnstr → Int
 namespace Lean.Meta.Linear.Int
 
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
+  let some (c, atoms) ← toLinearCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
     let lhs ← c.toArith atoms
     let p := c.toPoly
@@ -127,13 +127,13 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     simpCnstrPos? e
 
 def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (e, ctx) ← ToLinear.run (ToLinear.toLinearExpr e)
+  let (e, atoms) ← toLinearExpr e
   let p  := e.toPoly
   let e' := p.toExpr
   if e != e' then
     -- We only return some if monomials were fused
-    let p := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_toPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
-    let r ← LinearExpr.toArith ctx e'
+    let p := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_toPoly_eq) (toContextExpr atoms) (toExpr e) (toExpr e') reflBoolTrue
+    let r ← LinearExpr.toArith atoms e'
     return some (r, p)
   else
     return none

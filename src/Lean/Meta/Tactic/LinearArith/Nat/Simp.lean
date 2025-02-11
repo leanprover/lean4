@@ -10,7 +10,8 @@ import Lean.Meta.Tactic.LinearArith.Nat.Basic
 namespace Lean.Meta.Linear.Nat
 
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e) | return none
+  let some (c, atoms) ← toLinearCnstr? e
+    | return none
   withAbstractAtoms atoms ``Nat fun atoms => do
     let lhs ← c.toArith atoms
     let c₁ := c.toPoly
@@ -67,7 +68,7 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     simpCnstrPos? e
 
 def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (e, ctx) ← ToLinear.run (ToLinear.toLinearExpr e)
+  let (e, ctx) ← toLinearExpr e
   let p  := e.toPoly
   let p' := p.norm
   if p'.length < p.length then

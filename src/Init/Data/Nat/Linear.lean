@@ -35,11 +35,11 @@ inductive Expr where
   deriving Inhabited
 
 def Expr.denote (ctx : Context) : Expr → Nat
-  | Expr.add a b  => Nat.add (denote ctx a) (denote ctx b)
-  | Expr.num k    => k
-  | Expr.var v    => v.denote ctx
-  | Expr.mulL k e => Nat.mul k (denote ctx e)
-  | Expr.mulR e k => Nat.mul (denote ctx e) k
+  | .add a b  => Nat.add (denote ctx a) (denote ctx b)
+  | .num k    => k
+  | .var v    => v.denote ctx
+  | .mulL k e => Nat.mul k (denote ctx e)
+  | .mulR e k => Nat.mul (denote ctx e) k
 
 abbrev Poly := List (Nat × Var)
 
@@ -146,17 +146,17 @@ where
   -- Implementation note: This assembles the result using difference lists
   -- to avoid `++` on lists.
   go (coeff : Nat) : Expr → (Poly → Poly)
-    | Expr.num k    => bif k == 0 then id else ((coeff * k, fixedVar) :: ·)
-    | Expr.var i    => ((coeff, i) :: ·)
-    | Expr.add a b  => go coeff a ∘ go coeff b
-    | Expr.mulL k a
-    | Expr.mulR a k => bif k == 0 then id else go (coeff * k) a
+    | .num k    => bif k == 0 then id else ((coeff * k, fixedVar) :: ·)
+    | .var i    => ((coeff, i) :: ·)
+    | .add a b  => go coeff a ∘ go coeff b
+    | .mulL k a
+    | .mulR a k => bif k == 0 then id else go (coeff * k) a
 
 def Expr.toNormPoly (e : Expr) : Poly :=
   e.toPoly.norm
 
 def Expr.inc (e : Expr) : Expr :=
-   Expr.add e (Expr.num 1)
+   .add e (.num 1)
 
 structure PolyCnstr  where
   eq  : Bool
@@ -244,21 +244,21 @@ def Certificate.denote (ctx : Context) (c : Certificate) : Prop :=
 
 def monomialToExpr (k : Nat) (v : Var) : Expr :=
   bif v == fixedVar then
-    Expr.num k
+    .num k
   else bif k == 1 then
-    Expr.var v
+    .var v
   else
-    Expr.mulL k (Expr.var v)
+    .mulL k (.var v)
 
 def Poly.toExpr (p : Poly) : Expr :=
   match p with
-  | [] => Expr.num 0
+  | [] => .num 0
   | (k, v) :: p => go (monomialToExpr k v) p
 where
   go (e : Expr) (p : Poly) : Expr :=
     match p with
     | [] => e
-    | (k, v) :: p => go (Expr.add e (monomialToExpr k v)) p
+    | (k, v) :: p => go (.add e (monomialToExpr k v)) p
 
 def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
   { c with lhs := c.lhs.toExpr, rhs := c.rhs.toExpr }

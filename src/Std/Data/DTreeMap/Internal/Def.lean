@@ -15,7 +15,7 @@ This file contains the basic definition implementing the functionality of the si
 set_option autoImplicit false
 set_option linter.all true
 
-universe u v w
+universe u v
 
 namespace Std.DTreeMap.Internal
 

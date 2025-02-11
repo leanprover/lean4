@@ -8,10 +8,10 @@ import Lean.Expr
 
 namespace Lean
 
-def Perm := Std.HashMap Nat Nat
+abbrev Perm := Std.HashMap Nat Nat
 
 /--
-Sorts the given expressions using `Expr.lt`, and creates a "permutation map" storing the new position of each expression
+Sorts the given expressions using `Expr.lt`, and creates a "permutation map" storing the new position of each expression.
 -/
 def sortExprs (es : Array Expr) : Array Expr × Perm :=
   let es := es.mapIdx fun i e => (e, i)

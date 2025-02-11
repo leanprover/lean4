@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Mario Carneiro, Markus Himmel
 prelude
 import Init.Data.Array.Lemmas
 import Std.Data.DHashMap.RawDef
-import Std.Data.DHashMap.Internal.List.Defs
+import Std.Data.Internal.List.Defs
 import Std.Data.DHashMap.Internal.Index
 
 /-!
@@ -149,6 +149,7 @@ variable {α : Type u} {β : α → Type v} {δ : Type w} {m : Type w → Type w
 namespace Std
 
 namespace DHashMap.Internal
+open Std.Internal
 
 @[inline] private def numBucketsForCapacity (capacity : Nat) : Nat :=
   -- a "load factor" of 0.75 is the usual standard for hash maps

@@ -88,6 +88,10 @@ instance : EmptyCollection (Raw α β cmp) where
 instance : Inhabited (Raw α β cmp) where
   default := ∅
 
+@[simp]
+theorem empty_eq_emptyc : (empty : Raw α β cmp) = ∅ :=
+  rfl
+
 @[inline, inherit_doc DTreeMap.Raw.insert]
 def insert (l : Raw α β cmp) (a : α) (b : β) : Raw α β cmp :=
   ⟨l.inner.insert a b⟩
@@ -97,7 +101,7 @@ def insertFast (l : Raw α β cmp) (h : l.WF) (a : α) (b : β) : Raw α β cmp 
   ⟨l.inner.insertFast h.out a b⟩
 
 instance : Singleton (α × β) (Raw α β cmp) where
-  singleton e := empty.insert e.1 e.2
+  singleton e := (∅ : Raw α β cmp).insert e.1 e.2
 
 instance : Insert (α × β) (Raw α β cmp) where
   insert e s := s.insert e.1 e.2

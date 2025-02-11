@@ -88,12 +88,16 @@ instance : EmptyCollection (Raw α cmp) where
 instance : Inhabited (Raw α cmp) where
   default := ∅
 
+@[simp]
+theorem empty_eq_emptyc : (empty : Raw α cmp) = ∅ :=
+  rfl
+
 @[inline, inherit_doc TreeSet.empty]
 def insert (l : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨l.inner.insertIfNew a ()⟩
 
 instance : Singleton α (Raw α cmp) where
-  singleton e := empty.insert e
+  singleton e := (∅ : Raw α cmp).insert e
 
 instance : Insert α (Raw α cmp) where
   insert e s := s.insert e

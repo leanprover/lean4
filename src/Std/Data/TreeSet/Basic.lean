@@ -62,8 +62,9 @@ structure TreeSet (α : Type u) (cmp : α → α → Ordering := by exact compar
 namespace TreeSet
 
 /--
-Creates a new empty tree set. It is also possible to
-use the empty collection notations `∅` and `{}` to create an empty tree set.
+Creates a new empty tree set. It is also possible and recommended to
+use the empty collection notations `∅` and `{}` to create an empty tree set. `simp` replaces
+`empty` with `∅`.
 -/
 @[inline]
 def empty : TreeSet α cmp :=
@@ -74,6 +75,10 @@ instance : EmptyCollection (TreeSet α cmp) where
 
 instance : Inhabited (TreeSet α cmp) where
   default := ∅
+
+@[simp]
+theorem empty_eq_emptyc : (empty : TreeSet α cmp) = ∅ :=
+  rfl
 
 /--
 Inserts the given element into the set. If the tree set already contains an element that is
@@ -88,7 +93,7 @@ def insert (l : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨l.inner.insertIfNew a ()⟩
 
 instance : Singleton α (TreeSet α cmp) where
-  singleton e := empty.insert e
+  singleton e := (∅ : TreeSet α cmp).insert e
 
 instance : Insert α (TreeSet α cmp) where
   insert e s := s.insert e

@@ -71,12 +71,16 @@ instance : EmptyCollection (TreeMap α β cmp) where
 
 instance : Inhabited (TreeMap α β cmp) := ⟨∅⟩
 
+@[simp]
+theorem empty_eq_emptyc : (empty : TreeMap α β cmp) = ∅ :=
+  rfl
+
 @[inline, inherit_doc DTreeMap.insert]
 def insert (l : TreeMap α β cmp) (a : α) (b : β) : TreeMap α β cmp :=
   ⟨l.inner.insert a b⟩
 
 instance : Singleton (α × β) (TreeMap α β cmp) where
-  singleton e := empty.insert e.1 e.2
+  singleton e := (∅ : TreeMap α β cmp).insert e.1 e.2
 
 instance : Insert (α × β) (TreeMap α β cmp) where
   insert e s := s.insert e.1 e.2

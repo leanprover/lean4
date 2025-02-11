@@ -69,8 +69,9 @@ namespace DTreeMap
 open Internal (Impl)
 
 /--
-Creates a new empty tree map. It is also possible to
-use the empty collection notations `∅` and `{}` to create an empty tree map.
+Creates a new empty tree map. It is also possible and recommended to
+use the empty collection notations `∅` and `{}` to create an empty tree map. `simp` replaces
+`empty` with `∅`.
 -/
 @[inline]
 def empty : DTreeMap α β cmp :=
@@ -82,6 +83,10 @@ instance : EmptyCollection (DTreeMap α β cmp) where
 instance : Inhabited (DTreeMap α β cmp) where
   default := ∅
 
+@[simp]
+theorem empty_eq_emptyc : (empty : DTreeMap α β cmp) = ∅ :=
+  rfl
+
 /--
 Inserts the given mapping into the map. If there is already a mapping for the given key, then both
 key and value will be replaced.
@@ -91,7 +96,7 @@ def insert (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨(t.inner.insert a b t.wf.balanced).impl, .insert t.wf⟩
 
 instance : Singleton ((a : α) × β a) (DTreeMap α β cmp) where
-  singleton e := empty.insert e.1 e.2
+  singleton e := (∅ : DTreeMap α β cmp).insert e.1 e.2
 
 instance : Insert ((a : α) × β a) (DTreeMap α β cmp) where
   insert e s := s.insert e.1 e.2

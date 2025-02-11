@@ -3964,6 +3964,7 @@ theorem msb_intMin {w : Nat} : (intMin w).msb = decide (0 < w) := by
 
 /-! ### intMax -/
 
+
 /-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
 def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 

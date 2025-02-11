@@ -88,6 +88,11 @@ example (x y : BitVec 16) : BitVec.uaddOverflow x y = (x.setWidth (17) + y.setWi
 example (x y : BitVec 16) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by bv_normalize
 example (x y : BitVec w) : BitVec.uaddOverflow x y = (x.setWidth (w + 1) + y.setWidth (w + 1)).msb := by bv_normalize
 example (x y : BitVec w) : BitVec.saddOverflow x y = (x.msb = y.msb ∧ ¬(x + y).msb = x.msb) := by bv_normalize
+example (x y : BitVec 16) : BitVec.umulOverflow x y = (BitVec.twoPow 32 16 ≤ x.zeroExtend (32) * y.zeroExtend (32)) := by bv_normalize
+example (x y : BitVec 16) : BitVec.smulOverflow x y = ((BitVec.intMin 16).signExtend (32)).sle (x.signExtend (32) * y.signExtend (32)) && (x.signExtend (32) * y.signExtend (32)).sle ((BitVec.intMax w).signExtend (32)) := by rw [BitVec.smulOverflow_eq]; bv_normalize
+example (x y : BitVec w) : BitVec.umulOverflow x y = (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by bv_normalize
+-- example (x y : BitVec w) : BitVec.smulOverflow x y = (w ≠ 0) || (((BitVec.intMin w).signExtend (w * 2)).sle (x.signExtend (w * 2) * y.signExtend (w * 2)) &&
+--       (x.signExtend (w * 2) * y.signExtend (w * 2)).sle ((BitVec.intMax w).signExtend (w * 2))) := by bv_normalize
 
 
 -- not_neg

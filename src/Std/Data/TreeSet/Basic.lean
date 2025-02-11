@@ -201,7 +201,16 @@ def toList (t : TreeSet α cmp) : List α :=
 def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
 
-/-- Returns a set that contains all mappings of `t₁` and `t₂. -/
+/--
+Returns a set that contains all mappings of `t₁` and `t₂.
+
+This function ensures that `t₁` is used linearly.
+Hence, as long as `t₁` is unshared, the performance characteristics follow the following imperative
+description: Iterate over all mappings in `t₂`, inserting them into `t₁`.
+
+Hence, the runtime of this method scales logarithmically in the size of `t₁` and linearly in the
+size of `t₂` as long as `t₁` is unshared.
+-/
 @[inline]
 def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩

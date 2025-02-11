@@ -5,6 +5,7 @@ Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Init.Data.Ord
+
 /-!
 # Type classes related to `Ord`
 

@@ -8,7 +8,10 @@ import Std.Data.HashMap.Basic
 import Std.Data.DTreeMap.Internal.WF.Lemmas
 
 /-!
-# API lemmas for `DTreeMap.Impl`
+# Internal lemmas about the tree map
+
+This file contains internal lemmas about `Std.DTreeMap.Internal.Impl`. Users of the hash map should
+not rely on the contents of this file.
 -/
 
 set_option linter.missingDocs true

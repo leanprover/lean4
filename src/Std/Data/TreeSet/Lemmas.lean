@@ -1,14 +1,17 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Std.Data.TreeMap.Lemmas
 import Std.Data.TreeSet.Basic
 
 /-!
-# API lemmas for `TreeMap`
+# Tree set lemmas
+
+This file contains lemmas about `Std.Data.TreeSet`. Most of the lemmas require
+`TransCmp cmp` for the comparison function `cmp`.
 -/
 
 set_option linter.missingDocs true
@@ -41,11 +44,11 @@ theorem isEmpty_insert [TransCmp cmp] {k : α} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   TreeMap.mem_iff_contains
 
-theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' == .eq) :
+theorem contains_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   TreeMap.contains_congr hab
 
-theorem mem_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' == .eq) : k ∈ t ↔ k' ∈ t :=
+theorem mem_congr [TransCmp cmp] {k k' : α} (hab : cmp k k' = .eq) : k ∈ t ↔ k' ∈ t :=
   TreeMap.mem_congr hab
 
 @[simp]
@@ -123,18 +126,6 @@ theorem mem_of_mem_insert [TransCmp cmp] {k a : α} :
     a ∈ t.insert k → (cmp k a == .eq) = false → a ∈ t :=
   TreeMap.mem_of_mem_insertIfNew
 
-/-- This is a restatement of `contains_of_contains_insert` that is written to exactly match the
-proof obligation in the statement of `get_insert`. -/
-theorem contains_of_contains_insert' [TransCmp cmp] {k a : α} :
-    (t.insert k).contains a → ¬((cmp k a == .eq) ∧ t.contains k = false) → t.contains a :=
-  TreeMap.contains_of_contains_insertIfNew'
-
-/-- This is a restatement of `mem_of_mem_insert` that is written to exactly match the
-proof obligation in the statement of `get_insert`. -/
-theorem mem_of_mem_insert' [TransCmp cmp] {k a : α} :
-    a ∈ t.insert k → ¬((cmp k a == .eq) ∧ ¬k ∈ t) → a ∈ t :=
-  TreeMap.mem_of_mem_insertIfNew'
-
 @[simp]
 theorem size_empty : (empty : TreeSet α cmp).size = 0 :=
   TreeMap.size_empty
@@ -177,22 +168,26 @@ theorem isEmpty_erase [TransCmp cmp] {k : α} :
 @[simp]
 theorem contains_erase [TransCmp cmp] {k a : α} :
     (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
-  DTreeMap.contains_erase
+  TreeMap.contains_erase
 
 theorem contains_of_contains_erase [TransCmp cmp] {k a : α} :
     (t.erase k).contains a → t.contains a :=
-  DTreeMap.contains_of_contains_erase
+  TreeMap.contains_of_contains_erase
+
+theorem mem_of_mem_erase [TransCmp cmp] {k a : α} :
+    (t.erase k).contains a → t.contains a :=
+  TreeMap.mem_of_mem_erase
 
 theorem size_erase [TransCmp cmp] {k : α} :
     (t.erase k).size = if t.contains k then t.size - 1 else t.size :=
-  DTreeMap.size_erase
+  TreeMap.size_erase
 
 theorem size_erase_le [TransCmp cmp] {k : α} :
     (t.erase k).size ≤ t.size :=
-  DTreeMap.size_erase_le
+  TreeMap.size_erase_le
 
 theorem size_le_size_erase [TransCmp cmp] {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
-  DTreeMap.size_le_size_erase
+  TreeMap.size_le_size_erase
 
 end Std.TreeSet

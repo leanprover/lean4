@@ -1,14 +1,17 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Std.Data.TreeMap.RawLemmas
 import Std.Data.TreeSet.Raw
 
 /-!
-# API lemmas for `TreeMap.Raw`
+# Tree set lemmas
+
+This file contains lemmas about `Std.Data.TreeSet.Raw`. Most of the lemmas require
+`TransCmp cmp` for the comparison function `cmp`.
 -/
 
 set_option linter.missingDocs true
@@ -39,11 +42,11 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   TreeMap.Raw.mem_iff_contains
 
-theorem contains_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' == .eq) :
+theorem contains_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   TreeMap.Raw.contains_congr h hab
 
-theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' == .eq) : k ∈ t ↔ k' ∈ t :=
+theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) : k ∈ t ↔ k' ∈ t :=
   TreeMap.Raw.mem_congr h hab
 
 @[simp]
@@ -120,18 +123,6 @@ theorem contains_of_contains_insert [TransCmp cmp] (h : t.WF) {k a : α} :
 theorem mem_of_mem_insert [TransCmp cmp] (h : t.WF) {k a : α} :
     a ∈ t.insert k → (cmp k a == .eq) = false → a ∈ t :=
   TreeMap.Raw.mem_of_mem_insertIfNew h
-
-/-- This is a restatement of `contains_of_contains_insert` that is written to exactly match the
-proof obligation in the statement of `get_insert`. -/
-theorem contains_of_contains_insert' [TransCmp cmp] (h : t.WF) {k a : α} :
-    (t.insert k).contains a → ¬((cmp k a == .eq) ∧ t.contains k = false) → t.contains a :=
-  TreeMap.Raw.contains_of_contains_insertIfNew' h
-
-/-- This is a restatement of `mem_of_mem_insert` that is written to exactly match the
-proof obligation in the statement of `get_insert`. -/
-theorem mem_of_mem_insert' [TransCmp cmp] (h : t.WF) {k a : α} :
-    a ∈ t.insert k → ¬((cmp k a == .eq) ∧ ¬k ∈ t) → a ∈ t :=
-  TreeMap.Raw.mem_of_mem_insertIfNew' h
 
 @[simp]
 theorem size_empty : (empty : Raw α cmp).size = 0 :=

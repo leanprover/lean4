@@ -1,14 +1,17 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Std.Data.DTreeMap.Internal.Lemmas
 import Std.Data.DTreeMap.Raw
 
 /-!
-# API lemmas for `DTreeMap.Raw`
+# Dependent tree map lemmas
+
+This file contains lemmas about `Std.Data.DTreeMap.Raw`. Most of the lemmas require
+`TransCmp cmp` for the comparison function `cmp`.
 -/
 
 set_option linter.missingDocs true
@@ -41,11 +44,11 @@ theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
 theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
   Impl.mem_iff_contains
 
-theorem contains_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' == .eq) :
+theorem contains_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
     t.contains k = t.contains k' :=
   Impl.contains_congr h hab
 
-theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' == .eq) : k ∈ t ↔ k' ∈ t :=
+theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) : k ∈ t ↔ k' ∈ t :=
   Impl.mem_congr h hab
 
 @[simp]
@@ -104,7 +107,7 @@ theorem contains_insert [h : TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
 
 @[simp]
 theorem mem_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insert k v ↔ cmp k a == .eq ∨ a ∈ t :=
+    a ∈ t.insert k v ↔ cmp k a = .eq ∨ a ∈ t :=
   Impl.mem_insert! h
 
 theorem contains_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
@@ -116,11 +119,11 @@ theorem mem_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
   Impl.mem_insert!_self h
 
 theorem contains_of_contains_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    (t.insert k v).contains a → (cmp k a == .eq) = false → t.contains a :=
+    (t.insert k v).contains a → ¬ cmp k a = .eq → t.contains a :=
   Impl.contains_of_contains_insert! h
 
 theorem mem_of_mem_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insert k v → (cmp k a == .eq) = false → a ∈ t :=
+    a ∈ t.insert k v → ¬ cmp k a = .eq → a ∈ t :=
   Impl.mem_of_mem_insert! h
 
 @[simp]
@@ -222,18 +225,6 @@ theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v
 theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew k v → (cmp k a == .eq) = false → a ∈ t :=
   Impl.contains_of_contains_insertIfNew! h
-
-/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the
-proof obligation in the statement of `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v).contains a → ¬((cmp k a == .eq) ∧ t.contains k = false) → t.contains a :=
-  Impl.contains_of_contains_insertIfNew!' h
-
-/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the
-proof obligation in the statement of `get_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew' [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insertIfNew k v → ¬((cmp k a == .eq) ∧ ¬k ∈ t) → a ∈ t :=
-  Impl.mem_of_mem_insertIfNew!' h
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β k} :
     (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=

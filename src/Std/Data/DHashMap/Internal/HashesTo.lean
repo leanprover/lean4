@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.Hashable
-import Std.Data.DHashMap.Internal.List.Associative
+import Std.Data.Internal.List.Associative
 import Std.Data.DHashMap.Internal.Defs
 
 /-!
@@ -21,6 +21,7 @@ set_option autoImplicit false
 universe u v
 
 namespace Std.DHashMap.Internal.List
+open Std.Internal.List
 
 variable {α : Type u} {β : α → Type v}
 

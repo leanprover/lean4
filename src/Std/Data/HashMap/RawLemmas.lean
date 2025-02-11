@@ -612,13 +612,13 @@ theorem mem_of_mem_insertIfNew [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a
     a ∈ m.insertIfNew k v → (k == a) = false → a ∈ m :=
   DHashMap.Raw.mem_of_mem_insertIfNew h.out
 
-/-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `getElem_insertIfNew`. -/
 theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α}
     {v : β} : (m.insertIfNew k v).contains a → ¬((k == a) ∧ m.contains k = false) → m.contains a :=
   DHashMap.Raw.contains_of_contains_insertIfNew' h.out
 
-/-- This is a restatement of `mem_insertIfNew` that is written to exactly match the proof obligation
+/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match the proof obligation
 in the statement of `getElem_insertIfNew`. -/
 theorem mem_of_mem_insertIfNew' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} {v : β} :
     a ∈ m.insertIfNew k v → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=

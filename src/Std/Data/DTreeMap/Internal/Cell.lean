@@ -20,6 +20,7 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w}
 
 namespace Std.DTreeMap.Internal
 open Std.Internal.List
+open Std.Internal (beqOfOrd beq_eq)
 
 attribute [local instance] beqOfOrd
 

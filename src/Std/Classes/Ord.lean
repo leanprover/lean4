@@ -101,7 +101,7 @@ section Trans
 
 /-- A typeclass for functions `α → α → Ordering` which are transitive. -/
 class TransCmp {α : Type u} (cmp : α → α → Ordering) extends OrientedCmp cmp : Prop where
-  /-- Transitivity of `≤`, expressed via `Ordering.isLE`. -/
+  /-- Transitivity of `cmp`, expressed via `Ordering.isLE`. -/
   le_trans {a b c : α} : (cmp a b).isLE → (cmp b c).isLE → (cmp a c).isLE
 
 /-- A typeclass for types with a transitive ordering function. -/

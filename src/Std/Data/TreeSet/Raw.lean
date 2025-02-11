@@ -24,7 +24,7 @@ Lemmas about the operations on `Std.TreeSet.Raw` will be available in the module
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v
+universe u v w w₂
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
@@ -129,7 +129,6 @@ def isEmpty (t : Raw α cmp) : Bool :=
 def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨t.inner.erase a⟩
 
-universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc TreeSet.empty]

@@ -17,7 +17,7 @@ We currently do not provide lemmas for these functions.
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v w w₂
+universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
 
@@ -32,7 +32,6 @@ only those mappings where the function returns `some` value.
 def filterMap (f : (a : α) → β a → Option (γ a)) (t : Raw α β cmp) : Raw α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.filterMap! f⟩
 
-variable {γ : α → Type w} in
 /-- Updates the values of the map by applying the given function to all mappings. -/
 @[inline]
 def map (f : (a : α) → β a → γ a) (t : Raw α β cmp) : Raw α γ cmp :=
@@ -40,12 +39,10 @@ def map (f : (a : α) → β a → γ a) (t : Raw α β cmp) : Raw α γ cmp :=
 
 end Raw
 
-variable {γ : α → Type w} in
 @[inline, inherit_doc Raw.filterMap]
 def filterMap (f : (a : α) → β a → Option (γ a)) (t : DTreeMap α β cmp) : DTreeMap α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.filterMap f t.wf.balanced |>.impl, t.wf.filterMap⟩
 
-variable {γ : α → Type w} in
 @[inline, inherit_doc Raw.map]
 def map (f : (a : α) → β a → γ a) (t : DTreeMap α β cmp) : DTreeMap α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.map f, t.wf.map⟩

@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Markus Himmel
+Authors: Markus Himmel, Paul Reichert
 -/
 prelude
 import Init.Data.Nat.Compare
@@ -433,13 +433,12 @@ abbrev IteratedErasureFrom [Ord α] (t) :=
 /-- Iterate over `l` and erase all of its elements from `t`. -/
 @[inline]
 def eraseMany [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ) (h : t.Balanced) :
-    IteratedErasureFrom t :=
-  Id.run do
-    let mut r := ⟨t, fun h _ => h⟩
-    for a in l do
-      let hr := r.2 h (fun t'' a h _ => (t''.erase a h).balanced_impl)
-      r := ⟨r.val.erase a hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
-    return r
+    IteratedErasureFrom t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for a in l do
+    let hr := r.2 h (fun t'' a h _ => (t''.erase a h).balanced_impl)
+    r := ⟨r.val.erase a hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
 
 /-- A tree map obtained by erasing elements from `t`, bundled with an inductive principle. -/
 abbrev IteratedSlowErasureFrom [Ord α] (t) :=
@@ -483,13 +482,13 @@ def filterMap [Ord α] (f : (a : α) → β a → Option (γ a)) (t : Impl α β
   | .inner sz k v l r =>
     match f k v with
     | none =>
-        let ⟨l', hl'⟩ := filterMap f l ✓
-        let ⟨r', hr'⟩ := filterMap f r ✓
-        ⟨(link2 l' r' ✓ ✓).impl, ✓⟩
+      let ⟨l', hl'⟩ := filterMap f l ✓
+      let ⟨r', hr'⟩ := filterMap f r ✓
+      ⟨(link2 l' r' ✓ ✓).impl, ✓⟩
     | some v' =>
-        let ⟨l', hl'⟩ := filterMap f l ✓
-        let ⟨r', hr'⟩ := filterMap f r ✓
-        ⟨(link k v' l' r' ✓ ✓).impl, ✓⟩
+      let ⟨l', hl'⟩ := filterMap f l ✓
+      let ⟨r', hr'⟩ := filterMap f r ✓
+      ⟨(link k v' l' r' ✓ ✓).impl, ✓⟩
 
 /--
 Slower version of `filterMap` which can be used in the absence of balance

@@ -141,8 +141,7 @@ theorem applyPartition_go_step [Ord α] {k : α → Ordering} {init : δ} (l₁ 
 theorem explore_eq_applyPartition [Ord α] {k : α → Ordering} (init : δ) (l : Impl α β)
     (f : δ → ExplorationStep α β k → δ)
     (hfr : ∀ {k hk v ll c rr r init}, f (f init (.lt k hk v r)) (.eq ll c rr) = f init (.eq ll c (rr ++ ⟨k, v⟩ :: r)))
-    (hfl : ∀ {k hk v ll c rr l init}, f (f init (.gt l k hk v)) (.eq ll c rr) = f init (.eq (l ++ ⟨k, v⟩ :: ll) c rr))
-    :
+    (hfl : ∀ {k hk v ll c rr l init}, f (f init (.gt l k hk v)) (.eq ll c rr) = f init (.eq (l ++ ⟨k, v⟩ :: ll) c rr)) :
     explore k init f l = applyPartition k l fun l c _ r => f init (.eq l c r) := by
   rw [applyPartition]
   suffices ∀ L, (h : L.contains' k → l.contains' k) →
@@ -177,23 +176,23 @@ def updateCell [Ord α] (k : α) (f : Cell α β (compare k) → Cell α β (com
     (l : Impl α β) (hl : Balanced l) : SizedBalancedTree α β (l.size - 1) (l.size + 1) :=
   match l with
   | leaf => match (f .empty).inner with
-            | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
-            | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
+    | none => ⟨.leaf, by tree_tac, by tree_tac, by tree_tac⟩
+    | some ⟨k', v'⟩ => ⟨.inner 1 k' v' .leaf .leaf, by tree_tac, by tree_tac, by tree_tac⟩
   | inner sz ky y l r =>
     match h : compare k ky with
     | .lt =>
-        let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
-        ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-          by tree_tac⟩
+      let ⟨newL, h₁, h₂, h₃⟩ := updateCell k f l (by tree_tac)
+      ⟨balance ky y newL r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
+        by tree_tac⟩
     | .eq => match (f (.ofEq ky y h)).inner with
-             | none =>
-               ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-                  by tree_tac⟩
-             | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
+      | none =>
+        ⟨glue l r (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
+           by tree_tac⟩
+      | some ⟨ky', y'⟩ => ⟨.inner sz ky' y' l r, by tree_tac, by tree_tac, by tree_tac⟩
     | .gt =>
-        let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
-        ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
-          by tree_tac⟩
+      let ⟨newR, h₁, h₂, h₃⟩ := updateCell k f r (by tree_tac)
+      ⟨balance ky y l newR (by tree_tac) (by tree_tac) (by tree_tac), by tree_tac, by tree_tac,
+        by tree_tac⟩
 
 /-!
 ## Model functions

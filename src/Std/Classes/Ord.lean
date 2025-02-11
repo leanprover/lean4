@@ -3,15 +3,14 @@ Copyright (c) 2025 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
-
 prelude
 import Init.Data.Ord
 /-!
 # Type classes related to `Ord`
 
 This file provides several typeclasses encode properties of an `Ord` instance. For each typeclass,
-there is also a variant that does not depend on an `Ord` instance and take an explicit comparison
-function `cmp : α → α → Ordering` instead,
+there is also a variant that does not depend on an `Ord` instance and takes an explicit comparison
+function `cmp : α → α → Ordering` instead.
 -/
 
 set_option autoImplicit false
@@ -55,13 +54,8 @@ abbrev OrientedOrd (α : Type u) [Ord α] := OrientedCmp (compare : α → α �
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
-@[simp]
-theorem OrientedCmp.cmp_self [OrientedCmp cmp] {a : α} : cmp a a = .eq :=
-  Ordering.eq_eq_of_eq_swap OrientedCmp.eq_swap
-
-@[simp]
-theorem compare_self [Ord α] [OrientedOrd α] {a : α} : compare a a = .eq :=
-  OrientedCmp.cmp_self
+instance [OrientedCmp cmp] : ReflCmp cmp where
+  compare_self := Ordering.eq_eq_of_eq_swap OrientedCmp.eq_swap
 
 theorem OrientedCmp.gt_iff_lt [OrientedCmp cmp] {a b : α} : cmp a b = .gt ↔ cmp b a = .lt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
@@ -199,7 +193,7 @@ A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if t
 -/
 class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) extends ReflCmp cmp : Prop where
   /-- If two values compare equal, then they are logically equal. -/
-  eq_of_compare {a b : α} : cmp a b == .eq → a = b
+  eq_of_compare {a b : α} : cmp a b = .eq → a = b
 
 /--
 A typeclass for types with a comparison function that satisfies `compare a b = .eq` if and only if
@@ -211,11 +205,11 @@ variable {α : Type u} {cmp : α → α → Ordering} [LawfulEqCmp cmp]
 
 @[simp]
 theorem compare_eq_iff_eq {a b : α} : cmp a b = .eq ↔ a = b :=
-  ⟨LawfulEqCmp.eq_of_compare ∘ beq_of_eq, by rintro rfl; simp⟩
+  ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
 
 @[simp]
 theorem compare_beq_iff_eq {a b : α} : cmp a b == .eq ↔ a = b :=
-  ⟨LawfulEqCmp.eq_of_compare, by rintro rfl; simp⟩
+  ⟨LawfulEqCmp.eq_of_compare ∘ eq_of_beq, by rintro rfl; simp⟩
 
 end LawfulEq
 

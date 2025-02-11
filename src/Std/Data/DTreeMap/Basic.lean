@@ -21,7 +21,7 @@ nested inductive types.
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v
+universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
@@ -109,7 +109,6 @@ def insertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) : DTreeMap α β cm
 
 /--
 Checks whether a key is present in a map and inserts a value for the key if it was not found.
-
 If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
 the returned map has a new value inserted.
 
@@ -122,12 +121,9 @@ def containsThenInsert (t : DTreeMap α β cmp) (a : α) (b : β a) : Bool × DT
   (p.1, ⟨p.2.impl, t.wf.containsThenInsert⟩)
 
 /--
-Checks whether a key is present in a map and inserts a value for the key if it was not found.
+Checks whether a key is present in a map and unconditionally inserts a value for the key.
 
-If the returned `Bool` is `true`, then the returned map is unaltered. If the `Bool` is `false`, then
-the returned map has a new value inserted.
-
-Equivalent to (but potentially faster than) calling `contains` followed by `insertIfNew`.
+Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline]
 def containsThenInsertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) :
@@ -179,7 +175,7 @@ def get? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
 /--
-Given a proof that a mapping for the given key is present, returns the value associated.
+Given a proof that a mapping for the given key is present, retrieves the mapping for the given key.
 
 Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 -/
@@ -218,7 +214,7 @@ def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
 
 /--
-Given a proof that a mapping for the given key is present, returns the value associated .
+Given a proof that a mapping for the given key is present, retrieves the mapping for the given key.
 -/
 @[inline]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
@@ -240,7 +236,6 @@ def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
 
 end Const
 
-universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
 /-- Removes all mappings of the map for which the given function returns `false`. -/
@@ -292,12 +287,12 @@ def all (t : DTreeMap α β cmp) (p : (a : α) → β a → Bool) : Bool := Id.r
     if p a b = false then return false
   return true
 
-/-- Returns a list of all keys present in the tree map in some order. -/
+/-- Returns a list of all keys present in the tree map in ascending  order. -/
 @[inline]
 def keys (t : DTreeMap α β cmp) : List α :=
   t.inner.keys
 
-/-- Returns an array of all keys present in the tree map in some order. -/
+/-- Returns an array of all keys present in the tree map in ascending  order. -/
 @[inline]
 def keysArray (t : DTreeMap α β cmp) : Array α :=
   t.inner.keysArray
@@ -316,9 +311,20 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from
 the respective values in `t₁` and `t₂`.
+
+This function ensures that `t₁` is used linearly. It also uses the individual values in `t₁`
+linearly if the merge function uses the second argument (i.e. the first of type `β a`) linearly.
+Hence, as long as `t₁` is unshared, the performance characteristics follow the following imperative
+description: Iterate over all mappings in `t₂`, inserting them into `t₁` if `t₁` does not contain a
+conflicting mapping yet. If `t₁` does contain a conflicting mapping, use the given merge function to
+merge the mapping in `t₂` into the mapping in `t₁`. Then return `t₁`.
+
+Hence, the runtime of this method scales logarithmically in the size of `t₁` and linearly in the size of
+`t₂` as long as `t₁` is unshared.
 -/
 @[inline]
-def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
+def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : DTreeMap α β cmp) :
+    DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith mergeFn t₂.inner t₁.wf.balanced |>.impl, t₁.wf.mergeWith⟩
 
 namespace Const
@@ -341,7 +347,8 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cm
 end Const
 
 /--
-Erases multiple mappings from the tree map by iterating over the given collection and calling erase.
+Erases multiple mappings from the tree map by iterating over the given collection and calling
+`erase`.
 -/
 @[inline]
 def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=

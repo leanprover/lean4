@@ -24,7 +24,7 @@ Lemmas about the operations on `Std.DTreeMap.Raw` will be available in the modul
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v
+universe u v w w₂
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering}
 private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
@@ -184,7 +184,6 @@ def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
 
 end Const
 
-universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc DTreeMap.filter]

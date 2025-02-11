@@ -21,7 +21,7 @@ nested inductive types.
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v
+universe u v w w₂
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
@@ -142,7 +142,6 @@ def isEmpty (t : TreeSet α cmp) : Bool :=
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
-universe w w₂
 variable  {γ δ: Type w} {m : Type w → Type w₂} [Monad m]
 
 /-- Removes all elements from the tree set for which the given function returns `false`. -/

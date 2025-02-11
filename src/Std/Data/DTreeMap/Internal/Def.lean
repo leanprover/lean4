@@ -17,8 +17,6 @@ set_option linter.all true
 
 universe u v w
 
-variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
-
 namespace Std.DTreeMap.Internal
 
 /-- (Implementation detail) The actual inductive type for the size-balanced tree data structure. -/
@@ -27,7 +25,7 @@ inductive Impl (α : Type u) (β : α → Type v) where
   | inner (size : Nat) (k : α) (v : β k) (l r : Impl α β)
   /-- (Implementation detail) -/
   | leaf
-  deriving Inhabited
+deriving Inhabited
 
 /-- The "delta" parameter of the size-bounded tree. Controls how imbalanced the tree can be. -/
 @[inline, Std.Internal.tree_tac]

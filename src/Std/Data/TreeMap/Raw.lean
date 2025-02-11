@@ -23,7 +23,7 @@ Lemmas about the operations on `Std.TreeMap.Raw` will be available in the module
 set_option autoImplicit false
 set_option linter.missingDocs true
 
-universe u v
+universe u v w w₂
 
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 
@@ -164,7 +164,6 @@ instance : GetElem? (Raw α β cmp) α β (fun m a => a ∈ m) where
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
-universe w w₂
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc DTreeMap.Raw.filter]

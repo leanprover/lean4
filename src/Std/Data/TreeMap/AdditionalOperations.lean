@@ -20,8 +20,7 @@ set_option linter.missingDocs true
 
 universe u v w w₂
 
-variable {α : Type u} {β : Type v} {γ : Type w} {cmp : α → α → Ordering} {m : Type w → Type w₂}
-  [Monad m]
+variable {α : Type u} {β : Type v} {γ : Type w} {cmp : α → α → Ordering}
 
 namespace Std.TreeMap
 

@@ -43,7 +43,7 @@ def Common'.String.c (s : String) : Nat := 0
 export Common (String.c)
 export Common' (String.c)
 /--
-error: invalid field notation 'c', the name 'String.c' is ambiguous, possible interpretations: 'Common'.String.c', 'Common.String.c'
+error: invalid field notation 'c', the name 'String.c' is ambiguous, possible interpretations: 'Common.String.c', 'Common'.String.c'
 -/
 #guard_msgs in #eval "".c
 

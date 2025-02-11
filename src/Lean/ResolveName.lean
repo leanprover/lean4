@@ -5,13 +5,18 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
 import Lean.Data.OpenDecl
+import Lean.Data.ExportDecl
 import Lean.Hygiene
 import Lean.Modifiers
 import Lean.Exception
 
+/-!
+# Name resolution
+-/
+
 namespace Lean
 /-!
-Reserved names.
+### Reserved names.
 
 We use reserved names for automatically generated theorems (e.g., equational theorems).
 Automation may register new reserved name predicates.
@@ -48,49 +53,225 @@ def isReservedName (env : Environment) (name : Name) : Bool :=
   reservedNamePredicatesExt.getState env |>.any (· env name)
 
 /-!
-  We use aliases to implement the `export <id> (<id>+)` command.
-  An `export A (x)` in the namespace `B` produces an alias `B.x ~> A.x`.
+### Aliases
+
+The `export` command creates *aliases*, which are like "symbolic links" in the name hierarchy.
+An `export A (x)` from within the namespace `B` produces an alias `B.x ~> y`, where `y` is what the name `A.x` resolves to.
+An `export A` from within the namespace `B` produces a family of aliases `B.* ~> A.*`.
+Alias resolution is recursive.
+
+Abstract description: "`m` is an alias for `n`" is a relation on names.
+1. If `n₁` is an alias for `n₂` and `n₂` is an alias for `n₃` then `n₁` is an alias for `n₃`.
+2. Given `ExportDecl.explicit aDecl dDecl`, then `aDecl` is an alias for `dDecl`.
+   Futhermore, if `dDecl` is a namepace then the rule for `ExportDecl.namespace aDecl dDecl []` also applies.
+3. Given `ExportDecl.namespace ans ns except`, then for all names `m` not in `except`,
+   if `m = Name.str m' id`, `ns ++ m'` is a namespace, and `ans ++ m` is not a private name,
+   then `ans ++ m` is an alias for `ns ++ m`.
+
+For a name `m`, we say "alias `m` resolves to `n`" if `m` maps to `n` and `n` is a declaration or a reserved name.
+**The result of `resolveAlias m`** is a list containing every `n` such that alias `m` resolves to `n`.
+The condition that `ExportDecl.namespace` only resolves names whose prefix is a namespace ensures that we can implement
+this with a (terminating!) efficient algorithm, since this ensures the problem is equivalent to a graph search on a finite graph.
+
+The difference between the behavior of `ExportDecl.explict ans ns` and `ExportDecl.namespace ans ns []` is that the
+first one additionally makes `ans` an alias for `ns` if `ns` is a declaration. The second does not — it only causes names
+appearing inside `ns` to be aliased inside `ans`.
 -/
 
-abbrev AliasState := SMap Name (List Name)
-abbrev AliasEntry := Name × Name
+/--
+Data for exporting a namespace into another namespace. Represents a single `ExportDecl.namespace` entry.
+The `fwd` parameter represents whether this is for the forward map or the reverse map in `AliasState`.
+-/
+structure NamespaceAlias (fwd : Bool) where
+  /-- If `fwd`, then the namespace that's been exported. Otherwise, the destination namespace for the export. -/
+  ns : Name
+  /-- The names that are not exported. For each `e` in `except`, `ns ++ e` is not exported. -/
+  except : List Name
+  deriving BEq, Inhabited
 
-def addAliasEntry (s : AliasState) (e : AliasEntry) : AliasState :=
-  match s.find? e.1 with
-  | none    => s.insert e.1 [e.2]
-  | some es => if es.contains e.2 then s else s.insert e.1 (e.2 :: es)
+/--
+The main state for aliases. `AliasStateMaps true` is the forward direction, and `AliasStateMaps false` is the reverse direction.
+Each determines the other, but in `AliasState` we have both for efficient lookups.
+-/
+structure AliasStateMaps (fwd : Bool) where
+  /-- Map from aliases to the declarations they could refer to.
+  An `ExportDecl.explicit a b` entry is represented as `b ∈ aliases[a]` (if forward mode) or `a ∈ aliases[b]` (if backward mode). -/
+  aliases : SMap Name (List Name) := {}
+  /-- Map from namespaces to the namespaces exported to it.
+  An `ExportDecl.namespace a b except` entry is represented as `{ns := b, except} ∈ namespaceAliases[a]` (if forward mode)
+  or `{ns := a, except} ∈ namespaceAliases[b]` (if backward mode). -/
+  namespaceAliases : SMap Name (List (NamespaceAlias fwd)) := {}
+  deriving Inhabited
 
-builtin_initialize aliasExtension : SimplePersistentEnvExtension AliasEntry AliasState ←
+def AliasStateMaps.addExplicit (s : AliasStateMaps fwd) (aDeclName declName : Name) : AliasStateMaps fwd :=
+  let (key, value) := if fwd then (aDeclName, declName) else (declName, aDeclName)
+  let { aliases, namespaceAliases } := s
+  let aliases :=
+    if let some decls := aliases.find? key then
+      if decls.contains declName then aliases else aliases.insert key (value :: decls)
+    else
+      aliases.insert key [value]
+  { aliases, namespaceAliases }
+
+def AliasStateMaps.addNamespace (s : AliasStateMaps fwd) (ans ns : Name) (except : List Name) : AliasStateMaps fwd :=
+  let (key, value) := if fwd then (ans, ns) else (ns, ans)
+  let { aliases, namespaceAliases } := s
+  let nsAlias : NamespaceAlias fwd := { ns := value, except }
+  let namespaceAliases :=
+    if let some decls := namespaceAliases.find? key then
+      if decls.contains nsAlias then namespaceAliases else namespaceAliases.insert key (nsAlias :: decls)
+    else
+      namespaceAliases.insert key [nsAlias]
+  { aliases, namespaceAliases }
+
+def AliasStateMaps.switch : AliasStateMaps fwd → AliasStateMaps fwd
+  | { aliases, namespaceAliases } => { aliases := aliases.switch, namespaceAliases := namespaceAliases.switch }
+
+/--
+Applies `f` to all relevant alias entries for the name `a`.
+In `fwd` mode, this means finding all `.explicit a' _` entries with `a'` a prefix of `a` (or equal to `a`)
+and all `.namespace ns _ _` entries with `ns` a prefix of `a`.
+Otherwise, in reverse mode, this means doing it with `.explicit _ a'` and `.namespace _ ns _` instead.
+Does not do any processing of `.namespace` exceptions, and does not do any checking of the namespace rules.
+-/
+def AliasStateMaps.forMatchingM [Monad m] (s : AliasStateMaps fwd) (a : Name) (f : ExportDecl → m Unit) : m Unit := do
+  if let some decls := s.aliases.find? a then
+    decls.forM (fun val => f (mkExplicit a val))
+  if let .str ns _ := a then
+    visitNS ns
+where
+  mkExplicit (key val : Name) : ExportDecl :=
+    if fwd then .explicit key val else .explicit val key
+  mkNamespace (key val : Name) (except : List Name) : ExportDecl :=
+    if fwd then .namespace key val except else .namespace val key except
+  visitNS (ns : Name) : m Unit := do
+    match ns with
+    | .str ns' _ | .num ns' _ => visitNS ns'
+    | .anonymous => pure ()
+    if let some decls := s.aliases.find? ns then
+      decls.forM fun val => f (mkExplicit ns val)
+    if let some decls := s.namespaceAliases.find? ns then
+      decls.forM fun decl => f (mkNamespace ns decl.ns decl.except)
+
+structure AliasState where
+  /-- Alias maps, forward direction. Maps aliases to what they are aliases to. For resolving aliases. -/
+  fwd : AliasStateMaps true := {}
+  /-- Alias maps, reverse direction. Maps names to their aliases. For 'unresolving'. -/
+  rev : AliasStateMaps false := {}
+  deriving Inhabited
+
+def AliasState.switch : AliasState → AliasState
+  | { fwd, rev } => { fwd := fwd.switch, rev := rev.switch }
+
+private def addExportDecl (s : AliasState) (e : ExportDecl) : AliasState :=
+  let { fwd, rev } := s
+  match e with
+  | .explicit aDecl dDecl =>
+    { fwd := fwd.addExplicit aDecl dDecl
+      rev := rev.addExplicit aDecl dDecl }
+  | .namespace ans ns except =>
+    { fwd := fwd.addNamespace ans ns except
+      rev := rev.addNamespace ans ns except }
+
+builtin_initialize aliasExtension : SimplePersistentEnvExtension ExportDecl AliasState ←
   registerSimplePersistentEnvExtension {
-    addEntryFn    := addAliasEntry,
-    addImportedFn := fun es => mkStateFromImportedEntries addAliasEntry {} es |>.switch
+    addEntryFn    := addExportDecl,
+    addImportedFn := fun es => mkStateFromImportedEntries addExportDecl {} es |>.switch
   }
 
-/-- Add alias `a` for `e` -/
-@[export lean_add_alias] def addAlias (env : Environment) (a : Name) (e : Name) : Environment :=
-  aliasExtension.addEntry env (a, e)
+/--
+Adds an alias `aDeclName` that refers to `declName`. (Creates an `ExportDecl.explicit` entry).
+-/
+@[export lean_add_alias] def addAlias (env : Environment) (aDeclName : Name) (declName : Name) : Environment :=
+  aliasExtension.addEntry env (.explicit aDeclName declName)
+
+/--
+Makes `ans.f` resolve to `ns.f` if `ns.f` exists as either a declaration or an alias
+and `f` is not in the `except` list. (Creates an `ExportDecl.namespace` entry).
+-/
+def addNamespaceAlias (env : Environment) (ans : Name) (ns : Name) (except : List Name) : Environment :=
+  aliasExtension.addEntry env (.namespace ans ns except)
 
 def getAliasState (env : Environment) : AliasState :=
   aliasExtension.getState env
 
 /--
-  Retrieve aliases for `a`. If `skipProtected` is `true`, then the resulting list only includes
-  declarations that are not marked as `protected`.
+Implementation of procedure to resolve the alias `a`.
+The `List Name` state for aliases visited is used to prevent infinite loops,
+which can be caused by `.namespace` exports re-exporting aliases.
 -/
-def getAliases (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
-  match aliasExtension.getState env |>.find? a with
-  | none    => []
-  | some es =>
-    if skipProtected then
-      es.filter (!isProtected env ·)
-    else
-      es
+private partial def resolveAliasAux (env : Environment) (a : Name) (skipProtected : Bool) :
+    StateM (List Name × List Name) Unit := do
+  unless (← get).1.contains a do
+    modify fun (aliases, declNames) => (a :: aliases, declNames)
+    let visitDecl (dDecl : Name) : StateM (List Name × List Name) Unit := do
+      if (env.contains dDecl && (!skipProtected || !isProtected env dDecl))
+          || (isReservedName env dDecl && !skipProtected) then
+        modify fun (aliases, declNames) => (aliases, dDecl :: declNames)
+      resolveAliasAux env dDecl skipProtected
+    let visitIfNamespace (decl : Name) : StateM (List Name × List Name) Unit := do
+      if decl.isStr && env.isNamespace decl.getPrefix then
+        visitDecl decl
+    let isPriv := isPrivateName a
+    getAliasState env |>.fwd.forMatchingM a fun edecl => do
+      match edecl with
+      | .explicit aDecl dDecl =>
+        if aDecl == a then
+          visitDecl dDecl
+        else if !isPriv then
+          visitIfNamespace (a.replacePrefix aDecl dDecl)
+      | .namespace ans ns except =>
+        if !isPriv then
+          let m := a.replacePrefix ans .anonymous
+          unless except.contains m do
+            visitIfNamespace (Name.appendCore ns m)
 
--- slower, but only used in the pretty printer
-def getRevAliases (env : Environment) (e : Name) : List Name :=
-  (aliasExtension.getState env).fold (fun as a es => if List.contains es e then a :: as else as) []
+/--
+Retrieve declarations that `a` is an alias for.
+If `skipProtected` is `true`, then the resulting list only includes declarations that are not marked as `protected`.
+-/
+def resolveAlias (env : Environment) (a : Name) (skipProtected : Bool) : List Name :=
+  resolveAliasAux env a skipProtected |>.run ([], []) |>.2.2
 
-/-! # Global name resolution -/
+/--
+Implementation of procedure to find all aliases of the declaration `d`.
+The `List Name` state for declarations is to prevent infinite loops.
+-/
+private partial def unresolveAliasesAux (env : Environment) (d : Name) (skipAtomic : Bool) (allowHorizAliases : Bool) :
+    StateM (List Name × List Name) Unit :=
+  unless (← get).2.contains d do
+    modify fun (aliases, declNames) => (aliases, d :: declNames)
+    let visitDecl (aDecl : Name) : StateM (List Name × List Name) Unit := do
+      if (!skipAtomic || !aDecl.isAtomic) && (allowHorizAliases || aDecl.getPrefix.isPrefixOf d) then
+        modify fun (aliases, declNames) => (aDecl :: aliases, declNames)
+        unresolveAliasesAux env aDecl skipAtomic allowHorizAliases
+    let visitNamespace (aDecl : Name) : StateM (List Name × List Name) Unit := do
+      if d.isStr && env.isNamespace d.getPrefix && !isPrivateName aDecl then
+        visitDecl aDecl
+    getAliasState env |>.rev.forMatchingM d fun edecl => do
+      match edecl with
+      | .explicit aDecl dDecl =>
+        if dDecl == d then
+          visitDecl aDecl
+        else
+          visitNamespace (d.replacePrefix dDecl aDecl)
+      | .namespace ans ns except =>
+        let m := d.replacePrefix ns .anonymous
+        unless except.contains m do
+          visitNamespace (Name.appendCore ans m)
+
+/--
+Retrieve all aliases of the declaration `declName`.
+
+If `skipAtomic` is true, then aliases that are atomic names are not returned.
+This option is parallel to `Lean.getAliases`'s `skipProtected`, which is used in `Lean.ResolveName.resolveQualifiedName`.
+
+For `allowHorizAliases`, see the docstring for `Lean.unresolveNameGlobal`.
+-/
+def unresolveAliases (env : Environment) (declName : Name) (skipAtomic := false) (allowHorizAliases := true) : List Name :=
+  unresolveAliasesAux env declName (skipAtomic := skipAtomic) (allowHorizAliases := allowHorizAliases) |>.run ([], []) |>.2.1
+
+/-! ### Global name resolution -/
 namespace ResolveName
 
 private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool :=
@@ -100,7 +281,7 @@ private def containsDeclOrReserved (env : Environment) (declName : Name) : Bool 
 private def resolveQualifiedName (env : Environment) (ns : Name) (id : Name) : List Name :=
   let resolvedId    := ns ++ id
   -- We ignore protected aliases if `id` is atomic.
-  let resolvedIds   := getAliases env resolvedId (skipProtected := id.isAtomic)
+  let resolvedIds   := resolveAlias env resolvedId (skipProtected := id.isAtomic)
   if (containsDeclOrReserved env resolvedId && (!id.isAtomic || !isProtected env resolvedId)) then
     resolvedId :: resolvedIds
   else
@@ -178,14 +359,14 @@ def resolveGlobalName (env : Environment) (ns : Name) (openDecls : List OpenDecl
           let idPrv       := mkPrivateName env id
           let resolvedIds := if containsDeclOrReserved env idPrv then [idPrv] ++ resolvedIds else resolvedIds
           let resolvedIds := resolveOpenDecls env id openDecls resolvedIds
-          let resolvedIds := getAliases env id (skipProtected := id.isAtomic) ++ resolvedIds
+          let resolvedIds := resolveAlias env id (skipProtected := id.isAtomic) ++ resolvedIds
           match resolvedIds with
           | _ :: _ => resolvedIds.eraseDups.map fun id => (id, projs)
           | []     => loop p (s::projs)
     | _ => []
   loop extractionResult.name []
 
-/-! # Namespace resolution -/
+/-! ### Namespace resolution -/
 
 def resolveNamespaceUsingScope? (env : Environment) (n : Name) (ns : Name) : Option Name :=
   match ns with
@@ -411,7 +592,10 @@ def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name
     match (← resolveGlobalName n₀) with
       | [(potentialMatch, _)] => if (privateToUserName? potentialMatch).getD potentialMatch == n₀ then return n₀ else return rootNamespace ++ n₀
       | _ => return n₀ -- if can't resolve, return the original
-  let mut initialNames := (getRevAliases (← getEnv) n₀).toArray
+  let env ← getEnv
+  -- In `Lean.ResolveName.resolveQualifiedName`, if a name is atomic it's not allowed to refer to a protected declaration,
+  -- so here we conversely omit atomic aliases if the declaration is protected.
+  let mut initialNames := (unresolveAliases env n₀ (allowHorizAliases := allowHorizAliases) (skipAtomic := isProtected env n₀)).toArray
   unless allowHorizAliases do
     initialNames := initialNames.filter fun n => n.getPrefix.isPrefixOf n₀.getPrefix
   initialNames := initialNames.push (rootNamespace ++ n₀)

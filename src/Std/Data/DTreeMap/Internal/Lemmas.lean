@@ -138,11 +138,11 @@ theorem contains_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
   simp_to_model [insert!] using List.containsKey_insertEntry
 
 theorem mem_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ (t.insert k v h.balanced).impl ↔ compare k a == .eq ∨ a ∈ t := by
+    a ∈ (t.insert k v h.balanced).impl ↔ compare k a = .eq ∨ a ∈ t := by
   simp [mem_iff_contains, contains_insert h]
 
 theorem mem_insert! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insert! k v ↔ compare k a == .eq ∨ a ∈ t := by
+    a ∈ t.insert! k v ↔ compare k a = .eq ∨ a ∈ t := by
   simp [mem_iff_contains, contains_insert! h]
 
 theorem contains_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
@@ -343,38 +343,6 @@ theorem mem_of_mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
 theorem mem_of_mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v → (k == a) = false → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertIfNew! h
-
-/--
-This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew`.
--/
-theorem contains_of_contains_insertIfNew' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v h.balanced).impl.contains a → ¬((k == a) ∧ t.contains k = false) → t.contains a := by
-  simp_to_model [insertIfNew] using List.containsKey_of_containsKey_insertEntryIfNew'
-
-/--
-This is a restatement of `contains_of_contains_insertIfNew!` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew!`.
--/
-theorem contains_of_contains_insertIfNew!' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew! k v).contains a → ¬((k == a) ∧ t.contains k = false) → t.contains a := by
-  simp_to_model [insertIfNew!] using List.containsKey_of_containsKey_insertEntryIfNew'
-
-/--
-This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew`.
--/
-theorem mem_of_mem_insertIfNew' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ (t.insertIfNew k v h.balanced).impl → ¬((k == a) ∧ ¬k ∈ t) → a ∈ t := by
-  simpa [mem_iff_contains] using contains_of_contains_insertIfNew' h
-
-/--
-This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew`.
--/
-theorem mem_of_mem_insertIfNew!' [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insertIfNew! k v → ¬((k == a) ∧ ¬k ∈ t) → a ∈ t := by
-  simpa [mem_iff_contains] using contains_of_contains_insertIfNew!' h
 
 theorem size_insertIfNew [TransOrd α] {k : α} (h : t.WF) {v : β k} :
     (t.insertIfNew k v h.balanced).impl.size = if k ∈ t then t.size else t.size + 1 := by

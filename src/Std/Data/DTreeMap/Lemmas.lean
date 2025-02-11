@@ -104,7 +104,7 @@ theorem contains_insert [TransCmp cmp] {k k' : α} {v : β k} :
 
 @[simp]
 theorem mem_insert [TransCmp cmp] {k a : α} {v : β k} :
-    a ∈ t.insert k v ↔ cmp k a == .eq ∨ a ∈ t :=
+    a ∈ t.insert k v ↔ cmp k a = .eq ∨ a ∈ t :=
   Impl.mem_insert t.wf
 
 theorem contains_insert_self [TransCmp cmp] {k : α} {v : β k} :
@@ -223,18 +223,6 @@ theorem contains_of_contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
 theorem mem_of_mem_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
     a ∈ t.insertIfNew k v → (cmp k a == .eq) = false → a ∈ t :=
   Impl.contains_of_contains_insertIfNew t.wf
-
-/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew`. -/
-theorem contains_of_contains_insertIfNew' [TransCmp cmp] {k a : α} {v : β k} :
-    (t.insertIfNew k v).contains a → ¬((cmp k a == .eq) ∧ t.contains k = false) → t.contains a :=
-  Impl.contains_of_contains_insertIfNew' t.wf
-
-/-- This is a restatement of `mem_of_mem_insertIfNew` that is written to exactly match
-the proof obligation in the statement of `get_insertIfNew`. -/
-theorem mem_of_mem_insertIfNew' [TransCmp cmp] {k a : α} {v : β k} :
-    a ∈ t.insertIfNew k v → ¬((cmp k a == .eq) ∧ ¬k ∈ t) → a ∈ t :=
-  Impl.mem_of_mem_insertIfNew' t.wf
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
     (t.insertIfNew k v).size = if k ∈ t then t.size else t.size + 1 :=

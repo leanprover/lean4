@@ -235,3 +235,24 @@ example (x y : Int) (h : x + x + x = 1 + 2*y + x) : False := by
 
 example (x : Int) (h : -x - x = 1) : False := by
   simp +arith only at h
+
+example (x : Int) (h : 2*x ≤ 1) : x ≤ 0 := by
+  simp +arith only at h
+  guard_hyp h : x ≤ 0
+  assumption
+
+example (x y : Int) (h : 6*x + y + y + y ≤ 7) : 2*x + y + -2 ≤ 0 := by
+  simp +arith only at h
+  guard_hyp h : 2*x + y + -2 ≤ 0
+  assumption
+
+example (x y : Int) (h : 5*x + y + y + y ≤ 7 - x) : 2*x + y + -2 ≤ 0 := by
+  simp +arith only at h
+  guard_hyp h : 2*x + y + -2 ≤ 0
+  assumption
+
+example (x : Int) : (11*x ≤ 10) ↔ (x ≤ 0) := by
+  simp +arith only
+
+example (x : Int) : (11*x > 10) ↔ (x ≥ 1) := by
+  simp +arith only

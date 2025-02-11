@@ -4,11 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Util.SortExprs
 import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.AppBuilder
 import Lean.Meta.KExprMap
 import Lean.Data.RArray
+
+namespace Nat.Linear
+
+/-- Applies the given variable permutation to `e` -/
+def Expr.applyPerm (perm : Lean.Perm) (e : Expr) : Expr :=
+  go e
+where
+  go : Expr → Expr
+    | .num v    => .num v
+    | .var i    => .var (perm[(i : Nat)]?.getD i)
+    | .add a b  => .add (go a) (go b)
+    | .mulL k a => .mulL k (go a)
+    | .mulR a k => .mulR (go a) k
+
+/-- Applies the given variable permutation to the given expression constraint. -/
+def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
+  | { eq, lhs, rhs } => { eq, lhs := lhs.applyPerm perm, rhs := rhs.applyPerm perm }
+
+end Nat.Linear
 
 namespace Lean.Meta.Linear.Nat
 
@@ -140,7 +160,24 @@ def run (x : M α) : MetaM (α × Array Expr) := do
 
 end ToLinear
 
-export ToLinear (toLinearCnstr? toLinearExpr)
+def toLinearExpr (e : Expr) : MetaM (LinearExpr × Array Expr) := do
+  let (e, atoms) ← ToLinear.run (ToLinear.toLinearExpr e)
+  if atoms.size == 1 then
+    return (e, atoms)
+  else
+    let (atoms, perm) := sortExprs atoms
+    let e := e.applyPerm perm
+    return (e, atoms)
+
+def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
+  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e)
+    | return none
+  if atoms.size <= 1 then
+    return some (c, atoms)
+  else
+    let (atoms, perm) := sortExprs atoms
+    let c := c.applyPerm perm
+    return some (c, atoms)
 
 def toContextExpr (ctx : Array Expr) : Expr :=
   if h : 0 < ctx.size then
@@ -148,4 +185,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Nat) id (RArray.leaf (mkNatLit 0))
 
-end Lean.Meta.Linear.Nat
+namespace Lean.Meta.Linear.Nat

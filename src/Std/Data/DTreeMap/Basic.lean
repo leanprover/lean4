@@ -179,6 +179,10 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-11")]
+def find? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) : Option (β a) :=
+  t.get? a
+
 /--
 Given a proof that a mapping for the given key is present, retrieves the mapping for the given key.
 
@@ -187,6 +191,10 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 @[inline]
 def get [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
+
+@[inline, inherit_doc get, deprecated find (since := "2025-02-11")]
+def find [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
+  t.get a h
 
 /--
 Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
@@ -197,6 +205,10 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get! [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) [Inhabited (β a)]  : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get! a
 
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-11")]
+def find! [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) [Inhabited (β a)]  : β a :=
+  t.get! a
+
 /--
 Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
 
@@ -205,6 +217,10 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 @[inline]
 def getD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
+
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-11")]
+def findD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
+  t.getD a fallback
 
 namespace Const
 open Internal (Impl)
@@ -218,12 +234,20 @@ Tries to retrieve the mapping for the given key, returning `none` if no such map
 def get? (t : DTreeMap α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
 
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-11")]
+def find? (t : DTreeMap α β cmp) (a : α) : Option β :=
+  get? t a
+
 /--
 Given a proof that a mapping for the given key is present, retrieves the mapping for the given key.
 -/
 @[inline]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
+
+@[inline, inherit_doc get, deprecated get (since := "2025-02-11")]
+def find (t : DTreeMap α β cmp) (a : α) : Option β :=
+  get? t a
 
 /--
 Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
@@ -232,12 +256,20 @@ Tries to retrieve the mapping for the given key, panicking if no such mapping is
 def get! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
 
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-11")]
+def find! (t : DTreeMap α β cmp) (a : α) [Inhabited β] : β :=
+  get! t a
+
 /--
 Tries to retrieve the mapping for the given key, returning `fallback` if no such mapping is present.
 -/
 @[inline]
 def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-11")]
+def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
+  getD t a fallback
 
 end Const
 
@@ -255,12 +287,20 @@ Folds the given monadic function over the mappings in the map in ascending order
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldlM f init
 
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-11")]
+def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+  t.foldlM f init
+
 /--
 Folds the given function over the mappings in the map in ascending order.
 -/
 @[inline]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldl f init
+
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-11")]
+def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+  t.foldl f init
 
 /-- Carries out a monadic action on each mapping in the tree map in ascending order. -/
 @[inline]

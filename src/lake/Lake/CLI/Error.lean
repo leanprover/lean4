@@ -61,7 +61,7 @@ def toString : CliError → String
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
 | unexpectedPlus          =>
-  s!"the `+` option is an Elan feature, \
+  s!"the `+` option is an Elan feature; \
     rerun Lake via Elan and ensure this option comes first."
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownConfigLang spec  => s!"unknown configuration language `{spec}`"

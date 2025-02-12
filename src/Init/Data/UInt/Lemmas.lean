@@ -22,7 +22,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem mod_def (a b : $typeName) : a % b = ⟨a.toBitVec % b.toBitVec⟩ := rfl
   theorem add_def (a b : $typeName) : a + b = ⟨a.toBitVec + b.toBitVec⟩ := rfl
 
-  @[simp] theorem toNat_mk : (mk a).toNat = a.toNat := rfl
+  @[simp] theorem toNat_ofBitVec : (ofBitVec a).toNat = a.toNat := rfl
+
+  @[deprecated toNat_ofBitVec (since := "2025-02-12")]
+  theorem toNat_mk : (ofBitVec a).toNat = a.toNat := rfl
 
   @[simp] theorem toNat_ofNat {n : Nat} : (ofNat n).toNat = n % 2 ^ $bits := BitVec.toNat_ofNat ..
 
@@ -32,7 +35,11 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   theorem toNat_toBitVec_eq_toNat (x : $typeName) : x.toBitVec.toNat = x.toNat := rfl
 
-  @[simp] theorem mk_toBitVec_eq : ∀ (a : $typeName), mk a.toBitVec = a
+  @[simp] theorem ofBitVec_toBitVec_eq : ∀ (a : $typeName), ofBitVec a.toBitVec = a
+    | ⟨_, _⟩ => rfl
+
+  @[deprecated ofBitVec_toBitVec_eq (since := "2025-02-12")]
+  theorem mk_toBitVec_eq : ∀ (a : $typeName), ofBitVec a.toBitVec = a
     | ⟨_, _⟩ => rfl
 
   theorem toBitVec_eq_of_lt {a : Nat} : a < size → (ofNat a).toBitVec.toNat = a :=
@@ -177,7 +184,10 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := rfl
 
   @[simp]
-  theorem mk_ofNat (n : Nat) : mk (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
+  theorem ofBitVec_ofNat (n : Nat) : ofBitVec (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
+
+  @[deprecated ofBitVec_ofNat (since := "2025-02-12")]
+  theorem mk_ofNat (n : Nat) : ofBitVec (BitVec.ofNat _ n) = OfNat.ofNat n := rfl
 
   )
   if let some nbits := bits.raw.isNatLit? then

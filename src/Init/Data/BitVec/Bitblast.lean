@@ -576,16 +576,18 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_add_twoPow (x : BitVec w) (i
       setWidth w (x.setWidth i) + (x &&& twoPow w i) := by
   rw [add_eq_or_of_and_eq_zero]
   · ext k h
-    simp only [getLsbD_setWidth, h, decide_true, Bool.true_and, getLsbD_or, getLsbD_and]
+    simp only [getElem_setWidth, getLsbD_setWidth, h, getLsbD_eq_getElem, getElem_or, getElem_and,
+      getElem_twoPow]
     by_cases hik : i = k
     · subst hik
       simp [h]
-    · simp only [getLsbD_twoPow, hik, decide_false, Bool.and_false, Bool.or_false]
-      by_cases hik' : k < (i + 1)
+    · by_cases hik' : k < (i + 1)
       · have hik'' : k < i := by omega
         simp [hik', hik'']
+        omega
       · have hik'' : ¬ (k < i) := by omega
         simp [hik', hik'']
+        omega
   · ext k
     simp only [and_twoPow, getLsbD_and, getLsbD_setWidth, Fin.is_lt, decide_true, Bool.true_and,
       getLsbD_zero, and_eq_false_imp, and_eq_true, decide_eq_true_eq, and_imp]

@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Init.Grind.Offset
 import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.ProofUtil
+import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!

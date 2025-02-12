@@ -281,31 +281,31 @@ open Internal (Impl)
 
 variable {β : Type v}
 
-@[inline, inherit_doc Raw.toList]
+@[inline, inherit_doc DTreeMap.Const.toList]
 def toList (t : Raw α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
-@[inline, inherit_doc Raw.ofList]
+@[inline, inherit_doc DTreeMap.Const.ofList]
 def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l |>.impl⟩
 
-@[inline, inherit_doc Raw.ofList]
+@[inline, inherit_doc DTreeMap.Const.unitOfList]
 def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l |>.impl⟩
 
-@[inline, inherit_doc Raw.toArray]
+@[inline, inherit_doc DTreeMap.Const.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
 
-@[inline, inherit_doc Raw.ofArray]
+@[inline, inherit_doc DTreeMap.Const.ofArray]
 def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray a |>.impl⟩
 
-@[inline, inherit_doc Raw.ofArray]
+@[inline, inherit_doc DTreeMap.Const.ofArray]
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a |>.impl⟩
 
-@[inline, inherit_doc Raw.mergeWith]
+@[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
 

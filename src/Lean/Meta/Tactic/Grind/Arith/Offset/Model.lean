@@ -10,7 +10,6 @@ import Lean.Meta.Tactic.Grind.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 
-
 /-- Construct a model that statisfies all offset constraints -/
 def mkModel (goal : Goal) : MetaM (Array (Expr × Nat)) := do
   let s := goal.arith.offset

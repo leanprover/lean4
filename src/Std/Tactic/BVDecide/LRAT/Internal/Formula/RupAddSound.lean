@@ -49,17 +49,19 @@ theorem contradiction_of_insertUnit_success {n : Nat} (assignments : Array Assig
         exact h
     · apply Exists.intro l.1
       simp only [insertUnit, hl, ite_false, Array.getElem_modify_self, reduceCtorEq]
-      simp only [getElem!, l_in_bounds, dite_true, decidableGetElem?] at assignments_l_ne_unassigned
+      simp only [getElem!_def, l_in_bounds, Array.getElem?_eq_getElem,
+        insertUnit_res] at assignments_l_ne_unassigned
       by_cases l.2
       · next l_eq_true =>
         simp only [l_eq_true]
-        simp only [hasAssignment, l_eq_true, hasPosAssignment, getElem!, l_in_bounds, dite_true, ite_true,
-          Bool.not_eq_true, decidableGetElem?] at hl
+        simp only [hasAssignment, l_eq_true, getElem!_def, l_in_bounds, Array.getElem?_eq_getElem,
+          ite_true, hasPosAssignment, Bool.not_eq_true, insertUnit_res] at hl
         split at hl <;> simp_all +decide
       · next l_eq_false =>
         simp only [Bool.not_eq_true] at l_eq_false
         simp only [l_eq_false]
-        simp [hasAssignment, l_eq_false, hasNegAssignment, getElem!, l_in_bounds, decidableGetElem?] at hl
+        simp [hasAssignment, l_eq_false, hasNegAssignment, getElem!_def, l_in_bounds,
+          Array.getElem?_eq_getElem] at hl
         split at hl <;> simp_all +decide
 
 theorem contradiction_of_insertUnit_fold_success {n : Nat} (assignments : Array Assignment) (assignments_size : assignments.size = n)
@@ -679,16 +681,17 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
           have i_in_bounds : i.1 < acc.1.size := by rw [hsize]; exact i.2.2
           by_cases l.1 = i.1
           · next l_eq_i =>
-            simp only [getElem!, Array.size_modify, i_in_bounds, ↓ reduceDIte,
-              Array.get_eq_getElem, l_eq_i, Array.getElem_modify_self (addAssignment b), decidableGetElem?]
-            simp only [getElem!, i_in_bounds, dite_true, Array.get_eq_getElem, decidableGetElem?] at pacc
+            simp only [l_eq_i, getElem!_def, Array.size_modify, i_in_bounds,
+              Array.getElem?_eq_getElem, Array.getElem_modify_self (addAssignment b)]
+            simp only [getElem!_def, i_in_bounds, Array.getElem?_eq_getElem] at pacc
             by_cases pi : p i
             · simp only [pi, decide_false]
               simp only [hasAssignment, pi, decide_false, ite_false] at pacc
               by_cases hb : b
               · simp only [hasAssignment, ↓reduceIte, addAssignment]
                 simp only [hb]
-                simp [hasAssignment, addAssignment, hb, ite_true, ite_false, hasNeg_addPos]
+                simp only [Bool.true_eq_false, decide_false, Bool.false_eq_true, ↓reduceIte,
+                  hasNeg_addPos]
                 exact pacc
               · exfalso -- hb, pi, l_eq_i, and plb are incompatible
                 simp only [Bool.not_eq_true] at hb
@@ -703,10 +706,9 @@ theorem confirmRupHint_preserves_motive {n : Nat} (f : DefaultFormula n) (rupHin
                 simp only [hasAssignment, ite_true] at pacc
                 exact pacc
           · next l_ne_i =>
-            simp only [getElem!, Array.size_modify, i_in_bounds,
-              Array.getElem_modify_of_ne l_ne_i, dite_true,
-              Array.get_eq_getElem, decidableGetElem?]
-            simp only [getElem!, i_in_bounds, dite_true, decidableGetElem?] at pacc
+            simp only [getElem!_def, Array.size_modify, i_in_bounds, Array.getElem?_eq_getElem,
+              Array.getElem_modify_of_ne l_ne_i]
+            simp only [getElem!_def, i_in_bounds, Array.getElem?_eq_getElem] at pacc
             exact pacc
       · apply And.intro hsize ∘ And.intro h1
         simp

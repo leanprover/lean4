@@ -3329,12 +3329,21 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 
 @[deprecated getD_eq_getD_getElem? (since := "2025-02-12")] abbrev getD_eq_get? := @getD_eq_getD_getElem?
 
+theorem getElem!_eq_getD [Inhabited α] (a : Array α) : a[i]! = a.getD i default := by
+  simp only [← get!_eq_getElem!]
+  rfl
+
+@[deprecated getElem!_eq_getD (since := "2025-02-12")]
 theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default := rfl
 
-theorem get!_eq_getElem? [Inhabited α] (a : Array α) (i : Nat) :
+@[deprecated "Use `a[i]!` instead of `a.get! i`." (since := "2025-02-12")]
+theorem get!_eq_getD_getElem? [Inhabited α] (a : Array α) (i : Nat) :
     a.get! i = a[i]?.getD default := by
   by_cases p : i < a.size <;>
-  simp only [get!_eq_getD, getD_eq_getD_getElem?, getD_getElem?, p]
+  simp only [get!_eq_getElem!, getElem!_eq_getD, getD_eq_getD_getElem?, getD_getElem?, p]
+
+set_option linter.deprecated false in
+@[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_getElem? := @get!_eq_getD_getElem?
 
 /-! # ofFn -/
 
@@ -3422,9 +3431,7 @@ set_option linter.deprecated false in
 theorem get?_eq_get?_toList (a : Array α) (i : Nat) : a.get? i = a.toList.get? i := by
   simp [← getElem?_toList]
 
-theorem get!_eq_getD_getElem? [Inhabited α] (a : Array α) : a.get! n = a[n]?.getD default := by
-  simp only [get!_eq_getElem?]
-
+set_option linter.deprecated false in
 @[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_get? := @get!_eq_getD_getElem?
 
 theorem back!_eq_back? [Inhabited α] (a : Array α) : a.back! = a.back?.getD default := by

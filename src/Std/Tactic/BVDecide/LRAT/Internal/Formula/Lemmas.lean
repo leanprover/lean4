@@ -69,7 +69,7 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   · next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
-  · next h => simp_all [getElem!, i.2.2, decidableGetElem?]
+  · next h => simp_all [getElem!_def, i.2.2, decidableGetElem?]
 
 /--
 performRupAdd adds to f.rupUnits and then clears f.rupUnits. If f begins with some units in f.rupUnits,
@@ -496,8 +496,8 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq] at l_ne_b
@@ -529,8 +529,8 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               have i_eq_l : i = l.1 := by rw [← heq]
@@ -589,8 +589,8 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
               have idx_in_bounds2 : idx < f.clauses.size := by
                 conv => rhs; rw [Array.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, ← Array.getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq
               rw [← heq] at hl

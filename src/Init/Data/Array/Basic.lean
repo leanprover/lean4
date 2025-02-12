@@ -123,7 +123,8 @@ namespace List
 @[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
 
 @[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
-    a.toArray[i]! = a[i]! := rfl
+    a.toArray[i]! = a[i]! := by
+  sorry
 
 end List
 

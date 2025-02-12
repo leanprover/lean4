@@ -341,12 +341,16 @@ theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by simp
 We simplify `l.get! i` to `l[i]!`.
 -/
 
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) i, l.get! i = l.getD i default
   | [], _      => rfl
   | _a::_, 0   => by simp [get!]
   | _a::l, n+1 => by simpa using get!_eq_getD l n
 
-@[simp] theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := by
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12"), simp]
+theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := by
   simp [get!_eq_getD]
 
 /-! ### mem -/
@@ -3441,6 +3445,8 @@ theorem get!_of_get? [Inhabited α] : ∀ {l : List α} {n}, get? l n = some a �
   | _a::_, 0, rfl => rfl
   | _::l, _+1, e => get!_of_get? (l := l) e
 
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_len_le [Inhabited α] : ∀ {l : List α} {n}, length l ≤ n → l.get! n = (default : α)
   | [], _, _ => rfl
   | _ :: l, _+1, h => get!_len_le (l := l) <| Nat.le_of_succ_le_succ h

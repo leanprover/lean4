@@ -69,14 +69,21 @@ Returns the `i`-th element in the list (zero-based).
 If the index is out of bounds (`i ≥ as.length`), this function panics when executed, and returns
 `default`. See `get?` and `getD` for safer alternatives.
 -/
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_nil [Inhabited α] (n : Nat) : [].get! n = (default : α) := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
     (a::l).get! (n+1) = get! l n := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
 
 /-! ### getLast! -/

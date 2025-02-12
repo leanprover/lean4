@@ -236,7 +236,7 @@ def fromList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cm
 def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfList l cmp⟩
 
-@[inline, inherit_doc DTreeMap.Raw.toArray]
+@[inline, inherit_doc DTreeMap.Raw.Const.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
   DTreeMap.Raw.Const.toArray t.inner
 

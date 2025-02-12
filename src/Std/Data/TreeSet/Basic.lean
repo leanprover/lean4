@@ -254,8 +254,9 @@ def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
 
 /--
-Inserts multiple mappings into the tree set by iterating over the given collection and calling
-`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+Inserts multiple elements into the tree set by iterating over the given collection and calling
+`insert`. If the same element (with respect to `cmp`) appears multiple times, the first occurrence
+takes precedence.
 
 Note: this precedence behavior is true for `TreeSet` and `TreeSet.Raw`. The `insertMany` function on
 `TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw` behaves differently: it will prefer the last

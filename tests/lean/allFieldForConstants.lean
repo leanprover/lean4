@@ -89,13 +89,13 @@ attribute [simp] List.foldl
 theorem foldl_init (s : Nat) (xs : List String) :  (xs.foldl (init := s) fun sum s => sum + s.length) = s + (xs.foldl (init := 0) fun sum s => sum + s.length) := by
   induction xs generalizing s with
   | nil => simp
-  | cons x xs ih => simp_arith [ih x.length, ih (s + x.length)]
+  | cons x xs ih => simp +arith [ih x.length, ih (s + x.length)]
 
 theorem listStringLen_append (xs ys : List String) : listStringLen (xs ++ ys) = listStringLen xs + listStringLen ys := by
   simp [listStringLen]
   induction xs with
   | nil => simp
-  | cons x xs ih => simp_arith [foldl_init x.length, foldl_init (_ + _), ih]
+  | cons x xs ih => simp +arith [foldl_init x.length, foldl_init (_ + _), ih]
 
 mutual
   theorem listStringLen_flat (f : Foo) : listStringLen (flat f) = textLength f := by

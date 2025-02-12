@@ -1509,25 +1509,35 @@ This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic simpAutoUnfold "simp! " (autoUnfold := true)
 
-/-- `simp_arith` is shorthand for `simp` with `arith := true` and `decide := true`.
-This enables the use of normalization by linear arithmetic. -/
-declare_simp_like_tactic simpArith "simp_arith " (arith := true) (decide := true)
+/--
+`simp_arith` has been deprecated. It was a shorthand for `simp +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArith) "simp_arith " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
-/-- `simp_arith!` is shorthand for `simp_arith` with `autoUnfold := true`.
-This will rewrite with all equation lemmas, which can be used to
-partially evaluate many definitions. -/
-declare_simp_like_tactic simpArithAutoUnfold "simp_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_arith!` has been deprecated. It was a shorthand for `simp! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpArithBang) "simp_arith! " optConfig (discharger)? (&" only")? (" [" (simpStar <|> simpErase <|> simpLemma),* "]")? (location)? : tactic
 
 /-- `simp_all!` is shorthand for `simp_all` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to
 partially evaluate many definitions. -/
 declare_simp_like_tactic (all := true) simpAllAutoUnfold "simp_all! " (autoUnfold := true)
 
-/-- `simp_all_arith` combines the effects of `simp_all` and `simp_arith`. -/
-declare_simp_like_tactic (all := true) simpAllArith "simp_all_arith " (arith := true) (decide := true)
+/--
+`simp_all_arith` has been deprecated. It was a shorthand for `simp_all +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArith) "simp_all_arith" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
 
-/-- `simp_all_arith!` combines the effects of `simp_all`, `simp_arith` and `simp!`. -/
-declare_simp_like_tactic (all := true) simpAllArithAutoUnfold "simp_all_arith! " (arith := true) (autoUnfold := true) (decide := true)
+/--
+`simp_all_arith!` has been deprecated. It was a shorthand for `simp_all! +arith +decide`.
+Note that `+decide` is not needed for reducing arithmetic terms since simprocs have been added to Lean.
+-/
+syntax (name := simpAllArithBang) "simp_all_arith!" optConfig (discharger)? (&" only")? (" [" (simpErase <|> simpLemma),* "]")? : tactic
+
 
 /-- `dsimp!` is shorthand for `dsimp` with `autoUnfold := true`.
 This will rewrite with all equation lemmas, which can be used to

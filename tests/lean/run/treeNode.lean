@@ -9,7 +9,7 @@ def treeToList (t : TreeNode) : List String :=
    let mut r := [name]
    for h : child in children do
      -- We will not this the following `have` in the future
-     have : sizeOf child < 1 + sizeOf name + sizeOf children := Nat.lt_trans (List.sizeOf_lt_of_mem h) (by simp_arith)
+     have : sizeOf child < 1 + sizeOf name + sizeOf children := Nat.lt_trans (List.sizeOf_lt_of_mem h) (by simp +arith)
      r := r ++ treeToList child
    return r
 
@@ -28,7 +28,7 @@ end
 theorem length_treeToList_eq_numNames (t : TreeNode) : (treeToList t).length = numNames t := by
   match t with
   | .mkLeaf .. => simp [treeToList, numNames]
-  | .mkNode _ cs => simp_arith [numNames, helper cs]
+  | .mkNode _ cs => simp +arith [numNames, helper cs]
 where
   helper (cs : List TreeNode) : (cs.map treeToList).flatten.length = numNamesLst cs := by
     match cs with

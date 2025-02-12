@@ -80,7 +80,7 @@ structure Context where
   we don't miss simplification opportunities. For example, consider the following:
   ```
   example (x y : Nat) (h : y = 0) : id ((x + x) + y) = id (x + x) := by
-    simp_arith only
+    simp +arith only
     ...
   ```
   If we don't set `Result.cache := false` for the first `x + x`, then we get

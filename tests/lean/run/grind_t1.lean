@@ -228,7 +228,7 @@ example (P Q : Prop) : (¬P → ¬Q) ↔ (Q → P) := by
 
 example {α} (a b c : α) [LE α] :
   ¬(¬a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ a ≤ b) ↔ a ≤ b ∧ a ≤ c ∨ ¬a ≤ c ∧ ¬a ≤ b := by
-  simp_arith -- should not fail
+  simp +arith -- should not fail
   sorry
 
 example {α} (a b c : α) [LE α] :

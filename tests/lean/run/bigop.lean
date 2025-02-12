@@ -28,7 +28,7 @@ instance {α β} [Enumerable α] [Enumerable β]: Enumerable (α × β) where
 def finElems (n : Nat) : List (Fin n) :=
   match n with
   | 0   => []
-  | n+1 => go (n+1) n (by simp_arith)
+  | n+1 => go (n+1) n (by simp +arith)
 where
   go (n : Nat) (i : Nat) (h : i < n) : List (Fin n) :=
    match i with

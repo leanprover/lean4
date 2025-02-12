@@ -290,11 +290,11 @@ def State.length_erase_le (σ : State) (x : Var) : (σ.erase x).length ≤ σ.le
   | [] => simp
   | (y, v) :: σ =>
     by_cases hxy : x = y <;> simp [hxy]
-    next => exact Nat.le_trans (length_erase_le σ y) (by simp_arith)
-    next => simp_arith [length_erase_le σ x]
+    next => exact Nat.le_trans (length_erase_le σ y) (by simp +arith)
+    next => simp +arith [length_erase_le σ x]
 
 def State.length_erase_lt (σ : State) (x : Var) : (σ.erase x).length < σ.length.succ :=
-  Nat.lt_of_le_of_lt (length_erase_le ..) (by simp_arith)
+  Nat.lt_of_le_of_lt (length_erase_le ..) (by simp +arith)
 
 @[simp] def State.join (σ₁ σ₂ : State) : State :=
   match σ₁ with

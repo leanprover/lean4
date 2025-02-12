@@ -1675,7 +1675,7 @@ theorem getElem_append_right' (l₁ : Array α) {l₂ : Array α} {i : Nat} (hi 
   rw [getElem_append_right] <;> simp [*, Nat.le_add_left]
 
 theorem getElem_of_append {l l₁ l₂ : Array α} (eq : l = l₁.push a ++ l₂) (h : l₁.size = i) :
-    l[i]'(eq ▸ h ▸ by simp_arith) = a := Option.some.inj <| by
+    l[i]'(eq ▸ h ▸ by simp +arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
   simp
 
@@ -2337,10 +2337,10 @@ theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j
           ← getElem?_toList]
         split <;> rename_i h₂
         · simp only [← h₂, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, and_false]
-          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp_arith) h)).symm
+          exact (List.getElem?_reverse' (j+1) i (Eq.trans (by simp +arith) h)).symm
         split <;> rename_i h₃
         · simp only [← h₃, Nat.not_le.2 (Nat.lt_succ_self _), Nat.le_refl, false_and]
-          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp_arith) h)).symm
+          exact (List.getElem?_reverse' i (j+1) (Eq.trans (by simp +arith) h)).symm
         simp only [Nat.succ_le, Nat.lt_iff_le_and_ne.trans (and_iff_left h₃),
           Nat.lt_succ.symm.trans (Nat.lt_iff_le_and_ne.trans (and_iff_left (Ne.symm h₂)))]
     · rw [H]; split <;> rename_i h₂

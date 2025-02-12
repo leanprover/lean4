@@ -122,24 +122,6 @@ def Poly.denote_eq (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx
 
 def Poly.denote_le (ctx : Context) (mp : Poly × Poly) : Prop := mp.1.denote ctx ≤ mp.2.denote ctx
 
-def Poly.combineAux (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
-  match fuel with
-  | 0 => p₁ ++ p₂
-  | fuel + 1 =>
-    match p₁, p₂ with
-    | p₁, [] => p₁
-    | [], p₂ => p₂
-    | (k₁, v₁) :: p₁, (k₂, v₂) :: p₂ =>
-      bif Nat.blt v₁ v₂ then
-        (k₁, v₁) :: combineAux fuel p₁ ((k₂, v₂) :: p₂)
-      else bif Nat.blt v₂ v₁ then
-        (k₂, v₂) :: combineAux fuel ((k₁, v₁) :: p₁) p₂
-      else
-        (Nat.add k₁ k₂, v₁) :: combineAux fuel p₁ p₂
-
-def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  combineAux hugeFuel p₁ p₂
-
 def Expr.toPoly (e : Expr) :=
   go 1 e []
 where
@@ -180,10 +162,6 @@ instance : LawfulBEq PolyCnstr where
 
 def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
   { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }
-
-def PolyCnstr.combine (c₁ c₂ : PolyCnstr) : PolyCnstr :=
-  let (lhs, rhs) := Poly.cancel (c₁.lhs.combine c₂.lhs) (c₁.rhs.combine c₂.rhs)
-  { eq := c₁.eq && c₂.eq, lhs, rhs }
 
 structure ExprCnstr where
   eq  : Bool

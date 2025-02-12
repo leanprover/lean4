@@ -74,7 +74,7 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
       if bitValue then
         value := value ||| (1 <<< currentBit)
       currentBit := currentBit + 1
-    let (_, atomExpr, _) := atomsAssignment.get! bitVecVar
+    let (_, atomExpr, _) := atomsAssignment[bitVecVar]!
     finalMap := finalMap.push (atomExpr, ⟨BitVec.ofNat currentBit value⟩)
   return finalMap
 

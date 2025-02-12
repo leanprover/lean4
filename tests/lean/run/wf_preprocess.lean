@@ -94,6 +94,29 @@ info: Tree.pruneRevAndMap'.induct.{u_1} {α : Type u_1} (motive : Tree α → Pr
 #guard_msgs in
 #check Tree.pruneRevAndMap'.induct
 
+-- Check that wfParam propagates trough let-expressions
+
+/--
+error: failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+α : Type u_1
+t : Tree α
+children : List (Tree α) := t.cs
+c : Tree α
+h✝ : c ∈ children
+⊢ sizeOf c < sizeOf t
+-/
+#guard_msgs in
+def Tree.depth (t : Tree α) : Nat :=
+  let children := t.cs
+  let depths := children.map fun c => Tree.depth c
+  match depths.max? with
+  | some d => d+1
+  | none => 0
+termination_by t
+
 structure MTree (α : Type u) where
   val : α
   cs : Array (List (MTree α))

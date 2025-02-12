@@ -137,7 +137,6 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             let matrix = [
               {
-                // portable release build: use channel with older glibc (2.27)
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
@@ -152,6 +151,7 @@ jobs:
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
               },
               {
+                // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 "os": large ? "nscloud-ubuntu-22.04-amd64-4x8" : "ubuntu-latest",
                 "release": true,

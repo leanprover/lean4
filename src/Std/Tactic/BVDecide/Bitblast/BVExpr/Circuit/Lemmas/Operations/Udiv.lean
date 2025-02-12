@@ -43,7 +43,7 @@ theorem denote_blastShiftConcat (aig : AIG α) (target : ShiftConcatInput aig w)
   intro idx hidx
   unfold blastShiftConcat
   have hidx_lt : idx < 1 + w := by omega
-  by_cases hidx_eq : idx = 0 <;> simp_arith [hidx_lt, hidx_eq, RefVec.get_append]
+  by_cases hidx_eq : idx = 0 <;> simp +arith [hidx_lt, hidx_eq, RefVec.get_append]
 
 theorem denote_blastShiftConcat_eq_shiftConcat (aig : AIG α) (target : ShiftConcatInput aig w)
   (x : BitVec w) (b : Bool) (assign : α → Bool)

@@ -1928,7 +1928,7 @@ compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure UInt8 where
   /--
-  Create a `UInt8` from a `BitVec 8`. This function is overriden with a native implementation.
+  Create a `UInt8` from a `BitVec 8`. This function is overridden with a native implementation.
   -/
   ofBitVec ::
   /--

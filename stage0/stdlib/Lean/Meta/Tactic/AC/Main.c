@@ -75,7 +75,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_rewriteUnnormalized___lambda__3___boxed(
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof_convert(lean_object*);
 static lean_object* l_Lean_Meta_AC_getInstance___lambda__2___closed__1;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_main(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_AC_preContext___closed__2;
@@ -124,6 +123,7 @@ static lean_object* l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x21___at_Lean_Meta_AC_toACExpr___spec__10___boxed(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_instInhabitedNat;
 static lean_object* l_Lean_Meta_AC_preContext___closed__5;
+static lean_object* l_Lean_Meta_AC_instInhabitedPreContext___closed__4;
 static lean_object* l_Lean_Meta_AC_buildNormProof___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_AC_buildNormProof___lambda__1___closed__4;
 static lean_object* l___regBuiltin_Lean_Meta_AC_acRflTactic_declRange__1___closed__4;
@@ -236,6 +236,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_rewriteUnnormalizedRefl(lean_object*, le
 lean_object* l_Array_append___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lean_Meta_AC_toACExpr___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_AC_instInhabitedPreContext___closed__3;
 static lean_object* l_Lean_Meta_AC_buildNormProof___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Meta_AC_buildNormProof___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_evalList___at_Lean_Meta_AC_buildNormProof___spec__6___boxed(lean_object*, lean_object*);
@@ -377,19 +378,38 @@ LEAN_EXPORT lean_object* l_Lean_Meta_AC_instContextInformationProdPreContextArra
 static lean_object* _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_AC_instInhabitedPreContext___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_AC_instInhabitedPreContext___closed__2;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__4() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Meta_AC_instInhabitedPreContext___closed__1;
+x_3 = l_Lean_Meta_AC_instInhabitedPreContext___closed__3;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_2);
 lean_ctor_set(x_4, 1, x_3);
@@ -403,7 +423,7 @@ static lean_object* _init_l_Lean_Meta_AC_instInhabitedPreContext() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_AC_instInhabitedPreContext___closed__2;
+x_1 = l_Lean_Meta_AC_instInhabitedPreContext___closed__4;
 return x_1;
 }
 }
@@ -10395,6 +10415,10 @@ l_Lean_Meta_AC_instInhabitedPreContext___closed__1 = _init_l_Lean_Meta_AC_instIn
 lean_mark_persistent(l_Lean_Meta_AC_instInhabitedPreContext___closed__1);
 l_Lean_Meta_AC_instInhabitedPreContext___closed__2 = _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__2();
 lean_mark_persistent(l_Lean_Meta_AC_instInhabitedPreContext___closed__2);
+l_Lean_Meta_AC_instInhabitedPreContext___closed__3 = _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__3();
+lean_mark_persistent(l_Lean_Meta_AC_instInhabitedPreContext___closed__3);
+l_Lean_Meta_AC_instInhabitedPreContext___closed__4 = _init_l_Lean_Meta_AC_instInhabitedPreContext___closed__4();
+lean_mark_persistent(l_Lean_Meta_AC_instInhabitedPreContext___closed__4);
 l_Lean_Meta_AC_instInhabitedPreContext = _init_l_Lean_Meta_AC_instInhabitedPreContext();
 lean_mark_persistent(l_Lean_Meta_AC_instInhabitedPreContext);
 l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___closed__1 = _init_l_Lean_Meta_AC_instContextInformationProdPreContextArrayBool___closed__1();

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Attach
-// Imports: Init.Data.List.Count Init.Data.Subtype
+// Imports: Init.Data.List.Count Init.Data.Subtype Init.BinderNameHint
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -462,6 +462,7 @@ return x_5;
 }
 lean_object* initialize_Init_Data_List_Count(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_Subtype(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_BinderNameHint(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Attach(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -471,6 +472,9 @@ res = initialize_Init_Data_List_Count(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Subtype(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_BinderNameHint(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

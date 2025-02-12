@@ -15,6 +15,7 @@ extern "C" {
 #endif
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_209____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_getElimInfo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_3068____closed__1;
 LEAN_EXPORT lean_object* l_Array_isEqvAux___at_Lean_Meta_addCustomEliminatorEntry___spec__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_addCustomEliminatorEntry(lean_object*, lean_object*);
@@ -85,12 +86,12 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_31
 static lean_object* l_Lean_Meta_getElimExprInfo___closed__4;
 lean_object* lean_mk_array(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3026_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_instReprCustomEliminator___closed__1;
 lean_object* l_Lean_throwError___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_getElimExprInfo___lambda__4___closed__3;
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_getCustomEliminator_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 static lean_object* l_Lean_Meta_instReprCustomEliminators___closed__1;
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_2304____spec__11___closed__6;
@@ -327,6 +328,7 @@ static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimI
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_209____closed__17;
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addCustomEliminator___spec__1(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedElimInfo___closed__4;
 static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_Tactic_ElimInfo___hyg_2370____closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_customEliminatorExt;
 uint8_t l_Lean_Environment_contains(lean_object*, lean_object*);
@@ -408,7 +410,6 @@ uint64_t lean_uint64_xor(uint64_t, uint64_t);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_MetavarContext_0__Lean_DependsOn_dep_visitMain___at_Lean_Meta_mkCustomEliminator___spec__11(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_addImplicitTargets___spec__2___closed__4;
-lean_object* l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3036_(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminator____x40_Lean_Meta_Tactic_ElimInfo___hyg_2188____closed__8;
 static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_209____closed__11;
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -499,6 +500,7 @@ static lean_object* l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCusto
 LEAN_EXPORT lean_object* l_Lean_Meta_addImplicitTargets_collect___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprCustomEliminators____x40_Lean_Meta_Tactic_ElimInfo___hyg_2304____spec__4(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_isAssigned___at_Lean_Meta_addImplicitTargets___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedElimInfo___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_getCustomEliminator_x3f___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lean_Meta_mkCustomEliminator___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1491,7 +1493,7 @@ lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_obj
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
 x_4 = lean_unsigned_to_nat(0u);
-x_5 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3036_(x_3, x_4);
+x_5 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3026_(x_3, x_4);
 x_6 = l___private_Lean_Meta_Tactic_ElimInfo_0__Lean_Meta_reprElimInfo____x40_Lean_Meta_Tactic_ElimInfo___hyg_209____closed__5;
 x_7 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_7, 0, x_6);
@@ -1522,7 +1524,7 @@ lean_ctor_set(x_19, 0, x_17);
 lean_ctor_set(x_19, 1, x_18);
 x_20 = lean_ctor_get(x_1, 1);
 lean_inc(x_20);
-x_21 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3036_(x_20, x_4);
+x_21 = l___private_Lean_Expr_0__Lean_reprExpr____x40_Lean_Expr___hyg_3026_(x_20, x_4);
 x_22 = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(x_22, 0, x_6);
 lean_ctor_set(x_22, 1, x_21);
@@ -1747,13 +1749,32 @@ return x_1;
 static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedElimInfo___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedElimInfo___closed__2;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__4() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
@@ -1762,13 +1783,13 @@ x_2 = lean_mk_empty_array_with_capacity(x_1);
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__3() {
+static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo___closed__5() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_1 = l_Lean_Meta_instInhabitedElimInfo___closed__1;
+x_1 = l_Lean_Meta_instInhabitedElimInfo___closed__3;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Meta_instInhabitedElimInfo___closed__2;
+x_3 = l_Lean_Meta_instInhabitedElimInfo___closed__4;
 x_4 = lean_alloc_ctor(0, 5, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_1);
@@ -1782,7 +1803,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedElimInfo() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedElimInfo___closed__3;
+x_1 = l_Lean_Meta_instInhabitedElimInfo___closed__5;
 return x_1;
 }
 }
@@ -4610,7 +4631,7 @@ _start:
 {
 uint8_t x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = 0;
-x_2 = l_Lean_Meta_instInhabitedElimInfo___closed__2;
+x_2 = l_Lean_Meta_instInhabitedElimInfo___closed__4;
 x_3 = lean_box(0);
 x_4 = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(x_4, 0, x_2);
@@ -13763,6 +13784,10 @@ l_Lean_Meta_instInhabitedElimInfo___closed__2 = _init_l_Lean_Meta_instInhabitedE
 lean_mark_persistent(l_Lean_Meta_instInhabitedElimInfo___closed__2);
 l_Lean_Meta_instInhabitedElimInfo___closed__3 = _init_l_Lean_Meta_instInhabitedElimInfo___closed__3();
 lean_mark_persistent(l_Lean_Meta_instInhabitedElimInfo___closed__3);
+l_Lean_Meta_instInhabitedElimInfo___closed__4 = _init_l_Lean_Meta_instInhabitedElimInfo___closed__4();
+lean_mark_persistent(l_Lean_Meta_instInhabitedElimInfo___closed__4);
+l_Lean_Meta_instInhabitedElimInfo___closed__5 = _init_l_Lean_Meta_instInhabitedElimInfo___closed__5();
+lean_mark_persistent(l_Lean_Meta_instInhabitedElimInfo___closed__5);
 l_Lean_Meta_instInhabitedElimInfo = _init_l_Lean_Meta_instInhabitedElimInfo();
 lean_mark_persistent(l_Lean_Meta_instInhabitedElimInfo);
 l_Array_mapMUnsafe_map___at_Lean_Meta_getElimExprInfo___spec__4___closed__1 = _init_l_Array_mapMUnsafe_map___at_Lean_Meta_getElimExprInfo___spec__4___closed__1();

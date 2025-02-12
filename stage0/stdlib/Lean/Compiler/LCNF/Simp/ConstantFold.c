@@ -27792,7 +27792,7 @@ x_5 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Si
 x_6 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4835____closed__5;
 x_7 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4835____closed__6;
 x_8 = l_Lean_Compiler_LCNF_Simp_ConstantFold_initFn____x40_Lean_Compiler_LCNF_Simp_ConstantFold___hyg_4835____closed__7;
-x_9 = 2;
+x_9 = 0;
 x_10 = lean_alloc_ctor(0, 6, 1);
 lean_ctor_set(x_10, 0, x_4);
 lean_ctor_set(x_10, 1, x_5);

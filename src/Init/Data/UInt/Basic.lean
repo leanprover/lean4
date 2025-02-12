@@ -9,6 +9,9 @@ import Init.Data.BitVec.Basic
 
 open Nat
 
+/-- Converts a `Fin UInt8.size` into the corresponding `UInt8`. -/
+@[inline] def UInt8.ofFin (a : Fin UInt8.size) : UInt8 := ⟨⟨a⟩⟩
+
 @[extern "lean_uint8_add"]
 def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint8_sub"]
@@ -71,6 +74,9 @@ instance (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
 instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
 instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
+
+/-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/
+@[inline] def UInt16.ofFin (a : Fin UInt16.size) : UInt16 := ⟨⟨a⟩⟩
 
 @[extern "lean_uint16_add"]
 def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
@@ -137,6 +143,9 @@ instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
+/-- Converts a `Fin UInt32.size` into the corresponding `UInt32`. -/
+@[inline] def UInt32.ofFin (a : Fin UInt32.size) : UInt32 := ⟨⟨a⟩⟩
+
 @[extern "lean_uint32_add"]
 def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint32_sub"]
@@ -186,6 +195,9 @@ instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
+
+/-- Converts a `Fin UInt64.size` into the corresponding `UInt64`. -/
+@[inline] def UInt64.ofFin (a : Fin UInt64.size) : UInt64 := ⟨⟨a⟩⟩
 
 @[extern "lean_uint64_add"]
 def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
@@ -255,6 +267,9 @@ theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
 
 theorem le_usize_size : 4294967296 ≤ USize.size := by
   cases usize_size_eq <;> next h => rw [h]; decide
+
+/-- Converts a `Fin USize.size` into the corresponding `USize`. -/
+@[inline] def USize.ofFin (a : Fin USize.size) : USize := ⟨⟨a⟩⟩
 
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩

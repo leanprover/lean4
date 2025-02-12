@@ -285,6 +285,11 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
+    Raw α β cmp :=
+  mergeWith mergeFn t₁ t₂
+
 namespace Const
 open Internal (Impl)
 
@@ -301,6 +306,10 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
 @[inline, inherit_doc Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  mergeWith mergeFn t₁ t₂
 
 end Const
 

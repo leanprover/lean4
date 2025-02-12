@@ -244,6 +244,10 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
 
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  mergeWith mergeFn t₁ t₂
+
 @[inline, inherit_doc DTreeMap.Raw.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   ⟨t.inner.eraseMany l⟩

@@ -67,6 +67,7 @@ structure Raw (α : Type u) (β : α → Type v) (_cmp : α → α → Ordering 
   inner : Internal.Impl α β
 
 namespace Raw
+open Internal (Impl)
 
 /--
 Well-formedness predicate for tree maps. Users of `DTreeMap` will not need to interact with
@@ -248,9 +249,29 @@ def keysArray (t : Raw α β cmp) : Array α :=
 def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
   t.inner.toList
 
+/-- Transforms a list of mappings into a tree map. -/
+@[inline]
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.ofList l |>.impl⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofList l cmp
+
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
+
+/-- Transforms an array of mappings into a tree map. -/
+@[inline]
+def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.ofArray l |>.impl⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofArray l cmp
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
@@ -265,9 +286,25 @@ variable {β : Type v}
 def toList (t : Raw α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
+@[inline, inherit_doc Raw.ofList]
+def ofList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l |>.impl⟩
+
+@[inline, inherit_doc Raw.ofList]
+def unitOfList (l : List α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l |>.impl⟩
+
 @[inline, inherit_doc Raw.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
+
+@[inline, inherit_doc Raw.ofArray]
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl⟩
+
+@[inline, inherit_doc Raw.ofArray]
+def unitOfArray (l : Array α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray l |>.impl⟩
 
 @[inline, inherit_doc Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
@@ -275,9 +312,27 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : 
 
 end Const
 
+@[inline, inherit_doc DTreeMap.insertMany]
+def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany! l⟩
+
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany! l⟩
+
+namespace Const
+
+variable {β : Type v}
+
+@[inline, inherit_doc DTreeMap.Const.insertMany]
+def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertMany! t.inner l⟩
+
+@[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertManyIfNewUnit! t.inner l⟩
+
+end Const
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β cmp) where
   reprPrec m prec := Repr.addAppParen ("DTreeMap.Raw.ofList " ++ repr m.toList) prec

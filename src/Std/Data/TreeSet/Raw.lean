@@ -185,13 +185,25 @@ def all (t : Raw α cmp) (p : α → Bool) : Bool :=
 def toList (t : Raw α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
+@[inline, inherit_doc TreeSet.ofList]
+def ofList (l : List α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ⟨TreeMap.Raw.unitOfList l cmp⟩
+
 @[inline, inherit_doc TreeSet.empty]
 def toArray (t : Raw α cmp) : Array α :=
   t.foldl (init := #[]) fun acc k => acc.push k
 
+@[inline, inherit_doc TreeSet.ofArray]
+def ofArray (l : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ⟨TreeMap.Raw.unitOfArray l cmp⟩
+
 @[inline, inherit_doc TreeSet.empty]
 def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=
   ⟨TreeMap.Raw.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc TreeSet.insertMany]
+def insertMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
+  ⟨TreeMap.Raw.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=

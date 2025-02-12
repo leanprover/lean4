@@ -218,10 +218,18 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 def toList (t : TreeSet α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
+/-- Transforms a list into a tree set. -/
+def ofList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ⟨TreeMap.unitOfList l cmp⟩
+
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
+
+/-- Transforms an array into a tree set. -/
+def ofArray (l : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ⟨TreeMap.unitOfArray l cmp⟩
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.
@@ -236,6 +244,18 @@ size of `t₂` as long as `t₁` is unshared.
 @[inline]
 def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+
+/--
+Inserts multiple mappings into the tree set by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+
+Note: this precedence behavior is true for `TreeSet` and `TreeSet.Raw`. The `insertMany` function on
+`TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw` behaves differently: it will prefer the last
+appearance.
+-/
+@[inline]
+def insertMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
+  ⟨TreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

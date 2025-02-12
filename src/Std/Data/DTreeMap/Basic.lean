@@ -317,10 +317,30 @@ def keysArray (t : DTreeMap α β cmp) : Array α :=
 def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
   t.inner.toList
 
+/-- Transforms a list of mappings into a tree map. -/
+@[inline]
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.ofList l |>.impl, Impl.WF.empty.insertMany⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  ofList l cmp
+
 /-- Transforms the tree map into a list of mappings in ascending order. -/
 @[inline]
 def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
+
+/-- Transforms an array of mappings into a tree map. -/
+@[inline]
+def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.ofArray l |>.impl, Impl.WF.empty.insertMany⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  ofArray l cmp
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -350,14 +370,65 @@ variable {β : Type v}
 def toList (t : DTreeMap α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
+@[inline, inherit_doc DTreeMap.ofList]
+def ofList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.Const.ofList l |>.impl, Impl.WF.empty.constInsertMany⟩
+
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
+@[inline, inherit_doc DTreeMap.ofList]
+
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.Const.ofArray l |>.impl, Impl.WF.empty.constInsertMany⟩
+
+@[inline, inherit_doc DTreeMap.ofList]
+def unitOfList (l : List α) (cmp : α → α → Ordering) : DTreeMap α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.Const.unitOfList l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
+
+@[inline, inherit_doc DTreeMap.ofArray]
+def unitOfArray (l : Array α) (cmp : α → α → Ordering) : DTreeMap α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.Const.unitOfArray l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩;
-  ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeBy⟩
+  ⟨Impl.Const.mergeWith mergeFn t₁.inner t₂.inner t₁.wf.balanced |>.impl, t₁.wf.constMergeWith⟩
+
+end Const
+
+/--
+Inserts multiple mappings into the tree map by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the last occurrence takes precedence.
+
+Note: this precedence behavior is true for `TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw`.
+The `insertMany` function on `TreeSet` and `TreeSet.Raw` behaves differently: it will prefer the first
+appearance.
+-/
+@[inline]
+def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
+
+namespace Const
+
+variable {β : Type v}
+
+@[inline, inherit_doc DTreeMap.insertMany]
+def insertMany {ρ} [ForIn Id ρ (α × β)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.insertMany t.inner l t.wf.balanced, t.wf.constInsertMany⟩
+
+/--
+Inserts multiple elements into the tree map by iterating over the given collection and calling
+`insertIfNew`. If the same key appears multiple times, the first occurrence takes precedence.
+-/
+@[inline]
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ) : DTreeMap α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩;
+  ⟨Impl.Const.insertManyIfNewUnit t.inner l t.wf.balanced, t.wf.constInsertManyIfNewUnit⟩
 
 end Const
 

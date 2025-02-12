@@ -206,13 +206,45 @@ def keysArray (t : TreeMap α β cmp) : Array α :=
 def toList (t : TreeMap α β cmp) : List (α × β) :=
   DTreeMap.Const.toList t.inner
 
+@[inline, inherit_doc DTreeMap.Const.ofList]
+def ofList (l : List (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.ofList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
+  ofList l cmp
+
+@[inline, inherit_doc DTreeMap.Const.unitOfList]
+def unitOfList (l : List α) (cmp : α → α → Ordering) : TreeMap α Unit cmp :=
+  ⟨DTreeMap.Const.unitOfList l cmp⟩
+
 @[inline, inherit_doc DTreeMap.Const.toArray]
 def toArray (t : TreeMap α β cmp) : Array (α × β) :=
   DTreeMap.Const.toArray t.inner
 
-@[inline, inherit_doc DTreeMap.mergeWith]
+@[inline, inherit_doc DTreeMap.Const.ofArray]
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.ofArray l cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α β cmp :=
+  ofArray l cmp
+
+@[inline, inherit_doc DTreeMap.Const.unitOfArray]
+def unitOfArray (l : Array α) (cmp : α → α → Ordering) : TreeMap α Unit cmp :=
+  ⟨DTreeMap.Const.unitOfArray l cmp⟩
+
+@[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc DTreeMap.Const.insertMany]
+def insertMany {ρ} [ForIn Id ρ (α × β)] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.insertMany t.inner l⟩
+
+@[inline, inherit_doc DTreeMap.Const.insertManyIfNewUnit]
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : TreeMap α Unit cmp) (l : ρ) : TreeMap α Unit cmp :=
+  ⟨DTreeMap.Const.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=

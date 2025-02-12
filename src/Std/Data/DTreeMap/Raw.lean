@@ -251,7 +251,7 @@ def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofList l |>.impl⟩
 
@@ -265,7 +265,7 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.ofArray l |>.impl⟩
 
@@ -287,11 +287,11 @@ def toList (t : Raw α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
 @[inline, inherit_doc Raw.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l |>.impl⟩
 
 @[inline, inherit_doc Raw.ofList]
-def unitOfList (l : List α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l |>.impl⟩
 
 @[inline, inherit_doc Raw.toArray]
@@ -299,11 +299,11 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
 
 @[inline, inherit_doc Raw.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl⟩
 
 @[inline, inherit_doc Raw.ofArray]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray l |>.impl⟩
 
 @[inline, inherit_doc Raw.mergeWith]

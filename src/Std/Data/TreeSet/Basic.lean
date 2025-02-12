@@ -219,8 +219,12 @@ def toList (t : TreeSet α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
 /-- Transforms a list into a tree set. -/
-def ofList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofList l cmp
 
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
@@ -228,8 +232,12 @@ def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
 
 /-- Transforms an array into a tree set. -/
-def ofArray (l : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+def ofArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
   ⟨TreeMap.unitOfArray l cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (l : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofArray l cmp
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.

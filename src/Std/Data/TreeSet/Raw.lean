@@ -186,16 +186,24 @@ def toList (t : Raw α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
 @[inline, inherit_doc TreeSet.ofList]
-def ofList (l : List α) (cmp : α → α → Ordering) : Raw α cmp :=
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ofList l cmp
 
 @[inline, inherit_doc TreeSet.empty]
 def toArray (t : Raw α cmp) : Array α :=
   t.foldl (init := #[]) fun acc k => acc.push k
 
 @[inline, inherit_doc TreeSet.ofArray]
-def ofArray (l : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
+def ofArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
   ⟨TreeMap.Raw.unitOfArray l cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (l : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ofArray l cmp
 
 @[inline, inherit_doc TreeSet.empty]
 def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=

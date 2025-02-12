@@ -319,9 +319,9 @@ def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
-def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofList l |>.impl, Impl.WF.empty.insertMany⟩
+def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+    DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofList l |>.impl, Impl.WF.empty.insertMany⟩
 
 @[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
 def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
@@ -334,9 +334,9 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofArray l |>.impl, Impl.WF.empty.insertMany⟩
+def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+    DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray l |>.impl, Impl.WF.empty.insertMany⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
 def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
@@ -371,7 +371,7 @@ def toList (t : DTreeMap α β cmp) : List (α × β) :=
   Impl.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofList l |>.impl, Impl.WF.empty.constInsertMany⟩
 
@@ -380,17 +380,17 @@ def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
 @[inline, inherit_doc DTreeMap.ofList]
 
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofArray l |>.impl, Impl.WF.empty.constInsertMany⟩
 
 @[inline, inherit_doc DTreeMap.ofList]
-def unitOfList (l : List α) (cmp : α → α → Ordering) : DTreeMap α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfList l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 @[inline, inherit_doc DTreeMap.ofArray]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering) : DTreeMap α Unit cmp :=
+def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfArray l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
 

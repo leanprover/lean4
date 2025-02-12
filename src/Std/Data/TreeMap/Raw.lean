@@ -225,7 +225,7 @@ def toList (t : Raw α β cmp) : List (α × β) :=
   DTreeMap.Raw.Const.toList t.inner
 
 @[inline, inherit_doc DTreeMap.Raw.Const.ofList]
-def ofList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.ofList l cmp⟩
 
 @[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
@@ -233,7 +233,7 @@ def fromList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cm
   ofList l cmp
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
-def unitOfList (l : List α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfList l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.toArray]
@@ -241,7 +241,7 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   DTreeMap.Raw.Const.toArray t.inner
 
 @[inline, inherit_doc DTreeMap.Raw.Const.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.ofArray l cmp⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
@@ -249,7 +249,7 @@ def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β 
   ofArray l cmp
 
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering) : Raw α Unit cmp :=
+def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfArray l cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.mergeWith]

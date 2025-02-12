@@ -7,6 +7,7 @@ prelude
 import Lean.Data.PersistentArray
 import Lean.Meta.Tactic.Grind.ENodeKey
 import Lean.Meta.Tactic.Grind.Arith.Util
+import Lean.Meta.Tactic.Grind.Arith.Offset.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 

@@ -7,6 +7,7 @@ prelude
 import Init.Grind.Offset
 import Lean.Meta.Tactic.Grind.Types
 import Lean.Meta.Tactic.Grind.Arith.Offset.Proof
+import Lean.Meta.Tactic.Grind.Arith.Offset.Util
 
 namespace Lean.Meta.Grind.Arith.Offset
 /-!

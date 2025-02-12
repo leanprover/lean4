@@ -17,25 +17,25 @@ def isNatOffset? (e : Expr) : Option (Expr × Nat) := Id.run do
   some (a, k)
 
 /-- An offset constraint. -/
-structure Offset.Cnstr (α : Type) where
+structure Cnstr (α : Type) where
   u  : α
   v  : α
   k  : Int := 0
   deriving Inhabited
 
-def Offset.Cnstr.neg : Cnstr α → Cnstr α
+def Cnstr.neg : Cnstr α → Cnstr α
   | { u, v, k } => { u := v, v := u, k := -k - 1 }
 
-example (c : Offset.Cnstr α) : c.neg.neg = c := by
-  cases c; simp [Offset.Cnstr.neg]; omega
+example (c : Cnstr α) : c.neg.neg = c := by
+  cases c; simp [Cnstr.neg]; omega
 
-def Offset.toMessageData [inst : ToMessageData α] (c : Offset.Cnstr α) : MessageData :=
+def toMessageData [inst : ToMessageData α] (c : Cnstr α) : MessageData :=
   match c.k with
   | .ofNat 0   => m!"{c.u} ≤ {c.v}"
   | .ofNat k   => m!"{c.u} ≤ {c.v} + {k}"
   | .negSucc k => m!"{c.u} + {k + 1} ≤ {c.v}"
 
-instance : ToMessageData (Offset.Cnstr Expr) where
+instance : ToMessageData (Cnstr Expr) where
   toMessageData c := Offset.toMessageData c
 
 /--
@@ -43,7 +43,7 @@ Returns `some cnstr` if `e` is offset constraint.
 Remark: `z` is `0` numeral. It is an extra argument because we
 want to be able to provide the one that has already been internalized.
 -/
-def isNatOffsetCnstr? (e : Expr) (z : Expr) : Option (Offset.Cnstr Expr) :=
+def isNatOffsetCnstr? (e : Expr) (z : Expr) : Option (Cnstr Expr) :=
   match_expr e with
   | LE.le _ inst a b => if isInstLENat inst then go a b else none
   | _ => none

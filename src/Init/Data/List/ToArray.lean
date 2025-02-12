@@ -15,7 +15,7 @@ import Init.Data.Array.Lex.Basic
 We prefer to pull `List.toArray` outwards past `Array` operations.
 -/
 
--- set_option linter.listName true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array

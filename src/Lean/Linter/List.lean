@@ -27,10 +27,10 @@ register_builtin_option linter.indexVariables : Bool := {
 }
 
 /--
-`set_option linter.listVariable true` enables a strict linter that
+`set_option linter.listVariables true` enables a strict linter that
 validates that all `List`/`Array`/`Vector` variables use standardized names.
 -/
-register_builtin_option linter.listVariable : Bool := {
+register_builtin_option linter.listVariables : Bool := {
   defValue := false
   descr := "Validate that all `List`/`Array`/`Vector` variables use allowed names."
 }
@@ -125,9 +125,9 @@ def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs
 /--
 A linter which validates that all `List`/`Array`/`Vector` variables use allowed names.
 -/
-def listVariableLinter : Linter
+def listVariablesLinter : Linter
   where run := withSetOptionIn fun stx => do
-    unless (← getOptions).get linter.listVariable.name false do return
+    unless (← getOptions).get linter.listVariables.name false do return
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return
     for t in ← getInfoTrees do
@@ -138,21 +138,21 @@ def listVariableLinter : Linter
           let n := stripBinderName n
           if !allowedListNames.contains n then
             unless (ty.getArg! 0).isAppOf `List && n == "L" do
-              Linter.logLint linter.listVariable stx
+              Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `List` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedArrayNames.contains n then
-            Linter.logLint linter.listVariable stx
+            Linter.logLint linter.listVariables stx
               m!"Forbidden variable appearing as a `Array` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedVectorNames.contains n then
-            Linter.logLint linter.listVariable stx
+            Linter.logLint linter.listVariables stx
               m!"Forbidden variable appearing as a `Vector` name: {n}"
 
-builtin_initialize addLinter listVariableLinter
+builtin_initialize addLinter listVariablesLinter
 
 end Lean.Linter.List

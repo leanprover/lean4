@@ -148,6 +148,18 @@ def foldl (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
 
 @[inline, inherit_doc TreeSet.empty]
+def foldrM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
+  t.inner.foldrM (fun c a _ => f c a) init
+
+@[inline, inherit_doc TreeSet.empty]
+def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+  t.inner.foldr (fun c a _ => f c a) init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def foldRev (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+  foldr f init t
+
+@[inline, inherit_doc TreeSet.empty]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
   t.inner.forM (fun a _ => f a)
 

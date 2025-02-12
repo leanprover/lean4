@@ -167,6 +167,23 @@ def foldlM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : Tree
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
 
+/--
+Monadically computes a value by folding the given function over the elements in the tree set in
+descending order.
+-/
+@[inline]
+def foldrM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
+  t.inner.foldrM (fun c a _ => f c a) init
+
+/-- Folds the given function over the elements of the tree set in descending order. -/
+@[inline]
+def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  t.inner.foldr (fun c a _ => f c a) init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def foldRev (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  foldr f init t
+
 /-- Carries out a monadic action on each element in the tree set in ascending order. -/
 @[inline]
 def forM (f : α → m PUnit) (t : TreeSet α cmp) : m PUnit :=

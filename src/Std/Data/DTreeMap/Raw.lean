@@ -198,6 +198,18 @@ def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cm
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldl f init
 
+@[inline, inherit_doc DTreeMap.foldrM]
+def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
+  t.inner.foldrM f init
+
+@[inline, inherit_doc DTreeMap.foldr]
+def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
+  t.inner.foldr f init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
+  foldr f init t
+
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
   t.inner.forM f

@@ -248,19 +248,29 @@ variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 def filter (f : (a : α) → β a → Bool) (t : DTreeMap α β cmp) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.filter f t.wf.balanced |>.impl, t.wf.filter⟩
 
-/--
-Folds the given monadic function over the mappings in the map in ascending order.
--/
+/-- Folds the given monadic function over the mappings in the map in ascending order. -/
 @[inline]
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
   t.inner.foldlM f init
 
-/--
-Folds the given function over the mappings in the map in ascending order.
--/
+/-- Folds the given function over the mappings in the map in ascending order. -/
 @[inline]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   t.inner.foldl f init
+
+/-- Folds the given monadic function over the mappings in the map in ascending order. -/
+@[inline]
+def foldrM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
+  t.inner.foldrM f init
+
+/-- Folds the given function over the mappings in the map in ascending order. -/
+@[inline]
+def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+  t.inner.foldr f init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
+  foldr f init t
 
 /-- Carries out a monadic action on each mapping in the tree map in ascending order. -/
 @[inline]

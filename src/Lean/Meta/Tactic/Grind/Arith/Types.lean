@@ -4,9 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Data.PersistentArray
-import Lean.Meta.Tactic.Grind.ENodeKey
-import Lean.Meta.Tactic.Grind.Arith.Util
 import Lean.Meta.Tactic.Grind.Arith.Offset.Types
 
 namespace Lean.Meta.Grind.Arith

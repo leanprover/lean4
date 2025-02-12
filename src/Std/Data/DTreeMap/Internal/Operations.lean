@@ -457,21 +457,21 @@ def eraseMany! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α β) (l : ρ)
   return r
 
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
-abbrev IteratedInsertionFrom [Ord α] (t) :=
+abbrev IteratedInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b h, P t'' → P (t''.insert a b h).impl) → P t' }
 
-/-- Iterate over `l` and erase all of its elements from `t`. -/
+/-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
 def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
-    IteratedInsertionFrom t := Id.run do
+    IteratedInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     let hr := r.2 h (fun t'' a b h _ => (t''.insert a b h).balanced_impl)
     r := ⟨r.val.insert a b hr |>.impl, fun h₀ h₁ => h₁ _ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
-/-- A tree map obtained by inserting elements from `t`, bundled with an inductive principle. -/
-abbrev IteratedSlowInsertionFrom [Ord α] (t) :=
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insert! a b)) → P t' }
 
 /--
@@ -480,7 +480,7 @@ assumes the preconditions of `insertMany`, otherwise might panic.
 -/
 @[inline]
 def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
-    IteratedSlowInsertionFrom t := Id.run do
+    IteratedSlowInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
@@ -491,21 +491,21 @@ namespace Const
 variable {β : Type v}
 
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
-abbrev IteratedInsertionFrom [Ord α] (t) :=
+abbrev IteratedInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α (fun _ => β) → Prop}, P t → (∀ t'' a b h, P t'' → P (t''.insert a b h).impl) → P t' }
 
-/-- Iterate over `l` and erase all of its elements from `t`. -/
+/-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
 def insertMany [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) (h : t.Balanced) :
-    IteratedInsertionFrom t := Id.run do
+    IteratedInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     let hr := r.2 h (fun t'' a b h _ => (t''.insert a b h).balanced_impl)
     r := ⟨r.val.insert a b hr |>.impl, fun h₀ h₁ => h₁ _ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
-/-- A tree map obtained by inserting elements from `t`, bundled with an inductive principle. -/
-abbrev IteratedSlowInsertionFrom [Ord α] (t) :=
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowInsertionInto [Ord α] (t) :=
   { t' // ∀ {P : Impl α (fun _ => β) → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insert! a b)) → P t' }
 
 /--
@@ -514,40 +514,42 @@ assumes the preconditions of `insertMany`, otherwise might panic.
 -/
 @[inline]
 def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) :
-    IteratedSlowInsertionFrom t := Id.run do
+    IteratedSlowInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
-abbrev IteratedUnitInsertionFrom [Ord α] (t) :=
-  { t' // ∀ {P : Impl α (fun _ => Unit) → Prop}, P t → (∀ t'' a h, P t'' → P (t''.insert a () h).impl) → P t' }
+abbrev IteratedUnitInsertionInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α (fun _ => Unit) → Prop}, P t →
+    (∀ t'' a h, P t'' → P (t''.insertIfNew a () h).impl) → P t' }
 
-/-- Iterate over `l` and erase all of its elements from `t`. -/
+/-- Iterate over `l` and insert all of its elements into `t`. -/
 @[inline]
 def insertManyIfNewUnit [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) (h : t.Balanced) :
-    IteratedUnitInsertionFrom t := Id.run do
+    IteratedUnitInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
-    let hr := r.2 h (fun t'' a h _ => (t''.insert a () h).balanced_impl)
-    r := ⟨r.val.insert a () hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+    let hr := r.2 h (fun t'' a h _ => (t''.insertIfNew a () h).balanced_impl)
+    r := ⟨r.val.insertIfNew a () hr |>.impl, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
-/-- A tree map obtained by inserting elements from `t`, bundled with an inductive principle. -/
-abbrev IteratedSlowUnitInsertionFrom [Ord α] (t) :=
-  { t' // ∀ {P : Impl α (fun _ => Unit) → Prop}, P t → (∀ t'' a, P t'' → P (t''.insert! a ())) → P t' }
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowUnitInsertionInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α (fun _ => Unit) → Prop}, P t →
+    (∀ t'' a, P t'' → P (t''.insertIfNew! a ())) → P t' }
 
 /--
-Slower version of `insertMany` which can be used in absence of balance information but still
-assumes the preconditions of `insertMany`, otherwise might panic.
+Slower version of `insertManyIfNewUnit` which can be used in absence of balance information but still
+assumes the preconditions of `insertManyIfNewUnit`, otherwise might panic.
 -/
 @[inline]
 def insertManyIfNewUnit! [Ord α] {ρ : Type w} [ForIn Id ρ α] (t : Impl α (fun _ => Unit)) (l : ρ) :
-    IteratedSlowUnitInsertionFrom t := Id.run do
+    IteratedSlowUnitInsertionInto t := Id.run do
   let mut r := ⟨t, fun h _ => h⟩
   for a in l do
-    r := ⟨r.val.insert! a (), fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
+    r := ⟨r.val.insertIfNew! a (), fun h₀ h₁ => h₁ _ _ (r.2 h₀ h₁)⟩
   return r
 
 end Const
@@ -566,8 +568,8 @@ attribute [Std.Internal.tree_tac] BalancedTree.balanced_impl
 def SizedBalancedTree.toBalancedTree {lb ub} (t : SizedBalancedTree α β lb ub) : BalancedTree α β :=
   ⟨t.impl, t.balanced_impl⟩
 
-/-- Transforms an element of `IteratedInsertionFrom t` into a `BalancedTree`. -/
-def IteratedInsertionFrom.toBalancedTree [Ord α] {t : Impl α β} (e : IteratedInsertionFrom t)
+/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
+def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α β} (e : IteratedInsertionInto t)
     (h : t.Balanced) : BalancedTree α β :=
   ⟨e.1, e.2 h fun _ _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
 
@@ -585,8 +587,8 @@ namespace Const
 
 variable {β : Type v}
 
-/-- Transforms an element of `IteratedInsertionFrom t` into a `BalancedTree`. -/
-def IteratedInsertionFrom.toBalancedTree [Ord α] {t : Impl α (fun _ => β)} (e : IteratedInsertionFrom t)
+/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
+def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => β)} (e : IteratedInsertionInto t)
     (h : t.Balanced) : BalancedTree α (fun _ => β) :=
   ⟨e.1, e.2 h fun _ _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
 
@@ -598,9 +600,9 @@ def IteratedInsertionFrom.toBalancedTree [Ord α] {t : Impl α (fun _ => β)} (e
 @[inline] def ofList [Ord α] (l : List (α × β)) : BalancedTree α (fun _ => β) :=
   insertMany empty l balanced_empty |>.toBalancedTree balanced_empty
 
-/-- Transforms an element of `IteratedInsertionFrom t` into a `BalancedTree`. -/
-def IteratedUnitInsertionFrom.toBalancedTree [Ord α] {t : Impl α (fun _ => Unit)}
-    (e : IteratedUnitInsertionFrom t) (h : t.Balanced) : BalancedTree α (fun _ => Unit) :=
+/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
+def IteratedUnitInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => Unit)}
+    (e : IteratedUnitInsertionInto t) (h : t.Balanced) : BalancedTree α (fun _ => Unit) :=
   ⟨e.1, e.2 h fun _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
 
 /-- Transforms a list of mappings into a tree map. -/

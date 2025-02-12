@@ -378,18 +378,20 @@ def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compa
 @[inline, inherit_doc DTreeMap.toArray]
 def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
-@[inline, inherit_doc DTreeMap.ofList]
 
+@[inline, inherit_doc DTreeMap.ofList]
 def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.ofArray l |>.impl, Impl.WF.empty.constInsertMany⟩
 
-@[inline, inherit_doc DTreeMap.ofList]
+/-- Transforms a list of keys into a tree map. -/
+@[inline]
 def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfList l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
-@[inline, inherit_doc DTreeMap.ofArray]
+/-- Transforms an array of keys into a tree map. -/
+@[inline]
 def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
   ⟨Impl.Const.unitOfArray l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
@@ -413,6 +415,14 @@ appearance.
 def insertMany {ρ} [ForIn Id ρ ((a : α) × β a)] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertMany l t.wf.balanced, t.wf.insertMany⟩
 
+/--
+Erases multiple mappings from the tree map by iterating over the given collection and calling
+`erase`.
+-/
+@[inline]
+def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
+
 namespace Const
 
 variable {β : Type v}
@@ -431,14 +441,6 @@ def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : DTreeMap α Unit cmp) (l : ρ
   ⟨Impl.Const.insertManyIfNewUnit t.inner l t.wf.balanced, t.wf.constInsertManyIfNewUnit⟩
 
 end Const
-
-/--
-Erases multiple mappings from the tree map by iterating over the given collection and calling
-`erase`.
--/
-@[inline]
-def eraseMany {ρ} [ForIn Id ρ α] (t : DTreeMap α β cmp) (l : ρ) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.eraseMany l t.wf.balanced, t.wf.eraseMany⟩
 
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (DTreeMap α β cmp) where
   reprPrec m prec := Repr.addAppParen ("DTreeMap.ofList " ++ repr m.toList) prec

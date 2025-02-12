@@ -802,7 +802,7 @@ theorem getLast_eq_getElem : ∀ (l : List α) (h : l ≠ []),
       | a :: l => exact Nat.le_refl _)
   | [_], _ => rfl
   | _ :: _ :: _, _ => by
-    simp [getLast, get, Nat.succ_sub_succ, getLast_eq_getElem]
+    simp [getLast, Nat.succ_sub_succ, getLast_eq_getElem]
 
 theorem getElem_length_sub_one_eq_getLast (l : List α) (h : l.length - 1 < l.length) :
     l[l.length - 1] = getLast l (by cases l; simp at h; simp) := by

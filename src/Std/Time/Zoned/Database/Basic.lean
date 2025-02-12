@@ -66,10 +66,10 @@ def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) 
 Converts a transition.
 -/
 def convertTransition (times: Array LocalTimeType) (index : Nat) (tz : TZif.TZifV1) : Option Transition := do
-  let time := tz.transitionTimes.get! index
+  let time := tz.transitionTimes[index]!
   let time := Second.Offset.ofInt time
-  let indice := tz.transitionIndices.get! index
-  return { time, localTimeType := times.get! indice.toNat }
+  let indice := tz.transitionIndices[index]!
+  return { time, localTimeType := times[indice.toNat]! }
 
 /--
 Converts a `TZif.TZifV1` structure to a `ZoneRules` structure.

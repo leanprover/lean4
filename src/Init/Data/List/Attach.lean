@@ -261,6 +261,7 @@ theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h 
     · simp
     · simp [hl]
 
+@[deprecated getElem_pmap (since := "2025-02-13")]
 theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
     (hn : n < (pmap f l h).length) :
     get (pmap f l h) ⟨n, hn⟩ =

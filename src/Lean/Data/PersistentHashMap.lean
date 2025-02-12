@@ -242,7 +242,7 @@ partial def eraseAux [BEq α] : Node α β → USize → α → Node α β
     | none     => n
   | n@(Node.entries entries), h, k =>
     let j       := (mod2Shift h shift).toNat
-    let entry   := entries.get! j
+    let entry   := entries[j]!
     match entry with
     | Entry.null       => n
     | Entry.entry k' _ =>

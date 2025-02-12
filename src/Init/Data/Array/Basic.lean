@@ -48,7 +48,7 @@ theorem ext (a b : Array α)
     : a = b := by
   let rec extAux (a b : List α)
       (h₁ : a.length = b.length)
-      (h₂ : (i : Nat) → (hi₁ : i < a.length) → (hi₂ : i < b.length) → a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩)
+      (h₂ : (i : Nat) → (hi₁ : i < a.length) → (hi₂ : i < b.length) → a[i] = b[i])
       : a = b := by
     induction a generalizing b with
     | nil =>
@@ -63,11 +63,11 @@ theorem ext (a b : Array α)
         have hz₂ : 0 < (b::bs).length := by rw [List.length_cons]; apply Nat.zero_lt_succ
         have headEq : a = b := h₂ 0 hz₁ hz₂
         have h₁' : as.length = bs.length := by rw [List.length_cons, List.length_cons] at h₁; injection h₁
-        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get ⟨i, hi₁⟩ = bs.get ⟨i, hi₂⟩ := by
+        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as[i] = bs[i] := by
           intro i hi₁ hi₂
           have hi₁' : i+1 < (a::as).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
           have hi₂' : i+1 < (b::bs).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
-          have : (a::as).get ⟨i+1, hi₁'⟩ = (b::bs).get ⟨i+1, hi₂'⟩ := h₂ (i+1) hi₁' hi₂'
+          have : (a::as)[i+1] = (b::bs)[i+1] := h₂ (i+1) hi₁' hi₂'
           apply this
         have tailEq : as = bs := ih bs h₁' h₂'
         rw [headEq, tailEq]

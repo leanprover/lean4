@@ -51,7 +51,7 @@ def get : (ds : @& FloatArray) → (i : @& Nat) → (h : i < ds.size := by get_e
 
 @[extern "lean_float_array_get"]
 def get! : (@& FloatArray) → (@& Nat) → Float
-  | ⟨ds⟩, i => ds.get! i
+  | ⟨ds⟩, i => ds[i]!
 
 def get? (ds : FloatArray) (i : Nat) : Option Float :=
   if h : i < ds.size then

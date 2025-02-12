@@ -19,7 +19,7 @@ universe u v w
 /-! ### Array literal syntax -/
 
 /-- Syntax for `Array α`. -/
-syntax "#[" withoutPosition(sepBy(term, ", ")) "]" : term
+syntax "#[" withoutPosition(term,*,?) "]" : term
 
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])

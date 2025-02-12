@@ -21,9 +21,6 @@ namespace Lean.Server.Snapshots
 
 open Elab
 
-/- For `Inhabited Snapshot` -/
-builtin_initialize dummyTacticCache : IO.Ref Tactic.Cache ← IO.mkRef {}
-
 /-- What Lean knows about the world after the header and each command. -/
 structure Snapshot where
   stx : Syntax
@@ -56,7 +53,6 @@ def runCommandElabM (snap : Snapshot) (meta : DocumentMeta) (c : CommandElabM α
     cmdPos := snap.stx.getPos? |>.getD 0,
     fileName := meta.uri,
     fileMap := meta.text,
-    tacticCache? := none
     snap? := none
     cancelTk? := none
   }

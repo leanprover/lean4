@@ -542,7 +542,6 @@ where
         elabSnap := default
         finishedSnap := .pure { diagnostics := .empty, cmdState }
         reportSnap := default
-        tacticCache := (← IO.mkRef {})
         nextCmdSnap? := none
       }
       return
@@ -557,7 +556,6 @@ where
       -- progress
       let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
       let finishedSnap := { range? := initRange?, task := finishedPromise.result! }
-      let tacticCache ← old?.map (·.tacticCache) |>.getDM (IO.mkRef {})
 
       let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
       let next? ← if Parser.isTerminalCommand stx then pure none
@@ -571,14 +569,14 @@ where
       else
         (stx, parserState)
       prom.resolve {
-        diagnostics, finishedSnap, tacticCache, nextCmdSnap?
+        diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
         elabSnap := { range? := stx.getRange?, task := elabPromise.result! }
         reportSnap := { range? := initRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
-        finishedPromise tacticCache ctx
+        finishedPromise ctx
       let traceTask ←
         if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
@@ -611,24 +609,15 @@ where
         parseCmd none parserState cmdState next (sync := false) ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
-      (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)
-      (tacticCache : IO.Ref Tactic.Cache) :
+      (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot) :
       LeanProcessingM Command.State := do
     let ctx ← read
     let scope := cmdState.scopes.head!
     -- reset per-command state
     let cmdStateRef ← IO.mkRef { cmdState with
       messages := .empty, traceState := {}, snapshotTasks := #[] }
-    /-
-    The same snapshot may be executed by different tasks. So, to make sure `elabCommandTopLevel`
-    has exclusive access to the cache, we create a fresh reference here. Before this change, the
-    following `tacticCache.modify` would reset the tactic post cache while another snapshot was
-    still using it.
-    -/
-    let tacticCacheNew ← IO.mkRef (← tacticCache.get)
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
-      tacticCache? := some tacticCacheNew
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap
       cancelTk?    := some ctx.newCancelTk
     }
@@ -638,8 +627,6 @@ where
           withLoggingExceptions
             (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
             cmdCtx cmdStateRef
-    let postNew := (← tacticCacheNew.get).post
-    tacticCache.modify fun _ => { pre := postNew, post := {} }
     let cmdState ← cmdStateRef.get
     let mut messages := cmdState.messages
     if !output.isEmpty then

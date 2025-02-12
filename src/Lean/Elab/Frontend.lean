@@ -33,7 +33,6 @@ def setCommandState (commandState : Command.State) : FrontendM Unit :=
     cmdPos       := s.cmdPos
     fileName     := ctx.inputCtx.fileName
     fileMap      := ctx.inputCtx.fileMap
-    tacticCache? := none
     snap?        := none
     cancelTk?    := none
   }

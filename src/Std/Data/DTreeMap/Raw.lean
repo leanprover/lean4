@@ -158,7 +158,7 @@ def find? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) : Option (β a) :=
 def get [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
 
-@[inline, inherit_doc get, deprecated find (since := "2025-02-12")]
+@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
 def find [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
   t.get a h
 
@@ -196,8 +196,8 @@ def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
 
 @[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
-def find (t : Raw α β cmp) (a : α) : Option β :=
-  get? t a
+def find (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
+  get t a h
 
 @[inline, inherit_doc DTreeMap.get!]
 def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=

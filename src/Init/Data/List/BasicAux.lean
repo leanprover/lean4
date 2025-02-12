@@ -14,6 +14,44 @@ namespace List
 
 /-! ## Alternative getters -/
 
+/-! ### get? -/
+
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
+Also see `get`, `getD` and `get!`.
+-/
+def get? : (as : List α) → (i : Nat) → Option α
+  | a::_,  0   => some a
+  | _::as, n+1 => get? as n
+  | _,     _   => none
+
+@[simp] theorem get?_nil : @get? α [] n = none := rfl
+@[simp] theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
+@[simp] theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
+
+theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+  | [], [], _ => rfl
+  | _ :: _, [], h => nomatch h 0
+  | [], _ :: _, h => nomatch h 0
+  | a :: l₁, a' :: l₂, h => by
+    have h0 : some a = some a' := h 0
+    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
+
+/-! ### getD -/
+
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
+See also `get?` and `get!`.
+-/
+def getD (as : List α) (i : Nat) (fallback : α) : α :=
+  as[i]?.getD fallback
+
+@[simp] theorem getD_nil : getD [] n d = d := rfl
+
 /-! ### get! -/
 
 /--

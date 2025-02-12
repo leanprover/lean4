@@ -241,7 +241,7 @@ where
                     new := promise
                     old? := do
                       let old ← old?
-                      return ⟨old.stx, (← old.next.get? 0)⟩
+                      return ⟨old.stx, (← old.next[0]?)⟩
                   } }) do
                     evalTactic stx'
                   return

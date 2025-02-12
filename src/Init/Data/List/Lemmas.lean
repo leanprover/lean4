@@ -189,29 +189,6 @@ theorem get?_eq_none_iff : l.get? n = none ↔ length l ≤ n :=
   · exact (get?_eq_get ‹_›)
   · exact (get?_eq_none_iff.2 <| Nat.not_lt.1 ‹_›)
 
-/-! ### getD
-
-We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
-Because of this, there is only minimal API for `getD`.
--/
-
-@[simp] theorem getD_eq_getElem?_getD (l) (i) (a : α) : getD l i a = (l[i]?).getD a := by
-  simp [getD]
-
-/-! ### get!
-
-We simplify `l.get! i` to `l[i]!`.
--/
-
-theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) i, l.get! i = l.getD i default
-  | [], _      => rfl
-  | _a::_, 0   => rfl
-  | _a::l, n+1 => get!_eq_getD l n
-
-@[simp] theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := by
-  simp [get!_eq_getD]
-  rfl
-
 /-! ### getElem!
 
 We simplify `l[i]!` to `(l[i]?).getD default`.
@@ -321,6 +298,31 @@ theorem ext_getElem {l₁ l₂ : List α} (hl : length l₁ = length l₂)
 
 theorem getElem?_concat_length (l : List α) (a : α) : (l ++ [a])[l.length]? = some a := by
   simp
+
+/-! ### getD
+
+We simplify away `getD`, replacing `getD l n a` with `(l[n]?).getD a`.
+Because of this, there is only minimal API for `getD`.
+-/
+
+@[simp] theorem getD_eq_getElem?_getD (l) (i) (a : α) : getD l i a = (l[i]?).getD a := by
+  simp [getD]
+
+theorem getD_cons_zero : getD (x :: xs) 0 d = x := by simp
+theorem getD_cons_succ : getD (x :: xs) (n + 1) d = getD xs n d := by simp
+
+/-! ### get!
+
+We simplify `l.get! i` to `l[i]!`.
+-/
+
+theorem get!_eq_getD [Inhabited α] : ∀ (l : List α) i, l.get! i = l.getD i default
+  | [], _      => rfl
+  | _a::_, 0   => by simp [get!]
+  | _a::l, n+1 => by simpa using get!_eq_getD l n
+
+@[simp] theorem get!_eq_getElem! [Inhabited α] (l : List α) (i) : l.get! i = l[i]! := by
+  simp [get!_eq_getD]
 
 /-! ### mem -/
 

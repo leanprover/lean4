@@ -77,6 +77,9 @@ abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
 instance : Inhabited ModuleIdx where default := (0 : Nat)
 
+instance : GetElem (Array Name) ModuleIdx Name (fun a i => i.toNat < a.size) where
+  getElem a i h := a[i.toNat]
+
 abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where

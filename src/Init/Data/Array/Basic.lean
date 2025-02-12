@@ -254,16 +254,36 @@ def range' (start size : Nat) (step : Nat := 1) : Array Nat :=
 
 @[inline] protected def singleton (v : α) : Array α := #[v]
 
+/--
+Return the last element of an array, or panic if the array is empty.
+
+See `back` for the version that requires a proof the array is non-empty,
+or `back?` for the version that returns an option.
+-/
 def back! [Inhabited α] (a : Array α) : α :=
   a[a.size - 1]!
 
-@[deprecated back! (since := "2024-10-31")] abbrev back := @back!
+/--
+Return the last element of an array, given a proof that the array is not empty.
 
-def get? (a : Array α) (i : Nat) : Option α :=
-  if h : i < a.size then some a[i] else none
+See `back!` for the version that panics if the array is empty,
+or `back?` for the version that returns an option.
+-/
+def back (a : Array α) (h : 0 < a.size := by get_elem_tactic) : α :=
+  a[a.size - 1]'(Nat.sub_one_lt_of_lt h)
 
+/--
+Return the last element of an array, or `none` if the array is empty.
+
+See `back!` for the version that panics if the array is empty,
+or `back` for the version that requires a proof the array is non-empty.
+-/
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
+
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
+def get? (a : Array α) (i : Nat) : Option α :=
+  if h : i < a.size then some a[i] else none
 
 @[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]

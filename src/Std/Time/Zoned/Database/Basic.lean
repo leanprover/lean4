@@ -47,7 +47,7 @@ def convertUt : Bool → UTLocal
 Converts a given time index into a `LocalTimeType` by using a time zone (`tz`) and its identifier.
 -/
 def convertLocalTimeType (index : Nat) (tz : TZif.TZifV1) (identifier : String) : Option LocalTimeType := do
-  let localType ← tz.localTimeTypes.get? index
+  let localType ← tz.localTimeTypes[index]?
   let offset := Offset.ofSeconds <| .ofInt localType.gmtOffset
   let abbreviation ← tz.abbreviations.getD index (offset.toIsoString true)
   let wallflag := convertWall (tz.stdWallIndicators.getD index true)

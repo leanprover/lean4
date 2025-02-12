@@ -124,7 +124,7 @@ namespace List
 
 @[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
     a.toArray[i]! = a[i]! := by
-  sorry
+  simp [getElem!_def]
 
 end List
 

@@ -334,13 +334,13 @@ def toArray (t : DTreeMap α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
+def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) :
     DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray l |>.impl, Impl.WF.empty.insertMany⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.ofArray a |>.impl, Impl.WF.empty.insertMany⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
-  ofArray l cmp
+def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : DTreeMap α β cmp :=
+  ofArray a cmp
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -380,9 +380,9 @@ def toArray (t : DTreeMap α β cmp) : Array (α × β) :=
   t.foldl (init := ∅) fun acc k v => acc.push ⟨k,v⟩
 
 @[inline, inherit_doc DTreeMap.ofList]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : DTreeMap α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  ⟨Impl.Const.ofArray l |>.impl, Impl.WF.empty.constInsertMany⟩
+  ⟨Impl.Const.ofArray a |>.impl, Impl.WF.empty.constInsertMany⟩
 
 /-- Transforms a list of keys into a tree map. -/
 @[inline]
@@ -392,9 +392,9 @@ def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) 
 
 /-- Transforms an array of keys into a tree map. -/
 @[inline]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : DTreeMap α Unit cmp :=
   letI : Ord α := ⟨cmp⟩
-  ⟨Impl.Const.unitOfArray l |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
+  ⟨Impl.Const.unitOfArray a |>.impl, Impl.WF.empty.constInsertManyIfNewUnit⟩
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : DTreeMap α β cmp) : DTreeMap α β cmp :=

@@ -241,16 +241,16 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   DTreeMap.Raw.Const.toArray t.inner
 
 @[inline, inherit_doc DTreeMap.Raw.Const.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
-  ⟨DTreeMap.Raw.Const.ofArray l cmp⟩
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.ofArray a cmp⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (l : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofArray l cmp
+def fromArray (a : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofArray a cmp
 
 @[inline, inherit_doc DTreeMap.Const.unitOfArray]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
-  ⟨DTreeMap.Raw.Const.unitOfArray l cmp⟩
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+  ⟨DTreeMap.Raw.Const.unitOfArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=

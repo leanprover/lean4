@@ -575,8 +575,8 @@ def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α β} (e : Iterated
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray [Ord α] (l : Array ((a : α) × β a)) : BalancedTree α β :=
-  empty.insertMany l balanced_empty |>.toBalancedTree balanced_empty
+def ofArray [Ord α] (a : Array ((a : α) × β a)) : BalancedTree α β :=
+  empty.insertMany a balanced_empty |>.toBalancedTree balanced_empty
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
@@ -593,8 +593,8 @@ def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => β)} (e
   ⟨e.1, e.2 h fun _ _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
 
 /-- Transforms a list of mappings into a tree map. -/
-@[inline] def ofArray [Ord α] (l : Array (α × β)) :  BalancedTree α (fun _ => β) :=
-  insertMany empty l balanced_empty |>.toBalancedTree balanced_empty
+@[inline] def ofArray [Ord α] (a : Array (α × β)) :  BalancedTree α (fun _ => β) :=
+  insertMany empty a balanced_empty |>.toBalancedTree balanced_empty
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline] def ofList [Ord α] (l : List (α × β)) : BalancedTree α (fun _ => β) :=
@@ -606,8 +606,8 @@ def IteratedUnitInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => Uni
   ⟨e.1, e.2 h fun _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
 
 /-- Transforms a list of mappings into a tree map. -/
-@[inline] def unitOfArray [Ord α] (l : Array α) :  BalancedTree α (fun _ => Unit) :=
-  insertManyIfNewUnit empty l balanced_empty |>.toBalancedTree balanced_empty
+@[inline] def unitOfArray [Ord α] (a : Array α) :  BalancedTree α (fun _ => Unit) :=
+  insertManyIfNewUnit empty a balanced_empty |>.toBalancedTree balanced_empty
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline] def unitOfList [Ord α] (l : List α) : BalancedTree α (fun _ => Unit) :=

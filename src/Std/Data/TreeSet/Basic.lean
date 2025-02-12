@@ -232,12 +232,12 @@ def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
 
 /-- Transforms an array into a tree set. -/
-def ofArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
-  ⟨TreeMap.unitOfArray l cmp⟩
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
+  ⟨TreeMap.unitOfArray a cmp⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (l : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
-  ofArray l cmp
+def fromArray (a : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofArray a cmp
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.

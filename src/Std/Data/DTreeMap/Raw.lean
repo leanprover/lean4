@@ -264,13 +264,13 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofArray l |>.impl⟩
+  ⟨Impl.ofArray a |>.impl⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
-def fromArray (l : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
-  ofArray l cmp
+def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofArray a cmp
 
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
@@ -298,12 +298,12 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
   Impl.Const.toArray t.inner
 
 @[inline, inherit_doc Raw.ofArray]
-def ofArray (l : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray l |>.impl⟩
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray a |>.impl⟩
 
 @[inline, inherit_doc Raw.ofArray]
-def unitOfArray (l : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray l |>.impl⟩
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a |>.impl⟩
 
 @[inline, inherit_doc Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=

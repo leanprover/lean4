@@ -16,7 +16,10 @@ This file thus breaks the import cycle that would be created by this dependency.
 
 open Nat
 
-def UInt8.val (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
+/-- Converts a `UInt8` into the corresponding `Fin UInt8.size`. -/
+def UInt8.toFin (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
+@[deprecated UInt8.toFin (since := "2025-02-12"), inherit_doc UInt8.toFin]
+def UInt8.val (x : UInt8) : Fin UInt8.size := x.toFin
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
 abbrev Nat.toUInt8 := UInt8.ofNat
@@ -25,7 +28,10 @@ def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
 
 instance UInt8.instOfNat : OfNat UInt8 n := ⟨UInt8.ofNat n⟩
 
-def UInt16.val (x : UInt16) : Fin UInt16.size := x.toBitVec.toFin
+/-- Converts a `UInt16` into the corresponding `Fin UInt16.size`. -/
+def UInt16.toFin (x : UInt16) : Fin UInt16.size := x.toBitVec.toFin
+@[deprecated UInt16.toFin (since := "2025-02-12"), inherit_doc UInt16.toFin]
+def UInt16.val (x : UInt16) : Fin UInt16.size := x.toFin
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
 abbrev Nat.toUInt16 := UInt16.ofNat
@@ -38,7 +44,10 @@ def UInt8.toUInt16 (a : UInt8) : UInt16 := ⟨⟨a.toNat, Nat.lt_trans a.toBitVe
 
 instance UInt16.instOfNat : OfNat UInt16 n := ⟨UInt16.ofNat n⟩
 
-def UInt32.val (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
+/-- Converts a `UInt32` into the corresponding `Fin UInt32.size`. -/
+def UInt32.toFin (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
+@[deprecated UInt32.toFin (since := "2025-02-12"), inherit_doc UInt32.toFin]
+def UInt32.val (x : UInt32) : Fin UInt32.size := x.toFin
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
 @[extern "lean_uint32_of_nat"]
@@ -73,7 +82,10 @@ theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt
   simp only [(· < ·), BitVec.toNat, ofNat', BitVec.ofNatLt, ofNat, BitVec.ofNat, Fin.ofNat',
     Nat.mod_eq_of_lt h2, imp_self]
 
-def UInt64.val (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
+/-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
+def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
+@[deprecated UInt64.toFin (since := "2025-02-12"), inherit_doc UInt64.toFin]
+def UInt64.val (x : UInt64) : Fin UInt64.size := x.toFin
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
 abbrev Nat.toUInt64 := UInt64.ofNat
@@ -97,7 +109,10 @@ instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 @[deprecated usize_size_pos (since := "2024-11-24")] theorem usize_size_gt_zero : USize.size > 0 :=
   usize_size_pos
 
-def USize.val (x : USize) : Fin USize.size := x.toBitVec.toFin
+/-- Converts a `USize` into the corresponding `Fin USize.size`. -/
+def USize.toFin (x : USize) : Fin USize.size := x.toBitVec.toFin
+@[deprecated USize.toFin (since := "2025-02-12"), inherit_doc USize.toFin]
+def USize.val (x : USize) : Fin USize.size := x.toFin
 @[extern "lean_usize_of_nat"]
 def USize.ofNat (n : @& Nat) : USize := ⟨BitVec.ofNat _ n⟩
 abbrev Nat.toUSize := USize.ofNat

@@ -172,22 +172,22 @@ where
         return (x, toExpr <| value.bv == 1)
       | UInt8.toBitVec x =>
         if h : value.w = 8 then
-          return (x, toExpr <| UInt8.mk (h ▸ value.bv))
+          return (x, toExpr <| UInt8.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt8 was not 8 bit but {value.w} bit"
       | UInt16.toBitVec x =>
         if h : value.w = 16 then
-          return (x, toExpr <| UInt16.mk (h ▸ value.bv))
+          return (x, toExpr <| UInt16.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt16 was not 16 bit but {value.w} bit"
       | UInt32.toBitVec x =>
         if h : value.w = 32 then
-          return (x, toExpr <| UInt32.mk (h ▸ value.bv))
+          return (x, toExpr <| UInt32.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt32 was not 32 bit but {value.w} bit"
       | UInt64.toBitVec x =>
         if h : value.w = 64 then
-          return (x, toExpr <| UInt64.mk (h ▸ value.bv))
+          return (x, toExpr <| UInt64.ofBitVec (h ▸ value.bv))
         else
           throwError m!"Value for UInt64 was not 64 bit but {value.w} bit"
       | _ =>

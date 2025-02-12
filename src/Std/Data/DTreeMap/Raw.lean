@@ -164,7 +164,6 @@ def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
 
 namespace Const
-open Internal (Impl)
 
 variable {β : Type v}
 

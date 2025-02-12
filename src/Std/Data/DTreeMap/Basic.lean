@@ -192,7 +192,7 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
 
-@[inline, inherit_doc get, deprecated find (since := "2025-02-12")]
+@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
 def find [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
   t.get a h
 

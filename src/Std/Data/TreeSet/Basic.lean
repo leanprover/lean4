@@ -162,7 +162,7 @@ ascending order.
 def foldlM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-11")]
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
 def foldM (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
   t.foldlM f init
 
@@ -171,7 +171,7 @@ def foldM (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
 
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-11")]
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
 def fold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.foldl f init
 

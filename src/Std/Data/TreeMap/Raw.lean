@@ -147,7 +147,7 @@ def erase (t : Raw α β cmp) (a : α) : Raw α β cmp :=
 def get? (t : Raw α β cmp) (a : α) : Option β :=
   DTreeMap.Raw.Const.get? t.inner a
 
-@[inline, inherit_doc get?, deprecated get? (since := "2025-02-11")]
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
 def find? (t : Raw α β cmp) (a : α) : Option β :=
   get? t a
 
@@ -155,7 +155,7 @@ def find? (t : Raw α β cmp) (a : α) : Option β :=
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   DTreeMap.Raw.Const.get t.inner a h
 
-@[inline, inherit_doc get, deprecated get (since := "2025-02-11")]
+@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
 def find (t : Raw α β cmp) (a : α) : Option β :=
   get? t a
 
@@ -163,7 +163,7 @@ def find (t : Raw α β cmp) (a : α) : Option β :=
 def get! (t : Raw α β cmp) (a : α) [Inhabited β]  : β :=
   DTreeMap.Raw.Const.get! t.inner a
 
-@[inline, inherit_doc get!, deprecated get! (since := "2025-02-11")]
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
   get! t a
 
@@ -171,7 +171,7 @@ def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   DTreeMap.Raw.Const.getD t.inner a fallback
 
-@[inline, inherit_doc getD, deprecated getD (since := "2025-02-11")]
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   getD t a fallback
 
@@ -190,7 +190,7 @@ def filter (f : α → β → Bool) (t : Raw α β cmp) : Raw α β cmp :=
 def foldlM (f : δ → (a : α) → β → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.foldlM f init
 
-@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-11")]
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
 def foldM (f : δ → (a : α) → β → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.foldlM f init
 
@@ -198,7 +198,7 @@ def foldM (f : δ → (a : α) → β → m δ) (init : δ) (t : Raw α β cmp) 
 def foldl (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldl f init
 
-@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-11")]
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
 def fold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.foldl f init
 

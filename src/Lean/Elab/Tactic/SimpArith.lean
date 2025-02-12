@@ -28,6 +28,7 @@ private def setKind (stx : Syntax) (str : String) (kind : SyntaxNodeKind) : Synt
 
 private def addSuggestions (stx : Syntax) (tokenNew : String) (kindNew : SyntaxNodeKind) : MetaM Unit := do
   let stx' := setKind stx tokenNew kindNew
+  let stx' := stx'.unsetTrailing
   let s₁ : TSyntax `tactic := ⟨← addArith stx'⟩
   let s₂ : TSyntax `tactic := ⟨← addArith (← addDecide stx')⟩
   Meta.Tactic.TryThis.addSuggestions stx[0] #[s₁, s₂] (origSpan? := (← getRef))

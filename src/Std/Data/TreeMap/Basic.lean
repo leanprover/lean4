@@ -174,7 +174,7 @@ def foldlM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β 
 
 @[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
 def foldM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
-  foldlM f init t
+  t.foldlM f init
 
 @[inline, inherit_doc DTreeMap.foldl]
 def foldl (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
@@ -182,7 +182,7 @@ def foldl (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp
 
 @[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
 def fold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
-  foldl f init t
+  t.foldl f init
 
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : α → β → m PUnit) (t : TreeMap α β cmp) : m PUnit :=

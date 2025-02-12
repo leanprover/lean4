@@ -39,7 +39,7 @@ def reconstructCounterExample (var2Cnf : Std.HashMap BVBit Nat) (assignment : Ar
     Array (Expr × BVExpr.PackedBitVec) := Id.run do
   let mut sparseMap : Std.HashMap Nat (RBMap Nat Bool Ord.compare) := {}
   let filter bvBit _ :=
-    let (_, _, synthetic) := atomsAssignment.get! bvBit.var
+    let (_, _, synthetic) := atomsAssignment[bvBit.var]!
     !synthetic
   let var2Cnf := var2Cnf.filter filter
   for (bitVar, cnfVar) in var2Cnf.toArray do

@@ -77,8 +77,12 @@ abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
 instance : Inhabited ModuleIdx where default := (0 : Nat)
 
-instance : GetElem (Array Name) ModuleIdx Name (fun a i => i.toNat < a.size) where
+instance : GetElem (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem a i h := a[i.toNat]
+
+instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
+  getElem? a i := a[i.toNat]?
+  getElem! a i := a[i.toNat]!
 
 abbrev ConstMap := SMap Name ConstantInfo
 
@@ -1105,7 +1109,7 @@ namespace PersistentEnvExtension
 
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
   -- `importedEntries` is identical on all environment branches, so `local` is always sufficient
-  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries.get! m
+  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries[m]!
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>

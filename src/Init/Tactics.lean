@@ -1015,31 +1015,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
 
 /--
-`checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
-and if the file is re-elaborated and the input matches, the tactic is not re-run and
-its effects are reapplied to the state. This is useful for improving responsiveness
-when working on a long tactic proof, by wrapping expensive tactics with `checkpoint`.
-
-See the `save` tactic, which may be more convenient to use.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
-
-/--
-`save` is defined to be the same as `skip`, but the elaborator has
-special handling for occurrences of `save` in tactic scripts and will transform
-`by tac1; save; tac2` to `by (checkpoint tac1); tac2`, meaning that the effect of `tac1`
-will be cached and replayed. This is useful for improving responsiveness
-when working on a long tactic proof, by using `save` after expensive tactics.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-macro (name := save) "save" : tactic => `(tactic| skip)
-
-/--
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.
 It is used for debugging purposes only.
 -/
@@ -1797,7 +1772,7 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith` and `omega`
+where `i < arr.size` is in the context) and `simp +arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic

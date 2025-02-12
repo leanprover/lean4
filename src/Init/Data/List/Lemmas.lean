@@ -1563,7 +1563,7 @@ theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {i : Nat} (hi : 
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
 theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
-    l[i]'(eq ▸ h ▸ by simp_arith) = a := Option.some.inj <| by
+    l[i]'(eq ▸ h ▸ by simp +arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
 

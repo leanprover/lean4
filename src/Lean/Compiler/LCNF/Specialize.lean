@@ -32,6 +32,7 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    asyncMode     := .sync
   }
 
 def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=

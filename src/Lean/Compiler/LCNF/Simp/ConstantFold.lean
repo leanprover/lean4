@@ -410,6 +410,7 @@ builtin_initialize folderExt : PersistentEnvExtension FolderOleanEntry FolderEnt
       return ([], folders.switch)
     addEntryFn := fun (entries, map) entry => (entry.toFolderOleanEntry :: entries, map.insert entry.declName entry.folder)
     exportEntriesFn := fun (entries, _) => entries.reverse.toArray
+    asyncMode := .sync
   }
 
 def registerFolder (declName : Name) (folderDeclName : Name) : CoreM Unit := do

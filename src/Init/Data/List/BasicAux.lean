@@ -22,15 +22,24 @@ Returns the `i`-th element in the list (zero-based).
 If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
 Also see `get`, `getD` and `get!`.
 -/
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
 def get? : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get? as n
   | _,     _   => none
 
-@[simp] theorem get?_nil : @get? α [] n = none := rfl
-@[simp] theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
-@[simp] theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_nil : @get? α [] n = none := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
 
+set_option linter.deprecated false in
+@[deprecated "Use `List.ext_getElem?`." (since := "2025-02-12")]
 theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
   | [], [], _ => rfl
   | _ :: _, [], h => nomatch h 0

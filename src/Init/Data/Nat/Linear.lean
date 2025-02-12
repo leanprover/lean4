@@ -66,18 +66,6 @@ where
     | [] => r
     | (k, v) :: p => go p (r.insert k v)
 
-def Poly.mul (k : Nat) (p : Poly) : Poly :=
-  bif k == 0 then
-    []
-  else bif k == 1 then
-    p
-  else
-    go p
-where
-  go : Poly → Poly
-  | [] => []
-  | (k', v) :: p => (Nat.mul k k', v) :: go p
-
 def Poly.cancelAux (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly) : Poly × Poly :=
   match fuel with
   | 0 => (r₁.reverse ++ m₁, r₂.reverse ++ m₂)
@@ -160,9 +148,6 @@ instance : LawfulBEq PolyCnstr where
     show (eq == eq && (lhs == lhs && rhs == rhs)) = true
     simp [LawfulBEq.rfl]
 
-def PolyCnstr.mul (k : Nat) (c : PolyCnstr) : PolyCnstr :=
-  { c with lhs := c.lhs.mul k, rhs := c.rhs.mul k }
-
 structure ExprCnstr where
   eq  : Bool
   lhs : Expr
@@ -226,7 +211,6 @@ def PolyCnstr.toExpr (c : PolyCnstr) : ExprCnstr :=
 
 attribute [local simp] Nat.add_comm Nat.add_assoc Nat.add_left_comm Nat.right_distrib Nat.left_distrib Nat.mul_assoc Nat.mul_comm
 attribute [local simp] Poly.denote Expr.denote Poly.insert Poly.norm Poly.norm.go Poly.cancelAux
-attribute [local simp] Poly.mul Poly.mul.go
 
 theorem Poly.denote_insert (ctx : Context) (k : Nat) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
@@ -281,20 +265,10 @@ theorem Poly.denote_reverse (ctx : Context) (p : Poly) : denote ctx (List.revers
 
 attribute [local simp] Poly.denote_reverse
 
-theorem Poly.denote_mul (ctx : Context) (k : Nat) (p : Poly) : (p.mul k).denote ctx = k * p.denote ctx := by
-  simp
-  by_cases h : k == 0 <;> simp [h]; simp [eq_of_beq h]
-  by_cases h : k == 1 <;> simp [h]; simp [eq_of_beq h]
-  induction p with
-  | nil  => simp
-  | cons kv m ih => cases kv with | _ k' v => simp [ih]
-
 private theorem eq_of_not_blt_eq_true (h₁ : ¬ (Nat.blt x y = true)) (h₂ : ¬ (Nat.blt y x = true)) : x = y :=
   have h₁ : ¬ x < y := fun h => h₁ (Nat.blt_eq.mpr h)
   have h₂ : ¬ y < x := fun h => h₂ (Nat.blt_eq.mpr h)
   Nat.le_antisymm (Nat.ge_of_not_lt h₂) (Nat.ge_of_not_lt h₁)
-
-attribute [local simp] Poly.denote_mul
 
 theorem Poly.denote_eq_cancelAux (ctx : Context) (fuel : Nat) (m₁ m₂ r₁ r₂ : Poly)
     (h : denote_eq ctx (r₁.reverse ++ m₁, r₂.reverse ++ m₂)) : denote_eq ctx (cancelAux fuel m₁ m₂ r₁ r₂) := by
@@ -517,32 +491,6 @@ theorem ExprCnstr.denote_toNormPoly (ctx : Context) (c : ExprCnstr) : c.toNormPo
   · rw [Poly.denote_le_cancel_eq]; simp [Poly.denote_le, Expr.toNormPoly, Poly.norm]
 
 attribute [local simp] ExprCnstr.denote_toNormPoly
-
-theorem Poly.mul.go_denote (ctx : Context) (k : Nat) (p : Poly) : (Poly.mul.go k p).denote ctx = k * p.denote ctx := by
-  match p with
-  | [] => rfl
-  | (k', v) :: p => simp [Poly.mul.go, go_denote]
-
-attribute [local simp] Poly.mul.go_denote
-
-section
-attribute [-simp] Nat.right_distrib Nat.left_distrib
-
-theorem PolyCnstr.denote_mul (ctx : Context) (k : Nat) (c : PolyCnstr) : (c.mul (k+1)).denote ctx = c.denote ctx := by
-  cases c; rename_i eq lhs rhs
-  have : k ≠ 0 → k + 1 ≠ 1 := by intro h; match k with | 0 => contradiction | k+1 => simp [Nat.succ.injEq]
-  have : ¬ (k == 0) → (k + 1 == 1) = false := fun h => beq_false_of_ne (this (ne_of_beq_false (Bool.of_not_eq_true h)))
-  have : ¬ ((k + 1 == 0) = true)  := fun h => absurd (eq_of_beq h) (Nat.succ_ne_zero k)
-  by_cases he : eq = true <;> simp [he, PolyCnstr.mul, PolyCnstr.denote, Poly.denote_le, Poly.denote_eq]
-     <;> by_cases hk : k == 0 <;> (try simp [eq_of_beq hk]) <;> simp [*] <;> apply Iff.intro <;> intro h
-  · exact Nat.eq_of_mul_eq_mul_left (Nat.zero_lt_succ _) h
-  · rw [h]
-  · exact Nat.le_of_mul_le_mul_left h (Nat.zero_lt_succ _)
-  · apply Nat.mul_le_mul_left _ h
-
-end
-
-attribute [local simp] PolyCnstr.denote_mul
 
 theorem Poly.of_isZero (ctx : Context) {p : Poly} (h : isZero p = true) : p.denote ctx = 0 := by
   simp [isZero] at h

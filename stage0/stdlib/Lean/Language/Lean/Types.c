@@ -175,7 +175,7 @@ x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 x_5 = lean_ctor_get(x_1, 5);
 lean_inc(x_5);
-x_6 = lean_ctor_get(x_1, 7);
+x_6 = lean_ctor_get(x_1, 6);
 lean_inc(x_6);
 lean_dec(x_1);
 x_7 = lean_ctor_get(x_3, 0);

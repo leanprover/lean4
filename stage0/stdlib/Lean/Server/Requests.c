@@ -2328,7 +2328,7 @@ lean_dec(x_3);
 if (x_4 == 0)
 {
 lean_object* x_5; 
-x_5 = lean_ctor_get(x_2, 7);
+x_5 = lean_ctor_get(x_2, 6);
 lean_inc(x_5);
 lean_dec(x_2);
 if (lean_obj_tag(x_5) == 0)

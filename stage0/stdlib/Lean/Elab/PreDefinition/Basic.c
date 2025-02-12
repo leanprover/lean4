@@ -3806,7 +3806,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_Basic_0__Lean_Elab_
 _start:
 {
 uint8_t x_9; 
-x_9 = lean_ctor_get_uint8(x_2, sizeof(void*)*9 + 5);
+x_9 = lean_ctor_get_uint8(x_2, sizeof(void*)*8 + 5);
 if (x_9 == 0)
 {
 uint8_t x_10; lean_object* x_11; 

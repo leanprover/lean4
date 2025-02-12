@@ -169,7 +169,7 @@ def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp
   t.inner.foldr f init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def foldRev (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
+def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   foldr f init t
 
 @[inline, inherit_doc DTreeMap.forM]

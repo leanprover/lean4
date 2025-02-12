@@ -156,7 +156,7 @@ def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.inner.foldr (fun c a _ => f c a) init
 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
-def foldRev (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   foldr f init t
 
 @[inline, inherit_doc TreeSet.empty]

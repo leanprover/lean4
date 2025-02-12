@@ -70,7 +70,7 @@ theorem denote_projected_entry' {entry : Entrypoint α} :
 -/
 theorem mkGate_le_size (aig : AIG α) (input : GateInput aig) :
     aig.decls.size ≤ (aig.mkGate input).aig.decls.size := by
-  simp_arith [mkGate]
+  simp +arith [mkGate]
 
 /--
 The AIG produced by `AIG.mkGate` agrees with the input AIG on all indices that are valid for both.
@@ -125,7 +125,7 @@ theorem denote_mkGate {aig : AIG α} {input : GateInput aig} :
 -/
 theorem mkAtom_le_size (aig : AIG α) (var : α) :
     aig.decls.size ≤ (aig.mkAtom var).aig.decls.size := by
-  simp_arith [mkAtom]
+  simp +arith [mkAtom]
 
 /--
 The AIG produced by `AIG.mkAtom` agrees with the input AIG on all indices that are valid for both.
@@ -164,7 +164,7 @@ theorem denote_mkAtom {aig : AIG α} :
 -/
 theorem mkConst_le_size (aig : AIG α) (val : Bool) :
     aig.decls.size ≤ (aig.mkConst val).aig.decls.size := by
-  simp_arith [mkConst]
+  simp +arith [mkConst]
 
 /--
 The AIG produced by `AIG.mkConst` agrees with the input AIG on all indices that are valid for both.

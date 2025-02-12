@@ -289,7 +289,7 @@ def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α 
 
 @[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
 def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (t : DTreeMap α β cmp) : m δ :=
-  t.foldlM f init
+  foldlM f init t
 
 /--
 Folds the given function over the mappings in the map in ascending order.
@@ -300,7 +300,7 @@ def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β 
 
 @[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
 def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
-  t.foldl f init
+  foldl f init t
 
 /-- Carries out a monadic action on each mapping in the tree map in ascending order. -/
 @[inline]

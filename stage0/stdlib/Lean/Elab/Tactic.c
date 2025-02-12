@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic
-// Imports: Lean.Elab.Term Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Induction Lean.Elab.Tactic.Generalize Lean.Elab.Tactic.Injection Lean.Elab.Tactic.Match Lean.Elab.Tactic.Rewrite Lean.Elab.Tactic.Location Lean.Elab.Tactic.SimpTrace Lean.Elab.Tactic.Simp Lean.Elab.Tactic.Simproc Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Tactic.Split Lean.Elab.Tactic.Conv Lean.Elab.Tactic.Delta Lean.Elab.Tactic.Meta Lean.Elab.Tactic.Unfold Lean.Elab.Tactic.Cache Lean.Elab.Tactic.Calc Lean.Elab.Tactic.Congr Lean.Elab.Tactic.Guard Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.Ext Lean.Elab.Tactic.Change Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.Omega Lean.Elab.Tactic.Simpa Lean.Elab.Tactic.NormCast Lean.Elab.Tactic.Symm Lean.Elab.Tactic.SolveByElim Lean.Elab.Tactic.LibrarySearch Lean.Elab.Tactic.ShowTerm Lean.Elab.Tactic.Rfl Lean.Elab.Tactic.Rewrites Lean.Elab.Tactic.DiscrTreeKey Lean.Elab.Tactic.BVDecide Lean.Elab.Tactic.BoolToPropSimps Lean.Elab.Tactic.Classical Lean.Elab.Tactic.Grind Lean.Elab.Tactic.Monotonicity Lean.Elab.Tactic.Try Lean.Elab.Tactic.AsAuxLemma Lean.Elab.Tactic.TreeTacAttr Lean.Elab.Tactic.ExposeNames
+// Imports: Lean.Elab.Term Lean.Elab.Tactic.Basic Lean.Elab.Tactic.ElabTerm Lean.Elab.Tactic.Induction Lean.Elab.Tactic.Generalize Lean.Elab.Tactic.Injection Lean.Elab.Tactic.Match Lean.Elab.Tactic.Rewrite Lean.Elab.Tactic.Location Lean.Elab.Tactic.SimpTrace Lean.Elab.Tactic.Simp Lean.Elab.Tactic.Simproc Lean.Elab.Tactic.BuiltinTactic Lean.Elab.Tactic.Split Lean.Elab.Tactic.Conv Lean.Elab.Tactic.Delta Lean.Elab.Tactic.Meta Lean.Elab.Tactic.Unfold Lean.Elab.Tactic.Cache Lean.Elab.Tactic.Calc Lean.Elab.Tactic.Congr Lean.Elab.Tactic.Guard Lean.Elab.Tactic.RCases Lean.Elab.Tactic.Repeat Lean.Elab.Tactic.Ext Lean.Elab.Tactic.Change Lean.Elab.Tactic.FalseOrByContra Lean.Elab.Tactic.Omega Lean.Elab.Tactic.Simpa Lean.Elab.Tactic.NormCast Lean.Elab.Tactic.Symm Lean.Elab.Tactic.SolveByElim Lean.Elab.Tactic.LibrarySearch Lean.Elab.Tactic.ShowTerm Lean.Elab.Tactic.Rfl Lean.Elab.Tactic.Rewrites Lean.Elab.Tactic.DiscrTreeKey Lean.Elab.Tactic.BVDecide Lean.Elab.Tactic.BoolToPropSimps Lean.Elab.Tactic.Classical Lean.Elab.Tactic.Grind Lean.Elab.Tactic.Monotonicity Lean.Elab.Tactic.Try Lean.Elab.Tactic.AsAuxLemma Lean.Elab.Tactic.TreeTacAttr Lean.Elab.Tactic.ExposeNames Lean.Elab.Tactic.SimpArith
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -59,6 +59,7 @@ lean_object* initialize_Lean_Elab_Tactic_Try(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_AsAuxLemma(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_TreeTacAttr(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Tactic_ExposeNames(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Elab_Tactic_SimpArith(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -200,6 +201,9 @@ res = initialize_Lean_Elab_Tactic_TreeTacAttr(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_ExposeNames(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_Tactic_SimpArith(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

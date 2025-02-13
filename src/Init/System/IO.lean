@@ -57,6 +57,11 @@ def EIO.catchExceptions (act : EIO ε α) (h : ε → BaseIO α) : BaseIO α :=
   | EStateM.Result.ok a s     => EStateM.Result.ok a s
   | EStateM.Result.error ex s => h ex s
 
+def EIO.ofExcept (e : Except ε α) : EIO ε α :=
+  match e with
+  | Except.ok a    => pure a
+  | Except.error e => throw e
+
 open IO (Error) in
 abbrev IO : Type → Type := EIO Error
 

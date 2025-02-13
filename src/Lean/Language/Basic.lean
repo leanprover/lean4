@@ -172,7 +172,7 @@ structure SnapshotTree where
   element : Snapshot
   /-- The asynchronously available children of the snapshot tree node. -/
   children : Array (SnapshotTask SnapshotTree)
-deriving Inhabited
+deriving Inhabited, TypeName
 
 /--
   Helper class for projecting a heterogeneous hierarchy of snapshot classes to a homogeneous

@@ -784,6 +784,7 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) : MetaM (E
       modifyEnv fun env => matcherExt.modifyState env fun s => s.insert (result.value, compile) name
       addMatcherInfo name mi
       setInlineAttribute name
+      enableRealizationsForConst name
       if compile then
         compileDecl decl
     return (mkMatcherConst name, some addMatcher)

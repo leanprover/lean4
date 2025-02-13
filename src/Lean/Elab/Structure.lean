@@ -694,6 +694,9 @@ private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFiel
   for fieldInfo in fieldInfos do
     if fieldInfo.isSubobject then
       addDeclarationRangesFromSyntax fieldInfo.declName r.view.ref fieldInfo.ref
+  for n in projNames do
+    -- projections may generate equation theorems
+    enableRealizationsForConst n
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do

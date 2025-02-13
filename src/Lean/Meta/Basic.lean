@@ -2203,6 +2203,71 @@ def instantiateMVarsIfMVarApp (e : Expr) : MetaM Expr := do
   else
     return e
 
+private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos : Position) :
+    BaseIO Language.SnapshotTree := do
+  let msgLog := snap.element.diagnostics.msgLog
+  let msgLog := { msgLog with unreported := msgLog.unreported.map fun diag =>
+      { diag with pos, endPos } }
+  return {
+    element.diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgLog)
+    children := (← snap.children.mapM fun task => return { task with
+      range? := none
+      task := (← BaseIO.mapTask (t := task.task) (setAllDiagRanges · pos endPos)) })
+  }
+
+/--
+Makes the helper constant `constName` that is derived from `forConst` available in the environment.
+`enableRealizationsForConst forConst` must have been called first on this environment branch. If
+this is the first environment branch requesting `constName` to be realized (atomically), `realize`
+is called with the environment and options at the time of calling `enableRealizationsForConst`, thus
+helping achieve deterministic results despite the non-deterministic choice of which thread is tasked
+with realization. `realizeConst` cannot check what other data is captured in the `realize` closure,
+so it is best practice to extract it into a separate function and pay close attention to the passed
+arguments, if any. `realize` must return with `constName` added to the environment,
+at which point all callers of `realizeConst` with this `constName` will be unblocked
+and have access to an updated version of their own environment containing `constName` plus any new
+constants it depends on, including recursively realized constants. Traces, diagnostics, and raw std
+stream output are reported at all callers via `Core.logSnapshotTask`. The environment extension data
+at the end of `realize` is available to each caller via `EnvExtension.findStateAsync` for
+`constName`. If `realize` throws an exception or fails to add `constName` to the environment, an
+appropriate diagnostic is reported to all callers but no constants are added to the environment.
+-/
+def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
+    MetaM Unit := do
+  let env ← getEnv
+  let coreCtx ← readThe Core.Context
+  -- these fields should be invariant throughout the file
+  let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
+  let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+  if let some snap := dyn.get? Language.SnapshotTree then
+    let mut snap := snap
+    -- localize diagnostics
+    if let some range := (← getRef).getRange? then
+      let fileMap ← getFileMap
+      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+    Core.logSnapshotTask <| .pure snap
+  setEnv env
+where
+  -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
+  realizeAndReport (coreCtx : Core.Context) env opts := do
+    let coreCtx := { coreCtx with options := opts }
+    let act :=
+      IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get opts) do
+        -- catch all exceptions
+        let _ : MonadExceptOf _ MetaM := MonadAlwaysExcept.except
+        try
+          realize
+          if !(← getEnv).contains constName then
+            throwError "Lean.Meta.realizeConst: {constName} was not added to the environment"
+        catch e : Exception =>
+          logError e.toMessageData
+        finally
+          addTraceAsMessages
+    let res? ← act |>.run' |>.run coreCtx { env } |>.toBaseIO
+    match res? with
+    | .ok ((output, ()), st) => pure (st.env, .mk (← Core.mkSnapshot output coreCtx st))
+    | .error _e => unreachable!; pure (env, .mk ({ diagnostics := .empty : Language.SnapshotLeaf}))
+
 end Meta
 
 builtin_initialize

@@ -8,12 +8,6 @@ import Lean.CoreM
 
 namespace Lean
 
-register_builtin_option debug.skipKernelTC : Bool := {
-  defValue := false
-  group    := "debug"
-  descr    := "skip kernel type checker. WARNING: setting this option to true may compromise soundness because your proofs will not be checked by the Lean kernel"
-}
-
 /-- Adds given declaration to the environment, respecting `debug.skipKernelTC`. -/
 def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Exception Environment :=
@@ -56,9 +50,9 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   env := decl.getNames.foldl registerNamePrefixes env
   if let .inductDecl _ _ types _ := decl then
     env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
+  setEnv env
 
   if !Elab.async.get (← getOptions) then
-    setEnv env
     return (← doAdd)
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until

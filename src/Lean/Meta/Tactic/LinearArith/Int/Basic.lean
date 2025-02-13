@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Int.Linear
+import Lean.Util.SortExprs
 import Lean.Meta.Check
 import Lean.Meta.Offset
 import Lean.Meta.IntInstTesters
@@ -30,6 +31,24 @@ where
 def PolyCnstr.toExprCnstr : PolyCnstr → ExprCnstr
   | .eq p => .eq p.toExpr (.num 0)
   | .le p => .le p.toExpr (.num 0)
+
+/-- Applies the given variable permutation to `e` -/
+def Expr.applyPerm (perm : Lean.Perm) (e : Expr) : Expr :=
+  go e
+where
+  go : Expr → Expr
+    | .num v    => .num v
+    | .var i    => .var (perm[(i : Nat)]?.getD i)
+    | .neg a    => .neg (go a)
+    | .add a b  => .add (go a) (go b)
+    | .sub a b  => .sub (go a) (go b)
+    | .mulL k a => .mulL k (go a)
+    | .mulR a k => .mulR (go a) k
+
+/-- Applies the given variable permutation to the given expression constraint. -/
+def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
+  | .eq a b => .eq (a.applyPerm perm) (b.applyPerm perm)
+  | .le a b => .le (a.applyPerm perm) (b.applyPerm perm)
 
 end Int.Linear
 
@@ -187,7 +206,24 @@ def run (x : M α) : MetaM (α × Array Expr) := do
 
 end ToLinear
 
-export ToLinear (toLinearCnstr? toLinearExpr)
+def toLinearExpr (e : Expr) : MetaM (LinearExpr × Array Expr) := do
+  let (e, atoms) ← ToLinear.run (ToLinear.toLinearExpr e)
+  if atoms.size == 1 then
+    return (e, atoms)
+  else
+    let (atoms, perm) := sortExprs atoms
+    let e := e.applyPerm perm
+    return (e, atoms)
+
+def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
+  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e)
+    | return none
+  if atoms.size <= 1 then
+    return some (c, atoms)
+  else
+    let (atoms, perm) := sortExprs atoms
+    let c := c.applyPerm perm
+    return some (c, atoms)
 
 def toContextExpr (ctx : Array Expr) : Expr :=
   if h : 0 < ctx.size then

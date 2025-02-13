@@ -48,8 +48,6 @@ structure CommandParsedSnapshot extends Snapshot where
   finishedSnap : SnapshotTask CommandFinishedSnapshot
   /-- Additional, untyped snapshots used for reporting, not reuse. -/
   reportSnap : SnapshotTask SnapshotTree
-  /-- Cache for `save`; to be replaced with incrementality. -/
-  tacticCache : IO.Ref Tactic.Cache
   /-- Next command, unless this is a terminal command. -/
   nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
 deriving Nonempty

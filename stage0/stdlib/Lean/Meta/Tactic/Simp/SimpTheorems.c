@@ -88,6 +88,7 @@ static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_SimpTheore
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_Meta_addSimpTheorem___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_reprOrigin____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_82____closed__16;
 LEAN_EXPORT lean_object* l_Lean_Meta_withSimpGlobalConfig(lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedSimpTheorem___closed__5;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_isPerm(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_isRflProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
@@ -110,7 +111,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_ppOrigin___rarg___boxed(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_addSimpTheorem___spec__2(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocess_go___lambda__7(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_proj___override(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Tactic_Simp_SimpTheorems_0__Lean_Meta_preprocess_go___lambda__3___closed__4;
@@ -304,6 +304,7 @@ static lean_object* l___auto____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_550
 static lean_object* l___auto____x40_Lean_Meta_Tactic_Simp_SimpTheorems___hyg_5505____closed__17;
 static lean_object* l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_addSimpTheoremEntry___spec__1___closed__1;
 lean_object* l_Lean_Meta_DiscrTree_mkPath(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedSimpTheorem___closed__4;
 lean_object* lean_usize_to_nat(size_t);
 extern lean_object* l_Lean_instInhabitedProjectionFunctionInfo;
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1513,18 +1514,37 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__3() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedSimpTheorem___closed__2;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedSimpTheorem___closed__3;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_instInhabitedSimpTheorem___closed__1;
-x_2 = l_Lean_Meta_instInhabitedSimpTheorem___closed__2;
+x_2 = l_Lean_Meta_instInhabitedSimpTheorem___closed__4;
 x_3 = lean_unsigned_to_nat(0u);
 x_4 = 0;
 x_5 = l_Lean_Meta_instInhabitedOrigin___closed__1;
@@ -1544,7 +1564,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedSimpTheorem() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedSimpTheorem___closed__3;
+x_1 = l_Lean_Meta_instInhabitedSimpTheorem___closed__5;
 return x_1;
 }
 }
@@ -12721,7 +12741,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedSimpEntry___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Meta_instInhabitedSimpTheorem___closed__3;
+x_1 = l_Lean_Meta_instInhabitedSimpTheorem___closed__5;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -14092,7 +14112,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_Meta_SimpTheorem_getValue___closed__1;
 x_2 = l_Lean_Meta_SimpTheorem_getValue___closed__2;
-x_3 = lean_unsigned_to_nat(1737u);
+x_3 = lean_unsigned_to_nat(1741u);
 x_4 = lean_unsigned_to_nat(18u);
 x_5 = l_Lean_Meta_SimpTheorem_getValue___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -16860,6 +16880,10 @@ l_Lean_Meta_instInhabitedSimpTheorem___closed__2 = _init_l_Lean_Meta_instInhabit
 lean_mark_persistent(l_Lean_Meta_instInhabitedSimpTheorem___closed__2);
 l_Lean_Meta_instInhabitedSimpTheorem___closed__3 = _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__3();
 lean_mark_persistent(l_Lean_Meta_instInhabitedSimpTheorem___closed__3);
+l_Lean_Meta_instInhabitedSimpTheorem___closed__4 = _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__4();
+lean_mark_persistent(l_Lean_Meta_instInhabitedSimpTheorem___closed__4);
+l_Lean_Meta_instInhabitedSimpTheorem___closed__5 = _init_l_Lean_Meta_instInhabitedSimpTheorem___closed__5();
+lean_mark_persistent(l_Lean_Meta_instInhabitedSimpTheorem___closed__5);
 l_Lean_Meta_instInhabitedSimpTheorem = _init_l_Lean_Meta_instInhabitedSimpTheorem();
 lean_mark_persistent(l_Lean_Meta_instInhabitedSimpTheorem);
 l_Lean_Meta_isRflProofCore___closed__1 = _init_l_Lean_Meta_isRflProofCore___closed__1();

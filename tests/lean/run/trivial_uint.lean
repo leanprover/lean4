@@ -8,11 +8,11 @@ example : UInt16.toBitVec 42 = 42 := by simp
 example : UInt32.toBitVec 42 = 42 := by simp
 example : UInt64.toBitVec 42 = 42 := by simp
 example : USize.toBitVec 42 = 42 := by simp
-example : UInt8.mk 42 = 42 := by simp
-example : UInt16.mk 42 = 42 := by simp
-example : UInt32.mk 42 = 42 := by simp
-example : UInt64.mk 42 = 42 := by simp
-example : USize.mk 42 = 42 := by simp
+example : UInt8.ofBitVec 42 = 42 := by simp
+example : UInt16.ofBitVec 42 = 42 := by simp
+example : UInt32.ofBitVec 42 = 42 := by simp
+example : UInt64.ofBitVec 42 = 42 := by simp
+example : USize.ofBitVec 42 = 42 := by simp
 
 -- TODO: turn into `by simp` when the relevant theory is in place
 example : UInt8.ofFin 42 = 42 := rfl

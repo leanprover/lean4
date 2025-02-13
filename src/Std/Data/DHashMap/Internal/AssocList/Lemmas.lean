@@ -5,7 +5,7 @@ Authors: Markus Himmel
 -/
 prelude
 import Std.Data.DHashMap.Internal.AssocList.Basic
-import Std.Data.DHashMap.Internal.List.Associative
+import Std.Data.Internal.List.Associative
 
 /-!
 This is an internal implementation file of the hash map. Users of the hash map should not rely on
@@ -26,7 +26,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {
 
 namespace Std.DHashMap.Internal.AssocList
 
-open Internal.List
+open Std.Internal.List
+open Std.Internal
 
 @[simp] theorem toList_nil : (nil : AssocList α β).toList = [] := rfl
 @[simp] theorem toList_cons {l : AssocList α β} {a : α} {b : β a} :

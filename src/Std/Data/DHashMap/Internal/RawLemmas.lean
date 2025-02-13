@@ -16,7 +16,8 @@ File contents: verification of operations on `Raw₀`
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-open Std.DHashMap.Internal.List
+open Std.Internal.List
+open Std.Internal
 
 universe u v
 
@@ -712,7 +713,7 @@ theorem contains_of_contains_insertIfNew [EquivBEq α] [LawfulHashable α] (h : 
     {v : β k} : (m.insertIfNew k v).contains a → (k == a) = false → m.contains a := by
   simp_to_model [insertIfNew] using List.containsKey_of_containsKey_insertEntryIfNew
 
-/-- This is a restatement of `contains_insertIfNew` that is written to exactly match the proof
+/-- This is a restatement of `contains_of_contains_insertIfNew` that is written to exactly match the proof
 obligation in the statement of `get_insertIfNew`. -/
 theorem contains_of_contains_insertIfNew' [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k a : α}
     {v : β k} :

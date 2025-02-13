@@ -52,7 +52,7 @@ and the innermost binder is at the end. We update the binder names therein when 
 -/
   go (e : Expr) : MonadCacheT ExprStructEq Expr (StateT (Array Name) CoreM) Expr := do
     checkCache { val := e : ExprStructEq } fun _ => do
-      if e.isAppOfArity `binderNameHint 6 then
+      if e.isAppOfArity ``binderNameHint 6 then
         let v := e.appFn!.appFn!.appArg!
         let b := e.appFn!.appArg!
         let e := e.appArg!

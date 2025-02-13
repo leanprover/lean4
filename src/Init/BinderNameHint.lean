@@ -31,8 +31,12 @@ example (names : List String) : names.all (fun name => "Waldo".isPrefixOf name) 
 If `binder` is not a binder, then the name of `v` attains a macro scope. This only matters when the
 resulting term is used in a non-hygienic way, e.g. in termination proofs for well-founded recursion.
 
-This gadget is supported by `simp`, `dsimp` and `rw` in the right-hand-side of an equation, but not
-in hypotheses or by other tactics.
+This gadget is supported by
+* `simp`, `dsimp` and `rw` in the right-hand-side of an equation
+* `simp` in the assumptions of congruence rules
+
+It is ineffective in other positions (hyptheses of rewrite rules) or when used by other tactics
+(e.g. `apply`).
 -/
 @[simp ↓]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

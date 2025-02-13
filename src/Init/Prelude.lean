@@ -1953,7 +1953,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2007,7 +2007,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2061,7 +2061,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
@@ -2146,7 +2146,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2216,7 +2216,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--

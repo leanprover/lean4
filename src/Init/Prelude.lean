@@ -1904,7 +1904,7 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 
 /-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
 @[match_pattern]
-protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
 /-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
@@ -1945,7 +1945,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Pack a `Nat` less than `2^8` into a `UInt8`.
@@ -1953,7 +1953,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1999,7 +1999,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Pack a `Nat` less than `2^16` into a `UInt16`.
@@ -2007,7 +2007,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2053,7 +2053,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Pack a `Nat` less than `2^32` into a `UInt32`.
@@ -2061,7 +2061,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
@@ -2138,7 +2138,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Pack a `Nat` less than `2^64` into a `UInt64`.
@@ -2146,7 +2146,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2208,7 +2208,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Pack a `Nat` less than `USize.size` into a `USize`.
@@ -2216,7 +2216,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2269,7 +2269,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨BitVec.ofNatLt n (isValidChar_UInt32 h)⟩, valid := h }
+  { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2279,7 +2279,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨BitVec.ofNatLt 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
+    (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl

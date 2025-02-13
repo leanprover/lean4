@@ -147,98 +147,174 @@ def isEmpty (t : TreeSet α cmp) : Bool :=
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
+/--
+Tries to retrieve the smallest element of the tree set, returning `none` if the set is empty.
+-/
 @[inline]
 def min? (t : TreeSet α cmp) : Option α :=
   TreeMap.minKey? t.inner
 
+/--
+Given a proof that the tree set is not empty, retrieves the smallest element.
+-/
 @[inline]
 def min (t : TreeSet α cmp) (h : t.isEmpty = false) : α :=
   TreeMap.minKey t.inner h
 
+/--
+Tries to retrieve the smallest element of the tree set, panicking if the set is empty.
+-/
 @[inline]
 def min! [Inhabited α] (t : TreeSet α cmp) : α :=
   TreeMap.minKey! t.inner
 
+/--
+Tries to retrieve the smallest element of the tree set, returning `fallback` if the tree set is empty.
+-/
 @[inline]
 def minD (t : TreeSet α cmp) (fallback : α) : α :=
   TreeMap.minKeyD t.inner fallback
 
+/--
+Tries to retrieve the largest element of the tree set, returning `none` if the set is empty.
+-/
 @[inline]
 def max? (t : TreeSet α cmp) : Option α :=
   TreeMap.maxKey? t.inner
 
+/--
+Given a proof that the tree set is not empty, retrieves the largest element.
+-/
 @[inline]
 def max (t : TreeSet α cmp) (h : t.isEmpty = false) : α :=
   TreeMap.maxKey t.inner h
 
+/--
+Tries to retrieve the largest element of the tree set, panicking if the set is empty.
+-/
 @[inline]
 def max! [Inhabited α] (t : TreeSet α cmp) : α :=
   TreeMap.maxKey! t.inner
 
+/--
+Tries to retrieve the largest element of the tree set, returning `fallback` if the tree set is empty.
+-/
 @[inline]
 def maxD (t : TreeSet α cmp) (fallback : α) : α :=
   TreeMap.maxKeyD t.inner fallback
 
+/-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIndex? (t : TreeSet α cmp) (n : Nat) : Option α :=
   TreeMap.keyAtIndex? t.inner n
 
+/-- Returns the `n`-th smallest element. -/
 @[inline]
 def atIndex (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
   TreeMap.keyAtIndex t.inner n h
 
+/-- Returns the `n`-th smallest element, or panics if `n` is at least `t.size`. -/
 @[inline]
 def atIndex! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
   TreeMap.keyAtIndex! t.inner n
 
+/-- Returns the `n`-th smallest element, or `fallback` if `n` is at least `t.size`. -/
 @[inline]
 def atIndexD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
   TreeMap.keyAtIndexD t.inner n fallback
 
+/--
+Tries to retrieve the smallest element that is greater than or equal to the
+given element, returning `none` if no such pair exists.
+-/
 @[inline]
 def getGE? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyGE? t.inner k
 
+/--
+Tries to retrieve the smallest element that is greater than the given element,
+returning `none` if no such pair exists.
+-/
 @[inline]
 def getGT? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyGT? t.inner k
 
+/--
+Tries to retrieve the largest element that is less than or equal to the
+given element, returning `none` if no such pair exists.
+-/
 @[inline]
 def getLE? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyLE? t.inner k
 
+/--
+Tries to retrieve the smallest element that is less than the given element,
+returning `none` if no such pair exists.
+-/
 @[inline]
 def getLT? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyLT? t.inner k
 
+/--
+Tries to retrieve the smallest element that is greater than or equal to the
+given element, panicking if no such pair exists.
+-/
 @[inline]
 def getGE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
   TreeMap.getKeyGE! t.inner k
 
+/--
+Tries to retrieve the smallest element that is greater than the given element,
+panicking if no such pair exists.
+-/
 @[inline]
 def getGT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
   TreeMap.getKeyGT! t.inner k
 
+/--
+Tries to retrieve the largest element that is less than or equal to the
+given element, panicking if no such pair exists.
+-/
 @[inline]
 def getLE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
   TreeMap.getKeyLE! t.inner k
 
+/--
+Tries to retrieve the smallest element that is less than the given element,
+panicking if no such pair exists.
+-/
 @[inline]
 def getLT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
   TreeMap.getKeyLT! t.inner k
 
+/--
+Tries to retrieve the smallest element that is greater than or equal to the
+given element, returning `fallback` if no such pair exists.
+-/
 @[inline]
 def getGED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyGED t.inner k fallback
 
+/--
+Tries to retrieve the smallest element that is greater than the given element,
+returning `fallback` if no such pair exists.
+-/
 @[inline]
 def getGTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyGTD t.inner k fallback
 
+/--
+Tries to retrieve the largest element that is less than or equal to the
+given element, returning `fallback` if no such pair exists.
+-/
 @[inline]
 def getLED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyLED t.inner k fallback
 
+/--
+Tries to retrieve the smallest element that is less than the given element,
+returning `fallback` if no such pair exists.
+-/
 @[inline]
 def getLTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
   TreeMap.getKeyLTD t.inner k fallback

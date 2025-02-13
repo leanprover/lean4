@@ -281,8 +281,7 @@ def maxD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β
   letI : Ord α := ⟨cmp⟩; t.inner.maxD fallback
 
 /--
-Tries to retrieve the smallest key of the tree map, returning `none` if the
-map is empty.
+Tries to retrieve the smallest key of the tree map, returning `none` if the map is empty.
 -/
 @[inline]
 def minKey? (t : DTreeMap α β cmp) : Option α :=

@@ -17,6 +17,7 @@ The type of signed 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure Int8 where
+  private ofUInt8 ::
   /--
   Obtain the `UInt8` that is 2's complement equivalent to the `Int8`.
   -/
@@ -27,6 +28,7 @@ The type of signed 16-bit integers. This type has special support in the
 compiler to make it actually 16 bits rather than wrapping a `Nat`.
 -/
 structure Int16 where
+  private ofUInt16 ::
   /--
   Obtain the `UInt16` that is 2's complement equivalent to the `Int16`.
   -/
@@ -37,6 +39,7 @@ The type of signed 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
 structure Int32 where
+  private ofUInt32 ::
   /--
   Obtain the `UInt32` that is 2's complement equivalent to the `Int32`.
   -/
@@ -47,6 +50,7 @@ The type of signed 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
 -/
 structure Int64 where
+  private ofUInt64 ::
   /--
   Obtain the `UInt64` that is 2's complement equivalent to the `Int64`.
   -/
@@ -59,6 +63,7 @@ For example, if running on a 32-bit machine, ISize is equivalent to `Int32`.
 Or on a 64-bit machine, `Int64`.
 -/
 structure ISize where
+  private ofUSize ::
   /--
   Obtain the `USize` that is 2's complement equivalent to the `ISize`.
   -/
@@ -72,6 +77,10 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int8
 -/
 @[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec
 
+/-- Obtains the `Int8` that is 2's complement equivalent to the `UInt8`. -/
+@[inline] def UInt8.toInt8 (i : UInt8) : Int8 := Int8.ofUInt8 i
+@[inline, deprecated UInt8.toInt8 (since := "2025-02-13"), inherit_doc UInt8.toInt8]
+def Int8.mk (i : UInt8) : Int8 := UInt8.toInt8 i
 @[extern "lean_int8_of_int"]
 def Int8.ofInt (i : @& Int) : Int8 := ⟨⟨BitVec.ofInt 8 i⟩⟩
 @[extern "lean_int8_of_nat"]
@@ -174,6 +183,10 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int1
 -/
 @[inline] def Int16.toBitVec (x : Int16) : BitVec 16 := x.toUInt16.toBitVec
 
+/-- Obtains the `Int16` that is 2's complement equivalent to the `UInt16`. -/
+@[inline] def UInt16.toInt16 (i : UInt16) : Int16 := Int16.ofUInt16 i
+@[inline, deprecated UInt16.toInt16 (since := "2025-02-13"), inherit_doc UInt16.toInt16]
+def Int16.mk (i : UInt16) : Int16 := UInt16.toInt16 i
 @[extern "lean_int16_of_int"]
 def Int16.ofInt (i : @& Int) : Int16 := ⟨⟨BitVec.ofInt 16 i⟩⟩
 @[extern "lean_int16_of_nat"]
@@ -280,6 +293,10 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int3
 -/
 @[inline] def Int32.toBitVec (x : Int32) : BitVec 32 := x.toUInt32.toBitVec
 
+/-- Obtains the `Int32` that is 2's complement equivalent to the `UInt32`. -/
+@[inline] def UInt32.toInt32 (i : UInt32) : Int32 := Int32.ofUInt32 i
+@[inline, deprecated UInt32.toInt32 (since := "2025-02-13"), inherit_doc UInt32.toInt32]
+def Int32.mk (i : UInt32) : Int32 := UInt32.toInt32 i
 @[extern "lean_int32_of_int"]
 def Int32.ofInt (i : @& Int) : Int32 := ⟨⟨BitVec.ofInt 32 i⟩⟩
 @[extern "lean_int32_of_nat"]
@@ -390,6 +407,10 @@ Obtain the `BitVec` that contains the 2's complement representation of the `Int6
 -/
 @[inline] def Int64.toBitVec (x : Int64) : BitVec 64 := x.toUInt64.toBitVec
 
+/-- Obtains the `Int64` that is 2's complement equivalent to the `UInt64`. -/
+@[inline] def UInt64.toInt64 (i : UInt64) : Int64 := Int64.ofUInt64 i
+@[inline, deprecated UInt64.toInt64 (since := "2025-02-13"), inherit_doc UInt64.toInt64]
+def Int64.mk (i : UInt64) : Int64 := UInt64.toInt64 i
 @[extern "lean_int64_of_int"]
 def Int64.ofInt (i : @& Int) : Int64 := ⟨⟨BitVec.ofInt 64 i⟩⟩
 @[extern "lean_int64_of_nat"]
@@ -504,6 +525,10 @@ Obtain the `BitVec` that contains the 2's complement representation of the `ISiz
 -/
 @[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
 
+/-- Obtains the `ISize` that is 2's complement equivalent to the `USize`. -/
+@[inline] def USize.toISize (i : USize) : ISize := ISize.ofUSize i
+@[inline, deprecated USize.toISize (since := "2025-02-13"), inherit_doc USize.toISize]
+def ISize.mk (i : USize) : ISize := USize.toISize i
 @[extern "lean_isize_of_int"]
 def ISize.ofInt (i : @& Int) : ISize := ⟨⟨BitVec.ofInt System.Platform.numBits i⟩⟩
 @[extern "lean_isize_of_nat"]

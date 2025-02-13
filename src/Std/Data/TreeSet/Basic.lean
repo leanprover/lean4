@@ -225,7 +225,7 @@ def atIndexD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
-given element, returning `none` if no such pair exists.
+given element, returning `none` if no such element exists.
 -/
 @[inline]
 def getGE? (t : TreeSet α cmp) (k : α) : Option α :=
@@ -233,7 +233,7 @@ def getGE? (t : TreeSet α cmp) (k : α) : Option α :=
 
 /--
 Tries to retrieve the smallest element that is greater than the given element,
-returning `none` if no such pair exists.
+returning `none` if no such element exists.
 -/
 @[inline]
 def getGT? (t : TreeSet α cmp) (k : α) : Option α :=
@@ -241,7 +241,7 @@ def getGT? (t : TreeSet α cmp) (k : α) : Option α :=
 
 /--
 Tries to retrieve the largest element that is less than or equal to the
-given element, returning `none` if no such pair exists.
+given element, returning `none` if no such element exists.
 -/
 @[inline]
 def getLE? (t : TreeSet α cmp) (k : α) : Option α :=
@@ -249,7 +249,7 @@ def getLE? (t : TreeSet α cmp) (k : α) : Option α :=
 
 /--
 Tries to retrieve the smallest element that is less than the given element,
-returning `none` if no such pair exists.
+returning `none` if no such element exists.
 -/
 @[inline]
 def getLT? (t : TreeSet α cmp) (k : α) : Option α :=
@@ -257,7 +257,7 @@ def getLT? (t : TreeSet α cmp) (k : α) : Option α :=
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
-given element, panicking if no such pair exists.
+given element, panicking if no such element exists.
 -/
 @[inline]
 def getGE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
@@ -265,7 +265,7 @@ def getGE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is greater than the given element,
-panicking if no such pair exists.
+panicking if no such element exists.
 -/
 @[inline]
 def getGT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
@@ -273,7 +273,7 @@ def getGT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
 
 /--
 Tries to retrieve the largest element that is less than or equal to the
-given element, panicking if no such pair exists.
+given element, panicking if no such element exists.
 -/
 @[inline]
 def getLE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
@@ -281,7 +281,7 @@ def getLE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is less than the given element,
-panicking if no such pair exists.
+panicking if no such element exists.
 -/
 @[inline]
 def getLT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
@@ -289,7 +289,7 @@ def getLT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
-given element, returning `fallback` if no such pair exists.
+given element, returning `fallback` if no such element exists.
 -/
 @[inline]
 def getGED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
@@ -297,7 +297,7 @@ def getGED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is greater than the given element,
-returning `fallback` if no such pair exists.
+returning `fallback` if no such element exists.
 -/
 @[inline]
 def getGTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
@@ -305,7 +305,7 @@ def getGTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
 
 /--
 Tries to retrieve the largest element that is less than or equal to the
-given element, returning `fallback` if no such pair exists.
+given element, returning `fallback` if no such element exists.
 -/
 @[inline]
 def getLED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
@@ -313,7 +313,7 @@ def getLED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
 
 /--
 Tries to retrieve the smallest element that is less than the given element,
-returning `fallback` if no such pair exists.
+returning `fallback` if no such element exists.
 -/
 @[inline]
 def getLTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=

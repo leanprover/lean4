@@ -242,8 +242,7 @@ def atIndex! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (n : Nat) : (a :
   letI : Ord α := ⟨cmp⟩; t.inner.atIndex! n
 
 @[inline, inherit_doc DTreeMap.atIndexD]
-def atIndexD (t : Raw α β cmp) (n : Nat)
-    (fallback : (a : α) × β a) : (a : α) × β a :=
+def atIndexD (t : Raw α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.atIndexD n fallback
 
 @[inline, inherit_doc DTreeMap.keyAtIndex?]
@@ -277,35 +276,35 @@ def getEntryLT? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLT? k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryGE!]
-def getEntryGE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : ((a : α) × β a) :=
+def getEntryGE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGE! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryGT!]
-def getEntryGT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : ((a : α) × β a) :=
+def getEntryGT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGT! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryLE!]
-def getEntryLE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : ((a : α) × β a) :=
+def getEntryLE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryLT!]
-def getEntryLT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : ((a : α) × β a) :=
+def getEntryLT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLT! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryGED]
-def getEntryGED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : ((a : α) × β a) :=
+def getEntryGED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGED k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryGTD]
-def getEntryGTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : ((a : α) × β a) :=
+def getEntryGTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGTD k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryLED]
-def getEntryLED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : ((a : α) × β a) :=
+def getEntryLED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLED k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryLTD]
-def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : ((a : α) × β a) :=
+def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLTD k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getKeyGE?]
@@ -445,35 +444,35 @@ def getEntryLE? (t : Raw α β cmp) (k : α) : Option (α × β) :=
 def getEntryLT? (t : Raw α β cmp) (k : α) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLT? k t.inner
 
-@[inline, inherit_doc DTreeMap.Const.getEntryGE?]
+@[inline, inherit_doc DTreeMap.Const.getEntryGE!]
 def getEntryGE! [Inhabited (α × β)] (t : Raw α β cmp) (k : α) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGE! k t.inner
 
-@[inline, inherit_doc DTreeMap.Const.getEntryGT?]
+@[inline, inherit_doc DTreeMap.Const.getEntryGT!]
 def getEntryGT! [Inhabited (α × β)] (t : Raw α β cmp) (k : α) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGT! k t.inner
 
-@[inline, inherit_doc DTreeMap.Const.getEntryLE?]
+@[inline, inherit_doc DTreeMap.Const.getEntryLE!]
 def getEntryLE! [Inhabited (α × β)] (t : Raw α β cmp) (k : α) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLE! k t.inner
 
-@[inline, inherit_doc DTreeMap.Const.getEntryLT?]
+@[inline, inherit_doc DTreeMap.Const.getEntryLT!]
 def getEntryLT! [Inhabited (α × β)] (t : Raw α β cmp) (k : α) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLT! k t.inner
 
-@[inline, inherit_doc DTreeMap.Const.getEntryGE?]
+@[inline, inherit_doc DTreeMap.Const.getEntryGED]
 def getEntryGED (t : Raw α β cmp) (k : α) (fallback : α × β) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGED k t.inner fallback
 
-@[inline, inherit_doc DTreeMap.Const.getEntryGT?]
+@[inline, inherit_doc DTreeMap.Const.getEntryGTD]
 def getEntryGTD (t : Raw α β cmp) (k : α) (fallback : α × β) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGTD k t.inner fallback
 
-@[inline, inherit_doc DTreeMap.Const.getEntryLE?]
+@[inline, inherit_doc DTreeMap.Const.getEntryLED]
 def getEntryLED (t : Raw α β cmp) (k : α) (fallback : α × β) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLED k t.inner fallback
 
-@[inline, inherit_doc DTreeMap.Const.getEntryLT?]
+@[inline, inherit_doc DTreeMap.Const.getEntryLTD]
 def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : α × β) : (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLTD k t.inner fallback
 

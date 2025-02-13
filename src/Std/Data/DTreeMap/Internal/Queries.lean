@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
 prelude
+import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Def
 import Std.Data.DTreeMap.Internal.Balanced
 import Std.Classes.Ord
@@ -89,7 +90,7 @@ def getD [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (fallback : β k) :
 namespace Const
 
 /-- Returns the value for the key `k`, or `none` if such a key does not exist. -/
-def get? [Ord α] (k : α) (t : Impl α (fun _ => δ)) : Option δ :=
+def get? [Ord α] (k : α) (t : Impl α (δ)) : Option δ :=
   match t with
   | .leaf => none
   | .inner _ k' v' l r =>
@@ -99,7 +100,7 @@ def get? [Ord α] (k : α) (t : Impl α (fun _ => δ)) : Option δ :=
     | .eq => some v'
 
 /-- Returns the value for the key `k`. -/
-def get [Ord α] (k : α) (t : Impl α (fun _ => δ)) (hlk : t.contains k = true) : δ :=
+def get [Ord α] (k : α) (t : Impl α (δ)) (hlk : t.contains k = true) : δ :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
@@ -108,7 +109,7 @@ def get [Ord α] (k : α) (t : Impl α (fun _ => δ)) (hlk : t.contains k = true
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (k : α) (t : Impl α (fun _ => δ)) [Inhabited δ] : δ :=
+def get! [Ord α] (k : α) (t : Impl α (δ)) [Inhabited δ] : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
@@ -118,7 +119,7 @@ def get! [Ord α] (k : α) (t : Impl α (fun _ => δ)) [Inhabited δ] : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or `fallback` if such a key does not exist. -/
-def getD [Ord α] (k : α) (t : Impl α (fun _ => δ)) (fallback : δ) : δ :=
+def getD [Ord α] (k : α) (t : Impl α (δ)) (fallback : δ) : δ :=
   match t with
   | .leaf => fallback
   | .inner _ k' v' l r =>
@@ -212,63 +213,63 @@ variable {β : Type v}
 
 end Const
 
-/-- The smallest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def min? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.min?
 
-/-- The smallest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def min [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → (a : α) × β a
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k v .leaf _, _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _, htb, h =>
     l.min (by subst_eqs; exact htb.left) (by simp_all [isEmpty])
 
-/-- The smallest element of `t`. Returns the given fallback value if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def min! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.min!
 
-/-- The smallest element of `t`. Returns the given fallback value if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def minD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => l.minD fallback
 
-/-- The largest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def max? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.max?
 
-/-- The largest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def max [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → (a : α) × β a
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k v _ .leaf, _, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
     r.max (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
 
-/-- The largest element of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def max! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
   | .leaf => panic "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.max!
 
-/-- The largest element of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def maxD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => r.maxD fallback
 
-/-- The smallest key of `t`. -/
+/-- Implementation detail of the tree map -/
 def minKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ .leaf _ => some k
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.minKey?
 
-/-- The smallest key of `t`. -/
+/-- Implementation detail of the tree map -/
 def minKey [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k _ .leaf _, _, _ => k
@@ -281,38 +282,38 @@ def minKey! [Ord α] [Inhabited α] : Impl α β → α
   | .inner _ k _ .leaf _ => k
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.minKey!
 
-/-- The smallest key of `t`. Returns the given fallback value if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def minKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ .leaf _, _ => k
   | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => l.minKeyD fallback
 
-/-- The largest key of `t`. -/
+/-- Implementation detail of the tree map -/
 def maxKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ _ .leaf => some k
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.maxKey?
 
-/-- The largest key of `t`. -/
+/-- Implementation detail of the tree map -/
 def maxKey [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k _ _ .leaf, _, _ => k
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
     r.maxKey (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
 
-/-- The largest key of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def maxKey! [Ord α] [Inhabited α] : Impl α β → α
   | .leaf => panic "Map is empty"
   | .inner _ k _ _ .leaf => k
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.maxKey!
 
-/-- The largest key of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def maxKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ _ .leaf, _ => k
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => r.maxKeyD fallback
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGE? [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
   go none
@@ -324,7 +325,7 @@ where
     | .eq => some ⟨ky, y⟩
     | .gt => go best r
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGT? [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
   go none
@@ -335,7 +336,7 @@ where
     | .lt => go (some ⟨ky, y⟩) l
     | _ => go best r
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLE? [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
   go none
@@ -347,7 +348,7 @@ where
     | .eq => some ⟨ky, y⟩
     | .gt => go (some ⟨ky, y⟩) r
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLT? [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
   go none
@@ -358,47 +359,47 @@ where
     | .gt => go (some ⟨ky, y⟩) r
     | _ => go best l
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGE! [Ord α] [Inhabited ((a : α) × β a)] (k : α) (t : Impl α β) : (a : α) × β a :=
   t.getEntryGE? k |>.get!
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGT! [Ord α] [Inhabited ((a : α) × β a)] (k : α) (t : Impl α β) : (a : α) × β a :=
   t.getEntryGT? k |>.get!
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLE! [Ord α] [Inhabited ((a : α) × β a)] (k : α) (t : Impl α β) : (a : α) × β a :=
   t.getEntryLE? k |>.get!
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLT! [Ord α] [Inhabited ((a : α) × β a)] (k : α) (t : Impl α β) : (a : α) × β a :=
   t.getEntryLT? k |>.get!
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGED [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryGE? k |>.getD fallback
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryGT? k |>.getD fallback
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLED [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryLE? k |>.getD fallback
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryLT? k |>.getD fallback
 
-/-- The smallest key of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGE? [Ord α] (k : α) : Impl α β → Option α :=
   go none
@@ -410,7 +411,7 @@ where
     | .eq => some ky
     | .gt => go best r
 
-/-- The smallest key of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGT? [Ord α] (k : α) : Impl α β → Option α :=
   go none
@@ -421,7 +422,7 @@ where
     | .lt => go (some ky) l
     | _ => go best r
 
-/-- The largest key of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLE? [Ord α] (k : α) : Impl α β → Option α :=
   go none
@@ -433,7 +434,7 @@ where
     | .eq => some ky
     | .gt => go (some ky) r
 
-/-- The largest key of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLT? [Ord α] (k : α) : Impl α β → Option α :=
   go none
@@ -444,42 +445,42 @@ where
     | .gt => go (some ky) r
     | _ => go best l
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGE! [Ord α] [Inhabited α] (k : α) (t : Impl α β) : α :=
   t.getKeyGE? k |>.get!
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGT! [Ord α] [Inhabited α] (k : α) (t : Impl α β) : α :=
   t.getKeyGT? k |>.get!
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLE! [Ord α] [Inhabited α] (k : α) (t : Impl α β) : α :=
   t.getKeyLE? k |>.get!
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLT! [Ord α] [Inhabited α] (k : α) (t : Impl α β) : α :=
   t.getKeyLT? k |>.get!
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGED [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyGE? k |>.getD fallback
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyGTD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyGT? k |>.getD fallback
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLED [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyLE? k |>.getD fallback
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getKeyLTD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   t.getKeyLT? k |>.getD fallback
@@ -488,57 +489,57 @@ namespace Const
 
 variable {β : Type v}
 
-/-- The smallest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def min? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => min? l
 
-/-- The smallest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def min [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α × β
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k v .leaf _, _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _, htb, h =>
     min l (by subst_eqs; exact htb.left) (by simp_all [isEmpty])
 
-/-- The smallest element of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def min! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _ => min! l
 
-/-- The smallest element of `t`. Returns the given fallback value if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def minD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
   | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => minD l fallback
 
-/-- The largest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def max? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => max? r
 
-/-- The largest element of `t`. -/
+/-- Implementation detail of the tree map -/
 def max [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α × β
   | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
   | .inner _ k v _ .leaf, _, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
     max r (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
 
-/-- The largest element of `t`. Panics if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def max! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
   | .leaf => panic "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _) => max! r
 
-/-- The largest element of `t`. Returns the given fallback value if the map is empty. -/
+/-- Implementation detail of the tree map -/
 def maxD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => maxD r fallback
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGE? [Ord α] (k : α) : Impl α β → Option (α × β) :=
   go none
@@ -550,7 +551,7 @@ where
     | .eq => some ⟨ky, y⟩
     | .gt => go best r
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGT? [Ord α] (k : α) : Impl α β → Option (α × β) :=
   go none
@@ -561,7 +562,7 @@ where
     | .lt => go (some ⟨ky, y⟩) l
     | _ => go best r
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLE? [Ord α] (k : α) : Impl α β → Option (α × β) :=
   go none
@@ -573,7 +574,7 @@ where
     | .eq => some ⟨ky, y⟩
     | .gt => go (some ⟨ky, y⟩) r
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLT? [Ord α] (k : α) : Impl α β → Option (α × β) :=
   go none
@@ -584,45 +585,168 @@ where
     | .gt => go (some ⟨ky, y⟩) r
     | _ => go best l
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGE! [Ord α] [Inhabited (α × β)] (k : α) (t : Impl α β) : α × β :=
   getEntryGE? k t |>.get!
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGT! [Ord α] [Inhabited (α × β)] (k : α) (t : Impl α β) : α × β :=
   getEntryGT? k t |>.get!
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLE! [Ord α] [Inhabited (α × β)] (k : α) (t : Impl α β) : α × β :=
   getEntryLE? k t |>.get!
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLT! [Ord α] [Inhabited (α × β)] (k : α) (t : Impl α β) : α × β :=
   getEntryLT? k t |>.get!
 
-/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGED [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α × β :=
   getEntryGE? k t |>.getD fallback
 
-/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGTD [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α × β :=
   getEntryGT? k t |>.getD fallback
 
-/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLED [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α × β :=
   getEntryLE? k t |>.getD fallback
 
-/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+/-- Implementation detail of the tree map -/
 @[inline]
 def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α × β :=
   getEntryLT? k t |>.getD fallback
+
+end Const
+
+/-!
+## `atIndex` variants
+
+While it would be preferable to put these into `Std.Data.DTreeMap.Internal.Queries`, `atIndex`
+depends on `Balanced`, so we put them here.
+-/
+
+attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
+
+/-- Implementation detail of the tree map -/
+def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => l'.atIndex hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => ⟨k, v⟩
+    | .gt => r'.atIndex hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def atIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex? n
+    | .eq => some ⟨k, v⟩
+    | .gt => r.atIndex? (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex! n
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndex! (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => l.atIndexD n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndexD (n - l.size - 1) fallback
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
+  | .inner _ k _ l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => keyAtIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => k
+    | .gt =>
+      keyAtIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex? [Ord α] : Impl α β → Nat → Option α
+  | .leaf, _ => none
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex? l n
+    | .eq => some k
+    | .gt => keyAtIndex? r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex! [Ord α] [Inhabited α] : Impl α β → Nat → α
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex! l n
+    | .eq => k
+    | .gt => keyAtIndex! r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndexD [Ord α] : Impl α β → Nat → α → α
+  | .leaf, _, fallback => fallback
+  | .inner _ k _ l r, n, fallback =>
+    match compare n l.size with
+    | .lt => keyAtIndexD l n fallback
+    | .eq => k
+    | .gt => keyAtIndexD r (n - l.size - 1) fallback
+
+namespace Const
+
+variable {β : Type v}
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => atIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => ⟨k, v⟩
+    | .gt =>
+      atIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def atIndex? [Ord α] : Impl α β → Nat → Option (α × β)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex? l n
+    | .eq => some ⟨k, v⟩
+    | .gt => atIndex? r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndex! [Ord α] [Inhabited (α × β)] : Impl α β → Nat → α × β
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex! l n
+    | .eq => ⟨k, v⟩
+    | .gt => atIndex! r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndexD [Ord α] : Impl α β → Nat → α × β → α × β
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => atIndexD l n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => atIndexD r (n - l.size - 1) fallback
 
 end Const
 

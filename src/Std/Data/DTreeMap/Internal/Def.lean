@@ -40,6 +40,13 @@ variable {α : Type u} {β : α → Type v}
 
 namespace Impl
 
+/-!
+## `size`
+
+In contrast to other functions, `size` is defined here because it is required to define the
+`Balanced` predicate (see `Std.Data.DTreeMap.Internal.Balanced`).
+-/
+
 /-- The size information stored in the tree. -/
 @[inline]
 def size : Impl α β → Nat

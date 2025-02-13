@@ -733,12 +733,12 @@ def evalFunInduction : Tactic := fun stx =>
     let funCall ← withMainContext <| elabTerm stx[1] none
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
-      throwErrorAt stx[1] "expected application of a defined function"
+      throwErrorAt stx[1] "expected application headed by a function constant"
     let some funIndInfo ← getFunIndInfo? fnName
-      | throwError "no functional induction theorem for {.ofConstName fnName}"
+      | throwError "no functional induction theorem for '{.ofConstName fnName}', or function is mutually recursive "
     if funArgs.size != funIndInfo.params.size then
       throwErrorAt stx[1]
-        "Expected fully applied application of {.ofConstName fnName} with \
+        "Expected fully applied application of '{.ofConstName fnName}' with \
         {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
     let mut params := #[]
     let mut targets := #[]

@@ -107,14 +107,14 @@ example : P (ackermann n m) := by
   fun_induction ackermann n m
 
 /--
-error: Expected fully applied application of ackermann with 2 arguments, but found 1 arguments
+error: Expected fully applied application of 'ackermann' with 2 arguments, but found 1 arguments
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann n
 
 /--
-error: Expected fully applied application of ackermann with 2 arguments, but found 0 arguments
+error: Expected fully applied application of 'ackermann' with 2 arguments, but found 0 arguments
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
@@ -166,14 +166,14 @@ example : P (ackermann inc n m) := by
   fun_induction ackermann inc n m
 
 /--
-error: Expected fully applied application of ackermann with 4 arguments, but found 3 arguments
+error: Expected fully applied application of 'ackermann' with 4 arguments, but found 3 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n
 
 /--
-error: Expected fully applied application of ackermann with 4 arguments, but found 2 arguments
+error: Expected fully applied application of 'ackermann' with 4 arguments, but found 2 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
@@ -338,3 +338,38 @@ theorem Finn.min_le_right'' : (Finn.min'' x m i j).le j := by
   fun_induction Finn.min'' x m i j <;> simp_all [Finn.min'', Finn.le]
 
 end StructuralIndices
+
+namespace Nonrec
+
+def foo := 1
+
+/-- error: no functional induction theorem for 'foo', or function is mutually recursive -/
+#guard_msgs in
+example : True := by
+  fun_induction foo
+
+
+end Nonrec
+
+namespace Mutual
+
+inductive Tree (α : Type u) : Type u where
+  | node : α → (Bool → List (Tree α)) → Tree α
+
+-- Recursion over nested inductive
+
+mutual
+def Tree.size : Tree α → Nat
+  | .node _ tsf => 1 + size_aux (tsf true) + size_aux (tsf false)
+termination_by structural t => t
+def Tree.size_aux : List (Tree α) → Nat
+  | [] => 0
+  | t :: ts => size t + size_aux ts
+end
+
+/-- error: no functional induction theorem for 'Tree.size', or function is mutually recursive -/
+#guard_msgs in
+example (t : Tree α) : True := by
+  fun_induction Tree.size t
+
+end Mutual

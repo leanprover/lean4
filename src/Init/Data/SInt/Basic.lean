@@ -519,15 +519,23 @@ If you want to obtain the 2's complement representation use `toBitVec`.
 @[inline] def ISize.toNat (i : ISize) : Nat := i.toInt.toNat
 /-- Obtains the `ISize` whose 2's complement representation is the given `BitVec`. -/
 @[inline] def ISize.ofBitVec (b : BitVec System.Platform.numBits) : ISize := ⟨⟨b⟩⟩
+@[extern "lean_isize_to_int8"]
+def ISize.toInt8 (a : ISize) : Int8 := ⟨⟨a.toBitVec.signExtend 8⟩⟩
+@[extern "lean_isize_to_int16"]
+def ISize.toInt16 (a : ISize) : Int16 := ⟨⟨a.toBitVec.signExtend 16⟩⟩
 @[extern "lean_isize_to_int32"]
 def ISize.toInt32 (a : ISize) : Int32 := ⟨⟨a.toBitVec.signExtend 32⟩⟩
 /--
-Upcast `ISize` to `Int64`. This function is losless as `ISize` is either `Int32` or `Int64`.
+Upcasts `ISize` to `Int64`. This function is lossless as `ISize` is either `Int32` or `Int64`.
 -/
 @[extern "lean_isize_to_int64"]
 def ISize.toInt64 (a : ISize) : Int64 := ⟨⟨a.toBitVec.signExtend 64⟩⟩
+@[extern "lean_int8_to_isize"]
+def Int8.toISize (a : Int8) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
+@[extern "lean_int16_to_isize"]
+def Int16.toISize (a : Int16) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩
 /--
-Upcast `Int32` to `ISize`. This function is losless as `ISize` is either `Int32` or `Int64`.
+Upcasts `Int32` to `ISize`. This function is lossless as `ISize` is either `Int32` or `Int64`.
 -/
 @[extern "lean_int32_to_isize"]
 def Int32.toISize (a : Int32) : ISize := ⟨⟨a.toBitVec.signExtend System.Platform.numBits⟩⟩

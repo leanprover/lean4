@@ -218,6 +218,105 @@ def getD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) :
 def findD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) : β a :=
   t.getD a fallback
 
+/--
+Tries to retrieve the mapping with the smallest key of the tree map, returning `none` if the map is
+empty.
+-/
+@[inline]
+def min? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.min?
+
+/--
+Tries to retrieve the mapping with the largest key of the tree map, returning `none` if the map is
+empty.
+-/
+@[inline]
+def max? (t : DTreeMap α β cmp) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.max?
+
+/--
+Tries to retrieve the mapping with the smallest key of the tree map, panicking if the map is
+empty.
+-/
+@[inline]
+def min! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.min!
+
+/--
+Tries to retrieve the mapping with the largest key of the tree map, panicking if the map is
+empty.
+-/
+@[inline]
+def max! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.max!
+
+/-- Returns the mapping with the `n`-th smallest key. -/
+def atIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; Impl.atIndex t.inner t.wf.balanced n h
+
+/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def atIndex? (t : DTreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.atIndex? n
+
+/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def atIndex! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (n : Nat) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.atIndex! n
+
+/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def atIndexD [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (n : Nat)
+    (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.atIndexD n fallback
+
+/--
+Tries to retrieve the key-value pair with the smallest key that is greater than or equal to the
+given key.
+-/
+@[inline]
+def getEntryGE? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; Impl.getEntryGE? k t.inner
+
+/--
+Tries to retrieve the key-value pair with the smallest key that is greater than the given key.
+-/
+@[inline]
+def getEntryGT? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; Impl.getEntryGT? k t.inner
+
+/--
+Tries to retrieve the key-value pair with the largest key that is less than or equal to the
+given key.
+-/
+@[inline]
+def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; Impl.getEntryLE? k t.inner
+
+/--
+Tries to retrieve the key-value pair with the smallest key that is less than the given key.
+-/
+@[inline]
+def getEntryLT? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; Impl.getEntryLT? k t.inner
+
+/-- The smallest key of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+@[inline]
+def getKeyGE? (k : α) (t : DTreeMap α β cmp) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyGE? k
+
+/-- The smallest key of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+@[inline]
+def getKeyGT? (k : α) (t : DTreeMap α β cmp) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyGT? k
+
+/-- The largest key of `t` that is not greater than `k`. Also known as `floor`. -/
+@[inline]
+def getKeyLE? (k : α) (t : DTreeMap α β cmp) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyLE? k
+
+/-- The largest key of `t` that is less than `k`. Also known as `lower`. -/
+@[inline]
+def getKeyLT? (k : α) (t : DTreeMap α β cmp) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyLT? k
+
 namespace Const
 open Internal (Impl)
 
@@ -262,6 +361,63 @@ def getD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD (t : DTreeMap α β cmp) (a : α) (fallback : β) : β :=
   getD t a fallback
+
+/-- The smallest element of `t`. -/
+@[inline]
+def min? (t : DTreeMap α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.min? t.inner
+
+/-- The largest element of `t`. -/
+@[inline]
+def max? (t : DTreeMap α β cmp) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.max? t.inner
+
+/-- The smallest element of `t`. Panics if the map is empty. -/
+@[inline]
+def min! [Inhabited α] [Inhabited β] (t : DTreeMap α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.min! t.inner
+
+/-- The largest element of `t`. Panics if the map is empty. -/
+@[inline]
+def max! [Inhabited α] [Inhabited β] (t : DTreeMap α β cmp) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.max! t.inner
+
+/-- Returns the mapping with the `n`-th smallest key. -/
+def atIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.atIndex t.inner t.wf.balanced n h
+
+/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def atIndex? (t : DTreeMap α β cmp) (n : Nat) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.atIndex? t.inner n
+
+/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def atIndex! [Inhabited (α × β)] (t : DTreeMap α β cmp) (n : Nat) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.atIndex! t.inner n
+
+/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def atIndexD [Inhabited (α × β)] (t : DTreeMap α β cmp) (n : Nat)
+    (fallback : α × β) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.atIndexD t.inner n fallback
+
+/-- The smallest element of `t` that is not less than `k`. Also known as `lookupGE` or `ceil`. -/
+@[inline]
+def getEntryGE? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGE? k t.inner
+
+/-- The smallest element of `t` that is greater than `k`. Also known as `lookupGT` or `higher`. -/
+@[inline]
+def getEntryGT? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryGT? k t.inner
+
+/-- The largest element of `t` that is not greater than `k`. Also known as `floor`. -/
+@[inline]
+def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLE? k t.inner
+
+/-- The largest element of `t` that is less than `k`. Also known as `lower`. -/
+@[inline]
+def getEntryLT? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLT? k t.inner
 
 end Const
 

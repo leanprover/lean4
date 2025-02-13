@@ -35,3 +35,18 @@ def delta : Nat := 3
 operations are. -/
 @[inline, Std.Internal.tree_tac]
 def ratio : Nat := 2
+
+variable {α : Type u} {β : α → Type v}
+
+namespace Impl
+
+/-- The size information stored in the tree. -/
+@[inline]
+def size : Impl α β → Nat
+  | inner sz _ _ _ _ => sz
+  | leaf => 0
+
+@[Std.Internal.tree_tac] theorem size_leaf : (Impl.leaf : Impl α β).size = 0 := rfl
+@[Std.Internal.tree_tac] theorem size_inner {sz k v l r} : (Impl.inner sz k v l r : Impl α β).size = sz := rfl
+
+end Std.DTreeMap.Internal.Impl

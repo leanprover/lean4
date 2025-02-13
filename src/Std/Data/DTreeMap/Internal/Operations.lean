@@ -725,4 +725,125 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
 
 end Const
 
+/-!
+## `atIndex` variants
+
+While it would be preferable to put these into `Std.Data.DTreeMap.Internal.Queries`, `atIndex`
+depends on `Balanced`, so we put them here.
+-/
+
+attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
+
+/-- Returns the mapping with the `n`-th smallest key. -/
+def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => l'.atIndex hl.left n ✓
+    | .eq => ⟨k, v⟩
+    | .gt => r'.atIndex hl.right (n - l'.size - 1) ✓
+
+/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def atIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex? n
+    | .eq => some ⟨k, v⟩
+    | .gt => r.atIndex? (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def atIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex! n
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndex! (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => l.atIndexD n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndexD (n - l.size - 1) fallback
+
+namespace Const
+
+variable {β : Type v}
+
+/-- Returns the mapping with the `n`-th smallest key. -/
+@[inline]
+def atIndex [Ord α] : (t : Impl α (fun _ => β)) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => atIndex l' hl.left n ✓
+    | .eq => ⟨k, v⟩
+    | .gt => atIndex r' hl.right (n - l'.size - 1) ✓
+
+/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def atIndex? [Ord α] : Impl α (fun _ => β) → Nat → Option (α × β)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex? l n
+    | .eq => some ⟨k, v⟩
+    | .gt => atIndex? r (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def atIndex! [Ord α] [Inhabited (α × β)] : Impl α (fun _ => β) → Nat → α × β
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex! l n
+    | .eq => ⟨k, v⟩
+    | .gt => atIndex! r (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def atIndexD [Ord α] : Impl α (fun _ => β) → Nat → α × β → α × β
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => atIndexD l n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => atIndexD r (n - l.size - 1) fallback
+
+/-- Returns the mapping with the `n`-th smallest key. -/
+def atIndexUnit [Ord α] : (t : Impl α (fun _ => Unit)) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
+  | .inner _ k _ l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => atIndexUnit l' hl.left n ✓
+    | .eq => k
+    | .gt => atIndexUnit r' hl.right (n - l'.size - 1) ✓
+
+/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def atIndexUnit? [Ord α] : Impl α (fun _ => Unit) → Nat → Option α
+  | .leaf, _ => none
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => atIndexUnit? l n
+    | .eq => some k
+    | .gt => atIndexUnit? r (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def atIndexUnit! [Ord α] [Inhabited α] : Impl α (fun _ => Unit) → Nat → α
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => atIndexUnit! l n
+    | .eq => k
+    | .gt => atIndexUnit! r (n - l.size - 1)
+
+/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def atIndexUnitD [Ord α] : Impl α (fun _ => Unit) → Nat → α → α
+  | .leaf, _, fallback => fallback
+  | .inner _ k _ l r, n, fallback =>
+    match compare n l.size with
+    | .lt => atIndexUnitD l n fallback
+    | .eq => k
+    | .gt => atIndexUnitD r (n - l.size - 1) fallback
+
+end Const
+
 end Std.DTreeMap.Internal.Impl

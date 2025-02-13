@@ -21,13 +21,13 @@ inductive FunIndParamKind where
   | dropped
   | param
   | target
-deriving BEq
+deriving BEq, Repr
 
 structure FunIndInfo where
   funIndName : Name
   levelMask : Array Bool
   params : Array FunIndParamKind
-deriving Inhabited
+deriving Inhabited, Repr
 
 builtin_initialize funIndInfoExt : MapDeclarationExtension FunIndInfo ← mkMapDeclarationExtension
 

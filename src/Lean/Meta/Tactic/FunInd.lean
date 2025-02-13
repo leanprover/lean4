@@ -911,7 +911,7 @@ See module doc for details.
 def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
   -- First open up the fixed parameters everywhere
-  let (e', paramMask, numFunTargetss) ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
+  let (e', paramMask, motiveArities) ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same
     -- up to the final projections)
     let body ← instantiateLambda infos[0]!.value xs
@@ -963,6 +963,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         motives.mapM fun motive =>
           forallTelescopeReducing motive fun xs _ => pure xs.size
 
+
       let recArgInfos ← infos.mapM fun info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
         let value ← instantiateLambda info.value xs
@@ -973,9 +974,6 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
         pure recArgInfo
 
       let positions : Structural.Positions := .groupAndSort (·.indIdx) recArgInfos (Array.range indInfo.numTypeFormers)
-
-      -- Number of targets per function
-      let numFunTargetss := positions.inverse.map (fun i => numTypeFormerTargetss[i]!)
 
       -- Below we'll need the types of the motive arguments (brecOn argument order)
       let brecMotiveTypes ← inferArgumentTypesN recInfo.numMotives (group.brecOn true lvl 0)
@@ -995,6 +993,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
         let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
           if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
+
         withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
 
           -- Prepare the `isRecCall` that recognizes recursive calls
@@ -1079,7 +1078,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           let (paramMask, e') ← mkLambdaFVarsMasked xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
-          pure (e', paramMask, numFunTargetss)
+          pure (e', paramMask, motiveArities)
 
   unless (← isTypeCorrect e') do
     logError m!"constructed induction principle is not type correct:{indentExpr e'}"
@@ -1112,7 +1111,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
       funIndName := inductName
       levelMask := usMask
       params := paramMask.map (cond · .param .dropped) ++
-        mkArray numFunTargetss[0]! .target
+        mkArray motiveArities[0]! .target
     }
 
 

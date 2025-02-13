@@ -751,6 +751,7 @@ def evalFunInduction : Tactic := fun stx =>
       | .dropped => pure ()
       | .param => params := params.push a
       | .target => targets := targets.push a
+    trace[Elab.induction] "us: {us}\nparams: {params}\ntargets: {targets}"
 
     targets ← generalizeTargets targets
     let elimExpr := mkAppN (.const funIndInfo.funIndName us.toList) params
@@ -766,7 +767,8 @@ def evalFunInduction : Tactic := fun stx =>
     let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
     let tag ← mvarId.getTag
     mvarId.withContext do
-      let targets ← addImplicitTargets elimInfo targets
+      -- TODO: not with fun_induction
+      -- let targets ← addImplicitTargets elimInfo targets
       checkTargets targets
       let targetFVarIds := targets.map (·.fvarId!)
       let (n, mvarId) ← generalizeVars mvarId stx targets
@@ -778,7 +780,8 @@ def evalFunInduction : Tactic := fun stx =>
         -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
         -- unchanged
         -- everything up to the alternatives must be unchanged for reuse
-        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
+        -- NB: argIdx!
+        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 3) fun optInductionAlts => do
         withAltsOfOptInductionAlts optInductionAlts fun alts? => do
           let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
           mvarId.assign result.elimApp

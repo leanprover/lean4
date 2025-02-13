@@ -1386,25 +1386,30 @@ where
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
-    let stxN := mkIdent n
-    let curIds := curIds.push ⟨stxN⟩
     if shouldGroupWithNext bindingNames e e' then
-      withBindingBody n <| delabParamsAux bindingNames idStx groups curIds
+      withBindingBody' n (mkAnnotatedIdent n) <| fun stxN => delabParamsAux bindingNames idStx groups (curIds.push ⟨stxN⟩)
     else
-      let group ← withBindingDomain do
+      let mkGroup ← withBindingDomain do
         match i with
-        | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
-        | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
-        | .instImplicit   => `(bracketedBinderF|[$stxN : $(← delabTy)])
+        | .implicit       => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
+        | .strictImplicit => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|⦃$curIds* : $ty⦄)
+        | .instImplicit   => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|[$(curIds[0]!) : $ty])
         | _ =>
           if d.isOptParam then
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
+            let ty ← withAppFn <| withAppArg delabTy
+            let val ← withAppArg delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := $val))
           else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+            let ty ← withAppFn <| withAppArg delabTy
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := by $tacticSyntax))
           else
-            `(bracketedBinderF|($curIds* : $(← delabTy)))
-      withBindingBody n <| delabParams bindingNames idStx (groups.push group)
+            let ty ← delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty))
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
+        let curIds := curIds.push stxN
+        let group ← mkGroup curIds
+        delabParams bindingNames idStx (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/

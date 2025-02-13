@@ -1,8 +1,8 @@
-example : UInt8.val 42 = 42 := by simp
-example : UInt16.val 42 = 42 := by simp
-example : UInt32.val 42 = 42 := by simp
-example : UInt64.val 42 = 42 := by simp
-example : USize.val 42 = 42 := by simp
+example : UInt8.toFin 42 = 42 := by simp
+example : UInt16.toFin 42 = 42 := by simp
+example : UInt32.toFin 42 = 42 := by simp
+example : UInt64.toFin 42 = 42 := by simp
+example : USize.toFin 42 = 42 := by simp
 example : UInt8.toBitVec 42 = 42 := by simp
 example : UInt16.toBitVec 42 = 42 := by simp
 example : UInt32.toBitVec 42 = 42 := by simp

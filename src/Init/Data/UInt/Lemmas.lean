@@ -31,7 +31,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
 
   @[simp] theorem toNat_ofNatCore {n : Nat} {h : n < size} : (ofNatCore n h).toNat = n := BitVec.toNat_ofNatLt ..
 
-  @[simp] theorem val_val_eq_toNat (x : $typeName) : x.val.val = x.toNat := rfl
+  @[simp] theorem toFin_val_eq_toNat (x : $typeName) : x.toFin.val = x.toNat := rfl
+  @[deprecated toFin_val_eq_toNat (since := "2025-02-12")]
+  theorem val_val_eq_toNat (x : $typeName) : x.toFin.val = x.toNat := rfl
 
   theorem toNat_toBitVec_eq_toNat (x : $typeName) : x.toBitVec.toNat = x.toNat := rfl
 
@@ -86,13 +88,21 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   protected theorem eq_iff_toBitVec_eq {a b : $typeName} : a = b ↔ a.toBitVec = b.toBitVec :=
     Iff.intro toBitVec_eq_of_eq eq_of_toBitVec_eq
 
-  open $typeName (eq_of_toBitVec_eq) in
-  protected theorem eq_of_val_eq {a b : $typeName} (h : a.val = b.val) : a = b := by
-    rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [val]
+  open $typeName (eq_of_toBitVec_eq toFin) in
+  protected theorem eq_of_toFin_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b := by
+    rcases a with ⟨⟨_⟩⟩; rcases b with ⟨⟨_⟩⟩; simp_all [toFin]
+  open $typeName (eq_of_toFin_eq) in
+  @[deprecated eq_of_toFin_eq (since := "2025-02-12")]
+  protected theorem eq_of_val_eq {a b : $typeName} (h : a.toFin = b.toFin) : a = b :=
+    eq_of_toFin_eq h
 
-  open $typeName (eq_of_val_eq) in
-  protected theorem val_inj {a b : $typeName} : a.val = b.val ↔ a = b :=
-    Iff.intro eq_of_val_eq (congrArg val)
+  open $typeName (eq_of_toFin_eq) in
+  protected theorem toFin_inj {a b : $typeName} : a.toFin = b.toFin ↔ a = b :=
+    Iff.intro eq_of_toFin_eq (congrArg toFin)
+  open $typeName (toFin_inj) in
+  @[deprecated toFin_inj (since := "2025-02-12")]
+  protected theorem val_inj {a b : $typeName} : a.toFin = b.toFin ↔ a = b :=
+    toFin_inj
 
   open $typeName (eq_of_toBitVec_eq) in
   protected theorem toBitVec_ne_of_ne {a b : $typeName} (h : a ≠ b) : a.toBitVec ≠ b.toBitVec :=
@@ -178,7 +188,9 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
     simp [Nat.mod_eq_of_lt x.toNat_lt_size]
 
   @[simp]
-  theorem val_ofNat (n : Nat) : val (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
+  theorem toFin_ofNat (n : Nat) : toFin (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
+  @[deprecated toFin_ofNat (since := "2025-02-12")]
+  theorem val_ofNat (n : Nat) : toFin (no_index (OfNat.ofNat n)) = OfNat.ofNat n := rfl
 
   @[simp, int_toBitVec]
   theorem toBitVec_ofNat (n : Nat) : toBitVec (no_index (OfNat.ofNat n)) = BitVec.ofNat _ n := rfl

@@ -155,10 +155,6 @@ def find? (t : Raw α β cmp) (a : α) : Option β :=
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
   DTreeMap.Raw.Const.get t.inner a h
 
-@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
-def find (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
-  get t a h
-
 @[inline, inherit_doc DTreeMap.Raw.Const.get!]
 def get! (t : Raw α β cmp) (a : α) [Inhabited β]  : β :=
   DTreeMap.Raw.Const.get! t.inner a

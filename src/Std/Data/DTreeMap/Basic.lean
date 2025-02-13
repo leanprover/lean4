@@ -192,10 +192,6 @@ Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
 def get [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
 
-@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
-def find [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β a :=
-  t.get a h
-
 /--
 Tries to retrieve the mapping for the given key, panicking if no such mapping is present.
 
@@ -244,10 +240,6 @@ Given a proof that a mapping for the given key is present, retrieves the mapping
 @[inline]
 def get (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get a t.inner h
-
-@[inline, inherit_doc get, deprecated get (since := "2025-02-12")]
-def find (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
-  get t a h
 
 /--
 Tries to retrieve the mapping for the given key, panicking if no such mapping is present.

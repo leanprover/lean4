@@ -899,6 +899,17 @@ You can use `with` to provide the variables names for each constructor.
 -/
 syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
 
+/--
+TODO
+-/
+syntax (name := funInduction) "fun_induction " term
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
+
+/--
+TODO
+-/
+syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
+
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 

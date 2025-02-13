@@ -18,6 +18,7 @@ import Lean.Elab.PreDefinition.Structural.IndGroupInfo
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
+import Lean.Meta.Tactic.FunIndInfo
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -677,7 +678,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         mkLambdaFVars (params ++ xs) (mkAppN body xs)
     else
       pure e
-  let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
+  let (e', paramMask) ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
       unless params.back! == target do
@@ -719,8 +720,9 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         -- induction principle match the type of the function better.
         -- But this leads to avoidable parameters that make functional induction strictly less
         -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
-        let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) fixedParams e'
-        instantiateMVars e'
+        let (paramMask, e') ← mkLambdaFVarsMasked fixedParams e'
+        let e' ← instantiateMVars e'
+        return (e', paramMask)
     | _ =>
       if funBody.isAppOf ``WellFounded.fix then
         throwError "Function {name} defined via WellFounded.fix with unexpected arity {funBody.getAppNumArgs}:{indentExpr funBody}"
@@ -734,12 +736,20 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let eTyp ← inferType e'
   let eTyp ← elimOptParam eTyp
   -- logInfo m!"eTyp: {eTyp}"
-  let params := (collectLevelParams {} eTyp).params
+  let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
-  let us := info.levelParams.filter (params.contains ·)
+  let funUs := info.levelParams.toArray
+  let usMask := funUs.map (levelParams.contains ·)
+  let us := maskArray usMask funUs |>.toList
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
+
+  setFunIndInfo {
+      funIndName := inductName
+      levelMask := usMask
+      params := paramMask.map (cond · .param .dropped) ++ #[.target]
+  }
   return inductName
 
 /--

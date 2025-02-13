@@ -147,6 +147,54 @@ def isEmpty (t : TreeSet α cmp) : Bool :=
 def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
+@[inline]
+def getGE? (t : TreeSet α cmp) (k : α) : Option α :=
+  TreeMap.getKeyGE? t.inner k
+
+@[inline]
+def getGT? (t : TreeSet α cmp) (k : α) : Option α :=
+  TreeMap.getKeyGT? t.inner k
+
+@[inline]
+def getLE? (t : TreeSet α cmp) (k : α) : Option α :=
+  TreeMap.getKeyLE? t.inner k
+
+@[inline]
+def getLT? (t : TreeSet α cmp) (k : α) : Option α :=
+  TreeMap.getKeyLT? t.inner k
+
+@[inline]
+def getGE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
+  TreeMap.getKeyGE! t.inner k
+
+@[inline]
+def getGT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
+  TreeMap.getKeyGT! t.inner k
+
+@[inline]
+def getLE! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
+  TreeMap.getKeyLE! t.inner k
+
+@[inline]
+def getLT! [Inhabited α] (t : TreeSet α cmp) (k : α) : α :=
+  TreeMap.getKeyLT! t.inner k
+
+@[inline]
+def getGED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.getKeyGED t.inner k fallback
+
+@[inline]
+def getGTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.getKeyGTD t.inner k fallback
+
+@[inline]
+def getLED (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.getKeyLED t.inner k fallback
+
+@[inline]
+def getLTD (t : TreeSet α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.getKeyLTD t.inner k fallback
+
 variable  {γ δ: Type w} {m : Type w → Type w₂} [Monad m]
 
 /-- Removes all elements from the tree set for which the given function returns `false`. -/

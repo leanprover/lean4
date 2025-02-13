@@ -53,4 +53,58 @@ theorem balanced_inner_iff {sz k v l r} : Balanced (Impl.inner sz k v l r : Impl
   ⟨by rintro (_|⟨h₁, h₂, h₃, h₄⟩); exact ⟨h₁, h₂, h₃, h₄⟩,
    fun ⟨h₁, h₂, h₃, h₄⟩ => .inner h₁ h₂ h₃ h₄⟩
 
+@[simp]
+theorem balancedAtRoot_zero_zero : BalancedAtRoot 0 0 := by
+  simp only [BalancedAtRoot]; omega
+
+@[simp]
+theorem balancedAtRoot_zero_one : BalancedAtRoot 0 1 := by
+  simp only [BalancedAtRoot]; omega
+
+@[simp]
+theorem balancedAtRoot_one_zero : BalancedAtRoot 1 0 := by
+  simp only [BalancedAtRoot]; omega
+
+@[simp]
+theorem balancedAtRoot_one_one : BalancedAtRoot 1 1 := by
+  simp only [BalancedAtRoot, delta]; omega
+
+@[simp]
+theorem balancedAtRoot_two_one : BalancedAtRoot 2 1 := by
+  simp only [BalancedAtRoot, delta]; omega
+
+@[simp]
+theorem balancedAtRoot_one_two : BalancedAtRoot 1 2 := by
+  simp only [BalancedAtRoot, delta]; omega
+
+theorem balanced_one_leaf_leaf {k : α} {v : β k} : (inner 1 k v leaf leaf).Balanced :=
+  balanced_inner_iff.2 ⟨.leaf, .leaf, by simp [size_leaf], by simp [size_leaf]⟩
+
+theorem balancedAtRoot_zero_iff {n : Nat} : BalancedAtRoot 0 n ↔ n ≤ 1 := by
+  simp only [BalancedAtRoot]; omega
+
+theorem balancedAtRoot_zero_iff' {n : Nat} : BalancedAtRoot n 0 ↔ n ≤ 1 := by
+  simp only [BalancedAtRoot]; omega
+
+theorem Balanced.one_le {sz k v l r} (h : (Impl.inner sz k v l r : Impl α β).Balanced) : 1 ≤ sz := by
+  cases h; omega
+
+theorem Balanced.eq {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → sz = l.size + 1 + r.size
+  | .inner _ _ _ h => h
+
+theorem Balanced.left {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → l.Balanced
+  | .inner h _ _ _ => h
+
+theorem Balanced.right {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → r.Balanced
+  | .inner _ h _ _ => h
+
+theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced →
+    BalancedAtRoot l.size r.size
+  | .inner _ _ h _ => h
+
+theorem BalancedAtRoot.symm {l r : Nat} (h : BalancedAtRoot l r) : BalancedAtRoot r l := by
+  cases h
+  · next h => exact Or.inl <| Nat.add_comm _ _ ▸ h
+  · next h => exact Or.inr h.symm
+
 end Std.DTreeMap.Internal.Impl

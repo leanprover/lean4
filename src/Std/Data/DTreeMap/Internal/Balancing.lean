@@ -375,58 +375,6 @@ def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 ## Lemmas about balancing operations
 -/
 
-@[simp]
-theorem balancedAtRoot_zero_zero : BalancedAtRoot 0 0 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_zero_one : BalancedAtRoot 0 1 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_one_zero : BalancedAtRoot 1 0 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_one_one : BalancedAtRoot 1 1 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-@[simp]
-theorem balancedAtRoot_two_one : BalancedAtRoot 2 1 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-@[simp]
-theorem balancedAtRoot_one_two : BalancedAtRoot 1 2 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-theorem balanced_one_leaf_leaf {k : α} {v : β k} : (inner 1 k v leaf leaf).Balanced :=
-  balanced_inner_iff.2 ⟨.leaf, .leaf, by simp [size_leaf], by simp [size_leaf]⟩
-
-theorem balancedAtRoot_zero_iff {n : Nat} : BalancedAtRoot 0 n ↔ n ≤ 1 := by
-  simp only [BalancedAtRoot]; omega
-
-theorem balancedAtRoot_zero_iff' {n : Nat} : BalancedAtRoot n 0 ↔ n ≤ 1 := by
-  simp only [BalancedAtRoot]; omega
-
-theorem Balanced.one_le {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → 1 ≤ sz := by
-  tree_tac
-
-theorem Balanced.eq {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → sz = l.size + 1 + r.size
-  | .inner _ _ _ h => h
-
-theorem Balanced.left {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → l.Balanced
-  | .inner h _ _ _ => h
-
-theorem Balanced.right {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → r.Balanced
-  | .inner _ h _ _ => h
-
-theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced →
-    BalancedAtRoot l.size r.size
-  | .inner _ _ h _ => h
-
-theorem BalancedAtRoot.symm {l r : Nat} : BalancedAtRoot l r → BalancedAtRoot r l := by
-  tree_tac
-
 theorem BalancedAtRoot.erase_left {l l' r : Nat} : BalancedAtRoot l r → l - 1 ≤ l' → l' ≤ l →
     BalanceLErasePrecond r l' := by tree_tac
 

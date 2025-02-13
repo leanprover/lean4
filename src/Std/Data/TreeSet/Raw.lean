@@ -143,9 +143,17 @@ def filter (f : α → Bool) (t : Raw α cmp) : Raw α cmp :=
 def foldlM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
   t.inner.foldlM (fun c a _ => f c a) init
 
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
+def foldM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
+  t.foldlM f init
+
 @[inline, inherit_doc TreeSet.empty]
 def foldl (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.inner.foldl (fun c a _ => f c a) init
+
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
+def fold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+  t.foldl f init
 
 @[inline, inherit_doc TreeSet.empty]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=

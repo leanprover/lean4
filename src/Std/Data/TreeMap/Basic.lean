@@ -129,6 +129,10 @@ def erase (t : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
 def get? (t : TreeMap α β cmp) (a : α) : Option β :=
   DTreeMap.Const.get? t.inner a
 
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
+def find? (t : TreeMap α β cmp) (a : α) : Option β :=
+  get? t a
+
 @[inline, inherit_doc DTreeMap.get]
 def get (t : TreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
    DTreeMap.Const.get t.inner a h
@@ -137,9 +141,17 @@ def get (t : TreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
 def get! (t : TreeMap α β cmp) (a : α) [Inhabited β]  : β :=
   DTreeMap.Const.get! t.inner a
 
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
+def find! (t : TreeMap α β cmp) (a : α) [Inhabited β] : β :=
+  get! t a
+
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : TreeMap α β cmp) (a : α) (fallback : β) : β :=
   DTreeMap.Const.getD t.inner a fallback
+
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
+def findD (t : TreeMap α β cmp) (a : α) (fallback : β) : β :=
+  getD t a fallback
 
 instance : GetElem? (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
@@ -156,9 +168,17 @@ def filter (f : α → β → Bool) (m : TreeMap α β cmp) : TreeMap α β cmp 
 def foldlM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
   t.inner.foldlM f init
 
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
+def foldM (f : δ → (a : α) → β → m δ) (init : δ) (t : TreeMap α β cmp) : m δ :=
+  t.foldlM f init
+
 @[inline, inherit_doc DTreeMap.foldl]
 def foldl (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   t.inner.foldl f init
+
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
+def fold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
+  t.foldl f init
 
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : α → β → m PUnit) (t : TreeMap α β cmp) : m PUnit :=
@@ -201,6 +221,10 @@ def toArray (t : TreeMap α β cmp) : Array (α × β) :=
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
+  mergeWith mergeFn t₁ t₂
 
 @[inline, inherit_doc DTreeMap.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : TreeMap α β cmp) (l : ρ) : TreeMap α β cmp :=

@@ -150,6 +150,10 @@ def erase (t : Raw α β cmp) (a : α) : Raw α β cmp :=
 def get? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) : Option (β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.get? a
 
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
+def find? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) : Option (β a) :=
+  t.get? a
+
 @[inline, inherit_doc DTreeMap.get]
 def get [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get a h
@@ -158,17 +162,30 @@ def get [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (h : a ∈ t) : β a :=
 def get! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.get! a
 
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
+def find! [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) [Inhabited (β a)]  : β a :=
+  t.get! a
+
 @[inline, inherit_doc DTreeMap.getD]
 def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.getD a fallback
+
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
+def findD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
+  t.getD a fallback
 
 namespace Const
 open Internal (Impl)
 
 variable {β : Type v}
 
-@[inline, inherit_doc DTreeMap.get?] def get? (t : Raw α β cmp) (a : α) : Option β :=
+@[inline, inherit_doc DTreeMap.get?]
+def get? (t : Raw α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
+
+@[inline, inherit_doc get?, deprecated get? (since := "2025-02-12")]
+def find? (t : Raw α β cmp) (a : α) : Option β :=
+  get? t a
 
 @[inline, inherit_doc DTreeMap.get]
 def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
@@ -178,9 +195,17 @@ def get (t : Raw α β cmp) (a : α) (h : a ∈ t) : β :=
 def get! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get! a t.inner
 
+@[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
+def find! (t : Raw α β cmp) (a : α) [Inhabited β] : β :=
+  get! t a
+
 @[inline, inherit_doc DTreeMap.getD]
 def getD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getD a t.inner fallback
+
+@[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
+def findD (t : Raw α β cmp) (a : α) (fallback : β) : β :=
+  getD t a fallback
 
 end Const
 
@@ -194,9 +219,17 @@ def filter (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp 
 def foldlM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
   t.inner.foldlM f init
 
+@[inline, inherit_doc foldlM, deprecated foldlM (since := "2025-02-12")]
+def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
+  t.foldlM f init
+
 @[inline, inherit_doc DTreeMap.foldl]
 def foldl (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.inner.foldl f init
+
+@[inline, inherit_doc foldl, deprecated foldl (since := "2025-02-12")]
+def fold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
+  t.foldl f init
 
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=
@@ -244,6 +277,11 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
+    Raw α β cmp :=
+  mergeWith mergeFn t₁ t₂
+
 namespace Const
 open Internal (Impl)
 
@@ -260,6 +298,10 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
 @[inline, inherit_doc Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.mergeWith! mergeFn t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
+def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+  mergeWith mergeFn t₁ t₂
 
 end Const
 

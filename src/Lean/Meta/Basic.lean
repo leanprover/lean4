@@ -437,6 +437,10 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 -/
 structure Context where
   private config    : Config               := {}
+  /--
+    Map `.auxDecl` local declarations used to encode recursive declarations to their full-names.
+  -/
+  auxDeclToFullName : FVarIdMap Name  := {}
   private configKey : UInt64               := config.toKey
   /--
   When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
@@ -1663,6 +1667,18 @@ on each other.
 def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=
   withLocalDeclsD
     (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
+
+private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
+  withLocalDecl shortDeclName .default (kind := .auxDecl) type fun x =>
+    withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
+      k x
+
+/--
+  Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive
+  declaration `declName`, update the mapping `auxDeclToFullName`, and then execute `k`.
+-/
+def withAuxDecl (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → n α) : n α :=
+  map1MetaM (fun k => withAuxDeclImp shortDeclName type declName k) k
 
 private def withNewBinderInfosImp (bs : Array (FVarId × BinderInfo)) (k : MetaM α) : MetaM α := do
   let lctx := bs.foldl (init := (← getLCtx)) fun lctx (fvarId, bi) =>

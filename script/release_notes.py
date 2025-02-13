@@ -5,6 +5,7 @@ import re
 import json
 import requests
 import subprocess
+import argparse
 from collections import defaultdict
 from git import Repo
 
@@ -64,21 +65,38 @@ def format_markdown_description(pr_number, description):
     link = f"[#{pr_number}](https://github.com/leanprover/lean4/pull/{pr_number})"
     return f"{link} {description}"
 
-def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("Usage: script.py <git-tag>\n")
-        sys.exit(1)
+def count_commit_types(commits):
+    counts = {
+        'total': len(commits),
+        'feat': 0,
+        'fix': 0,
+        'refactor': 0,
+        'doc': 0,
+        'chore': 0
+    }
+    
+    for _, first_line, _ in commits:
+        for commit_type in ['feat:', 'fix:', 'refactor:', 'doc:', 'chore:']:
+            if first_line.startswith(commit_type):
+                counts[commit_type.rstrip(':')] += 1
+                break
+    
+    return counts
 
-    tag = sys.argv[1]
+def main():
+    parser = argparse.ArgumentParser(description='Generate release notes from Git commits')
+    parser.add_argument('--since', required=True, help='Git tag to generate release notes since')
+    args = parser.parse_args()
+
     try:
         repo = Repo(".")
     except Exception as e:
         sys.stderr.write(f"Error opening Git repository: {e}\n")
         sys.exit(1)
 
-    commits = get_commits_since_tag(repo, tag)
+    commits = get_commits_since_tag(repo, args.since)
 
-    sys.stderr.write(f"Found {len(commits)} commits since tag {tag}:\n")
+    sys.stderr.write(f"Found {len(commits)} commits since tag {args.since}:\n")
     for commit_hash, first_line, _ in commits:
         sys.stderr.write(f"- {commit_hash}: {first_line}\n")
 
@@ -92,14 +110,18 @@ def main():
         pr_number = check_pr_number(first_line)
 
         if not pr_number:
-            sys.stderr.write(f"No PR number found in {first_line}\n")
+            sys.stderr.write(f"No PR number found in commit:\n{commit_hash}\n{first_line}\n")
             continue
 
         # Remove the first line from the full_message for further processing
         body = full_message[len(first_line):].strip()
 
         paragraphs = body.split('\n\n')
-        second_paragraph = paragraphs[0] if len(paragraphs) > 0 else ""
+        description = paragraphs[0] if len(paragraphs) > 0 else ""
+        
+        # If there's a third paragraph and second ends with colon, include it
+        if len(paragraphs) > 1 and description.endswith(':'):
+            description = description + '\n\n' + paragraphs[1]
 
         labels = fetch_pr_labels(pr_number)
 
@@ -109,7 +131,7 @@ def main():
 
         report_errors = first_line.startswith("feat:") or first_line.startswith("fix:")
 
-        if not second_paragraph.startswith("This PR "):
+        if not description.startswith("This PR "):
             if report_errors:
                 sys.stderr.write(f"No PR description found in commit:\n{commit_hash}\n{first_line}\n{body}\n\n")
                 fallback_description = re.sub(r":$", "", first_line.split(" ", 1)[1]).rsplit(" (#", 1)[0]
@@ -117,7 +139,7 @@ def main():
             else:
                 continue
         else:
-            markdown_description = format_markdown_description(pr_number, second_paragraph.replace("This PR ", ""))
+            markdown_description = format_markdown_description(pr_number, description.replace("This PR ", ""))
 
         changelog_labels = [label for label in labels if label.startswith("changelog-")]
         if len(changelog_labels) > 1:
@@ -131,6 +153,13 @@ def main():
 
         for label in changelog_labels:
             changelog[label].append((pr_number, markdown_description))
+
+    # Add commit type counting
+    counts = count_commit_types(commits)
+    print(f"For this release, {counts['total']} changes landed. "
+          f"In addition to the {counts['feat']} feature additions and {counts['fix']} fixes listed below "
+          f"there were {counts['refactor']} refactoring changes, {counts['doc']} documentation improvements "
+          f"and {counts['chore']} chores.\n")
 
     section_order = sort_sections_order()
     sorted_changelog = sorted(changelog.items(), key=lambda item: section_order.index(format_section_title(item[0])) if format_section_title(item[0]) in section_order else len(section_order))

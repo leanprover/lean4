@@ -80,6 +80,11 @@ theorem BitVec.lt_ult (x y : BitVec w) : (x < y) = (BitVec.ult x y = true) := by
   simp only [(· < ·)]
   simp
 
+@[bv_normalize]
+theorem BitVec.or_elim (x y : BitVec w) : x ||| y = ~~~(~~~x &&& ~~~y) := by
+  ext
+  simp_all
+
 attribute [bv_normalize] BitVec.natCast_eq_ofNat
 attribute [bv_normalize] BitVec.append_eq
 attribute [bv_normalize] BitVec.and_eq

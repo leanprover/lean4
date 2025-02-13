@@ -74,7 +74,8 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 
 #define LEAN_BYTE(Var, Index) *(((uint8_t*)&Var)+Index)
 
-#define LeanMaxCtorTag  244
+#define LeanMaxCtorTag  243
+#define LeanPromise     244
 #define LeanClosure     245
 #define LeanArray       246
 #define LeanStructArray 247
@@ -277,6 +278,11 @@ typedef struct lean_task {
     lean_task_imp *        m_imp;
 } lean_task_object;
 
+typedef struct lean_promise {
+    lean_object        m_header;
+    lean_task_object * m_result;
+} lean_promise_object;
+
 typedef void (*lean_external_finalize_proc)(void *);
 typedef void (*lean_external_foreach_proc)(void *, b_lean_obj_arg);
 
@@ -302,6 +308,7 @@ LEAN_EXPORT void lean_set_exit_on_panic(bool flag);
 /* Enable/disable panic messages */
 LEAN_EXPORT void lean_set_panic_messages(bool flag);
 
+LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr);
 LEAN_EXPORT lean_object * lean_panic_fn(lean_object * default_val, lean_object * msg);
 
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic(char const * msg);
@@ -380,11 +387,16 @@ static inline unsigned lean_small_object_size(lean_object * o) {
 void free(void *);  // avoid including big `stdlib.h`
 #endif
 
+#if !defined(__STDC_VERSION_STDLIB_H__) || __STDC_VERSION_STDLIB_H__ < 202311L
+void free_sized(void* ptr, size_t);
+#endif
+
 static inline void lean_free_small_object(lean_object * o) {
 #ifdef LEAN_SMALL_ALLOCATOR
     lean_free_small(o);
 #else
-    free((size_t*)o - 1);
+    size_t* ptr = (size_t*)o - 1;
+    free_sized(ptr, *ptr + sizeof(size_t));
 #endif
 }
 
@@ -474,6 +486,7 @@ static inline bool lean_is_string(lean_object * o) { return lean_ptr_tag(o) == L
 static inline bool lean_is_mpz(lean_object * o) { return lean_ptr_tag(o) == LeanMPZ; }
 static inline bool lean_is_thunk(lean_object * o) { return lean_ptr_tag(o) == LeanThunk; }
 static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == LeanTask; }
+static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
 static inline bool lean_is_external(lean_object * o) { return lean_ptr_tag(o) == LeanExternal; }
 static inline bool lean_is_ref(lean_object * o) { return lean_ptr_tag(o) == LeanRef; }
 
@@ -488,6 +501,7 @@ static inline lean_sarray_object * lean_to_sarray(lean_object * o) { assert(lean
 static inline lean_string_object * lean_to_string(lean_object * o) { assert(lean_is_string(o)); return (lean_string_object*)(o); }
 static inline lean_thunk_object * lean_to_thunk(lean_object * o) { assert(lean_is_thunk(o)); return (lean_thunk_object*)(o); }
 static inline lean_task_object * lean_to_task(lean_object * o) { assert(lean_is_task(o)); return (lean_task_object*)(o); }
+static inline lean_promise_object * lean_to_promise(lean_object * o) { assert(lean_is_promise(o)); return (lean_promise_object*)(o); }
 static inline lean_ref_object * lean_to_ref(lean_object * o) { assert(lean_is_ref(o)); return (lean_ref_object*)(o); }
 static inline lean_external_object * lean_to_external(lean_object * o) { assert(lean_is_external(o)); return (lean_external_object*)(o); }
 
@@ -2001,6 +2015,7 @@ static inline uint8_t lean_int8_dec_le(uint8_t a1, uint8_t a2) {
 static inline uint16_t lean_int8_to_int16(uint8_t a) { return (uint16_t)(int16_t)(int8_t)a; }
 static inline uint32_t lean_int8_to_int32(uint8_t a) { return (uint32_t)(int32_t)(int8_t)a; }
 static inline uint64_t lean_int8_to_int64(uint8_t a) { return (uint64_t)(int64_t)(int8_t)a; }
+static inline size_t lean_int8_to_isize(uint8_t a) { return (size_t)(ptrdiff_t)(int8_t)a; }
 
 
 /* Int16 */
@@ -2141,6 +2156,7 @@ static inline uint8_t lean_int16_dec_le(uint16_t a1, uint16_t a2) {
 static inline uint8_t lean_int16_to_int8(uint16_t a) { return (uint8_t)(int8_t)(int16_t)a; }
 static inline uint32_t lean_int16_to_int32(uint16_t a) { return (uint32_t)(int32_t)(int16_t)a; }
 static inline uint64_t lean_int16_to_int64(uint16_t a) { return (uint64_t)(int64_t)(int16_t)a; }
+static inline size_t lean_int16_to_isize(uint16_t a) { return (size_t)(ptrdiff_t)(int16_t)a; }
 
 /* Int32 */
 LEAN_EXPORT int32_t lean_int32_of_big_int(b_lean_obj_arg a);
@@ -2559,6 +2575,8 @@ static inline uint8_t lean_isize_dec_le(size_t a1, size_t a2) {
 }
 
 /* ISize -> other */
+static inline uint8_t lean_isize_to_int8(size_t a) { return (uint8_t)(int8_t)(ptrdiff_t)a; }
+static inline uint16_t lean_isize_to_int16(size_t a) { return (uint16_t)(int16_t)(ptrdiff_t)a; }
 static inline uint32_t lean_isize_to_int32(size_t a) { return (uint32_t)(int32_t)(ptrdiff_t)a; }
 static inline uint64_t lean_isize_to_int64(size_t a) { return (uint64_t)(int64_t)(ptrdiff_t)a; }
 

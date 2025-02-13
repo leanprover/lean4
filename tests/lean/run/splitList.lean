@@ -15,7 +15,7 @@ def splitList : (l : List α) → ListSplit l
 theorem splitList_length (as : List α) (h₁ : as.length > 1) (h₂ : as = bs) : (splitList as).left.length < bs.length ∧ (splitList as).right.length < bs.length := by
   match as with
   | [] => contradiction
-  | a :: as => simp_arith [← h₂, splitList]; simp_arith at h₁; assumption
+  | a :: as => simp +arith [← h₂, splitList]; simp +arith at h₁; assumption
 
 def len : List α → Nat
   | []      => 0
@@ -27,10 +27,10 @@ def len : List α → Nat
     | ListSplit.split fst snd =>
       -- Remark: `match` refined `h₁`s type to `h₁ : fst ++ snd = a :: b :: as`
       -- h₂ : HEq (splitList l) (ListSplit.split fst snd)
-      have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
+      have := splitList_length (fst ++ snd) (by simp +arith [h₁]) h₁
       -- The following two proofs ase used to justify the recursive applications `len fst` and `len snd`
-      have dec₁ : fst.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
-      have dec₂ : snd.length < as.length + 2 := by subst l; simp_arith [eq_of_heq h₂] at this |- ; simp [this]
+      have dec₁ : fst.length < as.length + 2 := by subst l; simp +arith [eq_of_heq h₂] at this |- ; simp [this]
+      have dec₂ : snd.length < as.length + 2 := by subst l; simp +arith [eq_of_heq h₂] at this |- ; simp [this]
       len fst + len snd
 termination_by xs => xs.length
 
@@ -78,9 +78,9 @@ def len : List α → Nat
 termination_by xs => xs.length
 decreasing_by
   all_goals
-    have := splitList_length (fst ++ snd) (by simp_arith [h₁]) h₁
+    have := splitList_length (fst ++ snd) (by simp +arith [h₁]) h₁
     subst h₂
-    simp_arith [eq_of_heq h₃] at this |- ; simp [this]
+    simp +arith [eq_of_heq h₃] at this |- ; simp [this]
 
 -- The equational theorems are
 #check @len.eq_1

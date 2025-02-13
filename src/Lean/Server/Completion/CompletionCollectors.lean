@@ -65,32 +65,12 @@ section Infrastructure
       (score         : Float)
       : M Unit := do
     let env ← getEnv
-    let (docStringPrefix?, tags?) := Id.run do
+    let tags? := do
       let .const declName := id
-        | (none, none)
-      let some param := Linter.deprecatedAttr.getParam? env declName
-        | (none, none)
-      let docstringPrefix :=
-        if let some text := param.text? then
-          text
-        else if let some newName := param.newName? then
-          s!"`{declName}` has been deprecated, use `{newName}` instead."
-        else
-          s!"`{declName}` has been deprecated."
-      (some docstringPrefix, some #[CompletionItemTag.deprecated])
-    let docString? ← do
-      let .const declName := id
-        | pure none
-      findDocString? env declName
-    let doc? := do
-      let docValue ←
-        match docStringPrefix?, docString? with
-        | none,                 none           => none
-        | some docStringPrefix, none           => docStringPrefix
-        | none,                 docString      => docString
-        | some docStringPrefix, some docString => s!"{docStringPrefix}\n\n{docString}"
-      pure { value := docValue , kind := MarkupKind.markdown : MarkupContent }
-    let item := { label := label.toString, kind? := kind, documentation? := doc?, tags?}
+        | none
+      guard <| Linter.isDeprecated env declName
+      some #[CompletionItemTag.deprecated]
+    let item := { label := label.toString, kind? := kind, tags? }
     addItem item score id
 
   private def getCompletionKindForDecl (constInfo : ConstantInfo) : M CompletionItemKind := do

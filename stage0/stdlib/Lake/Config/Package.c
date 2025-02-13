@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Package
-// Imports: Lake.Config.Opaque Lake.Config.Defaults Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
+// Imports: Lake.Config.Opaque Lake.Config.Defaults Lake.Config.OutFormat Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -181,6 +181,7 @@ static lean_object* l_Lake_StrPat_none___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instHashablePackage___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_LeanOption_asCliArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToJsonPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__3(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_instCoeForallStringBoolStrPat(lean_object*);
@@ -206,6 +207,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_relLicenseFiles___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_buildType(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPostUpdateHook(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instBEqPackage___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToTextPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_moreLinkArgs(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_relLakeDir(lean_object*);
@@ -3338,6 +3340,40 @@ lean_dec(x_1);
 return x_2;
 }
 }
+LEAN_EXPORT lean_object* l_Lake_instToTextPackage(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = 1;
+x_5 = l_Lake_defaultBuildArchive___closed__1;
+x_6 = l_Lean_Name_toString(x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instToJsonPackage(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = 1;
+x_5 = l_Lake_defaultBuildArchive___closed__1;
+x_6 = l_Lean_Name_toString(x_3, x_4, x_5);
+x_7 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
+}
+}
 LEAN_EXPORT lean_object* l_Lake_instCoeOutNPackagePackage___rarg(lean_object* x_1) {
 _start:
 {
@@ -4949,6 +4985,7 @@ return x_17;
 }
 lean_object* initialize_Lake_Config_Opaque(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_ExternLibConfig(uint8_t builtin, lean_object*);
@@ -4968,6 +5005,9 @@ res = initialize_Lake_Config_Opaque(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_OutFormat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_LeanLibConfig(builtin, lean_io_mk_world());

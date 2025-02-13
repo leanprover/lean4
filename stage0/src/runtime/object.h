@@ -470,7 +470,8 @@ inline obj_res st_ref_swap(b_obj_arg r, obj_arg v, obj_arg w) { return lean_st_r
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new(obj_arg);
 extern "C" LEAN_EXPORT obj_res lean_io_promise_resolve(obj_arg value, b_obj_arg promise, obj_arg);
-extern "C" LEAN_EXPORT obj_res lean_io_promise_result(obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(obj_arg promise);
+extern "C" LEAN_EXPORT obj_res lean_get_or_block(obj_arg opt);
 
 // =======================================
 // Module initialization/finalization

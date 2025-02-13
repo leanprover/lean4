@@ -9,6 +9,12 @@ import Init.Data.BitVec.Basic
 
 open Nat
 
+/-- Converts a `Fin UInt8.size` into the corresponding `UInt8`. -/
+@[inline] def UInt8.ofFin (a : Fin UInt8.size) : UInt8 := ⟨⟨a⟩⟩
+@[deprecated UInt8.ofBitVec (since := "2025-02-12"), inherit_doc UInt8.ofBitVec]
+def UInt8.mk (bitVec : BitVec 8) : UInt8 :=
+  UInt8.ofBitVec bitVec
+
 @[extern "lean_uint8_add"]
 def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint8_sub"]
@@ -20,7 +26,7 @@ def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 @[extern "lean_uint8_mod"]
 def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[deprecated UInt8.mod (since := "2024-09-23")]
-def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.val n⟩
+def UInt8.modn (a : UInt8) (n : Nat) : UInt8 := ⟨Fin.modn a.toFin n⟩
 @[extern "lean_uint8_land"]
 def UInt8.land (a b : UInt8) : UInt8 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint8_lor"]
@@ -72,6 +78,12 @@ instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
 instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
 
+/-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/
+@[inline] def UInt16.ofFin (a : Fin UInt16.size) : UInt16 := ⟨⟨a⟩⟩
+@[deprecated UInt16.ofBitVec (since := "2025-02-12"), inherit_doc UInt16.ofBitVec]
+def UInt16.mk (bitVec : BitVec 16) : UInt16 :=
+  UInt16.ofBitVec bitVec
+
 @[extern "lean_uint16_add"]
 def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint16_sub"]
@@ -83,7 +95,7 @@ def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec�
 @[extern "lean_uint16_mod"]
 def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[deprecated UInt16.mod (since := "2024-09-23")]
-def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.val n⟩
+def UInt16.modn (a : UInt16) (n : Nat) : UInt16 := ⟨Fin.modn a.toFin n⟩
 @[extern "lean_uint16_land"]
 def UInt16.land (a b : UInt16) : UInt16 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint16_lor"]
@@ -137,6 +149,12 @@ instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
+/-- Converts a `Fin UInt32.size` into the corresponding `UInt32`. -/
+@[inline] def UInt32.ofFin (a : Fin UInt32.size) : UInt32 := ⟨⟨a⟩⟩
+@[deprecated UInt32.ofBitVec (since := "2025-02-12"), inherit_doc UInt32.ofBitVec]
+def UInt32.mk (bitVec : BitVec 32) : UInt32 :=
+  UInt32.ofBitVec bitVec
+
 @[extern "lean_uint32_add"]
 def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint32_sub"]
@@ -148,7 +166,7 @@ def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec�
 @[extern "lean_uint32_mod"]
 def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[deprecated UInt32.mod (since := "2024-09-23")]
-def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.val n⟩
+def UInt32.modn (a : UInt32) (n : Nat) : UInt32 := ⟨Fin.modn a.toFin n⟩
 @[extern "lean_uint32_land"]
 def UInt32.land (a b : UInt32) : UInt32 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint32_lor"]
@@ -187,6 +205,12 @@ instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
+/-- Converts a `Fin UInt64.size` into the corresponding `UInt64`. -/
+@[inline] def UInt64.ofFin (a : Fin UInt64.size) : UInt64 := ⟨⟨a⟩⟩
+@[deprecated UInt64.ofBitVec (since := "2025-02-12"), inherit_doc UInt64.ofBitVec]
+def UInt64.mk (bitVec : BitVec 64) : UInt64 :=
+  UInt64.ofBitVec bitVec
+
 @[extern "lean_uint64_add"]
 def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
 @[extern "lean_uint64_sub"]
@@ -198,7 +222,7 @@ def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec�
 @[extern "lean_uint64_mod"]
 def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 @[deprecated UInt64.mod (since := "2024-09-23")]
-def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.val n⟩
+def UInt64.modn (a : UInt64) (n : Nat) : UInt64 := ⟨Fin.modn a.toFin n⟩
 @[extern "lean_uint64_land"]
 def UInt64.land (a b : UInt64) : UInt64 := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_uint64_lor"]
@@ -250,6 +274,12 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
+/-- Converts a `Fin USize.size` into the corresponding `USize`. -/
+@[inline] def USize.ofFin (a : Fin USize.size) : USize := ⟨⟨a⟩⟩
+@[deprecated USize.ofBitVec (since := "2025-02-12"), inherit_doc USize.ofBitVec]
+def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
+  USize.ofBitVec bitVec
+
 theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
   cases usize_size_eq <;> next h => rw [h]; decide
 
@@ -263,7 +293,7 @@ def USize.div (a b : USize) : USize := ⟨a.toBitVec / b.toBitVec⟩
 @[extern "lean_usize_mod"]
 def USize.mod (a b : USize) : USize := ⟨a.toBitVec % b.toBitVec⟩
 @[deprecated USize.mod (since := "2024-09-23")]
-def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.val n⟩
+def USize.modn (a : USize) (n : Nat) : USize := ⟨Fin.modn a.toFin n⟩
 @[extern "lean_usize_land"]
 def USize.land (a b : USize) : USize := ⟨a.toBitVec &&& b.toBitVec⟩
 @[extern "lean_usize_lor"]

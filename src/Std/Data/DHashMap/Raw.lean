@@ -11,7 +11,7 @@ import Std.Data.DHashMap.Internal.Defs
 /-
 # Dependent hash maps with unbundled well-formedness invariant
 
-This file develops the type `Std.Data.DHashMap.Raw` of dependent hash
+This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is

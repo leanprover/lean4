@@ -175,6 +175,11 @@ structure Config where
   Zeta-delta reduction: given a local context containing entry `x : t := e`, free variable `x` reduces to `e`.
   -/
   zetaDelta : Bool := true
+  /--
+  Zeta reduction for unused let-declarations: `let x := v; e` reduces to `e` when `x` does not occur
+  in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
@@ -1652,7 +1657,7 @@ def withLocalDeclsD [Inhabited α] (declInfos : Array (Name × (Array Expr → n
     (declInfos.map (fun (name, typeCtor) => (name, BinderInfo.default, typeCtor))) k
 
 /--
-Simpler variant of `withLocalDeclsD` for brining variables into scope whose types do not depend
+Simpler variant of `withLocalDeclsD` for bringing variables into scope whose types do not depend
 on each other.
 -/
 def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs : Array Expr) → n α) : n α :=

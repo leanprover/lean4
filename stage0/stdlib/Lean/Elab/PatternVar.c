@@ -470,6 +470,7 @@ static lean_object* l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPa
 lean_object* l_Lean_SMap_find_x3f_x27___at_Lean_Kernel_Environment_find_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_isDone(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_CollectPatternVars_collect_processCtorAppCore___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Subarray_forInUnsafe_loop___at_Lean_Elab_Term_CollectPatternVars_collect___spec__2(lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_getPatternVars___lambda__1___closed__2;
@@ -497,7 +498,6 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_CollectPatternVars_collect___lambda__13___closed__3;
 static lean_object* l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___rarg___lambda__4___closed__3;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean_Elab_Term_CollectPatternVars_collect_processCtorApp___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_List_mapTR_loop___at_Lean_compileDecl___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Elab_Term_CollectPatternVars_collect_processExplicitArg___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_forallTelescopeReducing___at_Lean_Elab_Term_CollectPatternVars_collect_processCtorAppCore___spec__4___rarg(lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_throwCtorExpected___spec__7___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6991,8 +6991,8 @@ return x_8;
 else
 {
 lean_object* x_14; lean_object* x_15; uint8_t x_16; 
-x_14 = lean_array_fget(x_3, x_9);
-x_15 = lean_array_fget(x_4, x_9);
+x_14 = lean_array_fget(x_4, x_9);
+x_15 = lean_array_fget(x_5, x_9);
 x_16 = l_Lean_Syntax_structEq(x_14, x_15);
 if (x_16 == 0)
 {
@@ -7089,8 +7089,10 @@ lean_ctor_set(x_12, 0, x_1);
 lean_ctor_set(x_12, 1, x_5);
 lean_ctor_set(x_12, 2, x_11);
 x_13 = l___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___closed__1;
-x_14 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___spec__1(x_2, x_3, x_4, x_6, x_12, x_13, x_12, x_13, x_1, lean_box(0), lean_box(0));
+lean_inc(x_1);
+x_14 = l_Std_Range_forIn_x27_loop___at___private_Lean_Elab_PatternVar_0__Lean_Elab_Term_CollectPatternVars_samePatternsVariables___spec__1(x_1, x_2, x_3, x_4, x_6, x_13, x_12, x_13, x_1, lean_box(0), lean_box(0));
 lean_dec(x_12);
+lean_dec(x_1);
 x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);
@@ -9743,7 +9745,7 @@ x_15 = 0;
 x_16 = l_Array_mapMUnsafe_map___at_Lean_Elab_Term_CollectPatternVars_collect_processExplicitArg___spec__1(x_14, x_15, x_13);
 x_17 = lean_array_to_list(x_16);
 x_18 = lean_box(0);
-x_19 = l_List_mapTR_loop___at_Lean_compileDecl___spec__1(x_17, x_18);
+x_19 = l_List_mapTR_loop___at_Lean_compileDecls_doCompile___spec__1(x_17, x_18);
 x_20 = l_Lean_MessageData_ofList(x_19);
 x_21 = l_Lean_Elab_Term_CollectPatternVars_collect_processExplicitArg___closed__2;
 x_22 = lean_alloc_ctor(7, 2, 0);

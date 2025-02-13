@@ -1222,7 +1222,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
     It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
-    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
+    `Int.fdiv` (floor rounding) and `Int.tdiv` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
@@ -1551,7 +1551,7 @@ instance instAddNat : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg
+attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1904,7 +1904,7 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 
 /-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
 @[match_pattern]
-protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
 /-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
@@ -1927,11 +1927,16 @@ The type of unsigned 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure UInt8 where
-  /-- Unpack a `UInt8` as a `BitVec 8`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt8` from a `BitVec 8`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt8` as a `BitVec 8`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 8
 
-attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
+attribute [extern "lean_uint8_of_nat_mk"] UInt8.ofBitVec
 attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
 
 /--
@@ -1940,7 +1945,15 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
+
+/--
+Pack a `Nat` less than `2^8` into a `UInt8`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_uint8_of_nat"]
+def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1968,11 +1981,16 @@ The type of unsigned 16-bit integers. This type has special support in the
 compiler to make it actually 16 bits rather than wrapping a `Nat`.
 -/
 structure UInt16 where
-  /-- Unpack a `UInt16` as a `BitVec 16`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt16` from a `BitVec 16`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt16` as a `BitVec 16`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 16
 
-attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
+attribute [extern "lean_uint16_of_nat_mk"] UInt16.ofBitVec
 attribute [extern "lean_uint16_to_nat"] UInt16.toBitVec
 
 /--
@@ -1981,7 +1999,15 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
+
+/--
+Pack a `Nat` less than `2^16` into a `UInt16`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_uint16_of_nat"]
+def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2009,11 +2035,16 @@ The type of unsigned 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
 structure UInt32 where
-  /-- Unpack a `UInt32` as a `BitVec 32.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt32` from a `BitVec 32`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt32` as a `BitVec 32`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 32
 
-attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
+attribute [extern "lean_uint32_of_nat_mk"] UInt32.ofBitVec
 attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
 
 /--
@@ -2022,7 +2053,15 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
+
+/--
+Pack a `Nat` less than `2^32` into a `UInt32`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_uint32_of_nat"]
+def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
@@ -2081,11 +2120,16 @@ The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
 -/
 structure UInt64 where
-  /-- Unpack a `UInt64` as a `BitVec 64`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt64` from a `BitVec 64`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt64` as a `BitVec 64`. This function is overridden with a native implementation.
+  -/
   toBitVec: BitVec 64
 
-attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
+attribute [extern "lean_uint64_of_nat_mk"] UInt64.ofBitVec
 attribute [extern "lean_uint64_to_nat"] UInt64.toBitVec
 
 /--
@@ -2094,7 +2138,15 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
+
+/--
+Pack a `Nat` less than `2^64` into a `UInt64`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_uint64_of_nat"]
+def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2136,11 +2188,18 @@ For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.
 -/
 structure USize where
-  /-- Unpack a `USize` as a `BitVec System.Platform.numBits`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `USize` from a `BitVec System.Platform.numBits`. This function is overridden with a
+  native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `USize` as a `BitVec System.Platform.numBits`. This function is overridden with a native
+  implementation.
+  -/
   toBitVec : BitVec System.Platform.numBits
 
-attribute [extern "lean_usize_of_nat_mk"] USize.mk
+attribute [extern "lean_usize_of_nat_mk"] USize.ofBitVec
 attribute [extern "lean_usize_to_nat"] USize.toBitVec
 
 /--
@@ -2149,7 +2208,15 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize where
-  toBitVec := BitVec.ofNatLt n h
+  toBitVec := BitVec.ofNatLT n h
+
+/--
+Pack a `Nat` less than `USize.size` into a `USize`.
+This function is overridden with a native implementation.
+-/
+@[extern "lean_usize_of_nat"]
+def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2168,6 +2235,7 @@ instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
   default := USize.ofNatCore 0 usize_size_pos
+
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
 it is also not a "surrogate" character (the range `0xd800` to `0xdfff` inclusive).
@@ -2201,7 +2269,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨BitVec.ofNatLt n (isValidChar_UInt32 h)⟩, valid := h }
+  { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2211,7 +2279,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨BitVec.ofNatLt 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
+    (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2503,6 +2571,9 @@ instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
 instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
 
+instance : Min String.Pos := minOfLe
+instance : Max String.Pos := maxOfLe
+
 /-- A `String.Pos` pointing at the end of this string. -/
 @[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
@@ -2609,7 +2680,13 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
-@[inherit_doc Array.mk, match_pattern]
+/--
+Converts a `List α` into an `Array α`. (This is preferred over the synonym `Array.mk`.)
+
+At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
+list.
+-/
+@[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
 /-- Construct a new empty array with initial capacity `c`. -/
@@ -2706,7 +2783,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   If `start` is greater or equal to `stop`, the result is empty.
   If `stop` is greater than the length of `as`, the length is used instead. -/
 -- NOTE: used in the quotation elaborator output
-def Array.extract (as : Array α) (start stop : Nat) : Array α :=
+def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
     dite (LT.lt j as.size)
       (fun hlt =>
@@ -3705,8 +3782,7 @@ inductive Syntax where
   /-- Node in the syntax tree.
 
   The `info` field is used by the delaborator to store the position of the
-  subexpression corresponding to this node. The parser sets the `info` field
-  to `none`.
+  subexpression corresponding to this node.
   The parser sets the `info` field to `none`, with position retrieval continuing recursively.
   Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
   as synthetic even when the leading/trailing token is not.

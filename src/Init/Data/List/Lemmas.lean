@@ -379,7 +379,7 @@ theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := b
 theorem eq_of_mem_singleton : a ∈ [b] → a = b
   | .head .. => rfl
 
-@[simp 1100] theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b :=
+@[simp] theorem mem_singleton {a b : α} : a ∈ [b] ↔ a = b :=
   ⟨eq_of_mem_singleton, (by simp [·])⟩
 
 theorem forall_mem_cons {p : α → Prop} {a : α} {l : List α} :
@@ -435,6 +435,10 @@ theorem getElem_of_mem : ∀ {a} {l : List α}, a ∈ l → ∃ (i : Nat) (h : i
 theorem getElem?_of_mem {a} {l : List α} (h : a ∈ l) : ∃ i : Nat, l[i]? = some a := by
   let ⟨n, _, e⟩ := getElem_of_mem h
   exact ⟨n, e ▸ getElem?_eq_getElem _⟩
+
+theorem mem_of_getElem {l : List α} {i : Nat} {h} {a : α} (e : l[i] = a) : a ∈ l := by
+  subst e
+  simp
 
 theorem mem_of_getElem? {l : List α} {i : Nat} {a : α} (e : l[i]? = some a) : a ∈ l :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
@@ -1046,7 +1050,9 @@ theorem map_id'' {f : α → α} (h : ∀ x, f x = x) (l : List α) : map f l = 
 
 theorem map_singleton (f : α → β) (a : α) : map f [a] = [f a] := rfl
 
-@[simp] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
+-- We use a lower priority here as there are more specific lemmas in downstream libraries
+-- which should be able to fire first.
+@[simp 500] theorem mem_map {f : α → β} : ∀ {l : List α}, b ∈ l.map f ↔ ∃ a, a ∈ l ∧ f a = b
   | [] => by simp
   | _ :: l => by simp [mem_map (l := l), eq_comm (a := b)]
 
@@ -1338,6 +1344,11 @@ theorem head_filter_of_pos {p : α → Bool} {l : List α} (w : l ≠ []) (h : p
 theorem filterMap_eq_map (f : α → β) : filterMap (some ∘ f) = map f := by
   funext l; induction l <;> simp [*, filterMap_cons]
 
+/-- Variant of `filterMap_eq_map` with `some ∘ f` expanded out to a lambda. -/
+@[simp]
+theorem filterMap_eq_map' (f : α → β) : filterMap (fun x => some (f x)) = map f :=
+  filterMap_eq_map f
+
 @[simp] theorem filterMap_some_fun : filterMap (some : α → Option α) = id := by
   funext l
   erw [filterMap_eq_map]
@@ -1552,11 +1563,11 @@ theorem getElem_append_right' (l₁ : List α) {l₂ : List α} {i : Nat} (hi : 
   rw [getElem_append_right] <;> simp [*, le_add_left]
 
 theorem getElem_of_append {l : List α} (eq : l = l₁ ++ a :: l₂) (h : l₁.length = i) :
-    l[i]'(eq ▸ h ▸ by simp_arith) = a := Option.some.inj <| by
+    l[i]'(eq ▸ h ▸ by simp +arith) = a := Option.some.inj <| by
   rw [← getElem?_eq_getElem, eq, getElem?_append_right (h ▸ Nat.le_refl _), h]
   simp
 
-@[simp 1100] theorem singleton_append : [x] ++ l = x :: l := rfl
+@[simp] theorem singleton_append : [x] ++ l = x :: l := rfl
 
 theorem append_inj :
     ∀ {s₁ s₂ t₁ t₂ : List α}, s₁ ++ t₁ = s₂ ++ t₂ → length s₁ = length s₂ → s₁ = s₂ ∧ t₁ = t₂
@@ -2510,12 +2521,35 @@ theorem foldr_eq_foldrM (f : α → β → β) (b) (l : List α) :
 
 /-! ### foldl and foldr -/
 
-@[simp] theorem foldr_cons_eq_append (l : List α) : l.foldr cons l' = l ++ l' := by
+@[simp] theorem foldr_cons_eq_append (l : List α) (f : α → β) (l' : List β) :
+    l.foldr (fun x y => f x :: y) l' = l.map f ++ l' := by
+  induction l <;> simp [*]
+
+/-- Variant of `foldr_cons_eq_append` specalized to `f = id`. -/
+@[simp] theorem foldr_cons_eq_append' (l l' : List β) :
+    l.foldr cons l' = l ++ l' := by
   induction l <;> simp [*]
 
 @[deprecated foldr_cons_eq_append (since := "2024-08-22")] abbrev foldr_self_append := @foldr_cons_eq_append
 
-@[simp] theorem foldl_flip_cons_eq_append (l : List α) : l.foldl (fun x y => y :: x) l' = l.reverse ++ l' := by
+@[simp] theorem foldl_flip_cons_eq_append (l : List α) (f : α → β) (l' : List β) :
+    l.foldl (fun x y => f y :: x) l' = (l.map f).reverse ++ l' := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldr_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldr (f · ++ ·) l' = (l.map f).flatten ++ l' := by
+  induction l <;> simp [*]
+
+@[simp] theorem foldl_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldl (· ++ f ·) l' = l' ++ (l.map f).flatten := by
+  induction l generalizing l'<;> simp [*]
+
+@[simp] theorem foldr_flip_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldr (fun x y => y ++ f x) l' = l' ++ (l.map f).reverse.flatten := by
+  induction l generalizing l' <;> simp [*]
+
+@[simp] theorem foldl_flip_append_eq_append (l : List α) (f : α → List β) (l' : List β) :
+    l.foldl (fun x y => f y ++ x) l' = (l.map f).reverse.flatten ++ l' := by
   induction l generalizing l' <;> simp [*]
 
 theorem foldr_cons_nil (l : List α) : l.foldr cons [] = l := by simp
@@ -2965,7 +2999,7 @@ theorem dropLast_append {l₁ l₂ : List α} :
 theorem dropLast_append_cons : dropLast (l₁ ++ b :: l₂) = l₁ ++ dropLast (b :: l₂) := by
   simp
 
-@[simp 1100] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
+@[simp] theorem dropLast_concat : dropLast (l₁ ++ [b]) = l₁ := by simp
 
 @[simp] theorem dropLast_replicate (n) (a : α) : dropLast (replicate n a) = replicate (n - 1) a := by
   match n with
@@ -3131,7 +3165,7 @@ variable [LawfulBEq α]
     | Or.inr h' => exact h'
   else rw [insert_of_not_mem h, mem_cons]
 
-@[simp 1100] theorem mem_insert_self (a : α) (l : List α) : a ∈ l.insert a :=
+@[simp] theorem mem_insert_self (a : α) (l : List α) : a ∈ l.insert a :=
   mem_insert_iff.2 (Or.inl rfl)
 
 theorem mem_insert_of_mem {l : List α} (h : a ∈ l) : a ∈ l.insert b :=

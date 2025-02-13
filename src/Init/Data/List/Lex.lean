@@ -48,7 +48,9 @@ instance ltIrrefl [LT α] [Std.Irrefl (· < · : α → α → Prop)] : Std.Irre
 
 @[simp] theorem le_nil [LT α] (l : List α) : l ≤ [] ↔ l = [] := not_nil_lex_iff
 
-@[simp] theorem nil_lex_cons : Lex r [] (a :: l) := Lex.nil
+-- This is named with a prime to avoid conflict with `lex [] (b :: bs) lt = true`.
+-- Better naming for the `Lex` vs `lex` distinction would be welcome.
+@[simp] theorem nil_lex_cons' : Lex r [] (a :: l) := Lex.nil
 
 @[simp] theorem nil_lt_cons [LT α] (a : α) (l : List α) : [] < a :: l := Lex.nil
 
@@ -333,7 +335,7 @@ theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) :
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp [lex_cons_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
+      simp [cons_lex_cons, Bool.or_eq_true, Bool.and_eq_true, ih, isEqv, length_cons]
       constructor
       · rintro (hab | ⟨hab, ⟨h₁, h₂⟩ | ⟨i, h₁, h₂, w₁, w₂⟩⟩)
         · exact .inr ⟨0, by simp [hab]⟩
@@ -397,7 +399,7 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
     cases l₂ with
     | nil => simp [lex]
     | cons b l₂ =>
-      simp [lex_cons_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
+      simp [cons_lex_cons, Bool.or_eq_false_iff, Bool.and_eq_false_imp, ih, isEqv,
         Bool.and_eq_true, length_cons]
       constructor
       · rintro ⟨hab, h⟩

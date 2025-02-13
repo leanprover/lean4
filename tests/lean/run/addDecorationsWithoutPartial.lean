@@ -46,7 +46,7 @@ unsafe def replaceUnsafe (e : Expr) (f? : (e' : Expr) → sizeOf e' ≤ sizeOf e
 end ReplaceImpl'
 
 
-local macro "dec " h:ident : term => `(by apply Nat.le_trans _ $h; simp_arith)
+local macro "dec " h:ident : term => `(by apply Nat.le_trans _ $h; simp +arith)
 
 @[implemented_by ReplaceImpl'.replaceUnsafe]
 def replace' (e0 : Expr) (f? : (e : Expr) → sizeOf e ≤ sizeOf e0 → Option Expr) : Expr :=
@@ -77,4 +77,4 @@ def addDecorations (e : Expr) : Expr :=
       let rest := Expr.forallE name newType newBody data
       some <| mkApp2 (mkConst `SlimCheck.NamedBinder) (mkStrLit n) rest
     | _ => none
-decreasing_by all_goals exact Nat.le_trans (by simp_arith) h
+decreasing_by all_goals exact Nat.le_trans (by simp +arith) h

@@ -1665,17 +1665,19 @@ return x_1;
 static lean_object* _init_l_Lean_initFn____x40_Lean_Class___hyg_83____closed__7() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; 
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
 x_1 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__3;
 x_2 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__4;
 x_3 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__5;
 x_4 = l_Lean_initFn____x40_Lean_Class___hyg_83____closed__6;
-x_5 = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(x_5, 0, x_1);
-lean_ctor_set(x_5, 1, x_2);
-lean_ctor_set(x_5, 2, x_3);
-lean_ctor_set(x_5, 3, x_4);
-return x_5;
+x_5 = 2;
+x_6 = lean_alloc_ctor(0, 4, 1);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_2);
+lean_ctor_set(x_6, 2, x_3);
+lean_ctor_set(x_6, 3, x_4);
+lean_ctor_set_uint8(x_6, sizeof(void*)*4, x_5);
+return x_6;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Class___hyg_83_(lean_object* x_1) {
@@ -2980,7 +2982,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__2;
-x_3 = lean_unsigned_to_nat(1795u);
+x_3 = lean_unsigned_to_nat(1800u);
 x_4 = lean_unsigned_to_nat(24u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3001,7 +3003,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Lean_mkOutParamArgsImplicit_go___closed__1;
 x_2 = l_Lean_mkOutParamArgsImplicit_go___closed__5;
-x_3 = lean_unsigned_to_nat(1784u);
+x_3 = lean_unsigned_to_nat(1789u);
 x_4 = lean_unsigned_to_nat(23u);
 x_5 = l_Lean_mkOutParamArgsImplicit_go___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

@@ -292,7 +292,7 @@ def mkBrecOnApp (positions : Positions) (fnIdx : Nat) (brecOnConst : Nat → Exp
     let packedFTypes ← inferArgumentTypesN positions.size brecOn
     let packedFArgs ← positions.mapMwith PProdN.mkLambdas packedFTypes FArgs
     let brecOn := mkAppN brecOn packedFArgs
-    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.indexOf? fnIdx
+    let some (size, idx) := positions.findSome? fun pos => (pos.size, ·) <$> pos.finIdxOf? fnIdx
       | throwError "mkBrecOnApp: Could not find {fnIdx} in {positions}"
     let brecOn ← PProdN.projM size idx brecOn
     mkLambdaFVars ys (mkAppN brecOn otherArgs)

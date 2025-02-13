@@ -624,15 +624,15 @@ x_32 = l_List_lengthTRAux___rarg(x_3, x_11);
 x_33 = lean_nat_dec_eq(x_31, x_32);
 lean_dec(x_32);
 lean_dec(x_31);
-x_34 = lean_ctor_get(x_1, 4);
-lean_inc(x_34);
+x_34 = lean_box(0);
+x_35 = lean_ctor_get(x_1, 4);
+lean_inc(x_35);
 lean_dec(x_1);
-x_35 = lean_box(0);
 x_36 = l_Lean_Meta_matchMatcherApp_x3f___rarg___lambda__3___closed__1;
-lean_inc_n(x_34, 2);
+lean_inc_n(x_35, 2);
 lean_inc(x_7);
 lean_inc(x_4);
-x_37 = l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg(x_4, x_5, x_6, x_7, x_34, x_35, x_34, x_34, x_36, lean_box(0));
+x_37 = l_List_forIn_x27_loop___at_Lean_Meta_matchMatcherApp_x3f___spec__8___rarg(x_4, x_5, x_6, x_7, x_34, x_35, x_35, x_35, x_36, lean_box(0));
 if (x_14 == 0)
 {
 lean_object* x_38; lean_object* x_39; 

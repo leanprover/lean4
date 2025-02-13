@@ -33,8 +33,8 @@ example : P x → R x := by
 error: `grind` failed
 case grind
 x : Nat
-a✝ : P x
-x✝ : ¬R x
+h : P x
+h_1 : ¬R x
 ⊢ False
 [grind] Diagnostics
   [facts] Asserted facts
@@ -44,11 +44,9 @@ x✝ : ¬R x
     [prop] P x
   [eqc] False propositions
     [prop] R x
-  [ematch] E-matching
-    [thm] pq:
-        ∀ {x : Nat}, P x → Q x
-        patterns: [Q #1]
-    [thm] qr: ∀ {x : Nat}, Q x → R x patterns: [Q #1]
+  [ematch] E-matching patterns
+    [thm] pq: [Q #1]
+    [thm] qr: [Q #1]
 -/
 #guard_msgs (error) in
 example : P x → R x := by

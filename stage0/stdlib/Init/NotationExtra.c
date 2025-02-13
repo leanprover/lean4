@@ -3971,15 +3971,15 @@ lean_ctor_set(x_46, 1, x_45);
 x_47 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__1___closed__6;
 lean_inc(x_44);
 x_48 = l_Lean_Syntax_node3(x_44, x_47, x_35, x_46, x_37);
-x_49 = l_Array_zip___rarg(x_27, x_26);
+x_49 = lean_box(0);
+x_50 = l_Array_zip___rarg(x_27, x_26);
 lean_dec(x_26);
 lean_dec(x_27);
-x_50 = l_Array_reverse___rarg(x_49);
-x_51 = lean_box(0);
-x_52 = lean_array_size(x_50);
+x_51 = l_Array_reverse___rarg(x_50);
+x_52 = lean_array_size(x_51);
 x_53 = l_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___lambda__1___closed__2;
-x_54 = l_Array_forIn_x27Unsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__4(x_53, x_47, x_50, x_51, x_50, x_52, x_20, x_48, x_4, x_5);
-lean_dec(x_50);
+x_54 = l_Array_forIn_x27Unsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__4(x_53, x_47, x_49, x_51, x_51, x_52, x_20, x_48, x_4, x_5);
+lean_dec(x_51);
 x_55 = !lean_is_exclusive(x_54);
 if (x_55 == 0)
 {

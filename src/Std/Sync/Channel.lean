@@ -76,7 +76,7 @@ def Channel.recv? (ch : Channel α) : BaseIO (Task (Option α)) :=
     else if !st.closed then
       let promise ← IO.Promise.new
       set { st with consumers := st.consumers.enqueue promise }
-      return promise.result
+      return promise.result?.map (sync := true) (·.bind id)
     else
       return .pure none
 

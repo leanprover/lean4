@@ -1410,16 +1410,16 @@ x_11 = lean_unsigned_to_nat(2u);
 x_12 = l_Lean_Syntax_getArg(x_1, x_11);
 x_13 = l_Lean_Elab_Tactic_expandOptLocation(x_12);
 lean_dec(x_12);
-x_14 = lean_unsigned_to_nat(1u);
-x_15 = l_Lean_Syntax_getArg(x_1, x_14);
-x_16 = l_Lean_Syntax_getArgs(x_15);
-lean_dec(x_15);
-x_17 = lean_box(0);
-x_18 = lean_array_size(x_16);
+x_14 = lean_box(0);
+x_15 = lean_unsigned_to_nat(1u);
+x_16 = l_Lean_Syntax_getArg(x_1, x_15);
+x_17 = l_Lean_Syntax_getArgs(x_16);
+lean_dec(x_16);
+x_18 = lean_array_size(x_17);
 x_19 = 0;
 x_20 = lean_box(0);
-x_21 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_evalUnfold___spec__1(x_13, x_16, x_17, x_16, x_18, x_19, x_20, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
-lean_dec(x_16);
+x_21 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_evalUnfold___spec__1(x_13, x_14, x_17, x_17, x_18, x_19, x_20, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10);
+lean_dec(x_17);
 if (lean_obj_tag(x_21) == 0)
 {
 uint8_t x_22; 

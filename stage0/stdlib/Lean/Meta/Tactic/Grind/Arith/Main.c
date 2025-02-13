@@ -282,7 +282,7 @@ if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
 x_13 = lean_ctor_get(x_11, 0);
-x_14 = lean_ctor_get(x_13, 9);
+x_14 = lean_ctor_get(x_13, 13);
 lean_inc(x_14);
 lean_dec(x_13);
 x_15 = lean_ctor_get(x_14, 2);
@@ -300,7 +300,7 @@ x_18 = lean_ctor_get(x_11, 1);
 lean_inc(x_18);
 lean_inc(x_17);
 lean_dec(x_11);
-x_19 = lean_ctor_get(x_17, 9);
+x_19 = lean_ctor_get(x_17, 13);
 lean_inc(x_19);
 lean_dec(x_17);
 x_20 = lean_ctor_get(x_19, 2);

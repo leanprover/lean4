@@ -7,6 +7,7 @@ prelude
 import Lean.ProjFns
 import Lean.Meta.CtorRecognizer
 import Lean.Compiler.BorrowedAnnotation
+import Lean.Compiler.CSimpAttr
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
@@ -472,7 +473,7 @@ where
 
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
-    let .const declName us := f | unreachable!
+    let .const declName us := CSimp.replaceConstants (← getEnv) f | unreachable!
     let args ← args.mapM visitAppArg
     letValueToArg <| .const declName us args
 
@@ -670,7 +671,7 @@ where
   visitApp (e : Expr) : M Arg := do
     if let some (args, n, t, v, b) := e.letFunAppArgs? then
       visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
-    else if let .const declName _ := e.getAppFn then
+    else if let .const declName _ := CSimp.replaceConstants (← getEnv) e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then

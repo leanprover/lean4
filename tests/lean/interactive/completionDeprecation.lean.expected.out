@@ -13,7 +13,6 @@
   {"sortText": "1",
    "label": "foo2",
    "kind": 3,
-   "documentation": {"value": "A docstring. ", "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -24,8 +23,6 @@
    "sortText": "2",
    "label": "foo3",
    "kind": 3,
-   "documentation":
-   {"value": "`SomeStructure.foo3` has been deprecated.", "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -36,9 +33,6 @@
    "sortText": "3",
    "label": "foo4",
    "kind": 3,
-   "documentation":
-   {"value": "`SomeStructure.foo4` has been deprecated.\n\nA docstring. ",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -49,10 +43,6 @@
    "sortText": "4",
    "label": "foo5",
    "kind": 3,
-   "documentation":
-   {"value":
-    "`SomeStructure.foo5` has been deprecated, use `SomeStructure.foo1` instead.",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -63,10 +53,6 @@
    "sortText": "5",
    "label": "foo6",
    "kind": 3,
-   "documentation":
-   {"value":
-    "`SomeStructure.foo6` has been deprecated, use `SomeStructure.foo1` instead.\n\nA docstring. ",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -77,10 +63,6 @@
    "sortText": "6",
    "label": "foo7",
    "kind": 3,
-   "documentation":
-   {"value":
-    "`SomeStructure.foo7` has been deprecated; please use `SomeStructure.foo1` instead.",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},
@@ -91,10 +73,6 @@
    "sortText": "7",
    "label": "foo8",
    "kind": 3,
-   "documentation":
-   {"value":
-    "`SomeStructure.foo8` has been deprecated; please use `SomeStructure.foo1` instead.\n\nA docstring. ",
-    "kind": "markdown"},
    "data":
    {"params":
     {"textDocument": {"uri": "file:///completionDeprecation.lean"},

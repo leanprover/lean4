@@ -2595,11 +2595,11 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_elabHole(lean_object* x_1, lean_object
 _start:
 {
 uint8_t x_10; 
-x_10 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 7);
+x_10 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_10 == 0)
 {
 uint8_t x_11; 
-x_11 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 9);
+x_11 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 9);
 if (x_11 == 0)
 {
 uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
@@ -3844,7 +3844,7 @@ x_11 = l_Lean_Name_isAnonymous(x_10);
 if (x_11 == 0)
 {
 uint8_t x_12; 
-x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 7);
+x_12 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_12 == 0)
 {
 lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
@@ -4597,7 +4597,7 @@ return x_184;
 else
 {
 uint8_t x_185; 
-x_185 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 7);
+x_185 = lean_ctor_get_uint8(x_3, sizeof(void*)*8 + 7);
 if (x_185 == 0)
 {
 uint8_t x_186; lean_object* x_187; lean_object* x_188; lean_object* x_189; lean_object* x_190; lean_object* x_191; uint8_t x_192; 
@@ -13303,15 +13303,15 @@ lean_dec(x_13);
 x_22 = lean_ctor_get(x_14, 0);
 lean_inc(x_22);
 lean_dec(x_14);
-x_23 = lean_ctor_get(x_3, 1);
-x_24 = lean_box(0);
+x_23 = lean_box(0);
+x_24 = lean_ctor_get(x_3, 1);
 x_25 = lean_box(0);
 x_26 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_26, 0, x_25);
 lean_ctor_set(x_26, 1, x_22);
-x_27 = lean_array_size(x_23);
+x_27 = lean_array_size(x_24);
 x_28 = 0;
-x_29 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabClear___spec__5(x_1, x_2, x_23, x_24, x_25, x_23, x_27, x_28, x_26, x_5, x_6, x_7, x_8, x_9, x_10, x_21);
+x_29 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabClear___spec__5(x_1, x_2, x_23, x_24, x_25, x_24, x_27, x_28, x_26, x_5, x_6, x_7, x_8, x_9, x_10, x_21);
 x_30 = lean_ctor_get(x_29, 0);
 lean_inc(x_30);
 x_31 = lean_ctor_get(x_30, 0);
@@ -16539,7 +16539,6 @@ x_21 = lean_ctor_get(x_18, 0);
 x_22 = lean_ctor_get(x_18, 4);
 lean_dec(x_22);
 x_23 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_16, x_21);
-lean_dec(x_16);
 x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 lean_ctor_set(x_18, 4, x_24);
 lean_ctor_set(x_18, 0, x_23);
@@ -16624,7 +16623,6 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_58 = l_Lean_ScopedEnvExtension_pushScope___rarg(x_16, x_51);
-lean_dec(x_16);
 x_59 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 x_60 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_60, 0, x_58);
@@ -21385,15 +21383,15 @@ lean_inc(x_67);
 x_68 = lean_ctor_get(x_66, 1);
 lean_inc(x_68);
 lean_dec(x_66);
-x_69 = l_Array_zip___rarg(x_65, x_64);
+x_69 = lean_box(0);
+x_70 = l_Array_zip___rarg(x_65, x_64);
 lean_dec(x_64);
 lean_dec(x_65);
-x_70 = lean_box(0);
-x_71 = lean_array_size(x_69);
+x_71 = lean_array_size(x_70);
 x_72 = lean_box(0);
 lean_inc(x_6);
-x_73 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__30(x_67, x_69, x_70, x_69, x_71, x_53, x_72, x_30, x_2, x_3, x_4, x_5, x_6, x_7, x_68);
-lean_dec(x_69);
+x_73 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__30(x_67, x_69, x_70, x_70, x_71, x_53, x_72, x_30, x_2, x_3, x_4, x_5, x_6, x_7, x_68);
+lean_dec(x_70);
 if (lean_obj_tag(x_73) == 0)
 {
 lean_object* x_74; lean_object* x_75; 
@@ -22549,7 +22547,6 @@ x_21 = lean_ctor_get(x_18, 0);
 x_22 = lean_ctor_get(x_18, 4);
 lean_dec(x_22);
 x_23 = l_Lean_ScopedEnvExtension_popScope___rarg(x_16, x_21);
-lean_dec(x_16);
 x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 lean_ctor_set(x_18, 4, x_24);
 lean_ctor_set(x_18, 0, x_23);
@@ -22634,7 +22631,6 @@ lean_inc(x_52);
 lean_inc(x_51);
 lean_dec(x_18);
 x_58 = l_Lean_ScopedEnvExtension_popScope___rarg(x_16, x_51);
-lean_dec(x_16);
 x_59 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabOpen___spec__2___closed__3;
 x_60 = lean_alloc_ctor(0, 8, 0);
 lean_ctor_set(x_60, 0, x_58);

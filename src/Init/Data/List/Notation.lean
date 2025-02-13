@@ -11,6 +11,9 @@ import Init.Data.Nat.Div.Basic
 -/
 
 set_option linter.missingDocs true -- keep it documented
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Decidable List
 
 /--
@@ -25,6 +28,9 @@ Note that this changes the order of evaluation, although it should not be observ
 unless you use side effecting operations like `dbg_trace`.
 -/
 syntax "[" withoutPosition(term,*,?) "]"  : term
+
+recommended_spelling "nil" for "[]" in [List.nil, «term[_]»]
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.

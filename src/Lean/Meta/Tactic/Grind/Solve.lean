@@ -40,7 +40,7 @@ def pushFailure (goal : Goal) : M Unit := do
     x goal
   catch ex =>
     if ex.isMaxHeartbeat || ex.isMaxRecDepth then
-      reportIssue ex.toMessageData
+      reportIssue! ex.toMessageData
       pushFailure goal
       return true
     else

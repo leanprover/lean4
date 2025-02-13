@@ -74,7 +74,7 @@ def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run
 Return `some ⟨n, v⟩` if `e` is:
 - an `OfNat.ofNat` application
 - a `BitVec.ofNat` application
-- a `BitVec.ofNatLt` application
+- a `BitVec.ofNatLT` application
 that encode a `BitVec n` with value `v`.
 -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
@@ -83,7 +83,7 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
-  | BitVec.ofNatLt nExpr vExpr _ =>
+  | BitVec.ofNatLT nExpr vExpr _ =>
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩

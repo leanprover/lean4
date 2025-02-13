@@ -73,7 +73,7 @@ theorem mkAtomCached_le_size (aig : AIG α) (var : α) :
   dsimp only [mkAtomCached]
   split
   · simp
-  · simp_arith
+  · simp +arith
 
 instance : LawfulOperator α (fun _ => α) mkAtomCached where
   le_size := mkAtomCached_le_size
@@ -147,7 +147,7 @@ theorem mkConstCached_le_size (aig : AIG α) (val : Bool) :
   dsimp only [mkConstCached]
   split
   · simp
-  · simp_arith
+  · simp +arith
 
 instance : LawfulOperator α (fun _ => Bool) mkConstCached where
   le_size := mkConstCached_le_size
@@ -189,18 +189,10 @@ theorem mkGateCached.go_le_size (aig : AIG α) (input : GateInput aig) :
   dsimp only [go]
   split
   · simp
-  · split
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith [mkConstCached_le_size]
-    · simp_arith
-    · simp_arith
-    · simp_arith
-    · simp_arith
-    · split
-      · simp_arith
-      · split <;> simp_arith [mkConstCached_le_size]
+  · split <;> try simp +arith [mkConstCached_le_size]
+    split
+    · simp +arith
+    · split <;> simp +arith [mkConstCached_le_size]
 
 /--
 `AIG.mkGateCached` never shrinks the underlying AIG.

@@ -272,7 +272,6 @@ LEAN_EXPORT lean_object* l_Lean_getReducibilityStatus___at___private_Lean_Meta_B
 static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_reprConfig____x40_Lean_Meta_Basic___hyg_589____closed__28;
 LEAN_EXPORT lean_object* l_Lean_Meta_etaExpand___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_normalizeLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_mkFreshLevelMVarsFor___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_reprConfig____x40_Lean_Meta_Basic___hyg_589____closed__23;
@@ -318,6 +317,7 @@ static lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_mkLevelErrorMessage
 static lean_object* l_Lean_Meta_instInhabitedCache___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at___private_Lean_Meta_Basic_0__Lean_Meta_processPostponedStep___spec__3___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_setKind(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedInfoCacheKey___closed__3;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_savingCacheImpl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_addMessageContextFull___at_Lean_Meta_instAddMessageContextMetaM___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withConfig___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -510,6 +510,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_processPostpon
 lean_object* lean_local_ctx_find(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lean_FVarId_hasForwardDeps___spec__39(lean_object*, lean_object*, size_t, size_t);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_instInhabitedInfoCacheKey___closed__4;
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Util_Trace_0__Lean_getResetTraces___at_Lean_Meta_processPostponed___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_withRestoreOrSaveFull___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -3813,19 +3814,38 @@ return x_3;
 static lean_object* _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__1() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__2() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__1;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__2;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__4() {
+_start:
+{
 lean_object* x_1; uint64_t x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_instInhabitedConfigWithKey___closed__1;
-x_3 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__1;
+x_3 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__3;
 x_4 = lean_alloc_ctor(0, 2, 8);
 lean_ctor_set(x_4, 0, x_3);
 lean_ctor_set(x_4, 1, x_1);
@@ -3837,7 +3857,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedInfoCacheKey() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__2;
+x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__4;
 return x_1;
 }
 }
@@ -4265,7 +4285,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
 x_1 = l_Lean_Meta_instInhabitedParamInfo___closed__1;
 x_2 = lean_unsigned_to_nat(0u);
-x_3 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__1;
+x_3 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__3;
 x_4 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_4, 0, x_1);
 lean_ctor_set(x_4, 1, x_2);
@@ -4417,7 +4437,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedExprConfigCacheKey___closed__
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__1;
+x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__3;
 x_2 = l_Lean_Meta_instInhabitedConfigWithKey___closed__1;
 x_3 = lean_alloc_ctor(0, 1, 8);
 lean_ctor_set(x_3, 0, x_1);
@@ -4492,7 +4512,7 @@ static lean_object* _init_l_Lean_Meta_instInhabitedDefEqCacheKey___closed__1() {
 _start:
 {
 lean_object* x_1; uint64_t x_2; lean_object* x_3; 
-x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__1;
+x_1 = l_Lean_Meta_instInhabitedInfoCacheKey___closed__3;
 x_2 = l_Lean_Meta_instInhabitedConfigWithKey___closed__1;
 x_3 = lean_alloc_ctor(0, 2, 8);
 lean_ctor_set(x_3, 0, x_1);
@@ -58776,6 +58796,10 @@ l_Lean_Meta_instInhabitedInfoCacheKey___closed__1 = _init_l_Lean_Meta_instInhabi
 lean_mark_persistent(l_Lean_Meta_instInhabitedInfoCacheKey___closed__1);
 l_Lean_Meta_instInhabitedInfoCacheKey___closed__2 = _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__2();
 lean_mark_persistent(l_Lean_Meta_instInhabitedInfoCacheKey___closed__2);
+l_Lean_Meta_instInhabitedInfoCacheKey___closed__3 = _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__3();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInfoCacheKey___closed__3);
+l_Lean_Meta_instInhabitedInfoCacheKey___closed__4 = _init_l_Lean_Meta_instInhabitedInfoCacheKey___closed__4();
+lean_mark_persistent(l_Lean_Meta_instInhabitedInfoCacheKey___closed__4);
 l_Lean_Meta_instInhabitedInfoCacheKey = _init_l_Lean_Meta_instInhabitedInfoCacheKey();
 lean_mark_persistent(l_Lean_Meta_instInhabitedInfoCacheKey);
 l_Lean_Meta_instBEqInfoCacheKey___closed__1 = _init_l_Lean_Meta_instBEqInfoCacheKey___closed__1();

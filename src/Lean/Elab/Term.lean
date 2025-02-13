@@ -306,8 +306,6 @@ structure Context where
   ignoreTCFailures : Bool := false
   /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/
   inPattern        : Bool := false
-  /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
-  tacticCache?     : Option (IO.Ref Tactic.Cache) := none
   /--
   Snapshot for incremental processing of current tactic, if any.
 

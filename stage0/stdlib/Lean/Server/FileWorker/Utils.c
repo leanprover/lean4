@@ -65,7 +65,7 @@ x_6 = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(x_6, 0, x_3);
 lean_ctor_set(x_6, 1, x_4);
 lean_ctor_set(x_6, 2, x_5);
-x_7 = lean_ctor_get(x_1, 7);
+x_7 = lean_ctor_get(x_1, 6);
 lean_inc(x_7);
 lean_dec(x_1);
 if (lean_obj_tag(x_7) == 0)

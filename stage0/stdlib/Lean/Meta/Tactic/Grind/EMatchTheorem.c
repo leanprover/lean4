@@ -174,7 +174,6 @@ static lean_object* l_Lean_Meta_Grind_ppPattern___closed__8;
 static lean_object* l_Lean_Meta_Grind_mkGroundPattern___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_detectOffsets___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_instInhabitedOrigin___closed__1;
-lean_object* l_Lean_Expr_bvar___override(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkCoverage___spec__16___lambda__1(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_NormalizePattern_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -421,6 +420,7 @@ static lean_object* l_Lean_Meta_Grind_mkEMatchEqTheoremCore___lambda__5___closed
 static lean_object* l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_instInhabitedEMatchTheorems___spec__1___closed__1;
 lean_object* l_Lean_RBNode_findCore___at_Lean_Meta_Closure_process___spec__1(lean_object*, lean_object*);
 uint8_t l_List_isEmpty___rarg(lean_object*);
+static lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4;
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_Meta_Grind_mkEMatchTheoremForDecl___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_splitWhileForbidden(lean_object*);
@@ -565,6 +565,7 @@ LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Meta_Tac
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_mkEqBwdPattern(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_EMatchTheoremKind_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
+static lean_object* l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5;
 lean_object* l_Lean_Meta_instInhabitedMetaM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_mkEMatchTheoremCore___closed__2;
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at___private_Lean_Meta_Tactic_Grind_EMatchTheorem_0__Lean_Meta_Grind_checkCoverage___spec__18(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -4174,19 +4175,38 @@ return x_2;
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2() {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = l_Lean_Expr_bvar___override(x_1);
-return x_2;
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_inhabitedExprDummy", 19, 19);
+return x_1;
 }
 }
 static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3() {
 _start:
 {
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2;
+x_3 = l_Lean_Name_str___override(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = lean_box(0);
+x_2 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3;
+x_3 = l_Lean_Expr_const___override(x_2, x_1);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; lean_object* x_7; 
 x_1 = lean_box(0);
 x_2 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__1;
-x_3 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2;
+x_3 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4;
 x_4 = lean_unsigned_to_nat(0u);
 x_5 = l_Lean_Meta_Grind_instInhabitedOrigin___closed__1;
 x_6 = 0;
@@ -4205,7 +4225,7 @@ static lean_object* _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3;
+x_1 = l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5;
 return x_1;
 }
 }
@@ -37956,6 +37976,10 @@ l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2 = _init_l_Lean_Meta_Gri
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__2);
 l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3 = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__3);
+l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4 = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4();
+lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__4);
+l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5 = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5();
+lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem___closed__5);
 l_Lean_Meta_Grind_instInhabitedEMatchTheorem = _init_l_Lean_Meta_Grind_instInhabitedEMatchTheorem();
 lean_mark_persistent(l_Lean_Meta_Grind_instInhabitedEMatchTheorem);
 l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_instInhabitedEMatchTheorems___spec__1___closed__1 = _init_l_Lean_PersistentHashMap_empty___at_Lean_Meta_Grind_instInhabitedEMatchTheorems___spec__1___closed__1();

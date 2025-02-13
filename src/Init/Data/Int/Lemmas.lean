@@ -326,6 +326,10 @@ theorem toNat_sub (m n : Nat) : toNat (m - n) = m - n := by
   · exact (Nat.add_sub_cancel_left ..).symm
   · dsimp; rw [Nat.add_assoc, Nat.sub_eq_zero_of_le (Nat.le_add_right ..)]; rfl
 
+theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
+  | 0, _ => rfl
+  | -[_+1], _ => rfl
+
 /- ## add/sub injectivity -/
 
 protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by

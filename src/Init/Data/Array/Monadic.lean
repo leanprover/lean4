@@ -351,6 +351,16 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.foldlM_subtype hf]
 
+@[wf_preprocess] theorem foldlM_wfParam [Monad m] (xs : Array α) (f : β → α → m β) :
+    (wfParam xs).foldlM f = xs.attach.unattach.foldlM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldlM_unattach [Monad m] (P : α → Prop) (xs : Array (Subtype P)) (f : β → α → m β) :
+    xs.unattach.foldlM f = xs.foldlM fun b ⟨x, h⟩ =>
+      binderNameHint b f <| binderNameHint x (f b) <| binderNameHint h () <|
+      f b (wfParam x) := by
+  simp [wfParam]
+
 /--
 This lemma identifies monadic folds over lists of subtypes, where the function only depends on the value, not the proposition,
 and simplifies these to the function directly taking the value.
@@ -364,6 +374,17 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.foldrM_subtype hf]
 
+
+@[wf_preprocess] theorem foldrM_wfParam [Monad m] [LawfulMonad m] (xs : Array α) (f : α → β → m β) :
+    (wfParam xs).foldrM f = xs.attach.unattach.foldrM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem foldrM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : Array (Subtype P)) (f : α → β → m β) :
+    xs.unattach.foldrM f = xs.foldrM fun ⟨x, h⟩ b =>
+      binderNameHint x f <| binderNameHint h () <| binderNameHint b (f x) <|
+      f (wfParam x) b := by
+  simp [wfParam]
+
 /--
 This lemma identifies monadic maps over lists of subtypes, where the function only depends on the value, not the proposition,
 and simplifies these to the function directly taking the value.
@@ -375,6 +396,15 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.mapM_subtype hf]
 
+@[wf_preprocess] theorem mapM_wfParam [Monad m] [LawfulMonad m] (xs : Array α) (f : α → m β) :
+    (wfParam xs).mapM f = xs.attach.unattach.mapM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem mapM_unattach [Monad m] [LawfulMonad m] (P : α → Prop) (xs : Array (Subtype P)) (f : α → m β) :
+    xs.unattach.mapM f = xs.mapM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
 @[simp] theorem filterMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → m (Option β)} {g : α → m (Option β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) (w : stop = l.size) :
     l.filterMapM f 0 stop = l.unattach.filterMapM g := by
@@ -383,6 +413,18 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.filterMapM_subtype hf]
 
+
+@[wf_preprocess] theorem filterMapM_wfParam [Monad m] [LawfulMonad m]
+    (xs : Array α) (f : α → m (Option β)) :
+    (wfParam xs).filterMapM f = xs.attach.unattach.filterMapM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem filterMapM_unattach [Monad m] [LawfulMonad m]
+    (P : α → Prop) (xs : Array (Subtype P)) (f : α → m (Option β)) :
+    xs.unattach.filterMapM f = xs.filterMapM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
+
 @[simp] theorem flatMapM_subtype [Monad m] [LawfulMonad m] {p : α → Prop} {l : Array { x // p x }}
     {f : { x // p x } → m (Array β)} {g : α → m (Array β)} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.flatMapM f) = l.unattach.flatMapM g := by
@@ -390,5 +432,17 @@ and simplifies these to the function directly taking the value.
   simp
   rw [List.flatMapM_subtype]
   simp [hf]
+
+
+@[wf_preprocess] theorem flatMapM_wfParam [Monad m] [LawfulMonad m]
+    (xs : Array α) (f : α → m (Array β)) :
+    (wfParam xs).flatMapM f = xs.attach.unattach.flatMapM f := by
+  simp [wfParam]
+
+@[wf_preprocess] theorem flatMapM_unattach [Monad m] [LawfulMonad m]
+    (P : α → Prop) (xs : Array (Subtype P)) (f : α → m (Array β)) :
+    xs.unattach.flatMapM f = xs.flatMapM fun ⟨x, h⟩ =>
+      binderNameHint x f <| binderNameHint h () <| f (wfParam x) := by
+  simp [wfParam]
 
 end Array

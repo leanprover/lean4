@@ -38,7 +38,6 @@ LEAN_EXPORT lean_object* l_Lean_throwError___at___private_Lean_Meta_Tactic_Grind
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__2___closed__1;
 static lean_object* l_Lean_Loop_forIn_loop___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__7___closed__3;
 static lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___spec__1___closed__3;
-lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__4___closed__1;
 static lean_object* l_Lean_RBNode_forIn_visit___at___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___spec__4___lambda__1___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Goal_checkInvariants___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -136,6 +135,7 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findEntryAux___at___private_Le
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkMatchCondParent___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_levelZero;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_checkInvariants(uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_instInhabitedExpr;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_Grind_checkInvariants___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_checkInvariants___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1712,7 +1712,7 @@ if (x_20 == 0)
 lean_object* x_21; lean_object* x_22; 
 lean_free_object(x_15);
 x_21 = l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___closed__3;
-x_22 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_21, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
+x_22 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_21, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_18);
 return x_22;
 }
 else
@@ -1749,7 +1749,7 @@ if (x_27 == 0)
 {
 lean_object* x_28; lean_object* x_29; 
 x_28 = l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkEqc___closed__3;
-x_29 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_28, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_25);
+x_29 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_28, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_25);
 return x_29;
 }
 else
@@ -3960,7 +3960,7 @@ x_23 = lean_ctor_get(x_15, 1);
 lean_inc(x_23);
 lean_dec(x_15);
 x_24 = l___private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkParents___closed__3;
-x_25 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_23);
+x_25 = l_panic___at___private_Lean_Meta_Tactic_Grind_Arith_Offset_Main_0__Lean_Meta_Grind_Arith_Offset_setUnsat___spec__1(x_24, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_23);
 return x_25;
 }
 }

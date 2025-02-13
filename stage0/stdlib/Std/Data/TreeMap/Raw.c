@@ -19,6 +19,7 @@ static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_get_x21(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_toList___rarg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_keys___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_keys(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__6;
@@ -33,6 +34,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMa
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__8;
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeMap_Raw_keys___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_instInsertProd___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_all(lean_object*, lean_object*, lean_object*);
@@ -74,6 +76,7 @@ LEAN_EXPORT uint8_t l_Std_TreeMap_Raw_instDecidableMem___rarg(lean_object*, lean
 static lean_object* l_Prod_repr___at_Std_TreeMap_Raw_instRepr___spec__6___rarg___closed__9;
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_instInsertProd___spec__5___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_insert(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__8(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_instSingletonProd___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_filter___rarg(lean_object*, lean_object*, lean_object*);
@@ -90,6 +93,7 @@ static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__16;
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_insertIfNew___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_any___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeMap_Raw_instRepr___spec__1___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__1(lean_object*, lean_object*);
@@ -110,6 +114,7 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__7(lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_Raw_all___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_forIn___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x3f___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at_Std_TreeMap_Raw_instRepr___spec__6___rarg___closed__4;
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__5(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instGetElem_x3fMem___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -142,14 +147,18 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Ra
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_toList___spec__2___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_all___rarg___lambda__1___boxed(lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_mergeBy(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instEmptyCollection___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_instForInProd___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_toArray___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_keys___spec__3___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_size(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_eraseMany___spec__9___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_toList___spec__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_erase_x21___at_Std_TreeMap_Raw_erase___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_filter(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_link2_x21___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_instInsertProd___spec__1(lean_object*, lean_object*);
@@ -170,6 +179,7 @@ LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsert___spec_
 static lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4___rarg___closed__6;
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_eraseMany___spec__4(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__5;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_size___rarg(lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__4;
 static lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4___rarg___closed__7;
@@ -180,9 +190,11 @@ static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__15;
 static lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_all___spec__1___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_instInsertProd___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__3;
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_get_x21___spec__1___rarg___closed__4;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_contains___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_instRepr___spec__3___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instInsertProd___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instForMProd(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -192,11 +204,13 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldlM___boxed(lean_object*, lean_obj
 static lean_object* l_Prod_repr___at_Std_TreeMap_Raw_instRepr___spec__6___rarg___closed__8;
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__12;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_instRepr___spec__2___rarg___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_instForMProd___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_forM(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_instDecidableMem___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_keysArray___spec__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__8___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_erase(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_instDecidableMem___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -228,6 +242,8 @@ lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_getD___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_forIn___rarg___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instInhabited___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x21(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__23;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_any___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_keys___rarg(lean_object*);
@@ -242,6 +258,7 @@ lean_object* l_Std_DTreeMap_Internal_Impl_balance_x21___rarg(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_forInStep___at_Std_TreeMap_Raw_instForInProd___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_TreeMap_Raw_any___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_toArray(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_keys___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insert___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_getD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -252,6 +269,9 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Ra
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeMap_Raw_keys___spec__1___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_contains___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeMap_Raw_keys___spec__1___rarg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1___rarg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsertIfNew___spec__6___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instSingletonProd___rarg(lean_object*, lean_object*);
 static lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_get_x21___spec__1___rarg___closed__3;
@@ -280,6 +300,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldrM___at_Std_TreeMap_Ra
 lean_object* lean_string_length(lean_object*);
 static lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4___rarg___closed__5;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_instInhabited(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_toList___spec__2(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_TreeMap_Raw_any___rarg___lambda__1(lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__6;
@@ -313,6 +334,7 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_isEmpty___rarg___boxed(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__6___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_insert_x21___at_Std_TreeMap_Raw_insertIfNew___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_get_x3f___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__4___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_get_x21___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -325,12 +347,15 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Ra
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_get_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_toList___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Std_TreeMap_Raw_instRepr___spec__8___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__7;
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_keysArray___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_eraseMany___spec__8___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_forM___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_instSingletonProd___spec__3(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x21___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_instSingletonProd___spec__2___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__2___rarg(lean_object*);
 LEAN_EXPORT uint8_t l_Std_TreeMap_Raw_contains___rarg(lean_object*, lean_object*, lean_object*);
@@ -355,6 +380,7 @@ LEAN_EXPORT lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4(lea
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_forM___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_insertIfNew___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_erase___spec__2(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Prod_repr___at_Std_TreeMap_Raw_instRepr___spec__6___rarg___closed__3;
 static lean_object* l___auto____x40_Std_Data_TreeMap_Raw___hyg_29____closed__27;
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_getD___spec__1(lean_object*, lean_object*);
@@ -363,6 +389,7 @@ LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Ra
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeWith___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_insertIfNew___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_mergeBy___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_filter_x21___at_Std_TreeMap_Raw_filter___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_instForMProd___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_eraseMany___spec__6___rarg(lean_object*);
@@ -385,6 +412,7 @@ static lean_object* l_List_repr___at_Std_TreeMap_Raw_instRepr___spec__4___rarg__
 LEAN_EXPORT lean_object* l_Std_Format_joinSep___at_Std_TreeMap_Raw_instRepr___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_keys___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldl___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_eraseMany___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at_Std_TreeMap_Raw_containsThenInsert___spec__2(lean_object*, lean_object*);
@@ -31961,6 +31989,88 @@ x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_get_x3f___rarg), 3, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 2);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 3);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_3, 4);
+lean_inc(x_7);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+x_8 = lean_apply_2(x_1, x_2, x_4);
+x_9 = lean_unbox(x_8);
+lean_dec(x_8);
+switch (x_9) {
+case 0:
+{
+lean_dec(x_7);
+lean_dec(x_5);
+x_3 = x_6;
+goto _start;
+}
+case 1:
+{
+lean_object* x_11; 
+lean_dec(x_7);
+lean_dec(x_6);
+lean_dec(x_2);
+lean_dec(x_1);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_5);
+return x_11;
+}
+default: 
+{
+lean_dec(x_6);
+lean_dec(x_5);
+x_3 = x_7;
+goto _start;
+}
+}
+}
+else
+{
+lean_object* x_13; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_13 = lean_box(0);
+return x_13;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1___rarg), 3, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x3f___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at_Std_TreeMap_Raw_find_x3f___spec__1___rarg(x_1, x_3, x_2);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x3f(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_find_x3f___rarg), 3, 0);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get___at_Std_TreeMap_Raw_get___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -32149,6 +32259,87 @@ x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_get_x21___rarg), 4, 0);
 return x_3;
 }
 }
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_3, 3);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_3, 4);
+lean_inc(x_8);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+x_9 = lean_apply_2(x_1, x_2, x_5);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
+switch (x_10) {
+case 0:
+{
+lean_dec(x_8);
+lean_dec(x_6);
+x_3 = x_7;
+goto _start;
+}
+case 1:
+{
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_4);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_6;
+}
+default: 
+{
+lean_dec(x_7);
+lean_dec(x_6);
+x_3 = x_8;
+goto _start;
+}
+}
+}
+else
+{
+lean_object* x_13; lean_object* x_14; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_13 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_get_x21___spec__1___rarg___closed__4;
+x_14 = l_panic___rarg(x_4, x_13);
+return x_14;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1___rarg), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x21___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_get_x21___at_Std_TreeMap_Raw_find_x21___spec__1___rarg(x_1, x_3, x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_find_x21(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_find_x21___rarg), 4, 0);
+return x_3;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_getD___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
@@ -32241,6 +32432,102 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_TreeMap_Raw_getD___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; 
+x_5 = lean_ctor_get(x_3, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 2);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_3, 3);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_3, 4);
+lean_inc(x_8);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_2);
+x_9 = lean_apply_2(x_1, x_2, x_5);
+x_10 = lean_unbox(x_9);
+lean_dec(x_9);
+switch (x_10) {
+case 0:
+{
+lean_dec(x_8);
+lean_dec(x_6);
+x_3 = x_7;
+goto _start;
+}
+case 1:
+{
+lean_dec(x_8);
+lean_dec(x_7);
+lean_dec(x_2);
+lean_dec(x_1);
+return x_6;
+}
+default: 
+{
+lean_dec(x_7);
+lean_dec(x_6);
+x_3 = x_8;
+goto _start;
+}
+}
+}
+else
+{
+lean_dec(x_2);
+lean_dec(x_1);
+lean_inc(x_4);
+return x_4;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg(x_1, x_3, x_2, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_findD___rarg___boxed), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_Const_getD___at_Std_TreeMap_Raw_findD___spec__1___rarg(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_findD___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_TreeMap_Raw_findD___rarg(x_1, x_2, x_3, x_4);
 lean_dec(x_4);
 return x_5;
 }
@@ -32463,6 +32750,31 @@ lean_dec(x_3);
 return x_6;
 }
 }
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___rarg(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_foldM___rarg), 4, 0);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_foldM___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Std_TreeMap_Raw_foldM(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_3);
+return x_6;
+}
+}
 LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_foldl___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
@@ -32522,6 +32834,69 @@ _start:
 {
 lean_object* x_5; 
 x_5 = l_Std_TreeMap_Raw_foldl(x_1, x_2, x_3, x_4);
+lean_dec(x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+x_5 = lean_ctor_get(x_3, 2);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_3, 3);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_3, 4);
+lean_inc(x_7);
+lean_dec(x_3);
+lean_inc(x_1);
+x_8 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1___rarg(x_1, x_2, x_6);
+lean_inc(x_1);
+x_9 = lean_apply_3(x_1, x_8, x_4, x_5);
+x_2 = x_9;
+x_3 = x_7;
+goto _start;
+}
+else
+{
+lean_dec(x_1);
+return x_2;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1___rarg), 3, 0);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_fold___spec__1___rarg(x_1, x_2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_fold___rarg), 3, 0);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_fold___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_TreeMap_Raw_fold(x_1, x_2, x_3, x_4);
 lean_dec(x_3);
 return x_5;
 }
@@ -34248,6 +34623,196 @@ _start:
 {
 lean_object* x_3; 
 x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_mergeWith___rarg), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+x_7 = !lean_is_exclusive(x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; 
+x_8 = lean_ctor_get(x_6, 0);
+x_9 = lean_ctor_get(x_6, 1);
+x_10 = lean_ctor_get(x_6, 2);
+x_11 = lean_ctor_get(x_6, 3);
+x_12 = lean_ctor_get(x_6, 4);
+lean_inc(x_1);
+lean_inc(x_9);
+lean_inc(x_5);
+x_13 = lean_apply_2(x_1, x_5, x_9);
+x_14 = lean_unbox(x_13);
+lean_dec(x_13);
+switch (x_14) {
+case 0:
+{
+lean_object* x_15; lean_object* x_16; 
+lean_free_object(x_6);
+lean_dec(x_8);
+x_15 = l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_11);
+x_16 = l_Std_DTreeMap_Internal_Impl_balance_x21___rarg(x_9, x_10, x_15, x_12);
+return x_16;
+}
+case 1:
+{
+lean_object* x_17; 
+lean_dec(x_9);
+lean_dec(x_1);
+x_17 = lean_apply_3(x_2, x_3, x_10, x_4);
+lean_ctor_set(x_6, 2, x_17);
+lean_ctor_set(x_6, 1, x_5);
+return x_6;
+}
+default: 
+{
+lean_object* x_18; lean_object* x_19; 
+lean_free_object(x_6);
+lean_dec(x_8);
+x_18 = l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_12);
+x_19 = l_Std_DTreeMap_Internal_Impl_balance_x21___rarg(x_9, x_10, x_11, x_18);
+return x_19;
+}
+}
+}
+else
+{
+lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; uint8_t x_26; 
+x_20 = lean_ctor_get(x_6, 0);
+x_21 = lean_ctor_get(x_6, 1);
+x_22 = lean_ctor_get(x_6, 2);
+x_23 = lean_ctor_get(x_6, 3);
+x_24 = lean_ctor_get(x_6, 4);
+lean_inc(x_24);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_inc(x_21);
+lean_inc(x_20);
+lean_dec(x_6);
+lean_inc(x_1);
+lean_inc(x_21);
+lean_inc(x_5);
+x_25 = lean_apply_2(x_1, x_5, x_21);
+x_26 = lean_unbox(x_25);
+lean_dec(x_25);
+switch (x_26) {
+case 0:
+{
+lean_object* x_27; lean_object* x_28; 
+lean_dec(x_20);
+x_27 = l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_23);
+x_28 = l_Std_DTreeMap_Internal_Impl_balance_x21___rarg(x_21, x_22, x_27, x_24);
+return x_28;
+}
+case 1:
+{
+lean_object* x_29; lean_object* x_30; 
+lean_dec(x_21);
+lean_dec(x_1);
+x_29 = lean_apply_3(x_2, x_3, x_22, x_4);
+x_30 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_30, 0, x_20);
+lean_ctor_set(x_30, 1, x_5);
+lean_ctor_set(x_30, 2, x_29);
+lean_ctor_set(x_30, 3, x_23);
+lean_ctor_set(x_30, 4, x_24);
+return x_30;
+}
+default: 
+{
+lean_object* x_31; lean_object* x_32; 
+lean_dec(x_20);
+x_31 = l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(x_1, x_2, x_3, x_4, x_5, x_24);
+x_32 = l_Std_DTreeMap_Internal_Impl_balance_x21___rarg(x_21, x_22, x_23, x_31);
+return x_32;
+}
+}
+}
+}
+else
+{
+lean_object* x_33; lean_object* x_34; lean_object* x_35; 
+lean_dec(x_3);
+lean_dec(x_2);
+lean_dec(x_1);
+x_33 = lean_box(1);
+x_34 = lean_unsigned_to_nat(1u);
+x_35 = lean_alloc_ctor(0, 5, 0);
+lean_ctor_set(x_35, 0, x_34);
+lean_ctor_set(x_35, 1, x_5);
+lean_ctor_set(x_35, 2, x_4);
+lean_ctor_set(x_35, 3, x_33);
+lean_ctor_set(x_35, 4, x_33);
+return x_35;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg), 6, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+x_6 = lean_ctor_get(x_4, 2);
+lean_inc(x_6);
+x_7 = lean_ctor_get(x_4, 3);
+lean_inc(x_7);
+x_8 = lean_ctor_get(x_4, 4);
+lean_inc(x_8);
+lean_dec(x_4);
+lean_inc(x_2);
+lean_inc(x_1);
+x_9 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2___rarg(x_1, x_2, x_3, x_7);
+lean_inc(x_5);
+lean_inc(x_2);
+lean_inc(x_1);
+x_10 = l_Std_DTreeMap_Internal_Impl_Const_alter_x21___at_Std_TreeMap_Raw_mergeBy___spec__1___rarg(x_1, x_2, x_5, x_6, x_5, x_9);
+x_3 = x_10;
+x_4 = x_8;
+goto _start;
+}
+else
+{
+lean_dec(x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2___rarg), 4, 0);
+return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_mergeBy___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Std_DTreeMap_Internal_Impl_foldlM___at_Std_TreeMap_Raw_mergeBy___spec__2___rarg(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Std_TreeMap_Raw_mergeBy(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = lean_alloc_closure((void*)(l_Std_TreeMap_Raw_mergeBy___rarg), 4, 0);
 return x_3;
 }
 }

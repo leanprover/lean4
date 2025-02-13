@@ -915,7 +915,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb hi lo x).msb =
     (decide ((max hi lo) < w)
      && x.getMsbD (w - 1 - ((max hi lo)))) := by
-  simp [BitVec.msb, BitVec.getMsbD_extractLsb, Nat.le_sub_iff_add_le' (k := lo) (n := 0) (m := hi)]
+  simp [BitVec.msb]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by

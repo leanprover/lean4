@@ -90,7 +90,10 @@ theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UIn
 theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
      m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := UInt32.lt_ofNatLT_of_lt h1 h2
 
-def UInt64.val (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
+/-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
+def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
+@[deprecated UInt64.toFin (since := "2025-02-12"), inherit_doc UInt64.toFin]
+def UInt64.val (x : UInt64) : Fin UInt64.size := x.toFin
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
 abbrev Nat.toUInt64 := UInt64.ofNat

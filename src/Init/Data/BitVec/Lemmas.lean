@@ -3875,7 +3875,7 @@ theorem replicate_succ' {x : BitVec w} :
 def intMin (w : Nat) := twoPow w (w - 1)
 
 theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := by
-  simp only [intMin, getLsbD_twoPow, decide_eq_true_eq, bool_to_prop]
+  simp only [intMin, getLsbD_twoPow, bool_to_prop]
   omega
 
 theorem getMsbD_intMin {w i : Nat} :

@@ -614,6 +614,10 @@ def minD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
 def max? (t : DTreeMap α β cmp) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.max? t.inner
 
+@[inline, inherit_doc DTreeMap.max]
+def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.max t.inner t.wf.balanced h
+
 @[inline, inherit_doc DTreeMap.max!]
 def max! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.max! t.inner

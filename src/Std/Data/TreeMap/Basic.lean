@@ -153,70 +153,6 @@ def getD (t : TreeMap α β cmp) (a : α) (fallback : β) : β :=
 def findD (t : TreeMap α β cmp) (a : α) (fallback : β) : β :=
   getD t a fallback
 
-@[inline, inherit_doc DTreeMap.min?]
-def min? (t : TreeMap α β cmp) : Option (α × β) :=
-  DTreeMap.Const.min? t.inner
-
-@[inline, inherit_doc DTreeMap.max?]
-def max? (t : TreeMap α β cmp) : Option (α × β) :=
-  DTreeMap.Const.max? t.inner
-
-@[inline, inherit_doc DTreeMap.min!]
-def min! [Inhabited α] [Inhabited β] (t : TreeMap α β cmp) : α × β :=
-  DTreeMap.Const.min! t.inner
-
-@[inline, inherit_doc DTreeMap.max!]
-def max! [Inhabited α] [Inhabited β] (t : TreeMap α β cmp) : α × β :=
-  DTreeMap.Const.max! t.inner
-
-@[inline, inherit_doc DTreeMap.atIndex]
-def atIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
-  DTreeMap.Const.atIndex t.inner t.wf.balanced n h
-
-@[inline, inherit_doc DTreeMap.atIndex?]
-def atIndex? (t : TreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.atIndex? n
-
-@[inline, inherit_doc DTreeMap.atIndex?]
-def atIndex! [Inhabited ((a : α) × β a)] (t : TreeMap α β cmp) (n : Nat) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.atIndex! n
-
-@[inline, inherit_doc DTreeMap.atIndexD]
-def atIndexD [Inhabited ((a : α) × β a)] (t : TreeMap α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.atIndexD n fallback
-
-@[inline, inherit_doc DTreeMap.getEntryGE?]
-def getEntryGE? (t : TreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; Impl.getEntryGE? k t.inner
-
-@[inline, inherit_doc DTreeMap.getEntryGT?]
-def getEntryGT? (t : TreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; Impl.getEntryGT? k t.inner
-
-@[inline, inherit_doc DTreeMap.getEntryLE?]
-def getEntryLE? (t : TreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; Impl.getEntryLE? k t.inner
-
-@[inline, inherit_doc DTreeMap.getEntryLT?]
-def getEntryLT? (t : TreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; Impl.getEntryLT? k t.inner
-
-@[inline, inherit_doc DTreeMap.getKeyGE?]
-def getKeyGE? (k : α) (t : TreeMap α β cmp) : Option α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.getKeyGE? k
-
-@[inline, inherit_doc DTreeMap.getKeyGT?]
-def getKeyGT? (k : α) (t : TreeMap α β cmp) : Option α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.getKeyGT? k
-
-@[inline, inherit_doc DTreeMap.getKeyLE?]
-def getKeyLE? (k : α) (t : TreeMap α β cmp) : Option α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.getKeyLE? k
-
-@[inline, inherit_doc DTreeMap.getKeyLT?]
-def getKeyLT? (k : α) (t : TreeMap α β cmp) : Option α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.getKeyLT? k
-
 instance : GetElem? (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
@@ -241,6 +177,10 @@ def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
 @[inline, inherit_doc DTreeMap.Const.max?]
 def max? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.max? t.inner
+
+@[inline, inherit_doc DTreeMap.Const.max]
+def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  DTreeMap.Const.max t.inner h
 
 @[inline, inherit_doc DTreeMap.Const.max!]
 def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=

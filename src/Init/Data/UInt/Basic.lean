@@ -9,6 +9,8 @@ import Init.Data.BitVec.Basic
 
 open Nat
 
+/-- Converts a `Fin UInt8.size` into the corresponding `UInt8`. -/
+@[inline] def UInt8.ofFin (a : Fin UInt8.size) : UInt8 := ⟨⟨a⟩⟩
 @[deprecated UInt8.ofBitVec (since := "2025-02-12"), inherit_doc UInt8.ofBitVec]
 def UInt8.mk (bitVec : BitVec 8) : UInt8 :=
   UInt8.ofBitVec bitVec
@@ -76,6 +78,8 @@ instance (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
 instance : Max UInt8 := maxOfLe
 instance : Min UInt8 := minOfLe
 
+/-- Converts a `Fin UInt16.size` into the corresponding `UInt16`. -/
+@[inline] def UInt16.ofFin (a : Fin UInt16.size) : UInt16 := ⟨⟨a⟩⟩
 @[deprecated UInt16.ofBitVec (since := "2025-02-12"), inherit_doc UInt16.ofBitVec]
 def UInt16.mk (bitVec : BitVec 16) : UInt16 :=
   UInt16.ofBitVec bitVec
@@ -145,6 +149,8 @@ instance (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 instance : Max UInt16 := maxOfLe
 instance : Min UInt16 := minOfLe
 
+/-- Converts a `Fin UInt32.size` into the corresponding `UInt32`. -/
+@[inline] def UInt32.ofFin (a : Fin UInt32.size) : UInt32 := ⟨⟨a⟩⟩
 @[deprecated UInt32.ofBitVec (since := "2025-02-12"), inherit_doc UInt32.ofBitVec]
 def UInt32.mk (bitVec : BitVec 32) : UInt32 :=
   UInt32.ofBitVec bitVec
@@ -199,6 +205,8 @@ instance : ShiftRight UInt32 := ⟨UInt32.shiftRight⟩
 @[extern "lean_bool_to_uint32"]
 def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 
+/-- Converts a `Fin UInt64.size` into the corresponding `UInt64`. -/
+@[inline] def UInt64.ofFin (a : Fin UInt64.size) : UInt64 := ⟨⟨a⟩⟩
 @[deprecated UInt64.ofBitVec (since := "2025-02-12"), inherit_doc UInt64.ofBitVec]
 def UInt64.mk (bitVec : BitVec 64) : UInt64 :=
   UInt64.ofBitVec bitVec
@@ -266,6 +274,8 @@ instance (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 instance : Max UInt64 := maxOfLe
 instance : Min UInt64 := minOfLe
 
+/-- Converts a `Fin USize.size` into the corresponding `USize`. -/
+@[inline] def USize.ofFin (a : Fin USize.size) : USize := ⟨⟨a⟩⟩
 @[deprecated USize.ofBitVec (since := "2025-02-12"), inherit_doc USize.ofBitVec]
 def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
   USize.ofBitVec bitVec

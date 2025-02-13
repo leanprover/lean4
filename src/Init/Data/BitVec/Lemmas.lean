@@ -827,11 +827,18 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
       x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
   simp only [boolToPropSimps]
-  simp only [and_congr_right_iff, Nat.add_one_sub_one, show hi - lo - i < hi - lo + 1 by omega]
-  intro
-  by_cases hmax : lo ≤ hi
-  · simp [Nat.max_eq_left hmax, show lo + (hi - lo - i) = hi - i by omega]
-  · simp [Nat.max_eq_right (show hi ≤ lo by omega), show lo + (hi - lo - i) = lo - i by omega]
+  constructor
+  · rintro ⟨h₁, h₂, h₃, h₄⟩
+    have p : w - 1 - (lo + (hi - lo + 1 - 1 - i)) = w - 1 - (max hi lo - i) := by omega
+    rw [p] at h₄
+    simp [h₄]
+    omega
+  · rintro ⟨h₁, h₂, h₃⟩
+    have p : w - 1 - (lo + (hi - lo + 1 - 1 - i)) = w - 1 - (max hi lo - i) := by omega
+    rw [← p] at h₃
+    rw [h₃]
+    simp
+    omega
 
 @[simp] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
     (extractLsb hi lo x).msb =

@@ -93,7 +93,9 @@ def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 This function has the same behavior as `Int.toNat` for negative numbers.
 If you want to obtain the 2's complement representation use `toBitVec`.
 -/
-@[inline] def Int8.toNat (i : Int8) : Nat := i.toInt.toNat
+@[inline] def Int8.toNatClampNeg (i : Int8) : Nat := i.toInt.toNat
+@[inline, deprecated Int8.toNatClampNeg (since := "2025-02-13"), inherit_doc Int8.toNatClampNeg]
+def Int8.toNat (i : Int8) : Nat := i.toInt.toNat
 /-- Obtains the `Int8` whose 2's complement representation is the given `BitVec 8`. -/
 @[inline] def Int8.ofBitVec (b : BitVec 8) : Int8 := ⟨⟨b⟩⟩
 @[extern "lean_int8_neg"]
@@ -199,7 +201,9 @@ def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
 This function has the same behavior as `Int.toNat` for negative numbers.
 If you want to obtain the 2's complement representation use `toBitVec`.
 -/
-@[inline] def Int16.toNat (i : Int16) : Nat := i.toInt.toNat
+@[inline] def Int16.toNatClampNeg (i : Int16) : Nat := i.toInt.toNat
+@[inline, deprecated Int16.toNatClampNeg (since := "2025-02-13"), inherit_doc Int16.toNatClampNeg]
+def Int16.toNat (i : Int16) : Nat := i.toInt.toNat
 /-- Obtains the `Int16` whose 2's complement representation is the given `BitVec 16`. -/
 @[inline] def Int16.ofBitVec (b : BitVec 16) : Int16 := ⟨⟨b⟩⟩
 @[extern "lean_int16_to_int8"]
@@ -309,7 +313,9 @@ def Int32.toInt (i : Int32) : Int := i.toBitVec.toInt
 This function has the same behavior as `Int.toNat` for negative numbers.
 If you want to obtain the 2's complement representation use `toBitVec`.
 -/
-@[inline] def Int32.toNat (i : Int32) : Nat := i.toInt.toNat
+@[inline] def Int32.toNatClampNeg (i : Int32) : Nat := i.toInt.toNat
+@[inline, deprecated Int32.toNatClampNeg (since := "2025-02-13"), inherit_doc Int32.toNatClampNeg]
+def Int32.toNat (i : Int32) : Nat := i.toInt.toNat
 /-- Obtains the `Int32` whose 2's complement representation is the given `BitVec 32`. -/
 @[inline] def Int32.ofBitVec (b : BitVec 32) : Int32 := ⟨⟨b⟩⟩
 @[extern "lean_int32_to_int8"]
@@ -423,7 +429,9 @@ def Int64.toInt (i : Int64) : Int := i.toBitVec.toInt
 This function has the same behavior as `Int.toNat` for negative numbers.
 If you want to obtain the 2's complement representation use `toBitVec`.
 -/
-@[inline] def Int64.toNat (i : Int64) : Nat := i.toInt.toNat
+@[inline] def Int64.toNatClampNeg (i : Int64) : Nat := i.toInt.toNat
+@[inline, deprecated Int64.toNatClampNeg (since := "2025-02-13"), inherit_doc Int64.toNatClampNeg]
+def Int64.toNat (i : Int64) : Nat := i.toInt.toNat
 /-- Obtains the `Int64` whose 2's complement representation is the given `BitVec 64`. -/
 @[inline] def Int64.ofBitVec (b : BitVec 64) : Int64 := ⟨⟨b⟩⟩
 @[extern "lean_int64_to_int8"]
@@ -541,7 +549,9 @@ def ISize.toInt (i : ISize) : Int := i.toBitVec.toInt
 This function has the same behavior as `Int.toNat` for negative numbers.
 If you want to obtain the 2's complement representation use `toBitVec`.
 -/
-@[inline] def ISize.toNat (i : ISize) : Nat := i.toInt.toNat
+@[inline] def ISize.toNatClampNeg (i : ISize) : Nat := i.toInt.toNat
+@[inline, deprecated ISize.toNatClampNeg (since := "2025-02-13"), inherit_doc ISize.toNatClampNeg]
+def ISize.toNat (i : ISize) : Nat := i.toInt.toNat
 /-- Obtains the `ISize` whose 2's complement representation is the given `BitVec`. -/
 @[inline] def ISize.ofBitVec (b : BitVec System.Platform.numBits) : ISize := ⟨⟨b⟩⟩
 @[extern "lean_isize_to_int8"]

@@ -920,7 +920,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :
     x.extractLsb' start len = (x.extractLsb (len - 1 + start) start).cast (by omega) := by
   apply eq_of_toNat_eq
-  simp [extractLsb, show len - 1 + 1 = len by omega]
+  simp [show len - 1 + 1 = len by omega]
 
 /-! ### allOnes -/
 

@@ -62,7 +62,7 @@ def get? (ds : FloatArray) (i : Nat) : Option Float :=
 instance : GetElem FloatArray Nat Float fun xs i => i < xs.size where
   getElem xs i h := xs.get i h
 
-instance : GetElem FloatArray USize Float fun xs i => i.val < xs.size where
+instance : GetElem FloatArray USize Float fun xs i => i.toNat < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_float_array_uset"]

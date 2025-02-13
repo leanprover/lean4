@@ -81,21 +81,39 @@ def ackermann : Nat → Nat → Nat
 termination_by n m => (n, m)
 
 /--
-error: unexpected number of arguments at motive type
-  Nat
+error: unsolved goals
+case case1
+P : Nat → Prop
+m✝ : Nat
+⊢ P (ackermann 0 m✝)
+
+case case2
+P : Nat → Prop
+n✝ : Nat
+ih1✝ : P (ackermann n✝ 1)
+⊢ P (ackermann n✝.succ 0)
+
+case case3
+P : Nat → Prop
+n✝ m✝ : Nat
+ih2✝ : P (ackermann (n✝ + 1) m✝)
+ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
+⊢ P (ackermann n✝.succ m✝.succ)
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann n m
 
 /--
-error: fun_induction got confused trying to use ackermann.induct. Does it take 1 or 2 targets?
+error: Expected fully applied application of ackermann with 2 arguments, but found 1 arguments
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann n
 
-/-- error: no arguments? TODO! -/
+/--
+error: Expected fully applied application of ackermann with 2 arguments, but found 0 arguments
+-/
 #guard_msgs in
 example : P (ackermann n m) := by
   fun_induction ackermann
@@ -113,22 +131,47 @@ def ackermann {α} (inc : List α) : List α → List α → List α
 termination_by ns ms => (ns, ms)
 
 /--
-error: unexpected number of arguments at motive type
-  List α
+error: unsolved goals
+case case1
+α : Type u_1
+P : List α → Prop
+inc ms✝ : List α
+⊢ P (ackermann inc [] ms✝)
+
+case case2
+α : Type u_1
+P : List α → Prop
+inc : List α
+head✝ : α
+ns✝ : List α
+ih1✝ : P (ackermann inc ns✝ inc)
+⊢ P (ackermann inc (head✝ :: ns✝) [])
+
+case case3
+α : Type u_1
+P : List α → Prop
+inc : List α
+n✝ : α
+ns✝ : List α
+head✝ : α
+ms✝ : List α
+ih2✝ : P (ackermann inc (n✝ :: ns✝) ms✝)
+ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
+⊢ P (ackermann inc (n✝ :: ns✝) (head✝ :: ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n m
 
 /--
-error: fun_induction got confused trying to use ackermann.induct. Does it take 1 or 2 targets?
+error: Expected fully applied application of ackermann with 4 arguments, but found 3 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
   fun_induction ackermann inc n
 
 /--
-error: fun_induction got confused trying to use ackermann.induct. Does it take 1 or 2 targets?
+error: Expected fully applied application of ackermann with 4 arguments, but found 2 arguments
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by

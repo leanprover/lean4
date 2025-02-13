@@ -736,14 +736,24 @@ def evalFunInduction : Tactic := fun stx =>
       throwErrorAt stx[1] "expected application of a defined function"
     let some funIndInfo ← getFunIndInfo? fnName
       | throwError "no functional induction theorem for {.ofConstName fnName}"
-    -- TODO:
-    if funArgs.isEmpty then throwErrorAt stx[1] "no arguments? TODO!"
-    let params := funArgs.pop
-    let targets := #[funArgs.back!]
-    let us := fnUs
+    if funArgs.size != funIndInfo.params.size then
+      throwErrorAt stx[1]
+        "Expected fully applied application of {.ofConstName fnName} with \
+        {funIndInfo.params.size} arguments, but found {funArgs.size} arguments"
+    let mut params := #[]
+    let mut targets := #[]
+    let mut us := #[]
+    for u in fnUs, b in funIndInfo.levelMask do
+      if b then
+        us := us.push u
+    for a in funArgs, kind in funIndInfo.params do
+      match kind with
+      | .dropped => pure ()
+      | .param => params := params.push a
+      | .target => targets := targets.push a
 
-    let targets ← generalizeTargets targets
-    let elimExpr := mkAppN (.const funIndInfo.funIndName us) params
+    targets ← generalizeTargets targets
+    let elimExpr := mkAppN (.const funIndInfo.funIndName us.toList) params
     trace[Elab.induction] "funInduction: elimExpr: {elimExpr}"
     let elimInfo ← getElimExprInfo elimExpr
     unless targets.size = elimInfo.targetsPos.size do

@@ -21,6 +21,7 @@ inductive FunIndParamKind where
   | dropped
   | param
   | target
+deriving BEq
 
 structure FunIndInfo where
   funIndName : Name
@@ -47,8 +48,11 @@ def setFunIndInfo (funIndInfo : FunIndInfo) : CoreM Unit := do
   assert! !(funIndInfoExt.contains (← getEnv) funIndInfo.funIndName)
   modifyEnv fun env => funIndInfoExt.insert env funIndInfo.funIndName funIndInfo
 
+def getFunIndInfoForInduct? (inductName : Name) : CoreM (Option FunIndInfo) := do
+  return funIndInfoExt.find? (← getEnv) inductName
+
 def getFunIndInfo? (funName : Name) : CoreM (Option FunIndInfo) := do
-  let some funIndName ← getFunInduct? funName  | return none
-  return funIndInfoExt.find? (← getEnv) funIndName
+  let some inductName ← getFunInduct? funName  | return none
+  getFunIndInfoForInduct? inductName
 
 end Lean.Meta

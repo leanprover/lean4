@@ -148,6 +148,54 @@ def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
 @[inline]
+def min? (t : TreeSet α cmp) : Option α :=
+  TreeMap.minKey? t.inner
+
+@[inline]
+def min (t : TreeSet α cmp) (h : t.isEmpty = false) : α :=
+  TreeMap.minKey t.inner h
+
+@[inline]
+def min! [Inhabited α] (t : TreeSet α cmp) : α :=
+  TreeMap.minKey! t.inner
+
+@[inline]
+def minD (t : TreeSet α cmp) (fallback : α) : α :=
+  TreeMap.minKeyD t.inner fallback
+
+@[inline]
+def max? (t : TreeSet α cmp) : Option α :=
+  TreeMap.maxKey? t.inner
+
+@[inline]
+def max (t : TreeSet α cmp) (h : t.isEmpty = false) : α :=
+  TreeMap.maxKey t.inner h
+
+@[inline]
+def max! [Inhabited α] (t : TreeSet α cmp) : α :=
+  TreeMap.maxKey! t.inner
+
+@[inline]
+def maxD (t : TreeSet α cmp) (fallback : α) : α :=
+  TreeMap.maxKeyD t.inner fallback
+
+@[inline]
+def atIndex? (t : TreeSet α cmp) (n : Nat) : Option α :=
+  TreeMap.keyAtIndex? t.inner n
+
+@[inline]
+def atIndex (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
+  TreeMap.keyAtIndex t.inner n h
+
+@[inline]
+def atIndex! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
+  TreeMap.keyAtIndex! t.inner n
+
+@[inline]
+def atIndexD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
+  TreeMap.keyAtIndexD t.inner n fallback
+
+@[inline]
 def getGE? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyGE? t.inner k
 

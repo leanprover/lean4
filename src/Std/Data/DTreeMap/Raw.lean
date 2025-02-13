@@ -246,6 +246,20 @@ def atIndexD (t : Raw α β cmp) (n : Nat)
     (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.atIndexD n fallback
 
+@[inline, inherit_doc DTreeMap.keyAtIndex?]
+def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIndex? t.inner n
+
+-- We do not provide `keyAtIndex` for the raw trees
+
+@[inline, inherit_doc DTreeMap.keyAtIndex!]
+def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndex! n
+
+@[inline, inherit_doc DTreeMap.keyAtIndexD]
+def keyAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndexD n fallback
+
 @[inline, inherit_doc DTreeMap.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGE? k t.inner

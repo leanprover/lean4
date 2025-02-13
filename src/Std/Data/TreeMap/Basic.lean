@@ -295,9 +295,24 @@ def atIndex! [Inhabited (α × β)] (t : TreeMap α β cmp) (n : Nat) : α × β
   DTreeMap.Const.atIndex! t.inner n
 
 @[inline, inherit_doc DTreeMap.Const.atIndexD]
-def atIndexD (t : TreeMap α β cmp) (n : Nat)
-    (fallback : α × β) : α × β :=
-DTreeMap.Const.atIndexD t.inner n fallback
+def atIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α × β) : α × β :=
+  DTreeMap.Const.atIndexD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.keyAtIndex?]
+def keyAtIndex? (t : TreeMap α β cmp) (n : Nat) : Option α :=
+  DTreeMap.keyAtIndex? t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIndex]
+def keyAtIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
+  DTreeMap.keyAtIndex t.inner n h
+
+@[inline, inherit_doc DTreeMap.keyAtIndex!]
+def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
+  DTreeMap.keyAtIndex! t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIndexD]
+def keyAtIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
+  DTreeMap.keyAtIndexD t.inner n fallback
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE?]
 def getEntryGE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=

@@ -770,6 +770,41 @@ def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × 
     | .eq => ⟨k, v⟩
     | .gt => r.atIndexD (n - l.size - 1) fallback
 
+/-- Returns the `n`-th smallest key. -/
+def keyAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
+  | .inner _ k _ l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => keyAtIndex l' hl.left n ✓
+    | .eq => k
+    | .gt => keyAtIndex r' hl.right (n - l'.size - 1) ✓
+
+/-- Returns the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def keyAtIndex? [Ord α] : Impl α β → Nat → Option α
+  | .leaf, _ => none
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex? l n
+    | .eq => some k
+    | .gt => keyAtIndex? r (n - l.size - 1)
+
+/-- Returns the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def keyAtIndex! [Ord α] [Inhabited α] : Impl α β → Nat → α
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex! l n
+    | .eq => k
+    | .gt => keyAtIndex! r (n - l.size - 1)
+
+/-- Returns the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def keyAtIndexD [Ord α] : Impl α β → Nat → α → α
+  | .leaf, _, fallback => fallback
+  | .inner _ k _ l r, n, fallback =>
+    match compare n l.size with
+    | .lt => keyAtIndexD l n fallback
+    | .eq => k
+    | .gt => keyAtIndexD r (n - l.size - 1) fallback
+
 namespace Const
 
 variable {β : Type v}
@@ -809,41 +844,6 @@ def atIndexD [Ord α] : Impl α (fun _ => β) → Nat → α × β → α × β
     | .lt => atIndexD l n fallback
     | .eq => ⟨k, v⟩
     | .gt => atIndexD r (n - l.size - 1) fallback
-
-/-- Returns the mapping with the `n`-th smallest key. -/
-def atIndexUnit [Ord α] : (t : Impl α (fun _ => Unit)) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
-  | .inner _ k _ l' r', hl, n, h =>
-    match h : compare n l'.size with
-    | .lt => atIndexUnit l' hl.left n ✓
-    | .eq => k
-    | .gt => atIndexUnit r' hl.right (n - l'.size - 1) ✓
-
-/-- Returns the mapping with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
-def atIndexUnit? [Ord α] : Impl α (fun _ => Unit) → Nat → Option α
-  | .leaf, _ => none
-  | .inner _ k _ l r, n =>
-    match compare n l.size with
-    | .lt => atIndexUnit? l n
-    | .eq => some k
-    | .gt => atIndexUnit? r (n - l.size - 1)
-
-/-- Returns the mapping with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
-def atIndexUnit! [Ord α] [Inhabited α] : Impl α (fun _ => Unit) → Nat → α
-  | .leaf, _ => panic! "Out-of-bounds access"
-  | .inner _ k _ l r, n =>
-    match compare n l.size with
-    | .lt => atIndexUnit! l n
-    | .eq => k
-    | .gt => atIndexUnit! r (n - l.size - 1)
-
-/-- Returns the mapping with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
-def atIndexUnitD [Ord α] : Impl α (fun _ => Unit) → Nat → α → α
-  | .leaf, _, fallback => fallback
-  | .inner _ k _ l r, n, fallback =>
-    match compare n l.size with
-    | .lt => atIndexUnitD l n fallback
-    | .eq => k
-    | .gt => atIndexUnitD r (n - l.size - 1) fallback
 
 end Const
 

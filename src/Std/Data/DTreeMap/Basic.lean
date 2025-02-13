@@ -354,6 +354,22 @@ def atIndexD (t : DTreeMap α β cmp) (n : Nat)
     (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.atIndexD n fallback
 
+/-- Returns the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
+def keyAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option α :=
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIndex? t.inner n
+
+/-- Returns the `n`-th smallest key. -/
+def keyAtIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
+  letI : Ord α := ⟨cmp⟩; Impl.keyAtIndex t.inner t.wf.balanced n h
+
+/-- Returns the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
+def keyAtIndex! [Inhabited α] (t : DTreeMap α β cmp) (n : Nat) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndex! n
+
+/-- Returns the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
+def keyAtIndexD (t : DTreeMap α β cmp) (n : Nat) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.keyAtIndexD n fallback
+
 /--
 Tries to retrieve the key-value pair with the smallest key that is greater than or equal to the
 given key, returning `none` if no such pair exists.

@@ -216,7 +216,7 @@ private def elabHeaders (views : Array DefView)
       if let some snap := view.headerSnap? then
         let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
         let bodySnap := {
-          stx? := none
+          stx? := view.value
           reportingRange? :=
             if newTacTask?.isSome then
               -- Only use first line of body as range when we have incremental tactics as otherwise we

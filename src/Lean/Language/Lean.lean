@@ -553,16 +553,19 @@ where
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
       let reportPromise ← IO.Promise.new
+      let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
+      let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
+        (default, default)
+      else
+        (stx, parserState)
       -- report terminal tasks on first line of decl such as not to hide incremental tactics'
       -- progress
       let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
       let finishedSnap := {
-        stx? := stx
+        stx? := stx'
         reportingRange? := initRange?
         task := finishedPromise.result!
       }
-
-      let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
       let next? ← if Parser.isTerminalCommand stx then pure none
         -- for now, wait on "command finished" snapshot before parsing next command
         else some <$> IO.Promise.new
@@ -572,10 +575,7 @@ where
         task := ·.result!
       })
       let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
-      let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
-        (default, default)
-      else
-        (stx, parserState)
+
       prom.resolve {
         diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
@@ -591,7 +591,7 @@ where
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
             { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree },
-            { stx? := none, task := finishedPromise.result!.map (sync := true) toSnapshotTree }] ++
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do

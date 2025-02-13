@@ -19,13 +19,13 @@ universe u v w
 /-! ### Array literal syntax -/
 
 /-- Syntax for `Array α`. -/
-syntax "#[" withoutPosition(term,*,?) "]" : term
+syntax (name := arraylit) "#[" withoutPosition(term,*,?) "]" : term
 
 macro_rules
   | `(#[ $elems,* ]) => `(List.toArray [ $elems,* ])
 
-recommended_spelling "empty" for "#[]" in [«term#[_,]»]
-recommended_spelling "singleton" for "#[x]" in [«term#[_,]»]
+recommended_spelling "empty" for "#[]" in [arraylit]
+recommended_spelling "singleton" for "#[x]" in [arraylit]
 
 variable {α : Type u}
 

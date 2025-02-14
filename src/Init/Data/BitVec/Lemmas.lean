@@ -810,12 +810,9 @@ and the second `setWidth` is a non-trivial extension.
 -- `simp` can discharge the side condition itself.
 @[simp] theorem setWidth_setWidth {x : BitVec u} {w v : Nat} (h : ¬ (v < u ∧ v < w)) :
     setWidth w (setWidth v x) = setWidth w x := by
-  ext
-  simp_all only [getLsbD_setWidth, decide_true, Bool.true_and, Bool.and_iff_right_iff_imp,
-    decide_eq_true_eq]
-  intro h
-  replace h := lt_of_getLsbD h
-  omega
+  ext i ih
+  have h := @lt_of_getLsbD u x i
+  by_cases h : x.getLsbD i = true <;> simp [h] at * <;> omega
 
 /-! ## extractLsb -/
 
@@ -2401,6 +2398,20 @@ theorem getLsbD_shiftConcat (x : BitVec w) (b : Bool) (i : Nat) :
     = (decide (i < w) && (if (i = 0) then b else x.getLsbD (i - 1))) := by
   simp only [shiftConcat, getLsbD_setWidth, getLsbD_concat]
 
+theorem getElem_shiftConcat {x : BitVec w} {b : Bool} (h : i < w) :
+    (x.shiftConcat b)[i] = if i = 0 then b else x[i-1] := by
+  rw [← getLsbD_eq_getElem, getLsbD_shiftConcat, getLsbD_eq_getElem, decide_eq_true h, Bool.true_and]
+
+@[simp]
+theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
+    (x.shiftConcat b)[0] = b := by
+  simp [getElem_shiftConcat]
+
+@[simp]
+theorem getElem_shiftConcat_succ {x : BitVec w} {b : Bool} (h : i + 1 < w) :
+    (x.shiftConcat b)[i+1] = x[i] := by
+  simp [getElem_shiftConcat]
+
 theorem getLsbD_shiftConcat_eq_decide (x : BitVec w) (b : Bool) (i : Nat) :
     (shiftConcat x b).getLsbD i
     = (decide (i < w) && ((decide (i = 0) && b) || (decide (0 < i) && x.getLsbD (i - 1)))) := by
@@ -2437,20 +2448,6 @@ theorem toNat_shiftConcat_lt_of_lt {x : BitVec w} {b : Bool} {k : Nat}
   rw [toNat_shiftConcat_eq_of_lt hk hx]
   have := Bool.toNat_lt b
   omega
-
-theorem getElem_shiftConcat {x : BitVec w} {b : Bool} (h : i < w) :
-    (x.shiftConcat b)[i] = if i = 0 then b else x[i-1] := by
-  rw [← getLsbD_eq_getElem, getLsbD_shiftConcat, getLsbD_eq_getElem, decide_eq_true h, Bool.true_and]
-
-@[simp]
-theorem getElem_shiftConcat_zero {x : BitVec w} (b : Bool) (h : 0 < w) :
-    (x.shiftConcat b)[0] = b := by
-  simp [getElem_shiftConcat]
-
-@[simp]
-theorem getElem_shiftConcat_succ {x : BitVec w} {b : Bool} (h : i + 1 < w) :
-    (x.shiftConcat b)[i+1] = x[i] := by
-  simp [getElem_shiftConcat]
 
 /-! ### add -/
 

@@ -10,7 +10,7 @@ import Std.Data.DTreeMap.Internal.WF.Lemmas
 /-!
 # Internal lemmas about the tree map
 
-This file contains internal lemmas about `Std.DTreeMap.Internal.Impl`. Users of the hash map should
+This file contains internal lemmas about `Std.DTreeMap.Internal.Impl`. Users of the tree map should
 not rely on the contents of this file.
 -/
 

@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Lean.Elab.Command
 import Lean.Meta.Eval
+import Lean.Meta.CompletionName
 import Init.Data.Random
 
 /-!
@@ -31,29 +32,13 @@ A `Suggestion` is essentially just an identifier and a confidence score that the
 If the premise selection request included information about the intended use (e.g. in the simplifier, in `grind`, etc.)
 the score may be adjusted for that application.
 
-A `Suggestion` may optionally include suggested syntactical modifiers for particular tactics,
-e.g. indicating that if the identifier is used in `simp` it should be used with the `↓`, `↑`, or `←` modifiers,
-or that if the identifier is used in `grind` it should be used with a particular pattern modifier.
-To keep this extensible, these suggestions are represented as a `NameMap Syntax`,
-where the key is the name of the tactic and the value is the suggested syntax decorating the identifier.
 -/
 structure Suggestion where
   name : Name
   /--
-  The score of the suggestion, lower is better.
-  Recommended to use the estimated negative log₂-likelihood that this suggestion is optimal.
+  The score of the suggestion, as a probability that this suggestion should be used.
   -/
-  score : Nat
-  /--
-  Optional, suggested syntactical modifiers for particular tactics.
-  e.g.
-  ```
-  (∅ : NameMap Syntax)
-    |>.insert `grind (← `(grindMod| ←=))
-    |>.insert `simp (← `(simpPre| ↓))
-  ```
-  -/
-  tacticModifiers : NameMap Syntax := {}
+  score : Float
 
 structure Config where
   /--
@@ -62,8 +47,7 @@ structure Config where
   maxSuggestions : Option Nat := none
   /--
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
-  This may be used to adjust the score of the suggestions,
-  as well as to provide syntactical modifiers specific to the caller.
+  This may be used to adjust the score of the suggestions
   -/
   caller : Option Name := none
   /--
@@ -89,19 +73,19 @@ abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 The trivial premise selector, which returns no suggestions.
 -/
 def empty : Selector := fun _ _ => pure #[]
-
+#eval Name.getPrefix `X.Y.Z
 /-- A random premise selection algorithm, provided solely for testing purposes. -/
 def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   IO.stdGenRef.set gen
-  let env := (← getEnv).checkedWithoutAsync
+  let env ← getEnv
   let max := cfg.maxSuggestions.getD 10
-  let n := env.const2ModIdx.size
+  let consts := env.const2ModIdx.keysArray
   let mut suggestions := #[]
-  for (c, _) in env.const2ModIdx do
-    if suggestions.size ≥ max then
-      break
-    if (← IO.rand 0 (2*max)) = 0 then
-      suggestions := suggestions.push { name := c, score := Nat.log2 n }
+  while suggestions.size < max do
+    let i ← IO.rand 0 consts.size
+    let name := consts[i]!
+    if ! (`Lean).isPrefixOf name && Lean.Meta.allowCompletion env name then
+      suggestions := suggestions.push { name := name, score := 1.0 / consts.size.toFloat }
   return suggestions
 
 initialize premiseSelectorExt : EnvExtension (Option Selector) ←
@@ -113,6 +97,16 @@ def select (m : MVarId) (c : Config := {}) : MetaM (Array Suggestion) := do
     throwError "No premise selector registered. \
       (Note the Lean does not provide a default premise selector, these must be installed by a downstream library.)"
   selector m c
+
+/-!
+Currently the registration mechanism is just global state.
+This means that if multiple modules register premise selectors,
+the behaviour will be dependent on the order of loading modules.
+
+We should replace this with a mechanism so that
+premise selectors are configured via options in the `lakefile`, and
+commands are only used to override in a single declaration or file.
+-/
 
 /-- Set the current premise selector.-/
 def registerPremiseSelector (selector : Selector) : CoreM Unit := do

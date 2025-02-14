@@ -60,55 +60,30 @@ where
             return .pure (acc, done)
           return traverseChildren acc otherChildren
 
-structure SnapSelectionConfig where
-  includeStop               : Bool
-  includeTrailingWhitespace : Bool
-
 /--
-Finds the first (in pre-order) snapshot task in `tree` that contains `hoverPos` and which
-contains an info tree, and then returns that info tree, waiting for any snapshot tasks on the way.
+Finds the first (in pre-order) snapshot task in `tree` that contains `hoverPos`
+(including whitespace) and which contains an info tree, and then returns that info tree,
+waiting for any snapshot tasks on the way.
 Subtrees that do not contain the position are skipped without forcing their tasks.
-
-If `config.includeTrailingWhitespace` is set, this function will yield the first snapshot task
-that contains `hoverPos` in its non-whitespace range or the last (in pre-order) snapshot task in
-`tree` that contains `hoverPos` in its whitespace if there is no task that contains `hoverPos`
-in its non-whitespace range. In other words, snapshot tasks that only contain `hoverPos` in their
-whitespace are used as a back-up.
-Importantly, this means that `config.includeTailingWhitespace` will cause the returned task to
-force snapshot tasks that contain `hoverPos` in its whitespace, and only skip tasks that do not
-contain `hoverPos` at all.
+If the caller of this function needs the correct snapshot when the cursor is on whitespace,
+then this function is likely the wrong one to call, as it simply yields the first snapshot
+that contains `hoverPos` in its whitespace, which is not necessarily the correct one
+(e.g. it may be indentation-sensitive).
 -/
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
-    (hoverPos : String.Pos) (config : SnapSelectionConfig) : Task (Option Elab.InfoTree) :=
-  tree.foldSnaps (init := none) fun snap currentBest? => Id.run do
-    let skipChild := .pure (currentBest?, .proceed (foldChildren := false))
+    (hoverPos : String.Pos) (includeStop : Bool) : Task (Option Elab.InfoTree) :=
+  tree.foldSnaps (init := none) fun snap _ => Id.run do
+    let skipChild := .pure (none, .proceed (foldChildren := false))
     let some stx := snap.stx?
       | return skipChild
-    let some range := stx.getRange? (canonicalOnly := true)
+    let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
       | return skipChild
-    if text.rangeContainsHoverPos range hoverPos config.includeStop then
-      return inspectSnap snap currentBest? (isOptimal := true)
-    if ! config.includeTrailingWhitespace then
+    if ! text.rangeContainsHoverPos range hoverPos includeStop then
       return skipChild
-    let some rangeWithTrailing := stx.getRangeWithTrailing? (canonicalOnly := true)
-      | return skipChild
-    if ! text.rangeContainsHoverPos rangeWithTrailing hoverPos config.includeStop then
-      return skipChild
-    return inspectSnap snap currentBest? (isOptimal := false)
-where
-  inspectSnap (snap : SnapshotTask SnapshotTree) (currentBest? : Option Elab.InfoTree)
-      (isOptimal : Bool) : Task (Option Elab.InfoTree × foldSnaps.Control) :=
-    snap.task.map (sync := true) fun tree => Id.run do
+    return snap.task.map (sync := true) fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
-        | return (currentBest?, .proceed (foldChildren := true))
-      if isOptimal then
-        return (infoTree, .done)
-      else
-        -- If this snapshot is not optimal, then none of its children can be, either:
-        -- If we are in the whitespace of a snapshot, we won't end up in a non-whitespace range
-        -- in one of its children.
-        return (infoTree, .proceed (foldChildren := false))
-
+        | return (none, .proceed (foldChildren := true))
+      return (infoTree, .done)
 
 end Lean.Language
 
@@ -337,10 +312,10 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 def findCmdDataAtPos
     (doc : EditableDocument)
     (hoverPos : String.Pos)
-    (config : SnapSelectionConfig)
+    (includeStop : Bool)
     : Task (Option (Syntax × Elab.InfoTree)) :=
   findCmdParsedSnap doc hoverPos |>.bind (sync := true) fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos config |>.bind (sync := true) fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bind (sync := true) fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
       | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
@@ -358,9 +333,9 @@ See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 partial def findInfoTreeAtPos
     (doc : EditableDocument)
     (hoverPos : String.Pos)
-    (config : SnapSelectionConfig)
+    (includeStop : Bool)
     : Task (Option Elab.InfoTree) :=
-  findCmdDataAtPos doc hoverPos config |>.map (sync := true) (·.map (·.2))
+  findCmdDataAtPos doc hoverPos includeStop |>.map (sync := true) (·.map (·.2))
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

@@ -23,17 +23,14 @@ def findCompletionCmdDataAtPos
     (doc : EditableDocument)
     (pos : String.Pos)
     : Task (Option (Syntax × Elab.InfoTree)) :=
-  let config := {
-    includeStop := true
-    -- Most completions don't need trailing whitespace at the term level;
-    -- synthetic completions are the only notions of completion that care care about whitespace.
-    -- Synthetic tactic completion only needs the `ContextInfo` of the command, so any snapshot
-    -- will do.
-    -- Synthetic field completion in `{ }` doesn't care about whitespace;
-    -- synthetic field completion in `where` only needs to gather the expected type.
-    includeTrailingWhitespace := false
-  }
-  findCmdDataAtPos doc pos config
+  -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
+  -- However, most completions don't need trailing whitespace at the term level;
+  -- synthetic completions are the only notions of completion that care care about whitespace.
+  -- Synthetic tactic completion only needs the `ContextInfo` of the command, so any snapshot
+  -- will do.
+  -- Synthetic field completion in `{ }` doesn't care about whitespace;
+  -- synthetic field completion in `where` only needs to gather the expected type.
+  findCmdDataAtPos doc pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -272,7 +269,6 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : Task (Option
             | return (oldGoals, .proceed (foldChildren := true))
 
           let goals := infoTree.goalsAt? text hoverPos
-
           let optimalSnapRange : String.Range := ⟨pos, tailPos⟩
           let isOptimalGoalSet :=
             text.rangeContainsHoverPos optimalSnapRange hoverPos
@@ -340,11 +336,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  let config := {
-    includeStop := true
-    includeTrailingWhitespace := false
-  }
-  mapTask (findInfoTreeAtPos doc hoverPos config) <| Option.bindM fun infoTree => do
+  mapTask (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do

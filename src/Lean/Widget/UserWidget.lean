@@ -397,14 +397,10 @@ structure GetWidgetsResponse where
 
 open Lean Server RequestM in
 /-- Get the panel widgets present around a particular position. -/
-def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask (GetWidgetsResponse)) := do
+def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsResponse) := do
   let doc ← readDoc
   let filemap := doc.meta.text
-  let config := {
-    includeStop := true
-    includeTrailingWhitespace := false
-  }
-  mapTask (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) config) fun
+  mapTask (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) (includeStop := true)) fun
     | some infoTree@(.context (.commandCtx cc) _) =>
       ContextInfo.runMetaM { cc with } {} do
       let env ← getEnv

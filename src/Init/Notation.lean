@@ -749,6 +749,21 @@ The top-level command elaborator only runs the linters if `#guard_msgs` is not p
 syntax (name := guardMsgsCmd)
   (docComment)? "#guard_msgs" (ppSpace guardMsgsSpec)? " in" ppLine command : command
 
+/--
+Format and print the info trees for a given command.
+This is mostly useful for debugging info trees.
+-/
+syntax (name := infoTreesCmd)
+  "#info_trees" " in" ppLine command : command
+
+/--
+Specify a premise selection engine.
+Note that Lean does not ship a default premise selection engine,
+so this is only useful in conjunction with a downstream package which provides one.
+-/
+syntax (name := setPremiseSelectorCmd)
+  "set_premise_selector" term : command
+
 namespace Parser
 
 /--

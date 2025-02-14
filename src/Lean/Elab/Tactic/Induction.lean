@@ -278,30 +278,30 @@ where
       if let some tacSnap := (← readThe Term.Context).tacSnap? then
         -- incrementality: create a new promise for each alternative, resolve current snapshot to
         -- them, eventually put each of them back in `Context.tacSnap?` in `applyAltStx`
-        withAlwaysResolvedPromise fun finished => do
-          withAlwaysResolvedPromises altStxs.size fun altPromises => do
-            tacSnap.new.resolve {
-              -- save all relevant syntax here for comparison with next document version
-              stx := mkNullNode altStxs
-              diagnostics := .empty
-              inner? := none
-              finished := { range? := none, task := finished.result }
-              next := Array.zipWith
-                (fun stx prom => { range? := stx.getRange?, task := prom.result })
-                altStxs altPromises
-            }
-            goWithIncremental <| altPromises.mapIdx fun i prom => {
-              old? := do
-                let old ← tacSnap.old?
-                -- waiting is fine here: this is the old version of the snapshot resolved above
-                -- immediately at the beginning of the tactic
-                let old := old.val.get
-                -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
-                -- version and picked apart in `applyAltStx`
-                return ⟨old.stx, (← old.next[i]?)⟩
-              new := prom
-            }
-            finished.resolve { diagnostics := .empty, state? := (← saveState) }
+        let finished ← IO.Promise.new
+        let altPromises ← altStxs.mapM fun _ => IO.Promise.new
+        tacSnap.new.resolve {
+          -- save all relevant syntax here for comparison with next document version
+          stx := mkNullNode altStxs
+          diagnostics := .empty
+          inner? := none
+          finished := { range? := none, task := finished.resultD default }
+          next := Array.zipWith
+            (fun stx prom => { range? := stx.getRange?, task := prom.resultD default })
+            altStxs altPromises
+        }
+        goWithIncremental <| altPromises.mapIdx fun i prom => {
+          old? := do
+            let old ← tacSnap.old?
+            -- waiting is fine here: this is the old version of the snapshot resolved above
+            -- immediately at the beginning of the tactic
+            let old := old.val.get
+            -- use old version of `mkNullNode altsSyntax` as guard, will be compared with new
+            -- version and picked apart in `applyAltStx`
+            return ⟨old.stx, (← old.next[i]?)⟩
+          new := prom
+        }
+        finished.resolve { diagnostics := .empty, state? := (← saveState) }
         return
 
     goWithIncremental #[]

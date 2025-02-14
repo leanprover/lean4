@@ -375,6 +375,9 @@ end choice
 @[simp] theorem some_or : (some a).or o = some a := rfl
 @[simp] theorem none_or : none.or o = o := rfl
 
+theorem or_eq_right_of_none {o o' : Option α} (h : o = none) : o.or o' = o' := by
+  cases h; simp
+
 @[deprecated some_or (since := "2024-11-03")] theorem or_some : (some a).or o = some a := rfl
 
 /-- This will be renamed to `or_some` once the existing deprecated lemma is removed. -/
@@ -403,6 +406,10 @@ instance : Std.Associative (or (α := α)) := ⟨@or_assoc _⟩
 @[simp]
 theorem or_none : or o none = o := by
   cases o <;> rfl
+
+theorem or_eq_left_of_none {o o' : Option α} (h : o' = none) : o.or o' = o := by
+  cases h; simp
+
 instance : Std.LawfulIdentity (or (α := α)) none where
   left_id := @none_or _
   right_id := @or_none _

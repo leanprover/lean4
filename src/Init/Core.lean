@@ -593,7 +593,9 @@ set_option linter.unusedVariables.funArgs false in
 be available and then calls `f` on the result.
 
 `prio`, if provided, is the priority of the task.
-If `sync` is set to true, `f` is executed on the current thread if `x` has already finished.
+If `sync` is set to true, `f` is executed on the current thread if `x` has already finished and
+otherwise on the thread that `x` finished on. `prio` is ignored in this case. This should only be
+done when executing `f` is cheap and non-blocking.
 -/
 @[noinline, extern "lean_task_map"]
 protected def map (f : α → β) (x : Task α) (prio := Priority.default) (sync := false) : Task β :=
@@ -607,7 +609,9 @@ for the value of `x` to be available and then calls `f` on the result,
 resulting in a new task which is then run for a result.
 
 `prio`, if provided, is the priority of the task.
-If `sync` is set to true, `f` is executed on the current thread if `x` has already finished.
+If `sync` is set to true, `f` is executed on the current thread if `x` has already finished and
+otherwise on the thread that `x` finished on. `prio` is ignored in this case. This should only be
+done when executing `f` is cheap and non-blocking.
 -/
 @[noinline, extern "lean_task_bind"]
 protected def bind (x : Task α) (f : α → Task β) (prio := Priority.default) (sync := false) :

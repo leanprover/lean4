@@ -8470,14 +8470,14 @@ else
 {
 lean_object* x_9; lean_object* x_10; lean_object* x_11; size_t x_12; size_t x_13; lean_object* x_14; size_t x_15; size_t x_16; 
 x_9 = lean_array_uget(x_4, x_6);
-x_10 = lean_ctor_get(x_9, 3);
-lean_inc(x_10);
+x_10 = lean_box(0);
+x_11 = lean_ctor_get(x_9, 3);
+lean_inc(x_11);
 lean_dec(x_9);
-x_11 = lean_box(0);
-x_12 = lean_array_size(x_10);
+x_12 = lean_array_size(x_11);
 x_13 = 0;
-x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_nonIndicesFirst___spec__6(x_2, x_10, x_11, x_10, x_12, x_13, x_7);
-lean_dec(x_10);
+x_14 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Structural_nonIndicesFirst___spec__6(x_2, x_10, x_11, x_11, x_12, x_13, x_7);
+lean_dec(x_11);
 x_15 = 1;
 x_16 = lean_usize_add(x_6, x_15);
 x_6 = x_16;

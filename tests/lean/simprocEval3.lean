@@ -5,7 +5,7 @@ example (h : x = 8) : x = (8 : UInt32).toNat := by
   trace_state
   assumption
 
-example (h : x = 8) : x = UInt32.ofNatCore 8 (by decide) := by
+example (h : x = 8) : x = UInt32.ofNatLT 8 (by decide) := by
   simp
   trace_state
   assumption

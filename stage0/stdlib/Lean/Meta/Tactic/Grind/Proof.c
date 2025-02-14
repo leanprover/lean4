@@ -10343,7 +10343,7 @@ static lean_object* _init_l_Lean_Meta_Grind_mkEqProofImpl___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.3014.0 )\n  ", 60, 60);
+x_1 = lean_mk_string_unchecked("( __do_lift._@.Lean.Meta.Tactic.Grind.Proof._hyg.3006.0 )\n  ", 60, 60);
 return x_1;
 }
 }

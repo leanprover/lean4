@@ -86,41 +86,41 @@ where
       -- snapshots than necessary.
       if let some range := range? then
         range? := some { range with stop := ⟨range.stop.byteIdx + tac.getTrailingSize⟩ }
-      withAlwaysResolvedPromise fun next => do
-        withAlwaysResolvedPromise fun finished => do
-          withAlwaysResolvedPromise fun inner => do
-            snap.new.resolve {
-              desc := tac.getKind.toString
-              diagnostics := .empty
-              stx := tac
-              inner? := some { range?, task := inner.result }
-              finished := { range?, task := finished.result }
-              next := #[{ range? := stxs.getRange?, task := next.result }]
-            }
-            -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
-            -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
-            -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
-            let trees ← getResetInfoTrees
-            try
-              let (_, state) ← withRestoreOrSaveFull reusableResult?
-                  -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
-                  (tacSnap? := some { old? := oldInner?, new := inner }) do
-                Term.withReuseContext tac do
-                  evalTactic tac
-              finished.resolve {
-                diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
-                  (← Core.getAndEmptyMessageLog))
-                infoTree? := (← Term.getInfoTreeWithContext?)
-                state? := state
-              }
-            finally
-              modifyInfoState fun s => { s with trees := trees ++ s.trees }
+      let next ← IO.Promise.new
+      let finished ← IO.Promise.new
+      let inner ← IO.Promise.new
+      snap.new.resolve {
+        desc := tac.getKind.toString
+        diagnostics := .empty
+        stx := tac
+        inner? := some { range?, task := inner.resultD default }
+        finished := { range?, task := finished.resultD default }
+        next := #[{ range? := stxs.getRange?, task := next.resultD default }]
+      }
+      -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
+      -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`
+      -- producing at most one info tree as otherwise `getInfoTreeWithContext?` would panic.
+      let trees ← getResetInfoTrees
+      try
+        let (_, state) ← withRestoreOrSaveFull reusableResult?
+            -- set up nested reuse; `evalTactic` will check for `isIncrementalElab`
+            (tacSnap? := some { old? := oldInner?, new := inner }) do
+          Term.withReuseContext tac do
+            evalTactic tac
+        finished.resolve {
+          diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog
+            (← Core.getAndEmptyMessageLog))
+          infoTree? := (← Term.getInfoTreeWithContext?)
+          state? := state
+        }
+      finally
+        modifyInfoState fun s => { s with trees := trees ++ s.trees }
 
-        withTheReader Term.Context ({ · with tacSnap? := some {
-          new := next
-          old? := oldNext?
-        } }) do
-          goOdd stxs
+      withTheReader Term.Context ({ · with tacSnap? := some {
+        new := next
+        old? := oldNext?
+      } }) do
+        goOdd stxs
   -- `stx[0]` is the next separator, if any
   goOdd stx := do
     if stx.getNumArgs == 0 then
@@ -134,70 +134,6 @@ where
 
 @[builtin_tactic paren, builtin_incremental] def evalParen : Tactic :=
   Term.withNarrowedArgTacticReuse 1 evalTactic
-
-def isCheckpointableTactic (arg : Syntax) : TacticM Bool := do
-  -- TODO: make it parametric
-  let kind := arg.getKind
-  return kind == ``Lean.Parser.Tactic.save
-
-/--
-Takes a `sepByIndent tactic "; "`, and inserts `checkpoint` blocks for `save` tactics.
-
-Input:
-```
-  a
-  b
-  save
-  c
-  d
-  save
-  e
-```
-
-Output:
-```
-  checkpoint
-    a
-    b
-    save
-  checkpoint
-    c
-    d
-    save
-  e
-```
--/
--- Note that we need to preserve the separators to show the right goals after semicolons.
-def addCheckpoints (stx : Syntax) : TacticM Syntax := do
-  if !(← stx.getSepArgs.anyM isCheckpointableTactic) then return stx
-  -- do not checkpoint checkpointable tactic by itself to prevent infinite recursion
-  -- TODO: rethink approach if we add non-trivial checkpointable tactics
-  if stx.getNumArgs <= 2 then return stx
-  let mut currentCheckpointBlock := #[]
-  let mut output := #[]
-  -- `+ 1` to account for optional trailing separator
-  for i in [:(stx.getArgs.size + 1) / 2] do
-    let tac := stx[2*i]
-    let sep? := stx.getArgs[2*i+1]?
-    if (← isCheckpointableTactic tac) then
-      let checkpoint : Syntax :=
-        mkNode ``checkpoint #[
-          mkAtomFrom tac "checkpoint",
-          mkNode ``tacticSeq #[
-            mkNode ``tacticSeq1Indented #[
-              -- HACK: null node is not a valid tactic, but prevents infinite loop
-              mkNullNode (currentCheckpointBlock.push (mkNullNode #[tac]))
-            ]
-          ]
-        ]
-      currentCheckpointBlock := #[]
-      output := output.push checkpoint
-      if let some sep := sep? then output := output.push sep
-    else
-      currentCheckpointBlock := currentCheckpointBlock.push tac
-      if let some sep := sep? then currentCheckpointBlock := currentCheckpointBlock.push sep
-  output := output ++ currentCheckpointBlock
-  return stx.setArgs output
 
 @[builtin_tactic tacticSeq1Indented, builtin_incremental]
 def evalTacticSeq1Indented : Tactic :=

@@ -6,6 +6,7 @@ Authors: Wojciech Nawrocki
 -/
 prelude
 import Init.System.IO
+import Init.System.Promise
 
 namespace IO
 
@@ -97,18 +98,75 @@ partial def waitFind? (p : α → Bool) : AsyncList ε α → Task (Except ε (O
       | .ok tl   => tl.waitFind? p
       | .error e => .pure <| .error e
 
-/-- Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well. -/
-partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε)
+/--
+Retrieve the already-computed prefix of the list. If computation has finished with an error, return it as well.
+The returned boolean indicates whether the complete `AsyncList` was returned, or whether only a
+proper prefix was returned.
+-/
+partial def getFinishedPrefix : AsyncList ε α → BaseIO (List α × Option ε × Bool)
   | cons hd tl => do
-    let ⟨tl, e?⟩ ← tl.getFinishedPrefix
-    pure ⟨hd :: tl, e?⟩
-  | nil => pure ⟨[], none⟩
+    let ⟨tl, e?, isComplete⟩ ← tl.getFinishedPrefix
+    pure ⟨hd :: tl, e?, isComplete⟩
+  | nil => pure ⟨[], none, true⟩
   | delayed tl => do
     if (← hasFinished tl) then
       match tl.get with
       | Except.ok tl => tl.getFinishedPrefix
-      | Except.error e => pure ⟨[], some e⟩
-    else pure ⟨[], none⟩
+      | Except.error e => pure ⟨[], some e, true⟩
+    else pure ⟨[], none, false⟩
+
+partial def getFinishedPrefixWithTimeout (xs : AsyncList ε α) (timeoutMs : UInt32)
+    (cancelTk? : Option (Task Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+  let timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)) ←
+    if timeoutMs == 0 then
+      pure <| Task.pure (Sum.inl ())
+    else
+      BaseIO.asTask (prio := .dedicated) do
+        IO.sleep timeoutMs
+        return .inl ()
+  go timeoutTask xs
+where
+  go (timeoutTask : Task (Unit ⊕ Except ε (AsyncList ε α)))
+      (xs : AsyncList ε α) : BaseIO (List α × Option ε × Bool) := do
+    match xs with
+    | cons hd tl =>
+      let ⟨tl, e?, isComplete⟩ ← go timeoutTask tl
+      return ⟨hd :: tl, e?, isComplete⟩
+    | nil => return ⟨[], none, true⟩
+    | delayed tl =>
+      let tl := tl.map (sync := true) .inr
+      let cancelTk? := do return (← cancelTk?).map (sync := true) .inl
+      let tasks : { t : List _ // t.length > 0 } :=
+        match cancelTk? with
+        | none => ⟨[tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
+        | some cancelTk => ⟨[cancelTk, tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
+      let r ← IO.waitAny tasks.val (h := tasks.property)
+      match r with
+      | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting
+      | .inr (.ok tl) => go timeoutTask tl
+      | .inr (.error e) => return ⟨[], some e, true⟩
+
+partial def getFinishedPrefixWithConsistentLatency (xs : AsyncList ε α) (latencyMs : UInt32)
+    (cancelTk? : Option (Task Unit) := none) : BaseIO (List α × Option ε × Bool) := do
+  let timestamp ← IO.monoMsNow
+  let r ← xs.getFinishedPrefixWithTimeout latencyMs cancelTk?
+  let passedTimeMs := (← IO.monoMsNow) - timestamp
+  let remainingLatencyMs := (latencyMs.toNat - passedTimeMs).toUInt32
+  sleepWithCancellation remainingLatencyMs
+  return r
+where
+  sleepWithCancellation (sleepDurationMs : UInt32) : BaseIO Unit := do
+    if sleepDurationMs == 0 then
+      return
+    let some cancelTk := cancelTk?
+      | IO.sleep sleepDurationMs
+        return
+    if ← IO.hasFinished cancelTk then
+      return
+    let sleepTask ← BaseIO.asTask (prio := .dedicated) do
+      IO.sleep sleepDurationMs
+    IO.waitAny [sleepTask, cancelTk]
+
 
 def waitHead? (as : AsyncList ε α) : Task (Except ε (Option α)) :=
   as.waitFind? fun _ => true

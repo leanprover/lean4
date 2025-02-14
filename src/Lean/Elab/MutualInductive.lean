@@ -288,7 +288,9 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
           let typeStx ← view.type?.getDM `(Sort _)
           let type ← Term.elabType typeStx
           Term.synthesizeSyntheticMVarsNoPostponing
-          let indices ← Term.addAutoBoundImplicits #[]
+          let inlayHintPos? := view.binders.getTailPos? (canonicalOnly := true)
+            <|> view.declId.getTailPos? (canonicalOnly := true)
+          let indices ← Term.addAutoBoundImplicits #[] inlayHintPos?
           let type ← mkForallFVars indices type
           if view.allowIndices then
             unless (← isTypeFormerType type) do
@@ -297,7 +299,7 @@ private def elabHeadersAux (views : Array InductiveView) (i : Nat) (acc : Array 
             unless (← whnfD type).isSort do
               throwErrorAt typeStx "invalid resulting type, expecting 'Type _' or 'Prop'"
           return (type, indices.size)
-        let params ← Term.addAutoBoundImplicits params
+        let params ← Term.addAutoBoundImplicits params (view.declId.getTailPos? (canonicalOnly := true))
         trace[Elab.inductive] "header params: {params}, type: {type}"
         let levelNames ← Term.getLevelNames
         return acc.push { lctx := (← getLCtx), localInsts := (← getLocalInstances), levelNames, params, type, view }
@@ -960,6 +962,26 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
         mkInjectiveTheorems e.view.declName
     return res
 
+/-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/
+private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) : TermElabM Unit := do
+  let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
+    logErrorAt init msg
+    throwErrorAt cur msg
+  -- Maps names of inductive types to to `true` and those of constructors to `false`, along with syntax refs
+  let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
+  for { view, .. } in elabs do
+    let typeDeclName := privateToUserName view.declName
+    if let some (prevNameIsType, prevRef) := uniqueNames[typeDeclName]? then
+      let declKinds := if prevNameIsType then "multiple inductive types" else "an inductive type and a constructor"
+      throwErrorsAt prevRef view.declId m!"cannot define {declKinds} with the same name '{typeDeclName}'"
+    uniqueNames := uniqueNames.insert typeDeclName (true, view.declId)
+    for ctor in view.ctors do
+      let ctorName := privateToUserName ctor.declName
+      if let some (prevNameIsType, prevRef) := uniqueNames[ctorName]? then
+        let declKinds := if prevNameIsType then "an inductive type and a constructor" else "multiple constructors"
+        throwErrorsAt prevRef ctor.declId m!"cannot define {declKinds} with the same name '{ctorName}'"
+      uniqueNames := uniqueNames.insert ctorName (false, ctor.declId)
+
 private def applyComputedFields (indViews : Array InductiveView) : CommandElabM Unit := do
   if indViews.all (·.computedFields.isEmpty) then return
 
@@ -1016,6 +1038,7 @@ def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Uni
   let (elabs, res) ← runTermElabM fun vars => do
     let elabs ← inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
     elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+    checkNoInductiveNameConflicts elabs
     let res ← elabInductiveViews vars elabs
     pure (elabs, res)
   elabInductiveViewsPostprocessing (elabs.map (·.view)) res

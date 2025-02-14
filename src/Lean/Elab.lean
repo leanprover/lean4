@@ -55,3 +55,4 @@ import Lean.Elab.MatchExpr
 import Lean.Elab.Tactic.Doc
 import Lean.Elab.Time
 import Lean.Elab.RecommendedSpelling
+import Lean.Elab.InfoTrees

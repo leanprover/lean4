@@ -36,20 +36,21 @@ def setupFile
   if (← configFileExists loadConfig.configFile) then
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
-      IO.eprintln s!"Invalid Lake configuration.  Please restart the server after fixing the Lake configuration file."
+      IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
       exit 1
     let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-      ws.runBuild (buildImportsAndDeps path imports) buildConfig
+    let {dynlibs, plugins} ←
+      MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+        ws.runBuild (buildImportsAndDeps path imports) buildConfig
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
-      : LeanPaths
+      pluginPaths := plugins
     }
     let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath

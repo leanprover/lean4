@@ -57,8 +57,8 @@ theorem BitVec.sle_eq_ult (x y : BitVec w) :
 attribute [bv_normalize] BitVec.ofNat_eq_ofNat
 
 @[bv_normalize]
-theorem BitVec.ofNatLt_reduce (n : Nat) (h) : BitVec.ofNatLt n h = BitVec.ofNat w n := by
-  simp [BitVec.ofNatLt, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
+theorem BitVec.ofNatLT_reduce (n : Nat) (h) : BitVec.ofNatLT n h = BitVec.ofNat w n := by
+  simp [BitVec.ofNatLT, BitVec.ofNat, Fin.ofNat', Nat.mod_eq_of_lt h]
 
 @[bv_normalize]
 theorem BitVec.ofBool_eq_if (b : Bool) : BitVec.ofBool b = bif b then 1#1 else 0#1 := by
@@ -330,11 +330,22 @@ attribute [bv_normalize] BitVec.umod_zero
 attribute [bv_normalize] BitVec.umod_one
 attribute [bv_normalize] BitVec.umod_eq_and
 
+attribute [bv_normalize] BitVec.saddOverflow_eq
+attribute [bv_normalize] BitVec.uaddOverflow_eq
+
 /-- `x / (BitVec.ofNat n)` where `n = 2^k` is the same as shifting `x` right by `k`. -/
 theorem BitVec.udiv_ofNat_eq_of_lt (w : Nat) (x : BitVec w) (n : Nat) (k : Nat) (hk : 2 ^ k = n) (hlt : k < w) :
     x / (BitVec.ofNat w n) = x >>> k := by
-  have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bv_toNat, hk]
+  have : BitVec.ofNat w n = BitVec.twoPow w k := by simp [bitvec_to_nat, hk]
   rw [this, BitVec.udiv_twoPow_eq_of_lt (hk := by omega)]
+
+attribute [bv_normalize] BitVec.extractLsb'_and
+attribute [bv_normalize] BitVec.extractLsb'_xor
+
+@[bv_normalize]
+theorem BitVec.exctractLsb'_if {x y : BitVec w} (s l : Nat) :
+    BitVec.extractLsb' s l (bif c then x else y) = bif c then (BitVec.extractLsb' s l x) else (BitVec.extractLsb' s l y) := by
+  cases c <;> simp
 
 end Normalize
 end Std.Tactic.BVDecide

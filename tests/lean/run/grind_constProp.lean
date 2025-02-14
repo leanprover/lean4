@@ -140,12 +140,12 @@ set_option hygiene false -- HACK: allow forward reference in notation
 local notation:60 "(" σ ", " s ")"  " ⇓ " σ':60 => Bigstep σ s σ'
 
 inductive Bigstep : State → Stmt → State → Prop where
-  | skip       : (σ, .skip) ⇓ σ
-  | assign     : e.eval σ = some v → (σ,  x ::= e) ⇓ σ.update x v
-  | seq        : (σ₁, s₁) ⇓ σ₂ → (σ₂, s₂) ⇓ σ₃ → (σ₁, s₁ ;; s₂) ⇓ σ₃
-  | ifTrue     : evalTrue c σ₁ → (σ₁, t) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
-  | ifFalse    : evalFalse c σ₁ → (σ₁, e) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
-  | whileTrue  : evalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .while c b) ⇓ σ₃ → (σ₁, .while c b) ⇓ σ₃
+  | skip : (σ, .skip) ⇓ σ
+  | assign: e.eval σ = some v → (σ,  x ::= e) ⇓ σ.update x v
+  | seq : (σ₁, s₁) ⇓ σ₂ → (σ₂, s₂) ⇓ σ₃ → (σ₁, s₁ ;; s₂) ⇓ σ₃
+  | ifTrue : evalTrue c σ₁ → (σ₁, t) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
+  | ifFalse : evalFalse c σ₁ → (σ₁, e) ⇓ σ₂ → (σ₁, .ite c t e) ⇓ σ₂
+  | whileTrue : evalTrue c σ₁ → (σ₁, b) ⇓ σ₂ → (σ₂, .while c b) ⇓ σ₃ → (σ₁, .while c b) ⇓ σ₃
   | whileFalse : evalFalse c σ → (σ, .while c b) ⇓ σ
 
 end
@@ -205,10 +205,10 @@ def evalExpr (e : Expr) : EvalM Val := do
 @[grind] theorem UnaryOp.simplify_eval (op : UnaryOp) : (op.simplify a).eval σ = (Expr.una op a).eval σ := by
   grind [UnaryOp.simplify.eq_def]
 
-/-- info: Try this: (induction e using Expr.simplify.induct) <;> grind? -/
+/-- info: Try this: (induction e using Expr.simplify.induct) <;> grind -/
 #guard_msgs (info) in
 example (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  try?
+  try? (max := 1)
 
 @[simp, grind =] theorem Expr.eval_simplify (e : Expr) : e.simplify.eval σ = e.eval σ := by
   induction e, σ using Expr.simplify.induct <;> grind
@@ -304,10 +304,10 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
 @[grind] theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
   grind
 
-/-- info: Try this: (induction σ₁, σ₂ using State.join.induct) <;> grind? -/
+/-- info: Try this: (induction σ₁, σ₂ using State.join.induct) <;> grind -/
 #guard_msgs (info) in
 example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
-  try?
+  try? (max := 1)
 
 @[grind] theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   induction σ₁, σ₂ using State.join.induct <;> grind
@@ -343,7 +343,7 @@ theorem State.erase_le_of_le_cons (h : σ' ≼ (x, v) :: σ) : σ'.erase x ≼ �
 end
 
 @[grind] theorem Stmt.constProp_correct (h₁ : (σ₁, s) ⇓ σ₂) (h₂ : σ₁' ≼ σ₁) : (σ₁, (s.constProp σ₁').1) ⇓ σ₂ := by
-  induction h₁ generalizing σ₁' <;> try grind [=_ Expr.eval_simplify, intro Bigstep]
+  induction h₁ generalizing σ₁' <;> grind [=_ Expr.eval_simplify, intro Bigstep]
 
 @[grind] def Stmt.constPropagation (s : Stmt) : Stmt :=
   (s.constProp ⊥).1

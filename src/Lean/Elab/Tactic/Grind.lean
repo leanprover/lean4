@@ -156,13 +156,12 @@ private def elabFallback (fallback? : Option Term) : TermElabM (Grind.GoalM Unit
     pure auxDeclName
   unsafe evalConst (Grind.GoalM Unit) auxDeclName
 
-private def evalGrindCore
+def evalGrindCore
     (ref : Syntax)
-    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+    (config : Grind.Config)
     (only : Option Syntax)
     (params : Option (Syntax.TSepArray `Lean.Parser.Tactic.grindParam ","))
     (fallback? : Option Term)
-    (trace : Bool)
     : TacticM Grind.Trace := do
   let fallback ← elabFallback fallback?
   let only := only.isSome
@@ -170,16 +169,32 @@ private def evalGrindCore
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is experimental and still under development. Avoid using it in production projects"
   let declName := (← Term.getDeclName?).getD `_grind
-  let mut config ← elabGrindConfig config
-  if trace then
-    config := { config with trace }
   withMainContext do
     let result ← grind (← getMainGoal) config only params declName fallback
     replaceMainGoal []
     return result
 
-private def mkGrindOnly
-    (config : TSyntax `Lean.Parser.Tactic.optConfig)
+/-- Position for the `[..]` child syntax in the `grind` tactic. -/
+def grindParamsPos := 3
+
+/-- Position for the `only` child syntax in the `grind` tactic. -/
+def grindOnlyPos := 2
+
+def isGrindOnly (stx : TSyntax `tactic) : Bool :=
+  stx.raw.getKind == ``Parser.Tactic.grind && !stx.raw[grindOnlyPos].isNone
+
+def setGrindParams (stx : TSyntax `tactic) (params : Array Syntax) : TSyntax `tactic :=
+  if params.isEmpty then
+    ⟨stx.raw.setArg grindParamsPos (mkNullNode)⟩
+  else
+    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
+    ⟨stx.raw.setArg grindParamsPos (mkNullNode paramsStx)⟩
+
+def getGrindParams (stx : TSyntax `tactic) : Array Syntax :=
+  stx.raw[grindParamsPos][1].getSepArgs
+
+def mkGrindOnly
+    (config : TSyntax ``Lean.Parser.Tactic.optConfig)
     (fallback? : Option Term)
     (trace : Grind.Trace)
     : MetaM (TSyntax `tactic) := do
@@ -222,23 +237,22 @@ private def mkGrindOnly
     `(tactic| grind $config:optConfig only on_failure $fallback)
   else
     `(tactic| grind $config:optConfig only)
-  if params.isEmpty then
-    return result
-  else
-    let paramsStx := #[mkAtom "[", (mkAtom ",").mkSep params, mkAtom "]"]
-    return ⟨result.raw.setArg 3 (mkNullNode paramsStx)⟩
+  return setGrindParams result params
 
 @[builtin_tactic Lean.Parser.Tactic.grind] def evalGrind : Tactic := fun stx => do
   match stx with
   | `(tactic| grind $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    discard <| evalGrindCore stx config only params fallback? false
+    let config ← elabGrindConfig config
+    discard <| evalGrindCore stx config only params fallback?
   | _ => throwUnsupportedSyntax
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   match stx with
-  | `(tactic| grind?%$tk $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
-    let trace ← evalGrindCore stx config only params fallback? true
-    let stx ← mkGrindOnly config fallback? trace
+  | `(tactic| grind?%$tk $configStx:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? $[on_failure $fallback?]?) =>
+    let config ← elabGrindConfig configStx
+    let config := { config with trace := true }
+    let trace ← evalGrindCore stx config only params fallback?
+    let stx ← mkGrindOnly configStx fallback? trace
     Tactic.TryThis.addSuggestion tk stx (origSpan? := ← getRef)
   | _ => throwUnsupportedSyntax
 

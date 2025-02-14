@@ -13,6 +13,8 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.EmbeddedConstraint
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.AC
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -41,7 +43,7 @@ def passPipeline : PreProcessM (List Pass) := do
   return passPipeline
 
 def bvNormalize (g : MVarId) (cfg : BVDecideConfig) : MetaM (Option MVarId) := do
-  withTraceNode `bv (fun _ => return "Preprocessing goal") do
+  withTraceNode `Meta.Tactic.bv (fun _ => return "Preprocessing goal") do
     (go g).run cfg g
 where
   go (g : MVarId) : PreProcessM (Option MVarId) := do
@@ -51,8 +53,15 @@ where
     trace[Meta.Tactic.bv] m!"Running preprocessing pipeline on:\n{g}"
     let cfg ← PreProcessM.getConfig
 
+    if cfg.structures || cfg.enums then
+      g := (← typeAnalysisPass.run g).get!
+
     if cfg.structures then
       let some g' ← structuresPass.run g | return none
+      g := g'
+
+    if cfg.enums then
+      let some g' ← enumsPass.run g | return none
       g := g'
 
     if cfg.fixedInt then

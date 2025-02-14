@@ -2465,15 +2465,15 @@ lean_dec(x_10);
 x_19 = lean_ctor_get(x_11, 0);
 lean_inc(x_19);
 lean_dec(x_11);
-x_20 = lean_ctor_get(x_2, 1);
-x_21 = lean_box(0);
+x_20 = lean_box(0);
+x_21 = lean_ctor_get(x_2, 1);
 x_22 = lean_box(0);
 x_23 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_23, 0, x_22);
 lean_ctor_set(x_23, 1, x_19);
-x_24 = lean_array_size(x_20);
+x_24 = lean_array_size(x_21);
 x_25 = 0;
-x_26 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__5(x_1, x_20, x_21, x_22, x_20, x_24, x_25, x_23, x_4, x_5, x_6, x_7, x_18);
+x_26 = l_Array_forIn_x27Unsafe_loop___at___private_Lean_Meta_Tactic_Simp_Diagnostics_0__Lean_Meta_Simp_mkTheoremsWithBadKeySummary___spec__5(x_1, x_20, x_21, x_22, x_21, x_24, x_25, x_23, x_4, x_5, x_6, x_7, x_18);
 if (lean_obj_tag(x_26) == 0)
 {
 lean_object* x_27; lean_object* x_28; 

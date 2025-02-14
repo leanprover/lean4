@@ -19,6 +19,7 @@ import Lean.Util.FindExpr
 import Lean.Util.Profile
 import Lean.Util.InstantiateLevelParams
 import Lean.PrivateName
+import Lean.LoadDynlib
 
 /-!
 # Note [Environment Branches]
@@ -461,10 +462,6 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, checkedWithoutAsync := newChecked }
 
-def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
-  let prom ← IO.Promise.new
-  return ({ env with checked := prom.result.bind (sync := true) (·.checked) }, prom)
-
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
 environment branch, which is the case either if this is the main branch or if the declaration name
@@ -594,6 +591,47 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
   return s!"checked.get.constants.map₂: {repr <| env.checked.get.constants.map₂.toList.map (·.1)}"
 
+/-- Result of `Lean.Environment.promiseChecked`. -/
+structure PromiseCheckedResult where
+  /--
+  Resulting "main branch" environment. Accessing the kernel environment will block until
+  `PromiseCheckedResult.commitChecked` has been called.
+  -/
+  mainEnv : Environment
+  /--
+  Resulting "async branch" environment which should be used in a new task and then to call
+  `PromiseCheckedResult.commitChecked` to commit results back to the main environment. If it is not
+  called and the `PromiseCheckedResult` object is dropped, the kernel environment will be left
+  unchanged.
+  -/
+  asyncEnv : Environment
+  private checkedEnvPromise : IO.Promise Kernel.Environment
+
+/--
+Starts an asynchronous modification of the kernel environment. The environment is split into a
+"main" branch that will block on access to the kernel environment until
+`PromiseCheckedResult.commitChecked` has been called on the "async" environment branch.
+-/
+def promiseChecked (env : Environment) : BaseIO PromiseCheckedResult := do
+  let checkedEnvPromise ← IO.Promise.new
+  return {
+    mainEnv := { env with
+      checked := checkedEnvPromise.result?.bind (sync := true) fun
+        | some kenv => .pure kenv
+        | none      => env.checked }
+    asyncEnv := { env with
+      -- Do not allow adding new constants
+      asyncCtx? := some { declPrefix := `__reserved__Environment_promiseChecked }
+    }
+    checkedEnvPromise
+  }
+
+/-- Commits the kernel environment of the given environment back to the main branch. -/
+def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Environment) :
+    BaseIO Unit :=
+  assert! env.asyncCtx?.isSome
+  res.checkedEnvPromise.resolve env.toKernelEnv
+
 /--
 Result of `Lean.Environment.addConstAsync` which is necessary to complete the asynchronous addition.
 -/
@@ -607,8 +645,9 @@ structure AddConstAsyncResult where
   /--
   Resulting "async branch" environment which should be used to add the desired declaration in a new
   task and then call `AddConstAsyncResult.commit*` to commit results back to the main environment.
-  One of `commitCheckEnv` or `commitFailure` must be called eventually to prevent deadlocks on main
-  branch accesses.
+  `commitCheckEnv` completes the addition; if it is not called and the `AddConstAsyncResult` object
+  is dropped, `sorry`ed default values will be reported instead and the kernel environment will be
+  left unchanged.
   -/
   asyncEnv : Environment
   private constName : Name
@@ -632,20 +671,43 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
   let infoPromise ← IO.Promise.new
   let extensionsPromise ← IO.Promise.new
   let checkedEnvPromise ← IO.Promise.new
+
+  -- fallback info in case promises are dropped unfulfilled
+  let fallbackVal := {
+    name := constName
+    levelParams := []
+    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
+  }
+  let fallbackInfo := match kind with
+    | .defn => .defnInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+      hints := .abbrev
+      safety := .safe
+    }
+    | .thm  => .thmInfo { fallbackVal with
+      value := mkApp2 (mkConst ``sorryAx [0]) fallbackVal.type (mkConst ``true)
+    }
+    | .axiom  => .axiomInfo { fallbackVal with
+      isUnsafe := false
+    }
+    | k => panic! s!"AddConstAsyncResult.addConstAsync: unsupported constant kind {repr k}"
+
   let asyncConst := {
     constInfo := {
       name := constName
       kind
-      sig := sigPromise.result
-      constInfo := infoPromise.result
+      sig := sigPromise.resultD fallbackVal
+      constInfo := infoPromise.resultD fallbackInfo
     }
-    exts? := guard reportExts *> some extensionsPromise.result
+    exts? := guard reportExts *> some (extensionsPromise.resultD #[])
   }
   return {
     constName, kind
     mainEnv := { env with
       asyncConsts := env.asyncConsts.add asyncConst
-      checked := checkedEnvPromise.result }
+      checked := checkedEnvPromise.result?.bind (sync := true) fun
+        | some kenv => .pure kenv
+        | none      => env.checked }
     asyncEnv := { env with
       asyncCtx? := some { declPrefix := privateToUserName constName.eraseMacroScopes }
     }
@@ -679,42 +741,13 @@ def AddConstAsyncResult.commitConst (res : AddConstAsyncResult) (env : Environme
   let kind' := .ofConstantInfo info
   if res.kind != kind' then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has kind {repr kind'} but expected {repr res.kind}"
-  let sig := res.sigPromise.result.get
+  let sig := res.sigPromise.result!.get
   if sig.levelParams != info.levelParams then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has level params {info.levelParams} but expected {sig.levelParams}"
   if sig.type != info.type then
     throw <| .userError s!"AddConstAsyncResult.commitConst: constant has type {info.type} but expected {sig.type}"
   res.infoPromise.resolve info
   res.extensionsPromise.resolve env.checkedWithoutAsync.extensions
-
-/--
-Aborts async addition, filling in missing information with default values/sorries and leaving the
-kernel environment unchanged.
--/
-def AddConstAsyncResult.commitFailure (res : AddConstAsyncResult) : BaseIO Unit := do
-  let val := if (← IO.hasFinished res.sigPromise.result) then
-    res.sigPromise.result.get
-  else {
-    name := res.constName
-    levelParams := []
-    type := mkApp2 (mkConst ``sorryAx [0]) (mkSort 0) (mkConst ``true)
-  }
-  res.sigPromise.resolve val
-  res.infoPromise.resolve <| match res.kind with
-    | .defn => .defnInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-      hints := .abbrev
-      safety := .safe
-    }
-    | .thm  => .thmInfo { val with
-      value := mkApp2 (mkConst ``sorryAx [0]) val.type (mkConst ``true)
-    }
-    | .axiom  => .axiomInfo { val with
-      isUnsafe := false
-    }
-    | k => panic! s!"AddConstAsyncResult.commitFailure: unsupported constant kind {repr k}"
-  res.extensionsPromise.resolve #[]
-  let _ ← BaseIO.mapTask (t := res.asyncEnv.checked) (sync := true) res.checkedEnvPromise.resolve
 
 /--
 Assuming `Lean.addDecl` has been run for the constant to be added on the async environment branch,
@@ -1510,11 +1543,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
 
 @[export lean_import_modules]
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (leakEnv := false) : IO Environment := profileitIO "import" opts do
+    (plugins : Array System.FilePath := #[]) (leakEnv := false)
+    : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
+    plugins.forM Lean.loadPlugin
     let (_, s) ← importModulesCore imports |>.run
     finalizeImport (leakEnv := leakEnv) s imports opts trustLevel
 

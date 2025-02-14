@@ -237,7 +237,7 @@ example : True := by?
 Regression test: `all_goals` should not catch interrupts.
 -/
 elab "interrupt" : tactic =>
-  throw <| .internal Core.interruptExceptionId
+  throwInterruptException
 
 /-- We never get to checking this docstring. Everything is completely interrupted. -/
 #guard_msgs in

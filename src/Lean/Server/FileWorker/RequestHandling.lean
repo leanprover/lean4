@@ -426,13 +426,14 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
   let t := doc.cmdSnaps.waitAll
   mapTask t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
-    return { syms := toDocumentSymbols doc.meta.text stxs #[] [] }
+    return { syms := ← toDocumentSymbols doc.meta.text stxs #[] [] }
 where
   toDocumentSymbols (text : FileMap) (stxs : List Syntax)
       (syms : Array DocumentSymbol) (stack : List NamespaceEntry) :
-      Array DocumentSymbol :=
+      RequestM (Array DocumentSymbol) := do
+    RequestM.checkCancelled
     match stxs with
-    | [] => stack.foldl (fun syms entry => entry.finish text syms none) syms
+    | [] => return stack.foldl (fun syms entry => entry.finish text syms none) syms
     | stx::stxs => match stx with
       | `(namespace $id)  =>
         let entry := { name := id.getId.componentsRev, stx, selection := id, prevSiblings := syms }
@@ -455,9 +456,9 @@ where
               let syms := entry.finish text syms stx
               popStack (n - entry.name.length) syms stack
         popStack (id.map (·.getId.getNumParts) |>.getD 1) syms stack
-      | _ => Id.run do
+      | _ => do
         unless stx.isOfKind ``Lean.Parser.Command.declaration do
-          return toDocumentSymbols text stxs syms stack
+          return ← toDocumentSymbols text stxs syms stack
         if let some stxRange := stx.getRange? then
           let (name, selection) := match stx with
             | `($_:declModifiers $_:attrKind instance $[$np:namedPrio]? $[$id$[.{$ls,*}]?]? $sig:declSig $_) =>
@@ -475,7 +476,7 @@ where
               range := stxRange.toLspRange text
               selectionRange := selRange.toLspRange text
             }
-            return toDocumentSymbols text stxs (syms.push sym) stack
+            return ← toDocumentSymbols text stxs (syms.push sym) stack
         toDocumentSymbols text stxs syms stack
 
 partial def handleFoldingRange (_ : FoldingRangeParams)
@@ -494,7 +495,9 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
       if let (_, start)::rest := sections then
         addRange text FoldingRangeKind.region start text.source.endPos
         addRanges text rest []
-    | stx::stxs => match stx with
+    | stx::stxs => do
+      RequestM.checkCancelled
+      match stx with
       | `(namespace $id)  =>
         addRanges text ((id.getId.getNumParts, stx.getPos?)::sections) stxs
       | `(section $(id)?) =>

@@ -543,14 +543,14 @@ section NotificationHandling
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
       for (_, r) in st.pendingRequests do
-        r.cancelTk.cancel .edit
+        r.cancelTk.cancelByEdit
 
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
     let some r := st.pendingRequests.find? p.id
       | return
-    r.cancelTk.cancel .cancelRequest
+    r.cancelTk.cancelByCancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
 
   /--
@@ -741,6 +741,12 @@ section MessageHandling
             pure <| Task.pure <| .ok ()
         | Except.ok t => (IO.mapTask · t) fun
           | Except.ok r => do
+            if ← cancelTk.wasCancelledByCancelRequest then
+              -- Try not to emit a partial response if this request was cancelled.
+              -- Clients usually discard responses for requests that they cancelled anyways,
+              -- but it's still good to send less over the wire in this case.
+              emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
+              return
             emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
           | Except.error e =>
             emitResponse ctx (isComplete := false) <| e.toLspResponseError id

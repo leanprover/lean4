@@ -121,7 +121,7 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
     | some lastEditTimestamp =>
       let timeSinceLastEditMs := timestamp - lastEditTimestamp
       inlayHintEditDelayMs - timeSinceLastEditMs
-  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.truncatedTask)
+  let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.cancellationTask)
   let finishedRange? : Option String.Range := do
     return ⟨⟨0⟩, ← List.max? <| snaps.map (fun s => s.endPos)⟩
   let oldInlayHints :=
@@ -143,7 +143,6 @@ def handleInlayHints (_ : InlayHintParams) (s : InlayHintState) :
   let lspInlayHints ← inlayHints.mapM (·.toLspInlayHint srcSearchPath ctx.doc.meta.text)
   let r := { response := lspInlayHints, isComplete }
   let s := { s with oldInlayHints := inlayHints }
-  RequestM.checkCanceled
   return (r, s)
 
 def handleInlayHintsDidChange (p : DidChangeTextDocumentParams)

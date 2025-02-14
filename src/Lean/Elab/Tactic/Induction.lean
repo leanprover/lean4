@@ -548,6 +548,18 @@ private def expandInductionAlts? (inductionAlts : Syntax) : Option Syntax := Id.
   else
     none
 
+private def inductionAltsPos (stx : Syntax) : Nat :=
+  if stx.getKind == ``Lean.Parser.Tactic.induction then
+    4
+  else if stx.getKind == ``Lean.Parser.Tactic.cases then
+    3
+  else if stx.getKind == ``Lean.Parser.Tactic.funInduction then
+    3
+  else if stx.getKind == ``Lean.Parser.Tactic.funCases then
+    2
+  else
+    panic! "inductionAltsSyntaxPos: Unexpected syntax kind {stx.getKind}"
+
 /--
 Expand
 ```
@@ -557,17 +569,7 @@ if `inductionAlts` has an alternative with multiple LHSs, and likewise for
 `cases`, `fun_induction`, `fun_cases`.
 -/
 private def expandInduction? (induction : Syntax) : Option Syntax := do
-  let inductionAltsPos ←
-    if induction.getKind == ``Lean.Parser.Tactic.induction then
-      pure 4
-    else if induction.getKind == ``Lean.Parser.Tactic.cases then
-      pure 3
-    else if induction.getKind == ``Lean.Parser.Tactic.funInduction then
-      pure 3
-    else if induction.getKind == ``Lean.Parser.Tactic.funCases then
-      pure 2
-    else
-      none
+  let inductionAltsPos := inductionAltsPos induction
   let optInductionAlts := induction[inductionAltsPos]
   guard <| !optInductionAlts.isNone
   let inductionAlts' ← expandInductionAlts? optInductionAlts[0]
@@ -683,37 +685,42 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
-@[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
-def evalInduction : Tactic := fun stx =>
-  match expandInduction? stx with
-  | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
-  | _ => focus do
-    let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
-    let targets ← generalizeTargets targets
-    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
-    let mvarId ← getMainGoal
-    -- save initial info before main goal is reassigned
-    let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
-    let tag ← mvarId.getTag
+def withReusedAltsOfOptInductionAlts (stx : Syntax) (argIdx : Nat)
+    (cont : Option (Array Syntax) → TacticM α) : TacticM α :=  do
+  -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
+  -- unchanged
+  -- everything up to the alternatives must be unchanged for reuse
+  -- NB: argIdx!
+  Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := argIdx) fun optInductionAlts => do
+    withAltsOfOptInductionAlts optInductionAlts cont
+
+/--
+The code path shared between `induction` and `fun_induct`; when we already have an `elimInfo`
+and the `targets` contains the implicit targets
+-/
+private def evalInductionCore (stx : Syntax) (elimInfo : ElimInfo) (targets : Array Expr) : TacticM Unit := do
+  let mvarId ← getMainGoal
+  -- save initial info before main goal is reassigned
+  let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
+  let tag ← mvarId.getTag
+  mvarId.withContext do
+    checkTargets targets
+    let targetFVarIds := targets.map (·.fvarId!)
+    let (n, mvarId) ← generalizeVars mvarId stx targets
     mvarId.withContext do
-      let targets ← addImplicitTargets elimInfo targets
-      checkTargets targets
-      let targetFVarIds := targets.map (·.fvarId!)
-      let (n, mvarId) ← generalizeVars mvarId stx targets
-      mvarId.withContext do
-        let result ← withRef stx[1] do -- use target position as reference
-          ElimApp.mkElimApp elimInfo targets tag
-        trace[Elab.induction] "elimApp: {result.elimApp}"
-        ElimApp.setMotiveArg mvarId result.motive targetFVarIds
-        -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-        -- unchanged
-        -- everything up to the alternatives must be unchanged for reuse
-        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 4) fun optInductionAlts => do
-        withAltsOfOptInductionAlts optInductionAlts fun alts? => do
-          let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-          mvarId.assign result.elimApp
-          ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo (numGeneralized := n) (toClear := targetFVarIds)
-          appendGoals result.others.toList
+      let result ← withRef stx[1] do -- use target position as reference
+        ElimApp.mkElimApp elimInfo targets tag
+      trace[Elab.induction] "elimApp: {result.elimApp}"
+      ElimApp.setMotiveArg mvarId result.motive targetFVarIds
+      -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
+      -- unchanged
+      -- everything up to the alternatives must be unchanged for reuse
+      Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := inductionAltsPos stx) fun optInductionAlts => do
+      withAltsOfOptInductionAlts optInductionAlts fun alts? => do
+        let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
+        mvarId.assign result.elimApp
+        ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo (numGeneralized := n) (toClear := targetFVarIds)
+        appendGoals result.others.toList
 where
   checkTargets (targets : Array Expr) : MetaM Unit := do
     let mut foundFVars : FVarIdSet := {}
@@ -724,6 +731,18 @@ where
         throwError "target (or one of its indices) occurs more than once{indentExpr target}"
       foundFVars := foundFVars.insert target.fvarId!
 
+
+@[builtin_tactic Lean.Parser.Tactic.induction, builtin_incremental]
+def evalInduction : Tactic := fun stx =>
+  match expandInduction? stx with
+  | some stxNew => withMacroExpansion stx stxNew <| evalTactic stxNew
+  | _ => focus do
+    let targets ← withMainContext <| stx[1].getSepArgs.mapM (elabTerm · none)
+    let targets ← generalizeTargets targets
+    let elimInfo ← withMainContext <| getElimNameInfo stx[2] targets (induction := true)
+    -- TODO: Ok to do the latter outside withContext?
+    let targets ← addImplicitTargets elimInfo targets
+    evalInductionCore stx elimInfo targets
 
 @[builtin_tactic Lean.Parser.Tactic.funInduction, builtin_incremental]
 def evalFunInduction : Tactic := fun stx =>
@@ -760,42 +779,7 @@ def evalFunInduction : Tactic := fun stx =>
     unless targets.size = elimInfo.targetsPos.size do
       throwError "fun_induction got confused trying to use {.ofConstName funIndInfo.funIndName}. \
         Does it take {targets.size} or {elimInfo.targetsPos.size} targets?"
-
-    -- From here on the same as above
-    let mvarId ← getMainGoal
-    -- save initial info before main goal is reassigned
-    let initInfo ← mkTacticInfo (← getMCtx) (← getUnsolvedGoals) (← getRef)
-    let tag ← mvarId.getTag
-    mvarId.withContext do
-      -- TODO: not with fun_induction
-      -- let targets ← addImplicitTargets elimInfo targets
-      checkTargets targets
-      let targetFVarIds := targets.map (·.fvarId!)
-      let (n, mvarId) ← generalizeVars mvarId stx targets
-      mvarId.withContext do
-        let result ← withRef stx[1] do -- use target position as reference
-          ElimApp.mkElimApp elimInfo targets tag
-        trace[Elab.induction] "elimApp: {result.elimApp}"
-        ElimApp.setMotiveArg mvarId result.motive targetFVarIds
-        -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-        -- unchanged
-        -- everything up to the alternatives must be unchanged for reuse
-        -- NB: argIdx!
-        Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := 3) fun optInductionAlts => do
-        withAltsOfOptInductionAlts optInductionAlts fun alts? => do
-          let optPreTac := getOptPreTacOfOptInductionAlts optInductionAlts
-          mvarId.assign result.elimApp
-          ElimApp.evalAlts elimInfo result.alts optPreTac alts? initInfo (numGeneralized := n) (toClear := targetFVarIds)
-          appendGoals result.others.toList
-where
-  checkTargets (targets : Array Expr) : MetaM Unit := do
-    let mut foundFVars : FVarIdSet := {}
-    for target in targets do
-      unless target.isFVar do
-        throwError "index in target's type is not a variable (consider using the `cases` tactic instead){indentExpr target}"
-      if foundFVars.contains target.fvarId! then
-        throwError "target (or one of its indices) occurs more than once{indentExpr target}"
-      foundFVars := foundFVars.insert target.fvarId!
+    evalInductionCore stx elimInfo targets
 
 def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do

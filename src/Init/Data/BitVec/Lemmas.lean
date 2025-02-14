@@ -2067,15 +2067,14 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   · simp [getElem_append, h₁]
     omega
 
-@[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) : setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
+@[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) :
+    setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
   subst h
-  ext i h
-  simp only [getElem_setWidth, h, decide_true, getLsbD_append, getElem_append, cond_eq_if,
-    decide_eq_true_eq, Bool.true_and, setWidth_eq]
+  ext i h'
+  simp only [getElem_setWidth, getLsbD_append, getElem_append]
   split
-  · simp_all
-  · simp_all only [Bool.iff_and_self, decide_eq_true_eq, getLsbD_setWidth]
-    intro h
+  · simp
+  · simp
     omega
 
 @[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by
@@ -2091,20 +2090,20 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
   ext i
-  simp only [getElem_and, getElem_append, getLsbD_and]
-  split <;> simp [getElem_append, *]
+  simp only [getElem_and, getElem_append]
+  split <;> simp
 
 @[simp] theorem or_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ||| (x₂ ++ y₂) = (x₁ ||| x₂) ++ (y₁ ||| y₂) := by
   ext i
-  simp only [getElem_or, getElem_append, getLsbD_or]
+  simp only [getElem_or, getElem_append]
   split <;> simp
 
 @[simp] theorem xor_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) ^^^ (x₂ ++ y₂) = (x₁ ^^^ x₂) ++ (y₁ ^^^ y₂) := by
   ext i
-  simp only [getElem_xor, getElem_append, getLsbD_xor]
-  split <;> simp [getLsbD_append, *]
+  simp only [getElem_xor, getElem_append]
+  split <;> simp
 
 theorem shiftRight_add {w : Nat} (x : BitVec w) (n m : Nat) :
     x >>> (n + m) = (x >>> n) >>> m:= by
@@ -2224,7 +2223,7 @@ theorem getElem_cons {b : Bool} {n} {x : BitVec n} {i : Nat} (h : i < n + 1) :
 theorem setWidth_succ (x : BitVec w) :
     setWidth (i+1) x = cons (getLsbD x i) (setWidth i x) := by
   ext j h
-  simp only [getElem_setWidth, getElem_cons, h, decide_true, Bool.true_and]
+  simp only [getElem_setWidth, getElem_cons]
   if j_eq : j = i then
     simp [j_eq]
   else

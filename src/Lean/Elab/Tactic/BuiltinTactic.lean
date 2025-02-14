@@ -75,17 +75,6 @@ where
           -- only allow `next` reuse in this case
           oldNext? := oldParsed.next.get? 0 |>.map (⟨old.stx, ·⟩)
 
-      -- For `tac`'s snapshot task range, disregard synthetic info as otherwise
-      -- `SnapshotTree.findInfoTreeAtPos` might choose the wrong snapshot: for example, when
-      -- hovering over a `show` tactic, we should choose the info tree in `finished` over that in
-      -- `inner`, which points to execution of the synthesized `refine` step and does not contain
-      -- the full info. In most other places, siblings in the snapshot tree have disjoint ranges and
-      -- so this issue does not occur.
-      let mut range? := tac.getRange? (canonicalOnly := true)
-      -- Include trailing whitespace in the range so that `goalsAs?` does not have to wait for more
-      -- snapshots than necessary.
-      if let some range := range? then
-        range? := some { range with stop := ⟨range.stop.byteIdx + tac.getTrailingSize⟩ }
       let next ← IO.Promise.new
       let finished ← IO.Promise.new
       let inner ← IO.Promise.new
@@ -93,9 +82,9 @@ where
         desc := tac.getKind.toString
         diagnostics := .empty
         stx := tac
-        inner? := some { range?, task := inner.resultD default }
-        finished := { range?, task := finished.resultD default }
-        next := #[{ range? := stxs.getRange?, task := next.resultD default }]
+        inner? := some { stx? := tac, task := inner.resultD default }
+        finished := { stx? := tac, task := finished.resultD default }
+        next := #[{ stx? := stxs, task := next.resultD default }]
       }
       -- Run `tac` in a fresh info tree state and store resulting state in snapshot for
       -- incremental reporting, then add back saved trees. Here we rely on `evalTactic`

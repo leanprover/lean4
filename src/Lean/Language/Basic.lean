@@ -66,31 +66,48 @@ structure Snapshot where
   isFatal := false
 deriving Inhabited
 
+/--
+Yields the default reporting range of a `Syntax`, which is just the `canonicalOnly` range
+of the syntax.
+-/
+def SnapshotTask.defaultReportingRange? (stx? : Option Syntax) : Option String.Range :=
+  stx?.bind (·.getRange? (canonicalOnly := true))
+
 /-- A task producing some snapshot type (usually a subclass of `Snapshot`). -/
 -- Longer-term TODO: Give the server more control over the priority of tasks, depending on e.g. the
 -- cursor position. This may require starting the tasks suspended (e.g. in `Thunk`). The server may
 -- also need more dependency information for this in order to avoid priority inversion.
 structure SnapshotTask (α : Type) where
   /--
+  `Syntax` processed by this `SnapshotTask`.
+  The `Syntax` is used by the language server to determine whether to force this `SnapshotTask`
+  when a request is made.
+  -/
+  stx? : Option Syntax
+  /--
   Range that is marked as being processed by the server while the task is running. If `none`,
   the range of the outer task if some or else the entire file is reported.
   -/
-  range? : Option String.Range
+  reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
 
-/-- Creates a snapshot task from a reporting range and a `BaseIO` action. -/
-def SnapshotTask.ofIO (range? : Option String.Range) (act : BaseIO α) : BaseIO (SnapshotTask α) := do
+/-- Creates a snapshot task from the syntax processed by the task and a `BaseIO` action. -/
+def SnapshotTask.ofIO (stx? : Option Syntax)
+    (reportingRange? : Option String.Range := defaultReportingRange? stx?) (act : BaseIO α) :
+    BaseIO (SnapshotTask α) := do
   return {
-    range?
+    stx?
+    reportingRange?
     task := (← BaseIO.asTask act)
   }
 
 /-- Creates a finished snapshot task. -/
-def SnapshotTask.pure (a : α) : SnapshotTask α where
+def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α where
+  stx?
   -- irrelevant when already finished
-  range? := none
+  reportingRange? := none
   task := .pure a
 
 /--
@@ -99,25 +116,30 @@ def SnapshotTask.pure (a : α) : SnapshotTask α where
 def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
   IO.cancel t.task
 
-/-- Transforms a task's output without changing the reporting range. -/
-def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (range? : Option String.Range := t.range?)
-    (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.map (sync := sync) f }
+/-- Transforms a task's output without changing the processed syntax. -/
+def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
+    (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
+  { stx?, reportingRange?, task := t.task.map (sync := sync) f }
 
 /--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
+  Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
+  task if not specified; the processed syntax and the reporting range of the second task are
+  discarded. -/
 def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
-    (range? : Option String.Range := t.range?) (sync := false) : SnapshotTask β :=
-  { range?, task := t.task.bind (sync := sync) (act · |>.task) }
+    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (sync := false) : SnapshotTask β :=
+  { stx?, reportingRange?, task := t.task.bind (sync := sync) (act · |>.task) }
 
 /--
-  Chains two snapshot tasks. The range is taken from the first task if not specified; the range of
-  the second task is discarded. -/
+  Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
+  task if not specified; the processed syntax and the reporting range of the second task are
+  discarded. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
-    (range? : Option String.Range := t.range?) (sync := false) : BaseIO (SnapshotTask β) :=
+    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
+    (sync := false) : BaseIO (SnapshotTask β) :=
   return {
-    range?
+    stx?
+    reportingRange?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 

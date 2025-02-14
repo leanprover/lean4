@@ -23,10 +23,14 @@ def findCompletionCmdDataAtPos
     (doc : EditableDocument)
     (pos : String.Pos)
     : Task (Option (Syntax × Elab.InfoTree)) :=
-  findCmdDataAtPos doc (pos := pos) fun s => Id.run do
-    let some tailPos := s.stx.getTailPos?
-      | return false
-    return pos.byteIdx <= tailPos.byteIdx + s.stx.getTrailingSize
+  -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
+  -- However, most completions don't need trailing whitespace at the term level;
+  -- synthetic completions are the only notions of completion that care care about whitespace.
+  -- Synthetic tactic completion only needs the `ContextInfo` of the command, so any snapshot
+  -- will do.
+  -- Synthetic field completion in `{ }` doesn't care about whitespace;
+  -- synthetic field completion in `where` only needs to gather the expected type.
+  findCmdDataAtPos doc pos (includeStop := true)
 
 def handleCompletion (p : CompletionParams)
     : RequestM (RequestTask CompletionList) := do
@@ -245,14 +249,54 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
         locationLinksOfInfo kind infoWithCtx snap.infoTree
       else return #[]
 
+open Language in
+def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : Task (Option (List Elab.GoalsAtResult)) :=
+  let text := doc.meta.text
+  findCmdParsedSnap doc hoverPos |>.bind (sync := true) fun
+    | some cmdParsed =>
+      let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
+        let some (pos, tailPos, trailingPos) := getPositions snap
+          | return .pure (oldGoals, .proceed (foldChildren := false))
+        let snapRange : String.Range := ⟨pos, trailingPos⟩
+        -- When there is no trailing whitespace, we also consider snapshots directly before the
+        -- cursor.
+        let hasNoTrailingWhitespace := tailPos == trailingPos
+        if ! text.rangeContainsHoverPos snapRange hoverPos (includeStop := hasNoTrailingWhitespace) then
+          return .pure (oldGoals, .proceed (foldChildren := false))
+
+        return snap.task.map (sync := true) fun tree => Id.run do
+          let some infoTree := tree.element.infoTree?
+            | return (oldGoals, .proceed (foldChildren := true))
+
+          let goals := infoTree.goalsAt? text hoverPos
+          let optimalSnapRange : String.Range := ⟨pos, tailPos⟩
+          let isOptimalGoalSet :=
+            text.rangeContainsHoverPos optimalSnapRange hoverPos
+                (includeStop := hasNoTrailingWhitespace)
+              || goals.any fun goal => ! goal.indented
+          if isOptimalGoalSet then
+            return (goals, .done)
+
+          return (goals, .proceed (foldChildren := true))
+      t.map fun
+        | []    => none
+        | goals => goals
+    | none =>
+      .pure none
+where
+  getPositions (snap : SnapshotTask SnapshotTree) : Option (String.Pos × String.Pos × String.Pos) := do
+    let stx ← snap.stx?
+    let pos ← stx.getPos? (canonicalOnly := true)
+    let tailPos ← stx.getTailPos? (canonicalOnly := true)
+    let trailingPos? ← stx.getTrailingTailPos? (canonicalOnly := true)
+    return (pos, tailPos, trailingPos?)
+
 open RequestM in
 def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Option Widget.InteractiveGoals)) := do
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
-    let rs@(_ :: _) := infoTree.goalsAt? doc.meta.text hoverPos
-      | return none
+  mapTask (findGoalsAt? doc hoverPos) <| Option.mapM fun rs => do
     let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
       let ciAfter := { ci with mctx := ti.mctxAfter }
       let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
@@ -270,7 +314,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
             -- fail silently, since this is just a bonus feature
             return goals
       )
-    return some <| goals.foldl (· ++ ·) ∅
+    return goals.foldl (· ++ ·) ∅
 
 open Elab in
 def handlePlainGoal (p : PlainGoalParams)
@@ -292,7 +336,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findInfoTreeAtPosWithTrailingWhitespace doc hoverPos) <| Option.bindM fun infoTree => do
+  mapTask (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do

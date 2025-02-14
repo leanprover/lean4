@@ -82,7 +82,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { range? := endRange?, task := t }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t }
 where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getNames}") do

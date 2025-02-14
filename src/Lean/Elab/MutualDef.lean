@@ -215,14 +215,17 @@ private def elabHeaders (views : Array DefView)
             return newHeader
       if let some snap := view.headerSnap? then
         let (tacStx?, newTacTask?) ← mkTacTask view.value tacPromise
-        let bodySnap :=
-          -- Only use first line of body as range when we have incremental tactics as otherwise we
-          -- would cover their progress
-          { range? := if newTacTask?.isSome then
+        let bodySnap := {
+          stx? := view.value
+          reportingRange? :=
+            if newTacTask?.isSome then
+              -- Only use first line of body as range when we have incremental tactics as otherwise we
+              -- would cover their progress
               view.ref.getPos?.map fun pos => ⟨pos, pos⟩
             else
               getBodyTerm? view.value |>.getD view.value |>.getRange?
-            task := bodyPromise.resultD default }
+          task := bodyPromise.resultD default
+        }
         snap.new.resolve <| some {
           diagnostics :=
             (← Language.Snapshot.Diagnostics.ofMessageLog (← Core.getAndEmptyMessageLog))
@@ -263,7 +266,7 @@ where
    := do
     if let some e := getBodyTerm? body then
       if let `(by $tacs*) := e then
-        return (e, some { range? := mkNullNode tacs |>.getRange?, task := tacPromise.resultD default })
+        return (e, some { stx? := mkNullNode tacs, task := tacPromise.resultD default })
     tacPromise.resolve default
     return (none, none)
 
@@ -1093,7 +1096,7 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
       } }
       defs := defs.push {
         fullHeaderRef
-        headerProcessedSnap := { range? := d.getRange?, task := headerPromise.resultD default }
+        headerProcessedSnap := { stx? := d, task := headerPromise.resultD default }
       }
       reusedAllHeaders := reusedAllHeaders && view.headerSnap?.any (·.old?.isSome)
     views := views.push view

@@ -41,6 +41,9 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
 
+def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+  return ⟨← info.getPos? canonicalOnly, ← info.getTrailingTailPos? canonicalOnly⟩
+
 /--
 Converts an `original` or `synthetic (canonical := true)` `SourceInfo` to a
 `synthetic (canonical := false)` `SourceInfo`.
@@ -387,6 +390,9 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   match stx.getPos? canonicalOnly, stx.getTailPos? canonicalOnly with
   | some start, some stop => some { start, stop }
   | _,          _         => none
+
+def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+  return ⟨← stx.getPos? canonicalOnly, ← stx.getTrailingTailPos? canonicalOnly⟩
 
 /-- Returns a synthetic Syntax which has the specified `String.Range`. -/
 def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=

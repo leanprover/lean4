@@ -1759,17 +1759,14 @@ theorem msb_sshiftRight {n : Nat} {x : BitVec w} :
 theorem sshiftRight_add {x : BitVec w} {m n : Nat} :
     x.sshiftRight (m + n) = (x.sshiftRight m).sshiftRight n := by
   ext i
-  simp only [← getLsbD_eq_getElem, getLsbD_sshiftRight, Nat.add_assoc]
-  by_cases h₁ : w ≤ (i : Nat)
-  · simp [h₁]
-  · simp [h₁, decide_false, Bool.not_false, Bool.true_and]
-    by_cases h₂ : n + ↑i < w
-    · simp [h₂]
-    · simp only [h₂, ↓reduceIte]
-      by_cases h₃ : m + (n + ↑i) < w
-      · simp [h₃]
-        omega
-      · simp [h₃, msb_sshiftRight]
+  simp [getElem_sshiftRight, getLsbD_sshiftRight, Nat.add_assoc]
+  by_cases h₂ : n + i < w
+  · simp [h₂]
+  · simp only [h₂, ↓reduceIte]
+    by_cases h₃ : m + (n + ↑i) < w
+    · simp [h₃]
+      omega
+    · simp [h₃, msb_sshiftRight]
 
 theorem not_sshiftRight {b : BitVec w} :
     ~~~b.sshiftRight n = (~~~b).sshiftRight n := by

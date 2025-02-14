@@ -4,9 +4,6 @@ h : x = 8
 x : UInt32
 h : x = 8
 ⊢ x = 8
-x : UInt32
-h : x = 8
-⊢ x = 8
 x : Nat
 ⊢ foo x = 10
 x : Nat

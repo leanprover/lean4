@@ -50,16 +50,16 @@ def UInt32.toFin (x : UInt32) : Fin UInt32.size := x.toBitVec.toFin
 def UInt32.val (x : UInt32) : Fin UInt32.size := x.toFin
 @[extern "lean_uint32_of_nat"]
 def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨BitVec.ofNat 32 n⟩
-@[extern "lean_uint32_of_nat"]
-def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := ⟨BitVec.ofNatLT n h⟩
+@[inline, deprecated UInt32.ofNatLT (since := "2025-02-13"), inherit_doc UInt32.ofNatLT]
+def UInt32.ofNat' (n : Nat) (h : n < UInt32.size) : UInt32 := UInt32.ofNatLT n h
 /--
 Converts the given natural number to `UInt32`, but returns `2^32 - 1` for natural numbers `>= 2^32`.
 -/
 def UInt32.ofNatTruncate (n : Nat) : UInt32 :=
   if h : n < UInt32.size then
-    UInt32.ofNat' n h
+    UInt32.ofNatLT n h
   else
-    UInt32.ofNat' (UInt32.size - 1) (by decide)
+    UInt32.ofNatLT (UInt32.size - 1) (by decide)
 abbrev Nat.toUInt32 := UInt32.ofNat
 @[extern "lean_uint32_to_uint8"]
 def UInt32.toUInt8 (a : UInt32) : UInt8 := a.toNat.toUInt8
@@ -72,15 +72,23 @@ def UInt16.toUInt32 (a : UInt16) : UInt32 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt32.instOfNat : OfNat UInt32 n := ⟨UInt32.ofNat n⟩
 
-theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
-     n < m → UInt32.ofNat' n h1 < UInt32.ofNat m := by
-  simp only [(· < ·), BitVec.toNat, ofNat', BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
+theorem UInt32.ofNatLT_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     n < m → UInt32.ofNatLT n h1 < UInt32.ofNat m := by
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
     Nat.mod_eq_of_lt h2, imp_self]
 
-theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
-     m < n → UInt32.ofNat m < UInt32.ofNat' n h1  := by
-  simp only [(· < ·), BitVec.toNat, ofNat', BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
+@[deprecated UInt32.ofNatLT_lt_of_lt (since := "2025-02-13")]
+theorem UInt32.ofNat'_lt_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     n < m → UInt32.ofNatLT n h1 < UInt32.ofNat m := UInt32.ofNatLT_lt_of_lt h1 h2
+
+theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := by
+  simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.ofNat',
     Nat.mod_eq_of_lt h2, imp_self]
+
+@[deprecated UInt32.lt_ofNatLT_of_lt (since := "2025-02-13")]
+theorem UInt32.lt_ofNat'_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UInt32.size) :
+     m < n → UInt32.ofNat m < UInt32.ofNatLT n h1 := UInt32.lt_ofNatLT_of_lt h1 h2
 
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin

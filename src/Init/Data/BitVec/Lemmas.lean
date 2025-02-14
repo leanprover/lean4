@@ -2033,9 +2033,8 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
   simp [show i < w by omega]
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
-  ext
-  rw [getElem_append, getLsbD_eq_getElem (by omega)]
-  simpa using lt_of_getLsbD
+  ext i ih
+  simp [getElem_append, show i < v by omega]
 
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
   ext

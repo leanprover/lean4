@@ -18,29 +18,72 @@ import Lean.Server.Rpc.Basic
 
 import Std.Sync.Mutex
 
+import Std.Sync.Mutex
+
+/-- Checks whether `r` contains `hoverPos`, taking into account EOF according to `text`. -/
+def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
+    (hoverPos : String.Pos) (includeStop := false) : Bool :=
+  -- When `hoverPos` is at the very end of the file, it is *after* the last position in `text`.
+  -- However, for `includeStop = false`, all ranges stop at the last position in `text`,
+  -- which always excludes a `hoverPos` at the very end of the file.
+  -- For the purposes of the language server, we generally assume that ranges that extend to
+  -- the end of the file also include a `hoverPos` at the very end of the file.
+  let isRangeAtEOF := r.stop == text.source.endPos
+  r.contains hoverPos (includeStop := includeStop || isRangeAtEOF)
+
 namespace Lean.Language
 
-/--
-Finds the first (in pre-order) snapshot task in `tree` whose `range?` contains `pos` and which
-contains an info tree, and then returns that info tree, waiting for any snapshot tasks on the way.
-Subtrees that do not contain the position are skipped without forcing their tasks.
--/
-partial def SnapshotTree.findInfoTreeAtPos (tree : SnapshotTree) (pos : String.Pos) :
-    Task (Option Elab.InfoTree) :=
-  goSeq tree.children.toList
+inductive SnapshotTree.foldSnaps.Control where
+  | done
+  | proceed (foldChildren : Bool)
+
+partial def SnapshotTree.foldSnaps (tree : SnapshotTree) (init : α)
+    (f : SnapshotTask SnapshotTree → α → Task (α × foldSnaps.Control)) : Task α :=
+  let t := traverseTree init tree
+  t.map (sync := true) (·.1)
 where
-  goSeq
-    | [] => .pure none
-    | t::ts =>
-      if t.range?.any (·.contains pos) then
-        t.task.bind (sync := true) fun tree => Id.run do
-          if let some infoTree := tree.element.infoTree? then
-            return .pure infoTree
-          tree.findInfoTreeAtPos pos |>.bind (sync := true) fun
-            | some infoTree => .pure (some infoTree)
-            | none => goSeq ts
-      else
-        goSeq ts
+  traverseTree (acc : α) (tree : SnapshotTree) : Task (α × Bool) :=
+    traverseChildren acc tree.children.toList
+
+  traverseChildren (acc : α) : List (SnapshotTask SnapshotTree) → Task (α × Bool)
+    | [] => .pure (acc, false)
+    | child::otherChildren =>
+      f child acc |>.bind (sync := true) fun (acc, control) => Id.run do
+        let .proceed foldChildrenOfChild := control
+          | return .pure (acc, true)
+        if ! foldChildrenOfChild then
+          return traverseChildren acc otherChildren
+        let subtreeTask := child.task.bind (sync := true) fun tree =>
+          traverseTree acc tree
+        return subtreeTask.bind (sync := true) fun (acc, done) => Id.run do
+          if done then
+            return .pure (acc, done)
+          return traverseChildren acc otherChildren
+
+/--
+Finds the first (in pre-order) snapshot task in `tree` that contains `hoverPos`
+(including whitespace) and which contains an info tree, and then returns that info tree,
+waiting for any snapshot tasks on the way.
+Subtrees that do not contain the position are skipped without forcing their tasks.
+If the caller of this function needs the correct snapshot when the cursor is on whitespace,
+then this function is likely the wrong one to call, as it simply yields the first snapshot
+that contains `hoverPos` in its whitespace, which is not necessarily the correct one
+(e.g. it may be indentation-sensitive).
+-/
+partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
+    (hoverPos : String.Pos) (includeStop : Bool) : Task (Option Elab.InfoTree) :=
+  tree.foldSnaps (init := none) fun snap _ => Id.run do
+    let skipChild := .pure (none, .proceed (foldChildren := false))
+    let some stx := snap.stx?
+      | return skipChild
+    let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return skipChild
+    if ! text.rangeContainsHoverPos range hoverPos includeStop then
+      return skipChild
+    return snap.task.map (sync := true) fun tree => Id.run do
+      let some infoTree := tree.element.infoTree?
+        | return (none, .proceed (foldChildren := true))
+      return (infoTree, .done)
 
 end Lean.Language
 
@@ -226,9 +269,9 @@ def withWaitFindSnapAtPos
     (x := f)
 
 open Language.Lean in
-/-- Finds the first `CommandParsedSnapshot` fulfilling `p`, asynchronously. -/
-partial def findCmdParsedSnap (doc : EditableDocument) (p : CommandParsedSnapshot → Bool) :
-    Task (Option CommandParsedSnapshot) := Id.run do
+/-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
+partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
+    : Task (Option CommandParsedSnapshot) := Id.run do
   let some headerParsed := doc.initSnap.result?
     | .pure none
   headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
@@ -236,50 +279,43 @@ partial def findCmdParsedSnap (doc : EditableDocument) (p : CommandParsedSnapsho
       | return .pure none
     headerSuccess.firstCmdSnap.task.bind (sync := true) go
 where
-  go cmdParsed :=
-    if p cmdParsed then
-      .pure (some cmdParsed)
-    else
-      match cmdParsed.nextCmdSnap? with
-      | some next => next.task.bind (sync := true) go
-      | none => .pure none
-
-open Language in
-/--
-Finds the info tree of the first snapshot task matching `isMatchingSnapshot` and containing `pos`,
-asynchronously. The info tree may be from a nested snapshot, such as a single tactic.
-
-See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
--/
-partial def findInfoTreeAtPos
-    (doc : EditableDocument)
-    (isMatchingSnapshot : Lean.CommandParsedSnapshot → Bool)
-    (pos : String.Pos)
-    : Task (Option Elab.InfoTree) :=
-  findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
-      | some infoTree => .pure <| some infoTree
-      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
-        -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
-        assert! s.cmdState.infoState.trees.size == 1
-        some s.cmdState.infoState.trees[0]!
+  go (cmdParsed : CommandParsedSnapshot) : Task (Option CommandParsedSnapshot) := Id.run do
+    if containsHoverPos cmdParsed then
+      return .pure (some cmdParsed)
+    if isAfterHoverPos cmdParsed then
+      -- This should never happen in principle
+      -- (commands + trailing ws are consecutive and there is no unassigned space between them),
+      -- but it's always good to eliminate one additional assumption.
+      return .pure none
+    match cmdParsed.nextCmdSnap? with
+    | some next => next.task.bind (sync := true) go
     | none => .pure none
 
+  containsHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+    let some range := cmdParsed.stx.getRangeWithTrailing? (canonicalOnly := true)
+      | return false
+    return doc.meta.text.rangeContainsHoverPos range hoverPos (includeStop := false)
+
+  isAfterHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
+    let some startPos := cmdParsed.stx.getPos? (canonicalOnly := true)
+      | return false
+    return hoverPos < startPos
+
+
 open Language in
 /--
-Finds the command syntax and info tree of the first snapshot task matching `isMatchingSnapshot` and
-containing `pos`, asynchronously. The info tree may be from a nested snapshot,
-such as a single tactic.
+Finds the command syntax and info tree of the first snapshot task containing `pos`, asynchronously.
+The info tree may be from a nested snapshot, such as a single tactic.
 
 See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
 def findCmdDataAtPos
     (doc : EditableDocument)
-    (isMatchingSnapshot : Lean.CommandParsedSnapshot → Bool)
-    (pos : String.Pos)
+    (hoverPos : String.Pos)
+    (includeStop : Bool)
     : Task (Option (Syntax × Elab.InfoTree)) :=
-  findCmdParsedSnap doc (isMatchingSnapshot ·) |>.bind (sync := true) fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos pos |>.bind (sync := true) fun
+  findCmdParsedSnap doc hoverPos |>.bind (sync := true) fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bind (sync := true) fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
       | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
@@ -287,19 +323,19 @@ def findCmdDataAtPos
         some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
     | none => .pure none
 
+open Language in
 /--
-Finds the info tree of the first snapshot task containing `pos` (including trailing whitespace),
-asynchronously. The info tree may be from a nested snapshot, such as a single tactic.
+Finds the info tree of the first snapshot task containing `pos`, asynchronously.
+The info tree may be from a nested snapshot, such as a single tactic.
 
 See `SnapshotTree.findInfoTreeAtPos` for details on how the search is done.
 -/
-def findInfoTreeAtPosWithTrailingWhitespace
+partial def findInfoTreeAtPos
     (doc : EditableDocument)
-    (pos : String.Pos)
+    (hoverPos : String.Pos)
+    (includeStop : Bool)
     : Task (Option Elab.InfoTree) :=
-  -- NOTE: use `>=` since the cursor can be *after* the input (and there is no interesting info on
-  -- the first character of the subsequent command if any)
-  findInfoTreeAtPos doc (·.parserState.pos ≥ pos) pos
+  findCmdDataAtPos doc hoverPos includeStop |>.map (sync := true) (·.map (·.2))
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do

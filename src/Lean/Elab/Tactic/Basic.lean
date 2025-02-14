@@ -230,11 +230,11 @@ where
                     stx := stx'
                     diagnostics := .empty
                     inner? := none
-                    finished := .pure {
+                    finished := .finished stx' {
                       diagnostics := .empty
                       state? := (← Tactic.saveState)
                     }
-                    next := #[{ range? := stx'.getRange?, task := promise.resultD default }]
+                    next := #[{ stx? := stx', task := promise.resultD default }]
                   }
                   -- Update `tacSnap?` to old unfolding
                   withTheReader Term.Context ({ · with tacSnap? := some {

@@ -859,47 +859,50 @@ at position `start`. The function `getMsb` extracts a bit counting from the most
 significant bit. Assuming certain conditions, `x.(extractLsbD' {w} start len).getMsbD i`
 is equal to `x.getMsbD (w - (start + len - i))`.
 
-Example (w = 9, start := 3, len := 4):
+Example (w = 10, start := 3, len := 4):
 
-                                |---| = w - (start+len) = 3
-                                      |start + len|     = 7
-                                            |start|     = 4
-                                      |len|             = 3
+                                |---| = w - (start + len) = 3
+                                      |start + len|       = 7
+                                            |start|       = 3
+                                      | len |             = 4
 let x                       =   9 8 7 6 5 4 3 2 1 0
-let x' = x.extractLsb' 3 4  =       7 6 5 4
-                              |       |
-                              x.getMsbD 0
-                                      | x.getMsbD (i := 4) =
-                                        x'.getMsbD (i := 1) =
-                                        x.getMsbD (i := w - (start + len - i) =
-                                                        10 - (4 + 3 - 1) = 4)
+let x' = x.extractLsb' 3 4  =         6 5 4 3
+                                      | |
+                                      | x'.getMsbD 1 = x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 1) = 4) = x.getLsbD 5
+                                      |
+                                      x'.getMsbD 0 = x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 0) = 3) = x.getLsbD 6
+
 # Condition 1: `i < len`
 
 The index `i` must be within the range of `len`.
 
 # Condition 2: `start + len - i ≤ w`
 
-If `start + len` is larger than `w`, some lower locations `i` in `x'` are
-outside of `x` such that `getMsbD` returns `false` for these `i`. For
-large enough `i` we will again be within `x`. The precise condition is:
+If `start + len` is larger than `w`, the high bits at `i` with `w ≤ i` are filled with 0,
+meaning that `getMsbD[i] = false` for these `i`.
+If `i` is large enough, we will have that `getMsbD[i]` is again within the bounds `x`.
+The precise condition is:
 
   `start + len - i ≤ w`
 
-w := 10,
-start := 5,                     |    start + len    | = 11
-len := 6 .                                  | start | = 5
-                                |   len   |
-let x                       = _ _ 9 8 7 6 5 4 3 2 1 0
-let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
-                                |  w - (start + len) + i =
-                                   10 - (    5 +   6) + 0 = -1 -- In Nat, this becomes 0
-                                   start + len - 0 ≤ w
-                                   6 + 5 - 0 = 11 ≤ 10 ❌
+Example (w = 10, start := 7, len := 5):
 
-                                  |  w - (start + len) + i =
-                                    10 - (    5 +   6) + 1 =  0
-                                    start + len - 0 ≤ w
-                                    6 + 5 - 1 = 10 ≤ 10 ✅
+                                    |= w - (start + len)    = 0
+                                |      start + len    |     = 12
+                                        |start|             = 7
+                                |  len  |                   = 5
+let x                       =       9 8 7 6 5 4 3 2 1 0
+let x' = x.extractLsb' 3 4  =   _ _ 9 8 7
+                                |   |
+                                |   x'.getMsbD 2 = x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 2))
+                                |                = x.getMsbD 0
+                                |                ✅ start + len - i ≤ w
+                                |                   7 + 5 - 2 = 10 ≤ 10
+                                |
+                                x'.getMsbD 0 = x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 0))
+                                             = x.getMsbD (i := w - (start + len - i) = x.getMsbD (i := -2) -- in Nat becomes 0
+                                             ❌ start + len - i ≤ w
+                                                7 + 5 - 0 ≤ w
 -/
 @[simp] theorem getMsbD_extractLsb' {start len : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb' start len x).getMsbD i =

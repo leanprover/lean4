@@ -18,7 +18,7 @@ let n1    := mkApp succ n
 let vecN1 := mkApp2 (mkConst `Vec) nat n1
 withLocalDeclD `xs vecN1 fun xs => do
 generalizeTelescope #[n1, xs] fun ys => do
-let t ← mkLambdaFVars ys ys.back
+let t ← mkLambdaFVars ys ys.back!
 trace[Meta.debug] t
 pure ()
 

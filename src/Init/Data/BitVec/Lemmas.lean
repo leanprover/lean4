@@ -961,7 +961,7 @@ let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
     omega
 
 @[simp] theorem msb_extractLsb {hi lo : Nat} {x : BitVec w} :
-    (extractLsb hi lo x).msb = (decide ((max hi lo) < w) && x.getMsbD (w - 1 - ((max hi lo)))) := by
+    (extractLsb hi lo x).msb = (decide (max hi lo < w) && x.getMsbD (w - 1 - max hi lo)) := by
   simp [BitVec.msb]
 
 theorem extractLsb'_eq_extractLsb {w : Nat} (x : BitVec w) (start len : Nat) (h : len > 0) :

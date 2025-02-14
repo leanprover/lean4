@@ -1017,7 +1017,7 @@ where
     let headers ← levelMVarToParamHeaders views headers
       if let (#[view], #[declId]) := (views, expandedDeclIds) then
         if Elab.async.get (← getOptions) && view.kind.isTheorem && !deprecated.oldSectionVars.get (← getOptions) then
-          elabAsync headers[0]! declId
+          elabAsync headers[0]! view declId
         else elabSync headers
       else elabSync headers
     for view in views, declId in expandedDeclIds do
@@ -1027,7 +1027,7 @@ where
   elabSync headers := do
     finishElab headers
     processDeriving headers
-  elabAsync header declId := do
+  elabAsync header view declId := do
     let env ← getEnv
     let async ← env.addConstAsync declId.declName .thm
     setEnv async.mainEnv
@@ -1043,6 +1043,7 @@ where
     let levelParams ← IO.ofExcept <| sortDeclLevelParams scopeLevelNames allUserLevelNames s.params
     async.commitSignature { name := header.declName, levelParams, type }
 
+    let header := { header with modifiers.attrs := #[] }
     let act ← wrapAsyncAsSnapshot (desc := s!"elaborating proof of {declId.declName}") fun _ => do
       setEnv async.asyncEnv
       finishElab #[header]
@@ -1053,6 +1054,8 @@ where
       let checkTask ← BaseIO.mapTask (t := (← getEnv).checked) fun _ => checkAct
       Core.logSnapshotTask { range? := none, task := checkTask }
     Core.logSnapshotTask { range? := none, task := (← BaseIO.asTask act) }
+    applyAttributesAt declId.declName view.modifiers.attrs .afterTypeChecking
+    applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers := withFunLocalDecls headers fun funFVars => do
     for view in views, funFVar in funFVars do
       addLocalVarInfo view.declId funFVar

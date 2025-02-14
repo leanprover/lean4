@@ -943,8 +943,8 @@ let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
 @[simp] theorem getMsbD_extractLsb {hi lo : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb hi lo x).getMsbD i =
       (decide (i < hi - lo + 1) &&
-      (decide ((max hi lo) - i < w) &&
-      x.getMsbD (w - 1 - ((max hi lo) - i)))) := by
+      (decide (max hi lo - i < w) &&
+      x.getMsbD (w - 1 - (max hi lo - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb, getLsbD_eq_getMsbD]
   simp only [bool_to_prop]
   constructor

@@ -11,6 +11,8 @@ import Lean.Data.Json
 import Lean.Data.Lsp
 import Lean.Elab.Command
 
+import Lean.Server.RequestCancellation
+
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
 
@@ -127,47 +129,6 @@ def toLspResponseError (id : RequestID) (e : RequestError) : ResponseError Unit 
 
 end RequestError
 
-inductive RequestCancellationCause where
-  | cancelRequest
-  | edit
-  deriving Inhabited, BEq
-
-structure RequestCancellationToken where
-  promise : IO.Promise RequestCancellationCause
-
-namespace RequestCancellationToken
-
-def new : IO RequestCancellationToken := do
-  return { promise := ← IO.Promise.new }
-
-def cancel (tk : RequestCancellationToken) (cause : RequestCancellationCause) : IO Unit :=
-  tk.promise.resolve cause
-
-def task (tk : RequestCancellationToken) : Task RequestCancellationCause :=
-  tk.promise.result!
-
-def truncatedTask (tk : RequestCancellationToken) : Task Unit :=
-  tk.task.map (sync := true) fun _ => ()
-
-def cancelled? (tk : RequestCancellationToken) : IO (Option RequestCancellationCause) := do
-  let t := tk.task
-  if ← IO.hasFinished t then
-    return some t.get
-  else
-    return none
-
-def wasCancelledByCancelRequest (tk : RequestCancellationToken) : IO Bool := do
-  let some c ← tk.cancelled?
-    | return false
-  return c matches .cancelRequest
-
-def wasCancelledByEdit (tk : RequestCancellationToken) : IO Bool := do
-  let some c ← tk.cancelled?
-    | return false
-  return c matches .edit
-
-end RequestCancellationToken
-
 def parseRequestParams (paramType : Type) [FromJson paramType] (params : Json)
     : Except RequestError paramType :=
   fromJson? params |>.mapError fun inner =>
@@ -201,6 +162,14 @@ instance : MonadLift (EIO Exception) RequestM where
     | .error e => throw <| ← RequestError.ofException e
     | .ok v => return v
 
+instance : MonadLift CancellableM RequestM where
+  monadLift x := do
+    let ctx ← read
+    let r ← x.run ctx.cancelTk
+    match r with
+    | .error _ => throw RequestError.requestCancelled
+    | .ok v    => return v
+
 namespace RequestM
 open FileWorker
 open Snapshots
@@ -224,7 +193,7 @@ def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (Re
   let rc ← readThe RequestContext
   EIO.bindTask t (f · rc)
 
-def checkCanceled : RequestM Unit := do
+def checkCancelled : RequestM Unit := do
   let rc ← readThe RequestContext
   if ← rc.cancelTk.wasCancelledByCancelRequest then
     throw .requestCancelled

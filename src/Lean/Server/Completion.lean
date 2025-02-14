@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Marc Huisinga
 -/
 prelude
 import Lean.Server.Completion.CompletionCollectors
+import Lean.Server.RequestCancellation
 import Std.Data.HashMap
 
 namespace Lean.Server.Completion
@@ -61,11 +62,12 @@ partial def find?
     (cmdStx   : Syntax)
     (infoTree : InfoTree)
     (caps     : ClientCapabilities)
-    : IO CompletionList := do
+    : CancellableM CompletionList := do
   let prioritizedPartitions := findPrioritizedCompletionPartitionsAt fileMap hoverPos cmdStx infoTree
   let mut allCompletions := #[]
   for partition in prioritizedPartitions do
     for (i, completionInfoPos) in partition do
+      CancellableM.checkCancelled
       let completions : Array ScoredCompletionItem ←
         match i.info with
         | .id stx id danglingDot lctx .. =>

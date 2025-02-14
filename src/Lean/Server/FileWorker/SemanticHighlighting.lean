@@ -147,13 +147,12 @@ def handleSemanticTokens (beginPos : String.Pos) (endPos? : Option String.Pos)
     -- for the full file before sending a response. This means that the response will be incomplete,
     -- which we mitigate by regularly sending `workspace/semanticTokens/refresh` requests in the
     -- `FileWorker` to tell the client to re-compute the semantic tokens.
-    let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 3000 (cancelTk? := ctx.cancelTk.truncatedTask)
+    let (snaps, _, isComplete) ← doc.cmdSnaps.getFinishedPrefixWithTimeout 3000 (cancelTk? := ctx.cancelTk.cancellationTask)
     asTask <| do
       return { response := ← run doc snaps, isComplete }
   | some endPos =>
     let t := doc.cmdSnaps.waitUntil (·.endPos >= endPos)
     mapTask t fun (snaps, _) => do
-      RequestM.checkCanceled
       return { response := ← run doc snaps, isComplete := true }
 where
   run doc snaps : RequestM SemanticTokens := do
@@ -164,8 +163,11 @@ where
       let syntaxBasedSemanticTokens := collectSyntaxBasedSemanticTokens s.stx
       let infoBasedSemanticTokens := collectInfoBasedSemanticTokens s.infoTree
       leanSemanticTokens := leanSemanticTokens ++ syntaxBasedSemanticTokens ++ infoBasedSemanticTokens
+      RequestM.checkCancelled
     let absoluteLspSemanticTokens := computeAbsoluteLspSemanticTokens doc.meta.text beginPos endPos? leanSemanticTokens
+    RequestM.checkCancelled
     let absoluteLspSemanticTokens := filterDuplicateSemanticTokens absoluteLspSemanticTokens
+    RequestM.checkCancelled
     let semanticTokens := computeDeltaLspSemanticTokens absoluteLspSemanticTokens
     return semanticTokens
 

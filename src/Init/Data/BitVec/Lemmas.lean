@@ -2038,7 +2038,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem zero_append_zero : 0#v ++ 0#w = 0#(v + w) := by
   ext
-  simp [getElem_append, getElem_zero, ite_self]
+  simp [getElem_append]
 
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     (x ++ y).cast h = x ++ y.cast (by omega) := by

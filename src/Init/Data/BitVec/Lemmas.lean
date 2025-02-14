@@ -2043,7 +2043,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 @[simp] theorem cast_append_right (h : w + v = w + v') (x : BitVec w) (y : BitVec v) :
     (x ++ y).cast h = x ++ y.cast (by omega) := by
   ext
-  simp only [getElem_cast, getElem_append, cond_eq_if, decide_eq_true_eq]
+  simp only [getElem_cast, getElem_append]
   split <;> split
   · rfl
   · omega

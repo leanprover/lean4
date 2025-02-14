@@ -347,7 +347,7 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
 
 builtin_simproc [simp, seval] reduceDvd ((_ : Nat) ∣ _) := fun e => do
   let_expr Dvd.dvd _ i a b ← e | return .continue
-  unless ← matchesInstance i (mkConst ``instDiv) do return .continue
+  unless ← matchesInstance i (mkConst ``instDvd) do return .continue
   let some va ← fromExpr? a | return .continue
   let some vb ← fromExpr? b | return .continue
   if vb % va == 0 then

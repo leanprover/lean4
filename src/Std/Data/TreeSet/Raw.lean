@@ -156,6 +156,18 @@ def fold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   t.foldl f init
 
 @[inline, inherit_doc TreeSet.empty]
+def foldrM (f : δ → (a : α) → m δ) (init : δ) (t : Raw α cmp) : m δ :=
+  t.inner.foldrM (fun c a _ => f c a) init
+
+@[inline, inherit_doc TreeSet.empty]
+def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+  t.inner.foldr (fun c a _ => f c a) init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
+  foldr f init t
+
+@[inline, inherit_doc TreeSet.empty]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
   t.inner.forM (fun a _ => f a)
 
@@ -181,13 +193,33 @@ def all (t : Raw α cmp) (p : α → Bool) : Bool :=
 def toList (t : Raw α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
+@[inline, inherit_doc TreeSet.ofList]
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
+  ⟨TreeMap.Raw.unitOfList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ofList l cmp
+
 @[inline, inherit_doc TreeSet.empty]
 def toArray (t : Raw α cmp) : Array α :=
   t.foldl (init := #[]) fun acc k => acc.push k
 
+@[inline, inherit_doc TreeSet.ofArray]
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α cmp :=
+  ⟨TreeMap.Raw.unitOfArray a cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (a : Array α) (cmp : α → α → Ordering) : Raw α cmp :=
+  ofArray a cmp
+
 @[inline, inherit_doc TreeSet.empty]
 def merge (t₁ t₂ : Raw α cmp) : Raw α cmp :=
   ⟨TreeMap.Raw.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+
+@[inline, inherit_doc TreeSet.insertMany]
+def insertMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=
+  ⟨TreeMap.Raw.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc TreeSet.empty]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α cmp) (l : ρ) : Raw α cmp :=

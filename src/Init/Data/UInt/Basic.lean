@@ -14,6 +14,9 @@ open Nat
 @[deprecated UInt8.ofBitVec (since := "2025-02-12"), inherit_doc UInt8.ofBitVec]
 def UInt8.mk (bitVec : BitVec 8) : UInt8 :=
   UInt8.ofBitVec bitVec
+@[inline, deprecated UInt8.ofNatLT (since := "2025-02-13"), inherit_doc UInt8.ofNatLT]
+def UInt8.ofNatCore (n : Nat) (h : n < UInt8.size) : UInt8 :=
+  UInt8.ofNatLT n h
 
 @[extern "lean_uint8_add"]
 def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
@@ -83,6 +86,9 @@ instance : Min UInt8 := minOfLe
 @[deprecated UInt16.ofBitVec (since := "2025-02-12"), inherit_doc UInt16.ofBitVec]
 def UInt16.mk (bitVec : BitVec 16) : UInt16 :=
   UInt16.ofBitVec bitVec
+@[inline, deprecated UInt16.ofNatLT (since := "2025-02-13"), inherit_doc UInt16.ofNatLT]
+def UInt16.ofNatCore (n : Nat) (h : n < UInt16.size) : UInt16 :=
+  UInt16.ofNatLT n h
 
 @[extern "lean_uint16_add"]
 def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
@@ -154,6 +160,9 @@ instance : Min UInt16 := minOfLe
 @[deprecated UInt32.ofBitVec (since := "2025-02-12"), inherit_doc UInt32.ofBitVec]
 def UInt32.mk (bitVec : BitVec 32) : UInt32 :=
   UInt32.ofBitVec bitVec
+@[inline, deprecated UInt32.ofNatLT (since := "2025-02-13"), inherit_doc UInt32.ofNatLT]
+def UInt32.ofNatCore (n : Nat) (h : n < UInt32.size) : UInt32 :=
+  UInt32.ofNatLT n h
 
 @[extern "lean_uint32_add"]
 def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
@@ -210,6 +219,9 @@ def Bool.toUInt32 (b : Bool) : UInt32 := if b then 1 else 0
 @[deprecated UInt64.ofBitVec (since := "2025-02-12"), inherit_doc UInt64.ofBitVec]
 def UInt64.mk (bitVec : BitVec 64) : UInt64 :=
   UInt64.ofBitVec bitVec
+@[inline, deprecated UInt64.ofNatLT (since := "2025-02-13"), inherit_doc UInt64.ofNatLT]
+def UInt64.ofNatCore (n : Nat) (h : n < UInt64.size) : UInt64 :=
+  UInt64.ofNatLT n h
 
 @[extern "lean_uint64_add"]
 def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
@@ -279,6 +291,9 @@ instance : Min UInt64 := minOfLe
 @[deprecated USize.ofBitVec (since := "2025-02-12"), inherit_doc USize.ofBitVec]
 def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
   USize.ofBitVec bitVec
+@[inline, deprecated USize.ofNatLT (since := "2025-02-13"), inherit_doc USize.ofNatLT]
+def USize.ofNatCore (n : Nat) (h : n < USize.size) : USize :=
+  USize.ofNatLT n h
 
 theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
   cases usize_size_eq <;> next h => rw [h]; decide
@@ -311,7 +326,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
-  USize.ofNatCore n (Nat.lt_of_lt_of_le h le_usize_size)
+  USize.ofNatLT n (Nat.lt_of_lt_of_le h le_usize_size)
 @[extern "lean_uint8_to_usize"]
 def UInt8.toUSize (a : UInt8) : USize :=
   USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
@@ -336,7 +351,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (a : USize) : UInt64 :=
-  UInt64.ofNatCore a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
+  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩

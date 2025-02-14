@@ -40,12 +40,12 @@ theorem isValidUInt32 (n : Nat) (h : isValidCharNat n) : n < UInt32.size := by
     apply Nat.lt_trans h₂
     decide
 
-theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNat' n (isValidUInt32 n h)) :=
+theorem isValidChar_of_isValidCharNat (n : Nat) (h : isValidCharNat n) : isValidChar (UInt32.ofNatLT n (isValidUInt32 n h)) :=
   match h with
   | Or.inl h =>
-    Or.inl (UInt32.ofNat'_lt_of_lt _ (by decide) h)
+    Or.inl (UInt32.ofNatLT_lt_of_lt _ (by decide) h)
   | Or.inr ⟨h₁, h₂⟩ =>
-    Or.inr ⟨UInt32.lt_ofNat'_of_lt _ (by decide) h₁, UInt32.ofNat'_lt_of_lt _ (by decide) h₂⟩
+    Or.inr ⟨UInt32.lt_ofNatLT_of_lt _ (by decide) h₁, UInt32.ofNatLT_lt_of_lt _ (by decide) h₂⟩
 
 theorem isValidChar_zero : isValidChar 0 :=
   Or.inl (by decide)

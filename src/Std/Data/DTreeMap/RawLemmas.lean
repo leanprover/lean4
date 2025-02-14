@@ -26,10 +26,6 @@ namespace Std.DTreeMap.Raw
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
 
 @[simp]
-theorem isEmpty_empty : (empty : DTreeMap.Raw α β cmp).isEmpty :=
-  Impl.isEmpty_empty
-
-@[simp]
 theorem isEmpty_emptyc : (∅ : DTreeMap.Raw α β cmp).isEmpty :=
   Impl.isEmpty_empty
 

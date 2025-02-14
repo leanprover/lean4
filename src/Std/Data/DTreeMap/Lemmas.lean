@@ -26,10 +26,6 @@ namespace Std.DTreeMap
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap α β cmp}
 
 @[simp]
-theorem isEmpty_empty : (empty : DTreeMap α β cmp).isEmpty :=
-  Impl.isEmpty_empty
-
-@[simp]
 theorem isEmpty_emptyc : (∅ : DTreeMap α β cmp).isEmpty :=
   Impl.isEmpty_empty
 

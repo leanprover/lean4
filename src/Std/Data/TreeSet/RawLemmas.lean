@@ -24,12 +24,8 @@ namespace Std.TreeSet.Raw
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeSet.Raw α cmp}
 
 @[simp]
-theorem isEmpty_empty : (empty : Raw α cmp).isEmpty :=
-  TreeMap.Raw.isEmpty_empty
-
-@[simp]
 theorem isEmpty_emptyc : (∅ : Raw α cmp).isEmpty :=
-  TreeMap.Raw.isEmpty_empty
+  TreeMap.Raw.isEmpty_emptyc
 
 @[simp]
 theorem isEmpty_insert [TransCmp cmp] (h : t.WF) {k : α} :

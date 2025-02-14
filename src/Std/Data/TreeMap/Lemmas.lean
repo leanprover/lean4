@@ -24,12 +24,8 @@ namespace Std.TreeMap
 variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} {t : TreeMap α β cmp}
 
 @[simp]
-theorem isEmpty_empty : (empty : TreeMap α β cmp).isEmpty :=
-  DTreeMap.isEmpty_empty
-
-@[simp]
 theorem isEmpty_emptyc : (∅ : TreeMap α β cmp).isEmpty :=
-  DTreeMap.isEmpty_empty
+  DTreeMap.isEmpty_emptyc
 
 @[simp]
 theorem isEmpty_insert [TransCmp cmp] {k : α} {v : β} :

@@ -7,6 +7,7 @@ prelude
 import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Def
 import Std.Data.DTreeMap.Internal.Balanced
+import Std.Data.DTreeMap.Internal.Ordered
 import Std.Classes.Ord
 
 /-!
@@ -398,6 +399,76 @@ def getEntryLED [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a)
 @[inline]
 def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a) : (a : α) × β a :=
   t.getEntryLT? k |>.getD fallback
+
+theorem Ordered.contains_inner_iff_contains_right [Ord α] (sz a v) (l r : Impl α β)
+    (k : α) (h : compare k a = .gt) :
+    k ∈ inner sz a v l r ↔ k ∈ r := by
+  simp only [Membership.mem, contains]
+  split <;> simp_all
+
+theorem Ordered.contains_inner_iff_contains_left [Ord α] (sz a v) (l r : Impl α β)
+    (k : α) (h : compare k a = .lt) :
+    k ∈ inner sz a v l r ↔ k ∈ l := by
+  simp only [Membership.mem, contains]
+  split <;> simp_all
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) →
+  (a : α) × β a
+| .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
+| .inner _ ky y l r, ho, he => match hkky : compare k ky with
+  | .lt => getEntryGED k l ⟨ky, y⟩
+  | .eq => ⟨ky, y⟩
+  | .gt => getEntryGE k r ho.right <| by
+    obtain ⟨a, hm, hc⟩ := he
+    refine ⟨a, ?_, hc⟩
+    apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
+    exact TransCmp.gt_of_isGE_of_gt hc hkky
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
+  (a : α) × β a
+| .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
+| .inner _ ky y l r, ho, he => if hkky : compare k ky = .lt then
+      getEntryGTD k l ⟨ky, y⟩
+    else
+      getEntryGT k r ho.right <| by
+        obtain ⟨a, hm, hc⟩ := he
+        refine ⟨a, ?_, hc⟩
+        apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
+        apply TransCmp.gt_of_gt_of_isGE hc
+        simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
+  (a : α) × β a
+| .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
+| .inner _ ky y l r, ho, he => match hkky : compare k ky with
+  | .gt => getEntryLED k r ⟨ky, y⟩
+  | .eq => ⟨ky, y⟩
+  | .lt => getEntryLE k l ho.left <| by
+    obtain ⟨a, hm, hc⟩ := he
+    refine ⟨a, ?_, hc⟩
+    apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
+    exact TransCmp.lt_of_isLE_of_lt hc hkky
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
+  (a : α) × β a
+| .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
+| .inner _ ky y l r, ho, he => if hkky : compare k ky = .gt then
+      getEntryLTD k r ⟨ky, y⟩
+    else
+      getEntryLT k l ho.left <| by
+        obtain ⟨a, hm, hc⟩ := he
+        refine ⟨a, ?_, hc⟩
+        apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
+        apply TransCmp.lt_of_lt_of_isLE hc
+        simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
 @[inline]

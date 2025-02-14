@@ -126,7 +126,11 @@ theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := 
   simp at this
   simp [Int.neg_emod, ← this, Eq.comm]
 
-theorem cdiv_eq_div_of_divides {a b : Int} (h : (a/b)*b = a) : a/b = cdiv a b := by
+abbrev div_mul_cancel_of_mod_zero :=
+  @Int.ediv_mul_cancel_of_emod_eq_zero
+
+theorem cdiv_eq_div_of_divides {a b : Int} (h : a % b = 0) : a/b = cdiv a b := by
+  replace h := div_mul_cancel_of_mod_zero h
   have hz : a % b = 0 := by
     have := Int.ediv_add_emod a b
     conv at this => rhs; rw [← Int.add_zero a]
@@ -148,12 +152,12 @@ def Poly.div (k : Int) : Poly → Poly
   | .add k' x p => .add (k'/k) x (div k p)
 
 def Poly.divAll (k : Int) : Poly → Bool
-  | .num k' => (k'/k)*k == k'
-  | .add k' _ p => (k'/k)*k == k' && divAll k p
+  | .num k' => k' % k == 0
+  | .add k' _ p => k' % k == 0 && divAll k p
 
 def Poly.divCoeffs (k : Int) : Poly → Bool
   | .num _ => true
-  | .add k' _ p => (k'/k)*k == k' && divCoeffs k p
+  | .add k' _ p => k' % k == 0 && divCoeffs k p
 
 def Poly.getConst : Poly → Int
   | .num k => k
@@ -232,9 +236,10 @@ attribute [local simp] Poly.div Poly.divAll PolyCnstr.denote
 
 theorem Poly.denote_div_eq_of_divAll (ctx : Context) (p : Poly) (k : Int) : p.divAll k → (p.div k).denote ctx * k = p.denote ctx := by
   induction p with
-  | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; assumption
+  | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; exact div_mul_cancel_of_mod_zero h
   | add k' v p ih =>
     simp; intro h₁ h₂
+    replace h₁ := div_mul_cancel_of_mod_zero h₁
     have ih := ih h₂
     simp [ih]
     apply congrArg (denote ctx p + ·)
@@ -247,6 +252,7 @@ theorem Poly.denote_div_eq_of_divCoeffs (ctx : Context) (p : Poly) (k : Int) : p
   | num k' => simp; rw [Int.mul_comm, cdiv_add_cmod]
   | add k' v p ih =>
     simp; intro h₁ h₂
+    replace h₁ := div_mul_cancel_of_mod_zero h₁
     rw [← ih h₂]
     rw [Int.mul_right_comm, h₁, Int.add_assoc]
 

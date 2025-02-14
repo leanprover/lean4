@@ -73,7 +73,7 @@ abbrev Selector : Type := MVarId → Config → MetaM (Array Suggestion)
 The trivial premise selector, which returns no suggestions.
 -/
 def empty : Selector := fun _ _ => pure #[]
-#eval Name.getPrefix `X.Y.Z
+
 /-- A random premise selection algorithm, provided solely for testing purposes. -/
 def random (gen : StdGen := ⟨37, 59⟩) : Selector := fun _ cfg => do
   IO.stdGenRef.set gen

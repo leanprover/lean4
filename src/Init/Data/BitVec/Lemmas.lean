@@ -2028,9 +2028,9 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
     simp [h, q, t, BitVec.msb, getMsbD]
 
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
-  ext
+  ext i ih
   rw [getElem_append] -- Why does this not work with `simp [getLsbD_append]`?
-  simp [← getLsbD_eq_getElem]
+  simp [show i < w by omega]
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
   ext

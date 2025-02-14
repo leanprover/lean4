@@ -5,6 +5,8 @@ Authors: Henrik Böving
 -/
 prelude
 import Init.Data.SInt.Basic
+import Init.Data.SInt.Float
+import Init.Data.SInt.Float32
 
 /-!
 This module contains the definitions and basic theory about signed fixed width integer types.

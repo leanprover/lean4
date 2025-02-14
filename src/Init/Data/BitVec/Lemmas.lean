@@ -853,24 +853,68 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
   simp [getLsbD, Nat.lt_succ]
 
 /-!
-  We extract a BitVec x' with length `len` from BitVec x, starting from the element at position `start`
-  let x                       = 8 7 6 5 4 3 2 1 0
-  let x' = x.extractLsb' 3 4  =     6 5 4 3
-  with `start = 3` and `len = 4`
-  we have `x'.getMsbD i = x[start + (len - 1 - i)] = x.getLsbD (start + (len - 1 - i))`
-  and rewrite `x.getLsbD (start + (len - 1 - i))` as `getMsbD`, which requires checking
-  `start + (len - 1 - i) < w` and yields `x.getMsbD (w - 1 - (start + (len - 1 - i)))`
+Get the most significant bit after `extractLsb'`. With `extractLsb'`, we extract
+a `BitVec` `x'` with length `len` from `BitVec` `x`, starting from the element
+at position `start`. The function `getMsb` extracts a bit counting from the most
+significant bit. Assuming certain conditions, `x.(extractLsbD' {w} start len).getMsbD i`
+is equal to `x.getMsbD (w - (start + len - i))`.
+
+Example (w = 9, start := 3, len := 4):
+
+                                |---| = w - (start+len) = 3
+                                      |start + len|     = 7
+                                            |start|     = 4
+                                      |len|             = 3
+let x                       =   9 8 7 6 5 4 3 2 1 0
+let x' = x.extractLsb' 3 4  =       7 6 5 4
+                              |       |
+                              x.getMsbD 0
+                                      | x.getMsbD (i := 4) =
+                                        x'.getMsbD (i := 1) =
+                                        x.getMsbD (i := w - (start + len - i) =
+                                                        10 - (4 + 3 - 1) = 4)
+# Condition 1: `i < len`
+
+The index `i` must be within the range of `len`.
+
+# Condition 2: `start + len - i ≤ w`
+
+If `start + len` is larger than `w`, some lower locations `i` in `x'` are
+outside of `x` such that `getMsbD` returns `false` for these `i`. For
+large enough `i` we will again be within `x`. The precise condition is:
+
+  `start + len - i ≤ w`
+
+w := 10,
+start := 5,                     |    start + len    | = 11
+len := 6 .                                  | start | = 5
+                                |   len   |
+let x                       = _ _ 9 8 7 6 5 4 3 2 1 0
+let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
+                                |  w - (start + len) + i =
+                                   10 - (    5 +   6) + 0 = -1 -- In Nat, this becomes 0
+                                   start + len - 0 ≤ w
+                                   6 + 5 - 0 = 11 ≤ 10 ❌
+
+                                  |  w - (start + len) + i =
+                                    10 - (    5 +   6) + 1 =  0
+                                    start + len - 0 ≤ w
+                                    6 + 5 - 1 = 10 ≤ 10 ✅
 -/
 @[simp] theorem getMsbD_extractLsb' {start len : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb' start len x).getMsbD i =
       (decide (i < len) &&
-      (decide (start + (len - 1 - i) < w) &&
+      (decide (start + len - i ≤ w) &&
       x.getMsbD (w - (start + len - i)))) := by
   rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
-  by_cases h : i < len
-  · simp [show w - (start + len - i) = w - 1 - (start + (len - 1 - i)) by omega, h]
+  simp only [bool_to_prop]
+  constructor
+  · rintro ⟨h₁, h₂, h₃, h₄⟩
+    simp [show w - (start + len - i) = w - 1 - (start + (len - 1 - i)) by omega, h₄]
     omega
-  · simp [h]
+  · rintro ⟨h₁, h₂, h₃⟩
+    simp [show w - 1 - (start + (len - 1 - i)) = w - (start + len - i) by omega, h₃]
+    omega
 
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb = (decide (0 < len) && x.getLsbD (start + len - 1)) := by

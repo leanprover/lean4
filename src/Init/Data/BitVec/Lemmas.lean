@@ -936,7 +936,7 @@ let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
     getLsbD (extractLsb hi lo x) i = (i ≤ (hi-lo) && getLsbD x (lo+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
-@[simp] theorem getLsbD_extractLsb (hi lo : Nat) (x : BitVec n) (i : Nat) :
+@[simp] theorem getLsbD_extractLsb {hi lo : Nat} {x : BitVec n} {i : Nat} :
     getLsbD (extractLsb hi lo x) i = (decide (i < hi - lo + 1) && x.getLsbD (lo + i)) := by
   rw [extractLsb, getLsbD_extractLsb']
 

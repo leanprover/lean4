@@ -32,6 +32,11 @@ A `Suggestion` is essentially just an identifier and a confidence score that the
 If the premise selection request included information about the intended use (e.g. in the simplifier, in `grind`, etc.)
 the score may be adjusted for that application.
 
+A `Suggestion` may optionally include suggested syntactical modifiers for particular tactics,
+e.g. indicating that if the identifier is used in `simp` it should be used with the `↓`, `↑`, or `←` modifiers,
+or that if the identifier is used in `grind` it should be used with a particular pattern modifier.
+To keep this extensible, these suggestions are represented as a `NameMap Syntax`,
+where the key is the name of the tactic and the value is the suggested syntax decorating the identifier.
 -/
 structure Suggestion where
   name : Name
@@ -39,6 +44,16 @@ structure Suggestion where
   The score of the suggestion, as a probability that this suggestion should be used.
   -/
   score : Float
+  /--
+  Optional, suggested syntactical modifiers for particular tactics.
+  e.g.
+  ```
+  (∅ : NameMap Syntax)
+    |>.insert `grind (← `(grindMod| ←=))
+    |>.insert `simp (← `(simpPre| ↓))
+  ```
+  -/
+  tacticModifiers : NameMap Syntax := {}
 
 structure Config where
   /--
@@ -47,7 +62,8 @@ structure Config where
   maxSuggestions : Option Nat := none
   /--
   The tactic that is calling the premise selection, e.g. `simp`, `grind`, or `aesop`.
-  This may be used to adjust the score of the suggestions
+  This may be used to adjust the score of the suggestions,
+  as well as to provide syntactical modifiers specific to the caller.
   -/
   caller : Option Name := none
   /--

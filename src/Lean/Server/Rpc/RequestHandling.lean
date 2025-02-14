@@ -80,11 +80,11 @@ def wrapRpcProcedure (method : Name) paramType respType
           message := s!"Cannot decode params in RPC call '{method}({j.compress})'\n{e}"
         }
 
-    let t ← RequestM.bindTask t fun
+    let t ← RequestM.bindTaskCheap t fun
       | Except.error e => throw e
       | Except.ok ps => handler ps
 
-    RequestM.mapTask t fun
+    RequestM.mapTaskCheap t fun
       | Except.error e => throw e
       | Except.ok ret =>
         seshRef.modifyGet fun st =>

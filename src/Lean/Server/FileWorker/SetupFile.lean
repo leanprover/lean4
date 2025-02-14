@@ -9,6 +9,7 @@ import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
+import Lean.Server.ServerTask
 
 namespace Lean.Server.FileWorker
 
@@ -45,7 +46,7 @@ partial def runLakeSetupFile
     else
       handleStderr line
       processStderr (acc ++ line)
-  let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
+  let stderr ← ServerTask.IO.asTask (processStderr "")
 
   let stdout := String.trim (← lakeProc.stdout.readToEnd)
   let stderr ← IO.ofExcept stderr.get

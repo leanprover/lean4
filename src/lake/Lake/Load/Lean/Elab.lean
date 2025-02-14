@@ -24,7 +24,7 @@ namespace Lake
 deriving instance BEq, Hashable for Import
 
 /- Cache for the imported header environment of Lake configuration files. -/
-initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
+builtin_initialize importEnvCache : IO.Ref (Std.HashMap (Array Import) Environment) ← IO.mkRef {}
 
 /-- Like `importModules`, but fetch the resulting import state from the cache if possible. -/
 def importModulesUsingCache (imports : Array Import) (opts : Options) (trustLevel : UInt32) : IO Environment := do

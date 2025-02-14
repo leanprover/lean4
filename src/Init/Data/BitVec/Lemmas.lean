@@ -3625,19 +3625,9 @@ theorem msb_twoPow {i w: Nat} :
 
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
-  ext j
-  simp only [getElem_and, getElem_twoPow]
-  by_cases hj : i = j
-  · subst hj
-    by_cases hx : x[i] <;> simp_all
-  · by_cases hi : i < w
-    · rw [getLsbD_eq_getElem (by omega)]
-      by_cases hx : x[i]
-      · simp_all
-      · simp_all
-        omega
-    · simp_all
-      omega
+  ext j h
+  simp only [←getLsbD_eq_getElem, getLsbD_and, getLsbD_twoPow]
+  by_cases hj : i = j <;> by_cases hx : x.getLsbD i <;> simp_all <;> omega
 
 theorem twoPow_and (x : BitVec w) (i : Nat) :
     (twoPow w i) &&& x = if x.getLsbD i then twoPow w i else 0#w := by
@@ -3709,7 +3699,6 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_of_getLsbD_false
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) := by
   ext k h
-  simp only [getElem_setWidth, h, decide_true, Bool.true_and, getElem_or, getElem_and]
   by_cases hik : i = k
   · subst hik
     simp [hx]
@@ -3725,10 +3714,10 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k h
-  simp [getElem_setWidth, h, decide_true, Bool.true_and, getElem_or, getElem_and]
   by_cases hik : i = k
   · subst hik
-    simp [hx, h, ← getLsbD_eq_getElem]
+    simp only [h, getLsbD_eq_getElem] at hx
+    simp [h, hx]
   · by_cases hik' : k < i + 1 <;> simp [hik, hik']
     · simp [show ¬ (k = i) by omega]
       omega
@@ -3737,7 +3726,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
 /-- Bitwise and of `(x : BitVec w)` with `1#w` equals zero extending `x.lsb` to `w`. -/
 theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :
     (x &&& 1#w) = setWidth w (ofBool (x.getLsbD 0)) := by
-  ext (_ | i) h <;> simp [Bool.and_comm, ←getLsbD_eq_getElem]
+  ext (_ | i) h <;> simp [Bool.and_comm, h]
 
 @[simp]
 theorem replicate_zero {x : BitVec w} : x.replicate 0 = 0#0 := by

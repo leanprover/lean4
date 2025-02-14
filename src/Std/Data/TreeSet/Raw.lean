@@ -191,6 +191,10 @@ def getLE? (t : Raw α cmp) (k : α) : Option α :=
 def getLT? (t : Raw α cmp) (k : α) : Option α :=
   TreeMap.Raw.getKeyLT? t.inner k
 
+/-!
+We do not provide `getGE`, `getGT`, `getLE`, `getLT` for the raw trees.
+-/
+
 @[inline, inherit_doc TreeSet.getGE!]
 def getGE! [Inhabited α] (t : Raw α cmp) (k : α) : α :=
   TreeMap.Raw.getKeyGE! t.inner k

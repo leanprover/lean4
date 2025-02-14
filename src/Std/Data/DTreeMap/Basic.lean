@@ -401,6 +401,11 @@ returning `none` if no such pair exists.
 def getEntryLT? (t : DTreeMap α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLT? k t.inner
 
+/-!
+`getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` can be found in
+`Std.Data.DTreeMap.AdditionalOperations`.
+-/
+
 /--
 Tries to retrieve the key-value pair with the smallest key that is greater than or equal to the
 given key, panicking if no such pair exists.
@@ -496,6 +501,11 @@ returning `none` if no such key exists.
 @[inline]
 def getKeyLT? (t : DTreeMap α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyLT? k
+
+/-!
+`getKeyGE`, `getKeyGT`, `getKeyLE`, `getKeyLT` can be found in
+`Std.Data.DTreeMap.AdditionalOperations`.
+-/
 
 /--
 Tries to retrieve the smallest key that is greater than or equal to the
@@ -657,6 +667,11 @@ def getEntryLE? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
 @[inline, inherit_doc DTreeMap.getEntryLT?]
 def getEntryLT? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLT? k t.inner
+
+/-!
+`getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` can be found in
+`Std.Data.DTreeMap.AdditionalOperations`.
+-/
 
 @[inline, inherit_doc DTreeMap.getEntryGE!]
 def getEntryGE! [Inhabited (α × β)] (t : DTreeMap α β cmp) (k : α) : (α × β) :=

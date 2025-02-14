@@ -255,6 +255,10 @@ returning `none` if no such element exists.
 def getLT? (t : TreeSet α cmp) (k : α) : Option α :=
   TreeMap.getKeyLT? t.inner k
 
+/-!
+`getGE`, `getGT`, `getLE`, `getLT` can be found in `Std.Data.TreeSet.AdditionalOperations`.
+-/
+
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
 given element, panicking if no such element exists.

@@ -270,6 +270,11 @@ def getEntryLE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
 def getEntryLT? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
   DTreeMap.Const.getEntryLT? t.inner k
 
+/-!
+`getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` can be found in
+`Std.Data.TreeMap.AdditionalOperations`.
+-/
+
 @[inline, inherit_doc DTreeMap.Const.getEntryGE!]
 def getEntryGE! [Inhabited (α × β)] (t : TreeMap α β cmp) (k : α) : (α × β) :=
   DTreeMap.Const.getEntryGE! t.inner k
@@ -317,6 +322,11 @@ def getKeyLE? (t : TreeMap α β cmp) (k : α) : Option α :=
 @[inline, inherit_doc DTreeMap.getKeyLT?]
 def getKeyLT? (t : TreeMap α β cmp) (k : α) : Option α :=
   DTreeMap.getKeyLT? t.inner k
+
+/-!
+`getKeyGE`, `getKeyGT`, `getKeyLE`, `getKeyLT` can be found in
+`Std.Data.TreeMap.AdditionalOperations`.
+-/
 
 @[inline, inherit_doc DTreeMap.getKeyGE!]
 def getKeyGE! [Inhabited α] (t : TreeMap α β cmp) (k : α) : α :=

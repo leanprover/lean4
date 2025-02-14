@@ -275,6 +275,10 @@ def getEntryLE? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
 def getEntryLT? (t : Raw α β cmp) (k : α) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLT? k t.inner
 
+/-!
+We do not provide `getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` for the raw trees.
+-/
+
 @[inline, inherit_doc DTreeMap.getEntryGE!]
 def getEntryGE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGE! k t.inner
@@ -322,6 +326,10 @@ def getKeyLE? (t : Raw α β cmp) (k : α) : Option α :=
 @[inline, inherit_doc DTreeMap.getKeyLT?]
 def getKeyLT? (t : Raw α β cmp) (k : α) : Option α :=
   letI : Ord α := ⟨cmp⟩; t.inner.getKeyLT? k
+
+/-!
+We do not provide `getKeyGE`, `getKeyGT`, `getKeyLE`, `getKeyLT` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.getKeyGE!]
 def getKeyGE! [Inhabited α] (t : Raw α β cmp) (k : α) : α :=
@@ -443,6 +451,10 @@ def getEntryLE? (t : Raw α β cmp) (k : α) : Option (α × β) :=
 @[inline, inherit_doc DTreeMap.Const.getEntryLT?]
 def getEntryLT? (t : Raw α β cmp) (k : α) : Option (α × β) :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.getEntryLT? k t.inner
+
+/-!
+We do not provide `getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE!]
 def getEntryGE! [Inhabited (α × β)] (t : Raw α β cmp) (k : α) : (α × β) :=

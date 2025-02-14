@@ -975,8 +975,8 @@ theorem or_eq_zero_iff {x y : BitVec w} : (x ||| y) = 0#w ↔ x = 0#w ∧ y = 0#
     constructor
     all_goals
     · ext i ih
-      have := BitVec.eq_of_getLsbD_eq_iff.mp h i ih
-      simp only [getLsbD_or, getLsbD_zero, Bool.or_eq_false_iff] at this
+      have := BitVec.eq_of_getElem_eq_iff.mp h i ih
+      simp only [getElem_or, getElem_zero, Bool.or_eq_false_iff] at this
       simp [this]
   · intro h
     simp [h]
@@ -1072,8 +1072,8 @@ theorem and_eq_allOnes_iff {x y : BitVec w} :
     constructor
     all_goals
     · ext i ih
-      have := BitVec.eq_of_getLsbD_eq_iff.mp h i ih
-      simp only [ih, getLsbD_eq_getElem, getElem_and, getElem_allOnes, Bool.and_eq_true] at this
+      have := BitVec.eq_of_getElem_eq_iff.mp h i ih
+      simp [ih, getLsbD_eq_getElem, getElem_and, getElem_allOnes, Bool.and_eq_true] at this
       simp [this, ih]
   · intro h
     simp [h]
@@ -1158,8 +1158,8 @@ theorem xor_left_inj {x y : BitVec w} (z : BitVec w) : (x ^^^ z = y ^^^ z) ↔ x
   constructor
   · intro h
     ext i ih
-    have := BitVec.eq_of_getLsbD_eq_iff.mp h i
-    simp only [getLsbD_xor, Bool.xor_left_inj] at this
+    have := BitVec.eq_of_getElem_eq_iff.mp h i
+    simp only [getElem_xor, Bool.xor_left_inj] at this
     exact this ih
   · intro h
     rw [h]
@@ -2141,7 +2141,7 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
   ext i hi
-  simp only [getLsbD_ushiftRight, getLsbD_cast, getLsbD_append, getLsbD_extractLsb', getLsbD_zero,
+  simp only [getElem_ushiftRight, getElem_cast, getElem_append, getLsbD_extractLsb', getLsbD_zero,
     Bool.if_false_right, Bool.and_self_left, Bool.iff_and_self, decide_eq_true_eq]
   intros h
   have := lt_of_getLsbD h
@@ -2150,8 +2150,8 @@ theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
 theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by
   ext i hi
-  simp only [getLsbD_shiftLeft, hi, decide_true, Bool.true_and, getLsbD_cast, getLsbD_append,
-    getLsbD_zero, getLsbD_extractLsb', Nat.zero_add, Bool.if_false_left]
+  simp only [getElem_shiftLeft, getElem_cast, getElem_append, getLsbD_zero, getLsbD_extractLsb',
+    Nat.zero_add, Bool.if_false_left]
   by_cases hi' : i < n
   · simp [hi']
   · simp [hi']

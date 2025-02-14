@@ -22,6 +22,14 @@ def UInt8.toFin (x : UInt8) : Fin UInt8.size := x.toBitVec.toFin
 def UInt8.val (x : UInt8) : Fin UInt8.size := x.toFin
 @[extern "lean_uint8_of_nat"]
 def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
+/--
+Converts the given natural number to `UInt8`, but returns `2^8 - 1` for natural numbers `>= 2^8`.
+-/
+def UInt8.ofNatTruncate (n : Nat) : UInt8 :=
+  if h : n < UInt8.size then
+    UInt8.ofNatLT n h
+  else
+    UInt8.ofNatLT (UInt8.size - 1) (by decide)
 abbrev Nat.toUInt8 := UInt8.ofNat
 @[extern "lean_uint8_to_nat"]
 def UInt8.toNat (n : UInt8) : Nat := n.toBitVec.toNat
@@ -34,6 +42,14 @@ def UInt16.toFin (x : UInt16) : Fin UInt16.size := x.toBitVec.toFin
 def UInt16.val (x : UInt16) : Fin UInt16.size := x.toFin
 @[extern "lean_uint16_of_nat"]
 def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨BitVec.ofNat 16 n⟩
+/--
+Converts the given natural number to `UInt16`, but returns `2^16 - 1` for natural numbers `>= 2^16`.
+-/
+def UInt16.ofNatTruncate (n : Nat) : UInt16 :=
+  if h : n < UInt16.size then
+    UInt16.ofNatLT n h
+  else
+    UInt16.ofNatLT (UInt16.size - 1) (by decide)
 abbrev Nat.toUInt16 := UInt16.ofNat
 @[extern "lean_uint16_to_nat"]
 def UInt16.toNat (n : UInt16) : Nat := n.toBitVec.toNat
@@ -96,6 +112,14 @@ def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 def UInt64.val (x : UInt64) : Fin UInt64.size := x.toFin
 @[extern "lean_uint64_of_nat"]
 def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨BitVec.ofNat 64 n⟩
+/--
+Converts the given natural number to `UInt64`, but returns `2^64 - 1` for natural numbers `>= 2^64`.
+-/
+def UInt64.ofNatTruncate (n : Nat) : UInt64 :=
+  if h : n < UInt64.size then
+    UInt64.ofNatLT n h
+  else
+    UInt64.ofNatLT (UInt64.size - 1) (by decide)
 abbrev Nat.toUInt64 := UInt64.ofNat
 @[extern "lean_uint64_to_nat"]
 def UInt64.toNat (n : UInt64) : Nat := n.toBitVec.toNat
@@ -123,6 +147,15 @@ def USize.toFin (x : USize) : Fin USize.size := x.toBitVec.toFin
 def USize.val (x : USize) : Fin USize.size := x.toFin
 @[extern "lean_usize_of_nat"]
 def USize.ofNat (n : @& Nat) : USize := ⟨BitVec.ofNat _ n⟩
+/--
+Converts the given natural number to `USize`, but returns `USize.size - 1` (i.e., `2^64 - 1` or
+`2^32 - 1` depending on the platform) for natural numbers `>= USize.size`.
+-/
+def USize.ofNatTruncate (n : Nat) : USize :=
+  if h : n < USize.size then
+    USize.ofNatLT n h
+  else
+    USize.ofNatLT (USize.size - 1) (Nat.pred_lt (Nat.ne_zero_of_lt usize_size_pos))
 abbrev Nat.toUSize := USize.ofNat
 @[extern "lean_usize_to_nat"]
 def USize.toNat (n : USize) : Nat := n.toBitVec.toNat

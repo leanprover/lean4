@@ -918,9 +918,16 @@ let x' = x.extractLsb' 5 6  =   _ 9 8 7 6 5 4
 
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb = (decide (0 < len) && x.getLsbD (start + len - 1)) := by
-  cases len
-  · simp [BitVec.msb]
-  · simp [BitVec.msb, BitVec.getMsbD_eq_getLsbD, ← Nat.add_assoc]
+  simp only [BitVec.msb, getMsbD_eq_getLsbD, getLsbD_extractLsb']
+  simp only [bool_to_prop]
+  simp only [Nat.sub_zero]
+  constructor
+  · rintro ⟨h₁, h₂⟩
+    simp [show (start + len - 1) = (start + (len - 1)) by omega, h₂]
+    omega
+  · rintro ⟨h₁, h₂⟩
+    simp [show (start + (len - 1)) = (start + len - 1) by omega, h₂]
+    omega
 
 @[simp] theorem getElem_extract {hi lo : Nat} {x : BitVec n} {i : Nat} (h : i < hi - lo + 1) :
     (extractLsb hi lo x)[i] = getLsbD x (lo+i) := by

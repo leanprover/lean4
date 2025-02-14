@@ -108,6 +108,24 @@ instance : OfNat Int8 n := ⟨Int8.ofNat n⟩
 instance : Neg Int8 where
   neg := Int8.neg
 
+/-- The maximum value an `Int8` may attain, that is, `2^7 - 1 = 127`. -/
+abbrev Int8.maxValue : Int8 := 127
+/-- The minimum value an `Int8` may attain, that is, `-2^7 = -128`. -/
+abbrev Int8.minValue : Int8 := -128
+/-- Constructs an `Int8` from an `Int` which is known to be in bounds. -/
+@[inline]
+def Int8.ofIntLE (i : Int) (_hl : Int8.minValue.toInt ≤ i) (_hr : i ≤ Int8.maxValue.toInt) : Int8 :=
+  Int8.ofInt i
+/-- Constructs an `Int8` from an `Int`, clamping if the value is too small or too large. -/
+def Int8.ofIntTruncate (i : Int) : Int8 :=
+  if hl : Int8.minValue.toInt ≤ i then
+    if hr : i ≤ Int8.maxValue.toInt then
+      Int8.ofIntLE i hl hr
+    else
+      Int8.minValue
+  else
+    Int8.minValue
+
 @[extern "lean_int8_add"]
 def Int8.add (a b : Int8) : Int8 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
 @[extern "lean_int8_sub"]
@@ -219,6 +237,24 @@ instance : ToString Int16 where
 instance : OfNat Int16 n := ⟨Int16.ofNat n⟩
 instance : Neg Int16 where
   neg := Int16.neg
+
+/-- The maximum value an `Int16` may attain, that is, `2^15 - 1 = 32767`. -/
+abbrev Int16.maxValue : Int16 := 32767
+/-- The minimum value an `Int16` may attain, that is, `-2^15 = -32768`. -/
+abbrev Int16.minValue : Int16 := -32768
+/-- Constructs an `Int16` from an `Int` which is known to be in bounds. -/
+@[inline]
+def Int16.ofIntLE (i : Int) (_hl : Int16.minValue.toInt ≤ i) (_hr : i ≤ Int16.maxValue.toInt) : Int16 :=
+  Int16.ofInt i
+/-- Constructs an `Int16` from an `Int`, clamping if the value is too small or too large. -/
+def Int16.ofIntTruncate (i : Int) : Int16 :=
+  if hl : Int16.minValue.toInt ≤ i then
+    if hr : i ≤ Int16.maxValue.toInt then
+      Int16.ofIntLE i hl hr
+    else
+      Int16.minValue
+  else
+    Int16.minValue
 
 @[extern "lean_int16_add"]
 def Int16.add (a b : Int16) : Int16 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
@@ -335,6 +371,24 @@ instance : ToString Int32 where
 instance : OfNat Int32 n := ⟨Int32.ofNat n⟩
 instance : Neg Int32 where
   neg := Int32.neg
+
+/-- The maximum value an `Int32` may attain, that is, `2^31 - 1 = 2147483647`. -/
+abbrev Int32.maxValue : Int32 := 2147483647
+/-- The minimum value an `Int32` may attain, that is, `-2^31 = -2147483648`. -/
+abbrev Int32.minValue : Int32 := -2147483648
+/-- Constructs an `Int32` from an `Int` which is known to be in bounds. -/
+@[inline]
+def Int32.ofIntLE (i : Int) (_hl : Int32.minValue.toInt ≤ i) (_hr : i ≤ Int32.maxValue.toInt) : Int32 :=
+  Int32.ofInt i
+/-- Constructs an `Int32` from an `Int`, clamping if the value is too small or too large. -/
+def Int32.ofIntTruncate (i : Int) : Int32 :=
+  if hl : Int32.minValue.toInt ≤ i then
+    if hr : i ≤ Int32.maxValue.toInt then
+      Int32.ofIntLE i hl hr
+    else
+      Int32.minValue
+  else
+    Int32.minValue
 
 @[extern "lean_int32_add"]
 def Int32.add (a b : Int32) : Int32 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
@@ -455,6 +509,24 @@ instance : ToString Int64 where
 instance : OfNat Int64 n := ⟨Int64.ofNat n⟩
 instance : Neg Int64 where
   neg := Int64.neg
+
+/-- The maximum value an `Int64` may attain, that is, `2^63 - 1 = 9223372036854775807`. -/
+abbrev Int64.maxValue : Int64 := 9223372036854775807
+/-- The minimum value an `Int64` may attain, that is, `-2^63 = -9223372036854775808`. -/
+abbrev Int64.minValue : Int64 := -9223372036854775808
+/-- Constructs an `Int64` from an `Int` which is known to be in bounds. -/
+@[inline]
+def Int64.ofIntLE (i : Int) (_hl : Int64.minValue.toInt ≤ i) (_hr : i ≤ Int64.maxValue.toInt) : Int64 :=
+  Int64.ofInt i
+/-- Constructs an `Int64` from an `Int`, clamping if the value is too small or too large. -/
+def Int64.ofIntTruncate (i : Int) : Int64 :=
+  if hl : Int64.minValue.toInt ≤ i then
+    if hr : i ≤ Int64.maxValue.toInt then
+      Int64.ofIntLE i hl hr
+    else
+      Int64.minValue
+  else
+    Int64.minValue
 
 @[extern "lean_int64_add"]
 def Int64.add (a b : Int64) : Int64 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
@@ -585,6 +657,26 @@ instance : ToString ISize where
 instance : OfNat ISize n := ⟨ISize.ofNat n⟩
 instance : Neg ISize where
   neg := ISize.neg
+
+/-- The maximum value an `ISize` may attain, that is, `2^(System.Platform.numBits - 1) - 1`. -/
+abbrev ISize.maxValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1) - 1)
+-- 9223372036854775807
+/-- The minimum value an `ISize` may attain, that is, `-2^(System.Platform.numBits - 1)`. -/
+abbrev ISize.minValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1))
+
+/-- Constructs an `ISize` from an `Int` which is known to be in bounds. -/
+@[inline]
+def ISize.ofIntLE (i : Int) (_hl : ISize.minValue.toInt ≤ i) (_hr : i ≤ ISize.maxValue.toInt) : ISize :=
+  ISize.ofInt i
+/-- Constructs an `ISize` from an `Int`, clamping if the value is too small or too large. -/
+def ISize.ofIntTruncate (i : Int) : ISize :=
+  if hl : ISize.minValue.toInt ≤ i then
+    if hr : i ≤ ISize.maxValue.toInt then
+      ISize.ofIntLE i hl hr
+    else
+      ISize.minValue
+  else
+    ISize.minValue
 
 @[extern "lean_isize_add"]
 def ISize.add (a b : ISize) : ISize := ⟨⟨a.toBitVec + b.toBitVec⟩⟩

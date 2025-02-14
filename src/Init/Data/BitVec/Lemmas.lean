@@ -889,7 +889,7 @@ Example (w = 10, start := 7, len := 5):
 
                                     |= w - (start + len)    = 0
                                 |      start + len    |     = 12
-                                        |start|             = 7
+                                        |    start    |     = 7
                                 |  len  |                   = 5
 let x                       =       9 8 7 6 5 4 3 2 1 0
 let x' = x.extractLsb' 3 4  =   _ _ 9 8 7

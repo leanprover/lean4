@@ -51,6 +51,14 @@ Returns `a` modulo `n + 1` as a `Fin n.succ`.
 protected def ofNat {n : Nat} (a : Nat) : Fin (n + 1) :=
   ⟨a % (n+1), Nat.mod_lt _ (Nat.zero_lt_succ _)⟩
 
+-- We provide this because other similar types have a `toNat` function, but `simp` rewrites
+-- `i.toNat` to `i.val`.
+@[inline, inherit_doc val]
+protected def toNat (i : Fin n) : Nat :=
+  i.val
+
+@[simp] theorem toNat_eq_val {i : Fin n} : i.toNat = i.val := rfl
+
 private theorem mlt {b : Nat} : {a : Nat} → a < n → b % n < n
   | 0,   h => Nat.mod_lt _ h
   | _+1, h =>

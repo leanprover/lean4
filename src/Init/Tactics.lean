@@ -1590,6 +1590,13 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
+`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+
+The suggestions are printed in the order of their confidence, from highest to lowest.
+-/
+syntax (name := suggestPremises) "suggest_premises" : tactic
+
+/--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
 verifying it inside Lean. The solvable goals are currently limited to
 - the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)

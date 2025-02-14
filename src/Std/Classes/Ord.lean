@@ -90,8 +90,18 @@ theorem OrientedCmp.not_isLE_of_lt [OrientedCmp cmp] {a b : α} :
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   simp
 
+theorem OrientedCmp.not_isGE_of_gt [OrientedCmp cmp] {a b : α} :
+    cmp a b = .gt → ¬(cmp b a).isGE := by
+  rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
+  simp
+
 theorem OrientedCmp.not_lt_of_isLE [OrientedCmp cmp] {a b : α} :
     (cmp a b).isLE → cmp b a ≠ .lt := by
+  rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
+  cases cmp b a <;> simp
+
+theorem OrientedCmp.not_gt_of_isGE [OrientedCmp cmp] {a b : α} :
+    (cmp a b).isGE → cmp b a ≠ .gt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
@@ -100,8 +110,18 @@ theorem OrientedCmp.not_lt_of_lt [OrientedCmp cmp] {a b : α} :
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
+theorem OrientedCmp.not_gt_of_gt [OrientedCmp cmp] {a b : α} :
+    cmp a b = .gt → cmp b a ≠ .gt := by
+  rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
+  cases cmp b a <;> simp
+
 theorem OrientedCmp.lt_of_not_isLE [OrientedCmp cmp] {a b : α} :
     ¬(cmp a b).isLE → cmp b a = .lt := by
+  rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
+  cases cmp b a <;> simp
+
+theorem OrientedCmp.gt_of_not_isGE [OrientedCmp cmp] {a b : α} :
+    ¬(cmp a b).isGE → cmp b a = .gt := by
   rw [OrientedCmp.eq_swap (cmp := cmp) (a := a) (b := b)]
   cases cmp b a <;> simp
 
@@ -119,12 +139,24 @@ abbrev TransOrd (α : Type u) [Ord α] := TransCmp (compare : α → α → Orde
 
 variable {α : Type u} {cmp : α → α → Ordering}
 
+theorem TransCmp.ge_trans [TransCmp cmp] {a b c : α} (h₁ : (cmp a b).isGE) (h₂ : (cmp b c).isGE) :
+    (cmp a c).isGE := by
+  rw [OrientedCmp.isGE_iff_isLE] at *
+  exact TransCmp.le_trans h₂ h₁
+
 theorem TransCmp.lt_of_lt_of_eq [TransCmp cmp] {a b c : α} (hab : cmp a b = .lt)
     (hbc : cmp b c = .eq) : cmp a c = .lt := by
   apply OrientedCmp.lt_of_not_isLE
   intro hca
   suffices cmp a b ≠ .lt from absurd hab this
   exact OrientedCmp.not_lt_of_isLE (TransCmp.le_trans (Ordering.isLE_of_eq_eq hbc) hca)
+
+theorem TransCmp.gt_of_gt_of_eq [TransCmp cmp] {a b c : α} (hab : cmp a b = .gt)
+    (hbc : cmp b c = .eq) : cmp a c = .gt := by
+  apply OrientedCmp.gt_of_not_isGE
+  intro hca
+  suffices cmp a b ≠ .gt from absurd hab this
+  exact OrientedCmp.not_gt_of_isGE (TransCmp.ge_trans (Ordering.isGE_of_eq_eq hbc) hca)
 
 theorem TransCmp.lt_of_eq_of_lt [TransCmp cmp] {a b c : α} (hab : cmp a b = .eq)
     (hbc : cmp b c = .lt) : cmp a c = .lt := by

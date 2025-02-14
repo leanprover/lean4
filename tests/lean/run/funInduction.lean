@@ -35,7 +35,7 @@ example : P (ackermann p) := by
   fun_induction ackermann p
   fail
 
-/-- error: tactic 'Lean.Parser.Tactic.funCases' has not been implemented -/
+/-- error: no functional induction theorem for 'ackermann', or function is mutually recursive -/
 #guard_msgs in
 example : P (ackermann p) := by
   fun_cases ackermann p
@@ -65,7 +65,7 @@ ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 example : P (ackermann (n, m)) := by
   fun_induction ackermann (n, m)
 
-/-- error: tactic 'Lean.Parser.Tactic.funCases' has not been implemented -/
+/-- error: no functional induction theorem for 'ackermann', or function is mutually recursive -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
   fun_cases ackermann (n, m)
@@ -343,7 +343,7 @@ namespace Nonrec
 
 def foo := 1
 
-/-- error: no functional induction theorem for 'foo', or function is mutually recursive -/
+/-- error: no functional cases theorem for 'foo', or function is mutually recursive -/
 #guard_msgs in
 example : True := by
   fun_induction foo
@@ -367,7 +367,7 @@ def Tree.size_aux : List (Tree α) → Nat
   | t :: ts => size t + size_aux ts
 end
 
-/-- error: no functional induction theorem for 'Tree.size', or function is mutually recursive -/
+/-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
   fun_induction Tree.size t

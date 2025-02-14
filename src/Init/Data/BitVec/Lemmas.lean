@@ -865,11 +865,12 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb' start len x).getMsbD i =
       (decide (i < len) &&
       (decide (start + (len - 1 - i) < w) &&
-      x.getMsbD (w - 1 - (start + (len - 1 - i))))) := by
-  rcases len with rfl | len
-  · simp
-  · rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
-    simp [show (len - i < len + 1) by omega]
+      x.getMsbD (w - (start + len - i)))) := by
+  rw [getMsbD_eq_getLsbD, getLsbD_extractLsb', getLsbD_eq_getMsbD]
+  by_cases h : i < len
+  · simp [show w - (start + len - i) = w - 1 - (start + (len - 1 - i)) by omega, h]
+    omega
+  · simp [h]
 
 @[simp] theorem msb_extractLsb' {start len : Nat} {x : BitVec w} :
     (extractLsb' start len x).msb = (decide (0 < len) && x.getLsbD (start + len - 1)) := by

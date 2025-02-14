@@ -129,4 +129,13 @@ protected theorem mul_div_assoc (m : Nat) (H : k ∣ n) : m * n / k = m * (n / k
     have h1 : m * n / k = m * (n / k * k) / k := by rw [Nat.div_mul_cancel H]
     rw [h1, ← Nat.mul_assoc, Nat.mul_div_cancel _ hpos]
 
+/-! Helper theorems for `dvd` simproc -/
+
+protected theorem dvd_eq_true_of_mod_eq_zero {m n : Nat} (h : n % m == 0) : (m ∣ n) = True := by
+  simp [Nat.dvd_of_mod_eq_zero, eq_of_beq h]
+
+protected theorem dvd_eq_false_of_mod_ne_zero {m n : Nat} (h : n % m != 0) : (m ∣ n) = False := by
+  simp [eq_of_beq] at h
+  simp [dvd_iff_mod_eq_zero, h]
+
 end Nat

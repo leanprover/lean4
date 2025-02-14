@@ -108,4 +108,14 @@ builtin_dsimproc [simp, seval] reduceOfNat (Int.ofNat _) := fun e => do
   let some a ← getNatValue? a | return .continue
   return .done <| toExpr (Int.ofNat a)
 
+builtin_simproc [simp, seval] reduceDvd ((_ : Int) ∣ _) := fun e => do
+  let_expr Dvd.dvd _ i a b ← e | return .continue
+  unless ← matchesInstance i (mkConst ``instDvd) do return .continue
+  let some va ← fromExpr? a | return .continue
+  let some vb ← fromExpr? b | return .continue
+  if vb % va == 0 then
+    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Int.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+  else
+    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Int.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+
 end Int

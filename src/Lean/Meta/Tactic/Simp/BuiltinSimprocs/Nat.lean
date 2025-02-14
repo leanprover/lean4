@@ -345,4 +345,14 @@ builtin_simproc [simp, seval] reduceSubDiff ((_ - _ : Nat)) := fun e => do
       let geProof ← mkOfDecideEqTrue (mkGENat po no)
       applySimprocConst finExpr ``Nat.Simproc.add_sub_add_ge #[pb, nb, po, no, geProof]
 
+builtin_simproc [simp, seval] reduceDvd ((_ : Nat) ∣ _) := fun e => do
+  let_expr Dvd.dvd _ i a b ← e | return .continue
+  unless ← matchesInstance i (mkConst ``instDvd) do return .continue
+  let some va ← fromExpr? a | return .continue
+  let some vb ← fromExpr? b | return .continue
+  if vb % va == 0 then
+    return .done { expr := mkConst ``True, proof? := mkApp3 (mkConst ``Nat.dvd_eq_true_of_mod_eq_zero) a b reflBoolTrue}
+  else
+    return .done { expr := mkConst ``False, proof? := mkApp3 (mkConst ``Nat.dvd_eq_false_of_mod_ne_zero) a b reflBoolTrue}
+
 end Nat

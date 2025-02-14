@@ -660,7 +660,7 @@ Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable
 `foo.induct` for it. See module doc for details.
  -/
 def deriveUnaryInduction (name : Name) : MetaM Name := do
-  let inductName := .append name `induct
+  let inductName := getFunInductName name
   if ← hasConst inductName then return inductName
 
   let info ← getConstInfoDefn name
@@ -761,7 +761,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
   let levelParams := ci.levelParams
 
   for name in names, idx in [:names.size] do
-    let inductName := .append name `induct
+    let inductName := getFunInductName name
     unless ← hasConst inductName do
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
@@ -776,7 +776,7 @@ For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with 
 derives the one for the n-ary function.
 -/
 def setNaryFunIndInfo (name : Name) (arity : Nat) (unaryInduct : Name) : MetaM Unit := do
-    let inductName := name ++ `induct
+    let inductName := getFunInductName name
     unless inductName = unaryInduct do
       let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
         | throwError "Expected {unaryInduct} to have FunIndInfo"
@@ -848,10 +848,10 @@ unpacks it into a n-ary and (possibly) joint induction principle.
 -/
 def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : MetaM Name := do
   let inductName := if eqnInfo.declNames.size > 1 then
-    .append eqnInfo.declNames[0]! `mutual_induct
+    getMutualInductName eqnInfo.declNames[0]!
   else
     -- If there is no mutual recursion, we generate the `foo.induct` directly.
-    .append eqnInfo.declNames[0]! `induct
+    getFunInductName eqnInfo.declNames[0]!
   if ← hasConst inductName then return inductName
 
   let ci ← getConstInfo unaryInductName
@@ -1095,9 +1095,9 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
   let inductName :=
     if names.size = 1 then
-      names[0]! ++ `induct
+      getFunInductName names[0]!
     else
-      names[0]! ++ `mutual_induct
+      getMutualInductName names[0]!
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
@@ -1143,6 +1143,8 @@ def deriveCases (name : Name) : MetaM Unit := do
         throwError "'{name}' does not have an unfold theorem nor a value"
     let motiveType ← lambdaTelescope value fun xs _body => do
       mkForallFVars xs (.sort 0)
+    let motiveArity ← lambdaTelescope value fun xs _body => do
+      pure xs.size
     let e' ← withLocalDeclD `motive motiveType fun motive => do
       lambdaTelescope value fun xs body => do
         let (e',mvars) ← M2.run do
@@ -1170,8 +1172,16 @@ def deriveCases (name : Name) : MetaM Unit := do
     let usMask := funUs.map (levelParams.contains ·)
     let us := maskArray usMask funUs |>.toList
 
+    let casesName := getFunCasesName info.name
     addDecl <| Declaration.thmDecl
-      { name := info.name ++ `fun_cases, levelParams := us, type := eTyp, value := e' }
+      { name := casesName, levelParams := us, type := eTyp, value := e' }
+
+    setFunIndInfo {
+      funIndName := casesName
+      levelMask := usMask
+      params := mkArray motiveArity .target
+    }
+
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.

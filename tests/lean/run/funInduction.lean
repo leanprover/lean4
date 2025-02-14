@@ -35,7 +35,23 @@ example : P (ackermann p) := by
   fun_induction ackermann p
   fail
 
-/-- error: no functional induction theorem for 'ackermann', or function is mutually recursive -/
+/--
+error: tactic 'fail' failed
+case case1
+P : Nat → Prop
+m✝ : Nat
+⊢ P (ackermann (0, m✝))
+
+case case2
+P : Nat → Prop
+n✝ : Nat
+⊢ P (ackermann (n✝.succ, 0))
+
+case case3
+P : Nat → Prop
+n✝ m✝ : Nat
+⊢ P (ackermann (n✝.succ, m✝.succ))
+-/
 #guard_msgs in
 example : P (ackermann p) := by
   fun_cases ackermann p
@@ -65,10 +81,49 @@ ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 example : P (ackermann (n, m)) := by
   fun_induction ackermann (n, m)
 
-/-- error: no functional induction theorem for 'ackermann', or function is mutually recursive -/
+/--
+error: unsolved goals
+case case1
+P : Nat → Prop
+n m m✝ : Nat
+⊢ P (ackermann (0, m✝))
+
+case case2
+P : Nat → Prop
+n m n✝ : Nat
+⊢ P (ackermann (n✝.succ, 0))
+
+case case3
+P : Nat → Prop
+n m n✝ m✝ : Nat
+⊢ P (ackermann (n✝.succ, m✝.succ))
+-/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
   fun_cases ackermann (n, m)
+
+-- Testing Generalization:
+
+/--
+error: unsolved goals
+case case1
+P : Nat → Prop
+n m m✝ : Nat
+⊢ P (ackermann (n, m))
+
+case case2
+P : Nat → Prop
+n m n✝ : Nat
+⊢ P (ackermann (n, m))
+
+case case3
+P : Nat → Prop
+n m n✝ m✝ : Nat
+⊢ P (ackermann (n, m))
+-/
+#guard_msgs in
+example : P (ackermann (n, m)) := by
+  fun_cases ackermann (n+n, m)
 
 end Ex1
 

@@ -23,26 +23,41 @@ inductive FunIndParamKind where
   | target
 deriving BEq, Repr
 
+/--
+A `FunIndInfo` indicates how a function's arguments map to the arguments of the functional induction
+(resp. cases) theorem.
+
+The size of `params` also indicates the arity of the function.
+-/
 structure FunIndInfo where
   funIndName : Name
+  /--
+  `true` means that the corresponding level parameter of the function is also a level param
+  of the induction principle.
+  -/
   levelMask : Array Bool
   params : Array FunIndParamKind
 deriving Inhabited, Repr
 
 builtin_initialize funIndInfoExt : MapDeclarationExtension FunIndInfo ← mkMapDeclarationExtension
 
--- TODO: Use everywhere
-def getFunInductName (cases : Bool) (declName : Name) : Name :=
-  if cases then
-    declName ++ `fun_cases
-  else
-    declName ++ `induct
+def getFunInductName (declName : Name) : Name :=
+  declName ++ `induct
 
--- TODO: Moved from try? use getFunIndInfo? there
+def getFunCasesName (declName : Name) : Name :=
+  declName ++ `fun_cases
+
+def getMutualInductName (declName : Name) : Name :=
+  declName ++ `mutual_induct
+
 def getFunInduct? (cases : Bool) (declName : Name) : CoreM (Option Name) := do
   let .defnInfo _ ← getConstInfo declName | return none
   try
-    let result ← realizeGlobalConstNoOverloadCore (getFunInductName cases declName)
+    let thmName := if cases then
+      getFunCasesName declName
+    else
+      getFunInductName declName
+    let result ← realizeGlobalConstNoOverloadCore thmName
     return some result
   catch _ =>
     return none

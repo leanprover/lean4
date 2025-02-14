@@ -20,7 +20,7 @@ set_option linter.missingDocs true
 
 universe u v w
 
-variable {α : Type u} {β : Type v} {γ : Type w} {cmp : α → α → Ordering}
+variable {α : Type u} {β : Type v} {cmp : α → α → Ordering}
 
 namespace Std.TreeMap
 
@@ -30,7 +30,7 @@ We do not provide `get*GE`, `get*GT`, `get*LE` and `get*LT` functions for the ra
 
 /--
 Given a proof that such an element exists, retrieves the smallest element that is
-greater than or equal to the given key.
+greater than or equal to the given element.
 -/
 @[inline]
 def getGE [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, (cmp a k).isGE) : α :=
@@ -38,7 +38,7 @@ def getGE [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, (cmp a 
 
 /--
 Given a proof that such an element exists, retrieves the smallest element that is
-greater than the given key.
+greater than the given element.
 -/
 @[inline]
 def getGT [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, cmp a k = .gt) : α :=
@@ -46,7 +46,7 @@ def getGT [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, cmp a k
 
 /--
 Given a proof that such an element exists, retrieves the largest element that is
-less than or equal to the given key.
+less than or equal to the given element.
 -/
 @[inline]
 def getLE [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, (cmp a k).isLE) : α :=
@@ -54,7 +54,7 @@ def getLE [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, (cmp a 
 
 /--
 Given a proof that such an element exists, retrieves the smallest element that is
-less than the given key.
+less than the given element.
 -/
 @[inline]
 def getLT [TransCmp cmp] (t : TreeSet α cmp) (k : α) (h : ∃ a ∈ t, cmp a k = .lt) : α :=

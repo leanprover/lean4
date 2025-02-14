@@ -137,7 +137,9 @@ def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
 def min? (t : Raw α cmp) : Option α :=
   TreeMap.Raw.minKey? t.inner
 
--- We do not provide `min` for the raw trees
+/-!
+We do not provide `min` for the raw trees.
+-/
 
 @[inline, inherit_doc TreeSet.min!]
 def min! [Inhabited α] (t : Raw α cmp) : α :=
@@ -151,7 +153,9 @@ def minD (t : Raw α cmp) (fallback : α) : α :=
 def max? (t : Raw α cmp) : Option α :=
   TreeMap.Raw.maxKey? t.inner
 
--- We do not provide `max` for the raw trees
+/-!
+We do not provide `max` for the raw trees.
+-/
 
 @[inline, inherit_doc TreeSet.max!]
 def max! [Inhabited α] (t : Raw α cmp) : α :=
@@ -165,7 +169,9 @@ def maxD (t : Raw α cmp) (fallback : α) : α :=
 def atIndex? (t : Raw α cmp) (n : Nat) : Option α :=
   TreeMap.Raw.keyAtIndex? t.inner n
 
--- We do not provide `atIndex` for the raw trees
+/-!
+We do not provide `atIndex` for the raw trees.
+-/
 
 @[inline, inherit_doc TreeSet.atIndex!]
 def atIndex! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=

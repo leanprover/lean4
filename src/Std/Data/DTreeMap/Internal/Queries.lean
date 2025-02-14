@@ -1,5 +1,5 @@
 /-
-Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
+Copyright c 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
@@ -103,7 +103,7 @@ def getD [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (fallback : β k) :
 namespace Const
 
 /-- Returns the value for the key `k`, or `none` if such a key does not exist. -/
-def get? [Ord α] (k : α) (t : Impl α (δ)) : Option δ :=
+def get? [Ord α] (k : α) (t : Impl α δ) : Option δ :=
   match t with
   | .leaf => none
   | .inner _ k' v' l r =>
@@ -113,7 +113,7 @@ def get? [Ord α] (k : α) (t : Impl α (δ)) : Option δ :=
     | .eq => some v'
 
 /-- Returns the value for the key `k`. -/
-def get [Ord α] (k : α) (t : Impl α (δ)) (hlk : t.contains k = true) : δ :=
+def get [Ord α] (k : α) (t : Impl α δ) (hlk : t.contains k = true) : δ :=
   match t with
   | .inner _ k' v' l r =>
     match h : compare k k' with
@@ -122,7 +122,7 @@ def get [Ord α] (k : α) (t : Impl α (δ)) (hlk : t.contains k = true) : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or panics if such a key does not exist. -/
-def get! [Ord α] (k : α) (t : Impl α (δ)) [Inhabited δ] : δ :=
+def get! [Ord α] (k : α) (t : Impl α δ) [Inhabited δ] : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' v' l r =>
@@ -132,7 +132,7 @@ def get! [Ord α] (k : α) (t : Impl α (δ)) [Inhabited δ] : δ :=
     | .eq => v'
 
 /-- Returns the value for the key `k`, or `fallback` if such a key does not exist. -/
-def getD [Ord α] (k : α) (t : Impl α (δ)) (fallback : δ) : δ :=
+def getD [Ord α] (k : α) (t : Impl α δ) (fallback : δ) : δ :=
   match t with
   | .leaf => fallback
   | .inner _ k' v' l r =>
@@ -326,6 +326,79 @@ def maxKeyD [Ord α] : Impl α β → α → α
   | .inner _ k _ _ .leaf, _ => k
   | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => r.maxKeyD fallback
 
+attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
+
+/-- Implementation detail of the tree map -/
+def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => l'.atIndex hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => ⟨k, v⟩
+    | .gt => r'.atIndex hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def atIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex? n
+    | .eq => some ⟨k, v⟩
+    | .gt => r.atIndex? (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => l.atIndex! n
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndex! (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => l.atIndexD n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => r.atIndexD (n - l.size - 1) fallback
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
+  | .inner _ k _ l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => keyAtIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => k
+    | .gt =>
+      keyAtIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex? [Ord α] : Impl α β → Nat → Option α
+  | .leaf, _ => none
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex? l n
+    | .eq => some k
+    | .gt => keyAtIndex? r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndex! [Ord α] [Inhabited α] : Impl α β → Nat → α
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k _ l r, n =>
+    match compare n l.size with
+    | .lt => keyAtIndex! l n
+    | .eq => k
+    | .gt => keyAtIndex! r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def keyAtIndexD [Ord α] : Impl α β → Nat → α → α
+  | .leaf, _, fallback => fallback
+  | .inner _ k _ l r, n, fallback =>
+    match compare n l.size with
+    | .lt => keyAtIndexD l n fallback
+    | .eq => k
+    | .gt => keyAtIndexD r (n - l.size - 1) fallback
+
 /-- Implementation detail of the tree map -/
 @[inline]
 def getEntryGE? [Ord α] (k : α) : Impl α β → Option ((a : α) × β a) :=
@@ -413,7 +486,6 @@ def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : (a : α) × β a)
   t.getEntryLT? k |>.getD fallback
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) →
   (a : α) × β a
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -427,7 +499,6 @@ def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
     exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
   (a : α) × β a
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -442,7 +513,6 @@ def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
         simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
   (a : α) × β a
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -456,7 +526,6 @@ def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
     exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
   (a : α) × β a
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -666,6 +735,43 @@ def maxD [Ord α] : Impl α β → α × β → α × β
 
 /-- Implementation detail of the tree map -/
 @[inline]
+def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
+  | .inner _ k v l' r', hl, n, h =>
+    match h : compare n l'.size with
+    | .lt => atIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .eq => ⟨k, v⟩
+    | .gt =>
+      atIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+
+/-- Implementation detail of the tree map -/
+def atIndex? [Ord α] : Impl α β → Nat → Option (α × β)
+  | .leaf, _ => none
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex? l n
+    | .eq => some ⟨k, v⟩
+    | .gt => atIndex? r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndex! [Ord α] [Inhabited (α × β)] : Impl α β → Nat → α × β
+  | .leaf, _ => panic! "Out-of-bounds access"
+  | .inner _ k v l r, n =>
+    match compare n l.size with
+    | .lt => atIndex! l n
+    | .eq => ⟨k, v⟩
+    | .gt => atIndex! r (n - l.size - 1)
+
+/-- Implementation detail of the tree map -/
+def atIndexD [Ord α] : Impl α β → Nat → α × β → α × β
+  | .leaf, _, fallback => fallback
+  | .inner _ k v l r, n, fallback =>
+    match compare n l.size with
+    | .lt => atIndexD l n fallback
+    | .eq => ⟨k, v⟩
+    | .gt => atIndexD r (n - l.size - 1) fallback
+
+/-- Implementation detail of the tree map -/
+@[inline]
 def getEntryGE? [Ord α] (k : α) : Impl α β → Option (α × β) :=
   go none
 where
@@ -751,7 +857,6 @@ def getEntryLTD [Ord α] (k : α) (t : Impl α β) (fallback : α × β) : α ×
   getEntryLT? k t |>.getD fallback
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isGE) →
   α × β
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -765,7 +870,6 @@ def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
     exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
   α × β
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -780,7 +884,6 @@ def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
         simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
   α × β
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -794,7 +897,6 @@ def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
     exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
-@[inline]
 def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
   α × β
 | .leaf, _, he => False.elim <| by obtain ⟨_, ha, _⟩ := he; cases ha
@@ -807,129 +909,6 @@ def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
         apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
         apply TransCmp.lt_of_lt_of_isLE hc
         simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
-
-end Const
-
-/-!
-## `atIndex` variants
-
-While it would be preferable to put these into `Std.Data.DTreeMap.Internal.Queries`, `atIndex`
-depends on `Balanced`, so we put them here.
--/
-
-attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
-
-/-- Implementation detail of the tree map -/
-def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
-  | .inner _ k v l' r', hl, n, h =>
-    match h : compare n l'.size with
-    | .lt => l'.atIndex hl.left n (by simpa only [Std.Internal.tree_tac] using h)
-    | .eq => ⟨k, v⟩
-    | .gt => r'.atIndex hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
-
-/-- Implementation detail of the tree map -/
-def atIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
-  | .leaf, _ => none
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => l.atIndex? n
-    | .eq => some ⟨k, v⟩
-    | .gt => r.atIndex? (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def atIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
-  | .leaf, _ => panic! "Out-of-bounds access"
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => l.atIndex! n
-    | .eq => ⟨k, v⟩
-    | .gt => r.atIndex! (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def atIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
-  | .leaf, _, fallback => fallback
-  | .inner _ k v l r, n, fallback =>
-    match compare n l.size with
-    | .lt => l.atIndexD n fallback
-    | .eq => ⟨k, v⟩
-    | .gt => r.atIndexD (n - l.size - 1) fallback
-
-/-- Implementation detail of the tree map -/
-def keyAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
-  | .inner _ k _ l' r', hl, n, h =>
-    match h : compare n l'.size with
-    | .lt => keyAtIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
-    | .eq => k
-    | .gt =>
-      keyAtIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
-
-/-- Implementation detail of the tree map -/
-def keyAtIndex? [Ord α] : Impl α β → Nat → Option α
-  | .leaf, _ => none
-  | .inner _ k _ l r, n =>
-    match compare n l.size with
-    | .lt => keyAtIndex? l n
-    | .eq => some k
-    | .gt => keyAtIndex? r (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def keyAtIndex! [Ord α] [Inhabited α] : Impl α β → Nat → α
-  | .leaf, _ => panic! "Out-of-bounds access"
-  | .inner _ k _ l r, n =>
-    match compare n l.size with
-    | .lt => keyAtIndex! l n
-    | .eq => k
-    | .gt => keyAtIndex! r (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def keyAtIndexD [Ord α] : Impl α β → Nat → α → α
-  | .leaf, _, fallback => fallback
-  | .inner _ k _ l r, n, fallback =>
-    match compare n l.size with
-    | .lt => keyAtIndexD l n fallback
-    | .eq => k
-    | .gt => keyAtIndexD r (n - l.size - 1) fallback
-
-namespace Const
-
-variable {β : Type v}
-
-/-- Implementation detail of the tree map -/
-@[inline]
-def atIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
-  | .inner _ k v l' r', hl, n, h =>
-    match h : compare n l'.size with
-    | .lt => atIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
-    | .eq => ⟨k, v⟩
-    | .gt =>
-      atIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
-
-/-- Implementation detail of the tree map -/
-def atIndex? [Ord α] : Impl α β → Nat → Option (α × β)
-  | .leaf, _ => none
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => atIndex? l n
-    | .eq => some ⟨k, v⟩
-    | .gt => atIndex? r (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def atIndex! [Ord α] [Inhabited (α × β)] : Impl α β → Nat → α × β
-  | .leaf, _ => panic! "Out-of-bounds access"
-  | .inner _ k v l r, n =>
-    match compare n l.size with
-    | .lt => atIndex! l n
-    | .eq => ⟨k, v⟩
-    | .gt => atIndex! r (n - l.size - 1)
-
-/-- Implementation detail of the tree map -/
-def atIndexD [Ord α] : Impl α β → Nat → α × β → α × β
-  | .leaf, _, fallback => fallback
-  | .inner _ k v l r, n, fallback =>
-    match compare n l.size with
-    | .lt => atIndexD l n fallback
-    | .eq => ⟨k, v⟩
-    | .gt => atIndexD r (n - l.size - 1) fallback
 
 end Const
 

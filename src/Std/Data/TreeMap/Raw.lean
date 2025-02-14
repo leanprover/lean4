@@ -180,7 +180,9 @@ instance : GetElem? (Raw α β cmp) α β (fun m a => a ∈ m) where
 def min? (t : Raw α β cmp) : Option (α × β) :=
   DTreeMap.Raw.Const.min? t.inner
 
--- We do not provide `min` for the raw trees
+/-!
+We do not provide `min` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.Const.min!]
 def min! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
@@ -194,7 +196,9 @@ def minD (t : Raw α β cmp) (fallback : α × β) : α × β :=
 def max? (t : Raw α β cmp) : Option (α × β) :=
   DTreeMap.Raw.Const.max? t.inner
 
--- We do not provide `max` for the raw trees
+/-!
+We do not provide `max` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.Const.max!]
 def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
@@ -208,7 +212,9 @@ def maxD (t : Raw α β cmp) (fallback : α × β) : α × β :=
 def minKey? (t : Raw α β cmp) : Option α :=
   DTreeMap.Raw.minKey? t.inner
 
--- We do not provide `minKeyD` for the raw trees
+/-!
+We do not provide `minKey` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.minKey!]
 def minKey! [Inhabited α] (t : Raw α β cmp) : α :=
@@ -222,7 +228,9 @@ def minKeyD (t : Raw α β cmp) (fallback : α) : α :=
 def maxKey? (t : Raw α β cmp) : Option α :=
   DTreeMap.Raw.maxKey? t.inner
 
--- We do not provide `maxKeyD` for the raw trees
+/-!
+We do not provide `maxKey` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.maxKey!]
 def maxKey! [Inhabited α] (t : Raw α β cmp) : α :=
@@ -236,7 +244,9 @@ def maxKeyD (t : Raw α β cmp) (fallback : α) : α :=
 def atIndex? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
   DTreeMap.Raw.Const.atIndex? t.inner n
 
--- We do not provide `atIndex` for the raw trees
+/-!
+We do not provide `atIndex` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.Const.atIndex!]
 def atIndex! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
@@ -250,7 +260,9 @@ def atIndexD (t : Raw α β cmp) (n : Nat) (fallback : α × β) : α × β :=
 def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
   DTreeMap.Raw.keyAtIndex? t.inner n
 
--- We do not provide `keyAtIndex` for the raw trees
+/-!
+We do not provide `keyAtIndex` for the raw trees.
+-/
 
 @[inline, inherit_doc DTreeMap.Raw.keyAtIndex!]
 def keyAtIndex! [Inhabited α] (t : Raw α β cmp) (n : Nat) : α :=

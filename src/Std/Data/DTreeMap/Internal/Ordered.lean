@@ -15,6 +15,13 @@ This file defines what it means for a tree map to be ordered. This definition is
 `Ordered` predicate.
 -/
 
+set_option autoImplicit false
+set_option linter.all true
+
+universe u v w
+
+variable {α : Type u} {β : α → Type v}
+
 namespace Std.DTreeMap.Internal.Impl
 open Std.Internal
 

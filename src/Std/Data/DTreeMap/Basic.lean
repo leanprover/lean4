@@ -219,7 +219,7 @@ def findD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) 
   t.getD a fallback
 
 /--
-Tries to retrieve the key-value pair with the smallest key of the tree map, returning `none` if the
+Tries to retrieve the key-value pair with the smallest key in the tree map, returning `none` if the
 map is empty.
 -/
 @[inline]
@@ -234,7 +234,7 @@ def min (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.min t.wf.balanced h
 
 /--
-Tries to retrieve the key-value pair with the smallest key of the tree map, panicking if the map is
+Tries to retrieve the key-value pair with the smallest key in the tree map, panicking if the map is
 empty.
 -/
 @[inline]
@@ -242,7 +242,7 @@ def min! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × �
   letI : Ord α := ⟨cmp⟩; t.inner.min!
 
 /--
-Tries to retrieve the key-value pair with the smallest key of the tree map, returning `fallback` if
+Tries to retrieve the key-value pair with the smallest key in the tree map, returning `fallback` if
 the tree map is empty.
 -/
 @[inline]
@@ -250,7 +250,7 @@ def minD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β
   letI : Ord α := ⟨cmp⟩; t.inner.minD fallback
 
 /--
-Tries to retrieve the key-value pair with the largest key of the tree map, returning `none` if the
+Tries to retrieve the key-value pair with the largest key in the tree map, returning `none` if the
 map is empty.
 -/
 @[inline]
@@ -265,7 +265,7 @@ def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; t.inner.max t.wf.balanced h
 
 /--
-Tries to retrieve the key-value pair with the largest key of the tree map, panicking if the map is
+Tries to retrieve the key-value pair with the largest key in the tree map, panicking if the map is
 empty.
 -/
 @[inline]
@@ -273,7 +273,7 @@ def max! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) : (a : α) × �
   letI : Ord α := ⟨cmp⟩; t.inner.max!
 
 /--
-Tries to retrieve the key-value pair with the largest key of the tree map, returning `fallback` if
+Tries to retrieve the key-value pair with the largest key in the tree map, returning `fallback` if
 the tree map is empty.
 -/
 @[inline]
@@ -281,7 +281,7 @@ def maxD (t : DTreeMap α β cmp) (fallback : (a : α) × β a) : (a : α) × β
   letI : Ord α := ⟨cmp⟩; t.inner.maxD fallback
 
 /--
-Tries to retrieve the smallest key of the tree map, returning `none` if the map is empty.
+Tries to retrieve the smallest key in the tree map, returning `none` if the map is empty.
 -/
 @[inline]
 def minKey? (t : DTreeMap α β cmp) : Option α :=
@@ -295,21 +295,21 @@ def minKey (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.minKey t.wf.balanced h
 
 /--
-Tries to retrieve the smallest key of the tree map, panicking if the map is empty.
+Tries to retrieve the smallest key in the tree map, panicking if the map is empty.
 -/
 @[inline]
 def minKey! [Inhabited α] (t : DTreeMap α β cmp) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.minKey!
 
 /--
-Tries to retrieve the smallest key of the tree map, returning `fallback` if the tree map is empty.
+Tries to retrieve the smallest key in the tree map, returning `fallback` if the tree map is empty.
 -/
 @[inline]
 def minKeyD (t : DTreeMap α β cmp) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.minKeyD fallback
 
 /--
-Tries to retrieve the largest key of the tree map, returning `none` if the map is empty.
+Tries to retrieve the largest key in the tree map, returning `none` if the map is empty.
 -/
 @[inline]
 def maxKey? (t : DTreeMap α β cmp) : Option α :=
@@ -323,14 +323,14 @@ def maxKey (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKey t.wf.balanced h
 
 /--
-Tries to retrieve the largest key of the tree map, panicking if the map is empty.
+Tries to retrieve the largest key in the tree map, panicking if the map is empty.
 -/
 @[inline]
 def maxKey! [Inhabited α] (t : DTreeMap α β cmp) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKey!
 
 /--
-Tries to retrieve the largest key of the tree map, returning `fallback` if the tree map is empty.
+Tries to retrieve the largest key in the tree map, returning `fallback` if the tree map is empty.
 -/
 @[inline]
 def maxKeyD (t : DTreeMap α β cmp) (fallback : α) : α :=

@@ -492,7 +492,7 @@ structure Environment where
   Realized constants belonging to imported declarations. `none` only from `Environment.ofKernelEnv`,
   which should never leak into general elaboration.
   -/
-  private realizedExternConsts? : Option RealizationContext
+  private realizedImportedConsts? : Option RealizationContext
   /--
   Realized constants belonging to local declarations. This is a map from local declarations, which
   need to be registered synchronously using `enableRealizationsForConst`, to their realization
@@ -506,7 +506,7 @@ namespace Environment
 -- used only when the kernel calls into the interpreter, and in `Lean.Kernel.Exception.mkCtx`
 @[export lean_elab_environment_of_kernel_env]
 def ofKernelEnv (env : Kernel.Environment) : Environment :=
-  { checkedWithoutAsync := env, realizedExternConsts? := none }
+  { checkedWithoutAsync := env, realizedImportedConsts? := none }
 
 @[export lean_elab_environment_to_kernel_env]
 def toKernelEnv (env : Environment) : Kernel.Environment :=
@@ -669,7 +669,7 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
   \nrealizedLocalConsts: {repr (← env.realizedLocalConsts.toList.mapM fun (n, ctx) => do
     let consts := (← ctx.constsRef.get).toList
     return (n, consts.map (·.1)))}
-  \nrealizedExternConsts?: {repr <| (← env.realizedExternConsts?.mapM fun ctx => do
+  \nrealizedImportedConsts?: {repr <| (← env.realizedImportedConsts?.mapM fun ctx => do
     return (← ctx.constsRef.get).toList.map fun (n, m?) =>
       (n, m?.get.1.map (fun c : AsyncConst => c.constInfo.name.toString) |> toString))}
   \ncheckedWithoutAsync.constants.map₂: {repr <| env.checkedWithoutAsync.constants.map₂.toList.map (·.1)}"
@@ -901,7 +901,7 @@ private structure FindNewDeclsState where
 /--
 Starting at `c`, finds constants in `newEnv` but not `oldEnv` and returns them in DAG post-order,
 i.e. in the order they can be replayed onto other environments. New constants that are not from
-`newEnv.asyncConsts` are added with emtpy environment extension state.
+`newEnv.asyncConsts` are added with empty environment extension state.
 -/
 private partial def findNewAsyncConsts (oldEnv newEnv : Environment) (c : AsyncConst) : Array AsyncConst :=
   goConst c |>.run {} |>.2.postorder
@@ -927,10 +927,10 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
     IO (Environment × Dynamic) := do
   let mut env := env
-  -- find `RealizationContext` for `forConst` in `realizedExternConsts?` or `realizedLocalConsts`
+  -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
   let ctx ← if env.checkedWithoutAsync.const2ModIdx.contains forConst then
-    env.realizedExternConsts?.getDM <|
-      throw <| .userError s!"Environment.realizeConst: `realizedExternConsts` is empty"
+    env.realizedImportedConsts?.getDM <|
+      throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
   else
     match env.realizedLocalConsts.find? forConst with
     | some ctx => pure ctx
@@ -1231,7 +1231,7 @@ def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
       extraConstNames := {}
       extensions      := exts
     }
-    realizedExternConsts? := none
+    realizedImportedConsts? := none
   }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) where
@@ -1722,7 +1722,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
         moduleData   := s.moduleData
       }
     }
-    realizedExternConsts? := none
+    realizedImportedConsts? := none
   }
   env ← setImportedEntries env s.moduleData
   if leakEnv then
@@ -1741,7 +1741,7 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     env ← unsafe Runtime.markPersistent env
   env ← finalizePersistentExtensions env s.moduleData opts
   env := { env with
-    realizedExternConsts? := some {
+    realizedImportedConsts? := some {
       -- safety: `RealizationContext` is private
       env := unsafe unsafeCast env
       opts

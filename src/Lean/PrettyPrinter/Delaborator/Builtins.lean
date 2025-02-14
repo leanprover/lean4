@@ -1387,9 +1387,17 @@ where
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
     if shouldGroupWithNext bindingNames e e' then
-      withBindingBody' n (mkAnnotatedIdent n) <| fun stxN => delabParamsAux bindingNames idStx groups (curIds.push ⟨stxN⟩)
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN =>
+        delabParamsAux bindingNames idStx groups (curIds.push stxN)
     else
-      let mkGroup ← withBindingDomain do
+      /-
+      `mkGroup` constructs binder syntax for the binder names `curIds : Array Ident`, which all have the same type and binder info.
+      This being a function is solving the following issue:
+      - To get the last binder name, we need to be under `withBindingBody'`, which lets us annotate the binder with its fvar.
+      - However, we should delaborate the binder type from outside `withBindingBody'`.
+      - Thus, we need to partially construct the binder syntax, waiting on the final value of `curIds`.
+      -/
+      let mkGroup : Array Ident → DelabM Syntax ← withBindingDomain do
         match i with
         | .implicit       => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
         | .strictImplicit => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|⦃$curIds* : $ty⦄)

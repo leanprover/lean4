@@ -13,11 +13,6 @@ Definitions to support `lake setup-file` builds.
 open System
 namespace Lake
 
-/-- Result of `buildImportsAndDeps`. -/
-structure FileDeps where
-  dynlibs : Array FilePath := #[]
-  plugins : Array FilePath := #[]
-
 /--
 Builds an `Array` of module imports for a Lean file.
 Used by `lake setup-file` to build modules for the Lean server and
@@ -26,7 +21,7 @@ Returns the dynlibs and plugins built (so they can be loaded by Lean).
 -/
 def buildImportsAndDeps
   (leanFile : FilePath) (imports : Array Module)
-: FetchM (Job FileDeps) := do
+: FetchM (Job ModuleDeps) := do
   withRegisterJob s!"setup ({leanFile})" do
   if imports.isEmpty then
     -- build the package's (and its dependencies') `extraDepTarget`
@@ -36,8 +31,7 @@ def buildImportsAndDeps
     let modJob := Job.mixArray <| ← imports.mapM (·.olean.fetch)
     let precompileImports ← (← computePrecompileImportsAux leanFile imports).await
     let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty |>.toArray
-    let externLibsJob ← Job.collectArray <$>
-      pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
+    let externLibsJob ← fetchExternLibs pkgs
     let modLibsJob ← Job.collectArray <$>
       precompileImports.mapM (·.dynlib.fetch)
     let dynlibsJob ← (← getRootPackage).dynlibs.fetch

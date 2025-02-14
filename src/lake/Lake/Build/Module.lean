@@ -100,6 +100,10 @@ def Module.recComputePrecompileImports (mod : Module) : FetchM (Job (Array Modul
 def Module.precompileImportsFacetConfig : ModuleFacetConfig precompileImportsFacet :=
   mkFacetJobConfig recComputePrecompileImports (buildable := false)
 
+/-- Fetch dynlibs of the packages' external libraries. **For internal use.** -/
+def fetchExternLibs (pkgs : Array Package) : FetchM (Job (Array Dynlib)) :=
+  Job.collectArray <$> pkgs.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
+
 /--
 Recursively build a module's dependencies, including:
 * Transitive local imports
@@ -126,8 +130,7 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
   let modLibsJob := Job.collectArray modLibJobs
   let pkgs := precompileImports.foldl (·.insert ·.pkg) OrdPackageSet.empty
   let pkgs := if mod.shouldPrecompile then pkgs.insert mod.pkg else pkgs
-  let externJobs ← pkgs.toArray.flatMapM (·.externLibs.mapM (·.dynlib.fetch))
-  let externLibsJob := Job.collectArray externJobs
+  let externLibsJob ← fetchExternLibs pkgs.toArray
   let dynlibsJob ← mod.dynlibs.fetch
   let pluginsJob ← mod.plugins.fetch
 
@@ -150,15 +153,9 @@ def Module.recBuildDeps (mod : Module) : FetchM (Job ModuleDeps) := ensureJob do
       Everything else loads fine with just the augmented library path.
     * Linux needs the augmented path to resolve nested dependencies in dynlibs.
     -/
-    let libs := externLibs ++ dynlibs ++ modLibs ++ plugins
-    let libPath ← libs.foldlM (init := OrdHashSet.empty) fun s lib => do
-      if let some dir := lib.dir? then
-        return s.insert (← IO.FS.realPath dir).normalize
-      else
-        return s
     let dynlibs := externLibs.map (·.path) ++ dynlibs.map (·.path)
     let plugins := modLibs.map (·.path) ++ plugins.map (·.path)
-    return {libPath := libPath.toArray.toList, dynlibs, plugins}
+    return {dynlibs, plugins}
 
 /-- The `ModuleFacetConfig` for the builtin `depsFacet`. -/
 def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
@@ -187,14 +184,14 @@ all possible artifacts (i.e., `.olean`, `ilean`, `.c`, and `.bc`).
 -/
 def Module.recBuildLean (mod : Module) : FetchM (Job Unit) := do
   withRegisterJob mod.name.toString do
-  (← mod.deps.fetch).mapM fun {libPath, dynlibs, plugins} => do
+  (← mod.deps.fetch).mapM fun {dynlibs, plugins} => do
     addLeanTrace
     addPureTrace mod.leanArgs
     let srcTrace ← computeTrace (TextFilePath.mk mod.leanFile)
     addTrace srcTrace
     let upToDate ← buildUnlessUpToDate? (oldTrace := srcTrace.mtime) mod (← getTrace) mod.traceFile do
       compileLeanModule mod.leanFile mod.oleanFile mod.ileanFile mod.cFile mod.bcFile?
-        (← getLeanPath) mod.rootDir dynlibs libPath plugins
+        (← getLeanPath) mod.rootDir dynlibs plugins
         (mod.weakLeanArgs ++ mod.leanArgs) (← getLean)
       mod.clearOutputHashes
     unless upToDate && (← getTrustHash) do
@@ -317,34 +314,39 @@ Recursively build the shared library of a module
 def Module.recBuildDynlib (mod : Module) : FetchM (Job Dynlib) :=
   withRegisterJob s!"{mod.name}:dynlib" do
 
-  -- Compute dependencies
-  let transImports ← (← mod.transImports.fetch).await
-  let modJobs ← transImports.mapM (·.dynlib.fetch)
-  let pkgs := transImports.foldl (·.insert ·.pkg)
-    OrdPackageSet.empty |>.insert mod.pkg |>.toArray
-  let (externJobs, pkgLibDirs) ← recBuildExternDynlibs pkgs
+  -- Fetch object files
   let linkJobs ← mod.nativeFacets true |>.mapM (fetch <| mod.facet ·.name)
-
-  -- Collect Jobs
   let linksJob := Job.collectArray linkJobs
-  let modLibsJob := Job.collectArray modJobs
-  let externDynlibsJob := Job.collectArray externJobs
+
+  -- Fetch dependencies' dynlibs
+  -- for platforms that must link to them (e.g., Windows)
+  let (modLibsJob, externLibsJob) ← id do
+    if Platform.isWindows then
+      let transImports ← (← mod.transImports.fetch).await
+      let modLibsJob ← Job.collectArray <$> transImports.mapM (·.dynlib.fetch)
+      let pkgs := transImports.foldl (·.insert ·.pkg)
+        OrdPackageSet.empty |>.insert mod.pkg |>.toArray
+      let externLibsJob ← fetchExternLibs pkgs
+      return (modLibsJob, externLibsJob)
+    else
+      return (Job.pure #[], Job.pure #[])
 
   -- Build dynlib
   linksJob.bindM fun links => do
   modLibsJob.bindM fun modLibs => do
-  externDynlibsJob.mapM fun externDynlibs => do
+  externLibsJob.mapM fun externLibs => do
     addLeanTrace
     addPlatformTrace -- shared libraries are platform-dependent artifacts
     addPureTrace mod.linkArgs
     buildFileUnlessUpToDate' mod.dynlibFile do
       let lean ← getLeanInstall
-      let libDirs := pkgLibDirs ++ externDynlibs.filterMap (·.dir?)
-      let libNames := externDynlibs.map (·.name)
-      let args :=
-        links.map toString ++
-        modLibs.map (·.path.toString) ++
-        libDirs.map (s!"-L{·}") ++ libNames.map (s!"-l{·}") ++
+      let args := links.map toString
+       let args :=
+        if Platform.isWindows then
+          args ++ (modLibs ++ externLibs).map (·.path.toString)
+        else
+          args
+      let args := args ++
         mod.weakLinkArgs ++ mod.linkArgs ++ lean.ccLinkSharedFlags
       compileSharedLib mod.dynlibFile args lean.cc
     return ⟨mod.dynlibFile, mod.dynlibName⟩

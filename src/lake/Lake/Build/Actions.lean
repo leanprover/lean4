@@ -21,9 +21,8 @@ def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs : Array FilePath := #[]) (libPath : SearchPath := {})
-  (plugins : Array FilePath := #[]) (leanArgs : Array String := #[])
-  (lean : FilePath := "lean")
+  (dynlibs : Array FilePath := #[]) (plugins : Array FilePath := #[])
+  (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
   let mut args := leanArgs ++
     #[leanFile.toString, "-R", rootDir.toString]
@@ -49,8 +48,7 @@ def compileLeanModule
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", leanPath.toString),
-      (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ libPath |>.toString)
+      ("LEAN_PATH", leanPath.toString)
     ]
   }
   unless out.stdout.isEmpty do

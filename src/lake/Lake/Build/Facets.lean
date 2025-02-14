@@ -23,9 +23,9 @@ open Lean hiding SearchPath
 namespace Lake
 
 structure ModuleDeps where
-  libPath : SearchPath
-  dynlibs : Array FilePath
-  plugins : Array FilePath
+  dynlibs : Array FilePath := #[]
+  plugins : Array FilePath := #[]
+  deriving Inhabited, Repr
 
 /-! ## Module Facets -/
 

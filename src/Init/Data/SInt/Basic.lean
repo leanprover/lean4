@@ -108,6 +108,23 @@ instance : OfNat Int8 n := ⟨Int8.ofNat n⟩
 instance : Neg Int8 where
   neg := Int8.neg
 
+/-- The maximum value an `Int8` may attain, that is, `2^7 - 1 = 127`. -/
+abbrev Int8.maxValue : Int8 := 127
+/-- The minimum value an `Int8` may attain, that is, `-2^7 = -128`. -/
+abbrev Int8.minValue : Int8 := -128
+@[inline]
+def Int8.ofIntLE (i : Int) (_hl : Int8.minValue.toInt ≤ i) (_hr : i ≤ Int8.maxValue.toInt) : Int8 :=
+  Int8.ofInt i
+def Int8.ofIntTruncate (i : Int) : Int8 :=
+  if hl : Int8.minValue.toInt ≤ i then
+    if hr : i ≤ Int8.maxValue.toInt then
+      Int8.ofIntLE i hl hr
+    else
+      Int8.ofIntLE Int8.maxValue.toInt (by decide) (by decide)
+      -- Int8.maxValue
+  else
+    Int8.minValue
+
 @[extern "lean_int8_add"]
 def Int8.add (a b : Int8) : Int8 := ⟨⟨a.toBitVec + b.toBitVec⟩⟩
 @[extern "lean_int8_sub"]

@@ -674,6 +674,10 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
+theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
+    m.keys = (toList m).map Prod.fst :=
+  DHashMap.Const.keys_eq_map_toList
+
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.length = m.size :=
@@ -697,6 +701,51 @@ theorem mem_keys [LawfulBEq α] [LawfulHashable α] {k : α} :
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.Pairwise (fun a b => (a == b) = false) :=
   DHashMap.distinct_keys
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.length = m.size :=
+  DHashMap.Const.length_toList
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.isEmpty = m.isEmpty :=
+  DHashMap.Const.isEmpty_toList
+
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+    {k : α} {v : β} :
+    (k, v) ∈ m.toList ↔  m[k]? = some v :=
+  DHashMap.Const.mem_toList_iff_get?_eq_some
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ m.toList :=
+  DHashMap.Const.get?_eq_some_iff_exists_beq_and_mem_toList
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
+    [EquivBEq α] [LawfulHashable α] {k k' : α} {v : β} :
+    m.toList.find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v :=
+  DHashMap.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
+  DHashMap.Const.find?_toList_eq_none_iff_contains_eq_false
+
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m :=
+  DHashMap.Const.find?_toList_eq_none_iff_not_mem
+
+theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
+    {k: α} {v : β} :
+    (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ get? m k = some v :=
+  DHashMap.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
+    m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
+  DHashMap.Const.distinct_keys_toList
 
 @[simp]
 theorem insertMany_nil :

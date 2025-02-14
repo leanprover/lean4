@@ -913,7 +913,7 @@ theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable
     get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toList m.1 := by
   simp_to_model using getValue?_eq_some_iff_exists_beq_and_mem_toList
 
-theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
     [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} {v : β} :
     (Raw.Const.toList m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
       m.getKey? k = some k' ∧ get? m k = some v := by
@@ -924,7 +924,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
     (Raw.Const.toList m.1).find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_model using List.find?_map_eq_none_iff_containsKey_eq_false
 
-theorem mem_toList_iff_getKey?_eq_some_and_getValue?_eq_some [EquivBEq α] [LawfulHashable α]
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.1.WF) {k: α} {v : β} :
     (k, v) ∈ (Raw.Const.toList m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
   simp_to_model using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some

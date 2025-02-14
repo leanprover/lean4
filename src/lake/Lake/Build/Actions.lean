@@ -21,7 +21,7 @@ def compileLeanModule
   (leanFile : FilePath)
   (oleanFile? ileanFile? cFile? bcFile?: Option FilePath)
   (leanPath : SearchPath := []) (rootDir : FilePath := ".")
-  (dynlibs : Array FilePath := #[]) (dynlibPath : SearchPath := {})
+  (dynlibs : Array FilePath := #[]) (plugins : Array FilePath := #[])
   (leanArgs : Array String := #[]) (lean : FilePath := "lean")
 : LogIO Unit := do
   let mut args := leanArgs ++
@@ -39,15 +39,16 @@ def compileLeanModule
     createParentDirs bcFile
     args := args ++ #["-b", bcFile.toString]
   for dynlib in dynlibs do
-    args := args.push s!"--load-dynlib={dynlib}"
+    args := args ++ #["--load-dynlib", dynlib.toString]
+  for plugin in plugins do
+    args := args ++ #["--plugin", plugin.toString]
   args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
     args
     cmd := lean.toString
     env := #[
-      ("LEAN_PATH", leanPath.toString),
-      (sharedLibPathEnvVar, (← getSearchPath sharedLibPathEnvVar) ++ dynlibPath |>.toString)
+      ("LEAN_PATH", leanPath.toString)
     ]
   }
   unless out.stdout.isEmpty do

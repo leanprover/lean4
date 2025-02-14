@@ -43,14 +43,14 @@ def setupFile
       loadWorkspace loadConfig
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
-    let dynlibs ← MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
-      ws.runBuild (buildImportsAndDeps path imports) buildConfig
+    let {dynlibs, plugins} ←
+      MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
+        ws.runBuild (buildImportsAndDeps path imports) buildConfig
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath
       loadDynlibPaths := dynlibs
-      pluginPaths := #[]
-      : LeanPaths
+      pluginPaths := plugins
     }
     let setupOptions : LeanOptions ← do
       let some moduleName ← searchModuleNameOfFileName path ws.leanSrcPath

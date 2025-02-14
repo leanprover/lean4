@@ -7,4 +7,4 @@ LAKE=${LAKE:-../../.lake/build/bin/lake}
 
 $LAKE lean Test.lean -v | grep --color "Hello from the library foo!"
 $LAKE lean Test.lean -- --run Bob | grep --color "Hello Bob!"
-test -f .lake/build/lib/Lib.olean
+test -f .lake/build/lib/lean/Lib.olean

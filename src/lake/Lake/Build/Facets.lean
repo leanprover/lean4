@@ -6,7 +6,7 @@ Authors: Mac Malone
 prelude
 import Lake.Build.Data
 import Lake.Build.Job.Basic
-import Lake.Config.OutFormat
+import Lake.Config.Dynlib
 
 /-!
 # Simple Builtin Facet Declarations
@@ -22,19 +22,10 @@ open Lean hiding SearchPath
 
 namespace Lake
 
-/-- A dynamic/shared library for linking. -/
-structure Dynlib where
-  /-- Library file path. -/
-  path : FilePath
-  /-- Library name without platform-specific prefix/suffix (for `-l`). -/
-  name : String
-
-/-- Optional library directory (for `-L`). -/
-def Dynlib.dir? (self : Dynlib) : Option FilePath :=
-  self.path.parent
-
-instance : ToText Dynlib := ⟨(·.path.toString)⟩
-instance : ToJson Dynlib := ⟨(·.path.toString)⟩
+structure ModuleDeps where
+  dynlibs : Array FilePath := #[]
+  plugins : Array FilePath := #[]
+  deriving Inhabited, Repr
 
 /-! ## Module Facets -/
 
@@ -58,7 +49,7 @@ The facet which builds all of a module's dependencies
 Returns the list of shared libraries to load along with their search path.
 -/
 abbrev Module.depsFacet := `deps
-module_data deps : SearchPath × Array FilePath
+module_data deps : ModuleDeps
 
 /--
 The core build facet of a Lean file.

@@ -148,7 +148,11 @@ attribute [simp] FamilyOut.family_key_eq_type
 instance [FamilyDef Fam a β] : FamilyOut Fam a β where
   family_key_eq_type := FamilyDef.family_key_eq_type
 
-/-- The constant type family -/
+/-- The identity relation. -/
+@[default_instance 0] instance : FamilyDef Fam a (Fam a) where
+  family_key_eq_type := rfl
+
+/-- The constant type family. -/
 instance : FamilyDef (fun _ => β) a β where
   family_key_eq_type := rfl
 

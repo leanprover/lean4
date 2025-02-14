@@ -50,13 +50,13 @@ $LAKE build Foo.Bar:print_src | grep --color Bar.lean
 
 # Test the module `deps` facet
 $LAKE build +Foo:deps
-test -f ./.lake/build/lib/Foo/Bar.olean
-test ! -f ./.lake/build/lib/Foo.olean
+test -f ./.lake/build/lib/lean/Foo/Bar.olean
+test ! -f ./.lake/build/lib/lean/Foo.olean
 
 # Test the module specifier
-test ! -f ./.lake/build/lib/Foo/Baz.olean
+test ! -f ./.lake/build/lib/lean/Foo/Baz.olean
 $LAKE build +Foo.Baz
-test -f ./.lake/build/lib/Foo/Baz.olean
+test -f ./.lake/build/lib/lean/Foo/Baz.olean
 
 # Test an object file specifier
 test ! -f ./.lake/build/ir/Bar.c.o.export
@@ -65,12 +65,12 @@ test -f ./.lake/build/ir/Bar.c.o.export
 
 # Test default targets
 test ! -f ./.lake/build/bin/c
-test ! -f ./.lake/build/lib/Foo.olean
+test ! -f ./.lake/build/lib/lean/Foo.olean
 test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
 test ! -f ./.lake/build/meow.txt
 $LAKE build targets/
 ./.lake/build/bin/c
-test -f ./.lake/build/lib/Foo.olean
+test -f ./.lake/build/lib/lean/Foo.olean
 test -f ./.lake/build/lib/${LIB_PREFIX}Foo.a
 cat ./.lake/build/meow.txt | grep Meow!
 
@@ -82,15 +82,15 @@ test -f ./.lake/build/lib/${LIB_PREFIX}Foo.$SHARED_LIB_EXT
 test -f ./.lake/build/lib/${LIB_PREFIX}Bar.$SHARED_LIB_EXT
 
 # Test dynlib facet
-test ! -f ./.lake/build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
+test ! -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
 $LAKE build +Foo:dynlib
-test -f ./.lake/build/lib/${LIB_PREFIX}Foo-1.$SHARED_LIB_EXT
+test -f ./.lake/build/lib/lean/Foo.$SHARED_LIB_EXT
 
 # Test library `extraDepTargets`
 test ! -f ./.lake/build/caw.txt
-test ! -f ./.lake/build/lib/Baz.olean
+test ! -f ./.lake/build/lib/lean/Baz.olean
 $LAKE build Baz
-test -f ./.lake/build/lib/Baz.olean
+test -f ./.lake/build/lib/lean/Baz.olean
 cat ./.lake/build/caw.txt | grep Caw!
 
 # Test executable build

@@ -5,7 +5,6 @@ Authors: Mac Malone
 -/
 prelude
 import Lean.Data.Json
-import Lake.Build.Job.Basic
 
 open Lean
 

@@ -127,6 +127,20 @@ then the default (which is C for now).
   Backend.orPreferLeft self.config.backend self.pkg.backend
 
 /--
+The dynamic libraries to load for modules of this library.
+The targets of the package plus the targets of the library (in that order).
+-/
+@[inline] def dynlibs (self : LeanLib) : TargetArray Dynlib :=
+  self.pkg.dynlibs ++ self.config.dynlibs
+
+/--
+The Lean plugins for modules of this library.
+The targets of the package plus the targets of the library (in that order).
+-/
+@[inline] def plugins (self : LeanLib) : TargetArray Dynlib :=
+  self.pkg.plugins ++ self.config.plugins
+
+/--
 The arguments to pass to `lean` when compiling the library's Lean files.
 `leanArgs` is the accumulation of:
 - the package's `leanOptions`

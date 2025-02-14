@@ -175,6 +175,23 @@ def foldl (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
 def fold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   t.foldl f init
 
+/--
+Monadically computes a value by folding the given function over the elements in the tree set in
+descending order.
+-/
+@[inline]
+def foldrM {m δ} [Monad m] (f : δ → (a : α) → m δ) (init : δ) (t : TreeSet α cmp) : m δ :=
+  t.inner.foldrM (fun c a _ => f c a) init
+
+/-- Folds the given function over the elements of the tree set in descending order. -/
+@[inline]
+def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  t.inner.foldr (fun c a _ => f c a) init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
+  foldr f init t
+
 /-- Carries out a monadic action on each element in the tree set in ascending order. -/
 @[inline]
 def forM (f : α → m PUnit) (t : TreeSet α cmp) : m PUnit :=
@@ -209,10 +226,26 @@ def all (t : TreeSet α cmp) (p : α → Bool) : Bool :=
 def toList (t : TreeSet α cmp) : List α :=
   t.inner.inner.inner.foldr (fun l a _ => a :: l) ∅
 
+/-- Transforms a list into a tree set. -/
+def ofList (l : List α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
+  ⟨TreeMap.unitOfList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofList l cmp
+
 /-- Transforms the tree set into an array of elements in ascending order. -/
 @[inline]
 def toArray (t : TreeSet α cmp) : Array α :=
   t.foldl (init := ∅) fun acc k => acc.push k
+
+/-- Transforms an array into a tree set. -/
+def ofArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeSet α cmp :=
+  ⟨TreeMap.unitOfArray a cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (a : Array α) (cmp : α → α → Ordering) : TreeSet α cmp :=
+  ofArray a cmp
 
 /--
 Returns a set that contains all mappings of `t₁` and `t₂.
@@ -227,6 +260,19 @@ size of `t₂` as long as `t₁` is unshared.
 @[inline]
 def merge (t₁ t₂ : TreeSet α cmp) : TreeSet α cmp :=
   ⟨TreeMap.mergeWith (fun _ _ _ => ()) t₁.inner t₂.inner⟩
+
+/--
+Inserts multiple elements into the tree set by iterating over the given collection and calling
+`insert`. If the same element (with respect to `cmp`) appears multiple times, the first occurrence
+takes precedence.
+
+Note: this precedence behavior is true for `TreeSet` and `TreeSet.Raw`. The `insertMany` function on
+`TreeMap`, `DTreeMap`, `TreeMap.Raw` and `DTreeMap.Raw` behaves differently: it will prefer the last
+appearance.
+-/
+@[inline]
+def insertMany {ρ} [ForIn Id ρ α] (t : TreeSet α cmp) (l : ρ) : TreeSet α cmp :=
+  ⟨TreeMap.insertManyIfNewUnit t.inner l⟩
 
 /--
 Erases multiple items from the tree set by iterating over the given collection and calling erase.

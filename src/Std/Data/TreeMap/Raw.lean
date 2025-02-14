@@ -198,6 +198,18 @@ def foldl (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : 
 def fold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
   t.foldl f init
 
+@[inline, inherit_doc DTreeMap.Raw.foldrM]
+def foldrM (f : δ → (a : α) → β → m δ) (init : δ) (t : Raw α β cmp) : m δ :=
+  t.inner.foldrM f init
+
+@[inline, inherit_doc DTreeMap.Raw.foldr]
+def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
+  t.inner.foldr f init
+
+@[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
+def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
+  foldr f init t
+
 @[inline, inherit_doc DTreeMap.Raw.forM]
 def forM (f : α → β → m PUnit) (t : Raw α β cmp) : m PUnit :=
   t.inner.forM f
@@ -228,13 +240,37 @@ def keys (t : Raw α β cmp) : List α :=
 def keysArray (t : Raw α β cmp) : Array α :=
   t.inner.keysArray
 
-@[inline, inherit_doc DTreeMap.Raw.toList]
+@[inline, inherit_doc DTreeMap.Raw.Const.toList]
 def toList (t : Raw α β cmp) : List (α × β) :=
   DTreeMap.Raw.Const.toList t.inner
 
-@[inline, inherit_doc DTreeMap.Raw.toArray]
+@[inline, inherit_doc DTreeMap.Raw.Const.ofList]
+def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.ofList l cmp⟩
+
+@[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
+def fromList (l : List (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofList l cmp
+
+@[inline, inherit_doc DTreeMap.Const.unitOfList]
+def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+  ⟨DTreeMap.Raw.Const.unitOfList l cmp⟩
+
+@[inline, inherit_doc DTreeMap.Raw.Const.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
   DTreeMap.Raw.Const.toArray t.inner
+
+@[inline, inherit_doc DTreeMap.Raw.Const.ofArray]
+def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.ofArray a cmp⟩
+
+@[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
+def fromArray (a : Array (α × β)) (cmp : α → α → Ordering) : Raw α β cmp :=
+  ofArray a cmp
+
+@[inline, inherit_doc DTreeMap.Const.unitOfArray]
+def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
+  ⟨DTreeMap.Raw.Const.unitOfArray a cmp⟩
 
 @[inline, inherit_doc DTreeMap.Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
@@ -243,6 +279,14 @@ def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : 
 @[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]
 def mergeBy (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   mergeWith mergeFn t₁ t₂
+
+@[inline, inherit_doc DTreeMap.Raw.Const.insertMany]
+def insertMany {ρ} [ForIn Id ρ (α × β)] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.insertMany t.inner l⟩
+
+@[inline, inherit_doc DTreeMap.Raw.Const.insertManyIfNewUnit]
+def insertManyIfNewUnit {ρ} [ForIn Id ρ α] (t : Raw α Unit cmp) (l : ρ) : Raw α Unit cmp :=
+  ⟨DTreeMap.Raw.Const.insertManyIfNewUnit t.inner l⟩
 
 @[inline, inherit_doc DTreeMap.Raw.eraseMany]
 def eraseMany {ρ} [ForIn Id ρ α] (t : Raw α β cmp) (l : ρ) : Raw α β cmp :=

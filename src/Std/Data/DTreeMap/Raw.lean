@@ -285,7 +285,7 @@ def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
 @[inline]
 def ofList (l : List ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofList l |>.impl⟩
+  ⟨Impl.ofList l⟩
 
 @[inline, inherit_doc ofList, deprecated ofList (since := "2025-02-12")]
 def fromList (l : List ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
@@ -299,7 +299,7 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
 @[inline]
 def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
-  ⟨Impl.ofArray a |>.impl⟩
+  ⟨Impl.ofArray a⟩
 
 @[inline, inherit_doc ofArray, deprecated ofArray (since := "2025-02-12")]
 def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
@@ -325,11 +325,11 @@ def toList (t : Raw α β cmp) : List (α × β) :=
 
 @[inline, inherit_doc DTreeMap.Const.ofList]
 def ofList (l : List (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l |>.impl⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofList l⟩
 
 @[inline, inherit_doc DTreeMap.Const.unitOfList]
 def unitOfList (l : List α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l |>.impl⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfList l⟩
 
 @[inline, inherit_doc DTreeMap.Const.toArray]
 def toArray (t : Raw α β cmp) : Array (α × β) :=
@@ -337,11 +337,11 @@ def toArray (t : Raw α β cmp) : Array (α × β) :=
 
 @[inline, inherit_doc DTreeMap.Const.ofArray]
 def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact compare) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray a |>.impl⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.ofArray a⟩
 
 @[inline, inherit_doc DTreeMap.Const.ofArray]
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a |>.impl⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a⟩
 
 @[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=

@@ -568,50 +568,35 @@ attribute [Std.Internal.tree_tac] BalancedTree.balanced_impl
 def SizedBalancedTree.toBalancedTree {lb ub} (t : SizedBalancedTree α β lb ub) : BalancedTree α β :=
   ⟨t.impl, t.balanced_impl⟩
 
-/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
-def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α β} (e : IteratedInsertionInto t)
-    (h : t.Balanced) : BalancedTree α β :=
-  ⟨e.1, e.2 h fun _ _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
-
 /-- Transforms an array of mappings into a tree map. -/
 @[inline]
-def ofArray [Ord α] (a : Array ((a : α) × β a)) : BalancedTree α β :=
-  empty.insertMany a balanced_empty |>.toBalancedTree balanced_empty
+def ofArray [Ord α] (a : Array ((a : α) × β a)) : Impl α β :=
+  empty.insertMany a balanced_empty |>.val
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline]
-def ofList [Ord α] (l : List ((a : α) × β a)) : BalancedTree α β :=
-  empty.insertMany l balanced_empty |>.toBalancedTree balanced_empty
+def ofList [Ord α] (l : List ((a : α) × β a)) : Impl α β :=
+  empty.insertMany l balanced_empty |>.val
 
 namespace Const
 
 variable {β : Type v}
 
-/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
-def IteratedInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => β)} (e : IteratedInsertionInto t)
-    (h : t.Balanced) : BalancedTree α (fun _ => β) :=
-  ⟨e.1, e.2 h fun _ _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
-
 /-- Transforms a list of mappings into a tree map. -/
-@[inline] def ofArray [Ord α] (a : Array (α × β)) :  BalancedTree α (fun _ => β) :=
-  insertMany empty a balanced_empty |>.toBalancedTree balanced_empty
+@[inline] def ofArray [Ord α] (a : Array (α × β)) :  Impl α (fun _ => β) :=
+  insertMany empty a balanced_empty |>.val
 
 /-- Transforms an array of mappings into a tree map. -/
-@[inline] def ofList [Ord α] (l : List (α × β)) : BalancedTree α (fun _ => β) :=
-  insertMany empty l balanced_empty |>.toBalancedTree balanced_empty
-
-/-- Transforms an element of `IteratedInsertionInto t` into a `BalancedTree`. -/
-def IteratedUnitInsertionInto.toBalancedTree [Ord α] {t : Impl α (fun _ => Unit)}
-    (e : IteratedUnitInsertionInto t) (h : t.Balanced) : BalancedTree α (fun _ => Unit) :=
-  ⟨e.1, e.2 h fun _ _ _ _ => SizedBalancedTree.balanced_impl _⟩
+@[inline] def ofList [Ord α] (l : List (α × β)) : Impl α (fun _ => β) :=
+  insertMany empty l balanced_empty |>.val
 
 /-- Transforms a list of mappings into a tree map. -/
-@[inline] def unitOfArray [Ord α] (a : Array α) :  BalancedTree α (fun _ => Unit) :=
-  insertManyIfNewUnit empty a balanced_empty |>.toBalancedTree balanced_empty
+@[inline] def unitOfArray [Ord α] (a : Array α) :  Impl α (fun _ => Unit) :=
+  insertManyIfNewUnit empty a balanced_empty |>.val
 
 /-- Transforms an array of mappings into a tree map. -/
-@[inline] def unitOfList [Ord α] (l : List α) : BalancedTree α (fun _ => Unit) :=
-  insertManyIfNewUnit empty l balanced_empty |>.toBalancedTree balanced_empty
+@[inline] def unitOfList [Ord α] (l : List α) : Impl α (fun _ => Unit) :=
+  insertManyIfNewUnit empty l balanced_empty |>.val
 
 end Const
 

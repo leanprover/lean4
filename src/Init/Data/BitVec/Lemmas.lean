@@ -852,7 +852,7 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
     (extractLsb' start len x).getLsbD i = (i < len && x.getLsbD (start+i)) := by
   simp [getLsbD, Nat.lt_succ]
 
-/-!
+/-
 Get the most significant bit after `extractLsb'`. With `extractLsb'`, we extract
 a `BitVec` `x'` with length `len` from `BitVec` `x`, starting from the element
 at position `start`. The function `getMsb` extracts a bit counting from the most

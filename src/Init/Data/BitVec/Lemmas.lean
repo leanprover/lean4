@@ -2040,7 +2040,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
   ext i ih
-  rw [getElem_append] -- Why does this not work with `simp [getELem_append]`?
+  rw [getElem_append] -- Why does this not work with `simp [getElem_append]`?
   simp [show i < w by omega]
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by
@@ -3637,7 +3637,7 @@ theorem msb_twoPow {i w: Nat} :
 theorem and_twoPow (x : BitVec w) (i : Nat) :
     x &&& (twoPow w i) = if x.getLsbD i then twoPow w i else 0#w := by
   ext j h
-  simp only [←getLsbD_eq_getElem, getLsbD_and, getLsbD_twoPow]
+  simp only [getElem_and, getLsbD_twoPow]
   by_cases hj : i = j <;> by_cases hx : x.getLsbD i <;> simp_all <;> omega
 
 theorem twoPow_and (x : BitVec w) (i : Nat) :
@@ -3725,7 +3725,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k h
-  simp only [getElem_setWidth, getLsbD_setWidth, h, getLsbD_eq_getElem, getElem_or, getElem_twoPow]
+  simp only [getElem_setWidth, h, getElem_or, getElem_twoPow]
   by_cases hik : i = k
   · subst hik
     simp only [h, getLsbD_eq_getElem] at hx
@@ -3765,7 +3765,8 @@ theorem getLsbD_replicate {n w : Nat} {x : BitVec w} :
     by_cases hi : i < w * (n + 1)
     · simp only [hi, decide_true, Bool.true_and]
       by_cases hi' : i < w * n
-      · simp [-getLsbD_eq_getElem, hi', ih]
+      · rw [ih]
+        simp_all
       · simp only [hi', ↓reduceIte]
         rw [Nat.sub_mul_eq_mod_of_lt_of_le (by omega) (by omega)]
     · rw [Nat.mul_succ] at hi ⊢
@@ -4124,14 +4125,14 @@ theorem msb_reverse {x : BitVec w} :
 theorem reverse_append {x : BitVec w} {y : BitVec v} :
     (x ++ y).reverse = (y.reverse ++ x.reverse).cast (by omega) := by
   ext i h
-  simp only [getElem_reverse, getMsbD_append, getElem_cast, getElem_append]
+  simp only [getElem_reverse, getElem_cast, getElem_append]
   by_cases hi : i < v
   · by_cases hw : w ≤ i
-    · simp [getMsbD_append, getLsbD_reverse, hw]
-    · simp [getMsbD_append, getElem_reverse, hw, show i < w by omega]
+    · simp [getLsbD_reverse, hw]
+    · simp [getElem_reverse, hw, show i < w by omega]
   · by_cases hw : w ≤ i
-    · simp [getMsbD_append, getLsbD_append, hw, show ¬ i < w by omega, getLsbD_reverse]
-    · simp [getMsbD_append, hw, show i < w by omega, getElem_reverse]
+    · simp [hw, show ¬ i < w by omega, getLsbD_reverse]
+    · simp [hw, show i < w by omega, getElem_reverse]
 
 @[simp]
 theorem reverse_cast {w v : Nat} (h : w = v) (x : BitVec w) :

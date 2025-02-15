@@ -22,11 +22,11 @@ namespace Int
 
 protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
-protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
+@[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
 
-protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
+@[simp] protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
 
-protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
+@[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
 
 protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => Exists.intro (d * e) (by rw [Int.mul_assoc])

@@ -57,4 +57,7 @@ partial def isLinearCnstr (e : Expr) : Bool :=
     else
       false
 
+def isDvdCnstr (e : Expr) : Bool :=
+  e.isAppOfArity ``Dvd.dvd 4
+
 end Lean.Meta.Linear

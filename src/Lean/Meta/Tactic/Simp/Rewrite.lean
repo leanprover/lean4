@@ -300,6 +300,11 @@ def simpArith (e : Expr) : SimpM Step := do
       return .visit { expr := e', proof? := h }
     else
       return .continue
+  else if Linear.isDvdCnstr e then
+    if let some (e', h) ← Linear.Int.simpDvdCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
   else
     return .continue
 

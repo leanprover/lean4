@@ -895,10 +895,11 @@ Example (w = 10, start := 7, len := 5):
 let x                       =       9 8 7 6 5 4 3 2 1 0
 let x' = x.extractLsb' 3 4  =   _ _ 9 8 7
                                 |   |
-                                |   x'.getMsbD (i := 2) = x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 2))
-                                |                       = x.getMsbD 0
-                                |                       ✅ start + len - i ≤ w
-                                |                          7 + 5 - 2 = 10 ≤ 10
+                                |   x'.getMsbD (i := 2) =
+                                |   x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 2)) =
+                                |   x.getMsbD 0
+                                |   ✅ start + len - i ≤ w
+                                |        7 + 5 - 2 = 10 ≤ 10
                                 |
                                 x'.getMsbD (i := 0) = x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 0))
                                                     = x.getMsbD (i := w - (start + len - i) = x.getMsbD (i := -2) -- in Nat becomes 0

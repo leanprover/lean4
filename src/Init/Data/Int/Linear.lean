@@ -579,7 +579,7 @@ def DvdPolyCnstr.isUnsat (c : DvdPolyCnstr) : Bool :=
 def DvdPolyCnstr.isEqv (c₁ c₂ : DvdPolyCnstr) (k : Int) : Bool :=
   k != 0 && c₁.a == k*c₂.a && c₁.p == c₂.p.mul k
 
-theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
+private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
 
 def DvdPolyCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdPolyCnstr) : c.isUnsat → c.denote ctx = False := by

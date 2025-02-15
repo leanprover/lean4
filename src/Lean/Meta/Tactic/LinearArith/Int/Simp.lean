@@ -21,7 +21,7 @@ def Int.Linear.PolyCnstr.gcdAll : PolyCnstr → Nat
   | .eq p => p.gcdAll
   | .le p => p.gcdAll
 
-def Int.Linear.Poly.gcdCoeffs : Poly → Nat
+def Int.Linear.Poly.gcdCoeffs' : Poly → Nat
   | .num _ => 1
   | .add k _ p => go k.natAbs p
 where
@@ -32,7 +32,7 @@ where
       | .add k' _ p => go (Nat.gcd k k'.natAbs) p
 
 def Int.Linear.PolyCnstr.gcdCoeffs : PolyCnstr → Nat
-  | .eq p | .le p => p.gcdCoeffs
+  | .eq p | .le p => p.gcdCoeffs'
 
 def Int.Linear.PolyCnstr.isEq : PolyCnstr → Bool
   | .eq _ => true

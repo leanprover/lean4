@@ -870,7 +870,8 @@ let x' = x.extractLsb' 3 4  =         6 5 4 3
                                       | |
                                       | x'.getMsbD 1 = x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 1) = 4) = x.getLsbD 5
                                       |
-                                      x'.getMsbD 0 = x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 0) = 3) = x.getLsbD 6
+                                      x'.getMsbD 0 =
+                                      x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 0) = 3)
 
 # Condition 1: `i < len`
 

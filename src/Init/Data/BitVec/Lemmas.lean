@@ -3714,15 +3714,14 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
     setWidth w (x.setWidth (i + 1)) =
       setWidth w (x.setWidth i) ||| (twoPow w i) := by
   ext k h
+  simp only [getElem_setWidth, getLsbD_setWidth, h, getLsbD_eq_getElem, getElem_or, getElem_twoPow]
   by_cases hik : i = k
   · subst hik
     simp only [h, getLsbD_eq_getElem] at hx
     simp [h, hx]
   · by_cases hik' : k < i + 1
-    · simp [hik, hik', show ¬ (k = i) by omega]
-      omega
-    · simp [hik, hik']
-      omega
+    <;> simp [hik, hik', show ¬ (k = i) by omega]
+    <;> omega
 
 /-- Bitwise and of `(x : BitVec w)` with `1#w` equals zero extending `x.lsb` to `w`. -/
 theorem and_one_eq_setWidth_ofBool_getLsbD {x : BitVec w} :

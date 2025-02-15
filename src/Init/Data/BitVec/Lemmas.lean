@@ -192,9 +192,20 @@ theorem eq_of_getLsbD_eq {x y : BitVec w}
     have p : i ≥ w := Nat.le_of_not_gt i_lt
     simp [testBit_toNat, getLsbD_ge _ _ p]
 
-@[ext] theorem BitVec.eq_of_getElem_eq {x y : BitVec n} :
+@[ext] theorem eq_of_getElem_eq {x y : BitVec n} :
         (∀ i (hi : i < n), x[i] = y[i]) → x = y :=
   fun h => BitVec.eq_of_getLsbD_eq (h ↑·)
+
+theorem eq_of_getLsbD_eq_iff {w : Nat} {x y : BitVec w} :
+    x = y ↔ ∀ (i : Nat), i < w → x.getLsbD i = y.getLsbD i := by
+  have iff := @BitVec.eq_of_getElem_eq_iff w x y
+  constructor
+  · intros heq i lt
+    have hext := iff.mp heq i lt
+    simp only [← getLsbD_eq_getElem] at hext
+    exact hext
+  · intros heq
+    exact iff.mpr heq
 
 theorem eq_of_getMsbD_eq {x y : BitVec w}
     (pred : ∀ i, i < w → x.getMsbD i = y.getMsbD i) : x = y := by

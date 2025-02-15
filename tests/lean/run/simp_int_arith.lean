@@ -142,9 +142,9 @@ info: theorem ex₁ : ∀ (x y z : Int), x + y + 2 + y + z + z ≤ y + 3 * z + 1
 fun x y z =>
   of_eq_true
     (id
-      (Int.Linear.ExprCnstr.eq_true_of_isValid
+      (Int.Linear.RawRelCnstr.eq_true_of_isValid
         (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf z)))
-        (Int.Linear.ExprCnstr.le
+        (Int.Linear.RawRelCnstr.le
           ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
                     (Int.Linear.Expr.var 1)).add
                 (Int.Linear.Expr.var 2)).add
@@ -169,10 +169,10 @@ fun x y z f =>
   of_eq_true
     ((fun x_1 =>
         id
-          (Int.Linear.ExprCnstr.eq_true_of_isValid
+          (Int.Linear.RawRelCnstr.eq_true_of_isValid
             (Lean.RArray.branch 1 (Lean.RArray.leaf x)
               (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x_1)))
-            (Int.Linear.ExprCnstr.le
+            (Int.Linear.RawRelCnstr.le
               ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 2)).add (Int.Linear.Expr.num 2)).add
                         (Int.Linear.Expr.var 2)).add
                     (Int.Linear.Expr.var 1)).add

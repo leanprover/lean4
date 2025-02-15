@@ -28,9 +28,12 @@ where
     | some e, .add 1 x p => go (some (.add e (.var x))) p
     | some e, .add k x p => go (some (.add e (.mulL k (.var x)))) p
 
-def PolyCnstr.toExprCnstr : PolyCnstr → ExprCnstr
+def RelCnstr.toRaw : RelCnstr → RawRelCnstr
   | .eq p => .eq p.toExpr (.num 0)
   | .le p => .le p.toExpr (.num 0)
+
+def DvdCnstr.toRaw : DvdCnstr → RawDvdCnstr
+  | { k, p } => { k, e := p.toExpr }
 
 /-- Applies the given variable permutation to `e` -/
 def Expr.applyPerm (perm : Lean.Perm) (e : Expr) : Expr :=
@@ -45,81 +48,74 @@ where
     | .mulL k a => .mulL k (go a)
     | .mulR a k => .mulR (go a) k
 
-/-- Applies the given variable permutation to the given expression constraint. -/
-def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
+/-- Applies the given variable permutation to the given raw relational constraint. -/
+def RawRelCnstr.applyPerm (perm : Lean.Perm) : RawRelCnstr → RawRelCnstr
   | .eq a b => .eq (a.applyPerm perm) (b.applyPerm perm)
   | .le a b => .le (a.applyPerm perm) (b.applyPerm perm)
 
-def DvdCnstr.applyPerm (perm : Lean.Perm) : DvdCnstr → DvdCnstr
+/-- Applies the given variable permutation to the given raw divisibility constraint. -/
+def RawDvdCnstr.applyPerm (perm : Lean.Perm) : RawDvdCnstr → RawDvdCnstr
   | { k, e } => { k, e := e.applyPerm perm }
 
-def DvdPolyCnstr.toDvdCnstr : DvdPolyCnstr → DvdCnstr
-  | { k, p } => { k, e := p.toExpr }
+deriving instance Repr for Poly
+deriving instance Repr for Expr
+deriving instance Repr for RelCnstr
+deriving instance Repr for RawRelCnstr
+deriving instance Repr for DvdCnstr
+deriving instance Repr for RawDvdCnstr
 
 end Int.Linear
 
 namespace Lean.Meta.Linear.Int
 
-deriving instance Repr for Int.Linear.Poly
-deriving instance Repr for Int.Linear.Expr
-deriving instance Repr for Int.Linear.ExprCnstr
-deriving instance Repr for Int.Linear.PolyCnstr
-
-abbrev LinearExpr  := Int.Linear.Expr
-abbrev LinearCnstr := Int.Linear.ExprCnstr
-abbrev PolyExpr    := Int.Linear.Poly
-abbrev DvdCnstr    := Int.Linear.DvdCnstr
-
-def LinearExpr.toExpr (e : LinearExpr) : Expr :=
+def ofLinearExpr (e : Int.Linear.Expr) : Expr :=
   open Int.Linear.Expr in
   match e with
   | .num v    => mkApp (mkConst ``num) (Lean.toExpr v)
   | .var i    => mkApp (mkConst ``var) (mkNatLit i)
-  | .neg a    => mkApp (mkConst ``neg) (toExpr a)
-  | .add a b  => mkApp2 (mkConst ``add) (toExpr a) (toExpr b)
-  | .sub a b  => mkApp2 (mkConst ``sub) (toExpr a) (toExpr b)
-  | .mulL k a => mkApp2 (mkConst ``mulL) (Lean.toExpr k) (toExpr a)
-  | .mulR a k => mkApp2 (mkConst ``mulR) (toExpr a) (Lean.toExpr k)
+  | .neg a    => mkApp (mkConst ``neg) (ofLinearExpr a)
+  | .add a b  => mkApp2 (mkConst ``add) (ofLinearExpr a) (ofLinearExpr b)
+  | .sub a b  => mkApp2 (mkConst ``sub) (ofLinearExpr a) (ofLinearExpr b)
+  | .mulL k a => mkApp2 (mkConst ``mulL) (toExpr k) (ofLinearExpr a)
+  | .mulR a k => mkApp2 (mkConst ``mulR) (ofLinearExpr a) (toExpr k)
 
-instance : ToExpr LinearExpr where
-  toExpr a := a.toExpr
+instance : ToExpr Int.Linear.Expr where
+  toExpr a := ofLinearExpr a
   toTypeExpr := mkConst ``Int.Linear.Expr
 
-protected def LinearCnstr.toExpr (c : LinearCnstr) : Expr :=
-   open Int.Linear.ExprCnstr in
+def ofRawRelCnstr (c : Int.Linear.RawRelCnstr) : Expr :=
    match c with
-   | .eq e₁ e₂ => mkApp2 (mkConst ``eq) (toExpr e₁) (toExpr e₂)
-   | .le e₁ e₂ => mkApp2 (mkConst ``le) (toExpr e₁) (toExpr e₂)
+   | .eq e₁ e₂ => mkApp2 (mkConst ``Int.Linear.RawRelCnstr.eq) (toExpr e₁) (toExpr e₂)
+   | .le e₁ e₂ => mkApp2 (mkConst ``Int.Linear.RawRelCnstr.le) (toExpr e₁) (toExpr e₂)
 
-instance : ToExpr LinearCnstr where
-  toExpr a   := a.toExpr
-  toTypeExpr := mkConst ``Int.Linear.ExprCnstr
+instance : ToExpr Int.Linear.RawRelCnstr where
+  toExpr a   := ofRawRelCnstr a
+  toTypeExpr := mkConst ``Int.Linear.RawRelCnstr
 
-protected def DvdCnstr.toExpr (c : DvdCnstr) : Expr :=
-   mkApp2 (mkConst ``Int.Linear.DvdCnstr.mk) (toExpr c.k) (toExpr c.e)
+def ofRawDvdCnstr (c : Int.Linear.RawDvdCnstr) : Expr :=
+   mkApp2 (mkConst ``Int.Linear.RawDvdCnstr.mk) (toExpr c.k) (toExpr c.e)
 
-instance : ToExpr DvdCnstr where
-  toExpr a   := a.toExpr
-  toTypeExpr := mkConst ``Int.Linear.DvdCnstr
+instance : ToExpr Int.Linear.RawDvdCnstr where
+  toExpr a   := ofRawDvdCnstr a
+  toTypeExpr := mkConst ``Int.Linear.RawDvdCnstr
 
-open Int.Linear.Expr in
-def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
+def _root_.Int.Linear.Expr.denoteExpr (ctx : Array Expr) (e : Int.Linear.Expr) : MetaM Expr := do
   match e with
   | .num v    => return Lean.toExpr v
   | .var i    => return ctx[i]!
-  | .neg a    => return mkIntNeg (← toArith ctx a)
-  | .add a b  => return mkIntAdd (← toArith ctx a) (← toArith ctx b)
-  | .sub a b  => return mkIntSub (← toArith ctx a) (← toArith ctx b)
-  | .mulL k a => return mkIntMul (Lean.toExpr k) (← toArith ctx a)
-  | .mulR a k => return mkIntMul (← toArith ctx a) (Lean.toExpr k)
+  | .neg a    => return mkIntNeg (← denoteExpr ctx a)
+  | .add a b  => return mkIntAdd (← denoteExpr ctx a) (← denoteExpr ctx b)
+  | .sub a b  => return mkIntSub (← denoteExpr ctx a) (← denoteExpr ctx b)
+  | .mulL k a => return mkIntMul (toExpr k) (← denoteExpr ctx a)
+  | .mulR a k => return mkIntMul (← denoteExpr ctx a) (toExpr k)
 
-def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
+def _root_.Int.Linear.RawRelCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.RawRelCnstr) : MetaM Expr := do
   match c with
-  | .eq e₁ e₂ => return mkIntEq (← LinearExpr.toArith ctx e₁) (← LinearExpr.toArith ctx e₂)
-  | .le e₁ e₂ => return mkIntLE (← LinearExpr.toArith ctx e₁) (← LinearExpr.toArith ctx e₂)
+  | .eq e₁ e₂ => return mkIntEq (← e₁.denoteExpr ctx) (← e₂.denoteExpr ctx)
+  | .le e₁ e₂ => return mkIntLE (← e₁.denoteExpr ctx) (← e₂.denoteExpr ctx)
 
-def DvdCnstr.toArith (ctx : Array Expr) (c : DvdCnstr) : MetaM Expr := do
-  return mkIntDvd (mkIntLit c.k) (← LinearExpr.toArith ctx c.e)
+def _root_.Int.Linear.RawDvdCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.RawDvdCnstr) : MetaM Expr := do
+  return mkIntDvd (mkIntLit c.k) (← c.e.denoteExpr ctx)
 
 namespace ToLinear
 
@@ -131,7 +127,7 @@ abbrev M := StateRefT State MetaM
 
 open Int.Linear.Expr
 
-def addAsVar (e : Expr) : M LinearExpr := do
+def addAsVar (e : Expr) : M Int.Linear.Expr := do
   if let some x ← (← get).varMap.find? e then
     return var x
   else
@@ -140,14 +136,14 @@ def addAsVar (e : Expr) : M LinearExpr := do
     set { varMap := (← s.varMap.insert e x), vars := s.vars.push e : State }
     return var x
 
-partial def toLinearExpr (e : Expr) : M LinearExpr := do
+partial def toLinearExpr (e : Expr) : M Int.Linear.Expr := do
   match e with
   | .mdata _ e            => toLinearExpr e
   | .app ..               => visit e
   | .mvar ..              => visit e
   | _                     => addAsVar e
 where
-  visit (e : Expr) : M LinearExpr := do
+  visit (e : Expr) : M Int.Linear.Expr := do
     let mul (a b : Expr) := do
       match (← getIntValue? a) with
       | some k => return .mulL k (← toLinearExpr b)
@@ -185,7 +181,7 @@ where
       else addAsVar e
     | _ => addAsVar e
 
-partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
+partial def toRawRelCnstr? (e : Expr) : M (Option Int.Linear.RawRelCnstr) := OptionT.run do
   match_expr e with
   | Eq α a b =>
     let_expr Int ← α | failure
@@ -217,7 +213,7 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
     return .le (.add (← toLinearExpr b) (.num 1)) (← toLinearExpr a)
   | _ => failure
 
-partial def toDvdCnstr? (e : Expr) : M (Option DvdCnstr) := OptionT.run do
+partial def toRawDvdCnstr? (e : Expr) : M (Option Int.Linear.RawDvdCnstr) := OptionT.run do
   let_expr Dvd.dvd _ inst k b ← e | failure
   guard (← isInstDvdInt inst)
   let some k ← getIntValue? k | failure
@@ -229,7 +225,7 @@ def run (x : M α) : MetaM (α × Array Expr) := do
 
 end ToLinear
 
-def toLinearExpr (e : Expr) : MetaM (LinearExpr × Array Expr) := do
+def toLinearExpr (e : Expr) : MetaM (Int.Linear.Expr × Array Expr) := do
   let (e, atoms) ← ToLinear.run (ToLinear.toLinearExpr e)
   if atoms.size == 1 then
     return (e, atoms)
@@ -238,8 +234,8 @@ def toLinearExpr (e : Expr) : MetaM (LinearExpr × Array Expr) := do
     let e := e.applyPerm perm
     return (e, atoms)
 
-def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
-  let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e)
+def toRawRelCnstr? (e : Expr) : MetaM (Option (Int.Linear.RawRelCnstr × Array Expr)) := do
+  let (some c, atoms) ← ToLinear.run (ToLinear.toRawRelCnstr? e)
     | return none
   if atoms.size <= 1 then
     return some (c, atoms)
@@ -248,8 +244,8 @@ def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
     let c := c.applyPerm perm
     return some (c, atoms)
 
-def toDvdCnstr? (e : Expr) : MetaM (Option (DvdCnstr × Array Expr)) := do
-  let (some c, atoms) ← ToLinear.run (ToLinear.toDvdCnstr? e)
+def toRawDvdCnstr? (e : Expr) : MetaM (Option (Int.Linear.RawDvdCnstr × Array Expr)) := do
+  let (some c, atoms) ← ToLinear.run (ToLinear.toRawDvdCnstr? e)
     | return none
   if atoms.size <= 1 then
     return some (c, atoms)

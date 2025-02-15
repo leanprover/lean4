@@ -42,15 +42,15 @@ example :
   rfl
 
 example (x₁ x₂ x₃ : Int) :
-  ExprCnstr.denote #R[x₁, x₂, x₃] (.eq (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2)))
+  RawRelCnstr.denote #R[x₁, x₂, x₃] (.eq (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2)))
   =
   ((x₁*4) + 2*x₂ - 3 = x₂ - x₃) :=
   rfl
 
 example :
-  ExprCnstr.toPoly (.eq (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2)))
+  RawRelCnstr.norm (.eq (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2)))
   =
-  ExprCnstr.toPoly (.eq (.add (.var 2) (.add (.var 1) (.add (.mulL 4 (.var 0)) (.num (-3))))) (.num 0)) :=
+  RawRelCnstr.norm (.eq (.add (.var 2) (.add (.var 1) (.add (.mulL 4 (.var 0)) (.num (-3))))) (.num 0)) :=
   rfl
 
 example (x₁ x₂ x₃ : Int) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ + x₁ :=
@@ -60,18 +60,18 @@ example (x₁ x₂ x₃ : Int) : (x₁ + x₂) + (x₂ + x₃) = x₃ + 2*x₂ +
    rfl
 
 example :
-  ExprCnstr.toPoly
+  RawRelCnstr.norm
     (.eq (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
          (Expr.add (Expr.var 2) (Expr.var 1)))
   =
-  ExprCnstr.toPoly
+  RawRelCnstr.norm
     (.eq (Expr.add (Expr.var 0) (Expr.var 1))
          (Expr.num 0))
   :=
   rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) = (x₁ + x₂ = 0) :=
-  ExprCnstr.eq_of_toPoly_eq #R[x₁, x₂, x₃]
+  RawRelCnstr.eq_of_norm_eq #R[x₁, x₂, x₃]
     (.eq (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
          (Expr.add (Expr.var 2) (Expr.var 1)))
     (.eq (Expr.add (Expr.var 0) (Expr.var 1))
@@ -79,7 +79,7 @@ example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) =
     rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) ≤ x₃ + x₂) = (x₁ + x₂ ≤ 0) :=
-  ExprCnstr.eq_of_toPoly_eq #R[x₁, x₂, x₃]
+  RawRelCnstr.eq_of_norm_eq #R[x₁, x₂, x₃]
     (.le (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
          (Expr.add (Expr.var 2) (Expr.var 1)))
     (.le (Expr.add (Expr.var 0) (Expr.var 1))

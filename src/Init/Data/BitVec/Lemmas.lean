@@ -390,7 +390,12 @@ theorem getLsbD_ofBool (b : Bool) (i : Nat) : (ofBool b).getLsbD i = ((i = 0) &&
   · simp only [ofBool, ofNat_eq_ofNat, cond_true, getLsbD_ofNat, Bool.and_true]
     by_cases hi : i = 0 <;> simp [hi] <;> omega
 
-theorem getElem_ofBool {b : Bool} : (ofBool b)[0] = b := by simp
+@[simp] theorem getElem_ofBool_zero {b : Bool} : (ofBool b)[0] = b := by simp
+
+@[simp]
+theorem getElem_ofBool {b : Bool} {h : i < 1}: (ofBool b)[i] = b := by
+  simp [← getLsbD_eq_getElem]
+  omega
 
 @[simp] theorem getMsbD_ofBool (b : Bool) : (ofBool b).getMsbD i = (decide (i = 0) && b) := by
   cases b <;> simp [getMsbD]
@@ -2013,11 +2018,11 @@ theorem getLsbD_append {x : BitVec n} {y : BitVec m} :
   · simp_all [h]
 
 theorem getElem_append {x : BitVec n} {y : BitVec m} (h : i < n + m) :
-    (x ++ y)[i] = if i < m then getLsbD y i else getLsbD x (i - m) := by
-  simp only [append_def, getElem_or, getElem_shiftLeftZeroExtend, getElem_setWidth']
+    (x ++ y)[i] = if h : i < m then y[i] else x[i - m] := by
+  simp only [append_def]
   by_cases h' : i < m
   · simp [h']
-  · simp_all [h']
+  · simp [h', show m ≤ i by omega, show i - m < n by omega]
 
 @[simp] theorem getMsbD_append {x : BitVec n} {y : BitVec m} :
     getMsbD (x ++ y) i = if n ≤ i then getMsbD y (i - n) else getMsbD x i := by
@@ -2076,7 +2081,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   · simp [getElem_append, h₁]
   · omega
   · simp [getElem_append, h₁]
-    omega
 
 @[simp] theorem setWidth_append_of_eq {x : BitVec v} {y : BitVec w} (h : w' = w) :
     setWidth (v' + w') (x ++ y) = setWidth v' x ++ setWidth w' y := by
@@ -2086,7 +2090,6 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   split
   · simp
   · simp
-    omega
 
 @[simp] theorem setWidth_cons {x : BitVec w} : (cons a x).setWidth w = x := by
   simp [cons, setWidth_append]
@@ -2096,7 +2099,7 @@ theorem setWidth_append {x : BitVec w} {y : BitVec v} :
   simp only [getElem_not, getElem_append, cond_eq_if]
   split
   · simp_all
-  · simp_all; omega
+  · simp_all
 
 @[simp] theorem and_append {x₁ x₂ : BitVec w} {y₁ y₂ : BitVec v} :
     (x₁ ++ y₁) &&& (x₂ ++ y₂) = (x₁ &&& x₂) ++ (y₁ &&& y₂) := by
@@ -2144,11 +2147,12 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
   ext i hi
-  simp only [getElem_ushiftRight, getElem_cast, getElem_append, getLsbD_extractLsb', getLsbD_zero,
-    Bool.if_false_right, Bool.and_self_left, Bool.iff_and_self, decide_eq_true_eq]
-  intros h
-  have := lt_of_getLsbD h
-  omega
+  simp only [getElem_cast, getElem_append,  getElem_zero]
+  have := @lt_of_getLsbD w x (n + i)
+  by_cases h : x.getLsbD (n+i)
+  · simp [h] at *
+    omega
+  · simp_all
 
 theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by
@@ -2158,7 +2162,6 @@ theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
   by_cases hi' : i < n
   · simp [hi']
   · simp [hi']
-    omega
 
 /-! ### rev -/
 
@@ -2290,8 +2293,7 @@ theorem cons_append_append (x : BitVec w₁) (y : BitVec w₂) (z : BitVec w₃)
     · simp only [h₁, ↓reduceIte]
       by_cases h₂ : i - w₃ < w₂
       · simp [h₂]
-      · simp [h₂]
-        omega
+      · simp [h₂, show i - w₃ - w₂ < w₁ by omega]
   · simp only [show ¬i - w₃ - w₂ < w₁ by omega, ↓reduceIte, show i - w₃ - w₂ - w₁ = 0 by omega,
       decide_true, Bool.true_and, h₀, show i - (w₁ + w₂ + w₃) = 0 by omega]
     by_cases h₂ : i < w₃

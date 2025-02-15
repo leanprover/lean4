@@ -265,3 +265,30 @@ example (x y : Int) : (2*x + y + y ≤ 3) ↔ (y + x ≤ 1) := by
 
 example (f : Int → Int) (x y : Int) : f (2*x + y) = f (y + x + x) := by
   simp +arith
+
+example (a b : Int) : ¬ 2 ∣ 2*a + 4*b + 1 := by
+  simp +arith
+
+example (a b : Int) : ¬ 2 ∣ a + 3*b + 1 + b + a := by
+  simp +arith
+
+example (a b : Int) : ¬ 2 ∣ a + 3*b + 1 + b + 5*a := by
+  simp +arith
+
+example (a b : Int) : 2 ∣ 4*a + 6*b + 8 := by
+  simp +arith
+
+example (a b : Int) : 2 ∣ 2*(a + a) + (3+3)*(b + b) + 8 := by
+  simp +arith
+
+example (a : Int) : 16 ∣ 4*a + 32 ↔ 4 ∣ a + 8 := by
+  simp +arith
+
+example (a : Int) : 3 ∣ a + a + 1 + a + 1 + a ↔ 3 ∣ 4*a + 2 := by
+  simp +arith
+
+example (a : Int) : 2+1 ∣ a + a + 1 - a + 1 + a ↔ 3 ∣ 2*a + 2 := by
+  simp +arith
+
+example (a b : Int) : 6 ∣ a + 21 - a + 3*a + 6*b + 12 ↔ 2 ∣ a + 2*b + 11 := by
+  simp +arith

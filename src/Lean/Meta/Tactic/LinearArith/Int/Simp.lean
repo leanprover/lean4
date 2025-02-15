@@ -126,6 +126,26 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else
     simpCnstrPos? e
 
+def simpDvdCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let some (c, atoms) ← toDvdCnstr? e | return none
+  if c.k == 0 then return none
+  withAbstractAtoms atoms ``Int fun atoms => do
+    let lhs ← c.toArith atoms
+    let c' := c.toPoly
+    let k  := c'.p.gcdCoeffs c'.k
+    if c'.p.getConst % k == 0 then
+      let c' := c'.div k
+      let c' : DvdCnstr := c'.toDvdCnstr
+      if c == c' then
+        return none
+      let r ← c'.toArith atoms
+      let h := mkApp5 (mkConst ``Int.Linear.DvdCnstr.eq_of_isEqv) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr k) reflBoolTrue
+      return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
+    else
+      let r := mkConst ``False
+      let h := mkApp3 (mkConst ``Int.Linear.DvdCnstr.eq_false_of_isUnsat) (toContextExpr atoms) (toExpr c) reflBoolTrue
+      return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
+
 def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let (e, atoms) ← toLinearExpr e
   let p  := e.toPoly

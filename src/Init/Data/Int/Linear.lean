@@ -566,17 +566,20 @@ def Poly.mul (p : Poly) (k : Int) : Poly :=
   rw [Int.mul_assoc]
 
 structure DvdPolyCnstr where
-  a : Int
+  k : Int
   p : Poly
 
 def DvdPolyCnstr.denote (ctx : Context) (c : DvdPolyCnstr) : Prop :=
-  c.a ∣ c.p.denote ctx
+  c.k ∣ c.p.denote ctx
 
 def DvdPolyCnstr.isUnsat (c : DvdPolyCnstr) : Bool :=
-  c.p.getConst % c.p.gcdCoeffs c.a != 0
+  c.p.getConst % c.p.gcdCoeffs c.k != 0
 
 def DvdPolyCnstr.isEqv (c₁ c₂ : DvdPolyCnstr) (k : Int) : Bool :=
-  k != 0 && c₁.a == k*c₂.a && c₁.p == c₂.p.mul k
+  k != 0 && c₁.k == k*c₂.k && c₁.p == c₂.p.mul k
+
+def DvdPolyCnstr.div (k' : Int) : DvdPolyCnstr → DvdPolyCnstr
+  | { k, p } => { k := k / k', p := p.div k' }
 
 private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
@@ -611,14 +614,15 @@ def DvdPolyCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdPolyCnstr) : c.isUn
   simp [denote, *]
 
 structure DvdCnstr where
-  a : Int
+  k : Int
   e : Expr
+  deriving BEq
 
 def DvdCnstr.denote (ctx : Context) (c : DvdCnstr) : Prop :=
-  c.a ∣ c.e.denote ctx
+  c.k ∣ c.e.denote ctx
 
 def DvdCnstr.toPoly (c : DvdCnstr) : DvdPolyCnstr :=
-  { a := c.a, p := c.e.toPoly }
+  { k := c.k, p := c.e.toPoly }
 
 @[simp] theorem DvdCnstr.denote_toPoly_eq (ctx : Context) (c : DvdCnstr) : c.denote ctx = c.toPoly.denote ctx := by
   simp [toPoly, denote, DvdPolyCnstr.denote]

@@ -50,6 +50,12 @@ def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
   | .eq a b => .eq (a.applyPerm perm) (b.applyPerm perm)
   | .le a b => .le (a.applyPerm perm) (b.applyPerm perm)
 
+def DvdCnstr.applyPerm (perm : Lean.Perm) : DvdCnstr → DvdCnstr
+  | { k, e } => { k, e := e.applyPerm perm }
+
+def DvdPolyCnstr.toDvdCnstr : DvdPolyCnstr → DvdCnstr
+  | { k, p } => { k, e := p.toExpr }
+
 end Int.Linear
 
 namespace Lean.Meta.Linear.Int
@@ -62,6 +68,7 @@ deriving instance Repr for Int.Linear.PolyCnstr
 abbrev LinearExpr  := Int.Linear.Expr
 abbrev LinearCnstr := Int.Linear.ExprCnstr
 abbrev PolyExpr    := Int.Linear.Poly
+abbrev DvdCnstr    := Int.Linear.DvdCnstr
 
 def LinearExpr.toExpr (e : LinearExpr) : Expr :=
   open Int.Linear.Expr in
@@ -88,6 +95,13 @@ instance : ToExpr LinearCnstr where
   toExpr a   := a.toExpr
   toTypeExpr := mkConst ``Int.Linear.ExprCnstr
 
+protected def DvdCnstr.toExpr (c : DvdCnstr) : Expr :=
+   mkApp2 (mkConst ``Int.Linear.DvdCnstr.mk) (toExpr c.k) (toExpr c.e)
+
+instance : ToExpr DvdCnstr where
+  toExpr a   := a.toExpr
+  toTypeExpr := mkConst ``Int.Linear.DvdCnstr
+
 open Int.Linear.Expr in
 def LinearExpr.toArith (ctx : Array Expr) (e : LinearExpr) : MetaM Expr := do
   match e with
@@ -103,6 +117,9 @@ def LinearCnstr.toArith (ctx : Array Expr) (c : LinearCnstr) : MetaM Expr := do
   match c with
   | .eq e₁ e₂ => return mkIntEq (← LinearExpr.toArith ctx e₁) (← LinearExpr.toArith ctx e₂)
   | .le e₁ e₂ => return mkIntLE (← LinearExpr.toArith ctx e₁) (← LinearExpr.toArith ctx e₂)
+
+def DvdCnstr.toArith (ctx : Array Expr) (c : DvdCnstr) : MetaM Expr := do
+  return mkIntDvd (mkIntLit c.k) (← LinearExpr.toArith ctx c.e)
 
 namespace ToLinear
 
@@ -200,6 +217,12 @@ partial def toLinearCnstr? (e : Expr) : M (Option LinearCnstr) := OptionT.run do
     return .le (.add (← toLinearExpr b) (.num 1)) (← toLinearExpr a)
   | _ => failure
 
+partial def toDvdCnstr? (e : Expr) : M (Option DvdCnstr) := OptionT.run do
+  let_expr Dvd.dvd _ inst k b ← e | failure
+  guard (← isInstDvdInt inst)
+  let some k ← getIntValue? k | failure
+  return { k, e := (← toLinearExpr b) }
+
 def run (x : M α) : MetaM (α × Array Expr) := do
   let (a, s) ← x.run {}
   return (a, s.vars)
@@ -217,6 +240,16 @@ def toLinearExpr (e : Expr) : MetaM (LinearExpr × Array Expr) := do
 
 def toLinearCnstr? (e : Expr) : MetaM (Option (LinearCnstr × Array Expr)) := do
   let (some c, atoms) ← ToLinear.run (ToLinear.toLinearCnstr? e)
+    | return none
+  if atoms.size <= 1 then
+    return some (c, atoms)
+  else
+    let (atoms, perm) := sortExprs atoms
+    let c := c.applyPerm perm
+    return some (c, atoms)
+
+def toDvdCnstr? (e : Expr) : MetaM (Option (DvdCnstr × Array Expr)) := do
+  let (some c, atoms) ← ToLinear.run (ToLinear.toDvdCnstr? e)
     | return none
   if atoms.size <= 1 then
     return some (c, atoms)

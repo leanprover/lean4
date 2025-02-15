@@ -303,7 +303,7 @@ theorem dvd_gcd (xs : IntList) (c : Nat) (w : ∀ {a : Int}, a ∈ xs → (c : I
     c ∣ xs.gcd := by
   simp only [Int.ofNat_dvd_left] at w
   induction xs with
-  | nil => have := Nat.dvd_zero c; simp at this; exact this
+  | nil => have := Nat.dvd_zero c; simp
   | cons x xs ih =>
     simp
     apply Nat.dvd_gcd

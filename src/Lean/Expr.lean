@@ -2245,20 +2245,28 @@ def mkIntMul (a b : Expr) : Expr :=
 private def intLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
 
-/-- Given `a b : Int`, return `a ≤ b` -/
+/-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType
 
-/-- Given `a b : Int`, return `a = b` -/
+/-- Given `a b : Int`, returns `a = b` -/
 def mkIntEq (a b : Expr) : Expr :=
   mkApp2 intEqPred a b
 
-def mkIntLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+/-- Given `a b : Int`, returns `a ∣ b` -/
+def mkIntDvd (a b : Expr) : Expr :=
+  mkApp4 (mkConst ``Dvd.dvd [0]) Int.mkType (mkConst ``Int.instDvd) a b
+
+def mkIntLit (n : Int) : Expr :=
+  let r := mkRawNatLit n.natAbs
+  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  if n < 0 then
+    mkIntNeg r
+  else
+    r
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)

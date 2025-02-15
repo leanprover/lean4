@@ -32,6 +32,9 @@ def isInstDivInt (e : Expr) : MetaM Bool := do
 def isInstModInt (e : Expr) : MetaM Bool := do
   let_expr Int.instMod ← e | return false
   return true
+def isInstDvdInt (e : Expr) : MetaM Bool := do
+  let_expr Int.instDvd ← e | return false
+  return true
 def isInstHAddInt (e : Expr) : MetaM Bool := do
   let_expr instHAdd _ i ← e | return false
   isInstAddInt i

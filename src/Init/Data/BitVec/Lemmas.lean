@@ -882,7 +882,7 @@ The index `i` must be within the range of `len`.
 
 If `start + len` is larger than `w`, the high bits at `i` with `w ≤ i` are filled with 0,
 meaning that `getMsbD[i] = false` for these `i`.
-If `i` is large enough, we will have that `getMsbD[i]` is again within the bounds `x`.
+If `i` is large enough, `getMsbD[i]` is again within the bounds `x`.
 The precise condition is:
 
   `start + len - i ≤ w`

@@ -13,6 +13,11 @@ private opaque DynlibImpl : NonemptyType.{0}
 def Dynlib := DynlibImpl.type
 instance : Nonempty Dynlib := DynlibImpl.property
 
+private opaque Dynlib.SymbolImpl (dynlib : Dynlib) : NonemptyType.{0}
+/-- A reference to a symbol within a dynamic library. -/
+def Dynlib.Symbol (dynlib : Dynlib) := SymbolImpl dynlib |>.type
+instance : Nonempty (Dynlib.Symbol dynlib) := Dynlib.SymbolImpl dynlib |>.property
+
 /--
 Dynamically loads a shared library.
 
@@ -21,6 +26,22 @@ To avoid this, use an absolute path (e.g., from `IO.FS.realPath`).
 -/
 @[extern "lean_dynlib_load"]
 opaque Dynlib.load (path : @& System.FilePath) : IO Dynlib
+
+/-- Returns the symbol of the dynamic library with the specified name (if any).  -/
+@[extern "lean_dynlib_get"]
+opaque Dynlib.get? (dynlib : @& Dynlib) (sym : @& String) : Option dynlib.Symbol
+
+/--
+Runs a module initializer function.
+The symbol should have the signature `(builtin : Bool) → IO Unit`
+(e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
+
+This function is marked `unsafe` because there is no way to guarantee
+the symbol has the expected signature. An invalid symbol can thus produce
+undefined behavior.
+-/
+@[extern "lean_dynlib_symbol_run_as_init"]
+unsafe opaque Dynlib.Symbol.runAsInit {dynlib : @& Dynlib} (sym : @& dynlib.Symbol) : IO Unit
 
 /--
 Dynamically loads a shared library so that its symbols can be used by
@@ -37,18 +58,6 @@ def loadDynlib (path : @& System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean never unloads libraries.
   let _ ← unsafe Runtime.markPersistent dynlib
-
-/--
-Runs a module initializer function.
-The function symbol should have the signature `(builtin : Bool) → IO Unit`
-(e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
-
-This function is marked `unsafe` because there is no way to guarantee
-the symbol has the expected signature. An invalid symbol can thus produce
-undefined behavior.
--/
-@[extern "lean_dynlib_run_init"]
-unsafe opaque Dynlib.runInit (dynlib : @& Dynlib) (sym : @& String) : IO Unit
 
 /--
 Loads a Lean plugin and runs its initializers.
@@ -76,12 +85,14 @@ def loadPlugin (path : System.FilePath) : IO Unit := do
   let some name := path.fileStem
     | throw <| IO.userError s!"error, plugin has invalid file name '{path}'"
   let dynlib ← Dynlib.load path
+  -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
+  -- under some configurations. We strip these from the initializer symbol.
+  let name := name.stripPrefix "lib" |>.stripSuffix "_shared"
+  let name := s!"initialize_{name}"
+  let some sym := dynlib.get? name
+    | throw <| IO.userError s!"error loading plugin, initializer not found '{name}'"
   -- Lean never unloads plugins.
   -- This also ensures that any data from the library mixed
   -- into the global state by the initializer is not freed early.
-  let dynlib ← unsafe Runtime.markPersistent dynlib
-  -- Lean libraries can be prefixed with `lib` or suffixed with `_shared`
-  -- under some configurations. We strip these from the initializer symbol.
-  let sym := name.stripPrefix "lib" |>.stripSuffix "_shared"
-  let sym := s!"initialize_{sym}"
-  unsafe dynlib.runInit sym
+  let _ ← unsafe Runtime.markPersistent dynlib
+  unsafe sym.runAsInit

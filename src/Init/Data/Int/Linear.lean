@@ -9,6 +9,7 @@ import Init.Data.Prod
 import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.DivModLemmas
+import Init.Data.Int.Gcd
 import Init.Data.RArray
 
 namespace Int.Linear
@@ -531,6 +532,109 @@ theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPo
   have := PolyCnstr.eq_true_of_isValid ctx (c.toPoly) h
   rw [ExprCnstr.denote_toPoly] at this
   assumption
+
+private def gcd (a b : Int) : Int :=
+  Int.ofNat <| Int.gcd a b
+
+private theorem gcd_dvd_left (a b : Int) : gcd a b ∣ a := by
+  simp [gcd, Int.gcd_dvd_left]
+
+private theorem gcd_dvd_right (a b : Int) : gcd a b ∣ b := by
+  simp [gcd, Int.gcd_dvd_right]
+
+private theorem gcd_dvd_step {k a b x : Int} (h : k ∣ a*x + b) : gcd a k ∣ b := by
+  have h₁ : gcd a k ∣ a*x + b := Int.dvd_trans (gcd_dvd_right a k) h
+  have h₂ : gcd a k ∣ a*x := Int.dvd_trans (gcd_dvd_left a k) (Int.dvd_mul_right a x)
+  exact Int.dvd_iff_dvd_of_dvd_add h₁ |>.mp h₂
+
+def Poly.gcdCoeffs : Poly → Int → Int
+  | .num _, k => k
+  | .add k' _ p, k => gcdCoeffs p (gcd k' k)
+
+theorem Poly.gcd_dvd_const {ctx : Context} {p : Poly} {k : Int} (h : k ∣ p.denote ctx) : p.gcdCoeffs k ∣ p.getConst := by
+  induction p generalizing k <;> simp_all [gcdCoeffs]
+  next k' x p ih =>
+    rw [Int.add_comm] at h
+    exact ih (gcd_dvd_step h)
+
+def Poly.mul (p : Poly) (k : Int) : Poly :=
+  match p with
+  | .num k' => .num (k*k')
+  | .add k' v p => .add (k*k') v (mul p k)
+
+@[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
+  induction p <;> simp [mul, *]
+  rw [Int.mul_assoc]
+
+structure DvdPolyCnstr where
+  a : Int
+  p : Poly
+
+def DvdPolyCnstr.denote (ctx : Context) (c : DvdPolyCnstr) : Prop :=
+  c.a ∣ c.p.denote ctx
+
+def DvdPolyCnstr.isUnsat (c : DvdPolyCnstr) : Bool :=
+  c.p.getConst % c.p.gcdCoeffs c.a != 0
+
+def DvdPolyCnstr.isEqv (c₁ c₂ : DvdPolyCnstr) (k : Int) : Bool :=
+  k != 0 && c₁.a == k*c₂.a && c₁.p == c₂.p.mul k
+
+theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
+  intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
+
+def DvdPolyCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdPolyCnstr) : c.isUnsat → c.denote ctx = False := by
+  rcases c with ⟨a, p⟩
+  simp [isUnsat, denote]
+  intro h₁ h₂
+  have := Poly.gcd_dvd_const h₂
+  have := not_dvd_of_not_mod_zero h₁
+  contradiction
+
+@[local simp] private theorem mul_dvd_mul_eq {a b c : Int} (hnz : a ≠ 0) : a * b ∣ a * c ↔ b ∣ c := by
+  constructor
+  · intro h
+    rcases h with ⟨k, h⟩
+    rw [Int.mul_assoc a] at h
+    replace h := Int.eq_of_mul_eq_mul_left hnz h
+    exists k
+  · intro h
+    rcases h with ⟨k, h⟩
+    exists k
+    rw [h, Int.mul_assoc]
+
+@[local simp] theorem DvdPolyCnstr.eq_of_isEqv (ctx : Context) (c₁ c₂ : DvdPolyCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote ctx = c₂.denote ctx := by
+  rcases c₁ with ⟨a₁, e₁⟩
+  rcases c₂ with ⟨a₂, e₂⟩
+  simp [isEqv] at h
+  rcases h with ⟨⟨h₁, h₂⟩, h₃⟩
+  replace h₃ := congrArg (Poly.denote ctx) h₃
+  simp at h₃
+  simp [denote, *]
+
+structure DvdCnstr where
+  a : Int
+  e : Expr
+
+def DvdCnstr.denote (ctx : Context) (c : DvdCnstr) : Prop :=
+  c.a ∣ c.e.denote ctx
+
+def DvdCnstr.toPoly (c : DvdCnstr) : DvdPolyCnstr :=
+  { a := c.a, p := c.e.toPoly }
+
+@[simp] theorem DvdCnstr.denote_toPoly_eq (ctx : Context) (c : DvdCnstr) : c.denote ctx = c.toPoly.denote ctx := by
+  simp [toPoly, denote, DvdPolyCnstr.denote]
+
+def DvdCnstr.isEqv (c₁ c₂ : DvdCnstr) (k : Int) : Bool :=
+  c₁.toPoly.isEqv c₂.toPoly k
+
+def DvdCnstr.isUnsat (c : DvdCnstr) : Bool :=
+  c.toPoly.isUnsat
+
+theorem DvdCnstr.eq_of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote ctx = c₂.denote ctx := by
+  simp [DvdPolyCnstr.eq_of_isEqv ctx c₁.toPoly c₂.toPoly k h]
+
+theorem DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) (h : c.isUnsat) : c.denote ctx = False := by
+  simp [DvdPolyCnstr.eq_false_of_isUnsat ctx c.toPoly h]
 
 end Int.Linear
 

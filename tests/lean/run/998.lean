@@ -2,7 +2,7 @@ import Lean
 set_option maxHeartbeats 100000
 attribute [simp] Array.findIdx?.loop
 attribute [simp] Lean.expandExplicitBindersAux.loop
-attribute [simp] Lean.Meta.resolveLocalName.loop
+attribute [simp] Lean.resolveLocalName.loop
 
 
 -- Mathlib

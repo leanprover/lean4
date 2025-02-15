@@ -8,7 +8,6 @@ import Lean.ReservedNameAction
 import Lean.Meta.AppBuilder
 import Lean.Meta.CollectMVars
 import Lean.Meta.Coe
-import Lean.Meta.ResolveLocalName
 import Lean.Util.CollectLevelMVars
 import Lean.Linter.Deprecated
 import Lean.Elab.Config

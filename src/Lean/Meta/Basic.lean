@@ -437,10 +437,6 @@ register_builtin_option maxSynthPendingDepth : Nat := {
 -/
 structure Context where
   private config    : Config               := {}
-  /--
-    Map `.auxDecl` local declarations used to encode recursive declarations to their full-names.
-  -/
-  auxDeclToFullName : FVarIdMap Name  := {}
   private configKey : UInt64               := config.toKey
   /--
   When `trackZetaDelta = true`, we track all free variables that have been zetaDelta-expanded.
@@ -1669,9 +1665,12 @@ def withLocalDeclsDND [Inhabited α] (declInfos : Array (Name × Expr)) (k : (xs
     (declInfos.map (fun (name, typeCtor) => (name, fun _ => pure typeCtor))) k
 
 private def withAuxDeclImp (shortDeclName : Name) (type : Expr) (declName : Name) (k : Expr → MetaM α) : MetaM α := do
-  withLocalDecl shortDeclName .default (kind := .auxDecl) type fun x =>
-    withReader (fun ctx => { ctx with auxDeclToFullName := ctx.auxDeclToFullName.insert x.fvarId! declName }) do
-      k x
+  let fvarId ← mkFreshFVarId
+  let ctx ← read
+  let lctx := ctx.lctx.mkAuxDecl fvarId shortDeclName type declName
+  let fvar := mkFVar fvarId
+  withReader (fun ctx => { ctx with lctx := lctx }) do
+    withNewFVar fvar type k
 
 /--
   Declare an auxiliary local declaration `shortDeclName : type` for elaborating recursive

@@ -894,7 +894,7 @@ Example (w = 10, start := 7, len := 5):
                                         |    start    |     = 7
                                 |  len  |                   = 5
 let x                       =       9 8 7 6 5 4 3 2 1 0
-let x' = x.extractLsb' 3 4  =   _ _ 9 8 7
+let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
                                 |   |
                                 |   x'.getMsbD (i := 2) =
                                 |   x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 2)) =

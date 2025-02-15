@@ -13,7 +13,7 @@ namespace Lean.Meta.Linear
 def parentIsTarget (parent? : Option Expr) : Bool :=
   match parent? with
   | none => false
-  | some parent => isLinearTerm parent || isLinearCnstr parent
+  | some parent => isLinearTerm parent || isLinearCnstr parent || isDvdCnstr parent
 
 def simp? (e : Expr) (parent? : Option Expr) : MetaM (Option (Expr × Expr)) := do
   -- TODO: add support for `Int` and arbitrary ordered comm rings

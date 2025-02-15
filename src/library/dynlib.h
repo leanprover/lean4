@@ -8,6 +8,7 @@ Author: Mac Malone
 #include <string>
 
 namespace lean {
+LEAN_EXPORT void initialize_dynlib();
 LEAN_EXPORT void load_dynlib(std::string path);
 LEAN_EXPORT void load_plugin(std::string path);
 }

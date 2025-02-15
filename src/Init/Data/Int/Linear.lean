@@ -380,7 +380,6 @@ theorem ExprCnstr.eq_of_toPoly_eq_of_divBy' (ctx : Context) (e e' : ExprCnstr) (
     rw [denote_toPoly, denote_toPoly] at this
     exact this
   next p =>
-    -- TODO: this is correct but we can simplify `p ≤ 0` if `p.divCoeffs k` and `p.getConst % k > 0`. Here, we are simplifying only the case `p.getConst % k = 0`
     replace h₁ := Poly.denote_div_eq_of_divAll ctx p k h₁
     replace h₂ := congrArg (PolyCnstr.denote ctx) h₂
     simp only [PolyCnstr.denote.eq_2, ← h₁] at h₂

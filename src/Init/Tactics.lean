@@ -1798,8 +1798,10 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
-      Recall that `macro_rules` are tried in reverse order.
-      We want `assumption` to be tried first.
+      Recall that `macro_rules` (namely, for `get_elem_tactic_trivial`) are tried in reverse order.
+      We first, however, try `done`, since the necessary proof may already have been
+      found during unification, in which case there is no goal to solve (see #6999).
+      If a goal is present, we want `assumption` to be tried first.
       This is important for theorems such as
       ```
       [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
@@ -1812,8 +1814,10 @@ macro "get_elem_tactic" : tactic =>
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_trivial` which are
+            just `done` and `assumption`.
       -/
+    | done
     | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:

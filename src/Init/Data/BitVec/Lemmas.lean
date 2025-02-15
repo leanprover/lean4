@@ -822,8 +822,8 @@ and the second `setWidth` is a non-trivial extension.
 @[simp] theorem setWidth_setWidth {x : BitVec u} {w v : Nat} (h : ¬ (v < u ∧ v < w)) :
     setWidth w (setWidth v x) = setWidth w x := by
   ext i ih
-  have h := @lt_of_getLsbD u x i
-  by_cases h : x.getLsbD i = true <;> simp [h] at * <;> omega
+  have := @lt_of_getLsbD u x i
+  by_cases h' : x.getLsbD i = true <;> simp [h'] at * <;> omega
 
 /-! ## extractLsb -/
 
@@ -2040,7 +2040,7 @@ theorem msb_append {x : BitVec w} {y : BitVec v} :
 
 @[simp] theorem append_zero_width (x : BitVec w) (y : BitVec 0) : x ++ y = x := by
   ext i ih
-  rw [getElem_append] -- Why does this not work with `simp [getLsbD_append]`?
+  rw [getElem_append] -- Why does this not work with `simp [getELem_append]`?
   simp [show i < w by omega]
 
 @[simp] theorem zero_width_append (x : BitVec 0) (y : BitVec v) : x ++ y = y.cast (by omega) := by

@@ -292,3 +292,49 @@ example (a : Int) : 2+1 ∣ a + a + 1 - a + 1 + a ↔ 3 ∣ 2*a + 2 := by
 
 example (a b : Int) : 6 ∣ a + 21 - a + 3*a + 6*b + 12 ↔ 2 ∣ a + 2*b + 11 := by
   simp +arith
+
+theorem ex3 (a b : Int) : 6 ∣ a + (21 - a) + 3*(a + 2*b) + 12 ↔ 2 ∣ a + 2*b + 11 := by
+  simp +arith
+
+/--
+info: theorem ex3 : ∀ (a b : Int), 6 ∣ a + (21 - a) + 3 * (a + 2 * b) + 12 ↔ 2 ∣ a + 2 * b + 11 :=
+fun a b =>
+  of_eq_true
+    (Eq.trans
+      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b + 11)
+        (id
+          (RawDvdCnstr.eq_of_isEqv (RArray.branch 1 (RArray.leaf a) (RArray.leaf b))
+            { k := 6,
+              e :=
+                (((Expr.var 0).add ((Expr.num 21).sub (Expr.var 0))).add
+                      (Expr.mulL 3 ((Expr.var 0).add (Expr.mulL 2 (Expr.var 1))))).add
+                  (Expr.num 12) }
+            { k := 2, p := Poly.add 1 0 (Poly.add 2 1 (Poly.num 11)) } 3 (Eq.refl true))))
+      (iff_self (2 ∣ a + 2 * b + 11)))
+-/
+#guard_msgs (info) in
+open Lean in open Int.Linear in
+#print ex3
+
+theorem ex4 (a b : Int) : 6 ∣ a + (11 - a) + 3*(a + 2*b) - 11 ↔ 2 ∣ a + 2*b := by
+  simp +arith
+
+/--
+info: theorem ex4 : ∀ (a b : Int), 6 ∣ a + (11 - a) + 3 * (a + 2 * b) - 11 ↔ 2 ∣ a + 2 * b :=
+fun a b =>
+  of_eq_true
+    (Eq.trans
+      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b)
+        (id
+          (RawDvdCnstr.eq_of_isEqv (RArray.branch 1 (RArray.leaf a) (RArray.leaf b))
+            { k := 6,
+              e :=
+                (((Expr.var 0).add ((Expr.num 11).sub (Expr.var 0))).add
+                      (Expr.mulL 3 ((Expr.var 0).add (Expr.mulL 2 (Expr.var 1))))).sub
+                  (Expr.num 11) }
+            { k := 2, p := Poly.add 1 0 (Poly.add 2 1 (Poly.num 0)) } 3 (Eq.refl true))))
+      (iff_self (2 ∣ a + 2 * b)))
+-/
+#guard_msgs (info) in
+open Lean in open Int.Linear in
+#print ex4

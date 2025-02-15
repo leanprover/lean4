@@ -2147,12 +2147,10 @@ theorem msb_shiftLeft {x : BitVec w} {n : Nat} :
 theorem ushiftRight_eq_extractLsb'_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x >>> n = ((0#n) ++ (x.extractLsb' n (w - n))).cast (by omega) := by
   ext i hi
-  simp only [getElem_cast, getElem_append,  getElem_zero]
-  have := @lt_of_getLsbD w x (n + i)
-  by_cases h : x.getLsbD (n+i)
-  · simp [h] at *
-    omega
-  · simp_all
+  simp only [getElem_cast, getElem_append, getElem_zero, getElem_ushiftRight, getElem_extractLsb']
+  split
+  · simp
+  · exact getLsbD_ge x (n+i) (by omega)
 
 theorem shiftLeft_eq_concat_of_lt {x : BitVec w} {n : Nat} (hn : n < w) :
     x <<< n = (x.extractLsb' 0 (w - n) ++ 0#n).cast (by omega) := by

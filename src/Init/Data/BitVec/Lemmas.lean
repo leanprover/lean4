@@ -902,10 +902,11 @@ let x' = x.extractLsb' 7 5  =   _ _ 9 8 7
                                 |   ✅ start + len - i ≤ w
                                 |        7 + 5 - 2 = 10 ≤ 10
                                 |
-                                x'.getMsbD (i := 0) = x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 0))
-                                                    = x.getMsbD (i := w - (start + len - i) = x.getMsbD (i := -2) -- in Nat becomes 0
-                                                    ❌ start + len - i ≤ w
-                                                      7 + 5 - 0 ≤ w
+                                x'.getMsbD (i := 0) =
+                                x.getMsbD (i := w - (start + len - i) = 10 - (7 + 5 - 0)) =
+                                x.getMsbD (i := w - (start + len - i) = x.getMsbD (i := -2) -- in Nat becomes 0
+                                ❌ start + len - i ≤ w
+                                     7 + 5 - 0 ≤ w
 -/
 @[simp] theorem getMsbD_extractLsb' {start len : Nat} {x : BitVec w} {i : Nat} :
     (extractLsb' start len x).getMsbD i =

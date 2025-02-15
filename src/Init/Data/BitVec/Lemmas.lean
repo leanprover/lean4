@@ -1070,7 +1070,7 @@ theorem and_eq_allOnes_iff {x y : BitVec w} :
     all_goals
     · ext i ih
       have := BitVec.eq_of_getElem_eq_iff.mp h i ih
-      simp [ih, getLsbD_eq_getElem, getElem_and, getElem_allOnes, Bool.and_eq_true] at this
+      simp only [getElem_and, getElem_allOnes, Bool.and_eq_true] at this
       simp [this, ih]
   · intro h
     simp [h]

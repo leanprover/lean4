@@ -868,7 +868,8 @@ Example (w = 10, start := 3, len := 4):
 let x                       =   9 8 7 6 5 4 3 2 1 0
 let x' = x.extractLsb' 3 4  =         6 5 4 3
                                       | |
-                                      | x'.getMsbD 1 = x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 1) = 4) = x.getLsbD 5
+                                      | x'.getMsbD 1 =
+                                        x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 1) = 4)
                                       |
                                       x'.getMsbD 0 =
                                       x.getMsbD (i := w - (start + len - i) = 10 - (3 + 4 - 0) = 3)

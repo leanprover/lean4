@@ -93,6 +93,11 @@ theorem getLsbD_eq_getElem?_getD {x : BitVec w} {i : Nat} :
   · rfl
   · simp_all
 
+@[simp]
+theorem getElem_of_getLsbD_eq_true {x : BitVec w} {i : Nat} (h : x.getLsbD i = true) :
+    (x[i]'(lt_of_getLsbD h) = true) = True := by
+  simp [← BitVec.getLsbD_eq_getElem, h]
+
 /--
 This normalized a bitvec using `ofFin` to `ofNat`.
 -/
@@ -3728,8 +3733,7 @@ theorem setWidth_setWidth_succ_eq_setWidth_setWidth_or_twoPow_of_getLsbD_true
   simp only [getElem_setWidth, h, getElem_or, getElem_twoPow]
   by_cases hik : i = k
   · subst hik
-    simp only [h, getLsbD_eq_getElem] at hx
-    simp [h, hx]
+    simp [hx]
   · by_cases hik' : k < i + 1
     <;> simp [hik, hik', show ¬ (k = i) by omega]
     <;> omega

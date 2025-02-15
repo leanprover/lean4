@@ -286,7 +286,7 @@ def simpArith (e : Expr) : SimpM Step := do
   if Linear.isLinearCnstr e then
     if let some (e', h) ← Linear.Nat.simpCnstr? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Linear.Int.simpCnstr? e then
+    else if let some (e', h) ← Linear.Int.simpRelCnstr? e then
       return .visit { expr := e', proof? := h }
     else
       return .continue

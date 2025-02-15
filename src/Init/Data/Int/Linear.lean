@@ -346,8 +346,8 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
 
 attribute [local simp] Poly.denote_norm
 
-private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
-private theorem neg_fold (a : Int) : a.neg = -a := rfl
+theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+theorem neg_fold (a : Int) : a.neg = -a := rfl
 
 attribute [local simp] sub_fold neg_fold
 

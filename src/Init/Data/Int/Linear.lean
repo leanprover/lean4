@@ -346,8 +346,8 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
 
 attribute [local simp] Poly.denote_norm
 
-private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
-private theorem neg_fold (a : Int) : a.neg = -a := rfl
+theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+theorem neg_fold (a : Int) : a.neg = -a := rfl
 
 attribute [local simp] sub_fold neg_fold
 
@@ -416,14 +416,13 @@ theorem RawRelCnstr.denote_norm (ctx : Context) (c : RawRelCnstr) : c.norm.denot
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    · rename_i k₁ v₁ p₁ k₂ v₂ p₂ ih
+    next ih =>
       intro _ _ h
       exact ih h
   rfl := by
     intro a
     induction a <;> simp! [BEq.beq]
-    · rename_i k v p ih
-      exact ih
+    assumption
 
 instance : LawfulBEq RelCnstr where
   eq_of_beq {a b} := by
@@ -459,27 +458,6 @@ theorem RawRelCnstr.eq_of_norm_eq_const (ctx : Context) (x : Var) (k : Int) (c :
   rw [denote_norm] at h
   rw [h]; simp
   rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
-
-private theorem mul_eq_zero_iff_eq_zero (a b : Int) : b ≠ 0 → (a * b = 0 ↔ a = 0) := by
-  intro h
-  constructor
-  · intro h'
-    cases Int.mul_eq_zero.mp h'
-    · assumption
-    · contradiction
-  · intro; simp [*]
-
-private theorem eq_mul_le_zero {a b : Int} : 0 < b → (a ≤ 0 ↔ a * b ≤ 0) := by
-  intro h
-  have : 0 = 0 * b := by simp
-  constructor
-  · intro h'
-    rw [this]
-    apply Int.mul_le_mul h' <;> try simp
-    apply Int.le_of_lt h
-  · intro h'
-    rw [this] at h'
-    exact Int.le_of_mul_le_mul_right h' h
 
 attribute [local simp] RelCnstr.divAll RelCnstr.div RelCnstr.mul
 
@@ -570,18 +548,6 @@ theorem RawRelCnstr.eq_false_of_isUnsat (ctx : Context) (c : RawRelCnstr) (h : c
 def RelCnstr.isUnsatCoeff (k : Int) : RelCnstr → Bool
   | .eq p => p.divCoeffs k && k > 0 && cmod p.getConst k < 0
   | .le _ => false
-
-private theorem contra_old {a b k : Int} (h₀ : 0 < k) (h₁ : 0 < b) (h₂ : b < k) (h₃ : a*k + b = 0) : False := by
-  have : b = -a*k := by
-    rw [← Int.neg_eq_of_add_eq_zero h₃, Int.neg_mul]
-  rw [this] at h₁ h₂
-  conv at h₂ => rhs; rw [← Int.one_mul k]
-  have high := Int.lt_of_mul_lt_mul_right h₂ (Int.le_of_lt h₀)
-  rw [← Int.zero_mul k] at h₁
-  have low := Int.lt_of_mul_lt_mul_right h₁ (Int.le_of_lt h₀)
-  replace low : 1 ≤ -a := low
-  have : (1 : Int) < 1 := Int.lt_of_le_of_lt low high
-  contradiction
 
 private theorem contra {a b k : Int} (h₀ : 0 < k) (h₁ : -k < b) (h₂ : b < 0) (h₃ : a*k + b = 0) : False := by
   have : b = -a*k := by
@@ -743,8 +709,8 @@ end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
   apply propext; constructor
-  · intro h; have h := Int.add_one_le_of_lt (Int.lt_of_not_ge h); assumption
-  · intro h; apply Int.not_le_of_gt; exact h
+  · intro h; exact Int.add_one_le_of_lt (Int.lt_of_not_ge h)
+  · exact Int.not_le_of_gt
 
 theorem Int.not_ge_eq (a b : Int) : (¬a ≥ b) = (a + 1 ≤ b) := by
   apply Int.not_le_eq

@@ -8,6 +8,7 @@ import Init.SimpLemmas
 import Init.PropLemmas
 import Init.Classical
 import Init.ByCases
+import Init.Data.Int.Linear
 
 namespace Lean.Grind
 /-!
@@ -72,6 +73,8 @@ theorem bne_eq_decide_not_eq {_ : BEq α} [LawfulBEq α] [DecidableEq α] (a b :
 init_grind_norm
   /- Pre theorems -/
   not_and not_or not_ite not_forall not_exists
+  /- Nat relational ops neg -/
+  Nat.not_ge_eq Nat.not_le_eq
   |
   /- Post theorems -/
   Classical.not_not
@@ -116,9 +119,16 @@ init_grind_norm
   Nat.lt_eq
   -- Nat.succ
   Nat.succ_eq_add_one
+  -- Nat op folding
+  Nat.add_eq Nat.sub_eq Nat.mul_eq Nat.zero_eq Nat.le_eq
   -- Int
   Int.lt_eq
   -- GT GE
   ge_eq gt_eq
+  -- Int op folding
+  Int.add_def Int.mul_def
+  Int.Linear.sub_fold Int.Linear.neg_fold
+  -- Int divides
+  Int.one_dvd Int.zero_dvd
 
 end Lean.Grind

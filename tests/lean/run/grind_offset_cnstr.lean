@@ -267,7 +267,7 @@ fun {a4} p a1 a2 a3 =>
     fun h h_1 h_2 =>
     intro_with_eq (p ↔ a4 ≤ a3 + 2) (p = (a4 ≤ a3 + 2)) (a1 ≤ a4) (iff_eq p (a4 ≤ a3 + 2)) fun h_3 =>
       Classical.byContradiction
-        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_le_eq a1 a4) fun h_4 =>
+        (intro_with_eq (¬a1 ≤ a4) (a4 + 1 ≤ a1) False (Nat.not_ge_eq a4 a1) fun h_4 =>
           Eq.mp
             (Eq.trans (Eq.symm (eq_true h_4))
               (Nat.lo_eq_false_of_lo a1 a4 7 1 rfl_true

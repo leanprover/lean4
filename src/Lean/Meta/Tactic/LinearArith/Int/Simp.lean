@@ -47,19 +47,18 @@ def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (c, atoms) ← toRawRelCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
     let lhs ← c.denoteExpr atoms
-    let p := c.norm
-    if p.isUnsat then
+    let c' := c.norm
+    if c'.isUnsat then
       let r := mkConst ``False
       let h := mkApp3 (mkConst ``Int.Linear.RawRelCnstr.eq_false_of_isUnsat) (toContextExpr atoms) (toExpr c) reflBoolTrue
       return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-    else if p.isValid then
+    else if c'.isValid then
       let r := mkConst ``True
       let h := mkApp3 (mkConst ``Int.Linear.RawRelCnstr.eq_true_of_isValid) (toContextExpr atoms) (toExpr c) reflBoolTrue
       return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
     else
-      let c' := p.toRaw
-      if c != c' then
-        match p with
+      if c != c'.toRaw then
+        match c' with
         | .eq (.add 1 x (.add (-1) y (.num 0))) =>
           let r := mkIntEq atoms[x]! atoms[y]!
           let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_norm_eq_var) (toContextExpr atoms) (toExpr x) (toExpr y) (toExpr c) reflBoolTrue
@@ -69,23 +68,23 @@ def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
           let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_norm_eq_const) (toContextExpr atoms) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
           return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
         | _ =>
-          let k := p.gcdCoeffs
+          let k := c'.gcdCoeffs
           if k == 1 then
             let r ← c'.denoteExpr atoms
             let h := mkApp4 (mkConst ``Int.Linear.RawRelCnstr.eq_of_norm_eq) (toContextExpr atoms) (toExpr c) (toExpr c') reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-          else if p.getConst % k == 0 then
-            let c' := (p.div k).toRaw
+          else if c'.getConst % k == 0 then
+            let c' := c'.div k
             let r ← c'.denoteExpr atoms
             let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_divBy) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-          else if p.isEq then
+          else if c'.isEq then
             let r := mkConst ``False
             let h := mkApp4 (mkConst ``Int.Linear.RawRelCnstr.eq_false_of_isUnsat_coeff) (toContextExpr atoms) (toExpr c) (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
           else
             -- `p.isLe`: tighten the bound
-            let c' := (p.div k).toRaw
+            let c' := c'.div k
             let r ← c'.denoteExpr atoms
             let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_divByLe) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
@@ -135,8 +134,7 @@ def simpDvdCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let k  := c'.p.gcdCoeffs c'.k
     if c'.p.getConst % k == 0 then
       let c' := c'.div k
-      let c' := c'.toRaw
-      if c == c' then
+      if c == c'.toRaw then
         return none
       let r ← c'.denoteExpr atoms
       let h := mkApp5 (mkConst ``Int.Linear.RawDvdCnstr.eq_of_isEqv) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr k) reflBoolTrue

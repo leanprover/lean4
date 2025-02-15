@@ -416,14 +416,13 @@ theorem RawRelCnstr.denote_norm (ctx : Context) (c : RawRelCnstr) : c.norm.denot
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    · rename_i k₁ v₁ p₁ k₂ v₂ p₂ ih
+    next ih =>
       intro _ _ h
       exact ih h
   rfl := by
     intro a
     induction a <;> simp! [BEq.beq]
-    · rename_i k v p ih
-      exact ih
+    assumption
 
 instance : LawfulBEq RelCnstr where
   eq_of_beq {a b} := by
@@ -710,8 +709,8 @@ end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
   apply propext; constructor
-  · intro h; have h := Int.add_one_le_of_lt (Int.lt_of_not_ge h); assumption
-  · intro h; apply Int.not_le_of_gt; exact h
+  · intro h; exact Int.add_one_le_of_lt (Int.lt_of_not_ge h)
+  · exact Int.not_le_of_gt
 
 theorem Int.not_ge_eq (a b : Int) : (¬a ≥ b) = (a + 1 ≤ b) := by
   apply Int.not_le_eq

@@ -8,13 +8,10 @@ import Init.Grind.Offset
 import Init.Grind.Lemmas
 import Lean.Meta.Tactic.Grind.Types
 
-namespace Lean.Meta.Grind.Arith
-
+namespace Lean.Meta.Grind.Arith.Offset
 /-!
-Helper functions for constructing proof terms in the arithmetic procedures.
+Helper functions for constructing proof terms in the offset contraint procedure.
 -/
-
-namespace Offset
 
 /-- Returns a proof for `true = true` -/
 def rfl_true : Expr := mkConst ``Grind.rfl_true
@@ -163,6 +160,4 @@ def mkPropagateEqFalseProof (u v : Expr) (k : Int) (huv : Expr) (k' : Int) : Exp
     let k' := -k'
     mkApp6 (mkConst ``Grind.Nat.lo_eq_false_of_ro) u v (toExprN k) (toExprN k') rfl_true huv
 
-end Offset
-
-end Lean.Meta.Grind.Arith
+end Lean.Meta.Grind.Arith.Offset

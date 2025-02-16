@@ -110,6 +110,14 @@ builtin_dsimproc paramMatcher (_) := fun e => do
   let matcherApp' := { matcherApp with discrs := discrs', alts := alts' }
   return .continue <| matcherApp'.toExpr
 
+/-- `let x := (wfParam e); body[x] ==> let x := e; body[wfParam y] -/
+builtin_dsimproc paramLet (_) := fun e => do
+  unless e.isLet do return .continue
+  let some v := isWfParam? e.letValue! | return .continue
+  let u ← getLevel e.letType!
+  let body' := e.letBody!.instantiate1 <|
+    mkApp2 (.const ``wfParam [u]) e.letType! (.bvar 0)
+  return .continue <| e.updateLet! e.letType! v body'
 
 def preprocess (e : Expr) : MetaM Simp.Result := do
   unless wf.preprocess.get (← getOptions) do
@@ -123,6 +131,7 @@ def preprocess (e : Expr) : MetaM Simp.Result := do
     let simprocs : Simprocs := {}
     let simprocs ← simprocs.add ``paramProj (post := true)
     let simprocs ← simprocs.add ``paramMatcher (post := false)
+    let simprocs ← simprocs.add ``paramLet (post := true)
     let (result, _) ← Meta.simp e' (← getSimpContext) (simprocs := #[simprocs])
 
     -- Remove left-over markers

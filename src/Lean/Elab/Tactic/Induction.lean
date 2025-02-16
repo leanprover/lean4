@@ -286,9 +286,9 @@ where
           stx := mkNullNode altStxs
           diagnostics := .empty
           inner? := none
-          finished := { range? := none, task := finished.resultD default }
+          finished := { stx? := mkNullNode altStxs, reportingRange? := none, task := finished.resultD default }
           next := Array.zipWith
-            (fun stx prom => { range? := stx.getRange?, task := prom.resultD default })
+            (fun stx prom => { stx? := some stx, task := prom.resultD default })
             altStxs altPromises
         }
         goWithIncremental <| altPromises.mapIdx fun i prom => {
@@ -684,15 +684,6 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
       return (fvarIds.map mkFVar, [mvarId])
   else
     return exprs
-
-def withReusedAltsOfOptInductionAlts (stx : Syntax) (argIdx : Nat)
-    (cont : Option (Array Syntax) → TacticM α) : TacticM α :=  do
-  -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-  -- unchanged
-  -- everything up to the alternatives must be unchanged for reuse
-  -- NB: argIdx!
-  Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := argIdx) fun optInductionAlts => do
-    withAltsOfOptInductionAlts optInductionAlts cont
 
 def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}

@@ -16,6 +16,7 @@ import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Structures
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.IntToBitVec
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.Enums
 import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.TypeAnalysis
+import Lean.Elab.Tactic.BVDecide.Frontend.Normalize.ShortCircuit
 
 /-!
 This module contains the implementation of `bv_normalize`, the preprocessing tactic for `bv_decide`.
@@ -87,7 +88,8 @@ where
 
     trace[Meta.Tactic.bv] m!"Running fixpoint pipeline on:\n{g}"
     let pipeline ← passPipeline
-    Pass.fixpointPipeline pipeline g
+    let some g' ← Pass.fixpointPipeline (pipeline) g | return none
+    (shortCircuitPass cfg.maxSteps).run g'
 
 @[builtin_tactic Lean.Parser.Tactic.bvNormalize]
 def evalBVNormalize : Tactic := fun

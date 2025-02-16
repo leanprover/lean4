@@ -476,6 +476,17 @@ theorem BitVec.norm_bv_add_mul {x y : BitVec w} : ~~~(x * ~~~y) + 1#w = x + (x *
 @[bv_normalize]
 theorem BitVec.norm_bv_add_mul' {x y : BitVec w} : ~~~(~~~y * x) + 1#w = x + (y * x) := by
   rw [BitVec.mul_comm (~~~y) x, BitVec.mul_comm y x, BitVec.norm_bv_add_mul]
+theorem BitVec.mul_beq_mul_short_circuit_left {x₁ x₂ y : BitVec w} :
+    (x₁ * y == x₂ * y) = !(!x₁ == x₂ && !x₁ * y == x₂ * y) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
+
+theorem BitVec.mul_beq_mul_short_circuit_right {x y₁ y₂ : BitVec w} :
+    (x * y₁ == x * y₂) = !(!y₁ == y₂ && !x * y₁ == x * y₂) := by
+  simp only [Bool.not_and, Bool.not_not, Bool.iff_or_self, beq_iff_eq]
+  intros
+  congr
 
 end Normalize
 end Std.Tactic.BVDecide

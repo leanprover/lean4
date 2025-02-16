@@ -31,7 +31,7 @@ abbrev Array.toVector (xs : Array α) : Vector α xs.size := .mk xs rfl
 namespace Vector
 
 /-- Syntax for `Vector α n` -/
-syntax "#v[" withoutPosition(sepBy(term, ", ")) "]" : term
+syntax (name := «term#v[_,]») "#v[" withoutPosition(term,*,?) "]" : term
 
 open Lean in
 macro_rules

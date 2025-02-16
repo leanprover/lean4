@@ -1,3 +1,4 @@
+set_option grind.debug true
 inductive S where
   | mk1 (n : Nat)
   | mk2 (n : Nat) (s : S)

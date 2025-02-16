@@ -247,8 +247,12 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   if grind.debug.proofs.get (← getOptions) then
     check proof
   let mut prop ← inferType proof
+  let mut proof := proof
   if Match.isMatchEqnTheorem (← getEnv) thm.origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
+    -- Remark: we must add a hint here since `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` which
+    -- is not reducible.
+    proof ← mkExpectedTypeHint proof prop
   else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
   trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"

@@ -144,15 +144,15 @@ def simpDvdCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       let h := mkApp3 (mkConst ``Int.Linear.RawDvdCnstr.eq_false_of_isUnsat) (toContextExpr atoms) (toExpr c) reflBoolTrue
       return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
 
-def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (e, atoms) ← toLinearExpr e
+def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
+  let (e, atoms) ← toLinearExpr input
   let p  := e.toPoly
   let e' := p.toExpr
   if e != e' then
     -- We only return some if monomials were fused
     let p := mkApp4 (mkConst ``Int.Linear.Expr.eq_of_toPoly_eq) (toContextExpr atoms) (toExpr e) (toExpr e') reflBoolTrue
     let r ← e'.denoteExpr atoms
-    return some (r, p)
+    return some (r, ← mkExpectedTypeHint p (← mkEq input r))
   else
     return none
 

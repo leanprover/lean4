@@ -224,7 +224,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     // The event loop owns the socket.
     lean_inc(socket);
-    
+
     event_loop_lock(&global_ev);
 
     int result = uv_write(write_uv, (uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1, [](uv_write_t * req, int status) {

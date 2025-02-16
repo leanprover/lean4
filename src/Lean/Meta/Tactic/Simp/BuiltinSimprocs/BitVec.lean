@@ -158,6 +158,14 @@ builtin_dsimproc [simp, seval] reduceGetLsb (getLsbD _ _) := reduceGetBit ``getL
 /-- Simplification procedure for `getMsb` (most significant bit) on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceGetMsb (getMsbD _ _) := reduceGetBit ``getMsbD getMsbD
 
+/-- Simplification procedure for `getElem`  on `BitVec`. -/
+builtin_dsimproc [simp, seval] reduceGetElem ((_ : BitVec _)[_]) := fun e => do
+  let_expr getElem _coll _idx _elem _valid _inst v i _h  := e | return .continue
+  let some v ← fromExpr? v | return .continue
+  let some i ← Nat.fromExpr? i | return .continue
+  let b := v.value.getLsbD i
+  return .done <| toExpr b
+
 /-- Simplification procedure for shift left on `BitVec`. -/
 builtin_dsimproc [simp, seval] reduceShiftLeft (BitVec.shiftLeft _ _) :=
   reduceShift ``BitVec.shiftLeft 3 BitVec.shiftLeft

@@ -19,37 +19,31 @@ namespace Collector
 
 structure FunIndCandidate where
   expr : Expr
+  relevantArgs : Expr -- Used for comparison
   deriving Hashable, BEq
 
-/-- `Set` with insertion order preserved. -/
-structure OrdSet (α : Type) [Hashable α] [BEq α] where
-  elems : Array α := #[]
-  set : Std.HashSet α := {}
-  deriving Inhabited
-
-def OrdSet.insert {_ : Hashable α} {_ : BEq α} (s : OrdSet α) (a : α) : OrdSet α :=
-  if s.set.contains a then
-    s
-  else
-    let { elems, set } := s
-    { elems := elems.push a, set := set.insert a }
-
-def OrdSet.isEmpty {_ : Hashable α} {_ : BEq α} (s : OrdSet α) : Bool :=
-  s.elems.isEmpty
-
 structure Result where
-  /-- Function induction candidates. -/
-  funIndCandidates : OrdSet FunIndCandidate := {}
+  /-- the full calls -/
+  calls : Array Expr
+  /-- only relevant arguments -/
+  seen : Std.HashSet (Array Expr)
 
-abbrev M := StateRefT Result MetaM
+instance : EmptyCollection Result where
+  emptyCollection := ⟨#[], {}⟩
+
+abbrev M := ReaderT Name <| StateRefT Result MetaM
 
 def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   let some funIndInfo ← getFunIndInfo? (cases := false) declName | return
   if funIndInfo.params.size != args.size then return ()
+  let mut keys := #[]
   for arg in args, kind in funIndInfo.params do
     if kind matches .target then
       if !arg.isFVar then return
-  modify fun s => { s with funIndCandidates := s.funIndCandidates.insert { expr := e } }
+    unless kind matches .dropped do
+      keys := keys.push arg
+  unless (← get).seen.contains keys do
+    modify fun {calls, seen} => { calls := calls.push e, seen := seen.insert keys }
 
 def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveFunInd e declName args
@@ -67,16 +61,17 @@ unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
       | .letE _ t v b _   => visit t; visit v; visit b
       | .app ..           => e.withApp fun f args => do
         if let .const declName _ := f then
-          unless e.hasLooseBVars do
-            visitApp e declName args
+          if declName = (← read) then
+            unless e.hasLooseBVars do -- TODO: We can allow them in `.dropped` arguments
+              visitApp e declName args
         else
           visit f
         args.forM visit
       | .proj _ _ b       => visit b
       | _                 => return ()
 
-unsafe def main (mvarId : MVarId) : MetaM Result := mvarId.withContext do
-  let (_, s) ← go |>.run mkPtrSet |>.run {}
+unsafe def main (needle : Name) (mvarId : MVarId) : MetaM Result := mvarId.withContext do
+  let (_, s) ← go |>.run mkPtrSet |>.run needle |>.run {}
   return s
 where
   go : StateRefT Cache M Unit := do
@@ -90,7 +85,7 @@ where
 
 end Collector
 
-def collect (mvarId : MVarId) : MetaM Collector.Result := do
-  unsafe Collector.main mvarId
+def collect (needle : Name) (mvarId : MVarId) : MetaM Collector.Result := do
+  unsafe Collector.main needle mvarId
 
 end Lean.Meta.FunInd

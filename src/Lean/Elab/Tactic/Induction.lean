@@ -745,8 +745,8 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let some _ ← getFunIndInfo? cases fnName |
       let theoremKind := if cases then "induction" else "cases"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
-    let info ← FunInd.collect (← getMainGoal)
-    let candidates := info.funIndCandidates.elems.map (·.expr) |>.filter (·.isAppOf fnName)
+    let info ← FunInd.collect fnName (← getMainGoal)
+    let candidates := info.calls
     if candidates.isEmpty then
       throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then

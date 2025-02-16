@@ -4,12 +4,8 @@ theorem map_id (xs : List α) : List.map id xs = xs := by
   fun_induction List.map <;>
     simp_all only [List.map, id]
 
--- This should work once collect ignores `.dropped` arguments
+-- This works because collect ignores `.dropped` arguments
 
-/--
-error: found more than one suitable call of 'List.map' in the goal. Please include the desired arguments.
--/
-#guard_msgs in
 theorem map_map (f : α → β) (g : β → γ) xs :
   List.map g (List.map f xs) = List.map (g ∘ f) xs := by
   fun_induction List.map <;>

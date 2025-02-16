@@ -31,7 +31,7 @@ We added this feature because it may be coming from external sources
 -/
 private def preprocessHypothesis (e : Expr) : GoalM Simp.Result := do
   if isMatchCondCandidate e then
-    preprocess (markAsMatchCond e)
+    preprocess (markAsPreMatchCond e)
   else
     preprocess e
 

@@ -66,7 +66,7 @@ deriving instance Repr for RawDvdCnstr
 
 end Int.Linear
 
-namespace Lean.Meta.Linear.Int
+namespace Lean.Meta.Simp.Arith.Int
 
 def ofPoly (p : Int.Linear.Poly) : Expr :=
   open Int.Linear.Poly in
@@ -307,4 +307,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
-end Lean.Meta.Linear.Int
+end Lean.Meta.Simp.Arith.Int

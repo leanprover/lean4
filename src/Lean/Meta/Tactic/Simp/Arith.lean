@@ -1,14 +1,13 @@
 /-
-Copyright (c) 2022 Microsoft Corporation. All rights reserved.
+Copyright (c) 2022 Sebastian Ullrich. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Leonardo de Moura
+Authors: Sebastian Ullrich
 -/
 prelude
-import Lean.Meta.Tactic.LinearArith.Basic
-import Lean.Meta.Tactic.LinearArith.Nat.Simp
-import Lean.Meta.Tactic.LinearArith.Int.Simp
+import Lean.Meta.Tactic.Simp.Arith.Nat
+import Lean.Meta.Tactic.Simp.Arith.Int
 
-namespace Lean.Meta.Linear
+namespace Lean.Meta.Simp.Arith
 
 def parentIsTarget (parent? : Option Expr) : Bool :=
   match parent? with
@@ -16,7 +15,7 @@ def parentIsTarget (parent? : Option Expr) : Bool :=
   | some parent => isLinearTerm parent || isLinearCnstr parent || isDvdCnstr parent
 
 def simp? (e : Expr) (parent? : Option Expr) : MetaM (Option (Expr × Expr)) := do
-  -- TODO: add support for `Int` and arbitrary ordered comm rings
+  -- TODO: invoke `Int` procedures and add support for arbitrary ordered comm rings
   if isLinearCnstr e then
     Nat.simpCnstr? e
   else if isLinearTerm e && !parentIsTarget parent? then
@@ -25,4 +24,4 @@ def simp? (e : Expr) (parent? : Option Expr) : MetaM (Option (Expr × Expr)) := 
   else
     return none
 
-end Lean.Meta.Linear
+end Lean.Meta.Simp.Arith

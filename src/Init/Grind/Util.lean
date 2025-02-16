@@ -34,7 +34,7 @@ Gadget for annotating the equalities in `match`-equations conclusions.
 `_origin` is the term used to instantiate the `match`-equation using E-matching.
 When `EqMatch a b origin` is `True`, we mark `origin` as a resolved case-split.
 -/
-def EqMatch (a b : α) {_origin : α} : Prop := a = b
+abbrev EqMatch (a b : α) {_origin : α} : Prop := a = b
 
 /--
 Gadget for annotating conditions of `match` equational lemmas.

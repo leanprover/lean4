@@ -38,12 +38,20 @@ def _root_.Lean.MVarId.transformTarget (mvarId : MVarId) (f : Expr → MetaM Exp
   return mvarNew.mvarId!
 
 /--
+Returns `true` if `declName` is the name of a grind helper declaration that
+should not be unfolded by `unfoldReducible`.
+-/
+def isGrindGadget (declName : Name) : Bool :=
+  declName == ``Grind.EqMatch
+
+/--
 Unfolds all `reducible` declarations occurring in `e`.
 -/
 def unfoldReducible (e : Expr) : MetaM Expr :=
   let pre (e : Expr) : MetaM TransformStep := do
     let .const declName _ := e.getAppFn | return .continue
     unless (← isReducible declName) do return .continue
+    if isGrindGadget declName then return .continue
     let some v ← unfoldDefinition? e | return .continue
     return .visit v
   Core.transform e (pre := pre)

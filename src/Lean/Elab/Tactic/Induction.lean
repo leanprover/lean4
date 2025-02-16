@@ -690,7 +690,6 @@ def withReusedAltsOfOptInductionAlts (stx : Syntax) (argIdx : Nat)
   -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
   -- unchanged
   -- everything up to the alternatives must be unchanged for reuse
-  -- NB: argIdx!
   Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := argIdx) fun optInductionAlts => do
     withAltsOfOptInductionAlts optInductionAlts cont
 

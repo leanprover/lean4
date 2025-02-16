@@ -269,6 +269,10 @@ def done : TacticM Unit := do
     Term.reportUnsolvedGoals gs
     throwAbortTactic
 
+/--
+Runs `x` with only the first unsolved goal as the goal.
+Fails if there are no goal to be solved.
+-/
 def focus (x : TacticM α) : TacticM α := do
   let mvarId :: mvarIds ← getUnsolvedGoals | throwNoGoalsToBeSolved
   setGoals [mvarId]
@@ -277,6 +281,10 @@ def focus (x : TacticM α) : TacticM α := do
   setGoals (mvarIds' ++ mvarIds)
   pure a
 
+/--
+Runs `tactic` with only the first unsolved goal as the goal, and expects it leave no goals.
+Fails if there are no goal to be solved.
+-/
 def focusAndDone (tactic : TacticM α) : TacticM α :=
   focus do
     let a ← tactic

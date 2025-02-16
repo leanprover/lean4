@@ -899,6 +899,46 @@ You can use `with` to provide the variables names for each constructor.
 -/
 syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
 
+/--
+The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
+induction principle.
+
+The tactic invocation
+```
+fun_induction f x₁ ... xₙ y₁ ... yₘ
+```
+where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
+```
+induction y₁, ... yₘ using f.induct x₁ ... xₙ
+```
+where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
+appropriate.
+
+The forms `fun_induction f x y generalizing z₁ ... zₙ` and
+`fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+-/
+syntax (name := funInduction) "fun_induction " term
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
+
+/--
+The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+cases principle.
+
+The tactic invocation
+```
+fun_cases f x ... y ...`
+```
+is equivalent to
+```
+cases y, ... using f.fun_cases x ...
+```
+where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
+appropriate.
+
+The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+-/
+syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
+
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 

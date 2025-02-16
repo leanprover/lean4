@@ -4,7 +4,7 @@ open Lean in open Lean.Meta in
 def test (declName : Name) : MetaM Unit := do
   let info ← getConstInfo declName
   forallTelescope info.type fun _ e => do
-    let some (e', p) ← Linear.simp? e none | throwError "failed to simplify{indentExpr e}"
+    let some (e', p) ← Simp.Arith.simp? e none | throwError "failed to simplify{indentExpr e}"
     check p
     unless (← isDefEq (← inferType p) (← mkEq e e')) do
       throwError "invalid proof"

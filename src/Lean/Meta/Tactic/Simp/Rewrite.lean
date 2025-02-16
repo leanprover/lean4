@@ -11,7 +11,7 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Arith
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.Attr
 import Lean.Meta.BinderNameHint
@@ -283,25 +283,25 @@ where
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
-  if Linear.isLinearCnstr e then
-    if let some (e', h) ← Linear.Nat.simpCnstr? e then
+  if Arith.isLinearCnstr e then
+    if let some (e', h) ← Arith.Nat.simpCnstr? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Linear.Int.simpRelCnstr? e then
+    else if let some (e', h) ← Arith.Int.simpRelCnstr? e then
       return .visit { expr := e', proof? := h }
     else
       return .continue
-  else if Linear.isLinearTerm e then
-    if Linear.parentIsTarget (← getContext).parent? then
+  else if Arith.isLinearTerm e then
+    if Arith.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    else if let some (e', h) ← Linear.Nat.simpExpr? e then
+    else if let some (e', h) ← Arith.Nat.simpExpr? e then
       return .visit { expr := e', proof? := h }
-    else if let some (e', h) ← Linear.Int.simpExpr? e then
+    else if let some (e', h) ← Arith.Int.simpExpr? e then
       return .visit { expr := e', proof? := h }
     else
       return .continue
-  else if Linear.isDvdCnstr e then
-    if let some (e', h) ← Linear.Int.simpDvdCnstr? e then
+  else if Arith.isDvdCnstr e then
+    if let some (e', h) ← Arith.Int.simpDvdCnstr? e then
       return .visit { expr := e', proof? := h }
     else
       return .continue

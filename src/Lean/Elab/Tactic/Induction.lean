@@ -685,14 +685,6 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
   else
     return exprs
 
-def withReusedAltsOfOptInductionAlts (stx : Syntax) (argIdx : Nat)
-    (cont : Option (Array Syntax) → TacticM α) : TacticM α :=  do
-  -- drill down into old and new syntax: allow reuse of an rhs only if everything before it is
-  -- unchanged
-  -- everything up to the alternatives must be unchanged for reuse
-  Term.withNarrowedArgTacticReuse (stx := stx) (argIdx := argIdx) fun optInductionAlts => do
-    withAltsOfOptInductionAlts optInductionAlts cont
-
 def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
   for target in targets do

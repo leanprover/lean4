@@ -218,7 +218,7 @@ Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
 private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
     let d := if (← isProp d) then
-      markAsMatchCond d
+      markAsPreMatchCond d
     else
       d
     withLocalDecl n bi d fun x => do

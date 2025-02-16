@@ -42,7 +42,13 @@ We use this annotation for two different reasons:
 - We don't want to normalize them.
 - We have a propagator for them.
 -/
-def MatchCond (p : Prop) : Prop := p
+abbrev MatchCond (p : Prop) : Prop := p
+
+/--
+Similar to `MatchCond`, but not reducible. We use it to ensure `simp`
+will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
+-/
+def PreMatchCond (p : Prop) : Prop := p
 
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
   subst h; apply HEq.refl

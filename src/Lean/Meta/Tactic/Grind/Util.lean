@@ -4,10 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Simproc
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Transform
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Clear
+import Lean.Meta.Tactic.Simp.Simproc
 
 namespace Lean.Meta.Grind
 /--
@@ -146,5 +148,52 @@ This function is used for normalzing E-matching patterns. Note that it does not 
 -/
 @[extern "lean_grind_normalize"] -- forward definition
 opaque normalize (e : Expr) : MetaM Expr
+
+/--
+Returns `Grind.MatchCond e`.
+We have special support for propagating is truth value.
+See comment at `MatchCond.lean`.
+-/
+def markAsMatchCond (e : Expr) : Expr :=
+  mkApp (mkConst ``Grind.MatchCond) e
+
+def isMatchCond (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.MatchCond 1
+
+/--
+Returns `Grind.PreMatchCond e`.
+Recall that `Grind.PreMatchCond` is an identity function,
+but the simproc `reducePreMatchCond` is used to prevent the term `e` from being simplified.
+`Grind.PreMatchCond` is later converted into `Grind.MatchCond`.
+See comment at `MatchCond.lean`.
+-/
+def markAsPreMatchCond(e : Expr) : Expr :=
+  mkApp (mkConst ``Grind.PreMatchCond) e
+
+def isPreMatchCond (e : Expr) : Bool :=
+  e.isAppOfArity ``Grind.PreMatchCond 1
+
+builtin_dsimproc_decl reducePreMatchCond (Grind.PreMatchCond _) := fun e => do
+  let_expr Grind.PreMatchCond _ ← e | return .continue
+  return .done e
+
+/-- Adds `reducePreMatchCond` to `s` -/
+def addPreMatchCondSimproc (s : Simprocs) : CoreM Simprocs := do
+  s.add ``reducePreMatchCond (post := false)
+
+/--
+Converts `Grind.PreMatchCond` into `Grind.MatchCond`.
+Recall that `Grind.PreMatchCond` uses default reducibility setting, but
+`Grind.MatchCond` does not.
+-/
+def replacePreMatchCond (e : Expr) : MetaM Simp.Result := do
+  if e.find? isPreMatchCond |>.isNone then
+    return { expr := e }
+  else
+    let pre (e : Expr) := do
+      let_expr Grind.PreMatchCond p := e | return .continue e
+      return .continue (markAsMatchCond p)
+    let e' ← Core.transform e (pre := pre)
+    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
 
 end Lean.Meta.Grind

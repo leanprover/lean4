@@ -18,6 +18,9 @@ the discriminants of a `match`-expression. See `reduceSimpMatchDiscrsOnly`.
 def markAsSimpMatchDiscrsOnly (e : Expr) : MetaM Expr :=
   mkAppM ``Grind.simpMatchDiscrsOnly #[e]
 
+def isSimpMatchDiscrsOnly (e : Expr) :=
+  e.isAppOfArity ``Grind.simpMatchDiscrsOnly 2
+
 builtin_simproc_decl reduceSimpMatchDiscrsOnly (Grind.simpMatchDiscrsOnly _) := fun e => do
   let_expr Grind.simpMatchDiscrsOnly _ m ← e | return .continue
   let .const declName _ := m.getAppFn

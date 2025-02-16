@@ -1295,6 +1295,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
       rw [Nat.two_pow_pred_add_two_pow_pred (by omega)]
       have haa := h1 (by omega)
       norm_cast
+      sorry
     ) (sorry)]
     simp only [bool_to_prop]
     norm_cast

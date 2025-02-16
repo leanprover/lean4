@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.LinearArith.Basic
-import Lean.Meta.Tactic.LinearArith.Int.Basic
+import Lean.Meta.Tactic.Simp.Arith.Util
+import Lean.Meta.Tactic.Simp.Arith.Int.Basic
 
 def Int.Linear.Poly.gcdAll : Poly → Nat
   | .num k => k.natAbs
@@ -41,7 +41,7 @@ def Int.Linear.RelCnstr.isEq : RelCnstr → Bool
 def Int.Linear.RelCnstr.getConst : RelCnstr → Int
   | .eq p | .le p => p.getConst
 
-namespace Lean.Meta.Linear.Int
+namespace Lean.Meta.Simp.Arith.Int
 
 def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (c, atoms) ← toRawRelCnstr? e | return none
@@ -156,4 +156,4 @@ def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else
     return none
 
-end Lean.Meta.Linear.Int
+end Lean.Meta.Simp.Arith.Int

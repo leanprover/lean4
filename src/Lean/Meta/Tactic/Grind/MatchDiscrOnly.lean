@@ -36,10 +36,19 @@ def addSimpMatchDiscrsOnly (s : Simprocs) : CoreM Simprocs := do
   s.add ``reduceSimpMatchDiscrsOnly (post := false)
 
 /-- Erases `Grind.simpMatchDiscrsOnly` annotations. -/
-def eraseSimpMatchDiscrsOnly (e : Expr) : CoreM Expr := do
-  let pre (e : Expr) := do
-    let_expr Grind.simpMatchDiscrsOnly _ a := e | return .continue e
-    return .continue a
-  Core.transform e (pre := pre)
+def eraseSimpMatchDiscrsOnly (e : Expr) : MetaM Simp.Result := do
+  if e.find? isSimpMatchDiscrsOnly |>.isNone then
+    return { expr := e }
+  else
+    let pre (e : Expr) := do
+      let_expr Grind.simpMatchDiscrsOnly _ a := e | return .continue e
+      return .continue a
+    let e' ← Core.transform e (pre := pre)
+    /-
+    `grind` uses the `.reducible` transparency setting, and `Grind.simpMatchDiscrsOnly` is not
+    reducible. Thus, `e` and `e'` are not definitionally equal in this setting, and we must
+    add a hint.
+    -/
+    return { expr := e', proof? := (← mkExpectedTypeHint (← mkEqRefl e') (← mkEq e e')) }
 
 end Lean.Meta.Grind

@@ -287,7 +287,9 @@ def toRawRelCnstr? (e : Expr) : MetaM (Option (Int.Linear.RawRelCnstr × Array E
   if atoms.size <= 1 then
     return some (c, atoms)
   else
-    let (atoms, perm) := sortExprs atoms
+    -- We use `lt := false` because `Poly.norm` sorts variables in decreasing order.
+    -- It does that because of the cutsat procedure.
+    let (atoms, perm) := sortExprs atoms (lt := false)
     let c := c.applyPerm perm
     return some (c, atoms)
 
@@ -297,7 +299,7 @@ def toRawDvdCnstr? (e : Expr) : MetaM (Option (Int.Linear.RawDvdCnstr × Array E
   if atoms.size <= 1 then
     return some (c, atoms)
   else
-    let (atoms, perm) := sortExprs atoms
+    let (atoms, perm) := sortExprs atoms (lt := false)
     let c := c.applyPerm perm
     return some (c, atoms)
 

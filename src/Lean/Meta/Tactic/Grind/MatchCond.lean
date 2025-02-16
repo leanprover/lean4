@@ -287,7 +287,7 @@ where
         return none
     let isHEq := α?.isSome
     let h ← if isHEq then
-      mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h)
+      mkEqOfHEq (← mkHEqTrans (← mkHEqProof root.self lhs) h) (check := false)
     else
       mkEqTrans (← mkEqProof root.self lhs) h
     if root.ctor then

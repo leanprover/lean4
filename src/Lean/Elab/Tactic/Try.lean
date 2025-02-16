@@ -42,7 +42,6 @@ private def isAccessible (fvarId : FVarId) : MetaM Bool := do
 
 /-- Returns `true` if all free variables occurring in `e` are accessible. -/
 private def isExprAccessible (e : Expr) : MetaM Bool := do
-  -- TODO: We only care about variables that would be visible in the elaborated output
   let (_, s) ← e.collectFVars |>.run {}
   s.fvarIds.allM isAccessible
 
@@ -600,14 +599,18 @@ private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
 
 open Try.Collector in
 private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  if (← isExprAccessible c.expr) then
+  if (← c.majors.allM isAccessible) then
     go
   else withExposedNames do
     `(tactic| (expose_names; $(← go):tactic))
 where
   go : MetaM (TSyntax `tactic) := do
-    let stx ← PrettyPrinter.delab c.expr
-    `(tactic| fun_induction $stx <;> $cont)
+    let mut terms := #[]
+    for major in c.majors do
+      let localDecl ← major.getDecl
+      terms := terms.push (← `($(mkIdent localDecl.userName):term))
+    let indFn ← toIdent c.funIndDeclName
+    `(tactic| induction $terms,* using $indFn <;> $cont)
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
   let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)

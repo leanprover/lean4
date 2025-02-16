@@ -9,7 +9,6 @@ import Lean.Meta.Tactic.LibrarySearch
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.EMatchTheorem
-import Lean.Meta.Tactic.FunIndInfo
 
 namespace Lean.Meta.Try.Collector
 
@@ -18,8 +17,9 @@ structure InductionCandidate where
   val    : InductiveVal
 
 structure FunIndCandidate where
-  expr : Expr
-  deriving Hashable, BEq -- Is it ok to hash this?
+  funIndDeclName : Name
+  majors : Array FVarId
+  deriving Hashable, BEq
 
 /-- `Set` with insertion order preserved. -/
 structure OrdSet (α : Type) [Hashable α] [BEq α] where
@@ -66,6 +66,17 @@ def saveConst (declName : Name) : M Unit := do
 def inCurrentModule (declName : Name) : CoreM Bool := do
   return ((← getEnv).getModuleIdxFor? declName).isNone
 
+def getFunInductName (declName : Name) : Name :=
+  declName ++ `induct
+
+def getFunInduct? (declName : Name) : MetaM (Option Name) := do
+  let .defnInfo _ ← getConstInfo declName | return none
+  try
+    let result ← realizeGlobalConstNoOverloadCore (getFunInductName declName)
+    return some result
+  catch _ =>
+    return none
+
 def isEligible (declName : Name) : M Bool := do
   if declName.hasMacroScopes then
     return false
@@ -101,16 +112,49 @@ def visitConst (declName : Name) : M Unit := do
   saveConst declName
   saveUnfoldCandidate declName
 
-def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
+-- Horrible temporary hack: compute the mask assuming parameters appear before a variable named `motive`
+-- It assumes major premises appear after variables with name `case?`
+-- It assumes if something is not a parameter, then it is major :(
+-- TODO: save the mask while generating the induction principle.
+def getFunIndMask? (declName : Name) (indDeclName : Name) : MetaM (Option (Array Bool)) := do
+  let info ← getConstInfo declName
+  let indInfo ← getConstInfo indDeclName
+  let (numParams, numMajor) ← forallTelescope indInfo.type fun xs _ => do
+    let mut foundCase := false
+    let mut foundMotive := false
+    let mut numParams : Nat := 0
+    let mut numMajor : Nat := 0
+    for x in xs do
+      let localDecl ← x.fvarId!.getDecl
+      let n := localDecl.userName
+      if n == `motive then
+        foundMotive := true
+      else if !foundMotive then
+        numParams := numParams + 1
+      else if n.isStr && "case".isPrefixOf n.getString! then
+        foundCase := true
+      else if foundCase then
+        numMajor := numMajor + 1
+    return (numParams, numMajor)
+  if numMajor == 0 then return none
+  forallTelescope info.type fun xs _ => do
+    if xs.size != numParams + numMajor then
+      return none
+    return some (mkArray numParams false ++ mkArray numMajor true)
+
+def saveFunInd (_e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let some funIndInfo ← getFunIndInfo? (cases := false) declName
+    let some funIndDeclName ← getFunInduct? declName
       | saveUnfoldCandidate declName; return ()
-    if funIndInfo.params.size != args.size then return ()
-    for arg in args, kind in funIndInfo.params do
-      if kind matches .target then
+    let some mask ← getFunIndMask? declName funIndDeclName | return ()
+    if mask.size != args.size then return ()
+    let mut majors := #[]
+    for arg in args, isMajor in mask do
+      if isMajor then
         if !arg.isFVar then return ()
-    trace[try.collect.funInd] "saveFunInfo: {funIndInfo.funIndName}"
-    modify fun s => { s with funIndCandidates := s.funIndCandidates.insert { expr := e } }
+        majors := majors.push arg.fvarId!
+    trace[try.collect.funInd] "{funIndDeclName}, {majors.map mkFVar}"
+    modify fun s => { s with funIndCandidates := s.funIndCandidates.insert { majors, funIndDeclName }}
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do

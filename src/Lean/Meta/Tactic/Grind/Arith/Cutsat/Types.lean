@@ -16,7 +16,7 @@ open Int.Linear (Var Poly RelCnstr DvdCnstr)
 /-- State of the cutsat procedure. -/
 structure State where
   /-- Mapping from variables to their denotations. -/
-  denote : PArray Expr
+  vars : PArray Expr := {}
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/

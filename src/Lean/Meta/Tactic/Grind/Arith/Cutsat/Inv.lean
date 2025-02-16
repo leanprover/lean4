@@ -6,12 +6,40 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
+namespace Int.Linear
+/--
+Returns `true` if the variables in the given polynomial are sorted
+in decreasing order.
+-/
+def Poly.isSorted (p : Poly) : Bool :=
+  go none p
+where
+  go : Option Var → Poly → Bool
+  | _,      .num _     => true
+  | none,   .add _ y p => go (some y) p
+  | some x, .add _ y p => x > y && go (some y) p
+
+/-- Returns `true` if all coefficients are not `0`. -/
+def Poly.checkCoeffs : Poly → Bool
+  | .num _ => true
+  | .add k _ p => k != 0 && checkCoeffs p
+
+end Int.Linear
+
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 def checkDvdCnstrs : GoalM Unit := do
   let s ← get'
   assert! s.vars.size == s.dvdCnstrs.size
-  -- TODO: condition maximal variable
+  let mut x := 0
+  for c? in s.dvdCnstrs do
+    if let some { c, .. } := c? then
+      assert! c.p.checkCoeffs
+      assert! c.p.isSorted
+      assert! c.k > 1
+      let .add _ y _ := c.p | unreachable!
+      assert! x == y
+    x := x + 1
 
 def checkVars : GoalM Unit := do
   let s ← get'

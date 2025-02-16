@@ -14,6 +14,12 @@ def nestedProof (p : Prop) {h : p} : p := h
 /--
 Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
 We use it when adding instances of `match`-equations to prevent them from being simplified to true.
+
+Remark: it must not be marked as `[reducible]`. Otherwise, `simp` will reduce
+```
+simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
+```
+using `eq_self`.
 -/
 def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
 

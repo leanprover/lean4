@@ -1,23 +1,25 @@
 namespace ListEx
 
--- TODO: Collect does not consider imported functions?
-
-/-- error: could not find suitable call of 'List.map' in the goal -/
-#guard_msgs in
 theorem map_id (xs : List α) : List.map id xs = xs := by
   fun_induction List.map <;>
     simp_all only [List.map, id]
 
 -- This should work once collect ignores `.dropped` arguments
 
-/-- error: could not find suitable call of 'List.map' in the goal -/
+/--
+error: found more than one suitable call of 'List.map' in the goal. Please include the desired arguments.
+-/
 #guard_msgs in
 theorem map_map (f : α → β) (g : β → γ) xs :
   List.map g (List.map f xs) = List.map (g ∘ f) xs := by
   fun_induction List.map <;>
     simp_all only [List.map, Function.comp]
 
-/-- error: could not find suitable call of 'List.append' in the goal -/
+-- This should genuinely not work, but have a good error message
+
+/--
+error: found more than one suitable call of 'List.append' in the goal. Please include the desired arguments.
+-/
 #guard_msgs in
 theorem append_assoc :
   List.append xs (List.append ys zs) = List.append (List.append xs ys) zs := by

@@ -13,7 +13,7 @@ import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.FunIndInfo
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
-import Lean.Meta.Tactic.Try.Collect
+import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
 import Lean.Elab.Tactic.ElabTerm
@@ -745,12 +745,12 @@ def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
     let some _ ← getFunIndInfo? cases fnName |
       let theoremKind := if cases then "induction" else "cases"
       throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
-    let info ← Try.collect (← getMainGoal) {}
+    let info ← FunInd.collect (← getMainGoal)
     let candidates := info.funIndCandidates.elems.map (·.expr) |>.filter (·.isAppOf fnName)
     if candidates.isEmpty then
       throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
     if candidates.size > 1 then
-      throwError "found more than one suitable call of '{.ofConstName fnName}' in the goal. \"
+      throwError "found more than one suitable call of '{.ofConstName fnName}' in the goal. \
         Please include the desired arguments."
     pure candidates[0]!
   | _ =>

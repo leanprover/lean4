@@ -87,7 +87,7 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
   match p with
   | .num k' => .add k v (.num k')
   | .add k' v' p =>
-    bif Nat.blt v v' then
+    bif Nat.blt v' v then
       .add k v <| .add k' v' p
     else bif Nat.beq v v' then
       if Int.add k k' == 0 then
@@ -333,7 +333,7 @@ theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
   induction p <;> simp [*]
   next k' v' p' ih =>
-    by_cases h₁ : Nat.blt v v' <;> simp [*]
+    by_cases h₁ : Nat.blt v' v <;> simp [*]
     by_cases h₂ : Nat.beq v v' <;> simp [*]
     by_cases h₃ : k + k' = 0 <;> simp [*, Nat.eq_of_beq_eq_true h₂]
     rw [← Int.add_mul]

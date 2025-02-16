@@ -125,7 +125,18 @@ def foldProjs (e : Expr) : MetaM Expr := do
       return .done e
     if h : idx < info.fieldNames.size then
       let fieldName := info.fieldNames[idx]
-      return .done (← mkProjection s fieldName)
+      /-
+      In the test `grind_cat.lean`, the following operation fails if we are not using default
+      transparency. We get the following error.
+      ```
+      error: AppBuilder for 'mkProjection', structure expected
+        T
+      has type
+        F ⟶ G
+      ```
+      We should make `mkProjection` more robust.
+      -/
+      return .done (← withDefault <| mkProjection s fieldName)
     else
       trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e

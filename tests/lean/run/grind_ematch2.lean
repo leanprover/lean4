@@ -47,23 +47,23 @@ info: [grind] Counters
     [thm] Array.size_set ↦ 3
 ---
 info: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 11842, num: 3):
-    [reduction] LT.lt ↦ 11842
+  [reduction] unfolded declarations (max: 11519, num: 3):
+    [reduction] LT.lt ↦ 11519
     [reduction] getElem ↦ 76
-    [reduction] Nat.lt ↦ 35
+    [reduction] Nat.lt ↦ 34
   [reduction] unfolded instances (max: 38, num: 1):
     [reduction] Array.instGetElemNatLtSize ↦ 38
-  [reduction] unfolded reducible declarations (max: 7091, num: 7):
-    [reduction] Array.size ↦ 7091
-    [reduction] Array.toList ↦ 1897
-    [reduction] autoParam ↦ 1724
-    [reduction] outParam ↦ 172
+  [reduction] unfolded reducible declarations (max: 6907, num: 7):
+    [reduction] Array.size ↦ 6907
+    [reduction] Array.toList ↦ 1851
+    [reduction] autoParam ↦ 1675
+    [reduction] outParam ↦ 168
     [reduction] Ne ↦ 60
     [reduction] GT.gt ↦ 46
     [reduction] List.casesOn ↦ 24
-  [def_eq] heuristic for solving `f a =?= f b` (max: 5067, num: 2):
-    [def_eq] Nat.lt ↦ 5067
-    [def_eq] List.length ↦ 1691
+  [def_eq] heuristic for solving `f a =?= f b` (max: 4929, num: 2):
+    [def_eq] Nat.lt ↦ 4929
+    [def_eq] List.length ↦ 1645
   [kernel] unfolded declarations (max: 106, num: 5):
     [kernel] LT.lt ↦ 106
     [kernel] outParam ↦ 46

@@ -48,14 +48,6 @@ builtin_initialize registerTraceClass `grind.simp
 builtin_initialize registerTraceClass `grind.split
 builtin_initialize registerTraceClass `grind.split.candidate
 builtin_initialize registerTraceClass `grind.split.resolved
-builtin_initialize registerTraceClass `grind.offset
-builtin_initialize registerTraceClass `grind.offset.dist
-builtin_initialize registerTraceClass `grind.offset.internalize
-builtin_initialize registerTraceClass `grind.offset.internalize.term (inherited := true)
-builtin_initialize registerTraceClass `grind.offset.propagate
-builtin_initialize registerTraceClass `grind.offset.eq
-builtin_initialize registerTraceClass `grind.offset.eq.to (inherited := true)
-builtin_initialize registerTraceClass `grind.offset.eq.from (inherited := true)
 builtin_initialize registerTraceClass `grind.beta
 
 /-! Trace options for `grind` developers -/
@@ -69,8 +61,6 @@ builtin_initialize registerTraceClass `grind.debug.final
 builtin_initialize registerTraceClass `grind.debug.forallPropagator
 builtin_initialize registerTraceClass `grind.debug.split
 builtin_initialize registerTraceClass `grind.debug.canon
-builtin_initialize registerTraceClass `grind.debug.offset
-builtin_initialize registerTraceClass `grind.debug.offset.proof
 builtin_initialize registerTraceClass `grind.debug.ematch.pattern
 builtin_initialize registerTraceClass `grind.debug.beta
 builtin_initialize registerTraceClass `grind.debug.internalize

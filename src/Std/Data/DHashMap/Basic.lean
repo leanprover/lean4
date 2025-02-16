@@ -227,7 +227,6 @@ instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) whe
 instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-
 @[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
     Array ((a : α) × β a) :=
   m.1.toArray

@@ -568,6 +568,9 @@ def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool :=
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
 def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  if grind.debug.get (← getOptions) then
+    unless (← withReducible <| isDefEq (← inferType proof) prop) do
+      throwError "`grind` internal error, trying to assert{indentExpr prop}\nwith proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\nwhich is not definitionally equal with `reducible` transparency setting}"
   modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/

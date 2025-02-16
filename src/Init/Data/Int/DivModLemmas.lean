@@ -22,11 +22,11 @@ namespace Int
 
 protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
-protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
+@[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
 
-protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
+@[simp] protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
 
-protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
+@[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
 
 protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => Exists.intro (d * e) (by rw [Int.mul_assoc])
@@ -1347,3 +1347,14 @@ theorem bmod_natAbs_plus_one (x : Int) (w : 1 < x.natAbs) : bmod x (x.natAbs + 1
 theorem bmod_neg_bmod : bmod (-(bmod x n)) n = bmod (-x) n := by
   apply (bmod_add_cancel_right x).mp
   rw [Int.add_left_neg, ← add_bmod_bmod, Int.add_left_neg]
+
+/-! Helper theorems for `dvd` simproc -/
+
+protected theorem dvd_eq_true_of_mod_eq_zero {a b : Int} (h : b % a == 0) : (a ∣ b) = True := by
+  simp [Int.dvd_of_emod_eq_zero, eq_of_beq h]
+
+protected theorem dvd_eq_false_of_mod_ne_zero {a b : Int} (h : b % a != 0) : (a ∣ b) = False := by
+  simp [eq_of_beq] at h
+  simp [Int.dvd_iff_emod_eq_zero, h]
+
+end Int

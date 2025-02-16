@@ -8,6 +8,7 @@ import Lean.Data.FuzzyMatching
 import Lean.Elab.Tactic.Doc
 import Lean.Server.Completion.CompletionResolution
 import Lean.Server.Completion.EligibleHeaderDecls
+import Lean.Server.RequestCancellation
 
 namespace Lean.Server.Completion
 open Elab
@@ -36,7 +37,7 @@ section Infrastructure
   Monad used for completion computation that allows modifying a completion `State` and reading
   `CompletionParams`.
   -/
-  private abbrev M := ReaderT Context $ StateRefT State MetaM
+  private abbrev M := ReaderT Context $ StateRefT State $ CancellableT MetaM
 
   /-- Adds a new completion item to the state in `M`. -/
   private def addItem
@@ -114,10 +115,13 @@ section Infrastructure
       (ctx               : ContextInfo)
       (lctx              : LocalContext)
       (x                 : M Unit)
-      : IO (Array ScoredCompletionItem) :=
-    ctx.runMetaM lctx do
-      let (_, s) ← x.run ⟨params, completionInfoPos⟩ |>.run {}
-      return s.items
+      : CancellableM (Array ScoredCompletionItem) := do
+    let tk ← read
+    let r ← ctx.runMetaM lctx do
+      x.run ⟨params, completionInfoPos⟩ |>.run {} |>.run tk
+    match r with
+    | .error _ => throw .requestCancelled
+    | .ok (_, s) => return s.items
 
 end Infrastructure
 
@@ -160,6 +164,16 @@ section Utils
         -- Penalize score by component length of added namespace.
         return fuzzyMatchScoreWithThreshold? s₁ s₂ |>.map (declName, · / (p₂.getNumParts + 1).toFloat)
     return none
+
+  private def forEligibleDeclsWithCancellationM [Monad m] [MonadEnv m]
+      [MonadLiftT (ST IO.RealWorld) m] [MonadCancellable m] [MonadLiftT IO m]
+      (f : Name → ConstantInfo → m PUnit) : m PUnit := do
+    let _ ← StateT.run (s := 0) <| forEligibleDeclsM fun decl ci => do
+      modify (· + 1)
+      if (← get) >= 10000 then
+        RequestCancellation.check
+        set <| 0
+      f decl ci
 
 end Utils
 
@@ -349,7 +363,7 @@ private def idCompletionCore
         addUnresolvedCompletionItem localDecl.userName (.fvar localDecl.fvarId) (kind := CompletionItemKind.variable) score
   -- search for matches in the environment
   let env ← getEnv
-  forEligibleDeclsM fun declName c => do
+  forEligibleDeclsWithCancellationM fun declName c => do
     let bestMatch? ← (·.2) <$> StateT.run (s := none) do
       let matchUsingNamespace (ns : Name) : StateT (Option (Name × Float)) M Unit := do
         let some (label, score) ← matchDecl? ns id danglingDot declName
@@ -380,6 +394,7 @@ private def idCompletionCore
       matchUsingNamespace Name.anonymous
     if let some (bestLabel, bestScore) := bestMatch? then
       addUnresolvedCompletionItem bestLabel (.const declName) (← getCompletionKindForDecl c) bestScore
+  RequestCancellation.check
   let matchAlias (ns : Name) (alias : Name) : Option Float :=
     -- Recall that aliases may not be atomic and include the namespace where they were created.
     if ns.isPrefixOf alias then
@@ -434,7 +449,7 @@ def idCompletion
     (id                : Name)
     (hoverInfo         : HoverInfo)
     (danglingDot       : Bool)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array ScoredCompletionItem) :=
   runM params completionInfoPos ctx lctx do
     idCompletionCore ctx stx id hoverInfo danglingDot
 
@@ -443,7 +458,7 @@ def dotCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (info              : TermInfo)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array ScoredCompletionItem) :=
   runM params completionInfoPos ctx info.lctx do
     let nameSet ← try
       getDotCompletionTypeNames (← instantiateMVars (← inferType info.expr))
@@ -452,7 +467,7 @@ def dotCompletion
     if nameSet.isEmpty then
       return
 
-    forEligibleDeclsM fun declName c => do
+    forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
       if ! nameSet.contains unnormedTypeName then
         return
@@ -471,7 +486,7 @@ def dotIdCompletion
     (lctx              : LocalContext)
     (id                : Name)
     (expectedType?     : Option Expr)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array ScoredCompletionItem) :=
   runM params completionInfoPos ctx lctx do
     let some expectedType := expectedType?
       | return ()
@@ -485,7 +500,7 @@ def dotIdCompletion
     catch _ =>
       pure RBTree.empty
 
-    forEligibleDeclsM fun declName c => do
+    forEligibleDeclsWithCancellationM fun declName c => do
       let unnormedTypeName := declName.getPrefix
       if ! nameSet.contains unnormedTypeName then
         return
@@ -513,7 +528,7 @@ def fieldIdCompletion
     (lctx              : LocalContext)
     (id                : Option Name)
     (structName        : Name)
-    : IO (Array ScoredCompletionItem) :=
+    : CancellableM (Array ScoredCompletionItem) :=
   runM params completionInfoPos ctx lctx do
     let idStr := id.map (·.toString) |>.getD ""
     let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)

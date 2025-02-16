@@ -347,21 +347,22 @@ where
           cancelTk? := ctx.newCancelTk
           result? := some {
             parserState := newParserState
-            processedSnap := (← oldSuccess.processedSnap.bindIO (range? := progressRange?)
-                (sync := true) fun oldProcessed => do
+            processedSnap := (← oldSuccess.processedSnap.bindIO (stx? := newStx)
+                (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
-                oldProcSuccess.firstCmdSnap.bindIO (sync := true) (range? := progressRange?) fun oldCmd => do
+                oldProcSuccess.firstCmdSnap.bindIO (sync := true) (stx? := newStx)
+                    (reportingRange? := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) ctx
-                  return .pure {
+                  return .finished newStx {
                     diagnostics := oldProcessed.diagnostics
                     result? := some {
                       cmdState := oldProcSuccess.cmdState
-                      firstCmdSnap := { range? := none, task := prom.result! } } }
+                      firstCmdSnap := { stx? := none, task := prom.result! } } }
               else
-                return .pure oldProcessed) } }
+                return .finished newStx oldProcessed) } }
       else return old
 
     -- fast path: if we have parsed the header successfully...
@@ -416,7 +417,7 @@ where
   processHeader (stx : Syntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
-    SnapshotTask.ofIO (some ⟨0, ctx.input.endPos⟩) <|
+    SnapshotTask.ofIO stx (some ⟨0, ctx.input.endPos⟩) <|
     ReaderT.run (r := ctx) <|  -- re-enter reader in new task
     withHeaderExceptions (α := HeaderProcessedSnapshot) ({ · with result? := none }) do
       let setup ← match (← setupImports stx) with
@@ -472,7 +473,7 @@ where
         infoTree? := cmdState.infoState.trees[0]!
         result? := some {
           cmdState
-          firstCmdSnap := { range? := none, task := prom.result! }
+          firstCmdSnap := { stx? := none, task := prom.result! }
         }
       }
 
@@ -491,13 +492,13 @@ where
         let progressRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
         let newProm ← IO.Promise.new
         -- can reuse range, syntax unchanged
-        let _ ← old.finishedSnap.bindIO (sync := true) (range? := progressRange?) fun oldFinished =>
+        let _ ← old.finishedSnap.bindIO (sync := true) (reportingRange? := progressRange?) fun oldFinished =>
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
-          oldNext.bindIO (sync := true) (range? := progressRange?) fun oldNext => do
+          oldNext.bindIO (sync := true) (reportingRange? := progressRange?) fun oldNext => do
             parseCmd oldNext newParserState oldFinished.cmdState newProm sync ctx
-            return .pure ()
-        prom.resolve <| { old with nextCmdSnap? := some { range? := none, task := newProm.result! } }
+            return .finished none ()
+        prom.resolve <| { old with nextCmdSnap? := some { stx? := none, task := newProm.result! } }
       else prom.resolve old  -- terminal command, we're done!
 
     -- fast path, do not even start new task for this snapshot (see [Incremental Parsing])
@@ -540,7 +541,7 @@ where
       prom.resolve <| {
         diagnostics := .empty, stx := .missing, parserState
         elabSnap := default
-        finishedSnap := .pure { diagnostics := .empty, cmdState }
+        finishedSnap := .finished none { diagnostics := .empty, cmdState }
         reportSnap := default
         nextCmdSnap? := none
       }
@@ -552,27 +553,34 @@ where
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
       let reportPromise ← IO.Promise.new
-      -- report terminal tasks on first line of decl such as not to hide incremental tactics'
-      -- progress
-      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
-      let finishedSnap := { range? := initRange?, task := finishedPromise.result! }
-
       let minimalSnapshots := internal.cmdlineSnapshots.get cmdState.scopes.head!.opts
-      let next? ← if Parser.isTerminalCommand stx then pure none
-        -- for now, wait on "command finished" snapshot before parsing next command
-        else some <$> IO.Promise.new
-      let nextCmdSnap? := next?.map
-        ({ range? := some ⟨parserState.pos, ctx.input.endPos⟩, task := ·.result! })
-      let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
       let (stx', parserState') := if minimalSnapshots && !Parser.isTerminalCommand stx then
         (default, default)
       else
         (stx, parserState)
+      -- report terminal tasks on first line of decl such as not to hide incremental tactics'
+      -- progress
+      let initRange? := getNiceCommandStartPos? stx |>.map fun pos => ⟨pos, pos⟩
+      let finishedSnap := {
+        stx? := stx'
+        reportingRange? := initRange?
+        task := finishedPromise.result!
+      }
+      let next? ← if Parser.isTerminalCommand stx then pure none
+        -- for now, wait on "command finished" snapshot before parsing next command
+        else some <$> IO.Promise.new
+      let nextCmdSnap? := next?.map ({
+        stx? := none
+        reportingRange? := some ⟨parserState.pos, ctx.input.endPos⟩
+        task := ·.result!
+      })
+      let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
+
       prom.resolve {
         diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { range? := stx.getRange?, task := elabPromise.result! }
-        reportSnap := { range? := initRange?, task := reportPromise.result! }
+        elabSnap := { stx? := stx', task := elabPromise.result! }
+        reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
@@ -582,8 +590,8 @@ where
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
           -- create a temporary snapshot tree containing all tasks but it
           let snaps := #[
-            { range? := none, task := elabPromise.result!.map (sync := true) toSnapshotTree },
-            { range? := none, task := finishedPromise.result!.map (sync := true) toSnapshotTree }] ++
+            { stx? := stx', task := elabPromise.result!.map (sync := true) toSnapshotTree },
+            { stx? := stx', task := finishedPromise.result!.map (sync := true) toSnapshotTree }] ++
             cmdState.snapshotTasks
           let tree := SnapshotTree.mk { diagnostics := .empty } snaps
           BaseIO.bindTask (← tree.waitAll) fun _ => do
@@ -603,7 +611,11 @@ where
           pure <| .pure <| .mk { diagnostics := .empty } #[]
       reportPromise.resolve <|
         .mk { diagnostics := .empty } <|
-          cmdState.snapshotTasks.push { range? := initRange?, task := traceTask }
+          cmdState.snapshotTasks.push {
+            stx? := none
+            reportingRange? := initRange?
+            task := traceTask
+          }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
         parseCmd none parserState cmdState next (sync := false) ctx

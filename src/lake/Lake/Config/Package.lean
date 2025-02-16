@@ -596,6 +596,14 @@ namespace Package
 @[inline] def backend (self : Package) : Backend :=
   self.config.backend
 
+/-- The package's `dynlibs` configuration. -/
+@[inline] def dynlibs (self : Package) : TargetArray Dynlib :=
+  self.config.dynlibs
+
+/-- The package's `plugins` configuration. -/
+@[inline] def plugins (self : Package) : TargetArray Dynlib :=
+  self.config.plugins
+
 /-- The package's `leanOptions` configuration. -/
 @[inline] def leanOptions (self : Package) : Array LeanOption :=
   self.config.leanOptions

@@ -71,15 +71,15 @@ example :
   rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) = x₃ + x₂) = (x₁ + x₂ = 0) :=
-  RawRelCnstr.eq_of_norm_eq #R[x₁, x₂, x₃]
-    (.eq (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-         (Expr.add (Expr.var 2) (Expr.var 1)))
-    (.eq (.add 1 0 (.add 1 1 (.num 0))))
+  RawRelCnstr.eq_of_norm_eq #R[x₃, x₂, x₁]
+    (.eq (Expr.add (Expr.add (Expr.var 2) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 0)))
+         (Expr.add (Expr.var 0) (Expr.var 1)))
+    (.eq (.add 1 2 (.add 1 1 (.num 0))))
     rfl
 
 example (x₁ x₂ x₃ : Int) : ((x₁ + x₂) + (x₂ + x₃) ≤ x₃ + x₂) = (x₁ + x₂ ≤ 0) :=
-  RawRelCnstr.eq_of_norm_eq #R[x₁, x₂, x₃]
-    (.le (Expr.add (Expr.add (Expr.var 0) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 2)))
-         (Expr.add (Expr.var 2) (Expr.var 1)))
-    (.le (Poly.add 1 0 (.add 1 1 (.num 0))))
+  RawRelCnstr.eq_of_norm_eq #R[x₃, x₂, x₁]
+    (.le (Expr.add (Expr.add (Expr.var 2) (Expr.var 1)) (Expr.add (Expr.var 1) (Expr.var 0)))
+         (Expr.add (Expr.var 0) (Expr.var 1)))
+    (.le (Poly.add 1 2 (.add 1 1 (.num 0))))
     rfl

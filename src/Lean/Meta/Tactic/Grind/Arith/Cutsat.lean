@@ -10,6 +10,8 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
+builtin_initialize registerTraceClass `grind.cutsat.assert
+builtin_initialize registerTraceClass `grind.cutsat.assert.dvd
 builtin_initialize registerTraceClass `grind.cutsat.internalize
 builtin_initialize registerTraceClass `grind.cutsat.internalize.term (inherited := true)
 

@@ -233,6 +233,7 @@ def Cnstr.toExpr (c : Cnstr NodeId) : GoalM Expr := do
     return mkNatLE u (mkNatAdd v (Lean.toExpr c.k.toNat))
 
 def checkInvariants : GoalM Unit := do
+  unless (← isInconsistent) do
   let s ← get'
   for u in [:s.targets.size], es in s.targets.toArray do
     for (v, k) in es do
@@ -242,8 +243,7 @@ def checkInvariants : GoalM Unit := do
       trace[grind.debug.offset.proof] "{p} : {← inferType p}"
       check p
       unless (← withDefault <| isDefEq (← inferType p) (← Cnstr.toExpr c)) do
-        trace[grind.debug.offset.proof] "failed: {← inferType p} =?= {← Cnstr.toExpr c}"
-        unreachable!
+        throwError "`grind` internal error in the offset constraint module, constraint{indentExpr (← Cnstr.toExpr c)}\nis not definitionally equal to type of its proof{indentExpr (← inferType p)}"
 
 /--
 Adds an edge `u --(k) --> v` justified by the proof term `p`, and then

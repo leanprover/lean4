@@ -168,13 +168,6 @@ error: Expected fully applied application of 'ackermann' with 2 arguments, but f
 example : P (ackermann n m) := by
   fun_induction ackermann n
 
-/--
-error: Expected fully applied application of 'ackermann' with 2 arguments, but found 0 arguments
--/
-#guard_msgs in
-example : P (ackermann n m) := by
-  fun_induction ackermann
-
 end Ex2
 
 namespace Ex3

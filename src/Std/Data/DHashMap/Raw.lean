@@ -399,17 +399,9 @@ instance : ForM m (Raw α β) ((a : α) × β a) where
 instance : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-/-- Transforms the hash map into a list of mappings in some order. -/
-@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
-
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
-
-@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
-    List (α × β) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
@@ -483,10 +475,18 @@ implementation detail.
 def Internal.numBuckets (m : Raw α β) : Nat :=
   m.buckets.size
 
+end Unverified
+
+/-- Transforms the hash map into a list of mappings in some order. -/
+@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
+@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
+    List (α × β) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
-
-end Unverified
 
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=

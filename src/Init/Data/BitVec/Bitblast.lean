@@ -1303,10 +1303,10 @@ theorem getElem_smod {n d : BitVec w} (hi : i < w) :
     | false, false => n.umod d
     | false, true =>
       let u := n.umod (-d);
-      if u = 0#w then u else (u + d)
+      if u = 0#w then u else u + d
     | true, false =>
       let u := (-n).umod d;
-      if u = 0#w then u else (d - u)
+      if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d)))[i] := by
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
@@ -1314,13 +1314,13 @@ theorem getElem_smod {n d : BitVec w} (hi : i < w) :
 theorem getLsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getLsbD i
       = (match n.msb, d.msb with
-    | false, false => (n.umod d)
+    | false, false => n.umod d
     | false, true =>
       let u := n.umod (-d);
-      if u = 0#w then u else (u + d)
+      if u = 0#w then u else u + d
     | true, false =>
       let u := (-n).umod d;
-      if u = 0#w then u else (d - u)
+      if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).getLsbD i := by
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
@@ -1328,13 +1328,13 @@ theorem getLsbD_smod {n d : BitVec w} :
 theorem getMsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getMsbD i
       = (match n.msb, d.msb with
-    | false, false => (n.umod d)
+    | false, false => n.umod d
     | false, true =>
       let u := n.umod (-d);
-      if u = 0#w then u else (u + d)
+      if u = 0#w then u else u + d
     | true, false =>
       let u := (-n).umod d;
-      if u = 0#w then u else (d - u)
+      if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).getMsbD i := by
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
@@ -1342,13 +1342,13 @@ theorem getMsbD_smod {n d : BitVec w} :
 theorem msb_smod {n d : BitVec w} :
     (BitVec.smod n d).msb
       = (match n.msb, d.msb with
-    | false, false => (n.umod d)
+    | false, false => n.umod d
     | false, true =>
       let u := n.umod (-d);
-      if u = 0#w then u else (u + d)
+      if u = 0#w then u else u + d
     | true, false =>
       let u := (-n).umod d;
-      if u = 0#w then u else (d - u)
+      if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).msb
     := by
   simp [BitVec.msb, getMsbD_smod]

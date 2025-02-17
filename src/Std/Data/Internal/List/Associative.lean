@@ -49,6 +49,12 @@ def getEntry? [BEq α] (a : α) : List ((a : α) × β a) → Option ((a : α) �
 theorem getEntry?_cons [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} :
     getEntry? a (⟨k, v⟩ :: l) = bif k == a then some ⟨k, v⟩ else getEntry? a l := rfl
 
+theorem getEntry?_eq_find [BEq α] {k : α} {l : List ((a : α) × β a)} :
+    getEntry? k l = l.find? (·.1 == k) := by
+  induction l using assoc_induction with
+  | nil => simp
+  | cons k' v t ih => cases h : k' == k <;> simp_all [List.find?_cons, getEntry?_cons]
+
 theorem getEntry?_cons_of_true [BEq α] {l : List ((a : α) × β a)} {k a : α} {v : β k} (h : k == a) :
     getEntry? a (⟨k, v⟩ :: l) = some ⟨k, v⟩ := by
   simp [getEntry?, h]
@@ -194,6 +200,14 @@ private theorem Option.dmap_congr {o o' : Option α} {f : (a : α) → (o = some
 private theorem Option.isSome_dmap {o : Option α} {f : (a : α) → (o = some a) → β} :
     (Option.dmap o f).isSome = o.isSome := by
   cases o <;> rfl
+
+private theorem Option.dmap_eq_some {o : Option α} {f : (a : α) → (o = some a) → β} (b : β) :
+    (Option.dmap o f) = some b ↔ ∃ (a : α) (h : o = some a), f a h = b := by
+  cases o with
+  | none => simp
+  | some a =>
+    simp only [dmap_some, Option.some.injEq]
+    exact ⟨by rintro rfl; exact ⟨a, rfl, rfl⟩, by rintro ⟨_, rfl, h⟩; exact h⟩
 
 end
 
@@ -568,6 +582,18 @@ theorem getKey?_eq_getEntry? [BEq α] {l : List ((a : α) × β a)} {a : α} :
 theorem containsKey_eq_isSome_getKey? [BEq α] {l : List ((a : α) × β a)} {a : α} :
     containsKey a l = (getKey? a l).isSome := by
   simp [containsKey_eq_isSome_getEntry?, getKey?_eq_getEntry?]
+
+theorem getEntry?_eq_some_iff_getKey?_eq_some_getValue?_eq_some [BEq α] {β : Type v}
+    {l : List ((_ : α) × β)} {k k' : α} {v : β} :
+    getEntry? k l = some ⟨k', v⟩ ↔ getKey? k l = some k' ∧ getValue? k l = some v := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp [getEntry?, getKey?, getValue?, cond_eq_if]
+    split
+    · rename_i h
+      simp [Sigma.ext_iff]
+    · rw [ih]
 
 /-- Internal implementation detail of the hash map -/
 def getKey [BEq α] (a : α) (l : List ((a : α) × β a)) (h : containsKey a l) : α :=
@@ -1946,66 +1972,19 @@ theorem eraseKey_append_of_containsKey_right_eq_false [BEq α] {l l' : List ((a 
 theorem mem_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α] {k : α} {v : β k}
     {l : List ((a : α) × β a)} (h : DistinctKeys l) :
     ⟨k, v⟩ ∈ l ↔ getValueCast? k l = some v := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.mem_cons]
-    by_cases kv_hd: ⟨k, v⟩ = hd
-    · rw [← kv_hd]
-      simp
-    · simp only [kv_hd, false_or]
-      rw [distinctKeys_cons_iff] at h
-      by_cases k_hdfst: k == hd.fst
-      · simp only [beq_iff_eq] at k_hdfst
-        have : ∃ (v' : β k), ⟨k, v'⟩ = hd := by
-          exists cast (by congr;symm;exact k_hdfst) hd.snd
-          refine Sigma.ext k_hdfst ?_
-          simp
-        rcases this with ⟨v', h'⟩
-        rw [← h']
-        simp only [getValueCast?_cons_self, Option.some.injEq]
-        have h₁ : ¬ ⟨k,v⟩ ∈ tl := by
-          rw [containsKey_eq_false_iff] at h
-          false_or_by_contra
-          rename_i p
-          rcases h with ⟨_, h⟩
-          specialize h ⟨k, v⟩ p
-          simp [k_hdfst] at h
-        have h₂ : ¬ v' = v := by
-          false_or_by_contra
-          rename_i p
-          rw [← p, h'] at kv_hd
-          contradiction
-        simp [h₁, h₂]
-      · simp only [getValueCast?, beq_iff_eq]
-        split
-        · rename_i h
-          simp only [beq_iff_eq] at k_hdfst
-          simp only [beq_iff_eq] at h
-          rw [h] at k_hdfst
-          simp at k_hdfst
-        · apply ih (And.left h)
+  rw [mem_iff_getEntry?_eq_some h, getValueCast?_eq_getEntry?, Option.dmap_eq_some]
+  refine ⟨?_, ?_⟩
+  · intro hkv
+    refine ⟨⟨k, v⟩, hkv, by simp⟩
+  · rintro ⟨⟨k', v'⟩, hkv, hkv'⟩
+    obtain rfl := beq_iff_eq.1 (getEntry?_eq_some hkv)
+    simpa [hkv]
 
 theorem find?_eq_some_iff_getValueCast?_eq_some [BEq α] [LawfulBEq α]
     {l : List ((a : α) × β a)} {k : α} {v : β k} (h : DistinctKeys l) :
     List.find? (fun x => x.fst == k) l = some ⟨k, v⟩ ↔ getValueCast? k l = some v := by
-  rw [← mem_iff_getValueCast?_eq_some h]
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    rw [distinctKeys_cons_iff] at h
-    simp only [List.find?_cons_eq_some, beq_iff_eq, Bool.not_eq_eq_eq_not, Bool.not_true,
-      beq_eq_false_iff_ne, ne_eq, List.mem_cons]
-    by_cases hd_kv : hd = ⟨k, v⟩
-    · simp [hd_kv]
-    · simp only [hd_kv, and_false, ih (And.left h), false_or, Ne.symm hd_kv, and_iff_right_iff_imp]
-      intro kv_tl
-      false_or_by_contra
-      rename_i p
-      rcases h with ⟨_, h⟩
-      rw [containsKey_eq_false_iff] at h
-      specialize h ⟨k, v⟩ kv_tl
-      simp [p] at h
+  rw [← getEntry?_eq_find, ← mem_iff_getEntry?_eq_some (p := ⟨k, v⟩) h,
+    ← mem_iff_getValueCast?_eq_some h]
 
 theorem find?_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {l : List ((a : α) × β a)} {k : α} :
@@ -2033,44 +2012,25 @@ theorem find?_map_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
 
 theorem mem_map_toProd_iff_mem {β : Type v} {k : α} {v : β} {l : List ((_ : α) × β)} :
     ⟨k, v⟩ ∈ l ↔ (k, v) ∈ l.map (fun x => (x.fst, x.snd)) := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.mem_cons, List.map_cons, Prod.mk.injEq]
-    by_cases hd_kv: hd = ⟨k, v⟩
-    · simp [hd_kv]
-    · simp only [Ne.symm hd_kv, ih, List.mem_map, Prod.mk.injEq, false_or, iff_or_self, and_imp]
-      intro h₁ h₂
-      simp [h₁, h₂] at hd_kv
+  simp only [List.mem_map, Prod.mk.injEq]
+  constructor
+  · intro h
+    exists ⟨k, v⟩
+  · intro h
+    rcases h with ⟨a, a_l, a_k, a_v⟩
+    simp [← a_k, ←a_v, a_l]
 
 theorem mem_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
     {l : List ((_ : α) × β)} (h : DistinctKeys l) :
     ⟨k, v⟩ ∈ l ↔ getValue? k l = some v := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.mem_cons]
-    by_cases kv_hd: ⟨k, v⟩ = hd
-    · rw [← kv_hd]
-      simp
-    · simp only [kv_hd, false_or, getValue?, cond_eq_if]
-      rw [distinctKeys_cons_iff] at h
-      by_cases hdfst_k: hd.fst == k
-      · simp only [hdfst_k, ↓reduceIte, Option.some.injEq]
-        simp only [beq_iff_eq] at hdfst_k
-        rw [containsKey_eq_false_iff] at h
-        constructor
-        · intro h'
-          rcases h with ⟨_, h⟩
-          specialize h ⟨hd.fst, v⟩
-          rw [hdfst_k] at h
-          simp only [beq_self_eq_true, Bool.true_eq_false, imp_false] at h
-          contradiction
-        · intro h'
-          rw [← hdfst_k, ← h'] at kv_hd
-          simp at kv_hd
-      · simp only [hdfst_k, Bool.false_eq_true, ↓reduceIte]
-        apply ih (And.left h)
+  simp only [mem_iff_getEntry?_eq_some h, getValue?_eq_getEntry?, Option.map_eq_some']
+  constructor
+  · intro h
+    exists ⟨k, v⟩
+  · intro h
+    rcases h with ⟨a, h, a_v⟩
+    simp [h, ← a_v, Sigma.ext_iff]
+    apply LawfulBEq.eq_of_beq (getEntry?_eq_some h)
 
 theorem mem_map_toProd_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type v} {k : α} {v : β}
     {l : List ((_ : α) × β)} (h : DistinctKeys l) :
@@ -2096,83 +2056,24 @@ theorem find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some [BEq 
 theorem mem_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
     {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :
     ⟨k, v⟩ ∈ l ↔ getKey? k l = some k ∧ getValue? k l = some v := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    simp only [List.mem_cons, getKey?, cond_eq_if, getValue?]
-    rw [distinctKeys_cons_iff] at h
-    specialize ih (And.left h)
-    by_cases hdfst_k : hd.fst == k
-    · simp only [hdfst_k, ↓reduceIte, Option.some.injEq]
-      rcases h with ⟨_, h⟩
-      constructor
-      · intro h'
-        cases h' with
-        | inl h' =>
-          rw [← h']
-          simp
-        | inr h' =>
-          rw [containsKey_eq_false_iff] at h
-          specialize h ⟨k, v⟩ h'
-          simp only at h
-          rw [hdfst_k] at h
-          contradiction
-      · intro h'
-        left
-        rw [Sigma.ext_iff]
-        simp [h']
-    · simp only [hdfst_k, Bool.false_eq_true, ↓reduceIte]
-      rw [ih]
-      simp only [or_iff_right_iff_imp]
-      intro h'
-      rw [← h'] at hdfst_k
-      simp at hdfst_k
+  rw [mem_iff_getEntry?_eq_some h, getEntry?_eq_some_iff_getKey?_eq_some_getValue?_eq_some]
 
-theorem getValue?_eq_some_iff_exists_beq_and_mem_toList {β : Type v} [BEq α] [PartialEquivBEq α]
+theorem getValue?_eq_some_iff_exists_beq_and_mem_toList {β : Type v} [BEq α] [EquivBEq α]
     {l : List ((_ : α) × β)} {k: α} {v : β} (h : DistinctKeys l) :
     getValue? k l = some v ↔ ∃ k', (k == k') = true ∧ (k', v) ∈ l.map (fun x => (x.fst, x.snd)) := by
-  induction l with
-  | nil => simp
-  | cons hd tl ih =>
-    rw [distinctKeys_cons_iff] at h
-    simp only [getValue?, cond_eq_if, List.map_cons, List.mem_cons, Prod.mk.injEq, List.mem_map]
-    by_cases hdfst_k : hd.fst == k
-    · simp only [hdfst_k, ↓reduceIte, Option.some.injEq]
-      constructor
-      · intro h'
-        exists hd.fst
-        apply And.intro (PartialEquivBEq.symm hdfst_k)
-        simp [h']
-      · intro h'
-        rcases h' with ⟨k', k_k', h'⟩
-        cases h' with
-        | inl h' => exact Eq.symm (And.right h')
-        | inr h' =>
-          rcases h with ⟨_, h⟩
-          rcases h' with ⟨a, a_tl, a_k', a_v⟩
-          rw [containsKey_eq_false_iff] at h
-          specialize h a a_tl
-          rw [a_k'] at h
-          have := BEq.neq_of_neq_of_beq h (BEq.symm k_k')
-          simp [this] at hdfst_k
-    · simp only [hdfst_k, Bool.false_eq_true, ↓reduceIte, ih (And.left h), List.mem_map,
-        Prod.mk.injEq]
-      constructor
-      · intro h'
-        rcases h' with ⟨k', k_k', h'⟩
-        exists k'
-        apply And.intro k_k'
-        right
-        exact h'
-      · intro h'
-        rcases h' with ⟨k', k_k', h'⟩
-        exists k'
-        apply And.intro k_k'
-        cases h' with
-        | inl h' =>
-          rw [And.left h'] at k_k'
-          simp [BEq.symm k_k'] at hdfst_k
-        | inr h' => exact h'
+  simp only [getValue?_eq_getEntry?, Option.map_eq_some', ← mem_map_toProd_iff_mem,
+    mem_iff_getEntry?_eq_some h]
+  constructor
+  · intro h'
+    rcases h' with ⟨a, h', a_v⟩
+    exists a.1
+    have k_afst : a.fst == k := getEntry?_eq_some h'
+    simp [k_afst, getEntry?_congr k_afst, ← a_v, h', BEq.symm]
+  · intro h'
+    rcases h' with ⟨k', k_k', h'⟩
+    exists ⟨k', v⟩
+    simp only [and_true, getEntry?_congr k_k', h']
+
 
 theorem mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
     {β : Type v} {k: α} {v : β} {l : List ((_ : α) × β)} (h : DistinctKeys l) :

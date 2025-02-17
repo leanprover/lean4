@@ -1285,7 +1285,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     rw [Nat.add_sub_cancel] at this
     repeat rw [BitVec.toInt_signExtend_of_lt (by omega)]
     rw [BitVec.toInt_twoPow_of_eq (by omega), ← Nat.two_pow_pred_add_two_pow_pred (by omega), this,
-      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; rw [← Int.neg_mul]; omega)
+      Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
     simp only [bool_to_prop]
     omega

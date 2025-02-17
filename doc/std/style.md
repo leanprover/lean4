@@ -433,12 +433,12 @@ and the kernel, inheriting all the special support for `Nat`.
 -/
 structure BitVec (w : Nat) where
   /--
-  Construct a `BitVec w` from a number less than `2^w`.
+  Constructs a `BitVec w` from a number less than `2^w`.
   O(1), because we use `Fin` as the internal representation of a bitvector.
   -/
   ofFin ::
   /--
-  Interpret a bitvector as a number less than `2^w`.
+  Interprets a bitvector as a number less than `2^w`.
   O(1), because we use `Fin` as the internal representation of a bitvector.
   -/
   toFin : Fin (2 ^ w)

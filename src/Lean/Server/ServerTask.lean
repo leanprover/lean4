@@ -6,6 +6,25 @@ Authors: Marc Huisinga
 prelude
 import Init.System.IO
 
+/-!
+This file provides a thin `ServerTask` wrapper over the `Task` API.
+All calls to the `Task` API in the language server should go through this API.
+
+The reason for this API is that the elaborator consuming threads from the thread pool should
+never hinder language server operations. Specifically, we want to ensure the following:
+- All new tasks spawned in the language server must be dedicated so that they cannot be starved
+  by the elaborator.
+  - Dedicated tasks are costly, so avoid spawning new tasks for cheap operations;
+    just do those on the current thread.
+- When mapping or binding a task:
+  - If the function being mapped is cheap, map it with `sync := true`. This runs the function on
+    the current thread if the task has already finished, or it reuses the thread of the task if the
+    task has not finished. This ensures that the function to be executed cannot be starved
+    by the elaborator.
+  - If the function being mapped is costly, map it with `prio := .dedicated`. This spawns a new
+    thread and thus cannot be starved by the elaborator.
+-/
+
 namespace Lean.Server
 
 structure ServerTask (α : Type u) where

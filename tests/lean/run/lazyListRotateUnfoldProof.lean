@@ -18,7 +18,7 @@ end LazyList
 def rotate (f : LazyList τ) (r : List τ) (a : LazyList τ)
   (h : f.length + 1 = r.length) : LazyList τ :=
   match r with
-  | List.nil => False.elim (by simp_arith [LazyList.length] at h)
+  | List.nil => False.elim (by simp +arith [LazyList.length] at h)
   | y::r' =>
   match f.force with
   | none =>  LazyList.cons y a

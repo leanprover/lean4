@@ -22,10 +22,10 @@ namespace Vector'
   theorem insert_at_0_eq_cons1 (a: α) (v: Vector' α n):  v.insert a ⟨0, Nat.zero_lt_succ n⟩ = cons a v :=
     rfl -- Error, it does not hold by reflexivity because the recursion is on v
 
-  example (a : α) :  nil.insert a ⟨0, by simp_arith⟩ = cons a nil :=
+  example (a : α) :  nil.insert a ⟨0, by simp +arith⟩ = cons a nil :=
     rfl
 
-  example (a : α) (b : α) (bs : Vector' α n) :  (cons b bs).insert a ⟨0, by simp_arith⟩ = cons a (cons b bs) :=
+  example (a : α) (b : α) (bs : Vector' α n) :  (cons b bs).insert a ⟨0, by simp +arith⟩ = cons a (cons b bs) :=
     rfl
 
   theorem insert_at_0_eq_cons2 (a: α) (v: Vector' α n):  v.insert a ⟨0, Nat.zero_lt_succ n⟩ = cons a v := by

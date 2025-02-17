@@ -60,6 +60,15 @@ structure Pair where
 example (a : Pair) (h : a.x > 0) : a.s = .s2 := by
   bv_decide
 
+/--
+error: The prover found a counterexample, consider the following assignment:
+x = 0#16
+s = State.s1
+-/
+#guard_msgs in
+example (x : BitVec 16) (s : State) (h1 : s = .s1 ↔ x = 0) (h : s = .s1) : x > 0 := by
+  bv_decide
+
 end Ex2
 
 namespace Ex3

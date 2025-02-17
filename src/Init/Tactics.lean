@@ -899,6 +899,46 @@ You can use `with` to provide the variables names for each constructor.
 -/
 syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
 
+/--
+The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
+induction principle.
+
+The tactic invocation
+```
+fun_induction f x₁ ... xₙ y₁ ... yₘ
+```
+where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
+```
+induction y₁, ... yₘ using f.induct x₁ ... xₙ
+```
+where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
+appropriate.
+
+The forms `fun_induction f x y generalizing z₁ ... zₙ` and
+`fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+-/
+syntax (name := funInduction) "fun_induction " term
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
+
+/--
+The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+cases principle.
+
+The tactic invocation
+```
+fun_cases f x ... y ...`
+```
+is equivalent to
+```
+cases y, ... using f.fun_cases x ...
+```
+where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
+appropriate.
+
+The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+-/
+syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
+
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
 
@@ -1013,31 +1053,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 ```
 -/
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
-
-/--
-`checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
-and if the file is re-elaborated and the input matches, the tactic is not re-run and
-its effects are reapplied to the state. This is useful for improving responsiveness
-when working on a long tactic proof, by wrapping expensive tactics with `checkpoint`.
-
-See the `save` tactic, which may be more convenient to use.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
-
-/--
-`save` is defined to be the same as `skip`, but the elaborator has
-special handling for occurrences of `save` in tactic scripts and will transform
-`by tac1; save; tac2` to `by (checkpoint tac1); tac2`, meaning that the effect of `tac1`
-will be cached and replayed. This is useful for improving responsiveness
-when working on a long tactic proof, by using `save` after expensive tactics.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-macro (name := save) "save" : tactic => `(tactic| skip)
 
 /--
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.
@@ -1615,6 +1630,13 @@ as well as tactics such as `next`, `case`, and `rename_i`.
 syntax (name := exposeNames) "expose_names" : tactic
 
 /--
+`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+
+The suggestions are printed in the order of their confidence, from highest to lowest.
+-/
+syntax (name := suggestPremises) "suggest_premises" : tactic
+
+/--
 Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
 verifying it inside Lean. The solvable goals are currently limited to
 - the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
@@ -1797,7 +1819,7 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith` and `omega`
+where `i < arr.size` is in the context) and `simp +arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
@@ -1816,8 +1838,10 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
-      Recall that `macro_rules` are tried in reverse order.
-      We want `assumption` to be tried first.
+      Recall that `macro_rules` (namely, for `get_elem_tactic_trivial`) are tried in reverse order.
+      We first, however, try `done`, since the necessary proof may already have been
+      found during unification, in which case there is no goal to solve (see #6999).
+      If a goal is present, we want `assumption` to be tried first.
       This is important for theorems such as
       ```
       [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
@@ -1830,8 +1854,10 @@ macro "get_elem_tactic" : tactic =>
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_trivial` which are
+            just `done` and `assumption`.
       -/
+    | done
     | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:

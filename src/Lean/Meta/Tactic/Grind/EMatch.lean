@@ -218,7 +218,7 @@ Annotate the conditions using `Grind.MatchCond`. See `MatchCond.lean`.
 private partial def annotateEqnTypeConds (prop : Expr) (k : Expr → M Expr := pure) : M Expr := do
   if let .forallE n d b bi := prop then
     let d := if (← isProp d) then
-      markAsMatchCond d
+      markAsPreMatchCond d
     else
       d
     withLocalDecl n bi d fun x => do
@@ -247,10 +247,17 @@ private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Na
   if grind.debug.proofs.get (← getOptions) then
     check proof
   let mut prop ← inferType proof
+  let mut proof := proof
   if Match.isMatchEqnTheorem (← getEnv) thm.origin.key then
     prop ← annotateMatchEqnType prop (← read).initApp
+    -- We must add a hint here because `annotateMatchEqnType` introduces `simpMatchDiscrsOnly` and
+    -- `Grind.PreMatchCond` which are not reducible.
+    proof ← mkExpectedTypeHint proof prop
   else if (← isEqnThm thm.origin.key) then
     prop ← annotateEqnTypeConds prop
+    -- We must add a hint because `annotateEqnTypeConds` introduces `Grind.PreMatchCond`
+    -- which is not reducible.
+    proof ← mkExpectedTypeHint proof prop
   trace_goal[grind.ematch.instance] "{← thm.origin.pp}: {prop}"
   addTheoremInstance thm proof prop (generation+1)
 

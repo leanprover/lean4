@@ -85,6 +85,7 @@ builtin_initialize specExtension : SimplePersistentEnvExtension SpecEntry SpecSt
     addEntryFn    := SpecState.addEntry
     addImportedFn := fun _ => {}
     toArrayFn     := fun s => sortEntries s.toArray
+    asyncMode     := .sync
   }
 
 /--

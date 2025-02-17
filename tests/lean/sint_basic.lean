@@ -98,7 +98,7 @@ def test {α : Type} [BEq α] (w : Nat) (ofBitVec : BitVec w → α) (ofInt : In
       return false
   return true
 
-#eval test 8 (⟨⟨·⟩⟩) Int8.ofInt Int8.ofNat
+#eval test 8 Int8.ofBitVec Int8.ofInt Int8.ofNat
 
 -- runtime representation
 set_option trace.compiler.ir.result true in
@@ -179,7 +179,7 @@ def myId8 (x : Int8) : Int8 := x
 #eval min (10 : Int16) (-1) = -1
 
 
-#eval test 16 (⟨⟨·⟩⟩) Int16.ofInt Int16.ofNat
+#eval test 16 Int16.ofBitVec Int16.ofInt Int16.ofNat
 
 -- runtime representation
 set_option trace.compiler.ir.result true in
@@ -261,7 +261,7 @@ def myId16 (x : Int16) : Int16 := x
 #eval min (10 : Int32) (-1) = -1
 
 
-#eval test 32 (⟨⟨·⟩⟩) Int32.ofInt Int32.ofNat
+#eval test 32 Int32.ofBitVec Int32.ofInt Int32.ofNat
 
 -- runtime representation
 set_option trace.compiler.ir.result true in
@@ -342,7 +342,7 @@ def myId32 (x : Int32) : Int32 := x
 #eval min (10 : Int64) (-1) = -1
 
 
-#eval test 64 (⟨⟨·⟩⟩) Int64.ofInt Int64.ofNat
+#eval test 64 Int64.ofBitVec Int64.ofInt Int64.ofNat
 
 -- runtime representation
 set_option trace.compiler.ir.result true in
@@ -424,7 +424,7 @@ def myId64 (x : Int64) : Int64 := x
 #eval min (10 : ISize) (-1) = -1
 
 
-#eval test System.Platform.numBits (⟨⟨·⟩⟩) ISize.ofInt ISize.ofNat
+#eval test System.Platform.numBits ISize.ofBitVec ISize.ofInt ISize.ofNat
 
 -- runtime representation
 set_option trace.compiler.ir.result true in

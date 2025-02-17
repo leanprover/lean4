@@ -95,7 +95,6 @@ structure Context where
   macroStack     : MacroStack := []
   currMacroScope : MacroScope := firstFrontendMacroScope
   ref            : Syntax := Syntax.missing
-  tacticCache?   : Option (IO.Ref Tactic.Cache)
   /--
   Snapshot for incremental reuse and reporting of command elaboration. Currently only used for
   (mutual) defs and contained tactics, in which case the `DynamicSnapshot` is a
@@ -359,7 +358,7 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   -- We only start one task for all linters for now as most linters are fast and we simply want
   -- to unblock elaboration of the next command
   let lintAct ← wrapAsyncAsSnapshot fun _ => runLinters stx
-  logSnapshotTask { range? := none, task := (← BaseIO.asTask lintAct) }
+  logSnapshotTask { stx? := none, task := (← BaseIO.asTask lintAct) }
 
 protected def getCurrMacroScope : CommandElabM Nat  := do pure (← read).currMacroScope
 protected def getMainModule     : CommandElabM Name := do pure (← getEnv).mainModule
@@ -497,7 +496,7 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   newNextMacroScope := nextMacroScope
                   hasTraces
                   next := Array.zipWith (fun cmdPromise cmd =>
-                    { range? := cmd.getRange?, task := cmdPromise.resultD default }) cmdPromises cmds
+                    { stx? := some cmd, task := cmdPromise.resultD default }) cmdPromises cmds
                   : MacroExpandedSnapshot
                 }
                 -- After the first command whose syntax tree changed, we must disable
@@ -619,8 +618,7 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable
-    tacticCache?           := ctx.tacticCache? }
+    isNoncomputableSection := scope.isNoncomputable }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -759,7 +757,6 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
       currRecDepth := ctx.currRecDepth
       currMacroScope := ctx.currMacroScope
       ref := ctx.ref
-      tacticCache? := none
       snap? := none
       cancelTk? := ctx.cancelTk?
       suppressElabErrors := ctx.suppressElabErrors

@@ -1325,7 +1325,7 @@ theorem getLsbD_smod {n d : BitVec w} :
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
 
-theorem getMsbD_smod {n d : BitVec w}:
+theorem getMsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getMsbD i
       = (match n.msb, d.msb with
     | false, false => (n.umod d)

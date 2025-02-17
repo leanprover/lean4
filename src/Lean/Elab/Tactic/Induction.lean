@@ -692,12 +692,12 @@ private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
     return exprs
 
 /-- View of `Lean.Parser.Tactic.elimTarget`. -/
-private structure ElimTargetView where
+structure ElimTargetView where
   hIdent? : Option Ident
   term    : Syntax
 
 /-- Interprets a `Lean.Parser.Tactic.elimTarget`. -/
-private def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
+def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
   -- TODO: remove handling for old syntax. Needs stage0 update first.
   if target.getKind ∈ [`Lean.Parser.Tactic.casesTarget, ``Parser.Tactic.elimTarget] then
     let hIdent? ←

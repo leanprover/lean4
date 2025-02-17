@@ -416,13 +416,18 @@ def mkEqns (declName : Name) (declNames : Array Name) (tryRefl := true): MetaM (
     trace[Elab.definition.eqns] "eqnType[{i}]: {eqnTypes[i]}"
     let name := (Name.str declName eqnThmSuffixBase).appendIndexAfter (i+1)
     thmNames := thmNames.push name
+    -- determinism: `type` should be independent of the environment changes since `baseName` was
+    -- added
+    realizeConst declName name (doRealize name info type)
+  return thmNames
+where
+  doRealize name info type := withOptions (tactic.hygienic.set · false) do
     let value ← mkEqnProof declName type tryRefl
     let (type, value) ← removeUnusedEqnHypotheses type value
     addDecl <| Declaration.thmDecl {
       name, type, value
       levelParams := info.levelParams
     }
-  return thmNames
 
 /--
   Auxiliary method for `mkUnfoldEq`. The structure is based on `mkEqnTypes`.

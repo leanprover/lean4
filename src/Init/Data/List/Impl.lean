@@ -19,7 +19,6 @@ then at runtime you will get non-tail recursive versions of the following defini
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
-
 namespace List
 
 /-! ## Basic `List` operations.
@@ -288,15 +287,15 @@ theorem insertIdxTR_go_eq : ∀ i l, insertIdxTR.go a i l acc = acc.toList ++ in
   | a::as, n+1, acc => go as n (acc.push a)
 
 @[csimp] theorem eraseIdx_eq_eraseIdxTR : @eraseIdx = @eraseIdxTR := by
-  funext α l n; simp [eraseIdxTR]
-  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs n acc = acc.toList ++ xs.eraseIdx n from
+  funext α l i; simp [eraseIdxTR]
+  suffices ∀ xs acc, l = acc.toList ++ xs → eraseIdxTR.go l xs i acc = acc.toList ++ xs.eraseIdx i from
     (this l #[] (by simp)).symm
-  intro xs; induction xs generalizing n with intro acc h
+  intro xs; induction xs generalizing i with intro acc h
   | nil => simp [eraseIdx, eraseIdxTR.go, h]
   | cons x xs IH =>
-    match n with
+    match i with
     | 0 => simp [eraseIdx, eraseIdxTR.go]
-    | n+1 =>
+    | i+1 =>
       simp only [eraseIdxTR.go, eraseIdx]
       rw [IH]; simp; simp; exact h
 

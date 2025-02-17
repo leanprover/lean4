@@ -1169,8 +1169,8 @@ def modify (f : α → α) : Nat → List α → List α :=
 insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
 ```
 -/
-def insertIdx (n : Nat) (a : α) : List α → List α :=
-  modifyTailIdx (cons a) n
+def insertIdx (i : Nat) (a : α) : List α → List α :=
+  modifyTailIdx (cons a) i
 
 /-! ### erase -/
 

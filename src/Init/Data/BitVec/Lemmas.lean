@@ -2110,6 +2110,24 @@ theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
 @[simp]
 theorem sshiftRight_eq' (x : BitVec w) : x.sshiftRight' y = x.sshiftRight y.toNat := rfl
 
+theorem toNat_sshiftRight' {x y : BitVec w} :
+    (x.sshiftRight' y).toNat =
+      if x.msb
+      then 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat
+      else x.toNat >>> y.toNat := by
+  rw [sshiftRight_eq', toNat_sshiftRight]
+
+theorem toFin_sshiftRight' {x y : BitVec w} :
+    (x.sshiftRight' y).toFin =
+      if x.msb
+      then Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> y.toNat)
+      else Fin.ofNat' (2^w) (x.toNat >>> y.toNat) := by
+  rw [sshiftRight_eq', toFin_sshiftRight]
+
+theorem toInt_sshiftRight' {x y : BitVec w} :
+    (x.sshiftRight' y).toInt = x.toInt >>> y.toNat := by
+  rw [sshiftRight_eq', toInt_sshiftRight]
+
 -- This should not be a `@[simp]` lemma as the left hand side is not in simp normal form.
 theorem getLsbD_sshiftRight' {x y : BitVec w} {i : Nat} :
     getLsbD (x.sshiftRight' y) i =

@@ -2395,6 +2395,9 @@ theorem mem_reverseAux {x : α} : ∀ {as bs}, x ∈ reverseAux as bs ↔ x ∈ 
 theorem reverse_ne_nil_iff {xs : List α} : xs.reverse ≠ [] ↔ xs ≠ [] :=
   not_congr reverse_eq_nil_iff
 
+@[simp] theorem isEmpty_reverse {xs : List α} : xs.reverse.isEmpty = xs.isEmpty := by
+  cases xs <;> simp
+
 /-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
 theorem getElem?_reverse' : ∀ {l : List α} (i j), i + j + 1 = length l →
     l.reverse[i]? = l[j]?

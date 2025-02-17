@@ -730,6 +730,17 @@ theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
   rcases l with ⟨l, rfl⟩
   simp
 
+/-- In an equality between two casts, push the casts to the right hand side. -/
+@[simp] theorem cast_eq_cast {as : Vector α n} {bs : Vector α m} {wa : n = k} {wb : m = k} :
+    as.cast wa = bs.cast wb ↔ as = bs.cast (by omega) := by
+  constructor
+  · intro w
+    ext i h
+    replace w := congrArg (fun v => v[i]) w
+    simpa using w
+  · rintro rfl
+    simp
+
 /-! ### mkVector -/
 
 @[simp] theorem mkVector_zero : mkVector 0 a = #v[] := rfl
@@ -2017,6 +2028,10 @@ theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f
   cases as
   simp
 
+@[simp] theorem isEmpty_reverse {xs : Vector α n} : xs.reverse.isEmpty = xs.isEmpty := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
 @[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
     (a.reverse)[i] = a[n - 1 - i] := by
   rcases a with ⟨a, rfl⟩
@@ -2101,7 +2116,7 @@ theorem flatMap_reverse {β} (l : Vector α n) (f : α → Vector β m) :
   simp
 
 theorem getElem?_extract {as : Vector α n} {start stop : Nat} :
-    (as.extract start stop)[i]? = if i < min stop as.size - start then as[start + i]? else none := by
+    (as.extract start stop)[i]? = if i < min stop n - start then as[start + i]? else none := by
   rcases as with ⟨as, rfl⟩
   simp [Array.getElem?_extract]
 

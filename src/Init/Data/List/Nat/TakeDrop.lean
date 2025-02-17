@@ -148,20 +148,23 @@ theorem take_append {l₁ l₂ : List α} (i : Nat) :
   rw [take_append_eq_append_take, take_of_length_le (Nat.le_add_right _ _), Nat.add_sub_cancel_left]
 
 @[simp]
-theorem take_eq_take :
+theorem take_eq_take_iff :
     ∀ {l : List α} {i j : Nat}, l.take i = l.take j ↔ min i l.length = min j l.length
   | [], i, j => by simp [Nat.min_zero]
   | _ :: xs, 0, 0 => by simp
   | x :: xs, i + 1, 0 => by simp [Nat.zero_min, succ_min_succ]
   | x :: xs, 0, j + 1 => by simp [Nat.zero_min, succ_min_succ]
-  | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take]
+  | x :: xs, i + 1, j + 1 => by simp [succ_min_succ, take_eq_take_iff]
+
+@[deprecated take_eq_take_iff (since := "2025-02-16")]
+abbrev take_eq_take := @take_eq_take_iff
 
 theorem take_add (l : List α) (i j : Nat) : l.take (i + j) = l.take i ++ (l.drop i).take j := by
   suffices take (i + j) (take i l ++ drop i l) = take i l ++ take j (drop i l) by
     rw [take_append_drop] at this
     assumption
   rw [take_append_eq_append_take, take_of_length_le, append_right_inj]
-  · simp only [take_eq_take, length_take, length_drop]
+  · simp only [take_eq_take_iff, length_take, length_drop]
     omega
   apply Nat.le_trans (m := i)
   · apply length_take_le
@@ -350,11 +353,6 @@ theorem set_eq_take_append_cons_drop (l : List α) (i : Nat) (a : α) :
   · rw [set_eq_of_length_le]
     omega
 
-theorem exists_of_set {i : Nat} {a' : α} {l : List α} (h : i < l.length) :
-    ∃ l₁ l₂, l = l₁ ++ l[i] :: l₂ ∧ l₁.length = i ∧ l.set i a' = l₁ ++ a' :: l₂ := by
-  refine ⟨l.take i, l.drop (i + 1), ⟨by simp, ⟨length_take_of_le (Nat.le_of_lt h), ?_⟩⟩⟩
-  simp [set_eq_take_append_cons_drop, h]
-
 theorem drop_set_of_lt (a : α) {i j : Nat} (l : List α)
     (hnm : i < j) : drop j (l.set i a) = l.drop j :=
   ext_getElem? fun k => by simpa only [getElem?_drop] using getElem?_set_ne (by omega)
@@ -474,6 +472,16 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
       · simp
       · rw [Nat.add_min_add_right]
 
+@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
+    min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp [findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
+    split <;> split <;> simp_all [Nat.add_min_add_right]
+
+/-! ### findIdx? -/
+
 @[simp] theorem findIdx?_take {xs : List α} {i : Nat} {p : α → Bool} :
     (xs.take i).findIdx? p = (xs.findIdx? p).bind (Option.guard (fun j => j < i)) := by
   induction xs generalizing i with
@@ -485,14 +493,6 @@ theorem false_of_mem_take_findIdx {xs : List α} {p : α → Bool} (h : x ∈ xs
       split
       · simp
       · simp [ih, Option.guard_comp, Option.bind_map]
-
-@[simp] theorem min_findIdx_findIdx {xs : List α} {p q : α → Bool} :
-    min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
-  induction xs with
-  | nil => simp
-  | cons x xs ih =>
-    simp [findIdx_cons, cond_eq_if, Bool.not_eq_eq_eq_not, Bool.not_true]
-    split <;> split <;> simp_all [Nat.add_min_add_right]
 
 /-! ### takeWhile -/
 

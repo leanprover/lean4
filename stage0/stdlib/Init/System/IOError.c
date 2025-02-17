@@ -43,6 +43,7 @@ LEAN_EXPORT lean_object* lean_mk_io_error_no_such_thing(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_instToString;
 LEAN_EXPORT lean_object* lean_mk_io_error_no_such_thing_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* l_instCoeStringError;
+uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_instCoeStringError___closed__1;
 LEAN_EXPORT lean_object* l_IO_Error_mkResourceExhaustedFile___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_IO_Error_mkTimeExpired___boxed(lean_object*, lean_object*);
@@ -81,7 +82,6 @@ LEAN_EXPORT lean_object* lean_mk_io_error_resource_exhausted(uint32_t, lean_obje
 LEAN_EXPORT lean_object* lean_mk_io_error_inappropriate_type(uint32_t, lean_object*);
 static lean_object* l_IO_Error_toString___closed__8;
 static lean_object* l_IO_Error_toString___closed__3;
-uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_invalid_argument_file(lean_object*, uint32_t, lean_object*);
 LEAN_EXPORT lean_object* lean_mk_io_error_resource_exhausted_file(lean_object*, uint32_t, lean_object*);

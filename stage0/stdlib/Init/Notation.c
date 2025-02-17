@@ -415,6 +415,7 @@ static lean_object* l_term___u2218_____closed__8;
 static lean_object* l_term_xac_____closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e____1___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2223____1___closed__2;
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___xd7_x27____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x7c_x7c____1___closed__4;
 static lean_object* l_Lean_includeStr___closed__5;
@@ -575,6 +576,7 @@ static lean_object* l___aux__Init__Notation______macroRules__termDepIfThenElse__
 static lean_object* l_term___x3c_x7c_____closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2223____1___closed__1;
 static lean_object* l___aux__Init__Notation______macroRules__termWithout__expected__type____1___closed__6;
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__2;
 static lean_object* l_term___u2223_____closed__2;
 static lean_object* l_term___x2f_____closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2f____1___closed__2;
@@ -686,6 +688,7 @@ static lean_object* l___aux__Init__Notation______macroRules__precMin1__1___close
 static lean_object* l___aux__Init__Notation______macroRules__stx___x2b__1___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x2d____1___closed__2;
 static lean_object* l___aux__Init__Notation______macroRules__term___u2208____1___closed__2;
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__1;
 static lean_object* l_Lean_deprecated___closed__8;
 LEAN_EXPORT lean_object* l_Lean_Parser_Syntax_subPrio;
 static lean_object* l_term___x3c_____closed__2;
@@ -762,6 +765,7 @@ static lean_object* l_prioMid___closed__5;
 LEAN_EXPORT lean_object* l_Lean_Attr_coe;
 static lean_object* l_stx___x2c_x2b___closed__3;
 static lean_object* l_term___u2228_____closed__5;
+LEAN_EXPORT lean_object* l_Lean_setPremiseSelectorCmd;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___u2209____1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__Notation______macroRules__term___x5e____1___closed__4;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3d_x3d____1___closed__7;
@@ -854,7 +858,9 @@ static lean_object* l_Lean_Parser_checkTacticFailure___closed__1;
 static lean_object* l_Lean_binderIdent___closed__3;
 LEAN_EXPORT lean_object* l_Lean_includeStr;
 LEAN_EXPORT lean_object* l___aux__Init__Notation______macroRules__term___x3c_x2a____1(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__5;
 static lean_object* l_prioLow___closed__4;
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__3;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x7c_x3e____1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_command__code__action;
 static lean_object* l_Lean_guardMsgsCmd___closed__3;
@@ -880,6 +886,7 @@ static lean_object* l___aux__Init__Notation______macroRules__term___x2f_x5c____1
 static lean_object* l_termDepIfThenElse___closed__2;
 static lean_object* l_Lean_Parser_Tactic_caseArg___closed__7;
 LEAN_EXPORT lean_object* l_prec_x28___x29;
+static lean_object* l_Lean_setPremiseSelectorCmd___closed__6;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3c_x24_x3e____1___closed__1;
 static lean_object* l_termDepIfThenElse___closed__19;
 static lean_object* l___aux__Init__Notation______macroRules__term___x3e_x3e_x3d____1___closed__2;
@@ -25573,6 +25580,78 @@ x_1 = l_Lean_infoTreesCmd___closed__8;
 return x_1;
 }
 }
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("setPremiseSelectorCmd", 21, 21);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__1;
+x_2 = l_Lean_setPremiseSelectorCmd___closed__1;
+x_3 = l_Lean_Name_mkStr2(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("set_premise_selector", 20, 20);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_setPremiseSelectorCmd___closed__3;
+x_2 = lean_alloc_ctor(5, 1, 0);
+lean_ctor_set(x_2, 0, x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__5() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_Parser_Syntax_addPrec___closed__7;
+x_2 = l_Lean_setPremiseSelectorCmd___closed__4;
+x_3 = l_termDepIfThenElse___closed__15;
+x_4 = lean_alloc_ctor(2, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd___closed__6() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_Lean_setPremiseSelectorCmd___closed__2;
+x_2 = lean_unsigned_to_nat(1022u);
+x_3 = l_Lean_setPremiseSelectorCmd___closed__5;
+x_4 = lean_alloc_ctor(3, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_setPremiseSelectorCmd() {
+_start:
+{
+lean_object* x_1; 
+x_1 = l_Lean_setPremiseSelectorCmd___closed__6;
+return x_1;
+}
+}
 static lean_object* _init_l_Lean_Parser_checkTactic___closed__1() {
 _start:
 {
@@ -29525,6 +29604,20 @@ l_Lean_infoTreesCmd___closed__8 = _init_l_Lean_infoTreesCmd___closed__8();
 lean_mark_persistent(l_Lean_infoTreesCmd___closed__8);
 l_Lean_infoTreesCmd = _init_l_Lean_infoTreesCmd();
 lean_mark_persistent(l_Lean_infoTreesCmd);
+l_Lean_setPremiseSelectorCmd___closed__1 = _init_l_Lean_setPremiseSelectorCmd___closed__1();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__1);
+l_Lean_setPremiseSelectorCmd___closed__2 = _init_l_Lean_setPremiseSelectorCmd___closed__2();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__2);
+l_Lean_setPremiseSelectorCmd___closed__3 = _init_l_Lean_setPremiseSelectorCmd___closed__3();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__3);
+l_Lean_setPremiseSelectorCmd___closed__4 = _init_l_Lean_setPremiseSelectorCmd___closed__4();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__4);
+l_Lean_setPremiseSelectorCmd___closed__5 = _init_l_Lean_setPremiseSelectorCmd___closed__5();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__5);
+l_Lean_setPremiseSelectorCmd___closed__6 = _init_l_Lean_setPremiseSelectorCmd___closed__6();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd___closed__6);
+l_Lean_setPremiseSelectorCmd = _init_l_Lean_setPremiseSelectorCmd();
+lean_mark_persistent(l_Lean_setPremiseSelectorCmd);
 l_Lean_Parser_checkTactic___closed__1 = _init_l_Lean_Parser_checkTactic___closed__1();
 lean_mark_persistent(l_Lean_Parser_checkTactic___closed__1);
 l_Lean_Parser_checkTactic___closed__2 = _init_l_Lean_Parser_checkTactic___closed__2();

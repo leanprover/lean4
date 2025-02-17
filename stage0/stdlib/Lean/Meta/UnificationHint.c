@@ -148,7 +148,6 @@ static lean_object* l_Lean_Meta_initFn____x40_Lean_Meta_UnificationHint___hyg_80
 static lean_object* l_Lean_Meta_instInhabitedUnificationHints___closed__2;
 LEAN_EXPORT lean_object* l_List_mapM_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_DiscrTree_empty(lean_object*);
 LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Meta_tryUnificationHints_tryCandidate___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_UnificationHints_add___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2633,73 +2632,40 @@ uint8_t x_4;
 x_4 = l_Array_isEmpty___rarg(x_2);
 if (x_4 == 0)
 {
-lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_5 = lean_array_get_size(x_2);
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = l_Lean_Meta_DiscrTree_instInhabitedKey;
 x_6 = lean_unsigned_to_nat(0u);
-x_7 = lean_nat_dec_lt(x_6, x_5);
-lean_dec(x_5);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; lean_object* x_10; 
-x_8 = l_Lean_Meta_DiscrTree_instInhabitedKey;
-x_9 = l_outOfBounds___rarg(x_8);
+x_7 = lean_array_get(x_5, x_2, x_6);
 lean_inc(x_1);
-x_10 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_UnificationHints_add___spec__2(x_1, x_9);
-if (lean_obj_tag(x_10) == 0)
+x_8 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_UnificationHints_add___spec__2(x_1, x_7);
+if (lean_obj_tag(x_8) == 0)
 {
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(x_2, x_3, x_11);
-x_13 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_9, x_12);
-return x_13;
+lean_object* x_9; lean_object* x_10; lean_object* x_11; 
+x_9 = lean_unsigned_to_nat(1u);
+x_10 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(x_2, x_3, x_9);
+x_11 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_7, x_10);
+return x_11;
 }
 else
 {
-lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_14 = lean_ctor_get(x_10, 0);
-lean_inc(x_14);
-lean_dec(x_10);
-x_15 = lean_unsigned_to_nat(1u);
-x_16 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9(x_2, x_3, x_15, x_14);
-x_17 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_9, x_16);
-return x_17;
-}
-}
-else
-{
-lean_object* x_18; lean_object* x_19; 
-x_18 = lean_array_fget(x_2, x_6);
-lean_inc(x_1);
-x_19 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_UnificationHints_add___spec__2(x_1, x_18);
-if (lean_obj_tag(x_19) == 0)
-{
-lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_20 = lean_unsigned_to_nat(1u);
-x_21 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_createNodes___rarg(x_2, x_3, x_20);
-x_22 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_18, x_21);
-return x_22;
-}
-else
-{
-lean_object* x_23; lean_object* x_24; lean_object* x_25; lean_object* x_26; 
-x_23 = lean_ctor_get(x_19, 0);
-lean_inc(x_23);
-lean_dec(x_19);
-x_24 = lean_unsigned_to_nat(1u);
-x_25 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9(x_2, x_3, x_24, x_23);
-x_26 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_18, x_25);
-return x_26;
-}
+lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_12 = lean_ctor_get(x_8, 0);
+lean_inc(x_12);
+lean_dec(x_8);
+x_13 = lean_unsigned_to_nat(1u);
+x_14 = l___private_Lean_Meta_DiscrTree_0__Lean_Meta_DiscrTree_insertAux___at_Lean_Meta_UnificationHints_add___spec__9(x_2, x_3, x_13, x_12);
+x_15 = l_Lean_PersistentHashMap_insert___at_Lean_Meta_UnificationHints_add___spec__5(x_1, x_7, x_14);
+return x_15;
 }
 }
 else
 {
-lean_object* x_27; lean_object* x_28; 
+lean_object* x_16; lean_object* x_17; 
 lean_dec(x_3);
 lean_dec(x_1);
-x_27 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_UnificationHints_add___spec__1___closed__4;
-x_28 = l_panic___at_Lean_Meta_UnificationHints_add___spec__13(x_27);
-return x_28;
+x_16 = l_Lean_Meta_DiscrTree_insertCore___at_Lean_Meta_UnificationHints_add___spec__1___closed__4;
+x_17 = l_panic___at_Lean_Meta_UnificationHints_add___spec__13(x_16);
+return x_17;
 }
 }
 }

@@ -69,7 +69,7 @@ x_1 = lean_box(0);
 x_2 = 0;
 x_3 = l_Lake_instInhabitedLeanLibConfig___lambda__1___closed__1;
 x_4 = 2;
-x_5 = lean_alloc_ctor(0, 9, 2);
+x_5 = lean_alloc_ctor(0, 11, 2);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_3);
@@ -79,8 +79,10 @@ lean_ctor_set(x_5, 5, x_3);
 lean_ctor_set(x_5, 6, x_3);
 lean_ctor_set(x_5, 7, x_3);
 lean_ctor_set(x_5, 8, x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9 + 1, x_4);
+lean_ctor_set(x_5, 9, x_3);
+lean_ctor_set(x_5, 10, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11 + 1, x_4);
 return x_5;
 }
 }

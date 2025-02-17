@@ -47,7 +47,6 @@ static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_W
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___lambda__5___closed__25;
 lean_object* l_Lean_MVarId_getType_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_forM___at___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_mkUnfoldEq___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_tactic_hygienic;
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__6;
@@ -95,7 +94,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 static uint64_t l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___lambda__5___closed__38;
 lean_object* l_Lean_MVarId_withContext___at___private_Lean_Meta_SynthInstance_0__Lean_Meta_synthPendingImp___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_appArg(lean_object*, lean_object*);
-lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* l_Lean_Meta_delta_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkEqTrans(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -214,6 +212,7 @@ lean_object* l_Lean_Elab_Eqns_deltaLHS(lean_object*, lean_object*, lean_object*,
 lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lambda__3___closed__3;
 lean_object* l_Lean_MessageData_ofName(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkUnfoldProof___closed__5;
 LEAN_EXPORT uint8_t l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lambda__1(lean_object*);
@@ -231,35 +230,17 @@ return x_2;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6, lean_object* x_7, lean_object* x_8) {
 _start:
 {
-lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; 
+lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; uint8_t x_15; uint8_t x_16; lean_object* x_17; 
 x_9 = l_Lean_Expr_appFn_x21(x_1);
-x_10 = lean_array_get_size(x_2);
+x_10 = l_Lean_instInhabitedExpr;
 x_11 = lean_unsigned_to_nat(0u);
-x_12 = lean_nat_dec_lt(x_11, x_10);
-lean_dec(x_10);
-if (x_12 == 0)
-{
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; uint8_t x_17; uint8_t x_18; lean_object* x_19; 
-x_13 = l_Lean_instInhabitedExpr;
-x_14 = l_outOfBounds___rarg(x_13);
-x_15 = l_Lean_Expr_app___override(x_9, x_14);
-x_16 = 0;
-x_17 = 1;
-x_18 = 1;
-x_19 = l_Lean_Meta_mkLambdaFVars(x_2, x_15, x_16, x_17, x_16, x_18, x_4, x_5, x_6, x_7, x_8);
-return x_19;
-}
-else
-{
-lean_object* x_20; lean_object* x_21; uint8_t x_22; uint8_t x_23; uint8_t x_24; lean_object* x_25; 
-x_20 = lean_array_fget(x_2, x_11);
-x_21 = l_Lean_Expr_app___override(x_9, x_20);
-x_22 = 0;
-x_23 = 1;
-x_24 = 1;
-x_25 = l_Lean_Meta_mkLambdaFVars(x_2, x_21, x_22, x_23, x_22, x_24, x_4, x_5, x_6, x_7, x_8);
-return x_25;
-}
+x_12 = lean_array_get(x_10, x_2, x_11);
+x_13 = l_Lean_Expr_app___override(x_9, x_12);
+x_14 = 0;
+x_15 = 1;
+x_16 = 1;
+x_17 = l_Lean_Meta_mkLambdaFVars(x_2, x_13, x_14, x_15, x_14, x_16, x_4, x_5, x_6, x_7, x_8);
+return x_17;
 }
 }
 static lean_object* _init_l___private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_rwFixEq___lambda__3___closed__1() {

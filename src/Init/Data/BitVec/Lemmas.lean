@@ -887,7 +887,7 @@ The precise condition is:
 
   `start + len - i ≤ w`
 
-Example (w = 10, start := 7, len := 5):
+Example (w := 10, start := 7, len := 5):
 
                                     |= w - (start + len)    = 0
                                 |      start + len    |     = 12

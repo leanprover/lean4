@@ -197,7 +197,7 @@ def mkGrindOnly
     (config : TSyntax ``Lean.Parser.Tactic.optConfig)
     (fallback? : Option Term)
     (trace : Grind.Trace)
-    : MetaM (TSyntax `tactic) := do
+    : TermElabM (TSyntax `tactic) := do
   let mut params := #[]
   let mut foundFns : NameSet := {}
   for { origin, kind } in trace.thms.toList do
@@ -206,11 +206,11 @@ def mkGrindOnly
         if let some declName ← isEqnThm? declName then
           unless foundFns.contains declName do
             foundFns := foundFns.insert declName
-            let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+            let decl : Ident := mkIdent (← Term.unresolveNameGlobalAvoidingLocals declName)
             let param ← `(Parser.Tactic.grindParam| $decl:ident)
             params := params.push param
         else
-          let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+          let decl : Ident := mkIdent (← Term.unresolveNameGlobalAvoidingLocals declName)
           let param ← match kind with
             | .eqLhs     => `(Parser.Tactic.grindParam| = $decl)
             | .eqRhs     => `(Parser.Tactic.grindParam| =_ $decl)
@@ -225,12 +225,12 @@ def mkGrindOnly
           params := params.push param
   for declName in trace.eagerCases.toList do
     unless Grind.isBuiltinEagerCases declName do
-      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+      let decl : Ident := mkIdent (← Term.unresolveNameGlobalAvoidingLocals declName)
       let param ← `(Parser.Tactic.grindParam| cases eager $decl)
       params := params.push param
   for declName in trace.cases.toList do
     unless trace.eagerCases.contains declName || Grind.isBuiltinEagerCases declName do
-      let decl : Ident := mkIdent (← unresolveNameGlobalAvoidingLocals declName)
+      let decl : Ident := mkIdent (← Term.unresolveNameGlobalAvoidingLocals declName)
       let param ← `(Parser.Tactic.grindParam| cases $decl)
       params := params.push param
   let result ← if let some fallback := fallback? then

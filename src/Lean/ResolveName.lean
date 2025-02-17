@@ -402,10 +402,14 @@ When `allowHorizAliases` is false, then "horizontal aliases" (ones that are not 
 The assumption is that non-horizontal aliases are "API exports" (i.e., intentional exports that should be considered to be the new canonical name).
 "Non-API exports" arise from (1) using `export` to add names to a namespace for dot notation or (2) projects that want names to be conveniently and permanently accessible in their own namespaces.
 
+`filter` specifies a predicate that the unresolved name must additionally satisfy.
+
 This function is meant to be used for pretty printing.
 If `n₀` is an accessible name, then the result will be an accessible name.
 -/
-def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m] (n₀ : Name) (fullNames := false) (allowHorizAliases := false) : m Name := do
+def unresolveNameGlobal [Monad m] [MonadResolveName m] [MonadEnv m]
+    (n₀ : Name) (fullNames := false) (allowHorizAliases := false)
+    (filter : Name → m Bool := fun _ => pure true) : m Name := do
   if n₀.hasMacroScopes then return n₀
   if fullNames then
     match (← resolveGlobalName n₀) with
@@ -428,18 +432,8 @@ where
       candidate := Name.appendCore cmpt candidate
       if let [(potentialMatch, _)] ← resolveGlobalName candidate then
         if potentialMatch == n₀ then
-          return some candidate
+          if (← filter candidate) then
+            return some candidate
     return none
-
-def unresolveNameGlobalAvoidingLocals [Monad m] [MonadResolveName m] [MonadEnv m] [MonadLCtx m]
-    (n₀ : Name) (fullNames := false) : m Name := do
-  let mut n ← unresolveNameGlobal n₀ fullNames
-  unless (← getLCtx).usesUserName n do return n
-  -- `n` is also a local declaration
-  if n == n₀ then
-    -- `n` is the fully qualified name. So, we append the `_root_` prefix
-    return `_root_ ++ n
-  else
-    return n₀
 
 end Lean

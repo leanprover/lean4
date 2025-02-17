@@ -30,6 +30,7 @@ structure SavedContext where
   macroStack : MacroStack
   errToSorry : Bool
   levelNames : List Name
+  auxDeclToFullName : FVarIdMap Name
 
 /-- The kind of a tactic metavariable, used for additional error reporting. -/
 inductive TacticMVarKind
@@ -1229,13 +1230,14 @@ def saveContext : TermElabM SavedContext :=
     openDecls  := (← getOpenDecls)
     errToSorry := (← read).errToSorry
     levelNames := (← get).levelNames
+    auxDeclToFullName := (← read).auxDeclToFullName
   }
 
 /--
   Execute `x` with the context saved using `saveContext`.
 -/
 def withSavedContext (savedCtx : SavedContext) (x : TermElabM α) : TermElabM α := do
-  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry }) <|
+  withReader (fun ctx => { ctx with declName? := savedCtx.declName?, macroStack := savedCtx.macroStack, errToSorry := savedCtx.errToSorry, auxDeclToFullName := savedCtx.auxDeclToFullName }) <|
     withTheReader Core.Context (fun ctx => { ctx with options := savedCtx.options, openDecls := savedCtx.openDecls }) <|
       withLevelNames savedCtx.levelNames x
 
@@ -2192,6 +2194,11 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
       return some f
     | _   => throwError "ambiguous {kind}, use fully qualified name, possible interpretations {fs}"
   | _ => throwError "identifier expected"
+
+/-- Like `Lean.unresolveNameGlobal`, but also ensures that the unresolved name does not conflict
+with the names of any local declarations. -/
+def unresolveNameGlobalAvoidingLocals (n₀ : Name) (fullNames := false) : TermElabM Name :=
+  unresolveNameGlobal n₀ (fullNames := fullNames) (filter := fun n => Option.isNone <$> Term.resolveLocalName n)
 
 def TermElabM.run (x : TermElabM α) (ctx : Context := {}) (s : State := {}) : MetaM (α × State) :=
   withConfig setElabConfig (x ctx |>.run s)

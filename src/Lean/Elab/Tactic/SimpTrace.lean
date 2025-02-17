@@ -18,7 +18,7 @@ open Lean Elab Parser Tactic Meta Simp Tactic.TryThis
 
 open TSyntax.Compat in
 /-- Constructs the syntax for a simp call, for use with `simp?`. -/
-def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : MetaM (TSyntax `tactic) := do
+def mkSimpCallStx (stx : Syntax) (usedSimps : UsedSimps) : TermElabM (TSyntax `tactic) := do
   let stx := stx.unsetTrailing
   mkSimpOnly stx usedSimps
 

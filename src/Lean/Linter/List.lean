@@ -87,7 +87,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
       return none
 
 /-- Allowed names for index variables. -/
-def allowedIndices : List String := ["i", "j", "k"]
+def allowedIndices : List String := ["i", "j", "k", "start", "stop"]
 
 /--
 A linter which validates that the only variables used as "indices" (e.g. in `xs[i]` or `xs.take i`)
@@ -117,7 +117,7 @@ def stripBinderName (s : String) : String :=
 def allowedListNames : List String := ["l", "r", "s", "t", "tl", "ws", "xs", "ys", "zs", "as", "bs", "cs", "acc"]
 
 /-- Allowed names for `Array` variables. -/
-def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"]
+def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "acc"]
 
 /-- Allowed names for `Vector` variables. -/
 def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"]
@@ -137,7 +137,7 @@ def listVariablesLinter : Linter
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedListNames.contains n then
-            unless (ty.getArg! 0).isAppOf `List && n == "L" do
+            unless (ty.getArg! 0).isAppOf `List && (n == "L" || n == "xss") do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `List` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do

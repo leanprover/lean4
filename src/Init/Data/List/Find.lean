@@ -15,6 +15,10 @@ Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `L
 and `List.lookup`.
 -/
 
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+
 namespace List
 
 open Nat

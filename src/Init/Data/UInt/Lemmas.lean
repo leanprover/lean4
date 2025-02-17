@@ -11,6 +11,8 @@ import Init.Data.BitVec.Bitblast
 
 open Lean in
 set_option hygiene false in
+-- TODO(kmill): needed this for bootstrapping issue, remove option
+set_option interpreter.prefer_native false in
 macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   let mut cmds ← Syntax.getArgs <$> `(
   namespace $typeName

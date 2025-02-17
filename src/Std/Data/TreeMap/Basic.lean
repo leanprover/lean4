@@ -125,7 +125,7 @@ def isEmpty (t : TreeMap α β cmp) : Bool :=
 def erase (t : TreeMap α β cmp) (a : α) : TreeMap α β cmp :=
   ⟨t.inner.erase a⟩
 
-@[inline, inherit_doc DTreeMap.get?]
+@[inline, inherit_doc DTreeMap.Const.get?]
 def get? (t : TreeMap α β cmp) (a : α) : Option β :=
   DTreeMap.Const.get? t.inner a
 
@@ -133,19 +133,19 @@ def get? (t : TreeMap α β cmp) (a : α) : Option β :=
 def find? (t : TreeMap α β cmp) (a : α) : Option β :=
   get? t a
 
-@[inline, inherit_doc DTreeMap.get]
+@[inline, inherit_doc DTreeMap.Const.get]
 def get (t : TreeMap α β cmp) (a : α) (h : a ∈ t) : β :=
-   DTreeMap.Const.get t.inner a h
+  DTreeMap.Const.get t.inner a h
 
-@[inline, inherit_doc DTreeMap.get!]
-def get! (t : TreeMap α β cmp) (a : α) [Inhabited β]  : β :=
+@[inline, inherit_doc DTreeMap.Const.get!]
+def get! (t : TreeMap α β cmp) (a : α) [Inhabited β] : β :=
   DTreeMap.Const.get! t.inner a
 
 @[inline, inherit_doc get!, deprecated get! (since := "2025-02-12")]
 def find! (t : TreeMap α β cmp) (a : α) [Inhabited β] : β :=
   get! t a
 
-@[inline, inherit_doc DTreeMap.getD]
+@[inline, inherit_doc DTreeMap.Const.getD]
 def getD (t : TreeMap α β cmp) (a : α) (fallback : β) : β :=
   DTreeMap.Const.getD t.inner a fallback
 
@@ -157,6 +157,208 @@ instance : GetElem? (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+@[inline, inherit_doc DTreeMap.Const.min?]
+def min? (t : TreeMap α β cmp) : Option (α × β) :=
+  DTreeMap.Const.min? t.inner
+
+@[inline, inherit_doc DTreeMap.Const.min]
+def min (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  DTreeMap.Const.min t.inner h
+
+@[inline, inherit_doc DTreeMap.Const.min!]
+def min! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
+  DTreeMap.Const.min! t.inner
+
+@[inline, inherit_doc DTreeMap.Const.minD]
+def minD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Const.minD t.inner fallback
+
+@[inline, inherit_doc DTreeMap.Const.max?]
+def max? (t : TreeMap α β cmp) : Option (α × β) :=
+  DTreeMap.Const.max? t.inner
+
+@[inline, inherit_doc DTreeMap.Const.max]
+def max (t : TreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
+  DTreeMap.Const.max t.inner h
+
+@[inline, inherit_doc DTreeMap.Const.max!]
+def max! [Inhabited (α × β)] (t : TreeMap α β cmp) : α × β :=
+  DTreeMap.Const.max! t.inner
+
+@[inline, inherit_doc DTreeMap.Const.maxD]
+def maxD (t : TreeMap α β cmp) (fallback : α × β) : α × β :=
+  DTreeMap.Const.maxD t.inner fallback
+
+@[inline, inherit_doc DTreeMap.minKey?]
+def minKey? (t : TreeMap α β cmp) : Option α :=
+  DTreeMap.minKey? t.inner
+
+@[inline, inherit_doc DTreeMap.minKey]
+def minKey (t : TreeMap α β cmp) (h : t.isEmpty = false) : α :=
+  DTreeMap.minKey t.inner h
+
+@[inline, inherit_doc DTreeMap.minKey!]
+def minKey! [Inhabited α] (t : TreeMap α β cmp) : α :=
+  DTreeMap.minKey! t.inner
+
+@[inline, inherit_doc DTreeMap.minKeyD]
+def minKeyD (t : TreeMap α β cmp) (fallback : α) : α :=
+  DTreeMap.minKeyD t.inner fallback
+
+@[inline, inherit_doc DTreeMap.maxKey?]
+def maxKey? (t : TreeMap α β cmp) : Option α :=
+  DTreeMap.maxKey? t.inner
+
+@[inline, inherit_doc DTreeMap.maxKey]
+def maxKey (t : TreeMap α β cmp) (h : t.isEmpty = false) : α :=
+  DTreeMap.maxKey t.inner h
+
+@[inline, inherit_doc DTreeMap.maxKey!]
+def maxKey! [Inhabited α] (t : TreeMap α β cmp) : α :=
+  DTreeMap.maxKey! t.inner
+
+@[inline, inherit_doc DTreeMap.maxKeyD]
+def maxKeyD (t : TreeMap α β cmp) (fallback : α) : α :=
+  DTreeMap.maxKeyD t.inner fallback
+
+@[inline, inherit_doc DTreeMap.Const.entryAtIdx?]
+def entryAtIdx? (t : TreeMap α β cmp) (n : Nat) : Option (α × β) :=
+  DTreeMap.Const.entryAtIdx? t.inner n
+
+@[inline, inherit_doc DTreeMap.Const.entryAtIdx]
+def entryAtIdx (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
+  DTreeMap.Const.entryAtIdx t.inner n h
+
+@[inline, inherit_doc DTreeMap.Const.entryAtIdx!]
+def entryAtIdx! [Inhabited (α × β)] (t : TreeMap α β cmp) (n : Nat) : α × β :=
+  DTreeMap.Const.entryAtIdx! t.inner n
+
+@[inline, inherit_doc DTreeMap.Const.entryAtIdxD]
+def entryAtIdxD (t : TreeMap α β cmp) (n : Nat) (fallback : α × β) : α × β :=
+  DTreeMap.Const.entryAtIdxD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.keyAtIndex?]
+def keyAtIndex? (t : TreeMap α β cmp) (n : Nat) : Option α :=
+  DTreeMap.keyAtIndex? t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIndex]
+def keyAtIndex (t : TreeMap α β cmp) (n : Nat) (h : n < t.size) : α :=
+  DTreeMap.keyAtIndex t.inner n h
+
+@[inline, inherit_doc DTreeMap.keyAtIndex!]
+def keyAtIndex! [Inhabited α] (t : TreeMap α β cmp) (n : Nat) : α :=
+  DTreeMap.keyAtIndex! t.inner n
+
+@[inline, inherit_doc DTreeMap.keyAtIndexD]
+def keyAtIndexD (t : TreeMap α β cmp) (n : Nat) (fallback : α) : α :=
+  DTreeMap.keyAtIndexD t.inner n fallback
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGE?]
+def getEntryGE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
+  DTreeMap.Const.getEntryGE? t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGT?]
+def getEntryGT? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
+  DTreeMap.Const.getEntryGT? t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLE?]
+def getEntryLE? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
+  DTreeMap.Const.getEntryLE? t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLT?]
+def getEntryLT? (t : TreeMap α β cmp) (k : α) : Option (α × β) :=
+  DTreeMap.Const.getEntryLT? t.inner k
+
+/-!
+`getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` can be found in
+`Std.Data.TreeMap.AdditionalOperations`.
+-/
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGE!]
+def getEntryGE! [Inhabited (α × β)] (t : TreeMap α β cmp) (k : α) : (α × β) :=
+  DTreeMap.Const.getEntryGE! t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGT!]
+def getEntryGT! [Inhabited (α × β)] (t : TreeMap α β cmp) (k : α) : (α × β) :=
+  DTreeMap.Const.getEntryGT! t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLE!]
+def getEntryLE! [Inhabited (α × β)] (t : TreeMap α β cmp) (k : α) : (α × β) :=
+  DTreeMap.Const.getEntryLE! t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLT!]
+def getEntryLT! [Inhabited (α × β)] (t : TreeMap α β cmp) (k : α) : (α × β) :=
+  DTreeMap.Const.getEntryLT! t.inner k
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGED]
+def getEntryGED (t : TreeMap α β cmp) (k : α) (fallback : α × β) : (α × β) :=
+  DTreeMap.Const.getEntryGED t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.Const.getEntryGTD]
+def getEntryGTD (t : TreeMap α β cmp) (k : α) (fallback : α × β) : (α × β) :=
+  DTreeMap.Const.getEntryGTD t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLED]
+def getEntryLED (t : TreeMap α β cmp) (k : α) (fallback : α × β) : (α × β) :=
+  DTreeMap.Const.getEntryLED t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.Const.getEntryLTD]
+def getEntryLTD (t : TreeMap α β cmp) (k : α) (fallback : α × β) : (α × β) :=
+  DTreeMap.Const.getEntryLTD t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.getKeyGE?]
+def getKeyGE? (t : TreeMap α β cmp) (k : α) : Option α :=
+  DTreeMap.getKeyGE? t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyGT?]
+def getKeyGT? (t : TreeMap α β cmp) (k : α) : Option α :=
+  DTreeMap.getKeyGT? t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyLE?]
+def getKeyLE? (t : TreeMap α β cmp) (k : α) : Option α :=
+  DTreeMap.getKeyLE? t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyLT?]
+def getKeyLT? (t : TreeMap α β cmp) (k : α) : Option α :=
+  DTreeMap.getKeyLT? t.inner k
+
+/-!
+`getKeyGE`, `getKeyGT`, `getKeyLE`, `getKeyLT` can be found in
+`Std.Data.TreeMap.AdditionalOperations`.
+-/
+
+@[inline, inherit_doc DTreeMap.getKeyGE!]
+def getKeyGE! [Inhabited α] (t : TreeMap α β cmp) (k : α) : α :=
+  DTreeMap.getKeyGE! t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyGT!]
+def getKeyGT! [Inhabited α] (t : TreeMap α β cmp) (k : α) : α :=
+  DTreeMap.getKeyGT! t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyLE!]
+def getKeyLE! [Inhabited α] (t : TreeMap α β cmp) (k : α) : α :=
+  DTreeMap.getKeyLE! t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyLT!]
+def getKeyLT! [Inhabited α] (t : TreeMap α β cmp) (k : α) : α :=
+  DTreeMap.getKeyLT! t.inner k
+
+@[inline, inherit_doc DTreeMap.getKeyGED]
+def getKeyGED (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
+  DTreeMap.getKeyGED t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.getKeyGTD]
+def getKeyGTD (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
+  DTreeMap.getKeyGTD t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.getKeyLED]
+def getKeyLED (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
+  DTreeMap.getKeyLED t.inner k fallback
+
+@[inline, inherit_doc DTreeMap.getKeyLTD]
+def getKeyLTD (t : TreeMap α β cmp) (k : α) (fallback : α) : α :=
+  DTreeMap.getKeyLTD t.inner k fallback
 
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 

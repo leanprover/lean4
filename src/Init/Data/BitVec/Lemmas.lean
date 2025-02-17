@@ -3728,22 +3728,6 @@ theorem toInt_twoPow {w i : Nat} :
       · simp only [show 2 ^ (i + 1) < 2 ^  (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
         omega
 
-@[simp]
-theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 1) - 1 := by
-  rcases w with _|_|w
-  · decide
-  · decide
-  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
-    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
-      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt]
-    simp only [Nat.add_one_sub_one, Nat.one_mul]
-    · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
-      norm_cast
-      omega
-    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
-      omega
-
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   rcases w with _|w
   · simp [of_length_zero]
@@ -4006,6 +3990,24 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
   · simp [h]
   · rw [Nat.sub_add_cancel (Nat.two_pow_pos (w - 1)), Nat.two_pow_pred_mod_two_pow (by omega)]
 
+@[simp]
+theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
+  have h : BitVec.intMax w = BitVec.twoPow w (w - 1) - 1#w := by
+    simp [intMax]
+  rw [h]
+  rcases w with _|_|w
+  · decide
+  · decide
+  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
+    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
+      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
+      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt]
+    simp only [Nat.add_one_sub_one, Nat.one_mul]
+    · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
+      norm_cast
+      omega
+    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
+      omega
 
 /-! ### Non-overflow theorems -/
 

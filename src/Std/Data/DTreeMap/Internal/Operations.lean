@@ -398,6 +398,7 @@ def containsThenInsertIfNew! [Ord α] (k : α) (v : β k) (t : Impl α β) :
     Bool × Impl α β :=
   if t.contains k then (true, t) else (false, t.insert! k v)
 
+/-- Implementation detail of the tree map -/
 @[inline]
 def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) (ht : t.Balanced) :
     Option (β k) × Impl α β :=
@@ -405,6 +406,10 @@ def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl 
   | none => (none, t.insertIfNew k v ht |>.impl)
   | some b => (some b, t)
 
+/--
+Slower version of `getThenInsertIfNew?` which can be used in the absence of balance
+information but still assumes the preconditions of `getThenInsertIfNew?`, otherwise might panic.
+-/
 @[inline]
 def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) :
     Option (β k) × Impl α β :=
@@ -596,6 +601,7 @@ namespace Const
 
 variable {β : Type v}
 
+/-- Implementation detail of the tree map -/
 @[inline]
 def getThenInsertIfNew? [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
     (ht : t.Balanced) : Option β × Impl α (fun _ => β) :=
@@ -603,6 +609,10 @@ def getThenInsertIfNew? [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
   | none => (none, t.insertIfNew k v ht |>.impl)
   | some b => (some b, t)
 
+/--
+Slower version of `getThenInsertIfNew?` which can be used in the absence of balance
+information but still assumes the preconditions of `getThenInsertIfNew?`, otherwise might panic.
+-/
 @[inline]
 def getThenInsertIfNew?! [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
     : Option β × Impl α (fun _ => β) :=

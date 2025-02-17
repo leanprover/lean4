@@ -148,6 +148,38 @@ def erase (t : TreeSet α cmp) (a : α) : TreeSet α cmp :=
   ⟨t.inner.erase a⟩
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline]
+def get? (t : TreeSet α cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+/--
+Retrieves the key from the set that matches `a`. Ensures that such a key exists by requiring a proof
+of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline]
+def get (t : TreeSet α cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline]
+def get! [Inhabited α] (t : TreeSet α cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+/--
+Checks if given key is contained and returns the key if it is, otherwise `fallback`.
+If they key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+@[inline]
+def getD (t : TreeSet α cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
+
+/--
 Tries to retrieve the smallest element of the tree set, returning `none` if the set is empty.
 -/
 @[inline]
@@ -205,22 +237,22 @@ def maxD (t : TreeSet α cmp) (fallback : α) : α :=
 
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
-def entryAtIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
+def atIdx? (t : TreeSet α cmp) (n : Nat) : Option α :=
   TreeMap.keyAtIndex? t.inner n
 
 /-- Returns the `n`-th smallest element. -/
 @[inline]
-def entryAtIdx (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
+def atIdx (t : TreeSet α cmp) (n : Nat) (h : n < t.size) : α :=
   TreeMap.keyAtIndex t.inner n h
 
 /-- Returns the `n`-th smallest element, or panics if `n` is at least `t.size`. -/
 @[inline]
-def entryAtIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
+def atIdx! [Inhabited α] (t : TreeSet α cmp) (n : Nat) : α :=
   TreeMap.keyAtIndex! t.inner n
 
 /-- Returns the `n`-th smallest element, or `fallback` if `n` is at least `t.size`. -/
 @[inline]
-def entryAtIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
+def atIdxD (t : TreeSet α cmp) (n : Nat) (fallback : α) : α :=
   TreeMap.keyAtIndexD t.inner n fallback
 
 /--

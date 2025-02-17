@@ -3992,21 +3992,20 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 @[simp]
 theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
+  have : intMax w = BitVec.twoPow w (w - 1) - 1#w := by simp [intMax]
+  rw [this]
   rcases w with _|_|w
   · decide
   · decide
-  · simp only [show BitVec.intMax (w + 1 + 1) = BitVec.twoPow (w + 1 + 1) (w + 1) - 1#(w + 1 + 1) by simp [intMax]]
+  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
     rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
       Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by simp [Nat.one_lt_two_pow]), Int.bmod_eq_of_le_of_lt]
+      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt]
     simp only [Nat.add_one_sub_one, Nat.one_mul]
-    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega), ← Nat.mul_two]
-      have := Nat.two_pow_pos (w := (w + 1))
-      have := Int.neg_neg_of_pos (a := 2 ^ (w + 1)) (by norm_cast)
-      push_cast
+    · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
+      norm_cast
       omega
-    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega), ← Nat.mul_two]
-      push_cast
+    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
       omega
 
 /-! ### Non-overflow theorems -/

@@ -1278,7 +1278,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
   · have := Int.pow_lt_pow (a := 2) (b := (w + 1) * 2 - 2) (c := (w + 1) * 2 - 1) (by omega)
     have := @BitVec.le_toInt_mul_toInt (w + 1) x y
     have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
-    simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬(w + 1) = 0 by omega,
+    simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬w + 1 = 0 by omega,
     not_false_eq_true, decide_true, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul, intMin,
     Bool.true_and]
     repeat rw [BitVec.toInt_signExtend_of_lt (by omega)]

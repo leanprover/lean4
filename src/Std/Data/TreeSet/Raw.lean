@@ -165,20 +165,20 @@ def max! [Inhabited α] (t : Raw α cmp) : α :=
 def maxD (t : Raw α cmp) (fallback : α) : α :=
   TreeMap.Raw.maxKeyD t.inner fallback
 
-@[inline, inherit_doc TreeSet.atIndex?]
-def atIndex? (t : Raw α cmp) (n : Nat) : Option α :=
+@[inline, inherit_doc TreeSet.entryAtIndex?]
+def entryAtIndex? (t : Raw α cmp) (n : Nat) : Option α :=
   TreeMap.Raw.keyAtIndex? t.inner n
 
 /-!
-We do not provide `atIndex` for the raw trees.
+We do not provide `entryAtIndex` for the raw trees.
 -/
 
-@[inline, inherit_doc TreeSet.atIndex!]
-def atIndex! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
+@[inline, inherit_doc TreeSet.entryAtIndex!]
+def entryAtIndex! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
   TreeMap.Raw.keyAtIndex! t.inner n
 
-@[inline, inherit_doc TreeSet.atIndexD]
-def atIndexD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
+@[inline, inherit_doc TreeSet.entryAtIndexD]
+def entryAtIndexD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
   TreeMap.Raw.keyAtIndexD t.inner n fallback
 
 @[inline, inherit_doc TreeSet.getGE?]

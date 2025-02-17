@@ -240,21 +240,21 @@ def maxKey! [Inhabited α] (t : Raw α β cmp) : α :=
 def maxKeyD (t : Raw α β cmp) (fallback : α) : α :=
   DTreeMap.Raw.maxKeyD t.inner fallback
 
-@[inline, inherit_doc DTreeMap.Raw.Const.atIndex?]
-def atIndex? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
-  DTreeMap.Raw.Const.atIndex? t.inner n
+@[inline, inherit_doc DTreeMap.Raw.Const.entryAtIndex?]
+def entryAtIndex? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
+  DTreeMap.Raw.Const.entryAtIndex? t.inner n
 
 /-!
-We do not provide `atIndex` for the raw trees.
+We do not provide `entryAtIndex` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Raw.Const.atIndex!]
-def atIndex! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
-  DTreeMap.Raw.Const.atIndex! t.inner n
+@[inline, inherit_doc DTreeMap.Raw.Const.entryAtIndex!]
+def entryAtIndex! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
+  DTreeMap.Raw.Const.entryAtIndex! t.inner n
 
-@[inline, inherit_doc DTreeMap.Raw.Const.atIndexD]
-def atIndexD (t : Raw α β cmp) (n : Nat) (fallback : α × β) : α × β :=
-  DTreeMap.Raw.Const.atIndexD t.inner n fallback
+@[inline, inherit_doc DTreeMap.Raw.Const.entryAtIndexD]
+def entryAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : α × β) : α × β :=
+  DTreeMap.Raw.Const.entryAtIndexD t.inner n fallback
 
 @[inline, inherit_doc DTreeMap.Raw.keyAtIndex?]
 def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=

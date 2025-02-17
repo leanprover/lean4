@@ -6,6 +6,7 @@ Authors: Markus Himmel, Paul Reichert
 prelude
 import Init.Data.Nat.Compare
 import Std.Data.DTreeMap.Internal.Balancing
+import Std.Data.DTreeMap.Internal.Queries
 import Std.Classes.Ord
 
 /-!

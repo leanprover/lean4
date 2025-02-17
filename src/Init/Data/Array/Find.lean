@@ -412,6 +412,21 @@ theorem findIdx_le_findIdx {l : Array α} {p q : α → Bool} (h : ∀ x ∈ l, 
   cases l
   simp [hf]
 
+theorem false_of_mem_extract_findIdx {xs : Array α} {p : α → Bool} (h : x ∈ xs.extract 0 (xs.findIdx p)) :
+    p x = false := by
+  rcases xs with ⟨xs⟩
+  exact List.false_of_mem_take_findIdx (by simpa using h)
+
+@[simp] theorem findIdx_extract {xs : Array α} {i : Nat} {p : α → Bool} :
+    (xs.extract 0 i).findIdx p = min i (xs.findIdx p) := by
+  cases xs
+  simp
+
+@[simp] theorem min_findIdx_findIdx {xs : Array α} {p q : α → Bool} :
+    min (xs.findIdx p) (xs.findIdx q) = xs.findIdx (fun a => p a || q a) := by
+  cases xs
+  simp
+
 /-! ### findIdx? -/
 
 @[simp] theorem findIdx?_empty : (#[] : Array α).findIdx? p = none := rfl
@@ -524,6 +539,11 @@ theorem findIdx?_eq_some_le_of_findIdx?_eq_some {xs : Array α} {p q : α → Bo
     l.findIdx? f = l.unattach.findIdx? g := by
   cases l
   simp [hf]
+
+@[simp] theorem findIdx?_take {xs : Array α} {i : Nat} {p : α → Bool} :
+    (xs.take i).findIdx? p = (xs.findIdx? p).bind (Option.guard (fun j => j < i)) := by
+  cases xs
+  simp
 
 /-! ### idxOf
 

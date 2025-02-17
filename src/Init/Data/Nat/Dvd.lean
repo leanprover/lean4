@@ -9,9 +9,9 @@ import Init.Meta
 
 namespace Nat
 
-protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
+@[simp] protected theorem dvd_refl (a : Nat) : a ∣ a := ⟨1, by simp⟩
 
-protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
+@[simp] protected theorem dvd_zero (a : Nat) : a ∣ 0 := ⟨0, by simp⟩
 
 protected theorem dvd_mul_left (a b : Nat) : a ∣ b * a := ⟨b, Nat.mul_comm b a⟩
 protected theorem dvd_mul_right (a b : Nat) : a ∣ a * b := ⟨b, rfl⟩

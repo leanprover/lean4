@@ -30,7 +30,7 @@ def ExprCnstr.applyPerm (perm : Lean.Perm) : ExprCnstr → ExprCnstr
 
 end Nat.Linear
 
-namespace Lean.Meta.Linear.Nat
+namespace Lean.Meta.Simp.Arith.Nat
 
 deriving instance Repr for Nat.Linear.Expr
 deriving instance Repr for Nat.Linear.ExprCnstr
@@ -185,4 +185,4 @@ def toContextExpr (ctx : Array Expr) : Expr :=
   else
     RArray.toExpr (mkConst ``Nat) id (RArray.leaf (mkNatLit 0))
 
-namespace Lean.Meta.Linear.Nat
+namespace Lean.Meta.Simp.Arith.Nat

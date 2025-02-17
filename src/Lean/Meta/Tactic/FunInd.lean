@@ -18,6 +18,7 @@ import Lean.Elab.PreDefinition.Structural.IndGroupInfo
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.Command
 import Lean.Meta.Tactic.ElimInfo
+import Lean.Meta.Tactic.FunIndInfo
 
 /-!
 This module contains code to derive, from the definition of a recursive function (structural or
@@ -659,7 +660,7 @@ Given a unary definition `foo` defined via `WellFounded.fixF`, derive a suitable
 `foo.induct` for it. See module doc for details.
  -/
 def deriveUnaryInduction (name : Name) : MetaM Name := do
-  let inductName := .append name `induct
+  let inductName := getFunInductName name
   if ← hasConst inductName then return inductName
 
   let info ← getConstInfoDefn name
@@ -677,7 +678,7 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         mkLambdaFVars (params ++ xs) (mkAppN body xs)
     else
       pure e
-  let e' ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
+  let (e', paramMask) ← lambdaTelescope e fun params funBody => MatcherApp.withUserNames params varNames do
     match_expr funBody with
     | fix@WellFounded.fix α _motive rel wf body target =>
       unless params.back! == target do
@@ -719,8 +720,9 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
         -- induction principle match the type of the function better.
         -- But this leads to avoidable parameters that make functional induction strictly less
         -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
-        let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) fixedParams e'
-        instantiateMVars e'
+        let (paramMask, e') ← mkLambdaFVarsMasked fixedParams e'
+        let e' ← instantiateMVars e'
+        return (e', paramMask)
     | _ =>
       if funBody.isAppOf ``WellFounded.fix then
         throwError "Function {name} defined via WellFounded.fix with unexpected arity {funBody.getAppNumArgs}:{indentExpr funBody}"
@@ -734,12 +736,20 @@ def deriveUnaryInduction (name : Name) : MetaM Name := do
   let eTyp ← inferType e'
   let eTyp ← elimOptParam eTyp
   -- logInfo m!"eTyp: {eTyp}"
-  let params := (collectLevelParams {} eTyp).params
+  let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
-  let us := info.levelParams.filter (params.contains ·)
+  let funUs := info.levelParams.toArray
+  let usMask := funUs.map (levelParams.contains ·)
+  let us := maskArray usMask funUs |>.toList
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
+
+  setFunIndInfo {
+      funIndName := inductName
+      levelMask := usMask
+      params := paramMask.map (cond · .param .dropped) ++ #[.target]
+  }
   return inductName
 
 /--
@@ -751,7 +761,7 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
   let levelParams := ci.levelParams
 
   for name in names, idx in [:names.size] do
-    let inductName := .append name `induct
+    let inductName := getFunInductName name
     unless ← hasConst inductName do
       let value ← forallTelescope ci.type fun xs _body => do
         let value := .const ci.name (levelParams.map mkLevelParam)
@@ -760,6 +770,21 @@ def projectMutualInduct (names : Array Name) (mutualInduct : Name) : MetaM Unit 
         mkLambdaFVars xs value
       let type ← inferType value
       addDecl <| Declaration.thmDecl { name := inductName, levelParams, type, value }
+
+/--
+For a (non-mutual!) definition of `name`, uses the `FunIndInfo` associated with the `unaryInduct` and
+derives the one for the n-ary function.
+-/
+def setNaryFunIndInfo (name : Name) (arity : Nat) (unaryInduct : Name) : MetaM Unit := do
+    let inductName := getFunInductName name
+    unless inductName = unaryInduct do
+      let some unaryFunIndInfo ← getFunIndInfoForInduct? unaryInduct
+        | throwError "Expected {unaryInduct} to have FunIndInfo"
+      setFunIndInfo {
+        unaryFunIndInfo with
+        funIndName := inductName
+        params := unaryFunIndInfo.params.filter (· != .target) ++ mkArray arity .target
+      }
 
 /--
 In the type of `value`, reduces
@@ -823,10 +848,10 @@ unpacks it into a n-ary and (possibly) joint induction principle.
 -/
 def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : MetaM Name := do
   let inductName := if eqnInfo.declNames.size > 1 then
-    .append eqnInfo.declNames[0]! `mutual_induct
+    getMutualInductName eqnInfo.declNames[0]!
   else
     -- If there is no mutual recursion, we generate the `foo.induct` directly.
-    .append eqnInfo.declNames[0]! `induct
+    getFunInductName eqnInfo.declNames[0]!
   if ← hasConst inductName then return inductName
 
   let ci ← getConstInfo unaryInductName
@@ -867,11 +892,6 @@ def unpackMutualInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name) : Meta
   return inductName
 
 
-/-- Given `foo._unary.induct`, define `foo.mutual_induct` and then `foo.induct`, `bar.induct`, … -/
-def deriveUnpackedInduction (eqnInfo : WF.EqnInfo) (unaryInductName : Name): MetaM Unit := do
-  let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
-  projectMutualInduct eqnInfo.declNames unpackedInductName
-
 def withLetDecls {α} (name : Name) (ts : Array Expr) (es : Array Expr) (k : Array Expr → MetaM α) : MetaM α := do
   assert! es.size = ts.size
   go 0 #[]
@@ -891,7 +911,7 @@ See module doc for details.
 def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit := do
   let infos ← names.mapM getConstInfoDefn
   -- First open up the fixed parameters everywhere
-  let e' ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
+  let (e', paramMask, motiveArities) ← lambdaBoundedTelescope infos[0]!.value numFixed fun xs _ => do
     -- Now look at the body of an arbitrary of the functions (they are essentially the same
     -- up to the final projections)
     let body ← instantiateLambda infos[0]!.value xs
@@ -937,11 +957,12 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
 
       -- We also need to know the number of indices of each type former, including the auxiliary
       -- type formers that do not have IndInfo. We can read it off the motives types of the recursor.
-      let numTargetss ← do
+      let numTypeFormerTargetss ← do
         let aux := mkAppN (.const recInfo.name (0 :: group.levels)) group.params
         let motives ← inferArgumentTypesN recInfo.numMotives aux
         motives.mapM fun motive =>
           forallTelescopeReducing motive fun xs _ => pure xs.size
+
 
       let recArgInfos ← infos.mapM fun info => do
         let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) info.name | throwError "{info.name} missing eqnInfo"
@@ -972,6 +993,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           lambdaTelescope (← instantiateLambda info.value xs) fun ys _ => pure ys.size
         let motiveNames := Array.ofFn (n := infos.size) fun ⟨i, _⟩ =>
           if infos.size = 1 then .mkSimple "motive" else .mkSimple s!"motive_{i+1}"
+
         withLocalDeclsDND (motiveNames.zip motiveTypes) fun motives => do
 
           -- Prepare the `isRecCall` that recognizes recursive calls
@@ -1000,7 +1022,7 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- So that we can transform them
           let (minors', mvars) ← M2.run do
             let mut minors' := #[]
-            for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTargetss do
+            for brecOnMinor in brecOnMinors, goal in minorTypes, numTargets in numTypeFormerTargetss do
               let minor' ← forallTelescope goal fun xs goal => do
                 unless xs.size ≥ numTargets do
                   throwError ".brecOn argument has too few parameters, expected at least {numTargets}: {xs}"
@@ -1053,10 +1075,10 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
           -- induction principle match the type of the function better.
           -- But this leads to avoidable parameters that make functional induction strictly less
           -- useful (e.g. when the unsued parameter mentions bound variables in the users' goal)
-          let e' ← mkLambdaFVars (binderInfoForMVars := .default) (usedOnly := true) xs e'
+          let (paramMask, e') ← mkLambdaFVarsMasked xs e'
           let e' ← instantiateMVars e'
           trace[Meta.FunInd] "complete body of mutual induction principle:{indentExpr e'}"
-          pure e'
+          pure (e', paramMask, motiveArities)
 
   unless (← isTypeCorrect e') do
     logError m!"constructed induction principle is not type correct:{indentExpr e'}"
@@ -1065,21 +1087,32 @@ def deriveInductionStructural (names : Array Name) (numFixed : Nat) : MetaM Unit
   let eTyp ← inferType e'
   let eTyp ← elimOptParam eTyp
   -- logInfo m!"eTyp: {eTyp}"
-  let params := (collectLevelParams {} eTyp).params
+  let levelParams := (collectLevelParams {} eTyp).params
   -- Prune unused level parameters, preserving the original order
-  let us := infos[0]!.levelParams.filter (params.contains ·)
+  let funUs := infos[0]!.levelParams.toArray
+  let usMask := funUs.map (levelParams.contains ·)
+  let us := maskArray usMask funUs |>.toList
 
   let inductName :=
     if names.size = 1 then
-      names[0]! ++ `induct
+      getFunInductName names[0]!
     else
-      names[0]! ++ `mutual_induct
+      getMutualInductName names[0]!
 
   addDecl <| Declaration.thmDecl
     { name := inductName, levelParams := us, type := eTyp, value := e' }
 
+
   if names.size > 1 then
     projectMutualInduct names inductName
+
+  if names.size = 1 then
+    setFunIndInfo {
+      funIndName := inductName
+      levelMask := usMask
+      params := paramMask.map (cond · .param .dropped) ++
+        mkArray motiveArities[0]! .target
+    }
 
 
 /--
@@ -1110,6 +1143,8 @@ def deriveCases (name : Name) : MetaM Unit := do
         throwError "'{name}' does not have an unfold theorem nor a value"
     let motiveType ← lambdaTelescope value fun xs _body => do
       mkForallFVars xs (.sort 0)
+    let motiveArity ← lambdaTelescope value fun xs _body => do
+      pure xs.size
     let e' ← withLocalDeclD `motive motiveType fun motive => do
       lambdaTelescope value fun xs body => do
         let (e',mvars) ← M2.run do
@@ -1131,12 +1166,22 @@ def deriveCases (name : Name) : MetaM Unit := do
     let eTyp ← inferType e'
     let eTyp ← elimOptParam eTyp
     -- logInfo m!"eTyp: {eTyp}"
-    let params := (collectLevelParams {} eTyp).params
+    let levelParams := (collectLevelParams {} eTyp).params
     -- Prune unused level parameters, preserving the original order
-    let us := info.levelParams.filter (params.contains ·)
+    let funUs := info.levelParams.toArray
+    let usMask := funUs.map (levelParams.contains ·)
+    let us := maskArray usMask funUs |>.toList
 
+    let casesName := getFunCasesName info.name
     addDecl <| Declaration.thmDecl
-      { name := info.name ++ `fun_cases, levelParams := us, type := eTyp, value := e' }
+      { name := casesName, levelParams := us, type := eTyp, value := e' }
+
+    setFunIndInfo {
+      funIndName := casesName
+      levelMask := usMask
+      params := mkArray motiveArity .target
+    }
+
 
 /--
 Given a recursively defined function `foo`, derives `foo.induct`. See the module doc for details.
@@ -1145,8 +1190,10 @@ def deriveInduction (name : Name) : MetaM Unit := do
   mapError (f := (m!"Cannot derive functional induction principle (please report this issue)\n{indentD ·}")) do
     if let some eqnInfo := WF.eqnInfoExt.find? (← getEnv) name then
       let unaryInductName ← deriveUnaryInduction eqnInfo.declNameNonRec
-      unless eqnInfo.declNameNonRec = name do
-        deriveUnpackedInduction eqnInfo unaryInductName
+      let unpackedInductName ← unpackMutualInduction eqnInfo unaryInductName
+      projectMutualInduct eqnInfo.declNames unpackedInductName
+      if eqnInfo.argsPacker.numFuncs = 1 then
+        setNaryFunIndInfo eqnInfo.declNames[0]! eqnInfo.argsPacker.arities[0]! unaryInductName
     else if let some eqnInfo := Structural.eqnInfoExt.find? (← getEnv) name then
       deriveInductionStructural eqnInfo.declNames eqnInfo.numFixed
     else

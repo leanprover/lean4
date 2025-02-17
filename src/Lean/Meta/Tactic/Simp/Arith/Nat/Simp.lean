@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import Lean.Meta.Tactic.LinearArith.Basic
-import Lean.Meta.Tactic.LinearArith.Nat.Basic
+import Lean.Meta.Tactic.Simp.Arith.Util
+import Lean.Meta.Tactic.Simp.Arith.Nat.Basic
 
-namespace Lean.Meta.Linear.Nat
+namespace Lean.Meta.Simp.Arith.Nat
 
 def simpCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (c, atoms) ← toLinearCnstr? e
@@ -67,8 +67,8 @@ def simpCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else
     simpCnstrPos? e
 
-def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let (e, ctx) ← toLinearExpr e
+def simpExpr? (input : Expr) : MetaM (Option (Expr × Expr)) := do
+  let (e, ctx) ← toLinearExpr input
   let p  := e.toPoly
   let p' := p.norm
   if p'.length < p.length then
@@ -76,8 +76,8 @@ def simpExpr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     let e' : LinearExpr := p'.toExpr
     let p := mkApp4 (mkConst ``Nat.Linear.Expr.eq_of_toNormPoly_eq) (toContextExpr ctx) (toExpr e) (toExpr e') reflBoolTrue
     let r ← e'.toArith ctx
-    return some (r, p)
+    return some (r, ← mkExpectedTypeHint p (← mkEq input r))
   else
     return none
 
-end Lean.Meta.Linear.Nat
+end Lean.Meta.Simp.Arith.Nat

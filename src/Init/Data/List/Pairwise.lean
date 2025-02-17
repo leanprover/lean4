@@ -301,11 +301,10 @@ theorem getElem?_inj {xs : List α}
     | i+1, 0 => ?_
     | 0, j+1 => ?_
     all_goals
-      simp only [get?_eq_getElem?, getElem?_cons_zero, getElem?_cons_succ] at h₂
+      simp only [getElem?_cons_zero, getElem?_cons_succ] at h₂
       cases h₁; rename_i h' h
       have := h x ?_ rfl; cases this
-      rw [mem_iff_get?]
-      simp only [get?_eq_getElem?]
+      rw [mem_iff_getElem?]
     exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
 
 @[simp] theorem nodup_replicate {n : Nat} {a : α} :

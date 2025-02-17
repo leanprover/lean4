@@ -9,7 +9,9 @@ import Init.Data.Prod
 import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
 import Init.Data.Int.DivModLemmas
+import Init.Data.Int.Gcd
 import Init.Data.RArray
+import Init.Data.AC
 
 namespace Int.Linear
 
@@ -50,6 +52,32 @@ def Poly.denote (ctx : Context) (p : Poly) : Int :=
   | .num k => k
   | .add k v p => Int.add (Int.mul k (v.denote ctx)) (denote ctx p)
 
+/--
+Similar to `Poly.denote`, but produces a denotation better for `simp +arith`.
+Remark: we used to convert `Poly` back into `Expr` to achieve that.
+-/
+def Poly.denote' (ctx : Context) (p : Poly) : Int :=
+  match p with
+  | .num k => k
+  | .add 1 v p => go (v.denote ctx) p
+  | .add k v p => go (Int.mul k (v.denote ctx)) p
+where
+  go (r : Int)  (p : Poly) : Int :=
+    match p with
+    | .num 0 => r
+    | .num k => Int.add r k
+    | .add 1 v p => go (Int.add r (v.denote ctx)) p
+    | .add k v p => go (Int.add r (Int.mul k (v.denote ctx))) p
+
+theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'.go ctx r p = p.denote ctx + r := by
+  induction r, p using denote'.go.induct ctx <;> simp [denote'.go, denote]
+  next => rw [Int.add_comm]
+  next ih => simp [denote'.go] at ih; rw [ih]; ac_rfl
+  next ih => simp [denote'.go] at ih; rw [ih]; ac_rfl
+
+theorem Poly.denote'_eq_denote (ctx : Context) (p : Poly) : p.denote' ctx = p.denote ctx := by
+  unfold denote' <;> split <;> simp [denote, denote'_go_eq_denote] <;> ac_rfl
+
 def Poly.addConst (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k+k')
@@ -59,7 +87,7 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
   match p with
   | .num k' => .add k v (.num k')
   | .add k' v' p =>
-    bif Nat.blt v v' then
+    bif Nat.blt v' v then
       .add k v <| .add k' v' p
     else bif Nat.beq v v' then
       if Int.add k k' == 0 then
@@ -69,12 +97,14 @@ def Poly.insert (k : Int) (v : Var) (p : Poly) : Poly :=
     else
       .add k' v' (insert k v p)
 
+/-- Normalizes the given polynomial by fusing monomial and constants. -/
 def Poly.norm (p : Poly) : Poly :=
   match p with
   | .num k => .num k
   | .add k v p => (norm p).insert k v
 
-def Expr.toPoly' (e : Expr) :=
+/-- Converts the given expression into a polynomial. -/
+def Expr.toPoly' (e : Expr) : Poly :=
   go 1 e (.num 0)
 where
   go (coeff : Int) : Expr → (Poly → Poly)
@@ -86,21 +116,49 @@ where
     | .mulR a k => bif k == 0 then id else go (Int.mul coeff k) a
     | .neg a    => go (-coeff) a
 
+/-- Converts the given expression into a polynomial, and then normalizes it. -/
 def Expr.toPoly (e : Expr) : Poly :=
   e.toPoly'.norm
 
-inductive PolyCnstr  where
-  | eq (p : Poly)
-  | le (p : Poly)
+/-- Relational contraints: equality and inequality. -/
+inductive RelCnstr  where
+  | /-- `p = 0` constraint. -/
+    eq (p : Poly)
+  | /-- `p ≤ 0` contraint. -/
+    le (p : Poly)
   deriving BEq
 
-def PolyCnstr.denote (ctx : Context) : PolyCnstr → Prop
+def RelCnstr.denote (ctx : Context) : RelCnstr → Prop
   | .eq p => p.denote ctx = 0
   | .le p => p.denote ctx ≤ 0
 
+def RelCnstr.denote' (ctx : Context) : RelCnstr → Prop
+  | .eq p => p.denote' ctx = 0
+  | .le p => p.denote' ctx ≤ 0
+
+theorem RelCnstr.denote'_eq_denote (ctx : Context) (c : RelCnstr) : c.denote' ctx = c.denote ctx := by
+  cases c <;> simp [denote, denote', Poly.denote'_eq_denote]
+
+/--
+Returns the ceiling of the division `a / b`. That is, the result is equivalent to `⌈a / b⌉`.
+Examples:
+- `cdiv 7 3` returns `3`
+- `cdiv (-7) 3` returns `-2`.
+-/
 def cdiv (a b : Int) : Int :=
   -((-a)/b)
 
+/--
+Returns the ceiling-compatible remainder of the division `a / b`.
+This function ensures that the remainder is consistent with `cdiv`, meaning:
+```
+a = b * cdiv a b + cmod a b
+```
+See theorem `cdiv_add_cmod`. We also have
+```
+-b < cmod a b ≤ 0
+```
+-/
 def cmod (a b : Int) : Int :=
   -((-a)%b)
 
@@ -126,7 +184,11 @@ theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := 
   simp at this
   simp [Int.neg_emod, ← this, Eq.comm]
 
-theorem cdiv_eq_div_of_divides {a b : Int} (h : (a/b)*b = a) : a/b = cdiv a b := by
+private abbrev div_mul_cancel_of_mod_zero :=
+  @Int.ediv_mul_cancel_of_emod_eq_zero
+
+theorem cdiv_eq_div_of_divides {a b : Int} (h : a % b = 0) : a/b = cdiv a b := by
+  replace h := div_mul_cancel_of_mod_zero h
   have hz : a % b = 0 := by
     have := Int.ediv_add_emod a b
     conv at this => rhs; rw [← Int.add_zero a]
@@ -143,60 +205,121 @@ theorem cdiv_eq_div_of_divides {a b : Int} (h : (a/b)*b = a) : a/b = cdiv a b :=
   next => simp[cdiv, h]
   next => rw [Int.mul_eq_mul_right_iff h] at this; assumption
 
-def Poly.div (k : Int) : Poly → Poly
-  | .num k' => .num (cdiv k' k)
-  | .add k' x p => .add (k'/k) x (div k p)
-
-def Poly.divAll (k : Int) : Poly → Bool
-  | .num k' => (k'/k)*k == k'
-  | .add k' _ p => (k'/k)*k == k' && divAll k p
-
-def Poly.divCoeffs (k : Int) : Poly → Bool
-  | .num _ => true
-  | .add k' _ p => (k'/k)*k == k' && divCoeffs k p
-
+/-- Returns the constant of the given linear polynomial. -/
 def Poly.getConst : Poly → Int
   | .num k => k
   | .add _ _ p => getConst p
 
-def PolyCnstr.norm : PolyCnstr → PolyCnstr
+/--
+`p.div k` divides all coefficients of the polynomial `p` by `k`, but
+rounds up the constant using `cdiv`.
+Notes:
+- We only use this function with `k`s that divides all coefficients.
+- We use `cdiv` for the constant to implement the inequality tightening rule.
+-/
+def Poly.div (k : Int) : Poly → Poly
+  | .num k' => .num (cdiv k' k)
+  | .add k' x p => .add (k'/k) x (div k p)
+
+/--
+Returns `true` if `k` divides all coefficients and the constant of the given
+linear polynomial.
+-/
+def Poly.divAll (k : Int) : Poly → Bool
+  | .num k' => k' % k == 0
+  | .add k' _ p => k' % k == 0 && divAll k p
+
+/--
+Returns `true` if `k` divides all coefficients of the given linear polynomial.
+-/
+def Poly.divCoeffs (k : Int) : Poly → Bool
+  | .num _ => true
+  | .add k' _ p => k' % k == 0 && divCoeffs k p
+
+/--
+`p.mul k` multiplies all coefficients and constant of the polynomial `p` by `k`.
+-/
+def Poly.mul (p : Poly) (k : Int) : Poly :=
+  match p with
+  | .num k' => .num (k*k')
+  | .add k' v p => .add (k*k') v (mul p k)
+
+@[simp] theorem Poly.denote_mul (ctx : Context) (p : Poly) (k : Int) : (p.mul k).denote ctx = k * p.denote ctx := by
+  induction p <;> simp [mul, denote, *]
+  rw [Int.mul_assoc, Int.mul_add]
+
+/-- Normalizes the polynomial of the given relational constraint. -/
+def RelCnstr.norm : RelCnstr → RelCnstr
   | .eq p => .eq p.norm
   | .le p => .le p.norm
 
-def PolyCnstr.divAll (k : Int) : PolyCnstr → Bool
+/-- Returns `true` if `k` divides all coefficients and constant of the given relational constraint. -/
+def RelCnstr.divAll (k : Int) : RelCnstr → Bool
   | .eq p | .le p => p.divAll k
 
-def PolyCnstr.divCoeffs (k : Int) : PolyCnstr → Bool
+/-- Returns `true` if `k` divides all coefficients of the given relational constraint. -/
+def RelCnstr.divCoeffs (k : Int) : RelCnstr → Bool
   | .eq p | .le p => p.divCoeffs k
 
-def PolyCnstr.isLe : PolyCnstr → Bool
+/-- Returns `true` if the given relational constraint is an inequality constraint of the form `p ≤ 0`. -/
+def RelCnstr.isLe : RelCnstr → Bool
   | .eq _ => false
   | .le _ => true
 
-def PolyCnstr.div (k : Int) : PolyCnstr → PolyCnstr
+/--
+Divides all coefficients and constants in the linear polynomial of the given constraint by `k`.
+We rounds up the constant using `cdiv`.
+-/
+def RelCnstr.div (k : Int) : RelCnstr → RelCnstr
   | .eq p => .eq <| p.div k
   | .le p => .le <| p.div k
 
-inductive ExprCnstr  where
+/--
+Multiplies all coefficients and constants in the linear polynomial of the given constraint by `k`.
+-/
+def RelCnstr.mul (k : Int) : RelCnstr → RelCnstr
+  | .eq p => .eq <| p.mul k
+  | .le p => .le <| p.mul k
+
+@[simp] theorem RelCnstr.denote_mul (ctx : Context) (c : RelCnstr) (k : Int) (h : k > 0) : (c.mul k).denote ctx = c.denote ctx := by
+  cases c <;> simp [mul, denote]
+  next =>
+    constructor
+    · intro h₁; cases (Int.mul_eq_zero.mp h₁)
+      next hz => simp [hz] at h
+      next => assumption
+    · intro h'; simp [*]
+  next =>
+    constructor
+    · intro h₁
+      conv at h₁ => rhs; rw [← Int.mul_zero k]
+      exact Int.le_of_mul_le_mul_left h₁ h
+    · intro h₂
+      have := Int.mul_le_mul_of_nonneg_left h₂ (Int.le_of_lt h)
+      simp at this; assumption
+
+/-- Raw relational constraint. They are later converted into `RelCnstr`. -/
+inductive RawRelCnstr  where
   | eq (p₁ p₂ : Expr)
   | le (p₁ p₂ : Expr)
   deriving Inhabited, BEq
 
-def ExprCnstr.isLe : ExprCnstr → Bool
+/-- Returns `true` if the given relational constraint is an inequality constraint of the form `e₁ ≤ e₂`. -/
+def RawRelCnstr.isLe : RawRelCnstr → Bool
   | .eq .. => false
   | .le .. => true
 
-def ExprCnstr.denote (ctx : Context) : ExprCnstr → Prop
+def RawRelCnstr.denote (ctx : Context) : RawRelCnstr → Prop
   | .eq e₁ e₂ => e₁.denote ctx = e₂.denote ctx
   | .le e₁ e₂ => e₁.denote ctx ≤ e₂.denote ctx
 
-def ExprCnstr.toPoly : ExprCnstr → PolyCnstr
+def RawRelCnstr.norm : RawRelCnstr → RelCnstr
   | .eq e₁ e₂ => .eq (e₁.sub e₂).toPoly.norm
   | .le e₁ e₂ => .le (e₁.sub e₂).toPoly.norm
 
--- Certificate for normalizing the coefficients of a constraint
-def divBy (e e' : ExprCnstr) (k : Int) : Bool :=
-  k > 0 && e.toPoly.divAll k && e'.toPoly == e.toPoly.div k
+/-- A certificate for normalizing the coefficients of a raw relational constraint. -/
+def divBy (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : Bool :=
+  k > 0 && c.norm == c'.mul k
 
 attribute [local simp] Int.add_comm Int.add_assoc Int.add_left_comm Int.add_mul Int.mul_add
 attribute [local simp] Poly.insert Poly.denote Poly.norm Poly.addConst
@@ -210,7 +333,7 @@ theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
   induction p <;> simp [*]
   next k' v' p' ih =>
-    by_cases h₁ : Nat.blt v v' <;> simp [*]
+    by_cases h₁ : Nat.blt v' v <;> simp [*]
     by_cases h₂ : Nat.beq v v' <;> simp [*]
     by_cases h₃ : k + k' = 0 <;> simp [*, Nat.eq_of_beq_eq_true h₂]
     rw [← Int.add_mul]
@@ -223,18 +346,19 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
 
 attribute [local simp] Poly.denote_norm
 
-private theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
-private theorem neg_fold (a : Int) : a.neg = -a := rfl
+theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+theorem neg_fold (a : Int) : a.neg = -a := rfl
 
 attribute [local simp] sub_fold neg_fold
 
-attribute [local simp] Poly.div Poly.divAll PolyCnstr.denote
+attribute [local simp] Poly.div Poly.divAll RelCnstr.denote
 
 theorem Poly.denote_div_eq_of_divAll (ctx : Context) (p : Poly) (k : Int) : p.divAll k → (p.div k).denote ctx * k = p.denote ctx := by
   induction p with
-  | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; assumption
+  | num _ => simp; intro h; rw [← cdiv_eq_div_of_divides h]; exact div_mul_cancel_of_mod_zero h
   | add k' v p ih =>
     simp; intro h₁ h₂
+    replace h₁ := div_mul_cancel_of_mod_zero h₁
     have ih := ih h₂
     simp [ih]
     apply congrArg (denote ctx p + ·)
@@ -247,10 +371,11 @@ theorem Poly.denote_div_eq_of_divCoeffs (ctx : Context) (p : Poly) (k : Int) : p
   | num k' => simp; rw [Int.mul_comm, cdiv_add_cmod]
   | add k' v p ih =>
     simp; intro h₁ h₂
+    replace h₁ := div_mul_cancel_of_mod_zero h₁
     rw [← ih h₂]
     rw [Int.mul_right_comm, h₁, Int.add_assoc]
 
-attribute [local simp] ExprCnstr.denote ExprCnstr.toPoly Expr.denote
+attribute [local simp] RawRelCnstr.denote RawRelCnstr.norm Expr.denote
 
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
@@ -279,9 +404,9 @@ theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, toPoly', Expr.denote_toPoly'_go]
 
-attribute [local simp] Expr.denote_toPoly PolyCnstr.denote
+attribute [local simp] Expr.denote_toPoly RelCnstr.denote
 
-theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denote ctx = c.denote ctx := by
+theorem RawRelCnstr.denote_norm (ctx : Context) (c : RawRelCnstr) : c.norm.denote ctx = c.denote ctx := by
   cases c <;> simp
   · rw [Int.sub_eq_zero]
   · constructor
@@ -291,16 +416,15 @@ theorem ExprCnstr.denote_toPoly (ctx : Context) (c : ExprCnstr) : c.toPoly.denot
 instance : LawfulBEq Poly where
   eq_of_beq {a} := by
     induction a <;> intro b <;> cases b <;> simp_all! [BEq.beq]
-    · rename_i k₁ v₁ p₁ k₂ v₂ p₂ ih
+    next ih =>
       intro _ _ h
       exact ih h
   rfl := by
     intro a
     induction a <;> simp! [BEq.beq]
-    · rename_i k v p ih
-      exact ih
+    assumption
 
-instance : LawfulBEq PolyCnstr where
+instance : LawfulBEq RelCnstr where
   eq_of_beq {a b} := by
     cases a <;> cases b <;> rename_i p₁ p₂ <;> simp_all! [BEq.beq]
     · show (p₁ == p₂) = true → _
@@ -316,79 +440,38 @@ theorem Expr.eq_of_toPoly_eq (ctx : Context) (e e' : Expr) (h : e.toPoly == e'.t
   simp [Poly.norm] at h
   assumption
 
-theorem ExprCnstr.eq_of_toPoly_eq (ctx : Context) (c c' : ExprCnstr) (h : c.toPoly == c'.toPoly) : c.denote ctx = c'.denote ctx := by
-  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
-  rw [denote_toPoly, denote_toPoly] at h
-  assumption
+theorem RawRelCnstr.eq_of_norm_eq (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (h : c.norm == c') : c.denote ctx = c'.denote' ctx := by
+  have h := congrArg (RelCnstr.denote ctx) (eq_of_beq h)
+  rw [denote_norm] at h
+  rw [RelCnstr.denote'_eq_denote, h]
 
-theorem ExprCnstr.eq_of_toPoly_eq_var (ctx : Context) (x y : Var) (c : ExprCnstr) (h : c.toPoly == .eq (.add 1 x (.add (-1) y (.num 0))))
+theorem RawRelCnstr.eq_of_norm_eq_var (ctx : Context) (x y : Var) (c : RawRelCnstr) (h : c.norm == .eq (.add 1 x (.add (-1) y (.num 0))))
     : c.denote ctx = (x.denote ctx = y.denote ctx) := by
-  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
-  rw [denote_toPoly] at h
+  have h := congrArg (RelCnstr.denote ctx) (eq_of_beq h)
+  rw [denote_norm] at h
   rw [h]; simp
   rw [← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-theorem ExprCnstr.eq_of_toPoly_eq_const (ctx : Context) (x : Var) (k : Int) (c : ExprCnstr) (h : c.toPoly == .eq (.add 1 x (.num (-k))))
+theorem RawRelCnstr.eq_of_norm_eq_const (ctx : Context) (x : Var) (k : Int) (c : RawRelCnstr) (h : c.norm == .eq (.add 1 x (.num (-k))))
     : c.denote ctx = (x.denote ctx = k) := by
-  have h := congrArg (PolyCnstr.denote ctx) (eq_of_beq h)
-  rw [denote_toPoly] at h
+  have h := congrArg (RelCnstr.denote ctx) (eq_of_beq h)
+  rw [denote_norm] at h
   rw [h]; simp
   rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-private theorem mul_eq_zero_iff_eq_zero (a b : Int) : b ≠ 0 → (a * b = 0 ↔ a = 0) := by
+attribute [local simp] RelCnstr.divAll RelCnstr.div RelCnstr.mul
+
+theorem RawRelCnstr.eq_of_norm_eq_mul (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) (hz : k > 0) (h : c.norm = c'.mul k) : c.denote ctx = c'.denote ctx := by
+  replace h := congrArg (RelCnstr.denote ctx) h
+  simp only [RawRelCnstr.denote_norm, RelCnstr.denote_mul, *] at h
+  assumption
+
+theorem RawRelCnstr.eq_of_divBy (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : divBy c c' k → c.denote ctx = c'.denote' ctx := by
   intro h
-  constructor
-  · intro h'
-    cases Int.mul_eq_zero.mp h'
-    · assumption
-    · contradiction
-  · intro; simp [*]
-
-private theorem eq_mul_le_zero {a b : Int} : 0 < b → (a ≤ 0 ↔ a * b ≤ 0) := by
-  intro h
-  have : 0 = 0 * b := by simp
-  constructor
-  · intro h'
-    rw [this]
-    apply Int.mul_le_mul h' <;> try simp
-    apply Int.le_of_lt h
-  · intro h'
-    rw [this] at h'
-    exact Int.le_of_mul_le_mul_right h' h
-
-attribute [local simp] PolyCnstr.divAll PolyCnstr.div
-
-theorem ExprCnstr.eq_of_toPoly_eq_of_divBy' (ctx : Context) (e e' : ExprCnstr) (p : PolyCnstr) (k : Int) : k > 0 → p.divAll k → e.toPoly = p → e'.toPoly = p.div k → e.denote ctx = e'.denote ctx := by
-  intro h₀ h₁ h₂ h₃
-  have hz : k ≠ 0 := Int.ne_of_gt h₀
-  cases p <;> simp at h₁
-  next p =>
-    replace h₁ := Poly.denote_div_eq_of_divAll ctx p k h₁
-    replace h₂ := congrArg (PolyCnstr.denote ctx) h₂
-    simp only [PolyCnstr.denote.eq_1, ← h₁] at h₂
-    replace h₃ := congrArg (PolyCnstr.denote ctx) h₃
-    simp only [PolyCnstr.denote.eq_1, PolyCnstr.div] at h₃
-    rw [mul_eq_zero_iff_eq_zero _ _ hz] at h₂
-    have := Eq.trans h₂ h₃.symm
-    rw [denote_toPoly, denote_toPoly] at this
-    exact this
-  next p =>
-    -- TODO: this is correct but we can simplify `p ≤ 0` if `p.divCoeffs k` and `p.getConst % k > 0`. Here, we are simplifying only the case `p.getConst % k = 0`
-    replace h₁ := Poly.denote_div_eq_of_divAll ctx p k h₁
-    replace h₂ := congrArg (PolyCnstr.denote ctx) h₂
-    simp only [PolyCnstr.denote.eq_2, ← h₁] at h₂
-    replace h₃ := congrArg (PolyCnstr.denote ctx) h₃
-    simp only [PolyCnstr.denote.eq_2, PolyCnstr.div] at h₃
-    rw [eq_mul_le_zero h₀] at h₃
-    have := Eq.trans h₂ h₃.symm
-    rw [denote_toPoly, denote_toPoly] at this
-    exact this
-
-theorem ExprCnstr.eq_of_divBy (ctx : Context) (e e' : ExprCnstr) (k : Int) : divBy e e' k → e.denote ctx = e'.denote ctx := by
-  intro h
+  simp only [RelCnstr.denote'_eq_denote]
   simp only [divBy, Bool.and_eq_true, bne_iff_ne, ne_eq, beq_iff_eq, decide_eq_true_eq] at h
-  have ⟨⟨h₁, h₂⟩, h₃⟩ := h
-  exact ExprCnstr.eq_of_toPoly_eq_of_divBy' ctx e e' e.toPoly k h₁ h₂ rfl h₃
+  have ⟨h₁, h₂⟩ := h
+  exact eq_of_norm_eq_mul ctx c c' k h₁ h₂
 
 private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k ≤ 0 ↔ a ≤ 0 := by
   constructor
@@ -414,67 +497,57 @@ private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k �
     simp at this
     assumption
 
-theorem ExprCnstr.eq_of_toPoly_eq_of_divCoeffs (ctx : Context) (e e' : ExprCnstr) (p : PolyCnstr) (k : Int) : k > 0 → p.divCoeffs k → p.isLe → e.toPoly = p → e'.toPoly = p.div k → e.denote ctx = e'.denote ctx := by
+theorem RawRelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ : RawRelCnstr) (c₂ : RelCnstr) (c₃ : RelCnstr) (k : Int)
+    : k > 0 → c₂.divCoeffs k → c₂.isLe → c₁.norm = c₂ → c₃ = c₂.div k → c₁.denote ctx = c₃.denote ctx := by
   intro h₀ h₁ h₂ h₃ h₄
   have hz : k ≠ 0 := Int.ne_of_gt h₀
-  cases p <;> simp [PolyCnstr.isLe] at h₂
+  cases c₂ <;> simp [RelCnstr.isLe] at h₂
   clear h₂
   next p =>
-    simp [PolyCnstr.divCoeffs] at h₁
+    simp [RelCnstr.divCoeffs] at h₁
     replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p k h₁
-    replace h₃ := congrArg (PolyCnstr.denote ctx) h₃
-    simp only [PolyCnstr.denote.eq_2, ← h₁] at h₃
-    replace h₄ := congrArg (PolyCnstr.denote ctx) h₄
-    simp only [PolyCnstr.denote.eq_2, PolyCnstr.div] at h₄
-    rw [denote_toPoly] at h₃ h₄
+    replace h₃ := congrArg (RelCnstr.denote ctx) h₃
+    simp only [RelCnstr.denote.eq_2, ← h₁] at h₃
+    replace h₄ := congrArg (RelCnstr.denote ctx) h₄
+    simp only [RelCnstr.denote.eq_2, RelCnstr.div] at h₄
+    rw [denote_norm] at h₃
     rw [h₃, h₄]
     apply propext
     apply mul_add_cmod_le_iff
     exact h₀
 
--- Certificate for normalizing the coefficients of inequality constraint with bound tightening
-def divByLe (e e' : ExprCnstr) (k : Int) : Bool :=
-  k > 0 && e.isLe && e.toPoly.divCoeffs k && e'.toPoly == e.toPoly.div k
+/-- Certificate for normalizing the coefficients of inequality constraint with bound tightening. -/
+def divByLe (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : Bool :=
+  k > 0 && c.isLe && c.norm.divCoeffs k && c' == c.norm.div k
 
-theorem ExprCnstr.eq_of_divByLe (ctx : Context) (e e' : ExprCnstr) (k : Int) : divByLe e e' k → e.denote ctx = e'.denote ctx := by
+theorem RawRelCnstr.eq_of_divByLe (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : divByLe c c' k → c.denote ctx = c'.denote' ctx := by
   intro h
+  simp only [RelCnstr.denote'_eq_denote]
   simp only [divByLe, Bool.and_eq_true, bne_iff_ne, ne_eq, beq_iff_eq, decide_eq_true_eq] at h
   have ⟨⟨⟨h₀, h₁⟩, h₂⟩, h₃⟩ := h
-  have hle : e.toPoly.isLe := by
-    cases e <;> simp [ExprCnstr.isLe] at h₁
-    simp [PolyCnstr.isLe]
-  apply ExprCnstr.eq_of_toPoly_eq_of_divCoeffs ctx e e' e.toPoly k h₀ h₂ hle rfl h₃
+  have hle : c.norm.isLe := by
+    cases c <;> simp [RawRelCnstr.isLe] at h₁
+    simp [RelCnstr.isLe]
+  apply eq_of_norm_eq_of_divCoeffs ctx c c.norm c' k h₀ h₂ hle rfl h₃
 
-def PolyCnstr.isUnsat : PolyCnstr → Bool
+def RelCnstr.isUnsat : RelCnstr → Bool
   | .eq (.num k) => k != 0
   | .eq _ => false
   | .le (.num k) => k > 0
   | .le _ => false
 
-theorem PolyCnstr.eq_false_of_isUnsat (ctx : Context) (p : PolyCnstr) : p.isUnsat → p.denote ctx = False := by
+theorem RelCnstr.eq_false_of_isUnsat (ctx : Context) (c : RelCnstr) : c.isUnsat → c.denote ctx = False := by
   unfold isUnsat <;> split <;> simp <;> try contradiction
   apply Int.not_le_of_gt
 
-theorem ExprCnstr.eq_false_of_isUnsat (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isUnsat) : c.denote ctx = False := by
-  have := PolyCnstr.eq_false_of_isUnsat ctx (c.toPoly) h
-  rw [ExprCnstr.denote_toPoly] at this
+theorem RawRelCnstr.eq_false_of_isUnsat (ctx : Context) (c : RawRelCnstr) (h : c.norm.isUnsat) : c.denote ctx = False := by
+  have := RelCnstr.eq_false_of_isUnsat ctx c.norm h
+  rw [RawRelCnstr.denote_norm] at this
   assumption
 
-def PolyCnstr.isUnsatCoeff (k : Int) : PolyCnstr → Bool
+def RelCnstr.isUnsatCoeff (k : Int) : RelCnstr → Bool
   | .eq p => p.divCoeffs k && k > 0 && cmod p.getConst k < 0
   | .le _ => false
-
-private theorem contra_old {a b k : Int} (h₀ : 0 < k) (h₁ : 0 < b) (h₂ : b < k) (h₃ : a*k + b = 0) : False := by
-  have : b = -a*k := by
-    rw [← Int.neg_eq_of_add_eq_zero h₃, Int.neg_mul]
-  rw [this] at h₁ h₂
-  conv at h₂ => rhs; rw [← Int.one_mul k]
-  have high := Int.lt_of_mul_lt_mul_right h₂ (Int.le_of_lt h₀)
-  rw [← Int.zero_mul k] at h₁
-  have low := Int.lt_of_mul_lt_mul_right h₁ (Int.le_of_lt h₀)
-  replace low : 1 ≤ -a := low
-  have : (1 : Int) < 1 := Int.lt_of_le_of_lt low high
-  contradiction
 
 private theorem contra {a b k : Int} (h₀ : 0 < k) (h₁ : -k < b) (h₂ : b < 0) (h₃ : a*k + b = 0) : False := by
   have : b = -a*k := by
@@ -491,7 +564,7 @@ private theorem contra {a b k : Int} (h₀ : 0 < k) (h₁ : -k < b) (h₂ : b < 
   have : (1 : Int) < 1 := Int.lt_of_le_of_lt h₂ h₁
   contradiction
 
-private theorem PolyCnstr.eq_false (ctx : Context) (p : Poly) (k : Int) : p.divCoeffs k → k > 0 → cmod p.getConst k < 0 → (PolyCnstr.eq p).denote ctx = False := by
+private theorem RelCnstr.eq_false (ctx : Context) (p : Poly) (k : Int) : p.divCoeffs k → k > 0 → cmod p.getConst k < 0 → (RelCnstr.eq p).denote ctx = False := by
   simp
   intro h₁ h₂ h₃ h
   have hnz : k ≠ 0 := by intro h; rw [h] at h₂; contradiction
@@ -501,37 +574,143 @@ private theorem PolyCnstr.eq_false (ctx : Context) (p : Poly) (k : Int) : p.divC
   have high := h₃
   exact contra h₂ low high this
 
-theorem ExprCnstr.eq_false_of_isUnsat_coeff (ctx : Context) (c : ExprCnstr) (k : Int) : c.toPoly.isUnsatCoeff k → c.denote ctx = False := by
+theorem RawRelCnstr.eq_false_of_isUnsat_coeff (ctx : Context) (c : RawRelCnstr) (k : Int) : c.norm.isUnsatCoeff k → c.denote ctx = False := by
   intro h
-  cases c <;> simp [toPoly, PolyCnstr.isUnsatCoeff] at h
+  cases c <;> simp [norm, RelCnstr.isUnsatCoeff] at h
   next e₁ e₂ =>
     have ⟨⟨h₁, h₂⟩, h₃⟩ := h
-    have := PolyCnstr.eq_false ctx _ _ h₁ h₂ h₃
+    have := RelCnstr.eq_false ctx _ _ h₁ h₂ h₃
     simp at this
     simp
     intro he
     simp [he] at this
 
-def PolyCnstr.isValid : PolyCnstr → Bool
+def RelCnstr.isValid : RelCnstr → Bool
   | .eq (.num k) => k == 0
   | .eq _ => false
   | .le (.num k) => k ≤ 0
   | .le _ => false
 
-theorem PolyCnstr.eq_true_of_isValid (ctx : Context) (p : PolyCnstr) : p.isValid → p.denote ctx = True := by
+theorem RelCnstr.eq_true_of_isValid (ctx : Context) (c : RelCnstr) : c.isValid → c.denote ctx = True := by
   unfold isValid <;> split <;> simp
 
-theorem ExprCnstr.eq_true_of_isValid (ctx : Context) (c : ExprCnstr) (h : c.toPoly.isValid) : c.denote ctx = True := by
-  have := PolyCnstr.eq_true_of_isValid ctx (c.toPoly) h
-  rw [ExprCnstr.denote_toPoly] at this
+theorem RawRelCnstr.eq_true_of_isValid (ctx : Context) (c : RawRelCnstr) (h : c.norm.isValid) : c.denote ctx = True := by
+  have := RelCnstr.eq_true_of_isValid ctx c.norm h
+  rw [RawRelCnstr.denote_norm] at this
   assumption
+
+private def gcd (a b : Int) : Int :=
+  Int.ofNat <| Int.gcd a b
+
+private theorem gcd_dvd_left (a b : Int) : gcd a b ∣ a := by
+  simp [gcd, Int.gcd_dvd_left]
+
+private theorem gcd_dvd_right (a b : Int) : gcd a b ∣ b := by
+  simp [gcd, Int.gcd_dvd_right]
+
+private theorem gcd_dvd_step {k a b x : Int} (h : k ∣ a*x + b) : gcd a k ∣ b := by
+  have h₁ : gcd a k ∣ a*x + b := Int.dvd_trans (gcd_dvd_right a k) h
+  have h₂ : gcd a k ∣ a*x := Int.dvd_trans (gcd_dvd_left a k) (Int.dvd_mul_right a x)
+  exact Int.dvd_iff_dvd_of_dvd_add h₁ |>.mp h₂
+
+def Poly.gcdCoeffs : Poly → Int → Int
+  | .num _, k => k
+  | .add k' _ p, k => gcdCoeffs p (gcd k' k)
+
+theorem Poly.gcd_dvd_const {ctx : Context} {p : Poly} {k : Int} (h : k ∣ p.denote ctx) : p.gcdCoeffs k ∣ p.getConst := by
+  induction p generalizing k <;> simp_all [gcdCoeffs]
+  next k' x p ih =>
+    rw [Int.add_comm] at h
+    exact ih (gcd_dvd_step h)
+
+/-- Divibility constraint of the form `k ∣ p`. -/
+structure DvdCnstr where
+  k : Int
+  p : Poly
+
+def DvdCnstr.denote (ctx : Context) (c : DvdCnstr) : Prop :=
+  c.k ∣ c.p.denote ctx
+
+def DvdCnstr.denote' (ctx : Context) (c : DvdCnstr) : Prop :=
+  c.k ∣ c.p.denote' ctx
+
+theorem DvdCnstr.denote'_eq_denote (ctx : Context) (c : DvdCnstr) : c.denote' ctx = c.denote ctx := by
+  simp [denote', denote, Poly.denote'_eq_denote]
+
+def DvdCnstr.isUnsat (c : DvdCnstr) : Bool :=
+  c.p.getConst % c.p.gcdCoeffs c.k != 0
+
+def DvdCnstr.isEqv (c₁ c₂ : DvdCnstr) (k : Int) : Bool :=
+  k != 0 && c₁.k == k*c₂.k && c₁.p == c₂.p.mul k
+
+def DvdCnstr.div (k' : Int) : DvdCnstr → DvdCnstr
+  | { k, p } => { k := k / k', p := p.div k' }
+
+private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
+  intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
+
+def DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
+  rcases c with ⟨a, p⟩
+  simp [isUnsat, denote]
+  intro h₁ h₂
+  have := Poly.gcd_dvd_const h₂
+  have := not_dvd_of_not_mod_zero h₁
+  contradiction
+
+@[local simp] private theorem mul_dvd_mul_eq {a b c : Int} (hnz : a ≠ 0) : a * b ∣ a * c ↔ b ∣ c := by
+  constructor
+  · intro h
+    rcases h with ⟨k, h⟩
+    rw [Int.mul_assoc a] at h
+    replace h := Int.eq_of_mul_eq_mul_left hnz h
+    exists k
+  · intro h
+    rcases h with ⟨k, h⟩
+    exists k
+    rw [h, Int.mul_assoc]
+
+@[local simp] theorem DvdCnstr.eq_of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote ctx = c₂.denote ctx := by
+  rcases c₁ with ⟨a₁, e₁⟩
+  rcases c₂ with ⟨a₂, e₂⟩
+  simp [isEqv] at h
+  rcases h with ⟨⟨h₁, h₂⟩, h₃⟩
+  replace h₃ := congrArg (Poly.denote ctx) h₃
+  simp at h₃
+  simp [denote, *]
+
+/-- Raw divisibility constraint of the form `k ∣ e`. -/
+structure RawDvdCnstr where
+  k : Int
+  e : Expr
+  deriving BEq
+
+def RawDvdCnstr.denote (ctx : Context) (c : RawDvdCnstr) : Prop :=
+  c.k ∣ c.e.denote ctx
+
+def RawDvdCnstr.norm (c : RawDvdCnstr) : DvdCnstr :=
+  { k := c.k, p := c.e.toPoly }
+
+@[simp] theorem RawDvdCnstr.denote_norm_eq (ctx : Context) (c : RawDvdCnstr) : c.denote ctx = c.norm.denote ctx := by
+  simp [norm, denote, DvdCnstr.denote]
+
+def RawDvdCnstr.isEqv (c : RawDvdCnstr) (c' : DvdCnstr) (k : Int) : Bool :=
+  c.norm.isEqv c' k
+
+def RawDvdCnstr.isUnsat (c : RawDvdCnstr) : Bool :=
+  c.norm.isUnsat
+
+theorem RawDvdCnstr.eq_of_isEqv (ctx : Context) (c : RawDvdCnstr) (c' : DvdCnstr) (k : Int) (h : isEqv c c' k) : c.denote ctx = c'.denote' ctx := by
+  simp [DvdCnstr.eq_of_isEqv ctx c.norm c' k h, DvdCnstr.denote'_eq_denote]
+
+theorem RawDvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : RawDvdCnstr) (h : c.isUnsat) : c.denote ctx = False := by
+  simp [DvdCnstr.eq_false_of_isUnsat ctx c.norm h]
 
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by
   apply propext; constructor
-  · intro h; have h := Int.add_one_le_of_lt (Int.lt_of_not_ge h); assumption
-  · intro h; apply Int.not_le_of_gt; exact h
+  · intro h; exact Int.add_one_le_of_lt (Int.lt_of_not_ge h)
+  · exact Int.not_le_of_gt
 
 theorem Int.not_ge_eq (a b : Int) : (¬a ≥ b) = (a + 1 ≤ b) := by
   apply Int.not_le_eq

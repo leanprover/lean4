@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Basic
 import Lean.Expr
 
-namespace Lean.Meta.Linear
+namespace Lean.Meta.Simp.Arith
 /-
 To prevent the kernel from accidentially reducing the atoms in the equation while typechecking,
 we abstract over them.
@@ -57,4 +57,7 @@ partial def isLinearCnstr (e : Expr) : Bool :=
     else
       false
 
-end Lean.Meta.Linear
+def isDvdCnstr (e : Expr) : Bool :=
+  e.isAppOfArity ``Dvd.dvd 4
+
+end Lean.Meta.Simp.Arith

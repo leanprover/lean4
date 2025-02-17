@@ -10,7 +10,9 @@ import Init.Data.Vector.Range
 import Init.Data.Array.Find
 
 /-!
-# Lemmas about `Vector.findSome?`, `Vector.find?, `Vector.findIdx?`, `Vector.idxOf?`.
+# Lemmas about `Vector.findSome?`, `Vector.find?`, `Vector.findFinIdx?`.
+
+We are still missing results about `idxOf?`, `findIdx`, and `findIdx?`.
 -/
 
 namespace Vector

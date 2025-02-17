@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Internal.WF.Def
+import Std.Data.DTreeMap.Internal.WF.Defs
 
 /-!
 # Dependent tree maps
@@ -231,7 +231,7 @@ Given a proof that the tree map is not empty, retrieves the key-value pair with 
 -/
 @[inline]
 def min (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.min t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; t.inner.min h
 
 /--
 Tries to retrieve the key-value pair with the smallest key in the tree map, panicking if the map is
@@ -262,7 +262,7 @@ Given a proof that the tree map is not empty, retrieves the key-value pair with 
 -/
 @[inline]
 def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.max t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; t.inner.max h
 
 /--
 Tries to retrieve the key-value pair with the largest key in the tree map, panicking if the map is
@@ -292,7 +292,7 @@ Given a proof that the tree map is not empty, retrieves the smallest key.
 -/
 @[inline]
 def minKey (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.minKey t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; t.inner.minKey h
 
 /--
 Tries to retrieve the smallest key in the tree map, panicking if the map is empty.
@@ -320,7 +320,7 @@ Given a proof that the tree map is not empty, retrieves the largest key.
 -/
 @[inline]
 def maxKey (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α :=
-  letI : Ord α := ⟨cmp⟩; t.inner.maxKey t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; t.inner.maxKey h
 
 /--
 Tries to retrieve the largest key in the tree map, panicking if the map is empty.
@@ -609,7 +609,7 @@ def min? (t : DTreeMap α β cmp) : Option (α × β) :=
 
 @[inline, inherit_doc DTreeMap.min]
 def min (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.min t.inner t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.min t.inner h
 
 @[inline, inherit_doc DTreeMap.min!]
 def min! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
@@ -625,7 +625,7 @@ def max? (t : DTreeMap α β cmp) : Option (α × β) :=
 
 @[inline, inherit_doc DTreeMap.max]
 def max (t : DTreeMap α β cmp) (h : t.isEmpty = false) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.max t.inner t.wf.balanced h
+  letI : Ord α := ⟨cmp⟩; Impl.Const.max t.inner h
 
 @[inline, inherit_doc DTreeMap.max!]
 def max! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=

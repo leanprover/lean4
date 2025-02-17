@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel, Paul Reichert
 -/
 prelude
-import Std.Data.DTreeMap.Internal.WF.Def
+import Std.Data.DTreeMap.Internal.WF.Defs
 import Std.Data.DTreeMap.Basic
 
 /-
@@ -292,35 +292,35 @@ We do not provide `getEntryGE`, `getEntryGT`, `getEntryLE`, `getEntryLT` for the
 -/
 
 @[inline, inherit_doc DTreeMap.getEntryGE!]
-def getEntryGE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
+def getEntryGE! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGE! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryGT!]
-def getEntryGT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
+def getEntryGT! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGT! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryLE!]
-def getEntryLE! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
+def getEntryLE! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLE! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryLT!]
-def getEntryLT! [Inhabited (Sigma β)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
+def getEntryLT! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (k : α) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLT! k t.inner
 
 @[inline, inherit_doc DTreeMap.getEntryGED]
-def getEntryGED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
+def getEntryGED (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGED k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryGTD]
-def getEntryGTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
+def getEntryGTD (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryGTD k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryLED]
-def getEntryLED (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
+def getEntryLED (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLED k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getEntryLTD]
-def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : Sigma β) : (a : α) × β a :=
+def getEntryLTD (t : Raw α β cmp) (k : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   letI : Ord α := ⟨cmp⟩; Impl.getEntryLTD k t.inner fallback
 
 @[inline, inherit_doc DTreeMap.getKeyGE?]
@@ -571,7 +571,8 @@ def toArray (t : Raw α β cmp) : Array ((a : α) × β a) :=
   t.inner.toArray
 
 @[inline, inherit_doc DTreeMap.mergeWith]
-def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
+def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
+    Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.mergeWith! mergeFn t₂.inner⟩
 
 @[inline, inherit_doc mergeWith, deprecated mergeWith (since := "2025-02-12")]

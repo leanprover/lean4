@@ -1,5 +1,5 @@
 /-
-Copyright c 2024 Lean FRO, LLC. All rights reserved.
+Copyright (c) 2024 Lean FRO, LLC. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Markus Himmel
 -/
@@ -42,13 +42,13 @@ instance [Ord α] : Membership α (Impl α β) where
 instance [Ord α] {m : Impl α β} {a : α} : Decidable (a ∈ m) :=
   inferInstanceAs <| Decidable (m.contains a)
 
-theorem Ordered.contains_inner_iff_contains_right [Ord α] (sz a v) (l r : Impl α β)
+theorem Ordered.mem_inner_iff_mem_right [Ord α] (sz a v) (l r : Impl α β)
     (k : α) (h : compare k a = .gt) :
     k ∈ inner sz a v l r ↔ k ∈ r := by
   simp only [Membership.mem, contains]
   split <;> simp_all
 
-theorem Ordered.contains_inner_iff_contains_left [Ord α] (sz a v) (l r : Impl α β)
+theorem Ordered.mem_inner_iff_mem_left [Ord α] (sz a v) (l r : Impl α β)
     (k : α) (h : compare k a = .lt) :
     k ∈ inner sz a v l r ↔ k ∈ l := by
   simp only [Membership.mem, contains]
@@ -80,7 +80,7 @@ def get [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (hlk : t.contains k 
     | .gt => get k r (by simpa [contains, h] using hlk)
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
-/-- Returns the value for the key `k`, or panics if such a key does not exist. -/
+/-- Returns the value for the key `k`, or panic!s if such a key does not exist. -/
 def get! [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) [Inhabited (β k)] : β k :=
   match t with
   | .leaf => panic! "Key is not present in map"
@@ -121,7 +121,7 @@ def get [Ord α] (k : α) (t : Impl α δ) (hlk : t.contains k = true) : δ :=
     | .gt => get k r (by simpa [contains, h] using hlk)
     | .eq => v'
 
-/-- Returns the value for the key `k`, or panics if such a key does not exist. -/
+/-- Returns the value for the key `k`, or panic!s if such a key does not exist. -/
 def get! [Ord α] (k : α) (t : Impl α δ) [Inhabited δ] : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"
@@ -230,101 +230,93 @@ end Const
 def min? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.min?
+  | .inner _ _ _ l _ => l.min?
 
 /-- Implementation detail of the tree map -/
-def min [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → (a : α) × β a
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k v .leaf _, _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, htb, h =>
-    l.min (by subst_eqs; exact htb.left) (by simp_all [isEmpty])
+def min [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
+  | .inner _ k v .leaf _, _ => ⟨k, v⟩
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.min (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def min! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.min!
+  | .inner _ _ _ l _ => l.min!
 
 /-- Implementation detail of the tree map -/
 def minD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => l.minD fallback
+  | .inner _ _ _ l _, fallback => l.minD fallback
 
 /-- Implementation detail of the tree map -/
 def max? [Ord α] : Impl α β → Option ((a : α) × β a)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.max?
+  | .inner _ _ _ _ r => r.max?
 
 /-- Implementation detail of the tree map -/
-def max [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → (a : α) × β a
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k v _ .leaf, _, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
-    r.max (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
+def max [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → (a : α) × β a
+  | .inner _ k v .leaf _, _ => ⟨k, v⟩
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.max (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def max! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → (a : α) × β a
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.max!
+  | .inner _ _ _ _ r => r.max!
 
 /-- Implementation detail of the tree map -/
 def maxD [Ord α] : Impl α β → (a : α) × β a → (a : α) × β a
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => r.maxD fallback
+  | .inner _ _ _ _ r, fallback => r.maxD fallback
 
 /-- Implementation detail of the tree map -/
 def minKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ .leaf _ => some k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.minKey?
+  | .inner _ _ _ l _ => l.minKey?
 
 /-- Implementation detail of the tree map -/
-def minKey [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k _ .leaf _, _, _ => k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, htb, h =>
-    l.minKey (by subst_eqs; exact htb.left) (by simp_all [isEmpty])
+def minKey [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α
+  | .inner _ k _ .leaf _, _ => k
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.minKey (by simp_all [isEmpty])
 
 /-- The smallest key of `t`. Returns the given fallback value if the map is empty. -/
 def minKey! [Ord α] [Inhabited α] : Impl α β → α
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k _ .leaf _ => k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => l.minKey!
+  | .inner _ _ _ l _ => l.minKey!
 
 /-- Implementation detail of the tree map -/
 def minKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ .leaf _, _ => k
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => l.minKeyD fallback
+  | .inner _ _ _ l _, fallback => l.minKeyD fallback
 
 /-- Implementation detail of the tree map -/
 def maxKey? [Ord α] : Impl α β → Option α
   | .leaf => none
   | .inner _ k _ _ .leaf => some k
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.maxKey?
+  | .inner _ _ _ _ r => r.maxKey?
 
 /-- Implementation detail of the tree map -/
-def maxKey [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k _ _ .leaf, _, _ => k
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
-    r.maxKey (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
+def maxKey [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α
+  | .inner _ k _ .leaf _, _ => k
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => l.maxKey (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def maxKey! [Ord α] [Inhabited α] : Impl α β → α
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k _ _ .leaf => k
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => r.maxKey!
+  | .inner _ _ _ _ r => r.maxKey!
 
 /-- Implementation detail of the tree map -/
 def maxKeyD [Ord α] : Impl α β → α → α
   | .leaf, fallback => fallback
   | .inner _ k _ _ .leaf, _ => k
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => r.maxKeyD fallback
+  | .inner _ _ _ _ r, fallback => r.maxKeyD fallback
 
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
@@ -493,10 +485,10 @@ def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
   | .lt => getEntryGED k l ⟨ky, y⟩
   | .eq => ⟨ky, y⟩
   | .gt => getEntryGE k r ho.right <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-    exact TransCmp.gt_of_isGE_of_gt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+      exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
@@ -506,11 +498,11 @@ def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
       getEntryGTD k l ⟨ky, y⟩
     else
       getEntryGT k r ho.right <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-        apply TransCmp.gt_of_gt_of_isGE hc
-        simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+          apply TransCmp.gt_of_gt_of_isGE hc
+          simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
@@ -520,10 +512,10 @@ def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
   | .gt => getEntryLED k r ⟨ky, y⟩
   | .eq => ⟨ky, y⟩
   | .lt => getEntryLE k l ho.left <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-    exact TransCmp.lt_of_isLE_of_lt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+      exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
@@ -533,11 +525,11 @@ def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
       getEntryLTD k r ⟨ky, y⟩
     else
       getEntryLT k l ho.left <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-        apply TransCmp.lt_of_lt_of_isLE hc
-        simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+          apply TransCmp.lt_of_lt_of_isLE hc
+          simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -633,10 +625,10 @@ def getKeyGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Orde
   | .lt => getKeyGED k l ky
   | .eq => ky
   | .gt => getKeyGE k r ho.right <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-    exact TransCmp.gt_of_isGE_of_gt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+      exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getKeyGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
@@ -646,11 +638,11 @@ def getKeyGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Orde
       getKeyGTD k l ky
     else
       getKeyGT k r ho.right <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-        apply TransCmp.gt_of_gt_of_isGE hc
-        simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+          apply TransCmp.gt_of_gt_of_isGE hc
+          simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
 def getKeyLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
@@ -660,10 +652,10 @@ def getKeyLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Orde
   | .gt => getKeyLED k r ky
   | .eq => ky
   | .lt => getKeyLE k l ho.left <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-    exact TransCmp.lt_of_isLE_of_lt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+      exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getKeyLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
@@ -673,11 +665,11 @@ def getKeyLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Orde
       getKeyLTD k r ky
     else
       getKeyLT k l ho.left <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-        apply TransCmp.lt_of_lt_of_isLE hc
-        simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+          apply TransCmp.lt_of_lt_of_isLE hc
+          simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
 
 namespace Const
 
@@ -687,51 +679,47 @@ variable {β : Type v}
 def min? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v .leaf _ => some ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => min? l
+  | .inner _ _ _ l _ => min? l
 
 /-- Implementation detail of the tree map -/
-def min [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α × β
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k v .leaf _, _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, htb, h =>
-    min l (by subst_eqs; exact htb.left) (by simp_all [isEmpty])
+def min [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
+  | .inner _ k v .leaf _, _ => ⟨k, v⟩
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => min l (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def min! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k v .leaf _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _ => min! l
+  | .inner _ _ _ l _ => min! l
 
 /-- Implementation detail of the tree map -/
 def minD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v .leaf _, _ => ⟨k, v⟩
-  | .inner _ _ _ l@(.inner _ _ _ _ _) _, fallback => minD l fallback
+  | .inner _ _ _ l _, fallback => minD l fallback
 
 /-- Implementation detail of the tree map -/
 def max? [Ord α] : Impl α β → Option (α × β)
   | .leaf => none
   | .inner _ k v _ .leaf => some ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => max? r
+  | .inner _ _ _ _ r => max? r
 
 /-- Implementation detail of the tree map -/
-def max [Ord α] : (t : Impl α β) → (htb : t.Balanced) → (h : t.isEmpty = false) → α × β
-  | .leaf, _, h => False.elim <| Bool.true_eq_false ▸ h
-  | .inner _ k v _ .leaf, _, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), htb, h =>
-    max r (by subst_eqs; exact htb.right) (by simp_all [isEmpty])
+def max [Ord α] : (t : Impl α β) → (h : t.isEmpty = false) → α × β
+  | .inner _ k v .leaf _, _ => ⟨k, v⟩
+  | .inner _ _ _ l@(.inner _ _ _ _ _) _, h => max l (by simp_all [isEmpty])
 
 /-- Implementation detail of the tree map -/
 def max! [Ord α] [Inhabited (α × β)] : Impl α β → α × β
-  | .leaf => panic "Map is empty"
+  | .leaf => panic! "Map is empty"
   | .inner _ k v _ .leaf => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _) => max! r
+  | .inner _ _ _ _ r => max! r
 
 /-- Implementation detail of the tree map -/
 def maxD [Ord α] : Impl α β → α × β → α × β
   | .leaf, fallback => fallback
   | .inner _ k v _ .leaf, _ => ⟨k, v⟩
-  | .inner _ _ _ _ r@(.inner _ _ _ _ _), fallback => maxD r fallback
+  | .inner _ _ _ _ r, fallback => maxD r fallback
 
 /-- Implementation detail of the tree map -/
 @[inline]
@@ -864,10 +852,10 @@ def getEntryGE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
   | .lt => getEntryGED k l ⟨ky, y⟩
   | .eq => ⟨ky, y⟩
   | .gt => getEntryGE k r ho.right <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-    exact TransCmp.gt_of_isGE_of_gt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+      exact TransCmp.gt_of_isGE_of_gt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .gt) →
@@ -877,11 +865,11 @@ def getEntryGT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
       getEntryGTD k l ⟨ky, y⟩
     else
       getEntryGT k r ho.right <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_right .. |>.mp hm
-        apply TransCmp.gt_of_gt_of_isGE hc
-        simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_right .. |>.mp hm
+          apply TransCmp.gt_of_gt_of_isGE hc
+          simpa [← Ordering.isGE_eq_false, Bool.not_eq_false] using hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, (compare a k).isLE) →
@@ -891,10 +879,10 @@ def getEntryLE [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
   | .gt => getEntryLED k r ⟨ky, y⟩
   | .eq => ⟨ky, y⟩
   | .lt => getEntryLE k l ho.left <| by
-    obtain ⟨a, hm, hc⟩ := he
-    refine ⟨a, ?_, hc⟩
-    apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-    exact TransCmp.lt_of_isLE_of_lt hc hkky
+      obtain ⟨a, hm, hc⟩ := he
+      refine ⟨a, ?_, hc⟩
+      apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+      exact TransCmp.lt_of_isLE_of_lt hc hkky
 
 /-- Implementation detail of the tree map -/
 def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Ordered) → (he : ∃ a ∈ t, compare a k = .lt) →
@@ -904,11 +892,11 @@ def getEntryLT [Ord α] [TransOrd α] (k : α) : (t : Impl α β) → (ho : t.Or
       getEntryLTD k r ⟨ky, y⟩
     else
       getEntryLT k l ho.left <| by
-        obtain ⟨a, hm, hc⟩ := he
-        refine ⟨a, ?_, hc⟩
-        apply Ordered.contains_inner_iff_contains_left .. |>.mp hm
-        apply TransCmp.lt_of_lt_of_isLE hc
-        simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
+          obtain ⟨a, hm, hc⟩ := he
+          refine ⟨a, ?_, hc⟩
+          apply Ordered.mem_inner_iff_mem_left .. |>.mp hm
+          apply TransCmp.lt_of_lt_of_isLE hc
+          simpa [← Ordering.isLE_eq_false, Bool.not_eq_false] using hkky
 
 end Const
 

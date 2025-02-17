@@ -1268,9 +1268,9 @@ theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
     omega
 
 theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
-    smulOverflow x y
-      = ((w ≠ 0) &&
-    ((signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) ||
+    smulOverflow x y =
+      ((w ≠ 0) &&
+      ((signExtend (w * 2) (intMax w)).slt (signExtend (w * 2) x * signExtend (w * 2) y) ||
       (signExtend (w * 2) x * signExtend (w * 2) y).slt (signExtend (w * 2) (intMin w)))) := by
   simp only [smulOverflow]
   rcases w with _|w

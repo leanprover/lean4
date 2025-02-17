@@ -704,6 +704,7 @@ def reverse : {w : Nat} → BitVec w → BitVec w
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
 /-- Overflow predicate for unsigned multiplication modulo 2^w.
+
   SMT-Lib name: `bvumulo`.
 -/
 

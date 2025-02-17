@@ -711,6 +711,7 @@ def reverse : {w : Nat} → BitVec w → BitVec w
 def umulOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
 
 /-- Overflow predicate for signed multiplication on w-bit 2's complement.
+
   SMT-Lib name: `bvsmulo`.
 -/
 

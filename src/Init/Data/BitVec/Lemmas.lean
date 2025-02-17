@@ -3998,34 +3998,16 @@ theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
   · simp only [show BitVec.intMax (w + 1 + 1) = BitVec.twoPow (w + 1 + 1) (w + 1) - 1#(w + 1 + 1) by simp [intMax]]
     rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
       Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by simp [Nat.one_lt_two_pow]), Int.bmod_eq_of_le_of_lt
-        (by
-          rw [Nat.one_mul]
-          rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
-          rw [← Nat.mul_two]
-          rw [Nat.mul_comm]
-          have h1 := Nat.two_pow_pos (w := (w + 1))
-          have := Int.le_sub_one_of_lt (a := - 2 ^ (w + 1)) (b := 2 ^ (w + 1))
-          have := Int.neg_neg_of_pos (a := 2 ^ (w + 1)) (by norm_cast)
-          have := Int.mul_le_mul_of_nonneg_right (a := - 2 ^ (w + 1)) (b := 2 ^ (w + 1) - 1) (c := 2) (by
-            have : - 2 ^ (w + 1) < 2 ^ (w + 1) := by
-              sorry
-            omega
-            ) (by omega)
-          push_cast
-          rw [← Int.mul_neg]
-          omega
-          )
-        (by
-          rw [Nat.one_mul]
-          rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
-          rw [← Nat.mul_two]
-          push_cast
-          have := Int.mul_le_mul_of_nonneg_right (a := 2 ^ (w + 1) - 1) (b := 2 ^ (w + 1)) (c := 2)
-          omega
-          )]
+      Nat.mod_eq_of_lt (by simp [Nat.one_lt_two_pow]), Int.bmod_eq_of_le_of_lt]
     simp only [Nat.add_one_sub_one, Nat.one_mul]
-
+    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega), ← Nat.mul_two]
+      have := Nat.two_pow_pos (w := (w + 1))
+      have := Int.neg_neg_of_pos (a := 2 ^ (w + 1)) (by norm_cast)
+      push_cast
+      omega
+    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega), ← Nat.mul_two]
+      push_cast
+      omega
 
 /-! ### Non-overflow theorems -/
 

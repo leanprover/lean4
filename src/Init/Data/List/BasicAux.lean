@@ -14,6 +14,53 @@ namespace List
 
 /-! ## Alternative getters -/
 
+/-! ### get? -/
+
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function returns `none`.
+Also see `get`, `getD` and `get!`.
+-/
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
+def get? : (as : List α) → (i : Nat) → Option α
+  | a::_,  0   => some a
+  | _::as, n+1 => get? as n
+  | _,     _   => none
+
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_nil : @get? α [] n = none := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_cons_zero : @get? α (a::l) 0 = some a := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12"), simp]
+theorem get?_cons_succ : @get? α (a::l) (n+1) = get? l n := rfl
+
+set_option linter.deprecated false in
+@[deprecated "Use `List.ext_getElem?`." (since := "2025-02-12")]
+theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n) → l₁ = l₂
+  | [], [], _ => rfl
+  | _ :: _, [], h => nomatch h 0
+  | [], _ :: _, h => nomatch h 0
+  | a :: l₁, a' :: l₂, h => by
+    have h0 : some a = some a' := h 0
+    injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
+
+/-! ### getD -/
+
+/--
+Returns the `i`-th element in the list (zero-based).
+
+If the index is out of bounds (`i ≥ as.length`), this function returns `fallback`.
+See also `get?` and `get!`.
+-/
+def getD (as : List α) (i : Nat) (fallback : α) : α :=
+  as[i]?.getD fallback
+
+@[simp] theorem getD_nil : getD [] n d = d := rfl
+
 /-! ### get! -/
 
 /--
@@ -22,14 +69,21 @@ Returns the `i`-th element in the list (zero-based).
 If the index is out of bounds (`i ≥ as.length`), this function panics when executed, and returns
 `default`. See `get?` and `getD` for safer alternatives.
 -/
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 def get! [Inhabited α] : (as : List α) → (i : Nat) → α
   | a::_,  0   => a
   | _::as, n+1 => get! as n
   | _,     _   => panic! "invalid index"
 
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_nil [Inhabited α] (n : Nat) : [].get! n = (default : α) := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
     (a::l).get! (n+1) = get! l n := rfl
+set_option linter.deprecated false in
+@[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
 
 /-! ### getLast! -/
@@ -170,9 +224,10 @@ theorem getElem_append_right {as bs : List α} {i : Nat} (h₁ : as.length ≤ i
   induction as generalizing i with
   | nil => trivial
   | cons a as ih =>
-    cases i with simp [get, Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
+    cases i with simp [Nat.succ_sub_succ] <;> simp [Nat.succ_sub_succ] at h₁
     | succ i => apply ih; simp [h₁]
 
+@[deprecated "Deprecated without replacement." (since := "2025-02-13")]
 theorem get_last {as : List α} {i : Fin (length (as ++ [a]))} (h : ¬ i.1 < as.length) : (as ++ [a] : List _).get i = a := by
   cases i; rename_i i h'
   induction as generalizing i with

@@ -73,7 +73,7 @@ where
         if let some state := oldParsed.finished.get.state? then
           reusableResult? := some ((), state)
           -- only allow `next` reuse in this case
-          oldNext? := oldParsed.next.get? 0 |>.map (⟨old.stx, ·⟩)
+          oldNext? := oldParsed.next[0]?.map (⟨old.stx, ·⟩)
 
       let next ← IO.Promise.new
       let finished ← IO.Promise.new

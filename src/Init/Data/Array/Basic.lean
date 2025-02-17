@@ -48,7 +48,7 @@ theorem ext (a b : Array α)
     : a = b := by
   let rec extAux (a b : List α)
       (h₁ : a.length = b.length)
-      (h₂ : (i : Nat) → (hi₁ : i < a.length) → (hi₂ : i < b.length) → a.get ⟨i, hi₁⟩ = b.get ⟨i, hi₂⟩)
+      (h₂ : (i : Nat) → (hi₁ : i < a.length) → (hi₂ : i < b.length) → a[i] = b[i])
       : a = b := by
     induction a generalizing b with
     | nil =>
@@ -63,11 +63,11 @@ theorem ext (a b : Array α)
         have hz₂ : 0 < (b::bs).length := by rw [List.length_cons]; apply Nat.zero_lt_succ
         have headEq : a = b := h₂ 0 hz₁ hz₂
         have h₁' : as.length = bs.length := by rw [List.length_cons, List.length_cons] at h₁; injection h₁
-        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as.get ⟨i, hi₁⟩ = bs.get ⟨i, hi₂⟩ := by
+        have h₂' : (i : Nat) → (hi₁ : i < as.length) → (hi₂ : i < bs.length) → as[i] = bs[i] := by
           intro i hi₁ hi₂
           have hi₁' : i+1 < (a::as).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
           have hi₂' : i+1 < (b::bs).length := by rw [List.length_cons]; apply Nat.succ_lt_succ; assumption
-          have : (a::as).get ⟨i+1, hi₁'⟩ = (b::bs).get ⟨i+1, hi₂'⟩ := h₂ (i+1) hi₁' hi₂'
+          have : (a::as)[i+1] = (b::bs)[i+1] := h₂ (i+1) hi₁' hi₂'
           apply this
         have tailEq : as = bs := ih bs h₁' h₂'
         rw [headEq, tailEq]
@@ -123,7 +123,8 @@ namespace List
 @[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
 
 @[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
-    a.toArray[i]! = a[i]! := rfl
+    a.toArray[i]! = a[i]! := by
+  simp [getElem!_def]
 
 end List
 
@@ -254,16 +255,36 @@ def range' (start size : Nat) (step : Nat := 1) : Array Nat :=
 
 @[inline] protected def singleton (v : α) : Array α := #[v]
 
+/--
+Return the last element of an array, or panic if the array is empty.
+
+See `back` for the version that requires a proof the array is non-empty,
+or `back?` for the version that returns an option.
+-/
 def back! [Inhabited α] (a : Array α) : α :=
   a[a.size - 1]!
 
-@[deprecated back! (since := "2024-10-31")] abbrev back := @back!
+/--
+Return the last element of an array, given a proof that the array is not empty.
 
-def get? (a : Array α) (i : Nat) : Option α :=
-  if h : i < a.size then some a[i] else none
+See `back!` for the version that panics if the array is empty,
+or `back?` for the version that returns an option.
+-/
+def back (a : Array α) (h : 0 < a.size := by get_elem_tactic) : α :=
+  a[a.size - 1]'(Nat.sub_one_lt_of_lt h)
 
+/--
+Return the last element of an array, or `none` if the array is empty.
+
+See `back!` for the version that panics if the array is empty,
+or `back` for the version that requires a proof the array is non-empty.
+-/
 def back? (a : Array α) : Option α :=
   a[a.size - 1]?
+
+@[deprecated "Use `a[i]?` instead." (since := "2025-02-12")]
+def get? (a : Array α) (i : Nat) : Option α :=
+  if h : i < a.size then some a[i] else none
 
 @[inline] def swapAt (a : Array α) (i : Nat) (v : α) (hi : i < a.size := by get_elem_tactic) : α × Array α :=
   let e := a[i]

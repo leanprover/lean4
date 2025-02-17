@@ -132,7 +132,7 @@ theorem getElem_insertIdx_of_lt {l : List α} {x : α} {n k : Nat} (hn : k < n)
     | nil => simp
     | cons _ _=>
       cases k
-      · simp [get]
+      · simp
       · rw [Nat.succ_lt_succ_iff] at hn
         simpa using ih hn _
 

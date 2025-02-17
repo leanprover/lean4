@@ -199,7 +199,7 @@ def locationLinksOfInfo (kind : GoToKind) (ictx : InfoWithCtx)
             | .app fn arg => do pure $ (← extractInstances fn).append (← extractInstances arg)
             | .mdata _ e => extractInstances e
             | _ => pure #[]
-          if let some instArg := appArgs.get? instIdx then
+          if let some instArg := appArgs[instIdx]? then
             for inst in (← extractInstances instArg) do
               results := results.append (← ci.runMetaM i.lctx <| locationLinksFromDecl i inst)
             results := results.append elaborators -- put elaborators at the end of the results

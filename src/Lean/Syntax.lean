@@ -90,7 +90,7 @@ namespace SyntaxNode
   withArgs n fun args => args.size
 
 @[inline] def getArg (n : SyntaxNode) (i : Nat) : Syntax :=
-  withArgs n fun args => args.get! i
+  withArgs n fun args => args[i]!
 
 @[inline] def getArgs (n : SyntaxNode) : Array Syntax :=
   withArgs n fun args => args

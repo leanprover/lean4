@@ -368,7 +368,7 @@ theorem mk_mem_zipIdx_iff_le_and_getElem?_sub {k i : Nat} {x : α} {l : List α}
     simp [mk_add_mem_zipIdx_iff_getElem?, Nat.add_sub_cancel_left]
   else
     have : ∀ m, k + m ≠ i := by rintro _ rfl; simp at h
-    simp [h, mem_iff_get?, this]
+    simp [h, mem_iff_getElem?, this]
 
 /-- Variant of `mk_mem_zipIdx_iff_le_and_getElem?_sub` specialized at `k = 0`,
 to avoid the inequality and the subtraction. -/

@@ -577,10 +577,6 @@ theorem findIdx_getElem {xs : List α} {w : xs.findIdx p < xs.length} :
     p xs[xs.findIdx p] :=
   xs.findIdx_of_getElem?_eq_some (getElem?_eq_getElem w)
 
-@[deprecated findIdx_of_getElem?_eq_some (since := "2024-08-12")]
-theorem findIdx_of_get?_eq_some {xs : List α} (w : xs.get? (xs.findIdx p) = some y) : p y :=
-  findIdx_of_getElem?_eq_some (by simpa using w)
-
 @[deprecated findIdx_getElem (since := "2024-08-12")]
 theorem findIdx_get {xs : List α} {w : xs.findIdx p < xs.length} :
     p (xs.get ⟨xs.findIdx p, w⟩) :=
@@ -602,11 +598,6 @@ theorem findIdx_lt_length_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
 theorem findIdx_getElem?_eq_getElem_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
     xs[xs.findIdx p]? = some (xs[xs.findIdx p]'(xs.findIdx_lt_length_of_exists h)) :=
   getElem?_eq_getElem (findIdx_lt_length_of_exists h)
-
-@[deprecated findIdx_getElem?_eq_getElem_of_exists (since := "2024-08-12")]
-theorem findIdx_get?_eq_get_of_exists {xs : List α} (h : ∃ x ∈ xs, p x) :
-    xs.get? (xs.findIdx p) = some (xs.get ⟨xs.findIdx p, xs.findIdx_lt_length_of_exists h⟩) :=
-  get?_eq_get (findIdx_lt_length_of_exists h)
 
 @[simp]
 theorem findIdx_eq_length {p : α → Bool} {xs : List α} :

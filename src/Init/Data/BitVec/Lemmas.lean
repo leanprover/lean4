@@ -1837,7 +1837,7 @@ theorem toInt_ushiftRight {x : BitVec w} {n : Nat} :
     simp [hn]
 
 @[simp]
-theorem toFin_uShiftRight {x : BitVec w} {n : Nat} :
+theorem toFin_ushiftRight {x : BitVec w} {n : Nat} :
     (x >>> n).toFin = x.toFin / (Fin.ofNat' (2^w) (2^n)) := by
   apply Fin.eq_of_val_eq
   by_cases hn : n < w

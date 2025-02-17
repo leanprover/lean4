@@ -80,7 +80,7 @@ def get [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) (hlk : t.contains k 
     | .gt => get k r (by simpa [contains, h] using hlk)
     | .eq => cast (congrArg β (compare_eq_iff_eq.mp h).symm) v'
 
-/-- Returns the value for the key `k`, or panic!s if such a key does not exist. -/
+/-- Returns the value for the key `k`, or panics if such a key does not exist. -/
 def get! [Ord α] [LawfulEqOrd α] (k : α) (t : Impl α β) [Inhabited (β k)] : β k :=
   match t with
   | .leaf => panic! "Key is not present in map"
@@ -121,7 +121,7 @@ def get [Ord α] (k : α) (t : Impl α δ) (hlk : t.contains k = true) : δ :=
     | .gt => get k r (by simpa [contains, h] using hlk)
     | .eq => v'
 
-/-- Returns the value for the key `k`, or panic!s if such a key does not exist. -/
+/-- Returns the value for the key `k`, or panics if such a key does not exist. -/
 def get! [Ord α] (k : α) (t : Impl α δ) [Inhabited δ] : δ :=
   match t with
   | .leaf => panic! "Key is not present in map"

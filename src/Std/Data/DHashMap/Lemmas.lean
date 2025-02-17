@@ -938,10 +938,6 @@ theorem getThenInsertIfNew?_snd {k : α} {v : β} :
 
 end Const
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
-    m.1.keys = m.1.toList.map Sigma.fst :=
-  Raw₀.keys_eq_map_toList ⟨m.1, m.2.size_buckets_pos⟩
-
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.length = m.size :=
@@ -968,6 +964,11 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   Raw₀.distinct_keys ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 @[simp]
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.1.toList.map Sigma.fst = m.1.keys  :=
+  Raw₀.map_sigma_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.length = m.size :=
   Raw₀.length_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
@@ -977,6 +978,7 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.isEmpty = m.isEmpty :=
   Raw₀.isEmpty_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
     {k : α} {v : β k} :
     ⟨k, v⟩ ∈ m.toList ↔ m.get? k = some v :=
@@ -1006,9 +1008,10 @@ namespace Const
 
 variable {β : Type v} {m : DHashMap α (fun _ => β)}
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
-    m.keys = (toList m).map Prod.fst :=
-  Raw₀.Const.keys_eq_map_toList ⟨m.1, m.2.size_buckets_pos⟩
+@[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    (toList m).map Prod.fst = m.keys :=
+  Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
@@ -1020,11 +1023,13 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
     (toList m).isEmpty = m.isEmpty :=
   Raw₀.Const.isEmpty_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
     {k : α} {v : β} :
     (k, v) ∈ toList m ↔ get? m k = some v :=
   Raw₀.Const.mem_toList_iff_get?_eq_some ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
     {k: α} {v : β} :
     (k, v) ∈ toList m ↔ m.getKey? k = some k ∧ get? m k = some v :=

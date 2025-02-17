@@ -681,10 +681,6 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
     (getThenInsertIfNew? m k v).2 = m.insertIfNew k v :=
   ext (DHashMap.Raw.Const.getThenInsertIfNew?_snd h.out)
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    m.keys = m.toList.map Prod.fst :=
-  DHashMap.Raw.Const.keys_eq_map_toList h.out
-
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.length = m.size :=
@@ -710,6 +706,11 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.distinct_keys h.out
 
 @[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.map Prod.fst = m.keys :=
+  DHashMap.Raw.Const.map_prod_fst_toList_eq_keys h.out
+
+@[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.length = m.size :=
   DHashMap.Raw.Const.length_toList h.out
@@ -719,11 +720,13 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.isEmpty = m.isEmpty :=
   DHashMap.Raw.Const.isEmpty_toList h.out
 
+@[simp]
 theorem mem_toList_iff_getElem?_eq_some [LawfulBEq α] (h : m.WF)
     {k : α} {v : β} :
     (k, v) ∈ m.toList ↔ m[k]? = some v :=
   DHashMap.Raw.Const.mem_toList_iff_get?_eq_some h.out
 
+@[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_getElem_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k : α} {v : β} :
     (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=

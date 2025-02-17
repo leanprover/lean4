@@ -674,10 +674,6 @@ instance [EquivBEq α] [LawfulHashable α] : LawfulGetElem (HashMap α β) α β
     rw [getElem!_eq_get!_getElem?]
     split <;> simp_all
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] :
-    m.keys = (toList m).map Prod.fst :=
-  DHashMap.Const.keys_eq_map_toList
-
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] :
     m.keys.length = m.size :=
@@ -703,6 +699,11 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
   DHashMap.distinct_keys
 
 @[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    (toList m).map Prod.fst = m.keys :=
+  DHashMap.Const.map_prod_fst_toList_eq_keys
+
+@[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.length = m.size :=
   DHashMap.Const.length_toList
@@ -712,11 +713,13 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.isEmpty = m.isEmpty :=
   DHashMap.Const.isEmpty_toList
 
+@[simp]
 theorem mem_toList_iff_getElem?_eq_some [LawfulBEq α]
     {k : α} {v : β} :
     (k, v) ∈ m.toList ↔ m[k]? = some v :=
   DHashMap.Const.mem_toList_iff_get?_eq_some
 
+@[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
     {k : α} {v : β} :
     (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=

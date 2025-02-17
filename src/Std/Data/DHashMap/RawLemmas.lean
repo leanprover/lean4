@@ -1027,10 +1027,6 @@ theorem getThenInsertIfNew?_snd (h : m.WF) {k : α} {v : β} :
 
 end Const
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] (h : m.WF):
-    m.keys = m.toList.map Sigma.fst := by
-  apply Raw₀.keys_eq_map_toList ⟨m, h.size_buckets_pos⟩
-
 @[simp]
 theorem length_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.keys.length = m.size := by
@@ -1057,6 +1053,11 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+    m.toList.map Sigma.fst = m.keys := by
+  apply Raw₀.map_sigma_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.length = m.size := by
   apply Raw₀.length_toList ⟨m, h.size_buckets_pos⟩ h
@@ -1066,6 +1067,7 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.isEmpty = m.isEmpty := by
   apply Raw₀.isEmpty_toList ⟨m, h.size_buckets_pos⟩ h
 
+@[simp]
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.WF)
     {k : α} {v : β k} :
     ⟨k, v⟩ ∈ m.toList ↔ m.get? k = some v := by
@@ -1095,9 +1097,10 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
-theorem keys_eq_map_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
-    m.keys = (Raw.Const.toList m).map Prod.fst := by
-  apply Raw₀.Const.keys_eq_map_toList ⟨m, h.size_buckets_pos⟩
+@[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).map Prod.fst = m.keys := by
+  apply Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
@@ -1109,11 +1112,13 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).isEmpty = m.isEmpty := by
   apply Raw₀.Const.isEmpty_toList ⟨m, h.size_buckets_pos⟩ h
 
+@[simp]
 theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.WF)
     {k : α} {v : β} :
     (k, v) ∈ Raw.Const.toList m ↔ get? m k = some v := by
   simp_to_raw using Raw₀.Const.mem_toList_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
 
+@[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k: α} {v : β} :
     (k, v) ∈ Raw.Const.toList m ↔ m.getKey? k = some k ∧ get? m k = some v := by

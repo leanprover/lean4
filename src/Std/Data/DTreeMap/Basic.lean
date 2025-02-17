@@ -786,6 +786,16 @@ def keys (t : DTreeMap α β cmp) : List α :=
 def keysArray (t : DTreeMap α β cmp) : Array α :=
   t.inner.keysArray
 
+/-- Returns a list of all values present in the tree map in ascending  order. -/
+@[inline]
+def values {β : Type v} (t : DTreeMap α β cmp) : List β :=
+  t.inner.values
+
+/-- Returns an array of all values present in the tree map in ascending  order. -/
+@[inline]
+def valuesArray {β : Type v} (t : DTreeMap α β cmp) : Array β :=
+  t.inner.valuesArray
+
 /-- Transforms the tree map into a list of mappings in ascending order. -/
 @[inline]
 def toList (t : DTreeMap α β cmp) : List ((a : α) × β a) :=

@@ -204,6 +204,14 @@ def forIn {m} [Monad m] (f : δ → (a : α) → β a → m (ForInStep δ)) (ini
 @[inline] def keysArray (t : Impl α β) : Array α :=
   t.foldl (init := #[]) fun l k _ => l.push k
 
+/-- Returns a `List` of the values in order. -/
+@[inline] def values {β : Type v} (t : Impl α β) : List β :=
+  t.foldr (init := []) fun l _ v => v :: l
+
+/-- Returns an `Array` of the values in order. -/
+@[inline] def valuesArray {β : Type v} (t : Impl α β) : Array β :=
+  t.foldl (init := #[]) fun l _ v => l.push v
+
 /-- Returns a `List` of the key/value pairs in order. -/
 @[inline] def toList (t : Impl α β) : List ((a : α) × β a) :=
   t.foldr (init := []) fun l k v => ⟨k, v⟩ :: l

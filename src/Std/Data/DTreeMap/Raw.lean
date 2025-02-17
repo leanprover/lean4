@@ -575,6 +575,14 @@ def keys (t : Raw α β cmp) : List α :=
 def keysArray (t : Raw α β cmp) : Array α :=
   t.inner.keysArray
 
+@[inline, inherit_doc DTreeMap.values]
+def values {β : Type v} (t : Raw α β cmp) : List β :=
+  t.inner.values
+
+@[inline, inherit_doc DTreeMap.valuesArray]
+def valuesArray {β : Type v} (t : Raw α β cmp) : Array β :=
+  t.inner.valuesArray
+
 @[inline, inherit_doc DTreeMap.toList]
 def toList (t : Raw α β cmp) : List ((a : α) × β a) :=
   t.inner.toList

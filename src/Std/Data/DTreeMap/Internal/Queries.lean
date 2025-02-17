@@ -124,7 +124,7 @@ def getKey! [Ord α] (k : α) (t : Impl α β) [Inhabited α] : α :=
   match t with
   | .leaf => panic! "Key is not present in map"
   | .inner _ k' _ l r =>
-    match h : compare k k' with
+    match compare k k' with
     | .lt => getKey! k l
     | .gt => getKey! k r
     | .eq => k'
@@ -134,7 +134,7 @@ def getKeyD [Ord α] (k : α) (t : Impl α β) (fallback : α) : α :=
   match t with
   | .leaf => fallback
   | .inner _ k' _ l r =>
-    match h : compare k k' with
+    match compare k k' with
     | .lt => getKeyD k l fallback
     | .gt => getKeyD k r fallback
     | .eq => k'

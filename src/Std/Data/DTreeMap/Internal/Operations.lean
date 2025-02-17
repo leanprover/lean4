@@ -863,24 +863,6 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
 
-@[inline]
-def intersectWith.go [Ord α] [LawfulEqOrd α] {β β' τ} (mergeFn : (a : α) → β a → β' a → τ a) (t₁ : Impl α β) (t₂ : Impl α β') :
-    BalancedTree α τ :=
-  t₂.foldl (β := β') (δ := BalancedTree α τ) (init := ⟨empty, balanced_empty⟩) fun t a b =>
-    match t₁.get? a with
-    | none => t
-    | some b' =>
-      t.impl.insert a (mergeFn a b' b) t.balanced_impl |>.toBalancedTree
-
-variable {β' τ} in
-@[inline]
-def intersectWith [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β' a → τ a) (t₁ : Impl α β)
-    (t₂ : Impl α β') : BalancedTree α τ :=
-  if t₁.size > t₂.size then
-    intersectWith.go mergeFn t₁ t₂
-  else
-    intersectWith.go (fun a b b' => mergeFn a b' b) t₂ t₁
-
 namespace Const
 
 variable {β : Type v}
@@ -958,25 +940,6 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
     alter! (t := t) a fun
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
-
-variable {β' τ} in
-@[inline]
-def intersectWith.go [Ord α] (mergeFn : (a : α) → β → β' → τ) (t₁ : Impl α β)
-    (t₂ : Impl α β') : BalancedTree α τ :=
-  t₂.foldl (β := β') (δ := BalancedTree α τ) (init := ⟨empty, balanced_empty⟩) fun t a b =>
-    match Const.get? a t₁ with
-    | none => t
-    | some b' =>
-      t.impl.insert a (mergeFn a b' b) t.balanced_impl |>.toBalancedTree
-
-variable {β' τ} in
-@[inline]
-def intersectWith [Ord α] (mergeFn : (a : α) → β → β' → τ) (t₁ : Impl α β)
-    (t₂ : Impl α β') : BalancedTree α τ :=
-  if t₁.size > t₂.size then
-    intersectWith.go mergeFn t₁ t₂
-  else
-    intersectWith.go (fun a b b' => mergeFn a b' b) t₂ t₁
 
 end Const
 

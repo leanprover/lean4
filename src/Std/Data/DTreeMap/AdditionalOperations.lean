@@ -20,8 +20,10 @@ set_option linter.missingDocs true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap
+open Internal (Impl)
 
 namespace Raw
 
@@ -46,5 +48,21 @@ def filterMap (f : (a : α) → β a → Option (γ a)) (t : DTreeMap α β cmp)
 @[inline, inherit_doc Raw.map]
 def map (f : (a : α) → β a → γ a) (t : DTreeMap α β cmp) : DTreeMap α γ cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨t.inner.map f, t.wf.map⟩
+
+variable {β' τ} in
+def intersectWith [TransCmp cmp] [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β' a → τ a)
+    (t₁ : DTreeMap α β cmp) (t₂ : DTreeMap α β' cmp) : DTreeMap α τ cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t₁.inner.intersectWith mergeFn t₂.inner |>.impl, .intersectWith⟩
+
+namespace Const
+
+universe w₂
+variable {β : Type w₂} {β' τ} in
+def intersectWith [TransCmp cmp] (mergeFn : (a : α) → β → β' → τ)
+    (t₁ : DTreeMap α β cmp) (t₂ : DTreeMap α β' cmp) : DTreeMap α τ cmp :=
+  letI : Ord α := ⟨cmp⟩
+  ⟨Impl.Const.intersectWith mergeFn t₁.inner t₂.inner |>.impl, .constIntersectWith⟩
+
+end Const
 
 end Std.DTreeMap

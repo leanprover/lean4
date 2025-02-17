@@ -953,6 +953,34 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
+/-!
+### intersectWith
+-/
+
+universe w₂ in
+variable {β'} {γ : α → Type w₂} in
+theorem ordered_intersectWithGo [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β a → β' a → γ a} :
+    (Impl.intersectWith.go f t₁ t₂).impl.Ordered := by
+  simp [intersectWith.go]
+  generalize heq : BalancedTree.mk empty _ = init
+  have ho : init.impl.Ordered := heq ▸ ordered_empty
+  clear heq
+  induction t₂ generalizing t₁ init with
+  | leaf => exact ho
+  | inner sz k v l r  ihl ihr =>
+    simp only [intersectWith.go, foldl, foldlM] at *
+    apply ihr
+    split <;> (try apply ordered_insert) <;> exact ihl init ho
+
+universe w₂ in
+variable {β'} {γ : α → Type w₂} in
+theorem ordered_intersectWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β a → β' a → γ a} :
+    (t₁.intersectWith f t₂).impl.Ordered := by
+  simp only [intersectWith]
+  split <;> apply ordered_intersectWithGo
+
 namespace Const
 
 variable {β : Type v}
@@ -1018,6 +1046,34 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] {t₁ t₂ : Impl α β} {f}
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
+
+/-!
+### intersectWith
+-/
+
+universe w₂ w₃ in
+variable {β' : Type w₂} {γ : Type w₃} in
+theorem ordered_intersectWithGo [Ord α] [TransOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β → β' → γ} :
+    (Impl.Const.intersectWith.go f t₁ t₂).impl.Ordered := by
+  simp [intersectWith.go]
+  generalize heq : BalancedTree.mk empty _ = init
+  have ho : init.impl.Ordered := heq ▸ ordered_empty
+  clear heq
+  induction t₂ generalizing t₁ init with
+  | leaf => exact ho
+  | inner sz k v l r  ihl ihr =>
+    simp only [intersectWith.go, foldl, foldlM] at *
+    apply ihr
+    split <;> (try apply ordered_insert) <;> exact ihl init ho
+
+universe w₂ in
+variable {β' : Type w₂} {τ} in
+theorem ordered_intersectWith [Ord α] [TransOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β → β' → τ} :
+    (intersectWith f t₁ t₂).impl.Ordered := by
+  simp only [intersectWith]
+  split <;> apply ordered_intersectWithGo
 
 end Const
 
@@ -1124,5 +1180,19 @@ theorem size_map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} : (t
 
 theorem WF.map [Ord α] {t : Impl α β} {f : (a : α) → β a → γ a} (h : t.WF) : (t.map f).WF :=
   sameKeys_map.symm.wf h
+
+universe w₂ in
+variable {β'} {γ : α → Type w₂} in
+theorem WF.intersectWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β a → β' a → γ a} :
+    (t₁.intersectWith f t₂).impl.WF :=
+  .wf (BalancedTree.balanced_impl _) ordered_intersectWith
+
+universe w₂ in
+variable {β : Type v} {β' : Type w₂} {τ} in
+theorem WF.constIntersectWith [Ord α] [TransOrd α] {t₁ : Impl α β}
+    {t₂ : Impl α β'} {f : (a : α) → β → β' → τ} :
+    (Const.intersectWith f t₁ t₂).impl.WF :=
+  .wf (BalancedTree.balanced_impl _) Const.ordered_intersectWith
 
 end Std.DTreeMap.Internal.Impl

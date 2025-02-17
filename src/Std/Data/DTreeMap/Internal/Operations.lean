@@ -398,6 +398,20 @@ def containsThenInsertIfNew! [Ord α] (k : α) (v : β k) (t : Impl α β) :
     Bool × Impl α β :=
   if t.contains k then (true, t) else (false, t.insert! k v)
 
+@[inline]
+def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) (ht : t.Balanced) :
+    Option (β k) × Impl α β :=
+  match t.get? k with
+  | none => (none, t.insertIfNew k v ht |>.impl)
+  | some b => (some b, t)
+
+@[inline]
+def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) (ht : t.Balanced) :
+    Option (β k) × Impl α β :=
+  match t.get? k with
+  | none => (none, t.insertIfNew k v ht |>.impl)
+  | some b => (some b, t)
+
 /-- Removes the mapping with key `k`, if it exists. -/
 def erase [Ord α] (k : α) (t : Impl α β) (h : t.Balanced) :
     SizedBalancedTree α β (t.size - 1) t.size :=
@@ -486,6 +500,36 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Imp
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedInsertionaifNewInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b h, P t'' → P (t''.insertIfNew a b h).impl) → P t' }
+
+/-- Iterate over `l` and insert all of its elements into `t`. -/
+@[inline]
+def insertManyIfNew [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) (h : t.Balanced) :
+    IteratedInsertionaifNewInto t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, b⟩ in l do
+    let hr := r.2 h (fun t'' a b h _ => (t''.insertIfNew a b h).balanced_impl)
+    r := ⟨r.val.insertIfNew a b hr |>.impl, fun h₀ h₁ => h₁ _ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowInsertionaifNewInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α β → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insertIfNew! a b)) → P t' }
+
+/--
+Slower version of `insertManyIfNew` which can be used in absence of balance information but still
+assumes the preconditions of `insertManyIfNew`, otherwise might panic.
+-/
+@[inline]
+def insertManyIfNew! [Ord α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)] (t : Impl α β) (l : ρ) :
+    IteratedSlowInsertionaifNewInto t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, b⟩ in l do
+    r := ⟨r.val.insertIfNew! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
 namespace Const
 
 variable {β : Type v}
@@ -518,6 +562,36 @@ def insertMany! [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fu
   let mut r := ⟨t, fun h _ => h⟩
   for ⟨a, b⟩ in l do
     r := ⟨r.val.insert! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedInsertionIfNewInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α (fun _ => β) → Prop}, P t → (∀ t'' a b h, P t'' → P (t''.insertIfNew a b h).impl) → P t' }
+
+/-- Implementation detail of the tree map -/
+@[inline]
+def insertManyIfNew [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) (h : t.Balanced) :
+    IteratedInsertionIfNewInto t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, b⟩ in l do
+    let hr := r.2 h (fun t'' a b h _ => (t''.insertIfNew a b h).balanced_impl)
+    r := ⟨r.val.insertIfNew a b hr |>.impl, fun h₀ h₁ => h₁ _ _ _ _ (r.2 h₀ h₁)⟩
+  return r
+
+/-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
+abbrev IteratedSlowInsertionIfNewInto [Ord α] (t) :=
+  { t' // ∀ {P : Impl α (fun _ => β) → Prop}, P t → (∀ t'' a b, P t'' → P (t''.insertIfNew! a b)) → P t' }
+
+/--
+Slower version of `insertManyIfNew` which can be used in absence of balance information but still
+assumes the preconditions of `insertManyIfNew`, otherwise might panic.
+-/
+@[inline]
+def insertManyIfNew! [Ord α] {ρ : Type w} [ForIn Id ρ (α × β)] (t : Impl α (fun _ => β)) (l : ρ) :
+    IteratedSlowInsertionIfNewInto t := Id.run do
+  let mut r := ⟨t, fun h _ => h⟩
+  for ⟨a, b⟩ in l do
+    r := ⟨r.val.insertIfNew! a b, fun h₀ h₁ => h₁ _ _ _ (r.2 h₀ h₁)⟩
   return r
 
 /-- A tree map obtained by inserting elements into `t`, bundled with an inductive principle. -/
@@ -581,6 +655,20 @@ def ofList [Ord α] (l : List ((a : α) × β a)) : Impl α β :=
 namespace Const
 
 variable {β : Type v}
+
+@[inline]
+def getThenInsertIfNew? [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
+    (ht : t.Balanced) : Option β × Impl α (fun _ => β) :=
+  match get? k t with
+  | none => (none, t.insertIfNew k v ht |>.impl)
+  | some b => (some b, t)
+
+@[inline]
+def getThenInsertIfNew?! [Ord α] (k : α) (v : β) (t : Impl α (fun _ => β))
+    : Option β × Impl α (fun _ => β) :=
+  match get? k t with
+  | none => (none, t.insertIfNew! k v)
+  | some b => (some b, t)
 
 /-- Transforms a list of mappings into a tree map. -/
 @[inline] def ofArray [Ord α] (a : Array (α × β)) :  Impl α (fun _ => β) :=
@@ -775,6 +863,24 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
 
+@[inline]
+def intersectWith.go [Ord α] [LawfulEqOrd α] {β β' τ} (mergeFn : (a : α) → β a → β' a → τ a) (t₁ : Impl α β) (t₂ : Impl α β') :
+    BalancedTree α τ :=
+  t₂.foldl (β := β') (δ := BalancedTree α τ) (init := ⟨empty, balanced_empty⟩) fun t a b =>
+    match t₁.get? a with
+    | none => t
+    | some b' =>
+      t.impl.insert a (mergeFn a b' b) t.balanced_impl |>.toBalancedTree
+
+variable {β' τ} in
+@[inline]
+def intersectWith [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β' a → τ a) (t₁ : Impl α β)
+    (t₂ : Impl α β') : BalancedTree α τ :=
+  if t₁.size > t₂.size then
+    intersectWith.go mergeFn t₁ t₂
+  else
+    intersectWith.go (fun a b b' => mergeFn a b' b) t₂ t₁
+
 namespace Const
 
 variable {β : Type v}
@@ -852,6 +958,25 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
     alter! (t := t) a fun
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
+
+variable {β' τ} in
+@[inline]
+def intersectWith.go [Ord α] (mergeFn : (a : α) → β → β' → τ) (t₁ : Impl α β)
+    (t₂ : Impl α β') : BalancedTree α τ :=
+  t₂.foldl (β := β') (δ := BalancedTree α τ) (init := ⟨empty, balanced_empty⟩) fun t a b =>
+    match Const.get? a t₁ with
+    | none => t
+    | some b' =>
+      t.impl.insert a (mergeFn a b' b) t.balanced_impl |>.toBalancedTree
+
+variable {β' τ} in
+@[inline]
+def intersectWith [Ord α] (mergeFn : (a : α) → β → β' → τ) (t₁ : Impl α β)
+    (t₂ : Impl α β') : BalancedTree α τ :=
+  if t₁.size > t₂.size then
+    intersectWith.go mergeFn t₁ t₂
+  else
+    intersectWith.go (fun a b b' => mergeFn a b' b) t₂ t₁
 
 end Const
 

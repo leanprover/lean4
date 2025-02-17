@@ -138,6 +138,24 @@ def containsThenInsertIfNew (t : DTreeMap α β cmp) (a : α) (b : β a) :
   (p.1, ⟨p.2.impl, t.wf.containsThenInsertIfNew⟩)
 
 /--
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
+the key if it was not found.
+
+If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
+returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`.
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
+def getThenInsertIfNew? [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (b : β a) :
+    Option (β a) × DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.getThenInsertIfNew? a b t.wf.balanced
+  (p.1, ⟨p.2, t.wf.getThenInsertIfNew?⟩)
+
+/--
 Returns `true` if there is a mapping for the given key `a` or a key that is equal to `a` according
 to the comparator `cmp`. There is also a `Prop`-valued version
 of this: `a ∈ t` is equivalent to `t.contains a = true`.
@@ -222,6 +240,24 @@ namespace Const
 open Internal (Impl)
 
 variable {β : Type v}
+
+/--
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
+the key if it was not found.
+
+If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the
+returned map has a new value inserted.
+
+Equivalent to (but potentially faster than) calling `get?` followed by `insertIfNew`.
+
+Uses the `LawfulEqCmp` instance to cast the retrieved value to the correct type.
+-/
+@[inline]
+def getThenInsertIfNew? (t : DTreeMap α β cmp) (a : α) (b : β) :
+    Option β × DTreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := Impl.Const.getThenInsertIfNew? a b t.inner t.wf.balanced
+  (p.1, ⟨p.2, t.wf.constGetThenInsertIfNew?⟩)
 
 /--
 Tries to retrieve the mapping for the given key, returning `none` if no such mapping is present.

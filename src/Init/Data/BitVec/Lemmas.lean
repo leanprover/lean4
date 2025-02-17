@@ -3713,25 +3713,41 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
 theorem toInt_twoPow {w i : Nat} :
     (BitVec.twoPow w i).toInt = if w ≤ i then (0 : Int) else (if i + 1 = w then -(1 <<< i:Int) else (1 <<< i)) := by
   simp only [BitVec.twoPow, BitVec.toInt]
-  rcases w with _|w'
+  rcases w with _|w
   · simp
-  · by_cases h : w' + 1 ≤ i
+  · by_cases h : w + 1 ≤ i
     · simp [h]; norm_cast; omega
     · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow, Int.ofNat_emod, h,
       ↓reduceIte, Nat.add_right_cancel_iff]
-      have hy : (2 ^ i % 2 ^  (w' + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
+      have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
       have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add, Nat.mul_comm]
       norm_cast
       simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
-      by_cases i + 1 =  (w' + 1)
-      · simp only [show i = w' by omega, Nat.lt_irrefl, ↓reduceIte]; omega
-      · simp only [show 2 ^ (i + 1) < 2 ^  (w' + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
+      by_cases i + 1 =  (w + 1)
+      · simp only [show i = w by omega, Nat.lt_irrefl, ↓reduceIte]; omega
+      · simp only [show 2 ^ (i + 1) < 2 ^  (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
         omega
 
-theorem toInt_twoPow_of_eq {w i : Nat} (h : i + 1 = w) :
-    (BitVec.twoPow w i).toInt = -(2 ^ i) := by
-  simp only [toInt_twoPow, show ¬(w ≤ i) by omega, ↓reduceIte, h, Nat.shiftLeft_eq, Nat.one_mul]
-  norm_cast
+-- theorem toInt_twoPow_of_eq {w i : Nat} (h : i + 1 = w) :
+--     (BitVec.twoPow w i).toInt = -(2 ^ i) := by
+--   simp only [toInt_twoPow, show ¬(w ≤ i) by omega, ↓reduceIte, h, Nat.shiftLeft_eq, Nat.one_mul]
+--   norm_cast
+
+@[simp]
+theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 1) - 1 := by
+  rcases w with _|_|w
+  · decide
+  · decide
+  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
+    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
+      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
+      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt]
+    simp only [Nat.add_one_sub_one, Nat.one_mul]
+    · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
+      norm_cast
+      omega
+    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
+      omega
 
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by
   rcases w with _|w
@@ -3754,22 +3770,6 @@ theorem le_toInt_mul_toInt {x y : BitVec w} : - (2 ^ (w * 2 - 2)) ≤ x.toInt * 
     rw_mod_cast [h]
     rw [← Nat.two_pow_pred_mul_two (by omega), Int.natCast_mul] at xlt ylt xle yle
     exact Int.neg_mul_self_le_mul (by omega) (by omega) (by omega) (by omega)
-
-@[simp]
-theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 1) - 1 := by
-  rcases w with _|_|w
-  · decide
-  · decide
-  · have : 1 < 2 ^ (w + 1 + 1) := Nat.one_lt_two_pow (by omega)
-    rw_mod_cast [BitVec.twoPow, BitVec.toInt_sub, BitVec.toInt_shiftLeft, BitVec.toNat_ofNat,
-      Int.bmod_sub_bmod_congr, toInt_one_of_lt (by omega), Nat.shiftLeft_eq,
-      Nat.mod_eq_of_lt (by omega), Int.bmod_eq_of_le_of_lt]
-    simp only [Nat.add_one_sub_one, Nat.one_mul]
-    · have : 0 < (2 ^ (w + 1 + 1 - 1) - 1) * 2 := by simp; omega
-      norm_cast
-      omega
-    · rw [← Nat.two_pow_pred_add_two_pow_pred (w := w + 1 + 1) (by omega)]
-      omega
 
 /- ### cons -/
 

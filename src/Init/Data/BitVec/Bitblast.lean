@@ -1275,16 +1275,18 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
   simp only [smulOverflow]
   rcases w with _|w
   · simp [of_length_zero, toInt_zero]
-  · simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬(w + 1) = 0 by omega,
-    not_false_eq_true, decide_true, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul, intMin,
-    Bool.true_and]
-    have := Int.pow_lt_pow (a := 2) (b := ((w + 1) * 2 - 2)) (c := ((w + 1) * 2 - 1)) (by omega)
+  · have := Int.pow_lt_pow (a := 2) (b := ((w + 1) * 2 - 2)) (c := ((w + 1) * 2 - 1)) (by omega)
     have := @BitVec.le_toInt_mul_toInt (w + 1) x y
     have := @BitVec.toInt_mul_toInt_lt (w + 1) x y
     have := BitVec.toInt_twoPow_sub_one (w := w + 1)
+    simp only [Nat.add_one_sub_one, ge_iff_le, ne_eq, show ¬(w + 1) = 0 by omega,
+    not_false_eq_true, decide_true, BitVec.slt, intMax, ofNat_eq_ofNat, toInt_mul, intMin,
+    Bool.true_and]
     rw [Nat.add_sub_cancel] at this
     repeat rw [BitVec.toInt_signExtend_of_lt (by omega)]
-    rw [BitVec.toInt_twoPow_of_eq (by omega), ← Nat.two_pow_pred_add_two_pow_pred (by omega), this,
+    simp only [toInt_twoPow, show ¬ w + 1 ≤ w by omega, ↓reduceIte, Nat.shiftLeft_eq, Nat.one_mul]
+    push_cast
+    rw [← Nat.two_pow_pred_add_two_pow_pred (by omega), this,
       Int.bmod_eq_of_le_of_lt (by rw [← Nat.mul_two]; push_cast; omega)
                               (by rw [← Nat.mul_two]; push_cast; omega)]
     simp only [bool_to_prop]

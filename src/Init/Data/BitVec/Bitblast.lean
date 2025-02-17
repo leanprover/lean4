@@ -1260,11 +1260,11 @@ theorem umulOverflow_eq {w : Nat} (x y : BitVec w) :
       (0 < w && BitVec.twoPow (w * 2) w ≤ x.zeroExtend (w * 2) * y.zeroExtend (w * 2)) := by
   simp [umulOverflow, ge_iff_le, truncate_eq_setWidth, le_def, toNat_twoPow, toNat_mul,
     toNat_setWidth, Nat.mul_mod_mod, Nat.mod_mul_mod]
-  rcases w with _|w'
-  · decide +revert
-  · simp only [show 0 < w' + 1 by omega, decide_true, Bool.true_and, decide_eq_decide]
+  rcases w with _|w
+  · simp [of_length_zero, toInt_zero]
+  · simp only [show 0 < w + 1 by omega, decide_true, Bool.true_and, decide_eq_decide]
     rw [Nat.mod_eq_of_lt BitVec.toNat_mul_toNat_lt, Nat.mod_eq_of_lt]
-    have := Nat.pow_lt_pow_of_lt (a := 2) (n := (w' + 1)) (m := (w' + 1) * 2)
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := (w + 1)) (m := (w + 1) * 2)
     omega
 
 theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :

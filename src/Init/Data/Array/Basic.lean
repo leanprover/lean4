@@ -902,6 +902,10 @@ def popWhile (p : α → Bool) (as : Array α) : Array α :=
     as
 decreasing_by simp_wf; decreasing_trivial_pre_omega
 
+@[simp] theorem popWhile_empty (p : α → Bool) :
+    popWhile p #[] = #[] := by
+  simp [popWhile]
+
 def takeWhile (p : α → Bool) (as : Array α) : Array α :=
   let rec @[semireducible] -- This is otherwise irreducible because it uses well-founded recursion.
   go (i : Nat) (r : Array α) : Array α :=

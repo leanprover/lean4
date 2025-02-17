@@ -16,3 +16,4 @@ import Init.Data.Vector.Range
 import Init.Data.Vector.Erase
 import Init.Data.Vector.Monadic
 import Init.Data.Vector.InsertIdx
+import Init.Data.Vector.Extract

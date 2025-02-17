@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___elambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instContextInformationContext___lambda__3___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instEvalInformationContext___lambda__3(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_42____boxed(lean_object*, lean_object*);
@@ -20,6 +21,7 @@ LEAN_EXPORT lean_object* l_Lean_Data_AC_norm(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_removeNeutrals_loop(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_insert(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_evalList_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___elambda__1___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_42____closed__2;
 static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__4;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_instEvalInformationContext___lambda__2(lean_object*, lean_object*, lean_object*);
@@ -30,11 +32,11 @@ LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_sort_loop_matc
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Option_isSome_match__1_splitter(lean_object*, lean_object*);
 static lean_object* l_Lean_Data_AC_instInhabitedExpr___closed__1;
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_removeNeutrals_loop_match__2_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_List_getD___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_mergeIdem_loop_match__1_splitter(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Expr_toList(lean_object*);
 static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__2;
+lean_object* l_List_get___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_42____closed__3;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_mergeIdem_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_42_(lean_object*, lean_object*);
@@ -55,6 +57,7 @@ LEAN_EXPORT uint8_t l___private_Init_Data_AC_0__Lean_Data_AC_beqExpr____x40_Init
 LEAN_EXPORT lean_object* l_Lean_Data_AC_removeNeutrals___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Data_AC_instContextInformationContext___closed__1;
 LEAN_EXPORT uint8_t l_Lean_Data_AC_instContextInformationContext___lambda__3(lean_object*);
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_AC_0__Lean_Data_AC_reprExpr____x40_Init_Data_AC___hyg_42____closed__8;
 static lean_object* l_Lean_Data_AC_instEvalInformationContext___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___rarg(lean_object*, lean_object*);
@@ -507,20 +510,52 @@ x_1 = l_Lean_Data_AC_instBEqExpr___closed__1;
 return x_1;
 }
 }
+LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___elambda__1___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+lean_inc(x_4);
+lean_dec(x_1);
+x_5 = lean_apply_2(x_4, x_2, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___elambda__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Data_AC_Context_var___elambda__1___rarg), 3, 0);
+return x_2;
+}
+}
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var___rarg(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_3 = lean_ctor_get(x_1, 3);
-x_4 = lean_ctor_get(x_1, 4);
-x_5 = lean_box(0);
-lean_inc(x_4);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
-x_7 = l_List_getD___rarg(x_3, x_2, x_6);
-lean_dec(x_6);
-return x_7;
+x_4 = lean_unsigned_to_nat(0u);
+x_5 = l_List_lengthTRAux___rarg(x_3, x_4);
+x_6 = lean_nat_dec_lt(x_2, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
+{
+lean_object* x_7; lean_object* x_8; lean_object* x_9; 
+lean_dec(x_2);
+x_7 = lean_ctor_get(x_1, 4);
+x_8 = lean_box(0);
+lean_inc(x_7);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_7);
+lean_ctor_set(x_9, 1, x_8);
+return x_9;
+}
+else
+{
+lean_object* x_10; 
+x_10 = l_List_get___rarg(x_3, x_2);
+return x_10;
+}
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Data_AC_Context_var(lean_object* x_1) {

@@ -36,6 +36,7 @@ lean_object* l_List_find_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_mul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instNeg;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instAdd;
+lean_object* l_List_get___rarg(lean_object*, lean_object*);
 lean_object* l_List_zipWithAll___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_bmod__dot__sub__dot__bmod(lean_object*, lean_object*, lean_object*);
@@ -53,6 +54,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulInt___boxed(lean_object*, 
 LEAN_EXPORT lean_object* l___private_Init_Omega_IntList_0__List_getElem_x3f__zipWith_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_leading(lean_object*);
+lean_object* l_List_lengthTRAux___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_smul___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_smul___spec__1___boxed(lean_object*, lean_object*, lean_object*);
@@ -66,6 +68,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_IntList_instHMulInt(lean_object*, lean_obj
 lean_object* lean_int_mul(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_bmod___spec__1(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_dot___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_gcd___boxed(lean_object*);
 static lean_object* l_Lean_Omega_IntList_add___lambda__1___closed__1;
@@ -92,7 +95,6 @@ LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_smul___spec__
 static lean_object* l_Lean_Omega_IntList_instSub___closed__1;
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at_Lean_Omega_IntList_sdiv___spec__1___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
-lean_object* l_List_get_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_set___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* _init_l_Lean_Omega_IntList_get___closed__1() {
 _start:
@@ -106,21 +108,23 @@ return x_2;
 LEAN_EXPORT lean_object* l_Lean_Omega_IntList_get(lean_object* x_1, lean_object* x_2) {
 _start:
 {
-lean_object* x_3; 
-x_3 = l_List_get_x3f___rarg(x_1, x_2);
-if (lean_obj_tag(x_3) == 0)
+lean_object* x_3; lean_object* x_4; uint8_t x_5; 
+x_3 = lean_unsigned_to_nat(0u);
+x_4 = l_List_lengthTRAux___rarg(x_1, x_3);
+x_5 = lean_nat_dec_lt(x_2, x_4);
+lean_dec(x_4);
+if (x_5 == 0)
 {
-lean_object* x_4; 
-x_4 = l_Lean_Omega_IntList_get___closed__1;
-return x_4;
+lean_object* x_6; 
+lean_dec(x_2);
+x_6 = l_Lean_Omega_IntList_get___closed__1;
+return x_6;
 }
 else
 {
-lean_object* x_5; 
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
-lean_dec(x_3);
-return x_5;
+lean_object* x_7; 
+x_7 = l_List_get___rarg(x_1, x_2);
+return x_7;
 }
 }
 }

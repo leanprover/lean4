@@ -55,7 +55,6 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertUt___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTZif___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertTransition___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_Array_get_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Time_TimeZone_convertWall(uint8_t x_1) {
 _start:
 {
@@ -133,24 +132,22 @@ return x_2;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_convertLocalTimeType(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
+lean_object* x_4; lean_object* x_5; uint8_t x_6; 
 x_4 = lean_ctor_get(x_2, 3);
-x_5 = l_Array_get_x3f___rarg(x_4, x_1);
-if (lean_obj_tag(x_5) == 0)
+x_5 = lean_array_get_size(x_4);
+x_6 = lean_nat_dec_lt(x_1, x_5);
+lean_dec(x_5);
+if (x_6 == 0)
 {
-lean_object* x_6; 
+lean_object* x_7; 
 lean_dec(x_3);
-x_6 = lean_box(0);
-return x_6;
+x_7 = lean_box(0);
+return x_7;
 }
 else
 {
-uint8_t x_7; 
-x_7 = !lean_is_exclusive(x_5);
-if (x_7 == 0)
-{
 lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; uint8_t x_15; lean_object* x_16; lean_object* x_17; uint8_t x_18; lean_object* x_19; lean_object* x_20; uint8_t x_21; 
-x_8 = lean_ctor_get(x_5, 0);
+x_8 = lean_array_fget(x_4, x_1);
 x_9 = lean_ctor_get(x_8, 0);
 lean_inc(x_9);
 x_10 = lean_ctor_get_uint8(x_8, sizeof(void*)*1);
@@ -176,7 +173,7 @@ if (x_18 == 0)
 {
 if (x_21 == 0)
 {
-uint8_t x_22; uint8_t x_23; lean_object* x_24; 
+uint8_t x_22; uint8_t x_23; lean_object* x_24; lean_object* x_25; 
 x_22 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
 x_23 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
 x_24 = lean_alloc_ctor(0, 3, 3);
@@ -186,340 +183,154 @@ lean_ctor_set(x_24, 2, x_3);
 lean_ctor_set_uint8(x_24, sizeof(void*)*3, x_10);
 lean_ctor_set_uint8(x_24, sizeof(void*)*3 + 1, x_22);
 lean_ctor_set_uint8(x_24, sizeof(void*)*3 + 2, x_23);
-lean_ctor_set(x_5, 0, x_24);
-return x_5;
+x_25 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_25, 0, x_24);
+return x_25;
 }
 else
 {
-lean_object* x_25; uint8_t x_26; uint8_t x_27; uint8_t x_28; lean_object* x_29; 
-x_25 = lean_array_fget(x_19, x_1);
-x_26 = lean_unbox(x_25);
-lean_dec(x_25);
-x_27 = l_Std_Time_TimeZone_convertUt(x_26);
-x_28 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_29 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_29, 0, x_9);
-lean_ctor_set(x_29, 1, x_13);
-lean_ctor_set(x_29, 2, x_3);
-lean_ctor_set_uint8(x_29, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_29, sizeof(void*)*3 + 1, x_28);
-lean_ctor_set_uint8(x_29, sizeof(void*)*3 + 2, x_27);
-lean_ctor_set(x_5, 0, x_29);
-return x_5;
+lean_object* x_26; uint8_t x_27; uint8_t x_28; uint8_t x_29; lean_object* x_30; lean_object* x_31; 
+x_26 = lean_array_fget(x_19, x_1);
+x_27 = lean_unbox(x_26);
+lean_dec(x_26);
+x_28 = l_Std_Time_TimeZone_convertUt(x_27);
+x_29 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
+x_30 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_30, 0, x_9);
+lean_ctor_set(x_30, 1, x_13);
+lean_ctor_set(x_30, 2, x_3);
+lean_ctor_set_uint8(x_30, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_30, sizeof(void*)*3 + 1, x_29);
+lean_ctor_set_uint8(x_30, sizeof(void*)*3 + 2, x_28);
+x_31 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_31, 0, x_30);
+return x_31;
 }
 }
 else
 {
-lean_object* x_30; uint8_t x_31; uint8_t x_32; 
-x_30 = lean_array_fget(x_16, x_1);
-x_31 = lean_unbox(x_30);
-lean_dec(x_30);
-x_32 = l_Std_Time_TimeZone_convertWall(x_31);
+lean_object* x_32; uint8_t x_33; uint8_t x_34; 
+x_32 = lean_array_fget(x_16, x_1);
+x_33 = lean_unbox(x_32);
+lean_dec(x_32);
+x_34 = l_Std_Time_TimeZone_convertWall(x_33);
 if (x_21 == 0)
 {
-uint8_t x_33; lean_object* x_34; 
-x_33 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_34 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_34, 0, x_9);
-lean_ctor_set(x_34, 1, x_13);
-lean_ctor_set(x_34, 2, x_3);
-lean_ctor_set_uint8(x_34, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 1, x_32);
-lean_ctor_set_uint8(x_34, sizeof(void*)*3 + 2, x_33);
-lean_ctor_set(x_5, 0, x_34);
-return x_5;
+uint8_t x_35; lean_object* x_36; lean_object* x_37; 
+x_35 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
+x_36 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_36, 0, x_9);
+lean_ctor_set(x_36, 1, x_13);
+lean_ctor_set(x_36, 2, x_3);
+lean_ctor_set_uint8(x_36, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_36, sizeof(void*)*3 + 1, x_34);
+lean_ctor_set_uint8(x_36, sizeof(void*)*3 + 2, x_35);
+x_37 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_37, 0, x_36);
+return x_37;
 }
 else
 {
-lean_object* x_35; uint8_t x_36; uint8_t x_37; lean_object* x_38; 
-x_35 = lean_array_fget(x_19, x_1);
-x_36 = lean_unbox(x_35);
-lean_dec(x_35);
-x_37 = l_Std_Time_TimeZone_convertUt(x_36);
-x_38 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_38, 0, x_9);
-lean_ctor_set(x_38, 1, x_13);
-lean_ctor_set(x_38, 2, x_3);
-lean_ctor_set_uint8(x_38, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_38, sizeof(void*)*3 + 1, x_32);
-lean_ctor_set_uint8(x_38, sizeof(void*)*3 + 2, x_37);
-lean_ctor_set(x_5, 0, x_38);
-return x_5;
+lean_object* x_38; uint8_t x_39; uint8_t x_40; lean_object* x_41; lean_object* x_42; 
+x_38 = lean_array_fget(x_19, x_1);
+x_39 = lean_unbox(x_38);
+lean_dec(x_38);
+x_40 = l_Std_Time_TimeZone_convertUt(x_39);
+x_41 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_41, 0, x_9);
+lean_ctor_set(x_41, 1, x_13);
+lean_ctor_set(x_41, 2, x_3);
+lean_ctor_set_uint8(x_41, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_41, sizeof(void*)*3 + 1, x_34);
+lean_ctor_set_uint8(x_41, sizeof(void*)*3 + 2, x_40);
+x_42 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_42, 0, x_41);
+return x_42;
 }
 }
 }
 else
 {
-lean_object* x_39; 
+lean_object* x_43; 
 lean_dec(x_13);
-x_39 = lean_array_fget(x_11, x_1);
+x_43 = lean_array_fget(x_11, x_1);
 if (x_18 == 0)
 {
 if (x_21 == 0)
 {
-uint8_t x_40; uint8_t x_41; lean_object* x_42; 
-x_40 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_41 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_42 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_42, 0, x_9);
-lean_ctor_set(x_42, 1, x_39);
-lean_ctor_set(x_42, 2, x_3);
-lean_ctor_set_uint8(x_42, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_42, sizeof(void*)*3 + 1, x_40);
-lean_ctor_set_uint8(x_42, sizeof(void*)*3 + 2, x_41);
-lean_ctor_set(x_5, 0, x_42);
-return x_5;
+uint8_t x_44; uint8_t x_45; lean_object* x_46; lean_object* x_47; 
+x_44 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
+x_45 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
+x_46 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_46, 0, x_9);
+lean_ctor_set(x_46, 1, x_43);
+lean_ctor_set(x_46, 2, x_3);
+lean_ctor_set_uint8(x_46, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 1, x_44);
+lean_ctor_set_uint8(x_46, sizeof(void*)*3 + 2, x_45);
+x_47 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_47, 0, x_46);
+return x_47;
 }
 else
 {
-lean_object* x_43; uint8_t x_44; uint8_t x_45; uint8_t x_46; lean_object* x_47; 
-x_43 = lean_array_fget(x_19, x_1);
-x_44 = lean_unbox(x_43);
-lean_dec(x_43);
-x_45 = l_Std_Time_TimeZone_convertUt(x_44);
-x_46 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_47 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_47, 0, x_9);
-lean_ctor_set(x_47, 1, x_39);
-lean_ctor_set(x_47, 2, x_3);
-lean_ctor_set_uint8(x_47, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_47, sizeof(void*)*3 + 1, x_46);
-lean_ctor_set_uint8(x_47, sizeof(void*)*3 + 2, x_45);
-lean_ctor_set(x_5, 0, x_47);
-return x_5;
-}
-}
-else
-{
-lean_object* x_48; uint8_t x_49; uint8_t x_50; 
-x_48 = lean_array_fget(x_16, x_1);
+lean_object* x_48; uint8_t x_49; uint8_t x_50; uint8_t x_51; lean_object* x_52; lean_object* x_53; 
+x_48 = lean_array_fget(x_19, x_1);
 x_49 = lean_unbox(x_48);
 lean_dec(x_48);
-x_50 = l_Std_Time_TimeZone_convertWall(x_49);
-if (x_21 == 0)
-{
-uint8_t x_51; lean_object* x_52; 
-x_51 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
+x_50 = l_Std_Time_TimeZone_convertUt(x_49);
+x_51 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
 x_52 = lean_alloc_ctor(0, 3, 3);
 lean_ctor_set(x_52, 0, x_9);
-lean_ctor_set(x_52, 1, x_39);
+lean_ctor_set(x_52, 1, x_43);
 lean_ctor_set(x_52, 2, x_3);
 lean_ctor_set_uint8(x_52, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_52, sizeof(void*)*3 + 1, x_50);
-lean_ctor_set_uint8(x_52, sizeof(void*)*3 + 2, x_51);
-lean_ctor_set(x_5, 0, x_52);
-return x_5;
-}
-else
-{
-lean_object* x_53; uint8_t x_54; uint8_t x_55; lean_object* x_56; 
-x_53 = lean_array_fget(x_19, x_1);
-x_54 = lean_unbox(x_53);
-lean_dec(x_53);
-x_55 = l_Std_Time_TimeZone_convertUt(x_54);
-x_56 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_56, 0, x_9);
-lean_ctor_set(x_56, 1, x_39);
-lean_ctor_set(x_56, 2, x_3);
-lean_ctor_set_uint8(x_56, sizeof(void*)*3, x_10);
-lean_ctor_set_uint8(x_56, sizeof(void*)*3 + 1, x_50);
-lean_ctor_set_uint8(x_56, sizeof(void*)*3 + 2, x_55);
-lean_ctor_set(x_5, 0, x_56);
-return x_5;
-}
-}
+lean_ctor_set_uint8(x_52, sizeof(void*)*3 + 1, x_51);
+lean_ctor_set_uint8(x_52, sizeof(void*)*3 + 2, x_50);
+x_53 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_53, 0, x_52);
+return x_53;
 }
 }
 else
 {
-lean_object* x_57; lean_object* x_58; uint8_t x_59; lean_object* x_60; uint8_t x_61; lean_object* x_62; lean_object* x_63; uint8_t x_64; lean_object* x_65; lean_object* x_66; uint8_t x_67; lean_object* x_68; lean_object* x_69; uint8_t x_70; 
-x_57 = lean_ctor_get(x_5, 0);
-lean_inc(x_57);
-lean_dec(x_5);
-x_58 = lean_ctor_get(x_57, 0);
-lean_inc(x_58);
-x_59 = lean_ctor_get_uint8(x_57, sizeof(void*)*1);
-lean_dec(x_57);
-x_60 = lean_ctor_get(x_2, 4);
-x_61 = 1;
-lean_inc(x_58);
-x_62 = l_Std_Time_TimeZone_Offset_toIsoString(x_58, x_61);
-x_63 = lean_array_get_size(x_60);
-x_64 = lean_nat_dec_lt(x_1, x_63);
-lean_dec(x_63);
-x_65 = lean_ctor_get(x_2, 6);
-x_66 = lean_array_get_size(x_65);
-x_67 = lean_nat_dec_lt(x_1, x_66);
-lean_dec(x_66);
-x_68 = lean_ctor_get(x_2, 7);
-x_69 = lean_array_get_size(x_68);
-x_70 = lean_nat_dec_lt(x_1, x_69);
-lean_dec(x_69);
-if (x_64 == 0)
+lean_object* x_54; uint8_t x_55; uint8_t x_56; 
+x_54 = lean_array_fget(x_16, x_1);
+x_55 = lean_unbox(x_54);
+lean_dec(x_54);
+x_56 = l_Std_Time_TimeZone_convertWall(x_55);
+if (x_21 == 0)
 {
-if (x_67 == 0)
-{
-if (x_70 == 0)
-{
-uint8_t x_71; uint8_t x_72; lean_object* x_73; lean_object* x_74; 
-x_71 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_72 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_73 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_73, 0, x_58);
-lean_ctor_set(x_73, 1, x_62);
-lean_ctor_set(x_73, 2, x_3);
-lean_ctor_set_uint8(x_73, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_73, sizeof(void*)*3 + 1, x_71);
-lean_ctor_set_uint8(x_73, sizeof(void*)*3 + 2, x_72);
-x_74 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_74, 0, x_73);
-return x_74;
+uint8_t x_57; lean_object* x_58; lean_object* x_59; 
+x_57 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
+x_58 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_58, 0, x_9);
+lean_ctor_set(x_58, 1, x_43);
+lean_ctor_set(x_58, 2, x_3);
+lean_ctor_set_uint8(x_58, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_58, sizeof(void*)*3 + 1, x_56);
+lean_ctor_set_uint8(x_58, sizeof(void*)*3 + 2, x_57);
+x_59 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_59, 0, x_58);
+return x_59;
 }
 else
 {
-lean_object* x_75; uint8_t x_76; uint8_t x_77; uint8_t x_78; lean_object* x_79; lean_object* x_80; 
-x_75 = lean_array_fget(x_68, x_1);
-x_76 = lean_unbox(x_75);
-lean_dec(x_75);
-x_77 = l_Std_Time_TimeZone_convertUt(x_76);
-x_78 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_79 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_79, 0, x_58);
-lean_ctor_set(x_79, 1, x_62);
-lean_ctor_set(x_79, 2, x_3);
-lean_ctor_set_uint8(x_79, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_79, sizeof(void*)*3 + 1, x_78);
-lean_ctor_set_uint8(x_79, sizeof(void*)*3 + 2, x_77);
-x_80 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_80, 0, x_79);
-return x_80;
-}
-}
-else
-{
-lean_object* x_81; uint8_t x_82; uint8_t x_83; 
-x_81 = lean_array_fget(x_65, x_1);
-x_82 = lean_unbox(x_81);
-lean_dec(x_81);
-x_83 = l_Std_Time_TimeZone_convertWall(x_82);
-if (x_70 == 0)
-{
-uint8_t x_84; lean_object* x_85; lean_object* x_86; 
-x_84 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_85 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_85, 0, x_58);
-lean_ctor_set(x_85, 1, x_62);
-lean_ctor_set(x_85, 2, x_3);
-lean_ctor_set_uint8(x_85, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_85, sizeof(void*)*3 + 1, x_83);
-lean_ctor_set_uint8(x_85, sizeof(void*)*3 + 2, x_84);
-x_86 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_86, 0, x_85);
-return x_86;
-}
-else
-{
-lean_object* x_87; uint8_t x_88; uint8_t x_89; lean_object* x_90; lean_object* x_91; 
-x_87 = lean_array_fget(x_68, x_1);
-x_88 = lean_unbox(x_87);
-lean_dec(x_87);
-x_89 = l_Std_Time_TimeZone_convertUt(x_88);
-x_90 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_90, 0, x_58);
-lean_ctor_set(x_90, 1, x_62);
-lean_ctor_set(x_90, 2, x_3);
-lean_ctor_set_uint8(x_90, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_90, sizeof(void*)*3 + 1, x_83);
-lean_ctor_set_uint8(x_90, sizeof(void*)*3 + 2, x_89);
-x_91 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_91, 0, x_90);
-return x_91;
-}
-}
-}
-else
-{
-lean_object* x_92; 
-lean_dec(x_62);
-x_92 = lean_array_fget(x_60, x_1);
-if (x_67 == 0)
-{
-if (x_70 == 0)
-{
-uint8_t x_93; uint8_t x_94; lean_object* x_95; lean_object* x_96; 
-x_93 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_94 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_95 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_95, 0, x_58);
-lean_ctor_set(x_95, 1, x_92);
-lean_ctor_set(x_95, 2, x_3);
-lean_ctor_set_uint8(x_95, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_95, sizeof(void*)*3 + 1, x_93);
-lean_ctor_set_uint8(x_95, sizeof(void*)*3 + 2, x_94);
-x_96 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_96, 0, x_95);
-return x_96;
-}
-else
-{
-lean_object* x_97; uint8_t x_98; uint8_t x_99; uint8_t x_100; lean_object* x_101; lean_object* x_102; 
-x_97 = lean_array_fget(x_68, x_1);
-x_98 = lean_unbox(x_97);
-lean_dec(x_97);
-x_99 = l_Std_Time_TimeZone_convertUt(x_98);
-x_100 = l_Std_Time_TimeZone_convertLocalTimeType___closed__1;
-x_101 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_101, 0, x_58);
-lean_ctor_set(x_101, 1, x_92);
-lean_ctor_set(x_101, 2, x_3);
-lean_ctor_set_uint8(x_101, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_101, sizeof(void*)*3 + 1, x_100);
-lean_ctor_set_uint8(x_101, sizeof(void*)*3 + 2, x_99);
-x_102 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_102, 0, x_101);
-return x_102;
-}
-}
-else
-{
-lean_object* x_103; uint8_t x_104; uint8_t x_105; 
-x_103 = lean_array_fget(x_65, x_1);
-x_104 = lean_unbox(x_103);
-lean_dec(x_103);
-x_105 = l_Std_Time_TimeZone_convertWall(x_104);
-if (x_70 == 0)
-{
-uint8_t x_106; lean_object* x_107; lean_object* x_108; 
-x_106 = l_Std_Time_TimeZone_convertLocalTimeType___closed__2;
-x_107 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_107, 0, x_58);
-lean_ctor_set(x_107, 1, x_92);
-lean_ctor_set(x_107, 2, x_3);
-lean_ctor_set_uint8(x_107, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_107, sizeof(void*)*3 + 1, x_105);
-lean_ctor_set_uint8(x_107, sizeof(void*)*3 + 2, x_106);
-x_108 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_108, 0, x_107);
-return x_108;
-}
-else
-{
-lean_object* x_109; uint8_t x_110; uint8_t x_111; lean_object* x_112; lean_object* x_113; 
-x_109 = lean_array_fget(x_68, x_1);
-x_110 = lean_unbox(x_109);
-lean_dec(x_109);
-x_111 = l_Std_Time_TimeZone_convertUt(x_110);
-x_112 = lean_alloc_ctor(0, 3, 3);
-lean_ctor_set(x_112, 0, x_58);
-lean_ctor_set(x_112, 1, x_92);
-lean_ctor_set(x_112, 2, x_3);
-lean_ctor_set_uint8(x_112, sizeof(void*)*3, x_59);
-lean_ctor_set_uint8(x_112, sizeof(void*)*3 + 1, x_105);
-lean_ctor_set_uint8(x_112, sizeof(void*)*3 + 2, x_111);
-x_113 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_113, 0, x_112);
-return x_113;
-}
+lean_object* x_60; uint8_t x_61; uint8_t x_62; lean_object* x_63; lean_object* x_64; 
+x_60 = lean_array_fget(x_19, x_1);
+x_61 = lean_unbox(x_60);
+lean_dec(x_60);
+x_62 = l_Std_Time_TimeZone_convertUt(x_61);
+x_63 = lean_alloc_ctor(0, 3, 3);
+lean_ctor_set(x_63, 0, x_9);
+lean_ctor_set(x_63, 1, x_43);
+lean_ctor_set(x_63, 2, x_3);
+lean_ctor_set_uint8(x_63, sizeof(void*)*3, x_10);
+lean_ctor_set_uint8(x_63, sizeof(void*)*3 + 1, x_56);
+lean_ctor_set_uint8(x_63, sizeof(void*)*3 + 2, x_62);
+x_64 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_64, 0, x_63);
+return x_64;
 }
 }
 }

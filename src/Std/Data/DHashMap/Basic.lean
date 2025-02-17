@@ -196,7 +196,7 @@ section Unverified
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
 
-/-- Partition a hashset into two hashsets based on a predicate. -/
+/-- Partition a hash map into two hash map based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
   m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>

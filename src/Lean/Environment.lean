@@ -508,8 +508,8 @@ structure Environment where
   /-- Information about this asynchronous branch of the environment, if any. -/
   private asyncCtx?   : Option AsyncContext := none
   /--
-  Realized constants belonging to imported declarations. `none` only from `Environment.ofKernelEnv`,
-  which should never leak into general elaboration.
+  Realized constants belonging to imported declarations. Must be initialized by calling
+  `enableRealizationsForImports`.
   -/
   private realizedImportedConsts? : Option RealizationContext
   /--
@@ -647,6 +647,21 @@ def findConstVal? (env : Environment) (n : Name) : Option ConstantVal := do
   else if let some asyncConst := env.asyncConsts.find? n then
     return asyncConst.constInfo.toConstantVal
   else env.findNoAsync n |>.map (·.toConstantVal)
+
+/--
+Allows `realizeConst` calls for imported declarations in all derived environment branches.
+Realizations will run using the given environment and options to ensure deterministic results.
+This function should be called directly after `setMainModule` to ensure that all realized constants
+use consistent private prefixes.
+-/
+def enableRealizationsForImports (env : Environment) (opts : Options) : BaseIO Environment :=
+  return { env with realizedImportedConsts? := some {
+      -- safety: `RealizationContext` is private
+      env := unsafe unsafeCast env
+      opts
+      constsRef := (← IO.mkRef {})
+    }
+  }
 
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.
@@ -897,7 +912,10 @@ def imports (env : Environment) : Array Import :=
 def allImportedModuleNames (env : Environment) : Array Name :=
   env.header.moduleNames
 
-def setMainModule (env : Environment) (m : Name) : Environment :=
+def setMainModule (env : Environment) (m : Name) : Environment := Id.run do
+  if env.realizedImportedConsts?.isSome then
+    panic! "Environment.setMainModule: cannot set after `enableRealizationsForImports`"
+    return env
   env.modifyCheckedAsync ({ · with header.mainModule := m })
 
 def mainModule (env : Environment) : Name :=
@@ -1693,14 +1711,6 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
        Safety: There are no concurrent accesses to `env` at this point. -/
     env ← unsafe Runtime.markPersistent env
   env ← finalizePersistentExtensions env s.moduleData opts
-  env := { env with
-    realizedImportedConsts? := some {
-      -- safety: `RealizationContext` is private
-      env := unsafe unsafeCast env
-      opts
-      constsRef := (← IO.mkRef {})
-    }
-  }
   if leakEnv then
     /- Ensure the final environment including environment extension states is
        marked persistent as documented.
@@ -1871,6 +1881,7 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         -- allow realizations to recursively realize other constants for `forConst`. Do note that
         -- this allows for recursive realization of `constName` itself, which will deadlock.
         realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
+        realizedImportedConsts? := env.realizedImportedConsts?
       }
       -- ensure realized constants are nested below `forConst` and that environment extension
       -- modifications know they are in an async context
@@ -1894,7 +1905,11 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
       prom.resolve (consts, replay, dyn)
       pure (consts, replay, dyn)
     return ({ env with
-      asyncConsts := consts.foldl (·.add) env.asyncConsts
+      asyncConsts := consts.foldl (init := env.asyncConsts) fun consts c =>
+        if consts.find? c.constInfo.name |>.isSome then
+          consts
+        else
+          consts.add c
       checked := env.checked.map replay
     }, dyn)
 where

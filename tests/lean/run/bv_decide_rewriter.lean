@@ -306,6 +306,8 @@ example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.uaddOverflow x x) 
 
 example {x : BitVec 16} : (x = BitVec.allOnes 16) → (BitVec.umulOverflow x x) := by bv_decide
 
+example {x : BitVec 8} : (x = -32#8) → (BitVec.smulOverflow x x) := by bv_decide
+
 end
 
 def foo (x : Bool) : Prop := x = true

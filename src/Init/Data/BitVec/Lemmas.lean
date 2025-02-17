@@ -3728,11 +3728,6 @@ theorem toInt_twoPow {w i : Nat} :
       · simp only [show 2 ^ (i + 1) < 2 ^  (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
         omega
 
--- theorem toInt_twoPow_of_eq {w i : Nat} (h : i + 1 = w) :
---     (BitVec.twoPow w i).toInt = -(2 ^ i) := by
---   simp only [toInt_twoPow, show ¬(w ≤ i) by omega, ↓reduceIte, h, Nat.shiftLeft_eq, Nat.one_mul]
---   norm_cast
-
 @[simp]
 theorem toInt_twoPow_sub_one : (BitVec.twoPow w (w - 1) - 1#w).toInt = 2 ^ (w - 1) - 1 := by
   rcases w with _|_|w

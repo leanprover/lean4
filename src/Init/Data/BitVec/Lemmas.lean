@@ -3717,15 +3717,15 @@ theorem toInt_twoPow {w i : Nat} :
   · simp
   · by_cases h : w + 1 ≤ i
     · simp [h]; norm_cast; omega
-    · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow, Int.ofNat_emod, h,
-      ↓reduceIte, Nat.add_right_cancel_iff]
+    · simp only [toNat_shiftLeft, toNat_ofNat, Nat.zero_lt_succ, Nat.one_mod_two_pow,
+      Int.ofNat_emod, h, ↓reduceIte, Nat.add_right_cancel_iff]
       have hy : (2 ^ i % 2 ^  (w + 1)) = 2 ^ i := by rw [Nat.mod_eq_of_lt (by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega)]
       have hj : 2 * 2 ^ i = 2 ^ (i + 1) := by rw [Nat.pow_add, Nat.mul_comm]
       norm_cast
       simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
       by_cases i + 1 =  (w + 1)
-      · simp only [show i = w by omega, Nat.lt_irrefl, ↓reduceIte]; omega
-      · simp only [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
+      · simp [show i = w by omega]; omega
+      · simp [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega]
         omega
 
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by

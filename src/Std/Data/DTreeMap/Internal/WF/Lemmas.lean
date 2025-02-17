@@ -245,25 +245,25 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
   induction l, hlb using updateCell.induct k f
   · simp_all [updateCell]
   · simp_all [updateCell]
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_balance, toListModel_filter_gt_of_lt hcmp hlo,
       toListModel_filter_lt_of_lt hcmp hlo, findCell_of_lt hcmp hlo, ih hlo.left]
     simp
-  · rename_i sz k' v' l r hl hcmp hf hl'
+  · rename_i sz k' v' l r hl hcmp hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_glue, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       hf, toListModel_filter_lt_of_eq hcmp hlo]
     simp
-  · rename_i sz k' v' l r hl hcmp k'' v'' hf hl'
+  · rename_i sz k' v' l r hl hcmp k'' v'' hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_inner, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       toListModel_filter_lt_of_eq hcmp hlo, hf]
     simp
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_filter_gt_of_gt hcmp hlo, findCell_of_gt hcmp hlo,

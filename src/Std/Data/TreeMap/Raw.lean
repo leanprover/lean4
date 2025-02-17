@@ -121,8 +121,7 @@ def containsThenInsertIfNew (t : Raw α β cmp) (a : α) (b : β) :
   (p.1, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Raw.getThenInsertIfNew?]
-def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) :
-    Option β × Raw α β cmp :=
+def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
   let p := DTreeMap.Raw.Const.getThenInsertIfNew? t.inner a b
   (p.1, ⟨p.2⟩)
 
@@ -408,8 +407,7 @@ def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) 
   foldr f init t
 
 @[inline, inherit_doc DTreeMap.Raw.partition]
-def partition (f : (a : α) → β → Bool)
-    (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
+def partition (f : (a : α) → β → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
   let p := t.inner.partition f; (⟨p.1⟩, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Raw.forM]

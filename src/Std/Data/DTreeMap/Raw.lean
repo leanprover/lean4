@@ -388,8 +388,7 @@ namespace Const
 variable {β : Type v}
 
 @[inline, inherit_doc DTreeMap.Const.getThenInsertIfNew?]
-def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) :
-    Option β × Raw α β cmp :=
+def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
   letI : Ord α := ⟨cmp⟩
   let p := Impl.Const.getThenInsertIfNew?! a b t.inner
   (p.1, ⟨p.2⟩)
@@ -556,8 +555,7 @@ def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp
   foldr f init t
 
 @[inline, inherit_doc DTreeMap.partition]
-def partition (f : (a : α) → β a → Bool)
-    (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
+def partition (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
   t.foldl (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
     if f a b then
       (l.insert a b, r)

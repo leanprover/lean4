@@ -859,7 +859,7 @@ at position `start`. The function `getMsb` extracts a bit counting from the most
 significant bit. Assuming certain conditions, `x.(extractLsbD' {w} start len).getMsbD i`
 is equal to `x.getMsbD (w - (start + len - i))`.
 
-Example (w = 10, start := 3, len := 4):
+Example (w := 10, start := 3, len := 4):
 
                                 |---| = w - (start + len) = 3
                                       |start + len|       = 7

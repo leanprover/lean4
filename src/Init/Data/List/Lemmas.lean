@@ -929,7 +929,7 @@ theorem getElem_zero_eq_head (l : List α) (h : 0 < l.length) :
   | nil => simp at h
   | cons _ _ => simp
 
-theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
+theorem head_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head? = some a := by
   cases xs with
   | nil => simp at h
   | cons x xs => simp
@@ -2465,7 +2465,7 @@ theorem mem_of_mem_getLast? {l : List α} {a : α} (h : a ∈ getLast? l) : a �
   rw [← mem_reverse]
   exact mem_of_mem_head? h
 
-theorem getLast_eq_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
+theorem getLast_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
     l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
   rw [Option.mem_def] at hx
   cases l

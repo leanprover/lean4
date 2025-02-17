@@ -38,6 +38,12 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | insertIfNew {t h k v} : WF t → WF (t.insertIfNew k v h).impl
   /-- `erase` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | erase {t h k} : WF t → WF (t.erase k h).impl
+  /-- `alter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | alter [LawfulEqOrd α] {t h k f} : WF t → WF (t.alter k f h).impl
+  /-- `alter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | constAlter {t h k f} : WF t → WF (Impl.Const.alter k f t h).impl
+  /-- `modify` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
+  | modify {t k f} : WF t → WF (t.modify k f)
   /-- `containsThenInsert` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | containsThenInsert {t h k v} : WF t → WF (t.containsThenInsert k v h).2.impl
   /-- `containsThenInsertIfNew` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
@@ -54,9 +60,10 @@ A well-formed tree is balanced. This is needed here already because we need to k
 tree is balanced to call the optimized modification functions.
 -/
 theorem WF.balanced [Ord α] {t : Impl α β} (h : WF t) : t.Balanced := by
-  cases h <;> (try apply SizedBalancedTree.balanced_impl) <;> try apply BalancedTree.balanced_impl
+  induction h <;> (try apply SizedBalancedTree.balanced_impl) <;> try apply BalancedTree.balanced_impl
   case wf htb hto => exact htb
   case empty => exact balanced_empty
+  case modify ih => exact balanced_modify ih
 
 theorem WF.eraseMany [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α β} {l : ρ} {h} (hwf : WF t) :
     WF (t.eraseMany l h).val :=

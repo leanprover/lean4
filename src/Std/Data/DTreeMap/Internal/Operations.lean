@@ -750,6 +750,22 @@ def modify [Ord α] (k : α) (f : (k' : α) → (compare k k' = .eq) → β k' �
     | .gt => .inner sz k' v' l (modify k f r)
     | .eq => .inner sz k' (f k' h v') l r
 
+@[Std.Internal.tree_tac]
+theorem size_modify [Ord α] {k f} {t : Impl α β} :
+    (t.modify k f).size = t.size := by
+  unfold modify
+  split <;> (try split) <;> rfl
+
+theorem balanced_modify [Ord α] {k f} {t : Impl α β} (ht : t.Balanced) :
+    (t.modify k f).Balanced := by
+  induction t with
+  | leaf => exact balanced_empty
+  | inner sz k v l r ihl ihr =>
+    dsimp only  [modify]
+    have ihl := ihl ht.left
+    have ihr := ihr ht.right
+    exact ✓
+
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from

@@ -281,10 +281,10 @@ end erase
 
 theorem eraseIdx_eq_take_drop_succ (l : Array α) (i : Nat) (h) : l.eraseIdx i = l.take i ++ l.drop (i + 1) := by
   rcases l with ⟨l⟩
-  simp only [size_toArray] at h
+  simp only [List.size_toArray] at h
   simp only [List.eraseIdx_toArray, List.eraseIdx_eq_take_drop_succ, take_eq_extract,
     List.extract_toArray, List.extract_eq_drop_take, Nat.sub_zero, List.drop_zero, drop_eq_extract,
-    size_toArray, List.append_toArray, mk.injEq, List.append_cancel_left_eq]
+    List.size_toArray, List.append_toArray, mk.injEq, List.append_cancel_left_eq]
   rw [List.take_of_length_le]
   simp
 
@@ -316,7 +316,7 @@ theorem getElem_eraseIdx (l : Array α) (i : Nat) (h : i < l.size) (j : Nat) (h'
 
 @[simp] theorem eraseIdx_eq_empty_iff {l : Array α} {i : Nat} {h} : eraseIdx l i = #[] ↔ l.size = 1 ∧ i = 0 := by
   rcases l with ⟨l⟩
-  simp only [List.eraseIdx_toArray, mk.injEq, List.eraseIdx_eq_nil_iff, size_toArray,
+  simp only [List.eraseIdx_toArray, mk.injEq, List.eraseIdx_eq_nil_iff, List.size_toArray,
     or_iff_right_iff_imp]
   rintro rfl
   simp_all

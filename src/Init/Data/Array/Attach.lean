@@ -149,24 +149,23 @@ theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
   cases l
   simp [List.pmap_eq_attachWith]
 
-theorem attach_map_coe (l : Array α) (f : α → β) :
+theorem attach_map_val (l : Array α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   cases l
   simp
 
-theorem attach_map_val (l : Array α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : Array α) : l.attach.map Subtype.val = l := by
   cases l; simp
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (l : Array α) (H : ∀ a ∈ l, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Array α) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   cases l; simp
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Array α) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun i => f i.val) = l.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l := by
@@ -318,7 +317,7 @@ See however `foldl_subtype` below.
 theorem foldl_attach (l : Array α) (f : β → α → β) (b : β) :
     l.attach.foldl (fun acc t => f acc t.1) b = l.foldl f b := by
   rcases l with ⟨l⟩
-  simp only [List.attach_toArray, List.attachWith_mem_toArray, size_toArray,
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
     List.length_pmap, List.foldl_toArray', mem_toArray, List.foldl_subtype]
   congr
   ext
@@ -337,7 +336,7 @@ See however `foldr_subtype` below.
 theorem foldr_attach (l : Array α) (f : α → β → β) (b : β) :
     l.attach.foldr (fun t acc => f t.1 acc) b = l.foldr f b := by
   rcases l with ⟨l⟩
-  simp only [List.attach_toArray, List.attachWith_mem_toArray, size_toArray,
+  simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
     List.length_pmap, List.foldr_toArray', mem_toArray, List.foldr_subtype]
   congr
   ext
@@ -645,7 +644,7 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.filterMap f = l.unattach.filterMap g := by
   cases l
-  simp only [size_toArray, List.filterMap_toArray', List.unattach_toArray, List.length_unattach,
+  simp only [List.size_toArray, List.filterMap_toArray', List.unattach_toArray, List.length_unattach,
     mk.injEq]
   rw [List.filterMap_subtype]
   simp [hf]
@@ -655,7 +654,7 @@ and simplifies these to the function directly taking the value.
     {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (l.flatMap f) = l.unattach.flatMap g := by
   cases l
-  simp only [size_toArray, List.flatMap_toArray, List.unattach_toArray, List.length_unattach,
+  simp only [List.size_toArray, List.flatMap_toArray, List.unattach_toArray, List.length_unattach,
     mk.injEq]
   rw [List.flatMap_subtype]
   simp [hf]

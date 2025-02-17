@@ -29,7 +29,7 @@ open Nat
 theorem mapM_eq_foldlM_push [Monad m] [LawfulMonad m] (f : α → m β) (l : Array α) :
     mapM f l = l.foldlM (fun acc a => return (acc.push (← f a))) #[] := by
   rcases l with ⟨l⟩
-  simp only [List.mapM_toArray, bind_pure_comp, size_toArray, List.foldlM_toArray']
+  simp only [List.mapM_toArray, bind_pure_comp, List.size_toArray, List.foldlM_toArray']
   rw [List.mapM_eq_reverse_foldlM_cons]
   simp only [bind_pure_comp, Functor.map_map]
   suffices ∀ (k), (fun a => a.reverse.toArray) <$> List.foldlM (fun acc a => (fun a => a :: acc) <$> f a) k l =
@@ -190,7 +190,7 @@ theorem forIn_eq_foldlM [Monad m] [LawfulMonad m]
         | .yield b => f a b
         | .done b => pure (.done b)) (ForInStep.yield init) := by
   cases l
-  simp only [List.forIn_toArray, List.forIn_eq_foldlM, size_toArray, List.foldlM_toArray']
+  simp only [List.forIn_toArray, List.forIn_eq_foldlM, List.size_toArray, List.foldlM_toArray']
   congr
 
 /-- We can express a for loop over an array which always yields as a fold. -/

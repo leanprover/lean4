@@ -750,9 +750,6 @@ protected theorem mul_pow (a b n : Nat) : (a * b) ^ n = a ^ n * b ^ n := by
   | zero => rw [Nat.pow_zero, Nat.pow_zero, Nat.pow_zero, Nat.mul_one]
   | succ _ ih => rw [Nat.pow_succ, Nat.pow_succ, Nat.pow_succ, Nat.mul_mul_mul_comm, ih]
 
-protected abbrev pow_le_pow_left := @pow_le_pow_of_le_left
-protected abbrev pow_le_pow_right := @pow_le_pow_of_le_right
-
 protected theorem one_lt_two_pow (h : n ≠ 0) : 1 < 2 ^ n :=
   match n, h with
   | n+1, _ => by
@@ -898,7 +895,7 @@ theorem le_log2 (h : n ≠ 0) : k ≤ n.log2 ↔ 2 ^ k ≤ n := by
       exact Nat.le_div_iff_mul_le (by decide)
     · simp only [le_zero_eq, succ_ne_zero, false_iff]
       refine mt (Nat.le_trans ?_) ‹_›
-      exact Nat.pow_le_pow_of_le_right Nat.zero_lt_two (Nat.le_add_left 1 k)
+      exact Nat.pow_le_pow_right Nat.zero_lt_two (Nat.le_add_left 1 k)
 
 theorem log2_lt (h : n ≠ 0) : n.log2 < k ↔ n < 2 ^ k := by
   rw [← Nat.not_le, ← Nat.not_le, le_log2 h]

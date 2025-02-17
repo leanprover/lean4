@@ -275,7 +275,7 @@ theorem zip_eq_zip_take_min (l₁ : Array α) (l₂ : Array β) :
     zip l₁ l₂ = zip (l₁.take (min l₁.size l₂.size)) (l₂.take (min l₁.size l₂.size)) := by
   cases l₁
   cases l₂
-  simp only [List.zip_toArray, size_toArray, List.take_toArray, mk.injEq]
+  simp only [List.zip_toArray, List.size_toArray, List.take_toArray, mk.injEq]
   rw [List.zip_eq_zip_take_min]
 
 
@@ -338,21 +338,21 @@ theorem unzip_zip_left {l₁ : Array α} {l₂ : Array β} (h : l₁.size ≤ l�
     (unzip (zip l₁ l₂)).1 = l₁ := by
   cases l₁
   cases l₂
-  simp_all only [size_toArray, List.zip_toArray, List.unzip_toArray, Prod.map_fst,
+  simp_all only [List.size_toArray, List.zip_toArray, List.unzip_toArray, Prod.map_fst,
     List.unzip_zip_left]
 
 theorem unzip_zip_right {l₁ : Array α} {l₂ : Array β} (h : l₂.size ≤ l₁.size) :
     (unzip (zip l₁ l₂)).2 = l₂ := by
   cases l₁
   cases l₂
-  simp_all only [size_toArray, List.zip_toArray, List.unzip_toArray, Prod.map_snd,
+  simp_all only [List.size_toArray, List.zip_toArray, List.unzip_toArray, Prod.map_snd,
     List.unzip_zip_right]
 
 theorem unzip_zip {l₁ : Array α} {l₂ : Array β} (h : l₁.size = l₂.size) :
     unzip (zip l₁ l₂) = (l₁, l₂) := by
   cases l₁
   cases l₂
-  simp_all only [size_toArray, List.zip_toArray, List.unzip_toArray, List.unzip_zip, Prod.map_apply]
+  simp_all only [List.size_toArray, List.zip_toArray, List.unzip_toArray, List.unzip_zip, Prod.map_apply]
 
 theorem zip_of_prod {l : Array α} {l' : Array β} {lp : Array (α × β)} (hl : lp.map Prod.fst = l)
     (hr : lp.map Prod.snd = l') : lp = l.zip l' := by

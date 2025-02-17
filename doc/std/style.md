@@ -296,7 +296,6 @@ There are some rules and exceptions regarding specific notations which are liste
 * Sigma types: use `(a : α) × β a` instead of `Σ a, β a` or `Sigma β`.
 * Function arrows: use `fun a => f x` instead of `fun x ↦ f x` or `λ x => f x` or any other variant.
 
-
 ## Language constructs
 
 ### Pattern matching, induction etc.

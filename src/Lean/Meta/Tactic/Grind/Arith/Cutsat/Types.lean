@@ -17,10 +17,11 @@ mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstrWithProof where
   c : DvdCnstr
-  p : DvdCnstrProof
+  h : DvdCnstrProof
 
 inductive DvdCnstrProof where
   | expr (h : Expr)
+  | norm (c : DvdCnstrWithProof)
   | solveCombine (c₁ c₂ : DvdCnstrWithProof) (α β : Int)
   | solveElim (c₁ c₂ : DvdCnstrWithProof)
 end

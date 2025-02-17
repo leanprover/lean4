@@ -333,7 +333,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let Name.str _ subFieldName .. := subProjName
             | throwError "invalid projection name {subProjName}"
           let args := e.getAppArgs
-          if let some major := args.get? numParams then
+          if let some major := args[numParams]? then
             if (← getNestedProjectionArg major) == parent then
               if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]

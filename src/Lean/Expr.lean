@@ -751,7 +751,7 @@ def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
-  if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
+  if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -1467,7 +1467,7 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : E
   if i == start then b
   else
     let i := i - 1
-    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
+    mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=

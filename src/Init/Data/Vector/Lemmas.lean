@@ -70,8 +70,8 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
     (Vector.mk a h).back? = a.back? := rfl
 
 @[simp] theorem back_mk [NeZero n] (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).back =
-      a[n - 1]'(Nat.lt_of_lt_of_eq (Nat.sub_one_lt (NeZero.ne n)) h.symm) := rfl
+    (Vector.mk a h).back = a.back (by have : 0 ≠ n := NeZero.ne' n; omega) := by
+  simp [back, Array.back, h]
 
 @[simp] theorem foldlM_mk [Monad m] (f : β → α → m β) (b : β) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).foldlM f b = a.foldlM f b := rfl

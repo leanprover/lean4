@@ -418,6 +418,11 @@ theorem mapIdx_eq_mapIdx_iff {l : Array α} :
   rcases l with ⟨l⟩
   simp [List.getLast?_mapIdx]
 
+@[simp] theorem back_mapIdx {l : Array α} {f : Nat → α → β} (h) :
+    (l.mapIdx f).back h = f (l.size - 1) (l.back (by simpa using h)) := by
+  rcases l with ⟨l⟩
+  simp [List.getLast_mapIdx]
+
 @[simp] theorem mapIdx_mapIdx {l : Array α} {f : Nat → α → β} {g : Nat → β → γ} :
     (l.mapIdx f).mapIdx g = l.mapIdx (fun i => g i ∘ f i) := by
   simp [mapIdx_eq_iff]

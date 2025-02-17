@@ -73,6 +73,10 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
   simp [back?, List.getLast?_eq_getElem?]
 
+@[simp] theorem back_toArray (l : List α) (h) :
+    l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
+  simp [back, List.getLast_eq_getElem]
+
 @[simp] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
 

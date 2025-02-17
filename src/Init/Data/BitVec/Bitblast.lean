@@ -1339,7 +1339,7 @@ theorem getMsbD_smod {n d : BitVec w} :
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
 
-theorem msb_smod {n d : BitVec w}:
+theorem msb_smod {n d : BitVec w} :
     (BitVec.smod n d).msb
       = (match n.msb, d.msb with
     | false, false => (n.umod d)

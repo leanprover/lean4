@@ -3711,7 +3711,7 @@ theorem udiv_twoPow_eq_of_lt {w : Nat} {x : BitVec w} {k : Nat} (hk : k < w) : x
   simp [bitvec_to_nat, Nat.shiftRight_eq_div_pow, Nat.mod_eq_of_lt this]
 
 theorem toInt_twoPow {w i : Nat} :
-    (BitVec.twoPow w i).toInt = if w ≤ i then (0 : Int) else (if i + 1 = w then -(1 <<< i:Int) else 1 <<< i) := by
+    (BitVec.twoPow w i).toInt = (if w ≤ i then 0 else if i + 1 = w then -1 <<< i else 1 <<< i : Int) := by
   simp only [BitVec.twoPow, BitVec.toInt]
   rcases w with _|w
   · simp

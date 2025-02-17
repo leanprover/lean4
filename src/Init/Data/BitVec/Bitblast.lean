@@ -1292,7 +1292,7 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     simp only [bool_to_prop]
     omega
 
--- /- ### umod -/
+/-! ### umod -/
 
 theorem getElem_umod {n d : BitVec w} (hi : i < w) :
     (n % d)[i]

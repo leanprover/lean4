@@ -122,6 +122,8 @@ example : Vector Nat :=
 
 Every file should start with a copyright header, imports (in the standard library, this always includes a `prelude` declaration) and a module documentation string. There should not be a blank line between the copyright header and the imports. There should be a blank line between the imports and the module documentation string.
 
+If you explicitly declare universe variables, do so at the top of the time, after the module documentation.
+
 Correct:
 ```lean
 /-
@@ -137,9 +139,9 @@ import Init.Data.List.Find
 /-!
 **# Lemmas about `List.eraseP` and `List.erase`.**
 -/
-```
 
-If you explicitly declare universe variables, do so at the top of the time, after the copyright header.
+universe u u'
+```
 
 Syntax that is not supposed to be user-facing must be scoped. New public syntax must always be discussed explicitly in an RFC.
 

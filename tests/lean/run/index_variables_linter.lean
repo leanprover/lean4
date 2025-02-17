@@ -1,4 +1,4 @@
-set_option linter.indexVariables true
+-- set_option linter.indexVariables true
 
 #guard_msgs in
 example (xs : List Nat) (i : Nat) (h) : xs[i] = xs[i] := rfl

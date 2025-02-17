@@ -71,4 +71,4 @@ than the given value. -/
 given `ISize` if such a `Float32` exists. If no such `Float32` exists, the returned value will either
 be the smallest `Float32` this is larger than the given value, or the largest `Float32` this is smaller
 than the given value. -/
-@[extern "lean_isize_to_float32"] opaque ISize.toFloat32 (I : USize) : Float32
+@[extern "lean_isize_to_float32"] opaque ISize.toFloat32 (n : ISize) : Float32

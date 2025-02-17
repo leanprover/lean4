@@ -68,4 +68,4 @@ than the given value. -/
 given `ISize` if such a `Float` exists. If no such `Float` exists, the returned value will either
 be the smallest `Float` this is larger than the given value, or the largest `Float` this is smaller
 than the given value. -/
-@[extern "lean_isize_to_float"] opaque ISize.toFloat (I : USize) : Float
+@[extern "lean_isize_to_float"] opaque ISize.toFloat (n : ISize) : Float

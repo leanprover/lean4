@@ -866,10 +866,10 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
   rw [getLast?_eq_getLast _ h]
   simp
 
-theorem getLast_eq_of_mem_getLast? {x} (hx : x ∈ m.getLast?) :
-    m.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
+theorem getLast_eq_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
+    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
   rw [Option.mem_def] at hx
-  cases m
+  cases l
   · contradiction
   · rw [← Option.some_inj, ← hx]
     rfl
@@ -942,9 +942,9 @@ theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head
   | nil => simp at h
   | cons x xs => simp
 
-theorem head_eq_of_mem_head? {x} (hx : x ∈ m.head?) :
-    m.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
-  cases m
+theorem head_eq_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
+    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
+  cases l
   · contradiction
   · simpa using hx
 

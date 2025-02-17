@@ -15,6 +15,10 @@ Lemmas about `List.findSome?`, `List.find?`, `List.findIdx`, `List.findIdx?`, `L
 and `List.lookup`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
+
 namespace List
 
 open Nat
@@ -335,11 +339,11 @@ theorem get_find?_mem (xs : List α) (p : α → Bool) (h) : (xs.find? p).get h 
     simp only [cons_append, find?]
     by_cases h : p x <;> simp [h, ih]
 
-@[simp] theorem find?_flatten (xs : List (List α)) (p : α → Bool) :
-    xs.flatten.find? p = xs.findSome? (·.find? p) := by
-  induction xs with
+@[simp] theorem find?_flatten (xss : List (List α)) (p : α → Bool) :
+    xss.flatten.find? p = xss.findSome? (·.find? p) := by
+  induction xss with
   | nil => simp
-  | cons x xs ih =>
+  | cons _ _ ih =>
     simp only [flatten_cons, find?_append, findSome?_cons, ih]
     split <;> simp [*]
 
@@ -358,7 +362,7 @@ Moreover, no earlier list in `xs` has an element satisfying `p`.
 theorem find?_flatten_eq_some_iff {xs : List (List α)} {p : α → Bool} {a : α} :
     xs.flatten.find? p = some a ↔
       p a ∧ ∃ as ys zs bs, xs = as ++ (ys ++ a :: zs) :: bs ∧
-        (∀ a ∈ as, ∀ x ∈ a, !p x) ∧ (∀ x ∈ ys, !p x) := by
+        (∀ l ∈ as, ∀ x ∈ l, !p x) ∧ (∀ x ∈ ys, !p x) := by
   rw [find?_eq_some_iff_append]
   constructor
   · rintro ⟨h, ⟨ys, zs, h₁, h₂⟩⟩
@@ -370,8 +374,8 @@ theorem find?_flatten_eq_some_iff {xs : List (List α)} {p : α → Bool} {a : �
       obtain ⟨bs, cs, ds, rfl, h₁, rfl⟩ := h₁
       refine ⟨as ++ bs, [], cs, ds, by simp, ?_⟩
       simp
-      rintro a (ma | mb) x m
-      · simpa using h₂ x (by simpa using ⟨a, ma, m⟩)
+      rintro l (ma | mb) x m
+      · simpa using h₂ x (by simpa using ⟨l, ma, m⟩)
       · specialize h₁ _ mb
         simp_all
     · simp [h₁]
@@ -519,7 +523,7 @@ theorem findIdx?_go_eq_map_findFinIdx?_go_val {xs : List α} {p : α → Bool} {
       (List.findFinIdx?.go p l xs i h).map (·.val) := by
   unfold findIdx?.go
   unfold findFinIdx?.go
-  split <;> rename_i a xs
+  split
   · simp_all
   · simp only
     split
@@ -563,10 +567,10 @@ where
       List.findIdx.go p l (n + 1) = (findIdx.go p l n) + 1 := by
     cases l with
     | nil => unfold findIdx.go; exact Nat.succ_eq_add_one n
-    | cons head tail =>
+    | cons hd tl =>
       unfold findIdx.go
-      cases p head <;> simp only [cond_false, cond_true]
-      exact findIdx_go_succ p tail (n + 1)
+      cases p hd <;> simp only [cond_false, cond_true]
+      exact findIdx_go_succ p tl (n + 1)
 
 theorem findIdx_of_getElem?_eq_some {xs : List α} (w : xs[xs.findIdx p]? = some y) : p y := by
   induction xs with

@@ -16,7 +16,8 @@ These are in a separate file from most of the list lemmas
 as they required importing more lemmas about natural numbers, and use `omega`.
 -/
 
-set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -38,16 +39,16 @@ theorem length_take_of_le (h : i ≤ length l) : length (take i l) = i := by sim
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the big list to the small list. -/
-theorem getElem_take' (L : List α) {i j : Nat} (hi : i < L.length) (hj : i < j) :
-    L[i] = (L.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
-  getElem_of_eq (take_append_drop j L).symm _ ▸ getElem_append_left ..
+theorem getElem_take' (xs : List α) {i j : Nat} (hi : i < xs.length) (hj : i < j) :
+    xs[i] = (xs.take j)[i]'(length_take .. ▸ Nat.lt_min.mpr ⟨hj, hi⟩) :=
+  getElem_of_eq (take_append_drop j xs).symm _ ▸ getElem_append_left ..
 
 /-- The `i`-th element of a list coincides with the `i`-th element of any of its prefixes of
 length `> i`. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_take (L : List α) {j i : Nat} {h : i < (L.take j).length} :
-    (L.take j)[i] =
-    L[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
-  rw [length_take, Nat.lt_min] at h; rw [getElem_take' L _ h.1]
+@[simp] theorem getElem_take (xs : List α) {j i : Nat} {h : i < (xs.take j).length} :
+    (xs.take j)[i] =
+    xs[i]'(Nat.lt_of_lt_of_le h (length_take_le' _ _)) := by
+  rw [length_take, Nat.lt_min] at h; rw [getElem_take' xs _ h.1]
 
 theorem getElem?_take_eq_none {l : List α} {i j : Nat} (h : i ≤ j) :
     (l.take i)[j]? = none :=
@@ -212,31 +213,31 @@ theorem take_subset_take_left (l : List α) {i j : Nat} (h : i ≤ j) : take i l
 
 /-! ### drop -/
 
-theorem lt_length_drop (L : List α) {i j : Nat} (h : i + j < L.length) : j < (L.drop i).length := by
-  have A : i < L.length := Nat.lt_of_le_of_lt (Nat.le.intro rfl) h
-  rw [(take_append_drop i L).symm] at h
+theorem lt_length_drop (xs : List α) {i j : Nat} (h : i + j < xs.length) : j < (xs.drop i).length := by
+  have A : i < xs.length := Nat.lt_of_le_of_lt (Nat.le.intro rfl) h
+  rw [(take_append_drop i xs).symm] at h
   simpa only [Nat.le_of_lt A, Nat.min_eq_left, Nat.add_lt_add_iff_left, length_take,
     length_append] using h
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the big list to the small list. -/
-theorem getElem_drop' (L : List α) {i j : Nat} (h : i + j < L.length) :
-    L[i + j] = (L.drop i)[j]'(lt_length_drop L h) := by
-  have : i ≤ L.length := Nat.le_trans (Nat.le_add_right _ _) (Nat.le_of_lt h)
-  rw [getElem_of_eq (take_append_drop i L).symm h, getElem_append_right]
+theorem getElem_drop' (xs : List α) {i j : Nat} (h : i + j < xs.length) :
+    xs[i + j] = (xs.drop i)[j]'(lt_length_drop xs h) := by
+  have : i ≤ xs.length := Nat.le_trans (Nat.le_add_right _ _) (Nat.le_of_lt h)
+  rw [getElem_of_eq (take_append_drop i xs).symm h, getElem_append_right]
   · simp [Nat.min_eq_left this, Nat.add_sub_cancel_left]
   · simp [Nat.min_eq_left this, Nat.le_add_right]
 
 /-- The `i + j`-th element of a list coincides with the `j`-th element of the list obtained by
 dropping the first `i` elements. Version designed to rewrite from the small list to the big list. -/
-@[simp] theorem getElem_drop (L : List α) {i : Nat} {j : Nat} {h : j < (L.drop i).length} :
-    (L.drop i)[j] = L[i + j]'(by
+@[simp] theorem getElem_drop (xs : List α) {i : Nat} {j : Nat} {h : j < (xs.drop i).length} :
+    (xs.drop i)[j] = xs[i + j]'(by
       rw [Nat.add_comm]
-      exact Nat.add_lt_of_lt_sub (length_drop i L ▸ h)) := by
+      exact Nat.add_lt_of_lt_sub (length_drop i xs ▸ h)) := by
   rw [getElem_drop']
 
 @[simp]
-theorem getElem?_drop (L : List α) (i j : Nat) : (L.drop i)[j]? = L[i + j]? := by
+theorem getElem?_drop (xs : List α) (i j : Nat) : (xs.drop i)[j]? = xs[i + j]? := by
   ext
   simp only [getElem?_eq_some_iff, getElem_drop, Option.mem_def]
   constructor <;> intro ⟨h, ha⟩
@@ -375,18 +376,18 @@ theorem take_reverse {α} {xs : List α} {i : Nat} :
   by_cases h : i ≤ xs.length
   · induction xs generalizing i <;>
       simp only [reverse_cons, drop, reverse_nil, Nat.zero_sub, length, take_nil]
-    next xs_hd xs_tl xs_ih =>
+    next hd tl xs_ih =>
     cases Nat.lt_or_eq_of_le h with
     | inl h' =>
       have h' := Nat.le_of_succ_le_succ h'
       rw [take_append_of_le_length, xs_ih h']
-      rw [show xs_tl.length + 1 - i = succ (xs_tl.length - i) from _, drop]
+      rw [show tl.length + 1 - i = succ (tl.length - i) from _, drop]
       · rwa [succ_eq_add_one, Nat.sub_add_comm]
       · rwa [length_reverse]
     | inr h' =>
       subst h'
       rw [length, Nat.sub_self, drop]
-      suffices xs_tl.length + 1 = (xs_tl.reverse ++ [xs_hd]).length by
+      suffices tl.length + 1 = (tl.reverse ++ [hd]).length by
         rw [this, take_length, reverse_cons]
       rw [length_append, length_reverse]
       rfl

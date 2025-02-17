@@ -14,6 +14,9 @@ import Init.Data.List.Erase
 # Lemmas about `List.range` and `List.enum`
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -93,7 +96,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
     simp only [range'_succ]
     rw [cons_eq_append_iff]
     constructor
-    · rintro (⟨rfl, rfl⟩ | ⟨a, rfl, h⟩)
+    · rintro (⟨rfl, rfl⟩ | ⟨_, rfl, h⟩)
       · exact ⟨0, by simp [range'_succ]⟩
       · simp only [ih] at h
         obtain ⟨k, h, rfl, rfl⟩ := h
@@ -117,7 +120,7 @@ theorem range'_eq_append_iff : range' s n = xs ++ ys ↔ ∃ k, k ≤ n ∧ xs =
   simp only [range'_eq_append_iff, eq_comm (a := i :: _), range'_eq_cons_iff]
   intro h
   constructor
-  · rintro ⟨as, ⟨x, k, h₁, rfl, rfl, h₂, rfl⟩, h₃⟩
+  · rintro ⟨as, ⟨_, k, h₁, rfl, rfl, h₂, rfl⟩, h₃⟩
     constructor
     · omega
     · simpa using h₃
@@ -177,7 +180,7 @@ theorem pairwise_lt_range (n : Nat) : Pairwise (· < ·) (range n) := by
 theorem pairwise_le_range (n : Nat) : Pairwise (· ≤ ·) (range n) :=
   Pairwise.imp Nat.le_of_lt (pairwise_lt_range _)
 
-@[simp] theorem take_range (m n : Nat) : take m (range n) = range (min m n) := by
+@[simp] theorem take_range (i n : Nat) : take i (range n) = range (min i n) := by
   apply List.ext_getElem
   · simp
   · simp +contextual [getElem_take, Nat.lt_min]
@@ -411,7 +414,7 @@ theorem fst_eq_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ 
   | nil => cases h
   | cons hd tl ih =>
     cases h with
-    | head h => simp
+    | head _ => simp
     | tail h m =>
       specialize ih m
       have : x.2 - k = x.2 - (k + 1) + 1 := by
@@ -462,12 +465,12 @@ theorem zipIdx_eq_append_iff {l : List α} {k : Nat} :
       ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = zipIdx l₁' k ∧ l₂ = zipIdx l₂' (k + l₁'.length) := by
   rw [zipIdx_eq_zip_range', zip_eq_append_iff]
   constructor
-  · rintro ⟨w, x, y, z, h, rfl, h', rfl, rfl⟩
+  · rintro ⟨ws, xs, ys, zs, h, rfl, h', rfl, rfl⟩
     rw [range'_eq_append_iff] at h'
     obtain ⟨k, -, rfl, rfl⟩ := h'
     simp only [length_range'] at h
     obtain rfl := h
-    refine ⟨w, x, rfl, ?_⟩
+    refine ⟨ws, xs, rfl, ?_⟩
     simp only [zipIdx_eq_zip_range', length_append, true_and]
     congr
     omega
@@ -538,7 +541,7 @@ theorem snd_eq_of_mem_enumFrom {x : Nat × α} {n : Nat} {l : List α} (h : x �
   | nil => cases h
   | cons hd tl ih =>
     cases h with
-    | head h => simp
+    | head _ => simp
     | tail h m =>
       specialize ih m
       have : x.1 - n = x.1 - (n + 1) + 1 := by
@@ -589,12 +592,12 @@ theorem enumFrom_eq_append_iff {l : List α} {n : Nat} :
       ∃ l₁' l₂', l = l₁' ++ l₂' ∧ l₁ = l₁'.enumFrom n ∧ l₂ = l₂'.enumFrom (n + l₁'.length) := by
   rw [enumFrom_eq_zip_range', zip_eq_append_iff]
   constructor
-  · rintro ⟨w, x, y, z, h, h', rfl, rfl, rfl⟩
+  · rintro ⟨ws, xs, ys, zs, h, h', rfl, rfl, rfl⟩
     rw [range'_eq_append_iff] at h'
     obtain ⟨k, -, rfl, rfl⟩ := h'
     simp only [length_range'] at h
     obtain rfl := h
-    refine ⟨y, z, rfl, ?_⟩
+    refine ⟨ys, zs, rfl, ?_⟩
     simp only [enumFrom_eq_zip_range', length_append, true_and]
     congr
     omega
@@ -624,7 +627,7 @@ theorem enum_length : (enum l).length = l.length :=
   enumFrom_length
 
 @[deprecated getElem?_zipIdx (since := "2025-01-21"), simp]
-theorem getElem?_enum (l : List α) (n : Nat) : (enum l)[n]? = l[n]?.map fun a => (n, a) := by
+theorem getElem?_enum (l : List α) (i : Nat) : (enum l)[i]? = l[i]?.map fun a => (i, a) := by
   rw [enum, getElem?_enumFrom, Nat.zero_add]
 
 @[deprecated getElem_zipIdx (since := "2025-01-21"), simp]

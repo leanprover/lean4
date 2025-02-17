@@ -8,6 +8,9 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Nat.Erase
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### modifyHead -/
@@ -24,11 +27,11 @@ theorem modifyHead_eq_set [Inhabited α] (f : α → α) (l : List α) :
 @[simp] theorem modifyHead_modifyHead {l : List α} {f g : α → α} :
     (l.modifyHead f).modifyHead g = l.modifyHead (g ∘ f) := by cases l <;> simp [modifyHead]
 
-theorem getElem_modifyHead {l : List α} {f : α → α} {n} (h : n < (l.modifyHead f).length) :
-    (l.modifyHead f)[n] = if h' : n = 0 then f (l[0]'(by simp at h; omega)) else l[n]'(by simpa using h) := by
+theorem getElem_modifyHead {l : List α} {f : α → α} {i} (h : i < (l.modifyHead f).length) :
+    (l.modifyHead f)[i] = if h' : i = 0 then f (l[0]'(by simp at h; omega)) else l[i]'(by simpa using h) := by
   cases l with
   | nil => simp at h
-  | cons hd tl => cases n <;> simp
+  | cons hd tl => cases i <;> simp
 
 @[simp] theorem getElem_modifyHead_zero {l : List α} {f : α → α} {h} :
     (l.modifyHead f)[0] = f (l[0]'(by simpa using h)) := by simp [getElem_modifyHead]
@@ -36,11 +39,11 @@ theorem getElem_modifyHead {l : List α} {f : α → α} {n} (h : n < (l.modifyH
 @[simp] theorem getElem_modifyHead_succ {l : List α} {f : α → α} {n} (h : n + 1 < (l.modifyHead f).length) :
     (l.modifyHead f)[n + 1] = l[n + 1]'(by simpa using h) := by simp [getElem_modifyHead]
 
-theorem getElem?_modifyHead {l : List α} {f : α → α} {n} :
-    (l.modifyHead f)[n]? = if n = 0 then l[n]?.map f else l[n]? := by
+theorem getElem?_modifyHead {l : List α} {f : α → α} {i} :
+    (l.modifyHead f)[i]? = if i = 0 then l[i]?.map f else l[i]? := by
   cases l with
   | nil => simp
-  | cons hd tl => cases n <;> simp
+  | cons hd tl => cases i <;> simp
 
 @[simp] theorem getElem?_modifyHead_zero {l : List α} {f : α → α} :
     (l.modifyHead f)[0]? = l[0]?.map f := by simp [getElem?_modifyHead]
@@ -60,19 +63,19 @@ theorem getElem?_modifyHead {l : List α} {f : α → α} {n} :
 @[simp] theorem tail_modifyHead {f : α → α} {l : List α} :
     (l.modifyHead f).tail = l.tail := by cases l <;> simp
 
-@[simp] theorem take_modifyHead {f : α → α} {l : List α} {n} :
-    (l.modifyHead f).take n = (l.take n).modifyHead f := by
-  cases l <;> cases n <;> simp
+@[simp] theorem take_modifyHead {f : α → α} {l : List α} {i} :
+    (l.modifyHead f).take i = (l.take i).modifyHead f := by
+  cases l <;> cases i <;> simp
 
-@[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {n} (h : 0 < n) :
-    (l.modifyHead f).drop n = l.drop n := by
-  cases l <;> cases n <;> simp_all
+@[simp] theorem drop_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
+    (l.modifyHead f).drop i = l.drop i := by
+  cases l <;> cases i <;> simp_all
 
 theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
     (l.modifyHead f).eraseIdx 0 = l.eraseIdx 0 := by simp
 
-@[simp] theorem eraseIdx_modifyHead_of_pos {f : α → α} {l : List α} {n} (h : 0 < n) :
-    (l.modifyHead f).eraseIdx n = (l.eraseIdx n).modifyHead f := by cases l <;> cases n <;> simp_all
+@[simp] theorem eraseIdx_modifyHead_of_pos {f : α → α} {l : List α} {i} (h : 0 < i) :
+    (l.modifyHead f).eraseIdx i = (l.eraseIdx i).modifyHead f := by cases l <;> cases i <;> simp_all
 
 @[simp] theorem modifyHead_id : modifyHead (id : α → α) = id := by funext l; cases l <;> simp
 
@@ -89,7 +92,7 @@ theorem eraseIdx_modifyHead_zero {f : α → α} {l : List α} :
   | _+1, [] => rfl
   | n+1, a :: l => congrArg (cons a) (modifyTailIdx_id n l)
 
-theorem eraseIdx_eq_modifyTailIdx : ∀ n (l : List α), eraseIdx l n = modifyTailIdx tail n l
+theorem eraseIdx_eq_modifyTailIdx : ∀ i (l : List α), eraseIdx l i = modifyTailIdx tail i l
   | 0, l => by cases l <;> rfl
   | _+1, [] => rfl
   | _+1, _ :: _ => congrArg (cons _) (eraseIdx_eq_modifyTailIdx _ _)
@@ -105,7 +108,7 @@ theorem modifyTailIdx_add (f : List α → List α) (n) (l₁ l₂ : List α) :
   induction l₁ <;> simp [*, Nat.succ_add]
 
 theorem modifyTailIdx_eq_take_drop (f : List α → List α) (H : f [] = []) :
-    ∀ n l, modifyTailIdx f n l = take n l ++ f (drop n l)
+    ∀ i l, modifyTailIdx f i l = take i l ++ f (drop i l)
   | 0, _ => rfl
   | _ + 1, [] => H.symm
   | n + 1, b :: l => congrArg (cons b) (modifyTailIdx_eq_take_drop f H n l)
@@ -152,39 +155,39 @@ theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     l.modify f n = [] ↔ l = [] := by cases l <;> cases n <;> simp
 
 theorem getElem?_modify (f : α → α) :
-    ∀ n (l : List α) m, (modify f n l)[m]? = (fun a => if n = m then f a else a) <$> l[m]?
+    ∀ i (l : List α) j, (modify f i l)[j]? = (fun a => if i = j then f a else a) <$> l[j]?
   | n, l, 0 => by cases l <;> cases n <;> simp
   | n, [], _+1 => by cases n <;> rfl
-  | 0, _ :: l, m+1 => by cases h : l[m]? <;> simp [h, modify, m.succ_ne_zero.symm]
-  | n+1, a :: l, m+1 => by
+  | 0, _ :: l, j+1 => by cases h : l[j]? <;> simp [h, modify, j.succ_ne_zero.symm]
+  | i+1, a :: l, j+1 => by
     simp only [modify_succ_cons, getElem?_cons_succ, Nat.reduceEqDiff, Option.map_eq_map]
-    refine (getElem?_modify f n l m).trans ?_
-    cases h' : l[m]? <;> by_cases h : n = m <;>
+    refine (getElem?_modify f i l j).trans ?_
+    cases h' : l[j]? <;> by_cases h : i = j <;>
       simp [h, if_pos, if_neg, Option.map, mt Nat.succ.inj, not_false_iff, h']
 
-@[simp] theorem length_modify (f : α → α) : ∀ n l, length (modify f n l) = length l :=
+@[simp] theorem length_modify (f : α → α) : ∀ i l, length (modify f i l) = length l :=
   length_modifyTailIdx _ fun l => by cases l <;> rfl
 
-@[simp] theorem getElem?_modify_eq (f : α → α) (n) (l : List α) :
-    (modify f n l)[n]? = f <$> l[n]? := by
+@[simp] theorem getElem?_modify_eq (f : α → α) (i) (l : List α) :
+    (modify f i l)[i]? = f <$> l[i]? := by
   simp only [getElem?_modify, if_pos]
 
-@[simp] theorem getElem?_modify_ne (f : α → α) {m n} (l : List α) (h : m ≠ n) :
-    (modify f m l)[n]? = l[n]? := by
+@[simp] theorem getElem?_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) :
+    (modify f i l)[j]? = l[j]? := by
   simp only [getElem?_modify, if_neg h, id_map']
 
-theorem getElem_modify (f : α → α) (n) (l : List α) (m) (h : m < (modify f n l).length) :
-    (modify f n l)[m] =
-      if n = m then f (l[m]'(by simp at h; omega)) else l[m]'(by simp at h; omega) := by
+theorem getElem_modify (f : α → α) (i) (l : List α) (j) (h : j < (modify f i l).length) :
+    (modify f i l)[j] =
+      if i = j then f (l[j]'(by simp at h; omega)) else l[j]'(by simp at h; omega) := by
   rw [getElem_eq_iff, getElem?_modify]
   simp at h
   simp [h]
 
-@[simp] theorem getElem_modify_eq (f : α → α) (n) (l : List α) (h) :
-    (modify f n l)[n] = f (l[n]'(by simpa using h)) := by simp [getElem_modify]
+@[simp] theorem getElem_modify_eq (f : α → α) (i) (l : List α) (h) :
+    (modify f i l)[i] = f (l[i]'(by simpa using h)) := by simp [getElem_modify]
 
-@[simp] theorem getElem_modify_ne (f : α → α) {m n} (l : List α) (h : m ≠ n) (h') :
-    (modify f m l)[n] = l[n]'(by simpa using h') := by simp [getElem_modify, h]
+@[simp] theorem getElem_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) (h') :
+    (modify f i l)[j] = l[j]'(by simpa using h') := by simp [getElem_modify, h]
 
 theorem modify_eq_self {f : α → α} {n} {l : List α} (h : l.length ≤ n) :
     l.modify f n = l := by
@@ -211,8 +214,8 @@ theorem modify_modify_ne (f g : α → α) {m n} (l : List α) (h : m ≠ n) :
     simp only [getElem_modify, getElem_modify_ne, h₂]
     split <;> split <;> first | rfl | omega
 
-theorem modify_eq_set [Inhabited α] (f : α → α) (n) (l : List α) :
-    modify f n l = l.set n (f (l[n]?.getD default)) := by
+theorem modify_eq_set [Inhabited α] (f : α → α) (i) (l : List α) :
+    modify f i l = l.set i (f (l[i]?.getD default)) := by
   apply ext_getElem
   · simp
   · intro m h₁ h₂
@@ -224,11 +227,11 @@ theorem modify_eq_set [Inhabited α] (f : α → α) (n) (l : List α) :
     · rfl
 
 theorem modify_eq_take_drop (f : α → α) :
-    ∀ n l, modify f n l = take n l ++ modifyHead f (drop n l) :=
+    ∀ i l, modify f i l = take i l ++ modifyHead f (drop i l) :=
   modifyTailIdx_eq_take_drop _ rfl
 
-theorem modify_eq_take_cons_drop {f : α → α} {n} {l : List α} (h : n < l.length) :
-    modify f n l = take n l ++ f l[n] :: drop (n + 1) l := by
+theorem modify_eq_take_cons_drop {f : α → α} {i} {l : List α} (h : i < l.length) :
+    modify f i l = take i l ++ f l[i] :: drop (i + 1) l := by
   rw [modify_eq_take_drop, drop_eq_getElem_cons h]; rfl
 
 theorem exists_of_modify (f : α → α) {n} {l : List α} (h : n < l.length) :
@@ -240,20 +243,20 @@ theorem exists_of_modify (f : α → α) {n} {l : List α} (h : n < l.length) :
 @[simp] theorem modify_id (n) (l : List α) : l.modify id n = l := by
   simp [modify]
 
-theorem take_modify (f : α → α) (n m) (l : List α) :
-    (modify f m l).take n = (take n l).modify f m := by
-  induction n generalizing l m with
+theorem take_modify (f : α → α) (i j) (l : List α) :
+    (modify f i l).take j = (take j l).modify f i := by
+  induction j generalizing l i with
   | zero => simp
   | succ n ih =>
     cases l with
     | nil => simp
     | cons hd tl =>
-      cases m with
+      cases i with
       | zero => simp
-      | succ m => simp [ih]
+      | succ i => simp [ih]
 
-theorem drop_modify_of_lt (f : α → α) (n m) (l : List α) (h : n < m) :
-    (modify f n l).drop m = l.drop m := by
+theorem drop_modify_of_lt (f : α → α) (i j) (l : List α) (h : i < j) :
+    (modify f i l).drop j = l.drop j := by
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
@@ -261,16 +264,16 @@ theorem drop_modify_of_lt (f : α → α) (n m) (l : List α) (h : n < m) :
     intro h'
     omega
 
-theorem drop_modify_of_ge (f : α → α) (n m) (l : List α) (h : n ≥ m) :
-    (modify f n l).drop m = modify f (n - m) (drop m l) := by
+theorem drop_modify_of_ge (f : α → α) (i j) (l : List α) (h : i ≥ j) :
+    (modify f i l).drop j = modify f (i - j) (drop j l) := by
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
     simp [getElem_drop, getElem_modify, ite_eq_right_iff]
     split <;> split <;> first | rfl | omega
 
-theorem eraseIdx_modify_of_eq (f : α → α) (n) (l : List α) :
-    (modify f n l).eraseIdx n = l.eraseIdx n := by
+theorem eraseIdx_modify_of_eq (f : α → α) (i) (l : List α) :
+    (modify f i l).eraseIdx i = l.eraseIdx i := by
   apply ext_getElem
   · simp [length_eraseIdx]
   · intro m h₁ h₂

@@ -337,21 +337,21 @@ def maxKeyD (t : DTreeMap α β cmp) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKeyD fallback
 
 /-- Returns the key-value pair with the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
-def entryAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndex? n
+def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx? n
 
 /-- Returns the key-value pair with the `n`-th smallest key. -/
-def entryAtIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; Impl.entryAtIndex t.inner t.wf.balanced n h
+def entryAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; Impl.entryAtIdx t.inner t.wf.balanced n h
 
 /-- Returns the key-value pair with the `n`-th smallest key, or panics if `n` is at least `t.size`. -/
-def entryAtIndex! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (n : Nat) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndex! n
+def entryAtIdx! [Inhabited ((a : α) × β a)] (t : DTreeMap α β cmp) (n : Nat) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx! n
 
 /-- Returns the key-value pair with the `n`-th smallest key, or `fallback` if `n` is at least `t.size`. -/
-def entryAtIndexD (t : DTreeMap α β cmp) (n : Nat)
+def entryAtIdxD (t : DTreeMap α β cmp) (n : Nat)
     (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndexD n fallback
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdxD n fallback
 
 /-- Returns the `n`-th smallest key, or `none` if `n` is at least `t.size`. -/
 def keyAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option α :=
@@ -635,22 +635,22 @@ def max! [Inhabited (α × β)] (t : DTreeMap α β cmp) : α × β :=
 def maxD (t : DTreeMap α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxD t.inner fallback
 
-@[inline, inherit_doc DTreeMap.entryAtIndex?]
-def entryAtIndex? (t : DTreeMap α β cmp) (n : Nat) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndex? t.inner n
+@[inline, inherit_doc DTreeMap.entryAtIdx?]
+def entryAtIdx? (t : DTreeMap α β cmp) (n : Nat) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx? t.inner n
 
-@[inline, inherit_doc DTreeMap.entryAtIndex]
-def entryAtIndex (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndex t.inner t.wf.balanced n h
+@[inline, inherit_doc DTreeMap.entryAtIdx]
+def entryAtIdx (t : DTreeMap α β cmp) (n : Nat) (h : n < t.size) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx t.inner t.wf.balanced n h
 
-@[inline, inherit_doc DTreeMap.entryAtIndex!]
-def entryAtIndex! [Inhabited (α × β)] (t : DTreeMap α β cmp) (n : Nat) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndex! t.inner n
+@[inline, inherit_doc DTreeMap.entryAtIdx!]
+def entryAtIdx! [Inhabited (α × β)] (t : DTreeMap α β cmp) (n : Nat) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.entryAtIndexD]
-def entryAtIndexD (t : DTreeMap α β cmp) (n : Nat)
+@[inline, inherit_doc DTreeMap.entryAtIdxD]
+def entryAtIdxD (t : DTreeMap α β cmp) (n : Nat)
     (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndexD t.inner n fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdxD t.inner n fallback
 
 @[inline, inherit_doc DTreeMap.getEntryGE?]
 def getEntryGE? (t : DTreeMap α β cmp) (k : α) : Option (α × β) :=

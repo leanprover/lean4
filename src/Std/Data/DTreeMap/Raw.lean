@@ -239,21 +239,21 @@ def maxKey! [Inhabited α] (t : Raw α β cmp) : α :=
 def maxKeyD (t : Raw α β cmp) (fallback : α) : α :=
   letI : Ord α := ⟨cmp⟩; t.inner.maxKeyD fallback
 
-@[inline, inherit_doc DTreeMap.entryAtIndex?]
-def entryAtIndex? (t : Raw α β cmp) (n : Nat) : Option ((a : α) × β a) :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndex? n
+@[inline, inherit_doc DTreeMap.entryAtIdx?]
+def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option ((a : α) × β a) :=
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx? n
 
 /-!
-We do not provide `entryAtIndex` for the raw trees.
+We do not provide `entryAtIdx` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.entryAtIndex!]
-def entryAtIndex! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (n : Nat) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndex! n
+@[inline, inherit_doc DTreeMap.entryAtIdx!]
+def entryAtIdx! [Inhabited ((a : α) × β a)] (t : Raw α β cmp) (n : Nat) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdx! n
 
-@[inline, inherit_doc DTreeMap.entryAtIndexD]
-def entryAtIndexD (t : Raw α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a : α) × β a :=
-  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIndexD n fallback
+@[inline, inherit_doc DTreeMap.entryAtIdxD]
+def entryAtIdxD (t : Raw α β cmp) (n : Nat) (fallback : (a : α) × β a) : (a : α) × β a :=
+  letI : Ord α := ⟨cmp⟩; t.inner.entryAtIdxD n fallback
 
 @[inline, inherit_doc DTreeMap.keyAtIndex?]
 def keyAtIndex? (t : Raw α β cmp) (n : Nat) : Option α :=
@@ -435,22 +435,22 @@ def max! [Inhabited (α × β)] (t : Raw α β cmp) : α × β :=
 def maxD (t : Raw α β cmp) (fallback : α × β) : α × β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.maxD t.inner fallback
 
-@[inline, inherit_doc DTreeMap.Const.entryAtIndex?]
-def entryAtIndex? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndex? t.inner n
+@[inline, inherit_doc DTreeMap.Const.entryAtIdx?]
+def entryAtIdx? (t : Raw α β cmp) (n : Nat) : Option (α × β) :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx? t.inner n
 
 /-!
-We do not provide `entryAtIndex` for the raw trees.
+We do not provide `entryAtIdx` for the raw trees.
 -/
 
-@[inline, inherit_doc DTreeMap.Const.entryAtIndex!]
-def entryAtIndex! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndex! t.inner n
+@[inline, inherit_doc DTreeMap.Const.entryAtIdx!]
+def entryAtIdx! [Inhabited (α × β)] (t : Raw α β cmp) (n : Nat) : α × β :=
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdx! t.inner n
 
-@[inline, inherit_doc DTreeMap.Const.entryAtIndexD]
-def entryAtIndexD (t : Raw α β cmp) (n : Nat)
+@[inline, inherit_doc DTreeMap.Const.entryAtIdxD]
+def entryAtIdxD (t : Raw α β cmp) (n : Nat)
     (fallback : α × β) : α × β :=
-  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIndexD t.inner n fallback
+  letI : Ord α := ⟨cmp⟩; Impl.Const.entryAtIdxD t.inner n fallback
 
 @[inline, inherit_doc DTreeMap.Const.getEntryGE?]
 def getEntryGE? (t : Raw α β cmp) (k : α) : Option (α × β) :=

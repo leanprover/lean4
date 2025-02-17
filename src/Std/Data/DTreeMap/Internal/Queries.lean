@@ -321,39 +321,39 @@ def maxKeyD [Ord α] : Impl α β → α → α
 attribute [Std.Internal.tree_tac] Nat.compare_eq_gt Nat.compare_eq_lt Nat.compare_eq_eq
 
 /-- Implementation detail of the tree map -/
-def entryAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
+def entryAtIdx [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → (a : α) × β a
   | .inner _ k v l' r', hl, n, h =>
     match h : compare n l'.size with
-    | .lt => l'.entryAtIndex hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .lt => l'.entryAtIdx hl.left n (by simpa only [Std.Internal.tree_tac] using h)
     | .eq => ⟨k, v⟩
-    | .gt => r'.entryAtIndex hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+    | .gt => r'.entryAtIdx hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndex? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
+def entryAtIdx? [Ord α] : Impl α β → Nat → Option ((a : α) × β a)
   | .leaf, _ => none
   | .inner _ k v l r, n =>
     match compare n l.size with
-    | .lt => l.entryAtIndex? n
+    | .lt => l.entryAtIdx? n
     | .eq => some ⟨k, v⟩
-    | .gt => r.entryAtIndex? (n - l.size - 1)
+    | .gt => r.entryAtIdx? (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndex! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
+def entryAtIdx! [Ord α] [Inhabited ((a : α) × β a)] : Impl α β → Nat → (a : α) × β a
   | .leaf, _ => panic! "Out-of-bounds access"
   | .inner _ k v l r, n =>
     match compare n l.size with
-    | .lt => l.entryAtIndex! n
+    | .lt => l.entryAtIdx! n
     | .eq => ⟨k, v⟩
-    | .gt => r.entryAtIndex! (n - l.size - 1)
+    | .gt => r.entryAtIdx! (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndexD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
+def entryAtIdxD [Ord α] : Impl α β → Nat → (a : α) × β a → (a : α) × β a
   | .leaf, _, fallback => fallback
   | .inner _ k v l r, n, fallback =>
     match compare n l.size with
-    | .lt => l.entryAtIndexD n fallback
+    | .lt => l.entryAtIdxD n fallback
     | .eq => ⟨k, v⟩
-    | .gt => r.entryAtIndexD (n - l.size - 1) fallback
+    | .gt => r.entryAtIdxD (n - l.size - 1) fallback
 
 /-- Implementation detail of the tree map -/
 def keyAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α
@@ -723,40 +723,40 @@ def maxD [Ord α] : Impl α β → α × β → α × β
 
 /-- Implementation detail of the tree map -/
 @[inline]
-def entryAtIndex [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
+def entryAtIdx [Ord α] : (t : Impl α β) → (hl : t.Balanced) → (n : Nat) → (h : n < t.size) → α × β
   | .inner _ k v l' r', hl, n, h =>
     match h : compare n l'.size with
-    | .lt => entryAtIndex l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
+    | .lt => entryAtIdx l' hl.left n (by simpa only [Std.Internal.tree_tac] using h)
     | .eq => ⟨k, v⟩
     | .gt =>
-      entryAtIndex r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
+      entryAtIdx r' hl.right (n - l'.size - 1) (by simp_all only [Std.Internal.tree_tac]; omega)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndex? [Ord α] : Impl α β → Nat → Option (α × β)
+def entryAtIdx? [Ord α] : Impl α β → Nat → Option (α × β)
   | .leaf, _ => none
   | .inner _ k v l r, n =>
     match compare n l.size with
-    | .lt => entryAtIndex? l n
+    | .lt => entryAtIdx? l n
     | .eq => some ⟨k, v⟩
-    | .gt => entryAtIndex? r (n - l.size - 1)
+    | .gt => entryAtIdx? r (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndex! [Ord α] [Inhabited (α × β)] : Impl α β → Nat → α × β
+def entryAtIdx! [Ord α] [Inhabited (α × β)] : Impl α β → Nat → α × β
   | .leaf, _ => panic! "Out-of-bounds access"
   | .inner _ k v l r, n =>
     match compare n l.size with
-    | .lt => entryAtIndex! l n
+    | .lt => entryAtIdx! l n
     | .eq => ⟨k, v⟩
-    | .gt => entryAtIndex! r (n - l.size - 1)
+    | .gt => entryAtIdx! r (n - l.size - 1)
 
 /-- Implementation detail of the tree map -/
-def entryAtIndexD [Ord α] : Impl α β → Nat → α × β → α × β
+def entryAtIdxD [Ord α] : Impl α β → Nat → α × β → α × β
   | .leaf, _, fallback => fallback
   | .inner _ k v l r, n, fallback =>
     match compare n l.size with
-    | .lt => entryAtIndexD l n fallback
+    | .lt => entryAtIdxD l n fallback
     | .eq => ⟨k, v⟩
-    | .gt => entryAtIndexD r (n - l.size - 1) fallback
+    | .gt => entryAtIdxD r (n - l.size - 1) fallback
 
 /-- Implementation detail of the tree map -/
 @[inline]

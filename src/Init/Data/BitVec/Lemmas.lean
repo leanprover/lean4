@@ -3992,7 +3992,8 @@ theorem getLsbD_intMax (w : Nat) : (intMax w).getLsbD i = decide (i + 1 < w) := 
 
 @[simp]
 theorem toInt_intMax : (BitVec.intMax w).toInt = 2 ^ (w - 1) - 1 := by
-  simp only [intMax]
+  have : intMax w = BitVec.twoPow w (w - 1) - 1#w := by simp [intMax]
+  rw [this]
   rcases w with _|_|w
   · decide
   · decide

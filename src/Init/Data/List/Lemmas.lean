@@ -966,7 +966,7 @@ theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
   cases l <;> simp
 
-theorem head_eq_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
+theorem head_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
     l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
   cases l
   · contradiction

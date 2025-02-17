@@ -2087,9 +2087,8 @@ theorem toFin_sshiftRight {x : BitVec w} {n : Nat} :
     · simp only [h, ↓reduceIte, Fin.val_ofNat']
       rw [Nat.mod_eq_of_lt]
       have := x.isLt
-      have : ∀ y, 2 ^ w - 1 - y < 2 ^ w := by
-        omega
-      exact this ((2 ^ w - 1 - x.toNat) >>> n)
+      have ineq : ∀ y, 2 ^ w - 1 - y < 2 ^ w := by omega
+      exact ineq ((2 ^ w - 1 - x.toNat) >>> n)
     · simp only [h, Bool.false_eq_true, ↓reduceIte, Fin.val_ofNat']
       have := Nat.shiftRight_le x.toNat n
       rw [Nat.mod_eq_of_lt (by omega)]

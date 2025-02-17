@@ -252,7 +252,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
 open Language in
 def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
-  findCmdParsedSnap doc hoverPos |>.bindCheap fun
+  findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
       let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some (pos, tailPos, trailingPos) := getPositions snap
@@ -336,7 +336,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTaskCheap (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
+  mapTaskCostly (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do

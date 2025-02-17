@@ -203,7 +203,6 @@ This option can only be set on the command line, not in the lakefile or via `set
       let (_, st) ← handleTasks #[.finished none <| toSnapshotTree doc.initSnap] |>.run {}
       if (← cancelTk.isSet) then
         return ()
-
       -- callback at the end of reporting
       if st.hasFatal then
         ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
@@ -221,6 +220,8 @@ This option can only be set on the command line, not in the lakefile or via `set
     them to finish.
     -/
     handleTasks (ts : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
+      if (← cancelTk.isSet) then
+        return ()
       let ts ← ts.flatMapM handleFinished
       -- all `ts` are now (likely) in-progress, report them
       sendFileProgress ts
@@ -466,6 +467,10 @@ section Initialization
           | .notification "$/lean/fileProgress" (some params) =>
             let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
             params.textDocument.version?
+          | .notification "$/lean/ileanInfoUpdate" (some params)
+          | .notification "$/lean/ileanInfoFinal" (some params) =>
+            let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
+            some params.version
           | _ => none
         if let some version := version? then
           if version < (← maxDocVersion.get) then
@@ -529,7 +534,7 @@ section NotificationHandling
     let oldDoc := (←get).doc
     let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
-    let _ ← ServerTask.IO.mapTaskCheap (t := st.srcSearchPathTask) fun srcSearchPath =>
+    let _ ← ServerTask.IO.mapTaskCostly (t := st.srcSearchPathTask) fun srcSearchPath =>
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath
@@ -738,7 +743,7 @@ section MessageHandling
         | Except.error e =>
             emitResponse ctx (isComplete := false) <| e.toLspResponseError id
             pure <| ServerTask.pure <| .ok ()
-        | Except.ok t => (ServerTask.IO.mapTaskCheap · t) fun
+        | Except.ok t => ServerTask.IO.mapTaskCheap (t := t) fun
           | Except.ok r => do
             if ← cancelTk.wasCancelledByCancelRequest then
               -- Try not to emit a partial response if this request was cancelled.

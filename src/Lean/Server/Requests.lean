@@ -186,6 +186,10 @@ def asTask (t : RequestM α) : RequestM (RequestTask α) := do
   let rc ← readThe RequestContext
   ServerTask.EIO.asTask <| t.run rc
 
+def pureTask (t : RequestM α) : RequestM (RequestTask α) := do
+  let r ← t.run
+  return ServerTask.pure <| .ok r
+
 def mapTaskCheap (t : ServerTask α) (f : α → RequestM β) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext
   ServerTask.EIO.mapTaskCheap (f · rc) t
@@ -224,7 +228,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  mapTaskCheap findTask <| waitFindSnapAux notFoundX x
+  mapTaskCostly findTask <| waitFindSnapAux notFoundX x
 
 /-- See `withWaitFindSnap`. -/
 def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
@@ -232,19 +236,7 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (x : Snapshot → RequestM (RequestTask β))
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  bindTaskCheap findTask <| waitFindSnapAux notFoundX x
-
-/-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
-If no such snapshot exists, the request fails with an error. -/
-def withWaitFindSnapAtPos
-    (lspPos : Lsp.Position)
-    (f : Snapshots.Snapshot → RequestM α)
-    : RequestM (RequestTask α) := do
-  let doc ← readDoc
-  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
-  withWaitFindSnap doc (fun s => s.endPos >= pos)
-    (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
-    (x := f)
+  bindTaskCostly findTask <| waitFindSnapAux notFoundX x
 
 open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/

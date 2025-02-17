@@ -134,19 +134,19 @@ def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨t.inner.erase a⟩
 
 @[inline, inherit_doc TreeSet.get?]
-def get? (t : TreeSet α cmp) (a : α) : Option α :=
+def get? (t : Raw α cmp) (a : α) : Option α :=
   t.inner.getKey? a
 
 @[inline, inherit_doc TreeSet.get]
-def get (t : TreeSet α cmp) (a : α) (h : a ∈ t) : α :=
+def get (t : Raw α cmp) (a : α) (h : a ∈ t) : α :=
   t.inner.getKey a h
 
 @[inline, inherit_doc TreeSet.get!]
-def get! [Inhabited α] (t : TreeSet α cmp) (a : α) : α :=
+def get! [Inhabited α] (t : Raw α cmp) (a : α) : α :=
   t.inner.getKey! a
 
 @[inline, inherit_doc TreeSet.getD]
-def getD (t : TreeSet α cmp) (a : α) (fallback : α) : α :=
+def getD (t : Raw α cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
 @[inline, inherit_doc TreeSet.min?]

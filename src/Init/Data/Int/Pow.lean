@@ -23,8 +23,8 @@ abbrev pow_le_pow_of_le_left := @Nat.pow_le_pow_left
 @[deprecated Nat.pow_le_pow_right (since := "2025-02-17")]
 abbrev pow_le_pow_of_le_right := @Nat.pow_le_pow_right
 
-@[deprecated Nat.pos_pow_of_pos (since := "2025-02-17")]
-abbrev pos_pow_of_pos := @Nat.pos_pow_of_pos
+@[deprecated Nat.pow_pos (since := "2025-02-17")]
+abbrev pos_pow_of_pos := @Nat.pow_pos
 
 @[norm_cast]
 theorem natCast_pow (b n : Nat) : ((b^n : Nat) : Int) = (b : Int) ^ n := by

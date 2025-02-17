@@ -775,11 +775,6 @@ protected theorem one_le_two_pow : 1 ≤ 2 ^ n :=
 @[simp] theorem one_mod_two_pow (h : 0 < n) : 1 % 2 ^ n = 1 :=
   one_mod_two_pow_eq_one.mpr h
 
-protected theorem pow_pos (h : 0 < a) : 0 < a^n :=
-  match n with
-  | 0 => Nat.zero_lt_one
-  | _ + 1 => Nat.mul_pos (Nat.pow_pos h) h
-
 protected theorem pow_lt_pow_succ (h : 1 < a) : a ^ n < a ^ (n + 1) := by
   rw [← Nat.mul_one (a^n), Nat.pow_succ]
   exact Nat.mul_lt_mul_of_le_of_lt (Nat.le_refl _) h (Nat.pow_pos (Nat.lt_trans Nat.zero_lt_one h))

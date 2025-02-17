@@ -2385,6 +2385,10 @@ theorem getElem?_swap (a : Array α) (i j : Nat) (hi hj) (k : Nat) : (a.swap i j
 theorem reverse_ne_empty_iff {xs : Array α} : xs.reverse ≠ #[] ↔ xs ≠ #[] :=
   not_congr reverse_eq_empty_iff
 
+@[simp] theorem isEmpty_reverse {xs : Array α} : xs.reverse.isEmpty = xs.isEmpty := by
+  cases xs
+  simp
+
 /-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
 theorem getElem?_reverse' {l : Array α} (i j) (h : i + j + 1 = l.size) : l.reverse[i]? = l[j]? := by
   rcases l with ⟨l⟩

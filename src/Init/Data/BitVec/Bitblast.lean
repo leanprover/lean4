@@ -1292,11 +1292,16 @@ theorem smulOverflow_eq {w : Nat} (x y : BitVec w) :
     rw [←Nat.two_pow_pred_add_two_pow_pred (by omega)]
     rw [BitVec.toInt_twoPow_sub_one]
     rw [Int.bmod_eq_of_le_of_lt (by
-      rw [Nat.two_pow_pred_add_two_pow_pred (by omega)]
-      have haa := h1 (by omega)
-      norm_cast
-      sorry
-    ) (sorry)]
+      rw [← Nat.mul_two]
+      push_cast
+      rw [← Int.neg_mul]
+      have := Int.mul_le_mul_of_nonneg_right (a := - 2 ^ (w * 2 - 1)) (c := 2) (b := x.toInt * y.toInt)
+      omega)
+      (by
+      rw [← Nat.mul_two]
+      push_cast
+      have := Int.mul_le_mul_of_nonneg_right (a := - 2 ^ (w * 2 - 1)) (c := 2) (b := x.toInt * y.toInt)
+      omega)]
     simp only [bool_to_prop]
     norm_cast
     omega

@@ -2746,6 +2746,13 @@ static inline uint64_t lean_name_hash(b_lean_obj_arg n) {
 }
 
 /* float primitives */
+
+// Here is how casting a float to an integral type works according to the standard:
+// * Separate the float into integral parts and fractional parts. The fractional part
+//   has the same sign as the float, so the integral part is the result of rounding the
+//   float towards zero.
+// * If the integral part fits into the target type, that is the result of the cast.
+// * Otherwise, the result is undefined behavior.
 static inline uint8_t lean_float_to_uint8(double a) {
     return 0. <= a ? (a < 256. ? (uint8_t)a : UINT8_MAX) : 0;
 }
@@ -2764,6 +2771,43 @@ static inline size_t lean_float_to_usize(double a) {
     else
         return (size_t) lean_float_to_uint32(a); // NOLINT
 }
+static inline uint8_t lean_float_to_int8(double a) {
+    int8_t result;
+    if (lean_float_isnan(a)) result = 0;
+    else result = -129. < a ? (a < 128. ? (int8_t)a : INT8_MAX) : INT8_MIN;
+    return (uint8_t)result;
+}
+static inline uint16_t lean_float_to_int16(double a) {
+    int16_t result;
+    if (lean_float_isnan(a)) result = 0;
+    else result = -32769. < a ? (a < 32768. ? (int16_t)a : INT16_MAX) : INT16_MIN;
+    return (uint16_t)result;
+}
+static inline uint32_t lean_float_to_int32(double a) {
+    int32_t result;
+    if (lean_float_isnan(a)) result = 0;
+    else result = -2147483649. < a ? (a < 2147483648. ? (int32_t)a : INT32_MAX) : INT32_MIN;
+    return (uint32_t)result;
+}
+static inline uint64_t lean_float_to_int64(double a) {
+    int64_t result;
+    if (lean_float_isnan(a)) result = 0;
+    else result = -9223372036854775809. < a ? (a < 9223372036854775808. ? (int64_t)a : INT64_MAX) : INT64_MIN;
+    return (uint64_t)result;
+}
+static inline size_t lean_float_to_isize(double a) {
+    if (sizeof(size_t) == sizeof(uint64_t)) {
+        ptrdiff_t result;
+        if (lean_float_isnan(a)) result = 0;
+        else result = -9223372036854775809. < a ? (a < 9223372036854775808. ? (ptrdiff_t)a : INT64_MAX) : INT64_MIN;
+        return (size_t)result;
+    } else {
+        ptrdiff_t result;
+        if (lean_float_isnan(a)) result = 0;
+        else result = -2147483649. < a ? (a < 2147483648. ? (ptrdiff_t)a : INT32_MAX) : INT32_MIN;
+        return (size_t)result;
+    }
+}
 LEAN_EXPORT double lean_float_of_bits(uint64_t u);
 LEAN_EXPORT uint64_t lean_float_to_bits(double d);
 static inline double lean_float_add(double a, double b) { return a + b; }
@@ -2774,7 +2818,16 @@ static inline double lean_float_negate(double a) { return -a; }
 static inline uint8_t lean_float_beq(double a, double b) { return a == b; }
 static inline uint8_t lean_float_decLe(double a, double b) { return a <= b; }
 static inline uint8_t lean_float_decLt(double a, double b) { return a < b; }
+static inline double lean_uint8_to_float(uint8_t a) { return (double) a; }
+static inline double lean_uint16_to_float(uint16_t a) { return (double) a; }
+static inline double lean_uint32_to_float(uint32_t a) { return (double) a; }
 static inline double lean_uint64_to_float(uint64_t a) { return (double) a; }
+static inline double lean_usize_to_float(size_t a) { return (double) a; }
+static inline double lean_int8_to_float(uint8_t a) { return (double)(int8_t) a; }
+static inline double lean_int16_to_float(uint16_t a) { return (double)(int16_t) a; }
+static inline double lean_int32_to_float(uint32_t a) { return (double)(int32_t) a; }
+static inline double lean_int64_to_float(uint64_t a) { return (double)(int64_t) a; }
+static inline double lean_isize_to_float(size_t a) { return (double)(ptrdiff_t) a; }
 
 /* float32 primitives */
 static inline uint8_t lean_float32_to_uint8(float a) {
@@ -2795,6 +2848,43 @@ static inline size_t lean_float32_to_usize(float a) {
     else
         return (size_t) lean_float32_to_uint32(a); // NOLINT
 }
+static inline uint8_t lean_float32_to_int8(float a) {
+    int8_t result;
+    if (lean_float32_isnan(a)) result = 0;
+    else result = -129. < a ? (a < 128. ? (int8_t)a : INT8_MAX) : INT8_MIN;
+    return (uint8_t)result;
+}
+static inline uint16_t lean_float32_to_int16(float a) {
+    int16_t result;
+    if (lean_float32_isnan(a)) result = 0;
+    else result = -32769. < a ? (a < 32768. ? (int16_t)a : INT16_MAX) : INT16_MIN;
+    return (uint16_t)result;
+}
+static inline uint32_t lean_float32_to_int32(float a) {
+    int32_t result;
+    if (lean_float32_isnan(a)) result = 0;
+    else result = -2147483649. < a ? (a < 2147483648. ? (int32_t)a : INT32_MAX) : INT32_MIN;
+    return (uint32_t)result;
+}
+static inline uint64_t lean_float32_to_int64(float a) {
+    int64_t result;
+    if (lean_float32_isnan(a)) result = 0;
+    else result = -9223372036854775809. < a ? (a < 9223372036854775808. ? (int64_t)a : INT64_MAX) : INT64_MIN;
+    return (uint64_t)result;
+}
+static inline size_t lean_float32_to_isize(float a) {
+    if (sizeof(size_t) == sizeof(uint64_t)) {
+        ptrdiff_t result;
+        if (lean_float32_isnan(a)) result = 0;
+        else result = -9223372036854775809. < a ? (a < 9223372036854775808. ? (ptrdiff_t)a : INT64_MAX) : INT64_MIN;
+        return (size_t)result;
+    } else {
+        ptrdiff_t result;
+        if (lean_float32_isnan(a)) result = 0;
+        else result = -2147483649. < a ? (a < 2147483648. ? (ptrdiff_t)a : INT32_MAX) : INT32_MIN;
+        return (size_t)result;
+    }
+}
 LEAN_EXPORT float lean_float32_of_bits(uint32_t u);
 LEAN_EXPORT uint32_t lean_float32_to_bits(float d);
 static inline float lean_float32_add(float a, float b) { return a + b; }
@@ -2805,7 +2895,16 @@ static inline float lean_float32_negate(float a) { return -a; }
 static inline uint8_t lean_float32_beq(float a, float b) { return a == b; }
 static inline uint8_t lean_float32_decLe(float a, float b) { return a <= b; }
 static inline uint8_t lean_float32_decLt(float a, float b) { return a < b; }
+static inline float lean_uint8_to_float32(uint8_t a) { return (float) a; }
+static inline float lean_uint16_to_float32(uint16_t a) { return (float) a; }
+static inline float lean_uint32_to_float32(uint32_t a) { return (float) a; }
 static inline float lean_uint64_to_float32(uint64_t a) { return (float) a; }
+static inline float lean_usize_to_float32(size_t a) { return (float) a; }
+static inline float lean_int8_to_float32(uint8_t a) { return (float)(int8_t) a; }
+static inline float lean_int16_to_float32(uint16_t a) { return (float)(int16_t) a; }
+static inline float lean_int32_to_float32(uint32_t a) { return (float)(int32_t) a; }
+static inline float lean_int64_to_float32(uint64_t a) { return (float)(int64_t) a; }
+static inline float lean_isize_to_float32(size_t a) { return (float)(ptrdiff_t) a; }
 
 static inline float lean_float_to_float32(double a) { return (float)a; }
 static inline double lean_float32_to_float(float a) { return (double)a; }

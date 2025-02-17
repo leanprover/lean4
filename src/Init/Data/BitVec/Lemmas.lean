@@ -2061,6 +2061,39 @@ theorem lt_toInt_shiftRight {x : BitVec w} {n : Nat} :
   norm_cast at *
   omega
 
+theorem toNat_sshiftRight {x : BitVec w} {n : Nat} :
+    (x.sshiftRight n).toNat =
+      if x.msb
+      then 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n
+      else x.toNat >>> n := by
+  by_cases h : x.msb
+  · rw [sshiftRight_eq_of_msb_true h]
+    simp [h]
+  · rw [Bool.not_eq_true] at h
+    simp [sshiftRight_eq_of_msb_false, h]
+
+theorem toFin_sshiftRight {x : BitVec w} {n : Nat} :
+    (x.sshiftRight n).toFin =
+      if x.msb
+      then Fin.ofNat' (2^w) (2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n)
+      else Fin.ofNat' (2^w) (x.toNat >>> n) := by
+  by_cases hw : w = 0
+  · subst hw
+    simp [BitVec.eq_nil x]
+  · apply Fin.eq_of_val_eq
+    simp only [val_toFin, toNat_sshiftRight]
+    have := x.isLt
+    by_cases h : x.msb
+    · simp only [h, ↓reduceIte, Fin.val_ofNat']
+      rw [Nat.mod_eq_of_lt]
+      have := x.isLt
+      have : ∀ y, 2 ^ w - 1 - y < 2 ^ w := by
+        omega
+      exact this ((2 ^ w - 1 - x.toNat) >>> n)
+    · simp only [h, Bool.false_eq_true, ↓reduceIte, Fin.val_ofNat']
+      have := Nat.shiftRight_le x.toNat n
+      rw [Nat.mod_eq_of_lt (by omega)]
+
 @[simp]
 theorem toInt_sshiftRight {x : BitVec w} {n : Nat} :
     (x.sshiftRight n).toInt = x.toInt >>> n := by

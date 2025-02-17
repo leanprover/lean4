@@ -22,7 +22,6 @@ universe u v w
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering}
 
 namespace Std.DTreeMap
-open Internal (Impl)
 
 namespace Raw
 

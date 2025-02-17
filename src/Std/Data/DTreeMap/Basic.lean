@@ -340,7 +340,7 @@ def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β 
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α β cmp) : δ :=
   foldr f init t
 
-/-- Partition a tree map into two tree maps based on a predicate. -/
+/-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
     (t : DTreeMap α β cmp) : DTreeMap α β cmp × DTreeMap α β cmp :=
   t.foldl (init := (∅, ∅)) fun ⟨l, r⟩  a b =>

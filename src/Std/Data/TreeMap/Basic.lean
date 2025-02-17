@@ -199,6 +199,11 @@ def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   foldr f init t
 
+@[inline, inherit_doc DTreeMap.partition]
+def partition (f : (a : α) → β → Bool)
+    (t : TreeMap α β cmp) : TreeMap α β cmp × TreeMap α β cmp :=
+  let p := t.inner.partition f; (⟨p.1⟩, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : α → β → m PUnit) (t : TreeMap α β cmp) : m PUnit :=
   t.inner.forM f

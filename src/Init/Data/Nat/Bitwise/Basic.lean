@@ -75,7 +75,7 @@ theorem shiftRight_eq_zero (m n : Nat) (hn : m < 2^n) : m >>> n = 0 := by
   simp [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt hn]
 
 theorem shiftRight_le (m n : Nat) : m >>> n ≤ m := by
-  simp [Nat.shiftRight_eq_div_pow]
+  simp only [shiftRight_eq_div_pow]
   apply Nat.div_le_self
 
 /-!

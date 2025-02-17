@@ -1300,7 +1300,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
 theorem getElem_smod {n d : BitVec w} (hi : i < w) :
     (BitVec.smod n d)[i]
       = (match n.msb, d.msb with
-    | false, false => (n.umod d)
+    | false, false => n.umod d
     | false, true =>
       let u := n.umod (-d);
       if u = 0#w then u else (u + d)

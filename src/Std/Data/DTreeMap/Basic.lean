@@ -774,7 +774,7 @@ def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : DTreeMap α �
 /-- Partitions a tree map into two tree maps based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
     (t : DTreeMap α β cmp) : DTreeMap α β cmp × DTreeMap α β cmp :=
-  t.foldl (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+  t.foldl (init := (∅, ∅)) fun ⟨l, r⟩ a b =>
     if f a b then
       (l.insert a b, r)
     else

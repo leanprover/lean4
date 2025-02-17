@@ -556,7 +556,7 @@ def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp
 
 @[inline, inherit_doc DTreeMap.partition]
 def partition (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
-  t.foldl (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+  t.foldl (init := (∅, ∅)) fun ⟨l, r⟩ a b =>
     if f a b then
       (l.insert a b, r)
     else

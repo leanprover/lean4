@@ -71,12 +71,14 @@ open LazyDiscrTree (InitEntry findMatches)
 
 private def addImport (name : Name) (constInfo : ConstantInfo) :
     MetaM (Array (InitEntry (Name × DeclMod))) :=
+  -- Don't report lemmas from metaprogramming namespaces.
+  if name.isMetaprogramming then return #[] else
   forallTelescope constInfo.type fun _ type => do
     let e ← InitEntry.fromExpr type (name, DeclMod.none)
     let a := #[e]
     if e.key == .const ``Iff 2 then
-      let a := a.push (←e.mkSubEntry 0 (name, DeclMod.mp))
-      let a := a.push (←e.mkSubEntry 1 (name, DeclMod.mpr))
+      let a := a.push (← e.mkSubEntry 0 (name, DeclMod.mp))
+      let a := a.push (← e.mkSubEntry 1 (name, DeclMod.mpr))
       pure a
     else
       pure a

@@ -835,7 +835,7 @@ The `h : e` syntax introduces a hypotheses of the form `h : e = _` in each goal,
 with `_` replaced by the corresponding value of the target.
 It is useful when `e` is not a free variable.
 -/
-syntax elimTarget := atomic(ident " : ")? term
+syntax elimTarget := atomic(binderIdent " : ")? term
 /--
 Assuming `x` is a variable in the local context with an inductive type,
 `induction x` applies induction on `x` to the main goal,

@@ -189,3 +189,26 @@ example {α : Type} (xs ys zs : List α) : (xs ++ ys) ++ zs = xs ++ (ys ++ zs) :
       cases h
       rw [ih xs' ys rfl]
       rfl
+
+/-!
+Test of hole for named generalization.
+Yields a fresh hygienic name.
+-/
+/--
+info: case zero
+n : Nat
+h✝ : n + 1 = 0
+⊢ 0 = 1 + n
+
+case succ
+n n✝ : Nat
+a✝ : n + 1 = n✝ → n✝ = 1 + n
+h✝ : n + 1 = n✝ + 1
+⊢ n✝ + 1 = 1 + n
+-/
+#guard_msgs in
+example (n : Nat) : n + 1 = 1 + n := by
+  induction _ : n + 1
+  trace_state
+  omega
+  omega

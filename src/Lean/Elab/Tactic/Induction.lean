@@ -697,18 +697,24 @@ private structure ElimTargetView where
   term    : Syntax
 
 /-- Interprets a `Lean.Parser.Tactic.elimTarget`. -/
-private def mkTargetView (target : Syntax) : ElimTargetView :=
+private def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
   -- TODO: remove handling for old syntax. Needs stage0 update first.
   if target.getKind ∈ [`Lean.Parser.Tactic.casesTarget, ``Parser.Tactic.elimTarget] then
-    let hIdent? :=
+    let hIdent? ←
       if target[0].isNone then
-        none
+        pure none
       else
-        some ⟨target[0][0]⟩
-    { hIdent?, term := target[1] }
+        let stx := target[0][0]
+        let stx := if stx.isOfKind ``Lean.binderIdent then stx[0] else stx
+        if stx.isOfKind identKind then
+          pure <| some ⟨stx⟩
+        else
+          -- `Lean.Parser.Term.hole`
+          pure <| mkIdentFrom stx (canonical := true) (← mkFreshBinderNameForTactic `h)
+    pure { hIdent?, term := target[1] }
   else
     -- Old syntax for `induction` target, it's the term itself.
-    { hIdent? := none, term := target }
+    pure { hIdent? := none, term := target }
 
 /-- Elaborated `ElimTargetView`. -/
 private structure ElimTargetInfo where
@@ -730,7 +736,7 @@ Modifies the current goal when generalizing.
 def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ident × FVarId)) :=
   withMainContext do
     let infos : Array ElimTargetInfo ← targets.mapM fun target => do
-      let view := mkTargetView target
+      let view ← mkTargetView target
       let expr ← elabTerm view.term none
       let arg? : Option GeneralizeArg :=
         if let some hIdent := view.hIdent? then

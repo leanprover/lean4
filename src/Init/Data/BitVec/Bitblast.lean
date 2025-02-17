@@ -1297,7 +1297,7 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
 
 /- ### smod -/
 
-theorem getElem_smod {n d : BitVec w} (hi : i < w):
+theorem getElem_smod {n d : BitVec w} (hi : i < w) :
     (BitVec.smod n d)[i]
       = (match n.msb, d.msb with
     | false, false => n.umod d
@@ -1311,7 +1311,7 @@ theorem getElem_smod {n d : BitVec w} (hi : i < w):
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
 
-theorem getLsbD_smod {n d : BitVec w}:
+theorem getLsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getLsbD i
       = (match n.msb, d.msb with
     | false, false => n.umod d
@@ -1325,7 +1325,7 @@ theorem getLsbD_smod {n d : BitVec w}:
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
 
-theorem getMsbD_smod {n d : BitVec w}:
+theorem getMsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getMsbD i
       = (match n.msb, d.msb with
     | false, false => n.umod d
@@ -1339,7 +1339,7 @@ theorem getMsbD_smod {n d : BitVec w}:
   rw [smod_eq]
   cases n.msb  <;> cases d.msb <;> simp
 
-theorem msb_smod {n d : BitVec w}:
+theorem msb_smod {n d : BitVec w} :
     (BitVec.smod n d).msb
       = (match n.msb, d.msb with
     | false, false => n.umod d

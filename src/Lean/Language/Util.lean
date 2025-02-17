@@ -23,7 +23,7 @@ where go range? s := do
   if let some range := range? then
     desc := desc ++ f!"{file.toPosition range.start}-{file.toPosition range.stop} "
   desc := desc ++ .prefixJoin "\n• " (← s.element.diagnostics.msgLog.toList.mapM (·.toString))
-  if let some t := s.element.infoTree? then
-    trace[Elab.info] (← t.format)
   withTraceNode `Elab.snapshotTree (fun _ => pure desc) do
-    s.children.toList.forM fun c => go c.range? c.get
+    s.children.toList.forM fun c => go c.reportingRange? c.get
+    if let some t := s.element.infoTree? then
+      trace[Elab.info] (← t.format)

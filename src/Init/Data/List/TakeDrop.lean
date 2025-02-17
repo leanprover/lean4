@@ -149,7 +149,7 @@ theorem take_eq_nil_of_eq_nil : ∀ {as : List α} {i}, as = [] → as.take i = 
 theorem ne_nil_of_take_ne_nil {as : List α} {i : Nat} (h : as.take i ≠ []) : as ≠ [] :=
   mt take_eq_nil_of_eq_nil h
 
-theorem set_take {l : List α} {i j : Nat} {a : α} :
+theorem take_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).take i = (l.take i).set j a := by
   induction i generalizing l j with
   | zero => simp
@@ -157,6 +157,9 @@ theorem set_take {l : List α} {i j : Nat} {a : α} :
     cases l with
     | nil => simp
     | cons hd tl => cases j <;> simp_all
+
+@[deprecated take_set (since := "2025-02-17")]
+abbrev set_take := @take_set
 
 theorem drop_set {l : List α} {i j : Nat} {a : α} :
     (l.set j a).drop i = if j < i then l.drop i else (l.drop i).set (j - i) a := by

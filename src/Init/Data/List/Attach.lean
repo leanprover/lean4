@@ -239,6 +239,8 @@ theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h
       · simp_all
       · simp_all
 
+set_option linter.deprecated false in
+@[deprecated List.getElem?_pmap (since := "2025-02-12")]
 theorem get?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) (n : Nat) :
     get? (pmap f l h) n = Option.pmap f (get? l n) fun x H => h x (mem_of_get? H) := by
   simp only [get?_eq_getElem?]
@@ -259,6 +261,7 @@ theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h 
     · simp
     · simp [hl]
 
+@[deprecated getElem_pmap (since := "2025-02-13")]
 theorem get_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h : ∀ a ∈ l, p a) {n : Nat}
     (hn : n < (pmap f l h).length) :
     get (pmap f l h) ⟨n, hn⟩ =

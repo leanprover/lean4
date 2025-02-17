@@ -5,6 +5,10 @@ Authors: Mac Malone
 -/
 prelude
 import Lean.Util.LeanOptions
+import Lake.Build.Target.Basic
+import Lake.Config.Dynlib
+
+open System
 
 namespace Lake
 
@@ -218,4 +222,14 @@ structure LeanConfig where
   and Lake will not catch it. Defaults to `none`.
   -/
   platformIndependent : Option Bool := none
+  /-
+  An array of dynamic library targets to load during the elaboration
+  of a module (via `lean --load-dynlib`).
+  -/
+  dynlibs : TargetArray Dynlib := #[]
+  /-
+  An array of Lean plugin targets to load during the elaboration
+  of a module (via `lean --plugin`).
+  -/
+  plugins : TargetArray Dynlib := #[]
 deriving Inhabited, Repr

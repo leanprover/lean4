@@ -201,7 +201,7 @@ This option can only be set on the command line, not in the lakefile or via `set
     let t ← BaseIO.asTask do
       IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32  -- "Debouncing 1."
     BaseIO.bindTask t fun _ => do
-      let (_, st) ← handleTasks #[.pure <| toSnapshotTree doc.initSnap] |>.run {}
+      let (_, st) ← handleTasks #[.finished none <| toSnapshotTree doc.initSnap] |>.run {}
       if (← cancelTk.isSet) then
         return .pure ()
 
@@ -246,8 +246,8 @@ This option can only be set on the command line, not in the lakefile or via `set
         handleNode t.task.get
         -- limit children's reported range to that of the parent, if any, to avoid strange
         -- non-monotonic progress updates; replace missing children's ranges with parent's
-        let ts := t.task.get.children.map (fun t' => { t' with range? :=
-          match t.range?, t'.range? with
+        let ts := t.task.get.children.map (fun t' => { t' with reportingRange? :=
+          match t.reportingRange?, t'.reportingRange? with
           | some r, some r' =>
             let start := max r.start r'.start
             let stop := min r.stop r'.stop
@@ -288,7 +288,7 @@ This option can only be set on the command line, not in the lakefile or via `set
 
     /-- Reports given tasks' ranges, merging overlapping ones. -/
     sendFileProgress (tasks : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
-      let ranges := tasks.filterMap (·.range?)
+      let ranges := tasks.filterMap (·.reportingRange?)
       let ranges := ranges.qsort (·.start < ·.start)
       let ranges := ranges.foldl (init := #[]) fun rs r => match rs[rs.size - 1]? with
         | some last =>
@@ -543,14 +543,14 @@ section NotificationHandling
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
       for (_, r) in st.pendingRequests do
-        r.cancelTk.cancel .edit
+        r.cancelTk.cancelByEdit
 
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
     let some r := st.pendingRequests.find? p.id
       | return
-    r.cancelTk.cancel .cancelRequest
+    r.cancelTk.cancelByCancelRequest
     set <| { st with pendingRequests := st.pendingRequests.erase p.id }
 
   /--
@@ -741,6 +741,12 @@ section MessageHandling
             pure <| Task.pure <| .ok ()
         | Except.ok t => (IO.mapTask · t) fun
           | Except.ok r => do
+            if ← cancelTk.wasCancelledByCancelRequest then
+              -- Try not to emit a partial response if this request was cancelled.
+              -- Clients usually discard responses for requests that they cancelled anyways,
+              -- but it's still good to send less over the wire in this case.
+              emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
+              return
             emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
           | Except.error e =>
             emitResponse ctx (isComplete := false) <| e.toLspResponseError id

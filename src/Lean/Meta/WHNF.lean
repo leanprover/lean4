@@ -332,7 +332,7 @@ mutual
           unless projInfo.fromClass do return none
           let args := e.getAppArgs
           -- First check whether `e`s instance is stuck.
-          if let some major := args.get? projInfo.numParams then
+          if let some major := args[projInfo.numParams]? then
             if let some mvarId ← getStuckMVar? major then
               return mvarId
           /-

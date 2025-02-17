@@ -56,8 +56,8 @@ LEAN_EXPORT lean_object* l_ByteArray_forInUnsafe_loop___rarg___lambda__1___boxed
 LEAN_EXPORT lean_object* l_ByteArray_Iterator_pos(lean_object*);
 static lean_object* l_List_foldl___at_instToStringByteArray___spec__2___closed__1;
 LEAN_EXPORT lean_object* l___auto____x40_Init_Data_ByteArray_Basic___hyg_562_;
-LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValValSize(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_extract(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_ByteArray_Basic___hyg_140____closed__19;
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___at_ByteArray_foldl___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_ByteArray_Basic___hyg_140____closed__3;
@@ -72,7 +72,6 @@ LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold___at_ByteArray_foldl___sp
 static lean_object* l_ByteArray_toUInt64BE_x21___closed__2;
 LEAN_EXPORT uint8_t l_ByteArray_Iterator_hasNext(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe_fold(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_ByteArray_instGetElemUSizeUInt8LtNatValValSize___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_findIdx_x3f(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_foldlMUnsafe___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -197,6 +196,7 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 LEAN_EXPORT lean_object* l_ByteArray_isEmpty___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_get___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_ByteArray_forIn_loop___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_ByteArray_Basic___hyg_140____closed__7;
 static lean_object* l___auto____x40_Init_Data_ByteArray_Basic___hyg_140____closed__17;
@@ -593,7 +593,7 @@ x_5 = lean_box(x_4);
 return x_5;
 }
 }
-LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValValSize(lean_object* x_1, size_t x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize(lean_object* x_1, size_t x_2, lean_object* x_3) {
 _start:
 {
 uint8_t x_4; 
@@ -601,13 +601,13 @@ x_4 = lean_byte_array_uget(x_1, x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_ByteArray_instGetElemUSizeUInt8LtNatValValSize___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
 size_t x_4; uint8_t x_5; lean_object* x_6; 
 x_4 = lean_unbox_usize(x_2);
 lean_dec(x_2);
-x_5 = l_ByteArray_instGetElemUSizeUInt8LtNatValValSize(x_1, x_4, x_3);
+x_5 = l_ByteArray_instGetElemUSizeUInt8LtNatValToFinSize(x_1, x_4, x_3);
 lean_dec(x_1);
 x_6 = lean_box(x_5);
 return x_6;

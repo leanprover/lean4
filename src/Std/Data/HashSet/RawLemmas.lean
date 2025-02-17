@@ -133,7 +133,7 @@ theorem contains_of_contains_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF
   HashMap.Raw.contains_of_contains_insertIfNew' h.out
 
 /-- This is a restatement of `mem_insert` that is written to exactly match the proof obligation
-in the statement of `get_insertIfNew`. -/
+in the statement of `get_insert`. -/
 theorem mem_of_mem_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.insert k → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=
   HashMap.Raw.mem_of_mem_insertIfNew' h.out

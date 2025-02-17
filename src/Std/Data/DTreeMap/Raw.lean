@@ -125,6 +125,13 @@ def containsThenInsertIfNew (t : Raw α β cmp) (a : α) (b : β a) :
   let p := t.inner.containsThenInsertIfNew! a b
   (p.1, ⟨p.2⟩)
 
+@[inline, inherit_doc DTreeMap.getThenInsertIfNew?]
+def getThenInsertIfNew? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (b : β a) :
+    Option (β a) × Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.getThenInsertIfNew?! a b
+  (p.1, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.contains]
 def contains (t : Raw α β cmp) (a : α) : Bool :=
   letI : Ord α := ⟨cmp⟩; t.inner.contains a

@@ -406,10 +406,10 @@ def getThenInsertIfNew? [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl 
   | some b => (some b, t)
 
 @[inline]
-def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) (ht : t.Balanced) :
+def getThenInsertIfNew?! [Ord α] [LawfulEqOrd α] (k : α) (v : β k) (t : Impl α β) :
     Option (β k) × Impl α β :=
   match t.get? k with
-  | none => (none, t.insertIfNew k v ht |>.impl)
+  | none => (none, t.insertIfNew! k v)
   | some b => (some b, t)
 
 /-- Removes the mapping with key `k`, if it exists. -/

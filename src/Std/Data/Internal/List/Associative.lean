@@ -1303,7 +1303,7 @@ theorem insertEntryIfNew_of_containsKey_eq_false [BEq α] {l : List ((a : α) ×
   simp_all [insertEntryIfNew]
 
 theorem DistinctKeys.insertEntryIfNew [BEq α] [PartialEquivBEq α] {k : α} {v : β k}
-    {l : List ((a : α) × β a)} (h: DistinctKeys l) :
+    {l : List ((a : α) × β a)} (h : DistinctKeys l) :
     DistinctKeys (insertEntryIfNew k v l) := by
   simp only [Std.Internal.List.insertEntryIfNew, cond_eq_if]
   split

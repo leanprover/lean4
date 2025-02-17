@@ -712,10 +712,15 @@ theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.isEmpty = m.isEmpty :=
   DHashMap.Const.isEmpty_toList
 
-theorem mem_toList_iff_get?_eq_some [LawfulBEq α]
+theorem mem_toList_iff_getElem?_eq_some [LawfulBEq α]
     {k : α} {v : β} :
-    (k, v) ∈ m.toList ↔  m[k]? = some v :=
+    (k, v) ∈ m.toList ↔ m[k]? = some v :=
   DHashMap.Const.mem_toList_iff_get?_eq_some
+
+theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
+    {k : α} {v : β} :
+    (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=
+  DHashMap.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
 
 theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α]
     {k : α} {v : β} :
@@ -737,11 +742,6 @@ theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     {k : α} :
     m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m :=
   DHashMap.Const.find?_toList_eq_none_iff_not_mem
-
-theorem mem_toList_iff_getKey?_eq_some_and_getElem?_eq_some [EquivBEq α] [LawfulHashable α]
-    {k: α} {v : β} :
-    (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ get? m k = some v :=
-  DHashMap.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
 
 theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=

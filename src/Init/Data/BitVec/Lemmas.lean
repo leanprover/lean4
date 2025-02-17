@@ -3725,7 +3725,7 @@ theorem toInt_twoPow {w i : Nat} :
       simp only [Nat.shiftLeft_eq, Nat.one_mul, hy, hj]
       by_cases i + 1 =  (w + 1)
       · simp only [show i = w by omega, Nat.lt_irrefl, ↓reduceIte]; omega
-      · simp only [show 2 ^ (i + 1) < 2 ^  (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
+      · simp only [show 2 ^ (i + 1) < 2 ^ (w + 1) by rw [Nat.pow_lt_pow_iff_right (by omega)]; omega, ↓reduceIte]
         omega
 
 theorem toInt_mul_toInt_lt {x y : BitVec w} : x.toInt * y.toInt ≤ 2 ^ (w * 2 - 2) := by

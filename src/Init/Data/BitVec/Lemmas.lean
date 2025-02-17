@@ -2063,8 +2063,7 @@ theorem lt_toInt_shiftRight {x : BitVec w} {n : Nat} :
 
 theorem toNat_sshiftRight_of_msb_true {x : BitVec w} {n : Nat} (h : x.msb = true) :
     (x.sshiftRight n).toNat = 2 ^ w - 1 - (2 ^ w - 1 - x.toNat) >>> n := by
-  rw [sshiftRight_eq_of_msb_true h]
-  simp [h]
+  simp [sshiftRight_eq_of_msb_true, h]
 
 theorem toNat_sshiftRight_of_msb_false {x : BitVec w} {n : Nat} (h : x.msb = false) :
     (x.sshiftRight n).toNat = x.toNat >>> n := by

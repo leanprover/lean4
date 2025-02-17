@@ -125,43 +125,43 @@ instance : ToExpr Int.Linear.RawDvdCnstr where
   toExpr a   := ofRawDvdCnstr a
   toTypeExpr := mkConst ``Int.Linear.RawDvdCnstr
 
-def _root_.Int.Linear.Expr.denoteExpr (ctx : Array Expr) (e : Int.Linear.Expr) : MetaM Expr := do
+def _root_.Int.Linear.Expr.denoteExpr (ctx : Nat → Expr) (e : Int.Linear.Expr) : MetaM Expr := do
   match e with
   | .num v    => return Lean.toExpr v
-  | .var i    => return ctx[i]!
+  | .var x    => return ctx x
   | .neg a    => return mkIntNeg (← denoteExpr ctx a)
   | .add a b  => return mkIntAdd (← denoteExpr ctx a) (← denoteExpr ctx b)
   | .sub a b  => return mkIntSub (← denoteExpr ctx a) (← denoteExpr ctx b)
   | .mulL k a => return mkIntMul (toExpr k) (← denoteExpr ctx a)
   | .mulR a k => return mkIntMul (← denoteExpr ctx a) (toExpr k)
 
-def _root_.Int.Linear.RawRelCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.RawRelCnstr) : MetaM Expr := do
+def _root_.Int.Linear.RawRelCnstr.denoteExpr (ctx : Nat → Expr) (c : Int.Linear.RawRelCnstr) : MetaM Expr := do
   match c with
   | .eq e₁ e₂ => return mkIntEq (← e₁.denoteExpr ctx) (← e₂.denoteExpr ctx)
   | .le e₁ e₂ => return mkIntLE (← e₁.denoteExpr ctx) (← e₂.denoteExpr ctx)
 
-def _root_.Int.Linear.RawDvdCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.RawDvdCnstr) : MetaM Expr := do
+def _root_.Int.Linear.RawDvdCnstr.denoteExpr (ctx : Nat → Expr) (c : Int.Linear.RawDvdCnstr) : MetaM Expr := do
   return mkIntDvd (mkIntLit c.k) (← c.e.denoteExpr ctx)
 
-def _root_.Int.Linear.Poly.denoteExpr (ctx : Array Expr) (p : Int.Linear.Poly) : MetaM Expr := do
+def _root_.Int.Linear.Poly.denoteExpr (ctx : Nat → Expr) (p : Int.Linear.Poly) : MetaM Expr := do
   match p with
   | .num k => return toExpr k
-  | .add 1 x p => go ctx[x]! p
-  | .add k x p => go (mkIntMul (toExpr k) ctx[x]!) p
+  | .add 1 x p => go (ctx x) p
+  | .add k x p => go (mkIntMul (toExpr k) (ctx x)) p
 where
   go (r : Expr)  (p : Int.Linear.Poly) : MetaM Expr :=
     match p with
     | .num 0 => return r
     | .num k => return mkIntAdd r (toExpr k)
-    | .add 1 x p => go (mkIntAdd r ctx[x]!) p
-    | .add k x p => go (mkIntAdd r (mkIntMul (toExpr k) ctx[x]!)) p
+    | .add 1 x p => go (mkIntAdd r (ctx x)) p
+    | .add k x p => go (mkIntAdd r (mkIntMul (toExpr k) (ctx x))) p
 
-def _root_.Int.Linear.RelCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.RelCnstr) : MetaM Expr := do
+def _root_.Int.Linear.RelCnstr.denoteExpr (ctx : Nat → Expr) (c : Int.Linear.RelCnstr) : MetaM Expr := do
   match c with
   | .eq p => return mkIntEq (← p.denoteExpr ctx) (mkIntLit 0)
   | .le p => return mkIntLE (← p.denoteExpr ctx) (mkIntLit 0)
 
-def _root_.Int.Linear.DvdCnstr.denoteExpr (ctx : Array Expr) (c : Int.Linear.DvdCnstr) : MetaM Expr := do
+def _root_.Int.Linear.DvdCnstr.denoteExpr (ctx : Nat → Expr) (c : Int.Linear.DvdCnstr) : MetaM Expr := do
   return mkIntDvd (mkIntLit c.k) (← c.p.denoteExpr ctx)
 
 namespace ToLinear

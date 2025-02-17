@@ -848,6 +848,14 @@ theorem getElem_cons_length (x : α) (xs : List α) (i : Nat) (h : i = xs.length
     (x :: xs)[i]'(by simp [h]) = (x :: xs).getLast (cons_ne_nil x xs) := by
   rw [getLast_eq_getElem]; cases h; rfl
 
+theorem getLast_eq_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
+    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
+  rw [Option.mem_def] at hx
+  cases l
+  · contradiction
+  · rw [← Option.some_inj, ← hx]
+    rfl
+
 /-! ### getLast? -/
 
 @[simp] theorem getLast?_singleton (a : α) : getLast? [a] = a := rfl
@@ -865,14 +873,6 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
     xs.getLast h = a ↔ xs.getLast? = some a := by
   rw [getLast?_eq_getLast _ h]
   simp
-
-theorem getLast_eq_of_mem_getLast? {l : List α} (hx : x ∈ l.getLast?) :
-    l.getLast (ne_nil_of_mem (mem_of_mem_getLast? hx)) = x := by
-  rw [Option.mem_def] at hx
-  cases l
-  · contradiction
-  · rw [← Option.some_inj, ← hx]
-    rfl
 
 -- `getLast?_eq_none_iff`, `getLast?_eq_some_iff`, `getLast?_isSome`, and `getLast_mem`
 -- are proved later once more `reverse` theorems are available.
@@ -942,12 +942,6 @@ theorem head_eq_iff_head?_eq_some {xs : List α} (h) : xs.head h = a ↔ xs.head
   | nil => simp at h
   | cons x xs => simp
 
-theorem head_eq_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
-    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
-  cases l
-  · contradiction
-  · simpa using hx
-
 @[simp] theorem head?_eq_none_iff : l.head? = none ↔ l = [] := by
   cases l <;> simp
 
@@ -979,6 +973,12 @@ theorem head?_concat {a : α} : (l ++ [a]).head? = l.head?.getD a := by
 
 theorem head?_concat_concat : (l ++ [a, b]).head? = (l ++ [a]).head? := by
   cases l <;> simp
+
+theorem head_eq_of_mem_head? {l : List α} {x} (hx : x ∈ l.head?) :
+    l.head (ne_nil_of_mem (mem_of_mem_head? hx)) = x := by
+  cases l
+  · contradiction
+  · simpa using hx
 
 /-! ### headD -/
 

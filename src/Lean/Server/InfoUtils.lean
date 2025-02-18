@@ -459,6 +459,13 @@ where go ci?
       return expr.hasSorry
       -- we assume that `cs` are subterms of `ti.expr` and
       -- thus do not have to be checked as well
+    | _, .ofCustomInfo i => do
+      if let some bi := i.value.get? Elab.Term.BodyInfo then
+        if let some value := bi.value? then
+          -- we assume that `cs` are subterms of `value` and
+          -- thus do not have to be checked as well
+          return value.hasSorry
+      cs.anyM (go ci?)
     | _, _ =>
       cs.anyM (go ci?)
   | _ => return false

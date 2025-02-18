@@ -389,21 +389,25 @@ end AsyncConstantInfo
 
 /--
 Information about the current branch of the environment representing asynchronous elaboration.
+
+Use `Environment.enterAsync` instead of `mkRaw`.
 -/
-structure AsyncContext where
+private structure AsyncContext where mkRaw ::
   /--
   Name of the declaration asynchronous elaboration was started for. All constants added to this
   environment branch must have the name as a prefix, after erasing macro scopes and private name
   prefixes.
   -/
   declPrefix : Name
+  /-- Whether we are in `realizeConst`, used to restrict env ext modifications. -/
+  realizing  : Bool
 deriving Nonempty
 
 /--
 Checks whether a declaration named `n` may be added to the environment in the given context. See
 also `AsyncContext.declPrefix`.
 -/
-def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
+private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
 
 /--
@@ -451,10 +455,11 @@ private structure RealizationContext where
   opts      : Options
   /--
   `realizeConst _ c ..` adds a mapping from `c` to a task of the realization results: the array of
-  newly added constants (incl. extension data in `AsyncConst.exts?`), and auxiliary data (always
-  `SnapshotTree` in builtin uses, but untyped to avoid cyclic references).
+  newly added constants (incl. extension data in `AsyncConst.exts?`),  a function for replaying the
+  changes onto a derived kernel environment, and auxiliary data (always `SnapshotTree` in builtin
+  uses, but untyped to avoid cyclic module references).
   -/
-  constsRef : IO.Ref (NameMap (Task (Array AsyncConst × Dynamic)))
+  constsRef : IO.Ref (NameMap (Task (Array AsyncConst × (Kernel.Environment → Kernel.Environment) × Dynamic)))
 
 /--
 Elaboration-specific extension of `Kernel.Environment` that adds tracking of asynchronously
@@ -482,8 +487,9 @@ structure Environment where
   -/
   checked             : Task Kernel.Environment := .pure checkedWithoutAsync
   /--
-  Container of asynchronously elaborated declarations, i.e.
-  `checked = checkedWithoutAsync ⨃ asyncConsts`.
+  Container of asynchronously elaborated declarations. For consistency, `updateBaseAfterKernelAdd`
+  makes sure this contains constants added even synchronously, i.e. this is a superset of
+  `checkedWithoutAsync` except for imported constants.
   -/
   private asyncConsts : AsyncConsts := {}
   /-- Information about this asynchronous branch of the environment, if any. -/
@@ -519,6 +525,10 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 /-- Sets synchronous and asynchronous parts of the environment to the given kernel environment. -/
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, checkedWithoutAsync := newChecked }
+
+/-- True while inside `realizeConst`'s `realize`. -/
+def isRealizing (env : Environment) : Bool :=
+  env.asyncCtx?.any (·.realizing)
 
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
@@ -694,6 +704,13 @@ structure PromiseCheckedResult where
   asyncEnv : Environment
   private checkedEnvPromise : IO.Promise Kernel.Environment
 
+/-- Creates an async context for the given declaration name, normalizing it for use as a prefix. -/
+private def enterAsync (declName : Name) (realizing := false) (env : Environment) : Environment :=
+  { env with asyncCtx? := some {
+    declPrefix := privateToUserName declName.eraseMacroScopes
+    -- `realizing` is sticky
+    realizing := realizing || env.asyncCtx?.any (·.realizing) } }
+
 /--
 Starts an asynchronous modification of the kernel environment. The environment is split into a
 "main" branch that will block on access to the kernel environment until
@@ -706,10 +723,8 @@ def promiseChecked (env : Environment) : BaseIO PromiseCheckedResult := do
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
         | none      => env.checked }
-    asyncEnv := { env with
-      -- Do not allow adding new constants
-      asyncCtx? := some { declPrefix := `__reserved__Environment_promiseChecked }
-    }
+    -- Do not allow adding new constants
+    asyncEnv := env.enterAsync `__reserved__Environment_promiseChecked
     checkedEnvPromise
   }
 
@@ -803,9 +818,7 @@ def addConstAsync (env : Environment) (constName : Name) (kind : ConstantKind) (
       checked := checkedEnvPromise.result?.bind (sync := true) fun
         | some kenv => .pure kenv
         | none      => env.checked }
-    asyncEnv := { env with
-      asyncCtx? := some { declPrefix := privateToUserName constName.eraseMacroScopes }
-    }
+    asyncEnv := env.enterAsync constName
     sigPromise, infoPromise, extensionsPromise, checkedEnvPromise
   }
 
@@ -894,104 +907,6 @@ def isSafeDefinition (env : Environment) (declName : Name) : Bool :=
 def getModuleIdx? (env : Environment) (moduleName : Name) : Option ModuleIdx :=
   env.header.moduleNames.findIdx? (· == moduleName)
 
-private structure FindNewDeclsState where
-  postorder : Array AsyncConst := #[]
-  visited   : NameMap Unit := {}
-
-/--
-Starting at `c`, finds constants in `newEnv` but not `oldEnv` and returns them in DAG post-order,
-i.e. in the order they can be replayed onto other environments. New constants that are not from
-`newEnv.asyncConsts` are added with empty environment extension state.
--/
-private partial def findNewAsyncConsts (oldEnv newEnv : Environment) (c : AsyncConst) : Array AsyncConst :=
-  goConst c |>.run {} |>.2.postorder
-where
-  goConst (c : AsyncConst) : StateM FindNewDeclsState Unit := do
-    if oldEnv.contains c.constInfo.name then
-      return
-    match c.constInfo.toConstantInfo with
-    | .defnInfo d | .thmInfo d =>
-        goExpr d.type
-        goExpr d.value
-        modify fun st => { st with postorder := st.postorder.push c, visited := st.visited.insert d.name () }
-    | d => panic! s!"Environment.realizeConst: {d.name} must be definition/theorem"
-  goExpr e := modify (e.foldConsts · fun n st =>
-    if !st.visited.contains n then
-      let c := newEnv.asyncConsts.find? n
-        |>.getD { constInfo := (newEnv.findAsync? n).get!, exts? := none }
-      goConst c |>.run st |>.2
-    else st)
-
-/-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
-def realizeConst (env : Environment) (forConst : Name) (constName : Name)
-    (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
-    IO (Environment × Dynamic) := do
-  let mut env := env
-  -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
-  let ctx ← if env.checkedWithoutAsync.const2ModIdx.contains forConst then
-    env.realizedImportedConsts?.getDM <|
-      throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
-  else
-    match env.realizedLocalConsts.find? forConst with
-    | some ctx => pure ctx
-    | none =>
-      throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
-  let prom ← IO.Promise.new
-  -- ensure `prom` is not left unresolved from stray exceptions
-  BaseIO.toIO do
-    -- atomically check whether we are the first branch to realize `constName`
-    let existingConsts? ← ctx.constsRef.modifyGet fun m => match m.find? constName with
-      | some prom' => (some prom', m)
-      | none       => (none, m.insert constName prom.result!)
-    let (consts, dyn) ← if let some existingConsts := existingConsts? then
-      pure existingConsts.get
-    else
-      -- safety: `RealizationContext` is private
-      let realizeEnv : Environment := unsafe unsafeCast ctx.env
-      let realizeEnv := { realizeEnv with
-        -- allow realizations to recursively realize other constants for `forConst`. Do note that
-        -- this allows for recursive realization of `constName` itself, which will deadlock.
-        realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
-        -- ensure realized constants are nested below `forConst` and that environment extension
-        -- modifications know they are in an async context
-        asyncCtx? := some { declPrefix := forConst }
-      }
-      -- skip kernel in `realize`, we'll re-typecheck anyway
-      let realizeOpts := debug.skipKernelTC.set ctx.opts true
-      let (realizeEnv', dyn) ← realize realizeEnv realizeOpts
-      let some c := realizeEnv'.findAsync? constName
-        | -- We could panic here but in practice `realize` has already reported an error so we don't
-          prom.resolve (#[], dyn)
-          return (env, dyn)
-      let consts := findNewAsyncConsts realizeEnv realizeEnv'
-        { constInfo := c, exts? := some <| .pure realizeEnv'.toKernelEnv.extensions }
-      prom.resolve (consts, dyn)
-      pure (consts, dyn)
-    return ({ env with
-      asyncConsts := consts.foldl (·.add) env.asyncConsts
-      checked := env.checked.map (maybeAddToKernelEnv · consts)
-    }, dyn)
-where
-  -- Adds `consts` if they haven't already been added by a previous branch. Note that this
-  -- conditional is deterministic because of the linearizing effect of `env.checked`.
-  maybeAddToKernelEnv (kenv : Kernel.Environment) (consts : Array AsyncConst) : Kernel.Environment := Id.run do
-    let mut kenv := kenv
-    for c in consts do
-      if kenv.find? c.constInfo.name |>.isSome then
-        continue
-      let decl := match c.constInfo.toConstantInfo with
-        | .thmInfo thm   => .thmDecl thm
-        | .defnInfo defn => .defnDecl defn
-        | _              => panic! s!"Environment.realizeConst: {c.constInfo.name} must be definition/theorem"
-      -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
-      -- reused between snapshots
-      match kenv.addDeclCore 0 decl none with
-      | .ok kenv' => kenv := kenv'
-      | .error e =>
-        let _ : Inhabited Kernel.Environment := ⟨kenv⟩
-        panic! s!"Environment.realizeConst: failed to add {c.constInfo.name} to environment\n{e.toRawString}"
-    return kenv
-
 end Environment
 
 namespace ConstantInfo
@@ -1066,6 +981,9 @@ inductive EnvExtension.AsyncMode where
   | async
   deriving Inhabited
 
+abbrev ReplayFn (σ : Type) :=
+  (oldState : σ) → (newState : σ) → (newConsts : Array Name) → σ → σ
+
 /--
 Environment extension, can only be generated by `registerEnvExtension` that allocates a unique index
 for this extension into each environment's extension state's array.
@@ -1074,6 +992,13 @@ structure EnvExtension (σ : Type) where private mk ::
   idx       : Nat
   mkInitial : IO σ
   asyncMode : EnvExtension.AsyncMode
+  /--
+  Optional function that, given state before and after realization and newly added constants,
+  replays this change onto a state from another (derived) environment. This function is used only
+  when making changes to an extension inside a `realizeConst` call, in which case it must be
+  present.
+  -/
+  replay?   : Option (ReplayFn σ)
   deriving Inhabited
 
 namespace EnvExtension
@@ -1135,19 +1060,24 @@ from different environment branches are reconciled.
 Note that in modes `sync` and `async`, `f` will be called twice, on the local and on the `checked`
 state.
 -/
-def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment :=
+def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ → σ) : Environment := Id.run do
   -- safety: `ext`'s constructor is private, so we can assume the entry at `ext.idx` is of type `σ`
   match ext.asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      let _ : Inhabited Environment := ⟨env⟩
       panic! s!"Environment.modifyState: environment extension is marked as `mainOnly` but used in \
-        async context '{asyncCtx.declPrefix}'"
-    else
-      { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
+        {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+    return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | .local =>
-    { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
+    if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
+      panic! s!"Environment.modifyState: environment extension is marked as `local` but used in \
+        realization context '{asyncCtx.declPrefix}'"
+    return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | _ =>
+    if ext.replay?.isNone then
+      if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
+        panic! s!"Environment.modifyState: environment extension must set `replay?` field to be \
+          used in realization context '{asyncCtx.declPrefix}'"
     env.modifyCheckedAsync fun env =>
       { env with extensions := unsafe ext.modifyStateImpl env.extensions f }
 
@@ -1206,12 +1136,13 @@ end EnvExtension
    Note that by default, extension state is *not* stored in .olean files and will not propagate across `import`s.
    For that, you need to register a persistent environment extension. -/
 def registerEnvExtension {σ : Type} (mkInitial : IO σ)
+    (replay? : Option (ReplayFn σ) := none)
     (asyncMode : EnvExtension.AsyncMode := .mainOnly) : IO (EnvExtension σ) := do
   unless (← initializing) do
     throw (IO.userError "failed to register environment, extensions can only be registered during initialization")
   let exts ← EnvExtension.envExtensionsRef.get
   let idx := exts.size
-  let ext : EnvExtension σ := { idx, mkInitial, asyncMode }
+  let ext : EnvExtension σ := { idx, mkInitial, asyncMode, replay? }
   -- safety: `EnvExtensionState` is opaque, so we can upcast to it
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
@@ -1322,8 +1253,9 @@ def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : En
     { s with state := state }
 
 /-- Get the current state of the given extension in the given environment. -/
-def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : σ :=
-  (ext.toEnvExtension.getState env).state
+def getState {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment)
+    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
+  (ext.toEnvExtension.getState (asyncMode := asyncMode) env).state
 
 /-- Set the current state of the given extension in the given environment. -/
 def setState {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (s : σ) : Environment :=
@@ -1351,11 +1283,14 @@ structure PersistentEnvExtensionDescr (α β σ : Type) where
   exportEntriesFn : σ → Array α
   statsFn         : σ → Format := fun _ => Format.nil
   asyncMode       : EnvExtension.AsyncMode := .mainOnly
+  replay?         : Option (ReplayFn σ) := none
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
   if pExts.any (fun ext => ext.name == descr.name) then throw (IO.userError s!"invalid environment extension, '{descr.name}' has already been used")
-  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) do
+  let replay? := descr.replay?.map fun replay =>
+    fun oldState newState newConsts s => { s with state := replay oldState.state newState.state newConsts s.state }
+  let ext ← registerEnvExtension (asyncMode := descr.asyncMode) (replay? := replay?) do
     let initial ← descr.mkInitial
     let s : PersistentEnvExtensionState α σ := {
       importedEntries := #[],
@@ -1399,6 +1334,9 @@ def registerSimplePersistentEnvExtension {α σ : Type} [Inhabited σ] (descr : 
     exportEntriesFn := fun s => descr.toArrayFn s.1.reverse,
     statsFn := fun s => format "number of local entries: " ++ format s.1.length
     asyncMode := descr.asyncMode
+    replay? := some fun oldState newState _ (entries, s) =>
+      let newEntries := newState.1.drop oldState.1.length
+      (newEntries ++ entries, newEntries.foldl descr.addEntryFn s)
   }
 
 namespace SimplePersistentEnvExtension
@@ -1412,8 +1350,9 @@ def getEntries {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension
   (PersistentEnvExtension.getState ext env).1
 
 /-- Get the current state of the given `SimplePersistentEnvExtension`. -/
-def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
-  (PersistentEnvExtension.getState ext env).2
+def getState {α σ : Type} [Inhabited σ] (ext : SimplePersistentEnvExtension α σ) (env : Environment)
+    (asyncMode := ext.toEnvExtension.asyncMode) : σ :=
+  (PersistentEnvExtension.getState (asyncMode := asyncMode) ext env).2
 
 /-- Set the current state of the given `SimplePersistentEnvExtension`. This change is *not* persisted across files. -/
 def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
@@ -1528,7 +1467,8 @@ unsafe def Environment.freeRegions (env : Environment) : IO Unit :=
 def mkModuleData (env : Environment) : IO ModuleData := do
   let pExts ← persistentEnvExtensionsRef.get
   let entries := pExts.map fun pExt =>
-    let state := pExt.getState env
+    -- always get state from `checked` at the end; `async` would otherwise panic
+    let state := pExt.getState (asyncMode := .sync) env
     (pExt.name, pExt.exportEntriesFn state)
   let kenv := env.toKernelEnv
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
@@ -1828,8 +1768,18 @@ def getNamespaceSet (env : Environment) : NameSSet :=
   namespacesExt.getState env
 
 @[export lean_elab_environment_update_base_after_kernel_add]
-private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) : Environment :=
-  { env with checked := .pure kernel, checkedWithoutAsync := { kernel with extensions := env.checkedWithoutAsync.extensions } }
+private def updateBaseAfterKernelAdd (env : Environment) (kernel : Kernel.Environment) (decl : Declaration) : Environment :=
+  { env with
+    checked := .pure kernel
+    checkedWithoutAsync := { kernel with extensions := env.checkedWithoutAsync.extensions }
+    -- make constants available in `asyncConsts` as well; see its docstring
+    asyncConsts := decl.getNames.foldl (init := env.asyncConsts) fun asyncConsts n =>
+      if asyncConsts.find? n |>.isNone then
+        asyncConsts.add {
+          constInfo := .ofConstantInfo (kernel.find? n |>.get!)
+          exts? := none
+        }
+      else asyncConsts }
 
 @[export lean_display_stats]
 def displayStats (env : Environment) : IO Unit := do
@@ -1877,6 +1827,101 @@ def hasUnsafe (env : Environment) (e : Expr) : Bool :=
       | none       => false
     | _ => false;
   c?.isSome
+
+/-- Plumbing function for `Lean.Meta.realizeConst`; see documentation there. -/
+def realizeConst (env : Environment) (forConst : Name) (constName : Name)
+    (realize : Environment → Options → BaseIO (Environment × Dynamic)) :
+    IO (Environment × Dynamic) := do
+  let mut env := env
+  -- find `RealizationContext` for `forConst` in `realizedImportedConsts?` or `realizedLocalConsts`
+  let ctx ← if env.checkedWithoutAsync.const2ModIdx.contains forConst then
+    env.realizedImportedConsts?.getDM <|
+      throw <| .userError s!"Environment.realizeConst: `realizedImportedConsts` is empty"
+  else
+    match env.realizedLocalConsts.find? forConst with
+    | some ctx => pure ctx
+    | none =>
+      throw <| .userError s!"trying to realize {constName} but `enableRealizationsForConst` must be called for '{forConst}' first"
+  let prom ← IO.Promise.new
+  -- ensure `prom` is not left unresolved from stray exceptions
+  BaseIO.toIO do
+    -- atomically check whether we are the first branch to realize `constName`
+    let existingConsts? ← ctx.constsRef.modifyGet fun m => match m.find? constName with
+      | some prom' => (some prom', m)
+      | none       => (none, m.insert constName prom.result!)
+    let (consts, replay, dyn) ← if let some existingConsts := existingConsts? then
+      pure existingConsts.get
+    else
+      -- safety: `RealizationContext` is private
+      let realizeEnv : Environment := unsafe unsafeCast ctx.env
+      let realizeEnv := { realizeEnv with
+        -- allow realizations to recursively realize other constants for `forConst`. Do note that
+        -- this allows for recursive realization of `constName` itself, which will deadlock.
+        realizedLocalConsts := realizeEnv.realizedLocalConsts.insert forConst ctx
+      }
+      -- ensure realized constants are nested below `forConst` and that environment extension
+      -- modifications know they are in an async context
+      let realizeEnv := realizeEnv.enterAsync (realizing := true) forConst
+      -- skip kernel in `realize`, we'll re-typecheck anyway
+      let realizeOpts := debug.skipKernelTC.set ctx.opts true
+      let (realizeEnv', dyn) ← realize realizeEnv realizeOpts
+      -- We could check that `c` was indeed added here but in practice `realize` has already
+      -- reported an error so we don't.
+
+      -- find new constants incl. nested realizations, add current extension state, and compute
+      -- closure
+      let consts := realizeEnv'.asyncConsts.toArray[realizeEnv.asyncConsts.toArray.size:].toArray
+      let consts := consts.map fun c =>
+        if c.exts?.isNone then
+          { c with exts? := some <| .pure realizeEnv'.checkedWithoutAsync.extensions }
+        else c
+      let exts ← EnvExtension.envExtensionsRef.get
+      let replay := (maybeAddToKernelEnv realizeEnv realizeEnv' consts · exts)
+      prom.resolve (consts, replay, dyn)
+      pure (consts, replay, dyn)
+    return ({ env with
+      asyncConsts := consts.foldl (·.add) env.asyncConsts
+      checked := env.checked.map replay
+    }, dyn)
+where
+  -- Adds `consts` if they haven't already been added by a previous branch. Note that this
+  -- conditional is deterministic because of the linearizing effect of `env.checked`.
+  maybeAddToKernelEnv (oldEnv newEnv : Environment) (consts : Array AsyncConst)
+      (kenv : Kernel.Environment)
+      (exts : Array (EnvExtension EnvExtensionState)) : Kernel.Environment := Id.run do
+    let mut kenv := kenv
+    for c in consts do
+      if kenv.find? c.constInfo.name |>.isSome then
+        continue
+      let info := c.constInfo.toConstantInfo
+      if info.isUnsafe then
+        -- Checking unsafe declarations is not necessary for consistency, and it is necessary to
+        -- avoid checking them in the case of the old code generator, which adds ill-typed constants
+        -- to the kernel environment. We can delete this branch after removing the old code
+        -- generator.
+        kenv := kenv.add info
+        continue
+      let decl := match info with
+        | .thmInfo thm   => .thmDecl thm
+        | .defnInfo defn => .defnDecl defn
+        | _              => panic! s!"Environment.realizeConst: {c.constInfo.name} must be definition/theorem"
+      -- realized kernel additions cannot be interrupted - which would be bad anyway as they can be
+      -- reused between snapshots
+      match kenv.addDeclCore 0 decl none with
+      | .ok kenv' => kenv := kenv'
+      | .error e =>
+        let _ : Inhabited Kernel.Environment := ⟨kenv⟩
+        panic! s!"Environment.realizeConst: failed to add {c.constInfo.name} to environment\n{e.toRawString}"
+    for ext in exts do
+      if let some replay := ext.replay? then
+        kenv := { kenv with
+          -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
+          extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
+            replay
+              (ext.getStateImpl oldEnv.toKernelEnv.extensions)
+              (ext.getStateImpl newEnv.toKernelEnv.extensions)
+              (consts.map (·.constInfo.name))) }
+    return kenv
 
 end Environment
 

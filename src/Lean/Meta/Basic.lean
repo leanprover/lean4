@@ -2219,26 +2219,29 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
 Makes the helper constant `constName` that is derived from `forConst` available in the environment.
 `enableRealizationsForConst forConst` must have been called first on this environment branch. If
 this is the first environment branch requesting `constName` to be realized (atomically), `realize`
-is called with the environment and options at the time of calling `enableRealizationsForConst`, thus
-helping achieve deterministic results despite the non-deterministic choice of which thread is tasked
-with realization. In other words, the state after calling `realizeConst` is *as if* `realize` had
-been called immediately after `enableRealizationsForConst forConst`, though the effects of this call
-are visible only after calling `realizeConst`. See below for more details on the replayed effects.
+is called with the environment and options at the time of calling `enableRealizationsForConst` if
+`forConst` is from the current module and the state just after importing otherwise, thus helping
+achieve deterministic results despite the non-deterministic choice of which thread is tasked with
+realization. In other words, the state after calling `realizeConst` is *as if* `realize` had been
+called immediately after `enableRealizationsForConst forConst`, though the effects of this call are
+visible only after calling `realizeConst`. See below for more details on the replayed effects.
 
 `realizeConst` cannot check what other data is captured in the `realize` closure,
 so it is best practice to extract it into a separate function and pay close attention to the passed
 arguments, if any. `realize` must return with `constName` added to the environment,
 at which point all callers of `realizeConst` with this `constName` will be unblocked
-and have access to an updated version of their own environment containing `constName` plus any new
-constants it depends on, including recursively realized constants. Traces, diagnostics, and raw std
-stream output are reported at all callers via `Core.logSnapshotTask` (so that the location of
-generated diagnostics is deterministic). The environment extension state at the end of `realize` is
-available to each caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an
-exception or fails to add `constName` to the environment, an appropriate diagnostic is reported to
-all callers but no constants are added to the environment.
+and have access to an updated version of their own environment containing any new constants
+`realize` added, including recursively realized constants. Traces, diagnostics, and raw std stream
+output are reported at all callers via `Core.logSnapshotTask` (so that the location of generated
+diagnostics is deterministic). Note that, as `realize` is run using the options at declaration time
+of `forConst`, trace options must be set prior to that (or, for imported constants, on the cmdline)
+in order to be active. The environment extension state at the end of `realize` is available to each
+caller via `EnvExtension.findStateAsync` for `constName`. If `realize` throws an exception or fails
+to add `constName` to the environment, an appropriate diagnostic is reported to all callers but no
+constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
-    MetaM Unit := do
+    MetaM Unit := withTraceNode `Meta.realizeConst (fun _ => return constName) do
   let env ← getEnv
   let coreCtx ← readThe Core.Context
   -- these fields should be invariant throughout the file
@@ -2277,6 +2280,7 @@ end Meta
 
 builtin_initialize
   registerTraceClass `Meta.isLevelDefEq.postponed
+  registerTraceClass `Meta.realizeConst
 
 export Meta (MetaM)
 

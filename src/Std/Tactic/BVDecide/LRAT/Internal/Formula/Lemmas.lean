@@ -246,7 +246,7 @@ theorem limplies_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro h c' c'_in_f
   have c'_in_fc : c' ∈ toList (insert f c) := by
-    simp only [insert_iff, Array.toList_toArray, List.mem_singleton]
+    simp only [insert_iff, List.toList_toArray, List.mem_singleton]
     exact Or.inr c'_in_f
   exact h c' c'_in_fc
 
@@ -494,7 +494,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
               simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
                 Array.getElem_toList] at heq
@@ -527,7 +527,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
               simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
                 Array.getElem_toList] at heq
@@ -587,7 +587,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_toArray]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
               simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
                 Array.getElem_toList] at heq

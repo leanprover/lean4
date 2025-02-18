@@ -31,7 +31,7 @@ def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
 
 theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
   apply ext'
-  simp [toArrayLit, toList_toArray]
+  simp [toArrayLit, List.toList_toArray]
   have hle : n ≤ as.size := hsz ▸ Nat.le_refl _
   have hge : as.size ≤ n := hsz ▸ Nat.le_refl _
   have := go n hle

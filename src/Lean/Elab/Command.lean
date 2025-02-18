@@ -274,7 +274,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
       let linters ← lintersRef.get
       unless linters.isEmpty do
         for linter in linters do
-          withTraceNode `Elab.lint (fun _ => return m!"running linter: {linter.name}")
+          withTraceNode `Elab.lint (fun _ => return m!"running linter: {.ofConstName linter.name}")
               (tag := linter.name.toString) do
             let savedState ← get
             try
@@ -282,7 +282,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
             catch ex =>
               match ex with
               | Exception.error ref msg =>
-                logException (.error ref m!"linter {linter.name} failed: {msg}")
+                logException (.error ref m!"linter {.ofConstName linter.name} failed: {msg}")
               | Exception.internal _ _ =>
                 logException ex
             finally

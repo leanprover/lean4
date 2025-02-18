@@ -5,13 +5,24 @@ Authors: Markus Himmel
 -/
 prelude
 import Init.Data.AC
-import Std.Data.DTreeMap.Internal.Queries
+import Std.Data.DTreeMap.Internal.Balanced
 
 /-!
 # Balancing operations
 
 This file contains the implementation of internal balancing operations used by the modification
 operations of the tree map and proves that these operations produce balanced trees.
+
+## Implementation
+
+Although it is desirable to separate the implementation from the balancedness proofs as much as
+possible, we want the Lean to optimize away some impossible case distinctions. Therefore, we need to
+prove them impossible in the implementation itself. Most proofs are automated using a custom
+tactic `tree_tac`, but the proof terms tend to be large, so we should be cautious.
+
+Implementations marked with an exclamation mark do not rely on balancing proofs and just panic when
+a case occurs that is impossible for balanced trees. These implementations are slower because the
+impossible cases need to be checked for.
 -/
 
 set_option autoImplicit false
@@ -23,47 +34,8 @@ variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {
 
 namespace Std.DTreeMap.Internal.Impl
 
-/--
-Predicate for local balance at a node of the tree. We don't provide API for this, preferring
-instead to use automation to dispatch goals about balance.
--/
-@[Std.Internal.tree_tac]
-def BalancedAtRoot (left right : Nat) : Prop :=
-  left + right ≤ 1 ∨ (left ≤ delta * right ∧ right ≤ delta * left)
-
-/--
-Predicate that states that the stored size information in a tree is correct and that it is
-balanced.
--/
-inductive Balanced : Impl α β → Prop where
-  /-- Leaf is balanced. -/
-  | leaf : Balanced leaf
-  /--
-  Inner node is balanced if it is locally balanced, both children are balanced and size
-  information is correct.
-  -/
-  | inner {sz k v l r} : Balanced l → Balanced r →
-      BalancedAtRoot l.size r.size → sz = l.size + 1 + r.size → Balanced (inner sz k v l r)
-
-attribute [Std.Internal.tree_tac] Balanced.leaf
-
-@[Std.Internal.tree_tac]
-theorem balanced_inner_iff {sz k v l r} : Balanced (Impl.inner sz k v l r : Impl α β) ↔
-    Balanced l ∧ Balanced r ∧ BalancedAtRoot l.size r.size ∧ sz = l.size + 1 + r.size :=
-  ⟨by rintro (_|⟨h₁, h₂, h₃, h₄⟩); exact ⟨h₁, h₂, h₃, h₄⟩,
-   fun ⟨h₁, h₂, h₃, h₄⟩ => .inner h₁ h₂ h₃ h₄⟩
-
 /-!
 ## Implementation
-
-Although it is desirable to separate the implementation from the balancedness proofs as much as
-possible, we want the Lean to optimize away some impossible case distinctions. Therefore, we need to
-prove them impossible in the implementation itself. Most proofs are automated using a custom
-tactic `tree_tac`, but the proof terms tend to be large, so we should be cautious.
-
-Implementations marked with an exclamation mark do not rely on balancing proofs and just panic when
-a case occurs that is impossible for balanced trees. These implementations are slower because the
-impossible cases need to be checked for.
 -/
 
 /-- Precondition for `balanceL`: at most one element was added to left subtree. -/
@@ -402,58 +374,6 @@ def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 /-!
 ## Lemmas about balancing operations
 -/
-
-@[simp]
-theorem balancedAtRoot_zero_zero : BalancedAtRoot 0 0 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_zero_one : BalancedAtRoot 0 1 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_one_zero : BalancedAtRoot 1 0 := by
-  simp only [BalancedAtRoot]; omega
-
-@[simp]
-theorem balancedAtRoot_one_one : BalancedAtRoot 1 1 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-@[simp]
-theorem balancedAtRoot_two_one : BalancedAtRoot 2 1 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-@[simp]
-theorem balancedAtRoot_one_two : BalancedAtRoot 1 2 := by
-  simp only [BalancedAtRoot, delta]; omega
-
-theorem balanced_one_leaf_leaf {k : α} {v : β k} : (inner 1 k v leaf leaf).Balanced :=
-  balanced_inner_iff.2 ⟨.leaf, .leaf, by simp [size_leaf], by simp [size_leaf]⟩
-
-theorem balancedAtRoot_zero_iff {n : Nat} : BalancedAtRoot 0 n ↔ n ≤ 1 := by
-  simp only [BalancedAtRoot]; omega
-
-theorem balancedAtRoot_zero_iff' {n : Nat} : BalancedAtRoot n 0 ↔ n ≤ 1 := by
-  simp only [BalancedAtRoot]; omega
-
-theorem Balanced.one_le {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → 1 ≤ sz := by
-  tree_tac
-
-theorem Balanced.eq {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → sz = l.size + 1 + r.size
-  | .inner _ _ _ h => h
-
-theorem Balanced.left {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → l.Balanced
-  | .inner h _ _ _ => h
-
-theorem Balanced.right {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced → r.Balanced
-  | .inner _ h _ _ => h
-
-theorem Balanced.at_root {sz k v l r} : (Impl.inner sz k v l r : Impl α β).Balanced →
-    BalancedAtRoot l.size r.size
-  | .inner _ _ h _ => h
-
-theorem BalancedAtRoot.symm {l r : Nat} : BalancedAtRoot l r → BalancedAtRoot r l := by
-  tree_tac
 
 theorem BalancedAtRoot.erase_left {l l' r : Nat} : BalancedAtRoot l r → l - 1 ≤ l' → l' ≤ l →
     BalanceLErasePrecond r l' := by tree_tac

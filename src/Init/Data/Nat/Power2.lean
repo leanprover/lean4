@@ -36,7 +36,7 @@ theorem mul2_isPowerOfTwo_of_isPowerOfTwo (h : isPowerOfTwo n) : isPowerOfTwo (n
 theorem pos_of_isPowerOfTwo (h : isPowerOfTwo n) : n > 0 := by
   have ⟨k, h⟩ := h
   rw [h]
-  apply Nat.pos_pow_of_pos
+  apply Nat.pow_pos
   decide
 
 theorem isPowerOfTwo_nextPowerOfTwo (n : Nat) : n.nextPowerOfTwo.isPowerOfTwo := by

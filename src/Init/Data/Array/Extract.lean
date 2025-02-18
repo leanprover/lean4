@@ -351,7 +351,7 @@ theorem takeWhile_append {xs ys : Array α} :
       if (xs.takeWhile p).size = xs.size then xs ++ ys.takeWhile p else xs.takeWhile p := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.takeWhile_toArray, List.takeWhile_append, size_toArray]
+  simp only [List.append_toArray, List.takeWhile_toArray, List.takeWhile_append, List.size_toArray]
   split <;> rfl
 
 @[simp] theorem takeWhile_append_of_pos {p : α → Bool} {l₁ l₂ : Array α} (h : ∀ a ∈ l₁, p a) :
@@ -367,7 +367,7 @@ theorem popWhile_append {xs ys : Array α} :
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, List.dropWhile_append,
-    List.isEmpty_eq_true, List.isEmpty_toArray, List.isEmpty_reverse]
+    List.isEmpty_iff, List.isEmpty_toArray, List.isEmpty_reverse]
   -- Why do these not fire with `simp`?
   rw [List.popWhile_toArray, List.isEmpty_toArray, List.isEmpty_reverse]
   split

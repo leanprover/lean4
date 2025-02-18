@@ -154,24 +154,23 @@ theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l : Vec
   cases l
   simp
 
-theorem attach_map_coe (l : Vector α n) (f : α → β) :
+theorem attach_map_val (l : Vector α n) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   cases l
   simp
 
-theorem attach_map_val (l : Vector α n) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : Vector α n) : l.attach.map Subtype.val = l := by
   cases l; simp
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   cases l; simp
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun i => f i.val) = l.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : Vector α n) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l := by

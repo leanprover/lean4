@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.Requests
-// Imports: Lean.DeclarationRange Lean.Data.Json Lean.Data.Lsp Lean.Elab.Command Lean.Server.FileSource Lean.Server.FileWorker.Utils Lean.Server.Rpc.Basic Std.Sync.Mutex
+// Imports: Lean.DeclarationRange Lean.Data.Json Lean.Data.Lsp Lean.Elab.Command Lean.Server.RequestCancellation Lean.Server.FileSource Lean.Server.FileWorker.Utils Lean.Server.Rpc.Basic Std.Sync.Mutex Std.Sync.Mutex
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,24 +16,23 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_mapTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Server_lookupLspRequestHandler___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_parseRequestParams___rarg___closed__1;
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3175_(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__8(lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleOnDidChange(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestError_methodNotFound___closed__2;
 lean_object* l_EIO_toBaseIO___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
-static lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__3(lean_object*, lean_object*);
 size_t lean_usize_shift_right(size_t, size_t);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_isStatefulLspRequestMethod___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__9(size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Server_chainLspRequestHandler___lambda__1___closed__1;
+LEAN_EXPORT uint8_t l_Lean_FileMap_rangeContainsHoverPos(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_registerLspRequestHandler___spec__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_ofException(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainLspRequestHandler___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Server_partialLspRequestHandlerMethods___spec__2___boxed(lean_object*, lean_object*, lean_object*);
@@ -42,21 +41,23 @@ LEAN_EXPORT lean_object* l_ReaderT_bind___at___private_Lean_Server_Requests_0__L
 lean_object* l_Lean_MessageData_toString(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_partialLspRequestHandlerMethods___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__5___closed__1;
-lean_object* lean_io_promise_new(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_Server_partialLspRequestHandlerMethods___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleLspRequest___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runCommandElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_as_task(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Server_handleOnDidChange___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at_Lean_Server_isStatefulLspRequestMethod___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__1___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3(lean_object*, lean_object*);
+static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1;
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3(lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__2(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_mul(size_t, size_t);
 static lean_object* l_Lean_Server_chainLspRequestHandler___lambda__1___closed__2;
@@ -65,25 +66,26 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestM_asTask(lean_object*);
 lean_object* l_Std_Mutex_new___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Server_lookupLspRequestHandler___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByEdit___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_Server_partialLspRequestHandlerMethods___spec__1___boxed(lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3;
 static lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__1___closed__1;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_bindTask___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnap___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333____boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestTask_pure___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCancelled___boxed(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_isStatefulLspRequestMethod___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Server_partialLspRequestHandlerMethods___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_getIOState_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Syntax_getRangeWithTrailing_x3f(lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_IO_AsyncList_waitFind_x3f___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
@@ -94,6 +96,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_handleLspRequest___boxed(lean_object*, le
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftIORequestM___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -104,17 +107,16 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_contains___at_Lean_Server_regi
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Exception_toMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap(lean_object*, lean_object*);
-static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1;
 static lean_object* l_Lean_Server_registerLspRequestHandler___lambda__4___closed__1;
 static lean_object* l_Lean_Server_registerLspRequestHandler___lambda__4___closed__2;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_string_utf8_byte_size(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCancelled(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runInIO___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Server_handleOnDidChange___spec__5(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestError_requestCancelled___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCanceled(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftIORequestM___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_initializing(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Server_registerLspRequestHandler___spec__3(lean_object*, size_t, size_t, lean_object*, lean_object*);
@@ -124,13 +126,9 @@ LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHa
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Server_lookupLspRequestHandler___spec__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_toLspResponseError___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftEIOExceptionRequestM___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Server_RequestM_findCmdDataAtPos___spec__1(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143_(lean_object*);
-lean_object* lean_io_promise_resolve(lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_instInhabitedInfoTree;
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedRequestError;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_getState_x21(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -143,12 +141,11 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Server_look
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at_Lean_Server_isStatefulLspRequestMethod___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_registerLspRequestHandler___closed__1;
-static lean_object* l_Lean_Server_instBEqRequestCancellationCause___closed__1;
-static lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_getState_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_routeLspRequest___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_handleLspRequest___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runCommandElabM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_handleOnDidChange___spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -158,9 +155,10 @@ LEAN_EXPORT lean_object* l_Lean_Server_isStatefulLspRequestMethod(lean_object*, 
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_handleOnDidChange___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Server_registerLspRequestHandler___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Server_registerLspRequestHandler___spec__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4;
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_internalError(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__6(lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_insertAux___at_Lean_Server_registerLspRequestHandler___spec__3___closed__2;
@@ -174,59 +172,61 @@ LEAN_EXPORT lean_object* l_Lean_Server_RequestError_fileChanged;
 lean_object* l_outOfBounds___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Server_lookupStatefulLspRequestHandler___spec__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Server_handleOnDidChange___spec__5___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2;
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_FileMap_rangeContainsHoverPos___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__3___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_MetavarContext_getExprAssignmentDomain___spec__2___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_registerLspRequestHandler___spec__1___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_routeLspRequest(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_methodNotFound___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_bindWaitFindSnap(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftEIOExceptionRequestM___rarg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__5(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333_(uint8_t, uint8_t);
 lean_object* lean_array_to_list(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317_(lean_object*);
 static lean_object* l_Lean_Server_chainLspRequestHandler___lambda__3___closed__2;
 static lean_object* l_Lean_Server_parseRequestParams___rarg___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_task(lean_object*);
 static lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_instBEqRequestCancellationCause;
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_map_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 static lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_toCtorIdx___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion(lean_object*);
+static lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at_Lean_Server_registerLspRequestHandler___spec__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Server_registerLspRequestHandler___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_registerLspRequestHandler___spec__8(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_asTask___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__4;
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleOnDidChange___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_handleOnDidChange___spec__4(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__3;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByEdit(lean_object*, lean_object*);
 extern lean_object* l_Task_Priority_default;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__3(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_statefulRequestHandlers;
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__1(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1___boxed(lean_object*);
+LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHandler___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_toLspResponseError(lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1;
 lean_object* l___private_Init_Util_0__mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___at_Lean_Server_registerCompleteStatefulLspRequestHandler___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__3___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runCoreM(lean_object*);
@@ -234,64 +234,62 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrid
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__10(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_methodNotFound(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_RequestError_methodNotFound___closed__1;
-lean_object* lean_task_get_own(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_runCommandElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancel(lean_object*, uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseTree___rarg(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_getState_x21___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_bindTask___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runInIO(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
+static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Server_lookupLspRequestHandler___spec__2___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l_Array_filterMapM___at_Lean_Server_partialLspRequestHandlerMethods___spec__3___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_handleLspRequest___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_isStatefulLspRequestMethod___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___at_Lean_Server_RequestM_withWaitFindSnapAtPos___spec__1(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(lean_object*, lean_object*);
+lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancelled_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_getIOState_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftIORequestM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_bindTask(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Server_handleOnDidChange___spec__3(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___lambda__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainLspRequestHandler___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Server_lookupStatefulLspRequestHandler___spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_Server_partialLspRequestHandlerMethods___spec__1___lambda__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Server_instInhabitedRequestError___closed__2;
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6;
 uint8_t l_String_Range_contains(lean_object*, lean_object*, uint8_t);
+static lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4;
 static lean_object* l_Lean_Server_chainLspRequestHandler___lambda__3___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__10___closed__1;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHandler___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Server_lookupLspRequestHandler___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1(uint8_t);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
-static lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2;
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos(lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestTask_pure(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_registerStatefulLspRequestHandler___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_ReaderT_bind___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__4(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc(lean_object*);
 lean_object* l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3001_(lean_object*);
 static lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__3___closed__1;
 static lean_object* l_Lean_Server_handleLspRequest___closed__2;
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntries(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftCancellableMRequestM(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseTree(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runTermElabM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
-lean_object* lean_io_get_task_state(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_unlock(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleOnDidChange___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_handleOnDidChange___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -300,21 +298,17 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Server_loo
 static lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__4___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnap(lean_object*);
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-lean_object* l_IO_Promise_result_x21___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_parseRequestParams(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_partialLspRequestHandlerMethods___spec__4(lean_object*, size_t, size_t, lean_object*);
-static lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2;
 LEAN_EXPORT lean_object* l_StateRefT_x27_get___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__2___boxed(lean_object*, lean_object*, lean_object*);
-lean_object* l_panic___at_Lean_Elab_Term_getInfoTreeWithContext_x3f___spec__1(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Server_lookupLspRequestHandler___spec__2(lean_object*, size_t, lean_object*);
 lean_object* lean_io_bind_task(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAtAux___at_Lean_Server_registerLspRequestHandler___spec__8___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runTermElabM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_readDoc___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_new(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancelled_x3f___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Server_lookupStatefulLspRequestHandler___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkCollisionNode___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Server_handleOnDidChange___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -324,6 +318,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrid
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__2(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler___lambda__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_containsAux___at_Lean_Server_registerLspRequestHandler___spec__7(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Server_RequestError_fileChanged___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forM___at_Lean_Server_handleOnDidChange___spec__1(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -343,9 +338,9 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_registe
 LEAN_EXPORT lean_object* l_Lean_Server_chainStatefulLspRequestHandler___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__7___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___lambda__1___boxed(lean_object*, lean_object*);
+static lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1;
 lean_object* lean_array_uget(lean_object*, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insert___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__7(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_PersistentHashMap_toArray___at_Lean_Server_partialLspRequestHandlerMethods___spec__1___closed__2;
 static lean_object* l_Lean_PersistentHashMap_insertAux___at_Lean_Server_registerLspRequestHandler___spec__3___closed__3;
 lean_object* lean_io_error_to_string(lean_object*);
@@ -357,16 +352,19 @@ static lean_object* l_Lean_Server_instInhabitedRequestError___closed__1;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_registerLspRequestHandler___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1___boxed(lean_object*);
 static lean_object* l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__1;
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_contains___at_Lean_Server_registerLspRequestHandler___spec__6(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHandler___spec__2___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHandler___spec__3___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_task___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___spec__5(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___boxed(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -375,17 +373,15 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_S
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Server_handleOnDidChange___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_runCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainLspRequestHandler___spec__1(lean_object*);
-LEAN_EXPORT uint8_t l_Lean_Server_instInhabitedRequestCancellationCause;
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runCoreM___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_liftExcept___at_Lean_Server_chainStatefulLspRequestHandler___spec__2(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at_Lean_Server_registerLspRequestHandler___spec__7___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_waitFindSnapAux___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_getCollisionNodeSize___rarg(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_ofIoError(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_registerPartialStatefulLspRequestHandler(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_lookupStatefulLspRequestHandler(lean_object*, lean_object*);
@@ -398,201 +394,513 @@ lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_handleLspRequest(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__2(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___at_Lean_Server_chainStatefulLspRequestHandler___spec__1___rarg___lambda__6(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCanceled___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Server_handleOnDidChange___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftEIOExceptionRequestM(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlM___at_Lean_Server_handleOnDidChange___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancel___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftCancellableMRequestM___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Server_RequestError_invalidParams(lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg(uint8_t, uint8_t, lean_object*);
 lean_object* l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___rarg(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_toCtorIdx(uint8_t);
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT uint8_t l_Lean_FileMap_rangeContainsHoverPos(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
-if (lean_obj_tag(x_3) == 0)
+if (x_4 == 0)
 {
-lean_object* x_4; 
-x_4 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq(x_1, x_2);
-return x_4;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; uint8_t x_9; 
+x_5 = lean_ctor_get(x_2, 1);
+x_6 = lean_ctor_get(x_1, 0);
+x_7 = lean_string_utf8_byte_size(x_6);
+x_8 = lean_nat_dec_eq(x_5, x_7);
+lean_dec(x_7);
+x_9 = l_String_Range_contains(x_2, x_3, x_8);
+return x_9;
 }
 else
 {
-uint8_t x_5; 
+uint8_t x_10; uint8_t x_11; 
+x_10 = 1;
+x_11 = l_String_Range_contains(x_2, x_3, x_10);
+return x_11;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_FileMap_rangeContainsHoverPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; uint8_t x_6; lean_object* x_7; 
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+x_6 = l_Lean_FileMap_rangeContainsHoverPos(x_1, x_2, x_3, x_5);
+lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
+x_7 = lean_box(x_6);
+return x_7;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseTree___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
 {
-lean_object* x_6; 
-x_6 = lean_task_pure(x_3);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+x_5 = lean_array_to_list(x_4);
+x_6 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(x_1, x_2, x_5);
 return x_6;
 }
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_3, 0);
-lean_inc(x_7);
-lean_dec(x_3);
-x_8 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_8, 0, x_7);
-x_9 = lean_task_pure(x_8);
-return x_9;
 }
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseTree(lean_object* x_1) {
 _start:
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
-lean_inc(x_2);
-x_5 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos(x_1, x_2);
-x_6 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__1), 3, 2);
-lean_closure_set(x_6, 0, x_2);
-lean_closure_set(x_6, 1, x_3);
-x_7 = l_Task_Priority_default;
-x_8 = 1;
-x_9 = lean_task_bind(x_5, x_6, x_7, x_8);
-return x_9;
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps_traverseTree___rarg), 3, 0);
+return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_3, 0);
+lean_object* x_5; 
+x_5 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(x_1, x_2, x_3);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; uint8_t x_5; 
+x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
-x_5 = lean_ctor_get(x_4, 2);
-lean_inc(x_5);
-lean_dec(x_4);
-if (lean_obj_tag(x_5) == 0)
+x_5 = lean_unbox(x_4);
+if (x_5 == 0)
 {
 lean_object* x_6; lean_object* x_7; 
-x_6 = lean_box(0);
-x_7 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2(x_3, x_1, x_2, x_6);
+lean_dec(x_4);
+x_6 = lean_ctor_get(x_3, 0);
+lean_inc(x_6);
+lean_dec(x_3);
+x_7 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(x_1, x_6, x_2);
 return x_7;
 }
 else
 {
 uint8_t x_8; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_8 = !lean_is_exclusive(x_3);
+if (x_8 == 0)
+{
+lean_object* x_9; lean_object* x_10; 
+x_9 = lean_ctor_get(x_3, 1);
+lean_dec(x_9);
+x_10 = lean_task_pure(x_3);
+return x_10;
+}
+else
+{
+lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_3, 0);
+lean_inc(x_11);
+lean_dec(x_3);
+x_12 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_4);
+x_13 = lean_task_pure(x_12);
+return x_13;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_6 = lean_ctor_get(x_1, 2);
+lean_inc(x_6);
+lean_dec(x_1);
+lean_inc(x_2);
+x_7 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps_traverseTree___rarg), 3, 2);
+lean_closure_set(x_7, 0, x_2);
+lean_closure_set(x_7, 1, x_3);
+x_8 = l_Task_Priority_default;
+x_9 = 1;
+x_10 = lean_task_bind(x_6, x_7, x_8, x_9);
+x_11 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__2), 3, 2);
+lean_closure_set(x_11, 0, x_2);
+lean_closure_set(x_11, 1, x_4);
+x_12 = lean_task_bind(x_10, x_11, x_8, x_9);
+return x_12;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__4(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+if (lean_obj_tag(x_5) == 0)
+{
+uint8_t x_6; 
 lean_dec(x_3);
 lean_dec(x_2);
 lean_dec(x_1);
-x_8 = !lean_is_exclusive(x_5);
-if (x_8 == 0)
+x_6 = !lean_is_exclusive(x_4);
+if (x_6 == 0)
 {
-lean_object* x_9; 
-x_9 = lean_task_pure(x_5);
+lean_object* x_7; uint8_t x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = lean_ctor_get(x_4, 1);
+lean_dec(x_7);
+x_8 = 1;
+x_9 = lean_box(x_8);
+lean_ctor_set(x_4, 1, x_9);
+x_10 = lean_task_pure(x_4);
+return x_10;
+}
+else
+{
+lean_object* x_11; uint8_t x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
+x_11 = lean_ctor_get(x_4, 0);
+lean_inc(x_11);
+lean_dec(x_4);
+x_12 = 1;
+x_13 = lean_box(x_12);
+x_14 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_14, 0, x_11);
+lean_ctor_set(x_14, 1, x_13);
+x_15 = lean_task_pure(x_14);
+return x_15;
+}
+}
+else
+{
+uint8_t x_16; 
+x_16 = lean_ctor_get_uint8(x_5, 0);
+lean_dec(x_5);
+if (x_16 == 0)
+{
+lean_object* x_17; lean_object* x_18; 
+lean_dec(x_3);
+x_17 = lean_ctor_get(x_4, 0);
+lean_inc(x_17);
+lean_dec(x_4);
+x_18 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(x_1, x_17, x_2);
+return x_18;
+}
+else
+{
+lean_object* x_19; lean_object* x_20; lean_object* x_21; 
+x_19 = lean_ctor_get(x_4, 0);
+lean_inc(x_19);
+lean_dec(x_4);
+x_20 = lean_box(0);
+x_21 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3(x_3, x_1, x_19, x_2, x_20);
+return x_21;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_3) == 0)
+{
+uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+lean_dec(x_1);
+x_4 = 0;
+x_5 = lean_box(x_4);
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_2);
+lean_ctor_set(x_6, 1, x_5);
+x_7 = lean_task_pure(x_6);
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; lean_object* x_14; 
+x_8 = lean_ctor_get(x_3, 0);
+lean_inc(x_8);
+x_9 = lean_ctor_get(x_3, 1);
+lean_inc(x_9);
+lean_dec(x_3);
+lean_inc(x_1);
+lean_inc(x_8);
+x_10 = lean_apply_2(x_1, x_8, x_2);
+x_11 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__4), 4, 3);
+lean_closure_set(x_11, 0, x_1);
+lean_closure_set(x_11, 1, x_9);
+lean_closure_set(x_11, 2, x_8);
+x_12 = l_Task_Priority_default;
+x_13 = 1;
+x_14 = lean_task_bind(x_10, x_11, x_12, x_13);
+return x_14;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
+_start:
+{
+lean_object* x_6; 
+x_6 = l_Lean_Language_SnapshotTree_foldSnaps_traverseChildren___rarg___lambda__3(x_1, x_2, x_3, x_4, x_5);
+lean_dec(x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_ctor_get(x_1, 0);
+lean_inc(x_2);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1___boxed), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_4 = l_Lean_Language_SnapshotTree_foldSnaps_traverseTree___rarg(x_3, x_2, x_1);
+x_5 = l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1;
+x_6 = l_Task_Priority_default;
+x_7 = 1;
+x_8 = lean_task_map(x_5, x_4, x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_foldSnaps___rarg), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lean_Language_SnapshotTree_foldSnaps___rarg___lambda__1(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 1;
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; lean_object* x_4; 
+x_3 = lean_ctor_get(x_2, 0);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = lean_ctor_get(x_3, 2);
+lean_inc(x_4);
+lean_dec(x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1;
+x_6 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_6, 0, x_1);
+lean_ctor_set(x_6, 1, x_5);
+return x_6;
+}
+else
+{
+uint8_t x_7; 
+lean_dec(x_1);
+x_7 = !lean_is_exclusive(x_4);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_box(0);
+x_9 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_9, 0, x_4);
+lean_ctor_set(x_9, 1, x_8);
 return x_9;
 }
 else
 {
-lean_object* x_10; lean_object* x_11; lean_object* x_12; 
-x_10 = lean_ctor_get(x_5, 0);
+lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; 
+x_10 = lean_ctor_get(x_4, 0);
 lean_inc(x_10);
-lean_dec(x_5);
+lean_dec(x_4);
 x_11 = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(x_11, 0, x_10);
-x_12 = lean_task_pure(x_11);
-return x_12;
+x_12 = lean_box(0);
+x_13 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_13, 0, x_11);
+lean_ctor_set(x_13, 1, x_12);
+return x_13;
 }
 }
 }
 }
-static lean_object* _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1() {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_box(0);
-x_2 = lean_task_pure(x_1);
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_4 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1), 2, 1);
+lean_closure_set(x_4, 0, x_1);
+x_5 = lean_ctor_get(x_2, 2);
+lean_inc(x_5);
+lean_dec(x_2);
+x_6 = l_Task_Priority_default;
+x_7 = 1;
+x_8 = lean_task_map(x_4, x_5, x_6, x_7);
+return x_8;
+}
+}
+static lean_object* _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1() {
+_start:
+{
+uint8_t x_1; lean_object* x_2; 
+x_1 = 0;
+x_2 = lean_alloc_ctor(1, 0, 1);
+lean_ctor_set_uint8(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; 
+x_7 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1;
+lean_inc(x_1);
+x_8 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_8, 0, x_1);
+lean_ctor_set(x_8, 1, x_7);
+x_9 = lean_task_pure(x_8);
+x_10 = lean_ctor_get(x_5, 0);
+lean_inc(x_10);
+if (lean_obj_tag(x_10) == 0)
 {
-lean_object* x_3; 
-lean_dec(x_1);
-x_3 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 0)
-{
-lean_object* x_6; 
-lean_dec(x_4);
-x_6 = lean_ctor_get(x_2, 1);
-lean_inc(x_6);
-lean_dec(x_2);
-x_2 = x_6;
-goto _start;
-}
-else
-{
-lean_object* x_8; lean_object* x_9; uint8_t x_10; uint8_t x_11; 
-x_8 = lean_ctor_get(x_2, 1);
-lean_inc(x_8);
-lean_dec(x_2);
-x_9 = lean_ctor_get(x_5, 0);
-lean_inc(x_9);
 lean_dec(x_5);
-x_10 = 0;
-x_11 = l_String_Range_contains(x_9, x_1, x_10);
-lean_dec(x_9);
-if (x_11 == 0)
-{
-lean_dec(x_4);
-x_2 = x_8;
-goto _start;
+lean_dec(x_1);
+return x_9;
 }
 else
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; uint8_t x_16; lean_object* x_17; 
-x_13 = lean_ctor_get(x_4, 1);
-lean_inc(x_13);
-lean_dec(x_4);
-x_14 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__3), 3, 2);
-lean_closure_set(x_14, 0, x_1);
-lean_closure_set(x_14, 1, x_8);
-x_15 = l_Task_Priority_default;
-x_16 = 1;
-x_17 = lean_task_bind(x_13, x_14, x_15, x_16);
+lean_object* x_11; uint8_t x_12; lean_object* x_13; 
+x_11 = lean_ctor_get(x_10, 0);
+lean_inc(x_11);
+lean_dec(x_10);
+x_12 = 1;
+x_13 = l_Lean_Syntax_getRangeWithTrailing_x3f(x_11, x_12);
+lean_dec(x_11);
+if (lean_obj_tag(x_13) == 0)
+{
+lean_dec(x_5);
+lean_dec(x_1);
+return x_9;
+}
+else
+{
+lean_object* x_14; uint8_t x_15; 
+x_14 = lean_ctor_get(x_13, 0);
+lean_inc(x_14);
+lean_dec(x_13);
+x_15 = l_Lean_FileMap_rangeContainsHoverPos(x_2, x_14, x_3, x_4);
+lean_dec(x_14);
+if (x_15 == 0)
+{
+lean_dec(x_5);
+lean_dec(x_1);
+return x_9;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; 
+lean_dec(x_9);
+x_16 = lean_box(0);
+x_17 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2(x_1, x_5, x_16);
 return x_17;
 }
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos(lean_object* x_1, lean_object* x_2, lean_object* x_3, uint8_t x_4) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = lean_ctor_get(x_1, 1);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_array_to_list(x_3);
-x_5 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq(x_2, x_4);
-return x_5;
+lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_5 = lean_box(0);
+x_6 = lean_box(x_4);
+x_7 = lean_alloc_closure((void*)(l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___boxed), 6, 4);
+lean_closure_set(x_7, 0, x_5);
+lean_closure_set(x_7, 1, x_1);
+lean_closure_set(x_7, 2, x_3);
+lean_closure_set(x_7, 3, x_6);
+x_8 = l_Lean_Language_SnapshotTree_foldSnaps___rarg(x_2, x_5, x_7);
+return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_5; 
-x_5 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___lambda__2(x_1, x_2, x_3, x_4);
+lean_object* x_4; 
+x_4 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__2(x_1, x_2, x_3);
+lean_dec(x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
+_start:
+{
+uint8_t x_7; lean_object* x_8; 
+x_7 = lean_unbox(x_4);
 lean_dec(x_4);
-return x_5;
+x_8 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3(x_1, x_2, x_3, x_7, x_5, x_6);
+lean_dec(x_6);
+lean_dec(x_3);
+lean_dec(x_2);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Language_SnapshotTree_findInfoTreeAtPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_4);
+lean_dec(x_4);
+x_6 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos(x_1, x_2, x_3, x_5);
+return x_6;
 }
 }
 static lean_object* _init_l_Lean_Server_instInhabitedRequestError___closed__1() {
@@ -804,565 +1112,6 @@ _start:
 lean_object* x_3; 
 x_3 = l_Lean_Server_RequestError_toLspResponseError(x_1, x_2);
 lean_dec(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_toCtorIdx(uint8_t x_1) {
-_start:
-{
-if (x_1 == 0)
-{
-lean_object* x_2; 
-x_2 = lean_unsigned_to_nat(0u);
-return x_2;
-}
-else
-{
-lean_object* x_3; 
-x_3 = lean_unsigned_to_nat(1u);
-return x_3;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_toCtorIdx___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-lean_dec(x_1);
-x_3 = l_Lean_Server_RequestCancellationCause_toCtorIdx(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1(lean_object* x_1) {
-_start:
-{
-lean_inc(x_1);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg(uint8_t x_1, uint8_t x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; 
-x_4 = l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1;
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Lean_Server_RequestCancellationCause_noConfusion___rarg___boxed), 3, 0);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_RequestCancellationCause_noConfusion___rarg___lambda__1(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationCause_noConfusion___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_4 = lean_unbox(x_1);
-lean_dec(x_1);
-x_5 = lean_unbox(x_2);
-lean_dec(x_2);
-x_6 = l_Lean_Server_RequestCancellationCause_noConfusion___rarg(x_4, x_5, x_3);
-return x_6;
-}
-}
-static uint8_t _init_l_Lean_Server_instInhabitedRequestCancellationCause() {
-_start:
-{
-uint8_t x_1; 
-x_1 = 0;
-return x_1;
-}
-}
-LEAN_EXPORT uint8_t l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333_(uint8_t x_1, uint8_t x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = l_Lean_Server_RequestCancellationCause_toCtorIdx(x_1);
-x_4 = l_Lean_Server_RequestCancellationCause_toCtorIdx(x_2);
-x_5 = lean_nat_dec_eq(x_3, x_4);
-lean_dec(x_4);
-lean_dec(x_3);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333____boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; uint8_t x_4; uint8_t x_5; lean_object* x_6; 
-x_3 = lean_unbox(x_1);
-lean_dec(x_1);
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333_(x_3, x_4);
-x_6 = lean_box(x_5);
-return x_6;
-}
-}
-static lean_object* _init_l_Lean_Server_instBEqRequestCancellationCause___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_beqRequestCancellationCause____x40_Lean_Server_Requests___hyg_333____boxed), 2, 0);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_instBEqRequestCancellationCause() {
-_start:
-{
-lean_object* x_1; 
-x_1 = l_Lean_Server_instBEqRequestCancellationCause___closed__1;
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_new(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_io_promise_new(x_1);
-x_3 = !lean_is_exclusive(x_2);
-if (x_3 == 0)
-{
-return x_2;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 0);
-x_5 = lean_ctor_get(x_2, 1);
-lean_inc(x_5);
-lean_inc(x_4);
-lean_dec(x_2);
-x_6 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_6, 0, x_4);
-lean_ctor_set(x_6, 1, x_5);
-return x_6;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancel(lean_object* x_1, uint8_t x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; uint8_t x_6; 
-x_4 = lean_box(x_2);
-x_5 = lean_io_promise_resolve(x_4, x_1, x_3);
-x_6 = !lean_is_exclusive(x_5);
-if (x_6 == 0)
-{
-return x_5;
-}
-else
-{
-lean_object* x_7; lean_object* x_8; lean_object* x_9; 
-x_7 = lean_ctor_get(x_5, 0);
-x_8 = lean_ctor_get(x_5, 1);
-lean_inc(x_8);
-lean_inc(x_7);
-lean_dec(x_5);
-x_9 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_9, 0, x_7);
-lean_ctor_set(x_9, 1, x_8);
-return x_9;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancel___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-uint8_t x_4; lean_object* x_5; 
-x_4 = lean_unbox(x_2);
-lean_dec(x_2);
-x_5 = l_Lean_Server_RequestCancellationToken_cancel(x_1, x_4, x_3);
-lean_dec(x_1);
-return x_5;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_task(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_IO_Promise_result_x21___rarg(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_task___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_RequestCancellationToken_task(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1(uint8_t x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = lean_box(0);
-return x_2;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1___boxed), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; uint8_t x_5; lean_object* x_6; 
-x_2 = l_IO_Promise_result_x21___rarg(x_1);
-x_3 = l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1;
-x_4 = l_Task_Priority_default;
-x_5 = 1;
-x_6 = lean_task_map(x_3, x_2, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = lean_unbox(x_1);
-lean_dec(x_1);
-x_3 = l_Lean_Server_RequestCancellationToken_truncatedTask___lambda__1(x_2);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_truncatedTask___boxed(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; 
-x_2 = l_Lean_Server_RequestCancellationToken_truncatedTask(x_1);
-lean_dec(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancelled_x3f(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; 
-x_3 = l_IO_Promise_result_x21___rarg(x_1);
-x_4 = lean_io_get_task_state(x_3, x_2);
-x_5 = lean_ctor_get(x_4, 0);
-lean_inc(x_5);
-if (lean_obj_tag(x_5) == 2)
-{
-uint8_t x_6; 
-x_6 = !lean_is_exclusive(x_4);
-if (x_6 == 0)
-{
-lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; lean_object* x_11; 
-x_7 = lean_ctor_get(x_4, 0);
-lean_dec(x_7);
-x_8 = lean_task_get_own(x_3);
-x_9 = lean_unbox(x_8);
-lean_dec(x_8);
-x_10 = lean_box(x_9);
-x_11 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_11, 0, x_10);
-lean_ctor_set(x_4, 0, x_11);
-return x_4;
-}
-else
-{
-lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_12 = lean_ctor_get(x_4, 1);
-lean_inc(x_12);
-lean_dec(x_4);
-x_13 = lean_task_get_own(x_3);
-x_14 = lean_unbox(x_13);
-lean_dec(x_13);
-x_15 = lean_box(x_14);
-x_16 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_16, 0, x_15);
-x_17 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_17, 0, x_16);
-lean_ctor_set(x_17, 1, x_12);
-return x_17;
-}
-}
-else
-{
-uint8_t x_18; 
-lean_dec(x_5);
-lean_dec(x_3);
-x_18 = !lean_is_exclusive(x_4);
-if (x_18 == 0)
-{
-lean_object* x_19; lean_object* x_20; 
-x_19 = lean_ctor_get(x_4, 0);
-lean_dec(x_19);
-x_20 = lean_box(0);
-lean_ctor_set(x_4, 0, x_20);
-return x_4;
-}
-else
-{
-lean_object* x_21; lean_object* x_22; lean_object* x_23; 
-x_21 = lean_ctor_get(x_4, 1);
-lean_inc(x_21);
-lean_dec(x_4);
-x_22 = lean_box(0);
-x_23 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_23, 0, x_22);
-lean_ctor_set(x_23, 1, x_21);
-return x_23;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_cancelled_x3f___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_RequestCancellationToken_cancelled_x3f(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Server_RequestCancellationToken_cancelled_x3f(x_1, x_2);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-if (lean_obj_tag(x_4) == 0)
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
-{
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_dec(x_6);
-x_7 = 0;
-x_8 = lean_box(x_7);
-lean_ctor_set(x_3, 0, x_8);
-return x_3;
-}
-else
-{
-lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_3, 1);
-lean_inc(x_9);
-lean_dec(x_3);
-x_10 = 0;
-x_11 = lean_box(x_10);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
-return x_12;
-}
-}
-else
-{
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_4, 0);
-lean_inc(x_13);
-lean_dec(x_4);
-x_14 = lean_unbox(x_13);
-lean_dec(x_13);
-if (x_14 == 0)
-{
-uint8_t x_15; 
-x_15 = !lean_is_exclusive(x_3);
-if (x_15 == 0)
-{
-lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-x_16 = lean_ctor_get(x_3, 0);
-lean_dec(x_16);
-x_17 = 1;
-x_18 = lean_box(x_17);
-lean_ctor_set(x_3, 0, x_18);
-return x_3;
-}
-else
-{
-lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; 
-x_19 = lean_ctor_get(x_3, 1);
-lean_inc(x_19);
-lean_dec(x_3);
-x_20 = 1;
-x_21 = lean_box(x_20);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_19);
-return x_22;
-}
-}
-else
-{
-uint8_t x_23; 
-x_23 = !lean_is_exclusive(x_3);
-if (x_23 == 0)
-{
-lean_object* x_24; uint8_t x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_3, 0);
-lean_dec(x_24);
-x_25 = 0;
-x_26 = lean_box(x_25);
-lean_ctor_set(x_3, 0, x_26);
-return x_3;
-}
-else
-{
-lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; 
-x_27 = lean_ctor_get(x_3, 1);
-lean_inc(x_27);
-lean_dec(x_3);
-x_28 = 0;
-x_29 = lean_box(x_28);
-x_30 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_27);
-return x_30;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_RequestCancellationToken_wasCancelledByCancelRequest(x_1, x_2);
-lean_dec(x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByEdit(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; lean_object* x_4; 
-x_3 = l_Lean_Server_RequestCancellationToken_cancelled_x3f(x_1, x_2);
-x_4 = lean_ctor_get(x_3, 0);
-lean_inc(x_4);
-if (lean_obj_tag(x_4) == 0)
-{
-uint8_t x_5; 
-x_5 = !lean_is_exclusive(x_3);
-if (x_5 == 0)
-{
-lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_6 = lean_ctor_get(x_3, 0);
-lean_dec(x_6);
-x_7 = 0;
-x_8 = lean_box(x_7);
-lean_ctor_set(x_3, 0, x_8);
-return x_3;
-}
-else
-{
-lean_object* x_9; uint8_t x_10; lean_object* x_11; lean_object* x_12; 
-x_9 = lean_ctor_get(x_3, 1);
-lean_inc(x_9);
-lean_dec(x_3);
-x_10 = 0;
-x_11 = lean_box(x_10);
-x_12 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_12, 0, x_11);
-lean_ctor_set(x_12, 1, x_9);
-return x_12;
-}
-}
-else
-{
-lean_object* x_13; uint8_t x_14; 
-x_13 = lean_ctor_get(x_4, 0);
-lean_inc(x_13);
-lean_dec(x_4);
-x_14 = lean_unbox(x_13);
-lean_dec(x_13);
-if (x_14 == 0)
-{
-uint8_t x_15; 
-x_15 = !lean_is_exclusive(x_3);
-if (x_15 == 0)
-{
-lean_object* x_16; uint8_t x_17; lean_object* x_18; 
-x_16 = lean_ctor_get(x_3, 0);
-lean_dec(x_16);
-x_17 = 0;
-x_18 = lean_box(x_17);
-lean_ctor_set(x_3, 0, x_18);
-return x_3;
-}
-else
-{
-lean_object* x_19; uint8_t x_20; lean_object* x_21; lean_object* x_22; 
-x_19 = lean_ctor_get(x_3, 1);
-lean_inc(x_19);
-lean_dec(x_3);
-x_20 = 0;
-x_21 = lean_box(x_20);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_19);
-return x_22;
-}
-}
-else
-{
-uint8_t x_23; 
-x_23 = !lean_is_exclusive(x_3);
-if (x_23 == 0)
-{
-lean_object* x_24; uint8_t x_25; lean_object* x_26; 
-x_24 = lean_ctor_get(x_3, 0);
-lean_dec(x_24);
-x_25 = 1;
-x_26 = lean_box(x_25);
-lean_ctor_set(x_3, 0, x_26);
-return x_3;
-}
-else
-{
-lean_object* x_27; uint8_t x_28; lean_object* x_29; lean_object* x_30; 
-x_27 = lean_ctor_get(x_3, 1);
-lean_inc(x_27);
-lean_dec(x_3);
-x_28 = 1;
-x_29 = lean_box(x_28);
-x_30 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_30, 0, x_29);
-lean_ctor_set(x_30, 1, x_27);
-return x_30;
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestCancellationToken_wasCancelledByEdit___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-lean_object* x_3; 
-x_3 = l_Lean_Server_RequestCancellationToken_wasCancelledByEdit(x_1, x_2);
-lean_dec(x_1);
 return x_3;
 }
 }
@@ -1632,6 +1381,115 @@ lean_object* x_4;
 x_4 = l_Lean_Server_instMonadLiftEIOExceptionRequestM___rarg(x_1, x_2, x_3);
 lean_dec(x_2);
 return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftCancellableMRequestM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_2, 5);
+lean_inc(x_4);
+lean_dec(x_2);
+x_5 = lean_apply_2(x_1, x_4, x_3);
+if (lean_obj_tag(x_5) == 0)
+{
+lean_object* x_6; 
+x_6 = lean_ctor_get(x_5, 0);
+lean_inc(x_6);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+lean_dec(x_6);
+x_7 = !lean_is_exclusive(x_5);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_ctor_get(x_5, 0);
+lean_dec(x_8);
+x_9 = l_Lean_Server_RequestError_requestCancelled;
+lean_ctor_set_tag(x_5, 1);
+lean_ctor_set(x_5, 0, x_9);
+return x_5;
+}
+else
+{
+lean_object* x_10; lean_object* x_11; lean_object* x_12; 
+x_10 = lean_ctor_get(x_5, 1);
+lean_inc(x_10);
+lean_dec(x_5);
+x_11 = l_Lean_Server_RequestError_requestCancelled;
+x_12 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_12, 0, x_11);
+lean_ctor_set(x_12, 1, x_10);
+return x_12;
+}
+}
+else
+{
+uint8_t x_13; 
+x_13 = !lean_is_exclusive(x_5);
+if (x_13 == 0)
+{
+lean_object* x_14; lean_object* x_15; 
+x_14 = lean_ctor_get(x_5, 0);
+lean_dec(x_14);
+x_15 = lean_ctor_get(x_6, 0);
+lean_inc(x_15);
+lean_dec(x_6);
+lean_ctor_set(x_5, 0, x_15);
+return x_5;
+}
+else
+{
+lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_16 = lean_ctor_get(x_5, 1);
+lean_inc(x_16);
+lean_dec(x_5);
+x_17 = lean_ctor_get(x_6, 0);
+lean_inc(x_17);
+lean_dec(x_6);
+x_18 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_18, 0, x_17);
+lean_ctor_set(x_18, 1, x_16);
+return x_18;
+}
+}
+}
+else
+{
+uint8_t x_19; 
+x_19 = !lean_is_exclusive(x_5);
+if (x_19 == 0)
+{
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_5, 0);
+x_21 = l_Lean_Server_RequestError_ofIoError(x_20);
+lean_ctor_set(x_5, 0, x_21);
+return x_5;
+}
+else
+{
+lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
+x_22 = lean_ctor_get(x_5, 0);
+x_23 = lean_ctor_get(x_5, 1);
+lean_inc(x_23);
+lean_inc(x_22);
+lean_dec(x_5);
+x_24 = l_Lean_Server_RequestError_ofIoError(x_22);
+x_25 = lean_alloc_ctor(1, 2, 0);
+lean_ctor_set(x_25, 0, x_24);
+lean_ctor_set(x_25, 1, x_23);
+return x_25;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_instMonadLiftCancellableMRequestM(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Lean_Server_instMonadLiftCancellableMRequestM___rarg), 3, 0);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runInIO___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
@@ -1983,7 +1841,7 @@ x_3 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_bindTask___rarg), 4, 0);
 return x_3;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCanceled(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCancelled(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; lean_object* x_4; lean_object* x_5; uint8_t x_6; 
@@ -2048,11 +1906,11 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCanceled___boxed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_checkCancelled___boxed(lean_object* x_1, lean_object* x_2) {
 _start:
 {
 lean_object* x_3; 
-x_3 = l_Lean_Server_RequestM_checkCanceled(x_1, x_2);
+x_3 = l_Lean_Server_RequestM_checkCancelled(x_1, x_2);
 lean_dec(x_1);
 return x_3;
 }
@@ -2316,26 +2174,105 @@ lean_dec(x_2);
 return x_4;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
 _start:
 {
-lean_object* x_3; uint8_t x_4; 
-lean_inc(x_1);
-lean_inc(x_2);
-x_3 = lean_apply_1(x_1, x_2);
-x_4 = lean_unbox(x_3);
+lean_object* x_4; uint8_t x_5; lean_object* x_6; 
+x_4 = lean_ctor_get(x_3, 1);
+x_5 = 1;
+x_6 = l_Lean_Syntax_getRangeWithTrailing_x3f(x_4, x_5);
+if (lean_obj_tag(x_6) == 0)
+{
+uint8_t x_7; 
+x_7 = 0;
+return x_7;
+}
+else
+{
+lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; uint8_t x_12; uint8_t x_13; 
+x_8 = lean_ctor_get(x_6, 0);
+lean_inc(x_8);
+lean_dec(x_6);
+x_9 = lean_ctor_get(x_1, 0);
+x_10 = lean_ctor_get(x_9, 0);
+x_11 = lean_ctor_get(x_10, 2);
+x_12 = 0;
+x_13 = l_Lean_FileMap_rangeContainsHoverPos(x_11, x_8, x_2, x_12);
+lean_dec(x_8);
+return x_13;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(x_1, x_2, x_3);
 lean_dec(x_3);
-if (x_4 == 0)
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = lean_box(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; uint8_t x_4; lean_object* x_5; 
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = 1;
+x_5 = l_Lean_Syntax_getPos_x3f(x_3, x_4);
+if (lean_obj_tag(x_5) == 0)
+{
+uint8_t x_6; 
+x_6 = 0;
+return x_6;
+}
+else
+{
+lean_object* x_7; uint8_t x_8; 
+x_7 = lean_ctor_get(x_5, 0);
+lean_inc(x_7);
+lean_dec(x_5);
+x_8 = lean_nat_dec_lt(x_1, x_7);
+lean_dec(x_7);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+uint8_t x_3; lean_object* x_4; 
+x_3 = l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(x_1, x_2);
+lean_dec(x_2);
+lean_dec(x_1);
+x_4 = lean_box(x_3);
+return x_4;
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = lean_box(0);
+x_2 = lean_task_pure(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
 {
 lean_object* x_5; 
-x_5 = lean_ctor_get(x_2, 6);
+x_5 = lean_ctor_get(x_1, 6);
 lean_inc(x_5);
-lean_dec(x_2);
+lean_dec(x_1);
 if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
-lean_dec(x_1);
-x_6 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
+lean_dec(x_3);
+lean_dec(x_2);
+x_6 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
 return x_6;
 }
 else
@@ -2344,60 +2281,118 @@ lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t
 x_7 = lean_ctor_get(x_5, 0);
 lean_inc(x_7);
 lean_dec(x_5);
-x_8 = lean_ctor_get(x_7, 1);
+x_8 = lean_ctor_get(x_7, 2);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap_go), 2, 1);
-lean_closure_set(x_9, 0, x_1);
+x_9 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap_go), 3, 2);
+lean_closure_set(x_9, 0, x_2);
+lean_closure_set(x_9, 1, x_3);
 x_10 = l_Task_Priority_default;
 x_11 = 1;
 x_12 = lean_task_bind(x_8, x_9, x_10, x_11);
 return x_12;
 }
 }
-else
-{
-lean_object* x_13; lean_object* x_14; 
-lean_dec(x_1);
-x_13 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_13, 0, x_2);
-x_14 = lean_task_pure(x_13);
-return x_14;
 }
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_ctor_get(x_2, 1);
-lean_inc(x_3);
-lean_dec(x_2);
-if (lean_obj_tag(x_3) == 0)
+uint8_t x_5; 
+x_5 = l_Lean_Server_RequestM_findCmdParsedSnap_isAfterHoverPos(x_3, x_1);
+if (x_5 == 0)
 {
-lean_object* x_4; 
-lean_dec(x_1);
-x_4 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
-return x_4;
+lean_object* x_6; lean_object* x_7; 
+x_6 = lean_box(0);
+x_7 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1(x_1, x_2, x_3, x_6);
+return x_7;
 }
 else
 {
-lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; uint8_t x_10; lean_object* x_11; 
-x_5 = lean_ctor_get(x_3, 0);
-lean_inc(x_5);
+lean_object* x_8; 
 lean_dec(x_3);
-x_6 = lean_ctor_get(x_5, 1);
+lean_dec(x_2);
+lean_dec(x_1);
+x_8 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; 
+x_4 = l_Lean_Server_RequestM_findCmdParsedSnap_containsHoverPos(x_1, x_2, x_3);
+if (x_4 == 0)
+{
+lean_object* x_5; lean_object* x_6; 
+x_5 = lean_box(0);
+x_6 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2(x_3, x_1, x_2, x_5);
+return x_6;
+}
+else
+{
+lean_object* x_7; lean_object* x_8; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_7 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_7, 0, x_3);
+x_8 = lean_task_pure(x_7);
+return x_8;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
+_start:
+{
+lean_object* x_5; 
+x_5 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__2(x_1, x_2, x_3, x_4);
+lean_dec(x_4);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = lean_ctor_get(x_3, 1);
+lean_inc(x_4);
+lean_dec(x_3);
+if (lean_obj_tag(x_4) == 0)
+{
+lean_object* x_5; 
+lean_dec(x_2);
+lean_dec(x_1);
+x_5 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; uint8_t x_11; lean_object* x_12; 
+x_6 = lean_ctor_get(x_4, 0);
 lean_inc(x_6);
-lean_dec(x_5);
+lean_dec(x_4);
 x_7 = lean_ctor_get(x_6, 1);
 lean_inc(x_7);
 lean_dec(x_6);
-x_8 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap_go), 2, 1);
-lean_closure_set(x_8, 0, x_1);
-x_9 = l_Task_Priority_default;
-x_10 = 1;
-x_11 = lean_task_bind(x_7, x_8, x_9, x_10);
-return x_11;
+x_8 = lean_ctor_get(x_7, 2);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap_go), 3, 2);
+lean_closure_set(x_9, 0, x_1);
+lean_closure_set(x_9, 1, x_2);
+x_10 = l_Task_Priority_default;
+x_11 = 1;
+x_12 = lean_task_bind(x_8, x_9, x_10, x_11);
+return x_12;
 }
 }
 }
@@ -2407,7 +2402,6 @@ _start:
 lean_object* x_3; lean_object* x_4; lean_object* x_5; 
 x_3 = lean_ctor_get(x_1, 0);
 lean_inc(x_3);
-lean_dec(x_1);
 x_4 = lean_ctor_get(x_3, 1);
 lean_inc(x_4);
 lean_dec(x_3);
@@ -2418,7 +2412,8 @@ if (lean_obj_tag(x_5) == 0)
 {
 lean_object* x_6; 
 lean_dec(x_2);
-x_6 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
+lean_dec(x_1);
+x_6 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
 return x_6;
 }
 else
@@ -2430,217 +2425,17 @@ lean_dec(x_5);
 x_8 = lean_ctor_get(x_7, 1);
 lean_inc(x_8);
 lean_dec(x_7);
-x_9 = lean_ctor_get(x_8, 1);
+x_9 = lean_ctor_get(x_8, 2);
 lean_inc(x_9);
 lean_dec(x_8);
-x_10 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1), 2, 1);
-lean_closure_set(x_10, 0, x_2);
+x_10 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdParsedSnap___lambda__1), 3, 2);
+lean_closure_set(x_10, 0, x_1);
+lean_closure_set(x_10, 1, x_2);
 x_11 = l_Task_Priority_default;
 x_12 = 1;
 x_13 = lean_task_bind(x_9, x_10, x_11, x_12);
 return x_13;
 }
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("s.cmdState.infoState.trees.size == 1\n        ", 45, 45);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; 
-x_1 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1;
-x_2 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2;
-x_3 = lean_string_append(x_1, x_2);
-return x_3;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Server.Requests", 20, 20);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Server.RequestM.findInfoTreeAtPos", 38, 38);
-return x_1;
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4;
-x_2 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5;
-x_3 = lean_unsigned_to_nat(264u);
-x_4 = lean_unsigned_to_nat(8u);
-x_5 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3;
-x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
-return x_6;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
-x_2 = lean_ctor_get(x_1, 1);
-lean_inc(x_2);
-lean_dec(x_1);
-x_3 = lean_ctor_get(x_2, 6);
-lean_inc(x_3);
-lean_dec(x_2);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec(x_3);
-x_5 = lean_ctor_get(x_4, 2);
-lean_inc(x_5);
-x_6 = lean_unsigned_to_nat(1u);
-x_7 = lean_nat_dec_eq(x_5, x_6);
-if (x_7 == 0)
-{
-lean_object* x_8; lean_object* x_9; 
-lean_dec(x_5);
-lean_dec(x_4);
-x_8 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6;
-x_9 = l_panic___at_Lean_Elab_Term_getInfoTreeWithContext_x3f___spec__1(x_8);
-return x_9;
-}
-else
-{
-lean_object* x_10; uint8_t x_11; 
-x_10 = lean_unsigned_to_nat(0u);
-x_11 = lean_nat_dec_lt(x_10, x_5);
-lean_dec(x_5);
-if (x_11 == 0)
-{
-lean_object* x_12; lean_object* x_13; lean_object* x_14; 
-lean_dec(x_4);
-x_12 = l_Lean_Elab_instInhabitedInfoTree;
-x_13 = l_outOfBounds___rarg(x_12);
-x_14 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_14, 0, x_13);
-return x_14;
-}
-else
-{
-lean_object* x_15; lean_object* x_16; lean_object* x_17; 
-x_15 = l_Lean_Elab_instInhabitedInfoTree;
-x_16 = l_Lean_PersistentArray_get_x21___rarg(x_15, x_4, x_10);
-x_17 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_17, 0, x_16);
-return x_17;
-}
-}
-}
-}
-static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1() {
-_start:
-{
-lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1), 1, 0);
-return x_1;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_3 = lean_ctor_get(x_1, 4);
-lean_inc(x_3);
-lean_dec(x_1);
-x_4 = lean_ctor_get(x_3, 1);
-lean_inc(x_4);
-lean_dec(x_3);
-x_5 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1;
-x_6 = l_Task_Priority_default;
-x_7 = 1;
-x_8 = lean_task_map(x_5, x_4, x_6, x_7);
-return x_8;
-}
-else
-{
-uint8_t x_9; 
-lean_dec(x_1);
-x_9 = !lean_is_exclusive(x_2);
-if (x_9 == 0)
-{
-lean_object* x_10; 
-x_10 = lean_task_pure(x_2);
-return x_10;
-}
-else
-{
-lean_object* x_11; lean_object* x_12; lean_object* x_13; 
-x_11 = lean_ctor_get(x_2, 0);
-lean_inc(x_11);
-lean_dec(x_2);
-x_12 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_12, 0, x_11);
-x_13 = lean_task_pure(x_12);
-return x_13;
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__3(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_2) == 0)
-{
-lean_object* x_3; 
-lean_dec(x_1);
-x_3 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-lean_dec(x_2);
-lean_inc(x_4);
-x_5 = l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(x_4);
-x_6 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos(x_5, x_1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2), 2, 1);
-lean_closure_set(x_7, 0, x_4);
-x_8 = l_Task_Priority_default;
-x_9 = 1;
-x_10 = lean_task_bind(x_6, x_7, x_8, x_9);
-return x_10;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
-_start:
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
-x_4 = l_Lean_Server_RequestM_findCmdParsedSnap(x_1, x_2);
-x_5 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__3), 2, 1);
-lean_closure_set(x_5, 0, x_3);
-x_6 = l_Task_Priority_default;
-x_7 = 1;
-x_8 = lean_task_bind(x_4, x_5, x_6, x_7);
-return x_8;
 }
 }
 LEAN_EXPORT lean_object* l_panic___at_Lean_Server_RequestM_findCmdDataAtPos___spec__1(lean_object* x_1) {
@@ -2656,19 +2451,53 @@ static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Lean.Server.RequestM.findCmdDataAtPos", 37, 37);
+x_1 = lean_mk_string_unchecked("assertion violation: ", 21, 21);
 return x_1;
 }
 }
 static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2() {
 _start:
 {
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("s.cmdState.infoState.trees.size == 1\n        ", 45, 45);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; 
+x_1 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__1;
+x_2 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2;
+x_3 = lean_string_append(x_1, x_2);
+return x_3;
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.Server.Requests", 20, 20);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("Lean.Server.RequestM.findCmdDataAtPos", 37, 37);
+return x_1;
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6() {
+_start:
+{
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_1 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4;
-x_2 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(286u);
+x_1 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4;
+x_2 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5;
+x_3 = lean_unsigned_to_nat(291u);
 x_4 = lean_unsigned_to_nat(8u);
-x_5 = l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3;
+x_5 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -2695,7 +2524,7 @@ if (x_8 == 0)
 lean_object* x_9; lean_object* x_10; 
 lean_dec(x_6);
 lean_dec(x_5);
-x_9 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2;
+x_9 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6;
 x_10 = l_panic___at_Lean_Server_RequestM_findCmdDataAtPos___spec__1(x_9);
 return x_10;
 }
@@ -2748,7 +2577,7 @@ lean_closure_set(x_3, 0, x_1);
 x_4 = lean_ctor_get(x_1, 4);
 lean_inc(x_4);
 lean_dec(x_1);
-x_5 = lean_ctor_get(x_4, 1);
+x_5 = lean_ctor_get(x_4, 2);
 lean_inc(x_5);
 lean_dec(x_4);
 x_6 = l_Task_Priority_default;
@@ -2794,45 +2623,60 @@ return x_18;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3(lean_object* x_1, lean_object* x_2, uint8_t x_3, lean_object* x_4) {
 _start:
 {
-if (lean_obj_tag(x_2) == 0)
+if (lean_obj_tag(x_4) == 0)
 {
-lean_object* x_3; 
+lean_object* x_5; 
+lean_dec(x_2);
 lean_dec(x_1);
-x_3 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1;
-return x_3;
+x_5 = l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1;
+return x_5;
 }
 else
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
-x_4 = lean_ctor_get(x_2, 0);
-lean_inc(x_4);
-lean_dec(x_2);
-lean_inc(x_4);
-x_5 = l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(x_4);
-x_6 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos(x_5, x_1);
-x_7 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__2), 2, 1);
-lean_closure_set(x_7, 0, x_4);
-x_8 = l_Task_Priority_default;
-x_9 = 1;
-x_10 = lean_task_bind(x_6, x_7, x_8, x_9);
-return x_10;
+lean_object* x_6; lean_object* x_7; lean_object* x_8; lean_object* x_9; lean_object* x_10; lean_object* x_11; lean_object* x_12; lean_object* x_13; uint8_t x_14; lean_object* x_15; 
+x_6 = lean_ctor_get(x_4, 0);
+lean_inc(x_6);
+lean_dec(x_4);
+x_7 = lean_ctor_get(x_1, 0);
+lean_inc(x_7);
+lean_dec(x_1);
+x_8 = lean_ctor_get(x_7, 0);
+lean_inc(x_8);
+lean_dec(x_7);
+x_9 = lean_ctor_get(x_8, 2);
+lean_inc(x_9);
+lean_dec(x_8);
+lean_inc(x_6);
+x_10 = l_Lean_Language_Lean_instToSnapshotTreeCommandParsedSnapshot_go(x_6);
+x_11 = l_Lean_Language_SnapshotTree_findInfoTreeAtPos(x_9, x_10, x_2, x_3);
+x_12 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__2), 2, 1);
+lean_closure_set(x_12, 0, x_6);
+x_13 = l_Task_Priority_default;
+x_14 = 1;
+x_15 = lean_task_bind(x_11, x_12, x_13, x_14);
+return x_15;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+lean_object* x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; uint8_t x_8; lean_object* x_9; 
+lean_inc(x_2);
+lean_inc(x_1);
 x_4 = l_Lean_Server_RequestM_findCmdParsedSnap(x_1, x_2);
-x_5 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3), 2, 1);
-lean_closure_set(x_5, 0, x_3);
-x_6 = l_Task_Priority_default;
-x_7 = 1;
-x_8 = lean_task_bind(x_4, x_5, x_6, x_7);
-return x_8;
+x_5 = lean_box(x_3);
+x_6 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3___boxed), 4, 3);
+lean_closure_set(x_6, 0, x_1);
+lean_closure_set(x_6, 1, x_2);
+lean_closure_set(x_6, 2, x_5);
+x_7 = l_Task_Priority_default;
+x_8 = 1;
+x_9 = lean_task_bind(x_4, x_6, x_7, x_8);
+return x_9;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
@@ -2844,36 +2688,93 @@ lean_dec(x_1);
 return x_3;
 }
 }
-LEAN_EXPORT uint8_t l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; uint8_t x_5; 
-x_3 = lean_ctor_get(x_2, 2);
-x_4 = lean_ctor_get(x_3, 0);
-x_5 = lean_nat_dec_le(x_1, x_4);
+uint8_t x_5; lean_object* x_6; 
+x_5 = lean_unbox(x_3);
+lean_dec(x_3);
+x_6 = l_Lean_Server_RequestM_findCmdDataAtPos___lambda__3(x_1, x_2, x_5, x_4);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findCmdDataAtPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_Server_RequestM_findCmdDataAtPos(x_1, x_2, x_4);
 return x_5;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1(lean_object* x_1) {
 _start:
 {
-lean_object* x_3; lean_object* x_4; 
-lean_inc(x_2);
-x_3 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1___boxed), 2, 1);
-lean_closure_set(x_3, 0, x_2);
-x_4 = l_Lean_Server_RequestM_findInfoTreeAtPos(x_1, x_3, x_2);
-return x_4;
-}
-}
-LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
+if (lean_obj_tag(x_1) == 0)
 {
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Lean_Server_RequestM_findInfoTreeAtPosWithTrailingWhitespace___lambda__1(x_1, x_2);
-lean_dec(x_2);
+lean_object* x_2; 
+x_2 = lean_box(0);
+return x_2;
+}
+else
+{
+uint8_t x_3; 
+x_3 = !lean_is_exclusive(x_1);
+if (x_3 == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_4, 1);
+lean_inc(x_5);
+lean_dec(x_4);
+lean_ctor_set(x_1, 0, x_5);
+return x_1;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; 
+x_6 = lean_ctor_get(x_1, 0);
+lean_inc(x_6);
 lean_dec(x_1);
-x_4 = lean_box(x_3);
-return x_4;
+x_7 = lean_ctor_get(x_6, 1);
+lean_inc(x_7);
+lean_dec(x_6);
+x_8 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_8, 0, x_7);
+return x_8;
+}
+}
+}
+}
+static lean_object* _init_l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1), 1, 0);
+return x_1;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos(lean_object* x_1, lean_object* x_2, uint8_t x_3) {
+_start:
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; lean_object* x_8; 
+x_4 = l_Lean_Server_RequestM_findCmdDataAtPos(x_1, x_2, x_3);
+x_5 = l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1;
+x_6 = l_Task_Priority_default;
+x_7 = 1;
+x_8 = lean_task_map(x_5, x_4, x_6, x_7);
+return x_8;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Server_RequestM_findInfoTreeAtPos___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_3);
+lean_dec(x_3);
+x_5 = l_Lean_Server_RequestM_findInfoTreeAtPos(x_1, x_2, x_4);
+return x_5;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Server_RequestM_runCommandElabM___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4) {
@@ -3239,7 +3140,7 @@ x_2 = lean_alloc_closure((void*)(l_Lean_Server_RequestM_runTermElabM___rarg), 4,
 return x_2;
 }
 }
-static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1() {
+static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1() {
 _start:
 {
 lean_object* x_1; 
@@ -3247,21 +3148,21 @@ x_1 = l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_box(0), lean_box(0));
 return x_1;
 }
 }
-static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2() {
+static lean_object* _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1;
+x_1 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2;
+x_2 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2;
 x_3 = lean_st_mk_ref(x_2, x_1);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
@@ -5258,11 +5159,11 @@ lean_dec(x_6);
 return x_8;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3001_(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3175_(lean_object* x_1) {
 _start:
 {
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2;
+x_2 = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2;
 x_3 = lean_st_mk_ref(x_2, x_1);
 x_4 = !lean_is_exclusive(x_3);
 if (x_4 == 0)
@@ -11213,9 +11114,11 @@ lean_object* initialize_Lean_DeclarationRange(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Json(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Data_Lsp(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Server_RequestCancellation(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileSource(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_FileWorker_Utils(uint8_t builtin, lean_object*);
 lean_object* initialize_Lean_Server_Rpc_Basic(uint8_t builtin, lean_object*);
+lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_Requests(uint8_t builtin, lean_object* w) {
@@ -11234,6 +11137,9 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Server_RequestCancellation(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Server_FileSource(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -11246,8 +11152,15 @@ lean_dec_ref(res);
 res = initialize_Std_Sync_Mutex(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1 = _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1();
-lean_mark_persistent(l_Lean_Language_SnapshotTree_findInfoTreeAtPos_goSeq___closed__1);
+res = initialize_Std_Sync_Mutex(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1 = _init_l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1();
+lean_mark_persistent(l_Lean_Language_SnapshotTree_foldSnaps___rarg___closed__1);
+l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1 = _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__1___closed__1);
+l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1 = _init_l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1();
+lean_mark_persistent(l_Lean_Language_SnapshotTree_findInfoTreeAtPos___lambda__3___closed__1);
 l_Lean_Server_instInhabitedRequestError___closed__1 = _init_l_Lean_Server_instInhabitedRequestError___closed__1();
 lean_mark_persistent(l_Lean_Server_instInhabitedRequestError___closed__1);
 l_Lean_Server_instInhabitedRequestError___closed__2 = _init_l_Lean_Server_instInhabitedRequestError___closed__2();
@@ -11268,15 +11181,6 @@ l_Lean_Server_RequestError_requestCancelled___closed__1 = _init_l_Lean_Server_Re
 lean_mark_persistent(l_Lean_Server_RequestError_requestCancelled___closed__1);
 l_Lean_Server_RequestError_requestCancelled = _init_l_Lean_Server_RequestError_requestCancelled();
 lean_mark_persistent(l_Lean_Server_RequestError_requestCancelled);
-l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1 = _init_l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1();
-lean_mark_persistent(l_Lean_Server_RequestCancellationCause_noConfusion___rarg___closed__1);
-l_Lean_Server_instInhabitedRequestCancellationCause = _init_l_Lean_Server_instInhabitedRequestCancellationCause();
-l_Lean_Server_instBEqRequestCancellationCause___closed__1 = _init_l_Lean_Server_instBEqRequestCancellationCause___closed__1();
-lean_mark_persistent(l_Lean_Server_instBEqRequestCancellationCause___closed__1);
-l_Lean_Server_instBEqRequestCancellationCause = _init_l_Lean_Server_instBEqRequestCancellationCause();
-lean_mark_persistent(l_Lean_Server_instBEqRequestCancellationCause);
-l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1 = _init_l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1();
-lean_mark_persistent(l_Lean_Server_RequestCancellationToken_truncatedTask___closed__1);
 l_Lean_Server_parseRequestParams___rarg___closed__1 = _init_l_Lean_Server_parseRequestParams___rarg___closed__1();
 lean_mark_persistent(l_Lean_Server_parseRequestParams___rarg___closed__1);
 l_Lean_Server_parseRequestParams___rarg___closed__2 = _init_l_Lean_Server_parseRequestParams___rarg___closed__2();
@@ -11289,29 +11193,27 @@ l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__3 = _init_l_Lean_S
 lean_mark_persistent(l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__3);
 l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__4 = _init_l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__4();
 lean_mark_persistent(l_Lean_Server_RequestM_withWaitFindSnapAtPos___rarg___closed__4);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__1);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__2);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__3);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__4);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__5);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__1___closed__6);
-l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1();
-lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___lambda__2___closed__1);
+l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1 = _init_l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1();
+lean_mark_persistent(l_Lean_Server_RequestM_findCmdParsedSnap_go___lambda__1___closed__1);
 l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__1 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__1();
 lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__1);
 l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2();
 lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__2);
-l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1 = _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1();
-lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__1);
-l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2 = _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2();
-lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143____closed__2);
-if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2143_(lean_io_mk_world());
+l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3();
+lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__3);
+l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4();
+lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__4);
+l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5();
+lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__5);
+l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6 = _init_l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6();
+lean_mark_persistent(l_Lean_Server_RequestM_findCmdDataAtPos___lambda__1___closed__6);
+l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1 = _init_l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1();
+lean_mark_persistent(l_Lean_Server_RequestM_findInfoTreeAtPos___closed__1);
+l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1 = _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1();
+lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__1);
+l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2 = _init_l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2();
+lean_mark_persistent(l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317____closed__2);
+if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_2317_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_requestHandlers = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_requestHandlers);
@@ -11336,7 +11238,7 @@ l_Lean_Server_chainLspRequestHandler___lambda__3___closed__1 = _init_l_Lean_Serv
 lean_mark_persistent(l_Lean_Server_chainLspRequestHandler___lambda__3___closed__1);
 l_Lean_Server_chainLspRequestHandler___lambda__3___closed__2 = _init_l_Lean_Server_chainLspRequestHandler___lambda__3___closed__2();
 lean_mark_persistent(l_Lean_Server_chainLspRequestHandler___lambda__3___closed__2);
-if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3001_(lean_io_mk_world());
+if (builtin) {res = l_Lean_Server_initFn____x40_Lean_Server_Requests___hyg_3175_(lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Server_statefulRequestHandlers = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Server_statefulRequestHandlers);

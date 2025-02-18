@@ -972,6 +972,10 @@ def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
 
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
+
 def mvarId! : Expr → MVarId
   | mvar n => n
   | _      => panic! "mvar expected"

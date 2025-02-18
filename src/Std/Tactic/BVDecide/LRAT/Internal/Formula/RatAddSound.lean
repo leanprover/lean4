@@ -291,7 +291,7 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
       apply List.get_mem
     have ib_in_insertUnit_fold := mem_insertUnit_fold_units f.ratUnits f.assignments false (negate c) (i, b) ib_in_insertUnit_fold
     simp only [negate, Literal.negate, List.mem_map, Prod.mk.injEq, Prod.exists, Bool.exists_bool,
-      Bool.not_false, Bool.not_true, hf.1, Array.toList_toArray, List.find?, List.not_mem_nil, or_false]
+      Bool.not_false, Bool.not_true, hf.1, List.toList_toArray, List.find?, List.not_mem_nil, or_false]
       at ib_in_insertUnit_fold
     rw [hboth] at h2
     rcases ib_in_insertUnit_fold with ⟨i', ⟨i_false_in_c, i'_eq_i, b_eq_true⟩ | ⟨i_true_in_c, i'_eq_i, b_eq_false⟩⟩
@@ -344,7 +344,7 @@ theorem sat_of_insertRat {n : Nat} (f : DefaultFormula n)
     have i_false_in_insertUnit_fold :=
       mem_insertUnit_fold_units #[] f.assignments false (c.clause.map Literal.negate) (i, false) i_false_in_insertUnit_fold
     simp only [Literal.negate, List.mem_map, Prod.mk.injEq, Bool.not_eq_true', Prod.exists,
-      exists_eq_right_right, exists_eq_right, Array.toList_toArray, List.find?, List.not_mem_nil, or_false,
+      exists_eq_right_right, exists_eq_right, List.toList_toArray, List.find?, List.not_mem_nil, or_false,
       Bool.not_eq_false'] at i_true_in_insertUnit_fold i_false_in_insertUnit_fold
     have c_not_tautology := Clause.not_tautology c (i, true)
     simp only [Clause.toList] at c_not_tautology
@@ -440,7 +440,7 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     (ratHintsExhaustive_eq_true : ratHintsExhaustive f pivot ratHints = true) (c' : DefaultClause n)
     (c'_in_f : c' ∈ toList f) (negPivot_in_c' : Literal.negate pivot ∈ Clause.toList c') :
     ∃ i : Fin ratHints.size, f.clauses[ratHints[i].1]! = some c' := by
-  simp only [toList, f_readyForRatAdd.2.1, Array.toList_toArray, List.map, List.append_nil, f_readyForRatAdd.1,
+  simp only [toList, f_readyForRatAdd.2.1, List.toList_toArray, List.map, List.append_nil, f_readyForRatAdd.1,
     List.mem_filterMap, id_eq, exists_eq_right] at c'_in_f
   rw [List.mem_iff_getElem] at c'_in_f
   rcases c'_in_f with ⟨i, hi, c'_in_f⟩
@@ -559,7 +559,7 @@ theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormul
       simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq, Classical.not_forall,
         not_imp] at fc_unsat
       rcases fc_unsat with ⟨c', c'_in_fc, p'_not_entails_c'⟩
-      simp only [insert_iff, Array.toList_toArray, List.mem_singleton] at c'_in_fc
+      simp only [insert_iff, List.toList_toArray, List.mem_singleton] at c'_in_fc
       rcases c'_in_fc with c'_eq_c | c'_in_f
       · rw [← c'_eq_c] at p'_entails_c
         exact p'_not_entails_c' p'_entails_c

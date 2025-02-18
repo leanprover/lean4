@@ -29,7 +29,7 @@ namespace BitVec
   let ⟨x, x_lt⟩ := x
   simp only [getLsbD_ofFin]
   apply Nat.testBit_lt_two_pow
-  have p : 2^w ≤ 2^i := Nat.pow_le_pow_of_le_right (by omega) ge
+  have p : 2^w ≤ 2^i := Nat.pow_le_pow_right (by omega) ge
   omega
 
 @[simp] theorem getMsbD_ge (x : BitVec w) (i : Nat) (ge : w ≤ i) : getMsbD x i = false := by
@@ -52,11 +52,15 @@ theorem lt_of_getMsbD {x : BitVec w} {i : Nat} : getMsbD x i = true → i < w :=
 @[simp] theorem getElem?_eq_getElem {l : BitVec w} {n} (h : n < w) : l[n]? = some l[n] := by
   simp only [getElem?_def, h, ↓reduceDIte]
 
-theorem getElem?_eq_some {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by
+theorem getElem?_eq_some_iff {l : BitVec w} : l[n]? = some a ↔ ∃ h : n < w, l[n] = a := by
   simp only [getElem?_def]
   split
   · simp_all
   · simp; omega
+
+set_option linter.missingDocs false in
+@[deprecated getElem?_eq_some_iff (since := "2025-02-17")]
+abbrev getElem?_eq_some := @getElem?_eq_some_iff
 
 @[simp] theorem getElem?_eq_none_iff {l : BitVec w} : l[n]? = none ↔ w ≤ n := by
   simp only [getElem?_def]
@@ -79,7 +83,7 @@ theorem getElem?_eq (l : BitVec w) (i : Nat) :
   simp [h]
 
 theorem getElem_eq_iff {l : BitVec w} {n : Nat} {h : n < w} : l[n] = x ↔ l[n]? = some x := by
-  simp only [getElem?_eq_some]
+  simp only [getElem?_eq_some_iff]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
 
 theorem getElem_eq_getElem? (l : BitVec w) (i : Nat) (h : i < w) :
@@ -374,7 +378,7 @@ theorem getLsbD_ofNat (n : Nat) (x : Nat) (i : Nat) :
     Int.sub_eq_add_neg]
 
 private theorem lt_two_pow_of_le {x m n : Nat} (lt : x < 2 ^ m) (le : m ≤ n) : x < 2 ^ n :=
-  Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_of_le_right (by trivial : 0 < 2) le)
+  Nat.lt_of_lt_of_le lt (Nat.pow_le_pow_right (by trivial : 0 < 2) le)
 
 theorem getElem_zero_ofNat_zero (i : Nat) (h : i < w) : (BitVec.ofNat w 0)[i] = false := by
   simp
@@ -1344,7 +1348,7 @@ theorem not_def {x : BitVec v} : ~~~x = allOnes v ^^^ x := rfl
         simp only [Bool.false_bne, Bool.false_and]
         rw [Nat.testBit_lt_two_pow]
         calc BitVec.toNat x < 2 ^ v := isLt _
-          _ ≤ 2 ^ i := Nat.pow_le_pow_of_le_right Nat.zero_lt_two w
+          _ ≤ 2 ^ i := Nat.pow_le_pow_right Nat.zero_lt_two w
       · simp
 
 @[simp] theorem toInt_not {x : BitVec w} :
@@ -2082,9 +2086,9 @@ If the msb is true, then we add a value of `(2^v - 2^w)`, which arises from the 
 theorem toNat_signExtend (x : BitVec w) {v : Nat} :
     (x.signExtend v).toNat = (x.setWidth v).toNat + if x.msb then 2^v - 2^w else 0 := by
   by_cases h : v ≤ w
-  · have : 2^v ≤ 2^w := Nat.pow_le_pow_of_le_right Nat.two_pos h
+  · have : 2^v ≤ 2^w := Nat.pow_le_pow_right Nat.two_pos h
     simp [signExtend_eq_setWidth_of_lt x h, toNat_setWidth, Nat.sub_eq_zero_of_le this]
-  · have : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right Nat.two_pos (by omega)
+  · have : 2^w ≤ 2^v := Nat.pow_le_pow_right Nat.two_pos (by omega)
     rw [toNat_signExtend_of_le x (by omega), toNat_setWidth, Nat.mod_eq_of_lt (by omega)]
 
 /-
@@ -2097,7 +2101,7 @@ theorem toInt_signExtend_of_lt {x : BitVec w} (hv : w < v):
   have : (x.signExtend v).msb = x.msb := by
     rw [msb_eq_getLsbD_last, getLsbD_eq_getElem (Nat.sub_one_lt_of_lt hv)]
     simp [getElem_signExtend, Nat.le_sub_one_of_lt hv]
-  have H : 2^w ≤ 2^v := Nat.pow_le_pow_of_le_right (by omega) (by omega)
+  have H : 2^w ≤ 2^v := Nat.pow_le_pow_right (by omega) (by omega)
   simp only [this, toNat_setWidth, Int.natCast_add, Int.ofNat_emod, Int.natCast_mul]
   by_cases h : x.msb
   <;> norm_cast

@@ -133,6 +133,106 @@ def isEmpty (t : Raw α cmp) : Bool :=
 def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨t.inner.erase a⟩
 
+@[inline, inherit_doc TreeSet.min?]
+def min? (t : Raw α cmp) : Option α :=
+  TreeMap.Raw.minKey? t.inner
+
+/-!
+We do not provide `min` for the raw trees.
+-/
+
+@[inline, inherit_doc TreeSet.min!]
+def min! [Inhabited α] (t : Raw α cmp) : α :=
+  TreeMap.Raw.minKey! t.inner
+
+@[inline, inherit_doc TreeSet.minD]
+def minD (t : Raw α cmp) (fallback : α) : α :=
+  TreeMap.Raw.minKeyD t.inner fallback
+
+@[inline, inherit_doc TreeSet.max?]
+def max? (t : Raw α cmp) : Option α :=
+  TreeMap.Raw.maxKey? t.inner
+
+/-!
+We do not provide `max` for the raw trees.
+-/
+
+@[inline, inherit_doc TreeSet.max!]
+def max! [Inhabited α] (t : Raw α cmp) : α :=
+  TreeMap.Raw.maxKey! t.inner
+
+@[inline, inherit_doc TreeSet.maxD]
+def maxD (t : Raw α cmp) (fallback : α) : α :=
+  TreeMap.Raw.maxKeyD t.inner fallback
+
+@[inline, inherit_doc TreeSet.entryAtIdx?]
+def entryAtIdx? (t : Raw α cmp) (n : Nat) : Option α :=
+  TreeMap.Raw.keyAtIndex? t.inner n
+
+/-!
+We do not provide `entryAtIdx` for the raw trees.
+-/
+
+@[inline, inherit_doc TreeSet.entryAtIdx!]
+def entryAtIdx! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
+  TreeMap.Raw.keyAtIndex! t.inner n
+
+@[inline, inherit_doc TreeSet.entryAtIdxD]
+def entryAtIdxD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
+  TreeMap.Raw.keyAtIndexD t.inner n fallback
+
+@[inline, inherit_doc TreeSet.getGE?]
+def getGE? (t : Raw α cmp) (k : α) : Option α :=
+  TreeMap.Raw.getKeyGE? t.inner k
+
+@[inline, inherit_doc TreeSet.getGT?]
+def getGT? (t : Raw α cmp) (k : α) : Option α :=
+  TreeMap.Raw.getKeyGT? t.inner k
+
+@[inline, inherit_doc TreeSet.getLE?]
+def getLE? (t : Raw α cmp) (k : α) : Option α :=
+  TreeMap.Raw.getKeyLE? t.inner k
+
+@[inline, inherit_doc TreeSet.getLT?]
+def getLT? (t : Raw α cmp) (k : α) : Option α :=
+  TreeMap.Raw.getKeyLT? t.inner k
+
+/-!
+We do not provide `getGE`, `getGT`, `getLE`, `getLT` for the raw trees.
+-/
+
+@[inline, inherit_doc TreeSet.getGE!]
+def getGE! [Inhabited α] (t : Raw α cmp) (k : α) : α :=
+  TreeMap.Raw.getKeyGE! t.inner k
+
+@[inline, inherit_doc TreeSet.getGT!]
+def getGT! [Inhabited α] (t : Raw α cmp) (k : α) : α :=
+  TreeMap.Raw.getKeyGT! t.inner k
+
+@[inline, inherit_doc TreeSet.getLE!]
+def getLE! [Inhabited α] (t : Raw α cmp) (k : α) : α :=
+  TreeMap.Raw.getKeyLE! t.inner k
+
+@[inline, inherit_doc TreeSet.getLT!]
+def getLT! [Inhabited α] (t : Raw α cmp) (k : α) : α :=
+  TreeMap.Raw.getKeyLT! t.inner k
+
+@[inline, inherit_doc TreeSet.getGED]
+def getGED (t : Raw α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.Raw.getKeyGED t.inner k fallback
+
+@[inline, inherit_doc TreeSet.getGTD]
+def getGTD (t : Raw α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.Raw.getKeyGTD t.inner k fallback
+
+@[inline, inherit_doc TreeSet.getLED]
+def getLED (t : Raw α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.Raw.getKeyLED t.inner k fallback
+
+@[inline, inherit_doc TreeSet.getLTD]
+def getLTD (t : Raw α cmp) (k : α) (fallback : α) : α :=
+  TreeMap.Raw.getKeyLTD t.inner k fallback
+
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m]
 
 @[inline, inherit_doc TreeSet.empty]
@@ -166,6 +266,10 @@ def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   foldr f init t
+
+@[inline, inherit_doc TreeSet.partition]
+def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
+  let p := t.inner.partition fun a _ => f a; (⟨p.1⟩, ⟨p.2⟩)
 
 @[inline, inherit_doc TreeSet.empty]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=

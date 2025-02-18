@@ -388,7 +388,7 @@ theorem mapIdx_eq_append_iff {l : Array α} {f : Nat → α → β} {l₁ l₂ :
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
     exact ⟨l₁.toArray, l₂.toArray, by simp⟩
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
-    simp only [List.mapIdx_toArray, mk.injEq, size_toArray] at h₁ h₂
+    simp only [List.mapIdx_toArray, mk.injEq, List.size_toArray] at h₁ h₂
     obtain rfl := h₁
     obtain rfl := h₂
     exact ⟨l₁, l₂, by simp⟩

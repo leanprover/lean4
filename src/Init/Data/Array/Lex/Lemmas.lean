@@ -33,7 +33,7 @@ private theorem cons_lex_cons [BEq α] {lt : α → α → Bool} {a b : α} {xs 
      (#[a] ++ xs).lex (#[b] ++ ys) lt =
        (lt a b || a == b && xs.lex ys lt) := by
   simp only [lex, Id.run]
-  simp only [Std.Range.forIn'_eq_forIn'_range', size_append, size_toArray, List.length_singleton,
+  simp only [Std.Range.forIn'_eq_forIn'_range', size_append, List.size_toArray, List.length_singleton,
     Nat.add_comm 1]
   simp [Nat.add_min_add_right, List.range'_succ, getElem_append_left, List.range'_succ_left,
     getElem_append_right]

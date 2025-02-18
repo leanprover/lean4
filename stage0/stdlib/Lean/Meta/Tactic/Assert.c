@@ -66,7 +66,6 @@ LEAN_EXPORT lean_object* l_Lean_MVarId_modifyLCtx___at_Lean_MVarId_assertHypothe
 lean_object* l_Lean_Meta_getLevel(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_FVarId_getDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_forallE___override(lean_object*, lean_object*, lean_object*, uint8_t);
-lean_object* l_outOfBounds___rarg(lean_object*);
 lean_object* lean_st_ref_get(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*, lean_object*);
 lean_object* l_Lean_MetavarContext_modifyExprMVarLCtx(lean_object*, lean_object*, lean_object*);
@@ -127,6 +126,7 @@ lean_object* l_Lean_Expr_mvarId_x21(lean_object*);
 static lean_object* l_Lean_MVarId_assertHypotheses___closed__1;
 LEAN_EXPORT lean_object* l_Lean_MVarId_replace_findMaxFVar___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_assertExt___lambda__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_MVarId_assertExt___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_modifyLCtx___at_Lean_MVarId_assertHypotheses___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1554,47 +1554,26 @@ x_12 = 0;
 x_13 = l_Lean_instDecidableEqLocalDeclKind(x_11, x_12);
 if (x_13 == 0)
 {
-lean_object* x_14; uint8_t x_15; 
-x_14 = lean_array_get_size(x_2);
-x_15 = lean_nat_dec_lt(x_5, x_14);
-lean_dec(x_14);
-if (x_15 == 0)
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; 
-x_16 = l_Lean_instInhabitedFVarId;
-x_17 = l_outOfBounds___rarg(x_16);
-x_18 = l_Lean_LocalContext_setKind(x_4, x_17, x_11);
-x_19 = lean_ctor_get(x_3, 2);
-x_20 = lean_nat_add(x_5, x_19);
+lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; 
+x_14 = l_Lean_instInhabitedFVarId;
+x_15 = lean_array_get(x_14, x_2, x_5);
+x_16 = l_Lean_LocalContext_setKind(x_4, x_15, x_11);
+x_17 = lean_ctor_get(x_3, 2);
+x_18 = lean_nat_add(x_5, x_17);
 lean_dec(x_5);
-x_4 = x_18;
-x_5 = x_20;
+x_4 = x_16;
+x_5 = x_18;
 x_6 = lean_box(0);
 x_7 = lean_box(0);
 goto _start;
 }
 else
 {
-lean_object* x_22; lean_object* x_23; lean_object* x_24; lean_object* x_25; 
-x_22 = lean_array_fget(x_2, x_5);
-x_23 = l_Lean_LocalContext_setKind(x_4, x_22, x_11);
-x_24 = lean_ctor_get(x_3, 2);
-x_25 = lean_nat_add(x_5, x_24);
+lean_object* x_20; lean_object* x_21; 
+x_20 = lean_ctor_get(x_3, 2);
+x_21 = lean_nat_add(x_5, x_20);
 lean_dec(x_5);
-x_4 = x_23;
-x_5 = x_25;
-x_6 = lean_box(0);
-x_7 = lean_box(0);
-goto _start;
-}
-}
-else
-{
-lean_object* x_27; lean_object* x_28; 
-x_27 = lean_ctor_get(x_3, 2);
-x_28 = lean_nat_add(x_5, x_27);
-lean_dec(x_5);
-x_5 = x_28;
+x_5 = x_21;
 x_6 = lean_box(0);
 x_7 = lean_box(0);
 goto _start;

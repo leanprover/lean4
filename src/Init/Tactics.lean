@@ -829,6 +829,14 @@ then a list of alternatives.
 syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)*)
 
 /--
+A target for the `induction` or `cases` tactic, of the form `e` or `h : e`.
+
+The `h : e` syntax introduces a hypotheses of the form `h : e = _` in each goal,
+with `_` replaced by the corresponding value of the target.
+It is useful when `e` is not a free variable.
+-/
+syntax elimTarget := atomic(binderIdent " : ")? term
+/--
 Assuming `x` is a variable in the local context with an inductive type,
 `induction x` applies induction on `x` to the main goal,
 producing one goal for each constructor of the inductive type,
@@ -854,7 +862,7 @@ You can use `with` to provide the variables names for each constructor.
 - Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂`
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
-syntax (name := induction) "induction " term,+ (" using " term)?
+syntax (name := induction) "induction " elimTarget,+ (" using " term)?
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
@@ -869,11 +877,6 @@ syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 -/
 syntax (name := generalize) "generalize " generalizeArg,+ (location)? : tactic
 
-/--
-A `cases` argument, of the form `e` or `h : e` (where `h` asserts that
-`e = cᵢ a b` for each constructor `cᵢ` of the inductive).
--/
-syntax casesTarget := atomic(ident " : ")? term
 /--
 Assuming `x` is a variable in the local context with an inductive type,
 `cases x` splits the main goal, producing one goal for each constructor of the
@@ -897,7 +900,7 @@ You can use `with` to provide the variables names for each constructor.
   performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
   where `...` is the constructor instance for that particular case.
 -/
-syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
+syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
 
 /--
 The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional

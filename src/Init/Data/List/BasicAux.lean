@@ -51,12 +51,6 @@ theorem ext_get? : ∀ {l₁ l₂ : List α}, (∀ n, l₁.get? n = l₂.get? n)
     have h0 : some a = some a' := h 0
     injection h0 with aa; simp only [aa, ext_get? fun n => h (n+1)]
 
-/-- Internal implementation of `as[i]?`. Do not use directly. -/
-def get?Internal : (as : List α) → (i : Nat) → Option α
-  | a::_,  0   => some a
-  | _::as, n+1 => get?Internal as n
-  | _,     _   => none
-
 /-! ### get! -/
 
 /--
@@ -81,26 +75,6 @@ theorem get!_cons_succ [Inhabited α] (l : List α) (a : α) (n : Nat) :
 set_option linter.deprecated false in
 @[deprecated "Use `a[i]!` instead." (since := "2025-02-12")]
 theorem get!_cons_zero [Inhabited α] (l : List α) (a : α) : (a::l).get! 0 = a := rfl
-
-/-- Internal implementation of `as[i]!`. Do not use directly. -/
-def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
-  | a::_,  0   => a
-  | _::as, n+1 => get!Internal as n
-  | _,     _   => panic! "invalid index"
-
-/-! ### getElem?-/
-
-/-- This instance overrides the default implementation of `a[i]?` via `decidableGetElem?`,
-giving better definitional equalities. -/
-instance : GetElem? (List α) Nat α fun as i => i < as.length where
-  getElem? as i := as.get?Internal i
-  getElem! as i := as.get!Internal i
-
-@[simp] theorem get?Internal_eq_getElem? {l : List α} {i : Nat} :
-    l.get?Internal i = l[i]? := rfl
-
-@[simp] theorem get!Internal_eq_getElem! [Inhabited α] {l : List α} {i : Nat} :
-    l.get!Internal i = l[i]! := rfl
 
 /-! ### getD -/
 

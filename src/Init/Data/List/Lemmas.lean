@@ -164,41 +164,6 @@ theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
 
 /-! ## L[i] and L[i]? -/
 
-@[simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) :
-    l[i]? = some l[i] := by
-  induction l generalizing i with
-  | nil => cases h
-  | cons a l ih =>
-    cases i with
-    | zero => rfl
-    | succ i => exact ih ..
-
-@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
-  match l with
-  | [] => by simp; rfl
-  | _ :: l => by
-    cases i with
-    | zero => simp
-    | succ i =>
-      simp only [length_cons, Nat.add_le_add_iff_right]
-      exact getElem?_eq_none_iff (l := l) (i := i)
-
-@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
-  simp [eq_comm (a := none)]
-
-theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
-
-instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
-  getElem?_def as i h := by
-    split <;> simp_all
-  getElem!_def as i := by
-    induction as generalizing i with
-    | nil => rfl
-    | cons a as ih =>
-      cases i with
-      | zero => rfl
-      | succ i => simpa using ih i
-
 /-! ### `get` and `get?`.
 
 We simplify `l.get i` to `l[i.1]'i.2` and `l.get? i` to `l[i]?`.

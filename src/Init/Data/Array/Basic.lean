@@ -90,7 +90,8 @@ theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
 
-@[simp] theorem getElem?_toList {a : Array α} {i : Nat} : a.toList[i]? = a[i]? := rfl
+@[simp] theorem getElem?_toList {a : Array α} {i : Nat} : a.toList[i]? = a[i]? := by
+  simp [getElem?_def]
 
 /-- `a ∈ as` is a predicate which asserts that `a` is in the array `as`. -/
 -- NB: This is defined as a structure rather than a plain def so that a lemma
@@ -120,7 +121,8 @@ namespace List
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := rfl
 
-@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := rfl
+@[simp] theorem getElem?_toArray {a : List α} {i : Nat} : a.toArray[i]? = a[i]? := by
+  simp [getElem?_def]
 
 @[simp] theorem getElem!_toArray [Inhabited α] {a : List α} {i : Nat} :
     a.toArray[i]! = a[i]! := by

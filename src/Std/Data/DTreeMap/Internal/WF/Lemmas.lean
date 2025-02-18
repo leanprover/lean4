@@ -899,6 +899,44 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
+### modify
+-/
+
+theorem balance_eq_inner [Ord α] [TransOrd α] {sz k v} {l r : Impl α β}
+    (hl : (inner sz k v l r).Balanced) {h} :
+    balance k v l r hl.left hl.right h = inner sz k v l r := by
+  rw [balance_char, balance']
+  have hl' := balanced_inner_iff.mp hl
+  cases k, v, l, r, hl.left, hl.right, h using balance'.fun_cases <;> try tree_tac
+  · rw [if_pos (by assumption), bin, hl'.2.2.2]
+  · rw [if_neg (by assumption), dif_neg (by assumption), dif_neg (by assumption), bin, hl'.2.2.2]
+
+theorem my_congr {m x y hx1 hx2 hx3} (h : x = y) :
+    alter.match_2 (fun _ => m) x hx1 hx2 hx3 = alter.match_2 (fun _ => m) y (hx1 ∘ (Eq.trans h)) (hx2 ∘ (Eq.trans h)) (hx3 ∘ (Eq.trans h))  := by
+  subst h
+  rfl
+
+theorem modify_eq_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    rw [modify, alter] at *
+    obtain ⟨x, hx⟩ : { y : Ordering // (y = compare a k) } := ⟨compare a k, rfl⟩
+    cases x <;> simp only [my_congr hx.symm] <;> try rfl
+    all_goals
+      dsimp
+      simp only [← ihl htb.left, ← ihr htb.right]
+      rw [balance_eq_inner]
+      suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, my_congr hx.symm] using this
+      exact balanced_modify htb
+
+theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
+
+/-!
 ### mergeWith
 -/
 
@@ -908,15 +946,6 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   induction t₂ generalizing t₁ with
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
-
-theorem balance_eq_inner [Ord α] [TransOrd α] {sz k v} {l r : Impl α β}
-    (hl : (inner sz k v l r).Balanced) {h} :
-    balance k v l r hl.left hl.right h = inner sz k v l r := by
-  cases k, v, l, r, hl.left, hl.right, h using balance.fun_cases
-  · simp_all [balance, balanced_inner_iff, size_leaf]
-  · next hb _ _ =>
-    simp_all [Std.Internal.tree_tac, balance]
-    simp_all [Std.Internal.tree_tac]
 
 namespace Const
 
@@ -973,35 +1002,28 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   rw [alter_eq_alterₘ htb hto, alterₘ]
   exact ordered_updateAtKey htb hto
 
+/-!
+### modify
+-/
+
 theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
-    (htb : t.Balanced) (hto : t.Ordered) :
-    (modify a (fun _ _ => f) t) = (alter a (·.map f) t htb).impl := by
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
   induction t with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    rw [modify, alter]
-    cases compare a k
-    · dsimp
+    rw [modify, alter] at *
+    cases h : compare a k <;> try rfl
+    all_goals
+      dsimp
+      simp only [← ihl htb.left, ← ihr htb.right]
+      rw [balance_eq_inner]
+      suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, h] using this
+      exact balanced_modify htb
 
-
-theorem modify_eq_alterₘ [Ord α] [TransOrd α] {t : Impl α β} {a f}
-    (htb : t.Balanced) (hto : t.Ordered) :
-    (modify a (fun _ _ => f) t) = alterₘ a (·.map f) t htb := by
-  rw [alterₘ]
-  induction t with
-  | leaf =>
-    simp only [modify, updateCell, Cell.Const.alter, Cell.empty_inner, Cell.ofOption]
-    dsimp
-  | inner sz k v l r ihl ihr =>
-    rw [modify, updateCell]
-    split <;> rename_i heq <;> simp only [heq]
-    · simp [ihl htb.left hto.left]
-      split
-
-theorem toListModel_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
-    (htb : t.Balanced) (hto : t.Ordered) :
-    List.Perm (modify a (fun a' _ => f) t).toListModel
-      (Const.modifyKey a f t.toListModel) := sorry
+theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
 
 /-!
 ### mergeWith
@@ -1027,6 +1049,10 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
   · exact ordered_erase ‹_› ‹_›
+  · exact ordered_alter ‹_› ‹_›
+  · exact Const.ordered_alter ‹_› ‹_›
+  · exact ordered_modify (WF.balanced ‹_›) ‹_›
+  · exact Const.ordered_modify (WF.balanced ‹_›) ‹_›
   · exact ordered_containsThenInsert ‹_› ‹_›
   · exact ordered_containsThenInsertIfNew ‹_› ‹_›
   · exact ordered_filter ‹_›

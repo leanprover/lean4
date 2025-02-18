@@ -605,7 +605,7 @@ def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Ra
 
 @[inline, inherit_doc DTreeMap.modify]
 def modify [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : β a → β a) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a fun _ h => compare_eq_iff_eq.mp h ▸ f⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a f⟩
 
 @[inline, inherit_doc DTreeMap.alter]
 def alter [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : Option (β a) → Option (β a)) :
@@ -653,7 +653,7 @@ def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare
 
 @[inline, inherit_doc DTreeMap.Const.modify]
 def modify (t : Raw α β cmp) (a : α) (f : β → β) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a fun _ _ => f⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.modify a f t.inner⟩
 
 @[inline, inherit_doc DTreeMap.Const.alter]
 def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β cmp :=

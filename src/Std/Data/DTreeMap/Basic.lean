@@ -823,7 +823,7 @@ This function ensures that the value is used linearly.
 -/
 @[inline]
 def modify [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (f : β a → β a) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a fun _ h => compare_eq_iff_eq.mp h ▸ f, t.wf.modify⟩
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a f, t.wf.modify⟩
 
 /--
 Modifies in place the value associated with a given key,
@@ -897,7 +897,7 @@ def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare
 
 @[inline, inherit_doc DTreeMap.modify]
 def modify (t : DTreeMap α β cmp) (a : α) (f : β → β) : DTreeMap α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨Impl.modify a (fun _ _ => f) t.inner, t.wf.modify⟩
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.modify a f t.inner, t.wf.constModify⟩
 
 @[inline, inherit_doc DTreeMap.alter]
 def alter (t : DTreeMap α β cmp) (a : α) (f : Option β → Option β) : DTreeMap α β cmp :=

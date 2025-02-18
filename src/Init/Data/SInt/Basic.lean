@@ -676,7 +676,6 @@ instance : Neg ISize where
 
 /-- The maximum value an `ISize` may attain, that is, `2^(System.Platform.numBits - 1) - 1`. -/
 abbrev ISize.maxValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1) - 1)
--- 9223372036854775807
 /-- The minimum value an `ISize` may attain, that is, `-2^(System.Platform.numBits - 1)`. -/
 abbrev ISize.minValue : ISize := .ofInt (-2 ^ (System.Platform.numBits - 1))
 

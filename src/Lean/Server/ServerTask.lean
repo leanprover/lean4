@@ -23,6 +23,8 @@ never hinder language server operations. Specifically, we want to ensure the fol
     by the elaborator.
   - If the function being mapped is costly, map it with `prio := .dedicated`. This spawns a new
     thread and thus cannot be starved by the elaborator.
+Finally, if the function being mapped is costly, but is already being executed in a dedicated task,
+it is fine to pretend that it is a cheap function instead.
 -/
 
 namespace Lean.Server

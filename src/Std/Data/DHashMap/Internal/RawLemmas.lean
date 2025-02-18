@@ -19,7 +19,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v
+universe u v w
 
 variable {α : Type u} {β : α → Type v}
 
@@ -90,7 +90,9 @@ private def queryNames : Array Name :=
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
     ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel,
-    ``Raw.Const.toList_eq_toListModel_map]
+    ``Raw.Const.toList_eq_toListModel_map, ``Raw.foldM_eq_foldlM_toListModel,
+    ``Raw.fold_eq_foldl_toListModel, ``Raw.foldRevM_eq_foldrM_toListModel,
+    ``Raw.foldRev_eq_foldr_toListModel]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -935,6 +937,30 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
   simp_to_model using List.pairwise_fst_eq_false_map_toProd
 
 end Const
+
+section fold
+
+variable {α : Type u} {β : α → Type v} {m : Raw₀ α β} {δ : Type w} {m' : Type w → Type w }
+
+theorem foldM_eq_foldlM_toListModel [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ}  :
+    m.1.foldM f init = m.1.toList.foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem fold_eq_foldl_toListModel {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.fold f init = m.1.toList.foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem foldRevM_eq_foldrM_toListModel [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldRevM f init = m.1.toList.foldrM (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+theorem foldRev_eq_foldr_toListModel {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.foldRev f init = m.1.toList.foldr (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+end fold
 
 @[simp]
 theorem insertMany_nil :

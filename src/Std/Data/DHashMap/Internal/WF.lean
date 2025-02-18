@@ -201,7 +201,7 @@ theorem expand.go_eq [BEq α] [Hashable α] [PartialEquivBEq α] (source : Array
     simp only [newSource, newTarget, es] at *
     rw [expand.go_pos hi]
     refine ih.trans ?_
-    simp only [Array.get_eq_getElem, AssocList.foldl_eq, Array.toList_set]
+    simp only [AssocList.foldl_eq, Array.toList_set]
     rw [List.drop_eq_getElem_cons hi, List.flatMap_cons, List.foldl_append,
       List.drop_set_of_lt _ _ (by omega), Array.getElem_toList]
   · next i source target hi =>

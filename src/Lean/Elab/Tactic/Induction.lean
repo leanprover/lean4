@@ -447,10 +447,16 @@ end ElimApp
   generalizingVars := optional (" generalizing " >> many1 ident)
   «induction»  := leading_parser nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> optional inductionAlts
   ```
-  `stx` is syntax for `induction`. -/
+  `stx` is syntax for `induction` or `fun_induction`. -/
 private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
   withRef stx do
-    let generalizingStx := stx[3]
+    let generalizingStx :=
+    if stx.getKind == ``Lean.Parser.Tactic.induction then
+      stx[3]
+    else if stx.getKind == ``Lean.Parser.Tactic.funInduction then
+      stx[2]
+    else
+      panic! "getUserGeneralizingFVarIds: Unexpected syntax kind {stx.getKind}"
     if generalizingStx.isNone then
       pure #[]
     else

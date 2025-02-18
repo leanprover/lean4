@@ -4584,6 +4584,9 @@ instance instDecidableExistsBitVec :
 
 set_option linter.missingDocs false
 
+@[deprecated toFin_uShiftRight (since := "2025-02-18")]
+abbrev toFin_uShiftRight := @toFin_ushiftRight
+
 @[deprecated signExtend_eq_setWidth_of_msb_false (since := "2024-12-08")]
 abbrev signExtend_eq_not_setWidth_not_of_msb_false := @signExtend_eq_setWidth_of_msb_false
 

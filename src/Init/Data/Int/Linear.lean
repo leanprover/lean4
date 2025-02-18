@@ -103,6 +103,33 @@ def Poly.norm (p : Poly) : Poly :=
   | .num k => .num k
   | .add k v p => (norm p).insert k v
 
+def Poly.append (p₁ p₂ : Poly) : Poly :=
+  match p₁ with
+  | .num k₁ => p₂.addConst k₁
+  | .add k x p₁ => .add k x (append p₁ p₂)
+
+def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
+  match fuel with
+  | 0 => p₁.append p₂
+  | fuel + 1 => match p₁, p₂ with
+    | .num k₁, .num k₂ => .num (k₁+k₂)
+    | .num k₁, .add a x p => .add a x (combine' fuel (.num k₁) p)
+    | .add a x p, .num k₂ => .add a x (combine' fuel p (.num k₂))
+    | .add a₁ x₁ p₁, .add a₂ x₂ p₂ =>
+      bif Nat.beq x₁ x₂ then
+        let a := a₁ + a₂
+        bif a == 0 then
+          combine' fuel p₁ p₂
+        else
+          .add a x₁ (combine' fuel p₁ p₂)
+    else bif Nat.blt x₂ x₁ then
+      .add a₁ x₁ (combine' fuel p₁ (.add a₂ x₂ p₂))
+    else
+      .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
+
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  combine' 100000000 p₁ p₂
+
 /-- Converts the given expression into a polynomial. -/
 def Expr.toPoly' (e : Expr) : Poly :=
   go 1 e (.num 0)
@@ -345,6 +372,26 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
   induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_norm
+
+theorem Poly.denote_append (ctx : Context) (p₁ p₂ : Poly) : (p₁.append p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  induction p₁ <;> simp [append, *]
+
+attribute [local simp] Poly.denote_append
+
+theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  induction fuel generalizing p₁ p₂ <;> simp [combine']
+  next ih =>
+    split <;> simp [*]
+    next a₁ x₁ p₁ a₂ x₂ p₂ =>
+      by_cases h₁ : Nat.beq x₁ x₂ <;> simp [*]
+      · simp at h₁; simp [h₁]
+        by_cases h₂ : a₁ + a₂ == 0 <;> simp [*]
+        · simp at h₂
+          rw [← Int.add_mul, h₂]; simp
+      · by_cases h₃ : Nat.blt x₂ x₁ <;> simp [*]
+
+theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  simp [combine, denote_combine']
 
 theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
 theorem neg_fold (a : Int) : a.neg = -a := rfl

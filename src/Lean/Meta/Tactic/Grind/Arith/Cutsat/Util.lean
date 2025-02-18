@@ -24,28 +24,6 @@ where
   | none,   .add _ y p => go (some y) p
   | some x, .add _ y p => x > y && go (some y) p
 
-/--
-If both `p₁.isSorted` and `p₂.isSorted`, returns a new
-polynomial that is also sorted and `(p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx`.
--/
-def Poly.combine (p₁ p₂ : Poly) : Poly :=
-  match _:p₁, _:p₂ with
-  | .num k₁, .num k₂ => .num (k₁+k₂)
-  | .num _, .add a x p => .add a x (combine p₁ p)
-  | .add a x p, .num _ => .add a x (combine p p₂)
-  | .add a₁ x₁ p₁', .add a₂ x₂ p₂' =>
-    if x₁ == x₂ then
-      let a := a₁ + a₂
-      if a == 0 then
-        combine p₁' p₂'
-      else
-        .add a x₁ (combine p₁' p₂')
-   else if x₁ > x₂ then
-     .add a₁ x₁ (combine p₁' p₂)
-   else
-     .add a₂ x₂ (combine p₁ p₂')
-termination_by sizeOf p₁ + sizeOf p₂
-
 def DvdCnstr.isSorted (c : DvdCnstr) : Bool :=
   c.p.isSorted
 

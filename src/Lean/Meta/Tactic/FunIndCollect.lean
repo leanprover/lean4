@@ -25,11 +25,14 @@ structure Call where
 structure SeenCalls where
   /-- the full calls -/
   calls : Array Expr
-  /-- only relevant arguments -/
-  seen : Std.HashSet (Array Expr)
+  /-- only function name and relevant arguments -/
+  seen : Std.HashSet (Name × Array Expr)
 
 instance : EmptyCollection SeenCalls where
   emptyCollection := ⟨#[], {}⟩
+
+def SeenCalls.isEmpty  (sc : SeenCalls) : Bool :=
+  sc.calls.isEmpty
 
 def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : SeenCalls) :
     MetaM SeenCalls := do
@@ -41,8 +44,9 @@ def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : See
       if !arg.isFVar then return calls
     unless kind matches .dropped do
       keys := keys.push arg
-  if calls.seen.contains keys then return calls
-  return { calls := calls.calls.push e, seen := calls.seen.insert keys }
+  let key := (declName, keys)
+  if calls.seen.contains key then return calls
+  return { calls := calls.calls.push e, seen := calls.seen.insert key }
 
 namespace Collector
 

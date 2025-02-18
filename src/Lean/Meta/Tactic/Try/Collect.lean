@@ -10,16 +10,13 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.Grind.Cases
 import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.FunIndInfo
+import Lean.Meta.Tactic.FunIndCollect
 
 namespace Lean.Meta.Try.Collector
 
 structure InductionCandidate where
   fvarId : FVarId
   val    : InductiveVal
-
-structure FunIndCandidate where
-  expr : Expr
-  deriving Hashable, BEq -- Is it ok to hash this?
 
 /-- `Set` with insertion order preserved. -/
 structure OrdSet (α : Type) [Hashable α] [BEq α] where
@@ -44,8 +41,8 @@ structure Result where
   unfoldCandidates : OrdSet Name  := {}
   /-- Equation function candiates. -/
   eqnCandidates : OrdSet Name  := {}
-  /-- Function induction candidates. -/
-  funIndCandidates : OrdSet FunIndCandidate := {}
+  /-- Function induction candidates -/
+  funIndCandidates : FunInd.SeenCalls := {}
   /-- Induction candidates. -/
   indCandidates : Array InductionCandidate := #[]
   /-- Relevant declarations by `libSearch` -/
@@ -103,14 +100,9 @@ def visitConst (declName : Name) : M Unit := do
 
 def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   if (← isEligible declName) then
-    let some funIndInfo ← getFunIndInfo? (cases := false) declName
-      | saveUnfoldCandidate declName; return ()
-    if funIndInfo.params.size != args.size then return ()
-    for arg in args, kind in funIndInfo.params do
-      if kind matches .target then
-        if !arg.isFVar then return ()
-    trace[try.collect.funInd] "saveFunInfo: {funIndInfo.funIndName}"
-    modify fun s => { s with funIndCandidates := s.funIndCandidates.insert { expr := e } }
+    let sc := (← get).funIndCandidates
+    let sc' ← sc.push e declName args
+    modify fun s => { s with funIndCandidates := sc' }
 
 open LibrarySearch in
 def saveLibSearchCandidates (e : Expr) : M Unit := do
@@ -126,6 +118,7 @@ def saveLibSearchCandidates (e : Expr) : M Unit := do
 def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveEqnCandidate declName
   saveFunInd e declName args
+  saveUnfoldCandidate declName
   saveLibSearchCandidates e
 
 def checkInductive (localDecl : LocalDecl) : M Unit := do

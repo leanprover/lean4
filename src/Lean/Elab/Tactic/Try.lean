@@ -599,18 +599,18 @@ private def mkSimpleTacStx : CoreM (TSyntax `tactic) :=
 /-! Function induction generators -/
 
 open Try.Collector in
-private def mkFunIndStx (c : FunIndCandidate) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  if (← isExprAccessible c.expr) then
+private def mkFunIndStx (expr : Expr) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
+  if (← isExprAccessible expr) then
     go
   else withExposedNames do
     `(tactic| (expose_names; $(← go):tactic))
 where
   go : MetaM (TSyntax `tactic) := do
-    let stx ← PrettyPrinter.delab c.expr
+    let stx ← PrettyPrinter.delab expr
     `(tactic| fun_induction $stx <;> $cont)
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
-  let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)
+  let tacs ← info.funIndCandidates.calls.mapM (mkFunIndStx · cont)
   mkFirstStx tacs
 
 /-! Main code -/

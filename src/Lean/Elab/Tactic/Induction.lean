@@ -698,23 +698,16 @@ structure ElimTargetView where
 
 /-- Interprets a `Lean.Parser.Tactic.elimTarget`. -/
 def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
-  -- TODO: remove handling for old syntax. Needs stage0 update first.
-  if target.getKind ∈ [`Lean.Parser.Tactic.casesTarget, ``Parser.Tactic.elimTarget] then
-    let hIdent? ←
-      if target[0].isNone then
-        pure none
-      else
-        let stx := target[0][0]
-        let stx := if stx.isOfKind ``Lean.binderIdent then stx[0] else stx
-        if stx.isOfKind identKind then
-          pure <| some ⟨stx⟩
-        else
-          -- `Lean.Parser.Term.hole`
-          pure <| mkIdentFrom stx (canonical := true) (← mkFreshBinderNameForTactic `h)
-    pure { hIdent?, term := target[1] }
-  else
-    -- Old syntax for `induction` target, it's the term itself.
-    pure { hIdent? := none, term := target }
+  let hIdent? ←
+    if target[0].isNone then
+      pure none
+    else
+      match target[0][0] with
+      | `(Parser.Term.binderIdent| $stx:ident) =>
+        pure <| some stx
+      | stx => -- `Lean.Parser.Term.hole`, or syntax errors
+        pure <| mkIdentFrom stx (canonical := true) (← mkFreshBinderNameForTactic `h)
+  pure { hIdent?, term := target[1] }
 
 /-- Elaborated `ElimTargetView`. -/
 private structure ElimTargetInfo where

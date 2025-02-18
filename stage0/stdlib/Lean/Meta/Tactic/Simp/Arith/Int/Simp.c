@@ -54,6 +54,7 @@ extern lean_object* l___private_Lean_Expr_0__Lean_intLEPred;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___closed__9;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__2;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___lambda__5___closed__1;
+uint8_t l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_9152_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpExpr_x3f___closed__2;
 extern lean_object* l___private_Lean_Expr_0__Lean_intEqPred;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___closed__12;
@@ -124,11 +125,9 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Simp_Arith_Int_simpDvdCnstr_x3f___lambda__1
 lean_object* l_Lean_mkIntLit(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___closed__13;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__35;
-uint8_t l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3202_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__9;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__21;
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs_x27___boxed(lean_object*);
-uint8_t l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_8511_(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_Arith_Int_toContextExpr(lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__10;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___lambda__1___closed__2;
@@ -161,6 +160,7 @@ static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstr_x3f___lambda__1___cl
 LEAN_EXPORT lean_object* l_Int_Linear_RelCnstr_getConst___boxed(lean_object*);
 lean_object* l_Int_toNat(lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdAll_go___boxed(lean_object*, lean_object*);
+uint8_t l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3492_(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpDvdCnstr_x3f___lambda__1___closed__3;
 static lean_object* l_Lean_Meta_Simp_Arith_Int_simpRelCnstrPos_x3f___lambda__1___closed__24;
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_gcdCoeffs_x27(lean_object*);
@@ -902,7 +902,7 @@ if (x_17 == 0)
 lean_object* x_18; uint8_t x_19; 
 lean_inc(x_15);
 x_18 = l_Int_Linear_RelCnstr_toRaw(x_15);
-x_19 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3202_(x_1, x_18);
+x_19 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3492_(x_1, x_18);
 lean_dec(x_18);
 if (x_19 == 0)
 {
@@ -16379,7 +16379,7 @@ if (x_3611 == 0)
 lean_object* x_3612; uint8_t x_3613; 
 lean_inc(x_3609);
 x_3612 = l_Int_Linear_RelCnstr_toRaw(x_3609);
-x_3613 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3202_(x_1, x_3612);
+x_3613 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawRelCnstr____x40_Init_Data_Int_Linear___hyg_3492_(x_1, x_3612);
 lean_dec(x_3612);
 if (x_3613 == 0)
 {
@@ -24805,7 +24805,7 @@ lean_object* x_50; lean_object* x_51; uint8_t x_52;
 x_50 = l_Int_Linear_DvdCnstr_div(x_18, x_15);
 lean_inc(x_50);
 x_51 = l_Int_Linear_DvdCnstr_toRaw(x_50);
-x_52 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_8511_(x_1, x_51);
+x_52 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_9152_(x_1, x_51);
 lean_dec(x_51);
 if (x_52 == 0)
 {
@@ -24975,7 +24975,7 @@ lean_object* x_90; lean_object* x_91; uint8_t x_92;
 x_90 = l_Int_Linear_DvdCnstr_div(x_61, x_58);
 lean_inc(x_90);
 x_91 = l_Int_Linear_DvdCnstr_toRaw(x_90);
-x_92 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_8511_(x_1, x_91);
+x_92 = l___private_Init_Data_Int_Linear_0__Int_Linear_beqRawDvdCnstr____x40_Init_Data_Int_Linear___hyg_9152_(x_1, x_91);
 lean_dec(x_91);
 if (x_92 == 0)
 {

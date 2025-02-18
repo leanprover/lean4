@@ -21,6 +21,7 @@ set_option linter.all true
 universe u v w
 
 variable {α : Type u} {β : α → Type v} {γ : α → Type w} {δ : Type w} {m : Type w → Type w}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 namespace Std.DTreeMap.Internal
 
@@ -73,6 +74,26 @@ theorem WF.constInsertMany [Ord α] {β : Type v} {ρ} [ForIn Id ρ (α × β)] 
 theorem WF.constInsertManyIfNewUnit [Ord α] {ρ} [ForIn Id ρ α] {t : Impl α (fun _ => Unit)} {l : ρ}
     {h} (hwf : WF t) : WF (Impl.Const.insertManyIfNewUnit t l h).val :=
   (Impl.Const.insertManyIfNewUnit t l h).2 hwf fun _ _ _ hwf' => hwf'.insertIfNew
+
+theorem WF.getThenInsertIfNew? [Ord α] [LawfulEqOrd α] {t : Impl α β} {k v} {h : t.WF} :
+    (t.getThenInsertIfNew? k v h.balanced).2.WF := by
+  simp only [Impl.getThenInsertIfNew?]
+  split
+  · exact h.insertIfNew
+  · exact h
+
+section Const
+
+variable {β : Type v}
+
+theorem WF.constGetThenInsertIfNew? [Ord α] {t : Impl α β} {k v} {h : t.WF} :
+    (Impl.Const.getThenInsertIfNew? k v t h.balanced).2.WF := by
+  simp only [Impl.Const.getThenInsertIfNew?]
+  split
+  · exact h.insertIfNew
+  · exact h
+
+end Const
 
 end Impl
 

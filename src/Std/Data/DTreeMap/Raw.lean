@@ -126,6 +126,13 @@ def containsThenInsertIfNew (t : Raw α β cmp) (a : α) (b : β a) :
   let p := t.inner.containsThenInsertIfNew! a b
   (p.1, ⟨p.2⟩)
 
+@[inline, inherit_doc DTreeMap.getThenInsertIfNew?]
+def getThenInsertIfNew? [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (b : β a) :
+    Option (β a) × Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := t.inner.getThenInsertIfNew?! a b
+  (p.1, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.contains]
 def contains (t : Raw α β cmp) (a : α) : Bool :=
   letI : Ord α := ⟨cmp⟩; t.inner.contains a
@@ -175,6 +182,22 @@ def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a
 @[inline, inherit_doc getD, deprecated getD (since := "2025-02-12")]
 def findD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   t.getD a fallback
+
+@[inline, inherit_doc DTreeMap.getKey?]
+def getKey? (t : Raw α β cmp) (a : α) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.getKey]
+def getKey (t : Raw α β cmp) (a : α) (h : a ∈ t) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.getKey!]
+def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.getKeyD]
+def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
 
 @[inline, inherit_doc DTreeMap.min?]
 def min? (t : Raw α β cmp) : Option ((a : α) × β a) :=
@@ -380,6 +403,12 @@ namespace Const
 
 variable {β : Type v}
 
+@[inline, inherit_doc DTreeMap.Const.getThenInsertIfNew?]
+def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := Impl.Const.getThenInsertIfNew?! a b t.inner
+  (p.1, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.Const.get?]
 def get? (t : Raw α β cmp) (a : α) : Option β :=
   letI : Ord α := ⟨cmp⟩; Impl.Const.get? a t.inner
@@ -540,6 +569,14 @@ def foldr (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β a → δ) (init : δ) (t : Raw α β cmp) : δ :=
   foldr f init t
+
+@[inline, inherit_doc DTreeMap.partition]
+def partition (f : (a : α) → β a → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
+  t.foldl (init := (∅, ∅)) fun ⟨l, r⟩ a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
 
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : (a : α) → β a → m PUnit) (t : Raw α β cmp) : m PUnit :=

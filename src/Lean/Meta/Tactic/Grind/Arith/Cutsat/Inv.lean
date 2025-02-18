@@ -5,20 +5,9 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 
 namespace Int.Linear
-/--
-Returns `true` if the variables in the given polynomial are sorted
-in decreasing order.
--/
-def Poly.isSorted (p : Poly) : Bool :=
-  go none p
-where
-  go : Option Var → Poly → Bool
-  | _,      .num _     => true
-  | none,   .add _ y p => go (some y) p
-  | some x, .add _ y p => x > y && go (some y) p
-
 /-- Returns `true` if all coefficients are not `0`. -/
 def Poly.checkCoeffs : Poly → Bool
   | .num _ => true

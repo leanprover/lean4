@@ -846,6 +846,20 @@ theorem DvdCnstr.solve_elim (ctx : Context) (c₁ c₂ c : DvdCnstr) (d : Int)
   rw [← Int.sub_eq_add_neg]
   exact solveElim hd h₁ h₂
 
+def isNorm (c₁ c₂ : DvdCnstr) : Bool :=
+  c₁.k == c₂.k && c₁.p.norm == c₂.p
+
+theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
+    : isNorm c₁ c₂ → c₁.denote' ctx → c₂.denote' ctx := by
+  cases c₁ <;> cases c₂ <;> simp [isNorm, denote', Poly.denote'_eq_denote]
+  next k₁ p₁ k₂ p₂ =>
+    intro; subst k₁; intro; subst p₂
+    intro h₁
+    simp [Poly.denote_norm ctx p₁, h₁]
+
+theorem DvdCnstr.of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp [DvdCnstr.denote'_eq_denote, DvdCnstr.eq_of_isEqv ctx c₁ c₂ k h]
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

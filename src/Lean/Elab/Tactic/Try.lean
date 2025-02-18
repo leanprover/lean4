@@ -608,9 +608,11 @@ where
     let mut terms := #[]
     for major in c.majors do
       let localDecl ← major.getDecl
-      terms := terms.push (← `($(mkIdent localDecl.userName):term))
+      terms := terms.push (← `(Parser.Tactic.elimTarget| $(mkIdent localDecl.userName):term))
+    -- TODO(kmill): remove hack to deal with bootstrapping issue
+    let terms' := terms.map fun t => TSyntax.mk t
     let indFn ← toIdent c.funIndDeclName
-    `(tactic| induction $terms,* using $indFn <;> $cont)
+    `(tactic| induction $[$terms'],* using $indFn <;> $cont)
 
 private def mkAllFunIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyntax `tactic) := do
   let tacs ← info.funIndCandidates.elems.mapM (mkFunIndStx · cont)

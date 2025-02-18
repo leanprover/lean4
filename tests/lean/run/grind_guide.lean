@@ -274,8 +274,9 @@ def app : List α → List α → List α
   | [], bs => bs
   | a::as, bs => a :: app as bs
 
-theorem app_assoc : app as (app bs cs) = app (app as bs) cs := by
-  try?
+-- TODO(kmill): reenable test after stage0 update
+-- theorem app_assoc : app as (app bs cs) = app (app as bs) cs := by
+--   try?
 
 /-
 `grind` has a notion of term "generation". It is useful for avoiding

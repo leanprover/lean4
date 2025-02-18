@@ -9,6 +9,8 @@ import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Nat
 
 open Lean Meta Simp
 
+-- TODO(kmill): needed this for bootstrapping issue; remove option later
+set_option interpreter.prefer_native false in
 macro "declare_uint_simprocs" typeName:ident : command =>
 let ofNat := typeName.getId ++ `ofNat
 let ofNatLT := mkIdent (typeName.getId ++ `ofNatLT)
@@ -80,10 +82,14 @@ builtin_dsimproc [seval] isValue ((OfNat.ofNat _ : $typeName)) := fun e => do
 end $typeName
 )
 
+section
+-- TODO(kmill): needed this for bootstrapping issue; remove option and section later
+set_option interpreter.prefer_native false
 declare_uint_simprocs UInt8
 declare_uint_simprocs UInt16
 declare_uint_simprocs UInt32
 declare_uint_simprocs UInt64
+end
 
 /-
 We do not use the normal simprocs for `USize` since the result of most operations depend on an opaque value: `System.Platform.numBits`.

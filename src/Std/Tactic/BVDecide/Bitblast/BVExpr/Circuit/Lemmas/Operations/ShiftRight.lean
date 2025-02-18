@@ -426,10 +426,10 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       split
       · next hlt =>
         rw [hleft]
-        simp [hmod, BitVec.getLsbD_sshiftRight, hlt, hidx]
+        simp [hmod, BitVec.getElem_sshiftRight, hlt, hidx]
       · next hlt =>
         rw [hleft]
-        simp [BitVec.getLsbD_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
+        simp [BitVec.getElem_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
     · next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]

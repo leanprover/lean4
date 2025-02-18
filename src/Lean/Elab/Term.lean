@@ -306,8 +306,6 @@ structure Context where
   ignoreTCFailures : Bool := false
   /-- `true` when elaborating patterns. It affects how we elaborate named holes. -/
   inPattern        : Bool := false
-  /-- Cache for the `save` tactic. It is only `some` in the LSP server. -/
-  tacticCache?     : Option (IO.Ref Tactic.Cache) := none
   /--
   Snapshot for incremental processing of current tactic, if any.
 
@@ -943,6 +941,7 @@ private def applyAttributesCore
     return
   withDeclName declName do
     for attr in attrs do
+      withTraceNode `Elab.attribute (fun _ => pure m!"applying [{attr.stx}]") do
       withRef attr.stx do withLogging do
       let env ← getEnv
       match getAttributeImpl env attr.name with
@@ -2031,6 +2030,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
         newText := formattedHint
       }]
       kind? := some .parameter
+      tooltip? := "Automatically-inserted implicit parameters"
       lctx := ← getLCtx
       deferredResolution
       : InlayHint

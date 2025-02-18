@@ -252,8 +252,8 @@ def getFVars (lctx : LocalContext) : Array Expr :=
   lctx.getFVarIds.map mkFVar
 
 private partial def popTailNoneAux (a : PArray (Option LocalDecl)) : PArray (Option LocalDecl) :=
-  if a.size == 0 then a
-  else match a.get! (a.size - 1) with
+  if h : a.size = 0 then a
+  else match a[a.size - 1] with
     | none   => popTailNoneAux a.pop
     | some _ => a
 
@@ -268,8 +268,8 @@ def erase (lctx : LocalContext) (fvarId : FVarId) : LocalContext :=
 def pop (lctx : LocalContext): LocalContext :=
   match lctx with
   | { fvarIdToDecl := map, decls := decls } =>
-    if decls.size == 0 then lctx
-    else match decls.get! (decls.size - 1) with
+    if _ : decls.size = 0 then lctx
+    else match decls[decls.size - 1] with
       | none      => lctx -- unreachable
       | some decl => { fvarIdToDecl := map.erase decl.fvarId, decls := popTailNoneAux decls.pop }
 
@@ -293,7 +293,7 @@ def getUnusedName (lctx : LocalContext) (suggestion : Name) : Name :=
   else suggestion
 
 def lastDecl (lctx : LocalContext) : Option LocalDecl :=
-  lctx.decls.get! (lctx.decls.size - 1)
+  lctx.decls[lctx.decls.size - 1]!
 
 def setUserName (lctx : LocalContext) (fvarId : FVarId) (userName : Name) : LocalContext :=
   let decl := lctx.get! fvarId
@@ -340,7 +340,7 @@ def numIndices (lctx : LocalContext) : Nat :=
   lctx.decls.size
 
 def getAt? (lctx : LocalContext) (i : Nat) : Option LocalDecl :=
-  lctx.decls.get! i
+  lctx.decls[i]!
 
 @[specialize] def foldlM [Monad m] (lctx : LocalContext) (f : β → LocalDecl → m β) (init : β) (start : Nat := 0) : m β :=
   lctx.decls.foldlM (init := init) (start := start) fun b decl => match decl with

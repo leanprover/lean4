@@ -81,7 +81,7 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 @[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
   funext α β n p f L h'
   rcases L with ⟨L, rfl⟩
-  simp only [pmap, pmapImpl, attachWith_mk, map_mk, Array.map_attachWith, eq_mk]
+  simp only [pmap, pmapImpl, attachWith_mk, map_mk, Array.map_attachWith_eq_pmap, eq_mk]
   apply Array.pmap_congr_left
   intro a m h₁ h₂
   congr
@@ -133,7 +133,7 @@ theorem attachWith_congr {l₁ l₂ : Vector α n} (w : l₁ = l₂) {P : α →
     (l.push a).attach =
       (l.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
   rcases l with ⟨l, rfl⟩
-  simp [Array.map_attachWith]
+  simp [Array.map_attach_eq_pmap]
 
 @[simp] theorem attachWith_push {a : α} {l : Vector α n} {P : α → Prop} {H : ∀ x ∈ l.push a, P x} :
     (l.push a).attachWith P H =
@@ -145,7 +145,7 @@ theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (l : Vector
     pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
   rcases l with ⟨l, rfl⟩
   simp only [pmap_mk, Array.pmap_eq_map_attach, attach_mk, map_mk, eq_mk]
-  rw [Array.map_attach, Array.map_attachWith]
+  rw [Array.map_attach_eq_pmap, Array.map_attachWith]
   ext i hi₁ hi₂ <;> simp
 
 @[simp]
@@ -154,24 +154,23 @@ theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l : Vec
   cases l
   simp
 
-theorem attach_map_coe (l : Vector α n) (f : α → β) :
+theorem attach_map_val (l : Vector α n) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   cases l
   simp
 
-theorem attach_map_val (l : Vector α n) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : Vector α n) : l.attach.map Subtype.val = l := by
   cases l; simp
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   cases l; simp
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Vector α n) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun i => f i.val) = l.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : Vector α n) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l := by
@@ -299,7 +298,13 @@ theorem attachWith_map {l : Vector α n} (f : α → β) {P : β → Prop} {H : 
   rcases l with ⟨l, rfl⟩
   simp [Array.attachWith_map]
 
-theorem map_attachWith {l : Vector α n} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+@[simp] theorem map_attachWith {l : Vector α n} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+    (f : { x // P x } → β) :
+    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  rcases l with ⟨l, rfl⟩
+  simp [Array.map_attachWith]
+
+theorem map_attachWith_eq_pmap {l : Vector α n} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
     (f : { x // P x } → β) :
     (l.attachWith P H).map f =
       l.pmap (fun a (h : a ∈ l ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
@@ -307,10 +312,13 @@ theorem map_attachWith {l : Vector α n} {P : α → Prop} {H : ∀ (a : α), a 
   ext <;> simp
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
-theorem map_attach {l : Vector α n} (f : { x // x ∈ l } → β) :
+theorem map_attach_eq_pmap {l : Vector α n} (f : { x // x ∈ l } → β) :
     l.attach.map f = l.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   cases l
   ext <;> simp
+
+@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
+abbrev map_attach := @map_attach_eq_pmap
 
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l : Vector α n) (H₁ H₂) :
     pmap f (pmap g l H₁) H₂ =
@@ -339,7 +347,7 @@ theorem pmap_append' {p : α → Prop} (f : ∀ a : α, p a → β) (l₁ : Vect
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp [Array.map_attachWith]
+  simp [Array.map_attach_eq_pmap]
 
 @[simp] theorem attachWith_append {P : α → Prop} {xs : Vector α n} {ys : Vector α m}
     {H : ∀ (a : α), a ∈ xs ++ ys → P a} :
@@ -379,7 +387,7 @@ theorem reverse_attachWith {P : α → Prop} {xs : Vector α n}
 theorem reverse_attach (xs : Vector α n) :
     xs.attach.reverse = xs.reverse.attach.map fun ⟨x, h⟩ => ⟨x, by simpa using h⟩ := by
   cases xs
-  simp [Array.map_attachWith]
+  simp [Array.map_attach_eq_pmap]
 
 @[simp] theorem back?_pmap {P : α → Prop} (f : (a : α) → P a → β) (xs : Vector α n)
     (H : ∀ (a : α), a ∈ xs → P a) :

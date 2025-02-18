@@ -3697,13 +3697,13 @@ LEAN_EXPORT lean_object* l_Lean_Parser_ParserState_toErrorMsg(lean_object* x_1, 
 _start:
 {
 lean_object* x_3; lean_object* x_4; size_t x_5; size_t x_6; lean_object* x_7; lean_object* x_8; 
-x_3 = l_Lean_Parser_ParserState_allErrors(x_2);
-x_4 = lean_box(0);
-x_5 = lean_array_size(x_3);
+x_3 = lean_box(0);
+x_4 = l_Lean_Parser_ParserState_allErrors(x_2);
+x_5 = lean_array_size(x_4);
 x_6 = 0;
 x_7 = l_Lean_Parser_instInhabitedInputContext___closed__2;
-x_8 = l_Array_forIn_x27Unsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1(x_1, x_3, x_4, x_3, x_5, x_6, x_7);
-lean_dec(x_3);
+x_8 = l_Array_forIn_x27Unsafe_loop___at_Lean_Parser_ParserState_toErrorMsg___spec__1(x_1, x_3, x_4, x_4, x_5, x_6, x_7);
+lean_dec(x_4);
 return x_8;
 }
 }

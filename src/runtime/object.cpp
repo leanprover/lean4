@@ -674,9 +674,13 @@ class task_manager {
         return result;
     }
 
-    void enqueue_core(lean_task_object * t) {
+    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
         lean_assert(t->m_imp);
         unsigned prio = t->m_imp->m_prio;
+        if (prio == LEAN_SYNC_PRIO) {
+            run_task(lock, t);
+            return;
+        }
         if (prio > LEAN_MAX_PRIO) {
             spawn_dedicated_worker(t);
             return;
@@ -814,10 +818,8 @@ class task_manager {
             it->m_imp->m_next_dep = nullptr;
             if (it->m_imp->m_deleted) {
                 free_task(it);
-            } else if (it->m_imp->m_prio == LEAN_SYNC_PRIO) {
-                run_task(lock, it);
             } else {
-                enqueue_core(it);
+                enqueue_core(lock, it);
             }
             it = next_it;
         }
@@ -856,7 +858,7 @@ public:
 
     void enqueue(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
-        enqueue_core(t);
+        enqueue_core(lock, t);
     }
 
     void resolve(lean_task_object * t, object * v) {
@@ -882,7 +884,7 @@ public:
         unique_lock<mutex> lock(m_mutex);
         lean_assert(t2->m_value == nullptr);
         if (t1->m_value) {
-            enqueue_core(t2);
+            enqueue_core(lock, t2);
             return;
         }
         t2->m_imp->m_next_dep = t1->m_imp->m_head_dep;
@@ -1063,10 +1065,21 @@ extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned
     }
 }
 
+// We don't use `time_task` here as it's outside runtime/, and we wouldn't have access to `options`
+// anyway
+LEAN_EXPORT void (*g_lean_report_task_get_blocked_time)(std::chrono::nanoseconds) = nullptr;
+
 extern "C" LEAN_EXPORT b_obj_res lean_task_get(b_obj_arg t) {
     if (object * v = lean_to_task(t)->m_value)
         return v;
-    g_task_manager->wait_for(lean_to_task(t));
+    if (g_lean_report_task_get_blocked_time) {
+        std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
+        g_task_manager->wait_for(lean_to_task(t));
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        g_lean_report_task_get_blocked_time(std::chrono::nanoseconds(end - start));
+    } else {
+        g_task_manager->wait_for(lean_to_task(t));
+    }
     lean_assert(lean_to_task(t)->m_value != nullptr);
     object * r = lean_to_task(t)->m_value;
     return r;

@@ -77,6 +77,13 @@ abbrev ModuleIdx.toNat (midx : ModuleIdx) : Nat := midx
 
 instance : Inhabited ModuleIdx where default := (0 : Nat)
 
+instance : GetElem (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
+  getElem a i h := a[i.toNat]
+
+instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
+  getElem? a i := a[i.toNat]?
+  getElem! a i := a[i.toNat]!
+
 abbrev ConstMap := SMap Name ConstantInfo
 
 structure Import where
@@ -462,10 +469,6 @@ private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → K
 private def setCheckedSync (env : Environment) (newChecked : Kernel.Environment) : Environment :=
   { env with checked := .pure newChecked, checkedWithoutAsync := newChecked }
 
-def promiseChecked (env : Environment) : BaseIO (Environment × IO.Promise Environment) := do
-  let prom ← IO.Promise.new
-  return ({ env with checked := prom.result?.bind (sync := true) (·.getD env |>.checked) }, prom)
-
 /--
 Checks whether the given declaration name may potentially added, or have been added, to the current
 environment branch, which is the case either if this is the main branch or if the declaration name
@@ -594,6 +597,47 @@ def dbgFormatAsyncState (env : Environment) : BaseIO String :=
 /-- Returns debug output about the synchronous state of the environment. -/
 def dbgFormatCheckedSyncState (env : Environment) : BaseIO String :=
   return s!"checked.get.constants.map₂: {repr <| env.checked.get.constants.map₂.toList.map (·.1)}"
+
+/-- Result of `Lean.Environment.promiseChecked`. -/
+structure PromiseCheckedResult where
+  /--
+  Resulting "main branch" environment. Accessing the kernel environment will block until
+  `PromiseCheckedResult.commitChecked` has been called.
+  -/
+  mainEnv : Environment
+  /--
+  Resulting "async branch" environment which should be used in a new task and then to call
+  `PromiseCheckedResult.commitChecked` to commit results back to the main environment. If it is not
+  called and the `PromiseCheckedResult` object is dropped, the kernel environment will be left
+  unchanged.
+  -/
+  asyncEnv : Environment
+  private checkedEnvPromise : IO.Promise Kernel.Environment
+
+/--
+Starts an asynchronous modification of the kernel environment. The environment is split into a
+"main" branch that will block on access to the kernel environment until
+`PromiseCheckedResult.commitChecked` has been called on the "async" environment branch.
+-/
+def promiseChecked (env : Environment) : BaseIO PromiseCheckedResult := do
+  let checkedEnvPromise ← IO.Promise.new
+  return {
+    mainEnv := { env with
+      checked := checkedEnvPromise.result?.bind (sync := true) fun
+        | some kenv => .pure kenv
+        | none      => env.checked }
+    asyncEnv := { env with
+      -- Do not allow adding new constants
+      asyncCtx? := some { declPrefix := `__reserved__Environment_promiseChecked }
+    }
+    checkedEnvPromise
+  }
+
+/-- Commits the kernel environment of the given environment back to the main branch. -/
+def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Environment) :
+    BaseIO Unit :=
+  assert! env.asyncCtx?.isSome
+  res.checkedEnvPromise.resolve env.toKernelEnv
 
 /--
 Result of `Lean.Environment.addConstAsync` which is necessary to complete the asynchronous addition.
@@ -1065,7 +1109,7 @@ namespace PersistentEnvExtension
 
 def getModuleEntries {α β σ : Type} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) (m : ModuleIdx) : Array α :=
   -- `importedEntries` is identical on all environment branches, so `local` is always sufficient
-  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries.get! m
+  (ext.toEnvExtension.getState (asyncMode := .local) env).importedEntries[m]!
 
 def addEntry {α β σ : Type} (ext : PersistentEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.toEnvExtension.modifyState env fun s =>

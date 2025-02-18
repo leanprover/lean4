@@ -9,7 +9,7 @@ import Std.Data.DHashMap.Raw
 /-!
 # Dependent hash maps
 
-This file develops the type `Std.Data.DHashMap` of dependent hash maps.
+This file develops the type `Std.DHashMap` of dependent hash maps.
 
 The operations `map` and `filterMap` on `Std.Data.DHashMap` are defined in the module
 `Std.Data.DHashMap.AdditionalOperations`.
@@ -113,7 +113,7 @@ instance [BEq α] [Hashable α] : Membership α (DHashMap α β) where
   mem m a := m.contains a
 
 instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈ m) :=
-  show Decidable (m.contains a) from inferInstance
+  inferInstanceAs <| Decidable (m.contains a)
 
 @[inline, inherit_doc Raw.get] def get [LawfulBEq α] (m : DHashMap α β) (a : α)
     (h : a ∈ m) : β a :=
@@ -180,6 +180,14 @@ end
 @[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
   m.1.keys
 
+@[inline, inherit_doc Raw.toList] def toList (m : DHashMap α β) :
+    List ((a : α) × β a) :=
+  m.1.toList
+
+@[inline, inherit_doc Raw.Const.toList] def Const.toList {β : Type v}
+    (m : DHashMap α (fun _ => β)) : List (α × β) :=
+  Raw.Const.toList m.1
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -196,7 +204,7 @@ section Unverified
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
 
-/-- Partition a hashset into two hashsets based on a predicate. -/
+/-- Partition a hash map into two hash map based on a predicate. -/
 @[inline] def partition (f : (a : α) → β a → Bool)
     (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
   m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
@@ -219,17 +227,9 @@ instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) whe
 instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-@[inline, inherit_doc Raw.toList] def toList (m : DHashMap α β) :
-    List ((a : α) × β a) :=
-  m.1.toList
-
 @[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
     Array ((a : α) × β a) :=
   m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toList] def Const.toList {β : Type v}
-    (m : DHashMap α (fun _ => β)) : List (α × β) :=
-  Raw.Const.toList m.1
 
 @[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array (α × β) :=

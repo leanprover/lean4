@@ -153,7 +153,7 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
   return MessageData.joinSep msgs m!"\n"
 
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do
-  let go : GrindM Result := do
+  let go : GrindM Result := withReducible do
     let goals ← initCore mvarId params
     let (failures, skipped) ← solve goals fallback
     trace[grind.debug.final] "{← ppGoals goals}"

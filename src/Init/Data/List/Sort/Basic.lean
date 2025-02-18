@@ -14,6 +14,9 @@ These definitions are intended for verification purposes,
 and are replaced at runtime by efficient versions in `Init.Data.List.Sort.Impl`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /--

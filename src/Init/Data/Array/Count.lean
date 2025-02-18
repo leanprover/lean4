@@ -163,7 +163,7 @@ theorem count_le_size (a : α) (l : Array α) : count a l ≤ l.size := countP_l
 theorem count_le_count_push (a b : α) (l : Array α) : count a l ≤ count a (l.push b) := by
   simp [count_push]
 
-@[simp] theorem count_singleton (a b : α) : count a #[b] = if b == a then 1 else 0 := by
+theorem count_singleton (a b : α) : count a #[b] = if b == a then 1 else 0 := by
   simp [count_eq_countP]
 
 @[simp] theorem count_append (a : α) : ∀ l₁ l₂, count a (l₁ ++ l₂) = count a l₁ + count a l₂ :=

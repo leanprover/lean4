@@ -109,7 +109,7 @@ namespace Pass
 
 @[inline]
 def run (pass : Pass) (goal : MVarId) : PreProcessM (Option MVarId) := do
-  withTraceNode `bv (fun _ => return m!"Running pass: {pass.name} on\n{goal}") do
+  withTraceNode `Meta.Tactic.bv (fun _ => return m!"Running pass: {pass.name} on\n{goal}") do
     pass.run' goal
 
 /--

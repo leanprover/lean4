@@ -901,7 +901,7 @@ _start:
 {
 lean_object* x_14; lean_object* x_15; 
 x_14 = lean_box(0);
-x_15 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_Conv_evalUnfold___spec__4(x_1, x_2, x_1, x_3, x_4, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_15 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_Conv_evalUnfold___spec__4(x_1, x_2, x_2, x_3, x_4, x_14, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 if (lean_obj_tag(x_15) == 0)
 {
 uint8_t x_16; 
@@ -963,16 +963,16 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalUnfold(lean_object* x_1, le
 _start:
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; size_t x_15; lean_object* x_16; lean_object* x_17; lean_object* x_18; lean_object* x_19; 
-x_11 = lean_unsigned_to_nat(1u);
-x_12 = l_Lean_Syntax_getArg(x_1, x_11);
-x_13 = l_Lean_Syntax_getArgs(x_12);
-lean_dec(x_12);
-x_14 = lean_box(0);
-x_15 = lean_array_size(x_13);
+x_11 = lean_box(0);
+x_12 = lean_unsigned_to_nat(1u);
+x_13 = l_Lean_Syntax_getArg(x_1, x_12);
+x_14 = l_Lean_Syntax_getArgs(x_13);
+lean_dec(x_13);
+x_15 = lean_array_size(x_14);
 x_16 = lean_box_usize(x_15);
 x_17 = l_Lean_Elab_Tactic_Conv_evalUnfold___boxed__const__1;
 x_18 = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Conv_evalUnfold___lambda__1___boxed), 13, 4);
-lean_closure_set(x_18, 0, x_13);
+lean_closure_set(x_18, 0, x_11);
 lean_closure_set(x_18, 1, x_14);
 lean_closure_set(x_18, 2, x_16);
 lean_closure_set(x_18, 3, x_17);

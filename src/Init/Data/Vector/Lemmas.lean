@@ -70,8 +70,8 @@ theorem toArray_mk (a : Array α) (h : a.size = n) : (Vector.mk a h).toArray = a
     (Vector.mk a h).back? = a.back? := rfl
 
 @[simp] theorem back_mk [NeZero n] (a : Array α) (h : a.size = n) :
-    (Vector.mk a h).back =
-      a[n - 1]'(Nat.lt_of_lt_of_eq (Nat.sub_one_lt (NeZero.ne n)) h.symm) := rfl
+    (Vector.mk a h).back = a.back (by have : 0 ≠ n := NeZero.ne' n; omega) := by
+  simp [back, Array.back, h]
 
 @[simp] theorem foldlM_mk [Monad m] (f : β → α → m β) (b : β) (a : Array α) (h : a.size = n) :
     (Vector.mk a h).foldlM f b = a.foldlM f b := rfl
@@ -729,6 +729,17 @@ theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
 @[simp] theorem cast_rfl {l : Vector α n} : l.cast rfl = l := by
   rcases l with ⟨l, rfl⟩
   simp
+
+/-- In an equality between two casts, push the casts to the right hand side. -/
+@[simp] theorem cast_eq_cast {as : Vector α n} {bs : Vector α m} {wa : n = k} {wb : m = k} :
+    as.cast wa = bs.cast wb ↔ as = bs.cast (by omega) := by
+  constructor
+  · intro w
+    ext i h
+    replace w := congrArg (fun v => v[i]) w
+    simpa using w
+  · rintro rfl
+    simp
 
 /-! ### mkVector -/
 
@@ -1471,7 +1482,7 @@ theorem vector₂_induction (P : Vector (Vector α n) m → Prop)
       P (mk (xss.attach.map (fun ⟨xs, m⟩ => mk xs (h₂ xs m))) (by simpa using h₁)))
     (ass : Vector (Vector α n) m) : P ass := by
   specialize of (ass.map toArray).toArray (by simp) (by simp)
-  simpa [Array.map_attach, Array.pmap_map] using of
+  simpa [Array.map_attach_eq_pmap, Array.pmap_map] using of
 
 /--
 Use this as `induction ass using vector₃_induction` on a hypothesis of the form `ass : Vector (Vector (Vector α n) m) k`.
@@ -1489,7 +1500,7 @@ theorem vector₃_induction (P : Vector (Vector (Vector α n) m) k → Prop)
           mk x (h₃ xs m x m'))) (by simpa using h₂ xs m))) (by simpa using h₁)))
     (ass : Vector (Vector (Vector α n) m) k) : P ass := by
   specialize of (ass.map (fun as => (as.map toArray).toArray)).toArray (by simp) (by simp) (by simp)
-  simpa [Array.map_attach, Array.pmap_map] using of
+  simpa [Array.map_attach_eq_pmap, Array.pmap_map] using of
 
 /-! ### singleton -/
 
@@ -1800,7 +1811,7 @@ theorem flatten_flatten {L : Vector (Vector (Vector α n) m) k} :
   induction L using vector₃_induction with
   | of xss h₁ h₂ h₃ =>
     -- simp [Array.flatten_flatten] -- FIXME: `simp` produces a bad proof here!
-    simp [Array.map_attach, Array.flatten_flatten, Array.map_pmap]
+    simp [Array.map_attach_eq_pmap, Array.flatten_flatten, Array.map_pmap]
 
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {L L' : Vector (Vector α n) m} :
@@ -2017,6 +2028,10 @@ theorem flatMap_mkArray {β} (f : α → Vector β m) : (mkVector n a).flatMap f
   cases as
   simp
 
+@[simp] theorem isEmpty_reverse {xs : Vector α n} : xs.reverse.isEmpty = xs.isEmpty := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
 @[simp] theorem getElem_reverse (a : Vector α n) (i : Nat) (hi : i < n) :
     (a.reverse)[i] = a[n - 1 - i] := by
   rcases a with ⟨a, rfl⟩
@@ -2101,7 +2116,7 @@ theorem flatMap_reverse {β} (l : Vector α n) (f : α → Vector β m) :
   simp
 
 theorem getElem?_extract {as : Vector α n} {start stop : Nat} :
-    (as.extract start stop)[i]? = if i < min stop as.size - start then as[start + i]? else none := by
+    (as.extract start stop)[i]? = if i < min stop n - start then as[start + i]? else none := by
   rcases as with ⟨as, rfl⟩
   simp [Array.getElem?_extract]
 

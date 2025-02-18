@@ -65,7 +65,6 @@ LEAN_EXPORT lean_object* l_instReprListOfReprAtom___rarg(lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Option_repr(lean_object*);
 static lean_object* l_Option_repr___rarg___closed__3;
 LEAN_EXPORT lean_object* l_Option_repr___rarg(lean_object*, lean_object*, lean_object*);
-size_t lean_usize_of_nat(lean_object*);
 static lean_object* l_List_repr___rarg___closed__8;
 LEAN_EXPORT lean_object* l_String_quote___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_instReprUInt8(uint8_t, lean_object*);
@@ -171,6 +170,7 @@ LEAN_EXPORT lean_object* l_instReprIterator___boxed(lean_object*, lean_object*);
 static lean_object* l_Prod_repr___rarg___closed__1;
 LEAN_EXPORT lean_object* l_hexDigitRepr___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2488____boxed(lean_object*, lean_object*);
+size_t lean_usize_of_nat(lean_object*);
 static lean_object* l___private_Init_Data_Repr_0__reprSourceInfo____x40_Init_Data_Repr___hyg_2488____closed__5;
 LEAN_EXPORT lean_object* l_instReprSubtype(lean_object*, lean_object*);
 static lean_object* l_Repr_addAppParen___closed__5;

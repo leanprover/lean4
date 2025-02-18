@@ -17,6 +17,7 @@ static lean_object* l_Lake_help___closed__18;
 static lean_object* l_Lake_help___closed__2;
 static lean_object* l_Lake_helpInit___closed__1;
 static lean_object* l_Lake_helpClean___closed__1;
+LEAN_EXPORT lean_object* l_Lake_newInitHelp;
 static lean_object* l_Lake_helpServe___closed__1;
 static lean_object* l_Lake_help___closed__3;
 LEAN_EXPORT lean_object* l_Lake_helpPack;
@@ -56,6 +57,7 @@ static lean_object* l_Lake_help___closed__4;
 static lean_object* l_Lake_helpCheckTest___closed__1;
 static lean_object* l_Lake_help___closed__15;
 static lean_object* l_Lake_help___closed__10;
+static lean_object* l_Lake_newInitHelp___closed__1;
 static lean_object* l_Lake_helpQuery___closed__1;
 static lean_object* l_Lake_helpInit___closed__4;
 static lean_object* l_Lake_help___closed__21;
@@ -86,7 +88,6 @@ static lean_object* l_Lake_helpScript___closed__2;
 static lean_object* l_Lake_help___closed__5;
 static lean_object* l_Lake_helpCheckLint___closed__1;
 static lean_object* l_Lake_helpNew___closed__3;
-static lean_object* l_Lake_templateHelp___closed__1;
 static lean_object* l_Lake_helpUpload___closed__1;
 static lean_object* l_Lake_helpScriptList___closed__1;
 static lean_object* l_Lake_usage___closed__2;
@@ -97,7 +98,6 @@ static lean_object* l_Lake_help___closed__11;
 static lean_object* l_Lake_help___closed__6;
 static lean_object* l_Lake_helpScriptCli___closed__1;
 LEAN_EXPORT lean_object* l_Lake_helpCheckBuild;
-LEAN_EXPORT lean_object* l_Lake_templateHelp;
 static lean_object* l_Lake_help___closed__19;
 static lean_object* l_Lake_usage___closed__1;
 LEAN_EXPORT lean_object* l_Lake_helpClean;
@@ -129,19 +129,19 @@ x_1 = l_Lake_usage___closed__2;
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_templateHelp___closed__1() {
+static lean_object* _init_l_Lake_newInitHelp___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("The initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is Lean.", 414, 414);
+x_1 = lean_mk_string_unchecked("If you are using Lake through Elan (which is standard), you can create a\npackage with a specific Lean version via the `+` option.\n\nThe initial configuration and starter files are based on the template:\n\n  std                   library and executable; default\n  exe                   executable only\n  lib                   library only\n  math                  library only with a mathlib dependency\n\nTemplates can be suffixed with `.lean` or `.toml` to produce a Lean or TOML\nversion of the configuration file, respectively. The default is TOML.", 545, 545);
 return x_1;
 }
 }
-static lean_object* _init_l_Lake_templateHelp() {
+static lean_object* _init_l_Lake_newInitHelp() {
 _start:
 {
 lean_object* x_1; 
-x_1 = l_Lake_templateHelp___closed__1;
+x_1 = l_Lake_newInitHelp___closed__1;
 return x_1;
 }
 }
@@ -149,7 +149,7 @@ static lean_object* _init_l_Lake_helpNew___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Create a Lean package in a new directory\n\nUSAGE:\n  lake new <name> [<template>][.<language>]\n\n", 94, 94);
+x_1 = lean_mk_string_unchecked("Create a Lean package in a new directory\n\nUSAGE:\n  lake [+<lean-version>] new <name> [<template>][.<language>]\n\n", 112, 112);
 return x_1;
 }
 }
@@ -158,7 +158,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_helpNew___closed__1;
-x_2 = l_Lake_templateHelp;
+x_2 = l_Lake_newInitHelp;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -193,7 +193,7 @@ static lean_object* _init_l_Lake_helpInit___closed__1() {
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("Create a Lean package in the current directory\n\nUSAGE:\n  lake init [<name>] [<template>][.<language>]\n\n", 103, 103);
+x_1 = lean_mk_string_unchecked("Create a Lean package in the current directory\n\nUSAGE:\n  lake [+<lean-version>] init [<name>] [<template>][.<language>]\n\n", 121, 121);
 return x_1;
 }
 }
@@ -202,7 +202,7 @@ _start:
 {
 lean_object* x_1; lean_object* x_2; lean_object* x_3; 
 x_1 = l_Lake_helpInit___closed__1;
-x_2 = l_Lake_templateHelp;
+x_2 = l_Lake_newInitHelp;
 x_3 = lean_string_append(x_1, x_2);
 return x_3;
 }
@@ -1150,10 +1150,10 @@ l_Lake_usage___closed__2 = _init_l_Lake_usage___closed__2();
 lean_mark_persistent(l_Lake_usage___closed__2);
 l_Lake_usage = _init_l_Lake_usage();
 lean_mark_persistent(l_Lake_usage);
-l_Lake_templateHelp___closed__1 = _init_l_Lake_templateHelp___closed__1();
-lean_mark_persistent(l_Lake_templateHelp___closed__1);
-l_Lake_templateHelp = _init_l_Lake_templateHelp();
-lean_mark_persistent(l_Lake_templateHelp);
+l_Lake_newInitHelp___closed__1 = _init_l_Lake_newInitHelp___closed__1();
+lean_mark_persistent(l_Lake_newInitHelp___closed__1);
+l_Lake_newInitHelp = _init_l_Lake_newInitHelp();
+lean_mark_persistent(l_Lake_newInitHelp);
 l_Lake_helpNew___closed__1 = _init_l_Lake_helpNew___closed__1();
 lean_mark_persistent(l_Lake_helpNew___closed__1);
 l_Lake_helpNew___closed__2 = _init_l_Lake_helpNew___closed__2();

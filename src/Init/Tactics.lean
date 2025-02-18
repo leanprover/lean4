@@ -829,6 +829,14 @@ then a list of alternatives.
 syntax inductionAlts := " with" (ppSpace colGt tactic)? withPosition((colGe inductionAlt)*)
 
 /--
+A target for the `induction` or `cases` tactic, of the form `e` or `h : e`.
+
+The `h : e` syntax introduces a hypotheses of the form `h : e = _` in each goal,
+with `_` replaced by the corresponding value of the target.
+It is useful when `e` is not a free variable.
+-/
+syntax elimTarget := atomic(binderIdent " : ")? term
+/--
 Assuming `x` is a variable in the local context with an inductive type,
 `induction x` applies induction on `x` to the main goal,
 producing one goal for each constructor of the inductive type,
@@ -854,7 +862,7 @@ You can use `with` to provide the variables names for each constructor.
 - Given `x : Nat`, `induction x with | zero => tac₁ | succ x' ih => tac₂`
   uses tactic `tac₁` for the `zero` case, and `tac₂` for the `succ` case.
 -/
-syntax (name := induction) "induction " term,+ (" using " term)?
+syntax (name := induction) "induction " elimTarget,+ (" using " term)?
   (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
 
 /-- A `generalize` argument, of the form `term = x` or `h : term = x`. -/
@@ -869,11 +877,6 @@ syntax generalizeArg := atomic(ident " : ")? term:51 " = " ident
 -/
 syntax (name := generalize) "generalize " generalizeArg,+ (location)? : tactic
 
-/--
-A `cases` argument, of the form `e` or `h : e` (where `h` asserts that
-`e = cᵢ a b` for each constructor `cᵢ` of the inductive).
--/
-syntax casesTarget := atomic(ident " : ")? term
 /--
 Assuming `x` is a variable in the local context with an inductive type,
 `cases x` splits the main goal, producing one goal for each constructor of the
@@ -897,7 +900,63 @@ You can use `with` to provide the variables names for each constructor.
   performs cases on `e` as above, but also adds a hypothesis `h : e = ...` to each hypothesis,
   where `...` is the constructor instance for that particular case.
 -/
-syntax (name := cases) "cases " casesTarget,+ (" using " term)? (inductionAlts)? : tactic
+syntax (name := cases) "cases " elimTarget,+ (" using " term)? (inductionAlts)? : tactic
+
+/--
+The `fun_induction` tactic is a convenience wrapper of the `induction` tactic when using a functional
+induction principle.
+
+The tactic invocation
+```
+fun_induction f x₁ ... xₙ y₁ ... yₘ
+```
+where `f` is a function defined by non-mutual structural or well-founded recursion, is equivalent to
+```
+induction y₁, ... yₘ using f.induct x₁ ... xₙ
+```
+where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
+appropriate.
+
+The form
+```
+fun_induction f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
+
+The forms `fun_induction f x y generalizing z₁ ... zₙ` and
+`fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
+-/
+syntax (name := funInduction) "fun_induction " term
+  (" generalizing" (ppSpace colGt term:max)+)? (inductionAlts)? : tactic
+
+/--
+The `fun_cass` tactic is a convenience wrapper of the `cases` tactic when using a functional
+cases principle.
+
+The tactic invocation
+```
+fun_cases f x ... y ...`
+```
+is equivalent to
+```
+cases y, ... using f.fun_cases x ...
+```
+where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
+appropriate.
+
+The form
+```
+fun_cases f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
+
+The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
+-/
+syntax (name := funCases) "fun_cases " term (inductionAlts)? : tactic
 
 /-- `rename_i x_1 ... x_n` renames the last `n` inaccessible names using the given names. -/
 syntax (name := renameI) "rename_i" (ppSpace colGt binderIdent)+ : tactic
@@ -1013,31 +1072,6 @@ example : ∀ x : Nat, x = x := by unhygienic
 ```
 -/
 macro "unhygienic " t:tacticSeq : tactic => `(tactic| set_option tactic.hygienic false in $t)
-
-/--
-`checkpoint tac` acts the same as `tac`, but it caches the input and output of `tac`,
-and if the file is re-elaborated and the input matches, the tactic is not re-run and
-its effects are reapplied to the state. This is useful for improving responsiveness
-when working on a long tactic proof, by wrapping expensive tactics with `checkpoint`.
-
-See the `save` tactic, which may be more convenient to use.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-syntax (name := checkpoint) "checkpoint " tacticSeq : tactic
-
-/--
-`save` is defined to be the same as `skip`, but the elaborator has
-special handling for occurrences of `save` in tactic scripts and will transform
-`by tac1; save; tac2` to `by (checkpoint tac1); tac2`, meaning that the effect of `tac1`
-will be cached and replayed. This is useful for improving responsiveness
-when working on a long tactic proof, by using `save` after expensive tactics.
-
-(TODO: do this automatically and transparently so that users don't have to use
-this combinator explicitly.)
--/
-macro (name := save) "save" : tactic => `(tactic| skip)
 
 /--
 The tactic `sleep ms` sleeps for `ms` milliseconds and does nothing.
@@ -1310,10 +1344,10 @@ syntax (name := omega) "omega" optConfig : tactic
 
 /--
 `bv_omega` is `omega` with an additional preprocessor that turns statements about `BitVec` into statements about `Nat`.
-Currently the preprocessor is implemented as `try simp only [bv_toNat] at *`.
-`bv_toNat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
+Currently the preprocessor is implemented as `try simp only [bitvec_to_nat] at *`.
+`bitvec_to_nat` is a `@[simp]` attribute that you can (cautiously) add to more theorems.
 -/
-macro "bv_omega" : tactic => `(tactic| (try simp only [bv_toNat] at *) <;> omega)
+macro "bv_omega" : tactic => `(tactic| (try simp only [bitvec_to_nat] at *) <;> omega)
 
 /-- Implementation of `ac_nf` (the full `ac_nf` calls `trivial` afterwards). -/
 syntax (name := acNf0) "ac_nf0" (location)? : tactic
@@ -1603,10 +1637,74 @@ using `show_term`.
 macro (name := by?) tk:"by?" t:tacticSeq : term => `(show_term%$tk by%$tk $t)
 
 /--
-`expose_names` creates a new goal whose local context has been "exposed" so that every local declaration has a clear,
-accessible name. If no local declarations require renaming, the original goal is returned unchanged.
+`expose_names` renames all inaccessible variables with accessible names, making them available
+for reference in generated tactics. However, this renaming introduces machine-generated names
+that are not fully under user control. `expose_names` is primarily intended as a preamble for
+auto-generated end-game tactic scripts. It is also useful as an alternative to
+`set_option tactic.hygienic false`. If explicit control over renaming is needed in the
+middle of a tactic script, consider using structured tactic scripts with
+`match .. with`, `induction .. with`, or `intro` with explicit user-defined names,
+as well as tactics such as `next`, `case`, and `rename_i`.
 -/
 syntax (name := exposeNames) "expose_names" : tactic
+
+/--
+`#suggest_premises` will suggest premises for the current goal, using the currently registered premise selector.
+
+The suggestions are printed in the order of their confidence, from highest to lowest.
+-/
+syntax (name := suggestPremises) "suggest_premises" : tactic
+
+/--
+Close fixed-width `BitVec` and `Bool` goals by obtaining a proof from an external SAT solver and
+verifying it inside Lean. The solvable goals are currently limited to
+- the Lean equivalent of [`QF_BV`](https://smt-lib.org/logics-all.shtml#QF_BV)
+- automatically splitting up `structure`s that contain information about `BitVec` or `Bool`
+```lean
+example : ∀ (a b : BitVec 64), (a &&& b) + (a ^^^ b) = a ||| b := by
+  intros
+  bv_decide
+```
+
+If `bv_decide` encounters an unknown definition it will be treated like an unconstrained `BitVec`
+variable. Sometimes this enables solving goals despite not understanding the definition because
+the precise properties of the definition do not matter in the specific proof.
+
+If `bv_decide` fails to close a goal it provides a counter-example, containing assignments for all
+terms that were considered as variables.
+
+In order to avoid calling a SAT solver every time, the proof can be cached with `bv_decide?`.
+
+If solving your problem relies inherently on using associativity or commutativity, consider enabling
+the `bv.ac_nf` option.
+
+
+Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvDecideMacro) (priority:=low) "bv_decide" optConfig : tactic =>
+  Macro.throwError "to use `bv_decide`, please include `import Std.Tactic.BVDecide`"
+
+
+/--
+Suggest a proof script for a `bv_decide` tactic call. Useful for caching LRAT proofs.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvTraceMacro) (priority:=low) "bv_decide?" optConfig : tactic =>
+  Macro.throwError "to use `bv_decide?`, please include `import Std.Tactic.BVDecide`"
+
+
+/--
+Run the normalization procedure of `bv_decide` only. Sometimes this is enough to solve basic
+`BitVec` goals already.
+
+Note: include `import Std.Tactic.BVDecide`
+-/
+macro (name := bvNormalizeMacro) (priority:=low) "bv_normalize" optConfig : tactic =>
+  Macro.throwError "to use `bv_normalize`, please include `import Std.Tactic.BVDecide`"
+
 
 end Tactic
 
@@ -1740,7 +1838,7 @@ macro_rules | `(‹$type›) => `((by assumption : $type))
 by the notation `arr[i]` to prove any side conditions that arise when
 constructing the term (e.g. the index is in bounds of the array).
 The default behavior is to just try `trivial` (which handles the case
-where `i < arr.size` is in the context) and `simp_arith` and `omega`
+where `i < arr.size` is in the context) and `simp +arith` and `omega`
 (for doing linear arithmetic in the index).
 -/
 syntax "get_elem_tactic_trivial" : tactic
@@ -1759,8 +1857,10 @@ users are encouraged to extend `get_elem_tactic_trivial` instead of this tactic.
 macro "get_elem_tactic" : tactic =>
   `(tactic| first
       /-
-      Recall that `macro_rules` are tried in reverse order.
-      We want `assumption` to be tried first.
+      Recall that `macro_rules` (namely, for `get_elem_tactic_trivial`) are tried in reverse order.
+      We first, however, try `done`, since the necessary proof may already have been
+      found during unification, in which case there is no goal to solve (see #6999).
+      If a goal is present, we want `assumption` to be tried first.
       This is important for theorems such as
       ```
       [simp] theorem getElem_pop (a : Array α) (i : Nat) (hi : i < a.pop.size) :
@@ -1773,8 +1873,10 @@ macro "get_elem_tactic" : tactic =>
       they add new `macro_rules` for `get_elem_tactic_trivial`.
 
       TODO: Implement priorities for `macro_rules`.
-      TODO: Ensure we have a **high-priority** macro_rules for `get_elem_tactic_trivial` which is just `assumption`.
+      TODO: Ensure we have **high-priority** macro_rules for `get_elem_tactic_trivial` which are
+            just `done` and `assumption`.
       -/
+    | done
     | assumption
     | get_elem_tactic_trivial
     | fail "failed to prove index is valid, possible solutions:

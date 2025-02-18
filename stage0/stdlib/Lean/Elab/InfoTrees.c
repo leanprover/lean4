@@ -822,15 +822,15 @@ lean_dec(x_8);
 x_17 = lean_ctor_get(x_9, 0);
 lean_inc(x_17);
 lean_dec(x_9);
-x_18 = lean_ctor_get(x_2, 1);
-x_19 = lean_box(0);
+x_18 = lean_box(0);
+x_19 = lean_ctor_get(x_2, 1);
 x_20 = lean_box(0);
 x_21 = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(x_21, 0, x_20);
 lean_ctor_set(x_21, 1, x_17);
-x_22 = lean_array_size(x_18);
+x_22 = lean_array_size(x_19);
 x_23 = 0;
-x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__6(x_1, x_18, x_19, x_20, x_18, x_22, x_23, x_21, x_4, x_5, x_16);
+x_24 = l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_InfoTrees_elabInfoTrees___spec__6(x_1, x_18, x_19, x_20, x_19, x_22, x_23, x_21, x_4, x_5, x_16);
 if (lean_obj_tag(x_24) == 0)
 {
 lean_object* x_25; lean_object* x_26; 

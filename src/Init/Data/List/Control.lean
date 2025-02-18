@@ -9,6 +9,9 @@ import Init.Control.Id
 import Init.Control.Lawful
 import Init.Data.List.Basic
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 universe u v w u₁ u₂
 
@@ -161,7 +164,7 @@ foldlM f x₀ [a, b, c] = do
 ```
 -/
 @[specialize]
-protected def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
+def foldlM {m : Type u → Type v} [Monad m] {s : Type u} {α : Type w} : (f : s → α → m s) → (init : s) → List α → m s
   | _, s, []      => pure s
   | f, s, a :: as => do
     let s' ← f s a

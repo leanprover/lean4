@@ -26,7 +26,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__2;
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__9;
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__18;
-lean_object* lean_io_promise_result(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_stop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Sleep_wait(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__13;
@@ -60,6 +59,7 @@ static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__4;
 lean_object* l_Int_toNat(lean_object*);
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__7;
+lean_object* l_IO_Promise_result_x21___rarg(lean_object*);
 lean_object* lean_task_map(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto____x40_Std_Internal_Async_Timer___hyg_141____closed__21;
 LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Interval_reset(lean_object*, lean_object*);
@@ -159,7 +159,8 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_io_promise_result(x_5);
+x_6 = l_IO_Promise_result_x21___rarg(x_5);
+lean_dec(x_5);
 x_7 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_8 = l_Task_Priority_default;
 x_9 = 0;
@@ -175,7 +176,8 @@ x_12 = lean_ctor_get(x_3, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_3);
-x_13 = lean_io_promise_result(x_11);
+x_13 = l_IO_Promise_result_x21___rarg(x_11);
+lean_dec(x_11);
 x_14 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_15 = l_Task_Priority_default;
 x_16 = 0;
@@ -280,7 +282,8 @@ if (x_10 == 0)
 {
 lean_object* x_11; lean_object* x_12; lean_object* x_13; lean_object* x_14; lean_object* x_15; 
 x_11 = lean_ctor_get(x_9, 0);
-x_12 = lean_io_promise_result(x_11);
+x_12 = l_IO_Promise_result_x21___rarg(x_11);
+lean_dec(x_11);
 x_13 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_14 = l_Task_Priority_default;
 x_15 = lean_task_map(x_13, x_12, x_14, x_5);
@@ -295,7 +298,8 @@ x_17 = lean_ctor_get(x_9, 1);
 lean_inc(x_17);
 lean_inc(x_16);
 lean_dec(x_9);
-x_18 = lean_io_promise_result(x_16);
+x_18 = l_IO_Promise_result_x21___rarg(x_16);
+lean_dec(x_16);
 x_19 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_20 = l_Task_Priority_default;
 x_21 = lean_task_map(x_19, x_18, x_20, x_5);
@@ -733,7 +737,8 @@ if (x_4 == 0)
 {
 lean_object* x_5; lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; lean_object* x_10; 
 x_5 = lean_ctor_get(x_3, 0);
-x_6 = lean_io_promise_result(x_5);
+x_6 = l_IO_Promise_result_x21___rarg(x_5);
+lean_dec(x_5);
 x_7 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_8 = l_Task_Priority_default;
 x_9 = 0;
@@ -749,7 +754,8 @@ x_12 = lean_ctor_get(x_3, 1);
 lean_inc(x_12);
 lean_inc(x_11);
 lean_dec(x_3);
-x_13 = lean_io_promise_result(x_11);
+x_13 = l_IO_Promise_result_x21___rarg(x_11);
+lean_dec(x_11);
 x_14 = l_Std_Internal_IO_Async_Sleep_wait___closed__1;
 x_15 = l_Task_Priority_default;
 x_16 = 0;

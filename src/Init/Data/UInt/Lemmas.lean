@@ -11,8 +11,6 @@ import Init.Data.BitVec.Bitblast
 
 open Lean in
 set_option hygiene false in
--- TODO(kmill): needed this for bootstrapping issue; remove option later
-set_option interpreter.prefer_native false in
 macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   let mut cmds ← Syntax.getArgs <$> `(
   namespace $typeName
@@ -235,15 +233,11 @@ macro "declare_uint_theorems" typeName:ident bits:term:arg : command => do
   cmds := cmds.push <| ← `(end $typeName)
   return ⟨mkNullNode cmds⟩
 
-section
--- TODO(kmill): needed this for bootstrapping issue; remove option and section later
-set_option interpreter.prefer_native false
 declare_uint_theorems UInt8 8
 declare_uint_theorems UInt16 16
 declare_uint_theorems UInt32 32
 declare_uint_theorems UInt64 64
 declare_uint_theorems USize System.Platform.numBits
-end
 
 @[simp] theorem USize.toNat_ofNat32 {n : Nat} {h : n < 4294967296} : (ofNat32 n h).toNat = n := rfl
 

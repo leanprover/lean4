@@ -69,8 +69,7 @@ theorem fold_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β a �
     l.fold (fun acc k v => f k v :: acc) acc =
       ((toListModel l.buckets).reverse.map (fun p => f p.1 p.2)) ++ acc := by
   rw [fold_eq, ← Array.foldl_toList, toListModel]
-  generalize l.buckets.toList = l
-  induction l generalizing acc with
+  induction l.buckets.toList generalizing acc with
   | nil => simp
   | cons x xs ih =>
       rw [foldl_cons, ih, AssocList.foldl_apply]
@@ -93,8 +92,7 @@ theorem foldRev_cons_apply {l : Raw α β} {acc : List γ} (f : (a : α) → β 
     l.foldRev (fun acc k v => f k v :: acc) acc =
       ((toListModel l.buckets).map (fun p => f p.1 p.2)) ++ acc := by
   rw [foldRev_eq, ← Array.foldr_toList, toListModel]
-  generalize l.buckets.toList = l
-  induction l generalizing acc with
+  induction l.buckets.toList generalizing acc with
   | nil => simp
   | cons x xs ih =>
       rw [foldr_cons, ih, AssocList.foldr_apply]

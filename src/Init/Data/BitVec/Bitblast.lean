@@ -1034,11 +1034,10 @@ theorem divRec_succ (m : Nat) (args : DivModArgs w) (qr : DivModState w) :
 theorem lawful_divRec {args : DivModArgs w} {qr : DivModState w}
     (h : DivModState.Lawful args qr) :
     DivModState.Lawful args (divRec qr.wn args qr) := by
-  generalize hm : qr.wn = m
-  induction m generalizing qr
-  case zero =>
+  induction hm : qr.wn generalizing qr with
+  | zero =>
     exact h
-  case succ wn' ih =>
+  | succ wn' ih =>
     simp only [divRec_succ]
     apply ih
     · apply lawful_divSubtractShift
@@ -1052,11 +1051,10 @@ theorem lawful_divRec {args : DivModArgs w} {qr : DivModState w}
 @[simp]
 theorem wn_divRec (args : DivModArgs w) (qr : DivModState w) :
     (divRec qr.wn args qr).wn = 0 := by
-  generalize hm : qr.wn = m
-  induction m generalizing qr
-  case zero =>
+  induction hm : qr.wn generalizing qr with
+  | zero =>
     assumption
-  case succ wn' ih =>
+  | succ wn' ih =>
     apply ih
     simp only [divSubtractShift, hm]
     split <;> rfl

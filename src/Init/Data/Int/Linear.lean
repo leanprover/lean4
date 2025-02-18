@@ -78,6 +78,9 @@ theorem Poly.denote'_go_eq_denote (ctx : Context) (p : Poly) (r : Int) : denote'
 theorem Poly.denote'_eq_denote (ctx : Context) (p : Poly) : p.denote' ctx = p.denote ctx := by
   unfold denote' <;> split <;> simp [denote, denote'_go_eq_denote] <;> ac_rfl
 
+theorem Poly.denote'_add (ctx : Context) (a : Int) (x : Var) (p : Poly) : (Poly.add a x p).denote' ctx = a * x.denote ctx + p.denote ctx := by
+  simp [Poly.denote'_eq_denote, denote]
+
 def Poly.addConst (p : Poly) (k : Int) : Poly :=
   match p with
   | .num k' => .num (k+k')
@@ -102,6 +105,33 @@ def Poly.norm (p : Poly) : Poly :=
   match p with
   | .num k => .num k
   | .add k v p => (norm p).insert k v
+
+def Poly.append (p₁ p₂ : Poly) : Poly :=
+  match p₁ with
+  | .num k₁ => p₂.addConst k₁
+  | .add k x p₁ => .add k x (append p₁ p₂)
+
+def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
+  match fuel with
+  | 0 => p₁.append p₂
+  | fuel + 1 => match p₁, p₂ with
+    | .num k₁, .num k₂ => .num (k₁+k₂)
+    | .num k₁, .add a x p => .add a x (combine' fuel (.num k₁) p)
+    | .add a x p, .num k₂ => .add a x (combine' fuel p (.num k₂))
+    | .add a₁ x₁ p₁, .add a₂ x₂ p₂ =>
+      bif Nat.beq x₁ x₂ then
+        let a := a₁ + a₂
+        bif a == 0 then
+          combine' fuel p₁ p₂
+        else
+          .add a x₁ (combine' fuel p₁ p₂)
+    else bif Nat.blt x₂ x₁ then
+      .add a₁ x₁ (combine' fuel p₁ (.add a₂ x₂ p₂))
+    else
+      .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
+
+def Poly.combine (p₁ p₂ : Poly) : Poly :=
+  combine' 100000000 p₁ p₂
 
 /-- Converts the given expression into a polynomial. -/
 def Expr.toPoly' (e : Expr) : Poly :=
@@ -345,6 +375,26 @@ theorem Poly.denote_norm (ctx : Context) (p : Poly) : p.norm.denote ctx = p.deno
   induction p <;> simp [*]
 
 attribute [local simp] Poly.denote_norm
+
+theorem Poly.denote_append (ctx : Context) (p₁ p₂ : Poly) : (p₁.append p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  induction p₁ <;> simp [append, *]
+
+attribute [local simp] Poly.denote_append
+
+theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  induction fuel generalizing p₁ p₂ <;> simp [combine']
+  next ih =>
+    split <;> simp [*]
+    next a₁ x₁ p₁ a₂ x₂ p₂ =>
+      by_cases h₁ : Nat.beq x₁ x₂ <;> simp [*]
+      · simp at h₁; simp [h₁]
+        by_cases h₂ : a₁ + a₂ == 0 <;> simp [*]
+        · simp at h₂
+          rw [← Int.add_mul, h₂]; simp
+      · by_cases h₃ : Nat.blt x₂ x₁ <;> simp [*]
+
+theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
+  simp [combine, denote_combine']
 
 theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
 theorem neg_fold (a : Int) : a.neg = -a := rfl
@@ -704,6 +754,111 @@ theorem RawDvdCnstr.eq_of_isEqv (ctx : Context) (c : RawDvdCnstr) (c' : DvdCnstr
 
 theorem RawDvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : RawDvdCnstr) (h : c.isUnsat) : c.denote ctx = False := by
   simp [DvdCnstr.eq_false_of_isUnsat ctx c.norm h]
+
+theorem solveCombine {x : Int} {d₁ a₁ p₁ : Int} {d₂ a₂ p₂ : Int} {α β d : Int}
+   (h : α*a₁*d₂ + β*a₂*d₁ = d)
+   (h₁ : d₁ ∣ a₁*x + p₁)
+   (h₂ : d₂ ∣ a₂*x + p₂)
+   : d₁*d₂ ∣ d*x + α*d₂*p₁ + β*d₁*p₂ := by
+ rcases h₁ with ⟨k₁, h₁⟩
+ replace h₁ : α*a₁*d₂*x + α*d₂*p₁ = d₁*d₂*(α*k₁) := by
+   have ac₁ : d₁*d₂*(α*k₁) = α*d₂*(d₁*k₁) := by ac_rfl
+   have ac₂ : α * a₁ * d₂ * x = α * d₂ * (a₁ * x) := by ac_rfl
+   rw [ac₁, ← h₁, Int.mul_add, ac₂]
+ rcases h₂ with ⟨k₂, h₂⟩
+ replace h₂ : β*a₂*d₁*x + β*d₁*p₂ = d₁*d₂*(β*k₂) := by
+   have ac₁ : d₁*d₂*(β*k₂) = β*d₁*(d₂*k₂) := by ac_rfl
+   have ac₂ : β * a₂ * d₁ * x = β * d₁ * (a₂ * x) := by ac_rfl
+   rw [ac₁, ←h₂, Int.mul_add, ac₂]
+ replace h₁ : d₁*d₂ ∣ α*a₁*d₂*x + α*d₂*p₁ := ⟨α*k₁, h₁⟩
+ replace h₂ : d₁*d₂ ∣ β*a₂*d₁*x + β*d₁*p₂ := ⟨β*k₂, h₂⟩
+ have h' := Int.dvd_add h₁ h₂; clear h₁ h₂ k₁ k₂
+ replace h : d*x = α*a₁*d₂*x + β*a₂*d₁*x := by
+   rw [←h, Int.add_mul]
+ have ac :
+   α * a₁ * d₂ * x + α * d₂ * p₁ + (β * a₂ * d₁ * x + β * d₁ * p₂)
+   =
+   α * a₁ * d₂ * x + β * a₂ * d₁ * x + α * d₂ * p₁ + β * d₁ * p₂ := by ac_rfl
+ rw [h, ←ac]
+ assumption
+
+theorem solveElim {x : Int} {d₁ a₁ p₁ : Int} {d₂ a₂ p₂ : Int} {d : Int}
+   (h : d = Int.gcd (a₁*d₂) (a₂*d₁))
+   (h₁ : d₁ ∣ a₁*x + p₁)
+   (h₂ : d₂ ∣ a₂*x + p₂)
+   : d ∣ a₂*p₁ - a₁*p₂ := by
+ rcases h₁ with ⟨k₁, h₁⟩
+ rcases h₂ with ⟨k₂, h₂⟩
+ have h₃ : d ∣ a₁*d₂ := by
+  rw [h]; apply Int.gcd_dvd_left
+ have h₄ : d ∣ a₂*d₁ := by
+  rw [h]; apply Int.gcd_dvd_right
+ rcases h₃ with ⟨k₃, h₃⟩
+ rcases h₄ with ⟨k₄, h₄⟩
+ have : a₂*p₁ - a₁*p₂ = a₂*d₁*k₁ - a₁*d₂*k₂ := by
+   have ac₁ : a₂*d₁*k₁ = a₂*(d₁*k₁) := by ac_rfl
+   have ac₂ : a₁*d₂*k₂ = a₁*(d₂*k₂) := by ac_rfl
+   have ac₃ : a₁*(a₂*x) = a₂*(a₁*x) := by ac_rfl
+   rw [ac₁, ac₂, ←h₁, ←h₂, Int.mul_add, Int.mul_add, ac₃, ←Int.sub_sub, Int.add_comm, Int.add_sub_assoc]
+   simp
+ rw [h₃, h₄, Int.mul_assoc, Int.mul_assoc, ←Int.mul_sub] at this
+ exact ⟨k₄ * k₁ - k₃ * k₂, this⟩
+
+def isSolveCombine (c₁ c₂ c : DvdCnstr) (d α β : Int) : Bool :=
+  match c₁, c₂ with
+  | { k := d₁, p := .add a₁ x₁ p₁ }, { k := d₂, p := .add a₂ x₂ p₂ } =>
+    x₁ == x₂ &&
+    (d == α*a₁*d₂ + β*a₂*d₁ &&
+    (c.k == d₁*d₂ &&
+     c.p == .add d x₁ (p₁.mul (α*d₂) |>.combine (p₂.mul (β*d₁)))))
+  | _, _ => false
+
+theorem DvdCnstr.solve_combine (ctx : Context) (c₁ c₂ c : DvdCnstr) (d α β : Int)
+    : isSolveCombine c₁ c₂ c d α β → c₁.denote' ctx → c₂.denote' ctx → c.denote' ctx := by
+  simp [isSolveCombine]
+  split <;> simp <;> cases c <;> simp [denote', Poly.denote_combine, Poly.denote'_add]
+  next d₁ a₁ x₁ p₁ d₂ a₂ x₂ p₂ k p =>
+  intro _ hd _ hp; subst x₁ k p
+  simp [Poly.denote'_add, Poly.denote, Poly.denote_combine]
+  intro h₁ h₂
+  rw [Int.add_comm] at h₁ h₂
+  rw [Int.add_comm _ (d * x₂.denote ctx), Int.add_left_comm, ← Int.add_assoc]
+  exact solveCombine hd.symm h₁ h₂
+
+def isSolveElim (c₁ c₂ c : DvdCnstr) (d : Int) : Bool :=
+  match c₁, c₂ with
+  | { k := d₁, p := .add a₁ x₁ p₁ }, { k := d₂, p := .add a₂ x₂ p₂ } =>
+    x₁ == x₂ &&
+    (d == Int.gcd (a₁*d₂) (a₂*d₁) &&
+    (c.k == d &&
+     c.p == (p₁.mul a₂ |>.combine (p₂.mul (- a₁)))))
+  | _, _ => false
+
+theorem DvdCnstr.solve_elim (ctx : Context) (c₁ c₂ c : DvdCnstr) (d : Int)
+    : isSolveElim c₁ c₂ c d → c₁.denote' ctx → c₂.denote' ctx → c.denote' ctx := by
+  simp [isSolveElim]
+  split <;> simp <;> cases c <;> simp [denote', Poly.denote_combine, Poly.denote'_add]
+  next d₁ a₁ x₁ p₁ d₂ a₂ x₂ p₂ k p =>
+  intro _ hd _ hp; subst x₁ k p
+  simp [Poly.denote'_eq_denote, Poly.denote_combine]
+  intro h₁ h₂
+  rw [Int.add_comm] at h₁ h₂
+  rw [← Int.sub_eq_add_neg]
+  exact solveElim hd h₁ h₂
+
+def isNorm (c₁ c₂ : DvdCnstr) : Bool :=
+  c₁.k == c₂.k && c₁.p.norm == c₂.p
+
+theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
+    : isNorm c₁ c₂ → c₁.denote' ctx → c₂.denote' ctx := by
+  cases c₁ <;> cases c₂ <;> simp [isNorm, denote', Poly.denote'_eq_denote]
+  next k₁ p₁ k₂ p₂ =>
+    intro; subst k₁; intro; subst p₂
+    intro h₁
+    simp [Poly.denote_norm ctx p₁, h₁]
+
+theorem DvdCnstr.of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp [DvdCnstr.denote'_eq_denote, DvdCnstr.eq_of_isEqv ctx c₁ c₂ k h]
 
 end Int.Linear
 

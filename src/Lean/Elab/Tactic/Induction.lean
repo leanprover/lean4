@@ -677,13 +677,27 @@ private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   else
     return true
 
+/--
+Generalize targets in `fun_induction` and `fun_cases`. Should behave like `elabCasesTargets` with
+no variables annotated.
+-/
 private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
-  if (← withMainContext <| exprs.anyM (shouldGeneralizeTarget ·)) then
+  withMainContext do
+    let exprToGeneralize ← exprs.filterM (shouldGeneralizeTarget ·)
+    if exprToGeneralize.isEmpty then
+      return exprs
     liftMetaTacticAux fun mvarId => do
-      let (fvarIds, mvarId) ← mvarId.generalize (exprs.map fun expr => { expr })
-      return (fvarIds.map mkFVar, [mvarId])
-  else
-    return exprs
+      let (fvarIdsNew, mvarId) ← mvarId.generalize (exprToGeneralize.map ({ expr := · }))
+      -- note: fvarIdsNew contains the `x` variables from `args` followed by all the `h` variables
+      let mut result := #[]
+      let mut j := 0
+      for expr in exprs do
+        if (← shouldGeneralizeTarget expr)  then
+          result := result.push (mkFVar fvarIdsNew[j]!)
+          j := j+1
+        else
+          result := result.push expr
+      return (result, [mvarId])
 
 def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}
@@ -794,24 +808,23 @@ def elabCasesTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Id
         pure (some target[0][0].getId)
       let expr ← elabTerm target[1] none
       args := args.push { expr, hName? : GeneralizeArg }
-    if (← args.anyM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome) then
-      liftMetaTacticAux fun mvarId => do
-        let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
-        let (fvarIdsNew, mvarId) ← mvarId.generalize argsToGeneralize
-        -- note: fvarIdsNew contains the `x` variables from `args` followed by all the `h` variables
-        let mut result := #[]
-        let mut j := 0
-        for arg in args do
-          if (← shouldGeneralizeTarget arg.expr) || arg.hName?.isSome then
-            result := result.push (mkFVar fvarIdsNew[j]!)
-            j := j+1
-          else
-            result := result.push arg.expr
-        -- note: `fvarIdsNew[j:]` contains all the `h` variables
-        assert! hIdents.size + j == fvarIdsNew.size
-        return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
-    else
+    let argsToGeneralize ← args.filterM fun arg => shouldGeneralizeTarget arg.expr <||> pure arg.hName?.isSome
+    if argsToGeneralize.isEmpty then
       return (args.map (·.expr), #[])
+    liftMetaTacticAux fun mvarId => do
+      let (fvarIdsNew, mvarId) ← mvarId.generalize argsToGeneralize
+      -- note: fvarIdsNew contains the `x` variables from `args` followed by all the `h` variables
+      let mut result := #[]
+      let mut j := 0
+      for arg in args do
+        if (← shouldGeneralizeTarget arg.expr) || arg.hName?.isSome then
+          result := result.push (mkFVar fvarIdsNew[j]!)
+          j := j+1
+        else
+          result := result.push arg.expr
+      -- note: `fvarIdsNew[j:]` contains all the `h` variables
+      assert! hIdents.size + j == fvarIdsNew.size
+      return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
 
 /--
 The code path shared between `cases` and `fun_cases`; when we already have an `elimInfo`

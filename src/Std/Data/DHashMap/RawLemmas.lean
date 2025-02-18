@@ -1120,7 +1120,7 @@ theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.WF)
 
 @[simp]
 theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
-    (h : m.WF) {k: α} {v : β} :
+    (h : m.WF) {k : α} {v : β} :
     (k, v) ∈ Raw.Const.toList m ↔ m.getKey? k = some k ∧ get? m k = some v := by
   simp_to_raw using Raw₀.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
     ⟨m, h.size_buckets_pos⟩ h
@@ -1143,6 +1143,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
   simp_to_raw using Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false
     ⟨m, h.size_buckets_pos⟩ h
 
+@[simp]
 theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k : α} :
     (Raw.Const.toList m).find? (·.1 == k) = none ↔ ¬ k ∈ m := by

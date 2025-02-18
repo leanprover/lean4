@@ -700,7 +700,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] :
 
 @[simp]
 theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
-    (toList m).map Prod.fst = m.keys :=
+    m.toList.map Prod.fst = m.keys :=
   DHashMap.Const.map_prod_fst_toList_eq_keys
 
 @[simp]
@@ -741,6 +741,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
     m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
   DHashMap.Const.find?_toList_eq_none_iff_contains_eq_false
 
+@[simp]
 theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     {k : α} :
     m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m :=

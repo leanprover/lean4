@@ -748,6 +748,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
     m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
   DHashMap.Raw.Const.find?_toList_eq_none_iff_contains_eq_false h.out
 
+@[simp]
 theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k : α} :
     m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m :=

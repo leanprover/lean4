@@ -11,6 +11,141 @@ of each version.
 v4.17.0
 ----------
 
+For this release, 319 changes landed. In addition to the 168 feature additions and 57 fixes listed below there were 12 refactoring changes, 13 documentation improvements and 56 chores.
+
+
+## Highlights
+
+The Lean v4.17 release brings a range of new features, performance improvements,
+and bug fixes. Notable user-visible updates include:
+
+* [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
+which is a prerequisite for parallelizing elaboration itself.
+
+* [#6711](https://github.com/leanprover/lean4/pull/6711) adds support for `UIntX` and `USize` in `bv_decide` by adding a
+preprocessor that turns them into `BitVec` of their corresponding size.
+
+* [#6505](https://github.com/leanprover/lean4/pull/6505) implements a basic async framework as well as asynchronously
+running timers using libuv.
+
+* improvements to documentation with `docgen`, which now links
+dot notations ([#6703](https://github.com/leanprover/lean4/pull/6703)),
+coerced functions ([#6729](https://github.com/leanprover/lean4/pull/6729)),
+and tokens ([#6730](https://github.com/leanprover/lean4/pull/6730)).
+
+* extensive library development, in particular, expanding verification APIs of `BitVec`,
+making APIs of `List` / `Array` / `Vector` consistent, and adding lemmas describing the behavior of `UInt`.
+
+* [#6597](https://github.com/leanprover/lean4/pull/6597) fixes the indentation of nested traces nodes in the info view.
+
+### New Language Features
+
+* **Partial Fixpoint**
+
+  [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
+and still be able to reason about them equationally, as long as they are
+tail-recursive, or operate within certain monads such as `Option`
+
+  Typical examples:
+
+  ```
+  def ack : (n m : Nat) → Option Nat
+    | 0,   y   => some (y+1)
+    | x+1, 0   => ack x 1
+    | x+1, y+1 => do ack x (← ack (x+1) y)
+  partial_fixpiont
+  
+  def whileSome (f : α → Option α) (x : α) : α :=
+    match f x with
+    | none => x
+    | some x' => whileSome f x'
+  partial_fixpiont
+  
+  def computeLfp {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
+    let next := f x
+    if x ≠ next then
+      computeLfp f next
+    else
+      x
+  partial_fixpiont
+  ```
+
+  See the [reference manual](https://lean-lang.org/doc/reference/latest/Recursive-Definitions/Partial-Fixpoint-Recursion/#partial-fixpoint)
+for more details.
+
+* [#6905](https://github.com/leanprover/lean4/pull/6905) adds a first draft of the `try`?`
+  interactive tactic, which tries various tactics, including induction:
+  ```  
+  @[simp] def revAppend : List Nat → List Nat → List Nat
+  | [],    ys => ys
+  | x::xs, ys => revAppend xs (x::ys)
+
+  example : (revAppend xs ys).length = xs.length + ys.length := by
+    try?
+    /-
+    Try these:
+    • ·
+      induction xs, ys using revAppend.induct
+      · simp
+      · simp +arith [*]
+    • ·
+      induction xs, ys using revAppend.induct
+      · simp only [revAppend, List.length_nil, Nat.zero_add]
+      · simp +arith only [revAppend, List.length_cons, *]
+    -/
+  ```
+
+* **`induction` with zero alternatives**
+
+  [#6486](https://github.com/leanprover/lean4/pull/6486) modifies the `induction`/`cases` syntax so that the `with`
+clause does not need to be followed by any alternatives. This improves
+friendliness of these tactics, since this lets them surface the names of
+the missing alternatives:
+  ```lean
+  example (n : Nat) : True := by
+    induction n with
+  /-            ~~~~
+  alternative 'zero' has not been provided
+  alternative 'succ' has not been provided
+  -/
+  ```
+
+* **`simp?` and `dsimp?` tactics in conversion mode**
+
+  [#6593](https://github.com/leanprover/lean4/pull/6593) adds support for the `simp?` and `dsimp?` tactics in conversion
+mode.
+
+* **`fun_cases`**
+
+  [#6261](https://github.com/leanprover/lean4/pull/6261) adds `foo.fun_cases`, an automatically generated theorem that
+splits the goal according to the branching structure of `foo`, much like
+the Functional Induction Principle, but for all functions (not just
+recursive ones), and without providing inductive hypotheses.
+
+### New CLI Features
+
+* [#6427](https://github.com/leanprover/lean4/pull/6427) adds the Lean CLI option `--src-deps` which parallels `--deps`.
+It parses the Lean code's header and prints out the paths to the
+(transitively) imported modules' source files (deduced from
+`LEAN_SRC_PATH`).
+
+* [#6323](https://github.com/leanprover/lean4/pull/6323) adds a new Lake CLI command, `lake query`, that both builds
+targets and outputs their results. It can produce raw text or JSON
+-formatted output (with `--json` / `-J`).
+
+### Breaking Changes
+
+* [#6602](https://github.com/leanprover/lean4/pull/6602) allows the dot ident notation to resolve to the current
+definition, or to any of the other definitions in the same mutual block.
+Existing code that uses dot ident notation may need to have `nonrec`
+added if the ident has the same name as the definition.
+
+* Introduction of the `zetaUnused` simp and reduction option ([#6755](https://github.com/leanprover/lean4/pull/6755)) 
+is a breaking change in rare cases: the `split` tactic no longer removes unused `let` and `have` expressions as a side-effect.
+`dsimp only` can be used to remove unused `have` and `let` expressions.
+
+_This highlights section was contributed by Violetta Sim._
+
 ## Language
 
 * [#5145](https://github.com/leanprover/lean4/pull/5145) splits the environment used by the kernel from that used by the
@@ -25,7 +160,7 @@ recursive ones), and without providing inductive hypotheses.
 
 * [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
 and still be able to reason about them equationally, as long as they are
-tail-recursive or monadic.
+tail-recursive or monadic.is logic like that 
 
 * [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
 which is a prerequisite for parallelizing elaboration itself.
@@ -39,14 +174,14 @@ It parses the Lean code's header and prints out the paths to the
 clause does not need to be followed by any alternatives. This improves
 friendliness of these tactics, since this lets them surface the names of
 the missing alternatives:
-```lean
-example (n : Nat) : True := by
-  induction n with
-/-            ~~~~
-alternative 'zero' has not been provided
-alternative 'succ' has not been provided
--/
-```
+  ```lean
+  example (n : Nat) : True := by
+    induction n with
+  /-            ~~~~
+  alternative 'zero' has not been provided
+  alternative 'succ' has not been provided
+  -/
+  ```
 
 * [#6505](https://github.com/leanprover/lean4/pull/6505) implements a basic async framework as well as asynchronously
 running timers using libuv.
@@ -110,15 +245,15 @@ theorems for heuristic instantiation in the `grind` tactic.
 
 * [#6568](https://github.com/leanprover/lean4/pull/6568) adds basic support for cast-like operators to the grind tactic.
 Example:
-```lean
-example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
-        (h₁ : α = β)
-        (h₂ : h₁ ▸ a₁ = b₁)
-        (h₃ : a₁ = a₂)
-        (h₄ : b₁ = b₂)
-        : HEq a₂ b₂ := by
-  grind
-```
+  ```lean
+  example (α : Type) (β : Type) (a₁ a₂ : α) (b₁ b₂ : β)
+          (h₁ : α = β)
+          (h₂ : h₁ ▸ a₁ = b₁)
+          (h₃ : a₁ = a₂)
+          (h₄ : b₁ = b₂)
+          : HEq a₂ b₂ := by
+    grind
+  ```
 
 * [#6569](https://github.com/leanprover/lean4/pull/6569) adds support for case splitting on `match`-expressions in
 `grind`.
@@ -187,10 +322,10 @@ ensuring it now avoids unnecessary case-splits on `Iff`.
 automatically handling
 forbidden pattern symbols. For example, consider the following theorem
 tagged with this attribute:
-```
-getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a]
-```
-Here, the selected pattern is `xs.getLast? = some a`, but `Eq` is a
+  ```
+  getLast?_eq_some_iff {xs : List α} {a : α} : xs.getLast? = some a ↔ ∃ ys, xs = ys ++ [a]
+  ```
+  Here, the selected pattern is `xs.getLast? = some a`, but `Eq` is a
 forbidden pattern symbol.
 Instead of producing an error, this function converts the pattern into a
 multi-pattern,
@@ -227,15 +362,15 @@ tactic can now solve problems such as the following:
 * [#6648](https://github.com/leanprover/lean4/pull/6648) adds support for numerals, lower & upper bounds to the offset
 constraint module in the `grind` tactic. `grind` can now solve examples
 such as:
-```
-example (f : Nat → Nat) :
-        f 2 = a →
-        b ≤ 1 → b ≥ 1 →
-        c = b + 1 →
-        f c = a := by
-  grind
-```
-In the example above, the literal `2` and the lower&upper bounds, `b ≤
+  ```
+  example (f : Nat → Nat) :
+          f 2 = a →
+          b ≤ 1 → b ≥ 1 →
+          c = b + 1 →
+          f c = a := by
+    grind
+  ```
+  In the example above, the literal `2` and the lower&upper bounds, `b ≤
 1` and `b ≥ 1`, are now processed by offset constraint module.
 
 * [#6649](https://github.com/leanprover/lean4/pull/6649) fixes a bug in the term canonicalizer used in the `grind`
@@ -306,18 +441,18 @@ example, consider the following example:
 
 * [#6700](https://github.com/leanprover/lean4/pull/6700) adds support for beta reduction in the `grind` tactic. `grind`
 can now solve goals such as
-```lean
-example (f : Nat → Nat) : f = (fun x : Nat => x + 5) → f 2 > 5 := by
-  grind
-```
+  ```lean
+  example (f : Nat → Nat) : f = (fun x : Nat => x + 5) → f 2 > 5 := by
+    grind
+  ```
 
 * [#6702](https://github.com/leanprover/lean4/pull/6702) adds support for equality backward reasoning to `grind`. We can
 illustrate the new feature with the following example. Suppose we have a
 theorem:
-```lean
-theorem inv_eq {a b : α} (w : a * b = 1) : inv a = b
-```
-and we want to instantiate the theorem whenever we are tying to prove
+  ```lean
+  theorem inv_eq {a b : α} (w : a * b = 1) : inv a = b
+  ```
+  and we want to instantiate the theorem whenever we are tying to prove
 `inv t = s` for some terms `t` and `s`
 The attribute `[grind ←]` is not applicable in this case because, by
 default, `=` is not eligible for E-matching. The new attribute `[grind
@@ -354,22 +489,45 @@ config.
 
 * [#6733](https://github.com/leanprover/lean4/pull/6733) adds better support for overlapping `match` patterns in `grind`.
 `grind` can now solve examples such as
-```lean
-inductive S where
-  | mk1 (n : Nat)
-  | mk2 (n : Nat) (s : S)
-  | mk3 (n : Bool)
-  | mk4 (s1 s2 : S)
+  ```lean
+  inductive S where
+    | mk1 (n : Nat)
+    | mk2 (n : Nat) (s : S)
+    | mk3 (n : Bool)
+    | mk4 (s1 s2 : S)
+  
+  def f (x y : S) :=
+    match x, y with
+    | .mk1 _, _ => 2
+    | _, .mk2 1 (.mk4 _ _) => 3
+    | .mk3 _, _ => 4
+    | _, _ => 5
+  
+  example : b = .mk2 y1 y2 → y1 = 2 → a = .mk4 y3 y4 → f a b = 5 := by
+    unfold f
+    grind (splits := 0)
+  ```
 
 * [#6735](https://github.com/leanprover/lean4/pull/6735) adds support for case splitting on `match`-expressions with
 overlapping patterns to the `grind` tactic. `grind` can now solve
 examples such as:
-```
-inductive S where
-  | mk1 (n : Nat)
-  | mk2 (n : Nat) (s : S)
-  | mk3 (n : Bool)
-  | mk4 (s1 s2 : S)
+  ```lean
+  inductive S where
+    | mk1 (n : Nat)
+    | mk2 (n : Nat) (s : S)
+    | mk3 (n : Bool)
+    | mk4 (s1 s2 : S)
+  
+  def g (x y : S) :=
+    match x, y with
+    | .mk1 a, _ => a + 2
+    | _, .mk2 1 (.mk4 _ _) => 3
+    | .mk3 _, .mk4 _ _ => 4
+    | _, _ => 5
+  
+  example : g a b > 1 := by
+    grind [g.eq_def]
+  ```
 
 * [#6736](https://github.com/leanprover/lean4/pull/6736) ensures the canonicalizer used in `grind` does not waste time
 checking whether terms with different types are definitionally equal.
@@ -423,10 +581,10 @@ correctly.
 * [#6777](https://github.com/leanprover/lean4/pull/6777) fixes a bug in the internalization of offset terms in the
 `grind` tactic. For example, `grind` was failing to solve the following
 example because of this bug.
-```lean
-example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
-  grind
-```
+  ```lean
+  example (f : Nat → Nat) : f (a + 1) = 1 → a = 0 → f 1 = 1 := by
+    grind
+  ```
 
 * [#6778](https://github.com/leanprover/lean4/pull/6778) fixes the assignment produced by `grind` to satisfy the offset
 constraints in a goal.
@@ -436,18 +594,33 @@ tactic.
 
 * [#6781](https://github.com/leanprover/lean4/pull/6781) fixes the support for case splitting on data in the `grind`
 tactic. The following example works now:
-```lean
-inductive C where
-  | a | b | c
+  ```lean
+  inductive C where
+    | a | b | c
+  
+  def f : C → Nat
+    | .a => 2
+    | .b => 3
+    | .c => 4
+  
+  example : f x > 1 := by
+    grind [
+        f, -- instructs `grind` to use `f`-equation theorems, 
+        C -- instructs `grind` to case-split on free variables of type `C`
+    ]
+  ```
 
 * [#6783](https://github.com/leanprover/lean4/pull/6783) adds support for closing goals using `match`-expression
 conditions that are known to be true in the `grind` tactic state.
 `grind` can now solve goals such as:
-```lean
-def f : List Nat → List Nat → Nat
-  | _, 1 :: _ :: _ => 1
-  | _, _ :: _ => 2
-  | _, _  => 0
+  ```lean
+  def f : List Nat → List Nat → Nat
+    | _, 1 :: _ :: _ => 1
+    | _, _ :: _ => 2
+    | _, _  => 0
+  
+  example : z = a :: as → y = z → f x y > 0
+  ```
 
 * [#6785](https://github.com/leanprover/lean4/pull/6785) adds infrastructure for the `grind?` tactic. It also adds the
 new modifier `usr` which allows users to write `grind only [usr
@@ -498,11 +671,11 @@ prerequisite for parallel proof elaboration.
 give an inductive predicate `C`, `grind [C]` marks `C` terms as
 case-split candidates **and** `C` constructors as E-matching theorems.
 Here is an example:
-```lean
-example {B S T s t} (hcond : B s) : (ifThenElse B S T, s) ==> t → (S, s) ==> t := by
-  grind [BigStep]
-```
-Users can still use `grind [cases BigStep]` to only mark `C` as a case
+  ```lean
+  example {B S T s t} (hcond : B s) : (ifThenElse B S T, s) ==> t → (S, s) ==> t := by
+    grind [BigStep]
+  ```
+  Users can still use `grind [cases BigStep]` to only mark `C` as a case
 split candidate.
 
 * [#6858](https://github.com/leanprover/lean4/pull/6858) adds new propagation rules for `decide` and equality in `grind`.
@@ -538,10 +711,10 @@ unfolded. See `grind_constProp.lean` for examples affected by this bug.
 
 * [#6895](https://github.com/leanprover/lean4/pull/6895) fixes a few `grind` issues exposed by the `grind_constProp.lean`
 test.
-- Support for equational theorem hypotheses created before invoking
-`grind`. Example: applying an induction principle.s
-- Support of `Unit`-like types. 
-- Missing recursion depth checks.
+  - Support for equational theorem hypotheses created before invoking
+  `grind`. Example: applying an induction principle.s
+  - Support of `Unit`-like types. 
+  - Missing recursion depth checks.
 
 * [#6897](https://github.com/leanprover/lean4/pull/6897) adds the new attributes `[grind =>]` and `[grind <=]` for
 controlling pattern selection and minimizing the number of places where
@@ -553,25 +726,7 @@ selection for local lemmas.
 `grind -verbose` disables all diagnostics. We are going to use this flag
 to implement `try?`.
 
-* [#6905](https://github.com/leanprover/lean4/pull/6905) adds the `try?` tactic. This is the first draft, but it can
-already solve examples such as:
-```lean
-example (e : Expr) : e.simplify.eval σ = e.eval σ := by
-  try?
-```
-in `grind_constProp.lean`. In the example above, it suggests:
-```lean
-induction e using Expr.simplify.induct <;> grind?
-``` 
-In the same test file, we have
-```lean
-example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
-  try?
-```
-and the following suggestion is produced
-```lean
-induction σ₁, σ₂ using State.join.induct <;> grind? 
-```
+* [#6905](https://github.com/leanprover/lean4/pull/6905) adds the `try?` tactic; see above
 
 ## Library
 

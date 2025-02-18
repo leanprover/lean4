@@ -994,6 +994,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
     m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
   Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
+@[simp]
 theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     {k : α} :
     m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m := by

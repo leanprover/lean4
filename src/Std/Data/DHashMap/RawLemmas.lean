@@ -1053,7 +1053,7 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
-theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF):
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Sigma.fst = m.keys := by
   apply Raw₀.map_sigma_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
@@ -1083,6 +1083,7 @@ theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable
     m.toList.find? (·.1 == k) = none ↔ m.contains k = false := by
   simp_to_raw using Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m, _⟩ h
 
+@[simp]
 theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
     (h : m.WF) {k : α} :
     m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m := by

@@ -164,6 +164,22 @@ instance : GetElem? (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
+@[inline, inherit_doc DTreeMap.getKey?]
+def getKey? (t : TreeMap α β cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.getKey]
+def getKey (t : TreeMap α β cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.getKey!]
+def getKey! [Inhabited α] (t : TreeMap α β cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.getKeyD]
+def getKeyD (t : TreeMap α β cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
+
 @[inline, inherit_doc DTreeMap.Const.min?]
 def min? (t : TreeMap α β cmp) : Option (α × β) :=
   DTreeMap.Const.min? t.inner

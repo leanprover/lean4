@@ -180,6 +180,22 @@ instance : GetElem? (Raw α β cmp) α β (fun m a => a ∈ m) where
   getElem? m a := m.get? a
   getElem! m a := m.get! a
 
+@[inline, inherit_doc DTreeMap.Raw.getKey?]
+def getKey? (t : Raw α β cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.Raw.getKey]
+def getKey (t : Raw α β cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.Raw.getKey!]
+def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.Raw.getKeyD]
+def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
+
 @[inline, inherit_doc DTreeMap.Raw.Const.min?]
 def min? (t : Raw α β cmp) : Option (α × β) :=
   DTreeMap.Raw.Const.min? t.inner

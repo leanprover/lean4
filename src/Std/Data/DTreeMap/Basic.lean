@@ -237,6 +237,38 @@ def findD [LawfulEqCmp cmp] (t : DTreeMap α β cmp) (a : α) (fallback : β a) 
   t.getD a fallback
 
 /--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `none`.
+The result in the `some` case is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline]
+def getKey? (t : DTreeMap α β cmp) (a : α) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey? a
+
+/--
+Retrieves the key from the mapping that matches `a`. Ensures that such a mapping exists by
+requiring a proof of `a ∈ m`. The result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline]
+def getKey (t : DTreeMap α β cmp) (a : α) (h : a ∈ t) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey a h
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise panics.
+If no panic occurs the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline]
+def getKey! [Inhabited α] (t : DTreeMap α β cmp) (a : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey! a
+
+/--
+Checks if a mapping for the given key exists and returns the key if it does, otherwise `fallback`.
+If a mapping exists the result is guaranteed to be pointer equal to the key in the map.
+-/
+@[inline]
+def getKeyD (t : DTreeMap α β cmp) (a : α) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
+
+/--
 Tries to retrieve the key-value pair with the smallest key in the tree map, returning `none` if the
 map is empty.
 -/

@@ -133,6 +133,22 @@ def isEmpty (t : Raw α cmp) : Bool :=
 def erase (t : Raw α cmp) (a : α) : Raw α cmp :=
   ⟨t.inner.erase a⟩
 
+@[inline, inherit_doc TreeSet.get?]
+def get? (t : Raw α cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+@[inline, inherit_doc TreeSet.get]
+def get (t : Raw α cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+@[inline, inherit_doc TreeSet.get!]
+def get! [Inhabited α] (t : Raw α cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+@[inline, inherit_doc TreeSet.getD]
+def getD (t : Raw α cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
+
 @[inline, inherit_doc TreeSet.min?]
 def min? (t : Raw α cmp) : Option α :=
   TreeMap.Raw.minKey? t.inner
@@ -165,20 +181,20 @@ def max! [Inhabited α] (t : Raw α cmp) : α :=
 def maxD (t : Raw α cmp) (fallback : α) : α :=
   TreeMap.Raw.maxKeyD t.inner fallback
 
-@[inline, inherit_doc TreeSet.entryAtIdx?]
-def entryAtIdx? (t : Raw α cmp) (n : Nat) : Option α :=
+@[inline, inherit_doc TreeSet.atIdx?]
+def atIdx? (t : Raw α cmp) (n : Nat) : Option α :=
   TreeMap.Raw.keyAtIndex? t.inner n
 
 /-!
 We do not provide `entryAtIdx` for the raw trees.
 -/
 
-@[inline, inherit_doc TreeSet.entryAtIdx!]
-def entryAtIdx! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
+@[inline, inherit_doc TreeSet.atIdx!]
+def atIdx! [Inhabited α] (t : Raw α cmp) (n : Nat) : α :=
   TreeMap.Raw.keyAtIndex! t.inner n
 
-@[inline, inherit_doc TreeSet.entryAtIdxD]
-def entryAtIdxD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
+@[inline, inherit_doc TreeSet.atIdxD]
+def atIdxD (t : Raw α cmp) (n : Nat) (fallback : α) : α :=
   TreeMap.Raw.keyAtIndexD t.inner n fallback
 
 @[inline, inherit_doc TreeSet.getGE?]

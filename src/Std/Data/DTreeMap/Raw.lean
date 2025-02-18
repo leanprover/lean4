@@ -183,6 +183,22 @@ def getD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a
 def findD [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (fallback : β a) : β a :=
   t.getD a fallback
 
+@[inline, inherit_doc DTreeMap.getKey?]
+def getKey? (t : Raw α β cmp) (a : α) : Option α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.getKey]
+def getKey (t : Raw α β cmp) (a : α) (h : a ∈ t) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.getKey!]
+def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.getKeyD]
+def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
+  letI : Ord α := ⟨cmp⟩; t.inner.getKeyD a fallback
+
 @[inline, inherit_doc DTreeMap.min?]
 def min? (t : Raw α β cmp) : Option ((a : α) × β a) :=
   letI : Ord α := ⟨cmp⟩; t.inner.min?

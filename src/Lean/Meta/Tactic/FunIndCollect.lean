@@ -9,41 +9,47 @@ import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.FunIndInfo
 
 /-!
-This module is very similar to Lean.Meta.Tactic.Try.Collect, and maybe some common aspects
-ough to be abstracted.
+Support for collecting function calls that could be used for `fun_induction` or `fun_cases`.
+Used by `fun_induction foo`, and the `Calls` structure is also used by `try?`.
 -/
 
 namespace Lean.Meta.FunInd
 
-namespace Collector
-
-structure FunIndCandidate where
+structure Call where
+  /- The full function call -/
   expr : Expr
-  relevantArgs : Expr -- Used for comparison
+  /- Used to avoid adding calls that differ only in dropped arguments -/
+  relevantArgs : Expr
   deriving Hashable, BEq
 
-structure Result where
+structure SeenCalls where
   /-- the full calls -/
   calls : Array Expr
   /-- only relevant arguments -/
   seen : Std.HashSet (Array Expr)
 
-instance : EmptyCollection Result where
+instance : EmptyCollection SeenCalls where
   emptyCollection := ⟨#[], {}⟩
 
-abbrev M := ReaderT Name <| StateRefT Result MetaM
-
-def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
-  let some funIndInfo ← getFunIndInfo? (cases := false) declName | return
-  if funIndInfo.params.size != args.size then return ()
+def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : SeenCalls) :
+    MetaM SeenCalls := do
+  let some funIndInfo ← getFunIndInfo? (cases := false) declName | return calls
+  if funIndInfo.params.size != args.size then return calls
   let mut keys := #[]
   for arg in args, kind in funIndInfo.params do
     if kind matches .target then
-      if !arg.isFVar then return
+      if !arg.isFVar then return calls
     unless kind matches .dropped do
       keys := keys.push arg
-  unless (← get).seen.contains keys do
-    modify fun {calls, seen} => { calls := calls.push e, seen := seen.insert keys }
+  if calls.seen.contains keys then return calls
+  return { calls := calls.calls.push e, seen := calls.seen.insert keys }
+
+namespace Collector
+
+abbrev M := ReaderT Name <| StateRefT SeenCalls MetaM
+
+def saveFunInd (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
+  set (← (← get).push e declName args)
 
 def visitApp (e : Expr) (declName : Name) (args : Array Expr) : M Unit := do
   saveFunInd e declName args
@@ -70,9 +76,9 @@ unsafe def visit (e : Expr) : StateRefT Cache M Unit := do
       | .proj _ _ b       => visit b
       | _                 => return ()
 
-unsafe def main (needle : Name) (mvarId : MVarId) : MetaM Result := mvarId.withContext do
+unsafe def main (needle : Name) (mvarId : MVarId) : MetaM (Array Expr) := mvarId.withContext do
   let (_, s) ← go |>.run mkPtrSet |>.run needle |>.run {}
-  return s
+  return s.calls
 where
   go : StateRefT Cache M Unit := do
     for localDecl in (← getLCtx) do
@@ -85,7 +91,7 @@ where
 
 end Collector
 
-def collect (needle : Name) (mvarId : MVarId) : MetaM Collector.Result := do
+def collect (needle : Name) (mvarId : MVarId) : MetaM (Array Expr) := do
   unsafe Collector.main needle mvarId
 
 end Lean.Meta.FunInd

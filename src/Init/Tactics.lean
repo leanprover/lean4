@@ -917,6 +917,14 @@ induction y₁, ... yₘ using f.induct x₁ ... xₙ
 where the arguments of `f` are used as arguments to `f.induct` or targets of the induction, as
 appropriate.
 
+The form
+```
+fun_induction f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
+
 The forms `fun_induction f x y generalizing z₁ ... zₙ` and
 `fun_induction f x y with | case1 => tac₁ | case2 x' ih => tac₂` work like with `induction.`
 -/
@@ -937,6 +945,14 @@ cases y, ... using f.fun_cases x ...
 ```
 where the arguments of `f` are used as arguments to `f.fun_cases` or targets of the case analysis, as
 appropriate.
+
+The form
+```
+fun_cases f
+```
+(with no arguments to `f`) searches the goal for an unique eligible application of `f`, and uses
+these arguments. An application of `f` is eligible if it is saturated and the arguments that will
+become targets are free variables.
 
 The form `fun_cases f x y with | case1 => tac₁ | case2 x' ih => tac₂` works like with `cases`.
 -/

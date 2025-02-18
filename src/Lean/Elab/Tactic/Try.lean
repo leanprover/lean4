@@ -40,9 +40,11 @@ private def isAccessible (fvarId : FVarId) : MetaM Bool := do
       | return false
     return localDecl'.fvarId == localDecl.fvarId
 
-/-- Returns `true` if all free variables occurring in `e` are accessible. -/
+/--
+Returns `true` if all free variables occurring in `e` are accessible. Over-approximation, since
+the free variable may be implicit.
+ -/
 private def isExprAccessible (e : Expr) : MetaM Bool := do
-  -- TODO: We only care about variables that would be visible in the elaborated output
   let (_, s) ← e.collectFVars |>.run {}
   s.fvarIds.allM isAccessible
 

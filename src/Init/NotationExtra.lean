@@ -307,7 +307,7 @@ syntax (name := Lean.Parser.Command.classAbbrev)
 macro_rules
   | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
     let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
-    `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
+    `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty:term]?
       attribute [instance] $ctor)
 
 macro_rules

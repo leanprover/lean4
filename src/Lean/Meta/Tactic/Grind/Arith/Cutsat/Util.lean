@@ -55,6 +55,11 @@ def get' : GoalM State := do
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
+def mkCnstrId : GoalM Nat := do
+  let id := (← get').nextCnstrId
+  modify' fun s => { s with nextCnstrId := id + 1 }
+  return id
+
 def DvdCnstrWithProof.denoteExpr (cₚ : DvdCnstrWithProof) : GoalM Expr := do
   let vars ← getVars
   cₚ.c.denoteExpr (vars[·]!)

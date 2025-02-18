@@ -17,8 +17,10 @@ export Int.Linear (Var Poly RelCnstr DvdCnstr)
 mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstrWithProof where
-  c : DvdCnstr
-  h : DvdCnstrProof
+  c  : DvdCnstr
+  h  : DvdCnstrProof
+  /-- Unique id for caching proofs in `ProofM` -/
+  id : Nat
 
 inductive DvdCnstrProof where
   | expr (h : Expr)
@@ -38,6 +40,8 @@ structure State where
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
   dvdCnstrs : PArray (Option DvdCnstrWithProof) := {}
+  /-- Next unique id for a constraint. -/
+  nextCnstrId : Nat := 0
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

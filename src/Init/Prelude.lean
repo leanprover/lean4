@@ -2673,35 +2673,12 @@ the index is in bounds. This is because the tactic itself needs to look up value
 arrays.
 -/
 @[extern "lean_array_fget"]
-def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
-  a.toList.get ⟨i, h⟩
-
-/--
-Use the indexing notation `a[i]` instead.
-
-Access an element from an array without needing a runtime bounds checks,
-using a `Nat` index and a proof that it is in bounds.
-
-This function does not use `get_elem_tactic` to automatically find the proof that
-the index is in bounds. This is because the tactic itself needs to look up values in
-arrays.
--/
-@[extern "lean_array_fget"]
 def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
-
-/--
-Use the indexing notation `a[i]!` instead.
-
-Access an element from an array, or panic if the index is out of bounds.
--/
-@[extern "lean_array_get"]
-def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-  Array.getD a i default
 
 /--
 Use the indexing notation `a[i]!` instead.

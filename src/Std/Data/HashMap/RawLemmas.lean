@@ -706,6 +706,59 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   DHashMap.Raw.distinct_keys h.out
 
 @[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.map Prod.fst = m.keys :=
+  DHashMap.Raw.Const.map_prod_fst_toList_eq_keys h.out
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.length = m.size :=
+  DHashMap.Raw.Const.length_toList h.out
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.isEmpty = m.isEmpty :=
+  DHashMap.Raw.Const.isEmpty_toList h.out
+
+@[simp]
+theorem mem_toList_iff_getElem?_eq_some [LawfulBEq α] (h : m.WF)
+    {k : α} {v : β} :
+    (k, v) ∈ m.toList ↔ m[k]? = some v :=
+  DHashMap.Raw.Const.mem_toList_iff_get?_eq_some h.out
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_getElem_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} {v : β} :
+    (k, v) ∈ m.toList ↔ m.getKey? k = some k ∧ m[k]? = some v :=
+  DHashMap.Raw.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some h.out
+
+theorem getElem?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β} :
+    m[k]? = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ m.toList :=
+  DHashMap.Raw.Const.get?_eq_some_iff_exists_beq_and_mem_toList h.out
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_getElem?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} {v : β} :
+    m.toList.find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ m[k]? = some v :=
+  DHashMap.Raw.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some h.out
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ m.contains k = false :=
+  DHashMap.Raw.Const.find?_toList_eq_none_iff_contains_eq_false h.out
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m :=
+  DHashMap.Raw.Const.find?_toList_eq_none_iff_not_mem h.out
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.Pairwise (fun a b => (a.1 == b.1) = false) :=
+  DHashMap.Raw.Const.distinct_keys_toList h.out
+
+@[simp]
 theorem insertMany_nil (h : m.WF) :
     insertMany m [] = m :=
   ext (DHashMap.Raw.Const.insertMany_nil h.out)

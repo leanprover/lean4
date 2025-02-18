@@ -104,37 +104,25 @@ theorem foldRev_cons {l : Raw α β} {acc : List ((a : α) × β a)} :
     l.foldRev (fun acc k v => ⟨k, v⟩ :: acc) acc = toListModel l.buckets ++ acc := by
   simp [foldRev_cons_apply]
 
+theorem foldRev_cons_mk {β : Type v} {l : Raw α (fun _ => β)} {acc : List (α × β)} :
+    l.foldRev (fun acc k v => (k, v) :: acc) acc =
+      (toListModel l.buckets).map (fun ⟨k, v⟩ => (k, v)) ++ acc := by
+  simp [foldRev_cons_apply]
+
 theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
     l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
 
-theorem toList_perm_toListModel {m : Raw α β} : Perm m.toList (toListModel m.buckets) := by
+theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets := by
   simp [Raw.toList, foldRev_cons]
 
-theorem keys_perm_keys_toListModel {m : Raw α β} :
-    Perm m.keys (List.keys (toListModel m.buckets)) := by
+theorem Const.toList_eq_toListModel_map {β : Type v} {m : Raw α (fun _ => β)} :
+    Raw.Const.toList m = (toListModel m.buckets).map (fun ⟨k, v⟩ => ⟨k, v⟩) := by
+  simp [Raw.Const.toList, foldRev_cons_mk]
+
+theorem keys_eq_keys_toListModel {m : Raw α β }:
+    m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
-
-theorem length_keys_eq_length_keys {m : Raw α β} :
-    m.keys.length = (List.keys (toListModel m.buckets)).length :=
-  keys_perm_keys_toListModel.length_eq
-
-theorem isEmpty_keys_eq_isEmpty_keys {m : Raw α β} :
-    m.keys.isEmpty = (List.keys (toListModel m.buckets)).isEmpty :=
-  keys_perm_keys_toListModel.isEmpty_eq
-
-theorem contains_keys_eq_contains_keys [BEq α] {m : Raw α β} {k : α} :
-    m.keys.contains k = (List.keys (toListModel m.buckets)).contains k :=
-  keys_perm_keys_toListModel.contains_eq
-
-theorem mem_keys_iff_contains_keys [BEq α] [LawfulBEq α] {m : Raw α β} {k : α} :
-    k ∈ m.keys ↔ (List.keys (toListModel m.buckets)).contains k := by
-  rw [← List.contains_iff_mem, contains_keys_eq_contains_keys]
-
-theorem pairwise_keys_iff_pairwise_keys [BEq α] [PartialEquivBEq α] {m : Raw α β} :
-    m.keys.Pairwise (fun a b => (a == b) = false) ↔
-      (List.keys (toListModel m.buckets)).Pairwise (fun a b => (a == b) = false) :=
-  keys_perm_keys_toListModel.pairwise_iff BEq.symm_false
 
 end Raw
 

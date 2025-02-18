@@ -180,6 +180,14 @@ end
 @[inline, inherit_doc Raw.keys] def keys (m : DHashMap α β) : List α :=
   m.1.keys
 
+@[inline, inherit_doc Raw.toList] def toList (m : DHashMap α β) :
+    List ((a : α) × β a) :=
+  m.1.toList
+
+@[inline, inherit_doc Raw.Const.toList] def Const.toList {β : Type v}
+    (m : DHashMap α (fun _ => β)) : List (α × β) :=
+  Raw.Const.toList m.1
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -219,17 +227,9 @@ instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) whe
 instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-@[inline, inherit_doc Raw.toList] def toList (m : DHashMap α β) :
-    List ((a : α) × β a) :=
-  m.1.toList
-
 @[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
     Array ((a : α) × β a) :=
   m.1.toArray
-
-@[inline, inherit_doc Raw.Const.toList] def Const.toList {β : Type v}
-    (m : DHashMap α (fun _ => β)) : List (α × β) :=
-  Raw.Const.toList m.1
 
 @[inline, inherit_doc Raw.Const.toArray] def Const.toArray {β : Type v}
     (m : DHashMap α (fun _ => β)) : Array (α × β) :=

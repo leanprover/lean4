@@ -199,6 +199,10 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     HashMap α Unit :=
   ⟨DHashMap.Const.unitOfList l⟩
 
+@[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
+    List (α × β) :=
+  DHashMap.Const.toList m.inner
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -233,10 +237,6 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
-
-@[inline, inherit_doc DHashMap.Const.toList] def toList (m : HashMap α β) :
-    List (α × β) :=
-  DHashMap.Const.toList m.inner
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
     Array (α × β) :=

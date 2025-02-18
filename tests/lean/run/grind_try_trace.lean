@@ -80,14 +80,14 @@ example : app [a, b] [c] = [a, b, c] := by
 
 /--
 info: Try these:
-• · expose_names; fun_induction app as bs <;> grind [= app]
-• · expose_names; fun_induction app as bs <;> grind only [app]
+• (fun_induction app as bs) <;> grind [= app]
+• (fun_induction app as bs) <;> grind only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try?
 
-/-- info: Try this: · expose_names; fun_induction app as bs <;> grind [= app] -/
+/-- info: Try this: (fun_induction app as bs) <;> grind [= app] -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try? (max := 1)

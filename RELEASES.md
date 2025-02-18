@@ -11,10 +11,13 @@ of each version.
 v4.17.0
 ----------
 
+For this release, 319 changes landed. In addition to the 168 feature additions and 57 fixes listed below there were 12 refactoring changes, 13 documentation improvements and 56 chores.
+
+
 ## Highlights
 
 The Lean v4.17 release brings a range of new features, performance improvements,
-and bug fixes. Notable updates include:
+and bug fixes. Notable user-visible updates include:
 
 * [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
 which is a prerequisite for parallelizing elaboration itself.
@@ -41,10 +44,56 @@ making APIs of `List` / `Array` / `Vector` consistent, and adding lemmas describ
 
   [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
 and still be able to reason about them equationally, as long as they are
-tail-recursive or monadic.
+tail-recursive, or operate within certain monads such as `Option`
+
+  Typical examples:
+
+  ```
+  def ack : (n m : Nat) → Option Nat
+    | 0,   y   => some (y+1)
+    | x+1, 0   => ack x 1
+    | x+1, y+1 => do ack x (← ack (x+1) y)
+  partial_fixpiont
+  
+  def whileSome (f : α → Option α) (x : α) : α :=
+    match f x with
+    | none => x
+    | some x' => whileSome f x'
+  partial_fixpiont
+  
+  def computeLfp {α : Type u} [DecidableEq α] (f : α → α) (x : α) : α :=
+    let next := f x
+    if x ≠ next then
+      computeLfp f next
+    else
+      x
+  partial_fixpiont
+  ```
 
   See the [reference manual](https://lean-lang.org/doc/reference/latest/Recursive-Definitions/Partial-Fixpoint-Recursion/#partial-fixpoint)
 for more details.
+
+* [#6905](https://github.com/leanprover/lean4/pull/6905) adds a first draft of the `try`?`
+  interactive tactic, which tries various tactics, including induction:
+  ```  
+  @[simp] def revAppend : List Nat → List Nat → List Nat
+  | [],    ys => ys
+  | x::xs, ys => revAppend xs (x::ys)
+
+  example : (revAppend xs ys).length = xs.length + ys.length := by
+    try?
+    /-
+    Try these:
+    • ·
+      induction xs, ys using revAppend.induct
+      · simp
+      · simp +arith [*]
+    • ·
+      induction xs, ys using revAppend.induct
+      · simp only [revAppend, List.length_nil, Nat.zero_add]
+      · simp +arith only [revAppend, List.length_cons, *]
+    -/
+  ```
 
 * **`induction` with zero alternatives**
 
@@ -66,15 +115,7 @@ the missing alternatives:
   [#6593](https://github.com/leanprover/lean4/pull/6593) adds support for the `simp?` and `dsimp?` tactics in conversion
 mode.
 
-* **`zetaUnused` simp and reduction option**
-
-  [#6755](https://github.com/leanprover/lean4/pull/6755) implements the `zetaUnused` simp and reduction option (added in
-[#6754](https://github.com/leanprover/lean4/pull/6754)). 
-
-  True by default, and implied by `zeta`, this can be turned off to make `simp` even more careful about
-preserving the expression structure, including unused `let` and `have` expressions.
-
-* **`fun_cases` (Experimental feature)**
+* **`fun_cases`**
 
   [#6261](https://github.com/leanprover/lean4/pull/6261) adds `foo.fun_cases`, an automatically generated theorem that
 splits the goal according to the branching structure of `foo`, much like
@@ -100,8 +141,8 @@ Existing code that uses dot ident notation may need to have `nonrec`
 added if the ident has the same name as the definition.
 
 * Introduction of the `zetaUnused` simp and reduction option ([#6755](https://github.com/leanprover/lean4/pull/6755)) 
-is a breaking change: the `split` tactic no longer removes unused `let` and `have` expressions as a side-effect,
-in rare cases this may break proofs. `dsimp only` can be used to remove unused `have` and `let` expressions.
+is a breaking change in rare cases: the `split` tactic no longer removes unused `let` and `have` expressions as a side-effect.
+`dsimp only` can be used to remove unused `have` and `let` expressions.
 
 _This highlights section was contributed by Violetta Sim._
 
@@ -119,7 +160,7 @@ recursive ones), and without providing inductive hypotheses.
 
 * [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
 and still be able to reason about them equationally, as long as they are
-tail-recursive or monadic.
+tail-recursive or monadic.is logic like that 
 
 * [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
 which is a prerequisite for parallelizing elaboration itself.
@@ -685,25 +726,7 @@ selection for local lemmas.
 `grind -verbose` disables all diagnostics. We are going to use this flag
 to implement `try?`.
 
-* [#6905](https://github.com/leanprover/lean4/pull/6905) adds the `try?` tactic. This is the first draft, but it can
-already solve examples such as:
-  ```iean
-  example (e : Expr) : e.simplify.eval σ = e.eval σ := by
-    try?
-  ```
-  in `grind_constProp.lean`. In the example above, it suggests:
-  ```lean
-  induction e using Expr.simplify.induct <;> grind?
-  ``` 
-  In the same test file, we have
-  ```lean
-  example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
-    try?
-  ```
-  and the following suggestion is produced
-  ```lean
-  induction σ₁, σ₂ using State.join.induct <;> grind? 
-  ```
+* [#6905](https://github.com/leanprover/lean4/pull/6905) adds the `try?` tactic; see above
 
 ## Library
 

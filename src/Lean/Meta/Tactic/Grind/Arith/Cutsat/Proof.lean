@@ -14,7 +14,7 @@ private def DvdCnstrWithProof.get_d_a (cₚ : DvdCnstrWithProof) : GoalM (Int ×
     | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
   return (d, a)
 
-partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM Expr := do
+partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM Expr := cₚ.caching do
   match cₚ.h with
   | .expr h =>
     return h

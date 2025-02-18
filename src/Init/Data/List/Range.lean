@@ -209,7 +209,7 @@ theorem getLast?_range (n : Nat) : (range n).getLast? = if n = 0 then none else 
 @[simp] theorem getLast_range (n : Nat) (h) : (range n).getLast h = n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range, getLast_eq_iff_getLast_eq_some]
+  | succ n => simp [getLast?_range, getLast_eq_iff_getLast?_eq_some]
 
 /-! ### zipIdx -/
 

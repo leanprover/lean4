@@ -83,10 +83,7 @@ theorem ext' {as bs : Array α} (h : as.toList = bs.toList) : as = bs := by
 @[simp] theorem toArrayAux_eq (as : List α) (acc : Array α) : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
--- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
-theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
-
-@[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [size]
+@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
 
 @[simp] theorem getElem_toList {a : Array α} {i : Nat} (h : i < a.size) : a.toList[i] = a[i] := rfl
 
@@ -115,7 +112,19 @@ end Array
 
 namespace List
 
-@[simp] theorem toArray_toList (a : Array α) : a.toList.toArray = a := rfl
+@[deprecated Array.toArray_toList (since := "2025-02-17")]
+abbrev toArray_toList := @Array.toArray_toList
+
+-- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+theorem toList_toArray (as : List α) : as.toArray.toList = as := rfl
+
+@[deprecated toList_toArray (since := "2025-02-17")]
+abbrev _root_.Array.toList_toArray := @List.toList_toArray
+
+@[simp] theorem size_toArray (as : List α) : as.toArray.size = as.length := by simp [Array.size]
+
+@[deprecated size_toArray (since := "2025-02-17")]
+abbrev _root_.Array.size_toArray := @List.size_toArray
 
 @[simp] theorem getElem_toArray {a : List α} {i : Nat} (h : i < a.toArray.size) :
     a.toArray[i] = a[i]'(by simpa using h) := rfl
@@ -130,7 +139,7 @@ end List
 
 namespace Array
 
-@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @toList_toArray
+@[deprecated toList_toArray (since := "2024-09-09")] abbrev data_toArray := @List.toList_toArray
 
 @[deprecated Array.toList (since := "2024-09-10")] abbrev Array.data := @Array.toList
 

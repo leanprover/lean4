@@ -121,7 +121,7 @@ theorem find?_eq_findSome?_guard (l : List α) : find? p l = findSome? (Option.g
 
 @[simp] theorem getLast_filterMap (f : α → Option β) (l : List α) (h) :
     (l.filterMap f).getLast h = (l.reverse.findSome? f).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp [getLast_eq_iff_getLast_eq_some]
+  simp [getLast_eq_iff_getLast?_eq_some]
 
 @[simp] theorem map_findSome? (f : α → Option β) (g : β → γ) (l : List α) :
     (l.findSome? f).map g = l.findSome? (Option.map g ∘ f) := by
@@ -148,7 +148,7 @@ theorem head_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
 theorem getLast_flatten {L : List (List α)} (h : ∃ l, l ∈ L ∧ l ≠ []) :
     (flatten L).getLast (by simpa using h) =
       (L.reverse.findSome? fun l => l.getLast?).get (by simpa using h) := by
-  simp [getLast_eq_iff_getLast_eq_some, getLast?_flatten]
+  simp [getLast_eq_iff_getLast?_eq_some, getLast?_flatten]
 
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
   cases n with
@@ -313,7 +313,7 @@ theorem get_find?_mem (xs : List α) (p : α → Bool) (h) : (xs.find? p).get h 
 
 @[simp] theorem getLast_filter (p : α → Bool) (l : List α) (h) :
     (l.filter p).getLast h = (l.reverse.find? p).get (by simp_all [Option.isSome_iff_ne_none]) := by
-  simp [getLast_eq_iff_getLast_eq_some]
+  simp [getLast_eq_iff_getLast?_eq_some]
 
 @[simp] theorem find?_filterMap (xs : List α) (f : α → Option β) (p : β → Bool) :
     (xs.filterMap f).find? p = (xs.find? (fun a => (f a).any p)).bind f := by

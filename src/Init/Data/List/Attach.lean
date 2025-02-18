@@ -123,27 +123,26 @@ theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
   | cons a l ih =>
     simp [pmap, attachWith, ih]
 
-theorem attach_map_coe (l : List α) (f : α → β) :
+theorem attach_map_val (l : List α) (f : α → β) :
     (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
   rw [attach, attachWith, map_pmap]; exact pmap_eq_map _ _ _ _
 
-theorem attach_map_val (l : List α) (f : α → β) : (l.attach.map fun i => f i.val) = l.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (l : List α) : l.attach.map Subtype.val = l :=
-  (attach_map_coe _ _).trans (List.map_id _)
+  (attach_map_val _ _).trans (List.map_id _)
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
     ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
   rw [attachWith, map_pmap]; exact pmap_eq_map _ _ _ _
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : List α) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun i => f i.val) = l.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (l : List α) (H : ∀ a ∈ l, p a) :
     (l.attachWith p H).map Subtype.val = l :=
-  (attachWith_map_coe _ _ _).trans (List.map_id _)
+  (attachWith_map_val _ _ _).trans (List.map_id _)
 
 @[simp]
 theorem mem_attach (l : List α) : ∀ x, x ∈ l.attach

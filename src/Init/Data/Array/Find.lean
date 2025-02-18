@@ -86,7 +86,7 @@ theorem getElem_zero_flatten.proof {L : Array (Array α)} (h : 0 < L.flatten.siz
   cases L using array₂_induction
   simp only [List.findSome?_toArray, List.findSome?_map, Function.comp_def, List.getElem?_toArray,
     List.findSome?_isSome_iff, isSome_getElem?]
-  simp only [flatten_toArray_map_toArray, size_toArray, List.length_flatten,
+  simp only [flatten_toArray_map_toArray, List.size_toArray, List.length_flatten,
     Nat.sum_pos_iff_exists_pos, List.mem_map] at h
   obtain ⟨_, ⟨xs, m, rfl⟩, h⟩ := h
   exact ⟨xs, m, by simpa using h⟩

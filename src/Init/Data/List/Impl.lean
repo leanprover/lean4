@@ -94,7 +94,7 @@ The following operations are given `@[csimp]` replacements below:
 @[specialize] def foldrTR (f : α → β → β) (init : β) (l : List α) : β := l.toArray.foldr f init
 
 @[csimp] theorem foldr_eq_foldrTR : @foldr = @foldrTR := by
-  funext α β f init l; simp [foldrTR, ← Array.foldr_toList, -Array.size_toArray]
+  funext α β f init l; simp only [foldrTR, ← Array.foldr_toList]
 
 /-! ### flatMap  -/
 
@@ -327,7 +327,7 @@ def zipIdxTR (l : List α) (n : Nat := 0) : List (α × Nat) :=
   (as.foldr (fun a (n, acc) => (n-1, (a, n-1) :: acc)) (n + as.size, [])).2
 
 @[csimp] theorem zipIdx_eq_zipIdxTR : @zipIdx = @zipIdxTR := by
-  funext α l n; simp [zipIdxTR, -Array.size_toArray]
+  funext α l n; simp only [zipIdxTR, size_toArray]
   let f := fun (a : α) (n, acc) => (n-1, (a, n-1) :: acc)
   let rec go : ∀ l i, l.foldr f (i + l.length, []) = (i, zipIdx l i)
     | [], n => rfl
@@ -348,7 +348,7 @@ def enumFromTR (n : Nat) (l : List α) : List (Nat × α) :=
 set_option linter.deprecated false in
 @[deprecated zipIdx_eq_zipIdxTR (since := "2025-01-21"), csimp]
 theorem enumFrom_eq_enumFromTR : @enumFrom = @enumFromTR := by
-  funext α n l; simp [enumFromTR, -Array.size_toArray]
+  funext α n l; simp only [enumFromTR, size_toArray]
   let f := fun (a : α) (n, acc) => (n-1, (n-1, a) :: acc)
   let rec go : ∀ l n, l.foldr f (n + l.length, []) = (n, enumFrom n l)
     | [], n => rfl

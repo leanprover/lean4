@@ -45,7 +45,7 @@ theorem getLast?_range' (n : Nat) : (range' s n).getLast? = if n = 0 then none e
 @[simp] theorem getLast_range' (n : Nat) (h) : (range' s n).getLast h = s + n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range', getLast_eq_iff_getLast_eq_some]
+  | succ n => simp [getLast?_range', getLast_eq_iff_getLast?_eq_some]
 
 theorem pairwise_lt_range' s n (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=

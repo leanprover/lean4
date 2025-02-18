@@ -531,8 +531,17 @@ theorem elem_eq_mem [BEq α] [LawfulBEq α] (a : α) (as : List α) :
 
 /-! ### `isEmpty` -/
 
-theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
+@[simp] theorem isEmpty_iff {l : List α} : l.isEmpty ↔ l = [] := by
   cases l <;> simp
+
+@[deprecated isEmpty_iff (since := "2025-02-17")]
+abbrev isEmpty_eq_true := @isEmpty_iff
+
+@[simp] theorem isEmpty_eq_false_iff {l : List α} : l.isEmpty = false ↔ l ≠ [] := by
+  cases l <;> simp
+
+@[deprecated isEmpty_eq_false_iff (since := "2025-02-17")]
+abbrev isEmpty_eq_false := @isEmpty_eq_false_iff
 
 theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
     xs.isEmpty = false ↔ ∃ x, x ∈ xs := by
@@ -540,12 +549,6 @@ theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
 
 theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
   rw [isEmpty_iff, length_eq_zero]
-
-@[simp] theorem isEmpty_eq_true {l : List α} : l.isEmpty ↔ l = [] := by
-  cases l <;> simp
-
-@[simp] theorem isEmpty_eq_false {l : List α} : l.isEmpty = false ↔ l ≠ [] := by
-  cases l <;> simp
 
 /-! ### any / all -/
 
@@ -2802,9 +2805,8 @@ theorem getLast_eq_head_reverse {l : List α} (h : l ≠ []) :
     l.getLast h = l.reverse.head (by simp_all) := by
   rw [← head_reverse]
 
-theorem getLast_eq_iff_getLast_eq_some {xs : List α} (h) : xs.getLast h = a ↔ xs.getLast? = some a := by
-  rw [getLast_eq_head_reverse, head_eq_iff_head?_eq_some]
-  simp
+@[deprecated getLast_eq_iff_getLast?_eq_some (since := "2025-02-17")]
+abbrev getLast_eq_iff_getLast_eq_some := @getLast_eq_iff_getLast?_eq_some
 
 @[simp] theorem getLast?_eq_none_iff {xs : List α} : xs.getLast? = none ↔ xs = [] := by
   rw [getLast?_eq_head?_reverse, head?_eq_none_iff, reverse_eq_nil_iff]

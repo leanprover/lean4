@@ -48,6 +48,21 @@ def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : See
   if calls.seen.contains key then return calls
   return { calls := calls.calls.push e, seen := calls.seen.insert key }
 
+/--
+Which functions have exactly one candidate application. Used by `try?` to determine whether
+we can use `fun_induction foo` or need `fun_induction foo x y z`.
+-/
+def SeenCalls.uniques (calls : SeenCalls) : NameSet := Id.run do
+  let mut seen : NameSet := {}
+  let mut seenTwice : NameSet := {}
+  for (n, _) in calls.seen do
+    unless seenTwice.contains n do
+      if seen.contains n then
+        seenTwice := seenTwice.insert n
+      else
+        seen := seen.insert n
+  return seen.filter (! seenTwice.contains ·)
+
 namespace Collector
 
 abbrev M := ReaderT Name <| StateRefT SeenCalls MetaM

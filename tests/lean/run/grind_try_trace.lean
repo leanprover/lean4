@@ -122,8 +122,8 @@ attribute [simp] concat
 
 /--
 info: Try these:
-• (fun_induction concat as a) <;> simp_all
-• (fun_induction concat as a) <;> simp [*]
+• (fun_induction concat) <;> simp_all
+• (fun_induction concat) <;> simp [*]
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -131,9 +131,9 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 
 /--
 info: Try these:
-• (fun_induction concat as a) <;> simp_all
+• (fun_induction concat) <;> simp_all
 • ·
-  fun_induction concat as a
+  fun_induction concat
   · simp
   · simp [*]
 -/
@@ -141,15 +141,28 @@ info: Try these:
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
   try? -only -merge
 
+def map (f : α → β) : List α → List β
+  | [] => []
+  | x::xs => f x :: map f xs
+
+/--
+info: Try these:
+• (fun_induction map) <;> grind [= map]
+• (fun_induction map) <;> grind only [map]
+-/
+#guard_msgs (info) in
+theorem map_map (f : α → β) (g : β → γ) xs :
+  map g (map f xs) = map (fun x => g (f x)) xs := by
+  try? -- NB: Multiple calls to `xs.map`, but they differ only in ignore arguments
+
 
 def foo : Nat → Nat
   | 0   => 1
   | x+1 => foo x - 1
 
-
 /--
 info: Try this: ·
-  fun_induction foo x
+  fun_induction foo
   · grind [= foo]
   · sorry
 -/
@@ -175,11 +188,11 @@ attribute [grind] List.length_reverse bla
 
 /--
 info: Try these:
-• (fun_induction bla xs ys) <;> grind
-• (fun_induction bla xs ys) <;> simp_all
-• (fun_induction bla xs ys) <;> simp [*]
-• (fun_induction bla xs ys) <;> simp only [bla, List.length_reverse, *]
-• (fun_induction bla xs ys) <;> grind only [List.length_reverse, bla]
+• (fun_induction bla) <;> grind
+• (fun_induction bla) <;> simp_all
+• (fun_induction bla) <;> simp [*]
+• (fun_induction bla) <;> simp only [bla, List.length_reverse, *]
+• (fun_induction bla) <;> grind only [List.length_reverse, bla]
 -/
 #guard_msgs (info) in
 example : (bla xs ys).length = ys.length := by

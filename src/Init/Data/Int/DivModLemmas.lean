@@ -481,7 +481,7 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
 @[simp] theorem add_emod_self_left {a b : Int} : (a + b) % a = b % a := by
   rw [Int.add_comm, Int.add_emod_self]
 
-theorem Int.emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
+theorem emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
   Int.add_emod_self.symm
 
 theorem neg_emod {a b : Int} : -a % b = (b - a) % b := by

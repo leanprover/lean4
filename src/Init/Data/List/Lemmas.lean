@@ -224,27 +224,12 @@ theorem getElem_cons {l : List α} (w : i < (a :: l).length) :
       if h : i = 0 then a else l[i-1]'(match i, h with | i+1, _ => succ_lt_succ_iff.mp w) := by
   cases i <;> simp
 
-theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := by
-  simp [getElem?]
+theorem getElem?_cons_zero {l : List α} : (a::l)[0]? = some a := rfl
 
-@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := by
-  simp [getElem?, decidableGetElem?, Nat.succ_lt_succ_iff]
+@[simp] theorem getElem?_cons_succ {l : List α} : (a::l)[i+1]? = l[i]? := rfl
 
 theorem getElem?_cons : (a :: l)[i]? = if i = 0 then some a else l[i-1]? := by
   cases i <;> simp [getElem?_cons_zero]
-
-@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
-  match l with
-  | [] => by simp
-  | _ :: l => by simp
-
-@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
-  simp [eq_comm (a := none)]
-
-theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
-
-@[simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) : l[i]? = some l[i] :=
-  getElem?_pos ..
 
 theorem getElem?_eq_some_iff {l : List α} : l[i]? = some a ↔ ∃ h : i < l.length, l[i] = a :=
   match l with

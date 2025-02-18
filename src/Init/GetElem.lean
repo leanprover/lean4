@@ -247,6 +247,67 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 @[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
 abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
 
+/-! ### getElem?-/
+
+/-- Internal implementation of `as[i]?`. Do not use directly. -/
+def get?Internal : (as : List α) → (i : Nat) → Option α
+  | a::_,  0   => some a
+  | _::as, n+1 => get?Internal as n
+  | _,     _   => none
+
+/-- Internal implementation of `as[i]!`. Do not use directly. -/
+def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
+  | a::_,  0   => a
+  | _::as, n+1 => get!Internal as n
+  | _,     _   => panic! "invalid index"
+
+/-- This instance overrides the default implementation of `a[i]?` via `decidableGetElem?`,
+giving better definitional equalities. -/
+instance : GetElem? (List α) Nat α fun as i => i < as.length where
+  getElem? as i := as.get?Internal i
+  getElem! as i := as.get!Internal i
+
+@[simp] theorem get?Internal_eq_getElem? {l : List α} {i : Nat} :
+    l.get?Internal i = l[i]? := rfl
+
+@[simp] theorem get!Internal_eq_getElem! [Inhabited α] {l : List α} {i : Nat} :
+    l.get!Internal i = l[i]! := rfl
+
+@[simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) :
+    l[i]? = some l[i] := by
+  induction l generalizing i with
+  | nil => cases h
+  | cons a l ih =>
+    cases i with
+    | zero => rfl
+    | succ i => exact ih ..
+
+@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
+  match l with
+  | [] => by simp; rfl
+  | _ :: l => by
+    cases i with
+    | zero => simp
+    | succ i =>
+      simp only [length_cons, Nat.add_le_add_iff_right]
+      exact getElem?_eq_none_iff (l := l) (i := i)
+
+@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
+  simp [eq_comm (a := none)]
+
+theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
+
+instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
+  getElem?_def as i h := by
+    split <;> simp_all
+  getElem!_def as i := by
+    induction as generalizing i with
+    | nil => rfl
+    | cons a as ih =>
+      cases i with
+      | zero => rfl
+      | succ i => simpa using ih i
+
 end List
 
 namespace Array

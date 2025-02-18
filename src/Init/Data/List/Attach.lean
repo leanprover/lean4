@@ -233,13 +233,7 @@ theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : List α} (h
     rcases i with ⟨i⟩
     · simp only [Option.pmap]
       split <;> simp_all
-    · simp only [hl, pmap, Option.pmap, getElem?_cons_succ]
-      split <;> rename_i h₁ _ <;> split <;> rename_i h₂ _
-      · simp_all
-      · simp at h₂
-        simp_all
-      · simp_all
-      · simp_all
+    · simp only [pmap, getElem?_cons_succ, hl, Option.pmap]
 
 set_option linter.deprecated false in
 @[deprecated List.getElem?_pmap (since := "2025-02-12")]

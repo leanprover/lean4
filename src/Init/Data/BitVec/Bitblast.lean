@@ -1308,8 +1308,7 @@ theorem getElem_smod {n d : BitVec w} (hi : i < w) :
       let u := (-n).umod d;
       if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d)))[i] := by
-  rw [smod_eq]
-  cases n.msb  <;> cases d.msb <;> simp
+  rfl
 
 theorem getLsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getLsbD i
@@ -1322,8 +1321,7 @@ theorem getLsbD_smod {n d : BitVec w} :
       let u := (-n).umod d;
       if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).getLsbD i := by
-  rw [smod_eq]
-  cases n.msb  <;> cases d.msb <;> simp
+  rfl
 
 theorem getMsbD_smod {n d : BitVec w} :
     (BitVec.smod n d).getMsbD i
@@ -1336,8 +1334,7 @@ theorem getMsbD_smod {n d : BitVec w} :
       let u := (-n).umod d;
       if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).getMsbD i := by
-  rw [smod_eq]
-  cases n.msb  <;> cases d.msb <;> simp
+  rfl
 
 theorem msb_smod {n d : BitVec w} :
     (BitVec.smod n d).msb
@@ -1351,6 +1348,6 @@ theorem msb_smod {n d : BitVec w} :
       if u = 0#w then u else d - u
     | true, true => (-(-n).umod (-d))).msb
     := by
-  simp [BitVec.msb, getMsbD_smod]
+  rfl
 
 end BitVec

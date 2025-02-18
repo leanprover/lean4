@@ -19,7 +19,7 @@ abbrev DvdCnstrWithProof.isTrivial (cₚ : DvdCnstrWithProof) : Bool :=
 def DvdCnstrWithProof.norm (cₚ : DvdCnstrWithProof) : DvdCnstrWithProof :=
   let cₚ := if cₚ.c.isSorted then cₚ else { cₚ with c.p := cₚ.c.p.norm, h := .norm cₚ }
   let g := cₚ.c.p.gcdCoeffs cₚ.c.k
-  if cₚ.c.p.getConst % g == 0 then
+  if cₚ.c.p.getConst % g == 0 && g != 1 then
     { cₚ with c := cₚ.c.div g, h := .divCoeffs cₚ }
   else
     cₚ

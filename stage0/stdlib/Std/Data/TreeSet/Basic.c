@@ -22057,7 +22057,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minKey_x21___at_Std_TreeSet_min_x21___spec__1___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_minKey_x21___at_Std_TreeSet_min_x21___spec__1___rarg___closed__2;
-x_3 = lean_unsigned_to_nat(288u);
+x_3 = lean_unsigned_to_nat(296u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minKey_x21___at_Std_TreeSet_min_x21___spec__1___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -22363,7 +22363,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Std_DTreeMap_Internal_Impl_minKey_x21___at_Std_TreeSet_min_x21___spec__1___rarg___closed__1;
 x_2 = l_Std_DTreeMap_Internal_Impl_maxKey_x21___at_Std_TreeSet_max_x21___spec__1___rarg___closed__1;
-x_3 = lean_unsigned_to_nat(311u);
+x_3 = lean_unsigned_to_nat(319u);
 x_4 = lean_unsigned_to_nat(13u);
 x_5 = l_Std_DTreeMap_Internal_Impl_minKey_x21___at_Std_TreeSet_min_x21___spec__1___rarg___closed__3;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);

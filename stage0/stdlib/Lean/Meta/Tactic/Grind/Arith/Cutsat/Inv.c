@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
-// Imports: Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+// Imports: Lean.Meta.Tactic.Grind.Arith.Cutsat.Util Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -44,7 +44,6 @@ extern lean_object* l_instInhabitedPUnit;
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forIn___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__16;
 size_t lean_usize_of_nat(lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isSorted_go(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentArray_forInAux___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_Meta_Grind_Arith_Cutsat_checkVars___spec__5___rarg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Int_Linear_Poly_checkCoeffs___closed__1;
@@ -52,7 +51,6 @@ LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__5;
 lean_object* lean_nat_to_int(lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isSorted___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux_traverse___at_Lean_Meta_Grind_Arith_Cutsat_checkVars___spec__6___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_forIn___at_Lean_Meta_Grind_Arith_Cutsat_checkVars___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -85,14 +83,13 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cuts
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__12;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__3;
 lean_object* lean_panic_fn(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isSorted(lean_object*);
+uint8_t l_Int_Linear_Poly_isSorted(lean_object*);
 uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__5___boxed(lean_object**);
 static lean_object* l_panic___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__1___closed__5;
 static lean_object* l_panic___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__1___closed__4;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_get_x21___rarg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isSorted_go___boxed(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 static lean_object* l_panic___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__1___closed__2;
 lean_object* lean_array_uget(lean_object*, size_t);
@@ -120,126 +117,6 @@ lean_object* l_ReaderT_instMonad___rarg(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__8;
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_panic___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__1___closed__1;
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isSorted_go(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-if (lean_obj_tag(x_2) == 0)
-{
-uint8_t x_3; 
-x_3 = 1;
-return x_3;
-}
-else
-{
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_ctor_get(x_2, 1);
-x_5 = lean_ctor_get(x_2, 2);
-lean_inc(x_4);
-x_6 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_6, 0, x_4);
-x_1 = x_6;
-x_2 = x_5;
-goto _start;
-}
-}
-else
-{
-if (lean_obj_tag(x_2) == 0)
-{
-uint8_t x_8; 
-lean_dec(x_1);
-x_8 = 1;
-return x_8;
-}
-else
-{
-uint8_t x_9; 
-x_9 = !lean_is_exclusive(x_1);
-if (x_9 == 0)
-{
-lean_object* x_10; lean_object* x_11; lean_object* x_12; uint8_t x_13; 
-x_10 = lean_ctor_get(x_1, 0);
-x_11 = lean_ctor_get(x_2, 1);
-x_12 = lean_ctor_get(x_2, 2);
-x_13 = lean_nat_dec_lt(x_11, x_10);
-lean_dec(x_10);
-if (x_13 == 0)
-{
-uint8_t x_14; 
-lean_free_object(x_1);
-x_14 = 0;
-return x_14;
-}
-else
-{
-lean_inc(x_11);
-lean_ctor_set(x_1, 0, x_11);
-x_2 = x_12;
-goto _start;
-}
-}
-else
-{
-lean_object* x_16; lean_object* x_17; lean_object* x_18; uint8_t x_19; 
-x_16 = lean_ctor_get(x_1, 0);
-lean_inc(x_16);
-lean_dec(x_1);
-x_17 = lean_ctor_get(x_2, 1);
-x_18 = lean_ctor_get(x_2, 2);
-x_19 = lean_nat_dec_lt(x_17, x_16);
-lean_dec(x_16);
-if (x_19 == 0)
-{
-uint8_t x_20; 
-x_20 = 0;
-return x_20;
-}
-else
-{
-lean_object* x_21; 
-lean_inc(x_17);
-x_21 = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(x_21, 0, x_17);
-x_1 = x_21;
-x_2 = x_18;
-goto _start;
-}
-}
-}
-}
-}
-}
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isSorted_go___boxed(lean_object* x_1, lean_object* x_2) {
-_start:
-{
-uint8_t x_3; lean_object* x_4; 
-x_3 = l_Int_Linear_Poly_isSorted_go(x_1, x_2);
-lean_dec(x_2);
-x_4 = lean_box(x_3);
-return x_4;
-}
-}
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isSorted(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; uint8_t x_3; 
-x_2 = lean_box(0);
-x_3 = l_Int_Linear_Poly_isSorted_go(x_2, x_1);
-return x_3;
-}
-}
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isSorted___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Int_Linear_Poly_isSorted(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 static lean_object* _init_l_Int_Linear_Poly_checkCoeffs___closed__1() {
 _start:
 {
@@ -705,7 +582,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(37u);
+x_3 = lean_unsigned_to_nat(26u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -736,7 +613,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(38u);
+x_3 = lean_unsigned_to_nat(27u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__9;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -776,7 +653,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(39u);
+x_3 = lean_unsigned_to_nat(28u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__13;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -797,7 +674,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(40u);
+x_3 = lean_unsigned_to_nat(29u);
 x_4 = lean_unsigned_to_nat(30u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__15;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -828,7 +705,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(41u);
+x_3 = lean_unsigned_to_nat(30u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__18;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -2084,7 +1961,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
-x_3 = lean_unsigned_to_nat(33u);
+x_3 = lean_unsigned_to_nat(22u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3203,7 +3080,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(52u);
+x_3 = lean_unsigned_to_nat(41u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__15;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3234,7 +3111,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(50u);
+x_3 = lean_unsigned_to_nat(39u);
 x_4 = lean_unsigned_to_nat(6u);
 x_5 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__4;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3361,7 +3238,7 @@ _start:
 lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
 x_1 = l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__5;
 x_2 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___closed__1;
-x_3 = lean_unsigned_to_nat(54u);
+x_3 = lean_unsigned_to_nat(43u);
 x_4 = lean_unsigned_to_nat(2u);
 x_5 = l_Lean_Meta_Grind_Arith_Cutsat_checkVars___closed__2;
 x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
@@ -3598,12 +3475,16 @@ return x_16;
 }
 }
 lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(uint8_t builtin, lean_object*);
+lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Inv(uint8_t builtin, lean_object* w) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Var(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Int_Linear_Poly_checkCoeffs___closed__1 = _init_l_Int_Linear_Poly_checkCoeffs___closed__1();

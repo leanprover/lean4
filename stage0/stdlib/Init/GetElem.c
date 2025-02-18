@@ -41,6 +41,7 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__69;
 LEAN_EXPORT lean_object* l_Array_instGetElem_x3fNatLtSize___lambda__1___boxed(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__6;
 lean_object* l_Array_get_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2;
 static lean_object* l_term_____x5b___x5d___x3f___closed__5;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__13;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__6;
@@ -68,6 +69,7 @@ lean_object* l_Array_get___boxed(lean_object*, lean_object*, lean_object*, lean_
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__24;
 LEAN_EXPORT lean_object* l_decidableGetElem_x3f___rarg(lean_object*, lean_object*, lean_object*, uint8_t);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__4;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__19;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__22;
@@ -102,11 +104,13 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__48;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__40;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__52;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__26;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__10;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__58;
 static lean_object* l_term_____x5b___x5d_x27_____closed__3;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__16;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__56;
+LEAN_EXPORT lean_object* l_List_instGetElem_x3fNatLtLength(lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__28;
 lean_object* lean_string_utf8_byte_size(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__57;
@@ -131,6 +135,7 @@ static lean_object* l_term_____x5b___x5d___x3f___closed__12;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__13;
 static lean_object* l_term_____x5b___x5d___closed__1;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__9;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_GetElem_0__GetElem_x3f_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__26;
 static lean_object* l_term_____x5b___x5d___closed__3;
@@ -149,13 +154,16 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__44;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__25;
 LEAN_EXPORT lean_object* l___auto____x40_Init_GetElem___hyg_1443_;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__1;
+static lean_object* l_List_instGetElem_x3fNatLtLength___closed__2;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__39;
+static lean_object* l_List_instGetElem_x3fNatLtLength___closed__4;
 LEAN_EXPORT lean_object* l_outOfBounds___rarg(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__8;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__63;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__4;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__13;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__75;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__8;
 LEAN_EXPORT lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__7;
@@ -200,6 +208,7 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__28;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__3;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__1;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d__1___closed__12;
+static lean_object* l_List_instGetElem_x3fNatLtLength___closed__3;
 LEAN_EXPORT lean_object* l_Fin_instGetElemFinVal(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__21;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__50;
@@ -213,14 +222,18 @@ static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__38;
 LEAN_EXPORT lean_object* l___auto____x40_Init_GetElem___hyg_1442_;
 static lean_object* l_term_____x5b___x5d___closed__9;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__10;
+static lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3;
 static lean_object* l_Array_instGetElemNatLtSize___closed__1;
 LEAN_EXPORT lean_object* l_Fin_instGetElem_x3fFinVal___rarg(lean_object*);
 static lean_object* l_term_____x5b___x5d___x3f___closed__9;
 static lean_object* l_term_____x5b___x5d_x27_____closed__5;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__66;
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__8;
+static lean_object* l_List_instGetElem_x3fNatLtLength___closed__1;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__3;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1___closed__4;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal(lean_object*);
+uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instGetElem_x3fFinVal___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_term_____x5b___x5d___closed__13;
@@ -249,6 +262,7 @@ static lean_object* l_term_____x5b___x5d_x27_____closed__1;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__67;
 static lean_object* l_term_____x5b___x5d___closed__21;
 static lean_object* l_term_____x5b___x5d___x3f___closed__2;
+lean_object* lean_nat_sub(lean_object*, lean_object*);
 static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__4;
 LEAN_EXPORT lean_object* l_List_instGetElemNatLtLength___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__71;
@@ -263,6 +277,7 @@ static lean_object* l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem_
 static lean_object* l_term_____x5b___x5d_x27_____closed__8;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__2;
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__49;
+static lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1;
 static lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x3f__1___closed__2;
 LEAN_EXPORT lean_object* l_List_instGetElemNatLtLength(lean_object*);
 static lean_object* l_term_____x5b___x5d___x21___closed__5;
@@ -300,6 +315,7 @@ lean_object* l_String_toSubstring_x27(lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1443____closed__10;
 LEAN_EXPORT lean_object* l_term_____x5b___x5d;
 static lean_object* l_term_____x5b___x5d___x3f___closed__8;
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_GetElem___hyg_1442____closed__30;
 LEAN_EXPORT lean_object* l___aux__Init__GetElem______macroRules__term_____x5b___x5d___x21__1(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Fin_instGetElem_x3fFinVal___rarg___lambda__1(lean_object*, lean_object*, lean_object*);
@@ -3456,6 +3472,192 @@ lean_dec(x_1);
 return x_4;
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+if (lean_obj_tag(x_1) == 0)
+{
+lean_object* x_3; 
+lean_dec(x_2);
+x_3 = lean_box(0);
+return x_3;
+}
+else
+{
+lean_object* x_4; lean_object* x_5; lean_object* x_6; uint8_t x_7; 
+x_4 = lean_ctor_get(x_1, 0);
+x_5 = lean_ctor_get(x_1, 1);
+x_6 = lean_unsigned_to_nat(0u);
+x_7 = lean_nat_dec_eq(x_2, x_6);
+if (x_7 == 0)
+{
+lean_object* x_8; lean_object* x_9; 
+x_8 = lean_unsigned_to_nat(1u);
+x_9 = lean_nat_sub(x_2, x_8);
+lean_dec(x_2);
+x_1 = x_5;
+x_2 = x_9;
+goto _start;
+}
+else
+{
+lean_object* x_11; 
+lean_dec(x_2);
+lean_inc(x_4);
+x_11 = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(x_11, 0, x_4);
+return x_11;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_GetElem_0__List_get_x3fInternal___rarg___boxed), 2, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x3fInternal___rarg___boxed(lean_object* x_1, lean_object* x_2) {
+_start:
+{
+lean_object* x_3; 
+x_3 = l___private_Init_GetElem_0__List_get_x3fInternal___rarg(x_1, x_2);
+lean_dec(x_1);
+return x_3;
+}
+}
+static lean_object* _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("_private.Init.GetElem.0.List.get!Internal", 41, 41);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_mk_string_unchecked("invalid index", 13, 13);
+return x_1;
+}
+}
+static lean_object* _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; lean_object* x_5; lean_object* x_6; 
+x_1 = l_outOfBounds___rarg___closed__1;
+x_2 = l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1;
+x_3 = lean_unsigned_to_nat(262u);
+x_4 = lean_unsigned_to_nat(18u);
+x_5 = l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2;
+x_6 = l___private_Init_Util_0__mkPanicMessageWithDecl(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (lean_obj_tag(x_2) == 0)
+{
+lean_object* x_4; lean_object* x_5; 
+lean_dec(x_3);
+x_4 = l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3;
+x_5 = l_panic___rarg(x_1, x_4);
+return x_5;
+}
+else
+{
+lean_object* x_6; lean_object* x_7; lean_object* x_8; uint8_t x_9; 
+x_6 = lean_ctor_get(x_2, 0);
+x_7 = lean_ctor_get(x_2, 1);
+x_8 = lean_unsigned_to_nat(0u);
+x_9 = lean_nat_dec_eq(x_3, x_8);
+if (x_9 == 0)
+{
+lean_object* x_10; lean_object* x_11; 
+x_10 = lean_unsigned_to_nat(1u);
+x_11 = lean_nat_sub(x_3, x_10);
+lean_dec(x_3);
+x_2 = x_7;
+x_3 = x_11;
+goto _start;
+}
+else
+{
+lean_dec(x_3);
+lean_dec(x_1);
+lean_inc(x_6);
+return x_6;
+}
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+lean_object* x_4; 
+x_4 = l___private_Init_GetElem_0__List_get_x21Internal___rarg(x_1, x_2, x_3);
+lean_dec(x_2);
+return x_4;
+}
+}
+static lean_object* _init_l_List_instGetElem_x3fNatLtLength___closed__1() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l_List_instGetElemNatLtLength___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_List_instGetElem_x3fNatLtLength___closed__2() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Init_GetElem_0__List_get_x3fInternal___rarg___boxed), 2, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_List_instGetElem_x3fNatLtLength___closed__3() {
+_start:
+{
+lean_object* x_1; 
+x_1 = lean_alloc_closure((void*)(l___private_Init_GetElem_0__List_get_x21Internal___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+static lean_object* _init_l_List_instGetElem_x3fNatLtLength___closed__4() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_1 = l_List_instGetElem_x3fNatLtLength___closed__1;
+x_2 = l_List_instGetElem_x3fNatLtLength___closed__2;
+x_3 = l_List_instGetElem_x3fNatLtLength___closed__3;
+x_4 = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(x_4, 0, x_1);
+lean_ctor_set(x_4, 1, x_2);
+lean_ctor_set(x_4, 2, x_3);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_List_instGetElem_x3fNatLtLength(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_List_instGetElem_x3fNatLtLength___closed__4;
+return x_2;
+}
+}
 static lean_object* _init_l_Array_instGetElemNatLtSize___closed__1() {
 _start:
 {
@@ -4038,6 +4240,20 @@ l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1_
 lean_mark_persistent(l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__20);
 l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__21 = _init_l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__21();
 lean_mark_persistent(l_Fin___aux__Init__GetElem______macroRules__tacticGet__elem__tactic__trivial__1___closed__21);
+l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1 = _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1();
+lean_mark_persistent(l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__1);
+l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2 = _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2();
+lean_mark_persistent(l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__2);
+l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3 = _init_l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3();
+lean_mark_persistent(l___private_Init_GetElem_0__List_get_x21Internal___rarg___closed__3);
+l_List_instGetElem_x3fNatLtLength___closed__1 = _init_l_List_instGetElem_x3fNatLtLength___closed__1();
+lean_mark_persistent(l_List_instGetElem_x3fNatLtLength___closed__1);
+l_List_instGetElem_x3fNatLtLength___closed__2 = _init_l_List_instGetElem_x3fNatLtLength___closed__2();
+lean_mark_persistent(l_List_instGetElem_x3fNatLtLength___closed__2);
+l_List_instGetElem_x3fNatLtLength___closed__3 = _init_l_List_instGetElem_x3fNatLtLength___closed__3();
+lean_mark_persistent(l_List_instGetElem_x3fNatLtLength___closed__3);
+l_List_instGetElem_x3fNatLtLength___closed__4 = _init_l_List_instGetElem_x3fNatLtLength___closed__4();
+lean_mark_persistent(l_List_instGetElem_x3fNatLtLength___closed__4);
 l_Array_instGetElemNatLtSize___closed__1 = _init_l_Array_instGetElemNatLtSize___closed__1();
 lean_mark_persistent(l_Array_instGetElemNatLtSize___closed__1);
 l_Array_instGetElem_x3fNatLtSize___closed__1 = _init_l_Array_instGetElem_x3fNatLtSize___closed__1();

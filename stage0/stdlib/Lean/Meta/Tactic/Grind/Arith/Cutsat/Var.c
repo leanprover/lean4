@@ -36,7 +36,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toPoly(lean_object*, lea
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkVar(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
-static lean_object* l_Int_Linear_Poly_isZero___closed__1;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkVar___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkVar___lambda__2___closed__7;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__6(lean_object*, size_t, lean_object*);
@@ -45,7 +44,7 @@ static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isMul_x3f___closed__3;
 lean_object* l_Lean_stringToMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isAdd_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__5___boxed(lean_object*, lean_object*);
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isZero(lean_object*);
+uint8_t l_Int_Linear_Poly_isZero(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isInt___closed__3;
@@ -75,7 +74,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isMul_x3f___lambda__1___
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 uint8_t l_Lean_Meta_Grind_isSameExpr_unsafe__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__6___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isZero___boxed(lean_object*);
 lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
@@ -88,6 +86,7 @@ lean_object* l_Lean_Meta_isInstHMulInt(lean_object*, lean_object*, lean_object*,
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__2___closed__2;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_mkVar___lambda__2___closed__2;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAtCollisionNodeAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__4(lean_object*, lean_object*, lean_object*, lean_object*);
+static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isMul_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__2___closed__4;
@@ -117,7 +116,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*, lean_object*);
 size_t lean_usize_shift_left(size_t, size_t);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isInt___closed__1;
-uint8_t lean_int_dec_eq(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isAdd_x3f___lambda__3___closed__1;
@@ -134,44 +132,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_addMonomial(lean_object*
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_isAdd_x3f___closed__2;
 size_t lean_usize_land(size_t, size_t);
-static lean_object* _init_l_Int_Linear_Poly_isZero___closed__1() {
-_start:
-{
-lean_object* x_1; lean_object* x_2; 
-x_1 = lean_unsigned_to_nat(0u);
-x_2 = lean_nat_to_int(x_1);
-return x_2;
-}
-}
-LEAN_EXPORT uint8_t l_Int_Linear_Poly_isZero(lean_object* x_1) {
-_start:
-{
-if (lean_obj_tag(x_1) == 0)
-{
-lean_object* x_2; lean_object* x_3; uint8_t x_4; 
-x_2 = lean_ctor_get(x_1, 0);
-x_3 = l_Int_Linear_Poly_isZero___closed__1;
-x_4 = lean_int_dec_eq(x_2, x_3);
-return x_4;
-}
-else
-{
-uint8_t x_5; 
-x_5 = 0;
-return x_5;
-}
-}
-}
-LEAN_EXPORT lean_object* l_Int_Linear_Poly_isZero___boxed(lean_object* x_1) {
-_start:
-{
-uint8_t x_2; lean_object* x_3; 
-x_2 = l_Int_Linear_Poly_isZero(x_1);
-lean_dec(x_1);
-x_3 = lean_box(x_2);
-return x_3;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux_traverse___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__3(size_t x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5, lean_object* x_6) {
 _start:
 {
@@ -3275,7 +3235,16 @@ static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1() {
 _start:
 {
 lean_object* x_1; lean_object* x_2; 
-x_1 = l_Int_Linear_Poly_isZero___closed__1;
+x_1 = lean_unsigned_to_nat(0u);
+x_2 = lean_nat_to_int(x_1);
+return x_2;
+}
+}
+static lean_object* _init_l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2() {
+_start:
+{
+lean_object* x_1; lean_object* x_2; 
+x_1 = l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1;
 x_2 = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(x_2, 0, x_1);
 return x_2;
@@ -3306,7 +3275,7 @@ lean_object* x_13; lean_object* x_14; lean_object* x_15;
 x_13 = lean_ctor_get(x_11, 1);
 lean_inc(x_13);
 lean_dec(x_11);
-x_14 = l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1;
+x_14 = l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2;
 x_15 = l_Lean_Meta_Grind_Arith_Cutsat_addMonomial(x_1, x_14, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_13);
 return x_15;
 }
@@ -3325,7 +3294,7 @@ lean_inc(x_18);
 x_19 = lean_ctor_get(x_16, 1);
 lean_inc(x_19);
 lean_dec(x_16);
-x_20 = l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1;
+x_20 = l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2;
 lean_inc(x_9);
 lean_inc(x_8);
 lean_inc(x_7);
@@ -3425,8 +3394,6 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Grind_Arith_Cutsat_Util(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Int_Linear_Poly_isZero___closed__1 = _init_l_Int_Linear_Poly_isZero___closed__1();
-lean_mark_persistent(l_Int_Linear_Poly_isZero___closed__1);
 l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__1 = _init_l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__1();
 l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__2 = _init_l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__2();
 l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__3 = _init_l_Lean_PersistentHashMap_insertAux___at_Lean_Meta_Grind_Arith_Cutsat_mkVar___spec__2___closed__3();
@@ -3485,6 +3452,8 @@ l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__2___closed__4 = _init_l_Lea
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_addMonomial___lambda__2___closed__4);
 l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1 = _init_l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1();
 lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__1);
+l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2 = _init_l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2();
+lean_mark_persistent(l_Lean_Meta_Grind_Arith_Cutsat_toPoly___closed__2);
 return lean_io_result_mk_ok(lean_box(0));
 }
 #ifdef __cplusplus

@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Lemmas
 import Init.Data.List.Nat.TakeDrop
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-! ### Lexicographic ordering -/
@@ -167,7 +170,7 @@ protected theorem lt_of_le_of_lt [DecidableEq α] [LT α] [DecidableLT α]
   induction h₂ generalizing l₁ with
   | nil => simp_all
   | rel hab =>
-    rename_i a b
+    rename_i a xs
     cases l₁ with
     | nil => simp_all
     | cons c l₁ =>

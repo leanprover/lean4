@@ -608,7 +608,7 @@ where
     let mut terms := #[]
     for major in c.majors do
       let localDecl ← major.getDecl
-      terms := terms.push (← `($(mkIdent localDecl.userName):term))
+      terms := terms.push (← `(Parser.Tactic.elimTarget| $(mkIdent localDecl.userName):term))
     let indFn ← toIdent c.funIndDeclName
     `(tactic| induction $terms,* using $indFn <;> $cont)
 

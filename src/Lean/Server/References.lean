@@ -209,7 +209,7 @@ def getModuleContainingDecl? (env : Environment) (declName : Name) : Option Name
   if env.constants.map₂.contains declName then
     return env.header.mainModule
   let modIdx ← env.getModuleIdxFor? declName
-  env.allImportedModuleNames.get? modIdx
+  env.allImportedModuleNames[modIdx]?
 
 /--
 Determines the `RefIdent` for the `Info` `i` of an identifier in `module` and

@@ -112,7 +112,7 @@ def resolveCompletionItem?
     (completionInfoPos : Nat)
     : IO CompletionItem := do
   let completionInfos := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
-  let some i := completionInfos.get? completionInfoPos
+  let some i := completionInfos[completionInfoPos]?
     | return item
   i.ctx.runMetaM i.info.lctx (item.resolve id)
 

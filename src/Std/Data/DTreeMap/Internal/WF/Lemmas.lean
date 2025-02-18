@@ -34,10 +34,6 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 namespace Std.DTreeMap.Internal.Impl
 open Std.Internal
 
-@[simp] theorem toListModel_leaf : (.leaf : Impl α β).toListModel = [] := rfl
-@[simp] theorem toListModel_inner {sz k v l r} :
-  (.inner sz k v l r : Impl α β).toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := rfl
-
 /-!
 ## `toListModel` for balancing operations
 -/
@@ -137,46 +133,6 @@ theorem toListModel_link [Ord α] {k v} {l r : Impl α β} {hl hr} :
     rw [toListModel_link]
     simp
 termination_by sizeOf l + sizeOf r
-
-/-!
-## Lemmas about the `Ordered` predicate
--/
-
-theorem Ordered.left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered) :
-    l.Ordered :=
-  h.sublist (by simp)
-
-theorem Ordered.right [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered) :
-    r.Ordered :=
-  h.sublist (by simp)
-
-theorem Ordered.compare_left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered)
-    {k'} (hk' : k' ∈ l.toListModel) : compare k'.1 k = .lt :=
-  h.rel_of_mem_append hk' (List.mem_cons_self _ _)
-
-theorem Ordered.compare_left_beq_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
-    {sz k' v' l r} (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
-    (p) (hp : p ∈ l.toListModel) : k p.1 == .gt :=
- beq_iff_eq.2 (IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp)))
-
-theorem Ordered.compare_left_not_beq_eq [Ord α] [TransOrd α] {k : α → Ordering}
-    [IsStrictCut compare k] {sz k' v' l r}
-    (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
-    (p) (hp : p ∈ l.toListModel) : ¬(k p.1 == .eq) := by
-  suffices k p.fst = .gt by simp [this, OrientedCmp.eq_comm (a := k)]
-  exact IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp))
-
-theorem Ordered.compare_right [Ord α] {sz k v l r}
-    (h : (.inner sz k v l r : Impl α β).Ordered) {k'} (hk' : k' ∈ r.toListModel) :
-    compare k k'.1 = .lt := by
-  exact List.rel_of_pairwise_cons (h.sublist (List.sublist_append_right _ _)) hk'
-
-theorem Ordered.compare_right_not_beq_gt [Ord α] [TransOrd α] {k : α → Ordering}
-    [IsStrictCut compare k] {sz k' v' l r}
-    (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isLE)
-    (p) (hp : p ∈ r.toListModel) : ¬(k p.1 == .gt) := by
-  suffices k p.fst = .lt by simp [this]
-  exact IsStrictCut.lt_of_isLE_of_lt hcmp (ho.compare_right hp)
 
 /-!
 ## Verification of model functions
@@ -289,25 +245,25 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
   induction l, hlb using updateCell.induct k f
   · simp_all [updateCell]
   · simp_all [updateCell]
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_balance, toListModel_filter_gt_of_lt hcmp hlo,
       toListModel_filter_lt_of_lt hcmp hlo, findCell_of_lt hcmp hlo, ih hlo.left]
     simp
-  · rename_i sz k' v' l r hl hcmp hf hl'
+  · rename_i sz k' v' l r hl hcmp hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_glue, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       hf, toListModel_filter_lt_of_eq hcmp hlo]
     simp
-  · rename_i sz k' v' l r hl hcmp k'' v'' hf hl'
+  · rename_i sz k' v' l r hl hcmp k'' v'' hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_inner, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       toListModel_filter_lt_of_eq hcmp hlo, hf]
     simp
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_filter_gt_of_gt hcmp hlo, findCell_of_gt hcmp hlo,

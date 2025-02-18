@@ -124,7 +124,7 @@ theorem range_succ_eq_map (n : Nat) : range (n + 1) = #[0] ++ map succ (range n)
   ext i h₁ h₂
   · simp
     omega
-  · simp only [getElem_range, getElem_append, size_toArray, List.length_cons, List.length_nil,
+  · simp only [getElem_range, getElem_append, List.size_toArray, List.length_cons, List.length_nil,
       Nat.zero_add, lt_one_iff, List.getElem_toArray, List.getElem_singleton, getElem_map,
       succ_eq_add_one, dite_eq_ite]
     split <;> omega
@@ -290,7 +290,7 @@ theorem zipIdx_eq_append_iff {l : Array α} {k : Nat} :
   · rintro ⟨l₁', l₂', rfl, rfl, rfl⟩
     exact ⟨⟨l₁'⟩, ⟨l₂'⟩, by simp⟩
   · rintro ⟨⟨l₁'⟩, ⟨l₂'⟩, rfl, h⟩
-    simp only [zipIdx_toArray, mk.injEq, size_toArray] at h
+    simp only [zipIdx_toArray, mk.injEq, List.size_toArray] at h
     obtain ⟨rfl, rfl⟩ := h
     exact ⟨l₁', l₂', by simp⟩
 

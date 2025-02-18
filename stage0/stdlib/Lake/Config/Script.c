@@ -20,9 +20,9 @@ static lean_object* l_Lake_instInhabitedScript___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedScript___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedScript___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedScript___lambda__1(lean_object*, lean_object*, lean_object*);
+uint32_t lean_uint32_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Script_run(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedScript___closed__1;
-uint32_t lean_uint32_of_nat(lean_object*);
 static uint32_t _init_l_Lake_instInhabitedScript___lambda__1___closed__1() {
 _start:
 {

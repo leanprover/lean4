@@ -27,7 +27,6 @@ static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Tactic_Ext_mkExt
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____closed__13;
 LEAN_EXPORT lean_object* l_Lean_getConstInfoInduct___at_Lean_Elab_Tactic_Ext_realizeExtTheorem___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____lambda__13(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Linear_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__12;
 uint8_t l_Lean_PersistentHashMap_contains___at_Lean_NameSSet_contains___spec__2(lean_object*, lean_object*);
 lean_object* l_Lean_MapDeclarationExtension_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -121,6 +120,7 @@ static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___close
 lean_object* lean_mk_array(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__21;
 uint8_t lean_usize_dec_eq(size_t, size_t);
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(lean_object*, uint8_t, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__2;
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExtN___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -422,7 +422,6 @@ LEAN_EXPORT lean_object* l_List_forIn_x27_loop___at_Lean_Elab_Tactic_Ext_withExt
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__52;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__30;
 LEAN_EXPORT lean_object* l_Lean_Elab_liftMacroM___at_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____spec__1___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Linear_withAbstractAtoms_go___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_withExt1___at_Lean_Elab_Tactic_Ext_withExtN___spec__3(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____lambda__7(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____lambda__11___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -645,6 +644,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Elab_addMacroStack___at_Lean_Elab_Command_instAddErrorMessageContextCommandElabM___spec__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Elab_Tactic_Ext_evalExt_declRange__1___closed__5;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtIffTheorem___lambda__1___closed__62;
+lean_object* l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____closed__15;
 static lean_object* l_Lean_Elab_Tactic_Ext_realizeExtTheorem___lambda__2___closed__12;
 static lean_object* l_Lean_Elab_Tactic_Ext_initFn____x40_Lean_Elab_Tactic_Ext___hyg_3067____lambda__3___closed__3;
@@ -1160,7 +1160,7 @@ lean_closure_set(x_15, 5, x_5);
 x_16 = l_Lean_Elab_Tactic_Ext_withExtHyps___rarg___lambda__3___closed__2;
 x_17 = 1;
 x_18 = 0;
-x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_Linear_withAbstractAtoms_go___spec__1___rarg(x_16, x_17, x_6, x_15, x_18, x_8, x_9, x_10, x_11, x_12);
+x_19 = l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg(x_16, x_17, x_6, x_15, x_18, x_8, x_9, x_10, x_11, x_12);
 return x_19;
 }
 }
@@ -1215,7 +1215,7 @@ x_20 = 1;
 x_21 = 0;
 x_22 = lean_box(x_20);
 x_23 = lean_box(x_21);
-x_24 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at_Lean_Meta_Linear_withAbstractAtoms_go___spec__1___rarg___boxed), 10, 5);
+x_24 = lean_alloc_closure((void*)(l_Lean_Meta_withLocalDecl___at_Lean_Meta_Simp_Arith_withAbstractAtoms_go___spec__1___rarg___boxed), 10, 5);
 lean_closure_set(x_24, 0, x_19);
 lean_closure_set(x_24, 1, x_22);
 lean_closure_set(x_24, 2, x_15);

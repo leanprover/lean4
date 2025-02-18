@@ -144,7 +144,7 @@ private theorem testBit_limit {x i : Nat} (x_lt_succ : x < 2^(i+1)) :
         exfalso
         apply Nat.lt_irrefl
         calc x < 2^(i+1) := x_lt_succ
-             _ ≤ 2 ^ j := Nat.pow_le_pow_of_le_right Nat.zero_lt_two x_lt
+             _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two x_lt
              _ ≤ x := testBit_implies_ge jp
 
 private theorem mod_two_pow_succ (x i : Nat) :

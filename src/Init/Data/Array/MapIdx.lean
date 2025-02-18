@@ -388,7 +388,7 @@ theorem mapIdx_eq_append_iff {l : Array α} {f : Nat → α → β} {l₁ l₂ :
   · rintro ⟨l₁, l₂, rfl, rfl, rfl⟩
     exact ⟨l₁.toArray, l₂.toArray, by simp⟩
   · rintro ⟨⟨l₁⟩, ⟨l₂⟩, rfl, h₁, h₂⟩
-    simp only [List.mapIdx_toArray, mk.injEq, size_toArray] at h₁ h₂
+    simp only [List.mapIdx_toArray, mk.injEq, List.size_toArray] at h₁ h₂
     obtain rfl := h₁
     obtain rfl := h₂
     exact ⟨l₁, l₂, by simp⟩
@@ -417,6 +417,11 @@ theorem mapIdx_eq_mapIdx_iff {l : Array α} :
     (mapIdx f l).back? = (l.back?).map (f (l.size - 1)) := by
   rcases l with ⟨l⟩
   simp [List.getLast?_mapIdx]
+
+@[simp] theorem back_mapIdx {l : Array α} {f : Nat → α → β} (h) :
+    (l.mapIdx f).back h = f (l.size - 1) (l.back (by simpa using h)) := by
+  rcases l with ⟨l⟩
+  simp [List.getLast_mapIdx]
 
 @[simp] theorem mapIdx_mapIdx {l : Array α} {f : Nat → α → β} {g : Nat → β → γ} :
     (l.mapIdx f).mapIdx g = l.mapIdx (fun i => g i ∘ f i) := by

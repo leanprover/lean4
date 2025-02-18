@@ -29,7 +29,7 @@ open List (Perm Sublist pairwise_cons erase_sublist filter_sublist)
 
 namespace Std.Internal.List
 
-attribute [-simp] List.isEmpty_eq_false
+attribute [-simp] List.isEmpty_eq_false_iff
 
 @[elab_as_elim]
 theorem assoc_induction {motive : List ((a : α) × β a) → Prop} (nil : motive [])
@@ -3127,7 +3127,7 @@ theorem alterKey_cons_perm {k : α} {f : Option β → Option β} {k' : α} {v' 
 theorem isEmpty_alterKey_eq_isEmpty_eraseKey {k : α} {f : Option β → Option β}
     {l : List ((_ : α) × β)} :
     (alterKey k f l).isEmpty = ((eraseKey k l).isEmpty && (f (getValue? k l)).isNone) := by
-  simp only [alterKey, List.isEmpty_eq_true]
+  simp only [alterKey, List.isEmpty_iff]
   split <;> { next heq => simp [heq] }
 
 theorem isEmpty_alterKey {k : α} {f : Option β → Option β} {l : List ((_ : α) × β)} :

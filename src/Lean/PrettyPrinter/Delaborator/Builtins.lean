@@ -882,9 +882,9 @@ def delabLam : Delab :=
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
             if h : curNames.size > 1 then
-              `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
+              `($(curNames[0]!) $(curNames.eraseIdx 0)*)
             else
-              pure $ curNames.get! 0;
+              pure $ curNames[0]!;
           `(funBinder| ($stxCurNames : $stxT))
         else
           pure curNames.back!  -- here `curNames.size == 1`

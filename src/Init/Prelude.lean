@@ -2663,12 +2663,14 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Use the indexing notation `a[i]` instead.
+
 Access an element from an array without needing a runtime bounds checks,
 using a `Nat` index and a proof that it is in bounds.
 
 This function does not use `get_elem_tactic` to automatically find the proof that
 the index is in bounds. This is because the tactic itself needs to look up values in
-arrays. Use the indexing notation `a[i]` instead.
+arrays.
 -/
 @[extern "lean_array_fget"]
 def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
@@ -2678,7 +2680,11 @@ def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) 
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
   dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
 
-/-- Access an element from an array, or panic if the index is out of bounds. -/
+/--
+Use the indexing notation `a[i]!` instead.
+
+Access an element from an array, or panic if the index is out of bounds.
+-/
 @[extern "lean_array_get"]
 def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default

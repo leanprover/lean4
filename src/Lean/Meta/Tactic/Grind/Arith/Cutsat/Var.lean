@@ -7,10 +7,6 @@ prelude
 import Lean.Meta.IntInstTesters
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
-def Int.Linear.Poly.isZero : Poly → Bool
-  | .num 0 => true
-  | _ => false
-
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 /-- Creates a new variable in the cutsat module. -/

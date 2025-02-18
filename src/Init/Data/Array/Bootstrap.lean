@@ -69,7 +69,10 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] (f : α → β → m β) (init
 @[simp] theorem toListImpl_eq (arr : Array α) : arr.toListImpl = arr.toList := by
   simp [toListImpl, ← foldr_toList]
 
-@[simp] theorem pop_toList (arr : Array α) : arr.pop.toList = arr.toList.dropLast := rfl
+@[simp] theorem toList_pop (a : Array α) : a.pop.toList = a.toList.dropLast := rfl
+
+@[deprecated toList_pop (since := "2025-02-17")]
+abbrev pop_toList := @Array.toList_pop
 
 @[simp] theorem append_eq_append (arr arr' : Array α) : arr.append arr' = arr ++ arr' := rfl
 
@@ -153,7 +156,7 @@ abbrev push_data := @push_toList
 abbrev toList_eq := @toListImpl_eq
 
 @[deprecated pop_toList (since := "2024-09-09")]
-abbrev pop_data := @pop_toList
+abbrev pop_data := @toList_pop
 
 @[deprecated toList_append (since := "2024-09-09")]
 abbrev append_data := @toList_append

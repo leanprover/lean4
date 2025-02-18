@@ -14,6 +14,12 @@ def nestedProof (p : Prop) {h : p} : p := h
 /--
 Gadget for marking `match`-expressions that should not be reduced by the `grind` simplifier, but the discriminants should be normalized.
 We use it when adding instances of `match`-equations to prevent them from being simplified to true.
+
+Remark: it must not be marked as `[reducible]`. Otherwise, `simp` will reduce
+```
+simpMatchDiscrsOnly (match 0 with | 0 => true | _ => false) = true
+```
+using `eq_self`.
 -/
 def simpMatchDiscrsOnly {α : Sort u} (a : α) : α := a
 
@@ -28,7 +34,7 @@ Gadget for annotating the equalities in `match`-equations conclusions.
 `_origin` is the term used to instantiate the `match`-equation using E-matching.
 When `EqMatch a b origin` is `True`, we mark `origin` as a resolved case-split.
 -/
-def EqMatch (a b : α) {_origin : α} : Prop := a = b
+abbrev EqMatch (a b : α) {_origin : α} : Prop := a = b
 
 /--
 Gadget for annotating conditions of `match` equational lemmas.
@@ -36,7 +42,13 @@ We use this annotation for two different reasons:
 - We don't want to normalize them.
 - We have a propagator for them.
 -/
-def MatchCond (p : Prop) : Prop := p
+abbrev MatchCond (p : Prop) : Prop := p
+
+/--
+Similar to `MatchCond`, but not reducible. We use it to ensure `simp`
+will not eliminate it. After we apply `simp`, we replace it with `MatchCond`.
+-/
+def PreMatchCond (p : Prop) : Prop := p
 
 theorem nestedProof_congr (p q : Prop) (h : p = q) (hp : p) (hq : q) : HEq (@nestedProof p hp) (@nestedProof q hq) := by
   subst h; apply HEq.refl

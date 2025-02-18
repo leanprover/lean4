@@ -13,6 +13,7 @@ import Lean.Meta.Tactic.ElimInfo
 import Lean.Meta.Tactic.FunIndInfo
 import Lean.Meta.Tactic.Induction
 import Lean.Meta.Tactic.Cases
+import Lean.Meta.Tactic.FunIndCollect
 import Lean.Meta.GeneralizeVars
 import Lean.Elab.App
 import Lean.Elab.Tactic.ElabTerm
@@ -819,12 +820,33 @@ def evalInduction : Tactic := fun stx =>
     let targets ← withMainContext <| addImplicitTargets elimInfo targets
     evalInductionCore stx elimInfo targets toTag
 
+
+/--
+Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args if omitted from the goal
+-/
+def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
+  match stx with
+  | `($id:ident) =>
+    let fnName ← realizeGlobalConstNoOverload id
+    let some _ ← getFunIndInfo? cases fnName |
+      let theoremKind := if cases then "induction" else "cases"
+      throwError "no functional {theoremKind} theorem for '{.ofConstName fnName}', or function is mutually recursive "
+    let candidates ← FunInd.collect fnName (← getMainGoal)
+    if candidates.isEmpty then
+      throwError "could not find suitable call of '{.ofConstName fnName}' in the goal"
+    if candidates.size > 1 then
+      throwError "found more than one suitable call of '{.ofConstName fnName}' in the goal. \
+        Please include the desired arguments."
+    pure candidates[0]!
+  | _ =>
+    elabTerm stx none
+
 /--
 Elaborates the `foo args` of `fun_induction` or `fun_cases`, returning the `ElabInfo` and targets.
 -/
 private def elabFunTarget (cases : Bool) (stx : Syntax) : TacticM (ElimInfo × Array Expr) := do
   withRef stx <| withMainContext do
-    let funCall ← elabTerm stx none
+    let funCall ← elabFunTargetCall cases stx
     funCall.withApp fun fn funArgs => do
     let .const fnName fnUs := fn |
       throwError "expected application headed by a function constant"

@@ -309,6 +309,12 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
 example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   try? (max := 1)
 
+open State in
+/-- info: Try this: (fun_induction join) <;> grind -/
+#guard_msgs (info) in
+example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
+  try? (max := 1)
+
 @[grind] theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   induction σ₁, σ₂ using State.join.induct <;> grind
 

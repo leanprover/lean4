@@ -907,9 +907,7 @@ theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     balance k v l r hl.left hl.right h = inner sz k v l r := by
   rw [balance_char, balance']
   have hl' := balanced_inner_iff.mp hl
-  cases k, v, l, r, hl.left, hl.right, h using balance'.fun_cases <;> try tree_tac
-  · rw [if_pos (by assumption), bin, hl'.2.2.2]
-  · rw [if_neg (by assumption), dif_neg (by assumption), dif_neg (by assumption), bin, hl'.2.2.2]
+  cases k, v, l, r, hl.left, hl.right, h using balance'.fun_cases <;> tree_tac
 
 theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) :
@@ -918,11 +916,9 @@ theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
     have hmb : (modify a f _).Balanced := balanced_modify htb
-    revert hmb
-    rw [modify, alter]
-    split <;> try intro _; rfl
+    rw [modify, alter] at *
+    split at * <;> try rfl
     all_goals
-      intro hmb
       simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
 
 theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
@@ -1006,23 +1002,11 @@ theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
     have hmb : (modify a f _).Balanced := balanced_modify htb
-    revert hmb
-    rw [modify, alter]
-    split <;> try intro _; rfl
+    rw [modify, alter] at *
+    split at * <;> try rfl
     all_goals
-      intro hmb
+      dsimp
       simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
-  -- induction t with
-  -- | leaf => rfl
-  -- | inner sz k v l r ihl ihr =>
-  --   rw [modify, alter] at *
-  --   cases h : compare a k <;> try rfl
-  --   all_goals
-  --     dsimp
-  --     simp only [← ihl htb.left, ← ihr htb.right]
-  --     rw [balance_eq_inner]
-  --     suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, h] using this
-  --     exact balanced_modify htb
 
 theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=

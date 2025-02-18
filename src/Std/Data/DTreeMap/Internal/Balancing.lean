@@ -509,72 +509,61 @@ def balance' (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Bala
   else
     bin k v l  r
 
+attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
+
 theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
     balance k v l r h₁ h₂ h₃ = balance' k v l r h₁ h₂ h₃ := by
   rw [balance']
   cases k, v, l, r, h₁, h₂, h₃ using balance.fun_cases
-  · simp_all [Std.Internal.tree_tac, balance]
-  · simp_all [Std.Internal.tree_tac, balance]
-    split <;> simp_all [Std.Internal.tree_tac]
-  · simp_all [Std.Internal.tree_tac, balance]
-    split <;> simp_all [Std.Internal.tree_tac]
+  all_goals
+    simp only [balance]
+  · simp_all [Std.Internal.tree_tac]
+  · split <;> simp_all [Std.Internal.tree_tac]
+  · split <;> simp_all only [Std.Internal.tree_tac]
     · omega
-    · rw [if_pos (by omega), rotateL]
-      simp_all [Std.Internal.tree_tac]
+    · rw [dif_pos (by omega)]
+      simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
   · next l r _ _ _ _ _ _ =>
-    simp_all [Std.Internal.tree_tac, balance]
-    split <;> simp_all [Std.Internal.tree_tac]
-    rw [rotateL]
-    simp_all [Std.Internal.tree_tac]
-    suffices h : l.size = 0 ∧ r.size = 0 from by
-      simp [h.1, h.2]
+    simp_all only [Std.Internal.tree_tac, rotateL]
+    suffices h : l.size = 0 ∧ r.size = 0 by
+      simp only [h.1, h.2, reduceDIte, Nat.not_lt_zero]
       cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
     omega
   · simp_all [Std.Internal.tree_tac, balance]
     split <;> simp_all [Std.Internal.tree_tac]
     · omega
     · rw [if_pos (by omega), rotateL, if_pos]
-      · simp_all [Std.Internal.tree_tac]
+      all_goals
+        simp_all only [Std.Internal.tree_tac]
         omega
-      · simp_all [Std.Internal.tree_tac]
-        omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
+  · simp_all only [Std.Internal.tree_tac]
     split
-    · simp_all [Std.Internal.tree_tac, balance]
-    · simp_all [Std.Internal.tree_tac, balance]
-  · simp_all [Std.Internal.tree_tac, balance]
-    split
-    · simp_all [Std.Internal.tree_tac, balance]
+    · simp_all only [Std.Internal.tree_tac]
       omega
     · next l r _ _ _ _ =>
-      simp_all [Std.Internal.tree_tac, balance]
-      rw [if_pos (by omega), rotateR]
-      simp_all [Std.Internal.tree_tac]
-      suffices h : l.size = 0 ∧ r.size = 0 from by
-        simp [h.1, h.2]
+      rw [dif_neg (by omega), dif_pos (by omega), rotateR]
+      suffices h : l.size = 0 ∧ r.size = 0 by
+        simp only [h.1, h.2]
         cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
       omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac, rotateR]
+    omega
+  · simp_all [Std.Internal.tree_tac]
     split
-    · simp_all [Std.Internal.tree_tac, balance]
-    · simp_all [Std.Internal.tree_tac, balance, rotateR]
+    · simp_all [Std.Internal.tree_tac]
       omega
-  · simp_all [Std.Internal.tree_tac, balance]
-    split
-    · simp_all [Std.Internal.tree_tac, balance]
+    · simp only [Std.Internal.tree_tac, rotateR, or_false]
+      repeat rw [if_pos (by omega)]
+      simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
       omega
-    · simp_all [Std.Internal.tree_tac, balance, rotateR]
-      rw [if_pos (by omega), if_pos (by omega)]
-      simp_all [Std.Internal.tree_tac, balance]
-      omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all only [Std.Internal.tree_tac, ite_true]
     rw [if_neg]
-    · simp only [rotateL, singleL, doubleL]
-      rw [if_pos]
-      · simp_all [Std.Internal.tree_tac, balance]
-        omega
-      · simp_all [Std.Internal.tree_tac, balance]
+    · simp only [rotateL, singleL, doubleL, dite_true]
+      rw [if_pos (by simp_all [Std.Internal.tree_tac])]
+      simp_all [Std.Internal.tree_tac]
+      omega
     · simp only [balanced_inner_iff] at *
       omega
   · simp_all [Std.Internal.tree_tac, balance]
@@ -598,21 +587,18 @@ theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
     omega
   · simp_all [Std.Internal.tree_tac, balance]
     rw [if_neg (by omega), dif_neg (by omega), if_neg]
-    · rw [if_neg (by omega), rotateR]
-      simp_all [Std.Internal.tree_tac, balance]
-      rw [if_neg (by omega)]
-      simp_all [Std.Internal.tree_tac, balance]
+    · rw [if_neg (by omega), rotateR, singleR, ratio, size_inner, size_inner, if_neg (by omega)]
+      simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
       omega
-    · simp [balanced_inner_iff] at *
-      simp_all [Std.Internal.tree_tac, balance]
+    · simp [Std.Internal.tree_tac] at *
       omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [dif_neg (by omega)]
     contradiction
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [dif_neg (by omega)]
     contradiction
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [balanced_inner_iff] at *
     rw [dif_neg (by omega), dif_neg (by omega), if_neg (by omega), if_neg (by omega),
       if_neg (by omega)]
@@ -620,8 +606,6 @@ theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
 
 theorem Balanced.map {t₁ t₂ : Impl α β} : t₁.Balanced → t₁ = t₂ → t₂.Balanced
   | h, rfl => h
-
-attribute [Std.Internal.tree_tac] and_true true_and
 
 theorem balanced_singleL (k v l rs rk rv rl rr) (hl : l.Balanced)
     (hr : (Impl.inner rs rk rv rl rr).Balanced)

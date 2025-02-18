@@ -698,16 +698,13 @@ structure ElimTargetView where
 
 /-- Interprets a `Lean.Parser.Tactic.elimTarget`. -/
 def mkTargetView (target : Syntax) : TacticM ElimTargetView := do
-  let hIdent? ←
-    if target[0].isNone then
-      pure none
-    else
-      match target[0][0] with
-      | `(Parser.Term.binderIdent| $stx:ident) =>
-        pure <| some stx
-      | stx => -- `Lean.Parser.Term.hole`, or syntax errors
-        pure <| mkIdentFrom stx (canonical := true) (← mkFreshBinderNameForTactic `h)
-  pure { hIdent?, term := target[1] }
+  match target with
+  | `(Parser.Tactic.elimTarget| $[$hIdent?:ident :]? $term) =>
+    return { hIdent?, term }
+  | `(Parser.Tactic.elimTarget| _%$hole : $term) =>
+    let hIdent? := some <| mkIdentFrom hole (canonical := true) (← mkFreshBinderNameForTactic `h)
+    return { hIdent?, term }
+  | _ => return { hIdent? := none, term := .missing }
 
 /-- Elaborated `ElimTargetView`. -/
 private structure ElimTargetInfo where

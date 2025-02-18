@@ -25,3 +25,10 @@
 /-- info: true -/
 #guard_msgs in
 #eval ISize.minValue.abs == ISize.minValue
+
+example : Int8.minValue.abs = Int8.minValue := rfl
+example : Int16.minValue.abs = Int16.minValue := rfl
+example : Int32.minValue.abs = Int32.minValue := rfl
+example : Int64.minValue.abs = Int64.minValue := rfl
+-- TODO: prove once the relevant theory is available
+-- example : ISize.minValue.abs = ISize.minValue := rfl

@@ -447,10 +447,16 @@ end ElimApp
   generalizingVars := optional (" generalizing " >> many1 ident)
   «induction»  := leading_parser nonReservedSymbol "induction " >> majorPremise >> usingRec >> generalizingVars >> optional inductionAlts
   ```
-  `stx` is syntax for `induction`. -/
+  `stx` is syntax for `induction` or `fun_induction`. -/
 private def getUserGeneralizingFVarIds (stx : Syntax) : TacticM (Array FVarId) :=
   withRef stx do
-    let generalizingStx := stx[3]
+    let generalizingStx :=
+    if stx.getKind == ``Lean.Parser.Tactic.induction then
+      stx[3]
+    else if stx.getKind == ``Lean.Parser.Tactic.funInduction then
+      stx[2]
+    else
+      panic! "getUserGeneralizingFVarIds: Unexpected syntax kind {stx.getKind}"
     if generalizingStx.isNone then
       pure #[]
     else
@@ -677,19 +683,6 @@ private def shouldGeneralizeTarget (e : Expr) : MetaM Bool := do
   else
     return true
 
-/--
-Simple target generalization scheme.
-Ensures that each target is a cdecl fvar, using `Lean.MVarId.generalize` as necessary.
-
-See also `Lean.Elab.Tactic.elabElimTargets`, which is what `induction` and `cases` use instead.
--/
-private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
-  if (← withMainContext <| exprs.anyM (shouldGeneralizeTarget ·)) then
-    liftMetaTacticAux fun mvarId => do
-      let (fvarIds, mvarId) ← mvarId.generalize (exprs.map fun expr => { expr })
-      return (fvarIds.map mkFVar, [mvarId])
-  else
-    return exprs
 
 /-- View of `Lean.Parser.Tactic.elimTarget`. -/
 structure ElimTargetView where
@@ -754,6 +747,28 @@ def elabElimTargets (targets : Array Syntax) : TacticM (Array Expr × Array (Ide
         let hIdents := infos.filterMap (·.view.hIdent?)
         assert! hIdents.size + j == fvarIdsNew.size
         return ((result, hIdents.zip fvarIdsNew[j:]), [mvarId])
+
+/--
+Generalize targets in `fun_induction` and `fun_cases`. Should behave like `elabCasesTargets` with
+no targets annotated with `h : _`.
+-/
+private def generalizeTargets (exprs : Array Expr) : TacticM (Array Expr) := do
+  withMainContext do
+    let exprToGeneralize ← exprs.filterM (shouldGeneralizeTarget ·)
+    if exprToGeneralize.isEmpty then
+      return exprs
+    liftMetaTacticAux fun mvarId => do
+      let (fvarIdsNew, mvarId) ← mvarId.generalize (exprToGeneralize.map ({ expr := · }))
+      assert! fvarIdsNew.size == exprToGeneralize.size
+      let mut result := #[]
+      let mut j := 0
+      for expr in exprs do
+        if (← shouldGeneralizeTarget expr) then
+          result := result.push (mkFVar fvarIdsNew[j]!)
+          j := j+1
+        else
+          result := result.push expr
+      return (result, [mvarId])
 
 def checkInductionTargets (targets : Array Expr) : MetaM Unit := do
   let mut foundFVars : FVarIdSet := {}

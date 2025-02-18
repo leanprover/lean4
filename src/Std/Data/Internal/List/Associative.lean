@@ -2040,8 +2040,8 @@ theorem mem_map_toProd_iff_getValue?_eq_some [BEq α] [LawfulBEq α] {β : Type 
 
 theorem find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [EquivBEq α]
     {β : Type v} {k k': α} {v : β} {l : List ((_ : α) × β)} :
-    (l.map (fun x => (x.fst, x.snd))).find? (fun a => a.1 == k) = some (k', v)
-    ↔ getKey? k l = some k' ∧ getValue? k l = some v := by
+    (l.map (fun x => (x.fst, x.snd))).find? (fun a => a.1 == k) = some (k', v) ↔
+      getKey? k l = some k' ∧ getValue? k l = some v := by
   induction l with
   | nil => simp
   | cons hd tl ih =>
@@ -2083,8 +2083,7 @@ theorem mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some [BEq α] [Equiv
 
 theorem pairwise_fst_eq_false_map_toProd [BEq α] {β : Type v}
     {l : List ((_ : α) × β)} (h : DistinctKeys l) :
-    List.Pairwise (fun a b => (a.fst == b.fst) = false) (List.map (fun x => (x.fst, x.snd)) l)
- := by
+    List.Pairwise (fun a b => (a.fst == b.fst) = false) (List.map (fun x => (x.fst, x.snd)) l) := by
   rw [DistinctKeys.def] at h
   simp [List.pairwise_map]
   assumption

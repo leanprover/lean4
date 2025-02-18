@@ -205,7 +205,7 @@ def evalExpr (e : Expr) : EvalM Val := do
 @[grind] theorem UnaryOp.simplify_eval (op : UnaryOp) : (op.simplify a).eval σ = (Expr.una op a).eval σ := by
   grind [UnaryOp.simplify.eq_def]
 
-/-- info: Try this: (induction e using Expr.simplify.induct) <;> grind -/
+/-- info: Try this: (fun_induction Expr.simplify) <;> grind -/
 #guard_msgs (info) in
 example (e : Expr) : e.simplify.eval σ = e.eval σ := by
   try? (max := 1)
@@ -304,13 +304,14 @@ theorem State.cons_le_of_eq (h₁ : σ' ≼ σ) (h₂ : σ.find? x = some v) : (
 @[grind] theorem State.join_le_left_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₁.join σ₃ ≼ σ₂ := by
   grind
 
-/-- info: Try this: (induction σ₁, σ₂ using State.join.induct) <;> grind -/
+/-- info: Try this: (fun_induction join) <;> grind -/
 #guard_msgs (info) in
+open State in
 example (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
   try? (max := 1)
 
 @[grind] theorem State.join_le_right (σ₁ σ₂ : State) : σ₁.join σ₂ ≼ σ₂ := by
-  induction σ₁, σ₂ using State.join.induct <;> grind
+  fun_induction join <;> grind
 
 @[grind] theorem State.join_le_right_of (h : σ₁ ≼ σ₂) (σ₃ : State) : σ₃.join σ₁ ≼ σ₂ := by
   grind

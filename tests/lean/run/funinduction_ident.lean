@@ -1,4 +1,25 @@
-import Lean
+namespace ListEx
+
+theorem map_id (xs : List α) : List.map id xs = xs := by
+  fun_induction List.map <;> simp_all only [List.map, id]
+
+-- This works because collect ignores `.dropped` arguments
+
+theorem map_map (f : α → β) (g : β → γ) xs :
+  List.map g (List.map f xs) = List.map (g ∘ f) xs := by
+  fun_induction List.map <;> simp_all only [List.map, Function.comp]
+
+-- This should genuinely not work, but have a good error message
+
+/--
+error: found more than one suitable call of 'List.append' in the goal. Please include the desired arguments.
+-/
+#guard_msgs in
+theorem append_assoc :
+  List.append xs (List.append ys zs) = List.append (List.append xs ys) zs := by
+  fun_induction List.append <;> simp_all only [List.append]
+
+end ListEx
 
 namespace Ex1
 
@@ -32,7 +53,7 @@ ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
 -/
 #guard_msgs in
 example : P (ackermann p) := by
-  fun_induction ackermann p
+  fun_induction ackermann
   fail
 
 /--
@@ -54,76 +75,13 @@ n✝ m✝ : Nat
 -/
 #guard_msgs in
 example : P (ackermann p) := by
-  fun_cases ackermann p
+  fun_cases ackermann
   fail
 
-/--
-error: unsolved goals
-case case1
-P : Nat → Prop
-n m m✝ : Nat
-⊢ P (ackermann (0, m✝))
-
-case case2
-P : Nat → Prop
-n m n✝ : Nat
-ih1✝ : P (ackermann (n✝, 1))
-⊢ P (ackermann (n✝.succ, 0))
-
-case case3
-P : Nat → Prop
-n m n✝ m✝ : Nat
-ih2✝ : P (ackermann (n✝ + 1, m✝))
-ih1✝ : P (ackermann (n✝, ackermann (n✝ + 1, m✝)))
-⊢ P (ackermann (n✝.succ, m✝.succ))
--/
+/-- error: could not find suitable call of 'ackermann' in the goal -/
 #guard_msgs in
 example : P (ackermann (n, m)) := by
-  fun_induction ackermann (n, m)
-
-/--
-error: unsolved goals
-case case1
-P : Nat → Prop
-n m m✝ : Nat
-⊢ P (ackermann (0, m✝))
-
-case case2
-P : Nat → Prop
-n m n✝ : Nat
-⊢ P (ackermann (n✝.succ, 0))
-
-case case3
-P : Nat → Prop
-n m n✝ m✝ : Nat
-⊢ P (ackermann (n✝.succ, m✝.succ))
--/
-#guard_msgs in
-example : P (ackermann (n, m)) := by
-  fun_cases ackermann (n, m)
-
--- Testing Generalization:
-
-/--
-error: unsolved goals
-case case1
-P : Nat → Prop
-n m m✝ : Nat
-⊢ P (ackermann (n, m))
-
-case case2
-P : Nat → Prop
-n m n✝ : Nat
-⊢ P (ackermann (n, m))
-
-case case3
-P : Nat → Prop
-n m n✝ m✝ : Nat
-⊢ P (ackermann (n, m))
--/
-#guard_msgs in
-example : P (ackermann (n, m)) := by
-  fun_cases ackermann (n+n, m)
+  fun_induction ackermann
 
 end Ex1
 
@@ -159,14 +117,7 @@ ih1✝ : P (ackermann n✝ (ackermann (n✝ + 1) m✝))
 -/
 #guard_msgs in
 example : P (ackermann n m) := by
-  fun_induction ackermann n m
-
-/--
-error: Expected fully applied application of 'ackermann' with 2 arguments, but found 1 arguments
--/
-#guard_msgs in
-example : P (ackermann n m) := by
-  fun_induction ackermann n
+  fun_induction ackermann
 
 end Ex2
 
@@ -211,21 +162,7 @@ ih1✝ : P (ackermann inc ns✝ (ackermann inc (n✝ :: ns✝) ms✝))
 -/
 #guard_msgs in
 example : P (ackermann inc n m) := by
-  fun_induction ackermann inc n m
-
-/--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 3 arguments
--/
-#guard_msgs in
-example : P (ackermann inc n m) := by
-  fun_induction ackermann inc n
-
-/--
-error: Expected fully applied application of 'ackermann' with 4 arguments, but found 2 arguments
--/
-#guard_msgs in
-example : P (ackermann inc n m) := by
-  fun_induction ackermann inc
+  fun_induction ackermann
 
 end Ex3
 
@@ -258,20 +195,13 @@ ih1✝ : P (fib (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib n) := by
-  fun_induction fib n
+  fun_induction fib
   fail
 
+/-- error: could not find suitable call of 'fib' in the goal -/
+#guard_msgs in
 example : n ≤ fib (n + 2) := by
-  fun_induction fib n
-  case case1 => simp [fib]
-  case case2 => simp [fib]
-  case case3 n ih1 ih2 => simp_all [fib]; omega
-
-example : n ≤ fib (n + 2) := by
-  fun_induction fib n with
-  | case1 | case2 => simp [fib]
-  | case3  => simp_all [fib]; omega
-
+  fun_induction fib
 
 end Structural
 
@@ -314,31 +244,7 @@ ih1✝ : P (fib 2 (n✝ + 1))
 -/
 #guard_msgs in
 example : P (fib 2 n) := by
-  fun_induction fib 3 n
-  fail
-
-/--
-error: tactic 'fail' failed
-case case1
-P : Nat → Prop
-inc : Nat
-⊢ P (fib 2 0)
-
-case case2
-P : Nat → Prop
-inc : Nat
-⊢ P (fib 2 1)
-
-case case3
-P : Nat → Prop
-inc n✝ : Nat
-ih2✝ : P (fib 2 n✝)
-ih1✝ : P (fib 2 (n✝ + 1))
-⊢ P (fib 2 n✝.succ.succ)
--/
-#guard_msgs in
-example : P (fib 2 n) := by
-  fun_induction fib _ n
+  fun_induction fib
   fail
 
 end StructuralWithOmittedParam
@@ -377,13 +283,13 @@ theorem Finn.min_le_right₀ : (Finn.min x m i j).le j := by
   induction x, m, i, j using @Finn.min.induct <;> simp_all [Finn.min, Finn.le]
 
 theorem Finn.min_le_right : (Finn.min x m i j).le j := by
-  fun_induction Finn.min x m i j <;> simp_all [Finn.min, Finn.le]
+  fun_induction Finn.min <;> simp_all [Finn.min, Finn.le]
 
 theorem Finn.min_le_right' : (Finn.min' x m i j).le j := by
-  fun_induction Finn.min' x m i j <;> simp_all [Finn.min', Finn.le]
+  fun_induction Finn.min' <;> simp_all [Finn.min', Finn.le]
 
 theorem Finn.min_le_right'' : (Finn.min'' x m i j).le j := by
-  fun_induction Finn.min'' x m i j <;> simp_all [Finn.min'', Finn.le]
+  fun_induction Finn.min'' <;> simp_all [Finn.min'', Finn.le]
 
 end StructuralIndices
 
@@ -395,7 +301,6 @@ def foo := 1
 #guard_msgs in
 example : True := by
   fun_induction foo
-
 
 end Nonrec
 
@@ -418,6 +323,6 @@ end
 /-- error: no functional cases theorem for 'Tree.size', or function is mutually recursive -/
 #guard_msgs in
 example (t : Tree α) : True := by
-  fun_induction Tree.size t
+  fun_induction Tree.size
 
 end Mutual

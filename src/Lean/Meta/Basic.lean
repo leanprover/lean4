@@ -2241,20 +2241,23 @@ to add `constName` to the environment, an appropriate diagnostic is reported to 
 constants are added to the environment.
 -/
 def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
-    MetaM Unit := withTraceNode `Meta.realizeConst (fun _ => return constName) do
+    MetaM Unit := do
   let env ← getEnv
-  let coreCtx ← readThe Core.Context
-  -- these fields should be invariant throughout the file
-  let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
-  let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
-  if let some snap := dyn.get? Language.SnapshotTree then
-    let mut snap := snap
-    -- localize diagnostics
-    if let some range := (← getRef).getRange? then
-      let fileMap ← getFileMap
-      snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-    Core.logSnapshotTask <| .finished (stx? := none) snap
-  setEnv env
+  if env.contains constName then
+    return
+  withTraceNode `Meta.realizeConst (fun _ => return constName) do
+    let coreCtx ← readThe Core.Context
+    -- these fields should be invariant throughout the file
+    let coreCtx := { fileName := coreCtx.fileName, fileMap := coreCtx.fileMap }
+    let (env, dyn) ← env.realizeConst forConst constName (realizeAndReport coreCtx)
+    if let some snap := dyn.get? Language.SnapshotTree then
+      let mut snap := snap
+      -- localize diagnostics
+      if let some range := (← getRef).getRange? then
+        let fileMap ← getFileMap
+        snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
+      Core.logSnapshotTask <| .finished (stx? := none) snap
+    setEnv env
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code
   realizeAndReport (coreCtx : Core.Context) env opts := do

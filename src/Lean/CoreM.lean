@@ -535,7 +535,9 @@ opaque compileDeclsOld (env : Environment) (opt : @& Options) (decls : @& List N
 -- `ref?` is used for error reporting if available
 partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
     (logErrors := true) : CoreM Unit := do
-  if !Elab.async.get (← getOptions) then
+  -- When inside `realizeConst`, do compilation synchronously so that `_cstage*` constants are found
+  -- by the replay code
+  if !Elab.async.get (← getOptions) || (← getEnv).isRealizing then
     doCompile
     return
   let env ← getEnv

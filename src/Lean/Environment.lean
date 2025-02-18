@@ -439,11 +439,14 @@ private structure AsyncConsts where
 deriving Inhabited
 
 private def AsyncConsts.add (aconsts : AsyncConsts) (aconst : AsyncConst) : AsyncConsts :=
-  { aconsts with
+  let normalizedName := privateToUserName aconst.constInfo.name
+  if let some aconst' := aconsts.normalizedTrie.find? normalizedName then
+    panic! s!"AsyncConsts.add: duplicate normalized declaration name {aconst.constInfo.name} vs. {aconst'.constInfo.name}"
+  else { aconsts with
     size := aconsts.size + 1
     revList := aconst :: aconsts.revList
     map := aconsts.map.insert aconst.constInfo.name aconst
-    normalizedTrie := aconsts.normalizedTrie.insert (privateToUserName aconst.constInfo.name) aconst
+    normalizedTrie := aconsts.normalizedTrie.insert normalizedName aconst
   }
 
 private def AsyncConsts.find? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
@@ -451,8 +454,9 @@ private def AsyncConsts.find? (aconsts : AsyncConsts) (declName : Name) : Option
 
 /-- Finds the constant in the collection that is a prefix of `declName`, if any. -/
 private def AsyncConsts.findPrefix? (aconsts : AsyncConsts) (declName : Name) : Option AsyncConst :=
-  -- as macro scopes are a strict suffix,
-  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName.eraseMacroScopes)
+  -- as macro scopes are a strict suffix, we do not have to remove them before calling
+  -- `findLongestPrefix?`
+  aconsts.normalizedTrie.findLongestPrefix? (privateToUserName declName)
 
 /-- Context for `realizeConst` established by `enableRealizationsForConst`. -/
 private structure RealizationContext where
@@ -1078,9 +1082,6 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
         {if asyncCtx.realizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
     return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | .local =>
-    if let some asyncCtx := env.asyncCtx?.filter (·.realizing) then
-      panic! s!"Environment.modifyState: environment extension is marked as `local` but used in \
-        realization context '{asyncCtx.declPrefix}'"
     return { env with checkedWithoutAsync.extensions := unsafe ext.modifyStateImpl env.checkedWithoutAsync.extensions f }
   | _ =>
     if ext.replay?.isNone then
@@ -1882,7 +1883,8 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
 
       -- find new constants incl. nested realizations, add current extension state, and compute
       -- closure
-      let consts := realizeEnv'.asyncConsts.revList.take (realizeEnv'.asyncConsts.size - realizeEnv.asyncConsts.size)
+      let numNewConsts := realizeEnv'.asyncConsts.size - realizeEnv.asyncConsts.size
+      let consts := realizeEnv'.asyncConsts.revList.take numNewConsts |>.reverse
       let consts := consts.map fun c =>
         if c.exts?.isNone then
           { c with exts? := some <| .pure realizeEnv'.checkedWithoutAsync.extensions }

@@ -36,9 +36,13 @@ Runs a module initializer function.
 The symbol should have the signature `(builtin : Bool) → IO Unit`
 (e.g., `initialize_Foo(uint8_t builtin, obj_arg)`).
 
-This function is marked `unsafe` because there is no way to guarantee
-the symbol has the expected signature. An invalid symbol can thus produce
-undefined behavior.
+This function is unsafe because there is no guarantee the symbol has the
+expected signature. An invalid symbol can thus produce undefined behavior.
+Furthermore, if the initializer introduces pointers (e.g., function closures)
+from the dynamic library into the global state, future garbage collection of
+the library will produce undefined behavior. In such cases, garbage collection
+of the dynamic library can be prevented via `Runtime.markPersistent` or
+`Runtime.forget`.
 -/
 @[extern "lean_dynlib_symbol_run_as_init"]
 unsafe opaque Dynlib.Symbol.runAsInit {dynlib : @& Dynlib} (sym : @& dynlib.Symbol) : IO Unit
@@ -57,6 +61,7 @@ and loaded as separate libraries.
 def loadDynlib (path : @& System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean never unloads libraries.
+  -- Safety: There are no concurrent accesses to `dynlib` at this point.
   let _ ← unsafe Runtime.markPersistent dynlib
 
 /--
@@ -91,8 +96,14 @@ def loadPlugin (path : System.FilePath) : IO Unit := do
   let name := s!"initialize_{name}"
   let some sym := dynlib.get? name
     | throw <| IO.userError s!"error loading plugin, initializer not found '{name}'"
-  -- Lean never unloads plugins.
-  -- This also ensures that any data from the library mixed
-  -- into the global state by the initializer is not freed early.
+  -- Lean never unloads plugins (once initialized).
+  -- Safety: There are no concurrent accesses to `dynlib` at this point.
   let _ ← unsafe Runtime.markPersistent dynlib
+  /-
+  Safety:
+  * As `dynlib` is marked persistent, there is no danger of garbage collection.
+  * There is still no guarantee that `sym` has the proper signature, but this
+    is about as safe as it can be. The initializer naming convention helps
+    avoid accidentally mistaking non-plugins as plugins.
+  -/
   unsafe sym.runAsInit

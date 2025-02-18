@@ -267,6 +267,10 @@ def foldr (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : Raw α cmp) : δ :=
   foldr f init t
 
+@[inline, inherit_doc TreeSet.partition]
+def partition (f : (a : α) → Bool) (t : Raw α cmp) : Raw α cmp × Raw α cmp :=
+  let p := t.inner.partition fun a _ => f a; (⟨p.1⟩, ⟨p.2⟩)
+
 @[inline, inherit_doc TreeSet.empty]
 def forM (f : α → m PUnit) (t : Raw α cmp) : m PUnit :=
   t.inner.forM (fun a _ => f a)

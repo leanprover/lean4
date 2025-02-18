@@ -368,6 +368,11 @@ def foldr (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
 def revFold (f : δ → (a : α) → δ) (init : δ) (t : TreeSet α cmp) : δ :=
   foldr f init t
 
+/-- Partitions a tree set into two tree sets based on a predicate. -/
+@[inline]
+def partition (f : (a : α) → Bool) (t : TreeSet α cmp) : TreeSet α cmp × TreeSet α cmp :=
+  let p := t.inner.partition fun a _ => f a; (⟨p.1⟩, ⟨p.2⟩)
+
 /-- Carries out a monadic action on each element in the tree set in ascending order. -/
 @[inline]
 def forM (f : α → m PUnit) (t : TreeSet α cmp) : m PUnit :=

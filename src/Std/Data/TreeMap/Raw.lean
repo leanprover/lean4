@@ -107,11 +107,10 @@ instance : LawfulSingleton (α × β) (Raw α β cmp) where
 
 @[inline, inherit_doc DTreeMap.Raw.insertIfNew]
 def insertIfNew (t : Raw α β cmp) (a : α) (b : β) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew a b⟩
+  ⟨t.inner.insertIfNew a b⟩
 
 @[inline, inherit_doc DTreeMap.Raw.containsThenInsert]
 def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsert a b
   (p.1, ⟨p.2⟩)
 
@@ -119,6 +118,11 @@ def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β
 def containsThenInsertIfNew (t : Raw α β cmp) (a : α) (b : β) :
     Bool × Raw α β cmp :=
   let p := t.inner.containsThenInsertIfNew a b
+  (p.1, ⟨p.2⟩)
+
+@[inline, inherit_doc DTreeMap.Raw.getThenInsertIfNew?]
+def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
+  let p := DTreeMap.Raw.Const.getThenInsertIfNew? t.inner a b
   (p.1, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Raw.contains]
@@ -401,6 +405,10 @@ def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : 
 @[inline, inherit_doc foldr, deprecated foldr (since := "2025-02-12")]
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
   foldr f init t
+
+@[inline, inherit_doc DTreeMap.Raw.partition]
+def partition (f : (a : α) → β → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
+  let p := t.inner.partition f; (⟨p.1⟩, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Raw.forM]
 def forM (f : α → β → m PUnit) (t : Raw α β cmp) : m PUnit :=

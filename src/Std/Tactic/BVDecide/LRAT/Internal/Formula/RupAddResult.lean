@@ -529,7 +529,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     ⟨j1, j1_ge_idx, j2, j2_ge_idx, i_gt_zero, ih1, ih2, ih3, ih4, ih5⟩
   · apply Or.inl
     constructor
-    · simp only [clearUnit, Fin.getElem_fin, Array.get_eq_getElem]
+    · simp only [clearUnit, Array.getInternal_eq_getElem]
       specialize ih2 idx (Nat.le_refl idx.val)
       have i_in_bounds : i.1 < assignments.size := by
         rw [hsize]
@@ -544,7 +544,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     · next idx_eq_j =>
       apply Or.inl
       constructor
-      · simp only [clearUnit, idx_eq_j, Array.get_eq_getElem, ih1]
+      · simp only [clearUnit, idx_eq_j, Array.getInternal_eq_getElem, ih1]
         rw [Array.getElem_modify_self, ih2, remove_add_cancel]
         exact ih3
       · intro k k_ge_idx_add_one
@@ -564,7 +564,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       · constructor
         · exact ih1
         · constructor
-          · simp only [clearUnit, Array.get_eq_getElem]
+          · simp only [clearUnit, Array.getInternal_eq_getElem]
             specialize ih4 idx (Nat.le_refl idx.1) idx_ne_j
             rw [Array.getElem_modify_of_ne ih4]
             exact ih2
@@ -589,7 +589,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
         · simp only [Fin.getElem_fin]
           exact ih2
         · constructor
-          · simp only [clearUnit, idx_eq_j1, Array.get_eq_getElem, ih1]
+          · simp only [clearUnit, idx_eq_j1, Array.getInternal_eq_getElem, ih1]
             rw [Array.getElem_modify_self, ih3, ih4]
             decide
           · constructor
@@ -625,7 +625,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
           · simp only [Fin.getElem_fin]
             exact ih1
           · constructor
-            · simp only [clearUnit, idx_eq_j2, Array.get_eq_getElem, ih2]
+            · simp only [clearUnit, idx_eq_j2, Array.getInternal_eq_getElem, ih2]
               rw [Array.getElem_modify_self, ih3, ih4]
               decide
             · constructor
@@ -669,7 +669,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
               · simp only [Fin.getElem_fin]
                 exact ih2
               · constructor
-                · simp only [clearUnit, Array.get_eq_getElem]
+                · simp only [clearUnit, Array.getInternal_eq_getElem]
                   have idx_res_ne_i : units[idx.1].1.1 ≠ i.1 := by
                     intro h1
                     by_cases units[idx.1].2

@@ -2692,7 +2692,7 @@ def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i 
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -2763,7 +2763,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.getInternal j hlt)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -2778,7 +2778,7 @@ def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : A
       (fun hlt =>
         match i with
         | 0           => bs
-        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.getInternal j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
@@ -3981,7 +3981,7 @@ if it parsed something and `none` otherwise.
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
   | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
-    | true  => some (args.get! 0)
+    | true  => some (args.get!Internal 0)
     | false => none
   | _                    => none
 
@@ -4018,7 +4018,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | node SourceInfo.none _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (LT.lt i args.size) with
-      | true => match getHeadInfo? (args.get! i) with
+      | true => match getHeadInfo? (args.get!Internal i) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -4059,7 +4059,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
+      | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none

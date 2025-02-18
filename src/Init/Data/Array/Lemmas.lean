@@ -3239,12 +3239,11 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 @[deprecated getD_getElem? (since := "2024-12-11")] abbrev getD_get? := @getD_getElem?
 
 @[simp] theorem getD_eq_getD_getElem? (a : Array α) (i d) : a.getD i d = a[i]?.getD d := by
-  simp only [getD, get_eq_getElem]; split <;> simp [getD_getElem?, *]
+  simp only [getD]; split <;> simp [getD_getElem?, *]
 
 @[deprecated getD_eq_getD_getElem? (since := "2025-02-12")] abbrev getD_eq_get? := @getD_eq_getD_getElem?
 
 theorem getElem!_eq_getD [Inhabited α] (a : Array α) : a[i]! = a.getD i default := by
-  simp only [← get!_eq_getElem!]
   rfl
 
 @[deprecated getElem!_eq_getD (since := "2025-02-12")]
@@ -3254,7 +3253,7 @@ theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default
 theorem get!_eq_getD_getElem? [Inhabited α] (a : Array α) (i : Nat) :
     a.get! i = a[i]?.getD default := by
   by_cases p : i < a.size <;>
-  simp only [get!_eq_getElem!, getElem!_eq_getD, getD_eq_getD_getElem?, getD_getElem?, p]
+  simp [get!, getElem!_eq_getD, getD_eq_getD_getElem?, getD_getElem?, p]
 
 set_option linter.deprecated false in
 @[deprecated get!_eq_getD_getElem? (since := "2025-02-12")] abbrev get!_eq_getElem? := @get!_eq_getD_getElem?
@@ -3573,7 +3572,7 @@ theorem map_spec (as : Array α) (f : α → β) (p : Fin as.size → β → Pro
 
 theorem getElem_modify {as : Array α} {x i} (h : i < (as.modify x f).size) :
     (as.modify x f)[i] = if x = i then f (as[i]'(by simpa using h)) else as[i]'(by simpa using h) := by
-  simp only [modify, modifyM, get_eq_getElem, Id.run, Id.pure_eq]
+  simp only [modify, modifyM, Id.run, Id.pure_eq]
   split
   · simp only [Id.bind_eq, get_set _ _ _ _ (by simpa using h)]; split <;> simp [*]
   · rw [if_neg (mt (by rintro rfl; exact h) (by simp_all))]

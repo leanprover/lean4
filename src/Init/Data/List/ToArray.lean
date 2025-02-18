@@ -68,7 +68,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = Array.singleton a := rfl
 
 @[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
-  simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
+  simp only [back!, size_toArray, getElem!_toArray, getLast!_eq_getElem!]
 
 @[simp] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
   simp [back?, List.getLast?_eq_getElem?]
@@ -460,7 +460,7 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
 theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
     takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
   rw [takeWhile.go, takeWhile.go]
-  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
     getElem_toArray, getElem_cons_succ]
   split
   rw [takeWhile_go_succ]
@@ -477,7 +477,7 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
       simp [takeWhile_go_succ, ih, takeWhile_cons]
       split <;> simp
     | succ i =>
-      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
         getElem_toArray, getElem_cons_succ, drop_succ_cons]
       split <;> rename_i h₁
       · rw [takeWhile_go_succ, ih]

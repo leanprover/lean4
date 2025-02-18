@@ -909,6 +909,15 @@ theorem ordered_mergeWith [Ord α] [TransOrd α] [LawfulEqOrd α] {t₁ t₂ : I
   | leaf => exact hto
   | inner sz k v l r  ihl ihr => exact ihr _ (ordered_alter _ (ihl htb hto))
 
+theorem balance_eq_inner [Ord α] [TransOrd α] {sz k v} {l r : Impl α β}
+    (hl : (inner sz k v l r).Balanced) {h} :
+    balance k v l r hl.left hl.right h = inner sz k v l r := by
+  cases k, v, l, r, hl.left, hl.right, h using balance.fun_cases
+  · simp_all [balance, balanced_inner_iff, size_leaf]
+  · next hb _ _ =>
+    simp_all [Std.Internal.tree_tac, balance]
+    simp_all [Std.Internal.tree_tac]
+
 namespace Const
 
 variable {β : Type v}
@@ -963,6 +972,36 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (alter a f t htb).impl.Ordered := by
   rw [alter_eq_alterₘ htb hto, alterₘ]
   exact ordered_updateAtKey htb hto
+
+theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    (modify a (fun _ _ => f) t) = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    rw [modify, alter]
+    cases compare a k
+    · dsimp
+
+
+theorem modify_eq_alterₘ [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    (modify a (fun _ _ => f) t) = alterₘ a (·.map f) t htb := by
+  rw [alterₘ]
+  induction t with
+  | leaf =>
+    simp only [modify, updateCell, Cell.Const.alter, Cell.empty_inner, Cell.ofOption]
+    dsimp
+  | inner sz k v l r ihl ihr =>
+    rw [modify, updateCell]
+    split <;> rename_i heq <;> simp only [heq]
+    · simp [ihl htb.left hto.left]
+      split
+
+theorem toListModel_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) :
+    List.Perm (modify a (fun a' _ => f) t).toListModel
+      (Const.modifyKey a f t.toListModel) := sorry
 
 /-!
 ### mergeWith

@@ -7,7 +7,6 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 
 namespace Int.Linear
-
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -35,6 +34,17 @@ def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
 end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * β`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
 
 def get' : GoalM State := do
   return (← get).arith.cutsat

@@ -10,18 +10,6 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-/--
-`gcdExt a b` returns the triple `(g, α, β)` such that
-- `g = gcd a b` (with `g ≥ 0`), and
-- `g = α * a + β * β`.
--/
-partial def gcdExt (a b : Int) : Int × Int × Int :=
-  if b = 0 then
-    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
-  else
-    let (g, α, β) := gcdExt b (a % b)
-    (g, β, α - (a / b) * β)
-
 abbrev DvdCnstrWithProof.isUnsat (cₚ : DvdCnstrWithProof) : Bool :=
   cₚ.c.isUnsat
 

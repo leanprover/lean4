@@ -80,24 +80,22 @@ example : app [a, b] [c] = [a, b, c] := by
 
 /--
 info: Try these:
-• (induction as, bs using app.induct) <;> grind [= app]
-• (induction as, bs using app.induct) <;> grind only [app]
+• · expose_names; fun_induction app as bs <;> grind [= app]
+• · expose_names; fun_induction app as bs <;> grind only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try?
 
-/--
-info: Try this: (induction as, bs using app.induct) <;> grind [= app]
--/
+/-- info: Try this: · expose_names; fun_induction app as bs <;> grind [= app] -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
   try? (max := 1)
 
 /--
 info: Try these:
-• · expose_names; induction as, bs_1 using app.induct <;> grind [= app]
-• · expose_names; induction as, bs_1 using app.induct <;> grind only [app]
+• · expose_names; fun_induction app as bs_1 <;> grind [= app]
+• · expose_names; fun_induction app as bs_1 <;> grind only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -106,8 +104,8 @@ example : app (app as bs) cs = app as (app bs cs) := by
 
 /--
 info: Try these:
-• · expose_names; induction as, bs using app.induct <;> grind [= app]
-• · expose_names; induction as, bs using app.induct <;> grind only [app]
+• · expose_names; fun_induction app as bs <;> grind [= app]
+• · expose_names; fun_induction app as bs <;> grind only [app]
 -/
 #guard_msgs (info) in
 example : app (app as bs) cs = app as (app bs cs) := by
@@ -124,8 +122,8 @@ attribute [simp] concat
 
 /--
 info: Try these:
-• (induction as, a using concat.induct) <;> simp_all
-• (induction as, a using concat.induct) <;> simp [*]
+• (fun_induction concat as a) <;> simp_all
+• (fun_induction concat as a) <;> simp [*]
 -/
 #guard_msgs (info) in
 example (as : List α) (a : α) : concat as a = as ++ [a] := by
@@ -133,9 +131,9 @@ example (as : List α) (a : α) : concat as a = as ++ [a] := by
 
 /--
 info: Try these:
-• (induction as, a using concat.induct) <;> simp_all
+• (fun_induction concat as a) <;> simp_all
 • ·
-  induction as, a using concat.induct
+  fun_induction concat as a
   · simp
   · simp [*]
 -/
@@ -151,7 +149,7 @@ def foo : Nat → Nat
 
 /--
 info: Try this: ·
-  induction x using foo.induct
+  fun_induction foo x
   · grind [= foo]
   · sorry
 -/
@@ -177,11 +175,11 @@ attribute [grind] List.length_reverse bla
 
 /--
 info: Try these:
-• (induction xs, ys using bla.induct) <;> grind
-• (induction xs, ys using bla.induct) <;> simp_all
-• (induction xs, ys using bla.induct) <;> simp [*]
-• (induction xs, ys using bla.induct) <;> simp only [bla, List.length_reverse, *]
-• (induction xs, ys using bla.induct) <;> grind only [List.length_reverse, bla]
+• (fun_induction bla xs ys) <;> grind
+• (fun_induction bla xs ys) <;> simp_all
+• (fun_induction bla xs ys) <;> simp [*]
+• (fun_induction bla xs ys) <;> simp only [bla, List.length_reverse, *]
+• (fun_induction bla xs ys) <;> grind only [List.length_reverse, bla]
 -/
 #guard_msgs (info) in
 example : (bla xs ys).length = ys.length := by

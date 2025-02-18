@@ -14,7 +14,7 @@ theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a <
   cases as with | _ as =>
   exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp +arith)
 
-theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf (as.get i h) < sizeOf as := by
+theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
   cases as with | _ as =>
   simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
 

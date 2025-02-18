@@ -3246,9 +3246,11 @@ theorem getElem?_len_le (a : Array α) {i : Nat} (h : a.size ≤ i) : a[i]? = no
 theorem getElem!_eq_getD [Inhabited α] (a : Array α) : a[i]! = a.getD i default := by
   rfl
 
+set_option linter.deprecated false in
 @[deprecated getElem!_eq_getD (since := "2025-02-12")]
 theorem get!_eq_getD [Inhabited α] (a : Array α) : a.get! n = a.getD n default := rfl
 
+set_option linter.deprecated false in
 @[deprecated "Use `a[i]!` instead of `a.get! i`." (since := "2025-02-12")]
 theorem get!_eq_getD_getElem? [Inhabited α] (a : Array α) (i : Nat) :
     a.get! i = a[i]?.getD default := by

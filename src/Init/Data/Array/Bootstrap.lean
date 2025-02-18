@@ -15,6 +15,29 @@ This file contains some theorems about `Array` and `List` needed for `Init.Data.
 
 namespace Array
 
+/--
+Use the indexing notation `a[i]` instead.
+
+Access an element from an array without needing a runtime bounds checks,
+using a `Nat` index and a proof that it is in bounds.
+
+This function does not use `get_elem_tactic` to automatically find the proof that
+the index is in bounds. This is because the tactic itself needs to look up values in
+arrays.
+-/
+@[deprecated "Use indexing notation `as[i]` instead" (since := "2025-02-17")]
+def get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+  a.toList.get ⟨i, h⟩
+
+/--
+Use the indexing notation `a[i]!` instead.
+
+Access an element from an array, or panic if the index is out of bounds.
+-/
+@[deprecated "Use indexing notation `as[i]!` instead" (since := "2025-02-17")]
+def get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
+  Array.getD a i default
+
 theorem foldlM_toList.aux [Monad m]
     (f : β → α → m β) (arr : Array α) (i j) (H : arr.size ≤ i + j) (b) :
     foldlM.loop f arr arr.size (Nat.le_refl _) i j b = (arr.toList.drop j).foldlM f b := by

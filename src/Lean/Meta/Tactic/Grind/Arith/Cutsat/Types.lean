@@ -13,6 +13,7 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly RelCnstr DvdCnstr)
 
+-- TODO: include RelCnstrWithProof and RelCnstrProof
 mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstrWithProof where
@@ -22,7 +23,8 @@ structure DvdCnstrWithProof where
 inductive DvdCnstrProof where
   | expr (h : Expr)
   | norm (c : DvdCnstrWithProof)
-  | solveCombine (c₁ c₂ : DvdCnstrWithProof) (α β : Int)
+  | divCoeffs (c : DvdCnstrWithProof)
+  | solveCombine (c₁ c₂ : DvdCnstrWithProof)
   | solveElim (c₁ c₂ : DvdCnstrWithProof)
 end
 

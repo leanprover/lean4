@@ -156,7 +156,7 @@ abbrev push_data := @push_toList
 abbrev toList_eq := @toListImpl_eq
 
 @[deprecated pop_toList (since := "2024-09-09")]
-abbrev pop_data := @pop_toList
+abbrev pop_data := @toList_pop
 
 @[deprecated toList_append (since := "2024-09-09")]
 abbrev append_data := @toList_append

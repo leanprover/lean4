@@ -807,7 +807,7 @@ def alter [Ord α] (k : α) (f : Option β → Option β) (t : Impl α β)
     | none => ⟨.leaf, ✓, ✓, ✓⟩
     | some v => ⟨.inner 1 k v .leaf .leaf, ✓, ✓, ✓⟩
   | .inner sz k' v' l' r' =>
-    match h : compare k k' with
+    match compare k k' with
     | .lt =>
       let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
       ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩

@@ -902,7 +902,7 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
 ### modify
 -/
 
-theorem balance_eq_inner [Ord α] [TransOrd α] {sz k v} {l r : Impl α β}
+theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     (hl : (inner sz k v l r).Balanced) {h} :
     balance k v l r hl.left hl.right h = inner sz k v l r := by
   rw [balance_char, balance']
@@ -911,26 +911,19 @@ theorem balance_eq_inner [Ord α] [TransOrd α] {sz k v} {l r : Impl α β}
   · rw [if_pos (by assumption), bin, hl'.2.2.2]
   · rw [if_neg (by assumption), dif_neg (by assumption), dif_neg (by assumption), bin, hl'.2.2.2]
 
-theorem my_congr {m x y hx1 hx2 hx3} (h : x = y) :
-    alter.match_2 (fun _ => m) x hx1 hx2 hx3 = alter.match_2 (fun _ => m) y (hx1 ∘ (Eq.trans h)) (hx2 ∘ (Eq.trans h)) (hx3 ∘ (Eq.trans h))  := by
-  subst h
-  rfl
-
-theorem modify_eq_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) :
     modify a f t = (alter a (·.map f) t htb).impl := by
   induction t with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    rw [modify, alter] at *
-    obtain ⟨x, hx⟩ : { y : Ordering // (y = compare a k) } := ⟨compare a k, rfl⟩
-    cases x <;> simp only [my_congr hx.symm] <;> try rfl
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    revert hmb
+    rw [modify, alter]
+    split <;> try intro _; rfl
     all_goals
-      dsimp
-      simp only [← ihl htb.left, ← ihr htb.right]
-      rw [balance_eq_inner]
-      suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, my_congr hx.symm] using this
-      exact balanced_modify htb
+      intro hmb
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
 
 theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
@@ -1012,14 +1005,24 @@ theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   induction t with
   | leaf => rfl
   | inner sz k v l r ihl ihr =>
-    rw [modify, alter] at *
-    cases h : compare a k <;> try rfl
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    revert hmb
+    rw [modify, alter]
+    split <;> try intro _; rfl
     all_goals
-      dsimp
-      simp only [← ihl htb.left, ← ihr htb.right]
-      rw [balance_eq_inner]
-      suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, h] using this
-      exact balanced_modify htb
+      intro hmb
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+  -- induction t with
+  -- | leaf => rfl
+  -- | inner sz k v l r ihl ihr =>
+  --   rw [modify, alter] at *
+  --   cases h : compare a k <;> try rfl
+  --   all_goals
+  --     dsimp
+  --     simp only [← ihl htb.left, ← ihr htb.right]
+  --     rw [balance_eq_inner]
+  --     suffices (modify a f (inner _ k ..)).Balanced by simpa [modify, h] using this
+  --     exact balanced_modify htb
 
 theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=

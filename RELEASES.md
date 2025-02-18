@@ -11,6 +11,100 @@ of each version.
 v4.17.0
 ----------
 
+## Highlights
+
+The Lean v4.17 release brings a range of new features, performance improvements,
+and bug fixes. Notable updates include:
+
+* [#6368](https://github.com/leanprover/lean4/pull/6368) implements executing kernel checking in parallel to elaboration,
+which is a prerequisite for parallelizing elaboration itself.
+
+* [#6711](https://github.com/leanprover/lean4/pull/6711) adds support for `UIntX` and `USize` in `bv_decide` by adding a
+preprocessor that turns them into `BitVec` of their corresponding size.
+
+* [#6505](https://github.com/leanprover/lean4/pull/6505) implements a basic async framework as well as asynchronously
+running timers using libuv.
+
+* improvements to documentation with `docgen`, which now links
+dot notations ([#6703](https://github.com/leanprover/lean4/pull/6703)),
+coerced functions ([#6729](https://github.com/leanprover/lean4/pull/6729)),
+and tokens ([#6730](https://github.com/leanprover/lean4/pull/6730)).
+
+* extensive library development, in particular, expanding verification APIs of `BitVec`,
+making APIs of `List` / `Array` / `Vector` consistent, and adding lemmas describing the behavior of `UInt`.
+
+* [#6597](https://github.com/leanprover/lean4/pull/6597) fixes the indentation of nested traces nodes in the info view.
+
+### New Language Features
+
+* **Partial Fixpoint**
+
+  [#6355](https://github.com/leanprover/lean4/pull/6355) adds the ability to define possibly non-terminating functions
+and still be able to reason about them equationally, as long as they are
+tail-recursive or monadic.
+
+  See the [reference manual](https://lean-lang.org/doc/reference/latest/Recursive-Definitions/Partial-Fixpoint-Recursion/#partial-fixpoint)
+for more details.
+
+* **`induction` with zero alternatives**
+
+  [#6486](https://github.com/leanprover/lean4/pull/6486) modifies the `induction`/`cases` syntax so that the `with`
+clause does not need to be followed by any alternatives. This improves
+friendliness of these tactics, since this lets them surface the names of
+the missing alternatives:
+  ```lean
+  example (n : Nat) : True := by
+    induction n with
+  /-            ~~~~
+  alternative 'zero' has not been provided
+  alternative 'succ' has not been provided
+  -/
+  ```
+
+* **`simp?` and `dsimp?` tactics in conversion mode**
+
+  [#6593](https://github.com/leanprover/lean4/pull/6593) adds support for the `simp?` and `dsimp?` tactics in conversion
+mode.
+
+* **`zetaUnused` simp and reduction option**
+
+  [#6755](https://github.com/leanprover/lean4/pull/6755) implements the `zetaUnused` simp and reduction option (added in
+[#6754](https://github.com/leanprover/lean4/pull/6754)). 
+
+  True by default, and implied by `zeta`, this can be turned off to make `simp` even more careful about
+preserving the expression structure, including unused `let` and `have` expressions.
+
+* **`fun_cases` (Experimental feature)**
+
+  [#6261](https://github.com/leanprover/lean4/pull/6261) adds `foo.fun_cases`, an automatically generated theorem that
+splits the goal according to the branching structure of `foo`, much like
+the Functional Induction Principle, but for all functions (not just
+recursive ones), and without providing inductive hypotheses.
+
+### New CLI Features
+
+* [#6427](https://github.com/leanprover/lean4/pull/6427) adds the Lean CLI option `--src-deps` which parallels `--deps`.
+It parses the Lean code's header and prints out the paths to the
+(transitively) imported modules' source files (deduced from
+`LEAN_SRC_PATH`).
+
+* [#6323](https://github.com/leanprover/lean4/pull/6323) adds a new Lake CLI command, `lake query`, that both builds
+targets and outputs their results. It can produce raw text or JSON
+-formatted output (with `--json` / `-J`).
+
+### Breaking Changes
+
+* [#6602](https://github.com/leanprover/lean4/pull/6602) allows the dot ident notation to resolve to the current
+definition, or to any of the other definitions in the same mutual block.
+Existing code that uses dot ident notation may need to have `nonrec`
+added if the ident has the same name as the definition.
+
+* Introduction of the `zetaUnused` simp and reduction option ([#6755](https://github.com/leanprover/lean4/pull/6755)) 
+is a breaking change: the `split` tactic no longer removes unused `let` and `have` expressions as a side-effect,
+in rare cases this may break proofs. `dsimp only` can be used to remove unused `have` and `let` expressions.
+
+_This highlights section was contributed by Violetta Sim._
+
 ## Language
 
 * [#5145](https://github.com/leanprover/lean4/pull/5145) splits the environment used by the kernel from that used by the

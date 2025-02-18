@@ -7,7 +7,6 @@ prelude
 import Lean.Meta.Tactic.Grind.Types
 
 namespace Int.Linear
-
 def Poly.isZero : Poly → Bool
   | .num 0 => true
   | _ => false
@@ -35,6 +34,17 @@ def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
 end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+/--
+`gcdExt a b` returns the triple `(g, α, β)` such that
+- `g = gcd a b` (with `g ≥ 0`), and
+- `g = α * a + β * β`.
+-/
+partial def gcdExt (a b : Int) : Int × Int × Int :=
+  if b = 0 then
+    (a.natAbs, if a = 0 then 0 else a / a.natAbs, 0)
+  else
+    let (g, α, β) := gcdExt b (a % b)
+    (g, β, α - (a / b) * β)
 
 def get' : GoalM State := do
   return (← get).arith.cutsat
@@ -44,6 +54,11 @@ def get' : GoalM State := do
 
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
+
+def mkCnstrId : GoalM Nat := do
+  let id := (← get').nextCnstrId
+  modify' fun s => { s with nextCnstrId := id + 1 }
+  return id
 
 def DvdCnstrWithProof.denoteExpr (cₚ : DvdCnstrWithProof) : GoalM Expr := do
   let vars ← getVars
@@ -56,14 +71,28 @@ def toContextExpr : GoalM Expr := do
   else
     return RArray.toExpr (mkConst ``Int) id (RArray.leaf (mkIntLit 0))
 
+structure ProofM.State where
+  cache : Std.HashMap Nat Expr := {}
+
 /-- Auxiliary monad for constructing cutsat proofs. -/
-abbrev ProofM := ReaderT Expr GoalM
+abbrev ProofM := ReaderT Expr (StateRefT ProofM.State GoalM)
 
 /-- Returns a Lean expression representing the variable context used to construct cutsat proofs. -/
 abbrev getContext : ProofM Expr := do
   read
 
+abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
+  if let some h := (← get).cache[id]? then
+    return h
+  else
+    let h ← k
+    modify fun s => { s with cache := s.cache.insert id h }
+    return h
+
+abbrev DvdCnstrWithProof.caching (c : DvdCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
+  Cutsat.caching c.id k
+
 abbrev withProofContext (x : ProofM α) : GoalM α := do
-  x (← toContextExpr)
+  x (← toContextExpr) |>.run' {}
 
 end Lean.Meta.Grind.Arith.Cutsat

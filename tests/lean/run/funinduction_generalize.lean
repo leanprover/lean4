@@ -160,22 +160,22 @@ example (h : xs.isEmpty) : P (List.zip xs ys) := by
 /--
 error: unsolved goals
 case case1
-xs ys : List Nat
 P : {α : Type} → List α → Prop
-h : xs.isEmpty = true
 x✝ : Nat
 xs✝ : List Nat
 y✝ : Nat
 ys✝ : List Nat
-ih1✝ : P (xs.zip ys✝)
+ih1✝ : ∀ (xs : List Nat), xs.isEmpty = true → P (xs.zip ys✝)
+xs : List Nat
+h : xs.isEmpty = true
 ⊢ P (xs.zip (y✝ :: ys✝))
 
 case case2
-xs ys : List Nat
 P : {α : Type} → List α → Prop
-h : xs.isEmpty = true
 t✝ x✝¹ : List Nat
 x✝ : ∀ (x : Nat) (xs : List Nat) (y : Nat) (ys : List Nat), t✝ = x :: xs → x✝¹ = y :: ys → False
+xs : List Nat
+h : xs.isEmpty = true
 ⊢ P (xs.zip x✝¹)
 -/
 #guard_msgs in

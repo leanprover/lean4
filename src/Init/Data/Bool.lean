@@ -564,19 +564,6 @@ theorem apply_cond (f : α → β) {b : Bool} {a a' : α} :
     f (bif b then a else a') = bif b then f a else f a' := by
   cases b <;> simp
 
-
-/--
-`dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
-but optimized for a boolean condition. It can also be written as `bif b then x else y`.
-This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
-This definition intendend for metaprogramming use, and does not come with a suitable API.
--/
-@[macro_inline]
-protected def dcond {α : Sort u} (c : Bool) (x : c = true → α) (y : c = false → α) : α :=
-  match c with
-  | true  => x rfl
-  | false => y rfl
-
 /-! # decidability -/
 
 protected theorem decide_coe (b : Bool) [Decidable (b = true)] : decide (b = true) = b := decide_eq_true

@@ -637,7 +637,7 @@ theorem balanced_rotateL (k v l rs rk rv rl rr) (hl : l.Balanced)
   · rw [if_neg ‹_›]
     tree_tac
   · rw [if_neg ‹_›]
-    apply balanced_doubleL k v _ _ _ _ _ _ _ _ _ _ hl hr hlr hh ‹_›
+    exact balanced_doubleL k v _ _ _ _ _ _ _ _ _ _ hl hr hlr hh ‹_›
 
 theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr).Balanced)
     (hr : r.Balanced) (hlr : BalanceLErasePrecond ls r.size ∨ BalanceLErasePrecond r.size ls)
@@ -651,7 +651,7 @@ theorem balanced_rotateR (k v ls lk lv ll lr r) (hl : (Impl.inner ls lk lv ll lr
   · rw [if_neg ‹_›]
     tree_tac
   · rw [if_neg ‹_›]
-    apply balanced_doubleR k v _ _ _ _ _ _ _ _ _ _ hl hr hlr hh ‹_›
+    exact balanced_doubleR k v _ _ _ _ _ _ _ _ _ _ hl hr hlr hh ‹_›
 
 theorem balanceL_eq_balanceLErase {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balanceLErase k v l r hlb hrb hlr.erase := by
@@ -742,7 +742,6 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
   · rw [if_neg ‹_›, dif_pos ‹_›]
     contradiction
   · rw [if_neg ‹_›, dif_pos ‹_›]
-    dsimp
     simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩
@@ -750,7 +749,6 @@ theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) 
   · simp only [delta, size_leaf] at *
     omega
   · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-    dsimp
     simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
     rw [← Balanced.eq ‹_›]
     refine ⟨rfl, ?_⟩

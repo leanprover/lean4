@@ -7,40 +7,43 @@ Authors: Leonardo de Moura
 prelude
 import Init.Data.Array.Basic
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Array
 
 /-! ### getLit -/
 
 -- auxiliary declaration used in the equation compiler when pattern matching array literals.
-abbrev getLit {α : Type u} {n : Nat} (a : Array α) (i : Nat) (h₁ : a.size = n) (h₂ : i < n) : α :=
+abbrev getLit {α : Type u} {n : Nat} (xs : Array α) (i : Nat) (h₁ : xs.size = n) (h₂ : i < n) : α :=
   have := h₁.symm ▸ h₂
-  a[i]
+  xs[i]
 
 theorem extLit {n : Nat}
-    (a b : Array α)
-    (hsz₁ : a.size = n) (hsz₂ : b.size = n)
-    (h : (i : Nat) → (hi : i < n) → a.getLit i hsz₁ hi = b.getLit i hsz₂ hi) : a = b :=
-  Array.ext a b (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
+    (xs ys : Array α)
+    (hsz₁ : xs.size = n) (hsz₂ : ys.size = n)
+    (h : (i : Nat) → (hi : i < n) → xs.getLit i hsz₁ hi = ys.getLit i hsz₂ hi) : xs = ys :=
+  Array.ext xs ys (hsz₁.trans hsz₂.symm) fun i hi₁ _ => h i (hsz₁ ▸ hi₁)
 
-def toListLitAux (a : Array α) (n : Nat) (hsz : a.size = n) : ∀ (i : Nat), i ≤ a.size → List α → List α
+def toListLitAux (xs : Array α) (n : Nat) (hsz : xs.size = n) : ∀ (i : Nat), i ≤ xs.size → List α → List α
   | 0,     _,  acc => acc
-  | (i+1), hi, acc => toListLitAux a n hsz i (Nat.le_of_succ_le hi) (a.getLit i hsz (Nat.lt_of_lt_of_eq (Nat.lt_of_lt_of_le (Nat.lt_succ_self i) hi) hsz) :: acc)
+  | (i+1), hi, acc => toListLitAux xs n hsz i (Nat.le_of_succ_le hi) (xs.getLit i hsz (Nat.lt_of_lt_of_eq (Nat.lt_of_lt_of_le (Nat.lt_succ_self i) hi) hsz) :: acc)
 
-def toArrayLit (a : Array α) (n : Nat) (hsz : a.size = n) : Array α :=
-  List.toArray <| toListLitAux a n hsz n (hsz ▸ Nat.le_refl _) []
+def toArrayLit (xs : Array α) (n : Nat) (hsz : xs.size = n) : Array α :=
+  List.toArray <| toListLitAux xs n hsz n (hsz ▸ Nat.le_refl _) []
 
-theorem toArrayLit_eq (as : Array α) (n : Nat) (hsz : as.size = n) : as = toArrayLit as n hsz := by
+theorem toArrayLit_eq (xs : Array α) (n : Nat) (hsz : xs.size = n) : xs = toArrayLit xs n hsz := by
   apply ext'
   simp [toArrayLit, List.toList_toArray]
-  have hle : n ≤ as.size := hsz ▸ Nat.le_refl _
-  have hge : as.size ≤ n := hsz ▸ Nat.le_refl _
+  have hle : n ≤ xs.size := hsz ▸ Nat.le_refl _
+  have hge : xs.size ≤ n := hsz ▸ Nat.le_refl _
   have := go n hle
   rw [List.drop_eq_nil_of_le hge] at this
   rw [this]
 where
-  getLit_eq (as : Array α) (i : Nat) (h₁ : as.size = n) (h₂ : i < n) : as.getLit i h₁ h₂ = getElem as.toList i ((id (α := as.toList.length = n) h₁) ▸ h₂) :=
+  getLit_eq (xs : Array α) (i : Nat) (h₁ : xs.size = n) (h₂ : i < n) : xs.getLit i h₁ h₂ = getElem xs.toList i ((id (α := xs.toList.length = n) h₁) ▸ h₂) :=
     rfl
-  go (i : Nat) (hi : i ≤ as.size) : toListLitAux as n hsz i hi (as.toList.drop i) = as.toList := by
+  go (i : Nat) (hi : i ≤ xs.size) : toListLitAux xs n hsz i hi (xs.toList.drop i) = xs.toList := by
     induction i <;> simp only [List.drop, toListLitAux, getLit_eq, List.getElem_cons_drop_succ_eq_drop, *]
 
 end Array

@@ -140,19 +140,19 @@ theorem modifyTailIdx_modifyTailIdx_self {f g : List α → List α} (n : Nat) (
 
 /-! ### modify -/
 
-@[simp] theorem modify_nil (f : α → α) (n) : [].modify f n = [] := by cases n <;> rfl
+@[simp] theorem modify_nil (f : α → α) (i) : [].modify f i = [] := by cases i <;> rfl
 
 @[simp] theorem modify_zero_cons (f : α → α) (a : α) (l : List α) :
     (a :: l).modify f 0 = f a :: l := rfl
 
-@[simp] theorem modify_succ_cons (f : α → α) (a : α) (l : List α) (n) :
-    (a :: l).modify f (n + 1) = a :: l.modify f n := by rfl
+@[simp] theorem modify_succ_cons (f : α → α) (a : α) (l : List α) (i) :
+    (a :: l).modify f (i + 1) = a :: l.modify f i := by rfl
 
 theorem modifyHead_eq_modify_zero (f : α → α) (l : List α) :
     l.modifyHead f = l.modify f 0 := by cases l <;> simp
 
-@[simp] theorem modify_eq_nil_iff {f : α → α} {n} {l : List α} :
-    l.modify f n = [] ↔ l = [] := by cases l <;> cases n <;> simp
+@[simp] theorem modify_eq_nil_iff {f : α → α} {i} {l : List α} :
+    l.modify f i = [] ↔ l = [] := by cases l <;> cases i <;> simp
 
 theorem getElem?_modify (f : α → α) :
     ∀ i (l : List α) j, (modify f i l)[j]? = (fun a => if i = j then f a else a) <$> l[j]?
@@ -189,8 +189,8 @@ theorem getElem_modify (f : α → α) (i) (l : List α) (j) (h : j < (modify f 
 @[simp] theorem getElem_modify_ne (f : α → α) {i j} (l : List α) (h : i ≠ j) (h') :
     (modify f i l)[j] = l[j]'(by simpa using h') := by simp [getElem_modify, h]
 
-theorem modify_eq_self {f : α → α} {n} {l : List α} (h : l.length ≤ n) :
-    l.modify f n = l := by
+theorem modify_eq_self {f : α → α} {i} {l : List α} (h : l.length ≤ i) :
+    l.modify f i = l := by
   apply ext_getElem
   · simp
   · intro m h₁ h₂
@@ -198,16 +198,16 @@ theorem modify_eq_self {f : α → α} {n} {l : List α} (h : l.length ≤ n) :
     intro h
     omega
 
-theorem modify_modify_eq (f g : α → α) (n) (l : List α) :
-    (modify f n l).modify g n = modify (g ∘ f) n l := by
+theorem modify_modify_eq (f g : α → α) (i) (l : List α) :
+    (modify f i l).modify g i = modify (g ∘ f) i l := by
   apply ext_getElem
   · simp
   · intro m h₁ h₂
     simp only [getElem_modify, Function.comp_apply]
     split <;> simp
 
-theorem modify_modify_ne (f g : α → α) {m n} (l : List α) (h : m ≠ n) :
-    (modify f m l).modify g n = (l.modify g n).modify f m := by
+theorem modify_modify_ne (f g : α → α) {i j} (l : List α) (h : i ≠ j) :
+    (modify f i l).modify g j = (l.modify g j).modify f i := by
   apply ext_getElem
   · simp
   · intro m' h₁ h₂
@@ -234,13 +234,13 @@ theorem modify_eq_take_cons_drop {f : α → α} {i} {l : List α} (h : i < l.le
     modify f i l = take i l ++ f l[i] :: drop (i + 1) l := by
   rw [modify_eq_take_drop, drop_eq_getElem_cons h]; rfl
 
-theorem exists_of_modify (f : α → α) {n} {l : List α} (h : n < l.length) :
-    ∃ l₁ a l₂, l = l₁ ++ a :: l₂ ∧ l₁.length = n ∧ modify f n l = l₁ ++ f a :: l₂ :=
+theorem exists_of_modify (f : α → α) {i} {l : List α} (h : i < l.length) :
+    ∃ l₁ a l₂, l = l₁ ++ a :: l₂ ∧ l₁.length = i ∧ modify f i l = l₁ ++ f a :: l₂ :=
   match exists_of_modifyTailIdx _ (Nat.le_of_lt h) with
   | ⟨_, _::_, eq, hl, H⟩ => ⟨_, _, _, eq, hl, H⟩
   | ⟨_, [], eq, hl, _⟩ => nomatch Nat.ne_of_gt h (eq ▸ append_nil _ ▸ hl)
 
-@[simp] theorem modify_id (n) (l : List α) : l.modify id n = l := by
+@[simp] theorem modify_id (i) (l : List α) : l.modify id i = l := by
   simp [modify]
 
 theorem take_modify (f : α → α) (i j) (l : List α) :

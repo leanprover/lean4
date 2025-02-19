@@ -1950,12 +1950,12 @@ theorem getElem?_mkVector (a : α) (n i : Nat) : (mkVector n a)[i]? = if i < n t
 
 theorem eq_mkVector_of_mem {a : α} {l : Vector α n} (h : ∀ (b) (_ : b ∈ l), b = a) : l = mkVector n a := by
   rw [← toArray_inj]
-  simpa using Array.eq_mkArray_of_mem (l := l.toArray) (by simpa using h)
+  simpa using Array.eq_mkArray_of_mem (xs := l.toArray) (by simpa using h)
 
 theorem eq_mkVector_iff {a : α} {n} {l : Vector α n} :
     l = mkVector n a ↔ ∀ (b) (_ : b ∈ l), b = a := by
   rw [← toArray_inj]
-  simpa using Array.eq_mkArray_iff (l := l.toArray) (n := n)
+  simpa using Array.eq_mkArray_iff (xs := l.toArray) (n := n)
 
 theorem map_eq_mkVector_iff {l : Vector α n} {f : α → β} {b : β} :
     l.map f = mkVector n b ↔ ∀ x ∈ l, f x = b := by

@@ -57,20 +57,29 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | List.modify _ _ i _ => [i]
       | List.zipIdx _ _ i => [i]
       | Array.extract _ _ i j => [i, j]
-      | Array.set _ _ i _ => [i]
+      | Array.take _ _ i => [i]
+      | Array.drop _ _ i => [i]
+      | Array.shrink _ _ i => [i]
+      | Array.set _ _ i _ _ => [i]
+      | Array.uset _ _ i _ _ => [i]
       | Array.setIfInBounds _ _ i _ => [i]
       | Array.insertIdx _ _ i _ _ => [i]
       | Array.insertIdxIfInBounds _ _ i _ => [i]
       | Array.eraseIdx _ _ i _ => [i]
       | Array.eraseIdxIfInBounds _ _ i _ => [i]
-      | Array.modify _ i _ _ => [i]
+      | Array.modify _ _ i _ => [i]
       | Array.zipIdx _ _ i => [i]
+      | Array.swap _ _ i j _ => [i, j]
       | Vector.extract _ _ _ i j => [i, j]
-      | Vector.set _ _ _ i _ => [i]
+      | Vector.take _ _ _ i => [i]
+      | Vector.drop _ _ _ i => [i]
+      | Vector.shrink _ _ _ i => [i]
+      | Vector.set _ _ _ i _ _ => [i]
       | Vector.setIfInBounds _ _ _ i _ => [i]
       | Vector.insertIdx _ _ _ i _ _ => [i]
       | Vector.eraseIdx _ _ _ i _ => [i]
       | Vector.zipIdx _ _ _ i => [i]
+      | Vector.swap _ _ _ i j _ => [i, j]
       | _ => []
       match idxs with
       | [] => none
@@ -184,10 +193,10 @@ builtin_initialize addLinter indexLinter
 def allowedListNames : List String := ["l", "r", "s", "t", "tl", "ws", "xs", "ys", "zs", "as", "bs", "cs", "ds", "acc"]
 
 /-- Allowed names for `Array` variables. -/
-def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "acc"]
+def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds", "acc"]
 
 /-- Allowed names for `Vector` variables. -/
-def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"]
+def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds"]
 
 /-- Find all binders appearing in the given info tree. -/
 def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Syntax × Name × Expr)) :=
@@ -227,12 +236,13 @@ def listVariablesLinter : Linter
             unless (ty.getArg! 0).isAppOf `List && (n == "L" || n == "xss") do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `List` name: {n}"
-        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
+        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Array do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedArrayNames.contains n then
-            Linter.logLint linter.listVariables stx
-              m!"Forbidden variable appearing as a `Array` name: {n}"
+            unless (ty.getArg! 0).isAppOf `Array && n == "xss" do
+              Linter.logLint linter.listVariables stx
+                m!"Forbidden variable appearing as a `Array` name: {n}"
         for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
           if let .str _ n := n then
           let n := stripBinderName n

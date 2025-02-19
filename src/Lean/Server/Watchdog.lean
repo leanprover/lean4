@@ -18,6 +18,7 @@ import Lean.Data.Lsp
 import Lean.Server.Utils
 import Lean.Server.Requests
 import Lean.Server.References
+import Lean.Server.ServerTask
 
 /-!
 For general server architecture, see `README.md`. This module implements the watchdog process.
@@ -114,7 +115,7 @@ section FileWorker
     doc                : DocumentMeta
     proc               : Process.Child workerCfg
     exitCode           : Std.Mutex (Option UInt32)
-    commTask           : Task WorkerEvent
+    commTask           : ServerTask WorkerEvent
     state              : WorkerState
     -- This should not be mutated outside of namespace FileWorker,
     -- as it is used as shared mutable state
@@ -310,9 +311,9 @@ section ServerM
 
   /-- Creates a Task which forwards a worker's messages into the output stream until an event
   which must be handled in the main watchdog thread (e.g. an I/O error) happens. -/
-  private partial def forwardMessages (fw : FileWorker) : ServerM (Task WorkerEvent) := do
-    let task ← IO.asTask (loop $ ←read) Task.Priority.dedicated
-    return task.map fun
+  private partial def forwardMessages (fw : FileWorker) : ServerM (ServerTask WorkerEvent) := do
+    let task ← ServerTask.IO.asTask (loop $ ←read)
+    return task.mapCheap fun
       | Except.ok ev   => ev
       | Except.error e => WorkerEvent.ioError e
   where
@@ -991,18 +992,18 @@ section MainLoop
     | clientMsg (msg : JsonRpc.Message)
     | clientError (e : IO.Error)
 
-  def runClientTask : ServerM (Task ServerEvent) := do
+  def runClientTask : ServerM (ServerTask ServerEvent) := do
     let st ← read
     let readMsgAction : IO ServerEvent := do
       /- Runs asynchronously. -/
       let msg ← st.hIn.readLspMessage
       pure <| ServerEvent.clientMsg msg
-    let clientTask := (← IO.asTask (prio := Task.Priority.dedicated) readMsgAction).map fun
+    let clientTask := (← ServerTask.IO.asTask readMsgAction).mapCheap fun
       | Except.ok ev   => ev
       | Except.error e => ServerEvent.clientError e
     return clientTask
 
-  partial def mainLoop (clientTask : Task ServerEvent) : ServerM Unit := do
+  partial def mainLoop (clientTask : ServerTask ServerEvent) : ServerM Unit := do
     let st ← read
     let workers ← st.fileWorkersRef.get
     let mut workerTasks := #[]
@@ -1017,9 +1018,9 @@ section MainLoop
       -- `WorkerState.crashed _ .clientToFileWorkerForwarding`, since the forwarding task
       -- exit code may still contain valuable information in this case (e.g. that the imports changed).
       if !(fw.state matches WorkerState.crashed _ .fileWorkerToClientForwarding) then
-        workerTasks := workerTasks.push <| fw.commTask.map (ServerEvent.workerEvent fw)
+        workerTasks := workerTasks.push <| fw.commTask.mapCheap (ServerEvent.workerEvent fw)
 
-    let ev ← IO.waitAny (clientTask :: workerTasks.toList)
+    let ev ← ServerTask.waitAny (clientTask :: workerTasks.toList)
     match ev with
     | ServerEvent.clientMsg msg =>
       match msg with
@@ -1166,7 +1167,7 @@ results in requests that need references.
 def startLoadingReferences (references : IO.Ref References) : IO Unit := do
   -- Discard the task; there isn't much we can do about this failing,
   -- but we should try to continue server operations regardless
-  let _ ← IO.asTask (prio := Task.Priority.dedicated) do
+  let _ ← ServerTask.IO.asTask do
     let oleanSearchPath ← Lean.searchPathRef.get
     for path in ← oleanSearchPath.findAllWithExt "ilean" do
       try

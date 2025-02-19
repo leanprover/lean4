@@ -711,13 +711,17 @@ def DvdCnstr.div (k' : Int) : DvdCnstr → DvdCnstr
 private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
 
-def DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
+theorem DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
   rcases c with ⟨a, p⟩
   simp [isUnsat, denote]
   intro h₁ h₂
   have := Poly.gcd_dvd_const h₂
   have := not_dvd_of_not_mod_zero h₁
   contradiction
+
+theorem DvdCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁] at h₂
 
 @[local simp] private theorem mul_dvd_mul_eq {a b c : Int} (hnz : a ≠ 0) : a * b ∣ a * c ↔ b ∣ c := by
   constructor

@@ -1007,7 +1007,7 @@ boolean condition. It can also be written as `bif b then x else y`.
 This is `@[macro_inline]` because `x` and `y` should not
 be eagerly evaluated (see `ite`).
 -/
-@[macro_inline] def cond {α : Type u} (c : Bool) (x y : α) : α :=
+@[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x
   | false => y

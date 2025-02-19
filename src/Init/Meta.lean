@@ -1316,13 +1316,14 @@ end Syntax
 
 namespace TSyntax
 
-def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax) (mkElem : Syntax → MacroM Syntax) : MacroM Syntax := do
+def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → Syntax → MacroM Syntax)
+  (mkElem : Syntax → MacroM Syntax) (mkLit : String → MacroM Syntax) : MacroM Syntax := do
   let mut i := 0
   let mut result := Syntax.missing
   for elem in chunks do
     let elem ← match elem.isInterpolatedStrLit? with
       | none     => mkElem elem
-      | some str => mkElem (Syntax.mkStrLit str)
+      | some str => mkLit str
     if i == 0 then
       result := elem
     else
@@ -1331,8 +1332,14 @@ def expandInterpolatedStrChunks (chunks : Array Syntax) (mkAppend : Syntax → S
   return result
 
 open TSyntax.Compat in
-def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (toTypeFn : Term) : MacroM Term := do
-  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs (fun a b => `($a ++ $b)) (fun a => `($toTypeFn $a))
+/-- Expand `interpStr` into a term of type `type` (which supports ` ++ `),
+calling `ofInterpFn` on terms within `{}`,
+and `ofLitFn` on the literals between the interpolations. -/
+def expandInterpolatedStr (interpStr : TSyntax interpolatedStrKind) (type : Term) (ofInterpFn : Term) (ofLitFn : Term := ofInterpFn) : MacroM Term := do
+  let r ← expandInterpolatedStrChunks interpStr.raw.getArgs
+    (fun a b => `($a ++ $b))
+    (fun a => `($ofInterpFn $a))
+    (fun s => `($ofLitFn $(Syntax.mkStrLit s)))
   `(($r : $type))
 
 def getDocString (stx : TSyntax `Lean.Parser.Command.docComment) : String :=

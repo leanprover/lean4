@@ -203,6 +203,7 @@ LEAN_EXPORT lean_object* l_modifyGetThe___rarg(lean_object*, lean_object*);
 static lean_object* l_Lean_instHashableName___closed__1;
 LEAN_EXPORT lean_object* l_instDecidableEqFin(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Syntax_getNumArgs___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Bool_dcond___rarg(uint8_t, lean_object*, lean_object*);
 LEAN_EXPORT uint32_t l_instMaxUInt32(uint32_t, uint32_t);
 LEAN_EXPORT lean_object* l_throwThe___rarg(lean_object*, lean_object*, lean_object*);
 uint64_t lean_string_hash(lean_object*);
@@ -331,6 +332,7 @@ LEAN_EXPORT lean_object* l_List_set(lean_object*);
 LEAN_EXPORT lean_object* l_instHXorOfXor(lean_object*);
 LEAN_EXPORT lean_object* l_instMonadWithReaderOfMonadWithReaderOf(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_USize_toBitVec___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Bool_dcond___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_BitVec_decEq___rarg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_set___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_toArray___rarg(lean_object*);
@@ -926,6 +928,7 @@ LEAN_EXPORT lean_object* l_List_length___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instHashableName;
 LEAN_EXPORT lean_object* l_Lean_Name_mkSimple(lean_object*);
 LEAN_EXPORT lean_object* l_ite(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Bool_dcond(lean_object*);
 LEAN_EXPORT lean_object* l_id___rarg(lean_object* x_1) {
 _start:
 {
@@ -1591,6 +1594,43 @@ lean_dec(x_1);
 x_5 = l_cond___rarg(x_4, x_2, x_3);
 lean_dec(x_3);
 lean_dec(x_2);
+return x_5;
+}
+}
+LEAN_EXPORT lean_object* l_Bool_dcond___rarg(uint8_t x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+if (x_1 == 0)
+{
+lean_object* x_4; 
+lean_dec(x_2);
+x_4 = lean_apply_1(x_3, lean_box(0));
+return x_4;
+}
+else
+{
+lean_object* x_5; 
+lean_dec(x_3);
+x_5 = lean_apply_1(x_2, lean_box(0));
+return x_5;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Bool_dcond(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = lean_alloc_closure((void*)(l_Bool_dcond___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Bool_dcond___rarg___boxed(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+_start:
+{
+uint8_t x_4; lean_object* x_5; 
+x_4 = lean_unbox(x_1);
+lean_dec(x_1);
+x_5 = l_Bool_dcond___rarg(x_4, x_2, x_3);
 return x_5;
 }
 }

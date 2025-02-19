@@ -905,9 +905,9 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
 theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
     (hl : (inner sz k v l r).Balanced) {h} :
     balance k v l r hl.left hl.right h = inner sz k v l r := by
-  rw [balance_char, balance']
+  rw [balance_eq_balanceₘ, balanceₘ]
   have hl' := balanced_inner_iff.mp hl
-  cases k, v, l, r, hl.left, hl.right, h using balance'.fun_cases <;> tree_tac
+  cases k, v, l, r, hl.left, hl.right, h using balanceₘ.fun_cases <;> tree_tac
 
 theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) :

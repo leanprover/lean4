@@ -396,8 +396,8 @@ theorem balanceLErasePrecond_zero_iff' {n : Nat} : BalanceLErasePrecond n 0 ↔ 
   tree_tac
 
 /-!
-The following definitions are not actually used by the tree map implementation. Instead, they
-are used in the proofs of lemmas about the implementation.
+The following definitions are not actually used by the tree map implementation. They are only used
+in the model function `balanceₘ`, which exists for proof purposes only.
 
 The terminology is consistent with the comment above
 [the `balance` implementation](https://hackage.haskell.org/package/containers-0.7/docs/src/Data.Map.Internal.html#balance)
@@ -494,7 +494,7 @@ theorem size_rotateR {k : α} {v : β k} {lk : α} {lv : β lk} {ll lr : Impl α
   · simp only [size_doubleR, size_bin, size_inner, h.eq]
 
 /-- Internal implementation detail of the tree map -/
-def balance' (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
+def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
   if l.size + r.size ≤ 1 then
     bin k v l r
   else if h : r.size > delta * l.size then
@@ -510,9 +510,9 @@ def balance' (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
-theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
-    balance k v l r h₁ h₂ h₃ = balance' k v l r := by
-  rw [balance'.eq_def]
+theorem balance_eq_balanceₘ {k v} {l r : Impl α β} {h₁ h₂ h₃} :
+    balance k v l r h₁ h₂ h₃ = balanceₘ k v l r := by
+  rw [balanceₘ.eq_def]
   cases k, v, l, r, h₁, h₂, h₃ using balance.fun_cases
   all_goals
     simp only [balance]
@@ -735,8 +735,8 @@ theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
-  rw [← balance_eq_balance! (hlb := hlb) (hrb := hrb) (hlr := hlr), balance_char, balance']
-  cases k, v, l, r, hlb, hrb, hlr using balance'.fun_cases
+  rw [← balance_eq_balance! (hlb := hlb) (hrb := hrb) (hlr := hlr), balance_eq_balanceₘ, balanceₘ]
+  cases k, v, l, r, hlb, hrb, hlr using balanceₘ.fun_cases
   · rw [if_pos ‹_›, bin, balanced_inner_iff]
     exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
   · rw [if_neg ‹_›, dif_pos ‹_›]

@@ -92,7 +92,9 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
 abbrev DvdCnstrWithProof.caching (c : DvdCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
-abbrev withProofContext (x : ProofM α) : GoalM α := do
-  x (← toContextExpr) |>.run' {}
+abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
+  withLetDecl `ctx (mkApp (mkConst ``RArray) (mkConst ``Int)) (← toContextExpr) fun ctx => do
+    let h ← x ctx |>.run' {}
+    mkLetFVars #[ctx] h
 
 end Lean.Meta.Grind.Arith.Cutsat

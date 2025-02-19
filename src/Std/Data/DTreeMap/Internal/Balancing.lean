@@ -494,8 +494,7 @@ theorem size_rotateR {k : α} {v : β k} {lk : α} {lv : β lk} {ll lr : Impl α
   · simp only [size_doubleR, size_bin, size_inner, h.eq]
 
 /-- Internal implementation detail of the tree map -/
-def balance' (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balanced r)
-    (h : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) : Impl α β :=
+def balance' (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
   if l.size + r.size ≤ 1 then
     bin k v l r
   else if h : r.size > delta * l.size then
@@ -512,7 +511,7 @@ def balance' (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Bala
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
 theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
-    balance k v l r h₁ h₂ h₃ = balance' k v l r h₁ h₂ h₃ := by
+    balance k v l r h₁ h₂ h₃ = balance' k v l r := by
   rw [balance']
   cases k, v, l, r, h₁, h₂, h₃ using balance.fun_cases
   all_goals

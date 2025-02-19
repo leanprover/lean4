@@ -361,13 +361,9 @@ attribute [local simp] Poly.denote_addConst
 
 theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
-  induction p <;> simp [*]
-  next k' v' p' ih =>
-    by_cases h₁ : Nat.blt v' v <;> simp [*]
-    by_cases h₂ : Nat.beq v v' <;> simp [*]
-    by_cases h₃ : k + k' = 0 <;> simp [*, Nat.eq_of_beq_eq_true h₂]
-    rw [← Int.add_mul]
-    simp [*]
+  fun_induction p.insert k v <;>
+    simp only [insert, cond_true, cond_false, ↓reduceIte, *] <;>
+    simp_all [← Int.add_mul]
 
 attribute [local simp] Poly.denote_insert
 
@@ -382,16 +378,9 @@ theorem Poly.denote_append (ctx : Context) (p₁ p₂ : Poly) : (p₁.append p�
 attribute [local simp] Poly.denote_append
 
 theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  induction fuel generalizing p₁ p₂ <;> simp [combine']
-  next ih =>
-    split <;> simp [*]
-    next a₁ x₁ p₁ a₂ x₂ p₂ =>
-      by_cases h₁ : Nat.beq x₁ x₂ <;> simp [*]
-      · simp at h₁; simp [h₁]
-        by_cases h₂ : a₁ + a₂ == 0 <;> simp [*]
-        · simp at h₂
-          rw [← Int.add_mul, h₂]; simp
-      · by_cases h₃ : Nat.blt x₂ x₁ <;> simp [*]
+  fun_induction p₁.combine' fuel p₂ <;>
+    simp +zetaDelta only [combine', cond_true, cond_false, *] <;>
+    simp_all +zetaDelta [denote, ← Int.add_mul]
 
 theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   simp [combine, denote_combine']

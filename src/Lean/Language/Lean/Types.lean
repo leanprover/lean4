@@ -50,6 +50,8 @@ structure CommandParsedSnapshot extends Snapshot where
   reportSnap : SnapshotTask SnapshotTree
   /-- Next command, unless this is a terminal command. -/
   nextCmdSnap? : Option (SnapshotTask CommandParsedSnapshot)
+  /-- Cancellation token for interrupting processing of this command. -/
+  cancelTk : IO.CancelToken
 deriving Nonempty
 partial instance : ToSnapshotTree CommandParsedSnapshot where
   toSnapshotTree := go where
@@ -91,8 +93,6 @@ structure HeaderParsedSnapshot extends Snapshot where
   /-- State after successful parsing. -/
   result? : Option HeaderParsedState
   isFatal := result?.isNone
-  /-- Cancellation token for interrupting processing of this run. -/
-  cancelTk? : Option IO.CancelToken
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,

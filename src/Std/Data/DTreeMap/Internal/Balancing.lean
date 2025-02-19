@@ -351,7 +351,7 @@ def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
       | .inner _ _ _ _ _, .inner lrs lrk lrv lrl lrr =>
         .inner (1 + ls) lk lv ll (.inner (1 + lrs) k v (.inner lrs lrk lrv lrl lrr) .leaf)
     | .inner rs rk rv rl rr =>
-      if rs > delta * ls then
+      if h₁ : delta * ls < rs then
         match rl, rr with
         | .inner rls rlk rlv rll rlr, .inner rrs _ _ _ _ =>
           if rls < ratio * rrs then
@@ -361,7 +361,7 @@ def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
         | inner _ _ _ _ _, .leaf => panic! "balance! input was not balanced"
         | .leaf, _ => panic! "balance! input was not balanced"
-      else if ls > delta * rs then
+      else if h₂ : delta * rs < ls then
         match ll, lr with
         | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
           if lrs < ratio * lls then
@@ -513,12 +513,12 @@ def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
-theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : r.Balanced}
-    {h : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size} :
-    balance k v l r hl hr h = balanceₘ k v l r := by
+theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hlb : l.Balanced} {hrb : r.Balanced}
+    {hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size} :
+    balance! k v l r = balanceₘ k v l r := by
   cases k, v, l, r using balance!.fun_cases
   all_goals
-    simp only [balance, balanceₘ]
+    simp only [balance!, balanceₘ]
   · rfl
   · split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
@@ -533,35 +533,31 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : 
       cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
     omega
   · simp only [size_leaf, size_inner]
-    split
-    · simp only [balanced_inner_iff, BalancedAtRoot, size_inner] at *
+    simp_all [Std.Internal.tree_tac]
+    rw [if_neg (by omega)]
+    rw [if_pos (by omega), rotateL, if_pos]
+    all_goals
+      simp only [Std.Internal.tree_tac] at *
       omega
-    · rw [dif_pos (by omega), rotateL, if_pos]
-      all_goals
-        simp only [Std.Internal.tree_tac] at *
-        omega
   · simp_all [Std.Internal.tree_tac]
   · simp_all only [Std.Internal.tree_tac]
-    split
-    · omega
-    · next l r _ _ =>
-      rw [dif_neg (by omega), dif_pos (by omega), rotateR]
-      suffices h : l.size = 0 ∧ r.size = 0 by
-        simp only [h.1, h.2]
-        cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
-      omega
+    rw [if_neg (by omega)]
+    next l r _ =>
+    rw [dif_neg (by omega), dif_pos (by omega), rotateR]
+    suffices h : l.size = 0 ∧ r.size = 0 by
+      simp only [h.1, h.2]
+      cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
+    omega
   · simp_all only [rotateR, Std.Internal.tree_tac]
     rw [if_neg (by omega), dif_neg (by omega), dif_pos (by omega), if_pos (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true]
     omega
   · simp_all only [Std.Internal.tree_tac]
-    split
-    · simp_all [Std.Internal.tree_tac]
-      omega
-    · simp only [Std.Internal.tree_tac, rotateR, or_false]
-      rw [if_pos (by omega), dif_neg (by omega), dif_pos (by omega)]
-      simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
-      omega
+    rw [if_neg (by omega)]
+    simp only [Std.Internal.tree_tac, rotateR, or_false]
+    rw [if_pos (by omega), dif_neg (by omega), dif_pos (by omega)]
+    simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
+    omega
   · simp_all only [Std.Internal.tree_tac, ite_true]
     rw [if_neg]
     · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
@@ -573,10 +569,18 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : 
     rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
     simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
-  · simp_all only [dite_true]
-    contradiction
-  · simp_all only [dite_true]
-    contradiction
+  · exfalso
+    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
+    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hrb
+    simp only [delta] at h
+    have := hlb.one_le
+    omega
+  · exfalso
+    rename_i ls rs h _ _ _ _ _ _ _
+    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
+    simp only [delta] at h
+    have := hlb.one_le
+    omega
   · repeat simp_all only [Std.Internal.tree_tac, rotateR, dite_true, ite_true, dite_false]
     rw [if_neg (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_true, true_and]
@@ -585,16 +589,21 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : 
     rw [if_neg (by omega), rotateR, ratio, size_inner, size_inner, if_neg (by omega)]
     simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
     omega
-  · simp_all only [dite_true, dite_false]
-    contradiction
-  · simp_all only [dite_true, dite_false]
-    contradiction
+  · exfalso
+    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
+    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hlb
+    simp only [delta] at h
+    have := hrb.one_le
+    omega
+  · exfalso
+    rename_i ls rs h _ _ _ _ _ _ _
+    simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hlb
+    simp only [delta] at h
+    have := hrb.one_le
+    omega
   · repeat simp only [Std.Internal.tree_tac, dite_true, dite_false, *] at *
     rw [if_neg (by omega)]
     ac_rfl
-set_option pp.deepTerms true in
-set_option pp.maxSteps 30000 in
---#print balance_eq_balanceₘ
 
 run_meta do
   let env ← getEnv

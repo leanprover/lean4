@@ -1283,7 +1283,6 @@ theorem getMsbD_umod {n d : BitVec w}:
     simp [BitVec.getMsbD_eq_getLsbD, hi]
   · simp [show w ≤ i by omega]
 
-
 /-! ### Mappings to and from BitVec -/
 
 theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x, g (f x) = x) :
@@ -1295,5 +1294,49 @@ theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x,
   · intro h'
     have := congrArg g h'
     simpa [h] using this
+
+/- ### smod -/
+
+theorem getElem_smod {n d : BitVec w} (hi : i < w) :
+    (BitVec.smod n d)[i]
+      = (match n.msb, d.msb with
+    | false, false => (n.umod d)
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else (u + d)
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else (d - u)
+    | true, true => (-(-n).umod (-d)))[i] := by
+  rw [smod_eq]
+  cases n.msb  <;> cases d.msb <;> simp
+
+theorem getLsbD_smod {n d : BitVec w}:
+    (BitVec.smod n d).getLsbD i
+      = (match n.msb, d.msb with
+    | false, false => (n.umod d)
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else (u + d)
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else (d - u)
+    | true, true => (-(-n).umod (-d))).getLsbD i := by
+  rw [smod_eq]
+  cases n.msb  <;> cases d.msb <;> simp
+
+theorem getMsbD_smod {n d : BitVec w}:
+    (BitVec.smod n d).getMsbD i
+      = (match n.msb, d.msb with
+    | false, false => (n.umod d)
+    | false, true =>
+      let u := n.umod (-d);
+      if u = 0#w then u else (u + d)
+    | true, false =>
+      let u := (-n).umod d;
+      if u = 0#w then u else (d - u)
+    | true, true => (-(-n).umod (-d))).getMsbD i := by
+  rw [smod_eq]
+  cases n.msb  <;> cases d.msb <;> simp
 
 end BitVec

@@ -515,10 +515,10 @@ attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.inj
 
 theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : r.Balanced}
     {h : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size} :
-    balance! k v l r = balanceₘ k v l r := by
+    balance k v l r hl hr h = balanceₘ k v l r := by
   cases k, v, l, r using balance!.fun_cases
   all_goals
-    simp only [balance!, balanceₘ]
+    simp only [balance, balanceₘ]
   · rfl
   · split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
@@ -564,14 +564,14 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hl : l.Balanced} {hr : 
       omega
   · simp_all only [Std.Internal.tree_tac, ite_true]
     rw [if_neg]
-    · simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
+    · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
       omega
     · simp only [balanced_inner_iff, Nat.not_le] at *
       omega
   · rw [rotateL]
-    simp_all only [Std.Internal.tree_tac, dite_true, ite_false, ite_true]
-    rw [if_neg (by omega)]
-    simp [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
+    repeat simp_all only [Std.Internal.tree_tac, dite_true, ite_false, ite_true, Nat.not_lt]
+    rw [if_neg (by omega), if_neg (by omega), if_neg (by omega)]
+    simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
   · simp_all only [dite_true]
     contradiction

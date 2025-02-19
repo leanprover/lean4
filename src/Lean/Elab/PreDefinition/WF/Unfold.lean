@@ -100,4 +100,7 @@ def mkUnfoldEq (preDef : PreDefinition) (unaryPreDefName : Name) (wfPreprocessPr
       }
       trace[Elab.definition.wf] "mkUnfoldEq defined {.ofConstName name}"
 
+builtin_initialize
+  registerTraceClass `Elab.definition.wf.eqns
+
 end Lean.Elab.WF

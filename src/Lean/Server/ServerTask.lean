@@ -57,7 +57,7 @@ def bindCostly (t : ServerTask α) (f : α → ServerTask β) : ServerTask β :=
 namespace BaseIO
 
 def asTask (act : BaseIO α) : BaseIO (ServerTask α) :=
-  _root_.BaseIO.asTask act
+  _root_.BaseIO.asTask (prio := .dedicated) act
 
 def mapTaskCheap (f : α → BaseIO β) (t : ServerTask α) : BaseIO (ServerTask β) :=
   BaseIO.mapTask f t.task (sync := true)
@@ -76,7 +76,7 @@ end BaseIO
 namespace EIO
 
 def asTask (act : EIO ε α) : BaseIO (ServerTask (Except ε α)) :=
-  _root_.EIO.asTask act
+  _root_.EIO.asTask (prio := .dedicated) act
 
 def mapTaskCheap (f : α → EIO ε β) (t : ServerTask α) : BaseIO (ServerTask (Except ε β)) :=
   EIO.mapTask f t.task (sync := true)
@@ -95,7 +95,7 @@ end EIO
 namespace IO
 
 def asTask (act : IO α) : BaseIO (ServerTask (Except IO.Error α)) :=
-  _root_.IO.asTask act
+  _root_.IO.asTask (prio := .dedicated) act
 
 def mapTaskCheap (f : α → IO β) (t : ServerTask α) : BaseIO (ServerTask (Except IO.Error β)) :=
   IO.mapTask f t.task (sync := true)

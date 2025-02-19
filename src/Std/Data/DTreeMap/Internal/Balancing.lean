@@ -529,8 +529,8 @@ def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
-theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} {hlb : l.Balanced} {hrb : r.Balanced}
-    {hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size} :
+theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
+    (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     balance! k v l r = balanceₘ k v l r := by
   cases k, v, l, r using balance!.fun_cases
   all_goals
@@ -782,27 +782,26 @@ theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     (balance! k v l r).size = l.size + 1 + r.size ∧ (balance! k v l r).Balanced := by
-  sorry
-  -- rw [← balance_eq_balance! (hlb := hlb) (hrb := hrb) (hlr := hlr), balance_eq_balanceₘ, balanceₘ]
-  -- cases k, v, l, r, hlb, hrb, hlr using balanceₘ.fun_cases
-  -- · rw [if_pos ‹_›, bin, balanced_inner_iff]
-  --   exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
-  -- · rw [if_neg ‹_›, dif_pos ‹_›]
-  --   contradiction
-  -- · rw [if_neg ‹_›, dif_pos ‹_›]
-  --   simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
-  --   rw [← Balanced.eq ‹_›]
-  --   refine ⟨rfl, ?_⟩
-  --   apply balanced_rotateL <;> assumption
-  -- · simp only [delta, size_leaf] at *
-  --   omega
-  -- · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
-  --   simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
-  --   rw [← Balanced.eq ‹_›]
-  --   refine ⟨rfl, ?_⟩
-  --   apply balanced_rotateR <;> assumption
-  -- · rw [if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
-  --   exact ⟨rfl, ✓⟩
+  rw [balance!_eq_balanceₘ hlb hrb hlr, balanceₘ]
+  cases k, v, l, r, hlb, hrb, hlr using balanceₘ.fun_cases
+  · rw [if_pos ‹_›, bin, balanced_inner_iff]
+    exact ⟨rfl, hlb, hrb, Or.inl ‹_›, rfl⟩
+  · rw [if_neg ‹_›, dif_pos ‹_›]
+    contradiction
+  · rw [if_neg ‹_›, dif_pos ‹_›]
+    simp only [size_rotateL (.left ‹_›), size_bin, size_inner]
+    rw [← Balanced.eq ‹_›]
+    refine ⟨rfl, ?_⟩
+    apply balanced_rotateL <;> assumption
+  · simp only [delta, size_leaf] at *
+    omega
+  · rw [if_neg ‹_›, dif_neg ‹_›, dif_pos ‹_›]
+    simp only [size_rotateR (.right ‹_›), size_bin, size_inner]
+    rw [← Balanced.eq ‹_›]
+    refine ⟨rfl, ?_⟩
+    apply balanced_rotateR <;> assumption
+  · rw [if_neg ‹_›, dif_neg ‹_›, dif_neg ‹_›]
+    exact ⟨rfl, ✓⟩
 
 @[Std.Internal.tree_tac]
 theorem size_balance! {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)

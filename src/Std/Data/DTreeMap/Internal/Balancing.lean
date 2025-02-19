@@ -510,6 +510,8 @@ def balance' (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
+#check balance.fun_cases
+
 theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
     balance k v l r h₁ h₂ h₃ = balance' k v l r := by
   rw [balance']
@@ -524,30 +526,33 @@ theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
       simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
   · next l r _ _ _ _ _ _ =>
-    simp_all only [Std.Internal.tree_tac, rotateL]
+    simp only  [Std.Internal.tree_tac, rotateL] at *
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2, reduceDIte, Nat.not_lt_zero]
       cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
     omega
-  · simp_all [Std.Internal.tree_tac, balance]
-    split <;> simp_all [Std.Internal.tree_tac]
-    · omega
-    · rw [if_pos (by omega), rotateL, if_pos]
+  · simp only [size_leaf, size_inner]
+    split
+    · simp only [balanced_inner_iff, BalancedAtRoot, size_inner] at *
+      omega
+    · rw [dif_pos (by omega), rotateL, if_pos]
       all_goals
-        simp_all only [Std.Internal.tree_tac]
+        simp only [Std.Internal.tree_tac] at *
         omega
   · simp_all [Std.Internal.tree_tac]
   · simp_all only [Std.Internal.tree_tac]
     split
-    · simp_all only [Std.Internal.tree_tac]
-      omega
+    · omega
     · next l r _ _ _ _ =>
       rw [dif_neg (by omega), dif_pos (by omega), rotateR]
       suffices h : l.size = 0 ∧ r.size = 0 by
         simp only [h.1, h.2]
         cases l <;> cases r <;> simp_all [Std.Internal.tree_tac]
       omega
-  · simp_all [Std.Internal.tree_tac, rotateR]
+  · simp_all only [size_inner, balanced_inner_iff, size_leaf, rotateR, ratio, singleR, bin]
+    rw [if_neg (by omega), dif_neg (by omega), dif_pos (by omega), if_pos (by omega)]
+    simp only [inner.injEq, heq_eq_eq, and_true, balanced_inner_iff, BalancedAtRoot, size_inner,
+      true_and] at *
     omega
   · simp_all [Std.Internal.tree_tac]
     split
@@ -565,26 +570,27 @@ theorem balance_char {k v} {l r : Impl α β} {h₁ h₂ h₃} :
       omega
     · simp only [balanced_inner_iff] at *
       omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [rotateL]
-    simp_all [Std.Internal.tree_tac, balance]
+    simp_all [Std.Internal.tree_tac]
     split
     all_goals
       rw [if_neg (by omega)]
-      simp_all [Std.Internal.tree_tac, balance]
+      simp_all [Std.Internal.tree_tac]
       omega
   · simp_all [balance]
     contradiction
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [rotateL]
-    simp_all [Std.Internal.tree_tac, balance]
+    simp_all [Std.Internal.tree_tac]
     contradiction
-  · simp_all [Std.Internal.tree_tac, balance, rotateL, rotateR]
+  ·
+    simp_all only [Std.Internal.tree_tac, rotateL, rotateR]
     rw [balanced_inner_iff] at *
-    rw [if_neg (by omega), if_neg (by omega), dif_neg (by omega)]
+    rw [dite_true, ite_true, if_neg (by omega)]
     simp_all [Std.Internal.tree_tac]
     omega
-  · simp_all [Std.Internal.tree_tac, balance]
+  · simp_all [Std.Internal.tree_tac]
     rw [if_neg (by omega), dif_neg (by omega), if_neg]
     · rw [if_neg (by omega), rotateR, singleR, ratio, size_inner, size_inner, if_neg (by omega)]
       simp only [Std.Internal.tree_tac, Nat.reduceMul] at *

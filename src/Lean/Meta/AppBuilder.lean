@@ -451,6 +451,24 @@ def mkEqMP (eqProof pr : Expr) : MetaM Expr :=
 def mkEqMPR (eqProof pr : Expr) : MetaM Expr :=
   mkAppM ``Eq.mpr #[eqProof, pr]
 
+/--
+`hasNoConfusionDecl name` returns `true` iff `name` is the name `N` of a type constructor such that
+`N.noConfusion` exists and is tagged as a no-confusion declaration.
+
+Note that this function is not equivalent to checking whether `N` is `Prop`-valued (propositional
+subsingletons may have `noConfusion` declarations, while `PUnit` does not).
+-/
+def hasNoConfusionDecl [Monad m] [MonadEnv m] (name : Name) : m Bool := do
+  let noConfusionDeclName := Name.mkStr name "noConfusion"
+  return isNoConfusion (← getEnv) noConfusionDeclName
+
+/--
+Given a proof `h` of an equality `a = b` at a type constructed by `T`, returns the application
+of `T.noConfusion` to `h` with target `target`.
+
+Remark: this function does not check whether `T.noConfusion` exists (see
+`Lean.Meta.hasNoConfusionDecl`).
+-/
 def mkNoConfusion (target : Expr) (h : Expr) : MetaM Expr := do
   let type ← inferType h
   let type ← whnf type

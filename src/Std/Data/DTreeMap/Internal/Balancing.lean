@@ -512,12 +512,12 @@ attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.inj
 
 theorem balance_eq_balanceₘ {k v} {l r : Impl α β} {h₁ h₂ h₃} :
     balance k v l r h₁ h₂ h₃ = balanceₘ k v l r := by
-  rw [balanceₘ.eq_def]
   cases k, v, l, r, h₁, h₂, h₃ using balance.fun_cases
   all_goals
-    simp only [balance]
-  · simp_all [Std.Internal.tree_tac]
-  · split <;> simp_all [Std.Internal.tree_tac]
+    simp only [balanceₘ, balance]
+  · rfl
+  ·
+    split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
     · omega
     · rw [dif_pos (by omega)]
@@ -591,6 +591,8 @@ theorem balance_eq_balanceₘ {k v} {l r : Impl α β} {h₁ h₂ h₃} :
   · repeat simp only [Std.Internal.tree_tac, dite_true, dite_false, *] at *
     rw [if_neg (by omega)]
     ac_rfl
+
+#print balance_eq_balanceₘ
 
 theorem Balanced.map {t₁ t₂ : Impl α β} : t₁.Balanced → t₁ = t₂ → t₂.Balanced
   | h, rfl => h

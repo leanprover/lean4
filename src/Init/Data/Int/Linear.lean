@@ -430,26 +430,30 @@ attribute [local simp] RawRelCnstr.denote RawRelCnstr.norm Expr.denote
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
     induction k, e using Expr.toPoly'.go.induct generalizing p with
-  | case1 k k' =>
-    simp only [toPoly'.go]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, Var.denote]
-  | case2 k i => simp [toPoly'.go]
-  | case3 k a b iha ihb => simp [toPoly'.go, iha, ihb]
-  | case4 k a b iha ihb =>
+  | case1 k k' h =>
+    simp only [toPoly'.go, h, cond_true]
+    simp [eq_of_beq h]
+  | case2 k k' h =>
+    simp only [toPoly'.go, h, cond_false]
+    simp [Var.denote]
+  | case3 k i => simp [toPoly'.go]
+  | case4 k a b iha ihb => simp [toPoly'.go, iha, ihb]
+  | case5 k a b iha ihb =>
     simp [toPoly'.go, iha, ihb, Int.mul_sub]
     rw [Int.sub_eq_add_neg, ←Int.neg_mul, Int.add_assoc]
-  | case5 k k' a ih
-  | case6 k a k' ih =>
-    simp only [toPoly'.go]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, cond_false, Int.mul_assoc]
-      simp at ih
-      rw [ih]
-      rw [Int.mul_assoc, Int.mul_comm k']
-  | case7 k a ih => simp [toPoly'.go, ih]
+  | case6 k k' a h
+  | case8 k a k' h =>
+    simp only [toPoly'.go, h, cond_false]
+    simp [eq_of_beq h]
+  | case7 k a k' h ih =>
+    simp only [toPoly'.go, h, cond_false]
+    simpa [denote, ← Int.mul_assoc] using ih
+  | case9 k a h h ih =>
+    simp only [toPoly'.go, h, cond_false]
+    simp only [mul_def, denote]
+    rw [Int.mul_comm (denote _ _) _]
+    simpa [Int.mul_assoc] using ih
+  | case10 k a ih => simp [toPoly'.go, ih]
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, toPoly', Expr.denote_toPoly'_go]

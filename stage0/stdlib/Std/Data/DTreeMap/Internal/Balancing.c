@@ -813,7 +813,7 @@ static lean_object* _init_l_Std_DTreeMap_Internal_Impl___aux__Std__Data__DTreeMa
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("casesTarget", 11, 11);
+x_1 = lean_mk_string_unchecked("elimTarget", 10, 10);
 return x_1;
 }
 }

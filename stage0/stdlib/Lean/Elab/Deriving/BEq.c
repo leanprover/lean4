@@ -1898,7 +1898,7 @@ static lean_object* _init_l_Std_Range_forIn_x27_loop___at_Lean_Elab_Deriving_BEq
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_mk_string_unchecked("casesTarget", 11, 11);
+x_1 = lean_mk_string_unchecked("elimTarget", 10, 10);
 return x_1;
 }
 }

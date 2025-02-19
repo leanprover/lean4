@@ -54,3 +54,12 @@ def testParentAcrossOS (p : FilePath) (windowsParent : Option String) (unixParen
 #eval norm <| FilePath.withExtension "a/b" "tar.gz"
 
 #eval norm <| FilePath.addExtension "a/b.tar.gz" "bak"
+
+
+def normTest (input: String): String := FilePath.normalize input |> (toString ·)
+
+#eval normTest "./alpha"
+#eval normTest "././alpha"
+#eval normTest "../alpha/beta"
+#eval normTest r"C:\alpha\beta"
+#eval normTest r"alpha//beta/."

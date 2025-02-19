@@ -26,3 +26,8 @@ none
 "a/b.tar"
 "a/b.tar.gz"
 "a/b.tar.gz.bak"
+"alpha"
+"alpha"
+"../alpha/beta"
+"C:\\alpha\\beta"
+"alpha/beta"

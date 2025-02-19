@@ -276,10 +276,79 @@ def balanceR! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 ## `balance` variants
 -/
 
+def ImpossibilityHandler (l r : Impl α β) : Type (max u v) :=
+  match l, r with
+  | .inner ls _ _ ll lr, .inner rs _ _ rl rr =>
+    if delta * ls < rs then
+      match rl, rr with
+      | .inner .., .inner .. => PUnit
+      | _, _ => Impl α β
+    else if delta * rs < ls then
+      match ll, lr with
+      | .inner .., .inner .. => PUnit
+      | _, _ => Impl α β
+    else PUnit
+  | _, _ => PUnit
+
+def proofBasedHandler {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
+    (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
+    ImpossibilityHandler l r :=
+  match l, r with
+  | .inner ls _ _ ll lr, .inner rs _ _ rl rr =>
+    if h₁ : delta * ls < rs then
+      match rl, rr with
+      | .inner .., .inner .. => cast (if_pos h₁).symm default
+      | .inner .., .leaf => False.elim <| by
+        simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hrb
+        simp only [delta] at h₁
+        have := hlb.one_le
+        omega
+      | .leaf, _ => False.elim <| by
+        simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
+        simp only [delta] at h₁
+        have := hlb.one_le
+        omega
+    else if h₂ : delta * rs < ls then
+      match ll, lr with
+      | .inner .., .inner .. => cast (if_neg h₁).symm <| cast (if_pos h₂).symm default
+      | .inner .., .leaf => False.elim <| by
+        simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hlb
+        simp only [delta] at h₂
+        have := hrb.one_le
+        omega
+      | .leaf, _ => False.elim <| by
+        simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hlb
+        simp only [delta] at h₂
+        have := hrb.one_le
+        omega
+    else
+      cast (if_neg h₁).symm <| cast (if_neg h₂).symm <| default
+  | .inner .., .leaf => (default : PUnit)
+  | .leaf, _ => (default : PUnit)
+
+def panicBasedHandler (l r : Impl α β) :
+    ImpossibilityHandler l r :=
+  match l, r with
+  | .inner ls _ _ ll lr, .inner rs _ _ rl rr =>
+    if h₁ : delta * ls < rs then
+      cast (if_pos h₁).symm <| match rl, rr with
+        | .inner .., .inner .. => default
+        | .inner .., .leaf => panic! "balance! input was not balanced"
+        | .leaf, _ => panic! "balance! input was not balanced"
+    else if h₂ : delta * rs < ls then
+      cast (if_neg h₁).symm <| cast (if_pos h₂).symm <| match ll, lr with
+          | .inner .., .inner .. => default
+          | .inner .., .leaf => panic! "balance! input was not balanced"
+          | .leaf, _ => panic! "balance! input was not balanced"
+    else
+      cast (if_neg h₁).symm <| cast (if_neg h₂).symm <| default
+  | .inner .., .leaf => (default : PUnit)
+  | .leaf, _ => (default : PUnit)
+
 /-- Rebalances a tree after at most one element was added or removed from either subtree. -/
-def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balanced r)
-    (h : BalanceLErasePrecond l.size r.size ∨
-      BalanceLErasePrecond r.size l.size) : Impl α β :=
+@[inline, reducible]
+def balanceProto (k : α) (v : β k) (l r : Impl α β) (onError : Unit → ImpossibilityHandler l r) :
+    Impl α β :=
   match l with
   | .leaf =>
     match r with
@@ -309,16 +378,8 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           else
             .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
-        | inner _ _ _ _ _, .leaf => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hr
-            simp only [delta] at h₁
-            have := hl.one_le
-            omega)
-        | .leaf, _ => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hr
-            simp only [delta] at h₁
-            have := hl.one_le
-            omega)
+        | inner _ _ _ _ _, .leaf => cast (if_pos ‹_›) <| onError ()
+        | .leaf, _ => cast (if_pos ‹_›) <| onError ()
       else if h₂ : delta * rs < ls then
         match ll, lr with
         | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
@@ -327,18 +388,16 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
           else
             .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
               (.inner (1 + rs + lrr.size) k v lrr r)
-        | inner _ _ _ _ _, .leaf => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hl
-            simp only [delta] at h₂
-            have := hr.one_le
-            omega)
-        | .leaf, _ => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hl
-            simp only [delta] at h₂
-            have := hr.one_le
-            omega)
+        | inner _ _ _ _ _, .leaf => cast (if_pos ‹_›) <| cast (if_neg ‹_›) <| onError ()
+        | .leaf, _ => cast (if_pos ‹_›) <| cast (if_neg ‹_›) <| onError ()
       else
         .inner (1 + ls + rs) k v l r
+
+/-- Rebalances a tree after at most one element was added or removed from either subtree. -/
+def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balanced r)
+    (hlr : BalanceLErasePrecond l.size r.size ∨
+      BalanceLErasePrecond r.size l.size) : Impl α β :=
+  balanceProto k v l r fun _ => proofBasedHandler hl hr hlr
 
 /--
 Slower version of `balance` which can be used in the complete absence of balancing information
@@ -346,49 +405,7 @@ but still assumes that the preconditions of `balance` are satisfied
 (otherwise panics).
 -/
 def balance! (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
-  match l with
-  | .leaf =>
-    match r with
-    | .leaf => .inner 1 k v .leaf .leaf
-    | .inner _ _ _ .leaf .leaf => .inner 2 k v .leaf r
-    | .inner _ rk rv .leaf rr@(.inner _ _ _ _ _) => .inner 3 rk rv (.inner 1 k v .leaf .leaf) rr
-    | .inner _ rk rv (.inner _ rlk rlv _ _) .leaf => .inner 3 rlk rlv (.inner 1 k v .leaf .leaf)
-        (.inner 1 rk rv .leaf .leaf)
-    | .inner rs rk rv (.inner rls rlk rlv rll rlr) rr@(.inner _ _ _ _ _) =>
-        .inner (1 + rs) rk rv (.inner (1 + rls) k v .leaf (.inner rls rlk rlv rll rlr)) rr
-  | .inner ls lk lv ll lr =>
-    match r with
-    | .leaf =>
-      match ll, lr with
-      | .leaf, .leaf => .inner 2 k v l .leaf
-      | .leaf, .inner _ lrk lrv _ _ => .inner 3 lrk lrv (.inner 1 lk lv .leaf .leaf)
-          (.inner 1 k v .leaf .leaf)
-      | .inner _ _ _ _ _, .leaf => .inner 3 lk lv ll (.inner 1 k v .leaf .leaf)
-      | .inner _ _ _ _ _, .inner lrs lrk lrv lrl lrr =>
-        .inner (1 + ls) lk lv ll (.inner (1 + lrs) k v (.inner lrs lrk lrv lrl lrr) .leaf)
-    | .inner rs rk rv rl rr =>
-      if h₁ : delta * ls < rs then
-        match rl, rr with
-        | .inner rls rlk rlv rll rlr, .inner rrs _ _ _ _ =>
-          if rls < ratio * rrs then
-            .inner (1 + ls + rs) rk rv (.inner (1 + ls + rls) k v l rl) rr
-          else
-            .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
-              (.inner (1 + rrs + rlr.size) rk rv rlr rr)
-        | inner _ _ _ _ _, .leaf => panic! "balance! input was not balanced"
-        | .leaf, _ => panic! "balance! input was not balanced"
-      else if h₂ : delta * rs < ls then
-        match ll, lr with
-        | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
-          if lrs < ratio * lls then
-            .inner (1 + ls + rs) lk lv ll (.inner (1 + rs + lrs) k v lr r)
-          else
-            .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
-              (.inner (1 + rs + lrr.size) k v lrr r)
-        | inner _ _ _ _ _, .leaf => panic! "balance! input was not balanced"
-        | .leaf, _ => panic! "balance! input was not balanced"
-      else
-        .inner (1 + ls + rs) k v l r
+  balanceProto k v l r fun _ => panicBasedHandler l r
 
 /-!
 ## Lemmas about balancing operations
@@ -530,11 +547,12 @@ def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
 theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
-    (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
-    balance! k v l r = balanceₘ k v l r := by
-  cases k, v, l, r using balance!.fun_cases
+    (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size)
+    (onError : Unit → ImpossibilityHandler l r) :
+    balanceProto k v l r onError = balanceₘ k v l r := by
+  cases k, v, l, r, (fun _ => panicBasedHandler l r) using balanceProto.fun_cases
   all_goals
-    simp only [balance!, balanceₘ]
+    simp only [balanceProto, balanceₘ]
   · rfl
   · split <;> simp_all [Std.Internal.tree_tac]
   · split <;> simp_all only [Std.Internal.tree_tac]
@@ -542,7 +560,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     · rw [dif_pos (by omega)]
       simp only [rotateL, Std.Internal.tree_tac, ite_self]
       omega
-  · next l r =>
+  · next l r _ =>
     simp only  [Std.Internal.tree_tac, rotateL] at *
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2, reduceDIte, Nat.not_lt_zero]
@@ -558,7 +576,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
   · simp_all [Std.Internal.tree_tac]
   · simp_all only [Std.Internal.tree_tac]
     rw [if_neg (by omega)]
-    next l r _ =>
+    next l r _ _ =>
     rw [dif_neg (by omega), dif_pos (by omega), rotateR]
     suffices h : l.size = 0 ∧ r.size = 0 by
       simp only [h.1, h.2]
@@ -566,7 +584,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     omega
   · simp_all only [rotateR, Std.Internal.tree_tac]
     rw [if_neg (by omega), dif_neg (by omega), dif_pos (by omega), if_pos (by omega)]
-    simp only [inner.injEq, heq_eq_eq, and_true]
+    simp only [inner.injEq, heq_eq_eq, and_true, true_and]
     omega
   · simp_all only [Std.Internal.tree_tac]
     rw [if_neg (by omega)]
@@ -574,7 +592,7 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     rw [if_pos (by omega), dif_neg (by omega), dif_pos (by omega)]
     simp only [inner.injEq, heq_eq_eq, and_self, and_true, true_and]
     omega
-  · simp_all only [Std.Internal.tree_tac, ite_true]
+  · simp_all only [Std.Internal.tree_tac, dite_true, ite_true]
     rw [if_neg]
     · repeat simp_all only [rotateL, dite_true, Std.Internal.tree_tac, if_true]
       omega
@@ -586,13 +604,13 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     simp only [Std.Internal.tree_tac, Nat.add_right_cancel_iff] at *
     omega
   · exfalso
-    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
+    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hrb
     simp only [delta] at h
     have := hlb.one_le
     omega
   · exfalso
-    rename_i ls rs h _ _ _ _ _ _ _
+    rename_i ls rs h _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hrb
     simp only [delta] at h
     have := hlb.one_le
@@ -606,13 +624,13 @@ theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb 
     simp only [Std.Internal.tree_tac, Nat.reduceMul] at *
     omega
   · exfalso
-    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _
+    rename_i ls rs h rls _ _ _ _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hlb
     simp only [delta] at h
     have := hrb.one_le
     omega
   · exfalso
-    rename_i ls rs h _ _ _ _ _ _ _
+    rename_i ls rs h _ _ _ _ _ _ _ _
     simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hlb
     simp only [delta] at h
     have := hrb.one_le

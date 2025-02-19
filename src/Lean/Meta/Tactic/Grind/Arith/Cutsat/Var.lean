@@ -19,6 +19,8 @@ def mkVar (expr : Expr) : GoalM Var := do
     vars      := s.vars.push expr
     varMap    := s.varMap.insert { expr } var
     dvdCnstrs := s.dvdCnstrs.push none
+    lowers    := s.lowers.push {}
+    uppers    := s.uppers.push {}
   }
   return var
 

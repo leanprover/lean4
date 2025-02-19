@@ -17,6 +17,29 @@ end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
+def checkRelCnstrs (css : PArray (PArray RelCnstrWithProof)) (isLower : Bool) : GoalM Unit := do
+  let mut x := 0
+  for cs in css do
+    for { c, .. } in cs do
+      assert! c.isLe
+      assert! c.isSorted
+      assert! c.p.checkCoeffs
+      let .add a y _ := c.p | unreachable!
+      assert! isLower == (a < 0)
+      assert! x == y
+    x := x + 1
+  return ()
+
+def checkLowers : GoalM Unit := do
+  let s ← get'
+  assert! s.lowers.size == s.vars.size
+  checkRelCnstrs s.lowers (isLower := true)
+
+def checkUppers : GoalM Unit := do
+  let s ← get'
+  assert! s.uppers.size == s.vars.size
+  checkRelCnstrs s.uppers (isLower := false)
+
 def checkDvdCnstrs : GoalM Unit := do
   let s ← get'
   assert! s.vars.size == s.dvdCnstrs.size
@@ -45,5 +68,7 @@ def checkVars : GoalM Unit := do
 def checkInvariants : GoalM Unit := do
   checkVars
   checkDvdCnstrs
+  checkLowers
+  checkUppers
 
 end Lean.Meta.Grind.Arith.Cutsat

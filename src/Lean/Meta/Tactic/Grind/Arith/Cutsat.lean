@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.Trace
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
@@ -26,5 +27,8 @@ builtin_initialize registerTraceClass `grind.cutsat.dvd.solve.combine (inherited
 builtin_initialize registerTraceClass `grind.cutsat.dvd.solve.elim (inherited := true)
 builtin_initialize registerTraceClass `grind.cutsat.internalize
 builtin_initialize registerTraceClass `grind.cutsat.internalize.term (inherited := true)
+
+builtin_initialize registerTraceClass `grind.cutsat.assert.le
+builtin_initialize registerTraceClass `grind.cutsat.le
 
 end Lean

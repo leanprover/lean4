@@ -28,6 +28,18 @@ inductive DvdCnstrProof where
   | divCoeffs (c : DvdCnstrWithProof)
   | solveCombine (c₁ c₂ : DvdCnstrWithProof)
   | solveElim (c₁ c₂ : DvdCnstrWithProof)
+
+structure RelCnstrWithProof where
+  c  : RelCnstr
+  h  : RelCnstrProof
+  id : Nat
+
+inductive RelCnstrProof where
+  | expr (h : Expr)
+  | notExpr (c : Expr)
+  | norm (c : RelCnstrWithProof)
+  | divCoeffs (c : RelCnstrWithProof)
+  -- TODO: missing constructors
 end
 
 /-- State of the cutsat procedure. -/
@@ -40,8 +52,26 @@ structure State where
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
   dvdCnstrs : PArray (Option DvdCnstrWithProof) := {}
+  /--
+  Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
+  if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is negative.
+   -/
+  lowers : PArray (PArray RelCnstrWithProof) := {}
+  /--
+  Mapping from variables to their "upper" bounds. We say a relational constraint `c` is a upper bound for a variable `x`
+  if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is positive.
+  -/
+  uppers : PArray (PArray RelCnstrWithProof) := {}
+  /-- Partial assignment being constructed by cutsat. -/
+  assignment : PArray Int := {}
   /-- Next unique id for a constraint. -/
   nextCnstrId : Nat := 0
+  /-
+  TODO: support for storing
+  - Disjuctions: they come from conflict resolution, and disequalities.
+  - Disequalities.
+  - Linear integer terms appearing in the main module, and model-based equality propagation.
+  -/
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

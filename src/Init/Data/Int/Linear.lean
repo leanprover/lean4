@@ -311,6 +311,10 @@ def RelCnstr.mul (k : Int) : RelCnstr → RelCnstr
   | .eq p => .eq <| p.mul k
   | .le p => .le <| p.mul k
 
+def RelCnstr.addConst (k : Int) : RelCnstr → RelCnstr
+  | .eq p => .eq <| p.addConst k
+  | .le p => .le <| p.addConst k
+
 @[simp] theorem RelCnstr.denote_mul (ctx : Context) (c : RelCnstr) (k : Int) (h : k > 0) : (c.mul k).denote ctx = c.denote ctx := by
   cases c <;> simp [mul, denote]
   next =>
@@ -449,6 +453,9 @@ theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.
 
 attribute [local simp] Expr.denote_toPoly RelCnstr.denote
 
+theorem RelCnstr.denote_norm (ctx : Context) (c : RelCnstr) : c.norm.denote ctx = c.denote ctx := by
+  cases c <;> simp [RelCnstr.norm]
+
 theorem RawRelCnstr.denote_norm (ctx : Context) (c : RawRelCnstr) : c.norm.denote ctx = c.denote ctx := by
   cases c <;> simp
   · rw [Int.sub_eq_zero]
@@ -502,7 +509,7 @@ theorem RawRelCnstr.eq_of_norm_eq_const (ctx : Context) (x : Var) (k : Int) (c :
   rw [h]; simp
   rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-attribute [local simp] RelCnstr.divAll RelCnstr.div RelCnstr.mul
+attribute [local simp] RelCnstr.divAll
 
 theorem RawRelCnstr.eq_of_norm_eq_mul (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) (hz : k > 0) (h : c.norm = c'.mul k) : c.denote ctx = c'.denote ctx := by
   replace h := congrArg (RelCnstr.denote ctx) h
@@ -540,24 +547,29 @@ private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k �
     simp at this
     assumption
 
-theorem RawRelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ : RawRelCnstr) (c₂ : RelCnstr) (c₃ : RelCnstr) (k : Int)
-    : k > 0 → c₂.divCoeffs k → c₂.isLe → c₁.norm = c₂ → c₃ = c₂.div k → c₁.denote ctx = c₃.denote ctx := by
-  intro h₀ h₁ h₂ h₃ h₄
+theorem RelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ c₂ : RelCnstr) (k : Int)
+    : k > 0 → c₁.divCoeffs k → c₁.isLe → c₂ = c₁.div k → c₁.denote ctx = c₂.denote ctx := by
+  intro h₀ h₁ h₂ h₃
   have hz : k ≠ 0 := Int.ne_of_gt h₀
-  cases c₂ <;> simp [RelCnstr.isLe] at h₂
+  cases c₁ <;> simp [RelCnstr.isLe] at h₂
   clear h₂
   next p =>
     simp [RelCnstr.divCoeffs] at h₁
     replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p k h₁
     replace h₃ := congrArg (RelCnstr.denote ctx) h₃
-    simp only [RelCnstr.denote.eq_2, ← h₁] at h₃
-    replace h₄ := congrArg (RelCnstr.denote ctx) h₄
-    simp only [RelCnstr.denote.eq_2, RelCnstr.div] at h₄
-    rw [denote_norm] at h₃
-    rw [h₃, h₄]
+    simp only [RelCnstr.div, RelCnstr.denote.eq_2] at h₃
+    rw [h₃, denote, ← h₁]; clear h₁ h₃
     apply propext
     apply mul_add_cmod_le_iff
-    exact h₀
+    assumption
+
+theorem RawRelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ : RawRelCnstr) (c₂ : RelCnstr) (c₃ : RelCnstr) (k : Int)
+    : k > 0 → c₂.divCoeffs k → c₂.isLe → c₁.norm = c₂ → c₃ = c₂.div k → c₁.denote ctx = c₃.denote ctx := by
+  intro h₀ h₁ h₂ h₃ h₄
+  replace h₃ := congrArg (RelCnstr.denote ctx) h₃
+  rw [denote_norm] at h₃
+  rw [h₃]
+  apply RelCnstr.eq_of_norm_eq_of_divCoeffs _ _ _ _ h₀ h₁ h₂ h₄
 
 /-- Certificate for normalizing the coefficients of inequality constraint with bound tightening. -/
 def divByLe (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : Bool :=
@@ -692,13 +704,17 @@ def DvdCnstr.div (k' : Int) : DvdCnstr → DvdCnstr
 private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
 
-def DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
+theorem DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
   rcases c with ⟨a, p⟩
   simp [isUnsat, denote]
   intro h₁ h₂
   have := Poly.gcd_dvd_const h₂
   have := not_dvd_of_not_mod_zero h₁
   contradiction
+
+theorem DvdCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁] at h₂
 
 @[local simp] private theorem mul_dvd_mul_eq {a b c : Int} (hnz : a ≠ 0) : a * b ∣ a * c ↔ b ∣ c := by
   constructor
@@ -839,7 +855,7 @@ theorem DvdCnstr.solve_elim (ctx : Context) (c₁ c₂ c : DvdCnstr) (d : Int)
   rw [← Int.sub_eq_add_neg]
   exact solveElim hd h₁ h₂
 
-def isNorm (c₁ c₂ : DvdCnstr) : Bool :=
+def DvdCnstr.isNorm (c₁ c₂ : DvdCnstr) : Bool :=
   c₁.k == c₂.k && c₁.p.norm == c₂.p
 
 theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
@@ -852,6 +868,41 @@ theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
 
 theorem DvdCnstr.of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
   simp [DvdCnstr.denote'_eq_denote, DvdCnstr.eq_of_isEqv ctx c₁ c₂ k h]
+
+theorem RelCnstr.of_norm_eq (ctx : Context) (c₁ c₂ : RelCnstr) (h : c₁.norm == c₂) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp at h
+  replace h := congrArg (RelCnstr.denote ctx) h
+  simp only [RelCnstr.denote_norm] at h
+  simp only [RelCnstr.denote'_eq_denote, h]
+  intro; assumption
+
+def RelCnstr.divByLe (c₁ c₂ : RelCnstr) (k : Int) : Bool :=
+  k > 0 && (c₁.isLe && (c₁.divCoeffs k && c₂ == c₁.div k))
+
+theorem RelCnstr.of_divByLe (ctx : Context) (c₁ c₂ : RelCnstr) (k : Int) (h : divByLe c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp [divByLe] at h
+  rcases h with ⟨h₁, h₂, h₃, h₄⟩
+  simp only [RelCnstr.denote'_eq_denote]
+  exact RelCnstr.eq_of_norm_eq_of_divCoeffs ctx c₁ c₂ k h₁ h₃ h₂ h₄ |>.mp
+
+def RelCnstr.negLe (c₁ c₂ : RelCnstr) : Bool :=
+  c₁.isLe && c₂ == (c₁.mul (-1) |>.addConst 1)
+
+theorem RelCnstr.of_negLe (ctx : Context) (c₁ c₂ : RelCnstr) (h : negLe c₁ c₂) : ¬ c₁.denote' ctx → c₂.denote' ctx := by
+  simp [negLe] at h
+  rcases h with ⟨h₁, h₂⟩
+  cases c₁ <;> simp [isLe] at h₁; clear h₁
+  replace h₂ := congrArg (RelCnstr.denote ctx) h₂
+  simp only [RelCnstr.denote'_eq_denote, h₂, RelCnstr.mul, RelCnstr.addConst]
+  simp
+  intro h
+  replace h : _ + 1 ≤ -0 := Int.neg_lt_neg <| Int.lt_of_not_ge h
+  simp at h
+  exact h
+
+theorem RelCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : RelCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁, -RelCnstr.denote] at h₂
 
 end Int.Linear
 

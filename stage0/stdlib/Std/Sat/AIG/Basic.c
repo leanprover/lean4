@@ -67,7 +67,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Std_Sat
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_mkGate___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___u27e7___closed__21;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Std_Sat_AIG_toGraphviz_go___spec__4___at_Std_Sat_AIG_toGraphviz_go___spec__5___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_unexpandDenote___closed__2;
 static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___u27e7___closed__6;
@@ -209,6 +208,7 @@ static lean_object* l_Std_Sat_AIG_Cache_empty___closed__3;
 LEAN_EXPORT lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_hashDecl____x40_Std_Sat_AIG_Basic___hyg_84____rarg___boxed(lean_object*, lean_object*);
 static lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_reprDecl____x40_Std_Sat_AIG_Basic___hyg_198____rarg___closed__9;
 static lean_object* l___private_Std_Sat_AIG_Basic_0__Std_Sat_AIG_reprDecl____x40_Std_Sat_AIG_Basic___hyg_198____rarg___closed__19;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_contains___at_Std_Sat_AIG_toGraphviz_go___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Std_Sat_AIG_term_u27e6___x2c___u27e7___closed__12;
 LEAN_EXPORT lean_object* l_Std_Sat_AIG_toGraphviz_toGraphvizString(lean_object*, lean_object*);

@@ -136,7 +136,6 @@ static lean_object* l_termExists___x2c_____closed__8;
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at___aux__Init__NotationExtra______macroRules__Lean__Parser__Command__classAbbrev__1___spec__1(size_t, size_t, lean_object*);
 static lean_object* l_unexpandGetElem___closed__1;
 static lean_object* l_Lean_cdotTk___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Array_foldrMUnsafe_fold___at___aux__Init__NotationExtra______macroRules__term_x25_x5b___x7c___x5d__1___spec__3___closed__6;
 static lean_object* l_Lean_Parser_Command_classAbbrev___closed__7;
 static lean_object* l_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___closed__6;
@@ -571,6 +570,7 @@ LEAN_EXPORT lean_object* l_unexpandTSyntax(lean_object*, lean_object*, lean_obje
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lean___aux__Init__NotationExtra______macroRules__Lean__term__Matches___x7c__1___spec__1(lean_object*, lean_object*, size_t, size_t, lean_object*);
 static lean_object* l_Lean_calcSteps___closed__6;
 uint8_t l_Lean_Name_hasMacroScopes(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean___aux__Init__NotationExtra______macroRules__Lean__command____Unif__hint________Where___x7c___x2d_u22a2____1___spec__4___closed__1;
 static lean_object* l_Lean_solveTactic___closed__13;
 LEAN_EXPORT lean_object* l___aux__Init__NotationExtra______macroRules__Lean__Parser__Term__haveI__1(lean_object*, lean_object*, lean_object*);

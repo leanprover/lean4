@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Array_qsortOrd___spec__2(lean_o
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_19____closed__19;
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__8;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__22;
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__9;
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__32;
@@ -76,6 +75,7 @@ static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Array_qsortOrd___spec__2___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_19____closed__25;
 LEAN_EXPORT lean_object* l_Array_qsort_sort___at_Array_qsortOrd___spec__2___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_QSort_0__Array_qpartition_loop___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__20;
 static lean_object* l___auto____x40_Init_Data_Array_QSort___hyg_3539____closed__31;

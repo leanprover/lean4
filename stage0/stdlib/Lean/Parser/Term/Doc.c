@@ -28,7 +28,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____closed__5;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____closed__7;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_204____closed__1;
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString_bullet___closed__1;
 LEAN_EXPORT lean_object* l_Lean_RBNode_find___at_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____spec__1___boxed(lean_object*, lean_object*);
@@ -88,6 +87,7 @@ static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___
 static lean_object* l_Lean_Parser_Term_Doc_getRecommendedSpellingString___closed__1;
 static lean_object* l_Lean_Parser_Term_Doc_initFn____x40_Lean_Parser_Term_Doc___hyg_34____closed__6;
 static lean_object* l_Lean_Parser_Term_Doc_addRecommendedSpelling___closed__1;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Parser_Term_Doc_recommendedSpellingExt;
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);

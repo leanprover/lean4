@@ -54,7 +54,6 @@ LEAN_EXPORT lean_object* l_Lean_JsonNumber_fromFloat_x3f(double);
 static lean_object* l_Lean_Json_getNum_x3f___closed__2;
 static lean_object* l_Lean_JsonNumber_toString___closed__5;
 static lean_object* l_Lean_JsonNumber_normalize___closed__5;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static uint64_t l___private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27___closed__3;
 static lean_object* l_Lean_Json_getArr_x3f___closed__1;
 LEAN_EXPORT lean_object* l_Lean_JsonNumber_shiftr(lean_object*, lean_object*);
@@ -155,6 +154,7 @@ LEAN_EXPORT uint64_t l_Lean_RBNode_fold___at___private_Lean_Data_Json_Basic_0__L
 static lean_object* l_Lean_JsonNumber_instRepr___closed__4;
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits_loop(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_fromPositiveFloat_x21(double);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 extern lean_object* l_Nat_instDiv;
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at___private_Lean_Data_Json_Basic_0__Lean_Json_hash_x27___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);

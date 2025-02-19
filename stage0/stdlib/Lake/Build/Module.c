@@ -104,7 +104,6 @@ LEAN_EXPORT lean_object* l_Lake_Module_coFacetConfig___elambda__1(uint8_t, lean_
 LEAN_EXPORT lean_object* l_Functor_mapRev___at_Lake_Module_recParseImports___spec__7___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_recBuildDynlib___lambda__4___closed__4;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lake_Module_recParseImports___spec__5(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_fold___at_Lake_fetchExternLibs___spec__1(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Module_oExportFacetConfig___closed__1;
@@ -357,6 +356,7 @@ LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps(lean_object*, lean_object*, 
 static lean_object* l_Lake_Module_coNoExportFacetConfig___closed__4;
 LEAN_EXPORT lean_object* l_Lake_checkHashUpToDate___at_Lake_Module_recBuildLean___spec__3(lean_object*);
 static lean_object* l_Lake_Module_clearOutputHashes___closed__1;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Module_recBuildDeps___lambda__2(lean_object*, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_OrdHashSet_insert___at_Lake_Module_recBuildDeps___spec__4___closed__2;
 static lean_object* l_Lake_initModuleFacetConfigs___closed__14;

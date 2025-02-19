@@ -40,11 +40,7 @@ def handleCompletion (p : CompletionParams)
   let caps := (← read).initParams.capabilities
   mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
-      -- work around https://github.com/microsoft/vscode/issues/155738
-      | return {
-        items := #[{label := "-", data? := toJson { params := p : Lean.Lsp.CompletionItemData }}],
-        isIncomplete := true
-      }
+      | return { items := #[], isIncomplete := true }
     Completion.find? p doc.meta.text pos cmdStx infoTree caps
 
 /--

@@ -31,10 +31,14 @@ def checkRelCnstrs (css : PArray (PArray RelCnstrWithProof)) (isLower : Bool) : 
   return ()
 
 def checkLowers : GoalM Unit := do
-  checkRelCnstrs (← get').lowers (isLower := true)
+  let s ← get'
+  assert! s.lowers.size == s.vars.size
+  checkRelCnstrs s.lowers (isLower := true)
 
 def checkUppers : GoalM Unit := do
-  checkRelCnstrs (← get').uppers (isLower := false)
+  let s ← get'
+  assert! s.uppers.size == s.vars.size
+  checkRelCnstrs s.uppers (isLower := false)
 
 def checkDvdCnstrs : GoalM Unit := do
   let s ← get'

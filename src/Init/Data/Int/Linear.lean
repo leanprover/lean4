@@ -907,6 +907,10 @@ theorem RelCnstr.of_negLe (ctx : Context) (c₁ c₂ : RelCnstr) (h : negLe c₁
   simp at h
   exact h
 
+theorem RelCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : RelCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁, -RelCnstr.denote] at h₂
+
 end Int.Linear
 
 theorem Int.not_le_eq (a b : Int) : (¬a ≤ b) = (b + 1 ≤ a) := by

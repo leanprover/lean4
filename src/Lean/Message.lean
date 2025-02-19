@@ -241,6 +241,11 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
   | nCtx, ctx,       compose d₁ d₂            => return (← formatAux nCtx ctx d₁) ++ (← formatAux nCtx ctx d₂)
   | nCtx, ctx,       group d                  => Format.group <$> formatAux nCtx ctx d
   | nCtx, ctx,       trace data header children => do
+    let childFmts ← children.mapM (formatAux nCtx ctx)
+    if data.cls.isAnonymous then
+      -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.
+      return .joinSep childFmts.toList "\n"
+
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
@@ -250,7 +255,6 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
       if maxNum > 0 && children.size > maxNum then
         children := children.take maxNum |>.push <|
           ofFormat f!"{children.size - maxNum} more entries... (increase `maxTraceChildren` to see more)"
-    let childFmts ← children.mapM (formatAux nCtx ctx)
     return .nest 2 (.joinSep (msg::childFmts.toList) "\n")
   | nCtx, ctx?,      ofLazy pp _             => do
     let dyn ← pp (ctx?.map (mkPPContext nCtx))

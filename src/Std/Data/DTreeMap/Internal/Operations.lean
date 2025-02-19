@@ -771,14 +771,9 @@ def alter! [Ord α] [LawfulEqOrd α] (k : α) (f : Option (β k) → Option (β 
       | none => glue! l' r'
       | some v => .inner sz k v l' r'
 
-/--
-If the tree contains a mapping `(k', v)` with `k == k'`, adjust it to have mapping
-`(k', f k' v h)`, which `h : compare k k' = .eq`. If no such mapping is present, returns the
-tree unmodified. Note that this function is likely to be faster than `modify` because it never
-needs to rebalance the tree.
--/
+/-- Internal implementation detail of the tree map -/
 @[specialize]
-def modify [Ord α] (k : α) (f : (k' : α) → (compare k k' = .eq) → β k' → β k') (t : Impl α β) :
+def modify [Ord α] [LawfulEqOrd α] (k : α) (f : β k → β k) (t : Impl α β) :
     Impl α β :=
   match t with
   | .leaf => .leaf
@@ -786,7 +781,23 @@ def modify [Ord α] (k : α) (f : (k' : α) → (compare k k' = .eq) → β k' �
     match h : compare k k' with
     | .lt => .inner sz k' v' (modify k f l) r
     | .gt => .inner sz k' v' l (modify k f r)
-    | .eq => .inner sz k' (f k' h v') l r
+    | .eq => .inner sz k (f <| cast (congrArg β <| compare_eq_iff_eq.mp h).symm v') l r
+
+@[Std.Internal.tree_tac]
+theorem size_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} :
+    (t.modify k f).size = t.size := by
+  unfold modify
+  split <;> (try split) <;> rfl
+
+theorem balanced_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} (ht : t.Balanced) :
+    (t.modify k f).Balanced := by
+  induction t with
+  | leaf => exact balanced_empty
+  | inner sz k v l r ihl ihr =>
+    dsimp only  [modify]
+    have ihl := ihl ht.left
+    have ihr := ihr ht.right
+    exact ✓
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
@@ -834,7 +845,7 @@ def alter [Ord α] (k : α) (f : Option β → Option β) (t : Impl α β)
     | none => ⟨.leaf, ✓, ✓, ✓⟩
     | some v => ⟨.inner 1 k v .leaf .leaf, ✓, ✓, ✓⟩
   | .inner sz k' v' l' r' =>
-    match h : compare k k' with
+    match compare k k' with
     | .lt =>
       let ⟨d, hd, hd'₁, hd'₂⟩ := alter k f l' ✓
       ⟨balance k' v' d r' ✓ ✓ (hl.at_root.adjust_left hd'₁ hd'₂), ✓, ✓, ✓⟩
@@ -866,6 +877,34 @@ def alter! [Ord α] (k : α) (f : Option β → Option β) (t : Impl α β) :
       match f (some v') with
       | none => glue! l' r'
       | some v => .inner sz k v l' r'
+
+/-- Internal implementation detail of the tree map -/
+@[specialize]
+def modify [Ord α] (k : α) (f : β → β) (t : Impl α β) :
+    Impl α β :=
+  match t with
+  | .leaf => .leaf
+  | .inner sz k' v' l r =>
+    match compare k k' with
+    | .lt => .inner sz k' v' (modify k f l) r
+    | .gt => .inner sz k' v' l (modify k f r)
+    | .eq => .inner sz k (f v') l r
+
+@[Std.Internal.tree_tac]
+theorem size_modify [Ord α] {k f} {t : Impl α β} :
+    (modify k f t).size = t.size := by
+  unfold modify
+  split <;> (try split) <;> rfl
+
+theorem balanced_modify [Ord α] {k f} {t : Impl α β} (ht : t.Balanced) :
+    (modify k f t).Balanced := by
+  induction t with
+  | leaf => exact balanced_empty
+  | inner sz k v l r ihl ihr =>
+    dsimp only  [modify]
+    have ihl := ihl ht.left
+    have ihr := ihr ht.right
+    exact ✓
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the

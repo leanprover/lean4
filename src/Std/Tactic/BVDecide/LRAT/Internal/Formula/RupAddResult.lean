@@ -392,7 +392,7 @@ theorem insertUnitInvariant_insertRupUnits {n : Nat} (f : DefaultFormula n) (f_r
     simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
     apply Or.inl
     intro j
-    simp only [f_readyForRupAdd.1, Array.size_toArray, List.length_nil] at j
+    simp only [f_readyForRupAdd.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
   exact insertUnitInvariant_insertUnit_fold f.assignments hsize f.rupUnits f.assignments hsize false units h0
 
@@ -529,7 +529,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     ⟨j1, j1_ge_idx, j2, j2_ge_idx, i_gt_zero, ih1, ih2, ih3, ih4, ih5⟩
   · apply Or.inl
     constructor
-    · simp only [clearUnit, Fin.getElem_fin, Array.get_eq_getElem]
+    · simp only [clearUnit, Array.getInternal_eq_getElem]
       specialize ih2 idx (Nat.le_refl idx.val)
       have i_in_bounds : i.1 < assignments.size := by
         rw [hsize]
@@ -544,7 +544,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
     · next idx_eq_j =>
       apply Or.inl
       constructor
-      · simp only [clearUnit, idx_eq_j, Array.get_eq_getElem, ih1]
+      · simp only [clearUnit, idx_eq_j, Array.getInternal_eq_getElem, ih1]
         rw [Array.getElem_modify_self, ih2, remove_add_cancel]
         exact ih3
       · intro k k_ge_idx_add_one
@@ -564,7 +564,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
       · constructor
         · exact ih1
         · constructor
-          · simp only [clearUnit, Array.get_eq_getElem]
+          · simp only [clearUnit, Array.getInternal_eq_getElem]
             specialize ih4 idx (Nat.le_refl idx.1) idx_ne_j
             rw [Array.getElem_modify_of_ne ih4]
             exact ih2
@@ -589,7 +589,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
         · simp only [Fin.getElem_fin]
           exact ih2
         · constructor
-          · simp only [clearUnit, idx_eq_j1, Array.get_eq_getElem, ih1]
+          · simp only [clearUnit, idx_eq_j1, Array.getInternal_eq_getElem, ih1]
             rw [Array.getElem_modify_self, ih3, ih4]
             decide
           · constructor
@@ -625,7 +625,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
           · simp only [Fin.getElem_fin]
             exact ih1
           · constructor
-            · simp only [clearUnit, idx_eq_j2, Array.get_eq_getElem, ih2]
+            · simp only [clearUnit, idx_eq_j2, Array.getInternal_eq_getElem, ih2]
               rw [Array.getElem_modify_self, ih3, ih4]
               decide
             · constructor
@@ -669,7 +669,7 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
               · simp only [Fin.getElem_fin]
                 exact ih2
               · constructor
-                · simp only [clearUnit, Array.get_eq_getElem]
+                · simp only [clearUnit, Array.getInternal_eq_getElem]
                   have idx_res_ne_i : units[idx.1].1.1 ≠ i.1 := by
                     intro h1
                     by_cases units[idx.1].2
@@ -1114,11 +1114,11 @@ theorem nodup_derivedLits {n : Nat} (f : DefaultFormula n)
     simp [li, Array.getElem_mem]
   have i_in_bounds : i.1 < derivedLits.length := by
     have i_property := i.2
-    simp only [derivedLits_arr_def, Array.size_toArray] at i_property
+    simp only [derivedLits_arr_def, List.size_toArray] at i_property
     exact i_property
   have j_in_bounds : j.1 < derivedLits.length := by
     have j_property := j.2
-    simp only [derivedLits_arr_def, Array.size_toArray] at j_property
+    simp only [derivedLits_arr_def, List.size_toArray] at j_property
     exact j_property
   rcases derivedLits_satisfies_invariant ⟨li.1.1, li.1.2.2⟩ with ⟨_, h2⟩ | ⟨k, _, _, _, h3⟩ |
     ⟨k1, k2, _, _, k1_eq_true, k2_eq_false, _, _, h3⟩
@@ -1215,7 +1215,7 @@ theorem restoreAssignments_performRupCheck_base_case {n : Nat} (f : DefaultFormu
       exact h2 derivedLits_arr[j] idx_in_list
   · apply Or.inr ∘ Or.inl
     have j_lt_derivedLits_arr_size : j.1 < derivedLits_arr.size := by
-      simp only [derivedLits_arr_def, Array.size_toArray]
+      simp only [derivedLits_arr_def, List.size_toArray]
       exact j.2
     have i_gt_zero : i.1 > 0 := by rw [← j_eq_i]; exact (List.get derivedLits j).1.2.1
     refine ⟨⟨j.1, j_lt_derivedLits_arr_size⟩, List.get derivedLits j |>.2, i_gt_zero, ?_⟩
@@ -1228,7 +1228,7 @@ theorem restoreAssignments_performRupCheck_base_case {n : Nat} (f : DefaultFormu
         intro k _ k_ne_j
         have k_in_bounds : k < derivedLits.length := by
           have k_property := k.2
-          simp only [derivedLits_arr_def, Array.size_toArray] at k_property
+          simp only [derivedLits_arr_def, List.size_toArray] at k_property
           exact k_property
         have k_ne_j : ⟨k.1, k_in_bounds⟩ ≠ j := by
           apply Fin.ne_of_val_ne
@@ -1238,10 +1238,10 @@ theorem restoreAssignments_performRupCheck_base_case {n : Nat} (f : DefaultFormu
         exact h3 ⟨k.1, k_in_bounds⟩ k_ne_j
   · apply Or.inr ∘ Or.inr
     have j1_lt_derivedLits_arr_size : j1.1 < derivedLits_arr.size := by
-      simp only [derivedLits_arr_def, Array.size_toArray]
+      simp only [derivedLits_arr_def, List.size_toArray]
       exact j1.2
     have j2_lt_derivedLits_arr_size : j2.1 < derivedLits_arr.size := by
-      simp only [derivedLits_arr_def, Array.size_toArray]
+      simp only [derivedLits_arr_def, List.size_toArray]
       exact j2.2
     have i_gt_zero : i.1 > 0 := by rw [← j1_eq_i]; exact (List.get derivedLits j1).1.2.1
     refine ⟨⟨j1.1, j1_lt_derivedLits_arr_size⟩,
@@ -1259,7 +1259,7 @@ theorem restoreAssignments_performRupCheck_base_case {n : Nat} (f : DefaultFormu
         intro k _ k_ne_j1 k_ne_j2
         have k_in_bounds : k < derivedLits.length := by
           have k_property := k.2
-          simp only [derivedLits_arr_def, Array.size_toArray] at k_property
+          simp only [derivedLits_arr_def, List.size_toArray] at k_property
           exact k_property
         have k_ne_j1 : ⟨k.1, k_in_bounds⟩ ≠ j1 := by
           apply Fin.ne_of_val_ne

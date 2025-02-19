@@ -150,8 +150,8 @@ theorem Sublist.trans {l₁ l₂ l₃ : List α} (h₁ : l₁ <+ l₂) (h₂ : l
   | slnil => exact h₁
   | cons _ _ IH => exact (IH h₁).cons _
   | @cons₂ l₂ _ a _ IH =>
-    generalize e : a :: l₂ = l₂'
-    match e ▸ h₁ with
+    generalize e : a :: l₂ = l₂' at h₁
+    match h₁ with
     | .slnil => apply nil_sublist
     | .cons a' h₁' => cases e; apply (IH h₁').cons
     | .cons₂ a' h₁' => cases e; apply (IH h₁').cons₂

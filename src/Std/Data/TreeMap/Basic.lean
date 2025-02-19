@@ -103,6 +103,12 @@ def containsThenInsertIfNew (t : TreeMap α β cmp) (a : α) (b : β) :
   let p := t.inner.containsThenInsertIfNew a b
   (p.1, ⟨p.2⟩)
 
+@[inline, inherit_doc DTreeMap.getThenInsertIfNew?]
+def getThenInsertIfNew? (t : TreeMap α β cmp) (a : α) (b : β) : Option β × TreeMap α β cmp :=
+  letI : Ord α := ⟨cmp⟩
+  let p := DTreeMap.Const.getThenInsertIfNew? t.inner a b
+  (p.1, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.contains]
 def contains (l : TreeMap α β cmp) (a : α) : Bool :=
   l.inner.contains a
@@ -157,6 +163,22 @@ instance : GetElem? (TreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+@[inline, inherit_doc DTreeMap.getKey?]
+def getKey? (t : TreeMap α β cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.getKey]
+def getKey (t : TreeMap α β cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.getKey!]
+def getKey! [Inhabited α] (t : TreeMap α β cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.getKeyD]
+def getKeyD (t : TreeMap α β cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
 
 @[inline, inherit_doc DTreeMap.Const.min?]
 def min? (t : TreeMap α β cmp) : Option (α × β) :=
@@ -394,6 +416,10 @@ def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : TreeMap α β cmp) : δ :=
   foldr f init t
 
+@[inline, inherit_doc DTreeMap.partition]
+def partition (f : (a : α) → β → Bool) (t : TreeMap α β cmp) : TreeMap α β cmp × TreeMap α β cmp :=
+  let p := t.inner.partition f; (⟨p.1⟩, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.forM]
 def forM (f : α → β → m PUnit) (t : TreeMap α β cmp) : m PUnit :=
   t.inner.forM f
@@ -423,6 +449,14 @@ def keys (t : TreeMap α β cmp) : List α :=
 @[inline, inherit_doc DTreeMap.keysArray]
 def keysArray (t : TreeMap α β cmp) : Array α :=
   t.inner.keysArray
+
+@[inline, inherit_doc DTreeMap.values]
+def values (t : TreeMap α β cmp) : List β :=
+  t.inner.values
+
+@[inline, inherit_doc DTreeMap.valuesArray]
+def valuesArray (t : TreeMap α β cmp) : Array β :=
+  t.inner.valuesArray
 
 @[inline, inherit_doc DTreeMap.Const.toList]
 def toList (t : TreeMap α β cmp) : List (α × β) :=

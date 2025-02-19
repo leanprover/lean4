@@ -18,7 +18,6 @@ static lean_object* l_Lean_instToExprRArray___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RArray_toExpr___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go(lean_object*);
 lean_object* l_Lean_mkAppB(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_mkApp4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__7;
@@ -38,6 +37,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Data_RArray_0____private_Init_Data_RAr
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__6;
 LEAN_EXPORT lean_object* l_Lean_RArray_ofFn_go___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instToExprRArray___rarg(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_RArray_toExpr___rarg___closed__2;
 LEAN_EXPORT lean_object* l_Lean_RArray_ofArray___rarg___lambda__1(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);

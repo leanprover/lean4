@@ -13,6 +13,9 @@ import Init.Data.List.Nat.TakeDrop
 This file follows the contents of `Init.Data.List.TakeDrop` and `Init.Data.List.Nat.TakeDrop`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Nat
 namespace Array
 
@@ -351,13 +354,13 @@ theorem takeWhile_append {xs ys : Array α} :
       if (xs.takeWhile p).size = xs.size then xs ++ ys.takeWhile p else xs.takeWhile p := by
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
-  simp only [List.append_toArray, List.takeWhile_toArray, List.takeWhile_append, size_toArray]
+  simp only [List.append_toArray, List.takeWhile_toArray, List.takeWhile_append, List.size_toArray]
   split <;> rfl
 
-@[simp] theorem takeWhile_append_of_pos {p : α → Bool} {l₁ l₂ : Array α} (h : ∀ a ∈ l₁, p a) :
-    (l₁ ++ l₂).takeWhile p = l₁ ++ l₂.takeWhile p := by
-  rcases l₁ with ⟨l₁⟩
-  rcases l₂ with ⟨l₂⟩
+@[simp] theorem takeWhile_append_of_pos {p : α → Bool} {xs ys : Array α} (h : ∀ a ∈ xs, p a) :
+    (xs ++ ys).takeWhile p = xs ++ ys.takeWhile p := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
   simp at h
   simp [List.takeWhile_append_of_pos h]
 
@@ -367,17 +370,17 @@ theorem popWhile_append {xs ys : Array α} :
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, List.dropWhile_append,
-    List.isEmpty_eq_true, List.isEmpty_toArray, List.isEmpty_reverse]
+    List.isEmpty_iff, List.isEmpty_toArray, List.isEmpty_reverse]
   -- Why do these not fire with `simp`?
   rw [List.popWhile_toArray, List.isEmpty_toArray, List.isEmpty_reverse]
   split
   · rfl
   · simp
 
-@[simp] theorem popWhile_append_of_pos {p : α → Bool} {l₁ l₂ : Array α} (h : ∀ a ∈ l₂, p a) :
-    (l₁ ++ l₂).popWhile p = l₁.popWhile p := by
-  rcases l₁ with ⟨l₁⟩
-  rcases l₂ with ⟨l₂⟩
+@[simp] theorem popWhile_append_of_pos {p : α → Bool} {xs ys : Array α} (h : ∀ a ∈ ys, p a) :
+    (xs ++ ys).popWhile p = xs.popWhile p := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
   simp at h
   simp only [List.append_toArray, List.popWhile_toArray, List.reverse_append, mk.injEq,
     List.reverse_inj]

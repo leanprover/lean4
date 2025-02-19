@@ -68,6 +68,7 @@ static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____cl
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_getModuleEntries___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lambda__7(lean_object*);
+uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedOrderedTagAttribute___lambda__6___closed__1;
 lean_object* l_Lean_PersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
@@ -121,7 +122,6 @@ static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____cl
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedOrderedTagAttribute___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_registerOrderedTagAttribute___lambda__3(lean_object*);
-uint32_t lean_uint32_of_nat(lean_object*);
 static lean_object* l_Lake_registerOrderedTagAttribute___lambda__7___closed__2;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__18;
 static lean_object* l___auto____x40_Lake_Util_OrderedTagAttribute___hyg_58____closed__29;

@@ -143,7 +143,7 @@ protected theorem le_iff_lt_or_eq [DecidableEq α] [LT α] [DecidableLT α]
     [Std.Antisymm (¬ · < · : α → α → Prop)]
     [Std.Total (¬ · < · : α → α → Prop)]
     {l₁ l₂ : Vector α n} : l₁ ≤ l₂ ↔ l₁ < l₂ ∨ l₁ = l₂ := by
-  simpa using Array.le_iff_lt_or_eq (l₁ := l₁.toArray) (l₂ := l₂.toArray)
+  simpa using Array.le_iff_lt_or_eq (xs := l₁.toArray) (ys := l₂.toArray)
 
 @[simp] theorem lex_eq_true_iff_lt [DecidableEq α] [LT α] [DecidableLT α]
     {l₁ l₂ : Vector α n} : lex l₁ l₂ = true ↔ l₁ < l₂ := by

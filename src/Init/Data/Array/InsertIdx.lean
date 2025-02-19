@@ -13,6 +13,9 @@ import Init.Data.List.Nat.InsertIdx
 Proves various lemmas about `Array.insertIdx`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Function
 
 open Nat
@@ -27,23 +30,23 @@ section InsertIdx
 
 variable {a : α}
 
-@[simp] theorem toList_insertIdx (a : Array α) (i x) (h) :
-    (a.insertIdx i x h).toList = a.toList.insertIdx i x := by
-  rcases a with ⟨a⟩
+@[simp] theorem toList_insertIdx (xs : Array α) (i x) (h) :
+    (xs.insertIdx i x h).toList = xs.toList.insertIdx i x := by
+  rcases xs with ⟨xs⟩
   simp
 
 @[simp]
-theorem insertIdx_zero (s : Array α) (x : α) : s.insertIdx 0 x = #[x] ++ s := by
-  cases s
+theorem insertIdx_zero (xs : Array α) (x : α) : xs.insertIdx 0 x = #[x] ++ xs := by
+  rcases xs with ⟨xs⟩
   simp
 
-@[simp] theorem size_insertIdx {as : Array α} (h : n ≤ as.size) : (as.insertIdx n a).size = as.size + 1 := by
-  cases as
+@[simp] theorem size_insertIdx {xs : Array α} (h : i ≤ xs.size) : (xs.insertIdx i a).size = xs.size + 1 := by
+  rcases xs with ⟨xs⟩
   simp [List.length_insertIdx, h]
 
-theorem eraseIdx_insertIdx (i : Nat) (l : Array α) (h : i ≤ l.size) :
-    (l.insertIdx i a).eraseIdx i (by simp; omega) = l := by
-  cases l
+theorem eraseIdx_insertIdx (i : Nat) (xs : Array α) (h : i ≤ xs.size) :
+    (xs.insertIdx i a).eraseIdx i (by simp; omega) = xs := by
+  rcases xs with ⟨xs⟩
   simp_all
 
 theorem insertIdx_eraseIdx_of_ge {as : Array α}
@@ -60,68 +63,68 @@ theorem insertIdx_eraseIdx_of_le {as : Array α}
   cases as
   simpa using List.insertIdx_eraseIdx_of_le _ _ _ (by simpa) (by simpa)
 
-theorem insertIdx_comm (a b : α) (i j : Nat) (l : Array α) (_ : i ≤ j) (_ : j ≤ l.size) :
-    (l.insertIdx i a).insertIdx (j + 1) b (by simpa) =
-      (l.insertIdx j b).insertIdx i a (by simp; omega) := by
-  cases l
+theorem insertIdx_comm (a b : α) (i j : Nat) (xs : Array α) (_ : i ≤ j) (_ : j ≤ xs.size) :
+    (xs.insertIdx i a).insertIdx (j + 1) b (by simpa) =
+      (xs.insertIdx j b).insertIdx i a (by simp; omega) := by
+  rcases xs with ⟨xs⟩
   simpa using List.insertIdx_comm a b i j _ (by simpa) (by simpa)
 
-theorem mem_insertIdx {l : Array α} {h : i ≤ l.size} : a ∈ l.insertIdx i b h ↔ a = b ∨ a ∈ l := by
-  cases l
+theorem mem_insertIdx {xs : Array α} {h : i ≤ xs.size} : a ∈ xs.insertIdx i b h ↔ a = b ∨ a ∈ xs := by
+  rcases xs with ⟨xs⟩
   simpa using List.mem_insertIdx (by simpa)
 
 @[simp]
-theorem insertIdx_size_self (l : Array α) (x : α) : l.insertIdx l.size x = l.push x := by
-  cases l
+theorem insertIdx_size_self (xs : Array α) (x : α) : xs.insertIdx xs.size x = xs.push x := by
+  rcases xs with ⟨xs⟩
   simp
 
-theorem getElem_insertIdx {as : Array α} {x : α} {i k : Nat} (w : i ≤ as.size) (h : k < (as.insertIdx i x).size) :
-    (as.insertIdx i x)[k] =
+theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < (xs.insertIdx i x).size) :
+    (xs.insertIdx i x)[k] =
       if h₁ : k < i then
-        as[k]'(by simp [size_insertIdx] at h; omega)
+        xs[k]'(by simp [size_insertIdx] at h; omega)
       else
         if h₂ : k = i then
           x
         else
-          as[k-1]'(by simp [size_insertIdx] at h; omega) := by
-  cases as
+          xs[k-1]'(by simp [size_insertIdx] at h; omega) := by
+  cases xs
   simp [List.getElem_insertIdx, w]
 
-theorem getElem_insertIdx_of_lt {as : Array α} {x : α} {i k : Nat} (w : i ≤ as.size) (h : k < i) :
-    (as.insertIdx i x)[k]'(by simp; omega) = as[k] := by
+theorem getElem_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
+    (xs.insertIdx i x)[k]'(by simp; omega) = xs[k] := by
   simp [getElem_insertIdx, w, h]
 
-theorem getElem_insertIdx_self {as : Array α} {x : α} {i : Nat} (w : i ≤ as.size) :
-    (as.insertIdx i x)[i]'(by simp; omega) = x := by
+theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
+    (xs.insertIdx i x)[i]'(by simp; omega) = x := by
   simp [getElem_insertIdx, w]
 
-theorem getElem_insertIdx_of_gt {as : Array α} {x : α} {i k : Nat} (w : k ≤ as.size) (h : k > i) :
-    (as.insertIdx i x)[k]'(by simp; omega) = as[k - 1]'(by omega) := by
+theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
+    (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
   simp [getElem_insertIdx, w, h]
   rw [dif_neg (by omega), dif_neg (by omega)]
 
-theorem getElem?_insertIdx {l : Array α} {x : α} {i k : Nat} (h : i ≤ l.size) :
-    (l.insertIdx i x)[k]? =
+theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :
+    (xs.insertIdx i x)[k]? =
       if k < i then
-        l[k]?
+        xs[k]?
       else
         if k = i then
-          if k ≤ l.size then some x else none
+          if k ≤ xs.size then some x else none
         else
-          l[k-1]? := by
-  cases l
+          xs[k-1]? := by
+  cases xs
   simp [List.getElem?_insertIdx, h]
 
-theorem getElem?_insertIdx_of_lt {l : Array α} {x : α} {i k : Nat} (w : i ≤ l.size) (h : k < i) :
-    (l.insertIdx i x)[k]? = l[k]? := by
+theorem getElem?_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
+    (xs.insertIdx i x)[k]? = xs[k]? := by
   rw [getElem?_insertIdx, if_pos h]
 
-theorem getElem?_insertIdx_self {l : Array α} {x : α} {i : Nat} (w : i ≤ l.size) :
-    (l.insertIdx i x)[i]? = some x := by
+theorem getElem?_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
+    (xs.insertIdx i x)[i]? = some x := by
   rw [getElem?_insertIdx, if_neg (by omega), if_pos rfl, if_pos w]
 
-theorem getElem?_insertIdx_of_ge {l : Array α} {x : α} {i k : Nat} (w : i < k) (h : k ≤ l.size) :
-    (l.insertIdx i x)[k]? = l[k - 1]? := by
+theorem getElem?_insertIdx_of_ge {xs : Array α} {x : α} {i k : Nat} (w : i < k) (h : k ≤ xs.size) :
+    (xs.insertIdx i x)[k]? = xs[k - 1]? := by
   rw [getElem?_insertIdx, if_neg (by omega), if_neg (by omega)]
 
 end InsertIdx

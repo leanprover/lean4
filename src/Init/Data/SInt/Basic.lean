@@ -103,6 +103,12 @@ def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int8 where
   toString i := toString i.toInt
+instance : Repr Int8 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int8 := ⟨⟩
+
+instance : Hashable Int8 where
+  hash i := i.toUInt8.toUInt64
 
 instance : OfNat Int8 n := ⟨Int8.ofNat n⟩
 instance : Neg Int8 where
@@ -148,6 +154,10 @@ def Int8.shiftLeft (a b : Int8) : Int8 := ⟨⟨a.toBitVec <<< (b.toBitVec.smod 
 def Int8.shiftRight (a b : Int8) : Int8 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 8)⟩⟩
 @[extern "lean_int8_complement"]
 def Int8.complement (a : Int8) : Int8 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int8.minValue` will be mapped to `Int8.minValue`. -/
+@[extern "lean_int8_abs"]
+def Int8.abs (a : Int8) : Int8 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int8_dec_eq"]
 def Int8.decEq (a b : Int8) : Decidable (a = b) :=
@@ -233,6 +243,12 @@ def Int16.neg (i : Int16) : Int16 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int16 where
   toString i := toString i.toInt
+instance : Repr Int16 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int16 := ⟨⟩
+
+instance : Hashable Int16 where
+  hash i := i.toUInt16.toUInt64
 
 instance : OfNat Int16 n := ⟨Int16.ofNat n⟩
 instance : Neg Int16 where
@@ -278,6 +294,10 @@ def Int16.shiftLeft (a b : Int16) : Int16 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int16.shiftRight (a b : Int16) : Int16 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 16)⟩⟩
 @[extern "lean_int16_complement"]
 def Int16.complement (a : Int16) : Int16 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int16.minValue` will be mapped to `Int16.minValue`. -/
+@[extern "lean_int16_abs"]
+def Int16.abs (a : Int16) : Int16 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int16_dec_eq"]
 def Int16.decEq (a b : Int16) : Decidable (a = b) :=
@@ -367,6 +387,12 @@ def Int32.neg (i : Int32) : Int32 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int32 where
   toString i := toString i.toInt
+instance : Repr Int16 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int16 := ⟨⟩
+
+instance : Hashable Int32 where
+  hash i := i.toUInt32.toUInt64
 
 instance : OfNat Int32 n := ⟨Int32.ofNat n⟩
 instance : Neg Int32 where
@@ -412,6 +438,10 @@ def Int32.shiftLeft (a b : Int32) : Int32 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int32.shiftRight (a b : Int32) : Int32 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 32)⟩⟩
 @[extern "lean_int32_complement"]
 def Int32.complement (a : Int32) : Int32 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int32.minValue` will be mapped to `Int32.minValue`. -/
+@[extern "lean_int32_abs"]
+def Int32.abs (a : Int32) : Int32 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int32_dec_eq"]
 def Int32.decEq (a b : Int32) : Decidable (a = b) :=
@@ -505,6 +535,12 @@ def Int64.neg (i : Int64) : Int64 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int64 where
   toString i := toString i.toInt
+instance : Repr Int64 where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom Int64 := ⟨⟩
+
+instance : Hashable Int64 where
+  hash i := i.toUInt64
 
 instance : OfNat Int64 n := ⟨Int64.ofNat n⟩
 instance : Neg Int64 where
@@ -550,6 +586,10 @@ def Int64.shiftLeft (a b : Int64) : Int64 := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def Int64.shiftRight (a b : Int64) : Int64 := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod 64)⟩⟩
 @[extern "lean_int64_complement"]
 def Int64.complement (a : Int64) : Int64 := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `Int64.minValue` will be mapped to `Int64.minValue`. -/
+@[extern "lean_int64_abs"]
+def Int64.abs (a : Int64) : Int64 := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_int64_dec_eq"]
 def Int64.decEq (a b : Int64) : Decidable (a = b) :=
@@ -653,6 +693,12 @@ def ISize.neg (i : ISize) : ISize := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString ISize where
   toString i := toString i.toInt
+instance : Repr ISize where
+  reprPrec i prec := reprPrec i.toInt prec
+instance : ReprAtom ISize := ⟨⟩
+
+instance : Hashable ISize where
+  hash i := i.toUSize.toUInt64
 
 instance : OfNat ISize n := ⟨ISize.ofNat n⟩
 instance : Neg ISize where
@@ -660,9 +706,8 @@ instance : Neg ISize where
 
 /-- The maximum value an `ISize` may attain, that is, `2^(System.Platform.numBits - 1) - 1`. -/
 abbrev ISize.maxValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1) - 1)
--- 9223372036854775807
 /-- The minimum value an `ISize` may attain, that is, `-2^(System.Platform.numBits - 1)`. -/
-abbrev ISize.minValue : ISize := .ofInt (2 ^ (System.Platform.numBits - 1))
+abbrev ISize.minValue : ISize := .ofInt (-2 ^ (System.Platform.numBits - 1))
 
 /-- Constructs an `ISize` from an `Int` which is known to be in bounds. -/
 @[inline]
@@ -700,6 +745,10 @@ def ISize.shiftLeft (a b : ISize) : ISize := ⟨⟨a.toBitVec <<< (b.toBitVec.sm
 def ISize.shiftRight (a b : ISize) : ISize := ⟨⟨BitVec.sshiftRight' a.toBitVec (b.toBitVec.smod System.Platform.numBits)⟩⟩
 @[extern "lean_isize_complement"]
 def ISize.complement (a : ISize) : ISize := ⟨⟨~~~a.toBitVec⟩⟩
+/-- Computes the absolute value of the signed integer. This function is equivalent to
+`if a < 0 then -a else a`, so in particular `ISize.minValue` will be mapped to `ISize.minValue`. -/
+@[extern "lean_isize_abs"]
+def ISize.abs (a : ISize) : ISize := ⟨⟨a.toBitVec.abs⟩⟩
 
 @[extern "lean_isize_dec_eq"]
 def ISize.decEq (a b : ISize) : Decidable (a = b) :=

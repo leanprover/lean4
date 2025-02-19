@@ -10,6 +10,9 @@ import Init.Data.List.Sublist
 # Lemmas about `List.countP` and `List.count`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -24,10 +27,10 @@ variable (p q : α → Bool)
 protected theorem countP_go_eq_add (l) : countP.go p l n = n + countP.go p l 0 := by
   induction l generalizing n with
   | nil => rfl
-  | cons head tail ih =>
+  | cons hd _ ih =>
     unfold countP.go
     rw [ih (n := n + 1), ih (n := n), ih (n := 1)]
-    if h : p head then simp [h, Nat.add_assoc] else simp [h]
+    if h : p hd then simp [h, Nat.add_assoc] else simp [h]
 
 @[simp] theorem countP_cons_of_pos (l) (pa : p a) : countP p (a :: l) = countP p l + 1 := by
   have : countP.go p (a :: l) 0 = countP.go p l 1 := show cond .. = _ by rw [pa]; rfl
@@ -46,8 +49,8 @@ theorem countP_cons (a : α) (l) : countP p (a :: l) = countP p l + if p a then 
 theorem length_eq_countP_add_countP (l) : length l = countP p l + countP (fun a => ¬p a) l := by
   induction l with
   | nil => rfl
-  | cons x h ih =>
-    if h : p x then
+  | cons hd _ ih =>
+    if h : p hd then
       rw [countP_cons_of_pos _ _ h, countP_cons_of_neg _ _ _, length, ih]
       · rw [Nat.add_assoc, Nat.add_comm _ 1, Nat.add_assoc]
       · simp [h]
@@ -210,7 +213,7 @@ theorem count_eq_countP' {a : α} : count a = countP (· == a) := by
 
 theorem count_tail : ∀ (l : List α) (a : α) (h : l ≠ []),
       l.tail.count a = l.count a - if l.head h == a then 1 else 0
-  | head :: tail, a, _ => by simp [count_cons]
+  | _ :: _, a, _ => by simp [count_cons]
 
 theorem count_le_length (a : α) (l : List α) : count a l ≤ l.length := countP_le_length _
 

@@ -226,13 +226,16 @@ def structureTk          := leading_parser
   "structure "
 def classTk              := leading_parser
   "class "
+def structParent        := leading_parser
+  optional (atomic (ident >> " : ")) >> termParser
 def «extends»            := leading_parser
-  " extends " >> sepBy1 termParser ", "
+  -- The optType is to catch code that uses the old order for optType and extends.
+  " extends " >> sepBy1 structParent ", " >> Term.optType
 def «structure»          := leading_parser
     (structureTk <|> classTk) >>
     -- Note: no error recovery here due to clashing with the `class abbrev` syntax
     declId >>
-    ppIndent (many (ppSpace >> Term.bracketedBinder) >> optional «extends» >> Term.optType) >>
+    ppIndent (many (ppSpace >> Term.bracketedBinder) >> Term.optType >> optional «extends») >>
     optional ((symbol " := " <|> " where ") >> optional structCtor >> structFields) >>
     optDeriving
 @[builtin_command_parser] def declaration := leading_parser

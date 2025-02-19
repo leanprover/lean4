@@ -13,15 +13,20 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 
 export Int.Linear (Var Poly RelCnstr DvdCnstr)
 
+-- TODO: include RelCnstrWithProof and RelCnstrProof
 mutual
 /-- A divisibility constraint and its justification/proof. -/
 structure DvdCnstrWithProof where
-  c : DvdCnstr
-  p : DvdCnstrProof
+  c  : DvdCnstr
+  h  : DvdCnstrProof
+  /-- Unique id for caching proofs in `ProofM` -/
+  id : Nat
 
 inductive DvdCnstrProof where
   | expr (h : Expr)
-  | solveCombine (c₁ c₂ : DvdCnstrWithProof) (α β : Int)
+  | norm (c : DvdCnstrWithProof)
+  | divCoeffs (c : DvdCnstrWithProof)
+  | solveCombine (c₁ c₂ : DvdCnstrWithProof)
   | solveElim (c₁ c₂ : DvdCnstrWithProof)
 end
 
@@ -35,6 +40,8 @@ structure State where
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
   dvdCnstrs : PArray (Option DvdCnstrWithProof) := {}
+  /-- Next unique id for a constraint. -/
+  nextCnstrId : Nat := 0
   deriving Inhabited
 
 end Lean.Meta.Grind.Arith.Cutsat

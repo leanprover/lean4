@@ -2030,6 +2030,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
         newText := formattedHint
       }]
       kind? := some .parameter
+      tooltip? := "Automatically-inserted implicit parameters"
       lctx := ← getLCtx
       deferredResolution
       : InlayHint

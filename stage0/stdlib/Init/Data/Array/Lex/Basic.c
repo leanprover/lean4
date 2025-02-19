@@ -27,7 +27,6 @@ static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__32;
 static lean_object* l_Array_lex___rarg___closed__1;
 LEAN_EXPORT uint8_t l_Array_lex___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Std_Range_forIn_x27_loop___at_Array_lex___spec__1___rarg___closed__3;
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__19;
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__3;
@@ -59,6 +58,7 @@ static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed
 LEAN_EXPORT lean_object* l_Std_Range_forIn_x27_loop___at_Array_lex___spec__1___rarg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__34;
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__2;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__5;
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__44;
 static lean_object* l___auto____x40_Init_Data_Array_Lex_Basic___hyg_15____closed__16;

@@ -163,7 +163,7 @@ def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM De
     | none        =>
       let id ← mkInstanceName binders.getArgs type
       trace[Elab.instance.mkInstanceName] "generated {(← getCurrNamespace) ++ id}"
-      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx id, mkNullNode]
+      pure <| mkNode ``Parser.Command.declId #[mkIdentFrom stx[1] id (canonical := true), mkNullNode]
   return {
     ref := stx, headerRef := mkNullNode stx.getArgs[:5], kind := DefKind.instance, modifiers := modifiers,
     declId := declId, binders := binders, type? := type, value := stx[5]

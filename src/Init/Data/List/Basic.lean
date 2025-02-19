@@ -58,6 +58,8 @@ Further operations are defined in `Init.Data.List.BasicAux`
 -/
 
 set_option linter.missingDocs true -- keep it documented
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 open Decidable List
 
@@ -204,7 +206,7 @@ instance decidableLT [DecidableEq α] [LT α] [DecidableLT α] (l₁ l₂ : List
 abbrev hasDecidableLt := @decidableLT
 
 /-- The lexicographic order on lists. -/
-@[reducible] protected def le [LT α] (a b : List α) : Prop := ¬ b < a
+@[reducible] protected def le [LT α] (as bs : List α) : Prop := ¬ bs < as
 
 instance instLE [LT α] : LE (List α) := ⟨List.le⟩
 
@@ -355,14 +357,15 @@ def tail? : List α → Option (List α)
 
 /-! ### tailD -/
 
+set_option linter.listVariables false in
 /--
 Drops the first element of the list.
 
 If the list is empty, this function returns `fallback`.
 Also see `head?` and `head!`.
 -/
-def tailD (list fallback : List α) : List α :=
-  match list with
+def tailD (l fallback : List α) : List α :=
+  match l with
   | [] => fallback
   | _ :: tl => tl
 
@@ -554,10 +557,10 @@ theorem reverseAux_eq_append (as bs : List α) : reverseAux as bs = reverseAux a
 -/
 def flatten : List (List α) → List α
   | []      => []
-  | a :: as => a ++ flatten as
+  | l :: L => l ++ flatten L
 
 @[simp] theorem flatten_nil : List.flatten ([] : List (List α)) = [] := rfl
-@[simp] theorem flatten_cons : (l :: ls).flatten = l ++ ls.flatten := rfl
+@[simp] theorem flatten_cons : (l :: L).flatten = l ++ L.flatten := rfl
 
 @[deprecated flatten (since := "2024-10-14"), inherit_doc flatten] abbrev join := @flatten
 
@@ -576,7 +579,7 @@ set_option linter.missingDocs false in
 to get a list of lists, and then concatenates them all together.
 * `[2, 3, 2].bind range = [0, 1, 0, 1, 2, 0, 1]`
 -/
-@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (a : List α) : List β := flatten (map b a)
+@[inline] def flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
 @[simp] theorem flatMap_nil (f : α → List β) : List.flatMap f [] = [] := by simp [flatten, List.flatMap]
 @[simp] theorem flatMap_cons x xs (f : α → List β) :
@@ -781,14 +784,14 @@ def take : Nat → List α → List α
 * `drop 6 [a, b, c, d, e] = []`
 -/
 def drop : Nat → List α → List α
-  | 0,   a     => a
+  | 0,   as     => as
   | _+1, []    => []
   | n+1, _::as => drop n as
 
 @[simp] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
 @[simp] theorem drop_zero (l : List α) : l.drop 0 = l := rfl
-@[simp] theorem drop_succ_cons : (a :: l).drop (n + 1) = l.drop n := rfl
+@[simp] theorem drop_succ_cons : (a :: l).drop (i + 1) = l.drop i := rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with
@@ -1022,15 +1025,15 @@ def splitAt (n : Nat) (l : List α) : List α × List α := go l n [] where
 * `rotateLeft [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
 * `rotateLeft [1, 2, 3, 4, 5] = [2, 3, 4, 5, 1]`
 -/
-def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
+def rotateLeft (xs : List α) (i : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
     xs
   else
-    let n := n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
+    let i := i % len
+    let ys := xs.take i
+    let zs := xs.drop i
+    zs ++ ys
 
 @[simp] theorem rotateLeft_nil : ([] : List α).rotateLeft n = [] := rfl
 
@@ -1043,15 +1046,15 @@ def rotateLeft (xs : List α) (n : Nat := 1) : List α :=
 * `rotateRight [1, 2, 3, 4, 5] 5 = [1, 2, 3, 4, 5]`
 * `rotateRight [1, 2, 3, 4, 5] = [5, 1, 2, 3, 4]`
 -/
-def rotateRight (xs : List α) (n : Nat := 1) : List α :=
+def rotateRight (xs : List α) (i : Nat := 1) : List α :=
   let len := xs.length
   if len ≤ 1 then
     xs
   else
-    let n := len - n % len
-    let b := xs.take n
-    let e := xs.drop n
-    e ++ b
+    let i := len - i % len
+    let ys := xs.take i
+    let zs := xs.drop i
+    zs ++ ys
 
 @[simp] theorem rotateRight_nil : ([] : List α).rotateRight n = [] := rfl
 
@@ -1166,8 +1169,8 @@ def modify (f : α → α) : Nat → List α → List α :=
 insertIdx 2 1 [1, 2, 3, 4] = [1, 2, 1, 3, 4]
 ```
 -/
-def insertIdx (n : Nat) (a : α) : List α → List α :=
-  modifyTailIdx (cons a) n
+def insertIdx (i : Nat) (a : α) : List α → List α :=
+  modifyTailIdx (cons a) i
 
 /-! ### erase -/
 
@@ -1340,13 +1343,13 @@ and returns the first `β` value corresponding to an `α` value in the list equa
 -/
 def lookup [BEq α] : α → List (α × β) → Option β
   | _, []        => none
-  | a, (k,b)::es => match a == k with
+  | a, (k,b)::as => match a == k with
     | true  => some b
-    | false => lookup a es
+    | false => lookup a as
 
 @[simp] theorem lookup_nil [BEq α] : ([] : List (α × β)).lookup a = none := rfl
 theorem lookup_cons [BEq α] {k : α} :
-    ((k,b)::es).lookup a = match a == k with | true => some b | false => es.lookup a :=
+    ((k,b)::as).lookup a = match a == k with | true => some b | false => as.lookup a :=
   rfl
 
 /-! ## Permutations -/
@@ -1492,11 +1495,11 @@ def zipWithAll (f : Option α → Option β → γ) : List α → List β → Li
 -/
 def unzip : List (α × β) → List α × List β
   | []          => ([], [])
-  | (a, b) :: t => match unzip t with | (al, bl) => (a::al, b::bl)
+  | (a, b) :: t => match unzip t with | (as, bs) => (a::as, b::bs)
 
 @[simp] theorem unzip_nil : ([] : List (α × β)).unzip = ([], []) := rfl
 @[simp] theorem unzip_cons {h : α × β} :
-    (h :: t).unzip = match unzip t with | (al, bl) => (h.1::al, h.2::bl) := rfl
+    (h :: t).unzip = match unzip t with | (as, bs) => (h.1::as, h.2::bs) := rfl
 
 /-! ## Ranges and enumeration -/
 
@@ -1531,8 +1534,8 @@ def range (n : Nat) : List Nat :=
   loop n []
 where
   loop : Nat → List Nat → List Nat
-  | 0,   ns => ns
-  | n+1, ns => loop n (n::ns)
+  | 0,   acc => acc
+  | n+1, acc => loop n (n::acc)
 
 @[simp] theorem range_zero : range 0 = [] := rfl
 
@@ -1663,6 +1666,7 @@ def intersperse (sep : α) : List α → List α
 
 /-! ### intercalate -/
 
+set_option linter.listVariables false in
 /--
 `O(|xs|)`. `intercalate sep xs` alternates `sep` and the elements of `xs`:
 * `intercalate sep [] = []`
@@ -1699,10 +1703,10 @@ def eraseReps {α} [BEq α] : List α → List α
   | a::as => loop a as []
 where
   loop {α} [BEq α] : α → List α → List α → List α
-  | a, [], rs => (a::rs).reverse
-  | a, a'::as, rs => match a == a' with
-    | true  => loop a as rs
-    | false => loop a' as (a::rs)
+  | a, [], acc => (a::acc).reverse
+  | a, a'::as, acc => match a == a' with
+    | true  => loop a as acc
+    | false => loop a' as (a::acc)
 
 /-! ### span -/
 
@@ -1718,10 +1722,10 @@ and the second part is everything else.
   loop as []
 where
   @[specialize] loop : List α → List α → List α × List α
-  | [],    rs => (rs.reverse, [])
-  | a::as, rs => match p a with
-    | true  => loop as (a::rs)
-    | false => (rs.reverse, a::as)
+  | [],    acc => (acc.reverse, [])
+  | a::as, acc => match p a with
+    | true  => loop as (a::acc)
+    | false => (acc.reverse, a::as)
 
 /-! ### splitBy -/
 
@@ -1737,18 +1741,18 @@ such that adjacent elements are related by `R`.
   | a::as => loop as a [] []
 where
   /--
-  The arguments of `splitBy.loop l ag g gs` represent the following:
+  The arguments of `splitBy.loop l b g gs` represent the following:
 
   - `l : List α` are the elements which we still need to split.
-  - `ag : α` is the previous element for which a comparison was performed.
-  - `g : List α` is the group currently being assembled, in **reverse order**.
-  - `gs : List (List α)` is all of the groups that have been completed, in **reverse order**.
+  - `b : α` is the previous element for which a comparison was performed.
+  - `r : List α` is the group currently being assembled, in **reverse order**.
+  - `acc : List (List α)` is all of the groups that have been completed, in **reverse order**.
   -/
   @[specialize] loop : List α → α → List α → List (List α) → List (List α)
-  | a::as, ag, g, gs => match R ag a with
-    | true  => loop as a (ag::g) gs
-    | false => loop as a [] ((ag::g).reverse::gs)
-  | [], ag, g, gs => ((ag::g).reverse::gs).reverse
+  | a::as, b, r, acc => match R b a with
+    | true  => loop as a (b::r) acc
+    | false => loop as a [] ((b::r).reverse::acc)
+  | [], ag, r, acc => ((ag::r).reverse::acc).reverse
 
 @[deprecated splitBy (since := "2024-10-30"), inherit_doc splitBy] abbrev groupBy := @splitBy
 
@@ -1814,10 +1818,10 @@ theorem mapTR_loop_eq (f : α → β) (as : List α) (bs : List β) :
   loop as []
 where
   @[specialize] loop : List α → List α → List α
-  | [],    rs => rs.reverse
-  | a::as, rs => match p a with
-     | true  => loop as (a::rs)
-     | false => loop as rs
+  | [],    acc => acc.reverse
+  | a::as, acc => match p a with
+     | true  => loop as (a::acc)
+     | false => loop as acc
 
 theorem filterTR_loop_eq (p : α → Bool) (as bs : List α) :
     filterTR.loop p as bs = bs.reverse ++ filter p as := by
@@ -1873,7 +1877,7 @@ theorem replicateTR_loop_eq : ∀ n, replicateTR.loop a n acc = replicate n a ++
 
 /-- Tail recursive version of `List.unzip`. -/
 def unzipTR (l : List (α × β)) : List α × List β :=
-  l.foldr (fun (a, b) (al, bl) => (a::al, b::bl)) ([], [])
+  l.foldr (fun (a, b) (as, bs) => (a::as, b::bs)) ([], [])
 
 @[csimp] theorem unzip_eq_unzipTR : @unzip = @unzipTR := by
   apply funext; intro α; apply funext; intro β; apply funext; intro l

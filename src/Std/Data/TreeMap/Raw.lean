@@ -107,11 +107,10 @@ instance : LawfulSingleton (α × β) (Raw α β cmp) where
 
 @[inline, inherit_doc DTreeMap.Raw.insertIfNew]
 def insertIfNew (t : Raw α β cmp) (a : α) (b : β) : Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩; ⟨t.inner.insertIfNew a b⟩
+  ⟨t.inner.insertIfNew a b⟩
 
 @[inline, inherit_doc DTreeMap.Raw.containsThenInsert]
 def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β cmp :=
-  letI : Ord α := ⟨cmp⟩
   let p := t.inner.containsThenInsert a b
   (p.1, ⟨p.2⟩)
 
@@ -119,6 +118,11 @@ def containsThenInsert (t : Raw α β cmp) (a : α) (b : β) : Bool × Raw α β
 def containsThenInsertIfNew (t : Raw α β cmp) (a : α) (b : β) :
     Bool × Raw α β cmp :=
   let p := t.inner.containsThenInsertIfNew a b
+  (p.1, ⟨p.2⟩)
+
+@[inline, inherit_doc DTreeMap.Raw.getThenInsertIfNew?]
+def getThenInsertIfNew? (t : Raw α β cmp) (a : α) (b : β) : Option β × Raw α β cmp :=
+  let p := DTreeMap.Raw.Const.getThenInsertIfNew? t.inner a b
   (p.1, ⟨p.2⟩)
 
 @[inline, inherit_doc DTreeMap.Raw.contains]
@@ -175,6 +179,22 @@ instance : GetElem? (Raw α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+@[inline, inherit_doc DTreeMap.Raw.getKey?]
+def getKey? (t : Raw α β cmp) (a : α) : Option α :=
+  t.inner.getKey? a
+
+@[inline, inherit_doc DTreeMap.Raw.getKey]
+def getKey (t : Raw α β cmp) (a : α) (h : a ∈ t) : α :=
+  t.inner.getKey a h
+
+@[inline, inherit_doc DTreeMap.Raw.getKey!]
+def getKey! [Inhabited α] (t : Raw α β cmp) (a : α) : α :=
+  t.inner.getKey! a
+
+@[inline, inherit_doc DTreeMap.Raw.getKeyD]
+def getKeyD (t : Raw α β cmp) (a : α) (fallback : α) : α :=
+  t.inner.getKeyD a fallback
 
 @[inline, inherit_doc DTreeMap.Raw.Const.min?]
 def min? (t : Raw α β cmp) : Option (α × β) :=
@@ -402,6 +422,10 @@ def foldr (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : 
 def revFold (f : δ → (a : α) → β → δ) (init : δ) (t : Raw α β cmp) : δ :=
   foldr f init t
 
+@[inline, inherit_doc DTreeMap.Raw.partition]
+def partition (f : (a : α) → β → Bool) (t : Raw α β cmp) : Raw α β cmp × Raw α β cmp :=
+  let p := t.inner.partition f; (⟨p.1⟩, ⟨p.2⟩)
+
 @[inline, inherit_doc DTreeMap.Raw.forM]
 def forM (f : α → β → m PUnit) (t : Raw α β cmp) : m PUnit :=
   t.inner.forM f
@@ -431,6 +455,14 @@ def keys (t : Raw α β cmp) : List α :=
 @[inline, inherit_doc DTreeMap.Raw.keysArray]
 def keysArray (t : Raw α β cmp) : Array α :=
   t.inner.keysArray
+
+@[inline, inherit_doc DTreeMap.Raw.values]
+def values (t : Raw α β cmp) : List β :=
+  t.inner.values
+
+@[inline, inherit_doc DTreeMap.Raw.valuesArray]
+def valuesArray (t : Raw α β cmp) : Array β :=
+  t.inner.valuesArray
 
 @[inline, inherit_doc DTreeMap.Raw.Const.toList]
 def toList (t : Raw α β cmp) : List (α × β) :=

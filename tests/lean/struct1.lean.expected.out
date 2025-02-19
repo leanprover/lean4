@@ -1,5 +1,9 @@
 struct1.lean:9:14-9:17: error: invalid resulting type, expecting 'Type _' or 'Prop'
 struct1.lean:12:20-12:29: error: expected structure
+
+This error is possibly due to a change in the 'structure' syntax. Now the syntax is 'structure S : Type extends P' rather than 'structure S extends P' : Type'.
+
+The purpose of the change is to accommodate 'structure S extends toP : P' syntax for naming parent projections.
 struct1.lean:15:28-15:33: warning: field 'x' from 'B' has already been declared
 struct1.lean:16:1-16:2: error: field 'x' has been declared in parent structure
 struct1.lean:17:30-17:35: warning: duplicate parent structure 'A', skipping

@@ -1053,6 +1053,112 @@ theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
   simp_to_raw using Raw₀.distinct_keys ⟨m, h.size_buckets_pos⟩ h
 
 @[simp]
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.map Sigma.fst = m.keys := by
+  apply Raw₀.map_sigma_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.length = m.size := by
+  apply Raw₀.length_toList ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.isEmpty = m.isEmpty := by
+  apply Raw₀.isEmpty_toList ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.WF)
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.toList ↔ m.get? k = some v := by
+  simp_to_raw using Raw₀.mem_toList_iff_get?_eq_some ⟨m, _⟩ h
+
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
+    (h : m.WF) {k : α} {v : β k} :
+    m.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp_to_raw using Raw₀.find?_toList_eq_some_iff_get?_eq_some ⟨m, _⟩ h
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_raw using Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m, _⟩ h
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    m.toList.find? (·.1 == k) = none ↔ ¬ k ∈ m := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  simp_to_raw using Raw₀.find?_toList_eq_none_iff_contains_eq_false ⟨m, h.size_buckets_pos⟩ h
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
+  apply Raw₀.distinct_keys_toList ⟨m, h.size_buckets_pos⟩ h
+
+namespace Const
+
+variable {β : Type v} {m : Raw α (fun _ => β)}
+
+@[simp]
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).map Prod.fst = m.keys := by
+  apply Raw₀.Const.map_prod_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).length = m.size := by
+  apply Raw₀.Const.length_toList ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).isEmpty = m.isEmpty := by
+  apply Raw₀.Const.isEmpty_toList ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.WF)
+    {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toList m ↔ get? m k = some v := by
+  simp_to_raw using Raw₀.Const.mem_toList_iff_get?_eq_some ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toList m ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp_to_raw using Raw₀.Const.mem_toList_iff_getKey?_eq_some_and_get?_eq_some
+    ⟨m, h.size_buckets_pos⟩ h
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.WF)
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toList m := by
+  simp_to_raw using Raw₀.Const.get?_eq_some_iff_exists_beq_and_mem_toList ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.WF) {k k' : α} {v : β} :
+    (Raw.Const.toList m).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
+  simp_to_raw using Raw₀.Const.find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    ⟨m, h.size_buckets_pos⟩ h
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    (Raw.Const.toList m).find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_raw using Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false
+    ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem find?_toList_eq_none_iff_not_mem [EquivBEq α] [LawfulHashable α]
+    (h : m.WF) {k : α} :
+    (Raw.Const.toList m).find? (·.1 == k) = none ↔ ¬ k ∈ m := by
+  simp only [Bool.not_eq_true, mem_iff_contains]
+  simp_to_raw using Raw₀.Const.find?_toList_eq_none_iff_contains_eq_false
+    ⟨m, h.size_buckets_pos⟩ h
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).Pairwise (fun a b => (a.1 == b.1) = false) := by
+  apply Raw₀.Const.distinct_keys_toList ⟨m, h.size_buckets_pos⟩ h
+
+end Const
+
+@[simp]
 theorem insertMany_nil [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.insertMany [] = m := by
   simp_to_raw

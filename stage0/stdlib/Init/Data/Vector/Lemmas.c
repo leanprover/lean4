@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__fil
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorSucc(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Nat_decidableExistsLT_x27(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsAndMemOfDecidablePred___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,6 +38,7 @@ LEAN_EXPORT lean_object* l_Vector_instDecidableForallVectorZero(lean_object*, le
 LEAN_EXPORT lean_object* l_Vector_instDecidableForallForallMemOfDecidablePred___rarg___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Array_foldl__filterMap_x27_match__1_splitter(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___rarg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Vector_instDecidableExistsVectorSucc(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Lemmas_0__Vector_foldl__filterMap_match__1_splitter___rarg___boxed(lean_object*, lean_object*, lean_object*);

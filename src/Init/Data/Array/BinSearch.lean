@@ -8,6 +8,9 @@ import Init.Data.Array.Basic
 import Init.Omega
 universe u v
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- We do not use `linter.indexVariables` here as it is helpful to name the index variables as `lo`, `mid`, and `hi`.
+
 namespace Array
 
 @[specialize] def binSearchAux {α : Type u} {β : Type v} (lt : α → α → Bool) (found : Option α → β) (as : Array α) (k : α) :

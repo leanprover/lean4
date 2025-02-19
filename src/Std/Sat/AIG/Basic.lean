@@ -186,7 +186,7 @@ The empty array is a DAG.
 -/
 theorem IsDAG.empty {α : Type} : IsDAG α #[] := by
   intro i lhs rhs linv rinv h
-  simp only [Array.size_toArray, List.length_nil] at h
+  simp only [List.size_toArray, List.length_nil] at h
   omega
 
 end AIG

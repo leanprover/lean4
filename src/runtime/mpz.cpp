@@ -324,7 +324,7 @@ static void mpz_dealloc(void *ptr, size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
         dealloc(ptr, size);
 #else
-        free(ptr);
+        free_sized(ptr, size);
 #endif
 }
 

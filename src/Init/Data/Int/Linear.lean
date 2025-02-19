@@ -311,6 +311,10 @@ def RelCnstr.mul (k : Int) : RelCnstr → RelCnstr
   | .eq p => .eq <| p.mul k
   | .le p => .le <| p.mul k
 
+def RelCnstr.addConst (k : Int) : RelCnstr → RelCnstr
+  | .eq p => .eq <| p.addConst k
+  | .le p => .le <| p.addConst k
+
 @[simp] theorem RelCnstr.denote_mul (ctx : Context) (c : RelCnstr) (k : Int) (h : k > 0) : (c.mul k).denote ctx = c.denote ctx := by
   cases c <;> simp [mul, denote]
   next =>
@@ -512,7 +516,7 @@ theorem RawRelCnstr.eq_of_norm_eq_const (ctx : Context) (x : Var) (k : Int) (c :
   rw [h]; simp
   rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-attribute [local simp] RelCnstr.divAll RelCnstr.mul
+attribute [local simp] RelCnstr.divAll
 
 theorem RawRelCnstr.eq_of_norm_eq_mul (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) (hz : k > 0) (h : c.norm = c'.mul k) : c.denote ctx = c'.denote ctx := by
   replace h := congrArg (RelCnstr.denote ctx) h
@@ -883,6 +887,21 @@ theorem RelCnstr.of_divByLe (ctx : Context) (c₁ c₂ : RelCnstr) (k : Int) (h 
   rcases h with ⟨h₁, h₂, h₃, h₄⟩
   simp only [RelCnstr.denote'_eq_denote]
   exact RelCnstr.eq_of_norm_eq_of_divCoeffs ctx c₁ c₂ k h₁ h₃ h₂ h₄ |>.mp
+
+def RelCnstr.negLe (c₁ c₂ : RelCnstr) : Bool :=
+  c₁.isLe && c₂ == (c₁.mul (-1) |>.addConst 1)
+
+theorem RelCnstr.of_negLe (ctx : Context) (c₁ c₂ : RelCnstr) (h : negLe c₁ c₂) : ¬ c₁.denote' ctx → c₂.denote' ctx := by
+  simp [negLe] at h
+  rcases h with ⟨h₁, h₂⟩
+  cases c₁ <;> simp [isLe] at h₁; clear h₁
+  replace h₂ := congrArg (RelCnstr.denote ctx) h₂
+  simp only [RelCnstr.denote'_eq_denote, h₂, RelCnstr.mul, RelCnstr.addConst]
+  simp
+  intro h
+  replace h : _ + 1 ≤ -0 := Int.neg_lt_neg <| Int.lt_of_not_ge h
+  simp at h
+  exact h
 
 end Int.Linear
 

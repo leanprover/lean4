@@ -36,12 +36,13 @@ partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRec
   let cₚ ← cₚ.norm
   if cₚ.isUnsat then
     trace[grind.cutsat.dvd.unsat] "{← cₚ.denoteExpr}"
-    withProofContext do
+    let hf ← withProofContext do
       let h ← cₚ.toExprProof
       let heq := mkApp3 (mkConst ``Int.Linear.DvdCnstr.eq_false_of_isUnsat) (← getContext) (toExpr cₚ.c) reflBoolTrue
       let c ← cₚ.denoteExpr
       let heq ← mkExpectedTypeHint heq (← mkEq c (← getFalseExpr))
-      closeGoal (← mkEqMP heq h)
+      mkEqMP heq h
+    closeGoal hf
   else if cₚ.isTrivial then
     trace[grind.cutsat.dvd.trivial] "{← cₚ.denoteExpr}"
     return ()

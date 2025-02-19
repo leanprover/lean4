@@ -484,6 +484,9 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
 theorem neg_emod {a b : Int} : -a % b = (b - a) % b := by
   rw [← add_emod_self_left]; rfl
 
+theorem emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
+  Int.add_emod_self.symm
+
 @[simp] theorem emod_neg (a b : Int) : a % -b = a % b := by
   rw [emod_def, emod_def, Int.ediv_neg, Int.neg_mul_neg]
 
@@ -759,6 +762,9 @@ theorem le_of_mul_le_mul_right {a b c : Int} (w : b * a ≤ c * a) (h : 0 < a) :
 
 protected theorem ediv_le_of_le_mul {a b c : Int} (H : 0 < c) (H' : a ≤ b * c) : a / c ≤ b :=
   le_of_mul_le_mul_right (Int.le_trans (Int.ediv_mul_le _ (Int.ne_of_gt H)) H') H
+
+protected theorem ediv_neg_of_neg_of_pos {n s : Int} (h : n ≤ 0) (h2 : 0 < s) : n / s ≤ 0 :=
+  Int.ediv_le_of_le_mul h2 (by simp [h])
 
 protected theorem mul_lt_of_lt_ediv {a b c : Int} (H : 0 < c) (H3 : a < b / c) : a * c < b :=
   Int.lt_of_not_ge <| mt (Int.ediv_le_of_le_mul H) (Int.not_le_of_gt H3)
@@ -1286,6 +1292,9 @@ theorem bmod_lt {x : Int} {m : Nat} (h : 0 < m) : bmod x m < (m + 1) / 2 := by
       have : x % m < m := emod_lt_of_pos x (ofNat_pos.mpr h)
       exact Int.sub_neg_of_lt this
     · exact Int.le.intro_sub _ rfl
+
+theorem bmod_eq_of_lt {x : Int} {m : Nat} (hx : x % m < (m + 1) / 2) : bmod x m = x % m := by
+  simp [bmod, hx]
 
 theorem bmod_le {x : Int} {m : Nat} (h : 0 < m) : bmod x m ≤ (m - 1) / 2 := by
   refine lt_add_one_iff.mp ?_

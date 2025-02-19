@@ -148,8 +148,7 @@ def getEqIffEnumToBitVecEqFor (declName : Name) : MetaM Name := do
     return eqIffEnumToBitVecEqName
 where
   mkInverse {w : Nat} (input : Expr) (retType : Expr) (instBEq : Expr) (ctors : List Name)
-      (counter : BitVec w) (acc : Expr) :
-      Expr :=
+      (counter : BitVec w) (acc : Expr) : Expr :=
     match ctors with
     | [] => acc
     | ctor :: ctors =>
@@ -160,7 +159,7 @@ where
           instBEq
           input
           (toExpr counter)
-      let acc := mkApp4 (mkConst ``cond [0]) retType eq (mkConst ctor) acc
+      let acc := mkApp4 (mkConst ``cond [1]) retType eq (mkConst ctor) acc
       mkInverse input retType instBEq ctors (counter + 1) acc
 
 /--

@@ -26,6 +26,131 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
+structure FixedParams where
+  /-- A telescope (nested `.lamE` with a dummy body) representing the fixed parameters. -/
+  telescope : Expr
+  /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
+  mapping : Array (Array (Option Nat))
+
+
+/--
+* `graph[funIdx][paramIdx] = none`: paramIdx is not fixed
+* `graph[funIdx][paramIdx] = some a`:
+   * paramIdx is (maybe) fixed, and
+   * `a[callerIdx] = none`: we do not yet know to which parameter of `callerIdx` this corresponds
+   * `a[callerIdx] = some callerParamIdx`: this param correponds to that param of `callerIdx`
+-/
+abbrev Info := Array (Array (Option (Array (Option Nat))))
+
+def Info.init (arities : Array Nat) : Info :=
+  arities.map fun calleeArity =>
+    mkArray calleeArity (some (mkArray arities.size none))
+
+def Info.addSelfCalls (info : Info) : Info :=
+  info.mapIdx fun funIdx paramInfos =>
+    paramInfos.mapIdx fun paramIdx paramInfo? =>
+      paramInfo?.map fun callers =>
+        callers.set! funIdx (some paramIdx)
+
+/-- All paremeters known to be non-fixed? Then we can stop. -/
+def Info.allNotFixed (info : Info) : Bool :=
+  info.any (·.all Option.isNone)
+
+/--
+Is this parameter still plausibly a fixed parameter?
+-/
+def Info.mayBeFixed (callerIdx paramIdx : Nat) (info : Info) : Bool :=
+  info[callerIdx]![paramIdx]!.isSome
+
+/--
+This parameter is not fixed. Set and propagate that information.
+-/
+partial def Info.setNotFixed (funIdx paramIdx : Nat) (info : Info) : Info := Id.run do
+  let mut info : Info := info
+  if info.mayBeFixed funIdx paramIdx then
+    info := info.modify funIdx (·.set! paramIdx none)
+    for otherFunIdx in [:info.size] do
+      for otherParamIdx in [:info[otherFunIdx]!.size] do
+        if let some otherParamInfo := info[otherFunIdx]![otherParamIdx]! then
+          if otherParamInfo[funIdx]! = some paramIdx then
+            info := Info.setNotFixed otherFunIdx otherParamIdx info
+  info
+
+def Info.getCallerParam? (calleeIdx argIdx callerIdx : Nat) (info : Info) : Option Nat :=
+  info[calleeIdx]![argIdx]!.bind (·[callerIdx]!)
+
+/--
+We observe a possibly valid edge.
+-/
+partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (info : Info) : Info :=
+  if ! info.mayBeFixed calleeIdx argIdx then
+    info.setNotFixed callerIdx paramIdx
+  else if ! info.mayBeFixed callerIdx paramIdx then
+    info.setNotFixed calleeIdx argIdx
+  else if let some paramIdx' := info.getCallerParam? calleeIdx argIdx callerIdx then
+    -- We already have an etry
+    if paramIdx = paramIdx' then
+      -- all good
+      info
+    else
+      -- Inconsistent information, mark both as not fixed
+      info.setNotFixed callerIdx paramIdx |>.setNotFixed calleeIdx argIdx
+  else
+    -- Set the new entry
+    info.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx))))
+    -- (TODO: Propagate?)
+
+
+def getFixedParams (preDefs : Array PreDefinition) : MetaM Unit := do
+  let arities ← preDefs.mapM fun preDef => lambdaTelescope preDef.value fun xs _ => pure xs.size
+  let ref ← IO.mkRef (Info.init arities)
+  ref.modify .addSelfCalls
+
+  for h : callerIdx in [:preDefs.size] do
+    let preDef := preDefs[callerIdx]
+    lambdaTelescope preDef.value fun params body => do
+      assert! params.size = arities[callerIdx]!
+      if (← ref.get).allNotFixed then return
+      -- TODO: transform is overkill, a simple visit-all-subexpression that takes applications
+      -- as whole suffices
+      discard <| Meta.transform (skipConstInApp := true) body fun e => e.withApp fun f args => do
+        unless f.isConst do
+          return .continue
+        let n := f.constName!
+        let some calleeIdx := preDefs.findIdx? (·.declName = n) | return .continue
+        for argIdx in [:arities[calleeIdx]!] do
+          if (← ref.get).mayBeFixed calleeIdx argIdx then
+            if h : argIdx < args.size then
+              let arg := args[argIdx]
+              -- We have seen this before (or it is a self-call), so only check that one param
+              if let some paramIdx := (← ref.get).getCallerParam? calleeIdx argIdx callerIdx then
+                let param := params[paramIdx]!
+                unless (← withoutProofIrrelevance <| withReducible <| isDefEq param arg) do
+                  trace[Elab.definition.fixedParams] "getFixedParams: notFixed {calleeIdx} {argIdx}:\nIn {e}\n{param} =/= {arg}"
+                  ref.modify (Info.setNotFixed calleeIdx argIdx)
+              else
+              -- Try all parameters
+              let mut any := false
+              for h : paramIdx in [:params.size] do
+                if (← ref.get).mayBeFixed callerIdx paramIdx then
+                  let param := params[paramIdx]
+                  if (← withoutProofIrrelevance <| withReducible <| isDefEq param arg) then
+                    ref.modify (Info.setCallerParam calleeIdx argIdx callerIdx paramIdx)
+                    any := true
+              unless any do
+                trace[Elab.definition.fixedParams] "getFixedParams: notFixed {calleeIdx} {argIdx}:\nIn {e}\n{arg} not matched"
+                -- Argument is none of the plausible parameters, so it cannot be a fixed argument
+                ref.modify (Info.setNotFixed calleeIdx argIdx)
+            else
+              -- Underapplication
+              trace[Elab.definition.fixedParams] "getFixedParams: notFixed {calleeIdx} {argIdx}:\nIn {e}\ntoo few arguments for {argIdx}"
+              ref.modify (Info.setNotFixed calleeIdx argIdx)
+        return .continue
+
+  let info ← ref.get
+  trace[Elab.definition.fixedParams] "getFixedParams: {info}"
+
+
 def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
   withCommonTelescope preDefs fun xs vals => do
     let resultRef ← IO.mkRef xs.size
@@ -90,3 +215,6 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
       setIrreducibleAttribute preDef.declName
 
 end Lean.Elab.Mutual
+
+builtin_initialize
+  Lean.registerTraceClass `Elab.definition.fixedParams

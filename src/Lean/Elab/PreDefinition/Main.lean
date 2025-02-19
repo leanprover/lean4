@@ -275,6 +275,7 @@ def addPreDefinitions (preDefs : Array PreDefinition) : TermElabM Unit := withLC
           addAndCompilePartial preDefs
           preDefs.forM (·.termination.ensureNone "partial")
         else
+          Mutual.getFixedParams preDefs
           ensureFunIndReservedNamesAvailable preDefs
           try
             checkCodomainsLevel preDefs

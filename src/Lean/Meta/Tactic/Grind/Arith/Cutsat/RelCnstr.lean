@@ -22,11 +22,31 @@ abbrev RelCnstrWithProof.isTrivial (cₚ : RelCnstrWithProof) : Bool :=
 abbrev RelCnstrWithProof.satisfied (cₚ : RelCnstrWithProof) : GoalM LBool :=
   cₚ.c.satisfied
 
-def assertRelCnstr (_cₚ : RelCnstrWithProof) : GoalM Unit := do
-  if (← isInconsistent) then return ()
+def RelCnstrWithProof.norm (cₚ : RelCnstrWithProof) : GoalM RelCnstrWithProof := do
+  let cₚ ← if cₚ.c.isSorted then
+    pure cₚ
+  else
+    mkRelCnstrWithProof cₚ.c.norm (.norm cₚ)
+  let k := cₚ.c.gcdCoeffs
+  if k != 1 then
+    mkRelCnstrWithProof (cₚ.c.div k) (.divCoeffs cₚ)
+  else
+    return cₚ
 
-  -- TODO
-  return ()
+def assertRelCnstr (cₚ : RelCnstrWithProof) : GoalM Unit := do
+  if (← isInconsistent) then return ()
+  let cₚ ← cₚ.norm
+  if cₚ.isUnsat then
+    trace[grind.cutsat.le.unsat] "{← cₚ.denoteExpr}"
+    let hf ← withProofContext do
+      return mkApp4 (mkConst ``Int.Linear.RelCnstr.false_of_isUnsat_of_denote) (← getContext) (toExpr cₚ.c) reflBoolTrue (← cₚ.toExprProof)
+    closeGoal hf
+  else if cₚ.isTrivial then
+    trace[grind.cutsat.le.trivial] "{← cₚ.denoteExpr}"
+    return ()
+  else
+    -- TODO
+    return ()
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"

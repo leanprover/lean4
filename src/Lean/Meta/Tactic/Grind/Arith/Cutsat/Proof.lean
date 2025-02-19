@@ -43,4 +43,8 @@ partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM E
 partial def DvdCnstrWithProof.toExprProof (cₚ : DvdCnstrWithProof) : ProofM Expr := do
   mkExpectedTypeHint (← toExprProof' cₚ) (← cₚ.denoteExpr)
 
+partial def RelCnstrWithProof.toExprProof (cₚ : RelCnstrWithProof) : ProofM Expr := do
+  -- TODO
+  mkSorry (← cₚ.denoteExpr) false
+
 end Lean.Meta.Grind.Arith.Cutsat

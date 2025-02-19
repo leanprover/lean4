@@ -23,28 +23,35 @@ abbrev RelCnstrWithProof.satisfied (cₚ : RelCnstrWithProof) : GoalM LBool :=
   cₚ.c.satisfied
 
 def assertRelCnstr (_cₚ : RelCnstrWithProof) : GoalM Unit := do
+  if (← isInconsistent) then return ()
+
   -- TODO
   return ()
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"
 
-builtin_grind_propagator propagateLe ↓LE.le := fun e => do
-  let_expr LE.le _ inst a b ← e | return ()
-  unless (← isInstLEInt inst) do return ()
+private def toRelCnstr? (e : Expr) : GoalM (Option RelCnstr) := do
+  let_expr LE.le _ inst a b ← e | return none
+  unless (← isInstLEInt inst) do return none
   let some k ← getIntValue? b
-    | reportNonNormalized e; return ()
+    | reportNonNormalized e; return none
   unless k == 0 do
-    reportNonNormalized e; return ()
-  if (← isEqTrue e) then
-    let p ← toPoly a
-    let cₚ ← mkRelCnstrWithProof (.le p) (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
-    trace[grind.cutsat.assert.le] "{← cₚ.denoteExpr}"
-    assertRelCnstr cₚ
-  else if (← isEqFalse e) then
-    /-
-    TODO: negate
-    -/
-    return ()
+    reportNonNormalized e; return none
+  let p ← toPoly a
+  return some <| .le p
+
+/--
+Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
+integer inequality, asserts it to the cutsat state.
+-/
+def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
+  let some c ← toRelCnstr? e | return ()
+  let cₚ ← if eqTrue then
+    mkRelCnstrWithProof c (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
+  else
+    mkRelCnstrWithProof (c.mul (-1) |>.addConst 1) (.notExpr (← mkOfEqFalse (← mkEqFalseProof e)))
+  trace[grind.cutsat.assert.le] "{← cₚ.denoteExpr}"
+  assertRelCnstr cₚ
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Offset
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
 
 namespace Lean.Meta.Grind.Arith
 
@@ -27,8 +28,10 @@ builtin_grind_propagator propagateLE ↓LE.le := fun e => do
   if (← isEqTrue e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertTrue c (← mkEqTrueProof e)
+    Cutsat.propagateIfIntLe e (eqTrue := true)
   if (← isEqFalse e) then
     if let some c ← Offset.isCnstr? e then
       Offset.assertFalse c (← mkEqFalseProof e)
+    Cutsat.propagateIfIntLe e (eqTrue := false)
 
 end Lean.Meta.Grind.Arith

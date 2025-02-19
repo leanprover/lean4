@@ -547,7 +547,16 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
       mkLambdaFVars #[h] f'
     let u ← getLevel goal
     return mkApp5 (mkConst ``dite [u]) goal c' h' t' f'
-
+  | cond _α c t f =>
+    let c' ← foldAndCollect oldIH newIH isRecCall c
+    let t' ← withLocalDecl `h .default (← mkEq c' (toExpr true)) fun h => M2.branch do
+      let t' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall t
+      mkLambdaFVars #[h] t'
+    let f' ← withLocalDecl `h .default (← mkEq c' (toExpr false)) fun h => M2.branch do
+      let f' ← buildInductionBody toErase toClear goal oldIH newIH isRecCall f
+      mkLambdaFVars #[h] f'
+    let u ← getLevel goal
+    return mkApp4 (mkConst ``Bool.dcond [u]) goal c' t' f'
   | _ =>
 
   -- we look in to `PProd.mk`, as it occurs in the mutual structural recursion construction

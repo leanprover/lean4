@@ -139,13 +139,13 @@ def with_ite_tailrec : Nat → Nat
     if n % 2 = 0 then
       with_ite_tailrec n
     else
-      with_ite_tailrec n
+      with_ite_tailrec (n-1)
 termination_by n => n
 
 /--
 info: with_ite_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
   (case2 : ∀ (n : Nat), n % 2 = 0 → motive n → motive n.succ)
-  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive n → motive n.succ) (a✝ : Nat) : motive a✝
+  (case3 : ∀ (n : Nat), ¬n % 2 = 0 → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
 -/
 #guard_msgs in
 #check with_ite_tailrec.induct
@@ -200,6 +200,24 @@ info: with_dite_tailrec.induct (motive : Nat → Prop) (case1 : ∀ (x : Nat), x
 -/
 #guard_msgs in
 #check with_dite_tailrec.induct
+
+set_option linter.unusedVariables false in
+def with_bif_tailrec : Nat → Nat
+  | 0 => 0
+  | n+1 =>
+    bif n % 2 == 0 then
+      with_bif_tailrec n
+    else
+      with_bif_tailrec (n-1)
+termination_by n => n
+
+/--
+info: with_bif_tailrec.induct (motive : Nat → Prop) (case1 : motive 0)
+  (case2 : ∀ (n : Nat), (n % 2 == 0) = true → motive n → motive n.succ)
+  (case3 : ∀ (n : Nat), (n % 2 == 0) = false → motive (n - 1) → motive n.succ) (a✝ : Nat) : motive a✝
+-/
+#guard_msgs in
+#check with_bif_tailrec.induct
 
 set_option linter.unusedVariables false in
 def with_match_refining_tailrec : Nat → Nat

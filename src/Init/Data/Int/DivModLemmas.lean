@@ -481,6 +481,9 @@ theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
 @[simp] theorem add_emod_self_left {a b : Int} : (a + b) % a = b % a := by
   rw [Int.add_comm, Int.add_emod_self]
 
+theorem emod_eq_add_self_emod {a b : Int} : a % b = (a + b) % b :=
+  Int.add_emod_self.symm
+
 theorem neg_emod {a b : Int} : -a % b = (b - a) % b := by
   rw [← add_emod_self_left]; rfl
 
@@ -819,6 +822,10 @@ theorem ediv_eq_ediv_of_mul_eq_mul {a b c d : Int}
     (H2 : d ∣ c) (H3 : b ≠ 0) (H4 : d ≠ 0) (H5 : a * d = b * c) : a / b = c / d :=
   Int.ediv_eq_of_eq_mul_right H3 <| by
     rw [← Int.mul_ediv_assoc _ H2]; exact (Int.ediv_eq_of_eq_mul_left H4 H5.symm).symm
+
+theorem mul_le_mul_neg {a b c d : Int}
+    (hac : a ≤ c) (hbd : d ≤ b) (hb : 0 ≤ b) (hc : c ≤ 0) : a * b ≤ c * d :=
+  Int.le_trans (Int.mul_le_mul_of_nonneg_right hac hb) (Int.mul_le_mul_of_nonpos_left hc hbd)
 
 /-! ### tdiv -/
 

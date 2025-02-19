@@ -703,4 +703,18 @@ def reverse : {w : Nat} → BitVec w → BitVec w
   | 0, x => x
   | w + 1, x => concat (reverse (x.truncate w)) (x.msb)
 
+/-- Overflow predicate for unsigned multiplication modulo 2^w.
+
+  SMT-Lib name: `bvumulo`.
+-/
+
+def umulOverflow {w : Nat} (x y : BitVec w) : Bool := x.toNat * y.toNat ≥ 2 ^ w
+
+/-- Overflow predicate for signed multiplication on w-bit 2's complement.
+
+  SMT-Lib name: `bvsmulo`.
+-/
+
+def smulOverflow {w : Nat} (x y : BitVec w) : Bool := (x.toInt * y.toInt ≥ 2 ^ (w - 1)) || (x.toInt * y.toInt < - 2 ^ (w - 1))
+
 end BitVec

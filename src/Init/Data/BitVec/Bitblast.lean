@@ -1283,6 +1283,7 @@ theorem getMsbD_umod {n d : BitVec w}:
     simp [BitVec.getMsbD_eq_getLsbD, hi]
   · simp [show w ≤ i by omega]
 
+
 /-! ### Mappings to and from BitVec -/
 
 theorem eq_iff_eq_of_inv (f : α → BitVec w) (g : BitVec w → α) (h : ∀ x, g (f x) = x) :

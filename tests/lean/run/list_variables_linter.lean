@@ -1,4 +1,4 @@
--- set_option linter.listVariables true
+set_option linter.listVariables true
 
 #guard_msgs in
 example (l : List Nat) : l = l := rfl

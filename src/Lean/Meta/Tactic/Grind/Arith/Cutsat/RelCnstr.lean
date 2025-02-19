@@ -43,10 +43,17 @@ def assertRelCnstr (cₚ : RelCnstrWithProof) : GoalM Unit := do
     closeGoal hf
   else if cₚ.isTrivial then
     trace[grind.cutsat.le.trivial] "{← cₚ.denoteExpr}"
-    return ()
   else
-    -- TODO
-    return ()
+    let .add a x _ := cₚ.c.p
+      | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
+    if a < 0 then
+      trace[grind.cutsat.le.lower] "{← cₚ.denoteExpr}"
+      modify' fun s => { s with lowers := s.lowers.modify x (·.push cₚ) }
+    else
+      trace[grind.cutsat.le.upper] "{← cₚ.denoteExpr}"
+      modify' fun s => { s with uppers := s.uppers.modify x (·.push cₚ) }
+    if (← cₚ.satisfied) == .false then
+      resetAssignmentFrom x
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"

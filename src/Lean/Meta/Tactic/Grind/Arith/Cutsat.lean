@@ -30,5 +30,9 @@ builtin_initialize registerTraceClass `grind.cutsat.internalize.term (inherited 
 
 builtin_initialize registerTraceClass `grind.cutsat.assert.le
 builtin_initialize registerTraceClass `grind.cutsat.le
+builtin_initialize registerTraceClass `grind.cutsat.le.unsat (inherited := true)
+builtin_initialize registerTraceClass `grind.cutsat.le.trivial (inherited := true)
+builtin_initialize registerTraceClass `grind.cutsat.le.lower (inherited := true)
+builtin_initialize registerTraceClass `grind.cutsat.le.upper (inherited := true)
 
 end Lean

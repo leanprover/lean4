@@ -7,6 +7,9 @@ prelude
 import Init.Data.Array.FinRange
 import Init.Data.Vector.OfFn
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Vector
 
 /-- `finRange n` is the vector of all elements of `Fin n` in order. -/

@@ -93,7 +93,7 @@ theorem contains_insert [h : TransCmp cmp] (h : t.WF) {k a : α} :
 
 @[simp]
 theorem mem_insert [TransCmp cmp] (h : t.WF) {k a : α} :
-    a ∈ t.insert k ↔ cmp k a == .eq ∨ a ∈ t :=
+    a ∈ t.insert k ↔ cmp k a = .eq ∨ a ∈ t :=
   TreeMap.Raw.mem_insertIfNew h
 
 theorem contains_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
@@ -105,11 +105,11 @@ theorem mem_insert_self [TransCmp cmp] (h : t.WF) {k : α} :
   TreeMap.Raw.mem_insertIfNew_self h
 
 theorem contains_of_contains_insert [TransCmp cmp] (h : t.WF) {k a : α} :
-    (t.insert k).contains a → ¬ cmp k a = .eq → t.contains a :=
+    (t.insert k).contains a → cmp k a ≠ .eq → t.contains a :=
   TreeMap.Raw.contains_of_contains_insertIfNew h
 
 theorem mem_of_mem_insert [TransCmp cmp] (h : t.WF) {k a : α} :
-    a ∈ t.insert k → ¬ cmp k a = .eq → a ∈ t :=
+    a ∈ t.insert k → cmp k a ≠ .eq → a ∈ t :=
   TreeMap.Raw.mem_of_mem_insertIfNew h
 
 @[simp]
@@ -149,7 +149,7 @@ theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
 
 @[simp]
 theorem mem_erase [TransCmp cmp] (h : t.WF) {k a : α} :
-    a ∈ t.erase k ↔ ¬ cmp k a = .eq ∧ a ∈ t :=
+    a ∈ t.erase k ↔ cmp k a ≠ .eq ∧ a ∈ t :=
   TreeMap.Raw.mem_erase h
 
 theorem contains_of_contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
@@ -171,7 +171,5 @@ theorem size_erase_le [TransCmp cmp] (h : t.WF) {k : α} :
 theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
     t.size ≤ (t.erase k).size + 1 :=
   TreeMap.Raw.size_le_size_erase h
-
-
 
 end Std.TreeSet.Raw

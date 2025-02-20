@@ -65,8 +65,10 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | Array.setIfInBounds _ _ i _ => [i]
       | Array.insertIdx _ _ i _ _ => [i]
       | Array.insertIdxIfInBounds _ _ i _ => [i]
+      | Array.insertIdx! _ _ i _ => [i]
       | Array.eraseIdx _ _ i _ => [i]
       | Array.eraseIdxIfInBounds _ _ i _ => [i]
+      | Array.eraseIdx! _ _ i => [i]
       | Array.modify _ _ i _ => [i]
       | Array.zipIdx _ _ i => [i]
       | Array.swap _ _ i j _ => [i, j]
@@ -78,6 +80,8 @@ def numericalIndices (t : InfoTree) : List (Syntax × Name) :=
       | Vector.setIfInBounds _ _ _ i _ => [i]
       | Vector.insertIdx _ _ _ i _ _ => [i]
       | Vector.eraseIdx _ _ _ i _ => [i]
+      | Vector.insertIdx! _ _ _ i _ => [i]
+      | Vector.eraseIdx! _ _ _ i => [i]
       | Vector.zipIdx _ _ _ i => [i]
       | Vector.swap _ _ _ i j _ => [i, j]
       | _ => []
@@ -151,10 +155,10 @@ def stripBinderName (s : String) : String :=
   s.stripSuffix "'" |>.stripSuffix "₁" |>.stripSuffix "₂" |>.stripSuffix "₃" |>.stripSuffix "₄"
 
 /-- Allowed names for index variables. -/
-def allowedIndices : List String := ["i", "j", "k", "start", "stop"]
+def allowedIndices : List String := ["i", "j", "k", "start", "stop", "step"]
 
 /-- Allowed names for width variables. -/
-def allowedWidths : List String := ["n", "m"]
+def allowedWidths : List String := ["n", "m", "k", "l", "size"]
 
 /-- Allowed names for BitVec width variables. -/
 def allowedBitVecWidths : List String := ["w"]
@@ -176,16 +180,16 @@ def indexLinter : Linter
           if !allowedIndices.contains (stripBinderName n) then
             Linter.logLint linter.indexVariables idxStx
               m!"Forbidden variable appearing as an index: use `i`, `j`, or `k`: {n}"
-      -- for (idxStx, n) in numericalWidths t do
-      --   if let .str _ n := n then
-      --     if !allowedWidths.contains (stripBinderName n) then
-      --       Linter.logLint linter.indexVariables idxStx
-      --         m!"Forbidden variable appearing as a width: use `n` or `m`: {n}"
-      -- for (idxStx, n) in bitVecWidths t do
-      --   if let .str _ n := n then
-      --     if !allowedBitVecWidths.contains (stripBinderName n) then
-      --       Linter.logLint linter.indexVariables idxStx
-      --         m!"Forbidden variable appearing as a BitVec width: use `w`: {n}"
+      for (idxStx, n) in numericalWidths t do
+        if let .str _ n := n then
+          if !allowedWidths.contains (stripBinderName n) then
+            Linter.logLint linter.indexVariables idxStx
+              m!"Forbidden variable appearing as a width: use `n` or `m`: {n}"
+      for (idxStx, n) in bitVecWidths t do
+        if let .str _ n := n then
+          if !allowedBitVecWidths.contains (stripBinderName n) then
+            Linter.logLint linter.indexVariables idxStx
+              m!"Forbidden variable appearing as a BitVec width: use `w`: {n}"
 
 builtin_initialize addLinter indexLinter
 
@@ -196,7 +200,7 @@ def allowedListNames : List String := ["l", "r", "s", "t", "tl", "ws", "xs", "ys
 def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds", "acc"]
 
 /-- Allowed names for `Vector` variables. -/
-def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds"]
+def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds", "acc"]
 
 /-- Find all binders appearing in the given info tree. -/
 def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Syntax × Name × Expr)) :=
@@ -243,12 +247,13 @@ def listVariablesLinter : Linter
             unless (ty.getArg! 0).isAppOf `Array && n == "xss" do
               Linter.logLint linter.listVariables stx
                 m!"Forbidden variable appearing as a `Array` name: {n}"
-        for (stx, n, _) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
+        for (stx, n, ty) in binders.filter fun (_, _, ty) => ty.isAppOf `Vector do
           if let .str _ n := n then
           let n := stripBinderName n
           if !allowedVectorNames.contains n then
-            Linter.logLint linter.listVariables stx
-              m!"Forbidden variable appearing as a `Vector` name: {n}"
+            unless (ty.getArg! 0).isAppOf `Vector && n == "xss" do
+              Linter.logLint linter.listVariables stx
+                m!"Forbidden variable appearing as a `Vector` name: {n}"
 
 builtin_initialize addLinter listVariablesLinter
 

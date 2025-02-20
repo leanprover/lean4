@@ -496,6 +496,14 @@ def fromArray (a : Array (α × β)) (cmp : α → α → Ordering) : Raw α β 
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   ⟨DTreeMap.Raw.Const.unitOfArray a cmp⟩
 
+@[inline, inherit_doc DTreeMap.Raw.Const.modify]
+def modify (t : Raw α β cmp) (a : α) (f : β → β) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.modify t.inner a f⟩
+
+@[inline, inherit_doc DTreeMap.Raw.Const.alter]
+def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β cmp :=
+  ⟨DTreeMap.Raw.Const.alter t.inner a f⟩
+
 @[inline, inherit_doc DTreeMap.Raw.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=
   ⟨DTreeMap.Raw.Const.mergeWith mergeFn t₁.inner t₂.inner⟩

@@ -773,22 +773,6 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
-@[simp] theorem extractLsb'_toInt (s m : Nat) (x : BitVec n) :
-    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
-  simp [extractLsb', toInt_ofNat]
-
-@[simp] theorem extractLsb_toInt (hi lo : Nat) (x : BitVec n) :
-  (extractLsb hi lo x).toInt = ((x.toNat >>> lo) : Int).bmod (2 ^ (hi - lo + 1)) := by
-  simp [extractLsb, toInt_ofNat]
-
-@[simp] theorem extractLsb'_toFin (s m : Nat) (x : BitVec n) :
-    (extractLsb' s m x).toFin = Fin.ofNat' (2 ^ m) (x.toNat >>> s) := by
-  simp [extractLsb', toInt_ofNat]
-
-@[simp] theorem extractLsb_toFin (hi lo : Nat) (x : BitVec n) :
-  (extractLsb hi lo x).toFin = Fin.ofNat' (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
-  simp [extractLsb, toInt_ofNat]
-
 @[simp] theorem getElem_extractLsb' {start len : Nat} {x : BitVec n} {i : Nat} (h : i < len) :
     (extractLsb' start len x)[i] = x.getLsbD (start+i) := by
   simp [getElem_eq_testBit_toNat, getLsbD, h]
@@ -1264,6 +1248,38 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
     rw [Nat.shiftLeft_eq, Nat.pow_add]
     exact Nat.mul_lt_mul_of_pos_right x.isLt (Nat.two_pow_pos _)
   · omega
+
+theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toNat = if 0 < n then x.toNat <<< n else x.toNat := by
+  simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
+  by_cases hn : 0 < n
+  · simp only [hn, ↓reduceIte]
+    have : 2 ^ w < 2 ^ w * 2 ^ n := by
+      rw [← Nat.pow_add, Nat.pow_lt_pow_iff_right (by omega)]
+      omega
+    have : ((x.toNat % 2 ^ (w + n)) <<< n) < 2 ^ (w + n) := by
+      rw [Nat.pow_add, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+      have := Nat.mul_lt_mul_right (b := x.toNat) (a := 2 ^ n) (c := 2 ^ w)
+      have :=  Nat.two_pow_pos (w := n)
+      omega
+    rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by rw [Nat.pow_add]; omega)]
+  · simp [show n = 0 by omega]
+
+-- theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
+--     (shiftLeftZeroExtend x n).toNat = if 0 < n then x.toNat <<< n else x.toNat := by
+--   simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
+--   by_cases hn : 0 < n
+--   · simp only [hn, ↓reduceIte]
+--     have : 2 ^ w < 2 ^ w * 2 ^ n := by
+--       rw [← Nat.pow_add, Nat.pow_lt_pow_iff_right (by omega)]
+--       omega
+--     have : ((x.toNat % 2 ^ (w + n)) <<< n) < 2 ^ (w + n) := by
+--       rw [Nat.pow_add, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
+--       have := Nat.mul_lt_mul_right (b := x.toNat) (a := 2 ^ n) (c := 2 ^ w)
+--       have :=  Nat.two_pow_pos (w := n)
+--       omega
+--     rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by rw [Nat.pow_add]; omega)]
+--   · simp [show n = 0 by omega]
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = ((! decide (i < n)) && getLsbD x (i - n)) := by

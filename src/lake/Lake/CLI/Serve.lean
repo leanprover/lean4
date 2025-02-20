@@ -46,6 +46,13 @@ def setupFile
     let {dynlibs, plugins} ←
       MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
         ws.runBuild (buildImportsAndDeps path imports) buildConfig
+    let isConfig ← EIO.catchExceptions (h := fun _ => pure false) do
+      let setupPath := (← IO.FS.realPath path).normalize
+      let leanConfigPath := loadConfig.configFile.withExtension "lean"
+      let configPath := (← IO.FS.realPath leanConfigPath).normalize
+      return setupPath == configPath
+    let plugins :=
+      if isConfig then plugins.push ws.lakeEnv.lake.sharedLib else plugins
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath

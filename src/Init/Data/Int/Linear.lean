@@ -737,6 +737,33 @@ theorem DvdCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : DvdCnstr) : c.i
   simp at h₃
   simp [denote, *]
 
+theorem dvd_gcd_of_dvd (d a x p : Int) (h : d ∣ a * x + p) : gcd d a ∣ p := by
+  rcases h with ⟨k, h⟩
+  simp [Int.Linear.gcd]
+  replace h := congrArg (· - a*x) h
+  simp at h
+  rcases @Int.gcd_dvd_left d a with ⟨k₁, h₁⟩
+  rcases @Int.gcd_dvd_right d a with ⟨k₂, h₂⟩
+  conv at h => enter [2, 1]; rw [h₁]
+  conv at h => enter [2, 2]; rw [h₂]
+  rw [Int.mul_assoc, Int.mul_assoc, ← Int.mul_sub] at h
+  exists k₁ * k - k₂ * x
+
+def DvdCnstr.isElim (c₁ c₂ : DvdCnstr) : Bool :=
+  match c₁.p with
+  | .add a _ p => c₂.k == gcd c₁.k a && c₂.p == p
+  | _ => false
+
+theorem DvdCnstr.elim (ctx : Context) (c₁ c₂ : DvdCnstr) : isElim c₁ c₂ → c₁.denote' ctx → c₂.denote' ctx := by
+  rcases c₁ with ⟨k₁, p₁⟩
+  rcases c₂ with ⟨k₂, p₂⟩
+  rcases p₁ <;> simp [DvdCnstr.isElim]
+  next a _ p =>
+  intro _ _; subst k₂ p₂
+  simp [DvdCnstr.denote'_eq_denote, denote]
+  rw [Int.add_comm]
+  apply dvd_gcd_of_dvd
+
 /-- Raw divisibility constraint of the form `k ∣ e`. -/
 structure RawDvdCnstr where
   k : Int

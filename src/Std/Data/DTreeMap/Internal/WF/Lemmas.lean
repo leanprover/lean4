@@ -899,6 +899,26 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
+### modify
+-/
+
+theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    rw [modify, alter] at *
+    split at * <;> try rfl
+    all_goals
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+
+theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
+
+/-!
 ### mergeWith
 -/
 
@@ -965,6 +985,27 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   exact ordered_updateAtKey htb hto
 
 /-!
+### modify
+-/
+
+theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    rw [modify, alter] at *
+    split at * <;> try rfl
+    all_goals
+      dsimp
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+
+theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
+
+/-!
 ### mergeWith
 -/
 
@@ -988,6 +1029,10 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
   · exact ordered_erase ‹_› ‹_›
+  · exact ordered_alter ‹_› ‹_›
+  · exact Const.ordered_alter ‹_› ‹_›
+  · exact ordered_modify (WF.balanced ‹_›) ‹_›
+  · exact Const.ordered_modify (WF.balanced ‹_›) ‹_›
   · exact ordered_containsThenInsert ‹_› ‹_›
   · exact ordered_containsThenInsertIfNew ‹_› ‹_›
   · exact ordered_filter ‹_›

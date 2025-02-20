@@ -374,6 +374,7 @@ theorem ediv_nonpos {a b : Int} (Ha : 0 ≤ a) (Hb : b ≤ 0) : a / b ≤ 0 :=
 -- @[simp] theorem mul_ediv_cancel_left (b : Int) (H : a ≠ 0) : (a * b) / a = b :=
 --   Int.mul_comm .. ▸ Int.mul_ediv_cancel _ H
 
+<<<<<<< HEAD:src/Init/Data/Int/DivMod/Lemmas.lean
 -- theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 := by
 --   rw [Int.div_def]
 --   match b, h with
@@ -381,6 +382,16 @@ theorem ediv_nonpos {a b : Int} (Ha : 0 ≤ a) (Hb : b ≤ 0) : a / b ≤ 0 :=
 --     rcases a with ⟨a⟩ <;> simp [Int.ediv]
 --     norm_cast
 --     simp
+=======
+
+theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 := by
+  rw [Int.div_def]
+  match b, h with
+  | Int.ofNat (b+1), _ =>
+    rcases a with ⟨a⟩ <;> simp [Int.ediv]
+    norm_cast
+    simp
+>>>>>>> origin/master:src/Init/Data/Int/DivModLemmas.lean
 
 theorem ediv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a / b = 0 :=
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with

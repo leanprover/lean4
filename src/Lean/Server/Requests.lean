@@ -12,13 +12,12 @@ import Lean.Data.Lsp
 import Lean.Elab.Command
 
 import Lean.Server.RequestCancellation
+import Lean.Server.ServerTask
 
 import Lean.Server.FileSource
 import Lean.Server.FileWorker.Utils
 
 import Lean.Server.Rpc.Basic
-
-import Std.Sync.Mutex
 
 import Std.Sync.Mutex
 
@@ -35,29 +34,31 @@ def Lean.FileMap.rangeContainsHoverPos (text : Lean.FileMap) (r : String.Range)
 
 namespace Lean.Language
 
+open Lean.Server
+
 inductive SnapshotTree.foldSnaps.Control where
   | done
   | proceed (foldChildren : Bool)
 
 partial def SnapshotTree.foldSnaps (tree : SnapshotTree) (init : α)
-    (f : SnapshotTask SnapshotTree → α → Task (α × foldSnaps.Control)) : Task α :=
+    (f : SnapshotTask SnapshotTree → α → ServerTask (α × foldSnaps.Control)) : ServerTask α :=
   let t := traverseTree init tree
-  t.map (sync := true) (·.1)
+  t.mapCheap (·.1)
 where
-  traverseTree (acc : α) (tree : SnapshotTree) : Task (α × Bool) :=
+  traverseTree (acc : α) (tree : SnapshotTree) : ServerTask (α × Bool) :=
     traverseChildren acc tree.children.toList
 
-  traverseChildren (acc : α) : List (SnapshotTask SnapshotTree) → Task (α × Bool)
+  traverseChildren (acc : α) : List (SnapshotTask SnapshotTree) → ServerTask (α × Bool)
     | [] => .pure (acc, false)
     | child::otherChildren =>
-      f child acc |>.bind (sync := true) fun (acc, control) => Id.run do
+      f child acc |>.bindCheap fun (acc, control) => Id.run do
         let .proceed foldChildrenOfChild := control
           | return .pure (acc, true)
         if ! foldChildrenOfChild then
           return traverseChildren acc otherChildren
-        let subtreeTask := child.task.bind (sync := true) fun tree =>
+        let subtreeTask := child.task.asServerTask.bindCheap fun tree =>
           traverseTree acc tree
-        return subtreeTask.bind (sync := true) fun (acc, done) => Id.run do
+        return subtreeTask.bindCheap fun (acc, done) => Id.run do
           if done then
             return .pure (acc, done)
           return traverseChildren acc otherChildren
@@ -73,7 +74,7 @@ that contains `hoverPos` in its whitespace, which is not necessarily the correct
 (e.g. it may be indentation-sensitive).
 -/
 partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree)
-    (hoverPos : String.Pos) (includeStop : Bool) : Task (Option Elab.InfoTree) :=
+    (hoverPos : String.Pos) (includeStop : Bool) : ServerTask (Option Elab.InfoTree) :=
   tree.foldSnaps (init := none) fun snap _ => Id.run do
     let skipChild := .pure (none, .proceed (foldChildren := false))
     let some stx := snap.stx?
@@ -82,7 +83,7 @@ partial def SnapshotTree.findInfoTreeAtPos (text : FileMap) (tree : SnapshotTree
       | return skipChild
     if ! text.rangeContainsHoverPos range hoverPos includeStop then
       return skipChild
-    return snap.task.map (sync := true) fun tree => Id.run do
+    return snap.task.asServerTask.mapCheap fun tree => Id.run do
       let some infoTree := tree.element.infoTree?
         | return (none, .proceed (foldChildren := true))
       return (infoTree, .done)
@@ -143,12 +144,12 @@ structure RequestContext where
   initParams    : Lsp.InitializeParams
   cancelTk      : RequestCancellationToken
 
-abbrev RequestTask α := Task (Except RequestError α)
+abbrev RequestTask α := ServerTask (Except RequestError α)
 abbrev RequestT m := ReaderT RequestContext <| ExceptT RequestError m
 /-- Workers execute request handlers in this monad. -/
 abbrev RequestM := ReaderT RequestContext <| EIO RequestError
 
-abbrev RequestTask.pure (a : α) : RequestTask α := Task.pure (.ok a)
+abbrev RequestTask.pure (a : α) : RequestTask α := ServerTask.pure (.ok a)
 
 instance : MonadLift IO RequestM where
   monadLift x := do
@@ -183,15 +184,27 @@ def readDoc [Monad m] [MonadReaderOf RequestContext m] : m EditableDocument := d
 
 def asTask (t : RequestM α) : RequestM (RequestTask α) := do
   let rc ← readThe RequestContext
-  EIO.asTask <| t.run rc
+  ServerTask.EIO.asTask <| t.run rc
 
-def mapTask (t : Task α) (f : α → RequestM β) : RequestM (RequestTask β) := do
-  let rc ← readThe RequestContext
-  EIO.mapTask (f · rc) t
+def pureTask (t : RequestM α) : RequestM (RequestTask α) := do
+  let r ← t.run
+  return ServerTask.pure <| .ok r
 
-def bindTask (t : Task α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+def mapTaskCheap (t : ServerTask α) (f : α → RequestM β) : RequestM (RequestTask β) := do
   let rc ← readThe RequestContext
-  EIO.bindTask t (f · rc)
+  ServerTask.EIO.mapTaskCheap (f · rc) t
+
+def mapTaskCostly (t : ServerTask α) (f : α → RequestM β) : RequestM (RequestTask β) := do
+  let rc ← readThe RequestContext
+  ServerTask.EIO.mapTaskCostly (f · rc) t
+
+def bindTaskCheap (t : ServerTask α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+  let rc ← readThe RequestContext
+  ServerTask.EIO.bindTaskCheap t (f · rc)
+
+def bindTaskCostly (t : ServerTask α) (f : α → RequestM (RequestTask β)) : RequestM (RequestTask β) := do
+  let rc ← readThe RequestContext
+  ServerTask.EIO.bindTaskCostly t (f · rc)
 
 def checkCancelled : RequestM Unit := do
   let rc ← readThe RequestContext
@@ -215,7 +228,7 @@ def withWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (x : Snapshot → RequestM β)
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  mapTask findTask <| waitFindSnapAux notFoundX x
+  mapTaskCostly findTask <| waitFindSnapAux notFoundX x
 
 /-- See `withWaitFindSnap`. -/
 def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
@@ -223,7 +236,7 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
     (x : Snapshot → RequestM (RequestTask β))
     : RequestM (RequestTask β) := do
   let findTask := doc.cmdSnaps.waitFind? p
-  bindTask findTask <| waitFindSnapAux notFoundX x
+  bindTaskCostly findTask <| waitFindSnapAux notFoundX x
 
 /-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
 If no such snapshot exists, the request fails with an error. -/
@@ -240,15 +253,16 @@ def withWaitFindSnapAtPos
 open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
 partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)
-    : Task (Option CommandParsedSnapshot) := Id.run do
+    : ServerTask (Option CommandParsedSnapshot) := Id.run do
   let some headerParsed := doc.initSnap.result?
     | .pure none
-  headerParsed.processedSnap.task.bind (sync := true) fun headerProcessed => Id.run do
+  headerParsed.processedSnap.task.asServerTask.bindCheap fun headerProcessed => Id.run do
     let some headerSuccess := headerProcessed.result?
       | return .pure none
-    headerSuccess.firstCmdSnap.task.bind (sync := true) go
+    let firstCmdSnapTask : ServerTask CommandParsedSnapshot := headerSuccess.firstCmdSnap.task
+    firstCmdSnapTask.bindCheap go
 where
-  go (cmdParsed : CommandParsedSnapshot) : Task (Option CommandParsedSnapshot) := Id.run do
+  go (cmdParsed : CommandParsedSnapshot) : ServerTask (Option CommandParsedSnapshot) := Id.run do
     if containsHoverPos cmdParsed then
       return .pure (some cmdParsed)
     if isAfterHoverPos cmdParsed then
@@ -257,7 +271,8 @@ where
       -- but it's always good to eliminate one additional assumption.
       return .pure none
     match cmdParsed.nextCmdSnap? with
-    | some next => next.task.bind (sync := true) go
+    | some next =>
+      next.task.asServerTask.bindCheap go
     | none => .pure none
 
   containsHoverPos (cmdParsed : CommandParsedSnapshot) : Bool := Id.run do
@@ -282,11 +297,11 @@ def findCmdDataAtPos
     (doc : EditableDocument)
     (hoverPos : String.Pos)
     (includeStop : Bool)
-    : Task (Option (Syntax × Elab.InfoTree)) :=
-  findCmdParsedSnap doc hoverPos |>.bind (sync := true) fun
-    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bind (sync := true) fun
+    : ServerTask (Option (Syntax × Elab.InfoTree)) :=
+  findCmdParsedSnap doc hoverPos |>.bindCheap fun
+    | some cmdParsed => toSnapshotTree cmdParsed |>.findInfoTreeAtPos doc.meta.text hoverPos includeStop |>.bindCheap fun
       | some infoTree => .pure <| some (cmdParsed.stx, infoTree)
-      | none          => cmdParsed.finishedSnap.task.map (sync := true) fun s =>
+      | none          => cmdParsed.finishedSnap.task.asServerTask.mapCheap fun s =>
         -- the parser returns exactly one command per snapshot, and the elaborator creates exactly one node per command
         assert! s.cmdState.infoState.trees.size == 1
         some (cmdParsed.stx, s.cmdState.infoState.trees[0]!)
@@ -303,8 +318,8 @@ partial def findInfoTreeAtPos
     (doc : EditableDocument)
     (hoverPos : String.Pos)
     (includeStop : Bool)
-    : Task (Option Elab.InfoTree) :=
-  findCmdDataAtPos doc hoverPos includeStop |>.map (sync := true) (·.map (·.2))
+    : ServerTask (Option Elab.InfoTree) :=
+  findCmdDataAtPos doc hoverPos includeStop |>.mapCheap (·.map (·.2))
 
 open Elab.Command in
 def runCommandElabM (snap : Snapshot) (c : RequestT CommandElabM α) : RequestM α := do
@@ -370,7 +385,7 @@ def registerLspRequestHandler (method : String)
   let handle := fun j => do
     let params ← liftExcept <| parseRequestParams paramType j
     let t ← handler params
-    pure <| t.map <| Except.map ToJson.toJson
+    pure <| t.mapCheap <| Except.map ToJson.toJson
 
   requestHandlers.modify fun rhs => rhs.insert method { fileSource, handle }
 
@@ -393,11 +408,11 @@ def chainLspRequestHandler (method : String)
   if let some oldHandler ← lookupLspRequestHandler method then
     let handle := fun j => do
       let t ← oldHandler.handle j
-      let t := t.map fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
+      let t := t.mapCheap fun x => x.bind fun j => FromJson.fromJson? j |>.mapError fun e =>
         .internalError s!"Failed to parse original LSP response for `{method}` when chaining: {e}"
       let params ← liftExcept <| parseRequestParams paramType j
       let t ← handler params t
-      pure <| t.map <| Except.map ToJson.toJson
+      pure <| t.mapCheap <| Except.map ToJson.toJson
 
     requestHandlers.modify fun rhs => rhs.insert method {oldHandler with handle}
   else
@@ -436,7 +451,7 @@ structure StatefulRequestHandler where
   -/
   pureOnDidChange : DidChangeTextDocumentParams → (StateT Dynamic RequestM) Unit
   onDidChange     : DidChangeTextDocumentParams → RequestM Unit
-  lastTaskMutex   : Std.Mutex (Task Unit)
+  lastTaskMutex   : Std.Mutex (ServerTask Unit)
   initState       : Dynamic
   /--
   `stateRef` is synchronized in `registerStatefulLspRequestHandler` by using `lastTaskMutex` to
@@ -471,7 +486,7 @@ private def overrideStatefulLspRequestHandler
     throw <| IO.userError s!"Failed to register stateful LSP request handler for '{method}': only possible during initialization"
   let fileSource := fun j =>
     parseRequestParams paramType j |>.map Lsp.fileSource
-  let lastTaskMutex ← Std.Mutex.new <| Task.pure ()
+  let lastTaskMutex ← Std.Mutex.new <| ServerTask.pure ()
   let initState := Dynamic.mk initState
   let stateRef ← IO.mkRef initState
 
@@ -483,12 +498,12 @@ private def overrideStatefulLspRequestHandler
 
   let handle : Json → RequestM (RequestTask (LspResponse Json)) := fun param => lastTaskMutex.atomically do
     let lastTask ← get
-    let requestTask ← RequestM.mapTask lastTask fun () => do
+    let requestTask ← RequestM.mapTaskCostly lastTask fun () => do
       let state ← stateRef.get
       let (r, state') ← pureHandle param state
       stateRef.set state'
       return r
-    set <| requestTask.map <| fun _ => ()
+    set <| requestTask.mapCheap <| fun _ => ()
     return requestTask
 
   let pureOnDidChange : DidChangeTextDocumentParams → (StateT Dynamic RequestM) Unit := fun param => do
@@ -498,11 +513,11 @@ private def overrideStatefulLspRequestHandler
 
   let onDidChange : DidChangeTextDocumentParams → RequestM Unit := fun param => lastTaskMutex.atomically do
       let lastTask ← get
-      let didChangeTask ← RequestM.mapTask (t := lastTask) fun () => do
+      let didChangeTask ← RequestM.mapTaskCostly (t := lastTask) fun () => do
         let state ← stateRef.get
         let ((), state') ← pureOnDidChange param |>.run state
         stateRef.set state'
-      set <| didChangeTask.map <| fun _ => ()
+      set <| didChangeTask.mapCheap <| fun _ => ()
 
   statefulRequestHandlers.modify fun rhs => rhs.insert method {
     fileSource,
@@ -610,7 +625,7 @@ def handleLspRequest (method : String) (params : Json) : RequestM (RequestTask (
         s!"request '{method}' routed through watchdog but unknown in worker; are both using the same plugins?"
     | some rh =>
       let t ← rh.handle params
-      return t.map (sync := true) fun r => r.map ({response := ·, isComplete := true })
+      return t.mapCheap fun r => r.map ({response := ·, isComplete := true })
 
 def routeLspRequest (method : String) (params : Json) : IO (Except RequestError DocumentUri) := do
   if ← isStatefulLspRequestMethod method then

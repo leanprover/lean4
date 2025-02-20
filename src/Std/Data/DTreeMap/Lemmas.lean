@@ -94,8 +94,8 @@ theorem singleton_eq_insert {p : (a : α) × β a} :
   rfl
 
 @[simp]
-theorem contains_insert [TransCmp cmp] {k k' : α} {v : β k} :
-    (t.insert k v).contains k' = (cmp k k' == .eq || t.contains k') :=
+theorem contains_insert [TransCmp cmp] {k a : α} {v : β k} :
+    (t.insert k v).contains a = (cmp k a == .eq || t.contains a) :=
   Impl.contains_insert t.wf
 
 @[simp]
@@ -156,7 +156,7 @@ theorem contains_erase [TransCmp cmp] {k a : α} :
 
 @[simp]
 theorem mem_erase [TransCmp cmp] {k a : α} :
-    a ∈ t.erase k ↔  (cmp k a == .eq) = false ∧ a ∈ t :=
+    a ∈ t.erase k ↔ ¬ cmp k a = .eq ∧ a ∈ t :=
   Impl.mem_erase t.wf
 
 theorem contains_of_contains_erase [TransCmp cmp] {k a : α} :
@@ -189,7 +189,6 @@ theorem mem_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
     a ∈ t.insertIfNew k v ↔ cmp k a == .eq ∨ a ∈ t :=
   Impl.mem_insertIfNew t.wf
 
-@[simp]
 theorem contains_insertIfNew_self [TransCmp cmp] {k : α} {v : β k} :
     (t.insertIfNew k v).contains k :=
   Impl.contains_insertIfNew_self t.wf
@@ -199,11 +198,11 @@ theorem mem_insertIfNew_self [TransCmp cmp] {k : α} {v : β k} :
   Impl.mem_insertIfNew_self t.wf
 
 theorem contains_of_contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
-    (t.insertIfNew k v).contains a → (cmp k a == .eq) = false → t.contains a :=
+    (t.insertIfNew k v).contains a → ¬ cmp k a = .eq → t.contains a :=
   Impl.contains_of_contains_insertIfNew t.wf
 
 theorem mem_of_mem_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
-    a ∈ t.insertIfNew k v → (cmp k a == .eq) = false → a ∈ t :=
+    a ∈ t.insertIfNew k v → ¬ cmp k a = .eq → a ∈ t :=
   Impl.contains_of_contains_insertIfNew t.wf
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} {v : β k} :

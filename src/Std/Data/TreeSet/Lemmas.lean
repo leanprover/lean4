@@ -105,11 +105,11 @@ theorem mem_insert_self [TransCmp cmp] {k : α} :
   TreeMap.mem_insertIfNew_self
 
 theorem contains_of_contains_insert [TransCmp cmp] {k a : α} :
-    (t.insert k).contains a → (cmp k a == .eq) = false → t.contains a :=
+    (t.insert k).contains a → ¬ cmp k a = .eq → t.contains a :=
   TreeMap.contains_of_contains_insertIfNew
 
 theorem mem_of_mem_insert [TransCmp cmp] {k a : α} :
-    a ∈ t.insert k → (cmp k a == .eq) = false → a ∈ t :=
+    a ∈ t.insert k → ¬ cmp k a = .eq → a ∈ t :=
   TreeMap.mem_of_mem_insertIfNew
 
 @[simp]
@@ -146,6 +146,11 @@ theorem isEmpty_erase [TransCmp cmp] {k : α} :
 theorem contains_erase [TransCmp cmp] {k a : α} :
     (t.erase k).contains a = (cmp k a != .eq && t.contains a) :=
   TreeMap.contains_erase
+
+@[simp]
+theorem mem_erase [TransCmp cmp] {k a : α} :
+    a ∈ t.erase k ↔ ¬ cmp k a = .eq ∧ a ∈ t :=
+  TreeMap.mem_erase
 
 theorem contains_of_contains_erase [TransCmp cmp] {k a : α} :
     (t.erase k).contains a → t.contains a :=

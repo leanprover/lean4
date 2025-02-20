@@ -154,7 +154,7 @@ theorem contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
 
 @[simp]
 theorem mem_erase [TransCmp cmp] (h : t.WF) {k a : α} :
-    a ∈ t.erase k ↔  (cmp k a == .eq) = false ∧ a ∈ t :=
+    a ∈ t.erase k ↔ ¬ cmp k a = .eq ∧ a ∈ t :=
   DTreeMap.Raw.mem_erase h
 
 theorem contains_of_contains_erase [TransCmp cmp] (h : t.WF) {k a : α} :
@@ -196,11 +196,11 @@ theorem mem_insertIfNew_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
   DTreeMap.Raw.mem_insertIfNew_self h
 
 theorem contains_of_contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    (t.insertIfNew k v).contains a → (cmp k a == .eq) = false → t.contains a :=
+    (t.insertIfNew k v).contains a → ¬ cmp k a = .eq → t.contains a :=
   DTreeMap.Raw.contains_of_contains_insertIfNew h
 
 theorem mem_of_mem_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β} :
-    a ∈ t.insertIfNew k v → (cmp k a == .eq) = false → a ∈ t :=
+    a ∈ t.insertIfNew k v → ¬ cmp k a = .eq → a ∈ t :=
   DTreeMap.Raw.contains_of_contains_insertIfNew h
 
 theorem size_insertIfNew [TransCmp cmp] {k : α} (h : t.WF) {v : β} :

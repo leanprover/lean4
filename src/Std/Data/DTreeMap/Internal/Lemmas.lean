@@ -242,19 +242,20 @@ theorem isEmpty_erase! [TransOrd α] (h : t.WF) {k : α} :
   simp_to_model [erase!] using List.isEmpty_eraseKey
 
 theorem contains_erase [TransOrd α] (h : t.WF) {k a : α} :
-    (t.erase k h.balanced).impl.contains a = (!(k == a) && t.contains a) := by
+    (t.erase k h.balanced).impl.contains a = (!(compare k a == .eq) && t.contains a) := by
   simp_to_model [erase] using List.containsKey_eraseKey
 
 theorem contains_erase! [TransOrd α] (h : t.WF) {k a : α} :
-    (t.erase! k).contains a = (!(k == a) && t.contains a) := by
+    (t.erase! k).contains a = (!(compare k a == .eq) && t.contains a) := by
   simp_to_model [erase!] using List.containsKey_eraseKey
 
 theorem mem_erase [TransOrd α] (h : t.WF) {k a : α} :
-    a ∈ (t.erase k h.balanced).impl ↔  (k == a) = false ∧ a ∈ t := by
-  simp [mem_iff_contains, contains_erase h]
+    a ∈ (t.erase k h.balanced).impl ↔ ¬ compare k a = .eq ∧ a ∈ t := by
+  simpa only [mem_iff_contains, Bool.and_eq_true, Bool.not_eq_true', beq_eq_false_iff_ne]
+    using Bool.eq_iff_iff.mp <| contains_erase h
 
 theorem mem_erase! [TransOrd α] (h : t.WF) {k a : α} :
-    a ∈ t.erase! k ↔  (k == a) = false ∧ a ∈ t := by
+    a ∈ t.erase! k ↔  ¬ compare k a = .eq ∧ a ∈ t := by
   simp [mem_iff_contains, contains_erase! h]
 
 theorem contains_of_contains_erase [TransOrd α] (h : t.WF) {k a : α} :
@@ -330,19 +331,21 @@ theorem mem_insertIfNew!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
   simp [mem_insertIfNew!, h]
 
 theorem contains_of_contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew k v h.balanced).impl.contains a → (k == a) = false → t.contains a := by
+    (t.insertIfNew k v h.balanced).impl.contains a → ¬ compare k a = .eq → t.contains a := by
+  rw [← ne_eq, ← beq_eq_false_iff_ne]
   simp_to_model [insertIfNew] using List.containsKey_of_containsKey_insertEntryIfNew
 
 theorem contains_of_contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    (t.insertIfNew! k v).contains a → (k == a) = false → t.contains a := by
+    (t.insertIfNew! k v).contains a → ¬ compare k a = .eq → t.contains a := by
+  rw [← ne_eq, ← beq_eq_false_iff_ne]
   simp_to_model [insertIfNew!] using List.containsKey_of_containsKey_insertEntryIfNew
 
 theorem mem_of_mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ (t.insertIfNew k v h.balanced).impl → (k == a) = false → a ∈ t := by
+    a ∈ (t.insertIfNew k v h.balanced).impl → ¬ compare k a = .eq → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertIfNew h
 
 theorem mem_of_mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
-    a ∈ t.insertIfNew! k v → (k == a) = false → a ∈ t := by
+    a ∈ t.insertIfNew! k v → ¬ compare k a = .eq → a ∈ t := by
   simpa [mem_iff_contains] using contains_of_contains_insertIfNew! h
 
 theorem size_insertIfNew [TransOrd α] {k : α} (h : t.WF) {v : β k} :

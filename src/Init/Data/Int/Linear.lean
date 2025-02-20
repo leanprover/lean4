@@ -8,7 +8,7 @@ import Init.ByCases
 import Init.Data.Prod
 import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Gcd
 import Init.Data.RArray
 import Init.Data.AC

@@ -1016,6 +1016,39 @@ theorem mul_add_mod (m x y : Nat) : (m * x + y) % m = y % m := by
   · exact (m % 0).div_zero
   · case succ n => exact Nat.div_eq_of_lt (m.mod_lt n.succ_pos)
 
+theorem mod_eq_iff {a b c : Nat} :
+    a % b = c ↔ (b = 0 ∧ a = c) ∨ (c < b ∧ Exists fun k => a = b * k + c) :=
+  ⟨fun h =>
+    if w : b = 0 then
+      .inl ⟨w, by simpa [w] using h⟩
+    else
+      .inr ⟨by subst h; exact Nat.mod_lt a (zero_lt_of_ne_zero w),
+        a / b, by subst h; exact (div_add_mod a b).symm⟩,
+   by
+     rintro (⟨rfl, rfl⟩ | ⟨w, h, rfl⟩)
+     · simp_all
+     · rw [mul_add_mod, mod_eq_of_lt w]⟩
+
+theorem succ_mod_succ_eq_zero_iff {a b : Nat} :
+    (a + 1) % (b + 1) = 0 ↔ a % (b + 1) = b := by
+  symm
+  rw [mod_eq_iff, mod_eq_iff]
+  simp only [add_one_ne_zero, false_and, Nat.lt_add_one, true_and, false_or, and_self, zero_lt_succ,
+    Nat.add_zero]
+  constructor
+  · rintro ⟨k, rfl⟩
+    refine ⟨k + 1, ?_⟩
+    simp [Nat.add_mul, Nat.mul_add, Nat.add_assoc]
+  · rintro ⟨k, h⟩
+    cases k with
+    | zero => simp at h
+    | succ k =>
+      refine ⟨k, ?_⟩
+      simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,
+        Nat.add_right_cancel_iff] at h
+      subst h
+      simp [Nat.add_mul]
+
 /-! ### Decidability of predicates -/
 
 instance decidableBallLT :

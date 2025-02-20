@@ -126,10 +126,12 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
       let timeSinceLastEditMs := timestamp - lastEditTimestamp
       inlayHintEditDelayMs - timeSinceLastEditMs
   let (snaps, _, isComplete) ← ctx.doc.cmdSnaps.getFinishedPrefixWithConsistentLatency editDelayMs.toUInt32 (cancelTk? := ctx.cancelTk.cancellationTask)
+  -- This cancellation check is crucial for the invariant `finishedSnaps >= oldFinishedSnaps` below.
+  RequestM.checkCancelled
   let snaps := snaps.toArray
   let finishedSnaps := snaps.size
   let oldFinishedSnaps := s.oldFinishedSnaps
-  -- File processing is monotonic modulo `didChange` notifications.
+  -- File processing is monotonic modulo `didChange` notifications and cancellation.
   assert! finishedSnaps >= oldFinishedSnaps
   -- VS Code emits inlay hint requests *every time the user scrolls*. This is reasonably expensive,
   -- so in addition to re-using old inlay hints from parts of the file that haven't been processed

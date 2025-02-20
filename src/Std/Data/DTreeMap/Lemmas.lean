@@ -53,14 +53,6 @@ theorem isEmpty_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
   Impl.isEmpty_insertIfNew t.wf
 
 @[simp]
-theorem contains_empty {k : α} : (empty : DTreeMap α β cmp).contains k = false :=
-  Impl.contains_empty
-
-@[simp]
-theorem not_mem_empty {k : α} : k ∉ (empty : DTreeMap α β cmp) :=
-  Impl.not_mem_empty
-
-@[simp]
 theorem contains_emptyc {k : α} : (∅ : DTreeMap α β cmp).contains k = false :=
   Impl.contains_empty
 
@@ -128,10 +120,6 @@ theorem mem_of_mem_insert [TransCmp cmp] {k a : α} {v : β k} :
   Impl.mem_of_mem_insert t.wf
 
 @[simp]
-theorem size_empty : (empty : DTreeMap α β cmp).size = 0 :=
-  Impl.size_empty
-
-@[simp]
 theorem size_emptyc : (∅ : DTreeMap α β cmp).size = 0 :=
   Impl.size_empty
 
@@ -152,14 +140,9 @@ theorem size_insert_le [TransCmp cmp] {k : α} {v : β k} :
   Impl.size_insert_le t.wf
 
 @[simp]
-theorem erase_empty {k : α} :
-    (empty : DTreeMap α β cmp).erase k = empty :=
-  ext <| Impl.erase_empty (instOrd := ⟨cmp⟩) (k := k)
-
-@[simp]
 theorem erase_emptyc {k : α} :
     (∅ : DTreeMap α β cmp).erase k = empty :=
-  erase_empty
+  ext <| Impl.erase_empty (instOrd := ⟨cmp⟩) (k := k)
 
 @[simp]
 theorem isEmpty_erase [TransCmp cmp] {k : α} :

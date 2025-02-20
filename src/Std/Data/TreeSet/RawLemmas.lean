@@ -46,14 +46,6 @@ theorem mem_congr [TransCmp cmp] (h : t.WF) {k k' : α} (hab : cmp k k' = .eq) :
   TreeMap.Raw.mem_congr h hab
 
 @[simp]
-theorem contains_empty {k : α} : (empty : Raw α cmp).contains k = false :=
-  TreeMap.Raw.contains_empty
-
-@[simp]
-theorem not_mem_empty {k : α} : k ∉ (empty : Raw α cmp) :=
-  TreeMap.Raw.not_mem_empty
-
-@[simp]
 theorem contains_emptyc {k : α} : (∅ : Raw α cmp).contains k = false :=
   TreeMap.Raw.contains_empty
 
@@ -121,10 +113,6 @@ theorem mem_of_mem_insert [TransCmp cmp] (h : t.WF) {k a : α} :
   TreeMap.Raw.mem_of_mem_insertIfNew h
 
 @[simp]
-theorem size_empty : (empty : Raw α cmp).size = 0 :=
-  TreeMap.Raw.size_empty
-
-@[simp]
 theorem size_emptyc : (∅ : Raw α cmp).size = 0 :=
   TreeMap.Raw.size_empty
 
@@ -145,14 +133,9 @@ theorem size_insert_le [TransCmp cmp] (h : t.WF) {k : α} :
   TreeMap.Raw.size_insertIfNew_le h
 
 @[simp]
-theorem erase_empty {k : α} :
-    (empty : Raw α cmp).erase k = empty :=
-  ext <| TreeMap.Raw.erase_empty
-
-@[simp]
 theorem erase_emptyc {k : α} :
     (empty : Raw α cmp).erase k = empty :=
-  erase_empty
+  ext <| TreeMap.Raw.erase_empty
 
 @[simp]
 theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :

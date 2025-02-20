@@ -297,25 +297,21 @@ theorem size_le_size_erase! [TransOrd α] (h : t.WF) {k : α} :
     t.size ≤ (t.erase! k).size + 1 := by
   simp_to_model [erase!] using List.length_le_length_eraseKey
 
-@[simp]
 theorem contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains a = (k == a || t.contains a) := by
   simp_to_model [insertIfNew] using List.containsKey_insertEntryIfNew
 
-@[simp]
 theorem contains_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew! k v).contains a = (k == a || t.contains a) := by
   simp_to_model [insertIfNew!] using List.containsKey_insertEntryIfNew
 
-@[simp]
 theorem mem_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ (t.insertIfNew k v h.balanced).impl ↔ k == a ∨ a ∈ t := by
   simp [mem_iff_contains, contains_insertIfNew, h]
 
-@[simp]
 theorem mem_insertIfNew! [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     a ∈ t.insertIfNew! k v ↔ k == a ∨ a ∈ t := by
-  simp [mem_iff_contains, contains_insertIfNew, h]
+  simp [mem_iff_contains, contains_insertIfNew!, h]
 
 theorem contains_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains k := by
@@ -327,11 +323,11 @@ theorem contains_insertIfNew!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} 
 
 theorem mem_insertIfNew_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     k ∈ (t.insertIfNew k v h.balanced).impl := by
-  simp [contains_insertIfNew, h]
+  simp [mem_insertIfNew, h]
 
 theorem mem_insertIfNew!_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     k ∈ t.insertIfNew! k v := by
-  simp [contains_insertIfNew!, h]
+  simp [mem_insertIfNew!, h]
 
 theorem contains_of_contains_insertIfNew [TransOrd α] (h : t.WF) {k a : α} {v : β k} :
     (t.insertIfNew k v h.balanced).impl.contains a → (k == a) = false → t.contains a := by

@@ -53,14 +53,6 @@ theorem isEmpty_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
   Impl.isEmpty_insertIfNew! h
 
 @[simp]
-theorem contains_empty {k : α} : (empty : Raw α β cmp).contains k = false :=
-  Impl.contains_empty
-
-@[simp]
-theorem not_mem_empty {k : α} : k ∉ (empty : Raw α β cmp) :=
-  Impl.not_mem_empty
-
-@[simp]
 theorem contains_emptyc {k : α} : (∅ : Raw α β cmp).contains k = false :=
   Impl.contains_empty
 
@@ -128,10 +120,6 @@ theorem mem_of_mem_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :
   Impl.mem_of_mem_insert! h
 
 @[simp]
-theorem size_empty : (empty : Raw α β cmp).size = 0 :=
-  Impl.size_empty
-
-@[simp]
 theorem size_emptyc : (∅ : Raw α β cmp).size = 0 :=
   Impl.size_empty
 
@@ -152,14 +140,9 @@ theorem size_insert_le [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
   Impl.size_insert!_le h
 
 @[simp]
-theorem erase_empty {k : α} :
-    (empty : Raw α β cmp).erase k = empty :=
-  ext <| Impl.erase!_empty (instOrd := ⟨cmp⟩) (k := k)
-
-@[simp]
 theorem erase_emptyc {k : α} :
     (∅ : Raw α β cmp).erase k = empty :=
-  erase_empty
+  ext <| Impl.erase!_empty (instOrd := ⟨cmp⟩) (k := k)
 
 @[simp]
 theorem isEmpty_erase [TransCmp cmp] (h : t.WF) {k : α} :

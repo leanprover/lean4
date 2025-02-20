@@ -26,12 +26,6 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-structure FixedParams where
-  /-- A telescope (nested `.lamE` with a dummy body) representing the fixed parameters. -/
-  telescope : Expr
-  /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
-  mapping : Array (Array (Option Nat))
-
 
 /--
 * `graph[funIdx][paramIdx] = none`: paramIdx is not fixed
@@ -110,8 +104,7 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
   else
     info
 
-
-def getFixedParams (preDefs : Array PreDefinition) : MetaM Unit := do
+def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM Info := do
   let arities ← preDefs.mapM fun preDef => lambdaTelescope preDef.value fun xs _ => pure xs.size
   let ref ← IO.mkRef (Info.init arities)
   ref.modify .addSelfCalls
@@ -159,7 +152,55 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM Unit := do
 
   let info ← ref.get
   trace[Elab.definition.fixedParams] "getFixedParams: {info}"
+  return info
 
+structure FixedParams where
+  /-- A telescope (nested `.lamE` with a dummy body) representing the fixed parameters. -/
+  telescope : Expr
+  /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
+  mappings : Array (Array (Option Nat))
+
+def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
+  let info ← getFixedParamsInfo preDefs
+
+  lambdaTelescope preDefs[0]!.value fun xs _ => do
+    let paramInfos := info[0]!
+    assert! xs.size = paramInfos.size
+
+    let mut ys := #[]
+    let mut firstMapping := #[]
+    for paramIdx in [:xs.size], x in xs, paramInfo? in paramInfos do
+      if let some paramInfo := paramInfo? then
+        assert! paramInfo[0]! = some paramIdx
+        firstMapping := firstMapping.push (some ys.size)
+        ys := ys.push x
+      else
+        firstMapping := firstMapping.push none
+    let telescope ← mkLambdaFVars ys (.sort 0)
+
+    let mut mappings := #[firstMapping]
+    for h : funIdx in [1:info.size] do
+      let paramInfos := info[funIdx]
+      let mut mapping := #[]
+      for paramInfo? in paramInfos do
+        if let some paramInfo := paramInfo? then
+          if let some firstParamIdx := paramInfo[0]! then
+            assert! firstMapping[firstParamIdx]!.isSome
+            mapping := mapping.push firstMapping[firstParamIdx]!
+          else
+            panic! "Incomplete paramInfo"
+        else
+          mapping := mapping.push none
+      mappings := mappings.push mapping
+
+    return { telescope, mappings }
+
+
+def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Unit := do
+  let fixedParams ← getFixedParams preDefs
+  for preDef in preDefs, mapping in fixedParams.mappings do
+    unless mapping[:fixedPrefixSize] = (Array.range fixedPrefixSize).map Option.some do
+      throwError "Fixed prefix mismatch for {preDef.declName}: Expeted {fixedPrefixSize}, but got {mapping}"
 
 def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
   withCommonTelescope preDefs fun xs vals => do
@@ -177,7 +218,9 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
           return false
         else
           return true
-    resultRef.get
+    let fixedPrefixSize ← resultRef.get
+    checkFixedParams preDefs fixedPrefixSize
+    return fixedPrefixSize
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do

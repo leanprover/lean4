@@ -5,6 +5,7 @@ Authors: Leonardo de Moura, Joachim Breitner
 -/
 prelude
 import Lean.Elab.PreDefinition.TerminationMeasure
+import Lean.Elab.PreDefinition.Mutual
 import Lean.Elab.PreDefinition.Structural.Basic
 import Lean.Elab.PreDefinition.Structural.FindRecArg
 import Lean.Elab.PreDefinition.Structural.Preprocess
@@ -71,24 +72,6 @@ where
       withLocalDecl vals[0]!.bindingName! vals[0]!.binderInfo vals[0]!.bindingDomain! fun x =>
         go (fvars.push x) (vals.map fun val => val.bindingBody!.instantiate1 x)
 
-def getMutualFixedPrefix (preDefs : Array PreDefinition) : M Nat :=
-  withCommonTelescope preDefs fun xs vals => do
-    let resultRef ← IO.mkRef xs.size
-    for val in vals do
-      if (← resultRef.get) == 0 then return 0
-      forEachExpr' val fun e => do
-        if preDefs.any fun preDef => e.isAppOf preDef.declName then
-          let args := e.getAppArgs
-          resultRef.modify (min args.size ·)
-          for arg in args, x in xs do
-            if !(← withoutProofIrrelevance <| withReducible <| isDefEq arg x) then
-              -- We continue searching if e's arguments are not a prefix of `xs`
-              return true
-          return false
-        else
-          return true
-    resultRef.get
-
 private def elimMutualRecursion (preDefs : Array PreDefinition) (xs : Array Expr)
     (recArgInfos : Array RecArgInfo) : M (Array PreDefinition) := do
   let values ← preDefs.mapM (instantiateLambda ·.value xs)
@@ -136,7 +119,7 @@ private def inferRecArgPos (preDefs : Array PreDefinition) (termMeasure?s : Arra
       return { preDef with value := (← preprocess preDef.value fnNames) }
 
     -- The syntactically fixed arguments
-    let maxNumFixed ← getMutualFixedPrefix preDefs
+    let maxNumFixed ← Mutual.getFixedPrefix preDefs
 
     lambdaBoundedTelescope preDefs[0]!.value maxNumFixed fun xs _ => do
       assert! xs.size = maxNumFixed

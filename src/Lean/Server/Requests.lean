@@ -238,6 +238,18 @@ def bindWaitFindSnap (doc : EditableDocument) (p : Snapshot → Bool)
   let findTask := doc.cmdSnaps.waitFind? p
   bindTaskCostly findTask <| waitFindSnapAux notFoundX x
 
+/-- Create a task which waits for the snapshot containing `lspPos` and executes `f` with it.
+If no such snapshot exists, the request fails with an error. -/
+def withWaitFindSnapAtPos
+    (lspPos : Lsp.Position)
+    (f : Snapshots.Snapshot → RequestM α)
+    : RequestM (RequestTask α) := do
+  let doc ← readDoc
+  let pos := doc.meta.text.lspPosToUtf8Pos lspPos
+  withWaitFindSnap doc (fun s => s.endPos >= pos)
+    (notFoundX := throw ⟨.invalidParams, s!"no snapshot found at {lspPos}"⟩)
+    (x := f)
+
 open Language.Lean in
 /-- Finds the first `CommandParsedSnapshot` containing `hoverPos`, asynchronously. -/
 partial def findCmdParsedSnap (doc : EditableDocument) (hoverPos : String.Pos)

@@ -4217,6 +4217,14 @@ theorem toInt_abs_eq_natAbs_of_ne_intMin {x : BitVec w} (hx : x ≠ intMin w) :
     x.abs.toInt = x.toInt.natAbs := by
   simp [toInt_abs_eq_natAbs, hx]
 
+theorem toFin_abs {x : BitVec w} :
+    x.abs.toFin = Fin.ofNat' (2 ^ w) x.abs.toNat  := by
+  simp only [toNat_abs]
+  rw [BitVec.abs, neg_eq]
+  by_cases hx : x.msb
+  · simp [hx]
+  · simp [hx, ← BitVec.toFin_ofNat]
+
 /-! ### Reverse -/
 
 theorem getLsbD_reverse {i : Nat} {x : BitVec w} :

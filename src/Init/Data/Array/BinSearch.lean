@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Array.Basic
+import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 universe u v
 

@@ -129,7 +129,16 @@ theorem subNatNat_of_le {m n : Nat} (h : n ≤ m) : subNatNat m n = ↑(m - n) :
 theorem subNatNat_of_lt {m n : Nat} (h : m < n) : subNatNat m n = -[pred (n - m) +1] :=
   subNatNat_of_sub_eq_succ <| (Nat.succ_pred_eq_of_pos (Nat.sub_pos_of_lt h)).symm
 
-
+@[simp] theorem subNat_eq_zero_iff {a b : Nat} : subNatNat a b = 0 ↔ a = b := by
+  cases Nat.lt_or_ge a b with
+  | inl h =>
+    rw [subNatNat_of_lt h]
+    simpa using ne_of_lt h
+  | inr h =>
+    rw [subNatNat_of_le h]
+    norm_cast
+    rw [Nat.sub_eq_iff_eq_add' h]
+    simp
 
 /- # Additive group properties -/
 

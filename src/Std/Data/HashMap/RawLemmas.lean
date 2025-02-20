@@ -200,7 +200,7 @@ theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
 @[simp]
 theorem fst_containsThenInsert (h : m.WF) {k : α} {v : β} :
     (m.containsThenInsert k v).1 = m.contains k :=
-  DHashMap.Raw.containsThenInsert_fst h.out
+  DHashMap.Raw.fst_containsThenInsert h.out
 
 @[simp, deprecated fst_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_fst (h : m.WF) {k : α} {v : β} :
@@ -210,7 +210,7 @@ theorem containsThenInsert_fst (h : m.WF) {k : α} {v : β} :
 @[simp]
 theorem snd_containsThenInsert (h : m.WF) {k : α} {v : β} :
     (m.containsThenInsert k v).2 = m.insert k v :=
-  ext (DHashMap.Raw.containsThenInsert_snd h.out)
+  ext (DHashMap.Raw.snd_containsThenInsert h.out)
 
 @[simp, deprecated snd_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_snd (h : m.WF) {k : α} {v : β} :
@@ -220,7 +220,7 @@ theorem containsThenInsert_snd (h : m.WF) {k : α} {v : β} :
 @[simp]
 theorem fst_containsThenInsertIfNew (h : m.WF) {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).1 = m.contains k :=
-  DHashMap.Raw.containsThenInsertIfNew_fst h.out
+  DHashMap.Raw.fst_containsThenInsertIfNew h.out
 
 @[simp, deprecated fst_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_fst (h : m.WF) {k : α} {v : β} :
@@ -230,7 +230,7 @@ theorem containsThenInsertIfNew_fst (h : m.WF) {k : α} {v : β} :
 @[simp]
 theorem snd_containsThenInsertIfNew (h : m.WF) {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
-  ext (DHashMap.Raw.containsThenInsertIfNew_snd h.out)
+  ext (DHashMap.Raw.snd_containsThenInsertIfNew h.out)
 
 @[simp, deprecated snd_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_snd (h : m.WF) {k : α} {v : β} :

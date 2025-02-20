@@ -14,17 +14,25 @@ The reason for this API is that the elaborator consuming threads from the thread
 never hinder language server operations. Specifically, we want to ensure the following:
 - All new tasks spawned in the language server must be dedicated so that they cannot be starved
   by the elaborator.
-  - Dedicated tasks are costly, so avoid spawning new tasks for cheap operations;
-    just do those on the current thread.
+  - Dedicated tasks are costly, so avoid spawning new tasks for operations that are so cheap that
+    they can just be done on the current thread instead.
 - When mapping or binding a task:
-  - If the function being mapped is cheap, map it with `sync := true`. This runs the function on
-    the current thread if the task has already finished, or it reuses the thread of the task if the
-    task has not finished. This ensures that the function to be executed cannot be starved
-    by the elaborator.
-  - If the function being mapped is costly, map it with `prio := .dedicated`. This spawns a new
-    thread and thus cannot be starved by the elaborator.
+  - If the function being mapped is sufficiently cheap that it can run on the current thread,
+    map it with `sync := true`. This runs the function on the current thread if the task has already
+    finished, or it reuses the thread of the task if the task has not finished.
+    This ensures that the function to be executed cannot be starved by the elaborator.
+  - If the function being mapped is not cheap / costly, map it with `prio := .dedicated`.
+    This spawns a new thread and thus cannot be starved by the elaborator.
 Finally, if the function being mapped is costly, but is already being executed in a dedicated task,
 it is fine to pretend that it is a cheap function instead.
+
+In request handlers, the distinction of whether an operation is "cheap" or "costly" should be
+decided by the following:
+- If the operation is sufficiently fast that it could run on the main task of the language server,
+  blocking all other communication for a brief moment, then it can be considered cheap.
+- If the operation is being executed in a dedicated task that isn't the main task of the server,
+  it can also be considered cheap.
+- Otherwise, it is to be considered costly.
 -/
 
 namespace Lean.Server

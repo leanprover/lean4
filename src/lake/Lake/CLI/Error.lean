@@ -20,6 +20,7 @@ inductive CliError
 | unknownShortOption (opt : Char)
 | unknownLongOption (opt : String)
 | unexpectedArguments (args : List String)
+| unexpectedPlus
 /- Init CLI Errors -/
 | unknownTemplate (spec : String)
 | unknownConfigLang (spec : String)
@@ -30,8 +31,7 @@ inductive CliError
 | unknownTarget (target : Name)
 | missingModule (pkg : Name) (mod : Name)
 | missingTarget (pkg : Name) (spec : String)
-| nonCliTarget (target : Name)
-| nonCliFacet (type : String) (facet : Name)
+| invalidBuildTarget (key : String)
 | invalidTargetSpec (spec : String) (tooMany : Char)
 | invalidFacet (target : Name) (facet : Name)
 /- Executable CLI Errors -/
@@ -60,6 +60,9 @@ def toString : CliError → String
 | unknownShortOption opt  => s!"unknown short option '-{opt}'"
 | unknownLongOption opt   => s!"unknown long option '{opt}'"
 | unexpectedArguments as  => s!"unexpected arguments: {" ".intercalate as}"
+| unexpectedPlus          =>
+  s!"the `+` option is an Elan feature; \
+    rerun Lake via Elan and ensure this option comes first."
 | unknownTemplate spec    => s!"unknown package template `{spec}`"
 | unknownConfigLang spec  => s!"unknown configuration language `{spec}`"
 | unknownModule mod       => s!"unknown module `{mod.toString false}`"
@@ -68,8 +71,7 @@ def toString : CliError → String
 | unknownTarget t         => s!"unknown target `{t.toString false}`"
 | missingModule pkg mod   => s!"package '{pkg.toString false}' has no module '{mod.toString false}'"
 | missingTarget pkg spec  => s!"package '{pkg.toString false}' has no target '{spec}'"
-| nonCliTarget t          => s!"target `{t.toString false}` is not a buildable via `lake`"
-| nonCliFacet t f         => s!"{t} facet `{f.toString false}` is not a buildable via `lake`"
+| invalidBuildTarget t    => s!"'{t}' is not a build target (perhaps you meant 'lake query'?)"
 | invalidTargetSpec s c   => s!"invalid script spec '{s}' (too many '{c}')"
 | invalidFacet t f        => s!"invalid facet `{f.toString false}`; target {t.toString false} has no facets"
 | unknownExe s            => s!"unknown executable {s}"

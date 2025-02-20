@@ -54,7 +54,7 @@ def TacticContext.new (lratPath : System.FilePath) (config : BVDecideConfig) :
     config
   }
 where
-  determineSolver : Lean.Elab.TermElabM System.FilePath := do
+  determineSolver : CoreM System.FilePath := do
     let opts ← getOptions
     let option := sat.solver.get opts
     if option == "" then
@@ -96,10 +96,10 @@ instance : ToExpr LRAT.IntAction where
       mkApp3 (mkConst ``LRAT.Action.del [.zero, .zero]) beta alpha (toExpr ids)
   toTypeExpr := mkConst ``LRAT.IntAction
 
-def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM LratCert := do
+def LratCert.load (lratPath : System.FilePath) (trimProofs : Bool) : CoreM (Array LRAT.IntAction) := do
   let proofInput ← IO.FS.readBinFile lratPath
   let proof ←
-    withTraceNode `sat (fun _ => return s!"Parsing LRAT file") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return s!"Parsing LRAT file") do
       -- lazyPure to prevent compiler lifting
       let proof? ← IO.lazyPure (fun _ => LRAT.parseLRATProof proofInput)
       match proof? with
@@ -110,7 +110,7 @@ def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM Lra
 
   let proof ←
     if trimProofs then
-      withTraceNode `sat (fun _ => return "Trimming LRAT proof") do
+      withTraceNode `Meta.Tactic.sat (fun _ => return "Trimming LRAT proof") do
         -- lazyPure to prevent compiler lifting
         let trimmed ← IO.lazyPure (fun _ => LRAT.trim proof)
         IO.ofExcept trimmed
@@ -118,6 +118,10 @@ def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM Lra
       pure proof
 
   trace[Meta.Tactic.sat] s!"LRAT proof has {proof.size} steps after trimming"
+  return proof
+
+def LratCert.ofFile (lratPath : System.FilePath) (trimProofs : Bool) : CoreM LratCert := do
+  let proof ← LratCert.load lratPath trimProofs
 
   -- This is necessary because the proof might be in the binary format in which case we cannot
   -- store it as a string in the environment (yet) due to missing support for binary literals.
@@ -133,19 +137,19 @@ def runExternal (cnf : CNF Nat) (solver : System.FilePath) (lratPath : System.Fi
     (trimProofs : Bool) (timeout : Nat) (binaryProofs : Bool) :
     CoreM (Except (Array (Bool × Nat)) LratCert) := do
   IO.FS.withTempFile fun cnfHandle cnfPath => do
-    withTraceNode `sat (fun _ => return "Serializing SAT problem to DIMACS file") do
+    withTraceNode `Meta.Tactic.sat (fun _ => return "Serializing SAT problem to DIMACS file") do
       -- lazyPure to prevent compiler lifting
       cnfHandle.putStr  (← IO.lazyPure (fun _ => cnf.dimacs))
       cnfHandle.flush
 
     let res ←
-      withTraceNode `sat (fun _ => return "Running SAT solver") do
+      withTraceNode `Meta.Tactic.sat (fun _ => return "Running SAT solver") do
         External.satQuery solver cnfPath lratPath timeout binaryProofs
     if let .sat assignment := res then
       return .error assignment
 
     let lratProof ←
-      withTraceNode `sat (fun _ => return "Obtaining LRAT certificate") do
+      withTraceNode `Meta.Tactic.sat (fun _ => return "Obtaining LRAT certificate") do
         LratCert.ofFile lratPath trimProofs
 
     return .ok lratProof
@@ -173,18 +177,18 @@ function together with a correctness theorem for it.
 -/
 def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContext) (reflected : α)
     (verifier : Name) (unsat_of_verifier_eq_true : Name) : MetaM Expr := do
-  withTraceNode `sat (fun _ => return "Compiling expr term") do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling expr term") do
     mkAuxDecl cfg.exprDef (toExpr reflected) (toTypeExpr α)
 
   let certType := toTypeExpr LratCert
 
-  withTraceNode `sat (fun _ => return "Compiling proof certificate term") do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling proof certificate term") do
     mkAuxDecl cfg.certDef (toExpr cert) certType
 
   let reflectedExpr := mkConst cfg.exprDef
   let certExpr := mkConst cfg.certDef
 
-  withTraceNode `sat (fun _ => return "Compiling reflection proof term") do
+  withTraceNode `Meta.Tactic.sat (fun _ => return "Compiling reflection proof term") do
     let auxValue := mkApp2 (mkConst verifier) reflectedExpr certExpr
     mkAuxDecl cfg.reflectionDef auxValue (mkConst ``Bool)
 
@@ -197,8 +201,10 @@ def LratCert.toReflectionProof [ToExpr α] (cert : LratCert) (cfg : TacticContex
       (← mkEqRefl (toExpr true))
   try
     let auxLemma ←
-      withTraceNode `sat (fun _ => return "Verifying LRAT certificate") do
-        mkAuxLemma [] auxType auxProof
+      -- disable async TC so we can catch its exceptions
+      withOptions (Elab.async.set · false) do
+        withTraceNode `Meta.Tactic.sat (fun _ => return "Verifying LRAT certificate") do
+          mkAuxLemma [] auxType auxProof
     return mkApp3 (mkConst unsat_of_verifier_eq_true) reflectedExpr certExpr (mkConst auxLemma)
   catch e =>
     throwError m!"Failed to check the LRAT certificate in the kernel:\n{e.toMessageData}"

@@ -129,10 +129,6 @@ structure CodeAction extends WorkDoneProgressParams, PartialResultParams where
   data?        : Option Json := none
   deriving ToJson, FromJson
 
-structure ResolveSupport where
-  properties : Array String
-  deriving FromJson, ToJson
-
 structure CodeActionLiteralSupportValueSet where
   /-- The code action kind values the client supports. When this
     property exists the client also guarantees that it will

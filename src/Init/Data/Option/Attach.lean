@@ -48,29 +48,27 @@ theorem attachWith_congr {o₁ o₂ : Option α} (w : o₁ = o₂) {P : α → P
   subst w
   simp
 
-theorem attach_map_coe (o : Option α) (f : α → β) :
+theorem attach_map_val (o : Option α) (f : α → β) :
     (o.attach.map fun (i : {i // i ∈ o}) => f i) = o.map f := by
   cases o <;> simp
 
-theorem attach_map_val (o : Option α) (f : α → β) :
-    (o.attach.map fun i => f i.val) = o.map f :=
-  attach_map_coe _ _
+@[deprecated attach_map_val (since := "2025-02-17")]
+abbrev attach_map_coe := @attach_map_val
 
 theorem attach_map_subtype_val (o : Option α) :
     o.attach.map Subtype.val = o :=
-  (attach_map_coe _ _).trans (congrFun Option.map_id _)
+  (attach_map_val _ _).trans (congrFun Option.map_id _)
 
-theorem attachWith_map_coe {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
     ((o.attachWith p H).map fun (i : { i // p i}) => f i.val) = o.map f := by
   cases o <;> simp [H]
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (o : Option α) (H : ∀ a ∈ o, p a) :
-    ((o.attachWith p H).map fun i => f i.val) = o.map f :=
-  attachWith_map_coe _ _ _
+@[deprecated attachWith_map_val (since := "2025-02-17")]
+abbrev attachWith_map_coe := @attachWith_map_val
 
 theorem attachWith_map_subtype_val {p : α → Prop} (o : Option α) (H : ∀ a ∈ o, p a) :
     (o.attachWith p H).map Subtype.val = o :=
-  (attachWith_map_coe _ _ _).trans (congrFun Option.map_id _)
+  (attachWith_map_val _ _ _).trans (congrFun Option.map_id _)
 
 theorem mem_attach : ∀ (o : Option α) (x : {x // x ∈ o}), x ∈ o.attach
   | none, ⟨x, h⟩ => by simp at h
@@ -134,15 +132,28 @@ theorem attachWith_map {o : Option α} (f : α → β) {P : β → Prop} {H : �
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
   cases o <;> simp
 
-theorem map_attach {o : Option α} (f : { x // x ∈ o } → β) :
+theorem map_attach_eq_pmap {o : Option α} (f : { x // x ∈ o } → β) :
     o.attach.map f = o.pmap (fun a (h : a ∈ o) => f ⟨a, h⟩) (fun _ h => h) := by
   cases o <;> simp
 
-theorem map_attachWith {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
+@[deprecated map_attach_eq_pmap (since := "2025-02-09")]
+abbrev map_attach := @map_attach_eq_pmap
+
+@[simp] theorem map_attachWith {l : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+    (f : { x // P x } → β) :
+    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  cases l <;> simp_all
+
+theorem map_attachWith_eq_pmap {o : Option α} {P : α → Prop} {H : ∀ (a : α), a ∈ o → P a}
     (f : { x // P x } → β) :
     (o.attachWith P H).map f =
       o.pmap (fun a (h : a ∈ o ∧ P a) => f ⟨a, h.2⟩) (fun a h => ⟨h, H a h⟩) := by
   cases o <;> simp
+
+@[simp]
+theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, a ∈ o → p a) :
+    o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
+  cases o <;> simp_all [Function.comp_def]
 
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
@@ -224,17 +235,17 @@ This lemma identifies maps over lists of subtypes, where the function only depen
 and simplifies these to the function directly taking the value.
 -/
 @[simp] theorem map_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → β} {g : α → β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     o.map f = o.unattach.map g := by
   cases o <;> simp [hf]
 
 @[simp] theorem bind_subtype {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Option β} {g : α → Option β} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (o.bind f) = o.unattach.bind g := by
   cases o <;> simp [hf]
 
 @[simp] theorem unattach_filter {p : α → Prop} {o : Option { x // p x }}
-    {f : { x // p x } → Bool} {g : α → Bool} {hf : ∀ x h, f ⟨x, h⟩ = g x} :
+    {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     (o.filter f).unattach = o.unattach.filter g := by
   cases o
   · simp

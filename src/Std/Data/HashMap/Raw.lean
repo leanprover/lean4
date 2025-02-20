@@ -189,6 +189,9 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
     (m : Raw α β) (a : α) (f : β → β) : Raw α β :=
   ⟨DHashMap.Raw.Const.modify m.inner a f⟩
 
+@[inline, inherit_doc DHashMap.Raw.Const.toList] def toList (m : Raw α β) : List (α × β) :=
+  DHashMap.Raw.Const.toList m.inner
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -225,9 +228,6 @@ instance {m : Type w → Type w} : ForM m (Raw α β) (α × β) where
 
 instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
-
-@[inline, inherit_doc DHashMap.Raw.Const.toList] def toList (m : Raw α β) : List (α × β) :=
-  DHashMap.Raw.Const.toList m.inner
 
 @[inline, inherit_doc DHashMap.Raw.Const.toArray] def toArray (m : Raw α β) : Array (α × β) :=
   DHashMap.Raw.Const.toArray m.inner

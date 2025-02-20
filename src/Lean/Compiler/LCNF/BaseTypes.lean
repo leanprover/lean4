@@ -20,7 +20,7 @@ structure BaseTypeExtState where
   deriving Inhabited
 
 builtin_initialize baseTypeExt : EnvExtension BaseTypeExtState ←
-  registerEnvExtension (pure {})
+  registerEnvExtension (pure {}) (asyncMode := .sync)  -- compilation is non-parallel anyway
 
 def getOtherDeclBaseType (declName : Name) (us : List Level) : CoreM Expr := do
   let info ← getConstInfo declName

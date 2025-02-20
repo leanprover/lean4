@@ -11,9 +11,10 @@ import Lean.Meta.SynthInstance
 import Lean.Meta.Tactic.Util
 import Lean.Meta.Tactic.UnifyEq
 import Lean.Meta.Tactic.Simp.Types
-import Lean.Meta.Tactic.LinearArith.Simp
+import Lean.Meta.Tactic.Simp.Arith
 import Lean.Meta.Tactic.Simp.Simproc
 import Lean.Meta.Tactic.Simp.Attr
+import Lean.Meta.BinderNameHint
 
 namespace Lean.Meta.Simp
 
@@ -146,7 +147,8 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
         if !(← acLt rhs e .reduceSimpleOnly) then
           trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
           return none
-      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, {e} ==> {rhs}"
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}:{indentExpr e}\n==>{indentExpr rhs}"
+      let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs
       recordSimpTheorem thm.origin
       return some { expr := rhs, proof? }
     else
@@ -281,17 +283,28 @@ where
 def simpArith (e : Expr) : SimpM Step := do
   unless (← getConfig).arith do
     return .continue
-  if Linear.isLinearCnstr e then
-    let some (e', h) ← Linear.Nat.simpCnstr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
-  else if Linear.isLinearTerm e then
-    if Linear.parentIsTarget (← getContext).parent? then
+  if Arith.isLinearCnstr e then
+    if let some (e', h) ← Arith.Nat.simpCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Arith.Int.simpRelCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
+  else if Arith.isLinearTerm e then
+    if Arith.parentIsTarget (← getContext).parent? then
       -- We mark `cache := false` to ensure we do not miss simplifications.
       return .continue (some { expr := e, cache := false })
-    let some (e', h) ← Linear.Nat.simpExpr? e
-      | return .continue
-    return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Arith.Nat.simpExpr? e then
+      return .visit { expr := e', proof? := h }
+    else if let some (e', h) ← Arith.Int.simpExpr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
+  else if Arith.isDvdCnstr e then
+    if let some (e', h) ← Arith.Int.simpDvdCnstr? e then
+      return .visit { expr := e', proof? := h }
+    else
+      return .continue
   else
     return .continue
 

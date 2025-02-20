@@ -45,6 +45,12 @@ register_builtin_option grind.debug.proofs : Bool := {
   descr    := "check proofs between the elements of all equivalence classes"
 }
 
+register_builtin_option grind.warning : Bool := {
+  defValue := true
+  group    := "debug"
+  descr    := "disable `grind` usage warning"
+}
+
 /-- Context for `GrindM` monad. -/
 structure Context where
   simp         : Simp.Context
@@ -65,10 +71,36 @@ instance : BEq CongrTheoremCacheKey where
 instance : Hashable CongrTheoremCacheKey where
   hash a := mixHash (unsafe ptrAddrUnsafe a.f).toUInt64 (hash a.numArgs)
 
+structure EMatchTheoremTrace where
+  origin : Origin
+  kind   : EMatchTheoremKind
+  deriving BEq, Hashable
+
+/--
+E-match theorems and case-splits performed by `grind`.
+Note that it may contain elements that are not needed by the final proof.
+For example, `grind` instantiated the theorem, but theorem instance was not actually used
+in the proof.
+-/
+structure Trace where
+  thms       : PHashSet EMatchTheoremTrace := {}
+  eagerCases : PHashSet Name := {}
+  cases      : PHashSet Name := {}
+  deriving Inhabited
+
+structure Counters where
+  /-- Number of times E-match theorem has been instantiated. -/
+  thm  : PHashMap Origin Nat := {}
+  /-- Number of times a `cases` has been performed on an inductive type/predicate -/
+  case : PHashMap Name Nat := {}
+  deriving Inhabited
+
+private def emptySC : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+
 /-- State for the `GrindM` monad. -/
 structure State where
   /-- `ShareCommon` (aka `Hashconsing`) state. -/
-  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := ShareCommon.State.mk _
+  scState    : ShareCommon.State.{0} ShareCommon.objectFactory := emptySC
   /-- Next index for creating auxiliary theorems. -/
   nextThmIdx : Nat := 1
   /--
@@ -81,11 +113,22 @@ structure State where
   trueExpr   : Expr
   falseExpr  : Expr
   natZExpr   : Expr
+  btrueExpr  : Expr
+  bfalseExpr : Expr
   /--
   Used to generate trace messages of the for `[grind] working on <tag>`,
   and implement the macro `trace_goal`.
   -/
   lastTag    : Name := .anonymous
+  /--
+  Issues found during the proof search. These issues are reported to
+  users when `grind` fails.
+  -/
+  issues     : List MessageData := []
+  /-- `trace` for `grind?` -/
+  trace      : Trace := {}
+  /-- Performance counters -/
+  counters   : Counters := {}
 
 private opaque MethodsRefPointed : NonemptyType.{0}
 private def MethodsRef : Type := MethodsRefPointed.type
@@ -105,12 +148,43 @@ def getTrueExpr : GrindM Expr := do
 def getFalseExpr : GrindM Expr := do
   return (← get).falseExpr
 
+/-- Returns the internalized `Bool.true`.  -/
+def getBoolTrueExpr : GrindM Expr := do
+  return (← get).btrueExpr
+
+/-- Returns the internalized `Bool.false`.  -/
+def getBoolFalseExpr : GrindM Expr := do
+  return (← get).bfalseExpr
+
 /-- Returns the internalized `0 : Nat` numeral.  -/
 def getNatZeroExpr : GrindM Expr := do
   return (← get).natZExpr
 
 def getMainDeclName : GrindM Name :=
   return (← readThe Context).mainDeclName
+
+def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
+  if (← getConfig).trace then
+    modify fun s => { s with trace.thms := s.trace.thms.insert { origin := thm.origin, kind := thm.kind } }
+  modify fun s => { s with
+    counters.thm := if let some n := s.counters.thm.find? thm.origin then
+      s.counters.thm.insert thm.origin (n+1)
+    else
+      s.counters.thm.insert thm.origin 1
+  }
+
+def saveCases (declName : Name) (eager : Bool) : GrindM Unit := do
+  if (← getConfig).trace then
+    if eager then
+      modify fun s => { s with trace.eagerCases := s.trace.eagerCases.insert declName }
+    else
+      modify fun s => { s with trace.cases := s.trace.cases.insert declName }
+  modify fun s => { s with
+    counters.case := if let some n := s.counters.case.find? declName then
+      s.counters.case.insert declName (n+1)
+    else
+      s.counters.case.insert declName 1
+  }
 
 @[inline] def getMethodsRef : GrindM MethodsRef :=
   read
@@ -133,9 +207,10 @@ Applies hash-consing to `e`. Recall that all expressions in a `grind` goal have
 been hash-consed. We perform this step before we internalize expressions.
 -/
 def shareCommon (e : Expr) : GrindM Expr := do
-  modifyGet fun { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag } =>
-    let (e, scState) := ShareCommon.State.shareCommon scState e
-    (e, { scState, nextThmIdx, congrThms, trueExpr, falseExpr, natZExpr, simpStats, lastTag })
+  let scState ← modifyGet fun s => (s.scState, { s with scState := emptySC })
+  let (e, scState) := ShareCommon.State.shareCommon scState e
+  modify fun s => { s with scState }
+  return e
 
 /-- Returns `true` if `e` is the internalized `True` expression.  -/
 def isTrueExpr (e : Expr) : GrindM Bool :=
@@ -159,6 +234,24 @@ def mkHCongrWithArity (f : Expr) (numArgs : Nat) : GrindM CongrTheorem := do
   let result ← Meta.mkHCongrWithArity f numArgs
   modify fun s => { s with congrThms := s.congrThms.insert key result }
   return result
+
+def reportIssue (msg : MessageData) : GrindM Unit := do
+  let msg ← addMessageContext msg
+  modify fun s => { s with issues := .trace { cls := `issue } msg #[] :: s.issues }
+  /-
+  We also add a trace message because we may want to know when
+  an issue happened relative to other trace messages.
+  -/
+  trace[grind.issues] msg
+
+private def expandReportIssueMacro (s : Syntax) : MacroM (TSyntax `doElem) := do
+  let msg ← if s.getKind == interpolatedStrKind then `(m! $(⟨s⟩)) else `(($(⟨s⟩) : MessageData))
+  `(doElem| do
+    if (← getConfig).verbose then
+      reportIssue $msg)
+
+macro "reportIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
+  expandReportIssueMacro s.raw
 
 /--
 Stores information for a node in the egraph.
@@ -341,6 +434,63 @@ structure Canon.State where
   proofCanon : PHashMap Expr Expr := {}
   deriving Inhabited
 
+/-- Trace information for a case split. -/
+structure CaseTrace where
+  expr : Expr
+  i    : Nat
+  num  : Nat
+  deriving Inhabited
+
+/-- E-matching related fields for the `grind` goal. -/
+structure EMatch.State where
+  /--
+  Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
+  Local theorem provided by users are added directly into `newThms`.
+  -/
+  thmMap       : EMatchTheorems
+  /-- Goal modification time. -/
+  gmt          : Nat := 0
+  /-- Active theorems that we have performed ematching at least once. -/
+  thms         : PArray EMatchTheorem := {}
+  /-- Active theorems that we have not performed any round of ematching yet. -/
+  newThms      : PArray EMatchTheorem := {}
+  /-- Number of theorem instances generated so far -/
+  numInstances : Nat := 0
+  /-- Number of E-matching rounds performed in this goal since the last case-split. -/
+  num          : Nat := 0
+  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
+  preInstances : PreInstanceSet := {}
+  /-- Next local E-match theorem idx. -/
+  nextThmIdx   : Nat := 0
+  /-- `match` auxiliary functions whose equations have already been created and activated. -/
+  matchEqNames : PHashSet Name := {}
+  deriving Inhabited
+
+/-- Case splitting related fields for the `grind` goal. -/
+structure Split.State where
+  /-- Inductive datatypes marked for case-splitting -/
+  casesTypes : CasesTypes := {}
+  /-- Case-split candidates. -/
+  candidates : List Expr := []
+  /-- Number of splits performed to get to this goal. -/
+  num        : Nat := 0
+  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
+  resolved   : PHashSet ENodeKey := {}
+  /--
+  Sequence of cases steps that generated this goal. We only use this information for diagnostics.
+  Remark: `casesTrace.length ≥ numSplits` because we don't increase the counter for `cases`
+  applications that generated only 1 subgoal.
+  -/
+  trace      : List CaseTrace := []
+  deriving Inhabited
+
+/-- Clean name generator. -/
+structure Clean.State where
+  used : PHashSet Name := {}
+  next : PHashMap Name Nat := {}
+  deriving Inhabited
+
+/-- The `grind` goal. -/
 structure Goal where
   mvarId       : MVarId
   canon        : Canon.State := {}
@@ -357,50 +507,22 @@ structure Goal where
   newEqs       : Array NewEq := #[]
   /-- `inconsistent := true` if `ENode`s for `True` and `False` are in the same equivalence class. -/
   inconsistent : Bool := false
-  /-- Goal modification time. -/
-  gmt          : Nat := 0
   /-- Next unique index for creating ENodes -/
   nextIdx      : Nat := 0
-  /-- State of arithmetic procedures -/
-  arith        : Arith.State := {}
-  /-- Inductive datatypes marked for case-splitting -/
-  casesTypes : CasesTypes := {}
-  /-- Active theorems that we have performed ematching at least once. -/
-  thms         : PArray EMatchTheorem := {}
-  /-- Active theorems that we have not performed any round of ematching yet. -/
-  newThms      : PArray EMatchTheorem := {}
-  /--
-  Inactive global theorems. As we internalize terms, we activate theorems as we find their symbols.
-  Local theorem provided by users are added directly into `newThms`.
-  -/
-  thmMap       : EMatchTheorems
-  /-- Number of theorem instances generated so far -/
-  numInstances : Nat := 0
-  /-- Number of E-matching rounds performed in this goal since the last case-split. -/
-  numEmatch    : Nat := 0
-  /-- (pre-)instances found so far. It includes instances that failed to be instantiated. -/
-  preInstances : PreInstanceSet := {}
   /-- new facts to be processed. -/
   newFacts     : Std.Queue NewFact := ∅
-  /-- `match` auxiliary functions whose equations have already been created and activated. -/
-  matchEqNames : PHashSet Name := {}
-  /-- Case-split candidates. -/
-  splitCandidates : List Expr := []
-  /-- Number of splits performed to get to this goal. -/
-  numSplits : Nat := 0
-  /-- Case-splits that have already been performed, or that do not have to be performed anymore. -/
-  resolvedSplits : PHashSet ENodeKey := {}
-  /-- Next local E-match theorem idx. -/
-  nextThmIdx : Nat := 0
   /-- Asserted facts -/
   facts      : PArray Expr := {}
-  /--
-  Issues found during the proof search in this goal. This issues are reported to
-  users when `grind` fails.
-  -/
-  issues     : List MessageData := []
   /-- Cached extensionality theorems for types. -/
   extThms    : PHashMap ENodeKey (Array Ext.ExtTheorem) := {}
+  /-- State of the E-matching module. -/
+  ematch     : EMatch.State
+  /-- State of the case-splitting module. -/
+  split      : Split.State := {}
+  /-- State of arithmetic procedures. -/
+  arith      : Arith.State := {}
+  /-- State of the clean name generator. -/
+  clean      : Clean.State := {}
   deriving Inhabited
 
 def Goal.admit (goal : Goal) : MetaM Unit :=
@@ -421,20 +543,6 @@ def updateLastTag : GoalM Unit := do
       trace[grind] "working on goal `{currTag}`"
       modifyThe Grind.State fun s => { s with lastTag := currTag }
 
-def Goal.reportIssue (goal : Goal) (msg : MessageData) : MetaM Goal := do
-  let msg ← addMessageContext msg
-  let goal := { goal with issues := .trace { cls := `issue } msg #[] :: goal.issues }
-  /-
-  We also add a trace message because we may want to know when
-  an issue happened relative to other trace messages.
-  -/
-  trace[grind.issues] msg
-  return goal
-
-def reportIssue (msg : MessageData) : GoalM Unit := do
-  let goal ← (← get).reportIssue msg
-  set goal
-
 /--
 Macro similar to `trace[...]`, but it includes the trace message `trace[grind] "working on <current goal>"`
 if the tag has changed since the last trace message.
@@ -453,31 +561,35 @@ It returns `true` if it is a new instance and `false` otherwise.
 -/
 def markTheoremInstance (proof : Expr) (assignment : Array Expr) : GoalM Bool := do
   let k := { proof, assignment }
-  if (← get).preInstances.contains k then
+  if (← get).ematch.preInstances.contains k then
     return false
-  modify fun s => { s with preInstances := s.preInstances.insert k }
+  modify fun s => { s with ematch.preInstances := s.ematch.preInstances.insert k }
   return true
 
 /-- Adds a new fact `prop` with proof `proof` to the queue for processing. -/
 def addNewFact (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  if grind.debug.get (← getOptions) then
+    unless (← withReducible <| isDefEq (← inferType proof) prop) do
+      throwError "`grind` internal error, trying to assert{indentExpr prop}\nwith proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\nwhich is not definitionally equal with `reducible` transparency setting}"
   modify fun s => { s with newFacts := s.newFacts.enqueue { proof, prop, generation } }
 
 /-- Adds a new theorem instance produced using E-matching. -/
-def addTheoremInstance (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+def addTheoremInstance (thm : EMatchTheorem) (proof : Expr) (prop : Expr) (generation : Nat) : GoalM Unit := do
+  saveEMatchTheorem thm
   addNewFact proof prop generation
-  modify fun s => { s with numInstances := s.numInstances + 1 }
+  modify fun s => { s with ematch.numInstances := s.ematch.numInstances + 1 }
 
 /-- Returns `true` if the maximum number of instances has been reached. -/
 def checkMaxInstancesExceeded : GoalM Bool := do
-  return (← get).numInstances >= (← getConfig).instances
+  return (← get).ematch.numInstances >= (← getConfig).instances
 
 /-- Returns `true` if the maximum number of case-splits has been reached. -/
 def checkMaxCaseSplit : GoalM Bool := do
-  return (← get).numSplits >= (← getConfig).splits
+  return (← get).split.num >= (← getConfig).splits
 
 /-- Returns `true` if the maximum number of E-matching rounds has been reached. -/
 def checkMaxEmatchExceeded : GoalM Bool := do
-  return (← get).numEmatch >= (← getConfig).ematch
+  return (← get).ematch.num >= (← getConfig).ematch
 
 /--
 Returns `some n` if `e` has already been "internalized" into the
@@ -510,13 +622,19 @@ def getGeneration (e : Expr) : GoalM Nat := do
 
 /-- Returns `true` if `e` is in the equivalence class of `True`. -/
 def isEqTrue (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getTrueExpr)
+  return isSameExpr (← getENode e).root (← getTrueExpr)
 
 /-- Returns `true` if `e` is in the equivalence class of `False`. -/
 def isEqFalse (e : Expr) : GoalM Bool := do
-  let n ← getENode e
-  return isSameExpr n.root (← getFalseExpr)
+  return isSameExpr (← getENode e).root (← getFalseExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.true`. -/
+def isEqBoolTrue (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolTrueExpr)
+
+/-- Returns `true` if `e` is in the equivalence class of `Bool.false`. -/
+def isEqBoolFalse (e : Expr) : GoalM Bool := do
+  return isSameExpr (← getENode e).root (← getBoolFalseExpr)
 
 /-- Returns `true` if `a` and `b` are in the same equivalence class. -/
 def isEqv (a b : Expr) : GoalM Bool := do
@@ -589,7 +707,13 @@ def Goal.getTarget? (goal : Goal) (e : Expr) : Option Expr := Id.run do
 If `isHEq` is `false`, it pushes `lhs = rhs` with `proof` to `newEqs`.
 Otherwise, it pushes `HEq lhs rhs`.
 -/
-def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit :=
+def pushEqCore (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit := do
+  if grind.debug.get (← getOptions) then
+    unless proof == congrPlaceholderProof do
+      let expectedType ← if isHEq then mkHEq lhs rhs else mkEq lhs rhs
+      unless (← withReducible <| isDefEq (← inferType proof) expectedType) do
+        throwError "`grind` internal error, trying to assert equality{indentExpr expectedType}\nwith proof{indentExpr proof}\nwhich has type{indentExpr (← inferType proof)}\nwhich is not definitionally equal with `reducible` transparency setting}"
+      trace[grind.debug] "pushEqCore: {expectedType}"
   modify fun s => { s with newEqs := s.newEqs.push { lhs, rhs, proof, isHEq } }
 
 /-- Return `true` if `a` and `b` have the same type. -/
@@ -617,6 +741,14 @@ def pushEqTrue (a proof : Expr) : GoalM Unit := do
 /-- Pushes `a = False` with `proof` to `newEqs`. -/
 def pushEqFalse (a proof : Expr) : GoalM Unit := do
   pushEq a (← getFalseExpr) proof
+
+/-- Pushes `a = Bool.true` with `proof` to `newEqs`. -/
+def pushEqBoolTrue (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolTrueExpr) proof
+
+/-- Pushes `a = Bool.false` with `proof` to `newEqs`. -/
+def pushEqBoolFalse (a proof : Expr) : GoalM Unit := do
+  pushEq a (← getBoolFalseExpr) proof
 
 /--
 Records that `parent` is a parent of `child`. This function actually stores the
@@ -664,7 +796,7 @@ def mkENodeCore (e : Expr) (interpreted ctor : Bool) (generation : Nat) : GoalM 
     flipped := false
     heqProofs := false
     hasLambdas := e.isLambda
-    mt := (← get).gmt
+    mt := (← get).ematch.gmt
     idx := (← get).nextIdx
     interpreted, ctor, generation
   }
@@ -745,6 +877,14 @@ It assumes `a` and `b` are in the same equivalence class.
 @[extern "lean_grind_mk_heq_proof"]
 opaque mkHEqProof (a b : Expr) : GoalM Expr
 
+-- Forward definition
+@[extern "lean_grind_internalize"]
+opaque internalize (e : Expr) (generation : Nat) (parent? : Option Expr := none) : GoalM Unit
+
+-- Forward definition
+@[extern "lean_grind_process_new_eqs"]
+opaque processNewEqs : GoalM Unit
+
 /--
 Returns a proof that `a = b` if they have the same type. Otherwise, returns a proof of `HEq a b`.
 It assumes `a` and `b` are in the same equivalence class.
@@ -768,6 +908,20 @@ It assumes `a` and `False` are in the same equivalence class.
 -/
 def mkEqFalseProof (a : Expr) : GoalM Expr := do
   mkEqProof a (← getFalseExpr)
+
+/--
+Returns a proof that `a = Bool.true`.
+It assumes `a` and `Bool.true` are in the same equivalence class.
+-/
+def mkEqBoolTrueProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolTrueExpr)
+
+/--
+Returns a proof that `a = Bool.false`.
+It assumes `a` and `Bool.false` are in the same equivalence class.
+-/
+def mkEqBoolFalseProof (a : Expr) : GoalM Expr := do
+  mkEqProof a (← getBoolFalseExpr)
 
 /-- Marks current goal as inconsistent without assigning `mvarId`. -/
 def markAsInconsistent : GoalM Unit := do
@@ -896,7 +1050,7 @@ def getEqcs : GoalM (List (List Expr)) :=
 
 /-- Returns `true` if `e` is a case-split that does not need to be performed anymore. -/
 def isResolvedCaseSplit (e : Expr) : GoalM Bool :=
-  return (← get).resolvedSplits.contains { expr := e }
+  return (← get).split.resolved.contains { expr := e }
 
 /--
 Mark `e` as a case-split that does not need to be performed anymore.
@@ -906,7 +1060,7 @@ Remark: we also use this feature to record the case-splits that have already bee
 def markCaseSplitAsResolved (e : Expr) : GoalM Unit := do
   unless (← isResolvedCaseSplit e) do
     trace_goal[grind.split.resolved] "{e}"
-    modify fun s => { s with resolvedSplits := s.resolvedSplits.insert { expr := e } }
+    modify fun s => { s with split.resolved := s.split.resolved.insert { expr := e } }
 
 /--
 Returns extensionality theorems for the given type if available.

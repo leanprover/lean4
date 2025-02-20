@@ -76,7 +76,6 @@ uint8_t l_Lean_Name_isAnonymous(lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__26___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__10(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*);
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_760____closed__21;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__7___closed__1;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -227,6 +226,7 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_Raw_u2080_expand___at___private
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__10;
 static lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedDef___lambda__1___closed__2;
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__10___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__16___rarg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__26(lean_object*);
@@ -253,6 +253,7 @@ LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_KeyedDeclsAttribute_init___sp
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__5(lean_object*);
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_760____closed__4;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__4;
+lean_object* l_Array_idxOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_set(lean_object*, lean_object*, lean_object*);
 uint64_t l_Lean_Name_hash___override(lean_object*);
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_760____closed__16;
@@ -269,7 +270,6 @@ static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_760____closed
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_PersistentHashMap_isEmpty___at_Lean_KeyedDeclsAttribute_getEntries___spec__8(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_mkStateOfTable___rarg(lean_object*);
-lean_object* l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__3___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Lean_throwError___at_Lean_KeyedDeclsAttribute_init___spec__3___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_ScopedEnvExtension_addCore___rarg(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*);
@@ -311,6 +311,7 @@ lean_object* lean_array_get_size(lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__3___rarg___closed__2;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__3;
 static lean_object* l___auto____x40_Lean_KeyedDeclsAttribute___hyg_760____closed__5;
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_instInhabitedExtensionState(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -332,7 +333,6 @@ LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at_Lean_Key
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ScopedEnvExtension_add___at_Lean_KeyedDeclsAttribute_init___spec__4___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at___private_Lean_KeyedDeclsAttribute_0__Lean_KeyedDeclsAttribute_Table_insert___spec__2___rarg___boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___closed__5;
 static lean_object* l_Lean_KeyedDeclsAttribute_init___rarg___lambda__9___closed__2;
@@ -3694,7 +3694,7 @@ lean_inc(x_63);
 x_64 = lean_ctor_get(x_1, 1);
 lean_inc(x_64);
 x_65 = lean_unsigned_to_nat(0u);
-x_66 = l_Array_indexOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(x_63, x_3, x_65);
+x_66 = l_Array_idxOfAux___at_Lean_MetavarContext_setMVarUserName___spec__3(x_63, x_3, x_65);
 if (lean_obj_tag(x_66) == 0)
 {
 lean_dec(x_64);
@@ -5489,6 +5489,7 @@ else
 {
 uint8_t x_68; 
 lean_dec(x_3);
+lean_dec(x_1);
 x_68 = !lean_is_exclusive(x_14);
 if (x_68 == 0)
 {
@@ -6342,7 +6343,6 @@ lean_object* x_8;
 x_8 = l_Lean_KeyedDeclsAttribute_init___rarg___lambda__7(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
 lean_dec(x_6);
 lean_dec(x_5);
-lean_dec(x_1);
 return x_8;
 }
 }

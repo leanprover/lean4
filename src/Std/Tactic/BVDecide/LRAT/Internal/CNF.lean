@@ -112,7 +112,7 @@ theorem limplies_insert [Clause α β] [Entails α σ] [Formula α β σ] {c : �
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro h c' c'_in_f
   have c'_in_fc : c' ∈ toList (insert f c) := by
-    simp only [insert_iff, Array.toList_toArray, List.mem_singleton]
+    simp only [insert_iff, List.toList_toArray, List.mem_singleton]
     exact Or.inr c'_in_f
   exact h c' c'_in_fc
 

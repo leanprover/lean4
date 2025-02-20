@@ -18,6 +18,7 @@ structure LeanPaths where
   oleanPath       : SearchPath
   srcPath         : SearchPath
   loadDynlibPaths : Array FilePath := #[]
+  pluginPaths     : Array FilePath := #[]
   deriving ToJson, FromJson
 
 def initSrcSearchPath (pkgSearchPath : SearchPath := ∅) : IO SearchPath := do

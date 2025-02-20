@@ -11,6 +11,9 @@ import Init.Data.Fin.Fold
 # Theorems about `List.ofFn`
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /--
@@ -67,6 +70,15 @@ theorem ofFn_succ {n} (f : Fin (n + 1) → α) : ofFn f = f 0 :: ofFn fun i => f
 @[simp]
 theorem ofFn_eq_nil_iff {f : Fin n → α} : ofFn f = [] ↔ n = 0 := by
   cases n <;> simp only [ofFn_zero, ofFn_succ, eq_self_iff_true, Nat.succ_ne_zero, reduceCtorEq]
+
+@[simp 500]
+theorem mem_ofFn {n} (f : Fin n → α) (a : α) : a ∈ ofFn f ↔ ∃ i, f i = a := by
+  constructor
+  · intro w
+    obtain ⟨i, h, rfl⟩ := getElem_of_mem w
+    exact ⟨⟨i, by simpa using h⟩, by simp⟩
+  · rintro ⟨i, rfl⟩
+    apply mem_of_getElem (i := i) <;> simp
 
 theorem head_ofFn {n} (f : Fin n → α) (h : ofFn f ≠ []) :
     (ofFn f).head h = f ⟨0, Nat.pos_of_ne_zero (mt ofFn_eq_nil_iff.2 h)⟩ := by

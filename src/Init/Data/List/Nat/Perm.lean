@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Perm
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 /-- Helper lemma for `set_set_perm`-/

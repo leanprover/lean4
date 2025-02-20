@@ -299,13 +299,7 @@ def simpConst (e : Expr) : SimpM Result :=
 def simpLambda (e : Expr) : SimpM Result :=
   withParent e <| lambdaTelescopeDSimp e fun xs e => withNewLemmas xs do
     let r ← simp e
-    let eNew ← mkLambdaFVars xs r.expr
-    match r.proof? with
-    | none   => return { expr := eNew }
-    | some h =>
-      let p ← xs.foldrM (init := h) fun x h => do
-        mkFunExt (← mkLambdaFVars #[x] h)
-      return { expr := eNew, proof? := p }
+    r.addLambdas xs
 
 def simpArrow (e : Expr) : SimpM Result := do
   trace[Debug.Meta.Tactic.simp] "arrow {e}"
@@ -465,7 +459,7 @@ private partial def dsimpImpl (e : Expr) : SimpM Expr := do
   let pre := m.dpre >> doNotVisitOfNat >> doNotVisitOfScientific >> doNotVisitCharLit
   let post := m.dpost >> dsimpReduce
   withInDSimp do
-  transform (usedLetOnly := cfg.zeta) e (pre := pre) (post := post)
+  transform (usedLetOnly := cfg.zeta || cfg.zetaUnused) e (pre := pre) (post := post)
 
 def visitFn (e : Expr) : SimpM Result := do
   let f := e.getAppFn
@@ -489,8 +483,8 @@ def congrDefault (e : Expr) : SimpM Result := do
       congrArgs (← simp f) args
 
 /-- Process the given congruence theorem hypothesis. Return true if it made "progress". -/
-def processCongrHypothesis (h : Expr) : SimpM Bool := do
-  forallTelescopeReducing (← inferType h) fun xs hType => withNewLemmas xs do
+def processCongrHypothesis (h : Expr) (hType : Expr) : SimpM Bool := do
+  forallTelescopeReducing hType fun xs hType => withNewLemmas xs do
     let lhs ← instantiateMVars hType.appFn!.appArg!
     let r ← simp lhs
     let rhs := hType.appArg!
@@ -527,7 +521,9 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
   recordCongrTheorem c.theoremName
   trace[Debug.Meta.Tactic.simp.congr] "{c.theoremName}, {e}"
   let thm ← mkConstWithFreshMVarLevels c.theoremName
-  let (xs, bis, type) ← forallMetaTelescopeReducing (← inferType thm)
+  let thmType ← inferType thm
+  let thmHasBinderNameHint := thmType.hasBinderNameHint
+  let (xs, bis, type) ← forallMetaTelescopeReducing thmType
   if c.hypothesesPos.any (· ≥ xs.size) then
     return none
   let isIff := type.isAppOf ``Iff
@@ -543,12 +539,14 @@ def trySimpCongrTheorem? (c : SimpCongrTheorem) (e : Expr) : SimpM (Option Resul
   if (← withSimpMetaConfig <| isDefEq lhs e) then
     let mut modified := false
     for i in c.hypothesesPos do
-      let x := xs[i]!
+      let h := xs[i]!
+      let hType ← instantiateMVars (← inferType h)
+      let hType ← if thmHasBinderNameHint then hType.resolveBinderNameHint else pure hType
       try
-        if (← processCongrHypothesis x) then
+        if (← processCongrHypothesis h hType) then
           modified := true
       catch _ =>
-        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {← inferType x}"
+        trace[Meta.Tactic.simp.congr] "processCongrHypothesis {c.theoremName} failed {hType}"
         -- Remark: we don't need to check ex.isMaxRecDepth anymore since `try .. catch ..`
         -- does not catch runtime exceptions by default.
         return none
@@ -623,6 +621,7 @@ It attempts to minimize the quadratic overhead imposed by
 the locally nameless discipline.
 -/
 partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
+  let cfg ← getConfig
   let rec go (xs : Array Expr) (e : Expr) : SimpM SimpLetFunResult := do
     /-
     Helper function applied when `e` is not a `let_fun` or
@@ -648,9 +647,9 @@ partial def simpNonDepLetFun (e : Expr) : SimpM Result := do
     -/
     if alpha.hasLooseBVars || !betaFun.isLambda || !body.isLambda || betaFun.bindingBody!.hasLooseBVars then
       stop
-    else if !body.bindingBody!.hasLooseBVar 0 then
+    else if (cfg.zeta || cfg.zetaUnused) && !body.bindingBody!.hasLooseBVar 0 then
       /-
-      Redundant `let_fun`. The simplifier will remove it.
+      Redundant `let_fun`. The simplifier will remove it when `zetaUnused := true`.
       Remark: the `hasLooseBVar` check here may introduce a quadratic overhead in the worst case.
       If observe that in practice, we may use a separate step for removing unused variables.
 

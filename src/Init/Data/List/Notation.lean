@@ -11,6 +11,9 @@ import Init.Data.Nat.Div.Basic
 -/
 
 set_option linter.missingDocs true -- keep it documented
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Decidable List
 
 /--
@@ -25,6 +28,9 @@ Note that this changes the order of evaluation, although it should not be observ
 unless you use side effecting operations like `dbg_trace`.
 -/
 syntax "[" withoutPosition(term,*,?) "]"  : term
+
+recommended_spelling "nil" for "[]" in [List.nil, «term[_]»]
+recommended_spelling "singleton" for "[a]" in [List.cons, «term[_]»]
 
 /--
 Auxiliary syntax for implementing `[$elem,*]` list literal syntax.
@@ -43,7 +49,7 @@ macro_rules
       match i, skip with
       | 0,   _     => pure result
       | i+1, true  => expandListLit i false result
-      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get! i⟩) $result))
+      | i+1, false => expandListLit i true  (← ``(List.cons $(⟨elems.elemsAndSeps.get!Internal i⟩) $result))
     let size := elems.elemsAndSeps.size
     if size < 64 then
       expandListLit size (size % 2 == 0) (← ``(List.nil))

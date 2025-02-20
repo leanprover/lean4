@@ -160,5 +160,111 @@ builtin_simproc [bv_normalize] bv_udiv_of_two_pow (((_ : BitVec _) / (BitVec.ofN
       proof? := some proof
   }
 
+builtin_simproc [bv_normalize] bv_equal_const_not (~~~(_ : BitVec _) == (_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α inst outerLhs rhs := e | return .continue
+    let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
+    let_expr Complement.complement _ _ lhs := outerLhs | return .continue
+    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst lhs (toExpr (~~~rhsVal))
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm)
+        (toExpr w)
+        lhs
+        rhs
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_equal_const_not' ((_ : BitVec _) == ~~~(_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α inst lhs outerRhs := e | return .continue
+    let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
+    let_expr Complement.complement _ _ rhs := outerRhs | return .continue
+    let expr := mkApp4 (mkConst ``BEq.beq [0]) α inst rhs (toExpr (~~~lhsVal))
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.not_eq_comm')
+        (toExpr w)
+        lhs
+        rhs
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_and_eq_allOnes ((_ : BitVec _) &&& (_ : BitVec _) == (_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α instBEq outerLhs rhs := e | return .continue
+    let some ⟨w, rhsVal⟩ ← getBitVecValue? rhs | return .continue
+    if -1#w != rhsVal then return .continue
+    let_expr HAnd.hAnd _ _ _ _ llhs lrhs := outerLhs | return .continue
+    let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq llhs rhs
+    let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq lrhs rhs
+    let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.and_eq_allOnes)
+        (toExpr w)
+        llhs
+        lrhs
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_allOnes_eq_and ((_ : BitVec _) == (_ : BitVec _) &&& (_ : BitVec _)) :=
+  fun e => do
+    let_expr BEq.beq α instBEq lhs outerRhs := e | return .continue
+    let some ⟨w, lhsVal⟩ ← getBitVecValue? lhs | return .continue
+    if -1#w != lhsVal then return .continue
+    let_expr HAnd.hAnd _ _ _ _ rlhs rrhs := outerRhs | return .continue
+    let newLhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rlhs lhs
+    let newRhs := mkApp4 (mkConst ``BEq.beq [0]) α instBEq rrhs lhs
+    let expr := mkApp2 (mkConst ``Bool.and) newLhs newRhs
+    let proof :=
+      mkApp3 (mkConst ``Std.Tactic.BVDecide.Frontend.Normalize.BitVec.allOnes_eq_and)
+        (toExpr w)
+        rlhs
+        rrhs
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_extractLsb'_not (BitVec.extractLsb' _ _ (~~~(_ : BitVec _))) :=
+  fun e => do
+    let_expr BitVec.extractLsb' initialWidth start len inner := e | return .continue
+    let some initialWidthVal ← getNatValue? initialWidth | return .continue
+    let some startVal ← getNatValue? start | return .continue
+    let some lenVal ← getNatValue? len | return .continue
+    if !(startVal + lenVal) < initialWidthVal then return .continue
+    let_expr Complement.complement _ _ inner := inner | return .continue
+    let newInner := mkApp4 (mkConst ``BitVec.extractLsb') initialWidth start len inner
+    let expr ← mkAppM ``Complement.complement #[newInner]
+    let lt ← mkDecideProof (← mkAppM ``LT.lt #[(← mkAppM ``HAdd.hAdd #[start, len]), initialWidth])
+    let proof := mkApp5 (mkConst ``BitVec.extractLsb'_not_of_lt) initialWidth inner start len lt
+    return .visit { expr := expr, proof? := some proof }
+
+def isTwoPow (x : BitVec w) : Option Nat :=
+  if x == 0#w then
+    none
+  else
+    go x 0
+where
+  go {w : Nat} (x : BitVec w) (counter : Nat) : Option Nat :=
+    if counter < w then
+      let attempt := 1#w <<< counter
+      if attempt == x then
+        some counter
+      else
+        go x (counter + 1)
+    else
+      none
+
+builtin_simproc [bv_normalize] bv_twoPow_mul ((BitVec.ofNat _ _) * (_ : BitVec _)) :=
+  fun e => do
+    let_expr HMul.hMul _ _ _ _ lhsExpr rhs := e | return .continue
+    let some ⟨w, lhs⟩ ← getBitVecValue? lhsExpr | return .continue
+    let some pow := isTwoPow lhs | return .continue
+    let expr ← mkAppM ``HShiftLeft.hShiftLeft #[rhs, toExpr pow]
+    let proof := mkApp3 (mkConst ``BitVec.twoPow_mul_eq_shiftLeft) (toExpr w) rhs (toExpr pow)
+    return .visit { expr := expr, proof? := some proof }
+
+builtin_simproc [bv_normalize] bv_mul_twoPow ((_ : BitVec _) * (BitVec.ofNat _ _)) :=
+  fun e => do
+    let_expr HMul.hMul _ _ _ _ lhs rhsExpr := e | return .continue
+    let some ⟨w, rhs⟩ ← getBitVecValue? rhsExpr | return .continue
+    let some pow := isTwoPow rhs | return .continue
+    let expr ← mkAppM ``HShiftLeft.hShiftLeft #[lhs, toExpr pow]
+    let proof := mkApp3 (mkConst ``BitVec.mul_twoPow_eq_shiftLeft) (toExpr w) lhs (toExpr pow)
+    return .visit { expr := expr, proof? := some proof }
+
 end Frontend.Normalize
 end Lean.Elab.Tactic.BVDecide

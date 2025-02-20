@@ -80,7 +80,7 @@ partial def merge (v1 v2 : Value) : Value :=
   | top, _ | _, top => top
   | ctor i1 vs1, ctor i2 vs2 =>
     if i1 == i2 then
-      ctor i1 (vs1.zipWith vs2 merge)
+      ctor i1 (Array.zipWith merge vs1 vs2)
     else
       choice [v1, v2]
   | choice vs1, choice vs2 =>
@@ -248,6 +248,7 @@ builtin_initialize functionSummariesExt : SimplePersistentEnvExtension (Name × 
     addImportedFn := fun _ => {}
     addEntryFn := fun s ⟨e, n⟩ => s.insert e n
     toArrayFn := fun s => s.toArray.qsort decLt
+    asyncMode := .sync  -- compilation is non-parallel anyway
   }
 
 /--

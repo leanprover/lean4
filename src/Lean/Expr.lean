@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Init.Data.Hashable
+import Init.Data.Int
 import Lean.Data.KVMap
 import Lean.Data.SMap
 import Lean.Level
@@ -508,7 +509,11 @@ with
         (t.data.hasLevelMVar || v.data.hasLevelMVar || b.data.hasLevelMVar)
         (t.data.hasLevelParam || v.data.hasLevelParam || b.data.hasLevelParam)
     | .lit l => mkData (mixHash 3 (hash l))
-deriving Inhabited, Repr
+deriving Repr
+
+instance : Inhabited Expr where
+  -- use a distinctive name to aid debugging
+  default := .const `_inhabitedExprDummy []
 
 namespace Expr
 
@@ -746,7 +751,7 @@ def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
-  if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
+  if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -966,6 +971,10 @@ def bvarIdx! : Expr → Nat
 def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
+
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
 
 def mvarId! : Expr → MVarId
   | mvar n => n
@@ -1462,7 +1471,7 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : E
   if i == start then b
   else
     let i := i - 1
-    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
+    mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
@@ -2140,16 +2149,13 @@ def mkInstLE : Expr := mkConst ``instLENat
 end Nat
 
 private def natAddFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) nat nat nat Nat.mkInstHAdd
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHAdd
 
 private def natSubFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) nat nat nat Nat.mkInstHSub
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHSub
 
 private def natMulFn : Expr :=
-  let nat := mkConst ``Nat
-  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) nat nat nat Nat.mkInstHMul
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Nat.mkType Nat.mkType Nat.mkType Nat.mkInstHMul
 
 /-- Given `a : Nat`, returns `Nat.succ a` -/
 def mkNatSucc (a : Expr) : Expr :=
@@ -2168,17 +2174,105 @@ def mkNatMul (a b : Expr) : Expr :=
   mkApp2 natMulFn a b
 
 private def natLEPred : Expr :=
-  mkApp2 (mkConst ``LE.le [0]) (mkConst ``Nat) Nat.mkInstLE
+  mkApp2 (mkConst ``LE.le [0]) Nat.mkType Nat.mkInstLE
 
 /-- Given `a b : Nat`, return `a ≤ b` -/
 def mkNatLE (a b : Expr) : Expr :=
   mkApp2 natLEPred a b
 
 private def natEqPred : Expr :=
-  mkApp (mkConst ``Eq [1]) (mkConst ``Nat)
+  mkApp (mkConst ``Eq [1]) Nat.mkType
 
 /-- Given `a b : Nat`, return `a = b` -/
 def mkNatEq (a b : Expr) : Expr :=
   mkApp2 natEqPred a b
+
+/-! Constants for Int typeclasses. -/
+namespace Int
+
+protected def mkType : Expr := mkConst ``Int
+
+def mkInstNeg : Expr := mkConst ``Int.instNegInt
+
+def mkInstAdd : Expr := mkConst ``Int.instAdd
+def mkInstHAdd : Expr := mkApp2 (mkConst ``instHAdd [levelZero]) Int.mkType mkInstAdd
+
+def mkInstSub : Expr := mkConst ``Int.instSub
+def mkInstHSub : Expr := mkApp2 (mkConst ``instHSub [levelZero]) Int.mkType mkInstSub
+
+def mkInstMul : Expr := mkConst ``Int.instMul
+def mkInstHMul : Expr := mkApp2 (mkConst ``instHMul [levelZero]) Int.mkType mkInstMul
+
+def mkInstDiv : Expr := mkConst ``Int.instDiv
+def mkInstHDiv : Expr := mkApp2 (mkConst ``instHDiv [levelZero]) Int.mkType mkInstDiv
+
+def mkInstMod : Expr := mkConst ``Int.instMod
+def mkInstHMod : Expr := mkApp2 (mkConst ``instHMod [levelZero]) Int.mkType mkInstMod
+
+def mkInstPow : Expr := mkConst ``Int.instNatPow
+def mkInstPowNat  : Expr := mkApp2 (mkConst ``instPowNat [levelZero]) Int.mkType mkInstPow
+def mkInstHPow : Expr := mkApp3 (mkConst ``instHPow [levelZero, levelZero]) Int.mkType Nat.mkType mkInstPowNat
+
+def mkInstLT : Expr := mkConst ``Int.instLTInt
+def mkInstLE : Expr := mkConst ``Int.instLEInt
+
+end Int
+
+private def intNegFn : Expr :=
+  mkApp2 (mkConst ``Neg.neg [0]) Int.mkType Int.mkInstNeg
+
+private def intAddFn : Expr :=
+  mkApp4 (mkConst ``HAdd.hAdd [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHAdd
+
+private def intSubFn : Expr :=
+  mkApp4 (mkConst ``HSub.hSub [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHSub
+
+private def intMulFn : Expr :=
+  mkApp4 (mkConst ``HMul.hMul [0, 0, 0]) Int.mkType Int.mkType Int.mkType Int.mkInstHMul
+
+/-- Given `a : Int`, returns `- a` -/
+def mkIntNeg (a : Expr) : Expr :=
+  mkApp intNegFn a
+
+/-- Given `a b : Int`, returns `a + b` -/
+def mkIntAdd (a b : Expr) : Expr :=
+  mkApp2 intAddFn a b
+
+/-- Given `a b : Int`, returns `a - b` -/
+def mkIntSub (a b : Expr) : Expr :=
+  mkApp2 intSubFn a b
+
+/-- Given `a b : Int`, returns `a * b` -/
+def mkIntMul (a b : Expr) : Expr :=
+  mkApp2 intMulFn a b
+
+private def intLEPred : Expr :=
+  mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
+
+/-- Given `a b : Int`, returns `a ≤ b` -/
+def mkIntLE (a b : Expr) : Expr :=
+  mkApp2 intLEPred a b
+
+private def intEqPred : Expr :=
+  mkApp (mkConst ``Eq [1]) Int.mkType
+
+/-- Given `a b : Int`, returns `a = b` -/
+def mkIntEq (a b : Expr) : Expr :=
+  mkApp2 intEqPred a b
+
+/-- Given `a b : Int`, returns `a ∣ b` -/
+def mkIntDvd (a b : Expr) : Expr :=
+  mkApp4 (mkConst ``Dvd.dvd [0]) Int.mkType (mkConst ``Int.instDvd) a b
+
+def mkIntLit (n : Int) : Expr :=
+  let r := mkRawNatLit n.natAbs
+  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  if n < 0 then
+    mkIntNeg r
+  else
+    r
+
+def reflBoolTrue : Expr :=
+  mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)
 
 end Lean

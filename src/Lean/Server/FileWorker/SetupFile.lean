@@ -9,6 +9,7 @@ import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
+import Lean.Server.ServerTask
 
 namespace Lean.Server.FileWorker
 
@@ -45,7 +46,7 @@ partial def runLakeSetupFile
     else
       handleStderr line
       processStderr (acc ++ line)
-  let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
+  let stderr ← ServerTask.IO.asTask (processStderr "")
 
   let stdout := String.trim (← lakeProc.stdout.readToEnd)
   let stderr ← IO.ofExcept stderr.get
@@ -71,30 +72,35 @@ structure FileSetupResult where
   srcSearchPath : SearchPath
   /-- Additional options from successful setup, or else empty. -/
   fileOptions   : Options
+  /-- Lean plugins from successful setup, or else empty. -/
+  plugins       : Array System.FilePath
 
 def FileSetupResult.ofSuccess (pkgSearchPath : SearchPath) (fileOptions : Options)
-    : IO FileSetupResult := do return {
+    (plugins : Array System.FilePath) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.success
   srcSearchPath := ← initSrcSearchPath pkgSearchPath,
-  fileOptions
+  fileOptions, plugins
 }
 
 def FileSetupResult.ofNoLakefile : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.noLakefile
   srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
+  plugins       := #[]
 }
 
 def FileSetupResult.ofImportsOutOfDate : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.importsOutOfDate
   srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
+  plugins       := #[]
 }
 
 def FileSetupResult.ofError (msg : String) : IO FileSetupResult := do return {
   kind          := FileSetupResultKind.error msg
   srcSearchPath := ← initSrcSearchPath
   fileOptions   := Options.empty
+  plugins       := #[]
 }
 
 /-- Uses `lake setup-file` to compile dependencies on the fly and add them to `LEAN_PATH`.
@@ -124,7 +130,8 @@ partial def setupFile (m : DocumentMeta) (imports : Array Import) (handleStderr 
     initSearchPath (← getBuildDir) info.paths.oleanPath
     info.paths.loadDynlibPaths.forM loadDynlib
     let pkgSearchPath ← info.paths.srcPath.mapM realPathNormalized
-    FileSetupResult.ofSuccess pkgSearchPath info.setupOptions.toOptions
+    let pluginPaths ← info.paths.pluginPaths.mapM realPathNormalized
+    FileSetupResult.ofSuccess pkgSearchPath info.setupOptions.toOptions pluginPaths
   | 2 => -- exit code for lake reporting that there is no lakefile
     FileSetupResult.ofNoLakefile
   | 3 => -- exit code for `--no-build`

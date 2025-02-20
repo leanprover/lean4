@@ -57,7 +57,6 @@ static lean_object* l_Lake_Package_loadFromEnv___closed__1;
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* l_Lake_Workspace_addModuleFacetConfig(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Array_mapMUnsafe_map___at_Lake_Package_loadFromEnv___spec__19___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_PackageConfig_loadFromEnv___lambda__1___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_Package_loadFromEnv___lambda__1___closed__1;
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*);
@@ -158,6 +157,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_loadFromEnv___lambda__1(lean_object*, le
 static lean_object* l_Lake_PackageConfig_loadFromEnv___closed__2;
 extern lean_object* l_Lake_lintDriverAttr;
 static lean_object* l_Lake_Package_loadFromEnv___closed__6;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_RBNode_insert___at_Lake_mkTagMap___spec__1(lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_Package_loadFromEnv___spec__24___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Workspace_addPackageFacetConfig(lean_object*, lean_object*, lean_object*);
@@ -23838,15 +23838,15 @@ LEAN_EXPORT lean_object* l_Lake_Workspace_addFacetsFromEnv(lean_object* x_1, lea
 _start:
 {
 lean_object* x_4; lean_object* x_5; lean_object* x_6; size_t x_7; size_t x_8; lean_object* x_9; 
-x_4 = l_Lake_Workspace_addFacetsFromEnv___closed__1;
+x_4 = lean_box(0);
+x_5 = l_Lake_Workspace_addFacetsFromEnv___closed__1;
 lean_inc(x_1);
-x_5 = l_Lake_OrderedTagAttribute_getAllEntries(x_4, x_1);
-x_6 = lean_box(0);
-x_7 = lean_array_size(x_5);
+x_6 = l_Lake_OrderedTagAttribute_getAllEntries(x_5, x_1);
+x_7 = lean_array_size(x_6);
 x_8 = 0;
 lean_inc(x_1);
-x_9 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__1(x_1, x_2, x_5, x_6, x_5, x_7, x_8, x_3);
-lean_dec(x_5);
+x_9 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__1(x_1, x_2, x_4, x_6, x_6, x_7, x_8, x_3);
+lean_dec(x_6);
 if (lean_obj_tag(x_9) == 0)
 {
 uint8_t x_10; 
@@ -23878,7 +23878,7 @@ lean_inc(x_1);
 x_15 = l_Lake_OrderedTagAttribute_getAllEntries(x_14, x_1);
 x_16 = lean_array_size(x_15);
 lean_inc(x_1);
-x_17 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__2(x_1, x_2, x_6, x_15, x_15, x_16, x_8, x_13);
+x_17 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__2(x_1, x_2, x_4, x_15, x_15, x_16, x_8, x_13);
 lean_dec(x_15);
 if (lean_obj_tag(x_17) == 0)
 {
@@ -23910,7 +23910,7 @@ x_22 = l_Lake_Workspace_addFacetsFromEnv___closed__3;
 lean_inc(x_1);
 x_23 = l_Lake_OrderedTagAttribute_getAllEntries(x_22, x_1);
 x_24 = lean_array_size(x_23);
-x_25 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__3(x_1, x_2, x_6, x_23, x_23, x_24, x_8, x_21);
+x_25 = l_Array_forIn_x27Unsafe_loop___at_Lake_Workspace_addFacetsFromEnv___spec__3(x_1, x_2, x_4, x_23, x_23, x_24, x_8, x_21);
 lean_dec(x_23);
 if (lean_obj_tag(x_25) == 0)
 {

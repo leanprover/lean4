@@ -478,6 +478,10 @@ def isCtor : ConstantInfo → Bool
   | .ctorInfo _ => true
   | _           => false
 
+def isAxiom : ConstantInfo → Bool
+  | .axiomInfo _ => true
+  | _            => false
+
 def isInductive : ConstantInfo → Bool
   | .inductInfo _ => true
   | _             => false

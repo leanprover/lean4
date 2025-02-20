@@ -20,7 +20,6 @@ LEAN_EXPORT lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12_
 lean_object* lean_array_fswap(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__34;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__23;
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__38;
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__28;
@@ -53,6 +52,7 @@ static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____cl
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__40;
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__37;
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__9;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__11;
 static lean_object* l___auto____x40_Init_Data_Array_InsertionSort___hyg_12____closed__39;
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);

@@ -427,7 +427,7 @@ def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (
         let isFirst := args[0:fieldIdx].all (· matches .skip)
         -- Clear the `obj` argument from `args`.
         let args' := args.set! fieldIdx .skip
-        let mut head : Term ← `($obj.$(mkIdent field))
+        let mut head : Term ← `($obj.$(mkIdentFrom fnStx field))
         if isFirst then
           -- If the object is the first argument (after some implicit arguments),
           -- we can annotate `obj.field` with the prefix of the application
@@ -464,15 +464,21 @@ where
   /--
   Runs the given unexpanders, returning the resulting syntax if any are applicable, and otherwise fails.
   -/
-  tryUnexpand (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
-    fs.firstM fun f =>
-      match f stx |>.run .missing |>.run () with
+  tryUnexpand (ref : Syntax) (fs : List Unexpander) (stx : Syntax) : DelabM Syntax := do
+    withAnnotateTermInfoUnlessAnnotated <| fs.firstM fun f =>
+      match f stx |>.run ref |>.run () with
       | EStateM.Result.ok stx _ => return stx
       | _ => failure
   /--
   If the expression is a candidate for app unexpanders,
   try applying an app unexpander using some prefix of the arguments, longest prefix first.
   This function makes sure that the unexpanded syntax is annotated and given TermInfo so that it is hoverable in the InfoView.
+
+  Ref logic:
+  1. The unexpanders are run with the head constant's syntax as the ref.
+  2. If `pp.tagAppFns` is false, then this does nothing, since `delabConst` won't register any terminfo for the constant.
+  3. If `pp.tagAppFns` is true, then this causes all tokens in app unexpanders to refer to the head constant.
+     The effect is that in docgen, every token will be linkified (supposing the app unexpander uses syntax quotations).
   -/
   tryAppUnexpanders (fnStx : Term) (args : Array AppImplicitArg) : Delab := do
     let .const c _ := (← getExpr).getAppFn.consumeMData | unreachable!
@@ -481,13 +487,13 @@ where
     let rec go (i : Nat) (implicitArgs : Nat) (argStxs : Array Syntax) : DelabM Term := do
       match i with
       | 0 =>
-        let stx ← tryUnexpand fs fnStx
-        return Syntax.mkApp (← annotateTermInfo stx) (args.filterMap (·.syntax?))
+        let stx ← tryUnexpand fnStx fs fnStx
+        return Syntax.mkApp stx (args.filterMap (·.syntax?))
       | i' + 1 =>
         if args[i']!.syntax?.isSome then
-          (do let stx ← tryUnexpand fs <| Syntax.mkApp fnStx argStxs
+          (do let stx ← tryUnexpand fnStx fs <| Syntax.mkApp fnStx argStxs
               let argStxs' := args.extract i args.size |>.filterMap (·.syntax?)
-              return Syntax.mkApp (← annotateTermInfo stx) argStxs')
+              return Syntax.mkApp stx argStxs')
           <|> withBoundedAppFn (implicitArgs + 1) (go i' 0 argStxs.pop)
         else
           go i' (implicitArgs + 1) argStxs
@@ -876,9 +882,9 @@ def delabLam : Delab :=
           -- as a term, i.e. a single `Syntax.ident` or an application thereof
           let stxCurNames ←
             if h : curNames.size > 1 then
-              `($(curNames.get! 0) $(curNames.eraseIdx 0)*)
+              `($(curNames[0]!) $(curNames.eraseIdx 0)*)
             else
-              pure $ curNames.get! 0;
+              pure $ curNames[0]!;
           `(funBinder| ($stxCurNames : $stxT))
         else
           pure curNames.back!  -- here `curNames.size == 1`
@@ -1117,9 +1123,12 @@ where
     withTypeAscription (cond := ← getPPOption getPPCoercionsTypes) do
       guard <| !insertExplicit
       if info.type == .coeFun && nargs > 0 then
-        -- In the CoeFun case, annotate with the coercee itself.
+        -- In the `.coeFun` case, delaborate the coercee itself.
         -- We can still see the whole coercion expression by hovering over the whitespace between the arguments.
-        withNaryArg info.coercee <| withAnnotateTermInfo delab
+        -- In the `pp.tagAppFns` case, if the coercee is a constant application,
+        -- then `delab` will tag the result with the constant, ensuring docgen linkifies it.
+        let tagAppFns ← getPPOption getPPTagAppFns
+        withNaryArg info.coercee <| withOptionAtCurrPos `pp.tagAppFns tagAppFns delab
       else
         withAnnotateTermInfo do
           match info.type with
@@ -1377,25 +1386,38 @@ where
     let e@(.forallE n d e' i) ← getExpr | unreachable!
     let n ← if bindingNames.contains n then withFreshMacroScope <| MonadQuotation.addMacroScope n else pure n
     let bindingNames := bindingNames.insert n
-    let stxN := mkIdent n
-    let curIds := curIds.push ⟨stxN⟩
     if shouldGroupWithNext bindingNames e e' then
-      withBindingBody n <| delabParamsAux bindingNames idStx groups curIds
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN =>
+        delabParamsAux bindingNames idStx groups (curIds.push stxN)
     else
-      let group ← withBindingDomain do
+      /-
+      `mkGroup` constructs binder syntax for the binder names `curIds : Array Ident`, which all have the same type and binder info.
+      This being a function is solving the following issue:
+      - To get the last binder name, we need to be under `withBindingBody'`, which lets us annotate the binder with its fvar.
+      - However, we should delaborate the binder type from outside `withBindingBody'`.
+      - Thus, we need to partially construct the binder syntax, waiting on the final value of `curIds`.
+      -/
+      let mkGroup : Array Ident → DelabM Syntax ← withBindingDomain do
         match i with
-        | .implicit       => `(bracketedBinderF|{$curIds* : $(← delabTy)})
-        | .strictImplicit => `(bracketedBinderF|⦃$curIds* : $(← delabTy)⦄)
-        | .instImplicit   => `(bracketedBinderF|[$stxN : $(← delabTy)])
+        | .implicit       => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|{$curIds* : $ty})
+        | .strictImplicit => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|⦃$curIds* : $ty⦄)
+        | .instImplicit   => let ty ← delabTy; pure fun curIds => `(bracketedBinderF|[$(curIds[0]!) : $ty])
         | _ =>
           if d.isOptParam then
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := $(← withAppArg delabTy)))
+            let ty ← withAppFn <| withAppArg delabTy
+            let val ← withAppArg delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := $val))
           else if let some (.const tacticDecl _) := d.getAutoParamTactic? then
+            let ty ← withAppFn <| withAppArg delabTy
             let tacticSyntax ← ofExcept <| evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl
-            `(bracketedBinderF|($curIds* : $(← withAppFn <| withAppArg delabTy) := by $tacticSyntax))
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty := by $tacticSyntax))
           else
-            `(bracketedBinderF|($curIds* : $(← delabTy)))
-      withBindingBody n <| delabParams bindingNames idStx (groups.push group)
+            let ty ← delabTy
+            pure fun curIds => `(bracketedBinderF|($curIds* : $ty))
+      withBindingBody' n (mkAnnotatedIdent n) fun stxN => do
+        let curIds := curIds.push stxN
+        let group ← mkGroup curIds
+        delabParams bindingNames idStx (groups.push group)
   /-
   Given the forall `e` with body `e'`, determines if the binder from `e'` (if it is a forall) should be grouped with `e`'s binder.
   -/

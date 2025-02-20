@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich, Mario Carneiro
 prelude
 import Lean.Parser.Attr
 import Lean.Parser.Level
+import Lean.Parser.Term.Doc
 
 namespace Lean
 namespace Parser
@@ -137,7 +138,9 @@ def optSemicolon (p : Parser) : Parser :=
 /-- A specific universe in Lean's infinite hierarchy of universes. -/
 @[builtin_term_parser] def sort := leading_parser
   "Sort" >> optional (checkWsBefore "" >> checkPrec leadPrec >> checkColGt >> levelParser maxPrec)
-/-- The universe of propositions. `Prop ≡ Sort 0`. -/
+/-- The universe of propositions. `Prop ≡ Sort 0`.
+
+Every proposition is propositionally equal to either `True` or `False`. -/
 @[builtin_term_parser] def prop := leading_parser
   "Prop"
 /--
@@ -252,6 +255,8 @@ do not yield the right result.
 /-- Tuple notation; `()` is short for `Unit.unit`, `(a, b, c)` for `Prod.mk a (Prod.mk b c)`, etc. -/
 @[builtin_term_parser] def tuple := leading_parser
   "(" >> optional (withoutPosition (withoutForbidden (termParser >> ", " >> sepBy1 termParser ", " (allowTrailingSep := true)))) >> ")"
+
+recommended_spelling "mk" for "(a, b)" in [Prod.mk, tuple]
 
 /--
 Parentheses, used for grouping expressions (e.g., `a * (b + c)`).
@@ -415,7 +420,7 @@ def matchAlts (rhsParser : Parser := termParser) : Parser :=
 /-- `matchDiscr` matches a "match discriminant", either `h : tm` or `tm`, used in `match` as
 `match h1 : e1, e2, h3 : e3 with ...`. -/
 @[builtin_doc] def matchDiscr := leading_parser
-  optional (atomic (ident >> " : ")) >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 
 def trueVal  := leading_parser nonReservedSymbol "true"
 def falseVal := leading_parser nonReservedSymbol "false"
@@ -692,7 +697,7 @@ letrec we need them here already.
 -/
 
 /--
-Specify a termination argument for recursive functions.
+Specify a termination measure for recursive functions.
 ```
 termination_by a - b
 ```
@@ -710,8 +715,8 @@ recursion. The syntax `termination_by structural a` (or `termination_by structur
 indicates the function is expected to be structural recursive on the argument. In this case
 the body of the `termination_by` clause must be one of the function's parameters.
 
-If omitted, a termination argument will be inferred. If written as `termination_by?`,
-the inferrred termination argument will be suggested.
+If omitted, a termination measure will be inferred. If written as `termination_by?`,
+the inferrred termination measure will be suggested.
 
 -/
 @[builtin_doc] def terminationBy := leading_parser
@@ -741,7 +746,7 @@ Common special cases are
 * Monadic in certain “monotone chain-complete monads” (in particular, `Option`) composed using
   the bind operator and other supported monadic combinators.
 
-By default, the onotonicity proof is performed by the compositional `monotonicity` tactic. Using
+By default, the monotonicity proof is performed by the compositional `monotonicity` tactic. Using
 the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manually.
 -/
 @[builtin_doc] def partialFixpoint := leading_parser
@@ -751,7 +756,7 @@ the syntax `partial_fixpoint monotonicity by $tac` the proof can be done manuall
               checkColGt "indented monotonicity proof" >> termParser))
 
 /--
-Manually prove that the termination argument (as specified with `termination_by` or inferred)
+Manually prove that the termination measure (as specified with `termination_by` or inferred)
 decreases at each recursive call.
 
 By default, the tactic `decreasing_tactic` is used.

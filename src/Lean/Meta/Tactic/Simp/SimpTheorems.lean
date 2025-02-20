@@ -170,7 +170,7 @@ instance : ToFormat SimpTheorem where
 
 def ppOrigin [Monad m] [MonadEnv m] [MonadError m] : Origin → m MessageData
   | .decl n post inv => do
-    let r := MessageData.ofConst (← mkConstWithLevelParams n)
+    let r := MessageData.ofConstName n
     match post, inv with
     | true,  true  => return m!"← {r}"
     | true,  false => return r

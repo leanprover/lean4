@@ -7,6 +7,7 @@ Authors: Jeremy Avigad, Mario Carneiro
 prelude
 import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Div.Lemmas
 import Init.Data.Int.Order
 import Init.Data.Int.Lemmas
 import Init.Data.Nat.Dvd
@@ -101,20 +102,81 @@ unseal Nat.div in
   | succ _ => rfl
   | -[_+1] => rfl
 
+/-! ### preliminaries for div equivalences -/
+
+theorem negSucc_emod_ofNat_succ_eq_zero_iff {a b : Nat} :
+    -[a+1] % (b + 1 : Int) = 0 ↔ (a + 1) % (b + 1) = 0 := by
+  rw [← natCast_one, ← natCast_add]
+  change Int.emod _ _ = 0 ↔ _
+  rw [emod, natAbs_ofNat]
+  simp only [Nat.succ_eq_add_one, subNat_eq_zero_iff, Nat.add_right_cancel_iff]
+  rw [eq_comm]
+  apply Nat.succ_mod_succ_eq_zero_iff.symm
+
+theorem negSucc_emod_negSucc_eq_zero_iff {a b : Nat} :
+    -[a+1] % -[b+1] = 0 ↔ (a + 1) % (b + 1) = 0 := by
+  change Int.emod _ _ = 0 ↔ _
+  rw [emod, natAbs_negSucc]
+  simp only [Nat.succ_eq_add_one, subNat_eq_zero_iff, Nat.add_right_cancel_iff]
+  rw [eq_comm]
+  apply Nat.succ_mod_succ_eq_zero_iff.symm
+
 /-! ### div equivalences  -/
 
-theorem tdiv_eq_ediv : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
+theorem tdiv_eq_ediv_of_nonneg : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
   | 0, _, _
   | _, 0, _ => by simp
   | succ _, succ _, _ => rfl
   | succ _, -[_+1], _ => rfl
 
-theorem fdiv_eq_ediv : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
+theorem tdiv_eq_ediv {a b : Int} :
+    a.tdiv b =
+      if 0 ≤ a then
+        a / b
+      else
+        if a % b = 0 then a / b
+        else a / b + sign b :=
+  match a, b with
+  | ofNat a, ofNat b => by simp [tdiv_eq_ediv_of_nonneg]
+  | ofNat a, -[b+1] => by simp [tdiv_eq_ediv_of_nonneg]
+  | -[a+1], 0 => by simp
+  | -[a+1], ofNat (succ b) => by
+    simp only [tdiv, Nat.succ_eq_add_one, ofNat_eq_coe, ofNat_ediv, natCast_add, Nat.cast_ofNat_Int,
+      negSucc_not_nonneg, ↓reduceIte, sign_of_add_one]
+    simp only [negSucc_emod_ofNat_succ_eq_zero_iff]
+    norm_cast
+    simp only [subNat_eq_zero_iff, Nat.succ_eq_add_one, sign_negSucc, Int.sub_neg]
+    split <;> rename_i h
+    · rw [neg_ofNat_eq_negSucc_iff]
+      exact Nat.succ_div_of_mod_eq_zero h
+    · rw [neg_ofNat_eq_negSucc_add_one_iff]
+      exact Nat.succ_div_of_mod_ne_zero h
+  | -[a+1], -[b+1] => by
+    simp [tdiv]
+    norm_cast
+    simp only [negSucc_ediv_negSucc]
+    rw [natCast_add, natCast_one]
+    simp only [negSucc_emod_negSucc_eq_zero_iff]
+    rw [← Int.sub_eq_add_neg]
+    rw [Int.add_sub_cancel]
+    split <;> rename_i h
+    · norm_cast
+      exact Nat.succ_div_of_mod_eq_zero h
+    · norm_cast
+      exact Nat.succ_div_of_mod_ne_zero h
+
+theorem fdiv_eq_ediv_of_nonneg : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
   | 0, _, _ | -[_+1], 0, _ => by simp
   | succ _, ofNat _, _ | -[_+1], succ _, _ => rfl
 
-theorem fdiv_eq_tdiv {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
-  tdiv_eq_ediv Ha ▸ fdiv_eq_ediv _ Hb
+@[deprecated fdiv_eq_ediv_of_nonneg (since := "2025-02-20")]
+abbrev fdiv_eq_ediv := @fdiv_eq_ediv_of_nonneg
+
+theorem fdiv_eq_tdiv_of_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
+  tdiv_eq_ediv_of_nonneg Ha ▸ fdiv_eq_ediv_of_nonneg _ Hb
+
+@[deprecated fdiv_eq_tdiv_of_nonneg (since := "2025-02-20")]
+abbrev fdiv_eq_tdiv := @fdiv_eq_tdiv_of_nonneg
 
 /-! ### mod zero -/
 
@@ -190,14 +252,23 @@ theorem fmod_def (a b : Int) : a.fmod b = a - b * a.fdiv b := by
 
 /-! ### mod equivalences  -/
 
-theorem fmod_eq_emod (a : Int) {b : Int} (hb : 0 ≤ b) : fmod a b = a % b := by
-  simp [fmod_def, emod_def, fdiv_eq_ediv _ hb]
+theorem fmod_eq_emod_of_nonneg (a : Int) {b : Int} (hb : 0 ≤ b) : fmod a b = a % b := by
+  simp [fmod_def, emod_def, fdiv_eq_ediv_of_nonneg _ hb]
 
-theorem tmod_eq_emod {a b : Int} (ha : 0 ≤ a) : tmod a b = a % b := by
-  simp [emod_def, tmod_def, tdiv_eq_ediv ha]
+@[deprecated fmod_eq_emod_of_nonneg (since := "2025-02-20")]
+abbrev fmod_eq_emod := @fmod_eq_emod_of_nonneg
 
-theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod a b :=
-  tmod_eq_emod Ha ▸ fmod_eq_emod _ Hb
+theorem tmod_eq_emod_of_nonneg {a b : Int} (ha : 0 ≤ a) : tmod a b = a % b := by
+  simp [emod_def, tmod_def, tdiv_eq_ediv_of_nonneg ha]
+
+@[deprecated tmod_eq_emod_of_nonneg (since := "2025-02-20")]
+abbrev tmod_eq_emod := @tmod_eq_emod_of_nonneg
+
+theorem fmod_eq_tmod_of_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : fmod a b = tmod a b :=
+  tmod_eq_emod_of_nonneg ha ▸ fmod_eq_emod_of_nonneg _ hb
+
+@[deprecated fmod_eq_tmod_of_nonneg (since := "2025-02-20")]
+abbrev fmod_eq_tmod := @fmod_eq_tmod_of_nonneg
 
 /-! ### `/` ediv -/
 
@@ -328,23 +399,6 @@ theorem emod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a % b = a :=
 
 @[simp] theorem emod_self_add_one {x : Int} (h : 0 ≤ x) : x % (x + 1) = x :=
   emod_eq_of_lt h (Int.lt_succ x)
-
-theorem negSucc_emod_ofNat_succ_eq_zero_iff {a b : Nat} :
-    -[a+1] % (b + 1 : Int) = 0 ↔ (a + 1) % (b + 1) = 0 := by
-  rw [← natCast_one, ← natCast_add]
-  change Int.emod _ _ = 0 ↔ _
-  rw [emod, natAbs_ofNat]
-  simp only [Nat.succ_eq_add_one, subNat_eq_zero_iff, Nat.add_right_cancel_iff]
-  rw [eq_comm]
-  apply Nat.succ_mod_succ_eq_zero_iff.symm
-
-theorem negSucc_emod_negSucc_eq_zero_iff {a b : Nat} :
-    -[a+1] % -[b+1] = 0 ↔ (a + 1) % (b + 1) = 0 := by
-  change Int.emod _ _ = 0 ↔ _
-  rw [emod, natAbs_negSucc]
-  simp only [Nat.succ_eq_add_one, subNat_eq_zero_iff, Nat.add_right_cancel_iff]
-  rw [eq_comm]
-  apply Nat.succ_mod_succ_eq_zero_iff.symm
 
 /-! ### properties of `/` and `%` -/
 
@@ -670,7 +724,7 @@ theorem ofNat_tmod (m n : Nat) : (↑(m % n) : Int) = tmod m n := rfl
   simp [tmod_def, Int.tdiv_one, Int.one_mul, Int.sub_self]
 
 theorem tmod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : tmod a b = a := by
-  rw [tmod_eq_emod H1, emod_eq_of_lt H1 H2]
+  rw [tmod_eq_emod_of_nonneg H1, emod_eq_of_lt H1 H2]
 
 theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
   match a, b, eq_succ_of_zero_lt H with
@@ -779,7 +833,7 @@ theorem fdiv_neg' : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
 
 @[simp] theorem mul_fdiv_cancel (a : Int) {b : Int} (H : b ≠ 0) : fdiv (a * b) b = a :=
   if b0 : 0 ≤ b then by
-    rw [fdiv_eq_ediv _ b0, mul_ediv_cancel _ H]
+    rw [fdiv_eq_ediv_of_nonneg _ b0, mul_ediv_cancel _ H]
   else
     match a, b, Int.not_le.1 b0 with
     | 0, _, _ => by simp [Int.zero_mul]
@@ -795,7 +849,7 @@ theorem fdiv_neg' : ∀ {a b : Int}, a < 0 → 0 < b → a.fdiv b < 0
   have := Int.mul_fdiv_cancel 1 H; rwa [Int.one_mul] at this
 
 theorem lt_fdiv_add_one_mul_self (a : Int) {b : Int} (H : 0 < b) : a < (a.fdiv b + 1) * b :=
-  Int.fdiv_eq_ediv _ (Int.le_of_lt H) ▸ lt_ediv_add_one_mul_self a H
+  Int.fdiv_eq_ediv_of_nonneg _ (Int.le_of_lt H) ▸ lt_ediv_add_one_mul_self a H
 
 /-! ### fmod -/
 
@@ -806,16 +860,16 @@ theorem ofNat_fmod (m n : Nat) : ↑(m % n) = fmod m n := by
   simp [fmod_def, Int.one_mul, Int.sub_self]
 
 theorem fmod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a.fmod b = a := by
-  rw [fmod_eq_emod _ (Int.le_trans H1 (Int.le_of_lt H2)), emod_eq_of_lt H1 H2]
+  rw [fmod_eq_emod_of_nonneg _ (Int.le_trans H1 (Int.le_of_lt H2)), emod_eq_of_lt H1 H2]
 
 theorem fmod_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : 0 ≤ a.fmod b :=
-  fmod_eq_tmod ha hb ▸ tmod_nonneg _ ha
+  fmod_eq_tmod_of_nonneg ha hb ▸ tmod_nonneg _ ha
 
 theorem fmod_nonneg' (a : Int) {b : Int} (hb : 0 < b) : 0 ≤ a.fmod b :=
-  fmod_eq_emod _ (Int.le_of_lt hb) ▸ emod_nonneg _ (Int.ne_of_lt hb).symm
+  fmod_eq_emod_of_nonneg _ (Int.le_of_lt hb) ▸ emod_nonneg _ (Int.ne_of_lt hb).symm
 
 theorem fmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a.fmod b < b :=
-  fmod_eq_emod _ (Int.le_of_lt H) ▸ emod_lt_of_pos a H
+  fmod_eq_emod_of_nonneg _ (Int.le_of_lt H) ▸ emod_lt_of_pos a H
 
 @[simp] theorem mul_fmod_left (a b : Int) : (a * b).fmod b = 0 :=
   if h : b = 0 then by simp [h, Int.mul_zero] else by

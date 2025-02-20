@@ -341,6 +341,20 @@ theorem toNat_of_nonpos : ∀ {z : Int}, z ≤ 0 → z.toNat = 0
   | 0, _ => rfl
   | -[_+1], _ => rfl
 
+@[simp] theorem neg_ofNat_eq_negSucc_iff {a b : Nat} : - (a : Int) = -[b+1] ↔ a = b + 1 := by
+  rw [Int.neg_eq_comm]
+  rw [Int.neg_negSucc]
+  norm_cast
+  simp [eq_comm]
+
+@[simp] theorem neg_ofNat_eq_negSucc_add_one_iff {a b : Nat} : - (a : Int) = -[b+1] + 1 ↔ a = b := by
+  cases b with
+  | zero => simp; norm_cast
+  | succ b =>
+    rw [Int.neg_eq_comm, ← Int.negSucc_sub_one, Int.sub_add_cancel, Int.neg_negSucc]
+    norm_cast
+    simp [eq_comm]
+
 /- ## add/sub injectivity -/
 
 protected theorem add_left_inj {i j : Int} (k : Int) : (i + k = j + k) ↔ i = j := by

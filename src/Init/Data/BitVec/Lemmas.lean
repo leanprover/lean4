@@ -1265,21 +1265,9 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
     rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by rw [Nat.pow_add]; omega)]
   · simp [show n = 0 by omega]
 
--- theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
---     (shiftLeftZeroExtend x n).toNat = if 0 < n then x.toNat <<< n else x.toNat := by
---   simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
---   by_cases hn : 0 < n
---   · simp only [hn, ↓reduceIte]
---     have : 2 ^ w < 2 ^ w * 2 ^ n := by
---       rw [← Nat.pow_add, Nat.pow_lt_pow_iff_right (by omega)]
---       omega
---     have : ((x.toNat % 2 ^ (w + n)) <<< n) < 2 ^ (w + n) := by
---       rw [Nat.pow_add, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
---       have := Nat.mul_lt_mul_right (b := x.toNat) (a := 2 ^ n) (c := 2 ^ w)
---       have :=  Nat.two_pow_pos (w := n)
---       omega
---     rw [Nat.mod_eq_of_lt (by omega), Nat.mod_eq_of_lt (by rw [Nat.pow_add]; omega)]
---   · simp [show n = 0 by omega]
+theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toInt = sorry := by sorry
+
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = ((! decide (i < n)) && getLsbD x (i - n)) := by

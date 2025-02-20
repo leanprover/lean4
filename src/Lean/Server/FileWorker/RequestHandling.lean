@@ -22,7 +22,7 @@ open Lean.Parser.Tactic.Doc (alternativeOfTactic getTacticExtensionString)
 def findCompletionCmdDataAtPos
     (doc : EditableDocument)
     (pos : String.Pos)
-    : Task (Option (Syntax × Elab.InfoTree)) :=
+    : ServerTask (Option (Syntax × Elab.InfoTree)) :=
   -- `findCmdDataAtPos` may produce an incorrect snapshot when `pos` is in whitespace.
   -- However, most completions don't need trailing whitespace at the term level;
   -- synthetic completions are the only notions of completion that care care about whitespace.
@@ -38,7 +38,7 @@ def handleCompletion (p : CompletionParams)
   let text := doc.meta.text
   let pos := text.lspPosToUtf8Pos p.position
   let caps := (← read).initParams.capabilities
-  mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
+  mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return { items := #[], isIncomplete := true }
     Completion.find? p doc.meta.text pos cmdStx infoTree caps
@@ -59,7 +59,7 @@ def handleCompletionItemResolve (item : CompletionItem)
   let some id := data.id?
     | return .pure item
   let pos := text.lspPosToUtf8Pos data.params.position
-  mapTask (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
+  mapTaskCostly (findCompletionCmdDataAtPos doc pos) fun cmdData? => do
     let some (cmdStx, infoTree) := cmdData?
       | return item
     Completion.resolveCompletionItem? text pos cmdStx infoTree item id data.cPos
@@ -246,9 +246,9 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       else return #[]
 
 open Language in
-def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : Task (Option (List Elab.GoalsAtResult)) :=
+def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : ServerTask (Option (List Elab.GoalsAtResult)) :=
   let text := doc.meta.text
-  findCmdParsedSnap doc hoverPos |>.bind (sync := true) fun
+  findCmdParsedSnap doc hoverPos |>.bindCostly fun
     | some cmdParsed =>
       let t := toSnapshotTree cmdParsed |>.foldSnaps [] fun snap oldGoals => Id.run do
         let some (pos, tailPos, trailingPos) := getPositions snap
@@ -260,7 +260,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : Task (Option
         if ! text.rangeContainsHoverPos snapRange hoverPos (includeStop := hasNoTrailingWhitespace) then
           return .pure (oldGoals, .proceed (foldChildren := false))
 
-        return snap.task.map (sync := true) fun tree => Id.run do
+        return snap.task.asServerTask.mapCheap fun tree => Id.run do
           let some infoTree := tree.element.infoTree?
             | return (oldGoals, .proceed (foldChildren := true))
 
@@ -274,7 +274,7 @@ def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos) : Task (Option
             return (goals, .done)
 
           return (goals, .proceed (foldChildren := true))
-      t.map fun
+      t.mapCheap fun
         | []    => none
         | goals => goals
     | none =>
@@ -292,7 +292,7 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findGoalsAt? doc hoverPos) <| Option.mapM fun rs => do
+  mapTaskCostly (findGoalsAt? doc hoverPos) <| Option.mapM fun rs => do
     let goals : List Widget.InteractiveGoals ← rs.mapM fun { ctxInfo := ci, tacticInfo := ti, useAfter := useAfter, .. } => do
       let ciAfter := { ci with mctx := ti.mctxAfter }
       let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
@@ -316,7 +316,7 @@ open Elab in
 def handlePlainGoal (p : PlainGoalParams)
     : RequestM (RequestTask (Option PlainGoal)) := do
   let t ← getInteractiveGoals p
-  return t.map <| Except.map <| Option.map <| fun {goals, ..} =>
+  return t.mapCheap <| Except.map <| Option.map <| fun {goals, ..} =>
     if goals.isEmpty then
       { goals := #[], rendered := "no goals" }
     else
@@ -332,7 +332,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   let doc ← readDoc
   let text := doc.meta.text
   let hoverPos := text.lspPosToUtf8Pos p.position
-  mapTask (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
+  mapTaskCostly (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
     let ty ← ci.runMetaM i.lctx do
@@ -347,7 +347,7 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
 def handlePlainTermGoal (p : PlainTermGoalParams)
     : RequestM (RequestTask (Option PlainTermGoal)) := do
   let t ← getInteractiveTermGoal p
-  return t.map <| Except.map <| Option.map fun goal =>
+  return t.mapCheap <| Except.map <| Option.map fun goal =>
     { goal := toString goal.pretty
       range := goal.range
     }
@@ -420,7 +420,7 @@ partial def handleDocumentSymbol (_ : DocumentSymbolParams)
   let doc ← readDoc
   -- bad: we have to wait on elaboration of the entire file before we can report document symbols
   let t := doc.cmdSnaps.waitAll
-  mapTask t fun (snaps, _) => do
+  mapTaskCostly t fun (snaps, _) => do
     let mut stxs := snaps.map (·.stx)
     return { syms := ← toDocumentSymbols doc.meta.text stxs #[] [] }
 where
@@ -479,7 +479,7 @@ partial def handleFoldingRange (_ : FoldingRangeParams)
   : RequestM (RequestTask (Array FoldingRange)) := do
   let doc ← readDoc
   let t := doc.cmdSnaps.waitAll
-  mapTask t fun (snaps, _) => do
+  mapTaskCostly t fun (snaps, _) => do
     let stxs := snaps.map (·.stx)
     let (_, ranges) ← StateT.run (addRanges doc.meta.text [] stxs) #[]
     return ranges
@@ -568,9 +568,9 @@ partial def handleWaitForDiagnostics (p : WaitForDiagnosticsParams)
       IO.sleep 50
       waitLoop
   let t ← RequestM.asTask waitLoop
-  RequestM.bindTask t fun doc? => do
+  RequestM.bindTaskCheap t fun doc? => do
     let doc ← liftExcept doc?
-    return doc.reporter.map fun _ => pure WaitForDiagnostics.mk
+    return doc.reporter.mapCheap (fun _ => pure WaitForDiagnostics.mk)
 
 builtin_initialize
   registerLspRequestHandler

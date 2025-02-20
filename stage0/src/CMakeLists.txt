@@ -144,12 +144,11 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   # do not import the world from windows.h using appropriately named flag
   string(APPEND LEAN_EXTRA_CXX_FLAGS " -D WIN32_LEAN_AND_MEAN")
   # DLLs must go next to executables on Windows
-  set(CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY "bin")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 else()
-  set(CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY "lib/lean")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 endif()
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.

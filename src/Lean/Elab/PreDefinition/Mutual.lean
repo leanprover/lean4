@@ -202,8 +202,8 @@ def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : M
     unless mapping[:fixedPrefixSize] = (Array.range fixedPrefixSize).map Option.some do
       throwError "Fixed prefix mismatch for {preDef.declName}: Expeted {fixedPrefixSize}, but got {mapping}"
 
-def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
-  withCommonTelescope preDefs fun xs vals => do
+def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat := do
+  let fixedPrefixSize ← withCommonTelescope preDefs fun xs vals => do
     let resultRef ← IO.mkRef xs.size
     for val in vals do
       if (← resultRef.get) == 0 then return 0
@@ -218,9 +218,9 @@ def getFixedPrefix (preDefs : Array PreDefinition) : MetaM Nat :=
           return false
         else
           return true
-    let fixedPrefixSize ← resultRef.get
-    checkFixedParams preDefs fixedPrefixSize
-    return fixedPrefixSize
+    resultRef.get
+  checkFixedParams preDefs fixedPrefixSize
+  return fixedPrefixSize
 
 def addPreDefsFromUnary (preDefs : Array PreDefinition) (preDefsNonrec : Array PreDefinition)
     (unaryPreDefNonRec : PreDefinition) : TermElabM Unit := do

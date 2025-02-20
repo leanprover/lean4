@@ -27,7 +27,6 @@ def wfRecursion (preDefs : Array PreDefinition) (termMeasure?s : Array (Option T
     for preDef in preDefs do
       addAsAxiom preDef
     let fixedPrefixSize ← Mutual.getFixedPrefix preDefs
-    trace[Elab.definition.wf] "fixed prefix: {fixedPrefixSize}"
     let varNamess ← preDefs.mapM (varyingVarNames fixedPrefixSize ·)
     for varNames in varNamess, preDef in preDefs do
       if varNames.isEmpty then

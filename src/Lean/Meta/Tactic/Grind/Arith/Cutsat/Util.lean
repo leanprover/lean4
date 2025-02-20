@@ -66,10 +66,23 @@ def get' : GoalM State := do
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
+def getVar (x : Var) : GoalM Expr :=
+  return (← get').vars[x]!
+
 def mkCnstrId : GoalM Nat := do
   let id := (← get').nextCnstrId
   modify' fun s => { s with nextCnstrId := id + 1 }
   return id
+
+private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
+  if a.size > sz then
+    shrink a.pop sz
+  else
+    a
+
+/-- Resets the assingment of any variable bigger or equal to `x`. -/
+def resetAssignmentFrom (x : Var) : GoalM Unit := do
+  modify' fun s => { s with assignment := shrink s.assignment x }
 
 def DvdCnstrWithProof.denoteExpr (cₚ : DvdCnstrWithProof) : GoalM Expr := do
   let vars ← getVars

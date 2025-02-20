@@ -428,38 +428,38 @@ namespace Int
 --     (H1 : b ≠ 0) (H2 : a = c * b) : a / b = c :=
 --   Int.ediv_eq_of_eq_mul_right H1 (by rw [Int.mul_comm, H2])
 
--- /-! ### emod -/
+/-! ### emod -/
 
--- theorem mod_def' (m n : Int) : m % n = emod m n := rfl
+theorem mod_def' (m n : Int) : m % n = emod m n := rfl
 
--- theorem negSucc_emod (m : Nat) {b : Int} (bpos : 0 < b) : -[m+1] % b = b - 1 - m % b := by
---   rw [Int.sub_sub, Int.add_comm]
---   match b, eq_succ_of_zero_lt bpos with
---   | _, ⟨n, rfl⟩ => rfl
+theorem negSucc_emod (m : Nat) {b : Int} (bpos : 0 < b) : -[m+1] % b = b - 1 - m % b := by
+  rw [Int.sub_sub, Int.add_comm]
+  match b, eq_succ_of_zero_lt bpos with
+  | _, ⟨n, rfl⟩ => rfl
 
--- theorem emod_negSucc (m : Nat) (n : Int) :
---   (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
+theorem emod_negSucc (m : Nat) (n : Int) :
+  (Int.negSucc m) % n = Int.subNatNat (Int.natAbs n) (Nat.succ (m % Int.natAbs n)) := rfl
 
--- theorem ofNat_mod_ofNat (m n : Nat) : (m % n : Int) = ↑(m % n) := rfl
+theorem ofNat_mod_ofNat (m n : Nat) : (m % n : Int) = ↑(m % n) := rfl
 
--- theorem emod_nonneg : ∀ (a : Int) {b : Int}, b ≠ 0 → 0 ≤ a % b
---   | ofNat _, _, _ => ofNat_zero_le _
---   | -[_+1], _, H => Int.sub_nonneg_of_le <| ofNat_le.2 <| Nat.mod_lt _ (natAbs_pos.2 H)
+theorem emod_nonneg : ∀ (a : Int) {b : Int}, b ≠ 0 → 0 ≤ a % b
+  | ofNat _, _, _ => ofNat_zero_le _
+  | -[_+1], _, H => Int.sub_nonneg_of_le <| ofNat_le.2 <| Nat.mod_lt _ (natAbs_pos.2 H)
 
--- theorem emod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a % b < b :=
---   match a, b, eq_succ_of_zero_lt H with
---   | ofNat _, _, ⟨_, rfl⟩ => ofNat_lt.2 (Nat.mod_lt _ (Nat.succ_pos _))
---   | -[_+1], _, ⟨_, rfl⟩ => Int.sub_lt_self _ (ofNat_lt.2 <| Nat.succ_pos _)
+theorem emod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : a % b < b :=
+  match a, b, eq_succ_of_zero_lt H with
+  | ofNat _, _, ⟨_, rfl⟩ => ofNat_lt.2 (Nat.mod_lt _ (Nat.succ_pos _))
+  | -[_+1], _, ⟨_, rfl⟩ => Int.sub_lt_self _ (ofNat_lt.2 <| Nat.succ_pos _)
 
--- theorem mul_ediv_self_le {x k : Int} (h : k ≠ 0) : k * (x / k) ≤ x :=
---   calc k * (x / k)
---     _ ≤ k * (x / k) + x % k := Int.le_add_of_nonneg_right (emod_nonneg x h)
---     _ = x                   := ediv_add_emod _ _
+theorem mul_ediv_self_le {x k : Int} (h : k ≠ 0) : k * (x / k) ≤ x :=
+  calc k * (x / k)
+    _ ≤ k * (x / k) + x % k := Int.le_add_of_nonneg_right (emod_nonneg x h)
+    _ = x                   := ediv_add_emod _ _
 
--- theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
---   calc x
---     _ = k * (x / k) + x % k := (ediv_add_emod _ _).symm
---     _ < k * (x / k) + k     := Int.add_lt_add_left (emod_lt_of_pos x h) _
+theorem lt_mul_ediv_self_add {x k : Int} (h : 0 < k) : x < k * (x / k) + k :=
+  calc x
+    _ = k * (x / k) + x % k := (ediv_add_emod _ _).symm
+    _ < k * (x / k) + k     := Int.add_lt_add_left (emod_lt_of_pos x h) _
 
 -- @[simp] theorem add_mul_emod_self {a b c : Int} : (a + b * c) % c = a % c :=
 --   if cz : c = 0 then by
@@ -471,23 +471,23 @@ namespace Int
 -- @[simp] theorem add_mul_emod_self_left (a b c : Int) : (a + b * c) % b = a % b := by
 --   rw [Int.mul_comm, Int.add_mul_emod_self]
 
--- @[simp] theorem add_neg_mul_emod_self {a b c : Int} : (a + -(b * c)) % c = a % c := by
---   rw [Int.neg_mul_eq_neg_mul, add_mul_emod_self]
+@[simp] theorem add_neg_mul_emod_self {a b c : Int} : (a + -(b * c)) % c = a % c := by
+  rw [Int.neg_mul_eq_neg_mul, add_mul_emod_self]
 
--- @[simp] theorem add_neg_mul_emod_self_left {a b c : Int} : (a + -(b * c)) % b = a % b := by
---   rw [Int.neg_mul_eq_mul_neg, add_mul_emod_self_left]
+@[simp] theorem add_neg_mul_emod_self_left {a b c : Int} : (a + -(b * c)) % b = a % b := by
+  rw [Int.neg_mul_eq_mul_neg, add_mul_emod_self_left]
 
--- @[simp] theorem add_emod_self {a b : Int} : (a + b) % b = a % b := by
---   have := add_mul_emod_self_left a b 1; rwa [Int.mul_one] at this
+@[simp] theorem add_emod_self {a b : Int} : (a + b) % b = a % b := by
+  have := add_mul_emod_self_left a b 1; rwa [Int.mul_one] at this
 
--- @[simp] theorem add_emod_self_left {a b : Int} : (a + b) % a = b % a := by
---   rw [Int.add_comm, Int.add_emod_self]
+@[simp] theorem add_emod_self_left {a b : Int} : (a + b) % a = b % a := by
+  rw [Int.add_comm, Int.add_emod_self]
 
--- theorem neg_emod {a b : Int} : -a % b = (b - a) % b := by
---   rw [← add_emod_self_left]; rfl
+theorem neg_emod {a b : Int} : -a % b = (b - a) % b := by
+  rw [← add_emod_self_left]; rfl
 
--- @[simp] theorem emod_neg (a b : Int) : a % -b = a % b := by
---   rw [emod_def, emod_def, Int.ediv_neg, Int.neg_mul_neg]
+@[simp] theorem emod_neg (a b : Int) : a % -b = a % b := by
+  rw [emod_def, emod_def, Int.ediv_neg, Int.neg_mul_neg]
 
 -- @[simp] theorem emod_add_emod (m n k : Int) : (m % n + k) % n = (m + k) % n := by
 --   have := (add_mul_emod_self_left (m % n + k) n (m / n)).symm
@@ -524,8 +524,8 @@ namespace Int
 -- @[simp] theorem emod_self {a : Int} : a % a = 0 := by
 --   have := mul_emod_left 1 a; rwa [Int.one_mul] at this
 
--- @[simp] theorem neg_emod_self (a : Int) : -a % a = 0 := by
---   rw [neg_emod, Int.sub_self, zero_emod]
+@[simp] theorem neg_emod_self (a : Int) : -a % a = 0 := by
+  rw [neg_emod, Int.sub_self, zero_emod]
 
 -- @[simp] theorem emod_emod_of_dvd (n : Int) {m k : Int}
 --     (h : m ∣ k) : (n % k) % m = n % m := by
@@ -536,24 +536,24 @@ namespace Int
 -- @[simp] theorem emod_emod (a b : Int) : (a % b) % b = a % b := by
 --   conv => rhs; rw [← emod_add_ediv a b, add_mul_emod_self_left]
 
--- @[simp] theorem emod_sub_emod (m n k : Int) : (m % n - k) % n = (m - k) % n :=
---   Int.emod_add_emod m n (-k)
+@[simp] theorem emod_sub_emod (m n k : Int) : (m % n - k) % n = (m - k) % n :=
+  Int.emod_add_emod m n (-k)
 
--- @[simp] theorem sub_emod_emod (m n k : Int) : (m - n % k) % k = (m - n) % k := by
---   apply (emod_add_cancel_right (n % k)).mp
---   rw [Int.sub_add_cancel, Int.add_emod_emod, Int.sub_add_cancel]
+@[simp] theorem sub_emod_emod (m n k : Int) : (m - n % k) % k = (m - n) % k := by
+  apply (emod_add_cancel_right (n % k)).mp
+  rw [Int.sub_add_cancel, Int.add_emod_emod, Int.sub_add_cancel]
 
 -- theorem sub_emod (a b n : Int) : (a - b) % n = (a % n - b % n) % n := by
 --   apply (emod_add_cancel_right b).mp
 --   rw [Int.sub_add_cancel, ← Int.add_emod_emod, Int.sub_add_cancel, emod_emod]
 
--- theorem emod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a % b = a :=
---   have b0 := Int.le_trans H1 (Int.le_of_lt H2)
---   match a, b, eq_ofNat_of_zero_le H1, eq_ofNat_of_zero_le b0 with
---   | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg ofNat <| Nat.mod_eq_of_lt (Int.ofNat_lt.1 H2)
+theorem emod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a % b = a :=
+  have b0 := Int.le_trans H1 (Int.le_of_lt H2)
+  match a, b, eq_ofNat_of_zero_le H1, eq_ofNat_of_zero_le b0 with
+  | _, _, ⟨_, rfl⟩, ⟨_, rfl⟩ => congrArg ofNat <| Nat.mod_eq_of_lt (Int.ofNat_lt.1 H2)
 
--- @[simp] theorem emod_self_add_one {x : Int} (h : 0 ≤ x) : x % (x + 1) = x :=
---   emod_eq_of_lt h (Int.lt_succ x)
+@[simp] theorem emod_self_add_one {x : Int} (h : 0 ≤ x) : x % (x + 1) = x :=
+  emod_eq_of_lt h (Int.lt_succ x)
 
 /-! ### properties of `/` and `%` -/
 

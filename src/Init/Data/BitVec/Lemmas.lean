@@ -577,6 +577,19 @@ theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
     (setWidth' p x).toNat = x.toNat := by
   simp [setWidth']
 
+@[simp] theorem toInt_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
+    (setWidth' p x).toInt = Int.bmod x.toNat (2 ^ n) := by
+  simp [toInt_eq_toNat_bmod, toNat_setWidth', Int.emod_bmod]
+
+@[simp] theorem toFin_setWidth' {m n : Nat} (p : m ≤ n) (x : BitVec m) :
+    (setWidth' p x).toFin = Fin.ofNat' (2 ^ n) x.toNat := by
+  ext
+  simp
+  have := Nat.pow_le_pow_of_le (a := 2) (n := m) (m := n)
+  have : x.toNat < 2 ^ n := by
+    omega
+  rw [Nat.mod_eq_of_lt (by omega)]
+
 @[simp, bv_toNat] theorem toNat_setWidth (i : Nat) (x : BitVec n) :
     BitVec.toNat (setWidth i x) = x.toNat % 2^i := by
   let ⟨x, lt_n⟩ := x

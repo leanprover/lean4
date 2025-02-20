@@ -20,13 +20,13 @@ namespace Int
 
 -- /-! ### dvd  -/
 
--- protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
+protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
--- @[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
+@[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
 
 @[simp] protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
 
--- @[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
+@[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
 
 protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => Exists.intro (d * e) (by rw [Int.mul_assoc])
@@ -52,15 +52,15 @@ protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
 
 protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
 
--- protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
+protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
 
--- @[simp] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
---   constructor <;> exact fun ⟨k, e⟩ =>
---     ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+@[simp] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
+  constructor <;> exact fun ⟨k, e⟩ =>
+    ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
--- protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
---   constructor <;> exact fun ⟨k, e⟩ =>
---     ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
+  constructor <;> exact fun ⟨k, e⟩ =>
+    ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
 @[simp] theorem natAbs_dvd_natAbs {a b : Int} : natAbs a ∣ natAbs b ↔ a ∣ b := by
   refine ⟨fun ⟨k, hk⟩ => ?_, fun ⟨k, hk⟩ => ⟨natAbs k, hk.symm ▸ natAbs_mul a k⟩⟩
@@ -169,7 +169,7 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 -- theorem fdiv_eq_tdiv {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
 --   tdiv_eq_ediv Ha ▸ fdiv_eq_ediv _ Hb
 
--- /-! ### mod zero -/
+/-! ### mod zero -/
 
 @[simp] theorem zero_emod (b : Int) : 0 % b = 0 := rfl
 
@@ -195,7 +195,7 @@ theorem ofNat_dvd_left {n : Nat} {z : Int} : (↑n : Int) ∣ z ↔ n ∣ z.natA
 @[simp, norm_cast] theorem ofNat_emod (m n : Nat) : (↑(m % n) : Int) = m % n := rfl
 
 
--- /-! ### mod definitions -/
+/-! ### mod definitions -/
 
 theorem emod_add_ediv : ∀ a b : Int, a % b + b * (a / b) = a
   | ofNat _, ofNat _ => congrArg ofNat <| Nat.mod_add_div ..
@@ -286,7 +286,7 @@ theorem emod_def (a b : Int) : a % b = a - b * (a / b) := by
 -- theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod a b :=
 --   tmod_eq_emod Ha ▸ fmod_eq_emod _ Hb
 
--- /-! ### `/` ediv -/
+/-! ### `/` ediv -/
 
 @[simp] protected theorem ediv_neg : ∀ a b : Int, a / (-b) = -(a / b)
   | ofNat m, 0 => show ofNat (m / 0) = -↑(m / 0) by rw [Nat.div_zero]; rfl
@@ -427,7 +427,7 @@ theorem add_ediv_of_dvd_left {a b c : Int} (H : c ∣ a) : (a + b) / c = a / c +
 --     (H1 : b ≠ 0) (H2 : a = c * b) : a / b = c :=
 --   Int.ediv_eq_of_eq_mul_right H1 (by rw [Int.mul_comm, H2])
 
--- /-! ### emod -/
+/-! ### emod -/
 
 -- theorem mod_def' (m n : Int) : m % n = emod m n := rfl
 
@@ -554,7 +554,7 @@ theorem sub_emod (a b n : Int) : (a - b) % n = (a % n - b % n) % n := by
 -- @[simp] theorem emod_self_add_one {x : Int} (h : 0 ≤ x) : x % (x + 1) = x :=
 --   emod_eq_of_lt h (Int.lt_succ x)
 
--- /-! ### properties of `/` and `%` -/
+/-! ### properties of `/` and `%` -/
 
 theorem mul_ediv_cancel_of_emod_eq_zero {a b : Int} (H : a % b = 0) : b * (a / b) = a := by
   have := emod_add_ediv a b; rwa [H, Int.zero_add] at this
@@ -742,7 +742,7 @@ protected theorem mul_ediv_assoc' (b : Int) {a c : Int}
 --   | _, 0 => by simp [sign, Int.mul_zero]
 --   | _, -[_+1] => by simp [sign, Int.mul_neg, Int.mul_one]
 
--- /-! ### `/` and ordering -/
+/-! ### `/` and ordering -/
 
 -- protected theorem ediv_mul_le (a : Int) {b : Int} (H : b ≠ 0) : a / b * b ≤ a :=
 --   Int.le_of_sub_nonneg <| by rw [Int.mul_comm, ← emod_def]; apply emod_nonneg _ H

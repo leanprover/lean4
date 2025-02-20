@@ -1149,7 +1149,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_create_tempfile(lean_object * /* w */) {
     } else {
         FILE* handle = fdopen(req.result, "r+");
         object_ref pair = mk_cnstr(0, io_wrap_handle(handle), mk_string(req.path));
-        uv_fs_req_cleanup(&ret);
+        uv_fs_req_cleanup(&req);
         return lean_io_result_mk_ok(pair.steal());
     }
 }

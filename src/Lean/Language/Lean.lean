@@ -296,11 +296,6 @@ private def getNiceCommandStartPos? (stx : Syntax) : Option String.Pos := do
     stx := stx[1]
   stx.getPos?
 
-private partial def cancelRemaining (snap : CommandParsedSnapshot) : BaseIO Unit := do
-  snap.cancelTk.set
-  if let some next := snap.nextCmdSnap? then
-    BaseIO.chainTask (sync := true) next.task cancelRemaining
-
 /--
 Entry point of the Lean language processor.
 
@@ -347,12 +342,12 @@ where
           result? := some {
             parserState := newParserState
             processedSnap := (← oldSuccess.processedSnap.bindIO (stx? := newStx)
-                (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
+                (cancelTk? := none) (reportingRange? := progressRange?) (sync := true) fun oldProcessed => do
               if let some oldProcSuccess := oldProcessed.result? then
                 -- also wait on old command parse snapshot as parsing is cheap and may allow for
                 -- elaboration reuse
                 oldProcSuccess.firstCmdSnap.bindIO (sync := true) (stx? := newStx)
-                    (reportingRange? := progressRange?) fun oldCmd => do
+                    (cancelTk? := none) (reportingRange? := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
                   parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
@@ -400,9 +395,7 @@ where
           -- `unchanged`
           return (← unchanged old stx parserState)
         -- on first change, make sure to cancel old invocation
-        BaseIO.chainTask (sync := true) old.processedResult.task fun
-          | none     => return
-          | some res => BaseIO.chainTask (sync := true) res.firstCmdSnap.task cancelRemaining
+        old.result?.forM (·.processedSnap.cancelRec)
       return {
         ictx, stx
         diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
@@ -493,7 +486,8 @@ where
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
           BaseIO.chainTask (sync := true) oldNext.task fun oldNext => do
-            parseCmd oldNext newParserState oldFinished.cmdState newProm sync old.cancelTk ctx
+            let cancelTk ← IO.CancelToken.new
+            parseCmd oldNext newParserState oldFinished.cmdState newProm sync cancelTk ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
           reportingRange? := some ⟨newParserState.pos, ctx.input.endPos⟩
@@ -527,7 +521,7 @@ where
         return (← unchanged old parserState)
       -- on first change, make sure to cancel old invocation
       if let some oldNext := old.nextCmdSnap? then do
-        BaseIO.chainTask (sync := true) oldNext.task cancelRemaining
+        oldNext.cancelRec
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
     -- processing of next command
@@ -535,9 +529,8 @@ where
       -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
       -- (as no-one should look at this result in that case) but anything containing `Environment`
       -- is not `Inhabited`
-      let cancelTk ← IO.CancelToken.new
       prom.resolve <| {
-        diagnostics := .empty, stx := .missing, parserState, cancelTk
+        diagnostics := .empty, stx := .missing, parserState
         elabSnap := default
         finishedSnap := .finished none { diagnostics := .empty, cmdState }
         reportSnap := default
@@ -548,7 +541,7 @@ where
     -- Start new task when leaving fast-forwarding path; see "General notes" above
     let _ ← (if sync then BaseIO.asTask else (.pure <$> ·)) do
       -- definitely resolved in `doElab` task
-      let cancelTk ← IO.CancelToken.new
+      let elabCancelTk ← IO.CancelToken.new
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
       let reportPromise ← IO.Promise.new
@@ -576,14 +569,14 @@ where
       let diagnostics ← Snapshot.Diagnostics.ofMessageLog msgLog
 
       prom.resolve {
-        cancelTk, diagnostics, finishedSnap, nextCmdSnap?
+        diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { stx? := stx', task := elabPromise.result! }
+        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCancelTk }
         reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
-        finishedPromise cancelTk ctx
+        finishedPromise elabCancelTk ctx
       let traceTask ←
         if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
@@ -617,7 +610,7 @@ where
           }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
-        parseCmd none parserState cmdState next (sync := false) cancelTk ctx
+        parseCmd none parserState cmdState next (sync := false) elabCancelTk ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)

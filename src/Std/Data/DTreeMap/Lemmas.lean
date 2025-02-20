@@ -180,6 +180,26 @@ theorem size_le_size_erase [TransCmp cmp] {k : α} :
   Impl.size_le_size_erase t.wf
 
 @[simp]
+theorem fst_containsThenInsert [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsert k v).1 = t.contains k :=
+  Impl.fst_containsThenInsert t.wf
+
+@[simp]
+theorem snd_containsThenInsert [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsert k v).2 = t.insert k v :=
+  ext <| Impl.snd_containsThenInsert t.wf
+
+@[simp]
+theorem fst_containsThenInsertIfNew [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).1 = t.contains k :=
+  Impl.fst_containsThenInsertIfNew t.wf
+
+@[simp]
+theorem snd_containsThenInsertIfNew [TransCmp cmp] {k : α} {v : β k} :
+    (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
+  ext <| Impl.snd_containsThenInsertIfNew t.wf
+
+@[simp]
 theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β k} :
     (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
   Impl.contains_insertIfNew t.wf

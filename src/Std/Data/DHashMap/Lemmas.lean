@@ -181,19 +181,37 @@ theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
   Raw₀.size_le_size_erase ⟨m.1, _⟩ m.2
 
 @[simp]
+theorem fst_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
+  Raw₀.containsThenInsert_fst _
+
+@[simp, deprecated fst_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_fst {k : α} {v : β k} : (m.containsThenInsert k v).1 = m.contains k :=
   Raw₀.containsThenInsert_fst _
 
 @[simp]
+theorem snd_containsThenInsert {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.insert k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k)) :)
+
+@[simp, deprecated snd_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_snd {k : α} {v : β k} : (m.containsThenInsert k v).2 = m.insert k v :=
   Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsert_snd _ (k := k)) :)
 
 @[simp]
+theorem fst_containsThenInsertIfNew {k : α} {v : β k} :
+    (m.containsThenInsertIfNew k v).1 = m.contains k :=
+  Raw₀.containsThenInsertIfNew_fst _
+
+@[simp, deprecated fst_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_fst {k : α} {v : β k} :
     (m.containsThenInsertIfNew k v).1 = m.contains k :=
   Raw₀.containsThenInsertIfNew_fst _
 
 @[simp]
+theorem snd_containsThenInsertIfNew {k : α} {v : β k} :
+    (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
+  Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k)) :)
+
+@[simp, deprecated snd_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_snd {k : α} {v : β k} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
   Subtype.eq <| (congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _ (k := k)) :)

@@ -178,6 +178,26 @@ theorem size_le_size_erase [TransCmp cmp] {k : α} :
   DTreeMap.size_le_size_erase
 
 @[simp]
+theorem fst_containsThenInsert [TransCmp cmp] {k : α} {v : β} :
+    (t.containsThenInsert k v).1 = t.contains k :=
+  DTreeMap.fst_containsThenInsert
+
+@[simp]
+theorem snd_containsThenInsert [TransCmp cmp] {k : α} {v : β} :
+    (t.containsThenInsert k v).2 = t.insert k v :=
+  ext <| DTreeMap.snd_containsThenInsert
+
+@[simp]
+theorem fst_containsThenInsertIfNew [TransCmp cmp] {k : α} {v : β} :
+    (t.containsThenInsertIfNew k v).1 = t.contains k :=
+  DTreeMap.fst_containsThenInsertIfNew
+
+@[simp]
+theorem snd_containsThenInsertIfNew [TransCmp cmp] {k : α} {v : β} :
+    (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
+  ext <| DTreeMap.snd_containsThenInsertIfNew
+
+@[simp]
 theorem contains_insertIfNew [TransCmp cmp] {k a : α} {v : β} :
     (t.insertIfNew k v).contains a = (cmp k a == .eq || t.contains a) :=
   DTreeMap.contains_insertIfNew

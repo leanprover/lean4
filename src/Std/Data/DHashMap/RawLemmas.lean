@@ -251,24 +251,44 @@ theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] (h : m.WF) {k : α}
   simp_to_raw using Raw₀.size_le_size_erase ⟨m, _⟩
 
 @[simp]
-theorem containsThenInsert_fst (h : m.WF) {k : α} {v : β k} :
+theorem fst_containsThenInsert (h : m.WF) {k : α} {v : β k} :
     (m.containsThenInsert k v).1 = m.contains k := by
   simp_to_raw using Raw₀.containsThenInsert_fst
 
+@[simp, deprecated fst_containsThenInsert (since := "2025-02-20")]
+theorem containsThenInsert_fst (h : m.WF) {k : α} {v : β k} :
+    (m.containsThenInsert k v).1 = m.contains k :=
+  fst_containsThenInsert h
+
 @[simp]
-theorem containsThenInsert_snd (h : m.WF) {k : α} {v : β k} :
+theorem snd_containsThenInsert (h : m.WF) {k : α} {v : β k} :
     (m.containsThenInsert k v).2 = m.insert k v := by
   simp_to_raw using congrArg Subtype.val (Raw₀.containsThenInsert_snd _)
 
+@[simp, deprecated snd_containsThenInsert (since := "2025-02-20")]
+theorem containsThenInsert_snd (h : m.WF) {k : α} {v : β k} :
+    (m.containsThenInsert k v).2 = m.insert k v :=
+  snd_containsThenInsert h
+
 @[simp]
-theorem containsThenInsertIfNew_fst (h : m.WF) {k : α} {v : β k} :
+theorem fst_containsThenInsertIfNew (h : m.WF) {k : α} {v : β k} :
     (m.containsThenInsertIfNew k v).1 = m.contains k := by
   simp_to_raw using Raw₀.containsThenInsertIfNew_fst
 
+@[simp, deprecated fst_containsThenInsertIfNew (since := "2025-02-20")]
+theorem containsThenInsertIfNew_fst (h : m.WF) {k : α} {v : β k} :
+    (m.containsThenInsertIfNew k v).1 = m.contains k :=
+  fst_containsThenInsertIfNew h
+
 @[simp]
-theorem containsThenInsertIfNew_snd (h : m.WF) {k : α} {v : β k} :
+theorem snd_containsThenInsertIfNew (h : m.WF) {k : α} {v : β k} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v := by
   simp_to_raw using congrArg Subtype.val (Raw₀.containsThenInsertIfNew_snd _)
+
+@[simp, deprecated snd_containsThenInsertIfNew (since := "2025-02-20")]
+theorem containsThenInsertIfNew_snd (h : m.WF) {k : α} {v : β k} :
+    (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
+  snd_containsThenInsertIfNew h
 
 @[simp]
 theorem get?_empty [LawfulBEq α] {a : α} {c} : (empty c : Raw α β).get? a = none := by

@@ -113,7 +113,9 @@ def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM Info := do
     let preDef := preDefs[callerIdx]
     lambdaTelescope preDef.value fun params body => do
       assert! params.size = arities[callerIdx]!
-      if (← ref.get).allNotFixed then return
+      -- TODO: Is this a useful shortcut?
+      -- if (← ref.get).allNotFixed then return
+
       -- TODO: transform is overkill, a simple visit-all-subexpression that takes applications
       -- as whole suffices
       discard <| Meta.transform (skipConstInApp := true) body fun e => e.withApp fun f args => do
@@ -162,7 +164,6 @@ structure FixedParams where
 
 def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
   let info ← getFixedParamsInfo preDefs
-
   lambdaTelescope preDefs[0]!.value fun xs _ => do
     let paramInfos := info[0]!
     assert! xs.size = paramInfos.size

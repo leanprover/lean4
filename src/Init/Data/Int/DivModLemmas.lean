@@ -160,7 +160,6 @@ theorem tdiv_eq_ediv : ∀ {a b : Int}, 0 ≤ a → 0 ≤ b → a.tdiv b = a / b
   | 0, _, _, _ | _, 0, _, _ => by simp
   | succ _, succ _, _, _ => rfl
 
-
 theorem fdiv_eq_ediv : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
   | 0, _, _ | -[_+1], 0, _ => by simp
   | succ _, ofNat _, _ | -[_+1], succ _, _ => rfl

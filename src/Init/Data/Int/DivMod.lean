@@ -257,8 +257,8 @@ theorem ofNat_fdiv : ∀ m n : Nat, ↑(m / n) = fdiv ↑m ↑n
 # `bmod` ("balanced" mod)
 
 Balanced mod (and balanced div) are a division and modulus pair such
-that `b * (Int.bdiv a b) + Int.bmod a b = a` and `-b/2 ≤ Int.bmod a b <
-b/2` for all `a : Int` and `b > 0`.
+that `b * (Int.bdiv a b) + Int.bmod a b = a` and
+`-b/2 ≤ Int.bmod a b < b/2` for all `a : Int` and `b > 0`.
 
 This is used in Omega as well as signed bitvectors.
 -/

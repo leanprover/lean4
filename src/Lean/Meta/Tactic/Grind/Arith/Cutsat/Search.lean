@@ -45,4 +45,62 @@ def getBestUpper? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
       best? := some (upper', cₚ)
   return best?
 
+private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
+  if x == (← get').assignment.size then
+    trace[grind.cutsat.assign] "{(← getVar x)} := {v}"
+    modify' fun s => { s with assignment := s.assignment.push v }
+  else if x > (← get').assignment.size then
+    modify' fun s => { s with assignment := s.assignment.push 0 }
+    setAssignment x v
+  else
+    throwError "`grind` internal error, variable is already assigned"
+
+def resolveLowerUpperConflict (c₁ c₂ : RelCnstrWithProof) : GoalM Unit := do
+  -- TODO
+  trace[grind.cutsat.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
+  return ()
+
+def decideVar (x : Var) : GoalM Unit := do
+  let lower? ← getBestLower? x
+  let upper? ← getBestUpper? x
+  let div? := (← get').dvdCnstrs[x]!
+  match lower?, upper?, div? with
+  | none, none, none =>
+    setAssignment x 0
+  | some (lower, _), none, none =>
+    setAssignment x lower
+  | none, some (upper, _), none =>
+    setAssignment x upper
+  | some (lower, c₁), some (upper, c₂), none =>
+    if lower ≤ upper then
+      setAssignment x lower
+    else
+      trace[grind.cutsat.conflict] "{lower} ≤ {← getVar x} ≤ {upper}"
+      resolveLowerUpperConflict c₁ c₂
+      -- TODO: remove the following
+      setAssignment x 0
+  | _, _, _ =>
+    -- TODO: cases containing a divisibility constraint.
+    -- TODO: remove the following
+    setAssignment x 0
+
+/-- Returns `true` if we already have a complete assignment / model. -/
+def hasAssignment : GoalM Bool := do
+  return (← get').vars.size == (← get').assignment.size
+
+private def isDone : GoalM Bool := do
+  if (← hasAssignment) then
+    return true
+  if (← isInconsistent) then
+    return true
+  return false
+
+/-- Search for an assignment/model for the linear constraints. -/
+def searchAssigment : GoalM Unit := do
+  repeat
+    if (← isDone) then
+      return ()
+    let x : Var := (← get').assignment.size
+    decideVar x
+
 end Lean.Meta.Grind.Arith.Cutsat

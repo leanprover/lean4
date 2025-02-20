@@ -66,6 +66,9 @@ def get' : GoalM State := do
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
+def getVar (x : Var) : GoalM Expr :=
+  return (← get').vars[x]!
+
 def mkCnstrId : GoalM Nat := do
   let id := (← get').nextCnstrId
   modify' fun s => { s with nextCnstrId := id + 1 }

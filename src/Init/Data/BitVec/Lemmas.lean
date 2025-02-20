@@ -1254,9 +1254,8 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
   simp only [shiftLeftZeroExtend_eq, toNat_shiftLeft, toNat_setWidth]
   by_cases hn : 0 < n
   · simp only [hn, ↓reduceIte]
-    have : 2 ^ w < 2 ^ w * 2 ^ n := by
-      rw [← Nat.pow_add, Nat.pow_lt_pow_iff_right (by omega)]
-      omega
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
+    rw [Nat.add_comm, Nat.pow_add] at this
     have : ((x.toNat % 2 ^ (w + n)) <<< n) < 2 ^ (w + n) := by
       rw [Nat.pow_add, Nat.shiftLeft_eq, Nat.mod_eq_of_lt (by omega)]
       have := Nat.mul_lt_mul_right (b := x.toNat) (a := 2 ^ n) (c := 2 ^ w)
@@ -1268,12 +1267,21 @@ theorem toNat_shiftLeftZeroExtend {x : BitVec w} :
 theorem toInt_shiftLeftZeroExtend {x : BitVec w} :
     (shiftLeftZeroExtend x n).toInt = ((x.toNat <<< n) : Int).bmod (2 ^ w * 2 ^ n)  := by
   simp only [shiftLeftZeroExtend_eq, toInt_shiftLeft, toNat_setWidth]
-  by_cases 0 < n
+  by_cases hn : 0 < n
   · have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
     rw [Nat.add_comm] at this
     rw [Nat.mod_eq_of_lt (by omega), Nat.pow_add]
   · simp [show n = 0 by omega]
 
+theorem toFin_shiftLeftZeroExtend {x : BitVec w} :
+    (shiftLeftZeroExtend x n).toFin = if n = 0 then Fin.ofNat' (2 ^ (w + n)) x.toNat else Fin.ofNat' (2 ^ (w + n)) (x.toNat <<< n) := by
+  simp only [shiftLeftZeroExtend_eq, toFin_shiftLeft, toNat_setWidth]
+  by_cases hn : 0 < n
+  · simp only [show ¬n = 0 by omega, ↓reduceIte]
+    have := Nat.pow_lt_pow_of_lt (a := 2) (n := w) (m := n + w) (by omega) (by omega)
+    rw [Nat.add_comm] at this
+    rw [Nat.mod_eq_of_lt (by omega)]
+  · simp [show n = 0 by omega]
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
     (shiftLeftZeroExtend x n)[i] = ((! decide (i < n)) && getLsbD x (i - n)) := by

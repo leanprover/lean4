@@ -797,7 +797,7 @@ theorem balanced_modify [Ord α] [LawfulEqOrd α] {k f} {t : Impl α β} (ht : t
     dsimp only  [modify]
     have ihl := ihl ht.left
     have ihr := ihr ht.right
-    exact ✓
+    tree_tac
 
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the

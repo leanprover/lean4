@@ -54,3 +54,33 @@ def bar (b : Nat) (n : Nat) (c : Nat) (m : Nat) : Nat := foo c n b m
 decreasing_by decreasing_tactic
 end
 end Ex4
+
+namespace Append1
+
+/--
+info: [Elab.definition.fixedParams] getFixedParams: notFixed 0 1:
+    In app as bs
+    x✝¹ =/= as
+[Elab.definition.fixedParams] getFixedParams: notFixed 0 2:
+    In app as bs
+    x✝ =/= bs
+[Elab.definition.fixedParams] getFixedParams: [[some ([some (0)]), none, none]]
+-/
+#guard_msgs(info) in
+def app : List α → List α → List α
+  | [], bs => bs
+  | a::as, bs => a :: app as bs
+
+/--
+info: [Elab.definition.fixedParams] getFixedParams: notFixed 0 1:
+    In app' as bs
+    as✝ =/= as
+[Elab.definition.fixedParams] getFixedParams: [[some ([some (0)]), none, some ([some (2)])]]
+-/
+#guard_msgs(info) in
+def app' (as : List α) (bs : List α) : List α :=
+  match as with
+  | [] => bs
+  | a::as => a :: app' as bs
+
+end Append1

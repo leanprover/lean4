@@ -773,6 +773,22 @@ protected theorem extractLsb_ofNat (x n : Nat) (hi lo : Nat) :
 @[simp] theorem extractLsb_toNat (hi lo : Nat) (x : BitVec n) :
   (extractLsb hi lo x).toNat = (x.toNat >>> lo) % 2^(hi-lo+1) := rfl
 
+@[simp] theorem extractLsb'_toInt (s m : Nat) (x : BitVec n) :
+    (extractLsb' s m x).toInt = ((x.toNat >>> s) : Int).bmod (2 ^ m) := by
+  simp [extractLsb', toInt_ofNat]
+
+@[simp] theorem extractLsb_toInt (hi lo : Nat) (x : BitVec n) :
+  (extractLsb hi lo x).toInt = ((x.toNat >>> lo) : Int).bmod (2 ^ (hi - lo + 1)) := by
+  simp [extractLsb, toInt_ofNat]
+
+@[simp] theorem extractLsb'_toFin (s m : Nat) (x : BitVec n) :
+    (extractLsb' s m x).toFin = Fin.ofNat' (2 ^ m) (x.toNat >>> s) := by
+  simp [extractLsb', toInt_ofNat]
+
+@[simp] theorem extractLsb_toFin (hi lo : Nat) (x : BitVec n) :
+  (extractLsb hi lo x).toFin = Fin.ofNat' (2 ^ (hi - lo + 1)) (x.toNat >>> lo) := by
+  simp [extractLsb, toInt_ofNat]
+
 @[simp] theorem getElem_extractLsb' {start len : Nat} {x : BitVec n} {i : Nat} (h : i < len) :
     (extractLsb' start len x)[i] = x.getLsbD (start+i) := by
   simp [getElem_eq_testBit_toNat, getLsbD, h]

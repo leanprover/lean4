@@ -173,14 +173,6 @@ in the collection will be present in the returned hash set.
 @[inline] def ofList [BEq α] [Hashable α] (l : List α) : Raw α :=
   ⟨HashMap.Raw.unitOfList l⟩
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-/-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
-  ⟨m.inner.filter fun a _ => f a⟩
-
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
 order.
@@ -192,6 +184,18 @@ order.
 /-- Folds the given function over the elements of the hash set in some order. -/
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
   m.inner.fold (fun b a _ => f b a) init
+
+/--
+Monadically computes a value by folding the given function over the elements in the hash set in reverse
+order.
+-/
+@[inline] def foldRevM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
+    (b : Raw α) : m β :=
+  b.inner.foldRevM (fun b a _ => f b a) init
+
+/-- Folds the given function over the elements of the hash set in reverse order. -/
+@[inline] def foldRev {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
+  m.inner.foldRev (fun b a _ => f b a) init
 
 /-- Carries out a monadic action on each element in the hash set in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
@@ -207,6 +211,14 @@ instance {m : Type v → Type v} : ForM m (Raw α) α where
 
 instance {m : Type v → Type v} : ForIn m (Raw α) α where
   forIn m init f := m.forIn f init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
+@[inline] def filter [BEq α] [Hashable α] (f : α → Bool) (m : Raw α) : Raw α :=
+  ⟨m.inner.filter fun a _ => f a⟩
 
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : Raw α) (p : α → Bool) : Bool := Id.run do

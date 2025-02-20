@@ -203,19 +203,6 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     List (α × β) :=
   DHashMap.Const.toList m.inner
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β :=
-  ⟨m.inner.filter f⟩
-
-@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
-    (m : HashMap α β) : HashMap α β × HashMap α β :=
-  let ⟨l, r⟩ := m.inner.partition f
-  ⟨⟨l⟩, ⟨r⟩⟩
-
 @[inline, inherit_doc DHashMap.foldM] def foldM {m : Type w → Type w}
     [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
   b.inner.foldM f init
@@ -223,6 +210,14 @@ section Unverified
 @[inline, inherit_doc DHashMap.fold] def fold {γ : Type w}
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.fold f init
+
+@[inline, inherit_doc DHashMap.foldRevM] def foldRevM {m : Type w → Type w}
+    [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
+  b.inner.foldRevM f init
+
+@[inline, inherit_doc DHashMap.foldRev] def foldRev {γ : Type w}
+    (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
+  b.inner.foldRev f init
 
 @[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
@@ -237,6 +232,19 @@ instance [BEq α] [Hashable α] {m : Type w → Type w} : ForM m (HashMap α β)
 
 instance [BEq α] [Hashable α] {m : Type w → Type w} : ForIn m (HashMap α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline, inherit_doc DHashMap.filter] def filter (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β :=
+  ⟨m.inner.filter f⟩
+
+@[inline, inherit_doc DHashMap.partition] def partition (f : α → β → Bool)
+    (m : HashMap α β) : HashMap α β × HashMap α β :=
+  let ⟨l, r⟩ := m.inner.partition f
+  ⟨⟨l⟩, ⟨r⟩⟩
 
 @[inline, inherit_doc DHashMap.Const.toArray] def toArray (m : HashMap α β) :
     Array (α × β) :=

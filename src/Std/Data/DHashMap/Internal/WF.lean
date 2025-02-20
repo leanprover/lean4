@@ -164,7 +164,7 @@ theorem keys_eq_keys_toListModel {m : Raw α β }:
     m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
 
-theorem forM_eq_forM_toList {l: Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
     {f : (a : α) → β a → m PUnit} :
     l.forM f = (toListModel l.buckets).forM (fun a => f a.1 a.2) := by
   simp only [Raw.forM, Array.forM, ← Array.foldlM_toList, toListModel]
@@ -183,6 +183,24 @@ theorem forM_eq_forM_toList {l: Raw α β} {m : Type w → Type w} [Monad m] [La
         rw [ih]
     · funext x
       simp [ih]
+
+theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    l.forIn f init = ForIn.forIn (toListModel l.buckets) init (fun a d => f a.1 a.2 d) := by
+  rw [Raw.forIn, ← Array.forIn_toList, toListModel]
+  induction l.buckets.toList generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    induction hd generalizing init with
+    | nil => simpa [AssocList.forInStep, AssocList.forInStep.go] using ih
+    | cons k v tl' ih' =>
+      simp only [AssocList.forInStep, forIn_cons, AssocList.forInStep.go, LawfulMonad.bind_assoc,
+        flatMap_cons, AssocList.toList_cons, cons_append]
+      congr
+      apply funext
+      rintro (⟨d⟩|⟨d⟩)
+      · simp
+      · simpa using ih'
 
 end Raw
 

@@ -192,21 +192,6 @@ instance [BEq α] [Hashable α] : GetElem? (Raw α β) α β (fun m a => a ∈ m
 @[inline, inherit_doc DHashMap.Raw.Const.toList] def toList (m : Raw α β) : List (α × β) :=
   DHashMap.Raw.Const.toList m.inner
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-@[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
-    (m : Raw α β) : Raw α γ :=
-  ⟨m.inner.filterMap f⟩
-
-@[inline, inherit_doc DHashMap.Raw.map] def map {γ : Type w} (f : α → β → γ) (m : Raw α β) :
-    Raw α γ :=
-  ⟨m.inner.map f⟩
-
-@[inline, inherit_doc DHashMap.Raw.filter] def filter (f : α → β → Bool) (m : Raw α β) : Raw α β :=
-  ⟨m.inner.filter f⟩
-
 @[inline, inherit_doc DHashMap.Raw.foldM] def foldM {m : Type w → Type w} [Monad m] {γ : Type w}
     (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
   b.inner.foldM f init
@@ -214,6 +199,14 @@ section Unverified
 @[inline, inherit_doc DHashMap.Raw.fold] def fold {γ : Type w} (f : γ → α → β → γ) (init : γ)
     (b : Raw α β) : γ :=
   b.inner.fold f init
+
+@[inline, inherit_doc DHashMap.Raw.foldRevM] def foldRevM {m : Type w → Type w} [Monad m]
+    {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : Raw α β) : m γ :=
+  b.inner.foldRevM f init
+
+@[inline, inherit_doc DHashMap.Raw.foldRev] def foldRev {γ : Type w} (f : γ → α → β → γ) (init : γ)
+    (b : Raw α β) : γ :=
+  b.inner.foldRev f init
 
 @[inline, inherit_doc DHashMap.Raw.forM] def forM {m : Type w → Type w} [Monad m]
     (f : (a : α) → β → m PUnit) (b : Raw α β) : m PUnit :=
@@ -228,6 +221,21 @@ instance {m : Type w → Type w} : ForM m (Raw α β) (α × β) where
 
 instance {m : Type w → Type w} : ForIn m (Raw α β) (α × β) where
   forIn m init f := m.forIn (fun a b acc => f (a, b) acc) init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline, inherit_doc DHashMap.Raw.filterMap] def filterMap {γ : Type w} (f : α → β → Option γ)
+    (m : Raw α β) : Raw α γ :=
+  ⟨m.inner.filterMap f⟩
+
+@[inline, inherit_doc DHashMap.Raw.map] def map {γ : Type w} (f : α → β → γ) (m : Raw α β) :
+    Raw α γ :=
+  ⟨m.inner.map f⟩
+
+@[inline, inherit_doc DHashMap.Raw.filter] def filter (f : α → β → Bool) (m : Raw α β) : Raw α β :=
+  ⟨m.inner.filter f⟩
 
 @[inline, inherit_doc DHashMap.Raw.Const.toArray] def toArray (m : Raw α β) : Array (α × β) :=
   DHashMap.Raw.Const.toArray m.inner

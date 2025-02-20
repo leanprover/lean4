@@ -46,14 +46,15 @@ register_builtin_option Elab.async : Bool := {
 
 /--
 If the `diagnostics` option is not already set, gives a message explaining this option.
-Begins with a `\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+Begins with a `\n\n`, so an error message can look like `m!"some error occurred{useDiagnosticMsg}"`.
+The double newline gives better visual separation from the main error message
 -/
 def useDiagnosticMsg : MessageData :=
   MessageData.lazy fun ctx =>
     if diagnostics.get ctx.opts then
       pure ""
     else
-      pure s!"\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
+      pure s!"\n\nAdditional diagnostic information may be available using the `set_option {diagnostics.name} true` command."
 
 namespace Core
 

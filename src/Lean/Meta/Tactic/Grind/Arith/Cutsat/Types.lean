@@ -55,7 +55,7 @@ structure State where
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
   if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is negative.
-   -/
+  -/
   lowers : PArray (PArray RelCnstrWithProof) := {}
   /--
   Mapping from variables to their "upper" bounds. We say a relational constraint `c` is a upper bound for a variable `x`

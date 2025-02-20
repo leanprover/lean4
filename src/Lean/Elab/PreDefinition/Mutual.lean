@@ -83,22 +83,32 @@ def Info.getCallerParam? (calleeIdx argIdx callerIdx : Nat) (info : Info) : Opti
 We observe a possibly valid edge.
 -/
 partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (info : Info) : Info :=
-  if ! info.mayBeFixed calleeIdx argIdx then
-    info.setNotFixed callerIdx paramIdx
-  else if ! info.mayBeFixed callerIdx paramIdx then
-    info.setNotFixed calleeIdx argIdx
-  else if let some paramIdx' := info.getCallerParam? calleeIdx argIdx callerIdx then
-    -- We already have an etry
-    if paramIdx = paramIdx' then
-      -- all good
-      info
+  if info.mayBeFixed calleeIdx argIdx then
+    if info.mayBeFixed callerIdx paramIdx then
+      if let some paramIdx' := info.getCallerParam? calleeIdx argIdx callerIdx then
+      -- We already have an etry
+      if paramIdx = paramIdx' then
+        -- all good
+        info
+      else
+        -- Inconsistent information, mark both as not fixed
+        info.setNotFixed callerIdx paramIdx |>.setNotFixed calleeIdx argIdx
     else
-      -- Inconsistent information, mark both as not fixed
-      info.setNotFixed callerIdx paramIdx |>.setNotFixed calleeIdx argIdx
+      -- Set the new entry
+      let info := info.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx))))
+      Id.run do
+        -- Propagate
+        let mut info : Info := info
+        if let some callerParamInfo := info[callerIdx]![paramIdx]! then
+          for h : otherFunIdx in [:callerParamInfo.size] do
+            if let some otherParamIdx := callerParamInfo[otherFunIdx] then
+              info := info.setCallerParam calleeIdx argIdx otherFunIdx otherParamIdx
+        return info
+    else
+      -- Param not fixed, so argument isn't either
+      info.setNotFixed calleeIdx argIdx
   else
-    -- Set the new entry
-    info.modify calleeIdx (·.modify argIdx (·.map (·.set! callerIdx (some paramIdx))))
-    -- (TODO: Propagate?)
+    info
 
 
 def getFixedParams (preDefs : Array PreDefinition) : MetaM Unit := do

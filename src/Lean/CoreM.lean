@@ -392,9 +392,11 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : CoreM
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
 /-- Wraps the given action for use in `EIO.asTask` etc., discarding its final monadic state. -/
-def wrapAsync (act : Unit → CoreM α) : CoreM (EIO Exception α) := do
+def wrapAsync (act : Unit → CoreM α) (cancelTk? : Option IO.CancelToken) :
+    CoreM (EIO Exception α) := do
   let st ← get
   let ctx ← read
+  let ctx := { ctx with cancelTk? }
   let heartbeats := (← IO.getNumHeartbeats) - ctx.initHeartbeats
   return withCurrHeartbeats (do
       -- include heartbeats since start of elaboration in new thread as well such that forking off
@@ -413,11 +415,13 @@ register_builtin_option stderrAsMessages : Bool := {
 open Language in
 /--
 Wraps the given action for use in `BaseIO.asTask` etc., discarding its final state except for
-`logSnapshotTask` tasks, which are reported as part of the returned tree.
+`logSnapshotTask` tasks, which are reported as part of the returned tree. The given cancellation
+token, if any, should be stored in a `SnapshotTask` for the server to trigger it when the result is
+no longer needed.
 -/
-def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (desc : String := by exact decl_name%.toString) :
-    CoreM (BaseIO SnapshotTree) := do
-  let t ← wrapAsync fun _ => do
+def wrapAsyncAsSnapshot (act : Unit → CoreM Unit) (cancelTk? : Option IO.CancelToken)
+    (desc : String := by exact decl_name%.toString) : CoreM (BaseIO SnapshotTree) := do
+  let t ← wrapAsync (cancelTk? := cancelTk?) fun _ => do
     IO.FS.withIsolatedStreams (isolateStderr := stderrAsMessages.get (← getOptions)) do
       let tid ← IO.getTID
       -- reset trace state and message log so as not to report them twice
@@ -529,7 +533,8 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
   let env ← getEnv
   let res ← env.promiseChecked
   setEnv res.mainEnv
-  let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+  let cancelTk ← IO.CancelToken.new
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
     setEnv res.asyncEnv
     try
       doCompile
@@ -537,7 +542,7 @@ partial def compileDecls (decls : List Name) (ref? : Option Declaration := none)
       res.commitChecked (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doCompile := do
   -- don't compile if kernel errored; should be converted into a task dependency when compilation
   -- is made async as well

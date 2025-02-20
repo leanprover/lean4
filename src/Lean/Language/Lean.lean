@@ -471,7 +471,7 @@ where
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
-      (prevCancelTk : IO.CancelToken) : LeanProcessingM Unit := do
+      (cancelTk : IO.CancelToken) : LeanProcessingM Unit := do
     let ctx ← read
 
     let unchanged old newParserState : BaseIO Unit :=
@@ -520,12 +520,11 @@ where
         -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
         return (← unchanged old parserState)
       -- on first change, make sure to cancel old invocation
-      if let some oldNext := old.nextCmdSnap? then do
-        oldNext.cancelRec
+      SnapshotTask.cancelRec { stx? := none, task := .pure old }
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
     -- processing of next command
-    if (← prevCancelTk.isSet) then
+    if (← cancelTk.isSet) then
       -- this is a bit ugly as we don't want to adjust our API with `Option`s just for cancellation
       -- (as no-one should look at this result in that case) but anything containing `Environment`
       -- is not `Inhabited`
@@ -541,7 +540,6 @@ where
     -- Start new task when leaving fast-forwarding path; see "General notes" above
     let _ ← (if sync then BaseIO.asTask else (.pure <$> ·)) do
       -- definitely resolved in `doElab` task
-      let elabCancelTk ← IO.CancelToken.new
       let elabPromise ← IO.Promise.new
       let finishedPromise ← IO.Promise.new
       let reportPromise ← IO.Promise.new
@@ -571,12 +569,12 @@ where
       prom.resolve {
         diagnostics, finishedSnap, nextCmdSnap?
         stx := stx', parserState := parserState'
-        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some elabCancelTk }
+        elabSnap := { stx? := stx', task := elabPromise.result!, cancelTk? := some cancelTk }
         reportSnap := { stx? := none, reportingRange? := initRange?, task := reportPromise.result! }
       }
       let cmdState ← doElab stx cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap⟩, new := elabPromise }
-        finishedPromise elabCancelTk ctx
+        finishedPromise cancelTk ctx
       let traceTask ←
         if (← isTracingEnabledForCore `Elab.snapshotTree cmdState.scopes.head!.opts) then
           -- We want to trace all of `CommandParsedSnapshot` but `traceTask` is part of it, so let's
@@ -610,7 +608,7 @@ where
           }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
-        parseCmd none parserState cmdState next (sync := false) elabCancelTk ctx
+        parseCmd none parserState cmdState next (sync := false) cancelTk ctx
 
   doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos)
       (snap : SnapshotBundle DynamicSnapshot) (finishedPromise : IO.Promise CommandFinishedSnapshot)

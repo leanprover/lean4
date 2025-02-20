@@ -307,15 +307,15 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
             .inner (1 + ls + rs) rlk rlv (.inner (1 + ls + rll.size) k v l rll)
               (.inner (1 + rrs + rlr.size) rk rv rlr rr)
         | inner _ _ _ _ _, .leaf => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hr
-            simp only [delta] at h₁
-            have := hl.one_le
-            omega)
+          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hr
+          simp only [delta] at h₁
+          have := hl.one_le
+          omega)
         | .leaf, _ => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hr
-            simp only [delta] at h₁
-            have := hl.one_le
-            omega)
+          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hr
+          simp only [delta] at h₁
+          have := hl.one_le
+          omega)
       else if h₂ : delta * rs < ls then
         match ll, lr with
         | .inner lls _ _ _ _, .inner lrs lrk lrv lrl lrr =>
@@ -325,15 +325,15 @@ def balance (k : α) (v : β k) (l r : Impl α β) (hl : Balanced l) (hr : Balan
             .inner (1 + ls + rs) lrk lrv (.inner (1 + lls + lrl.size) lk lv ll lrl)
               (.inner (1 + rs + lrr.size) k v lrr r)
         | inner _ _ _ _ _, .leaf => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hl
-            simp only [delta] at h₂
-            have := hr.one_le
-            omega)
+          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff'] at hl
+          simp only [delta] at h₂
+          have := hr.one_le
+          omega)
         | .leaf, _ => False.elim (by
-            simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hl
-            simp only [delta] at h₂
-            have := hr.one_le
-            omega)
+          simp only [balanced_inner_iff, size_inner, size_leaf, balancedAtRoot_zero_iff] at hl
+          simp only [delta] at h₂
+          have := hr.one_le
+          omega)
       else
         .inner (1 + ls + rs) k v l r
 
@@ -757,6 +757,13 @@ theorem balance_eq_balance! {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr}
   repeat' (split; dsimp)
   all_goals try contradiction
   all_goals simp_all [-Nat.not_lt]
+
+theorem balance_eq_inner [Ord α] {sz k v} {l r : Impl α β}
+    (hl : (inner sz k v l r).Balanced) {h} :
+    balance k v l r hl.left hl.right h = inner sz k v l r := by
+  rw [balance_eq_balance!, balance!_eq_balanceₘ hl.left hl.right h, balanceₘ]
+  have hl' := balanced_inner_iff.mp hl
+  cases k, v, l, r, hl.left, hl.right, h using balanceₘ.fun_cases <;> tree_tac
 
 theorem balance!_desc {k : α} {v : β k} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :

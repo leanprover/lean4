@@ -99,7 +99,7 @@ def resolve_left' (a c d p x : Int) (h₁ : p ≤ a * x) : Nat := (add_of_le h�
 /-- `resolve_left` is nonnegative when `p ≤ a * x`. -/
 theorem le_zero_resolve_left (a c d p x : Int) (h₁ : p ≤ a * x) :
     0 ≤ resolve_left a c d p x := by
-  simpa [h₁] using Int.ofNat_nonneg _
+  simp [h₁]
 
 /-- `resolve_left` is bounded above by `lcm a (a * d / gcd (a * d) c)`. -/
 theorem resolve_left_lt_lcm (a c d p x : Int) (a_pos : 0 < a) (d_pos : 0 < d) (h₁ : p ≤ a * x) :

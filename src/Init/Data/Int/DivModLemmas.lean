@@ -156,17 +156,18 @@ unseal Nat.div in
 
 /-! ### div equivalences  -/
 
-theorem tdiv_eq_ediv : ∀ {a b : Int}, 0 ≤ a → 0 ≤ b → a.tdiv b = a / b
-  | 0, _, _, _ | _, 0, _, _ => by simp
-  | succ _, succ _, _, _ => rfl
-
+theorem tdiv_eq_ediv : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
+  | 0, _, _
+  | _, 0, _ => by simp
+  | succ _, succ _, _ => rfl
+  | succ _, -[_+1], _ => rfl
 
 theorem fdiv_eq_ediv : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
   | 0, _, _ | -[_+1], 0, _ => by simp
   | succ _, ofNat _, _ | -[_+1], succ _, _ => rfl
 
 theorem fdiv_eq_tdiv {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
-  tdiv_eq_ediv Ha Hb ▸ fdiv_eq_ediv _ Hb
+  tdiv_eq_ediv Ha ▸ fdiv_eq_ediv _ Hb
 
 /-! ### mod zero -/
 
@@ -279,11 +280,11 @@ theorem fmod_def (a b : Int) : a.fmod b = a - b * a.fdiv b := by
 theorem fmod_eq_emod (a : Int) {b : Int} (hb : 0 ≤ b) : fmod a b = a % b := by
   simp [fmod_def, emod_def, fdiv_eq_ediv _ hb]
 
-theorem tmod_eq_emod {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : tmod a b = a % b := by
-  simp [emod_def, tmod_def, tdiv_eq_ediv ha hb]
+theorem tmod_eq_emod {a b : Int} (ha : 0 ≤ a) : tmod a b = a % b := by
+  simp [emod_def, tmod_def, tdiv_eq_ediv ha]
 
 theorem fmod_eq_tmod {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fmod a b = tmod a b :=
-  tmod_eq_emod Ha Hb ▸ fmod_eq_emod _ Hb
+  tmod_eq_emod Ha ▸ fmod_eq_emod _ Hb
 
 /-! ### `/` ediv -/
 
@@ -377,7 +378,8 @@ theorem div_nonneg_iff_of_pos {a b : Int} (h : 0 < b) : a / b ≥ 0 ↔ a ≥ 0 
   match b, h with
   | Int.ofNat (b+1), _ =>
     rcases a with ⟨a⟩ <;> simp [Int.ediv]
-    exact decide_eq_decide.mp rfl
+    norm_cast
+    simp
 
 theorem ediv_eq_zero_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : a / b = 0 :=
   match a, b, eq_ofNat_of_zero_le H1, eq_succ_of_zero_lt (Int.lt_of_le_of_lt H1 H2) with
@@ -918,7 +920,7 @@ theorem ofNat_tmod (m n : Nat) : (↑(m % n) : Int) = tmod m n := rfl
   simp [tmod_def, Int.tdiv_one, Int.one_mul, Int.sub_self]
 
 theorem tmod_eq_of_lt {a b : Int} (H1 : 0 ≤ a) (H2 : a < b) : tmod a b = a := by
-  rw [tmod_eq_emod H1 (Int.le_trans H1 (Int.le_of_lt H2)), emod_eq_of_lt H1 H2]
+  rw [tmod_eq_emod H1, emod_eq_of_lt H1 H2]
 
 theorem tmod_lt_of_pos (a : Int) {b : Int} (H : 0 < b) : tmod a b < b :=
   match a, b, eq_succ_of_zero_lt H with

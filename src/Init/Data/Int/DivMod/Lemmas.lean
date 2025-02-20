@@ -20,13 +20,13 @@ namespace Int
 
 /-! ### dvd  -/
 
-protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
+-- protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
-@[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
+-- @[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
 
 -- @[simp] protected theorem dvd_refl (n : Int) : n ∣ n := ⟨1, (Int.mul_one _).symm⟩
 
-@[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
+-- @[simp] protected theorem one_dvd (n : Int) : 1 ∣ n := ⟨n, (Int.one_mul n).symm⟩
 
 -- protected theorem dvd_trans : ∀ {a b c : Int}, a ∣ b → b ∣ c → a ∣ c
 --   | _, _, _, ⟨d, rfl⟩, ⟨e, rfl⟩ => Exists.intro (d * e) (by rw [Int.mul_assoc])
@@ -52,15 +52,15 @@ theorem dvd_antisymm {a b : Int} (H1 : 0 ≤ a) (H2 : 0 ≤ b) : a ∣ b → b �
 
 -- protected theorem dvd_mul_right (a b : Int) : a ∣ a * b := ⟨_, rfl⟩
 
-protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
+-- protected theorem dvd_mul_left (a b : Int) : b ∣ a * b := ⟨_, Int.mul_comm ..⟩
 
-@[simp] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
-  constructor <;> exact fun ⟨k, e⟩ =>
-    ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+-- @[simp] protected theorem neg_dvd {a b : Int} : -a ∣ b ↔ a ∣ b := by
+--   constructor <;> exact fun ⟨k, e⟩ =>
+--     ⟨-k, by simp [e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
-protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
-  constructor <;> exact fun ⟨k, e⟩ =>
-    ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
+-- protected theorem dvd_neg {a b : Int} : a ∣ -b ↔ a ∣ b := by
+--   constructor <;> exact fun ⟨k, e⟩ =>
+--     ⟨-k, by simp [← e, Int.neg_mul, Int.mul_neg, Int.neg_neg]⟩
 
 -- @[simp] theorem natAbs_dvd_natAbs {a b : Int} : natAbs a ∣ natAbs b ↔ a ∣ b := by
 --   refine ⟨fun ⟨k, hk⟩ => ?_, fun ⟨k, hk⟩ => ⟨natAbs k, hk.symm ▸ natAbs_mul a k⟩⟩

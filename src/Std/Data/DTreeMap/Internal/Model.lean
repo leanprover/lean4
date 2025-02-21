@@ -324,14 +324,35 @@ theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l :
     all_goals simp_all [Cell.get?, Cell.ofEq]
   · simp [get?, applyCell]
 
-theorem get_eq_getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
-    l.get k h = l.getₘ k h := by
-  simp only [get?ₘ]
+theorem get_eq_get? [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
+    l.get k h = l.get? k := by
   induction l
-  · simp only [applyCell, get?]
+  · simp only [applyCell, get, get?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem get_eq_getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} (h') :
+    l.get k h = l.getₘ k h' := by
+  apply Option.some.inj
+  simp [get_eq_get?, get?_eq_get?ₘ, getₘ]
+
+theorem get!_eq_get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k)] (l : Impl α β) :
+    l.get! k = l.get!ₘ k := by
+  simp only [get!ₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, get!]
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.get?, Cell.ofEq]
-  · simp [get?, applyCell]
+  · simp only [get!, applyCell, Cell.get?_empty, Option.get!_none]; rfl
+
+theorem getD_eq_getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
+    (fallback : β k) : l.getD k fallback = l.getDₘ k fallback := by
+  simp only [getDₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, getD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.get?, Cell.ofEq]
+  · simp only [getD, applyCell, Cell.get?_empty, Option.getD_none]
 
 theorem balanceL_eq_balance {k : α} {v : β k} {l r : Impl α β} {hlb hrb hlr} :
     balanceL k v l r hlb hrb hlr = balance k v l r hlb hrb (Or.inl hlr.erase) := by

@@ -569,19 +569,32 @@ theorem get?_eq_getValueCast? [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {
 -/
 
 theorem contains_eq_get?ₘ_isSome [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
-    (hto : t.Ordered) : containsKey k t.toListModel = (t.get?ₘ k).isSome := by
-  rw [get?ₘ_eq_getValueCast? hto, containsKey_eq_isSome_getValueCast?]
+    (hto : t.Ordered) : contains k t = (t.get?ₘ k).isSome := by
+  rw [get?ₘ_eq_getValueCast? hto, contains_eq_containsKey hto, containsKey_eq_isSome_getValueCast?]
 
 theorem getₘ_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} (h) {h'}
     (hto : t.Ordered) : t.getₘ k h' = getValueCast k t.toListModel h := by
-  simp only [getₘ, get?ₘ_eq_getValueCast?]
+  simp only [getₘ]
   revert h'
   rw [get?ₘ_eq_getValueCast? hto]
-  · simp [getValueCast?_eq_some_getValueCast ‹_›]
+  simp [getValueCast?_eq_some_getValueCast ‹_›]
 
 theorem get_eq_getValueCast [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β} {h}
     (hto : t.Ordered): t.get k h = getValueCast k t.toListModel (contains_eq_containsKey hto ▸ h) := by
-  rw [get_eq_getₘ, get?ₘ_eq_getValueCast? hto]
+  rw [get_eq_getₘ, getₘ_eq_getValueCast _ hto]
+  exact contains_eq_get?ₘ_isSome hto ▸ h
+
+/-!
+''' `get!`
+-/
+
+theorem get!ₘ_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} [Inhabited (β k)]
+    {t : Impl α β} (hto : t.Ordered) : t.get!ₘ k = getValueCast! k t.toListModel := by
+  simp [get!ₘ, get?ₘ_eq_getValueCast? hto, getValueCast!_eq_getValueCast?]
+
+theorem get!_eq_getValueCast! [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α} {t : Impl α β}
+    (hto : t.Ordered) : t.get! k = getValueCast! k t.toListModel := by
+  rw [get!_eq_get!ₘ, get!ₘ_eq_getValueCast! hto]
 
 namespace Const
 

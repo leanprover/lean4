@@ -213,6 +213,29 @@ def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
   applyCell k l fun c _ => c.get?
 
 /--
+Model implementation of the `get?` function.
+Internal implementation detail of the tree map
+-/
+def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (h : (get?ₘ k l).isSome) :
+    β k :=
+  get?ₘ k l |>.get h
+
+/--
+Model implementation of the `get?` function.
+Internal implementation detail of the tree map
+-/
+def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k)]
+    (l : Impl α β) : β k :=
+  get?ₘ k l |>.get!
+
+/--
+Model implementation of the `get?` function.
+Internal implementation detail of the tree map
+-/
+def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (fallback : β k) : β k :=
+  get?ₘ k l |>.getD fallback
+
+/--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/
@@ -294,6 +317,15 @@ theorem contains_eq_containsₘ [Ord α] (k : α) (l : Impl α β) :
 
 theorem get?_eq_get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) :
     l.get? k = l.get?ₘ k := by
+  simp only [get?ₘ]
+  induction l
+  · simp only [applyCell, get?]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.get?, Cell.ofEq]
+  · simp [get?, applyCell]
+
+theorem get_eq_getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) {h} :
+    l.get k h = l.getₘ k h := by
   simp only [get?ₘ]
   induction l
   · simp only [applyCell, get?]

@@ -520,7 +520,8 @@ where
         -- Here we must make sure to pass the *new* parser state; see NOTE in `unchanged`
         return (← unchanged old parserState)
       -- on first change, make sure to cancel old invocation
-      SnapshotTask.cancelRec { stx? := none, task := .pure old }
+      -- TODO: cancel nested tasks on invalidation
+      old.elabSnap.cancelTk?.forM (·.set)
 
     -- check for cancellation, most likely during elaboration of previous command, before starting
     -- processing of next command

@@ -31,6 +31,7 @@ elab_rules : tactic
     IO.wait t
     return
 
+  dbg_trace "blocked!"
   log "blocked"
   let ctx ← readThe Elab.Term.Context
   let some tacSnap := ctx.tacSnap? | unreachable!
@@ -81,3 +82,31 @@ elab "wait_for_unblock_async" : tactic => do
 scoped elab "unblock" : tactic => do
   dbg_trace "unblocking!"
   unblockedCancelTk.set
+
+scoped syntax "wait_for_cancel_once_async" : tactic
+@[incremental]
+elab_rules : tactic
+| `(tactic| wait_for_cancel_once_async) => do
+  let prom ← IO.Promise.new
+  if let some t := (← onceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+    IO.wait t
+    return
+
+  let cancelTk ← IO.CancelToken.new
+  let act ← Elab.Term.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+    let ctx ← readThe Core.Context
+    let some cancelTk := ctx.cancelTk? | unreachable!
+    -- TODO: `CancelToken` should probably use `Promise`
+    while true do
+      if (← cancelTk.isSet) then
+        break
+      IO.sleep 30
+    IO.eprintln "cancelled!"
+    log "cancelled (should never be visible)"
+    prom.resolve ()
+    Core.checkInterrupted
+  let t ← BaseIO.asTask act
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+
+  dbg_trace "blocked!"
+  log "blocked"

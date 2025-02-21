@@ -227,9 +227,11 @@ structure SavedState where
 structure TacticFinishedSnapshot extends Language.Snapshot where
   /-- State saved for reuse, if no fatal exception occurred. -/
   state? : Option SavedState
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Inhabited
 instance : ToSnapshotTree TacticFinishedSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
 
 /-- Snapshot just before execution of a tactic. -/
 structure TacticParsedSnapshot extends Language.Snapshot where
@@ -421,13 +423,17 @@ part. `act` is then run on the inner part but with reuse information adjusted as
   context.
 
 For any tactic that participates in reuse, `withNarrowedTacticReuse` should be applied to the
-tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts.
+tactic's syntax and `act` should be used to do recursive tactic evaluation of nested parts. Also,
+after this function, `getAndEmptySnapshotTasks` should be called and the result stored in a snapshot
+so that the tasks don't end up in a snapshot further up and are cancelled together with it; see
+note [Incremental Cancellation].
 -/
-def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
-    [MonadWithReaderOf Context m] [MonadOptions m] (split : Syntax → Syntax × Syntax)
-    (act : Syntax → m α) (stx : Syntax) : m α := do
+def withNarrowedTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
+    [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
+    (split : Syntax → Syntax × Syntax) (act : Syntax → m α) (stx : Syntax) : m α := do
   let (outer, inner) := split stx
   let opts ← getOptions
+  let ctx ← readThe Term.Context
   withTheReader Term.Context (fun ctx => { ctx with tacSnap? := ctx.tacSnap?.map fun tacSnap =>
     { tacSnap with old? := tacSnap.old?.bind fun old => do
       let (oldOuter, oldInner) := split old.stx
@@ -435,6 +441,9 @@ def withNarrowedTacticReuse [Monad m] [MonadWithReaderOf Core.Context m]
       return { old with stx := oldInner }
     }
   }) do
+    if let some oldOuter := ctx.tacSnap?.bind (·.old?) then
+      if (← read).tacSnap?.bind (·.old?) |>.isNone then
+        oldOuter.val.cancelRec
     withReuseContext inner (act inner)
 
 /--
@@ -446,8 +455,9 @@ NOTE: child nodes after `argIdx` are not tested (which would almost always disab
 necessarily shifted by changes at `argIdx`) so it must be ensured that the result of `arg` does not
 depend on them (i.e. they should not be inspected beforehand).
 -/
-def withNarrowedArgTacticReuse [Monad m] [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m]
-    [MonadOptions m] (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
+def withNarrowedArgTacticReuse [Monad m] [MonadReaderOf Context m] [MonadLiftT BaseIO m]
+    [MonadWithReaderOf Core.Context m] [MonadWithReaderOf Context m] [MonadOptions m]
+    (argIdx : Nat) (act : Syntax → m α) (stx : Syntax) : m α :=
   withNarrowedTacticReuse (fun stx => (mkNullNode stx.getArgs[:argIdx], stx[argIdx])) act stx
 
 /--

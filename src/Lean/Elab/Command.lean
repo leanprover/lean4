@@ -491,6 +491,8 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                   -- check absence of traces; see Note [Incremental Macros]
                   guard <| !oldSnap.hasTraces && !hasTraces
                   return oldSnap
+                if snap.old?.isSome && oldSnap?.isNone then
+                  snap.old?.forM (·.val.cancelRec)
                 let oldCmds? := oldSnap?.map fun old =>
                   if old.newStx.isOfKind nullKind then old.newStx.getArgs else #[old.newStx]
                 let cmdPromises ← cmds.mapM fun _ => IO.Promise.new
@@ -519,6 +521,8 @@ partial def elabCommand (stx : Syntax) : CommandElabM Unit := do
                       let old ← oldSnap?
                       return { stx := (← oldCmd?), val := (← old.next[i]?) }
                   } }) do
+                    if oldSnap?.isSome && (← read).snap?.isNone then
+                      oldSnap?.bind (·.next[i]?) |>.forM (·.cancelRec)
                     elabCommand cmd
                     -- Resolve promise for commands not supporting incrementality; waiting for
                     -- `withAlwaysResolvedPromises` to do this could block reporting by later

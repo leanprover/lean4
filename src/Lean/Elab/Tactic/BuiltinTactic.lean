@@ -101,6 +101,7 @@ where
             (← Core.getAndEmptyMessageLog))
           infoTree? := (← Term.getInfoTreeWithContext?)
           state? := state
+          moreSnaps := (← Core.getAndEmptySnapshotTasks)
         }
       finally
         modifyInfoState fun s => { s with trees := trees ++ s.trees }

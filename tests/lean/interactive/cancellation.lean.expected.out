@@ -1,3 +1,4 @@
+blocked!
 cancelled!
 rerun!
 {"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
@@ -25,3 +26,24 @@ unblocking!
    "fullRange":
    {"start": {"line": 7, "character": 2},
     "end": {"line": 7, "character": 24}}}]}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
+unblocking!
+{"version": 2,
+ "uri": "file:///cancellation.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 6, "character": 17}, "end": {"line": 6, "character": 39}},
+   "message": "blocked",
+   "fullRange":
+   {"start": {"line": 6, "character": 17},
+    "end": {"line": 6, "character": 39}}}]}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}
+blocked!
+cancelled!
+{"version": 2, "uri": "file:///cancellation.lean", "diagnostics": []}

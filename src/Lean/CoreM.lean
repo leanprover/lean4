@@ -365,6 +365,16 @@ for incremental reporting during elaboration of a single command.
 def getAndEmptyMessageLog : CoreM MessageLog :=
   modifyGet fun s => (s.messages, { s with messages := s.messages.markAllReported })
 
+/--
+Returns the current set of tasks added by `logSnapshotTask` and then resets it. When
+saving/restoring state of an action that may have logged such tasks during incremental reuse, this
+function must be used to store them in the corresponding snapshot tree; otherwise, they will leak
+outside and may be cancelled by a later step, potentially leading to inconsistent state being
+reused.
+-/
+def getAndEmptySnapshotTasks : CoreM (Array (Language.SnapshotTask Language.SnapshotTree)) :=
+  modifyGet fun s => (s.snapshotTasks, { s with snapshotTasks := #[] })
+
 instance : MonadLog CoreM where
   getRef      := getRef
   getFileMap  := return (← read).fileMap

@@ -182,22 +182,22 @@ theorem size_le_size_erase [TransCmp cmp] (h : t.WF) {k : α} :
 @[simp]
 theorem containsThenInsert_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v).1 = t.contains k :=
-  Impl.containsThenInsert_fst! h
+  Impl.containsThenInsert!_fst h
 
 @[simp]
 theorem containsThenInsert_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsert k v).2 = t.insert k v :=
-  ext <| Impl.containsThenInsert_snd! h
+  ext <| Impl.containsThenInsert!_snd h
 
 @[simp]
 theorem containsThenInsertIfNew_fst [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v).1 = t.contains k :=
-  Impl.containsThenInsertIfNew_fst! h
+  Impl.containsThenInsertIfNew!_fst h
 
 @[simp]
 theorem containsThenInsertIfNew_snd [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.containsThenInsertIfNew k v).2 = t.insertIfNew k v :=
-  ext <| Impl.containsThenInsertIfNew_snd! h
+  ext <| Impl.containsThenInsertIfNew!_snd h
 
 @[simp]
 theorem contains_insertIfNew [TransCmp cmp] (h : t.WF) {k a : α} {v : β k} :

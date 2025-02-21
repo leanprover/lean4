@@ -728,12 +728,12 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
 
 theorem WF.containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
     (t.containsThenInsert! k v).2.WF := by
-  simpa [containsThenInsert_snd!_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
+  simpa [containsThenInsert!_snd_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
 
 theorem toListModel_containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsert! k v).2.toListModel.Perm (insertEntry k v t.toListModel) := by
-  rw [containsThenInsert_snd!_eq_insertₘ]
+  rw [containsThenInsert!_snd_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
 /-!
@@ -791,11 +791,11 @@ theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v :
 
 theorem ordered_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew! k v).2.Ordered := by
-  simpa [containsThenInsertIfNew_snd!_eq_insertIfNew!] using ordered_insertIfNew! h ho
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using ordered_insertIfNew! h ho
 
 theorem WF.containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
-  simpa [containsThenInsertIfNew_snd!_eq_insertIfNew!] using WF.insertIfNew! (h := h)
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
 theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :

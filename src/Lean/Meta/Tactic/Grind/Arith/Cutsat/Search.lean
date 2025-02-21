@@ -11,17 +11,12 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def throwUnexpectedCnstr (cₚ : RelCnstrWithProof) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← cₚ.denoteExpr)} "
-
 def getBestLower? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
   let s ← get'
   let mut best? := none
   for cₚ in s.lowers[x]! do
-    let .add k _ p := cₚ.c.p
-      | throwUnexpectedCnstr cₚ
-    let some v ← p.eval?
-      | pure ()
+    let .add k _ p := cₚ.c.p | cₚ.throwUnexpected
+    let some v ← p.eval? | cₚ.throwUnexpected
     let lower' := Int.Linear.cdiv v (-k)
     if let some (lower, _) := best? then
       if lower' > lower then
@@ -34,10 +29,8 @@ def getBestUpper? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
   let s ← get'
   let mut best? := none
   for cₚ in s.uppers[x]! do
-    let .add k _ p := cₚ.c.p
-      | throwUnexpectedCnstr cₚ
-    let some v ← p.eval?
-      | pure ()
+    let .add k _ p := cₚ.c.p | cₚ.throwUnexpected
+    let some v ← p.eval? | cₚ.throwUnexpected
     let upper' := (-v) / k
     if let some (upper, _) := best? then
       if upper' < upper then
@@ -48,10 +41,8 @@ def getBestUpper? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
 
 def getDvdSolutions? (cₚ : DvdCnstrWithProof) : GoalM (Option (Int × Int)) := do
   let d := cₚ.c.k
-  let .add a _ p := cₚ.c.p
-    | throwError "`grind` internal error, unexpected divisibility constraint{indentExpr (← cₚ.denoteExpr)}"
-  let some b ← p.eval?
-    | throwError "`grind` internal error, divisibility constraint is not ready to be solved{indentExpr (← cₚ.denoteExpr)}"
+  let .add a _ p := cₚ.c.p | cₚ.throwUnexpected
+  let some b ← p.eval? | cₚ.throwUnexpected
   -- We must solve `d ∣ a*x + b`
   let g := d.gcd a
   if b % g != 0 then
@@ -79,16 +70,23 @@ private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   else
     throwError "`grind` internal error, variable is already assigned"
 
-def resolveLowerUpperConflict (c₁ c₂ : RelCnstrWithProof) : GoalM Unit := do
-  -- TODO
-  trace[grind.cutsat.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
-  return ()
+def resolveLowerUpperConflict (cₚ₁ cₚ₂ : RelCnstrWithProof) : GoalM Unit := do
+  trace[grind.cutsat.conflict] "{← cₚ₁.denoteExpr}, {← cₚ₂.denoteExpr}"
+  let .add a₁ _ p₁ := cₚ₁.c.p | cₚ₁.throwUnexpected
+  let .add a₂ _ p₂ := cₚ₂.c.p | cₚ₂.throwUnexpected
+  let c : Int.Linear.RelCnstr := .le (p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs))
+  if (← c.satisfied) == .false then
+    -- If current assignment does not satisfy the real shadow, we use it even if it is not precise when
+    -- `a₁.natAbs != 1 && a₂.natAbs != 1`
+    assertRelCnstr (← mkRelCnstrWithProof c (.combine cₚ₁ cₚ₂))
+  else
+    assert! a₁.natAbs != 1 && a₂.natAbs != 1
+    throwError "NIY"
 
 def resolveDvdConflict (cₚ : DvdCnstrWithProof) : GoalM Unit := do
   trace[grind.cutsat.conflict] "{← cₚ.denoteExpr}"
   let d := cₚ.c.k
-  let .add a _ p := cₚ.c.p
-    | throwError "`grind` internal error, unexpected divisibility constraint{indentExpr (← cₚ.denoteExpr)}"
+  let .add a _ p := cₚ.c.p | cₚ.throwUnexpected
   assertDvdCnstr (← mkDvdCnstrWithProof { k := a.gcd d, p } (.elim cₚ))
 
 def decideVar (x : Var) : GoalM Unit := do
@@ -102,17 +100,37 @@ def decideVar (x : Var) : GoalM Unit := do
     setAssignment x lower
   | none, some (upper, _), none =>
     setAssignment x upper
-  | some (lower, c₁), some (upper, c₂), none =>
+  | some (lower, cₚ₁), some (upper, cₚ₂), none =>
     if lower ≤ upper then
       setAssignment x lower
     else
       trace[grind.cutsat.conflict] "{lower} ≤ {← getVar x} ≤ {upper}"
-      resolveLowerUpperConflict c₁ c₂
-      -- TODO: remove the following
-      setAssignment x 0
+      resolveLowerUpperConflict cₚ₁ cₚ₂
   | none, none, some cₚ =>
     if let some (_, v) ← getDvdSolutions? cₚ then
       setAssignment x v
+    else
+      resolveDvdConflict cₚ
+  | some (lower, _), none, some cₚ =>
+    if let some (d, b) ← getDvdSolutions? cₚ then
+      /-
+      - `x ≥ lower ∧ x = k*d + b`
+      - `k*d + b ≥ lower`
+      - `k ≥ cdiv (lower - b) d`
+      - So, we take `x = (cdiv (lower - b) d)*d + b`
+      -/
+      setAssignment x ((Int.Linear.cdiv (lower - b) d)*d + b)
+    else
+      resolveDvdConflict cₚ
+  | none, some (upper, _), some cₚ =>
+    if let some (d, b) ← getDvdSolutions? cₚ then
+      /-
+      - `x ≤ upper ∧ x = k*d +  b`
+      - `k*d + b ≤ upper`
+      - `k ≤ (upper - b)/d`
+      - So, we take `x = ((upper - b)/d)*d + b`
+      -/
+      setAssignment x (((upper - b)/d)*d + b)
     else
       resolveDvdConflict cₚ
   | _, _, _ =>

@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Simp.Arith.Int
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -44,8 +45,7 @@ def assertRelCnstr (cₚ : RelCnstrWithProof) : GoalM Unit := do
   else if cₚ.isTrivial then
     trace[grind.cutsat.le.trivial] "{← cₚ.denoteExpr}"
   else
-    let .add a x _ := cₚ.c.p
-      | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
+    let .add a x _ := cₚ.c.p | cₚ.throwUnexpected
     if a < 0 then
       trace[grind.cutsat.le.lower] "{← cₚ.denoteExpr}"
       modify' fun s => { s with lowers := s.lowers.modify x (·.push cₚ) }
@@ -77,7 +77,7 @@ def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   let cₚ ← if eqTrue then
     mkRelCnstrWithProof c (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
   else
-    mkRelCnstrWithProof (c.mul (-1) |>.addConst 1) (.notExpr (← mkOfEqFalse (← mkEqFalseProof e)))
+    mkRelCnstrWithProof (c.mul (-1) |>.addConst 1) (.notExpr c (← mkOfEqFalse (← mkEqFalseProof e)))
   trace[grind.cutsat.assert.le] "{← cₚ.denoteExpr}"
   assertRelCnstr cₚ
 

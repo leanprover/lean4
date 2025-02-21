@@ -31,9 +31,6 @@ def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   | .num k' => k' % c.k == 0
   | _ => c.k == 1
 
-def RelCnstr.p : RelCnstr → Poly
-  | .eq p | .le p => p
-
 def RelCnstr.isSorted (c : RelCnstr) : Bool :=
   c.p.isSorted
 
@@ -92,6 +89,12 @@ def RelCnstrWithProof.denoteExpr (cₚ : RelCnstrWithProof) : GoalM Expr := do
   let vars ← getVars
   cₚ.c.denoteExpr (vars[·]!)
 
+def RelCnstrWithProof.throwUnexpected (cₚ : RelCnstrWithProof) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentExpr (← cₚ.denoteExpr)} "
+
+def DvdCnstrWithProof.throwUnexpected (cₚ : DvdCnstrWithProof) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentExpr (← cₚ.denoteExpr)} "
+
 def toContextExpr : GoalM Expr := do
   let vars ← getVars
   if h : 0 < vars.size then
@@ -118,6 +121,9 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
     return h
 
 abbrev DvdCnstrWithProof.caching (c : DvdCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
+  Cutsat.caching c.id k
+
+abbrev RelCnstrWithProof.caching (c : RelCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do

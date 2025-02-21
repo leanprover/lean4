@@ -71,10 +71,6 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] (h : m.WF) {a b : α} (hab :
 @[simp] theorem contains_empty {a : α} {c} : (empty c : Raw α β).contains a = false :=
   DHashMap.Raw.contains_empty
 
-@[simp] theorem get_eq_getElem {a : α} {h} : get m a h = m[a]'h := rfl
-@[simp] theorem get?_eq_getElem? {a : α} : get? m a = m[a]? := rfl
-@[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
-
 @[simp] theorem not_mem_empty {a : α} {c} : ¬a ∈ (empty c : Raw α β) :=
   DHashMap.Raw.not_mem_empty
 
@@ -216,6 +212,10 @@ theorem containsThenInsertIfNew_fst (h : m.WF) {k : α} {v : β} :
 theorem containsThenInsertIfNew_snd (h : m.WF) {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
   ext (DHashMap.Raw.containsThenInsertIfNew_snd h.out)
+
+@[simp] theorem get_eq_getElem {a : α} {h} : get m a h = m[a]'h := rfl
+@[simp] theorem get?_eq_getElem? {a : α} : get? m a = m[a]? := rfl
+@[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
 
 @[simp]
 theorem getElem?_empty {a : α} {c} : (empty c : Raw α β)[a]? = none :=

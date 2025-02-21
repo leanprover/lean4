@@ -215,6 +215,10 @@ theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (t.insertIfNew k v).size ≤ t.size + 1 :=
   DTreeMap.Raw.size_insertIfNew_le h
 
+@[simp] theorem get_eq_getElem {a : α} {h} : get t a h = t[a]'h := rfl
+@[simp] theorem get?_eq_getElem? {a : α} : get? t a = t[a]? := rfl
+@[simp] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! t a = t[a]! := rfl
+
 @[simp]
 theorem get?_emptyc [TransCmp cmp] {a : α} :
     (∅ : Raw α β cmp)[a]? = none :=

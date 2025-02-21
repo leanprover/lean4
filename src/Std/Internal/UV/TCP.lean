@@ -44,6 +44,12 @@ Sends data through a TCP socket.
 opaque send (socket : @& Socket) (data : ByteArray) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
+Tries to send data through a TCP socket.
+-/
+@[extern "lean_uv_tcp_try_send"]
+opaque try_send (socket : @& Socket) (data : ByteArray) : IO Unit
+
+/--
 Receives data from a TCP socket. `size` is for the maximum bytes to receive. The promise
 resolves when some data is available or an error occurs.
 -/

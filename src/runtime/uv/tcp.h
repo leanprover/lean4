@@ -41,6 +41,7 @@ static inline lean_uv_tcp_socket_object* lean_to_uv_tcp_socket(lean_object * o) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, b_obj_arg data);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_send(b_obj_arg socket, obj_arg data);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t backlog);

@@ -23,6 +23,51 @@ using namespace std;
 
 event_loop_t global_ev;
 
+// Utilitary
+
+lean_object* unpack_io(lean_object* io) {
+    lean_object* io_res = lean_ctor_get(io, 0);
+    lean_inc(io_res);
+    lean_dec(io);
+    return io_res;
+}
+
+lean_object* create_promise() {
+    lean_object * prom_res = lean_io_promise_new(lean_io_mk_world());
+    lean_object * promise = unpack_io(prom_res);
+    mark_mt(promise);
+    return promise;
+}
+
+lean_object * mk_ok_except(lean_object * value) {
+    lean_object * ok = alloc_cnstr(1, 1, 0);
+    cnstr_set(ok, 0, value);
+    return ok;
+}
+
+lean_object * mk_err_except(lean_object * value) {
+    lean_object * err = alloc_cnstr(0, 1, 0);
+    cnstr_set(err, 0, value);
+    return err;
+}
+
+void resolve_promise(lean_object* promise, lean_object* res) {
+    lean_object * result = lean_io_promise_resolve(res, promise, lean_io_mk_world());
+    lean_dec(result);
+}
+
+void resolve_promise_with_status(lean_object* promise, int status) {
+    lean_object * res;
+
+    if (status == 0) {
+        res = mk_ok_except(lean_box(0));
+    } else {
+        res = mk_err_except(lean_decode_uv_error(status, nullptr));
+    }
+
+    resolve_promise(promise, res);
+}
+
 // Utility function for error checking. This function is only used inside the
 // initializition of the event loop.
 static void check_uv(int result, const char * msg) {

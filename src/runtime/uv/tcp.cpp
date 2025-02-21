@@ -28,50 +28,6 @@ typedef struct {
 } tcp_send_data;
 
 // =======================================
-// Utility functions
-
-lean_object* unpack_io(lean_object* io) {
-    lean_object* io_res = lean_ctor_get(io, 0);
-    lean_inc(io_res);
-    lean_dec(io);
-    return io_res;
-}
-
-lean_object* create_promise() {
-    lean_object * prom_res = lean_io_promise_new(lean_io_mk_world());
-    return unpack_io(prom_res);
-}
-
-lean_object * mk_ok_except(lean_object * value) {
-    lean_object * ok = alloc_cnstr(1, 1, 0);
-    cnstr_set(ok, 0, value);
-    return ok;
-}
-
-lean_object * mk_err_except(lean_object * value) {
-    lean_object * err = alloc_cnstr(0, 1, 0);
-    cnstr_set(err, 0, value);
-    return err;
-}
-
-void resolve_promise(lean_object* promise, lean_object* res) {
-    lean_object * result = lean_io_promise_resolve(res, promise, lean_io_mk_world());
-    lean_dec(result);
-}
-
-void resolve_promise_with_status(lean_object* promise, int status) {
-    lean_object * res;
-
-    if (status == 0) {
-        res = mk_ok_except(lean_box(0));
-    } else {
-        res = mk_err_except(lean_decode_uv_error(status, nullptr));
-    }
-
-    resolve_promise(promise, res);
-}
-
-// =======================================
 // TCP socket object manipulation functions.
 
 void lean_uv_tcp_socket_finalizer(void* ptr) {
@@ -122,9 +78,6 @@ void initialize_libuv_tcp_socket() {
 // TCP Socket Operations
 
 /* Std.Internal.UV.TCP.Socket.new : IO Socket */
-
-// This function can return
-
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
     lean_uv_tcp_socket_object * tcp_socket = (lean_uv_tcp_socket_object*)malloc(sizeof(lean_uv_tcp_socket_object));
     tcp_socket->m_promise_accept = nullptr;
@@ -216,7 +169,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     lean_object * promise = create_promise();
 
     uv_write_t * write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
-
     write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
@@ -224,9 +176,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     send_data->data = data;
     send_data->socket = socket;
 
+    // Thes eobjects are going to enter the loop and be owned by it
     lean_inc(promise);
-
-    // The event loop owns the socket.
     lean_inc(socket);
 
     event_loop_lock(&global_ev);
@@ -236,9 +187,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
         resolve_promise_with_status(tup->promise, status);
 
-        // The event loop does not own the object anymore.
-        lean_dec(tup->socket);
+        lean_dec(tup->promise);
         lean_dec(tup->data);
+        lean_dec(tup->socket);
 
         free(req->data);
         free(req);
@@ -247,14 +198,39 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
-        free(write_uv);
+        lean_dec(promise);
+        lean_dec(socket);
+
         free(write_uv->data);
+        free(write_uv);
 
         return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
     }
 
     return lean_io_result_mk_ok(promise);
 }
+
+/* Std.Internal.UV.TCP.Socket.try_send (socket : @& Socket) (data : ByteArray) : IO Unit */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_try_send(b_obj_arg socket, obj_arg data) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+
+    size_t data_len = lean_sarray_size(data);
+    char * data_str = (char *)lean_sarray_cptr(data);
+
+    uv_buf_t buf = uv_buf_init(data_str, data_len);
+
+    // Attempt to write immediately without using uv_write callbacks
+    event_loop_lock(&global_ev);
+    int result = uv_try_write((uv_stream_t*)tcp_socket->m_uv_tcp, &buf, 1);
+    event_loop_unlock(&global_ev);
+
+    if (result < 0) {
+        return lean_io_result_mk_error(lean_decode_uv_error(result, nullptr));
+    }
+
+    return lean_io_result_mk_ok(lean_box(0));
+}
+
 
 /* Std.Internal.UV.TCP.Socket.recv (socket : @& Socket) : IO (IO.Promise (Except IO.Error ByteArray)) */
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t buffer_size) {
@@ -277,6 +253,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_recv(b_obj_arg socket, uint64_t 
     uv_read_start((uv_stream_t*)tcp_socket->m_uv_tcp, [](uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {
         lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket((lean_object*)handle->data);
 
+        lean_always_assert(tcp_socket->m_byte_array == nullptr);
         tcp_socket->m_byte_array = lean_alloc_sarray(1, 0, tcp_socket->m_buffer_size);
 
         buf->base = (char*)lean_sarray_cptr(tcp_socket->m_byte_array);
@@ -369,6 +346,9 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 
         resolve_promise(promise, mk_ok_except(client));
         lean_dec(promise);
+        
+        // The accept increases the count and then the listen decreases
+        lean_dec((lean_object*)stream->data);
     });
 
     event_loop_unlock(&global_ev);
@@ -403,9 +383,12 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_accept(b_obj_arg socket) {
     } else if (result >= 0) {
         resolve_promise(promise, mk_ok_except(client));
     } else {
+        // The event loop owns the object. It will be released in the listen
+        lean_inc(socket);
+
+        lean_inc(promise);
         tcp_socket->m_promise_accept = promise;
         tcp_socket->m_client = client;
-        lean_inc(promise);
     }
 
     return lean_io_result_mk_ok(promise);

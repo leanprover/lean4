@@ -120,6 +120,13 @@ def send (s : Client) (data : ByteArray) : IO (AsyncTask Unit) :=
   AsyncTask.ofPromise <$> s.native.send data
 
 /--
+Tries to send data through the client socket.
+-/
+@[inline]
+def trySend (s : Client) (data : ByteArray) : IO Unit :=
+  s.native.try_send data
+
+/--
 Receives data from the client socket.
 -/
 @[inline]

@@ -47,6 +47,18 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
+theorem compare_eq_eq_iff_beq {k a : α} : compare k a = .eq ↔ k == a := beq_iff_eq.symm
+
+theorem dif_compare {γ} [LawfulEqOrd α] {k a : α} {f : compare k a = .eq → γ} {g : ¬ compare k a = .eq → γ} :
+    (if h : compare k a = .eq then f h else g h) =
+      (if h : k == a then f (eq_of_beq h) else g (h ∘ beq_of_eq)) := by
+  split
+  · exact Eq.symm <| dif_pos (beq_of_eq ‹_› :)
+  · exact Eq.symm <| dif_neg (‹_› ∘ eq_of_beq :)
+
+private def helperLemmaNames : Array Name :=
+  #[``dif_compare, ``compare_eq_eq_iff_beq]
+
 private def queryNames : Array Name :=
   #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?]
@@ -68,22 +80,6 @@ private def congrNames : MacroM (Array (TSyntax `term)) := do
     ← `(getValueD_of_perm _), ← `(getKey?_of_perm _), ← `(getKey_of_perm _), ← `(getKeyD_of_perm _),
     ← `(getKey!_of_perm _)]
 
-theorem compare_eq_eq_iff_beq {k a : α} : compare k a = .eq ↔ k == a := beq_iff_eq.symm
-
-theorem dif_compare {γ} [LawfulEqOrd α] {k a : α} {f : compare k a = .eq → γ} {g : ¬ compare k a = .eq → γ} :
-    (if h : compare k a = .eq then f h else g h) =
-      (if h : k == a then f (eq_of_beq h) else g (h ∘ beq_of_eq)) := by
-  split
-  · exact Eq.symm <| dif_pos (beq_of_eq ‹_› :)
-  · exact Eq.symm <| dif_neg (‹_› ∘ eq_of_beq :)
-
--- theorem if_compare {γ} [LawfulEqOrd α] {k a : α} {f : compare k a = .eq → γ} {g : ¬ compare k a = .eq → γ} :
---     (if compare k a = .eq then f h else g h) =
---       (if h : k == a then f (eq_of_beq h) else g (h ∘ beq_of_eq)) := by
---   split
---   · exact Eq.symm <| dif_pos (beq_of_eq ‹_› :)
---   · exact Eq.symm <| dif_neg (‹_› ∘ eq_of_beq :)
-
 /-- Internal implementation detail of the tree map -/
 scoped syntax "simp_to_model" (" [" (ident,*) "]")? ("using" term)? : tactic
 
@@ -97,7 +93,8 @@ macro_rules
         congrModify := congrModify.push (← `($congr:term ($(mkIdent modify) ..)))
   `(tactic|
     (simp (discharger := wf_trivial) only
-      [dif_compare, compare_eq_eq_iff_beq, $[$(Array.map Lean.mkIdent queryNames):term],*, $[$congrModify:term],*]
+      [$[$(Array.map Lean.mkIdent helperLemmaNames):term],*,
+       $[$(Array.map Lean.mkIdent queryNames):term],*, $[$congrModify:term],*]
      $[apply $(using?.toArray):term];*)
     <;> wf_trivial)
 

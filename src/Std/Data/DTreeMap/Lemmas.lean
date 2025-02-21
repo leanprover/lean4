@@ -312,7 +312,7 @@ theorem get?_erase_self [TransCmp cmp] {k : α} :
 theorem get?_eq_get? [LawfulEqCmp cmp] [TransCmp cmp] {a : α} : get? t a = t.get? a :=
   Impl.Const.get?_eq_get? t.wf
 
-theorem get?_congr [LawfulEqCmp cmp] [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
+theorem get?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
     get? t a = get? t b :=
   Impl.Const.get?_congr t.wf hab
 

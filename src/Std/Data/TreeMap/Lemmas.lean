@@ -264,7 +264,7 @@ theorem getElem?_erase_self [TransCmp cmp] {k : α} :
     (t.erase k)[k]? = none :=
   DTreeMap.Const.get?_erase_self
 
-theorem getElem?_congr [LawfulEqCmp cmp] [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
+theorem getElem?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
     t[a]? = t[b]? :=
   DTreeMap.Const.get?_congr hab
 

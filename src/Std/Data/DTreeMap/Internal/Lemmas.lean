@@ -512,7 +512,7 @@ theorem get?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
 theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? a t = t.get? a := by
   simp_to_model using List.getValue?_eq_getValueCast?
 
-theorem get?_congr [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) :
+theorem get?_congr [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) :
     get? a t = get? b t := by
   revert hab
   simp_to_model using List.getValue?_congr

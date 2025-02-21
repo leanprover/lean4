@@ -262,7 +262,7 @@ theorem get?_erase!_self [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k)[k]? = none :=
   DTreeMap.Raw.Const.get?_erase!_self h
 
-theorem get?_congr [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) :
+theorem get?_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) :
     t[a]? = t[b]? :=
   DTreeMap.Raw.Const.get?_congr h hab
 

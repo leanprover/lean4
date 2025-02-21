@@ -76,13 +76,14 @@ def addDecl (decl : Declaration) : CoreM Unit := do
   -- report preliminary constant info immediately
   async.commitConst async.asyncEnv (some info)
   setEnv async.mainEnv
-  let checkAct ← Core.wrapAsyncAsSnapshot fun _ => do
+  let cancelTk ← IO.CancelToken.new
+  let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
     setEnv async.asyncEnv
     doAdd
     async.commitCheckEnv (← getEnv)
   let t ← BaseIO.mapTask (fun _ => checkAct) env.checked
   let endRange? := (← getRef).getTailPos?.map fun pos => ⟨pos, pos⟩
-  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t }
+  Core.logSnapshotTask { stx? := none, reportingRange? := endRange?, task := t, cancelTk? := cancelTk }
 where doAdd := do
   profileitM Exception "type checking" (← getOptions) do
     withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getNames}") do

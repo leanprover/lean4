@@ -91,9 +91,9 @@ partial def main (args : List String) : IO Unit := do
     for text in text.splitOn "-- RESET" do
       Ipc.writeNotification ⟨"textDocument/didOpen", {
         textDocument := { uri := uri, languageId := "lean", version := 1, text := text } : DidOpenTextDocumentParams }⟩
-      let initialDiags ← Ipc.collectDiagnostics requestNo uri 1
-      requestNo := requestNo + 1
-      let initialRequestNo := requestNo
+      -- Whether we have waited for the server via `sync/collectDiagnostics/waitFor` since the last
+      -- change; we should only send out further changes when we are in such a deterministic state.
+      let mut synced := true
       let mut lineNo := 0
       let mut lastActualLineNo := 0
       let mut versionNo : Nat := 2
@@ -123,6 +123,8 @@ partial def main (args : List String) : IO Unit := do
           | "insert"
           -- `change: "foo" "bar"` is like `delete: "foo"` followed by `insert: "bar"` in one atomic step.
           | "change" =>
+            if !synced then
+              throw <| IO.userError s!"cannot use '{method}' without syncing first"
             let (delete, insert) ← match method with
               | "delete" => pure (params, "\"\"")
               | "insert" => pure ("\"\"", params)
@@ -148,19 +150,23 @@ partial def main (args : List String) : IO Unit := do
             }
             let params := toJson params
             Ipc.writeNotification ⟨"textDocument/didChange", params⟩
+            synced := false
             -- We don't want to wait for changes to be processed so we can test concurrency
             --let _ ← Ipc.collectDiagnostics requestNo uri versionNo
             requestNo := requestNo + 1
             versionNo := versionNo + 1
           | "collectDiagnostics" =>
-            if let some diags ←
-                if requestNo = initialRequestNo then pure initialDiags
-                else Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
+            if let some diags ← Ipc.collectDiagnostics requestNo uri (versionNo - 1) then
               IO.eprintln (toJson diags.param)
+            synced := true
             requestNo := requestNo + 1
           | "sync" =>  -- wait for processing but do not print diagnostics
             let _ ← Ipc.collectDiagnostics requestNo uri (versionNo - 1)
+            synced := true
             requestNo := requestNo + 1
+          | "waitFor" =>  -- wait specific message text but do not print diagnostics
+            let _ ← Ipc.waitForMessage params
+            synced := true
           | "codeAction" =>
             let params : CodeActionParams := {
               textDocument := {uri := uri},

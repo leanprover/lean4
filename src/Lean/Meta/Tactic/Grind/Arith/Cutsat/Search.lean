@@ -115,6 +115,28 @@ def decideVar (x : Var) : GoalM Unit := do
       setAssignment x v
     else
       resolveDvdConflict cₚ
+  | some (lower, _), none, some cₚ =>
+    if let some (d, b) ← getDvdSolutions? cₚ then
+      /-
+      - `x ≥ lower ∧ x = k*d + b`
+      - `k*d + b ≥ lower`
+      - `k ≥ cdiv (lower - b) d`
+      - So, we take `x = (cdiv (lower - b) d)*d + b`
+      -/
+      setAssignment x ((Int.Linear.cdiv (lower - b) d)*d + b)
+    else
+      resolveDvdConflict cₚ
+  | none, some (upper, _), some cₚ =>
+    if let some (d, b) ← getDvdSolutions? cₚ then
+      /-
+      - `x ≤ upper ∧ x = k*d +  b`
+      - `k*d + b ≤ upper`
+      - `k ≤ (upper - b)/d`
+      - So, we take `x = ((upper - b)/d)*d + b`
+      -/
+      setAssignment x (((upper - b)/d)*d + b)
+    else
+      resolveDvdConflict cₚ
   | _, _, _ =>
     -- TODO: cases containing a divisibility constraint.
     -- TODO: remove the following

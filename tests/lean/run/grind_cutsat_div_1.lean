@@ -30,7 +30,6 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) : False := by
   fail_if_success grind
   sorry
 
-
 /--
 info: [grind.cutsat.dvd.update] 2 ∣ a + 3
 [grind.cutsat.dvd.update] 3 ∣ 3 * b + a + -4
@@ -55,5 +54,27 @@ and then satisfies `3 ∣ a + 3*b - 4`, but assigning `b := 0`.
 So model (aka counter-example) is `a := -17` and `b := 0`.
 -/
 example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + 3*b - 4) : False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.cutsat.assign] a := -3
+[grind.cutsat.assign] b := 16
+-/
+#guard_msgs (info) in
+set_option trace.grind.cutsat.assign true in
+set_option trace.grind.cutsat.conflict true in
+example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b < 18): False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.cutsat.assign] a := -3
+[grind.cutsat.assign] b := 13
+-/
+#guard_msgs (info) in
+set_option trace.grind.cutsat.assign true in
+set_option trace.grind.cutsat.conflict true in
+example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b ≥ 11): False := by
   fail_if_success grind
   sorry

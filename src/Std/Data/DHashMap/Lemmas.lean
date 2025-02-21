@@ -1084,7 +1084,7 @@ theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' P
     DHashMap.forM f m = ForM.forM m (fun a => f a.1 a.2):= rfl
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) × β a → m' PUnit} :
-    ForM.forM m f = ForM.forM m.toList f  :=
+    ForM.forM m f = ForM.forM m.toList f :=
   Raw₀.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
 
 @[simp]

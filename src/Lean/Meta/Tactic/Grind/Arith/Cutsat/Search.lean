@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -45,6 +46,29 @@ def getBestUpper? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
       best? := some (upper', cₚ)
   return best?
 
+def getDvdSolutions? (cₚ : DvdCnstrWithProof) : GoalM (Option (Int × Int)) := do
+  let d := cₚ.c.k
+  let .add a _ p := cₚ.c.p
+    | throwError "`grind` internal error, unexpected divisibility constraint{indentExpr (← cₚ.denoteExpr)}"
+  let some b ← p.eval?
+    | throwError "`grind` internal error, divisibility constraint is not ready to be solved{indentExpr (← cₚ.denoteExpr)}"
+  -- We must solve `d ∣ a*x + b`
+  let g := d.gcd a
+  if b % g != 0 then
+    return none -- no solutions
+  let d := d / g
+  let a := a / g
+  let b := b / g
+  -- `α*a + β*d = 1`
+  -- `α*a = 1 (mod d)`
+  let (_, α, _β) := gcdExt a d
+  -- `a'*a = 1 (mod d)`
+  let a' := if α < 0 then α % d else α
+  -- `a*x = -b (mod d)`
+  -- `x = -b*a' (mod d)`
+  -- `x = k*d + -b*a'` for any k
+  return some (d, -b*a')
+
 private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   if x == (← get').assignment.size then
     trace[grind.cutsat.assign] "{(← getVar x)} := {v}"
@@ -60,11 +84,18 @@ def resolveLowerUpperConflict (c₁ c₂ : RelCnstrWithProof) : GoalM Unit := do
   trace[grind.cutsat.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
   return ()
 
+def resolveDvdConflict (cₚ : DvdCnstrWithProof) : GoalM Unit := do
+  trace[grind.cutsat.conflict] "{← cₚ.denoteExpr}"
+  let d := cₚ.c.k
+  let .add a _ p := cₚ.c.p
+    | throwError "`grind` internal error, unexpected divisibility constraint{indentExpr (← cₚ.denoteExpr)}"
+  assertDvdCnstr (← mkDvdCnstrWithProof { k := a.gcd d, p } (.elim cₚ))
+
 def decideVar (x : Var) : GoalM Unit := do
   let lower? ← getBestLower? x
   let upper? ← getBestUpper? x
-  let div? := (← get').dvdCnstrs[x]!
-  match lower?, upper?, div? with
+  let dvd? := (← get').dvdCnstrs[x]!
+  match lower?, upper?, dvd? with
   | none, none, none =>
     setAssignment x 0
   | some (lower, _), none, none =>
@@ -79,6 +110,11 @@ def decideVar (x : Var) : GoalM Unit := do
       resolveLowerUpperConflict c₁ c₂
       -- TODO: remove the following
       setAssignment x 0
+  | none, none, some cₚ =>
+    if let some (_, v) ← getDvdSolutions? cₚ then
+      setAssignment x v
+    else
+      resolveDvdConflict cₚ
   | _, _, _ =>
     -- TODO: cases containing a divisibility constraint.
     -- TODO: remove the following

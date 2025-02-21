@@ -16,6 +16,9 @@ abbrev DvdCnstrWithProof.isUnsat (cₚ : DvdCnstrWithProof) : Bool :=
 abbrev DvdCnstrWithProof.isTrivial (cₚ : DvdCnstrWithProof) : Bool :=
   cₚ.c.isTrivial
 
+abbrev DvdCnstrWithProof.satisfied (cₚ : DvdCnstrWithProof) : GoalM LBool :=
+  cₚ.c.satisfied
+
 def mkDvdCnstrWithProof (c : DvdCnstr) (h : DvdCnstrProof) : GoalM DvdCnstrWithProof := do
   return { c, h, id := (← mkCnstrId) }
 
@@ -46,6 +49,8 @@ partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRec
     let d₁ := cₚ.c.k
     let .add a₁ x p₁ := cₚ.c.p
       | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
+    if (← cₚ.satisfied) == .false then
+      resetAssignmentFrom x
     if let some cₚ' := (← get').dvdCnstrs[x]! then
       trace[grind.cutsat.dvd.solve] "{← cₚ.denoteExpr}, {← cₚ'.denoteExpr}"
       let d₂ := cₚ'.c.k

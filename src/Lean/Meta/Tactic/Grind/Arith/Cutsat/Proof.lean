@@ -20,6 +20,8 @@ partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM E
     return h
   | .norm cₚ' =>
     return mkApp5 (mkConst ``Int.Linear.DvdCnstr.of_isNorm) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) reflBoolTrue (← toExprProof' cₚ')
+  | .elim cₚ' =>
+    return mkApp5 (mkConst ``Int.Linear.DvdCnstr.elim) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) reflBoolTrue (← toExprProof' cₚ')
   | .divCoeffs cₚ' =>
     let k := cₚ'.c.p.gcdCoeffs cₚ'.c.k
     return mkApp6 (mkConst ``Int.Linear.DvdCnstr.of_isEqv) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) (toExpr k) reflBoolTrue (← toExprProof' cₚ')

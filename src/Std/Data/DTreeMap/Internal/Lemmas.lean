@@ -25,6 +25,7 @@ universe u v
 namespace Std.DTreeMap.Internal.Impl
 
 variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 attribute [local instance] beqOfOrd
 attribute [local instance] equivBEq_of_transOrd
@@ -47,7 +48,8 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 open Lean
 
 private def queryNames : Array Name :=
-  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length, ``get?_eq_getValueCast?]
+  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
+    ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -431,5 +433,59 @@ theorem get?_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} :
 theorem get?_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
     (t.erase k h.balanced).impl.get? k = none := by
   simp_to_model [erase] using List.getValueCast?_eraseKey_self
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem get?_empty [TransOrd α] {a : α} : get? a (empty : Impl α β) = none := by
+  simp_to_model using List.getValue?_nil
+
+theorem get?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
+    t.isEmpty = true → get? a t = none := by
+  simp_to_model; empty
+
+theorem get?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β} :
+    get? a (t.insert k v h.balanced).impl =
+      if compare k a = .eq then some v else get? a t := by
+  simp_to_model [insert] using List.getValue?_insertEntry
+
+theorem get?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    get? k (t.insert k v h.balanced).impl = some v := by
+  simp_to_model [insert] using List.getValue?_insertEntry_self
+
+theorem contains_eq_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = (get? a t).isSome := by
+  simp_to_model using List.containsKey_eq_isSome_getValue?
+
+theorem mem_iff_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+    a ∈ t ↔ (get? a t).isSome := by
+  simpa [mem_iff_contains] using contains_eq_isSome_get? h
+
+theorem get?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = false → get? a t = none := by
+  simp_to_model using List.getValue?_eq_none.mpr
+
+theorem get?_eq_none [TransOrd α] (h : t.WF) {a : α} :
+    ¬ a ∈ t → get? a t = none := by
+  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
+
+theorem get?_erase [TransOrd α] (h : t.WF) {k a : α} :
+    get? a (t.erase k h.balanced).impl = if compare k a = .eq then none else get? a t := by
+  simp_to_model [erase] using List.getValue?_eraseKey
+
+theorem get?_erase_self [TransOrd α] (h : t.WF) {k : α} :
+    get? k (t.erase k h.balanced).impl = none := by
+  simp_to_model [erase] using List.getValue?_eraseKey_self
+
+theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? a t = t.get? a := by
+  simp_to_model using List.getValue?_eq_getValueCast?
+
+theorem get?_congr [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) :
+    get? a t = get? b t := by
+  revert hab
+  simp_to_model using List.getValue?_congr
+
+end Const
 
 end Std.DTreeMap.Internal.Impl

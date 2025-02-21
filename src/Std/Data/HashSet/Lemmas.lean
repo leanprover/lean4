@@ -343,20 +343,12 @@ theorem get!_eq_getD_default [EquivBEq α] [LawfulHashable α] [Inhabited α] {a
   HashMap.getKey!_eq_getKeyD_default
 
 @[simp]
-theorem fst_containsThenInsert {k : α} : (m.containsThenInsert k).1 = m.contains k :=
-  HashMap.fst_containsThenInsertIfNew
-
-@[simp, deprecated fst_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_fst {k : α} : (m.containsThenInsert k).1 = m.contains k :=
-  fst_containsThenInsert
+  HashMap.containsThenInsertIfNew_fst
 
 @[simp]
-theorem snd_containsThenInsert {k : α} : (m.containsThenInsert k).2 = m.insert k :=
-  ext HashMap.snd_containsThenInsertIfNew
-
-@[simp, deprecated snd_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_snd {k : α} : (m.containsThenInsert k).2 = m.insert k :=
-  snd_containsThenInsert
+  ext HashMap.containsThenInsertIfNew_snd
 
 @[simp]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :

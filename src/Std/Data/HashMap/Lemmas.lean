@@ -190,40 +190,22 @@ theorem size_le_size_erase [EquivBEq α] [LawfulHashable α] {k : α} :
   DHashMap.size_le_size_erase
 
 @[simp]
-theorem fst_containsThenInsert {k : α} {v : β} : (m.containsThenInsert k v).1 = m.contains k :=
-  DHashMap.fst_containsThenInsert
-
-@[simp, deprecated fst_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_fst {k : α} {v : β} : (m.containsThenInsert k v).1 = m.contains k :=
-  fst_containsThenInsert
+  DHashMap.containsThenInsert_fst
 
 @[simp]
-theorem snd_containsThenInsert {k : α} {v : β} : (m.containsThenInsert k v).2 = m.insert k v :=
-  ext (DHashMap.snd_containsThenInsert)
-
-@[simp, deprecated snd_containsThenInsert (since := "2025-02-20")]
 theorem containsThenInsert_snd {k : α} {v : β} : (m.containsThenInsert k v).2 = m.insert k v :=
-  snd_containsThenInsert
+  ext (DHashMap.containsThenInsert_snd)
 
 @[simp]
-theorem fst_containsThenInsertIfNew {k : α} {v : β} :
-    (m.containsThenInsertIfNew k v).1 = m.contains k :=
-  DHashMap.fst_containsThenInsertIfNew
-
-@[simp, deprecated fst_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_fst {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).1 = m.contains k :=
-  fst_containsThenInsertIfNew
+  DHashMap.containsThenInsertIfNew_fst
 
 @[simp]
-theorem snd_containsThenInsertIfNew {k : α} {v : β} :
-    (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
-  ext DHashMap.snd_containsThenInsertIfNew
-
-@[simp, deprecated snd_containsThenInsertIfNew (since := "2025-02-20")]
 theorem containsThenInsertIfNew_snd {k : α} {v : β} :
     (m.containsThenInsertIfNew k v).2 = m.insertIfNew k v :=
-  snd_containsThenInsertIfNew
+  ext DHashMap.containsThenInsertIfNew_snd
 
 @[simp]
 theorem getElem?_empty {a : α} {c} : (empty c : HashMap α β)[a]? = none :=

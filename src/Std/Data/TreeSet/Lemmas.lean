@@ -173,13 +173,13 @@ theorem size_le_size_erase [TransCmp cmp] {k : α} :
   TreeMap.size_le_size_erase
 
 @[simp]
-theorem fst_containsThenInsert [TransCmp cmp] {k : α} :
+theorem containsThenInsert_fst [TransCmp cmp] {k : α} :
     (t.containsThenInsert k).1 = t.contains k :=
-  TreeMap.fst_containsThenInsertIfNew
+  TreeMap.containsThenInsertIfNew_fst
 
 @[simp]
-theorem snd_containsThenInsert [TransCmp cmp] {k : α} :
+theorem containsThenInsert_snd [TransCmp cmp] {k : α} :
     (t.containsThenInsert k).2 = t.insert k :=
-  ext <| TreeMap.snd_containsThenInsertIfNew
+  ext <| TreeMap.containsThenInsertIfNew_snd
 
 end Std.TreeSet

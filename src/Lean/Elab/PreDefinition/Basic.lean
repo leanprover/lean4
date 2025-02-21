@@ -88,11 +88,15 @@ def applyAttributesOf (preDefs : Array PreDefinition) (applicationTime : Attribu
     applyAttributesAt preDef.declName preDef.modifiers.attrs applicationTime
 
 def abstractNestedProofs (preDef : PreDefinition) : MetaM PreDefinition := withRef preDef.ref do
-  if preDef.kind.isTheorem || preDef.kind.isExample then
+  if preDef.kind.isExample then
     pure preDef
-  else do
-    let value ← Meta.abstractNestedProofs preDef.declName preDef.value
-    pure { preDef with value := value }
+  else
+    let type ← Meta.abstractNestedProofs preDef.declName preDef.type
+    if preDef.kind.isTheorem then
+      pure { preDef with type }
+    else
+      let value ← Meta.abstractNestedProofs preDef.declName preDef.value
+      pure { preDef with type, value }
 
 /-- Auxiliary method for (temporarily) adding pre definition as an axiom -/
 def addAsAxiom (preDef : PreDefinition) : MetaM Unit := do

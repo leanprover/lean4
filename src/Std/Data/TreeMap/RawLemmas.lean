@@ -238,11 +238,11 @@ theorem get?_insert!_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
   DTreeMap.Raw.Const.get?_insert!_self h
 
 theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
-    t.contains a = (t[a]?).isSome :=
+    t.contains a = t[a]?.isSome :=
   DTreeMap.Raw.Const.contains_eq_isSome_get? h
 
 theorem mem_iff_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
-    a ∈ t ↔ (t[a]?).isSome :=
+    a ∈ t ↔ t[a]?.isSome :=
   DTreeMap.Raw.Const.mem_iff_isSome_get? h
 
 theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :

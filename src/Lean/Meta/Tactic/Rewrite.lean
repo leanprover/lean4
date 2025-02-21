@@ -25,15 +25,15 @@ private partial def relaxPattern (lhs : Expr) : MetaM Expr := do
       let mut backDeps := info.resultDeps
       for i' in [0:info.getArity] do
         let i := info.getArity - i' - 1
-        if info.paramInfo[i']!.binderInfo.isInstImplicit && i ∉ backDeps then
+        if info.paramInfo[i]!.binderInfo.isInstImplicit && i ∉ backDeps then
           args := args.set! i <| ← mkFreshExprMVar (← inferType args[i]!)
         else
-          backDeps := backDeps ++ info.paramInfo[i']!.backDeps
+          backDeps := backDeps ++ info.paramInfo[i]!.backDeps
       relaxApp (mkAppN f args[0:info.getArity]) args[info.getArity:]
   Meta.transform lhs (skipConstInApp := true)
     (post := fun e => do
       if e.isApp then
-        e.withApp fun f args => return .done <| ← relaxApp f args
+        e.withApp fun f args => return .continue <| ← relaxApp f args
       else
         return .continue)
 
@@ -71,11 +71,12 @@ def _root_.Lean.MVarId.rewrite (mvarId : MVarId) (e : Expr) (heq : Expr)
             -- todo: do structural defeq? list missing instances? try partial postprocessAppMVars?
             let (lhs, lhs') ← addPPExplicitToExposeDiff lhs lhs'
             throwTacticEx `rewrite mvarId m!"\
-              did not find an exact match for the pattern in the target expression, found\
-              {indentExpr lhs'}\
-              but expecting\
-              {indentExpr lhs}"
-      throwTacticEx `rewrite mvarId m!"did not find an instance of the pattern{indentExpr lhs}\nin the target expression"
+              did not find an exact match for the pattern in the target expression\n\n\
+              Found approximate match\
+              {indentExpr lhs'}\n\
+              but expecting pattern\
+              {indentExpr lhs}\n"
+      throwTacticEx `rewrite mvarId m!"did not find an instance of the pattern{indentExpr lhs}\nin the target expression\n"
     -- construct rewrite proof
     let eNew := eAbst.instantiate1 rhs
     let eNew ← instantiateMVars eNew

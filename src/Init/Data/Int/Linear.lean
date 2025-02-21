@@ -927,6 +927,30 @@ theorem RelCnstr.of_negLe (ctx : Context) (c₁ c₂ : RelCnstr) (h : negLe c₁
   simp at h
   exact h
 
+def RelCnstr.p : RelCnstr → Poly
+  | .eq p | .le p => p
+
+def RelCnstr.leadCoeff (c : RelCnstr) : Int :=
+  match c.p with
+  | .add a _ _ => a
+  | _ => 1
+
+def RelCnstr.combineReal (c₁ c₂ c₃ : RelCnstr) : Bool :=
+  let a₁ := c₁.leadCoeff.natAbs
+  let a₂ := c₂.leadCoeff.natAbs
+  c₁.isLe && (c₂.isLe && (c₃.isLe && c₃.p == (c₁.p.mul a₂ |>.combine (c₂.p.mul a₁))))
+
+theorem RelCnstr.of_combineReal (ctx : Context) (c₁ c₂ c₃ : RelCnstr) : combineReal c₁ c₂ c₃ → c₁.denote' ctx → c₂.denote' ctx → c₃.denote' ctx := by
+  simp [combineReal] <;> cases c₁ <;> cases c₂ <;> cases c₃ <;> simp [isLe, p]
+  next p₁ p₂ p₃ =>
+    intro; subst p₃
+    simp [denote'_eq_denote, Poly.denote_combine]
+    intro h₁ h₂
+    rw [← Int.add_zero 0]
+    apply Int.add_le_add
+    · rw [← Int.zero_mul (Poly.denote ctx p₂)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
+    · rw [← Int.zero_mul (Poly.denote ctx p₁)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
+
 theorem RelCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : RelCnstr) : c.isUnsat → c.denote ctx → False := by
   intro h₁ h₂
   simp [eq_false_of_isUnsat, h₁, -RelCnstr.denote] at h₂

@@ -77,7 +77,7 @@ def resolveLowerUpperConflict (cₚ₁ cₚ₂ : RelCnstrWithProof) : GoalM Unit
   let c : Int.Linear.RelCnstr := .le (p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs))
   if (← c.satisfied) == .false then
     -- If current assignment does not satisfy the real shadow, we use it even if it is not precise when
-    -- `a₁.natAbs != 1 &&  a₂.natAbs != 1`
+    -- `a₁.natAbs != 1 && a₂.natAbs != 1`
     assertRelCnstr (← mkRelCnstrWithProof c (.combine cₚ₁ cₚ₂))
   else
     assert! a₁.natAbs != 1 && a₂.natAbs != 1

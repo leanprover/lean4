@@ -31,9 +31,6 @@ def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   | .num k' => k' % c.k == 0
   | _ => c.k == 1
 
-def RelCnstr.p : RelCnstr → Poly
-  | .eq p | .le p => p
-
 def RelCnstr.isSorted (c : RelCnstr) : Bool :=
   c.p.isSorted
 

@@ -111,6 +111,48 @@ theorem foldRev_cons_key {l : Raw α β} {acc : List α} :
     l.foldRev (fun acc k _ => k :: acc) acc = List.keys (toListModel l.buckets) ++ acc := by
   rw [foldRev_cons_apply, keys_eq_map]
 
+theorem foldM_eq_foldlM_toListModel {δ : Type w} {m : Type w → Type w } [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β a → m δ} {init : δ} {b : Raw α β} :
+    b.foldM f init = (toListModel b.buckets).foldlM (fun a b => f a b.1 b.2) init := by
+  simp only [Raw.foldM, ← Array.foldlM_toList, toListModel]
+  induction b.buckets.toList generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [foldlM_cons, ih, flatMap_cons, foldlM_append]
+    congr
+    induction hd generalizing init with
+    | nil => simp [AssocList.foldlM]
+    | cons hda hdb tl ih =>
+      simp only [AssocList.foldlM, AssocList.toList_cons, foldlM_cons]
+      congr
+      funext init'
+      rw [ih]
+
+theorem fold_eq_foldl_toListModel {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
+    l.fold f init = (toListModel l.buckets).foldl (fun a b => f a b.1 b.2) init := by
+  simp [Raw.fold, foldM_eq_foldlM_toListModel]
+
+theorem foldRevM_eq_foldrM_toListModel {δ : Type w} {m : Type w → Type w } [Monad m] [LawfulMonad m]
+    {f : δ → (a : α) → β a → m δ} {init : δ} {b : Raw α β} :
+    b.foldRevM f init = (toListModel b.buckets).foldrM (fun a b => f b a.1 a.2) init := by
+  simp only [Raw.foldRevM, ← Array.foldrM_toList, toListModel]
+  induction b.buckets.toList generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [foldrM_cons, ih, flatMap_cons, foldrM_append]
+    congr
+    funext init'
+    induction hd generalizing init' with
+    | nil => simp [AssocList.foldrM]
+    | cons hda hdb tl ih =>
+      simp only [AssocList.foldrM, AssocList.toList_cons, foldrM_cons]
+      congr
+      rw [ih]
+
+theorem foldRev_eq_foldr_toListModel {l : Raw α β} {f : γ → (a : α) → β a → γ} {init : γ} :
+    l.foldRev f init = (toListModel l.buckets).foldr (fun a b => f b a.1 a.2) init := by
+  simp [Raw.foldRev, foldRevM_eq_foldrM_toListModel]
+
 theorem toList_eq_toListModel {m : Raw α β} : m.toList = toListModel m.buckets := by
   simp [Raw.toList, foldRev_cons]
 
@@ -121,6 +163,44 @@ theorem Const.toList_eq_toListModel_map {β : Type v} {m : Raw α (fun _ => β)}
 theorem keys_eq_keys_toListModel {m : Raw α β }:
     m.keys = List.keys (toListModel m.buckets) := by
   simp [Raw.keys, foldRev_cons_key, keys_eq_map]
+
+theorem forM_eq_forM_toListModel {l: Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → m PUnit} :
+    l.forM f = (toListModel l.buckets).forM (fun a => f a.1 a.2) := by
+  simp only [Raw.forM, Array.forM, ← Array.foldlM_toList, toListModel]
+  induction l.buckets.toList with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [foldlM_cons, flatMap_cons, forM_eq_forM, forM_append]
+    congr
+    · simp [AssocList.forM]
+      induction hd with
+      | nil => simp [AssocList.forM, AssocList.foldlM]
+      | cons hda hdb tl ih =>
+        simp only [AssocList.foldlM, AssocList.toList_cons, forM_cons]
+        congr
+        funext x
+        rw [ih]
+    · funext x
+      simp [ih]
+
+theorem forIn_eq_forIn_toListModel {δ : Type w} {l : Raw α β} {m : Type w → Type w} [Monad m] [LawfulMonad m]
+    {f : (a : α) → β a → δ → m (ForInStep δ)} {init : δ} :
+    l.forIn f init = ForIn.forIn (toListModel l.buckets) init (fun a d => f a.1 a.2 d) := by
+  rw [Raw.forIn, ← Array.forIn_toList, toListModel]
+  induction l.buckets.toList generalizing init with
+  | nil => simp
+  | cons hd tl ih =>
+    induction hd generalizing init with
+    | nil => simpa [AssocList.forInStep, AssocList.forInStep.go] using ih
+    | cons k v tl' ih' =>
+      simp only [AssocList.forInStep, forIn_cons, AssocList.forInStep.go, LawfulMonad.bind_assoc,
+        flatMap_cons, AssocList.toList_cons, cons_append]
+      congr
+      apply funext
+      rintro (⟨d⟩|⟨d⟩)
+      · simp
+      · simpa using ih'
 
 end Raw
 

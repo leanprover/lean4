@@ -188,14 +188,6 @@ end
     (m : DHashMap α (fun _ => β)) : List (α × β) :=
   Raw.Const.toList m.1
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-@[inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
-    (m : DHashMap α β) : DHashMap α β :=
-  ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
-
 @[inline, inherit_doc Raw.foldM] def foldM (f : δ → (a : α) → β a → m δ)
     (init : δ) (b : DHashMap α β) : m δ :=
   b.1.foldM f init
@@ -203,15 +195,6 @@ section Unverified
 @[inline, inherit_doc Raw.fold] def fold (f : δ → (a : α) → β a → δ)
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
-
-/-- Partition a hash map into two hash map based on a predicate. -/
-@[inline] def partition (f : (a : α) → β a → Bool)
-    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
-  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
-    if f a b then
-      (l.insert a b, r)
-    else
-      (l, r.insert a b)
 
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
@@ -226,6 +209,23 @@ instance [BEq α] [Hashable α] : ForM m (DHashMap α β) ((a : α) × β a) whe
 
 instance [BEq α] [Hashable α] : ForIn m (DHashMap α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+@[inline, inherit_doc Raw.filter] def filter (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β :=
+  ⟨Raw₀.filter f ⟨m.1, m.2.size_buckets_pos⟩, .filter₀ m.2⟩
+
+/-- Partition a hash map into two hash map based on a predicate. -/
+@[inline] def partition (f : (a : α) → β a → Bool)
+    (m : DHashMap α β) : DHashMap α β × DHashMap α β :=
+  m.fold (init := (∅, ∅)) fun ⟨l, r⟩  a b =>
+    if f a b then
+      (l.insert a b, r)
+    else
+      (l, r.insert a b)
 
 @[inline, inherit_doc Raw.toArray] def toArray (m : DHashMap α β) :
     Array ((a : α) × β a) :=

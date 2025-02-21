@@ -387,22 +387,22 @@ theorem fold_eq_foldl_toList {f : δ → α → δ} {init : δ} :
     m.fold f init = m.toList.foldl f init :=
   HashMap.fold_eq_foldl_keys
 
-theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
-    {f : δ → (a : α) → m' δ} {init : δ} :
-    m.foldRevM f init = m.toList.foldrM (fun a b => f b a) init :=
-  HashMap.foldRevM_eq_foldrM_keys
-
-theorem foldRev_eq_foldr_toList {f : δ → (a : α) → δ} {init : δ} :
-    m.foldRev f init = m.toList.foldr (fun a b => f b a) init :=
-  HashMap.foldRev_eq_foldr_keys
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM f = ForM.forM m f := rfl
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
-    m.forM f = m.toList.forM f :=
+    ForM.forM m f = ForM.forM m.toList f :=
   HashMap.forM_eq_forM_keys
+
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn m init f := rfl
 
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
     {f : α → δ → m' (ForInStep δ)} {init : δ} :
-    m.forIn f init = ForIn.forIn m.toList init f :=
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   HashMap.forIn_eq_forIn_keys
 
 end monadic

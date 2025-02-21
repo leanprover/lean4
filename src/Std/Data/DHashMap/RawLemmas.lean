@@ -1171,22 +1171,25 @@ theorem fold_eq_foldl_toList (h : m.WF) {f : δ → (a : α) → β a → δ} {i
     m.fold f init = m.toList.foldl (fun a b => f a b.1 b.2) init :=
   Raw₀.fold_eq_foldl_toList ⟨m, h.size_buckets_pos⟩
 
-theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
-    {f : δ → (a : α) → β a → m' δ} {init : δ} :
-    m.foldRevM f init = m.toList.foldrM (fun a b => f b a.1 a.2) init :=
-  Raw₀.foldRevM_eq_foldrM_toList ⟨m, h.size_buckets_pos⟩
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → m' PUnit} :
+    Raw.forM f m = ForM.forM m (fun a => f a.1 a.2) := rfl
 
-theorem foldRev_eq_foldr_toList (h : m.WF) {f : δ → (a : α) → β a → δ} {init : δ} :
-    m.foldRev f init = m.toList.foldr (fun a b => f b a.1 a.2) init :=
-  Raw₀.foldRev_eq_foldr_toList ⟨m, h.size_buckets_pos⟩
-
-theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : (a : α) → β a → m' PUnit} :
-    m.forM f = m.toList.forM (fun a => f a.1 a.2) :=
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : (a : α) × β a → m' PUnit} :
+    ForM.forM m f = m.toList.forM f :=
   Raw₀.forM_eq_forM_toList ⟨m, h.size_buckets_pos⟩
 
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    Raw.forIn f init m = ForIn.forIn m init (fun a b => f a.1 a.2 b) := rfl
+
 theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
-    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
-    m.forIn f init = ForIn.forIn m.toList init (fun a b => f a.1 a.2 b) :=
+    {f : (a : α) × β a → δ → m' (ForInStep δ)} {init : δ} (h : m.WF) :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   Raw₀.forIn_eq_forIn_toList ⟨m, h.size_buckets_pos⟩
 
 namespace Const
@@ -1201,15 +1204,6 @@ theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
 theorem fold_eq_foldl_toList (h : m.WF) {f : δ → (a : α) → β → δ} {init : δ} :
     m.fold f init = (Raw.Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
   Raw₀.Const.fold_eq_foldl_toList ⟨m, h.size_buckets_pos⟩
-
-theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
-    {f : δ → (a : α) → β → m' δ} {init : δ} :
-    m.foldRevM f init = (Raw.Const.toList m).foldrM (fun a b => f b a.1 a.2) init :=
-  Raw₀.Const.foldRevM_eq_foldrM_toList ⟨m, h.size_buckets_pos⟩
-
-theorem foldRev_eq_foldr_toList (h : m.WF) {f : δ → (a : α) → β → δ} {init : δ} :
-    m.foldRev f init = (Raw.Const.toList m).foldr (fun a b => f b a.1 a.2) init :=
-  Raw₀.Const.foldRev_eq_foldr_toList ⟨m, h.size_buckets_pos⟩
 
 theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : (a : α) → β → m' PUnit} :
     m.forM f = (Raw.Const.toList m).forM (fun a => f a.1 a.2) :=
@@ -1230,15 +1224,6 @@ theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
 theorem fold_eq_foldl_keys (h : m.WF) {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
   Raw₀.Const.fold_eq_foldl_keys ⟨m, h.size_buckets_pos⟩
-
-theorem foldRevM_eq_foldrM_keys [Monad m'] [LawfulMonad m'] (h : m.WF)
-    {f : δ → (a : α) → m' δ} {init : δ} :
-    m.foldRevM (fun d a _ => f d a) init = m.keys.foldrM (fun a b => f b a) init :=
-  Raw₀.Const.foldRevM_eq_foldrM_keys ⟨m, h.size_buckets_pos⟩
-
-theorem foldRev_eq_foldr_keys (h : m.WF) {f : δ → (a : α) → δ} {init : δ} :
-    m.foldRev (fun d a _ => f d a) init = m.keys.foldr (fun a b => f b a) init :=
-  Raw₀.Const.foldRev_eq_foldr_keys ⟨m, h.size_buckets_pos⟩
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=

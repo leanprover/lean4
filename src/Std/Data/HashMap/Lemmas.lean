@@ -764,22 +764,22 @@ theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
     m.fold f init = m.toList.foldl (fun a b => f a b.1 b.2) init :=
   DHashMap.Const.fold_eq_foldl_toList
 
-theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
-    {f : δ → (a : α) → β → m' δ} {init : δ} :
-    m.foldRevM f init = m.toList.foldrM (fun a b => f b a.1 a.2) init :=
-  DHashMap.Const.foldRevM_eq_foldrM_toList
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+    m.forM f = ForM.forM m (fun a => f a.1 a.2) := rfl
 
-theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
-    m.foldRev f init = m.toList.foldr (fun a b => f b a.1 a.2) init :=
-  DHashMap.Const.foldRev_eq_foldr_toList
-
-theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
-    m.forM f = m.toList.forM (fun a => f a.1 a.2) :=
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : α × β → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
   DHashMap.Const.forM_eq_forM_toList
 
-theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
     {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
-    m.forIn f init = ForIn.forIn m.toList init (fun a b => f a.1 a.2 b) :=
+    m.forIn f init = ForIn.forIn m init (fun a d => f a.1 a.2 d) := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : α × β → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
   DHashMap.Const.forIn_eq_forIn_toList
 
 variable {m : DHashMap α (fun _ => Unit)}
@@ -792,15 +792,6 @@ theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
 theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
     m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
   DHashMap.Const.fold_eq_foldl_keys
-
-theorem foldRevM_eq_foldrM_keys [Monad m'] [LawfulMonad m']
-    {f : δ → (a : α) → m' δ} {init : δ} :
-    m.foldRevM (fun d a _ => f d a) init = m.keys.foldrM (fun a b => f b a) init :=
-  DHashMap.Const.foldRevM_eq_foldrM_keys
-
-theorem foldRev_eq_foldr_keys {f : δ → (a : α) → δ} {init : δ} :
-    m.foldRev (fun d a _ => f d a) init = m.keys.foldr (fun a b => f b a) init :=
-  DHashMap.Const.foldRev_eq_foldr_keys
 
 theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
     m.forM (fun a _ => f a) = m.keys.forM f :=

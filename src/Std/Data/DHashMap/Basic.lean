@@ -196,14 +196,6 @@ end
     (init : δ) (b : DHashMap α β) : δ :=
   b.1.fold f init
 
-@[inline, inherit_doc Raw.foldRevM] def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ)
-    (b : DHashMap α β) : m δ :=
-  b.1.foldRevM f init
-
-@[inline, inherit_doc Raw.foldRev] def foldRev (f : δ → (a : α) → β a → δ) (init : δ)
-    (b : DHashMap α β) : δ :=
-  b.1.foldRev f init
-
 @[inline, inherit_doc Raw.forM] def forM (f : (a : α) → β a → m PUnit)
     (b : DHashMap α β) : m PUnit :=
   b.1.forM f

@@ -211,14 +211,6 @@ instance [BEq α] [Hashable α] : GetElem? (HashMap α β) α β (fun m a => a �
     (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
   b.inner.fold f init
 
-@[inline, inherit_doc DHashMap.foldRevM] def foldRevM {m : Type w → Type w}
-    [Monad m] {γ : Type w} (f : γ → α → β → m γ) (init : γ) (b : HashMap α β) : m γ :=
-  b.inner.foldRevM f init
-
-@[inline, inherit_doc DHashMap.foldRev] def foldRev {γ : Type w}
-    (f : γ → α → β → γ) (init : γ) (b : HashMap α β) : γ :=
-  b.inner.foldRev f init
-
 @[inline, inherit_doc DHashMap.forM] def forM {m : Type w → Type w} [Monad m]
     (f : (a : α) → β → m PUnit) (b : HashMap α β) : m PUnit :=
   b.inner.forM f

@@ -185,18 +185,6 @@ order.
 @[inline] def fold {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
   m.inner.fold (fun b a _ => f b a) init
 
-/--
-Monadically computes a value by folding the given function over the elements in the hash set in reverse
-order.
--/
-@[inline] def foldRevM {m : Type v → Type v} [Monad m] {β : Type v} (f : β → α → m β) (init : β)
-    (b : Raw α) : m β :=
-  b.inner.foldRevM (fun b a _ => f b a) init
-
-/-- Folds the given function over the elements of the hash set in reverse order. -/
-@[inline] def foldRev {β : Type v} (f : β → α → β) (init : β) (m : Raw α) : β :=
-  m.inner.foldRev (fun b a _ => f b a) init
-
 /-- Carries out a monadic action on each element in the hash set in some order. -/
 @[inline] def forM {m : Type v → Type v} [Monad m] (f : α → m PUnit) (b : Raw α) : m PUnit :=
   b.inner.forM (fun a _ => f a)

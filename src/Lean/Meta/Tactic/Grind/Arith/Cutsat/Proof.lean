@@ -53,11 +53,14 @@ partial def RelCnstrWithProof.toExprProof' (cₚ : RelCnstrWithProof) : ProofM E
     return mkApp5 (mkConst ``Int.Linear.RelCnstr.of_norm_eq) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) reflBoolTrue (← toExprProof' cₚ')
   | .divCoeffs cₚ' =>
     let k := cₚ'.c.gcdCoeffs
-    return mkApp6 (mkConst ``Int.Linear.RelCnstr.of_divByLe) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) (toExpr k) reflBoolTrue (← toExprProof' cₚ')
+    return mkApp6 (mkConst ``Int.Linear.RelCnstr.of_divByLe) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) (toExpr (Int.ofNat k)) reflBoolTrue (← toExprProof' cₚ')
   | .notExpr c h =>
     return mkApp5 (mkConst ``Int.Linear.RelCnstr.of_negLe) (← getContext) (toExpr c) (toExpr cₚ.c) reflBoolTrue h
-  | .combine _cₚ₁ _cₚ₂ =>
-    throwError "NIY"
+  | .combine cₚ₁ cₚ₂ =>
+    return mkApp7 (mkConst ``Int.Linear.RelCnstr.of_combineReal)
+      (← getContext) (toExpr cₚ₁.c) (toExpr cₚ₂.c) (toExpr cₚ.c)
+      reflBoolTrue
+      (← toExprProof' cₚ₁) (← toExprProof' cₚ₂)
 
 partial def RelCnstrWithProof.toExprProof (cₚ : RelCnstrWithProof) : ProofM Expr := do
   mkExpectedTypeHint (← toExprProof' cₚ) (← cₚ.denoteExpr)

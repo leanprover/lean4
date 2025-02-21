@@ -45,8 +45,21 @@ partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM E
 partial def DvdCnstrWithProof.toExprProof (cₚ : DvdCnstrWithProof) : ProofM Expr := do
   mkExpectedTypeHint (← toExprProof' cₚ) (← cₚ.denoteExpr)
 
+partial def RelCnstrWithProof.toExprProof' (cₚ : RelCnstrWithProof) : ProofM Expr := cₚ.caching do
+  match cₚ.h with
+  | .expr h =>
+    return h
+  | .norm cₚ' =>
+    return mkApp5 (mkConst ``Int.Linear.RelCnstr.of_norm_eq) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) reflBoolTrue (← toExprProof' cₚ')
+  | .divCoeffs cₚ' =>
+    let k := cₚ'.c.gcdCoeffs
+    return mkApp6 (mkConst ``Int.Linear.RelCnstr.of_divByLe) (← getContext) (toExpr cₚ'.c) (toExpr cₚ.c) (toExpr k) reflBoolTrue (← toExprProof' cₚ')
+  | .notExpr c h =>
+    return mkApp5 (mkConst ``Int.Linear.RelCnstr.of_negLe) (← getContext) (toExpr c) (toExpr cₚ.c) reflBoolTrue h
+  | .combine _cₚ₁ _cₚ₂ =>
+    throwError "NIY"
+
 partial def RelCnstrWithProof.toExprProof (cₚ : RelCnstrWithProof) : ProofM Expr := do
-  -- TODO
-  mkSorry (← cₚ.denoteExpr) false
+  mkExpectedTypeHint (← toExprProof' cₚ) (← cₚ.denoteExpr)
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -7,6 +7,7 @@ prelude
 import Lean.Meta.Tactic.Simp.Arith.Int
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -47,15 +48,13 @@ partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRec
     return ()
   else
     let d₁ := cₚ.c.k
-    let .add a₁ x p₁ := cₚ.c.p
-      | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
+    let .add a₁ x p₁ := cₚ.c.p | cₚ.throwUnexpected
     if (← cₚ.satisfied) == .false then
       resetAssignmentFrom x
     if let some cₚ' := (← get').dvdCnstrs[x]! then
       trace[grind.cutsat.dvd.solve] "{← cₚ.denoteExpr}, {← cₚ'.denoteExpr}"
       let d₂ := cₚ'.c.k
-      let .add a₂ _ p₂ := cₚ'.c.p
-        | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ'.denoteExpr)}"
+      let .add a₂ _ p₂ := cₚ'.c.p | cₚ'.throwUnexpected
       let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
       /-
       We have that

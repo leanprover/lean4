@@ -37,9 +37,10 @@ structure RelCnstrWithProof where
 
 inductive RelCnstrProof where
   | expr (h : Expr)
-  | notExpr (c : Expr)
+  | notExpr (c : RelCnstr) (h : Expr)
   | norm (c : RelCnstrWithProof)
   | divCoeffs (c : RelCnstrWithProof)
+  | combine (c₁ c₂ : RelCnstrWithProof)
   -- TODO: missing constructors
 end
 

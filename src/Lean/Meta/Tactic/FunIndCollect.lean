@@ -25,11 +25,14 @@ structure Call where
 structure SeenCalls where
   /-- the full calls -/
   calls : Array Expr
-  /-- only relevant arguments -/
-  seen : Std.HashSet (Array Expr)
+  /-- only function name and relevant arguments -/
+  seen : Std.HashSet (Name × Array Expr)
 
 instance : EmptyCollection SeenCalls where
   emptyCollection := ⟨#[], {}⟩
+
+def SeenCalls.isEmpty  (sc : SeenCalls) : Bool :=
+  sc.calls.isEmpty
 
 def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : SeenCalls) :
     MetaM SeenCalls := do
@@ -41,8 +44,24 @@ def SeenCalls.push (e : Expr) (declName : Name) (args : Array Expr) (calls : See
       if !arg.isFVar then return calls
     unless kind matches .dropped do
       keys := keys.push arg
-  if calls.seen.contains keys then return calls
-  return { calls := calls.calls.push e, seen := calls.seen.insert keys }
+  let key := (declName, keys)
+  if calls.seen.contains key then return calls
+  return { calls := calls.calls.push e, seen := calls.seen.insert key }
+
+/--
+Which functions have exactly one candidate application. Used by `try?` to determine whether
+we can use `fun_induction foo` or need `fun_induction foo x y z`.
+-/
+def SeenCalls.uniques (calls : SeenCalls) : NameSet := Id.run do
+  let mut seen : NameSet := {}
+  let mut seenTwice : NameSet := {}
+  for (n, _) in calls.seen do
+    unless seenTwice.contains n do
+      if seen.contains n then
+        seenTwice := seenTwice.insert n
+      else
+        seen := seen.insert n
+  return seen.filter (! seenTwice.contains ·)
 
 namespace Collector
 

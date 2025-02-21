@@ -28,7 +28,6 @@ LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_foldlMAux___at_Lean_Meta_Grind
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkVars___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkVars___closed__2;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Int_Linear_Poly_checkCoeffs(lean_object*);
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___closed__3;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__11;
@@ -72,6 +71,7 @@ extern lean_object* l_Lean_Meta_instMonadMetaM;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__6;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__6___closed__15;
 static lean_object* l_Lean_Meta_Grind_Arith_Cutsat_checkVars___closed__3;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Int_Linear_Poly_checkCoeffs___boxed(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Meta_Grind_Arith_Cutsat_checkDvdCnstrs___spec__7(lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);

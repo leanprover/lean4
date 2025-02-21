@@ -31,7 +31,6 @@ LEAN_EXPORT uint8_t l_Lake_Toml_RBDict_isEmpty___rarg(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_isEmpty(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_empty___rarg(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Toml_RBDict_keys___spec__1(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_foldTR_loop___at_Lake_Toml_RBDict_ofArray___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -84,6 +83,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_appendArray___rarg___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Toml_RBDict_keys___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_insert___rarg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_instHAppendArrayProd(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_mapMUnsafe_map___at_Lake_Toml_RBDict_map___spec__1___rarg___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_isEmpty___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_insertUnless(lean_object*, lean_object*);

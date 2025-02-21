@@ -8,7 +8,7 @@ import Init.ByCases
 import Init.Data.Prod
 import Init.Data.Int.Lemmas
 import Init.Data.Int.LemmasAux
-import Init.Data.Int.DivModLemmas
+import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Gcd
 import Init.Data.RArray
 import Init.Data.AC
@@ -311,6 +311,10 @@ def RelCnstr.mul (k : Int) : RelCnstr → RelCnstr
   | .eq p => .eq <| p.mul k
   | .le p => .le <| p.mul k
 
+def RelCnstr.addConst (k : Int) : RelCnstr → RelCnstr
+  | .eq p => .eq <| p.addConst k
+  | .le p => .le <| p.addConst k
+
 @[simp] theorem RelCnstr.denote_mul (ctx : Context) (c : RelCnstr) (k : Int) (h : k > 0) : (c.mul k).denote ctx = c.denote ctx := by
   cases c <;> simp [mul, denote]
   next =>
@@ -361,13 +365,9 @@ attribute [local simp] Poly.denote_addConst
 
 theorem Poly.denote_insert (ctx : Context) (k : Int) (v : Var) (p : Poly) :
     (p.insert k v).denote ctx = p.denote ctx + k * v.denote ctx := by
-  induction p <;> simp [*]
-  next k' v' p' ih =>
-    by_cases h₁ : Nat.blt v' v <;> simp [*]
-    by_cases h₂ : Nat.beq v v' <;> simp [*]
-    by_cases h₃ : k + k' = 0 <;> simp [*, Nat.eq_of_beq_eq_true h₂]
-    rw [← Int.add_mul]
-    simp [*]
+  fun_induction p.insert k v <;>
+    simp only [insert, cond_true, cond_false, ↓reduceIte, *] <;>
+    simp_all [← Int.add_mul]
 
 attribute [local simp] Poly.denote_insert
 
@@ -382,16 +382,9 @@ theorem Poly.denote_append (ctx : Context) (p₁ p₂ : Poly) : (p₁.append p�
 attribute [local simp] Poly.denote_append
 
 theorem Poly.denote_combine' (ctx : Context) (fuel : Nat) (p₁ p₂ : Poly) : (p₁.combine' fuel p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
-  induction fuel generalizing p₁ p₂ <;> simp [combine']
-  next ih =>
-    split <;> simp [*]
-    next a₁ x₁ p₁ a₂ x₂ p₂ =>
-      by_cases h₁ : Nat.beq x₁ x₂ <;> simp [*]
-      · simp at h₁; simp [h₁]
-        by_cases h₂ : a₁ + a₂ == 0 <;> simp [*]
-        · simp at h₂
-          rw [← Int.add_mul, h₂]; simp
-      · by_cases h₃ : Nat.blt x₂ x₁ <;> simp [*]
+  fun_induction p₁.combine' fuel p₂ <;>
+    simp +zetaDelta only [combine', cond_true, cond_false, *] <;>
+    simp_all +zetaDelta [denote, ← Int.add_mul]
 
 theorem Poly.denote_combine (ctx : Context) (p₁ p₂ : Poly) : (p₁.combine p₂).denote ctx = p₁.denote ctx + p₂.denote ctx := by
   simp [combine, denote_combine']
@@ -430,31 +423,38 @@ attribute [local simp] RawRelCnstr.denote RawRelCnstr.norm Expr.denote
 theorem Expr.denote_toPoly'_go (ctx : Context) (e : Expr) :
   (toPoly'.go k e p).denote ctx = k * e.denote ctx + p.denote ctx := by
     induction k, e using Expr.toPoly'.go.induct generalizing p with
-  | case1 k k' =>
-    simp only [toPoly'.go]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, Var.denote]
-  | case2 k i => simp [toPoly'.go]
-  | case3 k a b iha ihb => simp [toPoly'.go, iha, ihb]
-  | case4 k a b iha ihb =>
+  | case1 k k' h =>
+    simp only [toPoly'.go, h, cond_true]
+    simp [eq_of_beq h]
+  | case2 k k' h =>
+    simp only [toPoly'.go, h, cond_false]
+    simp [Var.denote]
+  | case3 k i => simp [toPoly'.go]
+  | case4 k a b iha ihb => simp [toPoly'.go, iha, ihb]
+  | case5 k a b iha ihb =>
     simp [toPoly'.go, iha, ihb, Int.mul_sub]
     rw [Int.sub_eq_add_neg, ←Int.neg_mul, Int.add_assoc]
-  | case5 k k' a ih
-  | case6 k a k' ih =>
-    simp only [toPoly'.go]
-    by_cases h : k' == 0
-    · simp [h, eq_of_beq h]
-    · simp [h, cond_false, Int.mul_assoc]
-      simp at ih
-      rw [ih]
-      rw [Int.mul_assoc, Int.mul_comm k']
-  | case7 k a ih => simp [toPoly'.go, ih]
+  | case6 k k' a h
+  | case8 k a k' h =>
+    simp only [toPoly'.go, h, cond_false]
+    simp [eq_of_beq h]
+  | case7 k a k' h ih =>
+    simp only [toPoly'.go, h, cond_false]
+    simpa [denote, ← Int.mul_assoc] using ih
+  | case9 k a h h ih =>
+    simp only [toPoly'.go, h, cond_false]
+    simp only [mul_def, denote]
+    rw [Int.mul_comm (denote _ _) _]
+    simpa [Int.mul_assoc] using ih
+  | case10 k a ih => simp [toPoly'.go, ih]
 
 theorem Expr.denote_toPoly (ctx : Context) (e : Expr) : e.toPoly.denote ctx = e.denote ctx := by
   simp [toPoly, toPoly', Expr.denote_toPoly'_go]
 
 attribute [local simp] Expr.denote_toPoly RelCnstr.denote
+
+theorem RelCnstr.denote_norm (ctx : Context) (c : RelCnstr) : c.norm.denote ctx = c.denote ctx := by
+  cases c <;> simp [RelCnstr.norm]
 
 theorem RawRelCnstr.denote_norm (ctx : Context) (c : RawRelCnstr) : c.norm.denote ctx = c.denote ctx := by
   cases c <;> simp
@@ -509,7 +509,7 @@ theorem RawRelCnstr.eq_of_norm_eq_const (ctx : Context) (x : Var) (k : Int) (c :
   rw [h]; simp
   rw [Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-attribute [local simp] RelCnstr.divAll RelCnstr.div RelCnstr.mul
+attribute [local simp] RelCnstr.divAll
 
 theorem RawRelCnstr.eq_of_norm_eq_mul (ctx : Context) (c : RawRelCnstr) (c' : RelCnstr) (k : Int) (hz : k > 0) (h : c.norm = c'.mul k) : c.denote ctx = c'.denote ctx := by
   replace h := congrArg (RelCnstr.denote ctx) h
@@ -547,24 +547,29 @@ private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k �
     simp at this
     assumption
 
-theorem RawRelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ : RawRelCnstr) (c₂ : RelCnstr) (c₃ : RelCnstr) (k : Int)
-    : k > 0 → c₂.divCoeffs k → c₂.isLe → c₁.norm = c₂ → c₃ = c₂.div k → c₁.denote ctx = c₃.denote ctx := by
-  intro h₀ h₁ h₂ h₃ h₄
+theorem RelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ c₂ : RelCnstr) (k : Int)
+    : k > 0 → c₁.divCoeffs k → c₁.isLe → c₂ = c₁.div k → c₁.denote ctx = c₂.denote ctx := by
+  intro h₀ h₁ h₂ h₃
   have hz : k ≠ 0 := Int.ne_of_gt h₀
-  cases c₂ <;> simp [RelCnstr.isLe] at h₂
+  cases c₁ <;> simp [RelCnstr.isLe] at h₂
   clear h₂
   next p =>
     simp [RelCnstr.divCoeffs] at h₁
     replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p k h₁
     replace h₃ := congrArg (RelCnstr.denote ctx) h₃
-    simp only [RelCnstr.denote.eq_2, ← h₁] at h₃
-    replace h₄ := congrArg (RelCnstr.denote ctx) h₄
-    simp only [RelCnstr.denote.eq_2, RelCnstr.div] at h₄
-    rw [denote_norm] at h₃
-    rw [h₃, h₄]
+    simp only [RelCnstr.div, RelCnstr.denote.eq_2] at h₃
+    rw [h₃, denote, ← h₁]; clear h₁ h₃
     apply propext
     apply mul_add_cmod_le_iff
-    exact h₀
+    assumption
+
+theorem RawRelCnstr.eq_of_norm_eq_of_divCoeffs (ctx : Context) (c₁ : RawRelCnstr) (c₂ : RelCnstr) (c₃ : RelCnstr) (k : Int)
+    : k > 0 → c₂.divCoeffs k → c₂.isLe → c₁.norm = c₂ → c₃ = c₂.div k → c₁.denote ctx = c₃.denote ctx := by
+  intro h₀ h₁ h₂ h₃ h₄
+  replace h₃ := congrArg (RelCnstr.denote ctx) h₃
+  rw [denote_norm] at h₃
+  rw [h₃]
+  apply RelCnstr.eq_of_norm_eq_of_divCoeffs _ _ _ _ h₀ h₁ h₂ h₄
 
 /-- Certificate for normalizing the coefficients of inequality constraint with bound tightening. -/
 def divByLe (c : RawRelCnstr) (c' : RelCnstr) (k : Int) : Bool :=
@@ -699,13 +704,17 @@ def DvdCnstr.div (k' : Int) : DvdCnstr → DvdCnstr
 private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
 
-def DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
+theorem DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx = False := by
   rcases c with ⟨a, p⟩
   simp [isUnsat, denote]
   intro h₁ h₂
   have := Poly.gcd_dvd_const h₂
   have := not_dvd_of_not_mod_zero h₁
   contradiction
+
+theorem DvdCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : DvdCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁] at h₂
 
 @[local simp] private theorem mul_dvd_mul_eq {a b c : Int} (hnz : a ≠ 0) : a * b ∣ a * c ↔ b ∣ c := by
   constructor
@@ -727,6 +736,33 @@ def DvdCnstr.eq_false_of_isUnsat (ctx : Context) (c : DvdCnstr) : c.isUnsat → 
   replace h₃ := congrArg (Poly.denote ctx) h₃
   simp at h₃
   simp [denote, *]
+
+theorem dvd_gcd_of_dvd (d a x p : Int) (h : d ∣ a * x + p) : gcd d a ∣ p := by
+  rcases h with ⟨k, h⟩
+  simp [Int.Linear.gcd]
+  replace h := congrArg (· - a*x) h
+  simp at h
+  rcases @Int.gcd_dvd_left d a with ⟨k₁, h₁⟩
+  rcases @Int.gcd_dvd_right d a with ⟨k₂, h₂⟩
+  conv at h => enter [2, 1]; rw [h₁]
+  conv at h => enter [2, 2]; rw [h₂]
+  rw [Int.mul_assoc, Int.mul_assoc, ← Int.mul_sub] at h
+  exists k₁ * k - k₂ * x
+
+def DvdCnstr.isElim (c₁ c₂ : DvdCnstr) : Bool :=
+  match c₁.p with
+  | .add a _ p => c₂.k == gcd c₁.k a && c₂.p == p
+  | _ => false
+
+theorem DvdCnstr.elim (ctx : Context) (c₁ c₂ : DvdCnstr) : isElim c₁ c₂ → c₁.denote' ctx → c₂.denote' ctx := by
+  rcases c₁ with ⟨k₁, p₁⟩
+  rcases c₂ with ⟨k₂, p₂⟩
+  rcases p₁ <;> simp [DvdCnstr.isElim]
+  next a _ p =>
+  intro _ _; subst k₂ p₂
+  simp [DvdCnstr.denote'_eq_denote, denote]
+  rw [Int.add_comm]
+  apply dvd_gcd_of_dvd
 
 /-- Raw divisibility constraint of the form `k ∣ e`. -/
 structure RawDvdCnstr where
@@ -846,7 +882,7 @@ theorem DvdCnstr.solve_elim (ctx : Context) (c₁ c₂ c : DvdCnstr) (d : Int)
   rw [← Int.sub_eq_add_neg]
   exact solveElim hd h₁ h₂
 
-def isNorm (c₁ c₂ : DvdCnstr) : Bool :=
+def DvdCnstr.isNorm (c₁ c₂ : DvdCnstr) : Bool :=
   c₁.k == c₂.k && c₁.p.norm == c₂.p
 
 theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
@@ -859,6 +895,41 @@ theorem DvdCnstr.of_isNorm (ctx : Context) (c₁ c₂ : DvdCnstr)
 
 theorem DvdCnstr.of_isEqv (ctx : Context) (c₁ c₂ : DvdCnstr) (k : Int) (h : isEqv c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
   simp [DvdCnstr.denote'_eq_denote, DvdCnstr.eq_of_isEqv ctx c₁ c₂ k h]
+
+theorem RelCnstr.of_norm_eq (ctx : Context) (c₁ c₂ : RelCnstr) (h : c₁.norm == c₂) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp at h
+  replace h := congrArg (RelCnstr.denote ctx) h
+  simp only [RelCnstr.denote_norm] at h
+  simp only [RelCnstr.denote'_eq_denote, h]
+  intro; assumption
+
+def RelCnstr.divByLe (c₁ c₂ : RelCnstr) (k : Int) : Bool :=
+  k > 0 && (c₁.isLe && (c₁.divCoeffs k && c₂ == c₁.div k))
+
+theorem RelCnstr.of_divByLe (ctx : Context) (c₁ c₂ : RelCnstr) (k : Int) (h : divByLe c₁ c₂ k) : c₁.denote' ctx → c₂.denote' ctx := by
+  simp [divByLe] at h
+  rcases h with ⟨h₁, h₂, h₃, h₄⟩
+  simp only [RelCnstr.denote'_eq_denote]
+  exact RelCnstr.eq_of_norm_eq_of_divCoeffs ctx c₁ c₂ k h₁ h₃ h₂ h₄ |>.mp
+
+def RelCnstr.negLe (c₁ c₂ : RelCnstr) : Bool :=
+  c₁.isLe && c₂ == (c₁.mul (-1) |>.addConst 1)
+
+theorem RelCnstr.of_negLe (ctx : Context) (c₁ c₂ : RelCnstr) (h : negLe c₁ c₂) : ¬ c₁.denote' ctx → c₂.denote' ctx := by
+  simp [negLe] at h
+  rcases h with ⟨h₁, h₂⟩
+  cases c₁ <;> simp [isLe] at h₁; clear h₁
+  replace h₂ := congrArg (RelCnstr.denote ctx) h₂
+  simp only [RelCnstr.denote'_eq_denote, h₂, RelCnstr.mul, RelCnstr.addConst]
+  simp
+  intro h
+  replace h : _ + 1 ≤ -0 := Int.neg_lt_neg <| Int.lt_of_not_ge h
+  simp at h
+  exact h
+
+theorem RelCnstr.false_of_isUnsat_of_denote (ctx : Context) (c : RelCnstr) : c.isUnsat → c.denote ctx → False := by
+  intro h₁ h₂
+  simp [eq_false_of_isUnsat, h₁, -RelCnstr.denote] at h₂
 
 end Int.Linear
 

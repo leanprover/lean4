@@ -59,7 +59,6 @@ static lean_object* l_Lake_instToJsonConfigTrace___closed__1;
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1106____closed__13;
 static lean_object* l_Lake_configModuleName___closed__2;
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_importConfigFile___closed__4;
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_elabConfigFile(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -180,6 +179,7 @@ LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lake_importModulesUsingC
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__47;
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__25;
 static lean_object* l_Lake_elabConfigFile___closed__1;
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lake_importModulesUsingCache___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_foldlM___at_Lake_importModulesUsingCache___spec__6(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1026____closed__4;
@@ -260,6 +260,7 @@ static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_toJsonConfigTrace___
 LEAN_EXPORT uint8_t l_Array_isEqvAux___at_Lake_importModulesUsingCache___spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_importModulesUsingCache___lambda__1___closed__2;
 lean_object* lean_array_get_size(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_fromJsonConfigTrace____x40_Lake_Load_Lean_Elab___hyg_1106____closed__4;
 lean_object* l_Lean_Parser_parseHeader(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
@@ -281,7 +282,6 @@ LEAN_EXPORT lean_object* l_Lake_importModulesUsingCache___boxed(lean_object*, le
 lean_object* lake_environment_add(lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Array_foldlMUnsafe_fold___at_Lake_importConfigFileCore___spec__2___closed__1;
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lake_importConfigFileCore_lakeExts___closed__28;
 LEAN_EXPORT lean_object* l___private_Lake_Load_Lean_Elab_0__Lake_addToEnv___boxed(lean_object*, lean_object*);
 lean_object* l_Lean_MessageLog_add(lean_object*, lean_object*);

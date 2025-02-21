@@ -55,7 +55,6 @@ LEAN_EXPORT lean_object* l___private_Std_Tactic_BVDecide_LRAT_Parser_0__Std_Tact
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToString_serializeClause___boxed(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList___closed__1;
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillNegOrZero_go___rarg(lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Std_Internal_Parsec_ByteArray_skipBytes(lean_object*, lean_object*);
 uint8_t lean_uint8_land(uint8_t, uint8_t);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed__6;
@@ -146,6 +145,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_skipNewline___closed_
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseRes(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseIdList(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_manyTillNegOrZero_go___at_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseIdList___spec__2(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_variableLengthEncode___boxed(lean_object*, lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseZero___closed__5;
@@ -203,6 +203,7 @@ static lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_addInt___closed
 lean_object* lean_array_get_size(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseActions(lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_lratProofToBinary_startAdd(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Internal_Parsec_manyCore___at_Std_Tactic_BVDecide_LRAT_Parser_Text_parseActions_go___spec__2___lambda__1(uint8_t);
@@ -219,7 +220,6 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parsePos(lean_ob
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseId(lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Text_parseDelete(lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 static lean_object* l_Std_Tactic_BVDecide_LRAT_Parser_Binary_parseAction___closed__2;

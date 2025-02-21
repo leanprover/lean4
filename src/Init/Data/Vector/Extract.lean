@@ -11,59 +11,64 @@ import Init.Data.Array.Extract
 # Lemmas about `Vector.extract`
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open Nat
 
 namespace Vector
 
 /-! ### extract -/
 
-@[simp] theorem extract_of_size_lt {as : Vector α n} {i j : Nat} (h : n < j) :
-    as.extract i j = (as.extract i n).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+set_option linter.indexVariables false
+@[simp] theorem extract_of_size_lt {xs : Vector α n} {i j : Nat} (h : n < j) :
+    xs.extract i j = (xs.extract i n).cast (by omega) := by
+  rcases xs with ⟨as, rfl⟩
   simp [h]
 
 @[simp]
-theorem extract_push {as : Vector α n} {b : α} {start stop : Nat} (h : stop ≤ n) :
-    (as.push b).extract start stop = (as.extract start stop).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_push {xs : Vector α n} {b : α} {start stop : Nat} (h : stop ≤ n) :
+    (xs.push b).extract start stop = (xs.extract start stop).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [h]
 
 @[simp]
-theorem extract_eq_pop {as : Vector α n} {stop : Nat} (h : stop = n - 1) :
-    as.extract 0 stop = as.pop.cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_eq_pop {xs : Vector α n} {stop : Nat} (h : stop = n - 1) :
+    xs.extract 0 stop = xs.pop.cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [h]
 
 @[simp]
-theorem extract_append_extract {as : Vector α n} {i j k : Nat} :
-    as.extract i j ++ as.extract j k =
-      (as.extract (min i j) (max j k)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_append_extract {xs : Vector α n} {i j k : Nat} :
+    xs.extract i j ++ xs.extract j k =
+      (xs.extract (min i j) (max j k)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp]
-theorem push_extract_getElem {as : Vector α n} {i j : Nat} (h : j < n) :
-    (as.extract i j).push as[j] = (as.extract (min i j) (j + 1)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem push_extract_getElem {xs : Vector α n} {i j : Nat} (h : j < n) :
+    (xs.extract i j).push xs[j] = (xs.extract (min i j) (j + 1)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [h]
 
-theorem extract_succ_right {as : Vector α n} {i j : Nat} (w : i < j + 1) (h : j < n) :
-    as.extract i (j + 1) = ((as.extract i j).push as[j]).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_succ_right {xs : Vector α n} {i j : Nat} (w : i < j + 1) (h : j < n) :
+    xs.extract i (j + 1) = ((xs.extract i j).push xs[j]).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.extract_succ_right, w, h]
 
-theorem extract_sub_one {as : Vector α n} {i j : Nat} (h : j < n) :
-    as.extract i (j - 1) = (as.extract i j).pop.cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_sub_one {xs : Vector α n} {i j : Nat} (h : j < n) :
+    xs.extract i (j - 1) = (xs.extract i j).pop.cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.extract_sub_one, h]
 
 @[simp]
-theorem getElem?_extract_of_lt {as : Vector α n} {i j k : Nat} (h : k < min j n - i) :
-    (as.extract i j)[k]? = some (as[i + k]'(by omega)) := by
+theorem getElem?_extract_of_lt {xs : Vector α n} {i j k : Nat} (h : k < min j n - i) :
+    (xs.extract i j)[k]? = some (xs[i + k]'(by omega)) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [getElem?_extract, h]
 
-theorem getElem?_extract_of_succ {as : Vector α n} {j : Nat} :
-    (as.extract 0 (j + 1))[j]? = as[j]? := by
+theorem getElem?_extract_of_succ {xs : Vector α n} {j : Nat} :
+    (xs.extract 0 (j + 1))[j]? = xs[j]? := by
   simp only [Nat.sub_zero]
   erw [getElem?_extract] -- Why does this not fire by `simp` or `rw`?
   by_cases h : j < n
@@ -72,39 +77,39 @@ theorem getElem?_extract_of_succ {as : Vector α n} {j : Nat} :
   · rw [if_neg (by omega)]
     simp_all
 
-@[simp] theorem extract_extract {as : Vector α n} {i j k l : Nat} :
-    (as.extract i j).extract k l = (as.extract (i + k) (min (i + l) j)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+@[simp] theorem extract_extract {xs : Vector α n} {i j k l : Nat} :
+    (xs.extract i j).extract k l = (xs.extract (i + k) (min (i + l) j)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
-theorem extract_set {as : Vector α n} {i j k : Nat} (h : k < n) {a : α} :
-    (as.set k a).extract i j =
+theorem extract_set {xs : Vector α n} {i j k : Nat} (h : k < n) {a : α} :
+    (xs.set k a).extract i j =
       if _ : k < i then
-        as.extract i j
-      else if _ : k < min j as.size then
-        (as.extract i j).set (k - i) a (by omega)
-      else as.extract i j := by
-  rcases as with ⟨as, rfl⟩
+        xs.extract i j
+      else if _ : k < min j xs.size then
+        (xs.extract i j).set (k - i) a (by omega)
+      else xs.extract i j := by
+  rcases xs with ⟨xs, rfl⟩
   simp only [set_mk, extract_mk, Array.extract_set]
   split
   · simp
   · split <;> simp
 
-theorem set_extract {as : Vector α n} {i j k : Nat} (h : k < min j n - i) {a : α} :
-    (as.extract i j).set k a = (as.set (i + k) a).extract i j := by
-  rcases as with ⟨as, rfl⟩
+theorem set_extract {xs : Vector α n} {i j k : Nat} (h : k < min j n - i) {a : α} :
+    (xs.extract i j).set k a = (xs.set (i + k) a).extract i j := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.set_extract]
 
 @[simp]
-theorem extract_append {as : Vector α n} {bs : Vector α m} {i j : Nat} :
-    (as ++ bs).extract i j =
-      (as.extract i j ++ bs.extract (i - n) (j - n)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
-  rcases bs with ⟨bs, rfl⟩
+theorem extract_append {xs : Vector α n} {ys : Vector α m} {i j : Nat} :
+    (xs ++ ys).extract i j =
+      (xs.extract i j ++ ys.extract (i - n) (j - n)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
   simp
 
-theorem extract_append_left {as : Vector α n} {bs : Vector α m} :
-    (as ++ bs).extract 0 n = (as.extract 0 n).cast (by omega) := by
+theorem extract_append_left {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).extract 0 n = (xs.extract 0 n).cast (by omega) := by
   ext i h
   simp only [Nat.sub_zero, extract_append, extract_size, getElem_cast, getElem_append, Nat.min_self,
     getElem_extract, Nat.zero_sub, Nat.zero_add, cast_cast]
@@ -112,18 +117,18 @@ theorem extract_append_left {as : Vector α n} {bs : Vector α m} :
   · rfl
   · omega
 
-@[simp] theorem extract_append_right {as : Vector α n} {bs : Vector α m} :
-    (as ++ bs).extract n (n + i) = (bs.extract 0 i).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
-  rcases bs with ⟨bs, rfl⟩
+@[simp] theorem extract_append_right {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys).extract n (n + i) = (ys.extract 0 i).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
   simp only [mk_append_mk, extract_mk, Array.extract_append, Array.extract_size_left, Nat.sub_self,
     Array.empty_append, Nat.sub_zero, cast_mk, eq_mk]
   congr 1
   omega
 
-@[simp] theorem map_extract {as : Vector α n} {i j : Nat} :
-    (as.extract i j).map f = (as.map f).extract i j := by
-  ext k h
+@[simp] theorem map_extract {xs : Vector α n} {i j : Nat} :
+    (xs.extract i j).map f = (xs.map f).extract i j := by
+  rcases xs with ⟨xs, rfl⟩
   simp
 
 @[simp] theorem extract_mkVector {a : α} {n i j : Nat} :
@@ -131,36 +136,36 @@ theorem extract_append_left {as : Vector α n} {bs : Vector α m} :
   ext i h
   simp
 
-theorem extract_add_left {as : Vector α n} {i j k : Nat} :
-    as.extract (i + j) k = ((as.extract i k).extract j (k - i)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem extract_add_left {xs : Vector α n} {i j k : Nat} :
+    xs.extract (i + j) k = ((xs.extract i k).extract j (k - i)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp only [extract_mk, Array.extract_extract, cast_mk, eq_mk]
   rw [Array.extract_add_left]
   simp
 
-theorem mem_extract_iff_getElem {as : Vector α n} {a : α} {i j : Nat} :
-    a ∈ as.extract i j ↔ ∃ (k : Nat) (hm : k < min j n - i), as[i + k] = a := by
-  rcases as with ⟨as⟩
+theorem mem_extract_iff_getElem {xs : Vector α n} {a : α} {i j : Nat} :
+    a ∈ xs.extract i j ↔ ∃ (k : Nat) (hm : k < min j n - i), xs[i + k] = a := by
+  rcases xs with ⟨xs⟩
   simp [Array.mem_extract_iff_getElem]
   constructor <;>
   · rintro ⟨k, h, rfl⟩
     exact ⟨k, by omega, rfl⟩
 
-theorem set_eq_push_extract_append_extract {as : Vector α n} {i : Nat} (h : i < n) {a : α} :
-    as.set i a = ((as.extract 0 i).push a ++ (as.extract (i + 1) n)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem set_eq_push_extract_append_extract {xs : Vector α n} {i : Nat} (h : i < n) {a : α} :
+    xs.set i a = ((xs.extract 0 i).push a ++ (xs.extract (i + 1) n)).cast (by omega) := by
+  rcases xs with ⟨as, rfl⟩
   simp [Array.set_eq_push_extract_append_extract, h]
 
-theorem extract_reverse {as : Vector α n} {i j : Nat} :
-    as.reverse.extract i j = (as.extract (n - j) (n - i)).reverse.cast (by omega) := by
+theorem extract_reverse {xs : Vector α n} {i j : Nat} :
+    xs.reverse.extract i j = (xs.extract (n - j) (n - i)).reverse.cast (by omega) := by
   ext i h
   simp only [getElem_extract, getElem_reverse, getElem_cast]
   congr 1
   omega
 
-theorem reverse_extract {as : Vector α n} {i j : Nat} :
-    (as.extract i j).reverse = (as.reverse.extract (n - j) (n - i)).cast (by omega) := by
-  rcases as with ⟨as, rfl⟩
+theorem reverse_extract {xs : Vector α n} {i j : Nat} :
+    (xs.extract i j).reverse = (xs.reverse.extract (n - j) (n - i)).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
   simp [Array.reverse_extract]
 
 end Vector

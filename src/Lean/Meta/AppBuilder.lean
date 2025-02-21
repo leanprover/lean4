@@ -571,6 +571,18 @@ def mkLetValCongr (b h : Expr) : MetaM Expr :=
 def mkLetBodyCongr (a h : Expr) : MetaM Expr :=
   mkAppM ``let_body_congr #[a, h]
 
+/-- Returns `@of_eq_false p h` -/
+def mkOfEqFalseCore (p : Expr) (h : Expr) : Expr :=
+  match_expr h with
+  | eq_false _ h => h
+  | _ => mkApp2 (mkConst ``of_eq_false) p h
+
+/-- Returns `of_eq_false h` -/
+def mkOfEqFalse (h : Expr) : MetaM Expr := do
+  match_expr h with
+  | eq_false _ h => return h
+  | _ => mkAppM ``of_eq_false #[h]
+
 /-- Returns `@of_eq_true p h` -/
 def mkOfEqTrueCore (p : Expr) (h : Expr) : Expr :=
   match_expr h with
@@ -600,7 +612,9 @@ def mkEqTrue (h : Expr) : MetaM Expr := do
   `h` must have type definitionally equal to `¬ p` in the current
   reducibility setting. -/
 def mkEqFalse (h : Expr) : MetaM Expr :=
-  mkAppM ``eq_false #[h]
+  match_expr h with
+  | of_eq_false _ h => return h
+  | _ => mkAppM ``eq_false #[h]
 
 /--
   Returns `eq_false' h`

@@ -243,6 +243,7 @@ static lean_object* l___regBuiltin_Lean_Elab_Term_elabCalc__1___closed__2;
 static lean_object* l_Lean_Elab_Term_annotateFirstHoleWithType_go___lambda__1___closed__2;
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_Elab_Term_elabCalcSteps___spec__1___closed__3;
 LEAN_EXPORT lean_object* l_Lean_Elab_throwUnsupportedSyntax___at_Lean_Elab_Term_mkCalcStepViews___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_infer_type(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_unsupportedSyntaxExceptionId;
 uint8_t lean_usize_dec_lt(size_t, size_t);
@@ -253,7 +254,6 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_throwCalcFailure___rarg___lambda__2___
 lean_object* l_String_toSubstring_x27(lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 static lean_object* l_Lean_Elab_Term_elabCalcSteps___closed__3;
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_Term_throwCalcFailure___rarg___closed__2;
 static lean_object* l_Lean_Elab_Term_mkCalcFirstStepView___closed__8;
 static lean_object* l_Lean_Elab_Term_throwCalcFailure___rarg___lambda__3___closed__4;

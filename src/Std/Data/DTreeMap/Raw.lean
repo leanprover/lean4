@@ -648,6 +648,15 @@ def ofArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering := by e
 def fromArray (a : Array ((a : α) × β a)) (cmp : α → α → Ordering) : Raw α β cmp :=
   ofArray a cmp
 
+@[inline, inherit_doc DTreeMap.modify]
+def modify [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : β a → β a) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.modify a f⟩
+
+@[inline, inherit_doc DTreeMap.alter]
+def alter [LawfulEqCmp cmp] (t : Raw α β cmp) (a : α) (f : Option (β a) → Option (β a)) :
+    Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨t.inner.alter! a f⟩
+
 @[inline, inherit_doc DTreeMap.mergeWith]
 def mergeWith [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → β a) (t₁ t₂ : Raw α β cmp) :
     Raw α β cmp :=
@@ -686,6 +695,14 @@ def ofArray (a : Array (α × β)) (cmp : α → α → Ordering := by exact com
 @[inline, inherit_doc DTreeMap.Const.ofArray]
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : Raw α Unit cmp :=
   letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.unitOfArray a⟩
+
+@[inline, inherit_doc DTreeMap.Const.modify]
+def modify (t : Raw α β cmp) (a : α) (f : β → β) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.modify a f t.inner⟩
+
+@[inline, inherit_doc DTreeMap.Const.alter]
+def alter (t : Raw α β cmp) (a : α) (f : Option β → Option β) : Raw α β cmp :=
+  letI : Ord α := ⟨cmp⟩; ⟨Impl.Const.alter! a f t.inner⟩
 
 @[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : Raw α β cmp) : Raw α β cmp :=

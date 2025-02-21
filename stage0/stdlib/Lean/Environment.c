@@ -84,7 +84,6 @@ static lean_object* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda_
 LEAN_EXPORT lean_object* l___private_Lean_Environment_0__Lean_beqConstantKind____x40_Lean_Environment___hyg_1325____boxed(lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_addConstAsync___closed__11;
 static lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
-lean_object* l_Array_get_x21___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_AssocList_get_x3f___at___private_Lean_Environment_0__Lean_setImportedEntries___spec__2___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedModuleData;
 LEAN_EXPORT lean_object* l_Std_DHashMap_Internal_numBuckets___at_Lean_Environment_displayStats___spec__5___boxed(lean_object*);
@@ -191,7 +190,6 @@ static lean_object* l___private_Lean_Environment_0__Lean_reprConstantKind____x40
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_modifyState(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_foldl___at_Lean_Environment_AddConstAsyncResult_commitConst___spec__2(lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_ofKernelEnv___closed__1;
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* lean_elab_environment_to_kernel_env(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentEnvExtension_getState(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
@@ -499,6 +497,7 @@ uint8_t l_List_beq___at___private_Lean_Declaration_0__Lean_beqConstantVal____x40
 LEAN_EXPORT lean_object* l_Lean_ConstantKind_toCtorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAux___at_Lean_Kernel_Environment_find_x3f___spec__3(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_privateToUserName(lean_object*);
+lean_object* l_Array_get_x21Internal___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_instInhabitedConstantKind;
 LEAN_EXPORT lean_object* l___auto____x40_Lean_Environment___hyg_5621_;
 static lean_object* l___private_Lean_Environment_0__Lean_reprImport____x40_Lean_Environment___hyg_188____closed__23;
@@ -679,6 +678,7 @@ LEAN_EXPORT lean_object* l_Lean_SimplePersistentEnvExtension_getEntries(lean_obj
 LEAN_EXPORT lean_object* l_Lean_initFn____x40_Lean_Environment___hyg_5576_(lean_object*);
 static lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_importModulesCore___spec__1___lambda__1___closed__1;
 LEAN_EXPORT lean_object* l_Lean_finalizeImport___lambda__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_PromiseCheckedResult_commitChecked___closed__3;
 LEAN_EXPORT lean_object* l_Lean_registerEnvExtension_unsafe__1(lean_object*);
 static lean_object* l_panic___at_Lean_Environment_addConstAsync___spec__1___closed__1;
@@ -935,6 +935,7 @@ LEAN_EXPORT lean_object* l_Lean_instGetElem_x3fArrayModuleIdxLtNatToNatSize(lean
 LEAN_EXPORT lean_object* l_Lean_AsyncConstantInfo_toConstantVal(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_saveModuleData___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instMonadEnvOfMonadLift___rarg(lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_importModules___spec__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_find_expr(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_forIn_x27Unsafe_loop___at_Lean_finalizeImport___spec__5___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1009,7 +1010,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instInhabitedEnvExtension___lambda__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ConstantKind_ofConstantInfo___boxed(lean_object*);
 LEAN_EXPORT lean_object* lean_environment_free_regions(lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Repr_0__Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_EnvExtension_modifyState_unsafe__2___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Environment_PromiseCheckedResult_commitChecked___closed__5;
@@ -1192,7 +1192,7 @@ static lean_object* _init_l_Lean_instGetElem_x3fArrayModuleIdxLtNatToNatSize___c
 _start:
 {
 lean_object* x_1; 
-x_1 = lean_alloc_closure((void*)(l_Array_get_x21___boxed), 4, 1);
+x_1 = lean_alloc_closure((void*)(l_Array_get_x21Internal___boxed), 4, 1);
 lean_closure_set(x_1, 0, lean_box(0));
 return x_1;
 }
@@ -21159,7 +21159,6 @@ lean_object* x_7; lean_object* x_8;
 lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = lean_load_plugin(x_7, x_5);
-lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 

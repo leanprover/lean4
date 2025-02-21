@@ -12,6 +12,9 @@ These lemmas are used in the internals of HashMap.
 They should find a new home and/or be reformulated.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 theorem exists_of_set {i : Nat} {a' : α} {l : List α} (h : i < l.length) :
@@ -23,9 +26,9 @@ end List
 
 namespace Array
 
-theorem exists_of_uset (self : Array α) (i d h) :
-    ∃ l₁ l₂, self.toList = l₁ ++ self[i] :: l₂ ∧ List.length l₁ = i.toNat ∧
-      (self.uset i d h).toList = l₁ ++ d :: l₂ := by
+theorem exists_of_uset (xs : Array α) (i d h) :
+    ∃ l₁ l₂, xs.toList = l₁ ++ xs[i] :: l₂ ∧ List.length l₁ = i.toNat ∧
+      (xs.uset i d h).toList = l₁ ++ d :: l₂ := by
   simpa only [ugetElem_eq_getElem, ← getElem_toList, uset, toList_set] using
     List.exists_of_set _
 

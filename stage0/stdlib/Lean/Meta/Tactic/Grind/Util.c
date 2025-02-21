@@ -54,7 +54,6 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_reducePreMatchCond___lambda__1(lean_o
 lean_object* l_Lean_Meta_abstractNestedProofs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_replacePreMatchCond___closed__1;
 lean_object* l_Lean_Meta_mkExpectedTypeHint(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_normalizeLevels___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MVarId_getTag(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Meta_Grind_unfoldReducible___lambda__1___closed__1;
@@ -159,6 +158,7 @@ lean_object* l_Lean_Core_transform___at_Lean_Core_betaReduce___spec__1(lean_obje
 static lean_object* l_Lean_MVarId_ensureNoMVar___closed__2;
 uint8_t l_Lean_Expr_isFalse(lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_isMatchCond(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 static lean_object* l_Lean_MVarId_byContra_x3f___lambda__1___closed__6;
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
 static lean_object* l_List_forIn_x27_loop___at_Lean_MVarId_clearAuxDecls___spec__6___closed__2;

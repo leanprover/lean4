@@ -1990,6 +1990,14 @@ static inline uint8_t lean_int8_complement(uint8_t a) {
     return (uint8_t)(~arg);
 }
 
+static inline uint8_t lean_int8_abs(uint8_t a) {
+    int8_t arg = (int8_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT8_MIN to INT8_MIN
+    return (uint8_t)(arg < 0 ? -arg : arg);
+}
+
 static inline uint8_t lean_int8_dec_eq(uint8_t a1, uint8_t a2) {
     int8_t lhs = (int8_t)a1;
     int8_t rhs = (int8_t)a2;
@@ -2129,6 +2137,14 @@ static inline uint16_t lean_int16_complement(uint16_t a) {
     int16_t arg = (int16_t)a;
 
     return (uint16_t)(~arg);
+}
+
+static inline uint16_t lean_int16_abs(uint16_t a) {
+    int16_t arg = (int16_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT16_MIN to INT16_MIN
+    return (uint16_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_int16_dec_eq(uint16_t a1, uint16_t a2) {
@@ -2271,6 +2287,14 @@ static inline uint32_t lean_int32_complement(uint32_t a) {
     return (uint32_t)(~arg);
 }
 
+static inline uint32_t lean_int32_abs(uint32_t a) {
+    int32_t arg = (int32_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT32_MIN to INT32_MIN
+    return (uint32_t)(arg < 0 ? -arg : arg);
+}
+
 static inline uint8_t lean_int32_dec_eq(uint32_t a1, uint32_t a2) {
     int32_t lhs = (int32_t)a1;
     int32_t rhs = (int32_t)a2;
@@ -2409,6 +2433,14 @@ static inline uint64_t lean_int64_complement(uint64_t a) {
     int64_t arg = (int64_t)a;
 
     return (uint64_t)(~arg);
+}
+
+static inline uint64_t lean_int64_abs(uint64_t a) {
+    int64_t arg = (int64_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map INT64_MIN to INT64_MIN
+    return (uint64_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_int64_dec_eq(uint64_t a1, uint64_t a2) {
@@ -2551,6 +2583,14 @@ static inline size_t lean_isize_complement(size_t a) {
     ptrdiff_t arg = (ptrdiff_t)a;
 
     return (size_t)(~arg);
+}
+
+static inline size_t lean_isize_abs(size_t a) {
+    ptrdiff_t arg = (ptrdiff_t)a;
+
+    // Recall that we are compiling with -fwrapv so this is guaranteed to
+    // map ISIZE_MIN to ISIZE_MIN
+    return (size_t)(arg < 0 ? -arg : arg);
 }
 
 static inline uint8_t lean_isize_dec_eq(size_t a1, size_t a2) {

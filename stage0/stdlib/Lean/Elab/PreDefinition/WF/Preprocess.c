@@ -50,7 +50,6 @@ static lean_object* l_Lean_Expr_withAppAux___at_Lean_Elab_WF_preprocess___spec__
 static lean_object* l___regBuiltin_Lean_Elab_WF_paramLet_declare__1____x40_Lean_Elab_PreDefinition_WF_Preprocess___hyg_749____closed__1;
 LEAN_EXPORT lean_object* l_panic___at_Lean_Elab_WF_paramMatcher___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_bvar___override(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_paramProj___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_casesOnSuffix;
 lean_object* l_Lean_Meta_Match_MatcherInfo_arity(lean_object*);
@@ -161,6 +160,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_WF_preprocess___lambda__2___boxed(lean_obje
 LEAN_EXPORT lean_object* l_Lean_Elab_WF_paramLet___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_preprocess___lambda__4___closed__19;
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_WF_paramProj_declare__1____x40_Lean_Elab_PreDefinition_WF_Preprocess___hyg_392_(lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Elab_WF_paramLet_declare__1____x40_Lean_Elab_PreDefinition_WF_Preprocess___hyg_747_(lean_object*);
 lean_object* l_Lean_Expr_letValue_x21(lean_object*);
 lean_object* l_Lean_Expr_replaceFVars(lean_object*, lean_object*, lean_object*);
@@ -235,6 +235,7 @@ uint8_t l_Lean_isAuxRecursorWithSuffix(lean_object*, lean_object*, lean_object*)
 lean_object* lean_array_get_size(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Expr_withAppAux___at_Lean_Elab_WF_preprocess___spec__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_WF_Preprocess_0__Lean_Elab_WF_getSimpContext(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 static lean_object* l_Lean_Elab_WF_paramLet___lambda__1___closed__3;
@@ -252,7 +253,6 @@ static lean_object* l_Lean_Elab_WF_preprocess___lambda__4___closed__12;
 lean_object* l_Lean_InductiveVal_numCtors(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_matchMatcherApp_x3f___at_Lean_Elab_WF_paramMatcher___spec__1___lambda__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 static lean_object* l_Lean_Elab_WF_preprocess___lambda__4___closed__14;
 static lean_object* l_Lean_Elab_WF_initFn____x40_Lean_Elab_PreDefinition_WF_Preprocess___hyg_44____closed__1;

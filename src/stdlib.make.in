@@ -29,7 +29,7 @@ ifeq "${STAGE}" "0"
   LEANMAKE_OPTS+=C_ONLY=1 C_OUT=${LEAN_SOURCE_DIR}/../stdlib/
 endif
 
-.PHONY: Init Std Lean leanshared Lake Lake_shared lake lean
+.PHONY: Init Std Lean leanshared Lake libLake_shared lake lean
 
 # These can be phony since the inner Makefile will have the correct dependencies and avoid rebuilds
 Init:
@@ -101,7 +101,7 @@ leanshared: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRAR
 
 Lake:
 # lake is in its own subdirectory, so must adjust relative paths...
-	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" EXTRA_SRC_ROOTS=LakeMain.lean
+	+"${LEAN_BIN}/leanmake" -C lake lib lib.export ../${LIB}/temp/LakeMain.o.export  PKG=Lake $(LEANMAKE_OPTS) OUT="../${LIB}" LIB_OUT="../${LIB}/lean" TEMP_OUT="../${LIB}/temp" OLEAN_OUT="../${LIB}/lean" LEAN_OPTS+="--plugin=${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}" EXTRA_SRC_ROOTS=LakeMain.lean
 
 ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}: ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libInit_shared${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared_1${CMAKE_SHARED_LIBRARY_SUFFIX} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libleanshared${CMAKE_SHARED_LIBRARY_SUFFIX} ${LIB}/temp/libLean.a.export ${LIB}/temp/libLake.a.export
 	@echo "[    ] Building $@"

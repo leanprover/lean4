@@ -197,14 +197,12 @@ This option can only be set on the command line, not in the lakefile or via `set
     4. at the very end, if we never blocked (e.g. emptying a file should make
        sure to empty diagnostics as well eventually) -/
   private partial def reportSnapshots (ctx : WorkerContext) (doc : EditableDocumentCore)
-      (cancelTk : CancelToken) : BaseIO (Task Unit) := do
-    let t ← BaseIO.asTask do
-      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32  -- "Debouncing 1."
-    BaseIO.bindTask t fun _ => do
+      (cancelTk : CancelToken) : BaseIO (ServerTask Unit) :=
+    ServerTask.BaseIO.asTask do
+      IO.sleep (server.reportDelayMs.get ctx.cmdlineOpts).toUInt32 -- "Debouncing 1."
       let (_, st) ← handleTasks #[.finished none <| toSnapshotTree doc.initSnap] |>.run {}
       if (← cancelTk.isSet) then
-        return .pure ()
-
+        return ()
       -- callback at the end of reporting
       if st.hasFatal then
         ctx.chanOut.send <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
@@ -215,13 +213,15 @@ This option can only be set on the command line, not in the lakefile or via `set
       -- This will overwrite existing ilean info for the file, in case something
       -- went wrong during the incremental updates.
       ctx.chanOut.send (← mkIleanInfoFinalNotification doc.meta st.allInfoTrees)
-      return .pure ()
+      return ()
   where
     /--
     Given an array of possibly-unfinished tasks, handles them, possibly after waiting for one of
     them to finish.
     -/
     handleTasks (ts : Array (SnapshotTask SnapshotTree)) : StateT ReportSnapshotsState BaseIO Unit := do
+      if (← cancelTk.isSet) then
+        return ()
       let ts ← ts.flatMapM handleFinished
       -- all `ts` are now (likely) in-progress, report them
       sendFileProgress ts
@@ -304,7 +304,7 @@ This option can only be set on the command line, not in the lakefile or via `set
 end Elab
 
 structure PendingRequest where
-  requestTask : Task (Except IO.Error Unit)
+  requestTask : ServerTask (Except IO.Error Unit)
   cancelTk    : RequestCancellationToken
 
 -- Pending requests are tracked so they can be canceled
@@ -318,8 +318,8 @@ structure WorkerState where
   doc                : EditableDocument
   /-- Token flagged for aborting `doc.reporter` when a new document version comes in. -/
   reporterCancelTk   : CancelToken
-  srcSearchPathTask  : Task SearchPath
-  importCachingTask? : Option (Task (Except Error AvailableImportsCache))
+  srcSearchPathTask  : ServerTask SearchPath
+  importCachingTask? : Option (ServerTask (Except Error AvailableImportsCache))
   pendingRequests    : PendingRequestMap
   /-- A map of RPC session IDs. We allow asynchronous elab tasks and request handlers
   to modify sessions. A single `Ref` ensures atomic transactions. -/
@@ -420,7 +420,7 @@ section Initialization
     let processor := Language.Lean.process (setupImports meta opts chanOut srcSearchPathPromise)
     let processor ← Language.mkIncrementalProcessor processor
     let initSnap ← processor meta.mkInputContext
-    let _ ← IO.mapTask (t := srcSearchPathPromise.result!) fun srcSearchPath => do
+    let _ ← ServerTask.IO.mapTaskCostly (t := srcSearchPathPromise.result!) fun srcSearchPath => do
       let importClosure := getImportClosure? initSnap
       let importClosure ← importClosure.filterMapM (documentUriFromModule srcSearchPath ·)
       chanOut.send <| mkImportClosureNotification importClosure
@@ -467,6 +467,10 @@ section Initialization
           | .notification "$/lean/fileProgress" (some params) =>
             let params : LeanFileProgressParams ← fromJson? (toJson params) |>.toOption
             params.textDocument.version?
+          | .notification "$/lean/ileanInfoUpdate" (some params)
+          | .notification "$/lean/ileanInfoFinal" (some params) =>
+            let params : LeanIleanInfoParams ← fromJson? (toJson params) |>.toOption
+            some params.version
           | _ => none
         if let some version := version? then
           if version < (← maxDocVersion.get) then
@@ -530,7 +534,7 @@ section NotificationHandling
     let oldDoc := (←get).doc
     let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
-    let _ ← IO.mapTask (t := st.srcSearchPathTask) fun srcSearchPath =>
+    let _ ← ServerTask.IO.mapTaskCostly (t := st.srcSearchPathTask) fun srcSearchPath =>
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath
@@ -655,20 +659,20 @@ section MessageHandling
         diagStartLine ≤ s ∧ s < diagEndLine
 
   def handleImportCompletionRequest (id : RequestID) (params : CompletionParams)
-      : WorkerM (Task (Except Error AvailableImportsCache)) := do
+      : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
-    | none => IO.asTask (prio := Task.Priority.dedicated) do
+    | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
       let completions := ImportCompletion.find text st.doc.initSnap.stx params availableImports
       ctx.chanOut.send <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
-    | some task => IO.mapTask (t := task) fun result => do
+    | some task => ServerTask.IO.mapTaskCostly (t := task) fun (result : Except Error AvailableImportsCache) => do
       let mut ⟨availableImports, lastRequestTimestampMs⟩ ← IO.ofExcept result
       let timestampNowMs ← IO.monoMsNow
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
@@ -726,7 +730,7 @@ section MessageHandling
     let cancelTk ← RequestCancellationToken.new
     -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
-    let requestTask ← IO.bindTask st.srcSearchPathTask fun srcSearchPath => do
+    let requestTask ← ServerTask.IO.bindTaskCheap st.srcSearchPathTask fun srcSearchPath => do
       let rc : RequestContext :=
         { rpcSessions := st.rpcSessions
           srcSearchPath
@@ -735,11 +739,11 @@ section MessageHandling
           hLog := ctx.hLog
           initParams := ctx.initParams }
       let t? ← EIO.toIO' <| handleLspRequest method params rc
-      let t₁ ← match t? with
+      match t? with
         | Except.error e =>
             emitResponse ctx (isComplete := false) <| e.toLspResponseError id
-            pure <| Task.pure <| .ok ()
-        | Except.ok t => (IO.mapTask · t) fun
+            pure <| ServerTask.pure <| .ok ()
+        | Except.ok t => ServerTask.IO.mapTaskCheap (t := t) fun
           | Except.ok r => do
             if ← cancelTk.wasCancelledByCancelRequest then
               -- Try not to emit a partial response if this request was cancelled.
@@ -776,9 +780,9 @@ section MainLoop
   partial def mainLoop : WorkerM Unit := do
     let mut st ← get
     let msg ← hIn.readLspMessage
-    let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : Task (Except IO.Error Unit))
+    let filterFinishedTasks (acc : PendingRequestMap) (id : RequestID) (task : ServerTask (Except IO.Error Unit))
         : IO PendingRequestMap := do
-      if (← hasFinished task) then
+      if ← task.hasFinished then
         -- Handler tasks are constructed so that the only possible errors here
         -- are failures of writing a response into the stream.
         if let Except.error e := task.get then
@@ -814,7 +818,7 @@ section MainLoop
     | _ => throwServerError "Got invalid JSON-RPC message"
 end MainLoop
 
-def runRefreshTasks : WorkerM (Array (Task Unit)) := do
+def runRefreshTasks : WorkerM (Array (ServerTask Unit)) := do
   -- We limit the amount of successive refresh attempts in case the user has switched files,
   -- in which case VS Code won't respond to any refresh request for the given file.
   -- Since we don't want to spam the client with refresh requests for every single file that they
@@ -823,7 +827,7 @@ def runRefreshTasks : WorkerM (Array (Task Unit)) := do
   let ctx ← read
   let mut tasks := #[]
   for (method, refreshMethod, refreshIntervalMs) in ← partialLspRequestHandlerMethods do
-    tasks := tasks.push <| ← BaseIO.asTask (prio := .dedicated) do
+    tasks := tasks.push <| ← ServerTask.BaseIO.asTask do
       while true do
         let lastRefreshTimestamp? ← ctx.modifyGetPartialHandler method fun h => Id.run do
           let some info := h.pendingRefreshInfo?
@@ -905,8 +909,8 @@ def initAndRunWorker (i o e : FS.Stream) (opts : Options) : IO Unit := do
     try
       let refreshTasks ← runRefreshTasks
       mainLoop i
-      for refreshTasks in refreshTasks do
-        IO.cancel refreshTasks
+      for refreshTask in refreshTasks do
+        refreshTask.cancel
     catch err =>
       let st ← get
       writeErrorDiag st.doc.meta err

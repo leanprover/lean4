@@ -9,6 +9,7 @@ import Lean.Server.Utils
 import Lean.Util.FileSetupInfo
 import Lean.Util.LakePath
 import Lean.LoadDynlib
+import Lean.Server.ServerTask
 
 namespace Lean.Server.FileWorker
 
@@ -45,7 +46,7 @@ partial def runLakeSetupFile
     else
       handleStderr line
       processStderr (acc ++ line)
-  let stderr ← IO.asTask (processStderr "") Task.Priority.dedicated
+  let stderr ← ServerTask.IO.asTask (processStderr "")
 
   let stdout := String.trim (← lakeProc.stdout.readToEnd)
   let stderr ← IO.ofExcept stderr.get
@@ -108,11 +109,6 @@ source files and the options for the file. -/
 partial def setupFile (m : DocumentMeta) (imports : Array Import) (handleStderr : String → IO Unit) : IO FileSetupResult := do
   let some filePath := System.Uri.fileUriToPath? m.uri
     | return ← FileSetupResult.ofNoLakefile -- untitled files have no lakefile
-
-  -- NOTE: we assume for now that `lakefile.lean` does not have any non-core-Lean deps
-  -- NOTE: lake does not exist in stage 0 (yet?)
-  if filePath.fileName == "lakefile.lean" then
-    return ← FileSetupResult.ofNoLakefile -- the lakefile itself has no lakefile
 
   let lakePath ← determineLakePath
   if !(← System.FilePath.pathExists lakePath) then

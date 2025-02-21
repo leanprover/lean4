@@ -6,6 +6,7 @@ Authors: Siddharth Bhat, Jeremy Avigad
 prelude
 import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.Int.Bitwise
+import Init.Data.Int.DivMod.Lemmas
 
 namespace Int
 

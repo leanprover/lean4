@@ -186,7 +186,7 @@ theorem zipWith_eq_cons_iff {f : α → β → γ} {l₁ : List α} {l₂ : List
 
 theorem zipWith_eq_append_iff {f : α → β → γ} {l₁ : List α} {l₂ : List β} :
     zipWith f l₁ l₂ = l₁' ++ l₂' ↔
-      ∃ w x y z, w.length = y.length ∧ l₁ = w ++ x ∧ l₂ = y ++ z ∧ l₁' = zipWith f w y ∧ l₂' = zipWith f x z := by
+      ∃ ws xs ys zs, ws.length = ys.length ∧ l₁ = ws ++ xs ∧ l₂ = ys ++ zs ∧ l₁' = zipWith f ws ys ∧ l₂' = zipWith f xs zs := by
   induction l₁ generalizing l₂ l₁' with
   | nil =>
     simp
@@ -347,7 +347,7 @@ theorem zip_eq_cons_iff {l₁ : List α} {l₂ : List β} :
 
 theorem zip_eq_append_iff {l₁ : List α} {l₂ : List β} :
     zip l₁ l₂ = l₁' ++ l₂' ↔
-      ∃ w x y z, w.length = y.length ∧ l₁ = w ++ x ∧ l₂ = y ++ z ∧ l₁' = zip w y ∧ l₂' = zip x z := by
+      ∃ ws xs ys zs, ws.length = ys.length ∧ l₁ = ws ++ xs ∧ l₂ = ys ++ zs ∧ l₁' = zip ws ys ∧ l₂' = zip xs zs := by
   simp [zip_eq_zipWith, zipWith_eq_append_iff]
 
 /-- See also `List.zip_replicate` in `Init.Data.List.TakeDrop` for a generalization with different lengths. -/

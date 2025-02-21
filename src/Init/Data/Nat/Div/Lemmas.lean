@@ -6,6 +6,7 @@ Authors: Kim Morrison
 prelude
 import Init.Omega
 import Init.Data.Nat.Lemmas
+import Init.Data.Nat.Simproc
 
 /-!
 # Further lemmas about `Nat.div` and `Nat.mod`, with the convenience of having `omega` available.
@@ -61,5 +62,44 @@ theorem div_le_div_left (hcb : c ≤ b) (hc : 0 < c) : a / b ≤ a / c :=
 theorem div_add_le_right {z : Nat} (h : 0 < z) (x y : Nat) :
     x / (y + z) ≤ x / z :=
   div_le_div_left (Nat.le_add_left z y) h
+
+theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
+    (a + 1) / b = a / b + 1 := by
+  cases b with
+  | zero => simp at h
+  | succ b =>
+    by_cases h' : b ≤ a
+    · rw [Nat.div_eq]
+      simp only [zero_lt_succ, Nat.add_le_add_iff_right, h', and_self, ↓reduceIte,
+        Nat.reduceSubDiff, Nat.add_right_cancel_iff]
+      obtain ⟨_|k, h⟩ := Nat.dvd_of_mod_eq_zero h
+      · simp at h
+      · simp only [Nat.mul_add, Nat.add_mul, Nat.one_mul, Nat.mul_one, ← Nat.add_assoc,
+          Nat.add_right_cancel_iff] at h
+        subst h
+        rw [Nat.add_sub_cancel, ← Nat.add_one_mul, mul_div_right _ (zero_lt_succ _), Nat.add_comm,
+          Nat.add_mul_div_left _ _ (zero_lt_succ _), Nat.self_eq_add_left, div_eq_of_lt le.refl]
+    · simp only [Nat.not_le] at h'
+      replace h' : a + 1 < b + 1 := Nat.add_lt_add_right h' 1
+      rw [Nat.mod_eq_of_lt h'] at h
+      simp at h
+
+theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
+    (a + 1) / b = a / b := by
+  cases b with
+  | zero => simp
+  | succ b =>
+    rw [eq_comm, Nat.div_eq_iff (by simp)]
+    constructor
+    · rw [Nat.div_mul_self_eq_mod_sub_self]
+      have : (a + 1) % (b + 1) < b + 1 := Nat.mod_lt _ (by simp)
+      omega
+    · rw [Nat.div_mul_self_eq_mod_sub_self]
+      omega
+
+theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if (a + 1) % b = 0 then 1 else 0 := by
+  split <;> rename_i h
+  · simp [succ_div_of_mod_eq_zero h]
+  · simp [succ_div_of_mod_ne_zero h]
 
 end Nat

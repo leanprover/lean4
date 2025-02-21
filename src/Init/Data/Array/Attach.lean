@@ -8,6 +8,8 @@ import Init.Data.Array.Mem
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Count
 import Init.Data.List.Attach
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -19,8 +21,8 @@ to apply `f`.
 
 We replace this at runtime with a more efficient version via the `csimp` lemma `pmap_eq_pmapImpl`.
 -/
-def pmap {P : α → Prop} (f : ∀ a, P a → β) (l : Array α) (H : ∀ a ∈ l, P a) : Array β :=
-  (l.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
+def pmap {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) : Array β :=
+  (xs.toList.pmap f (fun a m => H a (mem_def.mpr m))).toArray
 
 /--
 Unsafe implementation of `attachWith`, taking advantage of the fact that the representation of
@@ -51,25 +53,25 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
     l.toArray.pmap f H = (l.pmap f (by simpa using H)).toArray := by
   simp [pmap]
 
-@[simp] theorem toList_attachWith {l : Array α} {P : α → Prop} {H : ∀ x ∈ l, P x} :
-   (l.attachWith P H).toList = l.toList.attachWith P (by simpa [mem_toList] using H) := by
+@[simp] theorem toList_attachWith {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs, P x} :
+   (xs.attachWith P H).toList = xs.toList.attachWith P (by simpa [mem_toList] using H) := by
   simp [attachWith]
 
-@[simp] theorem toList_attach {α : Type _} {l : Array α} :
-    l.attach.toList = l.toList.attachWith (· ∈ l) (by simp [mem_toList]) := by
+@[simp] theorem toList_attach {xs : Array α} :
+    xs.attach.toList = xs.toList.attachWith (· ∈ xs) (by simp [mem_toList]) := by
   simp [attach]
 
-@[simp] theorem toList_pmap {l : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ l, P a} :
-    (l.pmap f H).toList = l.toList.pmap f (fun a m => H a (mem_def.mpr m)) := by
+@[simp] theorem toList_pmap {xs : Array α} {P : α → Prop} {f : ∀ a, P a → β} {H : ∀ a ∈ xs, P a} :
+    (xs.pmap f H).toList = xs.toList.pmap f (fun a m => H a (mem_def.mpr m)) := by
   simp [pmap]
 
 /-- Implementation of `pmap` using the zero-copy version of `attach`. -/
-@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (l : Array α) (H : ∀ a ∈ l, P a) :
-    Array β := (l.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
+@[inline] private def pmapImpl {P : α → Prop} (f : ∀ a, P a → β) (xs : Array α) (H : ∀ a ∈ xs, P a) :
+    Array β := (xs.attachWith _ H).map fun ⟨x, h'⟩ => f x h'
 
 @[csimp] private theorem pmap_eq_pmapImpl : @pmap = @pmapImpl := by
-  funext α β p f L h'
-  cases L
+  funext α β p f xs H
+  cases xs
   simp only [pmap, pmapImpl, List.attachWith_toArray, List.map_toArray, mk.injEq, List.map_attachWith_eq_pmap]
   apply List.pmap_congr_left
   intro a m h₁ h₂
@@ -77,9 +79,9 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
 
 @[simp] theorem pmap_empty {P : α → Prop} (f : ∀ a, P a → β) : pmap f #[] (by simp) = #[] := rfl
 
-@[simp] theorem pmap_push {P : α → Prop} (f : ∀ a, P a → β) (a : α) (l : Array α) (h : ∀ b ∈ l.push a, P b) :
-    pmap f (l.push a) h =
-      (pmap f l (fun a m => by simp at h; exact h a (.inl m))).push (f a (h a (by simp))) := by
+@[simp] theorem pmap_push {P : α → Prop} (f : ∀ a, P a → β) (a : α) (xs : Array α) (h : ∀ b ∈ xs.push a, P b) :
+    pmap f (xs.push a) h =
+      (pmap f xs (fun a m => by simp at h; exact h a (.inl m))).push (f a (h a (by simp))) := by
   simp [pmap]
 
 @[simp] theorem attach_empty : (#[] : Array α).attach = #[] := rfl
@@ -94,158 +96,158 @@ Unsafe implementation of `attachWith`, taking advantage of the fact that the rep
   simp
 
 @[simp]
-theorem pmap_eq_map (p : α → Prop) (f : α → β) (l : Array α) (H) :
-    @pmap _ _ p (fun a _ => f a) l H = map f l := by
-  cases l; simp
+theorem pmap_eq_map (p : α → Prop) (f : α → β) (xs : Array α) (H) :
+    @pmap _ _ p (fun a _ => f a) xs H = map f xs := by
+  cases xs; simp
 
-theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, q a → β} (l : Array α) {H₁ H₂}
-    (h : ∀ a ∈ l, ∀ (h₁ h₂), f a h₁ = g a h₂) : pmap f l H₁ = pmap g l H₂ := by
-  cases l
+theorem pmap_congr_left {p q : α → Prop} {f : ∀ a, p a → β} {g : ∀ a, q a → β} (xs : Array α) {H₁ H₂}
+    (h : ∀ a ∈ xs, ∀ (h₁ h₂), f a h₁ = g a h₂) : pmap f xs H₁ = pmap g xs H₂ := by
+  cases xs
   simp only [mem_toArray] at h
   simp only [List.pmap_toArray, mk.injEq]
   rw [List.pmap_congr_left _ h]
 
-theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (l H) :
-    map g (pmap f l H) = pmap (fun a h => g (f a h)) l H := by
-  cases l
+theorem map_pmap {p : α → Prop} (g : β → γ) (f : ∀ a, p a → β) (xs H) :
+    map g (pmap f xs H) = pmap (fun a h => g (f a h)) xs H := by
+  cases xs
   simp [List.map_pmap]
 
-theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (l H) :
-    pmap g (map f l) H = pmap (fun a h => g (f a) h) l fun _ h => H _ (mem_map_of_mem _ h) := by
-  cases l
+theorem pmap_map {p : β → Prop} (g : ∀ b, p b → γ) (f : α → β) (xs H) :
+    pmap g (map f xs) H = pmap (fun a h => g (f a) h) xs fun _ h => H _ (mem_map_of_mem _ h) := by
+  cases xs
   simp [List.pmap_map]
 
-theorem attach_congr {l₁ l₂ : Array α} (h : l₁ = l₂) :
-    l₁.attach = l₂.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
+theorem attach_congr {xs ys : Array α} (h : xs = ys) :
+    xs.attach = ys.attach.map (fun x => ⟨x.1, h ▸ x.2⟩) := by
   subst h
   simp
 
-theorem attachWith_congr {l₁ l₂ : Array α} (w : l₁ = l₂) {P : α → Prop} {H : ∀ x ∈ l₁, P x} :
-    l₁.attachWith P H = l₂.attachWith P fun _ h => H _ (w ▸ h) := by
+theorem attachWith_congr {xs ys : Array α} (w : xs = ys) {P : α → Prop} {H : ∀ x ∈ xs, P x} :
+    xs.attachWith P H = ys.attachWith P fun _ h => H _ (w ▸ h) := by
   subst w
   simp
 
-@[simp] theorem attach_push {a : α} {l : Array α} :
-    (l.push a).attach =
-      (l.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
-  cases l
+@[simp] theorem attach_push {a : α} {xs : Array α} :
+    (xs.push a).attach =
+      (xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
+  cases xs
   rw [attach_congr (List.push_toArray _ _)]
   simp [Function.comp_def]
 
-@[simp] theorem attachWith_push {a : α} {l : Array α} {P : α → Prop} {H : ∀ x ∈ l.push a, P x} :
-    (l.push a).attachWith P H =
-      (l.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
-  cases l
+@[simp] theorem attachWith_push {a : α} {xs : Array α} {P : α → Prop} {H : ∀ x ∈ xs.push a, P x} :
+    (xs.push a).attachWith P H =
+      (xs.attachWith P (fun x h => by simp at H; exact H x (.inl h))).push ⟨a, H a (by simp)⟩ := by
+  cases xs
   simp [attachWith_congr (List.push_toArray _ _)]
 
-theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (l H) :
-    pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
-  cases l
+theorem pmap_eq_map_attach {p : α → Prop} (f : ∀ a, p a → β) (xs H) :
+    pmap f xs H = xs.attach.map fun x => f x.1 (H _ x.2) := by
+  cases xs
   simp [List.pmap_eq_map_attach]
 
 @[simp]
-theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (l H) :
-    pmap (fun a h => ⟨a, f a h⟩) l H = l.attachWith q (fun x h => f x (H x h)) := by
-  cases l
+theorem pmap_eq_attachWith {p q : α → Prop} (f : ∀ a, p a → q a) (xs H) :
+    pmap (fun a h => ⟨a, f a h⟩) xs H = xs.attachWith q (fun x h => f x (H x h)) := by
+  cases xs
   simp [List.pmap_eq_attachWith]
 
-theorem attach_map_val (l : Array α) (f : α → β) :
-    (l.attach.map fun (i : {i // i ∈ l}) => f i) = l.map f := by
-  cases l
+theorem attach_map_val (xs : Array α) (f : α → β) :
+    (xs.attach.map fun (i : {i // i ∈ xs}) => f i) = xs.map f := by
+  cases xs
   simp
 
 @[deprecated attach_map_val (since := "2025-02-17")]
 abbrev attach_map_coe := @attach_map_val
 
-theorem attach_map_subtype_val (l : Array α) : l.attach.map Subtype.val = l := by
-  cases l; simp
+theorem attach_map_subtype_val (xs : Array α) : xs.attach.map Subtype.val = xs := by
+  cases xs; simp
 
-theorem attachWith_map_val {p : α → Prop} (f : α → β) (l : Array α) (H : ∀ a ∈ l, p a) :
-    ((l.attachWith p H).map fun (i : { i // p i}) => f i) = l.map f := by
-  cases l; simp
+theorem attachWith_map_val {p : α → Prop} (f : α → β) (xs : Array α) (H : ∀ a ∈ xs, p a) :
+    ((xs.attachWith p H).map fun (i : { i // p i}) => f i) = xs.map f := by
+  cases xs; simp
 
 @[deprecated attachWith_map_val (since := "2025-02-17")]
 abbrev attachWith_map_coe := @attachWith_map_val
 
-theorem attachWith_map_subtype_val {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) :
-    (l.attachWith p H).map Subtype.val = l := by
-  cases l; simp
+theorem attachWith_map_subtype_val {p : α → Prop} (xs : Array α) (H : ∀ a ∈ xs, p a) :
+    (xs.attachWith p H).map Subtype.val = xs := by
+  cases xs; simp
 
 @[simp]
-theorem mem_attach (l : Array α) : ∀ x, x ∈ l.attach
+theorem mem_attach (xs : Array α) : ∀ x, x ∈ xs.attach
   | ⟨a, h⟩ => by
     have := mem_map.1 (by rw [attach_map_subtype_val] <;> exact h)
     rcases this with ⟨⟨_, _⟩, m, rfl⟩
     exact m
 
 @[simp]
-theorem mem_attachWith (l : Array α) {q : α → Prop} (H) (x : {x // q x}) :
-    x ∈ l.attachWith q H ↔ x.1 ∈ l := by
-  cases l
+theorem mem_attachWith (xs : Array α) {q : α → Prop} (H) (x : {x // q x}) :
+    x ∈ xs.attachWith q H ↔ x.1 ∈ xs := by
+  cases xs
   simp
 
 @[simp]
-theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H b} :
-    b ∈ pmap f l H ↔ ∃ (a : _) (h : a ∈ l), f a (H a h) = b := by
+theorem mem_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs H b} :
+    b ∈ pmap f xs H ↔ ∃ (a : _) (h : a ∈ xs), f a (H a h) = b := by
   simp only [pmap_eq_map_attach, mem_map, mem_attach, true_and, Subtype.exists, eq_comm]
 
-theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {l H} {a} (h : a ∈ l) :
-    f a (H a h) ∈ pmap f l H := by
+theorem mem_pmap_of_mem {p : α → Prop} {f : ∀ a, p a → β} {xs H} {a} (h : a ∈ xs) :
+    f a (H a h) ∈ pmap f xs H := by
   rw [mem_pmap]
   exact ⟨a, h, rfl⟩
 
 @[simp]
-theorem size_pmap {p : α → Prop} {f : ∀ a, p a → β} {l H} : (pmap f l H).size = l.size := by
-  cases l; simp
+theorem size_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs H} : (pmap f xs H).size = xs.size := by
+  cases xs; simp
 
 @[simp]
-theorem size_attach {L : Array α} : L.attach.size = L.size := by
-  cases L; simp
+theorem size_attach {xs : Array α} : xs.attach.size = xs.size := by
+  cases xs; simp
 
 @[simp]
-theorem size_attachWith {p : α → Prop} {l : Array α} {H} : (l.attachWith p H).size = l.size := by
-  cases l; simp
+theorem size_attachWith {p : α → Prop} {xs : Array α} {H} : (xs.attachWith p H).size = xs.size := by
+  cases xs; simp
 
 @[simp]
-theorem pmap_eq_empty_iff {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = #[] ↔ l = #[] := by
-  cases l; simp
+theorem pmap_eq_empty_iff {p : α → Prop} {f : ∀ a, p a → β} {xs H} : pmap f xs H = #[] ↔ xs = #[] := by
+  cases xs; simp
 
 theorem pmap_ne_empty_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : Array α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ #[] ↔ xs ≠ #[] := by
   cases xs; simp
 
-theorem pmap_eq_self {l : Array α} {p : α → Prop} {hp : ∀ (a : α), a ∈ l → p a}
-    {f : (a : α) → p a → α} : l.pmap f hp = l ↔ ∀ a (h : a ∈ l), f a (hp a h) = a := by
-  cases l; simp [List.pmap_eq_self]
+theorem pmap_eq_self {xs : Array α} {p : α → Prop} {hp : ∀ (a : α), a ∈ xs → p a}
+    {f : (a : α) → p a → α} : xs.pmap f hp = xs ↔ ∀ a (h : a ∈ xs), f a (hp a h) = a := by
+  cases xs; simp [List.pmap_eq_self]
 
 @[simp]
-theorem attach_eq_empty_iff {l : Array α} : l.attach = #[] ↔ l = #[] := by
-  cases l; simp
+theorem attach_eq_empty_iff {xs : Array α} : xs.attach = #[] ↔ xs = #[] := by
+  cases xs; simp
 
-theorem attach_ne_empty_iff {l : Array α} : l.attach ≠ #[] ↔ l ≠ #[] := by
-  cases l; simp
-
-@[simp]
-theorem attachWith_eq_empty_iff {l : Array α} {P : α → Prop} {H : ∀ a ∈ l, P a} :
-    l.attachWith P H = #[] ↔ l = #[] := by
-  cases l; simp
-
-theorem attachWith_ne_empty_iff {l : Array α} {P : α → Prop} {H : ∀ a ∈ l, P a} :
-    l.attachWith P H ≠ #[] ↔ l ≠ #[] := by
-  cases l; simp
+theorem attach_ne_empty_iff {xs : Array α} : xs.attach ≠ #[] ↔ xs ≠ #[] := by
+  cases xs; simp
 
 @[simp]
-theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) (i : Nat) :
-    (pmap f l h)[i]? = Option.pmap f l[i]? fun x H => h x (mem_of_getElem? H) := by
-  cases l; simp
+theorem attachWith_eq_empty_iff {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
+    xs.attachWith P H = #[] ↔ xs = #[] := by
+  cases xs; simp
+
+theorem attachWith_ne_empty_iff {xs : Array α} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
+    xs.attachWith P H ≠ #[] ↔ xs ≠ #[] := by
+  cases xs; simp
 
 @[simp]
-theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {l : Array α} (h : ∀ a ∈ l, p a) {i : Nat}
-    (hi : i < (pmap f l h).size) :
-    (pmap f l h)[i] =
-      f (l[i]'(@size_pmap _ _ p f l h ▸ hi))
-        (h _ (getElem_mem (@size_pmap _ _ p f l h ▸ hi))) := by
-  cases l; simp
+theorem getElem?_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Array α} (h : ∀ a ∈ xs, p a) (i : Nat) :
+    (pmap f xs h)[i]? = Option.pmap f xs[i]? fun x H => h x (mem_of_getElem? H) := by
+  cases xs; simp
+
+@[simp]
+theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Array α} (h : ∀ a ∈ xs, p a) {i : Nat}
+    (hi : i < (pmap f xs h).size) :
+    (pmap f xs h)[i] =
+      f (xs[i]'(@size_pmap _ _ p f xs h ▸ hi))
+        (h _ (getElem_mem (@size_pmap _ _ p f xs h ▸ hi))) := by
+  cases xs; simp
 
 @[simp]
 theorem getElem?_attachWith {xs : Array α} {i : Nat} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
@@ -268,40 +270,40 @@ theorem getElem_attach {xs : Array α} {i : Nat} (h : i < xs.attach.size) :
     xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ :=
   getElem_attachWith h
 
-@[simp] theorem pmap_attach (l : Array α) {p : {x // x ∈ l} → Prop} (f : ∀ a, p a → β) (H) :
-    pmap f l.attach H =
-      l.pmap (P := fun a => ∃ h : a ∈ l, p ⟨a, h⟩)
+@[simp] theorem pmap_attach (xs : Array α) {p : {x // x ∈ xs} → Prop} (f : ∀ a, p a → β) (H) :
+    pmap f xs.attach H =
+      xs.pmap (P := fun a => ∃ h : a ∈ xs, p ⟨a, h⟩)
         (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨h, H ⟨a, h⟩ (by simp)⟩) := by
   ext <;> simp
 
-@[simp] theorem pmap_attachWith (l : Array α) {p : {x // q x} → Prop} (f : ∀ a, p a → β) (H₁ H₂) :
-    pmap f (l.attachWith q H₁) H₂ =
-      l.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
+@[simp] theorem pmap_attachWith (xs : Array α) {p : {x // q x} → Prop} (f : ∀ a, p a → β) (H₁ H₂) :
+    pmap f (xs.attachWith q H₁) H₂ =
+      xs.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
         (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
   ext <;> simp
 
-theorem foldl_pmap (l : Array α) {P : α → Prop} (f : (a : α) → P a → β)
-  (H : ∀ (a : α), a ∈ l → P a) (g : γ → β → γ) (x : γ) :
-    (l.pmap f H).foldl g x = l.attach.foldl (fun acc a => g acc (f a.1 (H _ a.2))) x := by
+theorem foldl_pmap (xs : Array α) {P : α → Prop} (f : (a : α) → P a → β)
+  (H : ∀ (a : α), a ∈ xs → P a) (g : γ → β → γ) (x : γ) :
+    (xs.pmap f H).foldl g x = xs.attach.foldl (fun acc a => g acc (f a.1 (H _ a.2))) x := by
   rw [pmap_eq_map_attach, foldl_map]
 
-theorem foldr_pmap (l : Array α) {P : α → Prop} (f : (a : α) → P a → β)
-  (H : ∀ (a : α), a ∈ l → P a) (g : β → γ → γ) (x : γ) :
-    (l.pmap f H).foldr g x = l.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
+theorem foldr_pmap (xs : Array α) {P : α → Prop} (f : (a : α) → P a → β)
+  (H : ∀ (a : α), a ∈ xs → P a) (g : β → γ → γ) (x : γ) :
+    (xs.pmap f H).foldr g x = xs.attach.foldr (fun a acc => g (f a.1 (H _ a.2)) acc) x := by
   rw [pmap_eq_map_attach, foldr_map]
 
 @[simp] theorem foldl_attachWith
-    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : β → { x // q x} → β} {b} (w : stop = l.size) :
-    (l.attachWith q H).foldl f b 0 stop = l.attach.foldl (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
+    (xs : Array α) {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : β → { x // q x} → β} {b} (w : stop = xs.size) :
+    (xs.attachWith q H).foldl f b 0 stop = xs.attach.foldl (fun b ⟨a, h⟩ => f b ⟨a, H _ h⟩) b := by
   subst w
-  rcases l with ⟨l⟩
+  rcases xs with ⟨xs⟩
   simp [List.foldl_attachWith, List.foldl_map]
 
 @[simp] theorem foldr_attachWith
-    (l : Array α) {q : α → Prop} (H : ∀ a, a ∈ l → q a) {f : { x // q x} → β → β} {b} (w : start = l.size) :
-    (l.attachWith q H).foldr f b start 0 = l.attach.foldr (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
+    (xs : Array α) {q : α → Prop} (H : ∀ a, a ∈ xs → q a) {f : { x // q x} → β → β} {b} (w : start = xs.size) :
+    (xs.attachWith q H).foldr f b start 0 = xs.attach.foldr (fun a acc => f ⟨a.1, H _ a.2⟩ acc) b := by
   subst w
-  rcases l with ⟨l⟩
+  rcases xs with ⟨xs⟩
   simp [List.foldr_attachWith, List.foldr_map]
 
 /--
@@ -314,9 +316,9 @@ Unfortunately this can't be applied by `simp` because of the higher order unific
 and even when rewriting we need to specify the function explicitly.
 See however `foldl_subtype` below.
 -/
-theorem foldl_attach (l : Array α) (f : β → α → β) (b : β) :
-    l.attach.foldl (fun acc t => f acc t.1) b = l.foldl f b := by
-  rcases l with ⟨l⟩
+theorem foldl_attach (xs : Array α) (f : β → α → β) (b : β) :
+    xs.attach.foldl (fun acc t => f acc t.1) b = xs.foldl f b := by
+  rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
     List.length_pmap, List.foldl_toArray', mem_toArray, List.foldl_subtype]
   congr
@@ -333,101 +335,101 @@ Unfortunately this can't be applied by `simp` because of the higher order unific
 and even when rewriting we need to specify the function explicitly.
 See however `foldr_subtype` below.
 -/
-theorem foldr_attach (l : Array α) (f : α → β → β) (b : β) :
-    l.attach.foldr (fun t acc => f t.1 acc) b = l.foldr f b := by
-  rcases l with ⟨l⟩
+theorem foldr_attach (xs : Array α) (f : α → β → β) (b : β) :
+    xs.attach.foldr (fun t acc => f t.1 acc) b = xs.foldr f b := by
+  rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.size_toArray,
     List.length_pmap, List.foldr_toArray', mem_toArray, List.foldr_subtype]
   congr
   ext
   simpa using fun a => List.mem_of_getElem? a
 
-theorem attach_map {l : Array α} (f : α → β) :
-    (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
-  cases l
+theorem attach_map {xs : Array α} (f : α → β) :
+    (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem f h⟩) := by
+  cases xs
   ext <;> simp
 
-theorem attachWith_map {l : Array α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ l.map f → P b} :
-    (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
+theorem attachWith_map {xs : Array α} (f : α → β) {P : β → Prop} {H : ∀ (b : β), b ∈ xs.map f → P b} :
+    (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem f h))).map
       fun ⟨x, h⟩ => ⟨f x, h⟩ := by
-  cases l
+  cases xs
   simp [List.attachWith_map]
 
-@[simp] theorem map_attachWith {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+@[simp] theorem map_attachWith {xs : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a}
     (f : { x // P x } → β) :
-    (l.attachWith P H).map f = l.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
-  cases l <;> simp_all
+    (xs.attachWith P H).map f = xs.attach.map fun ⟨x, h⟩ => f ⟨x, H _ h⟩ := by
+  cases xs <;> simp_all
 
-theorem map_attachWith_eq_pmap {l : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ l → P a}
+theorem map_attachWith_eq_pmap {xs : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a}
     (f : { x // P x } → β) :
-    (l.attachWith P H).map f =
-      l.pmap (fun a (h : a ∈ l ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
-  cases l
+    (xs.attachWith P H).map f =
+      xs.pmap (fun a (h : a ∈ xs ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
+  cases xs
   ext <;> simp
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
-theorem map_attach_eq_pmap {l : Array α} (f : { x // x ∈ l } → β) :
-    l.attach.map f = l.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
-  cases l
+theorem map_attach_eq_pmap {xs : Array α} (f : { x // x ∈ xs } → β) :
+    xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
+  cases xs
   ext <;> simp
 
 @[deprecated map_attach_eq_pmap (since := "2025-02-09")]
 abbrev map_attach := @map_attach_eq_pmap
 
-theorem attach_filterMap {l : Array α} {f : α → Option β} :
-    (l.filterMap f).attach = l.attach.filterMap
+theorem attach_filterMap {xs : Array α} {f : α → Option β} :
+    (xs.filterMap f).attach = xs.attach.filterMap
       fun ⟨x, h⟩ => (f x).pbind (fun b m => some ⟨b, mem_filterMap.mpr ⟨x, h, m⟩⟩) := by
-  cases l
+  cases xs
   rw [attach_congr (List.filterMap_toArray f _)]
   simp [List.attach_filterMap, List.map_filterMap, Function.comp_def]
 
-theorem attach_filter {l : Array α} (p : α → Bool) :
-    (l.filter p).attach = l.attach.filterMap
+theorem attach_filter {xs : Array α} (p : α → Bool) :
+    (xs.filter p).attach = xs.attach.filterMap
       fun x => if w : p x.1 then some ⟨x.1, mem_filter.mpr ⟨x.2, w⟩⟩ else none := by
-  cases l
+  cases xs
   rw [attach_congr (List.filter_toArray p _)]
   simp [List.attach_filter, List.map_filterMap, Function.comp_def]
 
 -- We are still missing here `attachWith_filterMap` and `attachWith_filter`.
 
 @[simp]
-theorem filterMap_attachWith {q : α → Prop} {l : Array α} {f : {x // q x} → Option β} (H)
-    (w : stop = (l.attachWith q H).size) :
-    (l.attachWith q H).filterMap f 0 stop = l.attach.filterMap (fun ⟨x, h⟩ => f ⟨x, H _ h⟩) := by
+theorem filterMap_attachWith {q : α → Prop} {xs : Array α} {f : {x // q x} → Option β} (H)
+    (w : stop = (xs.attachWith q H).size) :
+    (xs.attachWith q H).filterMap f 0 stop = xs.attach.filterMap (fun ⟨x, h⟩ => f ⟨x, H _ h⟩) := by
   subst w
-  cases l
+  cases xs
   simp [Function.comp_def]
 
 @[simp]
-theorem filter_attachWith {q : α → Prop} {l : Array α} {p : {x // q x} → Bool} (H)
-    (w : stop = (l.attachWith q H).size) :
-    (l.attachWith q H).filter p 0 stop =
-      (l.attach.filter (fun ⟨x, h⟩ => p ⟨x, H _ h⟩)).map (fun ⟨x, h⟩ => ⟨x, H _ h⟩) := by
+theorem filter_attachWith {q : α → Prop} {xs : Array α} {p : {x // q x} → Bool} (H)
+    (w : stop = (xs.attachWith q H).size) :
+    (xs.attachWith q H).filter p 0 stop =
+      (xs.attach.filter (fun ⟨x, h⟩ => p ⟨x, H _ h⟩)).map (fun ⟨x, h⟩ => ⟨x, H _ h⟩) := by
   subst w
-  cases l
+  cases xs
   simp [Function.comp_def, List.filter_map]
 
-theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (l H₁ H₂) :
-    pmap f (pmap g l H₁) H₂ =
-      pmap (α := { x // x ∈ l }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) l.attach
+theorem pmap_pmap {p : α → Prop} {q : β → Prop} (g : ∀ a, p a → β) (f : ∀ b, q b → γ) (xs H₁ H₂) :
+    pmap f (pmap g xs H₁) H₂ =
+      pmap (α := { x // x ∈ xs }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) xs.attach
         (fun a _ => H₁ a a.2) := by
-  cases l
+  cases xs
   simp [List.pmap_pmap, List.pmap_map]
 
-@[simp] theorem pmap_append {p : ι → Prop} (f : ∀ a : ι, p a → α) (l₁ l₂ : Array ι)
-    (h : ∀ a ∈ l₁ ++ l₂, p a) :
-    (l₁ ++ l₂).pmap f h =
-      (l₁.pmap f fun a ha => h a (mem_append_left l₂ ha)) ++
-        l₂.pmap f fun a ha => h a (mem_append_right l₁ ha) := by
-  cases l₁
-  cases l₂
+@[simp] theorem pmap_append {p : ι → Prop} (f : ∀ a : ι, p a → α) (xs ys : Array ι)
+    (h : ∀ a ∈ xs ++ ys, p a) :
+    (xs ++ ys).pmap f h =
+      (xs.pmap f fun a ha => h a (mem_append_left ys ha)) ++
+        ys.pmap f fun a ha => h a (mem_append_right xs ha) := by
+  cases xs
+  cases ys
   simp
 
-theorem pmap_append' {p : α → Prop} (f : ∀ a : α, p a → β) (l₁ l₂ : Array α)
-    (h₁ : ∀ a ∈ l₁, p a) (h₂ : ∀ a ∈ l₂, p a) :
-    ((l₁ ++ l₂).pmap f fun a ha => (mem_append.1 ha).elim (h₁ a) (h₂ a)) =
-      l₁.pmap f h₁ ++ l₂.pmap f h₂ :=
-  pmap_append f l₁ l₂ _
+theorem pmap_append' {p : α → Prop} (f : ∀ a : α, p a → β) (xs ys : Array α)
+    (h₁ : ∀ a ∈ xs, p a) (h₂ : ∀ a ∈ ys, p a) :
+    ((xs ++ ys).pmap f fun a ha => (mem_append.1 ha).elim (h₁ a) (h₂ a)) =
+      xs.pmap f h₁ ++ ys.pmap f h₂ :=
+  pmap_append f xs ys _
 
 @[simp] theorem attach_append (xs ys : Array α) :
     (xs ++ ys).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_append_left ys h⟩) ++
@@ -496,35 +498,35 @@ theorem back?_attach {xs : Array α} :
   simp
 
 @[simp]
-theorem countP_attach (l : Array α) (p : α → Bool) :
-    l.attach.countP (fun a : {x // x ∈ l} => p a) = l.countP p := by
-  cases l
+theorem countP_attach (xs : Array α) (p : α → Bool) :
+    xs.attach.countP (fun a : {x // x ∈ xs} => p a) = xs.countP p := by
+  cases xs
   simp [Function.comp_def]
 
 @[simp]
-theorem countP_attachWith {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) (q : α → Bool) :
-    (l.attachWith p H).countP (fun a : {x // p x} => q a) = l.countP q := by
-  cases l
+theorem countP_attachWith {p : α → Prop} (xs : Array α) (H : ∀ a ∈ xs, p a) (q : α → Bool) :
+    (xs.attachWith p H).countP (fun a : {x // p x} => q a) = xs.countP q := by
+  cases xs
   simp
 
 @[simp]
-theorem count_attach [DecidableEq α] (l : Array α) (a : {x // x ∈ l}) :
-    l.attach.count a = l.count ↑a := by
-  rcases l with ⟨l⟩
+theorem count_attach [DecidableEq α] (xs : Array α) (a : {x // x ∈ xs}) :
+    xs.attach.count a = xs.count ↑a := by
+  rcases xs with ⟨xs⟩
   simp only [List.attach_toArray, List.attachWith_mem_toArray, List.count_toArray]
   rw [List.map_attach_eq_pmap, List.count_eq_countP]
   simp only [Subtype.beq_iff]
   rw [List.countP_pmap, List.countP_attach (p := (fun x => x == a.1)), List.count]
 
 @[simp]
-theorem count_attachWith [DecidableEq α] {p : α → Prop} (l : Array α) (H : ∀ a ∈ l, p a) (a : {x // p x}) :
-    (l.attachWith p H).count a = l.count ↑a := by
-  cases l
+theorem count_attachWith [DecidableEq α] {p : α → Prop} (xs : Array α) (H : ∀ a ∈ xs, p a) (a : {x // p x}) :
+    (xs.attachWith p H).count a = xs.count ↑a := by
+  cases xs
   simp
 
-@[simp] theorem countP_pmap {p : α → Prop} (g : ∀ a, p a → β) (f : β → Bool) (l : Array α) (H₁) :
-    (l.pmap g H₁).countP f =
-      l.attach.countP (fun ⟨a, m⟩ => f (g a (H₁ a m))) := by
+@[simp] theorem countP_pmap {p : α → Prop} (g : ∀ a, p a → β) (f : β → Bool) (xs : Array α) (H₁) :
+    (xs.pmap g H₁).countP f =
+      xs.attach.countP (fun ⟨a, m⟩ => f (g a (H₁ a m))) := by
   simp [pmap_eq_map_attach, countP_map, Function.comp_def]
 
 /-! ## unattach
@@ -545,43 +547,43 @@ and is ideally subsequently simplified away by `unattach_attach`.
 
 If not, usually the right approach is `simp [Array.unattach, -Array.map_subtype]` to unfold.
 -/
-def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) : Array α := l.map (·.val)
+def unattach {α : Type _} {p : α → Prop} (xs : Array { x // p x }) : Array α := xs.map (·.val)
 
 @[simp] theorem unattach_nil {p : α → Prop} : (#[] : Array { x // p x }).unattach = #[] := rfl
-@[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {l : Array { x // p x }} :
-    (l.push a).unattach = l.unattach.push a.1 := by
+@[simp] theorem unattach_push {p : α → Prop} {a : { x // p x }} {xs : Array { x // p x }} :
+    (xs.push a).unattach = xs.unattach.push a.1 := by
   simp only [unattach, Array.map_push]
 
-@[simp] theorem size_unattach {p : α → Prop} {l : Array { x // p x }} :
-    l.unattach.size = l.size := by
+@[simp] theorem size_unattach {p : α → Prop} {xs : Array { x // p x }} :
+    xs.unattach.size = xs.size := by
   unfold unattach
   simp
 
-@[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {l : List { x // p x }} :
-    l.toArray.unattach = l.unattach.toArray := by
+@[simp] theorem _root_.List.unattach_toArray {p : α → Prop} {xs : List { x // p x }} :
+    xs.toArray.unattach = xs.unattach.toArray := by
   simp only [unattach, List.map_toArray, List.unattach]
 
-@[simp] theorem toList_unattach {p : α → Prop} {l : Array { x // p x }} :
-    l.unattach.toList = l.toList.unattach := by
+@[simp] theorem toList_unattach {p : α → Prop} {xs : Array { x // p x }} :
+    xs.unattach.toList = xs.toList.unattach := by
   simp only [unattach, toList_map, List.unattach]
 
-@[simp] theorem unattach_attach {l : Array α} : l.attach.unattach = l := by
-  cases l
+@[simp] theorem unattach_attach {xs : Array α} : xs.attach.unattach = xs := by
+  cases xs
   simp only [List.attach_toArray, List.unattach_toArray, List.unattach_attachWith]
 
-@[simp] theorem unattach_attachWith {p : α → Prop} {l : Array α}
-    {H : ∀ a ∈ l, p a} :
-    (l.attachWith p H).unattach = l := by
-  cases l
+@[simp] theorem unattach_attachWith {p : α → Prop} {xs : Array α}
+    {H : ∀ a ∈ xs, p a} :
+    (xs.attachWith p H).unattach = xs := by
+  cases xs
   simp
 
-@[simp] theorem getElem?_unattach {p : α → Prop} {l : Array { x // p x }} (i : Nat) :
-    l.unattach[i]? = l[i]?.map Subtype.val := by
+@[simp] theorem getElem?_unattach {p : α → Prop} {xs : Array { x // p x }} (i : Nat) :
+    xs.unattach[i]? = xs[i]?.map Subtype.val := by
   simp [unattach]
 
 @[simp] theorem getElem_unattach
-    {p : α → Prop} {l : Array { x // p x }} (i : Nat) (h : i < l.unattach.size) :
-    l.unattach[i] = (l[i]'(by simpa using h)).1 := by
+    {p : α → Prop} {xs : Array { x // p x }} (i : Nat) (h : i < xs.unattach.size) :
+    xs.unattach[i] = (xs[i]'(by simpa using h)).1 := by
   simp [unattach]
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
@@ -590,20 +592,20 @@ def unattach {α : Type _} {p : α → Prop} (l : Array { x // p x }) : Array α
 This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
 and simplifies these to the function directly taking the value.
 -/
-theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
+theorem foldl_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
     (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) :
-    l.foldl f x = l.unattach.foldl g x := by
-  cases l
+    xs.foldl f x = xs.unattach.foldl g x := by
+  cases xs
   simp only [List.foldl_toArray', List.unattach_toArray]
   rw [List.foldl_subtype] -- Why can't simp do this?
   simp [hf]
 
 /-- Variant of `foldl_subtype` with side condition to check `stop = l.size`. -/
-@[simp] theorem foldl_subtype' {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem foldl_subtype' {p : α → Prop} {xs : Array { x // p x }}
     {f : β → { x // p x } → β} {g : β → α → β} {x : β}
-    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) (h : stop = l.size) :
-    l.foldl f x 0 stop = l.unattach.foldl g x := by
+    (hf : ∀ b x h, f b ⟨x, h⟩ = g b x) (h : stop = xs.size) :
+    xs.foldl f x 0 stop = xs.unattach.foldl g x := by
   subst h
   rwa [foldl_subtype]
 
@@ -611,20 +613,20 @@ theorem foldl_subtype {p : α → Prop} {l : Array { x // p x }}
 This lemma identifies folds over arrays of subtypes, where the function only depends on the value, not the proposition,
 and simplifies these to the function directly taking the value.
 -/
-theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
+theorem foldr_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
     (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) :
-    l.foldr f x = l.unattach.foldr g x := by
-  cases l
+    xs.foldr f x = xs.unattach.foldr g x := by
+  cases xs
   simp only [List.foldr_toArray', List.unattach_toArray]
   rw [List.foldr_subtype]
   simp [hf]
 
 /-- Variant of `foldr_subtype` with side condition to check `stop = l.size`. -/
-@[simp] theorem foldr_subtype' {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem foldr_subtype' {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → β → β} {g : α → β → β} {x : β}
-    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) (h : start = l.size) :
-    l.foldr f x start 0 = l.unattach.foldr g x := by
+    (hf : ∀ x h b, f ⟨x, h⟩ b = g x b) (h : start = xs.size) :
+    xs.foldr f x start 0 = xs.unattach.foldr g x := by
   subst h
   rwa [foldr_subtype]
 
@@ -632,70 +634,70 @@ theorem foldr_subtype {p : α → Prop} {l : Array { x // p x }}
 This lemma identifies maps over arrays of subtypes, where the function only depends on the value, not the proposition,
 and simplifies these to the function directly taking the value.
 -/
-@[simp] theorem map_subtype {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem map_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → β} {g : α → β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    l.map f = l.unattach.map g := by
-  cases l
+    xs.map f = xs.unattach.map g := by
+  cases xs
   simp only [List.map_toArray, List.unattach_toArray]
   rw [List.map_subtype]
   simp [hf]
 
-@[simp] theorem filterMap_subtype {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem filterMap_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    l.filterMap f = l.unattach.filterMap g := by
-  cases l
+    xs.filterMap f = xs.unattach.filterMap g := by
+  cases xs
   simp only [List.size_toArray, List.filterMap_toArray', List.unattach_toArray, List.length_unattach,
     mk.injEq]
   rw [List.filterMap_subtype]
   simp [hf]
 
 
-@[simp] theorem flatMap_subtype {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem flatMap_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Array β} {g : α → Array β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (l.flatMap f) = l.unattach.flatMap g := by
-  cases l
+    (xs.flatMap f) = xs.unattach.flatMap g := by
+  cases xs
   simp only [List.size_toArray, List.flatMap_toArray, List.unattach_toArray, List.length_unattach,
     mk.injEq]
   rw [List.flatMap_subtype]
   simp [hf]
 
-@[simp] theorem findSome?_subtype {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem findSome?_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Option β} {g : α → Option β} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    l.findSome? f = l.unattach.findSome? g := by
-  cases l
+    xs.findSome? f = xs.unattach.findSome? g := by
+  cases xs
   simp
   rw [List.findSome?_subtype hf]
 
-@[simp] theorem find?_subtype {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem find?_subtype {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (l.find? f).map Subtype.val = l.unattach.find? g := by
-  cases l
+    (xs.find? f).map Subtype.val = xs.unattach.find? g := by
+  cases xs
   simp
   rw [List.find?_subtype hf]
 
 /-! ### Simp lemmas pushing `unattach` inwards. -/
 
-@[simp] theorem unattach_filter {p : α → Prop} {l : Array { x // p x }}
+@[simp] theorem unattach_filter {p : α → Prop} {xs : Array { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
-    (l.filter f).unattach = l.unattach.filter g := by
-  cases l
+    (xs.filter f).unattach = xs.unattach.filter g := by
+  cases xs
   simp [hf]
 
-@[simp] theorem unattach_reverse {p : α → Prop} {l : Array { x // p x }} :
-    l.reverse.unattach = l.unattach.reverse := by
-  cases l
+@[simp] theorem unattach_reverse {p : α → Prop} {xs : Array { x // p x }} :
+    xs.reverse.unattach = xs.unattach.reverse := by
+  cases xs
   simp
 
-@[simp] theorem unattach_append {p : α → Prop} {l₁ l₂ : Array { x // p x }} :
-    (l₁ ++ l₂).unattach = l₁.unattach ++ l₂.unattach := by
-  cases l₁
-  cases l₂
+@[simp] theorem unattach_append {p : α → Prop} {xs₁ xs₂ : Array { x // p x }} :
+    (xs₁ ++ xs₂).unattach = xs₁.unattach ++ xs₂.unattach := by
+  cases xs₁
+  cases xs₂
   simp
 
-@[simp] theorem unattach_flatten {p : α → Prop} {l : Array (Array { x // p x })} :
-    l.flatten.unattach = (l.map unattach).flatten := by
+@[simp] theorem unattach_flatten {p : α → Prop} {xs : Array (Array { x // p x })} :
+    xs.flatten.unattach = (xs.map unattach).flatten := by
   unfold unattach
-  cases l using array₂_induction
+  cases xs using array₂_induction
   simp only [flatten_toArray, List.map_map, Function.comp_def, List.map_id_fun', id_eq,
     List.map_toArray, List.map_flatten, map_subtype, map_id_fun', List.unattach_toArray, mk.injEq]
   simp only [List.unattach]

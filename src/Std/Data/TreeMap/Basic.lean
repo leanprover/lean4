@@ -490,6 +490,14 @@ def fromArray (a : Array (α × β)) (cmp : α → α → Ordering) : TreeMap α
 def unitOfArray (a : Array α) (cmp : α → α → Ordering := by exact compare) : TreeMap α Unit cmp :=
   ⟨DTreeMap.Const.unitOfArray a cmp⟩
 
+@[inline, inherit_doc DTreeMap.Const.modify]
+def modify (t : TreeMap α β cmp) (a : α) (f : β → β) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.modify t.inner a f⟩
+
+@[inline, inherit_doc DTreeMap.Const.alter]
+def alter (t : TreeMap α β cmp) (a : α) (f : Option β → Option β) : TreeMap α β cmp :=
+  ⟨DTreeMap.Const.alter t.inner a f⟩
+
 @[inline, inherit_doc DTreeMap.Const.mergeWith]
 def mergeWith (mergeFn : α → β → β → β) (t₁ t₂ : TreeMap α β cmp) : TreeMap α β cmp :=
   ⟨DTreeMap.Const.mergeWith mergeFn t₁.inner t₂.inner⟩

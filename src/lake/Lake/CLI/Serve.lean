@@ -41,18 +41,14 @@ def setupFile
     let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
+    let usesLake := imports.any (·.startsWith "Lake")
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
     let {dynlibs, plugins} ←
       MainM.runLogIO (minLv := outLv) (ansiMode := .noAnsi) do
         ws.runBuild (buildImportsAndDeps path imports) buildConfig
-    let isConfig ← EIO.catchExceptions (h := fun _ => pure false) do
-      let setupPath := (← IO.FS.realPath path).normalize
-      let leanConfigPath := loadConfig.configFile.withExtension "lean"
-      let configPath := (← IO.FS.realPath leanConfigPath).normalize
-      return setupPath == configPath
     let plugins :=
-      if isConfig then plugins.push ws.lakeEnv.lake.sharedLib else plugins
+      if usesLake then plugins.push ws.lakeEnv.lake.sharedLib else plugins
     let paths : LeanPaths := {
       oleanPath := ws.leanPath
       srcPath := ws.leanSrcPath

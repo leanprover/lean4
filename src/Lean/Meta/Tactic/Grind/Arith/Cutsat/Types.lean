@@ -28,6 +28,7 @@ inductive DvdCnstrProof where
   | divCoeffs (c : DvdCnstrWithProof)
   | solveCombine (c₁ c₂ : DvdCnstrWithProof)
   | solveElim (c₁ c₂ : DvdCnstrWithProof)
+  | elim (c : DvdCnstrWithProof)
 
 structure RelCnstrWithProof where
   c  : RelCnstr

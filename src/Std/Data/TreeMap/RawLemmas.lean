@@ -228,14 +228,14 @@ theorem get?_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} :
     t.isEmpty = true → t[a]? = none :=
   DTreeMap.Raw.Const.get?_of_isEmpty h
 
-theorem get?_insert! [TransCmp cmp] (h : t.WF) {a k : α} {v : β} :
+theorem get?_insert [TransCmp cmp] (h : t.WF) {a k : α} {v : β} :
     (t.insert k v)[a]? = if cmp k a = .eq then some v else t[a]? :=
-  DTreeMap.Raw.Const.get?_insert! h
+  DTreeMap.Raw.Const.get?_insert h
 
 @[simp]
-theorem get?_insert!_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+theorem get?_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     (t.insert k v)[k]? = some v :=
-  DTreeMap.Raw.Const.get?_insert!_self h
+  DTreeMap.Raw.Const.get?_insert_self h
 
 theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
     t.contains a = t[a]?.isSome :=
@@ -253,14 +253,14 @@ theorem get?_eq_none [TransCmp cmp] (h : t.WF) {a : α} :
     ¬ a ∈ t → t[a]? = none :=
   DTreeMap.Raw.Const.get?_eq_none h
 
-theorem get?_erase! [TransCmp cmp] (h : t.WF) {k a : α} :
+theorem get?_erase [TransCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k)[a]? = if cmp k a = .eq then none else t[a]? :=
-  DTreeMap.Raw.Const.get?_erase! h
+  DTreeMap.Raw.Const.get?_erase h
 
 @[simp]
-theorem get?_erase!_self [TransCmp cmp] (h : t.WF) {k : α} :
+theorem get?_erase_self [TransCmp cmp] (h : t.WF) {k : α} :
     (t.erase k)[k]? = none :=
-  DTreeMap.Raw.Const.get?_erase!_self h
+  DTreeMap.Raw.Const.get?_erase_self h
 
 theorem get?_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) :
     t[a]? = t[b]? :=

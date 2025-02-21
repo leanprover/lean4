@@ -227,13 +227,13 @@ theorem get?_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     t.isEmpty = true → t.get? a = none :=
   Impl.get?_of_isEmpty h
 
-theorem get?_insert! [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a k : α} {v : β k} :
+theorem get?_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a k : α} {v : β k} :
     (t.insert k v).get? a =
       if h : cmp k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a :=
   Impl.get?_insert! h
 
 @[simp]
-theorem get?_insert!_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+theorem get?_insert_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.insert k v).get? k = some v :=
   Impl.get?_insert!_self h
 
@@ -253,11 +253,11 @@ theorem get?_eq_none [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
     ¬ a ∈ t → t.get? a = none :=
   Impl.get?_eq_none h
 
-theorem get?_erase! [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} :
+theorem get?_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k).get? a = if cmp k a = .eq then none else t.get? a :=
   Impl.get?_erase! h
 
-theorem get?_erase!_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} :
+theorem get?_erase_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).get? k = none :=
   Impl.get?_erase!_self h
 
@@ -274,13 +274,13 @@ theorem get?_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} :
     t.isEmpty = true → get? t a = none :=
   Impl.Const.get?_of_isEmpty h
 
-theorem get?_insert! [TransCmp cmp] (h : t.WF) {a k : α} {v : β} :
+theorem get?_insert [TransCmp cmp] (h : t.WF) {a k : α} {v : β} :
     get? (t.insert k v) a =
       if cmp k a = .eq then some v else get? t a :=
   Impl.Const.get?_insert! h
 
 @[simp]
-theorem get?_insert!_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+theorem get?_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
     get? (t.insert k v) k = some v :=
   Impl.Const.get?_insert!_self h
 
@@ -300,12 +300,12 @@ theorem get?_eq_none [TransCmp cmp] (h : t.WF) {a : α} :
     ¬ a ∈ t → get? t a = none :=
   Impl.Const.get?_eq_none h
 
-theorem get?_erase! [TransCmp cmp] (h : t.WF) {k a : α} :
+theorem get?_erase [TransCmp cmp] (h : t.WF) {k a : α} :
     get? (t.erase k) a = if cmp k a = .eq then none else get? t a :=
   Impl.Const.get?_erase! h
 
 @[simp]
-theorem get?_erase!_self [TransCmp cmp] (h : t.WF) {k : α} :
+theorem get?_erase_self [TransCmp cmp] (h : t.WF) {k : α} :
     get? (t.erase k) k = none :=
   Impl.Const.get?_erase!_self h
 

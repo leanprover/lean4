@@ -123,6 +123,9 @@ These are defined here because they need configuration definitions
 definitions.
 -/
 
+target_data module : Module
+target_data package : Package
+
 /-- The direct local imports of the Lean module. -/
 abbrev Module.importsFacet := `imports
 module_data imports : Array Module

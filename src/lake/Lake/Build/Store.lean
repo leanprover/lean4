@@ -37,8 +37,8 @@ def collectModuleFacetArray
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .moduleFacet m f =>
-      if h : f = facet then
+    | .facet (.module m) f =>
+      if h : f = `module ++ facet then
         have of_data := by unfold BuildData; simp [h]
         res := res.push <| cast of_data v
     | _ => pure ()
@@ -51,8 +51,8 @@ def collectModuleFacetMap
   let mut res := Lean.mkNameMap (Job α)
   for ⟨k, v⟩ in self do
     match k with
-    | .moduleFacet m f =>
-      if h : f = facet then
+    | .facet (.module m) f =>
+      if h : f = `module ++ facet then
         have of_data := by unfold BuildData; simp [h]
         res := res.insert m <| cast of_data v
     | _ => pure ()
@@ -65,8 +65,8 @@ def collectPackageFacetArray
   let mut res : Array (Job α) := #[]
   for ⟨k, v⟩ in self do
     match k with
-    | .packageFacet _ f =>
-      if h : f = facet then
+    | .facet (.package _) f =>
+      if h : f = `package ++ facet then
         have of_data := by unfold BuildData; simp [h]
         res := res.push <| cast of_data v
     | _ => pure ()

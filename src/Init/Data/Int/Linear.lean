@@ -488,13 +488,18 @@ theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int
   rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
   apply eq_of_norm_eq_of_divCoeffs
 
-def unsatEqCert (lhs rhs : Expr) : Bool :=
-  match (lhs.sub rhs).norm with
+def Poly.isUnsatEq (p : Poly) : Bool :=
+  match p with
   | .num k => k != 0
   | _ => false
 
-theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : unsatEqCert lhs rhs → (lhs.denote ctx = rhs.denote ctx) = False := by
-  simp [unsatEqCert] <;> split <;> simp
+def Poly.isValidEq (p : Poly) : Bool :=
+  match p with
+  | .num k => k == 0
+  | _ => false
+
+theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatEq → (lhs.denote ctx = rhs.denote ctx) = False := by
+  simp [Poly.isUnsatEq] <;> split <;> simp
   next p k h =>
     intro h'
     replace h := congrArg (Poly.denote ctx) h
@@ -502,16 +507,25 @@ theorem eq_eq_false (ctx : Context) (lhs rhs : Expr) : unsatEqCert lhs rhs → (
     rw [← Int.sub_eq_zero, h]
     assumption
 
-def unsatPolyLeCert (p : Poly) : Bool :=
+theorem eq_eq_true (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isValidEq → (lhs.denote ctx = rhs.denote ctx) = True := by
+  simp [Poly.isValidEq] <;> split <;> simp
+  next p k h =>
+    intro h'
+    replace h := congrArg (Poly.denote ctx) h
+    simp at h
+    rw [← Int.sub_eq_zero, h]
+    assumption
+
+def Poly.isUnsatLe (p : Poly) : Bool :=
   match p with
   | .num k => k > 0
   | _ => false
 
 def unsatLeCert (lhs rhs : Expr) : Bool :=
-  unsatPolyLeCert (lhs.sub rhs).norm
+  (lhs.sub rhs).norm.isUnsatLe
 
 theorem le_eq_false (ctx : Context) (lhs rhs : Expr) : unsatLeCert lhs rhs → (lhs.denote ctx ≤ rhs.denote ctx) = False := by
-  simp [unsatLeCert, unsatPolyLeCert] <;> split <;> simp
+  simp [unsatLeCert, Poly.isUnsatLe] <;> split <;> simp
   next p k h =>
     intro h'
     replace h := congrArg (Poly.denote ctx) h
@@ -796,8 +810,8 @@ theorem combine_le (ctx : Context) (p₁ p₂ p₃ : Poly) : combineRealCert p�
   · rw [← Int.zero_mul (Poly.denote ctx p₂)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
   · rw [← Int.zero_mul (Poly.denote ctx p₁)]; apply Int.mul_le_mul_of_nonpos_right <;> simp [*]
 
-theorem unsat_le (ctx : Context) (p : Poly) : unsatPolyLeCert p → p.denote' ctx ≤ 0 → False := by
-  simp [unsatPolyLeCert]; split <;> simp
+theorem unsat_le (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 0 → False := by
+  simp [Poly.isUnsatLe]; split <;> simp
   intro h₁ h₂
   have := Int.lt_of_le_of_lt h₂ h₁
   simp at this

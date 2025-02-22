@@ -29,6 +29,45 @@ where
 
 namespace Lean.Meta.Simp.Arith.Int
 
+def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+  let some (a, b, atoms) ← eqCnstr? e | return none
+  withAbstractAtoms atoms ``Int fun atoms => do
+    let p := (a.sub b).norm
+    if p.isUnsatEq then
+      let r := mkConst ``False
+      let h := mkApp4 (mkConst ``Int.Linear.eq_eq_false) (toContextExpr atoms) (toExpr a) (toExpr b) reflBoolTrue
+      return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+    else if p.isValidEq then
+      let r := mkConst ``True
+      let h := mkApp4 (mkConst ``Int.Linear.eq_eq_true) (toContextExpr atoms) (toExpr a) (toExpr b) reflBoolTrue
+      return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+    else if p.toExpr == a && b == .num 0 then
+      return none
+    else match p with
+      | .add 1 x (.add (-1) y (.num 0)) =>
+        let r := mkIntEq atoms[x]! atoms[y]!
+        let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr y) reflBoolTrue
+        return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+      | .add 1 x (.num k) =>
+        let r := mkIntEq atoms[x]! (toExpr (-k))
+        let h := mkApp6 (mkConst ``Int.Linear.norm_eq_var_const) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr x) (toExpr (-k)) reflBoolTrue
+        return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+      | _ =>
+        let k := p.gcdCoeffs'
+        if k == 1 then
+          let r := mkIntEq (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
+          let h := mkApp5 (mkConst ``Int.Linear.norm_eq) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) reflBoolTrue
+          return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+        else if p.getConst % k == 0 then
+          let p := p.div k
+          let r := mkIntEq (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
+          let h := mkApp6 (mkConst ``Int.Linear.norm_eq_coeff) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) reflBoolTrue
+          return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+        else
+          let r := mkConst ``False
+          let h := mkApp5 (mkConst ``Int.Linear.eq_eq_false_of_divCoeff) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr (Int.ofNat k)) reflBoolTrue
+          return some (r, ← mkExpectedTypeHint h (← mkEq e r))
+
 def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (c, atoms) ← toRawRelCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
@@ -44,16 +83,6 @@ def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
       return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
     else
       if c != c'.toRaw then
-        match c' with
-        | .eq (.add 1 x (.add (-1) y (.num 0))) =>
-          let r := mkIntEq atoms[x]! atoms[y]!
-          let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_norm_eq_var) (toContextExpr atoms) (toExpr x) (toExpr y) (toExpr c) reflBoolTrue
-          return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-        | .eq (.add 1 x (.num k)) =>
-          let r := mkIntEq atoms[x]! (toExpr (-k))
-          let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_norm_eq_const) (toContextExpr atoms) (toExpr x) (toExpr (-k)) (toExpr c) reflBoolTrue
-          return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-        | _ =>
           let k := c'.gcdCoeffs
           if k == 1 then
             let r ← c'.denoteExpr (atoms[·]!)
@@ -63,10 +92,6 @@ def simpRelCnstrPos? (e : Expr) : MetaM (Option (Expr × Expr)) := do
             let c' := c'.div k
             let r ← c'.denoteExpr (atoms[·]!)
             let h := mkApp5 (mkConst ``Int.Linear.RawRelCnstr.eq_of_divBy) (toContextExpr atoms) (toExpr c) (toExpr c') (toExpr (Int.ofNat k)) reflBoolTrue
-            return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
-          else if c'.isEq then
-            let r := mkConst ``False
-            let h := mkApp4 (mkConst ``Int.Linear.RawRelCnstr.eq_false_of_isUnsat_coeff) (toContextExpr atoms) (toExpr c) (toExpr (Int.ofNat k)) reflBoolTrue
             return some (r, ← mkExpectedTypeHint h (← mkEq lhs r))
           else
             -- `p.isLe`: tighten the bound

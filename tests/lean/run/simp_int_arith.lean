@@ -142,22 +142,16 @@ info: theorem ex₁ : ∀ (x y z : Int), x + y + 2 + y + z + z ≤ y + 3 * z + 1
 fun x y z =>
   of_eq_true
     (id
-      (Int.Linear.RawRelCnstr.eq_true_of_isValid
+      (le_eq_true
         (Lean.RArray.branch 1 (Lean.RArray.leaf z) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf x)))
-        (Int.Linear.RawRelCnstr.le
-          ((((((Int.Linear.Expr.var 2).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
-                    (Int.Linear.Expr.var 1)).add
-                (Int.Linear.Expr.var 0)).add
-            (Int.Linear.Expr.var 0))
-          (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 0))).add
-                            (Int.Linear.Expr.num 1)).add
-                        (Int.Linear.Expr.num 1)).add
-                    (Int.Linear.Expr.var 2)).add
-                (Int.Linear.Expr.var 1)).sub
-            (Int.Linear.Expr.var 0)))
+        ((((((Expr.var 2).add (Expr.var 1)).add (Expr.num 2)).add (Expr.var 1)).add (Expr.var 0)).add (Expr.var 0))
+        (((((((Expr.var 1).add (Expr.mulL 3 (Expr.var 0))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+              (Expr.var 1)).sub
+          (Expr.var 0))
         (Eq.refl true)))
 -/
 #guard_msgs (info) in
+open Int.Linear in
 #print ex₁
 
 theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f y + 3*z + 1 + 1 + x + f y - z := by
@@ -169,24 +163,18 @@ fun x y z f =>
   of_eq_true
     ((fun x_1 =>
         id
-          (Int.Linear.RawRelCnstr.eq_true_of_isValid
+          (le_eq_true
             (Lean.RArray.branch 1 (Lean.RArray.leaf x_1)
               (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
-            (Int.Linear.RawRelCnstr.le
-              ((((((Int.Linear.Expr.var 2).add (Int.Linear.Expr.var 0)).add (Int.Linear.Expr.num 2)).add
-                        (Int.Linear.Expr.var 0)).add
-                    (Int.Linear.Expr.var 1)).add
-                (Int.Linear.Expr.var 1))
-              (((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 1))).add
-                                (Int.Linear.Expr.num 1)).add
-                            (Int.Linear.Expr.num 1)).add
-                        (Int.Linear.Expr.var 2)).add
-                    (Int.Linear.Expr.var 0)).sub
-                (Int.Linear.Expr.var 1)))
+            ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
+            (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+                  (Expr.var 0)).sub
+              (Expr.var 1))
             (Eq.refl true)))
       (f y))
 -/
 #guard_msgs (info) in
+open Int.Linear in
 #print ex₂
 
 example (x y : Int) (h : False) : 2*x = x + y := by

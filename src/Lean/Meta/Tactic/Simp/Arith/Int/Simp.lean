@@ -32,6 +32,7 @@ namespace Lean.Meta.Simp.Arith.Int
 def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (a, b, atoms) ← eqCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
+    let e := mkIntEq (← a.denoteExpr (atoms[·]!)) (← b.denoteExpr (atoms[·]!))
     let p := a.sub b |>.norm
     if p.isUnsatEq then
       let r := mkConst ``False
@@ -71,6 +72,7 @@ def simpEq? (e : Expr) : MetaM (Option (Expr × Expr)) := do
 def simpLe? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let some (a, b, atoms) ← leCnstr? e | return none
   withAbstractAtoms atoms ``Int fun atoms => do
+    let e := mkIntLE (← a.denoteExpr (atoms[·]!)) (← b.denoteExpr (atoms[·]!))
     let p := a.sub b |>.norm
     if p.isUnsatLe then
       let r := mkConst ``False
@@ -132,11 +134,10 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
     simpLe? e
 
 def simpDvd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
-  let lhs := e
   let some (d, e, atoms) ← dvdCnstr? e | return none
   if d == 0 then return none
   withAbstractAtoms atoms ``Int fun atoms => do
-    -- let lhs ← c.denoteExpr (atoms[·]!)
+    let lhs := mkIntDvd (toExpr d) (← e.denoteExpr (atoms[·]!))
     let p := e.norm
     let g := p.gcdCoeffs d
     if p.getConst % g == 0 then

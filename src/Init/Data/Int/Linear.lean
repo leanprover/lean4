@@ -410,17 +410,21 @@ theorem norm_eq_var_const (ctx : Context) (lhs rhs : Expr) (x : Var) (k : Int) (
   simp at h
   rw [←Int.sub_eq_zero, h, Int.add_comm, ← Int.sub_eq_add_neg, Int.sub_eq_zero]
 
-def normEqCoeffCert (p p' : Poly) (k : Int) : Bool :=
-  p == p'.mul k && k > 0
-
 private theorem mul_eq_zero_iff (a k : Int) (h₁ : k > 0) : k * a = 0 ↔ a = 0 := by
   conv => lhs; rw [← Int.mul_zero k]
   apply Int.mul_eq_mul_left_iff
   exact Int.ne_of_gt h₁
 
-theorem norm_eq_coeff (ctx : Context) (p p' : Poly) (k : Int) : normEqCoeffCert p p' k → (p.denote' ctx = 0) = (p'.denote' ctx = 0) := by
-  simp [normEqCoeffCert]
+theorem norm_eq_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.mul k → k > 0 → (p.denote ctx = 0 ↔ p'.denote ctx = 0) := by
   intro; subst p; intro h; simp [mul_eq_zero_iff, *]
+
+def normEqCoeffCert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
+  (lhs.sub rhs).norm == p.mul k && k > 0
+
+theorem norm_eq_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) : normEqCoeffCert lhs rhs p k → (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
+  simp [normEqCoeffCert]
+  rw [norm_eq ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  apply norm_eq_coeff'
 
 private theorem mul_le_zero_iff (a k : Int) (h₁ : k > 0) : k * a ≤ 0 ↔ a ≤ 0 := by
   constructor
@@ -431,9 +435,14 @@ private theorem mul_le_zero_iff (a k : Int) (h₁ : k > 0) : k * a ≤ 0 ↔ a �
     replace h := Int.mul_le_mul_of_nonneg_left h (Int.le_of_lt h₁)
     simp at h; assumption
 
-theorem norm_le_coeff (ctx : Context) (p p' : Poly) (k : Int) : normEqCoeffCert p p' k → (p.denote' ctx ≤ 0) = (p'.denote' ctx ≤ 0) := by
+private theorem norm_le_coeff' (ctx : Context) (p p' : Poly) (k : Int) : p = p'.mul k → k > 0 → (p.denote ctx ≤ 0 ↔ p'.denote ctx ≤ 0) := by
   simp [normEqCoeffCert]
   intro; subst p; intro h; simp [mul_le_zero_iff, *]
+
+theorem norm_le_coeff (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) : normEqCoeffCert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
+  simp [normEqCoeffCert]
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  apply norm_le_coeff'
 
 private theorem mul_add_cmod_le_iff {a k b : Int} (h : k > 0) : a*k + cmod b k ≤ 0 ↔ a ≤ 0 := by
   constructor
@@ -470,12 +479,14 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
   apply mul_add_cmod_le_iff
   assumption
 
-def normLeCoeffCert (p₁ p₂ : Poly) (k : Int) : Bool :=
-  k > 0 && (p₁.divCoeffs k && p₂ == p₁.div k)
+def normLeCoeffCert (lhs rhs : Expr) (p : Poly) (k : Int) : Bool :=
+  let p' := lhs.sub rhs |>.norm
+  k > 0 && (p'.divCoeffs k && p == p'.div k)
 
-theorem norm_le_coeff_tight (ctx : Context) (p p' : Poly) (k : Int) : normLeCoeffCert p p' k → (p.denote' ctx ≤ 0) = (p'.denote' ctx ≤ 0) := by
+theorem norm_le_coeff_tight (ctx : Context) (lhs rhs : Expr) (p : Poly) (k : Int) : normLeCoeffCert lhs rhs p k → (lhs.denote ctx ≤ rhs.denote ctx) = (p.denote' ctx ≤ 0) := by
   simp [normLeCoeffCert]
-  exact eq_of_norm_eq_of_divCoeffs
+  rw [norm_le ctx lhs rhs (lhs.sub rhs).norm BEq.refl, Poly.denote'_eq_denote]
+  apply eq_of_norm_eq_of_divCoeffs
 
 def unsatEqCert (lhs rhs : Expr) : Bool :=
   match (lhs.sub rhs).norm with
@@ -544,7 +555,7 @@ def unsatEqDivCoeffCert (lhs rhs : Expr) (k : Int) : Bool :=
   let p := (lhs.sub rhs).norm
   p.divCoeffs k && k > 0 && cmod p.getConst k < 0
 
-theorem unsat_coeff_eq (ctx : Context) (lhs rhs : Expr) (k : Int) : unsatEqDivCoeffCert lhs rhs k → (lhs.denote ctx = rhs.denote ctx) = False := by
+theorem eq_eq_false_of_divCoeff (ctx : Context) (lhs rhs : Expr) (k : Int) : unsatEqDivCoeffCert lhs rhs k → (lhs.denote ctx = rhs.denote ctx) = False := by
   simp [unsatEqDivCoeffCert]
   intro h₁ h₂ h₃
   have h := poly_eq_zero_eq_false ctx h₁ h₂ h₃; clear h₁ h₂ h₃
@@ -589,7 +600,7 @@ theorem dvd_eq_false (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p →
   have := not_dvd_of_not_mod_zero h₁
   contradiction
 
-theorem false_of_dvd_unsat (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p → k ∣ p.denote' ctx → False := by
+theorem unsat_dvd (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p → k ∣ p.denote' ctx → False := by
   intro h₁
   rw [dvd_eq_false ctx _ _ h₁]
   intro; contradiction
@@ -606,10 +617,13 @@ theorem false_of_dvd_unsat (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k
     exists k
     rw [h, Int.mul_assoc]
 
-def dvdEqvCert (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) (k : Int) : Bool :=
-  k != 0 && (k₁ == k*k₂ && p₁ == p₂.mul k)
+theorem norm_dvd (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm == p → (k ∣ e.denote ctx) = (k ∣ p.denote' ctx) := by
+  simp; intro h; simp [← h]
 
-@[local simp] theorem dvd_eq_eqv (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ : Poly) (k : Int) : dvdEqvCert k₁ p₁ k₂ p₂ k → (k₁ ∣ p₁.denote' ctx) = (k₂ ∣ p₂.denote' ctx) := by
+def dvdEqvCert (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (k : Int) : Bool :=
+  k != 0 && (k₁ == k*k₂ && e₁.norm == p₂.mul k)
+
+theorem norm_dvd_gcd (ctx : Context) (k₁ : Int) (e₁ : Expr) (k₂ : Int) (p₂ : Poly) (g : Int) : dvdEqvCert k₁ e₁ k₂ p₂ g → (k₁ ∣ e₁.denote ctx) = (k₂ ∣ p₂.denote' ctx) := by
   simp [dvdEqvCert]
   intro h₁ h₂ h₃
   replace h₃ := congrArg (Poly.denote ctx) h₃
@@ -639,9 +653,6 @@ theorem dvd_elim (ctx : Context) (k₁ : Int) (p₁ : Poly) (k₂ : Int) (p₂ :
   intro _ _; subst k₂ p₂
   rw [Int.add_comm]
   apply dvd_gcd_of_dvd
-
-@[simp] theorem dvd_expr_eq (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm == p → (k ∣ e.denote ctx) = (k ∣ p.denote' ctx) := by
-  simp; intro h; simp [← h]
 
 private theorem solveCombine {x : Int} {d₁ a₁ p₁ : Int} {d₂ a₂ p₂ : Int} {α β d : Int}
    (h : α*a₁*d₂ + β*a₂*d₁ = d)
@@ -738,18 +749,19 @@ theorem dvd_norm (ctx : Context) (d : Int) (p₁ p₂ : Poly) : p₁.norm == p�
   intro h₁
   simp [Poly.denote_norm ctx p₁, h₁]
 
-theorem dvd_eqv (ctx : Context) (d₁ : Int) (p₁ : Poly) (d₂ : Int) (p₂ : Poly) (h : dvdEqvCert d₁ p₁ d₂ p₂ k) : d₁ ∣ p₁.denote' ctx → d₂ ∣ p₂.denote' ctx := by
-  rw [dvd_eq_eqv ctx d₁ p₁ d₂ p₂ k h]; simp
-
 theorem norm_poly_le (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
   simp at h
   replace h := congrArg (Poly.denote ctx) h
   simp at h
   simp [*]
 
-theorem div_coeff_le (ctx : Context) (p₁ p₂ : Poly) (k : Int) : normLeCoeffCert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
-  intro h
-  exact norm_le_coeff_tight ctx p₁ p₂ k h |>.mp
+def normPolyLeCoeffCert (p₁ p₂ : Poly) (k : Int) : Bool :=
+  k > 0 && (p₁.divCoeffs k && p₂ == p₁.div k)
+
+theorem div_coeff_le (ctx : Context) (p₁ p₂ : Poly) (k : Int) : normPolyLeCoeffCert p₁ p₂ k → p₁.denote' ctx ≤ 0 → p₂.denote' ctx ≤ 0 := by
+  simp [normPolyLeCoeffCert]
+  intro h₁ h₂ h₃
+  exact eq_of_norm_eq_of_divCoeffs h₁ h₂ h₃ |>.mp
 
 def negLeCert (p₁ p₂ : Poly) : Bool :=
   p₂ == (p₁.mul (-1) |>.addConst 1)

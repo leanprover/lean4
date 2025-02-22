@@ -9,9 +9,10 @@ import Lake.Build
 import Lake.Util.MainM
 import Lean.Util.FileSetupInfo
 
-namespace Lake
 open Lean
 open System (FilePath)
+
+namespace Lake
 
 /-- Exit code to return if `setup-file` cannot find the config file. -/
 def noConfigFileCode : ExitCode := 2
@@ -33,7 +34,24 @@ def setupFile
   (loadConfig : LoadConfig) (path : FilePath) (imports : List String := [])
   (buildConfig : BuildConfig := {})
 : MainM PUnit := do
-  if (← configFileExists loadConfig.configFile) then
+  let configFile ← realConfigFile loadConfig.configFile
+  let isConfig := EIO.catchExceptions (h := fun _ => pure false) do
+    let path ← IO.FS.realPath path
+    return configFile.normalize == path.normalize
+  if configFile.toString.isEmpty then
+    exit noConfigFileCode
+  else if (← isConfig) then
+    IO.println <| Json.compress <| toJson {
+      paths := {
+        oleanPath := loadConfig.lakeEnv.leanPath
+        srcPath := loadConfig.lakeEnv.leanSrcPath
+        loadDynlibPaths := #[]
+        pluginPaths := #[loadConfig.lakeEnv.lake.sharedLib]
+      }
+      setupOptions := ⟨∅⟩
+      : FileSetupInfo
+    }
+  else
     if let some errLog := (← IO.getEnv invalidConfigEnvVar) then
       IO.eprint errLog
       IO.eprintln s!"Failed to configure the Lake workspace. Please restart the server after fixing the error above."
@@ -41,6 +59,7 @@ def setupFile
     let outLv := buildConfig.verbosity.minLogLv
     let ws ← MainM.runLoggerIO (minLv := outLv) (ansiMode := .noAnsi) do
       loadWorkspace loadConfig
+    -- Imperfect heuristic for determine when the Lake plugin is needed.
     let usesLake := imports.any (·.startsWith "Lake")
     let imports := imports.foldl (init := #[]) fun imps imp =>
       if let some mod := ws.findModule? imp.toName then imps.push mod else imps
@@ -67,8 +86,6 @@ def setupFile
       setupOptions
       : FileSetupInfo
     }
-  else
-    exit noConfigFileCode
 
 /--
 Start the Lean LSP for the `Workspace` loaded from `config`

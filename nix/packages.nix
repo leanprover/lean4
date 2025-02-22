@@ -2,7 +2,7 @@
 with pkgs;
 let
   # https://github.com/NixOS/nixpkgs/issues/130963
-  llvmPackages = if stdenv.isDarwin then llvmPackages_11 else llvmPackages_15;
+  llvmPackages = llvmPackages_19;
   cc = (ccacheWrapper.override rec {
     cc = llvmPackages.clang;
     extraConfig = ''

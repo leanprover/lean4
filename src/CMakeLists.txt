@@ -822,6 +822,8 @@ toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
 toml_escape("${LEANC_OPTS}" LEANC_OPTS_TOML)
 toml_escape("${LINK_OPTS}" LINK_OPTS_TOML)
 
+set(LAKE_PREV_PLUGIN "${PREV_STAGE}/${CMAKE_RELATIVE_LIBRARY_OUTPUT_DIRECTORY}/libLake_shared${CMAKE_SHARED_LIBRARY_SUFFIX}")
+
 if(USE_LAKE AND STAGE EQUAL 1)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/lakefile.toml)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${LEAN_SOURCE_DIR}/../tests/lakefile.toml)

@@ -53,6 +53,7 @@ name = "Lake"
 srcDir = "lake"
 defaultFacets = ["static", "static.export"]
 globs = ["Lake", "Lake.CLI"]
+moreLeanArgs = ["--plugin=${LAKE_PREV_PLUGIN}"]
 
 [[lean_lib]]
 name = "LakeMain"

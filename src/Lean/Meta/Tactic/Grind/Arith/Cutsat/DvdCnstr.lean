@@ -22,7 +22,7 @@ def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
     mkDvdCnstr c.d c.p.norm (.norm c)
   let g := c.p.gcdCoeffs c.d
   if c.p.getConst % g == 0 && g != 1 then
-    mkDvdCnstr c.d (c.p.div g) (.divCoeffs c)
+    mkDvdCnstr (c.d/g) (c.p.div g) (.divCoeffs c)
   else
     return c
 

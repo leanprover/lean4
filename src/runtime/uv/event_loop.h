@@ -46,6 +46,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_event_loop_alive(obj_arg /* w */ );
 
 // Utilitary
 
+lean_object* unpack_io(lean_object* io);
 lean_object* create_promise();
 lean_object * mk_ok_except(lean_object * value);
 lean_object * mk_err_except(lean_object * value);

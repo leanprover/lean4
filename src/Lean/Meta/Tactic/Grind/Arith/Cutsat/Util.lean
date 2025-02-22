@@ -123,7 +123,7 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
 abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
-abbrev RelCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr :=
+abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do

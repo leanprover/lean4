@@ -291,13 +291,11 @@ fun a b =>
     (Eq.trans
       (congrArg (fun x => x ↔ 2 ∣ a + 2 * b + 11)
         (id
-          (RawDvdCnstr.eq_of_isEqv (RArray.branch 1 (RArray.leaf b) (RArray.leaf a))
-            { k := 6,
-              e :=
-                (((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
-                      (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
-                  (Expr.num 12) }
-            { k := 2, p := Poly.add 1 1 (Poly.add 2 0 (Poly.num 11)) } 3 (Eq.refl true))))
+          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+            ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
+                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
+              (Expr.num 12))
+            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (Eq.refl true))))
       (iff_self (2 ∣ a + 2 * b + 11)))
 -/
 #guard_msgs (info) in
@@ -314,13 +312,11 @@ fun a b =>
     (Eq.trans
       (congrArg (fun x => x ↔ 2 ∣ a + 2 * b)
         (id
-          (RawDvdCnstr.eq_of_isEqv (RArray.branch 1 (RArray.leaf b) (RArray.leaf a))
-            { k := 6,
-              e :=
-                (((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
-                      (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
-                  (Expr.num 11) }
-            { k := 2, p := Poly.add 1 1 (Poly.add 2 0 (Poly.num 0)) } 3 (Eq.refl true))))
+          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+            ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
+                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
+              (Expr.num 11))
+            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true))))
       (iff_self (2 ∣ a + 2 * b)))
 -/
 #guard_msgs (info) in

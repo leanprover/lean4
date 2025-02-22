@@ -370,15 +370,15 @@ instance : LawfulBEq Poly where
     induction a <;> simp! [BEq.beq]
     assumption
 
-theorem Expr.eq_of_toPoly_eq (ctx : Context) (e e' : Expr) (h : e.norm == e'.norm) : e.denote ctx = e'.denote ctx := by
+attribute [local simp] Poly.denote'_eq_denote
+
+theorem Expr.eq_of_norm_eq (ctx : Context) (e : Expr) (p : Poly) (h : e.norm == p) : e.denote ctx = p.denote' ctx := by
   have h := congrArg (Poly.denote ctx) (eq_of_beq h)
   simp [Poly.norm] at h
-  assumption
+  simp [*]
 
 def normEqCert (lhs rhs : Expr) (p : Poly) : Bool :=
   p == (lhs.sub rhs).norm
-
-attribute [local simp] Poly.denote'_eq_denote
 
 theorem norm_eq (ctx : Context) (lhs rhs : Expr) (p : Poly) (h : normEqCert lhs rhs p) : (lhs.denote ctx = rhs.denote ctx) = (p.denote' ctx = 0) := by
   simp [normEqCert] at h; subst p

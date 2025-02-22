@@ -104,7 +104,7 @@ where
       let tasks : { t : List _ // t.length > 0 } :=
         match cancelTk? with
         | none => ⟨[tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
-        | some cancelTk => ⟨[cancelTk, tl, timeoutTask], by exact Nat.zero_lt_succ _⟩
+        | some cancelTk => ⟨[tl, cancelTk, timeoutTask], by exact Nat.zero_lt_succ _⟩
       let r ← ServerTask.waitAny tasks.val (h := tasks.property)
       match r with
       | .inl _ => return ⟨[], none, false⟩ -- Timeout or cancellation - stop waiting

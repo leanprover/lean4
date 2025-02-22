@@ -38,7 +38,7 @@ where
     }
 
 /--
-Remove `root` parents from the congruence table.
+Removes `root` parents from the congruence table.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def removeParents (root : Expr) : GoalM ParentSet := do
@@ -51,7 +51,7 @@ private def removeParents (root : Expr) : GoalM ParentSet := do
   return parents
 
 /--
-Reinsert parents into the congruence table and detect new equalities.
+Reinserts parents into the congruence table and detect new equalities.
 This is an auxiliary function performed while merging equivalence classes.
 -/
 private def reinsertParents (parents : ParentSet) : GoalM Unit := do
@@ -97,9 +97,9 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
   match lhsRoot.offset? with
   | some lhsOffset =>
     if let some rhsOffset := rhsRoot.offset? then
-      Arith.processNewOffsetEq lhsOffset rhsOffset
+      Arith.Offset.processNewEq lhsOffset rhsOffset
     else if isNatNum rhsRoot.self then
-      Arith.processNewOffsetEqLit lhsOffset rhsRoot.self
+      Arith.Offset.processNewEqLit lhsOffset rhsRoot.self
     else
       -- We have to retrieve the node because other fields have been updated
       let rhsRoot ← getENode rhsRoot.self
@@ -107,7 +107,7 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
   | none =>
     if isNatNum lhsRoot.self then
     if let some rhsOffset := rhsRoot.offset? then
-      Arith.processNewOffsetEqLit rhsOffset lhsRoot.self
+      Arith.Offset.processNewEqLit rhsOffset lhsRoot.self
 
 /--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with

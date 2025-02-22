@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Util.Trace
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Inv
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof

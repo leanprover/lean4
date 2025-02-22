@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -78,7 +78,7 @@ def resolveLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Unit := do
   if (← p.satisfiedLe) == .false then
     -- If current assignment does not satisfy the real shadow, we use it even if it is not precise when
     -- `a₁.natAbs != 1 && a₂.natAbs != 1`
-    assertRelCnstr (← mkLeCnstr p (.combine c₁ c₂))
+    (← mkLeCnstr p (.combine c₁ c₂)).assert
   else
     assert! a₁.natAbs != 1 && a₂.natAbs != 1
     throwError "NIY"
@@ -87,7 +87,7 @@ def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
   trace[grind.cutsat.conflict] "{← c.denoteExpr}"
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
-  assertDvdCnstr (← mkDvdCnstr (a.gcd d) p (.elim c))
+  (← mkDvdCnstr (a.gcd d) p (.elim c)).assert
 
 def decideVar (x : Var) : GoalM Unit := do
   let lower? ← getBestLower? x

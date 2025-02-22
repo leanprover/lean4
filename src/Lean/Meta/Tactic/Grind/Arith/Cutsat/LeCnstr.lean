@@ -25,7 +25,7 @@ def LeCnstr.norm (c : LeCnstr) : GoalM LeCnstr := do
   else
     return c
 
-def assertRelCnstr (c : LeCnstr) : GoalM Unit := do
+def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
   let c ← c.norm
   if c.isUnsat then
@@ -69,6 +69,6 @@ def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
   else
     mkLeCnstr (p.mul (-1) |>.addConst 1) (.notExpr p (← mkOfEqFalse (← mkEqFalseProof e)))
   trace[grind.cutsat.assert.le] "{← c.denoteExpr}"
-  assertRelCnstr c
+  c.assert
 
 end Lean.Meta.Grind.Arith.Cutsat

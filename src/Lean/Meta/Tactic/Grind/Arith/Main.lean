@@ -7,7 +7,7 @@ prelude
 import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Combinators
 import Lean.Meta.Tactic.Grind.Arith.Offset
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Search
 
 namespace Lean.Meta.Grind.Arith

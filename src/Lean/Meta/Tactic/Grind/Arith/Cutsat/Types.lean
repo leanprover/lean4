@@ -11,36 +11,36 @@ import Lean.Meta.Tactic.Grind.Arith.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-export Int.Linear (Var Poly RelCnstr DvdCnstr)
+export Int.Linear (Var Poly)
 
--- TODO: include RelCnstrWithProof and RelCnstrProof
 mutual
 /-- A divisibility constraint and its justification/proof. -/
-structure DvdCnstrWithProof where
-  c  : DvdCnstr
+structure DvdCnstr where
+  d  : Int
+  p  : Poly
   h  : DvdCnstrProof
   /-- Unique id for caching proofs in `ProofM` -/
   id : Nat
 
 inductive DvdCnstrProof where
   | expr (h : Expr)
-  | norm (c : DvdCnstrWithProof)
-  | divCoeffs (c : DvdCnstrWithProof)
-  | solveCombine (c₁ c₂ : DvdCnstrWithProof)
-  | solveElim (c₁ c₂ : DvdCnstrWithProof)
-  | elim (c : DvdCnstrWithProof)
+  | norm (c : DvdCnstr)
+  | divCoeffs (c : DvdCnstr)
+  | solveCombine (c₁ c₂ : DvdCnstr)
+  | solveElim (c₁ c₂ : DvdCnstr)
+  | elim (c : DvdCnstr)
 
-structure RelCnstrWithProof where
-  c  : RelCnstr
-  h  : RelCnstrProof
+structure LeCnstr where
+  p  : Poly
+  h  : LeCnstrProof
   id : Nat
 
-inductive RelCnstrProof where
+inductive LeCnstrProof where
   | expr (h : Expr)
-  | notExpr (c : RelCnstr) (h : Expr)
-  | norm (c : RelCnstrWithProof)
-  | divCoeffs (c : RelCnstrWithProof)
-  | combine (c₁ c₂ : RelCnstrWithProof)
+  | notExpr (p : Poly) (h : Expr)
+  | norm (c : LeCnstr)
+  | divCoeffs (c : LeCnstr)
+  | combine (c₁ c₂ : LeCnstr)
   -- TODO: missing constructors
 end
 
@@ -53,17 +53,17 @@ structure State where
   /--
   Mapping from variables to divisibility constraints. Recall that we keep the divisibility constraint in solved form.
   Thus, we have at most one divisibility per variable. -/
-  dvdCnstrs : PArray (Option DvdCnstrWithProof) := {}
+  dvdCnstrs : PArray (Option DvdCnstr) := {}
   /--
   Mapping from variables to their "lower" bounds. We say a relational constraint `c` is a lower bound for a variable `x`
   if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is negative.
   -/
-  lowers : PArray (PArray RelCnstrWithProof) := {}
+  lowers : PArray (PArray LeCnstr) := {}
   /--
   Mapping from variables to their "upper" bounds. We say a relational constraint `c` is a upper bound for a variable `x`
   if `x` is the maximal variable in `c`, `c.isLe`, and `x` coefficient in `c` is positive.
   -/
-  uppers : PArray (PArray RelCnstrWithProof) := {}
+  uppers : PArray (PArray LeCnstr) := {}
   /-- Partial assignment being constructed by cutsat. -/
   assignment : PArray Int := {}
   /-- Next unique id for a constraint. -/

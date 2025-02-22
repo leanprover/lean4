@@ -6,3 +6,4 @@ Authors: Sebastian Ullrich
 -/
 prelude
 import Lean.Server.Test.Cancel
+import Lean.Server.Test.Runner

@@ -91,12 +91,13 @@ def simpLe? (e : Expr) : MetaM (Option (Expr × Expr)) := do
         let h := mkApp5 (mkConst ``Int.Linear.norm_le) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) reflBoolTrue
         return some (r, ← mkExpectedTypeHint h (← mkEq e r))
       else
+        let tight := p.getConst % k != 0
         let p := p.div k
         let r := mkIntLE (← p.denoteExpr (atoms[·]!)) (mkIntLit 0)
-        let h := if p.getConst % k == 0 then
-          mkApp6 (mkConst ``Int.Linear.norm_le_coeff) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) reflBoolTrue
-        else
+        let h := if tight then
           mkApp6 (mkConst ``Int.Linear.norm_le_coeff_tight) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) reflBoolTrue
+        else
+          mkApp6 (mkConst ``Int.Linear.norm_le_coeff) (toContextExpr atoms) (toExpr a) (toExpr b) (toExpr p) (toExpr (Int.ofNat k)) reflBoolTrue
         return some (r, ← mkExpectedTypeHint h (← mkEq e r))
 
 def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do

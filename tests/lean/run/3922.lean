@@ -20,7 +20,9 @@ axiom r.trans {a b c : Nat} : r a b → r b c → r a c
 /--
 info: Try this: refine r.symm ?_
 ---
-info: Try this: refine r.trans ?_ ?_
+info: found a partial proof, but the corresponding tactic
+  refine r.trans ?_ ?_
+aborted unexpectedly
 ---
 warning: declaration uses 'sorry'
 -/

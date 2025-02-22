@@ -24,28 +24,95 @@ Implementation of the `exact?` tactic.
 def exact? (ref : Syntax) (required : Option (Array (TSyntax `term))) (requireClose : Bool) :
     TacticM Unit := do
   let mvar ← getMainGoal
+  let initialState ← saveState
   let (_, goal) ← (← getMainGoal).intros
   goal.withContext do
     let required := (← (required.getD #[]).mapM getFVarId).toList.map .fvar
     let tactic := fun exfalso =>
-          solveByElim required (exfalso := exfalso) (maxDepth := 6)
+      solveByElim required (exfalso := exfalso) (maxDepth := 6)
     let allowFailure := fun g => do
       let g ← g.withContext (instantiateMVars (.mvar g))
       return required.all fun e => e.occurs g
     match ← librarySearch goal tactic allowFailure with
     -- Found goal that closed problem
     | none =>
-      addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta
+      addSuggestionIfValid ref mvar initialState
     -- Found suggestions
     | some suggestions =>
-      if requireClose then throwError
-        "`exact?` could not close the goal. Try `apply?` to see partial suggestions."
+      if requireClose then
+        let hint := if suggestions.isEmpty then "" else " Try `apply?` to see partial suggestions."
+        throwError "`exact?` could not close the goal.{hint}"
       reportOutOfHeartbeats `apply? ref
       for (_, suggestionMCtx) in suggestions do
         withMCtx suggestionMCtx do
-          addExactSuggestion ref (← instantiateMVars (mkMVar mvar)).headBeta (addSubgoalsMsg := true)
+          addSuggestionIfValid ref mvar initialState (addSubgoalsMsg := true) (errorOnInvalid := false)
       if suggestions.isEmpty then logError "apply? didn't find any relevant lemmas"
       admitGoal goal
+where
+  /-- Returns all free variables in `e` that are shadowed or not user-enterable. -/
+  collectUnprintableFVars (e : Expr) : MetaM (List FVarId) := do
+    let lctx ← getLCtx
+    let { fvarSet, .. } := Lean.collectFVars {} e
+    let unprintableFVars := fvarSet.toList.filter fun fvarId =>
+      if let some name := lctx.getRoundtrippingUserName? fvarId then
+        name.isInaccessibleUserName || name.isAnonymous || name.hasNum
+      else
+        true
+    return unprintableFVars
+
+  /--
+  Executes `tac` in `savedState` (then restores the current state). Used to ensure that a suggested
+  tactic is valid.
+
+  Remark: we don't merely elaborate the proof term's syntax because it may successfully round-trip
+  (d)elaboration but still produce an invalid tactic (see the example in #5407).
+  -/
+  evalTacticInState (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Unit := do
+    let currState ← saveState
+    savedState.restore
+    try
+      evalTactic tac
+    finally
+      currState.restore
+
+  /--
+  Suggests using the value of `goal` as a proof term if the corresponding tactic is valid at
+  `origGoal`, or else informs the user that a proof exists but is not syntactically valid.
+  -/
+  addSuggestionIfValid (ref : Syntax) (goal : MVarId) (initialState : Tactic.SavedState)
+                       (addSubgoalsMsg := false) (errorOnInvalid := true) : TacticM Unit := do
+    let proofExpr := (← instantiateMVars (mkMVar goal)).headBeta
+    let (suggestion, proofMVars) ← mkExactSuggestionSyntax proofExpr
+    let hasMVars := !proofMVars.isEmpty
+    let unprintableFVars ← collectUnprintableFVars proofExpr
+    if unprintableFVars.length > 0 then
+      let exprMessageDatas := unprintableFVars.map (MessageData.ofExpr ∘ Expr.fvar)
+      let fvarsListMessage := MessageData.joinSep exprMessageDatas ", "
+      -- We use `ppExpr` here so that tombstones appear in the output
+      let pp ← withOptions (pp.mvars.set · false) (ppExpr proofExpr)
+      let ppProof := if hasMVars then m!"refine {pp}" else m!"exact {pp}"
+      let msg := m!"found a {if hasMVars then "partial " else ""}proof, but the corresponding tactic\
+                    {indentD ppProof}\n\
+                    is invalid because the following variables have inaccessible names:\
+                    {indentD fvarsListMessage}\n\
+                    To fix this, ensure these variables are not shadowed and are given explicit \
+                    names when introduced."
+      if errorOnInvalid then throwError msg else logInfo msg
+    else
+      try
+        evalTacticInState initialState suggestion
+      catch exn =>
+        let suggestionPretty ← SuggestionText.prettyExtra suggestion
+        let failureKind :=
+          if isAbortTacticException exn then
+            m!"aborted unexpectedly"
+          else
+            m!"failed with the following error:{indentD exn.toMessageData}"
+        let msg := m!"found a {if hasMVars then "partial " else ""}proof, but the corresponding tactic\
+                      {indentD suggestionPretty}\n{failureKind}"
+        if errorOnInvalid then throwError msg else logInfo msg
+        return
+      addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg)
 
 @[builtin_tactic Lean.Parser.Tactic.exact?]
 def evalExact : Tactic := fun stx => do
@@ -69,7 +136,7 @@ def elabExact?Term : TermElab := fun stx expectedType? => do
     introdGoal.withContext do
       if let some suggestions ← librarySearch introdGoal then
         if suggestions.isEmpty then logError "`exact?%` didn't find any relevant lemmas"
-        else logError "`exact?%` could not close the goal. Try `by apply` to see partial suggestions."
+        else logError "`exact?%` could not close the goal. Try `by apply?` to see partial suggestions."
         mkLabeledSorry expectedType (synthetic := true) (unique := true)
       else
         addTermSuggestion stx (← instantiateMVars goal).headBeta

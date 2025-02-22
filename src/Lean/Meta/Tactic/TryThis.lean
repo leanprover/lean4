@@ -430,11 +430,20 @@ def addSuggestions (ref : Syntax) (suggestions : Array Suggestion)
   logInfoAt ref m!"{header}{msgs}"
   addSuggestionCore ref suggestions header (isInline := false) origSpan? style? codeActionPrefix?
 
+/--
+Returns the syntax for an `exact` or `refine` tactic corresponding to `e` along with the list of
+metavariables present therein.
+-/
+def mkExactSuggestionSyntax (e : Expr) : MetaM (TSyntax `tactic × Array MVarId) :=
+  withOptions (pp.mvars.set · false) do
+  let mvars ← getMVars e
+  let exprStx ← delabToRefinableSyntax e
+  let tacStx ← if mvars.isEmpty then `(tactic| exact $exprStx) else `(tactic| refine $exprStx)
+  return (tacStx, mvars)
+
 private def addExactSuggestionCore (addSubgoalsMsg : Bool) (e : Expr) : MetaM Suggestion :=
   withOptions (pp.mvars.set · false) do
-  let stx ← delabToRefinableSyntax e
-  let mvars ← getMVars e
-  let suggestion ← if mvars.isEmpty then `(tactic| exact $stx) else `(tactic| refine $stx)
+  let (suggestion, mvars) ← mkExactSuggestionSyntax e
   let pp ← ppExpr e
   let messageData? := if mvars.isEmpty then m!"exact {pp}" else m!"refine {pp}"
   let postInfo? ← if !addSubgoalsMsg || mvars.isEmpty then pure none else
@@ -460,7 +469,7 @@ The parameters are:
 -/
 def addExactSuggestion (ref : Syntax) (e : Expr)
     (origSpan? : Option Syntax := none) (addSubgoalsMsg := false)
-    (codeActionPrefix? : Option String := none): MetaM Unit := do
+    (codeActionPrefix? : Option String := none) : MetaM Unit := do
   addSuggestion ref (← addExactSuggestionCore addSubgoalsMsg e)
     (origSpan? := origSpan?) (codeActionPrefix? := codeActionPrefix?)
 

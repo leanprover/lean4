@@ -24,11 +24,12 @@ structure BuildSpec where
 : BuildSpec where
   info
   buildable := true
-  format := h.family_key_eq_type ▸ formatQuery
+  format := h.fam_eq ▸ formatQuery
 
 @[inline] def mkConfigBuildSpec
   (info : BuildInfo)
-  (config : FacetConfig Fam ι facet) (h : BuildData info.key = Fam facet)
+  (config : FacetConfig kind facet)
+  (h : BuildData info.key = FacetData kind facet)
 : BuildSpec where
   info
   buildable := config.buildable

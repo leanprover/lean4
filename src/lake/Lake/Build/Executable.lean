@@ -31,3 +31,15 @@ def LeanExe.recBuildExe (self : LeanExe) : FetchM (Job FilePath) :=
   for dep in deps do for lib in dep.externLibs do
     linkJobs := linkJobs.push <| ← lib.static.fetch
   buildLeanExe self.file linkJobs self.weakLinkArgs self.linkArgs self.sharedLean
+
+/-- The facet configuration for the builtin `LeanExe.exeFacet`. -/
+def LeanExe.exeFacetConfig : LeanExeFacetConfig exeFacet :=
+  mkFacetJobConfig recBuildExe
+
+/--
+A name-configuration map for the initial set of
+Lean executable facets (e.g., `exe`).
+-/
+def LeanExe.initFacetConfigs : DNameMap LeanExeFacetConfig :=
+  DNameMap.empty
+  |>.insert exeFacet exeFacetConfig

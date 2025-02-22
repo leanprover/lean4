@@ -90,10 +90,10 @@ It is a simple type function composed of the separate open type families for
 modules facets, package facets, Lake target facets, and custom targets.
 -/
 abbrev BuildData : BuildKey → Type
-| .moduleFacet _ f => ModuleData f
-| .packageFacet _ f => PackageData f
-| .targetFacet _ _ f => TargetData f
-| .customTarget p t => CustomData (p, t)
+| .module _ => TargetData `module
+| .package _ => TargetData `package
+| .packageTarget p t => CustomData (p, t)
+| .facet _ f => TargetData f
 
 instance (priority := low) : FamilyDef BuildData k (BuildData k) := ⟨rfl⟩
 instance (priority := low) : FamilyDef BuildData (.moduleFacet m f) (ModuleData f) := ⟨rfl⟩

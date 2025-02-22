@@ -124,8 +124,6 @@ declaration ``axiom Fam.name : Fam `name = α``. This causes a name clash
 if two keys overlap and thereby produces an error.
 -/
 
-open Lean
-
 namespace Lake
 
 /-! ## API -/
@@ -164,6 +162,7 @@ instance : FamilyDef (fun _ => β) a β where
 @[macro_inline] def ofFamily [FamilyOut Fam a β] (b : Fam a) : β :=
   cast FamilyOut.family_key_eq_type b
 
+open Lean in
 /--
 The syntax:
 
@@ -175,8 +174,10 @@ Declares a new mapping for the open type family `Fam` type via the
 production of an axiom `Fam.foo : Data 0 = Nat` and an instance of `FamilyDef`
 that uses this axiom for key `0`.
 -/
-scoped macro (name := familyDef) doc?:optional(Parser.Command.docComment)
-"family_def " id:ident " : " fam:ident key:term " := " ty:term : command => do
+scoped macro (name := familyDef)
+  doc?:optional(Parser.Command.docComment)
+  "family_def " id:ident " : " fam:ident key:term " := " ty:term
+: command => do
   let tid := extractMacroScopes fam.getId |>.name
   if let (tid, _) :: _ ← Macro.resolveGlobalName tid then
     let app := Syntax.mkApp fam #[key]

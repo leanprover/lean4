@@ -9,12 +9,14 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 namespace Lean.Meta.Grind.Arith.Cutsat
 
 @[export lean_process_cutsat_eq]
-def processNewEqImpl (_a _b : Expr) : GoalM Unit := do
+def processNewEqImpl (a b : Expr) : GoalM Unit := do
+  trace[grind.cutsat.eq] "{mkIntEq a b}"
   -- TODO
   return ()
 
 @[export lean_process_new_cutsat_lit]
-def processNewEqLitImpl (_a _k : Expr) : GoalM Unit := do
+def processNewEqLitImpl (a k : Expr) : GoalM Unit := do
+  trace[grind.cutsat.eq] "{mkIntEq a k}"
   -- TODO
   return ()
 

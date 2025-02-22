@@ -90,7 +90,7 @@ private partial def updateMT (root : Expr) : GoalM Unit := do
       updateMT parent
 
 /--
-Helper function for combining `ENode.offset?` fields and propagating an equality
+Helper function for combining `ENode.offset?` fields and propagating equalities
 to the offset constraint module.
 -/
 private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
@@ -108,6 +108,26 @@ private def propagateOffsetEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
     if isNatNum lhsRoot.self then
     if let some rhsOffset := rhsRoot.offset? then
       Arith.Offset.processNewEqLit rhsOffset lhsRoot.self
+
+/--
+Helper function for combining `ENode.cutsat?` fields and propagating equalities
+to the offset constraint module.
+-/
+private def propagateCutsatEq (rhsRoot lhsRoot : ENode) : GoalM Unit := do
+  match lhsRoot.cutsat? with
+  | some lhsCutsat =>
+    if let some rhsCutsat := rhsRoot.cutsat? then
+      Arith.Cutsat.processNewEq lhsCutsat rhsCutsat
+    else if isIntNum rhsRoot.self then
+      Arith.Cutsat.processNewEqLit lhsCutsat rhsRoot.self
+    else
+      -- We have to retrieve the node because other fields have been updated
+      let rhsRoot ← getENode rhsRoot.self
+      setENode rhsRoot.self { rhsRoot with cutsat? := lhsCutsat }
+  | none =>
+    if isIntNum lhsRoot.self then
+    if let some rhsCutsat := rhsRoot.cutsat? then
+      Arith.Cutsat.processNewEqLit rhsCutsat lhsRoot.self
 
 /--
 Tries to apply beta-reductiong using the parent applications of the functions in `fns` with
@@ -210,6 +230,7 @@ where
     unless (← isInconsistent) do
       updateMT rhsRoot.self
     propagateOffsetEq rhsRoot lhsRoot
+    propagateCutsatEq rhsRoot lhsRoot
     unless (← isInconsistent) do
       for parent in parents do
         propagateUp parent

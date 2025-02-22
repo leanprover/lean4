@@ -13,17 +13,17 @@ private def DvdCnstr.get_d_a (c : DvdCnstr) : GoalM (Int × Int) := do
   let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
-partial def DvdCnstr.toExprProof' (c' : DvdCnstr) : ProofM Expr := c'.caching do
+partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
   match c'.h with
   | .expr h =>
     return h
   | .norm c =>
-    return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← toExprProof' c)
+    return mkApp6 (mkConst ``Int.Linear.dvd_norm) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← toExprProof c)
   | .elim c =>
-    return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.d) (toExpr c'.p) reflBoolTrue (← toExprProof' c)
+    return mkApp7 (mkConst ``Int.Linear.dvd_elim) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.d) (toExpr c'.p) reflBoolTrue (← toExprProof c)
   | .divCoeffs c =>
     let g := c.p.gcdCoeffs c.d
-    return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.d) (toExpr c'.p) (toExpr g) reflBoolTrue (← toExprProof' c)
+    return mkApp8 (mkConst ``Int.Linear.dvd_coeff) (← getContext) (toExpr c.d) (toExpr c.p) (toExpr c'.d) (toExpr c'.p) (toExpr g) reflBoolTrue (← toExprProof c)
   | .solveCombine c₁ c₂ =>
     let (d₁, a₁) ← c₁.get_d_a
     let (d₂, a₂) ← c₂.get_d_a
@@ -31,33 +31,27 @@ partial def DvdCnstr.toExprProof' (c' : DvdCnstr) : ProofM Expr := c'.caching do
     let r := mkApp10 (mkConst ``Int.Linear.dvd_solve_combine)
       (← getContext) (toExpr c₁.d) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
       (toExpr g) (toExpr α) (toExpr β)
-    return mkApp3 r reflBoolTrue (← toExprProof' c₁) (← toExprProof' c₂)
+    return mkApp3 r reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
   | .solveElim c₁ c₂ =>
     return mkApp10 (mkConst ``Int.Linear.dvd_solve_elim)
       (← getContext) (toExpr c₁.d) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
-      reflBoolTrue (← toExprProof' c₁) (← toExprProof' c₂)
+      reflBoolTrue (← toExprProof c₁) (← toExprProof c₂)
 
-partial def DvdCnstr.toExprProof (c : DvdCnstr) : ProofM Expr := do
-  mkExpectedTypeHint (← toExprProof' c) (← c.denoteExpr)
-
-partial def LeCnstr.toExprProof' (c' : LeCnstr) : ProofM Expr := c'.caching do
+partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
   match c'.h with
   | .expr h =>
     return h
   | .norm c =>
-    return mkApp5 (mkConst ``Int.Linear.le_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← toExprProof' c)
+    return mkApp5 (mkConst ``Int.Linear.le_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← toExprProof c)
   | .divCoeffs c =>
     let k := c.p.gcdCoeffs'
-    return mkApp6 (mkConst ``Int.Linear.le_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr (Int.ofNat k)) reflBoolTrue (← toExprProof' c)
+    return mkApp6 (mkConst ``Int.Linear.le_coeff) (← getContext) (toExpr c.p) (toExpr c'.p) (toExpr (Int.ofNat k)) reflBoolTrue (← toExprProof c)
   | .notExpr p h =>
     return mkApp5 (mkConst ``Int.Linear.le_neg) (← getContext) (toExpr p) (toExpr c'.p) reflBoolTrue h
   | .combine c₁ c₂ =>
     return mkApp7 (mkConst ``Int.Linear.le_combine)
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue
-      (← toExprProof' c₁) (← toExprProof' c₂)
-
-partial def LeCnstr.toExprProof (c : LeCnstr) : ProofM Expr := do
-  mkExpectedTypeHint (← toExprProof' c) (← c.denoteExpr)
+      (← toExprProof c₁) (← toExprProof c₂)
 
 end Lean.Meta.Grind.Arith.Cutsat

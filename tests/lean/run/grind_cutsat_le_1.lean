@@ -18,3 +18,9 @@ example (a b : Int) (h₁ : a ≤ 3) (h₂ : a + b > 5) (h₃ : a - b > 1) : Fal
 
 example (a b c : Int) (h₁ : a ≤ 3) (h₂ : a + b > 5) (h₃ : a - c > 1) : b ≤ c → c ≤ b → False := by
   grind
+
+theorem ex₁ (a b c : Int) (h₁ : a ≤ 3) (h₂ : a + b > 5) (h₃ : a - c > 1) : b ≤ c → c ≤ b → False := by
+  grind
+
+open Int.Linear in
+#print ex₁

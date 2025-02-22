@@ -11,38 +11,38 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.RelCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-def getBestLower? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
+def getBestLower? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
   let s ← get'
   let mut best? := none
-  for cₚ in s.lowers[x]! do
-    let .add k _ p := cₚ.c.p | cₚ.throwUnexpected
-    let some v ← p.eval? | cₚ.throwUnexpected
+  for c in s.lowers[x]! do
+    let .add k _ p := c.p | c.throwUnexpected
+    let some v ← p.eval? | c.throwUnexpected
     let lower' := Int.Linear.cdiv v (-k)
     if let some (lower, _) := best? then
       if lower' > lower then
-        best? := some (lower', cₚ)
+        best? := some (lower', c)
     else
-      best? := some (lower', cₚ)
+      best? := some (lower', c)
   return best?
 
-def getBestUpper? (x : Var) : GoalM (Option (Int × RelCnstrWithProof)) := do
+def getBestUpper? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
   let s ← get'
   let mut best? := none
-  for cₚ in s.uppers[x]! do
-    let .add k _ p := cₚ.c.p | cₚ.throwUnexpected
-    let some v ← p.eval? | cₚ.throwUnexpected
+  for c in s.uppers[x]! do
+    let .add k _ p := c.p | c.throwUnexpected
+    let some v ← p.eval? | c.throwUnexpected
     let upper' := (-v) / k
     if let some (upper, _) := best? then
       if upper' < upper then
-        best? := some (upper', cₚ)
+        best? := some (upper', c)
     else
-      best? := some (upper', cₚ)
+      best? := some (upper', c)
   return best?
 
-def getDvdSolutions? (cₚ : DvdCnstrWithProof) : GoalM (Option (Int × Int)) := do
-  let d := cₚ.c.k
-  let .add a _ p := cₚ.c.p | cₚ.throwUnexpected
-  let some b ← p.eval? | cₚ.throwUnexpected
+def getDvdSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
+  let d := c.d
+  let .add a _ p := c.p | c.throwUnexpected
+  let some b ← p.eval? | c.throwUnexpected
   -- We must solve `d ∣ a*x + b`
   let g := d.gcd a
   if b % g != 0 then
@@ -70,24 +70,24 @@ private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   else
     throwError "`grind` internal error, variable is already assigned"
 
-def resolveLowerUpperConflict (cₚ₁ cₚ₂ : RelCnstrWithProof) : GoalM Unit := do
-  trace[grind.cutsat.conflict] "{← cₚ₁.denoteExpr}, {← cₚ₂.denoteExpr}"
-  let .add a₁ _ p₁ := cₚ₁.c.p | cₚ₁.throwUnexpected
-  let .add a₂ _ p₂ := cₚ₂.c.p | cₚ₂.throwUnexpected
-  let c : Int.Linear.RelCnstr := .le (p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs))
-  if (← c.satisfied) == .false then
+def resolveLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Unit := do
+  trace[grind.cutsat.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
+  let .add a₁ _ p₁ := c₁.p | c₁.throwUnexpected
+  let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
+  let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
+  if (← p.satisfiedLe) == .false then
     -- If current assignment does not satisfy the real shadow, we use it even if it is not precise when
     -- `a₁.natAbs != 1 && a₂.natAbs != 1`
-    assertRelCnstr (← mkRelCnstrWithProof c (.combine cₚ₁ cₚ₂))
+    assertRelCnstr (← mkLeCnstr p (.combine c₁ c₂))
   else
     assert! a₁.natAbs != 1 && a₂.natAbs != 1
     throwError "NIY"
 
-def resolveDvdConflict (cₚ : DvdCnstrWithProof) : GoalM Unit := do
-  trace[grind.cutsat.conflict] "{← cₚ.denoteExpr}"
-  let d := cₚ.c.k
-  let .add a _ p := cₚ.c.p | cₚ.throwUnexpected
-  assertDvdCnstr (← mkDvdCnstrWithProof { k := a.gcd d, p } (.elim cₚ))
+def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
+  trace[grind.cutsat.conflict] "{← c.denoteExpr}"
+  let d := c.d
+  let .add a _ p := c.p | c.throwUnexpected
+  assertDvdCnstr (← mkDvdCnstr (a.gcd d) p (.elim c))
 
 def decideVar (x : Var) : GoalM Unit := do
   let lower? ← getBestLower? x
@@ -100,12 +100,12 @@ def decideVar (x : Var) : GoalM Unit := do
     setAssignment x lower
   | none, some (upper, _), none =>
     setAssignment x upper
-  | some (lower, cₚ₁), some (upper, cₚ₂), none =>
+  | some (lower, c₁), some (upper, c₂), none =>
     if lower ≤ upper then
       setAssignment x lower
     else
       trace[grind.cutsat.conflict] "{lower} ≤ {← getVar x} ≤ {upper}"
-      resolveLowerUpperConflict cₚ₁ cₚ₂
+      resolveLowerUpperConflict c₁ c₂
   | none, none, some cₚ =>
     if let some (_, v) ← getDvdSolutions? cₚ then
       setAssignment x v

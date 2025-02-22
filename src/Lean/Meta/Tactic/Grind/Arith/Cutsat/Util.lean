@@ -23,22 +23,6 @@ where
   | none,   .add _ y p => go (some y) p
   | some x, .add _ y p => x > y && go (some y) p
 
-def DvdCnstr.isSorted (c : DvdCnstr) : Bool :=
-  c.p.isSorted
-
-def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
-  match c.p with
-  | .num k' => k' % c.k == 0
-  | _ => c.k == 1
-
-def RelCnstr.isSorted (c : RelCnstr) : Bool :=
-  c.p.isSorted
-
-def RelCnstr.isTrivial : RelCnstr → Bool
-  | .eq (.num 0) => true
-  | .le (.num k) => k ≤ 0
-  | _ => false
-
 end Int.Linear
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -81,19 +65,35 @@ private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
-def DvdCnstrWithProof.denoteExpr (cₚ : DvdCnstrWithProof) : GoalM Expr := do
+def DvdCnstr.isSorted (c : DvdCnstr) : Bool :=
+  c.p.isSorted
+
+def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
+  match c.p with
+  | .num k' => k' % c.d == 0
+  | _ => c.d == 1
+
+def DvdCnstr.denoteExpr (c : DvdCnstr) : GoalM Expr := do
   let vars ← getVars
-  cₚ.c.denoteExpr (vars[·]!)
+  return mkIntDvd (toExpr c.d) (← c.p.denoteExpr (vars[·]!))
 
-def RelCnstrWithProof.denoteExpr (cₚ : RelCnstrWithProof) : GoalM Expr := do
+def DvdCnstr.throwUnexpected (c : DvdCnstr) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)} "
+
+def LeCnstr.isSorted (c : LeCnstr) : Bool :=
+  c.p.isSorted
+
+def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
+  match c.p with
+  | .num k => k ≤ 0
+  | _ => false
+
+def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
   let vars ← getVars
-  cₚ.c.denoteExpr (vars[·]!)
+  return mkIntLE (← c.p.denoteExpr (vars[·]!)) (mkIntLit 0)
 
-def RelCnstrWithProof.throwUnexpected (cₚ : RelCnstrWithProof) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← cₚ.denoteExpr)} "
-
-def DvdCnstrWithProof.throwUnexpected (cₚ : DvdCnstrWithProof) : GoalM α := do
-  throwError "`grind` internal error, unexpected{indentExpr (← cₚ.denoteExpr)} "
+def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
 
 def toContextExpr : GoalM Expr := do
   let vars ← getVars
@@ -120,10 +120,10 @@ abbrev caching (id : Nat) (k : ProofM Expr) : ProofM Expr := do
     modify fun s => { s with cache := s.cache.insert id h }
     return h
 
-abbrev DvdCnstrWithProof.caching (c : DvdCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
+abbrev DvdCnstr.caching (c : DvdCnstr) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
-abbrev RelCnstrWithProof.caching (c : RelCnstrWithProof) (k : ProofM Expr) : ProofM Expr :=
+abbrev LeCnstr.caching (c : LeCnstr) (k : ProofM Expr) : ProofM Expr :=
   Cutsat.caching c.id k
 
 abbrev withProofContext (x : ProofM Expr) : GoalM Expr := do
@@ -146,22 +146,29 @@ def _root_.Int.Linear.Poly.eval? (p : Poly) : GoalM (Option Int) := do
         none
   return go 0 p
 
-/--
-Returns `.true` if `c` is satisfied by the current partial model,
-`.undef` if `c` contains unassigned variables, and `.false` otherwise.
--/
-def _root_.Int.Linear.DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
-  let some v ← c.p.eval? | return .undef
-  return decide (c.k ∣ v) |>.toLBool
+abbrev LeCnstr.isUnsat (c : LeCnstr) : Bool :=
+  c.p.isUnsatLe
+
+abbrev DvdCnstr.isUnsat (c : DvdCnstr) : Bool :=
+  c.p.isUnsatDvd c.d
 
 /--
 Returns `.true` if `c` is satisfied by the current partial model,
 `.undef` if `c` contains unassigned variables, and `.false` otherwise.
 -/
-def _root_.Int.Linear.RelCnstr.satisfied (c : RelCnstr) : GoalM LBool := do
+def DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
-  match c with
-  | .eq _ => return v == 0 |>.toLBool
-  | .le _ => return decide (v <= 0) |>.toLBool
+  return decide (c.d ∣ v) |>.toLBool
+
+def _root_.Int.Linear.Poly.satisfiedLe (p : Poly) : GoalM LBool := do
+  let some v ← p.eval? | return .undef
+  return decide (v <= 0) |>.toLBool
+
+/--
+Returns `.true` if `c` is satisfied by the current partial model,
+`.undef` if `c` contains unassigned variables, and `.false` otherwise.
+-/
+def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
+  c.p.satisfiedLe
 
 end Lean.Meta.Grind.Arith.Cutsat

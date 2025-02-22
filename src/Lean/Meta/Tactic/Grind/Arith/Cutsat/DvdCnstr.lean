@@ -11,50 +11,42 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-abbrev DvdCnstrWithProof.isUnsat (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isUnsat
 
-abbrev DvdCnstrWithProof.isTrivial (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isTrivial
+def mkDvdCnstr (d : Int) (p : Poly) (h : DvdCnstrProof) : GoalM DvdCnstr := do
+  return { d, p, h, id := (← mkCnstrId) }
 
-abbrev DvdCnstrWithProof.satisfied (cₚ : DvdCnstrWithProof) : GoalM LBool :=
-  cₚ.c.satisfied
-
-def mkDvdCnstrWithProof (c : DvdCnstr) (h : DvdCnstrProof) : GoalM DvdCnstrWithProof := do
-  return { c, h, id := (← mkCnstrId) }
-
-def DvdCnstrWithProof.norm (cₚ : DvdCnstrWithProof) : GoalM DvdCnstrWithProof := do
-  let cₚ ← if cₚ.c.isSorted then
-    pure cₚ
+def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
+  let c ← if c.p.isSorted then
+    pure c
   else
-    mkDvdCnstrWithProof { k := cₚ.c.k, p := cₚ.c.p.norm } (.norm cₚ)
-  let g := cₚ.c.p.gcdCoeffs cₚ.c.k
-  if cₚ.c.p.getConst % g == 0 && g != 1 then
-    mkDvdCnstrWithProof (cₚ.c.div g) (.divCoeffs cₚ)
+    mkDvdCnstr c.d c.p.norm (.norm c)
+  let g := c.p.gcdCoeffs c.d
+  if c.p.getConst % g == 0 && g != 1 then
+    mkDvdCnstr (c.d/g) (c.p.div g) (.divCoeffs c)
   else
-    return cₚ
+    return c
 
 /-- Asserts divisibility constraint. -/
-partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRecDepth do
+partial def assertDvdCnstr (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← isInconsistent) then return ()
-  let cₚ ← cₚ.norm
-  if cₚ.isUnsat then
-    trace[grind.cutsat.dvd.unsat] "{← cₚ.denoteExpr}"
+  let c ← c.norm
+  if c.isUnsat then
+    trace[grind.cutsat.dvd.unsat] "{← c.denoteExpr}"
     let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.DvdCnstr.false_of_isUnsat_of_denote) (← getContext) (toExpr cₚ.c) reflBoolTrue (← cₚ.toExprProof)
+      return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     closeGoal hf
-  else if cₚ.isTrivial then
-    trace[grind.cutsat.dvd.trivial] "{← cₚ.denoteExpr}"
+  else if c.isTrivial then
+    trace[grind.cutsat.dvd.trivial] "{← c.denoteExpr}"
     return ()
   else
-    let d₁ := cₚ.c.k
-    let .add a₁ x p₁ := cₚ.c.p | cₚ.throwUnexpected
-    if (← cₚ.satisfied) == .false then
+    let d₁ := c.d
+    let .add a₁ x p₁ := c.p | c.throwUnexpected
+    if (← c.satisfied) == .false then
       resetAssignmentFrom x
-    if let some cₚ' := (← get').dvdCnstrs[x]! then
-      trace[grind.cutsat.dvd.solve] "{← cₚ.denoteExpr}, {← cₚ'.denoteExpr}"
-      let d₂ := cₚ'.c.k
-      let .add a₂ _ p₂ := cₚ'.c.p | cₚ'.throwUnexpected
+    if let some c' := (← get').dvdCnstrs[x]! then
+      trace[grind.cutsat.dvd.solve] "{← c.denoteExpr}, {← c'.denoteExpr}"
+      let d₂ := c'.d
+      let .add a₂ _ p₂ := c'.p | c'.throwUnexpected
       let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
       /-
       We have that
@@ -66,30 +58,30 @@ partial def assertDvdCnstr (cₚ : DvdCnstrWithProof) : GoalM Unit := withIncRec
       -/
       let α_d₂_p₁ := p₁.mul (α*d₂)
       let β_d₁_p₂ := p₂.mul (β*d₁)
-      let combine ← mkDvdCnstrWithProof { k := d₁*d₂, p := .add d x (α_d₂_p₁.combine β_d₁_p₂) } (.solveCombine cₚ cₚ')
+      let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
       trace[grind.cutsat.dvd.solve.combine] "{← combine.denoteExpr}"
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x none}
       assertDvdCnstr combine
       let a₂_p₁ := p₁.mul a₂
       let a₁_p₂ := p₂.mul (-a₁)
-      let elim ← mkDvdCnstrWithProof { k := d, p := a₂_p₁.combine a₁_p₂ } (.solveElim cₚ cₚ')
+      let elim ← mkDvdCnstr d (a₂_p₁.combine a₁_p₂) (.solveElim c c')
       trace[grind.cutsat.dvd.solve.elim] "{← elim.denoteExpr}"
       assertDvdCnstr elim
     else
-      trace[grind.cutsat.dvd.update] "{← cₚ.denoteExpr}"
-      modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some cₚ) }
+      trace[grind.cutsat.dvd.update] "{← c.denoteExpr}"
+      modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some c) }
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   let_expr Dvd.dvd _ inst a b ← e | return ()
   unless (← isInstDvdInt inst) do return ()
-  let some k ← getIntValue? a
+  let some d ← getIntValue? a
     | reportIssue! "non-linear divisibility constraint found{indentExpr e}"
       return ()
   if (← isEqTrue e) then
     let p ← toPoly b
-    let cₚ ← mkDvdCnstrWithProof { k, p } (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
-    trace[grind.cutsat.assert.dvd] "{← cₚ.denoteExpr}"
-    assertDvdCnstr cₚ
+    let c ← mkDvdCnstr d p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
+    trace[grind.cutsat.assert.dvd] "{← c.denoteExpr}"
+    assertDvdCnstr c
   else if (← isEqFalse e) then
     /-
     TODO: we have `¬ a ∣ b`, we should assert

@@ -160,12 +160,15 @@ def DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
   return decide (c.d ∣ v) |>.toLBool
 
+def _root_.Int.Linear.Poly.satisfiedLe (p : Poly) : GoalM LBool := do
+  let some v ← p.eval? | return .undef
+  return decide (v <= 0) |>.toLBool
+
 /--
 Returns `.true` if `c` is satisfied by the current partial model,
 `.undef` if `c` contains unassigned variables, and `.false` otherwise.
 -/
 def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
-  let some v ← c.p.eval? | return .undef
-  return decide (v <= 0) |>.toLBool
+  c.p.satisfiedLe
 
 end Lean.Meta.Grind.Arith.Cutsat

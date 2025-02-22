@@ -50,15 +50,13 @@ where go env
   | _        => env
 
 def addDecl (decl : Declaration) : CoreM Unit := do
-  let mut env ← getEnv
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
-  env := decl.getNames.foldl registerNamePrefixes env
+  modifyEnv (decl.getNames.foldl registerNamePrefixes)
   if let .inductDecl _ _ types _ := decl then
-    env := types.foldl (registerNamePrefixes · <| ·.name ++ `rec) env
+    modifyEnv (types.foldl (registerNamePrefixes · <| ·.name ++ `rec))
 
   if !Elab.async.get (← getOptions) then
-    setEnv env
     return (← doAdd)
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
@@ -70,6 +68,7 @@ def addDecl (decl : Declaration) : CoreM Unit := do
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ => return (← doAdd)
 
+  let env ← getEnv
   -- no environment extension changes to report after kernel checking; ensures we do not
   -- accidentally wait for this snapshot when querying extension states
   let async ← env.addConstAsync (reportExts := false) name kind

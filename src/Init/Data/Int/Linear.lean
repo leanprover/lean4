@@ -521,11 +521,13 @@ def Poly.isUnsatLe (p : Poly) : Bool :=
   | .num k => k > 0
   | _ => false
 
-def unsatLeCert (lhs rhs : Expr) : Bool :=
-  (lhs.sub rhs).norm.isUnsatLe
+def Poly.isValidLe (p : Poly) : Bool :=
+  match p with
+  | .num k => k ≤ 0
+  | _ => false
 
-theorem le_eq_false (ctx : Context) (lhs rhs : Expr) : unsatLeCert lhs rhs → (lhs.denote ctx ≤ rhs.denote ctx) = False := by
-  simp [unsatLeCert, Poly.isUnsatLe] <;> split <;> simp
+theorem le_eq_false (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isUnsatLe → (lhs.denote ctx ≤ rhs.denote ctx) = False := by
+  simp [Poly.isUnsatLe] <;> split <;> simp
   next p k h =>
     intro h'
     replace h := congrArg (Poly.denote ctx) h
@@ -539,6 +541,19 @@ theorem le_eq_false (ctx : Context) (lhs rhs : Expr) : unsatLeCert lhs rhs → (
     rw [Int.add_le_add_iff_right] at h
     replace h := Int.lt_of_lt_of_le h' h
     contradiction
+
+theorem le_eq_true (ctx : Context) (lhs rhs : Expr) : (lhs.sub rhs).norm.isValidLe → (lhs.denote ctx ≤ rhs.denote ctx) = True := by
+  simp [Poly.isValidLe] <;> split <;> simp
+  next p k h =>
+    intro h'
+    replace h := congrArg (Poly.denote ctx) h
+    simp at h
+    replace h := congrArg (Expr.denote ctx rhs + ·) h
+    simp at h
+    rw [Int.add_comm, Int.sub_add_cancel] at h
+    rw [h]; clear h; simp
+    conv => rhs; rw [← Int.zero_add (Expr.denote ctx rhs)]
+    rw [Int.add_le_add_iff_right]; assumption
 
 private theorem contra {a b k : Int} (h₀ : 0 < k) (h₁ : -k < b) (h₂ : b < 0) (h₃ : a*k + b = 0) : False := by
   have : b = -a*k := by

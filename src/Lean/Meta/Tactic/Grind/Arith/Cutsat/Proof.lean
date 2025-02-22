@@ -8,14 +8,13 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
-private def DvdCnstrWithProof.get_d_a (cₚ : DvdCnstrWithProof) : GoalM (Int × Int) := do
-  let d := cₚ.c.k
-  let .add a _ _ := cₚ.c.p
-    | throwError "internal `grind` error, unexpected divisibility constraint {indentExpr (← cₚ.denoteExpr)}"
+private def DvdCnstr.get_d_a (c: DvdCnstr) : GoalM (Int × Int) := do
+  let d := c.d
+  let .add a _ _ := c.p | c.throwUnexpected
   return (d, a)
 
-partial def DvdCnstrWithProof.toExprProof' (cₚ : DvdCnstrWithProof) : ProofM Expr := cₚ.caching do
-  match cₚ.h with
+partial def DvdCnstr.toExprProof' (c : DvdCnstr) : ProofM Expr := c.caching do
+  match c.h with
   | .expr h =>
     return h
   | .norm cₚ' =>

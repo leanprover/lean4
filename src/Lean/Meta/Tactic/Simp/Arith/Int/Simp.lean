@@ -131,7 +131,7 @@ def simpRel? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   else
     simpLe? e
 
-def simpDvdCnstr? (e : Expr) : MetaM (Option (Expr × Expr)) := do
+def simpDvd? (e : Expr) : MetaM (Option (Expr × Expr)) := do
   let lhs := e
   let some (d, e, atoms) ← dvdCnstr? e | return none
   if d == 0 then return none

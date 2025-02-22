@@ -27,7 +27,7 @@ def DvdCnstr.norm (c : DvdCnstr) : GoalM DvdCnstr := do
     return c
 
 /-- Asserts divisibility constraint. -/
-partial def assertDvdCnstr (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
+partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← isInconsistent) then return ()
   let c ← c.norm
   if c.isUnsat then
@@ -61,12 +61,12 @@ partial def assertDvdCnstr (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
       let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
       trace[grind.cutsat.dvd.solve.combine] "{← combine.denoteExpr}"
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x none}
-      assertDvdCnstr combine
+      combine.assert
       let a₂_p₁ := p₁.mul a₂
       let a₁_p₂ := p₂.mul (-a₁)
       let elim ← mkDvdCnstr d (a₂_p₁.combine a₁_p₂) (.solveElim c c')
       trace[grind.cutsat.dvd.solve.elim] "{← elim.denoteExpr}"
-      assertDvdCnstr elim
+      elim.assert
     else
       trace[grind.cutsat.dvd.update] "{← c.denoteExpr}"
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some c) }
@@ -81,7 +81,7 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
     let p ← toPoly b
     let c ← mkDvdCnstr d p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
     trace[grind.cutsat.assert.dvd] "{← c.denoteExpr}"
-    assertDvdCnstr c
+    c.assert
   else if (← isEqFalse e) then
     /-
     TODO: we have `¬ a ∣ b`, we should assert

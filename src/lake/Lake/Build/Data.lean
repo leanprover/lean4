@@ -15,39 +15,50 @@ namespace Lake
 --------------------------------------------------------------------------------
 
 /--
-The open type family which maps a module facet's name to its build data
-in the Lake build store. For example, a transitive × direct import pair
-for the `lean.imports` facet or an active build target for `lean.c`.
-
-It is an open type, meaning additional mappings can be add lazily
-as needed (via `module_data`).
--/
-opaque ModuleData (facet : Name) : Type
-
-/--
-The open type family which maps a package facet's name to its build data
-in the Lake build store. For example, a transitive dependencies of the package
-for the facet `deps`.
-
-It is an open type, meaning additional mappings can be add lazily
-as needed (via `package_data`).
--/
-opaque PackageData (facet : Name) : Type
-
-/--
 The open type family which maps a (builtin) Lake target's (e.g., `extern_lib`)
-facet to its associated build data. For example, an active build target for
-the `externLib.static` facet.
+facet to its associated build data. For example, an active build target for the
+`externLib.static` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `target_data`).
 -/
 opaque TargetData (facet : Name) : Type
 
+/--
+The open type family which maps a module facet's name to its build data
+in the Lake build store. For example, the generated C file for `c`.
+
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `module_data`).
+-/
+abbrev ModuleData (facet : Name) := TargetData (`module ++ facet)
+
+instance [h : FamilyOut ModuleData facet α] : FamilyDef TargetData (`module ++ facet) α :=
+  ⟨by simp [h.family_key_eq_type]⟩
+
+instance [h : FamilyDef TargetData (`module ++ facet) α] : FamilyDef ModuleData facet α :=
+  ⟨h.family_key_eq_type⟩
+
+/--
+The open type family which maps a package facet's name to its build data
+in the Lake build store. For example, the direct dependencies of the package
+for the `deps` facet.
+
+It is an open type, meaning additional mappings can be add lazily
+as needed (via `package_data`).
+-/
+abbrev PackageData (facet : Name) := TargetData (`package ++ facet)
+
+instance [h : FamilyOut PackageData facet α] : FamilyDef TargetData (`package ++ facet) α :=
+  ⟨by simp [h.family_key_eq_type]⟩
+
+instance [h : FamilyDef TargetData (`package ++ facet) α] : FamilyDef PackageData facet α :=
+  ⟨h.family_key_eq_type⟩
+
 /-
 The open type family which maps a library facet's name to its build data
-in the Lake build store. For example, an active build target for the `static`
-facet.
+in the Lake build store. For example, the generated static library for the
+ `static` facet.
 
 It is an open type, meaning additional mappings can be add lazily
 as needed (via `library_data`).
@@ -57,7 +68,7 @@ abbrev LibraryData (facet : Name) := TargetData (`leanLib ++ facet)
 instance [h : FamilyOut LibraryData facet α] : FamilyDef TargetData (`leanLib ++ facet) α :=
   ⟨by simp [h.family_key_eq_type]⟩
 
-instance [h : FamilyOut TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
+instance [h : FamilyDef TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
   ⟨h.family_key_eq_type⟩
 
 /--
@@ -94,38 +105,43 @@ instance (priority := low) : FamilyDef BuildData (.customTarget p t) (CustomData
 /-! ## Macros for Declaring Build Data                                        -/
 --------------------------------------------------------------------------------
 
-/-- Macro for declaring new `PackageData`. -/
-scoped macro (name := packageDataDecl) doc?:optional(Parser.Command.docComment)
-"package_data " id:ident " : " ty:term : command => do
-  let dty := mkCIdentFrom (← getRef) ``PackageData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
+open Parser Command
 
-/-- Macro for declaring new `ModuleData`. -/
-scoped macro (name := moduleDataDecl) doc?:optional(Parser.Command.docComment)
-"module_data " id:ident " : " ty:term : command => do
-  let dty := mkCIdentFrom (← getRef) ``ModuleData
-  let key := Name.quoteFrom id id.getId
-  `($[$doc?]? family_def $id : $dty $key := $ty)
-
-/-- Macro for declaring new `TargetData` for libraries. -/
-scoped macro (name := libraryDataDecl) doc?:optional(Parser.Command.docComment)
-"library_data " id:ident " : " ty:term : command => do
+private def mkFacetDef
+  (doc? : Option (TSyntax ``docComment)) (id : Ident) (ty : Term) (kind : Name)
+: MacroM Command := do
   let dty := mkCIdentFrom (← getRef) ``TargetData
   let key := Name.quoteFrom id id.getId
-  let id := mkIdentFrom id (canonical := true) <| id.getId.modifyBase (`leanLib ++ ·)
-  `($[$doc?]? family_def $id : $dty (`leanLib ++ $key) := $ty)
+  let id := mkIdentFrom id (canonical := true) <| id.getId.modifyBase (kind ++ ·)
+  `($[$doc?]? family_def $id : $dty ($(quote kind) ++ $key) := $ty)
+
+/-- Macro for declaring new `PackageData`. -/
+scoped macro (name := packageDataDecl)
+  doc?:optional(docComment) "package_data " id:ident " : " ty:term
+: command => mkFacetDef doc? id ty `package
+
+/-- Macro for declaring new `ModuleData`. -/
+scoped macro (name := moduleDataDecl)
+  doc?:optional(docComment) "module_data " id:ident " : " ty:term
+: command => mkFacetDef doc? id ty `module
+
+/-- Macro for declaring new `LibraryData`. -/
+scoped macro (name := libraryDataDecl)
+  doc?:optional(docComment) "library_data " id:ident " : " ty:term
+: command => mkFacetDef doc? id ty `leanLib
 
 /-- Macro for declaring new `TargetData`. -/
-scoped macro (name := targetDataDecl) doc?:optional(Parser.Command.docComment)
-"target_data " id:ident " : " ty:term : command => do
+scoped macro (name := targetDataDecl)
+  doc?:optional(docComment) "target_data " id:ident " : " ty:term
+: command => do
   let dty := mkCIdentFrom (← getRef) ``TargetData
   let key := Name.quoteFrom id id.getId
   `($[$doc?]? family_def $id : $dty $key := $ty)
 
 /-- Macro for declaring new `CustomData`. -/
-scoped macro (name := customDataDecl) doc?:optional(Parser.Command.docComment)
-"custom_data " pkg:ident tgt:ident " : " ty:term : command => do
+scoped macro (name := customDataDecl)
+  doc?:optional(docComment) "custom_data " pkg:ident tgt:ident " : " ty:term
+: command => do
   let dty := mkCIdentFrom (← getRef) ``CustomData
   let id := mkIdentFrom tgt (pkg.getId ++ tgt.getId)
   let pkg := Name.quoteFrom pkg pkg.getId

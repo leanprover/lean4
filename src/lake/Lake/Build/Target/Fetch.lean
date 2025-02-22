@@ -15,17 +15,17 @@ protected def BuildKey.fetch (self : BuildKey) [h : FamilyOut BuildData self α]
     let some mod ← findModule? modName
       | error s!"invalid target '{self}': module '{modName}' not found in workspace"
     have : FamilyOut BuildData (mod.facet facetName).key α :=
-      ⟨by simpa [self_eq] using h.family_key_eq_type⟩
+      ⟨by simpa only [self_eq] using h.family_key_eq_type⟩
     fetch <| mod.facet facetName
   | packageFacet pkgName facetName =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{self}': package '{pkgName}' not found in workspace"
     have : FamilyOut BuildData (pkg.facet facetName).key α :=
-      ⟨by simpa [self_eq] using h.family_key_eq_type⟩
+      ⟨by simpa only [self_eq] using h.family_key_eq_type⟩
     fetch <| pkg.facet facetName
   | targetFacet pkgName targetName facetName =>
     -- TODO: Support this
-    error s!"unsupported target {self}: fetching builtin targets by key is not currently supported"
+    error s!"unsupported target '{self}': fetching builtin targets by key is not currently supported"
   | customTarget pkgName targetName =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{self}': package '{pkgName}' not found in workspace"

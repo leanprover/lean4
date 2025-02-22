@@ -42,7 +42,7 @@ example :
   rfl
 
 example (x₁ x₂ x₃ : Int) :
-  Expr.denote #R[x₁, x₂, x₃] (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3))
+  (Expr.denote #R[x₁, x₂, x₃] (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3))
   =
   Expr.denote #R[x₁, x₂, x₃] (.sub (.var 1) (.var 2)))
   =
@@ -50,7 +50,7 @@ example (x₁ x₂ x₃ : Int) :
   rfl
 
 example :
-  Expr.norm (.sub (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2))))
+  Expr.norm (.sub (.sub (.add (.mulR (.var 0) 4) (.mulL 2 (.var 1))) (.num 3)) (.sub (.var 1) (.var 2)))
   =
   Expr.norm (.sub (.add (.var 2) (.add (.var 1) (.add (.mulL 4 (.var 0)) (.num (-3))))) (.num 0)) :=
   rfl

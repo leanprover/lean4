@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Config.Package
-// Imports: Init Lake.Config.Opaque Lake.Config.Defaults Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
+// Imports: Lake.Config.Opaque Lake.Config.Defaults Lake.Config.OutFormat Lake.Config.LeanLibConfig Lake.Config.LeanExeConfig Lake.Config.ExternLibConfig Lake.Config.WorkspaceConfig Lake.Config.Dependency Lake.Config.Script Lake.Load.Config Lake.Util.DRBMap Lake.Util.OrdHashSet Lake.Util.Version
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 LEAN_EXPORT lean_object* l_Lake_Package_relPkgsDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanLibDir(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instInhabitedOfPostUpdateHook___rarg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_dynlibs(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_leanOptions(lean_object*);
 static lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook___closed__1;
 LEAN_EXPORT lean_object* l_Lake_Package_moreLinkArgs___boxed(lean_object*);
@@ -32,6 +33,7 @@ LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook(lean_
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeMk___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_name(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_name___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_plugins___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_preferReleaseBuild(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_weakLeancArgs___boxed(lean_object*);
 static lean_object* l_Lake_OrdHashSet_empty___at_Lake_OrdPackageSet_empty___spec__1___closed__1;
@@ -56,6 +58,7 @@ LEAN_EXPORT lean_object* l_Lake_isVerLike___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_clean(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeGet___rarg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_unsafeGet___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_Package_dynlibs___boxed(lean_object*);
 static lean_object* l_Lake_defaultBuildArchive___closed__1;
 lean_object* l_Nat_nextPowerOfTwo_go(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_relReadmeFile(lean_object*);
@@ -88,6 +91,7 @@ static lean_object* l_Lake_StrPat_verLike___closed__4;
 LEAN_EXPORT uint8_t l_Lake_Package_backend(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isLocalModule___spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OrdPackageSet_empty;
+LEAN_EXPORT lean_object* l_Lake_Package_plugins(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_remoteUrl_x3f___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_instBEqPackage(lean_object*, lean_object*);
 static lean_object* l_Lake_instInhabitedPackageConfig___closed__3;
@@ -181,6 +185,7 @@ static lean_object* l_Lake_StrPat_none___closed__2;
 LEAN_EXPORT lean_object* l_Lake_instHashablePackage___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_LeanOption_asCliArg(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToJsonPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_OpaquePostUpdateHook_instCoePostUpdateHook___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Array_anyMUnsafe_any___at_Lake_Package_isBuildableModule___spec__3(lean_object*, lean_object*, size_t, size_t);
 LEAN_EXPORT lean_object* l_Lake_instCoeForallStringBoolStrPat(lean_object*);
@@ -206,6 +211,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_relLicenseFiles___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Lake_Package_buildType(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instInhabitedPostUpdateHook(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_instBEqPackage___boxed(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lake_instToTextPackage(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_moreLinkArgs(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Package_relLakeDir(lean_object*);
@@ -2949,7 +2955,7 @@ if (x_5 == 0)
 {
 lean_object* x_6; uint8_t x_7; 
 x_6 = lean_array_uget(x_2, x_3);
-x_7 = lean_string_dec_eq(x_6, x_1);
+x_7 = lean_string_dec_eq(x_1, x_6);
 lean_dec(x_6);
 if (x_7 == 0)
 {
@@ -3082,7 +3088,7 @@ x_1 = lean_box(0);
 x_2 = 0;
 x_3 = l_Lake_instInhabitedPackageConfig___closed__1;
 x_4 = 2;
-x_5 = lean_alloc_ctor(0, 9, 2);
+x_5 = lean_alloc_ctor(0, 11, 2);
 lean_ctor_set(x_5, 0, x_3);
 lean_ctor_set(x_5, 1, x_3);
 lean_ctor_set(x_5, 2, x_3);
@@ -3092,8 +3098,10 @@ lean_ctor_set(x_5, 5, x_3);
 lean_ctor_set(x_5, 6, x_3);
 lean_ctor_set(x_5, 7, x_3);
 lean_ctor_set(x_5, 8, x_1);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9, x_2);
-lean_ctor_set_uint8(x_5, sizeof(void*)*9 + 1, x_4);
+lean_ctor_set(x_5, 9, x_3);
+lean_ctor_set(x_5, 10, x_3);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11, x_2);
+lean_ctor_set_uint8(x_5, sizeof(void*)*11 + 1, x_4);
 return x_5;
 }
 }
@@ -3336,6 +3344,40 @@ lean_object* x_2;
 x_2 = l_Lake_Package_name(x_1);
 lean_dec(x_1);
 return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instToTextPackage(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = 1;
+x_5 = l_Lake_defaultBuildArchive___closed__1;
+x_6 = l_Lean_Name_toString(x_3, x_4, x_5);
+return x_6;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_instToJsonPackage(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; uint8_t x_4; lean_object* x_5; lean_object* x_6; lean_object* x_7; 
+x_2 = lean_ctor_get(x_1, 2);
+lean_inc(x_2);
+lean_dec(x_1);
+x_3 = lean_ctor_get(x_2, 2);
+lean_inc(x_3);
+lean_dec(x_2);
+x_4 = 1;
+x_5 = l_Lake_defaultBuildArchive___closed__1;
+x_6 = l_Lean_Name_toString(x_3, x_4, x_5);
+x_7 = lean_alloc_ctor(3, 1, 0);
+lean_ctor_set(x_7, 0, x_6);
+return x_7;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_instCoeOutNPackagePackage___rarg(lean_object* x_1) {
@@ -4233,7 +4275,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_ctor_get(x_1, 2);
 x_3 = lean_ctor_get(x_2, 1);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*9);
+x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*11);
 return x_4;
 }
 }
@@ -4253,7 +4295,7 @@ _start:
 lean_object* x_2; lean_object* x_3; uint8_t x_4; 
 x_2 = lean_ctor_get(x_1, 2);
 x_3 = lean_ctor_get(x_2, 1);
-x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*9 + 1);
+x_4 = lean_ctor_get_uint8(x_3, sizeof(void*)*11 + 1);
 return x_4;
 }
 }
@@ -4265,6 +4307,46 @@ x_2 = l_Lake_Package_backend(x_1);
 lean_dec(x_1);
 x_3 = lean_box(x_2);
 return x_3;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_dynlibs(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_3, 9);
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_dynlibs___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Package_dynlibs(x_1);
+lean_dec(x_1);
+return x_2;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_plugins(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; lean_object* x_3; lean_object* x_4; 
+x_2 = lean_ctor_get(x_1, 2);
+x_3 = lean_ctor_get(x_2, 1);
+x_4 = lean_ctor_get(x_3, 10);
+lean_inc(x_4);
+return x_4;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_Package_plugins___boxed(lean_object* x_1) {
+_start:
+{
+lean_object* x_2; 
+x_2 = l_Lake_Package_plugins(x_1);
+lean_dec(x_1);
+return x_2;
 }
 }
 LEAN_EXPORT lean_object* l_Lake_Package_leanOptions(lean_object* x_1) {
@@ -4947,9 +5029,9 @@ return x_17;
 }
 }
 }
-lean_object* initialize_Init(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Opaque(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_Defaults(uint8_t builtin, lean_object*);
+lean_object* initialize_Lake_Config_OutFormat(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanLibConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_LeanExeConfig(uint8_t builtin, lean_object*);
 lean_object* initialize_Lake_Config_ExternLibConfig(uint8_t builtin, lean_object*);
@@ -4965,13 +5047,13 @@ LEAN_EXPORT lean_object* initialize_Lake_Config_Package(uint8_t builtin, lean_ob
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init(builtin, lean_io_mk_world());
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Lake_Config_Opaque(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_Defaults(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lake_Config_OutFormat(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lake_Config_LeanLibConfig(builtin, lean_io_mk_world());

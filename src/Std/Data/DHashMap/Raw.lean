@@ -11,7 +11,7 @@ import Std.Data.DHashMap.Internal.Defs
 /-
 # Dependent hash maps with unbundled well-formedness invariant
 
-This file develops the type `Std.Data.DHashMap.Raw` of dependent hash
+This file develops the type `Std.DHashMap.Raw` of dependent hash
 maps with unbundled well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is
@@ -58,7 +58,12 @@ instance : Inhabited (Raw α β) where
   default := ∅
 
 /--
-Inserts the given mapping into the map, replacing an existing mapping for the key if there is one.
+Inserts the given mapping into the map. If there is already a mapping for the given key, then both
+key and value will be replaced.
+
+Note: this replacement behavior is true for `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw`.
+The `insert` function on `HashSet` and `HashSet.Raw` behaves differently: it will return the set
+unchanged if a matching key is already present.
 -/
 @[inline] def insert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) : Raw α β :=
   if h : 0 < m.buckets.size then
@@ -89,7 +94,7 @@ Checks whether a key is present in a map, and unconditionally inserts a value fo
 Equivalent to (but potentially faster than) calling `contains` followed by `insert`.
 -/
 @[inline] def containsThenInsert [BEq α] [Hashable α] (m : Raw α β) (a : α) (b : β a) :
-    Bool × Raw α β:=
+    Bool × Raw α β :=
   if h : 0 < m.buckets.size then
     let ⟨replaced, ⟨r, _⟩⟩ := Raw₀.containsThenInsert ⟨m, h⟩ a b
     ⟨replaced, r⟩
@@ -291,6 +296,83 @@ to get anything out of the hash map.
 @[inline] def isEmpty (m : Raw α β) : Bool :=
   m.size == 0
 
+/--
+Modifies in place the value associated with a given key.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def modify [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β) (a : α) (f : β a → β a) :
+    Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.modify] def Const.modify [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : β → β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.modify ⟨m, h⟩ a f
+  else
+    ∅
+
+/--
+Modifies in place the value associated with a given key,
+allowing creating new values and deleting values via an `Option` valued replacement function.
+
+This function ensures that the value is used linearly.
+-/
+@[inline] def alter [BEq α] [LawfulBEq α] [Hashable α] (m : Raw α β)
+    (a : α) (f : Option (β a) → Option (β a)) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.alter ⟨m, h⟩ a f
+  else
+    ∅
+
+@[inline, inherit_doc Raw.alter] def Const.alter [BEq α] [EquivBEq α] [Hashable α] {β : Type v}
+    (m : Raw α (fun _ => β)) (a : α) (f : Option β → Option β) : Raw α (fun _ => β) :=
+  if h : 0 < m.buckets.size then
+    Raw₀.Const.alter ⟨m, h⟩ a f
+  else
+    ∅
+
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in some order.
+-/
+@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
+
+/-- Folds the given function over the mappings in the hash map in some order. -/
+@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldM f init)
+
+/--
+Monadically computes a value by folding the given function over the mappings in the hash
+map in the reverse order used by `foldM`.
+-/
+@[inline] def foldRevM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
+  b.buckets.foldrM (fun l acc => l.foldrM (fun a b d => f d a b) acc) init
+
+/--
+Folds the given function over the mappings in the hash map in the reverse order used
+by `foldM`. -/
+@[inline] def foldRev (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
+  Id.run (b.foldRevM f init)
+
+/-- Carries out a monadic action on each mapping in the hash map in some order. -/
+@[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
+  b.buckets.forM (AssocList.forM f)
+
+/-- Support for the `for` loop construct in `do` blocks. -/
+@[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
+  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
+
+instance : ForM m (Raw α β) ((a : α) × β a) where
+  forM m f := m.forM (fun a b => f ⟨a, b⟩)
+
+instance : ForIn m (Raw α β) ((a : α) × β a) where
+  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
+
 section Unverified
 
 /-! We currently do not provide lemmas for the functions below. -/
@@ -317,42 +399,9 @@ only those mappings where the function returns `some` value.
     Raw₀.filter f ⟨m, h⟩
   else ∅ -- will never happen for well-formed inputs
 
-/--
-Monadically computes a value by folding the given function over the mappings in the hash
-map in some order.
--/
-@[inline] def foldM (f : δ → (a : α) → β a → m δ) (init : δ) (b : Raw α β) : m δ :=
-  b.buckets.foldlM (fun acc l => l.foldlM f acc) init
-
-/-- Folds the given function over the mappings in the hash map in some order. -/
-@[inline] def fold (f : δ → (a : α) → β a → δ) (init : δ) (b : Raw α β) : δ :=
-  Id.run (b.foldM f init)
-
-/-- Carries out a monadic action on each mapping in the hash map in some order. -/
-@[inline] def forM (f : (a : α) → β a → m PUnit) (b : Raw α β) : m PUnit :=
-  b.buckets.forM (AssocList.forM f)
-
-/-- Support for the `for` loop construct in `do` blocks. -/
-@[inline] def forIn (f : (a : α) → β a → δ → m (ForInStep δ)) (init : δ) (b : Raw α β) : m δ :=
-  ForIn.forIn b.buckets init (fun bucket acc => bucket.forInStep acc f)
-
-instance : ForM m (Raw α β) ((a : α) × β a) where
-  forM m f := m.forM (fun a b => f ⟨a, b⟩)
-
-instance : ForIn m (Raw α β) ((a : α) × β a) where
-  forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
-
-/-- Transforms the hash map into a list of mappings in some order. -/
-@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
-
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
-
-@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
-    List (α × β) :=
-  m.fold (fun acc k v => ⟨k, v⟩ :: acc) []
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
@@ -364,7 +413,7 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 
 /-- Returns a list of all values present in the hash map in some order. -/
 @[inline] def values {β : Type v} (m : Raw α (fun _ => β)) : List β :=
-  m.fold (fun acc _ v => v :: acc) []
+  m.foldRev (fun acc _ v => v :: acc) []
 
 /-- Returns an array of all values present in the hash map in some order. -/
 @[inline] def valuesArray {β : Type v} (m : Raw α (fun _ => β)) : Array β :=
@@ -373,6 +422,10 @@ instance : ForIn m (Raw α β) ((a : α) × β a) where
 /--
 Inserts multiple mappings into the hash map by iterating over the given collection and calling
 `insert`. If the same key appears multiple times, the last occurrence takes precedence.
+
+Note: this precedence behavior is true for `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw`.
+The `insertMany` function on `HashSet` and `HashSet.Raw` behaves differently: it will prefer the first
+appearance.
 -/
 @[inline] def insertMany [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ ((a : α) × β a)]
     (m : Raw α β) (l : ρ) : Raw α β :=
@@ -388,27 +441,61 @@ Inserts multiple mappings into the hash map by iterating over the given collecti
 
 /--
 Inserts multiple keys with the value `()` into the hash map by iterating over the given collection
-and calling `insert`. If the same key appears multiple times, the last occurrence takes precedence.
+and calling `insertIfNew`. If the same key appears multiple times, the first occurrence takes
+precedence.
 
 This is mainly useful to implement `HashSet.insertMany`, so if you are considering using this,
 `HashSet` or `HashSet.Raw` might be a better fit for you.
 -/
-@[inline] def Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w}
+@[inline] def Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w}
     [ForIn Id ρ α] (m : Raw α (fun _ => Unit)) (l : ρ) : Raw α (fun _ => Unit) :=
   if h : 0 < m.buckets.size then
-    (Raw₀.Const.insertManyUnit ⟨m, h⟩ l).1
+    (Raw₀.Const.insertManyIfNewUnit ⟨m, h⟩ l).1
   else m -- will never happen for well-formed inputs
-
-/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
-occurrence takes precedence. -/
-@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
-  insertMany ∅ l
 
 /-- Computes the union of the given hash maps, by traversing `m₂` and inserting its elements into `m₁`. -/
 @[inline] def union [BEq α] [Hashable α] (m₁ m₂ : Raw α β) : Raw α β :=
   m₂.fold (init := m₁) fun acc x => acc.insert x
 
 instance [BEq α] [Hashable α] : Union (Raw α β) := ⟨union⟩
+
+/-- Creates a hash map from an array of keys, associating the value `()` with each key.
+
+This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
+`HashSet` or `HashSet.Raw` might be a better fit for you. -/
+@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
+    Raw α (fun _ => Unit) :=
+  Const.insertManyIfNewUnit ∅ l
+
+/--
+Returns the number of buckets in the internal representation of the hash map. This function may be
+useful for things like monitoring system health, but it should be considered an internal
+implementation detail.
+-/
+def Internal.numBuckets (m : Raw α β) : Nat :=
+  m.buckets.size
+
+end Unverified
+
+/-- Transforms the hash map into a list of mappings in some order. -/
+@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
+@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
+    List (α × β) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
+instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
+  reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
+
+/-- Returns a list of all keys present in the hash map in some order. -/
+@[inline] def keys (m : Raw α β) : List α :=
+  m.foldRev (fun acc k _ => k :: acc) []
+
+/-- Creates a hash map from a list of mappings. If the same key appears multiple times, the last
+occurrence takes precedence. -/
+@[inline] def ofList [BEq α] [Hashable α] (l : List ((a : α) × β a)) : Raw α β :=
+  insertMany ∅ l
 
 @[inline, inherit_doc Raw.ofList] def Const.ofList {β : Type v} [BEq α] [Hashable α]
     (l : List (α × β)) : Raw α (fun _ => β) :=
@@ -420,32 +507,7 @@ This is mainly useful to implement `HashSet.ofList`, so if you are considering u
 `HashSet` or `HashSet.Raw` might be a better fit for you. -/
 @[inline] def Const.unitOfList [BEq α] [Hashable α] (l : List α) :
     Raw α (fun _ => Unit) :=
-  Const.insertManyUnit ∅ l
-
-/-- Creates a hash map from an array of keys, associating the value `()` with each key.
-
-This is mainly useful to implement `HashSet.ofArray`, so if you are considering using this,
-`HashSet` or `HashSet.Raw` might be a better fit for you. -/
-@[inline] def Const.unitOfArray [BEq α] [Hashable α] (l : Array α) :
-    Raw α (fun _ => Unit) :=
-  Const.insertManyUnit ∅ l
-
-/--
-Returns the number of buckets in the internal representation of the hash map. This function may be
-useful for things like monitoring system health, but it should be considered an internal
-implementation detail.
--/
-def Internal.numBuckets (m : Raw α β) : Nat :=
-  m.buckets.size
-
-instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
-  reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
-
-end Unverified
-
-/-- Returns a list of all keys present in the hash map in some order. -/
-@[inline] def keys (m : Raw α β) : List α :=
-  m.fold (fun acc k _ => k :: acc) []
+  Const.insertManyIfNewUnit ∅ l
 
 section WF
 
@@ -486,6 +548,18 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
   /-- Internal implementation detail of the hash map -/
   | constGetThenInsertIfNew?₀ {α β} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a b} :
       WF m → WF (Raw₀.Const.getThenInsertIfNew? ⟨m, h⟩ a b).2.1
+  /-- Internal implementation detail of the hash map -/
+  | modify₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a} {f : β a → β a} :
+      WF m → WF (Raw₀.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constModify₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a} {f : β → β} :
+      WF m → WF (Raw₀.Const.modify ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | alter₀ {α β} [BEq α] [Hashable α] [LawfulBEq α] {m : Raw α β} {h a}
+      {f : Option (β a) → Option (β a)} : WF m → WF (Raw₀.alter ⟨m, h⟩ a f).1
+  /-- Internal implementation detail of the hash map -/
+  | constAlter₀ {α} {β : Type v} [BEq α] [Hashable α] {m : Raw α (fun _ => β)} {h a}
+      {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
 
 /-- Internal implementation detail of the hash map -/
 theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 < m.buckets.size
@@ -499,6 +573,10 @@ theorem WF.size_buckets_pos [BEq α] [Hashable α] (m : Raw α β) : WF m → 0 
   | getThenInsertIfNew?₀ _ => (Raw₀.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
   | filter₀ _ => (Raw₀.filter _ ⟨_, _⟩).2
   | constGetThenInsertIfNew?₀ _ => (Raw₀.Const.getThenInsertIfNew? ⟨_, _⟩ _ _).2.2
+  | modify₀ _ => (Raw₀.modify _ _ _).2
+  | constModify₀ _ => (Raw₀.Const.modify _ _ _).2
+  | alter₀ _ => (Raw₀.alter _ _ _).2
+  | constAlter₀ _ => (Raw₀.Const.alter _ _ _).2
 
 @[simp] theorem WF.empty [BEq α] [Hashable α] {c : Nat} : (Raw.empty c : Raw α β).WF :=
   .empty₀
@@ -547,10 +625,10 @@ theorem WF.Const.insertMany {β : Type v} [BEq α] [Hashable α] {ρ : Type w} [
   simpa [Raw.Const.insertMany, h.size_buckets_pos] using
     (Raw₀.Const.insertMany ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
 
-theorem WF.Const.insertManyUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α]
-    {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF) : (Const.insertManyUnit m l).WF := by
-  simpa [Raw.Const.insertManyUnit, h.size_buckets_pos] using
-    (Raw₀.Const.insertManyUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insert₀ h
+theorem WF.Const.insertManyIfNewUnit [BEq α] [Hashable α] {ρ : Type w} [ForIn Id ρ α]
+    {m : Raw α (fun _ => Unit)} {l : ρ} (h : m.WF) : (Const.insertManyIfNewUnit m l).WF := by
+  simpa [Raw.Const.insertManyIfNewUnit, h.size_buckets_pos] using
+    (Raw₀.Const.insertManyIfNewUnit ⟨m, h.size_buckets_pos⟩ l).2 _ WF.insertIfNew₀ h
 
 theorem WF.ofList [BEq α] [Hashable α] {l : List ((a : α) × β a)} :
     (ofList l : Raw α β).WF :=
@@ -562,7 +640,7 @@ theorem WF.Const.ofList {β : Type v} [BEq α] [Hashable α] {l : List (α × β
 
 theorem WF.Const.unitOfList [BEq α] [Hashable α] {l : List α} :
     (Const.unitOfList l : Raw α (fun _ => Unit)).WF :=
-  Const.insertManyUnit WF.empty
+  Const.insertManyIfNewUnit WF.empty
 
 end WF
 

@@ -10,6 +10,9 @@ import Init.Data.List.Lemmas
 # Lemmas about `List.min?` and `List.max?.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -85,7 +88,7 @@ theorem min?_eq_some_iff [Min α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1
+    exact congrArg some <| anti.1 _ _
       ((le_min?_iff le_min_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
       (h₂ _ (min?_mem min_eq_or (xs := x::xs) rfl))
 
@@ -156,7 +159,7 @@ theorem max?_eq_some_iff [Max α] [LE α] [anti : Std.Antisymm ((· : α) ≤ ·
   cases xs with
   | nil => simp at h₁
   | cons x xs =>
-    exact congrArg some <| anti.1
+    exact congrArg some <| anti.1 _ _
       (h₂ _ (max?_mem max_eq_or (xs := x::xs) rfl))
       ((max?_le_iff max_le_iff (xs := x::xs) rfl).1 (le_refl _) _ h₁)
 

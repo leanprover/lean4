@@ -6,6 +6,7 @@ Authors: Henrik Böving
 prelude
 import Init.Data.Hashable
 import Init.Data.BitVec
+import Init.Data.RArray
 import Std.Tactic.BVDecide.Bitblast.BoolExpr.Basic
 
 /-!
@@ -22,13 +23,13 @@ The variable definition used by the bitblaster.
 -/
 structure BVBit where
   /--
-  The width of the BitVec variable.
-  -/
-  {w : Nat}
-  /--
   A numeric identifier for the BitVec variable.
   -/
   var : Nat
+  /--
+  The width of the BitVec variable.
+  -/
+  {w : Nat}
   /--
   The bit that we take out of the BitVec variable by getLsb.
   -/
@@ -279,21 +280,28 @@ structure PackedBitVec where
 /--
 The notion of variable assignments for `BVExpr`.
 -/
-abbrev Assignment := List PackedBitVec
+abbrev Assignment := Lean.RArray PackedBitVec
 
 /--
 Get the value of a `BVExpr.var` from an `Assignment`.
 -/
-def Assignment.getD (assign : Assignment) (idx : Nat) : PackedBitVec :=
-  List.getD assign idx ⟨BitVec.zero 0⟩
+def Assignment.get (assign : Assignment) (idx : Nat) : PackedBitVec :=
+  Lean.RArray.get assign idx
 
 /--
 The semantics for `BVExpr`.
 -/
 def eval (assign : Assignment) : BVExpr w → BitVec w
   | .var idx =>
-    let ⟨bv⟩ := assign.getD idx
-    bv.truncate w
+    let packedBv := assign.get idx
+    /-
+    This formulation improves performance, as in a well formed expression the condition always holds
+    so there is no need for the more involved `BitVec.truncate` logic.
+    -/
+    if h : packedBv.w = w then
+      h ▸ packedBv.bv
+    else
+      packedBv.bv.truncate w
   | .const val => val
   | .zeroExtend v expr => BitVec.zeroExtend v (eval assign expr)
   | .extract start len expr => BitVec.extractLsb' start len (eval assign expr)
@@ -307,8 +315,13 @@ def eval (assign : Assignment) : BVExpr w → BitVec w
   | .arithShiftRight lhs rhs => BitVec.sshiftRight' (eval assign lhs) (eval assign rhs)
 
 @[simp]
-theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.getD idx).bv.truncate _ := by
-  rfl
+theorem eval_var : eval assign ((.var idx) : BVExpr w) = (assign.get idx).bv.truncate w := by
+  rw [eval]
+  split
+  · next h =>
+    subst h
+    simp
+  · rfl
 
 @[simp]
 theorem eval_const : eval assign (.const val) = val := by rfl
@@ -453,7 +466,7 @@ def eval (assign : BVExpr.Assignment) (expr : BVLogicalExpr) : Bool :=
 @[simp] theorem eval_not : eval assign (.not x) = !eval assign x := rfl
 @[simp] theorem eval_gate : eval assign (.gate g x y) = g.eval (eval assign x) (eval assign y) := rfl
 @[simp] theorem eval_ite :
-  eval assign (.ite d l r) = if (eval assign d) then (eval assign l) else (eval assign r) := rfl
+  eval assign (.ite d l r) = bif (eval assign d) then (eval assign l) else (eval assign r) := rfl
 
 def Sat (x : BVLogicalExpr) (assign : BVExpr.Assignment) : Prop := eval assign x = true
 

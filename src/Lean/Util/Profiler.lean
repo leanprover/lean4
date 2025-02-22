@@ -31,7 +31,7 @@ instance : ToJson Microseconds where toJson x := toJson x.μs
 instance : FromJson Microseconds where fromJson? j := Microseconds.mk <$> fromJson? j
 
 structure Category where
-  name : String
+  name : Name
   color : String
   subcategories : Array String := #[]
 deriving FromJson, ToJson
@@ -56,9 +56,9 @@ deriving FromJson, ToJson
 
 structure StackTable where
   frame : Array Nat
-  «prefix» : Array (Option Nat)
   category : Array Nat
   subcategory : Array Nat
+  «prefix» : Array (Option Nat)
   length : Nat
 deriving FromJson, ToJson
 
@@ -82,12 +82,48 @@ structure FuncTable where
   length : Nat
 deriving FromJson, ToJson
 
+structure FrameTable.Entry where
+  address : Int := -1
+  inlineDepth : Nat := 0
+  category : Option Nat := none
+  subcategory : Option Nat := none
+  func : Nat
+  nativeSymbol : Option Json := none
+  innerWindowID : Option Json := none
+  implementation : Option Json := none
+  line : Option Nat := none
+  column : Option Nat := none
+
+/-
+Ideally could generate this from the above, but we don't have `Lean.getStructureInfo` yet.
+-/
 structure FrameTable where
+  address : Array Int
+  inlineDepth : Array Nat
+  category : Array (Option Nat)
+  subcategory : Array (Option Nat)
   func : Array Nat
-  inlineDepth : Array Json := #[]
-  innerWindowID : Array Json := #[]
+  nativeSymbol : Array (Option Json)
+  innerWindowID : Array (Option Json)
+  implementation : Array (Option Json)
+  line : Array (Option Nat)
+  column : Array (Option Nat)
   length : Nat
-deriving FromJson, ToJson
+deriving FromJson, ToJson, Inhabited
+
+/-- Push an entry into a frame table. -/
+def FrameTable.push (t : FrameTable) (e : FrameTable.Entry) : FrameTable where
+  address := t.address.push e.address
+  inlineDepth := t.inlineDepth.push e.inlineDepth
+  category := t.category.push e.category
+  subcategory := t.subcategory.push e.subcategory
+  func := t.func.push e.func
+  nativeSymbol := t.nativeSymbol.push e.nativeSymbol
+  innerWindowID := t.innerWindowID.push e.innerWindowID
+  implementation := t.implementation.push e.implementation
+  line := t.line.push e.line
+  column := t.column.push e.column
+  length := t.length + 1
 
 structure RawMarkerTable where
   data : Array Json := #[]
@@ -128,10 +164,13 @@ structure ThreadWithMaps extends Thread where
   lastTime : Float := 0
 
 -- TODO: add others, dynamically?
+-- NOTE: more specific prefixes should come first
 def categories : Array Category := #[
-  { name := "Other", color := "gray" },
-  { name := "Elab", color := "red" },
-  { name := "Meta", color := "yellow" }
+  { name := `Other, color := "gray" },
+  { name := `Elab.async, color := "gray" },
+  { name := `Elab.block, color := "brown" },
+  { name := `Elab, color := "red" },
+  { name := `Meta, color := "yellow" }
 ]
 
 /-- Returns first `startTime` in the trace tree, if any. -/
@@ -165,7 +204,7 @@ where
           (thread.stringMap.size, { thread with
             stringArray := thread.stringArray.push funcName
             stringMap := thread.stringMap.insert funcName thread.stringMap.size })
-      let category := categories.findIdx? (·.name == data.cls.getRoot.toString) |>.getD 0
+      let category := categories.findIdx? (·.name.isPrefixOf data.cls) |>.getD 0
       let funcIdx ← modifyGet fun thread =>
         if let some idx := thread.funcMap[strIdx]? then
           (idx, thread)
@@ -180,9 +219,9 @@ where
               columnNumber := thread.funcTable.columnNumber.push none
               length := thread.funcTable.length + 1
             }
-            frameTable := {
-              func := thread.frameTable.func.push thread.funcMap.size
-              length := thread.frameTable.length + 1
+            frameTable := thread.frameTable.push {
+              func := thread.funcMap.size
+              category := category
             }
             funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
       let frameIdx := funcIdx
@@ -230,7 +269,7 @@ def Thread.new (name : String) : Thread := {
   name
   samples := { stack := #[], time := #[], weight := #[], threadCPUDelta := #[], length := 0 }
   stackTable := { frame := #[], «prefix» := #[], category := #[], subcategory := #[], length := 0 }
-  frameTable := { func := #[], length := 0 }
+  frameTable := default
   stringArray := #[]
   funcTable := {
     name := #[], resource := #[], fileName := #[], lineNumber := #[], columnNumber := #[],
@@ -246,7 +285,7 @@ def Profile.export (name : String) (startTime : Float) (traceStates : Array Trac
     let traces := traceStates.map (·.traces.toArray)
     -- sort traces of thread by start time
     let traces := traces.qsort (fun tr1 tr2 =>
-      let f tr := tr.get? 0 |>.bind (getFirstStart? ·.msg) |>.getD 0
+      let f tr := tr[0]? |>.bind (getFirstStart? ·.msg) |>.getD 0
       f tr1 < f tr2)
     let mut traces := traces.flatMap id |>.map (·.msg)
     if tid = 0 then
@@ -330,9 +369,8 @@ where
             columnNumber := thread.funcTable.columnNumber.push none
             length := thread.funcTable.length + 1
           }
-          frameTable := {
-            func := thread.frameTable.func.push thread.funcMap.size
-            length := thread.frameTable.length + 1
+          frameTable := thread.frameTable.push {
+            func := thread.funcMap.size
           }
           funcMap := thread.funcMap.insert strIdx thread.funcMap.size })
     let frameIdx := funcIdx

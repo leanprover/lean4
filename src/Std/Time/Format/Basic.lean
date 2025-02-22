@@ -741,7 +741,7 @@ private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bo
 
   let data := s!"{sign}{pad time.hour.val}"
   let data := if withMinutes then s!"{data}{if colon then ":" else ""}{pad time.minute.val}" else data
-  let data := if withSeconds ∧ time.second.snd.val ≠ 0 then s!"{data}{if colon then ":" else ""}{pad time.second.snd.val}" else data
+  let data := if withSeconds ∧ time.second.val ≠ 0 then s!"{data}{if colon then ":" else ""}{pad time.second.val}" else data
 
   data
 
@@ -764,7 +764,7 @@ private def TypeFormat : Modifier → Type
   | .k _ => Bounded.LE 1 24
   | .H _ => Hour.Ordinal
   | .m _ => Minute.Ordinal
-  | .s _ => Sigma Second.Ordinal
+  | .s _ => Second.Ordinal true
   | .S _ => Nanosecond.Ordinal
   | .A _ => Millisecond.Offset
   | .n _ => Nanosecond.Ordinal
@@ -835,10 +835,10 @@ private def formatWith (modifier : Modifier) (data: TypeFormat modifier) : Strin
     | .narrow => formatMarkerNarrow data
   | .h format => pad format.padding (data.val % 12)
   | .K format => pad format.padding (data.val % 12)
-  | .k format => pad format.padding (data.val)
-  | .H format => pad format.padding (data.val)
-  | .m format => pad format.padding (data.val)
-  | .s format => pad format.padding (data.snd.val)
+  | .k format => pad format.padding data.val
+  | .H format => pad format.padding data.val
+  | .m format => pad format.padding data.val
+  | .s format => pad format.padding data.val
   | .S format =>
     match format with
     | .nano => pad 9 data.val
@@ -1167,7 +1167,7 @@ private def parseWith : (mod : Modifier) → Parser (TypeFormat mod)
   | .k format => parseNatToBounded (parseAtLeastNum format.padding)
   | .H format => parseNatToBounded (parseAtLeastNum format.padding)
   | .m format => parseNatToBounded (parseAtLeastNum format.padding)
-  | .s format => Sigma.mk true <$> (parseNatToBounded (parseAtLeastNum format.padding))
+  | .s format => parseNatToBounded (parseAtLeastNum format.padding)
   | .S format =>
     match format with
     | .nano => parseNatToBounded (parseAtLeastNum 9)
@@ -1249,7 +1249,7 @@ private structure DateBuilder where
   k : Option (Bounded.LE 1 24) := none
   H : Option Hour.Ordinal := none
   m : Option Minute.Ordinal := none
-  s : Option (Sigma Second.Ordinal) := none
+  s : Option (Second.Ordinal true) := none
   S : Option Nanosecond.Ordinal := none
   A : Option Millisecond.Offset := none
   n : Option Nanosecond.Ordinal := none
@@ -1335,10 +1335,10 @@ private def build (builder : DateBuilder) (aw : Awareness) : Option aw.type :=
       |>.getD ⟨0, by decide⟩
 
   let minute := builder.m |>.getD 0
-  let second := builder.s |>.getD ⟨false, 0⟩
+  let second := builder.s |>.getD 0
   let nano := (builder.n <|> builder.S) |>.getD 0
 
-  let time : PlainTime
+  let time
     :=  PlainTime.ofNanoseconds <$> builder.N
     <|> PlainTime.ofMilliseconds <$> builder.A
     |>.getD (PlainTime.mk hour minute second nano)

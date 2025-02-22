@@ -3,6 +3,7 @@ Copyright (c) 2022 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner, Sebastian Ullrich, Mac Malone
 -/
+prelude
 import Lake.Util.Log
 
 namespace Lake
@@ -18,9 +19,9 @@ def mkCmdLog (args : IO.Process.SpawnArgs) : String :=
   [Monad m] (out : IO.Process.Output) (log : String → m PUnit)
 : m Unit := do
   unless out.stdout.isEmpty do
-    log s!"stdout:\n{out.stdout}"
+    log s!"stdout:\n{out.stdout.trim}"
   unless out.stderr.isEmpty do
-    log s!"stderr:\n{out.stderr}"
+    log s!"stderr:\n{out.stderr.trim}"
 
 @[inline] def rawProc (args : IO.Process.SpawnArgs) (quiet := false) : LogIO IO.Process.Output := do
   withLogErrorPos do

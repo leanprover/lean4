@@ -168,11 +168,6 @@ end Lean
   | `($(_) $c $t $e) => `(if $c then $t else $e)
   | _                => throw ()
 
-@[app_unexpander sorryAx] def unexpandSorryAx : Lean.PrettyPrinter.Unexpander
-  | `($(_) $_)    => `(sorry)
-  | `($(_) $_ $_) => `(sorry)
-  | _             => throw ()
-
 @[app_unexpander Eq.ndrec] def unexpandEqNDRec : Lean.PrettyPrinter.Unexpander
   | `($(_) $m $h) => `($h ▸ $m)
   | _             => throw ()
@@ -312,7 +307,7 @@ syntax (name := Lean.Parser.Command.classAbbrev)
 macro_rules
   | `($mods:declModifiers class abbrev $id $params* $[: $ty]? := $[ $parents $[,]? ]*) =>
     let ctor := mkIdentFrom id <| id.raw[0].getId.modifyBase (. ++ `mk)
-    `($mods:declModifiers class $id $params* extends $parents,* $[: $ty]?
+    `($mods:declModifiers class $id $params* extends $[$parents:term],* $[: $ty:term]?
       attribute [instance] $ctor)
 
 macro_rules
@@ -350,11 +345,14 @@ macro:50 e:term:51 " matches " p:sepBy1(term:51, " | ") : term =>
 
 end Lean
 
+/-- `{ a, b, c }` syntax, powered by the `Singleton` and `Insert` typeclasses. -/
 syntax "{" term,+ "}" : term
 
 macro_rules
   | `({$x:term}) => `(singleton $x)
   | `({$x:term, $xs:term,*}) => `(insert $x {$xs:term,*})
+
+recommended_spelling "singleton" for "{x}" in [singleton, «term{_}»]
 
 namespace Lean
 

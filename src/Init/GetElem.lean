@@ -114,16 +114,25 @@ panics `i` is out of bounds.
 -/
 macro:max x:term noWs "[" i:term "]" noWs "!" : term => `(getElem! $x $i)
 
+recommended_spelling "getElem" for "xs[i]" in [GetElem.getElem, «term__[_]»]
+recommended_spelling "getElem" for "xs[i]'h" in [GetElem.getElem, «term__[_]'_»]
+recommended_spelling "getElem?" for "xs[i]?" in [GetElem?.getElem?, «term__[_]_?»]
+recommended_spelling "getElem!" for "xs[i]!" in [GetElem?.getElem!, «term__[_]_!»]
+
 instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (valid xs i)] :
     GetElem? coll idx elem valid where
   getElem? xs i := decidableGetElem? xs i
 
-theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {h : valid c i}
-    (h' : c = d) : c[i] = d[i]'(h' ▸ h) := by
-  cases h'; rfl
+theorem getElem_congr [GetElem coll idx elem valid] {c d : coll} (h : c = d)
+    {i j : idx} (h' : i = j) (w : valid c i) : c[i] = d[j]'(h' ▸ h ▸ w) := by
+  cases h; cases h'; rfl
 
-theorem getElem_congr [GetElem coll idx elem valid] {c : coll} {i j : idx} {h : valid c i}
-    (h' : i = j) : c[i] = c[j]'(h' ▸ h) := by
+theorem getElem_congr_coll [GetElem coll idx elem valid] {c d : coll} {i : idx} {w : valid c i}
+    (h : c = d) : c[i] = d[i]'(h ▸ w) := by
+  cases h; rfl
+
+theorem getElem_congr_idx [GetElem coll idx elem valid] {c : coll} {i j : idx} {w : valid c i}
+    (h' : i = j) : c[i] = c[j]'(h' ▸ w) := by
   cases h'; rfl
 
 class LawfulGetElem (cont : Type u) (idx : Type v) (elem : outParam (Type w))
@@ -172,6 +181,22 @@ theorem getElem!_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem d
   simp only [getElem?_def] at h ⊢
   split <;> simp_all
 
+@[simp] theorem getElem?_eq_none_iff [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]? = none ↔ ¬dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
+@[deprecated getElem?_eq_none_iff (since := "2025-02-17")]
+abbrev getElem?_eq_none := @getElem?_eq_none_iff
+
+@[deprecated getElem?_eq_none (since := "2024-12-11")]
+abbrev isNone_getElem? := @getElem?_eq_none_iff
+
+@[simp] theorem isSome_getElem? [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]
+    (c : cont) (i : idx) [Decidable (dom c i)] : c[i]?.isSome = dom c i := by
+  simp only [getElem?_def]
+  split <;> simp_all
+
 namespace Fin
 
 instance instGetElemFinVal [GetElem cont Nat elem dom] : GetElem cont (Fin n) elem fun xs i => dom xs i where
@@ -206,12 +231,8 @@ instance : GetElem (List α) Nat α fun as i => i < as.length where
 @[simp] theorem getElem_cons_zero (a : α) (as : List α) (h : 0 < (a :: as).length) : getElem (a :: as) 0 h = a := by
   rfl
 
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_zero := @getElem_cons_zero
-
 @[simp] theorem getElem_cons_succ (a : α) (as : List α) (i : Nat) (h : i + 1 < (a :: as).length) : getElem (a :: as) (i+1) h = getElem as i (Nat.lt_of_succ_lt_succ h) := by
   rfl
-
-@[deprecated (since := "2024-06-12")] abbrev cons_getElem_succ := @getElem_cons_succ
 
 @[simp] theorem getElem_mem : ∀ {l : List α} {n} (h : n < l.length), l[n]'h ∈ l
   | _ :: _, 0, _ => .head ..
@@ -221,16 +242,100 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
     as[i] :: as.drop (i+1) = as.drop i :=
   match as, i with
   | _::_, 0   => rfl
-  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) _
+  | _::_, i+1 => getElem_cons_drop_succ_eq_drop (i := i) (Nat.add_one_lt_add_one_iff.mp h)
 
-@[deprecated (since := "2024-11-05")] abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
+@[deprecated getElem_cons_drop_succ_eq_drop (since := "2024-11-05")]
+abbrev get_drop_eq_drop := @getElem_cons_drop_succ_eq_drop
+
+/-! ### getElem? -/
+
+/-- Internal implementation of `as[i]?`. Do not use directly. -/
+private def get?Internal : (as : List α) → (i : Nat) → Option α
+  | a::_,  0   => some a
+  | _::as, n+1 => get?Internal as n
+  | _,     _   => none
+
+/-- Internal implementation of `as[i]!`. Do not use directly. -/
+private def get!Internal [Inhabited α] : (as : List α) → (i : Nat) → α
+  | a::_,  0   => a
+  | _::as, n+1 => get!Internal as n
+  | _,     _   => panic! "invalid index"
+
+/-- This instance overrides the default implementation of `a[i]?` via `decidableGetElem?`,
+giving better definitional equalities. -/
+instance : GetElem? (List α) Nat α fun as i => i < as.length where
+  getElem? as i := as.get?Internal i
+  getElem! as i := as.get!Internal i
+
+@[simp] theorem get?Internal_eq_getElem? {l : List α} {i : Nat} :
+    l.get?Internal i = l[i]? := rfl
+
+@[simp] theorem get!Internal_eq_getElem! [Inhabited α] {l : List α} {i : Nat} :
+    l.get!Internal i = l[i]! := rfl
+
+@[simp] theorem getElem?_eq_getElem {l : List α} {i} (h : i < l.length) :
+    l[i]? = some l[i] := by
+  induction l generalizing i with
+  | nil => cases h
+  | cons a l ih =>
+    cases i with
+    | zero => rfl
+    | succ i => exact ih ..
+
+@[simp] theorem getElem?_eq_none_iff : l[i]? = none ↔ length l ≤ i :=
+  match l with
+  | [] => by simp; rfl
+  | _ :: l => by
+    cases i with
+    | zero => simp
+    | succ i =>
+      simp only [length_cons, Nat.add_le_add_iff_right]
+      exact getElem?_eq_none_iff (l := l) (i := i)
+
+@[simp] theorem none_eq_getElem?_iff {l : List α} {i : Nat} : none = l[i]? ↔ length l ≤ i := by
+  simp [eq_comm (a := none)]
+
+theorem getElem?_eq_none (h : length l ≤ i) : l[i]? = none := getElem?_eq_none_iff.mpr h
+
+instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
+  getElem?_def as i h := by
+    split <;> simp_all
+  getElem!_def as i := by
+    induction as generalizing i with
+    | nil => rfl
+    | cons a as ih =>
+      cases i with
+      | zero => rfl
+      | succ i => simpa using ih i
 
 end List
 
 namespace Array
 
 instance : GetElem (Array α) Nat α fun xs i => i < xs.size where
-  getElem xs i h := xs.get i h
+  getElem xs i h := xs.getInternal i h
+
+-- We provide a `GetElem?` instance, rather than using the low priority instance,
+-- so that we use the `@[extern]` definition of `get!Internal`.
+instance : GetElem? (Array α) Nat α fun xs i => i < xs.size where
+  getElem? xs i := decidableGetElem? xs i
+  getElem! xs i := xs.get!Internal i
+
+instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
+  getElem?_def xs i h := by
+    simp only [getElem?, decidableGetElem?]
+    split <;> rfl
+  getElem!_def xs i := by
+    simp only [getElem!, getElem?, decidableGetElem?, get!Internal, getD, getElem]
+    split <;> rfl
+
+@[simp] theorem getInternal_eq_getElem (a : Array α) (i : Nat) (h) :
+    a.getInternal i h = a[i] := rfl
+
+@[simp] theorem get!Internal_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) :
+    a.get!Internal i = a[i]! := by
+  simp only [get!Internal, getD, getInternal_eq_getElem, getElem!_def]
+  split <;> simp_all [getElem?_pos, getElem?_neg]
 
 end Array
 

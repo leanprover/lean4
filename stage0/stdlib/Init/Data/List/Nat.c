@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat
-// Imports: Init.Data.List.Nat.Basic Init.Data.List.Nat.Pairwise Init.Data.List.Nat.Range Init.Data.List.Nat.Sublist Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Count Init.Data.List.Nat.Erase Init.Data.List.Nat.Find Init.Data.List.Nat.BEq Init.Data.List.Nat.Modify Init.Data.List.Nat.InsertIdx
+// Imports: Init.Data.List.Nat.Basic Init.Data.List.Nat.Pairwise Init.Data.List.Nat.Range Init.Data.List.Nat.Sublist Init.Data.List.Nat.TakeDrop Init.Data.List.Nat.Count Init.Data.List.Nat.Erase Init.Data.List.Nat.Find Init.Data.List.Nat.BEq Init.Data.List.Nat.Modify Init.Data.List.Nat.InsertIdx Init.Data.List.Nat.Perm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -24,6 +24,7 @@ lean_object* initialize_Init_Data_List_Nat_Find(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_BEq(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_Modify(uint8_t builtin, lean_object*);
 lean_object* initialize_Init_Data_List_Nat_InsertIdx(uint8_t builtin, lean_object*);
+lean_object* initialize_Init_Data_List_Nat_Perm(uint8_t builtin, lean_object*);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_List_Nat(uint8_t builtin, lean_object* w) {
 lean_object * res;
@@ -60,6 +61,9 @@ res = initialize_Init_Data_List_Nat_Modify(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_InsertIdx(builtin, lean_io_mk_world());
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Perm(builtin, lean_io_mk_world());
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));

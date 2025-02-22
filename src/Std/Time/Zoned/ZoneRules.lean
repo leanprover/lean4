@@ -147,9 +147,7 @@ If the timestamp falls between two transitions, it returns the most recent trans
 -/
 def findTransitionIndexForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Nat :=
   let value := timestamp.toSecondsSinceUnixEpoch
-  if let some idx := transitions.findIdx? (fun t => t.time.val > value.val)
-    then some idx
-    else none
+  transitions.findIdx? (fun t => t.time.val > value.val)
 
 /--
 Finds the transition corresponding to a given timestamp in `Array Transition`.
@@ -157,7 +155,7 @@ If the timestamp falls between two transitions, it returns the most recent trans
 -/
 def findTransitionForTimestamp (transitions : Array Transition) (timestamp : Timestamp) : Option Transition :=
   if let some idx := findTransitionIndexForTimestamp transitions timestamp
-    then transitions.get? (idx - 1)
+    then transitions[idx - 1]?
     else transitions.back?
 
 /--

@@ -45,10 +45,10 @@ end DataEntry
 
 abbrev Header := List (DataType × String)
 
-def Header.colTypes (h : Header) : List DataType :=
+@[simp] def Header.colTypes (h : Header) : List DataType :=
   h.map fun x => x.1
 
-def Header.colNames (h : Header) : List String :=
+@[simp] def Header.colNames (h : Header) : List String :=
   h.map fun x => x.2
 
 abbrev Row := List DataEntry
@@ -69,7 +69,7 @@ structure DataFrame where
 
 namespace DataFrame
 
-def empty (header : Header := []) : DataFrame :=
+@[simp] def empty (header : Header := []) : DataFrame :=
   ⟨header, [], by simp⟩
 
 theorem consistentConcatOfConsistentRow
@@ -88,12 +88,12 @@ def addRow (df : DataFrame) (row : List DataEntry)
 
 end DataFrame
 
-def h : Header := [(TInt, "id"), (TString, "name")]
+abbrev h : Header := [(TInt, "id"), (TString, "name")]
 
-def r : List Row := [[1, "alex"]]
+abbrev r : List Row := [[1, "alex"]]
 
 -- this no longer works
-def df1 : DataFrame := DataFrame.mk h r
+abbrev df1 : DataFrame := DataFrame.mk h r
 
 -- and this ofc breaks now
 def df2 : DataFrame := df1.addRow [2, "juddy"]

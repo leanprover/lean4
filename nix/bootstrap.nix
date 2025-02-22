@@ -1,12 +1,12 @@
 { src, debug ? false, stage0debug ? false, extraCMakeFlags ? [],
-  stdenv, lib, cmake, gmp, libuv, cadical, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
+  stdenv, lib, cmake, pkg-config, gmp, libuv, cadical, git, gnumake, bash, buildLeanPackage, writeShellScriptBin, runCommand, symlinkJoin, lndir, perl, gnused, darwin, llvmPackages, linkFarmFromDrvs,
   ... } @ args:
 with builtins;
 lib.warn "The Nix-based build is deprecated" rec {
   inherit stdenv;
   sourceByRegex = p: rs: lib.sourceByRegex p (map (r: "(/src/)?${r}") rs);
   buildCMake = args: stdenv.mkDerivation ({
-    nativeBuildInputs = [ cmake ];
+    nativeBuildInputs = [ cmake pkg-config ];
     buildInputs = [ gmp libuv llvmPackages.llvm ];
     # https://github.com/NixOS/nixpkgs/issues/60919
     hardeningDisable = [ "all" ];

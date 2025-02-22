@@ -466,6 +466,12 @@ example (z : Int) : z.toNat = 0 ↔ z ≤ 0 := by
 example (z : Int) (a : Fin z.toNat) (h : 0 ≤ z) : ↑↑a ≤ z := by
   omega
 
+/-! ### Int.negSucc
+Make sure we aren't stopped by stray `Int.negSucc` terms.
+-/
+
+example (x : Int) (h : Int.negSucc 0 < x ∧ x < 1) : x = 0 := by omega
+
 /-! ### BitVec -/
 open BitVec
 
@@ -492,7 +498,7 @@ example (x y : BitVec 64) (_ : x < (y.truncate 32).zeroExtend 64) :
 -- This example, reported from LNSym,
 -- started failing when we changed the definition of `Fin.sub` in https://github.com/leanprover/lean4/pull/4421.
 -- When we use the new definition, `omega` produces a proof term that the kernel is very slow on.
--- To work around this for now, I've removed `BitVec.toNat_sub` from the `bv_toNat` simp set,
+-- To work around this for now, I've removed `BitVec.toNat_sub` from the `bitvec_to_nat` simp set,
 -- and replaced it with `BitVec.toNat_sub'` which uses the old definition for subtraction.
 -- This is only a workaround, and I would like to understand why the term chokes the kernel.
 example

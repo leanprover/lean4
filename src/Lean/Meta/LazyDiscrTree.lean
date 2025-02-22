@@ -15,7 +15,7 @@ population of imported modules for use in tactics.  It uses a lazy
 initialization strategy.
 
 The discrimination tree can be created through
-`createImportedEnvironment`. This creates a discrimination tree from all
+`createImportedDiscrTree`. This creates a discrimination tree from all
 imported modules in an environment using a callback that provides the
 entries as `InitEntry` values.
 
@@ -486,7 +486,7 @@ private partial def evalLazyEntries
 
 private def evalNode (c : TrieIndex) :
     MatchM α (Array α × TrieIndex × Std.HashMap Key TrieIndex) := do
-  let .node vs star cs pending := (←get).get! c
+  let .node vs star cs pending := (←get)[c]!
   if pending.size = 0 then
     return (vs, star, cs)
   else
@@ -566,9 +566,9 @@ Append results to array
 partial def appendResultsAux (mr : MatchResult α) (a : Array β) (f : Nat → α → β) : Array β :=
   let aa := mr.elts
   let n := aa.size
-  Nat.fold (n := n) (init := a) fun i r =>
+  Nat.fold (n := n) (init := a) fun i _ r =>
     let j := n-1-i
-    let b := aa[j]!
+    let b := aa[j]
     b.foldl (init := r) (· ++ ·.map (f j))
 
 partial def appendResults (mr : MatchResult α) (a : Array α) : Array α :=
@@ -980,8 +980,8 @@ def findImportMatches
   let ngen ← getNGen
   let (cNGen, ngen) := ngen.mkChild
   setNGen ngen
-  let dummy : IO.Ref (Option (LazyDiscrTree α)) ← IO.mkRef none
-  let ref := @EnvExtension.getState _ ⟨dummy⟩ ext (←getEnv)
+  let _ : Inhabited (IO.Ref (Option (LazyDiscrTree α))) := ⟨← IO.mkRef none⟩
+  let ref := ext.getState (←getEnv)
   let importTree ← (←ref.get).getDM $ do
     profileitM Exception  "lazy discriminator import initialization" (←getOptions) $ do
       let t ← createImportedDiscrTree (createTreeCtx cctx) cNGen (←getEnv) addEntry

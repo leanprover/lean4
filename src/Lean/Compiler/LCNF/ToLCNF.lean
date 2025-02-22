@@ -7,6 +7,7 @@ prelude
 import Lean.ProjFns
 import Lean.Meta.CtorRecognizer
 import Lean.Compiler.BorrowedAnnotation
+import Lean.Compiler.CSimpAttr
 import Lean.Compiler.LCNF.Types
 import Lean.Compiler.LCNF.Bind
 import Lean.Compiler.LCNF.InferType
@@ -472,7 +473,7 @@ where
 
   /-- Giving `f` a constant `.const declName us`, convert `args` into `args'`, and return `.const declName us args'` -/
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M Arg := do
-    let .const declName us := f | unreachable!
+    let .const declName us := CSimp.replaceConstants (← getEnv) f | unreachable!
     let args ← args.mapM visitAppArg
     letValueToArg <| .const declName us args
 
@@ -593,6 +594,14 @@ where
       let minor ← visit minor
       mkOverApplication minor args arity
 
+  visitHEqRec (e : Expr) : M Arg :=
+    let arity := 7
+    etaIfUnderApplied e arity do
+      let args := e.getAppArgs
+      let minor := if e.isAppOf ``HEq.rec || e.isAppOf ``HEq.ndrec then args[3]! else args[6]!
+      let minor ← visit minor
+      mkOverApplication minor args arity
+
   visitFalseRec (e : Expr) : M Arg :=
     let arity := 2
     etaIfUnderApplied e arity do
@@ -662,13 +671,15 @@ where
   visitApp (e : Expr) : M Arg := do
     if let some (args, n, t, v, b) := e.letFunAppArgs? then
       visitCore <| mkAppN (.letE n t v b (nonDep := true)) args
-    else if let .const declName _ := e.getAppFn then
+    else if let .const declName _ := CSimp.replaceConstants (← getEnv) e.getAppFn then
       if declName == ``Quot.lift then
         visitQuotLift e
       else if declName == ``Quot.mk then
         visitCtor 3 e
       else if declName == ``Eq.casesOn || declName == ``Eq.rec || declName == ``Eq.ndrec then
         visitEqRec e
+      else if declName == ``HEq.casesOn || declName == ``HEq.rec || declName == ``HEq.ndrec then
+        visitHEqRec e
       else if declName == ``And.rec || declName == ``Iff.rec then
         visitAndIffRecCore e (minorPos := 3)
       else if declName == ``And.casesOn || declName == ``Iff.casesOn then

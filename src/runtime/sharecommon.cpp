@@ -117,6 +117,7 @@ class sharecommon_fn {
         case LeanMPZ:      case LeanThunk:
         case LeanTask:     case LeanRef:
         case LeanExternal: case LeanClosure:
+        case LeanPromise:
             m_children.push_back(a);
             return true;
         default:
@@ -233,7 +234,10 @@ public:
 
     obj_res operator()(obj_arg a) {
         if (push_child(a)) {
-            return m_state.pack(a);
+            object * r = m_children.back();
+            lean_inc(r);
+            lean_dec(a);
+            return m_state.pack(r);
         }
         while (!m_todo.empty()) {
             b_obj_arg curr = m_todo.back();
@@ -246,6 +250,7 @@ public:
             case LeanMPZ:             lean_unreachable();
             case LeanThunk:           lean_unreachable();
             case LeanTask:            lean_unreachable();
+            case LeanPromise:         lean_unreachable();
             case LeanRef:             lean_unreachable();
             case LeanExternal:        lean_unreachable();
             case LeanReserved:        lean_unreachable();
@@ -408,6 +413,7 @@ lean_object * sharecommon_quick_fn::visit(lean_object * a) {
     case LeanClosure:         lean_inc_ref(a); return a;
     case LeanThunk:           lean_inc_ref(a); return a;
     case LeanTask:            lean_inc_ref(a); return a;
+    case LeanPromise:         lean_inc_ref(a); return a;
     case LeanRef:             lean_inc_ref(a); return a;
     case LeanExternal:        lean_inc_ref(a); return a;
     case LeanReserved:        lean_inc_ref(a); return a;

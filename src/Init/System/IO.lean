@@ -122,6 +122,11 @@ opaque bindTask (t : Task α) (f : α → BaseIO (Task β)) (prio := Task.Priori
     (sync := false) : BaseIO (Task β) :=
   f t.get
 
+/-- Like `BaseIO.mapTask, but ignores the result. -/
+def chainTask (t : Task α) (f : α → BaseIO Unit) (prio := Task.Priority.default)
+    (sync := false) : BaseIO Unit :=
+  discard <| BaseIO.mapTask f t prio sync
+
 def mapTasks (f : List α → BaseIO β) (tasks : List (Task α)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task β) :=
   go tasks []
@@ -149,6 +154,11 @@ namespace EIO
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except ε β)) :=
   BaseIO.bindTask t (fun a => f a |>.catchExceptions fun e => return Task.pure <| Except.error e)
     prio sync
+
+/-- `EIO` specialization of `BaseIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → EIO ε Unit) (prio := Task.Priority.default)
+    (sync := false) : EIO ε Unit :=
+  discard <| EIO.mapTask f t prio sync
 
 /-- `EIO` specialization of `BaseIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → EIO ε β) (tasks : List (Task α))
@@ -195,6 +205,11 @@ def sleep (ms : UInt32) : BaseIO Unit :=
     (prio := Task.Priority.default) (sync := false) : BaseIO (Task (Except IO.Error β)) :=
   EIO.bindTask t f prio sync
 
+/-- `IO` specialization of `EIO.chainTask`. -/
+def chainTask (t : Task α) (f : α → IO Unit) (prio := Task.Priority.default)
+    (sync := false) : IO Unit :=
+  EIO.chainTask t f prio sync
+
 /-- `IO` specialization of `EIO.mapTasks`. -/
 @[inline] def mapTasks (f : List α → IO β) (tasks : List (Task α)) (prio := Task.Priority.default)
     (sync := false) : BaseIO (Task (Except IO.Error β)) :=
@@ -238,7 +253,12 @@ protected def TaskState.toString : TaskState → String
 
 instance : ToString TaskState := ⟨TaskState.toString⟩
 
-/-- Returns current state of the `Task` in the Lean runtime's task manager. -/
+/--
+Returns current state of the `Task` in the Lean runtime's task manager.
+
+Note that for tasks derived from `Promise`s, `waiting` and `running` should be considered
+equivalent.
+-/
 @[extern "lean_io_get_task_state"] opaque getTaskState : @& Task α → BaseIO TaskState
 
 /-- Check if the task has finished execution, at which point calling `Task.get` will return immediately. -/
@@ -462,6 +482,16 @@ Note that it is the caller's job to remove the file after use.
 -/
 @[extern "lean_io_create_tempfile"] opaque createTempFile : IO (Handle × FilePath)
 
+/--
+Creates a temporary directory in the most secure manner possible. There are no race conditions in the
+directory’s creation. The directory is readable and writable only by the creating user ID.
+
+Returns the new directory's path.
+
+It is the caller's job to remove the directory after use.
+-/
+@[extern "lean_io_create_tempdir"] opaque createTempDir : IO FilePath
+
 end FS
 
 @[extern "lean_io_getenv"] opaque getEnv (var : @& String) : BaseIO (Option String)
@@ -473,17 +503,6 @@ namespace FS
 @[inline]
 def withFile (fn : FilePath) (mode : Mode) (f : Handle → IO α) : IO α :=
   Handle.mk fn mode >>= f
-
-/--
-Like `createTempFile` but also takes care of removing the file after usage.
--/
-def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
-    m α := do
-  let (handle, path) ← createTempFile
-  try
-    f handle path
-  finally
-    removeFile path
 
 def Handle.putStrLn (h : Handle) (s : String) : IO Unit :=
   h.putStr (s.push '\n')
@@ -675,8 +694,10 @@ def appDir : IO FilePath := do
     | throw <| IO.userError s!"System.IO.appDir: unexpected filename '{p}'"
   FS.realPath p
 
+namespace FS
+
 /-- Create given path and all missing parents as directories. -/
-partial def FS.createDirAll (p : FilePath) : IO Unit := do
+partial def createDirAll (p : FilePath) : IO Unit := do
   if ← p.isDir then
     return ()
   if let some parent := p.parent then
@@ -693,13 +714,39 @@ partial def FS.createDirAll (p : FilePath) : IO Unit := do
 /--
   Fully remove given directory by deleting all contained files and directories in an unspecified order.
   Fails if any contained entry cannot be deleted or was newly created during execution. -/
-partial def FS.removeDirAll (p : FilePath) : IO Unit := do
+partial def removeDirAll (p : FilePath) : IO Unit := do
   for ent in (← p.readDir) do
     if (← ent.path.isDir : Bool) then
       removeDirAll ent.path
     else
       removeFile ent.path
   removeDir p
+
+/--
+Like `createTempFile`, but also takes care of removing the file after usage.
+-/
+def withTempFile [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : Handle → FilePath → m α) :
+    m α := do
+  let (handle, path) ← createTempFile
+  try
+    f handle path
+  finally
+    removeFile path
+
+/--
+Like `createTempDir`, but also takes care of removing the directory after usage.
+
+All files in the directory are recursively deleted, regardless of how or when they were created.
+-/
+def withTempDir [Monad m] [MonadFinally m] [MonadLiftT IO m] (f : FilePath → m α) :
+    m α := do
+  let path ← createTempDir
+  try
+    f path
+  finally
+    removeDirAll path
+
+end FS
 
 namespace Process
 
@@ -849,6 +896,7 @@ tasks.
 -/
 structure CancelToken where
   private ref : IO.Ref Bool
+deriving Nonempty
 
 namespace CancelToken
 
@@ -932,3 +980,36 @@ syntax "println! " (interpolatedStr(term) <|> term) : term
 macro_rules
   | `(println! $msg:interpolatedStr) => `((IO.println (s! $msg) : IO Unit))
   | `(println! $msg:term)            => `((IO.println $msg : IO Unit))
+
+/--
+  Marks given value and its object graph closure as multi-threaded if currently
+  marked single-threaded. This will make reference counter updates atomic and
+  thus more costly. It can still be useful to do eagerly when the value will be
+  shared between threads later anyway and there is available time budget to mark
+  it now. -/
+@[extern "lean_runtime_mark_multi_threaded"]
+def Runtime.markMultiThreaded (a : α) : BaseIO α := return a
+
+/--
+Marks given value and its object graph closure as persistent. This will remove
+reference counter updates but prevent the closure from being deallocated until
+the end of the process! It can still be useful to do eagerly when the value
+will be marked persistent later anyway and there is available time budget to
+mark it now or it would be unnecessarily marked multi-threaded in between.
+
+This function is only safe to use on objects (in the full closure) which are
+not used concurrently or which are already persistent.
+-/
+@[extern "lean_runtime_mark_persistent"]
+unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a
+
+set_option linter.unusedVariables false in
+/--
+Discards the passed owned reference. This leads to `a` any any object reachable from it never being
+freed. This can be a useful optimization for eliding deallocation time of big object graphs that are
+kept alive close to the end of the process anyway (in which case calling `Runtime.markPersistent`
+would be similarly costly to deallocation). It is still considered a safe operation as it cannot
+lead to undefined behavior.
+-/
+@[extern "lean_runtime_forget"]
+def Runtime.forget (a : α) : BaseIO Unit := return

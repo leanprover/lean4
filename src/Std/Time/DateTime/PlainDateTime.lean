@@ -29,7 +29,6 @@ structure PlainDateTime where
   The `Time` component of a `PlainTime`
   -/
   time : PlainTime
-
   deriving Inhabited, BEq, Repr
 
 namespace PlainDateTime
@@ -54,7 +53,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
 
   let nanos := stamp.toNanosecondsSinceUnixEpoch
   let secs : Second.Offset := nanos.ediv 1000000000
-  let daysSinceEpoch : Day.Offset := secs.ediv 86400
+  let daysSinceEpoch : Day.Offset := secs.tdiv 86400
   let boundedDaysSinceEpoch := daysSinceEpoch
 
   let mut rawDays := boundedDaysSinceEpoch - leapYearEpoch
@@ -106,7 +105,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
       break
     remDays := remDays - monLen
 
-  let mday : Fin 31 := Fin.ofNat (Int.toNat remDays)
+  let mday : Fin 31 := Fin.ofNat' _ (Int.toNat remDays)
 
   let hmon ←
     if h₁ : mon.val > 10
@@ -123,7 +122,7 @@ def ofTimestampAssumingUTC (stamp : Timestamp) : PlainDateTime := Id.run do
 
   return {
     date := PlainDate.ofYearMonthDayClip year hmon (Day.Ordinal.ofFin (Fin.succ mday))
-    time := PlainTime.ofHourMinuteSecondsNano (leap := false) (hour.expandTop (by decide)) minute second nano
+    time := PlainTime.ofHourMinuteSecondsNano (hour.expandTop (by decide)) minute (second.expandTop (by decide)) nano
   }
 
 /--
@@ -199,7 +198,7 @@ Creates a new `PlainDateTime` by adjusting the `hour` component of its `time` to
 -/
 @[inline]
 def withHours (dt : PlainDateTime) (hour : Hour.Ordinal) : PlainDateTime :=
-  { dt with time := { dt.time with hour := hour } }
+  { dt with time := { dt.time with hour } }
 
 /--
 Creates a new `PlainDateTime` by adjusting the `minute` component of its `time` to the given value.
@@ -212,7 +211,7 @@ def withMinutes (dt : PlainDateTime) (minute : Minute.Ordinal) : PlainDateTime :
 Creates a new `PlainDateTime` by adjusting the `second` component of its `time` to the given value.
 -/
 @[inline]
-def withSeconds (dt : PlainDateTime) (second : Sigma Second.Ordinal) : PlainDateTime :=
+def withSeconds (dt : PlainDateTime) (second : Second.Ordinal true) : PlainDateTime :=
   { dt with time := { dt.time with second := second } }
 
 /--
@@ -316,16 +315,26 @@ resulting month.
 def subYearsClip (dt : PlainDateTime) (years : Year.Offset) : PlainDateTime :=
   { dt with date := dt.date.subYearsClip years }
 
+/--
+Adds a `Nanosecond.Offset` to a `PlainDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds overflow.
+-/
+@[inline]
+def addNanoseconds (dt : PlainDateTime) (nanos : Nanosecond.Offset) : PlainDateTime :=
+  ofTimestampAssumingUTC (dt.toTimestampAssumingUTC + nanos)
+
+/--
+Subtracts a `Nanosecond.Offset` from a `PlainDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds underflow.
+-/
+@[inline]
+def subNanoseconds (dt : PlainDateTime) (nanos : Nanosecond.Offset) : PlainDateTime :=
+  addNanoseconds dt (-nanos)
 
 /--
 Adds an `Hour.Offset` to a `PlainDateTime`, adjusting the date if the hour overflows.
 -/
 @[inline]
 def addHours (dt : PlainDateTime) (hours : Hour.Offset) : PlainDateTime :=
-  let totalSeconds := dt.time.toSeconds + hours.toSeconds
-  let days := totalSeconds.ediv 86400
-  let newTime := dt.time.addSeconds (hours.toSeconds)
-  { dt with date := dt.date.addDays days, time := newTime }
+  addNanoseconds dt hours.toNanoseconds
 
 /--
 Subtracts an `Hour.Offset` from a `PlainDateTime`, adjusting the date if the hour underflows.
@@ -339,10 +348,7 @@ Adds a `Minute.Offset` to a `PlainDateTime`, adjusting the hour and date if the 
 -/
 @[inline]
 def addMinutes (dt : PlainDateTime) (minutes : Minute.Offset) : PlainDateTime :=
-  let totalSeconds := dt.time.toSeconds + minutes.toSeconds
-  let days := totalSeconds.ediv 86400
-  let newTime := dt.time.addSeconds (minutes.toSeconds)
-  { dt with date := dt.date.addDays days, time := newTime }
+  addNanoseconds dt minutes.toNanoseconds
 
 /--
 Subtracts a `Minute.Offset` from a `PlainDateTime`, adjusting the hour and date if the minutes underflow.
@@ -356,10 +362,7 @@ Adds a `Second.Offset` to a `PlainDateTime`, adjusting the minute, hour, and dat
 -/
 @[inline]
 def addSeconds (dt : PlainDateTime) (seconds : Second.Offset) : PlainDateTime :=
-  let totalSeconds := dt.time.toSeconds + seconds
-  let days := totalSeconds.ediv 86400
-  let newTime := dt.time.addSeconds seconds
-  { dt with date := dt.date.addDays days, time := newTime }
+  addNanoseconds dt seconds.toNanoseconds
 
 /--
 Subtracts a `Second.Offset` from a `PlainDateTime`, adjusting the minute, hour, and date if the seconds underflow.
@@ -373,10 +376,7 @@ Adds a `Millisecond.Offset` to a `PlainDateTime`, adjusting the second, minute, 
 -/
 @[inline]
 def addMilliseconds (dt : PlainDateTime) (milliseconds : Millisecond.Offset) : PlainDateTime :=
-  let totalMilliseconds := dt.time.toMilliseconds + milliseconds
-  let days := totalMilliseconds.ediv 86400000 -- 86400000 ms in a day
-  let newTime := dt.time.addMilliseconds milliseconds
-  { dt with date := dt.date.addDays days, time := newTime }
+  addNanoseconds dt milliseconds.toNanoseconds
 
 /--
 Subtracts a `Millisecond.Offset` from a `PlainDateTime`, adjusting the second, minute, hour, and date if the milliseconds underflow.
@@ -384,25 +384,6 @@ Subtracts a `Millisecond.Offset` from a `PlainDateTime`, adjusting the second, m
 @[inline]
 def subMilliseconds (dt : PlainDateTime) (milliseconds : Millisecond.Offset) : PlainDateTime :=
   addMilliseconds dt (-milliseconds)
-
-/--
-Adds a `Nanosecond.Offset` to a `PlainDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds overflow.
--/
-@[inline]
-def addNanoseconds (dt : PlainDateTime) (nanos : Nanosecond.Offset) : PlainDateTime :=
-  let nano := Nanosecond.Offset.ofInt dt.time.nanosecond.val
-  let totalNanos := nano + nanos
-  let extraSeconds := totalNanos.ediv 1000000000
-  let nanosecond := Bounded.LE.byEmod totalNanos.val 1000000000 (by decide)
-  let newTime := dt.time.addSeconds extraSeconds
-  { dt with time := { newTime with nanosecond } }
-
-/--
-Subtracts a `Nanosecond.Offset` from a `PlainDateTime`, adjusting the seconds, minutes, hours, and date if the nanoseconds underflow.
--/
-@[inline]
-def subNanoseconds (dt : PlainDateTime) (nanos : Nanosecond.Offset) : PlainDateTime :=
-  addNanoseconds dt (-nanos)
 
 /--
 Getter for the `Year` inside of a `PlainDateTime`.
@@ -457,8 +438,8 @@ def millisecond (dt : PlainDateTime) : Millisecond.Ordinal :=
 Getter for the `Second` inside of a `PlainDateTime`.
 -/
 @[inline]
-def second (dt : PlainDateTime) : Second.Ordinal dt.time.second.fst :=
-  dt.time.second.snd
+def second (dt : PlainDateTime) : Second.Ordinal true :=
+  dt.time.second
 
 /--
 Getter for the `Nanosecond.Ordinal` inside of a `PlainDateTime`.

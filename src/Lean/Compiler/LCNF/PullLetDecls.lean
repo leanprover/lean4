@@ -46,7 +46,7 @@ partial def withCheckpoint (x : PullM Code) : PullM Code := do
     else
       return c
   let (c, keep) := go toPullSizeSaved (← read).included |>.run #[]
-  modify fun s => { s with toPull := s.toPull.take toPullSizeSaved ++ keep }
+  modify fun s => { s with toPull := s.toPull.shrink toPullSizeSaved ++ keep }
   return c
 
 def attachToPull (c : Code) : PullM Code := do
@@ -96,8 +96,8 @@ open PullLetDecls
 def Decl.pullLetDecls (decl : Decl) (isCandidateFn : LetDecl → FVarIdSet → CompilerM Bool) : CompilerM Decl := do
   PullM.run (isCandidateFn := isCandidateFn) do
     withParams decl.params do
-      let value ← pullDecls decl.value
-      let value ← attachToPull value
+      let value ← decl.value.mapCodeM pullDecls
+      let value ← value.mapCodeM attachToPull
       return { decl with value }
 
 def Decl.pullInstances (decl : Decl) : CompilerM Decl :=

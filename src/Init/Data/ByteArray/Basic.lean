@@ -47,7 +47,7 @@ def uget : (a : @& ByteArray) → (i : USize) → (h : i.toNat < a.size := by ge
 
 @[extern "lean_byte_array_get"]
 def get! : (@& ByteArray) → (@& Nat) → UInt8
-  | ⟨bs⟩, i => bs.get! i
+  | ⟨bs⟩, i => bs[i]!
 
 @[extern "lean_byte_array_fget"]
 def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem_tactic) → UInt8
@@ -56,7 +56,7 @@ def get : (a : @& ByteArray) → (i : @& Nat) → (h : i < a.size := by get_elem
 instance : GetElem ByteArray Nat UInt8 fun xs i => i < xs.size where
   getElem xs i h := xs.get i
 
-instance : GetElem ByteArray USize UInt8 fun xs i => i.val < xs.size where
+instance : GetElem ByteArray USize UInt8 fun xs i => i.toFin < xs.size where
   getElem xs i h := xs.uget i h
 
 @[extern "lean_byte_array_set"]
@@ -108,8 +108,18 @@ def toList (bs : ByteArray) : List UInt8 :=
 
 @[inline] def findIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option Nat :=
   let rec @[specialize] loop (i : Nat) :=
-    if i < a.size then
-      if p (a.get! i) then some i else loop (i+1)
+    if h : i < a.size then
+      if p a[i] then some i else loop (i+1)
+    else
+      none
+    termination_by a.size - i
+    decreasing_by decreasing_trivial_pre_omega
+  loop start
+
+@[inline] def findFinIdx? (a : ByteArray) (p : UInt8 → Bool) (start := 0) : Option (Fin a.size) :=
+  let rec @[specialize] loop (i : Nat) :=
+    if h : i < a.size then
+      if p a[i] then some ⟨i, h⟩ else loop (i+1)
     else
       none
     termination_by a.size - i

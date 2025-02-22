@@ -73,6 +73,10 @@ instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
 /--
 Inserts the given element into the set. If the hash set already contains an element that is
 equal (with regard to `==`) to the given element, then the hash set is returned unchanged.
+
+Note: this non-replacement behavior is true for `HashSet` and `HashSet.Raw`.
+The `insert` function on `HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves
+differently: it will overwrite an existing mapping.
 -/
 @[inline] def insert (m : HashSet α) (a : α) : HashSet α :=
   ⟨m.inner.insertIfNew a ()⟩
@@ -158,18 +162,13 @@ for all `a`.
 @[inline] def toList (m : HashSet α) : List α :=
   m.inner.keys
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-/-- Removes all elements from the hash set for which the given function returns `false`. -/
-@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
-  ⟨m.inner.filter fun a _ => f a⟩
-
-/-- Partition a hashset into two hashsets based on a predicate. -/
-@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
-  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
-  ⟨⟨l⟩, ⟨r⟩⟩
+/--
+Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
+collection contains multiple elements that are equal (with regard to `==`), then the last element
+in the collection will be present in the returned hash set.
+-/
+@[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
+  ⟨HashMap.unitOfList l⟩
 
 /--
 Monadically computes a value by folding the given function over the elements in the hash set in some
@@ -200,6 +199,19 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForM m (HashSet α) α
 instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) α where
   forIn m init f := m.forIn f init
 
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/-- Removes all elements from the hash set for which the given function returns `false`. -/
+@[inline] def filter (f : α → Bool) (m : HashSet α) : HashSet α :=
+  ⟨m.inner.filter fun a _ => f a⟩
+
+/-- Partition a hashset into two hashsets based on a predicate. -/
+@[inline] def partition (f : α → Bool) (m : HashSet α) : HashSet α × HashSet α :=
+  let ⟨l, r⟩ := m.inner.partition fun a _ => f a
+  ⟨⟨l⟩, ⟨r⟩⟩
+
 /-- Check if all elements satisfy the predicate, short-circuiting if a predicate fails. -/
 @[inline] def all (m : HashSet α) (p : α → Bool) : Bool := Id.run do
   for a in m do
@@ -218,21 +230,16 @@ instance [BEq α] [Hashable α] {m : Type v → Type v} : ForIn m (HashSet α) �
   m.inner.keysArray
 
 /--
-Inserts multiple elements into the hash set. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
+Inserts multiple mappings into the hash set by iterating over the given collection and calling
+`insert`. If the same key appears multiple times, the first occurrence takes precedence.
+
+Note: this precedence behavior is true for `HashSet` and `HashSet.Raw`. The `insertMany` function on
+`HashMap`, `DHashMap`, `HashMap.Raw` and `DHashMap.Raw` behaves differently: it will prefer the last
+appearance.
 -/
 @[inline] def insertMany {ρ : Type v} [ForIn Id ρ α] (m : HashSet α) (l : ρ) :
     HashSet α :=
-  ⟨m.inner.insertManyUnit l⟩
-
-/--
-Creates a hash set from a list of elements. Note that unlike repeatedly calling `insert`, if the
-collection contains multiple elements that are equal (with regard to `==`), then the last element
-in the collection will be present in the returned hash set.
--/
-@[inline] def ofList [BEq α] [Hashable α] (l : List α) : HashSet α :=
-  ⟨HashMap.unitOfList l⟩
+  ⟨m.inner.insertManyIfNewUnit l⟩
 
 /--
 Creates a hash set from an array of elements. Note that unlike repeatedly calling `insert`, if the

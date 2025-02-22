@@ -30,7 +30,7 @@ Does nothing for non-`node` nodes, or if `i` is out of bounds of the node list.
 -/
 def setArg (stx : Syntax) (i : Nat) (arg : Syntax) : Syntax :=
   match stx with
-  | node info k args => node info k (args.setD i arg)
+  | node info k args => node info k (args.setIfInBounds i arg)
   | stx              => stx
 
 end Lean.Syntax

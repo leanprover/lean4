@@ -11,6 +11,9 @@ import Init.Data.List.Attach
 # Lemmas about `List.Pairwise` and `List.Nodup`.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 open Nat
@@ -169,7 +172,7 @@ theorem pairwise_flatten {L : List (List α)} :
     simp only [flatten, pairwise_append, IH, mem_flatten, exists_imp, and_imp, forall_mem_cons,
       pairwise_cons, and_assoc, and_congr_right_iff]
     rw [and_comm, and_congr_left_iff]
-    intros; exact ⟨fun h a b c d e => h c d e a b, fun h c d e a b => h a b c d e⟩
+    intros; exact ⟨fun h l' b c d e => h c d e l' b, fun h c d e l' b => h l' b c d e⟩
 
 @[deprecated pairwise_flatten (since := "2024-10-14")] abbrev pairwise_join := @pairwise_flatten
 
@@ -206,10 +209,10 @@ theorem pairwise_reverse {l : List α} :
         simp
       · exact ⟨fun _ => h, Or.inr h⟩
 
-theorem Pairwise.drop {l : List α} {n : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.drop n) :=
+theorem Pairwise.drop {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.drop i) :=
   h.sublist (drop_sublist _ _)
 
-theorem Pairwise.take {l : List α} {n : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take n) :=
+theorem Pairwise.take {l : List α} {i : Nat} (h : List.Pairwise R l) : List.Pairwise R (l.take i) :=
   h.sublist (take_sublist _ _)
 
 theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l → R a b) := by
@@ -231,9 +234,9 @@ theorem pairwise_iff_forall_sublist : l.Pairwise R ↔ (∀ {a b}, [a,b] <+ l �
         apply h; exact hab.cons _
 
 theorem Pairwise.rel_of_mem_take_of_mem_drop
-    {l : List α} (h : l.Pairwise R) (hx : x ∈ l.take n) (hy : y ∈ l.drop n) : R x y := by
+    {l : List α} (h : l.Pairwise R) (hx : x ∈ l.take i) (hy : y ∈ l.drop i) : R x y := by
   apply pairwise_iff_forall_sublist.mp h
-  rw [← take_append_drop n l, sublist_append_iff]
+  rw [← take_append_drop i l, sublist_append_iff]
   refine ⟨[x], [y], rfl, by simpa, by simpa⟩
 
 theorem Pairwise.rel_of_mem_append
@@ -298,11 +301,10 @@ theorem getElem?_inj {xs : List α}
     | i+1, 0 => ?_
     | 0, j+1 => ?_
     all_goals
-      simp only [get?_eq_getElem?, getElem?_cons_zero, getElem?_cons_succ] at h₂
+      simp only [getElem?_cons_zero, getElem?_cons_succ] at h₂
       cases h₁; rename_i h' h
       have := h x ?_ rfl; cases this
-      rw [mem_iff_get?]
-      simp only [get?_eq_getElem?]
+      rw [mem_iff_getElem?]
     exact ⟨_, h₂⟩; exact ⟨_ , h₂.symm⟩
 
 @[simp] theorem nodup_replicate {n : Nat} {a : α} :

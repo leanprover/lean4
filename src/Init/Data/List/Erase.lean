@@ -6,10 +6,14 @@ Authors: Parikshit Khanna, Jeremy Avigad, Leonardo de Moura, Floris van Doorn, M
 -/
 prelude
 import Init.Data.List.Pairwise
+import Init.Data.List.Find
 
 /-!
-# Lemmas about `List.eraseP` and `List.erase`.
+# Lemmas about `List.eraseP`, `List.erase`, and `List.eraseIdx`.
 -/
+
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -33,7 +37,7 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
   | nil => rfl
   | cons _ _ ih => simp [h _ (.head ..), ih (forall_mem_cons.1 h).2]
 
-@[simp] theorem eraseP_eq_nil {xs : List α} {p : α → Bool} : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by
+@[simp] theorem eraseP_eq_nil_iff {xs : List α} {p : α → Bool} : xs.eraseP p = [] ↔ xs = [] ∨ ∃ x, p x ∧ xs = [x] := by
   induction xs with
   | nil => simp
   | cons x xs ih =>
@@ -49,8 +53,14 @@ theorem eraseP_of_forall_not {l : List α} (h : ∀ a, a ∈ l → ¬p a) : l.er
       rintro x h' rfl
       simp_all
 
-theorem eraseP_ne_nil {xs : List α} {p : α → Bool} : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
+@[deprecated eraseP_eq_nil_iff (since := "2025-01-30")]
+abbrev eraseP_eq_nil := @eraseP_eq_nil_iff
+
+theorem eraseP_ne_nil_iff {xs : List α} {p : α → Bool} : xs.eraseP p ≠ [] ↔ xs ≠ [] ∧ ∀ x, p x → xs ≠ [x] := by
   simp
+
+@[deprecated eraseP_ne_nil_iff (since := "2025-01-30")]
+abbrev eraseP_ne_nil := @eraseP_ne_nil_iff
 
 theorem exists_of_eraseP : ∀ {l : List α} {a} (_ : a ∈ l) (_ : p a),
     ∃ a l₁ l₂, (∀ b ∈ l₁, ¬p b) ∧ p a ∧ l = l₁ ++ a :: l₂ ∧ l.eraseP p = l₁ ++ l₂
@@ -190,6 +200,14 @@ theorem eraseP_replicate (n : Nat) (a : α) (p : α → Bool) :
     simp only [replicate_succ, eraseP_cons]
     split <;> simp [*]
 
+@[simp] theorem eraseP_replicate_of_pos {n : Nat} {a : α} (h : p a) :
+    (replicate n a).eraseP p = replicate (n - 1) a := by
+  cases n <;> simp [replicate_succ, h]
+
+@[simp] theorem eraseP_replicate_of_neg {n : Nat} {a : α} (h : ¬p a) :
+    (replicate n a).eraseP p = replicate n a := by
+  rw [eraseP_of_forall_not (by simp_all)]
+
 protected theorem IsPrefix.eraseP (h : l₁ <+: l₂) : l₁.eraseP p <+: l₂.eraseP p := by
   rw [IsPrefix] at h
   obtain ⟨t, rfl⟩ := h
@@ -236,14 +254,6 @@ theorem eraseP_eq_iff {p} {l : List α} :
         subst p
         simp_all
 
-@[simp] theorem eraseP_replicate_of_pos {n : Nat} {a : α} (h : p a) :
-    (replicate n a).eraseP p = replicate (n - 1) a := by
-  cases n <;> simp [replicate_succ, h]
-
-@[simp] theorem eraseP_replicate_of_neg {n : Nat} {a : α} (h : ¬p a) :
-    (replicate n a).eraseP p = replicate n a := by
-  rw [eraseP_of_forall_not (by simp_all)]
-
 theorem Pairwise.eraseP (q) : Pairwise p l → Pairwise p (l.eraseP q) :=
   Pairwise.sublist <| eraseP_sublist _
 
@@ -270,7 +280,22 @@ theorem head_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).hea
 theorem getLast_eraseP_mem (xs : List α) (p : α → Bool) (h) : (xs.eraseP p).getLast h ∈ xs :=
   (eraseP_sublist xs).getLast_mem h
 
+theorem eraseP_eq_eraseIdx {xs : List α} {p : α → Bool} :
+    xs.eraseP p = match xs.findIdx? p with
+    | none => xs
+    | some i => xs.eraseIdx i := by
+  induction xs with
+  | nil => rfl
+  | cons x xs ih =>
+    rw [eraseP_cons, findIdx?_cons]
+    by_cases h : p x
+    · simp [h]
+    · simp only [h]
+      rw [ih]
+      split <;> simp [*]
+
 /-! ### erase -/
+
 section erase
 variable [BEq α]
 
@@ -298,15 +323,21 @@ theorem erase_eq_eraseP [LawfulBEq α] (a : α) : ∀ l : List α,  l.erase a = 
   | b :: l => by
     if h : a = b then simp [h] else simp [h, Ne.symm h, erase_eq_eraseP a l]
 
-@[simp] theorem erase_eq_nil [LawfulBEq α] {xs : List α} {a : α} :
+@[simp] theorem erase_eq_nil_iff [LawfulBEq α] {xs : List α} {a : α} :
     xs.erase a = [] ↔ xs = [] ∨ xs = [a] := by
   rw [erase_eq_eraseP]
   simp
 
-theorem erase_ne_nil [LawfulBEq α] {xs : List α} {a : α} :
+@[deprecated erase_eq_nil_iff (since := "2025-01-30")]
+abbrev erase_eq_nil := @erase_eq_nil_iff
+
+theorem erase_ne_nil_iff [LawfulBEq α] {xs : List α} {a : α} :
     xs.erase a ≠ [] ↔ xs ≠ [] ∧ xs ≠ [a] := by
   rw [erase_eq_eraseP]
   simp
+
+@[deprecated erase_ne_nil_iff (since := "2025-01-30")]
+abbrev erase_ne_nil := @erase_ne_nil_iff
 
 theorem exists_erase_eq [LawfulBEq α] {a : α} {l : List α} (h : a ∈ l) :
     ∃ l₁ l₂, a ∉ l₁ ∧ l = l₁ ++ a :: l₂ ∧ l.erase a = l₁ ++ l₂ := by
@@ -409,10 +440,10 @@ theorem erase_eq_iff [LawfulBEq α] {a : α} {l : List α} :
   rw [erase_eq_eraseP', eraseP_eq_iff]
   simp only [beq_iff_eq, forall_mem_ne', exists_and_left]
   constructor
-  · rintro (⟨h, rfl⟩ | ⟨a', l', h, rfl, x, rfl, rfl⟩)
+  · rintro (⟨h, rfl⟩ | ⟨a', l', h, rfl, xs, rfl, rfl⟩)
     · left; simp_all
-    · right; refine ⟨l', h, x, by simp⟩
-  · rintro (⟨h, rfl⟩ | ⟨l₁, h, x, rfl, rfl⟩)
+    · right; refine ⟨l', h, xs, by simp⟩
+  · rintro (⟨h, rfl⟩ | ⟨l₁, h, xs, rfl, rfl⟩)
     · left; simp_all
     · right; refine ⟨a, l₁, h, by simp⟩
 
@@ -456,6 +487,19 @@ theorem head_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).head h ∈ xs 
 theorem getLast_erase_mem (xs : List α) (a : α) (h) : (xs.erase a).getLast h ∈ xs :=
   (erase_sublist a xs).getLast_mem h
 
+theorem erase_eq_eraseIdx (l : List α) (a : α) :
+    l.erase a = match l.idxOf? a with
+    | none => l
+    | some i => l.eraseIdx i := by
+  induction l with
+  | nil => simp
+  | cons x xs ih =>
+    rw [erase_cons, idxOf?_cons]
+    split
+    · simp
+    · simp [ih]
+      split <;> simp [*]
+
 end erase
 
 /-! ### eraseIdx -/
@@ -487,17 +531,23 @@ theorem eraseIdx_eq_take_drop_succ :
 
 -- See `Init.Data.List.Nat.Erase` for `getElem?_eraseIdx` and `getElem_eraseIdx`.
 
-@[simp] theorem eraseIdx_eq_nil {l : List α} {i : Nat} : eraseIdx l i = [] ↔ l = [] ∨ (length l = 1 ∧ i = 0) := by
+@[simp] theorem eraseIdx_eq_nil_iff {l : List α} {i : Nat} : eraseIdx l i = [] ↔ l = [] ∨ (length l = 1 ∧ i = 0) := by
   match l, i with
   | [], _
   | a::l, 0
   | a::l, i + 1 => simp [Nat.succ_inj']
 
-theorem eraseIdx_ne_nil {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 ≤ l.length ∨ (l.length = 1 ∧ i ≠ 0) := by
+@[deprecated eraseIdx_eq_nil_iff (since := "2025-01-30")]
+abbrev eraseIdx_eq_nil := @eraseIdx_eq_nil_iff
+
+theorem eraseIdx_ne_nil_iff {l : List α} {i : Nat} : eraseIdx l i ≠ [] ↔ 2 ≤ l.length ∨ (l.length = 1 ∧ i ≠ 0) := by
   match l with
   | []
   | [a]
   | a::b::l => simp [Nat.succ_inj']
+
+@[deprecated eraseIdx_ne_nil_iff (since := "2025-01-30")]
+abbrev eraseIdx_ne_nil := @eraseIdx_ne_nil_iff
 
 theorem eraseIdx_sublist : ∀ (l : List α) (k : Nat), eraseIdx l k <+ l
   | [], _ => by simp
@@ -571,5 +621,24 @@ protected theorem IsPrefix.eraseIdx {l l' : List α} (h : l <+: l') (k : Nat) :
 
 -- See also `mem_eraseIdx_iff_getElem` and `mem_eraseIdx_iff_getElem?` in
 -- `Init/Data/List/Nat/Basic.lean`.
+
+theorem erase_eq_eraseIdx_of_idxOf [BEq α] [LawfulBEq α]
+    (l : List α) (a : α) (i : Nat) (w : l.idxOf a = i) :
+    l.erase a = l.eraseIdx i := by
+  subst w
+  rw [erase_eq_iff]
+  by_cases h : a ∈ l
+  · right
+    obtain ⟨as, bs, rfl, h'⟩ := eq_append_cons_of_mem h
+    refine ⟨as, bs, h', by simp, ?_⟩
+    rw [idxOf_append, if_neg h', idxOf_cons_self, eraseIdx_append_of_length_le] <;>
+      simp
+  · left
+    refine ⟨h, ?_⟩
+    rw [eq_comm, eraseIdx_eq_self]
+    exact Nat.le_of_eq (idxOf_eq_length h).symm
+
+@[deprecated erase_eq_eraseIdx_of_idxOf (since := "2025-01-29")]
+abbrev erase_eq_eraseIdx_of_indexOf := @erase_eq_eraseIdx_of_idxOf
 
 end List

@@ -159,7 +159,7 @@ private def processVar (idStx : Syntax) : M Syntax := do
 private def samePatternsVariables (startingAt : Nat) (s₁ s₂ : State) : Bool := Id.run do
   if h₁ : s₁.vars.size = s₂.vars.size then
     for h₂ : i in [startingAt:s₁.vars.size] do
-      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all) then return false
+      if s₁.vars[i] != s₂.vars[i]'(by obtain ⟨_, y⟩ := h₂; simp_all +zetaDelta) then return false
     true
   else
     false
@@ -265,7 +265,7 @@ partial def collect (stx : Syntax) : M Syntax := withRef stx <| withFreshMacroSc
       | `(Parser.Term.structInstField| $lval:structInstLVal := $val) => do
         let newVal ← collect val
         `(Parser.Term.structInstField| $lval:structInstLVal := $newVal)
-      | _ => throwInvalidPattern  -- `structInstFieldAbbrev` should be expanded at this point
+      | _ => throwInvalidPattern  -- `structInstField` should be expanded at this point
     `({ $[$srcs?,* with]? $fields,* $[..%$ell?]? $[: $ty?]? })
   | _ => throwInvalidPattern
 

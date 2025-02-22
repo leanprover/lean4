@@ -32,6 +32,7 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
+    asyncMode     := .sync
   }
 
 def cacheSpec (key : Expr) (declName : Name) : CoreM Unit :=
@@ -208,7 +209,7 @@ Specialize `decl` using
 - `levelParamsNew`: the universe level parameters for the new declaration.
 -/
 def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (params : Array Param) (decls : Array CodeDecl) (levelParamsNew : List Name) : SpecializeM Decl := do
-  let nameNew := decl.name ++ `_at_ ++ (← read).declName.eraseMacroScopes ++ (`spec).appendIndexAfter (← get).decls.size
+  let nameNew := decl.name.appendCore `_at_ |>.appendCore (← read).declName |>.appendCore `spec |>.appendIndexAfter (← get).decls.size
   /-
   Recall that we have just retrieved `decl` using `getDecl?`, and it may have free variable identifiers that overlap with the free-variables
   in `params` and `decls` (i.e., the "closure").
@@ -222,6 +223,7 @@ def mkSpecDecl (decl : Decl) (us : List Level) (argMask : Array (Option Arg)) (p
     eraseDecl decl
 where
   go (decl : Decl) (nameNew : Name) : InternalizeM Decl := do
+    let .code code := decl.value | panic! "can only specialize decls with code"
     let mut params ← params.mapM internalizeParam
     let decls ← decls.mapM internalizeCodeDecl
     for param in decl.params, arg in argMask do
@@ -235,11 +237,12 @@ where
     for param in decl.params[argMask.size:] do
       let param := { param with type := param.type.instantiateLevelParamsNoCache decl.levelParams us }
       params := params.push (← internalizeParam param)
-    let value := decl.instantiateValueLevelParams us
-    let value ← internalizeCode value
-    let value := attachCodeDecls decls value
-    let type ← value.inferType
+    let code := code.instantiateValueLevelParams decl.levelParams us
+    let code ← internalizeCode code
+    let code := attachCodeDecls decls code
+    let type ← code.inferType
     let type ← mkForallParams params type
+    let value := .code code
     let safe := decl.safe
     let recursive := decl.recursive
     let decl := { name := nameNew, levelParams := levelParamsNew, params, type, value, safe, recursive, inlineAttr? := none : Decl }
@@ -268,6 +271,7 @@ mutual
     let some paramsInfo ← getSpecParamInfo? declName | return none
     unless (← shouldSpecialize paramsInfo args) do return none
     let some decl ← getDecl? declName | return none
+    let .code _ := decl.value | return none
     trace[Compiler.specialize.candidate] "{e.toExpr}, {paramsInfo}"
     let (argMask, params, decls) ← Collector.collect paramsInfo args
     let keyBody := .const declName us (argMask.filterMap id)
@@ -290,7 +294,7 @@ mutual
       let specDecl ← specDecl.simp {}
       let specDecl ← specDecl.simp { etaPoly := true, inlinePartial := true, implementedBy := true }
       let value ← withReader (fun _ => { declName := specDecl.name }) do
-         withParams specDecl.params <| visitCode specDecl.value
+         withParams specDecl.params <| specDecl.value.mapCodeM visitCode
       let specDecl := { specDecl with value }
       modify fun s => { s with decls := s.decls.push specDecl }
       return some (.const specDecl.name usNew argsNew)
@@ -325,7 +329,7 @@ def main (decl : Decl) : SpecializeM Decl := do
   if (← decl.isTemplateLike) then
     return decl
   else
-    let value ← withParams decl.params <| visitCode decl.value
+    let value ← withParams decl.params <| decl.value.mapCodeM visitCode
     return { decl with value }
 
 end Specialize

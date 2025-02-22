@@ -6,7 +6,6 @@ Authors: Marc Huisinga, Wojciech Nawrocki
 -/
 prelude
 import Lean.Data.Json
-import Lean.Data.JsonRpc
 
 /-! Defines most of the 'Basic Structures' in the LSP specification
 (https://microsoft.github.io/language-server-protocol/specifications/specification-current/),
@@ -19,10 +18,6 @@ namespace Lsp
 
 open Json
 
-structure CancelParams where
-  id : JsonRpc.RequestID
-  deriving Inhabited, BEq, ToJson, FromJson
-
 abbrev DocumentUri := String
 
 /-- We adopt the convention that zero-based UTF-16 positions as sent by LSP clients
@@ -32,7 +27,7 @@ offsets. For diagnostics, one-based `Lean.Position`s are used internally.
 structure Position where
   line : Nat
   character : Nat
-  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson
+  deriving Inhabited, BEq, Ord, Hashable, ToJson, FromJson, Repr
 
 instance : ToString Position := ⟨fun p =>
   "(" ++ toString p.line ++ ", " ++ toString p.character ++ ")"⟩
@@ -43,7 +38,7 @@ instance : LE Position := leOfOrd
 structure Range where
   start : Position
   «end» : Position
-  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord
+  deriving Inhabited, BEq, Hashable, ToJson, FromJson, Ord, Repr
 
 instance : LT Range := ltOfOrd
 instance : LE Range := leOfOrd
@@ -430,6 +425,10 @@ structure PartialResultParams where
 structure WorkDoneProgressOptions where
   workDoneProgress := false
   deriving ToJson, FromJson
+
+structure ResolveSupport where
+  properties : Array String
+  deriving FromJson, ToJson
 
 end Lsp
 end Lean

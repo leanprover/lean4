@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Init.Data.Nat.Fold
 import Init.Data.Array.Basic
 import Init.NotationExtra
 import Init.Data.ToString.Macro
@@ -65,7 +66,7 @@ partial def getAux [Inhabited α] : PersistentArrayNode α → USize → USize �
 
 def get! [Inhabited α] (t : PersistentArray α) (i : Nat) : α :=
   if i >= t.tailOff then
-    t.tail.get! (i - t.tailOff)
+    t.tail[i - t.tailOff]!
   else
     getAux t.root (USize.ofNat i) t.shift
 
@@ -174,8 +175,8 @@ def pop (t : PersistentArray α) : PersistentArray α :=
       let last       := last.pop
       let newSize    := t.size - 1
       let newTailOff := newSize - last.size
-      if newRoots.size == 1 && (newRoots.get! 0).isNode then
-        { root    := newRoots.get! 0,
+      if h : ∃ _ : newRoots.size = 1, newRoots[0].isNode then
+        { root    := newRoots[0]'(have := h.1; by omega),
           shift   := t.shift - initShift,
           size    := newSize,
           tail    := last,
@@ -198,7 +199,7 @@ variable {β : Type v}
 @[specialize] private partial def foldlFromMAux (f : β → α → m β) : PersistentArrayNode α → USize → USize → β → m β
   | node cs, i, shift, b => do
     let j    := (div2Shift i shift).toNat
-    let b ← foldlFromMAux f (cs.get! j) (mod2Shift i shift) (shift - initShift) b
+    let b ← foldlFromMAux f cs[j]! (mod2Shift i shift) (shift - initShift) b
     cs.foldlM (init := b) (start := j+1) fun b c => foldlMAux f c b
   | leaf vs, i, _, b => vs.foldlM (init := b) (start := i.toNat) f
 
@@ -371,7 +372,7 @@ instance : ToString Stats := ⟨Stats.toString⟩
 end PersistentArray
 
 def mkPersistentArray {α : Type u} (n : Nat) (v : α) : PArray α :=
-  n.fold (init := PersistentArray.empty) fun _ p => p.push v
+  n.fold (init := PersistentArray.empty) fun _ _ p => p.push v
 
 @[inline] def mkPArray {α : Type u} (n : Nat) (v : α) : PArray α :=
   mkPersistentArray n v

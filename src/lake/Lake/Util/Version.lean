@@ -3,6 +3,7 @@ Copyright (c) 2024 Mac Malone. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mac Malone
 -/
+prelude
 import Lean.Elab.Eval
 import Lake.Util.Date
 
@@ -100,7 +101,7 @@ def StdVer.parse (ver : String) : Except String StdVer := do
     let core ← SemVerCore.parse <| ver.extract 0 sepPos
     let specialDescr := ver.extract (ver.next' sepPos h) ver.endPos
     if specialDescr.isEmpty then
-      throw "invalid Lean version: '-' suffix cannot be empty"
+      throw "invalid version: '-' suffix cannot be empty"
     return {toSemVerCore := core, specialDescr}
 
 protected def StdVer.toString (ver : StdVer) : String :=

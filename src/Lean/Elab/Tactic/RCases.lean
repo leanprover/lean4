@@ -507,7 +507,7 @@ partial def rintroCore (g : MVarId) (fs : FVarSubst) (clears : Array FVarId) (a 
   match pat with
   | `(rintroPat| $pat:rcasesPat) =>
     let pat := (← RCasesPatt.parse pat).typed? ref ty?
-    let (v, g) ← g.intro (pat.name?.getD `_)
+    let (v, g) ← withRef pat.ref <| g.intro (pat.name?.getD `_)
     rcasesCore g fs clears (.fvar v) a pat cont
   | `(rintroPat| ($(pats)* $[: $ty?']?)) =>
     let ref := if pats.size == 1 then pat.raw else .missing
@@ -545,8 +545,9 @@ def rintro (pats : TSyntaxArray `rintroPat) (ty? : Option Term)
     let pat ← match pat? with
       | some pat => RCasesPatt.parse pat
       | none     => pure $ RCasesPatt.tuple tk []
-    let tgts := tgts.getElems.map fun tgt =>
-      (if tgt.raw[0].isNone then none else some ⟨tgt.raw[0][0]⟩, tgt.raw[1])
+    let tgts ← tgts.getElems.mapM fun tgt => do
+      let view ← mkTargetView tgt
+      pure (view.hIdent?, view.term)
     let g ← getMainGoal
     g.withContext do replaceMainGoal (← RCases.rcases tgts pat g)
   | _ => throwUnsupportedSyntax

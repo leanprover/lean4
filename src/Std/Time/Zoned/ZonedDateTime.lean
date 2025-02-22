@@ -10,7 +10,8 @@ import Std.Time.Zoned.ZoneRules
 namespace Std
 namespace Time
 
-set_option linter.all true
+-- TODO (@kim-em): re-enable this once there is a mechanism to exclude `linter.indexVariables`.
+-- set_option linter.all true
 
 /--
 Represents a date and time with timezone information.
@@ -61,16 +62,16 @@ def ofPlainDateTime (pdt : PlainDateTime) (zr : TimeZone.ZoneRules) : ZonedDateT
 
   let transition :=
     let value := tm.toSecondsSinceUnixEpoch
-    if let some idx := zr.transitions.findIdx? (fun t => t.time.val ≥ value.val)
-      then do
-        let last ← zr.transitions.get? (idx - 1)
-        let next ← zr.transitions.get? idx <|> zr.transitions.back?
+    if let some idx := zr.transitions.findFinIdx? (fun t => t.time.val ≥ value.val)
+      then
+        let last := zr.transitions[idx.1 - 1]
+        let next := zr.transitions[idx]
 
         let utcNext := next.time.sub last.localTimeType.gmtOffset.second.abs
 
         if utcNext.val > tm.toSecondsSinceUnixEpoch.val
-          then pure last
-          else pure next
+          then some last
+          else some next
 
       else zr.transitions.back?
 
@@ -179,8 +180,8 @@ def minute (zdt : ZonedDateTime) : Minute.Ordinal :=
 Getter for the `Second` inside of a `ZonedDateTime`
 -/
 @[inline]
-def second (zdt : ZonedDateTime) : Second.Ordinal zdt.date.get.time.second.fst :=
-  zdt.date.get.time.second.snd
+def second (zdt : ZonedDateTime) : Second.Ordinal true :=
+  zdt.date.get.time.second
 
 /--
 Getter for the `Millisecond` inside of a `ZonedDateTime`.
@@ -491,7 +492,7 @@ def withMinutes (dt : ZonedDateTime) (minute : Minute.Ordinal) : ZonedDateTime :
 Creates a new `ZonedDateTime` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : ZonedDateTime) (second : Sigma Second.Ordinal) : ZonedDateTime :=
+def withSeconds (dt : ZonedDateTime) (second : Second.Ordinal true) : ZonedDateTime :=
   let date := dt.date.get
   ZonedDateTime.ofPlainDateTime (date.withSeconds second) dt.rules
 

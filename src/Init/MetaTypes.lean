@@ -109,6 +109,11 @@ structure Config where
   to find candidate `simp` theorems. It approximates Lean 3 `simp` behavior.
   -/
   index             : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 end DSimp
@@ -224,9 +229,15 @@ structure Config where
   -/
   index             : Bool := true
   /--
-  This option does not have any effect (yet).
+  If `implicitDefEqProofs := true`, `simp` does not create proof terms when the
+  input and output terms are definitionally equal.
   -/
   implicitDefEqProofs : Bool := true
+  /--
+  When `true` (default : `true`), then simps will remove unused let-declarations:
+  `let x := v; e` simplifies to `e` when `x` does not occur in `e`.
+  -/
+  zetaUnused : Bool := true
   deriving Inhabited, BEq
 
 -- Configuration object for `simp_all`
@@ -247,14 +258,28 @@ def neutralConfig : Simp.Config := {
   autoUnfold        := false
   ground            := false
   zetaDelta         := false
+  zetaUnused        := false
 }
+
+structure NormCastConfig extends Simp.Config where
+    zeta := false
+    beta := false
+    eta  := false
+    proj := false
+    iota := false
 
 end Simp
 
+/-- Configuration for which occurrences that match an expression should be rewritten. -/
 inductive Occurrences where
+  /-- All occurrences should be rewritten. -/
   | all
+  /-- A list of indices for which occurrences should be rewritten. -/
   | pos (idxs : List Nat)
+  /-- A list of indices for which occurrences should not be rewritten. -/
   | neg (idxs : List Nat)
   deriving Inhabited, BEq
+
+instance : Coe (List Nat) Occurrences := ⟨.pos⟩
 
 end Lean.Meta

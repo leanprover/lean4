@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/profiling.h"
 #include "library/time_task.h"
 #include "library/formatter.h"
+#include "library/dynlib.h"
 
 namespace lean {
 void initialize_library_core_module() {
@@ -35,6 +36,7 @@ void initialize_library_module() {
     initialize_class();
     initialize_library_util();
     initialize_time_task();
+    initialize_dynlib();
 }
 
 void finalize_library_module() {

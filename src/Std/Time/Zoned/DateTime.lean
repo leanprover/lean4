@@ -6,7 +6,6 @@ Authors: Sofia Rodrigues
 prelude
 import Std.Time.DateTime
 import Std.Time.Zoned.TimeZone
-import Std.Internal
 
 namespace Std
 namespace Time
@@ -306,7 +305,7 @@ def withMinutes (dt : DateTime tz) (minute : Minute.Ordinal) : DateTime tz :=
 Creates a new `DateTime tz` by adjusting the `second` component.
 -/
 @[inline]
-def withSeconds (dt : DateTime tz) (second : Sigma Second.Ordinal) : DateTime tz :=
+def withSeconds (dt : DateTime tz) (second : Second.Ordinal true) : DateTime tz :=
   ofPlainDateTime (dt.date.get.withSeconds second) tz
 
 /--
@@ -369,7 +368,7 @@ def minute (dt : DateTime tz) : Minute.Ordinal :=
 Getter for the `Second` inside of a `DateTime`
 -/
 @[inline]
-def second (dt : DateTime tz) : Second.Ordinal dt.date.get.time.second.fst :=
+def second (dt : DateTime tz) : Second.Ordinal true :=
   dt.date.get.second
 
 /--

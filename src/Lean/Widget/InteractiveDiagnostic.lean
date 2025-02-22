@@ -109,15 +109,6 @@ private inductive EmbedFmt
 
 private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 
-/--
-Number of trace node children to display by default in the info view in order to prevent slowdowns
-from rendering.
--/
-register_option infoview.maxTraceChildren : Nat := {
-  defValue := 50
-  descr := "Number of trace node children to display by default"
-}
-
 open MessageData in
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
@@ -168,8 +159,8 @@ where
             match ctx with
             | some ctx => MessageData.withContext ctx child
             | none     => child
-        let blockSize := ctx.bind (infoview.maxTraceChildren.get? ·.opts)
-          |>.getD infoview.maxTraceChildren.defValue
+        let blockSize := ctx.bind (maxTraceChildren.get? ·.opts)
+          |>.getD maxTraceChildren.defValue
         let children := chopUpChildren data.cls blockSize children.toSubarray
         pure (.lazy children)
       else
@@ -185,7 +176,7 @@ where
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
   chopUpChildren (cls : Name) (blockSize : Nat) (children : Subarray MessageData) :
       Array MessageData :=
-    if children.size > blockSize + 1 then  -- + 1 to make idempotent
+    if blockSize > 0 && children.size > blockSize + 1 then  -- + 1 to make idempotent
       let more := chopUpChildren cls blockSize children[blockSize:]
       children[:blockSize].toArray.push <|
         .trace { collapsed := true, cls }
@@ -207,7 +198,9 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
         | .widget wi alt =>
           return .tag (.widget wi (← fmtToTT alt col)) default
         | .trace cls msg collapsed children => do
-          let col := col + tt.stripTags.length - 2
+          -- absolute column = request-level indentation (e.g. from nested lazy trace request) +
+          -- offset inside `fmt`
+          let col := indent + col
           let children ←
             match children with
               | .lazy children => pure <| .lazy ⟨{indent := col+2, children := children.map .mk}⟩

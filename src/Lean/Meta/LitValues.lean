@@ -62,19 +62,19 @@ def getStringValue? (e : Expr) : (Option String) :=
   | .lit (.strVal s) => some s
   | _ => none
 
-/-- Return `some ⟨n, v⟩` if `e` is af `OfNat.ofNat` application encoding a `Fin n` with value `v` -/
+/-- Return `some ⟨n, v⟩` if `e` is an `OfNat.ofNat` application encoding a `Fin n` with value `v` -/
 def getFinValue? (e : Expr) : MetaM (Option ((n : Nat) × Fin n)) := OptionT.run do
   let (v, type) ← getOfNatValue? e ``Fin
   let n ← getNatValue? (← whnfD type.appArg!)
   match n with
   | 0 => failure
-  | m+1 => return ⟨m+1, Fin.ofNat v⟩
+  | m+1 => return ⟨m+1, Fin.ofNat' _ v⟩
 
 /--
 Return `some ⟨n, v⟩` if `e` is:
 - an `OfNat.ofNat` application
 - a `BitVec.ofNat` application
-- a `BitVec.ofNatLt` application
+- a `BitVec.ofNatLT` application
 that encode a `BitVec n` with value `v`.
 -/
 def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := OptionT.run do
@@ -83,7 +83,7 @@ def getBitVecValue? (e : Expr) : MetaM (Option ((n : Nat) × BitVec n)) := Optio
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩
-  | BitVec.ofNatLt nExpr vExpr _ =>
+  | BitVec.ofNatLT nExpr vExpr _ =>
     let n ← getNatValue? nExpr
     let v ← getNatValue? vExpr
     return ⟨n, BitVec.ofNat n v⟩

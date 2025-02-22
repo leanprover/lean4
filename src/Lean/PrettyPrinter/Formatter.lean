@@ -146,7 +146,7 @@ def fold (fn : Array Format → Format) (x : FormatterM Unit) : FormatterM Unit 
   x
   let stack ← getStack
   let f := fn $ stack.extract sp stack.size
-  setStack $ (stack.take sp).push f
+  setStack $ (stack.shrink sp).push f
 
 /-- Execute `x` and concatenate generated Format objects. -/
 def concat (x : FormatterM Unit) : FormatterM Unit := do
@@ -441,9 +441,9 @@ def identNoAntiquot.formatter : Formatter := do
 
 @[combinator_formatter rawIdentNoAntiquot] def rawIdentNoAntiquot.formatter : Formatter := do
   checkKind identKind
-  let Syntax.ident info _ id _ ← getCur
+  let stx@(Syntax.ident info _ id _) ← getCur
     | throwError m!"not an ident: {← getCur}"
-  pushToken info id.toString true
+  withMaybeTag (getExprPos? stx) (pushToken info id.toString true)
   goLeft
 
 @[combinator_formatter identEq] def identEq.formatter (_id : Name) := rawIdentNoAntiquot.formatter
@@ -467,7 +467,7 @@ def visitAtom (k : SyntaxNodeKind) : Formatter := do
 @[combinator_formatter manyNoAntiquot]
 def manyNoAntiquot.formatter (p : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs $ stx.getArgs.size.forM fun _ => p
+  visitArgs $ stx.getArgs.size.forM fun _ _ => p
 
 @[combinator_formatter many1NoAntiquot] def many1NoAntiquot.formatter (p : Formatter) : Formatter := manyNoAntiquot.formatter p
 
@@ -487,7 +487,7 @@ def many1Unbox.formatter (p : Formatter) : Formatter := do
 @[combinator_formatter sepByNoAntiquot]
 def sepByNoAntiquot.formatter (p pSep : Formatter) : Formatter := do
   let stx ← getCur
-  visitArgs <| stx.getArgs.size.forRevM fun i => if i % 2 == 0 then p else pSep
+  visitArgs <| stx.getArgs.size.forRevM fun i _ => if i % 2 == 0 then p else pSep
 
 @[combinator_formatter sepBy1NoAntiquot] def sepBy1NoAntiquot.formatter := sepByNoAntiquot.formatter
 

@@ -31,7 +31,7 @@ open Meta SubExpr
 register_builtin_option pp.analyze : Bool := {
   defValue := false
   group    := "pp.analyze"
-  descr    := "(pretty printer analyzer) determine annotations sufficient to ensure round-tripping"
+  descr    := "(pretty printer analyzer) try to determine annotations sufficient to ensure round-tripping"
 }
 
 register_builtin_option pp.analyze.checkInstances : Bool := {
@@ -398,7 +398,7 @@ mutual
       let fType ← replaceLPsWithVars (← inferType f)
       let (mvars, bInfos, resultType) ← forallMetaBoundedTelescope fType args.size
       let rest := args.extract mvars.size args.size
-      let args := args.take mvars.size
+      let args := args.shrink mvars.size
 
       -- Unify with the expected type
       if (← read).knowsType then tryUnify (← inferType (mkAppN f args)) resultType

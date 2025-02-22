@@ -150,6 +150,9 @@ It can also be written as `()`.
 /-- Marker for information that has been erased by the code generator. -/
 unsafe axiom lcErased : Type
 
+/-- Marker for type dependency that has been erased by the code generator. -/
+unsafe axiom lcAny : Type
+
 /--
 Auxiliary unsafe constant used by the Compiler when erasing proofs from code.
 
@@ -645,23 +648,22 @@ set_option linter.unusedVariables.funArgs false in
 @[reducible] def namedPattern {α : Sort u} (x a : α) (h : Eq x a) : α := a
 
 /--
-Auxiliary axiom used to implement `sorry`.
+Auxiliary axiom used to implement the `sorry` term and tactic.
 
-The `sorry` term/tactic expands to `sorryAx _ (synthetic := false)`. This is a
-proof of anything, which is intended for stubbing out incomplete parts of a
-proof while still having a syntactically correct proof skeleton. Lean will give
-a warning whenever a proof uses `sorry`, so you aren't likely to miss it, but
-you can double check if a theorem depends on `sorry` by using
-`#print axioms my_thm` and looking for `sorryAx` in the axiom list.
+The `sorry` term/tactic expands to `sorryAx _ (synthetic := false)`.
+It is intended for stubbing-out incomplete parts of a value or proof while still having a syntactically correct skeleton.
+Lean will give a warning whenever a declaration uses `sorry`, so you aren't likely to miss it,
+but you can check if a declaration depends on `sorry` either directly or indirectly by looking for `sorryAx` in the output
+of the `#print axioms my_thm` command.
 
-The `synthetic` flag is false when written explicitly by the user, but it is
+The `synthetic` flag is false when a `sorry` is written explicitly by the user, but it is
 set to `true` when a tactic fails to prove a goal, or if there is a type error
 in the expression. A synthetic `sorry` acts like a regular one, except that it
-suppresses follow-up errors in order to prevent one error from causing a cascade
+suppresses follow-up errors in order to prevent an error from causing a cascade
 of other errors because the desired term was not constructed.
 -/
 @[extern "lean_sorry", never_extract]
-axiom sorryAx (α : Sort u) (synthetic := false) : α
+axiom sorryAx (α : Sort u) (synthetic : Bool) : α
 
 theorem eq_false_of_ne_true : {b : Bool} → Not (Eq b true) → Eq b false
   | true, h => False.elim (h rfl)
@@ -860,8 +862,8 @@ abbrev DecidablePred {α : Sort u} (r : α → Prop) :=
   (a : α) → Decidable (r a)
 
 /-- A decidable relation. See `Decidable`. -/
-abbrev DecidableRel {α : Sort u} (r : α → α → Prop) :=
-  (a b : α) → Decidable (r a b)
+abbrev DecidableRel {α : Sort u} {β : Sort v} (r : α → β → Prop) :=
+  (a : α) → (b : β) → Decidable (r a b)
 
 /--
 Asserts that `α` has decidable equality, that is, `a = b` is decidable
@@ -1010,6 +1012,19 @@ be eagerly evaluated (see `ite`).
   | true  => x
   | false => y
 
+
+/--
+`Bool.dcond b (fun h => x) (fun h => y)` is the same as `if h _ : b then x else y`,
+but optimized for a boolean condition. It can also be written as `bif b then x else y`.
+This is `@[macro_inline]` because `x` and `y` should not be eagerly evaluated (see `dite`).
+This definition intendend for metaprogramming use, and does not come with a suitable API.
+-/
+@[macro_inline]
+protected def Bool.dcond {α : Sort u} (c : Bool) (x : Eq c true → α) (y : Eq c false → α) : α :=
+  match c with
+  | true  => x rfl
+  | false => y rfl
+
 /--
 `or x y`, or `x || y`, is the boolean "or" operation (not to be confused
 with `Or : Prop → Prop → Prop`, which is the propositional connective).
@@ -1127,6 +1142,11 @@ class LT (α : Type u) where
 /-- `a > b` is an abbreviation for `b < a`. -/
 @[reducible] def GT.gt {α : Type u} [LT α] (a b : α) : Prop := LT.lt b a
 
+/-- Abbreviation for `DecidableRel (· < · : α → α → Prop)`. -/
+abbrev DecidableLT (α : Type u) [LT α] := DecidableRel (LT.lt : α → α → Prop)
+/-- Abbreviation for `DecidableRel (· ≤ · : α → α → Prop)`. -/
+abbrev DecidableLE (α : Type u) [LE α] := DecidableRel (LE.le : α → α → Prop)
+
 /-- `Max α` is the typeclass which supports the operation `max x y` where `x y : α`.-/
 class Max (α : Type u) where
   /-- The maximum operation: `max x y`. -/
@@ -1215,7 +1235,7 @@ class HDiv (α : Type u) (β : Type v) (γ : outParam (Type w)) where
     It is implemented as `Int.ediv`, the unique function satisfying
     `a % b + b * (a / b) = a` and `0 ≤ a % b < natAbs b` for `b ≠ 0`.
     Other rounding conventions are available using the functions
-    `Int.fdiv` (floor rounding) and `Int.div` (truncation rounding).
+    `Int.fdiv` (floor rounding) and `Int.tdiv` (truncation rounding).
   * For `Float`, `a / 0` follows the IEEE 754 semantics for division,
     usually resulting in `inf` or `nan`. -/
   hDiv : α → β → γ
@@ -1544,7 +1564,7 @@ instance instAddNat : Add Nat where
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg
+attribute [match_pattern] Nat.add Add.add HAdd.hAdd Neg.neg Mul.mul HMul.hMul
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1897,7 +1917,7 @@ instance : DecidableEq (BitVec n) := BitVec.decEq
 
 /-- The `BitVec` with value `i`, given a proof that `i < 2^n`. -/
 @[match_pattern]
-protected def BitVec.ofNatLt {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
+protected def BitVec.ofNatLT {n : Nat} (i : Nat) (p : LT.lt i (hPow 2 n)) : BitVec n where
   toFin := ⟨i, p⟩
 
 /-- Given a bitvector `x`, return the underlying `Nat`. This is O(1) because `BitVec` is a
@@ -1920,11 +1940,16 @@ The type of unsigned 8-bit integers. This type has special support in the
 compiler to make it actually 8 bits rather than wrapping a `Nat`.
 -/
 structure UInt8 where
-  /-- Unpack a `UInt8` as a `BitVec 8`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt8` from a `BitVec 8`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt8` as a `BitVec 8`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 8
 
-attribute [extern "lean_uint8_of_nat_mk"] UInt8.mk
+attribute [extern "lean_uint8_of_nat_mk"] UInt8.ofBitVec
 attribute [extern "lean_uint8_to_nat"] UInt8.toBitVec
 
 /--
@@ -1932,8 +1957,8 @@ Pack a `Nat` less than `2^8` into a `UInt8`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint8_of_nat"]
-def UInt8.ofNatCore (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
-  toBitVec := BitVec.ofNatLt n h
+def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1951,7 +1976,7 @@ def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
 instance : DecidableEq UInt8 := UInt8.decEq
 
 instance : Inhabited UInt8 where
-  default := UInt8.ofNatCore 0 (of_decide_eq_true rfl)
+  default := UInt8.ofNatLT 0 (of_decide_eq_true rfl)
 
 /-- The size of type `UInt16`, that is, `2^16 = 65536`. -/
 abbrev UInt16.size : Nat := 65536
@@ -1961,11 +1986,16 @@ The type of unsigned 16-bit integers. This type has special support in the
 compiler to make it actually 16 bits rather than wrapping a `Nat`.
 -/
 structure UInt16 where
-  /-- Unpack a `UInt16` as a `BitVec 16`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt16` from a `BitVec 16`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt16` as a `BitVec 16`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 16
 
-attribute [extern "lean_uint16_of_nat_mk"] UInt16.mk
+attribute [extern "lean_uint16_of_nat_mk"] UInt16.ofBitVec
 attribute [extern "lean_uint16_to_nat"] UInt16.toBitVec
 
 /--
@@ -1973,8 +2003,8 @@ Pack a `Nat` less than `2^16` into a `UInt16`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint16_of_nat"]
-def UInt16.ofNatCore (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
-  toBitVec := BitVec.ofNatLt n h
+def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -1992,7 +2022,7 @@ def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
 instance : DecidableEq UInt16 := UInt16.decEq
 
 instance : Inhabited UInt16 where
-  default := UInt16.ofNatCore 0 (of_decide_eq_true rfl)
+  default := UInt16.ofNatLT 0 (of_decide_eq_true rfl)
 
 /-- The size of type `UInt32`, that is, `2^32 = 4294967296`. -/
 abbrev UInt32.size : Nat := 4294967296
@@ -2002,11 +2032,16 @@ The type of unsigned 32-bit integers. This type has special support in the
 compiler to make it actually 32 bits rather than wrapping a `Nat`.
 -/
 structure UInt32 where
-  /-- Unpack a `UInt32` as a `BitVec 32.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt32` from a `BitVec 32`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt32` as a `BitVec 32`. This function is overridden with a native implementation.
+  -/
   toBitVec : BitVec 32
 
-attribute [extern "lean_uint32_of_nat_mk"] UInt32.mk
+attribute [extern "lean_uint32_of_nat_mk"] UInt32.ofBitVec
 attribute [extern "lean_uint32_to_nat"] UInt32.toBitVec
 
 /--
@@ -2014,8 +2049,8 @@ Pack a `Nat` less than `2^32` into a `UInt32`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
-def UInt32.ofNatCore (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
-  toBitVec := BitVec.ofNatLt n h
+def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
+  toBitVec := BitVec.ofNatLT n h
 
 /--
 Unpack a `UInt32` as a `Nat`.
@@ -2038,7 +2073,7 @@ def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
 instance : DecidableEq UInt32 := UInt32.decEq
 
 instance : Inhabited UInt32 where
-  default := UInt32.ofNatCore 0 (of_decide_eq_true rfl)
+  default := UInt32.ofNatLT 0 (of_decide_eq_true rfl)
 
 instance : LT UInt32 where
   lt a b := LT.lt a.toBitVec b.toBitVec
@@ -2074,11 +2109,16 @@ The type of unsigned 64-bit integers. This type has special support in the
 compiler to make it actually 64 bits rather than wrapping a `Nat`.
 -/
 structure UInt64 where
-  /-- Unpack a `UInt64` as a `BitVec 64`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `UInt64` from a `BitVec 64`. This function is overridden with a native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `UInt64` as a `BitVec 64`. This function is overridden with a native implementation.
+  -/
   toBitVec: BitVec 64
 
-attribute [extern "lean_uint64_of_nat_mk"] UInt64.mk
+attribute [extern "lean_uint64_of_nat_mk"] UInt64.ofBitVec
 attribute [extern "lean_uint64_to_nat"] UInt64.toBitVec
 
 /--
@@ -2086,8 +2126,8 @@ Pack a `Nat` less than `2^64` into a `UInt64`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_uint64_of_nat"]
-def UInt64.ofNatCore (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
-  toBitVec := BitVec.ofNatLt n h
+def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2105,7 +2145,7 @@ def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
 instance : DecidableEq UInt64 := UInt64.decEq
 
 instance : Inhabited UInt64 where
-  default := UInt64.ofNatCore 0 (of_decide_eq_true rfl)
+  default := UInt64.ofNatLT 0 (of_decide_eq_true rfl)
 
 /-- The size of type `USize`, that is, `2^System.Platform.numBits`. -/
 abbrev USize.size : Nat := (hPow 2 System.Platform.numBits)
@@ -2116,6 +2156,11 @@ theorem usize_size_eq : Or (Eq USize.size 4294967296) (Eq USize.size 18446744073
   | _, Or.inl rfl => Or.inl (of_decide_eq_true rfl)
   | _, Or.inr rfl => Or.inr (of_decide_eq_true rfl)
 
+theorem usize_size_pos : LT.lt 0 USize.size :=
+  match USize.size, usize_size_eq with
+  | _, Or.inl rfl => of_decide_eq_true rfl
+  | _, Or.inr rfl => of_decide_eq_true rfl
+
 /--
 A `USize` is an unsigned integer with the size of a word
 for the platform's architecture.
@@ -2124,11 +2169,18 @@ For example, if running on a 32-bit machine, USize is equivalent to UInt32.
 Or on a 64-bit machine, UInt64.
 -/
 structure USize where
-  /-- Unpack a `USize` as a `BitVec System.Platform.numBits`.
-  This function is overridden with a native implementation. -/
+  /--
+  Create a `USize` from a `BitVec System.Platform.numBits`. This function is overridden with a
+  native implementation.
+  -/
+  ofBitVec ::
+  /--
+  Unpack a `USize` as a `BitVec System.Platform.numBits`. This function is overridden with a native
+  implementation.
+  -/
   toBitVec : BitVec System.Platform.numBits
 
-attribute [extern "lean_usize_of_nat_mk"] USize.mk
+attribute [extern "lean_usize_of_nat_mk"] USize.ofBitVec
 attribute [extern "lean_usize_to_nat"] USize.toBitVec
 
 /--
@@ -2136,8 +2188,8 @@ Pack a `Nat` less than `USize.size` into a `USize`.
 This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
-def USize.ofNatCore (n : @& Nat) (h : LT.lt n USize.size) : USize where
-  toBitVec := BitVec.ofNatLt n h
+def USize.ofNatLT (n : @& Nat) (h : LT.lt n USize.size) : USize where
+  toBitVec := BitVec.ofNatLT n h
 
 set_option bootstrap.genMatcherCode false in
 /--
@@ -2155,23 +2207,7 @@ def USize.decEq (a b : USize) : Decidable (Eq a b) :=
 instance : DecidableEq USize := USize.decEq
 
 instance : Inhabited USize where
-  default := USize.ofNatCore 0 (match USize.size, usize_size_eq with
-    | _, Or.inl rfl => of_decide_eq_true rfl
-    | _, Or.inr rfl => of_decide_eq_true rfl)
-
-/--
-Upcast a `Nat` less than `2^32` to a `USize`.
-This is lossless because `USize.size` is either `2^32` or `2^64`.
-This function is overridden with a native implementation.
--/
-@[extern "lean_usize_of_nat"]
-def USize.ofNat32 (n : @& Nat) (h : LT.lt n 4294967296) : USize where
-  toBitVec :=
-    BitVec.ofNatLt n (
-      match System.Platform.numBits, System.Platform.numBits_eq with
-      | _, Or.inl rfl => h
-      | _, Or.inr rfl => Nat.lt_trans h (of_decide_eq_true rfl)
-    )
+  default := USize.ofNatLT 0 usize_size_pos
 
 /--
 A `Nat` denotes a valid unicode codepoint if it is less than `0x110000`, and
@@ -2206,7 +2242,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_uint32_of_nat"]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char :=
-  { val := ⟨BitVec.ofNatLt n (isValidChar_UInt32 h)⟩, valid := h }
+  { val := ⟨BitVec.ofNatLT n (isValidChar_UInt32 h)⟩, valid := h }
 
 /--
 Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scalar value,
@@ -2216,7 +2252,7 @@ Convert a `Nat` into a `Char`. If the `Nat` does not encode a valid unicode scal
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
-    (fun _ => { val := ⟨BitVec.ofNatLt 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
+    (fun _ => { val := ⟨BitVec.ofNatLT 0 (of_decide_eq_true rfl)⟩, valid := Or.inl (of_decide_eq_true rfl) })
 
 theorem Char.eq_of_val_eq : ∀ {c d : Char}, Eq c.val d.val → Eq c d
   | ⟨_, _⟩, ⟨_, _⟩, rfl => rfl
@@ -2239,9 +2275,9 @@ instance : DecidableEq Char :=
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
 def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
-  ite (LE.le v (UInt32.ofNatCore 0x7F (of_decide_eq_true rfl))) 1
-    (ite (LE.le v (UInt32.ofNatCore 0x7FF (of_decide_eq_true rfl))) 2
-      (ite (LE.le v (UInt32.ofNatCore 0xFFFF (of_decide_eq_true rfl))) 3 4))
+  ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1
+    (ite (LE.le v (UInt32.ofNatLT 0x7FF (of_decide_eq_true rfl))) 2
+      (ite (LE.le v (UInt32.ofNatLT 0xFFFF (of_decide_eq_true rfl))) 3 4))
 
 /--
 `Option α` is the type of values which are either `some a` for some `a : α`,
@@ -2508,6 +2544,9 @@ instance (p₁ p₂ : String.Pos) : Decidable (LE.le p₁ p₂) :=
 instance (p₁ p₂ : String.Pos) : Decidable (LT.lt p₁ p₂) :=
   inferInstanceAs (Decidable (LT.lt p₁.byteIdx p₂.byteIdx))
 
+instance : Min String.Pos := minOfLe
+instance : Max String.Pos := maxOfLe
+
 /-- A `String.Pos` pointing at the end of this string. -/
 @[inline] def String.endPos (s : String) : String.Pos where
   byteIdx := utf8ByteSize s
@@ -2562,7 +2601,7 @@ When we reimplement the specializer, we may consider copying `inst` if it also
 occurs outside binders or if it is an instance.
 -/
 @[never_extract, extern "lean_panic_fn"]
-def panicCore {α : Type u} [Inhabited α] (msg : String) : α := default
+def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
 
 /--
 `(panic "msg" : α)` has a built-in implementation which prints `msg` to
@@ -2576,7 +2615,7 @@ Because this is a pure function with side effects, it is marked as
 elimination and other optimizations that assume that the expression is pure.
 -/
 @[noinline, never_extract]
-def panic {α : Type u} [Inhabited α] (msg : String) : α :=
+def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
   panicCore msg
 
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
@@ -2614,7 +2653,13 @@ structure Array (α : Type u) where
 attribute [extern "lean_array_to_list"] Array.toList
 attribute [extern "lean_array_mk"] Array.mk
 
-@[inherit_doc Array.mk, match_pattern]
+/--
+Converts a `List α` into an `Array α`. (This is preferred over the synonym `Array.mk`.)
+
+At runtime, this constructor is implemented by `List.toArrayImpl` and is O(n) in the length of the
+list.
+-/
+@[match_pattern]
 abbrev List.toArray (xs : List α) : Array α := .mk xs
 
 /-- Construct a new empty array with initial capacity `c`. -/
@@ -2631,24 +2676,30 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length
 
 /--
+Use the indexing notation `a[i]` instead.
+
 Access an element from an array without needing a runtime bounds checks,
 using a `Nat` index and a proof that it is in bounds.
 
 This function does not use `get_elem_tactic` to automatically find the proof that
 the index is in bounds. This is because the tactic itself needs to look up values in
-arrays. Use the indexing notation `a[i]` instead.
+arrays.
 -/
 @[extern "lean_array_fget"]
-def Array.get {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
+def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 
 /-- Access an element from an array, or return `v₀` if the index is out of bounds. -/
 @[inline] abbrev Array.getD (a : Array α) (i : Nat) (v₀ : α) : α :=
-  dite (LT.lt i a.size) (fun h => a.get i h) (fun _ => v₀)
+  dite (LT.lt i a.size) (fun h => a.getInternal i h) (fun _ => v₀)
 
-/-- Access an element from an array, or panic if the index is out of bounds. -/
+/--
+Use the indexing notation `a[i]!` instead.
+
+Access an element from an array, or panic if the index is out of bounds.
+-/
 @[extern "lean_array_get"]
-def Array.get! {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
+def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
 /--
@@ -2702,7 +2753,7 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
       (fun hlt =>
         match i with
         | 0           => as
-        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (as.push (bs.getInternal j hlt)))
       (fun _ => as)
   loop bs.size 0 as
 
@@ -2711,13 +2762,13 @@ protected def Array.appendCore {α : Type u}  (as : Array α) (bs : Array α) : 
   If `start` is greater or equal to `stop`, the result is empty.
   If `stop` is greater than the length of `as`, the length is used instead. -/
 -- NOTE: used in the quotation elaborator output
-def Array.extract (as : Array α) (start stop : Nat) : Array α :=
+def Array.extract (as : Array α) (start : Nat := 0) (stop : Nat := as.size) : Array α :=
   let rec loop (i : Nat) (j : Nat) (bs : Array α) : Array α :=
     dite (LT.lt j as.size)
       (fun hlt =>
         match i with
         | 0           => bs
-        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.get j hlt)))
+        | Nat.succ i' => loop i' (hAdd j 1) (bs.push (as.getInternal j hlt)))
       (fun _ => bs)
   let sz' := Nat.sub (min stop as.size) start
   loop sz' start (mkEmpty sz')
@@ -3432,25 +3483,6 @@ class Hashable (α : Sort u) where
 
 export Hashable (hash)
 
-/-- Converts a `UInt64` to a `USize` by reducing modulo `USize.size`. -/
-@[extern "lean_uint64_to_usize"]
-opaque UInt64.toUSize (u : UInt64) : USize
-
-/--
-Upcast a `USize` to a `UInt64`.
-This is lossless because `USize.size` is either `2^32` or `2^64`.
-This function is overridden with a native implementation.
--/
-@[extern "lean_usize_to_uint64"]
-def USize.toUInt64 (u : USize) : UInt64 where
-  toBitVec := BitVec.ofNatLt u.toBitVec.toNat (
-        let ⟨⟨n, h⟩⟩ := u
-        show LT.lt n _ from
-        match System.Platform.numBits, System.Platform.numBits_eq, h with
-        | _, Or.inl rfl, h => Nat.lt_trans h (of_decide_eq_true rfl)
-        | _, Or.inr rfl, h => h
-      )
-
 /-- An opaque hash mixing operation, used to implement hashing for tuples. -/
 @[extern "lean_uint64_mix_hash"]
 opaque mixHash (u₁ u₂ : UInt64) : UInt64
@@ -3516,9 +3548,9 @@ with
   /-- A hash function for names, which is stored inside the name itself as a
   computed field. -/
   @[computed_field] hash : Name → UInt64
-    | .anonymous => .ofNatCore 1723 (of_decide_eq_true rfl)
+    | .anonymous => .ofNatLT 1723 (of_decide_eq_true rfl)
     | .str p s => mixHash p.hash s.hash
-    | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatCore v h) (fun _ => UInt64.ofNatCore 17 (of_decide_eq_true rfl)))
+    | .num p v => mixHash p.hash (dite (LT.lt v UInt64.size) (fun h => UInt64.ofNatLT v h) (fun _ => UInt64.ofNatLT 17 (of_decide_eq_true rfl)))
 
 instance : Inhabited Name where
   default := Name.anonymous
@@ -3729,8 +3761,7 @@ inductive Syntax where
   /-- Node in the syntax tree.
 
   The `info` field is used by the delaborator to store the position of the
-  subexpression corresponding to this node. The parser sets the `info` field
-  to `none`.
+  subexpression corresponding to this node.
   The parser sets the `info` field to `none`, with position retrieval continuing recursively.
   Nodes created by quotations use the result from `SourceInfo.fromRef` so that they are marked
   as synthetic even when the leading/trailing token is not.
@@ -3940,7 +3971,7 @@ if it parsed something and `none` otherwise.
 def getOptional? (stx : Syntax) : Option Syntax :=
   match stx with
   | Syntax.node _ k args => match and (beq k nullKind) (beq args.size 1) with
-    | true  => some (args.get! 0)
+    | true  => some (args.get!Internal 0)
     | false => none
   | _                    => none
 
@@ -3963,6 +3994,13 @@ def getId : Syntax → Name
   | ident _ _ val _ => val
   | _               => Name.anonymous
 
+/-- Retrieve the immediate info from the Syntax node. -/
+def getInfo? : Syntax → Option SourceInfo
+  | atom info ..  => some info
+  | ident info .. => some info
+  | node info ..  => some info
+  | missing       => none
+
 /-- Retrieve the left-most node or leaf's info in the Syntax tree. -/
 partial def getHeadInfo? : Syntax → Option SourceInfo
   | atom info _   => some info
@@ -3970,7 +4008,7 @@ partial def getHeadInfo? : Syntax → Option SourceInfo
   | node SourceInfo.none _ args   =>
     let rec loop (i : Nat) : Option SourceInfo :=
       match decide (LT.lt i args.size) with
-      | true => match getHeadInfo? (args.get! i) with
+      | true => match getHeadInfo? (args.get!Internal i) with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -4011,7 +4049,7 @@ partial def getTailPos? (stx : Syntax) (canonicalOnly := false) : Option String.
   | node _ _ args, _ =>
     let rec loop (i : Nat) : Option String.Pos :=
       match decide (LT.lt i args.size) with
-      | true => match getTailPos? (args.get! ((args.size.sub i).sub 1)) canonicalOnly with
+      | true => match getTailPos? (args.get!Internal ((args.size.sub i).sub 1)) canonicalOnly with
          | some info => some info
          | none      => loop (hAdd i 1)
       | false => none
@@ -4189,6 +4227,16 @@ def withRef [Monad m] [MonadRef m] {α} (ref : Syntax) (x : m α) : m α :=
   bind getRef fun oldRef =>
   let ref := replaceRef ref oldRef
   MonadRef.withRef ref x
+
+/--
+If `ref? = some ref`, run `x : m α` with a modified value for the `ref` by calling `withRef`.
+Otherwise, run `x` directly.
+-/
+@[always_inline, inline]
+def withRef? [Monad m] [MonadRef m] {α} (ref? : Option Syntax) (x : m α) : m α :=
+  match ref? with
+  | some ref => withRef ref x
+  | _        => x
 
 /-- A monad that supports syntax quotations. Syntax quotations (in term
     position) are monadic values that when executed retrieve the current "macro

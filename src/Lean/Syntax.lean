@@ -24,6 +24,14 @@ def String.Range.contains (r : String.Range) (pos : String.Pos) (includeStop := 
 def String.Range.includes (super sub : String.Range) : Bool :=
   super.start <= sub.start && super.stop >= sub.stop
 
+def String.Range.overlaps (first second : String.Range)
+    (includeFirstStop := false) (includeSecondStop := false) : Bool :=
+  (if includeFirstStop then second.start <= first.stop else second.start < first.stop) &&
+    (if includeSecondStop then first.start <= second.stop else first.start < second.stop)
+
+def String.Range.bsize (r : String.Range) : Nat :=
+  r.stop.byteIdx - r.start.byteIdx
+
 namespace Lean
 
 def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
@@ -32,6 +40,19 @@ def SourceInfo.updateTrailing (trailing : Substring) : SourceInfo → SourceInfo
 
 def SourceInfo.getRange? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
   return ⟨(← info.getPos? canonicalOnly), (← info.getTailPos? canonicalOnly)⟩
+
+def SourceInfo.getRangeWithTrailing? (canonicalOnly := false) (info : SourceInfo) : Option String.Range :=
+  return ⟨← info.getPos? canonicalOnly, ← info.getTrailingTailPos? canonicalOnly⟩
+
+/--
+Converts an `original` or `synthetic (canonical := true)` `SourceInfo` to a
+`synthetic (canonical := false)` `SourceInfo`.
+This is sometimes useful when `SourceInfo` is being moved around between `Syntax`es.
+-/
+def SourceInfo.nonCanonicalSynthetic : SourceInfo → SourceInfo
+  | SourceInfo.original _ pos _ endPos => SourceInfo.synthetic pos endPos false
+  | SourceInfo.synthetic pos endPos _  => SourceInfo.synthetic pos endPos false
+  | SourceInfo.none                    => SourceInfo.none
 
 deriving instance BEq for SourceInfo
 
@@ -69,7 +90,7 @@ namespace SyntaxNode
   withArgs n fun args => args.size
 
 @[inline] def getArg (n : SyntaxNode) (i : Nat) : Syntax :=
-  withArgs n fun args => args.get! i
+  withArgs n fun args => args[i]!
 
 @[inline] def getArgs (n : SyntaxNode) : Array Syntax :=
   withArgs n fun args => args
@@ -369,6 +390,9 @@ def getRange? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
   match stx.getPos? canonicalOnly, stx.getTailPos? canonicalOnly with
   | some start, some stop => some { start, stop }
   | _,          _         => none
+
+def getRangeWithTrailing? (stx : Syntax) (canonicalOnly := false) : Option String.Range :=
+  return ⟨← stx.getPos? canonicalOnly, ← stx.getTrailingTailPos? canonicalOnly⟩
 
 /-- Returns a synthetic Syntax which has the specified `String.Range`. -/
 def ofRange (range : String.Range) (canonical := true) : Lean.Syntax :=

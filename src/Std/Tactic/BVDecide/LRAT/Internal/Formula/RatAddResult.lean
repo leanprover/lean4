@@ -42,7 +42,7 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     apply Or.inl
     simp only [Fin.getElem_fin, ne_eq, true_and, Bool.not_eq_true, exists_and_right]
     intro j
-    simp only [hf.1, Array.size_toArray, List.length_nil] at j
+    simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
   exact insertUnitInvariant_insertUnit_fold f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
 
@@ -224,7 +224,7 @@ theorem ratAdd_result {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) (p 
             have insertRupUnits_rw : (insertRupUnits f (negate c)).1 =
               ⟨(insertRupUnits f (negate c)).1.clauses, (insertRupUnits f (negate c)).1.rupUnits,
                (insertRupUnits f (negate c)).1.ratUnits, (insertRupUnits f (negate c)).1.assignments⟩ := rfl
-            simp only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
+            simp +zetaDelta only [performRatCheck_fold_formula_eq performRupCheck_res h_performRupCheck_res (Literal.negate p) ratHints,
               clauses_performRupCheck, rupUnits_performRupCheck, ratUnits_performRupCheck,
               restoreAssignments_performRupCheck fc fc_assignments_size, ← insertRupUnits_rw,
               clear_insertRup f f_readyForRatAdd.2 (negate c), fc, performRupCheck_res]

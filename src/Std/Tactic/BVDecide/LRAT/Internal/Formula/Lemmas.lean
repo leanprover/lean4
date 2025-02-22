@@ -69,7 +69,7 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   · next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
-  · next h => simp_all [getElem!, i.2.2, decidableGetElem?]
+  · next h => simp_all [getElem!_def, i.2.2, decidableGetElem?]
 
 /--
 performRupAdd adds to f.rupUnits and then clears f.rupUnits. If f begins with some units in f.rupUnits,
@@ -246,7 +246,7 @@ theorem limplies_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClause n) :
   simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq]
   intro h c' c'_in_f
   have c'_in_fc : c' ∈ toList (insert f c) := by
-    simp only [insert_iff, Array.toList_toArray, List.mem_singleton]
+    simp only [insert_iff, List.toList_toArray, List.mem_singleton]
     exact Or.inr c'_in_f
   exact h c' c'_in_fc
 
@@ -481,7 +481,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -494,10 +494,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_mk]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               simp only [← heq] at l_ne_b
@@ -514,7 +514,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -527,10 +527,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_mk]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx, hl] at heq
               simp only [unit, Option.some.injEq, DefaultClause.mk.injEq, List.cons.injEq, and_true] at heq
               have i_eq_l : i = l.1 := by rw [← heq]
@@ -574,7 +574,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
         · apply Or.inl
-          simp only [Array.set!, Array.setD]
+          simp only [Array.set!, Array.setIfInBounds]
           split
           · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
             simp only [← hidx, Array.toList_set]
@@ -587,10 +587,10 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
             · next id_eq_idx =>
               exfalso
               have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [Array.size_mk]
+                conv => rhs; rw [List.size_toArray]
                 exact hbound
-              simp only [getElem!, id_eq_idx, Array.length_toList, idx_in_bounds2, ↓reduceDIte,
-                Fin.eta, Array.get_eq_getElem, Array.getElem_eq_getElem_toList, decidableGetElem?] at heq
+              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
+                Array.getElem_toList] at heq
               rw [hidx] at heq
               simp only [Option.some.injEq] at heq
               rw [← heq] at hl
@@ -644,7 +644,7 @@ theorem deleteOne_subset (f : DefaultFormula n) (id : Nat) (c : DefaultClause n)
     · apply Or.inl
       simp only [List.mem_filterMap, id_eq, exists_eq_right] at h1
       simp only [List.mem_filterMap, id_eq, exists_eq_right]
-      rw [Array.set!, Array.setD] at h1
+      rw [Array.set!, Array.setIfInBounds] at h1
       split at h1
       · simp only [Array.toList_set] at h1
         rcases List.getElem_of_mem h1 with ⟨i, h, h4⟩

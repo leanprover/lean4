@@ -534,21 +534,20 @@ section NotificationHandling
     let oldDoc := (←get).doc
     let cancelTk ← RequestCancellationToken.new
     let newVersion := docId.version?.getD 0
-    let _ ← ServerTask.IO.mapTaskCostly (t := st.srcSearchPathTask) fun srcSearchPath =>
-      let rc : RequestContext :=
-        { rpcSessions := st.rpcSessions
-          srcSearchPath
-          doc := oldDoc
-          cancelTk
-          hLog := ctx.hLog
-          initParams := ctx.initParams }
-      RequestM.runInIO (handleOnDidChange p) rc
+    let rc : RequestContext := {
+      rpcSessions := st.rpcSessions
+      srcSearchPathTask := st.srcSearchPathTask
+      doc := oldDoc
+      cancelTk
+      hLog := ctx.hLog
+      initParams := ctx.initParams
+    }
+    RequestM.runInIO (handleOnDidChange p) rc
     if ¬ changes.isEmpty then
       let newDocText := foldDocumentChanges changes oldDoc.meta.text
       updateDocument ⟨docId.uri, newVersion, newDocText, oldDoc.meta.dependencyBuildMode⟩
       for (_, r) in st.pendingRequests do
         r.cancelTk.cancelByEdit
-
 
   def handleCancelRequest (p : CancelParams) : WorkerM Unit := do
     let st ← get
@@ -728,32 +727,30 @@ section MessageHandling
       return
 
     let cancelTk ← RequestCancellationToken.new
-    -- we assume that any other request requires at least the search path
     -- TODO: move into language-specific request handling
-    let requestTask ← ServerTask.IO.bindTaskCheap st.srcSearchPathTask fun srcSearchPath => do
-      let rc : RequestContext :=
-        { rpcSessions := st.rpcSessions
-          srcSearchPath
-          doc := st.doc
-          cancelTk
-          hLog := ctx.hLog
-          initParams := ctx.initParams }
-      let t? ← EIO.toIO' <| handleLspRequest method params rc
-      match t? with
+    let rc : RequestContext :=
+      { rpcSessions := st.rpcSessions
+        srcSearchPathTask := st.srcSearchPathTask
+        doc := st.doc
+        cancelTk
+        hLog := ctx.hLog
+        initParams := ctx.initParams }
+    let requestTask? ← EIO.toIO' <| handleLspRequest method params rc
+    let requestTask ← match requestTask? with
+      | Except.error e =>
+          emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+          pure <| ServerTask.pure <| .ok ()
+      | Except.ok requestTask => ServerTask.IO.mapTaskCheap (t := requestTask) fun
+        | Except.ok r => do
+          if ← cancelTk.wasCancelledByCancelRequest then
+            -- Try not to emit a partial response if this request was cancelled.
+            -- Clients usually discard responses for requests that they cancelled anyways,
+            -- but it's still good to send less over the wire in this case.
+            emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
+            return
+          emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
         | Except.error e =>
-            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
-            pure <| ServerTask.pure <| .ok ()
-        | Except.ok t => ServerTask.IO.mapTaskCheap (t := t) fun
-          | Except.ok r => do
-            if ← cancelTk.wasCancelledByCancelRequest then
-              -- Try not to emit a partial response if this request was cancelled.
-              -- Clients usually discard responses for requests that they cancelled anyways,
-              -- but it's still good to send less over the wire in this case.
-              emitResponse ctx (isComplete := false) <| RequestError.requestCancelled.toLspResponseError id
-              return
-            emitResponse ctx (isComplete := r.isComplete) <| .response id (toJson r.response)
-          | Except.error e =>
-            emitResponse ctx (isComplete := false) <| e.toLspResponseError id
+          emitResponse ctx (isComplete := false) <| e.toLspResponseError id
     queueRequest id { cancelTk, requestTask }
 
   where

@@ -616,20 +616,20 @@ theorem Poly.gcd_dvd_const {ctx : Context} {p : Poly} {k : Int} (h : k ∣ p.den
     rw [Int.add_comm] at h
     exact ih (gcd_dvd_step h)
 
-def dvdUnsatCert (k : Int) (p : Poly) : Bool :=
+def Poly.isUnsatDvd (k : Int) (p : Poly) : Bool :=
   p.getConst % p.gcdCoeffs k != 0
 
 private theorem not_dvd_of_not_mod_zero {a b : Int} (h : ¬ b % a = 0) : ¬ a ∣ b := by
   intro h; have := Int.emod_eq_zero_of_dvd h; contradiction
 
-private theorem dvd_eq_false' (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p → (k ∣ p.denote' ctx) = False := by
-  simp [dvdUnsatCert]
+private theorem dvd_eq_false' (ctx : Context) (k : Int) (p : Poly) : p.isUnsatDvd k → (k ∣ p.denote' ctx) = False := by
+  simp [Poly.isUnsatDvd]
   intro h₁ h₂
   have := Poly.gcd_dvd_const h₂
   have := not_dvd_of_not_mod_zero h₁
   contradiction
 
-theorem unsat_dvd (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p → k ∣ p.denote' ctx → False := by
+theorem dvd_unsat (ctx : Context) (k : Int) (p : Poly) : p.isUnsatDvd k → k ∣ p.denote' ctx → False := by
   intro h₁
   rw [dvd_eq_false' ctx _ _ h₁]
   intro; contradiction
@@ -649,7 +649,7 @@ theorem unsat_dvd (ctx : Context) (k : Int) (p : Poly) : dvdUnsatCert k p → k 
 theorem norm_dvd (ctx : Context) (k : Int) (e : Expr) (p : Poly) : e.norm == p → (k ∣ e.denote ctx) = (k ∣ p.denote' ctx) := by
   simp; intro h; simp [← h]
 
-theorem dvd_eq_false (ctx : Context) (k : Int) (e : Expr) (h : dvdUnsatCert k e.norm) : (k ∣ e.denote ctx) = False := by
+theorem dvd_eq_false (ctx : Context) (k : Int) (e : Expr) (h : e.norm.isUnsatDvd k) : (k ∣ e.denote ctx) = False := by
   rw [norm_dvd ctx k e e.norm BEq.refl]
   apply dvd_eq_false' ctx k e.norm h
 

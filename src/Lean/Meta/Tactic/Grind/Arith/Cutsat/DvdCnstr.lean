@@ -11,16 +11,8 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-abbrev DvdCnstrWithProof.isUnsat (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isUnsat
 
-abbrev DvdCnstrWithProof.isTrivial (cₚ : DvdCnstrWithProof) : Bool :=
-  cₚ.c.isTrivial
-
-abbrev DvdCnstrWithProof.satisfied (cₚ : DvdCnstrWithProof) : GoalM LBool :=
-  cₚ.c.satisfied
-
-def mkDvdCnstrWithProof (c : DvdCnstr) (h : DvdCnstrProof) : GoalM DvdCnstrWithProof := do
+def mkDvdCnstr (d : Int) (p : Poly) (h : DvdCnstrProof) : GoalM DvdCnstrWithProof := do
   return { c, h, id := (← mkCnstrId) }
 
 def DvdCnstrWithProof.norm (cₚ : DvdCnstrWithProof) : GoalM DvdCnstrWithProof := do

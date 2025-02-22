@@ -146,11 +146,17 @@ def _root_.Int.Linear.Poly.eval? (p : Poly) : GoalM (Option Int) := do
         none
   return go 0 p
 
+abbrev LeCnstr.isUnsat (c : LeCnstr) : Bool :=
+  c.p.isUnsatLe
+
+abbrev DvdCnstr.isUnsat (c : DvdCnstr) : Bool :=
+  c.p.isUnsatDvd c.d
+
 /--
 Returns `.true` if `c` is satisfied by the current partial model,
 `.undef` if `c` contains unassigned variables, and `.false` otherwise.
 -/
-def _root_.Int.Linear.DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
+def DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
   return decide (c.d ∣ v) |>.toLBool
 
@@ -158,7 +164,7 @@ def _root_.Int.Linear.DvdCnstr.satisfied (c : DvdCnstr) : GoalM LBool := do
 Returns `.true` if `c` is satisfied by the current partial model,
 `.undef` if `c` contains unassigned variables, and `.false` otherwise.
 -/
-def _root_.Int.Linear.LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
+def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
   let some v ← c.p.eval? | return .undef
   return decide (v <= 0) |>.toLBool
 

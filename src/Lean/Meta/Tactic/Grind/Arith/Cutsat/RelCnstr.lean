@@ -11,74 +11,64 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 
 namespace Lean.Meta.Grind.Arith.Cutsat
-def mkRelCnstrWithProof (c : RelCnstr) (h : RelCnstrProof) : GoalM RelCnstrWithProof := do
-  return { c, h, id := (← mkCnstrId) }
+def mkLeCnstr (p : Poly) (h : LeCnstrProof) : GoalM LeCnstr := do
+  return { p, h, id := (← mkCnstrId) }
 
-abbrev RelCnstrWithProof.isUnsat (cₚ : RelCnstrWithProof) : Bool :=
-  cₚ.c.isUnsat
-
-abbrev RelCnstrWithProof.isTrivial (cₚ : RelCnstrWithProof) : Bool :=
-  cₚ.c.isTrivial
-
-abbrev RelCnstrWithProof.satisfied (cₚ : RelCnstrWithProof) : GoalM LBool :=
-  cₚ.c.satisfied
-
-def RelCnstrWithProof.norm (cₚ : RelCnstrWithProof) : GoalM RelCnstrWithProof := do
-  let cₚ ← if cₚ.c.isSorted then
-    pure cₚ
+def LeCnstr.norm (c : LeCnstr) : GoalM LeCnstr := do
+  let c ← if c.p.isSorted then
+    pure c
   else
-    mkRelCnstrWithProof cₚ.c.norm (.norm cₚ)
-  let k := cₚ.c.gcdCoeffs
+    mkLeCnstr c.p.norm (.norm c)
+  let k := c.p.gcdCoeffs'
   if k != 1 then
-    mkRelCnstrWithProof (cₚ.c.div k) (.divCoeffs cₚ)
+    mkLeCnstr (c.p.div k) (.divCoeffs c)
   else
-    return cₚ
+    return c
 
-def assertRelCnstr (cₚ : RelCnstrWithProof) : GoalM Unit := do
+def assertRelCnstr (c : LeCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
-  let cₚ ← cₚ.norm
-  if cₚ.isUnsat then
-    trace[grind.cutsat.le.unsat] "{← cₚ.denoteExpr}"
+  let c ← c.norm
+  if c.isUnsat then
+    trace[grind.cutsat.le.unsat] "{← c.denoteExpr}"
     let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.RelCnstr.false_of_isUnsat_of_denote) (← getContext) (toExpr cₚ.c) reflBoolTrue (← cₚ.toExprProof)
+      return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     closeGoal hf
-  else if cₚ.isTrivial then
-    trace[grind.cutsat.le.trivial] "{← cₚ.denoteExpr}"
+  else if c.isTrivial then
+    trace[grind.cutsat.le.trivial] "{← c.denoteExpr}"
   else
-    let .add a x _ := cₚ.c.p | cₚ.throwUnexpected
+    let .add a x _ := c.p | c.throwUnexpected
     if a < 0 then
-      trace[grind.cutsat.le.lower] "{← cₚ.denoteExpr}"
-      modify' fun s => { s with lowers := s.lowers.modify x (·.push cₚ) }
+      trace[grind.cutsat.le.lower] "{← c.denoteExpr}"
+      modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
     else
-      trace[grind.cutsat.le.upper] "{← cₚ.denoteExpr}"
-      modify' fun s => { s with uppers := s.uppers.modify x (·.push cₚ) }
-    if (← cₚ.satisfied) == .false then
+      trace[grind.cutsat.le.upper] "{← c.denoteExpr}"
+      modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
+    if (← c.satisfied) == .false then
       resetAssignmentFrom x
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"
 
-private def toRelCnstr? (e : Expr) : GoalM (Option RelCnstr) := do
+private def toPoly? (e : Expr) : GoalM (Option Poly) := do
   let_expr LE.le _ inst a b ← e | return none
   unless (← isInstLEInt inst) do return none
   let some k ← getIntValue? b
     | reportNonNormalized e; return none
   unless k == 0 do
     reportNonNormalized e; return none
-  let p ← toPoly a
-  return some <| .le p
+  return some (← toPoly a)
 
 /--
 Given an expression `e` that is in `True` (or `False` equivalence class), if `e` is an
 integer inequality, asserts it to the cutsat state.
 -/
 def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some c ← toRelCnstr? e | return ()
-  let cₚ ← if eqTrue then
-    mkRelCnstrWithProof c (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
+  let some p ← toPoly? e | return ()
+  let c ← if eqTrue then
+    mkLeCnstr p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
   else
-    mkRelCnstrWithProof (c.mul (-1) |>.addConst 1) (.notExpr c (← mkOfEqFalse (← mkEqFalseProof e)))
-  trace[grind.cutsat.assert.le] "{← cₚ.denoteExpr}"
-  assertRelCnstr cₚ
+    mkLeCnstr (p.mul (-1) |>.addConst 1) (.notExpr p (← mkOfEqFalse (← mkEqFalseProof e)))
+  trace[grind.cutsat.assert.le] "{← c.denoteExpr}"
+  assertRelCnstr c
 
 end Lean.Meta.Grind.Arith.Cutsat

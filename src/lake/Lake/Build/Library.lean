@@ -108,12 +108,11 @@ def LeanLib.recBuildExtraDepTargets (self : LeanLib) : FetchM (Job Unit) := do
 def LeanLib.extraDepFacetConfig : LibraryFacetConfig extraDepFacet :=
   mkFacetJobConfig LeanLib.recBuildExtraDepTargets
 
-open LeanLib in
 /--
-A library facet name to build function map that contains builders for
-the initial set of Lake library facets (e.g., `lean`, `static`, and `shared`).
+A name-configuration map for the initial set of
+Lean library facets (e.g., `lean`, `static`, `shared`).
 -/
-def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
+def LeanLib.initFacetConfigs : DNameMap LeanLibFacetConfig :=
   DNameMap.empty
   |>.insert modulesFacet modulesFacetConfig
   |>.insert leanArtsFacet leanArtsFacetConfig
@@ -121,3 +120,7 @@ def initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
   |>.insert staticExportFacet staticExportFacetConfig
   |>.insert sharedFacet sharedFacetConfig
   |>.insert extraDepFacet extraDepFacetConfig
+
+@[inherit_doc LeanLib.initFacetConfigs]
+abbrev initLibraryFacetConfigs : DNameMap LibraryFacetConfig :=
+  LeanLib.initFacetConfigs

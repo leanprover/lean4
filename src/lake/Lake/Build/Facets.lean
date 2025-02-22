@@ -41,7 +41,7 @@ instance (facet : ModuleFacet α) : FamilyDef ModuleData facet.name α :=
   ⟨facet.data_eq⟩
 
 instance [FamilyOut ModuleData facet α] : CoeDep Name facet (ModuleFacet α) :=
-  ⟨facet, FamilyOut.family_key_eq_type⟩
+  ⟨facet, FamilyOut.fam_eq⟩
 
 /--
 The facet which builds all of a module's dependencies
@@ -196,17 +196,17 @@ abbrev LeanLib.extraDepFacet := `extraDep
 library_data extraDep : Unit
 
 /-- A Lean binary executable. -/
-abbrev LeanExe.exeFacet := `leanExe
-target_data leanExe : FilePath
+abbrev LeanExe.exeFacet := `exe
+facet_data leanExe exe : FilePath
 
 /-- A external library's static binary. -/
-abbrev ExternLib.staticFacet := `externLib.static
-target_data externLib.static : FilePath
+abbrev ExternLib.staticFacet := `static
+facet_data externLib static : FilePath
 
 /-- A external library's shared binary. -/
-abbrev ExternLib.sharedFacet := `externLib.shared
-target_data externLib.shared : FilePath
+abbrev ExternLib.sharedFacet := `shared
+facet_data externLib shared : FilePath
 
 /-- A external library's dynlib. -/
-abbrev ExternLib.dynlibFacet := `externLib.dynlib
-target_data externLib.dynlib : Dynlib
+abbrev ExternLib.dynlibFacet := `dynlib
+facet_data externLib dynlib : Dynlib

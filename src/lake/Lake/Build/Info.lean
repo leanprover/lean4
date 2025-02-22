@@ -21,14 +21,8 @@ open Lean (Name)
 
 /-- The type of Lake's build info. -/
 inductive BuildInfo
-| moduleFacet (module : Module) (facet : Name)
-| packageFacet (package : Package) (facet : Name)
-| libraryFacet (lib : LeanLib) (facet : Name)
-| leanExe (exe : LeanExe)
-| staticExternLib (lib : ExternLib)
-| sharedExternLib (lib : ExternLib)
-| dynlibExternLib (lib : ExternLib)
-| target (package : Package) (target : Name)
+| target (package : Package) (target : Name) (kind := Name.anonymous)
+| facet (target : BuildKey) (data : TargetData target.kind) (facet : Name)
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Keys                                                      -/
@@ -36,79 +30,82 @@ inductive BuildInfo
 
 /-! ### Build Key Helper Constructors -/
 
+abbrev Module.buildKey (self : Module) : BuildKey :=
+  .module self.keyName
+
 abbrev Module.facetBuildKey (facet : Name) (self : Module) : BuildKey :=
   .moduleFacet self.keyName facet
+
+abbrev Package.buildKey (self : Package) : BuildKey :=
+  .package self.name
 
 abbrev Package.facetBuildKey (facet : Name) (self : Package) : BuildKey :=
   .packageFacet self.name facet
 
-abbrev Package.targetBuildKey (target : Name) (self : Package) : BuildKey :=
-  .customTarget self.name target
+abbrev Package.targetBuildKey
+  (target : Name) (self : Package) (kind := Name.anonymous)
+: BuildKey := .packageTarget self.name target kind
+
+abbrev LeanLib.buildKey (self : LeanLib) : BuildKey :=
+  .packageTarget self.pkg.name self.name facetKind
 
 abbrev LeanLib.facetBuildKey (self : LeanLib) (facet : Name) : BuildKey :=
-  .targetFacet self.pkg.name self.name (`leanLib ++ facet)
+  .targetFacet self.pkg.name self.name facetKind facet
 
 abbrev LeanExe.buildKey (self : LeanExe) : BuildKey :=
-  .targetFacet self.pkg.name self.name exeFacet
+  .packageTarget self.pkg.name self.name facetKind
+
+abbrev LeanExe.exeBuildKey (self : LeanExe) : BuildKey :=
+  .targetFacet self.pkg.name self.name facetKind exeFacet
+
+abbrev ExternLib.buildKey (self : ExternLib) : BuildKey :=
+  .packageTarget self.pkg.name self.name facetKind
+
+abbrev ExternLib.facetBuildKey (facet : Name) (self : ExternLib) : BuildKey :=
+  .targetFacet self.pkg.name self.name facetKind facet
 
 abbrev ExternLib.staticBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name staticFacet
+  self.facetBuildKey staticFacet
 
 abbrev ExternLib.sharedBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name sharedFacet
+  self.facetBuildKey sharedFacet
 
 abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
-  .targetFacet self.pkg.name self.name dynlibFacet
+  self.facetBuildKey dynlibFacet
 
 /-! ### Build Info to Key -/
 
 /-- The key that identifies the build in the Lake build store. -/
 @[reducible] def BuildInfo.key : (self : BuildInfo) → BuildKey
-| moduleFacet m f => m.facetBuildKey f
-| packageFacet p f => p.facetBuildKey f
-| libraryFacet l f => l.facetBuildKey f
-| leanExe x => x.buildKey
-| staticExternLib l => l.staticBuildKey
-| sharedExternLib l => l.sharedBuildKey
-| dynlibExternLib l => l.dynlibBuildKey
-| target p t => p.targetBuildKey t
+| target p t k => p.targetBuildKey t k
+| facet t _ f => .facet t f
+
+instance : ToString BuildInfo := ⟨(toString ·.key)⟩
 
 /-! ### Instances for deducing data types of `BuildInfo` keys -/
 
 instance [FamilyOut ModuleData f α]
-: FamilyDef BuildData (BuildInfo.key (.moduleFacet m f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+: FamilyDef BuildData (BuildInfo.key (.facet (.module m) d f)) α where
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut PackageData f α]
-: FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+: FamilyDef BuildData (BuildInfo.key (.facet (.package p) d f)) α where
+  fam_eq := by unfold BuildData; simp
 
 instance (priority := low) {p : NPackage n} : FamilyDef BuildData
-  (.customTarget p.toPackage.name t) (CustomData (n,t)) := ⟨by simp⟩
+  (.customTarget p.toPackage.name t) (CustomData n t) := ⟨by simp⟩
 
-instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
+instance {p : NPackage n} [FamilyOut (CustomData n) t α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
-instance [FamilyOut TargetData (`leanLib ++ f) α]
-: FamilyDef BuildData (BuildInfo.key (.libraryFacet l f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+instance {p : NPackage n} [FamilyOut BuildData (.packageTarget n t k) α]
+: FamilyDef BuildData (BuildInfo.key (.target p.toPackage t k)) α where
+  fam_eq := by unfold BuildInfo.key Package.targetBuildKey; simp
 
-instance [FamilyOut TargetData LeanExe.exeFacet α]
-: FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
-  family_key_eq_type := by unfold BuildData; simp
-
-instance [FamilyOut TargetData ExternLib.staticFacet α]
-: FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
-
-instance [FamilyOut TargetData ExternLib.sharedFacet α]
-: FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
-
-instance [FamilyOut TargetData ExternLib.dynlibFacet α]
-: FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+instance [FamilyOut (FacetData k) f α]
+: FamilyDef BuildData (BuildInfo.key (.facet (.packageTarget p t k) d f)) α where
+  fam_eq := by unfold BuildData; simp
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/
@@ -122,6 +119,12 @@ These are defined here because they need configuration definitions
 (e.g., `Module`), whereas the facets there are needed by the configuration
 definitions.
 -/
+
+target_data module : Module
+target_data package : Package
+target_data leanLib : LeanLib
+target_data leanExe : LeanExe
+target_data externLib : ExternLib
 
 /-- The direct local imports of the Lean module. -/
 abbrev Module.importsFacet := `imports
@@ -158,11 +161,15 @@ Definitions to easily construct `BuildInfo` values for module, package,
 and target facets.
 -/
 
-namespace Module
-
 /-- Build info for the module's specified facet. -/
-abbrev facet (facet : Name) (self : Module) : BuildInfo :=
-  .moduleFacet self facet
+abbrev Module.facet (facet : Name) (self : Module) : BuildInfo :=
+  .facet self.buildKey (toFamily self) facet
+
+@[deprecated Module.facet (since := "2025-03-04")]
+abbrev BuildInfo.moduleFacet (module : Module) (facet : Name) : BuildInfo :=
+  module.facet facet
+
+namespace Module
 
 @[inherit_doc importsFacet] abbrev imports (self : Module) :=
   self.facet importsFacet
@@ -217,96 +224,136 @@ abbrev facet (facet : Name) (self : Module) : BuildInfo :=
 
 end Module
 
+/-- Build info for a package target (e.g., a library, executable, or custom target). -/
+abbrev Package.target (target : Name) (self : Package) (kind := Name.anonymous) : BuildInfo :=
+  .target self target kind
+
 /-- Build info for the package's specified facet. -/
 abbrev Package.facet (facet : Name) (self : Package) : BuildInfo :=
-  .packageFacet self facet
+  .facet self.buildKey (toFamily self) facet
+
+@[deprecated Package.facet (since := "2025-03-04")]
+abbrev BuildInfo.packageFacet (package : Package) (facet : Name) : BuildInfo :=
+  package.facet facet
+
+namespace Package
 
 @[inherit_doc buildCacheFacet]
-abbrev Package.buildCache (self : Package) : BuildInfo :=
+abbrev buildCache (self : Package) : BuildInfo :=
   self.facet buildCacheFacet
 
 @[inherit_doc optBuildCacheFacet]
-abbrev Package.optBuildCache (self : Package) : BuildInfo :=
+abbrev optBuildCache (self : Package) : BuildInfo :=
   self.facet optBuildCacheFacet
 
 @[inherit_doc reservoirBarrelFacet]
-abbrev Package.reservoirBarrel (self : Package) : BuildInfo :=
+abbrev reservoirBarrel (self : Package) : BuildInfo :=
   self.facet reservoirBarrelFacet
 
 @[inherit_doc optReservoirBarrelFacet]
-abbrev Package.optReservoirBarrel (self : Package) : BuildInfo :=
+abbrev optReservoirBarrel (self : Package) : BuildInfo :=
   self.facet optReservoirBarrelFacet
 
 @[inherit_doc gitHubReleaseFacet]
-abbrev Package.gitHubRelease (self : Package) : BuildInfo :=
+abbrev gitHubRelease (self : Package) : BuildInfo :=
   self.facet gitHubReleaseFacet
 
 @[inherit_doc optGitHubReleaseFacet]
-abbrev Package.optGitHubRelease (self : Package) : BuildInfo :=
+abbrev optGitHubRelease (self : Package) : BuildInfo :=
   self.facet optGitHubReleaseFacet
 
 @[deprecated gitHubRelease (since := "2024-09-27")]
-abbrev Package.release := @gitHubRelease
+abbrev release := @gitHubRelease
 
 @[deprecated optGitHubRelease (since := "2024-09-27")]
-abbrev Package.optRelease := @optGitHubRelease
+abbrev optRelease := @optGitHubRelease
 
 @[inherit_doc extraDepFacet]
-abbrev Package.extraDep (self : Package) : BuildInfo :=
+abbrev extraDep (self : Package) : BuildInfo :=
   self.facet extraDepFacet
 
 @[inherit_doc depsFacet]
-abbrev Package.deps (self : Package) : BuildInfo :=
+abbrev deps (self : Package) : BuildInfo :=
   self.facet depsFacet
 
 @[inherit_doc transDepsFacet]
-abbrev Package.transDeps (self : Package) : BuildInfo :=
+abbrev transDeps (self : Package) : BuildInfo :=
   self.facet transDepsFacet
 
-/-- Build info for a custom package target. -/
-abbrev Package.target (target : Name) (self : Package) : BuildInfo :=
-  .target self target
+end Package
 
-/-- Build info of the Lean library's Lean binaries. -/
-abbrev LeanLib.facet (self : LeanLib) (facet : Name) : BuildInfo :=
-  .libraryFacet self facet
+/-- Build info for a facet of a Lean library. -/
+abbrev LeanLib.facet (facet : Name) (self : LeanLib) : BuildInfo :=
+  .facet self.buildKey (toFamily self) facet
+
+@[deprecated LeanLib.facet (since := "2025-03-04")]
+abbrev BuildInfo.libraryFacet (lib : LeanLib) (facet : Name) : BuildInfo :=
+  lib.facet facet
+
+namespace LeanLib
 
 @[inherit_doc modulesFacet]
-abbrev LeanLib.modules (self : LeanLib) : BuildInfo :=
+abbrev modules (self : LeanLib) : BuildInfo :=
   self.facet modulesFacet
 
 @[inherit_doc leanArtsFacet]
-abbrev LeanLib.leanArts (self : LeanLib) : BuildInfo :=
+abbrev leanArts (self : LeanLib) : BuildInfo :=
   self.facet leanArtsFacet
 
 @[inherit_doc staticFacet]
-abbrev LeanLib.static (self : LeanLib) : BuildInfo :=
+abbrev static (self : LeanLib) : BuildInfo :=
   self.facet staticFacet
 
 @[inherit_doc staticExportFacet]
-abbrev LeanLib.staticExport (self : LeanLib) : BuildInfo :=
+abbrev staticExport (self : LeanLib) : BuildInfo :=
   self.facet staticExportFacet
 
 @[inherit_doc sharedFacet]
-abbrev LeanLib.shared (self : LeanLib) : BuildInfo :=
+abbrev shared (self : LeanLib) : BuildInfo :=
   self.facet sharedFacet
 
 @[inherit_doc extraDepFacet]
-abbrev LeanLib.extraDep (self : LeanLib) : BuildInfo :=
+abbrev extraDep (self : LeanLib) : BuildInfo :=
   self.facet extraDepFacet
+
+end LeanLib
+
+/--  Build info for a facet of a Lean executable. -/
+abbrev LeanExe.facet (facet : Name) (self : LeanExe) : BuildInfo :=
+  .facet self.buildKey (toFamily self) facet
 
 /-- Build info of the Lean executable. -/
 abbrev LeanExe.exe (self : LeanExe) : BuildInfo :=
-  .leanExe self
+  self.facet LeanExe.exeFacet
+
+@[deprecated LeanExe.exe (since := "2025-03-04")]
+abbrev BuildInfo.leanExe (exe : LeanExe) : BuildInfo :=
+  exe.exe
+
+/--  Build info for a facet of an external library. -/
+abbrev ExternLib.facet (facet : Name) (self : ExternLib) : BuildInfo :=
+  .facet self.buildKey (toFamily self) facet
 
 /-- Build info of the external library's static binary. -/
 abbrev ExternLib.static (self : ExternLib) : BuildInfo :=
-  .staticExternLib self
+  self.facet ExternLib.staticFacet
+
+@[deprecated ExternLib.static (since := "2025-03-04")]
+abbrev BuildInfo.staticExternLib (lib : ExternLib) : BuildInfo :=
+  lib.facet ExternLib.staticFacet
 
 /-- Build info of the external library's shared binary. -/
 abbrev ExternLib.shared (self : ExternLib) : BuildInfo :=
-  .sharedExternLib self
+  self.facet ExternLib.sharedFacet
+
+@[deprecated ExternLib.shared (since := "2025-03-04")]
+abbrev BuildInfo.sharedExternLib (lib : ExternLib) : BuildInfo :=
+  lib.facet  ExternLib.sharedFacet
 
 /-- Build info of the external library's dynlib. -/
 abbrev ExternLib.dynlib (self : ExternLib) : BuildInfo :=
-  .dynlibExternLib self
+  self.facet ExternLib.dynlibFacet
+
+@[deprecated ExternLib.dynlib (since := "2025-03-04")]
+abbrev BuildInfo.dynlibExternLib (lib : ExternLib) : BuildInfo :=
+  lib.facet ExternLib.dynlibFacet

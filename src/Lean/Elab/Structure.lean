@@ -26,6 +26,8 @@ register_builtin_option structure.strictResolutionOrder : Bool := {
 open Meta
 open TSyntax.Compat
 
+namespace Structure
+
 /-! Recall that the `structure command syntax is
 ```
 leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder >> Term.optType >> optional «extends» >> optional (" := " >> optional structCtor >> structFields)
@@ -100,17 +102,24 @@ Records the way in which a field is represented in a structure.
 -/
 inductive StructFieldKind where
   /-- New field defined by this `structure`.
-  The field is represented as a constructor argument. -/
+  Represented as a constructor argument. Will have a projection function. -/
   | newField
   /-- Field that comes from a parent but will be represented as a new field.
-  The field is represented as a constructor argument.
-  Its default value may be overridden. -/
+  Represented as a constructor argument. Will have a projection function.
+  Its inherited default value may be overridden. -/
   | copiedField
   /-- Field that comes from a embedded parent field, and is represented within a `subobject` field.
-  Its default value may be overridden. -/
+  Not represented as a constructor argument. Will not have a projection function.
+  Its inherited default value may be overridden. -/
   | fromSubobject
-  /-- The field is an embedded parent structure. -/
+  /-- The field is an embedded parent structure.
+  Represented as a constructor argument. Will have a projection function.
+  Default values are not allowed. -/
   | subobject (structName : Name)
+  /-- The field represents a parent projection for a parent that is not embedded as a subobject.
+  Not represented as a constructor argument. Will only have a projection function if it is a direct parent.
+  Default values are not allowed. -/
+  | parent (structName : Name)
   deriving Inhabited, DecidableEq, Repr
 
 /--
@@ -121,9 +130,14 @@ structure StructFieldInfo where
   name     : Name
   kind     : StructFieldKind
   /-- Name of projection function.
-  Remark: for `fromSubobject` fields, `declName` is only relevant for auxiliary "default value" functions. -/
+  Remark: for `fromSubobject` fields, `declName` is only relevant for auxiliary "default value" functions (such fields do not get projections). -/
   declName : Name
+  /-- All fields (both real fields and parent projection fields) get a local variable.
+  Parent projection fields are ldecls,  -/
   fvar     : Expr
+  -- /-- An expression representing the field in terms of the constructor fields.
+  -- Used when putting expressions into "subobject-normal form". -/
+  -- proj     : Expr
   value? : Option Expr := none
   deriving Inhabited, Repr
 
@@ -132,6 +146,11 @@ def StructFieldInfo.isFromSubobject (info : StructFieldInfo) : Bool :=
 
 def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   info.kind matches StructFieldKind.subobject ..
+
+
+/-!
+### View construction
+-/
 
 private def defaultCtorName := `mk
 
@@ -351,39 +370,87 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
     derivingClasses
   }
 
-private def findFieldInfo? (infos : Array StructFieldInfo) (fieldName : Name) : Option StructFieldInfo :=
-  infos.find? fun info => info.name == fieldName
 
-private def containsFieldName (infos : Array StructFieldInfo) (fieldName : Name) : Bool :=
-  (findFieldInfo? infos fieldName).isSome
+/-!
+### Elaboration
+-/
 
-private def replaceFieldInfo (infos : Array StructFieldInfo) (info : StructFieldInfo) : Array StructFieldInfo :=
-  infos.map fun info' =>
-    if info'.name == info.name then
-      info
-    else
-      info'
+private structure State where
+  /-- Immediate parents. -/
+  parents : Array StructParentInfo := #[]
+  /-- All fields, defined and inherited. Every parent has a `StructFieldInfo` too. -/
+  fields : Array StructFieldInfo := #[]
+  /-- Map from field name to its index in `fields`. -/
+  fieldIdx : NameMap Nat := {}
+  /-- Map from structure name to `field` index. -/
+  ancestorFieldIdx : NameMap Nat := {}
+  deriving Inhabited
+
+/--
+Monad for elaborating parents and fields of a `structure`.
+-/
+private abbrev StructElabM := StateT State TermElabM
+
+instance : Inhabited (StructElabM α) where
+  default := throw default
+
+def runStructElabM (k : StructElabM α) : TermElabM α := k.run' {}
+
+private def addParentInfo (parent : StructParentInfo) : StructElabM Unit := do
+  modify fun s => { s with parents := s.parents.push parent }
+
+private def findFieldInfo? (fieldName : Name) : StructElabM (Option StructFieldInfo) := do
+  let s ← get
+  return s.fieldIdx.find? fieldName |>.map fun idx => s.fields[idx]!
+
+private def hasFieldName (fieldName : Name) : StructElabM Bool :=
+  return (← get).fieldIdx.contains fieldName
+
+/--
+Inserts a field info into the current state.
+Throws an error if there is already a field with that name.
+-/
+private def addFieldInfo (info : StructFieldInfo) : StructElabM Unit := do
+  if ← hasFieldName info.name then
+    throwError "(in addFieldInfo) structure field '{info.name}' already exists"
+  else
+    modify fun s =>
+      let idx := s.fields.size
+      { s with
+        fields   := s.fields.push info
+        fieldIdx := s.fieldIdx.insert info.name idx }
+
+/--
+Replaces the field info for a given field.
+Throws an error if ther eis not already a field with that name.
+-/
+private def replaceFieldInfo (info : StructFieldInfo) : StructElabM Unit := do
+  if let some idx := (← get).fieldIdx.find? info.name then
+    modify fun s => { s with fields := s.fields.set! idx info }
+  else
+    throwError "(in replaceFieldInfo) structure field '{info.name}' does not already exist"
 
 /-- Return `some fieldName` if field `fieldName` of the parent structure `parentStructName` is already in `infos` -/
-private def findExistingField? (infos : Array StructFieldInfo) (parentStructName : Name) : CoreM (Option Name) := do
+private def findExistingField? (parentStructName : Name) : StructElabM (Option Name) := do
+  let infos := (← get).fields
   -- Check if `parentStructName` is represented as a subobject field.
   if let some info := infos.find? (·.kind == .subobject parentStructName) then
     return info.name
   -- Otherwise check for field overlap.
   let fieldNames := getStructureFieldsFlattened (← getEnv) parentStructName
   for fieldName in fieldNames do
-    if containsFieldName infos fieldName then
+    if ← hasFieldName fieldName then
       return some fieldName
   return none
 
 private def processSubfields (structDeclName : Name) (parentFVar : Expr) (parentStructName : Name) (subfieldNames : Array Name)
-    (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α :=
-  go 0 infos
+    (k : StructElabM α) : StructElabM α :=
+  go 0
 where
-  go (i : Nat) (infos : Array StructFieldInfo) := do
+  go (i : Nat) : StructElabM α := do
     if h : i < subfieldNames.size then
       let subfieldName := subfieldNames[i]
-      if containsFieldName infos subfieldName then
+      if ← hasFieldName subfieldName then
         throwError "field '{subfieldName}' from '{.ofConstName parentStructName}' has already been declared"
       let val  ← mkProjection parentFVar subfieldName
       let type ← inferType val
@@ -391,10 +458,10 @@ where
         /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
            its default value is overwritten in the structure. If the default value is not overwritten, then the `declName` is irrelevant. -/
         let declName := structDeclName ++ subfieldName
-        let infos := infos.push { ref := (← getRef), name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromSubobject }
-        go (i+1) infos
+        addFieldInfo { ref := (← getRef), name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromSubobject }
+        go (i+1)
     else
-      k infos
+      k
 
 /-- Given `obj.foo.bar.baz`, return `obj`. -/
 private partial def getNestedProjectionArg (e : Expr) : MetaM Expr := do
@@ -410,7 +477,7 @@ private partial def getNestedProjectionArg (e : Expr) : MetaM Expr := do
   Auxiliary method for `copyNewFieldsFrom`.
 
 -/
-private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fieldName : Name) : MetaM Expr := do
+private def getFieldType (parentType : Expr) (fieldName : Name) : StructElabM Expr := do
   withLocalDeclD (← mkFreshId) parentType fun parent => do
     let proj ← mkProjection parent fieldName
     let projType ← inferType proj
@@ -418,7 +485,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
     If the copied parent extended another structure via a subobject,
     then the occurrence can also look like `parent.toGrandparent.field`
     (where `toGrandparent` is not a field of the current structure). -/
-    let visit (e : Expr) : MetaM TransformStep := do
+    let visit (e : Expr) : StructElabM TransformStep := do
       if let Expr.const subProjName .. := e.getAppFn then
         if let some { numParams, .. } ← getProjectionFnInfo? subProjName then
           let Name.str _ subFieldName .. := subProjName
@@ -426,7 +493,7 @@ private def getFieldType (infos : Array StructFieldInfo) (parentType : Expr) (fi
           let args := e.getAppArgs
           if let some major := args[numParams]? then
             if (← getNestedProjectionArg major) == parent then
-              if let some existingFieldInfo := findFieldInfo? infos (.mkSimple subFieldName) then
+              if let some existingFieldInfo ← findFieldInfo? (.mkSimple subFieldName) then
                 return TransformStep.done <| mkAppN existingFieldInfo.fvar args[numParams+1:args.size]
       return TransformStep.done e
     let projType ← Meta.transform projType (post := visit)
@@ -518,46 +585,46 @@ where
       let r := if e.isAppOfArity ``id 2 then e.appArg! else e
       return some (← reduceProjs (← instantiateMVars r) expandedStructNames)
 
-private partial def copyNewFieldsFrom (structDeclName : Name) (infos : Array StructFieldInfo) (parentType : Expr) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  copyFields infos {} parentType fun infos _ _ => k infos
+private partial def copyNewFieldsFrom (structDeclName : Name) (parentType : Expr) (k : StructElabM α) : StructElabM α := do
+  copyFields {} parentType fun _ _ => k
 where
-  copyFields (infos : Array StructFieldInfo) (expandedStructNames : NameSet) (parentType : Expr) (k : Array StructFieldInfo → FieldMap → NameSet → TermElabM α) : TermElabM α := do
+  copyFields (expandedStructNames : NameSet) (parentType : Expr) (k : FieldMap → NameSet → StructElabM α) : StructElabM α := do
     let parentStructName ← getStructureName parentType
     let fieldNames := getStructureFields (← getEnv) parentStructName
-    let rec copy (i : Nat) (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) : TermElabM α := do
+    let rec copy (i : Nat) (fieldMap : FieldMap) (expandedStructNames : NameSet) : StructElabM α := do
       if h : i < fieldNames.size then
         let fieldName := fieldNames[i]
-        let fieldType ← getFieldType infos parentType fieldName
-        match findFieldInfo? infos fieldName with
+        let fieldType ← getFieldType parentType fieldName
+        match ← findFieldInfo? fieldName with
         | some existingFieldInfo =>
           -- TODO: make sure parent projections are checked too
           let existingFieldType ← inferType existingFieldInfo.fvar
           unless (← isDefEq fieldType existingFieldType) do
             throwError "parent field type mismatch, field '{fieldName}' from parent '{.ofConstName parentStructName}' {← mkHasTypeButIsExpectedMsg fieldType existingFieldType}"
           /- Remark: if structure has a default value for this field, it will be set at the `processOveriddenDefaultValues` below. -/
-          copy (i+1) infos (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
+          copy (i+1) (fieldMap.insert fieldName existingFieldInfo.fvar) expandedStructNames
         | none =>
           let some fieldInfo := getFieldInfo? (← getEnv) parentStructName fieldName | unreachable!
           if let some fieldParentStructName := fieldInfo.subobject? then
-            if (← findExistingField? infos fieldParentStructName).isSome then
+            if (← findExistingField? fieldParentStructName).isSome then
               -- See comment at `copyDefaultValue?`
               let expandedStructNames := expandedStructNames.insert fieldParentStructName
-              copyFields infos expandedStructNames fieldType fun infos nestedFieldMap expandedStructNames => do
+              copyFields expandedStructNames fieldType fun nestedFieldMap expandedStructNames => do
                 let fieldVal ← mkCompositeField fieldType nestedFieldMap
-                copy (i+1) infos (fieldMap.insert fieldName fieldVal) expandedStructNames
+                copy (i+1) (fieldMap.insert fieldName fieldVal) expandedStructNames
             else
               let subfieldNames := getStructureFieldsFlattened (← getEnv) fieldParentStructName
               let fieldName := fieldInfo.fieldName
               -- This error should never happen:
-              if let some info := infos.find? (·.kind == .subobject fieldParentStructName) then
+              if let some info := (← get).fields.find? (·.kind == .subobject fieldParentStructName) then
                 throwError "projection field name conflict, ancestor '{.ofConstName fieldParentStructName}' \
                   has projection fields '{info.name}' and '{fieldName}'"
               withLocalDecl fieldName fieldInfo.binderInfo fieldType fun parentFVar => do
-                let infos := infos.push { ref := (← getRef)
-                                          name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar,
-                                          kind := StructFieldKind.subobject fieldParentStructName }
-                processSubfields structDeclName parentFVar fieldParentStructName subfieldNames infos fun infos =>
-                  copy (i+1) infos (fieldMap.insert fieldName parentFVar) expandedStructNames
+                addFieldInfo { ref := (← getRef)
+                               name := fieldName, declName := structDeclName ++ fieldName, fvar := parentFVar,
+                               kind := StructFieldKind.subobject fieldParentStructName }
+                processSubfields structDeclName parentFVar fieldParentStructName subfieldNames do
+                  copy (i+1) (fieldMap.insert fieldName parentFVar) expandedStructNames
           else
             withLocalDecl fieldName fieldInfo.binderInfo fieldType fun fieldFVar => do
               let fieldMap := fieldMap.insert fieldName fieldFVar
@@ -565,20 +632,19 @@ where
               let fieldDeclName := structDeclName ++ fieldName
               let fieldDeclName ← applyVisibility (← toVisibility fieldInfo) fieldDeclName
               addDocString' fieldDeclName (← findDocString? (← getEnv) fieldInfo.projFn)
-              let infos := infos.push { ref := (← getRef)
-                                        name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
-                                        kind := StructFieldKind.copiedField }
-              copy (i+1) infos fieldMap expandedStructNames
+              addFieldInfo { ref := (← getRef)
+                             name := fieldName, declName := fieldDeclName, fvar := fieldFVar, value?,
+                             kind := StructFieldKind.copiedField }
+              copy (i+1) fieldMap expandedStructNames
       else
-        let infos ← processOveriddenDefaultValues infos fieldMap expandedStructNames parentStructName
-        k infos fieldMap expandedStructNames
-    copy 0 infos {} expandedStructNames
+        processOveriddenDefaultValues fieldMap expandedStructNames parentStructName
+        k fieldMap expandedStructNames
+    copy 0 {} expandedStructNames
 
-  processOveriddenDefaultValues (infos : Array StructFieldInfo) (fieldMap : FieldMap) (expandedStructNames : NameSet) (parentStructName : Name) : TermElabM (Array StructFieldInfo) :=
-    infos.mapM fun info => do
-      match (← copyDefaultValue? fieldMap expandedStructNames parentStructName info.name) with
-      | some value => return { info with value? := value }
-      | none       => return info
+  processOveriddenDefaultValues (fieldMap : FieldMap) (expandedStructNames : NameSet) (parentStructName : Name) : StructElabM Unit :=
+    for info in (← get).fields do
+      if let some value ← copyDefaultValue? fieldMap expandedStructNames parentStructName info.name then
+        replaceFieldInfo { info with value? := value }
 
   mkCompositeField (parentType : Expr) (fieldMap : FieldMap) : TermElabM Expr := do
     let env ← getEnv
@@ -598,11 +664,10 @@ private partial def mkToParentName (parentView : StructParentView) (parentStruct
     let toParentName := Name.mkSimple <| "to" ++ parentStructName.eraseMacroScopes.getString!
     (toParentName, toParentName)
 
-private def withParents (view : StructView) (rs : Array ElabHeaderResult) (indFVar : Expr)
-    (k : Array StructFieldInfo → Array StructParentInfo → TermElabM α) : TermElabM α := do
-  go 0 #[] #[]
+private def withParents (view : StructView) (rs : Array ElabHeaderResult) (indFVar : Expr) (k : StructElabM α) : StructElabM α := do
+  go 0
 where
-  go (i : Nat) (infos : Array StructFieldInfo) (parents : Array StructParentInfo) : TermElabM α := do
+  go (i : Nat) : StructElabM α := do
     if h : i < view.parents.size then
       let parentView := view.parents[i]
       withRef parentView.ref do
@@ -610,7 +675,7 @@ where
       let parentType ← whnf <| ← Term.withoutAutoBoundImplicit <| Term.elabType parentView.type
       if parentType.getAppFn == indFVar then
         logWarning "structure extends itself, skipping"
-        return ← go (i + 1) infos parents
+        return ← go (i + 1)
       if rs.any (fun r => r.indFVar == parentType.getAppFn) then
         throwError "structure cannot extend types defined in the same mutual block"
       let parentStructName ← try
@@ -630,25 +695,25 @@ where
         else
           throwError "field '{toParentName}' has already been declared, \
             use 'toParent : P' syntax to give a unique name for the parent projection"
-      if parents.any (·.structName == parentStructName) then
+      if (← get).parents.any (·.structName == parentStructName) then
         logWarning m!"duplicate parent structure '{.ofConstName parentStructName}', skipping"
-        go (i + 1) infos parents
-      else if (← findExistingField? infos parentStructName).isSome || (findFieldInfo? infos toParentName).isSome then
+        go (i + 1)
+      else if (← findExistingField? parentStructName).isSome || (← hasFieldName toParentName) then
         if structureDiamondWarning.get (← getOptions) then
-          if let some existingFieldName ← findExistingField? infos parentStructName then
+          if let some existingFieldName ← findExistingField? parentStructName then
             logWarning m!"field '{existingFieldName}' from '{.ofConstName parentStructName}' has already been declared"
-        copyNewFieldsFrom view.declName infos parentType fun infos => do
-          if let some info := infos.find? (·.kind == .subobject parentStructName) then
+        copyNewFieldsFrom view.declName parentType do
+          if let some info := (← get).fields.find? (·.kind == .subobject parentStructName) then
             if info.name != toParentName then
               throwError "parent is an ancestor of a previous parent, but projection name '{toParentName}' does not match '{info.name}'"
             pure ()
           else
-            if let some info := findFieldInfo? infos toParentName then
+            if let some info ← findFieldInfo? toParentName then
               unless ← isDefEq (← inferType info.fvar) parentType do
                 throwParentNameError
-            if (parents.find? (·.name == toParentName)).isSome then
+            if ((← get).parents.find? (·.name == toParentName)).isSome then
               throwParentNameError
-          let parents := parents.push {
+          addParentInfo {
             ref := parentView.projRef
             addTermInfo := parentView.name?.isSome
             fvar? := none
@@ -658,23 +723,23 @@ where
             declName
             type := parentType
           }
-          go (i + 1) infos parents
+          go (i + 1)
         -- TODO: if `class`, then we need to create a let-decl that stores the local instance for the `parentStructure`
       else
         let env ← getEnv
         let subfieldNames := getStructureFieldsFlattened env parentStructName
-        if containsFieldName infos toParentName || subfieldNames.contains toParentName || (parents.find? (·.name == toParentName)).isSome then
+        if (← hasFieldName toParentName) || subfieldNames.contains toParentName || ((← get).parents.find? (·.name == toParentName)).isSome then
           throwParentNameError
         let binfo := if view.isClass && isClass env parentStructName then BinderInfo.instImplicit else BinderInfo.default
-        withLocalDecl rawToParentName binfo parentType fun parentFVar =>
-          let infos := infos.push {
+        withLocalDecl rawToParentName binfo parentType fun parentFVar => do
+          addFieldInfo {
             ref := parentView.projRef
             name := toParentName
             declName
             fvar := parentFVar
             kind := StructFieldKind.subobject parentStructName
           }
-          let parents := parents.push {
+          addParentInfo {
             ref := parentView.projRef
             addTermInfo := parentView.name?.isSome
             fvar? := parentFVar
@@ -684,10 +749,10 @@ where
             declName
             type := parentType
           }
-          processSubfields view.declName parentFVar parentStructName subfieldNames infos fun infos =>
-            go (i+1) infos parents
+          processSubfields view.declName parentFVar parentStructName subfieldNames do
+            go (i+1)
     else
-      k infos parents
+      k
 
 private def registerFailedToInferFieldType (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"failed to infer type of field '{.ofConstName fieldName}'"
@@ -728,35 +793,35 @@ private def elabFieldTypeValue (view : StructFieldView) : TermElabM (Option Expr
         let value ← mkLambdaFVars params value
         return (type, value)
 
-private partial def withFields (parents : Array StructParentInfo) (views : Array StructFieldView) (infos : Array StructFieldInfo) (k : Array StructFieldInfo → TermElabM α) : TermElabM α := do
-  go 0 {} infos
+private partial def withFields (views : Array StructFieldView) (k : StructElabM α) : StructElabM α := do
+  go 0 {}
 where
-  go (i : Nat) (defaultValsOverridden : NameSet) (infos : Array StructFieldInfo) : TermElabM α := do
+  go (i : Nat) (defaultValsOverridden : NameSet) : StructElabM α := do
     if h : i < views.size then
       let view := views[i]
       withRef view.ref do
-      if let some parent := parents.find? (·.name == view.name) then
+      if let some parent := (← get).parents.find? (·.name == view.name) then
         throwError "field '{view.name}' has already been declared as a projection for parent '{.ofConstName parent.structName}'"
-      match findFieldInfo? infos view.name with
+      match ← findFieldInfo? view.name with
       | none      =>
         let (type?, value?) ← elabFieldTypeValue view
         match type?, value? with
         | none,      none => throwError "invalid field, type expected"
         | some type, _    =>
-          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
-            let infos := infos.push { ref := view.nameId
-                                      name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
-                                      kind := StructFieldKind.newField }
-            go (i+1) defaultValsOverridden infos
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
+            addFieldInfo { ref := view.nameId
+                           name := view.name, declName := view.declName, fvar := fieldFVar, value? := value?,
+                           kind := StructFieldKind.newField }
+            go (i+1) defaultValsOverridden
         | none, some value =>
           let type ← inferType value
-          withLocalDecl view.rawName view.binderInfo type fun fieldFVar =>
-            let infos := infos.push { ref := view.nameId
-                                      name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
-                                      kind := StructFieldKind.newField }
-            go (i+1) defaultValsOverridden infos
+          withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
+            addFieldInfo { ref := view.nameId
+                           name := view.name, declName := view.declName, fvar := fieldFVar, value? := value,
+                           kind := StructFieldKind.newField }
+            go (i+1) defaultValsOverridden
       | some info =>
-        let updateDefaultValue : TermElabM α := do
+        let updateDefaultValue : StructElabM α := do
           match view.value? with
           | none       => throwError "field '{view.name}' has been declared in parent structure"
           | some valStx =>
@@ -773,15 +838,16 @@ where
               let value ← Term.elabTermEnsuringType valStx fvarType
               registerFailedToInferDefaultValue view.name value valStx
               pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
-              let infos := replaceFieldInfo infos { info with ref := view.nameId, value? := value }
-              go (i+1) defaultValsOverridden infos
+              replaceFieldInfo { info with ref := view.nameId, value? := value }
+              go (i+1) defaultValsOverridden
         match info.kind with
         | StructFieldKind.newField      => throwError "field '{view.name}' has already been declared"
         | StructFieldKind.subobject n   => throwError "unexpected reference to subobject field '{n}'" -- improve error message
+        | StructFieldKind.parent n      => throwError "unexpected reference to parent field '{n}'" -- improve error message
         | StructFieldKind.copiedField   => updateDefaultValue
         | StructFieldKind.fromSubobject => updateDefaultValue
     else
-      k infos
+      k
 
 private def collectUsedFVars (lctx : LocalContext) (localInsts : LocalInstances) (fieldInfos : Array StructFieldInfo) :
     StateRefT CollectFVars.State MetaM Unit := do
@@ -1040,10 +1106,12 @@ def elabStructureCommand : InductiveElabDescr where
     trace[Elab.structure] "view.levelNames: {view.levelNames}"
     return {
       view := view.toInductiveView
-      elabCtors := fun rs r params => do
-        withParents view rs r.indFVar fun parentFieldInfos parents =>
-        withFields parents view.fields parentFieldInfos fun fieldInfos => do
+      elabCtors := fun rs r params => runStructElabM do
+        withParents view rs r.indFVar do
+        withFields view.fields do
         withRef view.ref do
+          let parents := (← get).parents
+          let fieldInfos := (← get).fields
           Term.synthesizeSyntheticMVarsNoPostponing
           let lctx ← getLCtx
           let localInsts ← getLocalInstances
@@ -1079,4 +1147,4 @@ def elabStructureCommand : InductiveElabDescr where
           }
     }
 
-end Lean.Elab.Command
+end Lean.Elab.Command.Structure

@@ -2020,7 +2020,7 @@ free variables. The frontend automatically declares a fresh auxiliary constant `
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 
@@ -2055,7 +2055,7 @@ decidability instance can be evaluated to `true` using the lean compiler / inter
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/
@@ -2066,7 +2066,7 @@ The axiom `ofReduceNat` is used to perform proofs by reflection. See `reduceBool
 
 Warning: by using this feature, the Lean compiler and interpreter become part of your trusted code base.
 This is extra 30k lines of code. More importantly, you will probably not be able to check your development using
-external type checkers (e.g., Trepplein) that do not implement this feature.
+external type checkers that do not implement this feature.
 Keep in mind that if you are using Lean as programming language, you are already trusting the Lean compiler and interpreter.
 So, you are mainly losing the capability of type checking your development using external checkers.
 -/

@@ -37,8 +37,8 @@ partial def DvdCnstr.toExprProof (c' : DvdCnstr) : ProofM Expr := c'.caching do
     return mkApp10 (mkConst ``Int.Linear.dvd_solve_elim)
       (← getContext) (toExpr c₁.d) (toExpr c₁.p) (toExpr c₂.d) (toExpr c₂.p) (toExpr c'.d) (toExpr c'.p)
       reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
-  | .substEq _c₁ _c₂ => throwError "NIY"
-  | .eqElim _c => throwError "NIY"
+  | .subst _c₁ _c₂ => throwError "NIY"
+  | .ofEq _c => throwError "NIY"
 
 partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
   match c'.h with
@@ -56,7 +56,7 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
-  | .substEq _c₁ _c₂ => throwError "NIY"
+  | .subst _c₁ _c₂ => throwError "NIY"
 
 end
 end Lean.Meta.Grind.Arith.Cutsat

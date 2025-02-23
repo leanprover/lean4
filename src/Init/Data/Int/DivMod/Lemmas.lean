@@ -83,6 +83,9 @@ theorem eq_one_of_mul_eq_one_right {a b : Int} (H : 0 ≤ a) (H' : a * b = 1) : 
 theorem eq_one_of_mul_eq_one_left {a b : Int} (H : 0 ≤ b) (H' : a * b = 1) : b = 1 :=
   eq_one_of_mul_eq_one_right (b := a) H <| by rw [Int.mul_comm, H']
 
+instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun _ _ =>
+  decidable_of_decidable_of_iff (dvd_iff_emod_eq_zero ..).symm
+
 /-! ### *div zero  -/
 
 @[simp] protected theorem zero_tdiv : ∀ b : Int, tdiv 0 b = 0
@@ -130,47 +133,49 @@ theorem tdiv_eq_ediv_of_nonneg : ∀ {a b : Int}, 0 ≤ a → a.tdiv b = a / b
   | succ _, -[_+1], _ => rfl
 
 theorem tdiv_eq_ediv {a b : Int} :
-    a.tdiv b =
-      if 0 ≤ a then
-        a / b
-      else
-        if a % b = 0 then a / b
-        else a / b + sign b :=
+    a.tdiv b = a / b + if 0 ≤ a ∨ a % b = 0 then 0 else sign b :=
   match a, b with
   | ofNat a, ofNat b => by simp [tdiv_eq_ediv_of_nonneg]
   | ofNat a, -[b+1] => by simp [tdiv_eq_ediv_of_nonneg]
   | -[a+1], 0 => by simp
   | -[a+1], ofNat (succ b) => by
-    simp only [tdiv, Nat.succ_eq_add_one, ofNat_eq_coe, ofNat_ediv, natCast_add, Nat.cast_ofNat_Int,
-      negSucc_not_nonneg, ↓reduceIte, sign_of_add_one]
+    simp only [tdiv, Nat.succ_eq_add_one, ofNat_eq_coe, natCast_add, Nat.cast_ofNat_Int,
+      negSucc_not_nonneg, sign_of_add_one]
     simp only [negSucc_emod_ofNat_succ_eq_zero_iff]
     norm_cast
-    simp only [subNat_eq_zero_iff, Nat.succ_eq_add_one, sign_negSucc, Int.sub_neg]
+    simp only [subNat_eq_zero_iff, Nat.succ_eq_add_one, sign_negSucc, Int.sub_neg, false_or]
     split <;> rename_i h
-    · rw [neg_ofNat_eq_negSucc_iff]
+    · rw [Int.add_zero, neg_ofNat_eq_negSucc_iff]
       exact Nat.succ_div_of_mod_eq_zero h
     · rw [neg_ofNat_eq_negSucc_add_one_iff]
       exact Nat.succ_div_of_mod_ne_zero h
   | -[a+1], -[b+1] => by
-    simp [tdiv]
+    simp only [tdiv, ofNat_eq_coe, negSucc_not_nonneg, false_or, sign_negSucc]
     norm_cast
     simp only [negSucc_ediv_negSucc]
     rw [natCast_add, natCast_one]
     simp only [negSucc_emod_negSucc_eq_zero_iff]
-    rw [← Int.sub_eq_add_neg]
-    rw [Int.add_sub_cancel]
     split <;> rename_i h
     · norm_cast
       exact Nat.succ_div_of_mod_eq_zero h
-    · norm_cast
+    · rw [← Int.sub_eq_add_neg, Int.add_sub_cancel]
+      norm_cast
       exact Nat.succ_div_of_mod_ne_zero h
+
+theorem ediv_eq_tdiv {a b : Int} :
+    a / b = a.tdiv b - if 0 ≤ a ∨ a % b = 0 then 0 else sign b := by
+  simp [tdiv_eq_ediv]
 
 theorem fdiv_eq_ediv_of_nonneg : ∀ (a : Int) {b : Int}, 0 ≤ b → fdiv a b = a / b
   | 0, _, _ | -[_+1], 0, _ => by simp
   | succ _, ofNat _, _ | -[_+1], succ _, _ => rfl
 
-@[deprecated fdiv_eq_ediv_of_nonneg (since := "2025-02-20")]
-abbrev fdiv_eq_ediv := @fdiv_eq_ediv_of_nonneg
+theorem fdiv_eq_ediv {a b : Int} :
+    a.fdiv b = a / b - if 0 ≤ b ∨ b ∣ a then 0 else 1 := sorry
+
+theorem ediv_eq_fdiv {a b : Int} :
+    a / b = a.fdiv b + if 0 ≤ b ∨ b ∣ a then 0 else 1 := by
+  simp [fdiv_eq_ediv]
 
 theorem fdiv_eq_tdiv_of_nonneg {a b : Int} (Ha : 0 ≤ a) (Hb : 0 ≤ b) : fdiv a b = tdiv a b :=
   tdiv_eq_ediv_of_nonneg Ha ▸ fdiv_eq_ediv_of_nonneg _ Hb
@@ -255,14 +260,26 @@ theorem fmod_def (a b : Int) : a.fmod b = a - b * a.fdiv b := by
 theorem fmod_eq_emod_of_nonneg (a : Int) {b : Int} (hb : 0 ≤ b) : fmod a b = a % b := by
   simp [fmod_def, emod_def, fdiv_eq_ediv_of_nonneg _ hb]
 
-@[deprecated fmod_eq_emod_of_nonneg (since := "2025-02-20")]
-abbrev fmod_eq_emod := @fmod_eq_emod_of_nonneg
+theorem fmod_eq_emod {a b : Int} :
+    fmod a b = a % b + if 0 ≤ b ∨ b ∣ a then 0 else b := by
+  simp [fmod_def, emod_def, fdiv_eq_ediv]
+  split <;> simp [Int.mul_sub]
+  omega
+
+theorem tmod_eq_emod {a b : Int} :
+    tmod a b = a % b - if 0 ≤ a ∨ b ∣ a then 0 else b * b.sign := by
+  rw [tmod_def, tdiv_eq_ediv]
+  simp only [dvd_iff_emod_eq_zero]
+  split
+  · simp [emod_def]
+  · rw [Int.mul_add, ← Int.sub_sub, emod_def]
 
 theorem tmod_eq_emod_of_nonneg {a b : Int} (ha : 0 ≤ a) : tmod a b = a % b := by
   simp [emod_def, tmod_def, tdiv_eq_ediv_of_nonneg ha]
 
-@[deprecated tmod_eq_emod_of_nonneg (since := "2025-02-20")]
-abbrev tmod_eq_emod := @tmod_eq_emod_of_nonneg
+theorem emod_eq_tmod {a b : Int} :
+    a % b = tmod a b + if 0 ≤ a ∨ b ∣ a then 0 else b * b.sign := by
+  simp [tmod_eq_emod]
 
 theorem fmod_eq_tmod_of_nonneg {a b : Int} (ha : 0 ≤ a) (hb : 0 ≤ b) : fmod a b = tmod a b :=
   tmod_eq_emod_of_nonneg ha ▸ fmod_eq_emod_of_nonneg _ hb
@@ -466,9 +483,6 @@ theorem dvd_emod_sub_self {x : Int} {m : Nat} : (m : Int) ∣ x % m - x := by
 @[simp] theorem neg_mul_emod_right (a b : Int) : -(a * b) % a = 0 := by
   rw [← dvd_iff_emod_eq_zero, Int.dvd_neg]
   exact Int.dvd_mul_right a b
-
-instance decidableDvd : DecidableRel (α := Int) (· ∣ ·) := fun _ _ =>
-  decidable_of_decidable_of_iff (dvd_iff_emod_eq_zero ..).symm
 
 theorem emod_pos_of_not_dvd {a b : Int} (h : ¬ a ∣ b) : a = 0 ∨ 0 < b % a := by
   rw [dvd_iff_emod_eq_zero] at h

@@ -32,6 +32,9 @@ leading_parser (structureTk <|> classTk) >> declId >> many Term.bracketedBinder 
 ```
 -/
 
+/--
+Represents the data of the syntax of a structure parent.
+-/
 structure StructParentView where
   ref        : Syntax
   /-- Ref to use for the parent projection. -/
@@ -42,6 +45,9 @@ structure StructParentView where
   rawName?   : Option Name
   type       : Syntax
 
+/--
+Represents the data of the syntax of a structure field declaration.
+-/
 structure StructFieldView where
   ref        : Syntax
   modifiers  : Modifiers
@@ -49,9 +55,10 @@ structure StructFieldView where
   declName   : Name
   /-- Ref for the field name -/
   nameId     : Syntax
-  /-- The name of the field. (Without macro scopes.) -/
+  /-- The name of the field (without macro scopes). -/
   name       : Name
-  /-- Same as `name` but includes macro scopes. Used for field elaboration. -/
+  /-- The name of the field (with macro scopes).
+  Used when adding the field to the local context, for field elaboration. -/
   rawName    : Name
   binders    : Syntax
   type?      : Option Syntax
@@ -62,9 +69,12 @@ structure StructView extends InductiveView where
   fields  : Array StructFieldView
   deriving Inhabited
 
-def StructView.ctor : StructView → CtorView
-  | { ctors := #[ctor], ..} => ctor
-  | _ => unreachable!
+/--
+Gets the single constructor view from the underlying `InductiveView`.
+Recall that `structure`s have exactly one constructor.
+-/
+def StructView.ctor (view : StructView) : CtorView :=
+  view.ctors[0]!
 
 /--
 Elaborated parent info.
@@ -73,19 +83,33 @@ structure StructParentInfo where
   ref         : Syntax
   /-- Whether to add term info to the ref. False if there's no user-provided parent projection. -/
   addTermInfo : Bool
+  /-- A let variable that represents this structure parent. -/
   fvar?       : Option Expr
   structName  : Name
   /-- Field name for parent. -/
   name        : Name
   /-- Name of the projection function. -/
   declName    : Name
+  /-- Whether this parent corresponds to a `subobject` field. -/
   subobject   : Bool
   type        : Expr
   deriving Inhabited
 
+/--
+Records the way in which a field is represented in a structure.
+-/
 inductive StructFieldKind where
-  | newField | copiedField | fromParent
-  /-- The field is an embedded parent. -/
+  /-- New field defined by this `structure`.
+  The field is represented as a constructor argument. -/
+  | newField
+  /-- Field that comes from a parent but will be represented as a new field.
+  The field is represented as a constructor argument.
+  Its default value may be overridden. -/
+  | copiedField
+  /-- Field that comes from a embedded parent field, and is represented within a `subobject` field.
+  Its default value may be overridden. -/
+  | fromSubobject
+  /-- The field is an embedded parent structure. -/
   | subobject (structName : Name)
   deriving Inhabited, DecidableEq, Repr
 
@@ -95,18 +119,16 @@ Elaborated field info.
 structure StructFieldInfo where
   ref      : Syntax
   name     : Name
+  kind     : StructFieldKind
   /-- Name of projection function.
-  Remark: for `fromParent` fields, `declName` is only relevant in the generation of auxiliary "default value" functions. -/
+  Remark: for `fromSubobject` fields, `declName` is only relevant for auxiliary "default value" functions. -/
   declName : Name
   fvar     : Expr
-  kind     : StructFieldKind
-  value?   : Option Expr := none
+  value? : Option Expr := none
   deriving Inhabited, Repr
 
-def StructFieldInfo.isFromParent (info : StructFieldInfo) : Bool :=
-  match info.kind with
-  | StructFieldKind.fromParent => true
-  | _                          => false
+def StructFieldInfo.isFromSubobject (info : StructFieldInfo) : Bool :=
+  info.kind matches StructFieldKind.fromSubobject
 
 def StructFieldInfo.isSubobject (info : StructFieldInfo) : Bool :=
   info.kind matches StructFieldKind.subobject ..
@@ -156,15 +178,6 @@ def «extends»    := leading_parser " extends " >> sepBy1 structParent ", "
 private def expandParents (optExtendsStx : Syntax) : TermElabM (Array StructParentView) := do
   let parentDecls := if optExtendsStx.isNone then #[] else optExtendsStx[0][1].getSepArgs
   parentDecls.mapM fun parentDecl => withRef parentDecl do
-    unless parentDecl.isOfKind ``Parser.Command.structParent do
-      -- Old style, to avoid stage0 update
-      return {
-        ref := parentDecl
-        projRef := parentDecl
-        name? := none
-        rawName? := none
-        type := parentDecl
-      }
     let mut projRef  := parentDecl
     let mut rawName? := none
     let mut name? := none
@@ -296,18 +309,19 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let ⟨name, declName, levelNames⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
   addDeclarationRangesForBuiltin declName modifiers.stx stx
   let binders   := stx[2]
-  -- Compatibility mode (to avoid stage0 update): extract type and extends clauses from syntax:
   let (optType, exts) ←
-    if (!stx[4].isNone && stx[4][0].isOfKind ``Parser.Term.typeSpec)
-        || (!stx[3].isNone && stx[3][0].isOfKind ``Parser.Command.extends) then
-      pure (stx[4], stx[3])
-    else if stx[3].isNone && !stx[4].isNone && !stx[4][0][2].isNone then
-      -- TODO: enable warning
-      -- logWarningAt stx[4][0][2][0] "\
-      --   Now the syntax is 'structure S : Type extends P' rather than 'structure S extends P' : Type'.\n\n\
-      --   The purpose of the change is to accommodate 'structure S extends toP : P' syntax for naming parent projections."
+    -- Compatibility mode for `structure S extends P : Type` syntax
+    if stx[3].isNone && !stx[4].isNone && !stx[4][0][2].isNone then
+      logWarningAt stx[4][0][2][0] "\
+        The syntax is now 'structure S : Type extends P' rather than 'structure S extends P : Type'.\n\n\
+        The purpose of this change is to accommodate 'structure S extends toP : P' syntax for naming parent projections."
       pure (stx[4][0][2], stx[4])
     else
+      if !stx[4].isNone && !stx[4][0][2].isNone then
+        logErrorAt stx[4][0][2][0] "\
+          Unexpected additional resulting type. \
+          The syntax is now 'structure S : Type extends P' rather than 'structure S extends P : Type'.\n\n\
+          The purpose of this change is to accommodate 'structure S extends toP : P' syntax for naming parent projections."
       pure (stx[3], stx[4])
   let parents   ← expandParents exts
   let derivingClasses ← getOptDerivingClasses stx[6]
@@ -375,9 +389,9 @@ where
       let type ← inferType val
       withLetDecl subfieldName type val fun subfieldFVar => do
         /- The following `declName` is only used for creating the `_default` auxiliary declaration name when
-           its default value is overwritten in the structure. If the default value is not overwritten, then its value is irrelevant. -/
+           its default value is overwritten in the structure. If the default value is not overwritten, then the `declName` is irrelevant. -/
         let declName := structDeclName ++ subfieldName
-        let infos := infos.push { ref := (← getRef), name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromParent }
+        let infos := infos.push { ref := (← getRef), name := subfieldName, declName, fvar := subfieldFVar, kind := StructFieldKind.fromSubobject }
         go (i+1) infos
     else
       k infos
@@ -431,7 +445,8 @@ private def toVisibility (fieldInfo : StructureFieldInfo) : CoreM Visibility := 
   else
     return Visibility.regular
 
-abbrev FieldMap := NameMap Expr -- Map from field name to expression representing the field
+/-- Map from field name to expression representing the field. -/
+abbrev FieldMap := NameMap Expr
 
 /-- Reduce projections of the structures in `structNames` -/
 private def reduceProjs (e : Expr) (structNames : NameSet) : MetaM Expr :=
@@ -442,36 +457,37 @@ private def reduceProjs (e : Expr) (structNames : NameSet) : MetaM Expr :=
   transform e (post := reduce)
 
 /--
-  Copy the default value for field `fieldName` set at structure `structName`.
-  The arguments for the `_default` auxiliary function are provided by `fieldMap`.
-  Recall some of the entries in `fieldMap` are constructor applications, and they needed
-  to be reduced using `reduceProjs`. Otherwise, the produced default value may be "cyclic".
-  That is, we reduce projections of the structures in `expandedStructNames`. Here is
-  an example that shows why the reduction is needed.
-  ```
-  structure A where
-    a : Nat
+Copies the default value for field `fieldName` set at structure `structName`.
+The arguments for the `_default` auxiliary function are provided by `fieldMap`.
+Recall some of the entries in `fieldMap` are constructor applications, and they needed
+to be reduced using `reduceProjs`. Otherwise, the produced default value may be "cyclic".
+That is, we reduce projections of the structures in `expandedStructNames`. Here is
+an example that shows why the reduction is needed.
+```
+structure A where
+  a : Nat
 
-  structure B where
-    a : Nat
-    b : Nat
-    c : Nat
+structure B where
+  a : Nat
+  b : Nat
+  c : Nat
 
-  structure C extends B where
-    d : Nat
-    c := b + d
+structure C extends B where
+  d : Nat
+  c := b + d
 
-  structure D extends A, C
+structure D extends A, C
 
-  #print D.c._default
-  ```
-  Without the reduction, it produces
-  ```
-  def D.c._default : A → Nat → Nat → Nat → Nat :=
-  fun toA b c d => id ({ a := toA.a, b := b, c := c : B }.b + d)
-  ```
+#print D.c._default
+```
+Without the reduction, it produces
+```
+def D.c._default : A → Nat → Nat → Nat → Nat :=
+fun toA b c d => id ({ a := toA.a, b := b, c := c : B }.b + d)
+```
 -/
-private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames : NameSet) (structName : Name) (fieldName : Name) : TermElabM (Option Expr) := do
+private partial def copyDefaultValue? (fieldMap : FieldMap) (expandedStructNames : NameSet) (structName : Name) (fieldName : Name) :
+    TermElabM (Option Expr) := do
   match getDefaultFnForField? (← getEnv) structName fieldName with
   | none => return none
   | some defaultFn =>
@@ -760,10 +776,10 @@ where
               let infos := replaceFieldInfo infos { info with ref := view.nameId, value? := value }
               go (i+1) defaultValsOverridden infos
         match info.kind with
-        | StructFieldKind.newField    => throwError "field '{view.name}' has already been declared"
-        | StructFieldKind.subobject n => throwError "unexpected reference to subobject field '{n}'" -- improve error message
-        | StructFieldKind.copiedField => updateDefaultValue
-        | StructFieldKind.fromParent  => updateDefaultValue
+        | StructFieldKind.newField      => throwError "field '{view.name}' has already been declared"
+        | StructFieldKind.subobject n   => throwError "unexpected reference to subobject field '{n}'" -- improve error message
+        | StructFieldKind.copiedField   => updateDefaultValue
+        | StructFieldKind.fromSubobject => updateDefaultValue
     else
       k infos
 
@@ -784,7 +800,7 @@ private def addCtorFields (fieldInfos : Array StructFieldInfo) : Nat → Expr �
     let type ← instantiateMVars type
     let type := type.abstract #[info.fvar]
     match info.kind with
-    | StructFieldKind.fromParent =>
+    | StructFieldKind.fromSubobject =>
       let val := decl.value
       addCtorFields fieldInfos i (type.instantiate1 val)
     | _  =>
@@ -816,7 +832,7 @@ private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFiel
   if r.type.isProp then
     if let some fieldInfo ← fieldInfos.findM? (not <$> Meta.isProof ·.fvar) then
       throwErrorAt fieldInfo.ref m!"failed to generate projections for 'Prop' structure, field '{format fieldInfo.name}' is not a proof"
-  let projNames := fieldInfos |>.filter (!·.isFromParent) |>.map (·.declName)
+  let projNames := fieldInfos |>.filter (!·.isFromSubobject) |>.map (·.declName)
   let env ← getEnv
   let env ← ofExceptKernelException (mkProjections env r.view.declName projNames.toList r.view.isClass)
   setEnv env
@@ -826,7 +842,7 @@ private def addProjections (r : ElabHeaderResult) (fieldInfos : Array StructFiel
 
 private def registerStructure (structName : Name) (infos : Array StructFieldInfo) : TermElabM Unit := do
   let fields ← infos.filterMapM fun info => do
-    if info.kind == StructFieldKind.fromParent then
+    if info.kind == StructFieldKind.fromSubobject then
       return none
     else
       return some {
@@ -864,7 +880,7 @@ private def addDefaults (params : Array Expr) (replaceIndFVars : Expr → MetaM 
         lctx
   let lctx :=
     fieldInfos.foldl (init := lctx) fun (lctx : LocalContext) (info : StructFieldInfo) =>
-      if info.isFromParent then lctx -- `fromParent` fields are elaborated as let-decls, and are zeta-expanded when creating "default value" auxiliary functions
+      if info.isFromSubobject then lctx -- `fromSubobject` fields are elaborated as let-decls, and are zeta-expanded when creating "default value" auxiliary functions
       else lctx.setBinderInfo info.fvar.fvarId! BinderInfo.default
   -- Make all indFVar replacements in the local context.
   let lctx ←

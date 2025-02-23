@@ -20,7 +20,7 @@ open Std.DHashMap.Internal
 set_option linter.missingDocs true
 set_option autoImplicit false
 
-universe u v
+universe u v w
 
 variable {α : Type u} {β : α → Type v} {_ : BEq α} {_ : Hashable α}
 
@@ -1065,6 +1065,83 @@ theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] :
   Raw₀.Const.distinct_keys_toList ⟨m.1, m.2.size_buckets_pos⟩ m.2
 
 end Const
+
+section monadic
+
+variable {m : DHashMap α β} {δ : Type w} {m' : Type w → Type w}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.foldM f init = m.toList.foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.foldM_eq_foldlM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.fold f init = m.toList.foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    DHashMap.forM f m = ForM.forM m (fun a => f a.1 a.2):= rfl
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) × β a → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
+  Raw₀.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    DHashMap.forIn f init m = ForIn.forIn m init (fun a b => f a.1 a.2 b) := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) × β a → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
+  Raw₀.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+namespace Const
+
+variable {β : Type v} {m : DHashMap α (fun _ => β)}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.foldM f init = (Const.toList m).foldlM (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.foldM_eq_foldlM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.fold f init = (Const.toList m).foldl (fun a b => f a b.1 b.2) init :=
+  Raw₀.Const.fold_eq_foldl_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+    m.forM f = (Const.toList m).forM (fun a => f a.1 a.2) :=
+  Raw₀.Const.forM_eq_forM_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn (Const.toList m) init (fun a b => f a.1 a.2 b) :=
+  Raw₀.Const.forIn_eq_forIn_toList ⟨m.1, m.2.size_buckets_pos⟩
+
+variable {m : DHashMap α (fun _ => Unit)}
+
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM (fun d a _ => f d a) init = m.keys.foldlM f init :=
+  Raw₀.Const.foldM_eq_foldlM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    m.fold (fun d a _ => f d a) init = m.keys.foldl f init :=
+  Raw₀.Const.fold_eq_foldl_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM (fun a _ => f a) = m.keys.forM f :=
+  Raw₀.Const.forM_eq_forM_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn (fun a _ d => f a d) init = ForIn.forIn m.keys init f :=
+  Raw₀.Const.forIn_eq_forIn_keys ⟨m.1, m.2.size_buckets_pos⟩
+
+end Const
+
+end monadic
 
 @[simp]
 theorem insertMany_nil :

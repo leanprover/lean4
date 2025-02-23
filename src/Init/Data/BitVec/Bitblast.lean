@@ -907,7 +907,7 @@ The input to the shift subtractor is a legal input to `divrem`, and we also need
 input bit to perform shift subtraction on, and thus we need `0 < wn`.
 -/
 structure DivModState.Poised {w : Nat} (args : DivModArgs w) (qr : DivModState w)
-  extends DivModState.Lawful args qr : Type where
+  extends DivModState.Lawful args qr where
   /-- Only perform a round of shift-subtract if we have dividend bits. -/
   hwn_lt : 0 < qr.wn
 

@@ -130,7 +130,7 @@ end Oriented
 section Trans
 
 /-- A typeclass for functions `α → α → Ordering` which are transitive. -/
-class TransCmp {α : Type u} (cmp : α → α → Ordering) extends OrientedCmp cmp : Prop where
+class TransCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends OrientedCmp cmp where
   /-- Transitivity of `cmp`, expressed via `Ordering.isLE`. -/
   isLE_trans {a b c : α} : (cmp a b).isLE → (cmp b c).isLE → (cmp a c).isLE
 
@@ -252,7 +252,7 @@ section LawfulEq
 A typeclass for comparison functions satisfying `cmp a b = .eq` if and only if the logical equality
 `a = b` holds.
 -/
-class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) extends ReflCmp cmp : Prop where
+class LawfulEqCmp {α : Type u} (cmp : α → α → Ordering) : Prop extends ReflCmp cmp where
   /-- If two values compare equal, then they are logically equal. -/
   eq_of_compare {a b : α} : cmp a b = .eq → a = b
 

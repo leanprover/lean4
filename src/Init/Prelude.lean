@@ -2865,7 +2865,7 @@ syntax over monad operations, and it depends on a `Monad` instance.
 See [the `do` notation](https://lean-lang.org/lean4/doc/do.html)
 chapter of the manual for details.
 -/
-class Monad (m : Type u → Type v) extends Applicative m, Bind m : Type (max (u+1) v) where
+class Monad (m : Type u → Type v) : Type (max (u+1) v) extends Applicative m, Bind m where
   map      f x := bind x (Function.comp pure f)
   seq      f x := bind f fun y => Functor.map y (x ())
   seqLeft  x y := bind x fun a => bind (y ()) (fun _ => pure a)

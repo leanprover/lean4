@@ -89,6 +89,11 @@ structure SnapshotTask (α : Type) where
   the range of the outer task if some or else the entire file is reported.
   -/
   reportingRange? : Option String.Range := SnapshotTask.defaultReportingRange? stx?
+  /--
+  Cancellation token that can be set by the server to cancel the task when it detects the results
+  are not needed anymore.
+  -/
+  cancelTk? : Option IO.CancelToken := none
   /-- Underlying task producing the snapshot. -/
   task : Task α
 deriving Nonempty, Inhabited
@@ -110,36 +115,21 @@ def SnapshotTask.finished (stx? : Option Syntax) (a : α) : SnapshotTask α wher
   reportingRange? := none
   task := .pure a
 
-/--
-  Explicitly cancels a tasks. Like with basic `Tasks`s, cancellation happens implicitly when the
-  last reference to the task is dropped *if* it is not an I/O task. -/
-def SnapshotTask.cancel (t : SnapshotTask α) : BaseIO Unit :=
-  IO.cancel t.task
-
 /-- Transforms a task's output without changing the processed syntax. -/
 def SnapshotTask.map (t : SnapshotTask α) (f : α → β) (stx? : Option Syntax := t.stx?)
     (reportingRange? : Option String.Range := t.reportingRange?) (sync := false) : SnapshotTask β :=
-  { stx?, reportingRange?, task := t.task.map (sync := sync) f }
+  { stx?, cancelTk? := t.cancelTk?, reportingRange?, task := t.task.map (sync := sync) f }
 
 /--
   Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
   task if not specified; the processed syntax and the reporting range of the second task are
-  discarded. -/
-def SnapshotTask.bind (t : SnapshotTask α) (act : α → SnapshotTask β)
-    (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
-    (sync := false) : SnapshotTask β :=
-  { stx?, reportingRange?, task := t.task.bind (sync := sync) (act · |>.task) }
-
-/--
-  Chains two snapshot tasks. The processed syntax and the reporting range are taken from the first
-  task if not specified; the processed syntax and the reporting range of the second task are
-  discarded. -/
+  discarded. The cancellation tokens of both tasks are discarded. They are replaced with the given
+  token if any. -/
 def SnapshotTask.bindIO (t : SnapshotTask α) (act : α → BaseIO (SnapshotTask β))
     (stx? : Option Syntax := t.stx?) (reportingRange? : Option String.Range := t.reportingRange?)
-    (sync := false) : BaseIO (SnapshotTask β) :=
+    (cancelTk? : Option IO.CancelToken) (sync := false) : BaseIO (SnapshotTask β) := do
   return {
-    stx?
-    reportingRange?
+    stx?, reportingRange?, cancelTk?
     task := (← BaseIO.bindTask (sync := sync) t.task fun a => (·.task) <$> (act a))
   }
 
@@ -204,10 +194,21 @@ class ToSnapshotTree (α : Type) where
   toSnapshotTree : α → SnapshotTree
 export ToSnapshotTree (toSnapshotTree)
 
+instance : ToSnapshotTree SnapshotTree where
+  toSnapshotTree s := s
+
 instance [ToSnapshotTree α] : ToSnapshotTree (Option α) where
   toSnapshotTree
     | some a => toSnapshotTree a
     | none   => default
+
+/--
+Recursively triggers all `SnapshotTask.cancelTk?` in the reachable tree, asynchronously.
+-/
+partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : BaseIO Unit := do
+  if let some cancelTk := t.cancelTk? then
+    cancelTk.set
+  BaseIO.chainTask (sync := true) t.task fun snap => toSnapshotTree snap |>.children.forM cancelRec
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot

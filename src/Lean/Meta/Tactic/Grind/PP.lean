@@ -153,7 +153,7 @@ private def ppCasesTrace : M Unit := do
 def goalToMessageData (goal : Goal) (config : Grind.Config) : MetaM MessageData := goal.mvarId.withContext do
   if config.verbose then
     let (_, m) ← go goal |>.run #[]
-    let gm := MessageData.trace { cls := `grind, collapsed := false } "Diagnostics" m
+    let gm := MessageData.trace { cls := `grind, collapsed := false } "Goal diagnostics" m
     let r := m!"{.ofGoal goal.mvarId}\n{gm}"
     addMessageContextFull r
   else

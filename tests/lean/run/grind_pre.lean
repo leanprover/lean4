@@ -14,7 +14,7 @@ left_1 : p
 right_1 : q
 h_1 : b = false ∨ a = false
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true
     [prop] b = true ∨ c = true
@@ -53,7 +53,7 @@ left_1 : p
 right_1 : q
 h_3 : b = false
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a = true
     [prop] c = true
@@ -66,7 +66,7 @@ h_3 : b = false
   [eqc] Equivalence classes
     [eqc] {b, false}
     [eqc] {a, c, true}
-[grind] Counters
+[grind] Diagnostics
   [cases] Cases instances
     [cases] Or ↦ 3
 -/
@@ -86,7 +86,7 @@ h : j + 1 < i + 1
 h_2 : j + 1 ≤ i
 h_3 : ¬g (i + 1) j ⋯ = i + j + 1
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] j + 1 ≤ i
     [prop] ¬g (i + 1) j ⋯ = i + j + 1
@@ -126,7 +126,7 @@ x_eq : a₂ = b₂
 y_eq : a₃ = b₃
 tail_eq_1 : as = bs
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] a₁ = b₁
     [prop] a₂ = b₂
@@ -160,7 +160,7 @@ h₃ : p = r
 left : p
 right : r
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] HEq p a
     [prop] HEq q a
@@ -213,7 +213,7 @@ h : HEq f g
 h_1 : HEq a b
 h_2 : ¬f a = g b
 ⊢ False
-[grind] Diagnostics
+[grind] Goal diagnostics
   [facts] Asserted facts
     [prop] HEq f g
     [prop] HEq a b

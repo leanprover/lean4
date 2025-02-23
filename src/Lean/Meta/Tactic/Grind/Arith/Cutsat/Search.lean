@@ -39,7 +39,7 @@ def getBestUpper? (x : Var) : GoalM (Option (Int × LeCnstr)) := do
       best? := some (upper', c)
   return best?
 
-def getDvdSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
+def DvdCnstr.getSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   let some b ← p.eval? | c.throwUnexpected
@@ -106,13 +106,13 @@ def decideVar (x : Var) : GoalM Unit := do
     else
       trace[grind.cutsat.conflict] "{lower} ≤ {← getVar x} ≤ {upper}"
       resolveLowerUpperConflict c₁ c₂
-  | none, none, some cₚ =>
-    if let some (_, v) ← getDvdSolutions? cₚ then
+  | none, none, some c =>
+    if let some (_, v) ← c.getSolutions? then
       setAssignment x v
     else
-      resolveDvdConflict cₚ
-  | some (lower, _), none, some cₚ =>
-    if let some (d, b) ← getDvdSolutions? cₚ then
+      resolveDvdConflict c
+  | some (lower, _), none, some c =>
+    if let some (d, b) ← c.getSolutions? then
       /-
       - `x ≥ lower ∧ x = k*d + b`
       - `k*d + b ≥ lower`
@@ -121,9 +121,9 @@ def decideVar (x : Var) : GoalM Unit := do
       -/
       setAssignment x ((Int.Linear.cdiv (lower - b) d)*d + b)
     else
-      resolveDvdConflict cₚ
-  | none, some (upper, _), some cₚ =>
-    if let some (d, b) ← getDvdSolutions? cₚ then
+      resolveDvdConflict c
+  | none, some (upper, _), some c =>
+    if let some (d, b) ← c.getSolutions? then
       /-
       - `x ≤ upper ∧ x = k*d +  b`
       - `k*d + b ≤ upper`
@@ -132,7 +132,7 @@ def decideVar (x : Var) : GoalM Unit := do
       -/
       setAssignment x (((upper - b)/d)*d + b)
     else
-      resolveDvdConflict cₚ
+      resolveDvdConflict c
   | _, _, _ =>
     -- TODO: cases containing a divisibility constraint.
     -- TODO: remove the following

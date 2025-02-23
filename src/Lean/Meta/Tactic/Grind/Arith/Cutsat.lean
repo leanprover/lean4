@@ -13,10 +13,12 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.Eq
 
 namespace Lean
 
 builtin_initialize registerTraceClass `grind.cutsat
+builtin_initialize registerTraceClass `grind.cutsat.eq
 builtin_initialize registerTraceClass `grind.cutsat.assert
 builtin_initialize registerTraceClass `grind.cutsat.assert.dvd
 builtin_initialize registerTraceClass `grind.cutsat.dvd

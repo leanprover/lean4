@@ -49,7 +49,7 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"
 
-private def toPoly? (e : Expr) : GoalM (Option Poly) := do
+private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
   let_expr LE.le _ inst a b ← e | return none
   unless (← isInstLEInt inst) do return none
   let some k ← getIntValue? b
@@ -63,7 +63,7 @@ Given an expression `e` that is in `True` (or `False` equivalence class), if `e`
 integer inequality, asserts it to the cutsat state.
 -/
 def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
-  let some p ← toPoly? e | return ()
+  let some p ← toPolyLe? e | return ()
   let c ← if eqTrue then
     mkLeCnstr p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
   else

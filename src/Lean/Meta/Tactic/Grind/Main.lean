@@ -156,8 +156,6 @@ def Result.toMessageData (result : Result) : MetaM MessageData := do
       msgs := msgs ++ [.trace { cls := `grind } "Issues" issues.reverse.toArray]
     if let some msg ← mkGlobalDiag result.counters result.simp then
       msgs := msgs ++ [msg]
-    if let some msg ← result.counters.toMessageData? then
-      msgs := msgs ++ [msg]
   return MessageData.joinSep msgs m!"\n"
 
 def main (mvarId : MVarId) (params : Params) (mainDeclName : Name) (fallback : Fallback) : MetaM Result := do profileitM Exception "grind" (← getOptions) do

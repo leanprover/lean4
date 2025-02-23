@@ -15,6 +15,7 @@ to interact with Lean strings using UTF-16 indices. -/
 
 namespace Char
 
+/-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
 def utf16Size (c : Char) : UInt32 :=
   if c.val ≤ 0xFFFF then 1 else 2
 

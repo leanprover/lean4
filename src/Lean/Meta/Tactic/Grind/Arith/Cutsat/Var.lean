@@ -24,6 +24,7 @@ def mkVar (expr : Expr) : GoalM Var := do
     occurs    := s.occurs.push {}
     elimEqs   := s.elimEqs.push none
   }
+  markAsCutsatTerm expr
   return var
 
 def isInt (e : Expr) : GoalM Bool := do

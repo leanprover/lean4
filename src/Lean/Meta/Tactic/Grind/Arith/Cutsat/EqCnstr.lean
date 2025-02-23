@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 
 namespace Lean.Meta.Grind.Arith.Cutsat
@@ -19,5 +20,7 @@ def processNewEqLitImpl (a k : Expr) : GoalM Unit := do
   trace[grind.cutsat.eq] "{mkIntEq a k}"
   -- TODO
   return ()
+
+
 
 end Lean.Meta.Grind.Arith.Cutsat

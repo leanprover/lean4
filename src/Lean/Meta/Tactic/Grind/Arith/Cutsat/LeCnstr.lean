@@ -39,9 +39,11 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
     let .add a x _ := c.p | c.throwUnexpected
     if a < 0 then
       trace[grind.cutsat.le.lower] "{← c.denoteExpr}"
+      c.p.updateOccs
       modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
     else
       trace[grind.cutsat.le.upper] "{← c.denoteExpr}"
+      c.p.updateOccs
       modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
     if (← c.satisfied) == .false then
       resetAssignmentFrom x

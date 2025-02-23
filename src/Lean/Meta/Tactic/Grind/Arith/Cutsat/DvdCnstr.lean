@@ -69,6 +69,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
       elim.assert
     else
       trace[grind.cutsat.dvd.update] "{← c.denoteExpr}"
+      c.p.updateOccs
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some c) }
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do

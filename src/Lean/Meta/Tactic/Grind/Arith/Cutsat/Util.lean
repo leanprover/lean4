@@ -50,6 +50,10 @@ def getVars : GoalM (PArray Expr) :=
 def getVar (x : Var) : GoalM Expr :=
   return (← get').vars[x]!
 
+/-- Returns `true` if `x` has been eliminated using an equality constraint. -/
+def eliminated (x : Var) : GoalM Bool :=
+  return (← get').elimEqs[x]!.isSome
+
 def mkCnstrId : GoalM Nat := do
   let id := (← get').nextCnstrId
   modify' fun s => { s with nextCnstrId := id + 1 }
@@ -65,9 +69,6 @@ private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
-def DvdCnstr.isSorted (c : DvdCnstr) : Bool :=
-  c.p.isSorted
-
 def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   match c.p with
   | .num k' => k' % c.d == 0
@@ -80,9 +81,6 @@ def DvdCnstr.denoteExpr (c : DvdCnstr) : GoalM Expr := do
 def DvdCnstr.throwUnexpected (c : DvdCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)} "
 
-def LeCnstr.isSorted (c : LeCnstr) : Bool :=
-  c.p.isSorted
-
 def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   match c.p with
   | .num k => k ≤ 0
@@ -94,6 +92,41 @@ def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
 
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
+
+def EqCnstr.isTrivial (c : LeCnstr) : Bool :=
+  match c.p with
+  | .num k => k == 0
+  | _ => false
+
+def EqCnstr.denoteExpr (c : EqCnstr) : GoalM Expr := do
+  let vars ← getVars
+  return mkIntEq (← c.p.denoteExpr (vars[·]!)) (mkIntLit 0)
+
+def EqCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
+  throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
+
+/-- Returns occurrences of `x`. -/
+def getOccursOf (x : Var) : GoalM (PHashSet Var) :=
+  return (← get').occurs[x]!
+
+/--
+Adds `y` as an occurrence of `x`.
+That is, `x` occurs in `lowers[y]`, `uppers[y]`, or `dvdCnstrs[y]`.
+-/
+def addOcc (x : Var) (y : Var) : GoalM Unit := do
+  unless (← getOccursOf x).contains y do
+    modify' fun s => { s with occurs := s.occurs.modify x fun ys => ys.insert y }
+
+/--
+Given `p` a polynomial being inserted into `lowers`, `uppers`, or `dvdCnstrs`,
+get its leading variable `y`, and adds `y` as an occurrence for the remaining variables in `p`.
+-/
+partial def _root_.Int.Linear.Poly.updateOccs (p : Poly) : GoalM Unit := do
+  let .add _ y p := p | throwError "`grind` internal error, unexpected constant polynomial"
+  let rec go (p : Poly) : GoalM Unit := do
+    let .add _ x p := p | return ()
+    addOcc x y; go p
+  go p
 
 def toContextExpr : GoalM Expr := do
   let vars ← getVars

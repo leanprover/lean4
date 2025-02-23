@@ -21,6 +21,8 @@ def mkVar (expr : Expr) : GoalM Var := do
     dvdCnstrs := s.dvdCnstrs.push none
     lowers    := s.lowers.push {}
     uppers    := s.uppers.push {}
+    occurs    := s.occurs.push {}
+    elimEqs   := s.elimEqs.push none
   }
   return var
 

@@ -33,8 +33,9 @@ def _root_.Int.Linear.Poly.checkOccs (p : Poly) : GoalM Unit := do
 def _root_.Int.Linear.Poly.checkCnstrOf (p : Poly) (x : Var) : GoalM Unit := do
   assert! p.isSorted
   assert! p.checkCoeffs
-  p.checkNoElimVars
-  p.checkOccs
+  unless (← inconsistent) do
+    p.checkNoElimVars
+    p.checkOccs
   let .add _ y _ := p | unreachable!
   assert! x == y
 

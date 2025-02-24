@@ -90,7 +90,7 @@ Given an equation `c₁` containing `a*x`, eliminate `x` from upper bound inequa
 private def updateUppers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
   let (uppers', todo) ← split x (← get').uppers[y]!
-  modify' fun s => { s with lowers := s.lowers.set y uppers' }
+  modify' fun s => { s with uppers := s.uppers.set y uppers' }
   updateLeCnstrs a x c todo
 
 private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do

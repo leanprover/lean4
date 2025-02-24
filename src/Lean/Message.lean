@@ -494,6 +494,13 @@ def indentExpr (e : Expr) : MessageData :=
 def aquote (msg : MessageData) : MessageData :=
   "「" ++ msg ++ "」"
 
+/-- Quote `e` using `「` and `」` if `e` is not a free variable, constant, or literal. -/
+def quoteIfNotAtom (e : Expr) : MessageData :=
+  if e.isFVar || e.isConst || e.isLit then
+    e
+  else
+    aquote e
+
 class AddMessageContext (m : Type → Type) where
   /--
   Without context, a `MessageData` object may be missing information

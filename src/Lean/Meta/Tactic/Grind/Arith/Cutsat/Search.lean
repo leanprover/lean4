@@ -62,7 +62,7 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
 
 private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   if x == (← get').assignment.size then
-    trace[grind.cutsat.assign] "{aquote (← getVar x)}:= {v}"
+    trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
     modify' fun s => { s with assignment := s.assignment.push v }
   else if x > (← get').assignment.size then
     modify' fun s => { s with assignment := s.assignment.push 0 }

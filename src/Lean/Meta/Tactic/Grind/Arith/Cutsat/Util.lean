@@ -69,14 +69,17 @@ private partial def shrink (a : PArray Int) (sz : Nat) : PArray Int :=
 def resetAssignmentFrom (x : Var) : GoalM Unit := do
   modify' fun s => { s with assignment := shrink s.assignment x }
 
+def _root_.Int.Linear.Poly.denoteExpr' (p : Poly) : GoalM Expr := do
+  let vars ← getVars
+  return (← p.denoteExpr (vars[·]!))
+
 def DvdCnstr.isTrivial (c : DvdCnstr) : Bool :=
   match c.p with
   | .num k' => k' % c.d == 0
   | _ => c.d == 1
 
 def DvdCnstr.denoteExpr (c : DvdCnstr) : GoalM Expr := do
-  let vars ← getVars
-  return mkIntDvd (toExpr c.d) (← c.p.denoteExpr (vars[·]!))
+  return mkIntDvd (toExpr c.d) (← c.p.denoteExpr')
 
 def DvdCnstr.throwUnexpected (c : DvdCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)} "
@@ -87,8 +90,7 @@ def LeCnstr.isTrivial (c : LeCnstr) : Bool :=
   | _ => false
 
 def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
-  let vars ← getVars
-  return mkIntLE (← c.p.denoteExpr (vars[·]!)) (mkIntLit 0)
+  return mkIntLE (← c.p.denoteExpr') (mkIntLit 0)
 
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"
@@ -99,8 +101,7 @@ def EqCnstr.isTrivial (c : LeCnstr) : Bool :=
   | _ => false
 
 def EqCnstr.denoteExpr (c : EqCnstr) : GoalM Expr := do
-  let vars ← getVars
-  return mkIntEq (← c.p.denoteExpr (vars[·]!)) (mkIntLit 0)
+  return mkIntEq (← c.p.denoteExpr') (mkIntLit 0)
 
 def EqCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentExpr (← c.denoteExpr)}"

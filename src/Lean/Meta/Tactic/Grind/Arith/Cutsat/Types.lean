@@ -60,7 +60,6 @@ inductive EqCnstrProof where
   | expr (h : Expr)
   | norm (c : EqCnstr)
   | subst (c₁ : EqCnstr) (c₂ : EqCnstr)
-
 end
 
 /-- State of the cutsat procedure. -/
@@ -92,6 +91,11 @@ structure State where
   Elimination stack. For every variable in `elimStack`. If `x` in `elimStack`, then `elimEqs[x]` is not `none`.
   -/
   elimStack : List Var := []
+  /--
+  Mapping from terms (e.g., `x + 2*y + 2`, `3*x`, `5`) to polynomials representing them.
+  These are terms used to propagate equalities between this module and the congruence closure module.
+  -/
+  terms : PHashMap ENodeKey Poly := {}
   /--
   Mapping from variable to occurrences. For example, an entry `x ↦ {y, z}` means that `x` may occur in `dvdCnstrs`, `lowers`, or `uppers` of
   variables `y` and `z`.

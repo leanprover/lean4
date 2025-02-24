@@ -213,7 +213,7 @@ def get?ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
   applyCell k l fun c _ => c.get?
 
 /--
-Model implementation of the `get?` function.
+Model implementation of the `get` function.
 Internal implementation detail of the tree map
 -/
 def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (h : (get?ₘ k l).isSome) :
@@ -221,7 +221,7 @@ def getₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) 
   get?ₘ k l |>.get h
 
 /--
-Model implementation of the `get?` function.
+Model implementation of the `get!` function.
 Internal implementation detail of the tree map
 -/
 def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k)]
@@ -229,7 +229,7 @@ def get!ₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) [Inhabited (β k
   get?ₘ k l |>.get!
 
 /--
-Model implementation of the `get?` function.
+Model implementation of the `getD` function.
 Internal implementation detail of the tree map
 -/
 def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β) (fallback : β k) : β k :=
@@ -276,6 +276,29 @@ Internal implementation detail of the tree map
 -/
 def get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) : Option β :=
   applyCell k l fun c _ => Cell.Const.get? c
+
+/--
+Model implementation of the `get` function.
+Internal implementation detail of the tree map
+-/
+def getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) (h : (get?ₘ k l).isSome) :
+    β :=
+  get?ₘ k l |>.get h
+
+/--
+Model implementation of the `get!` function.
+Internal implementation detail of the tree map
+-/
+def get!ₘ [Ord α] (k : α) [Inhabited β]
+    (l : Impl α (fun _ => β)) : β :=
+  get?ₘ k l |>.get!
+
+/--
+Model implementation of the `getD` function.
+Internal implementation detail of the tree map
+-/
+def getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) (fallback : β) : β :=
+  get?ₘ k l |>.getD fallback
 
 /--
 Model implementation of the `alter` function.
@@ -529,6 +552,36 @@ theorem get?_eq_get?ₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) :
     split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
     all_goals simp_all [Cell.Const.get?, Cell.ofEq]
   · simp [Const.get?, applyCell]
+
+theorem get_eq_get? [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} :
+    get k l h = get? k l := by
+  induction l
+  · simp only [applyCell, get, get?]
+    split <;> rename_i ihl ihr hcmp <;> simp_all
+  · contradiction
+
+theorem get_eq_getₘ [Ord α] (k : α) (l : Impl α (fun _ => β)) {h} (h') :
+    get k l h = getₘ k l h' := by
+  apply Option.some.inj
+  simp [get_eq_get?, get?_eq_get?ₘ, getₘ]
+
+theorem get!_eq_get!ₘ [Ord α] (k : α) [Inhabited β] (l : Impl α (fun _ => β)) :
+    get! k l = get!ₘ k l := by
+  simp only [get!ₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, get!]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
+  · simp only [get!, applyCell, Option.get!_none]; rfl
+
+theorem getD_eq_getDₘ [Ord α] (k : α) (l : Impl α (fun _ => β))
+    (fallback : β) : getD k l fallback = getDₘ k l fallback := by
+  simp only [getDₘ, get?ₘ]
+  induction l
+  · simp only [applyCell, getD]
+    split <;> rename_i hcmp₁ <;> split <;> rename_i hcmp₂ <;> try (simp [hcmp₁] at hcmp₂; done)
+    all_goals simp_all [Cell.Const.get?, Cell.ofEq]
+  · simp only [getD, applyCell, Cell.Const.get?_empty, Option.getD_none]
 
 end Const
 

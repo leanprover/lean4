@@ -640,4 +640,143 @@ theorem getD_congr [TransCmp cmp] {a b : α} {fallback : β} (hab : cmp a b = .e
 
 end Const
 
+theorem getKey?_emptyc {a : α} : (empty : DTreeMap α β cmp).getKey? a = none :=
+  Impl.getKey?_empty
+
+theorem getKey?_of_isEmpty [TransCmp cmp] {a : α} :
+    t.isEmpty = true → t.getKey? a = none :=
+  Impl.getKey?_of_isEmpty t.wf
+
+theorem getKey?_insert [TransCmp cmp] {a k : α} {v : β k} :
+    (t.insert k v).getKey? a = if cmp k a = .eq then some k else t.getKey? a :=
+  Impl.getKey?_insert t.wf
+
+theorem getKey?_insert_self [TransCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).getKey? k = some k :=
+  Impl.getKey?_insert_self t.wf
+
+theorem contains_eq_isSome_getKey? [TransCmp cmp] {a : α} :
+    t.contains a = (t.getKey? a).isSome :=
+  Impl.contains_eq_isSome_getKey? t.wf
+
+theorem getKey?_eq_none [TransCmp cmp] {a : α} :
+    t.contains a = false → t.getKey? a = none :=
+  Impl.getKey?_eq_none t.wf
+
+theorem getKey?_erase [TransCmp cmp] {k a : α} :
+    (t.erase k).getKey? a = if cmp k a = .eq then none else t.getKey? a :=
+  Impl.getKey?_erase t.wf
+
+theorem getKey?_erase_self [TransCmp cmp] {k : α} :
+    (t.erase k).getKey? k = none :=
+  Impl.getKey?_erase_self t.wf
+
+theorem getKey_insert [TransCmp cmp] {k a : α} {v : β k} {h₁} :
+    (t.insert k v).getKey a h₁ =
+      if h₂ : cmp k a = .eq then
+        k
+      else
+        t.getKey a (contains_of_contains_insert h₁ h₂) :=
+  Impl.getKey_insert t.wf
+
+theorem getKey_insert_self [TransCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).getKey k contains_insert_self = k :=
+  Impl.getKey_insert_self t.wf
+
+@[simp]
+theorem getKey_erase [TransCmp cmp] {k a : α} {h'} :
+    (t.erase k).getKey a h' = t.getKey a (contains_of_contains_erase h') :=
+  Impl.getKey_erase t.wf
+
+theorem getKey?_eq_some_getKey [TransCmp cmp] {a : α} {h'} :
+    t.getKey? a = some (t.getKey a h') :=
+  Impl.getKey?_eq_some_getKey t.wf
+
+theorem getKey!_emptyc {a : α} [Inhabited α] :
+    (∅ : DTreeMap α β cmp).getKey! a = default :=
+  Impl.getKey!_empty
+
+theorem getKey!_of_isEmpty [TransCmp cmp] [Inhabited α] {a : α} :
+    t.isEmpty = true → t.getKey! a = default :=
+  Impl.getKey!_of_isEmpty t.wf
+
+theorem getKey!_insert [TransCmp cmp] [Inhabited α] {k a : α}
+    {v : β k} :
+    (t.insert k v).getKey! a = if cmp k a = .eq then k else t.getKey! a :=
+  Impl.getKey!_insert t.wf
+
+theorem getKey!_insert_self [TransCmp cmp] [Inhabited α] {a : α}
+    {b : β a} : (t.insert a b).getKey! a = a :=
+  Impl.getKey!_insert_self t.wf
+
+theorem getKey!_eq_default [TransCmp cmp] [Inhabited α] {a : α} :
+    t.contains a = false → t.getKey! a = default :=
+  Impl.getKey!_eq_default t.wf
+
+theorem getKey!_erase [TransCmp cmp] [Inhabited α] {k a : α} :
+    (t.erase k).getKey! a = if cmp k a = .eq then default else t.getKey! a :=
+  Impl.getKey!_erase t.wf
+
+theorem getKey!_erase_self [TransCmp cmp] [Inhabited α] {k : α} :
+    (t.erase k).getKey! k = default :=
+  Impl.getKey!_erase_self t.wf
+
+theorem getKey?_eq_some_getKey! [TransCmp cmp] [Inhabited α] {a : α} :
+    t.contains a = true → t.getKey? a = some (t.getKey! a) :=
+  Impl.getKey?_eq_some_getKey! t.wf
+
+theorem getKey!_eq_get!_getKey? [TransCmp cmp] [Inhabited α] {a : α} :
+    t.getKey! a = (t.getKey? a).get! :=
+  Impl.getKey!_eq_get!_getKey? t.wf
+
+theorem getKey_eq_getKey! [TransCmp cmp] [Inhabited α] {a : α} {h} :
+    t.getKey a h = t.getKey! a :=
+  Impl.getKey_eq_getKey! t.wf
+
+theorem getKeyD_emptyc {a : α} {fallback : α} :
+    (∅ : DTreeMap α β cmp).getKeyD a fallback = fallback :=
+  Impl.getKeyD_empty
+
+theorem getKeyD_of_isEmpty [TransCmp cmp] {a fallback : α} :
+    t.isEmpty = true → t.getKeyD a fallback = fallback :=
+  Impl.getKeyD_of_isEmpty t.wf
+
+theorem getKeyD_insert [TransCmp cmp] {k a fallback : α} {v : β k} :
+    (t.insert k v).getKeyD a fallback =
+      if cmp k a = .eq then k else t.getKeyD a fallback :=
+  Impl.getKeyD_insert t.wf
+
+theorem getKeyD_insert_self [TransCmp cmp] {a fallback : α} {b : β a} :
+    (t.insert a b).getKeyD a fallback = a :=
+  Impl.getKeyD_insert_self t.wf
+
+theorem getKeyD_eq_fallback [TransCmp cmp] {a fallback : α} :
+    t.contains a = false → t.getKeyD a fallback = fallback :=
+  Impl.getKeyD_eq_fallback t.wf
+
+theorem getKeyD_erase [TransCmp cmp] {k a fallback : α} :
+    (t.erase k).getKeyD a fallback =
+      if cmp k a = .eq then fallback else t.getKeyD a fallback :=
+  Impl.getKeyD_erase t.wf
+
+theorem getKeyD_erase_self [TransCmp cmp] {k fallback : α} :
+    (t.erase k).getKeyD k fallback = fallback :=
+  Impl.getKeyD_erase_self t.wf
+
+theorem getKey?_eq_some_getKeyD [TransCmp cmp] {a fallback : α} :
+    t.contains a = true → t.getKey? a = some (t.getKeyD a fallback) :=
+  Impl.getKey?_eq_some_getKeyD t.wf
+
+theorem getKeyD_eq_getD_getKey? [TransCmp cmp] {a fallback : α} :
+    t.getKeyD a fallback = (t.getKey? a).getD fallback :=
+  Impl.getKeyD_eq_getD_getKey? t.wf
+
+theorem getKey_eq_getKeyD [TransCmp cmp] {a fallback : α} {h} :
+    t.getKey a h = t.getKeyD a fallback :=
+  Impl.getKey_eq_getKeyD t.wf
+
+theorem getKey!_eq_getKeyD_default [TransCmp cmp] [Inhabited α] {a : α} :
+    t.getKey! a = t.getKeyD a default :=
+  Impl.getKey!_eq_getKeyD_default t.wf
+
 end Std.DTreeMap

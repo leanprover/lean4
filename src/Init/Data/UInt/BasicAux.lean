@@ -138,9 +138,6 @@ def UInt32.toUInt64 (a : UInt32) : UInt64 := ⟨⟨a.toNat, Nat.lt_trans a.toBit
 
 instance UInt64.instOfNat : OfNat UInt64 n := ⟨UInt64.ofNat n⟩
 
-theorem USize.size_eq : USize.size = 4294967296 ∨ USize.size = 18446744073709551616 := by
-  cases System.Platform.numBits_eq <;> simp_all [size]
-
 @[deprecated USize.size_eq (since := "2025-02-24")]
 theorem usize_size_eq : USize.size = 4294967296 ∨ USize.size = 18446744073709551616 :=
   USize.size_eq

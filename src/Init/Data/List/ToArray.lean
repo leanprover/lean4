@@ -633,4 +633,12 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
   · simp only [size_toArray, Nat.not_le] at h'
     rw [List.insertIdx_of_length_lt (h := h')]
 
+@[simp] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.leftpad n a l.toArray = (leftpad n a l).toArray := by
+  simp [leftpad, Array.leftpad, ← toArray_replicate]
+
+@[simp] theorem rightpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.rightpad n a l.toArray = (rightpad n a l).toArray := by
+  simp [rightpad, Array.rightpad, ← toArray_replicate]
+
 end List

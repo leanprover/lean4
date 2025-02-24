@@ -2331,6 +2331,15 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
   rcases xs with ⟨xs⟩
   simp
 
+/-! ### leftpad and rightpad -/
+
+@[simp] theorem leftpad_mk (n : Nat) (a : α) (xs : Array α) (h : xs.size = m) :
+    (Vector.mk xs h).leftpad n a = Vector.mk (Array.leftpad n a xs) (by simp [h]; omega) := by
+  simp [h]
+
+@[simp] theorem rightpad_mk (n : Nat) (a : α) (xs : Array α) (h : xs.size = m) :
+    (Vector.mk xs h).rightpad n a = Vector.mk (Array.rightpad n a xs) (by simp [h]; omega) := by
+  simp [h]
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

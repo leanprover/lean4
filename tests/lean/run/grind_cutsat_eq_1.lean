@@ -26,7 +26,19 @@ theorem ex₃ (a b c : Int) (_ : c + 3*a = 0) (_ : 2 ∣ 3*a + 1) (_ : 2*b + c =
 theorem ex₄ (a b c : Int) (_ : 2*c + 3*a = 0) (_ : 2*b + c = 0) (_ : 2 ∣ 3*a + 1) : False := by
   grind
 
+theorem ex₅ (a c : Int) (_ : 2*c + 3*a = 0) (_ : c + 1 = 0) : False := by
+  grind
+
+theorem ex₆ (a c : Int) (_ : c + 3*a = 0) (_ : c + 3*a = 1) : False := by
+  grind
+
+theorem ex₇ (a c : Int) (_ : c + 3*a = 0) (_ : c - 3*a = 6) (_ : 2*c + a = 0) : False := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃
 #print ex₄
+#print ex₅
+#print ex₆
+#print ex₇

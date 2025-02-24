@@ -114,7 +114,7 @@ def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
-def EqCnstr.isTrivial (c : LeCnstr) : Bool :=
+def EqCnstr.isTrivial (c : EqCnstr) : Bool :=
   match c.p with
   | .num k => k == 0
   | _ => false

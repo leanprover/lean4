@@ -63,7 +63,26 @@ def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
   let c ← applySubsts c
-  -- TODO: check coeffsr
+  if c.p.isUnsatEq then
+    trace[grind.cutsat.eq.unsat] "{← c.pp}"
+    let hf ← withProofContext do
+      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
+    closeGoal hf
+    return ()
+  if c.isTrivial then
+    trace[grind.cutsat.le.trivial] "{← c.pp}"
+    return ()
+  let k := c.p.gcdCoeffs'
+  if c.p.getConst % k > 0 then
+    trace[grind.cutsat.eq.unsat] "{← c.pp}"
+    let hf ← withProofContext do
+      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
+    closeGoal hf
+    return ()
+  let c ← if k == 1 then
+    pure c
+  else
+    mkEqCnstr (c.p.div k) (.divCoeffs c)
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
   -- TODO: eliminate `x` from lowers, uppers, and dvdCnstrs

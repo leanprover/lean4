@@ -783,5 +783,5 @@ theorem USize.ofNatTruncate_eq_ofNat (n : Nat) (hn : n < USize.size) :
 -- be a good candidate for the RHS:
 -- @[simp] theorem UInt64.toUInt64_toUSize (n : UInt64) : n.toUSize.toUInt64 = ? :=
 -- @[simp] theorem UInt64.toUSize_toUInt32 (n : UInt64) : n.toUInt32.toUSize = ? :=
--- @[simp] theorem USize.toUInt64_toUInt32 (n : USize) : n.toUInt32.toUInt64 = ? := rfl
+-- @[simp] theorem USize.toUInt64_toUInt32 (n : USize) : n.toUInt32.toUInt64 = ? :=
 -- @[simp] theorem USize.toUSize_toUInt32 (n : USize) : n.toInt32.toUSize = ? :=

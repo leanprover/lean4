@@ -217,7 +217,7 @@ where
       return none
     else
       -- `candidates` is reversed so that more specific matches are tried first
-      let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
+      let candidates := candidates.reverse.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
         unless inErasedSet thm || (rflOnly && !thm.rfl) do
           if let some result ← tryTheoremWithExtraArgs? e thm numExtraArgs then

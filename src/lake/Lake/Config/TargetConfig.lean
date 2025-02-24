@@ -24,8 +24,8 @@ structure TargetConfig (pkgName name : Name) : Type where
   [FormatQuery α] [h : FamilyOut CustomData (pkgName, name) α]
   (fetch : (pkg : NPackage pkgName) → FetchM (Job α))
 : TargetConfig pkgName name where
-  fetchFn := h.family_key_eq_type ▸ fetch
-  format := h.family_key_eq_type ▸ formatQuery
+  fetchFn := h.fam_eq ▸ fetch
+  format := h.fam_eq ▸ formatQuery
 
 /-- A dependently typed configuration based on its registered package and name. -/
 structure TargetDecl where

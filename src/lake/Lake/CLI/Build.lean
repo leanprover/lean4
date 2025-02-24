@@ -24,7 +24,7 @@ structure BuildSpec where
 : BuildSpec where
   info
   buildable := true
-  format := h.family_key_eq_type ▸ formatQuery
+  format := h.fam_eq ▸ formatQuery
 
 @[inline] def mkConfigBuildSpec
   (info : BuildInfo)

@@ -34,10 +34,10 @@ as needed (via `module_data`).
 abbrev ModuleData (facet : Name) := TargetData (`module ++ facet)
 
 instance [h : FamilyOut ModuleData facet α] : FamilyDef TargetData (`module ++ facet) α :=
-  ⟨by simp [h.family_key_eq_type]⟩
+  ⟨by simp [h.fam_eq]⟩
 
 instance [h : FamilyDef TargetData (`module ++ facet) α] : FamilyDef ModuleData facet α :=
-  ⟨h.family_key_eq_type⟩
+  ⟨h.fam_eq⟩
 
 /--
 The open type family which maps a package facet's name to its build data
@@ -50,10 +50,10 @@ as needed (via `package_data`).
 abbrev PackageData (facet : Name) := TargetData (`package ++ facet)
 
 instance [h : FamilyOut PackageData facet α] : FamilyDef TargetData (`package ++ facet) α :=
-  ⟨by simp [h.family_key_eq_type]⟩
+  ⟨by simp [h.fam_eq]⟩
 
 instance [h : FamilyDef TargetData (`package ++ facet) α] : FamilyDef PackageData facet α :=
-  ⟨h.family_key_eq_type⟩
+  ⟨h.fam_eq⟩
 
 /-
 The open type family which maps a library facet's name to its build data
@@ -66,10 +66,10 @@ as needed (via `library_data`).
 abbrev LibraryData (facet : Name) := TargetData (`leanLib ++ facet)
 
 instance [h : FamilyOut LibraryData facet α] : FamilyDef TargetData (`leanLib ++ facet) α :=
-  ⟨by simp [h.family_key_eq_type]⟩
+  ⟨by simp [h.fam_eq]⟩
 
 instance [h : FamilyDef TargetData (`leanLib ++ facet) α] : FamilyDef LibraryData facet α :=
-  ⟨h.family_key_eq_type⟩
+  ⟨h.fam_eq⟩
 
 /--
 The open type family which maps a custom target (package × target name) to

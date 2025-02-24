@@ -77,38 +77,38 @@ abbrev ExternLib.dynlibBuildKey (self : ExternLib) : BuildKey :=
 
 instance [FamilyOut ModuleData f α]
 : FamilyDef BuildData (BuildInfo.key (.moduleFacet m f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut PackageData f α]
 : FamilyDef BuildData (BuildInfo.key (.packageFacet p f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance (priority := low) {p : NPackage n} : FamilyDef BuildData
   (.customTarget p.toPackage.name t) (CustomData (n,t)) := ⟨by simp⟩
 
 instance {p : NPackage n} [FamilyOut CustomData (n, t) α]
 : FamilyDef BuildData (BuildInfo.key (.target p.toPackage t)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut TargetData (`leanLib ++ f) α]
 : FamilyDef BuildData (BuildInfo.key (.libraryFacet l f)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut TargetData LeanExe.exeFacet α]
 : FamilyDef BuildData (BuildInfo.key (.leanExe x)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut TargetData ExternLib.staticFacet α]
 : FamilyDef BuildData (BuildInfo.key (.staticExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut TargetData ExternLib.sharedFacet α]
 : FamilyDef BuildData (BuildInfo.key (.sharedExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 instance [FamilyOut TargetData ExternLib.dynlibFacet α]
 : FamilyDef BuildData (BuildInfo.key (.dynlibExternLib l)) α where
-  family_key_eq_type := by unfold BuildData; simp
+  fam_eq := by unfold BuildData; simp
 
 --------------------------------------------------------------------------------
 /-! ## Build Info & Facets                                                    -/

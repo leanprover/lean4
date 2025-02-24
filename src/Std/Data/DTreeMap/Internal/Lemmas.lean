@@ -64,7 +64,9 @@ private def queryNames : Array Name :=
     ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?,
     ``get_eq_getValueCast, ``Const.get_eq_getValue,
     ``get!_eq_getValueCast!, ``Const.get!_eq_getValue!,
-    ``getD_eq_getValueCastD, ``Const.getD_eq_getValueD]
+    ``getD_eq_getValueCastD, ``Const.getD_eq_getValueD,
+    ``getKey?_eq_getKey?, ``getKey_eq_getKey,
+    ``getKey!_eq_getKey!, ``getKeyD_eq_getKeyD]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -946,5 +948,146 @@ theorem getD_congr [TransOrd α] (h : t.WF) {a b : α} {fallback : β}
   simp_to_model using List.getValueD_congr
 
 end Const
+
+theorem getKey?_empty {a : α} : (empty : Impl α β).getKey? a = none := by
+  simp [empty, getKey?]
+
+theorem getKey?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
+    t.isEmpty = true → t.getKey? a = none := by
+  simp_to_model; empty
+
+theorem getKey?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.getKey? a = if k == a then some k else t.getKey? a := by
+  simp_to_model [insert] using List.getKey?_insertEntry
+
+theorem getKey?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.getKey? k = some k := by
+  simp_to_model [insert] using List.getKey?_insertEntry_self
+
+theorem contains_eq_isSome_getKey? [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = (t.getKey? a).isSome := by
+  simp_to_model using List.containsKey_eq_isSome_getKey?
+
+theorem getKey?_eq_none [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = false → t.getKey? a = none := by
+  simp_to_model using List.getKey?_eq_none
+
+theorem getKey?_erase [TransOrd α] (h : t.WF) {k a : α} :
+    (t.erase k h.balanced).impl.getKey? a = if k == a then none else t.getKey? a := by
+  simp_to_model [erase] using List.getKey?_eraseKey
+
+theorem getKey?_erase_self [TransOrd α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.getKey? k = none := by
+  simp_to_model [erase] using List.getKey?_eraseKey_self
+
+theorem getKey_insert [TransOrd α] (h : t.WF) {k a : α} {v : β k} {h₁} :
+    (t.insert k v h.balanced).impl.getKey a h₁ =
+      if h₂ : compare k a = .eq then
+        k
+      else
+        t.getKey a (contains_of_contains_insert h h₁ h₂) := by
+  simp_to_model [insert] using List.getKey_insertEntry
+
+theorem getKey_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.getKey k (contains_insert_self h) = k := by
+  simp_to_model [insert] using List.getKey_insertEntry_self
+
+@[simp]
+theorem getKey_erase [TransOrd α] (h : t.WF) {k a : α} {h'} :
+    (t.erase k h.balanced).impl.getKey a h' = t.getKey a (contains_of_contains_erase h h') := by
+  simp_to_model [erase] using List.getKey_eraseKey
+
+theorem getKey?_eq_some_getKey [TransOrd α] (h : t.WF) {a : α} {h'} :
+    t.getKey? a = some (t.getKey a h') := by
+  simp_to_model using List.getKey?_eq_some_getKey
+
+theorem getKey!_empty {a : α} [Inhabited α] :
+    (empty : Impl α β).getKey! a = default := by
+  simp only [empty, getKey!]; rfl
+
+theorem getKey!_of_isEmpty [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+    t.isEmpty = true → t.getKey! a = default := by
+  simp_to_model; empty;
+
+theorem getKey!_insert [TransOrd α] [Inhabited α] (h : t.WF) {k a : α}
+    {v : β k} :
+    (t.insert k v h.balanced).impl.getKey! a = if k == a then k else t.getKey! a := by
+  simp_to_model [insert] using List.getKey!_insertEntry
+
+theorem getKey!_insert_self [TransOrd α] [Inhabited α] (h : t.WF) {a : α}
+    {b : β a} : (t.insert a b h.balanced).impl.getKey! a = a := by
+  simp_to_model [insert] using List.getKey!_insertEntry_self
+
+theorem getKey!_eq_default [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+    t.contains a = false → t.getKey! a = default := by
+  simp_to_model using List.getKey!_eq_default
+
+theorem getKey!_erase [TransOrd α] [Inhabited α] (h : t.WF) {k a : α} :
+    (t.erase k h.balanced).impl.getKey! a = if k == a then default else t.getKey! a := by
+  simp_to_model [erase] using List.getKey!_eraseKey
+
+theorem getKey!_erase_self [TransOrd α] [Inhabited α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.getKey! k = default := by
+  simp_to_model [erase] using List.getKey!_eraseKey_self
+
+theorem getKey?_eq_some_getKey! [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+    t.contains a = true → t.getKey? a = some (t.getKey! a) := by
+  simp_to_model using List.getKey?_eq_some_getKey!
+
+theorem getKey!_eq_get!_getKey? [TransOrd α] [Inhabited α] (h : t.WF) {a : α} :
+    t.getKey! a = (t.getKey? a).get! := by
+  simp_to_model using List.getKey!_eq_getKey?
+
+theorem getKey_eq_getKey! [TransOrd α] [Inhabited α] (h : t.WF) {a : α} {h} :
+    t.getKey a h = t.getKey! a := by
+  simp_to_model using List.getKey_eq_getKey!
+
+theorem getKeyD_empty {a : α} {fallback : α} :
+    (empty : Impl α β).getKeyD a fallback = fallback := by
+  simp [getKeyD, empty]
+
+theorem getKeyD_of_isEmpty [TransOrd α] (h : t.WF) {a fallback : α} :
+    t.isEmpty = true → t.getKeyD a fallback = fallback := by
+  simp_to_model; empty
+
+theorem getKeyD_insert [TransOrd α] (h : t.WF) {k a fallback : α} {v : β k} :
+    (t.insert k v h.balanced).impl.getKeyD a fallback =
+      if compare k a = .eq then k else t.getKeyD a fallback := by
+  simp_to_model [insert] using List.getKeyD_insertEntry
+
+theorem getKeyD_insert_self [TransOrd α] (h : t.WF) {a fallback : α}
+    {b : β a} :
+    (t.insert a b h.balanced).impl.getKeyD a fallback = a := by
+  simp_to_model [insert] using List.getKeyD_insertEntry_self
+
+theorem getKeyD_eq_fallback [TransOrd α] (h : t.WF) {a fallback : α} :
+    t.contains a = false → t.getKeyD a fallback = fallback := by
+  simp_to_model using List.getKeyD_eq_fallback
+
+theorem getKeyD_erase [TransOrd α] (h : t.WF) {k a fallback : α} :
+    (t.erase k h.balanced).impl.getKeyD a fallback =
+      if compare k a = .eq then fallback else t.getKeyD a fallback := by
+  simp_to_model [erase] using List.getKeyD_eraseKey
+
+theorem getKeyD_erase_self [TransOrd α] (h : t.WF) {k fallback : α} :
+    (t.erase k h.balanced).impl.getKeyD k fallback = fallback := by
+  simp_to_model [erase] using List.getKeyD_eraseKey_self
+
+theorem getKey?_eq_some_getKeyD [TransOrd α] (h : t.WF) {a fallback : α} :
+    t.contains a = true → t.getKey? a = some (t.getKeyD a fallback) := by
+  simp_to_model using List.getKey?_eq_some_getKeyD
+
+theorem getKeyD_eq_getD_getKey? [TransOrd α] (h : t.WF) {a fallback : α} :
+    t.getKeyD a fallback = (t.getKey? a).getD fallback := by
+  simp_to_model using List.getKeyD_eq_getKey?
+
+theorem getKey_eq_getKeyD [TransOrd α] (h : t.WF) {a fallback : α} {h} :
+    t.getKey a h = t.getKeyD a fallback := by
+  simp_to_model using List.getKey_eq_getKeyD
+
+theorem getKey!_eq_getKeyD_default [TransOrd α] [Inhabited α] (h : t.WF)
+    {a : α} :
+    t.getKey! a = t.getKeyD a default := by
+  simp_to_model using List.getKey!_eq_getKeyD_default
 
 end Std.DTreeMap.Internal.Impl

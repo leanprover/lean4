@@ -14,8 +14,8 @@ import Init.GetElem
 import Init.Data.List.ToArrayImpl
 import Init.Data.Array.Set
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 universe u v w
 

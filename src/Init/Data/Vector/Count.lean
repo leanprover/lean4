@@ -11,8 +11,8 @@ import Init.Data.Vector.Lemmas
 # Lemmas about `Vector.countP` and `Vector.count`.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 
@@ -101,6 +101,7 @@ theorem countP_set (p : α → Bool) (xs : Vector α n) (i : Nat) (a : α) (h : 
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option linter.listVariables false in -- This can probably be removed later.
 @[simp] theorem countP_flatten (xss : Vector (Vector α m) n) :
     countP p xss.flatten = (xss.map (countP p)).sum := by
   rcases xss with ⟨xss, rfl⟩
@@ -159,6 +160,7 @@ theorem count_le_count_push (a b : α) (xs : Vector α n) : count a xs ≤ count
     count a (xs ++ ys) = count a xs + count a ys :=
   countP_append ..
 
+set_option linter.listVariables false in -- This can probably be removed later.
 @[simp] theorem count_flatten (a : α) (xss : Vector (Vector α m) n) :
     count a xss.flatten = (xss.map (count a)).sum := by
   rcases xss with ⟨xss, rfl⟩

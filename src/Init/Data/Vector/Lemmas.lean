@@ -12,6 +12,7 @@ import Init.Data.Array.Find
 ## Vectors
 Lemmas about `Vector α n`
 -/
+
 -- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
@@ -2369,8 +2370,8 @@ theorem back?_eq_some_iff {xs : Vector α n} {a : α} :
 
 @[simp] theorem back_append_of_neZero {xs : Vector α n} {ys : Vector α m} [NeZero m] :
     (xs ++ ys).back = ys.back := by
-  rcases xs with ⟨l⟩
-  rcases ys with ⟨l'⟩
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
   simp only [mk_append_mk, back_mk]
   rw [Array.back_append_of_size_pos]
 
@@ -2416,6 +2417,7 @@ theorem back?_flatMap {xs : Vector α n} {f : α → Vector β m} :
   simp [Array.back?_flatMap]
   rfl
 
+set_option linter.listVariables false in -- This can probably be removed later.
 theorem back?_flatten {xss : Vector (Vector α m) n} :
     (flatten xss).back? = xss.reverse.findSome? fun xs => xs.back? := by
   rcases xss with ⟨xss, rfl⟩

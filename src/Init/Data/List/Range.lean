@@ -14,8 +14,8 @@ Most of the results are deferred to `Data.Init.List.Nat.Range`, where more resul
 natural arithmetic are available.
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace List
 
@@ -74,7 +74,7 @@ theorem mem_range' : ∀{n}, m ∈ range' s n step ↔ ∃ i < n, m = s + step *
     rw [exists_comm]; simp [Nat.mul_succ, Nat.add_assoc, Nat.add_comm]
 
 theorem getElem?_range' (s step) :
-    ∀ {i j : Nat}, i < j → (range' s j step)[i]? = some (s + step * i)
+    ∀ {i n : Nat}, i < n → (range' s n step)[i]? = some (s + step * i)
   | 0, n + 1, _ => by simp [range'_succ]
   | m + 1, n + 1, h => by
     simp only [range'_succ, getElem?_cons_succ]
@@ -147,10 +147,10 @@ theorem range_loop_range' : ∀ s n : Nat, range.loop s (range' s n) = range' 0 
 theorem range_eq_range' (n : Nat) : range n = range' 0 n :=
   (range_loop_range' n 0).trans <| by rw [Nat.zero_add]
 
-theorem getElem?_range {i j : Nat} (h : i < j) : (range j)[i]? = some i := by
+theorem getElem?_range {i n : Nat} (h : i < n) : (range n)[i]? = some i := by
   simp [range_eq_range', getElem?_range' _ _ h]
 
-@[simp] theorem getElem_range {i : Nat} (j) (h : j < (range i).length) : (range i)[j] = j := by
+@[simp] theorem getElem_range {n : Nat} (j) (h : j < (range n).length) : (range n)[j] = j := by
   simp [range_eq_range']
 
 theorem range_succ_eq_map (n : Nat) : range (n + 1) = 0 :: map succ (range n) := by
@@ -183,9 +183,9 @@ theorem range_subset {m n : Nat} : range m ⊆ range n ↔ m ≤ n := by
 theorem range_succ (n : Nat) : range (succ n) = range n ++ [n] := by
   simp only [range_eq_range', range'_1_concat, Nat.zero_add]
 
-theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·) := by
+theorem range_add (n m : Nat) : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]
-  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
+  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 n m).symm
 
 theorem head?_range (n : Nat) : (range n).head? = if n = 0 then none else some 0 := by
   induction n with

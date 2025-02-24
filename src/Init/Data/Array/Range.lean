@@ -15,8 +15,8 @@ import Init.Data.List.Nat.Range
 
 -/
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Array
 
@@ -149,9 +149,9 @@ theorem range_succ (n : Nat) : range (succ n) = range n ++ #[n] := by
       dite_eq_ite]
     split <;> omega
 
-theorem range_add (a b : Nat) : range (a + b) = range a ++ (range b).map (a + ·) := by
+theorem range_add (n m : Nat) : range (n + m) = range n ++ (range m).map (n + ·) := by
   rw [← range'_eq_map_range]
-  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 a b).symm
+  simpa [range_eq_range', Nat.add_comm] using (range'_append_1 0 n m).symm
 
 theorem reverse_range' (s n : Nat) : reverse (range' s n) = map (s + n - 1 - ·) (range n) := by
   simp [← toList_inj, List.reverse_range']
@@ -164,7 +164,7 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ (n : Nat) : n ∈ range (n + 1) := by simp
 
-@[simp] theorem take_range (m n : Nat) : take (range n) m = range (min m n) := by
+@[simp] theorem take_range (i n : Nat) : take (range n) i = range (min i n) := by
   ext <;> simp
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :

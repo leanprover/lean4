@@ -8,8 +8,8 @@ import Init.Data.Array.MapIdx
 import Init.Data.Vector.Attach
 import Init.Data.Vector.Lemmas
 
--- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
--- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+set_option linter.indexVariables true -- Enforce naming conventions for index variables.
 
 namespace Vector
 

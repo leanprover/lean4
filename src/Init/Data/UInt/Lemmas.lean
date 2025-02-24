@@ -718,8 +718,6 @@ theorem USize.ofNatTruncate_eq_ofNat (n : Nat) (hn : n < USize.size) :
 @[simp] theorem UInt32.toUSize_toUInt64 (n : UInt32) : n.toUInt64.toUSize = n.toUSize :=
   USize.toNat.inj (by simp)
 
----
-
 @[simp] theorem UInt64.toUInt8_toUInt16 (n : UInt64) : n.toUInt16.toUInt8 = n.toUInt8 :=
   UInt8.toNat.inj (by simp)
 @[simp] theorem UInt64.toUInt8_toUInt32 (n : UInt64) : n.toUInt32.toUInt8 = n.toUInt8 :=

@@ -295,11 +295,16 @@ def USize.mk (bitVec : BitVec System.Platform.numBits) : USize :=
 def USize.ofNatCore (n : Nat) (h : n < USize.size) : USize :=
   USize.ofNatLT n h
 
-theorem usize_size_le : USize.size ≤ 18446744073709551616 := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases USize.size_eq <;> simp_all
+@[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases USize.size_eq <;> simp_all
 
-theorem le_usize_size : 4294967296 ≤ USize.size := by
-  cases usize_size_eq <;> next h => rw [h]; decide
+@[deprecated USize.size_le (since := "2025-02-24")]
+theorem usize_size_le : USize.size ≤ 18446744073709551616 :=
+  USize.size_le
+
+@[deprecated USize.le_size (since := "2025-02-24")]
+theorem le_usize_size : 4294967296 ≤ USize.size :=
+  USize.le_size
 
 @[extern "lean_usize_mul"]
 def USize.mul (a b : USize) : USize := ⟨a.toBitVec * b.toBitVec⟩
@@ -326,7 +331,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_of_nat"]
 def USize.ofNat32 (n : @& Nat) (h : n < 4294967296) : USize :=
-  USize.ofNatLT n (Nat.lt_of_lt_of_le h le_usize_size)
+  USize.ofNatLT n (Nat.lt_of_lt_of_le h USize.le_size)
 @[extern "lean_uint8_to_usize"]
 def UInt8.toUSize (a : UInt8) : USize :=
   USize.ofNat32 a.toBitVec.toNat (Nat.lt_trans a.toBitVec.isLt (by decide))
@@ -351,7 +356,7 @@ This function is overridden with a native implementation.
 -/
 @[extern "lean_usize_to_uint64"]
 def USize.toUInt64 (a : USize) : UInt64 :=
-  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt usize_size_le)
+  UInt64.ofNatLT a.toBitVec.toNat (Nat.lt_of_lt_of_le a.toBitVec.isLt USize.size_le)
 
 instance : Mul USize       := ⟨USize.mul⟩
 instance : Mod USize       := ⟨USize.mod⟩

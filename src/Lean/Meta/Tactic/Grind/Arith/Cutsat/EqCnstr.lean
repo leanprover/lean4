@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -53,15 +54,44 @@ private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM U
   let c' ← c'.applyEq a x c b
   c'.assert
 
-private def updateLowers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
-  if (← inconsistent) then return ()
-  -- TODO
-  pure ()
+private def split (x : Var) (cs : PArray LeCnstr) : GoalM (PArray LeCnstr × Array (Int × LeCnstr)) := do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := c.p.coeff x
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
 
-private def updateUppers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from the inequalities in `todo`.
+`todo` contains pairs of the form `(b, c₂)` where `b` is the coefficient of `x` in `c₂`.
+-/
+private def updateLeCnstrs (a : Int) (x : Var) (c₁ : EqCnstr) (todo : Array (Int × LeCnstr)) : GoalM Unit := do
+  for (b, c₂) in todo do
+    let c₂ ← c₂.applyEq a x c₁ b
+    c₂.assert
+    if (← inconsistent) then return ()
+
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from lower bound inequalities of `y`.
+-/
+private def updateLowers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   if (← inconsistent) then return ()
-  -- TODO
-  pure ()
+  let (lowers', todo) ← split x (← get').lowers[y]!
+  modify' fun s => { s with lowers := s.lowers.set y lowers' }
+  updateLeCnstrs a x c todo
+
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from upper bound inequalities of `y`.
+-/
+private def updateUppers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let (uppers', todo) ← split x (← get').uppers[y]!
+  modify' fun s => { s with lowers := s.lowers.set y uppers' }
+  updateLeCnstrs a x c todo
 
 private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
   updateDvdCnstr k x c y

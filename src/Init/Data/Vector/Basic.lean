@@ -455,6 +455,24 @@ to avoid having to have the predicate live in `p : α → m (ULift Bool)`.
 @[inline] def count [BEq α] (a : α) (xs : Vector α n) : Nat :=
   xs.toArray.count a
 
+/--
+Pad a vector on the left with a given element.
+
+Note that we immediately simplify this to an `++` operation,
+and do not provide separate verification theorems.
+-/
+@[inline, simp] def leftpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (mkVector (n - m) a ++ xs).cast (by omega)
+
+/--
+Pad a vector on the right with a given element.
+
+Note that we immediately simplify this to an `++` operation,
+and do not provide separate verification theorems.
+-/
+@[inline, simp] def rightpad (n : Nat) (a : α) (xs : Vector α m) : Vector α (max n m) :=
+  (xs ++ mkVector (n - m) a).cast (by omega)
+
 /-! ### ForIn instance -/
 
 @[simp] theorem mem_toArray_iff (a : α) (xs : Vector α n) : a ∈ xs.toArray ↔ a ∈ xs :=

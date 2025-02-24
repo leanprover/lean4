@@ -1102,6 +1102,20 @@ instance instLE [LT α] : LE (Array α) := ⟨fun as bs => as.toList ≤ bs.toLi
 We do not currently intend to provide verification theorems for these functions.
 -/
 
+/-! ### leftpad and rightpad -/
+
+/--
+Pads `l : Array α` on the left with repeated occurrences of `a : α` until it is of size `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def leftpad (n : Nat) (a : α) (xs : Array α) : Array α := mkArray (n - xs.size) a ++ xs
+
+/--
+Pads `l : Array α` on the right with repeated occurrences of `a : α` until it is of size `n`.
+If `l` is initially larger than `n`, just return `l`.
+-/
+def rightpad (n : Nat) (a : α) (xs : Array α) : Array α := xs ++ mkArray (n - xs.size) a
+
 /- ### reduceOption -/
 
 /-- Drop `none`s from a Array, and replace each remaining `some a` with `a`. -/

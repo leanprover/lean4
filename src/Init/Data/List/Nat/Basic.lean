@@ -63,9 +63,17 @@ theorem getElem_eq_getElem_reverse {l : List α} {i} (h : i < l.length) :
   to the larger of `n` and `l.length` -/
 -- We don't mark this as a `@[simp]` lemma since we allow `simp` to unfold `leftpad`,
 -- so the left hand side simplifies directly to `n - l.length + l.length`.
-theorem leftpad_length (n : Nat) (a : α) (l : List α) :
+theorem length_lengthpad (n : Nat) (a : α) (l : List α) :
     (leftpad n a l).length = max n l.length := by
   simp only [leftpad, length_append, length_replicate, Nat.sub_add_eq_max]
+
+@[deprecated length_lengthpad (since := "2025-02-24")]
+abbrev leftpad_length := @length_lengthpad
+
+theorem length_rightpad (n : Nat) (a : α) (l : List α) :
+    (rightpad n a l).length = max n l.length := by
+  simp [rightpad]
+  omega
 
 /-! ### eraseIdx -/
 

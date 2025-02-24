@@ -632,7 +632,7 @@ theorem get!_eq_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inha
   simp_to_model using List.getValueCast!_eq_default
 
 theorem get!_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] :
-    (t.erase k h.balanced).impl.get! a = if k == a then default else t.get! a := by
+    (t.erase k h.balanced).impl.get! a = if compare k a = .eq then default else t.get! a := by
   simp_to_model [erase] using List.getValueCast!_eraseKey
 
 theorem get!_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inhabited (β k)] :
@@ -653,7 +653,7 @@ theorem get_eq_get! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabite
 
 namespace Const
 
-variable {β : Type v} (t : Impl α β) (h : t.WF)
+variable {β : Type v} {t : Impl α β} (h : t.WF)
 
 theorem get!_empty [TransOrd α] [Inhabited β] {a : α} :
     get! (empty : Impl α β) a = default := by
@@ -754,7 +754,7 @@ theorem get!_eq_getD_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} 
 
 namespace Const
 
-variable {β : Type v} (t : Impl α β) (h : t.WF)
+variable {β : Type v} {t : Impl α β} (h : t.WF)
 
 theorem getD_empty [TransOrd α] {a : α} {fallback : β} :
     getD (empty : Impl α β) a fallback = fallback := by

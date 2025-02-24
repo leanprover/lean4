@@ -98,11 +98,11 @@ where
     else
       let mut r := f
       for arg in args do
-        r := r ++ m!" {arg}"
+        r := r ++ Format.line ++ arg
       if parenIfNonAtomic then
-        return m!"({r})"
+        return .paren r
       else
-        return r
+        return .group r
 
   go (parenIfNonAtomic := true) : StateRefT (List Key) CoreM MessageData := do
     let some key ← next? | return .nil

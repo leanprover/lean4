@@ -50,10 +50,20 @@ def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var
     else
       findVarToSubst p
 
+partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := do
+  let some (a, x, c₁) ← c.p.findVarToSubst | return c
+  trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
+  let b := c₁.p.coeff x
+  let p := c.p.mul (-b) |>.combine (c₁.p.mul a)
+  let c ← mkEqCnstr p (.subst x c₁ c)
+  applySubsts c
+
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
+  trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
-  -- TODO: apply substitutions
+  let c ← applySubsts c
+  -- TODO: check coeffsr
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
   -- TODO: eliminate `x` from lowers, uppers, and dvdCnstrs

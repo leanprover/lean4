@@ -67,7 +67,10 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
     return h
   | .norm c =>
     return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
-  | .subst _x _c₁ _c₂  => throwError "NIY"
+  | .subst x c₁ c₂  =>
+    return mkApp8 (mkConst ``Int.Linear.eq_eq_subst)
+      (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+      reflBoolTrue (← c₁.toExprProof) (← c₂.toExprProof)
 
 end
 end Lean.Meta.Grind.Arith.Cutsat

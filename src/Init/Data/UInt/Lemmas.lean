@@ -285,6 +285,7 @@ theorem UInt16.size_le_usizeSize : UInt16.size ≤ USize.size :=
 theorem UInt32.size_le_usizeSize : UInt32.size ≤ USize.size := by
   cases usize_size_eq <;> simp_all +decide
 
+@[simp] theorem USize.le_size : 2 ^ 32 ≤ USize.size := by cases usize_size_eq <;> simp_all
 @[simp] theorem USize.size_le : USize.size ≤ 2 ^ 64 := by cases usize_size_eq <;> simp_all
 theorem USize.size_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
 @[simp] theorem USize.toNat_lt (n : USize) : n.toNat < 2 ^ 64 := Nat.lt_of_lt_of_le n.toFin.isLt size_le
@@ -318,18 +319,18 @@ theorem UInt32.toNat_lt_usizeSize (n : UInt32) : n.toNat < USize.size :=
 @[simp] theorem UInt8.toFin_toUInt32 (n : UInt8) : n.toUInt32.toFin = n.toFin.castLE (by decide) := rfl
 @[simp] theorem UInt8.toFin_toUInt64 (n : UInt8) : n.toUInt64.toFin = n.toFin.castLE (by decide) := rfl
 @[simp] theorem UInt8.toFin_toUSize (n : UInt8) :
-  n.toUSize.toFin = n.toFin.castLE (by cases usize_size_eq <;> simp_all +decide) := rfl
+  n.toUSize.toFin = n.toFin.castLE size_le_usizeSize := rfl
 
 @[simp] theorem UInt16.toFin_toUInt32 (n : UInt16) : n.toUInt32.toFin = n.toFin.castLE (by decide) := rfl
 @[simp] theorem UInt16.toFin_toUInt64 (n : UInt16) : n.toUInt64.toFin = n.toFin.castLE (by decide) := rfl
 @[simp] theorem UInt16.toFin_toUSize (n : UInt16) :
-  n.toUSize.toFin = n.toFin.castLE (by cases usize_size_eq <;> simp_all +decide) := rfl
+  n.toUSize.toFin = n.toFin.castLE size_le_usizeSize := rfl
 
 @[simp] theorem UInt32.toFin_toUInt64 (n : UInt32) : n.toUInt64.toFin = n.toFin.castLE (by decide) := rfl
 @[simp] theorem UInt32.toFin_toUSize (n : UInt32) :
-  n.toUSize.toFin = n.toFin.castLE (by cases usize_size_eq <;> simp_all +decide) := rfl
+  n.toUSize.toFin = n.toFin.castLE size_le_usizeSize := rfl
 
-@[simp] theorem USize.toFin_toUInt64 (n : USize) : n.toUInt64.toFin = n.toFin.castLE (by cases usize_size_eq <;> simp_all +decide) := rfl
+@[simp] theorem USize.toFin_toUInt64 (n : USize) : n.toUInt64.toFin = n.toFin.castLE size_le_usizeSize := rfl
 
 @[simp] theorem UInt16.toBitVec_toUInt8 (n : UInt16) : n.toUInt8.toBitVec = n.toBitVec.setWidth 8 := rfl
 @[simp] theorem UInt32.toBitVec_toUInt8 (n : UInt32) : n.toUInt8.toBitVec = n.toBitVec.setWidth 8 := rfl
@@ -381,7 +382,7 @@ theorem UInt32.toNat_lt_usizeSize (n : UInt32) : n.toNat < USize.size :=
 @[simp] theorem USize.ofNatLT_toNat (n : USize) : USize.ofNatLT n.toNat n.toNat_lt_size = n := rfl
 @[simp] theorem UInt64.ofNatLT_uSizeToNat (n : USize) : UInt64.ofNatLT n.toNat n.toNat_lt = n.toUInt64 := rfl
 
--- We are not making these into `simp` lemmas because they lose the information stored in `h`.
+-- We are not making these into `simp` lemmas because they lose the information stored in `h`. ·
 theorem UInt8.ofNatLT_uInt16ToNat (n : UInt16) (h) : UInt8.ofNatLT n.toNat h = n.toUInt8 :=
   UInt8.toNat.inj (by simp [Nat.mod_eq_of_lt h])
 theorem UInt8.ofNatLT_uInt32ToNat (n : UInt32) (h) : UInt8.ofNatLT n.toNat h = n.toUInt8 :=

@@ -627,9 +627,13 @@ theorem get!_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inh
     (t.insert a b h.balanced).impl.get! a = b := by
   simp_to_model [insert] using List.getValueCast!_insertEntry_self
 
-theorem get!_eq_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
-    t.contains a = false → t.get! a = default := by
+theorem get!_eq_default_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α}
+    [Inhabited (β a)] : t.contains a = false → t.get! a = default := by
   simp_to_model using List.getValueCast!_eq_default
+
+theorem get!_eq_default [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+    ¬ a ∈ t → t.get! a = default := by
+  simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} [Inhabited (β a)] :
     (t.erase k h.balanced).impl.get! a = if compare k a = .eq then default else t.get! a := by
@@ -639,9 +643,13 @@ theorem get!_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} [Inha
     (t.erase k h.balanced).impl.get! k = default := by
   simp_to_model [erase] using List.getValueCast!_eraseKey_self
 
-theorem get?_eq_some_get! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+theorem get?_eq_some_get!_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.contains a = true → t.get? a = some (t.get! a) := by
   simp_to_model using List.getValueCast?_eq_some_getValueCast!
+
+theorem get?_eq_some_get! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
+    a ∈ t → t.get? a = some (t.get! a) := by
+  simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
 
 theorem get!_eq_get!_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} [Inhabited (β a)] :
     t.get! a = (t.get? a).get! := by
@@ -671,9 +679,13 @@ theorem get!_insert_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α}
     {v : β} : get! (t.insert k v h.balanced).impl k = v := by
   simp_to_model [insert] using List.getValue!_insertEntry_self
 
-theorem get!_eq_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get!_eq_default_of_contains_eq_false [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
     t.contains a = false → get! t a = default := by
   simp_to_model using List.getValue!_eq_default
+
+theorem get!_eq_default [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+    ¬ a ∈ t → get! t a = default := by
+  simpa [mem_iff_contains] using get!_eq_default_of_contains_eq_false h
 
 theorem get!_erase [TransOrd α] [Inhabited β] (h : t.WF) {k a : α} :
     get! (t.erase k h.balanced).impl a = if compare k a = .eq then default else get! t a := by
@@ -683,9 +695,13 @@ theorem get!_erase_self [TransOrd α] [Inhabited β] (h : t.WF) {k : α} :
     get! (t.erase k h.balanced).impl k = default := by
   simp_to_model [erase] using List.getValue!_eraseKey_self
 
-theorem get?_eq_some_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+theorem get?_eq_some_get!_of_contains [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
     t.contains a = true → get? t a = some (get! t a) := by
   simp_to_model using List.getValue?_eq_some_getValue!
+
+theorem get?_eq_some_get! [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
+    a ∈ t → get? t a = some (get! t a) := by
+  simpa [mem_iff_contains] using get?_eq_some_get!_of_contains h
 
 theorem get!_eq_get!_get? [TransOrd α] [Inhabited β] (h : t.WF) {a : α} :
     get! t a = (get? t a).get! := by
@@ -724,9 +740,13 @@ theorem getD_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fal
     (t.insert a b h.balanced).impl.getD a fallback = b := by
   simp_to_model [insert] using List.getValueCastD_insertEntry_self
 
-theorem getD_eq_fallback [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem getD_eq_fallback_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
     t.contains a = false → t.getD a fallback = fallback := by
   simp_to_model using List.getValueCastD_eq_fallback
+
+theorem getD_eq_fallback [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+    ¬ a ∈ t → t.getD a fallback = fallback := by
+  simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} {fallback : β a} :
     (t.erase k h.balanced).impl.getD a fallback = if compare k a = .eq then fallback else t.getD a fallback := by
@@ -736,9 +756,13 @@ theorem getD_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {fall
     (t.erase k h.balanced).impl.getD k fallback = fallback := by
   simp_to_model [erase] using List.getValueCastD_eraseKey_self
 
-theorem get?_eq_some_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+theorem get?_eq_some_getD_of_contains [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
     t.contains a = true → t.get? a = some (t.getD a fallback) := by
   simp_to_model using List.getValueCast?_eq_some_getValueCastD
+
+theorem get?_eq_some_getD [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
+    a ∈ t → t.get? a = some (t.getD a fallback) := by
+  simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
 
 theorem getD_eq_getD_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} {fallback : β a} :
     t.getD a fallback = (t.get? a).getD fallback := by
@@ -772,9 +796,13 @@ theorem getD_insert_self [TransOrd α] (h : t.WF) {k : α} {fallback v : β} :
     getD (t.insert k v h.balanced).impl k fallback = v := by
   simp_to_model [insert] using List.getValueD_insertEntry_self
 
-theorem getD_eq_fallback [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_fallback_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = false → getD t a fallback = fallback := by
   simp_to_model using List.getValueD_eq_fallback
+
+theorem getD_eq_fallback [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+    ¬ a ∈ t → getD t a fallback = fallback := by
+  simpa [mem_iff_contains] using getD_eq_fallback_of_contains_eq_false h
 
 theorem getD_erase [TransOrd α] (h : t.WF) {k a : α} {fallback : β} :
     getD (t.erase k h.balanced).impl a fallback = if compare k a = .eq then
@@ -787,9 +815,13 @@ theorem getD_erase_self [TransOrd α] (h : t.WF) {k : α} {fallback : β} :
     getD (t.erase k h.balanced).impl k fallback = fallback := by
   simp_to_model [erase] using List.getValueD_eraseKey_self
 
-theorem get?_eq_some_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+theorem get?_eq_some_getD_of_contains [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = true → get? t a = some (getD t a fallback) := by
   simp_to_model using List.getValue?_eq_some_getValueD
+
+theorem get?_eq_some_getD [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
+    a ∈ t → get? t a = some (getD t a fallback) := by
+  simpa [mem_iff_contains] using get?_eq_some_getD_of_contains h
 
 theorem getD_eq_getD_get? [TransOrd α] (h : t.WF) {a : α} {fallback : β} :
     getD t a fallback = (get? t a).getD fallback := by

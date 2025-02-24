@@ -104,6 +104,24 @@ Enables TCP keep-alive for a socket.
 @[extern "lean_uv_tcp_keepalive"]
 opaque keepalive (socket : @& Socket) (enable : Int32) (delay : UInt32) : IO Unit
 
+/--
+Checks if the socket is active.
+-/
+@[extern "lean_uv_tcp_is_active"]
+opaque isActive (socket : @& Socket) : IO Bool
+
+/--
+Checks if the socket is writable.
+-/
+@[extern "lean_uv_tcp_is_writable"]
+opaque isWritable (socket : @& Socket) : IO Bool
+
+/--
+Checks if the socket is readable.
+-/
+@[extern "lean_uv_tcp_is_readable"]
+opaque isReadable (socket : @& Socket) : IO Bool
+
 end Socket
 end TCP
 end UV

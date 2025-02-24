@@ -296,9 +296,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_bind(b_obj_arg socket, b_obj_arg
     lean_socket_addr_to_sockaddr(addr, &addr_ptr);
 
     event_loop_lock(&global_ev);
-
     int result = uv_tcp_bind(tcp_socket->m_uv_tcp, (const struct sockaddr *)&addr_ptr, 0);
-
     event_loop_unlock(&global_ev);
 
     if (result < 0) {
@@ -346,7 +344,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_listen(b_obj_arg socket, int32_t
 
         resolve_promise(promise, mk_ok_except(client));
         lean_dec(promise);
-        
+
         // The accept increases the count and then the listen decreases
         lean_dec((lean_object*)stream->data);
     });
@@ -501,6 +499,28 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int3
 
     return lean_io_result_mk_ok(lean_box(0));
 }
+
+/* Std.Internal.UV.TCP.Socket.isActive (socket : @& Socket) : IO Bool */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_active(b_obj_arg socket) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+    int active = uv_is_active((const uv_handle_t *)tcp_socket->m_uv_tcp);
+    return lean_io_result_mk_ok(lean_box(active != 0));
+}
+
+/* Std.Internal.UV.TCP.Socket.isReadable (socket : @& Socket) : IO Bool */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_readable(b_obj_arg socket) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+    int active = uv_is_readable((const uv_stream_t *)tcp_socket->m_uv_tcp);
+    return lean_io_result_mk_ok(lean_box(active != 0));
+}
+
+/* Std.Internal.UV.TCP.Socket.isWritable (socket : @& Socket) : IO Bool */
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_writable(b_obj_arg socket) {
+    lean_uv_tcp_socket_object * tcp_socket = lean_to_uv_tcp_socket(socket);
+    int active = uv_is_writable((const uv_stream_t *)tcp_socket->m_uv_tcp);
+    return lean_io_result_mk_ok(lean_box(active != 0));
+}
+
 }
 
 #else
@@ -578,6 +598,24 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket) {
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_active(b_obj_arg socket) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_readable(b_obj_arg socket) {
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with libuv to invoke this.")
+    );
+}
+
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_writable(b_obj_arg socket) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

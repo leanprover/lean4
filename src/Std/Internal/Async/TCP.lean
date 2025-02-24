@@ -86,6 +86,27 @@ Enables TCP keep-alive for all client sockets accepted by this server socket.
 def keepAlive (s : Server) (enable : Bool) (delay : Std.Time.Second.Offset) (_ : delay.val ≥ 1 := by decide) : IO Unit :=
   s.native.keepalive enable delay.val.toNat.toUInt32
 
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isActive (s : Server) : IO Bool :=
+  s.native.isActive
+
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isWritable (s : Server) : IO Bool :=
+  s.native.isWritable
+
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isReadable (s : Server) : IO Bool :=
+  s.native.isReadable
+
 end Server
 
 namespace Client
@@ -160,6 +181,27 @@ Enables the Nagle algorithm for the client socket.
 @[inline]
 def noDelay (s : Client) : IO Unit :=
   s.native.nodelay
+
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isActive (s : Client) : IO Bool :=
+  s.native.isActive
+
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isWritable (s : Client) : IO Bool :=
+  s.native.isWritable
+
+/--
+Checks if the socket is active.
+-/
+@[inline]
+def isReadable (s : Client) : IO Bool :=
+  s.native.isReadable
 
 /--
 Enables TCP keep-alive with a specified delay for the client socket.

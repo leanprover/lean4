@@ -21,6 +21,7 @@ void initialize_libuv_tcp_socket();
 // connection state, and read/write buffers.
 typedef struct {
     uv_tcp_t *      m_uv_tcp;           // LibUV TCP handle.
+    uv_poll_t *     m_uv_poll;          // Poll to get disconneciton event
     lean_object *   m_promise_accept;   // The associated promise for asynchronous results for accepting new sockets.
     lean_object *   m_promise_read;     // The associated promise for asynchronous results for reading from the socket.
     lean_object *   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
@@ -54,5 +55,8 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getpeername(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_getsockname(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_nodelay(b_obj_arg socket);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_keepalive(b_obj_arg socket, int32_t enable, uint32_t delay);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_active(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_readable(b_obj_arg socket);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_is_writable(b_obj_arg socket);
 
 }

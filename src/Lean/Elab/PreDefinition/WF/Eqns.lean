@@ -10,6 +10,7 @@ import Lean.Elab.PreDefinition.Basic
 import Lean.Elab.PreDefinition.Eqns
 import Lean.Meta.ArgsPacker.Basic
 import Lean.Elab.PreDefinition.WF.Unfold
+import Lean.Elab.PreDefinition.Mutual
 import Init.Data.Array.Basic
 
 namespace Lean.Elab.WF
@@ -26,8 +27,9 @@ structure EqnInfo extends EqnInfoCore where
 
 builtin_initialize eqnInfoExt : MapDeclarationExtension EqnInfo ← mkMapDeclarationExtension
 
-def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedPrefixSize : Nat)
+def registerEqnsInfo (preDefs : Array PreDefinition) (declNameNonRec : Name) (fixedParams : Mutual.FixedParams)
     (argsPacker : ArgsPacker) : MetaM Unit := do
+  let fixedPrefixSize := fixedParams.size -- TODO: Needs to be included in EqnInfo
   preDefs.forM fun preDef => ensureEqnReservedNamesAvailable preDef.declName
   /-
   See issue #2327.

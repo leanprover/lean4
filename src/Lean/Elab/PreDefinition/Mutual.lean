@@ -168,6 +168,8 @@ def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM Info := do
   return info
 
 structure FixedParams where
+  /-- Mumber of fixed parameter -/
+  size : Nat
   /-- A telescope (nested `.lamE` with a dummy body) representing the fixed parameters. -/
   telescope : Expr
   /-- For each function in the clique, a mapping from its parameters to the fixed parameters -/
@@ -188,6 +190,7 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
         ys := ys.push x
       else
         firstMapping := firstMapping.push none
+    let size := ys.size
     let telescope ← mkLambdaFVars ys (.sort 0)
 
     let mut mappings := #[firstMapping]
@@ -205,8 +208,85 @@ def getFixedParams (preDefs : Array PreDefinition) : MetaM FixedParams := do
           mapping := mapping.push none
       mappings := mappings.push mapping
 
-    return { telescope, mappings }
+    return { size, telescope, mappings }
 
+
+/--
+Brings the fixed parameters from `type`, which should the the type of the `funIdx`'s function, into
+scope.
+-/
+def forallTelescopeFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type : Expr) (k : Array Expr → MetaM α) : MetaM α := do
+  -- Local implementation shortcut:
+  -- We just bring all into scope and then remove the ones we didn't want.
+  forallBoundedTelescope type (fixedParams.mappings[funIdx]!.size) fun xs _ => do
+    assert! xs.size = fixedParams.mappings[funIdx]!.size
+    let mut ys := #[]
+    let mut zs := #[]
+    for x in xs, paramInfo in fixedParams.mappings[funIdx]! do
+      if paramInfo.isSome then
+        ys := ys.push x
+      else
+        zs := zs.push x.fvarId!
+    assert! ys.size = fixedParams.size
+    withErasedFVars zs (k ys)
+
+/--
+If `type` is the type of the `funIdx`'s function, instantiate the fixed paramters.
+-/
+def instantiateForallFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
+  assert! xs.size = fixedParams.size
+  let mask := fixedParams.mappings[funIdx]!.toList
+  go mask xs.toList type₀
+where
+  go | [], [], type => pure type
+     | [], _, _ => panic! s!"instantiateForallFixedParams: Too many arguments {xs}"
+     | .some _::_, [], _ => panic! s!"instantiateForallFixedParams: Too few arguments {xs}"
+     | (.some _)::mask, x::xs, type => do
+        go mask xs (← instantiateForall type #[x])
+     | .none::mask, xs, type =>
+        forallBoundedTelescope type (some 1) fun ys type => do
+          assert! ys.size = 1
+          mkForallFVars ys (← go mask xs type)
+
+/--
+If `type` is the body of the `funIdx`'s function, instantiate the fixed paramters.
+-/
+def instantiateLambdaFixedParams (fixedParams : FixedParams) (funIdx : Nat) (type₀ : Expr) (xs : Array Expr) : MetaM Expr := do
+  assert! xs.size = fixedParams.size
+  let mask := fixedParams.mappings[funIdx]!.toList
+  go mask xs.toList type₀
+where
+  go | [], [], type => pure type
+     | [], _, _ => panic! s!"instantiateLambdaFixedParams: Too many arguments {xs}"
+     | .some _::_, [], _ => panic! s!"instantiateLambdaFixedParams: Too few arguments {xs}"
+     | (.some _)::mask, x::xs, type => do
+        go mask xs (← instantiateLambda type #[x])
+     | .none::mask, xs, type =>
+        lambdaBoundedTelescope type 1 fun ys type => do
+          assert! ys.size = 1
+          mkLambdaFVars ys (← go mask xs type)
+
+/--
+If `xs` are arguments to the `funIdx`'s function, pick only the fixed ones.
+-/
+def pickFixedArgs (fixedParams : FixedParams) (funIdx : Nat) (xs : Array Expr) : Array Expr := Id.run do
+  let mask := fixedParams.mappings[funIdx]!.map Option.isSome
+  assert! mask.size = xs.size
+  let mut ys := #[]
+  for i in [:xs.size] do
+    if mask[i]! then ys := ys.push xs[i]!
+  pure ys
+
+/--
+If `xs` are arguments to the `funIdx`'s function, pick only the varying ones.
+-/
+def pickVaryingArgs (fixedParams : FixedParams) (funIdx : Nat) (xs : Array Expr) : Array Expr := Id.run do
+  let mask := fixedParams.mappings[funIdx]!.map Option.isSome
+  assert! mask.size = xs.size
+  let mut ys := #[]
+  for i in [:xs.size] do
+    if !mask[i]! then ys := ys.push xs[i]!
+  pure ys
 
 def checkFixedParams (preDefs : Array PreDefinition) (fixedPrefixSize : Nat) : MetaM Unit := do
   let fixedParams ← getFixedParams preDefs

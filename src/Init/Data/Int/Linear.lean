@@ -945,43 +945,20 @@ theorem eq_eq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ 
   intro h₁ h₂
   simp [*]
 
-private theorem eq_le_subst_nonneg' {a x p b q : Int} : a ≥ 0 → a*x + p = 0 → b*x + q ≤ 0 → a*q - b*p ≤ 0 := by
-  intro h h₁ h₂
-  replace h₁ := congrArg ((-b)*·) h₁; simp at h₁
-  rw [Int.add_comm, Int.mul_left_comm] at h₁
-  replace h₁ := Int.neg_eq_of_add_eq_zero h₁; simp at h₁
-  replace h₂ := Int.mul_le_mul_of_nonneg_left h₂ h
-  rw [Int.mul_add, h₁] at h₂; clear h₁
-  simp at h₂
-  rw [Int.sub_eq_add_neg]
-  assumption
-
 def eq_le_subst_nonneg_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff x
   let b := p₂.coeff x
-  let p := p₁.insert (-a) x
-  let q := p₂.insert (-b) x
-  a ≥ 0 && p₃ == (q.mul a |>.combine (p.mul (-b)))
+  a ≥ 0 && p₃ == (p₂.mul a |>.combine (p₁.mul (-b)))
 
 theorem eq_le_subst_nonneg (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_le_subst_nonneg_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx ≤ 0 → p₃.denote' ctx ≤ 0 := by
   simp [eq_le_subst_nonneg_cert]
-  have eq₁ := eq_add_coeff_insert ctx p₁ x
-  have eq₂ := eq_add_coeff_insert ctx p₂ x
-  revert eq₁ eq₂
-  generalize p₁.coeff x = a
-  generalize p₂.coeff x = b
-  generalize p₁.insert (-a) x = p
-  generalize p₂.insert (-b) x = q
-  intro eq₁; simp [eq₁]; clear eq₁
-  intro eq₂; simp [eq₂]; clear eq₂
   intro h
   intro; subst p₃
   intro h₁ h₂
-  rw [Int.add_comm] at h₁ h₂
-  have := eq_le_subst_nonneg' h h₁ h₂
-  rw [Int.sub_eq_add_neg, Int.add_comm] at this
-  simp [this]
+  replace h₂ := Int.mul_le_mul_of_nonneg_left h₂ h
+  simp at h₂
+  simp [*]
 
 private theorem eq_le_subst_nonpos' {a x p b q : Int} : a ≤ 0 → a*x + p = 0 → b*x + q ≤ 0 → b*p - a*q ≤ 0 := by
   intro h h₁ h₂

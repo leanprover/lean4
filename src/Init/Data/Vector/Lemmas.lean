@@ -6,6 +6,7 @@ Authors: Shreyas Srinivas, Francois Dorais, Kim Morrison
 prelude
 import Init.Data.Vector.Basic
 import Init.Data.Array.Attach
+import Init.Data.Array.Find
 
 /-!
 ## Vectors
@@ -662,12 +663,12 @@ protected theorem eq_empty (xs : Vector α 0) : xs = #v[] := by
 theorem eq_empty_of_size_eq_zero (xs : Vector α n) (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
   apply toArray_inj.1
-  simp only [List.length_eq_zero, Array.toList_eq_nil_iff] at h
+  simp only [List.length_eq_zero_iff, Array.toList_eq_nil_iff] at h
   simp [h]
 
 theorem size_eq_one {xs : Vector α 1} : ∃ a, xs = #v[a] := by
   rcases xs with ⟨xs, h⟩
-  simpa using Array.size_eq_one.mp h
+  simpa using Array.size_eq_one_iff.mp h
 
 /-! ### push -/
 
@@ -1335,6 +1336,20 @@ theorem mem_setIfInBounds (xs : Vector α n) (i : Nat) (hi : i < n) (a : α) :
 @[simp] theorem isEqv_eq [DecidableEq α] {xs ys : Vector α n} : xs.isEqv ys (· == ·) = (xs = ys) := by
   cases xs
   cases ys
+  simp
+
+/-! ### back -/
+
+theorem back_eq_getElem [NeZero n] (xs : Vector α n) : xs.back = xs[n - 1]'(by have := NeZero.ne n; omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back_eq_getElem]
+
+theorem back?_eq_getElem? (xs : Vector α n) : xs.back? = xs[n - 1]? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back?_eq_getElem?]
+
+@[simp] theorem back_mem [NeZero n] {xs : Vector α n} : xs.back ∈ xs := by
+  cases xs
   simp
 
 /-! ### map -/
@@ -2330,6 +2345,90 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
     xs.foldr (fun _ x => x + a) b = b + a * xs.size := by
   rcases xs with ⟨xs⟩
   simp
+
+/-! #### Further results about `back` and `back?` -/
+
+@[simp] theorem back?_eq_none_iff {xs : Vector α n} : xs.back? = none ↔ n = 0 := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+theorem back?_eq_some_iff {xs : Vector α n} {a : α} :
+    xs.back? = some a ↔ ∃ (w : 0 < n)(ys : Vector α (n - 1)), xs = (ys.push a).cast (by omega) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp only [back?_mk, Array.back?_eq_some_iff, mk_eq, toArray_cast, toArray_push]
+  constructor
+  · rintro ⟨ys, rfl⟩
+    simp
+    exact ⟨⟨ys, by simp⟩, by simp⟩
+  · rintro ⟨w, ⟨ys, h₁⟩, h₂⟩
+    exact ⟨ys, by simpa using h₂⟩
+
+@[simp] theorem back?_isSome {xs : Vector α n} : xs.back?.isSome ↔ n ≠ 0 := by
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+@[simp] theorem back_append_of_neZero {xs : Vector α n} {ys : Vector α m} [NeZero m] :
+    (xs ++ ys).back = ys.back := by
+  rcases xs with ⟨l⟩
+  rcases ys with ⟨l'⟩
+  simp only [mk_append_mk, back_mk]
+  rw [Array.back_append_of_size_pos]
+
+theorem back_append {xs : Vector α n} {ys : Vector α m} [NeZero (n + m)] :
+    (xs ++ ys).back =
+      if h' : m = 0 then
+        have : NeZero n := by subst h'; simp_all
+        xs.back
+      else
+        have : NeZero m := ⟨h'⟩
+        ys.back := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp [Array.back_append]
+  split <;> rename_i h
+  · rw [dif_pos]
+    simp_all
+  · rw [dif_neg]
+    rwa [Array.isEmpty_iff_size_eq_zero] at h
+
+theorem back_append_right {xs : Vector α n} {ys : Vector α m} [NeZero m] :
+    (xs ++ ys).back = ys.back := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp only [mk_append_mk, back_mk]
+  rw [Array.back_append_right]
+
+theorem back_append_left {xs : Vector α n} {ys : Vector α 0} [NeZero n] :
+    (xs ++ ys).back = xs.back := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, h⟩
+  simp only [mk_append_mk, back_mk]
+  rw [Array.back_append_left _ h]
+
+@[simp] theorem back?_append {xs : Vector α n} {ys : Vector α m} : (xs ++ ys).back? = ys.back?.or xs.back? := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp
+
+theorem back?_flatMap {xs : Vector α n} {f : α → Vector β m} :
+    (xs.flatMap f).back? = xs.reverse.findSome? fun a => (f a).back? := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back?_flatMap]
+  rfl
+
+theorem back?_flatten {xss : Vector (Vector α m) n} :
+    (flatten xss).back? = xss.reverse.findSome? fun xs => xs.back? := by
+  rcases xss with ⟨xss, rfl⟩
+  simp [Array.back?_flatten, ← Array.map_reverse, Array.findSome?_map, Function.comp_def]
+  rfl
+
+theorem back?_mkVector (a : α) (n : Nat) :
+    (mkVector n a).back? = if n = 0 then none else some a := by
+  rw [mkVector_eq_mk_mkArray]
+  simp only [back?_mk, Array.back?_mkArray]
+
+@[simp] theorem back_mkArray [NeZero n] : (mkVector n a).back = a := by
+  simp [back_eq_getElem]
 
 /-! ### leftpad and rightpad -/
 

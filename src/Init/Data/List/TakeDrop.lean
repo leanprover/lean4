@@ -45,7 +45,7 @@ theorem drop_one : ∀ l : List α, drop 1 l = tail l
     _ = succ (length l) - succ i := (Nat.succ_sub_succ_eq_sub (length l) i).symm
 
 theorem drop_of_length_le {l : List α} (h : l.length ≤ i) : drop i l = [] :=
-  length_eq_zero.1 (length_drop .. ▸ Nat.sub_eq_zero_of_le h)
+  length_eq_zero_iff.1 (length_drop .. ▸ Nat.sub_eq_zero_of_le h)
 
 theorem length_lt_of_drop_ne_nil {l : List α} {i} (h : drop i l ≠ []) : i < l.length :=
   gt_of_not_le (mt drop_of_length_le h)

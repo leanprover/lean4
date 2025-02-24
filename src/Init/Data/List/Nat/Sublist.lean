@@ -156,7 +156,7 @@ theorem append_sublist_of_sublist_left {xs ys zs : List α} (h : zs <+ xs) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : ys.length = 0 := by omega
-    simp_all only [Nat.add_zero, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.add_zero, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp
@@ -169,7 +169,7 @@ theorem append_sublist_of_sublist_right {xs ys zs : List α} (h : zs <+ ys) :
     have hl' := h'.length_le
     simp only [length_append] at hl'
     have : xs.length = 0 := by omega
-    simp_all only [Nat.zero_add, length_eq_zero, true_and, append_nil]
+    simp_all only [Nat.zero_add, length_eq_zero_iff, true_and, append_nil]
     exact Sublist.eq_of_length_le h' hl
   · rintro ⟨rfl, rfl⟩
     simp

@@ -33,7 +33,7 @@ theorem range'_succ (s n step) : range' s (n + 1) step = s :: range' (s + step) 
   | _ + 1 => congrArg succ (length_range' _ _ _)
 
 @[simp] theorem range'_eq_nil_iff : range' s n step = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range']
+  rw [← length_eq_zero_iff, length_range']
 
 @[deprecated range'_eq_nil_iff (since := "2025-01-29")] abbrev range'_eq_nil := @range'_eq_nil_iff
 
@@ -164,7 +164,7 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
   simp only [range_eq_range', length_range']
 
 @[simp] theorem range_eq_nil {n : Nat} : range n = [] ↔ n = 0 := by
-  rw [← length_eq_zero, length_range]
+  rw [← length_eq_zero_iff, length_range]
 
 theorem range_ne_nil {n : Nat} : range n ≠ [] ↔ n ≠ 0 := by
   cases n <;> simp

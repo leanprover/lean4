@@ -101,4 +101,4 @@ which is not less than or equal to the structure's resulting universe level
   1
 -/
 #guard_msgs in
-structure B extends A' : Type
+structure B : Type extends A'

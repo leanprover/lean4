@@ -113,6 +113,7 @@ structure LakeInstall where
   srcDir := home
   binDir := home / defaultBuildDir / defaultBinDir
   libDir := home / defaultBuildDir / defaultLeanLibDir
+  sharedLib := libDir / nameToSharedLib "Lake"
   lake := binDir / lakeExe
   deriving Inhabited, Repr
 
@@ -122,6 +123,9 @@ def LakeInstall.ofLean (lean : LeanInstall) : LakeInstall where
   srcDir := lean.srcDir / "lake"
   binDir := lean.binDir
   libDir := lean.leanLibDir
+  sharedLib :=
+    let lib := s!"libLake_shared.{sharedLibExt}"
+    if Platform.isWindows then lean.binDir / lib else lean.leanLibDir / lib
   lake := lean.binDir / lakeExe
 
 /-! ## Detection Functions -/

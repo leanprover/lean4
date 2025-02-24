@@ -335,32 +335,6 @@ This function ensures that the value is used linearly.
   else
     ∅
 
-section Unverified
-
-/-! We currently do not provide lemmas for the functions below. -/
-
-/--
-Updates the values of the hash map by applying the given function to all mappings, keeping
-only those mappings where the function returns `some` value.
--/
-@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) :
-    Raw α γ :=
-  if h : 0 < m.buckets.size then
-    Raw₀.filterMap f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
-/-- Updates the values of the hash map by applying the given function to all mappings. -/
-@[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
-  if h : 0 < m.buckets.size then
-    Raw₀.map f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
-/-- Removes all mappings of the hash map for which the given function returns `false`. -/
-@[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
-  if h : 0 < m.buckets.size then
-    Raw₀.filter f ⟨m, h⟩
-  else ∅ -- will never happen for well-formed inputs
-
 /--
 Monadically computes a value by folding the given function over the mappings in the hash
 map in some order.
@@ -399,17 +373,35 @@ instance : ForM m (Raw α β) ((a : α) × β a) where
 instance : ForIn m (Raw α β) ((a : α) × β a) where
   forIn m init f := m.forIn (fun a b acc => f ⟨a, b⟩ acc) init
 
-/-- Transforms the hash map into a list of mappings in some order. -/
-@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+section Unverified
+
+/-! We currently do not provide lemmas for the functions below. -/
+
+/--
+Updates the values of the hash map by applying the given function to all mappings, keeping
+only those mappings where the function returns `some` value.
+-/
+@[inline] def filterMap {γ : α → Type w} (f : (a : α) → β a → Option (γ a)) (m : Raw α β) :
+    Raw α γ :=
+  if h : 0 < m.buckets.size then
+    Raw₀.filterMap f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
+
+/-- Updates the values of the hash map by applying the given function to all mappings. -/
+@[inline] def map {γ : α → Type w} (f : (a : α) → β a → γ a) (m : Raw α β) : Raw α γ :=
+  if h : 0 < m.buckets.size then
+    Raw₀.map f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
+
+/-- Removes all mappings of the hash map for which the given function returns `false`. -/
+@[inline] def filter (f : (a : α) → β a → Bool) (m : Raw α β) : Raw α β :=
+  if h : 0 < m.buckets.size then
+    Raw₀.filter f ⟨m, h⟩
+  else ∅ -- will never happen for well-formed inputs
 
 /-- Transforms the hash map into an array of mappings in some order. -/
 @[inline] def toArray (m : Raw α β) : Array ((a : α) × β a) :=
   m.fold (fun acc k v => acc.push ⟨k, v⟩) #[]
-
-@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
-    List (α × β) :=
-  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
 
 @[inline, inherit_doc Raw.toArray] def Const.toArray {β : Type v} (m : Raw α (fun _ => β)) :
     Array (α × β) :=
@@ -483,10 +475,18 @@ implementation detail.
 def Internal.numBuckets (m : Raw α β) : Nat :=
   m.buckets.size
 
+end Unverified
+
+/-- Transforms the hash map into a list of mappings in some order. -/
+@[inline] def toList (m : Raw α β) : List ((a : α) × β a) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
+@[inline, inherit_doc Raw.toList] def Const.toList {β : Type v} (m : Raw α (fun _ => β)) :
+    List (α × β) :=
+  m.foldRev (fun acc k v => ⟨k, v⟩ :: acc) []
+
 instance [Repr α] [(a : α) → Repr (β a)] : Repr (Raw α β) where
   reprPrec m prec := Repr.addAppParen ("Std.DHashMap.Raw.ofList " ++ reprArg m.toList) prec
-
-end Unverified
 
 /-- Returns a list of all keys present in the hash map in some order. -/
 @[inline] def keys (m : Raw α β) : List α :=

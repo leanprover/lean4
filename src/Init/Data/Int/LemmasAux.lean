@@ -5,6 +5,7 @@ Authors: Kim Morrison
 -/
 prelude
 import Init.Data.Int.Order
+import Init.Data.Int.DivMod.Lemmas
 import Init.Omega
 
 

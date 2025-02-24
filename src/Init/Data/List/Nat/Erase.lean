@@ -7,6 +7,9 @@ prelude
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.List.Erase
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace List
 
 theorem getElem?_eraseIdx (l : List α) (i : Nat) (j : Nat) :

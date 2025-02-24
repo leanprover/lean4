@@ -1158,7 +1158,6 @@ lean_object* x_7; lean_object* x_8;
 lean_dec(x_4);
 x_7 = lean_array_uget(x_1, x_2);
 x_8 = lean_load_dynlib(x_7, x_5);
-lean_dec(x_7);
 if (lean_obj_tag(x_8) == 0)
 {
 lean_object* x_9; lean_object* x_10; size_t x_11; size_t x_12; 

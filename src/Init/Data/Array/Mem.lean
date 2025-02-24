@@ -8,13 +8,16 @@ import Init.Data.Array.Basic
 import Init.Data.Nat.Linear
 import Init.Data.List.BasicAux
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 namespace Array
 
 theorem sizeOf_lt_of_mem [SizeOf α] {as : Array α} (h : a ∈ as) : sizeOf a < sizeOf as := by
   cases as with | _ as =>
   exact Nat.lt_trans (List.sizeOf_lt_of_mem h.val) (by simp +arith)
 
-theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf (as.get i h) < sizeOf as := by
+theorem sizeOf_get [SizeOf α] (as : Array α) (i : Nat) (h : i < as.size) : sizeOf as[i] < sizeOf as := by
   cases as with | _ as =>
   simpa using Nat.lt_trans (List.sizeOf_get _ ⟨i, h⟩) (by simp +arith)
 

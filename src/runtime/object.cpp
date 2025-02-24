@@ -22,7 +22,13 @@ Author: Leonardo de Moura
 #include "runtime/io.h"
 #include "runtime/hash.h"
 
-#ifdef __GLIBC__
+#if defined(__GLIBC__) || defined(__APPLE__)
+    #define LEAN_SUPPORTS_BACKTRACE 1
+#else
+    #define LEAN_SUPPORTS_BACKTRACE 0
+#endif
+
+#if LEAN_SUPPORTS_BACKTRACE
 #include <execinfo.h>
 #include <unistd.h>
 #endif
@@ -106,7 +112,7 @@ static void panic_eprintln(char const * line, bool force_stderr) {
 }
 
 static void print_backtrace(bool force_stderr) {
-#ifdef __GLIBC__
+#if LEAN_SUPPORTS_BACKTRACE
     void * bt_buf[100];
     int nptrs = backtrace(bt_buf, sizeof(bt_buf) / sizeof(void *));
     if (char ** symbols = backtrace_symbols(bt_buf, nptrs)) {
@@ -127,7 +133,7 @@ static void print_backtrace(bool force_stderr) {
 extern "C" LEAN_EXPORT void lean_panic(char const * msg, bool force_stderr = false) {
     if (g_panic_messages) {
         panic_eprintln(msg, force_stderr);
-#ifdef __GLIBC__
+#if LEAN_SUPPORTS_BACKTRACE
         char * bt_env = getenv("LEAN_BACKTRACE");
         if (!bt_env || strcmp(bt_env, "0") != 0) {
             panic_eprintln("backtrace:", force_stderr);
@@ -670,9 +676,13 @@ class task_manager {
         return result;
     }
 
-    void enqueue_core(lean_task_object * t) {
+    void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
         lean_assert(t->m_imp);
         unsigned prio = t->m_imp->m_prio;
+        if (prio == LEAN_SYNC_PRIO) {
+            run_task(lock, t);
+            return;
+        }
         if (prio > LEAN_MAX_PRIO) {
             spawn_dedicated_worker(t);
             return;
@@ -810,10 +820,8 @@ class task_manager {
             it->m_imp->m_next_dep = nullptr;
             if (it->m_imp->m_deleted) {
                 free_task(it);
-            } else if (it->m_imp->m_prio == LEAN_SYNC_PRIO) {
-                run_task(lock, it);
             } else {
-                enqueue_core(it);
+                enqueue_core(lock, it);
             }
             it = next_it;
         }
@@ -852,7 +860,7 @@ public:
 
     void enqueue(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
-        enqueue_core(t);
+        enqueue_core(lock, t);
     }
 
     void resolve(lean_task_object * t, object * v) {
@@ -878,7 +886,7 @@ public:
         unique_lock<mutex> lock(m_mutex);
         lean_assert(t2->m_value == nullptr);
         if (t1->m_value) {
-            enqueue_core(t2);
+            enqueue_core(lock, t2);
             return;
         }
         t2->m_imp->m_next_dep = t1->m_imp->m_head_dep;

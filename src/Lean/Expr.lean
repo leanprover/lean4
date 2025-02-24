@@ -751,7 +751,7 @@ def mkAppN (f : Expr) (args : Array Expr) : Expr :=
   args.foldl mkApp f
 
 private partial def mkAppRangeAux (n : Nat) (args : Array Expr) (i : Nat) (e : Expr) : Expr :=
-  if i < n then mkAppRangeAux n args (i+1) (mkApp e (args.get! i)) else e
+  if i < n then mkAppRangeAux n args (i+1) (mkApp e args[i]!) else e
 
 /-- `mkAppRange f i j #[a_1, ..., a_i, ..., a_j, ... ]` ==> the expression `f a_i ... a_{j-1}` -/
 def mkAppRange (f : Expr) (i j : Nat) (args : Array Expr) : Expr :=
@@ -971,6 +971,10 @@ def bvarIdx! : Expr → Nat
 def fvarId! : Expr → FVarId
   | fvar n => n
   | _      => panic! "fvar expected"
+
+def fvarId? : Expr → Option FVarId
+  | fvar n => some n
+  | _      => none
 
 def mvarId! : Expr → MVarId
   | mvar n => n
@@ -1467,7 +1471,7 @@ private partial def mkAppRevRangeAux (revArgs : Array Expr) (start : Nat) (b : E
   if i == start then b
   else
     let i := i - 1
-    mkAppRevRangeAux revArgs start (mkApp b (revArgs.get! i)) i
+    mkAppRevRangeAux revArgs start (mkApp b revArgs[i]!) i
 
 /-- `mkAppRevRange f b e args == mkAppRev f (revArgs.extract b e)` -/
 def mkAppRevRange (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : Expr :=
@@ -2245,20 +2249,28 @@ def mkIntMul (a b : Expr) : Expr :=
 private def intLEPred : Expr :=
   mkApp2 (mkConst ``LE.le [0]) Int.mkType Int.mkInstLE
 
-/-- Given `a b : Int`, return `a ≤ b` -/
+/-- Given `a b : Int`, returns `a ≤ b` -/
 def mkIntLE (a b : Expr) : Expr :=
   mkApp2 intLEPred a b
 
 private def intEqPred : Expr :=
   mkApp (mkConst ``Eq [1]) Int.mkType
 
-/-- Given `a b : Int`, return `a = b` -/
+/-- Given `a b : Int`, returns `a = b` -/
 def mkIntEq (a b : Expr) : Expr :=
   mkApp2 intEqPred a b
 
-def mkIntLit (n : Nat) : Expr :=
-  let r := mkRawNatLit n
-  mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+/-- Given `a b : Int`, returns `a ∣ b` -/
+def mkIntDvd (a b : Expr) : Expr :=
+  mkApp4 (mkConst ``Dvd.dvd [0]) Int.mkType (mkConst ``Int.instDvd) a b
+
+def mkIntLit (n : Int) : Expr :=
+  let r := mkRawNatLit n.natAbs
+  let r := mkApp3 (mkConst ``OfNat.ofNat [levelZero]) Int.mkType r (mkApp (mkConst ``instOfNat) r)
+  if n < 0 then
+    mkIntNeg r
+  else
+    r
 
 def reflBoolTrue : Expr :=
   mkApp2 (mkConst ``Eq.refl [levelOne]) (mkConst ``Bool) (mkConst ``Bool.true)

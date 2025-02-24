@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 prelude
-import Init.Data.Int.DivMod
+import Init.Data.Int.DivMod.Bootstrap
 import Init.Data.Int.Order
 
 /-!
@@ -27,7 +27,7 @@ theorem ofNat_pow (a b : Nat) : ((a ^ b : Nat) : Int) = (a : Int) ^ b := by
 
 theorem pos_pow_of_pos (a : Int) (b : Nat) (h : 0 < a) : 0 < a ^ b := by
   rw [Int.eq_natAbs_of_zero_le (Int.le_of_lt h), ← Int.ofNat_zero, ← Int.ofNat_pow, Int.ofNat_lt]
-  exact Nat.pos_pow_of_pos _ (Int.natAbs_pos.mpr (Int.ne_of_gt h))
+  exact Nat.pow_pos (Int.natAbs_pos.mpr (Int.ne_of_gt h))
 
 theorem ofNat_pos {a : Nat} : 0 < (a : Int) ↔ 0 < a := by
   rw [← Int.ofNat_zero, Int.ofNat_lt]

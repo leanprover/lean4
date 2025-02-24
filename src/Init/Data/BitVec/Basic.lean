@@ -25,6 +25,10 @@ set_option linter.missingDocs true
 
 namespace BitVec
 
+@[inline, deprecated BitVec.ofNatLT (since := "2025-02-13"), inherit_doc BitVec.ofNatLT]
+protected def ofNatLt {n : Nat} (i : Nat) (p : i < 2 ^ n) : BitVec n :=
+  BitVec.ofNatLT i p
+
 section Nat
 
 instance natCastInst : NatCast (BitVec w) := ⟨BitVec.ofNat w⟩
@@ -55,12 +59,12 @@ end subsingleton
 section zero_allOnes
 
 /-- Return a bitvector `0` of size `n`. This is the bitvector with all zero bits. -/
-protected def zero (n : Nat) : BitVec n := .ofNatLt 0 (Nat.two_pow_pos n)
+protected def zero (n : Nat) : BitVec n := .ofNatLT 0 (Nat.two_pow_pos n)
 instance : Inhabited (BitVec n) where default := .zero n
 
 /-- Bit vector of size `n` where all bits are `1`s -/
 def allOnes (n : Nat) : BitVec n :=
-  .ofNatLt (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
+  .ofNatLT (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
 
 end zero_allOnes
 
@@ -123,6 +127,7 @@ instance : GetElem (BitVec w) Nat Bool fun _ i => i < w where
 theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
   x[i] = x.toNat.testBit i := rfl
 
+@[simp]
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
     x.getLsbD i = x[i] := rfl
 
@@ -138,7 +143,7 @@ protected def toInt (x : BitVec n) : Int :=
     (x.toNat : Int) - (2^n : Nat)
 
 /-- The `BitVec` with value `(2^n + (i mod 2^n)) mod 2^n`.  -/
-protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLt (i % (Int.ofNat (2^n))).toNat (by
+protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLT (i % (Int.ofNat (2^n))).toNat (by
   apply (Int.toNat_lt _).mpr
   · apply Int.emod_lt_of_pos
     exact Int.ofNat_pos.mpr (Nat.two_pow_pos _)
@@ -167,12 +172,12 @@ recommended_spelling "one" for "1#n" in [BitVec.ofNat, «term__#__»]
   | `($(_) $n $i:num) => `($i:num#$n)
   | _ => throw ()
 
-/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLt i lt`. -/
+/-- Notation for bit vector literals without truncation. `i#'lt` is a shorthand for `BitVec.ofNatLT i lt`. -/
 scoped syntax:max term:max noWs "#'" noWs term:max : term
-macro_rules | `($i#'$p) => `(BitVec.ofNatLt $i $p)
+macro_rules | `($i#'$p) => `(BitVec.ofNatLT $i $p)
 
 /-- Unexpander for bit vector literals without truncation. -/
-@[app_unexpander BitVec.ofNatLt] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
+@[app_unexpander BitVec.ofNatLT] def unexpandBitVecOfNatLt : Lean.PrettyPrinter.Unexpander
   | `($(_) $i $p) => `($i#'$p)
   | _ => throw ()
 
@@ -356,7 +361,7 @@ end relations
 section cast
 
 /-- `cast eq x` embeds `x` into an equal `BitVec` type. -/
-@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLt x.toNat (eq ▸ x.isLt)
+@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 
 @[simp] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
     (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
@@ -390,7 +395,7 @@ and is a computational noop.
 def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
-    exact Nat.pow_le_pow_of_le_right (by trivial) le)
+    exact Nat.pow_le_pow_right (by trivial) le)
 
 @[deprecated setWidth' (since := "2024-09-18"), inherit_doc setWidth'] abbrev zeroExtend' := @setWidth'
 

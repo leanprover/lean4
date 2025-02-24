@@ -2211,7 +2211,7 @@ private partial def setAllDiagRanges (snap : Language.SnapshotTree) (pos endPos 
   return {
     element.diagnostics := (← Language.Snapshot.Diagnostics.ofMessageLog msgLog)
     children := (← snap.children.mapM fun task => return { task with
-      range? := none
+      stx? := none
       task := (← BaseIO.mapTask (t := task.task) (setAllDiagRanges · pos endPos)) })
   }
 
@@ -2253,7 +2253,7 @@ def realizeConst (forConst : Name) (constName : Name) (realize : MetaM Unit) :
     if let some range := (← getRef).getRange? then
       let fileMap ← getFileMap
       snap ← setAllDiagRanges snap (fileMap.toPosition range.start) (fileMap.toPosition range.stop)
-    Core.logSnapshotTask <| .pure snap
+    Core.logSnapshotTask <| .finished (stx? := none) snap
   setEnv env
 where
   -- similar to `wrapAsyncAsSnapshot` but not sufficiently so to share code

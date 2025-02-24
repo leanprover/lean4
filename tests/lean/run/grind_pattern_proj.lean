@@ -7,7 +7,7 @@ class Quiver (V : Type u) where
 
 infixr:10 " ⟶ " => Quiver.Hom
 
-class CategoryStruct (obj : Type u) extends Quiver.{v + 1} obj : Type max u (v + 1) where
+class CategoryStruct (obj : Type u) : Type max u (v + 1) extends Quiver.{v + 1} obj where
   /-- The identity morphism on an object. -/
   id : ∀ X : obj, Hom X X
   /-- Composition of morphisms in a category, written `f ≫ g`. -/
@@ -17,7 +17,7 @@ notation "𝟙" => CategoryStruct.id  -- type as \b1
 
 infixr:80 " ≫ " => CategoryStruct.comp -- type as \gg
 
-class Category (obj : Type u) extends CategoryStruct.{v} obj : Type max u (v + 1) where
+class Category (obj : Type u) : Type max u (v + 1) extends CategoryStruct.{v} obj where
   id_comp : ∀ {X Y : obj} (f : X ⟶ Y), 𝟙 X ≫ f = f
   comp_id : ∀ {X Y : obj} (f : X ⟶ Y), f ≫ 𝟙 Y = f
   assoc : ∀ {W X Y Z : obj} (f : W ⟶ X) (g : X ⟶ Y) (h : Y ⟶ Z), (f ≫ g) ≫ h = f ≫ g ≫ h
@@ -26,8 +26,8 @@ structure Prefunctor (V : Type u₁) [Quiver.{v₁} V] (W : Type u₂) [Quiver.{
   obj : V → W
   map : ∀ {X Y : V}, (X ⟶ Y) → (obj X ⟶ obj Y)
 
-structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D]
-    extends Prefunctor C D : Type max v₁ v₂ u₁ u₂ where
+structure Functor (C : Type u₁) [Category.{v₁} C] (D : Type u₂) [Category.{v₂} D] : Type max v₁ v₂ u₁ u₂
+    extends Prefunctor C D where
   map_id : ∀ X : C, map (𝟙 X) = 𝟙 (obj X)
   map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z), map (f ≫ g) = map f ≫ map g
 

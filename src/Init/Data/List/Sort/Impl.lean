@@ -31,6 +31,9 @@ as long as such improvements are carefully validated by benchmarking,
 they can be done without changing the theory, as long as a `@[csimp]` lemma is provided.
 -/
 
+-- set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
+-- set_option linter.indexVariables true -- Enforce naming conventions for index variables.
+
 open List
 
 namespace List.MergeSort.Internal
@@ -76,18 +79,18 @@ def splitRevAt (n : Nat) (l : List α) : List α × List α := go l n [] where
   | x :: xs, n+1, acc => go xs n (x :: acc)
   | xs, _, acc => (acc, xs)
 
-theorem splitRevAt_go (xs : List α) (n : Nat) (acc : List α) :
-    splitRevAt.go xs n acc = ((take n xs).reverse ++ acc, drop n xs) := by
-  induction xs generalizing n acc with
+theorem splitRevAt_go (xs : List α) (i : Nat) (acc : List α) :
+    splitRevAt.go xs i acc = ((take i xs).reverse ++ acc, drop i xs) := by
+  induction xs generalizing i acc with
   | nil => simp [splitRevAt.go]
   | cons x xs ih =>
-    cases n with
+    cases i with
     | zero => simp [splitRevAt.go]
-    | succ n =>
-      rw [splitRevAt.go, ih n (x :: acc), take_succ_cons, reverse_cons, drop_succ_cons,
+    | succ i =>
+      rw [splitRevAt.go, ih i (x :: acc), take_succ_cons, reverse_cons, drop_succ_cons,
         append_assoc, singleton_append]
 
-theorem splitRevAt_eq (n : Nat) (l : List α) : splitRevAt n l = ((l.take n).reverse, l.drop n) := by
+theorem splitRevAt_eq (i : Nat) (l : List α) : splitRevAt i l = ((l.take i).reverse, l.drop i) := by
   rw [splitRevAt, splitRevAt_go, append_nil]
 
 /--

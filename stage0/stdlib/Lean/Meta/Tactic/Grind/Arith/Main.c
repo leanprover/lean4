@@ -20,7 +20,6 @@ static lean_object* l___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1_
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLE(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_uint64_to_usize(uint64_t);
-lean_object* lean_array_fget(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_propagateLE___lambda__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_396____closed__1;
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__2___closed__2;
@@ -34,6 +33,7 @@ lean_object* lean_usize_to_nat(size_t);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Offset_assertFalse(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static size_t l_Lean_PersistentHashMap_findAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__2___closed__1;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1___boxed(lean_object*, lean_object*);
+lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkOfEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_mkEqFalseProof(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_396_(lean_object*);
@@ -53,9 +53,9 @@ lean_object* l_Lean_Meta_Grind_isEqTrue(lean_object*, lean_object*, lean_object*
 lean_object* l_Lean_Meta_Grind_Arith_Offset_get_x27(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 static lean_object* l___regBuiltin_Lean_Meta_Grind_Arith_propagateLE_declare__1____x40_Lean_Meta_Tactic_Grind_Arith_Main___hyg_396____closed__3;
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__3___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Grind_Arith_Offset_addEdge(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_usize_land(size_t, size_t);
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_findAtAux___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__3(lean_object* x_1, lean_object* x_2, lean_object* x_3, lean_object* x_4, lean_object* x_5) {
@@ -280,37 +280,43 @@ x_11 = lean_st_ref_get(x_2, x_10);
 x_12 = !lean_is_exclusive(x_11);
 if (x_12 == 0)
 {
-lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; 
+lean_object* x_13; lean_object* x_14; lean_object* x_15; lean_object* x_16; lean_object* x_17; 
 x_13 = lean_ctor_get(x_11, 0);
 x_14 = lean_ctor_get(x_13, 13);
 lean_inc(x_14);
 lean_dec(x_13);
-x_15 = lean_ctor_get(x_14, 2);
+x_15 = lean_ctor_get(x_14, 0);
 lean_inc(x_15);
 lean_dec(x_14);
-x_16 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1(x_15, x_1);
-lean_ctor_set(x_11, 0, x_16);
+x_16 = lean_ctor_get(x_15, 2);
+lean_inc(x_16);
+lean_dec(x_15);
+x_17 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1(x_16, x_1);
+lean_ctor_set(x_11, 0, x_17);
 return x_11;
 }
 else
 {
-lean_object* x_17; lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; 
-x_17 = lean_ctor_get(x_11, 0);
-x_18 = lean_ctor_get(x_11, 1);
-lean_inc(x_18);
-lean_inc(x_17);
-lean_dec(x_11);
-x_19 = lean_ctor_get(x_17, 13);
+lean_object* x_18; lean_object* x_19; lean_object* x_20; lean_object* x_21; lean_object* x_22; lean_object* x_23; lean_object* x_24; 
+x_18 = lean_ctor_get(x_11, 0);
+x_19 = lean_ctor_get(x_11, 1);
 lean_inc(x_19);
-lean_dec(x_17);
-x_20 = lean_ctor_get(x_19, 2);
+lean_inc(x_18);
+lean_dec(x_11);
+x_20 = lean_ctor_get(x_18, 13);
 lean_inc(x_20);
-lean_dec(x_19);
-x_21 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1(x_20, x_1);
-x_22 = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(x_22, 0, x_21);
-lean_ctor_set(x_22, 1, x_18);
-return x_22;
+lean_dec(x_18);
+x_21 = lean_ctor_get(x_20, 0);
+lean_inc(x_21);
+lean_dec(x_20);
+x_22 = lean_ctor_get(x_21, 2);
+lean_inc(x_22);
+lean_dec(x_21);
+x_23 = l_Lean_PersistentHashMap_find_x3f___at_Lean_Meta_Grind_Arith_Offset_isCnstr_x3f___spec__1(x_22, x_1);
+x_24 = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(x_24, 0, x_23);
+lean_ctor_set(x_24, 1, x_19);
+return x_24;
 }
 }
 }

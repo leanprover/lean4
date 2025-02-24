@@ -142,22 +142,16 @@ info: theorem ex₁ : ∀ (x y z : Int), x + y + 2 + y + z + z ≤ y + 3 * z + 1
 fun x y z =>
   of_eq_true
     (id
-      (Int.Linear.ExprCnstr.eq_true_of_isValid
-        (Lean.RArray.branch 1 (Lean.RArray.leaf x) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf z)))
-        (Int.Linear.ExprCnstr.le
-          ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 1)).add (Int.Linear.Expr.num 2)).add
-                    (Int.Linear.Expr.var 1)).add
-                (Int.Linear.Expr.var 2)).add
-            (Int.Linear.Expr.var 2))
-          (((((((Int.Linear.Expr.var 1).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 2))).add
-                            (Int.Linear.Expr.num 1)).add
-                        (Int.Linear.Expr.num 1)).add
-                    (Int.Linear.Expr.var 0)).add
-                (Int.Linear.Expr.var 1)).sub
-            (Int.Linear.Expr.var 2)))
+      (le_eq_true
+        (Lean.RArray.branch 1 (Lean.RArray.leaf z) (Lean.RArray.branch 2 (Lean.RArray.leaf y) (Lean.RArray.leaf x)))
+        ((((((Expr.var 2).add (Expr.var 1)).add (Expr.num 2)).add (Expr.var 1)).add (Expr.var 0)).add (Expr.var 0))
+        (((((((Expr.var 1).add (Expr.mulL 3 (Expr.var 0))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+              (Expr.var 1)).sub
+          (Expr.var 0))
         (Eq.refl true)))
 -/
 #guard_msgs (info) in
+open Int.Linear in
 #print ex₁
 
 theorem ex₂ (x y z : Int) (f : Int → Int) : x + f y + 2 + f y + z + z ≤ f y + 3*z + 1 + 1 + x + f y - z := by
@@ -169,24 +163,18 @@ fun x y z f =>
   of_eq_true
     ((fun x_1 =>
         id
-          (Int.Linear.ExprCnstr.eq_true_of_isValid
-            (Lean.RArray.branch 1 (Lean.RArray.leaf x)
-              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x_1)))
-            (Int.Linear.ExprCnstr.le
-              ((((((Int.Linear.Expr.var 0).add (Int.Linear.Expr.var 2)).add (Int.Linear.Expr.num 2)).add
-                        (Int.Linear.Expr.var 2)).add
-                    (Int.Linear.Expr.var 1)).add
-                (Int.Linear.Expr.var 1))
-              (((((((Int.Linear.Expr.var 2).add (Int.Linear.Expr.mulL 3 (Int.Linear.Expr.var 1))).add
-                                (Int.Linear.Expr.num 1)).add
-                            (Int.Linear.Expr.num 1)).add
-                        (Int.Linear.Expr.var 0)).add
-                    (Int.Linear.Expr.var 2)).sub
-                (Int.Linear.Expr.var 1)))
+          (le_eq_true
+            (Lean.RArray.branch 1 (Lean.RArray.leaf x_1)
+              (Lean.RArray.branch 2 (Lean.RArray.leaf z) (Lean.RArray.leaf x)))
+            ((((((Expr.var 2).add (Expr.var 0)).add (Expr.num 2)).add (Expr.var 0)).add (Expr.var 1)).add (Expr.var 1))
+            (((((((Expr.var 0).add (Expr.mulL 3 (Expr.var 1))).add (Expr.num 1)).add (Expr.num 1)).add (Expr.var 2)).add
+                  (Expr.var 0)).sub
+              (Expr.var 1))
             (Eq.refl true)))
       (f y))
 -/
 #guard_msgs (info) in
+open Int.Linear in
 #print ex₂
 
 example (x y : Int) (h : False) : 2*x = x + y := by
@@ -265,3 +253,72 @@ example (x y : Int) : (2*x + y + y ≤ 3) ↔ (y + x ≤ 1) := by
 
 example (f : Int → Int) (x y : Int) : f (2*x + y) = f (y + x + x) := by
   simp +arith
+
+example (a b : Int) : ¬ 2 ∣ 2*a + 4*b + 1 := by
+  simp +arith
+
+example (a b : Int) : ¬ 2 ∣ a + 3*b + 1 + b + a := by
+  simp +arith
+
+example (a b : Int) : ¬ 2 ∣ a + 3*b + 1 + b + 5*a := by
+  simp +arith
+
+example (a b : Int) : 2 ∣ 4*a + 6*b + 8 := by
+  simp +arith
+
+example (a b : Int) : 2 ∣ 2*(a + a) + (3+3)*(b + b) + 8 := by
+  simp +arith
+
+example (a : Int) : 16 ∣ 4*a + 32 ↔ 4 ∣ a + 8 := by
+  simp +arith
+
+example (a : Int) : 3 ∣ a + a + 1 + a + 1 + a ↔ 3 ∣ 4*a + 2 := by
+  simp +arith
+
+example (a : Int) : 2+1 ∣ a + a + 1 - a + 1 + a ↔ 3 ∣ 2*a + 2 := by
+  simp +arith
+
+example (a b : Int) : 6 ∣ a + 21 - a + 3*a + 6*b + 12 ↔ 2 ∣ a + 2*b + 11 := by
+  simp +arith
+
+theorem ex3 (a b : Int) : 6 ∣ a + (21 - a) + 3*(a + 2*b) + 12 ↔ 2 ∣ a + 2*b + 11 := by
+  simp +arith
+
+/--
+info: theorem ex3 : ∀ (a b : Int), 6 ∣ a + (21 - a) + 3 * (a + 2 * b) + 12 ↔ 2 ∣ a + 2 * b + 11 :=
+fun a b =>
+  of_eq_true
+    (Eq.trans
+      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b + 11)
+        (id
+          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+            ((((Expr.var 1).add ((Expr.num 21).sub (Expr.var 1))).add
+                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).add
+              (Expr.num 12))
+            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 11))) 3 (Eq.refl true))))
+      (iff_self (2 ∣ a + 2 * b + 11)))
+-/
+#guard_msgs (info) in
+open Lean in open Int.Linear in
+#print ex3
+
+theorem ex4 (a b : Int) : 6 ∣ a + (11 - a) + 3*(a + 2*b) - 11 ↔ 2 ∣ a + 2*b := by
+  simp +arith
+
+/--
+info: theorem ex4 : ∀ (a b : Int), 6 ∣ a + (11 - a) + 3 * (a + 2 * b) - 11 ↔ 2 ∣ a + 2 * b :=
+fun a b =>
+  of_eq_true
+    (Eq.trans
+      (congrArg (fun x => x ↔ 2 ∣ a + 2 * b)
+        (id
+          (norm_dvd_gcd (RArray.branch 1 (RArray.leaf b) (RArray.leaf a)) 6
+            ((((Expr.var 1).add ((Expr.num 11).sub (Expr.var 1))).add
+                  (Expr.mulL 3 ((Expr.var 1).add (Expr.mulL 2 (Expr.var 0))))).sub
+              (Expr.num 11))
+            2 (Poly.add 1 1 (Poly.add 2 0 (Poly.num 0))) 3 (Eq.refl true))))
+      (iff_self (2 ∣ a + 2 * b)))
+-/
+#guard_msgs (info) in
+open Lean in open Int.Linear in
+#print ex4

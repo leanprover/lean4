@@ -19,7 +19,7 @@ set_option autoImplicit false
 open Std.Internal.List
 open Std.Internal
 
-universe u v
+universe u v w
 
 variable {α : Type u} {β : α → Type v}
 
@@ -89,9 +89,11 @@ private def queryNames : Array Name :=
     ``Const.get_eq_getValue, ``get!_eq_getValueCast!, ``getD_eq_getValueCastD,
     ``Const.get!_eq_getValue!, ``Const.getD_eq_getValueD, ``getKey?_eq_getKey?,
     ``getKey_eq_getKey, ``getKeyD_eq_getKeyD, ``getKey!_eq_getKey!,
-    ``Raw.length_keys_eq_length_keys, ``Raw.isEmpty_keys_eq_isEmpty_keys,
-    ``Raw.contains_keys_eq_contains_keys, ``Raw.mem_keys_iff_contains_keys,
-    ``Raw.pairwise_keys_iff_pairwise_keys]
+    ``Raw.toList_eq_toListModel, ``Raw.keys_eq_keys_toListModel,
+    ``Raw.Const.toList_eq_toListModel_map, ``Raw.foldM_eq_foldlM_toListModel,
+    ``Raw.fold_eq_foldl_toListModel, ``Raw.foldRevM_eq_foldrM_toListModel,
+    ``Raw.foldRev_eq_foldr_toListModel, ``Raw.forIn_eq_forIn_toListModel,
+    ``Raw.forM_eq_forM_toListModel]
 
 private def modifyMap : Std.DHashMap Name (fun _ => Name) :=
   .ofList
@@ -848,12 +850,190 @@ theorem contains_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k : α} :
 @[simp]
 theorem mem_keys [LawfulBEq α] (h : m.1.WF) {k : α} :
     k ∈ m.1.keys ↔ m.contains k := by
+  rw [← List.contains_iff]
   simp_to_model
   rw [List.containsKey_eq_keys_contains]
 
 theorem distinct_keys [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     m.1.keys.Pairwise (fun a b => (a == b) = false) := by
   simp_to_model using (Raw.WF.out h).distinct.distinct
+
+theorem map_sigma_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    m.1.toList.map Sigma.fst = m.1.keys := by
+  simp_to_model
+  rw [List.keys_eq_map]
+
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.length = m.1.size := by
+  simp_to_model
+
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.isEmpty = m.1.isEmpty := by
+  simp_to_model
+
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β k} :
+    ⟨k, v⟩ ∈ m.1.toList ↔ m.get? k = some v := by
+  simp_to_model using List.mem_iff_getValueCast?_eq_some
+
+theorem find?_toList_eq_some_iff_get?_eq_some [LawfulBEq α]
+    (h : m.1.WF) {k : α} {v : β k} :
+    m.1.toList.find? (·.1 == k) = some ⟨k, v⟩ ↔ m.get? k = some v := by
+  simp_to_model using List.find?_eq_some_iff_getValueCast?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    m.1.toList.find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_model using List.find?_eq_none_iff_containsKey_eq_false
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    m.1.toList.Pairwise (fun a b => (a.1 == b.1) = false) := by
+  simp_to_model using List.pairwise_fst_eq_false
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem map_prod_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toList m.1).map Prod.fst = m.1.keys := by
+  simp_to_model using List.map_prod_fst_map_toProd_eq_keys
+
+theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).length = m.1.size := by
+  simp_to_model using List.length_map
+
+theorem isEmpty_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).isEmpty = m.1.isEmpty := by
+  simp_to_model
+  rw [Bool.eq_iff_iff, List.isEmpty_iff,List.isEmpty_iff, List.map_eq_nil_iff]
+
+theorem mem_toList_iff_get?_eq_some [LawfulBEq α] (h : m.1.WF)
+    {k : α} {v : β} :
+    (k, v) ∈ Raw.Const.toList m.1 ↔ get? m k = some v := by
+  simp_to_model using List.mem_map_toProd_iff_getValue?_eq_some
+
+theorem get?_eq_some_iff_exists_beq_and_mem_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
+    {k : α} {v : β} :
+    get? m k = some v ↔ ∃ (k' : α), k == k' ∧ (k', v) ∈ Raw.Const.toList m.1 := by
+  simp_to_model using getValue?_eq_some_iff_exists_beq_and_mem_toList
+
+theorem find?_toList_eq_some_iff_getKey?_eq_some_and_get?_eq_some
+    [EquivBEq α] [LawfulHashable α] (h : m.1.WF) {k k' : α} {v : β} :
+    (Raw.Const.toList m.1).find? (fun a => a.1 == k) = some ⟨k', v⟩ ↔
+      m.getKey? k = some k' ∧ get? m k = some v := by
+  simp_to_model using List.find?_map_toProd_eq_some_iff_getKey?_eq_some_and_getValue?_eq_some
+
+theorem find?_toList_eq_none_iff_contains_eq_false [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k : α} :
+    (Raw.Const.toList m.1).find? (·.1 == k) = none ↔ m.contains k = false := by
+  simp_to_model using List.find?_map_eq_none_iff_containsKey_eq_false
+
+theorem mem_toList_iff_getKey?_eq_some_and_get?_eq_some [EquivBEq α] [LawfulHashable α]
+    (h : m.1.WF) {k: α} {v : β} :
+    (k, v) ∈ (Raw.Const.toList m.1) ↔ m.getKey? k = some k ∧ get? m k = some v := by
+  simp_to_model using List.mem_map_toProd_iff_getKey?_eq_some_and_getValue?_eq_some
+
+theorem distinct_keys_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
+    (Raw.Const.toList m.1).Pairwise (fun a b => (a.1 == b.1) = false) := by
+  simp_to_model using List.pairwise_fst_eq_false_map_toProd
+
+end Const
+
+section monadic
+
+-- The types are redefined because fold/for does not need BEq/Hashable
+variable {α : Type u} {β : α → Type v} (m : Raw₀ α β) {δ : Type w} {m' : Type w → Type w}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldM f init = m.1.toList.foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.fold f init = m.1.toList.foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model
+
+theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β a → m' δ} {init : δ} :
+    m.1.foldRevM f init = m.1.toList.foldrM (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β a → δ} {init : δ} :
+    m.1.foldRev f init = m.1.toList.foldr (fun a b => f b a.1 a.2) init := by
+  simp_to_model
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β a → m' PUnit} :
+    m.1.forM f = m.1.toList.forM (fun a => f a.1 a.2) := by
+  simp_to_model
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β a → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn m.1.toList init (fun a b => f a.1 a.2 b) := by
+  simp_to_model
+
+namespace Const
+
+variable {β : Type v} (m : Raw₀ α (fun _ => β))
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.1.foldM f init = (Raw.Const.toList m.1).foldlM (fun a b => f a b.1 b.2) init := by
+  simp_to_model using List.foldlM_eq_foldlM_toProd
+
+theorem fold_eq_foldl_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.1.fold f init = (Raw.Const.toList m.1).foldl (fun a b => f a b.1 b.2) init := by
+  simp_to_model using List.foldl_eq_foldl_toProd
+
+theorem foldRevM_eq_foldrM_toList [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → β → m' δ} {init : δ} :
+    m.1.foldRevM f init = (Raw.Const.toList m.1).foldrM (fun a b => f b a.1 a.2) init := by
+  simp_to_model using List.foldrM_eq_foldrM_toProd
+
+theorem foldRev_eq_foldr_toList {f : δ → (a : α) → β → δ} {init : δ} :
+    m.1.foldRev f init = (Raw.Const.toList m.1).foldr (fun a b => f b a.1 a.2) init := by
+  simp_to_model using List.foldr_eq_foldr_toProd
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] {f : (a : α) → β → m' PUnit} :
+    m.1.forM f = (Raw.Const.toList m.1).forM (fun a => f a.1 a.2) := by
+  simp_to_model using List.forM_eq_forM_toProd
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m']
+    {f : (a : α) → β → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn f init = ForIn.forIn (Raw.Const.toList m.1) init (fun a b => f a.1 a.2 b) := by
+  simp_to_model using List.forIn_eq_forIn_toProd
+
+variable (m : Raw₀ α (fun _ => Unit))
+
+theorem foldM_eq_foldlM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → α → m' δ} {init : δ} :
+    m.1.foldM (fun d a _ => f d a) init = m.1.keys.foldlM f init := by
+  simp_to_model using List.foldlM_eq_foldlM_keys
+
+theorem fold_eq_foldl_keys {f : δ → α → δ} {init : δ} :
+    m.1.fold (fun d a _ => f d a) init = m.1.keys.foldl f init := by
+  simp_to_model using List.foldl_eq_foldl_keys
+
+theorem foldRevM_eq_foldrM_keys [Monad m'] [LawfulMonad m']
+    {f : δ → (a : α) → m' δ} {init : δ} :
+    m.1.foldRevM (fun d a _ => f d a) init = m.1.keys.foldrM (fun a b => f b a) init := by
+  simp_to_model using List.foldrM_eq_foldrM_keys
+
+theorem foldRev_eq_foldr_keys {f : δ → (a : α) → δ} {init : δ} :
+    m.1.foldRev (fun d a _ => f d a) init = m.1.keys.foldr (fun a b => f b a) init := by
+  simp_to_model using List.foldr_eq_foldr_keys
+
+theorem forM_eq_forM_keys [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.1.forM (fun a _ => f a) = m.1.keys.forM f := by
+  simp_to_model using List.forM_eq_forM_keys
+
+theorem forIn_eq_forIn_keys [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.1.forIn (fun a _ d => f a d) init = ForIn.forIn m.1.keys init f := by
+  simp_to_model using List.forIn_eq_forIn_keys
+
+end Const
+
+end monadic
 
 @[simp]
 theorem insertMany_nil :
@@ -1230,7 +1410,7 @@ theorem getKey?_insertManyIfNewUnit_list_of_contains [EquivBEq α] [LawfulHashab
   simp_to_model [Const.insertManyIfNewUnit] using List.getKey?_insertListIfNewUnit_of_contains
 
 theorem getKey_insertManyIfNewUnit_list_of_contains [EquivBEq α] [LawfulHashable α]
-    (h : m.1.WF) {l : List α} {k : α} {h'} (contains : m.contains k):
+    (h : m.1.WF) {l : List α} {k : α} {h'} (contains : m.contains k) :
     getKey (insertManyIfNewUnit m l).1 k h' = getKey m k contains := by
   simp_to_model [Const.insertManyIfNewUnit] using List.getKey_insertListIfNewUnit_of_contains
 

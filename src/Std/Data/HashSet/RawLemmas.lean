@@ -133,7 +133,7 @@ theorem contains_of_contains_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF
   HashMap.Raw.contains_of_contains_insertIfNew' h.out
 
 /-- This is a restatement of `mem_insert` that is written to exactly match the proof obligation
-in the statement of `get_insertIfNew`. -/
+in the statement of `get_insert`. -/
 theorem mem_of_mem_insert' [EquivBEq α] [LawfulHashable α] (h : m.WF) {k a : α} :
     a ∈ m.insert k → ¬((k == a) ∧ ¬k ∈ m) → a ∈ m :=
   HashMap.Raw.mem_of_mem_insertIfNew' h.out
@@ -389,6 +389,41 @@ theorem mem_toList [LawfulBEq α] [LawfulHashable α] (h : m.WF) {k : α} :
 theorem distinct_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.Pairwise (fun a b => (a == b) = false) :=
   HashMap.Raw.distinct_keys h.1
+
+section monadic
+
+variable {m : Raw α} {δ : Type v} {m' : Type v → Type v}
+
+theorem foldM_eq_foldlM_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : δ → α → m' δ} {init : δ} :
+    m.foldM f init = m.toList.foldlM f init :=
+  HashMap.Raw.foldM_eq_foldlM_keys h.out
+
+theorem fold_eq_foldl_toList (h : m.WF) {f : δ → α → δ} {init : δ} :
+    m.fold f init = m.toList.foldl f init :=
+  HashMap.Raw.fold_eq_foldl_keys h.out
+
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forM_eq_forM [Monad m'] [LawfulMonad m'] {f : α → m' PUnit} :
+    m.forM f = ForM.forM m f := rfl
+
+theorem forM_eq_forM_toList [Monad m'] [LawfulMonad m'] (h : m.WF) {f : α → m' PUnit} :
+    ForM.forM m f = ForM.forM m.toList f :=
+  HashMap.Raw.forM_eq_forM_keys h.out
+
+omit [BEq α] [Hashable α] in
+@[simp]
+theorem forIn_eq_forIn [Monad m'] [LawfulMonad m']
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    m.forIn f init = ForIn.forIn m init f := rfl
+
+theorem forIn_eq_forIn_toList [Monad m'] [LawfulMonad m'] (h : m.WF)
+    {f : α → δ → m' (ForInStep δ)} {init : δ} :
+    ForIn.forIn m init f = ForIn.forIn m.toList init f :=
+  HashMap.Raw.forIn_eq_forIn_keys h.out
+
+end monadic
 
 @[simp]
 theorem insertMany_nil (h : m.WF) :

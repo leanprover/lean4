@@ -68,10 +68,14 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem toArray_singleton (a : α) : (List.singleton a).toArray = Array.singleton a := rfl
 
 @[simp] theorem back!_toArray [Inhabited α] (l : List α) : l.toArray.back! = l.getLast! := by
-  simp only [back!, size_toArray, Array.get!_eq_getElem!, getElem!_toArray, getLast!_eq_getElem!]
+  simp only [back!, size_toArray, getElem!_toArray, getLast!_eq_getElem!]
 
 @[simp] theorem back?_toArray (l : List α) : l.toArray.back? = l.getLast? := by
   simp [back?, List.getLast?_eq_getElem?]
+
+@[simp] theorem back_toArray (l : List α) (h) :
+    l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
+  simp [back, List.getLast_eq_getElem]
 
 @[simp] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
@@ -178,7 +182,7 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp] theorem foldl_push {l : List α} {as : Array α} : l.foldl Array.push as = as ++ l.toArray := by
   induction l generalizing as <;> simp [*]
 
-@[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a b => push b a) as = as ++ l.reverse.toArray := by
+@[simp] theorem foldr_push {l : List α} {as : Array α} : l.foldr (fun a bs => push bs a) as = as ++ l.reverse.toArray := by
   rw [foldr_eq_foldl_reverse, foldl_push]
 
 @[simp] theorem findSomeM?_toArray [Monad m] [LawfulMonad m] (f : α → m (Option β)) (l : List α) :
@@ -456,7 +460,7 @@ theorem zipWithAll_go_toArray (as : List α) (bs : List β) (f : Option α → O
 theorem takeWhile_go_succ (p : α → Bool) (a : α) (l : List α) (i : Nat) :
     takeWhile.go p (a :: l).toArray (i+1) r = takeWhile.go p l.toArray i r := by
   rw [takeWhile.go, takeWhile.go]
-  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+  simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
     getElem_toArray, getElem_cons_succ]
   split
   rw [takeWhile_go_succ]
@@ -473,7 +477,7 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
       simp [takeWhile_go_succ, ih, takeWhile_cons]
       split <;> simp
     | succ i =>
-      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right, Array.get_eq_getElem,
+      simp only [size_toArray, length_cons, Nat.add_lt_add_iff_right,
         getElem_toArray, getElem_cons_succ, drop_succ_cons]
       split <;> rename_i h₁
       · rw [takeWhile_go_succ, ih]
@@ -484,6 +488,21 @@ theorem takeWhile_go_toArray (p : α → Bool) (l : List α) (i : Nat) :
 @[simp] theorem takeWhile_toArray (p : α → Bool) (l : List α) :
     l.toArray.takeWhile p = (l.takeWhile p).toArray := by
   simp [Array.takeWhile, takeWhile_go_toArray]
+
+private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
+    l.reverse.toArray.popWhile p = (l.dropWhile p).reverse.toArray := by
+  induction l with
+  | nil => simp
+  | cons a l ih =>
+    unfold popWhile
+    simp [ih, dropWhile_cons]
+    split
+    · rfl
+    · simp
+
+@[simp] theorem popWhile_toArray (p : α → Bool) (l : List α) :
+    l.toArray.popWhile p = (l.reverse.dropWhile p).reverse.toArray := by
+  simp [← popWhile_toArray_aux]
 
 @[simp] theorem setIfInBounds_toArray (l : List α) (i : Nat) (a : α) :
     l.toArray.setIfInBounds i a  = (l.set i a).toArray := by
@@ -613,5 +632,13 @@ private theorem insertIdx_loop_toArray (i : Nat) (l : List α) (j : Nat) (hj : j
   · simp
   · simp only [size_toArray, Nat.not_le] at h'
     rw [List.insertIdx_of_length_lt (h := h')]
+
+@[simp] theorem leftpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.leftpad n a l.toArray = (leftpad n a l).toArray := by
+  simp [leftpad, Array.leftpad, ← toArray_replicate]
+
+@[simp] theorem rightpad_toArray (n : Nat) (a : α) (l : List α) :
+    Array.rightpad n a l.toArray = (rightpad n a l).toArray := by
+  simp [rightpad, Array.rightpad, ← toArray_replicate]
 
 end List

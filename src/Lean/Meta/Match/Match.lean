@@ -599,8 +599,8 @@ private def processArrayLit (p : Problem) : MetaM (Array Problem) := do
   let sizes := collectArraySizes p
   let subgoals ← caseArraySizes p.mvarId x.fvarId! sizes
   subgoals.mapIdxM fun i subgoal => do
-    if i < sizes.size then
-      let size     := sizes.get! i
+    if h : i < sizes.size then
+      let size     := sizes[i]
       let subst    := subgoal.subst
       let elems    := subgoal.elems.toList
       let newVars  := elems.map mkFVar ++ xs

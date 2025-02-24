@@ -91,8 +91,6 @@ structure HeaderParsedSnapshot extends Snapshot where
   /-- State after successful parsing. -/
   result? : Option HeaderParsedState
   isFatal := result?.isNone
-  /-- Cancellation token for interrupting processing of this run. -/
-  cancelTk? : Option IO.CancelToken
 
 instance : ToSnapshotTree HeaderParsedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot,
@@ -101,7 +99,7 @@ instance : ToSnapshotTree HeaderParsedSnapshot where
 /-- Shortcut accessor to the final header state, if successful. -/
 def HeaderParsedSnapshot.processedResult (snap : HeaderParsedSnapshot) :
     SnapshotTask (Option HeaderProcessedState) :=
-  snap.result?.bind (·.processedSnap.map (sync := true) (·.result?)) |>.getD (.pure none)
+  snap.result?.bind (·.processedSnap.map (sync := true) (·.result?)) |>.getD (.finished none none)
 
 /-- Initial snapshot of the Lean language processor: a "header parsed" snapshot. -/
 abbrev InitialSnapshot := HeaderParsedSnapshot

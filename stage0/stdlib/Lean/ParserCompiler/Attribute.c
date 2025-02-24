@@ -53,6 +53,7 @@ lean_object* l_List_toArray___rarg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_ofExcept___at_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___spec__3(lean_object*);
 static lean_object* l___auto____x40_Lean_ParserCompiler_Attribute___hyg_50____closed__10;
+uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_Lean_PersistentEnvExtension_addEntry___rarg(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___lambda__1___closed__2;
 lean_object* lean_eval_const(lean_object*, lean_object*, lean_object*);
@@ -112,7 +113,6 @@ static lean_object* l_Lean_ParserCompiler_registerCombinatorAttribute___lambda__
 static lean_object* l_Lean_ParserCompiler_instInhabitedCombinatorAttribute___closed__6;
 LEAN_EXPORT lean_object* l_Lean_ParserCompiler_CombinatorAttribute_getDeclFor_x3f___boxed(lean_object*, lean_object*, lean_object*);
 static lean_object* l_Lean_ParserCompiler_CombinatorAttribute_runDeclFor___rarg___closed__1;
-uint32_t lean_uint32_of_nat(lean_object*);
 lean_object* l_Lean_SimplePersistentEnvExtension_getState___rarg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerBuiltinAttribute(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Array_foldlMUnsafe_fold___at_Lean_ParserCompiler_registerCombinatorAttribute___spec__2(lean_object*, size_t, size_t, lean_object*);

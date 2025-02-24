@@ -34,10 +34,6 @@ private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => �
 namespace Std.DTreeMap.Internal.Impl
 open Std.Internal
 
-@[simp] theorem toListModel_leaf : (.leaf : Impl α β).toListModel = [] := rfl
-@[simp] theorem toListModel_inner {sz k v l r} :
-  (.inner sz k v l r : Impl α β).toListModel = l.toListModel ++ ⟨k, v⟩ :: r.toListModel := rfl
-
 /-!
 ## `toListModel` for balancing operations
 -/
@@ -137,46 +133,6 @@ theorem toListModel_link [Ord α] {k v} {l r : Impl α β} {hl hr} :
     rw [toListModel_link]
     simp
 termination_by sizeOf l + sizeOf r
-
-/-!
-## Lemmas about the `Ordered` predicate
--/
-
-theorem Ordered.left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered) :
-    l.Ordered :=
-  h.sublist (by simp)
-
-theorem Ordered.right [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered) :
-    r.Ordered :=
-  h.sublist (by simp)
-
-theorem Ordered.compare_left [Ord α] {sz k v l r} (h : (.inner sz k v l r : Impl α β).Ordered)
-    {k'} (hk' : k' ∈ l.toListModel) : compare k'.1 k = .lt :=
-  h.rel_of_mem_append hk' (List.mem_cons_self _ _)
-
-theorem Ordered.compare_left_beq_gt [Ord α] [TransOrd α] {k : α → Ordering} [IsStrictCut compare k]
-    {sz k' v' l r} (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
-    (p) (hp : p ∈ l.toListModel) : k p.1 == .gt :=
- beq_iff_eq.2 (IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp)))
-
-theorem Ordered.compare_left_not_beq_eq [Ord α] [TransOrd α] {k : α → Ordering}
-    [IsStrictCut compare k] {sz k' v' l r}
-    (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isGE)
-    (p) (hp : p ∈ l.toListModel) : ¬(k p.1 == .eq) := by
-  suffices k p.fst = .gt by simp [this, OrientedCmp.eq_comm (a := k)]
-  exact IsStrictCut.gt_of_isGE_of_gt hcmp (OrientedCmp.gt_of_lt (ho.compare_left hp))
-
-theorem Ordered.compare_right [Ord α] {sz k v l r}
-    (h : (.inner sz k v l r : Impl α β).Ordered) {k'} (hk' : k' ∈ r.toListModel) :
-    compare k k'.1 = .lt := by
-  exact List.rel_of_pairwise_cons (h.sublist (List.sublist_append_right _ _)) hk'
-
-theorem Ordered.compare_right_not_beq_gt [Ord α] [TransOrd α] {k : α → Ordering}
-    [IsStrictCut compare k] {sz k' v' l r}
-    (ho : (.inner sz k' v' l r : Impl α β).Ordered) (hcmp : (k k').isLE)
-    (p) (hp : p ∈ r.toListModel) : ¬(k p.1 == .gt) := by
-  suffices k p.fst = .lt by simp [this]
-  exact IsStrictCut.lt_of_isLE_of_lt hcmp (ho.compare_right hp)
 
 /-!
 ## Verification of model functions
@@ -289,25 +245,25 @@ theorem toListModel_updateCell [Ord α] [TransOrd α] {k : α}
   induction l, hlb using updateCell.induct k f
   · simp_all [updateCell]
   · simp_all [updateCell]
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_balance, toListModel_filter_gt_of_lt hcmp hlo,
       toListModel_filter_lt_of_lt hcmp hlo, findCell_of_lt hcmp hlo, ih hlo.left]
     simp
-  · rename_i sz k' v' l r hl hcmp hf hl'
+  · rename_i sz k' v' l r hl hcmp hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_glue, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       hf, toListModel_filter_lt_of_eq hcmp hlo]
     simp
-  · rename_i sz k' v' l r hl hcmp k'' v'' hf hl'
+  · rename_i sz k' v' l r hl hcmp k'' v'' hf
     simp only [updateCell, hcmp, hf]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_inner, toListModel_filter_gt_of_eq hcmp hlo, findCell_of_eq hcmp hlo,
       toListModel_filter_lt_of_eq hcmp hlo, hf]
     simp
-  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup hb' ih
+  · rename_i sz k' v' l r hb hcmp l' hl'₁ hl'₂ hl'₃ hup ih
     simp only [updateCell, hcmp]
     split <;> rename_i hcmp' <;> try (simp [hcmp] at hcmp'; done)
     rw [toListModel_filter_gt_of_gt hcmp hlo, findCell_of_gt hcmp hlo,
@@ -748,7 +704,7 @@ theorem size_containsThenInsert_eq_size [Ord α] (t : Impl α β) :
     containsThenInsert.size t = t.size := by
   induction t <;> rfl
 
-theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
+theorem containsThenInsert_fst_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β) (htb : t.Balanced)
     (ho : t.Ordered) (a : α) (b : β a) :
     (t.containsThenInsert a b htb).1 = t.containsₘ a := by
   simp [containsThenInsert, size_containsThenInsert_eq_size, size_eq_length, htb,
@@ -758,12 +714,12 @@ theorem containsThenInsert_eq_containsₘ [Ord α] [TransOrd α] (t : Impl α β
 
 theorem ordered_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) : (t.containsThenInsert k v htb).2.impl.Ordered := by
-  simpa only [containsThenInsert_eq_insertₘ, hto] using ordered_insertₘ htb hto
+  simpa only [containsThenInsert_snd_eq_insertₘ, hto] using ordered_insertₘ htb hto
 
 theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsert k v htb).2.impl.toListModel.Perm (insertEntry k v t.toListModel) := by
-  rw [containsThenInsert_eq_insertₘ]
+  rw [containsThenInsert_snd_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
 /-!
@@ -772,12 +728,12 @@ theorem toListModel_containsThenInsert [Ord α] [TransOrd α] {k : α} {v : β k
 
 theorem WF.containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β} (h : t.WF) :
     (t.containsThenInsert! k v).2.WF := by
-  simpa [snd_containsThenInsert!_eq_containsThenInsert, h.balanced] using WF.containsThenInsert (h := h.balanced) h
+  simpa [containsThenInsert!_snd_eq_containsThenInsert_snd, h.balanced] using WF.containsThenInsert (h := h.balanced) h
 
 theorem toListModel_containsThenInsert! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsert! k v).2.toListModel.Perm (insertEntry k v t.toListModel) := by
-  rw [containsThenInsert!_eq_insertₘ]
+  rw [containsThenInsert!_snd_eq_insertₘ]
   exact toListModel_insertₘ htb hto
 
 /-!
@@ -821,12 +777,12 @@ theorem toListModel_insertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l :
 
 theorem ordered_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew k v h).2.impl.Ordered := by
-  simpa only [snd_containsThenInsertIfNew_eq_insertIfNew, h] using ordered_insertIfNew h ho
+  simpa only [containsThenInsertIfNew_snd_eq_insertIfNew, h] using ordered_insertIfNew h ho
 
 theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
-  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
   exact toListModel_insertIfNew htb hto
 
 /-!
@@ -835,16 +791,16 @@ theorem toListModel_containsThenInsertIfNew [Ord α] [TransOrd α] {k : α} {v :
 
 theorem ordered_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.Balanced) (ho : l.Ordered) : (l.containsThenInsertIfNew! k v).2.Ordered := by
-  simpa [snd_containsThenInsertIfNew!_eq_insertIfNew!] using ordered_insertIfNew! h ho
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using ordered_insertIfNew! h ho
 
 theorem WF.containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {l : Impl α β}
     (h : l.WF) : (l.containsThenInsertIfNew! k v).2.WF := by
-  simpa [snd_containsThenInsertIfNew!_eq_insertIfNew!] using WF.insertIfNew! (h := h)
+  simpa [containsThenInsertIfNew!_snd_eq_insertIfNew!] using WF.insertIfNew! (h := h)
 
 theorem toListModel_containsThenInsertIfNew! [Ord α] [TransOrd α] {k : α} {v : β k} {t : Impl α β}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.containsThenInsertIfNew k v htb).2.impl.toListModel.Perm (insertEntryIfNew k v t.toListModel) := by
-  rw [snd_containsThenInsertIfNew_eq_insertIfNew]
+  rw [containsThenInsertIfNew_snd_eq_insertIfNew]
   exact toListModel_insertIfNew htb hto
 
 /-!
@@ -943,6 +899,26 @@ theorem ordered_alter [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {
   exact ordered_updateAtKey htb hto
 
 /-!
+### modify
+-/
+
+theorem modify_eq_alter [Ord α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    rw [modify, alter] at *
+    split at * <;> try rfl
+    all_goals
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+
+theorem ordered_modify [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
+
+/-!
 ### mergeWith
 -/
 
@@ -1009,6 +985,27 @@ theorem ordered_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
   exact ordered_updateAtKey htb hto
 
 /-!
+### modify
+-/
+
+theorem modify_eq_alter [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) :
+    modify a f t = (alter a (·.map f) t htb).impl := by
+  induction t with
+  | leaf => rfl
+  | inner sz k v l r ihl ihr =>
+    have hmb : (modify a f _).Balanced := balanced_modify htb
+    rw [modify, alter] at *
+    split at * <;> try rfl
+    all_goals
+      dsimp
+      simp only [← ihl htb.left, ← ihr htb.right, balance_eq_inner, balance_eq_inner hmb]
+
+theorem ordered_modify [Ord α] [TransOrd α] {t : Impl α β} {a f}
+    (htb : t.Balanced) (hto : t.Ordered) : (modify a f t).Ordered :=
+  modify_eq_alter htb ▸ ordered_alter htb hto
+
+/-!
 ### mergeWith
 -/
 
@@ -1032,6 +1029,10 @@ theorem WF.ordered [Ord α] [TransOrd α] {l : Impl α β} (h : WF l) : l.Ordere
   · exact ordered_insert ‹_› ‹_›
   · exact ordered_insertIfNew ‹_› ‹_›
   · exact ordered_erase ‹_› ‹_›
+  · exact ordered_alter ‹_› ‹_›
+  · exact Const.ordered_alter ‹_› ‹_›
+  · exact ordered_modify (WF.balanced ‹_›) ‹_›
+  · exact Const.ordered_modify (WF.balanced ‹_›) ‹_›
   · exact ordered_containsThenInsert ‹_› ‹_›
   · exact ordered_containsThenInsertIfNew ‹_› ‹_›
   · exact ordered_filter ‹_›

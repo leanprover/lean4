@@ -17,7 +17,6 @@ LEAN_EXPORT lean_object* l_Std_Net_IPAddr_instToString;
 static lean_object* l_Std_Net_AddressFamily_noConfusion___rarg___closed__1;
 LEAN_EXPORT lean_object* l_Std_Net_IPv4Addr_toString___boxed(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Net_instDecidableEqIPv4Addr(lean_object*, lean_object*);
-uint8_t lean_uint8_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instInhabitedSocketAddress;
 LEAN_EXPORT lean_object* l_Std_Net_IPv6Addr_instToString;
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_noConfusion___rarg___boxed(lean_object*, lean_object*, lean_object*);
@@ -34,10 +33,10 @@ LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx(uint8_t);
 LEAN_EXPORT uint8_t l___private_Std_Net_Addr_0__Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr___hyg_440_(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_IPAddr_toString___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_Basic_0__decEqVector____x40_Init_Data_Vector_Basic___hyg_98____at___private_Std_Net_Addr_0__Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_319____spec__1(lean_object*);
+uint16_t lean_uint16_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_instDecidableEqIPv6Addr___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Net_Addr_0__Std_Net_decEqIPAddr____x40_Std_Net_Addr___hyg_616____boxed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqUInt8___boxed(lean_object*, lean_object*);
-uint16_t lean_uint16_of_nat(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Net_Addr_0__Std_Net_decEqSocketAddressV6____x40_Std_Net_Addr___hyg_440____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Net_Addr_0__Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_29____boxed(lean_object*, lean_object*);
 static lean_object* l___private_Init_Data_Vector_Basic_0__decEqVector____x40_Init_Data_Vector_Basic___hyg_98____at___private_Std_Net_Addr_0__Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_319____spec__1___rarg___closed__1;
@@ -114,6 +113,7 @@ LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_ofNat___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Std_Net_Addr_0__Std_Net_decEqIPv6Addr____x40_Std_Net_Addr___hyg_319____boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Net_AddressFamily_toCtorIdx___boxed(lean_object*);
 static lean_object* l___private_Init_Data_Vector_Basic_0__decEqVector____x40_Init_Data_Vector_Basic___hyg_98____at___private_Std_Net_Addr_0__Std_Net_decEqIPv4Addr____x40_Std_Net_Addr___hyg_29____spec__1___rarg___closed__1;
+uint8_t lean_uint8_of_nat(lean_object*);
 lean_object* lean_uv_ntop_v4(lean_object*);
 static uint8_t _init_l_Std_Net_instInhabitedIPv4Addr___closed__1() {
 _start:

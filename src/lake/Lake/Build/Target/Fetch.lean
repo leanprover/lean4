@@ -14,16 +14,16 @@ protected def BuildKey.fetch (self : BuildKey) [h : FamilyOut BuildData self α]
   | module modName =>
     let some mod ← findModule? modName
       | error s!"invalid target '{self}': module '{modName}' not found in workspace"
-    return cast (by rw [← h.family_key_eq_type, self_eq]; simp) (Job.pure mod)
+    return cast (by rw [← h.fam_eq, self_eq]; simp) (Job.pure mod)
   | package pkgName =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{self}': package '{pkgName}' not found in workspace"
-    return cast (by rw [← h.family_key_eq_type, self_eq]; simp) (Job.pure pkg.toPackage)
+    return cast (by rw [← h.fam_eq, self_eq]; simp) (Job.pure pkg.toPackage)
   | packageTarget pkgName targetName =>
     let some pkg ← findPackage? pkgName
       | error s!"invalid target '{self}': package '{pkgName}' not found in workspace"
     have : FamilyOut BuildData (pkg.target targetName).key α :=
-      ⟨by simpa [self_eq] using h.family_key_eq_type⟩
+      ⟨by simpa [self_eq] using h.fam_eq⟩
     fetch <| pkg.target targetName
   | facet key facetName =>
     -- TODO: Support this

@@ -28,8 +28,8 @@ protected abbrev FacetConfig.name (_ : FacetConfig DataFam ι name) := name
   (build : ι → FetchM (Job α)) (buildable := true)
 : FacetConfig Fam ι facet where
   buildable
-  fetchFn := h.family_key_eq_type ▸ build
-  format := h.family_key_eq_type ▸ formatQuery
+  fetchFn := h.fam_eq ▸ build
+  format := h.fam_eq ▸ formatQuery
 
 /-- A dependently typed configuration based on its registered name. -/
 structure NamedConfigDecl (β : Name → Type u) where

@@ -28,7 +28,7 @@ dynamically-typed equivalent.
   (facet : Name) (build : FetchM (Job α))
   [h : FamilyOut TargetData facet α]
 : FetchM (Job (TargetData facet)) :=
-  cast (by rw [← h.family_key_eq_type]) build
+  cast (by rw [← h.fam_eq]) build
 
 def ExternLib.recBuildStatic (lib : ExternLib) : FetchM (Job FilePath) :=
   withRegisterJob s!"{lib.staticTargetName.toString}:static" do

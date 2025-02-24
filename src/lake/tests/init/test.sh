@@ -122,7 +122,7 @@ $LAKE -d 123-hello exe 123-hello
 # https://github.com/leanprover/lean4/issues/2999
 
 # the unicode name is improperly encoded on windows for non-Lake reasons
-if [ "$OSTYPE" != "msys" ]; then
+if [ "$OSTYPE" != "cygwin" -a "$OSTYPE" != "msys" ]; then
   $LAKE new «A.B».«C.D»
   $LAKE -d A-B-C-D exe a-b-c-d
 fi

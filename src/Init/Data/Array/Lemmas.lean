@@ -3336,6 +3336,19 @@ theorem back?_mkArray (a : α) (n : Nat) :
 @[simp] theorem back_mkArray (w : 0 < n) : (mkArray n a).back (by simpa using w) = a := by
   simp [back_eq_getElem]
 
+/-! ## Additional operations -/
+
+/-! ### leftpad -/
+
+-- We unfold `leftpad` and `rightpad` for verification purposes.
+attribute [simp] leftpad rightpad
+
+theorem size_leftpad (n : Nat) (a : α) (xs : Array α) :
+    (leftpad n a xs).size = max n xs.size := by simp; omega
+
+theorem size_rightpad (n : Nat) (a : α) (xs : Array α) :
+    (rightpad n a xs).size = max n xs.size := by simp; omega
+
 /-! Content below this point has not yet been aligned with `List`. -/
 
 /-! ### sum -/

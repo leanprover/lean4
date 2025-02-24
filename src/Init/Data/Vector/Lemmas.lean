@@ -662,12 +662,12 @@ protected theorem eq_empty (xs : Vector α 0) : xs = #v[] := by
 theorem eq_empty_of_size_eq_zero (xs : Vector α n) (h : n = 0) : xs = #v[].cast h.symm := by
   rcases xs with ⟨xs, rfl⟩
   apply toArray_inj.1
-  simp only [List.length_eq_zero, Array.toList_eq_nil_iff] at h
+  simp only [List.length_eq_zero_iff, Array.toList_eq_nil_iff] at h
   simp [h]
 
 theorem size_eq_one {xs : Vector α 1} : ∃ a, xs = #v[a] := by
   rcases xs with ⟨xs, h⟩
-  simpa using Array.size_eq_one.mp h
+  simpa using Array.size_eq_one_iff.mp h
 
 /-! ### push -/
 
@@ -2331,6 +2331,15 @@ theorem foldr_rel {xs : Array α} {f g : α → β → β} {a b : β} (r : β �
   rcases xs with ⟨xs⟩
   simp
 
+/-! ### leftpad and rightpad -/
+
+@[simp] theorem leftpad_mk (n : Nat) (a : α) (xs : Array α) (h : xs.size = m) :
+    (Vector.mk xs h).leftpad n a = Vector.mk (Array.leftpad n a xs) (by simp [h]; omega) := by
+  simp [h]
+
+@[simp] theorem rightpad_mk (n : Nat) (a : α) (xs : Array α) (h : xs.size = m) :
+    (Vector.mk xs h).rightpad n a = Vector.mk (Array.rightpad n a xs) (by simp [h]; omega) := by
+  simp [h]
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 

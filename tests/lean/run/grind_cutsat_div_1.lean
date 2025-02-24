@@ -1,4 +1,5 @@
 set_option grind.warning false
+set_option grind.debug true
 set_option pp.structureInstances false
 open Int.Linear
 
@@ -32,9 +33,9 @@ example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) : False := by
 
 /--
 info: [grind.cutsat.dvd.update] 2 ∣ a + 3
-[grind.cutsat.dvd.update] 3 ∣ 3 * b + a + -4
+[grind.cutsat.dvd.update] 3 ∣ 3*b + a + -4
 [grind.cutsat.assign] a := -3
-[grind.cutsat.conflict] 3 ∣ 3 * b + a + -4
+[grind.cutsat.conflict] 3 ∣ 3*b + a + -4
 [grind.cutsat.dvd.solve] 3 ∣ a + -4, 2 ∣ a + 3
 [grind.cutsat.dvd.update] 6 ∣ a + 17
 [grind.cutsat.assign] a := -17
@@ -76,5 +77,16 @@ info: [grind.cutsat.assign] a := -3
 set_option trace.grind.cutsat.assign true in
 set_option trace.grind.cutsat.conflict true in
 example (a b : Int) (_ : 2 ∣ a + 3) (_ : 3 ∣ a + b - 4) (_ : b ≥ 11): False := by
+  fail_if_success grind
+  sorry
+
+/--
+info: [grind.cutsat.assign] 「f 0」 := 11
+[grind.cutsat.assign] 「f 1」 := -7
+-/
+#guard_msgs (info) in
+set_option trace.grind.cutsat.assign true in
+set_option trace.grind.cutsat.conflict true in
+example (f : Int → Int) (_ : 2 ∣ f 0 + 3) (_ : 3 ∣ f 0 + f 1 - 4) (_ : f 0 ≥ 11): False := by
   fail_if_success grind
   sorry

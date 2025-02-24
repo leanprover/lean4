@@ -62,7 +62,7 @@ def DvdCnstr.getSolutions? (c : DvdCnstr) : GoalM (Option (Int × Int)) := do
 
 private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
   if x == (← get').assignment.size then
-    trace[grind.cutsat.assign] "{(← getVar x)} := {v}"
+    trace[grind.cutsat.assign] "{quoteIfNotAtom (← getVar x)} := {v}"
     modify' fun s => { s with assignment := s.assignment.push v }
   else if x > (← get').assignment.size then
     modify' fun s => { s with assignment := s.assignment.push 0 }
@@ -71,7 +71,7 @@ private partial def setAssignment (x : Var) (v : Int) : GoalM Unit := do
     throwError "`grind` internal error, variable is already assigned"
 
 def resolveLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Unit := do
-  trace[grind.cutsat.conflict] "{← c₁.denoteExpr}, {← c₂.denoteExpr}"
+  trace[grind.cutsat.conflict] "{← c₁.pp}, {← c₂.pp}"
   let .add a₁ _ p₁ := c₁.p | c₁.throwUnexpected
   let .add a₂ _ p₂ := c₂.p | c₂.throwUnexpected
   let p := p₁.mul a₂.natAbs |>.combine (p₂.mul a₁.natAbs)
@@ -84,7 +84,7 @@ def resolveLowerUpperConflict (c₁ c₂ : LeCnstr) : GoalM Unit := do
     throwError "NIY"
 
 def resolveDvdConflict (c : DvdCnstr) : GoalM Unit := do
-  trace[grind.cutsat.conflict] "{← c.denoteExpr}"
+  trace[grind.cutsat.conflict] "{← c.pp}"
   let d := c.d
   let .add a _ p := c.p | c.throwUnexpected
   (← mkDvdCnstr (a.gcd d) p (.elim c)).assert

@@ -124,7 +124,7 @@ private def ppOffset : M Unit := do
   if model.isEmpty then return ()
   let mut ms := #[]
   for (e, val) in model do
-    ms := ms.push <| .trace { cls := `assign } m!"{e} := {val}" #[]
+    ms := ms.push <| .trace { cls := `assign } m!"{quoteIfNotAtom e} := {val}" #[]
   pushMsg <| .trace { cls := `offset } "Assignment satisfying offset contraints" ms
 
 private def ppThresholds (c : Grind.Config) : M Unit := do

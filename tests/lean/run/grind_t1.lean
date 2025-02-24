@@ -1,3 +1,4 @@
+set_option grind.warning false
 example (a b : List Nat) : a = [] → b = [2] → a = b → False := by
   grind
 

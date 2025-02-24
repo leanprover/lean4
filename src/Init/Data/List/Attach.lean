@@ -190,7 +190,7 @@ theorem length_attachWith {p : α → Prop} {l H} : length (l.attachWith p H) = 
 
 @[simp]
 theorem pmap_eq_nil_iff {p : α → Prop} {f : ∀ a, p a → β} {l H} : pmap f l H = [] ↔ l = [] := by
-  rw [← length_eq_zero, length_pmap, length_eq_zero]
+  rw [← length_eq_zero_iff, length_pmap, length_eq_zero_iff]
 
 theorem pmap_ne_nil_iff {P : α → Prop} (f : (a : α) → P a → β) {xs : List α}
     (H : ∀ (a : α), a ∈ xs → P a) : xs.pmap f H ≠ [] ↔ xs ≠ [] := by

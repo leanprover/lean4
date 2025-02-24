@@ -99,11 +99,6 @@ theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
   simp [getElem?_eq_getElem, h] at t
   simp [← t]
 
-theorem back?_flatten {xss : Array (Array α)} :
-    (flatten xss).back? = (xss.findSomeRev? fun xs => xs.back?) := by
-  cases xss using array₂_induction
-  simp [List.getLast?_flatten, ← List.map_reverse, List.findSome?_map, Function.comp_def]
-
 theorem findSome?_mkArray : findSome? f (mkArray n a) = if n = 0 then none else f a := by
   simp [← List.toArray_replicate, List.findSome?_replicate]
 

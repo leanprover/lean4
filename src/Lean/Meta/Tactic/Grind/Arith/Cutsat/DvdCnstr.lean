@@ -31,12 +31,12 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
   if (← isInconsistent) then return ()
   let c ← c.norm
   if c.isUnsat then
-    trace[grind.cutsat.dvd.unsat] "{← c.denoteExpr}"
+    trace[grind.cutsat.dvd.unsat] "{← c.pp}"
     let hf ← withProofContext do
       return mkApp5 (mkConst ``Int.Linear.dvd_unsat) (← getContext) (toExpr c.d) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     closeGoal hf
   else if c.isTrivial then
-    trace[grind.cutsat.dvd.trivial] "{← c.denoteExpr}"
+    trace[grind.cutsat.dvd.trivial] "{← c.pp}"
     return ()
   else
     let d₁ := c.d
@@ -44,7 +44,7 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
     if (← c.satisfied) == .false then
       resetAssignmentFrom x
     if let some c' := (← get').dvdCnstrs[x]! then
-      trace[grind.cutsat.dvd.solve] "{← c.denoteExpr}, {← c'.denoteExpr}"
+      trace[grind.cutsat.dvd.solve] "{← c.pp}, {← c'.pp}"
       let d₂ := c'.d
       let .add a₂ _ p₂ := c'.p | c'.throwUnexpected
       let (d, α, β) := gcdExt (a₁*d₂) (a₂*d₁)
@@ -59,16 +59,17 @@ partial def DvdCnstr.assert (c : DvdCnstr) : GoalM Unit := withIncRecDepth do
       let α_d₂_p₁ := p₁.mul (α*d₂)
       let β_d₁_p₂ := p₂.mul (β*d₁)
       let combine ← mkDvdCnstr (d₁*d₂) (.add d x (α_d₂_p₁.combine β_d₁_p₂)) (.solveCombine c c')
-      trace[grind.cutsat.dvd.solve.combine] "{← combine.denoteExpr}"
+      trace[grind.cutsat.dvd.solve.combine] "{← combine.pp}"
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x none}
       combine.assert
       let a₂_p₁ := p₁.mul a₂
       let a₁_p₂ := p₂.mul (-a₁)
       let elim ← mkDvdCnstr d (a₂_p₁.combine a₁_p₂) (.solveElim c c')
-      trace[grind.cutsat.dvd.solve.elim] "{← elim.denoteExpr}"
+      trace[grind.cutsat.dvd.solve.elim] "{← elim.pp}"
       elim.assert
     else
-      trace[grind.cutsat.dvd.update] "{← c.denoteExpr}"
+      trace[grind.cutsat.dvd.update] "{← c.pp}"
+      c.p.updateOccs
       modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set x (some c) }
 
 builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
@@ -80,7 +81,7 @@ builtin_grind_propagator propagateDvd ↓Dvd.dvd := fun e => do
   if (← isEqTrue e) then
     let p ← toPoly b
     let c ← mkDvdCnstr d p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
-    trace[grind.cutsat.assert.dvd] "{← c.denoteExpr}"
+    trace[grind.cutsat.assert.dvd] "{← c.pp}"
     c.assert
   else if (← isEqFalse e) then
     /-

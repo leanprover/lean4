@@ -1,4 +1,5 @@
 set_option grind.warning false
+set_option grind.debug true
 
 /--
 info: [grind.cutsat.assign] a := 3

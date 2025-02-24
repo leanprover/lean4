@@ -2495,7 +2495,7 @@ theorem pop_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).pop = if h : m = 0 then xs.pop.cast (by omega) else (xs ++ ys.pop).cast (by omega) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp only [mk_append_mk, pop_mk, List.length_eq_zero, Array.toList_eq_nil_iff, cast_mk, mk_eq]
+  simp only [mk_append_mk, pop_mk, List.length_eq_zero_iff, Array.toList_eq_nil_iff, cast_mk, mk_eq]
   rw [Array.pop_append]
   split <;> simp_all
 

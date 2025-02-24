@@ -293,8 +293,8 @@ private def mkBRecOnFromRec (recName : Name) (ind reflexive : Bool) (nParams : N
         if let some n := all[i]? then
           if ind then mkIBelowName n else mkBelowName n
         else
-          if ind then .str all[0]! s!"ibelow_{i-all.size+1}"
-                 else .str all[0]! s!"below_{i-all.size+1}"
+          if ind then .str all[0]! s!"ibelow_{i-all.size + 1}"
+                 else .str all[0]! s!"below_{i-all.size + 1}"
       mkAppN (.const belowName blvls) (params ++ motives)
 
     -- create types of functionals (one for each motive)

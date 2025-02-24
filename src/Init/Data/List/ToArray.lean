@@ -44,6 +44,16 @@ theorem toArray_inj {as bs : List α} (h : as.toArray = bs.toArray) : as = bs :=
     | nil => simp at h
     | cons b bs => simpa using h
 
+theorem toArray_eq_iff {as : List α} {bs : Array α} : as.toArray = bs ↔ as = bs.toList := by
+  cases bs
+  simp
+
+-- We can't make this a `@[simp]` lemma because `#[] = [].toArray` at reducible transparency,
+-- so this would loop with `toList_eq_nil_iff`
+theorem eq_toArray_iff {as : Array α} {bs : List α} : as = bs.toArray ↔ as.toList = bs := by
+  cases as
+  simp
+
 @[simp] theorem size_toArrayAux {as : List α} {xs : Array α} :
     (as.toArrayAux xs).size = xs.size + as.length := by
   simp [size]
@@ -76,6 +86,21 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
 @[simp] theorem back_toArray (l : List α) (h) :
     l.toArray.back = l.getLast (by simp at h; exact ne_nil_of_length_pos h) := by
   simp [back, List.getLast_eq_getElem]
+
+@[simp] theorem _root_.Array.getLast!_toList [Inhabited α] (xs : Array α) :
+    xs.toList.getLast! = xs.back! := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp] theorem _root_.Array.getLast?_toList (xs : Array α) :
+    xs.toList.getLast? = xs.back? := by
+  rcases xs with ⟨xs⟩
+  simp
+
+@[simp] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+  rcases xs with ⟨xs⟩
+  simp
 
 @[simp] theorem set_toArray (l : List α) (i : Nat) (a : α) (h : i < l.length) :
     (l.toArray.set i a) = (l.set i a).toArray := rfl
@@ -514,8 +539,8 @@ private theorem popWhile_toArray_aux (p : α → Bool) (l : List α) :
 
 @[simp] theorem toArray_replicate (n : Nat) (v : α) : (List.replicate n v).toArray = mkArray n v := rfl
 
-@[deprecated toArray_replicate (since := "2024-12-13")]
-abbrev _root_.Array.mkArray_eq_toArray_replicate := @toArray_replicate
+theorem _root_.Array.mkArray_eq_toArray_replicate : mkArray n v = (List.replicate n v).toArray := by
+  simp
 
 @[simp] theorem flatMap_empty {β} (f : α → Array β) : (#[] : Array α).flatMap f = #[] := rfl
 

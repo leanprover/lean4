@@ -96,8 +96,14 @@ theorem ne_nil_of_length_eq_add_one (_ : length l = n + 1) : l ≠ [] := fun _ =
 
 theorem ne_nil_of_length_pos (_ : 0 < length l) : l ≠ [] := fun _ => nomatch l
 
-@[simp] theorem length_eq_zero : length l = 0 ↔ l = [] :=
+@[simp] theorem length_eq_zero_iff : length l = 0 ↔ l = [] :=
   ⟨eq_nil_of_length_eq_zero, fun h => h ▸ rfl⟩
+
+@[deprecated length_eq_zero_iff (since := "2025-02-24")]
+abbrev length_eq_zero := @length_eq_zero_iff
+
+theorem eq_nil_iff_length_eq_zero : l = [] ↔ length l = 0 :=
+  length_eq_zero_iff.symm
 
 theorem length_pos_of_mem {a : α} : ∀ {l : List α}, a ∈ l → 0 < length l
   | _::_, _ => Nat.zero_lt_succ _
@@ -123,11 +129,20 @@ theorem exists_cons_of_length_eq_add_one :
     ∀ {l : List α}, l.length = n + 1 → ∃ h t, l = h :: t
   | _::_, _ => ⟨_, _, rfl⟩
 
-theorem length_pos {l : List α} : 0 < length l ↔ l ≠ [] :=
-  Nat.pos_iff_ne_zero.trans (not_congr length_eq_zero)
+theorem length_pos_iff {l : List α} : 0 < length l ↔ l ≠ [] :=
+  Nat.pos_iff_ne_zero.trans (not_congr length_eq_zero_iff)
 
-theorem length_eq_one {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
+@[deprecated length_pos_iff (since := "2025-02-24")]
+abbrev length_pos := @length_pos_iff
+
+theorem ne_nil_iff_length_pos {l : List α} : l ≠ [] ↔ 0 < length l :=
+  length_pos_iff.symm
+
+theorem length_eq_one_iff {l : List α} : length l = 1 ↔ ∃ a, l = [a] :=
   ⟨fun h => match l, h with | [_], _ => ⟨_, rfl⟩, fun ⟨_, h⟩ => by simp [h]⟩
+
+@[deprecated length_eq_one_iff (since := "2025-02-24")]
+abbrev length_eq_one := @length_eq_one_iff
 
 /-! ### cons -/
 
@@ -284,7 +299,7 @@ such a rewrite, with `rw [getElem_of_eq h]`.
 theorem getElem_of_eq {l l' : List α} (h : l = l') {i : Nat} (w : i < l.length) :
     l[i] = l'[i]'(h ▸ w) := by cases h; rfl
 
-theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_pos.mp h) :=
+theorem getElem_zero {l : List α} (h : 0 < l.length) : l[0] = l.head (length_pos_iff.mp h) :=
   match l, h with
   | _ :: _, _ => rfl
 
@@ -375,7 +390,7 @@ theorem eq_append_cons_of_mem {a : α} {xs : List α} (h : a ∈ xs) :
 theorem mem_cons_of_mem (y : α) {a : α} {l : List α} : a ∈ l → a ∈ y :: l := .tail _
 
 theorem exists_mem_of_ne_nil (l : List α) (h : l ≠ []) : ∃ x, x ∈ l :=
-  exists_mem_of_length_pos (length_pos.2 h)
+  exists_mem_of_length_pos (length_pos_iff.2 h)
 
 theorem eq_nil_iff_forall_not_mem {l : List α} : l = [] ↔ ∀ a, a ∉ l := by
   cases l <;> simp [-not_or]
@@ -533,7 +548,7 @@ theorem isEmpty_eq_false_iff_exists_mem {xs : List α} :
   cases xs <;> simp
 
 theorem isEmpty_iff_length_eq_zero {l : List α} : l.isEmpty ↔ l.length = 0 := by
-  rw [isEmpty_iff, length_eq_zero]
+  rw [isEmpty_iff, length_eq_zero_iff]
 
 /-! ### any / all -/
 
@@ -910,13 +925,13 @@ theorem head?_eq_getElem? : ∀ l : List α, head? l = l[0]?
   | [] => rfl
   | a :: l => by simp
 
-theorem head_eq_getElem (l : List α) (h : l ≠ []) : head l h = l[0]'(length_pos.mpr h) := by
+theorem head_eq_getElem (l : List α) (h : l ≠ []) : head l h = l[0]'(length_pos_iff.mpr h) := by
   cases l with
   | nil => simp at h
   | cons _ _ => simp
 
 theorem getElem_zero_eq_head (l : List α) (h : 0 < l.length) :
-    l[0] = head l (by simpa [length_pos] using h) := by
+    l[0] = head l (by simpa [length_pos_iff] using h) := by
   cases l with
   | nil => simp at h
   | cons _ _ => simp
@@ -1003,7 +1018,7 @@ theorem one_lt_length_of_tail_ne_nil {l : List α} (h : l.tail ≠ []) : 1 < l.l
   | nil => simp at h
   | cons _ l =>
     simp only [tail_cons, ne_eq] at h
-    exact Nat.lt_add_of_pos_left (length_pos.mpr h)
+    exact Nat.lt_add_of_pos_left (length_pos_iff.mpr h)
 
 @[simp] theorem head_tail (l : List α) (h : l.tail ≠ []) :
     (tail l).head h = l[1]'(one_lt_length_of_tail_ne_nil h) := by
@@ -3417,7 +3432,7 @@ theorem get_cons_succ {as : List α} {h : i + 1 < (a :: as).length} :
 theorem get_cons_succ' {as : List α} {i : Fin as.length} :
   (a :: as).get i.succ = as.get i := rfl
 
-theorem get_mk_zero : ∀ {l : List α} (h : 0 < l.length), l.get ⟨0, h⟩ = l.head (length_pos.mp h)
+theorem get_mk_zero : ∀ {l : List α} (h : 0 < l.length), l.get ⟨0, h⟩ = l.head (length_pos_iff.mp h)
   | _::_, _ => rfl
 
 set_option linter.deprecated false in

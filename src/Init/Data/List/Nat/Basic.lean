@@ -44,10 +44,42 @@ theorem tail_dropLast (l : List α) : tail (dropLast l) = dropLast (tail l) := b
 
 /-! ### filter -/
 
-theorem length_filter_lt_length_iff_exists {l} :
-    length (filter p l) < length l ↔ ∃ x ∈ l, ¬p x := by
+@[simp]
+theorem length_filter_pos_iff {l : List α} {p : α → Bool} :
+    0 < (filter p l).length ↔ ∃ x ∈ l, p x := by
   simpa [length_eq_countP_add_countP p l, countP_eq_length_filter] using
-    countP_pos_iff (p := fun x => ¬p x)
+    countP_pos_iff (p := p)
+
+@[simp]
+theorem length_filter_lt_length_iff_exists {l} :
+    (filter p l).length < l.length ↔ ∃ x ∈ l, ¬p x := by
+  simp [length_eq_countP_add_countP p l, countP_eq_length_filter]
+
+/-! ### filterMap -/
+
+@[simp]
+theorem length_filterMap_pos_iff {xs : List α} {f : α → Option β} :
+    0 < (filterMap f xs).length ↔ ∃ (x : α) (_ : x ∈ xs) (b : β), f x = some b := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
+    split
+    · simp_all [ih]
+    · simp_all
+
+@[simp]
+theorem length_filterMap_lt_length_iff_exists {xs : List α} {f : α → Option β} :
+    (filterMap f xs).length < xs.length ↔ ∃ (x : α) (_ : x ∈ xs), f x = none := by
+  induction xs with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [filterMap, mem_cons, exists_prop, exists_eq_or_imp]
+    split
+    · simp_all only [exists_prop, length_cons, true_or, iff_true]
+      have := length_filterMap_le f xs
+      omega
+    · simp_all
 
 /-! ### reverse -/
 

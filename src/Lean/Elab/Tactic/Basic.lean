@@ -177,7 +177,7 @@ where
     throwExs (failures : Array EvalTacticFailure) : TacticM Unit := do
      if h : 0 < failures.size  then
        -- For macros we want to report the error from the first registered / last tried rule (#3770)
-       let fail := failures[failures.size-1]
+       let fail := failures[failures.size - 1]
        fail.state.restore (restoreInfo := true)
        throw fail.exception -- (*)
      else

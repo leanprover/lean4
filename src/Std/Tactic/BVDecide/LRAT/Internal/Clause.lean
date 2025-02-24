@@ -231,7 +231,7 @@ theorem ofArray_eq (arr : Array (Literal (PosFin n)))
     apply Exists.intro <| Nat.le_refl arr.size
     intro c' heq
     simp only [Option.some.injEq] at heq
-    have hsize : List.length c'.clause = arr.size- arr.size := by
+    have hsize : List.length c'.clause = arr.size - arr.size := by
       simp [← heq, empty]
     apply Exists.intro hsize
     intro i

@@ -284,7 +284,8 @@ theorem UInt16.size_le_usizeSize : UInt16.size ≤ USize.size :=
   Nat.le_of_lt UInt16.size_lt_usizeSize
 theorem UInt32.size_le_usizeSize : UInt32.size ≤ USize.size := by
   cases USize.size_eq <;> simp_all +decide
-theorem USize.size_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
+theorem USize.size_eq_two_pow : USize.size = 2 ^ System.Platform.numBits := rfl
+theorem USize.toNat_lt_two_pow_numBits (n : USize) : n.toNat < 2 ^ System.Platform.numBits := n.toFin.isLt
 @[simp] theorem USize.toNat_lt (n : USize) : n.toNat < 2 ^ 64 := Nat.lt_of_lt_of_le n.toFin.isLt size_le
 
 theorem UInt8.toNat_lt_usizeSize (n : UInt8) : n.toNat < USize.size :=

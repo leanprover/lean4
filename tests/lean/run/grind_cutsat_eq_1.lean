@@ -1,5 +1,5 @@
 set_option grind.warning false
--- set_option grind.debug true -- TODO: enable after making more progress in `EqCnstr.lean`
+set_option grind.debug true
 open Int.Linear
 
 -- set_option trace.grind.cutsat.assert true
@@ -40,6 +40,12 @@ example (a b : Int) (_ : a = 2*b) (_ : 2 ∣ a + 1) : False := by
   grind
 
 theorem ex₉ (a b c : Int) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) (_ : a + c > 1) : False := by
+  grind
+
+example (a b c : Int) (_ : a + c > 1) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) : False := by
+  grind
+
+example (a b c : Int) (_ : -a + -c > 1) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) : False := by
   grind
 
 #print ex₁

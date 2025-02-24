@@ -26,27 +26,25 @@ def LeCnstr.norm (c : LeCnstr) : GoalM LeCnstr := do
     return c
 
 def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
-  if (← isInconsistent) then return ()
+  if (← inconsistent) then return ()
   let c ← c.norm
   if c.isUnsat then
-    trace[grind.cutsat.le.unsat] "{← c.pp}"
-    let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    closeGoal hf
-  else if c.isTrivial then
+    setInconsistent (.le c)
+    return ()
+  if c.isTrivial then
     trace[grind.cutsat.le.trivial] "{← c.pp}"
+    return ()
+  let .add a x _ := c.p | c.throwUnexpected
+  if a < 0 then
+    trace[grind.cutsat.le.lower] "{← c.pp}"
+    c.p.updateOccs
+    modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
   else
-    let .add a x _ := c.p | c.throwUnexpected
-    if a < 0 then
-      trace[grind.cutsat.le.lower] "{← c.pp}"
-      c.p.updateOccs
-      modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
-    else
-      trace[grind.cutsat.le.upper] "{← c.pp}"
-      c.p.updateOccs
-      modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
-    if (← c.satisfied) == .false then
-      resetAssignmentFrom x
+    trace[grind.cutsat.le.upper] "{← c.pp}"
+    c.p.updateOccs
+    modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"

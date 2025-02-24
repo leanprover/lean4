@@ -145,7 +145,7 @@ def hasAssignment : GoalM Bool := do
 private def isDone : GoalM Bool := do
   if (← hasAssignment) then
     return true
-  if (← isInconsistent) then
+  if (← inconsistent) then
     return true
   return false
 

@@ -44,6 +44,12 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.cutsat := f s.arith.cutsat }
 
+/-- Returns `true` if the cutsat state is inconsistent. -/
+def inconsistent : GoalM Bool := do
+  -- TODO: we will have a nested backtracking search in cutsat
+  -- and this function will have to be refined.
+  isInconsistent
+
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 

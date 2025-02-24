@@ -58,52 +58,59 @@ partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let c ← mkEqCnstr p (.subst x c₁ c)
   applySubsts c
 
+private def updateDvdCnstrs (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  -- TODO
+  pure ()
+
+private def updateLowers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  -- TODO
+  pure ()
+
+private def updateUppers (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  -- TODO
+  pure ()
+
 private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
   let ys := (← get').occurs[x]!
   modify' fun s => { s with occurs := s.occurs.set x {} }
   for y in ys do
-    -- TODO
-    pure ()
+    updateDvdCnstrs k x c y
+    updateLowers k x c y
+    updateUppers k x c y
 
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
-  if (← isInconsistent) then return ()
+  if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
   let c ← applySubsts c
   if c.p.isUnsatEq then
-    trace[grind.cutsat.eq.unsat] "{← c.pp}"
-    let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.eq_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    closeGoal hf
+    setInconsistent (.eq c)
     return ()
   if c.isTrivial then
     trace[grind.cutsat.le.trivial] "{← c.pp}"
     return ()
   let k := c.p.gcdCoeffs'
   if c.p.getConst % k > 0 then
-    trace[grind.cutsat.eq.unsat] "{← c.pp}"
-    let hf ← withProofContext do
-      return mkApp5 (mkConst ``Int.Linear.eq_unsat_coeff) (← getContext) (toExpr c.p) (toExpr (Int.ofNat k)) reflBoolTrue (← c.toExprProof)
-    closeGoal hf
-    return ()
-  let c ← if k == 1 then
-    pure c
+    setInconsistent (.eq c)
   else
-    mkEqCnstr (c.p.div k) (.divCoeffs c)
-  trace[grind.cutsat.eq] "{← c.pp}"
-  let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-  updateOccs k x c
-  if (← isInconsistent) then return ()
-  -- assert a divisibility constraint IF `|k| != 1`
-  if k.natAbs != 1 then
-    let p := c.p.insert (-k) x
-    let d := Int.ofNat k.natAbs
-    let c ← mkDvdCnstr d p (.ofEq x c)
-    c.assert
-  modify' fun s => { s with
-    elimEqs := s.elimEqs.set x (some c)
-    elimStack := x :: s.elimStack
-  }
+    let c ← if k == 1 then
+      pure c
+    else
+      mkEqCnstr (c.p.div k) (.divCoeffs c)
+    trace[grind.cutsat.eq] "{← c.pp}"
+    let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
+    updateOccs k x c
+    if (← inconsistent) then return ()
+    -- assert a divisibility constraint IF `|k| != 1`
+    if k.natAbs != 1 then
+      let p := c.p.insert (-k) x
+      let d := Int.ofNat k.natAbs
+      let c ← mkDvdCnstr d p (.ofEq x c)
+      c.assert
+    modify' fun s => { s with
+      elimEqs := s.elimEqs.set x (some c)
+      elimStack := x :: s.elimStack
+    }
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do

@@ -63,6 +63,15 @@ inductive EqCnstrProof where
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
 
+/--
+A proof of `False`.
+Remark: We will later add support for a backtraking search inside of cutsat.
+-/
+inductive UnsatProof where
+  | dvd (c : DvdCnstr)
+  | le (c : LeCnstr)
+  | eq (c : EqCnstr)
+
 abbrev VarSet := RBTree Var compare
 
 /-- State of the cutsat procedure. -/

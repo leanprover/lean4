@@ -1046,7 +1046,7 @@ theorem back?_eq_getElem? (xs : Array α) : xs.back? = xs[xs.size - 1]? := by
   cases xs
   simp [List.getLast?_eq_getElem?]
 
-@[simp] theorem back_mem{xs : Array α} (h : 0 < xs.size) : xs.back ∈ xs := by
+@[simp] theorem back_mem {xs : Array α} (h : 0 < xs.size) : xs.back h ∈ xs := by
   cases xs
   simp
 
@@ -3325,7 +3325,7 @@ theorem back?_flatMap {xs : Array α} {f : α → Array β} :
   simp [List.getLast?_flatMap]
 
 theorem back?_flatten {xss : Array (Array α)} :
-    (flatten xss).back? = xss.reverse.findSome? fun l => l.back? := by
+    (flatten xss).back? = xss.reverse.findSome? fun xs => xs.back? := by
   simp [← flatMap_id, back?_flatMap]
 
 theorem back?_mkArray (a : α) (n : Nat) :

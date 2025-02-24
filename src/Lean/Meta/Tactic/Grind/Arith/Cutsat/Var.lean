@@ -21,28 +21,39 @@ def mkVar (expr : Expr) : GoalM Var := do
     dvdCnstrs := s.dvdCnstrs.push none
     lowers    := s.lowers.push {}
     uppers    := s.uppers.push {}
+    occurs    := s.occurs.push {}
+    elimEqs   := s.elimEqs.push none
   }
+  markAsCutsatTerm expr
   return var
 
 def isInt (e : Expr) : GoalM Bool := do
   isDefEq (← inferType e) (mkConst ``Int)
 
-def isAdd? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+def isAdd? (e : Expr) (report := true) : GoalM (Option (Expr × Expr)) := do
   let_expr HAdd.hAdd _ _ _ inst a b ← e | return none
   unless (← isInstHAddInt inst) do
-    reportIssue! "found term with non-standard instance{indentExpr e}"
+    if report then
+      reportIssue! "found term with non-standard instance{indentExpr e}"
     return none
   return some (a, b)
 
-def isMul? (e : Expr) : GoalM (Option (Int × Expr)) := do
+def isAdd (e : Expr) : GoalM Bool := do
+  return (← isAdd? e false).isSome
+
+def isMul? (e : Expr) (report := true) : GoalM (Option (Int × Expr)) := do
   let_expr HMul.hMul _ _ _ inst a b ← e
     | return none
   unless (← isInstHMulInt inst) do
-    reportIssue! "found term with non-standard instance{indentExpr e}"
+    if report then
+      reportIssue! "found term with non-standard instance{indentExpr e}"
     return none
   let some k ← getIntValue? a
     | return none
   return some (k, b)
+
+def isMul (e : Expr) : GoalM Bool := do
+  return (← isMul? e false).isSome
 
 def addMonomial (e : Expr) (p : Poly) : GoalM Poly := do
   if let some (k, x) ← isMul? e then

@@ -29,19 +29,21 @@ def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
   let c ← c.norm
   if c.isUnsat then
-    trace[grind.cutsat.le.unsat] "{← c.denoteExpr}"
+    trace[grind.cutsat.le.unsat] "{← c.pp}"
     let hf ← withProofContext do
       return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
     closeGoal hf
   else if c.isTrivial then
-    trace[grind.cutsat.le.trivial] "{← c.denoteExpr}"
+    trace[grind.cutsat.le.trivial] "{← c.pp}"
   else
     let .add a x _ := c.p | c.throwUnexpected
     if a < 0 then
-      trace[grind.cutsat.le.lower] "{← c.denoteExpr}"
+      trace[grind.cutsat.le.lower] "{← c.pp}"
+      c.p.updateOccs
       modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
     else
-      trace[grind.cutsat.le.upper] "{← c.denoteExpr}"
+      trace[grind.cutsat.le.upper] "{← c.pp}"
+      c.p.updateOccs
       modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
     if (← c.satisfied) == .false then
       resetAssignmentFrom x
@@ -68,7 +70,7 @@ def propagateIfIntLe (e : Expr) (eqTrue : Bool) : GoalM Unit := do
     mkLeCnstr p (.expr (← mkOfEqTrue (← mkEqTrueProof e)))
   else
     mkLeCnstr (p.mul (-1) |>.addConst 1) (.notExpr p (← mkOfEqFalse (← mkEqFalseProof e)))
-  trace[grind.cutsat.assert.le] "{← c.denoteExpr}"
+  trace[grind.cutsat.assert.le] "{← c.pp}"
   c.assert
 
 end Lean.Meta.Grind.Arith.Cutsat

@@ -21,8 +21,8 @@ h_1 : ¬g (i + 1) j = i + 1
   [offset] Assignment satisfying offset contraints
     [assign] j := 0
     [assign] i := 1
-    [assign] i + 1 := 2
-    [assign] 0 := 0
+    [assign] 「i + 1」 := 2
+    [assign] 「0」 := 0
 -/
 #guard_msgs (error) in
 example (i j : Nat) (h : i + 1 > j + 1) : g (i+1) j = i + 1 := by
@@ -40,7 +40,7 @@ h : 101 ≤ i
   [eqc] True propositions
     [prop] 101 ≤ i
   [offset] Assignment satisfying offset contraints
-    [assign] 0 := 0
+    [assign] 「0」 := 0
     [assign] i := 101
 -/
 #guard_msgs (error) in
@@ -60,7 +60,7 @@ h : i ≤ 99
     [prop] i ≤ 99
   [offset] Assignment satisfying offset contraints
     [assign] i := 99
-    [assign] 0 := 0
+    [assign] 「0」 := 0
 -/
 #guard_msgs (error) in
 example (i : Nat) : 100 ≤ i := by
@@ -82,9 +82,9 @@ h_1 : i ≤ j + 99
   [eqc] Equivalence classes
     [eqc] {g (n + 1) m, a}
   [offset] Assignment satisfying offset contraints
-    [assign] n + 1 := 1
+    [assign] 「n + 1」 := 1
     [assign] n := 0
-    [assign] 0 := 0
+    [assign] 「0」 := 0
     [assign] i := 99
     [assign] j := 0
 -/
@@ -108,9 +108,9 @@ h_1 : i + 101 ≤ j
   [eqc] Equivalence classes
     [eqc] {g (n + 1) m, a}
   [offset] Assignment satisfying offset contraints
-    [assign] n + 1 := 1
+    [assign] 「n + 1」 := 1
     [assign] n := 0
-    [assign] 0 := 0
+    [assign] 「0」 := 0
     [assign] i := 0
     [assign] j := 101
 -/

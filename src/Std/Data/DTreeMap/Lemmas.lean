@@ -448,7 +448,7 @@ theorem get_eq_get! [TransCmp cmp] [LawfulEqCmp cmp] {a : α} [Inhabited (β a)]
 
 namespace Const
 
-variable {β : Type v} (t : DTreeMap α β cmp)
+variable {β : Type v} {t : DTreeMap α β cmp}
 
 @[simp]
 theorem get!_emptyc [TransCmp cmp] [Inhabited β] {a : α} :
@@ -570,7 +570,7 @@ theorem get!_eq_getD_default [TransCmp cmp] [LawfulEqCmp cmp] {a : α} [Inhabite
 
 namespace Const
 
-variable {β : Type v} (t : DTreeMap α β cmp)
+variable {β : Type v} {t : DTreeMap α β cmp}
 
 @[simp]
 theorem getD_emptyc [TransCmp cmp] {a : α} {fallback : β} :

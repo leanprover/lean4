@@ -25,11 +25,17 @@ universe u v
 namespace Std.DTreeMap.Internal.Impl
 
 variable {α : Type u} {β : α → Type v} {instOrd : Ord α} {t : Impl α β}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
+
+attribute [local instance] beqOfOrd
+attribute [local instance] equivBEq_of_transOrd
+attribute [local instance] lawfulBEq_of_lawfulEqOrd
 
 /-- Internal implementation detail of the tree map -/
 scoped macro "wf_trivial" : tactic => `(tactic|
   repeat (first
-    | apply WF.ordered | apply WF.balanced | apply WF.insert | apply WF.insert!
+    | apply WF.ordered | apply WF.balanced | apply WF.empty
+    | apply WF.insert | apply WF.insert!
     | apply WF.insertIfNew | apply WF.insertIfNew!
     | apply WF.erase | apply WF.erase!
     | apply Ordered.distinctKeys
@@ -41,8 +47,21 @@ scoped macro "empty" : tactic => `(tactic| { intros; simp_all [List.isEmpty_iff]
 
 open Lean
 
+theorem compare_eq_eq_iff_beq {k a : α} : compare k a = .eq ↔ k == a := beq_iff_eq.symm
+
+theorem dif_compare {γ} [LawfulEqOrd α] {k a : α} {f : compare k a = .eq → γ} {g : ¬ compare k a = .eq → γ} :
+    (if h : compare k a = .eq then f h else g h) =
+      (if h : k == a then f (eq_of_beq h) else g (h ∘ beq_of_eq)) := by
+  split
+  · exact Eq.symm <| dif_pos (beq_of_eq ‹_› :)
+  · exact Eq.symm <| dif_neg (‹_› ∘ eq_of_beq :)
+
+private def helperLemmaNames : Array Name :=
+  #[``dif_compare, ``compare_eq_eq_iff_beq]
+
 private def queryNames : Array Name :=
-  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length]
+  #[``isEmpty_eq_isEmpty, ``contains_eq_containsKey, ``size_eq_length,
+    ``get?_eq_getValueCast?, ``Const.get?_eq_getValue?]
 
 private def modifyMap : Std.HashMap Name Name :=
   .ofList
@@ -74,12 +93,10 @@ macro_rules
         congrModify := congrModify.push (← `($congr:term ($(mkIdent modify) ..)))
   `(tactic|
     (simp (discharger := wf_trivial) only
-      [$[$(Array.map Lean.mkIdent queryNames):term],*, $[$congrModify:term],*]
+      [$[$(Array.map Lean.mkIdent helperLemmaNames):term],*,
+       $[$(Array.map Lean.mkIdent queryNames):term],*, $[$congrModify:term],*]
      $[apply $(using?.toArray):term];*)
     <;> wf_trivial)
-
-attribute [local instance] beqOfOrd
-attribute [local instance] equivBEq_of_transOrd
 
 theorem isEmpty_empty : isEmpty (empty : Impl α β) := by
   simp [Impl.isEmpty_eq_isEmpty]
@@ -97,7 +114,7 @@ theorem mem_iff_contains {k : α} : k ∈ t ↔ t.contains k :=
 
 theorem contains_congr [TransOrd α] (h : t.WF) {k k' : α} (hab : compare k k' = .eq) :
     t.contains k = t.contains k' := by
-  rw [← beq_iff_eq (b := Ordering.eq), ← beq_eq] at hab
+  revert hab
   simp_to_model using List.containsKey_congr
 
 theorem mem_congr [TransOrd α] (h : t.WF) {k k' : α} (hab : compare k k' = .eq) :
@@ -408,5 +425,133 @@ theorem size_insertIfNew_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
 theorem size_insertIfNew!_le [TransOrd α] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew! k v).size ≤ t.size + 1 := by
   simp_to_model [insertIfNew!] using List.length_insertEntryIfNew_le
+
+theorem get?_empty [TransOrd α] [LawfulEqOrd α] {a : α} : (empty : Impl α β).get? a = none := by
+  simp_to_model using List.getValueCast?_nil
+
+theorem get?_of_isEmpty [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+    t.isEmpty = true → t.get? a = none := by
+  simp_to_model; empty
+
+theorem get?_insert [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.get? a =
+      if h : compare k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a := by
+  simp_to_model [insert] using List.getValueCast?_insertEntry
+
+theorem get?_insert! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a k : α} {v : β k} :
+    (t.insert! k v).get? a =
+      if h : compare k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a := by
+  simp_to_model [insert!] using List.getValueCast?_insertEntry
+
+theorem get?_insert_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v h.balanced).impl.get? k = some v := by
+  simp_to_model [insert] using List.getValueCast?_insertEntry_self
+
+theorem get?_insert!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} {v : β k} :
+    (t.insert! k v).get? k = some v := by
+  simp_to_model [insert!] using List.getValueCast?_insertEntry_self
+
+theorem contains_eq_isSome_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+    t.contains a = (t.get? a).isSome := by
+  simp_to_model using List.containsKey_eq_isSome_getValueCast?
+
+theorem mem_iff_isSome_get? [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+    a ∈ t ↔ (t.get? a).isSome := by
+  simpa [mem_iff_contains] using contains_eq_isSome_get? h
+
+theorem get?_eq_none_of_contains_eq_false [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+    t.contains a = false → t.get? a = none := by
+  simp_to_model using List.getValueCast?_eq_none
+
+theorem get?_eq_none [TransOrd α] [LawfulEqOrd α] (h : t.WF) {a : α} :
+    ¬ a ∈ t → t.get? a = none := by
+  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
+
+theorem get?_erase [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} :
+    (t.erase k h.balanced).impl.get? a = if compare k a = .eq then none else t.get? a := by
+  simp_to_model [erase] using List.getValueCast?_eraseKey
+
+theorem get?_erase! [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k a : α} :
+    (t.erase! k).get? a = if compare k a = .eq then none else t.get? a := by
+  simp_to_model [erase!] using List.getValueCast?_eraseKey
+
+theorem get?_erase_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+    (t.erase k h.balanced).impl.get? k = none := by
+  simp_to_model [erase] using List.getValueCast?_eraseKey_self
+
+theorem get?_erase!_self [TransOrd α] [LawfulEqOrd α] (h : t.WF) {k : α} :
+    (t.erase! k).get? k = none := by
+  simp_to_model [erase!] using List.getValueCast?_eraseKey_self
+
+namespace Const
+
+variable {β : Type v} {t : Impl α β}
+
+theorem get?_empty [TransOrd α] {a : α} : get? a (empty : Impl α β) = none := by
+  simp_to_model using List.getValue?_nil
+
+theorem get?_of_isEmpty [TransOrd α] (h : t.WF) {a : α} :
+    t.isEmpty = true → get? a t = none := by
+  simp_to_model; empty
+
+theorem get?_insert [TransOrd α] (h : t.WF) {a k : α} {v : β} :
+    get? a (t.insert k v h.balanced).impl =
+      if compare k a = .eq then some v else get? a t := by
+  simp_to_model [insert] using List.getValue?_insertEntry
+
+theorem get?_insert! [TransOrd α] (h : t.WF) {a k : α} {v : β} :
+    get? a (t.insert! k v) =
+      if compare k a = .eq then some v else get? a t := by
+  simp_to_model [insert!] using List.getValue?_insertEntry
+
+theorem get?_insert_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    get? k (t.insert k v h.balanced).impl = some v := by
+  simp_to_model [insert] using List.getValue?_insertEntry_self
+
+theorem get?_insert!_self [TransOrd α] (h : t.WF) {k : α} {v : β} :
+    get? k (t.insert! k v) = some v := by
+  simp_to_model [insert!] using List.getValue?_insertEntry_self
+
+theorem contains_eq_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = (get? a t).isSome := by
+  simp_to_model using List.containsKey_eq_isSome_getValue?
+
+theorem mem_iff_isSome_get? [TransOrd α] (h : t.WF) {a : α} :
+    a ∈ t ↔ (get? a t).isSome := by
+  simpa [mem_iff_contains] using contains_eq_isSome_get? h
+
+theorem get?_eq_none_of_contains_eq_false [TransOrd α] (h : t.WF) {a : α} :
+    t.contains a = false → get? a t = none := by
+  simp_to_model using List.getValue?_eq_none.mpr
+
+theorem get?_eq_none [TransOrd α] (h : t.WF) {a : α} :
+    ¬ a ∈ t → get? a t = none := by
+  simpa [mem_iff_contains] using get?_eq_none_of_contains_eq_false h
+
+theorem get?_erase [TransOrd α] (h : t.WF) {k a : α} :
+    get? a (t.erase k h.balanced).impl = if compare k a = .eq then none else get? a t := by
+  simp_to_model [erase] using List.getValue?_eraseKey
+
+theorem get?_erase! [TransOrd α] (h : t.WF) {k a : α} :
+    get? a (t.erase! k) = if compare k a = .eq then none else get? a t := by
+  simp_to_model [erase!] using List.getValue?_eraseKey
+
+theorem get?_erase_self [TransOrd α] (h : t.WF) {k : α} :
+    get? k (t.erase k h.balanced).impl = none := by
+  simp_to_model [erase] using List.getValue?_eraseKey_self
+
+theorem get?_erase!_self [TransOrd α] (h : t.WF) {k : α} :
+    get? k (t.erase! k) = none := by
+  simp_to_model [erase!] using List.getValue?_eraseKey_self
+
+theorem get?_eq_get? [LawfulEqOrd α] [TransOrd α] (h : t.WF) {a : α} : get? a t = t.get? a := by
+  simp_to_model using List.getValue?_eq_getValueCast?
+
+theorem get?_congr [TransOrd α] (h : t.WF) {a b : α} (hab : compare a b = .eq) :
+    get? a t = get? b t := by
+  revert hab
+  simp_to_model using List.getValue?_congr
+
+end Const
 
 end Std.DTreeMap.Internal.Impl

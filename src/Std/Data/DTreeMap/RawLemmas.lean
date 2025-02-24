@@ -24,6 +24,7 @@ universe u v
 namespace Std.DTreeMap.Raw
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap.Raw α β cmp}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : Raw α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
@@ -236,5 +237,106 @@ theorem size_le_size_insertIfNew [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
 theorem size_insertIfNew_le [TransCmp cmp] (h : t.WF) {k : α} {v : β k} :
     (t.insertIfNew k v).size ≤ t.size + 1 :=
   Impl.size_insertIfNew!_le h
+
+@[simp]
+theorem get?_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    (∅ : DTreeMap α β cmp).get? a = none :=
+  Impl.get?_empty
+
+theorem get?_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    t.isEmpty = true → t.get? a = none :=
+  Impl.get?_of_isEmpty h
+
+theorem get?_insert [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a k : α} {v : β k} :
+    (t.insert k v).get? a =
+      if h : cmp k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a :=
+  Impl.get?_insert! h
+
+@[simp]
+theorem get?_insert_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} {v : β k} :
+    (t.insert k v).get? k = some v :=
+  Impl.get?_insert!_self h
+
+theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    t.contains a = (t.get? a).isSome :=
+  Impl.contains_eq_isSome_get? h
+
+theorem mem_iff_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    a ∈ t ↔ (t.get? a).isSome :=
+  Impl.mem_iff_isSome_get? h
+
+theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    t.contains a = false → t.get? a = none :=
+  Impl.get?_eq_none_of_contains_eq_false h
+
+theorem get?_eq_none [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {a : α} :
+    ¬ a ∈ t → t.get? a = none :=
+  Impl.get?_eq_none h
+
+theorem get?_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} :
+    (t.erase k).get? a = if cmp k a = .eq then none else t.get? a :=
+  Impl.get?_erase! h
+
+@[simp]
+theorem get?_erase_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} :
+    (t.erase k).get? k = none :=
+  Impl.get?_erase!_self h
+
+namespace Const
+
+variable {β : Type v} {t : Raw α β cmp}
+
+@[simp]
+theorem get?_emptyc [TransCmp cmp] {a : α} :
+    get? (∅ : Raw α β cmp) a = none :=
+  Impl.Const.get?_empty
+
+theorem get?_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} :
+    t.isEmpty = true → get? t a = none :=
+  Impl.Const.get?_of_isEmpty h
+
+theorem get?_insert [TransCmp cmp] (h : t.WF) {a k : α} {v : β} :
+    get? (t.insert k v) a =
+      if cmp k a = .eq then some v else get? t a :=
+  Impl.Const.get?_insert! h
+
+@[simp]
+theorem get?_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
+    get? (t.insert k v) k = some v :=
+  Impl.Const.get?_insert!_self h
+
+theorem contains_eq_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
+    t.contains a = (get? t a).isSome :=
+  Impl.Const.contains_eq_isSome_get? h
+
+theorem mem_iff_isSome_get? [TransCmp cmp] (h : t.WF) {a : α} :
+    a ∈ t ↔ (get? t a).isSome :=
+  Impl.Const.mem_iff_isSome_get? h
+
+theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} :
+    t.contains a = false → get? t a = none :=
+  Impl.Const.get?_eq_none_of_contains_eq_false h
+
+theorem get?_eq_none [TransCmp cmp] (h : t.WF) {a : α} :
+    ¬ a ∈ t → get? t a = none :=
+  Impl.Const.get?_eq_none h
+
+theorem get?_erase [TransCmp cmp] (h : t.WF) {k a : α} :
+    get? (t.erase k) a = if cmp k a = .eq then none else get? t a :=
+  Impl.Const.get?_erase! h
+
+@[simp]
+theorem get?_erase_self [TransCmp cmp] (h : t.WF) {k : α} :
+    get? (t.erase k) k = none :=
+  Impl.Const.get?_erase!_self h
+
+theorem get?_eq_get? [LawfulEqCmp cmp] [TransCmp cmp] (h : t.WF) {a : α} : get? t a = t.get? a :=
+  Impl.Const.get?_eq_get? h
+
+theorem get?_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq) :
+    get? t a = get? t b :=
+  Impl.Const.get?_congr h hab
+
+end Const
 
 end Std.DTreeMap.Raw

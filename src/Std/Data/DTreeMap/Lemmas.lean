@@ -24,6 +24,7 @@ universe u v
 namespace Std.DTreeMap
 
 variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : DTreeMap α β cmp}
+private local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 private theorem ext {t t' : DTreeMap α β cmp} : t.inner = t'.inner → t = t' := by
   cases t; cases t'; rintro rfl; rfl
@@ -236,5 +237,106 @@ theorem size_le_size_insertIfNew [TransCmp cmp] {k : α} {v : β k} :
 theorem size_insertIfNew_le [TransCmp cmp] {k : α} {v : β k} :
     (t.insertIfNew k v).size ≤ t.size + 1 :=
   Impl.size_insertIfNew_le t.wf
+
+@[simp]
+theorem get?_emptyc [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    (∅ : DTreeMap α β cmp).get? a = none :=
+  Impl.get?_empty
+
+theorem get?_of_isEmpty [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    t.isEmpty = true → t.get? a = none :=
+  Impl.get?_of_isEmpty t.wf
+
+theorem get?_insert [TransCmp cmp] [LawfulEqCmp cmp] {a k : α} {v : β k} :
+    (t.insert k v).get? a =
+      if h : cmp k a = .eq then some (cast (congrArg β (compare_eq_iff_eq.mp h)) v) else t.get? a :=
+  Impl.get?_insert t.wf
+
+@[simp]
+theorem get?_insert_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} {v : β k} :
+    (t.insert k v).get? k = some v :=
+  Impl.get?_insert_self t.wf
+
+theorem contains_eq_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    t.contains a = (t.get? a).isSome :=
+  Impl.contains_eq_isSome_get? t.wf
+
+theorem mem_iff_isSome_get? [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    a ∈ t ↔ (t.get? a).isSome :=
+  Impl.mem_iff_isSome_get? t.wf
+
+theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    t.contains a = false → t.get? a = none :=
+  Impl.get?_eq_none_of_contains_eq_false t.wf
+
+theorem get?_eq_none [TransCmp cmp] [LawfulEqCmp cmp] {a : α} :
+    ¬ a ∈ t → t.get? a = none :=
+  Impl.get?_eq_none t.wf
+
+theorem get?_erase [TransCmp cmp] [LawfulEqCmp cmp] {k a : α} :
+    (t.erase k).get? a = if cmp k a = .eq then none else t.get? a :=
+  Impl.get?_erase t.wf
+
+@[simp]
+theorem get?_erase_self [TransCmp cmp] [LawfulEqCmp cmp] {k : α} :
+    (t.erase k).get? k = none :=
+  Impl.get?_erase_self t.wf
+
+namespace Const
+
+variable {β : Type v} {t : DTreeMap α β cmp}
+
+@[simp]
+theorem get?_emptyc [TransCmp cmp] {a : α} :
+    get? (∅ : DTreeMap α β cmp) a = none :=
+  Impl.Const.get?_empty
+
+theorem get?_of_isEmpty [TransCmp cmp] {a : α} :
+    t.isEmpty = true → get? t a = none :=
+  Impl.Const.get?_of_isEmpty t.wf
+
+theorem get?_insert [TransCmp cmp] {a k : α} {v : β} :
+    get? (t.insert k v) a =
+      if cmp k a = .eq then some v else get? t a :=
+  Impl.Const.get?_insert t.wf
+
+@[simp]
+theorem get?_insert_self [TransCmp cmp] {k : α} {v : β} :
+    get? (t.insert k v) k = some v :=
+  Impl.Const.get?_insert_self t.wf
+
+theorem contains_eq_isSome_get? [TransCmp cmp] {a : α} :
+    t.contains a = (get? t a).isSome :=
+  Impl.Const.contains_eq_isSome_get? t.wf
+
+theorem mem_iff_isSome_get? [TransCmp cmp] {a : α} :
+    a ∈ t ↔ (get? t a).isSome :=
+  Impl.Const.mem_iff_isSome_get? t.wf
+
+theorem get?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
+    t.contains a = false → get? t a = none :=
+  Impl.Const.get?_eq_none_of_contains_eq_false t.wf
+
+theorem get?_eq_none [TransCmp cmp] {a : α} :
+    ¬ a ∈ t → get? t a = none :=
+  Impl.Const.get?_eq_none t.wf
+
+theorem get?_erase [TransCmp cmp] {k a : α} :
+    get? (t.erase k) a = if cmp k a = .eq then none else get? t a :=
+  Impl.Const.get?_erase t.wf
+
+@[simp]
+theorem get?_erase_self [TransCmp cmp] {k : α} :
+    get? (t.erase k) k = none :=
+  Impl.Const.get?_erase_self t.wf
+
+theorem get?_eq_get? [LawfulEqCmp cmp] [TransCmp cmp] {a : α} : get? t a = t.get? a :=
+  Impl.Const.get?_eq_get? t.wf
+
+theorem get?_congr [TransCmp cmp] {a b : α} (hab : cmp a b = .eq) :
+    get? t a = get? t b :=
+  Impl.Const.get?_congr t.wf hab
+
+end Const
 
 end Std.DTreeMap

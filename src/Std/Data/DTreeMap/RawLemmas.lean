@@ -257,6 +257,7 @@ theorem get?_erase [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k a : α} :
     (t.erase k).get? a = if cmp k a = .eq then none else t.get? a :=
   Impl.get?_erase! h
 
+@[simp]
 theorem get?_erase_self [TransCmp cmp] [LawfulEqCmp cmp] (h : t.WF) {k : α} :
     (t.erase k).get? k = none :=
   Impl.get?_erase!_self h

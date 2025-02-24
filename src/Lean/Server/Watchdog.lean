@@ -545,21 +545,20 @@ section ServerM
     let some fw ← findFileWorker? uri
       | return
     setWorkerState fw .terminating
-    errorPendingRequests uri ErrorCode.contentModified
-      s!"The file worker for {uri} has been terminated."
     eraseFileWorker uri
-    -- Clear the diagnostics for this file so that stale errors
-    -- do not remain in the editor forever.
-    (← read).hOut.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
+    try
+      errorPendingRequests uri ErrorCode.contentModified
+        s!"The file worker for {uri} has been terminated."
+      -- Clear the diagnostics for this file so that stale errors
+      -- do not remain in the editor forever.
+      (← read).hOut.writeLspMessage <| mkPublishDiagnosticsNotification fw.doc #[]
+    catch _ =>
+      -- Client closed stdout => Still ensure that file worker is terminated
+      pure ()
     try
       fw.stdin.writeLspMessage (Message.notification "exit" none)
     catch _ =>
-      /- The file worker must have crashed just when we were about to terminate it!
-        That's fine - just forget about it then.
-        (on didClose we won't need the crashed file worker anymore,
-        when the header changed we'll start a new one right after
-        anyways and when we're shutting down the server
-        it's over either way.) -/
+      -- File worker crashed during termination => Treat it as terminated
       pure ()
 
   def tryWriteMessage
@@ -1064,7 +1063,7 @@ section MainLoop
   def shutdown : ServerM Unit := do
     let fileWorkers ← (←read).fileWorkersRef.get
     for ⟨uri, _⟩ in fileWorkers do
-      terminateFileWorker uri
+      try terminateFileWorker uri catch _ => pure ()
     for ⟨_, fw⟩ in fileWorkers do
       -- TODO: Wait for process group to finish instead
       try let _ ← fw.killProcAndWait catch _ => pure ()

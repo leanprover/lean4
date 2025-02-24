@@ -104,6 +104,17 @@ partial def Info.setCallerParam (calleeIdx argIdx callerIdx paramIdx : Nat) (inf
   else
     info
 
+def Info.format (info : Info) : Format := Format.line.joinSep <| info.toList.map fun paramInfos =>
+  (f!"• " ++ ·) <| f!" ".joinSep <| paramInfos.toList.map fun
+    | .none => f!"❌"
+    | .some callerInfos => .sbracket <| f!" ".joinSep <| callerInfos.toList.map fun
+      | Option.none => f!"?"
+      | .some idx => f!"#{idx+1}"
+
+
+instance : ToFormat Info := ⟨Info.format⟩
+
+
 def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM Info := do
   let arities ← preDefs.mapM fun preDef => lambdaTelescope preDef.value fun xs _ => pure xs.size
   let ref ← IO.mkRef (Info.init arities)
@@ -153,7 +164,7 @@ def getFixedParamsInfo (preDefs : Array PreDefinition) : MetaM Info := do
         return .continue
 
   let info ← ref.get
-  trace[Elab.definition.fixedParams] "getFixedParams: {info}"
+  trace[Elab.definition.fixedParams] "getFixedParams:{info.format.indentD}"
   return info
 
 structure FixedParams where

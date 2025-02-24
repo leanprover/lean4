@@ -85,6 +85,10 @@ theorem succ_div_of_dvd {a b : Nat} (h : b ∣ a + 1) :
       rw [Nat.mod_eq_of_lt h'] at h
       simp at h
 
+theorem succ_div_of_mod_eq_zero {a b : Nat} (h : (a + 1) % b = 0) :
+    (a + 1) / b = a / b + 1 := by
+  rw [succ_div_of_dvd (by rwa [dvd_iff_mod_eq_zero])]
+
 theorem succ_div_of_not_dvd {a b : Nat} (h : ¬ b ∣ a + 1) :
     (a + 1) / b = a / b := by
   replace h := mt dvd_of_mod_eq_zero h
@@ -98,6 +102,10 @@ theorem succ_div_of_not_dvd {a b : Nat} (h : ¬ b ∣ a + 1) :
       omega
     · rw [Nat.div_mul_self_eq_mod_sub_self]
       omega
+
+theorem succ_div_of_mod_ne_zero {a b : Nat} (h : (a + 1) % b ≠ 0) :
+    (a + 1) / b = a / b := by
+  rw [succ_div_of_not_dvd (by rwa [dvd_iff_mod_eq_zero])]
 
 theorem succ_div {a b : Nat} : (a + 1) / b = a / b + if b ∣ a + 1 then 1 else 0 := by
   split <;> rename_i h

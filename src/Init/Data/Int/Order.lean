@@ -1011,10 +1011,15 @@ theorem sign_eq_neg_one_iff_neg {a : Int} : sign a = -1 ↔ a < 0 :=
     exact Int.le_add_one (ofNat_nonneg _)
   | .negSucc _ => simp +decide [sign]
 
-theorem mul_sign : ∀ i : Int, i * sign i = natAbs i
+@[simp] theorem mul_sign_self : ∀ i : Int, i * sign i = natAbs i
   | succ _ => Int.mul_one _
   | 0 => Int.mul_zero _
   | -[_+1] => Int.mul_neg_one _
+
+@[deprecated mul_sign_self (since := "2025-02-24")] abbrev mul_sign := @mul_sign_self
+
+@[simp] theorem sign_mul_self : sign i * i = natAbs i := by
+  rw [Int.mul_comm, mul_sign_self]
 
 /- ## natAbs -/
 

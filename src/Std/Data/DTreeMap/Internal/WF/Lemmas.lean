@@ -610,6 +610,10 @@ theorem getD_eq_getValueCastD [Ord α] [TransOrd α] [LawfulEqOrd α] {k : α}
     t.getD k fallback = getValueCastD k t.toListModel fallback := by
   rw [getD_eq_getDₘ, getDₘ_eq_getValueCastD hto]
 
+/-!
+### `getKey?`
+-/
+
 namespace Const
 
 variable {β : Type v}

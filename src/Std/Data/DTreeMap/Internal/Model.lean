@@ -235,6 +235,34 @@ def getDₘ [Ord α] [OrientedOrd α] [LawfulEqOrd α] (k : α) (l : Impl α β)
   get?ₘ l k |>.getD fallback
 
 /--
+Model implementation of the `getKey?` function.
+Internal implementation detail of the tree map
+-/
+def getKey?ₘ [Ord α] (l : Impl α β) (k : α) : Option α :=
+  applyCell k l fun c _ => c.getKey?
+
+/--
+Model implementation of the `getKey` function.
+Internal implementation detail of the tree map
+-/
+def getKeyₘ [Ord α] (l : Impl α β) (k : α) (h : (getKey?ₘ l k).isSome) : α :=
+  getKey?ₘ l k |>.get h
+
+/--
+Model implementation of the `getKey!` function.
+Internal implementation detail of the tree map
+-/
+def getKey!ₘ [Ord α] [OrientedOrd α] (l : Impl α β) (k : α) [Inhabited α] : α :=
+  getKey?ₘ l k |>.get!
+
+/--
+Model implementation of the `getKeyD` function.
+Internal implementation detail of the tree map
+-/
+def getKeyDₘ [Ord α] [OrientedOrd α] (k : α) (l : Impl α β) (fallback : α) : α :=
+  getKey?ₘ l k |>.getD fallback
+
+/--
 Model implementation of the `insert` function.
 Internal implementation detail of the tree map
 -/

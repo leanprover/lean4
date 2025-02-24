@@ -2,7 +2,7 @@
 set -exo pipefail
 
 # Prevent MSYS2 from automatically transforming path-like targets
-[ "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
+[ "$OSTYPE" == "cygwin" -o "$OSTYPE" == "msys" ] && export MSYS2_ARG_CONV_EXCL=*
 
 LAKE=${LAKE:-../../.lake/build/bin/lake}
 

@@ -933,43 +933,17 @@ theorem eq_dvd_subst (ctx : Context) (x : Var) (p₁ : Poly) (d₂ : Int) (p₂ 
   apply abs_dvd
   simp [this]
 
-private theorem eq_eq_subst' {a x p b q : Int} : a*x + p = 0 → b*x + q = 0 → b*p - a*q = 0 := by
-  intro h₁ h₂
-  replace h₁ := congrArg (b*·) h₁; simp at h₁
-  replace h₂ := congrArg ((-a)*.) h₂; simp at h₂
-  rw [Int.add_comm] at h₁
-  replace h₁ := Int.neg_eq_of_add_eq_zero h₁
-  rw [← h₁]; clear h₁
-  replace h₂ := Int.neg_eq_of_add_eq_zero h₂; simp at h₂
-  rw [h₂]; clear h₂
-  rw [Int.mul_left_comm]
-  simp
-
 def eq_eq_subst_cert (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly) : Bool :=
   let a := p₁.coeff x
   let b := p₂.coeff x
-  let p := p₁.insert (-a) x
-  let q := p₂.insert (-b) x
-  p₃ == (p.mul b |>.combine (q.mul (-a)))
+  p₃ == (p₁.mul b |>.combine (p₂.mul (-a)))
 
 theorem eq_eq_subst (ctx : Context) (x : Var) (p₁ : Poly) (p₂ : Poly) (p₃ : Poly)
     : eq_eq_subst_cert x p₁ p₂ p₃ → p₁.denote' ctx = 0 → p₂.denote' ctx = 0 → p₃.denote' ctx = 0 := by
   simp [eq_eq_subst_cert]
-  have eq₁ := eq_add_coeff_insert ctx p₁ x
-  have eq₂ := eq_add_coeff_insert ctx p₂ x
-  revert eq₁ eq₂
-  generalize p₁.coeff x = a
-  generalize p₂.coeff x = b
-  generalize p₁.insert (-a) x = p
-  generalize p₂.insert (-b) x = q
-  intro eq₁; simp [eq₁]; clear eq₁
-  intro eq₂; simp [eq₂]; clear eq₂
   intro; subst p₃
   intro h₁ h₂
-  rw [Int.add_comm] at h₁ h₂
-  have := eq_eq_subst' h₁ h₂
-  rw [Int.sub_eq_add_neg] at this
-  simp [this]
+  simp [*]
 
 private theorem eq_le_subst_nonneg' {a x p b q : Int} : a ≥ 0 → a*x + p = 0 → b*x + q ≤ 0 → a*q - b*p ≤ 0 := by
   intro h h₁ h₂

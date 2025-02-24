@@ -38,7 +38,7 @@ static inline lean_uv_udp_socket_object* lean_to_uv_udp_socket(lean_object * o) 
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_new();
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_bind(b_obj_arg socket, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_connect(b_obj_arg socket, b_obj_arg addr);
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg data);
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, b_obj_arg data, b_obj_arg addr);
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t buffer_size);
 
 // =======================================

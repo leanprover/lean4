@@ -24,14 +24,14 @@ def Socket : Type := SocketImpl.type
 
 instance : Nonempty Socket := SocketImpl.property
 
-namespace Socket
-
 /--
 Membership type for multicast operations.
 -/
 inductive Membership
   | leaveGroup
   | enterGroup
+
+namespace Socket
 
 /--
 Creates a new UDP socket.
@@ -46,16 +46,16 @@ Binds an UDP socket to a specific address.
 opaque bind (socket : @& Socket) (addr : SocketAddress) : IO Unit
 
 /--
-Connects a TCP socket to the specified address.
+Connects an UDP socket to the specified address.
 -/
 @[extern "lean_uv_udp_connect"]
-opaque connect (socket : @& Socket) (addr : SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque connect (socket : @& Socket) (addr : SocketAddress) : IO Unit
 
 /--
 Sends data through an UDP socket.
 -/
 @[extern "lean_uv_udp_send"]
-opaque send (socket : @& Socket) (data : ByteArray) (addr : SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
+opaque send (socket : @& Socket) (data : ByteArray) (addr : Option SocketAddress) : IO (IO.Promise (Except IO.Error Unit))
 
 /--
 Receives data from an UDP socket. `size` is for the maximum bytes to receive. The promise

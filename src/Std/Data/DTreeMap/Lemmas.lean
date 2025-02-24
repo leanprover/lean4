@@ -640,7 +640,8 @@ theorem getD_congr [TransCmp cmp] {a b : α} {fallback : β} (hab : cmp a b = .e
 
 end Const
 
-theorem getKey?_emptyc {a : α} : (empty : DTreeMap α β cmp).getKey? a = none :=
+@[simp]
+theorem getKey?_emptyc {a : α} : (∅ : DTreeMap α β cmp).getKey? a = none :=
   Impl.getKey?_empty
 
 theorem getKey?_of_isEmpty [TransCmp cmp] {a : α} :
@@ -651,6 +652,7 @@ theorem getKey?_insert [TransCmp cmp] {a k : α} {v : β k} :
     (t.insert k v).getKey? a = if cmp k a = .eq then some k else t.getKey? a :=
   Impl.getKey?_insert t.wf
 
+@[simp]
 theorem getKey?_insert_self [TransCmp cmp] {k : α} {v : β k} :
     (t.insert k v).getKey? k = some k :=
   Impl.getKey?_insert_self t.wf
@@ -659,14 +661,23 @@ theorem contains_eq_isSome_getKey? [TransCmp cmp] {a : α} :
     t.contains a = (t.getKey? a).isSome :=
   Impl.contains_eq_isSome_getKey? t.wf
 
-theorem getKey?_eq_none [TransCmp cmp] {a : α} :
+theorem mem_iff_isSome_getKey? [TransCmp cmp] {a : α} :
+    a ∈ t ↔ (t.getKey? a).isSome :=
+  Impl.mem_iff_isSome_getKey? t.wf
+
+theorem getKey?_eq_none_of_contains_eq_false [TransCmp cmp] {a : α} :
     t.contains a = false → t.getKey? a = none :=
+  Impl.getKey?_eq_none_of_contains_eq_false t.wf
+
+theorem getKey?_eq_none [TransCmp cmp] {a : α} :
+    ¬ a ∈ t → t.getKey? a = none :=
   Impl.getKey?_eq_none t.wf
 
 theorem getKey?_erase [TransCmp cmp] {k a : α} :
     (t.erase k).getKey? a = if cmp k a = .eq then none else t.getKey? a :=
   Impl.getKey?_erase t.wf
 
+@[simp]
 theorem getKey?_erase_self [TransCmp cmp] {k : α} :
     (t.erase k).getKey? k = none :=
   Impl.getKey?_erase_self t.wf
@@ -679,6 +690,7 @@ theorem getKey_insert [TransCmp cmp] {k a : α} {v : β k} {h₁} :
         t.getKey a (contains_of_contains_insert h₁ h₂) :=
   Impl.getKey_insert t.wf
 
+@[simp]
 theorem getKey_insert_self [TransCmp cmp] {k : α} {v : β k} :
     (t.insert k v).getKey k contains_insert_self = k :=
   Impl.getKey_insert_self t.wf
@@ -701,28 +713,36 @@ theorem getKey!_of_isEmpty [TransCmp cmp] [Inhabited α] {a : α} :
   Impl.getKey!_of_isEmpty t.wf
 
 theorem getKey!_insert [TransCmp cmp] [Inhabited α] {k a : α}
-    {v : β k} :
-    (t.insert k v).getKey! a = if cmp k a = .eq then k else t.getKey! a :=
+    {v : β k} : (t.insert k v).getKey! a = if cmp k a = .eq then k else t.getKey! a :=
   Impl.getKey!_insert t.wf
 
 theorem getKey!_insert_self [TransCmp cmp] [Inhabited α] {a : α}
     {b : β a} : (t.insert a b).getKey! a = a :=
   Impl.getKey!_insert_self t.wf
 
-theorem getKey!_eq_default [TransCmp cmp] [Inhabited α] {a : α} :
+theorem getKey!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited α] {a : α} :
     t.contains a = false → t.getKey! a = default :=
+  Impl.getKey!_eq_default_of_contains_eq_false t.wf
+
+theorem getKey!_eq_default [TransCmp cmp] [Inhabited α] {a : α} :
+    ¬ a ∈ t → t.getKey! a = default :=
   Impl.getKey!_eq_default t.wf
 
 theorem getKey!_erase [TransCmp cmp] [Inhabited α] {k a : α} :
     (t.erase k).getKey! a = if cmp k a = .eq then default else t.getKey! a :=
   Impl.getKey!_erase t.wf
 
+@[simp]
 theorem getKey!_erase_self [TransCmp cmp] [Inhabited α] {k : α} :
     (t.erase k).getKey! k = default :=
   Impl.getKey!_erase_self t.wf
 
-theorem getKey?_eq_some_getKey! [TransCmp cmp] [Inhabited α] {a : α} :
+theorem getKey?_eq_some_getKey!_of_contains [TransCmp cmp] [Inhabited α] {a : α} :
     t.contains a = true → t.getKey? a = some (t.getKey! a) :=
+  Impl.getKey?_eq_some_getKey!_of_contains t.wf
+
+theorem getKey?_eq_some_getKey! [TransCmp cmp] [Inhabited α] {a : α} :
+    a ∈ t → t.getKey? a = some (t.getKey! a) :=
   Impl.getKey?_eq_some_getKey! t.wf
 
 theorem getKey!_eq_get!_getKey? [TransCmp cmp] [Inhabited α] {a : α} :
@@ -746,12 +766,17 @@ theorem getKeyD_insert [TransCmp cmp] {k a fallback : α} {v : β k} :
       if cmp k a = .eq then k else t.getKeyD a fallback :=
   Impl.getKeyD_insert t.wf
 
+@[simp]
 theorem getKeyD_insert_self [TransCmp cmp] {a fallback : α} {b : β a} :
     (t.insert a b).getKeyD a fallback = a :=
   Impl.getKeyD_insert_self t.wf
 
-theorem getKeyD_eq_fallback [TransCmp cmp] {a fallback : α} :
+theorem getKeyD_eq_fallback_of_contains [TransCmp cmp] {a fallback : α} :
     t.contains a = false → t.getKeyD a fallback = fallback :=
+  Impl.getKeyD_eq_fallback_of_contains_eq_false t.wf
+
+theorem getKeyD_eq_fallback [TransCmp cmp] {a fallback : α} :
+    ¬ a ∈ t → t.getKeyD a fallback = fallback :=
   Impl.getKeyD_eq_fallback t.wf
 
 theorem getKeyD_erase [TransCmp cmp] {k a fallback : α} :
@@ -759,12 +784,17 @@ theorem getKeyD_erase [TransCmp cmp] {k a fallback : α} :
       if cmp k a = .eq then fallback else t.getKeyD a fallback :=
   Impl.getKeyD_erase t.wf
 
+@[simp]
 theorem getKeyD_erase_self [TransCmp cmp] {k fallback : α} :
     (t.erase k).getKeyD k fallback = fallback :=
   Impl.getKeyD_erase_self t.wf
 
-theorem getKey?_eq_some_getKeyD [TransCmp cmp] {a fallback : α} :
+theorem getKey?_eq_some_getKeyD_of_contains [TransCmp cmp] {a fallback : α} :
     t.contains a = true → t.getKey? a = some (t.getKeyD a fallback) :=
+  Impl.getKey?_eq_some_getKeyD_of_contains t.wf
+
+theorem getKey?_eq_some_getKeyD [TransCmp cmp] {a fallback : α} :
+  a ∈ t → t.getKey? a = some (t.getKeyD a fallback) :=
   Impl.getKey?_eq_some_getKeyD t.wf
 
 theorem getKeyD_eq_getD_getKey? [TransCmp cmp] {a fallback : α} :

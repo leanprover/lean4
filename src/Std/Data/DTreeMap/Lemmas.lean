@@ -142,7 +142,7 @@ theorem size_insert_le [TransCmp cmp] {k : α} {v : β k} :
 
 @[simp]
 theorem erase_emptyc {k : α} :
-    (∅ : DTreeMap α β cmp).erase k = empty :=
+    (∅ : DTreeMap α β cmp).erase k = ∅ :=
   ext <| Impl.erase_empty (instOrd := ⟨cmp⟩) (k := k)
 
 @[simp]
@@ -573,8 +573,8 @@ namespace Const
 variable {β : Type v} (t : DTreeMap α β cmp)
 
 @[simp]
-theorem getD_empty [TransCmp cmp] {a : α} {fallback : β} :
-    getD (empty : DTreeMap α β cmp) a fallback = fallback :=
+theorem getD_emptyc [TransCmp cmp] {a : α} {fallback : β} :
+    getD (∅ : DTreeMap α β cmp) a fallback = fallback :=
   Impl.Const.getD_empty
 
 theorem getD_of_isEmpty [TransCmp cmp] {a : α} {fallback : β} :

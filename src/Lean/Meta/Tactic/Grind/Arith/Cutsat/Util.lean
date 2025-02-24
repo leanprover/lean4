@@ -125,7 +125,7 @@ def EqCnstr.pp (c : EqCnstr) : GoalM MessageData := do
 def EqCnstr.denoteExpr (c : EqCnstr) : GoalM Expr := do
   return mkIntEq (← c.p.denoteExpr') (mkIntLit 0)
 
-def EqCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
+def EqCnstr.throwUnexpected (c : EqCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 /-- Returns occurrences of `x`. -/

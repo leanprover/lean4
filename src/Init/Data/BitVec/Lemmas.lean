@@ -1568,8 +1568,8 @@ theorem shiftLeftZeroExtend_eq {x : BitVec w} :
   · omega
 
 @[simp] theorem getElem_shiftLeftZeroExtend {x : BitVec m} {n : Nat} (h : i < m + n) :
-    (shiftLeftZeroExtend x n)[i] = ((!decide (i < n)) && getLsbD x (i - n)) := by
-  rw [shiftLeftZeroExtend_eq, getLsbD]
+    (shiftLeftZeroExtend x n)[i] = if h' : i < n then false else x[i - n] := by
+  rw [shiftLeftZeroExtend_eq]
   simp only [getElem_eq_testBit_toNat, getLsbD_shiftLeft, getLsbD_setWidth]
   cases h₁ : decide (i < n) <;> cases h₂ : decide (i - n < m + n)
     <;> simp_all [h]

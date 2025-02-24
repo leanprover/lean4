@@ -39,6 +39,9 @@ theorem ex₈ (a b : Int) (_ : 2 ∣ a + 1) (_ : a = 2*b) : False := by
 example (a b : Int) (_ : a = 2*b) (_ : 2 ∣ a + 1) : False := by
   grind
 
+theorem ex₉ (a b c : Int) (_ : a + 2*b = 0) (_ : -c + 2*b = 0) (_ : a + c > 1) : False := by
+  grind
+
 #print ex₁
 #print ex₂
 #print ex₃
@@ -47,3 +50,4 @@ example (a b : Int) (_ : a = 2*b) (_ : 2 ∣ a + 1) : False := by
 #print ex₆
 #print ex₇
 #print ex₈
+#print ex₉

@@ -62,7 +62,16 @@ partial def LeCnstr.toExprProof (c' : LeCnstr) : ProofM Expr := c'.caching do
       (← getContext) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
       reflBoolTrue
       (← c₁.toExprProof) (← c₂.toExprProof)
-  | .subst _x _c₁ _c₂ => throwError "NIY"
+  | .subst x c₁ c₂ =>
+    let a := c₁.p.coeff x
+    let thm := if a ≥ 0 then
+      mkConst ``Int.Linear.eq_le_subst_nonneg
+    else
+      mkConst ``Int.Linear.eq_le_subst_nonpos
+    return mkApp8 thm
+        (← getContext) (toExpr x) (toExpr c₁.p) (toExpr c₂.p) (toExpr c'.p)
+        reflBoolTrue
+        (← c₁.toExprProof) (← c₂.toExprProof)
 
 partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
   match c'.h with

@@ -856,6 +856,25 @@ theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p�
   simp at h
   simp [*]
 
+def eq_coeff_cert (p p' : Poly) (k : Int) : Bool :=
+  p == p'.mul k && k > 0
+
+theorem eq_coeff (ctx : Context) (p p' : Poly) (k : Int) : eq_coeff_cert p p' k → p.denote' ctx = 0 → p'.denote' ctx = 0 := by
+  simp [eq_coeff_cert]
+  intro _ _; simp [mul_eq_zero_iff, *]
+
+theorem eq_unsat (ctx : Context) (p : Poly) : p.isUnsatEq → p.denote' ctx = 0 → False := by
+  simp [Poly.isUnsatEq] <;> split <;> simp
+
+def eq_unsat_coeff_cert (p : Poly) (k : Int) : Bool :=
+  p.divCoeffs k && k > 0 && cmod p.getConst k < 0
+
+theorem eq_unsat_coeff (ctx : Context) (p : Poly) (k : Int) : eq_unsat_coeff_cert p k → p.denote' ctx = 0 → False := by
+  simp [eq_unsat_coeff_cert]
+  intro h₁ h₂ h₃
+  have h := poly_eq_zero_eq_false ctx h₁ h₂ h₃; clear h₁ h₂ h₃
+  simp [h]
+
 def Poly.coeff (p : Poly) (x : Var) : Int :=
   match p with
   | .add a y p => bif x == y then a else coeff p x

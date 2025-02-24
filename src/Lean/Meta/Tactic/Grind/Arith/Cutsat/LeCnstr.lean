@@ -25,28 +25,47 @@ def LeCnstr.norm (c : LeCnstr) : GoalM LeCnstr := do
   else
     return c
 
-def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
-  if (← isInconsistent) then return ()
-  let c ← c.norm
-  if c.isUnsat then
-    trace[grind.cutsat.le.unsat] "{← c.pp}"
-    let hf ← withProofContext do
-      return mkApp4 (mkConst ``Int.Linear.le_unsat) (← getContext) (toExpr c.p) reflBoolTrue (← c.toExprProof)
-    closeGoal hf
-  else if c.isTrivial then
-    trace[grind.cutsat.le.trivial] "{← c.pp}"
+/--
+Given an equation `c₁` containing the monomial `a*x`, and an inequality constraint `c₂`
+containing the monomial `b*x`, eliminate `x` by applying substitution.
+-/
+def LeCnstr.applyEq (a : Int) (x : Var) (c₁ : EqCnstr) (b : Int) (c₂ : LeCnstr) : GoalM LeCnstr := do
+  let p := c₁.p
+  let q := c₂.p
+  let p := if a ≥ 0 then
+    q.mul a |>.combine (p.mul (-b))
   else
-    let .add a x _ := c.p | c.throwUnexpected
-    if a < 0 then
-      trace[grind.cutsat.le.lower] "{← c.pp}"
-      c.p.updateOccs
-      modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
-    else
-      trace[grind.cutsat.le.upper] "{← c.pp}"
-      c.p.updateOccs
-      modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
-    if (← c.satisfied) == .false then
-      resetAssignmentFrom x
+    p.mul b |>.combine (q.mul (-a))
+  trace[grind.cutsat.subst] "{← getVar x}, {← c₁.pp}, {← c₂.pp}"
+  mkLeCnstr p (.subst x c₁ c₂)
+
+partial def LeCnstr.applySubsts (c : LeCnstr) : GoalM LeCnstr := withIncRecDepth do
+  let some (b, x, c₁) ← c.p.findVarToSubst | return c
+  let a := c₁.p.coeff x
+  let c ← c.applyEq a x c₁ b
+  applySubsts c
+
+def LeCnstr.assert (c : LeCnstr) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let c ← c.norm
+  let c ← c.applySubsts
+  if c.isUnsat then
+    setInconsistent (.le c)
+    return ()
+  if c.isTrivial then
+    trace[grind.cutsat.le.trivial] "{← c.pp}"
+    return ()
+  let .add a x _ := c.p | c.throwUnexpected
+  if a < 0 then
+    trace[grind.cutsat.le.lower] "{← c.pp}"
+    c.p.updateOccs
+    modify' fun s => { s with lowers := s.lowers.modify x (·.push c) }
+  else
+    trace[grind.cutsat.le.upper] "{← c.pp}"
+    c.p.updateOccs
+    modify' fun s => { s with uppers := s.uppers.modify x (·.push c) }
+  if (← c.satisfied) == .false then
+    resetAssignmentFrom x
 
 private def reportNonNormalized (e : Expr) : GoalM Unit := do
   reportIssue! "unexpected non normalized inequality constraint found{indentExpr e}"

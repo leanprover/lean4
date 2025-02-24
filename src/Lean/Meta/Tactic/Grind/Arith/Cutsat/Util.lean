@@ -44,6 +44,12 @@ def get' : GoalM State := do
 @[inline] def modify' (f : State → State) : GoalM Unit := do
   modify fun s => { s with arith.cutsat := f s.arith.cutsat }
 
+/-- Returns `true` if the cutsat state is inconsistent. -/
+def inconsistent : GoalM Bool := do
+  -- TODO: we will have a nested backtracking search in cutsat
+  -- and this function will have to be refined.
+  isInconsistent
+
 def getVars : GoalM (PArray Expr) :=
   return (← get').vars
 
@@ -114,7 +120,7 @@ def LeCnstr.denoteExpr (c : LeCnstr) : GoalM Expr := do
 def LeCnstr.throwUnexpected (c : LeCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
-def EqCnstr.isTrivial (c : LeCnstr) : Bool :=
+def EqCnstr.isTrivial (c : EqCnstr) : Bool :=
   match c.p with
   | .num k => k == 0
   | _ => false
@@ -129,7 +135,7 @@ def EqCnstr.throwUnexpected (c : EqCnstr) : GoalM α := do
   throwError "`grind` internal error, unexpected{indentD (← c.pp)}"
 
 /-- Returns occurrences of `x`. -/
-def getOccursOf (x : Var) : GoalM (PHashSet Var) :=
+def getOccursOf (x : Var) : GoalM VarSet :=
   return (← get').occurs[x]!
 
 /--
@@ -224,5 +230,18 @@ Returns `.true` if `c` is satisfied by the current partial model,
 -/
 def LeCnstr.satisfied (c : LeCnstr) : GoalM LBool := do
   c.p.satisfiedLe
+
+/--
+Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
+and `x` has been eliminated using the equality `c`.
+-/
+def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
+  match p with
+  | .num _ => return none
+  | .add k x p =>
+    if let some c := (← get').elimEqs[x]! then
+      return some (k, x, c)
+    else
+      findVarToSubst p
 
 end Lean.Meta.Grind.Arith.Cutsat

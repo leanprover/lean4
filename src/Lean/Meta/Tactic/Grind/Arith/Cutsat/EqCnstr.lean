@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.LeCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 
@@ -37,20 +38,7 @@ where
         else
           go k x p
 
-/--
-Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
-and `x` has been eliminated using the equality `c`.
--/
-def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
-  match p with
-  | .num _ => return none
-  | .add k x p =>
-    if let some c := (← get').elimEqs[x]! then
-      return some (k, x, c)
-    else
-      findVarToSubst p
-
-partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := do
+partial def EqCnstr.applySubsts (c : EqCnstr) : GoalM EqCnstr := withIncRecDepth do
   let some (a, x, c₁) ← c.p.findVarToSubst | return c
   trace[grind.cutsat.subst] "{← getVar x}, {← c.pp}, {← c₁.pp}"
   let b := c₁.p.coeff x
@@ -58,16 +46,88 @@ partial def applySubsts (c : EqCnstr) : GoalM EqCnstr := do
   let c ← mkEqCnstr p (.subst x c₁ c)
   applySubsts c
 
+private def updateDvdCnstr (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  let some c' := (← get').dvdCnstrs[y]! | return ()
+  let b := c'.p.coeff x
+  if b == 0 then return ()
+  modify' fun s => { s with dvdCnstrs := s.dvdCnstrs.set y none }
+  let c' ← c'.applyEq a x c b
+  c'.assert
+
+private def split (x : Var) (cs : PArray LeCnstr) : GoalM (PArray LeCnstr × Array (Int × LeCnstr)) := do
+  let mut cs' := {}
+  let mut todo := #[]
+  for c in cs do
+    let b := c.p.coeff x
+    if b == 0 then
+      cs' := cs'.push c
+    else
+      todo := todo.push (b, c)
+  return (cs', todo)
+
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from the inequalities in `todo`.
+`todo` contains pairs of the form `(b, c₂)` where `b` is the coefficient of `x` in `c₂`.
+-/
+private def updateLeCnstrs (a : Int) (x : Var) (c₁ : EqCnstr) (todo : Array (Int × LeCnstr)) : GoalM Unit := do
+  for (b, c₂) in todo do
+    let c₂ ← c₂.applyEq a x c₁ b
+    c₂.assert
+    if (← inconsistent) then return ()
+
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from lower bound inequalities of `y`.
+-/
+private def updateLowers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let (lowers', todo) ← split x (← get').lowers[y]!
+  modify' fun s => { s with lowers := s.lowers.set y lowers' }
+  updateLeCnstrs a x c todo
+
+/--
+Given an equation `c₁` containing `a*x`, eliminate `x` from upper bound inequalities of `y`.
+-/
+private def updateUppers (a : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  if (← inconsistent) then return ()
+  let (uppers', todo) ← split x (← get').uppers[y]!
+  modify' fun s => { s with uppers := s.uppers.set y uppers' }
+  updateLeCnstrs a x c todo
+
+private def updateOccsAt (k : Int) (x : Var) (c : EqCnstr) (y : Var) : GoalM Unit := do
+  updateDvdCnstr k x c y
+  updateLowers k x c y
+  updateUppers k x c y
+
+private def updateOccs (k : Int) (x : Var) (c : EqCnstr) : GoalM Unit := do
+  let ys := (← get').occurs[x]!
+  modify' fun s => { s with occurs := s.occurs.set x {} }
+  updateOccsAt k x c x
+  for y in ys do
+    updateOccsAt k x c y
+
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
-  if (← isInconsistent) then return ()
+  if (← inconsistent) then return ()
   trace[grind.cutsat.assert] "{← c.pp}"
   let c ← c.norm
-  let c ← applySubsts c
-  -- TODO: check coeffsr
+  let c ← c.applySubsts
+  if c.p.isUnsatEq then
+    setInconsistent (.eq c)
+    return ()
+  if c.isTrivial then
+    trace[grind.cutsat.le.trivial] "{← c.pp}"
+    return ()
+  let k := c.p.gcdCoeffs'
+  if c.p.getConst % k > 0 then
+    setInconsistent (.eq c)
+    return ()
+  let c ← if k == 1 then
+    pure c
+  else
+    mkEqCnstr (c.p.div k) (.divCoeffs c)
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
-  -- TODO: eliminate `x` from lowers, uppers, and dvdCnstrs
-  -- TODO: reset `x`s occurrences
+  updateOccs k x c
+  if (← inconsistent) then return ()
   -- assert a divisibility constraint IF `|k| != 1`
   if k.natAbs != 1 then
     let p := c.p.insert (-k) x
@@ -88,11 +148,14 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
 @[export lean_process_new_cutsat_lit]
 def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
   let some k ← getIntValue? ke | return ()
-  let some p := (← get').terms.find? { expr := a } | return ()
-  if k == 0 then
-    (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
+  if let some p := (← get').terms.find? { expr := a } then
+    if k == 0 then
+      (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
+    else
+      -- TODO
+      return ()
   else
-    -- TODO
+    -- TODO: `a` is a variable
     return ()
 
 /-- Different kinds of terms internalized by this module. -/

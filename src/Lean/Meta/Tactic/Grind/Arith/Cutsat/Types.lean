@@ -59,8 +59,20 @@ structure EqCnstr where
 inductive EqCnstrProof where
   | expr (h : Expr)
   | norm (c : EqCnstr)
+  | divCoeffs (c : EqCnstr)
   | subst (x : Var) (c₁ : EqCnstr) (c₂ : EqCnstr)
 end
+
+/--
+A proof of `False`.
+Remark: We will later add support for a backtraking search inside of cutsat.
+-/
+inductive UnsatProof where
+  | dvd (c : DvdCnstr)
+  | le (c : LeCnstr)
+  | eq (c : EqCnstr)
+
+abbrev VarSet := RBTree Var compare
 
 /-- State of the cutsat procedure. -/
 structure State where
@@ -102,7 +114,7 @@ structure State where
   If `x` occurs in `dvdCnstrs[y]`, `lowers[y]`, or `uppers[y]`, then `y` is in `occurs[x]`, but the reverse is not true.
   If `x` is in `elimStack`, then `occurs[x]` is the empty set.
   -/
-  occurs : PArray (PHashSet Var) := {}
+  occurs : PArray VarSet := {}
   /-- Partial assignment being constructed by cutsat. -/
   assignment : PArray Int := {}
   /-- Next unique id for a constraint. -/

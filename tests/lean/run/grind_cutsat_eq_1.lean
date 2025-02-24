@@ -12,5 +12,11 @@ example (a b : Int) (f : Int → Int) (h₁ : f a + b + 3 = 2)  : False := by
   fail_if_success grind
   sorry
 
-example (a b : Int) (_ : 2*a + 3*b = 0) (_ : 2 ∣ 3*b + 1) : False := by
+theorem ex₁ (a b : Int) (_ : 2*a + 3*b = 0) (_ : 2 ∣ 3*b + 1) : False := by
   grind
+
+theorem ex₂ (a b : Int) (_ : 2 ∣ 3*a + 1) (_ : 2*b + 3*a = 0) : False := by
+  grind
+
+#print ex₁
+#print ex₂

@@ -65,7 +65,8 @@ partial def EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr := c'.caching do
   match c'.h with
   | .expr h =>
     return h
-  | .norm _c => throwError "NIY"
+  | .norm c =>
+    return mkApp5 (mkConst ``Int.Linear.eq_norm) (← getContext) (toExpr c.p) (toExpr c'.p) reflBoolTrue (← c.toExprProof)
   | .subst _x _c₁ _c₂  => throwError "NIY"
 
 end

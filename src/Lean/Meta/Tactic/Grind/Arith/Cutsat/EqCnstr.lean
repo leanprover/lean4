@@ -8,8 +8,15 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
+
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
   return { p, h, id := (← mkCnstrId) }
+
+def EqCnstr.norm (c : EqCnstr) : GoalM EqCnstr := do
+  let c ← if c.p.isSorted then
+    pure c
+  else
+    mkEqCnstr c.p.norm (.norm c)
 
 /--
 Selects the variable in the given linear polynomial whose coefficient has the smallest absolute value.
@@ -30,8 +37,22 @@ where
         else
           go k x p
 
+/--
+Given a polynomial `p`, returns `some (x, k, c)` if `p` contains the monomial `k*x`,
+and `x` has been eliminated using the equality `c`.
+-/
+def _root_.Int.Linear.Poly.findVarToSubst (p : Poly) : GoalM (Option (Int × Var × EqCnstr)) := do
+  match p with
+  | .num _ => return none
+  | .add k x p =>
+    if let some c := (← get').elimEqs[x]! then
+      return some (k, x, c)
+    else
+      findVarToSubst p
+
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
+  let c ← c.norm
   -- TODO: apply substitutions
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected

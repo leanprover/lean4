@@ -850,6 +850,12 @@ theorem le_unsat (ctx : Context) (p : Poly) : p.isUnsatLe → p.denote' ctx ≤ 
   have := Int.lt_of_le_of_lt h₂ h₁
   simp at this
 
+theorem eq_norm (ctx : Context) (p₁ p₂ : Poly) (h : p₁.norm == p₂) : p₁.denote' ctx = 0 → p₂.denote' ctx = 0 := by
+  simp at h
+  replace h := congrArg (Poly.denote ctx) h
+  simp at h
+  simp [*]
+
 def Poly.coeff (p : Poly) (x : Var) : Int :=
   match p with
   | .add a y p => bif x == y then a else coeff p x

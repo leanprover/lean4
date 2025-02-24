@@ -26,7 +26,7 @@ typedef struct {
     lean_object *   m_promise_shutdown; // The associated promise for asynchronous results to shutdown the socket.
     lean_object *   m_client;           // Cached client that is going to be used in the next accept.
     lean_object *   m_byte_array;       // The data stored.
-    uint64_t        m_buffer_size;      // The size of the thing that is going to be stored 
+    uint64_t        m_buffer_size;      // The size of the thing that is going to be stored
 } lean_uv_tcp_socket_object;
 
 // =======================================

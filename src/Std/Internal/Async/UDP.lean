@@ -76,14 +76,14 @@ Enables or disables broadcasting for the UDP socket.
 -/
 @[inline]
 def setBroadcast (s : Socket) (enable : Bool) : IO Unit :=
-  s.native.set_broadcast (if enable then 1 else 0)
+  s.native.set_broadcast enable
 
 /--
 Enables or disables multicast loopback for the UDP socket.
 -/
 @[inline]
 def setMulticastLoop (s : Socket) (enable : Bool) : IO Unit :=
-  s.native.set_multicast_loop (if enable then 1 else 0)
+  s.native.set_multicast_loop enable
 
 /--
 Sets the time-to-live (TTL) for multicast packets.

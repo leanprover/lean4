@@ -80,13 +80,13 @@ opaque getsockname (socket : @& Socket) : IO SocketAddress
 Enables or disables broadcasting on a UDP socket.
 -/
 @[extern "lean_uv_udp_set_broadcast"]
-opaque set_broadcast (socket : @& Socket) (on : Int32) : IO Unit
+opaque set_broadcast (socket : @& Socket) (on : Bool) : IO Unit
 
 /--
 Enables or disables multicast loopback for a UDP socket.
 -/
 @[extern "lean_uv_udp_set_multicast_loop"]
-opaque set_multicast_loop (socket : @& Socket) (on : Int32) : IO Unit
+opaque set_multicast_loop (socket : @& Socket) (on : Bool) : IO Unit
 
 /--
 Sets the time-to-live (TTL) value for multicast packets.

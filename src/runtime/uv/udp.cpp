@@ -188,7 +188,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, nullptr));
     }
 
-    // Create the promise for the result of the recv operation.
     lean_object *promise = create_promise();
     udp_socket->m_promise_read = promise;
     udp_socket->m_buffer_size = buffer_size;
@@ -196,7 +195,6 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_recv(b_obj_arg socket, uint64_t 
 
     event_loop_lock(&global_ev);
 
-    // The event loop owns the socket.
     lean_inc(socket);
 
     uv_udp_recv_start(udp_socket->m_uv_udp, [](uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf) {

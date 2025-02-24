@@ -10,6 +10,29 @@ namespace Lean.Meta.Grind.Arith.Cutsat
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
   return { p, h, id := (← mkCnstrId) }
 
+def _root_.Int.Linear.Poly.pickVarToElim? (p : Poly) : Option (Int × Var) :=
+  match p with
+  | .num _ => none
+  | .add k x p => go k x p
+where
+  go (k : Int) (x : Var) (p : Poly) : Int × Var :=
+    if k == 1 || k == -1 then
+      (k, x)
+    else match p with
+      | .num _ => (k, x)
+      | .add k' x' p =>
+        if k'.natAbs < k.natAbs then
+          go k' x' p
+        else
+          go k x p
+
+def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
+  if (← isInconsistent) then return ()
+  trace[grind.cutsat.eq] "{← c.pp}"
+  let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
+  if k.natAbs != 1 then
+
+
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do
   trace[grind.cutsat.eq] "{mkIntEq a b}"
@@ -17,10 +40,14 @@ def processNewEqImpl (a b : Expr) : GoalM Unit := do
   return ()
 
 @[export lean_process_new_cutsat_lit]
-def processNewEqLitImpl (a k : Expr) : GoalM Unit := do
-  trace[grind.cutsat.eq] "{mkIntEq a k}"
-  -- TODO
-  return ()
+def processNewEqLitImpl (a ke : Expr) : GoalM Unit := do
+  let some k ← getIntValue? ke | return ()
+  let some p := (← get').terms.find? { expr := a } | return ()
+  if k == 0 then
+    (← mkEqCnstr p (.expr (← mkEqProof a ke))).assert
+  else
+    -- TODO
+    return ()
 
 /-- Different kinds of terms internalized by this module. -/
 private inductive SupportedTermKind where

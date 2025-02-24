@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
+import Lean.Meta.Tactic.Grind.Arith.Cutsat.DvdCnstr
 
 namespace Lean.Meta.Grind.Arith.Cutsat
 def mkEqCnstr (p : Poly) (h : EqCnstrProof) : GoalM EqCnstr := do
@@ -28,10 +29,21 @@ where
 
 def EqCnstr.assert (c : EqCnstr) : GoalM Unit := do
   if (← isInconsistent) then return ()
+  -- TODO: apply substitutions
   trace[grind.cutsat.eq] "{← c.pp}"
   let some (k, x) := c.p.pickVarToElim? | c.throwUnexpected
+  -- TODO: eliminate `x` from lowers, uppers, and dvdCnstrs
+  -- TODO: reset `x`s occurrences
+  -- assert a divisibility constraint IF `|k| != 1`
   if k.natAbs != 1 then
-
+    let p := c.p.insert (-k) x
+    let d := Int.ofNat k.natAbs
+    let c ← mkDvdCnstr d p (.ofEq x c)
+    c.assert
+  modify' fun s => { s with
+    elimEqs := s.elimEqs.set x (some c)
+    elimStack := x :: s.elimStack
+  }
 
 @[export lean_process_cutsat_eq]
 def processNewEqImpl (a b : Expr) : GoalM Unit := do

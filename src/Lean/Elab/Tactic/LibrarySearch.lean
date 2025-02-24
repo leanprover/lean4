@@ -101,15 +101,10 @@ where
     else
       try
         evalTacticInState initialState suggestion
-      catch exn =>
+      catch _ =>
         let suggestionPretty ← SuggestionText.prettyExtra suggestion
-        let failureKind :=
-          if isAbortTacticException exn then
-            m!"aborted unexpectedly"
-          else
-            m!"failed with the following error:{indentD exn.toMessageData}"
         let msg := m!"found a {if hasMVars then "partial " else ""}proof, but the corresponding tactic\
-                      {indentD suggestionPretty}\n{failureKind}"
+                      {indentD suggestionPretty}\nfailed to compile"
         if errorOnInvalid then throwError msg else logInfo msg
         return
       addExactSuggestion ref proofExpr (addSubgoalsMsg := addSubgoalsMsg)

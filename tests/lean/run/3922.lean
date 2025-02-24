@@ -22,7 +22,7 @@ info: Try this: refine r.symm ?_
 ---
 info: found a partial proof, but the corresponding tactic
   refine r.trans ?_ ?_
-aborted unexpectedly
+failed to compile
 ---
 warning: declaration uses 'sorry'
 -/

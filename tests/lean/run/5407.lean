@@ -23,7 +23,7 @@ theorem odd_iff {n : Nat} : Odd n ↔ n % 2 = 1 := by
 /--
 error: found a proof, but the corresponding tactic
   exact fun a => (fun {n} => odd_iff.mpr) a
-aborted unexpectedly
+failed to compile
 -/
 #guard_msgs in
 example {n : Nat} : n % 2 = 1 → Odd n :=
@@ -55,15 +55,7 @@ inductive EqExplicit {α} : α → α → Prop
 /--
 error: found a proof, but the corresponding tactic
   exact EqExplicit.intro (fun f => (fun g x => g x) f) id rfl
-failed with the following error:
-  application type mismatch
-    EqExplicit.intro (fun f => (fun g x => ?m.5093) f) ?m.5146 rfl
-  argument
-    rfl
-  has type
-    ?m.5160 = ?m.5160 : Prop
-  but is expected to have type
-    (fun f => (fun g x => ?m.5093) f) = ?m.5146 : Prop
+failed to compile
 -/
 #guard_msgs in
 example : EqExplicit (fun (f : α → β) => (fun g x => g x) f) id := by
@@ -78,7 +70,7 @@ info: Try this: refine option1 ?_
 ---
 info: found a partial proof, but the corresponding tactic
   refine option2
-aborted unexpectedly
+failed to compile
 ---
 warning: declaration uses 'sorry'
 -/

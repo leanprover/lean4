@@ -31,7 +31,7 @@ theorem range'_succ (s n step) : range' s (n + 1) step = #[s] ++ range' (s + ste
   simp [List.range'_succ]
 
 @[simp] theorem range'_eq_empty_iff : range' s n step = #[] ↔ n = 0 := by
-  rw [← size_eq_zero, size_range']
+  rw [← size_eq_zero_iff, size_range']
 
 theorem range'_ne_empty_iff (s : Nat) {n step : Nat} : range' s n step ≠ #[] ↔ n ≠ 0 := by
   cases n <;> simp
@@ -136,7 +136,7 @@ theorem range'_eq_map_range (s n : Nat) : range' s n = map (s + ·) (range n) :=
   rw [range_eq_range', map_add_range']; rfl
 
 @[simp] theorem range_eq_empty_iff {n : Nat} : range n = #[] ↔ n = 0 := by
-  rw [← size_eq_zero, size_range]
+  rw [← size_eq_zero_iff, size_range]
 
 theorem range_ne_empty_iff {n : Nat} : range n ≠ #[] ↔ n ≠ 0 := by
   cases n <;> simp

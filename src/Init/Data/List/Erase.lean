@@ -137,7 +137,7 @@ theorem mem_of_mem_eraseP {l : List α} : a ∈ l.eraseP p → a ∈ l := (erase
 @[simp] theorem eraseP_eq_self_iff {p} {l : List α} : l.eraseP p = l ↔ ∀ a ∈ l, ¬ p a := by
   rw [← Sublist.length_eq (eraseP_sublist l), length_eraseP]
   split <;> rename_i h
-  · simp only [any_eq_true, length_eq_zero] at h
+  · simp only [any_eq_true, length_eq_zero_iff] at h
     constructor
     · intro; simp_all [Nat.sub_one_eq_self]
     · intro; obtain ⟨x, m, h⟩ := h; simp_all

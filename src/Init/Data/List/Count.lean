@@ -87,7 +87,7 @@ theorem countP_le_length : countP p l ≤ l.length := by
   countP_pos_iff
 
 @[simp] theorem countP_eq_zero {p} : countP p l = 0 ↔ ∀ a ∈ l, ¬p a := by
-  simp only [countP_eq_length_filter, length_eq_zero, filter_eq_nil_iff]
+  simp only [countP_eq_length_filter, length_eq_zero_iff, filter_eq_nil_iff]
 
 @[simp] theorem countP_eq_length {p} : countP p l = l.length ↔ ∀ a ∈ l, p a := by
   rw [countP_eq_length_filter, filter_length_eq_length]

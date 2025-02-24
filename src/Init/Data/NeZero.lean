@@ -40,3 +40,20 @@ theorem neZero_iff {n : R} : NeZero n ↔ n ≠ 0 :=
 instance {p : Prop} [Decidable p] {n m : Nat} [NeZero n] [NeZero m] :
     NeZero (if p then n else m) := by
   split <;> infer_instance
+
+instance {n m : Nat} [h : NeZero n] : NeZero (n + m) where
+  out :=
+    match n, h, m with
+    | _ + 1, _, 0
+    | _ + 1, _, _ + 1 => fun h => nomatch h
+
+instance {n m : Nat} [h : NeZero m] : NeZero (n + m) where
+  out :=
+    match m, h, n with
+    | _ + 1, _, 0 => fun h => nomatch h
+    | _ + 1, _, _ + 1 => fun h => nomatch h
+
+instance {n m : Nat} [hn : NeZero n] [hm : NeZero m] : NeZero (n * m) where
+  out :=
+    match n, hn, m, hm with
+    | _ + 1, _, _ + 1, _ => fun h => nomatch h

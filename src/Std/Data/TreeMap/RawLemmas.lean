@@ -287,19 +287,19 @@ theorem getElem?_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq
   DTreeMap.Raw.Const.get?_congr h hab
 
 theorem getElem_insert [TransCmp cmp] (h : t.WF) {k a : α} {v : β} {h₁} :
-    get (t.insert k v) a h₁ =
+    (t.insert k v)[a]'h₁ =
       if h₂ : cmp k a = .eq then v
       else get t a (contains_of_contains_insert h h₁ h₂) :=
   DTreeMap.Raw.Const.get_insert h
 
 @[simp]
 theorem getElem_insert_self [TransCmp cmp] (h : t.WF) {k : α} {v : β} :
-    get (t.insert k v) k (contains_insert_self h) = v :=
+    (t.insert k v)[k]'(contains_insert_self h) = v :=
   DTreeMap.Raw.Const.get_insert_self h
 
 @[simp]
 theorem getElem_erase [TransCmp cmp] (h : t.WF) {k a : α} {h'} :
-    get (t.erase k) a h' = t[a]'(contains_of_contains_erase h h') :=
+    (t.erase k)[a]'h' = t[a]'(contains_of_contains_erase h h') :=
   DTreeMap.Raw.Const.get_erase h
 
 theorem getElem?_eq_some_getElem [TransCmp cmp] (h : t.WF) {a : α} {h'} :
@@ -312,20 +312,20 @@ theorem getElem_congr [TransCmp cmp] (h : t.WF) {a b : α} (hab : cmp a b = .eq)
 
 @[simp]
 theorem getElem!_emptyc [TransCmp cmp] [Inhabited β] {a : α} :
-    get! (∅ : Raw α β cmp) a = default :=
-  DTreeMap.Raw.Const.get!_emptyc
+    (∅ : Raw α β cmp)[a]! = default :=
+  DTreeMap.Raw.Const.get!_emptyc (cmp := cmp) (a := a)
 
 theorem getElem!_of_isEmpty [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
     t.isEmpty = true → t[a]! = default :=
   DTreeMap.Raw.Const.get!_of_isEmpty h
 
 theorem getElem!_insert [TransCmp cmp] [Inhabited β] (h : t.WF) {k a : α} {v : β} :
-    get! (t.insert k v) a = if cmp k a = .eq then v else t[a]! :=
+    (t.insert k v)[a]! = if cmp k a = .eq then v else t[a]! :=
   DTreeMap.Raw.Const.get!_insert h
 
 @[simp]
 theorem getElem!_insert_self [TransCmp cmp] [Inhabited β] (h : t.WF) {k : α}
-    {v : β} : get! (t.insert k v) k = v :=
+    {v : β} : (t.insert k v)[k]! = v :=
   DTreeMap.Raw.Const.get!_insert_self h
 
 theorem getElem!_eq_default_of_contains_eq_false [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
@@ -337,12 +337,12 @@ theorem getElem!_eq_default [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
   DTreeMap.Raw.Const.get!_eq_default h
 
 theorem getElem!_erase [TransCmp cmp] [Inhabited β] (h : t.WF) {k a : α} :
-    get! (t.erase k) a = if cmp k a = .eq then default else t[a]! :=
+    (t.erase k)[a]! = if cmp k a = .eq then default else t[a]! :=
   DTreeMap.Raw.Const.get!_erase h
 
 @[simp]
 theorem getElem!_erase_self [TransCmp cmp] [Inhabited β] (h : t.WF) {k : α} :
-    get! (t.erase k) k = default :=
+    (t.erase k)[k]! = default :=
   DTreeMap.Raw.Const.get!_erase_self h
 
 theorem getElem?_eq_some_getElem!_of_contains [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
@@ -366,32 +366,32 @@ theorem getElem!_congr [TransCmp cmp] [Inhabited β] (h : t.WF) {a b : α}
   DTreeMap.Raw.Const.get!_congr h hab
 
 @[simp]
-theorem getElemD_emptyc [TransCmp cmp] {a : α} {fallback : β} :
+theorem getD_emptyc [TransCmp cmp] {a : α} {fallback : β} :
     getD (∅ : Raw α β cmp) a fallback = fallback :=
   DTreeMap.Raw.Const.getD_emptyc
 
-theorem getElemD_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_of_isEmpty [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.isEmpty = true → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_of_isEmpty h
 
-theorem getElemD_insert [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
+theorem getD_insert [TransCmp cmp] (h : t.WF) {k a : α} {fallback v : β} :
     getD (t.insert k v) a fallback = if cmp k a = .eq then v else getD t a fallback :=
   DTreeMap.Raw.Const.getD_insert h
 
 @[simp]
-theorem getElemD_insert_self [TransCmp cmp] (h : t.WF) {k : α} {fallback v : β} :
+theorem getD_insert_self [TransCmp cmp] (h : t.WF) {k : α} {fallback v : β} :
     getD (t.insert k v) k fallback = v :=
   DTreeMap.Raw.Const.getD_insert_self h
 
-theorem getElemD_eq_fallback_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_fallback_of_contains_eq_false [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = false → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_eq_fallback_of_contains_eq_false h
 
-theorem getElemD_eq_fallback [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_fallback [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     ¬ a ∈ t → getD t a fallback = fallback :=
   DTreeMap.Raw.Const.getD_eq_fallback h
 
-theorem getElemD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
+theorem getD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
     getD (t.erase k) a fallback = if cmp k a = .eq then
       fallback
     else
@@ -399,31 +399,31 @@ theorem getElemD_erase [TransCmp cmp] (h : t.WF) {k a : α} {fallback : β} :
   DTreeMap.Raw.Const.getD_erase h
 
 @[simp]
-theorem getElemD_erase_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} :
+theorem getD_erase_self [TransCmp cmp] (h : t.WF) {k : α} {fallback : β} :
     getD (t.erase k) k fallback = fallback :=
   DTreeMap.Raw.Const.getD_erase_self h
 
-theorem getElem?_eq_some_getElemD_of_contains [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElem?_eq_some_getD_of_contains [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     t.contains a = true → get? t a = some (getD t a fallback) :=
   DTreeMap.Raw.Const.get?_eq_some_getD_of_contains h
 
-theorem getElem?_eq_some_getElemD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getElem?_eq_some_getD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     a ∈ t → t[a]? = some (getD t a fallback) :=
   DTreeMap.Raw.Const.get?_eq_some_getD h
 
-theorem getElemD_eq_getElemD_getElem? [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
+theorem getD_eq_getD_getElem? [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} :
     getD t a fallback = t[a]?.getD fallback :=
   DTreeMap.Raw.Const.getD_eq_getD_get? h
 
-theorem getElem_eq_getElemD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} {h'} :
+theorem getElem_eq_getD [TransCmp cmp] (h : t.WF) {a : α} {fallback : β} {h'} :
     t[a]'h' = getD t a fallback :=
   DTreeMap.Raw.Const.get_eq_getD h
 
-theorem getElem!_eq_getElemD_default [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
+theorem getElem!_eq_getD_default [TransCmp cmp] [Inhabited β] (h : t.WF) {a : α} :
     t[a]! = getD t a default :=
   DTreeMap.Raw.Const.get!_eq_getD_default h
 
-theorem getElemD_congr [TransCmp cmp] (h : t.WF) {a b : α} {fallback : β}
+theorem getD_congr [TransCmp cmp] (h : t.WF) {a b : α} {fallback : β}
     (hab : cmp a b = .eq) : getD t a fallback = getD t b fallback :=
   DTreeMap.Raw.Const.getD_congr h hab
 
